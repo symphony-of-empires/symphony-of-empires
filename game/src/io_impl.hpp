@@ -314,7 +314,6 @@ public:
         ::serialize(stream, &obj->target);
         ::serialize(stream, &obj->province);
         ::serialize(stream, &obj->owner);
-        ::serialize(stream, &obj->traits);
         ::serialize(stream, &obj->move_progress);
     }
     static inline void deserialize(Archive& stream, Unit* obj) {
@@ -323,7 +322,6 @@ public:
         ::deserialize(stream, &obj->target);
         ::deserialize(stream, &obj->province);
         ::deserialize(stream, &obj->owner);
-        ::deserialize(stream, &obj->traits);
         ::deserialize(stream, &obj->move_progress);
     }
 };
@@ -333,7 +331,6 @@ class Serializer<Pop> {
 public:
     static inline void serialize(Archive& stream, const Pop* obj) {
         ::serialize(stream, &obj->size);
-        ::serialize(stream, &obj->unemployed);
         ::serialize(stream, &obj->literacy);
         ::serialize(stream, &obj->militancy);
         ::serialize(stream, &obj->con);
@@ -344,10 +341,10 @@ public:
         ::serialize(stream, &obj->type);
         ::serialize(stream, &obj->culture);
         ::serialize(stream, &obj->religion);
+        ::serialize(stream, &obj->ideology_approval);
     }
     static inline void deserialize(Archive& stream, Pop* obj) {
         ::deserialize(stream, &obj->size);
-        ::deserialize(stream, &obj->unemployed);
         ::deserialize(stream, &obj->literacy);
         ::deserialize(stream, &obj->militancy);
         ::deserialize(stream, &obj->con);
@@ -358,6 +355,7 @@ public:
         ::deserialize(stream, &obj->type);
         ::deserialize(stream, &obj->culture);
         ::deserialize(stream, &obj->religion);
+        ::deserialize(stream, &obj->ideology_approval);
     }
 };
 
@@ -438,9 +436,6 @@ public:
         ::serialize(stream, &obj->diplomacy_points);
         ::serialize(stream, &obj->prestige);
 
-        ::serialize(stream, &obj->base_literacy);
-        ::serialize(stream, &obj->is_civilized);
-
         ::serialize(stream, &obj->infamy);
         ::serialize(stream, &obj->military_score);
         ::serialize(stream, &obj->naval_score);
@@ -470,9 +465,6 @@ public:
         ::deserialize(stream, &obj->spherer);
         ::deserialize(stream, &obj->diplomacy_points);
         ::deserialize(stream, &obj->prestige);
-
-        ::deserialize(stream, &obj->base_literacy);
-        ::deserialize(stream, &obj->is_civilized);
 
         ::deserialize(stream, &obj->infamy);
         ::deserialize(stream, &obj->military_score);
@@ -853,9 +845,9 @@ public:
         ::serialize(stream, &obj->sea_level);
         ::serialize(stream, &obj->time);
 
-        for(size_t i = 0; i < obj->width * obj->height; i++) {
-            ::serialize(stream, &obj->tiles[i]);
-        }
+        //for(size_t i = 0; i < obj->width * obj->height; i++) {
+        //    ::serialize(stream, &obj->tiles[i]);
+        //}
 
         const Good::Id n_goods = obj->goods.size();
         ::serialize(stream, &n_goods);
@@ -873,8 +865,6 @@ public:
         ::serialize(stream, &n_provinces);
         const Event::Id n_events = obj->events.size();
         ::serialize(stream, &n_events);
-        const UnitTrait::Id n_unit_traits = obj->unit_traits.size();
-        ::serialize(stream, &n_unit_traits);
         const BuildingType::Id n_building_types = obj->building_types.size();
         ::serialize(stream, &n_building_types);
         const Treaty::Id n_treaties = obj->treaties.size();
@@ -899,7 +889,6 @@ public:
         print_info("  n_nations %zu", obj->nations.size());
         print_info("  n_provinces %zu", obj->provinces.size());
         print_info("  n_events %zu", obj->events.size());
-        print_info("  n_unit_traits %zu", obj->unit_traits.size());
         print_info("  n_outpost_types %zu", obj->building_types.size());
         print_info("  n_treaties %zu", obj->treaties.size());
         print_info("  n_ideologies %zu", obj->ideologies.size());
@@ -938,10 +927,6 @@ public:
             ::serialize(stream, sub_obj);
         }
 
-        for(auto& sub_obj : obj->unit_traits) {
-            ::serialize(stream, sub_obj);
-        }
-
         for(auto& sub_obj : obj->building_types) {
             ::serialize(stream, sub_obj);
         }
@@ -977,10 +962,10 @@ public:
         ::deserialize(stream, &obj->sea_level);
         ::deserialize(stream, &obj->time);
 
-        obj->tiles = new Tile[obj->width * obj->height];
-        for(size_t i = 0; i < obj->width * obj->height; i++) {
-            ::deserialize(stream, &obj->tiles[i]);
-        }
+        //obj->tiles = new Tile[obj->width * obj->height];
+        //for(size_t i = 0; i < obj->width * obj->height; i++) {
+        //    ::deserialize(stream, &obj->tiles[i]);
+        //}
 
         // In order to avoid post-deserialization relational patcher,
         // we will simply allocate everything with "empty" objects,
@@ -993,7 +978,6 @@ public:
         Nation::Id n_nations = deserialize_and_create_list<Nation>(stream, obj);
         Province::Id n_provinces = deserialize_and_create_list<Province>(stream, obj);
         Event::Id n_events = deserialize_and_create_list<Event>(stream, obj);
-        UnitTrait::Id n_unit_traits = deserialize_and_create_list<UnitTrait>(stream, obj);
         BuildingType::Id n_building_types = deserialize_and_create_list<BuildingType>(stream, obj);
         Treaty::Id n_treaties = deserialize_and_create_list<Treaty>(stream, obj);
         Ideology::Id n_ideologies = deserialize_and_create_list<Ideology>(stream, obj);
@@ -1011,7 +995,6 @@ public:
         print_info("  n_nations %zu", obj->nations.size());
         print_info("  n_provinces %zu", obj->provinces.size());
         print_info("  n_events %zu", obj->events.size());
-        print_info("  n_unit_traits %zu", obj->unit_traits.size());
         print_info("  n_outpost_types %zu", obj->building_types.size());
         print_info("  n_treaties %zu", obj->treaties.size());
         print_info("  n_ideologies %zu", obj->ideologies.size());
@@ -1056,11 +1039,6 @@ public:
 
         for(size_t i = 0; i < n_events; i++) {
             auto* sub_obj = obj->events[i];
-            ::deserialize(stream, sub_obj);
-        }
-
-        for(size_t i = 0; i < n_unit_traits; i++) {
-            auto* sub_obj = obj->unit_traits[i];
             ::deserialize(stream, sub_obj);
         }
 

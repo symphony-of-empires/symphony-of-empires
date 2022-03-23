@@ -62,9 +62,6 @@ UnifiedRender::Decimal Province::get_attractiveness(const Pop& pop) const {
         attractive *= scale;
     }
 
-    // Account for literacy difference
-    attractive -= this->owner->base_literacy;
-
     // Account for GDP difference
     attractive -= this->owner->gdp * 0.0001f;
 

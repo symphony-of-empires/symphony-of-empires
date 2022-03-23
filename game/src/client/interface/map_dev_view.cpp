@@ -30,12 +30,10 @@ MapDevView::MapDevView(Map* _map)
 	: UI::Window(0, 0, 512, 128),
 	map{ _map }
 {
-	reload_shader_button = new UI::Button(10, 10, 256, 24, this);
-	reload_shader_button->text("Reload shaders");
-	reload_shader_button->on_click = ([](UI::Widget& w) {
-		MapDevView* state = (MapDevView*)w.parent;
-
-		state->map->reload_shaders();
+	this->reload_shader_button = new UI::Button(10, 10, 256, 24, this);
+	this->reload_shader_button->text("Reload shaders");
+	this->reload_shader_button->on_click = ([this](UI::Widget& w) {
+		this->map->reload_shaders();
 	});
 
 }

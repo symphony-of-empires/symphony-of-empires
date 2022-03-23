@@ -94,7 +94,6 @@ void militancy_update(World& world, Nation* nation) {
         dup_nation->ref_name = nation->ref_name;
         dup_nation->accepted_cultures = nation->accepted_cultures;
         dup_nation->accepted_religions = nation->accepted_religions;
-        dup_nation->base_literacy = nation->base_literacy;
         dup_nation->research = nation->research;
         dup_nation->relations = nation->relations;
         dup_nation->client_hints = nation->client_hints;

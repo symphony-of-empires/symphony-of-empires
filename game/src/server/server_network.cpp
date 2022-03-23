@@ -151,13 +151,15 @@ void Server::net_loop(int id) {
                 case ActionType::UNIT_CHANGE_TARGET: {
                     Unit* unit;
                     ::deserialize(ar, &unit);
-                    if(unit == nullptr)
+                    if(unit == nullptr) {
                         throw ServerException("Unknown unit");
+                    }
 
                     // Must control unit
-                    if(selected_nation != unit->owner)
+                    if(selected_nation != unit->owner) {
                         throw ServerException("Nation does not control unit");
-                    
+                    }
+
                     Province* province;
                     ::deserialize(ar, &province);
                     if(province != nullptr)
@@ -171,23 +173,27 @@ void Server::net_loop(int id) {
                 case ActionType::BUILDING_START_BUILDING_UNIT: {
                     Province* province;
                     ::deserialize(ar, &province);
-                    if(province == nullptr)
+                    if(province == nullptr) {
                         throw ServerException("Unknown province");
+                    }
 
                     BuildingType* building_type;
                     ::deserialize(ar, &building_type);
-                    if(building_type == nullptr)
+                    if(building_type == nullptr) {
                         throw ServerException("Unknown building");
+                    }
 
                     Nation* nation;
                     ::deserialize(ar, &nation);
-                    if(nation == nullptr)
+                    if(nation == nullptr) {
                         throw ServerException("Unknown nation");
+                    }
 
                     UnitType* unit_type;
                     ::deserialize(ar, &unit_type);
-                    if(unit_type == nullptr)
+                    if(unit_type == nullptr) {
                         throw ServerException("Unknown unit type");
+                    }
 
                     // TODO: Find building
                     Building& building = province->get_buildings()[g_world->get_id(*building_type)];
@@ -215,12 +221,14 @@ void Server::net_loop(int id) {
                     Province* province;
                     ::deserialize(ar, &province);
 
-                    if(province == nullptr)
+                    if(province == nullptr) {
                         throw ServerException("Unknown province");
+                    }
 
                     // Must not be already owned
-                    if(province->owner != nullptr)
+                    if(province->owner != nullptr) {
                         throw ServerException("Province already has an owner");
+                    }
 
                     province->owner = selected_nation;
 
@@ -248,8 +256,9 @@ void Server::net_loop(int id) {
 
                     print_info("[%s] approves treaty [%s]? %s!", selected_nation->ref_name.c_str(), treaty->name.c_str(), (approval == TreatyApproval::ACCEPTED) ? "YES" : "NO");
                     
-                    if(!treaty->does_participate(*selected_nation))
+                    if(!treaty->does_participate(*selected_nation)) {
                         throw ServerException("Nation does not participate in treaty");
+                    }
 
                     // Rebroadcast
                     broadcast(packet);
@@ -262,16 +271,20 @@ void Server::net_loop(int id) {
                     ::deserialize(ar, &treaty->sender);
 
                     // Validate data
-                    if(!treaty->clauses.size())
+                    if(!treaty->clauses.size()) {
                         throw ServerException("Clause-less treaty");
-                    if(treaty->sender == nullptr)
+                    }
+
+                    if(treaty->sender == nullptr) {
                         throw ServerException("Treaty has invalid ends");
+                    }
 
                     // Obtain participants of the treaty
                     std::set<Nation*> approver_nations = std::set<Nation*>();
                     for(auto& clause : treaty->clauses) {
-                        if(clause->receiver == nullptr || clause->sender == nullptr)
+                        if(clause->receiver == nullptr || clause->sender == nullptr) {
                             throw ServerException("Invalid clause receiver/sender");
+                        }
 
                         approver_nations.insert(clause->receiver);
                         approver_nations.insert(clause->sender);

@@ -25,9 +25,10 @@
 
 #include <algorithm>
 
+#include "unified_render/print.hpp"
+
 #include "event.hpp"
 #include "world.hpp"
-#include "unified_render/print.hpp"
 #include "nation.hpp"
 
 //

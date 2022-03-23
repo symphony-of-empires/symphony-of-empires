@@ -60,48 +60,43 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
 
     ip_addr_inp = new UI::Input(0, 0, 128, 24, this);
     ip_addr_inp->set_buffer("127.0.0.1");
-    ip_addr_inp->tooltip = new UI::Tooltip(ip_addr_inp, 512, 24);
+    ip_addr_inp->tooltip = new UI::Tooltip(this->ip_addr_inp, 512, 24);
     ip_addr_inp->tooltip->text("IP Address of the server");
 
     username_inp = new UI::Input(0, 24, 512, 24, this);
     username_inp->set_buffer("Player");
-    username_inp->tooltip = new UI::Tooltip(username_inp, 512, 24);
+    username_inp->tooltip = new UI::Tooltip(this->username_inp, 512, 24);
     username_inp->tooltip->text("Your publicly visible username");
 
     conn_btn = new UI::Button(0, 48, 128, 24, this);
     conn_btn->text("Connect");
     conn_btn->on_click = ([this](UI::Widget& w) {
-        auto& gs = this->gs;
-        UnifiedRender::Log::debug("ui", "Okey, connecting to [" + ip_addr_inp->get_buffer() + "]");
+        UnifiedRender::Log::debug("ui", "Okey, connecting to [" + this->ip_addr_inp->get_buffer() + "]");
 
         // TODO: Handle when mods differ (i.e checksum not equal to host)
-        gs.host_mode = false;
+        this->gs.host_mode = false;
         try {
-            gs.client = new Client(gs, this->ip_addr_inp->get_buffer(), 1836);
-            gs.client->username = this->username_inp->get_buffer();
-            gs.client->wait_for_snapshot();
-            gs.in_game = true;
+            this->gs.client = new Client(this->gs, this->ip_addr_inp->get_buffer(), 1836);
+            this->gs.client->username = this->username_inp->get_buffer();
+            this->gs.client->wait_for_snapshot();
+            this->gs.in_game = true;
 
-            gs.ui_ctx->clear();
-            gs.current_mode = MapMode::COUNTRY_SELECT;
-            gs.select_nation = new Interface::LobbySelectView(gs);
+            this->gs.ui_ctx->clear();
+            this->gs.current_mode = MapMode::COUNTRY_SELECT;
+            this->gs.select_nation = new Interface::LobbySelectView(gs);
             return;
+        } catch(UnifiedRender::Networking::SocketException& e) {
+            this->gs.ui_ctx->prompt("Network layer error", e.what());
+        } catch(ClientException& e) {
+            this->gs.ui_ctx->prompt("Client error", e.what());
+        } catch(ServerException& e) {
+            this->gs.ui_ctx->prompt("Server error", e.what());
         }
-        catch(UnifiedRender::Networking::SocketException& e) {
-            gs.ui_ctx->prompt("Network layer error", e.what());
-        }
-        catch(ClientException& e) {
-            gs.ui_ctx->prompt("Client error", e.what());
-        }
-        catch(ServerException& e) {
-            gs.ui_ctx->prompt("Server error", e.what());
-        }
-        delete gs.world;
-        delete gs.client;
+        delete this->gs.client;
     });
 
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
-    close_btn->below_of(*conn_btn);
+    close_btn->below_of(*this->conn_btn);
     close_btn->text("Cancel");
 }
 
@@ -125,7 +120,7 @@ MainMenu::MainMenu(GameState& _gs)
     mipmap_options.wrap_t = GL_CLAMP_TO_EDGE;
 
     auto font = TTF_OpenFont(Path::get("fonts/neon_euler/euler.ttf").c_str(), 20);
-    auto text_color = UnifiedRender::Color(1., 1., 1.);
+    auto text_color = UnifiedRender::Color(1.f, 1.f, 1.f);
 
     this->current_texture = &tex_man->load(Path::get("gfx/ui/bg/main_menu.png"), mipmap_options);
     auto main_menu_border = &tex_man->load(Path::get("gfx/ui/bg/main_menu_border.png"));
@@ -156,8 +151,6 @@ MainMenu::MainMenu(GameState& _gs)
     single_btn->text_align_y = UI::Align::CENTER;
     single_btn->text("Singleplayer");
     single_btn->on_click = ([this](UI::Widget& w) {
-        auto& gs = this->gs;
-
         gs.current_mode = MapMode::COUNTRY_SELECT;
         gs.select_nation = new Interface::LobbySelectView(gs);
 
@@ -192,8 +185,6 @@ MainMenu::MainMenu(GameState& _gs)
     host_btn->text_align_y = UI::Align::CENTER;
     host_btn->text("Host");
     host_btn->on_click = ([this](UI::Widget& w) {
-        auto& gs = this->gs;
-
         gs.current_mode = MapMode::COUNTRY_SELECT;
         gs.select_nation = new Interface::LobbySelectView(gs);
 
@@ -215,8 +206,6 @@ MainMenu::MainMenu(GameState& _gs)
     edit_btn->text_align_y = UI::Align::CENTER;
     edit_btn->text("Editor");
     edit_btn->on_click = ([this](UI::Widget& w) {
-        auto& gs = this->gs;
-
         gs.current_mode = MapMode::COUNTRY_SELECT;
         gs.select_nation = new Interface::LobbySelectView(gs);
 

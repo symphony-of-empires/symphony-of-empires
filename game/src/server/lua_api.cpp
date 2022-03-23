@@ -177,25 +177,6 @@ int LuaAPI::add_req_tech_to_tech(lua_State* L) {
     return 0;
 }
 
-int LuaAPI::add_unit_trait(lua_State* L) {
-    if(g_world->needs_to_sync) {
-        throw LuaAPI::Exception("MP-Sync in this function is not supported");
-    }
-
-    UnitTrait* unit_trait = new UnitTrait();
-
-    unit_trait->ref_name = luaL_checkstring(L, 1);
-    unit_trait->supply_consumption_mod = (lua_tonumber(L, 2));
-    unit_trait->speed_mod = (lua_tonumber(L, 3));
-    unit_trait->max_health_mod = (lua_tonumber(L, 4));
-    unit_trait->defense_mod = (lua_tonumber(L, 5));
-    unit_trait->attack_mod = (lua_tonumber(L, 6));
-
-    g_world->insert(*unit_trait);
-    lua_pushnumber(L, g_world->unit_traits.size() - 1);
-    return 1;
-}
-
 int LuaAPI::add_building_type(lua_State* L) {
     if(g_world->needs_to_sync) {
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
