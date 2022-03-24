@@ -272,8 +272,7 @@ void ai_update_relations(Nation* nation, Nation* other) {
     // Hating a nation a lot will make us reconsider logic military actions and go "purely by instinct"
     // Calculate the times the other nation has our power, multiply that by a factor of 1,000,000
     // If the relation is negative then we divide by the positive sum of it
-    //if(relation.relation < 10.f) {
-    if(1) {
+    if(relation.relation < 0.f) {
         const UnifiedRender::Decimal force_dist = 10.f * ((1.f + other_power) / (1.f + our_power));
         const int chance = std::max<UnifiedRender::Decimal>(0, force_dist - -relation.relation);
         if(std::rand() % (100 + (chance * 100)) == 0) {
