@@ -51,7 +51,7 @@ Nation:get("netherlands"):make_puppet(Nation:get("luxembourg"))
 Nation:get("sweden"):make_puppet(Nation:get("norway"))
 
 Nation:get("russia"):make_puppet(Nation:get("finland"))
-Nation:get("russia"):make_puppet(Nation:get("congress_of_poland"))
+Nation:get("russia"):make_puppet(Nation:get("congress_poland"))
 
 Nation:get("prussia"):make_puppet(Nation:get("salzburg"))
 Nation:get("prussia"):make_puppet(Nation:get("thuringia"))
@@ -90,8 +90,15 @@ Nation:get("prussia"):make_puppet(Nation:get("liechtenstein"))
 Nation:get("prussia"):make_puppet(Nation:get("mecklenburg"))
 Nation:get("prussia"):make_puppet(Nation:get("grand_duchy_of_hesse_and_by_rhine"))
 
---invalid_shit()
+-- Relevant nations to choose
+--Nation:get("united_kingdom"):make_relevant()
+--Nation:get("france"):make_relevant()
+--Nation:get("prussia"):make_relevant()
+--Nation:get("russia"):make_relevant()
+--Nation:get("austria"):make_relevant()
+--Nation:get("united_states"):make_relevant()
 
+--invalid_shit()
 set_date(1825, 0, 0)
 print("********************************************************************************")
 print("Industrial era mod")
