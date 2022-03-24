@@ -21,3 +21,6 @@ UR_HEAP_DEBUG
 
 UR_BACKEND_OPENGL
     If defined it will use the OpenGL backend.
+
+UR_MANAGED_HEAP
+    Enables or disables the custom `new` and `delete` operators

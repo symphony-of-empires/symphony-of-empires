@@ -25,6 +25,7 @@
 
 #pragma once
 
+#ifdef UR_MANAGED_HEAP
 #include <cstddef>
 #include <new>
 
@@ -42,4 +43,5 @@ void operator delete(void* ptr) noexcept;
 #else
 void* operator new[](std::size_t size);
 void operator delete[](void* ptr) noexcept;
+#endif
 #endif

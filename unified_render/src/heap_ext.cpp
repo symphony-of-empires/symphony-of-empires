@@ -23,6 +23,7 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#ifdef UR_MANAGED_HEAP
 #include <cstdlib>
 #include <new>
 
@@ -65,3 +66,4 @@ void* operator new[](std::size_t size) {
 void operator delete[](void* ptr) noexcept {
     std::free(ptr);
 }
+#endif
