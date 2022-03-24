@@ -261,9 +261,9 @@ congress_poland.name = _("Congress Poland")
 congress_poland.adjective = _("Polish")
 congress_poland:register()
 congress_poland:add_accepted_culture(polish)
-congress_poland:add_client_hint(monarchy, _("Congress of Poland"), 0xbf85d6)
-congress_poland:add_client_hint(socialism, _("People's Congress of Poland"), 0xbf85d6)
-congress_poland:add_client_hint(republic, _("Congress of Poland"), 0xbf85d6)
+congress_poland:add_client_hint(monarchy, _("Congress Poland"), 0xbf85d6)
+congress_poland:add_client_hint(socialism, _("People's Congress Poland"), 0xbf85d6)
+congress_poland:add_client_hint(republic, _("Congress Poland"), 0xbf85d6)
 
 -- Releasable nations
 -- Poland can be formed by krakow
