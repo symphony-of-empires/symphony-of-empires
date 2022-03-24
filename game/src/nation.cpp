@@ -98,6 +98,12 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     // Attackers are at war with the defenders
     for(auto& attacker : war->attackers) {
         for(auto& defender : war->defenders) {
+            if(attacker->puppet_master == defender) {
+                attacker->puppet_master = nullptr;
+            } else if(defender->puppet_master == attacker) {
+                defender->puppet_master = nullptr;
+            }
+
             // Bilateral war
             attacker->relations[world.get_id(*defender)].has_war = true;
             attacker->relations[world.get_id(*defender)].has_alliance = false;
