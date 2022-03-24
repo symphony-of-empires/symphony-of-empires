@@ -187,7 +187,7 @@ void Borders::build_borders() {
             p2 = mid_points[j + 1];
             p3 = mid_points[j + 2];
 
-            float step = 1 / 10.;
+            float step = 1 / 1.;
             for(float t = 1.f; t > 0.f; t -= step) {
                 float t0 = t - 2;
                 float t1 = t - 1;
