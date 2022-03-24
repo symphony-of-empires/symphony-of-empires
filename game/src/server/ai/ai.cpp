@@ -370,12 +370,12 @@ void ai_build_commercial(Nation* nation, World* world) {
         }
     }
 
-    print_info("[%s]: Good [%s] seems to be on a high-trend - building industry [%s] which makes that good", nation->ref_name.c_str(), target_good->ref_name.c_str(), type->ref_name.c_str());
-
     // Otherwise -- do not build anything since the highest valued good cannot be produced
     if(type == nullptr) {
         return;
     }
+
+    print_info("[%s]: Good [%s] seems to be on a high-trend - building industry [%s] which makes that good", nation->ref_name.c_str(), target_good->ref_name.c_str(), type->ref_name.c_str());
 
     auto it = std::begin(nation->owned_provinces);
     std::advance(it, std::rand() % nation->owned_provinces.size());
