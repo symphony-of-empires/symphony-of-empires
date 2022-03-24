@@ -256,6 +256,7 @@ void update_factory_production(World& world, Building& building, BuildingType* b
     // TODO set min wages
     float min_wage = 0;
     min_wage = 1.f;
+
     // TODO set output depending on amount of workers
     float total_worker_pop = building.workers;
     min_wage = std::max(min_wage, 0.0001f);
@@ -417,7 +418,36 @@ void Economy::do_tick(World& world) {
             Province* prov = world.provinces[i];            
             Product& product = prov->products[id];
             product.demand = 0;
-            product.supply = 0;
+            //product.supply = 0;
+        }
+    }
+
+    // TODO: We should optimize this later!!!
+    for(const auto& good : world.goods) {
+        for(const auto& province : world.provinces) {
+            auto& product = province->products[world.get_id(*good)];
+            if(province->controller == nullptr) {
+                continue;
+            }
+
+            for(const auto& neighbour : province->neighbours) {
+                auto& other_product = neighbour->products[world.get_id(*good)];
+                if(neighbour->controller == nullptr) {
+                    continue;
+                }
+
+                if(product.supply <= 0.f) {
+                    break;
+                }
+
+                if(other_product.price > product.price) {
+                    // transfer goods to this province
+                    float amount = product.supply / province->neighbours.size();
+                    other_product.supply += amount;
+                    product.supply -= amount;
+                    product.demand += amount;
+                }
+            }
         }
     }
 
