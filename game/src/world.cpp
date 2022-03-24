@@ -736,7 +736,6 @@ void World::do_tick() {
             }
 
             can_take = false;
-
             // If there is another unit of a country we are at war with we will start a battle
             for(auto& war : wars) {
                 if(!war->is_involved(*unit->owner)) {
@@ -775,8 +774,7 @@ void World::do_tick() {
                             battle.attackers.push_back(unit);
                             unit->on_battle = true;
                         }
-                    }
-                    else if(war->is_defender(*unit->owner)) {
+                    } else if(war->is_defender(*unit->owner)) {
                         if(std::find(battle.defenders.begin(), battle.defenders.end(), unit) == battle.defenders.end()) {
                             battle.defenders.push_back(unit);
                             unit->on_battle = true;
@@ -789,15 +787,15 @@ void World::do_tick() {
             }
         }
 
-        if(unit->province->controller != nullptr && can_take) {
-            unit->owner->give_province(*unit->province);
+        // If we are at war with the person we are crossing their provinces at, then take 'em (albeit with resistance)
+        if(can_take && unit->owner->relations[get_id(*unit->province->controller)].has_war) {
+            unit->owner->control_province(*unit->province);
         }
 
         if(unit->target != nullptr && unit->can_move()) {
             if(unit->move_progress) {
                 unit->move_progress -= std::min<UnifiedRender::Decimal>(unit->move_progress, unit->get_speed());
-            }
-            else {
+            } else {
                 unit->set_province(*unit->target);
             }
         }
@@ -808,7 +806,7 @@ void World::do_tick() {
     profiler.start("Battles");
     std::for_each(std::execution::par, wars.begin(), wars.end(), [this](auto& war) {
         for(auto& battle : war->battles) {
-            // assert(battle.province != nullptr);
+            //assert(battle.province != nullptr);
 
             // Battles are stored for historic purpouses
             if(battle.ended) {
@@ -861,6 +859,13 @@ void World::do_tick() {
 
             // Once one side has fallen this battle has ended
             if(battle.defenders.empty() || battle.attackers.empty()) {
+                // Defenders defeated
+                if(battle.defenders.empty()) {
+                    battle.attackers[0]->owner->give_province(battle.province);
+                } else {
+                    battle.defenders[0]->owner->give_province(battle.province);
+                }
+
                 battle.ended = true;
                 continue;
             }
@@ -884,11 +889,9 @@ void World::do_tick() {
             UnifiedRender::Decimal* pts_count;
             if(tech->type == TechnologyType::MILITARY) {
                 pts_count = &mil_research_pts[get_id(*nation)];
-            }
-            else if(tech->type == TechnologyType::NAVY) {
+            } else if(tech->type == TechnologyType::NAVY) {
                 pts_count = &naval_research_pts[get_id(*nation)];
-            }
-            else {
+            } else {
                 continue;
             }
 
@@ -931,36 +934,31 @@ void World::do_tick() {
                     continue;
                 }
                 dyn_clause->enforce();
-            }
-            else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
+            } else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
                 auto dyn_clause = static_cast<TreatyClause::AnexxProvince*>(clause);
                 if(!dyn_clause->in_effect()) {
                     continue;
                 }
                 dyn_clause->enforce();
-            }
-            else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
+            } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
                 auto dyn_clause = static_cast<TreatyClause::LiberateNation*>(clause);
                 if(!dyn_clause->in_effect()) {
                     continue;
                 }
                 dyn_clause->enforce();
-            }
-            else if(clause->type == TreatyClauseType::HUMILIATE) {
+            } else if(clause->type == TreatyClauseType::HUMILIATE) {
                 auto dyn_clause = static_cast<TreatyClause::Humiliate*>(clause);
                 if(!dyn_clause->in_effect()) {
                     continue;
                 }
                 dyn_clause->enforce();
-            }
-            else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
+            } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
                 auto dyn_clause = static_cast<TreatyClause::ImposePolicies*>(clause);
                 if(!dyn_clause->in_effect()) {
                     continue;
                 }
                 dyn_clause->enforce();
-            }
-            else if(clause->type == TreatyClauseType::CEASEFIRE) {
+            } else if(clause->type == TreatyClauseType::CEASEFIRE) {
                 auto dyn_clause = static_cast<TreatyClause::Ceasefire*>(clause);
                 if(!dyn_clause->in_effect()) {
                     continue;
@@ -972,8 +970,7 @@ void World::do_tick() {
             if(clause->sender->ref_name == clause->receiver->ref_name) {
                 if(clause->sender->owned_provinces.empty()) {
                     // TODO: Delete clause->sender (and fixup references) !!!
-                }
-                else if(clause->receiver->owned_provinces.empty()) {
+                } else if(clause->receiver->owned_provinces.empty()) {
                     // TODO: Delete clause->receiver (and fixup references) !!!
                 }
             }

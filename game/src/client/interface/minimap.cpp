@@ -401,6 +401,7 @@ std::vector<ProvinceColor> terrain_color_map_mode(const World& world) {
     province_color.push_back(ProvinceColor((Province::Id)-1, UnifiedRender::Color::rgba32(0x00000000)));
     return province_color;
 }
+
 std::string terrain_type_tooltip(const World& world, const Province::Id id) {
     Province* province = world.provinces[id];
     return province->terrain_type->name;

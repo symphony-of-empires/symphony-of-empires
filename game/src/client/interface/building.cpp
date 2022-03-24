@@ -95,7 +95,7 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
                 o.gs.ui_ctx->prompt("Error", "You do not own any provinces");
                 return;
             }
-
+            
             const BuildingType* building_type = ((BuildingTypeButton&)w).building_type;
             o.province->buildings[o.gs.world->get_id(*building_type)].level += 1;
             g_client->send(Action::BuildingAdd::form_packet(o.province, ((BuildingTypeButton&)w).building_type));

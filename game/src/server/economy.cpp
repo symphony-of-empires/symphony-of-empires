@@ -478,13 +478,12 @@ void Economy::do_tick(World& world) {
                 }
                 update_factory_production(world, building, building_type, province, laborers_payment);
 
-#if 0
                 // Buildings who have fullfilled requirements to build stuff will spawn a unit
                 if(building.working_unit_type != nullptr) {
                     bool can_build_unit = building.can_build_unit();
 
                     // Ratio of health:person is 25, thus making units very expensive
-                    const UnifiedRender::Number army_size = building.working_unit_type->max_health + 100 * 25;
+                    const UnifiedRender::Number army_size = 100;
                     // TODO: Consume special soldier pops instead of farmers!!!
                     auto it = std::find_if(province->pops.begin(), province->pops.end(), [building, army_size](const auto& e) {
                         return (e.size >= army_size && e.type->group == PopGroup::FARMER);
@@ -515,7 +514,6 @@ void Economy::do_tick(World& world) {
                         UnifiedRender::Log::debug("economy", "[" + province->ref_name + "]: Has built an unit of [" + unit->type->ref_name + "]");
                     }
             }
-#endif
 
 #if 0
                 if(1) {

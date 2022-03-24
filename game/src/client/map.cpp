@@ -384,6 +384,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                 selector(world, *this, province);
                 break;
             }
+            
             // Check if we selected an unit
             input.selected_units.clear();
             for(const auto& unit : gs.world->units) {
@@ -425,8 +426,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             break;
         }
         return;
-    }
-    else if(event.button.button == SDL_BUTTON_RIGHT) {
+    } else if(event.button.button == SDL_BUTTON_RIGHT) {
         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
         if(tile.province_id == (Province::Id)-1) {
             return;
@@ -436,9 +436,13 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
 
         //if(input.selected_units.empty()) {
         if(gs.editor) {
-            gs.curr_nation->give_province(*province);
-            province->nuclei.insert(gs.curr_nation);
-            update_mapmode();
+            switch(gs.current_mode) {
+            case MapMode::NORMAL:
+                gs.curr_nation->give_province(*province);
+                province->nuclei.insert(gs.curr_nation);
+                update_mapmode();
+                break;
+            }
         }
 
         for(const auto& unit : input.selected_units) {
