@@ -69,6 +69,7 @@ class GameState;
 union SDL_Event;
 class Input;
 class Rivers;
+class Borders;
 
 static const float GLOBE_RADIUS = 100.f;
 class ProvinceColor {
@@ -91,6 +92,7 @@ class Map {
     // Called to get the provinces info to show in tooltip
     mapmode_tooltip mapmode_tooltip_func;
     Rivers* rivers;
+    Borders* borders;
 
     selector_func selector = nullptr;
     

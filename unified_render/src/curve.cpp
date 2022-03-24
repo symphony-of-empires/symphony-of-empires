@@ -36,12 +36,36 @@
 using namespace UnifiedRender;
 
 Curve::Curve(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width)
-    : points{ points }, normals{ normals }, width{ width }
 {
-    create_line();
+    create_line(points, normals, width);
 };
 
-void Curve::create_line() {
+void Curve::add_line(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width)
+{
+    create_line(points, normals, width);
+}
+
+void Curve::upload()
+{
+    quads = new TriangleList(positions, tex_coords);
+}
+
+void Curve::add_quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4) {
+    positions.push_back(c1);
+    tex_coords.push_back(glm::vec2(0.f, 0.f));
+    positions.push_back(c2);
+    tex_coords.push_back(glm::vec2(0.f, 1.f));
+    positions.push_back(c3);
+    tex_coords.push_back(glm::vec2(1.f, 1.f));
+    positions.push_back(c3);
+    tex_coords.push_back(glm::vec2(1.f, 1.f));
+    positions.push_back(c4);
+    tex_coords.push_back(glm::vec2(1.f, 0.f));
+    positions.push_back(c1);
+    tex_coords.push_back(glm::vec2(0.f, 0.f));
+}
+
+void Curve::create_line(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width) {
     glm::vec3 prev_c1;
     glm::vec3 prev_c2;
     glm::vec3 prev_c3;
@@ -65,8 +89,7 @@ void Curve::create_line() {
             c2 = glm::mix(c2, prev_c4, .5f);
             prev_c3 = c1;
             prev_c4 = c2;
-            UnifiedRender::Quad* quad = new UnifiedRender::Quad(prev_c1, prev_c2, prev_c4, prev_c3);
-            quads.push_back(quad);
+            add_quad(prev_c1, prev_c2, prev_c4, prev_c3);
         }
         glm::vec3 c3 = p2 - ortho * width * 0.5f;
         glm::vec3 c4 = p2 + ortho * width * 0.5f;
@@ -75,14 +98,13 @@ void Curve::create_line() {
         prev_c3 = c3;
         prev_c4 = c4;
     }
-    UnifiedRender::Quad* quad = new UnifiedRender::Quad(prev_c1, prev_c2, prev_c4, prev_c3);
-    quads.push_back(quad);
+    add_quad(prev_c1, prev_c2, prev_c4, prev_c3);
 }
 
 #ifdef UR_BACKEND_OPENGL
 void Curve::draw() {
-    for(auto quad : quads) {
-        quad->draw();
-    }
+    if(!quads)
+        upload();
+    quads->draw();
 }
 #endif

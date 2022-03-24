@@ -65,6 +65,7 @@
 #include "io_impl.hpp"
 #include "action.hpp"
 #include "client/rivers.hpp"
+#include "client/borders.hpp"
 
 void get_blob_bounds(std::set<Province*>* visited_provinces, const Nation& nation, const Province& province, glm::vec2* min_x, glm::vec2* min_y, glm::vec2* max_x, glm::vec2* max_y) {
     // Iterate over all neighbours
@@ -114,6 +115,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     camera = new FlatCamera(glm::vec2(screen_width, screen_height), glm::vec2(world.width, world.height));
 
     rivers = new Rivers();
+    borders = new Borders();
     map_render = new MapRender(world);
 
     // Shader used for drawing the models using custom model render
@@ -620,6 +622,7 @@ void Map::draw(const GameState& gs) {
 
     map_render->draw(camera, view_mode);
     rivers->draw(camera);
+    borders->draw(camera);
 
     // TODO: We need to better this
     obj_shader->use();

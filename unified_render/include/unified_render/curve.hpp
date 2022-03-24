@@ -30,24 +30,28 @@
 #include <glm/mat4x4.hpp>
 
 namespace UnifiedRender {
-    class Quad;
+    class TriangleList;
     namespace OpenGL {
         class Program;
     }
 
     class Curve {
     public:
+        Curve() {};
         Curve(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width);
         // Curve(glm::vec2 p1, glm::vec2 p2, float width);
+
+        void add_line(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width);
+        void upload();
 
 #ifdef UR_BACKEND_OPENGL
         void draw();
 #endif
     private:
-        void create_line();
-        std::vector<glm::vec3> points;
-        std::vector<glm::vec3> normals;
-        float width;
-        std::vector<Quad*> quads;
+        void create_line(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width);
+        void add_quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4);
+        std::vector<glm::vec3> positions;
+        std::vector<glm::vec2> tex_coords;
+        TriangleList* quads = nullptr;
     };
 };
