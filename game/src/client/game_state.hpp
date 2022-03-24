@@ -136,6 +136,8 @@ public:
 
     // Settings
     bool motion_blur = false;
+
+    // Editor options
     bool editor = true;
 };
 

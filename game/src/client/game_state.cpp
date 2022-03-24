@@ -317,7 +317,26 @@ void save(GameState& gs) {
                     it = province->pops.begin();
                     continue;
                 }
+
+                // And if it exceeds 999,999 people, downsize it
+                if(it->size > 999999.f) {
+                    it->size = 100.f;
+                }
+                if(it->literacy > 999999.f) {
+                    it->literacy = 100.f;
+                }
+
                 it++;
+            }
+
+            if(province->terrain_type->is_water_body && (province->controller != nullptr || province->owner != nullptr)) {
+                for(const auto& terrain : gs.world->terrain_types) {
+                    if(terrain->is_water_body) {
+                        continue;
+                    }
+                    province->terrain_type = terrain;
+                    break;
+                }
             }
 
             const uint32_t color = bswap32((province->color & 0x00ffffff) << 8);
@@ -332,7 +351,7 @@ void save(GameState& gs) {
             }
 
             for(const auto& pop : province->pops) {
-                fprintf(fp, "province:add_pop(PopType:get(\"%s\"), Culture:get(\"%s\"), Religion:get(\"%s\"), %zu, %f)\n", pop.type->ref_name.c_str(), pop.culture->ref_name.c_str(), pop.religion->ref_name.c_str(), pop.size, pop.literacy);
+                fprintf(fp, "province:add_pop(PopType:get(\"%s\"), Culture:get(\"%s\"), Religion:get(\"%s\"), %f, %f)\n", pop.type->ref_name.c_str(), pop.culture->ref_name.c_str(), pop.religion->ref_name.c_str(), pop.size, pop.literacy);
             }
 
             for(const auto& nucleus : province->nuclei) {

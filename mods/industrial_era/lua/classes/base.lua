@@ -463,7 +463,7 @@ function Province:new(o)
 	return o
 end
 function Province:register()
-	self.id = add_province(self.ref_name, self.color, self.name)
+	self.id = add_province(self.ref_name, self.color, self.name, self.terrain.id)
 end
 function Province:get(ref_name)
 	o = Province:new()
