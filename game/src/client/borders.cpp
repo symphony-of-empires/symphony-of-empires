@@ -59,6 +59,7 @@ Borders::Borders() {
 class BorderGenerator
 {
     std::unordered_set<int> walked_positions;
+    std::unordered_set<int> walked_paths;
     std::stack<int> unexplored_paths;
     std::stack<int> current_paths;
     std::vector<std::vector<glm::vec3>>& borders;
@@ -73,7 +74,6 @@ class BorderGenerator
             return false;
         }
         int new_index = new_x + new_y * width;
-        if(walked_positions.count(new_index)) return false;
 
         uint32_t color_ul = pixels[new_index];
         uint32_t color_dl = pixels[new_index + width];
@@ -89,16 +89,22 @@ class BorderGenerator
         return false;
     }
 
-    void add_neighbor(int new_x, int new_y, int& connections) {
+    void add_neighbor(int prev_x, int prev_y, int new_x, int new_y, int direction, int& connections) {
         if(check_neighbor(new_x, new_y)) {
+            int old_index = prev_x + prev_y * width;
             int new_index = new_x + new_y * width;
+            int index = 2 * std::min(old_index, new_index) + std::abs(prev_x - new_x);
+            if(walked_paths.count(index)) {
+                return;
+            }
             walked_positions.insert(new_index);
 
             if(connections++ > 1) {
-                unexplored_paths.push(new_index);
+                unexplored_paths.push(old_index);
             }
             else {
                 current_paths.push(new_index);
+                walked_paths.insert(index);
             }
         }
     }
@@ -107,19 +113,20 @@ class BorderGenerator
         int x = current_index % width;
         int y = current_index / width;
         auto& current_river = borders.back();
-        current_river.push_back(glm::vec3(x + 0.5, y + 0.5, -0.05));
+        current_river.push_back(glm::vec3(x + 1.f, y + 1.f, -0.05));
 
-        add_neighbor(x - 1, y + 0, connections);
-        add_neighbor(x + 1, y + 0, connections);
-        add_neighbor(x + 0, y + 1, connections);
-        add_neighbor(x + 0, y - 1, connections);
+        add_neighbor(x, y, x - 1, y + 0, 0, connections);
+        add_neighbor(x, y, x + 1, y + 0, 1, connections);
+        add_neighbor(x, y, x + 0, y + 1, 2, connections);
+        add_neighbor(x, y, x + 0, y - 1, 3, connections);
     }
 
     void clear_stack() {
         while(current_paths.size() || unexplored_paths.size()) {
             while(current_paths.size()) {
-                get_border(current_paths.top(), 0);
+                auto current_path = current_paths.top();
                 current_paths.pop();
+                get_border(current_path, 1);
             }
             if(unexplored_paths.size()) {
                 current_paths.push(unexplored_paths.top());
@@ -138,8 +145,8 @@ public:
         for(int y = 0; y < height; y++) {
             for(int x = 0; x < width; x++) {
                 int curr_index = x + y * width;
-                if(generator.check_neighbor(x, y)) {
-                    generator.get_border(curr_index, 0);
+                if(generator.check_neighbor(x, y) && !generator.walked_positions.count(curr_index)) {
+                    generator.get_border(curr_index, 1);
                     generator.clear_stack();
                 }
             }
