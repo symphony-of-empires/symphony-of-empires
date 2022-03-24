@@ -157,18 +157,12 @@ void militancy_update(World& world, Nation* nation) {
 
 constexpr float production_scaling_speed_factor = 0.5f;
 constexpr float scale_speed(float v) {
-    return 1.0f - production_scaling_speed_factor + production_scaling_speed_factor * v;
+    return 1.f - production_scaling_speed_factor + production_scaling_speed_factor * v;
 }
 // Updates supply, demand, and set wages for workers
-void update_factory_production(World& world,
-    Building& building,
-    BuildingType* building_type,
-    Province* province,
-    float& pop_payment) {
-
-    if(!building_type->is_factory) return;
-
-    if(building_type->outputs.size() == 0) {
+void update_factory_production(World& world, Building& building, BuildingType* building_type, Province* province, float& pop_payment)
+{
+    if(building_type->outputs.empty()) {
         return;
     }
 
@@ -185,7 +179,6 @@ void update_factory_production(World& world,
     min_wage = 1.f;
     // TODO set output depending on amount of workers
     float total_worker_pop = building.workers;
-
     min_wage = std::max(min_wage, 0.0001f);
 
     // TODO add input modifier
@@ -216,8 +209,7 @@ void update_factory_production(World& world,
         if(output_value - inputs_cost > 0) {
             pop_payment += (output_value - inputs_cost);
         }
-    }
-    else {
+    } else {
         pop_payment += min_wage + profit * 0.2f * building.workers;
         // TODO pay profit to owner
     }
@@ -383,12 +375,10 @@ void Economy::do_tick(World& world) {
                         can_build_unit = false;
                     }
 
-                    can_build_unit = true;
                     if(can_build_unit) {
                         // TODO: Maybe delete if size becomes 0?
-                        //UnifiedRender::Number final_size = std::min<UnifiedRender::Number>((*it).size, army_size);
-                        //(*it).size -= final_size;
-                        UnifiedRender::Number final_size = 100;
+                        UnifiedRender::Number final_size = std::min<UnifiedRender::Number>((*it).size, army_size);
+                        (*it).size -= final_size;
 
                         // Spawn a unit
                         Unit* unit = new Unit();
