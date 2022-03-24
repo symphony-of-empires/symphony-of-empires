@@ -316,8 +316,8 @@ upca_socialism
 two_sicilies_fascism
 two_sicilies_communism
 austria_hungary_fascism
-congress_of_poland_fascism
-congress_of_poland_republic
+congress_poland_fascism
+congress_poland_republic
 venice_communism
 	Flags made by TrumpShallPurgetheAnimeScourge
 
@@ -351,5 +351,5 @@ piedmont_sardinia_communism
 	Made by TrumpShallPurgetheAnimeScourge
 	Hammer & Sickle by Nick.mon - Own work, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=31696047
 
-congress_of_poland_monarchy
+congress_poland_monarchy
 	By Barryob - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=3055259
