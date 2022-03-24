@@ -23,10 +23,6 @@
 --      Does important stuff
 -- ----------------------------------------------------------------------------
 
--- TODO: Make Finland a puppet of Russia
--- TODO: Make Norway a puppet of Sweden
--- TODO: Make Poland a puppet of Russia
-
 -----------------------------------------------------------------------
 -- Europe (excluding balkans, scandinavia and the mess that Germany was)
 -- Initial nations
@@ -545,15 +541,6 @@ bavaria:set_ideology(monarchy)
 bavaria:add_accepted_culture(german)
 bavaria:add_client_hint(monarchy, _("Bavaria"), 0x8feff2)
 
-switerzeland = Nation:new{ ref_name = "switerzeland" }
-switerzeland.name = _("Switerzeland")
-switerzeland:register()
-switerzeland:set_ideology(monarchy)
-switerzeland:add_accepted_culture(french)
-switerzeland:add_accepted_culture(german)
-switerzeland:add_accepted_culture(italian)
-switerzeland:add_client_hint(monarchy, _("Switerzeland"), 0xb32609)
-
 hannover = Nation:new{ ref_name = "hannover" }
 hannover.name = _("Hannover")
 hannover:register()
@@ -792,6 +779,7 @@ piedmont_sardinia:add_accepted_culture(italian)
 piedmont_sardinia:add_client_hint(monarchy, _("Piedmont-Sardinia"), 0x873cb5)
 piedmont_sardinia:add_client_hint(fascism, _("Piedmont-Sardinia"), 0x873cb5)
 piedmont_sardinia:add_client_hint(communism, _("Piedmont-Sardinia"), 0x873cb5)
+Nation:get("france"):make_puppet(piedmont_sardinia)
 
 two_sicilies = Nation:new{ ref_name = "two_sicilies" }
 two_sicilies.name = _("Two Sicilies")
@@ -875,6 +863,7 @@ moldavia:set_ideology(monarchy)
 moldavia:add_accepted_culture(romanian)
 moldavia:add_client_hint(socialism, _("Moldavia"), 0xbdc232)
 moldavia:add_client_hint(monarchy, _("Moldavia"), 0xbdc232)
+Nation:get("turkey"):make_puppet(moldavia)
 
 wallachia = Nation:new{ ref_name = "wallachia" }
 wallachia.name = _("Wallachia")
@@ -883,6 +872,7 @@ wallachia:set_ideology(monarchy)
 wallachia:add_accepted_culture(romanian)
 wallachia:add_client_hint(socialism, _("Wallachia"), 0x535096)
 wallachia:add_client_hint(monarchy, _("Wallachia"), 0x535096)
+Nation:get("turkey"):make_puppet(wallachia)
 
 -- Releasable nations
 kosovo = Nation:new{ ref_name = "kosovo" }

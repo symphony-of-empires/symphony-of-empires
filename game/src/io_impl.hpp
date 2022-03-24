@@ -432,7 +432,7 @@ public:
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
         ::serialize(stream, &obj->relations);
-        ::serialize(stream, &obj->spherer);
+        ::serialize(stream, &obj->puppet_master);
         ::serialize(stream, &obj->diplomacy_points);
         ::serialize(stream, &obj->prestige);
 
@@ -462,7 +462,7 @@ public:
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
         ::deserialize(stream, &obj->relations);
-        ::deserialize(stream, &obj->spherer);
+        ::deserialize(stream, &obj->puppet_master);
         ::deserialize(stream, &obj->diplomacy_points);
         ::deserialize(stream, &obj->prestige);
 

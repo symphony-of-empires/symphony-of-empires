@@ -267,7 +267,7 @@ mapmode_generator relations_map_mode(Nation::Id id) {
                 continue;
             }
 
-            if(province.controller == nation) {
+            if(province.controller == nation || province.controller->puppet_master == nation) {
                 UnifiedRender::Color color = UnifiedRender::Color::rgba32(bswap32(0x8080ffff));
                 provinces_color.push_back(ProvinceColor(i, color));
                 continue;
@@ -312,30 +312,32 @@ mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
     form_final:
         str += " ";
 
-        {
-            const NationRelation& rel = province.controller->relations[nation_id];
-            if(rel.has_alliance) {
-                str += "allied with us";
-                return str;
-            }
-            else if(rel.has_war) {
-                str += "at war with us";
-                return str;
-            }
-
-            const std::vector<std::string> rel_lvls ={
-                "nemesis",
-                "enemy",
-                "disrespectful",
-                "neutral",
-                "respectful",
-                "collaborates",
-                "friendly"
-            };
-
-            int idx = ((rel.relation + 200.f) / (200.f * 2.f)) * rel_lvls.size();
-            str += std::to_string(rel.relation) + "(" + rel_lvls[idx % rel_lvls.size()] + ")";
+        if(province.controller->puppet_master == world.nations[nation_id]) {
+            str += "(puppet of " + world.nations[nation_id]->get_client_hint().alt_name + ") ";
+            return str;
         }
+
+        const NationRelation& rel = province.controller->relations[nation_id];
+        if(rel.has_alliance) {
+            str += "allied with " + province.controller->get_client_hint().alt_name;
+            return str;
+        } else if(rel.has_war) {
+            str += "at war with us" + province.controller->get_client_hint().alt_name;
+            return str;
+        }
+
+        const std::vector<std::string> rel_lvls = {
+            "nemesis",
+            "enemy",
+            "disrespectful",
+            "neutral",
+            "respectful",
+            "collaborates",
+            "friendly"
+        };
+
+        int idx = ((rel.relation + 200.f) / (200.f * 2.f)) * rel_lvls.size();
+        str += std::to_string(rel.relation) + "(" + rel_lvls[idx % rel_lvls.size()] + ")";
 
         /*int ally_cnt = 0;
         str += UnifiedRender::Locale::translate("Allied with") + " ";

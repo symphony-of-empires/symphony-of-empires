@@ -23,11 +23,11 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#include "unified_render/log.hpp"
+
 #include "nation.hpp"
 #include "world.hpp"
 #include "technology.hpp"
-
-#include "unified_render/log.hpp"
 
 //
 // Nation
@@ -56,10 +56,17 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
 
     // Recollect offenders
     // - Those who are allied to us
-    for(unsigned int i = 0; i < this->relations.size(); i++) {
+    for(unsigned int i = 0; i < world.nations.size(); i++) {
         const auto& relation = this->relations[i];
-
-        if(relation.has_alliance) {
+        // Our puppets called into war
+        if(world.nations[i]->puppet_master == this) {
+            war->attackers.push_back(world.nations[i]);
+        } else if(relation.has_alliance) {
+            for(unsigned int j = 0; j < world.nations.size(); j++) {
+                if(world.nations[j]->puppet_master == world.nations[i]) {
+                    war->attackers.push_back(world.nations[j]);
+                }
+            }
             war->attackers.push_back(world.nations[i]);
         }
     }
@@ -73,10 +80,16 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     // Recollect defenders
     // - Those who are on a defensive pact with the target
     // - Those who are allied with the target
-    for(unsigned int i = 0; i < nation.relations.size(); i++) {
-        const auto& relation = nation.relations[i];
-
-        if(relation.has_alliance || relation.has_defensive_pact) {
+    for(unsigned int i = 0; i < world.nations.size(); i++) {
+        const auto& relation = this->relations[i];
+        if(world.nations[i]->puppet_master == &nation) {
+            war->defenders.push_back(world.nations[i]);
+        } else if(relation.has_alliance) {
+            for(unsigned int j = 0; j < world.nations.size(); j++) {
+                if(world.nations[j]->puppet_master == world.nations[i]) {
+                    war->defenders.push_back(world.nations[j]);
+                }
+            }
             war->defenders.push_back(world.nations[i]);
         }
     }

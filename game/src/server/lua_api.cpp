@@ -500,7 +500,7 @@ int LuaAPI::get_nation_relation(lua_State* L) {
     Nation& nation = *g_world->nations.at(lua_tonumber(L, 1));
     Nation& other_nation = *g_world->nations.at(lua_tonumber(L, 2));
 
-    NationRelation& relation = nation.relations[g_world->get_id(other_nation)];
+    auto& relation = nation.relations[g_world->get_id(other_nation)];
     lua_pushnumber(L, (relation.relation));
     lua_pushnumber(L, (relation.interest));
     lua_pushboolean(L, relation.has_embargo);
@@ -510,16 +510,16 @@ int LuaAPI::get_nation_relation(lua_State* L) {
     lua_pushboolean(L, relation.has_truce);
     lua_pushboolean(L, relation.has_embassy);
     lua_pushboolean(L, relation.has_military_access);
-    lua_pushboolean(L, relation.has_market_access);
     lua_pushboolean(L, relation.free_supplies);
-    return 11;
+    lua_pushboolean(L, relation.has_market_access);
+    return 12;
 }
 
 int LuaAPI::set_nation_relation(lua_State* L) {
     Nation& nation = *g_world->nations.at(lua_tonumber(L, 1));
     Nation& other_nation = *g_world->nations.at(lua_tonumber(L, 2));
 
-    NationRelation& relation = nation.relations[g_world->get_id(other_nation)];
+    auto& relation = nation.relations[g_world->get_id(other_nation)];
     relation.relation = (lua_tonumber(L, 3));
     relation.interest = (lua_tonumber(L, 4));
     relation.has_embargo = lua_toboolean(L, 5);
@@ -531,6 +531,13 @@ int LuaAPI::set_nation_relation(lua_State* L) {
     relation.has_military_access = lua_toboolean(L, 11);
     relation.has_market_access = lua_toboolean(L, 12);
     relation.free_supplies = lua_toboolean(L, 13);
+    return 0;
+}
+
+int LuaAPI::nation_make_puppet(lua_State* L) {
+    auto& nation = *g_world->nations.at(lua_tonumber(L, 1));
+    auto& other_nation = *g_world->nations.at(lua_tonumber(L, 2));
+    other_nation.puppet_master = &nation;
     return 0;
 }
 

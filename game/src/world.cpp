@@ -156,6 +156,7 @@ World::World() {
     lua_register(lua, "get_nation_relation", LuaAPI::get_nation_relation);
     lua_register(lua, "set_nation_relation", LuaAPI::set_nation_relation);
     lua_register(lua, "nation_declare_unjustified_war", LuaAPI::nation_declare_unjustified_war);
+    lua_register(lua, "nation_make_puppet", LuaAPI::nation_make_puppet);
 
     lua_register(lua, "add_nation_mod", LuaAPI::add_nation_mod);
     lua_register(lua, "get_nation_mod", LuaAPI::get_nation_mod);

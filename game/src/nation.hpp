@@ -60,7 +60,6 @@ public:
     bool has_embassy;
     bool has_military_access;
     bool has_market_access;
-
     // A nation can have free supplies to feed their soldiers
     bool free_supplies;
 };
@@ -140,10 +139,8 @@ public:
     UnifiedRender::Decimal get_luxury_needs_met_mod(void);
     UnifiedRender::Decimal get_immigration_attraction_mod(void);
 
-    // Nation that has us on their sphere of influence
-    // This value is equal to the nation with highest influence on us in the
-    // relations vector
-    Nation* spherer;
+    // Our puppetmaster
+    Nation* puppet_master = nullptr;
 
     // A list with relations with all other nations, mapped 1:1 to the Nation list in the world
     std::vector<NationRelation> relations;

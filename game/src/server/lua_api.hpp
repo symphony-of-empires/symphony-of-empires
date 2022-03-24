@@ -87,6 +87,7 @@ namespace LuaAPI {
     int get_nation_policies(lua_State* L);
     int set_nation_policies(lua_State* L);
     int set_nation_ideology(lua_State* L);
+    int nation_make_puppet(lua_State* L);
     int nation_declare_unjustified_war(lua_State* L);
 
     int get_nation_relation(lua_State* L);
