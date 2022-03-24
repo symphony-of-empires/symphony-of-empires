@@ -49,6 +49,7 @@
 #include "unified_render/framebuffer.hpp"
 #include "unified_render/model.hpp"
 #include "unified_render/serializer.hpp"
+#include "unified_render/locale.hpp"
 
 #include "client/map.hpp"
 #include "client/map_render.hpp"
@@ -192,7 +193,7 @@ void Map::create_labels() {
         glm::vec3 top_dir = camera->get_tile_world_pos(glm::vec2(mid_point.x, mid_point.y - 1.f));
         top_dir = top_dir - center;
 
-        auto* label = map_font->gen_text(province->name, top_dir, right_dir, width);
+        auto* label = map_font->gen_text(UnifiedRender::Locale::translate(province->name), top_dir, right_dir, width);
         label->model = glm::translate(label->model, center);
         province_labels.push_back(label);
     }
@@ -204,7 +205,7 @@ void Map::create_labels() {
     nation_labels.clear();
     for(const auto& nation : world.nations) {
         if(!nation->exists()) {
-            auto* label = map_font->gen_text(nation->get_client_hint().alt_name, glm::vec3(-10.f), glm::vec3(-5.f), 1.f);
+            auto* label = map_font->gen_text(UnifiedRender::Locale::translate(nation->get_client_hint().alt_name), glm::vec3(-10.f), glm::vec3(-5.f), 1.f);
             nation_labels.push_back(label);
             continue;
         }
@@ -267,7 +268,7 @@ void Map::create_labels() {
             angle += M_PI;
         }
 
-        auto* label = map_font->gen_text(nation->get_client_hint().alt_name, top_dir, right_dir, width, 15.f);
+        auto* label = map_font->gen_text(UnifiedRender::Locale::translate(nation->get_client_hint().alt_name), top_dir, right_dir, width, 15.f);
         label->model = glm::translate(label->model, center);
         label->model = glm::rotate(label->model, angle, normal);
         nation_labels.push_back(label);

@@ -717,8 +717,8 @@ void main_loop(GameState& gs) {
 void start_client(int, char**) {
     GameState gs{};
 
-    if(1) {
-        FILE* fp = fopen(Path::get("locale/ko/main.po").c_str(), "rt");
+    if(0) {
+        FILE* fp = fopen(Path::get("locale/es/main.po").c_str(), "rt");
         if(fp != nullptr) {
             char* tmp = new char[1000];
             while(fgets(tmp, 1000, fp) != nullptr) {
