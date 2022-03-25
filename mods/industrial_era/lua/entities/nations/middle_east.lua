@@ -93,3 +93,57 @@ nation.adjective = _("Dhalian")
 nation:register()
 nation:add_accepted_culture(arabic)
 nation:add_client_hint(monarchy, _("Dhale"), 0xff00d0)
+
+nation = Nation:new{ ref_name = "yafa", name = _("Yafa") }
+nation.adjective = _("Yafanian")
+nation:register()
+nation:add_accepted_culture(arabic)
+nation:add_client_hint(monarchy, _("Yafa"), 0x9D7DED)
+
+nation = Nation:new{ ref_name = "beda", name = _("Beda") }
+nation.adjective = _("Bedan")
+nation:register()
+nation:add_accepted_culture(arabic)
+nation:add_client_hint(monarchy, _("Beda"), 0x2C5C89)
+
+nation = Nation:new{ ref_name = "audhali", name = _("Audhali") }
+nation.adjective = _("Audhali")
+nation:register()
+nation:add_accepted_culture(arabic)
+nation:add_client_hint(monarchy, _("Audhali"), 0x2C8931)
+
+nation = Nation:new{ ref_name = "atifi", name = _("Atifi") }
+nation.adjective = _("Atifi")
+nation:register()
+nation:add_accepted_culture(arabic)
+nation:add_client_hint(monarchy, _("Atifi"), 0x9DB4AD)
+
+nation = Nation:new{ ref_name = "kaluli", name = _("Kaluli") }
+nation.adjective = _("Kaluli")
+nation:register()
+nation:add_accepted_culture(arabic)
+nation:add_client_hint(monarchy, _("Kaluli"), 0x652A7F)
+
+nation = Nation:new{ ref_name = "aghbari", name = _("Aghbari") }
+nation.adjective = _("Aghbari")
+nation:register()
+nation:add_accepted_culture(arabic)
+nation:add_client_hint(monarchy, _("Aghbari"), 0xAE28E8)
+
+nation = Nation:new{ ref_name = "barhimi", name = _("Barhimi") }
+nation.adjective = _("Barhimi")
+nation:register()
+nation:add_accepted_culture(arabic)
+nation:add_client_hint(monarchy, _("Barhimi"), 0x2875E8)
+
+nation = Nation:new{ ref_name = "aqrabi", name = _("Aqrabi") }
+nation.adjective = _("Aqrabi")
+nation:register()
+nation:add_accepted_culture(arabic)
+nation:add_client_hint(monarchy, _("Aqrabi"), 0xBC4721)
+
+nation = Nation:new{ ref_name = "rujai", name = _("Rujai") }
+nation.adjective = _("Rujai")
+nation:register()
+nation:add_accepted_culture(arabic)
+nation:add_client_hint(monarchy, _("Rujai"), 0xE32764)

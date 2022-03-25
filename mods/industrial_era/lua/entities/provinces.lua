@@ -424,8 +424,8 @@ province:add_pop(PopType:get("intellectual"), Culture:get("arabic"), Religion:ge
 province:add_pop(PopType:get("laborer"), Culture:get("arabic"), Religion:get("islamic"), 111.000000, 110.000000)
 province:add_nucleus(Nation:get("tunis"))
 province:add_nucleus(Nation:get("arabia"))
-province:add_nucleus(Nation:get("zaidi_imamate"))
 province:add_nucleus(Nation:get("najran"))
+province:add_nucleus(Nation:get("zaidi_imamate"))
 province:give_to(Nation:get("tunis"))
 province = Province:new{ ref_name = "monastir", name = _("Monastir"), color = 0x32cd60, terrain = TerrainType:get("plains") }
 province:register()
@@ -28273,8 +28273,10 @@ province:register()
 province:update_building(BuildingType:get("sulfur_mine"), 1.000000)
 province:add_nucleus(Nation:get("bolivia"))
 province:give_to(Nation:get("bolivia"))
-province = Province:new{ ref_name = "province_f4bff00", name = _("Province_ff4b0f"), color = 0xff4b0f, terrain = TerrainType:get("deepsea") }
+province = Province:new{ ref_name = "province_f4bff00", name = _("Province_ff4b0f"), color = 0xff4b0f, terrain = TerrainType:get("plains") }
 province:register()
+province:add_nucleus(Nation:get("yafa"))
+province:give_to(Nation:get("yafa"))
 province = Province:new{ ref_name = "province_1511ff00", name = _("Province_ff1115"), color = 0xff1115, terrain = TerrainType:get("deepsea") }
 province:register()
 province = Province:new{ ref_name = "province_1c89ff00", name = _("Province_ff891c"), color = 0xff891c, terrain = TerrainType:get("deepsea") }
@@ -28572,8 +28574,6 @@ province = Province:new{ ref_name = "province_20fcbb00", name = _("Province_bbfc
 province:register()
 province = Province:new{ ref_name = "province_23ecff00", name = _("Province_ffec23"), color = 0xffec23, terrain = TerrainType:get("plains") }
 province:register()
-province:add_nucleus(Nation:get("dhale"))
-province:give_to(Nation:get("dhale"))
 province = Province:new{ ref_name = "province_23ff6c00", name = _("Province_6cff23"), color = 0x6cff23, terrain = TerrainType:get("deepsea") }
 province:register()
 province = Province:new{ ref_name = "province_24213f00", name = _("Province_3f2124"), color = 0x3f2124, terrain = TerrainType:get("plains") }
@@ -28864,8 +28864,10 @@ province = Province:new{ ref_name = "province_40c3e300", name = _("Province_e3c3
 province:register()
 province = Province:new{ ref_name = "province_40c84900", name = _("Province_49c840"), color = 0x49c840, terrain = TerrainType:get("deepsea") }
 province:register()
-province = Province:new{ ref_name = "province_40d0a600", name = _("Province_a6d040"), color = 0xa6d040, terrain = TerrainType:get("deepsea") }
+province = Province:new{ ref_name = "province_40d0a600", name = _("Province_a6d040"), color = 0xa6d040, terrain = TerrainType:get("plains") }
 province:register()
+province:add_nucleus(Nation:get("mahra"))
+province:give_to(Nation:get("mahra"))
 province = Province:new{ ref_name = "province_40d13700", name = _("Province_37d140"), color = 0x37d140, terrain = TerrainType:get("plains") }
 province:register()
 province:add_nucleus(Nation:get("qing"))
@@ -28934,8 +28936,10 @@ province = Province:new{ ref_name = "province_40ffff00", name = _("Province_ffff
 province:register()
 province = Province:new{ ref_name = "province_41332e00", name = _("Province_2e3341"), color = 0x2e3341, terrain = TerrainType:get("deepsea") }
 province:register()
-province = Province:new{ ref_name = "province_42ff8700", name = _("Province_87ff42"), color = 0x87ff42, terrain = TerrainType:get("deepsea") }
+province = Province:new{ ref_name = "province_42ff8700", name = _("Province_87ff42"), color = 0x87ff42, terrain = TerrainType:get("plains") }
 province:register()
+province:add_nucleus(Nation:get("yafa"))
+province:give_to(Nation:get("yafa"))
 province = Province:new{ ref_name = "province_49307000", name = _("Province_703049"), color = 0x703049, terrain = TerrainType:get("plains") }
 province:register()
 province:add_pop(PopType:get("burgeoise"), Culture:get("ukrainian"), Religion:get("protestant"), 100.000000, 100.000000)
@@ -29342,8 +29346,10 @@ province = Province:new{ ref_name = "province_7f648600", name = _("Province_8664
 province:register()
 province = Province:new{ ref_name = "province_7fbbb900", name = _("Province_b9bb7f"), color = 0xb9bb7f, terrain = TerrainType:get("deepsea") }
 province:register()
-province = Province:new{ ref_name = "province_7ff4ff00", name = _("Province_fff47f"), color = 0xfff47f, terrain = TerrainType:get("deepsea") }
+province = Province:new{ ref_name = "province_7ff4ff00", name = _("Province_fff47f"), color = 0xfff47f, terrain = TerrainType:get("plains") }
 province:register()
+province:add_nucleus(Nation:get("yafa"))
+province:give_to(Nation:get("yafa"))
 province = Province:new{ ref_name = "province_7fffdd00", name = _("Province_ddff7f"), color = 0xddff7f, terrain = TerrainType:get("deepsea") }
 province:register()
 province = Province:new{ ref_name = "province_80000000", name = _("Province_000080"), color = 0x80, terrain = TerrainType:get("deepsea") }
@@ -29667,8 +29673,10 @@ province = Province:new{ ref_name = "province_80ffff00", name = _("Province_ffff
 province:register()
 province = Province:new{ ref_name = "province_82ff8400", name = _("Province_84ff82"), color = 0x84ff82, terrain = TerrainType:get("deepsea") }
 province:register()
-province = Province:new{ ref_name = "province_82ffee00", name = _("Province_eeff82"), color = 0xeeff82, terrain = TerrainType:get("deepsea") }
+province = Province:new{ ref_name = "province_82ffee00", name = _("Province_eeff82"), color = 0xeeff82, terrain = TerrainType:get("plains") }
 province:register()
+province:add_nucleus(Nation:get("yafa"))
+province:give_to(Nation:get("yafa"))
 province = Province:new{ ref_name = "province_8398ff00", name = _("Province_ff9883"), color = 0xff9883, terrain = TerrainType:get("deepsea") }
 province:register()
 province = Province:new{ ref_name = "province_853fff00", name = _("Province_ff3f85"), color = 0xff3f85, terrain = TerrainType:get("plains") }
@@ -30154,6 +30162,8 @@ province = Province:new{ ref_name = "province_bd5bff00", name = _("Province_ff5b
 province:register()
 province = Province:new{ ref_name = "province_bdffba00", name = _("Province_baffbd"), color = 0xbaffbd, terrain = TerrainType:get("deepsea") }
 province:register()
+province:add_nucleus(Nation:get("rujai"))
+province:give_to(Nation:get("rujai"))
 province = Province:new{ ref_name = "province_bfd7ff00", name = _("Province_ffd7bf"), color = 0xffd7bf, terrain = TerrainType:get("plains") }
 province:register()
 province:add_nucleus(Nation:get("france"))
@@ -30502,6 +30512,8 @@ province:add_nucleus(Nation:get("usa"))
 province:give_to(Nation:get("usa"))
 province = Province:new{ ref_name = "province_c5ff8e00", name = _("Province_8effc5"), color = 0x8effc5, terrain = TerrainType:get("deepsea") }
 province:register()
+province:add_nucleus(Nation:get("barhimi"))
+province:give_to(Nation:get("barhimi"))
 province = Province:new{ ref_name = "province_c7ff7500", name = _("Province_75ffc7"), color = 0x75ffc7, terrain = TerrainType:get("deepsea") }
 province:register()
 province = Province:new{ ref_name = "province_c9e7ff00", name = _("Province_ffe7c9"), color = 0xffe7c9, terrain = TerrainType:get("plains") }
@@ -30510,6 +30522,8 @@ province:add_nucleus(Nation:get("oman"))
 province:give_to(Nation:get("oman"))
 province = Province:new{ ref_name = "province_c9ff9300", name = _("Province_93ffc9"), color = 0x93ffc9, terrain = TerrainType:get("deepsea") }
 province:register()
+province:add_nucleus(Nation:get("aqrabi"))
+province:give_to(Nation:get("aqrabi"))
 province = Province:new{ ref_name = "province_ca2bff00", name = _("Province_ff2bca"), color = 0xff2bca, terrain = TerrainType:get("plains") }
 province:register()
 province:add_nucleus(Nation:get("france"))
@@ -30520,8 +30534,10 @@ province = Province:new{ ref_name = "province_ccff7a00", name = _("Province_7aff
 province:register()
 province:add_nucleus(Nation:get("france"))
 province:give_to(Nation:get("france"))
-province = Province:new{ ref_name = "province_cdff8700", name = _("Province_87ffcd"), color = 0x87ffcd, terrain = TerrainType:get("deepsea") }
+province = Province:new{ ref_name = "province_cdff8700", name = _("Province_87ffcd"), color = 0x87ffcd, terrain = TerrainType:get("plains") }
 province:register()
+province:add_nucleus(Nation:get("yafa"))
+province:give_to(Nation:get("yafa"))
 province = Province:new{ ref_name = "province_d17cff00", name = _("Province_ff7cd1"), color = 0xff7cd1, terrain = TerrainType:get("plains") }
 province:register()
 province:add_nucleus(Nation:get("wahidi"))
@@ -30549,6 +30565,8 @@ province:give_to(Nation:get("aulaqi"))
 Nation:get("aulaqi"):set_capital(province)
 province = Province:new{ ref_name = "province_d8ff5900", name = _("Province_59ffd8"), color = 0x59ffd8, terrain = TerrainType:get("deepsea") }
 province:register()
+province:add_nucleus(Nation:get("kaluli"))
+province:give_to(Nation:get("kaluli"))
 province = Province:new{ ref_name = "province_deb7ff00", name = _("Province_ffb7de"), color = 0xffb7de, terrain = TerrainType:get("deepsea") }
 province:register()
 province = Province:new{ ref_name = "province_deff9100", name = _("Province_91ffde"), color = 0x91ffde, terrain = TerrainType:get("plains") }
@@ -30940,12 +30958,18 @@ province:register()
 province:add_nucleus(Nation:get("tamim"))
 province:give_to(Nation:get("tamim"))
 Nation:get("tamim"):set_capital(province)
-province = Province:new{ ref_name = "province_ff3d9400", name = _("Province_943dff"), color = 0x943dff, terrain = TerrainType:get("deepsea") }
+province = Province:new{ ref_name = "province_ff3d9400", name = _("Province_943dff"), color = 0x943dff, terrain = TerrainType:get("plains") }
 province:register()
-province = Province:new{ ref_name = "province_ff3dae00", name = _("Province_ae3dff"), color = 0xae3dff, terrain = TerrainType:get("deepsea") }
+province:add_nucleus(Nation:get("dhale"))
+province:give_to(Nation:get("dhale"))
+province = Province:new{ ref_name = "province_ff3dae00", name = _("Province_ae3dff"), color = 0xae3dff, terrain = TerrainType:get("plains") }
 province:register()
+province:add_nucleus(Nation:get("yafa"))
+province:give_to(Nation:get("yafa"))
 province = Province:new{ ref_name = "province_ff3fa500", name = _("Province_a53fff"), color = 0xa53fff, terrain = TerrainType:get("deepsea") }
 province:register()
+province:add_nucleus(Nation:get("atifi"))
+province:give_to(Nation:get("atifi"))
 province = Province:new{ ref_name = "province_ff463f00", name = _("Province_3f46ff"), color = 0x3f46ff, terrain = TerrainType:get("plains") }
 province:register()
 province:add_nucleus(Nation:get("france"))
@@ -30967,8 +30991,11 @@ province:add_nucleus(Nation:get("france"))
 province:give_to(Nation:get("france"))
 province = Province:new{ ref_name = "province_ff54b400", name = _("Province_b454ff"), color = 0xb454ff, terrain = TerrainType:get("deepsea") }
 province:register()
-province = Province:new{ ref_name = "province_ff596f00", name = _("Province_6f59ff"), color = 0x6f59ff, terrain = TerrainType:get("deepsea") }
+province = Province:new{ ref_name = "province_ff596f00", name = _("Province_6f59ff"), color = 0x6f59ff, terrain = TerrainType:get("plains") }
 province:register()
+province:add_nucleus(Nation:get("audhali"))
+province:give_to(Nation:get("audhali"))
+Nation:get("audhali"):set_capital(province)
 province = Province:new{ ref_name = "province_ff5b6e00", name = _("Province_6e5bff"), color = 0x6e5bff, terrain = TerrainType:get("deepsea") }
 province:register()
 province = Province:new{ ref_name = "province_ff5bb000", name = _("Province_b05bff"), color = 0xb05bff, terrain = TerrainType:get("plains") }
@@ -30981,8 +31008,10 @@ province = Province:new{ ref_name = "province_ff614200", name = _("Province_4261
 province:register()
 province:add_nucleus(Nation:get("algeirs"))
 province:give_to(Nation:get("algeirs"))
-province = Province:new{ ref_name = "province_ff668200", name = _("Province_8266ff"), color = 0x8266ff, terrain = TerrainType:get("deepsea") }
+province = Province:new{ ref_name = "province_ff668200", name = _("Province_8266ff"), color = 0x8266ff, terrain = TerrainType:get("plains") }
 province:register()
+province:add_nucleus(Nation:get("yafa"))
+province:give_to(Nation:get("yafa"))
 province = Province:new{ ref_name = "province_ff687a00", name = _("Province_7a68ff"), color = 0x7a68ff, terrain = TerrainType:get("deepsea") }
 province:register()
 province = Province:new{ ref_name = "province_ff68c700", name = _("Province_c768ff"), color = 0xc768ff, terrain = TerrainType:get("deepsea") }
@@ -31027,14 +31056,18 @@ province:register()
 province:add_nucleus(Nation:get("france"))
 province:add_nucleus(Nation:get("algeirs"))
 province:give_to(Nation:get("algeirs"))
-province = Province:new{ ref_name = "province_ff8c9500", name = _("Province_958cff"), color = 0x958cff, terrain = TerrainType:get("deepsea") }
+province = Province:new{ ref_name = "province_ff8c9500", name = _("Province_958cff"), color = 0x958cff, terrain = TerrainType:get("plains") }
 province:register()
+province:add_nucleus(Nation:get("yafa"))
+province:give_to(Nation:get("yafa"))
 province = Province:new{ ref_name = "province_ff907500", name = _("Province_7590ff"), color = 0x7590ff, terrain = TerrainType:get("plains") }
 province:register()
 province:add_nucleus(Nation:get("algeirs"))
 province:give_to(Nation:get("algeirs"))
 province = Province:new{ ref_name = "province_ff924f00", name = _("Province_4f92ff"), color = 0x4f92ff, terrain = TerrainType:get("deepsea") }
 province:register()
+province:add_nucleus(Nation:get("aghbari"))
+province:give_to(Nation:get("aghbari"))
 province = Province:new{ ref_name = "province_ff93f900", name = _("Province_f993ff"), color = 0xf993ff, terrain = TerrainType:get("deepsea") }
 province:register()
 province = Province:new{ ref_name = "province_ff999c00", name = _("Province_9c99ff"), color = 0x9c99ff, terrain = TerrainType:get("deepsea") }
@@ -31100,8 +31133,10 @@ province = Province:new{ ref_name = "province_ffd4bf00", name = _("Province_bfd4
 province:register()
 province = Province:new{ ref_name = "province_ffd56d00", name = _("Province_6dd5ff"), color = 0x6dd5ff, terrain = TerrainType:get("deepsea") }
 province:register()
-province = Province:new{ ref_name = "province_ffd7b700", name = _("Province_b7d7ff"), color = 0xb7d7ff, terrain = TerrainType:get("deepsea") }
+province = Province:new{ ref_name = "province_ffd7b700", name = _("Province_b7d7ff"), color = 0xb7d7ff, terrain = TerrainType:get("plains") }
 province:register()
+province:add_nucleus(Nation:get("yafa"))
+province:give_to(Nation:get("yafa"))
 province = Province:new{ ref_name = "province_ffdee300", name = _("Province_e3deff"), color = 0xe3deff, terrain = TerrainType:get("deepsea") }
 province:register()
 province = Province:new{ ref_name = "province_ffebce00", name = _("Province_ceebff"), color = 0xceebff, terrain = TerrainType:get("deepsea") }
@@ -31110,14 +31145,20 @@ province = Province:new{ ref_name = "province_ffef6800", name = _("Province_68ef
 province:register()
 province = Province:new{ ref_name = "province_fff0e200", name = _("Province_e2f0ff"), color = 0xe2f0ff, terrain = TerrainType:get("deepsea") }
 province:register()
-province = Province:new{ ref_name = "province_fff1b500", name = _("Province_b5f1ff"), color = 0xb5f1ff, terrain = TerrainType:get("deepsea") }
+province = Province:new{ ref_name = "province_fff1b500", name = _("Province_b5f1ff"), color = 0xb5f1ff, terrain = TerrainType:get("plains") }
 province:register()
+province:add_nucleus(Nation:get("beda"))
+province:give_to(Nation:get("beda"))
+Nation:get("beda"):set_capital(province)
 province = Province:new{ ref_name = "province_fff2bf00", name = _("Province_bff2ff"), color = 0xbff2ff, terrain = TerrainType:get("deepsea") }
 province:register()
 province = Province:new{ ref_name = "province_fffc8c00", name = _("Province_8cfcff"), color = 0x8cfcff, terrain = TerrainType:get("deepsea") }
 province:register()
-province = Province:new{ ref_name = "province_ffff9b00", name = _("Province_9bffff"), color = 0x9bffff, terrain = TerrainType:get("deepsea") }
+province = Province:new{ ref_name = "province_ffff9b00", name = _("Province_9bffff"), color = 0x9bffff, terrain = TerrainType:get("plains") }
 province:register()
+province:add_nucleus(Nation:get("yafa"))
+province:give_to(Nation:get("yafa"))
+Nation:get("yafa"):set_capital(province)
 province = Province:new{ ref_name = "province_ffffff00", name = _("Global land"), color = 0xffffff, terrain = TerrainType:get("deepsea") }
 province:register()
 province = Province:new{ ref_name = "province_00000000009B9DCD", name = _("Province_00000000009B9DCD"), color = 0x9b9dcd, terrain = TerrainType:get("plains") }
@@ -31135,7 +31176,7 @@ province = Province:new{ ref_name = "province_8cff9a", name = _("Province_8cff9a
 province:register()
 province:add_nucleus(Nation:get("oman"))
 province:give_to(Nation:get("oman"))
-province = Province:new{ ref_name = "province_8cff9b", name = _("Province_8cff9b"), color = 0x8cff9b, terrain = TerrainType:get("deepsea") }
+province = Province:new{ ref_name = "province_8cff9b", name = _("Province_8cff9b"), color = 0x8cff9b, terrain = TerrainType:get("plains") }
 province:register()
 province:add_nucleus(Nation:get("kasadi"))
 province:give_to(Nation:get("kasadi"))
