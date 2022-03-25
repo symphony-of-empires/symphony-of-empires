@@ -245,10 +245,12 @@ void Map::create_labels() {
 #endif
 
         glm::vec2 lab_min, lab_max;
-        lab_min.x = min_point_x.x;
-        lab_min.y = min_point_x.y;
-        lab_max.x = max_point_x.x;
-        lab_max.y = max_point_x.y;
+
+        glm::vec2 center_1 = (max_point_x + max_point_y + min_point_y) / 3.f;
+        glm::vec2 center_2 = (max_point_y + min_point_x + min_point_y) / 3.f;
+
+        lab_min = center_1;
+        lab_max = center_2;
 
         glm::vec2 mid_point = 0.5f * (lab_min + lab_max);
         glm::vec3 center = camera->get_tile_world_pos(mid_point);
