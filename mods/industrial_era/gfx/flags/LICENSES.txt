@@ -249,12 +249,15 @@ latvia_socialism
 	By Ericmetro - Own work, based on [2] by Aloizs Luksa, and the traced scanned image from &quot;Гербы и Флаги СССР&quot;, Public Domain, https://commons.wikimedia.org/w/index.php?curid=56938841
 
 turkey_fascism
+ottoman_fascism
 	Public Domain - Unknown author
 
 turkey_communism
+ottoman_communism
 	Public Domain - Unknown author
 
 turkey_socialism
+ottoman_socialism
 	Public Domain - Unknown author
 
 reuss_gera_monarchy
@@ -319,11 +322,11 @@ austria_hungary_fascism
 congress_poland_fascism
 congress_poland_republic
 venice_communism
-	Flags made by TrumpShallPurgetheAnimeScourge
+    Flags made by TrumpShallPurgetheAnimeScourge
 
 baden_communism
-	Flags made by TrumpShallPurgetheAnimeScourge
-	By Jens Pattke (User:R-41) - Own work derived from [1], CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=69027388
+    Flags made by TrumpShallPurgetheAnimeScourge
+    By Jens Pattke (User:R-41) - Own work derived from [1], CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=69027388
 
 rebel_communism
 rebel_socialism
@@ -353,3 +356,27 @@ piedmont_sardinia_communism
 
 congress_poland_monarchy
 	By Barryob - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=3055259
+
+johor_monarchy
+	HISTORIC: It's actually the flag since 1865 but Johor didn't seem to have an earlier flag so... :)
+	By Ranking Update - Own work, draw from a list of historical Malaysian flag source, Public Domain, https://commons.wikimedia.org/w/index.php?curid=36022358
+
+finland_monarchy
+	HISTORIC: Finland didn't use this flag until 1920's!
+	By Axel Gallén-Kallela - Drawn by Vzb83 using the picture of coat of arms at [1]. The colours are Pantone 294C for blue, 186C for red and 123C for yellow, as defined by [2], Public Domain, https://commons.wikimedia.org/w/index.php?curid=551079
+
+brunei_monarchy
+	By The original uploader was at.(Original text : Orange Tuesday (talk)) - Transferred from en.wikipedia to Commons by man77.(Original text : Based on en:Image:Flag of Brunei.svg), Public Domain, https://commons.wikimedia.org/w/index.php?curid=3876102
+
+sulu_monarchy
+	HISTORIC: Maybe this is not the correct flag in 1825?
+	By Orange Tuesday (talk) - Own work (Original text: self-made), Public Domain, https://commons.wikimedia.org/w/index.php?curid=7825641
+
+aceh_monarchy
+	By Keradjeun Atjeh Darussalam - Own work, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=18565596
+
+siam_monarchy
+	By Xiengyod &amp; SodacaniThe source code of this SVG is valid.This vector image was created with Inkscape . - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=3442084
+
+egypt_monarchy
+	By Mysid - Self-drawn in CorelDraw, based on a FOTW image [1], Public Domain, https://commons.wikimedia.org/w/index.php?curid=718874

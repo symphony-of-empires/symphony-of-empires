@@ -41,6 +41,8 @@ require('entities/events/test_event')
 require('entities/events/taza_concession')
 require('entities/events/unify_germany')
 
+Nation:get("france"):make_puppet(Nation:get("piedmont_sardinia"))
+
 Nation:get("turkey"):make_puppet(Nation:get("tunis"))
 Nation:get("turkey"):make_puppet(Nation:get("algeirs"))
 Nation:get("turkey"):make_puppet(Nation:get("egypt"))

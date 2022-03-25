@@ -32,36 +32,41 @@ tunis.adjective = _("Tunisian")
 tunis:register()
 tunis:set_ideology(monarchy)
 tunis:add_accepted_culture(arabic)
-tunis:add_client_hint(monarchy, _("Tunis"), 0x808000)
+tunis:add_client_hint(monarchy, _("Tunis"), 0xAC433A)
 
 algeirs = Nation:new{ ref_name = "algeirs" }
 algeirs.name = _("Algeirs")
 algeirs.adjective = _("Algerian")
 algeirs:register()
+algeirs:set_ideology(monarchy)
 algeirs:add_accepted_culture(arabic)
-algeirs:add_client_hint(monarchy, _("Algeirs"), 0x808000)
+algeirs:add_client_hint(monarchy, _("Algeirs"), 0x509095)
 
 abbyssina = Nation:new{ ref_name = "abbyssina" }
 abbyssina.name = _("Abbyssina")
 abbyssina:register()
-abbyssina:add_client_hint(monarchy, _("Abbyssina"), 0x808000)
+abbyssina:set_ideology(monarchy)
+abbyssina:add_client_hint(monarchy, _("Abbyssina"), 0x4761C2)
 
 egypt = Nation:new{ ref_name = "egypt" }
 egypt.name = _("Egypt")
 egypt.adjective = _("Egyptians")
 egypt:register()
-egypt:add_client_hint(monarchy, _("Egypt"), 0x808000)
+egypt:set_ideology(monarchy)
+egypt:add_client_hint(monarchy, _("Egypt"), 0xC1BC73)
 
 morrocco = Nation:new{ ref_name = "morrocco" }
 morrocco.name = _("Morrocco")
 morrocco:register()
+morrocco:set_ideology(monarchy)
 morrocco:add_client_hint(monarchy, _("Morrocco"), 0x802249)
 
 tripolitania = Nation:new{ ref_name = "tripolitania" }
 tripolitania.name = _("Tripolitania")
 tripolitania.adjective = _("Tripolitanians")
 tripolitania:register()
-tripolitania:add_client_hint(monarchy, _("Tripolitania"), 0x808000)
+tripolitania:set_ideology(monarchy)
+tripolitania:add_client_hint(monarchy, _("Tripolitania"), 0x91D38A)
 
 ashantee = Nation:new{ ref_name = "ashantee" }
 ashantee.name = _("Ashantee")

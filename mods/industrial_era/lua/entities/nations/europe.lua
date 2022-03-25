@@ -209,6 +209,7 @@ finland.name = _("Finland")
 finland.adjective = _("Finnish")
 finland.combo_form = _("Finno")
 finland:register()
+finland:set_ideology(monarchy)
 finland:add_accepted_culture(finnish)
 finland:add_client_hint(monarchy, _("Finland"), 0xb9ebeb)
 
@@ -216,6 +217,7 @@ norway = Nation:new{ ref_name = "norway" }
 norway.name = _("Norway")
 norway.adjective = _("Norwegian")
 norway:register()
+norway:set_ideology(monarchy)
 norway:add_accepted_culture(norwegian)
 norway:add_client_hint(monarchy, _("Norway"), 0xab1659)
 
@@ -260,9 +262,10 @@ congress_poland = Nation:new{ ref_name = "congress_poland" }
 congress_poland.name = _("Congress Poland")
 congress_poland.adjective = _("Polish")
 congress_poland:register()
+congress_poland:set_ideology(monarchy)
 congress_poland:add_accepted_culture(polish)
 congress_poland:add_client_hint(monarchy, _("Congress Poland"), 0xbf85d6)
-congress_poland:add_client_hint(socialism, _("People's Congress Poland"), 0xbf85d6)
+congress_poland:add_client_hint(fascism, _("Congress Poland"), 0xbf85d6)
 congress_poland:add_client_hint(republic, _("Congress Poland"), 0xbf85d6)
 
 -- Releasable nations
@@ -779,7 +782,6 @@ piedmont_sardinia:add_accepted_culture(italian)
 piedmont_sardinia:add_client_hint(monarchy, _("Piedmont-Sardinia"), 0x873cb5)
 piedmont_sardinia:add_client_hint(fascism, _("Piedmont-Sardinia"), 0x873cb5)
 piedmont_sardinia:add_client_hint(communism, _("Piedmont-Sardinia"), 0x873cb5)
-Nation:get("france"):make_puppet(piedmont_sardinia)
 
 two_sicilies = Nation:new{ ref_name = "two_sicilies" }
 two_sicilies.name = _("Two Sicilies")
@@ -832,6 +834,20 @@ italy:add_client_hint(republic, _("Italy"), 0x5fbf5c)
 
 -----------------------------------------------------------------------
 -- Balkans
+ottoman = Nation:new{ ref_name = "ottoman" }
+ottoman.name = _("Ottoman")
+ottoman.adjective = _("Ottoman")
+ottoman.noun = _("Ottoman")
+ottoman.combo_form = _("Otto")
+ottoman:register()
+ottoman:set_ideology(monarchy)
+ottoman:add_accepted_culture(turkish)
+ottoman:add_client_hint(monarchy, _("Ottoman Empire"), 0xc9201a)
+ottoman:add_client_hint(republic, _("Ottoman"), 0xc9201a)
+ottoman:add_client_hint(communism, _("Ottoman"), 0xc9201a)
+ottoman:add_client_hint(socialism, _("Ottoman"), 0xc9201a)
+ottoman:add_client_hint(fascism, _("Ottoman"), 0xc9201a)
+
 turkey = Nation:new{ ref_name = "turkey" }
 turkey.name = _("Turkey")
 turkey.adjective = _("Turkish")
