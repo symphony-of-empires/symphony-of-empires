@@ -297,11 +297,10 @@ void Map::set_view(MapView view) {
 std::vector<ProvinceColor> political_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
-        Nation* province_owner = world.provinces[i]->owner;
+        Nation* province_owner = world.provinces[i]->controller;
         if(province_owner == nullptr) {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
-        }
-        else {
+        } else {
             province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(province_owner->get_client_hint().color)));
         }
     }

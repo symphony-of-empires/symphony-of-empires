@@ -326,8 +326,7 @@ void MapRender::update_border_sdf(UnifiedRender::Rect update_area) {
         fbo.set_texture(0, drawOnTex0 ? *border_sdf : *swap_tex);
         if(step == max_dist) {
             sdf_shader->set_texture(0, "tex", border_tex);
-        }
-        else {
+        } else {
             sdf_shader->set_texture(0, "tex", drawOnTex0 ? *swap_tex : *border_sdf);
         }
         // Draw a plane over the entire screen to invoke shaders
@@ -384,8 +383,10 @@ void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
 // Updates nations
 void MapRender::update_nations(std::vector<Province*> provinces) {
     for(auto const& province : provinces) {
-        if(province->owner != nullptr)
-            tile_sheet_nation->buffer.get()[province->cached_id] = province->owner->cached_id;
+        if(province->controller == nullptr) {
+            continue;
+        }
+        tile_sheet_nation->buffer.get()[province->cached_id] = province->controller->cached_id;
     }
     UnifiedRender::TextureOptions no_drop_options{};
     no_drop_options.editable = true;

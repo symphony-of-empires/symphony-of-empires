@@ -861,9 +861,9 @@ void World::do_tick() {
             if(battle.defenders.empty() || battle.attackers.empty()) {
                 // Defenders defeated
                 if(battle.defenders.empty()) {
-                    battle.attackers[0]->owner->give_province(battle.province);
+                    battle.attackers[0]->owner->control_province(battle.province);
                 } else {
-                    battle.defenders[0]->owner->give_province(battle.province);
+                    battle.defenders[0]->owner->control_province(battle.province);
                 }
 
                 battle.ended = true;
