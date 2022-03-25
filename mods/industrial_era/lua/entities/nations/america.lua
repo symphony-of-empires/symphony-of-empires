@@ -136,6 +136,34 @@ mapuche:set_ideology(tribal)
 mapuche:add_accepted_culture(mapuche)
 mapuche:add_client_hint(tribal, _("Mapuche"), 0x8c9ebd)
 
+canada = Nation:new{ ref_name = "canada" }
+canada.name = _("Canada")
+canada:register()
+canada:set_ideology(monarchy)
+canada:add_accepted_culture(british)
+canada:add_client_hint(monarchy, _("Canada"), 0x5f9376)
+
+upper_canada = Nation:new{ ref_name = "upper_canada" }
+upper_canada.name = _("Upper Canada")
+upper_canada:register()
+upper_canada:set_ideology(monarchy)
+upper_canada:add_accepted_culture(british)
+upper_canada:add_client_hint(monarchy, _("Upper Canada"), 0xaa2913)
+
+lower_canada = Nation:new{ ref_name = "lower_canada" }
+lower_canada.name = _("Lower Canada")
+lower_canada:register()
+lower_canada:set_ideology(monarchy)
+lower_canada:add_accepted_culture(british)
+lower_canada:add_client_hint(monarchy, _("Lower Canada"), 0xdf1f1f)
+
+ruperts_land = Nation:new{ ref_name = "ruperts_land" }
+ruperts_land.name = _("Rupert's Land")
+ruperts_land:register()
+ruperts_land:set_ideology(monarchy)
+ruperts_land:add_accepted_culture(british)
+ruperts_land:add_client_hint(monarchy, _("Rupert's Land"), 0xeb8f8f)
+
 -- Releasable nations
 texas = Nation:new{ ref_name = "texas" }
 texas.name = _("Texas")
