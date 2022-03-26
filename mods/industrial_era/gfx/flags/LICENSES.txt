@@ -304,6 +304,12 @@ texas_monarchy
 texas_socialism
 texas_communism
 bolivia_monarchy
+najran_fascism
+najran_communism
+najran_republic
+zaidi_imamate_fascism
+zaidi_imamate_communism
+zaidi_imamate_republic
 	Flags made by Higrafo
 
 beyiang_republic
@@ -322,6 +328,11 @@ austria_hungary_fascism
 congress_poland_fascism
 congress_poland_republic
 venice_communism
+rebel_fascism
+rebel_monarchy
+guangxi_monarchy
+austria_hungary_communism
+austria_hungary_republic
     Flags made by TrumpShallPurgetheAnimeScourge
 
 baden_communism
@@ -335,20 +346,11 @@ rebel_socialism
 rebel_anarchy
     By Stevo (vectorization) - Own work&quot;Appendix � The Symbols of Anarchy&quot; in Iain Mckay , ed. (2008) An Anarchist FAQ, Stirling: AK Press ISBN: 1-902593-90-1. OCLC: 182529204., Public Domain, https://commons.wikimedia.org/w/index.php?curid=1120760
 
-rebel_fascism
-rebel_monarchy
-    Flags made by TrumpShallPurgetheAnimeScourge
-
 rebel_tribal
     By Rocket000 (color chosen by User:Gr�n) - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=821481
 
 rebel_republic
     By Krisnotaro - Own work, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=33945524
-
-guangxi_monarchy
-austria_hungary_communism
-austria_hungary_republic
-	Flags made by TrumpShallPurgetheAnimeScourge
 
 piedmont_sardinia_communism
 	Made by TrumpShallPurgetheAnimeScourge
@@ -380,3 +382,6 @@ siam_monarchy
 
 egypt_monarchy
 	By Mysid - Self-drawn in CorelDraw, based on a FOTW image [1], Public Domain, https://commons.wikimedia.org/w/index.php?curid=718874
+
+najran_monarchy
+	By Unknown author - https://www.worldstatesmen.org/Saudi_Arabia_states.html#Nadjran, Public Domain, https://commons.wikimedia.org/w/index.php?curid=84809824
