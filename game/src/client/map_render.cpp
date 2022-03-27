@@ -92,11 +92,9 @@ MapRender::MapRender(const World& _world)
         uint32_t base_index = 0xFF000000;
         if(color == 0xFF000000) {
             terrain_map->buffer.get()[i] = base_index + 0; // Ocean
-        }
-        else if(color == 0xFFFF00FF) {
+        } else if(color == 0xFFFF00FF) {
             terrain_map->buffer.get()[i] = base_index + 1; // Lake 
-        }
-        else if(color == 0xFFFFFFFF) {
+        } else if(color == 0xFFFFFFFF) {
             terrain_map->buffer.get()[i] = base_index + 2; // Land
         }
     }
@@ -451,8 +449,7 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
         for(size_t i = 0; i < map_quads.size(); i++) {
             map_quads[i]->draw();
         }
-    }
-    else if(view_mode == MapView::SPHERE_VIEW) {
+    } else if(view_mode == MapView::SPHERE_VIEW) {
         map_sphere->draw();
     }
 }

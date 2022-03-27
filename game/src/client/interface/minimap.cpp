@@ -410,20 +410,20 @@ std::string terrain_type_tooltip(const World& world, const Province::Id id) {
 std::vector<ProvinceColor> population_map_mode(const World& world) {
     // Find the maximum amount of pops in one province
     std::vector<std::pair<Province::Id, float>> province_amounts;
-    float max_amount = 1;
+    float max_amount = 1.f;
     for(auto const& province : world.provinces) {
-        float amount = 0;
+        float amount = 0.f;
         for(auto const& pop : province->pops) {
             amount += pop.size;
         }
-        amount = log2(amount + 1.f);
+        //amount = log2(amount + 1.f);
         max_amount = std::max<float>(amount, max_amount);
         province_amounts.push_back(std::make_pair(world.get_id(*province), amount));
     }
 
     // Mix each color depending of how many live there compared to max_amount
-    UnifiedRender::Color min = UnifiedRender::Color::rgb8(255, 229, 217);
-    UnifiedRender::Color max = UnifiedRender::Color::rgb8(220, 46, 35);
+    UnifiedRender::Color min = UnifiedRender::Color::rgb8(255, 255, 255);
+    UnifiedRender::Color max = UnifiedRender::Color::rgb8(180, 24, 24);
     std::vector<ProvinceColor> province_color;
     for(auto const& prov_amount : province_amounts) {
         Province::Id prov_id = prov_amount.first;

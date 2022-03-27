@@ -174,7 +174,7 @@ TimeControlView::TimeControlView(GameState& _gs)
     auto* speed3_btn = new UI::Image(115, 0, btn_size, btn_size, "gfx/ui/button/time_control_3.png", true, btn_group);
     speed3_btn->on_click = ([this](UI::Widget&) {
         this->gs.paused = false;
-        this->gs.ms_delay_speed = 50;
+        this->gs.ms_delay_speed = 100;
     });
     speed3_btn->set_tooltip("Fire speed");
 

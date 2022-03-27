@@ -320,25 +320,15 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         density_sld->on_click = ([](UI::Widget& w) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
             w.text(std::to_string(((UI::Slider&)w).value));
-        });
-
-        auto* xchg_dens_btn = new UI::Image(0, this->height - (64 + 24), 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
-        xchg_dens_btn->right_side_of(*density_sld);
-        xchg_dens_btn->on_click = ([](UI::Widget& w) {
-            auto& o = static_cast<ProvinceView&>(*w.parent);
-
             const float den = o.density_sld->value;
             for(auto& pop : o.province->pops) {
                 pop.size *= den;
             }
             o.gs.map->update_mapmode();
-            o.gs.ui_ctx->prompt("Update", "Updated POP density of province \"" + o.province->name + "\"!");
         });
-        xchg_dens_btn->tooltip = new UI::Tooltip(xchg_dens_btn, 512, 24);
-        xchg_dens_btn->tooltip->text("Update density");
 
         auto* fill_pops_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
-        fill_pops_btn->below_of(*xchg_dens_btn);
+        fill_pops_btn->below_of(*density_sld);
         fill_pops_btn->on_click = ([](UI::Widget& w) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
 
@@ -367,7 +357,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         fill_pops_btn->tooltip->text("Add POPs (will add " + std::to_string(gs.world->pop_types.size()) + "POPs)");
 
         auto* clear_pops_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
-        clear_pops_btn->below_of(*xchg_dens_btn);
+        clear_pops_btn->below_of(*density_sld);
         clear_pops_btn->right_side_of(*fill_pops_btn);
         clear_pops_btn->on_click = ([](UI::Widget& w) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
@@ -381,7 +371,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         this->edit_culture_tab = new ProvinceEditCultureTab(gs, 0, 32, province, this);
         this->edit_culture_tab->is_render = false;
         auto* edit_culture_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
-        edit_culture_btn->below_of(*xchg_dens_btn);
+        edit_culture_btn->below_of(*density_sld);
         edit_culture_btn->right_side_of(*clear_pops_btn);
         edit_culture_btn->on_click = ([](UI::Widget& w) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
@@ -397,7 +387,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         this->edit_terrain_tab = new ProvinceEditTerrainTab(gs, 0, 32, province, this);
         this->edit_terrain_tab->is_render = false;
         auto* edit_terrain_btn = new UI::Image(0, this->height - 64, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
-        edit_terrain_btn->below_of(*xchg_dens_btn);
+        edit_terrain_btn->below_of(*density_sld);
         edit_terrain_btn->right_side_of(*edit_culture_btn);
         edit_terrain_btn->on_click = ([](UI::Widget& w) {
             auto& o = static_cast<ProvinceView&>(*w.parent);
