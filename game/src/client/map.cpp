@@ -725,8 +725,7 @@ void Map::draw(const GameState& gs) {
     // glFrontFace(GL_CCW);
     if(distance_to_map < 0.070) {
         map_font->draw(province_labels, projection, view);
-    }
-    else {
+    } else {
         map_font->draw(nation_labels, projection, view);
     }
     // glDepthFunc(GL_LEQUAL);
