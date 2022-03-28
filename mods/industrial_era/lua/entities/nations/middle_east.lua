@@ -29,6 +29,9 @@ nation:register()
 nation:set_ideology(monarchy)
 nation:add_accepted_culture(arabic)
 nation:add_client_hint(monarchy, _("Najran"), 0xDEED82)
+nation:add_client_hint(communism, _("Najran"), 0xDEED82)
+nation:add_client_hint(fascism, _("Najran"), 0xDEED82)
+nation:add_client_hint(republic, _("Najran"), 0xDEED82)
 
 nation = Nation:new{ ref_name = "zaidi_imamate", name = _("Zaidi Imamate") }
 nation.adjective = _("Zaidi")
@@ -36,6 +39,9 @@ nation:register()
 nation:set_ideology(monarchy)
 nation:add_accepted_culture(arabic)
 nation:add_client_hint(monarchy, _("Zaidi Imamate"), 0x8e332f)
+nation:add_client_hint(communism, _("Zaidi Imamate"), 0x8e332f)
+nation:add_client_hint(fascism, _("Zaidi Imamate"), 0x8e332f)
+nation:add_client_hint(republic, _("Zaidi Imamate"), 0x8e332f)
 
 nation = Nation:new{ ref_name = "oman", name = _("Oman") }
 nation.adjective = _("Omani")
@@ -43,6 +49,9 @@ nation:register()
 nation:set_ideology(monarchy)
 nation:add_accepted_culture(arabic)
 nation:add_client_hint(monarchy, _("Oman"), 0x3B3E69)
+nation:add_client_hint(communism, _("Oman"), 0x3B3E69)
+nation:add_client_hint(fascism, _("Oman"), 0x3B3E69)
+nation:add_client_hint(republic, _("Oman"), 0x3B3E69)
 
 nation = Nation:new{ ref_name = "nejd", name = _("Nejd") }
 nation.adjective = _("Nejdi")
@@ -135,12 +144,19 @@ nation:set_ideology(monarchy)
 nation:add_accepted_culture(arabic)
 nation:add_client_hint(monarchy, _("Dhale"), 0xff00d0)
 
-nation = Nation:new{ ref_name = "yafa", name = _("Yafa") }
+nation = Nation:new{ ref_name = "upper_yafa", name = _("Upper Yafa") }
 nation.adjective = _("Yafanian")
 nation:register()
 nation:set_ideology(monarchy)
 nation:add_accepted_culture(arabic)
-nation:add_client_hint(monarchy, _("Yafa"), 0x9D7DED)
+nation:add_client_hint(monarchy, _("Upper Yafa"), 0x9D7DED)
+
+nation = Nation:new{ ref_name = "lower_yafa", name = _("Lower Yafa") }
+nation.adjective = _("Yafanian")
+nation:register()
+nation:set_ideology(monarchy)
+nation:add_accepted_culture(arabic)
+nation:add_client_hint(monarchy, _("Lower Yafa"), 0x9D7DED)
 
 nation = Nation:new{ ref_name = "beda", name = _("Beda") }
 nation.adjective = _("Bedan")

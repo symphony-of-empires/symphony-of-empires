@@ -310,6 +310,9 @@ najran_republic
 zaidi_imamate_fascism
 zaidi_imamate_communism
 zaidi_imamate_republic
+oman_communism
+oman_republic
+oman_fascism
 	Flags made by Higrafo
 
 beyiang_republic
@@ -385,3 +388,27 @@ egypt_monarchy
 
 najran_monarchy
 	By Unknown author - https://www.worldstatesmen.org/Saudi_Arabia_states.html#Nadjran, Public Domain, https://commons.wikimedia.org/w/index.php?curid=84809824
+
+oman_monarchy
+	By nasser1234 - Own work, FAL, https://commons.wikimedia.org/w/index.php?curid=9652316
+
+nejd_monarchy
+	HISTORIC: The flag seems to be from the emirate of Riyadh and not from the Emirate of Nejd thatw as made on 1824
+	By DavidFirst - https://www.worldstatesmen.org/Saudi_Arabia.htm#Nejdhttp://www.vexilla-mundi.com/saudi_arabia_history_nejd.htmlhttp://www.rbvex.it/asiapag/neged.html, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=100965819
+
+mahra_monarchy
+	By Ivan Sache - Mahraflag.jpg:, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=18916920
+
+dhala_monarchy
+	By Orange Tuesday (talk) - Own work (Original text: self-made), Public Domain, https://commons.wikimedia.org/w/index.php?curid=4172681
+
+upper_yafa_monarchy
+	By Xwejnusgozo - Own work using: Adobe Illustrator, based on a depiction of the flag on a 1967 stamp of Upper Yafa, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=72045807
+
+lower_yafa_monarchy
+	By Sir Iain - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=4173893
+
+fadhli_monarchy
+	By Orange Tuesday (talk) - Own work (Original text: self-made), Public Domain, https://commons.wikimedia.org/w/index.php?curid=4172639
+
+
