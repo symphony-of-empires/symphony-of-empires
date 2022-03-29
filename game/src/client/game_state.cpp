@@ -616,12 +616,60 @@ void GameState::world_thread(void) {
 #include "client/interface/main_menu.hpp"
 
 void main_loop(GameState& gs) {
+
+}
+
+#include "unified_render/locale.hpp"
+void start_client(int, char**) {
+    GameState gs{};
+
+    if(0) {
+        FILE* fp = fopen(Path::get("locale/es/main.po").c_str(), "rt");
+        if(fp != nullptr) {
+            char* tmp = new char[1000];
+            while(fgets(tmp, 1000, fp) != nullptr) {
+                if(!strncmp(tmp, "msgid", 5)) {
+                    char* msgid = new char[100];
+                    sscanf(tmp + 5, " %*c%[^\"]s%*c ", msgid);
+                    fgets(tmp, 1000, fp);
+                    if(!strncmp(tmp, "msgstr", 6)) {
+                        char* msgstr = new char[100];
+                        sscanf(tmp + 6, " %*c%[^\"]s%*c ", msgstr);
+                        trans_msg[msgid] = std::string(msgstr);
+                        delete[] msgstr;
+                    }
+                    delete[] msgid;
+                }
+            }
+            delete[] tmp;
+            fclose(fp);
+
+            for(const auto& [key, value] : trans_msg) {
+                UnifiedRender::Log::debug("trans", key + "=" + value);
+            }
+        } else {
+            UnifiedRender::Log::error("trans", "Cannot open locale file " + Path::get("locale/ko/main.po"));
+        }
+    }
+
+    gs.loaded_world = false;
+    gs.loaded_map = false;
+    
+    gs.world = new World();
+    gs.world->load_initial();
+    gs.world->load_mod();
+
+    gs.map = new Map(*gs.world, gs.width, gs.height);
+
+    // After loading everything initialize the gamestate initial properties
+
     gs.input = Input();
     gs.in_game = false;
 
     // Connect to server prompt
     gs.current_mode = MapMode::DISPLAY_ONLY;
     gs.map->set_view(MapView::SPHERE_VIEW);
+    gs.map->camera->move(0.f, 50.f, 10.f);
 
     new Interface::MainMenu(gs);
 
@@ -633,8 +681,6 @@ void main_loop(GameState& gs) {
     gs.run = true;
     gs.paused = true;
 
-    gs.map->camera->move(0.f, 50.f, 10.f);
-
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);
     while(gs.run) {
@@ -644,20 +690,6 @@ void main_loop(GameState& gs) {
             gs.world->world_mutex.unlock();
         } else if(gs.current_mode == MapMode::DISPLAY_ONLY) {
             gs.map->camera->move(0.05f, 0.f, 0.f);
-        }
-
-        if(gs.sound_queue.empty()) {
-            for(const auto& war : gs.world->wars) {
-                for(const auto& battle : war->battles) {
-                    const std::scoped_lock lock(gs.sound_lock);
-                    auto entries = Path::get_all_recursive("sfx/gunfire");
-                    if(!entries.empty()) {
-                        gs.sound_queue.push_back(new UnifiedRender::Audio(entries[std::rand() % entries.size()]));
-                    }
-                    break;
-                }
-                break;
-            }
         }
 
         if(gs.update_tick && gs.world->world_mutex.try_lock()) {
@@ -730,50 +762,6 @@ void main_loop(GameState& gs) {
         gs.world->profiler.render_done();
     }
     world_th.join();
-}
-
-#include "unified_render/locale.hpp"
-void start_client(int, char**) {
-    GameState gs{};
-
-    if(0) {
-        FILE* fp = fopen(Path::get("locale/es/main.po").c_str(), "rt");
-        if(fp != nullptr) {
-            char* tmp = new char[1000];
-            while(fgets(tmp, 1000, fp) != nullptr) {
-                if(!strncmp(tmp, "msgid", 5)) {
-                    char* msgid = new char[100];
-                    sscanf(tmp + 5, " %*c%[^\"]s%*c ", msgid);
-                    fgets(tmp, 1000, fp);
-                    if(!strncmp(tmp, "msgstr", 6)) {
-                        char* msgstr = new char[100];
-                        sscanf(tmp + 6, " %*c%[^\"]s%*c ", msgstr);
-                        trans_msg[msgid] = std::string(msgstr);
-                        delete[] msgstr;
-                    }
-                    delete[] msgid;
-                }
-            }
-            delete[] tmp;
-            fclose(fp);
-
-            for(const auto& [key, value] : trans_msg) {
-                UnifiedRender::Log::debug("trans", key + "=" + value);
-            }
-        } else {
-            UnifiedRender::Log::error("trans", "Cannot open locale file " + Path::get("locale/ko/main.po"));
-        }
-    }
-
-    gs.loaded_world = false;
-    gs.loaded_map = false;
-
-    gs.world = new World();
-    gs.world->load_initial();
-    gs.world->load_mod();
-    gs.map = new Map(*gs.world, gs.width, gs.height);
-
-    main_loop(gs);
     return;
 }
 
