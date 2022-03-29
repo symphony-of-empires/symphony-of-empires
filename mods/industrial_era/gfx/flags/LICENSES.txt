@@ -313,6 +313,12 @@ zaidi_imamate_republic
 oman_communism
 oman_republic
 oman_fascism
+mahra_communism
+mahra_fascism
+mahra_republic
+muscat_communism
+muscat_fascism
+muscat_republic
 	Flags made by Higrafo
 
 beyiang_republic

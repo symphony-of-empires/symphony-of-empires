@@ -59,6 +59,9 @@ nation:register()
 nation:set_ideology(monarchy)
 nation:add_accepted_culture(arabic)
 nation:add_client_hint(monarchy, _("Nejd"), 0x314E2A)
+nation:add_client_hint(communism, _("Nejd"), 0x314E2A)
+nation:add_client_hint(fascism, _("Nejd"), 0x314E2A)
+nation:add_client_hint(republic, _("Nejd"), 0x314E2A)
 
 nation = Nation:new{ ref_name = "mahra", name = _("Mahra") }
 nation.adjective = _("Mahrai")
@@ -66,6 +69,9 @@ nation:register()
 nation:set_ideology(monarchy)
 nation:add_accepted_culture(arabic)
 nation:add_client_hint(monarchy, _("Mahra"), 0x52AC3B)
+nation:add_client_hint(communism, _("Mahra"), 0x52AC3B)
+nation:add_client_hint(fascism, _("Mahra"), 0x52AC3B)
+nation:add_client_hint(republic, _("Mahra"), 0x52AC3B)
 
 nation = Nation:new{ ref_name = "muscat", name = _("Muscat") }
 nation.adjective = _("Muscati")
@@ -73,6 +79,9 @@ nation:register()
 nation:set_ideology(monarchy)
 nation:add_accepted_culture(arabic)
 nation:add_client_hint(monarchy, _("Muscat"), 0xE77A35)
+nation:add_client_hint(communism, _("Muscat"), 0xE77A35)
+nation:add_client_hint(fascism, _("Muscat"), 0xE77A35)
+nation:add_client_hint(republic, _("Muscat"), 0xE77A35)
 
 nation = Nation:new{ ref_name = "kasadi", name = _("Kasadi") }
 nation.adjective = _("Kasadi")
