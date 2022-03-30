@@ -163,60 +163,6 @@ void economy_single_good_tick(World& world, Good* good) {
     auto good_id = world.get_id(*good);
 
     auto province_size = world.provinces.size();
-    // std::vector<std::vector<float>> purchasing_arrays(province_size);
-    // std::vector<float> global_demand_delta(province_size);
-
-    // Calculate global demand
-    // for(uint32_t i = 0; i < province_size; i++) {
-    //     auto province = world.provinces[i];
-    //     auto& product = province->products[good_id];
-    //     auto demand = product.demand;
-    //     auto demand_in_state = std::max(demand, 0.001f);
-
-    //     float tarrif = 1.;
-
-
-    //     // apparent_price = state_price * (tarrif * owner tarrif + 1.0) + distance_vector * 0.001f
-    //     std::vector<float> apparent_price(province_size);
-    //     for(uint32_t j = 0; j < apparent_price.size(); j++) {
-    //         auto other_province = world.provinces[j];
-    //         auto& other_product = other_province->products[good_id];
-    //         apparent_price[j] = other_product.price * tarrif + world.prov_distances[i * province_size + j] * 0.001f;
-    //     }
-
-    //     // values = production / (prices * prices)
-    //     std::vector<float> values(province_size);
-    //     purchasing_arrays[i] = values;
-    //     // sum_weightings = sum(production / (prices * prices))
-    //     float sum_weightings = 0.;
-    //     for(uint32_t j = 0; j < province_size; j++) {
-    //         auto other_province = world.provinces[j];
-    //         auto& other_product = other_province->products[good_id];
-    //         values[j] = other_product.supply / (apparent_price[j] * apparent_price[j]);
-    //         sum_weightings += values[j];
-    //     }
-
-    //     if(sum_weightings > 0) {
-    //         // value *= demand / sum(production / (prices * prices))
-    //         for(uint32_t j = 0; j < province_size; j++) {
-    //             values[j] *= demand_in_state / sum_weightings;
-    //         }
-
-    //         // pay tarrifs & increase global demand
-    //         for(uint32_t j = 0; j < province_size; j++) {
-    //             auto other_province = world.provinces[j];
-    //             auto& other_product = other_province->products[good_id];
-    //             auto money_spent = other_product.price * values[j] / apparent_price[j];
-    //             global_demand_delta[j] += 0.85 * money_spent;
-    //         }
-    //     }
-    // }
-    // for(uint32_t i = 0; i < province_size; i++) {
-    //     auto province = world.provinces[i];
-    //     auto& product = province->products[good_id];
-    //     product.global_demand += global_demand_delta[i];
-    // }
-
     // determine new prices
     for(uint32_t i = 0; i < province_size; i++) {
         auto province = world.provinces[i];
@@ -241,14 +187,14 @@ constexpr float scale_speed(float v) {
 // Updates supply, demand, and set wages for workers
 void update_factory_production(World& world, Building& building, BuildingType* building_type, Province* province, float& pop_payment)
 {
-    if(building_type->outputs.empty()) {
+    if(building_type->output == nullptr) {
         return;
     }
 
-    // Multiple outputs ? Will we have that ?
+    // Multiple outputs ? Will we have that ? - Nope! :D
     // TODO add output modifier
     // Calculate outputs
-    auto output = building_type->outputs[0];
+    auto output = building_type->output;
     Product& output_product = province->products[world.get_id(*output)];
     auto output_price = output_product.price;
     auto output_amount = 1.f * building.production_scale;

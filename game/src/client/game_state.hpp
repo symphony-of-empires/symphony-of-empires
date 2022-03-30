@@ -84,8 +84,8 @@ namespace UnifiedRender {
 // This is the state we could pass down to all the ui widgets
 class GameState: public UnifiedRender::State {
 public:
-    GameState() {};
-    ~GameState();
+    GameState(void) {};
+    ~GameState(void);
 
     void play_nation();
     void send_command(Archive& archive);
@@ -103,7 +103,7 @@ public:
     std::atomic<bool> paused;
     std::atomic<int> ms_delay_speed;
     std::atomic<bool> quit;
-    bool host_mode;
+    bool host_mode = false;
 
     // The ui will mostly need to read the world state
     World* world = nullptr;
@@ -114,9 +114,9 @@ public:
     Input input;
     MapMode current_mode = MapMode::NO_MAP;
 
-    Interface::LobbySelectView* select_nation;
-    Interface::TopWindow* top_win;
-    Interface::Minimap* minimap;
+    Interface::LobbySelectView* select_nation = nullptr;
+    Interface::TopWindow* top_win = nullptr;
+    Interface::Minimap* minimap = nullptr;
     Interface::ProfilerView* profiler_view = nullptr;
 
     std::vector<const UnifiedRender::Texture*> nation_flags;
@@ -132,11 +132,9 @@ public:
 
     UI::Widget* right_side_panel = nullptr;
 
-    bool in_game;
-
+    bool in_game = false;
     // Settings
-    bool motion_blur = false;
-
+    bool motion_blur = true;
     // Editor options
     bool editor = true;
 };

@@ -743,7 +743,7 @@ void World::do_tick() {
                 }
 
                 auto it = std::find_if(war->battles.begin(), war->battles.end(), [&unit](const auto& e) {
-                    return &e.province == unit->province;
+                    return e.province == unit->province;
                 });
 
                 // Create a new battle if none is occurring on this province
@@ -805,13 +805,9 @@ void World::do_tick() {
     // Perform all battles of the active wars
     profiler.start("Battles");
     std::for_each(std::execution::par, wars.begin(), wars.end(), [this](auto& war) {
-        for(auto& battle : war->battles) {
+        for(auto i = 0; i < war->battles.size(); i++) {
+            auto& battle = war->battles[i];
             //assert(battle.province != nullptr);
-
-            // Battles are stored for historic purpouses
-            if(battle.ended) {
-                continue;
-            }
 
             // Attackers attack Defenders
             for(auto& attacker : battle.attackers) {
@@ -835,7 +831,7 @@ void World::do_tick() {
                 }
             }
 
-            // Defenders attack Attackers
+            // Defenders attack attackers
             for(auto& defender : battle.defenders) {
                 for(size_t i = 0; i < battle.attackers.size(); ) {
                     Unit* unit = battle.attackers[i];
@@ -861,12 +857,13 @@ void World::do_tick() {
             if(battle.defenders.empty() || battle.attackers.empty()) {
                 // Defenders defeated
                 if(battle.defenders.empty()) {
-                    battle.attackers[0]->owner->control_province(battle.province);
+                    battle.attackers[0]->owner->control_province(*battle.province);
                 } else {
-                    battle.defenders[0]->owner->control_province(battle.province);
+                    battle.defenders[0]->owner->control_province(*battle.province);
                 }
 
-                battle.ended = true;
+                war->battles.erase(war->battles.begin() + i);
+                i--;
                 continue;
             }
         }

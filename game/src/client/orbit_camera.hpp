@@ -54,7 +54,7 @@ public:
         target = map_position;
     }
 
-    OrbitCamera(Camera* camera, float _radius)
+    OrbitCamera(const Camera& camera, float _radius)
         : Camera(camera), radius{ _radius }
     {
         circumference = _radius * 2 * M_PI;
@@ -79,7 +79,7 @@ public:
 
         glm::vec3 normalized_pos = map_position / glm::vec3(map_size.x, map_size.y, map_size.x / 2.f);
         glm::vec2 radiance_pos;
-        float pi = glm::pi<float>();
+        constexpr float pi = glm::pi<float>();
         radiance_pos.x = glm::mod(normalized_pos.x * 2.f * pi, 2.f * pi);
         radiance_pos.y = glm::max(0.f, glm::min(pi, normalized_pos.y * pi));
 
@@ -95,7 +95,6 @@ public:
         map_position.x = glm::mod(x, map_size.x);
         map_position.y = glm::clamp(y, 0.f, map_size.y);
         target = map_position;
-
         update();
     }
 
@@ -107,7 +106,7 @@ public:
         normalized_pos.x = glm::mod(normalized_pos.x, map_size.x);
         normalized_pos = normalized_pos / glm::vec3(map_size.x, map_size.y, radius);
         glm::vec2 radiance_pos;
-        float pi = glm::pi<float>();
+        constexpr float pi = glm::pi<float>();
         radiance_pos.x = glm::mod(normalized_pos.x * 2.f * pi, 2.f * pi);
         radiance_pos.y = glm::max(0.f, glm::min(pi, normalized_pos.y * pi));
         up_vector.x = -cos(radiance_pos.x) * cos(radiance_pos.y);
@@ -120,7 +119,7 @@ public:
         return glm::lookAt(world_position, look_at, up_vector);
     };
 
-    glm::vec3 get_map_pos(void) override {
+    glm::vec3 get_map_pos(void) const override {
         glm::vec3 out_pos = map_position;
         out_pos.x = glm::mod(out_pos.x, map_size.x);
         return out_pos;
@@ -150,7 +149,7 @@ public:
         bool hit = glm::intersectRaySphere(world_space_near, ray_direction, glm::vec3(0, 0, 0), radius * radius, distance);
 
         glm::vec3 intersection_point = world_space_near + ray_direction * distance;
-        float pi = glm::pi<float>();
+        constexpr float pi = glm::pi<float>();
         float y_rad = glm::acos(intersection_point.z / radius);
         float x_rad = glm::atan(intersection_point.y, intersection_point.x);
         x_rad += x_rad < 0 ? 2.f * pi : 0.f;
@@ -161,7 +160,7 @@ public:
     };
 
     glm::vec3 get_tile_world_pos(glm::vec2 tile_pos) override {
-        const float pi = glm::pi<float>();
+        constexpr float pi = glm::pi<float>();
         const glm::vec2 normalized_pos = tile_pos / map_size;
         glm::vec2 radiance_pos;
         radiance_pos.x = glm::mod(normalized_pos.x * 2.f * pi, 2.f * pi);

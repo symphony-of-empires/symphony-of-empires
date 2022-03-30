@@ -105,7 +105,7 @@ void make_building_row(UI::Div* table, Building& building, BuildingType* type, P
 		input_good_image->set_tooltip(good->name);
 	}
 
-	auto output = type->outputs[0];
+	auto output = type->output;
 	auto output_div = new UI::Div(0, 0, 35, 35, row);
 	output_div->border = border;
 	auto output_good_image = new UI::Image(0, 0, 35, 35, "gfx/good/" + output->ref_name + ".png", true, output_div);

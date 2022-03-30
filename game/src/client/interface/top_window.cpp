@@ -23,20 +23,20 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#include "unified_render/path.hpp"
+#include "unified_render/texture.hpp"
+#include "unified_render/ui/components.hpp"
+
 #include "client/interface/top_window.hpp"
 #include "client/game_state.hpp"
-#include "unified_render/path.hpp"
 #include "client/map.hpp"
 #include "world.hpp"
-#include "unified_render/texture.hpp"
 #include "client/interface/policies.hpp"
 #include "client/interface/army.hpp"
 #include "client/interface/technology.hpp"
 #include "client/interface/pop_window.hpp"
 #include "client/interface/factory_window.hpp"
 #include "io_impl.hpp"
-#include "unified_render/ui/components.hpp"
-
 
 using namespace Interface;
 

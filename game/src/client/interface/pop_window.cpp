@@ -138,10 +138,10 @@ PopWindow::PopWindow(GameState& gs)
 	this->text("Population");
 	this->is_scroll = false;
 
-	Nation* nation = gs.curr_nation;
+	const Nation& nation = *gs.curr_nation;
 
 	int size = 0;
-	for(auto prov : nation->owned_provinces) {
+	for(auto prov : nation.owned_provinces) {
 		size += prov->pops.size();
 	}
 
@@ -157,7 +157,7 @@ PopWindow::PopWindow(GameState& gs)
 	flex_column->flex = UI::Flex::COLUMN;
 	flex_column->flex_justify = UI::FlexJustify::START;
 
-	for(auto prov : nation->owned_provinces) {
+	for(auto prov : nation.owned_provinces) {
 		for(auto& pop : prov->pops) {
 			make_pop_row(flex_column, pop, prov);
 		}

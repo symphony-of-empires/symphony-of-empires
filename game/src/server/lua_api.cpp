@@ -88,6 +88,9 @@ float pop_number(lua_State* L) {
 
 const std::string& pop_string(lua_State* L) {
     const std::string& text = luaL_checkstring(L, -1);
+    if(text.empty()) {
+        throw LuaAPI::Exception("Expected a text but got empty string");
+    }
     lua_pop(L, 1);
     return text;
 }
@@ -248,14 +251,12 @@ int LuaAPI::add_input_to_industry_type(lua_State* L) {
 int LuaAPI::add_output_to_industry_type(lua_State* L) {
     BuildingType* industry_type = g_world->building_types.at(lua_tonumber(L, 1));
     Good* good = g_world->goods.at(lua_tonumber(L, 2));
-    industry_type->outputs.push_back(good);
-
-    // Each output adds a required farmer or laborer depending on the type
-    // of output, it also requires entrepreneurs to "manage" the operations
-    // of the factory
-    for(const auto& output : industry_type->outputs) {
-        industry_type->num_req_workers += 100;
+    if(industry_type->output != nullptr) {
+        throw LuaAPI::Exception("Already have an output for " + industry_type->ref_name);
     }
+
+    industry_type->output = good;
+    industry_type->num_req_workers += 100;
     return 0;
 }
 
@@ -633,7 +634,6 @@ int LuaAPI::add_province(lua_State* L) {
         province->buildings[g_world->get_id(*building_type)].stockpile.shrink_to_fit();
     }
 
-    province->budget = 500.f;
     // Set bounding box of province to the whole world (will later be resized at the bitmap-processing step)
     province->max_x = std::numeric_limits<uint32_t>::min();
     province->max_y = std::numeric_limits<uint32_t>::min();
@@ -922,17 +922,13 @@ int LuaAPI::add_pop_type(lua_State* L) {
     bool is_laborer = lua_toboolean(L, 7);
     if(is_burgeoise) {
         pop->group = PopGroup::BURGEOISE;
-    }
-    else if(is_slave) {
+    } else if(is_slave) {
         pop->group = PopGroup::Slave;
-    }
-    else if(is_farmer) {
+    } else if(is_farmer) {
         pop->group = PopGroup::FARMER;
-    }
-    else if(is_laborer) {
+    } else if(is_laborer) {
         pop->group = PopGroup::LABORER;
-    }
-    else {
+    } else {
         pop->group = PopGroup::Other;
     }
 

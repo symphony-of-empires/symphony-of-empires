@@ -50,12 +50,12 @@ public:
 // NOT rendering - for rendering purpouses see texture class from client's implementation
 class BinaryImage {
 public:
-    BinaryImage();
+    BinaryImage(void);
     BinaryImage(const UnifiedRender::IO::Path& path);
     BinaryImage(size_t _width, size_t _height);
     BinaryImage(const BinaryImage& tex);
     BinaryImage& operator=(const BinaryImage&) = default;
-    virtual ~BinaryImage();
+    virtual ~BinaryImage(void);
     virtual void from_file(const UnifiedRender::IO::Path& path);
     uint32_t get_pixel(size_t x, size_t y) const;
 

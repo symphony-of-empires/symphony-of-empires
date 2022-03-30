@@ -182,7 +182,7 @@ GoodView::GoodView(GameState& _gs, Good* _good)
     output_lab->below_of(*avg_price_chart);
     dx += output_lab->width;
     for(const auto& building_type : this->gs.world->building_types) {
-        bool is_present = std::find(building_type->outputs.begin(), building_type->outputs.end(), this->good) != building_type->outputs.end();
+        bool is_present = (building_type->output == this->good);
         if(!is_present) {
             continue;
         }

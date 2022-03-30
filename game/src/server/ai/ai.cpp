@@ -75,9 +75,7 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
             // Take in account all buildings for this
             for(const auto& input : building_type->inputs) {
                 // Apply the higher-probability with outputs of this factory
-                for(const auto& output : building_type->outputs) {
-                    avg_prob[world->get_id(*output)] += avg_prob[world->get_id(*input)] + 1;
-                }
+                avg_prob[world->get_id(*building_type->output)] += avg_prob[world->get_id(*input)] + 1;
             }
         }
 
@@ -108,8 +106,8 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
         }
 
         for(const auto& building_type : world->building_types) {
-            // Only take in account RGOs (and buildings that have atleast 1 output)
-            if(!building_type->inputs.empty() || !building_type->outputs.size()) {
+            // Only take in account RGOs (and buildings that have an output)
+            if(!building_type->inputs.empty() || building_type->output == nullptr) {
                 continue;
             }
 
@@ -121,7 +119,7 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
             if(std::rand() % 5) {
                 continue;
             }
-            return building_type->outputs[std::rand() % building_type->outputs.size()];
+            return building_type->output;
         }
     }
 
@@ -272,12 +270,33 @@ void ai_update_relations(Nation* nation, Nation* other) {
     // Hating a nation a lot will make us reconsider logic military actions and go "purely by instinct"
     // Calculate the times the other nation has our power, multiply that by a factor of 1,000,000
     // If the relation is negative then we divide by the positive sum of it
-    if(relation.relation < 0.f) {
+    if(relation.relation < -5.f) {
         const UnifiedRender::Decimal force_dist = 10.f * ((1.f + other_power) / (1.f + our_power));
         const int chance = std::max<UnifiedRender::Decimal>(0, force_dist - -relation.relation);
-        if(std::rand() % (100 + (chance * 100)) == 0) {
+        if(std::rand() % (100 + (chance * 10)) == 0) {
             if(!relation.has_war && !other_relation.has_war) {
-                nation->declare_war(*other);
+                // Check we border said nation
+                bool has_border = false;
+                bool has_units = false;
+                for(const auto& province : nation->controlled_provinces) {
+                    // Check for borders
+                    for(const auto& neighbour : province->neighbours) {
+                        if(neighbour->controller == other) {
+                            has_border = true;
+                            break;
+                        }
+                    }
+
+                    // Check for units
+                    has_units = !province->get_units().empty();
+                    if(has_border && has_units) {
+                        break;
+                    }
+                }
+
+                if(has_border) {
+                    nation->declare_war(*other);
+                }
             }
         }
     }
@@ -361,11 +380,9 @@ void ai_build_commercial(Nation* nation, World* world) {
             }
         }*/
 
-        for(const auto& output : building_type->outputs) {
-            if(output == target_good) {
-                type = (BuildingType*)building_type;
-                break;
-            }
+        if(building_type->output == target_good) {
+            type = (BuildingType*)building_type;
+            break;
         }
     }
 
@@ -431,7 +448,7 @@ void ai_do_tick(Nation* nation, World* world) {
                 }
 
                 nation->change_research_focus(tech);
-                print_info("[%s] now researching [%s] - %.2f research points (+%.2f)", nation->ref_name.c_str(), tech->ref_name.c_str(), nation->research[world->get_id(*tech)], nation->get_research_points());
+                UnifiedRender::Log::debug("ai", "[" + nation->ref_name + "] now researching [" + tech->ref_name + "] - " + std::to_string(nation->research[world->get_id(*tech)]) + " research points (" + std::to_string(nation->get_research_points()) + ")");
                 break;
             }
         }
@@ -475,7 +492,7 @@ void ai_do_tick(Nation* nation, World* world) {
                     defense_factor++;
                 }
             }
-            defense_factor = std::min(defense_factor, 100);
+            defense_factor = std::min<float>(defense_factor, 100);
 
             const int base_reluctance = 100;
 
@@ -581,17 +598,16 @@ void ai_do_tick(Nation* nation, World* world) {
             NationRelation& relation = nation->relations[world->get_id(*other)];
             // Risk is augmentated when we border any non-ally nation
             if(!relation.has_alliance) {
-                nations_risk_factor[world->get_id(*other)] += 1;
-            }
-            if(relation.has_war) {
-                nations_risk_factor[world->get_id(*other)] += 10;
+                nations_risk_factor[world->get_id(*other)] += 1.f * ((400.f - (relation.relation + 200.f)) / 50.f);
+            } else if(relation.has_war) {
+                nations_risk_factor[world->get_id(*other)] += 10.f;
             }
         }
         // Our own nation is safe, let's set it to 0
         nations_risk_factor[world->get_id(*nation)] = 0;
 
         std::vector<int> potential_risk(world->provinces.size(), 0);
-        for(const auto& province : world->provinces) {
+        for(const auto& province : nation->controlled_provinces) {
             // The "cooling" value which basically makes us ignore some provinces with lots of defenses
             // so we don't rack up deathstacks on a border with some micronation
             int draw_away_force = 0;
@@ -603,9 +619,6 @@ void ai_do_tick(Nation* nation, World* world) {
                 // basically make the draw_away_force negative, which in turns does not draw away but rather
                 // draw in even more units
                 draw_away_force += (-nations_risk_factor[world->get_id(*unit->owner)]) * unit_strength;
-                //if(unit->owner == nation) {
-                //    force += (unit->type->defense * unit->type->attack) * unit->size;
-                //}
             }
             potential_risk[world->get_id(*province)] -= draw_away_force;
 
@@ -623,7 +636,7 @@ void ai_do_tick(Nation* nation, World* world) {
             }
         }
 
-        for(const auto& province : world->provinces) {
+        for(const auto& province : nation->controlled_provinces) {
             for(auto& unit : province->get_units()) {
                 if(unit->owner != nation) {
                     continue;
@@ -640,10 +653,7 @@ void ai_do_tick(Nation* nation, World* world) {
                     if(std::rand() % 2) {
                         continue;
                     }
-                    if(province->controller == nullptr) {
-                        continue;
-                    }
-                    if(!unit->type->is_naval && province->terrain_type->is_water_body) {
+                    if(province->controller == nullptr || (!unit->type->is_naval && province->terrain_type->is_water_body)) {
                         continue;
                     }
 
@@ -661,6 +671,7 @@ void ai_do_tick(Nation* nation, World* world) {
                 if(target_province == unit->province || target_province == unit->target) {
                     continue;
                 }
+
                 if(!unit->can_move()) {
                     continue;
                 }

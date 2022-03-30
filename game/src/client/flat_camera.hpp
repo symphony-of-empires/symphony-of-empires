@@ -47,7 +47,7 @@ public:
         target = map_position;
     }
 
-    FlatCamera(Camera* camera)
+    FlatCamera(const Camera& camera)
         : Camera(camera)
     {
         world_position = map_position;
@@ -81,7 +81,7 @@ public:
         update();
     }
 
-    glm::vec3 get_map_pos(void) override {
+    glm::vec3 get_map_pos(void) const override {
         glm::vec3 out_pos = map_position;
         out_pos.x = glm::mod(out_pos.x, map_size.x);
         return out_pos;

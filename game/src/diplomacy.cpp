@@ -89,11 +89,7 @@ bool Humiliate::in_effect(void) const {
 }
 
 unsigned LiberateNation::cost(void) {
-    size_t value = 0;
-    for(const auto& province : provinces) {
-        value += province->budget * province->total_pops();
-    }
-    return value * 0.00001f;
+    return 0;
 }
 
 void LiberateNation::enforce(void) {
@@ -128,11 +124,7 @@ bool ImposePolicies::in_effect(void) const {
 }
 
 unsigned AnexxProvince::cost(void) {
-    size_t value = 0;
-    for(const auto& province : provinces) {
-        value += province->budget + province->total_pops();
-    }
-    return value * 0.000001f;
+    return 0;
 }
 
 void AnexxProvince::enforce(void) {
@@ -216,9 +208,9 @@ bool Treaty::in_effect(void) const {
 	return on_effect;	
 }
 
-Battle::Battle(War& _war, Province& _province)
-    : war{ _war },
-    province{ _province }
+Battle::Battle(War& war, Province& province)
+    : war{ &war },
+    province{ &province }
 {
 
 }

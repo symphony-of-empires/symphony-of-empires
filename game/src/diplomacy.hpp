@@ -28,10 +28,12 @@
 #include <cstdint>
 #include <cstddef>
 #include <vector>
-#include "policy.hpp"
+
 #include "unified_render/entity.hpp"
 
+#include "policy.hpp"
 //#include "nation.hpp"
+
 class Nation;
 class Province;
 
@@ -59,10 +61,9 @@ namespace TreatyClause {
         enum TreatyClauseType type;
 
         // Nation who created this clause
-        Nation* sender;
-
+        Nation* sender = nullptr;
         // Nation who should accept/reject this clause
-        Nation* receiver;
+        Nation* receiver = nullptr;
 
         // Number of days this clause lasts
         size_t days_duration = 0;
@@ -196,16 +197,15 @@ class Unit;
 class War;
 class Battle : public IdEntity<uint16_t> {
 public:
-    Battle(War& _war, Province& _province);
+    Battle(War& war, Province& province);
 
     std::string name;
     
-    War& war;
-    Province& province;
+    War* war = nullptr;
+    Province* province = nullptr;
     std::vector<Unit*> attackers, defenders;
-    size_t attacker_casualties = 0;
-    size_t defender_casualties = 0;
-    bool ended = false;
+    UnifiedRender::Number attacker_casualties = 0;
+    UnifiedRender::Number defender_casualties = 0;
 };
 
 class War : public IdEntity<uint16_t> {

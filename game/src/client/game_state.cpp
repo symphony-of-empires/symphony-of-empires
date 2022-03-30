@@ -590,19 +590,28 @@ void GameState::world_thread(void) {
             }
         }
 
-        // Only run the economy simulation of host mode is ON, otherwise don't :-) 
+        // Only run the economy simulation of host mode is ON, otherwise don't :-)
+        const auto delta = std::chrono::milliseconds{ms_delay_speed};
         if(host_mode && world->world_mutex.try_lock()) {
+            const auto start_time = std::chrono::system_clock::now();
             try {
                 world->do_tick();
                 update_tick = true;
                 world->world_mutex.unlock();
-                std::this_thread::sleep_for(std::chrono::milliseconds(ms_delay_speed));
             } catch(const std::exception& e) {
                 world->world_mutex.unlock();
                 std::scoped_lock lock(render_lock);
                 ui_ctx->prompt("Runtime exception", e.what());
                 UnifiedRender::Log::error("game", e.what());
                 paused = true;
+            }
+
+            while(1) {
+                auto end_time = std::chrono::system_clock::now();
+                // Wait until time delta is fullfilled
+                if(end_time - start_time >= delta) {
+                    break;
+                }
             }
         }
     }
@@ -612,14 +621,10 @@ void GameState::world_thread(void) {
 
 #include "unified_render/ui/image.hpp"
 #include "unified_render/audio.hpp"
+#include "unified_render/locale.hpp"
 
 #include "client/interface/main_menu.hpp"
 
-void main_loop(GameState& gs) {
-
-}
-
-#include "unified_render/locale.hpp"
 void start_client(int, char**) {
     GameState gs{};
 
@@ -685,50 +690,56 @@ void start_client(int, char**) {
     std::thread world_th(&GameState::world_thread, &gs);
     while(gs.run) {
         handle_event(gs.input, gs);
-        if(gs.current_mode == MapMode::NORMAL && gs.world->world_mutex.try_lock()) {
-            handle_popups(displayed_events, displayed_treaties, gs);
-            gs.world->world_mutex.unlock();
-        } else if(gs.current_mode == MapMode::DISPLAY_ONLY) {
-            gs.map->camera->move(0.05f, 0.f, 0.f);
-        }
 
-        if(gs.update_tick && gs.world->world_mutex.try_lock()) {
-            gs.update_on_tick();
-            gs.update_tick = false;
-
+        // Locking is very expensive, so we condense everything into a big "if"
+        if(gs.world->world_mutex.try_lock()) {
             if(gs.current_mode == MapMode::NORMAL) {
-                // Production queue
-                for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
-                    UnitType* unit_type = gs.production_queue[i];
+                handle_popups(displayed_events, displayed_treaties, gs);
+            }
 
-                    // TODO: Make a better queue AI
-                    bool is_built = false;
-                    for(const auto& building_type : gs.world->building_types) {
-                        for(const auto& province : gs.curr_nation->controlled_provinces) {
-                            Building& building = province->get_buildings()[gs.world->get_id(*building_type)];
-                            // Must not be working on something else
-                            if(building.working_unit_type != nullptr) {
-                                continue;
+            if(gs.update_tick) {
+                gs.update_on_tick();
+                gs.update_tick = false;
+
+                if(gs.current_mode == MapMode::NORMAL) {
+                    // Production queue
+                    for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
+                        UnitType* unit_type = gs.production_queue[i];
+
+                        // TODO: Make a better queue AI
+                        bool is_built = false;
+                        for(const auto& building_type : gs.world->building_types) {
+                            for(const auto& province : gs.curr_nation->controlled_provinces) {
+                                Building& building = province->get_buildings()[gs.world->get_id(*building_type)];
+                                // Must not be working on something else
+                                if(building.working_unit_type != nullptr) {
+                                    continue;
+                                }
+
+                                is_built = true;
+                                g_client->send(Action::BuildingStartProducingUnit::form_packet(province, building_type, gs.curr_nation, unit_type));
+                                break;
                             }
 
-                            is_built = true;
-                            g_client->send(Action::BuildingStartProducingUnit::form_packet(province, building_type, gs.curr_nation, unit_type));
-                            break;
+                            if(!is_built) {
+                                break;
+                            }
                         }
-
                         if(!is_built) {
                             break;
                         }
-                    }
-                    if(!is_built) {
-                        break;
-                    }
 
-                    gs.production_queue.erase(gs.production_queue.begin() + i);
-                    i--;
+                        gs.production_queue.erase(gs.production_queue.begin() + i);
+                        i--;
+                    }
                 }
             }
+
             gs.world->world_mutex.unlock();
+        }
+
+        if(gs.current_mode == MapMode::DISPLAY_ONLY) {
+            gs.map->camera->move(0.05f, 0.f, 0.f);
         }
 
         if(gs.music_queue.empty()) {

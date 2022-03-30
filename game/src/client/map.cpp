@@ -264,11 +264,13 @@ void Map::create_labels() {
         glm::vec3 normal = glm::cross(top_dir, right_dir);
         normal = glm::normalize(normal);
 
+#ifndef M_PI_2
+#   define M_PI_2 (M_PI / 2.0f)
+#endif
         float angle = glm::atan(lab_max.y - lab_min.y, lab_max.x - lab_min.x);
         if(angle > M_PI_2) {
             angle -= M_PI;
-        }
-        else if(angle < -M_PI_2) {
+        } else if(angle < -M_PI_2) {
             angle += M_PI;
         }
 
@@ -284,10 +286,10 @@ void Map::set_view(MapView view) {
 
     Camera* old_camera = camera;
     if(view == MapView::PLANE_VIEW) {
-        camera = new FlatCamera(old_camera);
+        camera = new FlatCamera(*old_camera);
     }
     else if(view == MapView::SPHERE_VIEW) {
-        camera = new OrbitCamera(old_camera, GLOBE_RADIUS);
+        camera = new OrbitCamera(*old_camera, GLOBE_RADIUS);
     }
     delete old_camera;
     create_labels();
@@ -595,35 +597,9 @@ void Map::update_mapmode() {
 }
 
 void Map::draw(const GameState& gs) {
-    if(nation_flags.size() < world.nations.size()) {
-        for(const auto& nation : world.nations) {
-            UnifiedRender::TextureOptions mipmap_options{};
-            mipmap_options.wrap_s = GL_REPEAT;
-            mipmap_options.wrap_t = GL_REPEAT;
-            mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
-            mipmap_options.mag_filter = GL_LINEAR;
-            std::string path = Path::get("gfx/flags/" + nation->ref_name + "_" + (nation->ideology == nullptr ? "none" : nation->ideology->ref_name) + ".png");
-            auto flag_texture = &UnifiedRender::State::get_instance().tex_man->load(path, mipmap_options);
-            flag_texture->gen_mipmaps();
-            nation_flags.push_back(flag_texture);
-        }
-        /*for(unsigned int i = nation_flags.size() - 1; i < world.nations.size(); i++) {
-            const Nation* nation = world.nations[i];
-            UnifiedRender::TextureOptions mipmap_options{};
-            mipmap_options.wrap_s = GL_REPEAT;
-            mipmap_options.wrap_t = GL_REPEAT;
-            mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
-            mipmap_options.mag_filter = GL_LINEAR;
-            std::string path = Path::get("gfx/flags/" + nation->ref_name + "_" + (nation->ideology == nullptr ? "none" : nation->ideology->ref_name) + ".png");
-            auto flag_texture = &UnifiedRender::State::get_instance().tex_man->load(path, mipmap_options);
-            flag_texture->gen_mipmaps();
-            nation_flags.push_back(flag_texture);
-        }*/
-    }
-
     map_render->draw(camera, view_mode);
     rivers->draw(camera);
-    borders->draw(camera);
+    //borders->draw(camera);
 
     // TODO: We need to better this
     obj_shader->use();
@@ -638,9 +614,9 @@ void Map::draw(const GameState& gs) {
         for(const auto& battle : war->battles) {
             unsigned int i;
 
-            const float y = province_units_y[world.get_id(battle.province)];
-            province_units_y[world.get_id(battle.province)] += 2.5f;
-            const std::pair<float, float> prov_pos = battle.province.get_pos();
+            const float y = province_units_y[world.get_id(*battle.province)];
+            province_units_y[world.get_id(*battle.province)] += 2.5f;
+            const std::pair<float, float> prov_pos = battle.province->get_pos();
 
             // Attackers on the left side
             i = 0;
@@ -718,18 +694,11 @@ void Map::draw(const GameState& gs) {
 
     glm::vec3 map_pos = camera->get_map_pos();
     float distance_to_map = map_pos.z / world.width;
-
-    // glDepthFunc(GL_ALWAYS);
-    // glEnable(GL_CULL_FACE);
-    // glCullFace(GL_BACK);
-    // glFrontFace(GL_CCW);
     if(distance_to_map < 0.070) {
         map_font->draw(province_labels, projection, view);
     } else {
         map_font->draw(nation_labels, projection, view);
     }
-    // glDepthFunc(GL_LEQUAL);
-    // glDisable(GL_CULL_FACE);
 
     obj_shader->use();
     obj_shader->set_uniform("model", glm::mat4(1.f));
@@ -770,7 +739,4 @@ void Map::draw(const GameState& gs) {
     }
 
     wind_osc += 0.1f;
-    if(wind_osc >= 180.f) {
-        wind_osc = 0.f;
-    }
 }

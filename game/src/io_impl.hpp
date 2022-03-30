@@ -532,7 +532,6 @@ public:
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
         ::serialize(stream, &obj->color);
-        ::serialize(stream, &obj->budget);
         ::serialize(stream, &obj->n_tiles);
         ::serialize(stream, &obj->max_x);
         ::serialize(stream, &obj->max_y);
@@ -553,7 +552,6 @@ public:
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
         ::deserialize(stream, &obj->color);
-        ::deserialize(stream, &obj->budget);
         ::deserialize(stream, &obj->n_tiles);
         ::deserialize(stream, &obj->max_x);
         ::deserialize(stream, &obj->max_y);

@@ -25,8 +25,8 @@ include_directories(/usr/include/SDL2)
 link_directories(/usr/local/lib)
 include_directories("${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/include")
 
-link_directories(${PROJECT_SOURCE_DIR}/../external/lib)
-include_directories(${PROJECT_SOURCE_DIR}/../external/include)
+link_directories(${PROJECT_SOURCE_DIR}/../vendor/lib)
+include_directories(${PROJECT_SOURCE_DIR}/../vendor/include)
 
 #
 # Source code files

@@ -53,7 +53,7 @@ public:
     // List of goods required to create output
     std::vector<Good*> inputs;
     // List of goods that this factory type creates
-    std::vector<Good*> outputs;
+    Good* output = nullptr;
 
     // Required goods, first describes the id of the good and the second describes how many
     std::vector<std::pair<Good*, UnifiedRender::Number>> req_goods;
@@ -64,7 +64,7 @@ public:
     // We used to calculate these per each economical tick but now we can just store them
     // and multiply it by the level of the factory - this is the **minimum** amount of employed
     // people we should have at a time
-    int num_req_workers = 0;
+    UnifiedRender::Number num_req_workers = 0;
 };
 
 // A military outpost, on land serves as a "spawn" place for units

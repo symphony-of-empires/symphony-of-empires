@@ -157,7 +157,9 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province* _province, un
     }
     arrow_lab->below_of(*name_btn);
     dx += arrow_lab->width;
-    for(const auto& good : building_type.outputs) {
+    if(building_type.output != nullptr) {
+        auto* good = building_type.output;
+
         auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
         icon_ibtn->below_of(*name_btn);
         icon_ibtn->on_click = ([good](UI::Widget& w) {

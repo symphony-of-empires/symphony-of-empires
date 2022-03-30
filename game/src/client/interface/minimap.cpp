@@ -37,7 +37,6 @@
 #include "unified_render/ui/label.hpp"
 #include "unified_render/locale.hpp"
 
-
 #include "client/interface/minimap.hpp"
 #include "client/map.hpp"
 #include "world.hpp"
@@ -323,8 +322,7 @@ mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
 
         if(province.controller == province.owner) {
             str += UnifiedRender::Locale::translate(province.controller->get_client_hint().alt_name);
-        }
-        else {
+        } else {
             str += UnifiedRender::Locale::translate("Owned by") + " ";
             str += UnifiedRender::Locale::translate(province.owner->get_client_hint().alt_name);
             str += " " + UnifiedRender::Locale::translate("controlled by") + " ";
@@ -339,10 +337,10 @@ mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
 
         const NationRelation& rel = province.controller->relations[nation_id];
         if(rel.has_alliance) {
-            str += "allied with " + province.controller->get_client_hint().alt_name;
+            str += "allied with " + world.nations[nation_id]->get_client_hint().alt_name;
             return str;
         } else if(rel.has_war) {
-            str += "at war with us" + province.controller->get_client_hint().alt_name;
+            str += "at war with " + world.nations[nation_id]->get_client_hint().alt_name;
             return str;
         }
 

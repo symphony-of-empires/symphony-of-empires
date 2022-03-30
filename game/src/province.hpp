@@ -29,6 +29,7 @@
 #include <vector>
 #include <set>
 #include <string>
+#include <memory>
 
 #include "unified_render/entity.hpp"
 #include "unified_render/decimal.hpp"
@@ -59,20 +60,14 @@ public:
     bool is_neighbour(Province& province) const;
 
     // Color of the province, used for mapping the province's shape from the map_div.png file
-    uint32_t color;
+    uint32_t color = 0;
 
     bool is_coastal = false;
 
-    // Budget of the province, money stored from taxes, to later be sent into
-    // the nation's main wealth ark (or in case of multiple owners - a % of wealth)
-    UnifiedRender::Decimal budget;
-
     // The (military) supply limit of the province, the max number of supplies there can be per tick
-    UnifiedRender::Decimal supply_limit;
-
+    UnifiedRender::Decimal supply_limit = 0.f;
     // The number of remaining (military) supplies in the province
-    UnifiedRender::Decimal supply_rem;
-
+    UnifiedRender::Decimal supply_rem = 0.f;
     // Attractiveness of province
     UnifiedRender::Decimal base_attractive = 0.f;
 
@@ -86,7 +81,7 @@ public:
     // The owner of this province
     Nation* owner = nullptr;
     Nation* controller = nullptr;
-    TerrainType* terrain_type;
+    TerrainType* terrain_type = nullptr;
 
     // List containing all nations who have a nucleus in this province
     std::set<Nation*> nuclei;
@@ -94,11 +89,11 @@ public:
     // List of all neighbouring provinces (*should* be used for pathfinding)
     std::set<Province*> neighbours;
 
-    // Products of this province (size == goods.size()!)
-    std::vector<Product> products;
-
     // List of pops in this province
     std::vector<Pop> pops;
-    std::vector<Building> buildings;
     std::vector<Unit*> units;
+
+    // These structures normally won't change on a normal playthru
+    std::vector<Product> products;
+    std::vector<Building> buildings;
 };

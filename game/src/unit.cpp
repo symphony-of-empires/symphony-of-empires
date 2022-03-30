@@ -23,14 +23,14 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#include <cmath>
+#ifndef M_PI
+#   define M_PI 3.1415f
+#endif
+
 #include "unit.hpp"
 #include "province.hpp"
 #include "world.hpp"
-#include <cmath>
-
-#ifndef M_PI
-#   define M_PI 3.14
-#endif
 
 //
 // Unit type
@@ -174,7 +174,7 @@ bool Unit::can_move(void) const {
         }
         
         auto it = std::find_if(war->battles.begin(), war->battles.end(), [this](const auto& e) {
-            return &e.province == this->province;
+            return e.province == this->province;
         });
         
         if(it != war->battles.end()) {

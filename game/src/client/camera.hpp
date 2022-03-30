@@ -43,13 +43,14 @@ public:
     Camera(glm::vec2 _screen_size, glm::vec2 _map_size) {
         screen_size = _screen_size;
         map_size = _map_size;
-    }
-    Camera(Camera* camera) {
-        screen_size = camera->screen_size;
-        map_size = camera->map_size;
-        map_position = camera->get_map_pos();
+        map_position = glm::vec3(1.0f);
     }
 
+    Camera(const Camera& camera) {
+        screen_size = camera.screen_size;
+        map_size = camera.map_size;
+        map_position = camera.get_map_pos();
+    }
     virtual ~Camera() {};
 
     void set_screen(const int width, const int height) {
@@ -58,7 +59,7 @@ public:
 
     virtual void move(float x_dir, float y_dir, float z_dir) = 0;
     virtual void set_pos(float x, float y) = 0;
-    virtual glm::vec3 get_map_pos() = 0;
+    virtual glm::vec3 get_map_pos() const = 0;
     glm::vec3 get_world_pos() {
         return world_position;
     }

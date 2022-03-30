@@ -80,10 +80,7 @@ class BorderGenerator
         uint32_t color_ur = pixels[new_index + 1];
         uint32_t color_dr = pixels[new_index + width + 1];
         // Different neighbor, ie its a border
-        if(color_ul != color_ur
-            || color_ur != color_dr
-            || color_dr != color_dl
-            || color_dl != color_ul) {
+        if(color_ul != color_ur || color_ur != color_dr || color_dr != color_dl || color_dl != color_ul) {
             return true;
         }
         return false;
@@ -101,8 +98,7 @@ class BorderGenerator
 
             if(connections++ > 1) {
                 unexplored_paths.push(old_index);
-            }
-            else {
+            } else {
                 current_paths.push(new_index);
                 walked_paths.insert(index);
             }
@@ -128,6 +124,7 @@ class BorderGenerator
                 current_paths.pop();
                 get_border(current_path, 1);
             }
+
             if(unexplored_paths.size()) {
                 current_paths.push(unexplored_paths.top());
                 unexplored_paths.pop();
