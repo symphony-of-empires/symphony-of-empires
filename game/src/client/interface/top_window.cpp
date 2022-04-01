@@ -50,12 +50,10 @@ TopWindow::TopWindow(GameState& _gs)
     new TimeControlView(gs);
 
     UI::Image::make_transparent(0, 0, 147, 499, "gfx/top_window.png", this);
-
     auto nation_flag = &gs.get_nation_flag(*gs.curr_nation);
-    auto* flag_img = new UI::Image(5, 4, 138, 88, nation_flag, this);
+    auto* flag_img = new UI::AspectImage(5, 4, 138, 88, nation_flag, this);
     flag_img->on_each_tick = ([](UI::Widget& w) {
         auto& state = static_cast<TopWindow&>(*w.parent);
-
         w.current_texture = &state.gs.get_nation_flag(*state.gs.curr_nation);
     });
 

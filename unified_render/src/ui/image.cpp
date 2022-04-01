@@ -69,3 +69,10 @@ Image* Image::make_transparent(int x, int y, unsigned w, unsigned h, const std::
     image->is_transparent = true;
     return image;
 }
+
+AspectImage::AspectImage(int _x, int _y, unsigned w, unsigned h, const UnifiedRender::Texture* tex, Widget* _parent)
+    : Image(_x, _y, w, h, tex, _parent)
+{
+    width = w;
+    height = (float)current_texture->height * ((float)w / (float)current_texture->width);
+}

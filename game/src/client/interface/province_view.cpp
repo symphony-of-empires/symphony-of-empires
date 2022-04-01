@@ -95,7 +95,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     this->is_scroll = true;
     this->text(province->name);
 
-    this->owner_flag = new UI::Image(0, 0, 128, 64, &gs.get_nation_flag(*province->owner), this);
+    this->owner_flag = new UI::AspectImage(0, 0, 128, 64, &gs.get_nation_flag(*province->owner), this);
     this->owner_flag->on_click = ([this](UI::Widget& w) {
         new Interface::NationView(this->gs, this->province->owner);
     });

@@ -53,4 +53,14 @@ namespace UI {
         static Image* make_transparent(int x, int y, unsigned w, unsigned h, const std::string& tex_path, bool mipmap = true, Widget* parent = nullptr);
         virtual ~Image() override {};
     };
+
+    /**
+     * @ingroup UI
+     * @brief A version of the Image widget that keeps aspect ratio of the image (useful for flags)
+     *
+     */
+    class AspectImage : public Image {
+    public:
+        AspectImage(int x, int y, unsigned w, unsigned max_h, const UnifiedRender::Texture* tex, Widget* parent = nullptr);
+    };
 };
