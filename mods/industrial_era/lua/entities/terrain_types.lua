@@ -36,9 +36,6 @@ plains:register()
 forest = TerrainType:new{ ref_name = "forest", name = _("Forest"), color = 0x3c5e35 }
 forest:register()
 
-river = TerrainType:new{ ref_name = "river", name = _("River"), color = 0x25c4b2 }
-river:register()
-
 jungle = TerrainType:new{ ref_name = "jungle", name = _("Jungle"), color = 0x00ff00 }
 jungle:register()
 
@@ -47,9 +44,6 @@ desert:register()
 
 savanna = TerrainType:new{ ref_name = "savanna", name = _("Savanna"), color = 0xff970f }
 savanna:register()
-
-grasslands = TerrainType:new{ ref_name = "grasslands", name = _("Grasslands"), color = 0x346b1f }
-grasslands:register()
 
 taiga = TerrainType:new{ ref_name = "taiga", name = _("Taiga"), color = 0x47bf17 }
 taiga:register()

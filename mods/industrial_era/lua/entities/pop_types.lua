@@ -28,10 +28,11 @@
 standard_basic_needs = {
     { "wheat", 1.0 },
     { "salt", 0.1 }
-} 
+}
+
 standard_luxury_needs = {
     { "bread", 0.5, 0.8 }
-} 
+}
 
 burgeoise = PopType:new{
     name = _("Burgeoise"),
