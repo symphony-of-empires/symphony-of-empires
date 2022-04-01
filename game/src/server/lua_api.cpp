@@ -45,8 +45,7 @@
 // !!! IMPORTANT !!!
 // Doing changes to the world state (like Nation and Province) does NOT require an explicit update as this is done
 // after each economical tick
-// HOWEVER, adding new elements or changing other states REQUIRES a explicity synchronization!!
-
+// HOWEVER, adding new elements or changing other states REQUIRES a explicit synchronization!!
 template<typename T>
 const T* find_or_throw(const std::string& ref_name) {
     const T* obj_to_find = nullptr;
@@ -67,6 +66,7 @@ void append_to_table(lua_State* L, int* index, float number) {
     lua_pushnumber(L, number);
     lua_settable(L, -3);
 }
+
 void append_to_table(lua_State* L, int index, float number) {
     append_to_table(L, &index, number);
 }
@@ -76,17 +76,18 @@ void append_to_table(lua_State* L, int* index, const std::string& text) {
     lua_pushstring(L, text.c_str());
     lua_settable(L, -3);
 }
+
 void append_to_table(lua_State* L, int index, const std::string& text) {
     append_to_table(L, &index, text);
 }
 
-float pop_number(lua_State* L) {
+static float pop_number(lua_State* L) {
     const float amount = lua_tonumber(L, -1);
     lua_pop(L, 1);
     return amount;
 }
 
-const std::string& pop_string(lua_State* L) {
+static std::string pop_string(lua_State* L) {
     const std::string& text = luaL_checkstring(L, -1);
     if(text.empty()) {
         throw LuaAPI::Exception("Expected a text but got empty string");
@@ -240,11 +241,7 @@ int LuaAPI::add_input_to_industry_type(lua_State* L) {
     BuildingType* industry_type = g_world->building_types.at(lua_tonumber(L, 1));
     Good* good = g_world->goods.at(lua_tonumber(L, 2));
     industry_type->inputs.push_back(good);
-
-    // And the inputs also employ people
-    for(const auto& input : industry_type->inputs) {
-        industry_type->num_req_workers += 100;
-    }
+    industry_type->num_req_workers += industry_type->inputs.size() * 100;
     return 0;
 }
 
