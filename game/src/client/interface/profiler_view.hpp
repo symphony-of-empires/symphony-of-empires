@@ -25,10 +25,12 @@
 
 #pragma once
 
+#include <vector>
+
 #include "unified_render/ui/window.hpp"
 #include "unified_render/ui/group.hpp"
+
 #include "client/game_state.hpp"
-#include <vector>
 
 namespace UI {
     class Label;

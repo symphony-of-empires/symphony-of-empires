@@ -25,8 +25,9 @@
 
 #pragma once
 
-#include "client/game_state.hpp"
 #include "unified_render/ui/window.hpp"
+
+#include "client/game_state.hpp"
 
 namespace Interface {
     class Settings : public UI::Window {

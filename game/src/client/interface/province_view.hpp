@@ -25,13 +25,14 @@
 
 #pragma once
 
-#include "nation.hpp"
-#include "world.hpp"
-#include "client/game_state.hpp"
 #include "unified_render/ui/group.hpp"
 #include "unified_render/ui/window.hpp"
 #include "unified_render/ui/slider.hpp"
 #include "unified_render/ui/input.hpp"
+
+#include "nation.hpp"
+#include "world.hpp"
+#include "client/game_state.hpp"
 #include "client/interface/common.hpp"
 
 namespace UI {
@@ -44,6 +45,8 @@ namespace Interface {
     class ProvincePopulationTab: public UI::Group {
         GameState& gs;
         Province* province;
+
+        UI::Image* owner_flag;
 
         UI::PieChart* cultures_pie;
         UI::PieChart* religions_pie;

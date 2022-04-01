@@ -113,6 +113,8 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
     : UI::Group(x, y, parent->width - x, parent->height, parent),
     gs{ _gs }
 {
+    this->is_scroll = true;
+
     // Chart showing total number of required materials
     this->reqmat_chart = new UI::Chart(0, 0, 128, 128, this);
     this->reqmat_chart->text("Material demand");
@@ -215,52 +217,20 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Pro
     progress_pgbar->on_each_tick(*progress_pgbar);
 }
 
-ArmySelectUnitTab::ArmySelectUnitTab(GameState& _gs, int x, int y, UI::Widget* parent)
-    : UI::Group(x, y, parent->width - x, parent->height - y, parent),
-    gs{ _gs }
-{
-    unsigned int i = 0;
-    for(const auto& unit_type : gs.world->unit_types) {
-        auto* btn = new UnitTypeButton(gs, 0, 24 * i, unit_type, this);
-        btn->on_click = ([](UI::Widget& w) {
-            auto& o = static_cast<ArmyView&>(*w.parent->parent);
-            o.new_unit_tab->unit_type = ((UnitTypeButton&)w).unit_type;
-
-            // This tab gets hidden and "pass control" to the new_unit_tab
-            o.new_unit_tab->is_render = true;
-            o.select_unit_tab->is_render = false;
-        });
-        i++;
-    }
-}
-
 ArmyNewUnitTab::ArmyNewUnitTab(GameState& _gs, int x, int y, UI::Widget* parent)
     : UI::Group(x, y, parent->width - x, parent->height - y, parent),
     gs{ _gs }
 {
-    auto* select_btn = new UI::Button(0, 0, 128, 24, this);
-    select_btn->text(UnifiedRender::Locale::translate("Select type"));
-    select_btn->on_click = ([](UI::Widget& w) {
-        auto& o = static_cast<ArmyView&>(*w.parent->parent);
-
-        // "Give control" to the selection tab - they will return us control after selecting an unit type
-        w.parent->is_render = false;
-        o.select_unit_tab->is_render = true;
-    });
-
-    auto* create_btn = new UI::Button(0, 0, 128, 24, this);
-    create_btn->text(UnifiedRender::Locale::translate("Create"));
-    create_btn->below_of(*select_btn);
-    create_btn->on_click = ([](UI::Widget& w) {
-        auto& o = static_cast<ArmyNewUnitTab&>(*w.parent);
-
-        if(o.unit_type == nullptr) {
-            o.gs.ui_ctx->prompt("Error", "No unit type is selected");
-            return;
-        }
-
-        o.gs.production_queue.push_back(o.unit_type);
-    });
+    this->is_scroll = true;
+    unsigned int i = 0;
+    for(const auto& unit_type : gs.world->unit_types) {
+        auto* btn = new UnitTypeButton(gs, 0, 24 * i, unit_type, this);
+        btn->on_click = ([btn](UI::Widget& w) {
+            auto& o = static_cast<ArmyView&>(*w.parent->parent);
+            ((GameState&)UnifiedRender::State::get_instance()).production_queue.push_back(btn->unit_type);
+        });
+        i++;
+    }
 }
 
 ArmyView::ArmyView(GameState& _gs)
@@ -287,7 +257,6 @@ ArmyView::ArmyView(GameState& _gs)
         o.navy_tab->is_render = false;
         o.production_tab->is_render = false;
         o.new_unit_tab->is_render = false;
-        o.select_unit_tab->is_render = false;
     });
     army_ibtn->tooltip = new UI::Tooltip(army_ibtn, 512, 24);
     army_ibtn->tooltip->text(UnifiedRender::Locale::translate("Army"));
@@ -304,7 +273,6 @@ ArmyView::ArmyView(GameState& _gs)
         o.navy_tab->is_render = false;
         o.production_tab->is_render = false;
         o.new_unit_tab->is_render = false;
-        o.select_unit_tab->is_render = false;
     });
     airforce_ibtn->tooltip = new UI::Tooltip(airforce_ibtn, 512, 24);
     airforce_ibtn->tooltip->text(UnifiedRender::Locale::translate("Airforce"));
@@ -321,7 +289,6 @@ ArmyView::ArmyView(GameState& _gs)
         o.navy_tab->is_render = true;
         o.production_tab->is_render = false;
         o.new_unit_tab->is_render = false;
-        o.select_unit_tab->is_render = false;
     });
     navy_ibtn->tooltip = new UI::Tooltip(navy_ibtn, 512, 24);
     navy_ibtn->tooltip->text(UnifiedRender::Locale::translate("Navy"));
@@ -338,7 +305,6 @@ ArmyView::ArmyView(GameState& _gs)
         o.navy_tab->is_render = false;
         o.production_tab->is_render = true;
         o.new_unit_tab->is_render = false;
-        o.select_unit_tab->is_render = false;
     });
     production_ibtn->tooltip = new UI::Tooltip(production_ibtn, 512, 24);
     production_ibtn->tooltip->text(UnifiedRender::Locale::translate("Production"));
@@ -355,15 +321,9 @@ ArmyView::ArmyView(GameState& _gs)
         o.navy_tab->is_render = false;
         o.production_tab->is_render = false;
         o.new_unit_tab->is_render = true;
-        o.select_unit_tab->is_render = false;
     });
     new_unit_ibtn->tooltip = new UI::Tooltip(new_unit_ibtn, 512, 24);
     new_unit_ibtn->tooltip->text(UnifiedRender::Locale::translate("New unit"));
-
-    // Hidden - only rendered on invokation and does not store state on the View directly
-    // rather it stores it on the new_unit_tab
-    this->select_unit_tab = new ArmySelectUnitTab(gs, 0, 32, this);
-    this->select_unit_tab->is_render = false;
 
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
     close_btn->right_side_of(*new_unit_ibtn);

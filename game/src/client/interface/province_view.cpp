@@ -76,7 +76,7 @@ void ProvincePopulationTab::update_piecharts() {
 
     if(pop_infos.size() < province->pops.size()) {
         for(size_t i = pop_infos.size(); i < province->pops.size(); i++) {
-            PopInfo* info = new PopInfo(gs, 0, (i * 24) + 128, province, i, this);
+            PopInfo* info = new PopInfo(gs, 0, (i * 24) + (128 + 96), province, i, this);
             pop_infos.push_back(info);
         }
     } else if(pop_infos.size() > province->pops.size()) {
@@ -92,18 +92,32 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     gs{ _gs },
     province{ _province }
 {
+    this->is_scroll = true;
     this->text(province->name);
 
+    this->owner_flag = new UI::Image(0, 0, 128, 64, &gs.get_nation_flag(*province->owner), this);
+    this->owner_flag->on_click = ([this](UI::Widget& w) {
+        new Interface::NationView(this->gs, this->province->owner);
+    });
+
+    auto* cultures_lab = new UI::Label(0, 0, "Cultures", this);
+    cultures_lab->below_of(*this->owner_flag);
     this->cultures_pie = new UI::PieChart(0, 0, 96, 96, this);
-    new UI::Label(0, 0, "Cultures", this);
+    this->cultures_pie->below_of(*cultures_lab);
 
+    auto* religions_lab = new UI::Label(0, 0, "Religions", this);
+    religions_lab->below_of(*this->owner_flag);
+    religions_lab->right_side_of(*this->cultures_pie);
     this->religions_pie = new UI::PieChart(0, 0, 96, 96, this);
+    this->religions_pie->below_of(*religions_lab);
     this->religions_pie->right_side_of(*this->cultures_pie);
-    new UI::Label(this->religions_pie->x, this->religions_pie->y, "Religions", this);
 
+    auto* pop_types_lab = new UI::Label(0, 0, "Proffesions", this);
+    pop_types_lab->below_of(*this->owner_flag);
+    pop_types_lab->right_side_of(*this->religions_pie);
     this->pop_types_pie = new UI::PieChart(0, 0, 96, 96, this);
+    this->pop_types_pie->below_of(*pop_types_lab);
     this->pop_types_pie->right_side_of(*this->religions_pie);
-    new UI::Label(this->pop_types_pie->x, this->pop_types_pie->y, "Proffesions", this);
 
     this->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<ProvincePopulationTab&>(w);
@@ -276,23 +290,8 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     build_ibtn->tooltip = new UI::Tooltip(build_ibtn, 512, 24);
     build_ibtn->tooltip->text("Buildings");
 
-    auto* nation_ibtn = new UI::Image(0, 0, 32, 32, &gs.tex_man->load(Path::get("gfx/pv_3.png")), this);
-    nation_ibtn->right_side_of(*build_ibtn);
-    nation_ibtn->on_click = ([](UI::Widget& w) {
-        auto& o = static_cast<ProvinceView&>(*w.parent);
-
-        // View the nation info only if the province has a valid owner
-        if(o.province->owner == nullptr) {
-            return;
-        }
-
-        new NationView(o.gs, o.province->owner);
-    });
-    nation_ibtn->tooltip = new UI::Tooltip(nation_ibtn, 512, 24);
-    nation_ibtn->tooltip->text("Nation");
-
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
-    close_btn->right_side_of(*nation_ibtn);
+    close_btn->right_side_of(*build_ibtn);
     close_btn->text("Close");
     close_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<ProvinceView&>(*w.parent);

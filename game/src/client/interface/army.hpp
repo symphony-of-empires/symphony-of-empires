@@ -85,13 +85,6 @@ namespace Interface {
         GameState& gs;
     public:
         ArmyNewUnitTab(GameState& gs, int x, int y, UI::Widget* parent);
-        UnitType* unit_type = nullptr;
-    };
-
-    class ArmySelectUnitTab : public UI::Group {
-        GameState& gs;
-    public:
-        ArmySelectUnitTab(GameState& gs, int x, int y, UI::Widget* parent);
     };
 
     class ArmyView : public UI::Window {
@@ -104,6 +97,5 @@ namespace Interface {
         ArmyNavyTab* navy_tab;
         ArmyProductionTab* production_tab;
         ArmyNewUnitTab* new_unit_tab;
-        ArmySelectUnitTab* select_unit_tab;
     };
 };
