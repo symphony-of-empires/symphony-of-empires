@@ -342,6 +342,12 @@ rebel_monarchy
 guangxi_monarchy
 austria_hungary_communism
 austria_hungary_republic
+sulu_socialism
+aceh_fascism
+aceh_republic
+aceh_socialism
+sulu_fascism
+sulu_republic
     Flags made by TrumpShallPurgetheAnimeScourge
 
 baden_communism
