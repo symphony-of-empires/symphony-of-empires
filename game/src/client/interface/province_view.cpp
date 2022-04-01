@@ -76,7 +76,7 @@ void ProvincePopulationTab::update_piecharts() {
 
     if(pop_infos.size() < province->pops.size()) {
         for(size_t i = pop_infos.size(); i < province->pops.size(); i++) {
-            PopInfo* info = new PopInfo(gs, 0, (i * 24) + (128 + 96), province, i, this);
+            PopInfo* info = new PopInfo(gs, 0, (i * 24) + (256 + 96), province, i, this);
             pop_infos.push_back(info);
         }
     } else if(pop_infos.size() > province->pops.size()) {
@@ -95,25 +95,29 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     this->is_scroll = true;
     this->text(province->name);
 
-    this->owner_flag = new UI::AspectImage(0, 0, 128, 64, &gs.get_nation_flag(*province->owner), this);
-    this->owner_flag->on_click = ([this](UI::Widget& w) {
-        new Interface::NationView(this->gs, this->province->owner);
-    });
+    this->landscape_img = new UI::Image(0, 0, this->width, 128 + 64 + 16, &gs.tex_man->load(Path::get("gfx/terraintype/" + province->terrain_type->ref_name + ".png")), this);
+
+    if(province->owner != nullptr) {
+        this->owner_flag = new UI::AspectImage(0, 0, 96, 48, &gs.get_nation_flag(*province->owner), this);
+        this->owner_flag->on_click = ([this](UI::Widget& w) {
+            new Interface::NationView(this->gs, this->province->owner);
+        });
+    }
 
     auto* cultures_lab = new UI::Label(0, 0, "Cultures", this);
-    cultures_lab->below_of(*this->owner_flag);
+    cultures_lab->below_of(*this->landscape_img);
     this->cultures_pie = new UI::PieChart(0, 0, 96, 96, this);
     this->cultures_pie->below_of(*cultures_lab);
 
     auto* religions_lab = new UI::Label(0, 0, "Religions", this);
-    religions_lab->below_of(*this->owner_flag);
+    religions_lab->below_of(*this->landscape_img);
     religions_lab->right_side_of(*this->cultures_pie);
     this->religions_pie = new UI::PieChart(0, 0, 96, 96, this);
     this->religions_pie->below_of(*religions_lab);
     this->religions_pie->right_side_of(*this->cultures_pie);
 
     auto* pop_types_lab = new UI::Label(0, 0, "Proffesions", this);
-    pop_types_lab->below_of(*this->owner_flag);
+    pop_types_lab->below_of(*this->landscape_img);
     pop_types_lab->right_side_of(*this->religions_pie);
     this->pop_types_pie = new UI::PieChart(0, 0, 96, 96, this);
     this->pop_types_pie->below_of(*pop_types_lab);

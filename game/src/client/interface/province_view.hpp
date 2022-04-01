@@ -47,6 +47,7 @@ namespace Interface {
         Province* province;
 
         UI::Image* owner_flag;
+        UI::Image* landscape_img;
 
         UI::PieChart* cultures_pie;
         UI::PieChart* religions_pie;
