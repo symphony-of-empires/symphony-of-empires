@@ -109,19 +109,8 @@ Settings::Settings(GameState& _gs)
     });
     raytracing_chk->set_tooltip("Creates vibrant lighting through the map. Low performance impact");
 
-    auto* diag_borders_chk = new UI::Checkbox(this);
-    diag_borders_chk->below_of(*raytracing_chk);
-    diag_borders_chk->set_value(gs.map->map_render->options.diag_borders.used);
-    diag_borders_chk->text("Diagonal borders");
-    diag_borders_chk->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<Settings&>(*w.parent);
-        o.gs.map->map_render->options.diag_borders.used = ((UI::Checkbox&)w).get_value();
-        o.gs.map->reload_shaders();
-    });
-    diag_borders_chk->set_tooltip("Enables/Disables replacing the blocky borders with diagonal ones. Low performance impact");
-
     auto* parallax_chk = new UI::Checkbox(this);
-    parallax_chk->below_of(*diag_borders_chk);
+    parallax_chk->below_of(*raytracing_chk);
     parallax_chk->set_value(gs.map->map_render->options.parallax.used);
     parallax_chk->text("Parallax");
     parallax_chk->set_on_click([](UI::Widget& w) {

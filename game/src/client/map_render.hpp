@@ -63,7 +63,6 @@ public:
     Option noise{ "NOISE", true };
     Option sdf{ "SDF", true };
     Option lighting{ "LIGHTING", true };
-    Option diag_borders{ "DIAG_BORDER", true };
     Option parallax{ "PARALLAX", false };
     Option landscape{ "LANDSCAPE", true };
     Option rivers{ "RIVERS", true };
@@ -72,7 +71,7 @@ public:
 
     std::vector<Option> get_options() {
         return std::vector<Option>{
-            noise, sdf, lighting, diag_borders, parallax, landscape, rivers, water, grid
+            noise, sdf, lighting, parallax, landscape, rivers, water, grid
         };
     }
 };

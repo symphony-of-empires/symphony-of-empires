@@ -91,7 +91,7 @@ vec4 get_border(vec2 texcoord) {
 	provienceRU.xy = texture(tile_map, coordRU).xy;
 	provienceRD.xy = texture(tile_map, coordRD).xy;
 
-	vec2 scale = vec2(255./256.);
+	vec2 scale = vec2(255.0 / 256.0);
 	provienceLU.zw = texture(tile_sheet_nation, provienceLU.xy * scale).xy;
 	provienceLD.zw = texture(tile_sheet_nation, provienceLD.xy * scale).xy;
 	provienceRU.zw = texture(tile_sheet_nation, provienceRU.xy * scale).xy;
@@ -106,27 +106,25 @@ vec4 get_border(vec2 texcoord) {
 	vec2 xBorder = mix(x0, x1, step(0.5, scaling.y));
 	vec2 yBorder = mix(y0, y1, step(0.5, scaling.x));
 	vec2 scalingE = mod(texcoord, pix) / pix;
-	vec2 test = min(scalingE, vec2(1., 1.) - scalingE);
-	test = 1. - 2. * test;
+	vec2 test = min(scalingE, vec2(1.0, 1.0) - scalingE);
+	test = 1.0 - 2.0 * test;
 
 	vec2 middle = step(0.5, x0 + y0 + x1 + y1) * min(test.x, test.y);
 
 	vec2 border = max(xBorder * test.x, yBorder * test.y);
 	border = max(border, middle);
-	vec2 is_diag = vec2(0.);
-#ifdef DIAG_BORDER
+
 	vec2 xBorder2 = mix(x0, x1, scaling.y);
 	vec2 yBorder2 = mix(y0, y1, scaling.x);
-	is_diag = x0 * y0 + y0 * x1 + x1 * y1 + y1 * x0;
+	vec2 is_diag = x0 * y0 + y0 * x1 + x1 * y1 + y1 * x0;
 	is_diag = step(3, mod(is_diag + 2, 4)); // Is diag border
 	vec2 borderDiag = min((xBorder2 + yBorder2) - 1.0, 2. - (xBorder2 + yBorder2));
 
 	border = mix(border, borderDiag * 2., is_diag);
 	is_diag.x *= border.x + 0.53;
 	is_diag.y *= border.y + 0.53;
-#endif
 
-	border = clamp(border, 0., 1.);
+	border = clamp(border, 0., 1.0);
 	border.x *= border.x * 0.5;
 	border.y *= border.y * 1.8;
 	return vec4(border, is_diag);
@@ -151,14 +149,14 @@ vec2 parallax_map(vec2 tex_coords, vec3 view_dir) {
     // get initial values
 	vec2 currentTexCoords = tex_coords;
 	float currentDepthMapValue = texture(normal, tex_coords).w * other_scale;
-	// currentDepthMapValue = (currentDepthMapValue - .5) * 2.;
+	// currentDepthMapValue = (currentDepthMapValue - 0.5) * 2.;
 
 	while(currentLayerDepth < currentDepthMapValue) {
         // shift texture coordinates along direction of P
 		currentTexCoords -= deltaTexCoords;
         // get depthmap value at current texture coordinates
 		currentDepthMapValue = texture(normal, currentTexCoords).w * other_scale;  
-		// currentDepthMapValue = (currentDepthMapValue - .5) * 2.;
+		// currentDepthMapValue = (currentDepthMapValue - 0.5) * 2.;
         // get depth of next layer
 		currentLayerDepth += layerDepth;
 	}
@@ -183,11 +181,11 @@ float isLake(vec2 coords) {
 }
 float isOcean(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);
-	return terrain.x == 0. ? 1. : 0.;
+	return terrain.x == 0.0 ? 1.0 : 0.0;
 }
 float isWater(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);
-	return terrain.x < 2./255. ? 1. : 0.;
+	return terrain.x < 2.0 / 255.0 ? 1.0 : 0.0;
 }
 
 vec3 gen_normal(vec2 tex_coords) {
@@ -234,11 +232,11 @@ float get_grid(vec2 tex_coords) {
 	vec2 pix = vec2(1.0) / map_size;
 
 	vec2 gSize = pix * 1.2;
-	vec2 gNumber = vec2(25., 25.);
-	gNumber = 1./(gNumber+1.);
+	vec2 gNumber = vec2(25.0, 25.0);
+	gNumber = 1.0 / (gNumber + 1.0);
 	vec2 gEdge = gNumber;
-	vec2 gCoord = abs(gNumber * .5 - mod(tex_coords + gNumber * 0.5, gNumber));
-	vec2 grid = smoothstep(gSize, vec2(0), gCoord);
+	vec2 gCoord = abs(gNumber * 0.5 - mod(tex_coords + gNumber * 0.5, gNumber));
+	vec2 grid = smoothstep(gSize, vec2(0.0, 0.0), gCoord);
 	return max(grid.x, grid.y);
 }
 
@@ -259,7 +257,7 @@ float get_lighting(vec2 tex_coords, float beach) {
 	float ambient = 0.1;
 	vec3 view_dir = normalize(view_pos - v_frag_pos);
 
-	float far_from_map = smoothstep(45, 65, dist_to_map * 1000.);
+	float far_from_map = smoothstep(45.0, 65.0, dist_to_map * 1000.0);
 
 	vec3 normal = texture(normal, tex_coords).xyz;
 	normal = normal * 2.0 - 1.0;
@@ -351,13 +349,10 @@ void main() {
 	vec2 borders = borders_diag.xy;
 	borders.x = smoothstep(0.0, 1.0, borders.x);
 
-#ifdef DIAG_BORDER
 	float is_diag = borders_diag.z;
 	vec2 diag_coords = get_diag_coords(tex_coords, is_diag);
 	vec2 coord = texture(tile_map, diag_coords).xy;
-#else
-	vec2 coord = texture(tile_map, tex_coords).xy;
-#endif
+
 	vec2 prov_color_coord = coord * vec2(255.0 / 256.0);
 	vec3 prov_color = texture(tile_sheet, prov_color_coord).rgb;
 	vec3 terrain_color = texture(landscape_map, tex_coords).rgb;
