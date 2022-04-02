@@ -220,6 +220,9 @@ norway:register()
 norway:set_ideology(monarchy)
 norway:add_accepted_culture(norwegian)
 norway:add_client_hint(monarchy, _("Norway"), 0xab1659)
+norway:add_client_hint(communism, _("Norway"), 0xab1659)
+norway:add_client_hint(socialism, _("Norway"), 0xab1659)
+norway:add_client_hint(fascism, _("Norway"), 0xab1659)
 
 aland = Nation:new{ ref_name = "aland" }
 aland.name = _("Åland")
