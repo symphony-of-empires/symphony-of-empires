@@ -62,6 +62,15 @@ public:
     Province::Id province_id;
 };
 
+// TODO: Make bookmark.hpp?
+class Bookmark {
+public:
+    std::string ref_name;
+    std::string name;
+    uint64_t start_time;
+    std::vector<Nation*> interest_picks;
+};
+
 // Create a new list from a type, with helper functions
 #define LIST_FOR_TYPE(type, list, list_type)\
     inline const list_type<type*>& get_list(const type&) const {\

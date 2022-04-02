@@ -29,6 +29,7 @@ uniform sampler2D normal;
 uniform sampler2D bathymethry;
 uniform sampler2D paper_tex;
 uniform sampler2D stripes;
+uniform sampler2D province_opt;
 
 #define RGB(r, g, b) pow(vec3(r, g, b), vec3(2.2))
 
@@ -78,11 +79,6 @@ vec4 get_border(vec2 texcoord) {
 	// Pixel size on map texture
 	vec2 pix = vec2(1.0) / map_size;
 
-	// Noise effect
-	// float x = texture(noise_texture, (1./4.) * (1./256.) * texcoord * map_size).x; // cheap (cache friendly) lookup
-	// float y = texture(noise_texture, (1./4.) * (1./256.) * -texcoord * map_size).x; // cheap (cache friendly) lookup
-	// texcoord += (0.5 - vec2(x, y)) * 0.5 * pix;
-
 	vec2 mPos = texcoord - mod(texcoord + 0.5 * pix, pix);
 	vec2 coordLU = mPos + pix * vec2(0.25, 0.25);
 	vec2 coordLD = mPos + pix * vec2(0.25, 0.75);
@@ -101,19 +97,11 @@ vec4 get_border(vec2 texcoord) {
 	provienceRU.zw = texture(tile_sheet_nation, provienceRU.xy * scale).xy;
 	provienceRD.zw = texture(tile_sheet_nation, provienceRD.xy * scale).xy;
 
-	// vec2 mPos = texcoord - mod(texcoord, pix);
-	// vec4 provienceLU = texture(tile_map, mPos + pix * vec2(-0.25, -0.25)).xyzw;
-	// vec4 provienceLD = texture(tile_map, mPos + pix * vec2(-0.25, 0.25)).xyzw;
-	// vec4 provienceRU = texture(tile_map, mPos + pix * vec2(0.25, -0.25)).xyzw;
-	// vec4 provienceRD = texture(tile_map, mPos + pix * vec2(0.25, 0.25)).xyzw;
 	vec2 x0 = sum(provienceLU - provienceRU) * is_not_water(coordLU) * is_not_water(coordRU);
 	vec2 x1 = sum(provienceLD - provienceRD) * is_not_water(coordLD) * is_not_water(coordRD);
 	vec2 y0 = sum(provienceLU - provienceLD) * is_not_water(coordLU) * is_not_water(coordLD);
 	vec2 y1 = sum(provienceRU - provienceRD) * is_not_water(coordRU) * is_not_water(coordRD);
-	// vec2 x0 = sum(provienceLU - provienceRU);
-	// vec2 x1 = sum(provienceLD - provienceRD);
-	// vec2 y0 = sum(provienceLU - provienceLD);
-	// vec2 y1 = sum(provienceRU - provienceRD);
+
 	vec2 scaling = mod(texcoord + 0.5 * pix, pix) / pix;
 	vec2 xBorder = mix(x0, x1, step(0.5, scaling.y));
 	vec2 yBorder = mix(y0, y1, step(0.5, scaling.x));
@@ -141,9 +129,6 @@ vec4 get_border(vec2 texcoord) {
 	border = clamp(border, 0., 1.);
 	border.x *= border.x * 0.5;
 	border.y *= border.y * 1.8;
-	// border.y *= border.y * 1.2;
-	// vec2 tiled = step(pix, mod(texcoord + pix * 0.5, pix * 2));
-	// border.y *= (tiled.x + tiled.y) * (2. - (tiled.x + tiled.y));
 	return vec4(border, is_diag);
 }
 
@@ -220,7 +205,6 @@ vec3 gen_normal(vec2 tex_coords) {
 	vec3 vb = normalize(vec3(size.yx, s12 - s10));
 	vec4 bump = vec4(cross(va, vb), s11);
 	return bump.xyz;
-	// vec3 normal = normalize(bump.xyz * 2.0 - 1.0);
 }
 
 vec2 get_beach(vec2 tex_coords) {
@@ -303,11 +287,11 @@ float get_lighting(vec2 tex_coords, float beach) {
 }
 
 void main() {
-	const vec3 province_border = RGB(0., 0., 0.);
-	const vec3 country_border = RGB(0.2, 0., 0.);
-	const vec3 water_col = RGB(0.26, 0.45, 0.75) * 0.7;
+	const vec3 province_border = RGB(0.0, 0.0, 0.0);
+	const vec3 country_border = RGB(0.2, 0.0, 0.0);
+	const vec3 water_col = RGB(0.16, 0.35, 0.75);
 	const vec3 paper_col = RGB(0.95294, 0.92157, 0.81569);
-	const vec3 river_col = RGB(0., 0., 0.3);
+	const vec3 river_col = RGB(0.0, 0.0, 0.3);
 	vec2 pix = vec2(1.0) / map_size;
 
 	vec2 paper_coords = v_texcoord;
@@ -324,44 +308,35 @@ void main() {
 	}
 #endif
 
-	float far_from_map = smoothstep(45, 80, dist_to_map * 1000.);
+	float far_from_map = smoothstep(45.0, 80.0, dist_to_map * 1000.0);
 
 	vec2 beach_oceanBeach = get_beach(tex_coords);
 	float beach = beach_oceanBeach.x;
 	float not_lake = beach_oceanBeach.y;
 	float beach_border = beach_oceanBeach.y;
-	beach_border = smoothstep(0.1, 0.0, abs(beach_border - .3) - 0.15);
-#ifdef NOISE
-	float noise = texture(noise_texture, 20. * tex_coords).x;
+	beach_border = smoothstep(0.1, 0.0, abs(beach_border - 0.3) - 0.15);
+	float noise = texture(noise_texture, 20.0 * tex_coords).x;
 	beach += noise * 0.3 - 0.15;
 	not_lake += noise * 0.3 - 0.15;
-#endif
 	beach = smoothstep(0.2, 0.3, beach);
 	not_lake = smoothstep(0.2, 0.3, not_lake);
 
-	float is_ocean = step(1., isOcean(tex_coords));
+	float is_ocean = step(1.0, isOcean(tex_coords));
 	not_lake = max(not_lake,is_ocean);
 
 #ifdef WATER
-
-#ifdef NOISE
-	vec3 water = no_tiling(water_texture, 100. * tex_coords + time * vec2(0.01), noise_texture).rgb;
-#else
-	vec3 water = texture(water_texture, 50. * tex_coords + time * vec2(0.01)).rgb;
-#endif
-
+	vec3 water = no_tiling(water_texture, 100.0 * tex_coords + time * vec2(0.01), noise_texture).rgb;
 	water = mix(water, water_col * 0.7, far_from_map);
 #else
 	vec3 water = water_col * 0.7;
 #endif
-	water = mix(water, paper_col, 0.2); 
+	water = mix(water, paper_col, 0.1); 
 #ifdef SDF
 	//paper
 	vec3 p_water = mix(paper, paper_col, 0.7); 
-	p_water = mix(p_water, water_col, 0.4); 
+	p_water = mix(p_water, water_col, 0.5); 
 	water = mix(water, p_water, far_from_map);
 #endif
-
 
 #ifdef GRID
 	float grid = get_grid(tex_coords);
@@ -370,12 +345,11 @@ void main() {
 
 	float bathy = texture(bathymethry, tex_coords).x;
 	bathy = (bathy - 0.50)/(.70 - 0.50);
-	// water = water * mix(0.5, 1., bathy);
-	water = water * mix(0.7, 1., bathy);
+	water = water * mix(0.7, 1.0, bathy);
 
 	vec4 borders_diag = get_border(tex_coords);
 	vec2 borders = borders_diag.xy;
-	borders.x = smoothstep(0., 1., borders.x);
+	borders.x = smoothstep(0.0, 1.0, borders.x);
 
 #ifdef DIAG_BORDER
 	float is_diag = borders_diag.z;
@@ -384,54 +358,28 @@ void main() {
 #else
 	vec2 coord = texture(tile_map, tex_coords).xy;
 #endif
-	vec2 prov_color_coord = coord * vec2(255./256.);
+	vec2 prov_color_coord = coord * vec2(255.0 / 256.0);
 	vec3 prov_color = texture(tile_sheet, prov_color_coord).rgb;
-#ifdef NOISE
-    // float w_col = water_aquarelle(tex_coords);
-    // prov_color = mix(vec4(1.), prov_color, pow(w_col, 5));
-#endif
-
-#ifdef LANDSCAPE
-	// vec4 terrain_color = get_terrain_mix(tex_coords);
 	vec3 terrain_color = texture(landscape_map, tex_coords).rgb;
-#else
-	vec3 terrain_color = prov_color;
-#endif
-	vec3 ground = mix(terrain_color, prov_color, mix(0.15, 1., far_from_map));
+	vec3 ground = mix(terrain_color, prov_color, mix(0.8, 1.0, far_from_map));
+
 	vec3 out_color;
-
 #ifdef SDF
-	// float bSdf = texture2D(border_sdf, tex_coords + pix * 0.5).x;
-	// float is_ocean = step(1., isOcean(tex_coords));
-	// vec4 wave = mix(water, water * 0.7, max(0., sin(bSdf * 50.)));
-	// wave = mix(wave, water, 1.);
-	// vec4 mix_col = mix(out_color, wave, is_ocean);
-	// float sdf_slider = mix(0.6, 0.2, far_from_map);
-	// float sdf_mix = smoothstep(0.5, 0.7, bSdf);
-	// sdf_mix = is_ocean == 0. ? sdf_mix : smoothstep(0.7, 0.9, bSdf);
-	// out_color = mix(out_color, mix_col * sdf_slider, sdf_mix);
-
 	float bSdf = texture(border_sdf, tex_coords + pix * 0.5, 1).z;
 	float sdf_mix;
 	vec3 paper_border0;
 	vec3 paper_border1;
-
-	// vec3 paper = texture(paper_tex, 20.*paper_coords).rgb;
 	vec3 paper_mix = mix(paper, paper_col, 0.3);
 
 	vec3 greyed_color = abs(prov_color - paper_mix);
-	// float whiteness = greyed_color.r + greyed_color.g + greyed_color.b;
-	float whiteness = prov_color.r + prov_color.g + prov_color.b;
-	// greyed_color = greyed_color * 1./max(0.7 * whiteness, 1.);
-	// greyed_color = mix(prov_color, paper_mix, 0.2);
-	greyed_color = prov_color * paper_mix;
-	// paper_mix = paper_mix * 1./max(1., whiteness);
+	float whiteness = dot(prov_color, vec3(1.0, 1.0, 1.0));
+	greyed_color = ground * paper_mix;
 
 	float b3 = 0.5;
 	float b2 = 0.90;
 	float b1 = 0.97;
 	float b0 = 0.99;
-	// sdf_mix = smoothstep(0.95, 1.2, bSdf);
+
 	sdf_mix = smoothstep(b3, b2, bSdf);
 	paper_border0 = mix(greyed_color, paper_mix, 0.3);
 	paper_border1 = mix(greyed_color, paper_mix, 0.5);
@@ -442,48 +390,44 @@ void main() {
 	paper_border1 = mix(greyed_color, paper_mix, 0.3);
 	out_color = mix(out_color, paper_border0, sdf_mix);
 
-	greyed_color = prov_color * paper_mix * 1./max(whiteness, 1.);
+	greyed_color = prov_color * paper_mix * 1.0 / max(whiteness, 1.0);
 	sdf_mix = smoothstep(b1, b0, bSdf);
 	paper_border0 = mix(greyed_color, paper_mix, 0.05);
 	out_color = mix(out_color, paper_border0, sdf_mix);
 
-	sdf_mix = smoothstep(0.93, 1., bSdf);
-	float w_lines = texture(stripes, 30. * tex_coords).x;
+	sdf_mix = smoothstep(0.93, 1.0, bSdf);
+	float w_lines = texture(stripes, 30.0 * tex_coords).x;
 	vec3 line_col = mix(water_col, water, 0.75);
-	vec3 paper_water = mix(water, line_col, 1.);
+	vec3 paper_water = mix(water, line_col, 1.0);
 	water = mix(water, paper_water, sdf_mix);
-
-	// sdf_mix = step(b0, bSdf);
-	// paper_border0 = mix(greyed_color, paper_col, 0.05);
-	// out_color = mix(out_color, paper_border0, sdf_mix);
 
 	borders.y *= mix(1.0, 0.0, far_from_map);
 	beach_border *= mix(1.0, 0.0, far_from_map);
 #else 
 	out_color = mix(ground, water, beach);
 #endif
-
 	out_color = mix(out_color, water, beach);
 
-	borders.y *= mix(0.7, 1.0, far_from_map) * (1.-beach);
+	borders.y *= mix(0.7, 1.0, far_from_map) * (1.0 - beach);
 	out_color = mix(out_color, country_border, borders.y);
-	borders.x *= (1.-far_from_map) * (1.-beach);
+	borders.x *= (1.0 - far_from_map) * (1.0 - beach);
 	out_color = mix(out_color, province_border, borders.x);
 	beach_border *= mix(1.0, 1.0, far_from_map);
 	out_color = mix(out_color, province_border, beach_border);
-#ifdef RIVERS
 	float river = texture(river_texture, tex_coords).x;
-	river = smoothstep(0.1, 0.65, river);
-	river *= far_from_map;
+	river = smoothstep(0.1, 0.65, river) * far_from_map;
 	out_color = mix(out_color, river_col * out_color, river * 0.5);
-#endif
 
-	float light = 1.f;
+	// Project the "fog of war" effect depending on the R component of province_opt
+	// R = intensity of the fog (0.0 = total darkness)
+	out_color = out_color * texture(province_opt, prov_color_coord).r;
+
+	float light = 1.0;
 #ifdef LIGHTING
-	light = get_lighting(tex_coords, beach);
+	light = get_lighting(tex_coords, beach) * 1.0;
 #endif
 
 	f_frag_color.rgb = light * out_color;
 	f_frag_color.rgb = pow(f_frag_color.rgb, vec3(1. / 2.2));
-	f_frag_color.a = 1.;
+	f_frag_color.a = 1.0;
 }

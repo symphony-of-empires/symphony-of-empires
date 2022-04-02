@@ -235,7 +235,7 @@ World::World() {
         return 1;
     });
 
-    const struct luaL_Reg ideology_meta[] ={
+    const struct luaL_Reg ideology_meta[] = {
         { "__gc", [](lua_State* L) {
             UnifiedRender::Log::debug("lua", "__gc?");
             return 0;
@@ -245,28 +245,26 @@ World::World() {
             std::string member = luaL_checkstring(L, 2);
             if(member == "ref_name") {
                 lua_pushstring(L, (*ideology)->ref_name.c_str());
+            } else if(member == "name") {
+                lua_pushstring(L, (*ideology)->name.c_str());
             }
- else if(member == "name") {
-  lua_pushstring(L, (*ideology)->name.c_str());
-}
-UnifiedRender::Log::debug("lua", "__index?");
-return 1;
-}},
-{ "__newindex", [](lua_State* L) {
-    Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
-    std::string member = luaL_checkstring(L, 2);
-    if(member == "ref_name") {
-        (*ideology)->ref_name = luaL_checkstring(L, 3);
-    }
-else if(member == "name") {
- (*ideology)->name = luaL_checkstring(L, 3);
-}
-UnifiedRender::Log::debug("lua", "__newindex?");
-return 0;
-}},
-{ NULL, NULL }
+            UnifiedRender::Log::debug("lua", "__index?");
+            return 1;
+        }},
+        { "__newindex", [](lua_State* L) {
+            Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
+            std::string member = luaL_checkstring(L, 2);
+            if(member == "ref_name") {
+                (*ideology)->ref_name = luaL_checkstring(L, 3);
+            } else if(member == "name") {
+                (*ideology)->name = luaL_checkstring(L, 3);
+            }
+            UnifiedRender::Log::debug("lua", "__newindex?");
+            return 0;
+        }},
+        { NULL, NULL }
     };
-    const luaL_Reg ideology_methods[] ={
+    const luaL_Reg ideology_methods[] = {
         { "new", [](lua_State* L) {
             Ideology** ideology = (Ideology**)lua_newuserdata(L, sizeof(Ideology*));
             *ideology = new Ideology();
@@ -411,7 +409,7 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
 }
 
 void World::load_initial(void) {
-    const std::vector<std::string> init_files ={
+    const std::vector<std::string> init_files = {
         "terrain_types", "good_types",
         "ideologies", "cultures", "nations", "building_types",
         "technology", "religions", "pop_types", "industry_types",
@@ -620,7 +618,7 @@ void World::load_initial(void) {
 }
 
 void World::load_mod(void) {
-    const std::vector<std::string> mod_files ={
+    const std::vector<std::string> mod_files = {
         "mod", "postinit"
     };
     lua_exec_all_of(*this, mod_files, "lua/init");

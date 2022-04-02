@@ -146,6 +146,7 @@ MapRender::MapRender(const World& _world)
     for(unsigned int i = 0; i < 256 * 256; i++) {
         tile_sheet->buffer.get()[i] = 0xffdddddd;
     }
+
     tile_sheet_nation = new UnifiedRender::Texture(256, 256);
     for(unsigned int i = 0; i < 256 * 256; i++) {
         tile_sheet_nation->buffer.get()[i] = 0xffdddddd;
@@ -157,6 +158,18 @@ MapRender::MapRender(const World& _world)
     no_drop_options.editable = true;
     no_drop_options.internal_format = GL_SRGB;
     tile_sheet->to_opengl(no_drop_options);
+
+    // Province options
+    province_opt = new UnifiedRender::Texture(256, 256);
+    for(unsigned int i = 0; i < 256 * 256; i++) {
+        province_opt->buffer.get()[i] = 0x00000080;
+    }
+    {
+        UnifiedRender::TextureOptions no_drop_options{};
+        no_drop_options.editable = true;
+        province_opt->to_opengl(no_drop_options);
+    }
+
     update_nations(world.provinces);
 
     // The map shader that draws everything on the map 
@@ -173,7 +186,6 @@ MapRender::MapRender(const World& _world)
     border_sdf->to_opengl(sdf_options);
     border_sdf->gen_mipmaps();
 }
-
 
 void MapRender::reload_shaders() {
     //map_shader = UnifiedRender::OpenGL::Program::create(options.get_options(), "shaders/map.vs", "shaders/map.fs");
@@ -341,30 +353,6 @@ void MapRender::update_border_sdf(UnifiedRender::Rect update_area) {
     border_sdf->gen_mipmaps();
     glDisable(GL_SCISSOR_TEST);
     return;
-
-    // UnifiedRender::OpenGL::Framebuffer output_fbo = UnifiedRender::OpenGL::Framebuffer();
-    // output_fbo.use();
-    // output_shader->use();
-
-    // UnifiedRender::TextureOptions output_options{};
-    // output_options.format = GL_RED;
-    // output_options.internal_format = GL_RED;
-    // output_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-    // output_options.mag_filter = GL_LINEAR;
-    // output_options.editable = true;
-    // tex0.reset(new UnifiedRender::Texture(tex1->width, tex1->height));
-    // tex0->to_opengl(output_options);
-
-    // output_fbo.set_texture(0, *tex0);
-    // output_shader->set_texture(0, "tex", *tex1);
-    // map_2d_quad->draw();
-    // glFinish();
-    // tex0->gen_mipmaps();
-    // tex1.reset();
-    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    // // Copy the object
-    // return tex0;
 }
 
 // Updates the province color texture with the changed provinces 
@@ -384,11 +372,30 @@ void MapRender::update_nations(std::vector<Province*> provinces) {
         if(province->controller == nullptr) {
             continue;
         }
-        tile_sheet_nation->buffer.get()[province->cached_id] = province->controller->cached_id;
+        this->tile_sheet_nation->buffer.get()[province->cached_id] = province->controller->cached_id;
     }
+
     UnifiedRender::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
-    tile_sheet_nation->to_opengl(no_drop_options);
+    this->tile_sheet_nation->to_opengl(no_drop_options);
+}
+
+void MapRender::update_visibility(void)
+{
+    const auto& gs = (GameState&)GameState::get_instance();
+    if(gs.curr_nation == nullptr) {
+        return;
+    }
+
+    UnifiedRender::TextureOptions no_drop_options{};
+    no_drop_options.editable = true;
+    for(const auto& province : gs.curr_nation->controlled_provinces) {
+        this->province_opt->buffer.get()[gs.world->get_id(*province)] = 0x000000ff;
+        for(const auto& neighbour : province->neighbours) {
+            this->province_opt->buffer.get()[gs.world->get_id(*neighbour)] = 0x000000ff;
+        }
+    }
+    this->province_opt->to_opengl(no_drop_options);
 }
 
 void MapRender::draw(Camera* camera, MapView view_mode) {
@@ -444,6 +451,7 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
     map_shader->set_texture(13, "paper_tex", *paper_tex);
     // map_shader->set_texture(14, "stripes", *stripes_tex);
     map_shader->set_texture(14, "tile_sheet_nation", *tile_sheet_nation);
+    map_shader->set_texture(15, "province_opt", *province_opt);
 
     if(view_mode == MapView::PLANE_VIEW) {
         for(size_t i = 0; i < map_quads.size(); i++) {

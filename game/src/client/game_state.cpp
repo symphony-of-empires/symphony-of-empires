@@ -96,22 +96,24 @@
 #include "client/interface/minimap.hpp"
 #include "client/interface/profiler_view.hpp"
 #include "client/map.hpp"
+#include "client/map_render.hpp"
 #include "server/server_network.hpp"
 
 void GameState::play_nation() {
     current_mode = MapMode::NORMAL;
 
-    const Province* capital = curr_nation->capital;
+    const auto* capital = this->curr_nation->capital;
     if(capital != nullptr) {
         map->camera->set_pos(capital->max_x, capital->max_y);
     }
+    map->map_render->update_visibility();
 
     // Make topwindow
     top_win = new Interface::TopWindow(*this);
     // new MapDevView(map);
     minimap = new Interface::Minimap(*this, -400, -200, UI::Origin::LOWER_RIGHT_SCREEN);
-    g_client->send(Action::SelectNation::form_packet(curr_nation));
-    print_info("Selected nation [%s]", curr_nation->ref_name.c_str());
+    g_client->send(Action::SelectNation::form_packet(this->curr_nation));
+    print_info("Selected nation [%s]", this->curr_nation->ref_name.c_str());
 }
 
 const UnifiedRender::Texture& GameState::get_nation_flag(Nation& nation) {

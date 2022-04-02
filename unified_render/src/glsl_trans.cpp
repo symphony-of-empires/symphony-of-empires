@@ -226,7 +226,7 @@ void UnifiedRender::OpenGL::GLSL_Context::parser(void) {
     funcs.push_back(fn);
 
     // Register all the overloads for this function
-    std::vector<std::string> mix_strings ={ "vec2", "vec3", "vec4", "sampler2D" };
+    std::vector<std::string> mix_strings = { "vec2", "vec3", "vec4", "sampler2D" };
     for(std::vector<std::string>::const_iterator it1 = mix_strings.begin(); it1 != mix_strings.end(); it1++) {
         for(std::vector<std::string>::const_iterator it2 = mix_strings.begin(); it2 != mix_strings.end(); it2++) {
             fn = GLSL_Function();

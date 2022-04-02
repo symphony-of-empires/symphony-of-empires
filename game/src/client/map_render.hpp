@@ -83,6 +83,7 @@ public:
     ~MapRender() {};
     void update_mapmode(std::vector<ProvinceColor> province_colors);
     void update_nations(std::vector<Province*> nations);
+    void update_visibility(void);
     void draw(Camera* camera, MapView view_mode);
     void reload_shaders();
     void update_options(MapOptions options);
@@ -110,6 +111,8 @@ private:
     const UnifiedRender::Texture* bathymethry;
     UnifiedRender::Texture* normal_topo;
     UnifiedRender::TextureArray* terrain_sheet;
+
+    UnifiedRender::Texture* province_opt;
 
     std::vector<UnifiedRender::Square*> map_quads;
     UnifiedRender::Sphere* map_sphere;

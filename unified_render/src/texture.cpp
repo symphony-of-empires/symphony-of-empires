@@ -172,7 +172,7 @@ void UnifiedRender::Texture::delete_opengl() {
 
 UnifiedRender::Texture::Texture(TTF_Font* font, UnifiedRender::Color color, const std::string& msg) {
     // TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
-    SDL_Color black_color ={
+    SDL_Color black_color = {
         static_cast<Uint8>(color.r * 255.f),
         static_cast<Uint8>(color.g * 255.f),
         static_cast<Uint8>(color.b * 255.f),

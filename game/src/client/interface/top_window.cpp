@@ -182,7 +182,7 @@ TimeControlView::TimeControlView(GameState& _gs)
 
     auto* time_lab = new UI::Label(50, 30, " ", this);
     time_lab->on_each_tick = ([this](UI::Widget& w) {
-        const std::string day_names[7] ={
+        const std::string day_names[7] = {
             "Monday",
             "Tuesday",
             "Wednesday",
@@ -192,7 +192,7 @@ TimeControlView::TimeControlView(GameState& _gs)
             "Sunday"
         };
 
-        const std::string month_names[12] ={
+        const std::string month_names[12] = {
             "January",
             "Febraury",
             "March",
