@@ -102,6 +102,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
         this->owner_flag->on_click = ([this](UI::Widget& w) {
             new Interface::NationView(this->gs, this->province->owner);
         });
+        auto* flag_rug = new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width, this->owner_flag->height, &gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
     }
 
     auto* cultures_lab = new UI::Label(0, 0, "Cultures", this);
