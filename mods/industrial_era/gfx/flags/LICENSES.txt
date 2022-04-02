@@ -348,6 +348,10 @@ aceh_republic
 aceh_socialism
 sulu_fascism
 sulu_republic
+norway_socialism
+norway_communism
+norway_fascism
+norway_republic
     Flags made by TrumpShallPurgetheAnimeScourge
 
 baden_communism
