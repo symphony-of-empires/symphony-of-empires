@@ -49,10 +49,10 @@ ENDIF()
 # Workaround for clang (see https://bugs.launchpad.net/ubuntu/+source/libsdl2-ttf/+bug/1872023)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/include/SDL2")
 link_directories(/usr/local/lib)
-include_directories("${PROJECT_SOURCE_DIR}/game/src" "${CMAKE_SOURCE_DIR}/unified_render/include")
+include_directories("${PROJECT_SOURCE_DIR}/game/src" "${CMAKE_SOURCE_DIR}/unified_render/unified_render/include")
 
-link_directories(${PROJECT_SOURCE_DIR}/vendor/lib)
-include_directories(${PROJECT_SOURCE_DIR}/vendor/include)
+link_directories(${CMAKE_SOURCE_DIR}/vendor/lib)
+include_directories(${CMAKE_SOURCE_DIR}/vendor/include)
 
 #
 # Source code files
