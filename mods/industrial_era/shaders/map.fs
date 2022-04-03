@@ -18,7 +18,6 @@ uniform sampler2D tile_sheet_nation;
 uniform sampler2D water_texture;
 uniform sampler2D noise_texture;
 uniform sampler2D terrain_map;
-uniform sampler2DArray terrain_sheet;
 uniform sampler2D border_tex;
 uniform sampler2D border_sdf;
 uniform sampler2D landscape_map;
@@ -30,16 +29,16 @@ uniform sampler2D bathymethry;
 uniform sampler2D paper_tex;
 uniform sampler2D stripes;
 uniform sampler2D province_opt;
+uniform sampler2DArray terrain_sheet;
 
 #define RGB(r, g, b) pow(vec3(r, g, b), vec3(2.2))
 
 vec3 get_water_normal(float time, sampler2D wave1, sampler2D wave2, vec2 tex_coords);
 vec4 no_tiling(sampler2D tex, vec2 uv, sampler2D noisy_tex);
 
-vec4 get_terrain(vec2 coord, vec2 offset) {
-	const float size = 16.;
-	float index = texture(terrain_map, coord).b;
-
+vec4 get_terrain(vec2 tex_coords, vec2 offset) {
+	const float size = 16.0;
+	float index = texture(terrain_map, tex_coords).g;
 	index = trunc(index * size);
 	return texture(terrain_sheet, vec3(offset.x, offset.y, index));
 }
@@ -50,7 +49,7 @@ vec4 get_terrain_mix(vec2 tex_coords) {
 	float yy = pix.y;
 	vec2 scaling = mod(tex_coords + 0.5 * pix, pix) / pix;
 
-	vec2 offset = 80. * tex_coords;
+	vec2 offset = 80.0 * tex_coords;
 	offset.y *= xx / yy;
 
 	vec4 color_00 = get_terrain(tex_coords + 0.5 * vec2(-xx, -yy), offset);
@@ -72,7 +71,7 @@ vec2 sum(vec4 v) {
 
 float is_not_water(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);
-	return terrain.x < 2./255. ? 0. : 1.;
+	return terrain.r < 2.0 / 255.0 ? 0.0 : 1.0;
 }
 
 vec4 get_border(vec2 texcoord) {
@@ -177,15 +176,15 @@ vec2 parallax_map(vec2 tex_coords, vec3 view_dir) {
 
 float isLake(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);
-	return 0.;
+	return 0.0;
 }
 float isOcean(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);
-	return terrain.x == 0.0 ? 1.0 : 0.0;
+	return terrain.r == 0.0 ? 1.0 : 0.0;
 }
 float isWater(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);
-	return terrain.x < 2.0 / 255.0 ? 1.0 : 0.0;
+	return terrain.r < 2.0 / 255.0 ? 1.0 : 0.0;
 }
 
 vec3 gen_normal(vec2 tex_coords) {
@@ -355,8 +354,10 @@ void main() {
 
 	vec2 prov_color_coord = coord * vec2(255.0 / 256.0);
 	vec3 prov_color = texture(tile_sheet, prov_color_coord).rgb;
-	vec3 terrain_color = texture(landscape_map, tex_coords).rgb;
-	vec3 ground = mix(terrain_color, prov_color, mix(0.8, 1.0, far_from_map));
+	
+	//vec3 terrain_color = texture(landscape_map, tex_coords).rgb;
+	vec3 terrain_color = get_terrain_mix(tex_coords).rgb;
+	vec3 ground = mix(terrain_color, prov_color, mix(0.3, 0.5, far_from_map));
 
 	vec3 out_color;
 #ifdef SDF
@@ -415,7 +416,7 @@ void main() {
 
 	// Project the "fog of war" effect depending on the R component of province_opt
 	// R = intensity of the fog (0.0 = total darkness)
-	out_color = out_color * texture(province_opt, prov_color_coord).r;
+	//out_color = out_color * texture(province_opt, prov_color_coord).r;
 
 	float light = 1.0;
 #ifdef LIGHTING

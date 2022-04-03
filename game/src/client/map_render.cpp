@@ -41,6 +41,7 @@
 #include "unified_render/path.hpp"
 #include "unified_render/print.hpp"
 #include "unified_render/state.hpp"
+#include "unified_render/byteswap.hpp"
 
 #include "map.hpp"
 #include "world.hpp"
@@ -85,23 +86,49 @@ MapRender::MapRender(const World& _world)
     bathymethry = &tex_man->load(Path::get("map/bathymethry.png"), mipmap_options);
     noise_tex = &tex_man->load(Path::get("gfx/noise_tex.png"), mipmap_options);
     river_tex = &tex_man->load(Path::get("map/river_smooth.png"), mipmap_options);
-    terrain_map = new UnifiedRender::Texture(Path::get("map/terrain.png"));
+
+    terrain_map = new UnifiedRender::Texture(Path::get("map/color.png"));
     size_t terrain_map_size = terrain_map->width * terrain_map->height;
     for(unsigned int i = 0; i < terrain_map_size; i++) {
-        uint32_t color = terrain_map->buffer.get()[i];
-        uint32_t base_index = 0xFF000000;
-        if(color == 0xFF000000) {
-            terrain_map->buffer.get()[i] = base_index + 0; // Ocean
-        } else if(color == 0xFFFF00FF) {
-            terrain_map->buffer.get()[i] = base_index + 1; // Lake 
-        } else if(color == 0xFFFFFFFF) {
-            terrain_map->buffer.get()[i] = base_index + 2; // Land
+        const uint32_t color = terrain_map->buffer.get()[i];
+        
+        uint8_t idx = 0;
+        switch(bswap32(color << 8)) {
+        case 0x99822b:
+            idx = 1 * 16;
+            break;
+        case 0x5e8f13:
+            idx = 2 * 16;
+            break;
+        case 0xe8aa4a:
+            idx = 3 * 16;
+            break;
+        case 0xabba97:
+        case 0xffffff:
+            idx = 8 * 16;
+            break;
+        default:
+            idx = 0;
+            break;
+        }
+
+        terrain_map->buffer.get()[i] = idx << 8;
+        switch(bswap32(color << 8)) {
+        case 0x243089:
+            terrain_map->buffer.get()[i] |= 0x00; // Ocean
+            break;
+        //case 0x243089:
+        //    terrain_map->buffer.get()[i] |= 0x01; // Lake
+        //    break;
+        default:
+            terrain_map->buffer.get()[i] |= 0x02; // Land
+            break;
         }
     }
     UnifiedRender::TextureOptions single_color{};
-    single_color.internal_format = GL_RED;
+    single_color.internal_format = GL_RGB;
     terrain_map->to_opengl(single_color);
-    terrain_map->gen_mipmaps();
+    //terrain_map->gen_mipmaps();
 
     auto topo_map = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(Path::get("map/topo.png")));
     normal_topo = new UnifiedRender::Texture(Path::get("map/normal.png"));
@@ -116,24 +143,16 @@ MapRender::MapRender(const World& _world)
     normal_topo->gen_mipmaps();
 
     // Terrain textures to sample from
-    // terrain_sheet = new UnifiedRender::TextureArray(Path::get("terrain_sheet.png"), 4, 4);
-    // terrain_sheet->to_opengl();
+    terrain_sheet = new UnifiedRender::TextureArray(Path::get("gfx/terrain_sheet.png"), 4, 4);
+    terrain_sheet->to_opengl();
 
     print_info("Creating tile map & tile sheet");
-
-    // The province & nation mapping Alpha & Blue is for nation id Red & Green is for province id
+    // The tile map, used to store per-tile information
     tile_map = new UnifiedRender::Texture(world.width, world.height);
     for(size_t i = 0; i < world.width * world.height; i++) {
         const Tile& tile = world.get_tile(i);
         tile_map->buffer.get()[i] = tile.province_id & 0xffff;
-        if(tile.province_id <= world.provinces.size()) {
-            const auto* province = world.provinces[tile.province_id];
-            if(province->owner != nullptr) {
-                tile_map->buffer.get()[i] |= (world.get_id(*province->owner) & 0xffff) << 16;
-            }
-        }
     }
-
     UnifiedRender::TextureOptions tile_map_options{};
     tile_map_options.internal_format = GL_RGBA32F;
     tile_map_options.editable = true;
@@ -427,8 +446,6 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
     }
     map_shader->set_texture(4, "terrain_map", *terrain_map); // 1 col
 
-    // Temporary not in use
-    // map_shader->set_texture(5, "terrain_sheet", terrain_sheet);
     if(options.sdf.used) {
         map_shader->set_texture(6, "border_sdf", *(border_sdf.get())); // 1 col
     }
@@ -452,6 +469,8 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
     // map_shader->set_texture(14, "stripes", *stripes_tex);
     map_shader->set_texture(14, "tile_sheet_nation", *tile_sheet_nation);
     map_shader->set_texture(15, "province_opt", *province_opt);
+
+    map_shader->set_texture(16, "terrain_sheet", *terrain_sheet);
 
     if(view_mode == MapView::PLANE_VIEW) {
         for(size_t i = 0; i < map_quads.size(); i++) {

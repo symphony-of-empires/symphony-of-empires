@@ -23,12 +23,4 @@ void main() {
 	v_texcoord = m_texcoord;
 	v_view_pos = vec3(view[3][0], view[3][1], view[3][2]);
 	v_frag_pos = m_pos;
-
-	//vec3 T = normalize(aTangent);
-	//vec3 B = normalize(aBitangent);
-	//vec3 N = normalize(aNormal);
-	//mat3 TBN = mat3(T, B, N);
-
-	//vTangentFragPos = TBN * viewPos;
-	//vTangentFragPos = TBN * m_pos;
 }
