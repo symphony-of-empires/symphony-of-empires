@@ -399,6 +399,11 @@ void MapRender::update_nations(std::vector<Province*> provinces) {
     this->tile_sheet_nation->to_opengl(no_drop_options);
 }
 
+void MapRender::request_update_visibility(void)
+{
+    this->req_update_vision = true;
+}
+
 void MapRender::update_visibility(void)
 {
     const auto& gs = (GameState&)GameState::get_instance();
@@ -407,7 +412,7 @@ void MapRender::update_visibility(void)
     }
 
     // TODO: Check that unit is allied with us/province owned by an ally
-    
+
     UnifiedRender::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
     for(const auto& province : gs.curr_nation->controlled_provinces) {
@@ -432,6 +437,11 @@ void MapRender::update_visibility(void)
 }
 
 void MapRender::draw(Camera* camera, MapView view_mode) {
+    if(this->req_update_vision) {
+        this->update_visibility();
+        this->req_update_vision = false;
+    }
+
     glm::mat4 view, projection;
 
     map_shader->use();

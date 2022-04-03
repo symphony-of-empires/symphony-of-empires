@@ -30,6 +30,7 @@
 #include <memory>
 #include <utility>
 #include <functional>
+#include <atomic>
 
 namespace UnifiedRender {
     class Texture;
@@ -82,6 +83,7 @@ public:
     ~MapRender() {};
     void update_mapmode(std::vector<ProvinceColor> province_colors);
     void update_nations(std::vector<Province*> nations);
+    void request_update_visibility(void);
     void update_visibility(void);
     void draw(Camera* camera, MapView view_mode);
     void reload_shaders();
@@ -122,4 +124,6 @@ private:
     std::unique_ptr<UnifiedRender::OpenGL::Program> border_gen_shader;
     std::unique_ptr<UnifiedRender::OpenGL::Program> output_shader;
     std::unique_ptr<UnifiedRender::Texture> border_sdf;
+
+    std::atomic<bool> req_update_vision = true;
 };

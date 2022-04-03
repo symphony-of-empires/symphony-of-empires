@@ -336,7 +336,7 @@ void Nation::give_province(Province& province) {
     // Update the map visibility
     auto& gs = (GameState&)GameState::get_instance();
     if(gs.map != nullptr) {
-        gs.map->map_render->update_visibility();
+        gs.map->map_render->request_update_visibility();
     }
 }
 
@@ -350,7 +350,7 @@ void Nation::control_province(Province& province) {
     // Update the map visibility
     auto& gs = (GameState&)GameState::get_instance();
     if(gs.map != nullptr) {
-        gs.map->map_render->update_visibility();
+        gs.map->map_render->request_update_visibility();
     }
 }
 
