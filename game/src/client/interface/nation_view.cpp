@@ -75,10 +75,13 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     flag_img->on_each_tick(*flag_img);
     flag_img->tooltip = new UI::Tooltip(flag_img, 512, 24);
     flag_img->tooltip->text(UnifiedRender::Locale::translate("The flag which represents the country"));
-    //auto* flag_rug = new UI::Image(flag_img->x, flag_img->y, flag_img->width, flag_img->height, &gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
+    auto* flag_rug = new UI::Image(0, 0, flag_img->width, flag_img->height, &gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
 
-    auto* name_lab = new UI::Label(0, 0, "?", this);
-    name_lab->below_of(*flag_img);
+    auto* flex_actions_column = new UI::Div(0, 0, 512, 512, this);
+    flex_actions_column->below_of(*flag_img);
+    flex_actions_column->flex = UI::Flex::COLUMN;
+
+    auto* name_lab = new UI::Label(0, 0, "?", flex_actions_column);
     name_lab->on_each_tick = ([this](UI::Widget& w) {
         w.text(this->nation->get_client_hint().alt_name);
     });
@@ -86,8 +89,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     name_lab->tooltip = new UI::Tooltip(name_lab, 512, 24);
     name_lab->tooltip->text(UnifiedRender::Locale::translate("The official name"));
 
-    auto* ideology_lab = new UI::Label(0, 0, "?", this);
-    ideology_lab->below_of(*name_lab);
+    auto* ideology_lab = new UI::Label(0, 0, "?", flex_actions_column);
     ideology_lab->on_each_tick = ([this](UI::Widget& w) {
         w.text(this->nation->get_client_hint().ideology->name);
     });
@@ -98,8 +100,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     UI::Label* interest_lab;
     UI::Label* rel_lab;
     if(gs.curr_nation != nation) {
-        rel_lab = new UI::Label(0, 0, "?", this);
-        rel_lab->below_of(*ideology_lab);
+        rel_lab = new UI::Label(0, 0, "?", flex_actions_column);
         rel_lab->on_each_tick = ([this](UI::Widget& w) {
             w.text(std::to_string(this->gs.curr_nation->relations[this->gs.world->get_id(*this->nation)].relation));
         });
@@ -107,8 +108,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         rel_lab->tooltip = new UI::Tooltip(rel_lab, 512, 24);
         rel_lab->tooltip->text(UnifiedRender::Locale::translate("Our diplomatic relations with them"));
 
-        interest_lab = new UI::Label(0, 0, "?", this);
-        interest_lab->below_of(*rel_lab);
+        interest_lab = new UI::Label(0, 0, "?", flex_actions_column);
         interest_lab->on_each_tick = ([this](UI::Widget& w) {
             w.text(std::to_string(this->gs.curr_nation->relations[this->gs.world->get_id(*this->nation)].interest));
         });
@@ -117,13 +117,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         interest_lab->tooltip->text(UnifiedRender::Locale::translate("Interest/Tolerance towards them"));
     }
 
-    auto* market_btn = new UI::Button(0, 0, this->width, 24, this);
-    if(gs.curr_nation != nation) {
-        market_btn->below_of(*interest_lab);
-    }
-    else {
-        market_btn->below_of(*ideology_lab);
-    }
+    auto* market_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
     market_btn->text(UnifiedRender::Locale::translate("Examine market"));
     market_btn->on_click = ([](UI::Widget& w) {
         auto& o = static_cast<NationView&>(*w.parent);
@@ -132,37 +126,31 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     market_btn->tooltip = new UI::Tooltip(market_btn, 512, 24);
     market_btn->tooltip->text(UnifiedRender::Locale::translate("View market information"));
 
-    auto* close_btn = new UI::CloseButton(0, 0, this->width, 24, this);
     if(gs.curr_nation != nation) {
-        auto* inc_btn = new UI::Button(0, 0, this->width, 24, this);
-        inc_btn->below_of(*market_btn);
+        auto* inc_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         inc_btn->text(UnifiedRender::Locale::translate("Increment relations"));
         inc_btn->on_click = ([](UI::Widget& w) {
             auto& o = static_cast<NationView&>(*w.parent);
             g_client->send(Action::DiploIncRelations::form_packet(o.nation));
         });
 
-        auto* dec_btn = new UI::Button(0, 0, this->width, 24, this);
-        dec_btn->below_of(*inc_btn);
+        auto* dec_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         dec_btn->text(UnifiedRender::Locale::translate("Decrement relations"));
         dec_btn->on_click = ([](UI::Widget& w) {
             auto& o = static_cast<NationView&>(*w.parent);
             g_client->send(Action::DiploDecRelations::form_packet(o.nation));
         });
 
-        auto* dow_btn = new UI::Button(0, 0, this->width, 24, this);
-        dow_btn->below_of(*dec_btn);
+        auto* dow_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         dow_btn->tooltip = new UI::Tooltip(dow_btn, 512, 24);
         dow_btn->on_each_tick = ([this](UI::Widget& w) {
-
             if(this->gs.curr_nation->relations[this->gs.world->get_id(*this->nation)].has_war) {
                 w.text(UnifiedRender::Locale::translate("Propose treaty"));
                 w.on_click = ([this](UI::Widget& w) {
                     new Interface::TreatyDraftView(this->gs, this->nation);
                 });
                 w.tooltip->text(UnifiedRender::Locale::translate("End the war against this country and propose a peace deal"));
-            }
-            else {
+            } else {
                 w.text(UnifiedRender::Locale::translate("Declare war"));
                 w.on_click = ([this](UI::Widget& w) {
                     new Interface::WarDeclarePrompt(this->gs, this->nation);
@@ -172,43 +160,32 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         });
         dow_btn->on_each_tick(*dow_btn);
 
-        auto* ally_btn = new UI::Button(0, 0, this->width, 24, this);
-        ally_btn->below_of(*dow_btn);
+        auto* ally_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         ally_btn->text(UnifiedRender::Locale::translate("Offer alliance"));
         ally_btn->tooltip = new UI::Tooltip(ally_btn, 512, 24);
         ally_btn->tooltip->text(UnifiedRender::Locale::translate("Agree to mutually defend our interests forcing them to enter war with us"));
 
-        auto* defensive_pact_btn = new UI::Button(0, 0, this->width, 24, this);
-        defensive_pact_btn->below_of(*ally_btn);
+        auto* defensive_pact_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         defensive_pact_btn->text(UnifiedRender::Locale::translate("Defensive pact"));
         defensive_pact_btn->tooltip = new UI::Tooltip(defensive_pact_btn, 512, 24);
         defensive_pact_btn->tooltip->text(UnifiedRender::Locale::translate("Mutually defend our countries from any foreign attacks"));
 
-        auto* embargo_btn = new UI::Button(0, 0, this->width, 24, this);
-        embargo_btn->below_of(*defensive_pact_btn);
+        auto* embargo_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         embargo_btn->text(UnifiedRender::Locale::translate("Embargo"));
         embargo_btn->tooltip = new UI::Tooltip(embargo_btn, 512, 24);
         embargo_btn->tooltip->text(UnifiedRender::Locale::translate("Prevent imports/exports to this country"));
 
-        auto* allow_market_access_btn = new UI::Button(0, 0, this->width, 24, this);
-        allow_market_access_btn->below_of(*embargo_btn);
+        auto* allow_market_access_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         allow_market_access_btn->text(UnifiedRender::Locale::translate("Allow market access"));
 
-        auto* allow_military_access_btn = new UI::Button(0, 0, this->width, 24, this);
-        allow_military_access_btn->below_of(*allow_market_access_btn);
+        auto* allow_military_access_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         allow_military_access_btn->text(UnifiedRender::Locale::translate("Allow military access"));
         allow_military_access_btn->tooltip = new UI::Tooltip(allow_military_access_btn, 512, 24);
         allow_military_access_btn->tooltip->text(UnifiedRender::Locale::translate("Allow this nation to cross our land with their units"));
-        close_btn->below_of(*allow_military_access_btn);
     }
-    else {
-        close_btn->below_of(*market_btn);
-    }
-    close_btn->text("Close");
 
     if(gs.editor && gs.curr_nation != nation) {
-        auto* switch_btn = new UI::Button(0, 0, this->width, 24, this);
-        switch_btn->below_of(*close_btn);
+        auto* switch_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         switch_btn->text(UnifiedRender::Locale::translate("Switch to this nation"));
         switch_btn->tooltip = new UI::Tooltip(switch_btn, 512, 24);
         switch_btn->tooltip->text(UnifiedRender::Locale::translate("Switches to this nation (multiplayer disallow rule)"));

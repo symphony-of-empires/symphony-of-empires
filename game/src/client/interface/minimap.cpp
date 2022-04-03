@@ -70,11 +70,11 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
 
     auto* flex_column1 = new UI::Div(5, 5, 24, 190, this);
     flex_column1->flex = UI::Flex::COLUMN;
-    flex_column1->flex_justify = UI::FlexJustify::SPACE_BETWEEN;
+    //flex_column1->flex_justify = UI::FlexJustify::SPACE_BETWEEN;
     flex_column1->flex_align = UI::Align::CENTER;
     auto* flex_column2 = new UI::Div(35, 5, 24, 190, this);
     flex_column2->flex = UI::Flex::COLUMN;
-    flex_column2->flex_justify = UI::FlexJustify::SPACE_BETWEEN;
+    //flex_column2->flex_justify = UI::FlexJustify::SPACE_BETWEEN;
     flex_column2->flex_align = UI::Align::CENTER;
 
     auto* flat_btn = new UI::Image(0, 0, 24, 24, "gfx/flat_icon.png", flex_column1);
@@ -103,7 +103,6 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     auto* relations_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
     relations_ibtn->on_click = ([this](UI::Widget&) {
         this->gs.map->set_selection(relations_map_mode_selector);
-
         Nation* current_nation = this->gs.curr_nation;
         Nation::Id id = this->gs.world->get_id(*current_nation);
         mapmode_generator map_mode = relations_map_mode(id);
@@ -116,7 +115,6 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     auto* population_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
     population_ibtn->on_click = ([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-
         mapmode_generator map_mode = population_map_mode;
         mapmode_tooltip tooltip = population_tooltip;
         this->gs.map->set_map_mode(map_mode, tooltip);
@@ -128,7 +126,6 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     auto* terrain_color_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
     terrain_color_ibtn->on_click = ([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-
         mapmode_generator map_mode = terrain_color_map_mode;
         mapmode_tooltip tooltip = terrain_type_tooltip;
         this->gs.map->set_map_mode(map_mode, tooltip);
@@ -139,7 +136,6 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     auto* culture_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
     culture_ibtn->on_click = ([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-
         mapmode_generator map_mode = culture_map_mode;
         mapmode_tooltip tooltip = culture_tooltip;
         this->gs.map->set_map_mode(map_mode, tooltip);
@@ -150,8 +146,6 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     auto* religion_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
     religion_ibtn->on_click = ([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-
-
         mapmode_generator map_mode = religion_map_mode;
         mapmode_tooltip tooltip = religion_tooltip;
         this->gs.map->set_map_mode(map_mode, tooltip);
@@ -232,8 +226,6 @@ mapmode_tooltip good_tooltip(Good::Id good_id) {
         str += UnifiedRender::string_format("Price: %f\n", product.price);
         str += UnifiedRender::string_format("Demand: %f\n", product.demand);
         str += UnifiedRender::string_format("Supply: %f\n", product.supply);
-        
-
         return str;
     };
 }

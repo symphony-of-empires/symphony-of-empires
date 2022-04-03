@@ -56,7 +56,7 @@ TopWindow::TopWindow(GameState& _gs)
         auto& state = static_cast<TopWindow&>(*w.parent);
         w.current_texture = &state.gs.get_nation_flag(*state.gs.curr_nation);
     });
-    //auto* flag_rug = new UI::Image(0, 0, flag_img->width, flag_img->height, &gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
+    auto* flag_rug = new UI::Image(0, 0, flag_img->width, flag_img->height, &gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
 
     auto* flex_column = new UI::Div(3, 96, 42, 390, this);
     flex_column->flex = UI::Flex::COLUMN;
