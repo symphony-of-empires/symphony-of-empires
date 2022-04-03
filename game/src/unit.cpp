@@ -161,7 +161,6 @@ void Unit::set_province(Province& _province) {
     }
 
     province = &_province;
-
     // Add unit to "cache list" of units
     province->units.push_back(this);
 }

@@ -314,6 +314,9 @@ UnifiedRender::Decimal Nation::get_tax(const Pop& pop) const {
     return base_tax;
 }
 
+#include "client/game_state.hpp"
+#include "client/map.hpp"
+#include "client/map_render.hpp"
 // Gives this nation a specified province (for example on a treaty)
 void Nation::give_province(Province& province) {
     if(province.controller != nullptr) {
@@ -329,6 +332,12 @@ void Nation::give_province(Province& province) {
 
     province.owner = this;
     province.controller = this;
+
+    // Update the map visibility
+    auto& gs = (GameState&)GameState::get_instance();
+    if(gs.map != nullptr) {
+        gs.map->map_render->update_visibility();
+    }
 }
 
 void Nation::control_province(Province& province) {
@@ -337,6 +346,12 @@ void Nation::control_province(Province& province) {
     }
     controlled_provinces.insert(&province);
     province.controller = this;
+
+    // Update the map visibility
+    auto& gs = (GameState&)GameState::get_instance();
+    if(gs.map != nullptr) {
+        gs.map->map_render->update_visibility();
+    }
 }
 
 const NationClientHint& Nation::get_client_hint(void) {

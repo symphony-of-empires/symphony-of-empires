@@ -406,11 +406,25 @@ void MapRender::update_visibility(void)
         return;
     }
 
+    // TODO: Check that unit is allied with us/province owned by an ally
+    
     UnifiedRender::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
     for(const auto& province : gs.curr_nation->controlled_provinces) {
         this->province_opt->buffer.get()[gs.world->get_id(*province)] = 0x000000ff;
         for(const auto& neighbour : province->neighbours) {
+            this->province_opt->buffer.get()[gs.world->get_id(*neighbour)] = 0x000000ff;
+        }
+    }
+
+    for(const auto& unit : gs.world->units) {
+        // Unit must be ours
+        if(unit->owner != gs.curr_nation) {
+            continue;
+        }
+
+        this->province_opt->buffer.get()[gs.world->get_id(*unit->province)] = 0x000000ff;
+        for(const auto& neighbour : unit->province->neighbours) {
             this->province_opt->buffer.get()[gs.world->get_id(*neighbour)] = 0x000000ff;
         }
     }
