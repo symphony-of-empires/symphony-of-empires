@@ -305,7 +305,7 @@ void main() {
 	}
 #endif
 
-	float far_from_map = smoothstep(45.0, 80.0, dist_to_map * 1000.0);
+	float far_from_map = smoothstep(65.0, 75.0, dist_to_map * 1000.0);
 
 	vec2 beach_oceanBeach = get_beach(tex_coords);
 	float beach = beach_oceanBeach.x;
@@ -327,7 +327,7 @@ void main() {
 #else
 	vec3 water = water_col * 0.7;
 #endif
-	water = mix(water, paper_col, 0.1); 
+	water = mix(water, paper_col, 0.0); 
 #ifdef SDF
 	//paper
 	vec3 p_water = mix(paper, paper_col, 0.7); 
@@ -337,12 +337,12 @@ void main() {
 
 #ifdef GRID
 	float grid = get_grid(tex_coords);
-	water = mix(water, vec3(0, 0, 0), grid * 0.2);
+	water = mix(water, vec3(0.0, 0.0, 0.0), grid * 0.2);
 #endif
 
 	float bathy = texture(bathymethry, tex_coords).x;
-	bathy = (bathy - 0.50)/(.70 - 0.50);
-	water = water * mix(0.7, 1.0, bathy);
+	bathy = (bathy - 0.50) / (0.70 - 0.50);
+	water = water * mix(0.8, 1.0, bathy);
 
 	vec4 borders_diag = get_border(tex_coords);
 	vec2 borders = borders_diag.xy;
@@ -354,10 +354,9 @@ void main() {
 
 	vec2 prov_color_coord = coord * vec2(255.0 / 256.0);
 	vec3 prov_color = texture(tile_sheet, prov_color_coord).rgb;
-	
-	//vec3 terrain_color = texture(landscape_map, tex_coords).rgb;
+
 	vec3 terrain_color = get_terrain_mix(tex_coords).rgb;
-	vec3 ground = mix(terrain_color, prov_color, mix(0.7, 1.0, far_from_map));
+	vec3 ground = mix(terrain_color, prov_color, 0.5);
 
 	vec3 out_color;
 #ifdef SDF
@@ -367,9 +366,9 @@ void main() {
 	vec3 paper_border1;
 	vec3 paper_mix = mix(paper, paper_col, 0.3);
 
-	vec3 greyed_color = abs(prov_color - paper_mix);
+	vec3 greyed_color = prov_color * paper_mix;
 	float whiteness = dot(prov_color, vec3(1.0, 1.0, 1.0));
-	greyed_color = ground * paper_mix;
+	//greyed_color = ground * paper_mix;
 
 	float b3 = 0.5;
 	float b2 = 0.90;
@@ -399,24 +398,29 @@ void main() {
 
 	borders.y *= mix(1.0, 0.0, far_from_map);
 	beach_border *= mix(1.0, 0.0, far_from_map);
-#else 
+
+	out_color = mix(out_color, vec3(1.0), 1.0 - far_from_map);
+	out_color = mix(out_color, mix(ground, water, beach), 1.0 - far_from_map);
+#else
 	out_color = mix(ground, water, beach);
 #endif
-	out_color = mix(out_color, water, beach);
+	out_color = mix(out_color, water, beach * far_from_map);
 
 	borders.y *= mix(0.7, 1.0, far_from_map) * (1.0 - beach);
 	out_color = mix(out_color, country_border, borders.y);
 	borders.x *= (1.0 - far_from_map) * (1.0 - beach);
 	out_color = mix(out_color, province_border, borders.x);
-	beach_border *= mix(1.0, 1.0, far_from_map);
-	out_color = mix(out_color, province_border, beach_border);
+	
+	//beach_border *= mix(1.0, 1.0, far_from_map);
+	//out_color = mix(out_color, province_border, beach_border);
+	
 	float river = texture(river_texture, tex_coords).x;
 	river = smoothstep(0.1, 0.65, river) * far_from_map;
 	out_color = mix(out_color, river_col * out_color, river * 0.5);
 
 	// Project the "fog of war" effect depending on the R component of province_opt
 	// R = intensity of the fog (0.0 = total darkness)
-	//out_color = out_color * texture(province_opt, prov_color_coord).r;
+	out_color = out_color * texture(province_opt, prov_color_coord).r;
 
 	float light = 1.0;
 #ifdef LIGHTING
