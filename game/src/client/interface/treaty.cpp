@@ -23,9 +23,10 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#include "unified_render/ui/components.hpp"
+
 #include "client/interface/treaty.hpp"
 #include "io_impl.hpp"
-#include "unified_render/ui/components.hpp"
 #include "client/client_network.hpp"
 
 using namespace Interface;

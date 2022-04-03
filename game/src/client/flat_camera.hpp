@@ -42,7 +42,7 @@ public:
     FlatCamera(glm::vec2 screen_size, glm::vec2 map_size)
         : Camera(screen_size, map_size)
     {
-        world_position = glm::vec3(400, 200, 400.f);
+        world_position = glm::vec3(400.f, 200.f, 400.f);
         map_position = world_position;
         target = map_position;
     }
@@ -90,7 +90,7 @@ public:
     glm::mat4 get_view(void) override {
         glm::vec3 look_at = world_position;
         look_at.z = 0;
-        look_at.y -= world_position.z > -200 ? 0.06f * (200 + world_position.z) : 0;
+        look_at.y -= world_position.z > -300.f ? 0.06f * (300.f + world_position.z) : 0.f;
         glm::vec3 up_vector = glm::vec3(0.f, -1.f, 0.f);
         return glm::lookAt(world_position, look_at, up_vector);
     };

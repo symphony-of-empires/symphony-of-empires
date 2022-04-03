@@ -357,7 +357,7 @@ void main() {
 	
 	//vec3 terrain_color = texture(landscape_map, tex_coords).rgb;
 	vec3 terrain_color = get_terrain_mix(tex_coords).rgb;
-	vec3 ground = mix(terrain_color, prov_color, mix(0.3, 0.5, far_from_map));
+	vec3 ground = mix(terrain_color, prov_color, mix(0.7, 1.0, far_from_map));
 
 	vec3 out_color;
 #ifdef SDF

@@ -89,6 +89,17 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     });
     globe_btn->set_tooltip("Globe map");
 
+    auto* landscape_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
+    landscape_ibtn->on_click = ([this](UI::Widget&) {
+        this->gs.map->set_selection(nullptr);
+
+        mapmode_generator map_mode = terrain_map_mode;
+        mapmode_tooltip tooltip = empty_province_tooltip;
+        this->gs.map->set_map_mode(map_mode, tooltip);
+        set_mapmode_options(nullptr);
+    });
+    landscape_ibtn->set_tooltip("Political");
+
     auto* political_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
     political_ibtn->on_click = ([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
@@ -165,8 +176,9 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
 }
 
 void Minimap::set_mapmode_options(Widget* widget) {
-    if(mapmode_options)
+    if(mapmode_options) {
         mapmode_options->kill();
+    }
     mapmode_options = widget;
 }
 
@@ -181,7 +193,7 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
     glm::ivec2 size(4, 4);
     glm::ivec2 texture_size(10, 10);
     auto tex_man = UnifiedRender::State::get_instance().tex_man;
-    auto border_tex = &tex_man->load(Path::get("gfx/border2.png"));
+    auto border_tex = &tex_man->load(Path::get("gfx/ui/border2.png"));
     this->border = UI::Border(border_tex, size, texture_size);
 
     auto goods = gs.world->goods;
