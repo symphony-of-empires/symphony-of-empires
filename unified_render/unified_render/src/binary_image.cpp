@@ -68,7 +68,7 @@ void BinaryImage::from_file(const UnifiedRender::IO::Path& path) {
     width = static_cast<size_t>(i_width);
     height = static_cast<size_t>(i_height);
 
-    // valgrind complains about mismatched frees
+    // Requires re-allocation so it's handled by new[] (we don't know what stbi uses)
     buffer = std::make_unique<uint32_t[]>(width * height);
     std::memcpy(buffer.get(), c_buffer, sizeof(uint32_t) * width * height);
     std::free(c_buffer);

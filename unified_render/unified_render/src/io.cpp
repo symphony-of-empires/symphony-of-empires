@@ -119,11 +119,11 @@ void UnifiedRender::IO::Asset::File::write(const void* buf, size_t n) {
 
 void UnifiedRender::IO::Asset::File::seek(SeekType type, int offset) {
     if(type == SeekType::CURRENT) {
-        fseek(fp, 0, SEEK_CUR);
+        fseek(fp, offset, SEEK_CUR);
     } else if(type == SeekType::START) {
-        fseek(fp, 0, SEEK_SET);
+        fseek(fp, offset, SEEK_SET);
     } else if(type == SeekType::END) {
-        fseek(fp, 0, SEEK_END);
+        fseek(fp, offset, SEEK_END);
     }
 }
 
@@ -170,11 +170,11 @@ UnifiedRender::IO::PackageManager::PackageManager(void) {
         packages.push_back(package);
     }
 
-    for(const auto& package : packages) {
-        for(const auto& asset : package.assets) {
-            
-        }
-    }
+    //for(const auto& package : packages) {
+    //    for(const auto& asset : package.assets) {
+    //        
+    //    }
+    //}
 }
 
 UnifiedRender::IO::PackageManager::~PackageManager(void) {

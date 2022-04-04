@@ -63,10 +63,22 @@
 static UnifiedRender::State* g_state = nullptr;
 
 UnifiedRender::State::State(void) {
+    // Make sure we're the only state running
     if(g_state != nullptr) {
         throw std::runtime_error("Duplicate instancing of GameState");
     }
     g_state = this;
+
+    // Initialize the IO first, as other subsystems may require access to files (i.e the UI context)
+    package_man = new UnifiedRender::IO::PackageManager();
+    const std::string asset_path = Path::get_full();
+    print_info("Assets path: %s", asset_path.c_str());
+    for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
+        if(entry.is_directory()) {
+            const auto& path = entry.path().lexically_relative(asset_path);
+            Path::add_path(path.string());
+        }
+    }
 
     // Startup-initialization of subsystems
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -134,17 +146,6 @@ UnifiedRender::State::State(void) {
     sound_man = new UnifiedRender::AudioManager();
     material_man = new UnifiedRender::MaterialManager();
     model_man = new UnifiedRender::ModelManager();
-    package_man = new UnifiedRender::IO::PackageManager();
-
-    const std::string asset_path = Path::get_full();
-
-    print_info("Assets path: %s", asset_path.c_str());
-    for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
-        if(entry.is_directory()) {
-            const auto& path = entry.path().lexically_relative(asset_path);
-            Path::add_path(path.string());
-        }
-    }
 
     // Compile built-in shaders
     const auto read_file = [](std::string file_name) {
