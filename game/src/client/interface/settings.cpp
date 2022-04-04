@@ -131,19 +131,8 @@ Settings::Settings(GameState& _gs)
     });
     rivers_chk->set_tooltip("Enables/Disables rivers. Low performance impact");
 
-    auto* landscape_chk = new UI::Checkbox(this);
-    landscape_chk->below_of(*rivers_chk);
-    landscape_chk->set_value(gs.map->map_render->options.landscape.used);
-    landscape_chk->text("Landscape");
-    landscape_chk->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<Settings&>(*w.parent);
-        o.gs.map->map_render->options.landscape.used = ((UI::Checkbox&)w).get_value();
-        o.gs.map->reload_shaders();
-    });
-    landscape_chk->set_tooltip("Enables/Disables the landscape image (for terrain). Low performance impact");
-
     auto* grid_chk = new UI::Checkbox(this);
-    grid_chk->below_of(*landscape_chk);
+    grid_chk->below_of(*rivers_chk);
     grid_chk->set_value(gs.map->map_render->options.grid.used);
     grid_chk->text("Gridlines");
     grid_chk->set_on_click([](UI::Widget& w) {

@@ -48,7 +48,7 @@ namespace Interface {
 
         UI::Image* owner_flag;
         UI::Image* landscape_img;
-
+        
         UI::PieChart* cultures_pie;
         UI::PieChart* religions_pie;
         UI::PieChart* pop_types_pie;

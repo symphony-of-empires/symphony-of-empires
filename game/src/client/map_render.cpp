@@ -79,7 +79,6 @@ MapRender::MapRender(const World& _world)
     water_tex = &tex_man->load(Path::get("gfx/water_tex.png"), mipmap_options);
     paper_tex = &tex_man->load(Path::get("gfx/paper.png"), mipmap_options);
     stripes_tex = &tex_man->load(Path::get("gfx/stripes.png"), mipmap_options);
-    landscape_map = &tex_man->load(Path::get("map/color.png"), mipmap_options);
     wave1 = &tex_man->load(Path::get("gfx/wave1.png"), mipmap_options);
     wave2 = &tex_man->load(Path::get("gfx/wave2.png"), mipmap_options);
     mipmap_options.internal_format = GL_RED;
@@ -475,10 +474,6 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
     }
 
     map_shader->set_texture(7, "bathymethry", *bathymethry); // 1 col
-
-    if(options.landscape.used) {
-        map_shader->set_texture(8, "landscape_map", *landscape_map); // 3 col
-    }
 
     if(options.rivers.used) {
         map_shader->set_texture(9, "river_texture", *river_tex); // 1 col

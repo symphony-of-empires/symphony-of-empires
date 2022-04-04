@@ -65,14 +65,13 @@ public:
     Option sdf{ "SDF", true };
     Option lighting{ "LIGHTING", true };
     Option parallax{ "PARALLAX", false };
-    Option landscape{ "LANDSCAPE", true };
     Option rivers{ "RIVERS", true };
     Option water{ "WATER", true };
     Option grid{ "GRID", true };
 
     std::vector<Option> get_options() {
         return std::vector<Option>{
-            noise, sdf, lighting, parallax, landscape, rivers, water, grid
+            noise, sdf, lighting, parallax, rivers, water, grid
         };
     }
 };
@@ -106,7 +105,6 @@ private:
     const UnifiedRender::Texture* topo_map;
     const UnifiedRender::Texture* river_tex;
     UnifiedRender::Texture* terrain_map;
-    const UnifiedRender::Texture* landscape_map;
     const UnifiedRender::Texture* wave1;
     const UnifiedRender::Texture* wave2;
     const UnifiedRender::Texture* bathymethry;

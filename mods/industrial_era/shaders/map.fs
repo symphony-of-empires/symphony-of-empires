@@ -20,7 +20,6 @@ uniform sampler2D noise_texture;
 uniform sampler2D terrain_map;
 uniform sampler2D border_tex;
 uniform sampler2D border_sdf;
-uniform sampler2D landscape_map;
 uniform sampler2D river_texture;
 uniform sampler2D wave1;
 uniform sampler2D wave2;
