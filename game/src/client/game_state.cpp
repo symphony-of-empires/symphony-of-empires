@@ -619,6 +619,21 @@ void GameState::world_thread(void) {
     }
 }
 
+void GameState::music_thread(void) {
+    while(this->run) {
+        if(this->music_queue.empty()) {
+            // Search through all the music in 'music/ambience' and picks a random
+            auto entries = Path::get_all_recursive("sfx/music/ambience");
+            if(!entries.empty()) {
+                int music_index = std::rand() % entries.size();
+                this->music_fade_value = 100.f;
+                std::scoped_lock lock(this->sound_lock);
+                this->music_queue.push_back(new UnifiedRender::Audio(entries[music_index]));
+            }
+        }
+    }
+}
+
 #include <filesystem>
 
 #include "unified_render/ui/image.hpp"
@@ -690,14 +705,13 @@ void start_client(int, char**) {
 
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);
+    std::thread music_th(&GameState::music_thread, &gs);
     while(gs.run) {
-        // Required since events may request world data
-        gs.world->world_mutex.lock();
-        handle_event(gs.input, gs);
-        gs.world->world_mutex.unlock();
-
         // Locking is very expensive, so we condense everything into a big "if"
         if(gs.world->world_mutex.try_lock()) {
+            // Required since events may request world data
+            handle_event(gs.input, gs);
+
             if(gs.current_mode == MapMode::NORMAL) {
                 handle_popups(displayed_events, displayed_treaties, gs);
             }
@@ -740,43 +754,25 @@ void start_client(int, char**) {
                 }
             }
 
+            if(gs.current_mode == MapMode::DISPLAY_ONLY) {
+                gs.map->camera->move(0.05f, 0.f, 0.f);
+            }
+
             gs.world->world_mutex.unlock();
         }
 
-        if(gs.current_mode == MapMode::DISPLAY_ONLY) {
-            gs.map->camera->move(0.05f, 0.f, 0.f);
-        }
-
-        if(gs.music_queue.empty()) {
-            // Search through all the music in 'music/ambience' and picks a random
-            auto entries = Path::get_all_recursive("sfx/music/ambience");
-            if(!entries.empty()) {
-                int music_index = std::rand() % entries.size();
-                gs.music_fade_value = 100.f;
-                std::scoped_lock lock(gs.sound_lock);
-                gs.music_queue.push_back(new UnifiedRender::Audio(entries[music_index]));
-            }
-        }
-
         std::scoped_lock lock(gs.render_lock);
-        if(!gs.motion_blur) {
-            glClear(GL_COLOR_BUFFER_BIT);
-        }
         gs.clear();
-
         if(gs.current_mode != MapMode::NO_MAP) {
             std::scoped_lock lock(gs.world->world_mutex);
             gs.map->draw(gs);
-        }
-
-        if(gs.current_mode != MapMode::NO_MAP) {
             gs.map->camera->update();
         }
-
         gs.ui_ctx->render_all(glm::ivec2(gs.input.mouse_pos.first, gs.input.mouse_pos.second));
         gs.swap();
         gs.world->profiler.render_done();
     }
+    music_th.join();
     world_th.join();
     return;
 }

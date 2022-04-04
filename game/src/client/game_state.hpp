@@ -91,6 +91,7 @@ public:
     void send_command(Archive& archive);
     void update_on_tick(void);
     void world_thread(void);
+    void music_thread(void);
 
     Client* client = nullptr;
     Server* server = nullptr;
