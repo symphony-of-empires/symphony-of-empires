@@ -691,7 +691,10 @@ void start_client(int, char**) {
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);
     while(gs.run) {
+        // Required since events may request world data
+        gs.world->world_mutex.lock();
         handle_event(gs.input, gs);
+        gs.world->world_mutex.unlock();
 
         // Locking is very expensive, so we condense everything into a big "if"
         if(gs.world->world_mutex.try_lock()) {
