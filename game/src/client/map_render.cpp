@@ -93,18 +93,30 @@ MapRender::MapRender(const World& _world)
         
         uint8_t idx = 0;
         switch(bswap32(color << 8)) {
-        case 0x99822b:
+        case 0x18200b:
+            idx = 0 * 16;
+            break;
+        case 0x4b482a:
             idx = 1 * 16;
             break;
-        case 0x5e8f13:
-            idx = 2 * 16;
-            break;
-        case 0xe8aa4a:
+        case 0x273214:
             idx = 3 * 16;
             break;
-        case 0xabba97:
+        case 0x9c8461:
+        case 0xbfa178:
+            idx = 6 * 16;
+            break;
+        case 0x969a9a:
+        case 0x686963:
         case 0xffffff:
             idx = 8 * 16;
+            break;
+        case 0x614a2f:
+            idx = 9 * 16;
+            break;
+        case 0x37311b:
+        case 0x7a6342:
+            idx = 10 * 16;
             break;
         default:
             idx = 0;
