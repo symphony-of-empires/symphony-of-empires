@@ -54,10 +54,9 @@ UnitButton::UnitButton(GameState& _gs, int x, int y, Unit* _unit, UI::Widget* pa
     gs{ _gs },
     unit{ _unit }
 {
-    text(std::to_string(unit->size) + " " + unit->type->name);
-    on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<UnitButton&>(*w.parent);
-        w.text(std::to_string(o.unit->size) + " " + UnifiedRender::Locale::translate(o.unit->type->name));
+    this->text(std::to_string(this->unit->size) + " " + this->unit->type->name);
+    this->on_each_tick = ([this](UI::Widget& w) {
+        w.text(std::to_string(this->unit->size) + " " + UnifiedRender::Locale::translate(this->unit->type->name));
     });
 }
 
@@ -73,7 +72,7 @@ UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType* _unit_typ
 
     this->name_btn = new UI::Button(0, 0, this->width - 32, 24, this);
     this->name_btn->right_side_of(*this->icon_img);
-    this->name_btn->text(unit_type->name);
+    this->name_btn->text(this->unit_type->name);
 }
 
 ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province* _province, UI::Widget* parent)

@@ -48,11 +48,9 @@ ProfilerView::ProfilerView(GameState& _gs)
     float fps = profiler.get_fps();
 
     auto* fps_lab = new UI::Label(10, 0, "FPS: " + std::to_string((int)fps), this);
-    fps_lab->on_update = ([](UI::Widget& w) {
-        auto& state = static_cast<ProfilerView&>(*w.parent);
-        UnifiedRender::Profiler& profiler = state.gs.world->profiler;
+    fps_lab->on_update = ([this](UI::Widget& w) {
+        UnifiedRender::Profiler& profiler = this->gs.world->profiler;
         float fps = profiler.get_fps();
-
         w.text("FPS: " + std::to_string((int)fps));
     });
 
@@ -64,11 +62,9 @@ ProfilerView::ProfilerView(GameState& _gs)
     }
 
     auto* task_chart = new UI::BarChart(20, 20, 200, 20, this);
-    task_chart->on_update = ([](UI::Widget& w) {
-        auto& state = static_cast<ProfilerView&>(*w.parent);
+    task_chart->on_update = ([this](UI::Widget& w) {
         auto& chart = static_cast<UI::BarChart&>(w);
-        UnifiedRender::Profiler& profiler = state.gs.world->profiler;
-
+        UnifiedRender::Profiler& profiler = this->gs.world->profiler;
         std::vector<UI::ChartData> data;
         auto tasks = profiler.get_tasks();
         for(auto& task : tasks) {
@@ -78,15 +74,14 @@ ProfilerView::ProfilerView(GameState& _gs)
         chart.set_data(data);
     });
 
-    this->on_update = ([](UI::Widget& w) {
-        auto& state = static_cast<ProfilerView&>(w);
-        UnifiedRender::Profiler& profiler = state.gs.world->profiler;
+    this->on_update = ([this](UI::Widget& w) {
+        UnifiedRender::Profiler& profiler = this->gs.world->profiler;
         auto tasks = profiler.get_tasks();
-        auto& task_views = state.task_views;
+        auto& task_views = this->task_views;
 
         if(task_views.size() < tasks.size()) {
             for(size_t i = task_views.size(); i < tasks.size(); i++) {
-                task_views.push_back(new ProfilerTaskView(&state, 10, 50 + i * 25));
+                task_views.push_back(new ProfilerTaskView(this, 10, 50 + i * 25));
             }
         } else if(task_views.size() > tasks.size()) {
             for(size_t i = tasks.size(); i < task_views.size(); i++) {

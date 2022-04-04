@@ -226,8 +226,6 @@ TechTreeView::TechTreeView(GameState& _gs)
     close_btn->right_side_of(*politics_ibtn);
     close_btn->text("Close");
     close_btn->on_click = ([](UI::Widget& w) {
-        auto& o = static_cast<TechTreeView&>(*w.parent);
-        o.gs.right_side_panel->kill();
-        o.gs.right_side_panel = nullptr;
+        (static_cast<TechTreeView&>(*w.parent)).kill();
     });
 }

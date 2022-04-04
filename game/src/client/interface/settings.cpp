@@ -53,16 +53,15 @@ Settings::Settings(GameState& _gs)
 
     auto* check_controller_btn = new UI::Button(0, 0, 128, 24, this);
     check_controller_btn->text("Check controller");
-    check_controller_btn->on_click = ([](UI::Widget& w) {
-        auto& o = static_cast<Settings&>(*w.parent);
-        if(o.gs.joy != nullptr) {
-            SDL_JoystickClose(o.gs.joy);
+    check_controller_btn->on_click = ([this](UI::Widget& w) {
+        if(this->gs.joy != nullptr) {
+            SDL_JoystickClose(this->gs.joy);
         }
         
         if(SDL_NumJoysticks() >= 1) {
-            o.gs.joy = SDL_JoystickOpen(0);
+            this->gs.joy = SDL_JoystickOpen(0);
         } else {
-            o.gs.ui_ctx->prompt("Gamepad", "No present joysticks");
+            this->gs.ui_ctx->prompt("Gamepad", "No present joysticks");
         }
     });
     check_controller_btn->set_tooltip("Checks for any new gamepads - click this if you've connected a gamepad and experience issues");
@@ -70,9 +69,8 @@ Settings::Settings(GameState& _gs)
     auto* sensivity_sld = new UI::Slider(0, 0, 128, 24, -8000.f, 8000.f, this);
     sensivity_sld->text("Controller Sensivity");
     sensivity_sld->below_of(*check_controller_btn);
-    sensivity_sld->on_click = ([](UI::Widget& w) {
-        auto& o = static_cast<Settings&>(*w.parent);
-        o.gs.joy_sensivity = ((UI::Slider&)w).value;
+    sensivity_sld->on_click = ([this](UI::Widget& w) {
+        this->gs.joy_sensivity = ((UI::Slider&)w).value;
     });
     sensivity_sld->set_tooltip("Sensivity of the controller (negative/positive inverts controls)");
 
@@ -80,10 +78,9 @@ Settings::Settings(GameState& _gs)
     sdf_detail_chk->below_of(*sensivity_sld);
     sdf_detail_chk->set_value(gs.map->map_render->options.sdf.used);
     sdf_detail_chk->text("SDF detail");
-    sdf_detail_chk->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<Settings&>(*w.parent);
-        o.gs.map->map_render->options.sdf.used = ((UI::Checkbox&)w).get_value();
-        o.gs.map->reload_shaders();
+    sdf_detail_chk->set_on_click([this](UI::Widget& w) {
+        this->gs.map->map_render->options.sdf.used = ((UI::Checkbox&)w).get_value();
+        this->gs.map->reload_shaders();
     });
     sdf_detail_chk->set_tooltip("Enables/Disables SDF detail on the map. High performance impact");
 
@@ -91,10 +88,9 @@ Settings::Settings(GameState& _gs)
     noise_chk->below_of(*sdf_detail_chk);
     noise_chk->set_value(gs.map->map_render->options.noise.used);
     noise_chk->text("Noise");
-    noise_chk->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<Settings&>(*w.parent);
-        o.gs.map->map_render->options.noise.used = ((UI::Checkbox&)w).get_value();
-        o.gs.map->reload_shaders();
+    noise_chk->set_on_click([this](UI::Widget& w) {
+        this->gs.map->map_render->options.noise.used = ((UI::Checkbox&)w).get_value();
+        this->gs.map->reload_shaders();
     });
     noise_chk->set_tooltip("Adds noise to the map, giving it more \"natural\" feel. Low performance impact");
 
@@ -102,10 +98,9 @@ Settings::Settings(GameState& _gs)
     raytracing_chk->below_of(*noise_chk);
     raytracing_chk->set_value(gs.map->map_render->options.lighting.used);
     raytracing_chk->text("Simple Raytracing");
-    raytracing_chk->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<Settings&>(*w.parent);
-        o.gs.map->map_render->options.lighting.used = ((UI::Checkbox&)w).get_value();
-        o.gs.map->reload_shaders();
+    raytracing_chk->set_on_click([this](UI::Widget& w) {
+        this->gs.map->map_render->options.lighting.used = ((UI::Checkbox&)w).get_value();
+        this->gs.map->reload_shaders();
     });
     raytracing_chk->set_tooltip("Creates vibrant lighting through the map. Low performance impact");
 
@@ -113,10 +108,9 @@ Settings::Settings(GameState& _gs)
     parallax_chk->below_of(*raytracing_chk);
     parallax_chk->set_value(gs.map->map_render->options.parallax.used);
     parallax_chk->text("Parallax");
-    parallax_chk->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<Settings&>(*w.parent);
-        o.gs.map->map_render->options.parallax.used = ((UI::Checkbox&)w).get_value();
-        o.gs.map->reload_shaders();
+    parallax_chk->set_on_click([this](UI::Widget& w) {
+        this->gs.map->map_render->options.parallax.used = ((UI::Checkbox&)w).get_value();
+        this->gs.map->reload_shaders();
     });
     parallax_chk->set_tooltip("Enables/Disables a parallax map. High performance impact");
 
@@ -124,10 +118,9 @@ Settings::Settings(GameState& _gs)
     rivers_chk->below_of(*parallax_chk);
     rivers_chk->set_value(gs.map->map_render->options.rivers.used);
     rivers_chk->text("Rivers");
-    rivers_chk->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<Settings&>(*w.parent);
-        o.gs.map->map_render->options.rivers.used = ((UI::Checkbox&)w).get_value();
-        o.gs.map->reload_shaders();
+    rivers_chk->set_on_click([this](UI::Widget& w) {
+        this->gs.map->map_render->options.rivers.used = ((UI::Checkbox&)w).get_value();
+        this->gs.map->reload_shaders();
     });
     rivers_chk->set_tooltip("Enables/Disables rivers. Low performance impact");
 
@@ -135,10 +128,9 @@ Settings::Settings(GameState& _gs)
     grid_chk->below_of(*rivers_chk);
     grid_chk->set_value(gs.map->map_render->options.grid.used);
     grid_chk->text("Gridlines");
-    grid_chk->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<Settings&>(*w.parent);
-        o.gs.map->map_render->options.grid.used = ((UI::Checkbox&)w).get_value();
-        o.gs.map->reload_shaders();
+    grid_chk->set_on_click([this](UI::Widget& w) {
+        this->gs.map->map_render->options.grid.used = ((UI::Checkbox&)w).get_value();
+        this->gs.map->reload_shaders();
     });
     grid_chk->set_tooltip("Enables/Disables the grid lines on the water. Low performance impact");
 
@@ -146,10 +138,9 @@ Settings::Settings(GameState& _gs)
     water_chk->below_of(*grid_chk);
     water_chk->set_value(gs.map->map_render->options.water.used);
     water_chk->text("Water texture");
-    water_chk->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<Settings&>(*w.parent);
-        o.gs.map->map_render->options.water.used = ((UI::Checkbox&)w).get_value();
-        o.gs.map->reload_shaders();
+    water_chk->set_on_click([this](UI::Widget& w) {
+        this->gs.map->map_render->options.water.used = ((UI::Checkbox&)w).get_value();
+        this->gs.map->reload_shaders();
     });
     water_chk->set_tooltip("Enables/Disables the water texture (for terrain). Low performance impact");
 
@@ -157,9 +148,8 @@ Settings::Settings(GameState& _gs)
     motionblur_chk->below_of(*water_chk);
     motionblur_chk->set_value(gs.motion_blur);
     motionblur_chk->text("Motion blur");
-    motionblur_chk->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<Settings&>(*w.parent);
-        o.gs.motion_blur = ((UI::Checkbox&)w).get_value();
+    motionblur_chk->set_on_click([this](UI::Widget& w) {
+        this->gs.motion_blur = ((UI::Checkbox&)w).get_value();
     });
     motionblur_chk->set_tooltip("Control if motion blur should be enabled");
 
@@ -167,9 +157,8 @@ Settings::Settings(GameState& _gs)
     music_volume_sld->text("Music volume");
     music_volume_sld->below_of(*motionblur_chk);
     music_volume_sld->value = gs.music_volume;
-    music_volume_sld->on_click = ([](UI::Widget& w) {
-        auto& o = static_cast<Settings&>(*w.parent);
-        o.gs.music_volume = static_cast<int>(((UI::Slider&)w).value);
+    music_volume_sld->on_click = ([this](UI::Widget& w) {
+        this->gs.music_volume = static_cast<int>(((UI::Slider&)w).value);
     });
     music_volume_sld->set_tooltip("Controls the volume of the music");
 
@@ -177,9 +166,8 @@ Settings::Settings(GameState& _gs)
     sound_volume_sld->text("Sound volume");
     sound_volume_sld->below_of(*music_volume_sld);
     sound_volume_sld->value = gs.sound_volume;
-    sound_volume_sld->on_click = ([](UI::Widget& w) {
-        auto& o = static_cast<Settings&>(*w.parent);
-        o.gs.sound_volume = static_cast<int>(((UI::Slider&)w).value);
+    sound_volume_sld->on_click = ([this](UI::Widget& w) {
+        this->gs.sound_volume = static_cast<int>(((UI::Slider&)w).value);
     });
     sound_volume_sld->set_tooltip("Controls the volume of the sounds");
 

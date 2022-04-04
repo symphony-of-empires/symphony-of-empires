@@ -44,66 +44,57 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
     auto* cmd_chk = new UI::Checkbox(0, 0, this->width, 24, this);
     cmd_chk->below_of(*build_prod_chk);
     cmd_chk->text(UnifiedRender::Locale::translate("Command troops"));
-    cmd_chk->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<AISettingsWindow&>(*w.parent);
-        o.gs.curr_nation->ai_do_cmd_troops = ((UI::Checkbox&)w).get_value();
+    cmd_chk->set_on_click([this](UI::Widget& w) {
+        this->gs.curr_nation->ai_do_cmd_troops = ((UI::Checkbox&)w).get_value();
     });
 
     auto* diplo_chk = new UI::Checkbox(0, 0, this->width, 24, this);
     diplo_chk->below_of(*cmd_chk);
     diplo_chk->text(UnifiedRender::Locale::translate("Diplomacy"));
-    diplo_chk->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<AISettingsWindow&>(*w.parent);
-        o.gs.curr_nation->ai_do_diplomacy = ((UI::Checkbox&)w).get_value();
+    diplo_chk->set_on_click([this](UI::Widget& w) {
+        this->gs.curr_nation->ai_do_diplomacy = ((UI::Checkbox&)w).get_value();
     });
 
     auto* policies_chk = new UI::Checkbox(0, 0, this->width, 24, this);
     policies_chk->below_of(*diplo_chk);
     policies_chk->text(UnifiedRender::Locale::translate("Policies"));
-    policies_chk->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<AISettingsWindow&>(*w.parent);
-        o.gs.curr_nation->ai_do_policies = ((UI::Checkbox&)w).get_value();
+    policies_chk->set_on_click([this](UI::Widget& w) {
+        this->gs.curr_nation->ai_do_policies = ((UI::Checkbox&)w).get_value();
     });
 
     auto* research_chk = new UI::Checkbox(0, 0, this->width, 24, this);
     research_chk->below_of(*policies_chk);
     research_chk->text(UnifiedRender::Locale::translate("Research"));
-    research_chk->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<AISettingsWindow&>(*w.parent);
-        o.gs.curr_nation->ai_do_research = ((UI::Checkbox&)w).get_value();
+    research_chk->set_on_click([this](UI::Widget& w) {
+        this->gs.curr_nation->ai_do_research = ((UI::Checkbox&)w).get_value();
     });
 
     auto* unit_production_chk = new UI::Checkbox(0, 0, this->width, 24, this);
     unit_production_chk->below_of(*research_chk);
     unit_production_chk->text(UnifiedRender::Locale::translate("Unit Production"));
-    unit_production_chk->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<AISettingsWindow&>(*w.parent);
-        o.gs.curr_nation->ai_do_unit_production = ((UI::Checkbox&)w).get_value();
+    unit_production_chk->set_on_click([this](UI::Widget& w) {
+        this->gs.curr_nation->ai_do_unit_production = ((UI::Checkbox&)w).get_value();
     });
 
     auto* hdl_event_chk = new UI::Checkbox(0, 0, this->width, 24, this);
     hdl_event_chk->below_of(*unit_production_chk);
     hdl_event_chk->text(UnifiedRender::Locale::translate("Handle events"));
-    hdl_event_chk->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<AISettingsWindow&>(*w.parent);
-        o.gs.curr_nation->ai_handle_events = ((UI::Checkbox&)w).get_value();
+    hdl_event_chk->set_on_click([this](UI::Widget& w) {
+        this->gs.curr_nation->ai_handle_events = ((UI::Checkbox&)w).get_value();
     });
 
     auto* hdl_treaties_chk = new UI::Checkbox(0, 0, this->width, 24, this);
     hdl_treaties_chk->below_of(*hdl_event_chk);
     hdl_treaties_chk->text(UnifiedRender::Locale::translate("Handle treaties"));
-    hdl_treaties_chk->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<AISettingsWindow&>(*w.parent);
-        o.gs.curr_nation->ai_handle_treaties = ((UI::Checkbox&)w).get_value();
+    hdl_treaties_chk->set_on_click([this](UI::Widget& w) {
+        this->gs.curr_nation->ai_handle_treaties = ((UI::Checkbox&)w).get_value();
     });
 
     auto* close_btn = new UI::CloseButton(0, 0, this->width, 24, this);
     close_btn->below_of(*hdl_treaties_chk);
     close_btn->text(UnifiedRender::Locale::translate("Close"));
-    close_btn->on_click = ([](UI::Widget& w) {
-        auto& o = static_cast<AISettingsWindow&>(*w.parent);
-
-        o.gs.client->send(Action::AiControl::form_packet(o.gs.curr_nation));
+    close_btn->on_click = ([this](UI::Widget& w) {
+        this->gs.client->send(Action::AiControl::form_packet(this->gs.curr_nation));
         w.parent->kill();
     });
 }

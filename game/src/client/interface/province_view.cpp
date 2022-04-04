@@ -299,9 +299,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     close_btn->right_side_of(*build_ibtn);
     close_btn->text("Close");
     close_btn->on_click = ([](UI::Widget& w) {
-        auto& o = static_cast<ProvinceView&>(*w.parent);
-        o.gs.right_side_panel->kill();
-        o.gs.right_side_panel = nullptr;
+        (static_cast<ProvinceView&>(*w.parent)).kill();
     });
 
     if(gs.editor) {
