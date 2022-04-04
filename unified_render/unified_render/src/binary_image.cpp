@@ -46,7 +46,7 @@ BinaryImage::BinaryImage(size_t _width, size_t _height)
     : width{ _width },
     height{ _height }
 {
-    buffer = std::unique_ptr<uint32_t>(new uint32_t[width * height]);
+    buffer = std::make_unique<uint32_t[]>(width * height);
     std::memset(buffer.get(), 0, sizeof(uint32_t) * width * height);
 }
 
@@ -69,7 +69,7 @@ void BinaryImage::from_file(const UnifiedRender::IO::Path& path) {
     height = static_cast<size_t>(i_height);
 
     // valgrind complains about mismatched frees
-    buffer = std::unique_ptr<uint32_t>(new uint32_t[width * height]);
+    buffer = std::make_unique<uint32_t[]>(width * height);
     std::memcpy(buffer.get(), c_buffer, sizeof(uint32_t) * width * height);
     std::free(c_buffer);
 }

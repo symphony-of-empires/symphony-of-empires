@@ -59,6 +59,6 @@ public:
     virtual void from_file(const UnifiedRender::IO::Path& path);
     uint32_t get_pixel(size_t x, size_t y) const;
 
-    std::unique_ptr<uint32_t> buffer;
+    std::unique_ptr<uint32_t[]> buffer;
     size_t width, height;
 };

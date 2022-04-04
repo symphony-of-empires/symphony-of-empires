@@ -67,7 +67,7 @@ UnifiedRender::Texture::~Texture(void) {
 void UnifiedRender::Texture::create_dummy() {
     width = 8;
     height = 8;
-    buffer = std::unique_ptr<uint32_t>(new uint32_t[width * height]);
+    buffer = std::make_unique<uint32_t[]>(width * height);
     if(buffer == nullptr) {
         throw TextureException("Dummy", "Out of memory for dummy texture");
     }
@@ -303,8 +303,7 @@ const UnifiedRender::Texture& UnifiedRender::TextureManager::load(const std::str
     UnifiedRender::Texture* tex;
     try {
         tex = new UnifiedRender::Texture(path);
-    }
-    catch(BinaryImageException&) {
+    } catch(BinaryImageException&) {
         tex = new UnifiedRender::Texture();
         tex->create_dummy();
     }
