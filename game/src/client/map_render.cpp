@@ -72,18 +72,19 @@ MapRender::MapRender(const World& _world)
     mipmap_options.wrap_t = GL_REPEAT;
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
+    auto tex_man = UnifiedRender::State::get_instance().tex_man;
+
+    wave1 = &tex_man->load(Path::get("gfx/wave1.png"), mipmap_options);
+    wave2 = &tex_man->load(Path::get("gfx/wave2.png"), mipmap_options);
+    noise_tex = &tex_man->load(Path::get("gfx/noise_tex.png"), mipmap_options);
     mipmap_options.internal_format = GL_SRGB;
 
-    auto tex_man = UnifiedRender::State::get_instance().tex_man;
 
     water_tex = &tex_man->load(Path::get("gfx/water_tex.png"), mipmap_options);
     paper_tex = &tex_man->load(Path::get("gfx/paper.png"), mipmap_options);
     stripes_tex = &tex_man->load(Path::get("gfx/stripes.png"), mipmap_options);
-    wave1 = &tex_man->load(Path::get("gfx/wave1.png"), mipmap_options);
-    wave2 = &tex_man->load(Path::get("gfx/wave2.png"), mipmap_options);
     mipmap_options.internal_format = GL_RED;
     bathymethry = &tex_man->load(Path::get("map/bathymethry.png"), mipmap_options);
-    noise_tex = &tex_man->load(Path::get("gfx/noise_tex.png"), mipmap_options);
     river_tex = &tex_man->load(Path::get("map/river_smooth.png"), mipmap_options);
 
     terrain_map = new UnifiedRender::Texture(Path::get("map/color.png"));
@@ -192,7 +193,7 @@ MapRender::MapRender(const World& _world)
     // Province options
     province_opt = new UnifiedRender::Texture(256, 256);
     for(unsigned int i = 0; i < 256 * 256; i++) {
-        province_opt->buffer.get()[i] = 0x00000080;
+        province_opt->buffer.get()[i] = 0x000000ff;
     }
     {
         UnifiedRender::TextureOptions no_drop_options{};
@@ -426,6 +427,9 @@ void MapRender::update_visibility(void)
 
     UnifiedRender::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
+    for(unsigned int i = 0; i < 256 * 256; i++) {
+        province_opt->buffer.get()[i] = 0x00000080;
+    }
     for(const auto& province : gs.curr_nation->controlled_provinces) {
         this->province_opt->buffer.get()[gs.world->get_id(*province)] = 0x000000ff;
         for(const auto& neighbour : province->neighbours) {

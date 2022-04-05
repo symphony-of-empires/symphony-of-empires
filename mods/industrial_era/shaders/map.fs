@@ -259,20 +259,23 @@ float get_lighting(vec2 tex_coords, float beach) {
 
 	vec3 normal = texture(normal, tex_coords).xyz;
 	normal = normal * 2.0 - 1.0;
-	normal.xy *= 0.2;
+	normal.xy *= mix(0.7, 0.2, far_from_map);
 	normal = normalize(normal);
 	normal.z *= -1;
 	vec3 lightDir = normalize(vec3(-2, -1, -4));
 	float diffuse = max(dot(lightDir, normal), 0.0);
+	diffuse *= mix(0.6, 1., far_from_map);
 
 	float is_water = step(1., max(isWater(tex_coords), beach));
 #ifdef WATER
 	vec3 water_normal = get_water_normal(time, wave1, wave2, tex_coords);
 	normal = mix(normal, water_normal, is_water * (1. - far_from_map));
+	normal = normalize(normal);
 #endif
 	float water_shine = mix(256, 64, far_from_map);
 	float shininess = is_water == 1. ? water_shine : 8;
-	float specularStrength = is_water == 1. ? 0.4 : 0.2;
+	float specularStrength = is_water == 1. ? 0.6 : 0.2;
+	specularStrength *= mix(3., 1., far_from_map);
 
 	vec3 reflectDir = reflect(-lightDir, normal);  
 	float spec = pow(max(dot(view_dir, reflectDir), 0.0), shininess);
@@ -367,7 +370,6 @@ void main() {
 
 	vec3 greyed_color = prov_color * paper_mix;
 	float whiteness = dot(prov_color, vec3(1.0, 1.0, 1.0));
-	//greyed_color = ground * paper_mix;
 
 	float b3 = 0.5;
 	float b2 = 0.90;
@@ -420,7 +422,6 @@ void main() {
 	// Project the "fog of war" effect depending on the R component of province_opt
 	// R = intensity of the fog (0.0 = total darkness)
 	out_color = out_color * texture(province_opt, prov_color_coord).r;
-	// out_color = vec3(prov_color_coord.x, prov_color_coord.y, 0.);
 
 	float light = 1.0;
 #ifdef LIGHTING
