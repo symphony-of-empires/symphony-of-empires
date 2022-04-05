@@ -76,8 +76,10 @@ namespace Path {
         std::string rsult = buf;
         size_t found = rsult.find_last_of("/\\");
         rsult = rsult.substr(0, found);
-        /*found = rsult.find_last_of("/\\");
-        rsult = rsult.substr(0, found);*/
+#ifdef NO_COPY_MODS
+        found = rsult.find_last_of("/\\");
+        rsult = rsult.substr(0, found);
+#endif
 
         rsult += "/mods/";
         return rsult;

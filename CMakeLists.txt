@@ -8,6 +8,9 @@ option(BUILD_GAME "Enable building SymphonyOfEmpires" ON)
 IF(LOG_TO_CONSOLE)
 	add_compile_definitions(LOG_TO_CONSOLE)
 ENDIF()
+IF(NO_COPY_MODS)
+	add_compile_definitions(NO_COPY_MODS)
+ENDIF()
 
 # Backend selection
 IF(UR_BACKEND_OPENGL)
