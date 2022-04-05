@@ -48,7 +48,7 @@ vec4 get_terrain_mix(vec2 tex_coords) {
 	float yy = pix.y;
 	vec2 scaling = mod(tex_coords + 0.5 * pix, pix) / pix;
 
-	vec2 offset = 80.0 * tex_coords;
+	vec2 offset = 320.0 * tex_coords;
 	offset.y *= xx / yy;
 
 	vec4 color_00 = get_terrain(tex_coords + 0.5 * vec2(-xx, -yy), offset);
@@ -95,10 +95,10 @@ vec4 get_border(vec2 texcoord) {
 	provienceRU.zw = texture(tile_sheet_nation, provienceRU.xy * scale).xy;
 	provienceRD.zw = texture(tile_sheet_nation, provienceRD.xy * scale).xy;
 
-	vec2 x0 = sum(provienceLU - provienceRU) * is_not_water(coordLU) * is_not_water(coordRU);
-	vec2 x1 = sum(provienceLD - provienceRD) * is_not_water(coordLD) * is_not_water(coordRD);
-	vec2 y0 = sum(provienceLU - provienceLD) * is_not_water(coordLU) * is_not_water(coordLD);
-	vec2 y1 = sum(provienceRU - provienceRD) * is_not_water(coordRU) * is_not_water(coordRD);
+	vec2 x0 = sum(provienceLU - provienceRU);
+	vec2 x1 = sum(provienceLD - provienceRD);
+	vec2 y0 = sum(provienceLU - provienceLD);
+	vec2 y1 = sum(provienceRU - provienceRD);
 
 	vec2 scaling = mod(texcoord + 0.5 * pix, pix) / pix;
 	vec2 xBorder = mix(x0, x1, step(0.5, scaling.y));
@@ -420,6 +420,7 @@ void main() {
 	// Project the "fog of war" effect depending on the R component of province_opt
 	// R = intensity of the fog (0.0 = total darkness)
 	out_color = out_color * texture(province_opt, prov_color_coord).r;
+	// out_color = vec3(prov_color_coord.x, prov_color_coord.y, 0.);
 
 	float light = 1.0;
 #ifdef LIGHTING
