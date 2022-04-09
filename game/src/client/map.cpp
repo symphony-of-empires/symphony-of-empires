@@ -486,7 +486,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
     }
 }
 
-void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx) {
+void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, GameState& gs) {
     std::pair<int, int>& mouse_pos = input.mouse_pos;
     // std::pair<float, float>& select_pos = input.select_pos;
     switch(event.type) {
@@ -546,7 +546,7 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx) {
         if(input.middle_mouse_down) {  // Drag the map with middlemouse
             if(camera->get_cursor_map_pos(mouse_pos, map_pos)) {
                 glm::vec2 current_pos = glm::make_vec2(camera->get_map_pos());
-                const glm::vec2 pos =  current_pos + last_camera_drag_pos - glm::vec2(map_pos);
+                const glm::vec2 pos = current_pos + last_camera_drag_pos - glm::vec2(map_pos);
                 camera->set_pos(pos.x, pos.y);
             }
         }
@@ -569,7 +569,7 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx) {
         break;
     case SDL_MOUSEWHEEL:
         SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
-        camera->move(0.f, 0.f, event.wheel.y * -2.f);
+        camera->move(0.f, 0.f, event.wheel.y * gs.delta_time * -100.f);
         break;
     case SDL_KEYDOWN:
         switch(event.key.keysym.sym) {

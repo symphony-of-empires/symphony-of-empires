@@ -33,6 +33,7 @@
 #include "unified_render/serializer.hpp"
 #include "unified_render/audio.hpp"
 #include "unified_render/state.hpp"
+#include "unified_render/decimal.hpp"
 #include "tutorial.hpp"
 
 enum class MapMode : unsigned char {
@@ -105,6 +106,8 @@ public:
     std::atomic<int> ms_delay_speed;
     std::atomic<bool> quit;
     bool host_mode = false;
+
+    float delta_time;
 
     // The ui will mostly need to read the world state
     World* world = nullptr;
