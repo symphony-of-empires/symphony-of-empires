@@ -29,6 +29,7 @@
 
 #include "unified_render/shader.hpp"
 #include "unified_render/glsl_trans.hpp"
+#include "unified_render/utils.hpp"
 
 // Construct a shader by opening the provided path and creating a temporal ifstream, reading
 // from that stream in text mode and then compiling the shader
@@ -102,7 +103,7 @@ void UnifiedRender::OpenGL::Shader::compile(GLuint type) {
         if(it != buffer.end()) {
             line_buf = buffer.substr(std::distance(buffer.begin(), it), buffer.find_first_of('\n', std::distance(buffer.begin(), it)));
         }
-        throw ShaderException(line_buf + "\n" + error_info);
+        CXX_THROW(UnifiedRender::OpenGL::ShaderException, line_buf + "\n" + error_info);
     }
     // print_info("Status: Sucess");
 }
@@ -200,14 +201,14 @@ UnifiedRender::OpenGL::Program::Program(const UnifiedRender::OpenGL::VertexShade
     glBindAttribLocation(id, 1, "m_texcoord");
 #ifdef UR_RENDER_DEBUG
     if(vertex == nullptr || !vertex->get_id()) {
-        throw UnifiedRender::DebugException("Vertex shader object was not provided correctly");
+        CXX_THROW(UnifiedRender::DebugException, "Vertex shader object was not provided correctly");
     }
 #endif
     attach_shader(vertex);
 
 #ifdef UR_RENDER_DEBUG
     if(fragment == nullptr || !fragment->get_id()) {
-        throw UnifiedRender::DebugException("Vertex shader object was not provided correctly");
+        CXX_THROW(UnifiedRender::DebugException, "Vertex shader object was not provided correctly");
     }
 #endif
     attach_shader(fragment);
@@ -283,7 +284,7 @@ void UnifiedRender::OpenGL::Program::attach_shader(const UnifiedRender::OpenGL::
 void UnifiedRender::OpenGL::Program::link(void) {
 #ifdef UR_RENDER_DEBUG
     if(!id) {
-        throw UnifiedRender::DebugException("Program has no Id");
+        CXX_THROW(UnifiedRender::DebugException, "Program has no Id");
     }
 #endif
     glLinkProgram(id);
@@ -295,7 +296,7 @@ void UnifiedRender::OpenGL::Program::link(void) {
         std::string error_info;
         glGetProgramInfoLog(id, GL_INFO_LOG_LENGTH, NULL, &error_info[0]);
         print_error("Program error %s", error_info.c_str());
-        throw ShaderException(error_info);
+        CXX_THROW(ShaderException, error_info);
     }
 }
 
@@ -337,7 +338,7 @@ void UnifiedRender::OpenGL::Program::set_uniform(const std::string& name, int va
 void UnifiedRender::OpenGL::Program::set_texture(int value, const std::string& name, const UnifiedRender::Texture& texture) const {
 #ifdef UR_RENDER_DEBUG
     if(!texture.gl_tex_num) {
-        throw UnifiedRender::DebugException("Texture with invalid Id passed to set_texture");
+        CXX_THROW(UnifiedRender::DebugException, "Texture with invalid Id passed to set_texture");
     }
 #endif
     glActiveTexture(GL_TEXTURE0 + value);
@@ -348,7 +349,7 @@ void UnifiedRender::OpenGL::Program::set_texture(int value, const std::string& n
 void UnifiedRender::OpenGL::Program::set_texture(int value, const std::string& name, const UnifiedRender::TextureArray& texture) const {
 #ifdef UR_RENDER_DEBUG
     if(!texture.gl_tex_num) {
-        throw UnifiedRender::DebugException("Texture with invalid Id passed to set_texture");
+        CXX_THROW(UnifiedRender::DebugException, "Texture with invalid Id passed to set_texture");
     }
 #endif
     glActiveTexture(GL_TEXTURE0 + value);

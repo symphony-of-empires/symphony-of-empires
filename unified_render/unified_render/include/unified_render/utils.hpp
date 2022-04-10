@@ -17,10 +17,10 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      byteswap.hpp
+//      utils.hpp
 //
 // Abstract:
-//      Does some important stuff.
+//      General purpouse utility macros and other often-used stuff.
 // ----------------------------------------------------------------------------
 
 #pragma once
@@ -62,4 +62,14 @@
 })
 #else
 #   include <byteswap.h>
+#endif
+
+#if !defined(UR_EXCEPTIONS)
+#   define CXX_THROW(class, ...) \
+    throw class(__VA_ARGS__);
+#else
+#include <cstdio>
+#   define CXX_THROW(class, ...) \
+    fprintf(stderr, class(__VA_ARGS__).what()); \
+    abort();
 #endif

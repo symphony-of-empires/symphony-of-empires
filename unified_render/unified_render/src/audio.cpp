@@ -39,6 +39,7 @@
 
 #include "unified_render/audio.hpp"
 #include "unified_render/print.hpp"
+#include "unified_render/utils.hpp"
 
 //
 // Audio
@@ -55,7 +56,7 @@ UnifiedRender::Audio::Audio(const std::string& path) {
     uint8_t* decoded;
     this->len = stb_vorbis_decode_filename(path.c_str(), &channels, &rate, (short**)&decoded);
     if(!this->len) {
-        throw UnifiedRender::AudioException(path, "0 length audio");
+        CXX_THROW(UnifiedRender::AudioException, path, "0 length audio");
     }
     this->len = this->len * channels * (sizeof(int16_t) / sizeof(uint8_t));
     this->data = decoded;
@@ -66,7 +67,7 @@ UnifiedRender::Audio::Audio(const std::string& path) {
     SDL_BuildAudioCVT(&cvt, AUDIO_S16, channels, rate, AUDIO_S16, 1, 11050);
     cvt.buf = (Uint8*)malloc(this->len * cvt.len_mult);
     if(cvt.buf == nullptr) {
-        throw UnifiedRender::AudioException(path, "Cannot allocate memory");
+        CXX_THROW(UnifiedRender::AudioException, path, "Cannot allocate memory");
     }
     std::memcpy(cvt.buf, this->data, this->len);
     cvt.len = this->len;

@@ -30,6 +30,7 @@
 #include "unified_render/path.hpp"
 #include "unified_render/print.hpp"
 #include "unified_render/framebuffer.hpp"
+#include "unified_render/utils.hpp"
 
 //
 // Texture
@@ -68,8 +69,8 @@ void UnifiedRender::Texture::create_dummy() {
     width = 8;
     height = 8;
     buffer = std::make_unique<uint32_t[]>(width * height);
-    if(buffer == nullptr) {
-        throw TextureException("Dummy", "Out of memory for dummy texture");
+    if(buffer.get() == nullptr) {
+        CXX_THROW(TextureException, "Dummy", "Out of memory for dummy texture");
     }
 
     // Fill in with a permutation pattern of pink and black
@@ -181,7 +182,7 @@ UnifiedRender::Texture::Texture(TTF_Font* font, UnifiedRender::Color color, cons
 
     SDL_Surface* surface = TTF_RenderUTF8_Blended(font, msg.c_str(), black_color);
     if(surface == nullptr) {
-        throw std::runtime_error(std::string() + "Cannot create text surface: " + TTF_GetError());
+        CXX_THROW(std::runtime_error, std::string() + "Cannot create text surface: " + TTF_GetError());
     }
 
     buffer.reset();

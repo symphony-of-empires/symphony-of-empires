@@ -24,10 +24,11 @@
 // ----------------------------------------------------------------------------
 
 #include "unified_render/serializer.hpp"
+#include "unified_render/utils.hpp"
 
 void Archive::copy_to(void* ptr, size_t size) {
     if(size > buffer.size() - this->ptr) {
-        throw SerializerException("Buffer too small for write");
+        CXX_THROW(SerializerException, "Buffer too small for write");
     }
 
     std::memcpy(ptr, &buffer[this->ptr], size);
@@ -36,7 +37,7 @@ void Archive::copy_to(void* ptr, size_t size) {
 
 void Archive::copy_from(const void* ptr, size_t size) {
     if(size > buffer.size() - this->ptr) {
-        throw SerializerException("Buffer too small for read");
+        CXX_THROW(SerializerException, "Buffer too small for read");
     }
     
     std::memcpy(&buffer[this->ptr], ptr, size);

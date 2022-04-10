@@ -61,7 +61,8 @@
 
 #include "unified_render/network.hpp"
 #include "unified_render/log.hpp"
-#include <unified_render/print.hpp>
+#include "unified_render/print.hpp"
+#include "unified_render/utils.hpp"
 
 //
 // Packet
@@ -116,24 +117,24 @@ UnifiedRender::Networking::SocketStream::~SocketStream(void) {
 void UnifiedRender::Networking::SocketStream::send(const void* data, size_t size) {
     const char* c_data = (const char*)data;
     for(size_t i = 0; i < size; ) {
-        int r = ::send(fd, &c_data[i], std::min<size_t>(1024, size - i), 0);
+        int r = ::send(fd, &c_data[i], std::min<std::size_t>(1024, size - i), 0);
         if(r < 0) {
-            throw UnifiedRender::Networking::SocketException("Can't send data of packet");
+            CXX_THROW(UnifiedRender::Networking::SocketException, "Can't send data of packet");
         }
         
-        i += (size_t)r;
+        i += static_cast<size_t>(r);
     }
 }
 
 void UnifiedRender::Networking::SocketStream::recv(void* data, size_t size) {
     char* c_data = (char*)data;
     for(size_t i = 0; i < size; ) {
-        int r = ::recv(fd, &c_data[i], std::min<size_t>(1024, size - i), MSG_WAITALL);
+        int r = ::recv(fd, &c_data[i], std::min<std::size_t>(1024, size - i), MSG_WAITALL);
         if(r < 0) {
-            throw UnifiedRender::Networking::SocketException("Can't receive data of packet");
+            CXX_THROW(UnifiedRender::Networking::SocketException, "Can't receive data of packet");
         }
 
-        i += (size_t)r;
+        i += static_cast<std::size_t>(r);
     }
 }
 
@@ -150,7 +151,7 @@ int UnifiedRender::Networking::ServerClient::try_connect(int fd) {
     try {
         conn_fd = accept(fd, (sockaddr*)&client, &len);
         if(conn_fd == INVALID_SOCKET) {
-            throw UnifiedRender::Networking::SocketException("Cannot accept client connection");
+            CXX_THROW(UnifiedRender::Networking::SocketException, "Cannot accept client connection");
         }
 
         // At this point the client's connection was accepted - so we only have to check
@@ -227,7 +228,7 @@ UnifiedRender::Networking::Server::Server(const unsigned port, const unsigned ma
 
     fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(fd == INVALID_SOCKET) {
-        throw UnifiedRender::Networking::SocketException("Cannot create server socket");
+        CXX_THROW(UnifiedRender::Networking::SocketException, "Cannot create server socket");
     }
 
 #ifdef unix
@@ -236,11 +237,11 @@ UnifiedRender::Networking::Server::Server(const unsigned port, const unsigned ma
     setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(int));
 #endif
     if(bind(fd, (sockaddr*)&addr, sizeof(addr)) != 0) {
-        throw UnifiedRender::Networking::SocketException("Cannot bind server");
+        CXX_THROW(UnifiedRender::Networking::SocketException, "Cannot bind server");
     }
 
     if(listen(fd, max_conn) != 0) {
-        throw UnifiedRender::Networking::SocketException("Cannot listen in specified number of concurrent connections");
+        CXX_THROW(UnifiedRender::Networking::SocketException, "Cannot listen in specified number of concurrent connections");
     }
 
 #ifdef unix
@@ -307,7 +308,7 @@ UnifiedRender::Networking::Client::Client(std::string host, const unsigned port)
     WSADATA data;
     if(WSAStartup(MAKEWORD(2, 2), &data) != 0) {
         print_error("WSA code: %u", WSAGetLastError());
-        throw UnifiedRender::Networking::SocketException("Can't start WSA subsystem");
+        CXX_THROW(UnifiedRender::Networking::SocketException, "Can't start WSA subsystem");
     }
 #endif
     
@@ -322,7 +323,7 @@ UnifiedRender::Networking::Client::Client(std::string host, const unsigned port)
         print_error("WSA Code: %u", WSAGetLastError());
         WSACleanup();
 #endif
-        throw UnifiedRender::Networking::SocketException("Can't create client socket");
+        CXX_THROW(UnifiedRender::Networking::SocketException, "Can't create client socket");
     }
     
     if(connect(fd, (sockaddr*)&addr, sizeof(addr)) != 0) {
@@ -332,7 +333,7 @@ UnifiedRender::Networking::Client::Client(std::string host, const unsigned port)
         print_error("WSA Code: %u", WSAGetLastError());
         closesocket(fd);
 #endif
-        throw UnifiedRender::Networking::SocketException("Can't connect to server");
+        CXX_THROW(UnifiedRender::Networking::SocketException, "Can't connect to server");
     }
 }
 

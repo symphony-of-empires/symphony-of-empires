@@ -689,6 +689,18 @@ void Map::draw(const GameState& gs) {
 
             i++;
         }
+
+        for(const auto& building_type : world.building_types) {
+            if(province->buildings[world.get_id(*building_type)].level == 0) {
+                continue;
+            }
+
+            glm::vec2 pos = prov_pos;
+            glm::mat4 model = glm::translate(base_model, glm::vec3(pos.x, pos.y, 0.f));
+            //model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
+            obj_shader->set_uniform("model", model);
+            building_type_models[world.get_id(*building_type)]->draw(*obj_shader);
+        }
     }
     //*/
 
@@ -734,7 +746,7 @@ void Map::draw(const GameState& gs) {
         obj_shader->set_texture(0, "diffuse_map", skybox_texture);
         obj_shader->set_uniform("model", model);
 
-        UnifiedRender::Sphere skybox = UnifiedRender::Sphere(0.f, 0.f, 0.f, 8000.f, 40, false);
+        UnifiedRender::Sphere skybox = UnifiedRender::Sphere(0.f, 0.f, 0.f, 255.f * 10.f, 40, false);
         skybox.draw();
     }
 

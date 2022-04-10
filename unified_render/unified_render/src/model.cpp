@@ -37,6 +37,7 @@
 #include "unified_render/texture.hpp"
 #include "unified_render/shader.hpp"
 #include "unified_render/state.hpp"
+#include "unified_render/utils.hpp"
 
 //
 // VAO
@@ -367,8 +368,7 @@ const UnifiedRender::Model& UnifiedRender::ModelManager::load(const std::string&
         else {
             return load_wavefront(path);
         }
-    }
-    catch(std::ifstream::failure& e) {
-        throw ("Model " + path + " not found");
+    } catch(std::ifstream::failure& e) {
+        CXX_THROW(std::string, "Model " + path + " not found");
     }
 }

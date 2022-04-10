@@ -24,3 +24,8 @@ UR_BACKEND_OPENGL
 
 UR_MANAGED_HEAP
     Enables or disables the custom `new` and `delete` operators
+
+UR_RTTI
+UR_EXCEPTIONS
+    If enabled will provoke normal "throwing" behaviour. Otherwise it will
+    abort upon the first throw and print the given error - Useful for debugging.

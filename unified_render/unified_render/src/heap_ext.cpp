@@ -28,6 +28,7 @@
 #include <new>
 
 #include "unified_render/heap_ext.hpp"
+#include "unified_render/utils.hpp"
 
 void* operator new(std::size_t size) {
 #ifdef UR_HEAP_DEBUG
@@ -41,7 +42,8 @@ void* operator new(std::size_t size) {
     if(p) {
         return p;
     }
-    throw std::bad_alloc{};
+    
+    CXX_THROW(std::bad_alloc);
 }
 
 void operator delete(void* ptr) noexcept {
@@ -60,7 +62,7 @@ void* operator new[](std::size_t size) {
     if(p) {
         return p;
     }
-    throw std::bad_alloc{};
+    CXX_THROW(std::bad_alloc);
 }
 
 void operator delete[](void* ptr) noexcept {

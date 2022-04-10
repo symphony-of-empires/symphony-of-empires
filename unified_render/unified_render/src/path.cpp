@@ -50,6 +50,7 @@
 
 #include "unified_render/path.hpp"
 #include "unified_render/print.hpp"
+#include "unified_render/utils.hpp"
 
 static std::vector<std::string> mod_paths;
 
@@ -68,7 +69,7 @@ namespace Path {
         ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
 #endif
         if(len < 0) {
-            throw std::runtime_error("Error reading exec path");
+            CXX_THROW(std::runtime_error, "Error reading exec path");
         }
 
         buf[len] = '\0';

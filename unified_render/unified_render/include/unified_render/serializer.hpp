@@ -171,8 +171,9 @@ public:
 
         // Obtain the lenght of the string to be read
         ::deserialize(ar, &len);
-        if (len >= 1024)
+        if(len >= 1024) {
             throw SerializerException("String is too lenghty");
+        }
 
         // Obtain the string itself
         char* string = new char[len + 1];

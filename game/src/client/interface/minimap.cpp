@@ -278,7 +278,7 @@ void relations_map_mode_selector(const World& world, Map& map, Province* provinc
     map.set_map_mode(map_mode, tooltip);
 }
 
-#include "unified_render/byteswap.hpp"
+#include "unified_render/utils.hpp"
 mapmode_generator relations_map_mode(Nation::Id id) {
     return [id](const World& world) {
         std::vector<ProvinceColor> provinces_color;

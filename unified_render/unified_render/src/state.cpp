@@ -58,6 +58,7 @@
 #include "unified_render/model.hpp"
 #include "unified_render/log.hpp"
 #include "unified_render/shader.hpp"
+#include "unified_render/utils.hpp"
 
 // Used for the singleton
 static UnifiedRender::State* g_state = nullptr;
@@ -65,7 +66,7 @@ static UnifiedRender::State* g_state = nullptr;
 UnifiedRender::State::State(void) {
     // Make sure we're the only state running
     if(g_state != nullptr) {
-        throw std::runtime_error("Duplicate instancing of GameState");
+        CXX_THROW(std::runtime_error, "Duplicate instancing of GameState");
     }
     g_state = this;
 
@@ -102,7 +103,7 @@ UnifiedRender::State::State(void) {
     glewExperimental = GL_TRUE;
     GLenum err = glewInit();
     if(err != GLEW_OK) {
-        throw std::runtime_error("Failed to init GLEW");
+        CXX_THROW(std::runtime_error, "Failed to init GLEW");
     }
 
     GLint size;
@@ -138,7 +139,7 @@ UnifiedRender::State::State(void) {
     fmt.callback = &UnifiedRender::State::mixaudio;
     fmt.userdata = this;
     if(SDL_OpenAudio(&fmt, NULL) < 0) {
-        throw std::runtime_error("Unable to open audio: " + std::string(SDL_GetError()));
+        CXX_THROW(std::runtime_error, "Unable to open audio: " + std::string(SDL_GetError()));
     }
     SDL_PauseAudio(0);
 
