@@ -100,7 +100,7 @@ public:
     Map(const World& world, int screen_width, int screen_height);
     ~Map();
 
-    void update(const SDL_Event& event, Input& input, UI::Context* ui_ctx);
+    void update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, GameState& gs);
     void update_mapmode();
     void draw_flag(const UnifiedRender::OpenGL::Program& shader, const Nation& nation);
     void draw(const GameState& gs);

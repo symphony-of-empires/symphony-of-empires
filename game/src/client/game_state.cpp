@@ -261,7 +261,7 @@ void handle_event(Input& input, GameState& gs) {
         }
 
         if(gs.current_mode != MapMode::NO_MAP && !click_on_ui) {
-            gs.map->update(event, input, ui_ctx);
+            gs.map->update(event, input, ui_ctx, gs);
         }
     }
     ui_ctx->clear_dead();
@@ -703,6 +703,11 @@ void start_client(int, char**) {
     gs.run = true;
     gs.paused = true;
 
+
+    gs.map->camera->move(0.f, 50.f, 10.f);
+
+    auto current_frame_time = std::chrono::system_clock::now();
+    
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);
     std::thread music_th(&GameState::music_thread, &gs);
@@ -762,6 +767,13 @@ void start_client(int, char**) {
         }
 
         std::scoped_lock lock(gs.render_lock);
+
+        auto prev_frame_time = current_frame_time;
+        current_frame_time = std::chrono::system_clock::now();
+        double prev_num = std::chrono::duration<double>(prev_frame_time.time_since_epoch()).count();
+        double now_num = std::chrono::duration<double>(current_frame_time.time_since_epoch()).count();
+        gs.delta_time = now_num-prev_num;
+        
         gs.clear();
         if(gs.current_mode != MapMode::NO_MAP) {
             std::scoped_lock lock(gs.world->world_mutex);
