@@ -634,6 +634,15 @@ void GameState::music_thread(void) {
     }
 }
 
+void GameState::load_world_thread(void) {
+    this->world = new World();
+    this->world->load_initial();
+    this->load_progress = 0.5f;
+    this->world->load_mod();
+    this->load_progress = 0.8f;
+    this->loaded_world = true;
+}
+
 #include <filesystem>
 
 #include "unified_render/ui/image.hpp"
@@ -644,6 +653,9 @@ void GameState::music_thread(void) {
 
 void start_client(int, char**) {
     GameState gs{};
+    gs.input = Input();
+    std::thread music_th(&GameState::music_thread, &gs);
+    std::thread load_world_th(&GameState::load_world_thread, &gs);
 
     if(0) {
         FILE* fp = fopen(Path::get("locale/es/main.po").c_str(), "rt");
@@ -676,41 +688,115 @@ void start_client(int, char**) {
 
     gs.loaded_world = false;
     gs.loaded_map = false;
-    
-    gs.world = new World();
-    gs.world->load_initial();
-    gs.world->load_mod();
+    gs.load_progress = 0.3f;
 
-    gs.map = new Map(*gs.world, gs.width, gs.height);
+    auto& load_screen_tex = gs.tex_man->load(Path::get("gfx/load_screen.png"));
+    auto* bg_img = new UI::Image(-(gs.width / 2.f), -(load_screen_tex.height / 2.f), gs.width, load_screen_tex.height, &load_screen_tex);
+    bg_img->origin = UI::Origin::CENTER_SCREEN;
+    auto* load_lab = new UI::Label(0, -24, "Loading...");
+    load_lab->origin = UI::Origin::LOWER_LEFT_SCREEN;
+    load_lab->color = UnifiedRender::Color(1.f, 1.f, 1.f);
+    auto& mod_logo_tex = gs.tex_man->load(Path::get("gfx/mod_logo.png"));
+    auto* mod_logo_img = new UI::Image(0, 0, mod_logo_tex.width, mod_logo_tex.height, &mod_logo_tex);
+
+    // Pre-cache the textures that the map will use upon construction
+    bool init_iterator = true;
+    bool load_nation_flags = false;
+    std::vector<Nation*>::const_iterator load_it_nation;
+    bool load_building_type_icons = false;
+    std::vector<BuildingType*>::const_iterator load_it_building_type;
+    bool load_unit_type_icons = false;
+    std::vector<UnitType*>::const_iterator load_it_unit_type;
+
+    UnifiedRender::TextureOptions mipmap_options{};
+    mipmap_options.wrap_s = GL_REPEAT;
+    mipmap_options.wrap_t = GL_REPEAT;
+    mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
+    mipmap_options.mag_filter = GL_LINEAR;
+    while(!gs.loaded_map) {
+        // Widgets here SHOULD NOT REQUEST UPON WORLD DATA
+        // so no world lock is needed beforehand
+        //handle_event(gs.input, gs);
+        std::scoped_lock lock(gs.render_lock);
+        gs.clear();
+        if(gs.loaded_world) {
+            if(init_iterator) {
+                load_it_nation = gs.world->nations.begin();
+                load_it_building_type = gs.world->building_types.begin();
+                load_it_unit_type = gs.world->unit_types.begin();
+                init_iterator = false;
+            }
+
+            if(load_nation_flags && load_building_type_icons && load_unit_type_icons) {
+                gs.map = new Map(*gs.world, gs.width, gs.height);
+                gs.current_mode = MapMode::DISPLAY_ONLY;
+                gs.map->set_view(MapView::SPHERE_VIEW);
+                gs.map->camera->move(0.f, 50.f, 10.f);
+                gs.loaded_map = true;
+                gs.load_progress = 1.f;
+            } else if(!load_nation_flags) {
+                const std::string path = Path::get("gfx/flags/" + (*load_it_nation)->ref_name + "_" + ((*load_it_nation)->ideology == nullptr ? "none" : (*load_it_nation)->ideology->ref_name) + ".png");
+                gs.tex_man->load(path, mipmap_options).gen_mipmaps();
+                if(!path.empty()) {
+                    load_lab->text(path);
+                }
+                load_it_nation++;
+                if(load_it_nation == gs.world->nations.end()) {
+                    load_nation_flags = true;
+                }
+            } else if(!load_building_type_icons) {
+                const std::string model_path = Path::get("models/building_types/" + (*load_it_building_type)->ref_name + ".obj");
+                gs.model_man->load(model_path);
+                const std::string tex_path = Path::get("gfx/buildingtype/" + (*load_it_building_type)->ref_name + ".png");
+                gs.tex_man->load(tex_path, mipmap_options).gen_mipmaps();
+                if(!model_path.empty()) {
+                    load_lab->text(model_path);
+                }
+                load_it_building_type++;
+                if(load_it_building_type == gs.world->building_types.end()) {
+                    load_building_type_icons = true;
+                }
+            } else if(!load_unit_type_icons) {
+                const std::string model_path = Path::get("models/unit_types/" + (*load_it_unit_type)->ref_name + ".obj");
+                gs.model_man->load(model_path);
+                const std::string tex_path = Path::get("gfx/unittype/" + (*load_it_unit_type)->ref_name + ".png");
+                gs.tex_man->load(tex_path, mipmap_options).gen_mipmaps();
+                if(!model_path.empty()) {
+                    load_lab->text(model_path);
+                }
+                load_it_unit_type++;
+                if(load_it_unit_type == gs.world->unit_types.end()) {
+                    load_unit_type_icons = true;
+                    load_lab->text("Creating the map");
+                }
+            }
+        }
+
+        load_lab->width = gs.width * (1.f / gs.load_progress);
+        gs.ui_ctx->render_all(glm::ivec2(gs.input.mouse_pos.first, gs.input.mouse_pos.second));
+        gs.swap();
+        gs.world->profiler.render_done();
+    }
+    load_world_th.join();
+    bg_img->kill();
+    load_lab->kill();
+    mod_logo_img->kill();
 
     // After loading everything initialize the gamestate initial properties
-
-    gs.input = Input();
-    gs.in_game = false;
-
-    // Connect to server prompt
-    gs.current_mode = MapMode::DISPLAY_ONLY;
-    gs.map->set_view(MapView::SPHERE_VIEW);
-    gs.map->camera->move(0.f, 50.f, 10.f);
-
-    new Interface::MainMenu(gs);
-
-    std::vector<Event*> displayed_events;
-    std::vector<Treaty*> displayed_treaties;
-
     // Call update_on_tick on start of the gamestate
     gs.update_tick = true;
     gs.run = true;
     gs.paused = true;
+    gs.in_game = false;
 
+    // Connect to server prompt
+    new Interface::MainMenu(gs);
 
-    gs.map->camera->move(0.f, 50.f, 10.f);
-
+    std::vector<Event*> displayed_events;
+    std::vector<Treaty*> displayed_treaties;
     auto current_frame_time = std::chrono::system_clock::now();
-    
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);
-    std::thread music_th(&GameState::music_thread, &gs);
     while(gs.run) {
         // Locking is very expensive, so we condense everything into a big "if"
         if(gs.world->world_mutex.try_lock()) {
@@ -767,12 +853,12 @@ void start_client(int, char**) {
         }
 
         std::scoped_lock lock(gs.render_lock);
-
+        
         auto prev_frame_time = current_frame_time;
         current_frame_time = std::chrono::system_clock::now();
         double prev_num = std::chrono::duration<double>(prev_frame_time.time_since_epoch()).count();
         double now_num = std::chrono::duration<double>(current_frame_time.time_since_epoch()).count();
-        gs.delta_time = now_num-prev_num;
+        gs.delta_time = now_num - prev_num;
         
         gs.clear();
         if(gs.current_mode != MapMode::NO_MAP) {
@@ -784,8 +870,8 @@ void start_client(int, char**) {
         gs.swap();
         gs.world->profiler.render_done();
     }
-    music_th.join();
     world_th.join();
+    music_th.join();
     return;
 }
 

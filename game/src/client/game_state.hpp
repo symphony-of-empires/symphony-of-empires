@@ -93,12 +93,14 @@ public:
     void update_on_tick(void);
     void world_thread(void);
     void music_thread(void);
+    void load_world_thread(void);
 
     Client* client = nullptr;
     Server* server = nullptr;
 
     std::atomic<bool> loaded_world;
     std::atomic<bool> loaded_map;
+    float load_progress = 0.f;
 
     std::atomic<bool> update_tick;
     std::atomic<bool> run;

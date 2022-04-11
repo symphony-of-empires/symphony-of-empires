@@ -58,7 +58,8 @@ Label::~Label(void) {
 
 void Label::text(const std::string& _text) {
     UI::Widget::text(_text);
-
-    width = text_texture->width + text_offset_x;
-    height = text_texture->height;
+    if(text_texture != nullptr) {
+        width = text_texture->width + text_offset_x;
+        height = text_texture->height;
+    }
 }
