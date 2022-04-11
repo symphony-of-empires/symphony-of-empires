@@ -691,6 +691,8 @@ void Map::draw(const GameState& gs) {
         }
 
         for(const auto& building_type : world.building_types) {
+            continue;
+
             if(province->buildings[world.get_id(*building_type)].level == 0) {
                 continue;
             }

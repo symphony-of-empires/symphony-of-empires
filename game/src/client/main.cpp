@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
         }
     }
 
-    const int seed = time(NULL);
+    const int seed = (int)((uint32_t)time(NULL) * (uint32_t)getpid());
     print_info("Using random seed of %i", seed);
     std::srand(seed);
     

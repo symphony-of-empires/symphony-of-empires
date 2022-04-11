@@ -620,15 +620,31 @@ void GameState::world_thread(void) {
 }
 
 void GameState::music_thread(void) {
+    struct MusicEntry {
+        bool has_played;
+        std::string path;
+    };
+    auto path_entries = Path::get_all_recursive("sfx/music/ambience");
+    std::vector<MusicEntry> entries;
+    entries.reserve(path_entries.size());
+    for(const auto& path : path_entries) {
+        entries.push_back(MusicEntry{ false, path });
+    }
+    path_entries.clear();
+    entries.shrink_to_fit();
+
+    this->music_queue.push_back(new UnifiedRender::Audio(Path::get("sfx/music/ambience/02_Ii-AndanteMoltoMosso.ogg")));
+
     while(this->run) {
         if(this->music_queue.empty()) {
+            this->music_fade_value = 0.f;
+
             // Search through all the music in 'music/ambience' and picks a random
-            auto entries = Path::get_all_recursive("sfx/music/ambience");
             if(!entries.empty()) {
-                int music_index = std::rand() % entries.size();
-                this->music_fade_value = 100.f;
+                const int music_index = std::rand() % entries.size();
                 std::scoped_lock lock(this->sound_lock);
-                this->music_queue.push_back(new UnifiedRender::Audio(entries[music_index]));
+                this->music_queue.push_back(new UnifiedRender::Audio(entries[music_index].path));
+                entries[music_index].has_played = true;
             }
         }
     }
@@ -654,6 +670,7 @@ void GameState::load_world_thread(void) {
 void start_client(int, char**) {
     GameState gs{};
     gs.input = Input();
+    gs.run = true;
     std::thread music_th(&GameState::music_thread, &gs);
     std::thread load_world_th(&GameState::load_world_thread, &gs);
 
@@ -785,7 +802,6 @@ void start_client(int, char**) {
     // After loading everything initialize the gamestate initial properties
     // Call update_on_tick on start of the gamestate
     gs.update_tick = true;
-    gs.run = true;
     gs.paused = true;
     gs.in_game = false;
 
