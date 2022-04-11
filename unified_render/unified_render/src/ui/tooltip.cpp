@@ -65,7 +65,6 @@ Tooltip::Tooltip(Widget* parent, unsigned w, unsigned h)
 
 Tooltip::~Tooltip(void) {
     labels.clear();
-    children.clear();
 }
 
 // Tooltip::Tooltip(Widget* parent)
@@ -101,8 +100,6 @@ void Tooltip::set_pos(int _x, int _y, int, int _height, int screen_w, int screen
 // Note! Code duplication of Text::text 
 void Tooltip::text(const std::string& text) {
     labels.clear();
-    children.clear();
-
     if(text.empty()) {
         return;
     }

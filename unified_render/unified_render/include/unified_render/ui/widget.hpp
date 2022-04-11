@@ -30,6 +30,7 @@
 #include <functional>
 #include <vector>
 #include <string>
+#include <memory>
 
 #ifdef _MSC_VER
 #include <SDL_surface.h>
@@ -149,7 +150,7 @@ namespace UI {
 		virtual ~Widget();
 
 		void move_by(int x, int y);
-		void add_child(Widget* child);
+		void add_child(UI::Widget* child);
 
 		virtual void on_render(Context&, UnifiedRender::Rect viewport);
 		virtual void text(const std::string& text);
@@ -202,7 +203,7 @@ namespace UI {
 		Tooltip* tooltip = nullptr;
 
 		Widget* parent = nullptr;
-		std::vector<Widget*> children;
+		std::vector<std::unique_ptr<Widget>> children;
 
 		void* user_data = nullptr;
 		void kill() {

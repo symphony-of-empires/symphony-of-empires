@@ -63,20 +63,13 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
         x += parent->padding.x;
         y += parent->padding.y;
         parent->add_child(this);
-    }
-    else {
+    } else {
         // Add the widget to the context in each construction without parent
         g_ui_context->add_widget(this);
     }
 }
 
 Widget::~Widget() {
-    // Delete the children recursively
-    for(auto& child : children) {
-        delete child;
-    }
-    children.clear();
-
     // Common texture also deleted?
     if(text_texture != nullptr) {
         delete text_texture;
@@ -457,14 +450,9 @@ void Widget::recalc_child_pos() {
     }
 }
 
-void Widget::add_child(Widget* child) {
-    // Not already in list
-    if(std::count(children.begin(), children.end(), child)) {
-        return;
-    }
-
+void Widget::add_child(UI::Widget* child) {
     // Add to list
-    children.push_back(child);
+    children.push_back(std::move(std::unique_ptr<UI::Widget>(child)));
     child->parent = this;
 
     // Child changes means a recalculation of positions is in order

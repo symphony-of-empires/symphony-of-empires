@@ -134,13 +134,11 @@ void Context::clear_dead_recursive(Widget* w) {
     bool changed = false;
     for(size_t index = 0; index < w->children.size(); index++) {
         if((w->children[index])->dead) {
-            delete w->children[index];
             w->children.erase(w->children.begin() + index);
             index--;
             changed = true;
-        }
-        else {
-            clear_dead_recursive(w->children[index]);
+        } else {
+            clear_dead_recursive(w->children[index].get());
         }
     }
     if(changed) {
@@ -442,8 +440,7 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
         for(auto& child : w.children) {
             consumed_hover |= check_hover_recursive(*child, mx, my, offset.x, offset.y);
         }
-    }
-    else {
+    } else {
         for(auto& child : w.children) {
             clear_hover_recursive(*child);
         }
