@@ -56,20 +56,25 @@ pacman -Su
 
 Simply run the following after setting up the initial msys environment:
 ```sh
-pacman -S mingw-w64-SDL2_ttf mingw-w64-SDL2 mingw-w64-lua mingw-w64-zlib
-
-# Try this one if the above does not work
 pacman -S mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-SDL2 mingw-w64-x86_64-lua mingw-w64-x86_64-zlib
+
+# If you have an intel cpu, you need to execute this.
+# This will overwrite the default ttb installation.
+pacman -S mingw-w64-x86_64-intel-tbb
 ```
 
 On 32-bit systems the following is required:
 ```sh
 pacman -S mingw-w64-i686-SDL2_ttf mingw-w64-i686-SDL2 mingw-w64-i686-lua mingw-w64-i686-zlib
+
+# If you have an intel cpu, you need to execute this.
+# This will overwrite the default ttb installation.
+pacman -S mingw-w64-i686-intel-tbb
 ```
 
 Finally; to build you only have to run:
 ```sh
-cmake -G"Unix Makefiles" -DUR_BACKEND_OPENGL=1 .
+cmake -G "MinGW Makefiles" -DUR_BACKEND_OPENGL=1 .
 make
 ```
 
