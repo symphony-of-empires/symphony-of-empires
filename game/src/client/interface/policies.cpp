@@ -53,7 +53,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     this->padding.x = 0;
     this->padding.y = 48;
 
-    this->current_texture = &gs.tex_man->load(Path::get("gfx/policies_screen.png"));
+    this->current_texture = this->gs.tex_man->load(Path::get("gfx/policies_screen.png"));
     this->width = this->current_texture->width;
     this->height = this->current_texture->height;
     this->text("Laws and goverment");
@@ -158,7 +158,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     poor_tax_sld->below_of(*social_security_chk);
     poor_tax_sld->text(std::to_string(new_policy.poor_flat_tax));
     poor_tax_sld->value = new_policy.poor_flat_tax;
-    poor_tax_sld->on_click = ([](UI::Widget& w) {
+    poor_tax_sld->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<PoliciesScreen&>(*w.parent->parent);
         o.new_policy.poor_flat_tax = ((UI::Slider&)w).value;
         w.text(std::to_string(o.new_policy.poor_flat_tax));
@@ -170,7 +170,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     med_tax_sld->below_of(*poor_tax_sld);
     med_tax_sld->text(std::to_string(new_policy.poor_flat_tax));
     med_tax_sld->value = new_policy.med_flat_tax;
-    med_tax_sld->on_click = ([](UI::Widget& w) {
+    med_tax_sld->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<PoliciesScreen&>(*w.parent->parent);
         o.new_policy.med_flat_tax = ((UI::Slider&)w).value;
         w.text(std::to_string(o.new_policy.med_flat_tax));
@@ -182,7 +182,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     rich_tax_sld->below_of(*med_tax_sld);
     rich_tax_sld->text(std::to_string(new_policy.poor_flat_tax));
     rich_tax_sld->value = new_policy.rich_flat_tax;
-    rich_tax_sld->on_click = ([](UI::Widget& w) {
+    rich_tax_sld->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<PoliciesScreen&>(*w.parent->parent);
         o.new_policy.rich_flat_tax = ((UI::Slider&)w).value;
         w.text(std::to_string(o.new_policy.rich_flat_tax));
@@ -207,7 +207,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     auto* enact_btn = new UI::Button(207, 0, 128, 24, this);
     enact_btn->below_of(*reform_grp);
     enact_btn->text("Enact policy");
-    enact_btn->on_click = ([](UI::Widget& w) {
+    enact_btn->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<PoliciesScreen&>(*w.parent);
         UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
         Archive ar = Archive();

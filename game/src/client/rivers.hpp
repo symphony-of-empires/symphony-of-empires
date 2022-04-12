@@ -48,5 +48,5 @@ private:
     void build_rivers();
     std::vector<UnifiedRender::Curve*> curves;
     std::unique_ptr<UnifiedRender::OpenGL::Program> line_shader;
-    const UnifiedRender::Texture* water_tex;
+    std::shared_ptr<UnifiedRender::Texture> water_tex;
 };

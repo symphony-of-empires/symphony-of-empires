@@ -68,14 +68,14 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     });
     this->on_each_tick(*this);
 
-    auto* flag_img = new UI::AspectImage(0, 0, 128, 96, &this->gs.get_nation_flag(*this->nation), this);
+    auto* flag_img = new UI::AspectImage(0, 0, 128, 96, this->gs.get_nation_flag(*this->nation), this);
     flag_img->on_each_tick = ([this](UI::Widget& w) {
-        w.current_texture = &this->gs.get_nation_flag(*this->nation);
+        w.current_texture = this->gs.get_nation_flag(*this->nation);
     });
     flag_img->on_each_tick(*flag_img);
     flag_img->tooltip = new UI::Tooltip(flag_img, 512, 24);
     flag_img->tooltip->text(UnifiedRender::Locale::translate("The flag which represents the country"));
-    auto* flag_rug = new UI::Image(0, 0, flag_img->width, flag_img->height, &gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
+    auto* flag_rug = new UI::Image(0, 0, flag_img->width, flag_img->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
 
     auto* flex_actions_column = new UI::Div(0, 0, 512, 512, this);
     flex_actions_column->below_of(*flag_img);
@@ -119,7 +119,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
 
     auto* market_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
     market_btn->text(UnifiedRender::Locale::translate("Examine market"));
-    market_btn->on_click = ([](UI::Widget& w) {
+    market_btn->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<NationView&>(*w.parent);
         new NationMarketView(o.gs, o.nation);
     });
@@ -129,14 +129,14 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     if(gs.curr_nation != nation) {
         auto* inc_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         inc_btn->text(UnifiedRender::Locale::translate("Increment relations"));
-        inc_btn->on_click = ([](UI::Widget& w) {
+        inc_btn->set_on_click([](UI::Widget& w) {
             auto& o = static_cast<NationView&>(*w.parent);
             g_client->send(Action::DiploIncRelations::form_packet(o.nation));
         });
 
         auto* dec_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         dec_btn->text(UnifiedRender::Locale::translate("Decrement relations"));
-        dec_btn->on_click = ([](UI::Widget& w) {
+        dec_btn->set_on_click([](UI::Widget& w) {
             auto& o = static_cast<NationView&>(*w.parent);
             g_client->send(Action::DiploDecRelations::form_packet(o.nation));
         });
@@ -146,13 +146,13 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         dow_btn->on_each_tick = ([this](UI::Widget& w) {
             if(this->gs.curr_nation->relations[this->gs.world->get_id(*this->nation)].has_war) {
                 w.text(UnifiedRender::Locale::translate("Propose treaty"));
-                w.on_click = ([this](UI::Widget& w) {
+                w.set_on_click([this](UI::Widget& w) {
                     new Interface::TreatyDraftView(this->gs, this->nation);
                 });
                 w.tooltip->text(UnifiedRender::Locale::translate("End the war against this country and propose a peace deal"));
             } else {
                 w.text(UnifiedRender::Locale::translate("Declare war"));
-                w.on_click = ([this](UI::Widget& w) {
+                w.set_on_click([this](UI::Widget& w) {
                     new Interface::WarDeclarePrompt(this->gs, this->nation);
                 });
                 w.tooltip->text(UnifiedRender::Locale::translate("Declaring war on this nation will bring all their allies to their side"));
@@ -189,7 +189,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
         switch_btn->text(UnifiedRender::Locale::translate("Switch to this nation"));
         switch_btn->tooltip = new UI::Tooltip(switch_btn, 512, 24);
         switch_btn->tooltip->text(UnifiedRender::Locale::translate("Switches to this nation (multiplayer disallow rule)"));
-        switch_btn->on_click = ([](UI::Widget& w) {
+        switch_btn->set_on_click([](UI::Widget& w) {
             auto& o = static_cast<NationView&>(*w.parent);
             o.gs.curr_nation = o.nation;
         });

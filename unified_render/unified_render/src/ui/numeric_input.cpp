@@ -38,24 +38,24 @@ UI::NumericInput::NumericInput(int _x, int _y, unsigned w, unsigned h, Widget* _
     add_btn = new UI::Button(0, 0, 32, h, this);
     add_btn->text("+");
     add_btn->right_side_of(*inp);
-    add_btn->on_click = [](UI::Widget& w) {
+    add_btn->set_on_click([](UI::Widget& w) {
         auto* p = (UI::NumericInput*)w.parent;
         float val = atof(p->inp->get_buffer().c_str()) + 1.f;
         char tmpbuf[100];
         snprintf(tmpbuf, 100, "%.2f", val);
         p->set_buffer(tmpbuf);
-    };
+    });
 
     sub_btn = new UI::Button(0, 0, 32, h, this);
     sub_btn->text("-");
     sub_btn->right_side_of(*add_btn);
-    sub_btn->on_click = [](UI::Widget& w) {
+    sub_btn->set_on_click([](UI::Widget& w) {
         auto* p = (NumericInput*)w.parent;
         float val = atof(p->get_buffer().c_str()) + 1.f;
         char tmpbuf[100];
         snprintf(tmpbuf, 100, "%.2f", val);
         p->set_buffer(tmpbuf);
-    };
+    });
 }
 
 void UI::NumericInput::set_buffer(const std::string& _buffer) {

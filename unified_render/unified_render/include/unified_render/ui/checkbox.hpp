@@ -58,7 +58,7 @@ namespace UI {
         bool value;
         std::function<void(Widget&)> outside_on_click = nullptr;
 
-        const UnifiedRender::Texture* checked_texture;
-        const UnifiedRender::Texture* unchecked_texture;
+        std::shared_ptr<UnifiedRender::Texture> checked_texture;
+        std::shared_ptr<UnifiedRender::Texture> unchecked_texture;
     };
 };

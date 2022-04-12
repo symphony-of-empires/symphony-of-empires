@@ -85,13 +85,14 @@ Context::Context() {
     }
     widgets.reserve(255);
 
-    background = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/window_background.png"));
-    window_top = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/window_top3.png"));
-    button = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/button2.png"));
-    tooltip_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/tooltip.png"));
-    piechart_overlay = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/piechart.png"));
-    border_tex = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/border2.png"));
-    button_border = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/border_sharp2.png"));
+    UnifiedRender::State& gs = UnifiedRender::State::get_instance();
+    background = gs.tex_man->load(Path::get("gfx/window_background.png"));
+    window_top = gs.tex_man->load(Path::get("gfx/window_top3.png"));
+    button = gs.tex_man->load(Path::get("gfx/button2.png"));
+    tooltip_texture = gs.tex_man->load(Path::get("gfx/tooltip.png"));
+    piechart_overlay = gs.tex_man->load(Path::get("gfx/piechart.png"));
+    border_tex = gs.tex_man->load(Path::get("gfx/border2.png"));
+    button_border = gs.tex_man->load(Path::get("gfx/border_sharp2.png"));
 
     //widget_shader = UnifiedRender::OpenGL::Program::create_regular("shader/2d_shader.vs", "shader/2d_shader.fs");
 }
@@ -368,7 +369,7 @@ void Context::render_all(glm::ivec2 mouse_pos) {
     mipmap_options.mag_filter = GL_LINEAR;
     mipmap_options.wrap_s = GL_CLAMP_TO_EDGE;
     mipmap_options.wrap_t = GL_CLAMP_TO_EDGE;
-    auto cursor = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/cursor_b.png"), mipmap_options);
+    auto cursor = UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/cursor_b.png"), mipmap_options);
     cursor->bind();
     glColor3f(1.f, 1.f, 1.f);
     glBegin(GL_TRIANGLES);

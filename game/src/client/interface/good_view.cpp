@@ -107,7 +107,7 @@ ProductView::ProductView(GameState& _gs, Product* _product)
     auto* good_btn = new UI::Button(0, 0, 128, 24, this);
     good_btn->below_of(*this->demand_chart);
     //good_btn->text(product->good->name);
-    good_btn->on_click = ([](UI::Widget& w) {
+    good_btn->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<ProductView&>(*w.parent);
         //new GoodView(o.gs, o.product->good);
     });
@@ -127,8 +127,7 @@ GoodView::GoodView(GameState& _gs, Good* _good)
     this->is_scroll = false;
     this->text(UnifiedRender::Locale::translate(good->name));
 
-    this->icon_img = new UI::Image(0, 0, 128, 96, nullptr, this);
-    this->icon_img->current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png"));
+    this->icon_img = new UI::Image(0, 0, 128, 96, this->gs.tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
 
     // Piechart denoting countries which have more supply of this good
     this->sellers_pie = new UI::PieChart(0, 0, 128, 128, this);
@@ -187,7 +186,7 @@ GoodView::GoodView(GameState& _gs, Good* _good)
             continue;
         }
 
-        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/production.png")), this);
+        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man->load(Path::get("gfx/production.png")), this);
         icon_ibtn->below_of(*avg_price_chart);
         icon_ibtn->set_tooltip(new UI::Tooltip(icon_ibtn, 512, 24));
         icon_ibtn->tooltip->text(building_type->name);
@@ -204,7 +203,7 @@ GoodView::GoodView(GameState& _gs, Good* _good)
             continue;
         }
         
-        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/production.png")), this);
+        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man->load(Path::get("gfx/production.png")), this);
         icon_ibtn->below_of(*avg_price_chart);
         icon_ibtn->set_tooltip(new UI::Tooltip(icon_ibtn, 512, 24));
         icon_ibtn->tooltip->text(building_type->name);

@@ -49,7 +49,26 @@
 
 using namespace UI;
 
-Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned h, WidgetType _type, const UnifiedRender::Texture* tex)
+Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned h, WidgetType _type)
+    : is_show{ 1 },
+    type{ _type },
+    x{ _x },
+    y{ _y },
+    width{ w },
+    height{ h },
+    parent{ _parent }
+{
+    if(parent != nullptr) {
+        x += parent->padding.x;
+        y += parent->padding.y;
+        parent->add_child(this);
+    } else {
+        // Add the widget to the context in each construction without parent
+        g_ui_context->add_widget(this);
+    }
+}
+
+Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned h, WidgetType _type, std::shared_ptr<UnifiedRender::Texture> tex)
     : is_show{ 1 },
     type{ _type },
     x{ _x },
@@ -483,21 +502,14 @@ void Widget::text(const std::string& _text) {
     text_texture = new UnifiedRender::Texture(text_font, text_color, _text);
 }
 
-void Widget::set_tooltip(Tooltip* _tooltip) {
-    // Why doesn't this work??
-    // if(tooltip != nullptr) {
-    //     delete tooltip;
-    // }
-    tooltip = _tooltip;
+void Widget::set_tooltip(UI::Tooltip* _tooltip) {
+    this->tooltip = _tooltip;
+    this->tooltip->parent = this;
 }
 
-void Widget::set_tooltip(std::string text) {
-    // Why doesn't this work??
-    if(tooltip != nullptr && tooltip->parent == nullptr) {
-        delete tooltip;
-    }
-    tooltip = new Tooltip();
-    tooltip->text(text);
+void Widget::set_tooltip(const std::string& text) {
+    this->set_tooltip(new UI::Tooltip(this, 64, 32));
+    this->tooltip->text(text);
 }
 
 void Widget::scroll(int y) {

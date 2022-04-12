@@ -66,28 +66,31 @@ MapRender::MapRender(const World& _world)
     // Simple 2D quad that fills viewport, used for making the border_sdf
     map_2d_quad = new UnifiedRender::Quad2D();
 
+    auto tex_man = UnifiedRender::State::get_instance().tex_man;
+
     // Mipmapped textures
     UnifiedRender::TextureOptions mipmap_options{};
     mipmap_options.wrap_s = GL_REPEAT;
     mipmap_options.wrap_t = GL_REPEAT;
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
-    auto tex_man = UnifiedRender::State::get_instance().tex_man;
 
-    wave1 = &tex_man->load(Path::get("gfx/wave1.png"), mipmap_options);
-    wave2 = &tex_man->load(Path::get("gfx/wave2.png"), mipmap_options);
-    noise_tex = &tex_man->load(Path::get("gfx/noise_tex.png"), mipmap_options);
+    wave1 = tex_man->load(Path::get("gfx/wave1.png"), mipmap_options);
+    wave2 = tex_man->load(Path::get("gfx/wave2.png"), mipmap_options);
+    noise_tex = tex_man->load(Path::get("gfx/noise_tex.png"), mipmap_options);
+
     mipmap_options.internal_format = GL_SRGB;
+    water_tex = tex_man->load(Path::get("gfx/water_tex.png"), mipmap_options);
+    paper_tex = tex_man->load(Path::get("gfx/paper.png"), mipmap_options);
+    stripes_tex = tex_man->load(Path::get("gfx/stripes.png"), mipmap_options);
 
-
-    water_tex = &tex_man->load(Path::get("gfx/water_tex.png"), mipmap_options);
-    paper_tex = &tex_man->load(Path::get("gfx/paper.png"), mipmap_options);
-    stripes_tex = &tex_man->load(Path::get("gfx/stripes.png"), mipmap_options);
     mipmap_options.internal_format = GL_RED;
-    bathymethry = &tex_man->load(Path::get("map/bathymethry.png"), mipmap_options);
-    river_tex = &tex_man->load(Path::get("map/river_smooth.png"), mipmap_options);
+    bathymethry = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(Path::get("map/bathymethry.png")));
+    bathymethry->to_opengl(mipmap_options);
+    river_tex = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(Path::get("map/river_smooth.png")));
+    river_tex->to_opengl(mipmap_options);
 
-    terrain_map = new UnifiedRender::Texture(Path::get("map/color.png"));
+    terrain_map = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(Path::get("map/color.png")));
     size_t terrain_map_size = terrain_map->width * terrain_map->height;
     for(unsigned int i = 0; i < terrain_map_size; i++) {
         const uint32_t color = terrain_map->buffer.get()[i];
@@ -143,7 +146,7 @@ MapRender::MapRender(const World& _world)
     //terrain_map->gen_mipmaps();
 
     auto topo_map = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(Path::get("map/topo.png")));
-    normal_topo = new UnifiedRender::Texture(Path::get("map/normal.png"));
+    normal_topo = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(Path::get("map/normal.png")));
     size_t map_size = topo_map->width * topo_map->height;
     for(unsigned int i = 0; i < map_size; i++) {
         normal_topo->buffer.get()[i] &= (0x00FFFFFF);
@@ -155,12 +158,12 @@ MapRender::MapRender(const World& _world)
     normal_topo->gen_mipmaps();
 
     // Terrain textures to sample from
-    terrain_sheet = new UnifiedRender::TextureArray(Path::get("gfx/terrain_sheet.png"), 4, 4);
+    terrain_sheet = std::unique_ptr<UnifiedRender::TextureArray>(new UnifiedRender::TextureArray(Path::get("gfx/terrain_sheet.png"), 4, 4));
     terrain_sheet->to_opengl();
 
     print_info("Creating tile map & tile sheet");
     // The tile map, used to store per-tile information
-    tile_map = new UnifiedRender::Texture(world.width, world.height);
+    tile_map = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(world.width, world.height));
     for(size_t i = 0; i < world.width * world.height; i++) {
         const Tile& tile = world.get_tile(i);
         tile_map->buffer.get()[i] = tile.province_id & 0xffff;
@@ -173,12 +176,12 @@ MapRender::MapRender(const World& _world)
 
     // Texture holding each province color
     // The x & y coords are the province Red & Green color of the tile_map
-    tile_sheet = new UnifiedRender::Texture(256, 256);
+    tile_sheet = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(256, 256));
     for(unsigned int i = 0; i < 256 * 256; i++) {
         tile_sheet->buffer.get()[i] = 0xffdddddd;
     }
 
-    tile_sheet_nation = new UnifiedRender::Texture(256, 256);
+    tile_sheet_nation = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(256, 256));
     for(unsigned int i = 0; i < 256 * 256; i++) {
         tile_sheet_nation->buffer.get()[i] = 0xffdddddd;
     }
@@ -191,7 +194,7 @@ MapRender::MapRender(const World& _world)
     tile_sheet->to_opengl(no_drop_options);
 
     // Province options
-    province_opt = new UnifiedRender::Texture(256, 256);
+    province_opt = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(256, 256));
     for(unsigned int i = 0; i < 256 * 256; i++) {
         province_opt->buffer.get()[i] = 0x000000ff;
     }

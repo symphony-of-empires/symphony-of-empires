@@ -95,23 +95,24 @@ private:
     const World& world;
 
     // Map textures
-    UnifiedRender::Texture* tile_map;
-    UnifiedRender::Texture* tile_sheet;
-    UnifiedRender::Texture* tile_sheet_nation;
-    const UnifiedRender::Texture* water_tex;
-    const UnifiedRender::Texture* paper_tex;
-    const UnifiedRender::Texture* stripes_tex;
-    const UnifiedRender::Texture* noise_tex;
-    const UnifiedRender::Texture* topo_map;
-    const UnifiedRender::Texture* river_tex;
-    UnifiedRender::Texture* terrain_map;
-    const UnifiedRender::Texture* wave1;
-    const UnifiedRender::Texture* wave2;
-    const UnifiedRender::Texture* bathymethry;
-    UnifiedRender::Texture* normal_topo;
-    UnifiedRender::TextureArray* terrain_sheet;
+    std::shared_ptr<UnifiedRender::Texture> water_tex;
+    std::shared_ptr<UnifiedRender::Texture> paper_tex;
+    std::shared_ptr<UnifiedRender::Texture> stripes_tex;
+    std::shared_ptr<UnifiedRender::Texture> noise_tex;
+    std::shared_ptr<UnifiedRender::Texture> river_tex;
+    std::shared_ptr<UnifiedRender::Texture> wave1;
+    std::shared_ptr<UnifiedRender::Texture> wave2;
+    std::shared_ptr<UnifiedRender::Texture> bathymethry;
 
-    UnifiedRender::Texture* province_opt;
+    std::unique_ptr<UnifiedRender::Texture> tile_sheet;
+    std::unique_ptr<UnifiedRender::Texture> tile_sheet_nation;
+    std::unique_ptr<UnifiedRender::TextureArray> terrain_sheet;
+    std::unique_ptr<UnifiedRender::Texture> normal_topo;
+    std::unique_ptr<UnifiedRender::Texture> province_opt;
+    std::unique_ptr<UnifiedRender::Texture> tile_map;
+    std::unique_ptr<UnifiedRender::Texture> topo_map;
+    std::unique_ptr<UnifiedRender::Texture> terrain_map;
+    std::unique_ptr<UnifiedRender::Texture> border_sdf;
 
     std::vector<UnifiedRender::Square*> map_quads;
     UnifiedRender::Sphere* map_sphere;
@@ -121,7 +122,6 @@ private:
     std::unique_ptr<UnifiedRender::OpenGL::Program> sdf_shader;
     std::unique_ptr<UnifiedRender::OpenGL::Program> border_gen_shader;
     std::unique_ptr<UnifiedRender::OpenGL::Program> output_shader;
-    std::unique_ptr<UnifiedRender::Texture> border_sdf;
 
     std::atomic<bool> req_update_vision = true;
 };

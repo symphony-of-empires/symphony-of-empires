@@ -55,14 +55,14 @@ void Checkbox::init_checkbox(int size) {
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
     auto tex_man = UnifiedRender::State::get_instance().tex_man;
-    unchecked_texture = &tex_man->load(Path::get("gfx/checkbox_false.png"), mipmap_options);
-    checked_texture = &tex_man->load(Path::get("gfx/checkbox_true.png"), mipmap_options);
+    this->unchecked_texture = tex_man->load(Path::get("gfx/checkbox_false.png"), mipmap_options);
+    this->checked_texture = tex_man->load(Path::get("gfx/checkbox_true.png"), mipmap_options);
 
-    box = new Div(0, 0, size, size, this);
-    box->current_texture = unchecked_texture;
-    on_click = on_click_default;
-    text_offset_x = size + 4;
-    clickable_effect = false;
+    this->box = new Div(0, 0, size, size, this);
+    this->box->current_texture = unchecked_texture;
+    this->set_on_click(on_click_default);
+    this->text_offset_x = size + 4;
+    this->clickable_effect = false;
 }
 
 bool Checkbox::get_value() {
@@ -79,8 +79,8 @@ void Checkbox::set_value(bool checked) {
     }
 }
 
-void Checkbox::set_on_click(std::function<void(Widget&)> on_click) {
-    outside_on_click = on_click;
+void Checkbox::set_on_click(std::function<void(Widget&)> _on_click) {
+    this->outside_on_click = _on_click;
 }
 
 void Checkbox::on_click_default(Widget& w) {

@@ -78,19 +78,19 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     flex_column2->flex_align = UI::Align::CENTER;
 
     auto* flat_btn = new UI::Image(0, 0, 24, 24, "gfx/flat_icon.png", flex_column1);
-    flat_btn->on_click = ([this](UI::Widget&) {
+    flat_btn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_view(MapView::PLANE_VIEW);
     });
     flat_btn->set_tooltip("Flat map");
 
     auto* globe_btn = new UI::Image(0, 0, 24, 24, "gfx/globe_icon.png", flex_column2);
-    globe_btn->on_click = ([this](UI::Widget&) {
+    globe_btn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_view(MapView::SPHERE_VIEW);
     });
     globe_btn->set_tooltip("Globe map");
 
     auto* landscape_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
-    landscape_ibtn->on_click = ([this](UI::Widget&) {
+    landscape_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
 
         mapmode_generator map_mode = terrain_map_mode;
@@ -101,7 +101,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     landscape_ibtn->set_tooltip("Political");
 
     auto* political_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
-    political_ibtn->on_click = ([this](UI::Widget&) {
+    political_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
 
         mapmode_generator map_mode = political_map_mode;
@@ -112,7 +112,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     political_ibtn->set_tooltip("Political");
 
     auto* relations_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
-    relations_ibtn->on_click = ([this](UI::Widget&) {
+    relations_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(relations_map_mode_selector);
         Nation* current_nation = this->gs.curr_nation;
         Nation::Id id = this->gs.world->get_id(*current_nation);
@@ -124,7 +124,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     relations_ibtn->set_tooltip("Relations");
 
     auto* population_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
-    population_ibtn->on_click = ([this](UI::Widget&) {
+    population_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
         mapmode_generator map_mode = population_map_mode;
         mapmode_tooltip tooltip = population_tooltip;
@@ -135,7 +135,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     population_ibtn->set_tooltip("Population");
 
     auto* terrain_color_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
-    terrain_color_ibtn->on_click = ([this](UI::Widget&) {
+    terrain_color_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
         mapmode_generator map_mode = terrain_color_map_mode;
         mapmode_tooltip tooltip = terrain_type_tooltip;
@@ -145,7 +145,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     terrain_color_ibtn->set_tooltip("Terrain type");
 
     auto* culture_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
-    culture_ibtn->on_click = ([this](UI::Widget&) {
+    culture_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
         mapmode_generator map_mode = culture_map_mode;
         mapmode_tooltip tooltip = culture_tooltip;
@@ -155,7 +155,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     culture_ibtn->set_tooltip("Culture diversity");
 
     auto* religion_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
-    religion_ibtn->on_click = ([this](UI::Widget&) {
+    religion_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
         mapmode_generator map_mode = religion_map_mode;
         mapmode_tooltip tooltip = religion_tooltip;
@@ -165,14 +165,14 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     religion_ibtn->set_tooltip("Religion");
 
     auto* good_price_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
-    good_price_ibtn->on_click = ([this](UI::Widget&) {
+    good_price_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
 
         set_mapmode_options(new MapmodeGoodOptions(this->gs));
     });
     good_price_ibtn->set_tooltip("Prices");
 
-    new UI::Image(65, 5, 332, 166, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/minimap.png")), this);
+    new UI::Image(65, 5, 332, 166, UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/minimap.png")), this);
 }
 
 void Minimap::set_mapmode_options(Widget* widget) {
@@ -187,13 +187,13 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
     gs{ gs }
 {
     this->origin = UI::Origin::MIDDLE_RIGHT_SCREEN;
-    this->current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/window_background.png"));
+    this->current_texture = UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/window_background.png"));
     this->is_scroll = true;
 
     glm::ivec2 size(4, 4);
     glm::ivec2 texture_size(10, 10);
     auto tex_man = UnifiedRender::State::get_instance().tex_man;
-    auto border_tex = &tex_man->load(Path::get("gfx/ui/border2.png"));
+    auto border_tex = tex_man->load(Path::get("gfx/ui/border2.png"));
     this->border = UI::Border(border_tex, size, texture_size);
 
     auto goods = gs.world->goods;
@@ -207,12 +207,12 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
         UnifiedRender::TextureOptions options;
         options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
         options.mag_filter = GL_LINEAR;
-        auto good_tex = &tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png"), options);
+        auto good_tex = tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png"), options);
 
         auto* good_div = new UI::Div(0, 0, 200, 35, flex_column);
         new UI::Image(0, 0, 35, 35, good_tex, good_div);
         new UI::Label(35, 0, good->name, good_div);
-        good_div->on_click = ([this, i](UI::Widget&) {
+        good_div->set_on_click([this, i](UI::Widget&) {
             this->gs.current_mode = MapMode::NORMAL;
 
             mapmode_generator map_mode = good_map_mode((Good::Id)i);

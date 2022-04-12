@@ -162,7 +162,13 @@ namespace UI {
 
         void prompt(const std::string& title, const std::string& text);
 
-        const UnifiedRender::Texture* background, * window_top, * button, * tooltip_texture, * piechart_overlay, * border_tex, * button_border;
+        std::shared_ptr<UnifiedRender::Texture> background;
+        std::shared_ptr<UnifiedRender::Texture> window_top;
+        std::shared_ptr<UnifiedRender::Texture> button;
+        std::shared_ptr<UnifiedRender::Texture> tooltip_texture;
+        std::shared_ptr<UnifiedRender::Texture> piechart_overlay;
+        std::shared_ptr<UnifiedRender::Texture> border_tex;
+        std::shared_ptr<UnifiedRender::Texture> button_border;
 
         TTF_Font* default_font;
 

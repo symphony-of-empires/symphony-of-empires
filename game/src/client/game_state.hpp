@@ -125,8 +125,8 @@ public:
     Interface::Minimap* minimap = nullptr;
     Interface::ProfilerView* profiler_view = nullptr;
 
-    std::vector<const UnifiedRender::Texture*> nation_flags;
-    const UnifiedRender::Texture& get_nation_flag(Nation& nation);
+    std::vector<std::shared_ptr<UnifiedRender::Texture>> nation_flags;
+    std::shared_ptr<UnifiedRender::Texture> get_nation_flag(Nation& nation);
 
     // Used for synchronization between the networking client and the rendering thread
     std::mutex render_lock;

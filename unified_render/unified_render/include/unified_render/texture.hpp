@@ -35,6 +35,7 @@
 #include <string>
 #include <unordered_map>
 #include <functional>
+#include <memory>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -155,12 +156,12 @@ namespace UnifiedRender {
     // and also acts as a "texture loader"
     class TextureManager {
     private:
-        std::unordered_map<std::pair<std::string, TextureOptions>, UnifiedRender::Texture*, TextureMapHash> textures;
-        UnifiedRender::Texture* white = nullptr;
+        std::unordered_map<std::pair<std::string, TextureOptions>, std::shared_ptr<UnifiedRender::Texture>, TextureMapHash> textures;
+        std::shared_ptr<UnifiedRender::Texture> white = nullptr;
     public:
         ~TextureManager();
-        const Texture& load(const std::string& path, TextureOptions options = default_options);
-        const Texture& load(const UnifiedRender::IO::Asset::Base* asset, TextureOptions options = default_options);
-        const Texture& get_white();
+        std::shared_ptr<Texture> load(const std::string& path, TextureOptions options = default_options);
+        std::shared_ptr<Texture> load(const UnifiedRender::IO::Asset::Base* asset, TextureOptions options = default_options);
+        std::shared_ptr<Texture> get_white(void);
     };
 };

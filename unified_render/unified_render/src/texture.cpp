@@ -262,19 +262,16 @@ void UnifiedRender::TextureArray::to_opengl(void) {
 // Texture manager
 //
 
-const UnifiedRender::Texture& UnifiedRender::TextureManager::get_white() {
-    if(white == nullptr) {
-        white = new Texture(1, 1);
+std::shared_ptr<UnifiedRender::Texture> UnifiedRender::TextureManager::get_white(void) {
+    if(white.get() == nullptr) {
+        white = std::make_shared<UnifiedRender::Texture>(1, 1);
         white->buffer.get()[0] = 0xFFFFFFFF;
         white->to_opengl();
     }
-    return *((const Texture*)white);
+    return std::shared_ptr<UnifiedRender::Texture>(white);
 }
 
 UnifiedRender::TextureManager::~TextureManager(void) {
-    for(const auto& tex : textures) {
-        delete tex.second;
-    }
     textures.clear();
 }
 
@@ -290,33 +287,32 @@ UnifiedRender::TextureManager::~TextureManager(void) {
 // on the disk, and our main point is to mirror loaded textures from the disk - not modify
 // them.
 //
-const UnifiedRender::Texture& UnifiedRender::TextureManager::load(const std::string& path, TextureOptions options) {
+std::shared_ptr<UnifiedRender::Texture> UnifiedRender::TextureManager::load(const std::string& path, TextureOptions options) {
     // Find texture when wanting to be loaded and load texture from cached texture list
     auto key = std::make_pair(path, options);
     auto it = textures.find(key);
     if(it != textures.end()) {
-        return *((*it).second);
+        return (*it).second;
     }
 
     print_info("Loaded and cached texture %s", path.c_str());
 
     // Otherwise texture is not in our control, so we create a new texture
-    UnifiedRender::Texture* tex;
+    std::shared_ptr<UnifiedRender::Texture> tex;
     try {
-        tex = new UnifiedRender::Texture(path);
+        tex = std::make_shared<UnifiedRender::Texture>(path);
     } catch(BinaryImageException&) {
-        tex = new UnifiedRender::Texture();
+        tex = std::make_shared<UnifiedRender::Texture>();
         tex->create_dummy();
     }
-
     tex->to_opengl(options);
     if(options.min_filter == GL_NEAREST_MIPMAP_NEAREST || options.min_filter == GL_NEAREST_MIPMAP_LINEAR || options.min_filter == GL_LINEAR_MIPMAP_NEAREST || options.min_filter == GL_LINEAR_MIPMAP_LINEAR) {
         tex->gen_mipmaps();
     }
     textures[key] = tex;
-    return *((const Texture*)tex);
+    return textures[key];
 }
 
-const UnifiedRender::Texture& UnifiedRender::TextureManager::load(const UnifiedRender::IO::Asset::Base* asset, TextureOptions options) {
-    return load((asset == nullptr) ? "" : asset->abs_path, options);
+std::shared_ptr<UnifiedRender::Texture> UnifiedRender::TextureManager::load(const UnifiedRender::IO::Asset::Base* asset, TextureOptions options) {
+    return this->load((asset == nullptr) ? "" : asset->abs_path, options);
 }

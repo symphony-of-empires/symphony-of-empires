@@ -119,13 +119,13 @@ namespace UI {
 
 	class Border {
 	public:
-		const UnifiedRender::Texture* texture = nullptr;
+		std::shared_ptr<UnifiedRender::Texture> texture = nullptr;
 		glm::ivec2 size;
 		glm::ivec2 texture_size;
 		glm::ivec2 offset;
 
 		Border() {};
-		Border(const UnifiedRender::Texture* _texture, glm::ivec2 _size, glm::ivec2 _texture_size, glm::ivec2 _offset = glm::ivec2(0))
+		Border(std::shared_ptr<UnifiedRender::Texture> _texture, glm::ivec2 _size, glm::ivec2 _texture_size, glm::ivec2 _offset = glm::ivec2(0))
 			: texture{ _texture }, size{ _size }, texture_size{ _texture_size }, offset{ _offset } {};
 	};
 
@@ -139,7 +139,8 @@ namespace UI {
 	class Widget {
 	public:
 		Widget() {};
-		Widget(Widget* parent, int x, int y, unsigned w, unsigned h, WidgetType type, const UnifiedRender::Texture* tex = nullptr);
+		Widget(Widget* parent, int x, int y, unsigned w, unsigned h, WidgetType type);
+		Widget(Widget* parent, int x, int y, unsigned w, unsigned h, WidgetType type, std::shared_ptr<UnifiedRender::Texture> tex);
 		Widget(const Widget&) = default;
 		Widget(Widget&&) noexcept = default;
 		Widget& operator=(const Widget&) = default;
@@ -154,8 +155,8 @@ namespace UI {
 
 		virtual void on_render(Context&, UnifiedRender::Rect viewport);
 		virtual void text(const std::string& text);
-		virtual void set_tooltip(Tooltip* tooltip);
-		virtual void set_tooltip(std::string text);
+		virtual void set_tooltip(UI::Tooltip* tooltip);
+		virtual void set_tooltip(const std::string& text);
 		void scroll(int y);
 
 		void above_of(const Widget& rhs);
@@ -175,6 +176,9 @@ namespace UI {
 		bool is_fullscreen = false;
 		bool is_transparent = false;
 
+		Widget* parent = nullptr;
+		std::vector<std::unique_ptr<UI::Widget>> children;
+
 		bool have_shadow = false;
 		UI::Origin origin = UI::Origin::UPPER_LEFT;
 
@@ -185,7 +189,7 @@ namespace UI {
 
 		size_t width = 0, height = 0;
 
-		const UnifiedRender::Texture* current_texture = nullptr;
+		std::shared_ptr<UnifiedRender::Texture> current_texture;
 		UnifiedRender::Texture* text_texture = nullptr;
 		int text_offset_x = 4, text_offset_y = 4;
 		Align text_align_y = Align::START; 
@@ -200,26 +204,21 @@ namespace UI {
 		Align flex_align = Align::START;
 		size_t flex_gap = 0;
 
-		Tooltip* tooltip = nullptr;
-
-		Widget* parent = nullptr;
-		std::vector<std::unique_ptr<Widget>> children;
+		UI::Tooltip* tooltip = nullptr;
 
 		void* user_data = nullptr;
 		void kill() {
 			dead = true;
 		};
 
-
 		std::function<void(Widget&)> on_update;
-		std::function<void(Widget&, glm::ivec2 mouse_pos, glm::ivec2 widget_pos)> on_hover;
 		std::function<void(Widget&)> on_click;
+		std::function<void(Widget&)> on_click_outside;
+		std::function<void(Widget&)> on_each_tick;
+		std::function<void(Widget&, glm::ivec2 mouse_pos, glm::ivec2 widget_pos)> on_hover;
 		virtual void set_on_click(std::function<void(Widget&)> _on_click) {
 			on_click = _on_click;
 		}
-		std::function<void(Widget&)> on_click_outside;
-
-		std::function<void(Widget&)> on_each_tick;
 
 		friend class Context;
 

@@ -70,7 +70,7 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
 
     conn_btn = new UI::Button(0, 48, 128, 24, this);
     conn_btn->text("Connect");
-    conn_btn->on_click = ([this](UI::Widget& w) {
+    conn_btn->set_on_click([this](UI::Widget& w) {
         UnifiedRender::Log::debug("ui", "Okey, connecting to [" + this->ip_addr_inp->get_buffer() + "]");
 
         // TODO: Handle when mods differ (i.e checksum not equal to host)
@@ -122,15 +122,15 @@ MainMenu::MainMenu(GameState& _gs)
     auto font = TTF_OpenFont(Path::get("fonts/neon_euler/euler.ttf").c_str(), 20);
     auto text_color = UnifiedRender::Color(1.f, 1.f, 1.f);
 
-    this->current_texture = &tex_man->load(Path::get("gfx/ui/bg/main_menu.png"), mipmap_options);
-    auto main_menu_border = &tex_man->load(Path::get("gfx/ui/bg/main_menu_border.png"));
+    this->current_texture = tex_man->load(Path::get("gfx/ui/bg/main_menu.png"), mipmap_options);
+    auto main_menu_border = tex_man->load(Path::get("gfx/ui/bg/main_menu_border.png"));
     this->border = UI::Border(main_menu_border, glm::ivec2(16), glm::ivec2(16));
 
-    auto logo = &tex_man->load(Path::get("gfx/ui/image/logo.png"), mipmap_options);
+    auto logo = tex_man->load(Path::get("gfx/ui/image/logo.png"), mipmap_options);
     new UI::Image(0, 0, 300, 120, logo, this);
 
-    auto button_image = &tex_man->load(Path::get("gfx/ui/button/button.png"), mipmap_options);
-    auto button_border_image = &tex_man->load(Path::get("gfx/ui/button/button_border.png"));
+    auto button_image = tex_man->load(Path::get("gfx/ui/button/button.png"), mipmap_options);
+    auto button_border_image = tex_man->load(Path::get("gfx/ui/button/button_border.png"));
     glm::ivec2 size(3, 3);
     glm::ivec2 texture_size(3, 3);
     auto button_border = UI::Border(button_border_image, size, texture_size);
@@ -150,7 +150,7 @@ MainMenu::MainMenu(GameState& _gs)
     single_btn->text_align_x = UI::Align::CENTER;
     single_btn->text_align_y = UI::Align::CENTER;
     single_btn->text("Singleplayer");
-    single_btn->on_click = ([this](UI::Widget& w) {
+    single_btn->set_on_click([this](UI::Widget& w) {
         gs.current_mode = MapMode::COUNTRY_SELECT;
         gs.select_nation = new Interface::LobbySelectView(gs);
 
@@ -172,7 +172,7 @@ MainMenu::MainMenu(GameState& _gs)
     mp_btn->text_align_x = UI::Align::CENTER;
     mp_btn->text_align_y = UI::Align::CENTER;
     mp_btn->text("Join LAN");
-    mp_btn->on_click = ([this](UI::Widget& w) {
+    mp_btn->set_on_click([this](UI::Widget& w) {
         this->connect_window = new MainMenuConnectServer(this->gs);
     });
 
@@ -184,7 +184,7 @@ MainMenu::MainMenu(GameState& _gs)
     host_btn->text_align_x = UI::Align::CENTER;
     host_btn->text_align_y = UI::Align::CENTER;
     host_btn->text("Host");
-    host_btn->on_click = ([this](UI::Widget& w) {
+    host_btn->set_on_click([this](UI::Widget& w) {
         gs.current_mode = MapMode::COUNTRY_SELECT;
         gs.select_nation = new Interface::LobbySelectView(gs);
 
@@ -205,7 +205,7 @@ MainMenu::MainMenu(GameState& _gs)
     edit_btn->text_align_x = UI::Align::CENTER;
     edit_btn->text_align_y = UI::Align::CENTER;
     edit_btn->text("Editor");
-    edit_btn->on_click = ([this](UI::Widget& w) {
+    edit_btn->set_on_click([this](UI::Widget& w) {
         gs.current_mode = MapMode::COUNTRY_SELECT;
         gs.select_nation = new Interface::LobbySelectView(gs);
 
@@ -227,7 +227,7 @@ MainMenu::MainMenu(GameState& _gs)
     cfg_btn->text_align_x = UI::Align::CENTER;
     cfg_btn->text_align_y = UI::Align::CENTER;
     cfg_btn->text("Settings");
-    cfg_btn->on_click = ([this](UI::Widget& w) {
+    cfg_btn->set_on_click([this](UI::Widget& w) {
         this->settings_window = new Interface::Settings(this->gs);
     });
 
@@ -240,7 +240,7 @@ MainMenu::MainMenu(GameState& _gs)
     exit_btn->text_color = text_color;
     exit_btn->origin = UI::Origin::LOWER_MIDDLE;
     exit_btn->text("Exit");
-    exit_btn->on_click = ([this](UI::Widget& w) {
+    exit_btn->set_on_click([this](UI::Widget& w) {
         this->gs.run = false;
     });
 }

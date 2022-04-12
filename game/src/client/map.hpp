@@ -114,9 +114,9 @@ public:
     MapView view_mode = MapView::PLANE_VIEW;
 
     std::vector<const UnifiedRender::Model*> building_type_models, unit_type_models;
-    std::vector<const UnifiedRender::Texture*> building_type_icons;
-    std::vector<const UnifiedRender::Texture*> unit_type_icons;
-    std::vector<const UnifiedRender::Texture*> nation_flags;
+    std::vector<std::shared_ptr<UnifiedRender::Texture>> building_type_icons;
+    std::vector<std::shared_ptr<UnifiedRender::Texture>> unit_type_icons;
+    std::vector<std::shared_ptr<UnifiedRender::Texture>> nation_flags;
 
     std::vector<UnifiedRender::Label3D*> province_labels;
     std::vector<UnifiedRender::Label3D*> nation_labels;
@@ -133,11 +133,9 @@ public:
     const World& world;
     Camera* camera;
 
-#if !defined TILE_GRANULARITY
-    UnifiedRender::Texture* id_map;
-    UnifiedRender::Texture* province_color_tex;
-    const UnifiedRender::Texture* line_tex;
-#endif
+    std::shared_ptr<UnifiedRender::Texture> id_map;
+    std::shared_ptr<UnifiedRender::Texture> province_color_tex;
+    std::shared_ptr<UnifiedRender::Texture> line_tex;
     std::unique_ptr<UnifiedRender::OpenGL::Program> obj_shader;
 };
 

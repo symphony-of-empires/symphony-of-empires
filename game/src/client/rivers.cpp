@@ -42,7 +42,7 @@ Rivers::Rivers() {
     mipmap_options.mag_filter = GL_LINEAR;
     mipmap_options.internal_format = GL_SRGB;
 
-    water_tex = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/water_tex.png"), mipmap_options);
+    water_tex = UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/water_tex.png"), mipmap_options);
     line_shader = std::unique_ptr<UnifiedRender::OpenGL::Program>(new UnifiedRender::OpenGL::Program());
     {
         line_shader->attach_shader(UnifiedRender::State::get_instance().builtin_shaders["vs_3d"].get());
@@ -91,15 +91,15 @@ void Rivers::build_rivers() {
     auto tex_man = UnifiedRender::State::get_instance().tex_man;
     UnifiedRender::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
-    const UnifiedRender::Texture& river_tex = tex_man->load(Path::get("map/river.png"), no_drop_options);
+    auto river_tex = tex_man->load(Path::get("map/river.png"), no_drop_options);
 
     std::vector<int> rivers_starts;
-    int height = river_tex.height;
-    int width = river_tex.width;
-    auto pixels = river_tex.buffer.get();
+    int height = river_tex->height;
+    int width = river_tex->width;
+    auto pixels = river_tex->buffer.get();
     for(int y = 0; y < height; y++) {
         for(int x = 0; x < width; x++) {
-            int curr_index = x + y * river_tex.width;
+            int curr_index = x + y * river_tex->width;
             uint32_t color = pixels[curr_index];
             if(color == 0xFF0000FF) {
                 rivers_starts.push_back(x + y * width);

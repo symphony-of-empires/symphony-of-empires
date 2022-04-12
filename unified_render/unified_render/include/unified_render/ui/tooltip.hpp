@@ -40,7 +40,6 @@ namespace UI {
      *
      */
     class Tooltip: public Widget {
-        std::vector<std::unique_ptr<UI::Label>> labels;
     public:
         Tooltip();
         Tooltip(Widget* parent, unsigned w, unsigned h);

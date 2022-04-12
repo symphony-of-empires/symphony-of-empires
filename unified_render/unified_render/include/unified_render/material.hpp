@@ -41,17 +41,17 @@ namespace UnifiedRender {
         ~Material();
 
         glm::vec3 diffuse_color;
-        const Texture* diffuse_map = nullptr;
+        std::shared_ptr<UnifiedRender::Texture> diffuse_map;
         glm::vec3 ambient_color;
-        const Texture* ambient_map = nullptr;
+        std::shared_ptr<UnifiedRender::Texture> ambient_map;
         glm::vec3 specular_color;
-        const Texture* specular_map = nullptr;
-        const Texture* displacement_map = nullptr;
-        const Texture* occlussion_map = nullptr;
-        const Texture* luminance_map = nullptr;
-        const Texture* height_map = nullptr;
-        const Texture* normal_map = nullptr;
-        const Texture* roughness_map = nullptr;
+        std::shared_ptr<UnifiedRender::Texture> specular_map;
+        std::shared_ptr<UnifiedRender::Texture> displacement_map;
+        std::shared_ptr<UnifiedRender::Texture> occlussion_map;
+        std::shared_ptr<UnifiedRender::Texture> luminance_map;
+        std::shared_ptr<UnifiedRender::Texture> height_map;
+        std::shared_ptr<UnifiedRender::Texture> normal_map;
+        std::shared_ptr<UnifiedRender::Texture> roughness_map;
 
         glm::vec3 color;
         float specular_exp;

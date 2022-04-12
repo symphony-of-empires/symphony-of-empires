@@ -30,7 +30,13 @@
 
 using namespace UI;
 
-Image::Image(int _x, int _y, unsigned w, unsigned h, const UnifiedRender::Texture* tex, Widget* _parent)
+Image::Image(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
+    : Widget(_parent, _x, _y, w, h, UI::WidgetType::IMAGE)
+{
+    
+}
+
+Image::Image(int _x, int _y, unsigned w, unsigned h, std::shared_ptr<UnifiedRender::Texture> tex, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI::WidgetType::IMAGE)
 {
     current_texture = tex;
@@ -39,7 +45,7 @@ Image::Image(int _x, int _y, unsigned w, unsigned h, const UnifiedRender::Textur
 Image::Image(int _x, int _y, unsigned w, unsigned h, const std::string& texture_path, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI::WidgetType::IMAGE)
 {
-    current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get(texture_path));
+    current_texture = UnifiedRender::State::get_instance().tex_man->load(Path::get(texture_path));
 }
 
 Image::Image(int _x, int _y, unsigned w, unsigned h, const std::string& texture_path, bool mipmap, Widget* _parent)
@@ -50,7 +56,7 @@ Image::Image(int _x, int _y, unsigned w, unsigned h, const std::string& texture_
         options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
         options.mag_filter = GL_LINEAR;
     }
-    current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get(texture_path), options);
+    current_texture = UnifiedRender::State::get_instance().tex_man->load(Path::get(texture_path), options);
 }
 
 Image* Image::make_transparent(int x, int y, unsigned w, unsigned h, const std::string& tex_path, Widget* parent) {
@@ -64,18 +70,18 @@ Image* Image::make_transparent(int x, int y, unsigned w, unsigned h, const std::
         no_drop_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
         no_drop_options.mag_filter = GL_LINEAR;
     }
-    auto texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get(tex_path), no_drop_options);
+    auto texture = UnifiedRender::State::get_instance().tex_man->load(Path::get(tex_path), no_drop_options);
     Image* image = new Image(x, y, w, h, texture, parent);
     image->is_transparent = true;
     return image;
 }
 
-AspectImage::AspectImage(int _x, int _y, unsigned w, unsigned h, const UnifiedRender::Texture* tex, Widget* _parent)
+AspectImage::AspectImage(int _x, int _y, unsigned w, unsigned h, std::shared_ptr<UnifiedRender::Texture> tex, Widget* _parent)
     : Image(_x, _y, w, h, tex, _parent)
 {
-    //width = w;
+    //width = w;this
     //height = (float)current_texture->height * ((float)w / (float)current_texture->width);
 
-    width = (float)current_texture->width * ((float)h / (float)current_texture->height);
-    height = h;
+    this->width = (float)this->current_texture->width * ((float)h / (float)this->current_texture->height);
+    this->height = h;
 }

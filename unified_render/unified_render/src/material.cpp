@@ -93,38 +93,31 @@ std::vector<std::pair<UnifiedRender::Material*, std::string>> UnifiedRender::Mat
             sline >> name;
             curr_mat = new UnifiedRender::Material();
             tmp_mat.push_back(std::make_pair(curr_mat, model_name + "-" + name));
-        }
-        else if(cmd == "Ka") {
+        } else if(cmd == "Ka") {
             glm::vec3 color;
             sline >> color.x >> color.y >> color.z;
             curr_mat->ambient_color = color;
-        }
-        else if(cmd == "Kd") {
+        } else if(cmd == "Kd") {
             glm::vec3 color;
             sline >> color.x >> color.y >> color.z;
             curr_mat->diffuse_color = color;
-        }
-        else if(cmd == "Ks") {
+        } else if(cmd == "Ks") {
             glm::vec3 color;
             sline >> color.x >> color.y >> color.z;
             curr_mat->specular_color = color;
-        }
-        else if(cmd == "Ns") {
+        } else if(cmd == "Ns") {
             sline >> curr_mat->specular_exp;
-        }
-        else if(cmd == "Ni") {
+        } else if(cmd == "Ni") {
             sline >> curr_mat->optical_density;
-        }
-        else if(cmd == "map_Kd") {
+        } else if(cmd == "map_Kd") {
             std::string map_path;
             sline >> map_path;
 
             if(map_path[0] == '.') {
                 continue;
             }
-            curr_mat->diffuse_map = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/" + map_path));
-        }
-        else {
+            curr_mat->diffuse_map = UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/" + map_path));
+        } else {
             print_info("Command %s not implemented", cmd.c_str());
         }
     }

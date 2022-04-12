@@ -125,7 +125,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         obj_shader->attach_shader(s.builtin_shaders["fs_3d"].get());
         obj_shader->link();
     }
-    line_tex = &s.tex_man->load(Path::get("gfx/line_target.png"));
+    line_tex = s.tex_man->load(Path::get("gfx/line_target.png"));
 
     // Set the mapmode
     set_map_mode(political_map_mode, empty_province_tooltip);
@@ -142,7 +142,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
         mipmap_options.mag_filter = GL_LINEAR;
         std::string path = Path::get("gfx/flags/" + nation->ref_name + "_" + (nation->ideology == nullptr ? "none" : nation->ideology->ref_name) + ".png");
-        auto flag_texture = &s.tex_man->load(path, mipmap_options);
+        auto flag_texture = s.tex_man->load(path, mipmap_options);
         flag_texture->gen_mipmaps();
         nation_flags.push_back(flag_texture);
     }
@@ -152,7 +152,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         path = Path::get("models/building_types/" + building_type->ref_name + ".obj");
         building_type_models.push_back(&s.model_man->load(path));
         path = Path::get("gfx/buildingtype/" + building_type->ref_name + ".png");
-        building_type_icons.push_back(&s.tex_man->load(path));
+        building_type_icons.push_back(s.tex_man->load(path));
     }
 
     for(const auto& unit_type : world.unit_types) {
@@ -160,7 +160,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
         path = Path::get("models/unit_types/" + unit_type->ref_name + ".obj");
         unit_type_models.push_back(&s.model_man->load(path));
         path = Path::get("gfx/unittype/" + unit_type->ref_name + ".png");
-        unit_type_icons.push_back(&s.tex_man->load(path));
+        unit_type_icons.push_back(s.tex_man->load(path));
     }
 
     create_labels();
@@ -724,7 +724,7 @@ void Map::draw(const GameState& gs) {
         const std::pair<float, float> pos = unit->get_pos();
         glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
         UnifiedRender::Square select_highlight = UnifiedRender::Square(0.f, 0.f, 1.f, 1.f);
-        obj_shader->set_texture(0, "diffuse_map", gs.tex_man->load(Path::get("gfx/select_border.png")));
+        obj_shader->set_texture(0, "diffuse_map", *gs.tex_man->load(Path::get("gfx/select_border.png")).get());
         select_highlight.draw();
     }
 
@@ -744,8 +744,8 @@ void Map::draw(const GameState& gs) {
         UnifiedRender::TextureOptions mipmap_options{};
         mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
         mipmap_options.mag_filter = GL_LINEAR;
-        auto& skybox_texture = gs.tex_man->load(Path::get("gfx/space.png"), mipmap_options);
-        obj_shader->set_texture(0, "diffuse_map", skybox_texture);
+        auto skybox_texture = gs.tex_man->load(Path::get("gfx/space.png"), mipmap_options);
+        obj_shader->set_texture(0, "diffuse_map", *skybox_texture.get());
         obj_shader->set_uniform("model", model);
 
         UnifiedRender::Sphere skybox = UnifiedRender::Sphere(0.f, 0.f, 0.f, 255.f * 10.f, 40, false);

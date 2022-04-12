@@ -27,6 +27,8 @@
 
 #include <string>
 #include <unordered_map>
+#include <memory>
+
 #include "unified_render/rectangle.hpp"
 
 namespace UnifiedRender {
@@ -63,7 +65,7 @@ namespace UnifiedRender {
         void draw(const std::vector<Label3D*>& labels, glm::mat4 projection, glm::mat4 view);
     private:
         std::unordered_map<uint32_t, Glyph> unicode_map;
-        const Texture* atlas;
+        std::shared_ptr<UnifiedRender::Texture> atlas;
         std::unique_ptr<UnifiedRender::OpenGL::Program> sdf_font_shader;
     };
 

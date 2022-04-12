@@ -53,7 +53,7 @@ Settings::Settings(GameState& _gs)
 
     auto* check_controller_btn = new UI::Button(0, 0, 128, 24, this);
     check_controller_btn->text("Check controller");
-    check_controller_btn->on_click = ([this](UI::Widget& w) {
+    check_controller_btn->set_on_click([this](UI::Widget& w) {
         if(this->gs.joy != nullptr) {
             SDL_JoystickClose(this->gs.joy);
         }
@@ -69,7 +69,7 @@ Settings::Settings(GameState& _gs)
     auto* sensivity_sld = new UI::Slider(0, 0, 128, 24, -8000.f, 8000.f, this);
     sensivity_sld->text("Controller Sensivity");
     sensivity_sld->below_of(*check_controller_btn);
-    sensivity_sld->on_click = ([this](UI::Widget& w) {
+    sensivity_sld->set_on_click([this](UI::Widget& w) {
         this->gs.joy_sensivity = ((UI::Slider&)w).value;
     });
     sensivity_sld->set_tooltip("Sensivity of the controller (negative/positive inverts controls)");
@@ -157,7 +157,7 @@ Settings::Settings(GameState& _gs)
     music_volume_sld->text("Music volume");
     music_volume_sld->below_of(*motionblur_chk);
     music_volume_sld->value = gs.music_volume;
-    music_volume_sld->on_click = ([this](UI::Widget& w) {
+    music_volume_sld->set_on_click([this](UI::Widget& w) {
         this->gs.music_volume = static_cast<int>(((UI::Slider&)w).value);
     });
     music_volume_sld->set_tooltip("Controls the volume of the music");
@@ -166,7 +166,7 @@ Settings::Settings(GameState& _gs)
     sound_volume_sld->text("Sound volume");
     sound_volume_sld->below_of(*music_volume_sld);
     sound_volume_sld->value = gs.sound_volume;
-    sound_volume_sld->on_click = ([this](UI::Widget& w) {
+    sound_volume_sld->set_on_click([this](UI::Widget& w) {
         this->gs.sound_volume = static_cast<int>(((UI::Slider&)w).value);
     });
     sound_volume_sld->set_tooltip("Controls the volume of the sounds");

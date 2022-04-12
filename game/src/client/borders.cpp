@@ -45,7 +45,7 @@ Borders::Borders() {
     mipmap_options.mag_filter = GL_LINEAR;
     mipmap_options.internal_format = GL_SRGB;
 
-    water_tex = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/water_tex.png"), mipmap_options);
+    water_tex = UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/water_tex.png"), mipmap_options);
     line_shader = std::unique_ptr<UnifiedRender::OpenGL::Program>(new UnifiedRender::OpenGL::Program());
     {
         line_shader->attach_shader(UnifiedRender::State::get_instance().builtin_shaders["vs_3d"].get());
@@ -155,12 +155,12 @@ void Borders::build_borders() {
     auto tex_man = UnifiedRender::State::get_instance().tex_man;
     UnifiedRender::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
-    const UnifiedRender::Texture& border_tex = tex_man->load(Path::get("map/provinces.png"), no_drop_options);
+    std::shared_ptr<UnifiedRender::Texture> border_tex = tex_man->load(Path::get("map/provinces.png"), no_drop_options);
 
     std::vector<std::vector<glm::vec3>> borders;
-    int height = border_tex.height;
-    int width = border_tex.width;
-    auto pixels = border_tex.buffer.get();
+    int height = border_tex->height;
+    int width = border_tex->width;
+    auto pixels = border_tex->buffer.get();
     BorderGenerator::build_borders(borders, pixels, width, height);
 
     // TODO FIX THIS NOT INFINITE LOOP

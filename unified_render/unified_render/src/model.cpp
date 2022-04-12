@@ -95,17 +95,15 @@ void UnifiedRender::SimpleModel::draw(const UnifiedRender::OpenGL::Program& shad
     if(material != nullptr) {
         if(material->diffuse_map != nullptr) {
             shader.set_texture(0, "diffuse_map", *material->diffuse_map);
-        }
-        else {
-            auto& white_tex = UnifiedRender::State::get_instance().tex_man->get_white();
-            shader.set_texture(0, "diffuse_map", white_tex);
+        } else {
+            std::shared_ptr<UnifiedRender::Texture> white_tex = UnifiedRender::State::get_instance().tex_man->get_white();
+            shader.set_texture(0, "diffuse_map", *white_tex.get());
         }
         shader.set_uniform("ambient_color", material->ambient_color);
         shader.set_uniform("diffuse_color", material->diffuse_color);
-    }
-    else {
-        auto& white_tex = UnifiedRender::State::get_instance().tex_man->get_white();
-        shader.set_texture(0, "diffuse_map", white_tex);
+    } else {
+        std::shared_ptr<UnifiedRender::Texture> white_tex = UnifiedRender::State::get_instance().tex_man->get_white();
+        shader.set_texture(0, "diffuse_map", *white_tex.get());
         shader.set_uniform("ambient_color", glm::vec3(1.f));
         shader.set_uniform("diffuse_color", glm::vec3(1.f));
     }

@@ -36,7 +36,7 @@ Window::Window(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     is_movable{ true }
 {
     padding = glm::ivec2(8, 24 + 8);
-    current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/window_background.png"));
+    current_texture = UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/window_background.png"));
     is_scroll = true;
     text_color = UnifiedRender::Color(1., 1., 1.);
 

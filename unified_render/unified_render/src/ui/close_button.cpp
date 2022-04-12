@@ -30,5 +30,7 @@ using namespace UI;
 CloseButton::CloseButton(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI::WidgetType::BUTTON)
 {
-    on_click = &CloseButton::on_click_default;
+    this->set_on_click([](UI::Widget& w) {
+        w.parent->kill();
+    });
 }

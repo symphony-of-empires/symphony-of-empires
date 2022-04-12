@@ -67,8 +67,8 @@ UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType* _unit_typ
 {
     this->is_scroll = false;
 
-    this->icon_img = new UI::Image(0, 0, 32, 24, nullptr, this);
-    this->icon_img->current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/unittype/" + unit_type->ref_name + ".png"));
+    this->icon_img = new UI::Image(0, 0, 32, 24, this);
+    this->icon_img->current_texture = UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/unittype/" + unit_type->ref_name + ".png"));
 
     this->name_btn = new UI::Button(0, 0, this->width - 32, 24, this);
     this->name_btn->right_side_of(*this->icon_img);
@@ -97,14 +97,13 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
 {
     this->is_scroll = false;
 
-    this->flag_icon = new UI::Image(0, 0, 32, 24, nullptr, this);
-    this->flag_icon->current_texture = &gs.get_nation_flag(*nation);
-    this->flag_icon->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<NationButton&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+    this->flag_icon = new UI::Image(0, 0, 32, 24, this);
+    this->flag_icon->current_texture = this->gs.get_nation_flag(*this->nation);
+    this->flag_icon->on_each_tick = ([this](UI::Widget& w) {
+        if(this->gs.world->time % this->gs.world->ticks_per_month) {
             return;
         }
-        w.current_texture = &o.gs.get_nation_flag(*o.nation);
+        w.current_texture = this->gs.get_nation_flag(*this->nation);
     });
 
     this->name_btn = new UI::Button(0, 0, this->width - 32, 24, this);
@@ -136,9 +135,9 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province* _province, un
         makes_lab->below_of(*name_btn);
         dx += makes_lab->width;
         for(const auto& good : building_type.inputs) {
-            auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
+            auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
             icon_ibtn->below_of(*name_btn);
-            icon_ibtn->on_click = ([good](UI::Widget& w) {
+            icon_ibtn->set_on_click([good](UI::Widget& w) {
                 auto& o = static_cast<BuildingInfo&>(*w.parent);
                 new GoodView(o.gs, good);
             });
@@ -159,9 +158,9 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province* _province, un
     if(building_type.output != nullptr) {
         auto* good = building_type.output;
 
-        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
+        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
         icon_ibtn->below_of(*name_btn);
-        icon_ibtn->on_click = ([good](UI::Widget& w) {
+        icon_ibtn->set_on_click([good](UI::Widget& w) {
             auto& o = static_cast<BuildingInfo&>(*w.parent);
             new GoodView(o.gs, good);
         });
@@ -247,11 +246,11 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
     this->budget_btn->right_side_of(*this->size_btn);
     this->budget_btn->set_tooltip(new UI::Tooltip(this->budget_btn, 512, 24));
 
-    this->religion_ibtn = new UI::Image(0, 0, 24, 24, nullptr, this);
+    this->religion_ibtn = new UI::Image(0, 0, 24, 24, this);
     this->religion_ibtn->right_side_of(*this->budget_btn);
     this->religion_ibtn->set_tooltip(new UI::Tooltip(this->religion_ibtn, 512, 24));
 
-    this->culture_ibtn = new UI::Image(0, 0, 24, 24, nullptr, this);
+    this->culture_ibtn = new UI::Image(0, 0, 24, 24, this);
     this->culture_ibtn->right_side_of(*this->religion_ibtn);
     this->culture_ibtn->set_tooltip(new UI::Tooltip(this->culture_ibtn, 512, 24));
     
@@ -269,9 +268,9 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
         o.size_btn->text(std::to_string(pop.size));
         o.budget_btn->text(std::to_string(pop.budget / pop.size));
         o.budget_btn->tooltip->text(UnifiedRender::Locale::translate("A total budget of") + " " + std::to_string(pop.budget));
-        o.religion_ibtn->current_texture = &o.gs.tex_man->load(Path::get("gfx/religion/" + pop.religion->ref_name + ".png"));
+        o.religion_ibtn->current_texture = o.gs.tex_man->load(Path::get("gfx/religion/" + pop.religion->ref_name + ".png"));
         o.religion_ibtn->tooltip->text(UnifiedRender::Locale::translate(pop.religion->name));
-        o.culture_ibtn->current_texture = &o.gs.tex_man->load(Path::get("gfx/noicon.png"));
+        o.culture_ibtn->current_texture = o.gs.tex_man->load(Path::get("gfx/noicon.png"));
         o.culture_ibtn->tooltip->text(UnifiedRender::Locale::translate(pop.culture->name));
     });
     this->on_each_tick(*this);
@@ -285,9 +284,8 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province* _province, Good
 {
     this->is_scroll = false;
 
-    this->good_ibtn = new UI::Image(0, 0, 24, 24, nullptr, this);
-    this->good_ibtn->current_texture = &gs.tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png"));
-    this->good_ibtn->on_click = ([](UI::Widget& w) {
+    this->good_ibtn = new UI::Image(0, 0, 24, 24, this->gs.tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
+    this->good_ibtn->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
         new GoodView(o.gs, o.good);
     });
@@ -300,7 +298,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province* _province, Good
     this->price_chart = new UI::Chart(0, 0, 96, 24, this);
     this->price_chart->right_side_of(*this->price_rate_btn);
     this->price_chart->text("Price");
-    this->price_chart->on_click = ([](UI::Widget& w) {
+    this->price_chart->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
         //new ProductView(o.gs, o.product);
     });
@@ -309,7 +307,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province* _province, Good
     this->supply_chart = new UI::Chart(0, 0, 96, 24, this);
     this->supply_chart->right_side_of(*this->price_chart);
     this->supply_chart->text("Supply");
-    this->supply_chart->on_click = ([](UI::Widget& w) {
+    this->supply_chart->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
         //new ProductView(o.gs, o.product);
     });
@@ -318,7 +316,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province* _province, Good
     this->demand_chart = new UI::Chart(0, 0, 96, 24, this);
     this->demand_chart->right_side_of(*this->supply_chart);
     this->demand_chart->text("Demand");
-    this->demand_chart->on_click = ([](UI::Widget& w) {
+    this->demand_chart->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
         //new ProductView(o.gs, o.province->products[o.gs.world->get_id(*o.good)]);
     });

@@ -44,7 +44,7 @@ void make_building_header(UI::Div* table) {
 	glm::ivec2 size(4, 4);
 	glm::ivec2 texture_size(10, 10);
 	auto tex_man = UnifiedRender::State::get_instance().tex_man;
-	auto border_tex = &tex_man->load(Path::get("gfx/border2.png"));
+	auto border_tex = tex_man->load(Path::get("gfx/border2.png"));
 	auto border = UI::Border(border_tex, size, texture_size);
 
 	auto name_lab = new UI::Div(0, 0, 150, 35, row);
@@ -80,7 +80,7 @@ void make_building_row(UI::Div* table, Building& building, BuildingType* type, P
 	glm::ivec2 size(4, 4);
 	glm::ivec2 texture_size(10, 10);
 	auto tex_man = UnifiedRender::State::get_instance().tex_man;
-	auto border_tex = &tex_man->load(Path::get("gfx/border2.png"));
+	auto border_tex = tex_man->load(Path::get("gfx/border2.png"));
 	auto border = UI::Border(border_tex, size, texture_size);
 
 	auto name_lab = new UI::Div(0, 0, 150, 35, row);

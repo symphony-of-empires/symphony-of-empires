@@ -35,29 +35,33 @@ using namespace UI;
 Scrollbar::Scrollbar(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI::WidgetType::SCROLLBAR)
 {
-    auto tex_man = UnifiedRender::State::get_instance().tex_man;
-    current_texture = &tex_man->load(Path::get("gfx/scrollbar.png"));
+    UnifiedRender::TextureManager* tex_man = UnifiedRender::State::get_instance().tex_man;
+    this->current_texture = tex_man->load(Path::get("gfx/scrollbar.png"));
 
-    is_pinned = true;
-    flex = Flex::COLUMN;
-    flex_justify = FlexJustify::SPACE_BETWEEN;
+    this->is_pinned = true;
+    this->flex = Flex::COLUMN;
+    this->flex_justify = FlexJustify::SPACE_BETWEEN;
 
-    auto up_btn = new Button(0, 0, w, w, this);
+    UI::Button* up_btn = new UI::Button(0, 0, w, w, this);
     up_btn->set_on_click([this](Widget&) {
-        if(this->parent) this->parent->scroll(6);
+        if(this->parent) {
+            this->parent->scroll(6);
+        }
     });
-    up_btn->current_texture = &tex_man->load(Path::get("gfx/scrollbar_up.png"));
+    up_btn->current_texture = tex_man->load(Path::get("gfx/scrollbar_up.png"));
 
-    auto down_btn = new Button(0, 0, w, w, this);
+    UI::Button* down_btn = new UI::Button(0, 0, w, w, this);
     down_btn->set_on_click([this](Widget&) {
-        if(this->parent) this->parent->scroll(-6);
+        if(this->parent) {
+            this->parent->scroll(-6);
+        }
     });
-    down_btn->current_texture = &tex_man->load(Path::get("gfx/scrollbar_down.png"));
+    down_btn->current_texture = tex_man->load(Path::get("gfx/scrollbar_down.png"));
 
-    auto drag_btn = new Button(0, 100, w, std::min<int>(h - 2 * w, 50), this);
+    UI::Button* drag_btn = new UI::Button(0, 100, w, std::min<int>(h - 2 * w, 50), this);
     drag_btn->is_pinned = true;
     drag_btn->set_on_click([this](Widget&) {
         // if(this->parent) this->parent->scroll(-6);
     });
-    drag_btn->current_texture = &tex_man->load(Path::get("gfx/scrollbar_drag.png"));
+    drag_btn->current_texture = tex_man->load(Path::get("gfx/scrollbar_drag.png"));
 }

@@ -93,7 +93,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
     auto* close_btn = new UI::CloseButton(0, 0, this->width, 24, this);
     close_btn->below_of(*hdl_treaties_chk);
     close_btn->text(UnifiedRender::Locale::translate("Close"));
-    close_btn->on_click = ([this](UI::Widget& w) {
+    close_btn->set_on_click([this](UI::Widget& w) {
         this->gs.client->send(Action::AiControl::form_packet(this->gs.curr_nation));
         w.parent->kill();
     });

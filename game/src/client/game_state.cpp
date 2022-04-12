@@ -116,9 +116,9 @@ void GameState::play_nation() {
     print_info("Selected nation [%s]", this->curr_nation->ref_name.c_str());
 }
 
-const UnifiedRender::Texture& GameState::get_nation_flag(Nation& nation) {
+std::shared_ptr<UnifiedRender::Texture> GameState::get_nation_flag(Nation& nation) {
     Nation::Id id = world->get_id(nation);
-    return *map->nation_flags[id];
+    return map->nation_flags[id];
 }
 
 void handle_event(Input& input, GameState& gs) {
@@ -707,14 +707,14 @@ void start_client(int, char**) {
     gs.loaded_map = false;
     gs.load_progress = 0.3f;
 
-    auto& load_screen_tex = gs.tex_man->load(Path::get("gfx/load_screen.png"));
-    auto* bg_img = new UI::Image(-(gs.width / 2.f), -(load_screen_tex.height / 2.f), gs.width, load_screen_tex.height, &load_screen_tex);
+    auto load_screen_tex = gs.tex_man->load(Path::get("gfx/load_screen.png"));
+    auto* bg_img = new UI::Image(-(gs.width / 2.f), -(load_screen_tex->height / 2.f), gs.width, load_screen_tex->height, load_screen_tex);
     bg_img->origin = UI::Origin::CENTER_SCREEN;
     auto* load_lab = new UI::Label(0, -24, "Loading...");
     load_lab->origin = UI::Origin::LOWER_LEFT_SCREEN;
     load_lab->color = UnifiedRender::Color(1.f, 1.f, 1.f);
-    auto& mod_logo_tex = gs.tex_man->load(Path::get("gfx/mod_logo.png"));
-    auto* mod_logo_img = new UI::Image(0, 0, mod_logo_tex.width, mod_logo_tex.height, &mod_logo_tex);
+    auto mod_logo_tex = gs.tex_man->load(Path::get("gfx/mod_logo.png"));
+    auto* mod_logo_img = new UI::Image(0, 0, mod_logo_tex->width, mod_logo_tex->height, mod_logo_tex);
 
     // Pre-cache the textures that the map will use upon construction
     bool init_iterator = true;
@@ -734,6 +734,8 @@ void start_client(int, char**) {
         // Widgets here SHOULD NOT REQUEST UPON WORLD DATA
         // so no world lock is needed beforehand
         //handle_event(gs.input, gs);
+
+        // TODO: first create the map and separately load all the assets
         std::scoped_lock lock(gs.render_lock);
         gs.clear();
         if(gs.loaded_world) {
@@ -753,7 +755,7 @@ void start_client(int, char**) {
                 gs.load_progress = 1.f;
             } else if(!load_nation_flags) {
                 const std::string path = Path::get("gfx/flags/" + (*load_it_nation)->ref_name + "_" + ((*load_it_nation)->ideology == nullptr ? "none" : (*load_it_nation)->ideology->ref_name) + ".png");
-                gs.tex_man->load(path, mipmap_options).gen_mipmaps();
+                gs.tex_man->load(path, mipmap_options)->gen_mipmaps();
                 if(!path.empty()) {
                     load_lab->text(path);
                 }
@@ -765,7 +767,7 @@ void start_client(int, char**) {
                 const std::string model_path = Path::get("models/building_types/" + (*load_it_building_type)->ref_name + ".obj");
                 gs.model_man->load(model_path);
                 const std::string tex_path = Path::get("gfx/buildingtype/" + (*load_it_building_type)->ref_name + ".png");
-                gs.tex_man->load(tex_path, mipmap_options).gen_mipmaps();
+                gs.tex_man->load(tex_path, mipmap_options)->gen_mipmaps();
                 if(!model_path.empty()) {
                     load_lab->text(model_path);
                 }
@@ -777,7 +779,7 @@ void start_client(int, char**) {
                 const std::string model_path = Path::get("models/unit_types/" + (*load_it_unit_type)->ref_name + ".obj");
                 gs.model_man->load(model_path);
                 const std::string tex_path = Path::get("gfx/unittype/" + (*load_it_unit_type)->ref_name + ".png");
-                gs.tex_man->load(tex_path, mipmap_options).gen_mipmaps();
+                gs.tex_man->load(tex_path, mipmap_options)->gen_mipmaps();
                 if(!model_path.empty()) {
                     load_lab->text(model_path);
                 }

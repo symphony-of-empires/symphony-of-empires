@@ -61,7 +61,7 @@ UnifiedRender::FontSDF::FontSDF(const std::string& filename) {
     mipmap_options.mag_filter = GL_LINEAR;
     mipmap_options.wrap_s = GL_CLAMP_TO_EDGE;
     mipmap_options.wrap_t = GL_CLAMP_TO_EDGE;
-    atlas = &tex_man->load(Path::get(filename + ".png"), mipmap_options);
+    atlas = tex_man->load(Path::get(filename + ".png"), mipmap_options);
 
     char buff;
     uint32_t unicode;

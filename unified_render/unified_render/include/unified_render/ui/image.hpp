@@ -46,7 +46,8 @@ namespace UI {
      */
     class Image: public Widget {
     public:
-        Image(int x, int y, unsigned w, unsigned h, const UnifiedRender::Texture* tex, Widget* parent = nullptr);
+        Image(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
+        Image(int x, int y, unsigned w, unsigned h, std::shared_ptr<UnifiedRender::Texture> tex, Widget* parent = nullptr);
         Image(int x, int y, unsigned w, unsigned h, const std::string& tex_path, Widget* parent = nullptr);
         Image(int x, int y, unsigned w, unsigned h, const std::string& tex_path, bool mipmap = true, Widget* parent = nullptr);
         static Image* make_transparent(int x, int y, unsigned w, unsigned h, const std::string& tex_path, Widget* parent = nullptr);
@@ -61,6 +62,6 @@ namespace UI {
      */
     class AspectImage : public Image {
     public:
-        AspectImage(int x, int y, unsigned w, unsigned max_h, const UnifiedRender::Texture* tex, Widget* parent = nullptr);
+        AspectImage(int x, int y, unsigned w, unsigned max_h, std::shared_ptr<UnifiedRender::Texture> tex, Widget* parent = nullptr);
     };
 };

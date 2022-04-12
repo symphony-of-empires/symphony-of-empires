@@ -64,20 +64,17 @@ DescisionButton::DescisionButton(UI::Window* parent, GameState& _gs, const Desci
     descision{ _descision },
     event{ _event }
 {
-    this->text(descision.name);
-    this->on_click = [](UI::Widget& w) {
-        auto& o = static_cast<DescisionButton&>(w);
-
+    this->text(this->descision.name);
+    this->set_on_click([this](UI::Widget& w) {
         Archive ar = Archive();
         ActionType action = ActionType::NATION_TAKE_DESCISION;
         ::serialize(ar, &action);
-        ::serialize(ar, &o.event.ref_name);
-        ::serialize(ar, &o.descision.ref_name);
-        o.gs.send_command(ar);
-
-        w.parent->kill();
-    };
+        ::serialize(ar, &this->event.ref_name);
+        ::serialize(ar, &this->descision.ref_name);
+        this->gs.send_command(ar);
+        this->kill();
+    });
 
     this->tooltip = new UI::Tooltip(this, 512, 24);
-    this->tooltip->text(descision.effects);
+    this->tooltip->text(this->descision.effects);
 }

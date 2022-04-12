@@ -36,54 +36,37 @@ using namespace UI;
 Tooltip::Tooltip()
     : Widget()
 {
-    type = UI::WidgetType::TOOLTIP;
-    have_shadow = true;
-    width = 512;
+    this->type = UI::WidgetType::TOOLTIP;
+    this->have_shadow = true;
+    this->width = 512;
 
-    current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/window_background.png"));
+    this->current_texture = UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/window_background.png"));
 
-    glm::ivec2 size(4, 4);
-    glm::ivec2 texture_size(10, 10);
-    border = Border(g_ui_context->border_tex, size, texture_size);
+    const glm::ivec2 size = glm::ivec2{4, 4};
+    const glm::ivec2 texture_size = glm::ivec2{10, 10};
+    this->border = UI::Border(g_ui_context->border_tex, size, texture_size);
 }
 
 Tooltip::Tooltip(Widget* parent, unsigned w, unsigned h)
     : Widget()
 {
-    parent->set_tooltip(this);
-    type = UI::WidgetType::TOOLTIP;
-    have_shadow = true;
-    width = w;
-    height = h;
+    this->parent = parent;
+    this->parent->set_tooltip(this);
+    this->type = UI::WidgetType::TOOLTIP;
+    this->have_shadow = true;
+    this->width = w;
+    this->height = h;
 
-    current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/window_background.png"));
+    this->current_texture = UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/window_background.png"));
 
-    glm::ivec2 size(4, 4);
-    glm::ivec2 texture_size(10, 10);
-    border = Border(g_ui_context->border_tex, size, texture_size);
+    const glm::ivec2 size = glm::ivec2{4, 4};
+    const glm::ivec2 texture_size = glm::ivec2{10, 10};
+    this->border = UI::Border(g_ui_context->border_tex, size, texture_size);
 }
 
 Tooltip::~Tooltip(void) {
-    labels.clear();
+
 }
-
-// Tooltip::Tooltip(Widget* parent)
-//     : Widget()
-// {
-//     if(parent != nullptr) {
-//         parent->set_tooltip(this);
-//     }
-//     type = UI::WidgetType::TOOLTIP;
-//     have_shadow = true;
-//     width = 512;
-//     height = 24;
-
-//     current_texture = &UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/window_background.png"));
-
-//     glm::ivec2 size(4, 4);
-//     glm::ivec2 texture_size(10, 10);
-//     border = new Border(g_ui_context->border_tex, size, texture_size);
-// }
 
 void Tooltip::set_pos(int _x, int _y, int, int _height, int screen_w, int screen_h) {
     int extra_above = _y;
@@ -99,7 +82,7 @@ void Tooltip::set_pos(int _x, int _y, int, int _height, int screen_w, int screen
 
 // Note! Code duplication of Text::text 
 void Tooltip::text(const std::string& text) {
-    labels.clear();
+    children.clear();
     if(text.empty()) {
         return;
     }
@@ -139,7 +122,7 @@ void Tooltip::text(const std::string& text) {
             pos++;
         }
 
-        labels.push_back(std::unique_ptr<UI::Label>(new UI::Label(8, y, buf, this)));
+        children.push_back(std::unique_ptr<UI::Label>(new UI::Label(8, y, buf, this)));
         y += 24;
     }
     height = y;

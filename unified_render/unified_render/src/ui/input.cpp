@@ -62,9 +62,9 @@ UI::Input::Input(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
             }
         }
     });
-    on_click = &UI::Input::on_click_default;
-    on_click_outside = &UI::Input::on_click_outside_default;
-    on_update = &UI::Input::on_update_default;
+    this->set_on_click(&UI::Input::on_click_default);
+    this->on_click_outside = &UI::Input::on_click_outside_default;
+    this->on_update = &UI::Input::on_update_default;
 }
 
 UI::Input::~Input(void) {

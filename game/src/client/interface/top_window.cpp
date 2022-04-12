@@ -50,13 +50,12 @@ TopWindow::TopWindow(GameState& _gs)
     new TimeControlView(gs);
 
     UI::Image::make_transparent(0, 0, 147, 499, "gfx/top_window.png", this);
-    auto nation_flag = &gs.get_nation_flag(*gs.curr_nation);
+    auto nation_flag = this->gs.get_nation_flag(*gs.curr_nation);
     auto* flag_img = new UI::AspectImage(5, 4, 138, 88, nation_flag, this);
-    flag_img->on_each_tick = ([](UI::Widget& w) {
-        auto& state = static_cast<TopWindow&>(*w.parent);
-        w.current_texture = &state.gs.get_nation_flag(*state.gs.curr_nation);
+    flag_img->on_each_tick = ([this](UI::Widget& w) {
+        w.current_texture = this->gs.get_nation_flag(*this->gs.curr_nation);
     });
-    auto* flag_rug = new UI::Image(0, 0, flag_img->width, flag_img->height, &gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
+    auto* flag_rug = new UI::Image(0, 0, flag_img->width, flag_img->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
 
     auto* flex_column = new UI::Div(3, 96, 42, 390, this);
     flex_column->flex = UI::Flex::COLUMN;
@@ -66,51 +65,50 @@ TopWindow::TopWindow(GameState& _gs)
     int icon_size = 25;
 
     auto* policy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/book.png", flex_column);
-    policy_ibtn->on_click = (UI::Callback)([](UI::Widget& w) {
-        auto& o = static_cast<TopWindow&>(*w.parent->parent);
-        new Interface::PoliciesScreen(o.gs);
+    policy_ibtn->set_on_click([this](UI::Widget& w) {
+        new Interface::PoliciesScreen(this->gs);
     });
     policy_ibtn->set_tooltip("Laws & Policies");
 
     auto* economy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/economy.png", flex_column);
-    economy_ibtn->on_click = (UI::Callback)([](UI::Widget& w) {
+    economy_ibtn->set_on_click([this](UI::Widget& w) {
         // auto& o = static_cast<TopWindow&>(*w.parent->parent);
     });
     economy_ibtn->set_tooltip("Economy & World Market");
 
     auto* pops_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/pv_1.png", flex_column);
-    pops_ibtn->on_click = ([this](UI::Widget& w) {
+    pops_ibtn->set_on_click([this](UI::Widget& w) {
         new Interface::PopWindow(this->gs);
     });
     pops_ibtn->set_tooltip("Population");
 
     auto* factory_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/pv_0.png", flex_column);
-    factory_ibtn->on_click = ([this](UI::Widget&) {
+    factory_ibtn->set_on_click([this](UI::Widget&) {
         new Interface::FactoryWindow(this->gs);
     });
     factory_ibtn->set_tooltip("Factories");
 
     auto* military_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/military_score.png", flex_column);
-    military_ibtn->on_click = ([this](UI::Widget&) {
+    military_ibtn->set_on_click([this](UI::Widget&) {
         new Interface::ArmyView(this->gs);
     });
     military_ibtn->set_tooltip("Military");
 
     auto* research_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/tech.png", flex_column);
-    research_ibtn->on_click = ([this](UI::Widget&) {
+    research_ibtn->set_on_click([this](UI::Widget&) {
         new Interface::TechTreeView(this->gs);
     });
     research_ibtn->set_tooltip("Research");
 
     auto* save_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/save.png", flex_column);
-    save_ibtn->on_click = ([this](UI::Widget&) {
+    save_ibtn->set_on_click([this](UI::Widget&) {
         save(this->gs);
     });
     save_ibtn->set_tooltip("Saves the current game; TODO: SAVE LUA STATE");
 
     /*
     auto* load_ibtn = new UI::Image(9, 275, 25, 25, "gfx/top_bar/save.png", this);
-    load_ibtn->on_click = (UI::Callback)([](UI::Widget& w) {
+    load_ibtn->set_on_click(UI::Callback)([](UI::Widget& w) {
         auto& o = static_cast<TopWindow&>(*w.parent);
 
         delete o.gs.world;
@@ -130,9 +128,8 @@ TopWindow::TopWindow(GameState& _gs)
     */
 
     auto* exit_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/exit.png", flex_column);
-    exit_ibtn->on_click = (UI::Callback)([](UI::Widget& w) {
-        auto& o = static_cast<TopWindow&>(*w.parent->parent);
-        o.gs.run = false;
+    exit_ibtn->set_on_click([this](UI::Widget& w) {
+        this->gs.run = false;
     });
     exit_ibtn->set_tooltip("Exits");
 }
@@ -151,27 +148,27 @@ TimeControlView::TimeControlView(GameState& _gs)
 
     auto btn_group = new UI::Group(320, 12, this);
     auto* speed0_btn = UI::Image::make_transparent(0, 0, btn_size, btn_size, "gfx/ui/button/time_control_pause.png", true, btn_group);
-    speed0_btn->on_click = ([this](UI::Widget&) {
+    speed0_btn->set_on_click([this](UI::Widget&) {
         this->gs.paused = true;
     });
     speed0_btn->set_tooltip("Pause");
 
     auto* speed1_btn = new UI::Image(45, 0, btn_size, btn_size, "gfx/ui/button/time_control_1.png", true, btn_group);
-    speed1_btn->on_click = ([this](UI::Widget&) {
+    speed1_btn->set_on_click([this](UI::Widget&) {
         this->gs.paused = false;
         this->gs.ms_delay_speed = 1000;
     });
     speed1_btn->set_tooltip("Turtle speed");
 
     auto* speed2_btn = new UI::Image(80, 0, btn_size, btn_size, "gfx/ui/button/time_control_2.png", true, btn_group);
-    speed2_btn->on_click = ([this](UI::Widget&) {
+    speed2_btn->set_on_click([this](UI::Widget&) {
         this->gs.paused = false;
         this->gs.ms_delay_speed = 500;
     });
     speed2_btn->set_tooltip("Horse speed");
 
     auto* speed3_btn = new UI::Image(115, 0, btn_size, btn_size, "gfx/ui/button/time_control_3.png", true, btn_group);
-    speed3_btn->on_click = ([this](UI::Widget&) {
+    speed3_btn->set_on_click([this](UI::Widget&) {
         this->gs.paused = false;
         this->gs.ms_delay_speed = 100;
     });
