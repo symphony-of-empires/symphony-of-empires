@@ -432,6 +432,51 @@ void ai_do_tick(Nation* nation, World* world) {
 
                 ai_update_relations(nation, other);
             }
+
+            // Colonize a province
+            if(!(std::rand() % 50)) {
+                // Pair denoting the weight a province has, the more the better
+                std::vector<std::pair<Province*, float>> colonial_value;
+                for(const auto& province : world->provinces) {
+                    if(province->terrain_type->is_water_body || province->owner != nullptr) {
+                        continue;
+                    }
+                    colonial_value.push_back(std::make_pair(province, 0.f));
+                }
+
+                for(auto& prov : colonial_value) {
+                    // The more population the better
+                    prov.second += prov.first->total_pops() * 0.005f;
+                    // Bordering a province of ours means we are **to** colonize it
+                    for(const auto& neighbour : prov.first->neighbours) {
+                        if(neighbour->controller == nation) {
+                            prov.second *= 100.f;
+                        }
+                    }
+                    // If it's a nucleus province it also gets a x100 multiplier to maximize priority
+                    // on the nuclei provinces
+                    if(prov.first->nuclei.find(nation) != prov.first->nuclei.end()) {
+                        prov.second *= 100.f;
+                    }
+                }
+
+                // Found an appropriate colony!
+                if(!colonial_value.empty()) {
+                    Province* target = (*std::max_element(colonial_value.begin(), colonial_value.end())).first;
+                    if(target->owner == nullptr) {
+                        UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+                        Archive ar = Archive();
+                        ActionType action = ActionType::PROVINCE_COLONIZE;
+                        ::serialize(ar, &action);
+                        ::serialize(ar, &target);
+                        ::serialize(ar, target);
+                        packet.data(ar.get_buffer(), ar.size());
+                        g_server->broadcast(packet);
+                        nation->give_province(*target);
+                        print_info("Conquering %s for %s", target->name.c_str(), nation->name.c_str());
+                    }
+                }
+            }
         }
 
         // Research technologies
@@ -480,8 +525,10 @@ void ai_do_tick(Nation* nation, World* world) {
         }
 
         // Build a commercially related building
-        if(!(std::rand() % 100) && nation->ai_do_build_production) {
-            ai_build_commercial(nation, world);
+        if(nation->ai_do_build_production) {
+            if(!(std::rand() % 100)) {
+                ai_build_commercial(nation, world);
+            }
         }
 
         if(nation->ai_do_unit_production) {
@@ -535,51 +582,6 @@ void ai_do_tick(Nation* nation, World* world) {
                         building.req_goods_for_unit = unit_type->req_goods;
                         UnifiedRender::Log::debug("ai", "Building of unit " + unit_type->name + " from " + nation->name + " built on " + province->name);
                     }
-                }
-            }
-        }
-
-        // Colonize a province
-        if(!(std::rand() % 50)) {
-            // Pair denoting the weight a province has, the more the better
-            std::vector<std::pair<Province*, float>> colonial_value;
-            for(const auto& province : world->provinces) {
-                if(province->terrain_type->is_water_body || province->owner != nullptr) {
-                    continue;
-                }
-                colonial_value.push_back(std::make_pair(province, 0.f));
-            }
-
-            for(auto& prov : colonial_value) {
-                // The more population the better
-                prov.second += prov.first->total_pops() * 0.005f;
-                // Bordering a province of ours means we are **to** colonize it
-                for(const auto& neighbour : prov.first->neighbours) {
-                    if(neighbour->controller == nation) {
-                        prov.second *= 100.f;
-                    }
-                }
-                // If it's a nucleus province it also gets a x100 multiplier to maximize priority
-                // on the nuclei provinces
-                if(prov.first->nuclei.find(nation) != prov.first->nuclei.end()) {
-                    prov.second *= 100.f;
-                }
-            }
-
-            // Found an appropriate colony!
-            if(!colonial_value.empty()) {
-                Province* target = (*std::max_element(colonial_value.begin(), colonial_value.end())).first;
-                if(target->owner == nullptr) {
-                    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
-                    Archive ar = Archive();
-                    ActionType action = ActionType::PROVINCE_COLONIZE;
-                    ::serialize(ar, &action);
-                    ::serialize(ar, &target);
-                    ::serialize(ar, target);
-                    packet.data(ar.get_buffer(), ar.size());
-                    g_server->broadcast(packet);
-                    nation->give_province(*target);
-                    print_info("Conquering %s for %s", target->name.c_str(), nation->name.c_str());
                 }
             }
         }

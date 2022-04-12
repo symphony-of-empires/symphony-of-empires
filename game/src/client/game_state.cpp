@@ -95,6 +95,7 @@
 #include "client/interface/building.hpp"
 #include "client/interface/minimap.hpp"
 #include "client/interface/profiler_view.hpp"
+#include "client/interface/ai.hpp"
 #include "client/map.hpp"
 #include "client/map_render.hpp"
 #include "server/server_network.hpp"
@@ -114,6 +115,17 @@ void GameState::play_nation() {
     minimap = new Interface::Minimap(*this, -400, -200, UI::Origin::LOWER_RIGHT_SCREEN);
     g_client->send(Action::SelectNation::form_packet(this->curr_nation));
     print_info("Selected nation [%s]", this->curr_nation->ref_name.c_str());
+
+    // Set AI to all off
+    this->curr_nation->ai_do_build_production = false;
+    this->curr_nation->ai_do_cmd_troops = false;
+    this->curr_nation->ai_do_diplomacy = false;
+    this->curr_nation->ai_do_policies = false;
+    this->curr_nation->ai_do_research = false;
+    this->curr_nation->ai_do_unit_production = false;
+    this->curr_nation->ai_handle_events = false;
+    this->curr_nation->ai_handle_treaties = false;
+    this->client->send(Action::AiControl::form_packet(this->curr_nation));
 }
 
 std::shared_ptr<UnifiedRender::Texture> GameState::get_nation_flag(Nation& nation) {
@@ -242,6 +254,9 @@ void handle_event(Input& input, GameState& gs) {
                         new Interface::BuildingBuildView(gs, input.select_pos.first, input.select_pos.second, true, gs.world->provinces[tile.province_id]->owner, gs.world->provinces[tile.province_id]);
                     }
                 }
+                break;
+            case UnifiedRender::Keyboard::Key::A:
+                new Interface::AISettingsWindow(gs);
                 break;
             case UnifiedRender::Keyboard::Key::BACKSPACE:
                 ui_ctx->check_text_input(nullptr);
