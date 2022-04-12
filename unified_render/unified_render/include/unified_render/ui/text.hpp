@@ -42,7 +42,6 @@ namespace UI {
      *
      */
     class Text: public Widget {
-        std::vector<std::unique_ptr<UI::Label>> labels;
     public:
         Text(int x, int y, unsigned w, unsigned h, Widget* parent);
         virtual ~Text();

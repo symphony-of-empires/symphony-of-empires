@@ -92,7 +92,7 @@ MapRender::MapRender(const World& _world)
 
     terrain_map = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(Path::get("map/color.png")));
     size_t terrain_map_size = terrain_map->width * terrain_map->height;
-    for(unsigned int i = 0; i < terrain_map_size; i++) {
+    for(size_t i = 0; i < terrain_map_size; i++) {
         const uint32_t color = terrain_map->buffer.get()[i];
         
         uint8_t idx = 0;

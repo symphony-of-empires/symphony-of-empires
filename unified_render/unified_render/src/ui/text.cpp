@@ -35,7 +35,7 @@ Text::Text(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 }
 
 Text::~Text(void) {
-    labels.clear();
+    
 }
 
 void Text::on_render(Context&, UnifiedRender::Rect) {
@@ -43,7 +43,6 @@ void Text::on_render(Context&, UnifiedRender::Rect) {
 }
 
 void Text::text(const std::string& text) {
-    labels.clear();
     children.clear();
     if(text.empty()) {
         return;
@@ -84,7 +83,7 @@ void Text::text(const std::string& text) {
             pos++;
         }
         
-        labels.push_back(std::unique_ptr<UI::Label>(new UI::Label(0, y, buf, this)));
+        new UI::Label(0, y, buf, this);
         y += 24;
     }
     height = y;

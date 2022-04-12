@@ -122,7 +122,7 @@ void Tooltip::text(const std::string& text) {
             pos++;
         }
 
-        children.push_back(std::unique_ptr<UI::Label>(new UI::Label(8, y, buf, this)));
+        new UI::Label(8, y, buf, this);
         y += 24;
     }
     height = y;
