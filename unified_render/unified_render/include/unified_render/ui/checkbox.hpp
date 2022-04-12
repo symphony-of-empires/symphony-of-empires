@@ -46,18 +46,16 @@ namespace UI {
         Checkbox(int size, Widget* parent = nullptr);
         Checkbox(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
         virtual ~Checkbox() override {};
-        bool get_value();
+        bool get_value(void) const;
         void set_value(bool checked);
         void set_on_click(std::function<void(Widget&)> on_click) override;
         void text(const std::string& _text) override;
-
     private:
         static void on_click_default(Widget& w);
         void init_checkbox(int size);
         Div* box;
         bool value;
         std::function<void(Widget&)> outside_on_click = nullptr;
-
         std::shared_ptr<UnifiedRender::Texture> checked_texture;
         std::shared_ptr<UnifiedRender::Texture> unchecked_texture;
     };

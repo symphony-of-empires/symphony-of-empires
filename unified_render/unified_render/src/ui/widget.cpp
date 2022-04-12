@@ -323,15 +323,13 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         int y_offset = text_offset_y;
         if(text_align_x == UI::Align::CENTER) {
             x_offset = (width - text_texture->width) / 2;
-        }
-        else if(text_align_x == UI::Align::END) {
+        } else if(text_align_x == UI::Align::END) {
             x_offset += width - text_texture->width;
         }
 
         if(text_align_y == UI::Align::CENTER) {
             y_offset = (height - text_texture->height) / 2;
-        }
-        else if(text_align_y == UI::Align::END) {
+        } else if(text_align_y == UI::Align::END) {
             y_offset += height - text_texture->height;
         }
         draw_rectangle(x_offset, y_offset, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
@@ -508,7 +506,10 @@ void Widget::set_tooltip(UI::Tooltip* _tooltip) {
 }
 
 void Widget::set_tooltip(const std::string& text) {
-    this->set_tooltip(new UI::Tooltip(this, 64, 32));
+    if(text.empty()) {
+        return;
+    }
+    this->set_tooltip(new UI::Tooltip(this, std::min<unsigned int>(text.size() * 12, 512), ((text.size() * 12) / 512) * 24 ));
     this->tooltip->text(text);
 }
 

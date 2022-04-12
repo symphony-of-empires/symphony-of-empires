@@ -51,49 +51,45 @@ Checkbox::Checkbox(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 }
 
 void Checkbox::init_checkbox(int size) {
+    UnifiedRender::TextureManager* tex_man = UnifiedRender::State::get_instance().tex_man;
+
     UnifiedRender::TextureOptions mipmap_options{};
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
-    auto tex_man = UnifiedRender::State::get_instance().tex_man;
     this->unchecked_texture = tex_man->load(Path::get("gfx/checkbox_false.png"), mipmap_options);
     this->checked_texture = tex_man->load(Path::get("gfx/checkbox_true.png"), mipmap_options);
 
     this->box = new Div(0, 0, size, size, this);
-    this->box->current_texture = unchecked_texture;
-    this->set_on_click(on_click_default);
+    this->box->current_texture = this->unchecked_texture;
+    this->on_click = ([this](UI::Widget& w) {
+        this->set_value(!this->value);
+        if(this->outside_on_click) {
+            this->outside_on_click(w);
+        }
+    });
     this->text_offset_x = size + 4;
     this->clickable_effect = false;
 }
 
-bool Checkbox::get_value() {
-    return value;
+bool Checkbox::get_value(void) const {
+    return this->value;
 }
 
 void Checkbox::set_value(bool checked) {
-    value = checked;
-    if(value) {
-        box->current_texture = checked_texture;
-    }
-    else {
-        box->current_texture = unchecked_texture;
+    this->value = checked;
+    if(this->value) {
+        this->box->current_texture = this->checked_texture;
+    } else {
+        this->box->current_texture = this->unchecked_texture;
     }
 }
 
 void Checkbox::set_on_click(std::function<void(Widget&)> _on_click) {
-    this->outside_on_click = _on_click;
-}
-
-void Checkbox::on_click_default(Widget& w) {
-    Checkbox& checkbox = static_cast<Checkbox&>(w);
-    checkbox.set_value(!checkbox.value);
-    if(checkbox.outside_on_click) {
-        checkbox.outside_on_click(w);
-    }
+    this->outside_on_click = on_click;
 }
 
 void Checkbox::text(const std::string& _text) {
     UI::Widget::text(_text);
-
-    width = text_texture->width + text_offset_x;
-    height = std::max(text_texture->height, box->height);
+    this->width = this->text_texture->width + this->text_offset_x;
+    this->height = std::max<size_t>(this->text_texture->height, this->box->height);
 }
