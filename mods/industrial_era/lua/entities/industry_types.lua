@@ -75,9 +75,9 @@ gold_mine = IndustryType:new{ ref_name = "gold_mine", name = _("Gold mine") }
 gold_mine:register()
 gold_mine:add_output(gold)
 
-sulfur_mine = IndustryType:new{ ref_name = "sulfur_mine", name = _("Sulfur mine") }
-sulfur_mine:register()
-sulfur_mine:add_output(sulfur)
+sulphur_mine = IndustryType:new{ ref_name = "sulphur_mine", name = _("Sulfur mine") }
+sulphur_mine:register()
+sulphur_mine:add_output(sulphur)
 
 -- Secondary sector industries (now the fun begins)
 iron_smelter = IndustryType:new{ ref_name = "iron_smelter", name = _("Iron smelter") }
@@ -88,7 +88,7 @@ iron_smelter:add_output(steel)
 
 ammunition_factory = IndustryType:new{ ref_name = "ammunition_factory", name = _("Ammunition factory") }
 ammunition_factory:register()
-ammunition_factory:add_input(sulfur)
+ammunition_factory:add_input(sulphur)
 ammunition_factory:add_input(coal)
 ammunition_factory:add_input(steel)
 ammunition_factory:add_output(ammunition)

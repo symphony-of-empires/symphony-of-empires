@@ -88,9 +88,9 @@ timber:register()
 coal = Good:new{ ref_name = "coal" }
 coal.name = _("Coal")
 coal:register()
-sulfur = Good:new{ ref_name = "sulfur" }
-sulfur.name = _("Sulfur")
-sulfur:register()
+sulphur = Good:new{ ref_name = "sulphur" }
+sulphur.name = _("Sulfur")
+sulphur:register()
 steel = Good:new{ ref_name = "steel" }
 steel.name = _("Steel bean")
 steel:register()
