@@ -85,10 +85,8 @@ MapRender::MapRender(const World& _world)
     stripes_tex = tex_man->load(Path::get("gfx/stripes.png"), mipmap_options);
 
     mipmap_options.internal_format = GL_RED;
-    bathymethry = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(Path::get("map/bathymethry.png")));
-    bathymethry->to_opengl(mipmap_options);
-    river_tex = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(Path::get("map/river_smooth.png")));
-    river_tex->to_opengl(mipmap_options);
+    bathymethry = tex_man->load(Path::get("map/bathymethry.png"), mipmap_options);
+    river_tex = tex_man->load(Path::get("map/river_smooth.png"), mipmap_options);
 
     terrain_map = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(Path::get("map/color.png")));
     size_t terrain_map_size = terrain_map->width * terrain_map->height;
@@ -219,6 +217,7 @@ MapRender::MapRender(const World& _world)
     border_sdf = std::make_unique<UnifiedRender::Texture>(UnifiedRender::Texture(Path::get("map/sdf_map.png")));
     border_sdf->to_opengl(sdf_options);
     border_sdf->gen_mipmaps();
+    // update_border_sdf(UnifiedRender::Rect(0, 0, 5400, 2700));
 }
 
 void MapRender::reload_shaders() {
