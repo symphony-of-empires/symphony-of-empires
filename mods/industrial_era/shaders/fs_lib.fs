@@ -38,6 +38,7 @@ vec4 no_tiling(sampler2D tex, vec2 uv, sampler2D noisy_tex) {
 }
 
 // Watercolor efffect
+// Not used and probably wont. Keep for now though
 float water_aquarelle(sampler2D noise_tex, vec2 tex_coords) {
     vec2 uv = tex_coords * 20.0;
     vec3 col = vec3(1.0);
@@ -53,4 +54,69 @@ float water_aquarelle(sampler2D noise_tex, vec2 tex_coords) {
     layer1 *= 0.69;
     layer1 = clamp(layer1, 0.0, 1.05);
     return layer1;
+}
+
+// Not used and probably wont. Keep for now though
+vec2 parallax_map(vec2 tex_coords, vec3 view_dir, sampler2D heightmap) {
+	const float height_scale = 0.0002;
+	const float other_scale = 10.;
+
+	// number of depth layers
+	const float minLayers = 8;
+	const float maxLayers = 64;
+	float numLayers = mix(maxLayers, minLayers, abs(dot(vec3(0.0, 0.0, 1.0), view_dir)));  
+    // calculate the size of each layer
+	float layerDepth = 1.0 / numLayers;
+    // depth of current layer
+	float currentLayerDepth = 0.0;
+    // the amount to shift the texture coordinates per layer (from vector P)
+	vec2 P = view_dir.xy / view_dir.z * height_scale;
+	vec2 deltaTexCoords = P / numLayers;
+
+    // get initial values
+	vec2 currentTexCoords = tex_coords;
+	float currentDepthMapValue = texture(heightmap, tex_coords).w * other_scale;
+	// currentDepthMapValue = (currentDepthMapValue - 0.5) * 2.;
+
+	while(currentLayerDepth < currentDepthMapValue) {
+        // shift texture coordinates along direction of P
+		currentTexCoords -= deltaTexCoords;
+        // get depthmap value at current texture coordinates
+		currentDepthMapValue = texture(heightmap, currentTexCoords).w * other_scale;  
+		// currentDepthMapValue = (currentDepthMapValue - 0.5) * 2.;
+        // get depth of next layer
+		currentLayerDepth += layerDepth;
+	}
+
+	// get texture coordinates before collision (reverse operations)
+	vec2 prevTexCoords = currentTexCoords + deltaTexCoords;
+
+	// get depth after and before collision for linear interpolation
+	float afterDepth = currentDepthMapValue - currentLayerDepth;
+	float beforeDepth = texture(heightmap, prevTexCoords).w * other_scale - currentLayerDepth + layerDepth;
+
+	// interpolation of texture coordinates
+	float weight = afterDepth / (afterDepth - beforeDepth);
+	vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
+
+	return finalTexCoords;
+}
+
+// Generate a normal from a height map. Using a normal map texture instead will give us better result and performance
+// Not used and probably wont. Keep for now though
+vec3 gen_normal(vec2 tex_coords, sampler2D heightmap) {
+	const vec2 size = vec2(2.0, 0.0);
+	const ivec3 off = ivec3(-1, 0, 1);
+	float steep = 8.;
+
+	vec4 wave = texture(heightmap, tex_coords);
+	float s11 = steep * wave.w;
+	float s01 = steep * textureOffset(heightmap, tex_coords, off.xy).w;
+	float s21 = steep * textureOffset(heightmap, tex_coords, off.zy).w;
+	float s10 = steep * textureOffset(heightmap, tex_coords, off.yx).w;
+	float s12 = steep * textureOffset(heightmap, tex_coords, off.yz).w;
+	vec3 va = normalize(vec3(size.xy, s21 - s01));
+	vec3 vb = normalize(vec3(size.yx, s12 - s10));
+	vec4 bump = vec4(cross(va, vb), s11);
+	return bump.xyz;
 }

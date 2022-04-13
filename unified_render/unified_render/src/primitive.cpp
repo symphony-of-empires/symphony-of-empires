@@ -102,10 +102,10 @@ UnifiedRender::Quad2D::Quad2D(void)
 {
 	buffer.resize(6);
 	buffer[0] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(-1.f, -1.f), glm::vec2(0.f, 0.f));
-	buffer[2] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(-1.f, 1.f), glm::vec2(0.f, 1.f));
-	buffer[1] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f));
-	buffer[4] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f));
-	buffer[3] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(-1.f, 1.f), glm::vec2(0.f, 1.f));
+	buffer[1] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(-1.f, 1.f), glm::vec2(0.f, 1.f));
+	buffer[2] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f));
+	buffer[3] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f));
+	buffer[4] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(-1.f, 1.f), glm::vec2(0.f, 1.f));
 	buffer[5] = UnifiedRender::MeshData<glm::vec2, glm::vec2>(glm::vec2(1.f, 1.f), glm::vec2(1.f, 1.f));
 
 	upload();
