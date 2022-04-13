@@ -23,7 +23,7 @@
 --      Does important stuff
 -- ----------------------------------------------------------------------------
 
-TEMP_DATA = {}
+tmp_data = {}
 
 function gevhdl002_test()
     if math.random(0, 100) == 0 then
@@ -32,9 +32,9 @@ function gevhdl002_test()
 	return EVENT_CONDITIONS_UNMET
 end
 function gevhdl002_event(ref_name)
-	TEMP_DATA.ideology = Ideology:get_by_id(math.random(0, 8))
+	tmp_data.ideology = Ideology:get_by_id(math.random(0, 7))
 	
-	gevhdl002.title = TEMP_DATA.ideology.name .. " outrage!"
+	gevhdl002.title = tmp_data.ideology.name .. " outrage!"
     gevhdl002.text = "A lot of " .. ideology.name .. "s have started speaking false information about us; what's best for the " .. Nation:get(ref_name).adjective .. " people?"
 	gevhdl002:update(gevhdl002)
 	
@@ -43,7 +43,7 @@ function gevhdl002_event(ref_name)
 		name = "Shut them down",
 		descision_fn = "gevhdl002_descision_0"
 	}
-	descision.effects = "Every POP that supports " .. TEMP_DATA.ideology.name .. " gets 0.1 militancy"
+	descision.effects = "Every POP that supports " .. tmp_data.ideology.name .. " gets 0.1 militancy"
 	gevhdl002:add_descision(descision)
 	
 	descision = Descision:new{
@@ -51,7 +51,7 @@ function gevhdl002_event(ref_name)
 		name = "Let them be",
 		descision_fn = "gevhdl002_descision_1",
 	}
-	descision.effects = "Every POP that supports " .. TEMP_DATA.ideology.name .. " gets 0.1 conciousness"
+	descision.effects = "Every POP that supports " .. tmp_data.ideology.name .. " gets 0.1 conciousness"
 	gevhdl002:add_descision(descision)
 	return EVENT_DO_MANY_TIMES
 end
@@ -60,7 +60,7 @@ function gevhdl002_descision_0(ref_name)
 	for k, province in pairs(prov_list) do
 		local pops = province:get_pops()
 		for k, pop in pairs(pops) do
-			if pop.ideology.ref_name == TEMP_DATA.ideology.ref_name then
+			if pop.ideology.ref_name == tmp_data.ideology.ref_name then
 				goto continue
 			end
 			
@@ -76,7 +76,7 @@ function gevhdl002_descision_1(ref_name)
 	for k, province in pairs(prov_list) do
 		local pops = province:get_pops()
 		for k, pop in pairs(pops) do
-			if pop.ideology.ref_name == TEMP_DATA.ideology.ref_name then
+			if pop.ideology.ref_name == tmp_data.ideology.ref_name then
 				goto continue
 			end
 			

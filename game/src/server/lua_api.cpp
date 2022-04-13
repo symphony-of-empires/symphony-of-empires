@@ -34,6 +34,7 @@
 #include "unified_render/path.hpp"
 #include "unified_render/utils.hpp"
 #include "unified_render/decimal.hpp"
+#include "unified_render/log.hpp"
 
 #include "server/lua_api.hpp"
 #include "world.hpp"
@@ -56,7 +57,7 @@ const T* find_or_throw(const std::string& ref_name) {
     });
 
     if(result == list.end()) {
-        throw LuaAPI::Exception(ref_name + " not found");
+        throw LuaAPI::Exception(std::string() + "Object<" + typeid(T).name() + "> " + ref_name + " not found");
     }
     return (*result);
 }
@@ -1229,27 +1230,27 @@ void LuaAPI::check_events(lua_State* L) {
             if(r) {
                 has_fired = true;
 
-                Event orig_event = Event(*event);
+                auto orig_event = Event(*event);
 
                 // Call the "do event" function
-                lua_getglobal(L, orig_event.do_event_function.c_str());
+                UnifiedRender::Log::debug("event", "Event " + event->ref_name + " using " + event->do_event_function + " function");
+                lua_getglobal(L, event->do_event_function.c_str());
                 lua_pushstring(L, nation->ref_name.c_str());
                 lua_pcall(L, 1, 1, 0);
                 is_multi = lua_tointeger(L, -1);
                 lua_pop(L, 1);
 
                 // The changes done to the event "locally" are then created into a new local event
-                auto* local_event = new Event(orig_event);
+                auto* local_event = new Event(*event);
                 local_event->cached_id = (Event::Id)-1;
-                local_event->ref_name += "_";
-                for(unsigned int j = 0; j < 20; j++) {
-                    local_event->ref_name += 'a' + (rand() % 26);
+                local_event->ref_name += "_local_";
+                for(unsigned int j = 0; j < 4; j++) {
+                    local_event->ref_name += 'A' + (std::rand() % 26);
                 }
                 // Do not relaunch a local event
                 local_event->checked = true;
-
                 if(local_event->descisions.empty()) {
-                    print_error("Event %s has no descisions (ref_name = %s)", local_event->ref_name.c_str(), nation->ref_name.c_str());
+                    UnifiedRender::Log::error("event", "Event " + local_event->ref_name + " has no descisions (ref_name = " + nation->ref_name + ")");
                     *event = orig_event;
                     continue;
                 }
@@ -1257,7 +1258,7 @@ void LuaAPI::check_events(lua_State* L) {
                 g_world->insert(*local_event);
                 nation->inbox.push_back(local_event);
 
-                print_info("Event triggered! %s (with %zu descisions)", local_event->ref_name.c_str(), (size_t)local_event->descisions.size());
+                UnifiedRender::Log::debug("event", "Event triggered! " + local_event->ref_name + " (with " + std::to_string(local_event->descisions.size()) + " descisions)");
 
                 // Original event then gets restored
                 *event = orig_event;
@@ -1275,11 +1276,10 @@ void LuaAPI::check_events(lua_State* L) {
     for(auto& dec : g_world->taken_descisions) {
         lua_getglobal(L, dec.first->do_descision_function.c_str());
         lua_pushstring(L, dec.second->ref_name.c_str());
-        print_info("[%s] took the descision: [%s]", dec.second->ref_name.c_str(), dec.first->do_descision_function.c_str());
+        UnifiedRender::Log::debug("event", dec.second->ref_name + " took the descision: " + dec.first->do_descision_function);
         try {
             lua_pcall(L, 1, 0, 0);
-        }
-        catch(const std::exception& e) {
+        } catch(const std::exception& e) {
             throw LuaAPI::Exception(dec.first->do_descision_function + "(" + dec.second->ref_name + "): " + e.what());
         }
         // TODO: Delete local event upon taking a descision

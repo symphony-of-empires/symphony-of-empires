@@ -185,6 +185,7 @@ function Nation:get_owned_provinces()
 	local table = get_provinces_owned_by_nation(self.id)
 	local new_table = {}
 	for k, v in pairs(table) do
+		print("got province " .. id)
 		new_table[k] = Province:get_by_id(v)
 	end
 	return new_table

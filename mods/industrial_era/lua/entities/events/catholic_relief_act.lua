@@ -55,9 +55,16 @@ function catholic_relief_act_of_1829_descision_0()
 end
 function catholic_relief_act_of_1829_descision_1()
     local prov = Nation:get_owned_provinces()
-    for k, v in pairs(prov) do
-        k:multiply_militancy_by_religion(Religion:get("christian"), 100.0)
-        k:multiply_con_by_religion(Religion:get("christian"), 100.0)
+    for k, province in pairs(prov) do
+		local pops = province:get_pops()
+		for k, pop in pairs(pops) do
+			if pop.religion.id == Religion:get("christian").id then
+				pop.militancy = pop.militancy * 1.5
+				pop.con = pop.con * 1.5
+				province:update_pop(pop)
+			end
+		end
+		province:update_pops()
     end
 end
 catholic_relief_act_of_1829 = Event:new{
