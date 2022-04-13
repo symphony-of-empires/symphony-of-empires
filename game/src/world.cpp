@@ -923,7 +923,7 @@ void World::do_tick() {
         // Treaties clauses now will be enforced
         UnifiedRender::Log::debug("game", "Enforcing treaty " + treaty->name);
         for(auto& clause : treaty->clauses) {
-            if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
+            if(clause->type == TreatyClauseType::MONEY) {
                 auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
                 if(!dyn_clause->in_effect()) {
                     continue;
@@ -955,6 +955,12 @@ void World::do_tick() {
                 dyn_clause->enforce();
             } else if(clause->type == TreatyClauseType::CEASEFIRE) {
                 auto dyn_clause = static_cast<TreatyClause::Ceasefire*>(clause);
+                if(!dyn_clause->in_effect()) {
+                    continue;
+                }
+                dyn_clause->enforce();
+            } else if(clause->type == TreatyClauseType::PUPPET) {
+                auto dyn_clause = static_cast<TreatyClause::Puppet*>(clause);
                 if(!dyn_clause->in_effect()) {
                     continue;
                 }

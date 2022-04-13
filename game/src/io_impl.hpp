@@ -692,7 +692,7 @@ public:
                 throw SerializerException("Dynamic cast failed for TreatyClause::ImposePolicies");
             ::serialize(stream, &dyn_clause->imposed);
         } break;
-        case TreatyClauseType::WAR_REPARATIONS: {
+        case TreatyClauseType::MONEY: {
             const auto dyn_clause = static_cast<const TreatyClause::WarReparations*>(*obj);
             if(dyn_clause == nullptr)
                 throw SerializerException("Dynamic cast failed for TreatyClause::WarReparations");
@@ -742,7 +742,7 @@ public:
             auto dyn_clause = (TreatyClause::ImposePolicies*)*obj;
             ::deserialize(stream, &dyn_clause->imposed);
         } break;
-        case TreatyClauseType::WAR_REPARATIONS: {
+        case TreatyClauseType::MONEY: {
             delete* obj;
             *obj = new TreatyClause::WarReparations();
             auto dyn_clause = (TreatyClause::WarReparations*)*obj;
@@ -754,11 +754,16 @@ public:
             auto dyn_clause = (TreatyClause::Humiliate*)*obj;
             ::deserialize(stream, &dyn_clause->amount);
         } break;
-        //case TreatyClauseType::CEASEFIRE: {
-        //    delete* obj;
-        //    *obj = new TreatyClause::Ceasefire();
-        //    auto dyn_clause = (TreatyClause::Ceasefire*)*obj;
-        //} break;
+        case TreatyClauseType::CEASEFIRE: {
+            delete* obj;
+            *obj = new TreatyClause::Ceasefire();
+            auto dyn_clause = (TreatyClause::Ceasefire*)*obj;
+        } break;
+        case TreatyClauseType::PUPPET: {
+            delete* obj;
+            *obj = new TreatyClause::Puppet();
+            auto dyn_clause = (TreatyClause::Puppet*)*obj;
+        } break;
         default:
             break;
         }

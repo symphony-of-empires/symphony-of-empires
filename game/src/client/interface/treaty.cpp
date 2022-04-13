@@ -34,36 +34,34 @@ using namespace Interface;
 std::string treaty_to_text(Treaty* treaty) {
     std::string text = "";
     for(const auto& clause : treaty->clauses) {
-        if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
+        if(clause->type == TreatyClauseType::MONEY) {
             const auto* dyn_clause = static_cast<const TreatyClause::WarReparations*>(clause);
             text += dyn_clause->sender->name + " demands $" + std::to_string(dyn_clause->amount) + " from " + dyn_clause->receiver->name;
-        }
-        else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
+        } else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
             const auto* dyn_clause = static_cast<const TreatyClause::AnexxProvince*>(clause);
             text += dyn_clause->sender->name + " obtains ";
             for(const auto& province : dyn_clause->provinces) {
                 text += province->name + ", ";
             }
             text += " from " + dyn_clause->receiver->name;
-        }
-        else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
+        } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
             const auto* dyn_clause = static_cast<const TreatyClause::LiberateNation*>(clause);
             text += dyn_clause->sender->name + " liberates " + dyn_clause->liberated->name + " and gives them ";
             for(const auto& province : dyn_clause->provinces) {
                 text += province->name + " from " + dyn_clause->receiver->name + ", ";
             }
-        }
-        else if(clause->type == TreatyClauseType::HUMILIATE) {
+        } else if(clause->type == TreatyClauseType::HUMILIATE) {
             const auto* dyn_clause = static_cast<const TreatyClause::Humiliate*>(clause);
             text += dyn_clause->sender->name + " humiliates " + dyn_clause->receiver->name;
-        }
-        else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
+        } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
             const auto* dyn_clause = static_cast<const TreatyClause::ImposePolicies*>(clause);
             text += dyn_clause->sender->name + " imposes policies on " + dyn_clause->receiver->name;
-        }
-        else if(clause->type == TreatyClauseType::CEASEFIRE) {
+        } else if(clause->type == TreatyClauseType::CEASEFIRE) {
             const auto* dyn_clause = static_cast<const TreatyClause::Ceasefire*>(clause);
             text += dyn_clause->sender->name + " proposes ceasefire to " + dyn_clause->receiver->name;
+        } else if(clause->type == TreatyClauseType::PUPPET) {
+            const auto* dyn_clause = static_cast<const TreatyClause::Puppet*>(clause);
+            text += dyn_clause->sender->name + " vassalizes " + dyn_clause->receiver->name;
         }
         text += ", ";
     }

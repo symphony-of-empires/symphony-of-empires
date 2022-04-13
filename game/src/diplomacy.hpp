@@ -46,12 +46,14 @@ namespace Diplomacy {
 };
 
 enum class TreatyClauseType {
-    WAR_REPARATIONS,
+    MONEY,
     HUMILIATE,
     LIBERATE_NATION,
     IMPOSE_POLICIES,
     ANEXX_PROVINCES,
     CEASEFIRE,
+    PUPPET,
+    TECHNOLOGY,
 };
 
 namespace TreatyClause {
@@ -98,7 +100,7 @@ namespace TreatyClause {
     class WarReparations: public BaseClause {
     public:
         WarReparations(): BaseClause() {
-            type = TreatyClauseType::WAR_REPARATIONS;
+            type = TreatyClauseType::MONEY;
         };
         unsigned cost(void);
         void enforce(void);
@@ -165,6 +167,17 @@ namespace TreatyClause {
     public:
         Ceasefire(): BaseClause() {
             type = TreatyClauseType::CEASEFIRE;
+        };
+        unsigned cost(void);
+        void enforce(void);
+        bool in_effect(void) const;
+    };
+
+    // Makes the receiver the puppet of the sender
+    class Puppet: public BaseClause {
+    public:
+        Puppet(): BaseClause() {
+            type = TreatyClauseType::PUPPET;
         };
         unsigned cost(void);
         void enforce(void);

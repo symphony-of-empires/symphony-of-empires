@@ -23,10 +23,11 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#include "unified_render/log.hpp"
+
 #include "diplomacy.hpp"
 #include "nation.hpp"
 #include "world.hpp"
-#include "unified_render/log.hpp"
 
 using namespace Diplomacy;
 
@@ -57,12 +58,14 @@ inline bool Diplomacy::is_foe(Nation& us, Nation& them) {
     return !is_friend(us, them);
 }
 
-using namespace TreatyClause;
-unsigned WarReparations::cost(void) {
+//
+// WarReparations
+//
+unsigned TreatyClause::WarReparations::cost(void) {
     return (receiver->economy_score * (amount * days_duration)) / 100;
 }
 
-void WarReparations::enforce(void) {
+void TreatyClause::WarReparations::enforce(void) {
     sender->prestige += 0.0001f;
     receiver->prestige -= 0.0001f;
     sender->budget -= amount;
@@ -70,29 +73,35 @@ void WarReparations::enforce(void) {
     days_duration--;
 }
 
-bool WarReparations::in_effect(void) const {
+bool TreatyClause::WarReparations::in_effect(void) const {
     return (days_duration != 0);
 }
 
-unsigned Humiliate::cost(void) {
+//
+// Humiliate
+//
+unsigned TreatyClause::Humiliate::cost(void) {
     return (receiver->prestige * (amount * days_duration)) / 100;
 }
 
-void Humiliate::enforce(void) {
+void TreatyClause::Humiliate::enforce(void) {
     sender->prestige += amount;
     receiver->prestige -= amount;
     days_duration--;
 }
 
-bool Humiliate::in_effect(void) const {
+bool TreatyClause::Humiliate::in_effect(void) const {
     return (days_duration != 0);
 }
 
-unsigned LiberateNation::cost(void) {
+//
+// LiberateNation
+//
+unsigned TreatyClause::LiberateNation::cost(void) {
     return 0;
 }
 
-void LiberateNation::enforce(void) {
+void TreatyClause::LiberateNation::enforce(void) {
     // Reduce prestige due to lost lands
     sender->prestige += cost() * 0.0000025f;
     receiver->prestige -= cost() * 0.000005f;
@@ -106,28 +115,34 @@ void LiberateNation::enforce(void) {
     done = true;
 }
 
-bool LiberateNation::in_effect(void) const {
+bool TreatyClause::LiberateNation::in_effect(void) const {
     return !done;
 }
 
-unsigned ImposePolicies::cost(void) {
+//
+// ImposePolicies
+//
+unsigned TreatyClause::ImposePolicies::cost(void) {
     return imposed.difference(receiver->current_policy);
 }
 
-void ImposePolicies::enforce(void) {
+void TreatyClause::ImposePolicies::enforce(void) {
     receiver->current_policy = imposed;
     done = true;
 }
 
-bool ImposePolicies::in_effect(void) const {
+bool TreatyClause::ImposePolicies::in_effect(void) const {
     return !done;
 }
 
-unsigned AnexxProvince::cost(void) {
+//
+// AnexxProvince
+//
+unsigned TreatyClause::AnexxProvince::cost(void) {
     return 0;
 }
 
-void AnexxProvince::enforce(void) {
+void TreatyClause::AnexxProvince::enforce(void) {
     sender->prestige += cost() * 0.0000025f;
     receiver->prestige -= cost() * 0.000005f;
 
@@ -142,15 +157,18 @@ void AnexxProvince::enforce(void) {
     done = true;
 }
 
-bool AnexxProvince::in_effect(void) const {
+bool TreatyClause::AnexxProvince::in_effect(void) const {
     return !done;
 }
 
-unsigned Ceasefire::cost() {
+//
+// Ceasefire
+//
+unsigned TreatyClause::Ceasefire::cost() {
     return receiver->military_score + receiver->naval_score;
 }
 
-void Ceasefire::enforce() {
+void TreatyClause::Ceasefire::enforce() {
     Nation::Id receiver_id = g_world->get_id(*receiver);
     Nation::Id sender_id = g_world->get_id(*sender);
 
@@ -163,8 +181,28 @@ void Ceasefire::enforce() {
     days_duration--;
 }
 
-bool Ceasefire::in_effect() const {
+bool TreatyClause::Ceasefire::in_effect() const {
     return (days_duration != 0);
+}
+
+//
+// Puppet
+//
+unsigned TreatyClause::Puppet::cost() {
+    return 0;
+}
+
+void TreatyClause::Puppet::enforce() {
+    Nation::Id receiver_id = g_world->get_id(*receiver);
+    Nation::Id sender_id = g_world->get_id(*sender);
+
+    receiver->puppet_master = sender;
+
+    done = true;
+}
+
+bool TreatyClause::Puppet::in_effect() const {
+    return !done;
 }
 
 // Checks if the specified nations participates in the treaty
@@ -181,7 +219,7 @@ bool Treaty::does_participate(Nation& nation) {
 bool Treaty::in_effect(void) const {
 	bool on_effect = false;
 	for(const auto& clause : this->clauses) {
-		if(clause->type == TreatyClauseType::WAR_REPARATIONS) {
+		if(clause->type == TreatyClauseType::MONEY) {
 			const auto* dyn_clause = static_cast<const TreatyClause::WarReparations*>(clause);
 			on_effect = dyn_clause->in_effect();
 		} else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
@@ -198,6 +236,9 @@ bool Treaty::in_effect(void) const {
 			on_effect = dyn_clause->in_effect();
 		} else if(clause->type == TreatyClauseType::CEASEFIRE) {
 			const auto* dyn_clause = static_cast<const TreatyClause::Ceasefire*>(clause);
+			on_effect = dyn_clause->in_effect();
+		} else if(clause->type == TreatyClauseType::PUPPET) {
+			const auto* dyn_clause = static_cast<const TreatyClause::Puppet*>(clause);
 			on_effect = dyn_clause->in_effect();
 		}
 		

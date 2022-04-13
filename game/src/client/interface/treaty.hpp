@@ -25,10 +25,11 @@
 
 #pragma once
 
+#include "unified_render/ui/window.hpp"
+
 #include "nation.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
-#include "unified_render/ui/window.hpp"
 
 namespace UI {
     class Text;
