@@ -282,6 +282,9 @@ int LuaAPI::add_nation(lua_State* L) {
     nation->name = luaL_checkstring(L, 2);
     nation->ideology = g_world->ideologies.at(0);
 
+    nation->religion_discrim = std::vector<float>(0.5f, g_world->religions.size());
+    nation->culture_discrim = std::vector<float>(0.5f, g_world->cultures.size());
+
     // Check for duplicates
     for(size_t i = 0; i < g_world->nations.size(); i++) {
         if(nation->ref_name == g_world->nations[i]->ref_name) {
@@ -380,13 +383,13 @@ int LuaAPI::set_nation_capital(lua_State* L) {
 
 int LuaAPI::add_accepted_culture(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
-    nation->accepted_cultures.insert(g_world->cultures.at(lua_tonumber(L, 2)));
+    nation->culture_discrim.at(lua_tonumber(L, 2)) = 1.f;
     return 0;
 }
 
 int LuaAPI::add_accepted_religion(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
-    nation->accepted_religions.insert(g_world->religions.at(lua_tonumber(L, 2)));
+    nation->religion_discrim.at(lua_tonumber(L, 2)) = 1.f;
     return 0;
 }
 

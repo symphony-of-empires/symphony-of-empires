@@ -444,8 +444,8 @@ public:
         ::serialize(stream, &obj->budget);
 
         ::serialize(stream, &obj->capital);
-        ::serialize(stream, &obj->accepted_cultures);
-        ::serialize(stream, &obj->accepted_religions);
+        ::serialize(stream, &obj->culture_discrim);
+        ::serialize(stream, &obj->religion_discrim);
         ::serialize(stream, &obj->owned_provinces);
         ::serialize(stream, &obj->controlled_provinces);
         ::serialize(stream, &obj->current_policy);
@@ -474,8 +474,8 @@ public:
         ::deserialize(stream, &obj->budget);
 
         ::deserialize(stream, &obj->capital);
-        ::deserialize(stream, &obj->accepted_cultures);
-        ::deserialize(stream, &obj->accepted_religions);
+        ::deserialize(stream, &obj->culture_discrim);
+        ::deserialize(stream, &obj->religion_discrim);
         ::deserialize(stream, &obj->owned_provinces);
         ::deserialize(stream, &obj->controlled_provinces);
         ::deserialize(stream, &obj->current_policy);

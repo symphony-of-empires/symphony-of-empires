@@ -174,8 +174,8 @@ public:
 
     // Accepted cultures in this nation, the accepted cultures may have some bonuses on provinces *totally*
     // owned by this nation
-    std::unordered_set<Culture*> accepted_cultures;
-    std::unordered_set<Religion*> accepted_religions;
+    std::vector<float> culture_discrim;
+    std::vector<float> religion_discrim;
 
     // List of provinces which are owned by this nation (including partial ownership)
     // TODO: Add controlled provinces to serializer
