@@ -121,7 +121,7 @@ void external_migration(World& world) {
 			if(nation->current_policy.migration == ALLOW_NOBODY) {
 				continue;
 			} else if(nation->current_policy.migration == ALLOW_ACCEPTED_CULTURES) {
-				if(!nation->accepted_cultures.count(culture)) {
+				if(!nation->is_accepted_culture(*culture)) {
 					continue;
 				}
 			}
