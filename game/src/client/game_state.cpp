@@ -648,7 +648,7 @@ void GameState::music_thread(void) {
     path_entries.clear();
     entries.shrink_to_fit();
 
-    this->music_queue.push_back(new UnifiedRender::Audio(Path::get("sfx/music/ambience/02_Ii-AndanteMoltoMosso.ogg")));
+    //this->music_queue.push_back(new UnifiedRender::Audio(Path::get("sfx/music/ambience/02_Ii-AndanteMoltoMosso.ogg")));
 
     while(this->run) {
         if(this->music_queue.empty()) {
