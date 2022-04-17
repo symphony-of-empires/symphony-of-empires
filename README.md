@@ -42,7 +42,7 @@ The project can also be built using clang.
 ### Arch-based distros
 
 ```sh
-pacman -S libpng sdl2 sdl2_ttf tbb glew lua53 glm
+pacman -S libpng sdl2 sdl2_ttf glew lua53 glm tbb
 ```
 
 ## Build on Windows
@@ -56,25 +56,25 @@ pacman -Su
 
 Simply run the following after setting up the initial msys environment:
 ```sh
-pacman -S mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-SDL2 mingw-w64-x86_64-lua mingw-w64-x86_64-zlib
+pacman -S mingw-w64-x86_64-libpng mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-SDL2 mingw-w64-x86_64-glew mingw-w64-x86_64-lua mingw-w64-x86_64-glm mingw-w64-x86_64-zlib
 
 # If you have an intel cpu, you need to execute this.
-# This will overwrite the default ttb installation.
+# This will overwrite the default tbb installation.
 pacman -S mingw-w64-x86_64-intel-tbb
 ```
 
 On 32-bit systems the following is required:
 ```sh
-pacman -S mingw-w64-i686-SDL2_ttf mingw-w64-i686-SDL2 mingw-w64-i686-lua mingw-w64-i686-zlib
+pacman -S mingw-w64-i686-libpng mingw-w64-i686-SDL2_ttf mingw-w64-i686-SDL2 mingw-w64-i686-glew mingw-w64-i686-lua mingw-w64-i686-glm mingw-w64-i686-zlib
 
 # If you have an intel cpu, you need to execute this.
-# This will overwrite the default ttb installation.
+# This will overwrite the default tbb installation.
 pacman -S mingw-w64-i686-intel-tbb
 ```
 
 Finally; to build you only have to run:
 ```sh
-cmake -G "MinGW Makefiles" -DUR_BACKEND_OPENGL=1 .
+cmake -G "MinGW Makefiles" -DUR_BACKEND_OPENGL=1 -DNO_COPY_MODS=1 .
 make
 ```
 
