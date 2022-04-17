@@ -53,7 +53,7 @@ enum class TreatyClauseType {
     ANEXX_PROVINCES,
     CEASEFIRE,
     PUPPET,
-    TECHNOLOGY,
+    //TECHNOLOGY,
 };
 
 namespace TreatyClause {
