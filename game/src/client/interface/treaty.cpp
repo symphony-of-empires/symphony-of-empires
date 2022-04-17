@@ -37,8 +37,8 @@ std::string treaty_to_text(Treaty* treaty) {
         if(clause->type == TreatyClauseType::MONEY) {
             const auto* dyn_clause = static_cast<const TreatyClause::WarReparations*>(clause);
             text += dyn_clause->sender->name + " demands $" + std::to_string(dyn_clause->amount) + " from " + dyn_clause->receiver->name;
-        } else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
-            const auto* dyn_clause = static_cast<const TreatyClause::AnexxProvince*>(clause);
+        } else if(clause->type == TreatyClauseType::ANNEX_PROVINCES) {
+            const auto* dyn_clause = static_cast<const TreatyClause::AnnexProvince*>(clause);
             text += dyn_clause->sender->name + " obtains ";
             for(const auto& province : dyn_clause->provinces) {
                 text += province->name + ", ";
@@ -109,7 +109,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
         auto& o = static_cast<TreatyDraftView&>(*w.parent);
 
         if(((UI::Checkbox&)w).get_value()) {
-            auto* clause = new TreatyClause::AnexxProvince();
+            auto* clause = new TreatyClause::AnnexProvince();
             clause->sender = o.gs.curr_nation;
             clause->receiver = o.nation;
             clause->days_duration = 0;
@@ -120,7 +120,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
         }
         else {
             auto it = std::find_if(o.treaty.clauses.begin(), o.treaty.clauses.end(), [](const auto& e) {
-                return e->type == TreatyClauseType::ANEXX_PROVINCES;
+                return e->type == TreatyClauseType::ANNEX_PROVINCES;
             });
 
             if(it != o.treaty.clauses.end()) {
@@ -136,7 +136,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
         auto& o = static_cast<TreatyDraftView&>(*w.parent);
 
         if(((UI::Checkbox&)w).get_value()) {
-            auto* clause = new TreatyClause::AnexxProvince();
+            auto* clause = new TreatyClause::AnnexProvince();
             clause->sender = o.gs.curr_nation;
             clause->receiver = o.nation;
             clause->days_duration = 0;
@@ -147,7 +147,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
         }
         else {
             auto it = std::find_if(o.treaty.clauses.begin(), o.treaty.clauses.end(), [](const auto& e) {
-                return e->type == TreatyClauseType::ANEXX_PROVINCES;
+                return e->type == TreatyClauseType::ANNEX_PROVINCES;
             });
 
             if(it != o.treaty.clauses.end()) {

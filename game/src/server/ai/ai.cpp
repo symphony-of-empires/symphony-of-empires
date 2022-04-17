@@ -307,7 +307,7 @@ void ai_update_relations(Nation* nation, Nation* other) {
             Treaty* treaty = new Treaty();
 
             {
-                auto* clause = new TreatyClause::AnexxProvince();
+                auto* clause = new TreatyClause::AnnexProvince();
                 clause->sender = nation;
                 clause->receiver = other;
                 for(const auto& province : other->owned_provinces) {

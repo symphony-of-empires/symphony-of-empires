@@ -136,13 +136,13 @@ bool TreatyClause::ImposePolicies::in_effect(void) const {
 }
 
 //
-// AnexxProvince
+// AnnexProvince
 //
-unsigned TreatyClause::AnexxProvince::cost(void) {
+unsigned TreatyClause::AnnexProvince::cost(void) {
     return 0;
 }
 
-void TreatyClause::AnexxProvince::enforce(void) {
+void TreatyClause::AnnexProvince::enforce(void) {
     sender->prestige += cost() * 0.0000025f;
     receiver->prestige -= cost() * 0.000005f;
 
@@ -157,7 +157,7 @@ void TreatyClause::AnexxProvince::enforce(void) {
     done = true;
 }
 
-bool TreatyClause::AnexxProvince::in_effect(void) const {
+bool TreatyClause::AnnexProvince::in_effect(void) const {
     return !done;
 }
 
@@ -222,8 +222,8 @@ bool Treaty::in_effect(void) const {
 		if(clause->type == TreatyClauseType::MONEY) {
 			const auto* dyn_clause = static_cast<const TreatyClause::WarReparations*>(clause);
 			on_effect = dyn_clause->in_effect();
-		} else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
-			const auto* dyn_clause = static_cast<const TreatyClause::AnexxProvince*>(clause);
+		} else if(clause->type == TreatyClauseType::ANNEX_PROVINCES) {
+			const auto* dyn_clause = static_cast<const TreatyClause::AnnexProvince*>(clause);
 			on_effect = dyn_clause->in_effect();
 		} else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
 			const auto* dyn_clause = static_cast<const TreatyClause::LiberateNation*>(clause);

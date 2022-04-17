@@ -929,8 +929,8 @@ void World::do_tick() {
                     continue;
                 }
                 dyn_clause->enforce();
-            } else if(clause->type == TreatyClauseType::ANEXX_PROVINCES) {
-                auto dyn_clause = static_cast<TreatyClause::AnexxProvince*>(clause);
+            } else if(clause->type == TreatyClauseType::ANNEX_PROVINCES) {
+                auto dyn_clause = static_cast<TreatyClause::AnnexProvince*>(clause);
                 if(!dyn_clause->in_effect()) {
                     continue;
                 }
