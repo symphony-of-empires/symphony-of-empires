@@ -10,4 +10,8 @@ sea
 desert
     By Jean-François Portaels - http://www.koregos.org/en/judith-ogonovszky-steffens_jean-portaels-un-academicien-au-service-du-comte-et-de-la-comtesse-de-flandre/, Public Domain, https://commons.wikimedia.org/w/index.php?curid=73978684
 
+jungle
+    By Frederic Edwin Church - Metropolitan Museum of Art, online collection (The Met object ID 10481), Public Domain, https://commons.wikimedia.org/w/index.php?curid=3069947
 
+forest
+    By John Constable - John Constable, Public Domain, https://commons.wikimedia.org/w/index.php?curid=7862726
