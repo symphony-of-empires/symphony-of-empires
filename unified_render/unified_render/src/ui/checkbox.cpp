@@ -85,7 +85,7 @@ void Checkbox::set_value(bool checked) {
 }
 
 void Checkbox::set_on_click(std::function<void(Widget&)> _on_click) {
-    this->outside_on_click = on_click;
+    this->outside_on_click = _on_click;
 }
 
 void Checkbox::text(const std::string& _text) {
