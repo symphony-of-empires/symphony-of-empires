@@ -673,10 +673,10 @@ public:
     static inline void serialize(Archive& stream, const TreatyClause::BaseClause* const* obj) {
         ::serialize(stream, &(*obj)->type);
         switch((*obj)->type) {
-        case TreatyClauseType::ANEXX_PROVINCES: {
-            const auto dyn_clause = static_cast<const TreatyClause::AnexxProvince*>(*obj);
+        case TreatyClauseType::ANNEX_PROVINCES: {
+            const auto dyn_clause = static_cast<const TreatyClause::AnnexProvince*>(*obj);
             if(dyn_clause == nullptr)
-                throw SerializerException("Dynamic cast failed for TreatyClause::AnexxProvince");
+                throw SerializerException("Dynamic cast failed for TreatyClause::AnnexProvince");
             ::serialize(stream, &dyn_clause->provinces);
         } break;
         case TreatyClauseType::LIBERATE_NATION: {
@@ -723,10 +723,10 @@ public:
         // we will have serious SIGSEGV
         ::deserialize(stream, &(*obj)->type);
         switch((*obj)->type) {
-        case TreatyClauseType::ANEXX_PROVINCES: {
+        case TreatyClauseType::ANNEX_PROVINCES: {
             delete* obj;
-            *obj = new TreatyClause::AnexxProvince();
-            auto dyn_clause = (TreatyClause::AnexxProvince*)*obj;
+            *obj = new TreatyClause::AnnexProvince();
+            auto dyn_clause = (TreatyClause::AnnexProvince*)*obj;
             ::deserialize(stream, &dyn_clause->provinces);
         } break;
         case TreatyClauseType::LIBERATE_NATION: {

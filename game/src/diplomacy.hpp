@@ -50,7 +50,7 @@ enum class TreatyClauseType {
     HUMILIATE,
     LIBERATE_NATION,
     IMPOSE_POLICIES,
-    ANEXX_PROVINCES,
+    ANNEX_PROVINCES,
     CEASEFIRE,
     PUPPET,
     //TECHNOLOGY,
@@ -149,11 +149,11 @@ namespace TreatyClause {
         Policies imposed;
     };
 
-    // Anexxes territory from the loser
-    class AnexxProvince: public BaseClause {
+    // Annexes territory from the loser
+    class AnnexProvince: public BaseClause {
     public:
-        AnexxProvince(): BaseClause() {
-            type = TreatyClauseType::ANEXX_PROVINCES;
+        AnnexProvince(): BaseClause() {
+            type = TreatyClauseType::ANNEX_PROVINCES;
         };
         unsigned cost(void);
         void enforce(void);

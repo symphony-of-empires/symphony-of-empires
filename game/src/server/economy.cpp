@@ -118,11 +118,11 @@ void militancy_update(World& world, Nation* nation) {
             }
 
             // Declare war seeking all provinces from the owner
-            TreatyClause::AnexxProvince* cl = new TreatyClause::AnexxProvince();
+            TreatyClause::AnnexProvince* cl = new TreatyClause::AnnexProvince();
             cl->provinces = uprising_provinces;
             cl->sender = dup_nation;
             cl->receiver = nation;
-            cl->type = TreatyClauseType::ANEXX_PROVINCES;
+            cl->type = TreatyClauseType::ANNEX_PROVINCES;
             clauses.push_back(cl);
             print_info("Revolt on [%s]! [%s] has taken over!", province->ref_name.c_str(), dup_nation->ideology->ref_name.c_str());
         }
