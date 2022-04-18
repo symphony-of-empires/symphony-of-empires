@@ -69,7 +69,7 @@ public:
         target.y += y_dir * scale * radius / camera_radius;
         target.y = glm::clamp(target.y, 0.f, map_size.y);
         target.z += z_dir * scale;
-        target.z = glm::clamp(target.z, 0.f, map_size.x / 2.f);
+        target.z = glm::clamp(target.z, radius - 60.f, map_size.x / 2.f);
     }
 
     void update(void) override {
