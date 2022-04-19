@@ -295,13 +295,6 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     build_ibtn->tooltip = new UI::Tooltip(build_ibtn, 512, 24);
     build_ibtn->tooltip->text("Buildings");
 
-    auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
-    close_btn->right_side_of(*build_ibtn);
-    close_btn->text("Close");
-    close_btn->set_on_click([](UI::Widget& w) {
-        (static_cast<ProvinceView&>(*w.parent)).kill();
-    });
-
     if(gs.editor) {
         rename_inp = new UI::Input(0, this->height - (64 + 24), 128, 24, this);
         rename_inp->set_buffer(province->name);
