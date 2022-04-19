@@ -39,11 +39,16 @@ namespace UI {
      * @brief Window widget
      *
      */
-    class Window : public Widget {
+    class Window: public Widget {
     public:
         bool is_movable = true;
 
         Window(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
         virtual ~Window() override {};
+
+        void set_have_close_btn(bool have);
+
+    private:
+        Widget* close_btn = nullptr;
     };
 };
