@@ -1313,31 +1313,31 @@ void LuaAPI::check_events(lua_State* L) {
                 if(call_func(L, 1, 1)) {
                     print_error("lua_pcall failed: %s\n", lua_tostring(L, -1));
                     lua_pop(L, 1);
-                    *event = orig_event;
-                    continue;
+                    goto restore_original;
                 }
                 is_multi = lua_tointeger(L, -1);
                 lua_pop(L, 1);
 
-                // The changes done to the event "locally" are then created into a new local event
-                auto* local_event = new Event(*event);
-                local_event->cached_id = (Event::Id)-1;
-                local_event->ref_name += "_local_";
-                for(unsigned int j = 0; j < 4; j++) {
-                    local_event->ref_name += 'A' + (std::rand() % 26);
-                }
-                // Do not relaunch a local event
-                local_event->checked = true;
-                if(local_event->descisions.empty()) {
-                    UnifiedRender::Log::error("event", "Event " + local_event->ref_name + " has no descisions (ref_name = " + nation->ref_name + ")");
-                    goto restore_original;
+                {
+                    // The changes done to the event "locally" are then created into a new local event
+                    auto* local_event = new Event(*event);
+                    local_event->cached_id = (Event::Id)-1;
+                    local_event->ref_name += "_local_";
+                    for(unsigned int j = 0; j < 4; j++) {
+                        local_event->ref_name += 'A' + (std::rand() % 26);
+                    }
+                    // Do not relaunch a local event
+                    local_event->checked = true;
+                    if(local_event->descisions.empty()) {
+                        UnifiedRender::Log::error("event", "Event " + local_event->ref_name + " has no descisions (ref_name = " + nation->ref_name + ")");
+                        goto restore_original;
+                    }
+
+                    g_world->insert(*local_event);
+                    nation->inbox.push_back(local_event);
+                    UnifiedRender::Log::debug("event", "Event triggered! " + local_event->ref_name + " (with " + std::to_string(local_event->descisions.size()) + " descisions)");
                 }
 
-                g_world->insert(*local_event);
-                nation->inbox.push_back(local_event);
-
-                UnifiedRender::Log::debug("event", "Event triggered! " + local_event->ref_name + " (with " + std::to_string(local_event->descisions.size()) + " descisions)");
-            
             restore_original:
                 // Original event then gets restored
                 *event = *orig_event;
