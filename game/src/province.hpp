@@ -86,6 +86,9 @@ public:
     // List containing all nations who have a nucleus in this province
     std::set<Nation*> nuclei;
 
+    // List containing how much of each rgo that can be extracted
+    std::vector<uint32_t> rgo_size;
+
     // List of all neighbouring provinces (*should* be used for pathfinding)
     std::set<Province*> neighbours;
 
