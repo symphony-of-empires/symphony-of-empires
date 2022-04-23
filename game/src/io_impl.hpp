@@ -541,6 +541,7 @@ public:
         ::serialize(stream, &obj->supply_rem);
         ::serialize(stream, &obj->owner);
         ::serialize(stream, &obj->nuclei);
+        ::serialize(stream, &obj->rgo_size);
         ::serialize(stream, &obj->neighbours);
         ::serialize(stream, &obj->products);
         ::serialize(stream, &obj->pops);
@@ -561,6 +562,7 @@ public:
         ::deserialize(stream, &obj->supply_rem);
         ::deserialize(stream, &obj->owner);
         ::deserialize(stream, &obj->nuclei);
+        ::deserialize(stream, &obj->rgo_size);
         ::deserialize(stream, &obj->neighbours);
         ::deserialize(stream, &obj->products);
         ::deserialize(stream, &obj->pops);

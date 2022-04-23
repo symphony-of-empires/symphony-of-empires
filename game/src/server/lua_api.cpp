@@ -614,6 +614,21 @@ int LuaAPI::add_province(lua_State* L) {
     province->color = (bswap32(lua_tonumber(L, 2)) >> 8) | 0xff000000;
     province->name = luaL_checkstring(L, 3);
     province->terrain_type = g_world->terrain_types.at(lua_tonumber(L, 4));
+    // load rgo_size
+    province->rgo_size = std::vector<u_int32_t>(g_world->goods.size(), 0);
+    lua_pushvalue(L, 5);
+    lua_pushnil(L);
+    while(lua_next(L, -2)) {
+        lua_pushnil(L);
+        lua_next(L, -2);
+        const Good& good = *find_or_throw<Good>(pop_string(L));
+        lua_next(L, -2);
+        const uint32_t amount = (uint32_t)pop_number(L);
+        lua_pop(L, 2);
+        province->rgo_size[g_world->get_id(good)] = amount;
+    }
+    lua_pop(L, 1);
+
     // Check for duplicates
     for(size_t i = 0; i < g_world->provinces.size(); i++) {
         if(province->color == g_world->provinces[i]->color) {
@@ -662,7 +677,20 @@ int LuaAPI::get_province(lua_State* L) {
     lua_pushstring(L, province->name.c_str());
     lua_pushnumber(L, bswap32((province->color & 0x00ffffff) << 8));
     lua_pushnumber(L, g_world->get_id(*province->terrain_type));
-    return 4;
+    lua_newtable(L);
+    size_t index = 1;
+    for(size_t i = 0; i < province->rgo_size.size(); i++) {
+        if(province->rgo_size[i] != 0) {
+            lua_pushnumber(L, index++);
+
+            lua_newtable(L);
+            append_to_table(L, 1, g_world->goods[i]->ref_name.c_str());
+            append_to_table(L, 2, province->rgo_size[i]);
+
+            lua_settable(L, -3);
+        }
+    }
+    return 5;
 }
 
 int LuaAPI::get_province_by_id(lua_State* L) {
@@ -671,7 +699,20 @@ int LuaAPI::get_province_by_id(lua_State* L) {
     lua_pushstring(L, province->name.c_str());
     lua_pushnumber(L, bswap32((province->color & 0x00ffffff) << 8));
     lua_pushnumber(L, g_world->get_id(*province->terrain_type));
-    return 4;
+    lua_newtable(L);
+    size_t index = 1;
+    for(size_t i = 0; i < province->rgo_size.size(); i++) {
+        if(province->rgo_size[i] != 0) {
+            lua_pushnumber(L, index++);
+
+            lua_newtable(L);
+            append_to_table(L, 1, g_world->goods[i]->ref_name.c_str());
+            append_to_table(L, 2, province->rgo_size[i]);
+
+            lua_settable(L, -3);
+        }
+    }
+    return 5;
 }
 
 int LuaAPI::update_province_building(lua_State* L) {
@@ -923,13 +964,17 @@ int LuaAPI::add_pop_type(lua_State* L) {
     bool is_laborer = lua_toboolean(L, 7);
     if(is_burgeoise) {
         pop->group = PopGroup::BURGEOISE;
-    } else if(is_slave) {
+    }
+    else if(is_slave) {
         pop->group = PopGroup::Slave;
-    } else if(is_farmer) {
+    }
+    else if(is_farmer) {
         pop->group = PopGroup::FARMER;
-    } else if(is_laborer) {
+    }
+    else if(is_laborer) {
         pop->group = PopGroup::LABORER;
-    } else {
+    }
+    else {
         pop->group = PopGroup::Other;
     }
 
@@ -1209,6 +1254,31 @@ int LuaAPI::get_ideology_by_id(lua_State* L) {
     return 3;
 }
 
+static int traceback(lua_State* L) {
+    lua_getglobal(L, "debug");
+    lua_getfield(L, -1, "traceback");
+    lua_pushvalue(L, 1);
+    lua_pushinteger(L, 1);
+    lua_call(L, 2, 1);
+    return 1;
+}
+
+int call_func(lua_State* L, int nargs, int nret) {
+    /* calculate stack position for message handler */
+    int hpos = lua_gettop(L) - nargs;
+    int ret = 0;
+    /* push custom error message handler */
+    lua_pushcfunction( L, traceback );
+    /* move it before function and arguments */
+    lua_insert( L, hpos );
+    /* call lua_pcall function with custom handler */
+    ret = lua_pcall(L, nargs, nret, hpos);
+    /* remove custom error message handler from stack */
+    lua_remove( L, hpos );
+    /* pass return value of lua_pcall */
+    return ret;
+}
+
 // Checks all events and their condition functions
 void LuaAPI::check_events(lua_State* L) {
     for(auto& event : g_world->events) {
@@ -1240,7 +1310,12 @@ void LuaAPI::check_events(lua_State* L) {
                 UnifiedRender::Log::debug("event", "Event " + event->ref_name + " using " + event->do_event_function + " function");
                 lua_getglobal(L, event->do_event_function.c_str());
                 lua_pushstring(L, nation->ref_name.c_str());
-                lua_pcall(L, 1, 1, 0);
+                if(call_func(L, 1, 1)) {
+                    print_error("lua_pcall failed: %s\n", lua_tostring(L, -1));
+                    lua_pop(L, 1);
+                    *event = orig_event;
+                    continue;
+                }
                 is_multi = lua_tointeger(L, -1);
                 lua_pop(L, 1);
 
@@ -1283,7 +1358,8 @@ void LuaAPI::check_events(lua_State* L) {
         UnifiedRender::Log::debug("event", dec.second->ref_name + " took the descision: " + dec.first->do_descision_function);
         try {
             lua_pcall(L, 1, 0, 0);
-        } catch(const std::exception& e) {
+        }
+        catch(const std::exception& e) {
             throw LuaAPI::Exception(dec.first->do_descision_function + "(" + dec.second->ref_name + "): " + e.what());
         }
         // TODO: Delete local event upon taking a descision

@@ -28,7 +28,8 @@ Province = {
 	name = "",
 	ref_name = "",
 	color = 0,
-	terrain = {}
+	terrain = {},
+	rgo_size = {}
 }
 function Province:new(o)
 	o = o or {}
@@ -37,12 +38,12 @@ function Province:new(o)
 	return o
 end
 function Province:register()
-	self.id = add_province(self.ref_name, self.color, self.name, self.terrain.id)
+	self.id = add_province(self.ref_name, self.color, self.name, self.terrain.id, self.rgo_size)
 end
 function Province:get(ref_name)
 	o = Province:new()
 	local terrain_id = 0
-	o.id, o.name, o.color, terrain_id = get_province(ref_name)
+	o.id, o.name, o.color, terrain_id, o.rgo_size = get_province(ref_name)
 	o.terrain = TerrainType:get(terrain_id)
 	o.ref_name = ref_name
 	return o
@@ -50,7 +51,7 @@ end
 function Province:get_by_id(id)
 	o = Province:new()
 	local terrain_id = 0
-	o.ref_name, o.name, o.color, terrain_id = get_province_by_id(id)
+	o.ref_name, o.name, o.color, terrain_id, o.rgo_size = get_province_by_id(id)
 	o.terrain = TerrainType:get(terrain_id)
 	o.id = id
 	return o
