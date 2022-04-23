@@ -28,107 +28,10 @@
 #include "world.hpp"
 
 #include "unified_render/string_format.hpp"
-#include "unified_render/ui/div.hpp"
-#include "unified_render/ui/label.hpp"
-#include "unified_render/ui/image.hpp"
+#include "unified_render/locale.hpp"
+#include "unified_render/ui/table.hpp"
 
 using namespace Interface;
-
-void make_pop_header(UI::Div* table, const World* world) {
-	auto* row = new UI::Div(0, 0, 800, 35, table);
-	row->flex = UI::Flex::ROW;
-	row->flex_justify = UI::FlexJustify::START;
-
-	glm::ivec2 size(4, 4);
-	glm::ivec2 texture_size(10, 10);
-	auto tex_man = UnifiedRender::State::get_instance().tex_man;
-	auto border_tex = tex_man->load(Path::get("gfx/border2.png"));
-	auto border = UI::Border(border_tex, size, texture_size);
-
-	auto size_lab = new UI::Div(0, 0, 75, 35, row);
-	size_lab->text("Size");
-	size_lab->border = border;
-
-	auto prov_lab = new UI::Div(0, 0, 200, 35, row);
-	prov_lab->text("Province");
-	prov_lab->border = border;
-
-	auto type_lab = new UI::Div(0, 0, 100, 35, row);
-	type_lab->text("Type");
-	type_lab->border = border;
-
-	auto culture_lab = new UI::Div(0, 0, 100, 35, row);
-	culture_lab->text("Culture");
-	culture_lab->border = border;
-
-	auto religion_icon = new UI::Image(0, 0, 35, 35, "gfx/religion/" + world->religions[0]->ref_name + ".png", row);
-	religion_icon->set_tooltip("Religion");
-	religion_icon->border = border;
-
-	auto militancy_lab = new UI::Div(0, 0, 50, 35, row);
-	militancy_lab->text("Mil");
-	militancy_lab->border = border;
-
-	auto consciousness_lab = new UI::Div(0, 0, 50, 35, row);
-	consciousness_lab->text("Con");
-	consciousness_lab->border = border;
-
-	auto literacy_lab = new UI::Div(0, 0, 50, 35, row);
-	literacy_lab->text("Lit");
-	literacy_lab->border = border;
-
-	auto budget_lab = new UI::Div(0, 0, 70, 35, row);
-	budget_lab->text("Budget");
-	budget_lab->border = border;
-}
-
-void make_pop_row(UI::Div* table, Pop& pop, Province* province) {
-	auto* row = new UI::Div(0, 0, 800, 35, table);
-	row->flex = UI::Flex::ROW;
-	row->flex_justify = UI::FlexJustify::START;
-
-	glm::ivec2 size(4, 4);
-	glm::ivec2 texture_size(10, 10);
-	auto tex_man = UnifiedRender::State::get_instance().tex_man;
-	auto border_tex = tex_man->load(Path::get("gfx/border2.png"));
-	auto border = UI::Border(border_tex, size, texture_size);
-
-	auto size_lab = new UI::Div(0, 0, 75, 35, row);
-	size_lab->text(std::to_string(pop.size));
-	size_lab->border = border;
-
-	auto prov_lab = new UI::Div(0, 0, 200, 35, row);
-	prov_lab->text(province->name);
-	prov_lab->border = border;
-
-	auto type_lab = new UI::Div(0, 0, 100, 35, row);
-	type_lab->text(pop.type->name);
-	type_lab->border = border;
-
-	auto culture_lab = new UI::Div(0, 0, 100, 35, row);
-	culture_lab->text(pop.culture->name);
-	culture_lab->border = border;
-
-	auto religion_icon = new UI::Image(0, 0, 35, 35, "gfx/religion/" + pop.religion->ref_name + ".png", row);
-	religion_icon->set_tooltip(pop.religion->name);
-	religion_icon->border = border;
-
-	auto militancy_lab = new UI::Div(0, 0, 50, 35, row);
-	militancy_lab->text(UnifiedRender::string_format("%1.2f", pop.militancy));
-	militancy_lab->border = border;
-
-	auto consciousness_lab = new UI::Div(0, 0, 50, 35, row);
-	consciousness_lab->text(UnifiedRender::string_format("%1.2f", pop.con));
-	consciousness_lab->border = border;
-
-	auto literacy_lab = new UI::Div(0, 0, 50, 35, row);
-	literacy_lab->text(UnifiedRender::string_format("%2.0f%%", pop.literacy * 100));
-	literacy_lab->border = border;
-
-	auto budget_lab = new UI::Div(0, 0, 70, 35, row);
-	budget_lab->text(UnifiedRender::string_format("%f", pop.budget));
-	budget_lab->border = border;
-}
 
 PopWindow::PopWindow(GameState& gs)
 	: UI::Window(-400, -400, 800, 800),
@@ -145,21 +48,66 @@ PopWindow::PopWindow(GameState& gs)
 		size += prov->pops.size();
 	}
 
-	auto* header_column = new UI::Div(5, 5, 800 - 10, 35, this);
-	header_column->flex = UI::Flex::COLUMN;
-	header_column->flex_justify = UI::FlexJustify::START;
-	make_pop_header(header_column, gs.world);
+	std::vector<int> sizes{ 75, 200, 100, 100, 35, 50, 50, 50, 70 };
+	std::vector<std::string> header{ "Size", "Province", "Type", "Culture", "Religion", "Mil", "Con", "Lit", "Budget" };
+	auto table = new UI::Table<uint64_t>(5, 5, 800-10, 500, 35, sizes, header, this);
+	table->reserve(size);
+	table->on_each_tick = [nation, table](Widget&) {
+		for(auto prov : nation.owned_provinces) {
+			uint16_t prov_id = prov->cached_id;
+			for(auto& pop : prov->pops) {
+				u_int64_t id = pop.get_type_id();
+				id += prov_id << 32;
+				auto* row = table->get_row(id);
+				size_t row_index = 0;
 
-	auto* table = new UI::Div(5, 40, 800 - 10, 800-40, this);
-	table->is_scroll = true;
+				auto tex_man = UnifiedRender::State::get_instance().tex_man;
 
-	auto* flex_column = new UI::Div(0, 0, 800 - 10, size * 35, table);
-	flex_column->flex = UI::Flex::COLUMN;
-	flex_column->flex_justify = UI::FlexJustify::START;
+				auto size = row->get_element(row_index++);
+				auto size_str = UnifiedRender::string_format("%.0f", pop.size);
+				size->text(size_str);
+				size->set_key(pop.size);
 
-	for(auto prov : nation.owned_provinces) {
-		for(auto& pop : prov->pops) {
-			make_pop_row(flex_column, pop, prov);
+				auto prov_name = row->get_element(row_index++);
+				prov_name->text(prov->name);
+				prov_name->set_key(prov->name);
+
+				auto type = row->get_element(row_index++);
+				type->text(pop.type->name);
+				type->set_key(pop.type->name);
+
+				auto culture = row->get_element(row_index++);
+				auto culture_str = UnifiedRender::Locale::translate(pop.culture->name);
+				culture->text(culture_str);
+				culture->set_key(culture_str);
+
+				auto religion = row->get_element(row_index++);
+				auto religion_icon = tex_man->load(Path::get("gfx/religion/" + pop.religion->ref_name + ".png"));
+				religion->current_texture = religion_icon;
+				auto religion_tip = UnifiedRender::Locale::translate(pop.religion->name);
+				religion->set_tooltip(religion_tip);
+				religion->set_key(religion_tip);
+
+				auto militancy = row->get_element(row_index++);
+				militancy->text(UnifiedRender::string_format("%1.2f", pop.militancy));
+				militancy->set_key(pop.militancy);
+
+				auto consciousness = row->get_element(row_index++);
+				consciousness->text(UnifiedRender::string_format("%1.2f", pop.con));
+				consciousness->set_key(pop.con);
+
+				auto literacy = row->get_element(row_index++);
+				literacy->text(UnifiedRender::string_format("%2.0f%%", pop.literacy * 100));
+				literacy->set_key(pop.literacy);
+
+				auto budget = row->get_element(row_index++);
+				auto budget_str = UnifiedRender::string_format("%.0f", pop.budget / pop.size);
+				budget->text(budget_str);
+				auto budget_tip = UnifiedRender::Locale::translate("A total budget of") + " " + UnifiedRender::string_format("%.0f", pop.budget);
+				budget->set_tooltip(budget_tip);
+				budget->set_key(pop.budget / pop.size);
+			}
 		}
-	}
+	};
+	table->on_each_tick(*table);
 }

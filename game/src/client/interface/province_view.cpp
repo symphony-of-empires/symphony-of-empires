@@ -117,13 +117,13 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
 
     std::vector<int> sizes{ 96, 128, 24, 128 };
     std::vector<std::string> header{ "Size", "Budget", "Religion", "Culture" };
-    auto table = new UI::Table(0, 256 + 96, 0, 500, 30, sizes, header, this);
+    auto table = new UI::Table<uint32_t>(0, 256 + 96, 0, 500, 30, sizes, header, this);
     auto& pops = this->province->pops;
     table->reserve(pops.size());
     table->on_each_tick = [pops, table](Widget&) {
         for(size_t i = 0; i < pops.size(); i++) {
             auto& pop = pops[i];
-            size_t id = pop.get_type_id();
+            uint32_t id = pop.get_type_id();
             auto* row = table->get_row(id);
             size_t row_index = 0;
 
