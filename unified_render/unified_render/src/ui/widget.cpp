@@ -324,13 +324,13 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         if(text_align_x == UI::Align::CENTER) {
             x_offset = (width - text_texture->width) / 2;
         } else if(text_align_x == UI::Align::END) {
-            x_offset += width - text_texture->width;
+            x_offset = width - text_texture->width;
         }
 
         if(text_align_y == UI::Align::CENTER) {
             y_offset = (height - text_texture->height) / 2;
         } else if(text_align_y == UI::Align::END) {
-            y_offset += height - text_texture->height;
+            y_offset = height - text_texture->height;
         }
         draw_rectangle(x_offset, y_offset, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
     }
@@ -485,6 +485,11 @@ static inline unsigned int power_two_floor(const unsigned int val) {
 }
 
 void Widget::text(const std::string& _text) {
+    if (this->text_str == _text) {
+        return;
+    }
+    text_str = _text;
+
     // Copy _text to a local scope (SDL2 does not like references)
     if(text_texture != nullptr) {
         // Auto deletes gl_texture

@@ -25,11 +25,14 @@
 
 #include "unified_render/path.hpp"
 #include "unified_render/texture.hpp"
+#include "unified_render/locale.hpp"
+#include "unified_render/string_format.hpp"
 #include "unified_render/ui/piechart.hpp"
 #include "unified_render/ui/label.hpp"
 #include "unified_render/ui/image.hpp"
 #include "unified_render/ui/tooltip.hpp"
 #include "unified_render/ui/button.hpp"
+#include "unified_render/ui/table.hpp"
 #include "unified_render/ui/close_button.hpp"
 
 #include "province_view.hpp"
@@ -73,18 +76,6 @@ void ProvincePopulationTab::update_piecharts() {
         pop_types_data.push_back(UI::ChartData(pop_type_sizes[gs.world->get_id(*pop_type)], pop_type->name, color));
     }
     pop_types_pie->set_data(pop_types_data);
-
-    if(pop_infos.size() < province->pops.size()) {
-        for(size_t i = pop_infos.size(); i < province->pops.size(); i++) {
-            PopInfo* info = new PopInfo(gs, 0, (i * 24) + (256 + 96), province, i, this);
-            pop_infos.push_back(info);
-        }
-    } else if(pop_infos.size() > province->pops.size()) {
-        for(size_t i = province->pops.size(); i < pop_infos.size(); i++) {
-            pop_infos[i]->kill();
-        }
-        pop_infos.erase(pop_infos.begin() + province->pops.size(), pop_infos.end());
-    }
 }
 
 ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
@@ -123,6 +114,47 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     this->pop_types_pie = new UI::PieChart(0, 0, 96, 96, this);
     this->pop_types_pie->below_of(*pop_types_lab);
     this->pop_types_pie->right_side_of(*this->religions_pie);
+
+    std::vector<int> sizes{ 96, 128, 24, 128 };
+    std::vector<std::string> header{ "Size", "Budget", "Religion", "Culture" };
+    auto table = new UI::Table(0, 256 + 96, 0, 500, 30, sizes, header, this);
+    auto& pops = this->province->pops;
+    table->reserve(pops.size());
+    table->on_each_tick = [pops, table](Widget&) {
+        for(size_t i = 0; i < pops.size(); i++) {
+            auto& pop = pops[i];
+            size_t id = pop.get_type_id();
+            auto* row = table->get_row(id);
+            size_t row_index = 0;
+
+            auto tex_man = UnifiedRender::State::get_instance().tex_man;
+
+            auto size = row->get_element(row_index++);
+            auto size_str = UnifiedRender::string_format("%.0f", pop.size);
+            size->text(size_str);
+            size->set_key(pop.size);
+
+            auto budget = row->get_element(row_index++);
+            auto budget_str = UnifiedRender::string_format("%.0f", pop.budget / pop.size);
+            budget->text(budget_str);
+            auto budget_tip = UnifiedRender::Locale::translate("A total budget of") + " " + UnifiedRender::string_format("%.0f", pop.budget);
+            budget->set_tooltip(budget_tip);
+            budget->set_key(pop.budget / pop.size);
+
+            auto religion = row->get_element(row_index++);
+            auto religion_icon = tex_man->load(Path::get("gfx/religion/" + pop.religion->ref_name + ".png"));
+            religion->current_texture = religion_icon;
+            auto religion_tip = UnifiedRender::Locale::translate(pop.religion->name);
+            religion->set_tooltip(religion_tip);
+            religion->set_key(religion_tip);
+
+            auto culture = row->get_element(row_index++);
+            auto culture_str = UnifiedRender::Locale::translate(pop.culture->name);
+            culture->text(culture_str);
+            culture->set_key(culture_str);
+        }
+    };
+    table->on_each_tick(*table);
 
     this->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<ProvincePopulationTab&>(w);
