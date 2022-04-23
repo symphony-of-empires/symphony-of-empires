@@ -1254,6 +1254,31 @@ int LuaAPI::get_ideology_by_id(lua_State* L) {
     return 3;
 }
 
+static int traceback(lua_State* L) {
+    lua_getglobal(L, "debug");
+    lua_getfield(L, -1, "traceback");
+    lua_pushvalue(L, 1);
+    lua_pushinteger(L, 1);
+    lua_call(L, 2, 1);
+    return 1;
+}
+
+int call_func(lua_State* L, int nargs, int nret) {
+    /* calculate stack position for message handler */
+    int hpos = lua_gettop(L) - nargs;
+    int ret = 0;
+    /* push custom error message handler */
+    lua_pushcfunction( L, traceback );
+    /* move it before function and arguments */
+    lua_insert( L, hpos );
+    /* call lua_pcall function with custom handler */
+    ret = lua_pcall(L, nargs, nret, hpos);
+    /* remove custom error message handler from stack */
+    lua_remove( L, hpos );
+    /* pass return value of lua_pcall */
+    return ret;
+}
+
 // Checks all events and their condition functions
 void LuaAPI::check_events(lua_State* L) {
     for(auto& event : g_world->events) {
@@ -1284,7 +1309,12 @@ void LuaAPI::check_events(lua_State* L) {
                 UnifiedRender::Log::debug("event", "Event " + event->ref_name + " using " + event->do_event_function + " function");
                 lua_getglobal(L, event->do_event_function.c_str());
                 lua_pushstring(L, nation->ref_name.c_str());
-                lua_pcall(L, 1, 1, 0);
+                if(call_func(L, 1, 1)) {
+                    print_error("lua_pcall failed: %s\n", lua_tostring(L, -1));
+                    lua_pop(L, 1);
+                    *event = orig_event;
+                    continue;
+                }
                 is_multi = lua_tointeger(L, -1);
                 lua_pop(L, 1);
 
