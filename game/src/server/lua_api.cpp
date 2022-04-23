@@ -1233,7 +1233,8 @@ void LuaAPI::check_events(lua_State* L) {
             if(r) {
                 has_fired = true;
 
-                auto orig_event = Event(*event);
+                // Save the original event & momentarily replace it on the big world
+                auto* orig_event = new Event(*event);
 
                 // Call the "do event" function
                 UnifiedRender::Log::debug("event", "Event " + event->ref_name + " using " + event->do_event_function + " function");
@@ -1254,17 +1255,17 @@ void LuaAPI::check_events(lua_State* L) {
                 local_event->checked = true;
                 if(local_event->descisions.empty()) {
                     UnifiedRender::Log::error("event", "Event " + local_event->ref_name + " has no descisions (ref_name = " + nation->ref_name + ")");
-                    *event = orig_event;
-                    continue;
+                    goto restore_original;
                 }
 
                 g_world->insert(*local_event);
                 nation->inbox.push_back(local_event);
 
                 UnifiedRender::Log::debug("event", "Event triggered! " + local_event->ref_name + " (with " + std::to_string(local_event->descisions.size()) + " descisions)");
-
+            
+            restore_original:
                 // Original event then gets restored
-                *event = orig_event;
+                *event = *orig_event;
             }
         }
 

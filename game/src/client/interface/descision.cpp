@@ -23,58 +23,57 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "client/interface/descision.hpp"
-
-#include "event.hpp"
 #include "unified_render/serializer.hpp"
-#include "action.hpp"
-#include "io_impl.hpp"
 #include "unified_render/ui/text.hpp"
 #include "unified_render/ui/tooltip.hpp"
 #include "unified_render/ui/close_button.hpp"
+#include "unified_render/network.hpp"
+
+#include "client/client_network.hpp"
+#include "client/interface/descision.hpp"
+#include "event.hpp"
+#include "action.hpp"
+#include "io_impl.hpp"
+#include "client/game_state.hpp"
 
 using namespace Interface;
 
-DescisionWindow::DescisionWindow(GameState& gs, Event& event)
-    : UI::Window(128, 128, 320, 570)
+DescisionWindow::DescisionWindow(GameState& _gs, Event _event)
+    : UI::Window(128, 128, 320, 570),
+    gs{ _gs },
+    event{ _event }
 {
     // Title of the event
-    this->text(event.title.c_str());
+    this->text(this->event.title.c_str());
 
     // Body of the event text
-    auto* txt = new UI::Text(0, 0, 18 * 24, 24, this);
-    txt->text(event.text);
+    auto* txt = new UI::Text(0, 0, this->width, 24, this);
+    txt->text(this->event.text);
 
-    this->height = txt->height + (event.descisions.size() * 24) + (24 * 4);
+    this->height = txt->height + (this->event.descisions.size() * 24) + (24 * 4);
 
     // Buttons for descisions for the event
-    const DescisionButton* last = nullptr;
-    for(const auto& descision : event.descisions) {
-        DescisionButton* decide_btn = new DescisionButton(this, gs, descision, event);
+    UI::Button* last = nullptr;
+    for(const auto& descision : this->event.descisions) {
+        auto* decide_btn = new UI::Button(0, 0, this->width, 24, this);
+        decide_btn->text(descision.name);
+        decide_btn->set_on_click([this, descision](UI::Widget& w) {
+            UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+            Archive ar = Archive();
+            ActionType action = ActionType::NATION_TAKE_DESCISION;
+            ::serialize(ar, &action);
+            ::serialize(ar, &this->event.ref_name);
+            ::serialize(ar, &descision.ref_name);
+            packet.data(ar.get_buffer(), ar.size());
+            this->gs.client->send(packet);
+            this->kill();
+        });
+        this->set_tooltip(descision.effects);
+        
+        decide_btn->below_of(*txt);
         if(last != nullptr) {
-            decide_btn->above_of(*last);
+            decide_btn->below_of(*last);
         }
         last = decide_btn;
     }
-}
-
-DescisionButton::DescisionButton(UI::Window* parent, GameState& _gs, const Descision& _descision, Event& _event)
-    : UI::Button(0, parent->height - 24 - 48, parent->width, 24, parent),
-    gs{ _gs },
-    descision{ _descision },
-    event{ _event }
-{
-    this->text(this->descision.name);
-    this->set_on_click([this](UI::Widget& w) {
-        Archive ar = Archive();
-        ActionType action = ActionType::NATION_TAKE_DESCISION;
-        ::serialize(ar, &action);
-        ::serialize(ar, &this->event.ref_name);
-        ::serialize(ar, &this->descision.ref_name);
-        this->gs.send_command(ar);
-        this->kill();
-    });
-
-    this->tooltip = new UI::Tooltip(this, 512, 24);
-    this->tooltip->text(this->descision.effects);
 }
