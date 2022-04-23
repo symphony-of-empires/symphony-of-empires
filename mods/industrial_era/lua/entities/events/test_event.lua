@@ -31,7 +31,7 @@ function cake_test()
 	-- Requirements
 	return EVENT_CONDITIONS_MET
 end
-function cake_event()
+function cake_event(ref_name)
 	descision = Descision:new{
 		ref_name = "cake_descision_0",
 		name = "I think i will eat it",

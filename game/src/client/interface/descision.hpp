@@ -32,17 +32,10 @@
 #include "unified_render/ui/button.hpp"
 
 namespace Interface {
-    class DescisionButton: public UI::Button {
-    public:
-        DescisionButton(UI::Window* parent, GameState& gs, const Descision& descision, Event& msg);
-
-        GameState& gs;
-        const Descision& descision;
-        Event& event;
-    };
-
     class DescisionWindow: public UI::Window {
+        GameState& gs;
+        Event event;
     public:
-        DescisionWindow(GameState& gs, Event& msg);
+        DescisionWindow(GameState& gs, Event msg);
     };
 };

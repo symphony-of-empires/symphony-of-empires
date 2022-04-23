@@ -523,16 +523,21 @@ void World::load_initial(void) {
             fclose(fp);
         }
 
-        /*fp = fopen("unused.txt", "w+t");
+        fp = fopen("unused.txt", "w+t");
         if(fp) {
             for(int i = 0; i < province_color_table.size(); i++) {
                 uint32_t color = i << 8;
+
+                if(i % 32) {
+                    continue;
+                }
+
                 if(province_color_table[i] == (Province::Id)-1) {
                     fprintf(fp, "%06x\n", static_cast<uintptr_t>(bswap32(color)));
                 }
             }
             fclose(fp);
-        }*/
+        }
 
         // Calculate the edges of the province (min and max x and y coordinates)
         UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Calculate the edges of the province (min and max x and y coordinates)"));
