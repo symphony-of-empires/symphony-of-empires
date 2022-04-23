@@ -357,7 +357,21 @@ void save(GameState& gs) {
             }
 
             const uint32_t color = bswap32((province->color & 0x00ffffff) << 8);
-            fprintf(fp, "province = Province:new{ ref_name = \"%s\", name = _(\"%s\"), color = 0x%x, terrain = TerrainType:get(\"%s\") }\n", province->ref_name.c_str(), province->name.c_str(), (unsigned int)color, province->terrain_type->ref_name.c_str());
+            std::string rgo_size_out = "";
+            for(Good::Id id = 0; id < province->rgo_size.size(); id++) {
+                Good* good = gs.world->goods[id];
+                auto size = province->rgo_size[id];
+                if(size != 0) {
+                    rgo_size_out += "{" + good->ref_name + ",";
+                    rgo_size_out +=  std::to_string(size) + "},";
+                }
+            }
+            fprintf(fp, "province = Province:new{ ref_name = \"%s\", name = _(\"%s\"), color = 0x%x, terrain = TerrainType:get(\"%s\"), rgo_size = {%s} }\n",
+                province->ref_name.c_str(),
+                province->name.c_str(),
+                (unsigned int)color,
+                province->terrain_type->ref_name.c_str(),
+                rgo_size_out.c_str());
             fprintf(fp, "province:register()\n");
             for(const auto& building_type : gs.world->building_types) {
                 Building& building = province->buildings[gs.world->get_id(*building_type)];
