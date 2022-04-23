@@ -569,7 +569,7 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, Game
         break;
     case SDL_MOUSEWHEEL:
         SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
-        camera->move(0.f, 0.f, event.wheel.y * gs.delta_time * -100.f);
+        camera->move(0.f, 0.f, -event.wheel.y * gs.delta_time * 120.f);
         break;
     case SDL_KEYDOWN:
         switch(event.key.keysym.sym) {

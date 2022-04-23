@@ -10,4 +10,17 @@ sea
 desert
     By Jean-François Portaels - http://www.koregos.org/en/judith-ogonovszky-steffens_jean-portaels-un-academicien-au-service-du-comte-et-de-la-comtesse-de-flandre/, Public Domain, https://commons.wikimedia.org/w/index.php?curid=73978684
 
+jungle
+    By Frederic Edwin Church - Metropolitan Museum of Art, online collection (The Met object ID 10481), Public Domain, https://commons.wikimedia.org/w/index.php?curid=3069947
 
+forest
+    By John Constable - John Constable, Public Domain, https://commons.wikimedia.org/w/index.php?curid=7862726
+
+mountain
+    By Ivan Ayvazovsky - [1], Public Domain, https://commons.wikimedia.org/w/index.php?curid=917
+
+artic
+    By Sergey Endogurov / Сергей Ендогуров (1864-1894) - here / здесь, Public Domain, https://commons.wikimedia.org/w/index.php?curid=17947384
+
+tundra
+    By Conrad Martens - State Library of New South Wales DG 160, Public Domain, https://commons.wikimedia.org/w/index.php?curid=92043483

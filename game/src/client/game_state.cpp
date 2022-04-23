@@ -887,10 +887,9 @@ void start_client(int, char**) {
 
         std::scoped_lock lock(gs.render_lock);
         
-        auto prev_frame_time = current_frame_time;
+        double prev_num = std::chrono::duration<double>(current_frame_time.time_since_epoch()).count();
+        double now_num = std::chrono::duration<double>(std::chrono::system_clock::now().time_since_epoch()).count();
         current_frame_time = std::chrono::system_clock::now();
-        double prev_num = std::chrono::duration<double>(prev_frame_time.time_since_epoch()).count();
-        double now_num = std::chrono::duration<double>(current_frame_time.time_since_epoch()).count();
         gs.delta_time = now_num - prev_num;
         
         gs.clear();
