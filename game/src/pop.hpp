@@ -57,6 +57,7 @@ class Pop {
 public:
     bool operator==(const Pop& rhs) const;
     Ideology* get_ideology(void) const;
+    uint32_t get_type_id(void) const;
 
     UnifiedRender::Number size = 0.f;
     UnifiedRender::Decimal life_needs_met = 0.f, everyday_needs_met = 0.f, luxury_needs_met = 0.f;

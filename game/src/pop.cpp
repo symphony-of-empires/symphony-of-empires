@@ -41,3 +41,11 @@ Ideology* Pop::get_ideology(void) const {
     )];
     return v;
 }
+
+uint32_t Pop::get_type_id(void) const {
+    uint32_t id;
+    id = this->type->cached_id;
+    id += this->culture->cached_id << 16;
+    id += this->religion->cached_id << 48;
+    return id;
+}

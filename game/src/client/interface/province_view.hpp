@@ -53,7 +53,6 @@ namespace Interface {
         UI::PieChart* religions_pie;
         UI::PieChart* pop_types_pie;
 
-        std::vector<PopInfo*> pop_infos;
     public:
         ProvincePopulationTab(GameState& gs, int x, int y, Province* province, UI::Widget* _parent);
 

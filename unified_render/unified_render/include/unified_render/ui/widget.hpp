@@ -86,6 +86,9 @@ namespace UI {
 		SLIDER,
 		GROUP,
 		SCROLLBAR,
+		TABLE,
+		TABLE_ROW,
+		TABLE_ELEMENT
 	};
 
 	enum class Flex {
@@ -192,10 +195,10 @@ namespace UI {
 		std::shared_ptr<UnifiedRender::Texture> current_texture;
 		UnifiedRender::Texture* text_texture = nullptr;
 		int text_offset_x = 4, text_offset_y = 4;
-		Align text_align_y = Align::START; 
-		Align text_align_x = Align::START; 
+		Align text_align_y = Align::START;
+		Align text_align_x = Align::START;
 		UnifiedRender::Color text_color;
-        TTF_Font* font = nullptr;
+		TTF_Font* font = nullptr;
 		Border border;
 		UnifiedRender::Color color;
 
@@ -207,10 +210,9 @@ namespace UI {
 		UI::Tooltip* tooltip = nullptr;
 
 		void* user_data = nullptr;
-		void kill() {
+		void inline kill() {
 			dead = true;
 		};
-
 		std::function<void(Widget&)> on_update;
 		std::function<void(Widget&)> on_click;
 		std::function<void(Widget&)> on_click_outside;
@@ -222,6 +224,11 @@ namespace UI {
 
 		friend class Context;
 
+		void sort_children(std::function<bool(const std::unique_ptr<UI::Widget>& a, const std::unique_ptr<UI::Widget>& b)> comp) {
+			std::sort(begin(children), end(children), comp);
+			need_recalc = true;
+		}
+
 	protected:
 		void draw_rectangle(int x, int y, unsigned w, unsigned h, UnifiedRender::Rect viewport, unsigned tex);
 		void draw_rect(const GLuint tex, UnifiedRender::Rect rect_pos, UnifiedRender::Rect rect_tex, UnifiedRender::Rect viewport);
@@ -231,6 +238,9 @@ namespace UI {
 		// Used internally for managing widgets outside of window bounds
 		bool is_show = true;
 		bool need_recalc = false;
+
+		// The current text of the widget
+		std::string text_str;
 		// Used internally for drawing hover effects on clickable child widgets
 		bool is_clickable = false;
 		bool dead = false;
