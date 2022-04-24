@@ -316,8 +316,8 @@ void Server::net_loop(int id) {
                     packet.data(tmp_ar.get_buffer(), tmp_ar.size());
                     broadcast(packet);
                 } break;
-                // Client takes a descision
-                case ActionType::NATION_TAKE_DESCISION: {
+                // Client takes a decision
+                case ActionType::NATION_TAKE_DECISION: {
                     // Find event by reference name
                     std::string event_ref_name;
                     ::deserialize(ar, &event_ref_name);
@@ -327,20 +327,20 @@ void Server::net_loop(int id) {
                     if(event == g_world->events.end())
                         throw ServerException("Event not found");
 
-                    // Find descision by reference name
-                    std::string descision_ref_name;
-                    ::deserialize(ar, &descision_ref_name);
-                    auto descision = std::find_if((*event)->descisions.begin(), (*event)->descisions.end(), [&descision_ref_name](const Descision& d) {
-                        return d.ref_name == descision_ref_name;
+                    // Find decision by reference name
+                    std::string decision_ref_name;
+                    ::deserialize(ar, &decision_ref_name);
+                    auto decision = std::find_if((*event)->decisions.begin(), (*event)->decisions.end(), [&decision_ref_name](const Decision& d) {
+                        return d.ref_name == decision_ref_name;
                     });
-                    if(descision == (*event)->descisions.end()) {
-                        throw ServerException("Descision " + descision_ref_name + " not found");
+                    if(decision == (*event)->decisions.end()) {
+                        throw ServerException("Decision " + decision_ref_name + " not found");
                     }
 
-                    (*event)->take_descision(*selected_nation, *descision);
-                    print_info("Event [%s] + descision [%s] taken by [%s]",
+                    (*event)->take_decision(*selected_nation, *decision);
+                    print_info("Event [%s] + decision [%s] taken by [%s]",
                         event_ref_name.c_str(),
-                        descision_ref_name.c_str(),
+                        decision_ref_name.c_str(),
                         selected_nation->ref_name.c_str()
                     );
                 } break;

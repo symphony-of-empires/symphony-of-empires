@@ -35,23 +35,23 @@ function generic_militancy_nationwide_event(ref_name)
 		text = "Some activists are trying to undermine us with false statments about the efficiency of our goverment - we can always crack down on those liars but we may upset free-speech supporters"	
 	}
 
-	descision = Descision:new{
-		ref_name = "generic_militancy_nationwide_descision_0",
+	decision = Decision:new{
+		ref_name = "generic_militancy_nationwide_decision_0",
 		name = "",
-		descision_fn = "generic_militancy_nationwide_descision_0",
+		decision_fn = "generic_militancy_nationwide_decision_0",
 		effects = "+0.50 con and +0.50 militancy nationwide"
 	}
-	generic_militancy_nationwide_:add_descision(descision)
-    descision = Descision:new{
-		ref_name = "generic_militancy_nationwide_descision_1",
+	generic_militancy_nationwide_:add_decision(decision)
+    decision = Decision:new{
+		ref_name = "generic_militancy_nationwide_decision_1",
 		name = "Take them down",
-		descision_fn = "generic_militancy_nationwide_descision_1",
+		decision_fn = "generic_militancy_nationwide_decision_1",
 		effects = "+0.75 militancy nationwide"
 	}
-	generic_militancy_nationwide_:add_descision(descision)
+	generic_militancy_nationwide_:add_decision(decision)
 	return EVENT_DO_MANY_TIMES
 end
-function generic_militancy_nationwide_descision_0(ref_name)
+function generic_militancy_nationwide_decision_0(ref_name)
 	local prov_list = Nation:get(ref_name):get_owned_provinces()
 	for k, province in pairs(prov_list) do
 		local pops = province:get_pops()
@@ -63,7 +63,7 @@ function generic_militancy_nationwide_descision_0(ref_name)
 		province:update_pops()
 	end
 end
-function generic_militancy_nationwide_descision_1(ref_name)
+function generic_militancy_nationwide_decision_1(ref_name)
 	local prov_list = Nation:get(ref_name):get_owned_provinces()
 	for k, province in pairs(prov_list) do
 		local pops = province:get_pops()

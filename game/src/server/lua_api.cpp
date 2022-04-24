@@ -125,6 +125,18 @@ int LuaAPI::add_terrain_type(lua_State* L) {
     return 1;
 }
 
+int LuaAPI::get_terrain_type_by_id(lua_State* L) {
+    const auto* terrain_type = g_world->terrain_types.at(lua_tonumber(L, 1));
+
+    lua_pushstring(L, terrain_type->ref_name.c_str());
+    lua_pushstring(L, terrain_type->ref_name.c_str());
+    lua_pushstring(L, terrain_type->name.c_str());
+    lua_pushnumber(L, bswap32((terrain_type->color & 0x00ffffff) << 8));
+    lua_pushnumber(L, (terrain_type->movement_penalty));
+    lua_pushboolean(L, terrain_type->is_water_body);
+    return 6;
+}
+
 int LuaAPI::get_terrain_type(lua_State* L) {
     const auto* terrain_type = find_or_throw<TerrainType>(luaL_checkstring(L, 1));
 
@@ -934,18 +946,18 @@ int LuaAPI::add_event_receivers(lua_State* L) {
     return 0;
 }
 
-int LuaAPI::add_descision(lua_State* L) {
+int LuaAPI::add_decision(lua_State* L) {
     Event* event = g_world->events.at(lua_tonumber(L, 1));
 
-    Descision descision = Descision();
+    Decision decision = Decision();
 
-    descision.ref_name = luaL_checkstring(L, 2);
-    descision.name = luaL_checkstring(L, 3);
-    descision.do_descision_function = luaL_checkstring(L, 4);
-    descision.effects = luaL_checkstring(L, 5);
+    decision.ref_name = luaL_checkstring(L, 2);
+    decision.name = luaL_checkstring(L, 3);
+    decision.do_decision_function = luaL_checkstring(L, 4);
+    decision.effects = luaL_checkstring(L, 5);
 
     // Add onto vector
-    event->descisions.push_back(descision);
+    event->decisions.push_back(decision);
     return 0;
 }
 
@@ -1328,14 +1340,14 @@ void LuaAPI::check_events(lua_State* L) {
                     }
                     // Do not relaunch a local event
                     local_event->checked = true;
-                    if(local_event->descisions.empty()) {
-                        UnifiedRender::Log::error("event", "Event " + local_event->ref_name + " has no descisions (ref_name = " + nation->ref_name + ")");
+                    if(local_event->decisions.empty()) {
+                        UnifiedRender::Log::error("event", "Event " + local_event->ref_name + " has no decisions (ref_name = " + nation->ref_name + ")");
                         goto restore_original;
                     }
 
                     g_world->insert(*local_event);
                     nation->inbox.push_back(local_event);
-                    UnifiedRender::Log::debug("event", "Event triggered! " + local_event->ref_name + " (with " + std::to_string(local_event->descisions.size()) + " descisions)");
+                    UnifiedRender::Log::debug("event", "Event triggered! " + local_event->ref_name + " (with " + std::to_string(local_event->decisions.size()) + " decisions)");
                 }
 
             restore_original:
@@ -1350,19 +1362,19 @@ void LuaAPI::check_events(lua_State* L) {
         }
     }
 
-    // Do descisions taken effects in the queue, then clear it awaiting
-    // other taken descisions :)
-    for(auto& dec : g_world->taken_descisions) {
-        lua_getglobal(L, dec.first->do_descision_function.c_str());
+    // Do decisions taken effects in the queue, then clear it awaiting
+    // other taken decisions :)
+    for(auto& dec : g_world->taken_decisions) {
+        lua_getglobal(L, dec.first->do_decision_function.c_str());
         lua_pushstring(L, dec.second->ref_name.c_str());
-        UnifiedRender::Log::debug("event", dec.second->ref_name + " took the descision: " + dec.first->do_descision_function);
+        UnifiedRender::Log::debug("event", dec.second->ref_name + " took the decision: " + dec.first->do_decision_function);
         try {
             lua_pcall(L, 1, 0, 0);
         }
         catch(const std::exception& e) {
-            throw LuaAPI::Exception(dec.first->do_descision_function + "(" + dec.second->ref_name + "): " + e.what());
+            throw LuaAPI::Exception(dec.first->do_decision_function + "(" + dec.second->ref_name + "): " + e.what());
         }
-        // TODO: Delete local event upon taking a descision
+        // TODO: Delete local event upon taking a decision
     }
-    g_world->taken_descisions.clear();
+    g_world->taken_decisions.clear();
 }

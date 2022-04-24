@@ -54,6 +54,7 @@ namespace LuaAPI {
 
     int add_terrain_type(lua_State* L);
     int get_terrain_type(lua_State* L);
+    int get_terrain_type_by_id(lua_State* L);
     
     int set_nation_mod_to_invention(lua_State* L);
 
@@ -122,7 +123,7 @@ namespace LuaAPI {
     int update_event(lua_State* L);
     int add_event_receivers(lua_State* L);
 
-    int add_descision(lua_State* L);
+    int add_decision(lua_State* L);
 
     int add_pop_type(lua_State* L);
     int get_pop_type(lua_State* L);

@@ -53,23 +53,23 @@ function gevhdl001_event(ref_name)
 	
 	gevhdl001:update(gevhdl002)
 
-	descision = Descision:new{
-		ref_name = "gevhdl001_descision_0",
+	decision = Decision:new{
+		ref_name = "gevhdl001_decision_0",
 		name = "We will do what we can to save our people!",
-		descision_fn = "gevhdl001_descision_0",
+		decision_fn = "gevhdl001_decision_0",
 		effects = "+0.5 con"
 	}
-	gevhdl001:add_descision(descision)
-    descision = Descision:new{
-		ref_name = "gevhdl001_descision_1",
+	gevhdl001:add_decision(decision)
+    decision = Decision:new{
+		ref_name = "gevhdl001_decision_1",
 		name = "We can't do anything about it",
-		descision_fn = "gevhdl001_descision_1",
+		decision_fn = "gevhdl001_decision_1",
 		effects = "+0.5 militancy"
 	}
-	gevhdl001:add_descision(descision)
+	gevhdl001:add_decision(decision)
 	return EVENT_DO_MANY_TIMES
 end
-function gevhdl001_descision_0(ref_name)
+function gevhdl001_decision_0(ref_name)
 	local prov_list = Nation:get(ref_name):get_owned_provinces()
 	for k, province in pairs(prov_list) do
 		local pops = province:get_pops()
@@ -80,7 +80,7 @@ function gevhdl001_descision_0(ref_name)
 		province:update_pops()
 	end
 end
-function gevhdl001_descision_1(ref_name)
+function gevhdl001_decision_1(ref_name)
 	local prov_list = Nation:get(ref_name):get_owned_provinces()
 	for k, province in pairs(prov_list) do
 		local pops = province:get_pops()

@@ -38,25 +38,25 @@ function the_minas_crash_test()
 	return EVENT_CONDITIONS_UNMET
 end
 function the_minas_crash_event()
-	descision = Descision:new{
-		ref_name = "the_minas_crash_descision_0",
+	decision = Decision:new{
+		ref_name = "the_minas_crash_decision_0",
 		name = "I'm sorry for such tragedy",
-		descision_fn = "the_minas_crash_descision_0",
+		decision_fn = "the_minas_crash_decision_0",
 		effects = "None"
 	}
-	the_minas_crash:add_descision(descision)
-    descision = Descision:new{
-		ref_name = "the_minas_crash_descision_1",
+	the_minas_crash:add_decision(decision)
+    decision = Decision:new{
+		ref_name = "the_minas_crash_decision_1",
 		name = "Well yeah they should be held accountable!",
-		descision_fn = "the_minas_crash_descision_1",
+		decision_fn = "the_minas_crash_decision_1",
 		effects = "None"
 	}
-	the_minas_crash:add_descision(descision)
+	the_minas_crash:add_decision(decision)
 	return EVENT_DO_ONE_TIME
 end
-function the_minas_crash_descision_0()
+function the_minas_crash_decision_0()
 end
-function the_minas_crash_descision_1()
+function the_minas_crash_decision_1()
 end
 the_minas_crash = Event:new{
 	ref_name = "the_minas_crash",

@@ -29,12 +29,12 @@
 #include <string>
 #include <vector>
 
-class Descision : public RefnameEntity<uint8_t> {
+class Decision : public RefnameEntity<uint8_t> {
 public:
-    //Descision();
-    //~Descision();
+    //Decision();
+    //~Decision();
 
-    std::string do_descision_function;
+    std::string do_decision_function;
     std::string effects;
 };
 
@@ -43,12 +43,12 @@ class Event : public RefnameEntity<uint16_t> {
 public:
     //Event();
     //~Event();
-    void take_descision(Nation& sender, Descision& dec);
+    void take_decision(Nation& sender, Decision& dec);
     
     std::string conditions_function;
     std::string do_event_function;
     std::vector<Nation *> receivers;
-    std::vector<Descision> descisions;
+    std::vector<Decision> decisions;
     std::string text;
     std::string title;
 

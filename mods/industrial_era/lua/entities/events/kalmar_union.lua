@@ -66,27 +66,27 @@ function kalmar_union_test()
     return EVENT_CONDITIONS_UNMET
 end
 function kalmar_union_event()
-    descision = Descision:new{
-        ref_name = "kalmar_union_descision_0",
+    decision = Decision:new{
+        ref_name = "kalmar_union_decision_0",
         name = "Unify scandinavia once again",
-        descision_fn = "kalmar_union_descision_0",
+        decision_fn = "kalmar_union_decision_0",
         effects = "Become Kalmar Union"
     }
-    kalmar_union_evhdl:add_descision(descision)
+    kalmar_union_evhdl:add_decision(decision)
 
-    descision = Descision:new{
-        ref_name = "kalmar_union_descision_1",
+    decision = Decision:new{
+        ref_name = "kalmar_union_decision_1",
         name = "We don't need the others, right?",
-        descision_fn = "kalmar_union_descision_1",
+        decision_fn = "kalmar_union_decision_1",
         effects = "No Kalmar Union"
     }
-    kalmar_union_evhdl:add_descision(descision)
+    kalmar_union_evhdl:add_decision(decision)
     return EVENT_DO_ONE_TIME
 end
-function kalmar_union_descision_0()
+function kalmar_union_decision_0()
     
 end
-function kalmar_union_descision_1()
+function kalmar_union_decision_1()
 
 end
 kalmar_union_evhdl = Event:new{

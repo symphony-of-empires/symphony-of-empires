@@ -84,7 +84,7 @@
 #include "client/camera.hpp"
 #include "client/orbit_camera.hpp"
 #include "client/client_network.hpp"
-#include "client/interface/descision.hpp"
+#include "client/interface/decision.hpp"
 #include "client/interface/province_view.hpp"
 #include "client/interface/lobby.hpp"
 #include "client/interface/top_window.hpp"
@@ -571,7 +571,7 @@ void save(GameState& gs) {
 
 void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& displayed_treaties, GameState& gs) {
     // Put popups
-    // Event + Descision popups
+    // Event + Decision popups
     for(auto& msg : gs.curr_nation->inbox) {
         // Check that the event is not already displayed to the user
         auto iter = std::find_if(displayed_events.begin(), displayed_events.end(), [&msg](const auto& e) { return e->ref_name == msg->ref_name; });
@@ -579,7 +579,7 @@ void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& 
             continue;
         }
 
-        new Interface::DescisionWindow(gs, *msg);
+        new Interface::DecisionWindow(gs, *msg);
         displayed_events.push_back(msg);
     }
 

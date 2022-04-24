@@ -53,27 +53,27 @@ function prusso_danish_war_test()
 	return EVENT_CONDITIONS_UNMET
 end
 function prusso_danish_war_event(ref_name)
-	descision = Descision:new{
-		ref_name = "prusso_danish_war_descision_0",
+	decision = Decision:new{
+		ref_name = "prusso_danish_war_decision_0",
 		name = "Yes",
-		descision_fn = "prusso_danish_war_descision_0",
+		decision_fn = "prusso_danish_war_decision_0",
 		effects = "+1.0 militancy on all German POPs, -1.0 militancy on all Danish POPs, +50 relations with Denmark"
 	}
-	prusso_danish_war_evhdl:add_descision(descision)
+	prusso_danish_war_evhdl:add_decision(decision)
 	
-	descision = Descision:new{
-		ref_name = "prusso_danish_war_descision_1",
+	decision = Decision:new{
+		ref_name = "prusso_danish_war_decision_1",
 		name = "No",
-		descision_fn = "prusso_danish_war_descision_1",
+		decision_fn = "prusso_danish_war_decision_1",
 		effects = "Declares war on Denmark"
 	}
-	prusso_danish_war_evhdl:add_descision(descision)
+	prusso_danish_war_evhdl:add_decision(decision)
 	return EVENT_DO_ONE_TIME
 end
-function prusso_danish_war_descision_0(ref_name)
+function prusso_danish_war_decision_0(ref_name)
 
 end
-function prusso_danish_war_descision_1(ref_name)
+function prusso_danish_war_decision_1(ref_name)
 	Nation:get(ref_name):declare_unjustified_war(Nation:get("denmark"))
 end
 

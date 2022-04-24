@@ -44,7 +44,7 @@ function Province:get(ref_name)
 	o = Province:new()
 	local terrain_id = 0
 	o.id, o.name, o.color, terrain_id, o.rgo_size = get_province(ref_name)
-	o.terrain = TerrainType:get(terrain_id)
+	o.terrain = TerrainType:get_by_id(terrain_id)
 	o.ref_name = ref_name
 	return o
 end
@@ -52,7 +52,7 @@ function Province:get_by_id(id)
 	o = Province:new()
 	local terrain_id = 0
 	o.ref_name, o.name, o.color, terrain_id, o.rgo_size = get_province_by_id(id)
-	o.terrain = TerrainType:get(terrain_id)
+	o.terrain = TerrainType:get_by_id(terrain_id)
 	o.id = id
 	return o
 end

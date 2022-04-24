@@ -35,24 +35,24 @@ function unify_germany_test()
 	return EVENT_CONDITIONS_UNMET
 end
 function unify_germany_event()
-	descision = Descision:new{
-		ref_name = "unify_germany_descision_0",
+	decision = Decision:new{
+		ref_name = "unify_germany_decision_0",
 		name = "Yes",
-		descision_fn = "unify_germany_descision_0",
+		decision_fn = "unify_germany_decision_0",
 		effects = "Prussia acquires all provinces that are a nuclei of Germany"
 	}
-	unify_germany_evhdl:add_descision(descision)
+	unify_germany_evhdl:add_decision(decision)
 	
-	descision = Descision:new{
-		ref_name = "unify_germany_descision_1",
+	decision = Decision:new{
+		ref_name = "unify_germany_decision_1",
 		name = "No",
-		descision_fn = "unify_germany_descision_1",
+		decision_fn = "unify_germany_decision_1",
 		effects = "Nothing happens"
 	}
-	unify_germany_evhdl:add_descision(descision)
+	unify_germany_evhdl:add_decision(decision)
 	return EVENT_DO_ONE_TIME
 end
-function unify_germany_descision_0(ref_name)
+function unify_germany_decision_0(ref_name)
 	print('Unifying germany...')
 	Nation:get("germany"):set_ideology(Ideology:get("monarchy"))
 	local prov = Nation:get("germany"):get_nuclei_provinces()
@@ -63,7 +63,7 @@ function unify_germany_descision_0(ref_name)
 
 	Nation:get(ref_name):switch_player_to(Nation:get("germany"))
 end
-function unify_germany_descision_1()
+function unify_germany_decision_1()
 	print('Germany isn\'t going to be a thing :<')
 end
 unify_germany_evhdl = Event:new{

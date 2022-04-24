@@ -120,6 +120,7 @@ World::World() {
     // Register our API functions
     lua_register(lua, "add_terrain_type", LuaAPI::add_terrain_type);
     lua_register(lua, "get_terrain_type", LuaAPI::get_terrain_type);
+    lua_register(lua, "get_terrain_type_by_id", LuaAPI::get_terrain_type_by_id);
 
     lua_register(lua, "add_technology", LuaAPI::add_technology);
     lua_register(lua, "get_technology", LuaAPI::get_technology);
@@ -186,7 +187,7 @@ World::World() {
     lua_register(lua, "update_event", LuaAPI::update_event);
     lua_register(lua, "add_event_receivers", LuaAPI::add_event_receivers);
 
-    lua_register(lua, "add_descision", LuaAPI::add_descision);
+    lua_register(lua, "add_decision", LuaAPI::add_decision);
 
     lua_register(lua, "add_pop_type", LuaAPI::add_pop_type);
     lua_register(lua, "get_pop_type", LuaAPI::get_pop_type);

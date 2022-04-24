@@ -203,7 +203,7 @@ public:
     bool needs_to_sync = false;
 
     mutable std::mutex world_mutex;
-    std::vector<std::pair<Descision*, Nation*>> taken_descisions;
+    std::vector<std::pair<Decision*, Nation*>> taken_decisions;
 };
 
 extern World* g_world;

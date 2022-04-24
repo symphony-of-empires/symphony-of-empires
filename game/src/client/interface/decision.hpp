@@ -17,7 +17,7 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      client/interface/descision.hpp
+//      client/interface/decision.hpp
 //
 // Abstract:
 //      Does some important stuff.
@@ -32,10 +32,10 @@
 #include "unified_render/ui/button.hpp"
 
 namespace Interface {
-    class DescisionWindow: public UI::Window {
+    class DecisionWindow: public UI::Window {
         GameState& gs;
         Event event;
     public:
-        DescisionWindow(GameState& gs, Event msg);
+        DecisionWindow(GameState& gs, Event msg);
     };
 };
