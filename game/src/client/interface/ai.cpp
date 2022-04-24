@@ -98,7 +98,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
     hdl_event_chk->set_on_click([this](UI::Widget& w) {
         this->gs.curr_nation->ai_handle_events = ((UI::Checkbox&)w).get_value();
     });
-    hdl_event_chk->set_tooltip("AI will automatically decide on events/descisions");
+    hdl_event_chk->set_tooltip("AI will automatically decide on events/decisions");
 
     auto* hdl_treaties_chk = new UI::Checkbox(0, 0, this->width, 24, this);
     hdl_treaties_chk->below_of(*hdl_event_chk);

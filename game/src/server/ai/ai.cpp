@@ -520,7 +520,7 @@ void ai_do_tick(Nation* nation, World* world) {
         // Taking events
         if(nation->ai_handle_events) {
             for(const auto& event : nation->inbox) {
-                event->take_descision(*nation, event->descisions[std::rand() % event->descisions.size()]);
+                event->take_decision(*nation, event->decisions[std::rand() % event->decisions.size()]);
             }
         }
 

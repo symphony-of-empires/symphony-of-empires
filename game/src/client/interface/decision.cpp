@@ -17,7 +17,7 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      client/interface/descision.cpp
+//      client/interface/decision.cpp
 //
 // Abstract:
 //      Does some important stuff.
@@ -30,7 +30,7 @@
 #include "unified_render/network.hpp"
 
 #include "client/client_network.hpp"
-#include "client/interface/descision.hpp"
+#include "client/interface/decision.hpp"
 #include "event.hpp"
 #include "action.hpp"
 #include "io_impl.hpp"
@@ -38,7 +38,7 @@
 
 using namespace Interface;
 
-DescisionWindow::DescisionWindow(GameState& _gs, Event _event)
+DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
     : UI::Window(128, 128, 320, 570),
     gs{ _gs },
     event{ _event }
@@ -50,25 +50,25 @@ DescisionWindow::DescisionWindow(GameState& _gs, Event _event)
     auto* txt = new UI::Text(0, 0, this->width, 24, this);
     txt->text(this->event.text);
 
-    this->height = txt->height + (this->event.descisions.size() * 24) + (24 * 4);
+    this->height = txt->height + (this->event.decisions.size() * 24) + (24 * 4);
 
-    // Buttons for descisions for the event
+    // Buttons for decisions for the event
     UI::Button* last = nullptr;
-    for(const auto& descision : this->event.descisions) {
+    for(const auto& decision : this->event.decisions) {
         auto* decide_btn = new UI::Button(0, 0, this->width, 24, this);
-        decide_btn->text(descision.name);
-        decide_btn->set_on_click([this, descision](UI::Widget& w) {
+        decide_btn->text(decision.name);
+        decide_btn->set_on_click([this, decision](UI::Widget& w) {
             UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
             Archive ar = Archive();
-            ActionType action = ActionType::NATION_TAKE_DESCISION;
+            ActionType action = ActionType::NATION_TAKE_DECISION;
             ::serialize(ar, &action);
             ::serialize(ar, &this->event.ref_name);
-            ::serialize(ar, &descision.ref_name);
+            ::serialize(ar, &decision.ref_name);
             packet.data(ar.get_buffer(), ar.size());
             this->gs.client->send(packet);
             this->kill();
         });
-        this->set_tooltip(descision.effects);
+        this->set_tooltip(decision.effects);
         
         decide_btn->below_of(*txt);
         if(last != nullptr) {

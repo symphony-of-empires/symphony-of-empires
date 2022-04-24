@@ -32,49 +32,49 @@ function cake_test()
 	return EVENT_CONDITIONS_MET
 end
 function cake_event(ref_name)
-	descision = Descision:new{
-		ref_name = "cake_descision_0",
+	decision = Decision:new{
+		ref_name = "cake_decision_0",
 		name = "I think i will eat it",
-		descision_fn = "cake_descision_0",
+		decision_fn = "cake_decision_0",
 		effects = "You will consume cake"
 	}
-	cake_evhdl:add_descision(descision)
+	cake_evhdl:add_decision(decision)
 	
-	descision = Descision:new{
-		ref_name = "cake_descision_1",
+	decision = Decision:new{
+		ref_name = "cake_decision_1",
 		name = "Fuck you",
-		descision_fn = "cake_descision_1",
+		decision_fn = "cake_decision_1",
 		effects = "You will consume cake anyways"
 	}
-	cake_evhdl:add_descision(descision)
+	cake_evhdl:add_decision(decision)
 
-	descision = Descision:new{
-		ref_name = "cake_descision_2",
+	decision = Decision:new{
+		ref_name = "cake_decision_2",
 		name = "Cake!?",
-		descision_fn = "cake_descision_2",
+		decision_fn = "cake_decision_2",
 		effects = "Your compulsory desire for cake has began to grow"
 	}
-	cake_evhdl:add_descision(descision)
+	cake_evhdl:add_decision(decision)
 
-	descision = Descision:new{
-		ref_name = "cake_descision_3",
+	decision = Decision:new{
+		ref_name = "cake_decision_3",
 		name = "Britain, we have a problem",
-		descision_fn = "cake_descision_3",
+		decision_fn = "cake_decision_3",
 		effects = "What the fuck is britain gonna do, invade us?"
 	}
-	cake_evhdl:add_descision(descision)
+	cake_evhdl:add_decision(decision)
 	return EVENT_DO_ONE_TIME
 end
-function cake_descision_0()
+function cake_decision_0()
 	print('The cake tasted like a cake, what a surprise! and you find a bunch of peseants outside your palace... oh no')
 end
-function cake_descision_1()
+function cake_decision_1()
 	print('Why no eat my poisoned cake? i put so much poison in it :(')
 end
-function cake_descision_2()
+function cake_decision_2()
 	print('Bruh, where the fuck am i?')
 end
-function cake_descision_3()
+function cake_decision_3()
 	print('Britain converted the cake into tea')
 end
 cake_evhdl = Event:new{

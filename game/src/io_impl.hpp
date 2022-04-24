@@ -360,18 +360,18 @@ public:
 };
 
 template<>
-class Serializer<Descision> {
+class Serializer<Decision> {
 public:
-    static inline void serialize(Archive& stream, const Descision* obj) {
+    static inline void serialize(Archive& stream, const Decision* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
-        ::serialize(stream, &obj->do_descision_function);
+        ::serialize(stream, &obj->do_decision_function);
         ::serialize(stream, &obj->effects);
     }
-    static inline void deserialize(Archive& stream, Descision* obj) {
+    static inline void deserialize(Archive& stream, Decision* obj) {
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
-        ::deserialize(stream, &obj->do_descision_function);
+        ::deserialize(stream, &obj->do_decision_function);
         ::deserialize(stream, &obj->effects);
     }
 };
@@ -384,7 +384,7 @@ public:
         ::serialize(stream, &obj->conditions_function);
         ::serialize(stream, &obj->do_event_function);
         ::serialize(stream, &obj->receivers);
-        ::serialize(stream, &obj->descisions);
+        ::serialize(stream, &obj->decisions);
         ::serialize(stream, &obj->title);
         ::serialize(stream, &obj->text);
     }
@@ -393,7 +393,7 @@ public:
         ::deserialize(stream, &obj->conditions_function);
         ::deserialize(stream, &obj->do_event_function);
         ::deserialize(stream, &obj->receivers);
-        ::deserialize(stream, &obj->descisions);
+        ::deserialize(stream, &obj->decisions);
         ::deserialize(stream, &obj->title);
         ::deserialize(stream, &obj->text);
     }

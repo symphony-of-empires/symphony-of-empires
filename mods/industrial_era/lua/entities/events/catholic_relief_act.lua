@@ -33,27 +33,27 @@ function catholic_relief_act_of_1829_test()
 	return EVENT_CONDITIONS_UNMET
 end
 function catholic_relief_act_of_1829_event()
-	descision = Descision:new{
-		ref_name = "catholic_relief_act_of_1829_descision_0",
+	decision = Decision:new{
+		ref_name = "catholic_relief_act_of_1829_decision_0",
 		name = "Yes, allow catholics on the parliament",
-		descision_fn = "catholic_relief_act_of_1829_descision_0",
+		decision_fn = "catholic_relief_act_of_1829_decision_0",
 		effects = "None"
 	}
-	catholic_relief_act_of_1829:add_descision(descision)
+	catholic_relief_act_of_1829:add_decision(decision)
 	
-    descision = Descision:new{
-		ref_name = "catholic_relief_act_of_1829_descision_1",
+    decision = Decision:new{
+		ref_name = "catholic_relief_act_of_1829_decision_1",
 		name = "No, the church and the state must remain separate",
-		descision_fn = "catholic_relief_act_of_1829_descision_1",
+		decision_fn = "catholic_relief_act_of_1829_decision_1",
 		effects = "x100 more militancy, x100 more conciousness"
 	}
-	catholic_relief_act_of_1829:add_descision(descision)
+	catholic_relief_act_of_1829:add_decision(decision)
 	return EVENT_DO_ONE_TIME
 end
-function catholic_relief_act_of_1829_descision_0()
+function catholic_relief_act_of_1829_decision_0()
     united_kingdom:add_accepted_religion(Religion:get("christian"))
 end
-function catholic_relief_act_of_1829_descision_1()
+function catholic_relief_act_of_1829_decision_1()
     local prov = Nation:get_owned_provinces()
     for k, province in pairs(prov) do
 		local pops = province:get_pops()

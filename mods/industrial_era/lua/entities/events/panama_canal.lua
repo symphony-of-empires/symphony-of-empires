@@ -45,40 +45,40 @@ function aptr_event(ref_name)
 		with_plan = false
     }
 
-	descision = Descision:new{
+	decision = Decision:new{
 		ref_name = "dsc0",
 		name = "You're right - contact the best engineers we have!",
-		descision_fn = "aptr_descision_0",
+		decision_fn = "aptr_decision_0",
 		effects = "Call " .. CANAL_CAMPAING_DATA[ref_name].engineer .. " for the work"
 	}
-	aptr_evhdl:add_descision(descision)
+	aptr_evhdl:add_decision(decision)
 	
-	descision = Descision:new{
+	decision = Decision:new{
 		ref_name = "dsc1",
 		name = "You're right - but we should ask the " .. canal_prov:get_owner().adjective .. "s first",
-		descision_fn = "aptr_descision_1",
+		decision_fn = "aptr_decision_1",
 		effects = "You will consume cake anyways"
 	}
-	aptr_evhdl:add_descision(descision)
+	aptr_evhdl:add_decision(decision)
 
-	descision = Descision:new{
+	decision = Decision:new{
 		ref_name = "dsc2",
 		name = "We can't afford the canal at this moment",
-		descision_fn = "aptr_descision_2",
+		decision_fn = "aptr_decision_2",
 		effects = "Rejects the canal offer with no modifiers"
 	}
-	aptr_evhdl:add_descision(descision)
+	aptr_evhdl:add_decision(decision)
 	return EVENT_DO_ONE_TIME
 end
-function aptr_descision_0(ref_name)
+function aptr_decision_0(ref_name)
 	CANAL_CAMPAING_DATA[ref_name].ambition = CANAL_CAMPAING_DATA[ref_name].ambition + 2.5
 	print('Country ' .. ref_name .. ' called engineer ' .. CANAL_CAMPAING_DATA[ref_name].engineer)
 end
-function aptr_descision_1(ref_name)
+function aptr_decision_1(ref_name)
 	CANAL_CAMPAING_DATA[ref_name].ambition = CANAL_CAMPAING_DATA[ref_name].ambition + 5.0
 	print('Country ' .. ref_name .. ' asked the ' .. canal_prov:get_owner() .. ' for permission ')
 end
-function aptr_descision_2(ref_name)
+function aptr_decision_2(ref_name)
 	CANAL_CAMPAING_DATA[ref_name].ambition = CANAL_CAMPAING_DATA[ref_name].ambition + 10.0
 	print('Country ' .. ref_name .. ' rejected the canal proposal')
 end
@@ -105,28 +105,28 @@ aptr_evhdl:add_receivers(table.unpack(Nation:get_all()))
 --     local nation = Nation:get(ref_name)
 --     local canal_prov = Province:get("colon")
 
--- 	descision = Descision:new{
+-- 	decision = Decision:new{
 -- 		ref_name = "dsc0",
 -- 		name = "We're grateful of your ingenous ideas",
--- 		descision_fn = "eapcp_descision_0",
+-- 		decision_fn = "eapcp_decision_0",
 -- 		effects = "Start the preparations for a canal on Panama"
 -- 	}
--- 	eapcp_evhdl:add_descision(descision)
+-- 	eapcp_evhdl:add_decision(decision)
 	
--- 	descision = Descision:new{
+-- 	decision = Decision:new{
 -- 		ref_name = "dsc1",
 -- 		name = "This plan is too much for us!",
--- 		descision_fn = "eapcp_descision_1",
+-- 		decision_fn = "eapcp_decision_1",
 -- 		effects = "Panama canal idea is aborted"
 -- 	}
--- 	eapcp_evhdl:add_descision(descision)
+-- 	eapcp_evhdl:add_decision(decision)
 -- 	return EVENT_DO_ONE_TIME
 -- end
--- function eapcp_descision_0(ref_name)
+-- function eapcp_decision_0(ref_name)
 -- 	CANAL_CAMPAING_DATA[ref_name].ambition += 5.0
 -- 	CANAL_CAMPAING_DATA[ref_name].with_plan = true
 -- end
--- function eapcp_descision_1(ref_name)
+-- function eapcp_decision_1(ref_name)
 -- 	CANAL_CAMPAING_DATA[ref_name].ambition += 50.0
 -- 	print('Country ' .. ref_name .. ' rejected the canal proposal')
 -- end
@@ -151,27 +151,27 @@ function eapcp_event(ref_name)
     eapcp_evhdl.text = "We can decide stuff, what we should do with the country of " .. Nation:get(ref_name).adjective .. " people?"
 	eapcp_evhdl:update(eapcp_evhdl)
 
-	descision = Descision:new{
+	decision = Decision:new{
 		ref_name = "dsc0",
 		name = "Something very smart",
-		descision_fn = "eapcp_descision_0",
+		decision_fn = "eapcp_decision_0",
 		effects = "Smart stuff"
 	}
-	eapcp_evhdl:add_descision(descision)
+	eapcp_evhdl:add_decision(decision)
 	
-	descision = Descision:new{
+	decision = Decision:new{
 		ref_name = "dsc1",
 		name = "Something very ambitious",
-		descision_fn = "eapcp_descision_1",
+		decision_fn = "eapcp_decision_1",
 		effects = "Ambitious stuff"
 	}
-	eapcp_evhdl:add_descision(descision)
+	eapcp_evhdl:add_decision(decision)
 	return EVENT_DO_ONE_TIME
 end
-function eapcp_descision_0(ref_name)
+function eapcp_decision_0(ref_name)
 	print("Dec 0: " .. ref_name)
 end
-function eapcp_descision_1(ref_name)
+function eapcp_decision_1(ref_name)
 	print("Dec 1: " .. ref_name)
 end
 eapcp_evhdl = Event:new{

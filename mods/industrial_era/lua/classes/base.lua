@@ -256,6 +256,12 @@ function TerrainType:get(ref_name)
 	o.ref_name = ref_name
 	return o
 end
+function TerrainType:get_by_id(id)
+	o = TerrainType:new()
+	o.ref_name, o.name, o.color, o.movement_penalty, o.is_water_body = get_terrain_type_by_id(id)
+	o.id = id
+	return o
+end
 
 require('classes/unit_type')
 

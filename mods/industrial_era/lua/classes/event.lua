@@ -56,17 +56,17 @@ function Event:add_receivers(...)
 	end
 	add_event_receivers(self.id, args.n, table.unpack(args))
 end
-function Event:add_descision(descision)
-	add_descision(self.id, descision.ref_name, descision.name, descision.descision_fn, descision.effects)
+function Event:add_decision(decision)
+	add_decision(self.id, decision.ref_name, decision.name, decision.decision_fn, decision.effects)
 end
 
-Descision = {
+Decision = {
 	ref_name = "",
-	descision_fn = "",
+	decision_fn = "",
 	name = "",
 	effects = ""
 }
-function Descision:new(o)
+function Decision:new(o)
 	o = o or {}
 	setmetatable(o, self)
 	self.__index = self

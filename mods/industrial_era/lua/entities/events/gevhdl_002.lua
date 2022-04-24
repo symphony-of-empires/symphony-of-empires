@@ -35,27 +35,27 @@ function gevhdl002_event(ref_name)
 	tmp_data.ideology = Ideology:get_by_id(math.random(0, 7))
 	
 	gevhdl002.title = tmp_data.ideology.name .. " outrage!"
-    gevhdl002.text = "A lot of " .. ideology.name .. "s have started speaking false information about us; what's best for the " .. Nation:get(ref_name).adjective .. " people?"
+    gevhdl002.text = "A lot of " .. tmp_data.ideology.name .. "s have started speaking false information about us; what's best for the " .. Nation:get(ref_name).adjective .. " people?"
 	gevhdl002:update(gevhdl002)
 	
-	descision = Descision:new{
-		ref_name = "gevhdl002_descision_0",
+	decision = Decision:new{
+		ref_name = "gevhdl002_decision_0",
 		name = "Shut them down",
-		descision_fn = "gevhdl002_descision_0"
+		decision_fn = "gevhdl002_decision_0"
 	}
-	descision.effects = "Every POP that supports " .. tmp_data.ideology.name .. " gets 0.1 militancy"
-	gevhdl002:add_descision(descision)
+	decision.effects = "Every POP that supports " .. tmp_data.ideology.name .. " gets 0.1 militancy"
+	gevhdl002:add_decision(decision)
 	
-	descision = Descision:new{
-		ref_name = "gevhdl002_descision_1",
+	decision = Decision:new{
+		ref_name = "gevhdl002_decision_1",
 		name = "Let them be",
-		descision_fn = "gevhdl002_descision_1",
+		decision_fn = "gevhdl002_decision_1",
 	}
-	descision.effects = "Every POP that supports " .. tmp_data.ideology.name .. " gets 0.1 conciousness"
-	gevhdl002:add_descision(descision)
+	decision.effects = "Every POP that supports " .. tmp_data.ideology.name .. " gets 0.1 conciousness"
+	gevhdl002:add_decision(decision)
 	return EVENT_DO_MANY_TIMES
 end
-function gevhdl002_descision_0(ref_name)
+function gevhdl002_decision_0(ref_name)
 	local prov_list = Nation:get(ref_name):get_owned_provinces()
 	for k, province in pairs(prov_list) do
 		local pops = province:get_pops()
@@ -71,7 +71,7 @@ function gevhdl002_descision_0(ref_name)
 		province:update_pops()
 	end
 end
-function gevhdl002_descision_1(ref_name)
+function gevhdl002_decision_1(ref_name)
 	local prov_list = Nation:get(ref_name):get_owned_provinces()
 	for k, province in pairs(prov_list) do
 		local pops = province:get_pops()

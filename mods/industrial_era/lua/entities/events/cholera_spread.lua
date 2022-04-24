@@ -60,8 +60,8 @@ function cholera_evhdl_event(ref_name)
 	}
 	local texts_idx = math.random(1, 4)
 
-	cholera_evhdl.title = texts[text_idx].title
-	cholera_evhdl.text = texts[text_idx].title
+	cholera_evhdl.title = texts[texts_idx].title
+	cholera_evhdl.text = texts[texts_idx].title
 	cholera_evhdl:update()
     
     decision = Decision:new{
@@ -165,8 +165,8 @@ function cholera_2_event(ref_name)
 	}
 	local texts_idx = math.random(1, 3)
 
-	cholera_evhdl_2.title = texts[text_idx].title
-	cholera_evhdl_2.text = texts[text_idx].title
+	cholera_evhdl_2.title = texts[texts_idx].title
+	cholera_evhdl_2.text = texts[texts_idx].title
 	cholera_evhdl_2:update()
 		
 	decision = Decision:new{
@@ -250,8 +250,8 @@ function cholera_3_event(ref_name)
 	}
 	local texts_idx = math.random(1, 2)
 
-	cholera_evhdl_3.title = texts[text_idx].title
-	cholera_evhdl_3.text = texts[text_idx].title
+	cholera_evhdl_3.title = texts[texts_idx].title
+	cholera_evhdl_3.text = texts[texts_idx].title
 	cholera_evhdl_3:update()
 		
 	decision = Decision:new{

@@ -32,14 +32,14 @@
 #include "nation.hpp"
 
 //
-// Descision
+// Decision
 //
 /*
-Descision::Descision(void) {
+Decision::Decision(void) {
 
 }
 
-Descision::~Descision(void) {
+Decision::~Decision(void) {
 
 }
 //*/
@@ -57,7 +57,7 @@ Event::~Event(void) {
 }
 //*/
 
-void Event::take_descision(Nation& sender, Descision& dec) {
+void Event::take_decision(Nation& sender, Decision& dec) {
     auto receiver = std::find(receivers.begin(), receivers.end(), &sender);
 
     // Confirm that the sender is in receiver's list
@@ -66,10 +66,10 @@ void Event::take_descision(Nation& sender, Descision& dec) {
         return;
     }
 
-    // Tell the world that we took a descision
-    g_world->taken_descisions.push_back(std::make_pair(&dec, &sender));
+    // Tell the world that we took a decision
+    g_world->taken_decisions.push_back(std::make_pair(&dec, &sender));
 
-    // Remove from the receivers list so we don't duplicate descisions
+    // Remove from the receivers list so we don't duplicate decisions
     receivers.erase(receiver);
 
     // Remove from inbox too
