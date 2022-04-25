@@ -56,7 +56,7 @@ DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
     UI::Button* last = nullptr;
     for(const auto& decision : this->event.decisions) {
         auto* decide_btn = new UI::Button(0, 0, this->width, 24, this);
-        decide_btn->text(decision.name);
+        decide_btn->text(decision.name.get_string());
         decide_btn->set_on_click([this, decision](UI::Widget& w) {
             UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
             Archive ar = Archive();

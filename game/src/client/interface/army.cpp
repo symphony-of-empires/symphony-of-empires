@@ -162,7 +162,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Pro
     this->province_lab->right_side_of(*this->unit_icon);
     this->province_lab->on_each_tick = ([this](UI::Widget& w) {
         if(this->province != nullptr) {
-            w.text(UnifiedRender::Locale::translate(this->province->name));
+            w.text(UnifiedRender::Locale::translate(this->province->name.get_string()));
         }
     });
     this->province_lab->on_each_tick(*this->province_lab);
@@ -171,7 +171,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Pro
     this->name_lab->right_side_of(*this->province_lab);
     this->name_lab->on_each_tick = ([this](UI::Widget& w) {
         auto& building = this->province->get_buildings()[this->idx];
-        w.text((building.working_unit_type != nullptr) ? UnifiedRender::Locale::translate(building.working_unit_type->name) : "No unit");
+        w.text((building.working_unit_type != nullptr) ? UnifiedRender::Locale::translate(building.working_unit_type->name.get_string()) : "No unit");
     });
     this->name_lab->on_each_tick(*this->name_lab);
 
@@ -191,7 +191,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Pro
             full += full_req.second;
             needed += need_req.second;
 
-            text += std::to_string(need_req.second) + " of " + UnifiedRender::Locale::translate(need_req.first->name) + " (has " + std::to_string(full_req.second) + "), ";
+            text += std::to_string(need_req.second) + " of " + UnifiedRender::Locale::translate(need_req.first->name.get_string()) + " (has " + std::to_string(full_req.second) + "), ";
         }
 
         ((UI::ProgressBar&)w).value = (float)full / (float)needed;

@@ -783,7 +783,7 @@ void start_client(int, char**) {
                 gs.loaded_map = true;
                 gs.load_progress = 1.f;
             } else if(!load_nation_flags) {
-                const std::string path = Path::get("gfx/flags/" + (*load_it_nation)->ref_name + "_" + ((*load_it_nation)->ideology == nullptr ? "none" : (*load_it_nation)->ideology->ref_name) + ".png");
+                const std::string path = Path::get("gfx/flags/" + (*load_it_nation)->ref_name + "_" + ((*load_it_nation)->ideology == nullptr ? "none" : (*load_it_nation)->ideology->ref_name.get_string()) + ".png");
                 gs.tex_man->load(path, mipmap_options)->gen_mipmaps();
                 if(!path.empty()) {
                     load_lab->text(path);

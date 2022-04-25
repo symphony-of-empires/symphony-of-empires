@@ -211,7 +211,7 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
 
         auto* good_div = new UI::Div(0, 0, 200, 35, flex_column);
         new UI::Image(0, 0, 35, 35, good_tex, good_div);
-        new UI::Label(35, 0, good->name, good_div);
+        new UI::Label(35, 0, good->name.get_string(), good_div);
         good_div->set_on_click([this, i](UI::Widget&) {
             this->gs.current_mode = MapMode::NORMAL;
 
@@ -325,12 +325,12 @@ mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
         }
 
         if(province.controller == province.owner) {
-            str += UnifiedRender::Locale::translate(province.controller->get_client_hint().alt_name);
+            str += UnifiedRender::Locale::translate(province.controller->get_client_hint().alt_name.get_string());
         } else {
             str += UnifiedRender::Locale::translate("Owned by") + " ";
-            str += UnifiedRender::Locale::translate(province.owner->get_client_hint().alt_name);
+            str += UnifiedRender::Locale::translate(province.owner->get_client_hint().alt_name.get_string());
             str += " " + UnifiedRender::Locale::translate("controlled by") + " ";
-            str += UnifiedRender::Locale::translate(province.controller->get_client_hint().alt_name);
+            str += UnifiedRender::Locale::translate(province.controller->get_client_hint().alt_name.get_string());
         }
         str += " ";
 
@@ -366,7 +366,7 @@ mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
         for(const auto& nation : gs.world->nations) {
             const NationRelation& rel = province.controller->relations[world.get_id(*nation)];
             if(rel.has_alliance) {
-                str += UnifiedRender::Locale::translate(nation->get_client_hint().alt_name);
+                str += UnifiedRender::Locale::translate(nation->get_client_hint().alt_name.get_string());
                 str += ", ";
                 ally_cnt++;
             }
@@ -406,7 +406,7 @@ std::vector<ProvinceColor> terrain_color_map_mode(const World& world) {
 
 std::string terrain_type_tooltip(const World& world, const Province::Id id) {
     Province* province = world.provinces[id];
-    return province->terrain_type->name;
+    return province->terrain_type->name.get_string();
 }
 
 std::vector<ProvinceColor> population_map_mode(const World& world) {

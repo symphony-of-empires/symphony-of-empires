@@ -226,6 +226,18 @@ public:
     }
 };
 
+#include "unified_render/string.hpp"
+template<>
+class Serializer<UnifiedRender::StringRef> {
+public:
+    static inline void serialize(Archive& ar, const UnifiedRender::StringRef* obj) {
+        ::serialize(ar, &obj->id);
+    }
+    static inline void deserialize(Archive& ar, UnifiedRender::StringRef* obj) {
+        ::deserialize(ar, &obj->id);
+    }
+};
+
 // Contigous container serializers implementations
 #include <vector>
 template<typename T>

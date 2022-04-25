@@ -23,16 +23,17 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "client/interface/technology.hpp"
-#include "client/map.hpp"
 #include "unified_render/path.hpp"
 #include "unified_render/texture.hpp"
-#include "nation.hpp"
-#include "world.hpp"
-#include "client/game_state.hpp"
 #include "unified_render/ui/image.hpp"
 #include "unified_render/ui/close_button.hpp"
 #include "unified_render/ui/button.hpp"
+
+#include "client/interface/technology.hpp"
+#include "client/map.hpp"
+#include "nation.hpp"
+#include "world.hpp"
+#include "client/game_state.hpp"
 
 using namespace Interface;
 
@@ -44,7 +45,7 @@ TechTreeStrategicTab::TechTreeStrategicTab(GameState& _gs, int x, int y, UI::Wid
     for(const auto& technology : gs.world->technologies) {
         if(technology->type == TechnologyType::STRATEGIC) {
             auto* btn = new TechnologyInfo(gs, 0, 48 * i, technology, this);
-            btn->text(technology->ref_name);
+            btn->text(technology->ref_name.get_string());
             i++;
         }
     }
@@ -58,7 +59,7 @@ TechTreeMilitaryTab::TechTreeMilitaryTab(GameState& _gs, int x, int y, UI::Widge
     for(const auto& technology : gs.world->technologies) {
         if(technology->type == TechnologyType::MILITARY) {
             auto* btn = new TechnologyInfo(gs, 0, 48 * i, technology, this);
-            btn->text(technology->ref_name);
+            btn->text(technology->ref_name.get_string());
             i++;
         }
     }
@@ -72,7 +73,7 @@ TechTreeNavyTab::TechTreeNavyTab(GameState& _gs, int x, int y, UI::Widget* paren
     for(const auto& technology : gs.world->technologies) {
         if(technology->type == TechnologyType::NAVY) {
             auto* btn = new TechnologyInfo(gs, 0, 48 * i, technology, this);
-            btn->text(technology->ref_name);
+            btn->text(technology->ref_name.get_string());
             i++;
         }
     }
@@ -86,7 +87,7 @@ TechTreeSocialTab::TechTreeSocialTab(GameState& _gs, int x, int y, UI::Widget* p
     for(const auto& technology : gs.world->technologies) {
         if(technology->type == TechnologyType::SOCIAL) {
             auto* btn = new TechnologyInfo(gs, 0, 48 * i, technology, this);
-            btn->text(technology->ref_name);
+            btn->text(technology->ref_name.get_string());
             i++;
         }
     }
@@ -100,7 +101,7 @@ TechTreeEconomicTab::TechTreeEconomicTab(GameState& _gs, int x, int y, UI::Widge
     for(const auto& technology : gs.world->technologies) {
         if(technology->type == TechnologyType::ECONOMIC) {
             auto* btn = new TechnologyInfo(gs, 0, 48 * i, technology, this);
-            btn->text(technology->ref_name);
+            btn->text(technology->ref_name.get_string());
             i++;
         }
     }
@@ -114,7 +115,7 @@ TechTreePoliticsTab::TechTreePoliticsTab(GameState& _gs, int x, int y, UI::Widge
     for(const auto& technology : gs.world->technologies) {
         if(technology->type == TechnologyType::POLITICS) {
             auto* btn = new TechnologyInfo(gs, 0, 48 * i, technology, this);
-            btn->text(technology->ref_name);
+            btn->text(technology->ref_name.get_string());
             i++;
         }
     }

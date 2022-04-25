@@ -58,12 +58,12 @@ void ProvincePopulationTab::update_piecharts() {
 
     std::vector<UI::ChartData> cultures_data, religions_data, pop_types_data;
     for(const auto& culture : gs.world->cultures) {
-        cultures_data.push_back(UI::ChartData(culture_sizes[gs.world->get_id(*culture)], culture->name, UnifiedRender::Color::rgba32(culture->color)));
+        cultures_data.push_back(UI::ChartData(culture_sizes[gs.world->get_id(*culture)], culture->name.get_string(), UnifiedRender::Color::rgba32(culture->color)));
     }
     cultures_pie->set_data(cultures_data);
 
     for(const auto& religion : gs.world->religions) {
-        religions_data.push_back(UI::ChartData(religion_sizes[gs.world->get_id(*religion)], religion->name, UnifiedRender::Color::rgba32(religion->color)));
+        religions_data.push_back(UI::ChartData(religion_sizes[gs.world->get_id(*religion)], religion->name.get_string(), UnifiedRender::Color::rgba32(religion->color)));
     }
     religions_pie->set_data(religions_data);
 
@@ -73,7 +73,7 @@ void ProvincePopulationTab::update_piecharts() {
             (uint8_t)((gs.world->get_id(*pop_type) * 31) % 256),
             (uint8_t)((gs.world->get_id(*pop_type) * 97) % 256)
         );
-        pop_types_data.push_back(UI::ChartData(pop_type_sizes[gs.world->get_id(*pop_type)], pop_type->name, color));
+        pop_types_data.push_back(UI::ChartData(pop_type_sizes[gs.world->get_id(*pop_type)], pop_type->name.get_string(), color));
     }
     pop_types_pie->set_data(pop_types_data);
 }
@@ -84,7 +84,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     province{ _province }
 {
     this->is_scroll = true;
-    this->text(province->name);
+    this->text(province->name.get_string());
 
     this->landscape_img = new UI::Image(0, 0, this->width, 128 + 64 + 16, gs.tex_man->load(Path::get("gfx/terraintype/" + province->terrain_type->ref_name + ".png")), this);
 
@@ -144,12 +144,12 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
             auto religion = row->get_element(row_index++);
             auto religion_icon = tex_man->load(Path::get("gfx/religion/" + pop.religion->ref_name + ".png"));
             religion->current_texture = religion_icon;
-            auto religion_tip = UnifiedRender::Locale::translate(pop.religion->name);
+            auto religion_tip = UnifiedRender::Locale::translate(pop.religion->name.get_string());
             religion->set_tooltip(religion_tip);
             religion->set_key(religion_tip);
 
             auto culture = row->get_element(row_index++);
-            auto culture_str = UnifiedRender::Locale::translate(pop.culture->name);
+            auto culture_str = UnifiedRender::Locale::translate(pop.culture->name.get_string());
             culture->text(culture_str);
             culture->set_key(culture_str);
         }
@@ -168,7 +168,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
     gs{ _gs },
     province{ _province }
 {
-    this->text(province->name);
+    this->text(province->name.get_string());
     this->is_scroll = true;
 
     this->products_pie = new UI::PieChart(0, 0, 128, 128, this);
@@ -183,7 +183,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
         for(const auto& good : o.gs.world->goods) {
             const auto good_col = UnifiedRender::Color(i * 12, i * 31, i * 97);
             Product& product = o.province->products[o.gs.world->get_id(*good)];
-            goods_data.push_back(UI::ChartData(product.demand, good->name, good_col));
+            goods_data.push_back(UI::ChartData(product.demand, good->name.get_string(), good_col));
             i++;
         }
         o.products_pie->set_data(goods_data);
@@ -204,7 +204,7 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province*
     gs{ _gs },
     province{ _province }
 {
-    this->text(province->name);
+    this->text(province->name.get_string());
 
     // Initial product info
     unsigned int dy = 0;
@@ -231,14 +231,14 @@ ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, Pro
     gs{ _gs },
     province{ _province }
 {
-    this->text(province->name);
+    this->text(province->name.get_string());
 
     // Initial product info
     unsigned int dy = 0;
 
     for(const auto& culture : gs.world->cultures) {
         auto* btn = new UI::Button(0, dy, 128, 24, this);
-        btn->text(culture->name);
+        btn->text(culture->name.get_string());
         btn->set_on_click([culture](UI::Widget& w) {
             auto& o = static_cast<ProvinceEditCultureTab&>(*w.parent);
             for(auto& pop : o.province->pops) {
@@ -255,14 +255,14 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
     gs{ _gs },
     province{ _province }
 {
-    this->text(province->name);
+    this->text(province->name.get_string());
 
     // Initial product info
     unsigned int dy = 0;
 
     for(const auto& terrain_type : gs.world->terrain_types) {
         auto* btn = new UI::Button(0, dy, 128, 24, this);
-        btn->text(terrain_type->name);
+        btn->text(terrain_type->name.get_string());
         btn->set_on_click([terrain_type](UI::Widget& w) {
             auto& o = static_cast<ProvinceEditTerrainTab&>(*w.parent);
             o.province->terrain_type = terrain_type;
@@ -284,7 +284,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
 
     this->origin = UI::Origin::UPPER_RIGHT_SCREEN;
     this->is_scroll = false;
-    this->text(province->name);
+    this->text(province->name.get_string());
 
     this->pop_tab = new ProvincePopulationTab(gs, 0, 32, province, this);
     this->pop_tab->is_render = true;
@@ -329,7 +329,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
 
     if(gs.editor) {
         rename_inp = new UI::Input(0, this->height - (64 + 24), 128, 24, this);
-        rename_inp->set_buffer(province->name);
+        rename_inp->set_buffer(province->name.get_string());
 
         auto* xchg_name_btn = new UI::Image(0, this->height - (64 + 24), 32, 32, gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
         xchg_name_btn->right_side_of(*rename_inp);

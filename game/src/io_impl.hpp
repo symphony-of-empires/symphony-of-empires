@@ -759,12 +759,12 @@ public:
         case TreatyClauseType::CEASEFIRE: {
             delete* obj;
             *obj = new TreatyClause::Ceasefire();
-            auto dyn_clause = (TreatyClause::Ceasefire*)*obj;
+            //auto dyn_clause = (TreatyClause::Ceasefire*)*obj;
         } break;
         case TreatyClauseType::PUPPET: {
             delete* obj;
             *obj = new TreatyClause::Puppet();
-            auto dyn_clause = (TreatyClause::Puppet*)*obj;
+            //auto dyn_clause = (TreatyClause::Puppet*)*obj;
         } break;
         default:
             break;
