@@ -35,6 +35,7 @@
 #include "unified_render/utils.hpp"
 #include "unified_render/decimal.hpp"
 #include "unified_render/log.hpp"
+#include "unified_render/assert.hpp"
 
 #include "server/lua_api.hpp"
 #include "world.hpp"
@@ -352,6 +353,7 @@ int LuaAPI::get_all_nations(lua_State* L) {
 
 int LuaAPI::get_provinces_owned_by_nation(lua_State* L) {
     const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
+    debug_assert(nation != nullptr);
     lua_newtable(L);
 
     size_t i = 0;
@@ -365,6 +367,7 @@ int LuaAPI::get_provinces_owned_by_nation(lua_State* L) {
 
 int LuaAPI::get_provinces_with_nucleus_by_nation(lua_State* L) {
     const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
+    debug_assert(nation != nullptr);
     lua_newtable(L);
 
     size_t i = 0;
@@ -393,24 +396,28 @@ int LuaAPI::set_nation_primary_culture(lua_State* L) {
 
 int LuaAPI::set_nation_capital(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
+    debug_assert(nation != nullptr);
     nation->capital = g_world->provinces.at(lua_tonumber(L, 2));
     return 0;
 }
 
 int LuaAPI::add_accepted_culture(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
+    debug_assert(nation != nullptr);
     nation->culture_discrim.at(lua_tonumber(L, 2)) = 1.f;
     return 0;
 }
 
 int LuaAPI::add_accepted_religion(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
+    debug_assert(nation != nullptr);
     nation->religion_discrim.at(lua_tonumber(L, 2)) = 1.f;
     return 0;
 }
 
 int LuaAPI::add_nation_client_hint(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
+    debug_assert(nation != nullptr);
 
     NationClientHint hint;
     hint.ideology = g_world->ideologies.at(lua_tonumber(L, 2));
@@ -423,6 +430,7 @@ int LuaAPI::add_nation_client_hint(lua_State* L) {
 
 int LuaAPI::get_nation_policies(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
+    debug_assert(nation != nullptr);
 
     // We are going to push everything in the policies structure
     // this is horrible - reflection may help in this case
@@ -466,6 +474,7 @@ int LuaAPI::get_nation_policies(lua_State* L) {
 
 int LuaAPI::set_nation_policies(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
+    debug_assert(nation != nullptr);
 
     // We are going to push everything in the policies structure
     // this is horrible - reflection may help in this case
@@ -509,15 +518,18 @@ int LuaAPI::set_nation_policies(lua_State* L) {
 
 int LuaAPI::set_nation_ideology(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
+    debug_assert(nation != nullptr);
     nation->ideology = g_world->ideologies.at(lua_tonumber(L, 2));
     return 0;
 }
 
 int LuaAPI::get_nation_relation(lua_State* L) {
-    Nation& nation = *g_world->nations.at(lua_tonumber(L, 1));
-    Nation& other_nation = *g_world->nations.at(lua_tonumber(L, 2));
+    Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
+    debug_assert(nation != nullptr);
+    Nation* other_nation = g_world->nations.at(lua_tonumber(L, 2));
+    debug_assert(other_nation != nullptr);
 
-    auto& relation = nation.relations[g_world->get_id(other_nation)];
+    auto& relation = nation->relations[g_world->get_id(*other_nation)];
     lua_pushnumber(L, (relation.relation));
     lua_pushnumber(L, (relation.interest));
     lua_pushboolean(L, relation.has_embargo);
@@ -648,20 +660,17 @@ int LuaAPI::add_province(lua_State* L) {
     for(size_t i = 0; i < g_world->provinces.size(); i++) {
         if(province->color == g_world->provinces[i]->color) {
             throw LuaAPI::Exception(province->ref_name + " province has same color as " + g_world->provinces[i]->ref_name);
-        }
-        else if(province->ref_name == g_world->provinces[i]->ref_name) {
+        } else if(province->ref_name == g_world->provinces[i]->ref_name) {
             throw LuaAPI::Exception("Duplicate ref_name " + province->ref_name);
         }
     }
 
-    province->products = std::vector<Product>(g_world->goods.size(), Product{});
+    province->products.resize(g_world->goods.size());
     province->products.shrink_to_fit();
-    province->buildings = std::vector<Building>(g_world->building_types.size(), Building{});
+    province->buildings.resize(g_world->building_types.size());
     province->buildings.shrink_to_fit();
     for(const auto& building_type : g_world->building_types) {
-        for(auto& input : building_type->inputs) {
-            province->buildings[g_world->get_id(*building_type)].stockpile.push_back(0);
-        }
+        province->buildings[g_world->get_id(*building_type)].stockpile.resize(building_type->inputs.size(), 0);
         province->buildings[g_world->get_id(*building_type)].stockpile.shrink_to_fit();
     }
 
@@ -678,6 +687,7 @@ int LuaAPI::add_province(lua_State* L) {
 
 int LuaAPI::update_province(lua_State* L) {
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
+    debug_assert(province != nullptr);
     province->ref_name = luaL_checkstring(L, 2);
     province->color = (bswap32(lua_tonumber(L, 3)) >> 8) | 0xff000000;
     province->name = luaL_checkstring(L, 4);
@@ -1297,6 +1307,7 @@ int call_func(lua_State* L, int nargs, int nret) {
 // Checks all events and their condition functions
 void LuaAPI::check_events(lua_State* L) {
     for(auto& event : g_world->events) {
+        debug_assert(event != nullptr);
         if(event->checked) {
             continue;
         }
@@ -1319,7 +1330,7 @@ void LuaAPI::check_events(lua_State* L) {
                 has_fired = true;
 
                 // Save the original event & momentarily replace it on the big world
-                auto* orig_event = new Event(*event);
+                auto orig_event = Event(*event);
 
                 // Call the "do event" function
                 UnifiedRender::Log::debug("event", "Event " + event->ref_name + " using " + event->do_event_function + " function");
@@ -1335,8 +1346,7 @@ void LuaAPI::check_events(lua_State* L) {
 
                 {
                     // The changes done to the event "locally" are then created into a new local event
-                    auto* local_event = new Event();
-                    *local_event = *event;
+                    auto local_event = new Event(*event);
                     local_event->cached_id = (Event::Id)-1;
                     local_event->ref_name = UnifiedRender::StringRef(local_event->ref_name + "_local_" + nation->ref_name);
 
@@ -1354,7 +1364,7 @@ void LuaAPI::check_events(lua_State* L) {
 
             restore_original:
                 // Original event then gets restored
-                *event = *orig_event;
+                *event = orig_event;
             }
         }
 

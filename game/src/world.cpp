@@ -41,6 +41,7 @@
 #include "unified_render/state.hpp"
 #include "unified_render/utils.hpp"
 #include "unified_render/locale.hpp"
+#include "unified_render/assert.hpp"
 
 #include "io_impl.hpp"
 #include "province.hpp"
@@ -412,9 +413,9 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
 void World::load_initial(void) {
     const std::vector<std::string> init_files = {
         "terrain_types", "good_types",
-        "ideologies", "cultures", "nations", "building_types",
-        "technology", "religions", "pop_types", "industry_types",
-        "unit_types", "boat_types", "provinces", "init"
+        "ideologies", "cultures", "building_types", "technology", "religions",
+        "pop_types", "industry_types", "unit_types", "boat_types",
+        "nations", "provinces", "init"
     };
     lua_exec_all_of(*this, init_files, "lua/entities");
 
@@ -809,14 +810,18 @@ void World::do_tick() {
     // Perform all battles of the active wars
     profiler.start("Battles");
     std::for_each(std::execution::par, wars.begin(), wars.end(), [this](auto& war) {
+        debug_assert(!war->attackers.empty() && !war->defenders.empty());
         for(auto i = 0; i < war->battles.size(); i++) {
             auto& battle = war->battles[i];
-            //assert(battle.province != nullptr);
+            debug_assert(battle.province != nullptr);
 
             // Attackers attack Defenders
             for(auto& attacker : battle.attackers) {
+                debug_assert(attacker != nullptr);
                 for(size_t i = 0; i < battle.defenders.size(); ) {
                     Unit* unit = battle.defenders[i];
+                    debug_assert(unit != nullptr);
+
                     const size_t prev_size = unit->size;
                     attacker->attack(*unit);
                     battle.defender_casualties += prev_size - unit->size;
@@ -837,8 +842,11 @@ void World::do_tick() {
 
             // Defenders attack attackers
             for(auto& defender : battle.defenders) {
+                debug_assert(defender != nullptr);
                 for(size_t i = 0; i < battle.attackers.size(); ) {
                     Unit* unit = battle.attackers[i];
+                    debug_assert(unit != nullptr);
+
                     const size_t prev_size = unit->size;
                     defender->attack(*unit);
                     battle.attacker_casualties += prev_size - unit->size;
@@ -877,7 +885,9 @@ void World::do_tick() {
     profiler.start("Research");
     // Now researches for every country are going to be accounted :)
     for(const auto& nation : nations) {
+        debug_assert(nation != nullptr);
         for(const auto& tech : technologies) {
+            debug_assert(tech != nullptr);
             if(!nation->can_research(tech)) {
                 continue;
             }
@@ -915,6 +925,8 @@ void World::do_tick() {
     profiler.start("Treaties");
     // Do the treaties clauses
     for(const auto& treaty : treaties) {
+        debug_assert(treaty != nullptr);
+
         // Check that the treaty is agreed by all parties before enforcing it
         bool on_effect = !(std::find_if(treaty->approval_status.begin(), treaty->approval_status.end(), [](auto& status) { return (status.second != TreatyApproval::ACCEPTED); }) != treaty->approval_status.end());
         if(!on_effect) {
@@ -929,6 +941,7 @@ void World::do_tick() {
         // Treaties clauses now will be enforced
         UnifiedRender::Log::debug("game", "Enforcing treaty " + treaty->name);
         for(auto& clause : treaty->clauses) {
+            debug_assert(clause != nullptr);
             if(clause->type == TreatyClauseType::MONEY) {
                 auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
                 if(!dyn_clause->in_effect()) {
