@@ -170,10 +170,6 @@ int LuaAPI::add_technology(lua_State* L) {
 
     g_world->insert(*technology);
     lua_pushnumber(L, g_world->technologies.size() - 1);
-
-    for(auto& nation : g_world->nations) {
-        nation->research.push_back(technology->cost);
-    }
     return 1;
 }
 
@@ -294,8 +290,16 @@ int LuaAPI::add_nation(lua_State* L) {
     nation->name = luaL_checkstring(L, 2);
     nation->ideology = g_world->ideologies.at(0);
 
-    nation->religion_discrim = std::vector<float>(g_world->religions.size(), 0.5f);
-    nation->culture_discrim = std::vector<float>(g_world->cultures.size(), 0.5f);
+    nation->religion_discrim.resize(g_world->religions.size(), 0.5f);
+    nation->religion_discrim.shrink_to_fit();
+    nation->culture_discrim.resize(g_world->cultures.size(), 0.5f);
+    nation->culture_discrim.shrink_to_fit();
+    nation->client_hints.resize(g_world->ideologies.size());
+    nation->client_hints.shrink_to_fit();
+    for(const auto& technology : g_world->technologies) {
+        nation->research.push_back(technology->cost);
+    }
+    nation->research.shrink_to_fit();
 
     // Check for duplicates
     for(size_t i = 0; i < g_world->nations.size(); i++) {
@@ -413,8 +417,7 @@ int LuaAPI::add_nation_client_hint(lua_State* L) {
     hint.alt_name = luaL_checkstring(L, 3);
     hint.color = bswap32(lua_tonumber(L, 4)) >> 8;
     hint.color |= 0xff000000;
-
-    nation->client_hints.push_back(hint);
+    nation->client_hints[g_world->get_id(*hint.ideology)] = hint;
     return 0;
 }
 
