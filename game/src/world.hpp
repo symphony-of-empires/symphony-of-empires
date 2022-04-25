@@ -91,7 +91,7 @@ public:
     inline size_t get_id(const type& ptr) const {\
         return ((ptrdiff_t)&ptr - (ptrdiff_t)&list[0]) / sizeof(type);\
     };\
-    inline void insert(const type& ptr) {\
+    inline void insert(type& ptr) {\
         auto& list = this->get_list(ptr);\
         ptr.cached_id = list.size();\
         list.push_back(ptr);\
@@ -144,7 +144,7 @@ public:
     LIST_FOR_TYPE(War, wars, std::vector);
 
     template<typename T>
-    inline void insert(const T& ptr) {
+    inline void insert(T& ptr) {
         auto& list = this->get_list(ptr);
         ptr.cached_id = list.size();
         list.push_back((T*)&ptr);
@@ -174,7 +174,7 @@ public:
         return ptr.cached_id;
     };
 
-    float get_dist_from_equator(float x) const {
+    inline float get_dist_from_equator(float x) const {
         return std::fabs(std::fabs(x) - (width / 2.0));
     };
 
