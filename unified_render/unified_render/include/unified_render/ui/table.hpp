@@ -83,18 +83,18 @@ namespace UI {
             if(_widths.size() != _header_labels.size()) {
                 throw std::runtime_error("Table width & header mismatched!");
             }
-            this->width = 20;
+            this->width = 35;
             for(size_t i = 0; i < _widths.size(); i++) {
                 this->width += _widths[i];
             }
 
-            auto* header = new TableRow(this, this->width, _row_height, this->columns_width);
+            auto* header = new TableRow(this, this->width - 35, _row_height, this->columns_width);
             for(size_t i = 0; i < _header_labels.size(); i++) {
                 auto& label = _header_labels[i];
                 auto* column = header->get_element(i);
                 column->text(label);
                 column->set_on_click([this, i](Widget&) {
-                    if(this->sorting_row == i) {
+                    if(this->sorting_row == (int)i) {
                         this->sorting_ascending = !this->sorting_ascending;
                     }
                     else {
@@ -112,10 +112,10 @@ namespace UI {
 
             auto wrapper = new UI::Div(0, _row_height, this->width, this->height-row_height, this);
             wrapper->is_scroll = true;
-            this->column_wrapper = new UI::Div(0, _row_height, this->width, 0, wrapper);
+            this->column_wrapper = new UI::Div(0, 0, this->width - 25, 0, wrapper);
             this->column_wrapper->flex = UI::Flex::COLUMN;
             this->column_wrapper->flex_justify = UI::FlexJustify::START;
-            this->scrollbar = new UI::Scrollbar(this->width - 20, _row_height, 20, this->height, wrapper);
+            this->scrollbar = new UI::Scrollbar(this->width - 20, 0, 20, this->height-row_height, wrapper);
         }
         virtual ~Table() override {};
 
@@ -125,7 +125,7 @@ namespace UI {
 
         TableRow* get_row(T _row_id) {
             if(!this->rows.count(_row_id)) {
-                auto* row = new TableRow(this->column_wrapper, this->width, this->row_height, this->columns_width);
+                auto* row = new TableRow(this->column_wrapper, this->width - 25, this->row_height, this->columns_width);
                 this->rows.insert({ _row_id, row });
             }
             auto row =this->rows[_row_id];
