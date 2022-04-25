@@ -30,11 +30,13 @@
 #include "unified_render/string_format.hpp"
 #include "unified_render/locale.hpp"
 #include "unified_render/ui/table.hpp"
+#include "unified_render/ui/label.hpp"
+#include "unified_render/ui/image.hpp"
 
 using namespace Interface;
 
 PopWindow::PopWindow(GameState& gs)
-	: UI::Window(-400, -400, 800, 800),
+	: UI::Window(-400, -400, 0, 800),
 	gs{ gs }
 {
 	this->origin = UI::Origin::CENTER_SCREEN;
@@ -48,20 +50,19 @@ PopWindow::PopWindow(GameState& gs)
 		size += prov->pops.size();
 	}
 
-	std::vector<int> sizes{ 75, 200, 100, 100, 35, 50, 50, 50, 70 };
+	std::vector<int> sizes{ 75, 200, 100, 100, 120, 50, 50, 70, 70 };
 	std::vector<std::string> header{ "Size", "Province", "Type", "Culture", "Religion", "Mil", "Con", "Lit", "Budget" };
-	auto table = new UI::Table<uint64_t>(5, 5, 800-10, 500, 35, sizes, header, this);
+	auto table = new UI::Table<uint64_t>(5, 5, 800-10, 800-5, 35, sizes, header, this);
+	this->width = table->width + 5 + this->padding.x;
 	table->reserve(size);
 	table->on_each_tick = [nation, table](Widget&) {
 		for(auto prov : nation.owned_provinces) {
 			uint16_t prov_id = prov->cached_id;
 			for(auto& pop : prov->pops) {
 				u_int64_t id = pop.get_type_id();
-				id += prov_id << 32;
+				id += (uint64_t)prov_id << 32;
 				auto* row = table->get_row(id);
 				size_t row_index = 0;
-
-				auto tex_man = UnifiedRender::State::get_instance().tex_man;
 
 				auto size = row->get_element(row_index++);
 				auto size_str = UnifiedRender::string_format("%.0f", pop.size);
@@ -82,11 +83,12 @@ PopWindow::PopWindow(GameState& gs)
 				culture->set_key(culture_str);
 
 				auto religion = row->get_element(row_index++);
-				auto religion_icon = tex_man->load(Path::get("gfx/religion/" + pop.religion->ref_name + ".png"));
-				religion->current_texture = religion_icon;
-				auto religion_tip = UnifiedRender::Locale::translate(pop.religion->name);
-				religion->set_tooltip(religion_tip);
-				religion->set_key(religion_tip);
+                religion->flex = UI::Flex::ROW;
+				religion->flex_justify = UI::FlexJustify::END;
+				auto religion_str = UnifiedRender::Locale::translate(pop.religion->name);
+				new UI::Label(0, 0, religion_str, religion);
+				new UI::Image(0, 0, 35, 35, "gfx/religion/" + pop.religion->ref_name + ".png", true, religion);
+				religion->set_key(religion_str);
 
 				auto militancy = row->get_element(row_index++);
 				militancy->text(UnifiedRender::string_format("%1.2f", pop.militancy));
