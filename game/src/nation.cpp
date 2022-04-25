@@ -355,29 +355,7 @@ void Nation::control_province(Province& province) {
 }
 
 const NationClientHint& Nation::get_client_hint(void) {
-    // Find match
-    for(const auto& hint : client_hints) {
-        if(hint.ideology == ideology) {
-            return hint;
-        }
-    }
-
-    // 2nd search: Find a hint that is fallback
-    for(const auto& hint : client_hints) {
-        if(hint.ideology == nullptr) {
-            return hint;
-        }
-    }
-
-    if(client_hints.empty()) {
-        NationClientHint tmp_hint;
-        tmp_hint.color = rand();
-        tmp_hint.alt_name = this->ref_name + "_MISSING_CLIENTHINT";
-        tmp_hint.ideology = World::get_instance().ideologies[0];
-        client_hints.push_back(tmp_hint);
-        return client_hints[0];
-    }
-    return client_hints[0];
+    return this->client_hints[g_world->get_id(*this->ideology)];
 }
 
 UnifiedRender::Decimal Nation::get_research_points(void) const {
