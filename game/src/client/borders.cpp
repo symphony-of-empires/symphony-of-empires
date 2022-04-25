@@ -23,8 +23,6 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "client/borders.hpp"
-
 #include <unordered_set>
 #include <stack>
 
@@ -33,8 +31,9 @@
 #include "unified_render/state.hpp"
 #include "unified_render/curve.hpp"
 #include "unified_render/shader.hpp"
-#include "client/camera.hpp"
 
+#include "client/borders.hpp"
+#include "client/camera.hpp"
 #include "glm/mat4x4.hpp"
 
 Borders::Borders() {

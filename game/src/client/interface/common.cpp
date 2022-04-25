@@ -54,9 +54,9 @@ UnitButton::UnitButton(GameState& _gs, int x, int y, Unit* _unit, UI::Widget* pa
     gs{ _gs },
     unit{ _unit }
 {
-    this->text(std::to_string(this->unit->size) + " " + this->unit->type->name);
+    this->text(std::to_string(this->unit->size) + " " + this->unit->type->name.get_string());
     this->on_each_tick = ([this](UI::Widget& w) {
-        w.text(std::to_string(this->unit->size) + " " + UnifiedRender::Locale::translate(this->unit->type->name));
+        w.text(std::to_string(this->unit->size) + " " + UnifiedRender::Locale::translate(this->unit->type->name.get_string()));
     });
 }
 
@@ -72,7 +72,7 @@ UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType* _unit_typ
 
     this->name_btn = new UI::Button(0, 0, this->width - 32, 24, this);
     this->name_btn->right_side_of(*this->icon_img);
-    this->name_btn->text(this->unit_type->name);
+    this->name_btn->text(this->unit_type->name.get_string());
 }
 
 ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province* _province, UI::Widget* parent)
@@ -80,13 +80,12 @@ ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province* _province
     gs{ _gs },
     province{ _province }
 {
-    text(province->name);
-    on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<ProvinceButton&>(w);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+    this->text(province->name.get_string());
+    this->on_each_tick = ([this](UI::Widget& w) {
+        if(this->gs.world->time % this->gs.world->ticks_per_month) {
             return;
         }
-        w.text(o.province->name);
+        w.text(this->province->name.get_string());
     });
 }
 
@@ -108,13 +107,13 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
 
     this->name_btn = new UI::Button(0, 0, this->width - 32, 24, this);
     this->name_btn->right_side_of(*this->flag_icon);
-    this->name_btn->text(nation->get_client_hint().alt_name);
+    this->name_btn->text(nation->get_client_hint().alt_name.get_string());
     this->name_btn->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<NationButton&>(*w.parent);
         if(o.gs.world->time % o.gs.world->ticks_per_month) {
             return;
         }
-        w.text(UnifiedRender::Locale::translate(o.nation->get_client_hint().alt_name));
+        w.text(UnifiedRender::Locale::translate(o.nation->get_client_hint().alt_name.get_string()));
     });
 }
 
@@ -127,7 +126,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province* _province, un
     is_scroll = false;
 
     const BuildingType& building_type = *gs.world->building_types[idx];
-    auto* name_btn = new UI::Label(0, 0, building_type.name, this);
+    auto* name_btn = new UI::Label(0, 0, building_type.name.get_string(), this);
 
     unsigned int dx = 0;
     if(!building_type.inputs.empty()) {
@@ -142,7 +141,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province* _province, un
                 new GoodView(o.gs, good);
             });
             icon_ibtn->set_tooltip(new UI::Tooltip(icon_ibtn, 512, 24));
-            icon_ibtn->tooltip->text(good->name);
+            icon_ibtn->tooltip->text(good->name.get_string());
             dx += icon_ibtn->width;
         }
     }
@@ -165,7 +164,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province* _province, un
             new GoodView(o.gs, good);
         });
         icon_ibtn->set_tooltip(new UI::Tooltip(icon_ibtn, 512, 24));
-        icon_ibtn->tooltip->text(good->name);
+        icon_ibtn->tooltip->text(good->name.get_string());
         dx += icon_ibtn->width;
     }
 
@@ -183,7 +182,7 @@ BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, BuildingTyp
     gs{ _gs },
     building_type{_building_type}
 {
-    text(building_type->name);
+    this->text(building_type->name.get_string());
 }
 
 TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _technology, UI::Widget* parent)
@@ -191,10 +190,10 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _techno
     gs{ _gs },
     technology{ _technology }
 {
-    is_scroll = false;
+    this->is_scroll = false;
 
     auto* chk = new UI::Checkbox(0, 0, 128, 24, this);
-    chk->text(technology->name);
+    chk->text(technology->name.get_string());
     chk->tooltip = new UI::Tooltip(chk, 512, 24);
     chk->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<TechnologyInfo&>(*w.parent);
@@ -211,7 +210,7 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _techno
             text = UnifiedRender::Locale::translate("We can't research this because we don't have ");
             for(const auto& req_tech : o.technology->req_technologies) {
                 if(o.gs.curr_nation->research[o.gs.world->get_id(*req_tech)] > 0.f) {
-                    text += UnifiedRender::Locale::translate(req_tech->name) + ", ";
+                    text += UnifiedRender::Locale::translate(req_tech->name.get_string()) + ", ";
                 }
             }
             w.tooltip->text(text);
@@ -269,9 +268,9 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
         o.budget_btn->text(std::to_string(pop.budget / pop.size));
         o.budget_btn->tooltip->text(UnifiedRender::Locale::translate("A total budget of") + " " + std::to_string(pop.budget));
         o.religion_ibtn->current_texture = o.gs.tex_man->load(Path::get("gfx/religion/" + pop.religion->ref_name + ".png"));
-        o.religion_ibtn->tooltip->text(UnifiedRender::Locale::translate(pop.religion->name));
+        o.religion_ibtn->tooltip->text(UnifiedRender::Locale::translate(pop.religion->name.get_string()));
         o.culture_ibtn->current_texture = o.gs.tex_man->load(Path::get("gfx/noicon.png"));
-        o.culture_ibtn->tooltip->text(UnifiedRender::Locale::translate(pop.culture->name));
+        o.culture_ibtn->tooltip->text(UnifiedRender::Locale::translate(pop.culture->name.get_string()));
     });
     this->on_each_tick(*this);
 }
@@ -290,7 +289,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province* _province, Good
         new GoodView(o.gs, o.good);
     });
     this->good_ibtn->set_tooltip(new UI::Tooltip(this->good_ibtn, 512, 24));
-    this->good_ibtn->tooltip->text(UnifiedRender::Locale::translate(good->name));
+    this->good_ibtn->tooltip->text(UnifiedRender::Locale::translate(good->name.get_string()));
 
     this->price_rate_btn = new UI::Button(0, 0, 96, 24, this);
     this->price_rate_btn->right_side_of(*this->good_ibtn);

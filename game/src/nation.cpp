@@ -76,7 +76,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
 
     UnifiedRender::Log::debug("game", "Attackers");
     for(const auto& attacker : war->attackers) {
-        UnifiedRender::Log::debug("game", attacker->ref_name);
+        UnifiedRender::Log::debug("game", attacker->ref_name.get_string());
     }
 
     // Recollect defenders
@@ -125,7 +125,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
 
     UnifiedRender::Log::debug("game", "Defenders");
     for(const auto& defender : war->defenders) {
-        UnifiedRender::Log::debug("game", defender->ref_name);
+        UnifiedRender::Log::debug("game", defender->ref_name.get_string());
     }
 
     war->name = "War of " + this->name + " against " + nation.name;

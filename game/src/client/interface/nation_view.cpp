@@ -64,7 +64,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
 {
     this->is_scroll = false;
     this->on_each_tick = ([this](UI::Widget& w) {
-        w.text(this->nation->get_client_hint().alt_name);
+        w.text(this->nation->get_client_hint().alt_name.get_string());
     });
     this->on_each_tick(*this);
 
@@ -83,7 +83,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
 
     auto* name_lab = new UI::Label(0, 0, "?", flex_actions_column);
     name_lab->on_each_tick = ([this](UI::Widget& w) {
-        w.text(this->nation->get_client_hint().alt_name);
+        w.text(this->nation->get_client_hint().alt_name.get_string());
     });
     name_lab->on_each_tick(*name_lab);
     name_lab->tooltip = new UI::Tooltip(name_lab, 512, 24);
@@ -91,7 +91,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
 
     auto* ideology_lab = new UI::Label(0, 0, "?", flex_actions_column);
     ideology_lab->on_each_tick = ([this](UI::Widget& w) {
-        w.text(this->nation->get_client_hint().ideology->name);
+        w.text(this->nation->get_client_hint().ideology->name.get_string());
     });
     ideology_lab->on_each_tick(*ideology_lab);
     ideology_lab->tooltip = new UI::Tooltip(ideology_lab, 512, 24);

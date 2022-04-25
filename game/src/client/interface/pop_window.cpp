@@ -70,22 +70,22 @@ PopWindow::PopWindow(GameState& gs)
 				size->set_key(pop.size);
 
 				auto prov_name = row->get_element(row_index++);
-				prov_name->text(prov->name);
-				prov_name->set_key(prov->name);
+				prov_name->text(prov->name.get_string());
+				prov_name->set_key(prov->name.get_string());
 
 				auto type = row->get_element(row_index++);
-				type->text(pop.type->name);
-				type->set_key(pop.type->name);
+				type->text(pop.type->name.get_string());
+				type->set_key(pop.type->name.get_string());
 
 				auto culture = row->get_element(row_index++);
-				auto culture_str = UnifiedRender::Locale::translate(pop.culture->name);
+				auto culture_str = UnifiedRender::Locale::translate(pop.culture->name.get_string());
 				culture->text(culture_str);
 				culture->set_key(culture_str);
 
 				auto religion = row->get_element(row_index++);
                 religion->flex = UI::Flex::ROW;
 				religion->flex_justify = UI::FlexJustify::END;
-				auto religion_str = UnifiedRender::Locale::translate(pop.religion->name);
+				auto religion_str = UnifiedRender::Locale::translate(pop.religion->name.get_string());
 				new UI::Label(0, 0, religion_str, religion);
 				new UI::Image(0, 0, 35, 35, "gfx/religion/" + pop.religion->ref_name + ".png", true, religion);
 				religion->set_key(religion_str);

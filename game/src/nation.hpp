@@ -34,6 +34,7 @@
 #include <vector>
 
 #include "unified_render/entity.hpp"
+#include "unified_render/string.hpp"
 
 #include "policy.hpp"
 #include "province.hpp"
@@ -41,6 +42,7 @@
 #include "event.hpp"
 #include "ideology.hpp"
 #include "pop.hpp"
+
 class Technology;
 
 // Defines a one side relation between a country
@@ -70,7 +72,7 @@ public:
     uint32_t color;
 
     // Alternate name, for example communist Russia would be called USSR
-    std::string alt_name;
+    UnifiedRender::StringRef alt_name;
 
     // Ideology to which this hint applies to (nullptr = default fallback)
     Ideology* ideology;
