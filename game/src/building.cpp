@@ -55,10 +55,7 @@ Building::~Building() {
 // Adds a good by id to a building stockpile
 void Building::add_to_stock(const Good& good, const size_t add) {
     const World& world = World::get_instance();
-    for(size_t i = 0; i < stockpile.size(); i++) {
-        stockpile[i] += add;
-        break;
-    }
+    stockpile[world.get_id(good)] += add;
 }
 
 // Checks if the building can produce output (if it has enough input)

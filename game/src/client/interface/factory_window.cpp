@@ -84,7 +84,7 @@ void make_building_row(UI::Div* table, Building& building, BuildingType* type, P
 	auto border = UI::Border(border_tex, size, texture_size);
 
 	auto name_lab = new UI::Div(0, 0, 150, 35, row);
-	name_lab->text(type->name);
+	name_lab->text(type->name.get_string());
 	name_lab->border = border;
 
 	auto workers_lab = new UI::Div(0, 0, 100, 35, row);
@@ -92,7 +92,7 @@ void make_building_row(UI::Div* table, Building& building, BuildingType* type, P
 	workers_lab->border = border;
 
 	auto province_lab = new UI::Div(0, 0, 200, 35, row);
-	province_lab->text(province->name);
+	province_lab->text(province->name.get_string());
 	province_lab->border = border;
 
 	auto input_div = new UI::Div(0, 0, 150, 35, row);
@@ -102,14 +102,14 @@ void make_building_row(UI::Div* table, Building& building, BuildingType* type, P
 
 	for(auto good : type->inputs) {
 		auto input_good_image = new UI::Image(0, 0, 35, 35, "gfx/good/" + good->ref_name + ".png", true, input_div);
-		input_good_image->set_tooltip(good->name);
+		input_good_image->set_tooltip(good->name.get_string());
 	}
 
 	auto output = type->output;
 	auto output_div = new UI::Div(0, 0, 35, 35, row);
 	output_div->border = border;
 	auto output_good_image = new UI::Image(0, 0, 35, 35, "gfx/good/" + output->ref_name + ".png", true, output_div);
-	output_good_image->set_tooltip(output->name);
+	output_good_image->set_tooltip(output->name.get_string());
 
 	auto production_scale_lab = new UI::Div(0, 0, 50, 35, row);
 	production_scale_lab->text(UnifiedRender::string_format("%1.2f", building.production_scale));

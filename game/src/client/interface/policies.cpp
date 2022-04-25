@@ -70,7 +70,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
 
         // TODO: More dynamic names
         if(o.gs.curr_nation->ideology != nullptr) {
-            w.text(o.gs.curr_nation->ideology->name);
+            w.text(o.gs.curr_nation->ideology->name.get_string());
         }
     });
     ideology_lab->on_each_tick(*ideology_lab);
@@ -86,7 +86,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
 
         std::vector<UI::ChartData> ideology_data;
         for(const auto& ideology : o.gs.world->ideologies) {
-            ideology_data.push_back(UI::ChartData(1.f, ideology->name, ideology->color));
+            ideology_data.push_back(UI::ChartData(1.f, ideology->name.get_string(), ideology->color));
         }
         ((UI::PieChart&)w).set_data(ideology_data);
     });
