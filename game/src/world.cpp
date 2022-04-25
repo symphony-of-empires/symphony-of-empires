@@ -256,9 +256,9 @@ World::World() {
             Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
             std::string member = luaL_checkstring(L, 2);
             if(member == "ref_name") {
-                (*ideology)->ref_name = luaL_checkstring(L, 3);
+                (*ideology)->ref_name = UnifiedRender::StringRef(luaL_checkstring(L, 3));
             } else if(member == "name") {
-                (*ideology)->name = luaL_checkstring(L, 3);
+                (*ideology)->name = UnifiedRender::StringRef(luaL_checkstring(L, 3));
             }
             UnifiedRender::Log::debug("lua", "__newindex?");
             return 0;
@@ -271,8 +271,8 @@ World::World() {
             *ideology = new Ideology();
             luaL_setmetatable(L, "Ideology");
 
-            (*ideology)->ref_name = luaL_checkstring(L, 1);
-            (*ideology)->name = luaL_optstring(L, 2, (*ideology)->ref_name.c_str());
+            (*ideology)->ref_name = UnifiedRender::StringRef(luaL_checkstring(L, 1));
+            (*ideology)->name = UnifiedRender::StringRef(luaL_optstring(L, 2, (*ideology)->ref_name.c_str()));
 
             UnifiedRender::Log::debug("lua", "__new?");
             return 1;
@@ -285,7 +285,7 @@ World::World() {
             return 0;
         }},
         { "get", [](lua_State* L) {
-            const std::string ref_name = lua_tostring(L, 1);
+            const std::string ref_name = UnifiedRender::StringRef(lua_tostring(L, 1)).get_string();
             auto result = std::find_if(g_world->ideologies.begin(), g_world->ideologies.end(),
             [&ref_name](const auto& o) { return (o->ref_name == ref_name); });
             if(result == g_world->ideologies.end())
@@ -459,7 +459,7 @@ void World::load_initial(void) {
 
     uint32_t checksum = 1;
     for(auto& province : provinces) {
-        checksum += province->ref_name.at(0);
+        checksum += province->ref_name.get_string().at(0);
     }
     checksum *= width * height * provinces.size();
     bool recalc_province = true;

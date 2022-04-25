@@ -25,11 +25,12 @@
 
 #pragma once
 
+#include "unified_render/ui/window.hpp"
+#include "unified_render/ui/button.hpp"
+
 #include "nation.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
-#include "unified_render/ui/window.hpp"
-#include "unified_render/ui/button.hpp"
 
 namespace Interface {
     class DecisionWindow: public UI::Window {

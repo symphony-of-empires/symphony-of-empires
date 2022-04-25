@@ -26,6 +26,7 @@
 #pragma once
 
 #include <string>
+#include "unified_render/string.hpp"
 
 // An entity which can only be made referenced by an id
 template<typename IdType>
@@ -42,12 +43,13 @@ public:
 template<typename IdType>
 class IdEntity : public Entity<IdType> {
 public:
+    
 };
 
 // An entity which can be referenced via a ref_name and also via id
 template<typename IdType>
 class RefnameEntity : public IdEntity<IdType> {
 public:
-    std::string ref_name;
-    std::string name;
+    UnifiedRender::StringRef ref_name;
+    UnifiedRender::StringRef name;
 };

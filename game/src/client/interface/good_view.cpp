@@ -54,7 +54,7 @@ ProductView::ProductView(GameState& _gs, Product* _product)
 
         std::vector<UI::ChartData> nations_data;
         for(const auto& nation : o.gs.world->nations) {
-            nations_data.push_back(UI::ChartData(0.f, nation->get_client_hint().alt_name, nation->get_client_hint().color));
+            nations_data.push_back(UI::ChartData(0.f, nation->get_client_hint().alt_name.get_string(), nation->get_client_hint().color));
         }
 
         // TODO: Account for products that are based on this good on every province
@@ -125,7 +125,7 @@ GoodView::GoodView(GameState& _gs, Good* _good)
     unsigned int i;
 
     this->is_scroll = false;
-    this->text(UnifiedRender::Locale::translate(good->name));
+    this->text(UnifiedRender::Locale::translate(good->name.get_string()));
 
     this->icon_img = new UI::Image(0, 0, 128, 96, this->gs.tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
 
@@ -140,7 +140,7 @@ GoodView::GoodView(GameState& _gs, Good* _good)
 
         std::vector<UI::ChartData> nations_data;
         for(const auto& nation : o.gs.world->nations) {
-            nations_data.push_back(UI::ChartData(0.f, nation->get_client_hint().alt_name, nation->get_client_hint().color));
+            nations_data.push_back(UI::ChartData(0.f, nation->get_client_hint().alt_name.get_string(), nation->get_client_hint().color));
         }
 
         // TODO: Account for products that are based on this good
@@ -189,7 +189,7 @@ GoodView::GoodView(GameState& _gs, Good* _good)
         auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man->load(Path::get("gfx/production.png")), this);
         icon_ibtn->below_of(*avg_price_chart);
         icon_ibtn->set_tooltip(new UI::Tooltip(icon_ibtn, 512, 24));
-        icon_ibtn->tooltip->text(building_type->name);
+        icon_ibtn->tooltip->text(building_type->name.get_string());
         dx += icon_ibtn->width;
     }
 
@@ -206,7 +206,7 @@ GoodView::GoodView(GameState& _gs, Good* _good)
         auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man->load(Path::get("gfx/production.png")), this);
         icon_ibtn->below_of(*avg_price_chart);
         icon_ibtn->set_tooltip(new UI::Tooltip(icon_ibtn, 512, 24));
-        icon_ibtn->tooltip->text(building_type->name);
+        icon_ibtn->tooltip->text(building_type->name.get_string());
         dx += icon_ibtn->width;
     }
 

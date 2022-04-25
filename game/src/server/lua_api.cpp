@@ -1332,12 +1332,11 @@ void LuaAPI::check_events(lua_State* L) {
 
                 {
                     // The changes done to the event "locally" are then created into a new local event
-                    auto* local_event = new Event(*event);
+                    auto* local_event = new Event();
+                    *local_event = *event;
                     local_event->cached_id = (Event::Id)-1;
-                    local_event->ref_name += "_local_";
-                    for(unsigned int j = 0; j < 4; j++) {
-                        local_event->ref_name += 'A' + (std::rand() % 26);
-                    }
+                    local_event->ref_name = UnifiedRender::StringRef(local_event->ref_name + "_local_" + nation->ref_name);
+
                     // Do not relaunch a local event
                     local_event->checked = true;
                     if(local_event->decisions.empty()) {
