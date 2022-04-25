@@ -52,7 +52,7 @@ template<typename T>
 const T* find_or_throw(const std::string& ref_name) {
     const T* obj_to_find = nullptr;
 
-    const auto& list = World::get_instance().get_list(*obj_to_find);
+    const auto& list = World::get_instance().get_list((T*)nullptr);
     const auto result = std::find_if(list.begin(), list.end(), [&ref_name](const auto& o) {
         return (o->ref_name == ref_name);
     });

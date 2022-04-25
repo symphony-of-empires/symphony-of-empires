@@ -73,32 +73,32 @@ public:
 
 // Create a new list from a type, with helper functions
 #define LIST_FOR_TYPE(type, list, list_type)\
-    inline const list_type<type*>& get_list(const type&) const {\
+    inline const list_type<type*>& get_list(const type* = nullptr) const {\
         return list;\
     };\
-    inline list_type<type*>& get_list(const type&) {\
+    inline list_type<type*>& get_list(const type* = nullptr) {\
         return list;\
     };\
     list_type<type*> list;
 
 #define LIST_FOR_LOCAL_TYPE(type, list, list_type)\
-    inline const list_type<type>& get_list(const type&) const {\
+    inline const list_type<type>& get_list(const type* = nullptr) const {\
         return list;\
     };\
-    inline list_type<type>& get_list(const type&) {\
+    inline list_type<type>& get_list(const type* = nullptr) {\
         return list;\
     };\
     inline size_t get_id(const type& ptr) const {\
         return ((ptrdiff_t)&ptr - (ptrdiff_t)&list[0]) / sizeof(type);\
     };\
     inline void insert(type& ptr) {\
-        auto& list = this->get_list(ptr);\
+        auto& list = this->get_list((type*)nullptr);\
         ptr.cached_id = list.size();\
         list.push_back(ptr);\
     };\
     inline void remove(type& ptr) {\
         type::Id cached_id = this->get_id<type>(ptr);\
-        auto& list = this->get_list(ptr);\
+        auto& list = this->get_list((type*)nullptr);\
         for(type::Id i = cached_id + 1; i < list.size(); i++) {\
             list[i].cached_id--;\
         }\
@@ -145,7 +145,7 @@ public:
 
     template<typename T>
     inline void insert(T& ptr) {
-        auto& list = this->get_list(ptr);
+        auto& list = this->get_list((T*)nullptr);
         ptr.cached_id = list.size();
         list.push_back((T*)&ptr);
     };
@@ -154,7 +154,7 @@ public:
     inline void remove(T& ptr) {
         // Decrease the cache_id counter for the elements after the removed element
         typename T::Id cached_id = this->get_id<T>(ptr);
-        auto& list = this->get_list(ptr);
+        auto& list = this->get_list((T*)nullptr);
         for(typename T::Id i = cached_id + 1; i < list.size(); i++) {
             list[i]->cached_id--;
         }
@@ -169,6 +169,9 @@ public:
 
     // Template for all types except for tiles (we can do this because we can
     // obtain the list from the type) with get_list helper functions
+    // Please do not store the value of this function on a local variable
+    // because said variable COULD potentially get invalidated!, AND DO NOT
+    // PASS IDS AS AN ARGUMENT TO FUNCTIONS, use pointers/references instead!
     template<typename T>
     inline typename T::Id get_id(const T& ptr) const {
         return ptr.cached_id;
