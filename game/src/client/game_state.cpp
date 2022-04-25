@@ -337,10 +337,10 @@ void save(GameState& gs) {
 
                 // And if it exceeds 999,999 people, downsize it
                 if(it->size > 999999.f) {
-                    it->size = 100.f;
+                    it->size = 10110.f;
                 }
-                if(it->literacy > 999999.f) {
-                    it->literacy = 100.f;
+                if(it->literacy > 1.f) {
+                    it->literacy = std::min<float>(it->literacy * 0.001f, 1.f);
                 }
 
                 it++;

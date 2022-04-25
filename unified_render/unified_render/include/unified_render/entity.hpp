@@ -37,7 +37,7 @@ public:
     // Id used to speed up Id lookups on any context
     // NOTE: This depends that the container is sequential (as if it was
     // a contigous array) - Otherwise this optimization **WILL** break
-    mutable Id cached_id = (Id)-1;
+    Id cached_id = (Id)-1;
 };
 
 template<typename IdType>
