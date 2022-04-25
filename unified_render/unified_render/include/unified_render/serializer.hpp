@@ -310,11 +310,11 @@ public:
     static inline void deserialize(Archive& stream, T** obj) {
         typename T::Id id;
         ::deserialize(stream, &id);
-        if(id >= W::get_instance().get_list(**obj).size()) {
+        if(id >= W::get_instance().get_list((T*)nullptr).size()) {
             *obj = nullptr;
             return;
         }
-        *obj = (id != (typename T::Id)-1) ? W::get_instance().get_list(**obj)[id] : nullptr;
+        *obj = (id != (typename T::Id)-1) ? W::get_instance().get_list((T*)nullptr)[id] : nullptr;
     };
 };
 
