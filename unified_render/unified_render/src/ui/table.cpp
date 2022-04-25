@@ -82,6 +82,24 @@ TableRow::TableRow(Widget* _parent, int _width, int _height, std::vector<int>& _
     this->on_update = [this](Widget&) {
         this->is_active = false;
     };
+    
+    glm::ivec2 size(5, 5);
+    glm::ivec2 texture_size(63, 63);
+    auto border = UI::Border(nullptr, size, texture_size);
+    this->border = border;
+    this->on_pos_recalc = [this](Widget&, int index) {
+        auto tex_man = UnifiedRender::State::get_instance().tex_man;
+        UnifiedRender::TextureOptions tex_options{};
+        tex_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+        tex_options.mag_filter = GL_LINEAR;
+        auto border_tex = tex_man->load(Path::get("gfx/test.png"), tex_options);
+        if(index % 2 == 0) {
+            this->border.texture = border_tex;
+        }
+        else {
+            this->border.texture = nullptr;
+        }
+    };
 }
 
 TableElement* TableRow::get_element(size_t index) {

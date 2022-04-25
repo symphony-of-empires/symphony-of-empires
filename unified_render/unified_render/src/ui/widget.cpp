@@ -62,7 +62,8 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
         x += parent->padding.x;
         y += parent->padding.y;
         parent->add_child(this);
-    } else {
+    }
+    else {
         // Add the widget to the context in each construction without parent
         g_ui_context->add_widget(this);
     }
@@ -82,7 +83,8 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
         x += parent->padding.x;
         y += parent->padding.y;
         parent->add_child(this);
-    } else {
+    }
+    else {
         // Add the widget to the context in each construction without parent
         g_ui_context->add_widget(this);
     }
@@ -244,6 +246,17 @@ void Widget::draw_border(Border& border, UnifiedRender::Rect viewport) {
     pos_rect.right = width;
     tex_rect.right = 1.f;
     draw_rect(tex, pos_rect, tex_rect, viewport);
+
+    // Middle
+    pos_rect.left = x_offset + b_w;
+    tex_rect.left = b_tex_w / border_tex->width;
+    pos_rect.right = width - b_w;
+    tex_rect.right = (border_tex->width - b_tex_w) / border_tex->width;
+    pos_rect.top = y_offset + b_h;
+    tex_rect.top = b_tex_h / border_tex->height;
+    pos_rect.bottom = height - b_h;
+    tex_rect.bottom = (border_tex->height - b_tex_h) / border_tex->height;
+    draw_rect(tex, pos_rect, tex_rect, viewport);
 }
 
 // Draw a simple quad
@@ -323,13 +336,15 @@ void Widget::on_render(Context& ctx, UnifiedRender::Rect viewport) {
         int y_offset = text_offset_y;
         if(text_align_x == UI::Align::CENTER) {
             x_offset = (width - text_texture->width) / 2;
-        } else if(text_align_x == UI::Align::END) {
+        }
+        else if(text_align_x == UI::Align::END) {
             x_offset = width - text_texture->width;
         }
 
         if(text_align_y == UI::Align::CENTER) {
             y_offset = (height - text_texture->height) / 2;
-        } else if(text_align_y == UI::Align::END) {
+        }
+        else if(text_align_y == UI::Align::END) {
             y_offset = height - text_texture->height;
         }
         draw_rectangle(x_offset, y_offset, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
@@ -384,7 +399,8 @@ void Widget::recalc_child_pos() {
         break;
     case FlexJustify::END:
         current_lenght = is_row ? width : height;
-        for(auto& child : children) {
+        for(int i = children.size() - 1; i >= 0; i--) {
+            auto& child = children[i];
             if(child->is_pinned) continue;
             if(is_row) {
                 child->x = current_lenght - child->width - flex_gap;
@@ -465,6 +481,15 @@ void Widget::recalc_child_pos() {
         }
         break;
     }
+    int child_index = 0;
+    for(auto& child : children) {
+        if(!child->is_pinned) {
+            if(child->on_pos_recalc) {
+                child->on_pos_recalc(*child, child_index);
+            }
+            child_index++;
+        }
+    }
 }
 
 void Widget::add_child(UI::Widget* child) {
@@ -485,7 +510,7 @@ static inline unsigned int power_two_floor(const unsigned int val) {
 }
 
 void Widget::text(const std::string& _text) {
-    if (this->text_str == _text) {
+    if(this->text_str == _text) {
         return;
     }
     text_str = _text;
@@ -514,7 +539,7 @@ void Widget::set_tooltip(const std::string& text) {
     if(text.empty()) {
         return;
     }
-    this->set_tooltip(new UI::Tooltip(this, std::min<unsigned int>(text.size() * 12, 512), ((text.size() * 12) / 512) * 24 ));
+    this->set_tooltip(new UI::Tooltip(this, std::min<unsigned int>(text.size() * 12, 512), ((text.size() * 12) / 512) * 24));
     this->tooltip->text(text);
 }
 
