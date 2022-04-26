@@ -58,7 +58,8 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
 
         // So our formula would be:
         // Sucess = Sum(Demand / (Supply + 1) * Price)
-        std::vector<UnifiedRender::Decimal> avg_prob = std::vector<UnifiedRender::Decimal>(world->goods.size(), 0.f);
+        auto avg_prob = std::vector<UnifiedRender::Decimal>(world->goods.size(), 0.f);
+        avg_prob.shrink_to_fit();
         for(const auto& province : nation->owned_provinces) {
             for(const auto& good : world->goods) {
                 const Product& product = province->products[world->get_id(*good)];

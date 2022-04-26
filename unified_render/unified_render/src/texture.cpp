@@ -87,8 +87,8 @@ void UnifiedRender::Texture::to_opengl(TextureOptions options) {
 
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
-    glTexImage2D(GL_TEXTURE_2D, 0, options.internal_format, width, height, 0, options.format, options.type, buffer.get());
 
+    glTexImage2D(GL_TEXTURE_2D, 0, options.internal_format, width, height, 0, options.format, options.type, buffer.get());
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, options.wrap_s);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, options.wrap_t);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, options.min_filter);
@@ -117,17 +117,14 @@ void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
         // Alpha
         if(surface->format->Rmask == 0x000000ff) {
             texture_format = GL_RGBA;
-        }
-        else {
+        } else {
             texture_format = GL_BGRA;
         }
-    }
-    else {
+    } else {
         // No alpha
         if(surface->format->Rmask == 0x000000ff) {
             texture_format = GL_RGB;
-        }
-        else {
+        } else {
             texture_format = GL_BGR;
         }
     }
@@ -142,8 +139,7 @@ void UnifiedRender::Texture::to_opengl(SDL_Surface* surface) {
     if(surface->pitch - expected_pitch >= alignment) {
         // Alignment alone wont't solve it now
         glPixelStorei(GL_UNPACK_ROW_LENGTH, surface->pitch / surface->format->BytesPerPixel);
-    }
-    else {
+    } else {
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     }
     
@@ -231,8 +227,8 @@ void UnifiedRender::TextureArray::to_opengl(void) {
     glBindTexture(GL_TEXTURE_2D_ARRAY, gl_tex_num);
 
     // set up texture handle parameters
-    // glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BASE_LEVEL, 0);  // !single image!
-    // glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_LEVEL, 1);   // !single image! mat->mips == 1
+    // glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BASE_LEVEL, 0); // !single image!
+    // glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_LEVEL, 1); // !single image! mat->mips == 1
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -261,7 +257,6 @@ void UnifiedRender::TextureArray::to_opengl(void) {
 //
 // Texture manager
 //
-
 std::shared_ptr<UnifiedRender::Texture> UnifiedRender::TextureManager::get_white(void) {
     if(white.get() == nullptr) {
         white = std::make_shared<UnifiedRender::Texture>(1, 1);

@@ -642,7 +642,8 @@ int LuaAPI::add_province(lua_State* L) {
     province->name = luaL_checkstring(L, 3);
     province->terrain_type = g_world->terrain_types.at(lua_tonumber(L, 4));
     // load rgo_size
-    province->rgo_size = std::vector<u_int32_t>(g_world->goods.size(), 0);
+    province->rgo_size.resize(g_world->goods.size(), 0);
+    province->rgo_size.shrink_to_fit();
     lua_pushvalue(L, 5);
     lua_pushnil(L);
     while(lua_next(L, -2)) {
@@ -679,6 +680,8 @@ int LuaAPI::add_province(lua_State* L) {
     province->max_y = std::numeric_limits<uint32_t>::min();
     province->min_x = std::numeric_limits<uint32_t>::max();
     province->min_y = std::numeric_limits<uint32_t>::max();
+
+    province->pops.reserve(100);
 
     g_world->insert(*province);
     lua_pushnumber(L, g_world->get_id(*province));
@@ -786,8 +789,7 @@ int LuaAPI::get_province_controller(lua_State* L) {
     Nation* nation = province->controller;
     if(nation == nullptr) {
         lua_pushnumber(L, -1);
-    }
-    else {
+    } else {
         lua_pushnumber(L, g_world->get_id(*nation));
     }
     return 1;
@@ -887,6 +889,7 @@ int LuaAPI::add_province_pop(lua_State* L) {
         throw LuaAPI::Exception("Can't create pops with 0 size");
     }
     province->pops.push_back(pop);
+    debug_assert(province->pops.size() < 100);
     return 0;
 }
 
@@ -989,23 +992,22 @@ int LuaAPI::add_pop_type(lua_State* L) {
     bool is_laborer = lua_toboolean(L, 7);
     if(is_burgeoise) {
         pop->group = PopGroup::BURGEOISE;
-    }
-    else if(is_slave) {
-        pop->group = PopGroup::Slave;
-    }
-    else if(is_farmer) {
+    } else if(is_slave) {
+        pop->group = PopGroup::SLAVE;
+    } else if(is_farmer) {
         pop->group = PopGroup::FARMER;
-    }
-    else if(is_laborer) {
+    } else if(is_laborer) {
         pop->group = PopGroup::LABORER;
-    }
-    else {
-        pop->group = PopGroup::Other;
+    } else {
+        pop->group = PopGroup::OTHER;
     }
 
-    pop->basic_needs_amount = std::vector<float>(g_world->goods.size(), 0);
-    pop->luxury_needs_satisfaction = std::vector<float>(g_world->goods.size(), 0);
-    pop->luxury_needs_deminishing_factor = std::vector<float>(g_world->goods.size(), 0);
+    pop->basic_needs_amount.resize(g_world->goods.size(), 0);
+    pop->basic_needs_amount.shrink_to_fit();
+    pop->luxury_needs_satisfaction.resize(g_world->goods.size(), 0);
+    pop->luxury_needs_satisfaction.shrink_to_fit();
+    pop->luxury_needs_deminishing_factor.resize(g_world->goods.size(), 0);
+    pop->luxury_needs_deminishing_factor.shrink_to_fit();
 
     // Lua next = pops top and then pushes key & value in table
     lua_pushvalue(L, 8);
@@ -1050,7 +1052,7 @@ int LuaAPI::get_pop_type(lua_State* L) {
     lua_pushstring(L, pop_type->name.c_str());
     lua_pushnumber(L, pop_type->social_value);
     lua_pushboolean(L, pop_type->group == PopGroup::BURGEOISE);
-    lua_pushboolean(L, pop_type->group == PopGroup::Slave);
+    lua_pushboolean(L, pop_type->group == PopGroup::SLAVE);
     lua_pushboolean(L, pop_type->group == PopGroup::FARMER);
     lua_pushboolean(L, pop_type->group == PopGroup::LABORER);
     lua_newtable(L);
@@ -1090,7 +1092,7 @@ int LuaAPI::get_pop_type_by_id(lua_State* L) {
     lua_pushstring(L, pop_type->name.c_str());
     lua_pushnumber(L, pop_type->social_value);
     lua_pushboolean(L, pop_type->group == PopGroup::BURGEOISE);
-    lua_pushboolean(L, pop_type->group == PopGroup::Slave);
+    lua_pushboolean(L, pop_type->group == PopGroup::SLAVE);
     lua_pushboolean(L, pop_type->group == PopGroup::FARMER);
     lua_pushboolean(L, pop_type->group == PopGroup::LABORER);
     lua_newtable(L);

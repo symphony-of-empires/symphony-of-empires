@@ -27,23 +27,23 @@
 
 #include <string>
 #include <vector>
-#include "nation.hpp"
 #include "unified_render/entity.hpp"
 
 enum TechnologyType {
-    STRATEGIC,
-    MILITARY,
-    NAVY,
-    SOCIAL,
-    ECONOMIC,
-    POLITICS,
+    STRATEGIC = 0x01,
+    MILITARY = 0x02,
+    NAVY = 0x04,
+    SOCIAL = 0x08,
+    ECONOMIC = 0x10,
+    POLITICS = 0x20,
 };
 
+class NationModifier;
 class Technology : public RefnameEntity<uint16_t> {
 public:
     std::string description;
     float cost;
-    TechnologyType type;
+    enum TechnologyType type;
     std::vector<Technology*> req_technologies;
     std::vector<NationModifier*> modifiers;
 };

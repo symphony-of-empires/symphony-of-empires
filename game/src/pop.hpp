@@ -31,18 +31,18 @@
 #include "unified_render/decimal.hpp"
 #include "ideology.hpp"
 
-enum class PopGroup {
-    BURGEOISE,
-    Slave,
-    FARMER,
-    LABORER,
-    Other,
+enum class PopGroup : int {
+    OTHER = 0x01,
+    BURGEOISE = 0x02,
+    SLAVE = 0x04,
+    FARMER = 0x08,
+    LABORER = 0x10,
 };
 
 class PopType : public RefnameEntity<uint8_t> {
 public:
     UnifiedRender::Decimal social_value;
-    PopGroup group;
+    enum PopGroup group;
     // The amount of goods needed to satisfy basic needs
     std::vector<float> basic_needs_amount; 
     // The amount of satisfaction each luxury good gives
