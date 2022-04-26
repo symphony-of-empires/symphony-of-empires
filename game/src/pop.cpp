@@ -39,7 +39,7 @@ Ideology* Pop::get_ideology(void) const {
             this->ideology_approval.end()
         )
     )];
-    return v;
+    return &v;
 }
 
 uint32_t Pop::get_type_id(void) const {

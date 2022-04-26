@@ -121,12 +121,12 @@ void external_migration(World& world) {
 			if(nation->current_policy.migration == ALLOW_NOBODY) {
 				continue;
 			} else if(nation->current_policy.migration == ALLOW_ACCEPTED_CULTURES) {
-				if(!nation->is_accepted_culture(*culture)) {
+				if(!nation->is_accepted_culture(culture)) {
 					continue;
 				}
 			}
 
-			float attraction = nation_attraction(nation, culture);
+			float attraction = nation_attraction(nation, &culture);
 			if(attraction <= 0) {
 				continue;
 			}

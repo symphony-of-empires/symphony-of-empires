@@ -65,15 +65,15 @@ void militancy_update(World& world, Nation* nation) {
             const UnifiedRender::Decimal anger = (std::max<UnifiedRender::Decimal>(pop.militancy, 0.001f) / std::max<UnifiedRender::Decimal>(pop.literacy, 1.f) / std::max<UnifiedRender::Decimal>(pop.life_needs_met, 0.001f));
             total_anger += anger;
             for(const auto& ideology : world.ideologies) {
-                ideology_anger[world.get_id(*ideology)] += (pop.ideology_approval[world.get_id(*ideology)] * anger) * (pop.size / 1000);
+                ideology_anger[world.get_id(ideology)] += (pop.ideology_approval[world.get_id(ideology)] * anger) * (pop.size / 1000);
             }
         }
     }
 
     // Rebellions!
     // TODO: Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
-#if 0 // TODO: Fix so this works in parrallel
     if(!std::fmod(rand(), std::max<UnifiedRender::Decimal>(1, coup_chances - total_anger))) {
+#if 0 // TODO: Fix so this works in parrallel
         // Compile list of uprising provinces
         std::vector<Province*> uprising_provinces;
         for(const auto& province : nation->owned_provinces) {
@@ -127,8 +127,8 @@ void militancy_update(World& world, Nation* nation) {
             print_info("Revolt on [%s]! [%s] has taken over!", province->ref_name.c_str(), dup_nation->ideology->ref_name.c_str());
         }
         dup_nation->declare_war(*nation, clauses);
-    }
 #endif
+    }
 
     // Roll a dice! (more probability with more anger!)
     if(!std::fmod(rand(), std::max(coup_chances, coup_chances - total_anger))) {
@@ -139,10 +139,10 @@ void militancy_update(World& world, Nation* nation) {
 
         // Ideology_anger and ideologies are mapped 1:1 - so we just pick up the associated ideology
         // Apply the policies of the ideology
-        nation->current_policy = world.ideologies[idx]->policies;
+        nation->current_policy = world.ideologies[idx].policies;
 
         // Switch ideologies of nation
-        nation->ideology = world.ideologies[idx];
+        nation->ideology = &world.ideologies[idx];
 
         // People who are aligned to the ideology are VERY happy now
         for(const auto& province : nation->owned_provinces) {
@@ -268,9 +268,9 @@ void update_factories_employment(const World& world, Province* province) {
     // The most profitable factory gets to pick workers first
     for(uint32_t i = 0; i < province->buildings.size(); i++) {
         auto factory_index = factories_by_profitability[i].first;
-        auto building = province->buildings[factory_index];
-        auto type = world.building_types[factories_by_profitability[i].first];
-        float factory_workers = building.level * type->num_req_workers * building.production_scale;
+        auto& building = province->buildings[factory_index];
+        const auto& type = world.building_types[factories_by_profitability[i].first];
+        float factory_workers = building.level * type.num_req_workers * building.production_scale;
         float amount_needed = factory_workers;
         float allocated_workers = std::min(amount_needed, unallocated_workers);
 
@@ -370,13 +370,13 @@ void Economy::do_tick(World& world) {
     // TODO: We should optimize this later!!!
     for(const auto& good : world.goods) {
         for(const auto& province : world.provinces) {
-            auto& product = province->products[world.get_id(*good)];
+            auto& product = province->products[world.get_id(good)];
             if(province->controller == nullptr) {
                 continue;
             }
 
             for(const auto& neighbour : province->neighbours) {
-                auto& other_product = neighbour->products[world.get_id(*good)];
+                auto& other_product = neighbour->products[world.get_id(good)];
                 if(neighbour->controller == nullptr) {
                     continue;
                 }
@@ -405,8 +405,8 @@ void Economy::do_tick(World& world) {
         auto rand = UnifiedRender::get_local_generator();
         for(const auto& province : nation->controlled_provinces) {
             float laborers_payment = 0.f;
-            for(const auto& building_type : world.building_types) {
-                auto& building = province->buildings[world.get_id(*building_type)];
+            for(auto& building_type : world.building_types) {
+                auto& building = province->buildings[world.get_id(building_type)];
                 building.production_cost = 0.f;
 
                 // Building not built does not exist
@@ -417,11 +417,11 @@ void Economy::do_tick(World& world) {
                 // Can't operate building without funds
                 if(building.budget <= 0.f) {
 #if 0
-                    print_info("Building of [%s] in [%s] is closed due to lack of funds!", building_type->ref_name.c_str(), province->ref_name.c_str());
+                    print_info("Building of [%s] in [%s] is closed due to lack of funds!", building_type.ref_name.c_str(), province->ref_name.c_str());
 #endif
                     // continue;
                 }
-                update_factory_production(world, building, building_type, province, laborers_payment);
+                update_factory_production(world, building, &building_type, province, laborers_payment);
 
                 // Buildings who have fullfilled requirements to build stuff will spawn a unit
                 if(building.working_unit_type != nullptr) {
@@ -513,7 +513,7 @@ void Economy::do_tick(World& world) {
     });
 
     for(Good::Id id = 0; id < world.goods.size(); id++) {
-        economy_single_good_tick(world, world.goods[id]);
+        economy_single_good_tick(world, &world.goods[id]);
     }
 
     if(!new_units.empty()) {

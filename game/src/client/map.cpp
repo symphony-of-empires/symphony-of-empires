@@ -156,17 +156,17 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     for(const auto& building_type : world.building_types) {
         std::string path;
-        path = Path::get("models/building_types/" + building_type->ref_name + ".obj");
+        path = Path::get("models/building_types/" + building_type.ref_name + ".obj");
         building_type_models.push_back(&s.model_man->load(path));
-        path = Path::get("gfx/buildingtype/" + building_type->ref_name + ".png");
+        path = Path::get("gfx/buildingtype/" + building_type.ref_name + ".png");
         building_type_icons.push_back(s.tex_man->load(path));
     }
 
     for(const auto& unit_type : world.unit_types) {
         std::string path;
-        path = Path::get("models/unit_types/" + unit_type->ref_name + ".obj");
+        path = Path::get("models/unit_types/" + unit_type.ref_name + ".obj");
         unit_type_models.push_back(&s.model_man->load(path));
-        path = Path::get("gfx/unittype/" + unit_type->ref_name + ".png");
+        path = Path::get("gfx/unittype/" + unit_type.ref_name + ".png");
         unit_type_icons.push_back(s.tex_man->load(path));
     }
 
@@ -714,7 +714,7 @@ void Map::draw(const GameState& gs) {
         for(const auto& building_type : world.building_types) {
             continue;
 
-            if(province->buildings[world.get_id(*building_type)].level == 0) {
+            if(province->buildings[world.get_id(building_type)].level == 0) {
                 continue;
             }
 
@@ -722,7 +722,7 @@ void Map::draw(const GameState& gs) {
             glm::mat4 model = glm::translate(base_model, glm::vec3(pos.x, pos.y, 0.f));
             //model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
             obj_shader->set_uniform("model", model);
-            building_type_models[world.get_id(*building_type)]->draw(*obj_shader);
+            building_type_models[world.get_id(building_type)]->draw(*obj_shader);
         }
     }
     //*/

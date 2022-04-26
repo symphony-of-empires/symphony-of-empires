@@ -62,8 +62,8 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
         avg_prob.shrink_to_fit();
         for(const auto& province : nation->owned_provinces) {
             for(const auto& good : world->goods) {
-                const Product& product = province->products[world->get_id(*good)];
-                avg_prob[world->get_id(*good)] += product.demand / (product.supply + 1) * product.price;
+                const Product& product = province->products[world->get_id(good)];
+                avg_prob[world->get_id(good)] += product.demand / (product.supply + 1) * product.price;
             }
         }
 
@@ -74,13 +74,13 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
         // above should increase the priority for filling out higher level industries
         for(const auto& building_type : world->building_types) {
             // Take in account all buildings for this
-            for(const auto& input : building_type->inputs) {
+            for(const auto& input : building_type.inputs) {
                 // Apply the higher-probability with outputs of this factory
-                avg_prob[world->get_id(*building_type->output)] += avg_prob[world->get_id(*input)] + 1;
+                avg_prob[world->get_id(*building_type.output)] += avg_prob[world->get_id(*input)] + 1;
             }
         }
 
-        Good* target_good = world->goods.at(std::distance(avg_prob.begin(), std::max_element(avg_prob.begin(), avg_prob.end())));
+        Good* target_good = &world->goods.at(std::distance(avg_prob.begin(), std::max_element(avg_prob.begin(), avg_prob.end())));
 
         // The more buildings there are in the world the less we are wiling to construct one
         //float saturation = std::max<size_t>(1, world->buildings.size()) / 100;
@@ -108,11 +108,11 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
 
         for(const auto& building_type : world->building_types) {
             // Only take in account RGOs (and buildings that have an output)
-            if(!building_type->inputs.empty() || building_type->output == nullptr) {
+            if(!building_type.inputs.empty() || building_type.output == nullptr) {
                 continue;
             }
 
-            if(!building_type->is_factory) {
+            if(!building_type.is_factory) {
                 continue;
             }
 
@@ -120,7 +120,7 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
             if(std::rand() % 5) {
                 continue;
             }
-            return building_type->output;
+            return building_type.output;
         }
     }
 
@@ -370,7 +370,7 @@ void ai_build_commercial(Nation* nation, World* world) {
     // Find an industry type which outputs this good
     BuildingType* type = nullptr;
     for(const auto& building_type : world->building_types) {
-        if(!building_type->is_factory) {
+        if(!building_type.is_factory) {
             continue;
         }
 
@@ -381,8 +381,8 @@ void ai_build_commercial(Nation* nation, World* world) {
             }
         }*/
 
-        if(building_type->output == target_good) {
-            type = (BuildingType*)building_type;
+        if(building_type.output == target_good) {
+            type = (BuildingType*)&building_type;
             break;
         }
     }
@@ -402,7 +402,7 @@ void ai_build_commercial(Nation* nation, World* world) {
         UnifiedRender::Log::error("ai", "Cant build buidling, province doesn't have any tiles");
     } else {
         // Now build the building
-        BuildingType* building_type = world->building_types[0];
+        BuildingType* building_type = &world->building_types.at(0);
         province->buildings[world->get_id(*building_type)].level += 1;
         // Broadcast the addition of the building to the clients
         g_server->broadcast(Action::BuildingAdd::form_packet(province, building_type));
@@ -482,19 +482,19 @@ void ai_do_tick(Nation* nation, World* world) {
 
         // Research technologies
         if(nation->ai_controlled) {
-            for(auto& tech : world->technologies) {
+            for(auto& technology : world->technologies) {
                 // Do not research if already been completed
-                if(!nation->research[world->get_id(*tech)]) {
+                if(!nation->research[world->get_id(technology)]) {
                     continue;
                 }
 
                 // Must be able to research it
-                if(!nation->can_research(tech)) {
+                if(!nation->can_research(&technology)) {
                     continue;
                 }
 
-                nation->change_research_focus(tech);
-                UnifiedRender::Log::debug("ai", "[" + nation->ref_name + "] now researching [" + tech->ref_name + "] - " + std::to_string(nation->research[world->get_id(*tech)]) + " research points (" + std::to_string(nation->get_research_points()) + ")");
+                nation->change_research_focus(&technology);
+                UnifiedRender::Log::debug("ai", "[" + nation->ref_name + "] now researching [" + technology.ref_name + "] - " + std::to_string(nation->research[world->get_id(technology)]) + " research points (" + std::to_string(nation->get_research_points()) + ")");
                 break;
             }
         }
@@ -549,8 +549,8 @@ void ai_do_tick(Nation* nation, World* world) {
                 auto it = std::begin(nation->owned_provinces);
                 std::advance(it, std::rand() % nation->owned_provinces.size());
                 Province* province = *it;
-
-                BuildingType* building_type = world->building_types[0];
+                
+                BuildingType* building_type = &world->building_types[0];
                 province->buildings[world->get_id(*building_type)].level += 1;
                 province->buildings[world->get_id(*building_type)].req_goods = building_type->req_goods;
                 // Broadcast the addition of the building to the clients
@@ -566,7 +566,7 @@ void ai_do_tick(Nation* nation, World* world) {
                     }
 
                     for(size_t i = 0; i < world->building_types.size(); i++) {
-                        const BuildingType* building_type = world->building_types[i];
+                        const BuildingType* building_type = &world->building_types[i];
                         if(!(building_type->is_build_land_units && building_type->is_build_naval_units)) {
                             //continue;
                         }
@@ -577,8 +577,8 @@ void ai_do_tick(Nation* nation, World* world) {
                         }
 
                         // TODO: Actually produce something appropriate
-                        auto* unit_type = g_world->unit_types[std::rand() % g_world->unit_types.size()];
-                        unit_type = g_world->unit_types[0];
+                        auto* unit_type = &g_world->unit_types[std::rand() % g_world->unit_types.size()];
+                        unit_type = &g_world->unit_types[0];
                         building.working_unit_type = unit_type;
                         building.req_goods_for_unit = unit_type->req_goods;
                         UnifiedRender::Log::debug("ai", "Building of unit " + unit_type->name + " from " + nation->name + " built on " + province->name);

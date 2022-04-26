@@ -203,7 +203,7 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
     flex_column->flex_justify = UI::FlexJustify::START;
 
     for(size_t i = 0; i < goods.size(); i++) {
-        Good* good = goods[i];
+        Good* good = &goods[i];
         UnifiedRender::TextureOptions options;
         options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
         options.mag_filter = GL_LINEAR;
@@ -477,7 +477,7 @@ std::vector<ProvinceColor> culture_map_mode(const World& world) {
                 max_culture_id = pop.culture->cached_id;
             }
         }
-        UnifiedRender::Color max = UnifiedRender::Color::rgba32(world.cultures[max_culture_id]->color);
+        UnifiedRender::Color max = UnifiedRender::Color::rgba32(world.cultures[max_culture_id].color);
         UnifiedRender::Color color = UnifiedRender::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.push_back(ProvinceColor(i, color));
     }
@@ -516,7 +516,7 @@ std::string culture_tooltip(const World& world, const Province::Id id){
 
     std::string out;
     for(auto culture_amount : cultures) {
-        out += world.cultures[culture_amount.first]->name + std::to_string(culture_amount.second) + "\n";
+        out += world.cultures[culture_amount.first].name + std::to_string(culture_amount.second) + "\n";
     }
     return out;
 }
@@ -548,7 +548,7 @@ std::vector<ProvinceColor> religion_map_mode(const World& world) {
                 max_religion_id = pop.religion->cached_id;
             }
         }
-        UnifiedRender::Color max = UnifiedRender::Color::rgba32(world.religions[max_religion_id]->color);
+        UnifiedRender::Color max = UnifiedRender::Color::rgba32(world.religions[max_religion_id].color);
         UnifiedRender::Color color = UnifiedRender::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.push_back(ProvinceColor(i, color));
     }
@@ -587,7 +587,7 @@ std::string religion_tooltip(const World& world, const Province::Id id){
 
     std::string out;
     for(auto religion_amount : religions) {
-        out += world.religions[religion_amount.first]->name + std::to_string(religion_amount.second) + "\n";
+        out += world.religions[religion_amount.first].name + std::to_string(religion_amount.second) + "\n";
     }
     return out;
 }
