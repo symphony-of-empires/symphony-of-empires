@@ -29,6 +29,7 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace Eng3D::IO {
     class Path {
@@ -99,15 +100,15 @@ namespace Eng3D::IO {
         ~Package();
 
         std::string name;
-        std::vector<Eng3D::IO::Asset::Base*> assets;
+        std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> assets;
     };
 
     class PackageManager {
     public:
         PackageManager();
         ~PackageManager();
-        Eng3D::IO::Asset::Base* get_unique(const IO::Path& path);
-        std::vector<Eng3D::IO::Asset::Base*> get_multiple(const Eng3D::IO::Path& path);
+        std::shared_ptr<Eng3D::IO::Asset::Base> get_unique(const IO::Path& path);
+        std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> get_multiple(const Eng3D::IO::Path& path);
         std::vector<Package> packages;
     };
 };
