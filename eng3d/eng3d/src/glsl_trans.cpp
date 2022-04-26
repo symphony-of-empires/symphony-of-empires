@@ -75,12 +75,25 @@ void Eng3D::OpenGL::GLSL_Context::lexer(void) {
         while(it != buffer.end() && (*it == ' ' || *it == '\t' || *it == '\r' || *it == '\n')) {
             it++;
         }
+        
         if(it == buffer.end()) {
             break;
         }
 
         if((*(it + 0) == '/' && *(it + 1) == '/')) {
+            it += 2;
+            // Single-line comments
             while(it != buffer.end() && (*it != '\n')) {
+                it++;
+            }
+        } else if((*(it + 0) == '/' && *(it + 1) == '*')) {
+            it += 2;
+            // Multiline comments
+            while((it + 1) != buffer.end()) {
+                if(*(it + 0) == '*' || *(it + 1) == '/') {
+                    it += 2;
+                    break;
+                }
                 it++;
             }
         } else if(*it == '#') {
