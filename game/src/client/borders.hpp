@@ -30,7 +30,7 @@
 #include <unordered_set>
 #include <set>
 
-namespace UnifiedRender {
+namespace Eng3D {
     class Curve;
     class Texture;
     namespace OpenGL {
@@ -48,9 +48,9 @@ public:
     void draw(Camera* camera);
 private:
     void build_borders();
-    std::vector<UnifiedRender::Curve*> curves;
-    std::unique_ptr<UnifiedRender::OpenGL::Program> line_shader;
-    std::shared_ptr<UnifiedRender::Texture> water_tex;
+    std::vector<Eng3D::Curve*> curves;
+    std::unique_ptr<Eng3D::OpenGL::Program> line_shader;
+    std::shared_ptr<Eng3D::Texture> water_tex;
 };
 
 // class BorderGenerator

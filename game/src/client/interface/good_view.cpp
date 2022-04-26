@@ -23,17 +23,17 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "unified_render/path.hpp"
-#include "unified_render/texture.hpp"
-#include "unified_render/locale.hpp"
-#include "unified_render/ui/piechart.hpp"
-#include "unified_render/ui/image.hpp"
-#include "unified_render/ui/label.hpp"
-#include "unified_render/ui/close_button.hpp"
-#include "unified_render/ui/chart.hpp"
-#include "unified_render/ui/group.hpp"
-#include "unified_render/ui/button.hpp"
-#include "unified_render/ui/tooltip.hpp"
+#include "eng3d/path.hpp"
+#include "eng3d/texture.hpp"
+#include "eng3d/locale.hpp"
+#include "eng3d/ui/piechart.hpp"
+#include "eng3d/ui/image.hpp"
+#include "eng3d/ui/label.hpp"
+#include "eng3d/ui/close_button.hpp"
+#include "eng3d/ui/chart.hpp"
+#include "eng3d/ui/group.hpp"
+#include "eng3d/ui/button.hpp"
+#include "eng3d/ui/tooltip.hpp"
 
 #include "client/interface/good_view.hpp"
 #include "io_impl.hpp"
@@ -46,7 +46,7 @@ ProductView::ProductView(GameState& _gs, Product* _product)
     product{ _product }
 {
     this->is_scroll = false;
-    this->text(UnifiedRender::Locale::translate("ProductName"));
+    this->text(Eng3D::Locale::translate("ProductName"));
 
     this->supply_pie = new UI::PieChart(0, 0, 128, 128, this);
     this->supply_pie->on_each_tick = ([](UI::Widget& w) {
@@ -125,7 +125,7 @@ GoodView::GoodView(GameState& _gs, Good* _good)
     unsigned int i;
 
     this->is_scroll = false;
-    this->text(UnifiedRender::Locale::translate(good->name.get_string()));
+    this->text(Eng3D::Locale::translate(good->name.get_string()));
 
     this->icon_img = new UI::Image(0, 0, 128, 96, this->gs.tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
 
@@ -177,7 +177,7 @@ GoodView::GoodView(GameState& _gs, Good* _good)
     unsigned int dx = 0;
 
     // Outputs
-    auto* output_lab = new UI::Label(dx, 0, UnifiedRender::Locale::translate("Producers"), this);
+    auto* output_lab = new UI::Label(dx, 0, Eng3D::Locale::translate("Producers"), this);
     output_lab->below_of(*avg_price_chart);
     dx += output_lab->width;
     for(const auto& building_type : this->gs.world->building_types) {
@@ -194,7 +194,7 @@ GoodView::GoodView(GameState& _gs, Good* _good)
     }
 
     // Inputs
-    auto* input_lab = new UI::Label(dx, 0, UnifiedRender::Locale::translate("Consumers"), this);
+    auto* input_lab = new UI::Label(dx, 0, Eng3D::Locale::translate("Consumers"), this);
     input_lab->below_of(*avg_price_chart);
     dx += input_lab->width;
     for(const auto& building_type : this->gs.world->building_types) {

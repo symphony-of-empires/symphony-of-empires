@@ -40,13 +40,13 @@
 
 Server* g_server = nullptr;
 Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
-    : UnifiedRender::Networking::Server(port, max_conn),
+    : Eng3D::Networking::Server(port, max_conn),
     gs{ _gs }
 {
     g_server = this;
     print_info("Deploying %u threads for clients", n_clients);
 
-    clients = new UnifiedRender::Networking::ServerClient[n_clients];
+    clients = new Eng3D::Networking::ServerClient[n_clients];
     for(size_t i = 0; i < n_clients; i++) {
         clients[i].is_connected = false;
         //clients[i].thread = std::thread(&Server::net_loop, this, i);
@@ -65,7 +65,7 @@ Server::~Server() {
 // Sending packets will only be received by the other end, when trying to broadcast please
 // put the packets on the send queue, they will be sent accordingly
 void Server::net_loop(int id) {
-    UnifiedRender::Networking::ServerClient& cl = clients[id];
+    Eng3D::Networking::ServerClient& cl = clients[id];
     int conn_fd = 0;
     try {
         cl.is_connected = false;
@@ -77,7 +77,7 @@ void Server::net_loop(int id) {
         }
 
         Nation* selected_nation = nullptr;
-        UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet(conn_fd);
+        Eng3D::Networking::Packet packet = Eng3D::Networking::Packet(conn_fd);
 
         player_count++;
         // Wake up another thread
@@ -409,14 +409,14 @@ void Server::net_loop(int id) {
             // After reading everything we will send our queue appropriately to the client
             std::scoped_lock lock(cl.packets_mutex);
             for(auto& packet : cl.packets) {
-                packet.stream = UnifiedRender::Networking::SocketStream(conn_fd);
+                packet.stream = Eng3D::Networking::SocketStream(conn_fd);
                 packet.send();
             }
             cl.packets.clear();
         }
     } catch(ServerException& e) {
         print_error("ServerException: %s", e.what());
-    } catch(UnifiedRender::Networking::SocketException& e) {
+    } catch(Eng3D::Networking::SocketException& e) {
         print_error("SocketException: %s", e.what());
     } catch(SerializerException& e) {
         print_error("SerializerException: %s", e.what());
@@ -438,7 +438,7 @@ void Server::net_loop(int id) {
 
     // Tell the remaining clients about the disconnection
     {
-        UnifiedRender::Networking::Packet packet;
+        Eng3D::Networking::Packet packet;
         Archive ar = Archive();
         ActionType action = ActionType::DISCONNECT;
         ::serialize(ar, &action);

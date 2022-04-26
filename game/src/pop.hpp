@@ -27,8 +27,8 @@
 
 #include <vector>
 #include <string>
-#include "unified_render/entity.hpp"
-#include "unified_render/decimal.hpp"
+#include "eng3d/entity.hpp"
+#include "eng3d/decimal.hpp"
 #include "ideology.hpp"
 
 enum class PopGroup : int {
@@ -41,7 +41,7 @@ enum class PopGroup : int {
 
 class PopType : public RefnameEntity<uint8_t> {
 public:
-    UnifiedRender::Decimal social_value;
+    Eng3D::Decimal social_value;
     enum PopGroup group;
     // The amount of goods needed to satisfy basic needs
     std::vector<float> basic_needs_amount; 
@@ -63,11 +63,11 @@ public:
     Culture* culture;
     Religion* religion;
 
-    UnifiedRender::Number size = 0.f;
-    UnifiedRender::Decimal life_needs_met = 0.f, everyday_needs_met = 0.f, luxury_needs_met = 0.f;
-    UnifiedRender::Decimal literacy = 0.f, militancy = 0.f;
-    UnifiedRender::Decimal budget = 0.f, savings = 0.f;
+    Eng3D::Number size = 0.f;
+    Eng3D::Decimal life_needs_met = 0.f, everyday_needs_met = 0.f, luxury_needs_met = 0.f;
+    Eng3D::Decimal literacy = 0.f, militancy = 0.f;
+    Eng3D::Decimal budget = 0.f, savings = 0.f;
 
     // Approval % of all the ideologies (1:1)
-    std::vector<UnifiedRender::Decimal> ideology_approval;
+    std::vector<Eng3D::Decimal> ideology_approval;
 };

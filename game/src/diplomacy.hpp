@@ -29,7 +29,7 @@
 #include <cstddef>
 #include <vector>
 
-#include "unified_render/entity.hpp"
+#include "eng3d/entity.hpp"
 
 #include "policy.hpp"
 //#include "nation.hpp"
@@ -217,8 +217,8 @@ public:
     War* war = nullptr;
     Province* province = nullptr;
     std::vector<Unit*> attackers, defenders;
-    UnifiedRender::Number attacker_casualties = 0;
-    UnifiedRender::Number defender_casualties = 0;
+    Eng3D::Number attacker_casualties = 0;
+    Eng3D::Number defender_casualties = 0;
 };
 
 class War : public IdEntity<uint16_t> {

@@ -23,8 +23,8 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "unified_render/serializer.hpp"
-#include "unified_render/network.hpp"
+#include "eng3d/serializer.hpp"
+#include "eng3d/network.hpp"
 
 #include "action.hpp"
 #include "io_impl.hpp"
@@ -38,8 +38,8 @@
 
 using namespace Action;
 
-UnifiedRender::Networking::Packet AiControl::form_packet(Nation* target) {
-    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+Eng3D::Networking::Packet AiControl::form_packet(Nation* target) {
+    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
     Archive ar = Archive();
     ActionType action = ActionType::AI_CONTROL;
     ::serialize(ar, &action);
@@ -55,8 +55,8 @@ UnifiedRender::Networking::Packet AiControl::form_packet(Nation* target) {
     return packet;
 }
 
-UnifiedRender::Networking::Packet DiploIncRelations::form_packet(Nation* target) {
-    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+Eng3D::Networking::Packet DiploIncRelations::form_packet(Nation* target) {
+    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
     Archive ar = Archive();
     ActionType action = ActionType::DIPLO_INC_RELATIONS;
     ::serialize(ar, &action);
@@ -65,8 +65,8 @@ UnifiedRender::Networking::Packet DiploIncRelations::form_packet(Nation* target)
     return packet;
 }
 
-UnifiedRender::Networking::Packet DiploDecRelations::form_packet(Nation* target) {
-    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+Eng3D::Networking::Packet DiploDecRelations::form_packet(Nation* target) {
+    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
     Archive ar = Archive();
     ActionType action = ActionType::DIPLO_DEC_RELATIONS;
     ::serialize(ar, &action);
@@ -75,8 +75,8 @@ UnifiedRender::Networking::Packet DiploDecRelations::form_packet(Nation* target)
     return packet;
 }
 
-UnifiedRender::Networking::Packet DiploDeclareWar::form_packet(Nation* target) {
-    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+Eng3D::Networking::Packet DiploDeclareWar::form_packet(Nation* target) {
+    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
     Archive ar = Archive();
     ActionType action = ActionType::DIPLO_DECLARE_WAR;
     ::serialize(ar, &action);
@@ -85,8 +85,8 @@ UnifiedRender::Networking::Packet DiploDeclareWar::form_packet(Nation* target) {
     return packet;
 }
 
-UnifiedRender::Networking::Packet ProvinceUpdate::form_packet(const std::vector<Province*>& list) {
-    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+Eng3D::Networking::Packet ProvinceUpdate::form_packet(const std::vector<Province*>& list) {
+    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
     Archive ar = Archive();
     ActionType action = ActionType::PROVINCE_UPDATE;
     ::serialize(ar, &action);
@@ -98,8 +98,8 @@ UnifiedRender::Networking::Packet ProvinceUpdate::form_packet(const std::vector<
     return packet;
 }
 
-UnifiedRender::Networking::Packet NationUpdate::form_packet(const std::vector<Nation*>& list) {
-    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+Eng3D::Networking::Packet NationUpdate::form_packet(const std::vector<Nation*>& list) {
+    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
     Archive ar = Archive();
     ActionType action = ActionType::NATION_UPDATE;
     ::serialize(ar, &action);
@@ -111,8 +111,8 @@ UnifiedRender::Networking::Packet NationUpdate::form_packet(const std::vector<Na
     return packet;
 }
 
-UnifiedRender::Networking::Packet SelectNation::form_packet(Nation* nation) {
-    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+Eng3D::Networking::Packet SelectNation::form_packet(Nation* nation) {
+    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
     Archive ar = Archive();
     ActionType action = ActionType::SELECT_NATION;
     ::serialize(ar, &action);
@@ -121,8 +121,8 @@ UnifiedRender::Networking::Packet SelectNation::form_packet(Nation* nation) {
     return packet;
 }
 
-UnifiedRender::Networking::Packet BuildingStartProducingUnit::form_packet(Province* province, BuildingType* building_type, Nation* nation, UnitType* unit_type) {
-    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+Eng3D::Networking::Packet BuildingStartProducingUnit::form_packet(Province* province, BuildingType* building_type, Nation* nation, UnitType* unit_type) {
+    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
     Archive ar = Archive();
     ActionType action = ActionType::BUILDING_START_BUILDING_UNIT;
     ::serialize(ar, &action);
@@ -134,8 +134,8 @@ UnifiedRender::Networking::Packet BuildingStartProducingUnit::form_packet(Provin
 	return packet;
 }
 
-UnifiedRender::Networking::Packet BuildingAdd::form_packet(Province* province, BuildingType* building_type) {
-    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+Eng3D::Networking::Packet BuildingAdd::form_packet(Province* province, BuildingType* building_type) {
+    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
     Archive ar = Archive();
     ActionType action = ActionType::BUILDING_ADD;
     ::serialize(ar, &action);
@@ -145,8 +145,8 @@ UnifiedRender::Networking::Packet BuildingAdd::form_packet(Province* province, B
 	return packet;
 }
 
-UnifiedRender::Networking::Packet FocusTech::form_packet(Technology* technology) {
-    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+Eng3D::Networking::Packet FocusTech::form_packet(Technology* technology) {
+    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
     Archive ar = Archive();
     ActionType action = ActionType::FOCUS_TECH;
     ::serialize(ar, &action);
@@ -155,8 +155,8 @@ UnifiedRender::Networking::Packet FocusTech::form_packet(Technology* technology)
 	return packet;
 }
 
-UnifiedRender::Networking::Packet NationAdd::form_packet(const Nation& nation) {
-    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+Eng3D::Networking::Packet NationAdd::form_packet(const Nation& nation) {
+    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
     Archive ar = Archive();
     ActionType action = ActionType::NATION_ADD;
     ::serialize(ar, &action);
@@ -165,8 +165,8 @@ UnifiedRender::Networking::Packet NationAdd::form_packet(const Nation& nation) {
     return packet;
 }
 
-UnifiedRender::Networking::Packet UnitAdd::form_packet(const Unit& unit) {
-    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+Eng3D::Networking::Packet UnitAdd::form_packet(const Unit& unit) {
+    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
     Archive ar = Archive();
     ActionType action = ActionType::UNIT_ADD;
     ::serialize(ar, &action);
@@ -175,8 +175,8 @@ UnifiedRender::Networking::Packet UnitAdd::form_packet(const Unit& unit) {
     return packet;
 }
 
-UnifiedRender::Networking::Packet UnitUpdate::form_packet(const std::vector<Unit*>& units) {
-    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+Eng3D::Networking::Packet UnitUpdate::form_packet(const std::vector<Unit*>& units) {
+    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
     Archive ar = Archive();
     ActionType action = ActionType::UNIT_UPDATE;
     ::serialize(ar, &action);

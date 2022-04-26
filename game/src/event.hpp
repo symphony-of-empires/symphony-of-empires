@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "unified_render/entity.hpp"
+#include "eng3d/entity.hpp"
 #include <string>
 #include <vector>
 

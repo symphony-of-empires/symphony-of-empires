@@ -34,14 +34,14 @@
 #include <ctime>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "unified_render/texture.hpp"
-#include "unified_render/primitive.hpp"
-#include "unified_render/shader.hpp"
-#include "unified_render/framebuffer.hpp"
-#include "unified_render/path.hpp"
-#include "unified_render/print.hpp"
-#include "unified_render/state.hpp"
-#include "unified_render/utils.hpp"
+#include "eng3d/texture.hpp"
+#include "eng3d/primitive.hpp"
+#include "eng3d/shader.hpp"
+#include "eng3d/framebuffer.hpp"
+#include "eng3d/path.hpp"
+#include "eng3d/print.hpp"
+#include "eng3d/state.hpp"
+#include "eng3d/utils.hpp"
 
 #include "map.hpp"
 #include "world.hpp"
@@ -57,19 +57,19 @@ MapRender::MapRender(const World& _world)
 {
     // Flat surface for drawing flat map 
     for(int x = -1; x <= 1; x++) {
-        map_quads.push_back(new UnifiedRender::Square((int)world.width * x, 0.f, (int)world.width * (x + 1), world.height));
+        map_quads.push_back(new Eng3D::Square((int)world.width * x, 0.f, (int)world.width * (x + 1), world.height));
     }
 
     // Sphere surface for drawing globe map
-    map_sphere = new UnifiedRender::Sphere(0.f, 0.f, 0.f, GLOBE_RADIUS, 100);
+    map_sphere = new Eng3D::Sphere(0.f, 0.f, 0.f, GLOBE_RADIUS, 100);
 
     // Simple 2D quad that fills viewport, used for making the border_sdf
-    map_2d_quad = new UnifiedRender::Quad2D();
+    map_2d_quad = new Eng3D::Quad2D();
 
-    auto tex_man = UnifiedRender::State::get_instance().tex_man;
+    auto tex_man = Eng3D::State::get_instance().tex_man;
 
     // Mipmapped textures
-    UnifiedRender::TextureOptions mipmap_options{};
+    Eng3D::TextureOptions mipmap_options{};
     mipmap_options.wrap_s = GL_REPEAT;
     mipmap_options.wrap_t = GL_REPEAT;
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
@@ -88,7 +88,7 @@ MapRender::MapRender(const World& _world)
     bathymethry = tex_man->load(Path::get("map/bathymethry.png"), mipmap_options);
     river_tex = tex_man->load(Path::get("map/river_smooth.png"), mipmap_options);
 
-    terrain_map = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(Path::get("map/color.png")));
+    terrain_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(Path::get("map/color.png")));
     size_t terrain_map_size = terrain_map->width * terrain_map->height;
     for(size_t i = 0; i < terrain_map_size; i++) {
         const uint32_t color = terrain_map->buffer.get()[i];
@@ -138,13 +138,13 @@ MapRender::MapRender(const World& _world)
             break;
         }
     }
-    UnifiedRender::TextureOptions single_color{};
+    Eng3D::TextureOptions single_color{};
     single_color.internal_format = GL_RGB;
     terrain_map->to_opengl(single_color);
     //terrain_map->gen_mipmaps();
 
-    auto topo_map = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(Path::get("map/topo.png")));
-    normal_topo = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(Path::get("map/normal.png")));
+    auto topo_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(Path::get("map/topo.png")));
+    normal_topo = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(Path::get("map/normal.png")));
     size_t map_size = topo_map->width * topo_map->height;
     for(unsigned int i = 0; i < map_size; i++) {
         normal_topo->buffer.get()[i] &= (0x00FFFFFF);
@@ -156,17 +156,17 @@ MapRender::MapRender(const World& _world)
     normal_topo->gen_mipmaps();
 
     // Terrain textures to sample from
-    terrain_sheet = std::unique_ptr<UnifiedRender::TextureArray>(new UnifiedRender::TextureArray(Path::get("gfx/terrain_sheet.png"), 4, 4));
+    terrain_sheet = std::unique_ptr<Eng3D::TextureArray>(new Eng3D::TextureArray(Path::get("gfx/terrain_sheet.png"), 4, 4));
     terrain_sheet->to_opengl();
 
     print_info("Creating tile map & tile sheet");
     // The tile map, used to store per-tile information
-    tile_map = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(world.width, world.height));
+    tile_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(world.width, world.height));
     for(size_t i = 0; i < world.width * world.height; i++) {
         const Tile& tile = world.get_tile(i);
         tile_map->buffer.get()[i] = tile.province_id & 0xffff;
     }
-    UnifiedRender::TextureOptions tile_map_options{};
+    Eng3D::TextureOptions tile_map_options{};
     tile_map_options.internal_format = GL_RGBA32F;
     tile_map_options.editable = true;
     tile_map->to_opengl(tile_map_options);
@@ -174,30 +174,30 @@ MapRender::MapRender(const World& _world)
 
     // Texture holding each province color
     // The x & y coords are the province Red & Green color of the tile_map
-    tile_sheet = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(256, 256));
+    tile_sheet = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(256, 256));
     for(unsigned int i = 0; i < 256 * 256; i++) {
         tile_sheet->buffer.get()[i] = 0xffdddddd;
     }
 
-    tile_sheet_nation = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(256, 256));
+    tile_sheet_nation = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(256, 256));
     for(unsigned int i = 0; i < 256 * 256; i++) {
         tile_sheet_nation->buffer.get()[i] = 0xffdddddd;
     }
 
     // By default textures will be dropped from the CPU in order to save memory, however we're trying
     // to make a buffer-texture so we have to keep it or we will have trouble
-    UnifiedRender::TextureOptions no_drop_options{};
+    Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
     no_drop_options.internal_format = GL_SRGB;
     tile_sheet->to_opengl(no_drop_options);
 
     // Province options
-    province_opt = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(256, 256));
+    province_opt = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(256, 256));
     for(unsigned int i = 0; i < 256 * 256; i++) {
         province_opt->buffer.get()[i] = 0x000000ff;
     }
     {
-        UnifiedRender::TextureOptions no_drop_options{};
+        Eng3D::TextureOptions no_drop_options{};
         no_drop_options.editable = true;
         province_opt->to_opengl(no_drop_options);
     }
@@ -208,84 +208,84 @@ MapRender::MapRender(const World& _world)
     reload_shaders();
 
     print_info("Creating border textures");
-    UnifiedRender::TextureOptions sdf_options{};
+    Eng3D::TextureOptions sdf_options{};
     sdf_options.wrap_s = GL_REPEAT;
     sdf_options.wrap_t = GL_REPEAT;
     sdf_options.internal_format = GL_RGB32F;
     sdf_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     sdf_options.mag_filter = GL_LINEAR;
-    border_sdf = std::make_unique<UnifiedRender::Texture>(UnifiedRender::Texture(Path::get("map/sdf_map.png")));
+    border_sdf = std::make_unique<Eng3D::Texture>(Eng3D::Texture(Path::get("map/sdf_map.png")));
     border_sdf->to_opengl(sdf_options);
     border_sdf->gen_mipmaps();
-    // update_border_sdf(UnifiedRender::Rect(0, 0, 5400, 2700));
+    // update_border_sdf(Eng3D::Rect(0, 0, 5400, 2700));
 }
 
 void MapRender::reload_shaders() {
-    //map_shader = UnifiedRender::OpenGL::Program::create(options.get_options(), "shaders/map.vs", "shaders/map.fs");
-    map_shader = std::unique_ptr<UnifiedRender::OpenGL::Program>(new UnifiedRender::OpenGL::Program());
+    //map_shader = Eng3D::OpenGL::Program::create(options.get_options(), "shaders/map.vs", "shaders/map.fs");
+    map_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        std::vector<UnifiedRender::OpenGL::GLSL_Define> defined_options;
+        std::vector<Eng3D::OpenGL::GLSL_Define> defined_options;
         for(auto& option : options.get_options()) {
             if(option.used) {
-                UnifiedRender::OpenGL::GLSL_Define defined_option;
+                Eng3D::OpenGL::GLSL_Define defined_option;
                 defined_option.name = option.get_option();
                 defined_options.push_back(defined_option);
             }
         }
 
-        auto vs_shader = UnifiedRender::OpenGL::VertexShader(Path::cat_strings(Path::get_data("shaders/map.vs")));
+        auto vs_shader = Eng3D::OpenGL::VertexShader(Path::cat_strings(Path::get_data("shaders/map.vs")));
         map_shader->attach_shader(&vs_shader);
-        auto fs_shader = UnifiedRender::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/map.fs")), true, defined_options);
+        auto fs_shader = Eng3D::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/map.fs")), true, defined_options);
         map_shader->attach_shader(&fs_shader);
-        map_shader->attach_shader(UnifiedRender::State::get_instance().builtin_shaders["fs_lib"].get());
+        map_shader->attach_shader(Eng3D::State::get_instance().builtin_shaders["fs_lib"].get());
         map_shader->link();
     }
-    //border_gen_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_gen.fs");
-    border_gen_shader = std::unique_ptr<UnifiedRender::OpenGL::Program>(new UnifiedRender::OpenGL::Program());
+    //border_gen_shader = Eng3D::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_gen.fs");
+    border_gen_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        auto vs_shader = UnifiedRender::OpenGL::VertexShader(Path::cat_strings(Path::get_data("shaders/2d_scale.vs")));
+        auto vs_shader = Eng3D::OpenGL::VertexShader(Path::cat_strings(Path::get_data("shaders/2d_scale.vs")));
         border_gen_shader->attach_shader(&vs_shader);
-        auto fs_shader = UnifiedRender::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/border_gen.fs")));
+        auto fs_shader = Eng3D::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/border_gen.fs")));
         border_gen_shader->attach_shader(&fs_shader);
         border_gen_shader->link();
     }
-    //sdf_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_sdf.fs");
-    sdf_shader = std::unique_ptr<UnifiedRender::OpenGL::Program>(new UnifiedRender::OpenGL::Program());
+    //sdf_shader = Eng3D::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_sdf.fs");
+    sdf_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        auto vs_shader = UnifiedRender::OpenGL::VertexShader(Path::cat_strings(Path::get_data("shaders/2d_scale.vs")));
+        auto vs_shader = Eng3D::OpenGL::VertexShader(Path::cat_strings(Path::get_data("shaders/2d_scale.vs")));
         sdf_shader->attach_shader(&vs_shader);
-        auto fs_shader = UnifiedRender::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/border_sdf.fs")));
+        auto fs_shader = Eng3D::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/border_sdf.fs")));
         sdf_shader->attach_shader(&fs_shader);
         sdf_shader->link();
     }
-    //output_shader = UnifiedRender::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_sdf_output.fs");
-    output_shader = std::unique_ptr<UnifiedRender::OpenGL::Program>(new UnifiedRender::OpenGL::Program());
+    //output_shader = Eng3D::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_sdf_output.fs");
+    output_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        output_shader->attach_shader(UnifiedRender::State::get_instance().builtin_shaders["vs_2d"].get());
-        auto fs_shader = UnifiedRender::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/border_sdf_output.fs")));
+        output_shader->attach_shader(Eng3D::State::get_instance().builtin_shaders["vs_2d"].get());
+        auto fs_shader = Eng3D::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/border_sdf_output.fs")));
         output_shader->attach_shader(&fs_shader);
         output_shader->link();
     }
 }
 
 void MapRender::update_options(MapOptions new_options) {
-    //map_shader = UnifiedRender::OpenGL::Program::create(options.get_options(), "shaders/map.vs", "shaders/map.fs");
-    map_shader = std::unique_ptr<UnifiedRender::OpenGL::Program>(new UnifiedRender::OpenGL::Program());
+    //map_shader = Eng3D::OpenGL::Program::create(options.get_options(), "shaders/map.vs", "shaders/map.fs");
+    map_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        std::vector<UnifiedRender::OpenGL::GLSL_Define> defined_options;
+        std::vector<Eng3D::OpenGL::GLSL_Define> defined_options;
         for(auto& option : options.get_options()) {
             if(option.used) {
-                UnifiedRender::OpenGL::GLSL_Define defined_option;
+                Eng3D::OpenGL::GLSL_Define defined_option;
                 defined_option.name = option.get_option();
                 defined_options.push_back(defined_option);
             }
         }
 
-        auto vs_shader = UnifiedRender::OpenGL::VertexShader(Path::cat_strings(Path::get_data("shaders/map.vs")));
+        auto vs_shader = Eng3D::OpenGL::VertexShader(Path::cat_strings(Path::get_data("shaders/map.vs")));
         map_shader->attach_shader(&vs_shader);
-        auto fs_shader = UnifiedRender::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/map.fs")), true, defined_options);
+        auto fs_shader = Eng3D::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/map.fs")), true, defined_options);
         map_shader->attach_shader(&fs_shader);
-        map_shader->attach_shader(UnifiedRender::State::get_instance().builtin_shaders["fs_lib"].get());
+        map_shader->attach_shader(Eng3D::State::get_instance().builtin_shaders["fs_lib"].get());
         map_shader->link();
     }
 }
@@ -295,12 +295,12 @@ void MapRender::update_options(MapOptions new_options) {
 // Creates the "waving" border around the continent to give it a 19th century map feel
 // Generate a distance field to from each border using the jump flooding algorithm
 // Used to create borders thicker than one tile
-void MapRender::update_border_sdf(UnifiedRender::Rect update_area) {
+void MapRender::update_border_sdf(Eng3D::Rect update_area) {
     glEnable(GL_SCISSOR_TEST);
     glViewport(update_area.left, update_area.top, update_area.width(), update_area.height());
     glScissor(update_area.left, update_area.top, update_area.width(), update_area.height());
-    auto border_tex = UnifiedRender::Texture(world.width, world.height);
-    UnifiedRender::TextureOptions border_tex_options{};
+    auto border_tex = Eng3D::Texture(world.width, world.height);
+    Eng3D::TextureOptions border_tex_options{};
     border_tex_options.internal_format = GL_RGBA32F;
     border_tex_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     border_tex_options.mag_filter = GL_LINEAR;
@@ -315,7 +315,7 @@ void MapRender::update_border_sdf(UnifiedRender::Rect update_area) {
     tex_coord_scale.scale(1.f / glm::vec2(width, height));
 
     print_info("Creating border framebuffer");
-    auto border_fbuffer = UnifiedRender::OpenGL::Framebuffer();
+    auto border_fbuffer = Eng3D::OpenGL::Framebuffer();
     border_fbuffer.use();
     border_fbuffer.set_texture(0, border_tex);
 
@@ -334,7 +334,7 @@ void MapRender::update_border_sdf(UnifiedRender::Rect update_area) {
     sdf_shader->use();
     sdf_shader->set_uniform("map_size", width, height);
     sdf_shader->set_uniform("tex_coord_scale", tex_coord_scale.left, tex_coord_scale.top, tex_coord_scale.right, tex_coord_scale.bottom);
-    UnifiedRender::TextureOptions fbo_mipmap_options{};
+    Eng3D::TextureOptions fbo_mipmap_options{};
     fbo_mipmap_options.internal_format = GL_RGB32F;
     fbo_mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     fbo_mipmap_options.mag_filter = GL_LINEAR;
@@ -343,14 +343,14 @@ void MapRender::update_border_sdf(UnifiedRender::Rect update_area) {
     // The Red & Green color channels are the coords on the map
     // The Blue is the distance to a border
     if(border_sdf == nullptr) {
-        border_sdf = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(border_tex.width, border_tex.height));
+        border_sdf = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(border_tex.width, border_tex.height));
         border_sdf->to_opengl(fbo_mipmap_options);
     }
 
-    auto swap_tex = std::unique_ptr<UnifiedRender::Texture>(new UnifiedRender::Texture(width, height));
+    auto swap_tex = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(width, height));
     swap_tex->to_opengl(fbo_mipmap_options);
 
-    UnifiedRender::OpenGL::Framebuffer fbo = UnifiedRender::OpenGL::Framebuffer();
+    Eng3D::OpenGL::Framebuffer fbo = Eng3D::OpenGL::Framebuffer();
     fbo.use();
 
     // Jump flooding iterations, each step give a distance field 2^steps pixels away from the border
@@ -393,7 +393,7 @@ void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
     for(auto const& province_color : province_colors) {
         tile_sheet->buffer.get()[province_color.id] = province_color.color.get_value();
     }
-    UnifiedRender::TextureOptions no_drop_options{};
+    Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
     no_drop_options.internal_format = GL_SRGB;
     tile_sheet->to_opengl(no_drop_options);
@@ -408,7 +408,7 @@ void MapRender::update_nations(std::vector<Province*> provinces) {
         this->tile_sheet_nation->buffer.get()[province->cached_id] = province->controller->cached_id;
     }
 
-    UnifiedRender::TextureOptions no_drop_options{};
+    Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
     this->tile_sheet_nation->to_opengl(no_drop_options);
 }
@@ -427,7 +427,7 @@ void MapRender::update_visibility(void)
 
     // TODO: Check that unit is allied with us/province owned by an ally
 
-    UnifiedRender::TextureOptions no_drop_options{};
+    Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
     for(unsigned int i = 0; i < 256 * 256; i++) {
         province_opt->buffer.get()[i] = 0x00000080;

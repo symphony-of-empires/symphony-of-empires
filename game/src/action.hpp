@@ -26,7 +26,7 @@
 #pragma once
 
 #include <vector>
-#include "unified_render/network.hpp"
+#include "eng3d/network.hpp"
 
 enum class ActionType {
     // Errors
@@ -100,66 +100,66 @@ class Technology;
 namespace Action {
     class AiControl {
     public:
-        static UnifiedRender::Networking::Packet form_packet(Nation* target);
+        static Eng3D::Networking::Packet form_packet(Nation* target);
     };
 
     class DiploIncRelations {
     public:
-        static UnifiedRender::Networking::Packet form_packet(Nation* target);
+        static Eng3D::Networking::Packet form_packet(Nation* target);
     };
 
     class DiploDecRelations {
     public:
-        static UnifiedRender::Networking::Packet form_packet(Nation* target);
+        static Eng3D::Networking::Packet form_packet(Nation* target);
     };
 
     class DiploDeclareWar {
     public:
-        static UnifiedRender::Networking::Packet form_packet(Nation* target);
+        static Eng3D::Networking::Packet form_packet(Nation* target);
     };
 
     class ProvinceUpdate {
     public:
-        static UnifiedRender::Networking::Packet form_packet(const std::vector<Province*>& list);
+        static Eng3D::Networking::Packet form_packet(const std::vector<Province*>& list);
     };
 
     class NationUpdate {
     public:
-        static UnifiedRender::Networking::Packet form_packet(const std::vector<Nation*>& list);
+        static Eng3D::Networking::Packet form_packet(const std::vector<Nation*>& list);
     };
 
     class SelectNation {
     public:
-        static UnifiedRender::Networking::Packet form_packet(Nation* nation);
+        static Eng3D::Networking::Packet form_packet(Nation* nation);
     };
 
     class BuildingStartProducingUnit {
     public:
-        static UnifiedRender::Networking::Packet form_packet(Province* province, BuildingType* building_type, Nation* nation, UnitType* unit_type);
+        static Eng3D::Networking::Packet form_packet(Province* province, BuildingType* building_type, Nation* nation, UnitType* unit_type);
     };
 	
 	class BuildingAdd {
 	public:
-        static UnifiedRender::Networking::Packet form_packet(Province* province, BuildingType* building_type);
+        static Eng3D::Networking::Packet form_packet(Province* province, BuildingType* building_type);
 	};
 
     class FocusTech {
     public:
-		static UnifiedRender::Networking::Packet form_packet(Technology* technology);
+		static Eng3D::Networking::Packet form_packet(Technology* technology);
     };
 
     class NationAdd {
     public:
-        static UnifiedRender::Networking::Packet form_packet(const Nation& nation);
+        static Eng3D::Networking::Packet form_packet(const Nation& nation);
     };
 
     class UnitAdd {
     public:
-        static UnifiedRender::Networking::Packet form_packet(const Unit& unit);
+        static Eng3D::Networking::Packet form_packet(const Unit& unit);
     };
 
     class UnitUpdate {
     public:
-        static UnifiedRender::Networking::Packet form_packet(const std::vector<Unit*>& units);
+        static Eng3D::Networking::Packet form_packet(const std::vector<Unit*>& units);
     };
 };

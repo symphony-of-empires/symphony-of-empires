@@ -27,11 +27,11 @@
 #include "pop.hpp"
 #include "world.hpp"
 
-#include "unified_render/string_format.hpp"
-#include "unified_render/locale.hpp"
-#include "unified_render/ui/table.hpp"
-#include "unified_render/ui/label.hpp"
-#include "unified_render/ui/image.hpp"
+#include "eng3d/string_format.hpp"
+#include "eng3d/locale.hpp"
+#include "eng3d/ui/table.hpp"
+#include "eng3d/ui/label.hpp"
+#include "eng3d/ui/image.hpp"
 
 using namespace Interface;
 
@@ -65,7 +65,7 @@ PopWindow::PopWindow(GameState& gs)
 				size_t row_index = 0;
 
 				auto size = row->get_element(row_index++);
-				auto size_str = UnifiedRender::string_format("%.0f", pop.size);
+				auto size_str = Eng3D::string_format("%.0f", pop.size);
 				size->text(size_str);
 				size->set_key(pop.size);
 
@@ -78,30 +78,30 @@ PopWindow::PopWindow(GameState& gs)
 				type->set_key(pop.type->name.get_string());
 
 				auto culture = row->get_element(row_index++);
-				auto culture_str = UnifiedRender::Locale::translate(pop.culture->name.get_string());
+				auto culture_str = Eng3D::Locale::translate(pop.culture->name.get_string());
 				culture->text(culture_str);
 				culture->set_key(culture_str);
 
 				auto religion = row->get_element(row_index++);
                 religion->flex = UI::Flex::ROW;
 				religion->flex_justify = UI::FlexJustify::END;
-				auto religion_str = UnifiedRender::Locale::translate(pop.religion->name.get_string());
+				auto religion_str = Eng3D::Locale::translate(pop.religion->name.get_string());
 				new UI::Label(0, 0, religion_str, religion);
 				new UI::Image(0, 0, 35, 35, "gfx/religion/" + pop.religion->ref_name + ".png", true, religion);
 				religion->set_key(religion_str);
 
 				auto militancy = row->get_element(row_index++);
-				militancy->text(UnifiedRender::string_format("%1.2f", pop.militancy));
+				militancy->text(Eng3D::string_format("%1.2f", pop.militancy));
 				militancy->set_key(pop.militancy);
 
 				auto literacy = row->get_element(row_index++);
-				literacy->text(UnifiedRender::string_format("%2.0f%%", pop.literacy * 100));
+				literacy->text(Eng3D::string_format("%2.0f%%", pop.literacy * 100));
 				literacy->set_key(pop.literacy);
 
 				auto budget = row->get_element(row_index++);
-				auto budget_str = UnifiedRender::string_format("%.0f", pop.budget / pop.size);
+				auto budget_str = Eng3D::string_format("%.0f", pop.budget / pop.size);
 				budget->text(budget_str);
-				auto budget_tip = UnifiedRender::Locale::translate("A total budget of") + " " + UnifiedRender::string_format("%.0f", pop.budget);
+				auto budget_tip = Eng3D::Locale::translate("A total budget of") + " " + Eng3D::string_format("%.0f", pop.budget);
 				budget->set_tooltip(budget_tip);
 				budget->set_key(pop.budget / pop.size);
 			}

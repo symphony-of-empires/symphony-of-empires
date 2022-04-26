@@ -26,29 +26,29 @@
 #include <unordered_set>
 #include <stack>
 
-#include "unified_render/path.hpp"
-#include "unified_render/texture.hpp"
-#include "unified_render/state.hpp"
-#include "unified_render/curve.hpp"
-#include "unified_render/shader.hpp"
+#include "eng3d/path.hpp"
+#include "eng3d/texture.hpp"
+#include "eng3d/state.hpp"
+#include "eng3d/curve.hpp"
+#include "eng3d/shader.hpp"
 
 #include "client/borders.hpp"
 #include "client/camera.hpp"
 #include "glm/mat4x4.hpp"
 
 Borders::Borders() {
-    UnifiedRender::TextureOptions mipmap_options{};
+    Eng3D::TextureOptions mipmap_options{};
     mipmap_options.wrap_s = GL_REPEAT;
     mipmap_options.wrap_t = GL_REPEAT;
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
     mipmap_options.internal_format = GL_SRGB;
 
-    water_tex = UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/water_tex.png"), mipmap_options);
-    line_shader = std::unique_ptr<UnifiedRender::OpenGL::Program>(new UnifiedRender::OpenGL::Program());
+    water_tex = Eng3D::State::get_instance().tex_man->load(Path::get("gfx/water_tex.png"), mipmap_options);
+    line_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        line_shader->attach_shader(UnifiedRender::State::get_instance().builtin_shaders["vs_3d"].get());
-        auto fs_shader = UnifiedRender::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/curve.fs")), true);
+        line_shader->attach_shader(Eng3D::State::get_instance().builtin_shaders["vs_3d"].get());
+        auto fs_shader = Eng3D::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/curve.fs")), true);
         line_shader->attach_shader(&fs_shader);
         line_shader->link();
     }
@@ -151,10 +151,10 @@ public:
 };
 
 void Borders::build_borders() {
-    auto tex_man = UnifiedRender::State::get_instance().tex_man;
-    UnifiedRender::TextureOptions no_drop_options{};
+    auto tex_man = Eng3D::State::get_instance().tex_man;
+    Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
-    std::shared_ptr<UnifiedRender::Texture> border_tex = tex_man->load(Path::get("map/provinces.png"), no_drop_options);
+    std::shared_ptr<Eng3D::Texture> border_tex = tex_man->load(Path::get("map/provinces.png"), no_drop_options);
 
     std::vector<std::vector<glm::vec3>> borders;
     int height = border_tex->height;
@@ -163,7 +163,7 @@ void Borders::build_borders() {
     BorderGenerator::build_borders(borders, pixels, width, height);
 
     // TODO FIX THIS NOT INFINITE LOOP
-    auto* curve = new UnifiedRender::Curve();
+    auto* curve = new Eng3D::Curve();
     for(size_t i = 0; i < borders.size(); i++) {
         std::vector<glm::vec3> river = borders[i];
 

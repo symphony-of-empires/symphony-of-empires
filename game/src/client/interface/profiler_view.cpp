@@ -23,10 +23,10 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "unified_render/profiler.hpp"
-#include "unified_render/color.hpp"
-#include "unified_render/ui/components.hpp"
-#include "unified_render/ui/widget.hpp"
+#include "eng3d/profiler.hpp"
+#include "eng3d/color.hpp"
+#include "eng3d/ui/components.hpp"
+#include "eng3d/ui/widget.hpp"
 
 #include "client/interface/profiler_view.hpp"
 #include "client/game_state.hpp"
@@ -44,12 +44,12 @@ ProfilerView::ProfilerView(GameState& _gs)
     this->text("Profiler");
     this->is_scroll = false;
 
-    UnifiedRender::Profiler& profiler = gs.world->profiler;
+    Eng3D::Profiler& profiler = gs.world->profiler;
     float fps = profiler.get_fps();
 
     auto* fps_lab = new UI::Label(10, 0, "FPS: " + std::to_string((int)fps), this);
     fps_lab->on_update = ([this](UI::Widget& w) {
-        UnifiedRender::Profiler& profiler = this->gs.world->profiler;
+        Eng3D::Profiler& profiler = this->gs.world->profiler;
         float fps = profiler.get_fps();
         w.text("FPS: " + std::to_string((int)fps));
     });
@@ -64,7 +64,7 @@ ProfilerView::ProfilerView(GameState& _gs)
     auto* task_chart = new UI::BarChart(20, 20, 200, 20, this);
     task_chart->on_update = ([this](UI::Widget& w) {
         auto& chart = static_cast<UI::BarChart&>(w);
-        UnifiedRender::Profiler& profiler = this->gs.world->profiler;
+        Eng3D::Profiler& profiler = this->gs.world->profiler;
         std::vector<UI::ChartData> data;
         auto tasks = profiler.get_tasks();
         for(auto& task : tasks) {
@@ -75,7 +75,7 @@ ProfilerView::ProfilerView(GameState& _gs)
     });
 
     this->on_update = ([this](UI::Widget& w) {
-        UnifiedRender::Profiler& profiler = this->gs.world->profiler;
+        Eng3D::Profiler& profiler = this->gs.world->profiler;
         auto tasks = profiler.get_tasks();
         auto& task_views = this->task_views;
 
@@ -103,8 +103,8 @@ ProfilerTaskView::ProfilerTaskView(ProfilerView* profiler_view, int x, int y):
     label = new UI::Label(30, 0, " ", this);
 }
 
-void ProfilerTaskView::set_task(UnifiedRender::BenchmarkTask* profiler_view) {
-    color_box->color = UnifiedRender::Color::rgba32(profiler_view->color);
+void ProfilerTaskView::set_task(Eng3D::BenchmarkTask* profiler_view) {
+    color_box->color = Eng3D::Color::rgba32(profiler_view->color);
     float time = profiler_view->get_average_time_ms();
     std::string format_time = std::to_string((int)time);
     format_time = std::string(3 - std::min<size_t>(3, format_time.length()), '0') + format_time;

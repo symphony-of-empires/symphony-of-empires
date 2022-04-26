@@ -26,16 +26,16 @@
 #include <cmath>
 #include <unordered_map>
 
-#include "unified_render/path.hpp"
-#include "unified_render/string_format.hpp"
-#include "unified_render/texture.hpp"
-#include "unified_render/ui/button.hpp"
-#include "unified_render/ui/close_button.hpp"
-#include "unified_render/ui/image.hpp"
-#include "unified_render/ui/tooltip.hpp"
-#include "unified_render/ui/div.hpp"
-#include "unified_render/ui/label.hpp"
-#include "unified_render/locale.hpp"
+#include "eng3d/path.hpp"
+#include "eng3d/string_format.hpp"
+#include "eng3d/texture.hpp"
+#include "eng3d/ui/button.hpp"
+#include "eng3d/ui/close_button.hpp"
+#include "eng3d/ui/image.hpp"
+#include "eng3d/ui/tooltip.hpp"
+#include "eng3d/ui/div.hpp"
+#include "eng3d/ui/label.hpp"
+#include "eng3d/locale.hpp"
 
 #include "client/interface/minimap.hpp"
 #include "client/map.hpp"
@@ -172,7 +172,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     });
     good_price_ibtn->set_tooltip("Prices");
 
-    new UI::Image(65, 5, 332, 166, UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/minimap.png")), this);
+    new UI::Image(65, 5, 332, 166, Eng3D::State::get_instance().tex_man->load(Path::get("gfx/minimap.png")), this);
 }
 
 void Minimap::set_mapmode_options(Widget* widget) {
@@ -187,12 +187,12 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
     gs{ gs }
 {
     this->origin = UI::Origin::MIDDLE_RIGHT_SCREEN;
-    this->current_texture = UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/window_background.png"));
+    this->current_texture = Eng3D::State::get_instance().tex_man->load(Path::get("gfx/window_background.png"));
     this->is_scroll = true;
 
     glm::ivec2 size(4, 4);
     glm::ivec2 texture_size(10, 10);
-    auto tex_man = UnifiedRender::State::get_instance().tex_man;
+    auto tex_man = Eng3D::State::get_instance().tex_man;
     auto border_tex = tex_man->load(Path::get("gfx/ui/border2.png"));
     this->border = UI::Border(border_tex, size, texture_size);
 
@@ -204,7 +204,7 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
 
     for(size_t i = 0; i < goods.size(); i++) {
         Good* good = &goods[i];
-        UnifiedRender::TextureOptions options;
+        Eng3D::TextureOptions options;
         options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
         options.mag_filter = GL_LINEAR;
         auto good_tex = tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png"), options);
@@ -231,13 +231,13 @@ mapmode_tooltip good_tooltip(Good::Id good_id) {
         const Province& province = *world.provinces[id];
 
         if(province.controller == nullptr) {
-            return UnifiedRender::Locale::translate("Uncontrolled");
+            return Eng3D::Locale::translate("Uncontrolled");
         }
         const Product& product = province.products[good_id]; 
         std::string str;
-        str += UnifiedRender::string_format("Price: %f\n", product.price);
-        str += UnifiedRender::string_format("Demand: %f\n", product.demand);
-        str += UnifiedRender::string_format("Supply: %f\n", product.supply);
+        str += Eng3D::string_format("Price: %f\n", product.price);
+        str += Eng3D::string_format("Demand: %f\n", product.demand);
+        str += Eng3D::string_format("Supply: %f\n", product.supply);
         return str;
     };
 }
@@ -254,14 +254,14 @@ mapmode_generator good_map_mode(Good::Id id) {
         }
 
         // Mix each color depending of how many live there compared to max_amount
-        UnifiedRender::Color min = UnifiedRender::Color::rgb8(255, 229, 217);
-        UnifiedRender::Color max = UnifiedRender::Color::rgb8(220, 46, 35);
+        Eng3D::Color min = Eng3D::Color::rgb8(255, 229, 217);
+        Eng3D::Color max = Eng3D::Color::rgb8(220, 46, 35);
         std::vector<ProvinceColor> province_color;
         for(auto const& prov_amount : province_amounts) {
             Province::Id prov_id = prov_amount.first;
             uint32_t price = prov_amount.second;
             float ratio = price / max_price;
-            UnifiedRender::Color color = UnifiedRender::Color::lerp(min, max, ratio);
+            Eng3D::Color color = Eng3D::Color::lerp(min, max, ratio);
             province_color.push_back(ProvinceColor(prov_id, color));
         }
         return province_color;
@@ -278,7 +278,7 @@ void relations_map_mode_selector(const World& world, Map& map, Province* provinc
     map.set_map_mode(map_mode, tooltip);
 }
 
-#include "unified_render/utils.hpp"
+#include "eng3d/utils.hpp"
 mapmode_generator relations_map_mode(Nation::Id id) {
     return [id](const World& world) {
         std::vector<ProvinceColor> provinces_color;
@@ -286,20 +286,20 @@ mapmode_generator relations_map_mode(Nation::Id id) {
         for(unsigned int i = 0; i < world.provinces.size(); i++) {
             const Province& province = *world.provinces[i];
             if(province.controller == nullptr) {
-                UnifiedRender::Color color = UnifiedRender::Color::rgba32(bswap32(0x808080ff));
+                Eng3D::Color color = Eng3D::Color::rgba32(bswap32(0x808080ff));
                 provinces_color.push_back(ProvinceColor(i, color));
                 continue;
             }
 
             if(province.controller == nation || province.controller->puppet_master == nation) {
-                UnifiedRender::Color color = UnifiedRender::Color::rgba32(bswap32(0x8080ffff));
+                Eng3D::Color color = Eng3D::Color::rgba32(bswap32(0x8080ffff));
                 provinces_color.push_back(ProvinceColor(i, color));
                 continue;
             }
 
             const NationRelation& rel = province.controller->relations[id];
             if(rel.has_alliance) {
-                UnifiedRender::Color color = UnifiedRender::Color::rgba32(bswap32(0x20d4d1ff));
+                Eng3D::Color color = Eng3D::Color::rgba32(bswap32(0x20d4d1ff));
                 provinces_color.push_back(ProvinceColor(i, color));
                 continue;
             }
@@ -307,7 +307,7 @@ mapmode_generator relations_map_mode(Nation::Id id) {
             const uint8_t r = (rel.relation < 0.f) ? -rel.relation : 0.f;
             const uint8_t g = (rel.relation > 0.f) ? rel.relation : 0.f;
             const uint8_t b = g;
-            UnifiedRender::Color color = UnifiedRender::Color::rgba32(bswap32(~(0x00000000 | (b << 24) | (r << 16) | (g << 8))));
+            Eng3D::Color color = Eng3D::Color::rgba32(bswap32(~(0x00000000 | (b << 24) | (r << 16) | (g << 8))));
             provinces_color.push_back(ProvinceColor(i, color));
         }
         return provinces_color;
@@ -320,17 +320,17 @@ mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
         std::string str;
 
         if(province.controller == nullptr) {
-            str += UnifiedRender::Locale::translate("Uncontrolled");
+            str += Eng3D::Locale::translate("Uncontrolled");
             return str;
         }
 
         if(province.controller == province.owner) {
-            str += UnifiedRender::Locale::translate(province.controller->get_client_hint().alt_name.get_string());
+            str += Eng3D::Locale::translate(province.controller->get_client_hint().alt_name.get_string());
         } else {
-            str += UnifiedRender::Locale::translate("Owned by") + " ";
-            str += UnifiedRender::Locale::translate(province.owner->get_client_hint().alt_name.get_string());
-            str += " " + UnifiedRender::Locale::translate("controlled by") + " ";
-            str += UnifiedRender::Locale::translate(province.controller->get_client_hint().alt_name.get_string());
+            str += Eng3D::Locale::translate("Owned by") + " ";
+            str += Eng3D::Locale::translate(province.owner->get_client_hint().alt_name.get_string());
+            str += " " + Eng3D::Locale::translate("controlled by") + " ";
+            str += Eng3D::Locale::translate(province.controller->get_client_hint().alt_name.get_string());
         }
         str += " ";
 
@@ -362,17 +362,17 @@ mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
         str += std::to_string(rel.relation) + "(" + rel_lvls[idx % rel_lvls.size()] + ")";
 
         /*int ally_cnt = 0;
-        str += UnifiedRender::Locale::translate("Allied with") + " ";
+        str += Eng3D::Locale::translate("Allied with") + " ";
         for(const auto& nation : gs.world->nations) {
             const NationRelation& rel = province.controller->relations[world.get_id(*nation)];
             if(rel.has_alliance) {
-                str += UnifiedRender::Locale::translate(nation->get_client_hint().alt_name.get_string());
+                str += Eng3D::Locale::translate(nation->get_client_hint().alt_name.get_string());
                 str += ", ";
                 ally_cnt++;
             }
         }
         if(ally_cnt == 0) {
-            str += UnifiedRender::Locale::translate("nobody");
+            str += Eng3D::Locale::translate("nobody");
         }*/
         return str;
     };
@@ -381,12 +381,12 @@ mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
 std::vector<ProvinceColor> terrain_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
-        province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0x00000000)));
+        province_color.push_back(ProvinceColor(i, Eng3D::Color::rgba32(0x00000000)));
     }
     // Water
-    province_color.push_back(ProvinceColor((Province::Id)-2, UnifiedRender::Color::rgba32(0x00000000)));
+    province_color.push_back(ProvinceColor((Province::Id)-2, Eng3D::Color::rgba32(0x00000000)));
     // Land
-    province_color.push_back(ProvinceColor((Province::Id)-1, UnifiedRender::Color::rgba32(0x00000000)));
+    province_color.push_back(ProvinceColor((Province::Id)-1, Eng3D::Color::rgba32(0x00000000)));
     return province_color;
 }
 
@@ -394,13 +394,13 @@ std::vector<ProvinceColor> terrain_color_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
         Province* province = world.provinces[i];
-        UnifiedRender::Color color = UnifiedRender::Color::rgba32(province->terrain_type->color);
+        Eng3D::Color color = Eng3D::Color::rgba32(province->terrain_type->color);
         province_color.push_back(ProvinceColor(i, color));
     }
     // Water
-    province_color.push_back(ProvinceColor((Province::Id)-2, UnifiedRender::Color::rgba32(0x00000000)));
+    province_color.push_back(ProvinceColor((Province::Id)-2, Eng3D::Color::rgba32(0x00000000)));
     // Land
-    province_color.push_back(ProvinceColor((Province::Id)-1, UnifiedRender::Color::rgba32(0x00000000)));
+    province_color.push_back(ProvinceColor((Province::Id)-1, Eng3D::Color::rgba32(0x00000000)));
     return province_color;
 }
 
@@ -424,14 +424,14 @@ std::vector<ProvinceColor> population_map_mode(const World& world) {
     }
 
     // Mix each color depending of how many live there compared to max_amount
-    UnifiedRender::Color min = UnifiedRender::Color::rgb8(255, 255, 255);
-    UnifiedRender::Color max = UnifiedRender::Color::rgb8(180, 24, 24);
+    Eng3D::Color min = Eng3D::Color::rgb8(255, 255, 255);
+    Eng3D::Color max = Eng3D::Color::rgb8(180, 24, 24);
     std::vector<ProvinceColor> province_color;
     for(auto const& prov_amount : province_amounts) {
         Province::Id prov_id = prov_amount.first;
         uint32_t amount = prov_amount.second;
         float ratio = amount / max_amount;
-        UnifiedRender::Color color = UnifiedRender::Color::lerp(min, max, ratio);
+        Eng3D::Color color = Eng3D::Color::lerp(min, max, ratio);
         province_color.push_back(ProvinceColor(prov_id, color));
     }
     return province_color;
@@ -452,7 +452,7 @@ std::string population_tooltip(const World& world, const Province::Id id){
 
 std::vector<ProvinceColor> culture_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
-    UnifiedRender::Color min = UnifiedRender::Color::rgb8(255, 255, 255);
+    Eng3D::Color min = Eng3D::Color::rgb8(255, 255, 255);
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
         Province* province = world.provinces[i];
         std::unordered_map<Culture::Id, size_t> culture_amounts;
@@ -477,15 +477,15 @@ std::vector<ProvinceColor> culture_map_mode(const World& world) {
                 max_culture_id = pop.culture->cached_id;
             }
         }
-        UnifiedRender::Color max = UnifiedRender::Color::rgba32(world.cultures[max_culture_id].color);
-        UnifiedRender::Color color = UnifiedRender::Color::lerp(min, max, ((float)max_amount) / total_amount);
+        Eng3D::Color max = Eng3D::Color::rgba32(world.cultures[max_culture_id].color);
+        Eng3D::Color color = Eng3D::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.push_back(ProvinceColor(i, color));
     }
 
     // Water
-    province_color.push_back(ProvinceColor((Province::Id)-2, UnifiedRender::Color::rgba32(0x00000000)));
+    province_color.push_back(ProvinceColor((Province::Id)-2, Eng3D::Color::rgba32(0x00000000)));
     // Land
-    province_color.push_back(ProvinceColor((Province::Id)-1, UnifiedRender::Color::rgba32(0xffdddddd)));
+    province_color.push_back(ProvinceColor((Province::Id)-1, Eng3D::Color::rgba32(0xffdddddd)));
     return province_color;
 }
 
@@ -523,7 +523,7 @@ std::string culture_tooltip(const World& world, const Province::Id id){
 
 std::vector<ProvinceColor> religion_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
-    UnifiedRender::Color min = UnifiedRender::Color::rgb8(255, 255, 255);
+    Eng3D::Color min = Eng3D::Color::rgb8(255, 255, 255);
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
         Province* province = world.provinces[i];
         std::unordered_map<Religion::Id, size_t> religion_amounts;
@@ -548,15 +548,15 @@ std::vector<ProvinceColor> religion_map_mode(const World& world) {
                 max_religion_id = pop.religion->cached_id;
             }
         }
-        UnifiedRender::Color max = UnifiedRender::Color::rgba32(world.religions[max_religion_id].color);
-        UnifiedRender::Color color = UnifiedRender::Color::lerp(min, max, ((float)max_amount) / total_amount);
+        Eng3D::Color max = Eng3D::Color::rgba32(world.religions[max_religion_id].color);
+        Eng3D::Color color = Eng3D::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.push_back(ProvinceColor(i, color));
     }
 
     // Water
-    province_color.push_back(ProvinceColor((Province::Id)-2, UnifiedRender::Color::rgba32(0x00000000)));
+    province_color.push_back(ProvinceColor((Province::Id)-2, Eng3D::Color::rgba32(0x00000000)));
     // Land
-    province_color.push_back(ProvinceColor((Province::Id)-1, UnifiedRender::Color::rgba32(0xffdddddd)));
+    province_color.push_back(ProvinceColor((Province::Id)-1, Eng3D::Color::rgba32(0xffdddddd)));
     return province_color;
 }
 

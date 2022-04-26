@@ -23,7 +23,7 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "unified_render/ui/components.hpp"
+#include "eng3d/ui/components.hpp"
 
 #include "client/interface/treaty.hpp"
 #include "io_impl.hpp"
@@ -162,7 +162,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
     draft_btn->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<TreatyDraftView&>(*w.parent);
 
-        UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+        Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
         Archive ar = Archive();
         ActionType action = ActionType::DRAFT_TREATY;
         ::serialize(ar, &action);

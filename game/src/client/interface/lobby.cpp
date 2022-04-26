@@ -25,10 +25,10 @@
 
 #include <filesystem>
 
-#include "unified_render/ui/ui.hpp"
-#include "unified_render/ui/button.hpp"
-#include "unified_render/ui/label.hpp"
-#include "unified_render/ui/group.hpp"
+#include "eng3d/ui/ui.hpp"
+#include "eng3d/ui/button.hpp"
+#include "eng3d/ui/label.hpp"
+#include "eng3d/ui/group.hpp"
 
 #include "client/interface/lobby.hpp"
 #include "client/game_state.hpp"

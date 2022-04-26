@@ -66,16 +66,16 @@
 //#include <sys/wait.h>
 #endif
 
-#include "unified_render/event.hpp"
-#include "unified_render/path.hpp"
-#include "unified_render/serializer.hpp"
-#include "unified_render/print.hpp"
-#include "unified_render/material.hpp"
-#include "unified_render/model.hpp"
-#include "unified_render/texture.hpp"
-#include "unified_render/ui/ui.hpp"
-#include "unified_render/ui/input.hpp"
-#include "unified_render/log.hpp"
+#include "eng3d/event.hpp"
+#include "eng3d/path.hpp"
+#include "eng3d/serializer.hpp"
+#include "eng3d/print.hpp"
+#include "eng3d/material.hpp"
+#include "eng3d/model.hpp"
+#include "eng3d/texture.hpp"
+#include "eng3d/ui/ui.hpp"
+#include "eng3d/ui/input.hpp"
+#include "eng3d/log.hpp"
 
 #include "good.hpp"
 #include "io_impl.hpp"
@@ -128,7 +128,7 @@ void GameState::play_nation() {
     this->client->send(Action::AiControl::form_packet(this->curr_nation));
 }
 
-std::shared_ptr<UnifiedRender::Texture> GameState::get_nation_flag(Nation& nation) {
+std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(Nation& nation) {
     Nation::Id id = world->get_id(nation);
     return map->nation_flags[id];
 }
@@ -181,7 +181,7 @@ void handle_event(Input& input, GameState& gs) {
                 std::scoped_lock lock(gs.sound_lock);
                 auto entries = Path::get_all_recursive("sfx/click");
                 if(!entries.empty()) {
-                    gs.sound_queue.push_back(new UnifiedRender::Audio(entries[std::rand() % entries.size()]));
+                    gs.sound_queue.push_back(new Eng3D::Audio(entries[std::rand() % entries.size()]));
                 }
             }
             break;
@@ -195,7 +195,7 @@ void handle_event(Input& input, GameState& gs) {
                 std::scoped_lock lock(gs.sound_lock);
                 auto entries = Path::get_all_recursive("sfx/click");
                 if(!entries.empty()) {
-                    gs.sound_queue.push_back(new UnifiedRender::Audio(entries[std::rand() % entries.size()]));
+                    gs.sound_queue.push_back(new Eng3D::Audio(entries[std::rand() % entries.size()]));
                 }
             }
             break;
@@ -212,8 +212,8 @@ void handle_event(Input& input, GameState& gs) {
             ui_ctx->check_text_input((const char*)&event.text.text);
             break;
         case SDL_KEYDOWN:
-            switch(UnifiedRender::Keyboard::from_sdlk(event.key.keysym.sym)) {
-            case UnifiedRender::Keyboard::Key::F1:
+            switch(Eng3D::Keyboard::from_sdlk(event.key.keysym.sym)) {
+            case Eng3D::Keyboard::Key::F1:
                 if(gs.current_mode == MapMode::NORMAL) {
                     if(gs.profiler_view) {
                         delete gs.profiler_view;
@@ -224,7 +224,7 @@ void handle_event(Input& input, GameState& gs) {
                     }
                 }
                 break;
-            case UnifiedRender::Keyboard::Key::SPACE:
+            case Eng3D::Keyboard::Key::SPACE:
                 if(gs.editor) {
                     break;
                 }
@@ -239,7 +239,7 @@ void handle_event(Input& input, GameState& gs) {
                     }
                 }
                 break;
-            case UnifiedRender::Keyboard::Key::B:
+            case Eng3D::Keyboard::Key::B:
                 if(gs.editor) {
                     break;
                 }
@@ -255,10 +255,10 @@ void handle_event(Input& input, GameState& gs) {
                     }
                 }
                 break;
-            case UnifiedRender::Keyboard::Key::A:
+            case Eng3D::Keyboard::Key::A:
                 new Interface::AISettingsWindow(gs);
                 break;
-            case UnifiedRender::Keyboard::Key::BACKSPACE:
+            case Eng3D::Keyboard::Key::BACKSPACE:
                 ui_ctx->check_text_input(nullptr);
                 break;
             default:
@@ -285,12 +285,12 @@ void handle_event(Input& input, GameState& gs) {
 void GameState::send_command(Archive& archive) {
     std::scoped_lock lock(client->pending_packets_mutex);
 
-    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet(g_client->get_fd());
+    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet(g_client->get_fd());
     packet.data(archive.get_buffer(), archive.size());
     client->pending_packets.push_back(packet);
 }
 
-#include "unified_render/utils.hpp"
+#include "eng3d/utils.hpp"
 void save(GameState& gs) {
     if(gs.editor) {
         std::filesystem::create_directory("editor");
@@ -633,7 +633,7 @@ void GameState::world_thread(void) {
                 world->world_mutex.unlock();
                 std::scoped_lock lock(render_lock);
                 ui_ctx->prompt("Runtime exception", e.what());
-                UnifiedRender::Log::error("game", e.what());
+                Eng3D::Log::error("game", e.what());
                 paused = true;
             }
 
@@ -662,7 +662,7 @@ void GameState::music_thread(void) {
     path_entries.clear();
     entries.shrink_to_fit();
 
-    //this->music_queue.push_back(new UnifiedRender::Audio(Path::get("sfx/music/ambience/02_Ii-AndanteMoltoMosso.ogg")));
+    //this->music_queue.push_back(new Eng3D::Audio(Path::get("sfx/music/ambience/02_Ii-AndanteMoltoMosso.ogg")));
 
     while(this->run) {
         if(this->music_queue.empty()) {
@@ -672,7 +672,7 @@ void GameState::music_thread(void) {
             if(!entries.empty()) {
                 const int music_index = std::rand() % entries.size();
                 std::scoped_lock lock(this->sound_lock);
-                this->music_queue.push_back(new UnifiedRender::Audio(entries[music_index].path));
+                this->music_queue.push_back(new Eng3D::Audio(entries[music_index].path));
                 entries[music_index].has_played = true;
             }
         }
@@ -690,9 +690,9 @@ void GameState::load_world_thread(void) {
 
 #include <filesystem>
 
-#include "unified_render/ui/image.hpp"
-#include "unified_render/audio.hpp"
-#include "unified_render/locale.hpp"
+#include "eng3d/ui/image.hpp"
+#include "eng3d/audio.hpp"
+#include "eng3d/locale.hpp"
 
 #include "client/interface/main_menu.hpp"
 
@@ -725,10 +725,10 @@ void start_client(int, char**) {
             fclose(fp);
 
             for(const auto& [key, value] : trans_msg) {
-                UnifiedRender::Log::debug("trans", key + "=" + value);
+                Eng3D::Log::debug("trans", key + "=" + value);
             }
         } else {
-            UnifiedRender::Log::error("trans", "Cannot open locale file " + Path::get("locale/ko/main.po"));
+            Eng3D::Log::error("trans", "Cannot open locale file " + Path::get("locale/ko/main.po"));
         }
     }
 
@@ -741,7 +741,7 @@ void start_client(int, char**) {
     bg_img->origin = UI::Origin::CENTER_SCREEN;
     auto* load_lab = new UI::Label(0, -24, "Loading...");
     load_lab->origin = UI::Origin::LOWER_LEFT_SCREEN;
-    load_lab->color = UnifiedRender::Color(1.f, 1.f, 1.f);
+    load_lab->color = Eng3D::Color(1.f, 1.f, 1.f);
     auto mod_logo_tex = gs.tex_man->load(Path::get("gfx/mod_logo.png"));
     auto* mod_logo_img = new UI::Image(0, 0, mod_logo_tex->width, mod_logo_tex->height, mod_logo_tex);
 
@@ -754,7 +754,7 @@ void start_client(int, char**) {
     bool load_unit_type_icons = false;
     std::vector<UnitType>::const_iterator load_it_unit_type;
 
-    UnifiedRender::TextureOptions mipmap_options{};
+    Eng3D::TextureOptions mipmap_options{};
     mipmap_options.wrap_s = GL_REPEAT;
     mipmap_options.wrap_t = GL_REPEAT;
     mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;

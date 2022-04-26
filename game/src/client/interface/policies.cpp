@@ -25,12 +25,12 @@
 
 #include "client/interface/policies.hpp"
 #include "client/client_network.hpp"
-#include "unified_render/serializer.hpp"
+#include "eng3d/serializer.hpp"
 #include "io_impl.hpp"
-#include "unified_render/ui/components.hpp"
+#include "eng3d/ui/components.hpp"
 
-#include "unified_render/texture.hpp"
-#include "unified_render/path.hpp"
+#include "eng3d/texture.hpp"
+#include "eng3d/path.hpp"
 
 using namespace Interface;
 
@@ -188,7 +188,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     enact_btn->text("Enact policy");
     enact_btn->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<PoliciesScreen&>(*w.parent);
-        UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+        Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
         Archive ar = Archive();
         ActionType action = ActionType::NATION_ENACT_POLICY;
         ::serialize(ar, &action);

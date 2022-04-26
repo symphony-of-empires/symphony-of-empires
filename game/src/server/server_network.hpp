@@ -35,7 +35,7 @@
 #include <winsock2.h>
 #endif
 
-#include "unified_render/network.hpp"
+#include "eng3d/network.hpp"
 
 class ServerException : public std::exception {
     std::string buffer;
@@ -49,7 +49,7 @@ public:
 };
 
 class GameState;
-class Server : public UnifiedRender::Networking::Server {
+class Server : public Eng3D::Networking::Server {
     GameState& gs;
 public:
     Server(GameState& gs, unsigned port = 1825, unsigned max_conn = 16);

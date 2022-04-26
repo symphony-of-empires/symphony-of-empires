@@ -32,7 +32,7 @@
 #include <functional>
 #include <atomic>
 
-namespace UnifiedRender {
+namespace Eng3D {
     class Texture;
     class Model;
     class TextureArray;
@@ -46,8 +46,8 @@ namespace UnifiedRender {
     }
 }
 
-#include "unified_render/color.hpp"
-#include "unified_render/shader.hpp"
+#include "eng3d/color.hpp"
+#include "eng3d/shader.hpp"
 
 class World;
 class Camera;
@@ -58,7 +58,7 @@ union SDL_Event;
 class Input;
 class ProvinceColors;
 
-typedef UnifiedRender::OpenGL::Option Option;
+typedef Eng3D::OpenGL::Option Option;
 class MapOptions {
 public:
     Option noise{ "NOISE", true };
@@ -90,38 +90,38 @@ public:
 
     MapOptions options;
 private:
-    void update_border_sdf(UnifiedRender::Rect update_area);
+    void update_border_sdf(Eng3D::Rect update_area);
 
     const World& world;
 
     // Map textures
-    std::shared_ptr<UnifiedRender::Texture> water_tex;
-    std::shared_ptr<UnifiedRender::Texture> paper_tex;
-    std::shared_ptr<UnifiedRender::Texture> stripes_tex;
-    std::shared_ptr<UnifiedRender::Texture> noise_tex;
-    std::shared_ptr<UnifiedRender::Texture> river_tex;
-    std::shared_ptr<UnifiedRender::Texture> wave1;
-    std::shared_ptr<UnifiedRender::Texture> wave2;
-    std::shared_ptr<UnifiedRender::Texture> bathymethry;
+    std::shared_ptr<Eng3D::Texture> water_tex;
+    std::shared_ptr<Eng3D::Texture> paper_tex;
+    std::shared_ptr<Eng3D::Texture> stripes_tex;
+    std::shared_ptr<Eng3D::Texture> noise_tex;
+    std::shared_ptr<Eng3D::Texture> river_tex;
+    std::shared_ptr<Eng3D::Texture> wave1;
+    std::shared_ptr<Eng3D::Texture> wave2;
+    std::shared_ptr<Eng3D::Texture> bathymethry;
 
-    std::unique_ptr<UnifiedRender::Texture> tile_sheet;
-    std::unique_ptr<UnifiedRender::Texture> tile_sheet_nation;
-    std::unique_ptr<UnifiedRender::TextureArray> terrain_sheet;
-    std::unique_ptr<UnifiedRender::Texture> normal_topo;
-    std::unique_ptr<UnifiedRender::Texture> province_opt;
-    std::unique_ptr<UnifiedRender::Texture> tile_map;
-    std::unique_ptr<UnifiedRender::Texture> topo_map;
-    std::unique_ptr<UnifiedRender::Texture> terrain_map;
-    std::unique_ptr<UnifiedRender::Texture> border_sdf;
+    std::unique_ptr<Eng3D::Texture> tile_sheet;
+    std::unique_ptr<Eng3D::Texture> tile_sheet_nation;
+    std::unique_ptr<Eng3D::TextureArray> terrain_sheet;
+    std::unique_ptr<Eng3D::Texture> normal_topo;
+    std::unique_ptr<Eng3D::Texture> province_opt;
+    std::unique_ptr<Eng3D::Texture> tile_map;
+    std::unique_ptr<Eng3D::Texture> topo_map;
+    std::unique_ptr<Eng3D::Texture> terrain_map;
+    std::unique_ptr<Eng3D::Texture> border_sdf;
 
-    std::vector<UnifiedRender::Square*> map_quads;
-    UnifiedRender::Sphere* map_sphere;
-    UnifiedRender::Quad2D* map_2d_quad;
+    std::vector<Eng3D::Square*> map_quads;
+    Eng3D::Sphere* map_sphere;
+    Eng3D::Quad2D* map_2d_quad;
 
-    std::unique_ptr<UnifiedRender::OpenGL::Program> map_shader;
-    std::unique_ptr<UnifiedRender::OpenGL::Program> sdf_shader;
-    std::unique_ptr<UnifiedRender::OpenGL::Program> border_gen_shader;
-    std::unique_ptr<UnifiedRender::OpenGL::Program> output_shader;
+    std::unique_ptr<Eng3D::OpenGL::Program> map_shader;
+    std::unique_ptr<Eng3D::OpenGL::Program> sdf_shader;
+    std::unique_ptr<Eng3D::OpenGL::Program> border_gen_shader;
+    std::unique_ptr<Eng3D::OpenGL::Program> output_shader;
 
     std::atomic<bool> req_update_vision = true;
 };

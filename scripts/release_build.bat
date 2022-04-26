@@ -7,7 +7,7 @@ CD build
 ECHO ">>> Making the release build"
 MKDIR release
 CD release
-cmake -DCMAKE_BUILD_TYPE=Release -DUR_BACKEND_OPENGL=1 -G"Unix Makefiles" ../..
+cmake -DCMAKE_BUILD_TYPE=Release -DE3D_BACKEND_OPENGL=1 -G"Unix Makefiles" ../..
 make -j2
 CD ..
 
@@ -16,7 +16,7 @@ MKDIR distro
 CD distro
 COPY ..\release\game\game.exe soe.exe
 STRIP --strip-debug soe.exe -o soe.exe
-COPY ..\release\unified_render\libunified_render.dll libunified_render.dll
+COPY ..\release\eng3d\libeng3d.dll libeng3d.dll
 MKDIR mods
 XCOPY ..\..\mods mods /E /Y
 ECHO "Now add the remaining DLLs!"

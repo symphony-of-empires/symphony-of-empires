@@ -30,12 +30,12 @@
 #include <cstring>
 #include <cstdlib>
 
-#include "unified_render/print.hpp"
-#include "unified_render/path.hpp"
-#include "unified_render/utils.hpp"
-#include "unified_render/decimal.hpp"
-#include "unified_render/log.hpp"
-#include "unified_render/assert.hpp"
+#include "eng3d/print.hpp"
+#include "eng3d/path.hpp"
+#include "eng3d/utils.hpp"
+#include "eng3d/decimal.hpp"
+#include "eng3d/log.hpp"
+#include "eng3d/assert.hpp"
 
 #include "server/lua_api.hpp"
 #include "world.hpp"
@@ -1339,7 +1339,7 @@ void LuaAPI::check_events(lua_State* L) {
                 auto orig_event = Event(*event);
 
                 // Call the "do event" function
-                UnifiedRender::Log::debug("event", "Event " + event->ref_name + " using " + event->do_event_function + " function");
+                Eng3D::Log::debug("event", "Event " + event->ref_name + " using " + event->do_event_function + " function");
                 lua_getglobal(L, event->do_event_function.c_str());
                 lua_pushstring(L, nation->ref_name.c_str());
                 if(call_func(L, 1, 1)) {
@@ -1354,14 +1354,14 @@ void LuaAPI::check_events(lua_State* L) {
                     // The changes done to the event "locally" are then created into a new local event
                     auto local_event = Event(*event);
                     local_event.cached_id = (Event::Id)-1;
-                    local_event.ref_name = UnifiedRender::StringRef(local_event.ref_name + "_local_" + nation->ref_name);
+                    local_event.ref_name = Eng3D::StringRef(local_event.ref_name + "_local_" + nation->ref_name);
                     // Do not relaunch a local event
                     local_event.checked = true;
                     if(local_event.decisions.empty()) {
-                        UnifiedRender::Log::error("event", "Event " + local_event.ref_name + " has no decisions (ref_name = " + nation->ref_name + ")");
+                        Eng3D::Log::error("event", "Event " + local_event.ref_name + " has no decisions (ref_name = " + nation->ref_name + ")");
                     }
                     nation->inbox.push_back(local_event);
-                    UnifiedRender::Log::debug("event", "Event triggered! " + local_event.ref_name + " (with " + std::to_string(local_event.decisions.size()) + " decisions)");
+                    Eng3D::Log::debug("event", "Event triggered! " + local_event.ref_name + " (with " + std::to_string(local_event.decisions.size()) + " decisions)");
                 }
 
             restore_original:
@@ -1379,13 +1379,13 @@ void LuaAPI::check_events(lua_State* L) {
     // Do decisions taken effects in the queue, then clear it awaiting
     // other taken decisions :)
     for(auto& dec : g_world->taken_decisions) {
-        UnifiedRender::Log::debug("event", dec.second->ref_name + " took the decision " + dec.first->do_decision_function);
+        Eng3D::Log::debug("event", dec.second->ref_name + " took the decision " + dec.first->do_decision_function);
 
         lua_getglobal(L, dec.first->do_decision_function.c_str());
         lua_pushstring(L, dec.second->ref_name.c_str());
         if(call_func(L, 1, 0)) {
             std::string err_msg = lua_tostring(L, -1);
-            UnifiedRender::Log::error("lua", "lua_pcall failed: " + err_msg);
+            Eng3D::Log::error("lua", "lua_pcall failed: " + err_msg);
             lua_pop(L, 1);
             throw LuaAPI::Exception(dec.first->do_decision_function + "(" + dec.second->ref_name + "): " + err_msg);
         }

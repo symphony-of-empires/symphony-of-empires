@@ -23,7 +23,7 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "unified_render/log.hpp"
+#include "eng3d/log.hpp"
 
 #include "diplomacy.hpp"
 #include "nation.hpp"
@@ -148,7 +148,7 @@ void TreatyClause::AnnexProvince::enforce(void) {
 
     // Give provinces to the winner
     for(auto& province : provinces) {
-        UnifiedRender::Log::debug("game", "Giving " + province->ref_name + " to " + sender->ref_name + " from " + receiver->ref_name);
+        Eng3D::Log::debug("game", "Giving " + province->ref_name + " to " + sender->ref_name + " from " + receiver->ref_name);
         // Change ownership of provinces
         sender->give_province(*province);
     }

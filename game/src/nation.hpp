@@ -33,8 +33,8 @@
 #include <string>
 #include <vector>
 
-#include "unified_render/entity.hpp"
-#include "unified_render/string.hpp"
+#include "eng3d/entity.hpp"
+#include "eng3d/string.hpp"
 
 #include "policy.hpp"
 #include "province.hpp"
@@ -49,9 +49,9 @@ class Technology;
 // This allows for cases where a country A hates country B, but country B loves country A
 class NationRelation {
 public:
-    UnifiedRender::Decimal relation;
+    Eng3D::Decimal relation;
     // Interest of a nation on this nation
-    UnifiedRender::Decimal interest;
+    Eng3D::Decimal interest;
 
     // Whetever commercial operations are allowed on on the target country
     bool has_embargo;
@@ -72,7 +72,7 @@ public:
     uint32_t color;
 
     // Alternate name, for example communist Russia would be called USSR
-    UnifiedRender::StringRef alt_name;
+    Eng3D::StringRef alt_name;
 
     // Ideology to which this hint applies to (nullptr = default fallback)
     Ideology* ideology;
@@ -84,19 +84,19 @@ public:
     // They should never be 0, a modifier of 1.0 is equal to no modifer at
     // all. And a modifier of 0.5 would cause a 1/2. Similar to a 2 which
     // would make a x2
-    UnifiedRender::Decimal industry_output_mod = 1.f;
-    UnifiedRender::Decimal industry_input_mod = 1.f;
-    UnifiedRender::Decimal workers_needed_mod = 1.f;
-    UnifiedRender::Decimal salary_paid_mod = 1.f;
-    UnifiedRender::Decimal delivery_cost_mod = 1.f;
-    UnifiedRender::Decimal literacy_learn_mod = 1.f;
-    UnifiedRender::Decimal reproduction_mod = 1.f;
-    UnifiedRender::Decimal death_mod = 1.f;
-    UnifiedRender::Decimal militancy_mod = 1.f;
-    UnifiedRender::Decimal life_needs_met_mod = 1.f;
-    UnifiedRender::Decimal everyday_needs_met_mod = 1.f;
-    UnifiedRender::Decimal luxury_needs_met_mod = 1.f;
-    UnifiedRender::Decimal immigration_attraction = 1.f;
+    Eng3D::Decimal industry_output_mod = 1.f;
+    Eng3D::Decimal industry_input_mod = 1.f;
+    Eng3D::Decimal workers_needed_mod = 1.f;
+    Eng3D::Decimal salary_paid_mod = 1.f;
+    Eng3D::Decimal delivery_cost_mod = 1.f;
+    Eng3D::Decimal literacy_learn_mod = 1.f;
+    Eng3D::Decimal reproduction_mod = 1.f;
+    Eng3D::Decimal death_mod = 1.f;
+    Eng3D::Decimal militancy_mod = 1.f;
+    Eng3D::Decimal life_needs_met_mod = 1.f;
+    Eng3D::Decimal everyday_needs_met_mod = 1.f;
+    Eng3D::Decimal luxury_needs_met_mod = 1.f;
+    Eng3D::Decimal immigration_attraction = 1.f;
 };
 
 class Nation : public RefnameEntity<uint16_t> {
@@ -117,27 +117,27 @@ public:
     bool is_accepted_culture(const Culture& culture) const;
     bool is_accepted_religion(const Pop& pop) const;
     bool is_accepted_religion(const Religion& relgion) const;
-    UnifiedRender::Decimal get_tax(const Pop& pop) const;
+    Eng3D::Decimal get_tax(const Pop& pop) const;
     void give_province(Province& province);
     void control_province(Province& province);
     const NationClientHint& get_client_hint(void);
-    UnifiedRender::Decimal get_research_points(void) const;
+    Eng3D::Decimal get_research_points(void) const;
     bool can_research(const Technology* tech) const;
     void change_research_focus(Technology* tech);
     std::vector<Nation*> get_allies(void);
-    UnifiedRender::Decimal get_industry_output_mod(void);
-    UnifiedRender::Decimal get_industry_input_mod(void);
-    UnifiedRender::Decimal get_workers_needed_mod(void);
-    UnifiedRender::Decimal get_salary_paid_mod(void);
-    UnifiedRender::Decimal get_delivery_cost_mod(void);
-    UnifiedRender::Decimal get_literacy_learn_mod(void);
-    UnifiedRender::Decimal get_reproduction_mod(void);
-    UnifiedRender::Decimal get_death_mod(void);
-    UnifiedRender::Decimal get_militancy_mod(void);
-    UnifiedRender::Decimal get_life_needs_met_mod(void);
-    UnifiedRender::Decimal get_everyday_needs_met_mod(void);
-    UnifiedRender::Decimal get_luxury_needs_met_mod(void);
-    UnifiedRender::Decimal get_immigration_attraction_mod(void);
+    Eng3D::Decimal get_industry_output_mod(void);
+    Eng3D::Decimal get_industry_input_mod(void);
+    Eng3D::Decimal get_workers_needed_mod(void);
+    Eng3D::Decimal get_salary_paid_mod(void);
+    Eng3D::Decimal get_delivery_cost_mod(void);
+    Eng3D::Decimal get_literacy_learn_mod(void);
+    Eng3D::Decimal get_reproduction_mod(void);
+    Eng3D::Decimal get_death_mod(void);
+    Eng3D::Decimal get_militancy_mod(void);
+    Eng3D::Decimal get_life_needs_met_mod(void);
+    Eng3D::Decimal get_everyday_needs_met_mod(void);
+    Eng3D::Decimal get_luxury_needs_met_mod(void);
+    Eng3D::Decimal get_immigration_attraction_mod(void);
 
     // Our puppetmaster
     Nation* puppet_master = nullptr;
@@ -146,24 +146,24 @@ public:
     std::vector<NationRelation> relations;
 
     // Number of diplomacy points available
-    UnifiedRender::Decimal diplomacy_points;
+    Eng3D::Decimal diplomacy_points;
 
     // Total number of prestige
-    UnifiedRender::Decimal prestige = 0.1f;
+    Eng3D::Decimal prestige = 0.1f;
 
     // Level of infamy
-    UnifiedRender::Decimal infamy = 0;
+    Eng3D::Decimal infamy = 0;
 
     // 3 key scores used to define a nation's minimum prestige, how willing would the AI
     // be to challenge this nations and other valuable stuff
-    UnifiedRender::Decimal military_score = 0, naval_score = 0, economy_score = 0;
+    Eng3D::Decimal military_score = 0, naval_score = 0, economy_score = 0;
 
     // Total budget of the nation (money in ark), this is not equal to GDP, the GDP is the total sum of the price
     // of all products in the nation, which are volatile unless they are sold
-    UnifiedRender::Decimal budget;
+    Eng3D::Decimal budget;
 
     // Total GDP of the nation
-    UnifiedRender::Decimal gdp = 0;
+    Eng3D::Decimal gdp = 0;
 
     // The capital of this nation (can be nullptr)
     Province* capital = nullptr;
@@ -197,7 +197,7 @@ public:
     std::deque<Event> inbox;
 
     // Progress on technologies (1:1)
-    std::vector<UnifiedRender::Decimal> research;
+    std::vector<Eng3D::Decimal> research;
 
     // Current focused tech
     Technology* focus_tech = nullptr;

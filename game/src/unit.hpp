@@ -30,8 +30,8 @@
 #include <cstdint>
 #include <cstddef>
 #include <type_traits>
-#include "unified_render/entity.hpp"
-#include "unified_render/decimal.hpp"
+#include "eng3d/entity.hpp"
+#include "eng3d/decimal.hpp"
 
 class Nation;
 class Good;
@@ -44,25 +44,25 @@ public:
     //UnitType();
     //~UnitType();
 
-    UnifiedRender::Decimal supply_consumption;
-    UnifiedRender::Decimal speed;
-    UnifiedRender::Decimal max_health;
-    UnifiedRender::Decimal defense;
-    UnifiedRender::Decimal attack;
+    Eng3D::Decimal supply_consumption;
+    Eng3D::Decimal speed;
+    Eng3D::Decimal max_health;
+    Eng3D::Decimal defense;
+    Eng3D::Decimal attack;
 
     // Max ticks allowed for defensive bonus - this basically prevents an unit from staying 200
     // years on the same spot and be fucking indestructible
-    UnifiedRender::Number max_defensive_ticks;
+    Eng3D::Number max_defensive_ticks;
 
     // The defense provided by the unit each tick for staying on the same position
     // aka. digging trenches
-    UnifiedRender::Number position_defense;
+    Eng3D::Number position_defense;
 
     // Capacity of units that can be carried (transport units)
-    UnifiedRender::Number capacity;
+    Eng3D::Number capacity;
 
     // Time needed to build
-    UnifiedRender::Number build_time;
+    Eng3D::Number build_time;
 
     // Can go on ground?
     bool is_ground;
@@ -71,7 +71,7 @@ public:
     bool is_naval;
 
     // Required goods, first describes the id of the good and the second describes how many
-    std::vector<std::pair<Good *, UnifiedRender::Number>> req_goods;
+    std::vector<std::pair<Good *, Eng3D::Number>> req_goods;
 };
 
 // A trait for an unit; given randomly per each recruited unit
@@ -80,12 +80,12 @@ public:
     //UnitTrait();
     //~UnitTrait();
     
-    UnifiedRender::Decimal supply_consumption_mod;
-    UnifiedRender::Decimal speed_mod;
-    UnifiedRender::Decimal max_health_mod;
-    UnifiedRender::Decimal defense_mod;
-    UnifiedRender::Decimal attack_mod;
-    UnifiedRender::Decimal morale_mod;
+    Eng3D::Decimal supply_consumption_mod;
+    Eng3D::Decimal speed_mod;
+    Eng3D::Decimal max_health_mod;
+    Eng3D::Decimal defense_mod;
+    Eng3D::Decimal attack_mod;
+    Eng3D::Decimal morale_mod;
 };
 
 // Roughly a batallion, consisting of approximately 500 soldiers each
@@ -95,10 +95,10 @@ public:
     //~Unit();
 
     void attack(Unit& enemy);
-    std::pair<UnifiedRender::Number, UnifiedRender::Number> get_pos(void) const;
+    std::pair<Eng3D::Number, Eng3D::Number> get_pos(void) const;
     void set_target(Province& province);
-    UnifiedRender::Decimal get_speed(const Province& province) const;
-    UnifiedRender::Decimal get_speed(void) const;
+    Eng3D::Decimal get_speed(const Province& province) const;
+    Eng3D::Decimal get_speed(void) const;
     void set_province(Province& province);
     bool can_move(void) const;
     
@@ -110,17 +110,17 @@ public:
     Province* province = nullptr;
 
     // Size of the unit (soldiers in unit)
-    UnifiedRender::Number size;
+    Eng3D::Number size;
     // Base size of the unit (max size due to anti-attrition)
-    UnifiedRender::Number base;
-    UnifiedRender::Decimal move_progress;
-    UnifiedRender::Decimal morale;
+    Eng3D::Number base;
+    Eng3D::Decimal move_progress;
+    Eng3D::Decimal morale;
     // For perspective, 0.5 is the normal unit (i.e a soldier POP)
-    UnifiedRender::Decimal experience;
+    Eng3D::Decimal experience;
     // Available supplies, 1.0 is all supplies fullfilled, lower than that and the unit starts shrinking
-    UnifiedRender::Decimal supply;
+    Eng3D::Decimal supply;
     // Money that the unit has
-    UnifiedRender::Decimal budget;
+    Eng3D::Decimal budget;
     // TODO: ser/deser
     bool on_battle = false;
 };

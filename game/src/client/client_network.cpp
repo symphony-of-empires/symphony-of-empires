@@ -71,7 +71,7 @@
 
 Client* g_client = nullptr;
 Client::Client(GameState& _gs, std::string host, const unsigned port)
-    : UnifiedRender::Networking::Client(host, port),
+    : Eng3D::Networking::Client(host, port),
     gs{_gs}
 {
     g_client = this;
@@ -95,7 +95,7 @@ void Client::net_loop(void) {
         ::serialize(ar, &action);
         ::serialize(ar, &username);
 
-        UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet(fd);
+        Eng3D::Networking::Packet packet = Eng3D::Networking::Packet(fd);
         packet.data(ar.get_buffer(), ar.size());
         packet.send();
     }
@@ -140,7 +140,7 @@ void Client::net_loop(void) {
 #elif defined windows
             if(has_pending) {
 #endif
-                UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet(fd);
+                Eng3D::Networking::Packet packet = Eng3D::Networking::Packet(fd);
                 Archive ar = Archive();
 
                 // Obtain the action from the server
@@ -269,7 +269,7 @@ void Client::net_loop(void) {
             // Client will also flush it's queue to the server
             std::scoped_lock lock(packets_mutex);
             for(auto& packet : packets) {
-                packet.stream = UnifiedRender::Networking::SocketStream(fd);
+                packet.stream = Eng3D::Networking::SocketStream(fd);
                 packet.send();
                 print_info("Sending package of %zu bytes", packet.size());
             }

@@ -44,11 +44,11 @@
 #include <vector>
 #include <map>
 #include "world.hpp"
-#include "unified_render/io.hpp"
-#include "unified_render/path.hpp"
-#include "unified_render/network.hpp"
-#include "unified_render/locale.hpp"
-#include "unified_render/log.hpp"
+#include "eng3d/io.hpp"
+#include "eng3d/path.hpp"
+#include "eng3d/network.hpp"
+#include "eng3d/locale.hpp"
+#include "eng3d/log.hpp"
 #include "io_impl.hpp"
 #include "action.hpp"
 
@@ -77,7 +77,7 @@ int main(int argc, char** argv) {
     try {
         start_client(argc, argv);
     } catch(const std::exception& e) {
-        UnifiedRender::Log::error("game", e.what());
+        Eng3D::Log::error("game", e.what());
         exit(EXIT_FAILURE);
     }
 #endif
