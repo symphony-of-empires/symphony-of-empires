@@ -301,7 +301,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
 
     this->econ_tab = new ProvinceEconomyTab(gs, 0, 32, province, this);
     this->econ_tab->is_render = false;
-    auto* econ_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(Path::get("gfx/pv_2.png")), this);
+    auto* econ_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(Path::get("gfx/money.png")), this);
     econ_ibtn->right_side_of(*pop_ibtn);
     econ_ibtn->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<ProvinceView&>(*w.parent);
