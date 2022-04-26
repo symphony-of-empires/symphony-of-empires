@@ -453,7 +453,7 @@ void save(GameState& gs) {
                 fprintf(fp, "PopType:new{ ref_name = \"%s\", name = _(\"%s\"), social_value = %f, is_farmer = true }\n", pop_type->ref_name.c_str(), pop_type->name.c_str(), pop_type->social_value);
             } else if(pop_type->group == PopGroup::LABORER) {
                 fprintf(fp, "PopType:new{ ref_name = \"%s\", name = _(\"%s\"), social_value = %f, is_laborer = true }\n", pop_type->ref_name.c_str(), pop_type->name.c_str(), pop_type->social_value);
-            } else if(pop_type->group == PopGroup::Slave) {
+            } else if(pop_type->group == PopGroup::SLAVE) {
                 fprintf(fp, "PopType:new{ ref_name = \"%s\", name = _(\"%s\"), social_value = %f, is_slave = true }\n", pop_type->ref_name.c_str(), pop_type->name.c_str(), pop_type->social_value);
             } else {
                 fprintf(fp, "PopType:new{ ref_name = \"%s\", name = _(\"%s\"), social_value = %f }\n", pop_type->ref_name.c_str(), pop_type->name.c_str(), pop_type->social_value);

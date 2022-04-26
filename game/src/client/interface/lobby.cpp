@@ -23,18 +23,19 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "client/interface/lobby.hpp"
-#include "client/game_state.hpp"
-#include "unified_render/ui/ui.hpp"
-#include "world.hpp"
-#include "client/map.hpp"
-#include "client/camera.hpp"
 #include <filesystem>
-#include "io_impl.hpp"
 
+#include "unified_render/ui/ui.hpp"
 #include "unified_render/ui/button.hpp"
 #include "unified_render/ui/label.hpp"
 #include "unified_render/ui/group.hpp"
+
+#include "client/interface/lobby.hpp"
+#include "client/game_state.hpp"
+#include "world.hpp"
+#include "client/map.hpp"
+#include "client/camera.hpp"
+#include "io_impl.hpp"
 
 using namespace Interface;
 

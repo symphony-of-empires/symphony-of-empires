@@ -137,7 +137,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     reform_grp->is_scroll = true;
 
     // Social
-    POLICY_CHECKBOX(slavery, "Slavery", "Allows to put the burden of work to slaves for free");
+    POLICY_CHECKBOX(slavery, "SLAVEry", "Allows to put the burden of work to slaves for free");
 
     POLICY_CHECKBOX(secular_education, "Secular education", "Educates people in a way that it's bound to religion");
     secular_education_chk->below_of(*slavery_chk);
