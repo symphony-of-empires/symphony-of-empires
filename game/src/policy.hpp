@@ -26,7 +26,7 @@
 #pragma once
 
 #include <cmath>
-#include "unified_render/decimal.hpp"
+#include "eng3d/decimal.hpp"
 
 enum AllowancePolicy {
     // Nobody can enter the country
@@ -135,41 +135,41 @@ public:
     bool foreign_trade;
 
     // Tax % for importing products
-    UnifiedRender::Decimal import_tax;
+    Eng3D::Decimal import_tax;
 
     // Tax % for exporting products
-    UnifiedRender::Decimal export_tax;
+    Eng3D::Decimal export_tax;
 
     // Tax % for domestic imports
-    UnifiedRender::Decimal domestic_import_tax;
+    Eng3D::Decimal domestic_import_tax;
 
     // Tax % for domestic exports
-    UnifiedRender::Decimal domestic_export_tax;
+    Eng3D::Decimal domestic_export_tax;
 
     // Flat tax rhs on the low-wage pops
-    UnifiedRender::Decimal poor_flat_tax;
+    Eng3D::Decimal poor_flat_tax;
 
     // Flat tax rhs on the medium-wage pops
-    UnifiedRender::Decimal med_flat_tax;
+    Eng3D::Decimal med_flat_tax;
 
     // Flat tax rhs on the high-wage pops
-    UnifiedRender::Decimal rich_flat_tax;
+    Eng3D::Decimal rich_flat_tax;
 
     // The tax given to the industrial sector
-    UnifiedRender::Decimal industry_tax;
+    Eng3D::Decimal industry_tax;
 
     // Spending done on military (% of budget)
-    UnifiedRender::Decimal military_spending;
+    Eng3D::Decimal military_spending;
 
     // Units can grab anything they want from DOMESTIC provinces
     // Please notice the DOMESTIC part of this, for foreign "free grab"; check diplomatic relations!!
     bool free_supplies;
 
     // Minimum wage
-    UnifiedRender::Decimal min_wage;
+    Eng3D::Decimal min_wage;
 
     // Minimum social value for people to be accounted on the parliament
-    UnifiedRender::Decimal min_sv_for_parliament;
+    Eng3D::Decimal min_sv_for_parliament;
 
     inline int difference(const Policies& rhs) {
         int diff = 0;

@@ -23,17 +23,17 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "unified_render/locale.hpp"
-#include "unified_render/path.hpp"
-#include "unified_render/texture.hpp"
-#include "unified_render/ui/button.hpp"
-#include "unified_render/ui/chart.hpp"
-#include "unified_render/ui/image.hpp"
-#include "unified_render/ui/label.hpp"
-#include "unified_render/ui/progress_bar.hpp"
-#include "unified_render/ui/tooltip.hpp"
-#include "unified_render/ui/close_button.hpp"
-#include "unified_render/ui/div.hpp"
+#include "eng3d/locale.hpp"
+#include "eng3d/path.hpp"
+#include "eng3d/texture.hpp"
+#include "eng3d/ui/button.hpp"
+#include "eng3d/ui/chart.hpp"
+#include "eng3d/ui/image.hpp"
+#include "eng3d/ui/label.hpp"
+#include "eng3d/ui/progress_bar.hpp"
+#include "eng3d/ui/tooltip.hpp"
+#include "eng3d/ui/close_button.hpp"
+#include "eng3d/ui/div.hpp"
 
 #include "client/interface/army.hpp"
 #include "client/map.hpp"
@@ -155,14 +155,14 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Pro
 
     this->unit_icon = new UI::Image(0, 0, 24, 24, this);
     if(building.working_unit_type != nullptr) {
-        this->unit_icon->current_texture = UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/" + building.working_unit_type->ref_name + ".png"));
+        this->unit_icon->current_texture = Eng3D::State::get_instance().tex_man->load(Path::get("gfx/" + building.working_unit_type->ref_name + ".png"));
     }
 
     this->province_lab = new UI::Label(0, 0, "?", this);
     this->province_lab->right_side_of(*this->unit_icon);
     this->province_lab->on_each_tick = ([this](UI::Widget& w) {
         if(this->province != nullptr) {
-            w.text(UnifiedRender::Locale::translate(this->province->name.get_string()));
+            w.text(Eng3D::Locale::translate(this->province->name.get_string()));
         }
     });
     this->province_lab->on_each_tick(*this->province_lab);
@@ -171,7 +171,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Pro
     this->name_lab->right_side_of(*this->province_lab);
     this->name_lab->on_each_tick = ([this](UI::Widget& w) {
         auto& building = this->province->get_buildings()[this->idx];
-        w.text((building.working_unit_type != nullptr) ? UnifiedRender::Locale::translate(building.working_unit_type->name.get_string()) : "No unit");
+        w.text((building.working_unit_type != nullptr) ? Eng3D::Locale::translate(building.working_unit_type->name.get_string()) : "No unit");
     });
     this->name_lab->on_each_tick(*this->name_lab);
 
@@ -191,7 +191,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Pro
             full += full_req.second;
             needed += need_req.second;
 
-            text += std::to_string(need_req.second) + " of " + UnifiedRender::Locale::translate(need_req.first->name.get_string()) + " (has " + std::to_string(full_req.second) + "), ";
+            text += std::to_string(need_req.second) + " of " + Eng3D::Locale::translate(need_req.first->name.get_string()) + " (has " + std::to_string(full_req.second) + "), ";
         }
 
         ((UI::ProgressBar&)w).value = (float)full / (float)needed;
@@ -226,7 +226,7 @@ ArmyView::ArmyView(GameState& _gs)
 
     this->origin = UI::Origin::UPPER_RIGHT_SCREEN;
     this->is_scroll = false;
-    this->text(UnifiedRender::Locale::translate("Army manager"));
+    this->text(Eng3D::Locale::translate("Army manager"));
 
     this->army_tab = new ArmyArmyTab(gs, 0, 32, this);
     this->army_tab->is_render = true;
@@ -239,7 +239,7 @@ ArmyView::ArmyView(GameState& _gs)
         this->new_unit_tab->is_render = false;
     });
     army_ibtn->tooltip = new UI::Tooltip(army_ibtn, 512, 24);
-    army_ibtn->tooltip->text(UnifiedRender::Locale::translate("Army"));
+    army_ibtn->tooltip->text(Eng3D::Locale::translate("Army"));
 
     this->airforce_tab = new ArmyAirforceTab(gs, 0, 32, this);
     this->airforce_tab->is_render = false;
@@ -253,7 +253,7 @@ ArmyView::ArmyView(GameState& _gs)
         this->new_unit_tab->is_render = false;
     });
     airforce_ibtn->tooltip = new UI::Tooltip(airforce_ibtn, 512, 24);
-    airforce_ibtn->tooltip->text(UnifiedRender::Locale::translate("Airforce"));
+    airforce_ibtn->tooltip->text(Eng3D::Locale::translate("Airforce"));
 
     this->navy_tab = new ArmyNavyTab(gs, 0, 32, this);
     this->navy_tab->is_render = false;
@@ -267,7 +267,7 @@ ArmyView::ArmyView(GameState& _gs)
         this->new_unit_tab->is_render = false;
     });
     navy_ibtn->tooltip = new UI::Tooltip(navy_ibtn, 512, 24);
-    navy_ibtn->tooltip->text(UnifiedRender::Locale::translate("Navy"));
+    navy_ibtn->tooltip->text(Eng3D::Locale::translate("Navy"));
 
     this->production_tab = new ArmyProductionTab(gs, 0, 32, this);
     this->production_tab->is_render = false;
@@ -281,7 +281,7 @@ ArmyView::ArmyView(GameState& _gs)
         this->new_unit_tab->is_render = false;
     });
     production_ibtn->tooltip = new UI::Tooltip(production_ibtn, 512, 24);
-    production_ibtn->tooltip->text(UnifiedRender::Locale::translate("Production"));
+    production_ibtn->tooltip->text(Eng3D::Locale::translate("Production"));
 
     this->new_unit_tab = new ArmyNewUnitTab(gs, 0, 32, this);
     this->new_unit_tab->is_render = false;
@@ -295,11 +295,11 @@ ArmyView::ArmyView(GameState& _gs)
         this->new_unit_tab->is_render = true;
     });
     new_unit_ibtn->tooltip = new UI::Tooltip(new_unit_ibtn, 512, 24);
-    new_unit_ibtn->tooltip->text(UnifiedRender::Locale::translate("New unit"));
+    new_unit_ibtn->tooltip->text(Eng3D::Locale::translate("New unit"));
 
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
     close_btn->right_side_of(*new_unit_ibtn);
-    close_btn->text(UnifiedRender::Locale::translate("Close"));
+    close_btn->text(Eng3D::Locale::translate("Close"));
     close_btn->set_on_click([this](UI::Widget& w) {
         this->kill();
     });

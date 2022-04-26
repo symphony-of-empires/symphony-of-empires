@@ -27,11 +27,11 @@
 #include <execution>
 #include <cstdio>
 
-#include "unified_render/log.hpp"
-#include "unified_render/print.hpp"
-#include "unified_render/serializer.hpp"
-#include "unified_render/thread_pool.hpp"
-#include "unified_render/rand.hpp"
+#include "eng3d/log.hpp"
+#include "eng3d/print.hpp"
+#include "eng3d/serializer.hpp"
+#include "eng3d/thread_pool.hpp"
+#include "eng3d/rand.hpp"
 
 #include "action.hpp"
 #include "server/economy.hpp"
@@ -52,17 +52,17 @@ typedef signed int ssize_t;
 
 void militancy_update(World& world, Nation* nation) {
     // Total anger in population (global)
-    UnifiedRender::Decimal total_anger = 0.f;
+    Eng3D::Decimal total_anger = 0.f;
     // Anger per ideology (how much we hate the current ideology)
-    std::vector<UnifiedRender::Decimal> ideology_anger(world.ideologies.size(), 0.f);
-    const UnifiedRender::Decimal coup_chances = 1000.f;
-    auto rand = UnifiedRender::get_local_generator();
+    std::vector<Eng3D::Decimal> ideology_anger(world.ideologies.size(), 0.f);
+    const Eng3D::Decimal coup_chances = 1000.f;
+    auto rand = Eng3D::get_local_generator();
     for(const auto& province : nation->controlled_provinces) {
         for(const auto& pop : province->pops) {
             // TODO: Ok, look, the justification is that educated people
             // almost never do coups - in comparasion to uneducated
             // peseants, rich people don't need to protest!
-            const UnifiedRender::Decimal anger = (std::max<UnifiedRender::Decimal>(pop.militancy, 0.001f) / std::max<UnifiedRender::Decimal>(pop.literacy, 1.f) / std::max<UnifiedRender::Decimal>(pop.life_needs_met, 0.001f));
+            const Eng3D::Decimal anger = (std::max<Eng3D::Decimal>(pop.militancy, 0.001f) / std::max<Eng3D::Decimal>(pop.literacy, 1.f) / std::max<Eng3D::Decimal>(pop.life_needs_met, 0.001f));
             total_anger += anger;
             for(const auto& ideology : world.ideologies) {
                 ideology_anger[world.get_id(ideology)] += (pop.ideology_approval[world.get_id(ideology)] * anger) * (pop.size / 1000);
@@ -72,13 +72,13 @@ void militancy_update(World& world, Nation* nation) {
 
     // Rebellions!
     // TODO: Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
-    if(!std::fmod(rand(), std::max<UnifiedRender::Decimal>(1, coup_chances - total_anger))) {
+    if(!std::fmod(rand(), std::max<Eng3D::Decimal>(1, coup_chances - total_anger))) {
 #if 0 // TODO: Fix so this works in parrallel
         // Compile list of uprising provinces
         std::vector<Province*> uprising_provinces;
         for(const auto& province : nation->owned_provinces) {
-            UnifiedRender::Decimal province_anger = 0.f;
-            UnifiedRender::Decimal province_threshold = 0.f;
+            Eng3D::Decimal province_anger = 0.f;
+            Eng3D::Decimal province_threshold = 0.f;
             for(const auto& pop : province->pops) {
                 province_anger += pop.militancy;
                 province_threshold += pop.literacy * pop.life_needs_met;
@@ -325,8 +325,8 @@ void update_pop_needs(World& world, Province& province, Pop& pop) {
     }
 
     // x2.5 life needs met modifier, that is the max allowed
-    pop.life_needs_met = std::min<UnifiedRender::Decimal>(1.5f, std::max<UnifiedRender::Decimal>(pop.life_needs_met, -5.f));
-    pop.everyday_needs_met = std::min<UnifiedRender::Decimal>(1.5f, std::max<UnifiedRender::Decimal>(pop.everyday_needs_met, -5.f));
+    pop.life_needs_met = std::min<Eng3D::Decimal>(1.5f, std::max<Eng3D::Decimal>(pop.life_needs_met, -5.f));
+    pop.everyday_needs_met = std::min<Eng3D::Decimal>(1.5f, std::max<Eng3D::Decimal>(pop.everyday_needs_met, -5.f));
 
     // Current liking of the party is influenced by the life_needs_met
     pop.ideology_approval[world.get_id(*province.owner->ideology)] += (pop.life_needs_met + 1.f) / 10.f;
@@ -336,11 +336,11 @@ void update_pop_needs(World& world, Province& province, Pop& pop) {
     // CPU branching prediction... and we can't afford that!
 
     // More literacy means more educated persons with less children
-    UnifiedRender::Decimal growth = pop.size / (pop.literacy + 1.f);
+    Eng3D::Decimal growth = pop.size / (pop.literacy + 1.f);
     growth *= pop.life_needs_met;
-    growth = std::min<UnifiedRender::Decimal>(std::fmod(rand(), 10.f), growth);
+    growth = std::min<Eng3D::Decimal>(std::fmod(rand(), 10.f), growth);
     //growth *= (growth > 0.f) ? nation->get_reproduction_mod() : nation->get_death_mod();
-    pop.size += static_cast<UnifiedRender::Number>((int)growth);
+    pop.size += static_cast<Eng3D::Number>((int)growth);
 
     // Met life needs means less militancy
     // For example, having 1.0 life needs means that we obtain -0.01 militancy per ecotick
@@ -402,7 +402,7 @@ void Economy::do_tick(World& world) {
         std::vector<Unit*> new_nation_units;
 
         // Minimal speedup but probably can keep our branch predictor happy ^_^
-        auto rand = UnifiedRender::get_local_generator();
+        auto rand = Eng3D::get_local_generator();
         for(const auto& province : nation->controlled_provinces) {
             float laborers_payment = 0.f;
             for(auto& building_type : world.building_types) {
@@ -428,7 +428,7 @@ void Economy::do_tick(World& world) {
                     bool can_build_unit = building.can_build_unit();
 
                     // Ratio of health:person is 25, thus making units very expensive
-                    const UnifiedRender::Number army_size = 100;
+                    const Eng3D::Number army_size = 100;
                     // TODO: Consume special soldier pops instead of farmers!!!
                     auto it = std::find_if(province->pops.begin(), province->pops.end(), [building, army_size](const auto& e) {
                         return (e.size >= army_size && e.type->group == PopGroup::FARMER);
@@ -440,7 +440,7 @@ void Economy::do_tick(World& world) {
 
                     if(can_build_unit) {
                         // TODO: Maybe delete if size becomes 0?
-                        UnifiedRender::Number final_size = std::min<UnifiedRender::Number>((*it).size, army_size);
+                        Eng3D::Number final_size = std::min<Eng3D::Number>((*it).size, army_size);
                         (*it).size -= final_size;
 
                         // Spawn a unit
@@ -456,16 +456,16 @@ void Economy::do_tick(World& world) {
                         unit->base = unit->type->max_health;
                         new_nation_units.push_back(unit);
                         building.working_unit_type = nullptr;
-                        UnifiedRender::Log::debug("economy", "[" + province->ref_name + "]: Has built an unit of [" + unit->type->ref_name + "]");
+                        Eng3D::Log::debug("economy", "[" + province->ref_name + "]: Has built an unit of [" + unit->type->ref_name + "]");
                     }
             }
 
 #if 0
                 if(1) {
-                    UnifiedRender::Log::debug("economy", "[%s]: Workers working on building of type [%s]", province->ref_name.c_str(), building_type->ref_name.c_str());
-                    UnifiedRender::Log::debug("economy", "- %f farmers (%f needed)", available_farmers, needed_farmers);
-                    UnifiedRender::Log::debug("economy", "- %f laborers (%f needed)", available_laborers, needed_laborers);
-                    UnifiedRender::Log::debug("economy", "- %f entrepreneurs (%f needed)", available_entrepreneurs, needed_entrepreneurs);
+                    Eng3D::Log::debug("economy", "[%s]: Workers working on building of type [%s]", province->ref_name.c_str(), building_type->ref_name.c_str());
+                    Eng3D::Log::debug("economy", "- %f farmers (%f needed)", available_farmers, needed_farmers);
+                    Eng3D::Log::debug("economy", "- %f laborers (%f needed)", available_laborers, needed_laborers);
+                    Eng3D::Log::debug("economy", "- %f entrepreneurs (%f needed)", available_entrepreneurs, needed_entrepreneurs);
         }
 #endif
     }
@@ -497,7 +497,7 @@ void Economy::do_tick(World& world) {
 
         // Do research on focused research
         if(nation->focus_tech != nullptr) {
-            const UnifiedRender::Decimal research = nation->get_research_points() / nation->focus_tech->cost;
+            const Eng3D::Decimal research = nation->get_research_points() / nation->focus_tech->cost;
             nation->research[world.get_id(*nation->focus_tech)] += research;
         }
 

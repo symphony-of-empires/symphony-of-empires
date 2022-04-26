@@ -23,11 +23,11 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "unified_render/serializer.hpp"
-#include "unified_render/ui/text.hpp"
-#include "unified_render/ui/tooltip.hpp"
-#include "unified_render/ui/close_button.hpp"
-#include "unified_render/network.hpp"
+#include "eng3d/serializer.hpp"
+#include "eng3d/ui/text.hpp"
+#include "eng3d/ui/tooltip.hpp"
+#include "eng3d/ui/close_button.hpp"
+#include "eng3d/network.hpp"
 
 #include "client/client_network.hpp"
 #include "client/interface/decision.hpp"
@@ -58,7 +58,7 @@ DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
         auto* decide_btn = new UI::Button(0, 0, this->width, 24, this);
         decide_btn->text(decision.name.get_string());
         decide_btn->set_on_click([this, decision](UI::Widget& w) {
-            UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+            Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
             Archive ar = Archive();
             ActionType action = ActionType::NATION_TAKE_DECISION;
             ::serialize(ar, &action);

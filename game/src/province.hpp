@@ -31,8 +31,8 @@
 #include <string>
 #include <memory>
 
-#include "unified_render/entity.hpp"
-#include "unified_render/decimal.hpp"
+#include "eng3d/entity.hpp"
+#include "eng3d/decimal.hpp"
 
 class World;
 class Nation;
@@ -51,9 +51,9 @@ class Province : public RefnameEntity<uint16_t> {
 public:
     //Province();
     //~Province();
-    UnifiedRender::Number total_pops(void) const;
-    UnifiedRender::Decimal get_attractiveness(const Pop& pop) const;
-    std::pair<UnifiedRender::Decimal, UnifiedRender::Decimal> get_pos(void) const;
+    Eng3D::Number total_pops(void) const;
+    Eng3D::Decimal get_attractiveness(const Pop& pop) const;
+    std::pair<Eng3D::Decimal, Eng3D::Decimal> get_pos(void) const;
     std::vector<Unit*> get_units(void) const;
     const std::vector<Building>& get_buildings(void) const;
     std::vector<Building>& get_buildings(void);
@@ -65,11 +65,11 @@ public:
     bool is_coastal = false;
 
     // The (military) supply limit of the province, the max number of supplies there can be per tick
-    UnifiedRender::Decimal supply_limit = 0.f;
+    Eng3D::Decimal supply_limit = 0.f;
     // The number of remaining (military) supplies in the province
-    UnifiedRender::Decimal supply_rem = 0.f;
+    Eng3D::Decimal supply_rem = 0.f;
     // Attractiveness of province
-    UnifiedRender::Decimal base_attractive = 0.f;
+    Eng3D::Decimal base_attractive = 0.f;
 
     // Number of tiles this province takes
     size_t n_tiles = 0;

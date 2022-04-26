@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5.1)
 
 project(SymphonyOfEmpires)
 
-option(BUILD_ENGINE "Enable building UnifiedRender" ON)
+option(BUILD_ENGINE "Enable building Eng3D" ON)
 option(BUILD_GAME "Enable building SymphonyOfEmpires" ON)
 
 IF(LOG_TO_CONSOLE)
@@ -13,13 +13,13 @@ IF(NO_COPY_MODS)
 ENDIF()
 
 # Backend selection
-IF(UR_BACKEND_OPENGL)
+IF(E3D_BACKEND_OPENGL)
 	message("Using OpenGL backend")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUR_BACKEND_OPENGL=1")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_BACKEND_OPENGL=1")
 ELSE()
-	IF(UR_BACKEND_D3D9)
+	IF(E3D_BACKEND_D3D9)
 		message("Using DirectX 9 SDK")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUR_BACKEND_D3D9=1")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_BACKEND_D3D9=1")
 	ELSE()
 		
 	ENDIF()
@@ -27,7 +27,7 @@ ENDIF()
 
 # Build stuff
 if(BUILD_ENGINE)
-    add_subdirectory(${CMAKE_SOURCE_DIR}/unified_render)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/eng3d)
 endif()
 
 #set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/src)
@@ -52,7 +52,7 @@ ENDIF()
 # Workaround for clang (see https://bugs.launchpad.net/ubuntu/+source/libsdl2-ttf/+bug/1872023)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/include/SDL2")
 link_directories(/usr/local/lib)
-include_directories("${PROJECT_SOURCE_DIR}/game/src" "${CMAKE_SOURCE_DIR}/unified_render/unified_render/include")
+include_directories("${PROJECT_SOURCE_DIR}/game/src" "${CMAKE_SOURCE_DIR}/eng3d/eng3d/include")
 
 link_directories(${CMAKE_SOURCE_DIR}/vendor/lib)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/include)
@@ -74,7 +74,7 @@ add_executable(SymphonyOfEmpires ${MAIN_SOURCES})
 #
 # Linking
 #
-target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 z unified_render tbb)
+target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 z eng3d tbb)
 IF(WIN32)
 	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR MSVC)
 		

@@ -28,7 +28,7 @@
 #include <cstdint>
 #include <string>
 
-#include "unified_render/serializer.hpp"
+#include "eng3d/serializer.hpp"
 
 #include "action.hpp"
 #include "world.hpp"
@@ -39,7 +39,7 @@
 #include "pop.hpp"
 #include "action.hpp"
 #include "diplomacy.hpp"
-#include "unified_render/print.hpp"
+#include "eng3d/print.hpp"
 
 // TODO: Endianess compatibility
 template<>

@@ -28,8 +28,8 @@
 #include "nation.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
-#include "unified_render/ui/window.hpp"
-#include "unified_render/ui/group.hpp"
+#include "eng3d/ui/window.hpp"
+#include "eng3d/ui/group.hpp"
 #include "client/interface/common.hpp"
 
 namespace Interface {

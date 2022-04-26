@@ -30,7 +30,7 @@
 #include <thread>
 #include <atomic>
 
-#include "unified_render/network.hpp"
+#include "eng3d/network.hpp"
 #include "client/game_state.hpp"
 
 class ClientException : public std::exception {
@@ -44,7 +44,7 @@ public:
     }
 };
 
-class Client : public UnifiedRender::Networking::Client {
+class Client : public Eng3D::Networking::Client {
     std::thread net_thread;
     std::atomic<bool> has_snapshot;
     GameState& gs;

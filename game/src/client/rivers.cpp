@@ -25,28 +25,28 @@
 
 #include "client/rivers.hpp"
 
-#include "unified_render/path.hpp"
-#include "unified_render/texture.hpp"
-#include "unified_render/state.hpp"
-#include "unified_render/curve.hpp"
-#include "unified_render/shader.hpp"
+#include "eng3d/path.hpp"
+#include "eng3d/texture.hpp"
+#include "eng3d/state.hpp"
+#include "eng3d/curve.hpp"
+#include "eng3d/shader.hpp"
 #include "client/camera.hpp"
 
 #include "glm/mat4x4.hpp"
 
 Rivers::Rivers() {
-    UnifiedRender::TextureOptions mipmap_options{};
+    Eng3D::TextureOptions mipmap_options{};
     mipmap_options.wrap_s = GL_REPEAT;
     mipmap_options.wrap_t = GL_REPEAT;
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
     mipmap_options.internal_format = GL_SRGB;
 
-    water_tex = UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/water_tex.png"), mipmap_options);
-    line_shader = std::unique_ptr<UnifiedRender::OpenGL::Program>(new UnifiedRender::OpenGL::Program());
+    water_tex = Eng3D::State::get_instance().tex_man->load(Path::get("gfx/water_tex.png"), mipmap_options);
+    line_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        line_shader->attach_shader(UnifiedRender::State::get_instance().builtin_shaders["vs_3d"].get());
-        auto fs_shader = UnifiedRender::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/curve.fs")), true);
+        line_shader->attach_shader(Eng3D::State::get_instance().builtin_shaders["vs_3d"].get());
+        auto fs_shader = Eng3D::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/curve.fs")), true);
         line_shader->attach_shader(&fs_shader);
         line_shader->link();
     }
@@ -88,8 +88,8 @@ void get_river(std::vector<glm::vec3>& river, int current_index, int prev_index,
 
 
 void Rivers::build_rivers() {
-    auto tex_man = UnifiedRender::State::get_instance().tex_man;
-    UnifiedRender::TextureOptions no_drop_options{};
+    auto tex_man = Eng3D::State::get_instance().tex_man;
+    Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
     auto river_tex = tex_man->load(Path::get("map/river.png"), no_drop_options);
 
@@ -152,7 +152,7 @@ void Rivers::build_rivers() {
         }
 
         std::vector<glm::vec3> normals(curve_points.size() - 1, glm::vec3(0, 0, 1));
-        auto* curve = new UnifiedRender::Curve(curve_points, normals, 1.0f);
+        auto* curve = new Eng3D::Curve(curve_points, normals, 1.0f);
         this->curves.push_back(curve);
     }
 }

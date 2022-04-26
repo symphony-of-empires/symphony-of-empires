@@ -27,7 +27,7 @@
 
 #include <string>
 #include <deque>
-#include "unified_render/decimal.hpp"
+#include "eng3d/decimal.hpp"
 
 #include "province.hpp"
 #include "good.hpp"
@@ -41,19 +41,19 @@ public:
     void close_market(void);
 
     // Price of the product
-    UnifiedRender::Decimal price;
+    Eng3D::Decimal price;
 
     // Velocity of change of price of the product
-    UnifiedRender::Decimal price_vel;
+    Eng3D::Decimal price_vel;
 
     // Total supply of the product
-    UnifiedRender::Number supply;
+    Eng3D::Number supply;
 
     // Total demand of the product
-    UnifiedRender::Number demand;
+    Eng3D::Number demand;
 
     // History of price, supply and demand for the past 30 days
-    std::deque<UnifiedRender::Decimal> price_history;
-    std::deque<UnifiedRender::Number> supply_history;
-    std::deque<UnifiedRender::Number> demand_history;
+    std::deque<Eng3D::Decimal> price_history;
+    std::deque<Eng3D::Number> supply_history;
+    std::deque<Eng3D::Number> demand_history;
 };

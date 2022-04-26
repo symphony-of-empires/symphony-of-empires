@@ -36,8 +36,8 @@
 
 #include <glm/vec2.hpp>
 
-#include "unified_render/profiler.hpp"
-#include "unified_render/assert.hpp"
+#include "eng3d/profiler.hpp"
+#include "eng3d/assert.hpp"
 
 #include "nation.hpp"
 #include "product.hpp"
@@ -122,7 +122,7 @@ public:
     void do_tick(void);
     void load_initial(void);
     void load_mod(void);
-    UnifiedRender::Profiler profiler;
+    Eng3D::Profiler profiler;
 
     LIST_FOR_LOCAL_TYPE(Good, goods, std::vector);
     LIST_FOR_LOCAL_TYPE(Culture, cultures, std::vector);

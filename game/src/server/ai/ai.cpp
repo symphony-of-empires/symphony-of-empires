@@ -29,11 +29,11 @@
 #include <cmath>
 #include <set>
 
-#include "unified_render/binary_image.hpp"
-#include "unified_render/path.hpp"
-#include "unified_render/print.hpp"
-#include "unified_render/serializer.hpp"
-#include "unified_render/log.hpp"
+#include "eng3d/binary_image.hpp"
+#include "eng3d/path.hpp"
+#include "eng3d/print.hpp"
+#include "eng3d/serializer.hpp"
+#include "eng3d/log.hpp"
 
 #include "diplomacy.hpp"
 #include "policy.hpp"
@@ -54,11 +54,11 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
 
         // Obtain the average probability of profitability per good we will only however, take in account products
         // which are produced on provinces we own, hereafter we can obtain the average of the national good industry
-        UnifiedRender::Log::debug("ai", "Market analysis strategy");
+        Eng3D::Log::debug("ai", "Market analysis strategy");
 
         // So our formula would be:
         // Sucess = Sum(Demand / (Supply + 1) * Price)
-        auto avg_prob = std::vector<UnifiedRender::Decimal>(world->goods.size(), 0.f);
+        std::vector<Eng3D::Decimal> avg_prob(world->goods.size(), 0.f);
         avg_prob.shrink_to_fit();
         for(const auto& province : nation->owned_provinces) {
             for(const auto& good : world->goods) {
@@ -84,9 +84,9 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
 
         // The more buildings there are in the world the less we are wiling to construct one
         //float saturation = std::max<size_t>(1, world->buildings.size()) / 100;
-        UnifiedRender::Decimal saturation = 1.f;
+        Eng3D::Decimal saturation = 1.f;
         if(std::fmod(std::rand(), saturation)) {
-            UnifiedRender::Log::debug("ai", "Too much market saturation");
+            Eng3D::Log::debug("ai", "Too much market saturation");
             return nullptr;
         }
 
@@ -95,14 +95,14 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
     } else {
         // We will randomly pick any primary product which we are capable of producing
         // This is mostly useful for starting supply chains from zero
-        UnifiedRender::Log::debug("ai", "Primary sector kickstart strategy");
+        Eng3D::Log::debug("ai", "Primary sector kickstart strategy");
 
         // The more buildings there are in the world the less we are wiling to construct one
         // (more intense with primary sector due to primary-industry spam)
         //float saturation = std::max<size_t>(1, world->buildings.size()) / 50;
         float saturation = 1.f;
         if(fmod(std::rand(), saturation)) {
-            UnifiedRender::Log::debug("ai", "Too much market saturation");
+            Eng3D::Log::debug("ai", "Too much market saturation");
             return nullptr;
         }
 
@@ -124,7 +124,7 @@ Good* ai_get_potential_good(Nation* nation, World* world) {
         }
     }
 
-    UnifiedRender::Log::debug("ai", "No suitable good");
+    Eng3D::Log::debug("ai", "No suitable good");
     return nullptr;
 }
 
@@ -247,7 +247,7 @@ void ai_update_relations(Nation* nation, Nation* other) {
     }
 
     // Our strength as attackers
-    UnifiedRender::Decimal our_power = 1.f;
+    Eng3D::Decimal our_power = 1.f;
     for(const auto& ally_nation : nation->get_allies()) {
         for(const auto& province : ally_nation->owned_provinces) {
             for(const auto& unit : province->get_units()) {
@@ -258,7 +258,7 @@ void ai_update_relations(Nation* nation, Nation* other) {
     }
 
     // The strength of the defenders
-    UnifiedRender::Decimal other_power = 1.f;
+    Eng3D::Decimal other_power = 1.f;
     for(const auto& ally_nation : other->get_allies()) {
         for(const auto& province : ally_nation->owned_provinces) {
             for(const auto& unit : province->get_units()) {
@@ -272,8 +272,8 @@ void ai_update_relations(Nation* nation, Nation* other) {
     // Calculate the times the other nation has our power, multiply that by a factor of 1,000,000
     // If the relation is negative then we divide by the positive sum of it
     if(relation.relation < -5.f) {
-        const UnifiedRender::Decimal force_dist = 10.f * ((1.f + other_power) / (1.f + our_power));
-        const int chance = std::max<UnifiedRender::Decimal>(0, force_dist - -relation.relation);
+        const Eng3D::Decimal force_dist = 10.f * ((1.f + other_power) / (1.f + our_power));
+        const int chance = std::max<Eng3D::Decimal>(0, force_dist - -relation.relation);
         if(std::rand() % (100 + (chance * 10)) == 0) {
             if(!relation.has_war && !other_relation.has_war) {
                 // Check we border said nation
@@ -399,7 +399,7 @@ void ai_build_commercial(Nation* nation, World* world) {
 
     Province* province = *it;
     if(province->min_x > world->width || province->min_y == world->height || province->max_x < province->min_x || province->max_y < province->min_y || !province->n_tiles) {
-        UnifiedRender::Log::error("ai", "Cant build buidling, province doesn't have any tiles");
+        Eng3D::Log::error("ai", "Cant build buidling, province doesn't have any tiles");
     } else {
         // Now build the building
         BuildingType* building_type = &world->building_types.at(0);
@@ -465,7 +465,7 @@ void ai_do_tick(Nation* nation, World* world) {
                 if(!colonial_value.empty()) {
                     Province* target = (*std::max_element(colonial_value.begin(), colonial_value.end())).first;
                     if(target->owner == nullptr) {
-                        UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+                        Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
                         Archive ar = Archive();
                         ActionType action = ActionType::PROVINCE_COLONIZE;
                         ::serialize(ar, &action);
@@ -494,7 +494,7 @@ void ai_do_tick(Nation* nation, World* world) {
                 }
 
                 nation->change_research_focus(&technology);
-                UnifiedRender::Log::debug("ai", "[" + nation->ref_name + "] now researching [" + technology.ref_name + "] - " + std::to_string(nation->research[world->get_id(technology)]) + " research points (" + std::to_string(nation->get_research_points()) + ")");
+                Eng3D::Log::debug("ai", "[" + nation->ref_name + "] now researching [" + technology.ref_name + "] - " + std::to_string(nation->research[world->get_id(technology)]) + " research points (" + std::to_string(nation->get_research_points()) + ")");
                 break;
             }
         }
@@ -507,10 +507,10 @@ void ai_do_tick(Nation* nation, World* world) {
                         if(part.second == TreatyApproval::ACCEPTED || part.second == TreatyApproval::DENIED) break;
 
                         if(std::rand() % 50 >= 25) {
-                            UnifiedRender::Log::debug("ai", "We, [" + nation->ref_name + "], deny the treaty of [" + treaty->name + "]");
+                            Eng3D::Log::debug("ai", "We, [" + nation->ref_name + "], deny the treaty of [" + treaty->name + "]");
                             part.second = TreatyApproval::DENIED;
                         } else {
-                            UnifiedRender::Log::debug("ai", "We, [" + nation->ref_name + "], accept the treaty of [" + treaty->name + "]");
+                            Eng3D::Log::debug("ai", "We, [" + nation->ref_name + "], accept the treaty of [" + treaty->name + "]");
                             part.second = TreatyApproval::ACCEPTED;
                         }
                     }
@@ -555,7 +555,7 @@ void ai_do_tick(Nation* nation, World* world) {
                 province->buildings[world->get_id(*building_type)].req_goods = building_type->req_goods;
                 // Broadcast the addition of the building to the clients
                 g_server->broadcast(Action::BuildingAdd::form_packet(province, building_type));
-                UnifiedRender::Log::debug("ai", "Building building " + building_type->name + " from " + nation->name + " built on " + province->name);
+                Eng3D::Log::debug("ai", "Building building " + building_type->name + " from " + nation->name + " built on " + province->name);
             }
 
             if(std::rand() % (base_reluctance / defense_factor) == 0) {
@@ -581,7 +581,7 @@ void ai_do_tick(Nation* nation, World* world) {
                         unit_type = &g_world->unit_types[0];
                         building.working_unit_type = unit_type;
                         building.req_goods_for_unit = unit_type->req_goods;
-                        UnifiedRender::Log::debug("ai", "Building of unit " + unit_type->name + " from " + nation->name + " built on " + province->name);
+                        Eng3D::Log::debug("ai", "Building of unit " + unit_type->name + " from " + nation->name + " built on " + province->name);
                     }
                 }
             }

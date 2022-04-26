@@ -23,19 +23,19 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "unified_render/texture.hpp"
-#include "unified_render/ui/image.hpp"
-#include "unified_render/ui/button.hpp"
-#include "unified_render/ui/chart.hpp"
-#include "unified_render/ui/label.hpp"
-#include "unified_render/ui/checkbox.hpp"
-#include "unified_render/ui/tooltip.hpp"
-#include "unified_render/ui/progress_bar.hpp"
-#include "unified_render/locale.hpp"
+#include "eng3d/texture.hpp"
+#include "eng3d/ui/image.hpp"
+#include "eng3d/ui/button.hpp"
+#include "eng3d/ui/chart.hpp"
+#include "eng3d/ui/label.hpp"
+#include "eng3d/ui/checkbox.hpp"
+#include "eng3d/ui/tooltip.hpp"
+#include "eng3d/ui/progress_bar.hpp"
+#include "eng3d/locale.hpp"
 
 #include "client/interface/common.hpp"
 #include "client/interface/good_view.hpp"
-#include "unified_render/path.hpp"
+#include "eng3d/path.hpp"
 #include "nation.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
@@ -56,7 +56,7 @@ UnitButton::UnitButton(GameState& _gs, int x, int y, Unit* _unit, UI::Widget* pa
 {
     this->text(std::to_string(this->unit->size) + " " + this->unit->type->name.get_string());
     this->on_each_tick = ([this](UI::Widget& w) {
-        w.text(std::to_string(this->unit->size) + " " + UnifiedRender::Locale::translate(this->unit->type->name.get_string()));
+        w.text(std::to_string(this->unit->size) + " " + Eng3D::Locale::translate(this->unit->type->name.get_string()));
     });
 }
 
@@ -68,7 +68,7 @@ UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType* _unit_typ
     this->is_scroll = false;
 
     this->icon_img = new UI::Image(0, 0, 32, 24, this);
-    this->icon_img->current_texture = UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/unittype/" + unit_type->ref_name + ".png"));
+    this->icon_img->current_texture = Eng3D::State::get_instance().tex_man->load(Path::get("gfx/unittype/" + unit_type->ref_name + ".png"));
 
     this->name_btn = new UI::Button(0, 0, this->width - 32, 24, this);
     this->name_btn->right_side_of(*this->icon_img);
@@ -113,7 +113,7 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
         if(o.gs.world->time % o.gs.world->ticks_per_month) {
             return;
         }
-        w.text(UnifiedRender::Locale::translate(o.nation->get_client_hint().alt_name.get_string()));
+        w.text(Eng3D::Locale::translate(o.nation->get_client_hint().alt_name.get_string()));
     });
 }
 
@@ -130,7 +130,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province* _province, un
 
     unsigned int dx = 0;
     if(!building_type.inputs.empty()) {
-        auto* makes_lab = new UI::Label(dx, 0, UnifiedRender::Locale::translate("Makes"), this);
+        auto* makes_lab = new UI::Label(dx, 0, Eng3D::Locale::translate("Makes"), this);
         makes_lab->below_of(*name_btn);
         dx += makes_lab->width;
         for(const auto& good : building_type.inputs) {
@@ -148,16 +148,16 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province* _province, un
 
     auto* arrow_lab = new UI::Label(dx, 0, "?", this);
     if(building_type.inputs.empty()) {
-        arrow_lab->text(UnifiedRender::Locale::translate("Produces"));
+        arrow_lab->text(Eng3D::Locale::translate("Produces"));
     } else {
-        arrow_lab->text(UnifiedRender::Locale::translate("into"));
+        arrow_lab->text(Eng3D::Locale::translate("into"));
     }
     arrow_lab->below_of(*name_btn);
     dx += arrow_lab->width;
     if(building_type.output != nullptr) {
         auto* good = building_type.output;
 
-        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, UnifiedRender::State::get_instance().tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
+        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, Eng3D::State::get_instance().tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
         icon_ibtn->below_of(*name_btn);
         icon_ibtn->set_on_click([good](UI::Widget& w) {
             auto& o = static_cast<BuildingInfo&>(*w.parent);
@@ -204,13 +204,13 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _techno
         }
 
         if(o.gs.curr_nation->can_research(o.technology)) {
-            w.tooltip->text(UnifiedRender::Locale::translate("We can research this"));
+            w.tooltip->text(Eng3D::Locale::translate("We can research this"));
         } else {
             std::string text = "";
-            text = UnifiedRender::Locale::translate("We can't research this because we don't have ");
+            text = Eng3D::Locale::translate("We can't research this because we don't have ");
             for(const auto& req_tech : o.technology->req_technologies) {
                 if(o.gs.curr_nation->research[o.gs.world->get_id(*req_tech)] > 0.f) {
-                    text += UnifiedRender::Locale::translate(req_tech->name.get_string()) + ", ";
+                    text += Eng3D::Locale::translate(req_tech->name.get_string()) + ", ";
                 }
             }
             w.tooltip->text(text);
@@ -266,11 +266,11 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
         const Pop& pop = o.province->pops[o.index];
         o.size_btn->text(std::to_string(pop.size));
         o.budget_btn->text(std::to_string(pop.budget / pop.size));
-        o.budget_btn->tooltip->text(UnifiedRender::Locale::translate("A total budget of") + " " + std::to_string(pop.budget));
+        o.budget_btn->tooltip->text(Eng3D::Locale::translate("A total budget of") + " " + std::to_string(pop.budget));
         o.religion_ibtn->current_texture = o.gs.tex_man->load(Path::get("gfx/religion/" + pop.religion->ref_name + ".png"));
-        o.religion_ibtn->tooltip->text(UnifiedRender::Locale::translate(pop.religion->name.get_string()));
+        o.religion_ibtn->tooltip->text(Eng3D::Locale::translate(pop.religion->name.get_string()));
         o.culture_ibtn->current_texture = o.gs.tex_man->load(Path::get("gfx/noicon.png"));
-        o.culture_ibtn->tooltip->text(UnifiedRender::Locale::translate(pop.culture->name.get_string()));
+        o.culture_ibtn->tooltip->text(Eng3D::Locale::translate(pop.culture->name.get_string()));
     });
     this->on_each_tick(*this);
 }
@@ -289,7 +289,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province* _province, Good
         new GoodView(o.gs, o.good);
     });
     this->good_ibtn->set_tooltip(new UI::Tooltip(this->good_ibtn, 512, 24));
-    this->good_ibtn->tooltip->text(UnifiedRender::Locale::translate(good->name.get_string()));
+    this->good_ibtn->tooltip->text(Eng3D::Locale::translate(good->name.get_string()));
 
     this->price_rate_btn = new UI::Button(0, 0, 96, 24, this);
     this->price_rate_btn->right_side_of(*this->good_ibtn);
@@ -357,9 +357,9 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province* _province, Good
 
         o.price_rate_btn->text(std::to_string(product.price_vel));
         if(product.price_vel >= 0.f) {
-            o.price_rate_btn->text_color = UnifiedRender::Color(0, 255, 0);
+            o.price_rate_btn->text_color = Eng3D::Color(0, 255, 0);
         } else {
-            o.price_rate_btn->text_color = UnifiedRender::Color(255, 0, 0);
+            o.price_rate_btn->text_color = Eng3D::Color(255, 0, 0);
         }
     });
     this->on_each_tick(*this);

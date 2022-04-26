@@ -23,7 +23,7 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "unified_render/log.hpp"
+#include "eng3d/log.hpp"
 
 #include "nation.hpp"
 #include "world.hpp"
@@ -50,7 +50,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     World& world = World::get_instance();
     auto* war = new War();
 
-    UnifiedRender::Log::debug("game", ref_name + " has declared war on " + nation.ref_name);
+    Eng3D::Log::debug("game", ref_name + " has declared war on " + nation.ref_name);
 
     war->wargoals = clauses;
 
@@ -74,9 +74,9 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     }
     war->attackers.push_back(this);
 
-    UnifiedRender::Log::debug("game", "Attackers");
+    Eng3D::Log::debug("game", "Attackers");
     for(const auto& attacker : war->attackers) {
-        UnifiedRender::Log::debug("game", attacker->ref_name.get_string());
+        Eng3D::Log::debug("game", attacker->ref_name.get_string());
     }
 
     // Recollect defenders
@@ -123,13 +123,13 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
         }
     }
 
-    UnifiedRender::Log::debug("game", "Defenders");
+    Eng3D::Log::debug("game", "Defenders");
     for(const auto& defender : war->defenders) {
-        UnifiedRender::Log::debug("game", defender->ref_name.get_string());
+        Eng3D::Log::debug("game", defender->ref_name.get_string());
     }
 
     war->name = "War of " + this->name + " against " + nation.name;
-    UnifiedRender::Log::debug("game", war->name);
+    Eng3D::Log::debug("game", war->name);
 
     world.insert(*war);
 }
@@ -176,7 +176,7 @@ void Nation::increase_relation(Nation& target) {
     this->relations[world.get_id(target)].relation += 5.f;
     target.relations[world.get_id(*this)].relation += 5.f;
 
-    UnifiedRender::Log::debug("game", ref_name + " increases relations with " + target.ref_name);
+    Eng3D::Log::debug("game", ref_name + " increases relations with " + target.ref_name);
     this->do_diplomacy();
 }
 
@@ -187,7 +187,7 @@ void Nation::decrease_relation(Nation& target) {
     this->relations[world.get_id(target)].relation -= 5.f;
     target.relations[world.get_id(*this)].relation -= 5.f;
 
-    UnifiedRender::Log::debug("game", ref_name + " decreases relations with " + target.ref_name);
+    Eng3D::Log::debug("game", ref_name + " decreases relations with " + target.ref_name);
     this->do_diplomacy();
 }
 
@@ -207,7 +207,7 @@ void Nation::set_policy(Policies& policies) {
     // No parliament? No referendum
     if(current_policy.legislative_parliament != true) {
         this->current_policy = policies;
-        UnifiedRender::Log::debug("game", "Parliament-less policy passed!");
+        Eng3D::Log::debug("game", "Parliament-less policy passed!");
         return;
     }
 
@@ -253,7 +253,7 @@ void Nation::set_policy(Policies& policies) {
         for(auto& pop : disapprovers) {
             pop->militancy *= 1.1f;
         }
-        UnifiedRender::Log::debug("game", "New enacted policy passed parliament!");
+        Eng3D::Log::debug("game", "New enacted policy passed parliament!");
     }
     // Legislation does not make it into the official law
     else {
@@ -266,7 +266,7 @@ void Nation::set_policy(Policies& policies) {
         for(auto& pop : disapprovers) {
             pop->militancy *= 1.1f;
         }
-        UnifiedRender::Log::debug("game", "New enacted policy did not made it into the parliament!");
+        Eng3D::Log::debug("game", "New enacted policy did not made it into the parliament!");
     }
     return;
 }
@@ -291,8 +291,8 @@ bool Nation::is_accepted_religion(const Religion& religion) const {
 
 // Gets the total tax applied to a POP depending on their "wealth"
 // (not exactly like that, more like by their type/status)
-UnifiedRender::Decimal Nation::get_tax(const Pop& pop) const {
-    UnifiedRender::Decimal base_tax = 1.f;
+Eng3D::Decimal Nation::get_tax(const Pop& pop) const {
+    Eng3D::Decimal base_tax = 1.f;
 
     if(!is_accepted_culture(pop) && !is_accepted_religion(pop)) {
         // Exterminate imposes a scale of 3(+1), which will be enough to drive off most POPs
@@ -358,8 +358,8 @@ const NationClientHint& Nation::get_client_hint(void) {
     return this->client_hints[g_world->get_id(*this->ideology)];
 }
 
-UnifiedRender::Decimal Nation::get_research_points(void) const {
-    UnifiedRender::Decimal research = 0.f;
+Eng3D::Decimal Nation::get_research_points(void) const {
+    Eng3D::Decimal research = 0.f;
     for(const auto& province : this->owned_provinces) {
         for(const auto& pop : province->pops) {
             research += pop.size * pop.literacy;
@@ -418,104 +418,104 @@ std::vector<Nation*> Nation::get_allies(void) {
     }
 }*/
 
-UnifiedRender::Decimal Nation::get_industry_output_mod(void) {
-    UnifiedRender::Decimal c = 1.f;
+Eng3D::Decimal Nation::get_industry_output_mod(void) {
+    Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->industry_input_mod;
     }
     return ((1.f));
 }
 
-UnifiedRender::Decimal Nation::get_industry_input_mod(void) {
-    UnifiedRender::Decimal c = 1.f;
+Eng3D::Decimal Nation::get_industry_input_mod(void) {
+    Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->industry_input_mod;
     }
     return ((1.f));
 }
 
-UnifiedRender::Decimal Nation::get_workers_needed_mod(void) {
-    UnifiedRender::Decimal c = 1.f;
+Eng3D::Decimal Nation::get_workers_needed_mod(void) {
+    Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->workers_needed_mod;
     }
     return ((1.f));
 }
 
-UnifiedRender::Decimal Nation::get_salary_paid_mod(void) {
-    UnifiedRender::Decimal c = 1.f;
+Eng3D::Decimal Nation::get_salary_paid_mod(void) {
+    Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->salary_paid_mod;
     }
     return ((1.f));
 }
 
-UnifiedRender::Decimal Nation::get_delivery_cost_mod(void) {
-    UnifiedRender::Decimal c = 1.f;
+Eng3D::Decimal Nation::get_delivery_cost_mod(void) {
+    Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->delivery_cost_mod;
     }
     return ((1.f));
 }
 
-UnifiedRender::Decimal Nation::get_literacy_learn_mod(void) {
-    UnifiedRender::Decimal c = 1.f;
+Eng3D::Decimal Nation::get_literacy_learn_mod(void) {
+    Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->literacy_learn_mod;
     }
     return ((1.f));
 }
 
-UnifiedRender::Decimal Nation::get_reproduction_mod(void) {
-    UnifiedRender::Decimal c = 1.f;
+Eng3D::Decimal Nation::get_reproduction_mod(void) {
+    Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->reproduction_mod;
     }
     return ((1.f));
 }
 
-UnifiedRender::Decimal Nation::get_death_mod(void) {
-    UnifiedRender::Decimal c = 1.f;
+Eng3D::Decimal Nation::get_death_mod(void) {
+    Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->death_mod;
     }
     return ((1.f));
 }
 
-UnifiedRender::Decimal Nation::get_militancy_mod(void) {
-    UnifiedRender::Decimal c = 1.f;
+Eng3D::Decimal Nation::get_militancy_mod(void) {
+    Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->militancy_mod;
     }
     return ((1.f));
 }
 
-UnifiedRender::Decimal Nation::get_life_needs_met_mod(void) {
-    UnifiedRender::Decimal c = 1.f;
+Eng3D::Decimal Nation::get_life_needs_met_mod(void) {
+    Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->life_needs_met_mod;
     }
     return ((1.f));
 }
 
-UnifiedRender::Decimal Nation::get_everyday_needs_met_mod(void) {
-    UnifiedRender::Decimal c = 1.f;
+Eng3D::Decimal Nation::get_everyday_needs_met_mod(void) {
+    Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->everyday_needs_met_mod;
     }
     return ((1.f));
 }
 
-UnifiedRender::Decimal Nation::get_luxury_needs_met_mod(void) {
-    UnifiedRender::Decimal c = 1.f;
+Eng3D::Decimal Nation::get_luxury_needs_met_mod(void) {
+    Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->luxury_needs_met_mod;
     }
     return ((1.f));
 }
 
-UnifiedRender::Decimal Nation::get_immigration_attraction_mod(void) {
-    UnifiedRender::Decimal c = 1.f;
+Eng3D::Decimal Nation::get_immigration_attraction_mod(void) {
+    Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->immigration_attraction;
     }

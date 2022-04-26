@@ -23,19 +23,19 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "unified_render/print.hpp"
-#include "unified_render/log.hpp"
-#include "unified_render/path.hpp"
-#include "unified_render/texture.hpp"
-#include "unified_render/ui/button.hpp"
-#include "unified_render/ui/input.hpp"
-#include "unified_render/ui/tooltip.hpp"
-#include "unified_render/ui/ui.hpp"
-#include "unified_render/ui/slider.hpp"
-#include "unified_render/ui/checkbox.hpp"
-#include "unified_render/ui/group.hpp"
-#include "unified_render/ui/image.hpp"
-#include "unified_render/ui/close_button.hpp"
+#include "eng3d/print.hpp"
+#include "eng3d/log.hpp"
+#include "eng3d/path.hpp"
+#include "eng3d/texture.hpp"
+#include "eng3d/ui/button.hpp"
+#include "eng3d/ui/input.hpp"
+#include "eng3d/ui/tooltip.hpp"
+#include "eng3d/ui/ui.hpp"
+#include "eng3d/ui/slider.hpp"
+#include "eng3d/ui/checkbox.hpp"
+#include "eng3d/ui/group.hpp"
+#include "eng3d/ui/image.hpp"
+#include "eng3d/ui/close_button.hpp"
 
 #include "client/interface/main_menu.hpp"
 #include "client/interface/settings.hpp"
@@ -71,7 +71,7 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     conn_btn = new UI::Button(0, 48, 128, 24, this);
     conn_btn->text("Connect");
     conn_btn->set_on_click([this](UI::Widget& w) {
-        UnifiedRender::Log::debug("ui", "Okey, connecting to [" + this->ip_addr_inp->get_buffer() + "]");
+        Eng3D::Log::debug("ui", "Okey, connecting to [" + this->ip_addr_inp->get_buffer() + "]");
 
         // TODO: Handle when mods differ (i.e checksum not equal to host)
         this->gs.host_mode = false;
@@ -85,7 +85,7 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
             this->gs.current_mode = MapMode::COUNTRY_SELECT;
             this->gs.select_nation = new Interface::LobbySelectView(gs);
             return;
-        } catch(UnifiedRender::Networking::SocketException& e) {
+        } catch(Eng3D::Networking::SocketException& e) {
             this->gs.ui_ctx->prompt("Network layer error", e.what());
         } catch(ClientException& e) {
             this->gs.ui_ctx->prompt("Client error", e.what());
@@ -112,15 +112,15 @@ MainMenu::MainMenu(GameState& _gs)
     this->is_pinned = true;
     this->is_scroll = false;
     // this->text("Symphony of Empires");
-    auto tex_man = UnifiedRender::State::get_instance().tex_man;
-    UnifiedRender::TextureOptions mipmap_options;
+    auto tex_man = Eng3D::State::get_instance().tex_man;
+    Eng3D::TextureOptions mipmap_options;
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
     mipmap_options.wrap_s = GL_CLAMP_TO_EDGE;
     mipmap_options.wrap_t = GL_CLAMP_TO_EDGE;
 
     auto font = TTF_OpenFont(Path::get("fonts/neon_euler/euler.ttf").c_str(), 20);
-    auto text_color = UnifiedRender::Color(1.f, 1.f, 1.f);
+    auto text_color = Eng3D::Color(1.f, 1.f, 1.f);
 
     this->current_texture = tex_man->load(Path::get("gfx/ui/bg/main_menu.png"), mipmap_options);
     auto main_menu_border = tex_man->load(Path::get("gfx/ui/bg/main_menu_border.png"));

@@ -31,7 +31,7 @@
 #include <functional>
 #include <cstddef>
 
-namespace UnifiedRender {
+namespace Eng3D {
     class Texture;
     class Model;
     class TextureArray;
@@ -54,8 +54,8 @@ namespace UI {
 }
 
 #include "province.hpp"
-#include "unified_render/color.hpp"
-#include "unified_render/primitive.hpp"
+#include "eng3d/color.hpp"
+#include "eng3d/primitive.hpp"
 
 enum class MapView {
     SPHERE_VIEW,
@@ -76,8 +76,8 @@ static const float GLOBE_RADIUS = 100.f;
 class ProvinceColor {
 public:
     Province::Id id;
-    UnifiedRender::Color color;
-    ProvinceColor(Province::Id _id, UnifiedRender::Color _color): id{ _id }, color{ _color } {}
+    Eng3D::Color color;
+    ProvinceColor(Province::Id _id, Eng3D::Color _color): id{ _id }, color{ _color } {}
 };
 typedef std::function<std::string(const World& world, const Province::Id id)> mapmode_tooltip;
 typedef std::function<std::vector<ProvinceColor>(const World& world)> mapmode_generator;
@@ -103,7 +103,7 @@ public:
 
     void update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, GameState& gs);
     void update_mapmode();
-    void draw_flag(const UnifiedRender::OpenGL::Program& shader, const Nation& nation);
+    void draw_flag(const Eng3D::OpenGL::Program& shader, const Nation& nation);
     void draw(const GameState& gs);
     void handle_click(GameState& gs, SDL_Event event);
     void set_map_mode(mapmode_generator mapmode_func, mapmode_tooltip tooltip_func);
@@ -114,14 +114,14 @@ public:
     MapRender* map_render;
     MapView view_mode = MapView::PLANE_VIEW;
 
-    std::vector<const UnifiedRender::Model*> building_type_models, unit_type_models;
-    std::vector<std::shared_ptr<UnifiedRender::Texture>> building_type_icons;
-    std::vector<std::shared_ptr<UnifiedRender::Texture>> unit_type_icons;
-    std::vector<std::shared_ptr<UnifiedRender::Texture>> nation_flags;
+    std::vector<const Eng3D::Model*> building_type_models, unit_type_models;
+    std::vector<std::shared_ptr<Eng3D::Texture>> building_type_icons;
+    std::vector<std::shared_ptr<Eng3D::Texture>> unit_type_icons;
+    std::vector<std::shared_ptr<Eng3D::Texture>> nation_flags;
 
-    std::vector<UnifiedRender::Label3D*> province_labels;
-    std::vector<UnifiedRender::Label3D*> nation_labels;
-    UnifiedRender::FontSDF* map_font;
+    std::vector<Eng3D::Label3D*> province_labels;
+    std::vector<Eng3D::Label3D*> nation_labels;
+    Eng3D::FontSDF* map_font;
 
     // Wind oscillator (for flags)
     float wind_osc = 0.f;
@@ -134,11 +134,11 @@ public:
     const World& world;
     Camera* camera;
 
-    std::shared_ptr<UnifiedRender::Texture> id_map;
-    std::shared_ptr<UnifiedRender::Texture> province_color_tex;
-    std::shared_ptr<UnifiedRender::Texture> line_tex;
-    std::shared_ptr<UnifiedRender::Texture> skybox_tex;
-    UnifiedRender::Sphere skybox;
-    std::unique_ptr<UnifiedRender::OpenGL::Program> obj_shader;
+    std::shared_ptr<Eng3D::Texture> id_map;
+    std::shared_ptr<Eng3D::Texture> province_color_tex;
+    std::shared_ptr<Eng3D::Texture> line_tex;
+    std::shared_ptr<Eng3D::Texture> skybox_tex;
+    Eng3D::Sphere skybox;
+    std::unique_ptr<Eng3D::OpenGL::Program> obj_shader;
 };
 

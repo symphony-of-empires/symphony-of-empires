@@ -28,11 +28,11 @@
 #include "pop.hpp"
 #include "world.hpp"
 
-#include "unified_render/string_format.hpp"
-#include "unified_render/ui/div.hpp"
-#include "unified_render/ui/label.hpp"
-#include "unified_render/ui/image.hpp"
-#include "unified_render/ui/scrollbar.hpp"
+#include "eng3d/string_format.hpp"
+#include "eng3d/ui/div.hpp"
+#include "eng3d/ui/label.hpp"
+#include "eng3d/ui/image.hpp"
+#include "eng3d/ui/scrollbar.hpp"
 
 using namespace Interface;
 
@@ -43,7 +43,7 @@ void make_building_header(UI::Div* table) {
 
 	glm::ivec2 size(4, 4);
 	glm::ivec2 texture_size(10, 10);
-	auto tex_man = UnifiedRender::State::get_instance().tex_man;
+	auto tex_man = Eng3D::State::get_instance().tex_man;
 	auto border_tex = tex_man->load(Path::get("gfx/border2.png"));
 	auto border = UI::Border(border_tex, size, texture_size);
 
@@ -79,7 +79,7 @@ void make_building_row(UI::Div* table, Building& building, BuildingType* type, P
 
 	glm::ivec2 size(4, 4);
 	glm::ivec2 texture_size(10, 10);
-	auto tex_man = UnifiedRender::State::get_instance().tex_man;
+	auto tex_man = Eng3D::State::get_instance().tex_man;
 	auto border_tex = tex_man->load(Path::get("gfx/border2.png"));
 	auto border = UI::Border(border_tex, size, texture_size);
 
@@ -88,7 +88,7 @@ void make_building_row(UI::Div* table, Building& building, BuildingType* type, P
 	name_lab->border = border;
 
 	auto workers_lab = new UI::Div(0, 0, 100, 35, row);
-	workers_lab->text(UnifiedRender::string_format("%d", building.workers));
+	workers_lab->text(Eng3D::string_format("%d", building.workers));
 	workers_lab->border = border;
 
 	auto province_lab = new UI::Div(0, 0, 200, 35, row);
@@ -112,7 +112,7 @@ void make_building_row(UI::Div* table, Building& building, BuildingType* type, P
 	output_good_image->set_tooltip(output->name.get_string());
 
 	auto production_scale_lab = new UI::Div(0, 0, 50, 35, row);
-	production_scale_lab->text(UnifiedRender::string_format("%1.2f", building.production_scale));
+	production_scale_lab->text(Eng3D::string_format("%1.2f", building.production_scale));
 	production_scale_lab->border = border;
 }
 

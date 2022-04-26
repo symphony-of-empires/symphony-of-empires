@@ -25,9 +25,9 @@
 
 #include "client/interface/ai.hpp"
 #include "io_impl.hpp"
-#include "unified_render/ui/components.hpp"
+#include "eng3d/ui/components.hpp"
 #include "client/client_network.hpp"
-#include "unified_render/locale.hpp"
+#include "eng3d/locale.hpp"
 
 using namespace Interface;
 
@@ -39,7 +39,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
     this->text("AI Control");
 
     auto* cmd_chk = new UI::Checkbox(0, 0, this->width, 24, this);
-    cmd_chk->text(UnifiedRender::Locale::translate("Command troops"));
+    cmd_chk->text(Eng3D::Locale::translate("Command troops"));
     cmd_chk->set_value(this->gs.curr_nation->ai_do_cmd_troops);
     cmd_chk->set_on_click([this](UI::Widget& w) {
         this->gs.curr_nation->ai_do_cmd_troops = ((UI::Checkbox&)w).get_value();
@@ -48,7 +48,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
 
     auto* close_btn = new UI::CloseButton(0, 0, this->width, 24, this);
     close_btn->below_of(*cmd_chk);
-    close_btn->text(UnifiedRender::Locale::translate("Close"));
+    close_btn->text(Eng3D::Locale::translate("Close"));
     close_btn->set_on_click([this](UI::Widget& w) {
         this->gs.client->send(Action::AiControl::form_packet(this->gs.curr_nation));
         this->kill();

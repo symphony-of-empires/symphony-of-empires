@@ -27,7 +27,7 @@
 
 #include <string>
 #include <vector>
-#include "unified_render/entity.hpp"
+#include "eng3d/entity.hpp"
 
 enum TechnologyType {
     STRATEGIC = 0x01,

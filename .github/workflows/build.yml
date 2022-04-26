@@ -18,7 +18,7 @@ jobs:
        sudo apt install libpng-dev libsdl2-dev libsdl2-ttf-dev libtbb-dev libglm-dev libglew-dev libtbb-dev liblua5.3-dev
     - name: "Build"
       run: |
-       cmake -DUNIT_TEST=1 -DCMAKE_BUILD_TYPE=Release -DUR_BACKEND_OPENGL=1 .
+       cmake -DUNIT_TEST=1 -DCMAKE_BUILD_TYPE=Release -DE3D_BACKEND_OPENGL=1 .
        make -j$(nproc)
        make -j
     - name: "Run"

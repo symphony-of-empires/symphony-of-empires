@@ -23,17 +23,17 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "unified_render/path.hpp"
-#include "unified_render/texture.hpp"
-#include "unified_render/locale.hpp"
-#include "unified_render/string_format.hpp"
-#include "unified_render/ui/piechart.hpp"
-#include "unified_render/ui/label.hpp"
-#include "unified_render/ui/image.hpp"
-#include "unified_render/ui/tooltip.hpp"
-#include "unified_render/ui/button.hpp"
-#include "unified_render/ui/table.hpp"
-#include "unified_render/ui/close_button.hpp"
+#include "eng3d/path.hpp"
+#include "eng3d/texture.hpp"
+#include "eng3d/locale.hpp"
+#include "eng3d/string_format.hpp"
+#include "eng3d/ui/piechart.hpp"
+#include "eng3d/ui/label.hpp"
+#include "eng3d/ui/image.hpp"
+#include "eng3d/ui/tooltip.hpp"
+#include "eng3d/ui/button.hpp"
+#include "eng3d/ui/table.hpp"
+#include "eng3d/ui/close_button.hpp"
 
 #include "province_view.hpp"
 #include "nation_view.hpp"
@@ -58,17 +58,17 @@ void ProvincePopulationTab::update_piecharts() {
 
     std::vector<UI::ChartData> cultures_data, religions_data, pop_types_data;
     for(const auto& culture : gs.world->cultures) {
-        cultures_data.push_back(UI::ChartData(culture_sizes[gs.world->get_id(culture)], culture.name.get_string(), UnifiedRender::Color::rgba32(culture.color)));
+        cultures_data.push_back(UI::ChartData(culture_sizes[gs.world->get_id(culture)], culture.name.get_string(), Eng3D::Color::rgba32(culture.color)));
     }
     cultures_pie->set_data(cultures_data);
 
     for(const auto& religion : gs.world->religions) {
-        religions_data.push_back(UI::ChartData(religion_sizes[gs.world->get_id(religion)], religion.name.get_string(), UnifiedRender::Color::rgba32(religion.color)));
+        religions_data.push_back(UI::ChartData(religion_sizes[gs.world->get_id(religion)], religion.name.get_string(), Eng3D::Color::rgba32(religion.color)));
     }
     religions_pie->set_data(religions_data);
 
     for(const auto& pop_type : gs.world->pop_types) {
-        const auto color = UnifiedRender::Color(
+        const auto color = Eng3D::Color(
             (uint8_t)((gs.world->get_id(pop_type) * 12) % 256),
             (uint8_t)((gs.world->get_id(pop_type) * 31) % 256),
             (uint8_t)((gs.world->get_id(pop_type) * 97) % 256)
@@ -127,29 +127,29 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
             auto* row = table->get_row(id);
             size_t row_index = 0;
 
-            auto tex_man = UnifiedRender::State::get_instance().tex_man;
+            auto tex_man = Eng3D::State::get_instance().tex_man;
 
             auto size = row->get_element(row_index++);
-            auto size_str = UnifiedRender::string_format("%.0f", pop.size);
+            auto size_str = Eng3D::string_format("%.0f", pop.size);
             size->text(size_str);
             size->set_key(pop.size);
 
             auto budget = row->get_element(row_index++);
-            auto budget_str = UnifiedRender::string_format("%.0f", pop.budget / pop.size);
+            auto budget_str = Eng3D::string_format("%.0f", pop.budget / pop.size);
             budget->text(budget_str);
-            auto budget_tip = UnifiedRender::Locale::translate("A total budget of") + " " + UnifiedRender::string_format("%.0f", pop.budget);
+            auto budget_tip = Eng3D::Locale::translate("A total budget of") + " " + Eng3D::string_format("%.0f", pop.budget);
             budget->set_tooltip(budget_tip);
             budget->set_key(pop.budget / pop.size);
 
             auto religion = row->get_element(row_index++);
             auto religion_icon = tex_man->load(Path::get("gfx/religion/" + pop.religion->ref_name + ".png"));
             religion->current_texture = religion_icon;
-            auto religion_tip = UnifiedRender::Locale::translate(pop.religion->name.get_string());
+            auto religion_tip = Eng3D::Locale::translate(pop.religion->name.get_string());
             religion->set_tooltip(religion_tip);
             religion->set_key(religion_tip);
 
             auto culture = row->get_element(row_index++);
-            auto culture_str = UnifiedRender::Locale::translate(pop.culture->name.get_string());
+            auto culture_str = Eng3D::Locale::translate(pop.culture->name.get_string());
             culture->text(culture_str);
             culture->set_key(culture_str);
         }
@@ -181,7 +181,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
         std::vector<UI::ChartData> goods_data;
         int i = 0;
         for(const auto& good : o.gs.world->goods) {
-            const auto good_col = UnifiedRender::Color(i * 12, i * 31, i * 97);
+            const auto good_col = Eng3D::Color(i * 12, i * 31, i * 97);
             Product& product = o.province->products[o.gs.world->get_id(good)];
             goods_data.push_back(UI::ChartData(product.demand, good.name.get_string(), good_col));
             i++;
@@ -372,8 +372,8 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
                 pop.type = &g_world->pop_types.at(0);
                 pop.culture = &g_world->cultures.at(0);
                 pop.religion = &g_world->religions.at(0);
-                pop.size = 1000.f / std::max<UnifiedRender::Decimal>(0.01f, pop_type.social_value);
-                pop.literacy = max_sv / std::max<UnifiedRender::Decimal>(0.01f, pop_type.social_value);
+                pop.size = 1000.f / std::max<Eng3D::Decimal>(0.01f, pop_type.social_value);
+                pop.literacy = max_sv / std::max<Eng3D::Decimal>(0.01f, pop_type.social_value);
                 pop.budget = 100.f * max_sv;
                 o.province->pops.push_back(pop);
             }

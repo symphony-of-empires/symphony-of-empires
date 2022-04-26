@@ -27,7 +27,7 @@
 
 #include <string>
 
-#include "unified_render/entity.hpp"
+#include "eng3d/entity.hpp"
 #include "policy.hpp"
 
 class Ideology : public RefnameEntity<uint8_t> {

@@ -27,8 +27,8 @@
 
 #include <vector>
 
-#include "unified_render/ui/window.hpp"
-#include "unified_render/ui/group.hpp"
+#include "eng3d/ui/window.hpp"
+#include "eng3d/ui/group.hpp"
 
 #include "client/game_state.hpp"
 
@@ -37,7 +37,7 @@ namespace UI {
     class Div;
 }
 
-namespace UnifiedRender {
+namespace Eng3D {
     class BenchmarkTask;
 }
 
@@ -53,7 +53,7 @@ namespace Interface {
     class ProfilerTaskView: public UI::Group {
     public:
         ProfilerTaskView(ProfilerView* profiler_view, int x, int y);
-        void set_task(UnifiedRender::BenchmarkTask* profiler_view);
+        void set_task(Eng3D::BenchmarkTask* profiler_view);
     private:
         UI::Label* label;
         UI::Div* color_box;

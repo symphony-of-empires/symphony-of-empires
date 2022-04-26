@@ -142,7 +142,7 @@ void external_migration(World& world) {
 		nation_distributions.push_back(distribution);
 	}
 
-	std::vector<Emigrated> emigration = std::vector<Emigrated>();
+	std::vector<Emigrated> emigration;
     // Collect list of nations that exist
     std::vector<Nation*> eval_nations;
     for(const auto& nation : world.nations) {

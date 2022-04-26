@@ -27,7 +27,7 @@
 
 #include <string>
 
-#include "unified_render/entity.hpp"
+#include "eng3d/entity.hpp"
 
 class Religion : public RefnameEntity<uint8_t> {
 public:

@@ -23,11 +23,11 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "unified_render/path.hpp"
-#include "unified_render/texture.hpp"
-#include "unified_render/ui/image.hpp"
-#include "unified_render/ui/close_button.hpp"
-#include "unified_render/ui/button.hpp"
+#include "eng3d/path.hpp"
+#include "eng3d/texture.hpp"
+#include "eng3d/ui/image.hpp"
+#include "eng3d/ui/close_button.hpp"
+#include "eng3d/ui/button.hpp"
 
 #include "client/interface/technology.hpp"
 #include "client/map.hpp"

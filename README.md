@@ -22,7 +22,7 @@ sudo apt install -y libpng-dev libsdl2-dev libsdl2-ttf-dev liblua5.3-dev libtbb-
 
 The build with these commands once all the dependencies are met:
 ```sh
-cmake -DUR_BACKEND_OPENGL=1 -DNO_COPY_MODS=1 .
+cmake -DE3D_BACKEND_OPENGL=1 -DNO_COPY_MODS=1 .
 make
 ```
 
@@ -74,7 +74,7 @@ pacman -S mingw-w64-i686-intel-tbb
 
 Finally; to build you only have to run:
 ```sh
-cmake -G "MinGW Makefiles" -DUR_BACKEND_OPENGL=1 -DNO_COPY_MODS=1 .
+cmake -G "MinGW Makefiles" -DE3D_BACKEND_OPENGL=1 -DNO_COPY_MODS=1 .
 make
 ```
 

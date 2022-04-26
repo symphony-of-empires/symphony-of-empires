@@ -23,9 +23,9 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "unified_render/path.hpp"
-#include "unified_render/texture.hpp"
-#include "unified_render/ui/components.hpp"
+#include "eng3d/path.hpp"
+#include "eng3d/texture.hpp"
+#include "eng3d/ui/components.hpp"
 
 #include "client/interface/top_window.hpp"
 #include "client/game_state.hpp"
@@ -175,7 +175,7 @@ TimeControlView::TimeControlView(GameState& _gs)
     speed3_btn->set_tooltip("Fire speed");
 
     auto font = TTF_OpenFont(Path::get("fonts/neon_euler/euler.ttf").c_str(), 20);
-    auto text_color = UnifiedRender::Color(1., 1., 1.);
+    auto text_color = Eng3D::Color(1., 1., 1.);
 
     auto* time_lab = new UI::Label(50, 30, " ", this);
     time_lab->on_each_tick = ([this](UI::Widget& w) {

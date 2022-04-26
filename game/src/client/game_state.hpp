@@ -30,10 +30,10 @@
 #include <vector>
 #include <atomic>
 
-#include "unified_render/serializer.hpp"
-#include "unified_render/audio.hpp"
-#include "unified_render/state.hpp"
-#include "unified_render/decimal.hpp"
+#include "eng3d/serializer.hpp"
+#include "eng3d/audio.hpp"
+#include "eng3d/state.hpp"
+#include "eng3d/decimal.hpp"
 #include "tutorial.hpp"
 
 enum class MapMode : unsigned char {
@@ -77,13 +77,13 @@ namespace UI {
     class Context;
     class Widget;
 }
-namespace UnifiedRender {
+namespace Eng3D {
     class Texture;
 }
 
 // The all encompassing client state
 // This is the state we could pass down to all the ui widgets
-class GameState: public UnifiedRender::State {
+class GameState: public Eng3D::State {
 public:
     GameState(void) {};
     ~GameState(void);
@@ -125,8 +125,8 @@ public:
     Interface::Minimap* minimap = nullptr;
     Interface::ProfilerView* profiler_view = nullptr;
 
-    std::vector<std::shared_ptr<UnifiedRender::Texture>> nation_flags;
-    std::shared_ptr<UnifiedRender::Texture> get_nation_flag(Nation& nation);
+    std::vector<std::shared_ptr<Eng3D::Texture>> nation_flags;
+    std::shared_ptr<Eng3D::Texture> get_nation_flag(Nation& nation);
 
     // Used for synchronization between the networking client and the rendering thread
     std::mutex render_lock;

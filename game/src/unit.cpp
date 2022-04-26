@@ -80,27 +80,27 @@ void Unit::attack(Unit& enemy) {
     
     /*
     // Calculate the attack of our unit
-    UnifiedRender::Decimal attack_mod = DECIMAL_3P(0, 000);
+    Eng3D::Decimal attack_mod = DECIMAL_3P(0, 000);
     for(const auto& trait: this->traits) {
         attack_mod *= trait->attack_mod;
     }
     const float attack = this->type->attack * attack_mod;
 
     // Calculate the defense of the enemy
-    UnifiedRender::Decimal defense_mod = DECIMAL_3P(0, 000);
+    Eng3D::Decimal defense_mod = DECIMAL_3P(0, 000);
     for(const auto& trait: this->traits) {
         defense_mod *= trait->defense_mod;
     }
     const float enemy_defense = std::max<float>(0.1f, enemy.type->defense * defense_mod);
 
     // Calculate the total damage dealt by our unit to the enemy
-    const UnifiedRender::Decimal damage_dealt = this->size * std::min<float>(DECIMAL_3P(10, 000), std::max<float>(DECIMAL_3P(0, 050), this->experience))
+    const Eng3D::Decimal damage_dealt = this->size * std::min<float>(DECIMAL_3P(10, 000), std::max<float>(DECIMAL_3P(0, 050), this->experience))
         * (attack / std::pow(std::min<float>(DECIMAL_3P(0, 000), enemy_defense), 2))
         * std::max<float>(0.1f, this->morale) * this->supply
     ;
     
     // Deal with the morale loss of the enemy
-    UnifiedRender::Decimal enemy_fanaticism = DECIMAL_3P(0, 000);
+    Eng3D::Decimal enemy_fanaticism = DECIMAL_3P(0, 000);
     for(const auto& trait: enemy.traits) {
         enemy_fanaticism *= trait->morale_mod;
     }
@@ -113,11 +113,11 @@ void Unit::attack(Unit& enemy) {
     enemy.size -= std::min<size_t>(enemy.size, damage_dealt);
     */
 
-    const UnifiedRender::Decimal damage = (type->attack / enemy.type->defense) * size;
+    const Eng3D::Decimal damage = (type->attack / enemy.type->defense) * size;
     enemy.size -= std::min<size_t>(enemy.size, (damage));
 }
 
-std::pair<UnifiedRender::Number, UnifiedRender::Number> Unit::get_pos(void) const {
+std::pair<Eng3D::Number, Eng3D::Number> Unit::get_pos(void) const {
     return province->get_pos();
 }
 
@@ -126,30 +126,30 @@ void Unit::set_target(Province& _province) {
     move_progress = std::sqrt(std::abs((province->max_x + ((province->max_x - province->min_x) / 2.f)) - (target->max_x + ((target->max_x - target->min_x) / 2.f))) + std::abs((province->max_y + ((province->max_y - province->min_y) / 2.f)) - (target->max_y + ((target->max_y - target->min_y) / 2.f))));
 }
 
-UnifiedRender::Decimal Unit::get_speed(const Province& _province) const {
+Eng3D::Decimal Unit::get_speed(const Province& _province) const {
     auto start_pos = province->get_pos();
     auto end_pos = _province.get_pos();
 
     // Get the linear distance from the current deduced position of the unit and the target
     // the current position of the unit is relative to the move progress it has done (so if it's
     // halfway thru a province it will then be placed at half of the distance)
-    const UnifiedRender::Decimal x_dist = (end_pos.first - start_pos.first);
-    const UnifiedRender::Decimal y_dist = (end_pos.second - start_pos.second);
-    const UnifiedRender::Decimal angle = std::atan2(x_dist, y_dist);
+    const Eng3D::Decimal x_dist = (end_pos.first - start_pos.first);
+    const Eng3D::Decimal y_dist = (end_pos.second - start_pos.second);
+    const Eng3D::Decimal angle = std::atan2(x_dist, y_dist);
 
     // TODO: The comment above makes no sense since we don't do (max_move_progress / move_progress)
-    const UnifiedRender::Decimal dist_div = move_progress;
+    const Eng3D::Decimal dist_div = move_progress;
 
     //const float linear_dist = std::fabs(std::sqrt(x_dist * x_dist + y_dist * y_dist) / dist_div);
     
-    const UnifiedRender::Decimal speed = (type->speed) / _province.terrain_type->movement_penalty;
-    UnifiedRender::Decimal radius_scale = std::cos(M_PI / (2 * World::get_instance().height) * (2 * (y_dist / dist_div) - World::get_instance().height));
-    UnifiedRender::Decimal x_scale = 1 / (std::fabs(radius_scale) + 0.001f);
-    UnifiedRender::Decimal speed_scale = std::sqrt(std::pow(std::sin(angle), 2) + std::pow(std::cos(angle) * x_scale, 2));
+    const Eng3D::Decimal speed = (type->speed) / _province.terrain_type->movement_penalty;
+    Eng3D::Decimal radius_scale = std::cos(M_PI / (2 * World::get_instance().height) * (2 * (y_dist / dist_div) - World::get_instance().height));
+    Eng3D::Decimal x_scale = 1 / (std::fabs(radius_scale) + 0.001f);
+    Eng3D::Decimal speed_scale = std::sqrt(std::pow(std::sin(angle), 2) + std::pow(std::cos(angle) * x_scale, 2));
     return (speed * speed_scale) / 100.f;
 }
 
-UnifiedRender::Decimal Unit::get_speed(void) const {
+Eng3D::Decimal Unit::get_speed(void) const {
     return get_speed(*target);
 }
 

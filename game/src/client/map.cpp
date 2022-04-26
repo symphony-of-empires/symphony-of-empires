@@ -38,18 +38,18 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
-#include "unified_render/state.hpp"
-#include "unified_render/ui/tooltip.hpp"
-#include "unified_render/font_sdf.hpp"
-#include "unified_render/path.hpp"
-#include "unified_render/print.hpp"
-#include "unified_render/texture.hpp"
-#include "unified_render/primitive.hpp"
-#include "unified_render/shader.hpp"
-#include "unified_render/framebuffer.hpp"
-#include "unified_render/model.hpp"
-#include "unified_render/serializer.hpp"
-#include "unified_render/locale.hpp"
+#include "eng3d/state.hpp"
+#include "eng3d/ui/tooltip.hpp"
+#include "eng3d/font_sdf.hpp"
+#include "eng3d/path.hpp"
+#include "eng3d/print.hpp"
+#include "eng3d/texture.hpp"
+#include "eng3d/primitive.hpp"
+#include "eng3d/shader.hpp"
+#include "eng3d/framebuffer.hpp"
+#include "eng3d/model.hpp"
+#include "eng3d/serializer.hpp"
+#include "eng3d/locale.hpp"
 
 #include "client/map.hpp"
 #include "client/map_render.hpp"
@@ -112,7 +112,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     : world(_world),
     skybox(0.f, 0.f, 0.f, 255.f * 10.f, 40, false)
 {
-    UnifiedRender::State& s = UnifiedRender::State::get_instance();
+    Eng3D::State& s = Eng3D::State::get_instance();
     camera = new FlatCamera(glm::vec2(screen_width, screen_height), glm::vec2(world.width, world.height));
 
     rivers = new Rivers();
@@ -120,14 +120,14 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     map_render = new MapRender(world);
 
     // Shader used for drawing the models using custom model render
-    obj_shader = std::unique_ptr<UnifiedRender::OpenGL::Program>(new UnifiedRender::OpenGL::Program());
+    obj_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
         obj_shader->attach_shader(s.builtin_shaders["vs_3d"].get());
         obj_shader->attach_shader(s.builtin_shaders["fs_3d"].get());
         obj_shader->link();
     }
 
-    UnifiedRender::TextureOptions mipmap_options{};
+    Eng3D::TextureOptions mipmap_options{};
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
 
@@ -139,11 +139,11 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     print_info("Preloading-important stuff");
 
-    map_font = new UnifiedRender::FontSDF("fonts/cinzel_sdf/cinzel");
+    map_font = new Eng3D::FontSDF("fonts/cinzel_sdf/cinzel");
 
     // Query the initial nation flags
     for(const auto& nation : world.nations) {
-        UnifiedRender::TextureOptions mipmap_options{};
+        Eng3D::TextureOptions mipmap_options{};
         mipmap_options.wrap_s = GL_REPEAT;
         mipmap_options.wrap_t = GL_REPEAT;
         mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
@@ -202,7 +202,7 @@ void Map::create_labels() {
         glm::vec3 top_dir = camera->get_tile_world_pos(glm::vec2(mid_point.x, mid_point.y - 1.f));
         top_dir = top_dir - center;
 
-        auto* label = map_font->gen_text(UnifiedRender::Locale::translate(province->name.get_string()), top_dir, right_dir, width);
+        auto* label = map_font->gen_text(Eng3D::Locale::translate(province->name.get_string()), top_dir, right_dir, width);
         label->model = glm::translate(label->model, center);
         province_labels.push_back(label);
     }
@@ -214,7 +214,7 @@ void Map::create_labels() {
     nation_labels.clear();
     for(const auto& nation : world.nations) {
         if(!nation->exists()) {
-            auto* label = map_font->gen_text(UnifiedRender::Locale::translate(nation->get_client_hint().alt_name.get_string()), glm::vec3(-10.f), glm::vec3(-5.f), 1.f);
+            auto* label = map_font->gen_text(Eng3D::Locale::translate(nation->get_client_hint().alt_name.get_string()), glm::vec3(-10.f), glm::vec3(-5.f), 1.f);
             nation_labels.push_back(label);
             continue;
         }
@@ -281,7 +281,7 @@ void Map::create_labels() {
             angle += M_PI;
         }
 
-        auto* label = map_font->gen_text(UnifiedRender::Locale::translate(nation->get_client_hint().alt_name.get_string()), top_dir, right_dir, width, 15.f);
+        auto* label = map_font->gen_text(Eng3D::Locale::translate(nation->get_client_hint().alt_name.get_string()), top_dir, right_dir, width, 15.f);
         label->model = glm::translate(label->model, center);
         label->model = glm::rotate(label->model, angle, normal);
         nation_labels.push_back(label);
@@ -308,16 +308,16 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
         Nation* province_owner = world.provinces[i]->controller;
         if(province_owner == nullptr) {
-            province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(0xffdddddd)));
+            province_color.push_back(ProvinceColor(i, Eng3D::Color::rgba32(0xffdddddd)));
         } else {
-            province_color.push_back(ProvinceColor(i, UnifiedRender::Color::rgba32(province_owner->get_client_hint().color)));
+            province_color.push_back(ProvinceColor(i, Eng3D::Color::rgba32(province_owner->get_client_hint().color)));
         }
     }
 
     // Water
-    province_color.push_back(ProvinceColor((Province::Id)-2, UnifiedRender::Color::rgba32(0x00000000)));
+    province_color.push_back(ProvinceColor((Province::Id)-2, Eng3D::Color::rgba32(0x00000000)));
     // Land
-    province_color.push_back(ProvinceColor((Province::Id)-1, UnifiedRender::Color::rgba32(0xffdddddd)));
+    province_color.push_back(ProvinceColor((Province::Id)-1, Eng3D::Color::rgba32(0xffdddddd)));
     return province_color;
 }
 
@@ -343,24 +343,24 @@ void Map::set_map_mode(mapmode_generator mapmode_generator, mapmode_tooltip tool
     update_mapmode();
 }
 
-void Map::draw_flag(const UnifiedRender::OpenGL::Program& shader, const Nation& nation) {
+void Map::draw_flag(const Eng3D::OpenGL::Program& shader, const Nation& nation) {
     // Draw a flag that "waves" with some cheap wind effects it
     // looks nice and it's super cheap to make - only using sine
     const float n_steps = 8.f; // Resolution of flag in one side (in vertices)
     const float step = 90.f; // Steps per vertice
 
-    auto flag = UnifiedRender::Mesh<glm::vec3, glm::vec2>(UnifiedRender::MeshMode::TRIANGLE_STRIP);
+    auto flag = Eng3D::Mesh<glm::vec3, glm::vec2>(Eng3D::MeshMode::TRIANGLE_STRIP);
     for(float r = 0.f; r <= (n_steps * step); r += step) {
         float sin_r = (sin(r + wind_osc) / 24.f);
 
         sin_r = sin(r + wind_osc) / 24.f;
-        flag.buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
+        flag.buffer.push_back(Eng3D::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),
             glm::vec2((r / step) / n_steps, 0.f)
             ));
 
         sin_r = sin(r + wind_osc + 160.f) / 24.f;
-        flag.buffer.push_back(UnifiedRender::MeshData<glm::vec3, glm::vec2>(
+        flag.buffer.push_back(Eng3D::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
             ));
@@ -474,7 +474,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                 continue;
             }
 
-            UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+            Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
             Archive ar = Archive();
             ActionType action = ActionType::UNIT_CHANGE_TARGET;
             ::serialize(ar, &action);
@@ -487,7 +487,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             std::scoped_lock l1(gs.sound_lock);
             auto entries = Path::get_all_recursive("sfx/land_move");
             if(!entries.empty()) {
-                gs.sound_queue.push_back(new UnifiedRender::Audio(entries[std::rand() % entries.size()]));
+                gs.sound_queue.push_back(new Eng3D::Audio(entries[std::rand() % entries.size()]));
             }
         }
     }
@@ -523,7 +523,7 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, Game
         int xrel = SDL_JoystickGetAxis(input.joy, 0);
         int yrel = SDL_JoystickGetAxis(input.joy, 1);
 
-        const float sensivity = UnifiedRender::State::get_instance().joy_sensivity;
+        const float sensivity = Eng3D::State::get_instance().joy_sensivity;
 
         float x_force = xrel / sensivity;
         float y_force = yrel / sensivity;
@@ -648,7 +648,7 @@ void Map::draw(const GameState& gs) {
                 model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
                 obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
                 obj_shader->set_uniform("model", model);
-                auto flag_quad = UnifiedRender::Quad2D();
+                auto flag_quad = Eng3D::Quad2D();
                 flag_quad.draw();
 
                 // Model
@@ -664,7 +664,7 @@ void Map::draw(const GameState& gs) {
                 model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
                 obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
                 obj_shader->set_uniform("model", model);
-                auto flag_quad = UnifiedRender::Quad2D();
+                auto flag_quad = Eng3D::Quad2D();
                 flag_quad.draw();
 
                 // Model
@@ -686,14 +686,14 @@ void Map::draw(const GameState& gs) {
             pos.y -= y;
             glm::mat4 model = glm::translate(base_model, glm::vec3(pos.x, pos.y, 0.f));
             if(unit->target != nullptr) {
-                //UnifiedRender::Line target_line = UnifiedRender::Line(pos.x, pos.y, );
+                //Eng3D::Line target_line = Eng3D::Line(pos.x, pos.y, );
                 const glm::vec2 target_pos = glm::vec2(
                     unit->target->min_x + ((unit->target->max_x - unit->target->min_x) / 2.f),
                     unit->target->min_y + ((unit->target->max_y - unit->target->min_y) / 2.f)
                 );
 
                 const float dist = glm::sqrt(glm::pow(glm::abs(pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(pos.y - target_pos.y), 2.f));
-                auto line_square = UnifiedRender::Square(0.f, 0.f, dist, 0.5f);
+                auto line_square = Eng3D::Square(0.f, 0.f, dist, 0.5f);
                 glm::mat4 line_model = glm::rotate(model, glm::atan(target_pos.y - pos.y, target_pos.x - pos.x), glm::vec3(0.f, 0.f, 1.f));
                 obj_shader->set_texture(0, "diffuse_map", *line_tex);
                 obj_shader->set_uniform("model", line_model);
@@ -701,7 +701,7 @@ void Map::draw(const GameState& gs) {
             }
             obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
             obj_shader->set_uniform("model", model);
-            auto flag_quad = UnifiedRender::Quad2D();
+            auto flag_quad = Eng3D::Quad2D();
             flag_quad.draw();
 
             // Model
@@ -731,7 +731,7 @@ void Map::draw(const GameState& gs) {
     for(const auto& unit : gs.input.selected_units) {
         const std::pair<float, float> pos = unit->get_pos();
         glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
-        UnifiedRender::Square select_highlight = UnifiedRender::Square(0.f, 0.f, 1.f, 1.f);
+        Eng3D::Square select_highlight = Eng3D::Square(0.f, 0.f, 1.f, 1.f);
         obj_shader->set_texture(0, "diffuse_map", *gs.tex_man->load(Path::get("gfx/select_border.png")).get());
         select_highlight.draw();
     }
@@ -742,7 +742,7 @@ void Map::draw(const GameState& gs) {
         obj_shader->set_texture(0, "diffuse_map", *line_tex);
         obj_shader->set_uniform("model", model);
 
-        UnifiedRender::Square dragbox_square = UnifiedRender::Square(gs.input.drag_coord.first, gs.input.drag_coord.second, gs.input.select_pos.first, gs.input.select_pos.second);
+        Eng3D::Square dragbox_square = Eng3D::Square(gs.input.drag_coord.first, gs.input.drag_coord.second, gs.input.select_pos.first, gs.input.select_pos.second);
         dragbox_square.draw();
     }
 

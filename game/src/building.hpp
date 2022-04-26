@@ -26,8 +26,8 @@
 #pragma once
 
 #include <vector>
-#include "unified_render/entity.hpp"
-#include "unified_render/decimal.hpp"
+#include "eng3d/entity.hpp"
+#include "eng3d/decimal.hpp"
 
 #include "unit.hpp"
 
@@ -45,7 +45,7 @@ public:
     bool is_build_naval_units;
 
     // Defensive bonus given to units on the outpost
-    UnifiedRender::Number defense_bonus;
+    Eng3D::Number defense_bonus;
 
     // Is this a factory?
     bool is_factory;
@@ -56,7 +56,7 @@ public:
     Good* output = nullptr;
 
     // Required goods, first describes the id of the good and the second describes how many
-    std::vector<std::pair<Good*, UnifiedRender::Number>> req_goods;
+    std::vector<std::pair<Good*, Eng3D::Number>> req_goods;
 
     // Required technologies
     std::vector<Technology*> req_technologies;
@@ -64,7 +64,7 @@ public:
     // We used to calculate these per each economical tick but now we can just store them
     // and multiply it by the level of the factory - this is the **minimum** amount of employed
     // people we should have at a time
-    UnifiedRender::Number num_req_workers = 0;
+    Eng3D::Number num_req_workers = 0;
 };
 
 // A military outpost, on land serves as a "spawn" place for units
@@ -81,32 +81,32 @@ public:
     UnitType* working_unit_type = nullptr;
 
     // Remaining ticks until the unit is built
-    UnifiedRender::Number build_time;
+    Eng3D::Number build_time;
 
     // Required goods for building the working unit
     // TODO: change this to a struct instead of a pair for readablity
-    std::vector<std::pair<Good*, UnifiedRender::Number>> req_goods_for_unit;
+    std::vector<std::pair<Good*, Eng3D::Number>> req_goods_for_unit;
 
     // Required goods for building this, or repairing this after a military attack
-    std::vector<std::pair<Good*, UnifiedRender::Number>> req_goods;
+    std::vector<std::pair<Good*, Eng3D::Number>> req_goods;
 
     // Total money that the factory has
-    UnifiedRender::Decimal budget = 0.f;
+    Eng3D::Decimal budget = 0.f;
 
     // Days that the factory has not been operational
-    UnifiedRender::Number days_unoperational = 0;
+    Eng3D::Number days_unoperational = 0;
 
     // Money needed to produce - helps determine the price of the output products
-    UnifiedRender::Decimal production_cost = 0.f;
+    Eng3D::Decimal production_cost = 0.f;
 
     // Stockpile of inputs in the factory
-    std::vector<UnifiedRender::Number> stockpile;
+    std::vector<Eng3D::Number> stockpile;
 
     // The employees needed per output
-    std::vector<UnifiedRender::Number> employees_needed_per_output;
+    std::vector<Eng3D::Number> employees_needed_per_output;
 
     // Level of building (all starts at 0)
-    UnifiedRender::Number level = 0;
+    Eng3D::Number level = 0;
 
     // Amount of currently working pops
     float workers = 0.f;

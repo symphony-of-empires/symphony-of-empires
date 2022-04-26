@@ -1,0 +1,31 @@
+Unified Render
+****************************************************************************
+This is the main game engine used by Symphony Of Empires. This is an in
+house built engine, only depending on a few things to make it work.
+
+DEBUGGING
+****************************************************************************
+Often the game engine can encounter internal errors, due to performance
+reasons said errors won't be checked against, to enable checking see the
+following macros.
+
+DEFINES
+****************************************************************************
+
+E3D_RENDER_DEBUG
+    When defined will enable all rendering pipeline error checks (can cause
+    massive lag on graphical intensive tasks).
+
+E3D_HEAP_DEBUG
+    Causes debugging checks to be enabled for the memory allocation.
+
+E3D_BACKEND_OPENGL
+    If defined it will use the OpenGL backend.
+
+E3D_MANAGED_HEAP
+    Enables or disables the custom `new` and `delete` operators
+
+E3D_RTTI
+E3D_EXCEPTIONS
+    If enabled will provoke normal "throwing" behaviour. Otherwise it will
+    abort upon the first throw and print the given error - Useful for debugging.

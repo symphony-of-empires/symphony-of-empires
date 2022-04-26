@@ -34,14 +34,14 @@
 #	include <sys/cdefs.h>
 #endif
 
-#include "unified_render/binary_image.hpp"
-#include "unified_render/path.hpp"
-#include "unified_render/log.hpp"
-#include "unified_render/serializer.hpp"
-#include "unified_render/state.hpp"
-#include "unified_render/utils.hpp"
-#include "unified_render/locale.hpp"
-#include "unified_render/assert.hpp"
+#include "eng3d/binary_image.hpp"
+#include "eng3d/path.hpp"
+#include "eng3d/log.hpp"
+#include "eng3d/serializer.hpp"
+#include "eng3d/state.hpp"
+#include "eng3d/utils.hpp"
+#include "eng3d/locale.hpp"
+#include "eng3d/assert.hpp"
 
 #include "io_impl.hpp"
 #include "province.hpp"
@@ -239,7 +239,7 @@ World::World() {
 
     const struct luaL_Reg ideology_meta[] = {
         { "__gc", [](lua_State* L) {
-            UnifiedRender::Log::debug("lua", "__gc?");
+            Eng3D::Log::debug("lua", "__gc?");
             return 0;
         }},
         { "__index", [](lua_State* L) {
@@ -250,18 +250,18 @@ World::World() {
             } else if(member == "name") {
                 lua_pushstring(L, (*ideology)->name.c_str());
             }
-            UnifiedRender::Log::debug("lua", "__index?");
+            Eng3D::Log::debug("lua", "__index?");
             return 1;
         }},
         { "__newindex", [](lua_State* L) {
             Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
             std::string member = luaL_checkstring(L, 2);
             if(member == "ref_name") {
-                (*ideology)->ref_name = UnifiedRender::StringRef(luaL_checkstring(L, 3));
+                (*ideology)->ref_name = Eng3D::StringRef(luaL_checkstring(L, 3));
             } else if(member == "name") {
-                (*ideology)->name = UnifiedRender::StringRef(luaL_checkstring(L, 3));
+                (*ideology)->name = Eng3D::StringRef(luaL_checkstring(L, 3));
             }
-            UnifiedRender::Log::debug("lua", "__newindex?");
+            Eng3D::Log::debug("lua", "__newindex?");
             return 0;
         }},
         { NULL, NULL }
@@ -272,21 +272,21 @@ World::World() {
             *ideology = new Ideology();
             luaL_setmetatable(L, "Ideology");
 
-            (*ideology)->ref_name = UnifiedRender::StringRef(luaL_checkstring(L, 1));
-            (*ideology)->name = UnifiedRender::StringRef(luaL_optstring(L, 2, (*ideology)->ref_name.c_str()));
+            (*ideology)->ref_name = Eng3D::StringRef(luaL_checkstring(L, 1));
+            (*ideology)->name = Eng3D::StringRef(luaL_optstring(L, 2, (*ideology)->ref_name.c_str()));
 
-            UnifiedRender::Log::debug("lua", "__new?");
+            Eng3D::Log::debug("lua", "__new?");
             return 1;
         }},
         { "register", [](lua_State* L) {
             Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
             g_world->insert(**ideology);
-            UnifiedRender::Log::debug("lua", "New ideology " + (*ideology)->ref_name);
-            UnifiedRender::Log::debug("lua", "__register?");
+            Eng3D::Log::debug("lua", "New ideology " + (*ideology)->ref_name);
+            Eng3D::Log::debug("lua", "__register?");
             return 0;
         }},
         { "get", [](lua_State* L) {
-            const std::string ref_name = UnifiedRender::StringRef(lua_tostring(L, 1)).get_string();
+            const std::string ref_name = Eng3D::StringRef(lua_tostring(L, 1)).get_string();
             auto result = std::find_if(g_world->ideologies.begin(), g_world->ideologies.end(),
             [&ref_name](const auto& o) { return (o.ref_name == ref_name); });
             if(result == g_world->ideologies.end())
@@ -296,7 +296,7 @@ World::World() {
             *ideology = &*result;
             luaL_setmetatable(L, "Ideology");
 
-            UnifiedRender::Log::debug("lua", "__get?");
+            Eng3D::Log::debug("lua", "__get?");
             return 1;
         }},
         { NULL, NULL }
@@ -389,7 +389,7 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
             files_buf += "f()\n";
         }
     }
-    UnifiedRender::Log::debug("game", "files_buf: " + files_buf);
+    Eng3D::Log::debug("game", "files_buf: " + files_buf);
 
     if(luaL_loadstring(world.lua, files_buf.c_str()) != LUA_OK || lua_pcall(world.lua, 0, 0, 0) != LUA_OK) {
         throw LuaAPI::Exception(lua_tostring(world.lua, -1));
@@ -398,15 +398,15 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
 
 void World::load_initial(void) {
     const std::vector<std::string> init_files = {
-        "terrain_types", "good_types",
-        "ideologies", "cultures", "building_types", "technology", "religions",
-        "pop_types", "industry_types", "unit_types", "boat_types",
+        "terrain_types", "good_types", "ideologies", "cultures",
+        "building_types", "technology", "religions", "pop_types",
+        "industry_types", "unit_types", "boat_types",
         "nations", "provinces", "init"
     };
     lua_exec_all_of(*this, init_files, "lua/entities");
 
     // Shrink normally-not-resized vectors to give back memory to the OS
-    UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Shrink normally-not-resized vectors to give back memory to the OS"));
+    Eng3D::Log::debug("game", Eng3D::Locale::translate("Shrink normally-not-resized vectors to give back memory to the OS"));
 
     // Associate tiles with province
     std::unique_ptr<BinaryImage> div = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map/provinces.png")));
@@ -429,7 +429,7 @@ void World::load_initial(void) {
 
     // Build a lookup table for super fast speed on finding provinces
     // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
-    UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Building the province lookup table"));
+    Eng3D::Log::debug("game", Eng3D::Locale::translate("Building the province lookup table"));
     std::vector<Province::Id> province_color_table(16777216, (Province::Id)-1);
     for(auto& province : provinces) {
         province_color_table[province->color & 0xffffff] = get_id(*province);
@@ -465,13 +465,13 @@ void World::load_initial(void) {
         }
     }
     catch(const std::exception& e) {
-        UnifiedRender::Log::error("cache", e.what());
+        Eng3D::Log::error("cache", e.what());
     }
 
     if(recalc_province) {
         // Uncomment this and see a bit more below
         std::set<uint32_t> colors_found;
-        UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Associate tiles with provinces"));
+        Eng3D::Log::debug("game", Eng3D::Locale::translate("Associate tiles with provinces"));
         for(size_t i = 0; i < total_size; ) {
             const Province::Id province_id = province_color_table[div->buffer.get()[i] & 0xffffff];
             if(province_id == (Province::Id)-1) {
@@ -519,7 +519,7 @@ void World::load_initial(void) {
         }
 
         // Calculate the edges of the province (min and max x and y coordinates)
-        UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Calculate the edges of the province (min and max x and y coordinates)"));
+        Eng3D::Log::debug("game", Eng3D::Locale::translate("Calculate the edges of the province (min and max x and y coordinates)"));
         for(size_t j = 0; j < height; j++) {
             for(size_t i = 0; i < width; i++) {
                 Tile& tile = get_tile(i, j);
@@ -537,14 +537,14 @@ void World::load_initial(void) {
         }
 
         // Correct stuff from provinces
-        UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Correcting values for provinces"));
+        Eng3D::Log::debug("game", Eng3D::Locale::translate("Correcting values for provinces"));
         for(auto& province : provinces) {
             province->max_x = std::min(width, province->max_x);
             province->max_y = std::min(height, province->max_y);
         }
 
         // Neighbours
-        UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Creating neighbours for provinces"));
+        Eng3D::Log::debug("game", Eng3D::Locale::translate("Creating neighbours for provinces"));
         for(size_t i = 0; i < total_size; i++) {
             const Tile* tile = &this->tiles[i];
 
@@ -577,12 +577,12 @@ void World::load_initial(void) {
     }
 
     // Create diplomatic relations between nations
-    UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Creating diplomatic relations"));
+    Eng3D::Log::debug("game", Eng3D::Locale::translate("Creating diplomatic relations"));
     for(const auto& nation : this->nations) {
         // Relations between nations start at 0 (and latter modified by lua scripts)
         nation->relations.resize(this->nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
     }
-    UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("World partially intiialized"));
+    Eng3D::Log::debug("game", Eng3D::Locale::translate("World partially intiialized"));
 
     // Auto-relocate capitals for countries which do not have one
     for(auto& nation : this->nations) {
@@ -596,7 +596,7 @@ void World::load_initial(void) {
             continue;
         }
 
-        UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Relocating capital of [" + nation->ref_name + "]"));
+        Eng3D::Log::debug("game", Eng3D::Locale::translate("Relocating capital of [" + nation->ref_name + "]"));
         nation->auto_relocate_capital();
     }
 }
@@ -630,7 +630,7 @@ void World::load_mod(void) {
         policy.min_wage = 1.f;
         policy.min_sv_for_parliament = 2.f;
     }
-    UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("World fully intiialized"));
+    Eng3D::Log::debug("game", Eng3D::Locale::translate("World fully intiialized"));
 }
 
 void World::do_tick() {
@@ -649,9 +649,9 @@ void World::do_tick() {
         }
 
         // Research stuff
-        UnifiedRender::Decimal research = nation->get_research_points();
+        Eng3D::Decimal research = nation->get_research_points();
         if(nation->focus_tech != nullptr) {
-            UnifiedRender::Decimal* research_progress = &nation->research[get_id(*nation->focus_tech)];
+            Eng3D::Decimal* research_progress = &nation->research[get_id(*nation->focus_tech)];
             *research_progress -= std::min(research, *research_progress);
             if(!(*research_progress)) {
                 // Give the country the modifiers attached to the technology
@@ -673,13 +673,13 @@ void World::do_tick() {
         /*
         // Calculate prestige for today (newspapers come out!)
         for(auto& nation : this->nations) {
-            const UnifiedRender::Decimal decay_per_cent = 5.f;
-            const UnifiedRender::Decimal max_modifier = 10.f;
-            const UnifiedRender::Decimal min_prestige = std::max<UnifiedRender::Decimal>(0.5f, ((nation->naval_score + nation->military_score + nation->economy_score) / 2));
+            const Eng3D::Decimal decay_per_cent = 5.f;
+            const Eng3D::Decimal max_modifier = 10.f;
+            const Eng3D::Decimal min_prestige = std::max<Eng3D::Decimal>(0.5f, ((nation->naval_score + nation->military_score + nation->economy_score) / 2));
 
             // Prestige cannot go below min prestige
-            nation->prestige = std::max<UnifiedRender::Decimal>(nation->prestige, min_prestige);
-            nation->prestige -= (nation->prestige * (decay_per_cent / 100.f)) * std::min<UnifiedRender::Decimal>(std::max<UnifiedRender::Decimal>(1, nation->prestige - min_prestige) / (min_prestige + 1), max_modifier);
+            nation->prestige = std::max<Eng3D::Decimal>(nation->prestige, min_prestige);
+            nation->prestige -= (nation->prestige * (decay_per_cent / 100.f)) * std::min<Eng3D::Decimal>(std::max<Eng3D::Decimal>(1, nation->prestige - min_prestige) / (min_prestige + 1), max_modifier);
 
             float economy_score = 0.f;
             for(const auto& province : nation->owned_provinces) {
@@ -698,8 +698,8 @@ void World::do_tick() {
 
     profiler.start("Units");
     // Evaluate units
-    std::vector<UnifiedRender::Decimal> mil_research_pts(nations.size(), 0.f);
-    std::vector<UnifiedRender::Decimal> naval_research_pts(nations.size(), 0.f);
+    std::vector<Eng3D::Decimal> mil_research_pts(nations.size(), 0.f);
+    std::vector<Eng3D::Decimal> naval_research_pts(nations.size(), 0.f);
     for(size_t i = 0; i < units.size(); i++) {
         Unit* unit = units[i];
         if(unit->on_battle) {
@@ -743,7 +743,7 @@ void World::do_tick() {
                     unit->on_battle = true;
                     other_unit->on_battle = true;
                     war->battles.push_back(battle);
-                    UnifiedRender::Log::debug("game", "New battle of \"" + battle.name + "\"");
+                    Eng3D::Log::debug("game", "New battle of \"" + battle.name + "\"");
                     break;
                 } else {
                     Battle& battle = *it;
@@ -762,7 +762,7 @@ void World::do_tick() {
                             unit->on_battle = true;
                         }
                     }
-                    UnifiedRender::Log::debug("game", "Adding unit to battle of \"" + battle.name + "\"");
+                    Eng3D::Log::debug("game", "Adding unit to battle of \"" + battle.name + "\"");
                     break;
                 }
                 break;
@@ -776,7 +776,7 @@ void World::do_tick() {
 
         if(unit->target != nullptr && unit->can_move()) {
             if(unit->move_progress) {
-                unit->move_progress -= std::min<UnifiedRender::Decimal>(unit->move_progress, unit->get_speed());
+                unit->move_progress -= std::min<Eng3D::Decimal>(unit->move_progress, unit->get_speed());
             } else {
                 unit->set_province(*unit->target);
             }
@@ -803,7 +803,7 @@ void World::do_tick() {
                     attacker->attack(*unit);
                     battle.defender_casualties += prev_size - unit->size;
                     if(!unit->size) {
-                        UnifiedRender::Log::debug("game", "Removing attacker \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
+                        Eng3D::Log::debug("game", "Removing attacker \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                         battle.defenders.erase(battle.defenders.begin() + i);
                         assert(unit->province != nullptr);
 
@@ -828,7 +828,7 @@ void World::do_tick() {
                     defender->attack(*unit);
                     battle.attacker_casualties += prev_size - unit->size;
                     if(!unit->size) {
-                        UnifiedRender::Log::debug("game", "Removing defender \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
+                        Eng3D::Log::debug("game", "Removing defender \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                         battle.attackers.erase(battle.attackers.begin() + i);
                         assert(unit->province != nullptr);
 
@@ -868,12 +868,12 @@ void World::do_tick() {
                 continue;
             }
 
-            UnifiedRender::Decimal* research_progress = &nation->research[get_id(technology)];
+            Eng3D::Decimal* research_progress = &nation->research[get_id(technology)];
             if(!(*research_progress)) {
                 continue;
             }
 
-            UnifiedRender::Decimal* pts_count;
+            Eng3D::Decimal* pts_count;
             if(technology.type == TechnologyType::MILITARY) {
                 pts_count = &mil_research_pts[get_id(*nation)];
             } else if(technology.type == TechnologyType::NAVY) {
@@ -886,7 +886,7 @@ void World::do_tick() {
                 continue;
             }
 
-            const UnifiedRender::Decimal pts = *pts_count / 4.f;
+            const Eng3D::Decimal pts = *pts_count / 4.f;
             *research_progress += pts;
             *pts_count -= pts;
             break;
@@ -915,7 +915,7 @@ void World::do_tick() {
         }
 
         // Treaties clauses now will be enforced
-        UnifiedRender::Log::debug("game", "Enforcing treaty " + treaty->name);
+        Eng3D::Log::debug("game", "Enforcing treaty " + treaty->name);
         for(auto& clause : treaty->clauses) {
             debug_assert(clause != nullptr);
             if(clause->type == TreatyClauseType::MONEY) {
@@ -979,14 +979,14 @@ void World::do_tick() {
     profiler.stop("Events");
 
     if(!(time % ticks_per_month)) {
-        UnifiedRender::Log::debug("game", std::to_string(time / 12 / ticks_per_month) + "/" + std::to_string((time / ticks_per_month % 12) + 1) + +"/" + std::to_string((time % ticks_per_month) + 1));
+        Eng3D::Log::debug("game", std::to_string(time / 12 / ticks_per_month) + "/" + std::to_string((time / ticks_per_month % 12) + 1) + +"/" + std::to_string((time % ticks_per_month) + 1));
     }
 
-    UnifiedRender::Log::debug("game", "Tick " + std::to_string(time) + " done");
+    Eng3D::Log::debug("game", "Tick " + std::to_string(time) + " done");
     time++;
 
     // Tell clients that this tick has been done
-    UnifiedRender::Networking::Packet packet = UnifiedRender::Networking::Packet();
+    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
     Archive ar = Archive();
     ActionType action = ActionType::WORLD_TICK;
     ::serialize(ar, &action);

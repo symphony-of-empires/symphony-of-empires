@@ -62,7 +62,7 @@ void Product::close_market(void) {
     }
 
     // Set the new price
-    this->price = std::max<UnifiedRender::Decimal>(0.01f, this->price + this->price_vel);
+    this->price = std::max<Eng3D::Decimal>(0.01f, this->price + this->price_vel);
 
     // Save prices and stuff onto history (for the charts!)
     this->demand_history.push_back(this->demand);
