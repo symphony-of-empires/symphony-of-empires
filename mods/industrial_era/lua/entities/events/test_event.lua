@@ -65,16 +65,16 @@ function cake_event(ref_name)
 	cake_evhdl:add_decision(decision)
 	return EVENT_DO_ONE_TIME
 end
-function cake_decision_0()
+function cake_decision_0(ref_name)
 	print('The cake tasted like a cake, what a surprise! and you find a bunch of peseants outside your palace... oh no')
 end
-function cake_decision_1()
+function cake_decision_1(ref_name)
 	print('Why no eat my poisoned cake? i put so much poison in it :(')
 end
-function cake_decision_2()
+function cake_decision_2(ref_name)
 	print('Bruh, where the fuck am i?')
 end
-function cake_decision_3()
+function cake_decision_3(ref_name)
 	print('Britain converted the cake into tea')
 end
 cake_evhdl = Event:new{

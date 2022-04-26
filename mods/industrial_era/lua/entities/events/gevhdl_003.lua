@@ -41,14 +41,14 @@ function generic_militancy_nationwide_event(ref_name)
 		decision_fn = "generic_militancy_nationwide_decision_0",
 		effects = "+0.50 con and +0.50 militancy nationwide"
 	}
-	generic_militancy_nationwide_:add_decision(decision)
+	generic_militancy_nationwide_evhdl:add_decision(decision)
     decision = Decision:new{
 		ref_name = "generic_militancy_nationwide_decision_1",
 		name = "Take them down",
 		decision_fn = "generic_militancy_nationwide_decision_1",
 		effects = "+0.75 militancy nationwide"
 	}
-	generic_militancy_nationwide_:add_decision(decision)
+	generic_militancy_nationwide_evhdl:add_decision(decision)
 	return EVENT_DO_MANY_TIMES
 end
 function generic_militancy_nationwide_decision_0(ref_name)

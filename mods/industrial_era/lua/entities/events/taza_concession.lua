@@ -23,49 +23,49 @@
 --      Does important stuff
 -- ----------------------------------------------------------------------------
 
-function t001_test()
+function taza_concession_test()
     if math.random(0, 100) == 0 then
         return EVENT_CONDITIONS_MET
     end
 	return EVENT_CONDITIONS_UNMET
 end
-function t001_event(ref_name)
+function taza_concession_event(ref_name)
 	decision = Decision:new{
-		ref_name = "t001_decision_0",
+		ref_name = "taza_concession_decision_0",
 		name = "Taza is ours, by any means!",
-		decision_fn = "t001_decision_0",
+		decision_fn = "taza_concession_decision_0",
 		effects = "Annex morroco"
 	}
-	t001:add_decision(decision)
+	taza_concession:add_decision(decision)
 
     decision = Decision:new{
-		ref_name = "t001_decision_1",
+		ref_name = "taza_concession_decision_1",
 		name = "Taza is rightful Spanish land!",
-		decision_fn = "t001_decision_1",
+		decision_fn = "taza_concession_decision_1",
 		effects = "War with morrocco"
 	}
-	t001:add_decision(decision)
+	taza_concession:add_decision(decision)
 
     decision = Decision:new{
-		ref_name = "t001_decision_2",
+		ref_name = "taza_concession_decision_2",
 		name = "Maybe we can sort this out diplomatically?",
-		decision_fn = "t001_decision_2",
+		decision_fn = "taza_concession_decision_2",
 		effects = "+50 relations with Morrocco and France"
 	}
-	t001:add_decision(decision)
+	taza_concession:add_decision(decision)
 	return EVENT_DO_ONE_TIME
 end
-function t001_decision_0(ref_name)
+function taza_concession_decision_0(ref_name)
 	local nation = Nation:get("morrocco"):get_nuclei_provinces()
 	for k, v in pairs(prov) do
 		print(v.ref_name)
         v:give_and_relinquish_to(Nation:get("spain"))
 	end
 end
-function t001_decision_1(ref_name)
+function taza_concession_decision_1(ref_name)
     Nation:get("spain"):declare_unjustified_war(Nation:get("morrocco"))
 end
-function t001_decision_2(ref_name)
+function taza_concession_decision_2(ref_name)
     local rel = {}
     
     rel = Nation:get("spain"):get_relation(Nation:get("morrocco"))
@@ -76,12 +76,12 @@ function t001_decision_2(ref_name)
     rel.relation = rel.relation + 50.0
     Nation:get("spain"):set_relation(Nation:get("france"), rel)
 end
-t001 = Event:new{
-	ref_name = "t001",
-	conditions_fn = "t001_test",
-	event_fn = "t001_event",
+taza_concession = Event:new{
+	ref_name = "taza_concession",
+	conditions_fn = "taza_concession_test",
+	event_fn = "taza_concession_event",
     title = "Taza concession",
 	text = "We must retake the Morrocan lands to give spain a colonial hold over Africa!"
 }
-t001:register()
-t001:add_receivers(Nation:get("spain"))
+taza_concession:register()
+taza_concession:add_receivers(Nation:get("spain"))
