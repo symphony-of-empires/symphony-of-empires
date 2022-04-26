@@ -100,7 +100,6 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     close_btn->text("Cancel");
 }
 
-
 //
 // Main menu
 //
@@ -206,9 +205,8 @@ MainMenu::MainMenu(GameState& _gs)
     edit_btn->text_align_y = UI::Align::CENTER;
     edit_btn->text("Editor");
     edit_btn->set_on_click([this](UI::Widget& w) {
-        gs.current_mode = MapMode::COUNTRY_SELECT;
-        gs.select_nation = new Interface::LobbySelectView(gs);
-
+        gs.current_mode = MapMode::NORMAL;
+        
         gs.host_mode = true;
         gs.server = new Server(gs, 1836);
         gs.client = new Client(gs, "127.0.0.1", 1836);
@@ -217,6 +215,9 @@ MainMenu::MainMenu(GameState& _gs)
         gs.editor = true;
 
         this->kill();
+
+        gs.curr_nation = gs.world->nations[0];
+        this->gs.play_nation();
     });
 
     auto* cfg_btn = new UI::Button(0, 0, b_width, b_height, button_list);

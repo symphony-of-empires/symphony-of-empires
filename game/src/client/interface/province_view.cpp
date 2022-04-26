@@ -235,16 +235,14 @@ ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, Pro
 
     // Initial product info
     unsigned int dy = 0;
-
     for(auto& culture : gs.world->cultures) {
         auto* btn = new UI::Button(0, dy, 128, 24, this);
         btn->text(culture.name.get_string());
-        btn->set_on_click([&culture](UI::Widget& w) {
-            auto& o = static_cast<ProvinceEditCultureTab&>(*w.parent);
-            for(auto& pop : o.province->pops) {
+        btn->set_on_click([this, &culture](UI::Widget& w) {
+            for(auto& pop : this->province->pops) {
                 pop.culture = &culture;
             }
-            o.gs.map->update_mapmode();
+            this->gs.map->update_mapmode();
         });
         dy += btn->height;
     }
@@ -257,19 +255,36 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
 {
     this->text(province->name.get_string());
 
-    // Initial product info
-    unsigned int dy = 0;
+    std::vector<int> sizes{ 96, 128 };
+    std::vector<std::string> header{ "Landscape", "Name" };
+    auto table = new UI::Table<uint32_t>(0, 0, 0, this->height, 30, sizes, header, this);
+    table->reserve(gs.world->terrain_types.size());
+    table->on_each_tick = [this, table](Widget&) {
+        for(auto& terrain_type : this->gs.world->terrain_types) {
+            auto* row = table->get_row(this->gs.world->get_id(terrain_type));
+            size_t row_index = 0;
 
-    for(auto& terrain_type : gs.world->terrain_types) {
-        auto* btn = new UI::Button(0, dy, 128, 24, this);
-        btn->text(terrain_type.name.get_string());
-        btn->set_on_click([&terrain_type](UI::Widget& w) {
-            auto& o = static_cast<ProvinceEditTerrainTab&>(*w.parent);
-            o.province->terrain_type = &terrain_type;
-            o.gs.map->update_mapmode();
-        });
-        dy += btn->height;
-    }
+            auto tex_man = Eng3D::State::get_instance().tex_man;
+
+            auto landscape = row->get_element(row_index++);
+            auto landscape_icon = tex_man->load(Path::get("gfx/terraintype/" + terrain_type.ref_name + ".png"));
+            landscape->current_texture = landscape_icon;
+            auto landscape_tip = Eng3D::Locale::translate(terrain_type.name.get_string());
+            landscape->set_tooltip(landscape_tip);
+            landscape->set_key(landscape_tip);
+
+            auto name = row->get_element(row_index++);
+            auto name_str = Eng3D::Locale::translate(terrain_type.name.get_string());
+            name->text(name_str);
+            name->set_tooltip(name_str);
+            name->set_key(name_str);
+            name->set_on_click([this, &terrain_type](UI::Widget& w) {
+                this->province->terrain_type = &terrain_type;
+                this->gs.map->update_mapmode();
+            });
+        }
+    };
+    table->on_each_tick(*table);
 }
 
 ProvinceView::ProvinceView(GameState& _gs, Province* _province)
@@ -289,12 +304,10 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     this->pop_tab = new ProvincePopulationTab(gs, 0, 32, province, this);
     this->pop_tab->is_render = true;
     auto* pop_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(Path::get("gfx/pv_1.png")), this);
-    pop_ibtn->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<ProvinceView&>(*w.parent);
-
-        o.pop_tab->is_render = true;
-        o.econ_tab->is_render = false;
-        o.build_tab->is_render = false;
+    pop_ibtn->set_on_click([this](UI::Widget& w) {
+        this->pop_tab->is_render = true;
+        this->econ_tab->is_render = false;
+        this->build_tab->is_render = false;
     });
     pop_ibtn->tooltip = new UI::Tooltip(pop_ibtn, 512, 24);
     pop_ibtn->tooltip->text("Population");
@@ -303,12 +316,10 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     this->econ_tab->is_render = false;
     auto* econ_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(Path::get("gfx/money.png")), this);
     econ_ibtn->right_side_of(*pop_ibtn);
-    econ_ibtn->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<ProvinceView&>(*w.parent);
-
-        o.pop_tab->is_render = false;
-        o.econ_tab->is_render = true;
-        o.build_tab->is_render = false;
+    econ_ibtn->set_on_click([this](UI::Widget& w) {
+        this->pop_tab->is_render = false;
+        this->econ_tab->is_render = true;
+        this->build_tab->is_render = false;
     });
     econ_ibtn->tooltip = new UI::Tooltip(econ_ibtn, 512, 24);
     econ_ibtn->tooltip->text("Economy");
@@ -317,12 +328,10 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     this->build_tab->is_render = false;
     auto* build_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
     build_ibtn->right_side_of(*econ_ibtn);
-    build_ibtn->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<ProvinceView&>(*w.parent);
-
-        o.pop_tab->is_render = false;
-        o.econ_tab->is_render = false;
-        o.build_tab->is_render = true;
+    build_ibtn->set_on_click([this](UI::Widget& w) {
+        this->pop_tab->is_render = false;
+        this->econ_tab->is_render = false;
+        this->build_tab->is_render = true;
     });
     build_ibtn->tooltip = new UI::Tooltip(build_ibtn, 512, 24);
     build_ibtn->tooltip->text("Buildings");
@@ -331,43 +340,39 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         rename_inp = new UI::Input(0, this->height - (64 + 24), 128, 24, this);
         rename_inp->set_buffer(province->name.get_string());
 
-        auto* xchg_name_btn = new UI::Image(0, this->height - (64 + 24), 32, 32, gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
+        auto* xchg_name_btn = new UI::Button(0, this->height - (64 + 24), 32, 32, this);
         xchg_name_btn->right_side_of(*rename_inp);
-        xchg_name_btn->set_on_click([](UI::Widget& w) {
-            auto& o = static_cast<ProvinceView&>(*w.parent);
-            o.province->name = o.rename_inp->get_buffer();
-            o.gs.ui_ctx->prompt("Update", "Updated name of province to \"" + o.province->name + "\"!");
+        xchg_name_btn->set_on_click([this](UI::Widget& w) {
+            this->province->name = this->rename_inp->get_buffer();
+            this->gs.map->create_labels();
+            this->gs.ui_ctx->prompt("Update", "Updated name of province to \"" + this->province->name + "\"!");
         });
-        xchg_name_btn->tooltip = new UI::Tooltip(xchg_name_btn, 512, 24);
-        xchg_name_btn->tooltip->text("Rename province");
+        xchg_name_btn->set_tooltip("Rename province");
 
         density_sld = new UI::Slider(0, this->height - (64 + 24), 128, 24, 0.1f, 2.f, this);
         density_sld->right_side_of(*xchg_name_btn);
         density_sld->value = 0.f;
-        density_sld->set_on_click([](UI::Widget& w) {
-            auto& o = static_cast<ProvinceView&>(*w.parent);
+        density_sld->set_on_click([this](UI::Widget& w) {
             w.text(std::to_string(((UI::Slider&)w).value));
-            const float den = o.density_sld->value;
-            for(auto& pop : o.province->pops) {
+            const float den = this->density_sld->value;
+            for(auto& pop : this->province->pops) {
                 pop.size *= den;
             }
-            o.gs.map->update_mapmode();
+            this->gs.map->update_mapmode();
         });
 
-        auto* fill_pops_btn = new UI::Image(0, this->height - 64, 32, 32, gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
+        auto* fill_pops_btn = new UI::Button(0, this->height - 64, 32, 32, this);
         fill_pops_btn->below_of(*density_sld);
-        fill_pops_btn->set_on_click([](UI::Widget& w) {
-            auto& o = static_cast<ProvinceView&>(*w.parent);
-
+        fill_pops_btn->set_on_click([this](UI::Widget& w) {
             // Get max sv
             float max_sv = 1.f;
-            for(const auto& pop_type : o.gs.world->pop_types) {
+            for(const auto& pop_type : this->gs.world->pop_types) {
                 if(pop_type.social_value > max_sv) {
                     max_sv = pop_type.social_value;
                 }
             }
 
-            for(auto& pop_type : o.gs.world->pop_types) {
+            for(auto& pop_type : this->gs.world->pop_types) {
                 Pop pop;
                 pop.type = &g_world->pop_types.at(0);
                 pop.culture = &g_world->cultures.at(0);
@@ -375,56 +380,51 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
                 pop.size = 1000.f / std::max<Eng3D::Decimal>(0.01f, pop_type.social_value);
                 pop.literacy = max_sv / std::max<Eng3D::Decimal>(0.01f, pop_type.social_value);
                 pop.budget = 100.f * max_sv;
-                o.province->pops.push_back(pop);
+                this->province->pops.push_back(pop);
             }
-            o.gs.map->update_mapmode();
-            o.gs.ui_ctx->prompt("Update", "Added POPs to province \"" + o.province->name + "\"!");
+            this->gs.map->update_mapmode();
+            this->gs.ui_ctx->prompt("Update", "Added POPs to province \"" + this->province->name + "\"!");
         });
-        fill_pops_btn->tooltip = new UI::Tooltip(fill_pops_btn, 512, 24);
-        fill_pops_btn->tooltip->text("Add POPs (will add " + std::to_string(gs.world->pop_types.size()) + "POPs)");
+        fill_pops_btn->set_tooltip("Add POPs (will add " + std::to_string(gs.world->pop_types.size()) + "POPs)");
 
-        auto* clear_pops_btn = new UI::Image(0, this->height - 64, 32, 32, gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
+        auto* clear_pops_btn = new UI::Button(0, this->height - 64, 32, 32, this);
         clear_pops_btn->below_of(*density_sld);
         clear_pops_btn->right_side_of(*fill_pops_btn);
-        clear_pops_btn->set_on_click([](UI::Widget& w) {
-            auto& o = static_cast<ProvinceView&>(*w.parent);
-            o.province->pops.clear();
-            o.gs.map->update_mapmode();
-            o.gs.ui_ctx->prompt("Update", "Cleared POPs of province \"" + o.province->name + "\"!");
+        clear_pops_btn->set_on_click([this](UI::Widget& w) {
+            this->province->pops.clear();
+            this->gs.map->update_mapmode();
+            this->gs.ui_ctx->prompt("Update", "Cleared POPs of province \"" + this->province->name + "\"!");
         });
-        clear_pops_btn->tooltip = new UI::Tooltip(clear_pops_btn, 512, 24);
-        clear_pops_btn->tooltip->text("Removes all POPs from this province ;)");
+        clear_pops_btn->set_tooltip("Removes all POPs from this province ;)");
 
         this->edit_culture_tab = new ProvinceEditCultureTab(gs, 0, 32, province, this);
         this->edit_culture_tab->is_render = false;
-        auto* edit_culture_btn = new UI::Image(0, this->height - 64, 32, 32, gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
+
+        auto* edit_culture_btn = new UI::Button(0, this->height - 64, 32, 32, this);
         edit_culture_btn->below_of(*density_sld);
         edit_culture_btn->right_side_of(*clear_pops_btn);
-        edit_culture_btn->set_on_click([](UI::Widget& w) {
-            auto& o = static_cast<ProvinceView&>(*w.parent);
-            o.pop_tab->is_render = false;
-            o.econ_tab->is_render = false;
-            o.build_tab->is_render = false;
-            o.edit_culture_tab->is_render = true;
-            o.edit_terrain_tab->is_render = false;
+        edit_culture_btn->set_on_click([this](UI::Widget& w) {
+            this->pop_tab->is_render = false;
+            this->econ_tab->is_render = false;
+            this->build_tab->is_render = false;
+            this->edit_culture_tab->is_render = true;
+            this->edit_terrain_tab->is_render = false;
         });
-        edit_culture_btn->tooltip = new UI::Tooltip(edit_culture_btn, 512, 24);
-        edit_culture_btn->tooltip->text("Edit culture");
+        edit_culture_btn->set_tooltip("Edit culture");
 
         this->edit_terrain_tab = new ProvinceEditTerrainTab(gs, 0, 32, province, this);
         this->edit_terrain_tab->is_render = false;
-        auto* edit_terrain_btn = new UI::Image(0, this->height - 64, 32, 32, gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
+
+        auto* edit_terrain_btn = new UI::Button(0, this->height - 64, 32, 32, this);
         edit_terrain_btn->below_of(*density_sld);
         edit_terrain_btn->right_side_of(*edit_culture_btn);
-        edit_terrain_btn->set_on_click([](UI::Widget& w) {
-            auto& o = static_cast<ProvinceView&>(*w.parent);
-            o.pop_tab->is_render = false;
-            o.econ_tab->is_render = false;
-            o.build_tab->is_render = false;
-            o.edit_culture_tab->is_render = false;
-            o.edit_terrain_tab->is_render = true;
+        edit_terrain_btn->set_on_click([this](UI::Widget& w) {
+            this->pop_tab->is_render = false;
+            this->econ_tab->is_render = false;
+            this->build_tab->is_render = false;
+            this->edit_culture_tab->is_render = false;
+            this->edit_terrain_tab->is_render = true;
         });
-        edit_terrain_btn->tooltip = new UI::Tooltip(edit_terrain_btn, 512, 24);
-        edit_terrain_btn->tooltip->text("Edit terrain");
+        edit_terrain_btn->set_tooltip("Edit terrain");
     }
 }
