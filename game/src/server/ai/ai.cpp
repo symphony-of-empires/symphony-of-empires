@@ -416,7 +416,7 @@ void ai_do_tick(Nation* nation, World* world) {
     }
 
     if(!(world->time % world->ticks_per_month)) {
-        if(nation->ai_do_policies) {
+        if(nation->ai_controlled) {
             // Do a policy reform every 6 months
             if(!((world->time / world->ticks_per_month) % 180)) {
                 // Update our policies and laws
@@ -425,7 +425,7 @@ void ai_do_tick(Nation* nation, World* world) {
         }
 
         // Update relations with other nations
-        if(nation->ai_do_diplomacy) {
+        if(nation->ai_controlled) {
             for(auto& other : world->nations) {
                 if(!other->exists() || other == nation) {
                     continue;
@@ -481,7 +481,7 @@ void ai_do_tick(Nation* nation, World* world) {
         }
 
         // Research technologies
-        if(nation->ai_do_research) {
+        if(nation->ai_controlled) {
             for(auto& tech : world->technologies) {
                 // Do not research if already been completed
                 if(!nation->research[world->get_id(*tech)]) {
@@ -500,7 +500,7 @@ void ai_do_tick(Nation* nation, World* world) {
         }
 
         // Accepting/rejecting treaties
-        if(nation->ai_handle_treaties) {
+        if(nation->ai_controlled) {
             for(auto& treaty : world->treaties) {
                 for(auto& part : treaty->approval_status) {
                     if(part.first == nation) {
@@ -519,20 +519,20 @@ void ai_do_tick(Nation* nation, World* world) {
         }
 
         // Taking events
-        if(nation->ai_handle_events) {
+        if(nation->ai_controlled) {
             for(const auto& event : nation->inbox) {
                 event->take_decision(*nation, event->decisions[std::rand() % event->decisions.size()]);
             }
         }
 
         // Build a commercially related building
-        if(nation->ai_do_build_production) {
+        if(nation->ai_controlled) {
             if(!(std::rand() % 100)) {
                 ai_build_commercial(nation, world);
             }
         }
 
-        if(nation->ai_do_unit_production) {
+        if(nation->ai_controlled) {
             // Risk of invasion
             int defense_factor = 1;
             for(const auto& rel : nation->relations) {

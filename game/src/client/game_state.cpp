@@ -117,14 +117,14 @@ void GameState::play_nation() {
     print_info("Selected nation [%s]", this->curr_nation->ref_name.c_str());
 
     // Set AI to all off
-    this->curr_nation->ai_do_build_production = false;
+    this->curr_nation->ai_controlled = false;
     this->curr_nation->ai_do_cmd_troops = false;
-    this->curr_nation->ai_do_diplomacy = false;
-    this->curr_nation->ai_do_policies = false;
-    this->curr_nation->ai_do_research = false;
-    this->curr_nation->ai_do_unit_production = false;
-    this->curr_nation->ai_handle_events = false;
-    this->curr_nation->ai_handle_treaties = false;
+    this->curr_nation->ai_controlled = false;
+    this->curr_nation->ai_controlled = false;
+    this->curr_nation->ai_controlled = false;
+    this->curr_nation->ai_controlled = false;
+    this->curr_nation->ai_controlled = false;
+    this->curr_nation->ai_controlled = false;
     this->client->send(Action::AiControl::form_packet(this->curr_nation));
 }
 
