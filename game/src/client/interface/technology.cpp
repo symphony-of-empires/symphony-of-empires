@@ -43,10 +43,10 @@ TechTreeTab::TechTreeTab(GameState& _gs, int x, int y, int type, UI::Widget* par
     gs{ _gs }
 {
     unsigned int i = 0;
-    for(const auto& technology : gs.world->technologies) {
-        if(static_cast<int>(technology->type) & static_cast<int>(type)) {
-            auto* btn = new TechnologyInfo(gs, 0, 48 * i, technology, this);
-            btn->text(technology->ref_name.get_string());
+    for(auto& technology : gs.world->technologies) {
+        if(static_cast<int>(technology.type) & static_cast<int>(type)) {
+            auto* btn = new TechnologyInfo(gs, 0, 48 * i, &technology, this);
+            btn->text(technology.ref_name.get_string());
             i++;
         }
     }

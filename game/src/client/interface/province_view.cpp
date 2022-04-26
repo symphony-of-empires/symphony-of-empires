@@ -58,22 +58,22 @@ void ProvincePopulationTab::update_piecharts() {
 
     std::vector<UI::ChartData> cultures_data, religions_data, pop_types_data;
     for(const auto& culture : gs.world->cultures) {
-        cultures_data.push_back(UI::ChartData(culture_sizes[gs.world->get_id(*culture)], culture->name.get_string(), UnifiedRender::Color::rgba32(culture->color)));
+        cultures_data.push_back(UI::ChartData(culture_sizes[gs.world->get_id(culture)], culture.name.get_string(), UnifiedRender::Color::rgba32(culture.color)));
     }
     cultures_pie->set_data(cultures_data);
 
     for(const auto& religion : gs.world->religions) {
-        religions_data.push_back(UI::ChartData(religion_sizes[gs.world->get_id(*religion)], religion->name.get_string(), UnifiedRender::Color::rgba32(religion->color)));
+        religions_data.push_back(UI::ChartData(religion_sizes[gs.world->get_id(religion)], religion.name.get_string(), UnifiedRender::Color::rgba32(religion.color)));
     }
     religions_pie->set_data(religions_data);
 
     for(const auto& pop_type : gs.world->pop_types) {
         const auto color = UnifiedRender::Color(
-            (uint8_t)((gs.world->get_id(*pop_type) * 12) % 256),
-            (uint8_t)((gs.world->get_id(*pop_type) * 31) % 256),
-            (uint8_t)((gs.world->get_id(*pop_type) * 97) % 256)
+            (uint8_t)((gs.world->get_id(pop_type) * 12) % 256),
+            (uint8_t)((gs.world->get_id(pop_type) * 31) % 256),
+            (uint8_t)((gs.world->get_id(pop_type) * 97) % 256)
         );
-        pop_types_data.push_back(UI::ChartData(pop_type_sizes[gs.world->get_id(*pop_type)], pop_type->name.get_string(), color));
+        pop_types_data.push_back(UI::ChartData(pop_type_sizes[gs.world->get_id(pop_type)], pop_type.name.get_string(), color));
     }
     pop_types_pie->set_data(pop_types_data);
 }
@@ -182,8 +182,8 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
         int i = 0;
         for(const auto& good : o.gs.world->goods) {
             const auto good_col = UnifiedRender::Color(i * 12, i * 31, i * 97);
-            Product& product = o.province->products[o.gs.world->get_id(*good)];
-            goods_data.push_back(UI::ChartData(product.demand, good->name.get_string(), good_col));
+            Product& product = o.province->products[o.gs.world->get_id(good)];
+            goods_data.push_back(UI::ChartData(product.demand, good.name.get_string(), good_col));
             i++;
         }
         o.products_pie->set_data(goods_data);
@@ -192,8 +192,8 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
 
     // Initial product info
     int i = 0;
-    for(const auto& good : gs.world->goods) {
-        auto* info = new ProductInfo(this->gs, 0, (i * 24) + 128, province, good, this);
+    for(auto& good : gs.world->goods) {
+        auto* info = new ProductInfo(this->gs, 0, (i * 24) + 128, province, &good, this);
         product_infos.push_back(info);
         i++;
     }
@@ -236,13 +236,13 @@ ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, Pro
     // Initial product info
     unsigned int dy = 0;
 
-    for(const auto& culture : gs.world->cultures) {
+    for(auto& culture : gs.world->cultures) {
         auto* btn = new UI::Button(0, dy, 128, 24, this);
-        btn->text(culture->name.get_string());
-        btn->set_on_click([culture](UI::Widget& w) {
+        btn->text(culture.name.get_string());
+        btn->set_on_click([&culture](UI::Widget& w) {
             auto& o = static_cast<ProvinceEditCultureTab&>(*w.parent);
             for(auto& pop : o.province->pops) {
-                pop.culture = culture;
+                pop.culture = &culture;
             }
             o.gs.map->update_mapmode();
         });
@@ -260,12 +260,12 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
     // Initial product info
     unsigned int dy = 0;
 
-    for(const auto& terrain_type : gs.world->terrain_types) {
+    for(auto& terrain_type : gs.world->terrain_types) {
         auto* btn = new UI::Button(0, dy, 128, 24, this);
-        btn->text(terrain_type->name.get_string());
-        btn->set_on_click([terrain_type](UI::Widget& w) {
+        btn->text(terrain_type.name.get_string());
+        btn->set_on_click([&terrain_type](UI::Widget& w) {
             auto& o = static_cast<ProvinceEditTerrainTab&>(*w.parent);
-            o.province->terrain_type = terrain_type;
+            o.province->terrain_type = &terrain_type;
             o.gs.map->update_mapmode();
         });
         dy += btn->height;
@@ -362,18 +362,18 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
             // Get max sv
             float max_sv = 1.f;
             for(const auto& pop_type : o.gs.world->pop_types) {
-                if(pop_type->social_value > max_sv) {
-                    max_sv = pop_type->social_value;
+                if(pop_type.social_value > max_sv) {
+                    max_sv = pop_type.social_value;
                 }
             }
 
             for(auto& pop_type : o.gs.world->pop_types) {
                 Pop pop;
-                pop.type = g_world->pop_types.at(0);
-                pop.culture = g_world->cultures.at(0);
-                pop.religion = g_world->religions.at(0);
-                pop.size = 1000.f / std::max<UnifiedRender::Decimal>(0.01f, pop_type->social_value);
-                pop.literacy = max_sv / std::max<UnifiedRender::Decimal>(0.01f, pop_type->social_value);
+                pop.type = &g_world->pop_types.at(0);
+                pop.culture = &g_world->cultures.at(0);
+                pop.religion = &g_world->religions.at(0);
+                pop.size = 1000.f / std::max<UnifiedRender::Decimal>(0.01f, pop_type.social_value);
+                pop.literacy = max_sv / std::max<UnifiedRender::Decimal>(0.01f, pop_type.social_value);
                 pop.budget = 100.f * max_sv;
                 o.province->pops.push_back(pop);
             }

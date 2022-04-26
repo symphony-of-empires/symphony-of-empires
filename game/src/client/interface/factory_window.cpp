@@ -149,9 +149,10 @@ FactoryWindow::FactoryWindow(GameState& gs)
 	for(auto prov : nation->owned_provinces) {
 		for(size_t i = 0; i < prov->buildings.size(); i++) {
 			auto& building = prov->buildings[i];
-			auto type = gs.world->building_types[i];
-			if(building.level == 0)
+			auto* type = &gs.world->building_types[i];
+			if(building.level == 0) {
 				continue;
+			}
 
 			make_building_row(flex_column, building, type, prov);
 		}

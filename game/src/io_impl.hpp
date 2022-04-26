@@ -54,33 +54,33 @@ class Serializer<Event*>: public SerializerReference<World, Event> {};
 template<>
 class Serializer<Treaty*>: public SerializerReference<World, Treaty> {};
 template<>
-class Serializer<Culture*>: public SerializerReference<World, Culture> {};
-template<>
-class Serializer<Good*>: public SerializerReference<World, Good> {};
-template<>
 class Serializer<Unit*>: public SerializerReference<World, Unit> {};
+
 template<>
-class Serializer<UnitType*>: public SerializerReference<World, UnitType> {};
+class Serializer<Culture*>: public SerializerReferenceLocal<World, Culture> {};
 template<>
-class Serializer<UnitTrait*>: public SerializerReference<World, UnitTrait> {};
+class Serializer<Good*>: public SerializerReferenceLocal<World, Good> {};
 template<>
-class Serializer<BuildingType*>: public SerializerReference<World, BuildingType> {};
+class Serializer<UnitType*>: public SerializerReferenceLocal<World, UnitType> {};
 template<>
-class Serializer<Ideology*>: public SerializerReference<World, Ideology> {};
+class Serializer<UnitTrait*>: public SerializerReferenceLocal<World, UnitTrait> {};
 template<>
-class Serializer<Technology*>: public SerializerReference<World, Technology> {};
+class Serializer<BuildingType*>: public SerializerReferenceLocal<World, BuildingType> {};
+template<>
+class Serializer<Ideology*>: public SerializerReferenceLocal<World, Ideology> {};
+template<>
+class Serializer<Technology*>: public SerializerReferenceLocal<World, Technology> {};
+template<>
+class Serializer<PopType*>: public SerializerReferenceLocal<World, PopType> {};
+template<>
+class Serializer<Religion*>: public SerializerReferenceLocal<World, Religion> {};
+template<>
+class Serializer<NationModifier*>: public SerializerReferenceLocal<World, NationModifier> {};
+template<>
+class Serializer<TerrainType*>: public SerializerReferenceLocal<World, TerrainType> {};
 
 template<>
 class Serializer<PopGroup>: public SerializerMemcpy<PopGroup> {};
-
-template<>
-class Serializer<PopType*>: public SerializerReference<World, PopType> {};
-template<>
-class Serializer<Religion*>: public SerializerReference<World, Religion> {};
-template<>
-class Serializer<NationModifier*>: public SerializerReference<World, NationModifier> {};
-template<>
-class Serializer<TerrainType*>: public SerializerReference<World, TerrainType> {};
 
 template<>
 class Serializer<NationModifier> {
@@ -850,71 +850,34 @@ public:
         //    ::serialize(stream, &obj->tiles[i]);
         //}
 
-        const Good::Id n_goods = obj->goods.size();
-        ::serialize(stream, &n_goods);
-        const UnitType::Id n_unit_types = obj->unit_types.size();
-        ::serialize(stream, &n_unit_types);
-        const Religion::Id n_religions = obj->religions.size();
-        ::serialize(stream, &n_religions);
-        const Culture::Id n_cultures = obj->cultures.size();
-        ::serialize(stream, &n_cultures);
-        const PopType::Id n_pop_types = obj->pop_types.size();
-        ::serialize(stream, &n_pop_types);
         const Nation::Id n_nations = obj->nations.size();
         ::serialize(stream, &n_nations);
         const Province::Id n_provinces = obj->provinces.size();
         ::serialize(stream, &n_provinces);
         const Event::Id n_events = obj->events.size();
         ::serialize(stream, &n_events);
-        const BuildingType::Id n_building_types = obj->building_types.size();
-        ::serialize(stream, &n_building_types);
         const Treaty::Id n_treaties = obj->treaties.size();
         ::serialize(stream, &n_treaties);
-        const Ideology::Id n_ideologies = obj->ideologies.size();
-        ::serialize(stream, &n_ideologies);
-        const Technology::Id n_technologies = obj->technologies.size();
-        ::serialize(stream, &n_technologies);
-        const NationModifier::Id n_nation_modifiers = obj->nation_modifiers.size();
-        ::serialize(stream, &n_nation_modifiers);
-        const TerrainType::Id n_terrain_type = obj->terrain_types.size();
-        ::serialize(stream, &n_terrain_type);
         const War::Id n_wars = obj->wars.size();
         ::serialize(stream, &n_wars);
 
         print_info("(SERIALIZER) World");
-        print_info("  n_goods %zu", obj->goods.size());
-        print_info("  n_unit_types %zu", obj->unit_types.size());
-        print_info("  n_religions %zu", obj->religions.size());
-        print_info("  n_cultures %zu", obj->cultures.size());
-        print_info("  n_pop_types %zu", obj->pop_types.size());
         print_info("  n_nations %zu", obj->nations.size());
         print_info("  n_provinces %zu", obj->provinces.size());
         print_info("  n_events %zu", obj->events.size());
-        print_info("  n_outpost_types %zu", obj->building_types.size());
         print_info("  n_treaties %zu", obj->treaties.size());
-        print_info("  n_ideologies %zu", obj->ideologies.size());
-        print_info("  n_terrain_types %zu", obj->terrain_types.size());
         print_info("  n_wars %zu", obj->wars.size());
 
-        for(auto& sub_obj : obj->goods) {
-            ::serialize(stream, sub_obj);
-        }
-
-        for(auto& sub_obj : obj->unit_types) {
-            ::serialize(stream, sub_obj);
-        }
-
-        for(auto& sub_obj : obj->religions) {
-            ::serialize(stream, sub_obj);
-        }
-
-        for(auto& sub_obj : obj->cultures) {
-            ::serialize(stream, sub_obj);
-        }
-
-        for(auto& sub_obj : obj->pop_types) {
-            ::serialize(stream, sub_obj);
-        }
+        ::serialize(stream, &obj->goods);
+        ::serialize(stream, &obj->unit_types);
+        ::serialize(stream, &obj->religions);
+        ::serialize(stream, &obj->cultures);
+        ::serialize(stream, &obj->pop_types);
+        ::serialize(stream, &obj->terrain_types);
+        ::serialize(stream, &obj->building_types);
+        ::serialize(stream, &obj->ideologies);
+        ::serialize(stream, &obj->technologies);
+        ::serialize(stream, &obj->nation_modifiers);
 
         for(auto& sub_obj : obj->nations) {
             ::serialize(stream, sub_obj);
@@ -928,27 +891,7 @@ public:
             ::serialize(stream, sub_obj);
         }
 
-        for(auto& sub_obj : obj->building_types) {
-            ::serialize(stream, sub_obj);
-        }
-
         for(auto& sub_obj : obj->treaties) {
-            ::serialize(stream, sub_obj);
-        }
-
-        for(auto& sub_obj : obj->ideologies) {
-            ::serialize(stream, sub_obj);
-        }
-
-        for(auto& sub_obj : obj->technologies) {
-            ::serialize(stream, sub_obj);
-        }
-
-        for(auto& sub_obj : obj->nation_modifiers) {
-            ::serialize(stream, sub_obj);
-        }
-
-        for(auto& sub_obj : obj->terrain_types) {
             ::serialize(stream, sub_obj);
         }
 
@@ -971,62 +914,29 @@ public:
         // In order to avoid post-deserialization relational patcher,
         // we will simply allocate everything with "empty" objects,
         // then we will fill those spots as we deserialize
-        Good::Id n_goods = deserialize_and_create_list<Good>(stream, obj);
-        UnitType::Id n_unit_types = deserialize_and_create_list<UnitType>(stream, obj);
-        Religion::Id n_religions = deserialize_and_create_list<Religion>(stream, obj);
-        Culture::Id n_cultures = deserialize_and_create_list<Culture>(stream, obj);
-        PopType::Id n_pop_types = deserialize_and_create_list<PopType>(stream, obj);
         Nation::Id n_nations = deserialize_and_create_list<Nation>(stream, obj);
         Province::Id n_provinces = deserialize_and_create_list<Province>(stream, obj);
         Event::Id n_events = deserialize_and_create_list<Event>(stream, obj);
-        BuildingType::Id n_building_types = deserialize_and_create_list<BuildingType>(stream, obj);
         Treaty::Id n_treaties = deserialize_and_create_list<Treaty>(stream, obj);
-        Ideology::Id n_ideologies = deserialize_and_create_list<Ideology>(stream, obj);
-        Technology::Id n_technologies = deserialize_and_create_list<Technology>(stream, obj);
-        NationModifier::Id n_nation_modifiers = deserialize_and_create_list<NationModifier>(stream, obj);
-        TerrainType::Id n_terrain_types = deserialize_and_create_list<TerrainType>(stream, obj);
         War::Id n_wars = deserialize_and_create_list<War>(stream, obj);
 
         print_info("(DESERIALIZER) World");
-        print_info("  n_goods %zu", obj->goods.size());
-        print_info("  n_unit_types %zu", obj->unit_types.size());
-        print_info("  n_religions %zu", obj->religions.size());
-        print_info("  n_cultures %zu", obj->cultures.size());
-        print_info("  n_pop_types %zu", obj->pop_types.size());
         print_info("  n_nations %zu", obj->nations.size());
         print_info("  n_provinces %zu", obj->provinces.size());
         print_info("  n_events %zu", obj->events.size());
-        print_info("  n_outpost_types %zu", obj->building_types.size());
         print_info("  n_treaties %zu", obj->treaties.size());
-        print_info("  n_ideologies %zu", obj->ideologies.size());
-        print_info("  n_technologies %zu", obj->technologies.size());
-        print_info("  n_terrain_types %zu", obj->terrain_types.size());
         print_info("  n_wars %zu", obj->wars.size());
 
-        for(size_t i = 0; i < n_goods; i++) {
-            auto* sub_obj = obj->goods[i];
-            ::deserialize(stream, sub_obj);
-        }
-
-        for(size_t i = 0; i < n_unit_types; i++) {
-            auto* sub_obj = obj->unit_types[i];
-            ::deserialize(stream, sub_obj);
-        }
-
-        for(size_t i = 0; i < n_religions; i++) {
-            auto* sub_obj = obj->religions[i];
-            ::deserialize(stream, sub_obj);
-        }
-
-        for(size_t i = 0; i < n_cultures; i++) {
-            auto* sub_obj = obj->cultures[i];
-            ::deserialize(stream, sub_obj);
-        }
-
-        for(size_t i = 0; i < n_pop_types; i++) {
-            auto* sub_obj = obj->pop_types[i];
-            ::deserialize(stream, sub_obj);
-        }
+        ::deserialize(stream, &obj->goods);
+        ::deserialize(stream, &obj->unit_types);
+        ::deserialize(stream, &obj->religions);
+        ::deserialize(stream, &obj->cultures);
+        ::deserialize(stream, &obj->pop_types);
+        ::deserialize(stream, &obj->terrain_types);
+        ::deserialize(stream, &obj->building_types);
+        ::deserialize(stream, &obj->ideologies);
+        ::deserialize(stream, &obj->technologies);
+        ::deserialize(stream, &obj->nation_modifiers);
 
         for(size_t i = 0; i < n_nations; i++) {
             auto* sub_obj = obj->nations[i];
@@ -1043,33 +953,8 @@ public:
             ::deserialize(stream, sub_obj);
         }
 
-        for(size_t i = 0; i < n_building_types; i++) {
-            auto* sub_obj = obj->building_types[i];
-            ::deserialize(stream, sub_obj);
-        }
-
         for(size_t i = 0; i < n_treaties; i++) {
             auto* sub_obj = obj->treaties[i];
-            ::deserialize(stream, sub_obj);
-        }
-
-        for(size_t i = 0; i < n_ideologies; i++) {
-            auto* sub_obj = obj->ideologies[i];
-            ::deserialize(stream, sub_obj);
-        }
-
-        for(size_t i = 0; i < n_technologies; i++) {
-            auto* sub_obj = obj->technologies[i];
-            ::deserialize(stream, sub_obj);
-        }
-
-        for(size_t i = 0; i < n_nation_modifiers; i++) {
-            auto* sub_obj = obj->nation_modifiers[i];
-            ::deserialize(stream, sub_obj);
-        }
-
-        for(size_t i = 0; i < n_terrain_types; i++) {
-            auto* sub_obj = obj->terrain_types[i];
             ::deserialize(stream, sub_obj);
         }
 

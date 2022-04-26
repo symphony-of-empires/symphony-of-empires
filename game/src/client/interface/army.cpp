@@ -136,10 +136,10 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
     flex_column->flex = UI::Flex::COLUMN;
     for(const auto& province : gs.curr_nation->owned_provinces) {
         for(const auto& building_type : gs.world->building_types) {
-            if(!(building_type->is_build_land_units || building_type->is_build_naval_units)) {
+            if(!(building_type.is_build_land_units || building_type.is_build_naval_units)) {
                 continue;
             }
-            new ArmyProductionUnitInfo(gs, 0, 0, province, gs.world->get_id(*building_type), flex_column);
+            new ArmyProductionUnitInfo(gs, 0, 0, province, gs.world->get_id(building_type), flex_column);
         }
     }
 }
@@ -207,8 +207,8 @@ ArmyNewUnitTab::ArmyNewUnitTab(GameState& _gs, int x, int y, UI::Widget* parent)
 {
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
-    for(const auto& unit_type : gs.world->unit_types) {
-        auto* btn = new UnitTypeButton(gs, 0, 0, unit_type, flex_column);
+    for(auto& unit_type : gs.world->unit_types) {
+        auto* btn = new UnitTypeButton(gs, 0, 0, &unit_type, flex_column);
         btn->set_on_click([this, btn](UI::Widget& w) {
             this->gs.production_queue.push_back(btn->unit_type);
         });

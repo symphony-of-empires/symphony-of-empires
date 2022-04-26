@@ -37,6 +37,7 @@
 #include <glm/vec2.hpp>
 
 #include "unified_render/profiler.hpp"
+#include "unified_render/assert.hpp"
 
 #include "nation.hpp"
 #include "product.hpp"
@@ -88,9 +89,6 @@ public:
     inline list_type<type>& get_list(const type* = nullptr) {\
         return list;\
     };\
-    inline size_t get_id(const type& ptr) const {\
-        return ((ptrdiff_t)&ptr - (ptrdiff_t)&list[0]) / sizeof(type);\
-    };\
     inline void insert(type& ptr) {\
         auto& list = this->get_list((type*)nullptr);\
         ptr.cached_id = list.size();\
@@ -126,21 +124,22 @@ public:
     void load_mod(void);
     UnifiedRender::Profiler profiler;
 
+    LIST_FOR_LOCAL_TYPE(Good, goods, std::vector);
+    LIST_FOR_LOCAL_TYPE(Culture, cultures, std::vector);
+    LIST_FOR_LOCAL_TYPE(PopType, pop_types, std::vector);
+    LIST_FOR_LOCAL_TYPE(UnitType, unit_types, std::vector);
+    LIST_FOR_LOCAL_TYPE(BuildingType, building_types, std::vector);
+    LIST_FOR_LOCAL_TYPE(Ideology, ideologies, std::vector);
+    LIST_FOR_LOCAL_TYPE(Religion, religions, std::vector);
+    LIST_FOR_LOCAL_TYPE(Technology, technologies, std::vector);
+    LIST_FOR_LOCAL_TYPE(NationModifier, nation_modifiers, std::vector);
+    LIST_FOR_LOCAL_TYPE(TerrainType, terrain_types, std::vector);
+
     LIST_FOR_TYPE(Nation, nations, std::vector);
     LIST_FOR_TYPE(Province, provinces, std::vector);
-    LIST_FOR_TYPE(Good, goods, std::vector);
-    LIST_FOR_TYPE(Culture, cultures, std::vector);
-    LIST_FOR_TYPE(PopType, pop_types, std::vector);
     LIST_FOR_TYPE(Event, events, std::vector);
-    LIST_FOR_TYPE(UnitType, unit_types, std::vector);
     LIST_FOR_TYPE(Unit, units, std::vector);
-    LIST_FOR_TYPE(BuildingType, building_types, std::vector);
     LIST_FOR_TYPE(Treaty, treaties, std::vector);
-    LIST_FOR_TYPE(Ideology, ideologies, std::vector);
-    LIST_FOR_TYPE(Religion, religions, std::vector);
-    LIST_FOR_TYPE(Technology, technologies, std::vector);
-    LIST_FOR_TYPE(NationModifier, nation_modifiers, std::vector);
-    LIST_FOR_TYPE(TerrainType, terrain_types, std::vector);
     LIST_FOR_TYPE(War, wars, std::vector);
 
     template<typename T>

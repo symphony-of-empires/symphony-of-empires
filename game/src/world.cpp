@@ -288,12 +288,12 @@ World::World() {
         { "get", [](lua_State* L) {
             const std::string ref_name = UnifiedRender::StringRef(lua_tostring(L, 1)).get_string();
             auto result = std::find_if(g_world->ideologies.begin(), g_world->ideologies.end(),
-            [&ref_name](const auto& o) { return (o->ref_name == ref_name); });
+            [&ref_name](const auto& o) { return (o.ref_name == ref_name); });
             if(result == g_world->ideologies.end())
                 throw LuaAPI::Exception("Ideology " + ref_name + " not found");
 
             Ideology** ideology = (Ideology**)lua_newuserdata(L, sizeof(Ideology*));
-            *ideology = *result;
+            *ideology = &*result;
             luaL_setmetatable(L, "Ideology");
 
             UnifiedRender::Log::debug("lua", "__get?");
@@ -350,28 +350,14 @@ World::~World() {
     lua_close(lua);
     delete[] tiles;
 
-    for(auto& religion : religions) {
-        delete religion;
-    } for(auto& unit_type : unit_types) {
-        delete unit_type;
-    } for(auto& event : events) {
+    for(auto& event : events) {
         delete event;
-    } for(auto& pop_type : pop_types) {
-        delete pop_type;
-    } for(auto& culture : cultures) {
-        delete culture;
-    } for(auto& good : goods) {
-        delete good;
     } for(auto& province : provinces) {
         delete province;
     } for(auto& nation : nations) {
         delete nation;
-    } for(auto& building_type : building_types) {
-        delete building_type;
     } for(auto& unit : units) {
         delete unit;
-    } for(auto& ideology : ideologies) {
-        delete ideology;
     }
 }
 
@@ -421,15 +407,6 @@ void World::load_initial(void) {
 
     // Shrink normally-not-resized vectors to give back memory to the OS
     UnifiedRender::Log::debug("game", UnifiedRender::Locale::translate("Shrink normally-not-resized vectors to give back memory to the OS"));
-    provinces.shrink_to_fit();
-    nations.shrink_to_fit();
-    goods.shrink_to_fit();
-    unit_types.shrink_to_fit();
-    cultures.shrink_to_fit();
-    religions.shrink_to_fit();
-    pop_types.shrink_to_fit();
-    ideologies.shrink_to_fit();
-    building_types.shrink_to_fit();
 
     // Associate tiles with province
     std::unique_ptr<BinaryImage> div = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map/provinces.png")));
@@ -886,21 +863,20 @@ void World::do_tick() {
     // Now researches for every country are going to be accounted :)
     for(const auto& nation : nations) {
         debug_assert(nation != nullptr);
-        for(const auto& tech : technologies) {
-            debug_assert(tech != nullptr);
-            if(!nation->can_research(tech)) {
+        for(const auto& technology : technologies) {
+            if(!nation->can_research(&technology)) {
                 continue;
             }
 
-            UnifiedRender::Decimal* research_progress = &nation->research[get_id(*tech)];
+            UnifiedRender::Decimal* research_progress = &nation->research[get_id(technology)];
             if(!(*research_progress)) {
                 continue;
             }
 
             UnifiedRender::Decimal* pts_count;
-            if(tech->type == TechnologyType::MILITARY) {
+            if(technology.type == TechnologyType::MILITARY) {
                 pts_count = &mil_research_pts[get_id(*nation)];
-            } else if(tech->type == TechnologyType::NAVY) {
+            } else if(technology.type == TechnologyType::NAVY) {
                 pts_count = &naval_research_pts[get_id(*nation)];
             } else {
                 continue;

@@ -86,7 +86,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
 
         std::vector<UI::ChartData> ideology_data;
         for(const auto& ideology : o.gs.world->ideologies) {
-            ideology_data.push_back(UI::ChartData(1.f, ideology->name.get_string(), ideology->color));
+            ideology_data.push_back(UI::ChartData(1.f, ideology.name.get_string(), ideology.color));
         }
         ((UI::PieChart&)w).set_data(ideology_data);
     });

@@ -77,8 +77,8 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
     gs{ _gs }
 {
     unsigned int i = 0;
-    for(const auto& building_type : gs.world->building_types) {
-        auto* btn = new BuildingTypeButton(gs, 0, 24 * i, building_type, this);
+    for(auto& building_type : gs.world->building_types) {
+        auto* btn = new BuildingTypeButton(gs, 0, 24 * i, &building_type, this);
         btn->set_on_click([](UI::Widget& w) {
             auto& o = static_cast<BuildingBuildView&>(*w.parent->parent);
             if(o.nation == nullptr) {

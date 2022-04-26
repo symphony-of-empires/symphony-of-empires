@@ -318,4 +318,24 @@ public:
     };
 };
 
+// Non-pointer
+template<typename W, typename T>
+class SerializerReferenceLocal {
+public:
+    static inline void serialize(Archive& stream, const T* const* obj) {
+        typename T::Id id = (*obj == nullptr) ? (typename T::Id)-1 : W::get_instance().get_id(**obj);
+        ::serialize(stream, &id);
+    };
+
+    static inline void deserialize(Archive& stream, T** obj) {
+        typename T::Id id;
+        ::deserialize(stream, &id);
+        if(id >= W::get_instance().get_list((T*)nullptr).size()) {
+            *obj = nullptr;
+            return;
+        }
+        *obj = (id != (typename T::Id)-1) ? &(W::get_instance().get_list((T*)nullptr)[id]) : nullptr;
+    };
+};
+
 // TODO: Template for entities
