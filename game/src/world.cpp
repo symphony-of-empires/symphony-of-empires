@@ -96,16 +96,12 @@ World& World::get_instance(void) {
 
 // Obtains a tile from the world safely, and makes sure that it is in bounds
 Tile& World::get_tile(size_t x, size_t y) const {
-    if(x >= width || y >= height) {
-        throw std::runtime_error("Tile out of bounds");
-    }
+    debug_assert(x < width && y < height); // Tile out of bounds
     return tiles[x + y * width];
 }
 
 Tile& World::get_tile(size_t idx) const {
-    if(idx >= width * height) {
-        throw std::runtime_error("Tile index exceeds boundaries");
-    }
+    debug_assert(idx < width * height) // Tile index exceeds boundaries
     return tiles[idx];
 }
 
@@ -348,8 +344,6 @@ World::World() {
 
 World::~World() {
     lua_close(lua);
-    delete[] tiles;
-
     for(auto& event : events) {
         delete event;
     } for(auto& province : provinces) {
@@ -358,6 +352,8 @@ World::~World() {
         delete nation;
     } for(auto& unit : units) {
         delete unit;
+    } for(auto& war : wars) {
+        delete war;
     }
 }
 
@@ -409,7 +405,7 @@ void World::load_initial(void) {
     Eng3D::Log::debug("game", Eng3D::Locale::translate("Shrink normally-not-resized vectors to give back memory to the OS"));
 
     // Associate tiles with province
-    std::unique_ptr<BinaryImage> div = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map/provinces.png")));
+    std::unique_ptr<BinaryImage> div = std::make_unique<BinaryImage>(Path::get("map/provinces.png"));
     width = div->width;
     height = div->height;
 
@@ -418,10 +414,7 @@ void World::load_initial(void) {
     // Land is	> sea_level + 1
     const size_t total_size = width * height;
     sea_level = 126;
-    tiles = new Tile[total_size];
-    if(tiles == nullptr) {
-        throw std::runtime_error("Out of memory");
-    }
+    tiles = std::make_unique<Tile[]>(total_size);
 
     if(div->width != width || div->height != height) {
         throw std::runtime_error("Province map size mismatch");

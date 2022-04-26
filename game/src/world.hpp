@@ -33,6 +33,7 @@
 #include <algorithm>
 #include <mutex>
 #include <string>
+#include <memory>
 
 #include <glm/vec2.hpp>
 
@@ -163,7 +164,7 @@ public:
     };
 
     inline size_t get_id(const Tile& ptr) const {
-        return ((ptrdiff_t)&ptr - (ptrdiff_t)tiles) / sizeof(Tile);
+        return ((ptrdiff_t)&ptr - (ptrdiff_t)tiles.get()) / sizeof(Tile);
     };
 
     // Template for all types except for tiles (we can do this because we can
@@ -189,7 +190,7 @@ public:
     lua_State* lua;
 
     // 2-Dimensional Array of tiles
-    Tile* tiles;
+    std::unique_ptr<Tile[]> tiles;
     mutable std::mutex tiles_mutex;
 
     // Level at which sea dissapears, all sea is capped to sea_level - 1, and rivers are at sea_level.
