@@ -140,6 +140,7 @@ MapRender::MapRender(const World& _world)
     }
     Eng3D::TextureOptions single_color{};
     single_color.internal_format = GL_RGB;
+    single_color.compressed = false;
     terrain_map->to_opengl(single_color);
     //terrain_map->gen_mipmaps();
 
@@ -152,6 +153,7 @@ MapRender::MapRender(const World& _world)
     }
     topo_map.reset(nullptr);
     mipmap_options.internal_format = GL_RGBA;
+    mipmap_options.compressed = false;
     normal_topo->to_opengl(mipmap_options);
     normal_topo->gen_mipmaps();
 
@@ -169,6 +171,7 @@ MapRender::MapRender(const World& _world)
     Eng3D::TextureOptions tile_map_options{};
     tile_map_options.internal_format = GL_RGBA32F;
     tile_map_options.editable = true;
+    tile_map_options.compressed = false;
     tile_map->to_opengl(tile_map_options);
     tile_map->gen_mipmaps();
 
@@ -189,6 +192,7 @@ MapRender::MapRender(const World& _world)
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
     no_drop_options.internal_format = GL_SRGB;
+    no_drop_options.compressed = false;
     tile_sheet->to_opengl(no_drop_options);
 
     // Province options
@@ -214,6 +218,7 @@ MapRender::MapRender(const World& _world)
     sdf_options.internal_format = GL_RGB32F;
     sdf_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     sdf_options.mag_filter = GL_LINEAR;
+    sdf_options.compressed = false;
     border_sdf = std::make_unique<Eng3D::Texture>(Eng3D::Texture(Path::get("map/sdf_map.png")));
     border_sdf->to_opengl(sdf_options);
     border_sdf->gen_mipmaps();

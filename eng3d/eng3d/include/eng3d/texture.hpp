@@ -80,6 +80,7 @@ namespace Eng3D {
         GLuint format = GL_RGBA;
         GLuint type = GL_UNSIGNED_BYTE;
         bool editable = false;
+        bool compressed = true;
 
         bool operator==(const TextureOptions& o) const {
             return target == o.target

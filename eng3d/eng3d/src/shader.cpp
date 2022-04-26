@@ -30,6 +30,7 @@
 #include "eng3d/shader.hpp"
 #include "eng3d/glsl_trans.hpp"
 #include "eng3d/utils.hpp"
+#include "eng3d/assert.hpp"
 
 // Construct a shader by opening the provided path and creating a temporal ifstream, reading
 // from that stream in text mode and then compiling the shader
@@ -284,7 +285,7 @@ void Eng3D::OpenGL::Program::attach_shader(const Eng3D::OpenGL::Shader* shader) 
 void Eng3D::OpenGL::Program::link(void) {
 #ifdef E3D_RENDER_DEBUG
     if(!id) {
-        CXX_THROW(Eng3D::DebugException, "Program has no Id");
+        CXX_THROW(Eng3D::OpenGL::ShaderException, "Program has no Id");
     }
 #endif
     glLinkProgram(id);
@@ -296,7 +297,7 @@ void Eng3D::OpenGL::Program::link(void) {
         std::string error_info;
         glGetProgramInfoLog(id, GL_INFO_LOG_LENGTH, NULL, &error_info[0]);
         print_error("Program error %s", error_info.c_str());
-        CXX_THROW(ShaderException, error_info);
+        CXX_THROW(Eng3D::OpenGL::ShaderException, error_info);
     }
 }
 
@@ -336,22 +337,16 @@ void Eng3D::OpenGL::Program::set_uniform(const std::string& name, int value) con
 
 // Sets the texture (sampler2D) into the shader,
 void Eng3D::OpenGL::Program::set_texture(int value, const std::string& name, const Eng3D::Texture& texture) const {
-#ifdef E3D_RENDER_DEBUG
-    if(!texture.gl_tex_num) {
-        CXX_THROW(Eng3D::DebugException, "Texture with invalid Id passed to set_texture");
-    }
-#endif
+    debug_assert(texture.gl_tex_num != 0); // Texture with invalid Id
+
     glActiveTexture(GL_TEXTURE0 + value);
     set_uniform(name, value);
     glBindTexture(GL_TEXTURE_2D, texture.gl_tex_num);
 }
 
 void Eng3D::OpenGL::Program::set_texture(int value, const std::string& name, const Eng3D::TextureArray& texture) const {
-#ifdef E3D_RENDER_DEBUG
-    if(!texture.gl_tex_num) {
-        CXX_THROW(Eng3D::DebugException, "Texture with invalid Id passed to set_texture");
-    }
-#endif
+    debug_assert(texture.gl_tex_num != 0); // Texture with invalid Id
+
     glActiveTexture(GL_TEXTURE0 + value);
     set_uniform(name, value);
     glBindTexture(GL_TEXTURE_2D_ARRAY, texture.gl_tex_num);

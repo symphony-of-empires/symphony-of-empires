@@ -235,15 +235,13 @@ void Map::create_labels() {
             min_point_y.y = nation->capital->min_y;
 
             get_blob_bounds(&visited_provinces, *nation, *nation->capital, &min_point_x, &min_point_y, &max_point_x, &max_point_y);
-        }
-        else {
+        } else {
             get_blob_bounds(&visited_provinces, *nation, **(nation->controlled_provinces.begin()), &min_point_x, &min_point_y, &max_point_x, &max_point_y);
         }
 
 #if 0
         // Stop super-big labels
-        if(glm::abs(min_point_x.x - max_point_x.x) >= world.width / 2.f
-            || glm::abs(min_point_y.y - max_point_y.y) >= world.height / 2.f) {
+        if(glm::abs(min_point_x.x - max_point_x.x) >= world.width / 2.f || glm::abs(min_point_y.y - max_point_y.y) >= world.height / 2.f) {
             auto* label = map_font->gen_text(nation->get_client_hint().alt_name, glm::vec3(-10.f), glm::vec3(-5.f), 1.f);
             nation_labels.push_back(label);
             print_error("Extremely big nation: %s", nation->ref_name.c_str());
