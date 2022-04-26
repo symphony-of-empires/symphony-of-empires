@@ -26,6 +26,7 @@
 // ----------------------------------------------------------------------------
 
 #include "eng3d/io.hpp"
+#include "eng3d/utils.hpp"
 
 //
 // IO::Path
@@ -100,30 +101,30 @@ Eng3D::IO::Asset::File::~File(void) {
 }
 
 void Eng3D::IO::Asset::File::open(void) {
-    fp = fopen(abs_path.c_str(), "rb");
+    this->fp = ::fopen(abs_path.c_str(), "rb");
     //if(fp == nullptr)
     //    throw std::runtime_error("Can't open file " + path);
 }
 
 void Eng3D::IO::Asset::File::close(void) {
-    fclose(fp);
+    ::fclose(this->fp);
 }
 
 void Eng3D::IO::Asset::File::read(void* buf, size_t n) {
-    fread(buf, 1, n, fp);
+    ::fread(buf, 1, n, this->fp);
 }
 
 void Eng3D::IO::Asset::File::write(const void* buf, size_t n) {
-    fwrite(buf, 1, n, fp);
+    ::fwrite(buf, 1, n, this->fp);
 }
 
 void Eng3D::IO::Asset::File::seek(SeekType type, int offset) {
     if(type == SeekType::CURRENT) {
-        fseek(fp, offset, SEEK_CUR);
+        ::fseek(this->fp, offset, SEEK_CUR);
     } else if(type == SeekType::START) {
-        fseek(fp, offset, SEEK_SET);
+        ::fseek(this->fp, offset, SEEK_SET);
     } else if(type == SeekType::END) {
-        fseek(fp, offset, SEEK_END);
+        ::fseek(this->fp, offset, SEEK_END);
     }
 }
 
@@ -162,7 +163,7 @@ Eng3D::IO::PackageManager::PackageManager(void) {
                 continue;
             }
 
-            auto* asset = new Eng3D::IO::Asset::File();
+            std::shared_ptr<Eng3D::IO::Asset::File> asset = std::make_shared<Eng3D::IO::Asset::File>();
             asset->path = _entry.path().lexically_relative(entry.path()).string();
             asset->abs_path = _entry.path().string();
             package.assets.push_back(asset);
@@ -182,30 +183,24 @@ Eng3D::IO::PackageManager::~PackageManager(void) {
 }
 
 // Obtaining an unique asset means the "first-found" policy applies
-Eng3D::IO::Asset::Base* Eng3D::IO::PackageManager::get_unique(const Eng3D::IO::Path& path) {
-    std::vector<Eng3D::IO::Package>::const_iterator package;
-    std::vector<Eng3D::IO::Asset::Base*>::const_iterator asset;
-
-    for(package = packages.begin(); package != packages.end(); package++) {
-        for(asset = (*package).assets.begin(); asset != (*package).assets.end(); asset++) {
-            if((*asset)->path == path.str) {
-                return (*asset);
-            }
-        }
+std::shared_ptr<Eng3D::IO::Asset::Base> Eng3D::IO::PackageManager::get_unique(const Eng3D::IO::Path& path) {
+    std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> list = this->get_multiple(path);
+    if(list.empty()) {
+        return std::shared_ptr<Eng3D::IO::Asset::Base>(nullptr);
     }
-    return nullptr;
+    return list.at(0);
 }
 
-std::vector<Eng3D::IO::Asset::Base*> Eng3D::IO::PackageManager::get_multiple(const Eng3D::IO::Path& path) {
-    std::vector<Eng3D::IO::Asset::Base*> list;
+std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> Eng3D::IO::PackageManager::get_multiple(const Eng3D::IO::Path& path) {
+    std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> list;
 
     std::vector<Eng3D::IO::Package>::const_iterator package;
-    std::vector<Eng3D::IO::Asset::Base*>::const_iterator asset;
+    std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>>::const_iterator asset;
 
     for(package = packages.begin(); package != packages.end(); package++) {
         for(asset = (*package).assets.begin(); asset != (*package).assets.end(); asset++) {
             if((*asset)->path == path.str) {
-                list.push_back((*asset));
+                list.push_back(*asset);
             }
         }
     }

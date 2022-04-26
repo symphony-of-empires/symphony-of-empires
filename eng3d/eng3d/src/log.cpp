@@ -28,25 +28,22 @@
 #include "eng3d/log.hpp"
 
 void Eng3D::Log::debug(const std::string& category, const std::string& msg) {
-    FILE* fp = fopen("log.txt", "a+t");
-    if(fp != NULL) {
-        fprintf(fp, "<%s> %s\n", category.c_str(), msg.c_str());
-        fclose(fp);
+    std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen("log.txt", "a+t"), fclose);
+    if(fp != nullptr) {
+        fprintf(fp.get(), "<debug:%s> %s\n", category.c_str(), msg.c_str());
     }
 }
 
 void Eng3D::Log::warning(const std::string& category, const std::string& msg) {
-    FILE* fp = fopen("log.txt", "a+t");
-    if(fp != NULL) {
-        fprintf(fp, "<%s> %s\n", category.c_str(), msg.c_str());
-        fclose(fp);
+    std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen("log.txt", "a+t"), fclose);
+    if(fp != nullptr) {
+        fprintf(fp.get(), "<warning:%s> %s\n", category.c_str(), msg.c_str());
     }
 }
 
 void Eng3D::Log::error(const std::string& category, const std::string& msg) {
-    FILE* fp = fopen("log.txt", "a+t");
-    if(fp != NULL) {
-        fprintf(fp, "<%s> %s\n", category.c_str(), msg.c_str());
-        fclose(fp);
+    std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen("log.txt", "a+t"), fclose);
+    if(fp != nullptr) {
+        fprintf(fp.get(), "<error:%s> %s\n", category.c_str(), msg.c_str());
     }
 }

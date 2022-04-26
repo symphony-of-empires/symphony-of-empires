@@ -156,7 +156,6 @@ void Eng3D::Texture::to_opengl(SDL_Surface* surface) {
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 }
 
-
 // Binds the texture to the current OpenGL context
 void Eng3D::Texture::bind(void) const {
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);

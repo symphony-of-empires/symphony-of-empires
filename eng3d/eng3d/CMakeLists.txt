@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.5.1)
 project(eng3d)
 #set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/src)
 #set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
+set(CMAKE_CXX_STANDARD 17)
 
 # Workaround for clang (see https://bugs.launchpad.net/ubuntu/+source/libsdl2-ttf/+bug/1872023)
 include_directories(/usr/include/SDL2)

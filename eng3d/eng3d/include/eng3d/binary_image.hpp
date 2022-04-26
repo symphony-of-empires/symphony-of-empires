@@ -37,7 +37,7 @@ class BinaryImageException: public std::exception {
     std::string buffer;
 public:
     BinaryImageException(const std::string& filename, const std::string& message) {
-        buffer = "" + filename + ":" + message;
+        buffer = "" + filename + ": " + message;
     }
 
     virtual const char* what(void) const noexcept {
