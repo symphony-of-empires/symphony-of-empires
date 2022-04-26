@@ -95,7 +95,7 @@ function Province:get_pops()
 	local new_table = {}
 	for i = 0, n_pops do
 		local tb = Pop:new()
-		tb.size, tb.budget, tb.literacy, tb.life_needs_met, tb.everday_needs_met, tb.luxury_needs_met, tb.type, tb.culture, tb.religion, tb.ideology, tb.militancy, tb.con = get_province_pop(self.id, i)
+		tb.size, tb.budget, tb.literacy, tb.life_needs_met, tb.everday_needs_met, tb.luxury_needs_met, tb.type, tb.culture, tb.religion, tb.ideology, tb.militancy, tb.militancy = get_province_pop(self.id, i)
 		tb.type = PopType:get_by_id(tb.type)
 		tb.culture = Culture:get_by_id(tb.culture)
 		tb.religion = Religion:get_by_id(tb.religion)
@@ -107,7 +107,7 @@ function Province:get_pops()
 	return new_table
 end
 function Province:update_pop(pop)
-	set_province_pop(self.id, pop.id, pop.size, pop.budget, pop.literacy, pop.life_needs_met, pop.everday_needs_met, pop.luxury_needs_met, pop.type.id, pop.culture.id, pop.religion.id, pop.militancy, pop.con)
+	set_province_pop(self.id, pop.id, pop.size, pop.budget, pop.literacy, pop.life_needs_met, pop.everday_needs_met, pop.luxury_needs_met, pop.type.id, pop.culture.id, pop.religion.id, pop.militancy, pop.militancy)
 end
 function Province:update_pops(pop)
 	-- TODO: Do important stuff
@@ -141,36 +141,6 @@ function Province:multiply_militancy_by_religion(religion, factor)
 	for k, pop in pairs(pops) do
 		if pop.religion.id == religion.id then
 			pop.militancy = pop.militancy * factor
-			self:update_pop(pop)
-		end
-	end
-	self:update_pops()
-end
-
--- Increments con for all POPs
-function Province:multiply_con_global(factor)
-	local pops = self:get_pops()
-	for k, pop in pairs(pops) do
-		pop.con = pop.con * factor
-		self:update_pop(pop)
-	end
-	self:update_pops()
-end
-function Province:multiply_con_by_culture(culture, factor)
-	local pops = self:get_pops()
-	for k, pop in pairs(pops) do
-		if pop.culture.id == culture.id then
-			pop.con = pop.con * factor
-			self:update_pop(pop)
-		end
-	end
-	self:update_pops()
-end
-function Province:multiply_con_by_religion(religion, factor)
-	local pops = self:get_pops()
-	for k, pop in pairs(pops) do
-		if pop.religion.id == religion.id then
-			pop.con = pop.con * factor
 			self:update_pop(pop)
 		end
 	end

@@ -80,7 +80,7 @@ function gevhdl002_decision_1(ref_name)
 				goto continue
 			end
 			
-			pop.con = pop.con + 0.1
+			pop.militancy = pop.militancy + 0.1
 			province:update_pop(pop)
 			::continue::
 		end

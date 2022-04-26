@@ -597,7 +597,6 @@ int LuaAPI::add_nation_mod(lua_State* L) {
     mod->reproduction_mod = (lua_tonumber(L, 9));
     mod->death_mod = (lua_tonumber(L, 10));
     mod->militancy_mod = (lua_tonumber(L, 11));
-    mod->con_mod = (lua_tonumber(L, 12));
     mod->life_needs_met_mod = (lua_tonumber(L, 13));
     mod->everyday_needs_met_mod = (lua_tonumber(L, 14));
     mod->luxury_needs_met_mod = (lua_tonumber(L, 15));
@@ -622,11 +621,10 @@ int LuaAPI::get_nation_mod(lua_State* L) {
     lua_pushnumber(L, (mod->reproduction_mod));
     lua_pushnumber(L, (mod->death_mod));
     lua_pushnumber(L, (mod->militancy_mod));
-    lua_pushnumber(L, (mod->con_mod));
     lua_pushnumber(L, (mod->life_needs_met_mod));
     lua_pushnumber(L, (mod->everyday_needs_met_mod));
     lua_pushnumber(L, (mod->luxury_needs_met_mod));
-    return 1;
+    return 14;
 }
 
 int LuaAPI::add_province(lua_State* L) {
@@ -834,8 +832,7 @@ int LuaAPI::get_province_pop(lua_State* L) {
     lua_pushnumber(L, g_world->get_id(*pop.religion));
     lua_pushnumber(L, g_world->get_id(*pop.get_ideology()));
     lua_pushnumber(L, (pop.militancy));
-    lua_pushnumber(L, (pop.con));
-    return 10;
+    return 9;
 }
 
 int LuaAPI::set_province_pop(lua_State* L) {
@@ -851,7 +848,6 @@ int LuaAPI::set_province_pop(lua_State* L) {
     pop.culture = g_world->cultures.at(lua_tonumber(L, 10));
     pop.religion = g_world->religions.at(lua_tonumber(L, 11));
     pop.militancy = (lua_tonumber(L, 12));
-    pop.con = (lua_tonumber(L, 13));
     return 0;
 }
 

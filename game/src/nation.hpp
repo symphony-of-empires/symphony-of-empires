@@ -93,7 +93,6 @@ public:
     UnifiedRender::Decimal reproduction_mod = 1.f;
     UnifiedRender::Decimal death_mod = 1.f;
     UnifiedRender::Decimal militancy_mod = 1.f;
-    UnifiedRender::Decimal con_mod = 1.f;
     UnifiedRender::Decimal life_needs_met_mod = 1.f;
     UnifiedRender::Decimal everyday_needs_met_mod = 1.f;
     UnifiedRender::Decimal luxury_needs_met_mod = 1.f;
@@ -135,7 +134,6 @@ public:
     UnifiedRender::Decimal get_reproduction_mod(void);
     UnifiedRender::Decimal get_death_mod(void);
     UnifiedRender::Decimal get_militancy_mod(void);
-    UnifiedRender::Decimal get_con_mod(void);
     UnifiedRender::Decimal get_life_needs_met_mod(void);
     UnifiedRender::Decimal get_everyday_needs_met_mod(void);
     UnifiedRender::Decimal get_luxury_needs_met_mod(void);

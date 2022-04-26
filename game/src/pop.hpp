@@ -59,14 +59,14 @@ public:
     Ideology* get_ideology(void) const;
     uint32_t get_type_id(void) const;
 
+    PopType* type;
+    Culture* culture;
+    Religion* religion;
+
     UnifiedRender::Number size = 0.f;
     UnifiedRender::Decimal life_needs_met = 0.f, everyday_needs_met = 0.f, luxury_needs_met = 0.f;
-    UnifiedRender::Decimal literacy = 0.f, militancy = 0.f, con = 0.f;
+    UnifiedRender::Decimal literacy = 0.f, militancy = 0.f;
     UnifiedRender::Decimal budget = 0.f, savings = 0.f;
-
-    PopType* type = nullptr;
-    Culture* culture = nullptr;
-    Religion* religion = nullptr;
 
     // Approval % of all the ideologies (1:1)
     std::vector<UnifiedRender::Decimal> ideology_approval;

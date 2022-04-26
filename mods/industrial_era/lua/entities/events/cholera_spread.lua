@@ -68,14 +68,14 @@ function cholera_event(ref_name)
         ref_name = "cholera_decision_0",
         name = "We have to deal with this outbreak.",
         decision_fn = "cholera_decision_0",
-        effects = "+1 con"
+        effects = "+1 militancy"
     }
 	cholera_evhdl:add_decision(decision)
     decision = Decision:new{
         ref_name = "cholera_decision_1",
         name = "Send a small amount of aid to the area",
         decision_fn = "cholera_decision_1",
-        effects = "+0.5 con"
+        effects = "+0.5 militancy"
     }
 	cholera_evhdl:add_decision(decision)
     decision = Decision:new{
@@ -92,7 +92,7 @@ function cholera_decision_0(ref_name)
 	for k, province in pairs(prov_list) do
 		local pops = province:get_pops()
 		for k, pop in pairs(pops) do
-			pop.con = pop.con + 1.0
+			pop.militancy = pop.militancy + 1.0
 			province:update_pop(pop)
 		end
 		province:update_pops()
@@ -103,7 +103,7 @@ function cholera_decision_1(ref_name)
 	for k, province in pairs(prov_list) do
 		local pops = province:get_pops()
 		for k, pop in pairs(pops) do
-            pop.con = pop.con + 0.5
+            pop.militancy = pop.militancy + 0.5
 			province:update_pop(pop)
 		end
 		province:update_pops()
@@ -173,14 +173,14 @@ function cholera_2_event(ref_name)
 		ref_name = "cholera_2_decision_0",
 		name = "Fire Them! They have no place in our government",
 		decision_fn = "cholera_2_decision_0",
-		effects = "+1 militancy, +1 con"
+		effects = "+1 militancy, +1 militancy"
 	}
 	cholera_evhdl_2:add_decision(decision)
 	decision = Decision:new{
 		ref_name = "cholera_2_decision_1",
 		name = "Ignorance is Bliss, Gentlemen",
 		decision_fn = "cholera_2_decision_1",
-		effects = "+2 con"
+		effects = "+2 militancy"
 	}
     cholera_evhdl_2:add_decision(decision)
     return EVENT_DO_MANY_TIMES
@@ -191,7 +191,7 @@ function cholera_2_decision_0(ref_name)
 		local pops = province:get_pops()
 		for k, pop in pairs(pops) do
             pop.militancy = pop.militancy + 1.0
-			pop.con = pop.con + 1.0
+			pop.militancy = pop.militancy + 1.0
 			province:update_pop(pop)
 		end
 		province:update_pops()
@@ -202,7 +202,7 @@ function cholera_2_decision_1(ref_name)
 	for k, province in pairs(prov_list) do
 		local pops = province:get_pops()
 		for k, pop in pairs(pops) do
-            pop.con = pop.con + 2.0
+            pop.militancy = pop.militancy + 2.0
 			province:update_pop(pop)
 		end
 		province:update_pops()
@@ -258,14 +258,14 @@ function cholera_3_event(ref_name)
 		ref_name = "cholera_3_decision_0",
 		name = "Send in Police to deal with them",
 		decision = "cholera_3_decision_0",
-		effects = "+1.5 militancy, +2 con"
+		effects = "+1.5 militancy, +2 militancy"
 	}
 	cholera_evhdl_3:add_decision(decision)
 	decision = Decision:new{
 		ref_name = "cholera_3_decision_1",
 		name = "Fine, send aid",
 		decision = "cholera_3_decision_1",
-		effects = "-1 militancy, +3 con"
+		effects = "-1 militancy, +3 militancy"
 	}
     cholera_evhdl_3:add_decision(decision)
 	return EVENT_DO_MANY_TIMES
@@ -276,7 +276,7 @@ function cholera_3_decision_0(ref_name)
 		local pops = province:get_pops()
 		for k, pop in pairs(pops) do
             pop.militancy = pop.militancy + 1.5
-			pop.con = pop.con + 2.0
+			pop.militancy = pop.militancy + 2.0
 			province:update_pop(pop)
 		end
 		province:update_pops()
@@ -288,7 +288,7 @@ function cholera_3_decision_1(ref_name)
 		local pops = province:get_pops()
 		for k, pop in pairs(pops) do
 			pop.militancy = pop.militancy - 1.0
-            pop.con = pop.con + 3.0
+            pop.militancy = pop.militancy + 3.0
 			province:update_pop(pop)
 		end
 		province:update_pops()

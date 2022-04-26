@@ -246,12 +246,12 @@ void Nation::set_policy(Policies& policies) {
 
         // All people who agreed gets happy
         for(auto& pop : approvers) {
-            pop->militancy /= std::min<UnifiedRender::Decimal>(pop->con, 0.1f);
+            pop->militancy *= 0.9f;
         }
 
         // All people who disagreed gets angered
         for(auto& pop : disapprovers) {
-            pop->militancy *= std::min<UnifiedRender::Decimal>(pop->con, 0.1f);
+            pop->militancy *= 1.1f;
         }
         UnifiedRender::Log::debug("game", "New enacted policy passed parliament!");
     }
@@ -259,12 +259,12 @@ void Nation::set_policy(Policies& policies) {
     else {
         // All people who agreed gets angered
         for(auto& pop : approvers) {
-            pop->militancy *= std::min<UnifiedRender::Decimal>(pop->con, 0.1f);
+            pop->militancy *= 0.9f;
         }
 
         // All people who disagreed gets happy
         for(auto& pop : disapprovers) {
-            pop->militancy /= std::min<UnifiedRender::Decimal>(pop->con, 0.1f);
+            pop->militancy *= 1.1f;
         }
         UnifiedRender::Log::debug("game", "New enacted policy did not made it into the parliament!");
     }
@@ -486,14 +486,6 @@ UnifiedRender::Decimal Nation::get_militancy_mod(void) {
     UnifiedRender::Decimal c = 1.f;
     for(const auto& mod : modifiers) {
         c += mod->militancy_mod;
-    }
-    return ((1.f));
-}
-
-UnifiedRender::Decimal Nation::get_con_mod(void) {
-    UnifiedRender::Decimal c = 1.f;
-    for(const auto& mod : modifiers) {
-        c += mod->con_mod;
     }
     return ((1.f));
 }
