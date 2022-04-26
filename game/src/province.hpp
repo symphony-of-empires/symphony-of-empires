@@ -73,7 +73,6 @@ public:
 
     // Number of tiles this province takes
     size_t n_tiles = 0;
-
     // Rectangle coordinates (x,y - x,y) for "area" scanning a province when needed
     // (for example, when changing owners)
     size_t min_x = 65532, min_y = 65532, max_x = 0, max_y = 0;

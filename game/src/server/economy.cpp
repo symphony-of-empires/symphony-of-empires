@@ -62,7 +62,7 @@ void militancy_update(World& world, Nation* nation) {
             // TODO: Ok, look, the justification is that educated people
             // almost never do coups - in comparasion to uneducated
             // peseants, rich people don't need to protest!
-            const UnifiedRender::Decimal anger = (std::max<UnifiedRender::Decimal>(pop.militancy * pop.con, 0.001f) / std::max<UnifiedRender::Decimal>(pop.literacy, 1.f) / std::max<UnifiedRender::Decimal>(pop.life_needs_met, 0.001f));
+            const UnifiedRender::Decimal anger = (std::max<UnifiedRender::Decimal>(pop.militancy, 0.001f) / std::max<UnifiedRender::Decimal>(pop.literacy, 1.f) / std::max<UnifiedRender::Decimal>(pop.life_needs_met, 0.001f));
             total_anger += anger;
             for(const auto& ideology : world.ideologies) {
                 ideology_anger[world.get_id(*ideology)] += (pop.ideology_approval[world.get_id(*ideology)] * anger) * (pop.size / 1000);
@@ -80,7 +80,7 @@ void militancy_update(World& world, Nation* nation) {
             UnifiedRender::Decimal province_anger = 0.f;
             UnifiedRender::Decimal province_threshold = 0.f;
             for(const auto& pop : province->pops) {
-                province_anger += pop.militancy * pop.con;
+                province_anger += pop.militancy;
                 province_threshold += pop.literacy * pop.life_needs_met;
             }
 
@@ -346,7 +346,6 @@ void update_pop_needs(World& world, Province& province, Pop& pop) {
     // For example, having 1.0 life needs means that we obtain -0.01 militancy per ecotick
     // and the opposite happens with negative life needs
     pop.militancy += 0.01f * (-pop.life_needs_met) * province.owner->get_militancy_mod();
-    pop.con += 0.01f * (-pop.life_needs_met) * province.owner->get_militancy_mod();
 }
 
 // Phase 1 of economy: Delivers & Orders are sent from all factories in the world

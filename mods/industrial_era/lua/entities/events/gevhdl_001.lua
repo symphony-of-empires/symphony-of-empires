@@ -57,7 +57,7 @@ function gevhdl001_event(ref_name)
 		ref_name = "gevhdl001_decision_0",
 		name = "We will do what we can to save our people!",
 		decision_fn = "gevhdl001_decision_0",
-		effects = "+0.5 con"
+		effects = "+0.5 militancy"
 	}
 	gevhdl001:add_decision(decision)
     decision = Decision:new{
@@ -74,7 +74,7 @@ function gevhdl001_decision_0(ref_name)
 	for k, province in pairs(prov_list) do
 		local pops = province:get_pops()
 		for k, pop in pairs(pops) do
-			pop.con = pop.con + 0.5
+			pop.militancy = pop.militancy + 0.5
 			province:update_pop(pop)
 		end
 		province:update_pops()

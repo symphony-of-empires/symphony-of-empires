@@ -60,7 +60,7 @@ function catholic_relief_act_of_1829_decision_1()
 		for k, pop in pairs(pops) do
 			if pop.religion.id == Religion:get("christian").id then
 				pop.militancy = pop.militancy * 1.5
-				pop.con = pop.con * 1.5
+				pop.militancy = pop.militancy * 1.5
 				province:update_pop(pop)
 			end
 		end

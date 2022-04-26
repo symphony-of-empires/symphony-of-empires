@@ -39,7 +39,7 @@ function generic_militancy_nationwide_event(ref_name)
 		ref_name = "generic_militancy_nationwide_decision_0",
 		name = "",
 		decision_fn = "generic_militancy_nationwide_decision_0",
-		effects = "+0.50 con and +0.50 militancy nationwide"
+		effects = "+0.50 militancy and +0.50 militancy nationwide"
 	}
 	generic_militancy_nationwide_evhdl:add_decision(decision)
     decision = Decision:new{
@@ -56,7 +56,7 @@ function generic_militancy_nationwide_decision_0(ref_name)
 	for k, province in pairs(prov_list) do
 		local pops = province:get_pops()
 		for k, pop in pairs(pops) do
-			pop.con = pop.con + 0.50
+			pop.militancy = pop.militancy + 0.50
 			pop.militancy = pop.militancy + 0.50
 			province:update_pop(pop)
 		end

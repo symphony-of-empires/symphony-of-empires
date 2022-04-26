@@ -112,32 +112,11 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     });
     militancy_lab->on_each_tick(*militancy_lab);
 
-    auto* con_lab = new UI::Label(0, 290, " ", this);
-    con_lab->below_of(*militancy_lab);
-    con_lab->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<PoliciesScreen&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) {
-            return;
-        }
-
-        float num = 0.f;
-        if(!o.gs.curr_nation->owned_provinces.empty()) {
-            for(const auto& province : o.gs.curr_nation->owned_provinces) {
-                for(const auto& pop : province->pops) {
-                    num += pop.con;
-                }
-            }
-            num /= o.gs.curr_nation->owned_provinces.size();
-        }
-        w.text("Consciousness: " + std::to_string(num));
-    });
-    con_lab->on_each_tick(*con_lab);
-
     auto* reform_grp = new UI::Group(207, 38, this->width - 207, this->height - (this->padding.y + 38 + 48), this);
     reform_grp->is_scroll = true;
 
     // Social
-    POLICY_CHECKBOX(slavery, "SLAVEry", "Allows to put the burden of work to slaves for free");
+    POLICY_CHECKBOX(slavery, "Slavery", "Allows to put the burden of work to slaves for free");
 
     POLICY_CHECKBOX(secular_education, "Secular education", "Educates people in a way that it's bound to religion");
     secular_education_chk->below_of(*slavery_chk);

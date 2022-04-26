@@ -94,10 +94,6 @@ PopWindow::PopWindow(GameState& gs)
 				militancy->text(UnifiedRender::string_format("%1.2f", pop.militancy));
 				militancy->set_key(pop.militancy);
 
-				auto consciousness = row->get_element(row_index++);
-				consciousness->text(UnifiedRender::string_format("%1.2f", pop.con));
-				consciousness->set_key(pop.con);
-
 				auto literacy = row->get_element(row_index++);
 				literacy->text(UnifiedRender::string_format("%2.0f%%", pop.literacy * 100));
 				literacy->set_key(pop.literacy);

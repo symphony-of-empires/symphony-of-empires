@@ -36,7 +36,7 @@ NationMod = {
 	reproduction = 1.0,
 	death = 1.0,
 	militancy = 1.0,
-	con = 1.0,
+	militancy = 1.0,
 	life_needs_met = 1.0,
 	everyday_needs_met = 1.0,
 	luxury_needs_met = 1.0
@@ -48,11 +48,11 @@ function NationMod:new(o)
 	return o
 end
 function NationMod:register()
-	self.id = add_nation_mod(self.ref_name, self.name, self.industry_output, self.industry_input, self.workers_needed, self.salary_paid, self.delivery_cost, self.literacy_learn, self.reproduction, self.death, self.militancy, self.con, self.life_needs_met, self.everyday_needs_met, self.luxury_needs_met)
+	self.id = add_nation_mod(self.ref_name, self.name, self.industry_output, self.industry_input, self.workers_needed, self.salary_paid, self.delivery_cost, self.literacy_learn, self.reproduction, self.death, self.militancy, self.militancy, self.life_needs_met, self.everyday_needs_met, self.luxury_needs_met)
 end
 function NationMod:get(ref_name)
 	o = NationMod:new()
-	o.id, o.name, o.industry_output, o.industry_input, o.workers_needed, o.salary_paid, o.delivery_cost, o.literacy_learn, o.reproduction, o.death, o.militancy, o.con, o.life_needs_met, o.everyday_needs_met, o.luxury_needs_met = get_nation_mod(ref_name)
+	o.id, o.name, o.industry_output, o.industry_input, o.workers_needed, o.salary_paid, o.delivery_cost, o.literacy_learn, o.reproduction, o.death, o.militancy, o.militancy, o.life_needs_met, o.everyday_needs_met, o.luxury_needs_met = get_nation_mod(ref_name)
 	o.ref_name = ref_name
 	return o
 end
@@ -120,7 +120,7 @@ Pop = {
 	religion = {},
 	ideology = {},
 	militancy = 0,
-	con = 0,
+	militancy = 0,
 }
 function Pop:new(o)
 	o = o or {}
