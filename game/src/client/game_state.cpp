@@ -569,17 +569,17 @@ void save(GameState& gs) {
     }
 }
 
-void handle_popups(std::vector<Event*>& displayed_events, std::vector<Treaty*>& displayed_treaties, GameState& gs) {
+void handle_popups(std::vector<Event>& displayed_events, std::vector<Treaty*>& displayed_treaties, GameState& gs) {
     // Put popups
     // Event + Decision popups
     for(auto& msg : gs.curr_nation->inbox) {
         // Check that the event is not already displayed to the user
-        auto iter = std::find_if(displayed_events.begin(), displayed_events.end(), [&msg](const auto& e) { return e->ref_name == msg->ref_name; });
+        auto iter = std::find_if(displayed_events.begin(), displayed_events.end(), [&msg](const auto& e) { return e.ref_name == msg.ref_name; });
         if(iter != displayed_events.end()) {
             continue;
         }
 
-        new Interface::DecisionWindow(gs, *msg);
+        new Interface::DecisionWindow(gs, msg);
         displayed_events.push_back(msg);
     }
 
@@ -839,7 +839,7 @@ void start_client(int, char**) {
     // Connect to server prompt
     new Interface::MainMenu(gs);
 
-    std::vector<Event*> displayed_events;
+    std::vector<Event> displayed_events;
     std::vector<Treaty*> displayed_treaties;
     auto current_frame_time = std::chrono::system_clock::now();
     // Start the world thread
