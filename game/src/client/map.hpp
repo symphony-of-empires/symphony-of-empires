@@ -55,6 +55,7 @@ namespace UI {
 
 #include "province.hpp"
 #include "unified_render/color.hpp"
+#include "unified_render/primitive.hpp"
 
 enum class MapView {
     SPHERE_VIEW,
@@ -136,6 +137,8 @@ public:
     std::shared_ptr<UnifiedRender::Texture> id_map;
     std::shared_ptr<UnifiedRender::Texture> province_color_tex;
     std::shared_ptr<UnifiedRender::Texture> line_tex;
+    std::shared_ptr<UnifiedRender::Texture> skybox_tex;
+    UnifiedRender::Sphere skybox;
     std::unique_ptr<UnifiedRender::OpenGL::Program> obj_shader;
 };
 

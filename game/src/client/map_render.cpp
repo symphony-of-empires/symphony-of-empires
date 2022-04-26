@@ -459,16 +459,14 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
         this->req_update_vision = false;
     }
 
-    glm::mat4 view, projection;
-
     map_shader->use();
-    view = camera->get_view();
+    const glm::mat4 view = camera->get_view();
     map_shader->set_uniform("view", view);
-    glm::vec3 cam_pos = camera->get_world_pos();
+    const glm::vec3 cam_pos = camera->get_world_pos();
     map_shader->set_uniform("view_pos", cam_pos.x, cam_pos.y, cam_pos.z);
-    projection = camera->get_projection();
+    const glm::mat4 projection = camera->get_projection();
     map_shader->set_uniform("projection", projection);
-    glm::vec3 map_pos = camera->get_map_pos();
+    const glm::vec3 map_pos = camera->get_map_pos();
     float distance_to_map = map_pos.z / world.width;
     map_shader->set_uniform("dist_to_map", distance_to_map);
     map_shader->set_uniform("map_size", (float)world.width, (float)world.height);
@@ -510,8 +508,8 @@ void MapRender::draw(Camera* camera, MapView view_mode) {
     map_shader->set_texture(16, "terrain_sheet", *terrain_sheet);
 
     if(view_mode == MapView::PLANE_VIEW) {
-        for(size_t i = 0; i < map_quads.size(); i++) {
-            map_quads[i]->draw();
+        for(const auto& map_quad : map_quads) {
+            map_quad->draw();
         }
     } else if(view_mode == MapView::SPHERE_VIEW) {
         map_sphere->draw();
