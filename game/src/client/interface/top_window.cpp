@@ -145,34 +145,36 @@ TimeControlView::TimeControlView(GameState& _gs)
     UI::Image::make_transparent(0, 0, 480, 60, "gfx/ui/bg/time_control_bg.png", true, this);
 
     int btn_size = 30;
+    if(!gs.editor) {
+        auto btn_group = new UI::Group(320, 12, this);
+        
+        auto* speed0_btn = UI::Image::make_transparent(0, 0, btn_size, btn_size, "gfx/ui/button/time_control_pause.png", true, btn_group);
+        speed0_btn->set_on_click([this](UI::Widget&) {
+            this->gs.paused = true;
+        });
+        speed0_btn->set_tooltip("Pause");
 
-    auto btn_group = new UI::Group(320, 12, this);
-    auto* speed0_btn = UI::Image::make_transparent(0, 0, btn_size, btn_size, "gfx/ui/button/time_control_pause.png", true, btn_group);
-    speed0_btn->set_on_click([this](UI::Widget&) {
-        this->gs.paused = true;
-    });
-    speed0_btn->set_tooltip("Pause");
+        auto* speed1_btn = new UI::Image(45, 0, btn_size, btn_size, "gfx/ui/button/time_control_1.png", true, btn_group);
+        speed1_btn->set_on_click([this](UI::Widget&) {
+            this->gs.paused = false;
+            this->gs.ms_delay_speed = 1000;
+        });
+        speed1_btn->set_tooltip("Turtle speed");
 
-    auto* speed1_btn = new UI::Image(45, 0, btn_size, btn_size, "gfx/ui/button/time_control_1.png", true, btn_group);
-    speed1_btn->set_on_click([this](UI::Widget&) {
-        this->gs.paused = false;
-        this->gs.ms_delay_speed = 1000;
-    });
-    speed1_btn->set_tooltip("Turtle speed");
+        auto* speed2_btn = new UI::Image(80, 0, btn_size, btn_size, "gfx/ui/button/time_control_2.png", true, btn_group);
+        speed2_btn->set_on_click([this](UI::Widget&) {
+            this->gs.paused = false;
+            this->gs.ms_delay_speed = 500;
+        });
+        speed2_btn->set_tooltip("Horse speed");
 
-    auto* speed2_btn = new UI::Image(80, 0, btn_size, btn_size, "gfx/ui/button/time_control_2.png", true, btn_group);
-    speed2_btn->set_on_click([this](UI::Widget&) {
-        this->gs.paused = false;
-        this->gs.ms_delay_speed = 500;
-    });
-    speed2_btn->set_tooltip("Horse speed");
-
-    auto* speed3_btn = new UI::Image(115, 0, btn_size, btn_size, "gfx/ui/button/time_control_3.png", true, btn_group);
-    speed3_btn->set_on_click([this](UI::Widget&) {
-        this->gs.paused = false;
-        this->gs.ms_delay_speed = 100;
-    });
-    speed3_btn->set_tooltip("Fire speed");
+        auto* speed3_btn = new UI::Image(115, 0, btn_size, btn_size, "gfx/ui/button/time_control_3.png", true, btn_group);
+        speed3_btn->set_on_click([this](UI::Widget&) {
+            this->gs.paused = false;
+            this->gs.ms_delay_speed = 100;
+        });
+        speed3_btn->set_tooltip("Fire speed");
+    }
 
     auto font = TTF_OpenFont(Path::get("fonts/neon_euler/euler.ttf").c_str(), 20);
     auto text_color = Eng3D::Color(1., 1., 1.);

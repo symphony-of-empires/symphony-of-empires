@@ -404,14 +404,16 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
 
     w.is_hover = true;
     if(!w.is_show || !w.is_render) {
+        for(auto& child : w.children) {
+            clear_hover_recursive(*child);
+        }
         return false;
     }
 
     const Eng3D::Rect r = Eng3D::Rect(offset.x, offset.y, w.width, w.height);
     if(!r.in_bounds(mx, my)) {
         w.is_hover = false;
-    }
-    else if(w.is_transparent) {
+    } else if(w.is_transparent) {
         if(w.current_texture != nullptr) {
             int tex_width = w.current_texture->width;
             int tex_height = w.current_texture->height;
@@ -479,6 +481,7 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
     // Widget must be displayed
     if(!w.is_show || !w.is_render) {
         clickable = false;
+        return UI::ClickState::NOT_CLICKED;
     }
 
     // Click must be within the widget's box if it's not a group
@@ -486,8 +489,7 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
         const Eng3D::Rect r = Eng3D::Rect(offset.x, offset.y, w.width, w.height);
         if(!r.in_bounds(glm::vec2(mx, my))) {
             clickable = false;
-        }
-        else if(w.is_transparent) {
+        } else if(w.is_transparent) {
             if(w.current_texture != nullptr) {
                 int tex_width = w.current_texture->width;
                 int tex_height = w.current_texture->height;
@@ -520,16 +522,14 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
     }
 
     // Call on_click if on_click hasnt been used and widget is hit by click
-    if(w.on_click) {
-        if(clickable && !click_consumed) {
-            if(w.type == UI::WidgetType::SLIDER) {
-                Slider* wc = (Slider*)&w;
-                wc->value = (static_cast<float>(std::abs(static_cast<int>(mx) - offset.x)) / static_cast<float>(wc->width)) * wc->max;
-            }
-
-            w.on_click(w);
-            return UI::ClickState::HANDLED;
+    if(w.on_click && clickable && !click_consumed) {
+        if(w.type == UI::WidgetType::SLIDER) {
+            Slider* wc = (Slider*)&w;
+            wc->value = (static_cast<float>(std::abs(static_cast<int>(mx) - offset.x)) / static_cast<float>(wc->width)) * wc->max;
         }
+
+        w.on_click(w);
+        return UI::ClickState::HANDLED;
     }
 
     if(click_state == UI::ClickState::NOT_CLICKED && clickable) {

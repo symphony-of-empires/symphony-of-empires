@@ -147,8 +147,8 @@ void handle_event(Input& input, GameState& gs) {
     gs.map->camera->set_screen(width, height);
 
     SDL_Event event;
+    bool click_on_ui = false;
     while(SDL_PollEvent(&event)) {
-        bool click_on_ui = false;
         switch(event.type) {
         case SDL_CONTROLLERDEVICEADDED:
             break;
@@ -218,8 +218,7 @@ void handle_event(Input& input, GameState& gs) {
                     if(gs.profiler_view) {
                         delete gs.profiler_view;
                         gs.profiler_view = nullptr;
-                    }
-                    else {
+                    } else {
                         gs.profiler_view = new Interface::ProfilerView(gs);
                     }
                 }
@@ -256,7 +255,9 @@ void handle_event(Input& input, GameState& gs) {
                 }
                 break;
             case Eng3D::Keyboard::Key::A:
-                new Interface::AISettingsWindow(gs);
+                if(!click_on_ui) {
+                    new Interface::AISettingsWindow(gs);
+                }
                 break;
             case Eng3D::Keyboard::Key::BACKSPACE:
                 ui_ctx->check_text_input(nullptr);
