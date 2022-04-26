@@ -741,7 +741,8 @@ void start_client(int, char**) {
     bg_img->origin = UI::Origin::CENTER_SCREEN;
     auto* load_lab = new UI::Label(0, -24, "Loading...");
     load_lab->origin = UI::Origin::LOWER_LEFT_SCREEN;
-    load_lab->color = Eng3D::Color(1.f, 1.f, 1.f);
+    load_lab->color = Eng3D::Color(0.f, 0.f, 0.f);
+    load_lab->text_color = Eng3D::Color(1.f, 1.f, 1.f);
     auto mod_logo_tex = gs.tex_man->load(Path::get("gfx/mod_logo.png"));
     auto* mod_logo_img = new UI::Image(0, 0, mod_logo_tex->width, mod_logo_tex->height, mod_logo_tex);
 
