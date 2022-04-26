@@ -50,8 +50,6 @@
 // HOWEVER, adding new elements or changing other states REQUIRES a explicit synchronization!!
 template<typename T>
 const T* find_or_throw(const std::string& ref_name) {
-    const T* obj_to_find = nullptr;
-
     const auto& list = World::get_instance().get_list((T*)nullptr);
     const auto result = std::find_if(list.begin(), list.end(), [&ref_name](const auto& o) {
         return (o->ref_name == ref_name);
@@ -1317,6 +1315,7 @@ void LuaAPI::check_events(lua_State* L) {
         bool is_multi = true;
         bool has_fired = false;
         for(auto& nation : event->receivers) {
+            debug_assert(nation != nullptr);
             if(!nation->exists()) {
                 continue;
             }
@@ -1348,20 +1347,16 @@ void LuaAPI::check_events(lua_State* L) {
 
                 {
                     // The changes done to the event "locally" are then created into a new local event
-                    auto local_event = new Event(*event);
-                    local_event->cached_id = (Event::Id)-1;
-                    local_event->ref_name = UnifiedRender::StringRef(local_event->ref_name + "_local_" + nation->ref_name);
-
+                    auto local_event = Event(*event);
+                    local_event.cached_id = (Event::Id)-1;
+                    local_event.ref_name = UnifiedRender::StringRef(local_event.ref_name + "_local_" + nation->ref_name);
                     // Do not relaunch a local event
-                    local_event->checked = true;
-                    if(local_event->decisions.empty()) {
-                        UnifiedRender::Log::error("event", "Event " + local_event->ref_name + " has no decisions (ref_name = " + nation->ref_name + ")");
-                        goto restore_original;
+                    local_event.checked = true;
+                    if(local_event.decisions.empty()) {
+                        UnifiedRender::Log::error("event", "Event " + local_event.ref_name + " has no decisions (ref_name = " + nation->ref_name + ")");
                     }
-
-                    g_world->insert(*local_event);
                     nation->inbox.push_back(local_event);
-                    UnifiedRender::Log::debug("event", "Event triggered! " + local_event->ref_name + " (with " + std::to_string(local_event->decisions.size()) + " decisions)");
+                    UnifiedRender::Log::debug("event", "Event triggered! " + local_event.ref_name + " (with " + std::to_string(local_event.decisions.size()) + " decisions)");
                 }
 
             restore_original:

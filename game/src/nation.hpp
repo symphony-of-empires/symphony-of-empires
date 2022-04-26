@@ -196,7 +196,7 @@ public:
     std::vector<NationModifier*> modifiers;
 
     // Inbox of the nation; events that require our attention / should be processed
-    std::deque<Event*> inbox;
+    std::deque<Event> inbox;
 
     // Progress on technologies (1:1)
     std::vector<UnifiedRender::Decimal> research;
