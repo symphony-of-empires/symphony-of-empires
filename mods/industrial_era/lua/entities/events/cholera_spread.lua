@@ -29,7 +29,7 @@ function cholera_test()
     end
     return EVENT_CONDITIONS_UNMET
 end
-function cholera_evhdl_event(ref_name)
+function cholera_event(ref_name)
 	local prov_list = Nation:get(ref_name):get_owned_provinces()
     local n_prov_list = 0
     for _ in pairs(prov_list) do

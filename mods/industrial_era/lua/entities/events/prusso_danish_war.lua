@@ -78,7 +78,9 @@ function prusso_danish_war_decision_1(ref_name)
 end
 
 prusso_danish_war_evhdl = Event:new{
-	ref_name = "prusso_danish_war", conditions_fn = "prusso_danish_war_test", event_fn = "prusso_danish_war_event",
+	ref_name = "prusso_danish_war",
+	conditions_fn = "prusso_danish_war_test",
+	event_fn = "prusso_danish_war_event",
 	title = "The Holstein-Schweilg question",
 	text = "Denmark owns lands which are rightfully part of our greater german state; should we let them own these and prevent the unification of all the germanic people?"
 }

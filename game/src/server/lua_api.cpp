@@ -1374,16 +1374,16 @@ void LuaAPI::check_events(lua_State* L) {
     // Do decisions taken effects in the queue, then clear it awaiting
     // other taken decisions :)
     for(auto& dec : g_world->taken_decisions) {
+        UnifiedRender::Log::debug("event", dec.second->ref_name + " took the decision " + dec.first->do_decision_function);
+
         lua_getglobal(L, dec.first->do_decision_function.c_str());
         lua_pushstring(L, dec.second->ref_name.c_str());
-        UnifiedRender::Log::debug("event", dec.second->ref_name + " took the decision: " + dec.first->do_decision_function);
-        try {
-            lua_pcall(L, 1, 0, 0);
+        if(call_func(L, 1, 0)) {
+            std::string err_msg = lua_tostring(L, -1);
+            UnifiedRender::Log::error("lua", "lua_pcall failed: " + err_msg);
+            lua_pop(L, 1);
+            throw LuaAPI::Exception(dec.first->do_decision_function + "(" + dec.second->ref_name + "): " + err_msg);
         }
-        catch(const std::exception& e) {
-            throw LuaAPI::Exception(dec.first->do_decision_function + "(" + dec.second->ref_name + "): " + e.what());
-        }
-        // TODO: Delete local event upon taking a decision
     }
     g_world->taken_decisions.clear();
 }

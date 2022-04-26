@@ -34,9 +34,9 @@ end
 function gevhdl002_event(ref_name)
 	tmp_data.ideology = Ideology:get_by_id(math.random(0, 7))
 	
-	gevhdl002.title = tmp_data.ideology.name .. " outrage!"
-    gevhdl002.text = "A lot of " .. tmp_data.ideology.name .. "s have started speaking false information about us; what's best for the " .. Nation:get(ref_name).adjective .. " people?"
-	gevhdl002:update(gevhdl002)
+	gevhdl002_evhdl.title = tmp_data.ideology.name .. " outrage!"
+    gevhdl002_evhdl.text = "A lot of " .. tmp_data.ideology.name .. "s have started speaking false information about us; what's best for the " .. Nation:get(ref_name).adjective .. " people?"
+	gevhdl002_evhdl:update(gevhdl002)
 	
 	decision = Decision:new{
 		ref_name = "gevhdl002_decision_0",
@@ -44,7 +44,7 @@ function gevhdl002_event(ref_name)
 		decision_fn = "gevhdl002_decision_0"
 	}
 	decision.effects = "Every POP that supports " .. tmp_data.ideology.name .. " gets 0.1 militancy"
-	gevhdl002:add_decision(decision)
+	gevhdl002_evhdl:add_decision(decision)
 	
 	decision = Decision:new{
 		ref_name = "gevhdl002_decision_1",
@@ -52,7 +52,7 @@ function gevhdl002_event(ref_name)
 		decision_fn = "gevhdl002_decision_1",
 	}
 	decision.effects = "Every POP that supports " .. tmp_data.ideology.name .. " gets 0.1 conciousness"
-	gevhdl002:add_decision(decision)
+	gevhdl002_evhdl:add_decision(decision)
 	return EVENT_DO_MANY_TIMES
 end
 function gevhdl002_decision_0(ref_name)
@@ -87,10 +87,10 @@ function gevhdl002_decision_1(ref_name)
 		province:update_pops()
 	end
 end
-gevhdl002 = Event:new{
+gevhdl002_evhdl = Event:new{
 	ref_name = "gevhdl002",
 	conditions_fn = "gevhdl002_test",
 	event_fn = "gevhdl002_event",
 }
-gevhdl002:register()
-gevhdl002:add_receivers(table.unpack(Nation:get_all()))
+gevhdl002_evhdl:register()
+gevhdl002_evhdl:add_receivers(table.unpack(Nation:get_all()))
