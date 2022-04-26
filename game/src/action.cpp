@@ -43,14 +43,14 @@ UnifiedRender::Networking::Packet AiControl::form_packet(Nation* target) {
     Archive ar = Archive();
     ActionType action = ActionType::AI_CONTROL;
     ::serialize(ar, &action);
-    ::serialize(ar, &target->ai_do_build_production);
+    ::serialize(ar, &target->ai_controlled);
     ::serialize(ar, &target->ai_do_cmd_troops);
-    ::serialize(ar, &target->ai_do_diplomacy);
-    ::serialize(ar, &target->ai_do_policies);
-    ::serialize(ar, &target->ai_do_research);
-    ::serialize(ar, &target->ai_do_unit_production);
-    ::serialize(ar, &target->ai_handle_events);
-    ::serialize(ar, &target->ai_handle_treaties);
+    ::serialize(ar, &target->ai_controlled);
+    ::serialize(ar, &target->ai_controlled);
+    ::serialize(ar, &target->ai_controlled);
+    ::serialize(ar, &target->ai_controlled);
+    ::serialize(ar, &target->ai_controlled);
+    ::serialize(ar, &target->ai_controlled);
     packet.data(ar.get_buffer(), ar.size());
     return packet;
 }

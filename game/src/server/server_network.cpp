@@ -350,14 +350,14 @@ void Server::net_loop(int id) {
                     ::deserialize(ar, &nation);
                     if(nation == nullptr)
                         throw ServerException("Unknown nation");
-                    nation->ai_do_policies = false;
-                    nation->ai_do_research = false;
-                    nation->ai_do_diplomacy = false;
+                    nation->ai_controlled = false;
+                    nation->ai_controlled = false;
+                    nation->ai_controlled = false;
                     nation->ai_do_cmd_troops = false;
-                    nation->ai_do_unit_production = false;
-                    nation->ai_do_build_production = false;
-                    nation->ai_handle_treaties = false;
-                    nation->ai_handle_events = false;
+                    nation->ai_controlled = false;
+                    nation->ai_controlled = false;
+                    nation->ai_controlled = false;
+                    nation->ai_controlled = false;
                     selected_nation = nation;
                     print_info("Nation [%s] selected by client %zu", selected_nation->ref_name.c_str(), (size_t)id);
                 } break;
@@ -388,14 +388,14 @@ void Server::net_loop(int id) {
                     selected_nation->focus_tech = technology;
                 } break;
                 case ActionType::AI_CONTROL: {
-                    ::deserialize(ar, &selected_nation->ai_do_build_production);
+                    ::deserialize(ar, &selected_nation->ai_controlled);
                     ::deserialize(ar, &selected_nation->ai_do_cmd_troops);
-                    ::deserialize(ar, &selected_nation->ai_do_diplomacy);
-                    ::deserialize(ar, &selected_nation->ai_do_policies);
-                    ::deserialize(ar, &selected_nation->ai_do_research);
-                    ::deserialize(ar, &selected_nation->ai_do_unit_production);
-                    ::deserialize(ar, &selected_nation->ai_handle_events);
-                    ::deserialize(ar, &selected_nation->ai_handle_treaties);
+                    ::deserialize(ar, &selected_nation->ai_controlled);
+                    ::deserialize(ar, &selected_nation->ai_controlled);
+                    ::deserialize(ar, &selected_nation->ai_controlled);
+                    ::deserialize(ar, &selected_nation->ai_controlled);
+                    ::deserialize(ar, &selected_nation->ai_controlled);
+                    ::deserialize(ar, &selected_nation->ai_controlled);
                 } break;
                 // Nation and province addition and removals are not allowed to be done by clients
                 default:
