@@ -31,6 +31,7 @@
 #include "eng3d/print.hpp"
 #include "eng3d/framebuffer.hpp"
 #include "eng3d/utils.hpp"
+#include "eng3d/log.hpp"
 
 //
 // Texture
@@ -88,14 +89,61 @@ void Eng3D::Texture::to_opengl(TextureOptions options) {
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
 
+    // Compress the texture if it can't be edited
+    if(!options.editable && options.compressed) {
+        switch(options.internal_format) {
+        case GL_ALPHA:
+            options.internal_format = GL_COMPRESSED_ALPHA;
+            break;
+        case GL_LUMINANCE:
+            options.internal_format = GL_COMPRESSED_LUMINANCE;
+            break;
+        case GL_LUMINANCE_ALPHA:
+            options.internal_format = GL_COMPRESSED_LUMINANCE_ALPHA;
+            break;
+        case GL_INTENSITY:
+            options.internal_format = GL_COMPRESSED_INTENSITY;
+            break;
+        case GL_RED:
+            options.internal_format = GL_COMPRESSED_RED;
+            break;
+        case GL_RGB:
+            options.internal_format = GL_COMPRESSED_RGB;
+            break;
+        case GL_RGBA:
+            options.internal_format = GL_COMPRESSED_RGBA;
+            break;
+        case GL_SRGB:
+            options.internal_format = GL_COMPRESSED_SRGB;
+            break;
+        case GL_SRGB_ALPHA:
+            options.internal_format = GL_COMPRESSED_SRGB_ALPHA;
+            break;
+        case GL_RG:
+            options.internal_format = GL_COMPRESSED_RG;
+            break;
+        default:
+            break;
+        }
+    }
+
     glTexImage2D(GL_TEXTURE_2D, 0, options.internal_format, width, height, 0, options.format, options.type, buffer.get());
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, options.wrap_s);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, options.wrap_t);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, options.min_filter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, options.mag_filter);
 
-    // We will free up the texture if we don't plan on editing it since it's on the GPU now
     if(!options.editable) {
+#ifdef E3D_RENDER_DEBUG
+        GLint result;
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED, &result);
+        if(result == 0) {
+            Eng3D::Log::debug("opengl", "Couldn't compress texture of " + std::to_string(width) + "x" + std::to_string(height));
+        } else {
+            Eng3D::Log::debug("opengl", "Compressed texture of " + std::to_string(width) + "x" + std::to_string(height));
+        }
+#endif
+        // We will free up the texture if we don't plan on editing it since it's on the GPU now
         buffer.reset();
     }
 }

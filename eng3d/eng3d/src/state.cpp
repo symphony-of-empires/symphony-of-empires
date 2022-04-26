@@ -110,6 +110,8 @@ Eng3D::State::State(void) {
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
     print_info("%d", size);
 
+    glHint(GL_TEXTURE_COMPRESSION_HINT, GL_FASTEST);
+
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(GLDebugMessageCallback, 0);
 
