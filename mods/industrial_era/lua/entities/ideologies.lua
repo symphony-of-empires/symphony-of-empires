@@ -23,18 +23,11 @@
 --      Does important stuff
 -- ----------------------------------------------------------------------------
 
--- communism = Ideology.new("communism", _("Communism"))
--- print(communism)
--- print(type(communism))
--- print(communism.ref_name)
--- for k,v in pairs(getmetatable(communism)) do
---     print(k, v)
--- end
--- communism:register()
--- communism = Ideology.get("communism")
--- print(communism)
--- print(type(communism))
--- print(communism.ref_name)
+monarchy = Ideology:new{ ref_name = "monarchy", name = _("Monarchy"), color = 0xf2de24 }
+monarchy:register()
+
+republic = Ideology:new{ ref_name = "republic", name = _("Republic"), color = 0x4245f5 }
+republic:register()
 
 communism = Ideology:new{ ref_name = "communism", name = _("Communism"), color = 0x800e04 }
 communism:register()
@@ -48,14 +41,8 @@ fascism:register()
 socialism = Ideology:new{ ref_name = "socialism", name = _("Socialism"), color = 0xff1500 }
 socialism:register()
 
-republic = Ideology:new{ ref_name = "republic", name = _("Republic"), color = 0x4245f5 }
-republic:register()
-
 tribal = Ideology:new{ ref_name = "tribal", name = _("Tribal"), check_policies_fn = "?" }
 tribal:register()
-
-monarchy = Ideology:new{ ref_name = "monarchy", name = _("Monarchy"), color = 0xf2de24 }
-monarchy:register()
 
 anarchy = Ideology:new{ ref_name = "anarchy", name = _("Anarchy"), color = 0x363533 }
 anarchy:register()
