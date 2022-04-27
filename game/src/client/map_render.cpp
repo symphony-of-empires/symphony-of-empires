@@ -437,6 +437,7 @@ void MapRender::update_visibility(void)
     for(unsigned int i = 0; i < 256 * 256; i++) {
         province_opt->buffer.get()[i] = 0x00000080;
     }
+    
     for(const auto& province : gs.curr_nation->controlled_provinces) {
         this->province_opt->buffer.get()[gs.world->get_id(*province)] = 0x000000ff;
         for(const auto& neighbour : province->neighbours) {
