@@ -44,7 +44,7 @@ Borders::Borders() {
     mipmap_options.mag_filter = GL_LINEAR;
     mipmap_options.internal_format = GL_SRGB;
 
-    water_tex = Eng3D::State::get_instance().tex_man->load(Path::get("gfx/water_tex.png"), mipmap_options);
+    water_tex = Eng3D::State::get_instance().tex_man->load(Eng3D::State::get_instance().package_man->get_unique("gfx/water_tex.png"), mipmap_options);
     line_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
         line_shader->attach_shader(Eng3D::State::get_instance().builtin_shaders["vs_3d"].get());

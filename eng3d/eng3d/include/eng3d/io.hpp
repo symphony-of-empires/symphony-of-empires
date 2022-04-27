@@ -68,6 +68,21 @@ namespace Eng3D::IO {
 
             std::string path;
             std::string abs_path;
+
+            /**
+             * @brief Get the abs path object in a safe manner, such as that the access does not
+             * occur on null pointers
+             * 
+             * @param asset 
+             * @return std::string 
+             */
+            static std::string get_abs_path(Eng3D::IO::Asset::Base* asset) {
+                return asset != nullptr ? asset->abs_path : "";
+            };
+
+            static std::string get_abs_path(std::shared_ptr<Eng3D::IO::Asset::Base> asset) {
+                return asset != nullptr ? asset->abs_path : "";
+            };
         };
 
         class File : public Asset::Base {

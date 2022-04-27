@@ -169,6 +169,7 @@ namespace UI {
         std::shared_ptr<Eng3D::Texture> piechart_overlay;
         std::shared_ptr<Eng3D::Texture> border_tex;
         std::shared_ptr<Eng3D::Texture> button_border;
+        std::shared_ptr<Eng3D::Texture> cursor;
 
         TTF_Font* default_font;
 

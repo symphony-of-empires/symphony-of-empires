@@ -78,21 +78,22 @@ Context::Context() {
     g_ui_context = this;
     is_drag = false;
 
-    // default_font = TTF_OpenFont(Path::get("gfx/fonts/FreeMono.ttf").c_str(), 16);
-    default_font = TTF_OpenFont(Path::get("fonts/Poppins/Poppins-SemiBold.ttf").c_str(), 16);
+    Eng3D::State& gs = Eng3D::State::get_instance();
+    // default_font = TTF_OpenFont(gs.package_man->get_uniqu("gfx/fonts/FreeMono.ttf").c_str(), 16);
+    default_font = TTF_OpenFont(Eng3D::IO::Asset::Base::get_abs_path(gs.package_man->get_unique("fonts/Poppins/Poppins-SemiBold.ttf")).c_str(), 16);
     if(default_font == nullptr) {
-        CXX_THROW(std::runtime_error, std::string() + "Font could not be loaded: " + TTF_GetError() + ", exiting");
+        CXX_THROW(std::runtime_error, std::string() + "Font could not be loaded: " + TTF_GetError());
     }
     widgets.reserve(255);
 
-    Eng3D::State& gs = Eng3D::State::get_instance();
-    background = gs.tex_man->load(Path::get("gfx/window_background.png"));
-    window_top = gs.tex_man->load(Path::get("gfx/window_top3.png"));
-    button = gs.tex_man->load(Path::get("gfx/button2.png"));
-    tooltip_texture = gs.tex_man->load(Path::get("gfx/tooltip.png"));
-    piechart_overlay = gs.tex_man->load(Path::get("gfx/piechart.png"));
-    border_tex = gs.tex_man->load(Path::get("gfx/border2.png"));
-    button_border = gs.tex_man->load(Path::get("gfx/border_sharp2.png"));
+    background = gs.tex_man->load(gs.package_man->get_unique("gfx/window_background.png"));
+    window_top = gs.tex_man->load(gs.package_man->get_unique("gfx/window_top3.png"));
+    button = gs.tex_man->load(gs.package_man->get_unique("gfx/button2.png"));
+    tooltip_texture = gs.tex_man->load(gs.package_man->get_unique("gfx/tooltip.png"));
+    piechart_overlay = gs.tex_man->load(gs.package_man->get_unique("gfx/piechart.png"));
+    border_tex = gs.tex_man->load(gs.package_man->get_unique("gfx/border2.png"));
+    button_border = gs.tex_man->load(gs.package_man->get_unique("gfx/border_sharp2.png"));
+    cursor = gs.tex_man->load(gs.package_man->get_unique("gfx/cursor_b.png"));
 
     //widget_shader = Eng3D::OpenGL::Program::create_regular("shader/2d_shader.vs", "shader/2d_shader.fs");
 }
@@ -369,7 +370,6 @@ void Context::render_all(glm::ivec2 mouse_pos) {
     mipmap_options.mag_filter = GL_LINEAR;
     mipmap_options.wrap_s = GL_CLAMP_TO_EDGE;
     mipmap_options.wrap_t = GL_CLAMP_TO_EDGE;
-    auto cursor = Eng3D::State::get_instance().tex_man->load(Path::get("gfx/cursor_b.png"), mipmap_options);
     cursor->bind();
     glColor3f(1.f, 1.f, 1.f);
     glBegin(GL_TRIANGLES);

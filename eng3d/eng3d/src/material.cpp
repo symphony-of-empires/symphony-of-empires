@@ -116,7 +116,7 @@ std::vector<std::pair<Eng3D::Material*, std::string>> Eng3D::MaterialManager::lo
             if(map_path[0] == '.') {
                 continue;
             }
-            curr_mat->diffuse_map = Eng3D::State::get_instance().tex_man->load(Path::get("gfx/" + map_path));
+            curr_mat->diffuse_map = Eng3D::State::get_instance().tex_man->load(Eng3D::State::get_instance().package_man->get_unique("gfx/" + map_path));
         } else {
             print_info("Command %s not implemented", cmd.c_str());
         }

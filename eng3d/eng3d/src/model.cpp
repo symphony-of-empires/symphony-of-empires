@@ -179,7 +179,11 @@ const Eng3D::Model& Eng3D::ModelManager::load_wavefront(const std::string& path)
         if(cmd == "mtllib") {
             std::string name;
             sline >> name;
-            State::get_instance().material_man->load_wavefront(Path::get("models/" + name), path);
+
+            std::shared_ptr<Eng3D::IO::Asset::Base> asset = Eng3D::State::get_instance().package_man->get_unique("models/" + name);
+            if(asset.get() != nullptr) {
+                Eng3D::State::get_instance().material_man->load_wavefront(asset->abs_path, path);
+            }
         }
         else if(cmd == "usemtl") {
             std::string name = path;
