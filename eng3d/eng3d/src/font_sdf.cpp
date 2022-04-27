@@ -54,20 +54,20 @@ Eng3D::FontSDF::FontSDF(const std::string& filename) {
         sdf_font_shader->link();
     }
 
-    auto tex_man = Eng3D::State::get_instance().tex_man;
-
     Eng3D::TextureOptions mipmap_options;
     mipmap_options.min_filter = GL_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
     mipmap_options.wrap_s = GL_CLAMP_TO_EDGE;
     mipmap_options.wrap_t = GL_CLAMP_TO_EDGE;
-    atlas = tex_man->load(Path::get(filename + ".png"), mipmap_options);
+
+    std::shared_ptr<Eng3D::IO::Asset::Base> asset = Eng3D::State::get_instance().package_man->get_unique(filename + ".png");
+    atlas = Eng3D::State::get_instance().tex_man->load(asset->abs_path, mipmap_options);
 
     char buff;
     uint32_t unicode;
     float advance, top, bottom, left, right;
     std::string line;
-    std::ifstream glyph_data(Path::get(filename + ".csv"));
+    std::ifstream glyph_data(Eng3D::State::get_instance().package_man->get_unique(filename + ".csv")->abs_path);
     if(glyph_data.is_open()) {
         while(std::getline(glyph_data, line)) {
             std::istringstream data(line);

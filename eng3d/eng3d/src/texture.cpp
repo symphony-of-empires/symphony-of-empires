@@ -32,6 +32,7 @@
 #include "eng3d/framebuffer.hpp"
 #include "eng3d/utils.hpp"
 #include "eng3d/log.hpp"
+#include "eng3d/assert.hpp"
 
 //
 // Texture
@@ -56,6 +57,34 @@ Eng3D::Texture::Texture(size_t _width, size_t _height)
     : BinaryImage(_width, _height)
 {
 
+}
+
+Eng3D::Texture::Texture(TTF_Font* font, Eng3D::Color color, const std::string& msg) {
+    debug_assert(font != nullptr);
+
+    // TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
+    SDL_Color black_color = {
+        static_cast<Uint8>(color.r * 255.f),
+        static_cast<Uint8>(color.g * 255.f),
+        static_cast<Uint8>(color.b * 255.f),
+        0
+    };
+
+    SDL_Surface* surface = TTF_RenderUTF8_Blended(font, msg.c_str(), black_color);
+    if(surface == nullptr) {
+        CXX_THROW(std::runtime_error, std::string() + "Cannot create text surface: " + TTF_GetError());
+    }
+
+    buffer.reset();
+    width = static_cast<size_t>(surface->w);
+    height = static_cast<size_t>(surface->h);
+    this->to_opengl(surface);
+    SDL_FreeSurface(surface);
+
+    const std::string error_msg = SDL_GetError();
+    if(!error_msg.empty()) {
+        Eng3D::Log::error("sdl", error_msg);
+    }
 }
 
 Eng3D::Texture::~Texture(void) {
@@ -214,32 +243,6 @@ void Eng3D::Texture::delete_opengl() {
     glDeleteTextures(1, &gl_tex_num);
 }
 
-Eng3D::Texture::Texture(TTF_Font* font, Eng3D::Color color, const std::string& msg) {
-    // TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
-    SDL_Color black_color = {
-        static_cast<Uint8>(color.r * 255.f),
-        static_cast<Uint8>(color.g * 255.f),
-        static_cast<Uint8>(color.b * 255.f),
-        0
-    };
-
-    SDL_Surface* surface = TTF_RenderUTF8_Blended(font, msg.c_str(), black_color);
-    if(surface == nullptr) {
-        CXX_THROW(std::runtime_error, std::string() + "Cannot create text surface: " + TTF_GetError());
-    }
-
-    buffer.reset();
-    width = static_cast<size_t>(surface->w);
-    height = static_cast<size_t>(surface->h);
-    this->to_opengl(surface);
-    SDL_FreeSurface(surface);
-
-    const char* error_msg = SDL_GetError();
-    if(error_msg[0] != '\0') {
-        print_error("SDL error %s", error_msg);
-    }
-}
-
 #define STB_IMAGE_WRITE_IMPLEMENTATION 1
 #include "eng3d/stb_image_write.h"
 void Eng3D::Texture::to_file(const std::string& filename) {
@@ -355,6 +358,6 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(const std::string& p
     return textures[key];
 }
 
-std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(const Eng3D::IO::Asset::Base* asset, TextureOptions options) {
-    return this->load((asset == nullptr) ? "" : asset->abs_path, options);
+std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(std::shared_ptr<Eng3D::IO::Asset::Base> asset, TextureOptions options) {
+    return this->load(asset.get() != nullptr ? asset->abs_path : "", options);
 }

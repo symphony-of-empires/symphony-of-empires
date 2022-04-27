@@ -195,86 +195,9 @@ Eng3D::OpenGL::Program::Program(void) {
     glBindAttribLocation(id, 1, "m_texcoord");
 }
 
-/*
-Eng3D::OpenGL::Program::Program(const Eng3D::OpenGL::VertexShader* vertex, const Eng3D::OpenGL::FragmentShader* fragment, const Eng3D::OpenGL::GeometryShader* geometry, const Eng3D::OpenGL::TessControlShader* tctrl, const Eng3D::OpenGL::TessEvalShader* tee) {
-    id = glCreateProgram();
-    glBindAttribLocation(id, 0, "m_pos");
-    glBindAttribLocation(id, 1, "m_texcoord");
-#ifdef E3D_RENDER_DEBUG
-    if(vertex == nullptr || !vertex->get_id()) {
-        CXX_THROW(Eng3D::DebugException, "Vertex shader object was not provided correctly");
-    }
-#endif
-    attach_shader(vertex);
-
-#ifdef E3D_RENDER_DEBUG
-    if(fragment == nullptr || !fragment->get_id()) {
-        CXX_THROW(Eng3D::DebugException, "Vertex shader object was not provided correctly");
-    }
-#endif
-    attach_shader(fragment);
-
-    if(geometry != nullptr) {
-        attach_shader(geometry);
-    }
-
-    if(tctrl != nullptr) {
-        attach_shader(tctrl);
-    }
-
-    if(tee != nullptr) {
-        attach_shader(tee);
-    }
-    link();
-}
-*/
-
 Eng3D::OpenGL::Program::~Program(void) {
 
 }
-
-/*
-std::unique_ptr<Eng3D::OpenGL::Program> Eng3D::OpenGL::Program::create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path) {
-    Eng3D::OpenGL::VertexShader vs = Eng3D::OpenGL::VertexShader(Path::cat_strings(Path::get_data(vs_path)));
-    Eng3D::OpenGL::FragmentShader fs = Eng3D::OpenGL::FragmentShader(Path::cat_strings(Path::get_data(fs_path)));
-
-    if(!gs_path.empty()) {
-        Eng3D::OpenGL::GeometryShader gs = Eng3D::OpenGL::GeometryShader(Path::cat_strings(Path::get_data(gs_path)));
-        return std::make_unique<Program>(&vs, &fs, &gs);
-    }
-    return std::make_unique<Program>(&vs, &fs);
-}
-
-std::unique_ptr<Eng3D::OpenGL::Program> Eng3D::OpenGL::Program::create(std::vector<Eng3D::OpenGL::Option> options, const std::string& vs_path, const std::string& fs_path, const std::string& gs_path) {
-    std::vector<Eng3D::OpenGL::GLSL_Define> defined_options;
-    for(auto& option : options) {
-        if(option.used) {
-            Eng3D::OpenGL::GLSL_Define defined_option;
-            defined_option.name = option.get_option();
-            defined_options.push_back(defined_option);
-        }
-    }
-    Eng3D::OpenGL::VertexShader vs = Eng3D::OpenGL::VertexShader(Path::get(vs_path));
-    Eng3D::OpenGL::FragmentShader fs = Eng3D::OpenGL::FragmentShader(Path::get(fs_path), true, defined_options);
-
-    if(!gs_path.empty()) {
-        Eng3D::OpenGL::GeometryShader gs = Eng3D::OpenGL::GeometryShader(Path::get(gs_path));
-        return std::make_unique<Eng3D::OpenGL::Program>(&vs, &fs, &gs);
-    }
-    return std::make_unique<Eng3D::OpenGL::Program>(&vs, &fs);
-}
-
-std::unique_ptr<Eng3D::OpenGL::Program> Eng3D::OpenGL::Program::create_regular(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path) {
-    Eng3D::OpenGL::VertexShader vs = Eng3D::OpenGL::VertexShader(Path::get(vs_path));
-    Eng3D::OpenGL::FragmentShader fs = Eng3D::OpenGL::FragmentShader(Path::get(fs_path), false);
-
-    if(!gs_path.empty()) {
-        Eng3D::OpenGL::GeometryShader gs = Eng3D::OpenGL::GeometryShader(Path::get(gs_path));
-        return std::make_unique<Eng3D::OpenGL::Program>(&vs, &fs, &gs);
-    }
-    return std::make_unique<Eng3D::OpenGL::Program>(&vs, &fs);
-}
-*/
 
 // Attaches a shader to the program - this will make it so when the program is compiled the shader
 // will then be linked onto it
