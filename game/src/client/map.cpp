@@ -203,6 +203,7 @@ void Map::create_labels() {
         top_dir = top_dir - center;
 
         auto* label = map_font->gen_text(Eng3D::Locale::translate(province->name.get_string()), top_dir, right_dir, width);
+        center.z -= 0.1f;
         label->model = glm::translate(label->model, center);
         province_labels.push_back(label);
     }
@@ -280,6 +281,7 @@ void Map::create_labels() {
         }
 
         auto* label = map_font->gen_text(Eng3D::Locale::translate(nation->get_client_hint().alt_name.get_string()), top_dir, right_dir, width, 15.f);
+        center.z -= 0.1f;
         label->model = glm::translate(label->model, center);
         label->model = glm::rotate(label->model, angle, normal);
         nation_labels.push_back(label);

@@ -458,7 +458,7 @@ void Economy::do_tick(World& world) {
                         building.working_unit_type = nullptr;
                         Eng3D::Log::debug("economy", "[" + province->ref_name + "]: Has built an unit of [" + unit->type->ref_name + "]");
                     }
-            }
+                }
 
 #if 0
                 if(1) {
@@ -466,9 +466,9 @@ void Economy::do_tick(World& world) {
                     Eng3D::Log::debug("economy", "- %f farmers (%f needed)", available_farmers, needed_farmers);
                     Eng3D::Log::debug("economy", "- %f laborers (%f needed)", available_laborers, needed_laborers);
                     Eng3D::Log::debug("economy", "- %f entrepreneurs (%f needed)", available_entrepreneurs, needed_entrepreneurs);
-        }
+                }
 #endif
-    }
+            }
             float amount_laborers;
             for(uint32_t i = 0; i < province->pops.size(); i++) {
                 auto& pop = province->pops[i];
@@ -493,7 +493,7 @@ void Economy::do_tick(World& world) {
 
                 update_pop_needs(world, *province, pop);
             }
-}
+        }
 
         // Do research on focused research
         if(nation->focus_tech != nullptr) {
