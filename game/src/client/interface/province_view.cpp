@@ -89,11 +89,24 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     this->landscape_img = new UI::Image(0, 0, this->width, 128 + 64 + 16, gs.tex_man->load(Path::get("gfx/terraintype/" + province->terrain_type->ref_name + ".png")), this);
 
     if(province->owner != nullptr) {
-        this->owner_flag = new UI::AspectImage(0, 0, 96, 48, gs.get_nation_flag(*province->owner), this);
+        this->owner_flag = new UI::AspectImage(0, 0, 96, 48, gs.get_nation_flag(*this->province->owner), this);
         this->owner_flag->set_on_click([this](UI::Widget& w) {
             new Interface::NationView(this->gs, this->province->owner);
         });
-        auto* flag_rug = new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width, this->owner_flag->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
+        this->owner_flag->set_tooltip(this->province->owner->name + " owns this province");
+        auto* flag_rug = new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width,  this->owner_flag->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
+    }
+
+    // Display all the nuclei
+    int dx = 0;
+    for(const auto& nation : province->nuclei) {
+        this->owner_flag = new UI::AspectImage(dx, this->landscape_img->height - 24, 32, 24, gs.get_nation_flag(*nation), this);
+        this->owner_flag->set_on_click([this, nation](UI::Widget& w) {
+            new Interface::NationView(this->gs, nation);
+        });
+        this->owner_flag->set_tooltip(nation->name + " has nuclei on this province");
+        auto* flag_rug = new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width,  this->owner_flag->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
+        dx += this->owner_flag->width;
     }
 
     auto* cultures_lab = new UI::Label(0, 0, "Cultures", this);
