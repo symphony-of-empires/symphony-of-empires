@@ -69,7 +69,7 @@ public:
 
 // A military outpost, on land serves as a "spawn" place for units
 // When adjacent to a water tile this serves as a shipyard for spawning naval units
-class Building: public IdEntity<uint16_t> {
+class Building {
 public:
     Building();
     ~Building();

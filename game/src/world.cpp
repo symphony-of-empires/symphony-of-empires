@@ -781,8 +781,8 @@ void World::do_tick() {
     profiler.start("Battles");
     std::for_each(std::execution::par, wars.begin(), wars.end(), [this](auto& war) {
         debug_assert(!war->attackers.empty() && !war->defenders.empty());
-        for(auto i = 0; i < war->battles.size(); i++) {
-            auto& battle = war->battles[i];
+        for(size_t j = 0; j < war->battles.size(); j++) {
+            auto& battle = war->battles[j];
             debug_assert(battle.province != nullptr);
 
             // Attackers attack Defenders
@@ -798,11 +798,12 @@ void World::do_tick() {
                     if(!unit->size) {
                         Eng3D::Log::debug("game", "Removing attacker \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                         battle.defenders.erase(battle.defenders.begin() + i);
-                        assert(unit->province != nullptr);
+                        debug_assert(unit->province != nullptr && unit->province == battle.province);
 
-                        auto it = std::find(unit->province->units.begin(), unit->province->units.end(), unit);
-                        unit->province->units.erase(it);
-                        remove(*unit);
+                        auto it = std::find(battle.province->units.begin(), battle.province->units.end(), unit);
+                        debug_assert(it != battle.province->units.end());
+                        battle.province->units.erase(it);
+                        this->remove(*unit);
                         delete unit;
                         continue;
                     }
@@ -823,11 +824,12 @@ void World::do_tick() {
                     if(!unit->size) {
                         Eng3D::Log::debug("game", "Removing defender \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                         battle.attackers.erase(battle.attackers.begin() + i);
-                        assert(unit->province != nullptr);
+                        debug_assert(unit->province != nullptr && unit->province == battle.province);
 
-                        auto it = std::find(unit->province->units.begin(), unit->province->units.end(), unit);
-                        unit->province->units.erase(it);
-                        remove(*unit);
+                        auto it = std::find(battle.province->units.begin(), battle.province->units.end(), unit);
+                        debug_assert(it != battle.province->units.end());
+                        battle.province->units.erase(it);
+                        this->remove(*unit);
                         delete unit;
                         continue;
                     }
@@ -844,8 +846,8 @@ void World::do_tick() {
                     battle.defenders[0]->owner->control_province(*battle.province);
                 }
 
-                war->battles.erase(war->battles.begin() + i);
-                i--;
+                war->battles.erase(war->battles.begin() + j);
+                j--;
                 continue;
             }
         }

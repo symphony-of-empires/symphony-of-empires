@@ -147,6 +147,7 @@ public:
     inline void insert(T& ptr) {
         auto& list = this->get_list((T*)nullptr);
         ptr.cached_id = list.size();
+        debug_assert(ptr.cached_id < (typename T::Id)-2);
         list.push_back((T*)&ptr);
     };
 
