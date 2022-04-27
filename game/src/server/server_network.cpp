@@ -382,7 +382,7 @@ void Server::net_loop(int id) {
                     if(technology == nullptr)
                         throw ServerException("Unknown technology");
 
-                    if(!selected_nation->can_research(technology))
+                    if(!selected_nation->can_research(*technology))
                         throw ServerException("Can't research tech at the moment");
                     
                     selected_nation->focus_tech = technology;

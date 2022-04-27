@@ -411,6 +411,7 @@ void ai_build_commercial(Nation* nation, World* world) {
 }
 
 void ai_do_tick(Nation* nation, World* world) {
+    debug_assert(nation != nullptr);
     if(!nation->exists()) {
         return;
     }
@@ -489,11 +490,11 @@ void ai_do_tick(Nation* nation, World* world) {
                 }
 
                 // Must be able to research it
-                if(!nation->can_research(&technology)) {
+                if(!nation->can_research(technology)) {
                     continue;
                 }
 
-                nation->change_research_focus(&technology);
+                nation->change_research_focus(technology);
                 Eng3D::Log::debug("ai", "[" + nation->ref_name + "] now researching [" + technology.ref_name + "] - " + std::to_string(nation->research[world->get_id(technology)]) + " research points (" + std::to_string(nation->get_research_points()) + ")");
                 break;
             }

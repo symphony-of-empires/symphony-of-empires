@@ -857,7 +857,7 @@ void World::do_tick() {
     for(const auto& nation : nations) {
         debug_assert(nation != nullptr);
         for(const auto& technology : technologies) {
-            if(!nation->can_research(&technology)) {
+            if(!nation->can_research(technology)) {
                 continue;
             }
 
@@ -968,7 +968,7 @@ void World::do_tick() {
     profiler.stop("Treaties");
 
     profiler.start("Events");
-    LuaAPI::check_events(lua);
+    //LuaAPI::check_events(lua);
     profiler.stop("Events");
 
     if(!(time % ticks_per_month)) {

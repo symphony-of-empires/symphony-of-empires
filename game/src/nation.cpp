@@ -372,32 +372,32 @@ Eng3D::Decimal Nation::get_research_points(void) const {
     return research / 100.f;
 }
 
-bool Nation::can_research(const Technology* tech) const {
+bool Nation::can_research(const Technology& technology) const {
     // Only military/navy technologies can actually be researched
     // or not? wink, wink ;)
     //if(tech->type != TechnologyType::MILITARY && tech->type != TechnologyType::NAVY) return false;
 
     // All required technologies for this one must be researched
-    for(const auto& req_tech : tech->req_technologies) {
-        if(research[World::get_instance().get_id(*req_tech)] > 0.f) {
+    for(const auto& req_tech_id : technology.req_technologies) {
+        if(research[req_tech_id] > 0.f) {
             return false;
         }
     }
     return true;
 }
 
-void Nation::change_research_focus(Technology* tech) {
+void Nation::change_research_focus(const Technology& technology) {
     // Can't have already researched it (it would be dumb to re-research
-    if(!research[World::get_instance().get_id(*tech)]) {
+    if(!this->research[World::get_instance().get_id(technology)]) {
         return;
     }
 
     // Must be able to research it
-    if(!can_research(tech)) {
+    if(!this->can_research(technology)) {
         return;
     }
 
-    focus_tech = tech;
+    this->focus_tech = const_cast<Technology*>(&technology);
 }
 
 std::vector<Nation*> Nation::get_allies(void) {
