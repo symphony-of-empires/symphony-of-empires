@@ -122,8 +122,8 @@ public:
     void control_province(Province& province);
     const NationClientHint& get_client_hint(void);
     Eng3D::Decimal get_research_points(void) const;
-    bool can_research(const Technology* tech) const;
-    void change_research_focus(Technology* tech);
+    bool can_research(const Technology& tech) const;
+    void change_research_focus(const Technology& tech);
     std::vector<Nation*> get_allies(void);
     Eng3D::Decimal get_industry_output_mod(void);
     Eng3D::Decimal get_industry_input_mod(void);

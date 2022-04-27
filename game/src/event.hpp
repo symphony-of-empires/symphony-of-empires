@@ -25,9 +25,10 @@
 
 #pragma once
 
-#include "eng3d/entity.hpp"
 #include <string>
 #include <vector>
+
+#include "eng3d/entity.hpp"
 
 class Decision : public RefnameEntity<uint8_t> {
 public:
