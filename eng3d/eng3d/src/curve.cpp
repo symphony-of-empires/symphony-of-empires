@@ -107,4 +107,6 @@ void Curve::draw() {
         upload();
     quads->draw();
 }
+#else
+#   error not implemented
 #endif

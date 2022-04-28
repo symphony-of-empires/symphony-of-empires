@@ -27,7 +27,11 @@
 
 #include <exception>
 
-#define debug_assert(x) \
-    if(!(x)) {\
-        throw std::runtime_error("assertion " #x " failed");\
-    }
+#if defined E3D_DEBUG || defined GS_DEBUG
+#   define debug_assert(x) \
+if(!(x)) {\
+    throw std::runtime_error("assertion " #x " failed");\
+}
+#else
+#   define debug_assert(x)
+#endif

@@ -31,6 +31,7 @@
 #include "eng3d/glsl_trans.hpp"
 #include "eng3d/utils.hpp"
 #include "eng3d/assert.hpp"
+#include "eng3d/log.hpp"
 
 // Construct a shader by opening the provided path and creating a temporal ifstream, reading
 // from that stream in text mode and then compiling the shader
@@ -49,8 +50,11 @@ Eng3D::OpenGL::Shader::Shader(const std::string& _buffer, GLuint type, bool use_
         buffer = ctx.to_text();
     }
 
-    const char* c_code = buffer.c_str();
     id = glCreateShader(type);
+    if(!id) {
+        CXX_THROW(Eng3D::OpenGL::ShaderException, "Can't create shader");
+    }
+    const char* c_code = buffer.c_str();
     glShaderSource(id, 1, &c_code, NULL);
     compile(type);
 }
@@ -63,9 +67,9 @@ void Eng3D::OpenGL::Shader::compile(GLuint type) {
     GLint r = 0;
     glGetShaderiv(id, GL_COMPILE_STATUS, &r);
     if(!r) {
-        std::string error_info;
-        glGetShaderInfoLog(id, GL_INFO_LOG_LENGTH, NULL, &error_info[0]);
-        print_error("Raw status: %s", error_info.c_str());
+        GLchar* error_info;
+        glGetShaderInfoLog(id, GL_INFO_LOG_LENGTH, NULL, error_info);
+        Eng3D::Log::error("opengl", error_info);
 
         // Nvidia's style of errors
         std::istringstream sline(error_info);
@@ -191,6 +195,9 @@ Eng3D::OpenGL::TessEvalShader::~TessEvalShader(void) {
 //
 Eng3D::OpenGL::Program::Program(void) {
     id = glCreateProgram();
+    if(!id) {
+        CXX_THROW(Eng3D::OpenGL::ShaderException, "Can't create new program");
+    }
     glBindAttribLocation(id, 0, "m_pos");
     glBindAttribLocation(id, 1, "m_texcoord");
 }
@@ -206,11 +213,7 @@ void Eng3D::OpenGL::Program::attach_shader(const Eng3D::OpenGL::Shader* shader) 
 }
 
 void Eng3D::OpenGL::Program::link(void) {
-#ifdef E3D_RENDER_DEBUG
-    if(!id) {
-        CXX_THROW(Eng3D::OpenGL::ShaderException, "Program has no Id");
-    }
-#endif
+    debug_assert(id != 0); // Program has no Id
     glLinkProgram(id);
 
     // Check for errors of the shader

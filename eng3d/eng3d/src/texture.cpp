@@ -163,7 +163,7 @@ void Eng3D::Texture::to_opengl(TextureOptions options) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, options.mag_filter);
 
     if(!options.editable) {
-#ifdef E3D_RENDER_DEBUG
+#ifdef E3D_DEBUG
         GLint result;
         glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED, &result);
         if(result == 0) {

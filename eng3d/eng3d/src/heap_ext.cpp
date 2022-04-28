@@ -31,7 +31,7 @@
 #include "eng3d/utils.hpp"
 
 void* operator new(std::size_t size) {
-#ifdef E3D_HEAP_DEBUG
+#ifdef E3D_DEBUG
     std::printf("Alloc size = %zu\n", size);
 #endif
     if(size == 0) {
@@ -51,7 +51,7 @@ void operator delete(void* ptr) noexcept {
 }
 
 void* operator new[](std::size_t size) {
-#ifdef E3D_HEAP_DEBUG
+#ifdef E3D_DEBUG
     std::printf("Alloc[] size = %zu\n", size);
 #endif
     if(size == 0) {
