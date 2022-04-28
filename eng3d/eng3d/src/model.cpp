@@ -38,6 +38,7 @@
 #include "eng3d/shader.hpp"
 #include "eng3d/state.hpp"
 #include "eng3d/utils.hpp"
+#include "eng3d/log.hpp"
 
 //
 // VAO
@@ -240,7 +241,7 @@ const Eng3D::Model& Eng3D::ModelManager::load_wavefront(const std::string& path)
 
                         ch = sline.peek();
                         if(ch == '/') {
-                            print_error("Invalid face declaration");
+                            Eng3D::Log::error("model", "Invalid face declaration");
                             break;
                         }
                     }
@@ -248,7 +249,7 @@ const Eng3D::Model& Eng3D::ModelManager::load_wavefront(const std::string& path)
             }
 
             if(face.vertices.size() < 3) {
-                print_error("Cannot create polygon - malformed face?");
+                Eng3D::Log::error("model", "Cannot create polygon - malformed face?");
             }
             else {
                 objects.back().faces.push_back(face);
@@ -259,11 +260,11 @@ const Eng3D::Model& Eng3D::ModelManager::load_wavefront(const std::string& path)
             sline >> light_mode;
 
             if(light_mode != "off") {
-                print_error("Unsupported light mode %s", light_mode.c_str());
+                Eng3D::Log::error("model", "No light mode " + light_mode);
             }
         }
         else {
-            print_error("Unsupported command %s", cmd.c_str());
+            Eng3D::Log::error("model", "No command " + cmd);
         }
     }
 
@@ -310,7 +311,7 @@ const Eng3D::Model& Eng3D::ModelManager::load_wavefront(const std::string& path)
                 model->buffer.push_back(*v1);
             }
 
-            print_info("Created new SimpleModel with %zu vertices", model->buffer.size());
+            Eng3D::Log::debug("model", "Created new SimpleModel with Vertices=" + std::to_string(model->buffer.size()));
             model->material = (*obj).material;
             model->upload();
             final_model->simple_models.push_back(model);
