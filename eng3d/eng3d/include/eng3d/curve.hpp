@@ -46,6 +46,8 @@ namespace Eng3D {
 
 #ifdef E3D_BACKEND_OPENGL
         void draw();
+#else
+#   error not implemented
 #endif
     private:
         void create_line(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width);

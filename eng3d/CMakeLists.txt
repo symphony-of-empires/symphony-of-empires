@@ -7,36 +7,19 @@ option(E3D_BUILD_ENGINE "Enable building the Eng3D library" ON)
 #
 # Defines - see README.1st
 #
-option(E3D_RENDER_DEBUG, "E3D_RENDER_DEBUG" ON)
-IF(E3D_RENDER_DEBUG)
-	add_definitions(-DE3D_RENDER_DEBUG=1)
-ENDIF()
-
-option(E3D_HEAP_DEBUG, "E3D_HEAP_DEBUG" ON)
-IF(E3D_HEAP_DEBUG)
-	add_definitions(-DE3D_HEAP_DEBUG=1)
+option(E3D_DEBUG, "E3D_DEBUG" ON)
+IF(E3D_DEBUG)
+	add_definitions(-DE3D_DEBUG=1)
 ENDIF()
 
 option(E3D_BACKEND_OPENGL, "E3D_BACKEND_OPENGL" ON)
-IF(E3D_HEAP_DEBUG)
+IF(E3D_BACKEND_OPENGL)
 	add_definitions(-DE3D_BACKEND_OPENGL=1)
 ENDIF()
 
 option(E3D_MANAGED_HEAP, "E3D_MANAGED_HEAP" ON)
 IF(E3D_MANAGED_HEAP)
 	add_definitions(-DE3D_MANAGED_HEAP=1)
-ENDIF()
-
-option(E3D_RTTI, "E3D_RTTI" ON)
-IF(E3D_RTTI)
-	add_definitions(-DE3D_RTTI=1)
-	set(CMAKE_CXX_FLAGS "-fno-rtti")
-ENDIF()
-
-option(E3D_EXCEPTIONS, "E3D_EXCEPTIONS" ON)
-IF(E3D_EXCEPTIONS)
-	add_definitions(-DE3D_EXCEPTIONS=1)
-	set(CMAKE_CXX_FLAGS "-fno-exceptions")
 ENDIF()
 
 #
