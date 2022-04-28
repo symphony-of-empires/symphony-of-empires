@@ -51,6 +51,7 @@
 #include "eng3d/path.hpp"
 #include "eng3d/print.hpp"
 #include "eng3d/utils.hpp"
+#include "eng3d/log.hpp"
 
 static std::vector<std::string> mod_paths;
 
@@ -106,13 +107,13 @@ namespace Path {
             std::string rsult = get_full() + path + str;
             if(file_exists(rsult) == true) {
                 end_path += rsult;
-                // print_info("Path '%s' exists", end_path.c_str());
+                Eng3D::Log::debug("path", "Path " + end_path + " exists");
                 file_found = true;
                 break;
             }
         }
         if(!file_found) {
-            print_error("Path could not find file: %s", str.c_str());
+            Eng3D::Log::error("path", "Path could not find file " + str);
         }
 #ifdef windows
         std::replace(end_path.begin(), end_path.end(), '/', '\\');
@@ -133,22 +134,21 @@ namespace Path {
 #ifdef windows
                 std::replace(end_path.begin(), end_path.end(), '/', '\\');
 #endif
-                print_info("Path '%s' exists", end_path.c_str());
+                Eng3D::Log::debug("path", "Path " + end_path + " exists");
                 list.push_back(end_path);
             }
         }
 
         if(list.empty()) {
-            print_info("File '%s' does not exist", str.c_str());
+            Eng3D::Log::error("path", "File " + str + " does not exist");
         }
-
         return list;
     }
 
     std::vector<std::string> get_data(const std::string& str) {
         std::vector<std::string> files_text;
         if(mod_paths.size() == 0) {
-            print_error("No mods founds");
+            Eng3D::Log::error("path", "No mods founds");
         }
         bool found = false;
         for(const auto& path : mod_paths) {
@@ -166,12 +166,12 @@ namespace Path {
                 content.assign(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>());
 
                 files_text.push_back(content);
-                print_info("Path '%s' exists (added to string list)", rsult.c_str());
+                Eng3D::Log::debug("path", "Path exists (added to string list) " + rsult);
                 found = true;
             }
         }
         if(!found) {
-            print_info("Path '%s' does not exist so not added", str);
+            Eng3D::Log::debug("path", "Path does not exist so not added " + str);
         }
         return files_text;
     }

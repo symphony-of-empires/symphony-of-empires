@@ -33,6 +33,7 @@
 #include "eng3d/print.hpp"
 #include "eng3d/texture.hpp"
 #include "eng3d/state.hpp"
+#include "eng3d/log.hpp"
 
 //
 // Material
@@ -65,7 +66,7 @@ std::vector<std::pair<Eng3D::Material*, std::string>> Eng3D::MaterialManager::lo
     std::ifstream file(path);
     std::string line;
 
-    print_info("Loading material file %s", path.c_str());
+    Eng3D::Log::debug("material", "Loading " + path);
 
     std::vector<std::pair<Eng3D::Material*, std::string>> tmp_mat;
     Eng3D::Material* curr_mat = nullptr;
@@ -118,7 +119,7 @@ std::vector<std::pair<Eng3D::Material*, std::string>> Eng3D::MaterialManager::lo
             }
             curr_mat->diffuse_map = Eng3D::State::get_instance().tex_man->load(Eng3D::State::get_instance().package_man->get_unique("gfx/" + map_path));
         } else {
-            print_info("Command %s not implemented", cmd.c_str());
+            Eng3D::Log::debug("material", "Command " + cmd + " unknown");
         }
     }
 
@@ -136,6 +137,6 @@ const Eng3D::Material* Eng3D::MaterialManager::load(const std::string& path) {
         return ((*it).second);
     }
 
-    print_error("Material not found: %s", path);
+    Eng3D::Log::error("material", path + " not found");
     return nullptr;
 }

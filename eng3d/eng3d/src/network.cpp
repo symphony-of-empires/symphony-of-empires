@@ -307,7 +307,7 @@ Eng3D::Networking::Client::Client(std::string host, const unsigned port) {
 #ifdef windows
     WSADATA data;
     if(WSAStartup(MAKEWORD(2, 2), &data) != 0) {
-        print_error("WSA code: %u", WSAGetLastError());
+        Eng3D::Log::error("network", "WSA code " + std::to_string(WSAGetLastError()));
         CXX_THROW(Eng3D::Networking::SocketException, "Can't start WSA subsystem");
     }
 #endif
@@ -320,7 +320,7 @@ Eng3D::Networking::Client::Client(std::string host, const unsigned port) {
     fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(fd == INVALID_SOCKET) {
 #ifdef windows
-        print_error("WSA Code: %u", WSAGetLastError());
+        Eng3D::Log::error("network", "WSA Code " + std::to_string(WSAGetLastError()));
         WSACleanup();
 #endif
         CXX_THROW(Eng3D::Networking::SocketException, "Can't create client socket");
@@ -330,7 +330,7 @@ Eng3D::Networking::Client::Client(std::string host, const unsigned port) {
 #ifdef unix
         close(fd);
 #elif defined windows
-        print_error("WSA Code: %u", WSAGetLastError());
+        Eng3D::Log::error("network", "WSA Code " + std::to_string(WSAGetLastError()));
         closesocket(fd);
 #endif
         CXX_THROW(Eng3D::Networking::SocketException, "Can't connect to server");
