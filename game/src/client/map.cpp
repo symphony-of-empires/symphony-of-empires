@@ -128,6 +128,8 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     }
 
     Eng3D::TextureOptions mipmap_options{};
+    mipmap_options.wrap_s = GL_REPEAT;
+    mipmap_options.wrap_t = GL_REPEAT;
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
 
@@ -143,11 +145,6 @@ Map::Map(const World& _world, int screen_width, int screen_height)
 
     // Query the initial nation flags
     for(const auto& nation : world.nations) {
-        Eng3D::TextureOptions mipmap_options{};
-        mipmap_options.wrap_s = GL_REPEAT;
-        mipmap_options.wrap_t = GL_REPEAT;
-        mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
-        mipmap_options.mag_filter = GL_LINEAR;
         std::string path = Path::get("gfx/flags/" + nation->ref_name + "_" + (nation->ideology == nullptr ? "none" : nation->ideology->ref_name.get_string()) + ".png");
         auto flag_texture = s.tex_man->load(path, mipmap_options);
         flag_texture->gen_mipmaps();
@@ -614,22 +611,7 @@ void Map::draw(const GameState& gs) {
     const glm::mat4 view = camera->get_view();
     obj_shader->set_uniform("view", view);
 
-    if(view_mode == MapView::SPHERE_VIEW) {
-        // Universe skybox
-        const glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -1.f));
-        obj_shader->set_texture(0, "diffuse_map", *skybox_tex);
-        obj_shader->set_uniform("model", model);
-        skybox.draw();
-    }
-
-    glm::vec3 map_pos = camera->get_map_pos();
-    float distance_to_map = map_pos.z / world.width;
-    if(distance_to_map < 0.070) {
-        map_font->draw(province_labels, projection, view);
-    } else {
-        map_font->draw(nation_labels, projection, view);
-    }
-
+    // Properly display textures :)
     glm::mat4 base_model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -1.f));
     std::vector<float> province_units_y(world.provinces.size(), 0.f);
     for(const auto& war : world.wars) {
@@ -648,7 +630,7 @@ void Map::draw(const GameState& gs) {
                 model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
                 obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
                 obj_shader->set_uniform("model", model);
-                auto flag_quad = Eng3D::Quad2D();
+                auto flag_quad = Eng3D::Quad2D(); // Reused a bunch of times
                 flag_quad.draw();
 
                 // Model
@@ -664,7 +646,7 @@ void Map::draw(const GameState& gs) {
                 model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
                 obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
                 obj_shader->set_uniform("model", model);
-                auto flag_quad = Eng3D::Quad2D();
+                auto flag_quad = Eng3D::Quad2D(); // Reused a bunch of times
                 flag_quad.draw();
 
                 // Model
@@ -699,15 +681,15 @@ void Map::draw(const GameState& gs) {
                 obj_shader->set_uniform("model", line_model);
                 line_square.draw();
             }
+            model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
             obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
             obj_shader->set_uniform("model", model);
-            auto flag_quad = Eng3D::Quad2D();
+            auto flag_quad = Eng3D::Quad2D(); // Reused a bunch of times
             flag_quad.draw();
 
             // Model
             obj_shader->set_uniform("model", model);
             unit_type_models[world.get_id(*unit->type)]->draw(*obj_shader);
-
             i++;
         }
 
@@ -720,7 +702,7 @@ void Map::draw(const GameState& gs) {
 
             glm::vec2 pos = prov_pos;
             glm::mat4 model = glm::translate(base_model, glm::vec3(pos.x, pos.y, 0.f));
-            //model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
+            model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
             obj_shader->set_uniform("model", model);
             building_type_models[world.get_id(building_type)]->draw(*obj_shader);
         }
@@ -744,6 +726,22 @@ void Map::draw(const GameState& gs) {
 
         Eng3D::Square dragbox_square = Eng3D::Square(gs.input.drag_coord.first, gs.input.drag_coord.second, gs.input.select_pos.first, gs.input.select_pos.second);
         dragbox_square.draw();
+    }
+
+    if(view_mode == MapView::SPHERE_VIEW) {
+        // Universe skybox
+        const glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -1.f));
+        obj_shader->set_texture(0, "diffuse_map", *skybox_tex);
+        obj_shader->set_uniform("model", model);
+        skybox.draw();
+    }
+
+    glm::vec3 map_pos = camera->get_map_pos();
+    float distance_to_map = map_pos.z / world.width;
+    if(distance_to_map < 0.070) {
+        map_font->draw(province_labels, projection, view);
+    } else {
+        map_font->draw(nation_labels, projection, view);
     }
 
     wind_osc += 0.1f;

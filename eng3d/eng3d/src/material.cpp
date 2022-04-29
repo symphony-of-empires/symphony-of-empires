@@ -97,15 +97,15 @@ std::vector<std::pair<Eng3D::Material*, std::string>> Eng3D::MaterialManager::lo
         } else if(cmd == "Ka") {
             glm::vec3 color;
             sline >> color.x >> color.y >> color.z;
-            curr_mat->ambient_color = color;
+            curr_mat->ambient_color = glm::vec4(color, 1.f);
         } else if(cmd == "Kd") {
             glm::vec3 color;
             sline >> color.x >> color.y >> color.z;
-            curr_mat->diffuse_color = color;
+            curr_mat->diffuse_color = glm::vec4(color, 1.f);
         } else if(cmd == "Ks") {
             glm::vec3 color;
             sline >> color.x >> color.y >> color.z;
-            curr_mat->specular_color = color;
+            curr_mat->specular_color = glm::vec4(color, 1.f);
         } else if(cmd == "Ns") {
             sline >> curr_mat->specular_exp;
         } else if(cmd == "Ni") {

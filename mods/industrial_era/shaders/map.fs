@@ -152,6 +152,7 @@ vec2 get_diag_coords(vec2 tex_coords, float is_diag) {
 	diag_coords = mix(tex_coords, diag_coords, is_diag * far);
 	return diag_coords;
 }
+
 // Get the province color
 vec3 get_province_color(vec2 tex_coords, float is_diag) {
 	vec2 diag_coords = get_diag_coords(tex_coords, is_diag);
@@ -161,6 +162,7 @@ vec3 get_province_color(vec2 tex_coords, float is_diag) {
 	vec3 prov_color = texture(tile_sheet, prov_color_coord).rgb;
 	return prov_color;
 }
+
 // Get the province shadow. Used for fog of war
 float get_province_shadow(vec2 tex_coords, float is_diag) {
 	vec2 diag_coords = get_diag_coords(tex_coords, is_diag);

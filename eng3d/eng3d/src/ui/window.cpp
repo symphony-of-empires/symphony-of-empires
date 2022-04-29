@@ -40,7 +40,7 @@ Window::Window(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     this->padding = glm::ivec2(8, 24 + 8);
     this->current_texture = Eng3D::State::get_instance().tex_man->load(Path::get("gfx/window_background.png"));
     this->is_scroll = true;
-    this->text_color = Eng3D::Color(1., 1., 1.);
+    this->text_color = Eng3D::Color(1.f, 1.f, 1.f);
 
     glm::ivec2 size(4, 4);
     glm::ivec2 texture_size(10, 10);

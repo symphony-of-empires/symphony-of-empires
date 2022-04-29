@@ -105,8 +105,8 @@ void Eng3D::SimpleModel::draw(const Eng3D::OpenGL::Program& shader) const {
     } else {
         std::shared_ptr<Eng3D::Texture> white_tex = Eng3D::State::get_instance().tex_man->get_white();
         shader.set_texture(0, "diffuse_map", *white_tex.get());
-        shader.set_uniform("ambient_color", glm::vec3(1.f));
-        shader.set_uniform("diffuse_color", glm::vec3(1.f));
+        shader.set_uniform("ambient_color", glm::vec4(1.f));
+        shader.set_uniform("diffuse_color", glm::vec4(1.f));
     }
 
     vao.bind();
