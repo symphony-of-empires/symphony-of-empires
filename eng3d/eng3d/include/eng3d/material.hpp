@@ -40,11 +40,11 @@ namespace Eng3D {
         Material();
         ~Material();
 
-        glm::vec3 diffuse_color;
+        glm::vec4 diffuse_color;
         std::shared_ptr<Eng3D::Texture> diffuse_map;
-        glm::vec3 ambient_color;
+        glm::vec4 ambient_color;
         std::shared_ptr<Eng3D::Texture> ambient_map;
-        glm::vec3 specular_color;
+        glm::vec4 specular_color;
         std::shared_ptr<Eng3D::Texture> specular_map;
         std::shared_ptr<Eng3D::Texture> displacement_map;
         std::shared_ptr<Eng3D::Texture> occlussion_map;
