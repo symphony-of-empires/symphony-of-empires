@@ -140,5 +140,6 @@ public:
     std::shared_ptr<Eng3D::Texture> skybox_tex;
     Eng3D::Sphere skybox;
     std::unique_ptr<Eng3D::OpenGL::Program> obj_shader;
+    Eng3D::Quad2D rec_quad;
 };
 
