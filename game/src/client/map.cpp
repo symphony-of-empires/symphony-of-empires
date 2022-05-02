@@ -136,6 +136,9 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     line_tex = s.tex_man->load(Path::get("gfx/line_target.png"), mipmap_options);
     skybox_tex = s.tex_man->load(Path::get("gfx/space.png"), mipmap_options);
 
+    // Reused stuff
+    rec_quad = Eng3D::Quad2D();
+
     // Set the mapmode
     set_map_mode(political_map_mode, empty_province_tooltip);
 
@@ -630,8 +633,7 @@ void Map::draw(const GameState& gs) {
                 model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
                 obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
                 obj_shader->set_uniform("model", model);
-                auto flag_quad = Eng3D::Quad2D(); // Reused a bunch of times
-                flag_quad.draw();
+                rec_quad.draw();
 
                 // Model
                 unit_type_models[world.get_id(*unit->type)]->draw(*obj_shader);
@@ -646,8 +648,7 @@ void Map::draw(const GameState& gs) {
                 model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
                 obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
                 obj_shader->set_uniform("model", model);
-                auto flag_quad = Eng3D::Quad2D(); // Reused a bunch of times
-                flag_quad.draw();
+                rec_quad.draw();
 
                 // Model
                 unit_type_models[world.get_id(*unit->type)]->draw(*obj_shader);
@@ -684,8 +685,7 @@ void Map::draw(const GameState& gs) {
             model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
             obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
             obj_shader->set_uniform("model", model);
-            auto flag_quad = Eng3D::Quad2D(); // Reused a bunch of times
-            flag_quad.draw();
+            rec_quad.draw();
 
             // Model
             obj_shader->set_uniform("model", model);
@@ -708,33 +708,6 @@ void Map::draw(const GameState& gs) {
         }
     }
     //*/
-
-    // Highlight for units
-    for(const auto& unit : gs.input.selected_units) {
-        const std::pair<float, float> pos = unit->get_pos();
-        glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
-        Eng3D::Square select_highlight = Eng3D::Square(0.f, 0.f, 1.f, 1.f);
-        obj_shader->set_texture(0, "diffuse_map", *gs.tex_man->load(Path::get("gfx/select_border.png")).get());
-        select_highlight.draw();
-    }
-
-    // Draw the "drag area" box
-    if(is_drag) {
-        glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -1.f));
-        obj_shader->set_texture(0, "diffuse_map", *line_tex);
-        obj_shader->set_uniform("model", model);
-
-        Eng3D::Square dragbox_square = Eng3D::Square(gs.input.drag_coord.first, gs.input.drag_coord.second, gs.input.select_pos.first, gs.input.select_pos.second);
-        dragbox_square.draw();
-    }
-
-    if(view_mode == MapView::SPHERE_VIEW) {
-        // Universe skybox
-        const glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -1.f));
-        obj_shader->set_texture(0, "diffuse_map", *skybox_tex);
-        obj_shader->set_uniform("model", model);
-        skybox.draw();
-    }
 
     glm::vec3 map_pos = camera->get_map_pos();
     float distance_to_map = map_pos.z / world.width;
