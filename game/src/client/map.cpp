@@ -200,7 +200,7 @@ void Map::create_labels() {
         top_dir = top_dir - center;
 
         auto* label = map_font->gen_text(Eng3D::Locale::translate(province->name.get_string()), top_dir, right_dir, width);
-        center.z -= 0.1f;
+        //center.z -= 0.1f;
         label->model = glm::translate(label->model, center);
         province_labels.push_back(label);
     }
@@ -278,7 +278,7 @@ void Map::create_labels() {
         }
 
         auto* label = map_font->gen_text(Eng3D::Locale::translate(nation->get_client_hint().alt_name.get_string()), top_dir, right_dir, width, 15.f);
-        center.z -= 0.1f;
+        //center.z -= 0.1f;
         label->model = glm::translate(label->model, center);
         label->model = glm::rotate(label->model, angle, normal);
         nation_labels.push_back(label);
@@ -611,8 +611,10 @@ void Map::draw(const GameState& gs) {
     const glm::mat4 view = camera->get_view();
     obj_shader->set_uniform("view", view);
 
+    auto preproc_quad = Eng3D::Quad2D(); // Reused a bunch of times
+
     // Properly display textures :)
-    glm::mat4 base_model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -1.f));
+    glm::mat4 base_model = glm::mat4(1.f);
     std::vector<float> province_units_y(world.provinces.size(), 0.f);
     for(const auto& war : world.wars) {
         for(const auto& battle : war->battles) {
@@ -625,13 +627,12 @@ void Map::draw(const GameState& gs) {
             // Attackers on the left side
             i = 0;
             for(const auto& unit : battle.attackers) {
-                const std::pair<float, float> pos = std::make_pair(prov_pos.first - (1.5f * i) - 3.f, prov_pos.second - y);
+                const std::pair<float, float> pos = std::make_pair(prov_pos.first - (2.f * i) - 3.f, prov_pos.second - y);
                 glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
                 model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
                 obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
                 obj_shader->set_uniform("model", model);
-                auto flag_quad = Eng3D::Quad2D(); // Reused a bunch of times
-                flag_quad.draw();
+                preproc_quad.draw();
 
                 // Model
                 unit_type_models[world.get_id(*unit->type)]->draw(*obj_shader);
@@ -639,15 +640,14 @@ void Map::draw(const GameState& gs) {
             }
 
             // Defenders on the right side
-            i = 0;
+            i = 1;
             for(const auto& unit : battle.defenders) {
-                const std::pair<float, float> pos = std::make_pair(prov_pos.first + (1.5f * i) + 3.f, prov_pos.second - y);
+                const std::pair<float, float> pos = std::make_pair(prov_pos.first + (2.f * i) + 3.f, prov_pos.second - y);
                 glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
                 model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
                 obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
                 obj_shader->set_uniform("model", model);
-                auto flag_quad = Eng3D::Quad2D(); // Reused a bunch of times
-                flag_quad.draw();
+                preproc_quad.draw();
 
                 // Model
                 unit_type_models[world.get_id(*unit->type)]->draw(*obj_shader);
@@ -684,8 +684,7 @@ void Map::draw(const GameState& gs) {
             model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
             obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
             obj_shader->set_uniform("model", model);
-            auto flag_quad = Eng3D::Quad2D(); // Reused a bunch of times
-            flag_quad.draw();
+            preproc_quad.draw();
 
             // Model
             obj_shader->set_uniform("model", model);
@@ -713,26 +712,25 @@ void Map::draw(const GameState& gs) {
     for(const auto& unit : gs.input.selected_units) {
         const std::pair<float, float> pos = unit->get_pos();
         glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
-        Eng3D::Square select_highlight = Eng3D::Square(0.f, 0.f, 1.f, 1.f);
+        obj_shader->set_uniform("model", model);
         obj_shader->set_texture(0, "diffuse_map", *gs.tex_man->load(Path::get("gfx/select_border.png")).get());
-        select_highlight.draw();
+        preproc_quad.draw();
     }
 
     // Draw the "drag area" box
     if(is_drag) {
-        glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -1.f));
-        obj_shader->set_texture(0, "diffuse_map", *line_tex);
+        glm::mat4 model = base_model;
         obj_shader->set_uniform("model", model);
-
+        obj_shader->set_texture(0, "diffuse_map", *line_tex);
         Eng3D::Square dragbox_square = Eng3D::Square(gs.input.drag_coord.first, gs.input.drag_coord.second, gs.input.select_pos.first, gs.input.select_pos.second);
         dragbox_square.draw();
     }
 
     if(view_mode == MapView::SPHERE_VIEW) {
         // Universe skybox
-        const glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -1.f));
-        obj_shader->set_texture(0, "diffuse_map", *skybox_tex);
+        const glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
         obj_shader->set_uniform("model", model);
+        obj_shader->set_texture(0, "diffuse_map", *skybox_tex);
         skybox.draw();
     }
 
