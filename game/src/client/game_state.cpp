@@ -223,7 +223,28 @@ void handle_event(Input& input, GameState& gs) {
                     }
                 }
                 break;
-            case Eng3D::Keyboard::Key::SPACE:
+            case Eng3D::Keyboard::Key::F2:
+                if(gs.editor) {
+                    break;
+                }
+
+                if(gs.current_mode == MapMode::NORMAL) {
+                    if(input.select_pos.first < gs.world->width || input.select_pos.second < gs.world->height) {
+                        const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
+                        if(tile.province_id >= gs.world->provinces.size()) {
+                            break;
+                        }
+
+                        new Interface::BuildingBuildView(gs, input.select_pos.first, input.select_pos.second, true, gs.world->provinces[tile.province_id]);
+                    }
+                }
+                break;
+            case Eng3D::Keyboard::Key::F3:
+                if(!click_on_ui) {
+                    new Interface::AISettingsWindow(gs);
+                }
+                break;
+            case Eng3D::Keyboard::Key::F4:
                 if(gs.editor) {
                     break;
                 }
@@ -236,27 +257,6 @@ void handle_event(Input& input, GameState& gs) {
                     else {
                         ui_ctx->prompt("Control", "Paused");
                     }
-                }
-                break;
-            case Eng3D::Keyboard::Key::B:
-                if(gs.editor) {
-                    break;
-                }
-
-                if(gs.current_mode == MapMode::NORMAL) {
-                    if(input.select_pos.first < gs.world->width || input.select_pos.second < gs.world->height) {
-                        const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
-                        if(tile.province_id >= gs.world->provinces.size()) {
-                            break;
-                        }
-
-                        new Interface::BuildingBuildView(gs, input.select_pos.first, input.select_pos.second, true, gs.world->provinces[tile.province_id]->owner, gs.world->provinces[tile.province_id]);
-                    }
-                }
-                break;
-            case Eng3D::Keyboard::Key::A:
-                if(!click_on_ui) {
-                    new Interface::AISettingsWindow(gs);
                 }
                 break;
             case Eng3D::Keyboard::Key::BACKSPACE:

@@ -53,25 +53,6 @@ BuildingSelectProvinceTab::BuildingSelectProvinceTab(GameState& _gs, int x, int 
     }
 }
 
-BuildingSelectNationTab::BuildingSelectNationTab(GameState& _gs, int x, int y, UI::Widget* _parent)
-    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
-    gs{ _gs }
-{
-    unsigned int i = 0;
-    for(const auto& nation : gs.world->nations) {
-        if(!nation->exists()) {
-            continue;
-        }
-        
-        auto* btn = new NationButton(gs, 0, 24 * i, nation, this);
-        btn->set_on_click([](UI::Widget& w) {
-            auto& o = static_cast<BuildingBuildView&>(*w.parent->parent);
-            o.nation = static_cast<NationButton&>(w).nation;
-        });
-        i++;
-    }
-}
-
 BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::Widget* _parent)
     : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
     gs{ _gs }
@@ -81,11 +62,6 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
         auto* btn = new BuildingTypeButton(gs, 0, 24 * i, &building_type, this);
         btn->set_on_click([](UI::Widget& w) {
             auto& o = static_cast<BuildingBuildView&>(*w.parent->parent);
-            if(o.nation == nullptr) {
-                o.gs.ui_ctx->prompt("Error", "No nation selected");
-                return;
-            }
-            
             if(o.province == nullptr) {
                 o.gs.ui_ctx->prompt("Error", "Select a province to build it on");
                 return;
@@ -105,13 +81,12 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
     }
 }
 
-BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_tile, Nation* _nation, Province* _province)
+BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_tile, Province* _province)
     : UI::Window(0, 0, 512, 512),
     gs{ _gs },
     tx{ _tx },
     ty{ _ty },
     in_tile{ _in_tile },
-    nation{ _nation },
     province{ _province }
 {
     this->is_scroll = false;
@@ -119,9 +94,6 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
 
     this->province_tab = new BuildingSelectProvinceTab(gs, 128, 24, this);
     this->province_tab->is_render = false;
-
-    this->nation_tab = new BuildingSelectNationTab(gs, 128, 24, this);
-    this->nation_tab->is_render = false;
 
     this->type_tab = new BuildingSelectTypeTab(gs, 128, 24, this);
     this->type_tab->is_render = false;
@@ -131,27 +103,15 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
     province_btn->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<BuildingBuildView&>(*w.parent);
         o.province_tab->is_render = true;
-        o.nation_tab->is_render = false;
-        o.type_tab->is_render = false;
-    });
-
-    auto* nation_btn = new UI::Button(0, 0, 128, 24, this);
-    nation_btn->below_of(*province_btn);
-    nation_btn->text(Eng3D::Locale::translate("Nation"));
-    nation_btn->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<BuildingBuildView&>(*w.parent);
-        o.province_tab->is_render = false;
-        o.nation_tab->is_render = true;
         o.type_tab->is_render = false;
     });
 
     auto* build_btn = new UI::Button(0, 0, 128, 24, this);
-    build_btn->below_of(*nation_btn);
+    build_btn->below_of(*province_btn);
     build_btn->text(Eng3D::Locale::translate("Build"));
     build_btn->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<BuildingBuildView&>(*w.parent);
         o.province_tab->is_render = false;
-        o.nation_tab->is_render = false;
         o.type_tab->is_render = true;
     });
 

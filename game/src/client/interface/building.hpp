@@ -25,11 +25,12 @@
 
 #pragma once
 
+#include "eng3d/ui/window.hpp"
+#include "eng3d/ui/group.hpp"
+
 #include "nation.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
-#include "eng3d/ui/window.hpp"
-#include "eng3d/ui/group.hpp"
 #include "client/interface/common.hpp"
 
 namespace Interface {
@@ -55,17 +56,15 @@ namespace Interface {
     class BuildingBuildView : public UI::Window {
         GameState& gs;
     public:
-        Nation* nation = nullptr;
         Province* province = nullptr;
         BuildingType* building_type = nullptr;
 
         BuildingSelectProvinceTab* province_tab;
-        BuildingSelectNationTab* nation_tab;
         BuildingSelectTypeTab* type_tab;
 
         bool in_tile;
         int tx, ty;
-        BuildingBuildView(GameState& gs, int tx, int ty, bool in_tile, Nation* nation = nullptr, Province* province = nullptr);
+        BuildingBuildView(GameState& gs, int tx, int ty, bool in_tile, Province* province = nullptr);
 
         /* The tab holds buttons which sends the packets to the server - this requires access to the parent which holds private data :) */
         friend class BuildingSelectTypeTab;

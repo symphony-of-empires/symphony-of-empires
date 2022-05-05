@@ -141,8 +141,9 @@ namespace UI {
          * @brief Will give keyboard input to Input Widget if one is selected 
          * 
          * @param input The input characters
+         * @return true if there is a currently selected input widget
          */
-        void check_text_input(const char* input);
+        bool check_text_input(const char* input);
 
         void use_tooltip(Tooltip* tooltip, glm::ivec2 pos);
 

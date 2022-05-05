@@ -600,12 +600,13 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
     }
 }
 
-void check_text_input_recursive(Widget& widget, const char* _input) {
+bool check_text_input_recursive(Widget& widget, const char* _input) {
     if(widget.type == UI::WidgetType::INPUT) {
         UI::Input& c_widget = static_cast<UI::Input&>(widget);
         if(c_widget.is_selected) {
             c_widget.on_textinput(c_widget, _input);
         }
+        return true;
     }
 
     for(const auto& children : widget.children) {
@@ -613,10 +614,14 @@ void check_text_input_recursive(Widget& widget, const char* _input) {
     }
 }
 
-void Context::check_text_input(const char* _input) {
+bool Context::check_text_input(const char* _input) {
     for(const auto& widget : widgets) {
-        check_text_input_recursive(*widget, _input);
+        bool r = check_text_input_recursive(*widget, _input);
+        if(r) {
+            return true;
+        }
     }
+    return false;
 }
 
 void Context::use_tooltip(Tooltip* tooltip, glm::ivec2 pos) {

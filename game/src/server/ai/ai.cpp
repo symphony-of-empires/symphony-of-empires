@@ -529,7 +529,7 @@ void ai_do_tick(Nation& nation) {
         defense_factor = std::min<float>(defense_factor, 100);
 
         const int base_reluctance = 100;
-
+        
         // Build defenses
         if(std::rand() % (base_reluctance / defense_factor) == 0) {
             auto it = std::begin(nation.owned_provinces);
@@ -626,6 +626,12 @@ void ai_do_tick(Nation& nation) {
         for(const auto& province : nation.controlled_provinces) {
             for(auto& unit : province->get_units()) {
                 if(unit->owner != &nation) {
+                    continue;
+                }
+
+                // Do not change targets
+                // TODO: Change targets when urgent
+                if(unit->target != nullptr) {
                     continue;
                 }
 
