@@ -105,7 +105,7 @@ Tile& World::get_tile(size_t idx) const {
     return tiles[idx];
 }
 
-void ai_do_tick(Nation* nation, World* world);
+void ai_do_tick(Nation& nation);
 
 // Creates a new world
 World::World() {
@@ -497,10 +497,10 @@ void World::load_initial(void) {
 
         fp = fopen("unused.txt", "w+t");
         if(fp) {
-            for(int i = 0; i < province_color_table.size(); i++) {
+            for(size_t i = 0; i < province_color_table.size(); i++) {
                 uint32_t color = i << 8;
 
-                if(i % 32) {
+                if(i % 128) {
                     continue;
                 }
 
@@ -628,9 +628,7 @@ void World::load_mod(void) {
 
 void World::do_tick() {
     profiler.start("AI");
-// #if 0
-    // AI and stuff
-    // Just random shit to make the world be like more alive
+    // Do the AI turns in parallel
     std::for_each(std::execution::par, nations.begin(), nations.end(), [this](auto& nation) {
         if(!nation->exists()) {
             return;
@@ -654,36 +652,14 @@ void World::do_tick() {
                 nation->focus_tech = nullptr;
             }
         }
-        ai_do_tick(nation, this);
+        ai_do_tick(*nation);
     });
-// #endif
     profiler.stop("AI");
 
     profiler.start("Economy");
     // Every ticks_per_month ticks do an economical tick
     if(!(time % ticks_per_month)) {
         Economy::do_tick(*this);
-        /*
-        // Calculate prestige for today (newspapers come out!)
-        for(auto& nation : this->nations) {
-            const Eng3D::Decimal decay_per_cent = 5.f;
-            const Eng3D::Decimal max_modifier = 10.f;
-            const Eng3D::Decimal min_prestige = std::max<Eng3D::Decimal>(0.5f, ((nation->naval_score + nation->military_score + nation->economy_score) / 2));
-
-            // Prestige cannot go below min prestige
-            nation->prestige = std::max<Eng3D::Decimal>(nation->prestige, min_prestige);
-            nation->prestige -= (nation->prestige * (decay_per_cent / 100.f)) * std::min<Eng3D::Decimal>(std::max<Eng3D::Decimal>(1, nation->prestige - min_prestige) / (min_prestige + 1), max_modifier);
-
-            float economy_score = 0.f;
-            for(const auto& province : nation->owned_provinces) {
-                // Calculate economy score of nations
-                for(const auto& pop : province->pops) {
-                    economy_score += pop.budget;
-                }
-            }
-            nation->economy_score = economy_score / 100.f;
-        }
-        */
         g_server->broadcast(Action::NationUpdate::form_packet(nations));
         g_server->broadcast(Action::ProvinceUpdate::form_packet(provinces));
     }
@@ -695,6 +671,7 @@ void World::do_tick() {
     std::vector<Eng3D::Decimal> naval_research_pts(nations.size(), 0.f);
     for(size_t i = 0; i < units.size(); i++) {
         Unit* unit = units[i];
+        debug_assert(unit->province != nullptr);
         if(unit->on_battle) {
             continue;
         }
@@ -761,17 +738,16 @@ void World::do_tick() {
                 break;
             }
         }
-
-        // If we are at war with the person we are crossing their provinces at, then take 'em (albeit with resistance)
-        if(can_take && unit->owner->relations[get_id(*unit->province->controller)].has_war) {
-            unit->owner->control_province(*unit->province);
-        }
-
         if(unit->target != nullptr && unit->can_move()) {
             if(unit->move_progress) {
                 unit->move_progress -= std::min<Eng3D::Decimal>(unit->move_progress, unit->get_speed());
             } else {
                 unit->set_province(*unit->target);
+                
+                // If we are at war with the person we are crossing their provinces at, then take 'em (albeit with resistance)
+                if(can_take && unit->owner->relations[get_id(*unit->province->controller)].has_war) {
+                    unit->owner->control_province(*unit->province);
+                }
             }
         }
     }
