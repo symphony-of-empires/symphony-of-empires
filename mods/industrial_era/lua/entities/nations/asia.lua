@@ -23,57 +23,81 @@
 --      Does important stuff
 -- ----------------------------------------------------------------------------
 
-korea = Nation:new{ ref_name = "korea", name = _("Korea") }
-korea.adjective = _("Korean")
-korea:register()
-korea:add_accepted_culture(Culture:get("korean"))
-korea:add_client_hint(monarchy, _("Korea"), 0x808080)
+nation = Nation:new{ ref_name = "korea", name = _("Korea") }
+nation.adjective = _("Korean")
+nation:register()
+nation:add_accepted_culture(Culture:get("korean"))
+nation:add_client_hint(monarchy, _("Korea"), 0x808080)
 
-taiwan = Nation:new{ ref_name = "taiwan", name = _("Taiwan") }
-taiwan.adjective = _("Taiwanesse")
-taiwan:register()
---taiwan:add_accepted_culture(chinesse)
-taiwan:add_client_hint(socialism, _("Taiwan's People's Republic"), 0x808080)
-taiwan:add_client_hint(communism, _("Taiwan"), 0x808080)
+nation = Nation:new{ ref_name = "taiwan", name = _("Taiwan") }
+nation.adjective = _("Taiwanesse")
+nation:register()
+--nation:add_accepted_culture(chinesse)
+nation:add_client_hint(socialism, _("Taiwan's People's Republic"), 0x808080)
+nation:add_client_hint(communism, _("Taiwan"), 0x808080)
 
-qing = Nation:new{ ref_name = "qing", name = _("Qing") }
-qing.adjective = _("Chinesse")
-qing:register()
---qing:add_accepted_culture(chinesse)
-qing:add_client_hint(monarchy, _("Qing Dynasty"), 0xF8F180)
-qing:add_client_hint(communism, _("Qing's People's Republic"), 0xF8F180)
+nation = Nation:new{ ref_name = "qing", name = _("Qing") }
+nation.adjective = _("Chinesse")
+nation:register()
+--nation:add_accepted_culture(chinesse)
+nation:add_client_hint(monarchy, _("Qing Dynasty"), 0xF8F180)
+nation:add_client_hint(communism, _("Qing's People's Republic"), 0xF8F180)
 
-beyiang = Nation:new{ ref_name = "beyiang", name = _("Beyiang") }
-beyiang.adjective = _("Chinesse")
-beyiang:register()
---beyiang:add_accepted_culture(chinesse)
-beyiang:add_client_hint(monarchy, _("China"), 0x808080)
-beyiang:add_client_hint(communism, _("China"), 0x808080)
-beyiang:add_client_hint(fascism, _("China"), 0x808080)
-beyiang:add_client_hint(socialism, _("China"), 0x808080)
-beyiang:add_client_hint(republic, _("China"), 0x808080)
+nation = Nation:new{ ref_name = "beyiang", name = _("Beyiang") }
+nation.adjective = _("Chinesse")
+nation:register()
+--nation:add_accepted_culture(chinesse)
+nation:add_client_hint(monarchy, _("China"), 0x808080)
+nation:add_client_hint(communism, _("China"), 0x808080)
+nation:add_client_hint(fascism, _("China"), 0x808080)
+nation:add_client_hint(socialism, _("China"), 0x808080)
+nation:add_client_hint(republic, _("China"), 0x808080)
 
-china = Nation:new{ ref_name = "china", name = _("China") }
-china.adjective = _("Chinesse")
-china:register()
---china:add_accepted_culture(chinesse)
-china:add_client_hint(republic, _("China"), 0x808080)
-china:add_client_hint(communism, _("China"), 0x808080)
+nation = Nation:new{ ref_name = "china", name = _("China") }
+nation.adjective = _("Chinesse")
+nation:register()
+--nation:add_accepted_culture(chinesse)
+nation:add_client_hint(republic, _("China"), 0x808080)
+nation:add_client_hint(communism, _("China"), 0x808080)
 
-yunnan = Nation:new{ ref_name = "yunnan", name = _("Yunnan") }
-yunnan.adjective = _("Chinesse")
-yunnan:register()
---yunnan:add_accepted_culture(chinesse)
-yunnan:add_client_hint(monarchy, _("Yunnan Dynasty"), 0x808080)
+nation = Nation:new{ ref_name = "yunnan", name = _("Yunnan") }
+nation.adjective = _("Chinesse")
+nation:register()
+--nation:add_accepted_culture(chinesse)
+nation:add_client_hint(monarchy, _("Yunnan Dynasty"), 0x808080)
 
-guanxi = Nation:new{ ref_name = "guanxi", name = _("Guanxi") }
-guanxi.adjective = _("Chinesse")
-guanxi:register()
---guanxi:add_accepted_culture(chinesse)
-guanxi:add_client_hint(monarchy, _("Guanxi Clique"), 0x808080)
+nation = Nation:new{ ref_name = "guanxi", name = _("Guanxi") }
+nation.adjective = _("Chinesse")
+nation:register()
+--nation:add_accepted_culture(chinesse)
+nation:add_client_hint(monarchy, _("Guanxi Clique"), 0x808080)
 
-shanxi = Nation:new{ ref_name = "shanxi", name = _("Shanxi") }
-shanxi.adjective = _("Chinesse")
-shanxi:register()
---shanxi:add_accepted_culture(chinesse)
-shanxi:add_client_hint(monarchy, _("Shanxi Clique"), 0x808080)
+nation = Nation:new{ ref_name = "shanxi", name = _("Shanxi") }
+nation.adjective = _("Chinesse")
+nation:register()
+--nation:add_accepted_culture(chinesse)
+nation:add_client_hint(monarchy, _("Shanxi Clique"), 0x808080)
+
+nation = Nation:new{ ref_name = "johor", name = _("Johor") }
+nation.adjective = _("Johor")
+nation:register()
+nation:set_ideology(monarchy)
+--nation:add_accepted_culture(chinesse)
+nation:add_client_hint(monarchy, _("Johor"), 0x896241)
+nation:add_client_hint(fascism, _("Johor"), 0x896241)
+nation:add_client_hint(republic, _("Johor"), 0x896241)
+nation:add_client_hint(socialism, _("Johor"), 0x896241)
+
+nation = Nation:new{ ref_name = "siam", name = _("Siam") }
+nation.adjective = _("Siam")
+nation:register()
+nation:set_ideology(monarchy)
+--nation:add_accepted_culture(siamesse)
+nation:add_client_hint(monarchy, _("Siam"), 0x2F54BD)
+
+nation = Nation:new{ ref_name = "burma", name = _("Burma") }
+nation.adjective = _("Burma")
+nation:register()
+nation:set_ideology(monarchy)
+--nation:add_accepted_culture(burmesse)
+nation:add_client_hint(monarchy, _("Burma"), 0x2FFFBD)
