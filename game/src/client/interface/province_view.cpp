@@ -226,7 +226,7 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province*
     build_btn->text("Build new");
     build_btn->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<ProvinceView&>(*w.parent->parent);
-        new BuildingBuildView(o.gs, 0, 0, false, o.gs.curr_nation, o.province);
+        new BuildingBuildView(o.gs, 0, 0, false, o.province);
     });
     dy += build_btn->height;
 

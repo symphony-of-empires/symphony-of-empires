@@ -113,8 +113,8 @@ void Unit::attack(Unit& enemy) {
     enemy.size -= std::min<size_t>(enemy.size, damage_dealt);
     */
 
-    const Eng3D::Decimal damage = (type->attack / enemy.type->defense) * size;
-    enemy.size -= std::min<size_t>(enemy.size, (damage));
+    const Eng3D::Decimal damage = (type->attack * size) / enemy.type->defense;
+    enemy.size -= std::min<size_t>(enemy.size, damage);
 }
 
 std::pair<Eng3D::Number, Eng3D::Number> Unit::get_pos(void) const {
