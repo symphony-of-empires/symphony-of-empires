@@ -145,7 +145,7 @@ MapRender::MapRender(const World& _world)
     Eng3D::TextureOptions single_color{};
     single_color.internal_format = GL_RGB;
     single_color.compressed = false;
-    terrain_map->to_opengl(single_color);
+    terrain_map->upload(single_color);
     //terrain_map->gen_mipmaps();
 
     auto topo_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(Path::get("map/topo.png")));
@@ -158,12 +158,12 @@ MapRender::MapRender(const World& _world)
     topo_map.reset(nullptr);
     mipmap_options.internal_format = GL_RGBA;
     mipmap_options.compressed = false;
-    normal_topo->to_opengl(mipmap_options);
+    normal_topo->upload(mipmap_options);
     normal_topo->gen_mipmaps();
 
     // Terrain textures to sample from
     terrain_sheet = std::unique_ptr<Eng3D::TextureArray>(new Eng3D::TextureArray(Path::get("gfx/terrain_sheet.png"), 4, 4));
-    terrain_sheet->to_opengl();
+    terrain_sheet->upload();
 
     print_info("Creating tile map & tile sheet");
     // The tile map, used to store per-tile information
@@ -176,7 +176,7 @@ MapRender::MapRender(const World& _world)
     tile_map_options.internal_format = GL_RGBA32F;
     tile_map_options.editable = true;
     tile_map_options.compressed = false;
-    tile_map->to_opengl(tile_map_options);
+    tile_map->upload(tile_map_options);
     tile_map->gen_mipmaps();
 
     // Texture holding each province color
@@ -197,7 +197,7 @@ MapRender::MapRender(const World& _world)
     no_drop_options.editable = true;
     no_drop_options.internal_format = GL_SRGB;
     no_drop_options.compressed = false;
-    tile_sheet->to_opengl(no_drop_options);
+    tile_sheet->upload(no_drop_options);
 
     // Province options
     province_opt = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(256, 256));
@@ -207,7 +207,7 @@ MapRender::MapRender(const World& _world)
     {
         Eng3D::TextureOptions no_drop_options{};
         no_drop_options.editable = true;
-        province_opt->to_opengl(no_drop_options);
+        province_opt->upload(no_drop_options);
     }
 
     update_nations(world.provinces);
@@ -224,7 +224,7 @@ MapRender::MapRender(const World& _world)
     sdf_options.mag_filter = GL_LINEAR;
     sdf_options.compressed = false;
     border_sdf = std::make_unique<Eng3D::Texture>(Eng3D::Texture(Path::get("map/sdf_map.png")));
-    border_sdf->to_opengl(sdf_options);
+    border_sdf->upload(sdf_options);
     border_sdf->gen_mipmaps();
     // update_border_sdf(Eng3D::Rect(0, 0, 5400, 2700));
 }
@@ -314,7 +314,7 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
     border_tex_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     border_tex_options.mag_filter = GL_LINEAR;
     border_tex_options.editable = true;
-    border_tex.to_opengl(border_tex_options);
+    border_tex.upload(border_tex_options);
     border_tex.gen_mipmaps();
 
     float width = world.width;
@@ -353,11 +353,11 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
     // The Blue is the distance to a border
     if(border_sdf == nullptr) {
         border_sdf = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(border_tex.width, border_tex.height));
-        border_sdf->to_opengl(fbo_mipmap_options);
+        border_sdf->upload(fbo_mipmap_options);
     }
 
     auto swap_tex = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(width, height));
-    swap_tex->to_opengl(fbo_mipmap_options);
+    swap_tex->upload(fbo_mipmap_options);
 
     Eng3D::OpenGL::Framebuffer fbo = Eng3D::OpenGL::Framebuffer();
     fbo.use();
@@ -406,7 +406,7 @@ void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
     no_drop_options.internal_format = GL_SRGB;
-    tile_sheet->to_opengl(no_drop_options);
+    tile_sheet->upload(no_drop_options);
 }
 
 // Updates nations
@@ -420,7 +420,7 @@ void MapRender::update_nations(std::vector<Province*> provinces) {
 
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
-    this->tile_sheet_nation->to_opengl(no_drop_options);
+    this->tile_sheet_nation->upload(no_drop_options);
 }
 
 void MapRender::request_update_visibility(void)
@@ -464,7 +464,7 @@ void MapRender::update_visibility(void)
     if (gs.map->province_selected) {
         this->province_opt->buffer.get()[gs.map->selected_province_id] = 0x400000ff;
     }
-    this->province_opt->to_opengl(no_drop_options);
+    this->province_opt->upload(no_drop_options);
 }
 
 void MapRender::draw(Camera* camera, MapView view_mode) {

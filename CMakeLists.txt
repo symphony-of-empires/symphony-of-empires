@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5.1)
 
-project(SymphonyOfEmpires)
+project(SymphonyOfEmpires CXX C)
 
 option(BUILD_ENGINE "Enable building Eng3D" ON)
 option(BUILD_GAME "Enable building SymphonyOfEmpires" ON)
@@ -39,19 +39,20 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 
 IF(NOT MSVC)
-	set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS} -pthread")
+	set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS}")
 ENDIF()
 IF(WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_TARGET_WINDOWS=1")
+ELSEIF(UNIX)
+	include_directories(/usr/include/SDL2) # Some distrobutions have different paths...
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_TARGET_UNIX=1")
 ELSE()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_TARGET_UNIX=1")
 ENDIF()
 IF(UNIT_TEST)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNIT_TEST")
 ENDIF()
-# Workaround for clang (see https://bugs.launchpad.net/ubuntu/+source/libsdl2-ttf/+bug/1872023)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/include/SDL2")
-link_directories(/usr/local/lib)
+
 include_directories("${PROJECT_SOURCE_DIR}/game/src" "${CMAKE_SOURCE_DIR}/eng3d/eng3d/include")
 
 link_directories(${CMAKE_SOURCE_DIR}/vendor/lib)
@@ -74,16 +75,22 @@ add_executable(SymphonyOfEmpires ${MAIN_SOURCES})
 #
 # Linking
 #
-target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 z eng3d tbb)
+target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 eng3d tbb)
 IF(WIN32)
 	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR MSVC)
 		
 	ELSE()
 		target_link_libraries(SymphonyOfEmpires PUBLIC stdc++ m winpthread)
 	ENDIF()
-	target_link_libraries(SymphonyOfEmpires PUBLIC opengl32 glu32)
 ELSE()
-	target_link_libraries(SymphonyOfEmpires PUBLIC m stdc++ GL GLU SDL2main)
+	target_link_libraries(SymphonyOfEmpires PUBLIC m stdc++)
+ENDIF()
+
+# Pthread
+find_package(Threads)
+IF(Threads_FOUND)
+	set(THREADS_PREFER_PTHREAD_FLAG ON)
+	target_link_libraries(SymphonyOfEmpires PRIVATE Threads::Threads)
 ENDIF()
 
 # Lua library is quite strange and requires some conditionals to be able to compile it
@@ -99,7 +106,6 @@ IF(NOT MINGW AND NOT MSYS)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLUA54")
 	ELSE()
 		message(STATUS "Using lua v5.3")
-		
 		IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR MSVC)
 			target_link_libraries(SymphonyOfEmpires PUBLIC lua53)
 		ELSE()
@@ -142,13 +148,17 @@ target_precompile_headers(SymphonyOfEmpires PRIVATE
 	<iostream>
 	<unordered_map>
 )
-# OpenGL header files
-target_precompile_headers(SymphonyOfEmpires PRIVATE
-	<GL/glew.h>
-	<GL/gl.h>
-	<GL/glu.h>
-	<GL/glext.h>
-)
+
+IF(E3D_BACKEND_OPENGL)
+	# OpenGL header files
+	target_precompile_headers(SymphonyOfEmpires PRIVATE
+		<GL/glew.h>
+		<GL/gl.h>
+		<GL/glu.h>
+		<GL/glext.h>
+	)
+ENDIF()
+
 # glm header files
 target_precompile_headers(SymphonyOfEmpires PRIVATE
 	<glm/glm.hpp>

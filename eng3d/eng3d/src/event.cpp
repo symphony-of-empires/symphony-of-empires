@@ -23,19 +23,12 @@
 //      Does important stuff.
 // ----------------------------------------------------------------------------
 
-#include "eng3d/event.hpp"
+#include <SDL.h>
+#include <SDL_events.h>
+#include <SDL_keycode.h>
+#include <SDL_mouse.h>
 
-#ifdef _MSC_VER
-#   include <SDL.h>
-#   include <SDL_events.h>
-#   include <SDL_keycode.h>
-#   include <SDL_mouse.h>
-#else
-#   include <SDL2/SDL.h>
-#   include <SDL2/SDL_events.h>
-#   include <SDL2/SDL_keycode.h>
-#   include <SDL2/SDL_mouse.h>
-#endif
+#include "eng3d/event.hpp"
 
 Eng3D::Keyboard::Key Eng3D::Keyboard::from_sdlk(int sdlk)
 {

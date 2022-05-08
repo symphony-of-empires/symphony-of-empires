@@ -79,8 +79,11 @@ namespace Eng3D {
         TRIANGLE_STRIP = GL_TRIANGLE_STRIP,
         TRIANGLES = GL_TRIANGLES,
         LINES = GL_LINES,
-#else
-#   error not implemented
+#elif defined E3D_BACKEND_RGX
+        TRIANGLE_FAN = 1,
+        TRIANGLE_STRIP = 2,
+        TRIANGLES = 3,
+        LINES = 4,
 #endif
     };
 

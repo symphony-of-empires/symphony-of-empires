@@ -33,6 +33,7 @@
 #include "eng3d/assert.hpp"
 #include "eng3d/log.hpp"
 
+#ifdef E3D_BACKEND_OPENGL
 // Construct a shader by opening the provided path and creating a temporal ifstream, reading
 // from that stream in text mode and then compiling the shader
 Eng3D::OpenGL::Shader::Shader(const std::string& _buffer, GLuint type, bool use_transpiler, std::vector<Eng3D::OpenGL::GLSL_Define> defintions)
@@ -52,7 +53,7 @@ Eng3D::OpenGL::Shader::Shader(const std::string& _buffer, GLuint type, bool use_
 
     id = glCreateShader(type);
     if(!id) {
-        CXX_THROW(Eng3D::OpenGL::ShaderException, "Can't create shader");
+        CXX_THROW(Eng3D::ShaderException, "Can't create shader");
     }
     const char* c_code = buffer.c_str();
     glShaderSource(id, 1, &c_code, NULL);
@@ -108,7 +109,7 @@ void Eng3D::OpenGL::Shader::compile(GLuint type) {
         if(it != buffer.end()) {
             line_buf = buffer.substr(std::distance(buffer.begin(), it), buffer.find_first_of('\n', std::distance(buffer.begin(), it)));
         }
-        CXX_THROW(Eng3D::OpenGL::ShaderException, line_buf + "\n" + error_info);
+        CXX_THROW(Eng3D::ShaderException, line_buf + "\n" + error_info);
     }
     // print_info("Status: Sucess");
 }
@@ -196,7 +197,7 @@ Eng3D::OpenGL::TessEvalShader::~TessEvalShader(void) {
 Eng3D::OpenGL::Program::Program(void) {
     id = glCreateProgram();
     if(!id) {
-        CXX_THROW(Eng3D::OpenGL::ShaderException, "Can't create new program");
+        CXX_THROW(Eng3D::ShaderException, "Can't create new program");
     }
     glBindAttribLocation(id, 0, "m_pos");
     glBindAttribLocation(id, 1, "m_texcoord");
@@ -223,7 +224,7 @@ void Eng3D::OpenGL::Program::link(void) {
         std::string error_info;
         glGetProgramInfoLog(id, GL_INFO_LOG_LENGTH, NULL, &error_info[0]);
         print_error("Program error %s", error_info.c_str());
-        CXX_THROW(Eng3D::OpenGL::ShaderException, error_info);
+        CXX_THROW(Eng3D::ShaderException, error_info);
     }
 }
 
@@ -285,3 +286,4 @@ void Eng3D::OpenGL::Program::set_texture(int value, const std::string& name, con
 GLuint Eng3D::OpenGL::Program::get_id(void) const {
     return id;
 }
+#endif
