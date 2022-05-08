@@ -285,6 +285,7 @@ glm::ivec2 Context::get_pos(Widget& w, glm::ivec2 offset) {
 void Context::resize(int _width, int _height) {
     width = _width;
     height = _height;
+    glViewport(0, 0, width, height);
 }
 
 void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport, glm::vec2 offset) {
