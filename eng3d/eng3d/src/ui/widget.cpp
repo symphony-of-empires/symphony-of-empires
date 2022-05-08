@@ -293,8 +293,7 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
     if(border.texture != nullptr) {
         draw_border(border, viewport);
     }
-
-    g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man->get_white());
+    
     if(text_texture != nullptr) {
         if(!text_texture->gl_tex_num) {
             text_texture->to_opengl();
@@ -322,6 +321,7 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
         Eng3D::Rect pos_rect((int)0u, 0u, width, height);
         Eng3D::Rect tex_rect((int)0u, 0u, 1u, 1u);
 
+        g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man->get_white());
         g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.5f, 0.5f, 0.5f, 0.5f));
         draw_rect(nullptr, pos_rect, tex_rect, viewport);
     }
