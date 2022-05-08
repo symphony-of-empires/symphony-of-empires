@@ -24,9 +24,9 @@
 // ----------------------------------------------------------------------------
 
 #include <stdexcept>
-#ifdef unix
+#ifdef E3D_TARGET_UNIX
 #	include <unistd.h>
-#elif defined windows
+#elif defined E3D_TARGET_WINDOWS
 #	ifndef _WINDOWS_
 #       ifndef NOMINMAX
 #	        define NOMINMAX 1
@@ -62,7 +62,7 @@ namespace Path {
     }
 
     std::string get_full(void) {
-#ifdef windows
+#ifdef E3D_TARGET_WINDOWS
         char buf[MAX_PATH];
         const auto len = GetModuleFileNameA(nullptr, buf, MAX_PATH);
 #else
@@ -115,7 +115,7 @@ namespace Path {
         if(!file_found) {
             Eng3D::Log::error("path", "Path could not find file " + str);
         }
-#ifdef windows
+#ifdef E3D_TARGET_WINDOWS
         std::replace(end_path.begin(), end_path.end(), '/', '\\');
 #endif
         return end_path;
@@ -131,7 +131,7 @@ namespace Path {
         for(const auto& path : mod_paths) {
             std::string end_path = get_full() + path + str;
             if(file_exists(end_path) == true) {
-#ifdef windows
+#ifdef E3D_TARGET_WINDOWS
                 std::replace(end_path.begin(), end_path.end(), '/', '\\');
 #endif
                 Eng3D::Log::debug("path", "Path " + end_path + " exists");
@@ -153,7 +153,7 @@ namespace Path {
         bool found = false;
         for(const auto& path : mod_paths) {
             std::string rsult = get_full() + path + str;
-#ifdef windows
+#ifdef E3D_TARGET_WINDOWS
             std::replace(rsult.begin(), rsult.end(), '/', '\\');
 #endif
             if(file_exists(rsult) == true) {
@@ -180,7 +180,7 @@ namespace Path {
         std::vector<std::string> p_list;
         for(const auto& path : mod_paths) {
             std::string rsult = get_full() + path;
-#ifdef windows
+#ifdef E3D_TARGET_WINDOWS
             std::replace(rsult.begin(), rsult.end(), '/', '\\');
 #endif
             p_list.push_back(rsult);
@@ -189,7 +189,7 @@ namespace Path {
     }
 
     std::string clean_path(std::string path) {
-#ifdef windows
+#ifdef E3D_TARGET_WINDOWS
         std::replace(path.begin(), path.end(), '/', '\\');
 #endif
         return path;

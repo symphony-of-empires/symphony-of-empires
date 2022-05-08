@@ -25,7 +25,7 @@
 
 #include <algorithm>
 #include <cstdio>
-#if defined unix
+#ifdef E3D_TARGET_UNIX
 #	include <sys/types.h>
 #else
 #if defined _MSC_VER

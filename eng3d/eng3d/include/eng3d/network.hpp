@@ -35,7 +35,7 @@
 #include <deque>
 #include <stdexcept>
 
-#if defined windows
+#ifdef E3D_TARGET_WINDOWS
 // Allow us to use deprecated functions like inet_addr
 #   define _WINSOCK_DEPRECATED_NO_WARNINGS
 // MingW heavily dislikes ws2def.h and causes spurious errors
@@ -46,7 +46,7 @@
 #   include <ws2tcpip.h>
 #endif
 
-#ifdef unix
+#ifdef E3D_TARGET_UNIX
 #    define _XOPEN_SOURCE_EXTENDED 1
 #    include <netdb.h>
 #    include <arpa/inet.h>
