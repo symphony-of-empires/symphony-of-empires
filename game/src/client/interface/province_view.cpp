@@ -94,7 +94,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
             new Interface::NationView(this->gs, this->province->owner);
         });
         this->owner_flag->set_tooltip(this->province->owner->name + " owns this province");
-        auto* flag_rug = new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width,  this->owner_flag->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
+        auto* flag_rug = new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width, this->owner_flag->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
     }
 
     // Display all the nuclei
@@ -105,7 +105,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
             new Interface::NationView(this->gs, nation);
         });
         this->owner_flag->set_tooltip(nation->name + " has nuclei on this province");
-        auto* flag_rug = new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width,  this->owner_flag->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
+        auto* flag_rug = new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width, this->owner_flag->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
         dx += this->owner_flag->width;
     }
 
@@ -309,6 +309,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         gs.right_side_panel->kill();
     }
     gs.right_side_panel = this;
+    gs.map->set_selected_province(true, _gs.world->get_id(*_province));
 
     this->origin = UI::Origin::UPPER_RIGHT_SCREEN;
     this->is_scroll = false;
@@ -440,4 +441,8 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         });
         edit_terrain_btn->set_tooltip("Edit terrain");
     }
+}
+
+ProvinceView::~ProvinceView() {
+    gs.map->set_selected_province(true, 0);
 }

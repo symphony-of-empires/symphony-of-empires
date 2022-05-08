@@ -107,9 +107,14 @@ public:
     void draw(const GameState& gs);
     void handle_click(GameState& gs, SDL_Event event);
     void set_map_mode(mapmode_generator mapmode_func, mapmode_tooltip tooltip_func);
+    void set_selected_province(bool selected, Province::Id id);
     void set_view(MapView view);
     void reload_shaders();
     void create_labels();
+
+    bool province_selected = false;
+    Province::Id selected_province_id = (Province::Id)-1;
+
 
     MapRender* map_render;
     MapView view_mode = MapView::PLANE_VIEW;

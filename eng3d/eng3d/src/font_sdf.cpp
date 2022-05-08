@@ -59,6 +59,7 @@ Eng3D::FontSDF::FontSDF(const std::string& filename) {
     mipmap_options.mag_filter = GL_LINEAR;
     mipmap_options.wrap_s = GL_CLAMP_TO_EDGE;
     mipmap_options.wrap_t = GL_CLAMP_TO_EDGE;
+    mipmap_options.compressed = false;
 
     std::shared_ptr<Eng3D::IO::Asset::Base> asset = Eng3D::State::get_instance().package_man->get_unique(filename + ".png");
     atlas = Eng3D::State::get_instance().tex_man->load(asset->abs_path, mipmap_options);
