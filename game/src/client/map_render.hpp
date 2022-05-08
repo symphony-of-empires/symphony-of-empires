@@ -90,7 +90,7 @@ public:
 
     MapOptions options;
 private:
-    void update_border_sdf(Eng3D::Rect update_area);
+    void update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_size);
 
     const World& world;
 
