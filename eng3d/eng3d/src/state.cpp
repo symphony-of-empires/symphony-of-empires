@@ -82,8 +82,8 @@ Eng3D::State::State(void) {
     // Startup-initialization of SDL
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
-#ifdef E3D_BACKEND_RGX // RVL GX
-#else // Normal PC computer
+    
+#ifdef E3D_BACKEND_OPENGL // Normal PC computer
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_ShowCursor(SDL_DISABLE);
@@ -96,10 +96,8 @@ Eng3D::State::State(void) {
     // OpenGL configurations
     context = SDL_GL_CreateContext(window);
     //SDL_GL_SetSwapInterval(1);
-#endif
 
     Eng3D::Log::debug("opengl", std::string() + "OpenGL Version: " + (const char*)glGetString(GL_VERSION));
-
     glewExperimental = GL_TRUE;
     GLenum err = glewInit();
     if(err != GLEW_OK) {
@@ -131,6 +129,7 @@ Eng3D::State::State(void) {
     glDepthRange(0.f, 1.f);
 
     glClearColor(0.3f, 0.3f, 0.3f, 0.0f);
+#endif
 
     // Initialize sound subsystem (at 11,050 hz)
     SDL_AudioSpec fmt;
@@ -217,7 +216,9 @@ Eng3D::State::~State(void) {
 
     delete ui_ctx;
 
+#ifdef E3D_BACKEND_OPENGL
     SDL_GL_DeleteContext(context);
+#endif
     SDL_CloseAudio();
 
     TTF_Quit();
@@ -227,15 +228,20 @@ Eng3D::State::~State(void) {
 }
 
 void Eng3D::State::clear(void) const {
+#ifdef E3D_BACKEND_OPENGL
     glClear(GL_DEPTH_BUFFER_BIT);
     glClearDepth(1.f);
+#else
+    // TODO: RGX clear function
+#endif
 }
 
 void Eng3D::State::swap(void) const {
+#ifdef E3D_BACKEND_OPENGL
     // Required by macOS
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
     SDL_GL_SwapWindow(window);
+#endif
 }
 
 void Eng3D::State::mixaudio(void* userdata, uint8_t* stream, int len) {
