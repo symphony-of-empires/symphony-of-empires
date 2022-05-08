@@ -111,6 +111,7 @@ namespace Interface {
         ProvinceEditTerrainTab* edit_terrain_tab;
     public:
         ProvinceView(GameState& gs, Province* province);
+        ~ProvinceView() override;
         friend class ProvinceBuildingTab;
     };
 

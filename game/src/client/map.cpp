@@ -233,7 +233,8 @@ void Map::create_labels() {
             min_point_y.y = nation->capital->min_y;
 
             get_blob_bounds(&visited_provinces, *nation, *nation->capital, &min_point_x, &min_point_y, &max_point_x, &max_point_y);
-        } else {
+        }
+        else {
             get_blob_bounds(&visited_provinces, *nation, **(nation->controlled_provinces.begin()), &min_point_x, &min_point_y, &max_point_x, &max_point_y);
         }
 
@@ -273,7 +274,8 @@ void Map::create_labels() {
         float angle = glm::atan(lab_max.y - lab_min.y, lab_max.x - lab_min.x);
         if(angle > M_PI_2) {
             angle -= M_PI;
-        } else if(angle < -M_PI_2) {
+        }
+        else if(angle < -M_PI_2) {
             angle += M_PI;
         }
 
@@ -306,7 +308,8 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
         Nation* province_owner = world.provinces[i]->controller;
         if(province_owner == nullptr) {
             province_color.push_back(ProvinceColor(i, Eng3D::Color::rgba32(0xffdddddd)));
-        } else {
+        }
+        else {
             province_color.push_back(ProvinceColor(i, Eng3D::Color::rgba32(province_owner->get_client_hint().color)));
         }
     }
@@ -338,6 +341,12 @@ void Map::set_map_mode(mapmode_generator mapmode_generator, mapmode_tooltip tool
     mapmode_func = mapmode_generator;
     mapmode_tooltip_func = tooltip_generator;
     update_mapmode();
+}
+
+void Map::set_selected_province(bool selected, Province::Id id) {
+    this->province_selected = selected;
+    this->selected_province_id = id;    
+    map_render->update_visibility();
 }
 
 void Map::draw_flag(const Eng3D::OpenGL::Program& shader, const Nation& nation) {
@@ -393,7 +402,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                 selector(world, *this, province);
                 break;
             }
-            
+
             // Check if we selected an unit
             input.selected_units.clear();
             for(const auto& unit : gs.world->units) {
@@ -435,7 +444,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             break;
         }
         return;
-    } else if(event.button.button == SDL_BUTTON_RIGHT) {
+    }
+    else if(event.button.button == SDL_BUTTON_RIGHT) {
         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
         if(tile.province_id == (Province::Id)-1) {
             return;
@@ -505,7 +515,8 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, Game
                 last_camera_drag_pos = map_pos;
                 input.last_camera_mouse_pos = mouse_pos;
             }
-        } else if(event.button.button == SDL_BUTTON_LEFT) {
+        }
+        else if(event.button.button == SDL_BUTTON_LEFT) {
             input.drag_coord = input.select_pos;
             input.drag_coord.first = (int)input.drag_coord.first;
             input.drag_coord.second = (int)input.drag_coord.second;
@@ -738,7 +749,8 @@ void Map::draw(const GameState& gs) {
     float distance_to_map = map_pos.z / world.width;
     if(distance_to_map < 0.070) {
         map_font->draw(province_labels, projection, view);
-    } else {
+    }
+    else {
         map_font->draw(nation_labels, projection, view);
     }
 
