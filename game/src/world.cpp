@@ -626,6 +626,90 @@ void World::load_mod(void) {
     Eng3D::Log::debug("game", Eng3D::Locale::translate("World fully intiialized"));
 }
 
+static inline void unit_do_tick(Unit& unit)
+{
+    debug_assert(unit.province != nullptr);
+    if(unit.on_battle) {
+        return;
+    }
+
+    bool can_take = true;
+    for(auto& other_unit : unit.province->get_units()) {
+        if(other_unit->on_battle) {
+            continue;
+        }
+
+        // Must not our unit and only if we are at war
+        if(other_unit->owner == unit.owner || !unit.owner->relations[g_world->get_id(*other_unit->owner)].has_war) {
+            continue;
+        }
+
+        can_take = false;
+        // If there is another unit of a country we are at war with we will start a battle
+        for(auto& war : g_world->wars) {
+            if(!war->is_involved(*unit.owner)) {
+                continue;
+            }
+
+            auto it = std::find_if(war->battles.begin(), war->battles.end(), [&unit](const auto& e) {
+                return e.province == unit.province;
+            });
+
+            // Create a new battle if none is occurring on this province
+            unit.target = nullptr;
+            if(it == war->battles.end()) {
+                Battle battle = Battle(*war, *unit.province);
+                battle.name = "Battle of " + unit.province->name;
+                if(war->is_attacker(*unit.owner)) {
+                    battle.attackers.push_back(&unit);
+                    battle.defenders.push_back(other_unit);
+                } else {
+                    battle.attackers.push_back(other_unit);
+                    battle.defenders.push_back(&unit);
+                }
+                unit.on_battle = true;
+                other_unit->on_battle = true;
+                war->battles.push_back(battle);
+                Eng3D::Log::debug("game", "New battle of \"" + battle.name + "\"");
+                break;
+            } else {
+                Battle& battle = *it;
+
+                // Add the unit to one side depending on who are we attacking
+                // However unit must not be already involved
+                // TODO: Make it be instead depending on who attacked first in this battle
+                if(war->is_attacker(*unit.owner)) {
+                    if(std::find(battle.attackers.begin(), battle.attackers.end(), &unit) == battle.attackers.end()) {
+                        battle.attackers.push_back(&unit);
+                        unit.on_battle = true;
+                    }
+                } else if(war->is_defender(*unit.owner)) {
+                    if(std::find(battle.defenders.begin(), battle.defenders.end(), &unit) == battle.defenders.end()) {
+                        battle.defenders.push_back(&unit);
+                        unit.on_battle = true;
+                    }
+                }
+                Eng3D::Log::debug("game", "Adding unit to battle of \"" + battle.name + "\"");
+                break;
+            }
+            break;
+        }
+    }
+
+    if(unit.target != nullptr && unit.can_move()) {
+        if(unit.move_progress) {
+            unit.move_progress -= std::min<Eng3D::Decimal>(unit.move_progress, unit.get_speed());
+        } else {
+            unit.set_province(*unit.target);
+            
+            // If we are at war with the person we are crossing their provinces at, then take 'em (albeit with resistance)
+            if(can_take && unit.owner->relations[g_world->get_id(*unit.province->controller)].has_war) {
+                unit.owner->control_province(*unit.province);
+            }
+        }
+    }
+}
+
 void World::do_tick() {
     profiler.start("AI");
     // Do the AI turns in parallel
@@ -667,89 +751,9 @@ void World::do_tick() {
 
     profiler.start("Units");
     // Evaluate units
-    std::vector<Eng3D::Decimal> mil_research_pts(nations.size(), 0.f);
-    std::vector<Eng3D::Decimal> naval_research_pts(nations.size(), 0.f);
     for(size_t i = 0; i < units.size(); i++) {
         Unit* unit = units[i];
-        debug_assert(unit->province != nullptr);
-        if(unit->on_battle) {
-            continue;
-        }
-
-        bool can_take = true;
-        for(auto& other_unit : unit->province->get_units()) {
-            if(other_unit->on_battle) {
-                continue;
-            }
-
-            // Must not our unit and only if we are at war
-            if(other_unit->owner == unit->owner || !unit->owner->relations[get_id(*other_unit->owner)].has_war) {
-                continue;
-            }
-
-            can_take = false;
-            // If there is another unit of a country we are at war with we will start a battle
-            for(auto& war : wars) {
-                if(!war->is_involved(*unit->owner)) {
-                    continue;
-                }
-
-                auto it = std::find_if(war->battles.begin(), war->battles.end(), [&unit](const auto& e) {
-                    return e.province == unit->province;
-                });
-
-                // Create a new battle if none is occurring on this province
-                unit->target = nullptr;
-                if(it == war->battles.end()) {
-                    Battle battle = Battle(*war, *unit->province);
-                    battle.name = "Battle of " + unit->province->name;
-                    if(war->is_attacker(*unit->owner)) {
-                        battle.attackers.push_back(unit);
-                        battle.defenders.push_back(other_unit);
-                    } else {
-                        battle.attackers.push_back(other_unit);
-                        battle.defenders.push_back(unit);
-                    }
-                    unit->on_battle = true;
-                    other_unit->on_battle = true;
-                    war->battles.push_back(battle);
-                    Eng3D::Log::debug("game", "New battle of \"" + battle.name + "\"");
-                    break;
-                } else {
-                    Battle& battle = *it;
-
-                    // Add the unit to one side depending on who are we attacking
-                    // However unit must not be already involved
-                    // TODO: Make it be instead depending on who attacked first in this battle
-                    if(war->is_attacker(*unit->owner)) {
-                        if(std::find(battle.attackers.begin(), battle.attackers.end(), unit) == battle.attackers.end()) {
-                            battle.attackers.push_back(unit);
-                            unit->on_battle = true;
-                        }
-                    } else if(war->is_defender(*unit->owner)) {
-                        if(std::find(battle.defenders.begin(), battle.defenders.end(), unit) == battle.defenders.end()) {
-                            battle.defenders.push_back(unit);
-                            unit->on_battle = true;
-                        }
-                    }
-                    Eng3D::Log::debug("game", "Adding unit to battle of \"" + battle.name + "\"");
-                    break;
-                }
-                break;
-            }
-        }
-        if(unit->target != nullptr && unit->can_move()) {
-            if(unit->move_progress) {
-                unit->move_progress -= std::min<Eng3D::Decimal>(unit->move_progress, unit->get_speed());
-            } else {
-                unit->set_province(*unit->target);
-                
-                // If we are at war with the person we are crossing their provinces at, then take 'em (albeit with resistance)
-                if(can_take && unit->owner->relations[get_id(*unit->province->controller)].has_war) {
-                    unit->owner->control_province(*unit->province);
-                }
-            }
-        }
+        unit_do_tick(*unit);
     }
     profiler.stop("Units");
 
@@ -821,7 +825,6 @@ void World::do_tick() {
                 } else {
                     battle.defenders[0]->owner->control_province(*battle.province);
                 }
-
                 war->battles.erase(war->battles.begin() + j);
                 j--;
                 continue;
@@ -831,6 +834,8 @@ void World::do_tick() {
     profiler.stop("Battles");
 
     profiler.start("Research");
+    std::vector<Eng3D::Decimal> mil_research_pts(nations.size(), 0.f);
+    std::vector<Eng3D::Decimal> naval_research_pts(nations.size(), 0.f);
     // Now researches for every country are going to be accounted :)
     for(const auto& nation : nations) {
         debug_assert(nation != nullptr);
