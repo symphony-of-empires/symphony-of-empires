@@ -59,11 +59,7 @@ void Chart::on_render(Context&, Eng3D::Rect viewport) {
     }
 
     if(current_texture != nullptr && current_texture->gl_tex_num) {
-        draw_rectangle(
-            0, 0,
-            width, height,
-            viewport,
-            current_texture->gl_tex_num);
+        draw_rectangle(0, 0, width, height, viewport, current_texture.get());
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -110,9 +106,7 @@ void Chart::on_render(Context&, Eng3D::Rect viewport) {
         glColor3f(0.f, 0.f, 0.f);
         time = 0;
         for(const auto& node : data) {
-            glVertex2f(
-                time * (width / (data.size() - 1)),
-                (real_height - (((node - min) / (max - min)) * real_height)) + 2.f);
+            glVertex2f(time * (width / (data.size() - 1)), (real_height - (((node - min) / (max - min)) * real_height)) + 2.f);
             time++;
         }
         glEnd();
@@ -121,9 +115,7 @@ void Chart::on_render(Context&, Eng3D::Rect viewport) {
         glColor3f(1.f, 0.f, 0.f);
         time = 0;
         for(const auto& node : data) {
-            glVertex2f(
-                time * (width / (data.size() - 1)),
-                real_height - (((node - min) / (max - min)) * real_height));
+            glVertex2f(time * (width / (data.size() - 1)), real_height - (((node - min) / (max - min)) * real_height));
             time++;
         }
         glEnd();
@@ -131,7 +123,7 @@ void Chart::on_render(Context&, Eng3D::Rect viewport) {
 
     if(text_texture != nullptr) {
         glColor3f(text_color.r, text_color.g, text_color.b);
-        draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
+        draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture);
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);

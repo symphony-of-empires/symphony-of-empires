@@ -5,7 +5,6 @@ out vec4 f_color;
 in vec2 v_texcoord;
 
 uniform sampler2D diffuse_map;
-
 uniform vec4 ambient_color;
 uniform vec4 diffuse_color;
 

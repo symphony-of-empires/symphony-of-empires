@@ -97,7 +97,7 @@ void ProgressBar::on_render(Context&, Eng3D::Rect viewport) {
 
     if(text_texture != nullptr) {
         glColor3f(text_color.r, text_color.g, text_color.b);
-        draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
+        draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture);
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
