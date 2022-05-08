@@ -42,6 +42,7 @@
 #include "eng3d/rectangle.hpp"
 #include "eng3d/state.hpp"
 #include "eng3d/ui/tooltip.hpp"
+#include "eng3d/primitive.hpp"
 
 #if !defined NOMINMAX
 #   define NOMINMAX 1
@@ -83,28 +84,24 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
         x += parent->padding.x;
         y += parent->padding.y;
         parent->add_child(this);
-    }
-    else {
+    } else {
         // Add the widget to the context in each construction without parent
         g_ui_context->add_widget(this);
     }
 }
 
-Widget::~Widget() {
+Widget::~Widget(void) {
     // Common texture also deleted?
     if(text_texture != nullptr) {
         delete text_texture;
     }
+
     if(tooltip != nullptr) {
         delete tooltip;
     }
 }
 
-void Widget::draw_rect(const GLuint tex,
-    Eng3D::Rect rect_pos,
-    Eng3D::Rect rect_tex,
-    Eng3D::Rect viewport) {
-
+void Widget::draw_rect(const Eng3D::Texture* tex, Eng3D::Rect rect_pos, Eng3D::Rect rect_tex, Eng3D::Rect viewport) {
     glm::vec2 pos_size = rect_pos.size();
     pos_size.x = pos_size.x > 0? pos_size.x : 1.f;
     pos_size.y = pos_size.y > 0? pos_size.y : 1.f;
@@ -131,22 +128,12 @@ void Widget::draw_rect(const GLuint tex,
         rect_pos.bottom = viewport.bottom;
     }
 
-    glBindTexture(GL_TEXTURE_2D, tex);
-    glBegin(GL_TRIANGLES);
-    glTexCoord2f(rect_tex.left, rect_tex.top);
-    glVertex2f(rect_pos.left, rect_pos.top);
-    glTexCoord2f(rect_tex.right, rect_tex.top);
-    glVertex2f(rect_pos.right, rect_pos.top);
-    glTexCoord2f(rect_tex.right, rect_tex.bottom);
-    glVertex2f(rect_pos.right, rect_pos.bottom);
-
-    glTexCoord2f(rect_tex.right, rect_tex.bottom);
-    glVertex2f(rect_pos.right, rect_pos.bottom);
-    glTexCoord2f(rect_tex.left, rect_tex.bottom);
-    glVertex2f(rect_pos.left, rect_pos.bottom);
-    glTexCoord2f(rect_tex.left, rect_tex.top);
-    glVertex2f(rect_pos.left, rect_pos.top);
-    glEnd();
+    // TODO: rect_tex
+    if(tex != nullptr) {
+        g_ui_context->obj_shader->set_texture(0, "diffuse_map", *tex);
+    }
+    auto square = Eng3D::Square(rect_pos, rect_tex);
+    square.draw();   
 }
 
 void Widget::above_of(const Widget& rhs) {
@@ -172,7 +159,8 @@ void Widget::draw_border(Border& border, Eng3D::Rect viewport) {
     float b_h = border.size.y;
     float b_tex_w = border.texture_size.x;
     float b_tex_h = border.texture_size.y;
-    auto border_tex = border.texture;
+
+    const auto& border_tex = *border.texture.get();
 
     // Draw border edges and corners
     Eng3D::Rect pos_rect(0, 0, 0, 0);
@@ -183,84 +171,83 @@ void Widget::draw_border(Border& border, Eng3D::Rect viewport) {
     pos_rect.bottom = y_offset + b_h;
     tex_rect.left = 0;
     tex_rect.top = 0;
-    tex_rect.right = b_tex_w / border_tex->width;
-    tex_rect.bottom = b_tex_h / border_tex->height;
+    tex_rect.right = b_tex_w / border_tex.width;
+    tex_rect.bottom = b_tex_h / border_tex.height;
 
-    GLuint tex = border_tex->gl_tex_num;
     // Top left corner
-    draw_rect(tex, pos_rect, tex_rect, viewport);
+    draw_rect(&border_tex, pos_rect, tex_rect, viewport);
 
     // Top right corner
     pos_rect.left = width - b_w;
-    tex_rect.left = (border_tex->width - b_tex_w) / border_tex->width;
+    tex_rect.left = (border_tex.width - b_tex_w) / border_tex.width;
     pos_rect.right = width;
     tex_rect.right = 1.f;
-    draw_rect(tex, pos_rect, tex_rect, viewport);
+    draw_rect(&border_tex, pos_rect, tex_rect, viewport);
 
     // Bottom right corner
     pos_rect.top = height - b_h;
-    tex_rect.top = (border_tex->height - b_tex_h) / border_tex->height;
+    tex_rect.top = (border_tex.height - b_tex_h) / border_tex.height;
     pos_rect.bottom = height;
     tex_rect.bottom = 1.f;
-    draw_rect(tex, pos_rect, tex_rect, viewport);
+    draw_rect(&border_tex, pos_rect, tex_rect, viewport);
 
     // Bottom left corner
     pos_rect.left = x_offset;
     tex_rect.left = 0;
     pos_rect.right = x_offset + b_w;
-    tex_rect.right = b_tex_w / border_tex->width;
-    draw_rect(tex, pos_rect, tex_rect, viewport);
+    tex_rect.right = b_tex_w / border_tex.width;
+    draw_rect(&border_tex, pos_rect, tex_rect, viewport);
 
     // Top edge
     pos_rect.left = x_offset + b_w;
-    tex_rect.left = b_tex_w / border_tex->width;
+    tex_rect.left = b_tex_w / border_tex.width;
     pos_rect.right = width - b_w;
-    tex_rect.right = (border_tex->width - b_tex_w) / border_tex->width;
+    tex_rect.right = (border_tex.width - b_tex_w) / border_tex.width;
     pos_rect.top = y_offset;
     tex_rect.top = 0;
     pos_rect.bottom = y_offset + b_h;
-    tex_rect.bottom = b_tex_h / border_tex->height;
-    draw_rect(tex, pos_rect, tex_rect, viewport);
+    tex_rect.bottom = b_tex_h / border_tex.height;
+    draw_rect(&border_tex, pos_rect, tex_rect, viewport);
 
     // Bottom edge
     pos_rect.top = height - b_h;
-    tex_rect.top = (border_tex->height - b_tex_h) / border_tex->height;
+    tex_rect.top = (border_tex.height - b_tex_h) / border_tex.height;
     pos_rect.bottom = height;
     tex_rect.bottom = 1.f;
-    draw_rect(tex, pos_rect, tex_rect, viewport);
+    draw_rect(&border_tex, pos_rect, tex_rect, viewport);
 
     // Left edge
     pos_rect.top = y_offset + b_h;
-    tex_rect.top = b_tex_h / border_tex->height;
+    tex_rect.top = b_tex_h / border_tex.height;
     pos_rect.bottom = height - b_h;
-    tex_rect.bottom = (border_tex->height - b_tex_h) / border_tex->height;
+    tex_rect.bottom = (border_tex.height - b_tex_h) / border_tex.height;
     pos_rect.left = x_offset;
     tex_rect.left = 0;
     pos_rect.right = b_w;
-    tex_rect.right = b_tex_w / border_tex->width;
-    draw_rect(tex, pos_rect, tex_rect, viewport);
+    tex_rect.right = b_tex_w / border_tex.width;
+    draw_rect(&border_tex, pos_rect, tex_rect, viewport);
 
     // Right edge
     pos_rect.left = width - b_w;
-    tex_rect.left = (border_tex->width - b_tex_w) / border_tex->width;
+    tex_rect.left = (border_tex.width - b_tex_w) / border_tex.width;
     pos_rect.right = width;
     tex_rect.right = 1.f;
-    draw_rect(tex, pos_rect, tex_rect, viewport);
+    draw_rect(&border_tex, pos_rect, tex_rect, viewport);
 
     // Middle
     pos_rect.left = x_offset + b_w;
-    tex_rect.left = b_tex_w / border_tex->width;
+    tex_rect.left = b_tex_w / border_tex.width;
     pos_rect.right = width - b_w;
-    tex_rect.right = (border_tex->width - b_tex_w) / border_tex->width;
+    tex_rect.right = (border_tex.width - b_tex_w) / border_tex.width;
     pos_rect.top = y_offset + b_h;
-    tex_rect.top = b_tex_h / border_tex->height;
+    tex_rect.top = b_tex_h / border_tex.height;
     pos_rect.bottom = height - b_h;
-    tex_rect.bottom = (border_tex->height - b_tex_h) / border_tex->height;
-    draw_rect(tex, pos_rect, tex_rect, viewport);
+    tex_rect.bottom = (border_tex.height - b_tex_h) / border_tex.height;
+    draw_rect(&border_tex, pos_rect, tex_rect, viewport);
 }
 
 // Draw a simple quad
-void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, Eng3D::Rect viewport, const GLuint tex) {
+void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, Eng3D::Rect viewport, const Eng3D::Texture* tex) {
     // Texture switching in OpenGL is expensive
     Eng3D::Rect pos_rect(_x, _y, (int)_w, (int)_h);
     Eng3D::Rect tex_rect(0.f, 0.f, 1.f, 1.f);
@@ -269,85 +256,65 @@ void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, Eng3D::Rec
 
 #include <deque>
 void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
+    g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man->get_white());
+
     // Shadow
     if(have_shadow) {
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glColor4f(0.f, 0.f, 0.f, 0.75f);
-        glBegin(GL_TRIANGLES);
-        glVertex2f(16, 16);
-        glVertex2f(width + 16, 16);
-        glVertex2f(width + 16, height + 16);
-        glVertex2f(width + 16, height + 16);
-        glVertex2f(16, height + 16);
-        glVertex2f(16, 16);
-        glEnd();
+        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.f, 0.f, 0.7f, 1.f));
+        auto square = Eng3D::Square(16.f, 16.f, width + 16.f, height + 16.f);
     }
 
-    glColor3f(1.f, 1.f, 1.f);
-
+    g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
     // Background (tile) display
     if(type == UI::WidgetType::INPUT) {
         Eng3D::Rect pos_rect((int)0u, 0u, width, height);
         Eng3D::Rect tex_rect((int)0u, 0u, 1u, 1u);
-
-        glColor3f(0.f, 0.f, 1.f);
-        draw_rect(0, pos_rect, tex_rect, viewport);
+        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.f, 1.f, 0.f, 1.f));
+        draw_rect(nullptr, pos_rect, tex_rect, viewport);
     }
 
     if(color.a != 0) {
         Eng3D::Rect pos_rect((int)0u, 0u, width, height);
         Eng3D::Rect tex_rect((int)0u, 0u, 1u, 1u);
-        glColor4f(color.r, color.g, color.b, color.a);
-        draw_rect(0, pos_rect, tex_rect, viewport);
+        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(color.r, color.g, color.b, color.a));
+        draw_rect(nullptr, pos_rect, tex_rect, viewport);
     }
 
-    glColor3f(1.f, 1.f, 1.f);
+    g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
     if(current_texture != nullptr) {
-        draw_rectangle(0, 0, width, height, viewport, current_texture->gl_tex_num);
+        draw_rectangle(0, 0, width, height, viewport, current_texture.get());
     }
 
     // Top bar of windows display
     if(type == UI::WidgetType::WINDOW) {
-        draw_rectangle(0, 0, width, 24, viewport, ctx.window_top->gl_tex_num);
+        draw_rectangle(0, 0, width, 24, viewport, ctx.window_top.get());
     }
-
-    // if(type == UI::WidgetType::BUTTON) {
-    //     const size_t padding = 1;
-
-    //     // Put a "grey" inner background
-    //     Eng3D::Rect pos_rect((int)padding, padding, width - padding, height - padding);
-    //     Eng3D::Rect tex_rect((int)0u, 0u, width / ctx.background->width, height / ctx.background->height);
-
-    //     draw_rect(ctx.button->gl_tex_num, pos_rect, tex_rect, viewport);
-    // }
 
     if(border.texture != nullptr) {
         draw_border(border, viewport);
     }
-    glBindTexture(GL_TEXTURE_2D, 0);
 
+    g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man->get_white());
     if(text_texture != nullptr) {
         if(!text_texture->gl_tex_num) {
             text_texture->to_opengl();
         }
-        glColor3f(text_color.r, text_color.g, text_color.b);
+        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
 
         int x_offset = text_offset_x;
         int y_offset = text_offset_y;
         if(text_align_x == UI::Align::CENTER) {
             x_offset = (width - text_texture->width) / 2;
-        }
-        else if(text_align_x == UI::Align::END) {
+        } else if(text_align_x == UI::Align::END) {
             x_offset = width - text_texture->width;
         }
 
         if(text_align_y == UI::Align::CENTER) {
             y_offset = (height - text_texture->height) / 2;
-        }
-        else if(text_align_y == UI::Align::END) {
+        } else if(text_align_y == UI::Align::END) {
             y_offset = height - text_texture->height;
         }
-        draw_rectangle(x_offset, y_offset, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
+        draw_rectangle(x_offset, y_offset, text_texture->width, text_texture->height, viewport, text_texture);
     }
 
     // Semi-transparent over hover elements which can be clicked
@@ -355,8 +322,8 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
         Eng3D::Rect pos_rect((int)0u, 0u, width, height);
         Eng3D::Rect tex_rect((int)0u, 0u, 1u, 1u);
 
-        glColor4f(0.7f, 0.7f, 0.7f, 0.5f);
-        draw_rect(0, pos_rect, tex_rect, viewport);
+        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.5f, 0.5f, 0.5f, 0.5f));
+        draw_rect(nullptr, pos_rect, tex_rect, viewport);
     }
 }
 

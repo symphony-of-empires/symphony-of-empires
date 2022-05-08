@@ -249,6 +249,10 @@ void Eng3D::OpenGL::Program::set_uniform(const std::string& name, glm::vec3 unif
     set_uniform(name, uniform.x, uniform.y, uniform.z);
 }
 
+void Eng3D::OpenGL::Program::set_uniform(const std::string& name, glm::vec4 uniform) const {
+    set_uniform(name, uniform.x, uniform.y, uniform.z, uniform.w);
+}
+
 void Eng3D::OpenGL::Program::set_uniform(const std::string& name, float value1, float value2, float value3, float value4) const {
     glUniform4f(glGetUniformLocation(id, name.c_str()), value1, value2, value3, value4);
 }

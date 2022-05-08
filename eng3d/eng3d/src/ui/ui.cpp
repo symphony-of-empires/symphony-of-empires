@@ -63,6 +63,7 @@
 #include "eng3d/rectangle.hpp"
 #include "eng3d/state.hpp"
 #include "eng3d/utils.hpp"
+#include "eng3d/primitive.hpp"
 
 #if !defined NOMINMAX
 #   define NOMINMAX 1
@@ -89,13 +90,21 @@ Context::Context() {
     background = gs.tex_man->load(gs.package_man->get_unique("gfx/window_background.png"));
     window_top = gs.tex_man->load(gs.package_man->get_unique("gfx/window_top3.png"));
     button = gs.tex_man->load(gs.package_man->get_unique("gfx/button2.png"));
-    tooltip_texture = gs.tex_man->load(gs.package_man->get_unique("gfx/tooltip.png"));
+    //tooltip_tex = gs.tex_man->load(gs.package_man->get_unique("gfx/tooltip.png"));
     piechart_overlay = gs.tex_man->load(gs.package_man->get_unique("gfx/piechart.png"));
     border_tex = gs.tex_man->load(gs.package_man->get_unique("gfx/border2.png"));
     button_border = gs.tex_man->load(gs.package_man->get_unique("gfx/border_sharp2.png"));
-    cursor = gs.tex_man->load(gs.package_man->get_unique("gfx/cursor_b.png"));
+    cursor_tex = gs.tex_man->load(gs.package_man->get_unique("gfx/cursor_b.png"));
 
-    //widget_shader = Eng3D::OpenGL::Program::create_regular("shader/2d_shader.vs", "shader/2d_shader.fs");
+    // Shader used for orthogonally drawing the objects on the 2D plane
+    obj_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
+    {
+        auto vs_shader = Eng3D::OpenGL::VertexShader(Path::cat_strings(Path::get_data("shaders/vs_2d.vs")));
+        obj_shader->attach_shader(&vs_shader);
+        auto fs_shader = Eng3D::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/fs_2d.fs")));
+        obj_shader->attach_shader(&fs_shader);
+        obj_shader->link();
+    }
 }
 
 Context::~Context() {
@@ -143,6 +152,7 @@ void Context::clear_dead_recursive(Widget* w) {
             clear_dead_recursive(w->children[index].get());
         }
     }
+
     if(changed) {
         w->need_recalc = true;
     }
@@ -154,8 +164,7 @@ void Context::clear_dead() {
             delete widgets[index];
             widgets.erase(widgets.begin() + index);
             index--;
-        }
-        else {
+        } else {
             clear_dead_recursive(widgets[index]);
         }
     }
@@ -278,15 +287,17 @@ void Context::resize(int _width, int _height) {
     height = _height;
 }
 
-void Context::render_recursive(Widget& w, Eng3D::Rect viewport, glm::vec2 offset) {
+void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport, glm::vec2 offset) {
     if(w.need_recalc) {
         w.recalc_child_pos();
         w.need_recalc = false;
     }
+
     // Only render widget that are shown
     if(!w.is_show || !w.is_render) {
         return;
     }
+    
     // Only render widget that have a width and height
     if(!w.width || !w.height) {
         return;
@@ -299,8 +310,8 @@ void Context::render_recursive(Widget& w, Eng3D::Rect viewport, glm::vec2 offset
 
     glm::ivec2 size{ w.width, w.height };
     // Get the widget origin relative to the parent or screen 
-    offset = get_pos(w, offset);
-    auto viewport_offset = get_pos(w, viewport.position());
+    offset = this->get_pos(w, offset);
+    auto viewport_offset = this->get_pos(w, viewport.position());
     Eng3D::Rect local_viewport = Eng3D::Rect{ offset, size };
     // Set the viewport to the intersection of the parents and currents widgets viewport
     if(!w.parent || w.parent->type != UI::WidgetType::GROUP) {
@@ -309,12 +320,9 @@ void Context::render_recursive(Widget& w, Eng3D::Rect viewport, glm::vec2 offset
     viewport = local_viewport;
 
     local_viewport.offset(-offset);
-    glPushMatrix();
-    // Offset the widget start pos
-    glTranslatef(offset.x, offset.y, 0.f);
-    // Render the widget, only render what's inside the viewport
-    w.on_render(*this, local_viewport);
-    glPopMatrix();
+
+    obj_shader->set_uniform("model", glm::translate(model, glm::vec3(offset, 0.f))); // Offset the widget start pos
+    w.on_render(*this, local_viewport); // Render the widget, only render what's inside the viewport
 
     if(w.on_update) {
         w.on_update(w);
@@ -329,66 +337,35 @@ void Context::render_recursive(Widget& w, Eng3D::Rect viewport, glm::vec2 offset
             }
         }
 
-        render_recursive(*child, viewport, offset);
+        this->render_recursive(*child, model, viewport, offset);
     }
 }
 
 void Context::render_all(glm::ivec2 mouse_pos) {
-    glUseProgram(0);
+    obj_shader->use();
 
     glActiveTexture(GL_TEXTURE0);
-    glViewport(0, 0, width, height);
-
-    /*
     glm::mat4 projection = glm::ortho(0.f, static_cast<float>(width), static_cast<float>(height), 0.f, 0.0f, 1.f);
-    widget_shader->set_uniform("projection", projection);
-    glm::mat4 view = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
-    widget_shader->set_uniform("view", view);
-    */
+    obj_shader->set_uniform("projection", projection);
+    glm::mat4 view = glm::mat4(1.f);
+    obj_shader->set_uniform("view", view);
+    glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
+    obj_shader->set_uniform("model", model);
 
-    glPushMatrix();
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0.f, static_cast<float>(this->width), static_cast<float>(this->height), 0.f, 0.0f, 1.f);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glTranslatef(0.f, 0.f, 0.f);
     Eng3D::Rect viewport(0, 0, width, height);
     for(auto& widget : this->widgets) {
-        render_recursive(*widget, viewport, glm::vec2(0));
+        this->render_recursive(*widget, model, viewport, glm::vec2(0.f));
     }
 
     if(tooltip_widget != nullptr) {
-        render_recursive(*tooltip_widget, viewport, glm::vec2(0));
+        this->render_recursive(*tooltip_widget, model, viewport, glm::vec2(0.f));
     }
 
-    // Cursor
-    glPushMatrix();
-    glTranslatef(mouse_pos.x, mouse_pos.y, 0.f);
-    Eng3D::TextureOptions mipmap_options;
-    mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-    mipmap_options.mag_filter = GL_LINEAR;
-    mipmap_options.wrap_s = GL_CLAMP_TO_EDGE;
-    mipmap_options.wrap_t = GL_CLAMP_TO_EDGE;
-    cursor->bind();
-    glColor3f(1.f, 1.f, 1.f);
-    glBegin(GL_TRIANGLES);
-    glTexCoord2f(0.f, 0.f);
-    glVertex2f(0.f, 0.f);
-    glTexCoord2f(1.f, 0.f);
-    glVertex2f(32.f, 0.f);
-    glTexCoord2f(1.f, 1.f);
-    glVertex2f(32.f, 32.f);
-    glTexCoord2f(1.f, 1.f);
-    glVertex2f(32.f, 32.f);
-    glTexCoord2f(0.f, 1.f);
-    glVertex2f(0.f, 32.f);
-    glTexCoord2f(0.f, 0.f);
-    glVertex2f(0.f, 0.f);
-    glEnd();
-    glPopMatrix();
-
-    glPopMatrix();
+    // Display the cursor
+    obj_shader->set_texture(0, "diffuse_map", *cursor_tex);
+    obj_shader->set_uniform("model", glm::translate(glm::mat4(1.f), glm::vec3(mouse_pos, 0.f)));
+    auto cursor_quad = Eng3D::Square(0.f, 0.f, 32.f, 32.f);
+    cursor_quad.draw();
 }
 
 void Context::clear_hover_recursive(Widget& w) {
@@ -470,7 +447,7 @@ bool Context::check_hover(const unsigned mx, const unsigned my) {
 
 UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off, UI::ClickState click_state, bool clickable) {
     glm::ivec2 offset{ x_off, y_off };
-    offset = get_pos(w, offset);
+    offset = this->get_pos(w, offset);
 
     if(click_state != UI::ClickState::NOT_CLICKED) {
         clickable = true;
@@ -641,8 +618,7 @@ bool Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_o
     const Eng3D::Rect r = Eng3D::Rect(offset.x, offset.y, w.width, w.height);
     if(!r.in_bounds(glm::vec2(mx, my))) {
         return false;
-    }
-    else if(w.is_transparent) {
+    } else if(w.is_transparent) {
         if(w.current_texture != nullptr) {
             int tex_width = w.current_texture->width;
             int tex_height = w.current_texture->height;
