@@ -296,7 +296,7 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
     
     if(text_texture != nullptr) {
         if(!text_texture->gl_tex_num) {
-            text_texture->to_opengl();
+            text_texture->upload();
         }
         g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
 

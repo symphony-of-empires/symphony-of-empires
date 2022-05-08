@@ -23,8 +23,6 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "client/game_state.hpp"
-
 #include <cstdint>
 #include <cstdio>
 #include <string>
@@ -52,19 +50,9 @@
 #endif
 #include <GL/gl.h>
 #include <GL/glu.h>
-
-#ifdef _MSC_VER
-#   include <SDL.h>
-#   include <SDL_events.h>
-#   include <SDL_mouse.h>
-#   include <SDL_audio.h>
-#else
-#   include <SDL2/SDL.h>
-#   include <SDL2/SDL_events.h>
-#   include <SDL2/SDL_mouse.h>
-#   include <SDL2/SDL_audio.h>
-//#include <sys/wait.h>
-#endif
+#include <SDL.h>
+#include <SDL_events.h>
+#include <SDL_mouse.h>
 
 #include "eng3d/event.hpp"
 #include "eng3d/path.hpp"
@@ -77,6 +65,7 @@
 #include "eng3d/ui/input.hpp"
 #include "eng3d/log.hpp"
 
+#include "client/game_state.hpp"
 #include "good.hpp"
 #include "io_impl.hpp"
 #include "product.hpp"

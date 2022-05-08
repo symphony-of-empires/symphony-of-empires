@@ -78,7 +78,7 @@ Eng3D::Texture::Texture(TTF_Font* font, Eng3D::Color color, const std::string& m
     buffer.reset();
     width = static_cast<size_t>(surface->w);
     height = static_cast<size_t>(surface->h);
-    this->to_opengl(surface);
+    this->upload(surface);
     SDL_FreeSurface(surface);
 
     const std::string error_msg = SDL_GetError();
@@ -88,9 +88,11 @@ Eng3D::Texture::Texture(TTF_Font* font, Eng3D::Color color, const std::string& m
 }
 
 Eng3D::Texture::~Texture(void) {
+#ifdef E3D_BACKEND_OPENGL
     if(gl_tex_num) {
-        delete_opengl();
+        delete_gputex();
     }
+#endif
 }
 
 // This dummy texture helps to avoid crashes due to missing buffers or so, and also gives
@@ -110,9 +112,10 @@ void Eng3D::Texture::create_dummy() {
     }
 }
 
-void Eng3D::Texture::to_opengl(TextureOptions options) {
+void Eng3D::Texture::upload(TextureOptions options) {
+#ifdef E3D_BACKEND_OPENGL
     if(gl_tex_num) {
-        delete_opengl();
+        delete_gputex();
     }
 
     glGenTextures(1, &gl_tex_num);
@@ -176,20 +179,24 @@ void Eng3D::Texture::to_opengl(TextureOptions options) {
         // We will free up the texture if we don't plan on editing it since it's on the GPU now
         buffer.reset();
     }
+#endif
 }
 
 void Eng3D::Texture::gen_mipmaps() const {
+#ifdef E3D_BACKEND_OPENGL
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
     glGenerateMipmap(GL_TEXTURE_2D);
+#endif
 }
 
 // Converts the texture into a OpenGL texture, and assigns it a number
-void Eng3D::Texture::to_opengl(SDL_Surface* surface) {
+void Eng3D::Texture::upload(SDL_Surface* surface) {
     if(surface->w == 0 || surface->h == 0) {
         return;
     }
 
     int colors = surface->format->BytesPerPixel;
+#ifdef E3D_BACKEND_OPENGL
     GLuint texture_format;
     if(colors == 4) {
         // Alpha
@@ -232,16 +239,21 @@ void Eng3D::Texture::to_opengl(SDL_Surface* surface) {
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+#endif
 }
 
 // Binds the texture to the current OpenGL context
 void Eng3D::Texture::bind(void) const {
+#ifdef E3D_BACKEND_OPENGL
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
+#endif
 }
 
 // Deletes the OpenGL representation of this texture
-void Eng3D::Texture::delete_opengl() {
+void Eng3D::Texture::delete_gputex() {
+#ifdef E3D_BACKEND_OPENGL
     glDeleteTextures(1, &gl_tex_num);
+#endif
 }
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION 1
@@ -251,12 +263,14 @@ void Eng3D::Texture::to_file(const std::string& filename) {
     int stride = channel_count * width;
     int data_size = stride * height;
 
+#ifdef E3D_BACKEND_OPENGL
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
 
     GLubyte* data = (GLubyte*)malloc(data_size);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     stbi_write_png(filename.c_str(), width, height, channel_count, data, stride);
+#endif
 }
 
 //
@@ -273,7 +287,8 @@ Eng3D::TextureArray::TextureArray(const std::string& path, size_t _tiles_x, size
 }
 
 // Uploads the TextureArray to the driver
-void Eng3D::TextureArray::to_opengl(void) {
+void Eng3D::TextureArray::upload(void) {
+#ifdef E3D_BACKEND_OPENGL
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D_ARRAY, gl_tex_num);
 
@@ -303,6 +318,7 @@ void Eng3D::TextureArray::to_opengl(void) {
     glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
+#endif
 }
 
 //
@@ -312,7 +328,7 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::get_white(void) {
     if(white.get() == nullptr) {
         white = std::make_shared<Eng3D::Texture>(1, 1);
         white->buffer.get()[0] = 0xFFFFFFFF;
-        white->to_opengl();
+        white->upload();
     }
     return std::shared_ptr<Eng3D::Texture>(white);
 }
@@ -351,7 +367,7 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(const std::string& p
         tex = std::make_shared<Eng3D::Texture>();
         tex->create_dummy();
     }
-    tex->to_opengl(options);
+    tex->upload(options);
     if(options.min_filter == GL_NEAREST_MIPMAP_NEAREST || options.min_filter == GL_NEAREST_MIPMAP_LINEAR || options.min_filter == GL_LINEAR_MIPMAP_NEAREST || options.min_filter == GL_LINEAR_MIPMAP_LINEAR) {
         tex->gen_mipmaps();
     }

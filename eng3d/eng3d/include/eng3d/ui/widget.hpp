@@ -32,13 +32,8 @@
 #include <string>
 #include <memory>
 
-#ifdef _MSC_VER
 #include <SDL_surface.h>
 #include <SDL_ttf.h>
-#else
-#include <SDL2/SDL_surface.h>
-#include <SDL2/SDL_ttf.h>
-#endif
 
 #include <glm/vec2.hpp>
 #include "eng3d/rectangle.hpp"

@@ -25,11 +25,16 @@
 
 #pragma once
 
-#include <GL/glew.h>
+#ifdef E3D_BACKEND_OPENGL
+#   include <GL/glew.h>
+#elif defined E3D_BACKEND_RGX
+#   include <gccore.h>
+#endif
 
 #include "eng3d/texture.hpp"
 
 namespace Eng3D {
+#ifdef E3D_BACKEND_OPENGL
     namespace OpenGL {
         class Framebuffer {
         public:
@@ -41,4 +46,17 @@ namespace Eng3D {
             GLuint id = 0;
         };
     }
+    using Framebuffer = OpenGL::Framebuffer;
+#elif defined E3D_BACKEND_RGX
+    namespace RGX {
+        class Framebuffer {
+        public:
+            Framebuffer();
+            ~Framebuffer();
+            void set_texture(int index, const Eng3D::Texture& texture);
+            void use();
+        };
+    }
+    using Framebuffer = RGX::Framebuffer;
+#endif
 }

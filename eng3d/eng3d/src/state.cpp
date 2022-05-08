@@ -25,8 +25,6 @@
 //      show them.
 // ----------------------------------------------------------------------------
 
-#include "eng3d/state.hpp"
-
 #ifdef _MSC_VER
 // Required before GL/gl.h
 #   ifndef _WINDOWS_
@@ -48,9 +46,9 @@
 #include <filesystem>
 #include <cstring>
 
+#include "eng3d/state.hpp"
 #include "eng3d/path.hpp"
 #include "eng3d/io.hpp"
-
 #include "eng3d/print.hpp"
 #include "eng3d/audio.hpp"
 #include "eng3d/texture.hpp"
@@ -81,10 +79,11 @@ Eng3D::State::State(void) {
         }
     }
 
-    // Startup-initialization of subsystems
+    // Startup-initialization of SDL
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
-
+#ifdef E3D_BACKEND_RGX // RVL GX
+#else // Normal PC computer
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_ShowCursor(SDL_DISABLE);
@@ -97,8 +96,9 @@ Eng3D::State::State(void) {
     // OpenGL configurations
     context = SDL_GL_CreateContext(window);
     //SDL_GL_SetSwapInterval(1);
+#endif
 
-    print_info("OpenGL Version: %s", glGetString(GL_VERSION));
+    Eng3D::Log::debug("opengl", std::string() + "OpenGL Version: " + (const char*)glGetString(GL_VERSION));
 
     glewExperimental = GL_TRUE;
     GLenum err = glewInit();
@@ -161,29 +161,28 @@ Eng3D::State::State(void) {
         return std::unique_ptr<Eng3D::OpenGL::VertexShader>(new Eng3D::OpenGL::VertexShader(read_file(file_name)));
     };
 
+#ifdef E3D_BACKEND_OPENGL
     // Big library used mostly by every shader, compiled for faster linking or other stuff
     builtin_shaders["fs_lib"] = load_fragment_shader("fs_lib.fs");
 
     // 2D generic fragment shader
     builtin_shaders["fs_2d"] = load_fragment_shader("fs_2d.fs");
-
+    
     // 2D generic vertex shader
     builtin_shaders["vs_2d"] = load_vertex_shader("vs_2d.vs");
-
+    
     // 3D generic fragment shader
     builtin_shaders["fs_3d"] = load_fragment_shader("fs_3d.fs");
-
+    
     // 3D generic vertex shader
     builtin_shaders["vs_3d"] = load_vertex_shader("vs_3d.vs");
-
     builtin_shaders["vs_font_sdf"] = load_vertex_shader("vs_font_sdf.vs");
-
     builtin_shaders["fs_font_sdf"] = load_fragment_shader("fs_font_sdf.fs");
+#endif
 
     // Plugins system (still wip)
     for(const auto& plugin : Path::get_all("plugin.dll")) {
-#ifdef _MSC_VER
-#   ifdef E3D_TARGET_WINDOWS
+#ifdef E3D_TARGET_WINDOWS
         HINSTANCE hGetProcIDDLL = LoadLibrary(plugin.c_str());
         // This shouldn't happen - like ever!
         if(!hGetProcIDDLL) {
@@ -202,7 +201,6 @@ Eng3D::State::State(void) {
         if(r != 0) {
             Eng3D::Log::warning("plugin", "Error RET=" + std::to_string(r) + " on plugin " + plugin);
         }
-#   endif
 #endif
     }
 

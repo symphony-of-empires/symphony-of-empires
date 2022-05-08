@@ -37,16 +37,12 @@
 #include <functional>
 #include <memory>
 
-#include <GL/glew.h>
-#include <GL/gl.h>
-
-#ifdef _MSC_VER
-#   include <SDL_ttf.h>
-#   include <SDL_surface.h>
-#else
-#   include <SDL2/SDL_ttf.h>
-#   include <SDL2/SDL_surface.h>
+#ifdef E3D_BACKEND_OPENGL
+#   include <GL/glew.h>
+#   include <GL/gl.h>
 #endif
+#include <SDL_ttf.h>
+#include <SDL_surface.h>
 
 #include "eng3d/binary_image.hpp"
 #include "eng3d/color.hpp"
@@ -70,7 +66,7 @@ namespace Eng3D {
     class TextureOptions {
     public:
         TextureOptions() {};
-
+#ifdef E3D_BACKEND_OPENGL
         GLenum target = GL_TEXTURE_2D;
         GLuint wrap_s = GL_REPEAT;
         GLuint wrap_t = GL_REPEAT;
@@ -79,6 +75,16 @@ namespace Eng3D {
         GLuint internal_format = GL_RGBA;
         GLuint format = GL_RGBA;
         GLuint type = GL_UNSIGNED_BYTE;
+#else
+        GLenum target;
+        GLuint wrap_s;
+        GLuint wrap_t;
+        GLuint min_filter;
+        GLuint mag_filter;
+        GLuint internal_format;
+        GLuint format;
+        GLuint type;
+#endif
         bool editable = false;
         bool compressed = true;
 
@@ -105,26 +111,29 @@ namespace Eng3D {
         Texture(TTF_Font* font, Eng3D::Color color, const std::string& msg);
         ~Texture(void) override;
         void create_dummy();
-        void to_opengl(TextureOptions options = default_options);
+        void upload(TextureOptions options = default_options);
+        void upload(SDL_Surface* surface);
         void gen_mipmaps() const;
-        void to_opengl(SDL_Surface* surface);
         void bind(void) const;
-        void delete_opengl();
+        void delete_gputex();
         void guillotine(const Eng3D::Texture& map, int x, int y, int w, int h);
         void to_file(const std::string& filename);
 
+#ifdef E3D_BACKEND_OPENGL
         GLuint gl_tex_num = 0;
+#endif
     };
 
     // Array of textures
     class TextureArray: public BinaryImage {
     public:
         TextureArray(const std::string& path, size_t _tiles_x, size_t _tiles_y);
-        void to_opengl(void);
-
-        GLuint gl_tex_num = 0;
+        void upload(void);
         size_t layers;
         size_t tiles_x, tiles_y;
+#ifdef E3D_BACKEND_OPENGL
+        GLuint gl_tex_num = 0;
+#endif
     };
 
     template <class T>

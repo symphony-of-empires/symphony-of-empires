@@ -54,7 +54,7 @@ void Chart::on_render(Context&, Eng3D::Rect viewport) {
     g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
     if(text_texture != nullptr) {
         if(!text_texture->gl_tex_num) {
-            text_texture->to_opengl();
+            text_texture->upload();
         }
     }
 

@@ -26,13 +26,8 @@
 #include <cstring>
 #include <algorithm>
 
-#ifdef _MSC_VER
-#   include <SDL.h>
-#   include <SDL_audio.h>
-#else
-#   include <SDL2/SDL.h>
-#   include <SDL2/SDL_audio.h>
-#endif
+#include <SDL.h>
+#include <SDL_audio.h>
 
 #include <filesystem>
 #include "stb_vorbis.c"

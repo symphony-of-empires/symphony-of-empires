@@ -5,10 +5,11 @@ project(eng3d)
 #set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 set(CMAKE_CXX_STANDARD 17)
 
-# Workaround for clang (see https://bugs.launchpad.net/ubuntu/+source/libsdl2-ttf/+bug/1872023)
-include_directories(/usr/include/SDL2)
-
-link_directories(/usr/local/lib)
+IF(NOT E3D_TARGET_RVL)
+	# Workaround for clang (see https://bugs.launchpad.net/ubuntu/+source/libsdl2-ttf/+bug/1872023)
+	include_directories(/usr/include/SDL2)
+	link_directories(/usr/local/lib)
+ENDIF()
 include_directories("${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/include")
 
 # TODO: Windows specific
@@ -32,8 +33,18 @@ IF(WIN32)
 		target_link_libraries(eng3d PUBLIC m stdc++ winpthread)
 	ENDIF()
 	target_link_libraries(eng3d PUBLIC glew32 opengl32 glu32 ws2_32 wsock32)
-ELSE()
+ELSEIF(UNIX)
+	include_directories(/usr/include/SDL2) # Some distrobutions have different paths...
 	target_link_libraries(eng3d PUBLIC m stdc++ GL GLU GLEW SDL2main)
+ELSE()
+
+ENDIF()
+
+# Find pthreads
+find_package(Threads)
+IF(Threads_FOUND)
+	set(THREADS_PREFER_PTHREAD_FLAG ON)
+	target_link_libraries(eng3d PRIVATE Threads::Threads)
 ENDIF()
 
 #
@@ -67,12 +78,14 @@ target_precompile_headers(eng3d PRIVATE
 	<unordered_map>
 )
 
-# OpenGL header files
-target_precompile_headers(eng3d PRIVATE
-	<GL/glew.h>
-	<GL/gl.h>
-	<GL/glu.h>
-)
+IF(E3D_BACKEND_OPENGL)
+	# OpenGL header files
+	target_precompile_headers(eng3d PRIVATE
+		<GL/glew.h>
+		<GL/gl.h>
+		<GL/glu.h>
+	)
+ENDIF()
 
 # glm header files
 target_precompile_headers(eng3d PRIVATE

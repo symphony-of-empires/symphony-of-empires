@@ -30,75 +30,67 @@
 #include <memory>
 #include <map>
 
-#include <GL/glew.h>
-#ifdef _MSC_VER
-#   include <SDL.h>
-#   include <SDL_events.h>
-#   include <SDL_keycode.h>
-#   include <SDL_mouse.h>
-#   include <SDL_opengl.h>
-#   include <SDL_ttf.h>
-#   include <SDL_audio.h>
-#	include <SDL_joystick.h>
-#else
-#   include <SDL2/SDL.h>
-#   include <SDL2/SDL_events.h>
-#   include <SDL2/SDL_keycode.h>
-#   include <SDL2/SDL_mouse.h>
-#   include <SDL2/SDL_opengl.h>
-#   include <SDL2/SDL_ttf.h>
-#   include <SDL2/SDL_audio.h>
-#	include <SDL2/SDL_joystick.h>
+#ifdef E3D_BACKEND_OPENGL
+#   include <GL/glew.h>
 #endif
+#include <SDL.h>
+#include <SDL_events.h>
+#include <SDL_keycode.h>
+#include <SDL_mouse.h>
+#include <SDL_opengl.h>
+#include <SDL_ttf.h>
+#include <SDL_audio.h>
+#include <SDL_joystick.h>
 
 #include "eng3d/io.hpp"
 #include "eng3d/ui/ui.hpp"
 
 namespace Eng3D {
-	class TextureManager;
-	class MaterialManager;
-	class ModelManager;
-	class AudioManager;
-	class Audio;
-	namespace IO {
-		class PackageManager;
-	};
-	namespace OpenGL {
-		class Shader;
-	};
+    class TextureManager;
+    class MaterialManager;
+    class ModelManager;
+    class AudioManager;
+    class Audio;
+    namespace IO {
+        class PackageManager;
+    };
+    namespace OpenGL {
+        class Shader;
+    };
 
-	class State {
-	public:
-		SDL_Window* window;
-		SDL_GLContext context;
-		int width, height;
-	public:
-		State();
-		~State();
-		void clear(void) const;
-		void swap(void) const;
-		static void mixaudio(void* userdata, uint8_t* stream, int len);
-		static State& get_instance(void);
+    class State {
+    public:
+        State();
+        ~State();
+        void clear(void) const;
+        void swap(void) const;
+        static void mixaudio(void* userdata, uint8_t* stream, int len);
+        static State& get_instance(void);
 
-		SDL_Joystick* joy = nullptr;
-		float joy_sensivity = 2.f;
+        SDL_Joystick* joy = nullptr;
+        float joy_sensivity = 2.f;
 
-		// Queue of sounds/music
-		std::mutex sound_lock;
-		std::vector<Eng3D::Audio*> sound_queue;
-		std::vector<Eng3D::Audio*> music_queue;
-		float music_fade_value = 1.f;
+        // Queue of sounds/music
+        std::mutex sound_lock;
+        std::vector<Eng3D::Audio*> sound_queue;
+        std::vector<Eng3D::Audio*> music_queue;
+        float music_fade_value = 1.f;
 
-		Eng3D::AudioManager* sound_man;
-		Eng3D::TextureManager* tex_man;
-		Eng3D::MaterialManager* material_man;
-    	Eng3D::ModelManager* model_man;
-		Eng3D::IO::PackageManager* package_man;
-		UI::Context* ui_ctx;
+        Eng3D::AudioManager* sound_man;
+        Eng3D::TextureManager* tex_man;
+        Eng3D::MaterialManager* material_man;
+        Eng3D::ModelManager* model_man;
+        Eng3D::IO::PackageManager* package_man;
+        UI::Context* ui_ctx;
 
-		float music_volume = 50.f, sound_volume = 50.f;
+        float music_volume = 50.f, sound_volume = 50.f;
 
-		// Builtin shaders
-		std::map<std::string, std::unique_ptr<Eng3D::OpenGL::Shader>> builtin_shaders;
-	};
+        SDL_Window* window;
+        SDL_GLContext context;
+        int width, height;
+#ifdef E3D_BACKEND_OPENGL
+        // Builtin shaders
+        std::map<std::string, std::unique_ptr<Eng3D::OpenGL::Shader>> builtin_shaders;
+#endif
+    };
 }

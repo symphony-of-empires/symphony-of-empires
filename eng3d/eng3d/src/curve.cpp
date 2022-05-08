@@ -103,8 +103,9 @@ void Curve::create_line(std::vector<glm::vec3> points, std::vector<glm::vec3> no
 
 #ifdef E3D_BACKEND_OPENGL
 void Curve::draw() {
-    if(!quads)
+    if(!quads) {
         upload();
+    }
     quads->draw();
 }
 #else

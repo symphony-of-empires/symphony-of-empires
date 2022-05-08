@@ -36,7 +36,7 @@
 #include "eng3d/texture.hpp"
 #include "eng3d/glsl_trans.hpp"
 
-namespace Eng3D::OpenGL {
+namespace Eng3D {
     class ShaderException : public std::exception {
         std::string buffer;
     public:
@@ -46,86 +46,90 @@ namespace Eng3D::OpenGL {
         }
     };
 
-    class Option {
-        std::string _option;
-    public:
-        bool used;
+#ifdef E3D_BACKEND_OPENGL
+    namespace OpenGL {
+        class Option {
+            std::string _option;
+        public:
+            bool used;
 
-        Option(std::string option, bool use) : _option{ option } ,used{ use } {}
-        std::string get_option(void) const {
-            return _option;
-        }
+            Option(std::string option, bool use) : _option{ option }, used{ use } {}
+            std::string get_option(void) const {
+                return _option;
+            }
+        };
+
+        class Shader {
+        private:
+            void compile(GLuint type);
+            std::string buffer;
+            GLuint id;
+        public:
+            Shader(const std::string& _buffer, GLuint type, bool use_transpiler = true, std::vector<Eng3D::OpenGL::GLSL_Define> defintions = {});
+            ~Shader();
+            GLuint get_id(void) const;
+        };
+
+        class VertexShader: public Shader {
+        public:
+            VertexShader(const std::string& _buffer);
+            ~VertexShader();
+        };
+
+        class FragmentShader: public Shader {
+        public:
+            FragmentShader(const std::string& _buffer, bool use_transpiler = true, std::vector<Eng3D::OpenGL::GLSL_Define> defintions = {});
+            ~FragmentShader();
+        };
+
+        class GeometryShader: public Shader {
+        public:
+            GeometryShader(const std::string& _buffer);
+            ~GeometryShader();
+        };
+
+        class TessControlShader: public Shader {
+        public:
+            TessControlShader(const std::string& _buffer);
+            ~TessControlShader();
+        };
+
+        class TessEvalShader: public Shader {
+        public:
+            TessEvalShader(const std::string& _buffer);
+            ~TessEvalShader();
+        };
+
+        class Program {
+            GLuint id;
+        public:
+            Program();
+            //Program(const VertexShader* vertex, const FragmentShader* fragment, const GeometryShader* geometry = nullptr, const TessControlShader* tctrl = nullptr, const TessEvalShader* tee = nullptr);
+            ~Program();
+            /*
+            static std::unique_ptr<Program> create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
+            static std::unique_ptr<Program> create(std::vector<Option> options, const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
+            static std::unique_ptr<Program> create_regular(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
+            */
+
+            void attach_shader(const Shader* shader);
+            void link(void);
+
+            void use(void) const;
+            void set_uniform(const std::string& name, glm::mat4 uniform) const;
+            void set_uniform(const std::string& name, glm::vec3 uniform) const;
+            void set_uniform(const std::string& name, glm::vec4 uniform) const;
+            void set_uniform(const std::string& name, float value1, float value2) const;
+            void set_uniform(const std::string& name, float value1, float value2, float value3) const;
+            void set_uniform(const std::string& name, float value1, float value2, float value3, float value4) const;
+            void set_uniform(const std::string& name, float uniform) const;
+            void set_uniform(const std::string& name, int uniform) const;
+
+            void set_texture(int value, const std::string& name, const Eng3D::Texture& texture) const;
+            void set_texture(int value, const std::string& name, const Eng3D::TextureArray& texture) const;
+
+            GLuint get_id(void) const;
+        };
     };
-
-    class Shader {
-    private:
-        void compile(GLuint type);
-        std::string buffer;
-        GLuint id;
-    public:
-        Shader(const std::string& _buffer, GLuint type, bool use_transpiler = true, std::vector<Eng3D::OpenGL::GLSL_Define> defintions = {});
-        ~Shader();
-        GLuint get_id(void) const;
-    };
-
-    class VertexShader: public Shader {
-    public:
-        VertexShader(const std::string& _buffer);
-        ~VertexShader();
-    };
-
-    class FragmentShader: public Shader {
-    public:
-        FragmentShader(const std::string& _buffer, bool use_transpiler = true, std::vector<Eng3D::OpenGL::GLSL_Define> defintions = {});
-        ~FragmentShader();
-    };
-
-    class GeometryShader: public Shader {
-    public:
-        GeometryShader(const std::string& _buffer);
-        ~GeometryShader();
-    };
-
-    class TessControlShader: public Shader {
-    public:
-        TessControlShader(const std::string& _buffer);
-        ~TessControlShader();
-    };
-
-    class TessEvalShader: public Shader {
-    public:
-        TessEvalShader(const std::string& _buffer);
-        ~TessEvalShader();
-    };
-
-    class Program {
-        GLuint id;
-    public:
-        Program();
-        //Program(const VertexShader* vertex, const FragmentShader* fragment, const GeometryShader* geometry = nullptr, const TessControlShader* tctrl = nullptr, const TessEvalShader* tee = nullptr);
-        ~Program();
-        /*
-        static std::unique_ptr<Program> create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
-        static std::unique_ptr<Program> create(std::vector<Option> options, const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
-        static std::unique_ptr<Program> create_regular(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
-        */
-
-        void attach_shader(const Shader* shader);
-        void link(void);
-
-        void use(void) const;
-        void set_uniform(const std::string& name, glm::mat4 uniform) const;
-        void set_uniform(const std::string& name, glm::vec3 uniform) const;
-        void set_uniform(const std::string& name, glm::vec4 uniform) const;
-        void set_uniform(const std::string& name, float value1, float value2) const;
-        void set_uniform(const std::string& name, float value1, float value2, float value3) const;
-        void set_uniform(const std::string& name, float value1, float value2, float value3, float value4) const;
-        void set_uniform(const std::string& name, float uniform) const;
-        void set_uniform(const std::string& name, int uniform) const;
-
-        void set_texture(int value, const std::string& name, const Eng3D::Texture& texture) const;
-        void set_texture(int value, const std::string& name, const Eng3D::TextureArray& texture) const;
-
-        GLuint get_id(void) const;
-    };
+#endif
 };
