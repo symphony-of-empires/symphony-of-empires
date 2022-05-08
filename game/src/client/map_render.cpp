@@ -74,10 +74,14 @@ MapRender::MapRender(const World& _world)
     mipmap_options.wrap_t = GL_REPEAT;
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
+    mipmap_options.compressed = false;
+
+    noise_tex = tex_man->load(Path::get("gfx/noise_tex.png"), mipmap_options);
+
+    mipmap_options.compressed = true;
 
     wave1 = tex_man->load(Path::get("gfx/wave1.png"), mipmap_options);
     wave2 = tex_man->load(Path::get("gfx/wave2.png"), mipmap_options);
-    noise_tex = tex_man->load(Path::get("gfx/noise_tex.png"), mipmap_options);
 
     mipmap_options.internal_format = GL_SRGB;
     water_tex = tex_man->load(Path::get("gfx/water_tex.png"), mipmap_options);
@@ -300,7 +304,7 @@ void MapRender::update_options(MapOptions new_options) {
 // Creates the "waving" border around the continent to give it a 19th century map feel
 // Generate a distance field to from each border using the jump flooding algorithm
 // Used to create borders thicker than one tile
-void MapRender::update_border_sdf(Eng3D::Rect update_area) {
+void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_size) {
     glEnable(GL_SCISSOR_TEST);
     glViewport(update_area.left, update_area.top, update_area.width(), update_area.height());
     glScissor(update_area.left, update_area.top, update_area.width(), update_area.height());
@@ -390,6 +394,7 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area) {
     }
     border_sdf->gen_mipmaps();
     glDisable(GL_SCISSOR_TEST);
+    glViewport(0, 0, window_size.x, window_size.y);
     return;
 }
 
@@ -455,6 +460,9 @@ void MapRender::update_visibility(void)
         for(const auto& neighbour : unit->province->neighbours) {
             this->province_opt->buffer.get()[gs.world->get_id(*neighbour)] = 0x000000ff;
         }
+    }
+    if (gs.map->province_selected) {
+        this->province_opt->buffer.get()[gs.map->selected_province_id] = 0x400000ff;
     }
     this->province_opt->to_opengl(no_drop_options);
 }

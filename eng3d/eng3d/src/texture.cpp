@@ -119,7 +119,6 @@ void Eng3D::Texture::to_opengl(TextureOptions options) {
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
 
     // TODO: This causes a lot of issues!
-#if 0
     // Compress the texture if it can't be edited
     if(!options.editable && options.compressed) {
         switch(options.internal_format) {
@@ -157,7 +156,6 @@ void Eng3D::Texture::to_opengl(TextureOptions options) {
             break;
         }
     }
-#endif
 
     glTexImage2D(GL_TEXTURE_2D, 0, options.internal_format, width, height, 0, options.format, options.type, buffer.get());
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, options.wrap_s);
