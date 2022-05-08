@@ -51,7 +51,7 @@ Chart::Chart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 }
 
 void Chart::on_render(Context&, Eng3D::Rect viewport) {
-    glColor3f(1.f, 1.f, 1.f);
+    g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
     if(text_texture != nullptr) {
         if(!text_texture->gl_tex_num) {
             text_texture->to_opengl();
@@ -104,7 +104,7 @@ void Chart::on_render(Context&, Eng3D::Rect viewport) {
     }
 
     if(text_texture != nullptr) {
-        glColor3f(text_color.r, text_color.g, text_color.b);
+        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
         draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture);
     }
 
