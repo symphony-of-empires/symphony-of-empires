@@ -63,24 +63,6 @@ void Chart::on_render(Context&, Eng3D::Rect viewport) {
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    if(1) {
-        glLineWidth(2.f);
-
-        // Outer black border
-        glBegin(GL_LINE_STRIP);
-
-        glColor3f(0.f, 0.f, 0.f);
-        glVertex2f(0, height);
-        glVertex2f(0, 0);
-        glVertex2f(width, 0);
-
-        glColor3f(1.f, 1.f, 1.f);
-        glVertex2f(width, 0);
-        glVertex2f(width, height);
-        glVertex2f(0, height);
-        glEnd();
-    }
-
     if(data.size() > 1) {
         glBindTexture(GL_TEXTURE_2D, 0);
         glLineWidth(2.f);

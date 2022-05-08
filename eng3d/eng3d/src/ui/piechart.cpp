@@ -65,36 +65,37 @@ void PieChart::set_data(std::vector<ChartData> new_data) {
     }
 }
 
-void PieChart::draw_triangle(float start_ratio, float end_ratio, Eng3D::Color color) {
+void PieChart::draw_triangle(Eng3D::Mesh<glm::vec2, glm::vec2>& mesh, float start_ratio, float end_ratio, Eng3D::Color color) {
     float x_center = width / 2.f;
     float y_center = height / 2.f;
     float radius = std::min<float>(width, height) * 0.5;
     float x_offset, y_offset, scale;
 
-    glColor3f(color.r, color.g, color.b);
+    // TODO: colour on piechart
+    //glColor3f(color.r, color.g, color.b);
+   
     x_offset = cos((start_ratio - 0.25f) * 2 * M_PI);
     y_offset = sin((start_ratio - 0.25f) * 2 * M_PI);
     scale = std::min<float>(1.f / abs(x_offset), 1.f / abs(y_offset));
     x_offset *= scale;
     y_offset *= scale;
-    glTexCoord2f(0.5f + x_offset * 0.5f, 0.5f + y_offset * 0.5f);
-    glVertex2f(x_center + x_offset * radius, y_center + y_offset * radius);
+
+    mesh.buffer.push_back(Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(x_center + x_offset * radius, y_center + y_offset * radius), glm::vec2(0.5f + x_offset * 0.5f, 0.5f + y_offset * 0.5f)));
 
     x_offset = cos((end_ratio - 0.25f) * 2 * M_PI);
     y_offset = sin((end_ratio - 0.25f) * 2 * M_PI);
     scale = std::min<float>(1.f / abs(x_offset), 1.f / abs(y_offset));
     x_offset *= scale;
     y_offset *= scale;
-    glTexCoord2f(0.5f + x_offset * 0.5f, 0.5f + y_offset * 0.5f);
-    glVertex2f(x_center + x_offset * radius, y_center + y_offset * radius);
+    mesh.buffer.push_back(Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(x_center + x_offset * radius, y_center + y_offset * radius), glm::vec2(0.5f + x_offset * 0.5f, 0.5f + y_offset * 0.5f)));
 
-    glTexCoord2f(0.5f, 0.5f);
-    glVertex2f(x_center, y_center);
+    mesh.buffer.push_back(Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(x_center, y_center), glm::vec2(0.5f, 0.5f)));
 }
 
 void PieChart::on_render(Context& ctx, Eng3D::Rect viewport) {
-    glBindTexture(GL_TEXTURE_2D, ctx.piechart_overlay->gl_tex_num);
-    glBegin(GL_TRIANGLES);
+    g_ui_context->obj_shader->set_texture(0, "diffuse_map", *ctx.piechart_overlay);
+    auto pie_mesh = Eng3D::Mesh<glm::vec2, glm::vec2>(Eng3D::MeshMode::TRIANGLES);
+
     float counter = 0;
     float last_corner = -0.125f;
     float last_ratio = 0;
@@ -104,13 +105,13 @@ void PieChart::on_render(Context& ctx, Eng3D::Rect viewport) {
         float ratio = counter / max;
         while(ratio > last_corner + 0.25f) {
             last_corner += 0.25f;
-            draw_triangle(last_ratio, last_corner, slice.color);
+            draw_triangle(pie_mesh, last_ratio, last_corner, slice.color);
             last_ratio = last_corner;
         }
-        draw_triangle(last_ratio, ratio, slice.color);
+        draw_triangle(pie_mesh, last_ratio, ratio, slice.color);
         last_ratio = ratio;
     }
-    glEnd();
+    pie_mesh.draw();
 }
 
 static inline bool in_triangle(glm::vec2 p, glm::vec2 center, float radius, float start_ratio, float end_ratio) {
