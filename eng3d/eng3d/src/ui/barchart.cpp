@@ -78,7 +78,7 @@ void BarChart::on_render(Context& ctx, Eng3D::Rect viewport) {
 
         Eng3D::Rect pos_rect(last_ratio * width, 0u, ratio * width, height);
         Eng3D::Rect tex_rect(0u, 0u, 1u, 1u);
-        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(slice_color.r, slice_color.g, slice_color.b, 1.f));
+        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(slice.color.r, slice.color.g, slice.color.b, 1.f));
         draw_rect(0, pos_rect, tex_rect, viewport);
 
         last_ratio = ratio;

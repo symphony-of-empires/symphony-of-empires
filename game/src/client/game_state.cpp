@@ -535,7 +535,7 @@ void save(GameState& gs) {
         }
         if(!cnt) {
             fprintf(fp, "-- So many jokes i could put here but I would rather list the recipe for baking a cake :)\n");
-#if defined windows
+#ifdef E3D_TARGET_WINDOWS
             fprintf(fp, "-- 1. buy cake from store\n");
             fprintf(fp, "-- 2. done\n");
 #endif
@@ -553,7 +553,7 @@ void save(GameState& gs) {
             fprintf(fp, "GoodType:new{ ref_name = \"%s\", name = _(\"%s\") }:register()\n", good_type.ref_name.c_str(), good_type.name.c_str());
         }
         if(!cnt) {
-#if defined windows
+#ifdef E3D_TARGET_WINDOWS
             fprintf(fp, "-- Economy.exe has stopped working\n");
 #else
             fprintf(fp, "-- The stock market has been /dev/null -ed :)\n");

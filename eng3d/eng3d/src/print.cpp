@@ -44,7 +44,7 @@ void print_disable_debug(void) {
     allow_debug = true;
 }
 
-#if defined windows
+#ifdef E3D_TARGET_WINDOWS
 #   ifndef NOMINMAX
 #	    define NOMINMAX 1
 #   endif
@@ -59,7 +59,7 @@ void print_error(const char* str, ...) {
     va_start(args, str);
 
 #if defined LOG_TO_CONSOLE
-#if defined unix
+#ifdef E3D_TARGET_UNIX
     printf("\e[36m[INFO]\e[0m ");
 #else
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
@@ -67,7 +67,7 @@ void print_error(const char* str, ...) {
 #endif
     vprintf(str, args);
     printf("\n");
-#if defined windows
+#ifdef E3D_TARGET_WINDOWS
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
 #endif
 #else
@@ -93,7 +93,7 @@ void print_info(const char* str, ...) {
     va_start(args, str);
 
 #if defined LOG_TO_CONSOLE
-#if defined unix
+#ifdef E3D_TARGET_UNIX
     printf("\e[36m[INFO]\e[0m ");
 #else
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_BLUE | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
@@ -101,7 +101,7 @@ void print_info(const char* str, ...) {
 #endif
     vprintf(str, args);
     printf("\n");
-#if defined windows
+#ifdef E3D_TARGET_WINDOWS
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
 #endif
 #else

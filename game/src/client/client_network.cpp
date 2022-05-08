@@ -30,7 +30,7 @@
 #include <chrono>
 #include <thread>
 
-#ifdef unix
+#ifdef E3D_TARGET_UNIX
 #    define _XOPEN_SOURCE_EXTENDED 1
 #    include <netdb.h>
 #    include <arpa/inet.h>
@@ -42,9 +42,9 @@
 #    include <unistd.h>
 #endif
 
-#ifdef unix
+#ifdef E3D_TARGET_UNIX
 #	include <poll.h>
-#elif defined windows
+#elif defined E3D_TARGET_WINDOWS
 // Allow us to use deprecated functions like inet_addr
 #   define _WINSOCK_DEPRECATED_NO_WARNINGS
 // MingW heavily dislikes ws2def.h and causes spurious errors
@@ -104,7 +104,7 @@ void Client::net_loop(void) {
     try {
         ActionType action;
         
-#ifdef unix
+#ifdef E3D_TARGET_UNIX
         struct pollfd pfd;
         pfd.fd = fd;
         pfd.events = POLLIN;
@@ -125,9 +125,9 @@ void Client::net_loop(void) {
 			}
 			
             // Check if we need to read packets
-#ifdef unix
+#ifdef E3D_TARGET_UNIX
             int has_pending = poll(&pfd, 1, 10);
-#elif defined windows
+#elif defined E3D_TARGET_WINDOWS
             u_long has_pending = 0;
             ioctlsocket(fd, FIONREAD, &has_pending);
 #endif
@@ -135,9 +135,9 @@ void Client::net_loop(void) {
             // Conditional of above statements
 			// When we are on host_mode we discard all potential packets sent by the server
 			// (because our data is already synchronized since WE ARE the server)
-#ifdef unix
+#ifdef E3D_TARGET_UNIX
             if(pfd.revents & POLLIN || has_pending) {
-#elif defined windows
+#elif defined E3D_TARGET_WINDOWS
             if(has_pending) {
 #endif
                 Eng3D::Networking::Packet packet = Eng3D::Networking::Packet(fd);

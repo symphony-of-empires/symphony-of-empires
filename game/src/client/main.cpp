@@ -33,7 +33,7 @@
 #define _XOPEN_SOURCE 700
 #include <cstdio>
 #include <filesystem>
-#if defined windows
+#ifdef E3D_TARGET_WINDOWS
 #	define WIN32_LEAN_AND_MEAN 1
 #   ifndef NOMINMAX
 #	    define NOMINMAX 1
@@ -55,7 +55,7 @@
 void start_client(int argc, char** argv);
 
 int main(int argc, char** argv) {
-#if defined windows
+#ifdef E3D_TARGET_WINDOWS
     system("cls");
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
 #endif
@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-#ifdef windows
+#ifdef E3D_TARGET_WINDOWS
 #include <cstring>
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument, int iShow) {
     char* argv[1];

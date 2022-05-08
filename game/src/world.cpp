@@ -367,7 +367,7 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
             if(luaL_dofile(lua, path.c_str()) != LUA_OK) {
                 throw LuaAPI::Exception(lua_tostring(lua, -1));
             }*/
-#ifdef windows
+#ifdef E3D_TARGET_WINDOWS
             std::string m_path;
             for(auto& c : path) {
                 if(c == '\\') {
