@@ -112,7 +112,7 @@ public:
     void increase_relation(Nation& target);
     void decrease_relation(Nation& target);
     void auto_relocate_capital(void);
-    void set_policy(Policies& policies);
+    void set_policy(const Policies& policies);
     bool is_accepted_culture(const Pop& pop) const;
     bool is_accepted_culture(const Culture& culture) const;
     bool is_accepted_religion(const Pop& pop) const;

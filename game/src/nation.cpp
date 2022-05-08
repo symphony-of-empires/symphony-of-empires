@@ -203,7 +203,7 @@ void Nation::auto_relocate_capital(void) {
 
 // Enacts a policy on a nation
 // @return false if policy draft failed to be applied, true if policy passed and is in-effect
-void Nation::set_policy(Policies& policies) {
+void Nation::set_policy(const Policies& policies) {
     // No parliament? No referendum
     if(current_policy.legislative_parliament != true) {
         this->current_policy = policies;

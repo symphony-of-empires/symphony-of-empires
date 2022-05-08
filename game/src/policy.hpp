@@ -171,7 +171,7 @@ public:
     // Minimum social value for people to be accounted on the parliament
     Eng3D::Decimal min_sv_for_parliament;
 
-    inline int difference(const Policies& rhs) {
+    inline int difference(const Policies& rhs) const {
         int diff = 0;
 
         diff += std::abs(static_cast<int>(rhs.migration) - static_cast<int>(this->migration));
