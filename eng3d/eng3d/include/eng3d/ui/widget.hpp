@@ -141,7 +141,7 @@ namespace UI {
 	 */
 	class Widget {
 	public:
-		Widget() {};
+		Widget(void) {};
 		Widget(Widget* parent, int x, int y, unsigned w, unsigned h, WidgetType type);
 		Widget(Widget* parent, int x, int y, unsigned w, unsigned h, WidgetType type, std::shared_ptr<Eng3D::Texture> tex);
 		Widget(const Widget&) = default;
@@ -151,7 +151,7 @@ namespace UI {
 #ifndef _MSC_VER
 		Widget& operator=(Widget&) noexcept = default;
 #endif
-		virtual ~Widget();
+		virtual ~Widget(void);
 
 		void move_by(int x, int y);
 		void add_child(UI::Widget* child);
@@ -229,10 +229,9 @@ namespace UI {
 			std::sort(begin(children), end(children), comp);
 			need_recalc = true;
 		}
-
 	protected:
-		void draw_rectangle(int x, int y, unsigned w, unsigned h, Eng3D::Rect viewport, unsigned tex);
-		void draw_rect(const GLuint tex, Eng3D::Rect rect_pos, Eng3D::Rect rect_tex, Eng3D::Rect viewport);
+		void draw_rectangle(int x, int y, unsigned w, unsigned h, Eng3D::Rect viewport, const Eng3D::Texture* tex);
+		void draw_rect(const Eng3D::Texture* tex, Eng3D::Rect rect_pos, Eng3D::Rect rect_tex, Eng3D::Rect viewport);
 		bool clickable_effect = true;
 
 	private:

@@ -22,16 +22,16 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "client/interface/pop_window.hpp"
-#include "nation.hpp"
-#include "pop.hpp"
-#include "world.hpp"
-
 #include "eng3d/string_format.hpp"
 #include "eng3d/locale.hpp"
 #include "eng3d/ui/table.hpp"
 #include "eng3d/ui/label.hpp"
 #include "eng3d/ui/image.hpp"
+
+#include "client/interface/pop_window.hpp"
+#include "nation.hpp"
+#include "pop.hpp"
+#include "world.hpp"
 
 using namespace Interface;
 

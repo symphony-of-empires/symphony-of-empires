@@ -382,7 +382,7 @@ void Server::net_loop(int id) {
                     if(technology == nullptr)
                         throw ServerException("Unknown technology");
 
-                    if(!selected_nation->can_research(technology))
+                    if(!selected_nation->can_research(*technology))
                         throw ServerException("Can't research tech at the moment");
                     
                     selected_nation->focus_tech = technology;
@@ -424,7 +424,7 @@ void Server::net_loop(int id) {
 
     player_count--;
 
-#ifdef windows
+#ifdef E3D_TARGET_WINDOWS
     print_error("WSA Code: %u", WSAGetLastError());
     WSACleanup();
 #endif
@@ -448,9 +448,9 @@ void Server::net_loop(int id) {
     cl.is_active = false;
 
     print_info("Client disconnected");
-#ifdef windows
+#ifdef E3D_TARGET_WINDOWS
     shutdown(conn_fd, SD_BOTH);
-#elif defined unix
+#elif defined E3D_TARGET_UNIX
     shutdown(conn_fd, SHUT_RDWR);
 #endif
 }

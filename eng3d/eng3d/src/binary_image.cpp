@@ -34,6 +34,9 @@
 #include "eng3d/path.hpp"
 #include "eng3d/print.hpp"
 #include "eng3d/utils.hpp"
+#include "eng3d/io.hpp"
+#include "eng3d/state.hpp"
+#include "eng3d/log.hpp"
 
 BinaryImage::BinaryImage(void) {
     
@@ -60,10 +63,19 @@ BinaryImage::BinaryImage(const BinaryImage& tex)
 void BinaryImage::from_file(const Eng3D::IO::Path& path) {
     int i_width, i_height, i_channels;
 
+    /*
+    std::shared_ptr<Eng3D::IO::Asset::Base> asset = Eng3D::State::get_instance().package_man->get_unique(path.str.c_str());
+    if(asset.get() == nullptr) {
+        CXX_THROW(BinaryImageException, path.str, "Can't find image");
+    }
+
+    Eng3D::Log::debug("binary_image", "Asset path took " + asset->abs_path);
+    */
+
     // stbi can do the conversion to RGBA for us ;)
-    stbi_uc* c_buffer = stbi_load(Path::get(path.str.c_str()).c_str(), &i_width, &i_height, &i_channels, 4);
+    stbi_uc* c_buffer = stbi_load(path.str.c_str(), &i_width, &i_height, &i_channels, 4);
     if(c_buffer == nullptr) {
-        CXX_THROW(BinaryImageException, path.str, std::string() + "Image load error: " + stbi_failure_reason());
+        CXX_THROW(BinaryImageException, path.str, stbi_failure_reason());
     }
 
     width = static_cast<size_t>(i_width);

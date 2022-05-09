@@ -22,7 +22,10 @@ sudo apt install -y libpng-dev libsdl2-dev libsdl2-ttf-dev liblua5.3-dev libtbb-
 
 The build with these commands once all the dependencies are met:
 ```sh
+# Use this for a normal build
 cmake -DE3D_BACKEND_OPENGL=1 -DNO_COPY_MODS=1 .
+# Alternatively use this for a debug build
+cmake -DE3D_DEBUG=1 -DE3D_BACKEND_OPENGL=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo .
 make
 ```
 

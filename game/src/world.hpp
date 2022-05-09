@@ -33,6 +33,7 @@
 #include <algorithm>
 #include <mutex>
 #include <string>
+#include <memory>
 
 #include <glm/vec2.hpp>
 
@@ -91,16 +92,20 @@ public:
     };\
     inline void insert(type& ptr) {\
         auto& list = this->get_list((type*)nullptr);\
+        list_mutex.lock();\
         ptr.cached_id = list.size();\
         list.push_back(ptr);\
+        list_mutex.unlock();\
     };\
     inline void remove(type& ptr) {\
         type::Id cached_id = this->get_id<type>(ptr);\
         auto& list = this->get_list((type*)nullptr);\
+        list_mutex.lock();\
         for(type::Id i = cached_id + 1; i < list.size(); i++) {\
             list[i].cached_id--;\
         }\
         list.erase(list.begin() + cached_id);\
+        list_mutex.unlock();\
     };\
     list_type<type> list;
 
@@ -145,8 +150,12 @@ public:
     template<typename T>
     inline void insert(T& ptr) {
         auto& list = this->get_list((T*)nullptr);
+
+        list_mutex.lock();
         ptr.cached_id = list.size();
+        debug_assert(ptr.cached_id < (typename T::Id)-2);
         list.push_back((T*)&ptr);
+        list_mutex.unlock();
     };
 
     template<typename T>
@@ -154,16 +163,19 @@ public:
         // Decrease the cache_id counter for the elements after the removed element
         typename T::Id cached_id = this->get_id<T>(ptr);
         auto& list = this->get_list((T*)nullptr);
+
+        list_mutex.lock();
         for(typename T::Id i = cached_id + 1; i < list.size(); i++) {
             list[i]->cached_id--;
         }
 
         // Remove the element itself
         list.erase(list.begin() + cached_id);
+        list_mutex.unlock();
     };
 
     inline size_t get_id(const Tile& ptr) const {
-        return ((ptrdiff_t)&ptr - (ptrdiff_t)tiles) / sizeof(Tile);
+        return ((ptrdiff_t)&ptr - (ptrdiff_t)tiles.get()) / sizeof(Tile);
     };
 
     // Template for all types except for tiles (we can do this because we can
@@ -189,7 +201,7 @@ public:
     lua_State* lua;
 
     // 2-Dimensional Array of tiles
-    Tile* tiles;
+    std::unique_ptr<Tile[]> tiles;
     mutable std::mutex tiles_mutex;
 
     // Level at which sea dissapears, all sea is capped to sea_level - 1, and rivers are at sea_level.
@@ -204,7 +216,9 @@ public:
 
     bool needs_to_sync = false;
 
-    mutable std::mutex world_mutex;
+    std::mutex world_mutex;
+    std::mutex list_mutex;
+
     std::vector<std::pair<Decision*, Nation*>> taken_decisions;
 };
 

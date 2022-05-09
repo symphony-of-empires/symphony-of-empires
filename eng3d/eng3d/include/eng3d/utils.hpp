@@ -26,7 +26,7 @@
 #pragma once
 
 // GNU C does not - so we have to define them by hand
-#if defined windows
+#ifdef E3D_TARGET_WINDOWS
 #   define bswap32(x) _byteswap_ulong(x)
 #   define bswap64(x) _byteswap_uint64(x)
 #elif defined _MSC_VER

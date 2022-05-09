@@ -203,14 +203,14 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _techno
             ((UI::Checkbox&)w).set_value(false);
         }
 
-        if(o.gs.curr_nation->can_research(o.technology)) {
+        if(o.gs.curr_nation->can_research(*o.technology)) {
             w.tooltip->text(Eng3D::Locale::translate("We can research this"));
         } else {
             std::string text = "";
             text = Eng3D::Locale::translate("We can't research this because we don't have ");
-            for(const auto& req_tech : o.technology->req_technologies) {
-                if(o.gs.curr_nation->research[o.gs.world->get_id(*req_tech)] > 0.f) {
-                    text += Eng3D::Locale::translate(req_tech->name.get_string()) + ", ";
+            for(const auto& req_tech_id : o.technology->req_technologies) {
+                if(o.gs.curr_nation->research[req_tech_id] > 0.f) {
+                    text += Eng3D::Locale::translate(o.gs.world->technologies[req_tech_id].name.get_string()) + ", ";
                 }
             }
             w.tooltip->text(text);
@@ -218,7 +218,7 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _techno
     });
     chk->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<TechnologyInfo&>(*w.parent);
-        if(o.gs.curr_nation->can_research(o.technology)) {
+        if(o.gs.curr_nation->can_research(*o.technology)) {
             o.gs.client->send(Action::FocusTech::form_packet(o.technology));
         }
     });

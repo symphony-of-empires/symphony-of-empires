@@ -90,8 +90,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
             clause->receiver = o.nation;
             clause->days_duration = 360;
             o.treaty.clauses.push_back(clause);
-        }
-        else {
+        } else {
             auto it = std::find_if(o.treaty.clauses.begin(), o.treaty.clauses.end(), [](const auto& e) {
                 return e->type == TreatyClauseType::CEASEFIRE;
             });
@@ -117,8 +116,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
                 clause->provinces.push_back(province);
             }
             o.treaty.clauses.push_back(clause);
-        }
-        else {
+        } else {
             auto it = std::find_if(o.treaty.clauses.begin(), o.treaty.clauses.end(), [](const auto& e) {
                 return e->type == TreatyClauseType::ANNEX_PROVINCES;
             });
@@ -190,7 +188,7 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, Treaty* _treaty)
     this->body_txt = new UI::Text(0, 0, this->width, this->height - 24, this);
     this->body_txt->text(treaty_to_text(_treaty));
 
-    auto* approve_btn = new UI::Button(0, 0, this->width, 24, this);
+    auto* approve_btn = new UI::Button(0, 0, 128, 24, this);
     approve_btn->below_of(*this->body_txt);
     approve_btn->text("Approve");
     approve_btn->set_on_click([](UI::Widget& w) {
@@ -206,7 +204,7 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, Treaty* _treaty)
         w.parent->kill();
     });
 
-    auto* deny_btn = new UI::Button(0, 0, this->width, 24, this);
+    auto* deny_btn = new UI::Button(0, 0, 128, 24, this);
     deny_btn->below_of(*this->body_txt);
     deny_btn->right_side_of(*approve_btn);
     deny_btn->text("Deny");

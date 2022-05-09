@@ -31,7 +31,7 @@
 #include <vector>
 #include <thread>
 
-#ifdef windows
+#ifdef E3D_TARGET_WINDOWS
 #include <winsock2.h>
 #endif
 

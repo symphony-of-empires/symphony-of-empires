@@ -74,10 +74,14 @@ MapRender::MapRender(const World& _world)
     mipmap_options.wrap_t = GL_REPEAT;
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
+    mipmap_options.compressed = false;
+
+    noise_tex = tex_man->load(Path::get("gfx/noise_tex.png"), mipmap_options);
+
+    mipmap_options.compressed = true;
 
     wave1 = tex_man->load(Path::get("gfx/wave1.png"), mipmap_options);
     wave2 = tex_man->load(Path::get("gfx/wave2.png"), mipmap_options);
-    noise_tex = tex_man->load(Path::get("gfx/noise_tex.png"), mipmap_options);
 
     mipmap_options.internal_format = GL_SRGB;
     water_tex = tex_man->load(Path::get("gfx/water_tex.png"), mipmap_options);
@@ -140,6 +144,7 @@ MapRender::MapRender(const World& _world)
     }
     Eng3D::TextureOptions single_color{};
     single_color.internal_format = GL_RGB;
+    single_color.compressed = false;
     terrain_map->to_opengl(single_color);
     //terrain_map->gen_mipmaps();
 
@@ -152,6 +157,7 @@ MapRender::MapRender(const World& _world)
     }
     topo_map.reset(nullptr);
     mipmap_options.internal_format = GL_RGBA;
+    mipmap_options.compressed = false;
     normal_topo->to_opengl(mipmap_options);
     normal_topo->gen_mipmaps();
 
@@ -169,6 +175,7 @@ MapRender::MapRender(const World& _world)
     Eng3D::TextureOptions tile_map_options{};
     tile_map_options.internal_format = GL_RGBA32F;
     tile_map_options.editable = true;
+    tile_map_options.compressed = false;
     tile_map->to_opengl(tile_map_options);
     tile_map->gen_mipmaps();
 
@@ -189,6 +196,7 @@ MapRender::MapRender(const World& _world)
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
     no_drop_options.internal_format = GL_SRGB;
+    no_drop_options.compressed = false;
     tile_sheet->to_opengl(no_drop_options);
 
     // Province options
@@ -214,6 +222,7 @@ MapRender::MapRender(const World& _world)
     sdf_options.internal_format = GL_RGB32F;
     sdf_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     sdf_options.mag_filter = GL_LINEAR;
+    sdf_options.compressed = false;
     border_sdf = std::make_unique<Eng3D::Texture>(Eng3D::Texture(Path::get("map/sdf_map.png")));
     border_sdf->to_opengl(sdf_options);
     border_sdf->gen_mipmaps();
@@ -295,7 +304,7 @@ void MapRender::update_options(MapOptions new_options) {
 // Creates the "waving" border around the continent to give it a 19th century map feel
 // Generate a distance field to from each border using the jump flooding algorithm
 // Used to create borders thicker than one tile
-void MapRender::update_border_sdf(Eng3D::Rect update_area) {
+void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_size) {
     glEnable(GL_SCISSOR_TEST);
     glViewport(update_area.left, update_area.top, update_area.width(), update_area.height());
     glScissor(update_area.left, update_area.top, update_area.width(), update_area.height());
@@ -385,6 +394,7 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area) {
     }
     border_sdf->gen_mipmaps();
     glDisable(GL_SCISSOR_TEST);
+    glViewport(0, 0, window_size.x, window_size.y);
     return;
 }
 
@@ -432,6 +442,7 @@ void MapRender::update_visibility(void)
     for(unsigned int i = 0; i < 256 * 256; i++) {
         province_opt->buffer.get()[i] = 0x00000080;
     }
+    
     for(const auto& province : gs.curr_nation->controlled_provinces) {
         this->province_opt->buffer.get()[gs.world->get_id(*province)] = 0x000000ff;
         for(const auto& neighbour : province->neighbours) {
@@ -449,6 +460,9 @@ void MapRender::update_visibility(void)
         for(const auto& neighbour : unit->province->neighbours) {
             this->province_opt->buffer.get()[gs.world->get_id(*neighbour)] = 0x000000ff;
         }
+    }
+    if (gs.map->province_selected) {
+        this->province_opt->buffer.get()[gs.map->selected_province_id] = 0x400000ff;
     }
     this->province_opt->to_opengl(no_drop_options);
 }

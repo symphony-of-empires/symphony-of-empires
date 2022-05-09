@@ -29,6 +29,7 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace Eng3D::IO {
     class Path {
@@ -67,6 +68,21 @@ namespace Eng3D::IO {
 
             std::string path;
             std::string abs_path;
+
+            /**
+             * @brief Get the abs path object in a safe manner, such as that the access does not
+             * occur on null pointers
+             * 
+             * @param asset 
+             * @return std::string 
+             */
+            static std::string get_abs_path(Eng3D::IO::Asset::Base* asset) {
+                return asset != nullptr ? asset->abs_path : "";
+            };
+
+            static std::string get_abs_path(std::shared_ptr<Eng3D::IO::Asset::Base> asset) {
+                return asset != nullptr ? asset->abs_path : "";
+            };
         };
 
         class File : public Asset::Base {
@@ -99,15 +115,15 @@ namespace Eng3D::IO {
         ~Package();
 
         std::string name;
-        std::vector<Eng3D::IO::Asset::Base*> assets;
+        std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> assets;
     };
 
     class PackageManager {
     public:
         PackageManager();
         ~PackageManager();
-        Eng3D::IO::Asset::Base* get_unique(const IO::Path& path);
-        std::vector<Eng3D::IO::Asset::Base*> get_multiple(const Eng3D::IO::Path& path);
+        std::shared_ptr<Eng3D::IO::Asset::Base> get_unique(const IO::Path& path);
+        std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> get_multiple(const Eng3D::IO::Path& path);
         std::vector<Package> packages;
     };
 };

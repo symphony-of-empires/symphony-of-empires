@@ -35,6 +35,7 @@
 #include "eng3d/texture.hpp"
 #include "eng3d/rectangle.hpp"
 #include "eng3d/state.hpp"
+#include "eng3d/primitive.hpp"
 
 using namespace UI;
 
@@ -71,47 +72,22 @@ Eng3D::Rect get_rect(Eng3D::Rect rect_pos, Eng3D::Rect viewport) {
 }
 
 void ProgressBar::on_render(Context&, Eng3D::Rect viewport) {
-    glColor3f(1.f, 1.f, 1.f);
-    if(text_texture != nullptr) {
-        if(!text_texture->gl_tex_num) {
-            text_texture->to_opengl();
-        }
-    }
-    glBindTexture(GL_TEXTURE_2D, 0);
-
     const float end_x = (value / max) * width;
     Eng3D::Rect pos_rect(0, 0, end_x, height);
     pos_rect = get_rect(pos_rect, viewport);
 
-    // TODO: fix scaling of colors. They should scale depending on how of the bar that is hidden
-    glBegin(GL_POLYGON);
-    glColor3f(0.f, 0.f, 0.7f);
-    glVertex2f(pos_rect.left, pos_rect.top);
-    glVertex2f(pos_rect.right, pos_rect.top);
-    glColor3f(0.f, 0.f, 0.4f);
-    glVertex2f(pos_rect.right, pos_rect.bottom);
-    glVertex2f(pos_rect.left, pos_rect.bottom);
-    glColor3f(0.f, 0.f, 0.7f);
-    glVertex2f(pos_rect.left, pos_rect.top);
-    glEnd();
+    g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.f, 0.f, 1.f, 1.f));
+    g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man->get_white());
+    auto bg_square = Eng3D::Square(pos_rect.left, pos_rect.top, pos_rect.right, pos_rect.bottom);
+    bg_square.draw();
 
     if(text_texture != nullptr) {
-        glColor3f(text_color.r, text_color.g, text_color.b);
-        draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
+        if(!text_texture->gl_tex_num) {
+            text_texture->to_opengl();
+        }
+        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
+        draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture);
+        
+        g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man->get_white());
     }
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glLineWidth(3.f);
-    glColor3f(0.f, 0.f, 0.f);
-
-    pos_rect = Eng3D::Rect(0, 0, width, height);
-    pos_rect = get_rect(pos_rect, viewport);
-    // Inner black border
-    glBegin(GL_LINE_STRIP);
-    glVertex2f(pos_rect.left, pos_rect.top);
-    glVertex2f(pos_rect.right, pos_rect.top);
-    glVertex2f(pos_rect.right, pos_rect.bottom);
-    glVertex2f(pos_rect.left, pos_rect.bottom);
-    glVertex2f(pos_rect.left, pos_rect.top);
-    glEnd();
 }

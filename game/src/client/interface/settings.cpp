@@ -23,12 +23,8 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "client/interface/settings.hpp"
-#include "world.hpp"
 #include "eng3d/print.hpp"
 #include "eng3d/path.hpp"
-#include "client/map.hpp"
-#include "client/map_render.hpp"
 #include "eng3d/texture.hpp"
 #include "eng3d/ui/button.hpp"
 #include "eng3d/ui/input.hpp"
@@ -37,6 +33,11 @@
 #include "eng3d/ui/slider.hpp"
 #include "eng3d/ui/checkbox.hpp"
 #include "eng3d/ui/close_button.hpp"
+
+#include "client/interface/settings.hpp"
+#include "world.hpp"
+#include "client/map.hpp"
+#include "client/map_render.hpp"
 #include "client/interface/lobby.hpp"
 
 using namespace Interface;

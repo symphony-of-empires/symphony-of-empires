@@ -25,7 +25,7 @@
 
 #pragma once
 
-#ifdef windows
+#ifdef E3D_TARGET_WINDOWS
 #  include <lua.hpp>
 #else
 #  ifdef LUA54

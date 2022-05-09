@@ -110,6 +110,8 @@ Eng3D::State::State(void) {
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
     print_info("%d", size);
 
+    glHint(GL_TEXTURE_COMPRESSION_HINT, GL_FASTEST);
+
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(GLDebugMessageCallback, 0);
 
@@ -185,7 +187,7 @@ Eng3D::State::State(void) {
     // Plugins system (still wip)
     for(const auto& plugin : Path::get_all("plugin.dll")) {
 #ifdef _MSC_VER
-#   if defined windows
+#   ifdef E3D_TARGET_WINDOWS
         HINSTANCE hGetProcIDDLL = LoadLibrary(plugin.c_str());
         // This shouldn't happen - like ever!
         if(!hGetProcIDDLL) {

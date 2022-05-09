@@ -85,10 +85,8 @@
 #include "client/orbit_camera.hpp"
 #include "client/client_network.hpp"
 #include "client/interface/decision.hpp"
-#include "client/interface/province_view.hpp"
 #include "client/interface/lobby.hpp"
 #include "client/interface/top_window.hpp"
-#include "client/interface/province_view.hpp"
 #include "client/interface/treaty.hpp"
 #include "client/interface/map_dev_view.hpp"
 #include "client/interface/army.hpp"
@@ -147,8 +145,8 @@ void handle_event(Input& input, GameState& gs) {
     gs.map->camera->set_screen(width, height);
 
     SDL_Event event;
+    bool click_on_ui = false;
     while(SDL_PollEvent(&event)) {
-        bool click_on_ui = false;
         switch(event.type) {
         case SDL_CONTROLLERDEVICEADDED:
             break;
@@ -218,13 +216,33 @@ void handle_event(Input& input, GameState& gs) {
                     if(gs.profiler_view) {
                         delete gs.profiler_view;
                         gs.profiler_view = nullptr;
-                    }
-                    else {
+                    } else {
                         gs.profiler_view = new Interface::ProfilerView(gs);
                     }
                 }
                 break;
-            case Eng3D::Keyboard::Key::SPACE:
+            case Eng3D::Keyboard::Key::F2:
+                if(gs.editor) {
+                    break;
+                }
+
+                if(gs.current_mode == MapMode::NORMAL) {
+                    if(input.select_pos.first < gs.world->width || input.select_pos.second < gs.world->height) {
+                        const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
+                        if(tile.province_id >= gs.world->provinces.size()) {
+                            break;
+                        }
+
+                        new Interface::BuildingBuildView(gs, input.select_pos.first, input.select_pos.second, true, gs.world->provinces[tile.province_id]);
+                    }
+                }
+                break;
+            case Eng3D::Keyboard::Key::F3:
+                if(!click_on_ui) {
+                    new Interface::AISettingsWindow(gs);
+                }
+                break;
+            case Eng3D::Keyboard::Key::F4:
                 if(gs.editor) {
                     break;
                 }
@@ -238,25 +256,6 @@ void handle_event(Input& input, GameState& gs) {
                         ui_ctx->prompt("Control", "Paused");
                     }
                 }
-                break;
-            case Eng3D::Keyboard::Key::B:
-                if(gs.editor) {
-                    break;
-                }
-
-                if(gs.current_mode == MapMode::NORMAL) {
-                    if(input.select_pos.first < gs.world->width || input.select_pos.second < gs.world->height) {
-                        const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
-                        if(tile.province_id >= gs.world->provinces.size()) {
-                            break;
-                        }
-
-                        new Interface::BuildingBuildView(gs, input.select_pos.first, input.select_pos.second, true, gs.world->provinces[tile.province_id]->owner, gs.world->provinces[tile.province_id]);
-                    }
-                }
-                break;
-            case Eng3D::Keyboard::Key::A:
-                new Interface::AISettingsWindow(gs);
                 break;
             case Eng3D::Keyboard::Key::BACKSPACE:
                 ui_ctx->check_text_input(nullptr);
@@ -534,7 +533,7 @@ void save(GameState& gs) {
         }
         if(!cnt) {
             fprintf(fp, "-- So many jokes i could put here but I would rather list the recipe for baking a cake :)\n");
-#if defined windows
+#ifdef E3D_TARGET_WINDOWS
             fprintf(fp, "-- 1. buy cake from store\n");
             fprintf(fp, "-- 2. done\n");
 #endif
@@ -552,7 +551,7 @@ void save(GameState& gs) {
             fprintf(fp, "GoodType:new{ ref_name = \"%s\", name = _(\"%s\") }:register()\n", good_type.ref_name.c_str(), good_type.name.c_str());
         }
         if(!cnt) {
-#if defined windows
+#ifdef E3D_TARGET_WINDOWS
             fprintf(fp, "-- Economy.exe has stopped working\n");
 #else
             fprintf(fp, "-- The stock market has been /dev/null -ed :)\n");
@@ -741,7 +740,8 @@ void start_client(int, char**) {
     bg_img->origin = UI::Origin::CENTER_SCREEN;
     auto* load_lab = new UI::Label(0, -24, "Loading...");
     load_lab->origin = UI::Origin::LOWER_LEFT_SCREEN;
-    load_lab->color = Eng3D::Color(1.f, 1.f, 1.f);
+    load_lab->color = Eng3D::Color(0.f, 0.f, 0.f);
+    load_lab->text_color = Eng3D::Color(1.f, 1.f, 1.f);
     auto mod_logo_tex = gs.tex_man->load(Path::get("gfx/mod_logo.png"));
     auto* mod_logo_img = new UI::Image(0, 0, mod_logo_tex->width, mod_logo_tex->height, mod_logo_tex);
 
