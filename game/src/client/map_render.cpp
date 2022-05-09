@@ -48,9 +48,9 @@
 #include "province.hpp"
 #include "client/map_render.hpp"
 #include "client/map.hpp"
-#include "client/orbit_camera.hpp"
-#include "client/flat_camera.hpp"
-#include "client/camera.hpp"
+#include "eng3d/orbit_camera.hpp"
+#include "eng3d/flat_camera.hpp"
+#include "eng3d/camera.hpp"
 
 MapRender::MapRender(const World& _world)
     : world(_world)
@@ -467,7 +467,7 @@ void MapRender::update_visibility(void)
     this->province_opt->to_opengl(no_drop_options);
 }
 
-void MapRender::draw(Camera* camera, MapView view_mode) {
+void MapRender::draw(Eng3D::Camera* camera, MapView view_mode) {
     if(this->req_update_vision) {
         this->update_visibility();
         this->req_update_vision = false;
