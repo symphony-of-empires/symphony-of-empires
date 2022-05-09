@@ -12,20 +12,15 @@ following macros.
 DEFINES
 ****************************************************************************
 
-E3D_RENDER_DEBUG
+E3D_DEBUG
     When defined will enable all rendering pipeline error checks (can cause
-    massive lag on graphical intensive tasks).
-
-E3D_HEAP_DEBUG
-    Causes debugging checks to be enabled for the memory allocation.
+    massive lag on graphical intensive tasks), this also enables the debug
+    mode for the memory allocation subsystem, if E3D_MANAGED_HEAP is used.
+    Additionally it will enable several critical debug assertions and
+    statments.
 
 E3D_BACKEND_OPENGL
     If defined it will use the OpenGL backend.
 
 E3D_MANAGED_HEAP
     Enables or disables the custom `new` and `delete` operators
-
-E3D_RTTI
-E3D_EXCEPTIONS
-    If enabled will provoke normal "throwing" behaviour. Otherwise it will
-    abort upon the first throw and print the given error - Useful for debugging.

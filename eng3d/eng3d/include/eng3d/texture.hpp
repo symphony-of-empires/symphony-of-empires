@@ -80,6 +80,7 @@ namespace Eng3D {
         GLuint format = GL_RGBA;
         GLuint type = GL_UNSIGNED_BYTE;
         bool editable = false;
+        bool compressed = true;
 
         bool operator==(const TextureOptions& o) const {
             return target == o.target
@@ -161,7 +162,7 @@ namespace Eng3D {
     public:
         ~TextureManager();
         std::shared_ptr<Texture> load(const std::string& path, TextureOptions options = default_options);
-        std::shared_ptr<Texture> load(const Eng3D::IO::Asset::Base* asset, TextureOptions options = default_options);
+        std::shared_ptr<Texture> load(std::shared_ptr<Eng3D::IO::Asset::Base> asset, TextureOptions options = default_options);
         std::shared_ptr<Texture> get_white(void);
     };
 };

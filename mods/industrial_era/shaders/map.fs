@@ -152,6 +152,7 @@ vec2 get_diag_coords(vec2 tex_coords, float is_diag) {
 	diag_coords = mix(tex_coords, diag_coords, is_diag * far);
 	return diag_coords;
 }
+
 // Get the province color
 vec3 get_province_color(vec2 tex_coords, float is_diag) {
 	vec2 diag_coords = get_diag_coords(tex_coords, is_diag);
@@ -161,13 +162,18 @@ vec3 get_province_color(vec2 tex_coords, float is_diag) {
 	vec3 prov_color = texture(tile_sheet, prov_color_coord).rgb;
 	return prov_color;
 }
-// Get the province shadow. Used for fog of war
+
+// Get the province shadow. Used for fog of war & province selected
 float get_province_shadow(vec2 tex_coords, float is_diag) {
 	vec2 diag_coords = get_diag_coords(tex_coords, is_diag);
 	vec2 coord = texture(tile_map, diag_coords).xy;
 
 	vec2 prov_color_coord = coord * vec2(255.0 / 256.0);
 	float prov_shadow = texture(province_opt, prov_color_coord).r;
+	// Ugly solution, but will do for now
+	prov_shadow += texture(province_opt, prov_color_coord).a;
+	// prov_shadow += texture(province_opt, prov_color_coord).g;
+	// prov_shadow += texture(province_opt, prov_color_coord).b;
 	return prov_shadow;
 }
 

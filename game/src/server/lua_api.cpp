@@ -197,7 +197,9 @@ int LuaAPI::get_technology(lua_State* L) {
 
 int LuaAPI::add_req_tech_to_tech(lua_State* L) {
     Technology* technology = &g_world->technologies.at(lua_tonumber(L, 1));
-    technology->req_technologies.push_back(&g_world->technologies.at(lua_tonumber(L, 2)));
+    Technology::Id req_tech_id = lua_tonumber(L, 2);
+    debug_assert(req_tech_id < g_world->technologies.size());
+    technology->req_technologies.push_back(req_tech_id);
     return 0;
 }
 

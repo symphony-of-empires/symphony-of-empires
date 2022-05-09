@@ -51,7 +51,7 @@ Chart::Chart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 }
 
 void Chart::on_render(Context&, Eng3D::Rect viewport) {
-    glColor3f(1.f, 1.f, 1.f);
+    g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
     if(text_texture != nullptr) {
         if(!text_texture->gl_tex_num) {
             text_texture->to_opengl();
@@ -59,32 +59,10 @@ void Chart::on_render(Context&, Eng3D::Rect viewport) {
     }
 
     if(current_texture != nullptr && current_texture->gl_tex_num) {
-        draw_rectangle(
-            0, 0,
-            width, height,
-            viewport,
-            current_texture->gl_tex_num);
+        draw_rectangle(0, 0, width, height, viewport, current_texture.get());
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    if(1) {
-        glLineWidth(2.f);
-
-        // Outer black border
-        glBegin(GL_LINE_STRIP);
-
-        glColor3f(0.f, 0.f, 0.f);
-        glVertex2f(0, height);
-        glVertex2f(0, 0);
-        glVertex2f(width, 0);
-
-        glColor3f(1.f, 1.f, 1.f);
-        glVertex2f(width, 0);
-        glVertex2f(width, height);
-        glVertex2f(0, height);
-        glEnd();
-    }
-
     if(data.size() > 1) {
         glBindTexture(GL_TEXTURE_2D, 0);
         glLineWidth(2.f);
@@ -110,9 +88,7 @@ void Chart::on_render(Context&, Eng3D::Rect viewport) {
         glColor3f(0.f, 0.f, 0.f);
         time = 0;
         for(const auto& node : data) {
-            glVertex2f(
-                time * (width / (data.size() - 1)),
-                (real_height - (((node - min) / (max - min)) * real_height)) + 2.f);
+            glVertex2f(time * (width / (data.size() - 1)), (real_height - (((node - min) / (max - min)) * real_height)) + 2.f);
             time++;
         }
         glEnd();
@@ -121,17 +97,15 @@ void Chart::on_render(Context&, Eng3D::Rect viewport) {
         glColor3f(1.f, 0.f, 0.f);
         time = 0;
         for(const auto& node : data) {
-            glVertex2f(
-                time * (width / (data.size() - 1)),
-                real_height - (((node - min) / (max - min)) * real_height));
+            glVertex2f(time * (width / (data.size() - 1)), real_height - (((node - min) / (max - min)) * real_height));
             time++;
         }
         glEnd();
     }
 
     if(text_texture != nullptr) {
-        glColor3f(text_color.r, text_color.g, text_color.b);
-        draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture->gl_tex_num);
+        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
+        draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture);
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);

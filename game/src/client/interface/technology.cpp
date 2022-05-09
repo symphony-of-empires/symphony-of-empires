@@ -126,7 +126,7 @@ TechTreeView::TechTreeView(GameState& _gs)
 
     this->economic_tab = new TechTreeTab(gs, 0, 24, TechnologyType::ECONOMIC, this);
     this->economic_tab->is_render = false;
-    auto* economic_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(Path::get("gfx/economic_tech.png")), this);
+    auto* economic_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(Path::get("gfx/money.png")), this);
     economic_ibtn->right_side_of(*social_ibtn);
     economic_ibtn->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<TechTreeView&>(*w.parent);

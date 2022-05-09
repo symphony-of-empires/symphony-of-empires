@@ -44,6 +44,6 @@ public:
     std::string description;
     float cost;
     enum TechnologyType type;
-    std::vector<Technology*> req_technologies;
+    std::vector<Technology::Id> req_technologies;
     std::vector<NationModifier*> modifiers;
 };

@@ -36,6 +36,8 @@
 #   include <GL/glew.h>
 #   include <GL/gl.h>
 #   include <GL/glu.h>
+#else
+#   error not implemented
 #endif
 
 #ifdef E3D_BACKEND_OPENGL
@@ -66,6 +68,8 @@ namespace Eng3D::OpenGL {
         GLuint get_id(void) const;
     };
 };
+#else
+#   error not implemented
 #endif
 
 namespace Eng3D {
@@ -75,6 +79,8 @@ namespace Eng3D {
         TRIANGLE_STRIP = GL_TRIANGLE_STRIP,
         TRIANGLES = GL_TRIANGLES,
         LINES = GL_LINES,
+#else
+#   error not implemented
 #endif
     };
 
@@ -107,6 +113,8 @@ namespace Eng3D {
             vao.bind();
             glDrawArrays(static_cast<GLenum>(mode), 0, buffer.size());
         };
+#else
+#   error not implemented
 #endif
 
 #ifdef E3D_BACKEND_OPENGL
@@ -128,6 +136,8 @@ namespace Eng3D {
             glVertexAttribPointer(1, T::length(), GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)((uintptr_t)tex_stride));
             glEnableVertexAttribArray(1);
         };
+#else
+#   error not implemented
 #endif
 
         std::vector<Eng3D::MeshData<V, T>> buffer;
@@ -138,6 +148,8 @@ namespace Eng3D {
         // then initialize the VBO!
         Eng3D::OpenGL::VAO vao;
         Eng3D::OpenGL::VBO vbo;
+#else
+#   error not implemented
 #endif
     };
 };

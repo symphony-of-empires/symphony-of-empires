@@ -79,7 +79,7 @@ Eng3D::StringRef Eng3D::StringManager::insert(const Eng3D::String& str)
 }
 
 const Eng3D::String& Eng3D::StringManager::get_by_id(const Eng3D::StringRef ref) const
-{
+{                                   
     return this->strings[ref.id];
 }
 

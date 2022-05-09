@@ -81,7 +81,7 @@ namespace UI {
         UI::ClickState check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off, UI::ClickState click_state, bool clickable);
         bool check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y);
         // Render the widget and it's children
-        void render_recursive(Widget& widget, Eng3D::Rect viewport, glm::vec2 offset);
+        void render_recursive(Widget& widget, glm::mat4 model, Eng3D::Rect viewport, glm::vec2 offset);
         int do_tick_recursive(Widget& w);
         void clear_dead_recursive(Widget* w);
 
@@ -141,8 +141,9 @@ namespace UI {
          * @brief Will give keyboard input to Input Widget if one is selected 
          * 
          * @param input The input characters
+         * @return true if there is a currently selected input widget
          */
-        void check_text_input(const char* input);
+        bool check_text_input(const char* input);
 
         void use_tooltip(Tooltip* tooltip, glm::ivec2 pos);
 
@@ -165,14 +166,15 @@ namespace UI {
         std::shared_ptr<Eng3D::Texture> background;
         std::shared_ptr<Eng3D::Texture> window_top;
         std::shared_ptr<Eng3D::Texture> button;
-        std::shared_ptr<Eng3D::Texture> tooltip_texture;
+        std::shared_ptr<Eng3D::Texture> tooltip_tex;
         std::shared_ptr<Eng3D::Texture> piechart_overlay;
         std::shared_ptr<Eng3D::Texture> border_tex;
         std::shared_ptr<Eng3D::Texture> button_border;
+        std::shared_ptr<Eng3D::Texture> cursor_tex;
 
         TTF_Font* default_font;
 
-        std::unique_ptr<Eng3D::OpenGL::Program> widget_shader;
+        std::unique_ptr<Eng3D::OpenGL::Program> obj_shader;
     };
     extern Context* g_ui_context;
 }; // namespace UI

@@ -96,20 +96,16 @@ World& World::get_instance(void) {
 
 // Obtains a tile from the world safely, and makes sure that it is in bounds
 Tile& World::get_tile(size_t x, size_t y) const {
-    if(x >= width || y >= height) {
-        throw std::runtime_error("Tile out of bounds");
-    }
+    debug_assert(x < width && y < height); // Tile out of bounds
     return tiles[x + y * width];
 }
 
 Tile& World::get_tile(size_t idx) const {
-    if(idx >= width * height) {
-        throw std::runtime_error("Tile index exceeds boundaries");
-    }
+    debug_assert(idx < width * height) // Tile index exceeds boundaries
     return tiles[idx];
 }
 
-void ai_do_tick(Nation* nation, World* world);
+void ai_do_tick(Nation& nation);
 
 // Creates a new world
 World::World() {
@@ -348,8 +344,6 @@ World::World() {
 
 World::~World() {
     lua_close(lua);
-    delete[] tiles;
-
     for(auto& event : events) {
         delete event;
     } for(auto& province : provinces) {
@@ -358,6 +352,8 @@ World::~World() {
         delete nation;
     } for(auto& unit : units) {
         delete unit;
+    } for(auto& war : wars) {
+        delete war;
     }
 }
 
@@ -371,7 +367,7 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
             if(luaL_dofile(lua, path.c_str()) != LUA_OK) {
                 throw LuaAPI::Exception(lua_tostring(lua, -1));
             }*/
-#ifdef windows
+#ifdef E3D_TARGET_WINDOWS
             std::string m_path;
             for(auto& c : path) {
                 if(c == '\\') {
@@ -409,7 +405,7 @@ void World::load_initial(void) {
     Eng3D::Log::debug("game", Eng3D::Locale::translate("Shrink normally-not-resized vectors to give back memory to the OS"));
 
     // Associate tiles with province
-    std::unique_ptr<BinaryImage> div = std::unique_ptr<BinaryImage>(new BinaryImage(Path::get("map/provinces.png")));
+    std::unique_ptr<BinaryImage> div = std::make_unique<BinaryImage>(Path::get("map/provinces.png"));
     width = div->width;
     height = div->height;
 
@@ -418,10 +414,7 @@ void World::load_initial(void) {
     // Land is	> sea_level + 1
     const size_t total_size = width * height;
     sea_level = 126;
-    tiles = new Tile[total_size];
-    if(tiles == nullptr) {
-        throw std::runtime_error("Out of memory");
-    }
+    tiles = std::make_unique<Tile[]>(total_size);
 
     if(div->width != width || div->height != height) {
         throw std::runtime_error("Province map size mismatch");
@@ -504,10 +497,10 @@ void World::load_initial(void) {
 
         fp = fopen("unused.txt", "w+t");
         if(fp) {
-            for(int i = 0; i < province_color_table.size(); i++) {
+            for(size_t i = 0; i < province_color_table.size(); i++) {
                 uint32_t color = i << 8;
 
-                if(i % 32) {
+                if(i % 128) {
                     continue;
                 }
 
@@ -633,11 +626,93 @@ void World::load_mod(void) {
     Eng3D::Log::debug("game", Eng3D::Locale::translate("World fully intiialized"));
 }
 
+static inline void unit_do_tick(Unit& unit)
+{
+    debug_assert(unit.province != nullptr);
+    if(unit.on_battle) {
+        return;
+    }
+
+    bool can_take = true;
+    for(auto& other_unit : unit.province->get_units()) {
+        if(other_unit->on_battle) {
+            continue;
+        }
+
+        // Must not our unit and only if we are at war
+        if(other_unit->owner == unit.owner || !unit.owner->relations[g_world->get_id(*other_unit->owner)].has_war) {
+            continue;
+        }
+
+        can_take = false;
+        // If there is another unit of a country we are at war with we will start a battle
+        for(auto& war : g_world->wars) {
+            if(!war->is_involved(*unit.owner)) {
+                continue;
+            }
+
+            auto it = std::find_if(war->battles.begin(), war->battles.end(), [&unit](const auto& e) {
+                return e.province == unit.province;
+            });
+
+            // Create a new battle if none is occurring on this province
+            unit.target = nullptr;
+            if(it == war->battles.end()) {
+                Battle battle = Battle(*war, *unit.province);
+                battle.name = "Battle of " + unit.province->name;
+                if(war->is_attacker(*unit.owner)) {
+                    battle.attackers.push_back(&unit);
+                    battle.defenders.push_back(other_unit);
+                } else {
+                    battle.attackers.push_back(other_unit);
+                    battle.defenders.push_back(&unit);
+                }
+                unit.on_battle = true;
+                other_unit->on_battle = true;
+                war->battles.push_back(battle);
+                Eng3D::Log::debug("game", "New battle of \"" + battle.name + "\"");
+                break;
+            } else {
+                Battle& battle = *it;
+
+                // Add the unit to one side depending on who are we attacking
+                // However unit must not be already involved
+                // TODO: Make it be instead depending on who attacked first in this battle
+                if(war->is_attacker(*unit.owner)) {
+                    if(std::find(battle.attackers.begin(), battle.attackers.end(), &unit) == battle.attackers.end()) {
+                        battle.attackers.push_back(&unit);
+                        unit.on_battle = true;
+                    }
+                } else if(war->is_defender(*unit.owner)) {
+                    if(std::find(battle.defenders.begin(), battle.defenders.end(), &unit) == battle.defenders.end()) {
+                        battle.defenders.push_back(&unit);
+                        unit.on_battle = true;
+                    }
+                }
+                Eng3D::Log::debug("game", "Adding unit to battle of \"" + battle.name + "\"");
+                break;
+            }
+            break;
+        }
+    }
+
+    if(unit.target != nullptr && unit.can_move()) {
+        if(unit.move_progress) {
+            unit.move_progress -= std::min<Eng3D::Decimal>(unit.move_progress, unit.get_speed());
+        } else {
+            unit.set_province(*unit.target);
+            
+            // If we are at war with the person we are crossing their provinces at, then take 'em (albeit with resistance)
+            if(can_take && unit.owner->relations[g_world->get_id(*unit.province->controller)].has_war) {
+                unit.owner->control_province(*unit.province);
+            }
+        }
+    }
+}
+
 void World::do_tick() {
     profiler.start("AI");
-// #if 0
-    // AI and stuff
-    // Just random shit to make the world be like more alive
+    // Do the AI turns in parallel
     std::for_each(std::execution::par, nations.begin(), nations.end(), [this](auto& nation) {
         if(!nation->exists()) {
             return;
@@ -661,36 +736,14 @@ void World::do_tick() {
                 nation->focus_tech = nullptr;
             }
         }
-        ai_do_tick(nation, this);
+        ai_do_tick(*nation);
     });
-// #endif
     profiler.stop("AI");
 
     profiler.start("Economy");
     // Every ticks_per_month ticks do an economical tick
     if(!(time % ticks_per_month)) {
         Economy::do_tick(*this);
-        /*
-        // Calculate prestige for today (newspapers come out!)
-        for(auto& nation : this->nations) {
-            const Eng3D::Decimal decay_per_cent = 5.f;
-            const Eng3D::Decimal max_modifier = 10.f;
-            const Eng3D::Decimal min_prestige = std::max<Eng3D::Decimal>(0.5f, ((nation->naval_score + nation->military_score + nation->economy_score) / 2));
-
-            // Prestige cannot go below min prestige
-            nation->prestige = std::max<Eng3D::Decimal>(nation->prestige, min_prestige);
-            nation->prestige -= (nation->prestige * (decay_per_cent / 100.f)) * std::min<Eng3D::Decimal>(std::max<Eng3D::Decimal>(1, nation->prestige - min_prestige) / (min_prestige + 1), max_modifier);
-
-            float economy_score = 0.f;
-            for(const auto& province : nation->owned_provinces) {
-                // Calculate economy score of nations
-                for(const auto& pop : province->pops) {
-                    economy_score += pop.budget;
-                }
-            }
-            nation->economy_score = economy_score / 100.f;
-        }
-        */
         g_server->broadcast(Action::NationUpdate::form_packet(nations));
         g_server->broadcast(Action::ProvinceUpdate::form_packet(provinces));
     }
@@ -698,89 +751,9 @@ void World::do_tick() {
 
     profiler.start("Units");
     // Evaluate units
-    std::vector<Eng3D::Decimal> mil_research_pts(nations.size(), 0.f);
-    std::vector<Eng3D::Decimal> naval_research_pts(nations.size(), 0.f);
     for(size_t i = 0; i < units.size(); i++) {
         Unit* unit = units[i];
-        if(unit->on_battle) {
-            continue;
-        }
-
-        bool can_take = true;
-        for(auto& other_unit : unit->province->get_units()) {
-            if(other_unit->on_battle) {
-                continue;
-            }
-
-            // Must not our unit and only if we are at war
-            if(other_unit->owner == unit->owner || !unit->owner->relations[get_id(*other_unit->owner)].has_war) {
-                continue;
-            }
-
-            can_take = false;
-            // If there is another unit of a country we are at war with we will start a battle
-            for(auto& war : wars) {
-                if(!war->is_involved(*unit->owner)) {
-                    continue;
-                }
-
-                auto it = std::find_if(war->battles.begin(), war->battles.end(), [&unit](const auto& e) {
-                    return e.province == unit->province;
-                });
-
-                // Create a new battle if none is occurring on this province
-                unit->target = nullptr;
-                if(it == war->battles.end()) {
-                    Battle battle = Battle(*war, *unit->province);
-                    battle.name = "Battle of " + unit->province->name;
-                    if(war->is_attacker(*unit->owner)) {
-                        battle.attackers.push_back(unit);
-                        battle.defenders.push_back(other_unit);
-                    } else {
-                        battle.attackers.push_back(other_unit);
-                        battle.defenders.push_back(unit);
-                    }
-                    unit->on_battle = true;
-                    other_unit->on_battle = true;
-                    war->battles.push_back(battle);
-                    Eng3D::Log::debug("game", "New battle of \"" + battle.name + "\"");
-                    break;
-                } else {
-                    Battle& battle = *it;
-
-                    // Add the unit to one side depending on who are we attacking
-                    // However unit must not be already involved
-                    // TODO: Make it be instead depending on who attacked first in this battle
-                    if(war->is_attacker(*unit->owner)) {
-                        if(std::find(battle.attackers.begin(), battle.attackers.end(), unit) == battle.attackers.end()) {
-                            battle.attackers.push_back(unit);
-                            unit->on_battle = true;
-                        }
-                    } else if(war->is_defender(*unit->owner)) {
-                        if(std::find(battle.defenders.begin(), battle.defenders.end(), unit) == battle.defenders.end()) {
-                            battle.defenders.push_back(unit);
-                            unit->on_battle = true;
-                        }
-                    }
-                    Eng3D::Log::debug("game", "Adding unit to battle of \"" + battle.name + "\"");
-                    break;
-                }
-                break;
-            }
-        }
-
-        // If we are at war with the person we are crossing their provinces at, then take 'em (albeit with resistance)
-        if(can_take && unit->owner->relations[get_id(*unit->province->controller)].has_war) {
-            unit->owner->control_province(*unit->province);
-        }
-
-        if(unit->target != nullptr && unit->can_move()) {
-            if(unit->move_progress) {
-                unit->move_progress -= std::min<Eng3D::Decimal>(unit->move_progress, unit->get_speed());
-            } else {
-                unit->set_province(*unit->target);
-            }
-        }
+        unit_do_tick(*unit);
     }
     profiler.stop("Units");
 
@@ -788,8 +761,8 @@ void World::do_tick() {
     profiler.start("Battles");
     std::for_each(std::execution::par, wars.begin(), wars.end(), [this](auto& war) {
         debug_assert(!war->attackers.empty() && !war->defenders.empty());
-        for(auto i = 0; i < war->battles.size(); i++) {
-            auto& battle = war->battles[i];
+        for(size_t j = 0; j < war->battles.size(); j++) {
+            auto& battle = war->battles[j];
             debug_assert(battle.province != nullptr);
 
             // Attackers attack Defenders
@@ -805,11 +778,12 @@ void World::do_tick() {
                     if(!unit->size) {
                         Eng3D::Log::debug("game", "Removing attacker \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                         battle.defenders.erase(battle.defenders.begin() + i);
-                        assert(unit->province != nullptr);
+                        debug_assert(unit->province != nullptr && unit->province == battle.province);
 
-                        auto it = std::find(unit->province->units.begin(), unit->province->units.end(), unit);
-                        unit->province->units.erase(it);
-                        remove(*unit);
+                        auto it = std::find(battle.province->units.begin(), battle.province->units.end(), unit);
+                        debug_assert(it != battle.province->units.end());
+                        battle.province->units.erase(it);
+                        this->remove(*unit);
                         delete unit;
                         continue;
                     }
@@ -830,11 +804,12 @@ void World::do_tick() {
                     if(!unit->size) {
                         Eng3D::Log::debug("game", "Removing defender \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                         battle.attackers.erase(battle.attackers.begin() + i);
-                        assert(unit->province != nullptr);
+                        debug_assert(unit->province != nullptr && unit->province == battle.province);
 
-                        auto it = std::find(unit->province->units.begin(), unit->province->units.end(), unit);
-                        unit->province->units.erase(it);
-                        remove(*unit);
+                        auto it = std::find(battle.province->units.begin(), battle.province->units.end(), unit);
+                        debug_assert(it != battle.province->units.end());
+                        battle.province->units.erase(it);
+                        this->remove(*unit);
                         delete unit;
                         continue;
                     }
@@ -850,9 +825,8 @@ void World::do_tick() {
                 } else {
                     battle.defenders[0]->owner->control_province(*battle.province);
                 }
-
-                war->battles.erase(war->battles.begin() + i);
-                i--;
+                war->battles.erase(war->battles.begin() + j);
+                j--;
                 continue;
             }
         }
@@ -860,11 +834,13 @@ void World::do_tick() {
     profiler.stop("Battles");
 
     profiler.start("Research");
+    std::vector<Eng3D::Decimal> mil_research_pts(nations.size(), 0.f);
+    std::vector<Eng3D::Decimal> naval_research_pts(nations.size(), 0.f);
     // Now researches for every country are going to be accounted :)
     for(const auto& nation : nations) {
         debug_assert(nation != nullptr);
         for(const auto& technology : technologies) {
-            if(!nation->can_research(&technology)) {
+            if(!nation->can_research(technology)) {
                 continue;
             }
 
@@ -975,7 +951,7 @@ void World::do_tick() {
     profiler.stop("Treaties");
 
     profiler.start("Events");
-    LuaAPI::check_events(lua);
+    //LuaAPI::check_events(lua);
     profiler.stop("Events");
 
     if(!(time % ticks_per_month)) {

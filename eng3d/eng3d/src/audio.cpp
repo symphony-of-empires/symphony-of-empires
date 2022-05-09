@@ -40,6 +40,7 @@
 #include "eng3d/audio.hpp"
 #include "eng3d/print.hpp"
 #include "eng3d/utils.hpp"
+#include "eng3d/log.hpp"
 
 //
 // Audio
@@ -102,7 +103,7 @@ const Eng3D::Audio& Eng3D::AudioManager::load(const std::string& path) {
     // Otherwise Sound is not in our control, so we create a new one
     Eng3D::Audio* sound = new Eng3D::Audio(path);
     sounds[path] = sound;
-    print_info("Loaded and cached sound %s (%zu b)", path.c_str(), sound->len);
+    Eng3D::Log::debug("audio", "Loaded and cached sound " + path + std::to_string(sound->len));
 
     return *(static_cast<const Eng3D::Audio*>(sound));
 }

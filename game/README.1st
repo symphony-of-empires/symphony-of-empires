@@ -8,7 +8,8 @@ Several defines are provided for performance improvments or packaging in
 memory constrained environments (such as those who needs less resources in
 order to properly function).
 
-SOE_MEMORY_SAVE
-    If this define is added then the game will save as much memory as
-    possible by introducing new mechanics such as limiting the number of
-    buildings and provinces drastically.
+GS_DEBUG
+    (Eng3D specific). Tells the game to enable debug assertions on their end.
+    If this option is turned off assertions will be disabled, however Eng3D
+    can still use these internally. Additionally log messages will not get
+    suppressed.

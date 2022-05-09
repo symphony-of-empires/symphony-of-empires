@@ -33,23 +33,6 @@ nation:add_client_hint(fascism, _("Aceh"), 0xC82344)
 nation:add_client_hint(republic, _("Aceh"), 0xC82344)
 nation:add_client_hint(socialism, _("Aceh"), 0xC82344)
 
-nation = Nation:new{ ref_name = "johor", name = _("Johor") }
-nation.adjective = _("Johor")
-nation:register()
-nation:set_ideology(monarchy)
---nation:add_accepted_culture(chinesse)
-nation:add_client_hint(monarchy, _("Johor"), 0x896241)
-nation:add_client_hint(fascism, _("Johor"), 0x896241)
-nation:add_client_hint(republic, _("Johor"), 0x896241)
-nation:add_client_hint(socialism, _("Johor"), 0x896241)
-
-nation = Nation:new{ ref_name = "siam", name = _("Siam") }
-nation.adjective = _("Siam")
-nation:register()
-nation:set_ideology(monarchy)
---nation:add_accepted_culture(chinesse)
-nation:add_client_hint(monarchy, _("Siam"), 0x2F54BD)
-
 nation = Nation:new{ ref_name = "perak", name = _("Perak") }
 nation.adjective = _("Perak")
 nation:register()

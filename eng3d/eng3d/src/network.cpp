@@ -34,7 +34,7 @@
 #ifndef _MSC_VER
 #	include <unistd.h>
 #endif
-#ifdef unix
+#ifdef E3D_TARGET_UNIX
 #	define _XOPEN_SOURCE_EXTENDED 1
 #	include <sys/socket.h>
 #	include <netinet/in.h>
@@ -46,7 +46,7 @@
 #	include <poll.h>
 #   include <signal.h>
 #   include <fcntl.h>
-#elif defined windows
+#elif defined E3D_TARGET_WINDOWS
 #	define WIN32_LEAN_AND_MEAN 1
 #   ifndef NOMINMAX
 #	    define NOMINMAX 1
@@ -187,7 +187,7 @@ void Eng3D::Networking::ServerClient::flush_packets(void) {
 
 bool Eng3D::Networking::ServerClient::has_pending(void) {
     // Check if we need to read packets
-#ifdef unix
+#ifdef E3D_TARGET_UNIX
     struct pollfd pfd = {};
     pfd.fd = conn_fd;
     pfd.events = POLLIN;
@@ -196,7 +196,7 @@ bool Eng3D::Networking::ServerClient::has_pending(void) {
     if(pfd.revents & POLLIN || has_pending) {
         return true;
     }
-#elif defined windows
+#elif defined E3D_TARGET_WINDOWS
     u_long has_pending = 0;
     int test = ioctlsocket(conn_fd, FIONREAD, &has_pending);
     if(has_pending) {
@@ -216,7 +216,7 @@ Eng3D::Networking::ServerClient::~ServerClient(void) {
 Eng3D::Networking::Server::Server(const unsigned port, const unsigned max_conn)
     : n_clients{ static_cast<int>(max_conn) }
 {
-#ifdef windows
+#ifdef E3D_TARGET_WINDOWS
     WSADATA data;
     WSAStartup(MAKEWORD(2, 2), &data);
 #endif
@@ -231,7 +231,7 @@ Eng3D::Networking::Server::Server(const unsigned port, const unsigned max_conn)
         CXX_THROW(Eng3D::Networking::SocketException, "Cannot create server socket");
     }
 
-#ifdef unix
+#ifdef E3D_TARGET_UNIX
     int enable = 1;
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
     setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(int));
@@ -244,7 +244,7 @@ Eng3D::Networking::Server::Server(const unsigned port, const unsigned max_conn)
         CXX_THROW(Eng3D::Networking::SocketException, "Cannot listen in specified number of concurrent connections");
     }
 
-#ifdef unix
+#ifdef E3D_TARGET_UNIX
     // Allow non-blocking operations on this socket (we don't want to block on multi-listener servers)
     fcntl(fd, F_SETFL, fcntl(fd, F_GETFD, 0) | O_NONBLOCK);
 
@@ -258,9 +258,9 @@ Eng3D::Networking::Server::Server(const unsigned port, const unsigned max_conn)
 
 Eng3D::Networking::Server::~Server() {
     run = false;
-#ifdef unix
+#ifdef E3D_TARGET_UNIX
     close(fd);
-#elif defined windows
+#elif defined E3D_TARGET_WINDOWS
     closesocket(fd);
     WSACleanup();
 #endif
@@ -304,10 +304,10 @@ void Eng3D::Networking::Server::broadcast(const Eng3D::Networking::Packet& packe
 //
 Eng3D::Networking::Client::Client(std::string host, const unsigned port) {
     // Initialize WSA
-#ifdef windows
+#ifdef E3D_TARGET_WINDOWS
     WSADATA data;
     if(WSAStartup(MAKEWORD(2, 2), &data) != 0) {
-        print_error("WSA code: %u", WSAGetLastError());
+        Eng3D::Log::error("network", "WSA code " + std::to_string(WSAGetLastError()));
         CXX_THROW(Eng3D::Networking::SocketException, "Can't start WSA subsystem");
     }
 #endif
@@ -319,18 +319,18 @@ Eng3D::Networking::Client::Client(std::string host, const unsigned port) {
     
     fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(fd == INVALID_SOCKET) {
-#ifdef windows
-        print_error("WSA Code: %u", WSAGetLastError());
+#ifdef E3D_TARGET_WINDOWS
+        Eng3D::Log::error("network", "WSA Code " + std::to_string(WSAGetLastError()));
         WSACleanup();
 #endif
         CXX_THROW(Eng3D::Networking::SocketException, "Can't create client socket");
     }
     
     if(connect(fd, (sockaddr*)&addr, sizeof(addr)) != 0) {
-#ifdef unix
+#ifdef E3D_TARGET_UNIX
         close(fd);
-#elif defined windows
-        print_error("WSA Code: %u", WSAGetLastError());
+#elif defined E3D_TARGET_WINDOWS
+        Eng3D::Log::error("network", "WSA Code " + std::to_string(WSAGetLastError()));
         closesocket(fd);
 #endif
         CXX_THROW(Eng3D::Networking::SocketException, "Can't connect to server");
@@ -352,7 +352,7 @@ void Eng3D::Networking::Client::send(const Eng3D::Networking::Packet& packet) {
 }
 
 Eng3D::Networking::Client::~Client() {
-#ifdef windows
+#ifdef E3D_TARGET_WINDOWS
     closesocket(fd);
     WSACleanup();
 #else

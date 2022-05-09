@@ -38,7 +38,8 @@
 namespace UI {
     class PieChart;
     class Chart;
-}
+};
+
 namespace Interface {
     // View information related to the population and diversity of cultures and religions
     // on the specified province
@@ -110,6 +111,7 @@ namespace Interface {
         ProvinceEditTerrainTab* edit_terrain_tab;
     public:
         ProvinceView(GameState& gs, Province* province);
+        ~ProvinceView() override;
         friend class ProvinceBuildingTab;
     };
 
