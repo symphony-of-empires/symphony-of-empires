@@ -77,6 +77,7 @@ namespace Eng3D {
 		~State();
 		void clear(void) const;
 		void swap(void) const;
+		void set_multisamples(int samples) const;
 		static void mixaudio(void* userdata, uint8_t* stream, int len);
 		static State& get_instance(void);
 
