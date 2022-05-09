@@ -57,9 +57,9 @@
 #include "client/interface/province_view.hpp"
 #include "client/interface/lobby.hpp"
 #include "world.hpp"
-#include "client/orbit_camera.hpp"
-#include "client/flat_camera.hpp"
-#include "client/camera.hpp"
+#include "eng3d/orbit_camera.hpp"
+#include "eng3d/flat_camera.hpp"
+#include "eng3d/camera.hpp"
 #include "province.hpp"
 #include "client/client_network.hpp"
 #include "io_impl.hpp"
@@ -113,7 +113,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     skybox(0.f, 0.f, 0.f, 255.f * 10.f, 40, false)
 {
     Eng3D::State& s = Eng3D::State::get_instance();
-    camera = new FlatCamera(glm::vec2(screen_width, screen_height), glm::vec2(world.width, world.height));
+    camera = new Eng3D::FlatCamera(glm::vec2(screen_width, screen_height), glm::vec2(world.width, world.height));
 
     rivers = new Rivers();
     borders = new Borders();
@@ -290,12 +290,12 @@ void Map::create_labels() {
 void Map::set_view(MapView view) {
     view_mode = view;
 
-    Camera* old_camera = camera;
+    Eng3D::Camera* old_camera = camera;
     if(view == MapView::PLANE_VIEW) {
-        camera = new FlatCamera(*old_camera);
+        camera = new Eng3D::FlatCamera(*old_camera);
     }
     else if(view == MapView::SPHERE_VIEW) {
-        camera = new OrbitCamera(*old_camera, GLOBE_RADIUS);
+        camera = new Eng3D::OrbitCamera(*old_camera, GLOBE_RADIUS);
     }
     delete old_camera;
     create_labels();
