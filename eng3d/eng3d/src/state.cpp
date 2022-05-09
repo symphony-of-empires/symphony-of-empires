@@ -96,7 +96,7 @@ Eng3D::State::State(void) {
 
     // OpenGL configurations
     context = SDL_GL_CreateContext(window);
-    //SDL_GL_SetSwapInterval(1);
+    SDL_GL_SetSwapInterval(1);
 
     print_info("OpenGL Version: %s", glGetString(GL_VERSION));
 
@@ -112,6 +112,10 @@ Eng3D::State::State(void) {
 
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(GLDebugMessageCallback, 0);
+
+    glEnable(GL_MULTISAMPLE);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 1);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -199,7 +203,7 @@ Eng3D::State::State(void) {
         int r = entry("SYMPHONY_EMPIRES", 0x00F0);
         if(r != 0) {
             Eng3D::Log::warning("plugin", "Error RET=" + std::to_string(r) + " on plugin " + plugin);
-        }
+}
 #   endif
 #endif
     }
@@ -236,6 +240,11 @@ void Eng3D::State::swap(void) const {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     SDL_GL_SwapWindow(window);
+}
+
+void Eng3D::State::set_multisamples(int samples) const {
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, samples);
 }
 
 void Eng3D::State::mixaudio(void* userdata, uint8_t* stream, int len) {
