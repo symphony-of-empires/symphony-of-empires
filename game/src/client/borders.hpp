@@ -33,11 +33,11 @@
 namespace Eng3D {
     class Curve;
     class Texture;
+    class Camera;
     namespace OpenGL {
         class Program;
     }
 }
-class Camera;
 
 class Borders
 {
@@ -45,7 +45,7 @@ public:
     Borders();
     ~Borders();
 
-    void draw(Camera* camera);
+    void draw(Eng3D::Camera* camera);
 private:
     void build_borders();
     std::vector<Eng3D::Curve*> curves;

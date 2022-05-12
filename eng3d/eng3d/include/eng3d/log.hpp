@@ -26,6 +26,7 @@
 #pragma once
 
 #include <string>
+#include <memory>
 
 namespace Eng3D::Log {
     inline void debug(const std::string& category, const std::string& msg) {

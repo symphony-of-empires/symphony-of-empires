@@ -40,6 +40,7 @@ namespace Eng3D {
     class Square;
     class Sphere;
     class Quad2D;
+    class Camera;
     namespace OpenGL {
         class Program;
         class Framebuffer;
@@ -50,7 +51,6 @@ namespace Eng3D {
 #include "eng3d/shader.hpp"
 
 class World;
-class Camera;
 class Nation;
 class GameState;
 enum class MapView;
@@ -84,7 +84,7 @@ public:
     void update_nations(std::vector<Province*> nations);
     void request_update_visibility(void);
     void update_visibility(void);
-    void draw(Camera* camera, MapView view_mode);
+    void draw(Eng3D::Camera* camera, MapView view_mode);
     void reload_shaders();
     void update_options(MapOptions options);
 

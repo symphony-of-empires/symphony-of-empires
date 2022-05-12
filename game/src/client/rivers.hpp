@@ -31,11 +31,11 @@
 namespace Eng3D {
     class Curve;
     class Texture;
+    class Camera;
     namespace OpenGL {
         class Program;
     }
 }
-class Camera;
 
 class Rivers
 {
@@ -43,7 +43,7 @@ public:
     Rivers();
     ~Rivers();
 
-    void draw(Camera* camera);
+    void draw(Eng3D::Camera* camera);
 private:
     void build_rivers();
     std::vector<Eng3D::Curve*> curves;
