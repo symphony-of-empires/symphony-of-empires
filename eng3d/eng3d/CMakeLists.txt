@@ -9,6 +9,8 @@ IF(NOT E3D_TARGET_RVL)
 	# Workaround for clang (see https://bugs.launchpad.net/ubuntu/+source/libsdl2-ttf/+bug/1872023)
 	include_directories(/usr/include/SDL2)
 	link_directories(/usr/local/lib)
+ELSE()
+
 ENDIF()
 include_directories("${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/include")
 
@@ -25,7 +27,6 @@ add_library(eng3d STATIC ${MAIN_SOURCES})
 #
 # Linking
 #
-target_link_libraries(eng3d PUBLIC SDL2 SDL2_ttf z tbb)
 IF(WIN32)
 	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR MSVC)
 		
@@ -39,6 +40,7 @@ ELSEIF(UNIX)
 ELSE()
 
 ENDIF()
+target_link_libraries(eng3d PUBLIC SDL2 SDL2_ttf z tbb)
 
 # Find pthreads
 find_package(Threads)
