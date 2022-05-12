@@ -68,6 +68,9 @@ Eng3D::State::State(void) {
     }
     g_state = this;
 
+#ifdef E3D_BACKEND_RGX // RVL GX
+#endif
+
     // Initialize the IO first, as other subsystems may require access to files (i.e the UI context)
     package_man = new Eng3D::IO::PackageManager();
     const std::string asset_path = Path::get_full();
@@ -241,6 +244,7 @@ void Eng3D::State::swap(void) const {
     // Required by macOS
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     SDL_GL_SwapWindow(window);
+#else
 #endif
 }
 
@@ -301,3 +305,6 @@ void Eng3D::State::mixaudio(void* userdata, uint8_t* stream, int len) {
 Eng3D::State& Eng3D::State::get_instance(void) {
     return *g_state;
 }
+
+#ifdef E3D_BACKEND_RGX
+#endif

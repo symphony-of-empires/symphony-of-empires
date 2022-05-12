@@ -36,7 +36,7 @@
 #   include <GL/glew.h>
 #   include <GL/gl.h>
 #   include <GL/glu.h>
-#else
+#elif defined E3D_BACKEND_RGX
 #   error not implemented
 #endif
 
@@ -68,8 +68,6 @@ namespace Eng3D::OpenGL {
         GLuint get_id(void) const;
     };
 };
-#else
-#   error not implemented
 #endif
 
 namespace Eng3D {
