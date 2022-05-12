@@ -108,6 +108,8 @@ void Curve::draw() {
     }
     quads->draw();
 }
-#else
-#   error not implemented
+#elif defined E3D_BACKEND_RGX
+void Curve::draw() {
+
+}
 #endif

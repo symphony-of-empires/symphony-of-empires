@@ -32,6 +32,7 @@
 
 #ifdef E3D_BACKEND_OPENGL
 #   include <GL/glew.h>
+#elif defined E3D_BACKEND_RGX
 #endif
 #include <SDL.h>
 #include <SDL_events.h>
@@ -84,10 +85,13 @@ namespace Eng3D {
         UI::Context* ui_ctx;
 
         float music_volume = 50.f, sound_volume = 50.f;
-
+#ifdef E3D_BACKEND_RGX
+        // RVL uses global state variables that are platform specific
+#else
         SDL_Window* window;
         SDL_GLContext context;
         int width, height;
+#endif
 #ifdef E3D_BACKEND_OPENGL
         // Builtin shaders
         std::map<std::string, std::unique_ptr<Eng3D::OpenGL::Shader>> builtin_shaders;
