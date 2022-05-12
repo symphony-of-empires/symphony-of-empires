@@ -39,6 +39,7 @@ namespace Eng3D {
     class Quad;
     class FontSDF;
     class Label3D;
+    class Camera;
 
     namespace OpenGL {
         class Square;
@@ -63,7 +64,6 @@ enum class MapView {
 };
 
 class World;
-class Camera;
 class Nation;
 class MapRender;
 class GameState;
@@ -96,7 +96,7 @@ class Map {
     Borders* borders;
 
     selector_func selector = nullptr;
-    
+
 public:
     Map(const World& world, int screen_width, int screen_height);
     ~Map();
@@ -137,7 +137,7 @@ public:
     void set_selection(selector_func selector);
 
     const World& world;
-    Camera* camera;
+    Eng3D::Camera* camera;
 
     std::shared_ptr<Eng3D::Texture> id_map;
     std::shared_ptr<Eng3D::Texture> province_color_tex;

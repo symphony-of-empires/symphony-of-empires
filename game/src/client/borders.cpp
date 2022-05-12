@@ -33,7 +33,7 @@
 #include "eng3d/shader.hpp"
 
 #include "client/borders.hpp"
-#include "client/camera.hpp"
+#include "eng3d/camera.hpp"
 #include "glm/mat4x4.hpp"
 
 Borders::Borders() {
@@ -217,7 +217,7 @@ Borders::~Borders() {
 
 }
 
-void Borders::draw(Camera* camera) {
+void Borders::draw(Eng3D::Camera* camera) {
     line_shader->use();
     glm::mat4 model(1.f);
     line_shader->set_uniform("model", model);

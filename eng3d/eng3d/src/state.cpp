@@ -98,7 +98,7 @@ Eng3D::State::State(void) {
 
     // OpenGL configurations
     context = SDL_GL_CreateContext(window);
-    //SDL_GL_SetSwapInterval(1);
+    SDL_GL_SetSwapInterval(1);
 
     Eng3D::Log::debug("opengl", std::string() + "OpenGL Version: " + (const char*)glGetString(GL_VERSION));
     glewExperimental = GL_TRUE;
@@ -115,6 +115,10 @@ Eng3D::State::State(void) {
 
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(GLDebugMessageCallback, 0);
+
+    glEnable(GL_MULTISAMPLE);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 1);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -246,6 +250,11 @@ void Eng3D::State::swap(void) const {
     SDL_GL_SwapWindow(window);
 #else
 #endif
+}
+
+void Eng3D::State::set_multisamples(int samples) const {
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, samples);
 }
 
 void Eng3D::State::mixaudio(void* userdata, uint8_t* stream, int len) {

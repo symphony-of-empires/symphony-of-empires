@@ -34,7 +34,7 @@
 #include "client/game_state.hpp"
 #include "world.hpp"
 #include "client/map.hpp"
-#include "client/camera.hpp"
+#include "eng3d/camera.hpp"
 #include "io_impl.hpp"
 
 using namespace Interface;

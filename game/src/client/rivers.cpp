@@ -30,7 +30,7 @@
 #include "eng3d/state.hpp"
 #include "eng3d/curve.hpp"
 #include "eng3d/shader.hpp"
-#include "client/camera.hpp"
+#include "eng3d/camera.hpp"
 
 #include "glm/mat4x4.hpp"
 
@@ -161,7 +161,7 @@ Rivers::~Rivers() {
 
 }
 
-void Rivers::draw(Camera* camera) {
+void Rivers::draw(Eng3D::Camera* camera) {
     line_shader->use();
     glm::mat4 model(1.f);
     line_shader->set_uniform("model", model);
