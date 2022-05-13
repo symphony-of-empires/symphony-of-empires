@@ -443,6 +443,9 @@ bool Context::check_hover(const unsigned mx, const unsigned my) {
     tooltip_widget = nullptr;
     for(int i = widgets.size() - 1; i >= 0; i--) {
         is_hover |= check_hover_recursive(*widgets[i], mx, my, 0, 0);
+        if(is_hover) {
+            return is_hover;
+        }
     }
     return is_hover;
 }
@@ -525,9 +528,10 @@ bool Context::check_click(const unsigned mx, const unsigned my) {
     bool is_click = false;
     for(int i = widgets.size() - 1; i >= 0; i--) {
         click_state = check_click_recursive(*widgets[i], mx, my, 0, 0, click_state, true);
-
+        // Ignore further clicks, prevents clicking causing clicks on elements behind
         if(click_state != UI::ClickState::NOT_CLICKED) {
             is_click = true;
+            break;
         }
 
         // Check if windows should move to the top
