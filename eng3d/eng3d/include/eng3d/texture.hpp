@@ -41,8 +41,8 @@
 #   include <GL/glew.h>
 #   include <GL/gl.h>
 #endif
-#include <SDL_ttf.h>
-#include <SDL_surface.h>
+#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_surface.h>
 
 #include "eng3d/binary_image.hpp"
 #include "eng3d/color.hpp"

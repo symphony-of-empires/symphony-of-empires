@@ -37,7 +37,7 @@
 #   include <GL/gl.h>
 #   include <GL/glu.h>
 #elif defined E3D_BACKEND_RGX
-#   error not implemented
+#   include <gccore.h>
 #endif
 
 #ifdef E3D_BACKEND_OPENGL

@@ -32,8 +32,8 @@
 #include <string>
 #include <memory>
 
-#include <SDL_surface.h>
-#include <SDL_ttf.h>
+#include <SDL2/SDL_surface.h>
+#include <SDL2/SDL_ttf.h>
 
 #include <glm/vec2.hpp>
 #include "eng3d/rectangle.hpp"
