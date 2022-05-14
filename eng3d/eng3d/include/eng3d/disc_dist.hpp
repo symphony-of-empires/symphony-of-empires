@@ -1,5 +1,5 @@
-// Symphony of Empires
-// Copyright (C) 2021, Symphony of Empires contributors
+// Eng3D - General purpouse game engine
+// Copyright (C) 2021, Eng3D contributors
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
