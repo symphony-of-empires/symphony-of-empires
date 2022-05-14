@@ -212,11 +212,10 @@ int LuaAPI::add_building_type(lua_State* L) {
 
     building_type.ref_name = luaL_checkstring(L, 1);
     building_type.name = luaL_checkstring(L, 2);
-    building_type.is_plot_on_sea = lua_toboolean(L, 3);
-    building_type.is_build_land_units = lua_toboolean(L, 4);
-    building_type.is_build_naval_units = lua_toboolean(L, 5);
-    building_type.defense_bonus = (lua_tonumber(L, 6));
-    building_type.is_factory = lua_toboolean(L, 7);
+    building_type.flags |= lua_toboolean(L, 3) ? BuildingType::PLOT_ON_SEA : 0;
+    building_type.flags |= lua_toboolean(L, 4) ? BuildingType::BUILD_LAND_UNITS : 0;
+    building_type.flags |= lua_toboolean(L, 5) ? BuildingType::BUILD_NAVAL_UNITS : 0;
+    //building_type.defense_bonus = (lua_tonumber(L, 6));
 
     g_world->insert(building_type);
     lua_pushnumber(L, g_world->building_types.size() - 1);
@@ -229,12 +228,11 @@ int LuaAPI::get_building_type(lua_State* L) {
     lua_pushnumber(L, g_world->get_id(*building_type));
     lua_pushstring(L, building_type->ref_name.c_str());
     lua_pushstring(L, building_type->name.c_str());
-    lua_pushboolean(L, building_type->is_plot_on_sea);
-    lua_pushboolean(L, building_type->is_build_land_units);
-    lua_pushboolean(L, building_type->is_build_naval_units);
-    lua_pushnumber(L, (building_type->defense_bonus));
-    lua_pushboolean(L, building_type->is_factory);
-    return 8;
+    lua_pushboolean(L, building_type->flags & BuildingType::PLOT_ON_SEA);
+    lua_pushboolean(L, building_type->flags & BuildingType::BUILD_LAND_UNITS);
+    lua_pushboolean(L, building_type->flags & BuildingType::BUILD_NAVAL_UNITS);
+    lua_pushnumber(L, 0.f);
+    return 7;
 }
 
 int LuaAPI::add_good(lua_State* L) {
@@ -1215,14 +1213,9 @@ int LuaAPI::add_unit_type(lua_State* L) {
     unit_type.attack = (lua_tonumber(L, 3));
     unit_type.defense = (lua_tonumber(L, 4));
     unit_type.max_health = (lua_tonumber(L, 5));
-
-    unit_type.max_defensive_ticks = (lua_tonumber(L, 6));
-    unit_type.position_defense = (lua_tonumber(L, 7));
-
-    unit_type.is_ground = lua_toboolean(L, 8);
-    unit_type.is_naval = lua_toboolean(L, 9);
-
-    unit_type.speed = (lua_tonumber(L, 10));
+    unit_type.is_ground = lua_toboolean(L, 6);
+    unit_type.is_naval = lua_toboolean(L, 7);
+    unit_type.speed = (lua_tonumber(L, 8));
 
     g_world->insert(unit_type);
     lua_pushnumber(L, g_world->unit_types.size() - 1);
@@ -1237,12 +1230,10 @@ int LuaAPI::get_unit_type(lua_State* L) {
     lua_pushnumber(L, (unit_type->attack));
     lua_pushnumber(L, (unit_type->defense));
     lua_pushnumber(L, (unit_type->max_health));
-    lua_pushnumber(L, (unit_type->max_defensive_ticks));
-    lua_pushnumber(L, (unit_type->position_defense));
     lua_pushboolean(L, unit_type->is_ground);
     lua_pushboolean(L, unit_type->is_naval);
     lua_pushnumber(L, (unit_type->speed));
-    return 10;
+    return 8;
 }
 
 int LuaAPI::add_req_good_unit_type(lua_State* L) {

@@ -26,6 +26,7 @@
 #pragma once
 
 #include <vector>
+#include <unordered_set>
 #include "eng3d/entity.hpp"
 #include "eng3d/decimal.hpp"
 
@@ -39,32 +40,29 @@ public:
     //BuildingType();
     //~BuildingType();
 
-    bool is_plot_on_sea;
-    bool is_plot_on_land;
-    bool is_build_land_units;
-    bool is_build_naval_units;
-
-    // Defensive bonus given to units on the outpost
-    Eng3D::Number defense_bonus;
-
-    // Is this a factory?
-    bool is_factory;
-
-    // List of goods required to create output
-    std::vector<Good*> inputs;
-    // List of goods that this factory type creates
-    Good* output = nullptr;
-
-    // Required goods, first describes the id of the good and the second describes how many
-    std::vector<std::pair<Good*, Eng3D::Number>> req_goods;
-
-    // Required technologies
-    std::vector<Technology*> req_technologies;
+    static constexpr int PLOT_ON_SEA = 0x01;
+    static constexpr int PLOT_ON_LAND = 0x02;
+    static constexpr int BUILD_LAND_UNITS = 0x04;
+    static constexpr int BUILD_NAVAL_UNITS = 0x08;
+    static constexpr int BUILD_AIR_UNITS = 0x10;
+    // Build any type of military
+    static constexpr int BUILD_MILITARY = BUILD_LAND_UNITS | BUILD_NAVAL_UNITS | BUILD_AIR_UNITS;
+    std::uint8_t flags;
 
     // We used to calculate these per each economical tick but now we can just store them
     // and multiply it by the level of the factory - this is the **minimum** amount of employed
     // people we should have at a time
     Eng3D::Number num_req_workers = 0;
+
+    // List of goods that this factory type creates
+    Good* output = nullptr;
+
+    // List of goods required to create output
+    std::vector<Good*> inputs;
+    // Required goods, first describes the id of the good and the second describes how many
+    std::vector<std::pair<Good*, Eng3D::Number>> req_goods;
+    // Required technologies
+    std::vector<Technology*> req_technologies;
 };
 
 // A military outpost, on land serves as a "spawn" place for units
@@ -77,40 +75,31 @@ public:
     bool can_do_output(void) const;
     bool can_build_unit(void) const;
 
-    // Unit that is currently being built here (nullptr indicates no unit)
-    UnitType* working_unit_type = nullptr;
-
     // Remaining ticks until the unit is built
     Eng3D::Number build_time;
+    // Total money that the factory has
+    Eng3D::Decimal budget = 0.f;
+    // Days that the factory has not been operational
+    Eng3D::Number days_unoperational = 0;
+    // Money needed to produce - helps determine the price of the output products
+    Eng3D::Decimal production_cost = 0.f;
+    // Level of building (all buildings start at 0)
+    Eng3D::Number level = 0;
+    // Amount of currently working pops
+    Eng3D::Number workers = 0;
+    // How much of the factory is being used. From 0-1
+    Eng3D::Decimal production_scale = 1.f;
+
+    // Unit that is currently being built here (nullptr indicates no unit)
+    UnitType* working_unit_type = nullptr;
 
     // Required goods for building the working unit
     // TODO: change this to a struct instead of a pair for readablity
     std::vector<std::pair<Good*, Eng3D::Number>> req_goods_for_unit;
-
     // Required goods for building this, or repairing this after a military attack
     std::vector<std::pair<Good*, Eng3D::Number>> req_goods;
-
-    // Total money that the factory has
-    Eng3D::Decimal budget = 0.f;
-
-    // Days that the factory has not been operational
-    Eng3D::Number days_unoperational = 0;
-
-    // Money needed to produce - helps determine the price of the output products
-    Eng3D::Decimal production_cost = 0.f;
-
     // Stockpile of inputs in the factory
     std::vector<Eng3D::Number> stockpile;
-
     // The employees needed per output
     std::vector<Eng3D::Number> employees_needed_per_output;
-
-    // Level of building (all starts at 0)
-    Eng3D::Number level = 0;
-
-    // Amount of currently working pops
-    float workers = 0.f;
-    
-    // How much of the factory is being used. From 0-1
-    float production_scale = 1.f;
 };

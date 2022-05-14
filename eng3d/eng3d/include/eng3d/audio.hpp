@@ -49,9 +49,9 @@ namespace Eng3D {
         Audio(const std::string& path);
         ~Audio();
 
-        uint8_t *data;
-        uint32_t pos;
-        uint32_t len;
+        std::uint8_t *data;
+        std::uint32_t pos;
+        std::uint32_t len;
     };
 
     class AudioManager {

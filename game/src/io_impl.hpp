@@ -573,21 +573,21 @@ class Serializer<BuildingType> {
 public:
     static inline void serialize(Archive& stream, const BuildingType* obj) {
         ::serialize(stream, &obj->ref_name);
-        ::serialize(stream, &obj->is_plot_on_land);
-        ::serialize(stream, &obj->is_plot_on_sea);
-        ::serialize(stream, &obj->is_build_land_units);
-        ::serialize(stream, &obj->is_build_naval_units);
-        ::serialize(stream, &obj->defense_bonus);
+        ::serialize(stream, &obj->flags);
+        ::serialize(stream, &obj->inputs);
+        ::serialize(stream, &obj->output);
         ::serialize(stream, &obj->req_goods);
+        ::serialize(stream, &obj->req_technologies);
+        ::serialize(stream, &obj->num_req_workers);
     }
     static inline void deserialize(Archive& stream, BuildingType* obj) {
         ::deserialize(stream, &obj->ref_name);
-        ::deserialize(stream, &obj->is_plot_on_land);
-        ::deserialize(stream, &obj->is_plot_on_sea);
-        ::deserialize(stream, &obj->is_build_land_units);
-        ::deserialize(stream, &obj->is_build_naval_units);
-        ::deserialize(stream, &obj->defense_bonus);
+        ::deserialize(stream, &obj->flags);
+        ::deserialize(stream, &obj->inputs);
+        ::deserialize(stream, &obj->output);
         ::deserialize(stream, &obj->req_goods);
+        ::deserialize(stream, &obj->req_technologies);
+        ::deserialize(stream, &obj->num_req_workers);
     }
 };
 

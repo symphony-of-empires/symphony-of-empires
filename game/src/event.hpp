@@ -29,14 +29,15 @@
 #include <vector>
 
 #include "eng3d/entity.hpp"
+#include "eng3d/string.hpp"
 
 class Decision : public RefnameEntity<uint8_t> {
 public:
     //Decision();
     //~Decision();
 
-    std::string do_decision_function;
-    std::string effects;
+    Eng3D::String do_decision_function;
+    Eng3D::String effects;
 };
 
 class Nation;
@@ -46,12 +47,12 @@ public:
     //~Event();
     void take_decision(Nation& sender, Decision& dec);
     
-    std::string conditions_function;
-    std::string do_event_function;
+    Eng3D::String conditions_function;
+    Eng3D::String do_event_function;
     std::vector<Nation *> receivers;
     std::vector<Decision> decisions;
-    std::string text;
-    std::string title;
+    Eng3D::String text;
+    Eng3D::String title;
 
     bool checked = false;
 };

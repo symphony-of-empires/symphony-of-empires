@@ -28,11 +28,12 @@
 #include <string>
 
 #include "eng3d/entity.hpp"
+#include "eng3d/string.hpp"
 
 class Culture : public RefnameEntity<uint16_t> {
 public:
-    uint32_t color;
-    std::string adjective;
-    std::string noun;
-    std::string combo_form;
+    std::uint32_t color;
+    Eng3D::String adjective;
+    Eng3D::String noun;
+    Eng3D::String combo_form;
 };

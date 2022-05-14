@@ -40,11 +40,11 @@ function BuildingType:new(o)
 	return o
 end
 function BuildingType:register()
-	self.id = add_building_type(self.ref_name, self.name, self.is_naval, self.is_build_land_units, self.is_build_naval_units, self.defense_bonus, self.is_factory)
+	self.id = add_building_type(self.ref_name, self.name, self.is_naval, self.is_build_land_units, self.is_build_naval_units, self.defense_bonus)
 end
 function BuildingType:get(ref_name)
 	o = BuildingType:new()
-	o.id, o.name, o.is_naval, o.is_build_land_units, o.is_build_naval_units, o.defense_bonus, o.is_factory = get_building_type(ref_name)
+	o.id, o.name, o.is_naval, o.is_build_land_units, o.is_build_naval_units, o.defense_bonus = get_building_type(ref_name)
 	o.ref_name = ref_name
 	return o
 end
@@ -62,7 +62,6 @@ function BuildingType:requires_tech(tech, amount)
 end
 
 IndustryType = BuildingType
-IndustryType.is_factory = true
 function IndustryType:new(o)
 	o = o or {}
 	setmetatable(o, self)

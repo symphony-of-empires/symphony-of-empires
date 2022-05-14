@@ -136,7 +136,7 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
     flex_column->flex = UI::Flex::COLUMN;
     for(const auto& province : gs.curr_nation->owned_provinces) {
         for(const auto& building_type : gs.world->building_types) {
-            if(!(building_type.is_build_land_units || building_type.is_build_naval_units)) {
+            if(building_type.flags & BuildingType::BUILD_LAND_UNITS == 0) {
                 continue;
             }
             new ArmyProductionUnitInfo(gs, 0, 0, province, gs.world->get_id(building_type), flex_column);

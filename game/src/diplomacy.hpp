@@ -30,6 +30,7 @@
 #include <vector>
 
 #include "eng3d/entity.hpp"
+#include "eng3d/string.hpp"
 
 #include "policy.hpp"
 //#include "nation.hpp"
@@ -197,11 +198,11 @@ public:
     bool does_participate(Nation& nation);
 	bool in_effect(void) const;
 
-    std::string name;
+    Eng3D::String name;
+    Nation* sender; // The one who sent the treaty
+    Nation* receiver; // The one who is going to receive this treaty
+    // Clauses of this treaty;
     std::vector<TreatyClause::BaseClause*> clauses;
-
-    Nation* receiver, * sender;
-
     // List of who are involved in the treaty
     std::vector<std::pair<Nation*, TreatyApproval>> approval_status;
 };
@@ -212,13 +213,14 @@ class Battle : public IdEntity<uint16_t> {
 public:
     Battle(War& war, Province& province);
 
-    std::string name;
+    Eng3D::String name;
     
     War* war = nullptr;
     Province* province = nullptr;
-    std::vector<Unit*> attackers, defenders;
     Eng3D::Number attacker_casualties = 0;
     Eng3D::Number defender_casualties = 0;
+    std::vector<Unit*> attackers;
+    std::vector<Unit*> defenders;
 };
 
 class War : public IdEntity<uint16_t> {
@@ -227,7 +229,7 @@ public:
     bool is_attacker(const Nation& nation) const;
     bool is_defender(const Nation& nation) const;
 
-    std::string name;
+    Eng3D::String name;
     std::vector<Nation*> attackers, defenders;
     std::vector<TreatyClause::BaseClause*> wargoals;
     std::vector<Battle> battles;

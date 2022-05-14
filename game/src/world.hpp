@@ -39,6 +39,7 @@
 
 #include "eng3d/profiler.hpp"
 #include "eng3d/assert.hpp"
+#include "eng3d/string.hpp"
 
 #include "nation.hpp"
 #include "product.hpp"
@@ -59,7 +60,6 @@ class World;
 class Tile {
 public:
     const std::vector<const Tile*> get_neighbours(const World& world) const;
-
     // ID of the province where this tile belongs to
     Province::Id province_id;
 };
@@ -67,8 +67,8 @@ public:
 // TODO: Make bookmark.hpp?
 class Bookmark {
 public:
-    std::string ref_name;
-    std::string name;
+    Eng3D::String ref_name;
+    Eng3D::String name;
     uint64_t start_time;
     std::vector<Nation*> interest_picks;
 };

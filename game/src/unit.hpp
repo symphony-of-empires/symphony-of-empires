@@ -30,6 +30,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <type_traits>
+
 #include "eng3d/entity.hpp"
 #include "eng3d/decimal.hpp"
 
@@ -49,14 +50,6 @@ public:
     Eng3D::Decimal max_health;
     Eng3D::Decimal defense;
     Eng3D::Decimal attack;
-
-    // Max ticks allowed for defensive bonus - this basically prevents an unit from staying 200
-    // years on the same spot and be fucking indestructible
-    Eng3D::Number max_defensive_ticks;
-
-    // The defense provided by the unit each tick for staying on the same position
-    // aka. digging trenches
-    Eng3D::Number position_defense;
 
     // Capacity of units that can be carried (transport units)
     Eng3D::Number capacity;
