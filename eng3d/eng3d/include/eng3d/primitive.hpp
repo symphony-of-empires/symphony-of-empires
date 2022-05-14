@@ -68,8 +68,8 @@ namespace Eng3D {
         Eng3D::MeshData<glm::vec3, glm::vec2> calc_pos(glm::vec3 center_pos, float longitude, float latitude);
         int resolution;
     public:
-        float radius;
         Sphere(float x, float y, float z, float radius, int resolution, bool cw_winding = true);
         ~Sphere();
+        float radius;
     };
 }

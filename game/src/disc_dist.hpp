@@ -53,12 +53,13 @@ public:
 
 		// Fill two work tables with probabilities larger/smaller than 1
 		std::vector<std::pair<float, size_t>> small;
+		small.reserve(probabilities.size());
 		std::vector<std::pair<float, size_t>> big;
+		big.reserve(probabilities.size());
 		for(size_t i = 0; i < probabilities.size(); i++) {
 			if(probabilities[i] < 1.0f) {
 				small.push_back(std::make_pair(probabilities[i], i));
-			}
-			else {
+			} else {
 				big.push_back(std::make_pair(probabilities[i], i));
 			}
 		}

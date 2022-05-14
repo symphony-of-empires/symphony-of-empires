@@ -113,10 +113,6 @@ static inline Good* ai_get_potential_good(Nation& nation) {
                 continue;
             }
 
-            if(!building_type.is_factory) {
-                continue;
-            }
-
             // Randomness
             if(std::rand() % 5) {
                 continue;
@@ -373,10 +369,6 @@ static inline void ai_build_commercial(Nation& nation) {
     // Find an industry type which outputs this good
     BuildingType* type = nullptr;
     for(const auto& building_type : world.building_types) {
-        if(!building_type.is_factory) {
-            continue;
-        }
-
         if(building_type.output == target_good) {
             type = (BuildingType*)&building_type;
             break;
@@ -553,7 +545,7 @@ void ai_do_tick(Nation& nation) {
 
                 for(size_t i = 0; i < world.building_types.size(); i++) {
                     const BuildingType* building_type = &world.building_types[i];
-                    if(!(building_type->is_build_land_units && building_type->is_build_naval_units)) {
+                    if(building_type->flags & BuildingType::BUILD_MILITARY == 0) {
                         //continue;
                     }
 

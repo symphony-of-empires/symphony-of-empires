@@ -70,7 +70,7 @@ void Event::take_decision(Nation& sender, Decision& dec) {
     g_world->taken_decisions.push_back(std::make_pair(&dec, &sender));
 
     // Remove from the receivers list so we don't duplicate decisions
-    receivers.erase(receiver);
+    //receivers.erase(receiver);
 
     // Remove from inbox too
     for(auto it = sender.inbox.begin(); it != sender.inbox.end(); it++) {

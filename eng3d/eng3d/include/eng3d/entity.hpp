@@ -38,6 +38,18 @@ public:
     // NOTE: This depends that the container is sequential (as if it was
     // a contigous array) - Otherwise this optimization **WILL** break
     Id cached_id = (Id)-1;
+
+    constexpr Id invalid(void) const {
+        return (Id)-1;
+    };
+    
+    constexpr bool is_invalid(Id id) const {
+        return id == (Id)-1;
+    };
+    
+    constexpr bool is_invalid(void) const {
+        return this->is_invalid(this->id);
+    };
 };
 
 template<typename IdType>
