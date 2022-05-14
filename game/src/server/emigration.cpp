@@ -36,9 +36,10 @@ typedef SSIZE_T ssize_t;
 #include <cstddef>
 #include <execution>
 
+#include "eng3d/disc_dist.hpp"
+
 #include "server/emigration.hpp"
 #include "world.hpp"
-#include "disc_dist.hpp"
 
 class Emigrated {
 public:
