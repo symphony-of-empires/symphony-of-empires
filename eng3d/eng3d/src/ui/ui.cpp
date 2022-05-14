@@ -81,7 +81,7 @@ Context::Context() {
 
     Eng3D::State& gs = Eng3D::State::get_instance();
     // default_font = TTF_OpenFont(gs.package_man->get_uniqu("gfx/fonts/FreeMono.ttf").c_str(), 16);
-    default_font = TTF_OpenFont(Eng3D::IO::Asset::Base::get_abs_path(gs.package_man->get_unique("fonts/Poppins/Poppins-SemiBold.ttf").get()).c_str(), 16);
+    default_font = TTF_OpenFont(Eng3D::IO::Asset::Base::get_abs_path(*gs.package_man->get_unique("fonts/Poppins/Poppins-SemiBold.ttf").get()).c_str(), 16);
     if(default_font == nullptr) {
         CXX_THROW(std::runtime_error, std::string() + "Font could not be loaded: " + TTF_GetError());
     }

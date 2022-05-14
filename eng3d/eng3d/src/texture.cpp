@@ -376,5 +376,5 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(const std::string& p
 }
 
 std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(std::shared_ptr<Eng3D::IO::Asset::Base> asset, TextureOptions options) {
-    return this->load(asset.get() != nullptr ? Eng3D::IO::Asset::Base::get_abs_path(asset.get()) : "", options);
+    return this->load(asset.get() != nullptr ? Eng3D::IO::Asset::Base::get_abs_path(*asset.get()) : "", options);
 }
