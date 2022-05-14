@@ -77,16 +77,12 @@ namespace Eng3D::IO {
              * @param asset 
              * @return std::string 
              */
-            static std::string get_abs_path(Eng3D::IO::Asset::Base* asset) {
+            static inline std::string get_abs_path(Eng3D::IO::Asset::Base* asset) {
                 std::string path = asset != nullptr ? asset->abs_path : "";
 #ifdef E3D_TARGET_WINDOWS
                 std::replace(path.begin(), path.end(), '/', '\\');
 #endif
                 return path;
-            };
-
-            static std::string get_abs_path(std::shared_ptr<Eng3D::IO::Asset::Base> asset) {
-                return get_abs_path(asset.get());
             };
         };
 
