@@ -71,17 +71,22 @@ namespace Eng3D::IO {
 
             /**
              * @brief Get the abs path object in a safe manner, such as that the access does not
-             * occur on null pointers
+             * occur on null pointers. Use this function because it also converts slashes
+             * between paths
              * 
              * @param asset 
              * @return std::string 
              */
             static std::string get_abs_path(Eng3D::IO::Asset::Base* asset) {
-                return asset != nullptr ? asset->abs_path : "";
+                std::string path = asset != nullptr ? asset->abs_path : "";
+#ifdef E3D_TARGET_WINDOWS
+                std::replace(path.begin(), path.end(), '/', '\\');
+#endif
+                return path;
             };
 
             static std::string get_abs_path(std::shared_ptr<Eng3D::IO::Asset::Base> asset) {
-                return asset != nullptr ? asset->abs_path : "";
+                return get_abs_path(asset.get());
             };
         };
 
