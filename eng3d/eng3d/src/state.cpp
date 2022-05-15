@@ -25,17 +25,16 @@
 //      show them.
 // ----------------------------------------------------------------------------
 
-#ifdef _MSC_VER
 // Required before GL/gl.h
-#   ifndef _WINDOWS_
+#ifdef E3D_TARGET_WINDOWS
 #   define WIN32_LEAN_AND_MEAN 1
-#       ifndef NOMINMAX
-#	        define NOMINMAX 1
-#       endif
-#       include <windows.h>
-#       undef WIN32_LEAN_AND_MEAN
+#   ifndef NOMINMAX
+#       define NOMINMAX 1
 #   endif
+#   include <windows.h>
+#   undef WIN32_LEAN_AND_MEAN
 #endif
+
 // MSVC does not know about glext, mingw does so we just use this ifdef
 #ifndef _MSC_VER
 #   include <GL/glext.h>
@@ -266,7 +265,7 @@ Eng3D::State::State(void) {
 #endif
 
     // Plugins system (still wip)
-    for(const auto& plugin : Path::get_all("plugin.dll")) {
+    /*for(const auto& plugin : Path::get_all("plugin.dll")) {
 #ifdef E3D_TARGET_WINDOWS
         HINSTANCE hGetProcIDDLL = LoadLibrary(plugin.c_str());
         // This shouldn't happen - like ever!
@@ -287,7 +286,7 @@ Eng3D::State::State(void) {
             Eng3D::Log::warning("plugin", "Error RET=" + std::to_string(r) + " on plugin " + plugin);
         }
 #endif
-    }
+    }*/
 
     ui_ctx = new UI::Context();
     ui_ctx->resize(width, height);

@@ -59,7 +59,7 @@ PopWindow::PopWindow(GameState& gs)
 		for(auto prov : nation.owned_provinces) {
 			uint16_t prov_id = prov->cached_id;
 			for(auto& pop : prov->pops) {
-				u_int64_t id = pop.get_type_id();
+				uint64_t id = pop.get_type_id();
 				id += (uint64_t)prov_id << 32;
 				auto* row = table->get_row(id);
 				size_t row_index = 0;

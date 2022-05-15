@@ -34,9 +34,9 @@
 #include <cstdio>
 #include <filesystem>
 #ifdef E3D_TARGET_WINDOWS
-#	define WIN32_LEAN_AND_MEAN 1
+#   define WIN32_LEAN_AND_MEAN 1
 #   ifndef NOMINMAX
-#	    define NOMINMAX 1
+#       define NOMINMAX 1
 #   endif
 #   include <windows.h>
 #   include <WinCon.h>
