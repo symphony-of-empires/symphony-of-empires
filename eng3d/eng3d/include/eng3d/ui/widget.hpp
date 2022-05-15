@@ -20,7 +20,9 @@
 //      eng3d/ui/widget.hpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Declares the base widget class for other widgets to derive from
+//      do not use this widget directly, instead use one of the many derivates
+//      unless you're making a new widget type.
 // ----------------------------------------------------------------------------
 
 #pragma once
@@ -44,6 +46,11 @@ namespace Eng3D {
 };
 
 namespace UI {
+	/**
+	 * @ingroup UI
+	 * @brief The origin of the widget
+	 * 
+	 */
 	enum class Origin {
 		CENTER,
 		MIDDLE_LEFT,
@@ -65,6 +72,11 @@ namespace UI {
 		LOWER_RIGHT_SCREEN,
 	};
 
+	/**
+	 * @ingroup UI
+	 * @brief The type of the widget, some widgets share types
+	 * between them to keep simplicity
+	 */
 	enum class WidgetType {
 		DIV,
 		BUTTON,
@@ -86,12 +98,22 @@ namespace UI {
 		TABLE_ELEMENT
 	};
 
+	/**
+	 * @ingroup UI
+	 * @brief Ordering mode for flex
+	 * 
+	 */
 	enum class Flex {
 		NONE,
 		ROW,
 		COLUMN
 	};
 
+	/**
+	 * @ingroup UI
+	 * @brief Justification alignment for flex
+	 * 
+	 */
 	enum class FlexJustify {
 		START,
 		END,
@@ -105,6 +127,12 @@ namespace UI {
 		CENTER,
 	};
 
+	/**
+	 * @ingroup UI
+	 * @brief Generalized chart data, used mostly by chart widgets, however it's
+	 * not specific to any widget
+	 * 
+	 */
 	class ChartData {
 	public:
 		ChartData(float _num, std::string _info, Eng3D::Color _color): num{ _num }, info{ _info }, color{ _color } {}
@@ -115,6 +143,11 @@ namespace UI {
 		Eng3D::Color color;
 	};
 
+	/**
+	 * @ingroup UI
+	 * @brief Border class that defines the texture and size of borders of the widgets
+	 * 
+	 */
 	class Border {
 	public:
 		std::shared_ptr<Eng3D::Texture> texture = nullptr;
@@ -131,7 +164,9 @@ namespace UI {
 	class Tooltip;
 	/**
 	 * @ingroup UI
-	 * @brief The master widget all the other widgets inherit from
+	 * @brief The master widget all the other widgets inherit from, do not use directly
+	 * instead use one of the many derivated widgets - unless you're making a new widget
+	 * type.
 	 *
 	 */
 	class Widget {
@@ -149,7 +184,7 @@ namespace UI {
 		virtual ~Widget(void);
 
 		void move_by(int x, int y);
-		void add_child(UI::Widget* child);
+		void add_child(UI::Widget& child);
 
 		virtual void on_render(Context&, Eng3D::Rect viewport);
 		virtual void text(const std::string& text);

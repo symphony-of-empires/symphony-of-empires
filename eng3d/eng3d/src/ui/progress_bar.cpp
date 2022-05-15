@@ -43,7 +43,7 @@ ProgressBar::ProgressBar(int _x, int _y, unsigned w, unsigned h, const float _mi
     min{ _min },
     Widget(_parent, _x, _y, w, h, UI::WidgetType::PROGRESS_BAR)
 {
-
+    
 }
 
 Eng3D::Rect get_rect(Eng3D::Rect rect_pos, Eng3D::Rect viewport) {
@@ -71,7 +71,6 @@ Eng3D::Rect get_rect(Eng3D::Rect rect_pos, Eng3D::Rect viewport) {
 }
 
 void ProgressBar::on_render(Context&, Eng3D::Rect viewport) {
-    value = std::clamp(value, min, max);
     // TODO: Fix broken progress bar
     const Eng3D::Rect pos_rect(0, 0, (value / max) * width, height);
     g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man->get_white());

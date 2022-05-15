@@ -17,10 +17,10 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      eng3d/ui/button.cpp
+//      eng3d/ui/button.hpp
 //
 // Abstract:
-//      Does some important stuff.
+//      A button widget.
 // ----------------------------------------------------------------------------
 
 #pragma once
@@ -28,13 +28,13 @@
 #include "eng3d/ui/widget.hpp"
 
 namespace UI {
+    /**
+     * @ingroup UI
+     * @brief Button widget
+     *
+     */
     class Button: public Widget {
     public:
-        /**
-         * @ingroup UI
-         * @brief Button widget
-         *
-         */
         Button(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
         virtual ~Button() override {};
     };

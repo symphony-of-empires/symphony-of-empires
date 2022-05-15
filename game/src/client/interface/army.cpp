@@ -194,7 +194,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Pro
             text += std::to_string(need_req.second) + " of " + Eng3D::Locale::translate(need_req.first->name.get_string()) + " (has " + std::to_string(full_req.second) + "), ";
         }
 
-        ((UI::ProgressBar&)w).value = (float)full / (float)needed;
+        ((UI::ProgressBar&)w).set_value((float)full / (float)needed);
         w.tooltip->text(text);
     });
     progress_pgbar->tooltip = new UI::Tooltip(progress_pgbar, 512, 24);

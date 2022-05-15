@@ -136,10 +136,10 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     auto* poor_tax_sld = new UI::Slider(0, 0, 128, 24, -10.f, 100.f, reform_grp);
     poor_tax_sld->below_of(*social_security_chk);
     poor_tax_sld->text(std::to_string(new_policy.poor_flat_tax));
-    poor_tax_sld->value = new_policy.poor_flat_tax;
+    poor_tax_sld->set_value(new_policy.poor_flat_tax);
     poor_tax_sld->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<PoliciesScreen&>(*w.parent->parent);
-        o.new_policy.poor_flat_tax = ((UI::Slider&)w).value;
+        o.new_policy.poor_flat_tax = ((UI::Slider&)w).get_value();
         w.text(std::to_string(o.new_policy.poor_flat_tax));
     });
     poor_tax_sld->tooltip = new UI::Tooltip(poor_tax_sld, 512, 24);
@@ -148,10 +148,10 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     auto* med_tax_sld = new UI::Slider(0, 0, 128, 24, -10.f, 100.f, reform_grp);
     med_tax_sld->below_of(*poor_tax_sld);
     med_tax_sld->text(std::to_string(new_policy.poor_flat_tax));
-    med_tax_sld->value = new_policy.med_flat_tax;
+    med_tax_sld->set_value(new_policy.med_flat_tax);
     med_tax_sld->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<PoliciesScreen&>(*w.parent->parent);
-        o.new_policy.med_flat_tax = ((UI::Slider&)w).value;
+        o.new_policy.med_flat_tax = ((UI::Slider&)w).get_value();
         w.text(std::to_string(o.new_policy.med_flat_tax));
     });
     med_tax_sld->tooltip = new UI::Tooltip(med_tax_sld, 512, 24);
@@ -160,10 +160,10 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     auto* rich_tax_sld = new UI::Slider(0, 0, 128, 24, -10.f, 100.f, reform_grp);
     rich_tax_sld->below_of(*med_tax_sld);
     rich_tax_sld->text(std::to_string(new_policy.poor_flat_tax));
-    rich_tax_sld->value = new_policy.rich_flat_tax;
+    rich_tax_sld->set_value(new_policy.rich_flat_tax);
     rich_tax_sld->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<PoliciesScreen&>(*w.parent->parent);
-        o.new_policy.rich_flat_tax = ((UI::Slider&)w).value;
+        o.new_policy.rich_flat_tax = ((UI::Slider&)w).get_value();
         w.text(std::to_string(o.new_policy.rich_flat_tax));
     });
     rich_tax_sld->tooltip = new UI::Tooltip(rich_tax_sld, 512, 24);

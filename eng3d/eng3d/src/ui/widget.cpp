@@ -61,9 +61,8 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
     if(parent != nullptr) {
         x += parent->padding.x;
         y += parent->padding.y;
-        parent->add_child(this);
-    }
-    else {
+        parent->add_child(*this);
+    } else {
         // Add the widget to the context in each construction without parent
         g_ui_context->add_widget(this);
     }
@@ -82,7 +81,7 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
     if(parent != nullptr) {
         x += parent->padding.x;
         y += parent->padding.y;
-        parent->add_child(this);
+        parent->add_child(*this);
     } else {
         // Add the widget to the context in each construction without parent
         g_ui_context->add_widget(this);
@@ -315,11 +314,23 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
     }
 }
 
+/**
+ * @brief Moves a widget by x and y
+ * 
+ * @param _x 
+ * @param _y 
+ */
 void Widget::move_by(int _x, int _y) {
     x += _x;
     y += _y;
 }
 
+/**
+ * @brief Recalculates the position of each children inside the widget
+ * this is only used when Flex is used on a widget and it will automatically
+ * align the widget's children depending on the other Flex properties
+ * 
+ */
 void Widget::recalc_child_pos() {
     if(flex == Flex::NONE) {
         return;
@@ -341,12 +352,13 @@ void Widget::recalc_child_pos() {
     case FlexJustify::START:
         current_lenght = 0;
         for(auto& child : children) {
-            if(child->is_pinned) continue;
+            if(child->is_pinned) {
+                continue;
+            }
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + flex_gap;
-            }
-            else {
+            } else {
                 child->y = current_lenght;
                 current_lenght += child->height + flex_gap;
             }
@@ -356,12 +368,13 @@ void Widget::recalc_child_pos() {
         current_lenght = is_row ? width : height;
         for(int i = children.size() - 1; i >= 0; i--) {
             auto& child = children[i];
-            if(child->is_pinned) continue;
+            if(child->is_pinned) {
+                continue;
+            }
             if(is_row) {
                 child->x = current_lenght - child->width - flex_gap;
                 current_lenght -= child->width;
-            }
-            else {
+            } else {
                 child->y = current_lenght - child->height - flex_gap;
                 current_lenght -= child->height;
             }
@@ -372,12 +385,13 @@ void Widget::recalc_child_pos() {
         size = is_row ? width : height;
         difference = (size - lenght) / (std::max(1, movable_children - 1));
         for(auto& child : children) {
-            if(child->is_pinned) continue;
+            if(child->is_pinned) {
+                continue;
+            }
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + difference;
-            }
-            else {
+            } else {
                 child->y = current_lenght;
                 current_lenght += child->height + difference;
             }
@@ -388,12 +402,13 @@ void Widget::recalc_child_pos() {
         difference = (size - lenght) / movable_children;
         current_lenght = std::max<int>(0, difference / 2);
         for(auto& child : children) {
-            if(child->is_pinned) continue;
+            if(child->is_pinned) {
+                continue;
+            }
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + difference;
-            }
-            else {
+            } else {
                 child->y = current_lenght;
                 current_lenght += child->height + difference;
             }
@@ -447,10 +462,15 @@ void Widget::recalc_child_pos() {
     }
 }
 
-void Widget::add_child(UI::Widget* child) {
+/**
+ * @brief Adds a children to the widget
+ * 
+ * @param child Widget to add as a children
+ */
+void Widget::add_child(UI::Widget& child) {
     // Add to list
-    children.push_back(std::move(std::unique_ptr<UI::Widget>(child)));
-    child->parent = this;
+    children.push_back(std::move(std::unique_ptr<UI::Widget>(&child)));
+    child.parent = this;
 
     // Child changes means a recalculation of positions is in order
     need_recalc = true;
@@ -464,6 +484,12 @@ static inline unsigned int power_two_floor(const unsigned int val) {
     return power * 2;
 }
 
+/**
+ * @brief Generates text for the widget and overrides the current
+ * text texture
+ * 
+ * @param _text 
+ */
 void Widget::text(const std::string& _text) {
     if(this->text_str == _text) {
         return;
@@ -485,11 +511,23 @@ void Widget::text(const std::string& _text) {
     text_texture = new Eng3D::Texture(text_font, text_color, _text);
 }
 
+/**
+ * @brief Set the tooltip to be shown when this widget is hovered, overrides
+ * the previous tooltip
+ * 
+ * @param _tooltip New tooltip to set
+ */
 void Widget::set_tooltip(UI::Tooltip* _tooltip) {
     this->tooltip = _tooltip;
     this->tooltip->parent = this;
 }
 
+/**
+ * @brief Set the tooltip to be shown when this widget is hovered, but generate
+ * it from a string instead of taking an already existing widget
+ * 
+ * @param text Text for the new tooltip
+ */
 void Widget::set_tooltip(const std::string& text) {
     if(text.empty()) {
         return;
@@ -498,7 +536,12 @@ void Widget::set_tooltip(const std::string& text) {
     this->tooltip->text(text);
 }
 
-void Widget::scroll(int y) {
+/**
+ * @brief Scrolls all the children of this widget by a factor of y
+ * 
+ * @param y 
+ */
+void Widget::scroll(int _y) {
     int child_top = 0;
     int child_bottom = height;
     for(auto& child : children) {
@@ -508,12 +551,12 @@ void Widget::scroll(int y) {
         }
     }
     child_bottom -= height;
-    y = std::min(-child_top, y);
-    y = std::max(-child_bottom, y);
+    _y = std::min(-child_top, _y);
+    _y = std::max(-child_bottom, _y);
 
     for(auto& child : children) {
         if(!child->is_pinned) {
-            child->y += y;
+            child->y += _y;
         }
     }
 }

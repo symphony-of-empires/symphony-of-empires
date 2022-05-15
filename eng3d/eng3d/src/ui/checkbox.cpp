@@ -32,17 +32,21 @@
 
 using namespace UI;
 
-const int UNLIMITED_SIZE = 65536;
+//
+// Checkbox
+//
 Checkbox::Checkbox(Widget* _parent)
     : Widget(_parent, 0, 0, 24, 24, UI::WidgetType::CHECKBOX)
 {
     init_checkbox(24);
 }
+
 Checkbox::Checkbox(int size, Widget* _parent)
     : Widget(_parent, 0, 0, size, size, UI::WidgetType::CHECKBOX)
 {
     init_checkbox(size);
 }
+
 Checkbox::Checkbox(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI::WidgetType::CHECKBOX)
 {

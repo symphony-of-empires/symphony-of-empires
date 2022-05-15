@@ -812,7 +812,7 @@ void start_client(int, char**) {
             }
         }
 
-        load_pbar->value = gs.load_progress;
+        load_pbar->set_value(gs.load_progress);
         gs.ui_ctx->render_all(glm::ivec2(gs.input.mouse_pos.first, gs.input.mouse_pos.second));
         gs.swap();
         gs.world->profiler.render_done();

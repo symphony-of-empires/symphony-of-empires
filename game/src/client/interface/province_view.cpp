@@ -365,9 +365,9 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
 
         density_sld = new UI::Slider(0, this->height - (64 + 24), 128, 24, 0.1f, 2.f, this);
         density_sld->right_side_of(*xchg_name_btn);
-        density_sld->value = 0.f;
+        density_sld->set_value(0.f);
         density_sld->set_on_click([this](UI::Widget& w) {
-            w.text(std::to_string(((UI::Slider&)w).value));
+            w.text(std::to_string(((UI::Slider&)w).get_value()));
             const float den = this->density_sld->value;
             for(auto& pop : this->province->pops) {
                 pop.size *= den;

@@ -20,7 +20,8 @@
 //      eng3d/ui/tooltip.hpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Tooltip widget emulates a Window (but it's not actually one!) for
+//      displaying tooltips on the screen.
 // ----------------------------------------------------------------------------
 
 #pragma once

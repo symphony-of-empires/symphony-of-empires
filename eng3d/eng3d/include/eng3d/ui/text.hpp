@@ -20,7 +20,7 @@
 //      eng3d/ui/text.cpp
 //
 // Abstract:
-//      Does some important stuff.
+//      An extended version of Label that supports multiline text.
 // ----------------------------------------------------------------------------
 
 #pragma once
@@ -38,7 +38,8 @@ namespace UI {
     // TODO: Markdown support?
     /**
      * @ingroup UI
-     * @brief Multiline textbox
+     * @brief Multiline textbox that allows more descriptive paragraphs
+     * than the Label widget.
      *
      */
     class Text: public Widget {

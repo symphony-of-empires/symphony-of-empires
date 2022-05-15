@@ -20,7 +20,7 @@
 //      eng3d/ui/ui.hpp
 //
 // Abstract:
-//      Does some important stuff.
+//      The general UI context.
 // ----------------------------------------------------------------------------
 
 #pragma once
