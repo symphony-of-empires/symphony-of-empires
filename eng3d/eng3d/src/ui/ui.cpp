@@ -29,15 +29,13 @@
 #include <cmath>
 #include <algorithm>
 
-#ifdef _MSC_VER
-#   ifndef _WINDOWS_
-#       define WIN32_LEAN_AND_MEAN 1
-#       ifndef NOMINMAX
-#	        define NOMINMAX 1
-#       endif
-#       include <windows.h>
-#       undef WIN32_LEAN_AND_MEAN
+#ifdef E3D_TARGET_WINDOWS
+#   define WIN32_LEAN_AND_MEAN 1
+#   ifndef NOMINMAX
+#       define NOMINMAX 1
 #   endif
+#   include <windows.h>
+#   undef WIN32_LEAN_AND_MEAN
 #endif
 
 #include <GL/glew.h>
