@@ -25,8 +25,6 @@
 
 #include <algorithm>
 
-#include "eng3d/print.hpp"
-
 #include "event.hpp"
 #include "world.hpp"
 #include "nation.hpp"

@@ -46,7 +46,7 @@ Eng3D::OpenGL::Shader::Shader(const std::string& _buffer, GLuint type, bool use_
         try {
             ctx.parser();
         } catch(Eng3D::OpenGL::GLSL_Exception& e) {
-            print_error("%s -> %s", e.it->data.c_str(), e.what());
+            Eng3D::Log::error("shder", e.it->data + " -> " + e.what());
         }
         buffer = ctx.to_text();
     }
@@ -111,7 +111,7 @@ void Eng3D::OpenGL::Shader::compile(GLuint type) {
         }
         CXX_THROW(Eng3D::ShaderException, line_buf + "\n" + error_info);
     }
-    // print_info("Status: Sucess");
+    Eng3D::Log::debug("shader", "Status: Sucess");
 }
 
 GLuint Eng3D::OpenGL::Shader::get_id(void) const {
@@ -223,7 +223,7 @@ void Eng3D::OpenGL::Program::link(void) {
     if(!r) {
         std::string error_info;
         glGetProgramInfoLog(id, GL_INFO_LOG_LENGTH, NULL, &error_info[0]);
-        print_error("Program error %s", error_info.c_str());
+        Eng3D::Log::error("shader", std::string() + "Program error " + error_info.c_str());
         CXX_THROW(Eng3D::ShaderException, error_info);
     }
 }

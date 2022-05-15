@@ -166,6 +166,10 @@ Eng3D::IO::PackageManager::PackageManager(void) {
             std::shared_ptr<Eng3D::IO::Asset::File> asset = std::make_shared<Eng3D::IO::Asset::File>();
             asset->path = _entry.path().lexically_relative(entry.path()).string();
             asset->abs_path = _entry.path().string();
+#ifdef E3D_TARGET_WINDOWS
+            std::replace(asset->path.begin(), asset->path.end(), '\\', '/');
+            std::replace(asset->abs_path.begin(), asset->abs_path.end(), '\\', '/');
+#endif
             package.assets.push_back(asset);
         }
         packages.push_back(package);

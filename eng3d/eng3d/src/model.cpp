@@ -31,7 +31,6 @@
 
 #include "eng3d/model.hpp"
 #include "eng3d/shader.hpp"
-#include "eng3d/print.hpp"
 #include "eng3d/path.hpp"
 #include "eng3d/material.hpp"
 #include "eng3d/texture.hpp"

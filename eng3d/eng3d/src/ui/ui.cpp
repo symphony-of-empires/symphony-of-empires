@@ -49,7 +49,6 @@
 #endif
 
 #include "eng3d/path.hpp"
-#include "eng3d/print.hpp"
 #include "eng3d/ui/ui.hpp"
 #include "eng3d/ui/label.hpp"
 #include "eng3d/ui/window.hpp"

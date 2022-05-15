@@ -59,6 +59,8 @@
 #   pragma comment(lib, "Ws2_32.lib")
 #endif
 
+#include "eng3d/log.hpp"
+
 #include "action.hpp"
 #include "unit.hpp"
 #include "diplomacy.hpp"
@@ -149,13 +151,13 @@ void Client::net_loop(void) {
                 ar.rewind();
                 ::deserialize(ar, &action);
 
-                print_info("Receiving package of %zu bytes", packet.size());
+                Eng3D::Log::debug("client", "Receiving package of " + std::to_string(packet.size()));
                 if(!gs.host_mode) {
                     // Ping from server, we should answer with a pong!
                     switch(action) {
                     case ActionType::PONG: {
                         packet.send(&action);
-                        print_info("Received ping, responding with pong!");
+                        Eng3D::Log::debug("client", "Received ping, responding with pong!");
                     } break;
                     // Update/Remove/Add Actions
                     // These actions all follow the same format they give a specialized ID for the index
@@ -184,7 +186,7 @@ void Client::net_loop(void) {
                         for(auto& _nation : world.nations) {
                             _nation->relations.resize(world.nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
                         }
-                        print_info("New nation [%s]", nation->ref_name.c_str());
+                        Eng3D::Log::debug("client", "New nation " + nation->ref_name);
                     } break;
                     case ActionType::NATION_ENACT_POLICY: {
                         Nation* nation;
@@ -222,7 +224,7 @@ void Client::net_loop(void) {
                         Unit* unit = new Unit();
                         ::deserialize(ar, unit);
                         world.insert(*unit);
-                        print_info("New unit of [%s]", unit->owner->ref_name.c_str());
+                        Eng3D::Log::debug("client", "New unit of " + unit->owner->ref_name);
                     } break;
                     case ActionType::BUILDING_ADD: {
                         Province* province;
@@ -242,9 +244,9 @@ void Client::net_loop(void) {
                         Treaty* treaty = new Treaty();
                         ::deserialize(ar, treaty);
                         world.insert(*treaty);
-                        print_info("New treaty from [%s]", treaty->sender->ref_name.c_str());
+                        Eng3D::Log::debug("client", "New treaty from " + treaty->sender->ref_name);
                         for(const auto& status : treaty->approval_status) {
-                            print_info("- [%s]", status.first->ref_name.c_str());
+                            Eng3D::Log::debug("client", ">" + status.first->ref_name);
                         }
                     } break;
                     case ActionType::WORLD_TICK: {
@@ -271,12 +273,12 @@ void Client::net_loop(void) {
             for(auto& packet : packets) {
                 packet.stream = Eng3D::Networking::SocketStream(fd);
                 packet.send();
-                print_info("Sending package of %zu bytes", packet.size());
+                Eng3D::Log::debug("client", "Sending package of " + std::to_string(packet.size()));
             }
             packets.clear();
         }
     } catch(ClientException& e) {
-        print_error("Except: %s", e.what());
+        Eng3D::Log::error("client", std::string() + "Except: " + e.what());
     }
 }
 

@@ -30,7 +30,6 @@
 
 #include "eng3d/material.hpp"
 #include "eng3d/path.hpp"
-#include "eng3d/print.hpp"
 #include "eng3d/texture.hpp"
 #include "eng3d/state.hpp"
 #include "eng3d/log.hpp"

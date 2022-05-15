@@ -33,8 +33,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/intersect.hpp>
 
-#include "eng3d/print.hpp"
-
 #include "eng3d/camera.hpp"
 #include "eng3d/value_chase.hpp"
 

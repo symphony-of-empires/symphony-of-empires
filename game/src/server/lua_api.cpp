@@ -30,7 +30,6 @@
 #include <cstring>
 #include <cstdlib>
 
-#include "eng3d/print.hpp"
 #include "eng3d/path.hpp"
 #include "eng3d/utils.hpp"
 #include "eng3d/decimal.hpp"
@@ -1336,7 +1335,7 @@ void LuaAPI::check_events(lua_State* L) {
                 lua_getglobal(L, event->do_event_function.c_str());
                 lua_pushstring(L, nation->ref_name.c_str());
                 if(call_func(L, 1, 1)) {
-                    print_error("lua_pcall failed: %s\n", lua_tostring(L, -1));
+                    Eng3D::Log::error("lua", std::string() + "lua_pcall failed: " + lua_tostring(L, -1));
                     lua_pop(L, 1);
                     goto restore_original;
                 }

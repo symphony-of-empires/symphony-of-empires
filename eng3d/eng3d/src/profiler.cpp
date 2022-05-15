@@ -24,7 +24,6 @@
 // ----------------------------------------------------------------------------
 
 #include "eng3d/profiler.hpp"
-#include "eng3d/print.hpp"
 #include "eng3d/log.hpp"
 
 using namespace Eng3D;
@@ -111,7 +110,7 @@ void BenchmarkTask::clear_old() {
     }
 }
 
-void Profiler::start(std::string name) {
+void Profiler::start(const std::string& name) {
     auto it = tasks.find(name);
     if(it == tasks.end()) {
         size_t amounts = tasks.size();
@@ -124,10 +123,10 @@ void Profiler::start(std::string name) {
     }
 }
 
-void Profiler::stop(std::string name) {
+void Profiler::stop(const std::string& name) {
     auto it = tasks.find(name);
     if(it == tasks.end()) {
-        print_error("Profiler - Tried to stop task '%s', but it hasn't been started yet", name.c_str());
+        Eng3D::Log::error("profiler", "Tried to stop task '" + name + "', but it hasn't been started yet");
         return;
     } else {
         it->second.stop();
