@@ -33,7 +33,6 @@
 #include "eng3d/ui/label.hpp"
 #include "eng3d/ui/scrollbar.hpp"
 #include "eng3d/path.hpp"
-#include "eng3d/print.hpp"
 #include "eng3d/texture.hpp"
 #include "eng3d/rectangle.hpp"
 #include "eng3d/state.hpp"

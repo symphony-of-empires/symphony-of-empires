@@ -58,8 +58,8 @@ namespace Eng3D {
         Profiler() {};
         ~Profiler() {};
 
-        void start(std::string name);
-        void stop(std::string name);
+        void start(const std::string& name);
+        void stop(const std::string& name);
         void tick_done();
         void render_done();
 

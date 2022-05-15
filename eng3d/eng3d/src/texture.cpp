@@ -28,7 +28,6 @@
 
 #include "eng3d/texture.hpp"
 #include "eng3d/path.hpp"
-#include "eng3d/print.hpp"
 #include "eng3d/framebuffer.hpp"
 #include "eng3d/utils.hpp"
 #include "eng3d/log.hpp"
@@ -357,7 +356,7 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(const std::string& p
         return (*it).second;
     }
 
-    print_info("Loaded and cached texture %s", path.c_str());
+    Eng3D::Log::debug("texture", "Loaded and cached texture " + path);
 
     // Otherwise texture is not in our control, so we create a new texture
     std::shared_ptr<Eng3D::Texture> tex;

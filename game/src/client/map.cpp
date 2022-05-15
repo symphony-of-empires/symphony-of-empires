@@ -42,7 +42,6 @@
 #include "eng3d/ui/tooltip.hpp"
 #include "eng3d/font_sdf.hpp"
 #include "eng3d/path.hpp"
-#include "eng3d/print.hpp"
 #include "eng3d/texture.hpp"
 #include "eng3d/primitive.hpp"
 #include "eng3d/shader.hpp"
@@ -50,6 +49,7 @@
 #include "eng3d/model.hpp"
 #include "eng3d/serializer.hpp"
 #include "eng3d/locale.hpp"
+#include "eng3d/log.hpp"
 
 #include "client/map.hpp"
 #include "client/map_render.hpp"
@@ -139,7 +139,7 @@ Map::Map(const World& _world, int screen_width, int screen_height)
     // Set the mapmode
     set_map_mode(political_map_mode, empty_province_tooltip);
 
-    print_info("Preloading-important stuff");
+    Eng3D::Log::debug("game", "Preloading-important stuff");
 
     map_font = new Eng3D::FontSDF("fonts/cinzel_sdf/cinzel");
 
@@ -243,7 +243,7 @@ void Map::create_labels() {
         if(glm::abs(min_point_x.x - max_point_x.x) >= world.width / 2.f || glm::abs(min_point_y.y - max_point_y.y) >= world.height / 2.f) {
             auto* label = map_font->gen_text(nation->get_client_hint().alt_name, glm::vec3(-10.f), glm::vec3(-5.f), 1.f);
             nation_labels.push_back(label);
-            print_error("Extremely big nation: %s", nation->ref_name.c_str());
+            Eng3D::Log::debug("game", "Extremely big nation: " + nation->ref_name);
             continue;
         }
 #endif

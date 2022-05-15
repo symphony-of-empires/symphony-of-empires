@@ -39,9 +39,9 @@
 #include "eng3d/shader.hpp"
 #include "eng3d/framebuffer.hpp"
 #include "eng3d/path.hpp"
-#include "eng3d/print.hpp"
 #include "eng3d/state.hpp"
 #include "eng3d/utils.hpp"
+#include "eng3d/log.hpp"
 
 #include "map.hpp"
 #include "world.hpp"
@@ -165,7 +165,7 @@ MapRender::MapRender(const World& _world)
     terrain_sheet = std::unique_ptr<Eng3D::TextureArray>(new Eng3D::TextureArray(Path::get("gfx/terrain_sheet.png"), 4, 4));
     terrain_sheet->upload();
 
-    print_info("Creating tile map & tile sheet");
+    Eng3D::Log::debug("game", "Creating tile map & tile sheet");
     // The tile map, used to store per-tile information
     tile_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(world.width, world.height));
     for(size_t i = 0; i < world.width * world.height; i++) {
@@ -215,7 +215,7 @@ MapRender::MapRender(const World& _world)
     // The map shader that draws everything on the map 
     reload_shaders();
 
-    print_info("Creating border textures");
+    Eng3D::Log::debug("game", "Creating border textures");
     Eng3D::TextureOptions sdf_options{};
     sdf_options.wrap_s = GL_REPEAT;
     sdf_options.wrap_t = GL_REPEAT;
@@ -323,12 +323,12 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
     auto tex_coord_scale = update_area;
     tex_coord_scale.scale(1.f / glm::vec2(width, height));
 
-    print_info("Creating border framebuffer");
+    Eng3D::Log::debug("game", "Creating border framebuffer");
     auto border_fbuffer = Eng3D::OpenGL::Framebuffer();
     border_fbuffer.use();
     border_fbuffer.set_texture(0, border_tex);
 
-    print_info("Drawing border with border shader");
+    Eng3D::Log::debug("game", "Drawing border with border shader");
     border_gen_shader->use();
     border_gen_shader->set_uniform("map_size", width, height);
     border_gen_shader->set_uniform("tex_coord_scale", tex_coord_scale.left, tex_coord_scale.top, tex_coord_scale.right, tex_coord_scale.bottom);

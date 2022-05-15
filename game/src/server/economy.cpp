@@ -28,7 +28,6 @@
 #include <cstdio>
 
 #include "eng3d/log.hpp"
-#include "eng3d/print.hpp"
 #include "eng3d/serializer.hpp"
 #include "eng3d/thread_pool.hpp"
 #include "eng3d/rand.hpp"
@@ -89,44 +88,28 @@ void militancy_update(World& world, Nation* nation) {
             }
         }
 
-        Nation* dup_nation = new Nation();
-        dup_nation->name = nation->ref_name;
-        dup_nation->ref_name = nation->ref_name;
-        dup_nation->culture_discrim = nation->culture_discrim;
-        dup_nation->religion_discrim = nation->religion_discrim;
-        dup_nation->research = nation->research;
-        dup_nation->relations = nation->relations;
-        dup_nation->client_hints = nation->client_hints;
-        // Rebel with the most popular ideology
-        dup_nation->ideology = world.ideologies[std::distance(ideology_anger.begin(), std::max_element(ideology_anger.begin(), ideology_anger.end()))];
-        world.insert(*dup_nation);
-        for(auto& _nation : world.nations) {
-            _nation->relations.resize(world.nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
-        }
-
-        // TODO: Tell the clients about this new nation
-        g_server->broadcast(Action::NationAdd::form_packet(*dup_nation));
-
+        // Nation 0 is always the rebel nation
+        Nation* rebel_nation = g_world->nations[0];
         // Make the most angry provinces revolt!
         std::vector<TreatyClause::BaseClause*> clauses;
         for(auto& province : uprising_provinces) {
             // TODO: We should make a copy of the `rebel` nation for every rebellion!!!
             // TODO: We should also give them an unique ideology!!!
-            dup_nation->give_province(*province);
+            rebel_nation->give_province(*province);
             for(auto& unit : province->get_units()) {
-                unit->owner = dup_nation;
+                unit->owner = rebel_nation;
             }
 
             // Declare war seeking all provinces from the owner
             TreatyClause::AnnexProvince* cl = new TreatyClause::AnnexProvince();
             cl->provinces = uprising_provinces;
-            cl->sender = dup_nation;
+            cl->sender = rebel_nation;
             cl->receiver = nation;
             cl->type = TreatyClauseType::ANNEX_PROVINCES;
             clauses.push_back(cl);
-            print_info("Revolt on [%s]! [%s] has taken over!", province->ref_name.c_str(), dup_nation->ideology->ref_name.c_str());
+            Eng3D::Log::debug("game", "Revolt on " + province->ref_name + " by " + rebel_nation->ideology->ref_name);
         }
-        dup_nation->declare_war(*nation, clauses);
+        rebel_nation->declare_war(*nation, clauses);
 #endif
     }
 
@@ -151,7 +134,7 @@ void militancy_update(World& world, Nation* nation) {
             }
         }
 
-        print_info("Coup d' etat on [%s]! [%s] has taken over!", nation->ref_name.c_str(), nation->ideology->ref_name.c_str());
+        Eng3D::Log::debug("game", "Coup d' etat on " + nation->ref_name + " by " + nation->ideology->ref_name);
     }
 }
 
@@ -417,7 +400,7 @@ void Economy::do_tick(World& world) {
                 // Can't operate building without funds
                 if(building.budget <= 0.f) {
 #if 0
-                    print_info("Building of [%s] in [%s] is closed due to lack of funds!", building_type.ref_name.c_str(), province->ref_name.c_str());
+                    Eng3D::Log::debug("economy", "Building of " + building_type.ref_name + " in " + province->ref_name + " closed due to lack of funds");
 #endif
                     // continue;
                 }

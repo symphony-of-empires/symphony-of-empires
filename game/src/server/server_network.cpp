@@ -30,6 +30,8 @@
 #include <chrono>
 #include <thread>
 
+#include "eng3d/log.hpp"
+
 #include "action.hpp"
 #include "world.hpp"
 #include "io_impl.hpp"
@@ -44,7 +46,7 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
     gs{ _gs }
 {
     g_server = this;
-    print_info("Deploying %u threads for clients", n_clients);
+    Eng3D::Log::debug("server", "Deploying " + std::to_string(n_clients) + " threads for clients");
 
     clients = new Eng3D::Networking::ServerClient[n_clients];
     for(size_t i = 0; i < n_clients; i++) {
@@ -127,7 +129,7 @@ void Server::net_loop(int id) {
                 ar.rewind();
                 ::deserialize(ar, &action);
 
-                print_info("Receiving %zu bytes from #%zu", packet.size(), (size_t)id);
+                Eng3D::Log::debug("server", "Receiving " + std::to_string(packet.size()) + " from #" + std::to_string(id));
 
                 if(selected_nation == nullptr && (action != ActionType::PONG && action != ActionType::CHAT_MESSAGE && action != ActionType::SELECT_NATION))
                     throw ServerException("Unallowed operation without selected nation");
@@ -137,7 +139,7 @@ void Server::net_loop(int id) {
                 case ActionType::PONG:
                     action = ActionType::PING;
                     packet.send(&action);
-                    print_info("Received pong, responding with ping!");
+                    Eng3D::Log::debug("server", "Received pong, responding with ping!");
                     break;
                 // - Client tells server to enact a new policy for it's nation
                 case ActionType::NATION_ENACT_POLICY: {
@@ -162,8 +164,9 @@ void Server::net_loop(int id) {
 
                     Province* province;
                     ::deserialize(ar, &province);
-                    if(province != nullptr)
-                        print_info("Unit changes targets to %s", province->ref_name.c_str());
+                    if(province != nullptr) {
+                        Eng3D::Log::debug("server", "Unit changes targets to " + province->ref_name);
+                    }
                     
                     unit->set_target(*province);
                 } break;
@@ -202,7 +205,7 @@ void Server::net_loop(int id) {
                     // Tell the building to build this specific unit type
                     building.working_unit_type = unit_type;
                     building.req_goods_for_unit = unit_type->req_goods;
-                    print_info("New order for building; build unit [%s]", unit_type->ref_name.c_str());
+                    Eng3D::Log::debug("server", "New order for building; build unit " + unit_type->ref_name);
                 } break;
                 // Client tells server to build new outpost, the location (& type) is provided by
                 // the client and the rest of the fields are filled by the server
@@ -239,7 +242,7 @@ void Server::net_loop(int id) {
                 case ActionType::CHAT_MESSAGE: {
                     std::string msg;
                     ::deserialize(ar, &msg);
-                    print_info("Message: %s\n", msg.c_str());
+                    Eng3D::Log::debug("server", "Message: " + msg);
 
                     // Rebroadcast
                     broadcast(packet);
@@ -254,7 +257,7 @@ void Server::net_loop(int id) {
                     TreatyApproval approval;
                     ::deserialize(ar, &approval);
 
-                    print_info("[%s] approves treaty [%s]? %s!", selected_nation->ref_name.c_str(), treaty->name.c_str(), (approval == TreatyApproval::ACCEPTED) ? "YES" : "NO");
+                    Eng3D::Log::debug("server", selected_nation->ref_name + " approves treaty " + treaty->name + " A=" + (approval == TreatyApproval::ACCEPTED ? "YES" : "NO"));
                     
                     if(!treaty->does_participate(*selected_nation)) {
                         throw ServerException("Nation does not participate in treaty");
@@ -290,11 +293,11 @@ void Server::net_loop(int id) {
                         approver_nations.insert(clause->sender);
                     }
 
-                    print_info("Participants of treaty [%s]", treaty->name.c_str());
+                    Eng3D::Log::debug("server", "Participants of treaty " + treaty->name);
                     // Then fill as undecided (and ask nations to sign this treaty)
                     for(auto& nation : approver_nations) {
                         treaty->approval_status.push_back(std::make_pair(nation, TreatyApproval::UNDECIDED));
-                        print_info("- [%s]", nation->ref_name.c_str());
+                        Eng3D::Log::debug("server", ">" + nation->ref_name);
                     }
 
                     // The sender automatically accepts the treaty (they are the ones who drafted it)
@@ -338,11 +341,7 @@ void Server::net_loop(int id) {
                     }
 
                     (*event)->take_decision(*selected_nation, *decision);
-                    print_info("Event [%s] + decision [%s] taken by [%s]",
-                        event_ref_name.c_str(),
-                        decision_ref_name.c_str(),
-                        selected_nation->ref_name.c_str()
-                    );
+                    Eng3D::Log::debug("server", "Event " + event_ref_name + " takes descision " + decision_ref_name + " by nation " + selected_nation->ref_name);
                 } break;
                 // The client selects a nation
                 case ActionType::SELECT_NATION: {
@@ -359,7 +358,7 @@ void Server::net_loop(int id) {
                     nation->ai_controlled = false;
                     nation->ai_controlled = false;
                     selected_nation = nation;
-                    print_info("Nation [%s] selected by client %zu", selected_nation->ref_name.c_str(), (size_t)id);
+                    Eng3D::Log::debug("server", "Nation " + selected_nation->ref_name + " selected by client " + std::to_string(id));
                 } break;
                 case ActionType::DIPLO_INC_RELATIONS: {
                     Nation* target;
@@ -415,17 +414,17 @@ void Server::net_loop(int id) {
             cl.packets.clear();
         }
     } catch(ServerException& e) {
-        print_error("ServerException: %s", e.what());
+        Eng3D::Log::error("server", std::string() + "ServerException: " + e.what());
     } catch(Eng3D::Networking::SocketException& e) {
-        print_error("SocketException: %s", e.what());
+        Eng3D::Log::error("server", std::string() + "SocketException: " + e.what());
     } catch(SerializerException& e) {
-        print_error("SerializerException: %s", e.what());
+        Eng3D::Log::error("server", std::string() + "SerializerException: " + e.what());
     }
 
     player_count--;
 
 #ifdef E3D_TARGET_WINDOWS
-    print_error("WSA Code: %u", WSAGetLastError());
+    Eng3D::Log::error("server", "WSA Code: " + std::to_string(WSAGetLastError()));
     WSACleanup();
 #endif
 
@@ -447,7 +446,7 @@ void Server::net_loop(int id) {
     }
     cl.is_active = false;
 
-    print_info("Client disconnected");
+    Eng3D::Log::debug("server", "Client disconnected");
 #ifdef E3D_TARGET_WINDOWS
     shutdown(conn_fd, SD_BOTH);
 #elif defined E3D_TARGET_UNIX

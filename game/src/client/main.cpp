@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
     }
 
     const int seed = (int)((uint32_t)time(NULL) * (uint32_t)getpid());
-    print_info("Using random seed of %i", seed);
+    Eng3D::Log::debug("game", "Using random seed of " + std::to_string(seed));
     std::srand(seed);
     
 #ifndef UNIT_TEST

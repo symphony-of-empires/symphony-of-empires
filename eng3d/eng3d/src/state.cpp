@@ -49,7 +49,6 @@
 #include "eng3d/state.hpp"
 #include "eng3d/path.hpp"
 #include "eng3d/io.hpp"
-#include "eng3d/print.hpp"
 #include "eng3d/audio.hpp"
 #include "eng3d/texture.hpp"
 #include "eng3d/material.hpp"
@@ -60,6 +59,86 @@
 
 // Used for the singleton
 static Eng3D::State* g_state = nullptr;
+
+
+#ifdef E3D_BACKEND_OPENGL
+// Callback function for printing debug statements
+static void GLAPIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* msg, const void* data) {
+    std::string _source;
+    switch(source) {
+    case GL_DEBUG_SOURCE_API:
+        _source = "API";
+        break;
+    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+        _source = "WINDOW SYSTEM";
+        break;
+    case GL_DEBUG_SOURCE_SHADER_COMPILER:
+        _source = "SHADER COMPILER";
+        break;
+    case GL_DEBUG_SOURCE_THIRD_PARTY:
+        _source = "THIRD PARTY";
+        break;
+    case GL_DEBUG_SOURCE_APPLICATION:
+        _source = "APPLICATION";
+        break;
+    case GL_DEBUG_SOURCE_OTHER:
+        _source = "UNKNOWN";
+        break;
+    default:
+        _source = "UNKNOWN";
+        break;
+    }
+
+    std::string _type;
+    switch(type) {
+    case GL_DEBUG_TYPE_ERROR:
+        _type = "ERROR";
+        break;
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+        _type = "DEPRECATED BEHAVIOR";
+        break;
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+        _type = "UDEFINED BEHAVIOR";
+        break;
+    case GL_DEBUG_TYPE_PORTABILITY:
+        _type = "PORTABILITY";
+        break;
+    case GL_DEBUG_TYPE_PERFORMANCE:
+        _type = "PERFORMANCE";
+        break;
+    case GL_DEBUG_TYPE_OTHER:
+        _type = "OTHER";
+        break;
+    case GL_DEBUG_TYPE_MARKER:
+        _type = "MARKER";
+        break;
+    default:
+        _type = "UNKNOWN";
+        break;
+    }
+
+    std::string _severity;
+    switch(severity) {
+    case GL_DEBUG_SEVERITY_HIGH:
+        _severity = "HIGH";
+        break;
+    case GL_DEBUG_SEVERITY_MEDIUM:
+        _severity = "MEDIUM";
+        break;
+    case GL_DEBUG_SEVERITY_LOW:
+        _severity = "LOW";
+        break;
+    case GL_DEBUG_SEVERITY_NOTIFICATION:
+        _severity = "NOTIFICATION";
+        return;
+    default:
+        _severity = "UNKNOWN";
+        break;
+    }
+
+    printf("%d: %s of %s severity, raised from %s: %s\n", id, _type.c_str(), _severity.c_str(), _source.c_str(), msg);
+}
+#endif
 
 Eng3D::State::State(void) {
     // Make sure we're the only state running
@@ -74,7 +153,7 @@ Eng3D::State::State(void) {
     // Initialize the IO first, as other subsystems may require access to files (i.e the UI context)
     package_man = new Eng3D::IO::PackageManager();
     const std::string asset_path = Path::get_full();
-    print_info("Assets path: %s", asset_path.c_str());
+    Eng3D::Log::debug("gamestate", "Assets path: " + asset_path);
     for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
         if(entry.is_directory()) {
             const auto& path = entry.path().lexically_relative(asset_path);
@@ -109,7 +188,7 @@ Eng3D::State::State(void) {
 
     GLint size;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
-    print_info("%d", size);
+    Eng3D::Log::debug("gamestate", std::to_string(size));
 
     glHint(GL_TEXTURE_COMPRESSION_HINT, GL_FASTEST);
 

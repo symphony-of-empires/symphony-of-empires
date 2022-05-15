@@ -39,7 +39,6 @@
 #include "pop.hpp"
 #include "action.hpp"
 #include "diplomacy.hpp"
-#include "eng3d/print.hpp"
 
 // TODO: Endianess compatibility
 template<>
@@ -861,13 +860,6 @@ public:
         const War::Id n_wars = obj->wars.size();
         ::serialize(stream, &n_wars);
 
-        print_info("(SERIALIZER) World");
-        print_info("  n_nations %zu", obj->nations.size());
-        print_info("  n_provinces %zu", obj->provinces.size());
-        print_info("  n_events %zu", obj->events.size());
-        print_info("  n_treaties %zu", obj->treaties.size());
-        print_info("  n_wars %zu", obj->wars.size());
-
         ::serialize(stream, &obj->goods);
         ::serialize(stream, &obj->unit_types);
         ::serialize(stream, &obj->religions);
@@ -919,13 +911,6 @@ public:
         Event::Id n_events = deserialize_and_create_list<Event>(stream, obj);
         Treaty::Id n_treaties = deserialize_and_create_list<Treaty>(stream, obj);
         War::Id n_wars = deserialize_and_create_list<War>(stream, obj);
-
-        print_info("(DESERIALIZER) World");
-        print_info("  n_nations %zu", obj->nations.size());
-        print_info("  n_provinces %zu", obj->provinces.size());
-        print_info("  n_events %zu", obj->events.size());
-        print_info("  n_treaties %zu", obj->treaties.size());
-        print_info("  n_wars %zu", obj->wars.size());
 
         ::deserialize(stream, &obj->goods);
         ::deserialize(stream, &obj->unit_types);

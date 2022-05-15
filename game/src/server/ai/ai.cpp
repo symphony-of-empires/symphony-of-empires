@@ -31,7 +31,6 @@
 
 #include "eng3d/binary_image.hpp"
 #include "eng3d/path.hpp"
-#include "eng3d/print.hpp"
 #include "eng3d/serializer.hpp"
 #include "eng3d/log.hpp"
 
@@ -192,20 +191,20 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
         if(relation.relation > 1.f && !other_relation.has_alliance) {
             relation.has_alliance = true;
             relation.relation = 100.f;
-            print_info("[%s] requested an alliance with [%s]!", nation.ref_name.c_str(), other.ref_name.c_str());
+            Eng3D::Log::debug("ai", nation.ref_name + " requested an alliance with " + other.ref_name);
         }
 
         // If they want an alliance we won't hesitate to join (they are our friends after all)
         if(other_relation.has_alliance && !relation.has_alliance) {
             relation.has_alliance = true;
             relation.relation = 100.f;
-            print_info("Alliance [%s] <-> [%s] has been made!", nation.ref_name.c_str(), other.ref_name.c_str());
+            Eng3D::Log::debug("ai", nation.ref_name + " did an alliance with " + other.ref_name);
         }
 
         // Same with the defensive pact
         if(other_relation.has_defensive_pact && !relation.has_defensive_pact) {
             relation.has_defensive_pact = true;
-            print_info("Defensive pact [%s] <-> [%s] has been made!", nation.ref_name.c_str(), other.ref_name.c_str());
+            Eng3D::Log::debug("ai", nation.ref_name + " defensive pact with " + other.ref_name);
         }
     }
 
@@ -216,7 +215,7 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
         // Embargo them
         if(relation.relation < -1.f) {
             relation.has_embargo = true;
-            print_info("[%s] has placed an embargo on [%s]!", nation.ref_name.c_str(), other.ref_name.c_str());
+            Eng3D::Log::debug("ai", nation.ref_name + " has placed an embargo on " + other.ref_name);
         }
 
         // We really hate our enemies, don't we?
