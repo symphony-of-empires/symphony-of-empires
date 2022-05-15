@@ -255,36 +255,28 @@ void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, Eng3D::Rec
 
 #include <deque>
 void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
+    const Eng3D::Rect pos_rect((int)0u, 0u, width, height);
+    const Eng3D::Rect tex_rect((int)0u, 0u, 1u, 1u);
     g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man->get_white());
 
     // Shadow
     if(have_shadow) {
-        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.f, 0.f, 0.7f, 1.f));
+        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.f, 0.f, 0.8f, 1.f));
         auto square = Eng3D::Square(16.f, 16.f, width + 16.f, height + 16.f);
     }
 
     g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
-    // Background (tile) display
+    //g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(color.r, color.g, color.b, color.a));
     if(type == UI::WidgetType::INPUT) {
-        Eng3D::Rect pos_rect((int)0u, 0u, width, height);
-        Eng3D::Rect tex_rect((int)0u, 0u, 1u, 1u);
-        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.f, 1.f, 0.f, 1.f));
         draw_rect(nullptr, pos_rect, tex_rect, viewport);
     }
-
-    if(color.a != 0) {
-        Eng3D::Rect pos_rect((int)0u, 0u, width, height);
-        Eng3D::Rect tex_rect((int)0u, 0u, 1u, 1u);
-        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(color.r, color.g, color.b, color.a));
-        draw_rect(nullptr, pos_rect, tex_rect, viewport);
-    }
-
-    g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
+    
     if(current_texture != nullptr) {
         draw_rectangle(0, 0, width, height, viewport, current_texture.get());
     }
 
     // Top bar of windows display
+    g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
     if(type == UI::WidgetType::WINDOW) {
         draw_rectangle(0, 0, width, 24, viewport, ctx.window_top.get());
     }
@@ -297,7 +289,7 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
         if(!text_texture->gl_tex_num) {
             text_texture->upload();
         }
-        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
+        //g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
 
         int x_offset = text_offset_x;
         int y_offset = text_offset_y;
@@ -317,9 +309,6 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
 
     // Semi-transparent over hover elements which can be clicked
     if(clickable_effect && ((on_click && is_hover) || is_clickable)) {
-        Eng3D::Rect pos_rect((int)0u, 0u, width, height);
-        Eng3D::Rect tex_rect((int)0u, 0u, 1u, 1u);
-
         g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man->get_white());
         g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.5f, 0.5f, 0.5f, 0.5f));
         draw_rect(nullptr, pos_rect, tex_rect, viewport);
