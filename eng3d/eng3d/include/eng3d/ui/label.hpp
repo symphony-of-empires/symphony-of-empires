@@ -20,7 +20,8 @@
 //      eng3d/ui/label.hpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Label is a simple widget that draws text on the screen - it does not
+//      support multiline paragraphs, use Text for that instead.
 // ----------------------------------------------------------------------------
 
 #pragma once
@@ -37,7 +38,7 @@ namespace UI {
 	class Context;
     /**
      * @ingroup UI
-     * @brief Simple widget for drawing text on the screen
+     * @brief Simple widget for drawing text on the screen, no multiline support
      *
      */
     class Label: public Widget {

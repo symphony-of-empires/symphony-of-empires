@@ -20,7 +20,8 @@
 //      eng3d/ui/numeric_input.hpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Numeric input allows the user to input only numerical digits
+//      useful for dates or decimal digits.
 // ----------------------------------------------------------------------------
 
 #pragma once
@@ -35,8 +36,7 @@ namespace UI {
     
     /**
      * @ingroup UI
-     * @brief Small "numeric input" wrapper which uses a group for holding the 3
-     * required elements for a totally "numeric" input
+     * @brief A version of the Input widget that only allows numbers.
      *
      */
 	class NumericInput : public Group {

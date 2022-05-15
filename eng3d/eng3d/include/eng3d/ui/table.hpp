@@ -20,7 +20,7 @@
 //      eng3d/ui/table.hpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Dynamic table widget, it's sortable and very flexible.
 // ----------------------------------------------------------------------------
 
 #pragma once

@@ -227,7 +227,7 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _techno
     auto* pgbar = new UI::ProgressBar(0, 24, 128, 24, 0.f, technology->cost, this);
     pgbar->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<TechnologyInfo&>(*w.parent);
-        ((UI::ProgressBar&)w).value = std::fabs(o.gs.curr_nation->research[o.gs.world->get_id(*o.technology)] - o.technology->cost);
+        ((UI::ProgressBar&)w).set_value(std::fabs(o.gs.curr_nation->research[o.gs.world->get_id(*o.technology)] - o.technology->cost));
     });
 }
 

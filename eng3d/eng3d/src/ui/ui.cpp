@@ -504,7 +504,7 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
     if(w.on_click && clickable && !click_consumed) {
         if(w.type == UI::WidgetType::SLIDER) {
             Slider* wc = (Slider*)&w;
-            wc->value = (static_cast<float>(std::abs(static_cast<int>(mx) - offset.x)) / static_cast<float>(wc->width)) * wc->max;
+            wc->set_value((static_cast<float>(std::abs(static_cast<int>(mx) - offset.x)) / static_cast<float>(wc->width)) * wc->max);
         }
 
         w.on_click(w);

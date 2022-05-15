@@ -41,7 +41,7 @@ namespace UI {
 	class Context;
     /**
      * @ingroup UI
-     * @brief Image widget
+     * @brief Image widget, can display pictures or effects on the screen
      *
      */
     class Image: public Widget {

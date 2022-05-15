@@ -156,18 +156,18 @@ Settings::Settings(GameState& _gs)
     auto* music_volume_sld = new UI::Slider(0, 0, 128, 24, 0.f, 100.f, this);
     music_volume_sld->text("Music volume");
     music_volume_sld->below_of(*motionblur_chk);
-    music_volume_sld->value = gs.music_volume;
+    music_volume_sld->set_value(gs.music_volume);
     music_volume_sld->set_on_click([this](UI::Widget& w) {
-        this->gs.music_volume = static_cast<int>(((UI::Slider&)w).value);
+        this->gs.music_volume = static_cast<int>(((UI::Slider&)w).get_value());
     });
     music_volume_sld->set_tooltip("Controls the volume of the music");
 
     auto* sound_volume_sld = new UI::Slider(0, 0, 128, 24, 0.f, 100.f, this);
     sound_volume_sld->text("Sound volume");
     sound_volume_sld->below_of(*music_volume_sld);
-    sound_volume_sld->value = gs.sound_volume;
+    sound_volume_sld->set_value(gs.sound_volume);
     sound_volume_sld->set_on_click([this](UI::Widget& w) {
-        this->gs.sound_volume = static_cast<int>(((UI::Slider&)w).value);
+        this->gs.sound_volume = static_cast<int>(((UI::Slider&)w).get_value());
     });
     sound_volume_sld->set_tooltip("Controls the volume of the sounds");
 
