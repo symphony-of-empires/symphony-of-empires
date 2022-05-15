@@ -58,7 +58,7 @@ public:
     ConnectedNode* node = nullptr;
     std::vector<glm::vec3>* river;
 
-    ConnectedNode(): river{ new std::vector<glm::vec3> } {}
+    ConnectedNode() : river{ new std::vector<glm::vec3> } {}
     ConnectedNode(std::vector<glm::vec3>* _river): river{ _river } {}
 };
 
@@ -72,7 +72,9 @@ void get_river(std::vector<glm::vec3>& river, int current_index, int prev_index,
             return;
         }
         int new_index = new_x + new_y * width;
-        if(new_index == prev_index) return;
+        if(new_index == prev_index) {
+            return;
+        }
 
         uint32_t neighbor_color = pixels[new_index];
         if(neighbor_color == 0xFFFF0000) {
@@ -113,7 +115,9 @@ void Rivers::build_rivers() {
         get_river(river, rivers_starts[i], -1, pixels, width, height);
 
         size_t length = river.size();
-        if(length < 2) continue;
+        if(length < 2) {
+            continue;
+        }
 
         std::vector<glm::vec3> mid_points(length + 3);
         mid_points[0] = river[0];
@@ -163,6 +167,7 @@ Rivers::~Rivers() {
 
 void Rivers::draw(Eng3D::Camera* camera) {
     line_shader->use();
+    
     glm::mat4 model(1.f);
     line_shader->set_uniform("model", model);
     line_shader->set_uniform("projection", camera->get_projection());

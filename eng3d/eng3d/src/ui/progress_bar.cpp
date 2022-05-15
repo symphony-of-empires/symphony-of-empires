@@ -71,22 +71,20 @@ Eng3D::Rect get_rect(Eng3D::Rect rect_pos, Eng3D::Rect viewport) {
 }
 
 void ProgressBar::on_render(Context&, Eng3D::Rect viewport) {
-    const float end_x = (value / max) * width;
-    Eng3D::Rect pos_rect(0, 0, end_x, height);
-    pos_rect = get_rect(pos_rect, viewport);
-
-    g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.f, 0.f, 1.f, 1.f));
+    value = std::clamp(value, min, max);
+    // TODO: Fix broken progress bar
+    const Eng3D::Rect pos_rect(0, 0, (value / max) * width, height);
     g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man->get_white());
-    auto bg_square = Eng3D::Square(pos_rect.left, pos_rect.top, pos_rect.right, pos_rect.bottom);
-    bg_square.draw();
+    g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.f, 1.f, 0.f, 1.f));
+    Eng3D::Square(pos_rect.left, pos_rect.top, pos_rect.right, pos_rect.bottom).draw();
+    g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.f, 0.f, 1.f, 1.f));
+    Eng3D::Square(pos_rect.right, pos_rect.top, width, pos_rect.bottom).draw();
 
     if(text_texture != nullptr) {
         if(!text_texture->gl_tex_num) {
             text_texture->upload();
         }
-        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
+        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, text_color.a));
         draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture);
-        
-        g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man->get_white());
     }
 }

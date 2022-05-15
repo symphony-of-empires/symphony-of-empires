@@ -677,6 +677,7 @@ void GameState::load_world_thread(void) {
 #include <filesystem>
 
 #include "eng3d/ui/image.hpp"
+#include "eng3d/ui/progress_bar.hpp"
 #include "eng3d/audio.hpp"
 #include "eng3d/locale.hpp"
 
@@ -720,15 +721,16 @@ void start_client(int, char**) {
 
     gs.loaded_world = false;
     gs.loaded_map = false;
-    gs.load_progress = 0.3f;
+    gs.load_progress = 0.f;
 
     auto load_screen_tex = gs.tex_man->load(Path::get("gfx/load_screen.png"));
     auto* bg_img = new UI::Image(-(gs.width / 2.f), -(load_screen_tex->height / 2.f), gs.width, load_screen_tex->height, load_screen_tex);
     bg_img->origin = UI::Origin::CENTER_SCREEN;
-    auto* load_lab = new UI::Label(0, -24, "Loading...");
-    load_lab->origin = UI::Origin::LOWER_LEFT_SCREEN;
-    load_lab->color = Eng3D::Color(0.f, 0.f, 0.f);
-    load_lab->text_color = Eng3D::Color(1.f, 1.f, 1.f);
+
+    auto* load_pbar = new UI::ProgressBar(0, -24, gs.width, 24, 0.f, 1.f);
+    load_pbar->origin = UI::Origin::LOWER_LEFT_SCREEN;
+    load_pbar->text_color = Eng3D::Color(1.f, 1.f, 1.f);
+    
     auto mod_logo_tex = gs.tex_man->load(Path::get("gfx/mod_logo.png"));
     auto* mod_logo_img = new UI::Image(0, 0, mod_logo_tex->width, mod_logo_tex->height, mod_logo_tex);
 
@@ -773,8 +775,9 @@ void start_client(int, char**) {
                 const std::string path = Path::get("gfx/flags/" + (*load_it_nation)->ref_name + "_" + ((*load_it_nation)->ideology == nullptr ? "none" : (*load_it_nation)->ideology->ref_name.get_string()) + ".png");
                 gs.tex_man->load(path, mipmap_options)->gen_mipmaps();
                 if(!path.empty()) {
-                    load_lab->text(path);
+                    load_pbar->text(path);
                 }
+                gs.load_progress = 0.f + (0.3f / std::distance(gs.world->nations.cend(), load_it_nation));
                 load_it_nation++;
                 if(load_it_nation == gs.world->nations.end()) {
                     load_nation_flags = true;
@@ -785,8 +788,9 @@ void start_client(int, char**) {
                 const std::string tex_path = Path::get("gfx/buildingtype/" + (*load_it_building_type).ref_name + ".png");
                 gs.tex_man->load(tex_path, mipmap_options)->gen_mipmaps();
                 if(!model_path.empty()) {
-                    load_lab->text(model_path);
+                    load_pbar->text(model_path);
                 }
+                gs.load_progress = 0.3f + (0.3f / std::distance(gs.world->building_types.cend(), load_it_building_type));
                 load_it_building_type++;
                 if(load_it_building_type == gs.world->building_types.end()) {
                     load_building_type_icons = true;
@@ -797,24 +801,25 @@ void start_client(int, char**) {
                 const std::string tex_path = Path::get("gfx/unittype/" + (*load_it_unit_type).ref_name + ".png");
                 gs.tex_man->load(tex_path, mipmap_options)->gen_mipmaps();
                 if(!model_path.empty()) {
-                    load_lab->text(model_path);
+                    load_pbar->text(model_path);
                 }
+                gs.load_progress = 0.6f + (0.3f / std::distance(gs.world->unit_types.cend(), load_it_unit_type));
                 load_it_unit_type++;
                 if(load_it_unit_type == gs.world->unit_types.end()) {
                     load_unit_type_icons = true;
-                    load_lab->text("Creating the map");
+                    load_pbar->text("Creating the map");
                 }
             }
         }
 
-        load_lab->width = gs.width * (1.f / gs.load_progress);
+        load_pbar->value = gs.load_progress;
         gs.ui_ctx->render_all(glm::ivec2(gs.input.mouse_pos.first, gs.input.mouse_pos.second));
         gs.swap();
         gs.world->profiler.render_done();
     }
     load_world_th.join();
     bg_img->kill();
-    load_lab->kill();
+    load_pbar->kill();
     mod_logo_img->kill();
 
     // After loading everything initialize the gamestate initial properties

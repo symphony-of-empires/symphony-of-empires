@@ -62,14 +62,14 @@ Eng3D::Texture::Texture(TTF_Font* font, Eng3D::Color color, const std::string& m
     debug_assert(font != nullptr);
 
     // TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
-    SDL_Color black_color = {
+    const SDL_Color text_color = {
         static_cast<Uint8>(color.r * 255.f),
         static_cast<Uint8>(color.g * 255.f),
         static_cast<Uint8>(color.b * 255.f),
         0
     };
 
-    SDL_Surface* surface = TTF_RenderUTF8_Blended(font, msg.c_str(), black_color);
+    SDL_Surface* surface = TTF_RenderUTF8_Blended(font, msg.c_str(), text_color);
     if(surface == nullptr) {
         CXX_THROW(std::runtime_error, std::string() + "Cannot create text surface: " + TTF_GetError());
     }

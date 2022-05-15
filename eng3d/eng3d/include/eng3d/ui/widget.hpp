@@ -192,10 +192,10 @@ namespace UI {
 		int text_offset_x = 4, text_offset_y = 4;
 		Align text_align_y = Align::START;
 		Align text_align_x = Align::START;
-		Eng3D::Color text_color;
+		Eng3D::Color text_color = Eng3D::Color(0.f, 0.f, 0.f);
 		TTF_Font* font = nullptr;
 		Border border;
-		Eng3D::Color color;
+		Eng3D::Color color = Eng3D::Color(1.f, 1.f, 1.f);
 
 		Flex flex = Flex::NONE;
 		FlexJustify flex_justify = FlexJustify::START;
