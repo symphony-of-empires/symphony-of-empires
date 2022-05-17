@@ -52,7 +52,8 @@ ArmyArmyTab::ArmyArmyTab(GameState& _gs, int x, int y, UI::Widget* parent)
     for(const auto& unit : gs.world->units) {
         if(unit->owner != gs.curr_nation) {
             continue;
-        } else if(!(unit->type->is_ground == true && unit->type->is_naval == false)) {
+        }
+        else if(!(unit->type->is_ground == true && unit->type->is_naval == false)) {
             continue;
         }
 
@@ -72,7 +73,8 @@ ArmyAirforceTab::ArmyAirforceTab(GameState& _gs, int x, int y, UI::Widget* paren
     for(const auto& unit : gs.world->units) {
         if(unit->owner != gs.curr_nation) {
             continue;
-        } else if(!(unit->type->is_ground == true && unit->type->is_naval == true)) {
+        }
+        else if(!(unit->type->is_ground == true && unit->type->is_naval == true)) {
             continue;
         }
 
@@ -92,13 +94,14 @@ ArmyNavyTab::ArmyNavyTab(GameState& _gs, int x, int y, UI::Widget* parent)
     for(const auto& unit : gs.world->units) {
         if(unit->owner != gs.curr_nation) {
             continue;
-        } else if(!(unit->type->is_ground == false && unit->type->is_naval == true)) {
+        }
+        else if(!(unit->type->is_ground == false && unit->type->is_naval == true)) {
             continue;
         }
 
         auto* btn = new UnitButton(this->gs, 0, 0, unit, flex_column);
         btn->set_on_click([](UI::Widget& w) {
-            
+
         });
     }
 }
@@ -179,6 +182,8 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Pro
     progress_pgbar->below_of(*this->name_lab);
     progress_pgbar->on_each_tick = ([this](UI::Widget& w) {
         auto& building = this->province->get_buildings()[this->idx];
+        if(!building.working_unit_type)
+            return;
         std::string text = "";
         size_t full = 0, needed = 0;
         text = "Needs ";

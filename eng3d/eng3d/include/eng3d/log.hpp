@@ -30,16 +30,16 @@
 
 namespace Eng3D::Log {
     inline void debug(const std::string& category, const std::string& msg) {
-#if defined E3D_DEBUG || defined GS_DEBUG
-#   ifdef E3D_LOG_TO_CONSOLE
+// #if defined E3D_DEBUG || defined GS_DEBUG
+// #   ifdef E3D_LOG_TO_CONSOLE
         printf("<debug:%s> %s\n", category.c_str(), msg.c_str());
-#   else
+// #   else
         std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen("log.txt", "a+t"), fclose);
         if(fp != nullptr) {
             fprintf(fp.get(), "<debug:%s> %s\n", category.c_str(), msg.c_str());
         }
-#   endif
-#endif
+// #   endif
+// #endif
     };
 
     inline void warning(const std::string& category, const std::string& msg) {

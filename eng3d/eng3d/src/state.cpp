@@ -314,7 +314,8 @@ Eng3D::State::~State(void) {
 
 void Eng3D::State::clear(void) const {
 #ifdef E3D_BACKEND_OPENGL
-    glClear(GL_DEPTH_BUFFER_BIT);
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearDepth(1.f);
 #else
     // TODO: RGX clear function
