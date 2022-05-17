@@ -101,6 +101,7 @@ namespace UI {
          * @return true if the mouse position was above a ui widget
          */
         bool check_hover(unsigned mx, unsigned my);
+        uint32_t hover_update = 1;
 
         /**
          * @brief Check for on_click events

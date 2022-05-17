@@ -61,6 +61,7 @@
 #include "eng3d/state.hpp"
 #include "eng3d/utils.hpp"
 #include "eng3d/primitive.hpp"
+#include "eng3d/log.hpp"
 
 #if !defined NOMINMAX
 #   define NOMINMAX 1
@@ -145,8 +146,9 @@ void Context::clear_dead_recursive(Widget* w) {
             w->children.erase(w->children.begin() + index);
             index--;
             changed = true;
-        } else {
+        } else if((w->children[index])->dead_child) {
             clear_dead_recursive(w->children[index].get());
+            w->children[index]->dead_child = false;
         }
     }
 
@@ -161,8 +163,9 @@ void Context::clear_dead() {
             delete widgets[index];
             widgets.erase(widgets.begin() + index);
             index--;
-        } else {
+        } else if((widgets[index])->dead_child) {
             clear_dead_recursive(widgets[index]);
+            widgets[index]->dead_child = false;
         }
     }
 
@@ -367,6 +370,7 @@ void Context::render_all(glm::ivec2 mouse_pos) {
     cursor_quad.draw();
 }
 
+// Too expensive
 void Context::clear_hover_recursive(Widget& w) {
     w.is_hover = false;
     for(auto& child : w.children) {
@@ -378,17 +382,20 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
     glm::ivec2 offset{ x_off, y_off };
     offset = get_pos(w, offset);
 
-    w.is_hover = true;
+    w.is_hover = hover_update;
     if(!w.is_show || !w.is_render) {
-        for(auto& child : w.children) {
-            clear_hover_recursive(*child);
-        }
+        // for(auto& child : w.children) {
+        //     clear_hover_recursive(*child);
+        // }
+        return false;
+    }
+    if(!w.width || !w.height) {
         return false;
     }
 
     const Eng3D::Rect r = Eng3D::Rect(offset.x, offset.y, w.width, w.height);
     if(!r.in_bounds(mx, my)) {
-        w.is_hover = false;
+        w.is_hover = 0;
     } else if(w.is_transparent) {
         if(w.current_texture != nullptr) {
             int tex_width = w.current_texture->width;
@@ -398,7 +405,7 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
             if(tex_x >= 0 && tex_x < tex_width && tex_y >= 0 && tex_y < tex_height) {
                 uint32_t argb = w.current_texture->get_pixel(tex_x, tex_y);
                 if(((argb >> 24) & 0xff) == 0) {
-                    w.is_hover = false;
+                    w.is_hover = 0;
                 }
             }
         }
@@ -420,14 +427,15 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
             consumed_hover |= check_hover_recursive(*child, mx, my, offset.x, offset.y);
         }
     } else {
-        for(auto& child : w.children) {
-            clear_hover_recursive(*child);
-        }
+        // for(auto& child : w.children) {
+        //     clear_hover_recursive(*child);
+        // }
     }
     return consumed_hover;
 }
 
 bool Context::check_hover(const unsigned mx, const unsigned my) {
+    hover_update++;
     if(is_drag) {
         std::pair<int, int> offset = std::make_pair(mx - this->drag_x, my - this->drag_y);
         std::pair<int, int> diff = std::make_pair(offset.first - dragged_widget->x, offset.second - dragged_widget->y);

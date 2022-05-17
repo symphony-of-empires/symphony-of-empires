@@ -307,7 +307,8 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
     }
 
     // Semi-transparent over hover elements which can be clicked
-    if(clickable_effect && ((on_click && is_hover) || is_clickable)) {
+    bool hover_effect = is_hover == g_ui_context->hover_update;
+    if(clickable_effect && ((on_click && hover_effect) || is_clickable)) {
         g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man->get_white());
         g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.5f, 0.5f, 0.5f, 0.5f));
         draw_rect(nullptr, pos_rect, tex_rect, viewport);

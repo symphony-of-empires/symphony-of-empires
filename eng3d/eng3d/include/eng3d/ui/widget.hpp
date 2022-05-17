@@ -204,7 +204,7 @@ namespace UI {
 		// If you can move the children by scrolling
 		bool is_scroll = false;
 
-		bool is_hover = false;
+		u_int32_t is_hover = 0;
 		bool is_float = false;
 		bool is_fullscreen = false;
 		bool is_transparent = false;
@@ -274,8 +274,16 @@ namespace UI {
 		// Used internally for drawing hover effects on clickable child widgets
 		bool is_clickable = false;
 		bool dead = false;
+		bool dead_child = false;
 
 		void recalc_child_pos();
 		void draw_border(Border& border, Eng3D::Rect viewport);
+		void inline notice_death() {
+			if (!dead_child) {
+				dead_child = true;
+				if (parent)
+					parent->notice_death();
+			}
+		};
 	};
 };
