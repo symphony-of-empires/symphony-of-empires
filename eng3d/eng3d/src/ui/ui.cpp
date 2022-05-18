@@ -146,7 +146,8 @@ void Context::clear_dead_recursive(Widget* w) {
             w->children.erase(w->children.begin() + index);
             index--;
             changed = true;
-        } else if((w->children[index])->dead_child) {
+        }
+        else if((w->children[index])->dead_child) {
             clear_dead_recursive(w->children[index].get());
             w->children[index]->dead_child = false;
         }
@@ -163,7 +164,8 @@ void Context::clear_dead() {
             delete widgets[index];
             widgets.erase(widgets.begin() + index);
             index--;
-        } else if((widgets[index])->dead_child) {
+        }
+        else if((widgets[index])->dead_child) {
             clear_dead_recursive(widgets[index]);
             widgets[index]->dead_child = false;
         }
@@ -298,7 +300,7 @@ void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport,
     if(!w.is_show || !w.is_render) {
         return;
     }
-    
+
     // Only render widget that have a width and height
     if(!w.width || !w.height) {
         return;
@@ -315,6 +317,7 @@ void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport,
     auto viewport_offset = this->get_pos(w, viewport.position());
     Eng3D::Rect local_viewport = Eng3D::Rect{ offset, size };
     // Set the viewport to the intersection of the parents and currents widgets viewport
+    local_viewport = local_viewport.intersection(Eng3D::Rect(0, 0, width, height));
     if(!w.parent || w.parent->type != UI::WidgetType::GROUP) {
         local_viewport = viewport.intersection(local_viewport);
     }
@@ -323,7 +326,8 @@ void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport,
     local_viewport.offset(-offset);
 
     obj_shader->set_uniform("model", glm::translate(model, glm::vec3(offset, 0.f))); // Offset the widget start pos
-    w.on_render(*this, local_viewport); // Render the widget, only render what's inside the viewport
+    if(local_viewport.width() > 0 && local_viewport.height() > 0)
+        w.on_render(*this, local_viewport); // Render the widget, only render what's inside the viewport
 
     if(w.on_update) {
         w.on_update(w);
@@ -396,7 +400,8 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
     const Eng3D::Rect r = Eng3D::Rect(offset.x, offset.y, w.width, w.height);
     if(!r.in_bounds(mx, my)) {
         w.is_hover = 0;
-    } else if(w.is_transparent) {
+    }
+    else if(w.is_transparent) {
         if(w.current_texture != nullptr) {
             int tex_width = w.current_texture->width;
             int tex_height = w.current_texture->height;
@@ -426,7 +431,8 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
         for(auto& child : w.children) {
             consumed_hover |= check_hover_recursive(*child, mx, my, offset.x, offset.y);
         }
-    } else {
+    }
+    else {
         // for(auto& child : w.children) {
         //     clear_hover_recursive(*child);
         // }
@@ -476,7 +482,8 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
         const Eng3D::Rect r = Eng3D::Rect(offset.x, offset.y, w.width, w.height);
         if(!r.in_bounds(glm::vec2(mx, my))) {
             clickable = false;
-        } else if(w.is_transparent) {
+        }
+        else if(w.is_transparent) {
             if(w.current_texture != nullptr) {
                 int tex_width = w.current_texture->width;
                 int tex_height = w.current_texture->height;
@@ -629,7 +636,8 @@ bool Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_o
     const Eng3D::Rect r = Eng3D::Rect(offset.x, offset.y, w.width, w.height);
     if(!r.in_bounds(glm::vec2(mx, my))) {
         return false;
-    } else if(w.is_transparent) {
+    }
+    else if(w.is_transparent) {
         if(w.current_texture != nullptr) {
             int tex_width = w.current_texture->width;
             int tex_height = w.current_texture->height;
