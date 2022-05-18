@@ -44,7 +44,7 @@ DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
     event{ _event }
 {
     // Title of the event
-    this->text(this->event.title.c_str());
+    this->text(this->event.title);
 
     // Body of the event text
     auto* txt = new UI::Text(0, 0, this->width, 24, this);

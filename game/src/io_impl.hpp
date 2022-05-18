@@ -426,7 +426,6 @@ public:
     static inline void serialize(Archive& stream, const Nation* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
-        ::serialize(stream, &obj->relations);
         ::serialize(stream, &obj->puppet_master);
         ::serialize(stream, &obj->diplomacy_points);
         ::serialize(stream, &obj->prestige);
@@ -456,7 +455,6 @@ public:
     static inline void deserialize(Archive& stream, Nation* obj) {
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
-        ::deserialize(stream, &obj->relations);
         ::deserialize(stream, &obj->puppet_master);
         ::deserialize(stream, &obj->diplomacy_points);
         ::deserialize(stream, &obj->prestige);
@@ -870,6 +868,7 @@ public:
         ::serialize(stream, &obj->ideologies);
         ::serialize(stream, &obj->technologies);
         ::serialize(stream, &obj->nation_modifiers);
+        ::serialize(stream, &obj->relations);
 
         for(auto& sub_obj : obj->nations) {
             ::serialize(stream, sub_obj);
@@ -922,6 +921,7 @@ public:
         ::deserialize(stream, &obj->ideologies);
         ::deserialize(stream, &obj->technologies);
         ::deserialize(stream, &obj->nation_modifiers);
+        ::deserialize(stream, &obj->relations);
 
         for(size_t i = 0; i < n_nations; i++) {
             auto* sub_obj = obj->nations[i];

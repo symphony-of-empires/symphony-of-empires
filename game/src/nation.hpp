@@ -142,9 +142,6 @@ public:
     // Our puppetmaster
     Nation* puppet_master = nullptr;
 
-    // A list with relations with all other nations, mapped 1:1 to the Nation list in the world
-    std::vector<NationRelation> relations;
-
     // Number of diplomacy points available
     Eng3D::Decimal diplomacy_points;
 
