@@ -104,7 +104,7 @@ ProfilerTaskView::ProfilerTaskView(ProfilerView* profiler_view, int x, int y):
 }
 
 void ProfilerTaskView::set_task(Eng3D::BenchmarkTask* profiler_view) {
-    color_box->color = Eng3D::Color::rgba32(profiler_view->color);
+    color_box->background_color = Eng3D::Color::rgba32(profiler_view->color);
     float time = profiler_view->get_average_time_ms();
     std::string format_time = std::to_string((int)time);
     format_time = std::string(3 - std::min<size_t>(3, format_time.length()), '0') + format_time;

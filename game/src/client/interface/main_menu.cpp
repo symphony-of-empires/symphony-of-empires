@@ -80,7 +80,6 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
             this->gs.client->wait_for_snapshot();
             this->gs.in_game = true;
 
-            this->gs.ui_ctx->clear();
             this->gs.current_mode = MapMode::COUNTRY_SELECT;
             this->gs.select_nation = new Interface::LobbySelectView(gs);
             return;

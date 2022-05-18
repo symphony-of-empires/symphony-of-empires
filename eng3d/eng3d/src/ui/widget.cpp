@@ -62,7 +62,8 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
         x += parent->padding.x;
         y += parent->padding.y;
         parent->add_child(*this);
-    } else {
+    }
+    else {
         // Add the widget to the context in each construction without parent
         g_ui_context->add_widget(this);
     }
@@ -82,7 +83,8 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
         x += parent->padding.x;
         y += parent->padding.y;
         parent->add_child(*this);
-    } else {
+    }
+    else {
         // Add the widget to the context in each construction without parent
         g_ui_context->add_widget(this);
     }
@@ -131,7 +133,7 @@ void Widget::draw_rect(const Eng3D::Texture* tex, Eng3D::Rect rect_pos, Eng3D::R
         g_ui_context->obj_shader->set_texture(0, "diffuse_map", *tex);
     }
     auto square = Eng3D::Square(rect_pos, rect_tex);
-    square.draw();   
+    square.draw();
 }
 
 void Widget::above_of(const Widget& rhs) {
@@ -265,11 +267,16 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
     }
 
     g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
-    //g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(color.r, color.g, color.b, color.a));
     if(type == UI::WidgetType::INPUT) {
         draw_rect(nullptr, pos_rect, tex_rect, viewport);
     }
-    
+
+    if(background_color.a != 0) {
+        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(background_color.r, background_color.g, background_color.b, background_color.a));
+        draw_rect(nullptr, pos_rect, tex_rect, viewport);
+        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
+    }
+
     if(current_texture != nullptr) {
         draw_rectangle(0, 0, width, height, viewport, current_texture.get());
     }
@@ -283,7 +290,7 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
     if(border.texture != nullptr) {
         draw_border(border, viewport);
     }
-    
+
     if(text_texture != nullptr) {
         if(!text_texture->gl_tex_num) {
             text_texture->upload();
@@ -294,14 +301,16 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
         int y_offset = text_offset_y;
         if(text_align_x == UI::Align::CENTER) {
             x_offset = (width - text_texture->width) / 2;
-        } else if(text_align_x == UI::Align::END) {
-            x_offset = width - text_texture->width;
+        }
+        else if(text_align_x == UI::Align::END) {
+            x_offset = width - text_texture->width - text_offset_x;
         }
 
         if(text_align_y == UI::Align::CENTER) {
             y_offset = (height - text_texture->height) / 2;
-        } else if(text_align_y == UI::Align::END) {
-            y_offset = height - text_texture->height;
+        }
+        else if(text_align_y == UI::Align::END) {
+            y_offset = height - text_texture->height - text_offset_y;
         }
         draw_rectangle(x_offset, y_offset, text_texture->width, text_texture->height, viewport, text_texture);
     }
@@ -317,9 +326,9 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
 
 /**
  * @brief Moves a widget by x and y
- * 
- * @param _x 
- * @param _y 
+ *
+ * @param _x
+ * @param _y
  */
 void Widget::move_by(int _x, int _y) {
     x += _x;
@@ -330,7 +339,7 @@ void Widget::move_by(int _x, int _y) {
  * @brief Recalculates the position of each children inside the widget
  * this is only used when Flex is used on a widget and it will automatically
  * align the widget's children depending on the other Flex properties
- * 
+ *
  */
 void Widget::recalc_child_pos() {
     if(flex == Flex::NONE) {
@@ -359,7 +368,8 @@ void Widget::recalc_child_pos() {
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + flex_gap;
-            } else {
+            }
+            else {
                 child->y = current_lenght;
                 current_lenght += child->height + flex_gap;
             }
@@ -375,7 +385,8 @@ void Widget::recalc_child_pos() {
             if(is_row) {
                 child->x = current_lenght - child->width - flex_gap;
                 current_lenght -= child->width;
-            } else {
+            }
+            else {
                 child->y = current_lenght - child->height - flex_gap;
                 current_lenght -= child->height;
             }
@@ -392,7 +403,8 @@ void Widget::recalc_child_pos() {
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + difference;
-            } else {
+            }
+            else {
                 child->y = current_lenght;
                 current_lenght += child->height + difference;
             }
@@ -409,7 +421,8 @@ void Widget::recalc_child_pos() {
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + difference;
-            } else {
+            }
+            else {
                 child->y = current_lenght;
                 current_lenght += child->height + difference;
             }
@@ -465,7 +478,7 @@ void Widget::recalc_child_pos() {
 
 /**
  * @brief Adds a children to the widget
- * 
+ *
  * @param child Widget to add as a children
  */
 void Widget::add_child(UI::Widget& child) {
@@ -488,8 +501,8 @@ static inline unsigned int power_two_floor(const unsigned int val) {
 /**
  * @brief Generates text for the widget and overrides the current
  * text texture
- * 
- * @param _text 
+ *
+ * @param _text
  */
 void Widget::text(const std::string& _text) {
     if(this->text_str == _text) {
@@ -515,7 +528,7 @@ void Widget::text(const std::string& _text) {
 /**
  * @brief Set the tooltip to be shown when this widget is hovered, overrides
  * the previous tooltip
- * 
+ *
  * @param _tooltip New tooltip to set
  */
 void Widget::set_tooltip(UI::Tooltip* _tooltip) {
@@ -526,7 +539,7 @@ void Widget::set_tooltip(UI::Tooltip* _tooltip) {
 /**
  * @brief Set the tooltip to be shown when this widget is hovered, but generate
  * it from a string instead of taking an already existing widget
- * 
+ *
  * @param text Text for the new tooltip
  */
 void Widget::set_tooltip(const std::string& text) {
@@ -539,8 +552,8 @@ void Widget::set_tooltip(const std::string& text) {
 
 /**
  * @brief Scrolls all the children of this widget by a factor of y
- * 
- * @param y 
+ *
+ * @param y
  */
 void Widget::scroll(int _y) {
     int child_top = 0;

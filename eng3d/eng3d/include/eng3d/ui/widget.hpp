@@ -230,7 +230,7 @@ namespace UI {
 		Eng3D::Color text_color = Eng3D::Color(0.f, 0.f, 0.f);
 		TTF_Font* font = nullptr;
 		Border border;
-		Eng3D::Color color = Eng3D::Color(1.f, 1.f, 1.f);
+		Eng3D::Color background_color = Eng3D::Color(1.f, 1.f, 1.f, 0.f);
 
 		Flex flex = Flex::NONE;
 		FlexJustify flex_justify = FlexJustify::START;
@@ -242,6 +242,7 @@ namespace UI {
 		void* user_data = nullptr;
 		void inline kill() {
 			dead = true;
+			notice_death();
 		};
 		std::function<void(Widget&)> on_update;
 		std::function<void(Widget&)> on_click;

@@ -55,6 +55,7 @@
 #include "client/map_render.hpp"
 #include "client/game_state.hpp"
 #include "client/interface/province_view.hpp"
+#include "client/interface/unit_widget.hpp"
 #include "client/interface/lobby.hpp"
 #include "world.hpp"
 #include "eng3d/orbit_camera.hpp"
@@ -108,8 +109,9 @@ void get_blob_bounds(std::set<Province*>* visited_provinces, const Nation& natio
     }
 }
 
-Map::Map(const World& _world, int screen_width, int screen_height)
+Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int screen_height)
     : world(_world),
+    map_ui_layer(_map_ui_layer),
     skybox(0.f, 0.f, 0.f, 255.f * 10.f, 40, false)
 {
     Eng3D::State& s = Eng3D::State::get_instance();
@@ -345,7 +347,7 @@ void Map::set_map_mode(mapmode_generator mapmode_generator, mapmode_tooltip tool
 
 void Map::set_selected_province(bool selected, Province::Id id) {
     this->province_selected = selected;
-    this->selected_province_id = id;    
+    this->selected_province_id = id;
     map_render->update_visibility();
 }
 
@@ -666,6 +668,34 @@ void Map::draw(const GameState& gs) {
             }
         }
     }
+
+    size_t unit_index = 0;
+    for(const auto& province : world.provinces) {
+        const glm::vec2 prov_pos = glm::vec2(province->get_pos().first, province->get_pos().second);
+        for(const auto& unit : province->get_units()) {
+            bool unit_visable = true;
+            if(view_mode == MapView::SPHERE_VIEW) {
+                glm::vec3 cam_pos = camera->get_world_pos();
+                glm::vec3 world_pos = camera->get_tile_world_pos(prov_pos);
+                if(glm::dot(cam_pos, world_pos) <= 0) {
+                    unit_visable = false;
+                }
+            }
+            if(unit_visable) {
+                if(unit_index < unit_widgets.size()) {
+                    unit_widgets[unit_index]->set_unit(unit);
+                }
+                else {
+                    unit_widgets.push_back(new Interface::UnitWidget(unit, this, map_ui_layer));
+                }
+                unit_index++;
+            }
+        }
+    }
+    for(size_t i = unit_index; i < unit_widgets.size(); i++) {
+        unit_widgets[i]->kill();
+    }
+    unit_widgets.resize(unit_index);
 
     for(const auto& province : world.provinces) {
         const float y = province_units_y[world.get_id(*province)];
