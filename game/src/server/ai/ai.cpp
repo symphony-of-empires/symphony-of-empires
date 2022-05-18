@@ -383,16 +383,13 @@ static inline void ai_build_commercial(Nation& nation) {
     std::advance(it, std::rand() % nation.owned_provinces.size());
 
     Province* province = *it;
-    if(province->min_x > world.width || province->min_y == world.height || province->max_x < province->min_x || province->max_y < province->min_y || !province->n_tiles) {
-        Eng3D::Log::error("ai", "Cant build buidling, province doesn't have any tiles");
-    } else {
-        // Now build the building
-        BuildingType* building_type = &world.building_types.at(0);
-        province->buildings[world.get_id(*building_type)].level += 1;
-        // Broadcast the addition of the building to the clients
-        g_server->broadcast(Action::BuildingAdd::form_packet(province, building_type));
-        Eng3D::Log::debug("ai", "Building of " + building_type->ref_name + ", from " + nation.ref_name + " built on " + province->ref_name);
-    }
+    
+    // Now build the building
+    BuildingType* building_type = &world.building_types.at(0);
+    province->buildings[world.get_id(*building_type)].level += 1;
+    // Broadcast the addition of the building to the clients
+    g_server->broadcast(Action::BuildingAdd::form_packet(province, building_type));
+    Eng3D::Log::debug("ai", "Building of " + building_type->ref_name + ", from " + nation.ref_name + " built on " + province->ref_name);
 }
 
 void ai_do_tick(Nation& nation) {

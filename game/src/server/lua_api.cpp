@@ -698,6 +698,15 @@ int LuaAPI::update_province(lua_State* L) {
     province->color = (bswap32(lua_tonumber(L, 3)) >> 8) | 0xff000000;
     province->name = luaL_checkstring(L, 4);
     province->terrain_type = &g_world->terrain_types.at(lua_tonumber(L, 5));
+
+    // Check for duplicates
+    for(size_t i = 0; i < g_world->provinces.size(); i++) {
+        if(province->color == g_world->provinces[i]->color) {
+            throw LuaAPI::Exception(province->ref_name + " province has same color as " + g_world->provinces[i]->ref_name);
+        } else if(province->ref_name == g_world->provinces[i]->ref_name) {
+            throw LuaAPI::Exception("Duplicate ref_name " + province->ref_name);
+        }
+    }
     return 0;
 }
 

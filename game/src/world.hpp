@@ -34,6 +34,7 @@
 #include <mutex>
 #include <string>
 #include <memory>
+#include <array>
 
 #include <glm/vec2.hpp>
 
@@ -196,15 +197,15 @@ public:
     Tile& get_tile(size_t x, size_t y) const;
     Tile& get_tile(size_t idx) const;
 
-    std::vector<NationRelation> relations;
+    std::unique_ptr<NationRelation[]> relations;
     // Uses cantor's pairing function
     // https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
     inline NationRelation& get_relation(const int a, const int b) {
-        return relations[((a * a) + (3 * a) + (2 * a * b) + (b * b)) / 2];
+        return relations[((a + b + 1) * (a + b)) / 2 + b];
     };
 
     inline const NationRelation& get_relation(const int a, const int b) const {
-        return relations[((a * a) + (3 * a) + (2 * a * b) + (b * b)) / 2];
+        return relations[((a + b + 1) * (a + b)) / 2 + b];
     };
 
     // Lua state - for lua scripts, this is only used by the server and should not be
@@ -215,15 +216,11 @@ public:
     std::unique_ptr<Tile[]> tiles;
     mutable std::mutex tiles_mutex;
 
-    // Level at which sea dissapears, all sea is capped to sea_level - 1, and rivers are at sea_level.
-    // Anything above is considered land
-    size_t sea_level;
-
     // The height and width of the world
     size_t width, height;
 
     // Current time (in ticks)
-    uint64_t time = 0;
+    int time;
 
     bool needs_to_sync = false;
 

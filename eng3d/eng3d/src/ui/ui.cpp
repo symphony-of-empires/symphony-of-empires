@@ -88,7 +88,7 @@ Context::Context() {
     background = gs.tex_man->load(gs.package_man->get_unique("gfx/window_background.png"));
     window_top = gs.tex_man->load(gs.package_man->get_unique("gfx/window_top3.png"));
     button = gs.tex_man->load(gs.package_man->get_unique("gfx/button2.png"));
-    //tooltip_tex = gs.tex_man->load(gs.package_man->get_unique("gfx/tooltip.png"));
+    tooltip_tex = gs.tex_man->load(gs.package_man->get_unique("gfx/tooltip.png"));
     piechart_overlay = gs.tex_man->load(gs.package_man->get_unique("gfx/piechart.png"));
     border_tex = gs.tex_man->load(gs.package_man->get_unique("gfx/border2.png"));
     button_border = gs.tex_man->load(gs.package_man->get_unique("gfx/border_sharp2.png"));

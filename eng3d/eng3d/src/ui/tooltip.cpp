@@ -40,7 +40,7 @@ Tooltip::Tooltip()
     this->have_shadow = true;
     this->width = 512;
 
-    this->current_texture = Eng3D::State::get_instance().tex_man->load(Path::get("gfx/window_background.png"));
+    this->current_texture = Eng3D::State::get_instance().ui_ctx->tooltip_tex;
 
     const glm::ivec2 size = glm::ivec2{4, 4};
     const glm::ivec2 texture_size = glm::ivec2{10, 10};
@@ -57,7 +57,7 @@ Tooltip::Tooltip(Widget* parent, unsigned w, unsigned h)
     this->width = w;
     this->height = h;
 
-    this->current_texture = Eng3D::State::get_instance().tex_man->load(Path::get("gfx/window_background.png"));
+    this->current_texture = Eng3D::State::get_instance().ui_ctx->tooltip_tex;
 
     const glm::ivec2 size = glm::ivec2{4, 4};
     const glm::ivec2 texture_size = glm::ivec2{10, 10};
