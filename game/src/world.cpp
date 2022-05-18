@@ -393,58 +393,38 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
 }
 
 void World::load_initial(void) {
-    const std::vector<std::string> init_files = {
+    // Execute all lua files
+    lua_exec_all_of(*this, (std::vector<std::string>){
         "terrain_types", "good_types", "ideologies", "cultures",
         "building_types", "technology", "religions", "pop_types",
         "industry_types", "unit_types", "boat_types",
         "nations", "provinces", "init"
-    };
-    lua_exec_all_of(*this, init_files, "lua/entities");
+    }, "lua/entities");
+    // std::sort(this->provinces.begin(), this->provinces.end(), [](const auto& lhs, const auto& rhs) {
+    //     return lhs->color > rhs->color;
+    // });
 
-    // Shrink normally-not-resized vectors to give back memory to the OS
-    Eng3D::Log::debug("game", Eng3D::Locale::translate("Shrink normally-not-resized vectors to give back memory to the OS"));
-
-    // Associate tiles with province
-    std::unique_ptr<BinaryImage> div = std::make_unique<BinaryImage>(Path::get("map/provinces.png"));
-    width = div->width;
-    height = div->height;
-
-    // Sea is	<= sea_level
-    // Rivers	== sea_level + 1
-    // Land is	> sea_level + 1
-    const size_t total_size = width * height;
-    sea_level = 126;
-    tiles = std::make_unique<Tile[]>(total_size);
-
-    if(div->width != width || div->height != height) {
-        throw std::runtime_error("Province map size mismatch");
-    }
-
-    // Build a lookup table for super fast speed on finding provinces
-    // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
-    Eng3D::Log::debug("game", Eng3D::Locale::translate("Building the province lookup table"));
-    std::vector<Province::Id> province_color_table(16777216, (Province::Id)-1);
+    int checksum = 0;
     for(auto& province : provinces) {
-        province_color_table[province->color & 0xffffff] = get_id(*province);
+        checksum += static_cast<int>(province->color);
     }
+    checksum = (checksum * width + height) * provinces.size();
 
-    uint32_t checksum = 1;
-    for(auto& province : provinces) {
-        checksum += province->ref_name.get_string().at(0);
-    }
-    checksum *= width * height * provinces.size();
     bool recalc_province = true;
     try {
         Archive ar = Archive();
-        ar.from_file("province_cache.dat");
+        ar.from_file("cache_map.dat");
 
         // If the cache has the same checksum as us then we just have to read from the file
-        uint32_t cache_checksum;
+        int cache_checksum;
         ::deserialize(ar, &cache_checksum);
         if(checksum == cache_checksum) {
             recalc_province = false;
+
+            ::deserialize(ar, &width);
+            ::deserialize(ar, &height);
+            tiles = std::make_unique<Tile[]>(width * height);
             for(auto& province : provinces) {
-                ::deserialize(ar, &province->n_tiles);
                 ::deserialize(ar, &province->neighbours);
                 ::deserialize(ar, &province->max_x);
                 ::deserialize(ar, &province->max_y);
@@ -456,71 +436,80 @@ void World::load_initial(void) {
                 ::deserialize(ar, &tiles[i]);
             }
         }
-    }
-    catch(const std::exception& e) {
+    } catch(const std::exception& e) {
         Eng3D::Log::error("cache", e.what());
     }
 
     if(recalc_province) {
+        std::unique_ptr<BinaryImage> div = std::make_unique<BinaryImage>(Path::get("map/provinces.png"));
+        width = div->width;
+        height = div->height;
+        tiles = std::make_unique<Tile[]>(width * height);
+
         // Uncomment this and see a bit more below
         std::set<uint32_t> colors_found;
         Eng3D::Log::debug("game", Eng3D::Locale::translate("Associate tiles with provinces"));
-        for(size_t i = 0; i < total_size; ) {
-            const Province::Id province_id = province_color_table[div->buffer.get()[i] & 0xffffff];
+
+        // Build a lookup table for super fast speed on finding provinces
+        // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
+        Eng3D::Log::debug("game", Eng3D::Locale::translate("Building the province lookup table"));
+        std::vector<Province::Id> province_color_table(0xffffff + 1, (Province::Id)-1);
+        for(auto& province : provinces) {
+            province_color_table[province->color & 0xffffff] = this->get_id(*province);
+        }
+
+        const uint32_t *raw_buffer = div->buffer.get();
+        for(size_t i = 0; i < width * height; ) {
+            const Province::Id province_id = province_color_table[raw_buffer[i] & 0xffffff];
             if(province_id == (Province::Id)-1) {
-                // Uncomment this and see below
-                colors_found.insert(div->buffer.get()[i]);
-                i++;
+                colors_found.insert(raw_buffer[i]);
+                while(raw_buffer[i] == province_color_table[raw_buffer[i] & 0xffffff]) {
+                    i++;
+                }
                 continue;
             }
 
-            const uint32_t rel_color = provinces[province_id]->color;
-            while(div->buffer.get()[i] == rel_color) {
-                tiles[i].province_id = province_id;
-                provinces[province_id]->n_tiles++;
-                i++;
+            while(raw_buffer[i] == provinces[province_id]->color) {
+                tiles[i++].province_id = province_id;
             }
         }
-        div.reset(nullptr);
+        div.reset();
 
-        /* Uncomment this for auto-generating lua code for unregistered provinces */
-        FILE* fp = fopen("unknown.lua", "w+t");
-        if(fp) {
-            for(const auto& color_raw : colors_found) {
-                uint32_t color = color_raw << 8;
-                fprintf(fp, "province = Province:new{ ref_name = \"province_%06x\", color = 0x%06x }\n", static_cast<unsigned int>(bswap32(color)), static_cast<unsigned int>(bswap32(color)));
-                fprintf(fp, "province.name = _(\"Province_%06x\")\n", static_cast<unsigned int>(bswap32(color)));
-                fprintf(fp, "province:register()\n");
+        {
+            // Uncomment this for auto-generating lua code for unregistered provinces
+            std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen("uprovinces.lua", "w+t"), fclose);
+            if(fp != nullptr) {
+                for(const auto& color_raw : colors_found) {
+                    uint32_t color = color_raw << 8;
+                    fprintf(fp.get(), "province = Province:new{ ref_name = \"province_%06x\", color = 0x%06x }\n", static_cast<unsigned int>(bswap32(color)), static_cast<unsigned int>(bswap32(color)));
+                    fprintf(fp.get(), "province.name = _(\"Province_%06x\")\n", static_cast<unsigned int>(bswap32(color)));
+                    fprintf(fp.get(), "province:register()\n");
+                }
             }
-            fclose(fp);
         }
 
-        fp = fopen("unused.txt", "w+t");
-        if(fp) {
-            for(size_t i = 0; i < province_color_table.size(); i++) {
-                uint32_t color = i << 8;
+        {
+            std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen("ucolors.txt", "w+t"), fclose);
+            if(fp != nullptr) {
+                for(size_t i = 0; i < province_color_table.size(); i++) {
+                    uint32_t color = i << 8;
 
-                if(i % 128) {
-                    continue;
-                }
+                    if(i % 128) {
+                        continue;
+                    }
 
-                if(province_color_table[i] == (Province::Id)-1) {
-                    fprintf(fp, "%06x\n", static_cast<uintptr_t>(bswap32(color)));
+                    if(province_color_table[i] == (Province::Id)-1) {
+                        fprintf(fp.get(), "%06x\n", static_cast<uintptr_t>(bswap32(color)));
+                    }
                 }
             }
-            fclose(fp);
         }
 
         // Calculate the edges of the province (min and max x and y coordinates)
         Eng3D::Log::debug("game", Eng3D::Locale::translate("Calculate the edges of the province (min and max x and y coordinates)"));
         for(size_t j = 0; j < height; j++) {
             for(size_t i = 0; i < width; i++) {
-                Tile& tile = get_tile(i, j);
-                if(tile.province_id >= provinces.size()) {
-                    tile.province_id = static_cast<Province::Id>(1);
-                    continue;
-                }
-
+                const Tile& tile = this->get_tile(i, j);
                 auto& province = *provinces[tile.province_id];
                 province.max_x = std::max(province.max_x, i);
                 province.max_y = std::max(province.max_y, j);
@@ -538,9 +527,8 @@ void World::load_initial(void) {
 
         // Neighbours
         Eng3D::Log::debug("game", Eng3D::Locale::translate("Creating neighbours for provinces"));
-        for(size_t i = 0; i < total_size; i++) {
+        for(size_t i = 0; i < width * height; i++) {
             const Tile* tile = &this->tiles[i];
-
             if(tile->province_id < static_cast<Province::Id>(-3)) {
                 Province* province = this->provinces[this->tiles[i].province_id];
                 const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
@@ -552,10 +540,12 @@ void World::load_initial(void) {
             }
         }
 
+        // Write the cache file
         Archive ar = Archive();
         ::serialize(ar, &checksum);
+        ::serialize(ar, &width);
+        ::serialize(ar, &height);
         for(const auto& province : provinces) {
-            ::serialize(ar, &province->n_tiles);
             ::serialize(ar, &province->neighbours);
             ::serialize(ar, &province->max_x);
             ::serialize(ar, &province->max_y);
@@ -566,16 +556,16 @@ void World::load_initial(void) {
         for(size_t i = 0; i < width * height; i++) {
             ::serialize(ar, &tiles[i]);
         }
-        ar.to_file("province_cache.dat");
+        ar.to_file("cache_map.dat");
     }
 
     // Create diplomatic relations between nations
     Eng3D::Log::debug("game", Eng3D::Locale::translate("Creating diplomatic relations"));
     // Relations between nations start at 0 (and latter modified by lua scripts)
     // since we use cantor's pairing function we only have to make an n*2 array so yeah let's do that!
-    this->relations.resize(this->nations.size() * 2, NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
+    this->relations = std::make_unique<NationRelation[]>(this->nations.size() * this->nations.size());
+    
     Eng3D::Log::debug("game", Eng3D::Locale::translate("World partially intiialized"));
-
     // Auto-relocate capitals for countries which do not have one
     for(auto& nation : this->nations) {
         // Must exist

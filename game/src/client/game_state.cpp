@@ -129,7 +129,9 @@ void handle_event(Input& input, GameState& gs) {
     //   - needed cause the window sometimes changes size without calling the change window size event
     SDL_GetWindowSize(gs.window, &width, &height);
     gs.ui_ctx->resize(width, height);
-    gs.map->camera->set_screen(width, height);
+    if(gs.map != nullptr) {
+        gs.map->camera->set_screen(width, height);
+    }
 
     SDL_Event event;
     bool click_on_ui = false;
@@ -753,7 +755,7 @@ void start_client(int, char**) {
     while(!gs.loaded_map) {
         // Widgets here SHOULD NOT REQUEST UPON WORLD DATA
         // so no world lock is needed beforehand
-        //handle_event(gs.input, gs);
+        handle_event(gs.input, gs);
 
         // TODO: first create the map and separately load all the assets
         std::scoped_lock lock(gs.render_lock);
