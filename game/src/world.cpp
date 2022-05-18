@@ -571,10 +571,9 @@ void World::load_initial(void) {
 
     // Create diplomatic relations between nations
     Eng3D::Log::debug("game", Eng3D::Locale::translate("Creating diplomatic relations"));
-    for(const auto& nation : this->nations) {
-        // Relations between nations start at 0 (and latter modified by lua scripts)
-        nation->relations.resize(this->nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
-    }
+    // Relations between nations start at 0 (and latter modified by lua scripts)
+    // since we use cantor's pairing function we only have to make an n*2 array so yeah let's do that!
+    this->relations.resize(this->nations.size() * 2, NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
     Eng3D::Log::debug("game", Eng3D::Locale::translate("World partially intiialized"));
 
     // Auto-relocate capitals for countries which do not have one
@@ -640,7 +639,8 @@ static inline void unit_do_tick(Unit& unit)
         }
 
         // Must not our unit and only if we are at war
-        if(other_unit->owner == unit.owner || !unit.owner->relations[g_world->get_id(*other_unit->owner)].has_war) {
+        const auto& relation = g_world->get_relation(g_world->get_id(*other_unit->owner), g_world->get_id(*unit.owner));
+        if(other_unit->owner == unit.owner || !relation.has_war) {
             continue;
         }
 
@@ -703,7 +703,8 @@ static inline void unit_do_tick(Unit& unit)
             unit.set_province(*unit.target);
             
             // If we are at war with the person we are crossing their provinces at, then take 'em (albeit with resistance)
-            if(can_take && unit.owner->relations[g_world->get_id(*unit.province->controller)].has_war) {
+            const auto& relation = g_world->get_relation(g_world->get_id(*unit.province->controller), g_world->get_id(*unit.owner));
+            if(can_take && relation.has_war) {
                 unit.owner->control_province(*unit.province);
             }
         }

@@ -32,21 +32,21 @@
 using namespace Diplomacy;
 
 inline bool Diplomacy::is_friend(Nation& us, Nation& them) {
-    const NationRelation* relation = &us.relations[g_world->get_id(them)];
+    const NationRelation& relation = g_world->get_relation(g_world->get_id(us), g_world->get_id(them));
 
     // A high relation means we are friendly <3
-    if(relation->relation >= 50.f) {
+    if(relation.free_supplies >= 50.f) {
         return true;
     } else {
         // Well, but maybe our interest is able to determine our friendliness towards them?
-        if(relation->interest >= relation->relation) {
+        if(relation.interest >= relation.relation) {
             // We cannot be friendly with negative relations
-            if(relation->relation <= 0.f) {
+            if(relation.relation <= 0.f) {
                 return false;
             }
 
             // Well, we need to be interested enough to like them
-            if(relation->relation >= relation->interest / relation->relation) {
+            if(relation.relation >= relation.interest / relation.relation) {
                 return true;
             }
         }
@@ -169,14 +169,9 @@ unsigned TreatyClause::Ceasefire::cost() {
 }
 
 void TreatyClause::Ceasefire::enforce() {
-    Nation::Id receiver_id = g_world->get_id(*receiver);
-    Nation::Id sender_id = g_world->get_id(*sender);
-
-    sender->relations[receiver_id].has_war = false;
-    sender->relations[receiver_id].has_truce = true;
-
-    receiver->relations[sender_id].has_war = false;
-    receiver->relations[sender_id].has_truce = true;
+    auto& relation = g_world->get_relation(g_world->get_id(*receiver), g_world->get_id(*sender));
+    relation.has_truce = true;
+    relation.has_war = false;
 
     days_duration--;
 }
@@ -193,11 +188,7 @@ unsigned TreatyClause::Puppet::cost() {
 }
 
 void TreatyClause::Puppet::enforce() {
-    Nation::Id receiver_id = g_world->get_id(*receiver);
-    Nation::Id sender_id = g_world->get_id(*sender);
-
     receiver->puppet_master = sender;
-
     done = true;
 }
 

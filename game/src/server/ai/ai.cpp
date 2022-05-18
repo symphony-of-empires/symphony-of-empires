@@ -178,31 +178,29 @@ static inline void ai_reform(Nation& nation) {
 
 // Update relations with another nation
 static inline void ai_update_relations(Nation& nation, Nation& other) {
-    const World& world = World::get_instance();
-
-    NationRelation& relation = nation.relations[world.get_id(other)];
-    NationRelation& other_relation = other.relations[world.get_id(nation)];
+    World& world = World::get_instance();
+    NationRelation& relation = world.get_relation(world.get_id(nation), world.get_id(other));
 
     // Try to increase relations with our friend
     if(nation.is_ally(other) && !(std::rand() % 250)) {
         nation.increase_relation(other);
 
         // Propose an alliance
-        if(relation.relation > 1.f && !other_relation.has_alliance) {
+        if(relation.relation > 1.f && !relation.has_alliance) {
             relation.has_alliance = true;
             relation.relation = 100.f;
             Eng3D::Log::debug("ai", nation.ref_name + " requested an alliance with " + other.ref_name);
         }
 
         // If they want an alliance we won't hesitate to join (they are our friends after all)
-        if(other_relation.has_alliance && !relation.has_alliance) {
+        if(!relation.has_alliance) {
             relation.has_alliance = true;
             relation.relation = 100.f;
             Eng3D::Log::debug("ai", nation.ref_name + " did an alliance with " + other.ref_name);
         }
 
         // Same with the defensive pact
-        if(other_relation.has_defensive_pact && !relation.has_defensive_pact) {
+        if(!relation.has_defensive_pact) {
             relation.has_defensive_pact = true;
             Eng3D::Log::debug("ai", nation.ref_name + " defensive pact with " + other.ref_name);
         }
@@ -272,7 +270,7 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
         const Eng3D::Decimal force_dist = 10.f * ((1.f + other_power) / (1.f + our_power));
         const int chance = std::max<Eng3D::Decimal>(0, force_dist - -relation.relation);
         if(std::rand() % (100 + (chance * 10)) == 0) {
-            if(!relation.has_war && !other_relation.has_war) {
+            if(!relation.has_war) {
                 // Check we border said nation
                 bool has_border = false;
                 bool has_units = false;
@@ -512,8 +510,13 @@ void ai_do_tick(Nation& nation) {
 
         // Risk of invasion
         int defense_factor = 1;
-        for(const auto& rel : nation.relations) {
-            if(rel.has_war) {
+        for(const auto& other : g_world->nations) {
+            if(other == &nation) {
+                continue;
+            }
+
+            const auto& relation = world.get_relation(world.get_id(*other), world.get_id(nation));
+            if(relation.has_war) {
                 defense_factor++;
             }
         }
@@ -544,7 +547,7 @@ void ai_do_tick(Nation& nation) {
 
                 for(size_t i = 0; i < world.building_types.size(); i++) {
                     const BuildingType* building_type = &world.building_types[i];
-                    if(building_type->flags & BuildingType::BUILD_MILITARY == 0) {
+                    if((building_type->flags & BuildingType::BUILD_MILITARY) == 0) {
                         //continue;
                     }
 
@@ -565,7 +568,7 @@ void ai_do_tick(Nation& nation) {
 
     // TODO: make a better algorithm
     if(nation.ai_do_cmd_troops) {
-        std::vector<int> nations_risk_factor(world.nations.size(), 0);
+        std::vector<double> nations_risk_factor(world.nations.size(), 0);
         for(const auto& other : world.nations) {
             if(other == &nation) {
                 continue;
@@ -573,22 +576,22 @@ void ai_do_tick(Nation& nation) {
 
             // Here we calculate the risk factor of each nation and then we put it on a lookup table
             // because we can't afford to calculate this for EVERY FUCKING province
-            NationRelation& relation = nation.relations[world.get_id(*other)];
+            const NationRelation& relation = world.get_relation(world.get_id(nation), world.get_id(*other));
             // Risk is augmentated when we border any non-ally nation
             if(!relation.has_alliance) {
-                nations_risk_factor[world.get_id(*other)] += 1.f * ((400.f - (relation.relation + 200.f)) / 50.f);
+                nations_risk_factor[world.get_id(*other)] += 1.f * ((400.f - std::max<double>(relation.relation + 200.f, 1.f)) / 50.f);
             } else if(relation.has_war) {
-                nations_risk_factor[world.get_id(*other)] += 10.f;
+                nations_risk_factor[world.get_id(*other)] += 1000.f;
             }
         }
         // Our own nation is safe, let's set it to 0
         nations_risk_factor[world.get_id(nation)] = 0;
 
-        std::vector<int> potential_risk(world.provinces.size(), 0);
+        std::vector<double> potential_risk(world.provinces.size(), 0);
         for(const auto& province : nation.controlled_provinces) {
             // The "cooling" value which basically makes us ignore some provinces with lots of defenses
             // so we don't rack up deathstacks on a border with some micronation
-            int draw_away_force = 0;
+            double draw_away_force = 0;
             for(const auto& unit : province->get_units()) {
                 // Only account this for units that are of our nation
                 // because enemy units will require us to give more importance to it
@@ -602,12 +605,14 @@ void ai_do_tick(Nation& nation) {
 
             for(const auto& neighbour : province->neighbours) {
                 if(province->terrain_type->is_water_body) {
-                    continue;
+                    //continue;
                 }
+
                 // Province must be controlled by someone/not by us
                 if(neighbour->controller == nullptr || neighbour->controller == &nation) {
                     continue;
                 }
+                
                 potential_risk[world.get_id(*neighbour)] += nations_risk_factor[world.get_id(*neighbour->controller)];
                 // Spread out the heat
                 potential_risk[world.get_id(*neighbour)] += (potential_risk[world.get_id(*province)] + 1) / province->neighbours.size();
@@ -640,7 +645,7 @@ void ai_do_tick(Nation& nation) {
 
                         if(potential_risk[world.get_id(*highest_risk)] < potential_risk[world.get_id(*province)]) {
                             if(province->controller != nullptr) {
-                                NationRelation& relation = province->controller->relations[world.get_id(*unit->owner)];
+                                const NationRelation& relation = world.get_relation(world.get_id(*province->controller), world.get_id(*unit->owner));
                                 if(relation.has_war || relation.has_alliance || province->owner == unit->owner) {
                                     highest_risk = province;
                                 }
@@ -656,7 +661,7 @@ void ai_do_tick(Nation& nation) {
                     // Can only go to a province if we have military accesss, they are our ally or if we are at war
                     // also if it's ours we can move thru it - or if it's owned by no-one
                     if(target_province->controller != nullptr) {
-                        NationRelation& relation = target_province->controller->relations[world.get_id(*unit->owner)];
+                        const NationRelation& relation = world.get_relation(world.get_id(*target_province->controller), world.get_id(*unit->owner));
                         if(target_province->controller == unit->owner || relation.has_alliance || relation.has_military_access || relation.has_war) {
                             unit->set_target(*target_province);
                         }

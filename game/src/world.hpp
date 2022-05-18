@@ -196,6 +196,17 @@ public:
     Tile& get_tile(size_t x, size_t y) const;
     Tile& get_tile(size_t idx) const;
 
+    std::vector<NationRelation> relations;
+    // Uses cantor's pairing function
+    // https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
+    inline NationRelation& get_relation(const int a, const int b) {
+        return relations[((a * a) + (3 * a) + (2 * a * b) + (b * b)) / 2];
+    };
+
+    inline const NationRelation& get_relation(const int a, const int b) const {
+        return relations[((a * a) + (3 * a) + (2 * a * b) + (b * b)) / 2];
+    };
+
     // Lua state - for lua scripts, this is only used by the server and should not be
     // accesible to the client
     lua_State* lua;

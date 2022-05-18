@@ -315,7 +315,7 @@ int LuaAPI::add_nation(lua_State* L) {
             throw LuaAPI::Exception("Duplicate ref_name " + nation->ref_name);
         }
     }
-
+    
     g_world->insert(*nation);
     lua_pushnumber(L, g_world->get_id(*nation));
     return 1;
@@ -531,12 +531,10 @@ int LuaAPI::set_nation_ideology(lua_State* L) {
 }
 
 int LuaAPI::get_nation_relation(lua_State* L) {
-    Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
-    debug_assert(nation != nullptr);
-    Nation* other_nation = g_world->nations.at(lua_tonumber(L, 2));
-    debug_assert(other_nation != nullptr);
+    Nation& nation = *g_world->nations.at(lua_tonumber(L, 1));
+    Nation& other_nation = *g_world->nations.at(lua_tonumber(L, 2));
 
-    auto& relation = nation->relations[g_world->get_id(*other_nation)];
+    auto& relation = g_world->get_relation(g_world->get_id(nation), g_world->get_id(other_nation));
     lua_pushnumber(L, (relation.relation));
     lua_pushnumber(L, (relation.interest));
     lua_pushboolean(L, relation.has_embargo);
@@ -555,7 +553,7 @@ int LuaAPI::set_nation_relation(lua_State* L) {
     Nation& nation = *g_world->nations.at(lua_tonumber(L, 1));
     Nation& other_nation = *g_world->nations.at(lua_tonumber(L, 2));
 
-    auto& relation = nation.relations[g_world->get_id(other_nation)];
+    auto& relation = g_world->get_relation(g_world->get_id(nation), g_world->get_id(other_nation));
     relation.relation = (lua_tonumber(L, 3));
     relation.interest = (lua_tonumber(L, 4));
     relation.has_embargo = lua_toboolean(L, 5);
@@ -581,7 +579,7 @@ int LuaAPI::nation_declare_unjustified_war(lua_State* L) {
     Nation& nation = *g_world->nations.at(lua_tonumber(L, 1));
     Nation& other_nation = *g_world->nations.at(lua_tonumber(L, 2));
 
-    if(!nation.relations[g_world->get_id(other_nation)].has_war) {
+    if(!g_world->get_relation(g_world->get_id(nation), g_world->get_id(other_nation)).has_war) {
         nation.declare_war(other_nation);
     }
     return 0;

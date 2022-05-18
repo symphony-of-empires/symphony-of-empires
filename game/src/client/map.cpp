@@ -473,7 +473,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
 
             if(unit->province->controller != nullptr && unit->province->controller != gs.curr_nation) {
                 // Must either be our ally, have military access with them or be at war
-                const NationRelation& relation = gs.curr_nation->relations[gs.world->get_id(*unit->province->controller)];
+                const NationRelation& relation = gs.world->get_relation(gs.world->get_id(*gs.curr_nation), gs.world->get_id(*unit->province->controller));
                 if(!(relation.has_war || relation.has_alliance || relation.has_military_access)) {
                     continue;
                 }
