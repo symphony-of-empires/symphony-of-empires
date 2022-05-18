@@ -723,6 +723,8 @@ void start_client(int, char**) {
     gs.loaded_map = false;
     gs.load_progress = 0.f;
 
+    auto map_layer = new UI::Group(0, 0);
+
     auto load_screen_tex = gs.tex_man->load(Path::get("gfx/load_screen.png"));
     auto* bg_img = new UI::Image(-(gs.width / 2.f), -(load_screen_tex->height / 2.f), gs.width, load_screen_tex->height, load_screen_tex);
     bg_img->origin = UI::Origin::CENTER_SCREEN;
@@ -765,7 +767,7 @@ void start_client(int, char**) {
             }
 
             if(load_nation_flags && load_building_type_icons && load_unit_type_icons) {
-                gs.map = new Map(*gs.world, gs.width, gs.height);
+                gs.map = new Map(*gs.world, map_layer, gs.width, gs.height);
                 gs.current_mode = MapMode::DISPLAY_ONLY;
                 gs.map->set_view(MapView::SPHERE_VIEW);
                 gs.map->camera->move(0.f, 50.f, 10.f);
@@ -901,9 +903,10 @@ void start_client(int, char**) {
         gs.clear();
         if(gs.current_mode != MapMode::NO_MAP) {
             std::scoped_lock lock(gs.world->world_mutex);
-            gs.map->draw(gs);
             gs.map->camera->update();
+            gs.map->draw(gs);
         }
+        gs.ui_ctx->clear_dead();
         gs.ui_ctx->render_all(glm::ivec2(gs.input.mouse_pos.first, gs.input.mouse_pos.second));
         gs.swap();
         gs.world->profiler.render_done();

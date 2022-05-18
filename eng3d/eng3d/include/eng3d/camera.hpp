@@ -73,7 +73,16 @@ namespace Eng3D {
         };
 
         virtual glm::mat4 get_view() = 0;
+
         virtual bool get_cursor_map_pos(std::pair<int, int> mouse_pos, glm::ivec2& out_pos) = 0;
         virtual glm::vec3 get_tile_world_pos(glm::vec2 tile_pos) = 0;
+        virtual glm::vec2 get_tile_screen_pos(glm::vec2 tile_pos) {
+            auto world_pos = get_tile_world_pos(tile_pos);
+            auto v = get_projection() * get_view() * glm::vec4(world_pos, 1);
+            auto screen_pos = glm::vec2(v) / v.w;
+            screen_pos.y *= -1;
+            screen_pos = (0.5f * (screen_pos + 1.f)) * screen_size;
+            return screen_pos;
+        };
     };
 };

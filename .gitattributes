@@ -1,0 +1,3 @@
+mods/** linguist-generated
+*.h linguist-vendored
+*.c linguist-vendored
