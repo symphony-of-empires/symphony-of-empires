@@ -61,7 +61,7 @@ namespace Eng3D {
             target.y += y_dir * scale;
             target.y = glm::clamp(target.y, 0.f, map_size.y);
             target.z += z_dir * scale;
-            target.z = glm::clamp(target.z, 0.f, map_size.x / 2.f);
+            target.z = glm::clamp(target.z, 10.f, map_size.x / 2.f);
         }
 
         void update(void) override {

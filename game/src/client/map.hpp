@@ -52,6 +52,10 @@ namespace Eng3D {
 
 namespace UI {
     class Context;
+    class Group;
+}
+namespace Interface {
+    class UnitWidget;
 }
 
 #include "province.hpp"
@@ -98,7 +102,7 @@ class Map {
     selector_func selector = nullptr;
 
 public:
-    Map(const World& world, int screen_width, int screen_height);
+    Map(const World& world, UI::Group* map_ui_layer,  int screen_width, int screen_height);
     ~Map();
 
     void update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, GameState& gs);
@@ -114,8 +118,7 @@ public:
 
     bool province_selected = false;
     Province::Id selected_province_id = (Province::Id)-1;
-
-
+    
     MapRender* map_render;
     MapView view_mode = MapView::PLANE_VIEW;
 
@@ -138,6 +141,9 @@ public:
 
     const World& world;
     Eng3D::Camera* camera;
+
+    UI::Group* map_ui_layer;
+    std::vector<Interface::UnitWidget*> unit_widgets;
 
     std::shared_ptr<Eng3D::Texture> id_map;
     std::shared_ptr<Eng3D::Texture> province_color_tex;

@@ -204,7 +204,7 @@ namespace UI {
 		// If you can move the children by scrolling
 		bool is_scroll = false;
 
-		bool is_hover = false;
+		u_int32_t is_hover = 0;
 		bool is_float = false;
 		bool is_fullscreen = false;
 		bool is_transparent = false;
@@ -230,7 +230,7 @@ namespace UI {
 		Eng3D::Color text_color = Eng3D::Color(0.f, 0.f, 0.f);
 		TTF_Font* font = nullptr;
 		Border border;
-		Eng3D::Color color = Eng3D::Color(1.f, 1.f, 1.f);
+		Eng3D::Color background_color = Eng3D::Color(1.f, 1.f, 1.f, 0.f);
 
 		Flex flex = Flex::NONE;
 		FlexJustify flex_justify = FlexJustify::START;
@@ -242,6 +242,7 @@ namespace UI {
 		void* user_data = nullptr;
 		void inline kill() {
 			dead = true;
+			notice_death();
 		};
 		std::function<void(Widget&)> on_update;
 		std::function<void(Widget&)> on_click;
@@ -274,8 +275,16 @@ namespace UI {
 		// Used internally for drawing hover effects on clickable child widgets
 		bool is_clickable = false;
 		bool dead = false;
+		bool dead_child = false;
 
 		void recalc_child_pos();
 		void draw_border(Border& border, Eng3D::Rect viewport);
+		void inline notice_death() {
+			if (!dead_child) {
+				dead_child = true;
+				if (parent)
+					parent->notice_death();
+			}
+		};
 	};
 };
