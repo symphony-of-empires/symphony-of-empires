@@ -202,7 +202,7 @@ namespace Path {
 
         for(const auto& path : mod_paths) {
             std::string end_path = get_full() + path + str;
-            if(std::filesystem::is_directory(end_path)){
+            if(std::filesystem::is_directory(end_path)) {
                 auto entries = std::filesystem::recursive_directory_iterator(end_path);
                 for(const auto& entry : entries) {
                     if(entry.is_regular_file()) {

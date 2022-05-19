@@ -35,7 +35,7 @@ Text::Text(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 }
 
 Text::~Text(void) {
-    
+
 }
 
 void Text::on_render(Context&, Eng3D::Rect) {
@@ -67,7 +67,7 @@ void Text::text(const std::string& text) {
                 break;
             }
         }
-        
+
         if(!break_line && remaining_chars > line_width) {
             for(int i = end_pos; i > pos; i--) {
                 if(text[i] == ' ') {
@@ -82,7 +82,7 @@ void Text::text(const std::string& text) {
         if(break_line) {
             pos++;
         }
-        
+
         new UI::Label(0, y, buf, this);
         y += 24;
     }

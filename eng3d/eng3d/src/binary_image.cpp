@@ -86,10 +86,6 @@ void BinaryImage::from_file(const Eng3D::IO::Path& path) {
     std::free(c_buffer);
 }
 
-uint32_t BinaryImage::get_pixel(size_t x, size_t y) const {
-    return buffer.get()[x + y * width];
-}
-
 BinaryImage::~BinaryImage() {
     
 }

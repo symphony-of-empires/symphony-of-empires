@@ -32,6 +32,7 @@
 #include <string>
 
 #include "eng3d/io.hpp"
+#include "eng3d/color.hpp"
 
 class BinaryImageException: public std::exception {
     std::string buffer;
@@ -57,7 +58,17 @@ public:
     BinaryImage& operator=(const BinaryImage&) = default;
     virtual ~BinaryImage(void);
     virtual void from_file(const Eng3D::IO::Path& path);
-    uint32_t get_pixel(size_t x, size_t y) const;
+
+    /**
+     * @brief Obtains a pixel from the binary image
+     * 
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @return uint32_t The colour
+     */
+    inline Eng3D::Color get_pixel(size_t x, size_t y) const {
+        return Eng3D::Color::rgba32(buffer[x + y * width]);
+    }
 
     std::unique_ptr<uint32_t[]> buffer;
     size_t width, height;

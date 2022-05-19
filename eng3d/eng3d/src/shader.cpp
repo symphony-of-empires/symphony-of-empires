@@ -182,7 +182,7 @@ Eng3D::OpenGL::TessEvalShader::~TessEvalShader(void) {
 /**
  * @brief Links the whole program into itself, all attached shaders that were
  * previously given to this program will be linked (hopefully) by OpenGL.
- * 
+ *
  */
 void Eng3D::OpenGL::Program::link(void) {
     assert(id != 0); // Program has no Id

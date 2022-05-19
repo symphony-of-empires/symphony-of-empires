@@ -81,7 +81,7 @@ TableRow::TableRow(Widget* _parent, int _width, int _height, std::vector<int>& _
     this->on_update = [this](Widget&) {
         this->is_active = false;
     };
-    
+
     glm::ivec2 size(5, 5);
     glm::ivec2 texture_size(63, 63);
     auto border = UI::Border(nullptr, size, texture_size);
@@ -94,8 +94,7 @@ TableRow::TableRow(Widget* _parent, int _width, int _height, std::vector<int>& _
         auto border_tex = tex_man->load(Path::get("gfx/test.png"), tex_options);
         if(index % 2 == 0) {
             this->border.texture = border_tex;
-        }
-        else {
+        } else {
             this->border.texture = nullptr;
         }
     };

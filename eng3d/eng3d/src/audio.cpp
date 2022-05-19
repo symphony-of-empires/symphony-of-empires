@@ -40,13 +40,13 @@
 // Audio
 //
 Eng3D::Audio::Audio() {
-    
+
 }
 
 Eng3D::Audio::Audio(const std::string& path) {
     SDL_AudioSpec wave;
     SDL_AudioCVT cvt;
-    
+
     int channels, rate;
     uint8_t* decoded;
     this->len = stb_vorbis_decode_filename(path.c_str(), &channels, &rate, (short**)&decoded);

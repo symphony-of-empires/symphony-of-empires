@@ -60,7 +60,7 @@ void Window::set_have_close_btn(bool have) {
         if(!this->close_btn) {
             const int size = 24;
             auto padding = this->padding;
-            auto* btn_wrapper = new Div(-size-padding.x, -padding.y, size, size, this);
+            auto* btn_wrapper = new Div(-size - padding.x, -padding.y, size, size, this);
             btn_wrapper->origin = UI::Origin::UPPER_RIGHT;
 
             new Image(0, 0, size, size, "gfx/ui/button/exit_btn_shadow.png", true, btn_wrapper);
@@ -72,8 +72,7 @@ void Window::set_have_close_btn(bool have) {
             });
             this->close_btn = btn_wrapper;
         }
-    }
-    else {
+    } else {
         if(this->close_btn) {
             this->close_btn->kill();
             delete this->close_btn;
