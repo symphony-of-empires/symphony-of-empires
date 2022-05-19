@@ -94,17 +94,6 @@ World& World::get_instance(void) {
     return *g_world;
 }
 
-// Obtains a tile from the world safely, and makes sure that it is in bounds
-Tile& World::get_tile(size_t x, size_t y) const {
-    debug_assert(x < width && y < height); // Tile out of bounds
-    return tiles[x + y * width];
-}
-
-Tile& World::get_tile(size_t idx) const {
-    debug_assert(idx < width * height) // Tile index exceeds boundaries
-    return tiles[idx];
-}
-
 void ai_do_tick(Nation& nation);
 
 // Creates a new world
@@ -617,7 +606,7 @@ void World::load_mod(void) {
 
 static inline void unit_do_tick(Unit& unit)
 {
-    debug_assert(unit.province != nullptr);
+    assert(unit.province != nullptr);
     if(unit.on_battle) {
         return;
     }
@@ -751,17 +740,17 @@ void World::do_tick() {
     // Perform all battles of the active wars
     profiler.start("Battles");
     std::for_each(std::execution::par, wars.begin(), wars.end(), [this](auto& war) {
-        debug_assert(!war->attackers.empty() && !war->defenders.empty());
+        assert(!war->attackers.empty() && !war->defenders.empty());
         for(size_t j = 0; j < war->battles.size(); j++) {
             auto& battle = war->battles[j];
-            debug_assert(battle.province != nullptr);
+            assert(battle.province != nullptr);
 
             // Attackers attack Defenders
             for(auto& attacker : battle.attackers) {
-                debug_assert(attacker != nullptr);
+                assert(attacker != nullptr);
                 for(size_t i = 0; i < battle.defenders.size(); ) {
                     Unit* unit = battle.defenders[i];
-                    debug_assert(unit != nullptr);
+                    assert(unit != nullptr);
 
                     const size_t prev_size = unit->size;
                     attacker->attack(*unit);
@@ -769,10 +758,10 @@ void World::do_tick() {
                     if(!unit->size) {
                         Eng3D::Log::debug("game", "Removing attacker \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                         battle.defenders.erase(battle.defenders.begin() + i);
-                        debug_assert(unit->province != nullptr && unit->province == battle.province);
+                        assert(unit->province != nullptr && unit->province == battle.province);
 
                         auto it = std::find(battle.province->units.begin(), battle.province->units.end(), unit);
-                        debug_assert(it != battle.province->units.end());
+                        assert(it != battle.province->units.end());
                         battle.province->units.erase(it);
                         this->remove(*unit);
                         delete unit;
@@ -784,10 +773,10 @@ void World::do_tick() {
 
             // Defenders attack attackers
             for(auto& defender : battle.defenders) {
-                debug_assert(defender != nullptr);
+                assert(defender != nullptr);
                 for(size_t i = 0; i < battle.attackers.size(); ) {
                     Unit* unit = battle.attackers[i];
-                    debug_assert(unit != nullptr);
+                    assert(unit != nullptr);
 
                     const size_t prev_size = unit->size;
                     defender->attack(*unit);
@@ -795,10 +784,10 @@ void World::do_tick() {
                     if(!unit->size) {
                         Eng3D::Log::debug("game", "Removing defender \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                         battle.attackers.erase(battle.attackers.begin() + i);
-                        debug_assert(unit->province != nullptr && unit->province == battle.province);
+                        assert(unit->province != nullptr && unit->province == battle.province);
 
                         auto it = std::find(battle.province->units.begin(), battle.province->units.end(), unit);
-                        debug_assert(it != battle.province->units.end());
+                        assert(it != battle.province->units.end());
                         battle.province->units.erase(it);
                         this->remove(*unit);
                         delete unit;
@@ -829,7 +818,7 @@ void World::do_tick() {
     std::vector<Eng3D::Decimal> naval_research_pts(nations.size(), 0.f);
     // Now researches for every country are going to be accounted :)
     for(const auto& nation : nations) {
-        debug_assert(nation != nullptr);
+        assert(nation != nullptr);
         for(const auto& technology : technologies) {
             if(!nation->can_research(technology)) {
                 continue;
@@ -868,7 +857,7 @@ void World::do_tick() {
     profiler.start("Treaties");
     // Do the treaties clauses
     for(const auto& treaty : treaties) {
-        debug_assert(treaty != nullptr);
+        assert(treaty != nullptr);
 
         // Check that the treaty is agreed by all parties before enforcing it
         bool on_effect = !(std::find_if(treaty->approval_status.begin(), treaty->approval_status.end(), [](auto& status) { return (status.second != TreatyApproval::ACCEPTED); }) != treaty->approval_status.end());
@@ -884,7 +873,7 @@ void World::do_tick() {
         // Treaties clauses now will be enforced
         Eng3D::Log::debug("game", "Enforcing treaty " + treaty->name);
         for(auto& clause : treaty->clauses) {
-            debug_assert(clause != nullptr);
+            assert(clause != nullptr);
             if(clause->type == TreatyClauseType::MONEY) {
                 auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
                 if(!dyn_clause->in_effect()) {

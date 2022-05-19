@@ -49,67 +49,61 @@ ProductView::ProductView(GameState& _gs, Product* _product)
     this->text(Eng3D::Locale::translate("ProductName"));
 
     this->supply_pie = new UI::PieChart(0, 0, 128, 128, this);
-    this->supply_pie->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<ProductView&>(*w.parent);
-
+    this->supply_pie->on_each_tick = ([this](UI::Widget&) {
         std::vector<UI::ChartData> nations_data;
-        for(const auto& nation : o.gs.world->nations) {
+        for(const auto& nation : this->gs.world->nations) {
             nations_data.push_back(UI::ChartData(0.f, nation->get_client_hint().alt_name.get_string(), nation->get_client_hint().color));
         }
 
         // TODO: Account for products that are based on this good on every province
-        o.supply_pie->set_data(nations_data);
+        this->supply_pie->set_data(nations_data);
     });
 
     // Show average price of the good (accounting for all products on the world)
     this->price_chart = new UI::Chart(0, 0, 128, 64, this);
     this->price_chart->right_side_of(*this->supply_pie);
-    this->price_chart->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<ProductView&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+    this->price_chart->on_each_tick = ([this](UI::Widget&) {
+        if(this->gs.world->time % this->gs.world->ticks_per_month) {
             return;
         }
         
-        o.price_chart->data.push_back(o.product->price);
-        if(o.price_chart->data.size() > 30) {
-            o.price_chart->data.pop_front();
+        this->price_chart->data.push_back(this->product->price);
+        if(this->price_chart->data.size() > 30) {
+            this->price_chart->data.pop_front();
         }
     });
 
     this->supply_chart = new UI::Chart(0, 0, 128, 64, this);
     this->supply_chart->right_side_of(*this->price_chart);
-    this->supply_chart->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<ProductView&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+    this->supply_chart->on_each_tick = ([this](UI::Widget&) {
+        if(this->gs.world->time % this->gs.world->ticks_per_month) {
             return;
         }
 
-        o.supply_chart->data.push_back(o.product->supply);
-        if(o.supply_chart->data.size() > 30) {
-            o.supply_chart->data.pop_front();
+        this->supply_chart->data.push_back(this->product->supply);
+        if(this->supply_chart->data.size() > 30) {
+            this->supply_chart->data.pop_front();
         }
     });
 
     this->demand_chart = new UI::Chart(0, 0, 128, 64, this);
     this->demand_chart->right_side_of(*this->supply_chart);
-    this->demand_chart->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<ProductView&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+    this->demand_chart->on_each_tick = ([this](UI::Widget&) {
+        if(this->gs.world->time % this->gs.world->ticks_per_month) {
             return;
         }
 
-        o.demand_chart->data.push_back(o.product->demand);
-        if(o.demand_chart->data.size() > 30) {
-            o.demand_chart->data.pop_front();
+        this->demand_chart->data.push_back(this->product->demand);
+        if(this->demand_chart->data.size() > 30) {
+            this->demand_chart->data.pop_front();
         }
     });
 
     auto* good_btn = new UI::Button(0, 0, 128, 24, this);
     good_btn->below_of(*this->demand_chart);
     //good_btn->text(product->good->name);
-    good_btn->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<ProductView&>(*w.parent);
-        //new GoodView(o.gs, o.product->good);
+    good_btn->set_on_click([](UI::Widget&) {
+
     });
 
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
@@ -132,44 +126,41 @@ GoodView::GoodView(GameState& _gs, Good* _good)
     // Piechart denoting countries which have more supply of this good
     this->sellers_pie = new UI::PieChart(0, 0, 128, 128, this);
     this->sellers_pie->right_side_of(*this->icon_img);
-    this->sellers_pie->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<GoodView&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+    this->sellers_pie->on_each_tick = ([this](UI::Widget&) {
+        if(this->gs.world->time % this->gs.world->ticks_per_month) {
             return;
         }
 
         std::vector<UI::ChartData> nations_data;
-        for(const auto& nation : o.gs.world->nations) {
+        for(const auto& nation : this->gs.world->nations) {
             nations_data.push_back(UI::ChartData(0.f, nation->get_client_hint().alt_name.get_string(), nation->get_client_hint().color));
         }
 
         // TODO: Account for products that are based on this good
-        o.sellers_pie->set_data(nations_data);
+        this->sellers_pie->set_data(nations_data);
     });
 
     // Show average price of the good (accounting for all products on the world)
     this->avg_price_chart = new UI::Chart(0, 0, 128, 128, this);
     this->avg_price_chart->right_side_of(*this->sellers_pie);
-    this->avg_price_chart->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<GoodView&>(*w.parent);
-
-        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+    this->avg_price_chart->on_each_tick = ([this](UI::Widget&) {
+        if(this->gs.world->time % this->gs.world->ticks_per_month) {
             return;
         }
 
         float price = 0.f;
-        //for(const auto& product : o.gs.world->products) {
-        //    if(product->good != o.good) {
+        //for(const auto& product : this->gs.world->products) {
+        //    if(product->good != this->good) {
         //        continue;
         //    }
         //    
         //    price += product->price;
         //}
-        //price /= o.gs.world->products.size();
+        //price /= this->gs.world->products.size();
 
-        o.avg_price_chart->data.push_back(price);
-        if(o.avg_price_chart->data.size() > 30) {
-            o.avg_price_chart->data.pop_front();
+        this->avg_price_chart->data.push_back(price);
+        if(this->avg_price_chart->data.size() > 30) {
+            this->avg_price_chart->data.pop_front();
         }
     });
 

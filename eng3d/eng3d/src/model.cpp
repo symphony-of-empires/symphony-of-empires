@@ -54,10 +54,6 @@ void Eng3D::OpenGL::VAO::bind(void) const {
     glBindVertexArray(id);
 }
 
-GLuint Eng3D::OpenGL::VAO::get_id(void) const {
-    return id;
-}
-
 //
 // VBO
 //
@@ -71,10 +67,6 @@ Eng3D::OpenGL::VBO::~VBO(void) {
 
 void Eng3D::OpenGL::VBO::bind(GLenum target) const {
     glBindBuffer(target, id);
-}
-
-GLuint Eng3D::OpenGL::VBO::get_id(void) const {
-    return id;
 }
 
 //

@@ -32,8 +32,14 @@ namespace Eng3D {
     class Rectangle {
     public:
         float left, top, right, bottom;
-        Rectangle(float x, float y, float width, float height);
-        ~Rectangle();
+        Rectangle(float x, float y, float width, float height)
+            : left{ x },
+            top{ y },
+            right{ x + width },
+            bottom{ y + height }
+        {
+
+        }
 
         Rectangle(glm::vec2 position, glm::vec2 size)
             : left{ position.x },
@@ -44,32 +50,81 @@ namespace Eng3D {
 
         }
 
+        ~Rectangle(void) {
+
+        }
+
+        /**
+         * @brief Obtains the width
+         * 
+         * @return float Width of the rectangle
+         */
         inline float width(void) const {
             return right - left;
         }
 
+        /**
+         * @brief Obtains the height
+         * 
+         * @return float Height of the rectangle
+         */
         inline float height(void) const {
             return bottom - top;
         }
 
+        /**
+         * @brief Obtains the current size of the rectangle
+         * 
+         * @return glm::vec2 The size of the rectangle
+         */
         inline glm::vec2 size(void) const {
             return glm::vec2{ right - left, bottom - top };
         }
 
+        /**
+         * @brief Sets the size of the rectangle
+         * 
+         * @param size Size to set it to
+         */
         inline void size(glm::vec2 size) {
             right = left + size.x;
             bottom = top + size.y;
         }
 
+        template<typename T>
+        inline void size(T x, T y) {
+            size(glm::vec2(x, y));
+        }
+
+        /**
+         * @brief Obtains the current position of the rectangle
+         * 
+         * @return glm::vec2 The base position
+         */
         inline glm::vec2 position(void) const {
             return glm::vec2{ left, top };
         }
 
+        /**
+         * @brief Sets the base position of the rectangle, modifying it's size
+         * 
+         * @param position Position to set
+         */
         inline void position(glm::vec2 position) {
             left = position.x;
             top = position.y;
         }
 
+        template<typename T>
+        inline void position(T x, T y) {
+            position(glm::vec2(x, y));
+        }
+
+        /**
+         * @brief Scales the rectangle by factor
+         * 
+         * @param factor Factor to scale rectangle by
+         */
         inline void scale(glm::vec2 factor) {
             left *= factor.x;
             top *= factor.y;
@@ -77,6 +132,16 @@ namespace Eng3D {
             bottom *= factor.y;
         }
 
+        template<typename T>
+        inline void scale(T x, T y) {
+            scale(glm::vec2(x, y));
+        }
+
+        /**
+         * @brief Offset the rectangle by the given parameter
+         * 
+         * @param offset Offset to apply to the rectangle
+         */
         inline void offset(glm::vec2 offset) {
             left += offset.x;
             top += offset.y;
@@ -84,6 +149,18 @@ namespace Eng3D {
             bottom += offset.y;
         }
 
+        template<typename T>
+        inline void offset(T x, T y) {
+            offset(glm::vec2(x, y));
+        }
+
+        /**
+         * @brief Checks if the rectangle is in bounds
+         * 
+         * @param pos Position to check (rectangle must cover this point)
+         * @return true Rectangle not in bounds
+         * @return false Rectangle is in bounds
+         */
         inline bool in_bounds(glm::vec2 pos) const {
             return (pos.x >= left && pos.x <= right && pos.y >= top && pos.y <= bottom);
         }
@@ -93,7 +170,19 @@ namespace Eng3D {
             return in_bounds(glm::vec2(x, y));
         }
 
-        Rectangle intersection(const Rectangle& rect) const;
+        /**
+         * @brief Obtains the intersection rectangle from two other rectangles R1 and R2
+         * 
+         * @param rect Second rectangle to perform the intersection for
+         * @return Rectangle Intersection area rectangle
+         */
+        inline Rectangle intersection(const Rectangle& rect) const {
+            float i_left = glm::max(this->left, rect.left);
+            float i_top = glm::max(this->top, rect.top);
+            float i_right = glm::min(this->right, rect.right);
+            float i_bottom = glm::min(this->bottom, rect.bottom);
+            return Eng3D::Rectangle{ i_left, i_top, i_right - i_left, i_bottom - i_top };
+        }
     };
 
     typedef class Rectangle Rect;

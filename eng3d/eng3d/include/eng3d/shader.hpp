@@ -34,6 +34,7 @@
 #include "eng3d/path.hpp"
 #include "eng3d/texture.hpp"
 #include "eng3d/glsl_trans.hpp"
+#include "eng3d/utils.hpp"
 
 namespace Eng3D {
     class ShaderException : public std::exception {
@@ -47,17 +48,32 @@ namespace Eng3D {
 
 #ifdef E3D_BACKEND_OPENGL
     namespace OpenGL {
+        /**
+         * @brief Option that is passed to the GLSL transpiler for preprocessing
+         * the shaders and programming them on the fly.
+         * 
+         */
         class Option {
             std::string _option;
         public:
             bool used;
 
-            Option(std::string option, bool use) : _option{ option }, used{ use } {}
+            Option(std::string option, bool use)
+                : _option{ option },
+                used{ use }
+            {
+
+            }
+
             std::string get_option(void) const {
                 return _option;
             }
         };
 
+        /**
+         * @brief OpenGL shader object
+         * 
+         */
         class Shader {
         private:
             void compile(GLuint type);
@@ -65,8 +81,20 @@ namespace Eng3D {
             GLuint id;
         public:
             Shader(const std::string& _buffer, GLuint type, bool use_transpiler = true, std::vector<Eng3D::OpenGL::GLSL_Define> defintions = {});
-            ~Shader();
-            GLuint get_id(void) const;
+            
+            /**
+             * @brief Destroy the Shader object, dditionaly we have to delete the shader from the OpenGL driver by calling glDeleteShader
+             * 
+             */
+            inline ~Shader() {
+                if(id) {
+                    glDeleteShader(id);
+                }
+            }
+
+            inline GLuint get_id(void) const {
+                return id;
+            }
         };
 
         class VertexShader: public Shader {
@@ -102,32 +130,89 @@ namespace Eng3D {
         class Program {
             GLuint id;
         public:
-            Program();
-            //Program(const VertexShader* vertex, const FragmentShader* fragment, const GeometryShader* geometry = nullptr, const TessControlShader* tctrl = nullptr, const TessEvalShader* tee = nullptr);
-            ~Program();
-            /*
-            static std::unique_ptr<Program> create(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
-            static std::unique_ptr<Program> create(std::vector<Option> options, const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
-            static std::unique_ptr<Program> create_regular(const std::string& vs_path, const std::string& fs_path, const std::string& gs_path = "");
-            */
+            Program(void) {
+                id = glCreateProgram();
+                if(!id) {
+                    CXX_THROW(Eng3D::ShaderException, "Can't create new program");
+                }
+                glBindAttribLocation(id, 0, "m_pos");
+                glBindAttribLocation(id, 1, "m_texcoord");
+            }
 
-            void attach_shader(const Shader* shader);
+            ~Program(void) {
+
+            }
+
             void link(void);
 
-            void use(void) const;
-            void set_uniform(const std::string& name, glm::mat4 uniform) const;
-            void set_uniform(const std::string& name, glm::vec3 uniform) const;
-            void set_uniform(const std::string& name, glm::vec4 uniform) const;
-            void set_uniform(const std::string& name, float value1, float value2) const;
-            void set_uniform(const std::string& name, float value1, float value2, float value3) const;
-            void set_uniform(const std::string& name, float value1, float value2, float value3, float value4) const;
-            void set_uniform(const std::string& name, float uniform) const;
-            void set_uniform(const std::string& name, int uniform) const;
+            /**
+             * @brief Attaches a shader to the program - this will make it so when the program
+             * is compiled the shader will then be linked onto it and usable for the GPU.
+             * 
+             * @param shader Shader to attach
+             */
+            inline void attach_shader(const Shader& shader) {
+                glAttachShader(id, shader.get_id());
+            }
 
-            void set_texture(int value, const std::string& name, const Eng3D::Texture& texture) const;
-            void set_texture(int value, const std::string& name, const Eng3D::TextureArray& texture) const;
+            inline void use(void) const {
+                glUseProgram(id);
+            }
 
-            GLuint get_id(void) const;
+            // Uniform overloads
+            // It allows the game engine to call these functions without worrying about type specifications
+            inline void set_uniform(const std::string& name, glm::mat4 uniform) const {
+                glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, glm::value_ptr(uniform));
+            }
+
+            inline void set_uniform(const std::string& name, float value1, float value2) const {
+                glUniform2f(glGetUniformLocation(id, name.c_str()), value1, value2);
+            }
+
+            inline void set_uniform(const std::string& name, float value1, float value2, float value3) const {
+                glUniform3f(glGetUniformLocation(id, name.c_str()), value1, value2, value3);
+            }
+
+            inline void set_uniform(const std::string& name, glm::vec3 uniform) const {
+                set_uniform(name, uniform.x, uniform.y, uniform.z);
+            }
+
+            inline void set_uniform(const std::string& name, glm::vec4 uniform) const {
+                set_uniform(name, uniform.x, uniform.y, uniform.z, uniform.w);
+            }
+
+            inline void set_uniform(const std::string& name, float value1, float value2, float value3, float value4) const {
+                glUniform4f(glGetUniformLocation(id, name.c_str()), value1, value2, value3, value4);
+            }
+
+            inline void set_uniform(const std::string& name, float value) const {
+                glUniform1f(glGetUniformLocation(id, name.c_str()), value);
+            }
+
+            inline void set_uniform(const std::string& name, int value) const {
+                glUniform1i(glGetUniformLocation(id, name.c_str()), value);
+            }
+
+            // Sets the texture (sampler2D) into the shader,
+            inline void set_texture(int value, const std::string& name, const Eng3D::Texture& texture) const {
+                assert(texture.gl_tex_num != 0); // Texture with invalid Id
+
+                glActiveTexture(GL_TEXTURE0 + value);
+                set_uniform(name, value);
+                glBindTexture(GL_TEXTURE_2D, texture.gl_tex_num);
+            }
+
+            inline void set_texture(int value, const std::string& name, const Eng3D::TextureArray& texture) const {
+                assert(texture.gl_tex_num != 0); // Texture with invalid Id
+
+                glActiveTexture(GL_TEXTURE0 + value);
+                set_uniform(name, value);
+                glBindTexture(GL_TEXTURE_2D_ARRAY, texture.gl_tex_num);
+            }
+
+            inline GLuint get_id(void) const {
+                return id;
+            }
         };
     };
 #endif

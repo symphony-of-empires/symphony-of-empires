@@ -124,8 +124,8 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     // Shader used for drawing the models using custom model render
     obj_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        obj_shader->attach_shader(s.builtin_shaders["vs_3d"].get());
-        obj_shader->attach_shader(s.builtin_shaders["fs_3d"].get());
+        obj_shader->attach_shader(*s.builtin_shaders["vs_3d"].get());
+        obj_shader->attach_shader(*s.builtin_shaders["fs_3d"].get());
         obj_shader->link();
     }
 

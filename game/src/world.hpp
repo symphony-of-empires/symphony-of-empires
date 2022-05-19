@@ -154,7 +154,7 @@ public:
 
         list_mutex.lock();
         ptr.cached_id = list.size();
-        debug_assert(ptr.cached_id < (typename T::Id)-2);
+        assert(ptr.cached_id < (typename T::Id)-2);
         list.push_back((T*)&ptr);
         list_mutex.unlock();
     };
@@ -162,6 +162,7 @@ public:
     template<typename T>
     inline void remove(T& ptr) {
         // Decrease the cache_id counter for the elements after the removed element
+        // so we don't lose sync of ids
         typename T::Id cached_id = this->get_id<T>(ptr);
         auto& list = this->get_list((T*)nullptr);
 
@@ -173,40 +174,70 @@ public:
         // Remove the element itself
         list.erase(list.begin() + cached_id);
         list_mutex.unlock();
-    };
+    }
 
-    inline size_t get_id(const Tile& ptr) const {
-        return ((ptrdiff_t)&ptr - (ptrdiff_t)tiles.get()) / sizeof(Tile);
-    };
+    /**
+     * @brief Get the id of a tile
+     * 
+     * @param obj Tile to get id from
+     * @return int The Id of the tile
+     */
+    inline int get_id(const Tile& obj) const {
+        return static_cast<int>(((ptrdiff_t)&obj - (ptrdiff_t)tiles.get()) / sizeof(Tile));
+    }
 
-    // Template for all types except for tiles (we can do this because we can
-    // obtain the list from the type) with get_list helper functions
-    // Please do not store the value of this function on a local variable
-    // because said variable COULD potentially get invalidated!, AND DO NOT
-    // PASS IDS AS AN ARGUMENT TO FUNCTIONS, use pointers/references instead!
+    /**
+     * @brief Get the id of an object, this is the emplate for all types except
+     * for tiles and locally-stored types (we can do this because we can obtain the list
+     * from the type) with get_list helper functions. Please do not store the value of this
+     * function on a local variable because said variable could potentially get invalidated!
+     * 
+     * @tparam T Type of object
+     * @param obj Reference to the object
+     * @return T::Id Id of the object
+     */
     template<typename T>
-    inline typename T::Id get_id(const T& ptr) const {
-        return ptr.cached_id;
-    };
+    inline typename T::Id get_id(const T& obj) const {
+        return obj.cached_id;
+    }
 
-    inline float get_dist_from_equator(float x) const {
-        return std::fabs(std::fabs(x) - (width / 2.0));
-    };
+    /**
+     * @brief Get the dist from the equator in respect to Y
+     * 
+     * @param y Position to get distance from
+     * @return float 
+     */
+    constexpr float get_dist_from_equator(float y) const {
+        return std::fabs(std::fabs(y) - (this->width / 2.0));
+    }
 
-    // Obtains a tile from the world safely, and makes sure that it is in bounds
-    Tile& get_tile(size_t x, size_t y) const;
-    Tile& get_tile(size_t idx) const;
+    /**
+     * @brief Obtains a tile from the world safely, and makes sure that it is in bounds
+     * 
+     * @param idx Index of the tile
+     * @return Tile& Returned tile
+     */
+    inline Tile& get_tile(size_t idx) const {
+        assert(idx < width * height); // Tile index exceeds boundaries
+        return tiles[idx];
+    }
+
+    template<typename T>
+    inline Tile& get_tile(T x, T y) const {
+        assert(x < this->width && y < this->height); // Tile out of bounds
+        return this->get_tile(x + y * this->width);
+    }
 
     std::unique_ptr<NationRelation[]> relations;
     // Uses cantor's pairing function
     // https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
     inline NationRelation& get_relation(const int a, const int b) {
         return relations[((a + b + 1) * (a + b)) / 2 + b];
-    };
+    }
 
     inline const NationRelation& get_relation(const int a, const int b) const {
         return relations[((a + b + 1) * (a + b)) / 2 + b];
-    };
+    }
 
     // Lua state - for lua scripts, this is only used by the server and should not be
     // accesible to the client

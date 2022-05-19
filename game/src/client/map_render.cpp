@@ -243,36 +243,36 @@ void MapRender::reload_shaders() {
         }
 
         auto vs_shader = Eng3D::OpenGL::VertexShader(Path::cat_strings(Path::get_data("shaders/map.vs")));
-        map_shader->attach_shader(&vs_shader);
+        map_shader->attach_shader(vs_shader);
         auto fs_shader = Eng3D::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/map.fs")), true, defined_options);
-        map_shader->attach_shader(&fs_shader);
-        map_shader->attach_shader(Eng3D::State::get_instance().builtin_shaders["fs_lib"].get());
+        map_shader->attach_shader(fs_shader);
+        map_shader->attach_shader(*Eng3D::State::get_instance().builtin_shaders["fs_lib"].get());
         map_shader->link();
     }
     //border_gen_shader = Eng3D::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_gen.fs");
     border_gen_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
         auto vs_shader = Eng3D::OpenGL::VertexShader(Path::cat_strings(Path::get_data("shaders/2d_scale.vs")));
-        border_gen_shader->attach_shader(&vs_shader);
+        border_gen_shader->attach_shader(vs_shader);
         auto fs_shader = Eng3D::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/border_gen.fs")));
-        border_gen_shader->attach_shader(&fs_shader);
+        border_gen_shader->attach_shader(fs_shader);
         border_gen_shader->link();
     }
     //sdf_shader = Eng3D::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_sdf.fs");
     sdf_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
         auto vs_shader = Eng3D::OpenGL::VertexShader(Path::cat_strings(Path::get_data("shaders/2d_scale.vs")));
-        sdf_shader->attach_shader(&vs_shader);
+        sdf_shader->attach_shader(vs_shader);
         auto fs_shader = Eng3D::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/border_sdf.fs")));
-        sdf_shader->attach_shader(&fs_shader);
+        sdf_shader->attach_shader(fs_shader);
         sdf_shader->link();
     }
     //output_shader = Eng3D::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_sdf_output.fs");
     output_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        output_shader->attach_shader(Eng3D::State::get_instance().builtin_shaders["vs_2d"].get());
+        output_shader->attach_shader(*Eng3D::State::get_instance().builtin_shaders["vs_2d"].get());
         auto fs_shader = Eng3D::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/border_sdf_output.fs")));
-        output_shader->attach_shader(&fs_shader);
+        output_shader->attach_shader(fs_shader);
         output_shader->link();
     }
 }
@@ -291,10 +291,10 @@ void MapRender::update_options(MapOptions new_options) {
         }
 
         auto vs_shader = Eng3D::OpenGL::VertexShader(Path::cat_strings(Path::get_data("shaders/map.vs")));
-        map_shader->attach_shader(&vs_shader);
+        map_shader->attach_shader(vs_shader);
         auto fs_shader = Eng3D::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/map.fs")), true, defined_options);
-        map_shader->attach_shader(&fs_shader);
-        map_shader->attach_shader(Eng3D::State::get_instance().builtin_shaders["fs_lib"].get());
+        map_shader->attach_shader(fs_shader);
+        map_shader->attach_shader(*Eng3D::State::get_instance().builtin_shaders["fs_lib"].get());
         map_shader->link();
     }
 }

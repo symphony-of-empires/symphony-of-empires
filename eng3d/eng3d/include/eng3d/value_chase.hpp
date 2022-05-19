@@ -9,9 +9,13 @@ namespace Eng3D {
         float friction;
         std::chrono::system_clock::time_point last_time;
     public:
-        ValueChase(float _friction): friction{ _friction } {};
+        ValueChase(float _friction) noexcept
+            : friction{ _friction }
+        {
 
-        T move_toward(T current, T target) {
+        }
+
+        inline T move_towards(T current, T target) {
             auto now = std::chrono::system_clock::now();
             float time = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_time).count();
             time /= 1e3;

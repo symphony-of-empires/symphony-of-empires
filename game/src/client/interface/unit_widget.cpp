@@ -52,10 +52,13 @@ UnitWidget::UnitWidget(Unit* unit, Map* _map, UI::Widget* parent)
     this->flag_img = new UI::Image(1, 1, 38, 28, nation_flag, this);
 
     this->size_label = new UI::Div(41, 1, 48, 28, this);
-    auto unit_size = ((int)unit->size) / 1000;
-    this->size_label->text(std::to_string(unit_size));
     this->size_label->text_align_x = UI::Align::END;
     this->size_label->background_color = Eng3D::Color(0.41f, 0.84f, 0.36f, 1.f);
+    this->size_label->on_each_tick = ([this](UI::Widget& w) {
+        auto unit_size = (int)this->unit->size;
+        this->size_label->text(std::to_string(unit_size));
+    });
+    this->size_label->on_each_tick(*this->size_label);
 
     this->morale_bar = new UI::ProgressBar(91, 1, 8, 28, 0, 1);
     this->morale_bar->set_value(unit->morale);
@@ -73,7 +76,7 @@ void UnitWidget::set_unit(Unit* _unit) {
     auto nation_flag = map->nation_flags[unit->owner->cached_id];
     this->flag_img->current_texture = nation_flag;
 
-    auto unit_size = ((int)unit->size) / 1000;
+    auto unit_size = (int)unit->size;
     this->size_label->text(std::to_string(unit_size));
 
     this->morale_bar->set_value(unit->morale);

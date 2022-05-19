@@ -39,7 +39,7 @@ public:
     static Manager<T, I>* singleton;
 
     // Singleton pattern ;)
-    static Manager<T, I>& get_instance(void) {
+    inline static Manager<T, I>& get_instance(void) {
         return *singleton;
     };
 

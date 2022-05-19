@@ -98,9 +98,9 @@ Context::Context() {
     obj_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
         auto vs_shader = Eng3D::OpenGL::VertexShader(Path::cat_strings(Path::get_data("shaders/vs_2d.vs")));
-        obj_shader->attach_shader(&vs_shader);
+        obj_shader->attach_shader(vs_shader);
         auto fs_shader = Eng3D::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/fs_2d.fs")));
-        obj_shader->attach_shader(&fs_shader);
+        obj_shader->attach_shader(fs_shader);
         obj_shader->link();
     }
 }

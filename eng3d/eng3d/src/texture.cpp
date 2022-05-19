@@ -59,7 +59,7 @@ Eng3D::Texture::Texture(size_t _width, size_t _height)
 }
 
 Eng3D::Texture::Texture(TTF_Font* font, Eng3D::Color color, const std::string& msg) {
-    debug_assert(font != nullptr);
+    assert(font != nullptr);
 
     // TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
     const SDL_Color text_color = {

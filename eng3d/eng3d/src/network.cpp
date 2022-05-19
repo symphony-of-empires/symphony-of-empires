@@ -173,7 +173,7 @@ void Eng3D::Networking::ServerClient::flush_packets(void) {
     if(!pending_packets.empty()) {
         if(pending_packets_mutex.try_lock()) {
             std::lock_guard<std::mutex> lock(packets_mutex);
-
+            
             std::deque<Eng3D::Networking::Packet>::iterator packet;
             for(packet = pending_packets.begin(); packet != pending_packets.end(); packet++) {
                 packets.push_back(*packet);

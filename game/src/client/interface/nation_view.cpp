@@ -75,7 +75,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     flag_img->on_each_tick(*flag_img);
     flag_img->tooltip = new UI::Tooltip(flag_img, 512, 24);
     flag_img->tooltip->text(Eng3D::Locale::translate("The flag which represents the country"));
-    auto* flag_rug = new UI::Image(0, 0, flag_img->width, flag_img->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
+    new UI::Image(0, 0, flag_img->width, flag_img->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
 
     auto* flex_actions_column = new UI::Div(0, 0, 512, 512, this);
     flex_actions_column->below_of(*flag_img);
@@ -121,9 +121,8 @@ NationView::NationView(GameState& _gs, Nation* _nation)
 
     auto* market_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
     market_btn->text(Eng3D::Locale::translate("Examine market"));
-    market_btn->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<NationView&>(*w.parent);
-        new NationMarketView(o.gs, o.nation);
+    market_btn->set_on_click([this](UI::Widget&) {
+        new NationMarketView(this->gs, this->nation);
     });
     market_btn->tooltip = new UI::Tooltip(market_btn, 512, 24);
     market_btn->tooltip->text(Eng3D::Locale::translate("View market information"));
@@ -131,16 +130,14 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     if(gs.curr_nation != nation) {
         auto* inc_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         inc_btn->text(Eng3D::Locale::translate("Increment relations"));
-        inc_btn->set_on_click([](UI::Widget& w) {
-            auto& o = static_cast<NationView&>(*w.parent);
-            g_client->send(Action::DiploIncRelations::form_packet(o.nation));
+        inc_btn->set_on_click([this](UI::Widget&) {
+            g_client->send(Action::DiploIncRelations::form_packet(this->nation));
         });
 
         auto* dec_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         dec_btn->text(Eng3D::Locale::translate("Decrement relations"));
-        dec_btn->set_on_click([](UI::Widget& w) {
-            auto& o = static_cast<NationView&>(*w.parent);
-            g_client->send(Action::DiploDecRelations::form_packet(o.nation));
+        dec_btn->set_on_click([this](UI::Widget&) {
+            g_client->send(Action::DiploDecRelations::form_packet(this->nation));
         });
 
         auto* dow_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
