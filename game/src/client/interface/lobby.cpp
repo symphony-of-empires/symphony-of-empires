@@ -51,7 +51,7 @@ LobbySelectView::LobbySelectView(GameState& _gs)
     curr_country_btn = new UI::Button(-(320 / 2), -48, 320, 24);
     curr_country_btn->origin = UI::Origin::LOWER_MIDDLE_SCREEN;
     curr_country_btn->text("No selected");
-    curr_country_btn->set_on_click([this](UI::Widget& w) {
+    curr_country_btn->set_on_click([this](UI::Widget&) {
         if(this->gs.curr_nation != nullptr) {
             // Didn't seem to be able to delete them in a callback so this will do
             this->next_country_btn->kill();
@@ -98,7 +98,7 @@ LobbySelectView::LobbySelectView(GameState& _gs)
         auto* ldgame_btn = new UI::Button(0, 24 * i, 128, 24, game_group);
         ldgame_btn->text(ldgame_data[i].file);
         auto data = &ldgame_data[i];
-        ldgame_btn->set_on_click([data](UI::Widget& w){
+        ldgame_btn->set_on_click([data](UI::Widget&){
             std::scoped_lock lock1(data->gs.world->world_mutex);
             if(data->gs.world != nullptr) {
                 delete data->gs.world;

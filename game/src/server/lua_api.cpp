@@ -197,7 +197,7 @@ int LuaAPI::get_technology(lua_State* L) {
 int LuaAPI::add_req_tech_to_tech(lua_State* L) {
     Technology* technology = &g_world->technologies.at(lua_tonumber(L, 1));
     Technology::Id req_tech_id = lua_tonumber(L, 2);
-    debug_assert(req_tech_id < g_world->technologies.size());
+    assert(req_tech_id < g_world->technologies.size());
     technology->req_technologies.push_back(req_tech_id);
     return 0;
 }
@@ -360,7 +360,7 @@ int LuaAPI::get_all_nations(lua_State* L) {
 
 int LuaAPI::get_provinces_owned_by_nation(lua_State* L) {
     const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
-    debug_assert(nation != nullptr);
+    assert(nation != nullptr);
     lua_newtable(L);
 
     size_t i = 0;
@@ -374,7 +374,7 @@ int LuaAPI::get_provinces_owned_by_nation(lua_State* L) {
 
 int LuaAPI::get_provinces_with_nucleus_by_nation(lua_State* L) {
     const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
-    debug_assert(nation != nullptr);
+    assert(nation != nullptr);
     lua_newtable(L);
 
     size_t i = 0;
@@ -403,28 +403,28 @@ int LuaAPI::set_nation_primary_culture(lua_State* L) {
 
 int LuaAPI::set_nation_capital(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
-    debug_assert(nation != nullptr);
+    assert(nation != nullptr);
     nation->capital = g_world->provinces.at(lua_tonumber(L, 2));
     return 0;
 }
 
 int LuaAPI::add_accepted_culture(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
-    debug_assert(nation != nullptr);
+    assert(nation != nullptr);
     nation->culture_discrim.at(lua_tonumber(L, 2)) = 1.f;
     return 0;
 }
 
 int LuaAPI::add_accepted_religion(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
-    debug_assert(nation != nullptr);
+    assert(nation != nullptr);
     nation->religion_discrim.at(lua_tonumber(L, 2)) = 1.f;
     return 0;
 }
 
 int LuaAPI::add_nation_client_hint(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
-    debug_assert(nation != nullptr);
+    assert(nation != nullptr);
 
     NationClientHint hint;
     hint.ideology = &g_world->ideologies.at(lua_tonumber(L, 2));
@@ -437,7 +437,7 @@ int LuaAPI::add_nation_client_hint(lua_State* L) {
 
 int LuaAPI::get_nation_policies(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
-    debug_assert(nation != nullptr);
+    assert(nation != nullptr);
 
     // We are going to push everything in the policies structure
     // this is horrible - reflection may help in this case
@@ -481,7 +481,7 @@ int LuaAPI::get_nation_policies(lua_State* L) {
 
 int LuaAPI::set_nation_policies(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
-    debug_assert(nation != nullptr);
+    assert(nation != nullptr);
 
     // We are going to push everything in the policies structure
     // this is horrible - reflection may help in this case
@@ -525,7 +525,7 @@ int LuaAPI::set_nation_policies(lua_State* L) {
 
 int LuaAPI::set_nation_ideology(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
-    debug_assert(nation != nullptr);
+    assert(nation != nullptr);
     nation->ideology = &g_world->ideologies.at(lua_tonumber(L, 2));
     return 0;
 }
@@ -693,7 +693,7 @@ int LuaAPI::add_province(lua_State* L) {
 
 int LuaAPI::update_province(lua_State* L) {
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
-    debug_assert(province != nullptr);
+    assert(province != nullptr);
     province->ref_name = luaL_checkstring(L, 2);
     province->color = (bswap32(lua_tonumber(L, 3)) >> 8) | 0xff000000;
     province->name = luaL_checkstring(L, 4);
@@ -899,7 +899,7 @@ int LuaAPI::add_province_pop(lua_State* L) {
         throw LuaAPI::Exception("Can't create pops with 0 size");
     }
     province->pops.push_back(pop);
-    debug_assert(province->pops.size() < 100);
+    assert(province->pops.size() < 100);
     return 0;
 }
 
@@ -1311,7 +1311,7 @@ int call_func(lua_State* L, int nargs, int nret) {
 // Checks all events and their condition functions
 void LuaAPI::check_events(lua_State* L) {
     for(auto& event : g_world->events) {
-        debug_assert(event != nullptr);
+        assert(event != nullptr);
         if(event->checked) {
             continue;
         }
@@ -1319,7 +1319,7 @@ void LuaAPI::check_events(lua_State* L) {
         bool is_multi = true;
         bool has_fired = false;
         for(auto& nation : event->receivers) {
-            debug_assert(nation != nullptr);
+            assert(nation != nullptr);
             if(!nation->exists()) {
                 continue;
             }

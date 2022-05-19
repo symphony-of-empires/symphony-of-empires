@@ -56,7 +56,7 @@ TopWindow::TopWindow(GameState& _gs)
     flag_img->on_each_tick = ([this](UI::Widget& w) {
         w.current_texture = this->gs.get_nation_flag(*this->gs.curr_nation);
     });
-    auto* flag_rug = new UI::Image(0, 0, flag_img->width, flag_img->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
+    new UI::Image(0, 0, flag_img->width, flag_img->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
 
     auto* flex_column = new UI::Div(3, 96, 42, 390, this);
     flex_column->flex = UI::Flex::COLUMN;
@@ -105,24 +105,25 @@ TopWindow::TopWindow(GameState& _gs)
     save_ibtn->set_on_click([this](UI::Widget&) {
         save(this->gs);
     });
-    save_ibtn->set_tooltip("Saves the current game; TODO: SAVE LUA STATE");
+    // TODO: Save the lua state
+    save_ibtn->set_tooltip("Saves the current game");
 
     /*
-    auto* load_ibtn = new UI::Image(9, 275, 25, 25, "gfx/top_bar/save.png", this);
+    auto* load_ibtn = new UI::Image(9, 275, 25, 25, "gfx/top_bar/save.png", flex_column);
     load_ibtn->set_on_click(UI::Callback)([](UI::Widget& w) {
         auto& o = static_cast<TopWindow&>(*w.parent);
 
-        delete o.gs.world;
-        o.gs.world = new World();
-        o.gs.world->load_initial();
-        o.gs.world->load_mod();
+        delete this->gs.world;
+        this->gs.world = new World();
+        this->gs.world->load_initial();
+        this->gs.world->load_mod();
 
-        o.gs.curr_nation = o.gs.world->nations[0];
+        this->gs.curr_nation = this->gs.world->nations[0];
 
         Archive ar = Archive();
-        ::deserialize(ar, o.gs.world);
+        ::deserialize(ar, this->gs.world);
         ar.to_file("default.scv");
-        o.gs.ui_ctx->prompt("Loaded", "Loaded sucessfully!");
+        this->gs.ui_ctx->prompt("Loaded", "Loaded sucessfully!");
     });
     load_ibtn->tooltip = new UI::Tooltip(load_ibtn, 512, 24);
     load_ibtn->tooltip->text("Loads the current game");

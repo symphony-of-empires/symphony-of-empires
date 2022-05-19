@@ -37,10 +37,9 @@ using namespace Interface;
 #define POLICY_CHECKBOX(x, title, body)\
     auto* x## _chk = new UI::Checkbox(0, 0, 128, 24, reform_grp);\
     x## _chk->text(title);\
-    x## _chk->set_on_click([](UI::Widget& w) {\
-        auto& o = static_cast<PoliciesScreen&>(*w.parent->parent);\
-        o.new_policy.x = !(o.new_policy).x;\
-        ((UI::Checkbox&)w).set_value((o.new_policy).x);\
+    x## _chk->set_on_click([this](UI::Widget& w) {\
+        this->new_policy.x = !(this->new_policy).x;\
+        ((UI::Checkbox&)w).set_value((this->new_policy).x);\
     });\
     x## _chk->set_value(new_policy.x);\
     x## _chk->tooltip = new UI::Tooltip(x## _chk, 512, 24);\
@@ -62,15 +61,14 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
 
     auto* gov_lab = new UI::Label(0, 0, "Goverment", this);
     auto* ideology_lab = new UI::Label(6, 38, "IDEOLOGY", this);
-    ideology_lab->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<PoliciesScreen&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+    ideology_lab->on_each_tick = ([this](UI::Widget& w) {
+        if(this->gs.world->time % this->gs.world->ticks_per_month) {
             return;
         }
 
         // TODO: More dynamic names
-        if(o.gs.curr_nation->ideology != nullptr) {
-            w.text(o.gs.curr_nation->ideology->name.get_string());
+        if(this->gs.curr_nation->ideology != nullptr) {
+            w.text(this->gs.curr_nation->ideology->name.get_string());
         }
     });
     ideology_lab->on_each_tick(*ideology_lab);
@@ -78,14 +76,13 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     auto* ideology_pie_lab = new UI::Label(0, 82, "House", this);
     auto* ideology_pie = new UI::PieChart(0, 0, 128, 128, this);
     ideology_pie->below_of(*ideology_pie_lab);
-    ideology_pie->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<PoliciesScreen&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+    ideology_pie->on_each_tick = ([this](UI::Widget& w) {
+        if(this->gs.world->time % this->gs.world->ticks_per_month) {
             return;
         }
 
         std::vector<UI::ChartData> ideology_data;
-        for(const auto& ideology : o.gs.world->ideologies) {
+        for(const auto& ideology : this->gs.world->ideologies) {
             ideology_data.push_back(UI::ChartData(1.f, ideology.name.get_string(), ideology.color));
         }
         ((UI::PieChart&)w).set_data(ideology_data);
@@ -93,20 +90,19 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     ideology_pie->on_each_tick(*ideology_pie);
 
     auto* militancy_lab = new UI::Label(0, 290, " ", this);
-    militancy_lab->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<PoliciesScreen&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+    militancy_lab->on_each_tick = ([this](UI::Widget& w) {
+        if(this->gs.world->time % this->gs.world->ticks_per_month) {
             return;
         }
 
         float num = 0.f;
-        if(!o.gs.curr_nation->owned_provinces.empty()) {
-            for(const auto& province : o.gs.curr_nation->owned_provinces) {
+        if(!this->gs.curr_nation->owned_provinces.empty()) {
+            for(const auto& province : this->gs.curr_nation->owned_provinces) {
                 for(const auto& pop : province->pops) {
                     num += pop.militancy;
                 }
             }
-            num /= o.gs.curr_nation->owned_provinces.size();
+            num /= this->gs.curr_nation->owned_provinces.size();
         }
         w.text("Militancy: " + std::to_string(num));
     });
@@ -137,10 +133,9 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     poor_tax_sld->below_of(*social_security_chk);
     poor_tax_sld->text(std::to_string(new_policy.poor_flat_tax));
     poor_tax_sld->set_value(new_policy.poor_flat_tax);
-    poor_tax_sld->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<PoliciesScreen&>(*w.parent->parent);
-        o.new_policy.poor_flat_tax = ((UI::Slider&)w).get_value();
-        w.text(std::to_string(o.new_policy.poor_flat_tax));
+    poor_tax_sld->set_on_click([this](UI::Widget& w) {
+        this->new_policy.poor_flat_tax = ((UI::Slider&)w).get_value();
+        w.text(std::to_string(this->new_policy.poor_flat_tax));
     });
     poor_tax_sld->tooltip = new UI::Tooltip(poor_tax_sld, 512, 24);
     poor_tax_sld->tooltip->text("The taxing done to the low class (flat %)");
@@ -149,10 +144,9 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     med_tax_sld->below_of(*poor_tax_sld);
     med_tax_sld->text(std::to_string(new_policy.poor_flat_tax));
     med_tax_sld->set_value(new_policy.med_flat_tax);
-    med_tax_sld->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<PoliciesScreen&>(*w.parent->parent);
-        o.new_policy.med_flat_tax = ((UI::Slider&)w).get_value();
-        w.text(std::to_string(o.new_policy.med_flat_tax));
+    med_tax_sld->set_on_click([this](UI::Widget& w) {
+        this->new_policy.med_flat_tax = ((UI::Slider&)w).get_value();
+        w.text(std::to_string(this->new_policy.med_flat_tax));
     });
     med_tax_sld->tooltip = new UI::Tooltip(med_tax_sld, 512, 24);
     med_tax_sld->tooltip->text("The taxing done to the medium class (flat %)");
@@ -161,10 +155,9 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     rich_tax_sld->below_of(*med_tax_sld);
     rich_tax_sld->text(std::to_string(new_policy.poor_flat_tax));
     rich_tax_sld->set_value(new_policy.rich_flat_tax);
-    rich_tax_sld->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<PoliciesScreen&>(*w.parent->parent);
-        o.new_policy.rich_flat_tax = ((UI::Slider&)w).get_value();
-        w.text(std::to_string(o.new_policy.rich_flat_tax));
+    rich_tax_sld->set_on_click([this](UI::Widget& w) {
+        this->new_policy.rich_flat_tax = ((UI::Slider&)w).get_value();
+        w.text(std::to_string(this->new_policy.rich_flat_tax));
     });
     rich_tax_sld->tooltip = new UI::Tooltip(rich_tax_sld, 512, 24);
     rich_tax_sld->tooltip->text("The taxing done to the high class (flat %)");
@@ -186,18 +179,17 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     auto* enact_btn = new UI::Button(207, 0, 128, 24, this);
     enact_btn->below_of(*reform_grp);
     enact_btn->text("Enact policy");
-    enact_btn->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<PoliciesScreen&>(*w.parent);
+    enact_btn->set_on_click([this](UI::Widget&) {
         Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
         Archive ar = Archive();
         ActionType action = ActionType::NATION_ENACT_POLICY;
         ::serialize(ar, &action);
-        ::serialize(ar, &o.new_policy); // PoliciesObj
+        ::serialize(ar, &this->new_policy); // PoliciesObj
         packet.data(ar.get_buffer(), ar.size());
         std::scoped_lock lock(g_client->pending_packets_mutex);
         g_client->pending_packets.push_back(packet);
 
-        o.gs.ui_ctx->prompt("Policy", "New policy enacted!");
+        this->gs.ui_ctx->prompt("Policy", "New policy enacted!");
     });
 
     auto* close_btn = new UI::CloseButton(207, 0, 128, 24, this);

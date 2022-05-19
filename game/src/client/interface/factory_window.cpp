@@ -130,8 +130,9 @@ FactoryWindow::FactoryWindow(GameState& gs)
 	for(auto prov : nation->owned_provinces) {
 		for(size_t i = 0; i < prov->buildings.size(); i++) {
 			auto& building = prov->buildings[i];
-			if(building.level != 0)
+			if(building.level != 0) {
 				size++;
+			}
 		}
 	}
 

@@ -57,7 +57,7 @@ DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
     for(const auto& decision : this->event.decisions) {
         auto* decide_btn = new UI::Button(0, 0, this->width, 24, this);
         decide_btn->text(decision.name.get_string());
-        decide_btn->set_on_click([this, decision](UI::Widget& w) {
+        decide_btn->set_on_click([this, decision](UI::Widget&) {
             Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
             Archive ar = Archive();
             ActionType action = ActionType::NATION_TAKE_DECISION;

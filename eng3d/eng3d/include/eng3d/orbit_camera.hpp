@@ -72,7 +72,7 @@ namespace Eng3D {
         }
 
         void update(void) override {
-            map_position = chase.move_toward(map_position, target);
+            map_position = chase.move_towards(map_position, target);
             map_position.y = glm::clamp(map_position.y, 0.f, map_size.y);
             map_position.z = glm::clamp(map_position.z, 0.f, map_size.x / 2.f);
 

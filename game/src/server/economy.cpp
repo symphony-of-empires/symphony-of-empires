@@ -421,11 +421,11 @@ void Economy::do_tick(World& world) {
                         can_build_unit = false;
                     }
 
-                    if(can_build_unit) {
-                        // TODO: Maybe delete if size becomes 0?
-                        Eng3D::Number final_size = std::min<Eng3D::Number>((*it).size, army_size);
-                        (*it).size -= final_size;
-
+                    // TODO: Maybe delete if size becomes 0?
+                    //const Eng3D::Number final_size = std::min<Eng3D::Number>((*it).size, army_size);
+                    //(*it).size -= final_size;
+                    const Eng3D::Number final_size = army_size;
+                    if(can_build_unit && final_size) {
                         // Spawn a unit
                         Unit* unit = new Unit();
                         unit->set_province(*province);
@@ -438,6 +438,7 @@ void Economy::do_tick(World& world) {
                         unit->size = final_size;
                         unit->base = unit->type->max_health;
                         new_nation_units.push_back(unit);
+
                         building.working_unit_type = nullptr;
                         Eng3D::Log::debug("economy", "[" + province->ref_name + "]: Has built an unit of [" + unit->type->ref_name + "]");
                     }

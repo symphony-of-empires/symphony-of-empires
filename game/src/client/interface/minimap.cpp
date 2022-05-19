@@ -466,8 +466,7 @@ std::vector<ProvinceColor> culture_map_mode(const World& world) {
             auto search = culture_amounts.find(pop.culture->cached_id);
             if(search == culture_amounts.end()) {
                 culture_amounts[pop.culture->cached_id] = pop.size;
-            }
-            else {
+            } else {
                 culture_amounts[pop.culture->cached_id] += pop.size;
             }
 
@@ -537,8 +536,7 @@ std::vector<ProvinceColor> religion_map_mode(const World& world) {
             auto search = religion_amounts.find(pop.religion->cached_id);
             if(search == religion_amounts.end()) {
                 religion_amounts[pop.religion->cached_id] = pop.size;
-            }
-            else {
+            } else {
                 religion_amounts[pop.religion->cached_id] += pop.size;
             }
 
