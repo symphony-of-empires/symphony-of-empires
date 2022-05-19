@@ -448,24 +448,16 @@ void World::load_initial(void) {
         }
 
         const uint32_t *raw_buffer = div->buffer.get();
-        for(size_t i = 0; i < width * height; ) {
+        for(size_t i = 0; i < width * height; i++) {
             const Province::Id province_id = province_color_table[raw_buffer[i] & 0xffffff];
             if(province_id == (Province::Id)-1) {
                 colors_found.insert(raw_buffer[i]);
-                while(raw_buffer[i] == province_color_table[raw_buffer[i] & 0xffffff]) {
-                    i++;
                 }
-                continue;
-            }
-
-            while(raw_buffer[i] == provinces[province_id]->color) {
-                tiles[i++].province_id = province_id;
-            }
+            tiles[i].province_id = province_id;
         }
         div.reset();
 
-        {
-            // Uncomment this for auto-generating lua code for unregistered provinces
+        if(!colors_found.empty()) {
             std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen("uprovinces.lua", "w+t"), fclose);
             if(fp != nullptr) {
                 for(const auto& color_raw : colors_found) {
@@ -475,9 +467,7 @@ void World::load_initial(void) {
                     fprintf(fp.get(), "province:register()\n");
                 }
             }
-        }
 
-        {
             std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen("ucolors.txt", "w+t"), fclose);
             if(fp != nullptr) {
                 for(size_t i = 0; i < province_color_table.size(); i++) {
@@ -492,6 +482,9 @@ void World::load_initial(void) {
                     }
                 }
             }
+
+            // Exit
+            CXX_THROW(std::runtime_error, "There are unregistered provinces, please register them!");
         }
 
         // Calculate the edges of the province (min and max x and y coordinates)
