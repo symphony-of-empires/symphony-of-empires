@@ -163,7 +163,7 @@ Eng3D::State::State(void) {
     // Startup-initialization of SDL
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
-    
+
 #ifdef E3D_BACKEND_OPENGL // Normal PC computer
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -251,13 +251,13 @@ Eng3D::State::State(void) {
 
     // 2D generic fragment shader
     builtin_shaders["fs_2d"] = load_fragment_shader("fs_2d.fs");
-    
+
     // 2D generic vertex shader
     builtin_shaders["vs_2d"] = load_vertex_shader("vs_2d.vs");
-    
+
     // 3D generic fragment shader
     builtin_shaders["fs_3d"] = load_fragment_shader("fs_3d.fs");
-    
+
     // 3D generic vertex shader
     builtin_shaders["vs_3d"] = load_vertex_shader("vs_3d.vs");
     builtin_shaders["vs_font_sdf"] = load_vertex_shader("vs_font_sdf.vs");

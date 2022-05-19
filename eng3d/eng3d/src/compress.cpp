@@ -26,11 +26,11 @@
 #include <zlib.h>
 #include "eng3d/compress.hpp"
 
-size_t get_compressed_len(size_t len) {
+size_t Eng3D::Zlib::get_compressed_len(size_t len) {
     return (len + 6 + (((len + 16383) / 16384) * 5));
 }
 
-size_t compress(const void* src, size_t src_len, void* dest, size_t dest_len) {
+size_t Eng3D::Zlib::compress(const void* src, size_t src_len, void* dest, size_t dest_len) {
     z_stream info = {};
     info.total_in = info.avail_in = src_len;
     info.total_out = info.avail_out = dest_len;
@@ -49,7 +49,7 @@ size_t compress(const void* src, size_t src_len, void* dest, size_t dest_len) {
     return info.total_out;
 }
 
-size_t decompress(const void* src, size_t src_len, void* dest, size_t dest_len) {
+size_t Eng3D::Zlib::decompress(const void* src, size_t src_len, void* dest, size_t dest_len) {
     z_stream info = {};
     info.total_in = info.avail_in = src_len;
     info.total_out = info.avail_out = dest_len;

@@ -42,8 +42,8 @@ Tooltip::Tooltip()
 
     this->current_texture = Eng3D::State::get_instance().ui_ctx->tooltip_tex;
 
-    const glm::ivec2 size = glm::ivec2{4, 4};
-    const glm::ivec2 texture_size = glm::ivec2{10, 10};
+    const glm::ivec2 size = glm::ivec2{ 4, 4 };
+    const glm::ivec2 texture_size = glm::ivec2{ 10, 10 };
     this->border = UI::Border(g_ui_context->border_tex, size, texture_size);
 }
 
@@ -59,8 +59,8 @@ Tooltip::Tooltip(Widget* parent, unsigned w, unsigned h)
 
     this->current_texture = Eng3D::State::get_instance().ui_ctx->tooltip_tex;
 
-    const glm::ivec2 size = glm::ivec2{4, 4};
-    const glm::ivec2 texture_size = glm::ivec2{10, 10};
+    const glm::ivec2 size = glm::ivec2{ 4, 4 };
+    const glm::ivec2 texture_size = glm::ivec2{ 10, 10 };
     this->border = UI::Border(g_ui_context->border_tex, size, texture_size);
 }
 
@@ -106,7 +106,7 @@ void Tooltip::text(const std::string& text) {
                 break;
             }
         }
-        
+
         if(!break_line && remaining_chars > line_width) {
             for(int i = end_pos; i > pos; i--) {
                 if(text[i] == ' ') {

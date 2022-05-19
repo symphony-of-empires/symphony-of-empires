@@ -101,8 +101,8 @@ Widget::~Widget(void) {
 
 void Widget::draw_rect(const Eng3D::Texture* tex, Eng3D::Rect rect_pos, Eng3D::Rect rect_tex, Eng3D::Rect viewport) {
     glm::vec2 pos_size = rect_pos.size();
-    pos_size.x = pos_size.x > 0? pos_size.x : 1.f;
-    pos_size.y = pos_size.y > 0? pos_size.y : 1.f;
+    pos_size.x = pos_size.x > 0 ? pos_size.x : 1.f;
+    pos_size.y = pos_size.y > 0 ? pos_size.y : 1.f;
     glm::vec2 tex_size = rect_tex.size();
 
     if(rect_pos.left < viewport.left) {
@@ -337,8 +337,7 @@ void Widget::recalc_child_pos(void) {
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + flex_gap;
-            }
-            else {
+            } else {
                 child->y = current_lenght;
                 current_lenght += child->height + flex_gap;
             }
@@ -354,8 +353,7 @@ void Widget::recalc_child_pos(void) {
             if(is_row) {
                 child->x = current_lenght - child->width - flex_gap;
                 current_lenght -= child->width;
-            }
-            else {
+            } else {
                 child->y = current_lenght - child->height - flex_gap;
                 current_lenght -= child->height;
             }
@@ -372,8 +370,7 @@ void Widget::recalc_child_pos(void) {
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + difference;
-            }
-            else {
+            } else {
                 child->y = current_lenght;
                 current_lenght += child->height + difference;
             }
@@ -390,8 +387,7 @@ void Widget::recalc_child_pos(void) {
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + difference;
-            }
-            else {
+            } else {
                 child->y = current_lenght;
                 current_lenght += child->height + difference;
             }
@@ -405,8 +401,7 @@ void Widget::recalc_child_pos(void) {
             if(child->is_pinned) continue;
             if(is_row) {
                 child->y = 0;
-            }
-            else {
+            } else {
                 child->x = 0;
             }
         }
@@ -416,8 +411,7 @@ void Widget::recalc_child_pos(void) {
             if(child->is_pinned) continue;
             if(is_row) {
                 child->y = std::max<int>(0, height - child->height);
-            }
-            else {
+            } else {
                 child->x = std::max<int>(0, width - child->width);
             }
         }
@@ -427,8 +421,7 @@ void Widget::recalc_child_pos(void) {
             if(child->is_pinned) continue;
             if(is_row) {
                 child->y = std::max<int>(0, height - child->height) / 2;
-            }
-            else {
+            } else {
                 child->x = std::max<int>(0, width - child->width) / 2;
             }
         }

@@ -46,7 +46,7 @@ std::string Eng3D::OpenGL::GLSL_Context::get_identifier(std::string::iterator& i
     while(it != buffer.end() && (isalnum(*it) || *it == '_' || *it == '.')) {
         it++;
     }
-    
+
     std::string str = buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
     return str;
 }
@@ -71,11 +71,11 @@ std::string Eng3D::OpenGL::GLSL_Context::get_literal(std::string::iterator& it) 
 void Eng3D::OpenGL::GLSL_Context::lexer(void) {
     // Output the final stuff
     std::string::iterator it = buffer.begin();
-    for( ; it != buffer.end(); ) {
+    for(; it != buffer.end(); ) {
         while(it != buffer.end() && (*it == ' ' || *it == '\t' || *it == '\r' || *it == '\n')) {
             it++;
         }
-        
+
         if(it == buffer.end()) {
             break;
         }
@@ -103,7 +103,7 @@ void Eng3D::OpenGL::GLSL_Context::lexer(void) {
             while(it != buffer.end() && (*it != '\n')) {
                 it++;
             }
-            
+
             GLSL_Token tok = GLSL_Token(GLSL_TokenType::MACRO);
             tok.data = buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
             tokens.push_back(tok);
@@ -281,7 +281,7 @@ std::string Eng3D::OpenGL::GLSL_Context::to_text(void) {
         }
     }
 
-    for( ; it != tokens.end(); it++) {
+    for(; it != tokens.end(); it++) {
         switch(it->type) {
         case GLSL_TokenType::MACRO:
             end_buffer += "#" + it->data + "\r\n";

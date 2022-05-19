@@ -33,7 +33,7 @@ using namespace UI;
 Image::Image(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI::WidgetType::IMAGE)
 {
-    
+
 }
 
 Image::Image(int _x, int _y, unsigned w, unsigned h, std::shared_ptr<Eng3D::Texture> tex, Widget* _parent)

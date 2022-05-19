@@ -146,8 +146,7 @@ void Context::clear_dead_recursive(Widget* w) {
             w->children.erase(w->children.begin() + index);
             index--;
             changed = true;
-        }
-        else if((w->children[index])->dead_child) {
+        } else if((w->children[index])->dead_child) {
             clear_dead_recursive(w->children[index].get());
             w->children[index]->dead_child = false;
         }
@@ -164,8 +163,7 @@ void Context::clear_dead() {
             delete widgets[index];
             widgets.erase(widgets.begin() + index);
             index--;
-        }
-        else if((widgets[index])->dead_child) {
+        } else if((widgets[index])->dead_child) {
             clear_dead_recursive(widgets[index]);
             widgets[index]->dead_child = false;
         }
@@ -400,15 +398,14 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
     const Eng3D::Rect r = Eng3D::Rect(offset.x, offset.y, w.width, w.height);
     if(!r.in_bounds(mx, my)) {
         w.is_hover = 0;
-    }
-    else if(w.is_transparent) {
+    } else if(w.is_transparent) {
         if(w.current_texture != nullptr) {
             int tex_width = w.current_texture->width;
             int tex_height = w.current_texture->height;
             int tex_x = ((mx - offset.x) * tex_width) / w.width;
             int tex_y = ((my - offset.y) * tex_height) / w.height;
             if(tex_x >= 0 && tex_x < tex_width && tex_y >= 0 && tex_y < tex_height) {
-                uint32_t argb = w.current_texture->get_pixel(tex_x, tex_y);
+                const uint32_t argb = w.current_texture->get_pixel(tex_x, tex_y).get_value();
                 if(((argb >> 24) & 0xff) == 0) {
                     w.is_hover = 0;
                 }
@@ -431,8 +428,7 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
         for(auto& child : w.children) {
             consumed_hover |= check_hover_recursive(*child, mx, my, offset.x, offset.y);
         }
-    }
-    else {
+    } else {
         // for(auto& child : w.children) {
         //     clear_hover_recursive(*child);
         // }
@@ -482,15 +478,14 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
         const Eng3D::Rect r = Eng3D::Rect(offset.x, offset.y, w.width, w.height);
         if(!r.in_bounds(glm::vec2(mx, my))) {
             clickable = false;
-        }
-        else if(w.is_transparent) {
+        } else if(w.is_transparent) {
             if(w.current_texture != nullptr) {
                 int tex_width = w.current_texture->width;
                 int tex_height = w.current_texture->height;
                 int tex_x = ((mx - offset.x) * tex_width) / w.width;
                 int tex_y = ((my - offset.y) * tex_height) / w.height;
                 if(tex_x >= 0 && tex_x < tex_width && tex_y >= 0 && tex_y < tex_height) {
-                    uint32_t argb = w.current_texture->get_pixel(tex_x, tex_y);
+                    const uint32_t argb = w.current_texture->get_pixel(tex_x, tex_y).get_value();
                     if(((argb >> 24) & 0xff) == 0) {
                         clickable = false;
                     }
@@ -636,15 +631,14 @@ bool Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_o
     const Eng3D::Rect r = Eng3D::Rect(offset.x, offset.y, w.width, w.height);
     if(!r.in_bounds(glm::vec2(mx, my))) {
         return false;
-    }
-    else if(w.is_transparent) {
+    } else if(w.is_transparent) {
         if(w.current_texture != nullptr) {
             int tex_width = w.current_texture->width;
             int tex_height = w.current_texture->height;
             int tex_x = ((mx - offset.x) * tex_width) / w.width;
             int tex_y = ((my - offset.y) * tex_height) / w.height;
             if(tex_x >= 0 && tex_x < tex_width && tex_y >= 0 && tex_y < tex_height) {
-                uint32_t argb = w.current_texture->get_pixel(tex_x, tex_y);
+                const uint32_t argb = w.current_texture->get_pixel(tex_x, tex_y).get_value();
                 if(((argb >> 24) & 0xff) == 0) {
                     return false;
                 }
