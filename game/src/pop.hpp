@@ -57,7 +57,7 @@ public:
 class Pop {
 public:
     bool operator==(const Pop& rhs) const;
-    Ideology* get_ideology(void) const;
+    Ideology& get_ideology(void) const;
     uint32_t get_type_id(void) const;
 
     PopType* type;

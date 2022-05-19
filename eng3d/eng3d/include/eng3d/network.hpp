@@ -200,8 +200,8 @@ namespace Eng3D::Networking {
         void broadcast(const Eng3D::Networking::Packet& packet);
 
         ServerClient* clients;
-        int n_clients;
-        int player_count = 0;
+        std::size_t n_clients;
+        std::size_t player_count = 0;
     };
 
     class Client {

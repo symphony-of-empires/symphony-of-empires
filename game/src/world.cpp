@@ -393,9 +393,9 @@ void World::load_initial(void) {
     //     return lhs->color > rhs->color;
     // });
 
-    int checksum = 0;
+    std::uint64_t checksum = 0;
     for(auto& province : provinces) {
-        checksum += static_cast<int>(province->color);
+        checksum += static_cast<std::uint64_t>(province->color);
     }
     checksum = (checksum * width + height) * provinces.size();
 
@@ -405,7 +405,7 @@ void World::load_initial(void) {
         ar.from_file("cache_map.dat");
 
         // If the cache has the same checksum as us then we just have to read from the file
-        int cache_checksum;
+        std::uint64_t cache_checksum;
         ::deserialize(ar, &cache_checksum);
         if(checksum == cache_checksum) {
             recalc_province = false;
@@ -552,7 +552,7 @@ void World::load_initial(void) {
     Eng3D::Log::debug("game", Eng3D::Locale::translate("Creating diplomatic relations"));
     // Relations between nations start at 0 (and latter modified by lua scripts)
     // since we use cantor's pairing function we only have to make an n*2 array so yeah let's do that!
-    this->relations = std::make_unique<NationRelation[]>(this->nations.size() * this->nations.size());
+    this->relations = std::make_unique<NationRelation[]>(this->nations.size() * this->nations.size() * this->nations.size());
     
     Eng3D::Log::debug("game", Eng3D::Locale::translate("World partially intiialized"));
     // Auto-relocate capitals for countries which do not have one
@@ -613,13 +613,13 @@ static inline void unit_do_tick(Unit& unit)
 
     bool can_take = true;
     for(auto& other_unit : unit.province->get_units()) {
-        if(other_unit->on_battle) {
+        if(other_unit->owner == unit.owner) {
             continue;
         }
 
         // Must not our unit and only if we are at war
         const auto& relation = g_world->get_relation(g_world->get_id(*other_unit->owner), g_world->get_id(*unit.owner));
-        if(other_unit->owner == unit.owner || !relation.has_war) {
+        if(!relation.has_war) {
             continue;
         }
 
@@ -650,7 +650,6 @@ static inline void unit_do_tick(Unit& unit)
                 other_unit->on_battle = true;
                 war->battles.push_back(battle);
                 Eng3D::Log::debug("game", "New battle of \"" + battle.name + "\"");
-                break;
             } else {
                 Battle& battle = *it;
 
@@ -662,24 +661,30 @@ static inline void unit_do_tick(Unit& unit)
                         battle.attackers.push_back(&unit);
                         unit.on_battle = true;
                     }
+                    Eng3D::Log::debug("game", "Adding unit <attacker> to battle of \"" + battle.name + "\"");
                 } else if(war->is_defender(*unit.owner)) {
                     if(std::find(battle.defenders.begin(), battle.defenders.end(), &unit) == battle.defenders.end()) {
                         battle.defenders.push_back(&unit);
                         unit.on_battle = true;
                     }
+                    Eng3D::Log::debug("game", "Adding unit <defender> to battle of \"" + battle.name + "\"");
                 }
-                Eng3D::Log::debug("game", "Adding unit to battle of \"" + battle.name + "\"");
-                break;
             }
             break;
         }
     }
 
-    if(unit.target != nullptr && unit.can_move()) {
-        if(unit.move_progress) {
+    if(!unit.can_move()) {
+        unit.target = nullptr;
+        unit.move_progress = 0.f;
+    }
+
+    if(unit.target != nullptr) {
+        if(0 && unit.move_progress) {
             unit.move_progress -= std::min<Eng3D::Decimal>(unit.move_progress, unit.get_speed());
         } else {
             unit.set_province(*unit.target);
+            unit.target = nullptr;
             
             // If we are at war with the person we are crossing their provinces at, then take 'em (albeit with resistance)
             const auto& relation = g_world->get_relation(g_world->get_id(*unit.province->controller), g_world->get_id(*unit.owner));
@@ -802,9 +807,25 @@ void World::do_tick() {
                 // Defenders defeated
                 if(battle.defenders.empty()) {
                     battle.attackers[0]->owner->control_province(*battle.province);
-                } else {
-                    battle.defenders[0]->owner->control_province(*battle.province);
+                    // Clear flags of all units
+                    for(auto& unit : battle.attackers) {
+                        unit->on_battle = false;
+                    }
+                    Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": attackers win");
                 }
+                // Defenders won
+                else if(battle.attackers.empty()) {
+                    battle.defenders[0]->owner->control_province(*battle.province);
+                    for(auto& unit : battle.defenders) {
+                        unit->on_battle = false;
+                }
+                    Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": defenders win");
+                }
+                // Nobody won?
+                else {
+                    Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": nobody won");
+                }
+
                 war->battles.erase(war->battles.begin() + j);
                 j--;
                 continue;

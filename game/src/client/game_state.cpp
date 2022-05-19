@@ -670,9 +670,9 @@ void GameState::music_thread(void) {
 void GameState::load_world_thread(void) {
     this->world = new World();
     this->world->load_initial();
-    this->load_progress = 0.5f;
+    this->load_progress = 0.0f;
     this->world->load_mod();
-    this->load_progress = 0.8f;
+    this->load_progress = 0.1f;
     this->loaded_world = true;
 }
 
@@ -690,7 +690,6 @@ void start_client(int, char**) {
     gs.input = Input();
     gs.run = true;
     std::thread music_th(&GameState::music_thread, &gs);
-    std::thread load_world_th(&GameState::load_world_thread, &gs);
 
     if(0) {
         FILE* fp = fopen(Path::get("locale/es/main.po").c_str(), "rt");
@@ -724,6 +723,8 @@ void start_client(int, char**) {
     gs.loaded_world = false;
     gs.loaded_map = false;
     gs.load_progress = 0.f;
+
+    std::thread load_world_th(&GameState::load_world_thread, &gs);
 
     auto map_layer = new UI::Group(0, 0);
 
@@ -781,7 +782,7 @@ void start_client(int, char**) {
                 if(!path.empty()) {
                     load_pbar->text(path);
                 }
-                gs.load_progress = 0.f + (0.3f / std::distance(gs.world->nations.cend(), load_it_nation));
+                gs.load_progress = 0.1f + (0.3f / std::distance(load_it_nation, gs.world->nations.cend()));
                 load_it_nation++;
                 if(load_it_nation == gs.world->nations.end()) {
                     load_nation_flags = true;
@@ -794,7 +795,7 @@ void start_client(int, char**) {
                 if(!model_path.empty()) {
                     load_pbar->text(model_path);
                 }
-                gs.load_progress = 0.3f + (0.3f / std::distance(gs.world->building_types.cend(), load_it_building_type));
+                gs.load_progress = 0.4f + (0.3f / std::distance(load_it_building_type, gs.world->building_types.cend()));
                 load_it_building_type++;
                 if(load_it_building_type == gs.world->building_types.end()) {
                     load_building_type_icons = true;
@@ -807,7 +808,7 @@ void start_client(int, char**) {
                 if(!model_path.empty()) {
                     load_pbar->text(model_path);
                 }
-                gs.load_progress = 0.6f + (0.3f / std::distance(gs.world->unit_types.cend(), load_it_unit_type));
+                gs.load_progress = 0.7f + (0.3f / std::distance(load_it_unit_type, gs.world->unit_types.cend()));
                 load_it_unit_type++;
                 if(load_it_unit_type == gs.world->unit_types.end()) {
                     load_unit_type_icons = true;

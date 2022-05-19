@@ -213,7 +213,7 @@ Eng3D::Networking::ServerClient::~ServerClient(void) {
 // Server
 //
 Eng3D::Networking::Server::Server(const unsigned port, const unsigned max_conn)
-    : n_clients{ static_cast<int>(max_conn) }
+    : n_clients{ static_cast<std::size_t>(max_conn) }
 {
 #ifdef E3D_TARGET_WINDOWS
     WSADATA data;

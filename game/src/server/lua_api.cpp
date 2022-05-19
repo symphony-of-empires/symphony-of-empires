@@ -846,7 +846,7 @@ int LuaAPI::get_province_pop(lua_State* L) {
     lua_pushnumber(L, g_world->get_id(*pop.type));
     lua_pushnumber(L, g_world->get_id(*pop.culture));
     lua_pushnumber(L, g_world->get_id(*pop.religion));
-    lua_pushnumber(L, g_world->get_id(*pop.get_ideology()));
+    lua_pushnumber(L, g_world->get_id(pop.get_ideology()));
     lua_pushnumber(L, (pop.militancy));
     return 9;
 }

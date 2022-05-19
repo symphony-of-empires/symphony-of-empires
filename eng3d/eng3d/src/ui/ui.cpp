@@ -600,8 +600,11 @@ bool check_text_input_recursive(Widget& widget, const char* _input) {
     }
 
     for(const auto& children : widget.children) {
-        check_text_input_recursive(*children, _input);
+        if(check_text_input_recursive(*children, _input)) {
+            return true;
+        }
     }
+    return false;
 }
 
 bool Context::check_text_input(const char* _input) {

@@ -77,43 +77,7 @@ Unit::~Unit(void) {
 
 void Unit::attack(Unit& enemy) {
     // TODO: Better attack algorithm
-    
-    /*
-    // Calculate the attack of our unit
-    Eng3D::Decimal attack_mod = DECIMAL_3P(0, 000);
-    for(const auto& trait: this->traits) {
-        attack_mod *= trait->attack_mod;
-    }
-    const float attack = this->type->attack * attack_mod;
-
-    // Calculate the defense of the enemy
-    Eng3D::Decimal defense_mod = DECIMAL_3P(0, 000);
-    for(const auto& trait: this->traits) {
-        defense_mod *= trait->defense_mod;
-    }
-    const float enemy_defense = std::max<float>(0.1f, enemy.type->defense * defense_mod);
-
-    // Calculate the total damage dealt by our unit to the enemy
-    const Eng3D::Decimal damage_dealt = this->size * std::min<float>(DECIMAL_3P(10, 000), std::max<float>(DECIMAL_3P(0, 050), this->experience))
-        * (attack / std::pow(std::min<float>(DECIMAL_3P(0, 000), enemy_defense), 2))
-        * std::max<float>(0.1f, this->morale) * this->supply
-    ;
-    
-    // Deal with the morale loss of the enemy
-    Eng3D::Decimal enemy_fanaticism = DECIMAL_3P(0, 000);
-    for(const auto& trait: enemy.traits) {
-        enemy_fanaticism *= trait->morale_mod;
-    }
-    enemy.morale -= DECIMAL_3P(10, 000) * enemy_fanaticism * damage_dealt / enemy.size;
-
-    // Our unit receives half of the morale
-    this->morale += DECIMAL_3P(5, 000) * enemy_fanaticism * damage_dealt / enemy.size;
-
-    // Deal the damage
-    enemy.size -= std::min<size_t>(enemy.size, damage_dealt);
-    */
-
-    const Eng3D::Decimal damage = (type->attack * size) / enemy.type->defense;
+    const Eng3D::Decimal damage = type->attack;
     enemy.size -= std::min<size_t>(enemy.size, damage);
 }
 
@@ -163,22 +127,4 @@ void Unit::set_province(Province& _province) {
     province = &_province;
     // Add unit to "cache list" of units
     province->units.push_back(this);
-}
-
-bool Unit::can_move(void) const {
-    const World& world = World::get_instance();
-    for(const auto& war : world.wars) {
-        if(!war->is_involved(*owner)) {
-            continue;
-        }
-        
-        auto it = std::find_if(war->battles.begin(), war->battles.end(), [this](const auto& e) {
-            return e.province == this->province;
-        });
-        
-        if(it != war->battles.end()) {
-            return false;
-        }
-    }
-    return true;
 }
