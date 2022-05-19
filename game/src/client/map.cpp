@@ -681,11 +681,11 @@ void Map::draw(const GameState& gs) {
                     unit_visable = false;
                 }
             }
+            
             if(unit_visable) {
                 if(unit_index < unit_widgets.size()) {
                     unit_widgets[unit_index]->set_unit(unit);
-                }
-                else {
+                } else {
                     unit_widgets.push_back(new Interface::UnitWidget(unit, this, map_ui_layer));
                 }
                 unit_index++;

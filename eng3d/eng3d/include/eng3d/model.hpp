@@ -64,7 +64,7 @@ namespace Eng3D {
     class Model {
     public:
         Model();
-        ~Model();
+        virtual ~Model();
         Model(const Model&) = default;
         Model(Model&&) noexcept = default;
         Model& operator=(const Model&) = default;

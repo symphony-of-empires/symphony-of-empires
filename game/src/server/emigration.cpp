@@ -159,10 +159,7 @@ void external_migration(World& world) {
 		}
 
 		for(const auto& province : nation->controlled_provinces) {
-			// Guaranteed that province->controller != nullptr
-			if(province->terrain_type->is_water_body) {
-				return;
-			}
+			// Guaranteed that province->controller != nullptr and that the province is not a water body
 
 			// Randomness factor to emulate a pseudo-imperfect economy
 			const float fuzz = static_cast<float>(std::rand() + 1) / 1000.f;

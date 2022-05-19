@@ -92,14 +92,18 @@ public:
     Eng3D::Decimal get_speed(const Province& province) const;
     Eng3D::Decimal get_speed(void) const;
     void set_province(Province& province);
-    bool can_move(void) const;
+
+    inline bool can_move(void) const {
+        // Unit must not be on a battle
+        return !(this->on_battle);
+    }
     
     // Type of unit
     UnitType* type;
     // Who owns this unit
     Nation* owner;
     Province* target = nullptr;
-    Province* province = nullptr;
+    Province* province;
 
     // Size of the unit (soldiers in unit)
     Eng3D::Number size;
