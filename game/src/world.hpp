@@ -231,11 +231,21 @@ public:
     std::unique_ptr<NationRelation[]> relations;
     // Uses cantor's pairing function
     // https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
-    inline NationRelation& get_relation(const int a, const int b) {
+    inline NationRelation& get_relation(int a, int b) {
+        if(a > b) {
+            int tmp = a;
+            b = a;
+            a = tmp;
+        }
         return relations[((a + b + 1) * (a + b)) / 2 + b];
     }
 
-    inline const NationRelation& get_relation(const int a, const int b) const {
+    inline const NationRelation& get_relation(int a, int b) const {
+        if(a > b) {
+            int tmp = a;
+            b = a;
+            a = tmp;
+        }
         return relations[((a + b + 1) * (a + b)) / 2 + b];
     }
 

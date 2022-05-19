@@ -323,7 +323,7 @@ template<typename W, typename T>
 class SerializerReferenceLocal {
 public:
     static inline void serialize(Archive& stream, const T* const* obj) {
-        typename T::Id id = (*obj == nullptr) ? (typename T::Id)-1 : W::get_instance().get_id(**obj);
+        typename T::Id id = (*obj == nullptr) ? T::invalid() : W::get_instance().get_id(**obj);
         ::serialize(stream, &id);
     };
 
@@ -334,7 +334,7 @@ public:
             *obj = nullptr;
             return;
         }
-        *obj = (id != (typename T::Id)-1) ? &(W::get_instance().get_list((T*)nullptr)[id]) : nullptr;
+        *obj = (id != T::invalid()) ? &(W::get_instance().get_list((T*)nullptr)[id]) : nullptr;
     };
 };
 

@@ -41,6 +41,7 @@ enum class PopGroup : int {
 
 class PopType : public RefnameEntity<uint8_t> {
 public:
+    Eng3D::StringRef name;
     Eng3D::Decimal social_value;
     enum PopGroup group;
     // The amount of goods needed to satisfy basic needs

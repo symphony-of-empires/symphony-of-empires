@@ -319,7 +319,7 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
     // Water
     province_color.push_back(ProvinceColor((Province::Id)-2, Eng3D::Color::rgba32(0x00000000)));
     // Land
-    province_color.push_back(ProvinceColor((Province::Id)-1, Eng3D::Color::rgba32(0xffdddddd)));
+    province_color.push_back(ProvinceColor(Province::invalid(), Eng3D::Color::rgba32(0xffdddddd)));
     return province_color;
 }
 
@@ -449,7 +449,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
     }
     else if(event.button.button == SDL_BUTTON_RIGHT) {
         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
-        if(tile.province_id == (Province::Id)-1) {
+        if(Province::is_valid(tile.province_id)) {
             return;
         }
 

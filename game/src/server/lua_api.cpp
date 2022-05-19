@@ -1352,7 +1352,7 @@ void LuaAPI::check_events(lua_State* L) {
                 {
                     // The changes done to the event "locally" are then created into a new local event
                     auto local_event = Event(*event);
-                    local_event.cached_id = (Event::Id)-1;
+                    local_event.cached_id = Event::invalid();
                     local_event.ref_name = Eng3D::StringRef(local_event.ref_name + "_local_" + nation->ref_name);
                     // Do not relaunch a local event
                     local_event.checked = true;

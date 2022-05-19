@@ -26,17 +26,17 @@
 #pragma once
 
 #include <string>
+#include <cstdint>
 
 #include "eng3d/entity.hpp"
 #include "policy.hpp"
 
 class Ideology : public RefnameEntity<uint8_t> {
 public:
-    uint32_t color;
-    
+    std::uint32_t color;
+    Eng3D::StringRef name;
     // Checks that the policies of a given nation are "matching"
     // with our ideology (so we set eyecandy and stuff)
-    std::string check_policies_fn;
-
+    Eng3D::StringRef check_policies_fn;
     Policies policies;
 };

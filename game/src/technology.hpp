@@ -41,7 +41,8 @@ enum TechnologyType {
 class NationModifier;
 class Technology : public RefnameEntity<uint16_t> {
 public:
-    std::string description;
+    Eng3D::StringRef name;
+    Eng3D::StringRef description;
     float cost;
     enum TechnologyType type;
     std::vector<Technology::Id> req_technologies;

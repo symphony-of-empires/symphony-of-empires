@@ -33,7 +33,8 @@
 class Culture : public RefnameEntity<uint16_t> {
 public:
     std::uint32_t color;
-    Eng3D::String adjective;
-    Eng3D::String noun;
-    Eng3D::String combo_form;
+    Eng3D::StringRef name;
+    Eng3D::StringRef adjective;
+    Eng3D::StringRef noun;
+    Eng3D::StringRef combo_form;
 };

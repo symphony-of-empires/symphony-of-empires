@@ -31,6 +31,7 @@
 
 class TerrainType : public RefnameEntity<uint8_t>  {
 public:
+    Eng3D::StringRef name;
     // Associative color (with bitmap)
     uint32_t color;
     // Should this terrain be treated as sea?
