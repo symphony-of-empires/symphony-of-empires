@@ -35153,3 +35153,30 @@ province:register()
 province = Province:new{ ref_name = "province_80ffff", color = 0x80ffff, terrain = TerrainType:get("sea"), rgo_size = {} }
 province.name = _("Province_80ffff")
 province:register()
+province = Province:new{ ref_name = "province_689460", color = 0x689460, terrain = TerrainType:get("sea"), rgo_size = {} }
+province.name = _("Province_689460")
+province:register()
+province = Province:new{ ref_name = "province_3f6b81", color = 0x3f6b81, terrain = TerrainType:get("sea"), rgo_size = {} }
+province.name = _("Province_3f6b81")
+province:register()
+province = Province:new{ ref_name = "province_b0d4a0", color = 0xb0d4a0, terrain = TerrainType:get("sea"), rgo_size = {} }
+province.name = _("Province_b0d4a0")
+province:register()
+province = Province:new{ ref_name = "province_004dff", color = 0x004dff, terrain = TerrainType:get("sea"), rgo_size = {} }
+province.name = _("Province_004dff")
+province:register()
+province = Province:new{ ref_name = "province_004eff", color = 0x004eff, terrain = TerrainType:get("sea"), rgo_size = {} }
+province.name = _("Province_004eff")
+province:register()
+province = Province:new{ ref_name = "province_0058ff", color = 0x0058ff, terrain = TerrainType:get("sea"), rgo_size = {} }
+province.name = _("Province_0058ff")
+province:register()
+province = Province:new{ ref_name = "province_0060ff", color = 0x0060ff, terrain = TerrainType:get("sea"), rgo_size = {} }
+province.name = _("Province_0060ff")
+province:register()
+province = Province:new{ ref_name = "province_8064ff", color = 0x8064ff, terrain = TerrainType:get("sea"), rgo_size = {} }
+province.name = _("Province_8064ff")
+province:register()
+province = Province:new{ ref_name = "province_fff9ff", color = 0xfff9ff, terrain = TerrainType:get("sea"), rgo_size = {} }
+province.name = _("Province_fff9ff")
+province:register()
