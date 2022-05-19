@@ -442,7 +442,7 @@ void World::load_initial(void) {
         // Build a lookup table for super fast speed on finding provinces
         // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
         Eng3D::Log::debug("game", Eng3D::Locale::translate("Building the province lookup table"));
-        std::vector<Province::Id> province_color_table(0xffffff + 1, (Province::Id)-1);
+        std::vector<Province::Id> province_color_table(0xffffff + 1, Province::invalid());
         for(auto& province : provinces) {
             province_color_table[province->color & 0xffffff] = this->get_id(*province);
         }
@@ -487,8 +487,8 @@ void World::load_initial(void) {
                         continue;
                     }
 
-                    if(province_color_table[i] == (Province::Id)-1) {
-                        fprintf(fp.get(), "%06x\n", static_cast<uintptr_t>(bswap32(color)));
+                    if(Province::is_invalid(province_color_table[i])) {
+                        fprintf(fp.get(), "%06lx\n", static_cast<unsigned long int>(bswap32(color)));
                     }
                 }
             }

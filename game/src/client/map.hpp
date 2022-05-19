@@ -117,7 +117,7 @@ public:
     void create_labels();
 
     bool province_selected = false;
-    Province::Id selected_province_id = (Province::Id)-1;
+    Province::Id selected_province_id = Province::invalid();
     
     MapRender* map_render;
     MapView view_mode = MapView::PLANE_VIEW;

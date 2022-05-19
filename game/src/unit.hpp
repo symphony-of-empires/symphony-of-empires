@@ -45,6 +45,8 @@ public:
     //UnitType();
     //~UnitType();
 
+    Eng3D::StringRef name;
+    
     Eng3D::Decimal supply_consumption;
     Eng3D::Decimal speed;
     Eng3D::Decimal max_health;

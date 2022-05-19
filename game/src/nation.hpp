@@ -80,6 +80,7 @@ public:
 
 class NationModifier : public RefnameEntity<uint16_t> {
 public:
+    Eng3D::StringRef name;
     // Modifiers for a nation, which increases/decreases certain stuff
     // They should never be 0, a modifier of 1.0 is equal to no modifer at
     // all. And a modifier of 0.5 would cause a 1/2. Similar to a 2 which
@@ -138,6 +139,8 @@ public:
     Eng3D::Decimal get_everyday_needs_met_mod(void);
     Eng3D::Decimal get_luxury_needs_met_mod(void);
     Eng3D::Decimal get_immigration_attraction_mod(void);
+
+    Eng3D::StringRef name;
 
     // Our puppetmaster
     Nation* puppet_master = nullptr;
