@@ -394,7 +394,7 @@ static inline void ai_build_commercial(Nation& nation) {
 
 void ai_do_tick(Nation& nation) {
     World& world = World::get_instance();
-    assert(nation != nullptr);
+    // assert(nation != nullptr);
     if(!nation.exists()) {
         return;
     }
