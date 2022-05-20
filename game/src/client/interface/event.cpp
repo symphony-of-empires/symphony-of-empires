@@ -1,5 +1,5 @@
-// Eng3D - General purpouse game engine
-// Copyright (C) 2021, Eng3D contributors
+// Symphony of Empires
+// Copyright (C) 2021, Symphony of Empires contributors
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,33 +17,38 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      rectangle.cpp
+//      client/interface/event.cpp
 //
 // Abstract:
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "eng3d/rectangle.hpp"
+#include "eng3d/serializer.hpp"
+#include "eng3d/ui/text.hpp"
+#include "eng3d/ui/tooltip.hpp"
+#include "eng3d/ui/close_button.hpp"
+#include "eng3d/network.hpp"
 
-using namespace Eng3D;
+#include "client/interface/event.hpp"
+#include "client/client_network.hpp"
+#include "event.hpp"
+#include "action.hpp"
+#include "io_impl.hpp"
+#include "client/game_state.hpp"
 
-Rectangle::Rectangle(float x, float y, float width, float height)
-    : left{ x },
-    top{ y },
-    right{ x + width },
-    bottom{ y + height }
+using namespace Interface;
+
+EventEditorNode::EventEditorNode(GameState& _gs, EventEditor::BaseNode* node, UI::Widget* _parent)
+    : UI::Group(0, 0, _parent->width, _parent->height),
+    gs{ _gs }
 {
-
+    this->is_scroll = false;
 }
 
-Rectangle::~Rectangle(void) {
-
-}
-
-Rectangle Rectangle::intersection(const Eng3D::Rectangle& rect) const {
-    float i_left = glm::max(this->left, rect.left);
-    float i_top = glm::max(this->top, rect.top);
-    float i_right = glm::min(this->right, rect.right);
-    float i_bottom = glm::min(this->bottom, rect.bottom);
-    return Eng3D::Rectangle{ i_left, i_top, i_right - i_left, i_bottom - i_top };
+EventEditorWindow::EventEditorWindow(GameState& _gs, Event* _event)
+    : UI::Window(128, 128, 320, 570),
+    gs{ _gs },
+    event{ _event }
+{
+    this->text("Editing event " + this->event->title);
 }

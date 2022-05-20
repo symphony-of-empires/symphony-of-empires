@@ -47,9 +47,10 @@ Borders::Borders() {
     water_tex = Eng3D::State::get_instance().tex_man->load(Eng3D::State::get_instance().package_man->get_unique("gfx/water_tex.png"), mipmap_options);
     line_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        line_shader->attach_shader(Eng3D::State::get_instance().builtin_shaders["vs_3d"].get());
+        auto vs_shader = *Eng3D::State::get_instance().builtin_shaders["vs_3d"].get();
+        line_shader->attach_shader(vs_shader);
         auto fs_shader = Eng3D::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/curve.fs")), true);
-        line_shader->attach_shader(&fs_shader);
+        line_shader->attach_shader(fs_shader);
         line_shader->link();
     }
     build_borders();

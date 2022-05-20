@@ -28,40 +28,94 @@
 #include <string>
 #include "eng3d/string.hpp"
 
-// An entity which can only be made referenced by an id
+/**
+ * @brief An entity which can only be referenced by an (presumably) unique Id
+ * this is the base class for the other entity types.
+ * 
+ * @tparam IdType The type to use for the Id
+ */
 template<typename IdType>
 class Entity {
 public:
     using Id = IdType;
 
-    // Id used to speed up Id lookups on any context
-    // NOTE: This depends that the container is sequential (as if it was
-    // a contigous array) - Otherwise this optimization **WILL** break
-    Id cached_id = (Id)-1;
-
-    constexpr Id invalid(void) const {
+    /**
+     * @brief Returns an invalid id
+     * 
+     * @return constexpr Id The invalid id
+     */
+    constexpr static Id invalid(void) {
         return (Id)-1;
-    };
-    
-    constexpr bool is_invalid(Id id) const {
-        return id == (Id)-1;
-    };
-    
+    }
+
+    /**
+     * @brief Checks if the id is not valid
+     * 
+     * @param id Id to check
+     * @return true 
+     * @return false 
+     */
+    constexpr static bool is_invalid(Id id) {
+        return id == invalid();
+    }
+
+    /**
+     * @brief Checks if the id is valid
+     * 
+     * @param id Id to check
+     * @return true 
+     * @return false 
+     */
+    constexpr static bool is_valid(Id id) {
+        return !is_invalid(id);
+    }
+
+    /**
+     * @brief Checks if the current id is invalid
+     * 
+     * @return true 
+     * @return false 
+     */
     constexpr bool is_invalid(void) const {
-        return this->is_invalid(this->id);
-    };
+        return is_invalid(this->id);
+    }
+
+    /**
+     * @brief Checks if the current id is valid
+     * 
+     * @return true 
+     * @return false 
+     */
+    constexpr bool is_valid(void) const {
+        return !invalid();
+    }
 };
 
+/**
+ * @brief Alias for Entity that uses a cached_id for faster lookups
+ * 
+ * @tparam IdType The type used for the Id
+ */
 template<typename IdType>
 class IdEntity : public Entity<IdType> {
 public:
-    
+    using Id = IdType;
+    /**
+     * @brief Id used to speed up Id lookups on any context
+     * NOTE: This depends that the container is sequential (as if it was
+     * a contigous array) - Otherwise this optimization **will** break
+     * 
+     */
+    Id cached_id = (Id)-1;
 };
 
-// An entity which can be referenced via a ref_name and also via id
+/**
+ * @brief An entity which can be referenced via a ref_name and also via id
+ * 
+ * @tparam IdType The type used for the Id
+ */
 template<typename IdType>
 class RefnameEntity : public IdEntity<IdType> {
 public:
     Eng3D::StringRef ref_name;
-    Eng3D::StringRef name;
 };

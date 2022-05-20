@@ -36,8 +36,9 @@ public:
     //Decision();
     //~Decision();
 
-    Eng3D::String do_decision_function;
-    Eng3D::String effects;
+    Eng3D::StringRef name;
+    Eng3D::StringRef do_decision_function;
+    Eng3D::StringRef effects;
 };
 
 class Nation;
@@ -46,13 +47,14 @@ public:
     //Event();
     //~Event();
     void take_decision(Nation& sender, Decision& dec);
-    
-    Eng3D::String conditions_function;
-    Eng3D::String do_event_function;
+
+    Eng3D::StringRef name;
+    Eng3D::StringRef conditions_function;
+    Eng3D::StringRef do_event_function;
     std::vector<Nation *> receivers;
     std::vector<Decision> decisions;
-    Eng3D::String text;
-    Eng3D::String title;
+    Eng3D::StringRef text;
+    Eng3D::StringRef title;
 
     bool checked = false;
 };

@@ -59,9 +59,7 @@ Eng3D::MaterialManager::~MaterialManager(void) {
     materials.clear();
 }
 
-std::vector<std::pair<Eng3D::Material*, std::string>> Eng3D::MaterialManager::load_wavefront(
-    const std::string& path, const std::string& model_name)
-{
+std::vector<std::pair<Eng3D::Material*, std::string>> Eng3D::MaterialManager::load_wavefront(const std::string& path, const std::string& model_name) {
     std::ifstream file(path);
     std::string line;
 

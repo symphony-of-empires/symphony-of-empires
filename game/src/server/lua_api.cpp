@@ -197,7 +197,7 @@ int LuaAPI::get_technology(lua_State* L) {
 int LuaAPI::add_req_tech_to_tech(lua_State* L) {
     Technology* technology = &g_world->technologies.at(lua_tonumber(L, 1));
     Technology::Id req_tech_id = lua_tonumber(L, 2);
-    debug_assert(req_tech_id < g_world->technologies.size());
+    assert(req_tech_id < g_world->technologies.size());
     technology->req_technologies.push_back(req_tech_id);
     return 0;
 }
@@ -315,7 +315,7 @@ int LuaAPI::add_nation(lua_State* L) {
             throw LuaAPI::Exception("Duplicate ref_name " + nation->ref_name);
         }
     }
-
+    
     g_world->insert(*nation);
     lua_pushnumber(L, g_world->get_id(*nation));
     return 1;
@@ -360,7 +360,7 @@ int LuaAPI::get_all_nations(lua_State* L) {
 
 int LuaAPI::get_provinces_owned_by_nation(lua_State* L) {
     const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
-    debug_assert(nation != nullptr);
+    assert(nation != nullptr);
     lua_newtable(L);
 
     size_t i = 0;
@@ -374,7 +374,7 @@ int LuaAPI::get_provinces_owned_by_nation(lua_State* L) {
 
 int LuaAPI::get_provinces_with_nucleus_by_nation(lua_State* L) {
     const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
-    debug_assert(nation != nullptr);
+    assert(nation != nullptr);
     lua_newtable(L);
 
     size_t i = 0;
@@ -403,28 +403,28 @@ int LuaAPI::set_nation_primary_culture(lua_State* L) {
 
 int LuaAPI::set_nation_capital(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
-    debug_assert(nation != nullptr);
+    assert(nation != nullptr);
     nation->capital = g_world->provinces.at(lua_tonumber(L, 2));
     return 0;
 }
 
 int LuaAPI::add_accepted_culture(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
-    debug_assert(nation != nullptr);
+    assert(nation != nullptr);
     nation->culture_discrim.at(lua_tonumber(L, 2)) = 1.f;
     return 0;
 }
 
 int LuaAPI::add_accepted_religion(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
-    debug_assert(nation != nullptr);
+    assert(nation != nullptr);
     nation->religion_discrim.at(lua_tonumber(L, 2)) = 1.f;
     return 0;
 }
 
 int LuaAPI::add_nation_client_hint(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
-    debug_assert(nation != nullptr);
+    assert(nation != nullptr);
 
     NationClientHint hint;
     hint.ideology = &g_world->ideologies.at(lua_tonumber(L, 2));
@@ -437,7 +437,7 @@ int LuaAPI::add_nation_client_hint(lua_State* L) {
 
 int LuaAPI::get_nation_policies(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
-    debug_assert(nation != nullptr);
+    assert(nation != nullptr);
 
     // We are going to push everything in the policies structure
     // this is horrible - reflection may help in this case
@@ -481,7 +481,7 @@ int LuaAPI::get_nation_policies(lua_State* L) {
 
 int LuaAPI::set_nation_policies(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
-    debug_assert(nation != nullptr);
+    assert(nation != nullptr);
 
     // We are going to push everything in the policies structure
     // this is horrible - reflection may help in this case
@@ -525,18 +525,16 @@ int LuaAPI::set_nation_policies(lua_State* L) {
 
 int LuaAPI::set_nation_ideology(lua_State* L) {
     Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
-    debug_assert(nation != nullptr);
+    assert(nation != nullptr);
     nation->ideology = &g_world->ideologies.at(lua_tonumber(L, 2));
     return 0;
 }
 
 int LuaAPI::get_nation_relation(lua_State* L) {
-    Nation* nation = g_world->nations.at(lua_tonumber(L, 1));
-    debug_assert(nation != nullptr);
-    Nation* other_nation = g_world->nations.at(lua_tonumber(L, 2));
-    debug_assert(other_nation != nullptr);
+    Nation& nation = *g_world->nations.at(lua_tonumber(L, 1));
+    Nation& other_nation = *g_world->nations.at(lua_tonumber(L, 2));
 
-    auto& relation = nation->relations[g_world->get_id(*other_nation)];
+    auto& relation = g_world->get_relation(g_world->get_id(nation), g_world->get_id(other_nation));
     lua_pushnumber(L, (relation.relation));
     lua_pushnumber(L, (relation.interest));
     lua_pushboolean(L, relation.has_embargo);
@@ -555,7 +553,7 @@ int LuaAPI::set_nation_relation(lua_State* L) {
     Nation& nation = *g_world->nations.at(lua_tonumber(L, 1));
     Nation& other_nation = *g_world->nations.at(lua_tonumber(L, 2));
 
-    auto& relation = nation.relations[g_world->get_id(other_nation)];
+    auto& relation = g_world->get_relation(g_world->get_id(nation), g_world->get_id(other_nation));
     relation.relation = (lua_tonumber(L, 3));
     relation.interest = (lua_tonumber(L, 4));
     relation.has_embargo = lua_toboolean(L, 5);
@@ -581,7 +579,7 @@ int LuaAPI::nation_declare_unjustified_war(lua_State* L) {
     Nation& nation = *g_world->nations.at(lua_tonumber(L, 1));
     Nation& other_nation = *g_world->nations.at(lua_tonumber(L, 2));
 
-    if(!nation.relations[g_world->get_id(other_nation)].has_war) {
+    if(!g_world->get_relation(g_world->get_id(nation), g_world->get_id(other_nation)).has_war) {
         nation.declare_war(other_nation);
     }
     return 0;
@@ -695,11 +693,20 @@ int LuaAPI::add_province(lua_State* L) {
 
 int LuaAPI::update_province(lua_State* L) {
     Province* province = g_world->provinces.at(lua_tonumber(L, 1));
-    debug_assert(province != nullptr);
+    assert(province != nullptr);
     province->ref_name = luaL_checkstring(L, 2);
     province->color = (bswap32(lua_tonumber(L, 3)) >> 8) | 0xff000000;
     province->name = luaL_checkstring(L, 4);
     province->terrain_type = &g_world->terrain_types.at(lua_tonumber(L, 5));
+
+    // Check for duplicates
+    for(size_t i = 0; i < g_world->provinces.size(); i++) {
+        if(province->color == g_world->provinces[i]->color) {
+            throw LuaAPI::Exception(province->ref_name + " province has same color as " + g_world->provinces[i]->ref_name);
+        } else if(province->ref_name == g_world->provinces[i]->ref_name) {
+            throw LuaAPI::Exception("Duplicate ref_name " + province->ref_name);
+        }
+    }
     return 0;
 }
 
@@ -839,7 +846,7 @@ int LuaAPI::get_province_pop(lua_State* L) {
     lua_pushnumber(L, g_world->get_id(*pop.type));
     lua_pushnumber(L, g_world->get_id(*pop.culture));
     lua_pushnumber(L, g_world->get_id(*pop.religion));
-    lua_pushnumber(L, g_world->get_id(*pop.get_ideology()));
+    lua_pushnumber(L, g_world->get_id(pop.get_ideology()));
     lua_pushnumber(L, (pop.militancy));
     return 9;
 }
@@ -892,7 +899,7 @@ int LuaAPI::add_province_pop(lua_State* L) {
         throw LuaAPI::Exception("Can't create pops with 0 size");
     }
     province->pops.push_back(pop);
-    debug_assert(province->pops.size() < 100);
+    assert(province->pops.size() < 100);
     return 0;
 }
 
@@ -1304,7 +1311,7 @@ int call_func(lua_State* L, int nargs, int nret) {
 // Checks all events and their condition functions
 void LuaAPI::check_events(lua_State* L) {
     for(auto& event : g_world->events) {
-        debug_assert(event != nullptr);
+        assert(event != nullptr);
         if(event->checked) {
             continue;
         }
@@ -1312,7 +1319,7 @@ void LuaAPI::check_events(lua_State* L) {
         bool is_multi = true;
         bool has_fired = false;
         for(auto& nation : event->receivers) {
-            debug_assert(nation != nullptr);
+            assert(nation != nullptr);
             if(!nation->exists()) {
                 continue;
             }
@@ -1345,7 +1352,7 @@ void LuaAPI::check_events(lua_State* L) {
                 {
                     // The changes done to the event "locally" are then created into a new local event
                     auto local_event = Event(*event);
-                    local_event.cached_id = (Event::Id)-1;
+                    local_event.cached_id = Event::invalid();
                     local_event.ref_name = Eng3D::StringRef(local_event.ref_name + "_local_" + nation->ref_name);
                     // Do not relaunch a local event
                     local_event.checked = true;

@@ -297,7 +297,7 @@ mapmode_generator relations_map_mode(Nation::Id id) {
                 continue;
             }
 
-            const NationRelation& rel = province.controller->relations[id];
+            const NationRelation& rel = g_world->get_relation(g_world->get_id(*province.controller), id);
             if(rel.has_alliance) {
                 Eng3D::Color color = Eng3D::Color::rgba32(bswap32(0x20d4d1ff));
                 provinces_color.push_back(ProvinceColor(i, color));
@@ -339,7 +339,7 @@ mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
             return str;
         }
 
-        const NationRelation& rel = province.controller->relations[nation_id];
+        const NationRelation& rel = g_world->get_relation(g_world->get_id(*province.controller), nation_id);
         if(rel.has_alliance) {
             str += "allied with " + world.nations[nation_id]->get_client_hint().alt_name;
             return str;
@@ -466,8 +466,7 @@ std::vector<ProvinceColor> culture_map_mode(const World& world) {
             auto search = culture_amounts.find(pop.culture->cached_id);
             if(search == culture_amounts.end()) {
                 culture_amounts[pop.culture->cached_id] = pop.size;
-            }
-            else {
+            } else {
                 culture_amounts[pop.culture->cached_id] += pop.size;
             }
 
@@ -537,8 +536,7 @@ std::vector<ProvinceColor> religion_map_mode(const World& world) {
             auto search = religion_amounts.find(pop.religion->cached_id);
             if(search == religion_amounts.end()) {
                 religion_amounts[pop.religion->cached_id] = pop.size;
-            }
-            else {
+            } else {
                 religion_amounts[pop.religion->cached_id] += pop.size;
             }
 

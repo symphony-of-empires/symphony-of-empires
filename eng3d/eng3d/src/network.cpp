@@ -120,7 +120,7 @@ void Eng3D::Networking::SocketStream::send(const void* data, size_t size) {
         if(r < 0) {
             CXX_THROW(Eng3D::Networking::SocketException, "Can't send data of packet");
         }
-        
+
         i += static_cast<size_t>(r);
     }
 }
@@ -190,7 +190,7 @@ bool Eng3D::Networking::ServerClient::has_pending(void) {
     struct pollfd pfd = {};
     pfd.fd = conn_fd;
     pfd.events = POLLIN;
-    
+
     int has_pending = poll(&pfd, 1, 10);
     if(pfd.revents & POLLIN || has_pending) {
         return true;
@@ -213,7 +213,7 @@ Eng3D::Networking::ServerClient::~ServerClient(void) {
 // Server
 //
 Eng3D::Networking::Server::Server(const unsigned port, const unsigned max_conn)
-    : n_clients{ static_cast<int>(max_conn) }
+    : n_clients{ static_cast<std::size_t>(max_conn) }
 {
 #ifdef E3D_TARGET_WINDOWS
     WSADATA data;
@@ -310,12 +310,12 @@ Eng3D::Networking::Client::Client(std::string host, const unsigned port) {
         CXX_THROW(Eng3D::Networking::SocketException, "Can't start WSA subsystem");
     }
 #endif
-    
+
     std::memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = inet_addr(host.c_str());
     addr.sin_port = htons(port);
-    
+
     fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(fd == INVALID_SOCKET) {
 #ifdef E3D_TARGET_WINDOWS
@@ -324,7 +324,7 @@ Eng3D::Networking::Client::Client(std::string host, const unsigned port) {
 #endif
         CXX_THROW(Eng3D::Networking::SocketException, "Can't create client socket");
     }
-    
+
     if(connect(fd, (sockaddr*)&addr, sizeof(addr)) != 0) {
 #ifdef E3D_TARGET_UNIX
         close(fd);

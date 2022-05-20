@@ -59,7 +59,7 @@ Eng3D::Texture::Texture(size_t _width, size_t _height)
 }
 
 Eng3D::Texture::Texture(TTF_Font* font, Eng3D::Color color, const std::string& msg) {
-    debug_assert(font != nullptr);
+    assert(font != nullptr);
 
     // TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
     const SDL_Color text_color = {
@@ -226,7 +226,7 @@ void Eng3D::Texture::upload(SDL_Surface* surface) {
     } else {
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     }
-    
+
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
     glTexImage2D(GL_TEXTURE_2D, 0, colors, surface->w, surface->h, 0, texture_format, GL_UNSIGNED_BYTE, surface->pixels);

@@ -94,7 +94,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
             new Interface::NationView(this->gs, this->province->owner);
         });
         this->owner_flag->set_tooltip(this->province->owner->name + " owns this province");
-        auto* flag_rug = new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width, this->owner_flag->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
+        new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width, this->owner_flag->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
     }
 
     // Display all the nuclei
@@ -105,7 +105,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
             new Interface::NationView(this->gs, nation);
         });
         this->owner_flag->set_tooltip(nation->name + " has nuclei on this province");
-        auto* flag_rug = new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width, this->owner_flag->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
+        new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width, this->owner_flag->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
         dx += this->owner_flag->width;
     }
 
@@ -224,9 +224,8 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province*
 
     auto* build_btn = new UI::Button(0, 0, 128, 24, this);
     build_btn->text("Build new");
-    build_btn->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<ProvinceView&>(*w.parent->parent);
-        new BuildingBuildView(o.gs, 0, 0, false, o.province);
+    build_btn->set_on_click([this](UI::Widget&) {
+        new BuildingBuildView(this->gs, 0, 0, false, this->province);
     });
     dy += build_btn->height;
 
@@ -251,7 +250,7 @@ ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, Pro
     for(auto& culture : gs.world->cultures) {
         auto* btn = new UI::Button(0, dy, 128, 24, this);
         btn->text(culture.name.get_string());
-        btn->set_on_click([this, &culture](UI::Widget& w) {
+        btn->set_on_click([this, &culture](UI::Widget&) {
             for(auto& pop : this->province->pops) {
                 pop.culture = &culture;
             }
@@ -318,7 +317,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     this->pop_tab = new ProvincePopulationTab(gs, 0, 32, province, this);
     this->pop_tab->is_render = true;
     auto* pop_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(Path::get("gfx/pv_1.png")), this);
-    pop_ibtn->set_on_click([this](UI::Widget& w) {
+    pop_ibtn->set_on_click([this](UI::Widget&) {
         this->pop_tab->is_render = true;
         this->econ_tab->is_render = false;
         this->build_tab->is_render = false;
@@ -330,7 +329,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     this->econ_tab->is_render = false;
     auto* econ_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(Path::get("gfx/money.png")), this);
     econ_ibtn->right_side_of(*pop_ibtn);
-    econ_ibtn->set_on_click([this](UI::Widget& w) {
+    econ_ibtn->set_on_click([this](UI::Widget&) {
         this->pop_tab->is_render = false;
         this->econ_tab->is_render = true;
         this->build_tab->is_render = false;
@@ -342,7 +341,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     this->build_tab->is_render = false;
     auto* build_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
     build_ibtn->right_side_of(*econ_ibtn);
-    build_ibtn->set_on_click([this](UI::Widget& w) {
+    build_ibtn->set_on_click([this](UI::Widget&) {
         this->pop_tab->is_render = false;
         this->econ_tab->is_render = false;
         this->build_tab->is_render = true;
@@ -356,7 +355,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
 
         auto* xchg_name_btn = new UI::Button(0, this->height - (64 + 24), 32, 32, this);
         xchg_name_btn->right_side_of(*rename_inp);
-        xchg_name_btn->set_on_click([this](UI::Widget& w) {
+        xchg_name_btn->set_on_click([this](UI::Widget&) {
             this->province->name = this->rename_inp->get_buffer();
             this->gs.map->create_labels();
             this->gs.ui_ctx->prompt("Update", "Updated name of province to \"" + this->province->name + "\"!");
@@ -377,7 +376,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
 
         auto* fill_pops_btn = new UI::Button(0, this->height - 64, 32, 32, this);
         fill_pops_btn->below_of(*density_sld);
-        fill_pops_btn->set_on_click([this](UI::Widget& w) {
+        fill_pops_btn->set_on_click([this](UI::Widget&) {
             // Get max sv
             float max_sv = 1.f;
             for(const auto& pop_type : this->gs.world->pop_types) {
@@ -404,7 +403,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         auto* clear_pops_btn = new UI::Button(0, this->height - 64, 32, 32, this);
         clear_pops_btn->below_of(*density_sld);
         clear_pops_btn->right_side_of(*fill_pops_btn);
-        clear_pops_btn->set_on_click([this](UI::Widget& w) {
+        clear_pops_btn->set_on_click([this](UI::Widget&) {
             this->province->pops.clear();
             this->gs.map->update_mapmode();
             this->gs.ui_ctx->prompt("Update", "Cleared POPs of province \"" + this->province->name + "\"!");
@@ -417,7 +416,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         auto* edit_culture_btn = new UI::Button(0, this->height - 64, 32, 32, this);
         edit_culture_btn->below_of(*density_sld);
         edit_culture_btn->right_side_of(*clear_pops_btn);
-        edit_culture_btn->set_on_click([this](UI::Widget& w) {
+        edit_culture_btn->set_on_click([this](UI::Widget&) {
             this->pop_tab->is_render = false;
             this->econ_tab->is_render = false;
             this->build_tab->is_render = false;
@@ -432,7 +431,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         auto* edit_terrain_btn = new UI::Button(0, this->height - 64, 32, 32, this);
         edit_terrain_btn->below_of(*density_sld);
         edit_terrain_btn->right_side_of(*edit_culture_btn);
-        edit_terrain_btn->set_on_click([this](UI::Widget& w) {
+        edit_terrain_btn->set_on_click([this](UI::Widget&) {
             this->pop_tab->is_render = false;
             this->econ_tab->is_render = false;
             this->build_tab->is_render = false;

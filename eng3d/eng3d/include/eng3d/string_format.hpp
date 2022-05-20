@@ -31,6 +31,14 @@
 #include "eng3d/utils.hpp"
 
 namespace Eng3D {
+    /**
+     * @brief String formatter
+     * 
+     * @tparam Args Formatting argument type list
+     * @param format C-formatting string
+     * @param args Arguments for formatting
+     * @return std::string The resulting formatted text
+     */
     template<typename ... Args>
     std::string string_format(const std::string& format, Args ... args)
     {

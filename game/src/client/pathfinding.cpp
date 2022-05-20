@@ -65,7 +65,7 @@ static std::vector<Tile *> generate_neighbors(const World& world, const Nation& 
 
             // Check that we can diplomatically pass thru their lands
             // Our own lands and lands without owners are automatically passable
-            if(neighbour->owner_id != nation_id && neighbour->owner_id != (Nation::Id)-1) {
+            if(neighbour->owner_id != nation_id && neighbour->owner_id != Nation::invalid()) {
                 const NationRelation& relation = world.nations[neighbour->owner_id]->relations[nation_id];
                 
                 // Does not have military acces AND does not have alliance AND is not at war

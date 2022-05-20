@@ -183,9 +183,6 @@ void Client::net_loop(void) {
                         Nation* nation = new Nation();
                         ::deserialize(ar, nation);
                         world.insert(*nation);
-                        for(auto& _nation : world.nations) {
-                            _nation->relations.resize(world.nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
-                        }
                         Eng3D::Log::debug("client", "New nation " + nation->ref_name);
                     } break;
                     case ActionType::NATION_ENACT_POLICY: {

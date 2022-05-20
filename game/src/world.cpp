@@ -94,17 +94,6 @@ World& World::get_instance(void) {
     return *g_world;
 }
 
-// Obtains a tile from the world safely, and makes sure that it is in bounds
-Tile& World::get_tile(size_t x, size_t y) const {
-    debug_assert(x < width && y < height); // Tile out of bounds
-    return tiles[x + y * width];
-}
-
-Tile& World::get_tile(size_t idx) const {
-    debug_assert(idx < width * height) // Tile index exceeds boundaries
-    return tiles[idx];
-}
-
 void ai_do_tick(Nation& nation);
 
 // Creates a new world
@@ -393,58 +382,38 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
 }
 
 void World::load_initial(void) {
-    const std::vector<std::string> init_files = {
+    // Execute all lua files
+    lua_exec_all_of(*this, (std::vector<std::string>){
         "terrain_types", "good_types", "ideologies", "cultures",
         "building_types", "technology", "religions", "pop_types",
         "industry_types", "unit_types", "boat_types",
         "nations", "provinces", "init"
-    };
-    lua_exec_all_of(*this, init_files, "lua/entities");
+    }, "lua/entities");
+    // std::sort(this->provinces.begin(), this->provinces.end(), [](const auto& lhs, const auto& rhs) {
+    //     return lhs->color > rhs->color;
+    // });
 
-    // Shrink normally-not-resized vectors to give back memory to the OS
-    Eng3D::Log::debug("game", Eng3D::Locale::translate("Shrink normally-not-resized vectors to give back memory to the OS"));
-
-    // Associate tiles with province
-    std::unique_ptr<BinaryImage> div = std::make_unique<BinaryImage>(Path::get("map/provinces.png"));
-    width = div->width;
-    height = div->height;
-
-    // Sea is	<= sea_level
-    // Rivers	== sea_level + 1
-    // Land is	> sea_level + 1
-    const size_t total_size = width * height;
-    sea_level = 126;
-    tiles = std::make_unique<Tile[]>(total_size);
-
-    if(div->width != width || div->height != height) {
-        throw std::runtime_error("Province map size mismatch");
-    }
-
-    // Build a lookup table for super fast speed on finding provinces
-    // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
-    Eng3D::Log::debug("game", Eng3D::Locale::translate("Building the province lookup table"));
-    std::vector<Province::Id> province_color_table(16777216, (Province::Id)-1);
+    std::uint64_t checksum = 0;
     for(auto& province : provinces) {
-        province_color_table[province->color & 0xffffff] = get_id(*province);
+        checksum += static_cast<std::uint64_t>(province->color);
     }
+    checksum = (checksum * width + height) * provinces.size();
 
-    uint32_t checksum = 1;
-    for(auto& province : provinces) {
-        checksum += province->ref_name.get_string().at(0);
-    }
-    checksum *= width * height * provinces.size();
     bool recalc_province = true;
     try {
         Archive ar = Archive();
-        ar.from_file("province_cache.dat");
+        ar.from_file("cache_map.dat");
 
         // If the cache has the same checksum as us then we just have to read from the file
-        uint32_t cache_checksum;
+        std::uint64_t cache_checksum;
         ::deserialize(ar, &cache_checksum);
         if(checksum == cache_checksum) {
             recalc_province = false;
+
+            ::deserialize(ar, &width);
+            ::deserialize(ar, &height);
+            tiles = std::make_unique<Tile[]>(width * height);
             for(auto& province : provinces) {
-                ::deserialize(ar, &province->n_tiles);
                 ::deserialize(ar, &province->neighbours);
                 ::deserialize(ar, &province->max_x);
                 ::deserialize(ar, &province->max_y);
@@ -456,71 +425,73 @@ void World::load_initial(void) {
                 ::deserialize(ar, &tiles[i]);
             }
         }
-    }
-    catch(const std::exception& e) {
+    } catch(const std::exception& e) {
         Eng3D::Log::error("cache", e.what());
     }
 
     if(recalc_province) {
+        std::unique_ptr<BinaryImage> div = std::make_unique<BinaryImage>(Path::get("map/provinces.png"));
+        width = div->width;
+        height = div->height;
+        tiles = std::make_unique<Tile[]>(width * height);
+
         // Uncomment this and see a bit more below
         std::set<uint32_t> colors_found;
         Eng3D::Log::debug("game", Eng3D::Locale::translate("Associate tiles with provinces"));
-        for(size_t i = 0; i < total_size; ) {
-            const Province::Id province_id = province_color_table[div->buffer.get()[i] & 0xffffff];
+
+        // Build a lookup table for super fast speed on finding provinces
+        // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
+        Eng3D::Log::debug("game", Eng3D::Locale::translate("Building the province lookup table"));
+        std::vector<Province::Id> province_color_table(0xffffff + 1, Province::invalid());
+        for(auto& province : provinces) {
+            province_color_table[province->color & 0xffffff] = this->get_id(*province);
+        }
+
+        const uint32_t *raw_buffer = div->buffer.get();
+        for(size_t i = 0; i < width * height; i++) {
+            const Province::Id province_id = province_color_table[raw_buffer[i] & 0xffffff];
             if(province_id == (Province::Id)-1) {
-                // Uncomment this and see below
-                colors_found.insert(div->buffer.get()[i]);
-                i++;
-                continue;
-            }
-
-            const uint32_t rel_color = provinces[province_id]->color;
-            while(div->buffer.get()[i] == rel_color) {
-                tiles[i].province_id = province_id;
-                provinces[province_id]->n_tiles++;
-                i++;
-            }
-        }
-        div.reset(nullptr);
-
-        /* Uncomment this for auto-generating lua code for unregistered provinces */
-        FILE* fp = fopen("unknown.lua", "w+t");
-        if(fp) {
-            for(const auto& color_raw : colors_found) {
-                uint32_t color = color_raw << 8;
-                fprintf(fp, "province = Province:new{ ref_name = \"province_%06x\", color = 0x%06x }\n", static_cast<unsigned int>(bswap32(color)), static_cast<unsigned int>(bswap32(color)));
-                fprintf(fp, "province.name = _(\"Province_%06x\")\n", static_cast<unsigned int>(bswap32(color)));
-                fprintf(fp, "province:register()\n");
-            }
-            fclose(fp);
-        }
-
-        fp = fopen("unused.txt", "w+t");
-        if(fp) {
-            for(size_t i = 0; i < province_color_table.size(); i++) {
-                uint32_t color = i << 8;
-
-                if(i % 128) {
-                    continue;
+                colors_found.insert(raw_buffer[i]);
                 }
+            tiles[i].province_id = province_id;
+        }
+        div.reset();
 
-                if(province_color_table[i] == (Province::Id)-1) {
-                    fprintf(fp, "%06x\n", static_cast<uintptr_t>(bswap32(color)));
+        if(!colors_found.empty()) {
+            std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen("uprovinces.lua", "w+t"), fclose);
+            if(fp != nullptr) {
+                for(const auto& color_raw : colors_found) {
+                    uint32_t color = color_raw << 8;
+                    fprintf(fp.get(), "province = Province:new{ ref_name = \"province_%06x\", color = 0x%06x }\n", static_cast<unsigned int>(bswap32(color)), static_cast<unsigned int>(bswap32(color)));
+                    fprintf(fp.get(), "province.name = _(\"Province_%06x\")\n", static_cast<unsigned int>(bswap32(color)));
+                    fprintf(fp.get(), "province:register()\n");
                 }
             }
-            fclose(fp);
+
+            std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen("ucolors.txt", "w+t"), fclose);
+            if(fp != nullptr) {
+                for(size_t i = 0; i < province_color_table.size(); i++) {
+                    uint32_t color = i << 8;
+
+                    if(i % 128) {
+                        continue;
+                    }
+
+                    if(Province::is_invalid(province_color_table[i])) {
+                        fprintf(fp.get(), "%06lx\n", static_cast<unsigned long int>(bswap32(color)));
+                    }
+                }
+            }
+
+            // Exit
+            CXX_THROW(std::runtime_error, "There are unregistered provinces, please register them!");
         }
 
         // Calculate the edges of the province (min and max x and y coordinates)
         Eng3D::Log::debug("game", Eng3D::Locale::translate("Calculate the edges of the province (min and max x and y coordinates)"));
         for(size_t j = 0; j < height; j++) {
             for(size_t i = 0; i < width; i++) {
-                Tile& tile = get_tile(i, j);
-                if(tile.province_id >= provinces.size()) {
-                    tile.province_id = static_cast<Province::Id>(1);
-                    continue;
-                }
-
+                const Tile& tile = this->get_tile(i, j);
                 auto& province = *provinces[tile.province_id];
                 province.max_x = std::max(province.max_x, i);
                 province.max_y = std::max(province.max_y, j);
@@ -538,9 +509,8 @@ void World::load_initial(void) {
 
         // Neighbours
         Eng3D::Log::debug("game", Eng3D::Locale::translate("Creating neighbours for provinces"));
-        for(size_t i = 0; i < total_size; i++) {
+        for(size_t i = 0; i < width * height; i++) {
             const Tile* tile = &this->tiles[i];
-
             if(tile->province_id < static_cast<Province::Id>(-3)) {
                 Province* province = this->provinces[this->tiles[i].province_id];
                 const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
@@ -552,10 +522,12 @@ void World::load_initial(void) {
             }
         }
 
+        // Write the cache file
         Archive ar = Archive();
         ::serialize(ar, &checksum);
+        ::serialize(ar, &width);
+        ::serialize(ar, &height);
         for(const auto& province : provinces) {
-            ::serialize(ar, &province->n_tiles);
             ::serialize(ar, &province->neighbours);
             ::serialize(ar, &province->max_x);
             ::serialize(ar, &province->max_y);
@@ -566,17 +538,16 @@ void World::load_initial(void) {
         for(size_t i = 0; i < width * height; i++) {
             ::serialize(ar, &tiles[i]);
         }
-        ar.to_file("province_cache.dat");
+        ar.to_file("cache_map.dat");
     }
 
     // Create diplomatic relations between nations
     Eng3D::Log::debug("game", Eng3D::Locale::translate("Creating diplomatic relations"));
-    for(const auto& nation : this->nations) {
-        // Relations between nations start at 0 (and latter modified by lua scripts)
-        nation->relations.resize(this->nations.size(), NationRelation{ 0.f, false, false, false, false, false, false, false, false, true, false });
-    }
+    // Relations between nations start at 0 (and latter modified by lua scripts)
+    // since we use cantor's pairing function we only have to make an n*2 array so yeah let's do that!
+    this->relations = std::make_unique<NationRelation[]>(this->nations.size() * this->nations.size() * this->nations.size());
+    
     Eng3D::Log::debug("game", Eng3D::Locale::translate("World partially intiialized"));
-
     // Auto-relocate capitals for countries which do not have one
     for(auto& nation : this->nations) {
         // Must exist
@@ -628,19 +599,20 @@ void World::load_mod(void) {
 
 static inline void unit_do_tick(Unit& unit)
 {
-    debug_assert(unit.province != nullptr);
+    assert(unit.province != nullptr);
     if(unit.on_battle) {
         return;
     }
 
     bool can_take = true;
     for(auto& other_unit : unit.province->get_units()) {
-        if(other_unit->on_battle) {
+        if(other_unit->owner == unit.owner) {
             continue;
         }
 
         // Must not our unit and only if we are at war
-        if(other_unit->owner == unit.owner || !unit.owner->relations[g_world->get_id(*other_unit->owner)].has_war) {
+        const auto& relation = g_world->get_relation(g_world->get_id(*other_unit->owner), g_world->get_id(*unit.owner));
+        if(!relation.has_war) {
             continue;
         }
 
@@ -671,7 +643,6 @@ static inline void unit_do_tick(Unit& unit)
                 other_unit->on_battle = true;
                 war->battles.push_back(battle);
                 Eng3D::Log::debug("game", "New battle of \"" + battle.name + "\"");
-                break;
             } else {
                 Battle& battle = *it;
 
@@ -683,27 +654,34 @@ static inline void unit_do_tick(Unit& unit)
                         battle.attackers.push_back(&unit);
                         unit.on_battle = true;
                     }
+                    Eng3D::Log::debug("game", "Adding unit <attacker> to battle of \"" + battle.name + "\"");
                 } else if(war->is_defender(*unit.owner)) {
                     if(std::find(battle.defenders.begin(), battle.defenders.end(), &unit) == battle.defenders.end()) {
                         battle.defenders.push_back(&unit);
                         unit.on_battle = true;
                     }
+                    Eng3D::Log::debug("game", "Adding unit <defender> to battle of \"" + battle.name + "\"");
                 }
-                Eng3D::Log::debug("game", "Adding unit to battle of \"" + battle.name + "\"");
-                break;
             }
             break;
         }
     }
 
-    if(unit.target != nullptr && unit.can_move()) {
-        if(unit.move_progress) {
+    if(!unit.can_move()) {
+        unit.target = nullptr;
+        unit.move_progress = 0.f;
+    }
+
+    if(unit.target != nullptr) {
+        if(0 && unit.move_progress) {
             unit.move_progress -= std::min<Eng3D::Decimal>(unit.move_progress, unit.get_speed());
         } else {
             unit.set_province(*unit.target);
+            unit.target = nullptr;
             
             // If we are at war with the person we are crossing their provinces at, then take 'em (albeit with resistance)
-            if(can_take && unit.owner->relations[g_world->get_id(*unit.province->controller)].has_war) {
+            const auto& relation = g_world->get_relation(g_world->get_id(*unit.province->controller), g_world->get_id(*unit.owner));
+            if(can_take && relation.has_war) {
                 unit.owner->control_province(*unit.province);
             }
         }
@@ -760,17 +738,17 @@ void World::do_tick() {
     // Perform all battles of the active wars
     profiler.start("Battles");
     std::for_each(std::execution::par, wars.begin(), wars.end(), [this](auto& war) {
-        debug_assert(!war->attackers.empty() && !war->defenders.empty());
+        assert(!war->attackers.empty() && !war->defenders.empty());
         for(size_t j = 0; j < war->battles.size(); j++) {
             auto& battle = war->battles[j];
-            debug_assert(battle.province != nullptr);
+            assert(battle.province != nullptr);
 
             // Attackers attack Defenders
             for(auto& attacker : battle.attackers) {
-                debug_assert(attacker != nullptr);
+                assert(attacker != nullptr);
                 for(size_t i = 0; i < battle.defenders.size(); ) {
                     Unit* unit = battle.defenders[i];
-                    debug_assert(unit != nullptr);
+                    assert(unit != nullptr);
 
                     const size_t prev_size = unit->size;
                     attacker->attack(*unit);
@@ -778,10 +756,10 @@ void World::do_tick() {
                     if(!unit->size) {
                         Eng3D::Log::debug("game", "Removing attacker \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                         battle.defenders.erase(battle.defenders.begin() + i);
-                        debug_assert(unit->province != nullptr && unit->province == battle.province);
+                        assert(unit->province != nullptr && unit->province == battle.province);
 
                         auto it = std::find(battle.province->units.begin(), battle.province->units.end(), unit);
-                        debug_assert(it != battle.province->units.end());
+                        assert(it != battle.province->units.end());
                         battle.province->units.erase(it);
                         this->remove(*unit);
                         delete unit;
@@ -793,10 +771,10 @@ void World::do_tick() {
 
             // Defenders attack attackers
             for(auto& defender : battle.defenders) {
-                debug_assert(defender != nullptr);
+                assert(defender != nullptr);
                 for(size_t i = 0; i < battle.attackers.size(); ) {
                     Unit* unit = battle.attackers[i];
-                    debug_assert(unit != nullptr);
+                    assert(unit != nullptr);
 
                     const size_t prev_size = unit->size;
                     defender->attack(*unit);
@@ -804,10 +782,10 @@ void World::do_tick() {
                     if(!unit->size) {
                         Eng3D::Log::debug("game", "Removing defender \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                         battle.attackers.erase(battle.attackers.begin() + i);
-                        debug_assert(unit->province != nullptr && unit->province == battle.province);
+                        assert(unit->province != nullptr && unit->province == battle.province);
 
                         auto it = std::find(battle.province->units.begin(), battle.province->units.end(), unit);
-                        debug_assert(it != battle.province->units.end());
+                        assert(it != battle.province->units.end());
                         battle.province->units.erase(it);
                         this->remove(*unit);
                         delete unit;
@@ -822,9 +800,25 @@ void World::do_tick() {
                 // Defenders defeated
                 if(battle.defenders.empty()) {
                     battle.attackers[0]->owner->control_province(*battle.province);
-                } else {
-                    battle.defenders[0]->owner->control_province(*battle.province);
+                    // Clear flags of all units
+                    for(auto& unit : battle.attackers) {
+                        unit->on_battle = false;
+                    }
+                    Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": attackers win");
                 }
+                // Defenders won
+                else if(battle.attackers.empty()) {
+                    battle.defenders[0]->owner->control_province(*battle.province);
+                    for(auto& unit : battle.defenders) {
+                        unit->on_battle = false;
+                }
+                    Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": defenders win");
+                }
+                // Nobody won?
+                else {
+                    Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": nobody won");
+                }
+
                 war->battles.erase(war->battles.begin() + j);
                 j--;
                 continue;
@@ -838,7 +832,7 @@ void World::do_tick() {
     std::vector<Eng3D::Decimal> naval_research_pts(nations.size(), 0.f);
     // Now researches for every country are going to be accounted :)
     for(const auto& nation : nations) {
-        debug_assert(nation != nullptr);
+        assert(nation != nullptr);
         for(const auto& technology : technologies) {
             if(!nation->can_research(technology)) {
                 continue;
@@ -877,7 +871,7 @@ void World::do_tick() {
     profiler.start("Treaties");
     // Do the treaties clauses
     for(const auto& treaty : treaties) {
-        debug_assert(treaty != nullptr);
+        assert(treaty != nullptr);
 
         // Check that the treaty is agreed by all parties before enforcing it
         bool on_effect = !(std::find_if(treaty->approval_status.begin(), treaty->approval_status.end(), [](auto& status) { return (status.second != TreatyApproval::ACCEPTED); }) != treaty->approval_status.end());
@@ -893,7 +887,7 @@ void World::do_tick() {
         // Treaties clauses now will be enforced
         Eng3D::Log::debug("game", "Enforcing treaty " + treaty->name);
         for(auto& clause : treaty->clauses) {
-            debug_assert(clause != nullptr);
+            assert(clause != nullptr);
             if(clause->type == TreatyClauseType::MONEY) {
                 auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
                 if(!dyn_clause->in_effect()) {

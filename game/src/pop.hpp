@@ -41,6 +41,7 @@ enum class PopGroup : int {
 
 class PopType : public RefnameEntity<uint8_t> {
 public:
+    Eng3D::StringRef name;
     Eng3D::Decimal social_value;
     enum PopGroup group;
     // The amount of goods needed to satisfy basic needs
@@ -56,7 +57,7 @@ public:
 class Pop {
 public:
     bool operator==(const Pop& rhs) const;
-    Ideology* get_ideology(void) const;
+    Ideology& get_ideology(void) const;
     uint32_t get_type_id(void) const;
 
     PopType* type;

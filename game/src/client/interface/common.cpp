@@ -195,39 +195,36 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _techno
     auto* chk = new UI::Checkbox(0, 0, 128, 24, this);
     chk->text(technology->name.get_string());
     chk->tooltip = new UI::Tooltip(chk, 512, 24);
-    chk->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<TechnologyInfo&>(*w.parent);
-        if(o.technology == o.gs.curr_nation->focus_tech || !o.gs.curr_nation->research[o.gs.world->get_id(*o.technology)]) {
+    chk->on_each_tick = ([this](UI::Widget& w) {
+        if(this->technology == this->gs.curr_nation->focus_tech || !this->gs.curr_nation->research[this->gs.world->get_id(*this->technology)]) {
             ((UI::Checkbox&)w).set_value(true);
         } else {
             ((UI::Checkbox&)w).set_value(false);
         }
 
-        if(o.gs.curr_nation->can_research(*o.technology)) {
+        if(this->gs.curr_nation->can_research(*this->technology)) {
             w.tooltip->text(Eng3D::Locale::translate("We can research this"));
         } else {
             std::string text = "";
             text = Eng3D::Locale::translate("We can't research this because we don't have ");
-            for(const auto& req_tech_id : o.technology->req_technologies) {
-                if(o.gs.curr_nation->research[req_tech_id] > 0.f) {
-                    text += Eng3D::Locale::translate(o.gs.world->technologies[req_tech_id].name.get_string()) + ", ";
+            for(const auto& req_tech_id : this->technology->req_technologies) {
+                if(this->gs.curr_nation->research[req_tech_id] > 0.f) {
+                    text += Eng3D::Locale::translate(this->gs.world->technologies[req_tech_id].name.get_string()) + ", ";
                 }
             }
             w.tooltip->text(text);
         }
     });
-    chk->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<TechnologyInfo&>(*w.parent);
-        if(o.gs.curr_nation->can_research(*o.technology)) {
-            o.gs.client->send(Action::FocusTech::form_packet(o.technology));
+    chk->set_on_click([this](UI::Widget&) {
+        if(this->gs.curr_nation->can_research(*this->technology)) {
+            this->gs.client->send(Action::FocusTech::form_packet(this->technology));
         }
     });
     chk->on_each_tick(*chk);
 
     auto* pgbar = new UI::ProgressBar(0, 24, 128, 24, 0.f, technology->cost, this);
-    pgbar->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<TechnologyInfo&>(*w.parent);
-        ((UI::ProgressBar&)w).set_value(std::fabs(o.gs.curr_nation->research[o.gs.world->get_id(*o.technology)] - o.technology->cost));
+    pgbar->on_each_tick = ([this](UI::Widget& w) {
+        ((UI::ProgressBar&)w).set_value(std::fabs(this->gs.curr_nation->research[this->gs.world->get_id(*this->technology)] - this->technology->cost));
     });
 }
 

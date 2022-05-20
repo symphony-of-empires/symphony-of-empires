@@ -75,7 +75,7 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     flag_img->on_each_tick(*flag_img);
     flag_img->tooltip = new UI::Tooltip(flag_img, 512, 24);
     flag_img->tooltip->text(Eng3D::Locale::translate("The flag which represents the country"));
-    auto* flag_rug = new UI::Image(0, 0, flag_img->width, flag_img->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
+    new UI::Image(0, 0, flag_img->width, flag_img->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
 
     auto* flex_actions_column = new UI::Div(0, 0, 512, 512, this);
     flex_actions_column->below_of(*flag_img);
@@ -102,7 +102,8 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     if(gs.curr_nation != nation) {
         rel_lab = new UI::Label(0, 0, "?", flex_actions_column);
         rel_lab->on_each_tick = ([this](UI::Widget& w) {
-            w.text(std::to_string(this->gs.curr_nation->relations[this->gs.world->get_id(*this->nation)].relation));
+            const auto& relation = this->gs.world->get_relation(this->gs.world->get_id(*this->gs.curr_nation), this->gs.world->get_id(*this->nation));
+            w.text(std::to_string(relation.relation));
         });
         rel_lab->on_each_tick(*rel_lab);
         rel_lab->tooltip = new UI::Tooltip(rel_lab, 512, 24);
@@ -110,7 +111,8 @@ NationView::NationView(GameState& _gs, Nation* _nation)
 
         interest_lab = new UI::Label(0, 0, "?", flex_actions_column);
         interest_lab->on_each_tick = ([this](UI::Widget& w) {
-            w.text(std::to_string(this->gs.curr_nation->relations[this->gs.world->get_id(*this->nation)].interest));
+            const auto& relation = this->gs.world->get_relation(this->gs.world->get_id(*this->gs.curr_nation), this->gs.world->get_id(*this->nation));
+            w.text(std::to_string(relation.interest));
         });
         interest_lab->on_each_tick(*interest_lab);
         interest_lab->tooltip = new UI::Tooltip(interest_lab, 512, 24);
@@ -119,9 +121,8 @@ NationView::NationView(GameState& _gs, Nation* _nation)
 
     auto* market_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
     market_btn->text(Eng3D::Locale::translate("Examine market"));
-    market_btn->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<NationView&>(*w.parent);
-        new NationMarketView(o.gs, o.nation);
+    market_btn->set_on_click([this](UI::Widget&) {
+        new NationMarketView(this->gs, this->nation);
     });
     market_btn->tooltip = new UI::Tooltip(market_btn, 512, 24);
     market_btn->tooltip->text(Eng3D::Locale::translate("View market information"));
@@ -129,22 +130,21 @@ NationView::NationView(GameState& _gs, Nation* _nation)
     if(gs.curr_nation != nation) {
         auto* inc_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         inc_btn->text(Eng3D::Locale::translate("Increment relations"));
-        inc_btn->set_on_click([](UI::Widget& w) {
-            auto& o = static_cast<NationView&>(*w.parent);
-            g_client->send(Action::DiploIncRelations::form_packet(o.nation));
+        inc_btn->set_on_click([this](UI::Widget&) {
+            g_client->send(Action::DiploIncRelations::form_packet(this->nation));
         });
 
         auto* dec_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         dec_btn->text(Eng3D::Locale::translate("Decrement relations"));
-        dec_btn->set_on_click([](UI::Widget& w) {
-            auto& o = static_cast<NationView&>(*w.parent);
-            g_client->send(Action::DiploDecRelations::form_packet(o.nation));
+        dec_btn->set_on_click([this](UI::Widget&) {
+            g_client->send(Action::DiploDecRelations::form_packet(this->nation));
         });
 
         auto* dow_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         dow_btn->tooltip = new UI::Tooltip(dow_btn, 512, 24);
         dow_btn->on_each_tick = ([this](UI::Widget& w) {
-            if(this->gs.curr_nation->relations[this->gs.world->get_id(*this->nation)].has_war) {
+            const auto& relation = this->gs.world->get_relation(this->gs.world->get_id(*this->gs.curr_nation), this->gs.world->get_id(*this->nation));
+            if(relation.has_war) {
                 w.text(Eng3D::Locale::translate("Propose treaty"));
                 w.set_on_click([this](UI::Widget& w) {
                     new Interface::TreatyDraftView(this->gs, this->nation);

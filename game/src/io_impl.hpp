@@ -426,7 +426,6 @@ public:
     static inline void serialize(Archive& stream, const Nation* obj) {
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
-        ::serialize(stream, &obj->relations);
         ::serialize(stream, &obj->puppet_master);
         ::serialize(stream, &obj->diplomacy_points);
         ::serialize(stream, &obj->prestige);
@@ -456,7 +455,6 @@ public:
     static inline void deserialize(Archive& stream, Nation* obj) {
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
-        ::deserialize(stream, &obj->relations);
         ::deserialize(stream, &obj->puppet_master);
         ::deserialize(stream, &obj->diplomacy_points);
         ::deserialize(stream, &obj->prestige);
@@ -527,7 +525,6 @@ public:
         ::serialize(stream, &obj->name);
         ::serialize(stream, &obj->ref_name);
         ::serialize(stream, &obj->color);
-        ::serialize(stream, &obj->n_tiles);
         ::serialize(stream, &obj->max_x);
         ::serialize(stream, &obj->max_y);
         ::serialize(stream, &obj->min_x);
@@ -548,7 +545,6 @@ public:
         ::deserialize(stream, &obj->name);
         ::deserialize(stream, &obj->ref_name);
         ::deserialize(stream, &obj->color);
-        ::deserialize(stream, &obj->n_tiles);
         ::deserialize(stream, &obj->max_x);
         ::deserialize(stream, &obj->max_y);
         ::deserialize(stream, &obj->min_x);
@@ -842,7 +838,6 @@ public:
     static inline void serialize(Archive& stream, const World* obj) {
         ::serialize(stream, &obj->width);
         ::serialize(stream, &obj->height);
-        ::serialize(stream, &obj->sea_level);
         ::serialize(stream, &obj->time);
 
         //for(size_t i = 0; i < obj->width * obj->height; i++) {
@@ -870,6 +865,10 @@ public:
         ::serialize(stream, &obj->ideologies);
         ::serialize(stream, &obj->technologies);
         ::serialize(stream, &obj->nation_modifiers);
+        
+        for(size_t i = 0; i < n_nations; i++) {
+            ::serialize(stream, &obj->relations[i]);
+        }
 
         for(auto& sub_obj : obj->nations) {
             ::serialize(stream, sub_obj);
@@ -895,7 +894,6 @@ public:
     static inline void deserialize(Archive& stream, World* obj) {
         ::deserialize(stream, &obj->width);
         ::deserialize(stream, &obj->height);
-        ::deserialize(stream, &obj->sea_level);
         ::deserialize(stream, &obj->time);
 
         //obj->tiles = new Tile[obj->width * obj->height];
@@ -922,6 +920,10 @@ public:
         ::deserialize(stream, &obj->ideologies);
         ::deserialize(stream, &obj->technologies);
         ::deserialize(stream, &obj->nation_modifiers);
+
+        for(size_t i = 0; i < n_nations; i++) {
+            ::deserialize(stream, &obj->relations[i]);
+        }
 
         for(size_t i = 0; i < n_nations; i++) {
             auto* sub_obj = obj->nations[i];

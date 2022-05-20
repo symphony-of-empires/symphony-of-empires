@@ -49,8 +49,8 @@ Eng3D::FontSDF::FontSDF(const std::string& filename) {
     //sdf_font_shader = OpenGL::Program::create("shaders/font_sdf.vs", "shaders/font_sdf.fs");
     sdf_font_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        sdf_font_shader->attach_shader(Eng3D::State::get_instance().builtin_shaders["vs_font_sdf"].get());
-        sdf_font_shader->attach_shader(Eng3D::State::get_instance().builtin_shaders["fs_font_sdf"].get());
+        sdf_font_shader->attach_shader(*Eng3D::State::get_instance().builtin_shaders["vs_font_sdf"].get());
+        sdf_font_shader->attach_shader(*Eng3D::State::get_instance().builtin_shaders["fs_font_sdf"].get());
         sdf_font_shader->link();
     }
 

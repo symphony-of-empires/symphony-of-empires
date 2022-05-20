@@ -42,7 +42,7 @@ void* operator new(std::size_t size) {
     if(p) {
         return p;
     }
-    
+
     CXX_THROW(std::bad_alloc);
 }
 

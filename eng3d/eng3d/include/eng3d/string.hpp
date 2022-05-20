@@ -32,6 +32,10 @@
 namespace Eng3D {
     typedef std::string String;
 
+    /**
+     * @brief A reference to a string on the global string pool
+     * 
+     */
     class StringRef {
     public:
         using Id = uint16_t;
@@ -85,6 +89,11 @@ namespace Eng3D {
         return lhs.get_string() + rhs;
     };
 
+    /**
+     * @brief The string pool manager (singleton), used mainly for translation
+     * purpouses. But also helps to reduce the memory size of various objects.
+     * 
+     */
     class StringManager {
         std::vector<Eng3D::String> strings;
     public:

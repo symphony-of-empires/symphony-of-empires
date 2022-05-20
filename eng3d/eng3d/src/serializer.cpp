@@ -39,7 +39,7 @@ void Archive::copy_from(const void* ptr, size_t size) {
     if(size > buffer.size() - this->ptr) {
         CXX_THROW(SerializerException, "Buffer too small for read");
     }
-    
+
     std::memcpy(&buffer[this->ptr], ptr, size);
     this->ptr += size;
 }
@@ -77,12 +77,12 @@ void Archive::from_file(const std::string& path) {
 void* Archive::get_buffer(void) {
     return (void*)&buffer[0];
 }
-    
+
 void Archive::set_buffer(void* buf, size_t size) {
     buffer.resize(size);
     std::memcpy(&buffer[0], buf, size);
 }
-    
+
 size_t Archive::size(void) {
     return buffer.size();
 }

@@ -52,7 +52,9 @@ namespace Eng3D::OpenGL {
         VAO& operator=(const VAO&) = default;
 
         void bind(void) const;
-        GLuint get_id(void) const;
+        inline GLuint get_id(void) const {
+            return id;
+        }
     };
 
     class VBO {
@@ -65,7 +67,9 @@ namespace Eng3D::OpenGL {
         VBO& operator=(const VBO&) = default;
 
         void bind(GLenum target = GL_ARRAY_BUFFER) const;
-        GLuint get_id(void) const;
+        inline GLuint get_id(void) const {
+            return id;
+        }
     };
 };
 #endif

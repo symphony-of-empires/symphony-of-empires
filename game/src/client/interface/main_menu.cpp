@@ -147,7 +147,7 @@ MainMenu::MainMenu(GameState& _gs)
     single_btn->text_align_x = UI::Align::CENTER;
     single_btn->text_align_y = UI::Align::CENTER;
     single_btn->text("Singleplayer");
-    single_btn->set_on_click([this](UI::Widget& w) {
+    single_btn->set_on_click([this](UI::Widget&) {
         gs.current_mode = MapMode::COUNTRY_SELECT;
         gs.select_nation = new Interface::LobbySelectView(gs);
 
@@ -169,7 +169,7 @@ MainMenu::MainMenu(GameState& _gs)
     mp_btn->text_align_x = UI::Align::CENTER;
     mp_btn->text_align_y = UI::Align::CENTER;
     mp_btn->text("Join LAN");
-    mp_btn->set_on_click([this](UI::Widget& w) {
+    mp_btn->set_on_click([this](UI::Widget&) {
         this->connect_window = new MainMenuConnectServer(this->gs);
     });
 
@@ -181,7 +181,7 @@ MainMenu::MainMenu(GameState& _gs)
     host_btn->text_align_x = UI::Align::CENTER;
     host_btn->text_align_y = UI::Align::CENTER;
     host_btn->text("Host");
-    host_btn->set_on_click([this](UI::Widget& w) {
+    host_btn->set_on_click([this](UI::Widget&) {
         gs.current_mode = MapMode::COUNTRY_SELECT;
         gs.select_nation = new Interface::LobbySelectView(gs);
 
@@ -202,7 +202,7 @@ MainMenu::MainMenu(GameState& _gs)
     edit_btn->text_align_x = UI::Align::CENTER;
     edit_btn->text_align_y = UI::Align::CENTER;
     edit_btn->text("Editor");
-    edit_btn->set_on_click([this](UI::Widget& w) {
+    edit_btn->set_on_click([this](UI::Widget&) {
         gs.current_mode = MapMode::NORMAL;
         
         gs.host_mode = true;
