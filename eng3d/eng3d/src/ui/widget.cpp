@@ -129,6 +129,8 @@ void Widget::draw_rect(const Eng3D::Texture* tex, Eng3D::Rect rect_pos, Eng3D::R
     // TODO: rect_tex
     if(tex != nullptr) {
         g_ui_context->obj_shader->set_texture(0, "diffuse_map", *tex);
+    } else {
+        g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man->get_white());
     }
     auto square = Eng3D::Square(rect_pos, rect_tex);
     square.draw();

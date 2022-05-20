@@ -36,6 +36,7 @@ namespace Eng3D {
         class Program;
     };
     class Texture;
+    class Camera;
     class TriangleList;
 
     class Glyph {
@@ -53,7 +54,6 @@ namespace Eng3D {
 
         void draw();
         float size;
-        glm::mat4 model;
     private:
         TriangleList* triangles;
     };
@@ -61,12 +61,13 @@ namespace Eng3D {
     class FontSDF {
     public:
         FontSDF(const std::string& filename);
-        Label3D* gen_text(const std::string& text, glm::vec3 top, glm::vec3 right, float width, float curve = 0.f);
-        void draw(const std::vector<Label3D*>& labels, glm::mat4 projection, glm::mat4 view);
+        Label3D* gen_text(const std::string& text, glm::vec3 top, glm::vec3 right, float width, glm::vec3 center);
+        void draw(const std::vector<Label3D*>& labels, Camera* camera, bool sphere);
     private:
         std::unordered_map<uint32_t, Glyph> unicode_map;
         std::shared_ptr<Eng3D::Texture> atlas;
-        std::unique_ptr<Eng3D::OpenGL::Program> sdf_font_shader;
+        std::unique_ptr<Eng3D::OpenGL::Program> sphere_shader;
+        std::unique_ptr<Eng3D::OpenGL::Program> flat_shader;
     };
 
 };

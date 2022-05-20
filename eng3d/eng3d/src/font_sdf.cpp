@@ -36,6 +36,7 @@
 #include "eng3d/primitive.hpp"
 #include "eng3d/shader.hpp"
 #include "eng3d/state.hpp"
+#include "eng3d/camera.hpp"
 
 using namespace Eng3D;
 
@@ -46,12 +47,18 @@ Eng3D::Glyph::Glyph(float _advance, Eng3D::Rectangle _atlas_bounds, Eng3D::Recta
 }
 
 Eng3D::FontSDF::FontSDF(const std::string& filename) {
-    //sdf_font_shader = OpenGL::Program::create("shaders/font_sdf.vs", "shaders/font_sdf.fs");
-    sdf_font_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
+    sphere_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        sdf_font_shader->attach_shader(*Eng3D::State::get_instance().builtin_shaders["vs_font_sdf"].get());
-        sdf_font_shader->attach_shader(*Eng3D::State::get_instance().builtin_shaders["fs_font_sdf"].get());
-        sdf_font_shader->link();
+        auto vs_shader = Eng3D::OpenGL::VertexShader(Path::cat_strings(Path::get_data("shaders/sphere_mapping.vs")));
+        sphere_shader->attach_shader(vs_shader);
+        sphere_shader->attach_shader(*Eng3D::State::get_instance().builtin_shaders["fs_font_sdf"].get());
+        sphere_shader->link();
+    }
+    flat_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
+    {
+        flat_shader->attach_shader(*Eng3D::State::get_instance().builtin_shaders["vs_font_sdf"].get());
+        flat_shader->attach_shader(*Eng3D::State::get_instance().builtin_shaders["fs_font_sdf"].get());
+        flat_shader->link();
     }
 
     Eng3D::TextureOptions mipmap_options;
@@ -88,7 +95,7 @@ Eng3D::FontSDF::FontSDF(const std::string& filename) {
     }
 }
 
-Label3D* Eng3D::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::vec3 right, float width, float curve) {
+Label3D* Eng3D::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::vec3 right, float width, glm::vec3 center) {
     Eng3D::Color color = Eng3D::Color(0.f, 0.f, 0.f);
 
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
@@ -106,7 +113,7 @@ Label3D* Eng3D::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::v
     float scale = width / text_width;
     top = glm::normalize(top);
     right = glm::normalize(right);
-    glm::vec3 start = -right * width * 0.5f;
+    glm::vec3 start = center -right * width * 0.5f;
 
     std::vector<glm::vec3> positions;
     std::vector<glm::vec2> tex_coords;
@@ -157,14 +164,22 @@ Label3D* Eng3D::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::v
     return new Label3D(triangles, scale);
 }
 
-void Eng3D::FontSDF::draw(const std::vector<Label3D*>& labels, glm::mat4 projection, glm::mat4 view) {
-    sdf_font_shader->use();
-    sdf_font_shader->set_uniform("projection", projection);
-    sdf_font_shader->set_uniform("view", view);
-    sdf_font_shader->set_texture(0, "atlas", *atlas);
+void Eng3D::FontSDF::draw(const std::vector<Label3D*>& labels, Camera* camera, bool sphere) {
+    Eng3D::OpenGL::Program* shader;
+    if (sphere) {
+        shader = sphere_shader.get();
+    } else {
+        shader = flat_shader.get();
+    }
+    shader->use();
+    shader->set_uniform("projection", camera->get_projection());
+    shader->set_uniform("view", camera->get_view());
+    shader->set_texture(0, "atlas", *atlas);
     for(auto& label : labels) {
-        sdf_font_shader->set_uniform("model", label->model);
-        sdf_font_shader->set_uniform("px_range", label->size * 0.5f);
+        shader->set_uniform("map_size", camera->get_map_size());
+        shader->set_uniform("radius", 101.f);
+        shader->set_uniform("model", glm::mat4(1));
+        shader->set_uniform("px_range", label->size * 0.5f);
         label->draw();
     }
 }
@@ -173,7 +188,6 @@ Eng3D::Label3D::Label3D(TriangleList* _triangles, float _size)
     : triangles(_triangles),
     size{ _size }
 {
-    model = glm::mat4(1.f);
 }
 
 Eng3D::Label3D::~Label3D() {
