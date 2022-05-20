@@ -52,7 +52,7 @@ Label::Label(int _x, int _y, const std::string& _text, Widget* _parent)
 }
 
 Label::~Label(void) {
-    
+
 }
 
 void Label::text(const std::string& _text) {

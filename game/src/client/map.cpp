@@ -124,8 +124,8 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     // Shader used for drawing the models using custom model render
     obj_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        obj_shader->attach_shader(s.builtin_shaders["vs_3d"].get());
-        obj_shader->attach_shader(s.builtin_shaders["fs_3d"].get());
+        obj_shader->attach_shader(*s.builtin_shaders["vs_3d"].get());
+        obj_shader->attach_shader(*s.builtin_shaders["fs_3d"].get());
         obj_shader->link();
     }
 
@@ -319,7 +319,7 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
     // Water
     province_color.push_back(ProvinceColor((Province::Id)-2, Eng3D::Color::rgba32(0x00000000)));
     // Land
-    province_color.push_back(ProvinceColor((Province::Id)-1, Eng3D::Color::rgba32(0xffdddddd)));
+    province_color.push_back(ProvinceColor(Province::invalid(), Eng3D::Color::rgba32(0xffdddddd)));
     return province_color;
 }
 
@@ -449,7 +449,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
     }
     else if(event.button.button == SDL_BUTTON_RIGHT) {
         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
-        if(tile.province_id == (Province::Id)-1) {
+        if(Province::is_valid(tile.province_id)) {
             return;
         }
 
@@ -473,7 +473,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
 
             if(unit->province->controller != nullptr && unit->province->controller != gs.curr_nation) {
                 // Must either be our ally, have military access with them or be at war
-                const NationRelation& relation = gs.curr_nation->relations[gs.world->get_id(*unit->province->controller)];
+                const NationRelation& relation = gs.world->get_relation(gs.world->get_id(*gs.curr_nation), gs.world->get_id(*unit->province->controller));
                 if(!(relation.has_war || relation.has_alliance || relation.has_military_access)) {
                     continue;
                 }
@@ -677,11 +677,11 @@ void Map::draw(const GameState& gs) {
                     unit_visable = false;
                 }
             }
+            
             if(unit_visable) {
                 if(unit_index < unit_widgets.size()) {
                     unit_widgets[unit_index]->set_unit(unit);
-                }
-                else {
+                } else {
                     unit_widgets.push_back(new Interface::UnitWidget(unit, this, map_ui_layer));
                 }
                 unit_index++;

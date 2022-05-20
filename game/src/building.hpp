@@ -47,6 +47,8 @@ public:
     static constexpr int BUILD_AIR_UNITS = 0x10;
     // Build any type of military
     static constexpr int BUILD_MILITARY = BUILD_LAND_UNITS | BUILD_NAVAL_UNITS | BUILD_AIR_UNITS;
+
+    Eng3D::StringRef name;
     std::uint8_t flags;
 
     // We used to calculate these per each economical tick but now we can just store them

@@ -30,16 +30,16 @@ bool Pop::operator==(const Pop& rhs) const {
     return (this->culture == rhs.culture && this->religion == rhs.religion && this->type == rhs.type);
 }
 
-Ideology* Pop::get_ideology(void) const {
+Ideology& Pop::get_ideology(void) const {
     // Obtain ideology with highest approval
-    auto v = g_world->ideologies[std::distance(
+    auto* v = &g_world->ideologies[std::distance(
         this->ideology_approval.begin(),
         std::max_element(
             this->ideology_approval.begin(),
             this->ideology_approval.end()
         )
     )];
-    return &v;
+    return *v;
 }
 
 uint32_t Pop::get_type_id(void) const {

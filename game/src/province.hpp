@@ -59,8 +59,10 @@ public:
     std::vector<Building>& get_buildings(void);
     bool is_neighbour(Province& province) const;
 
+    Eng3D::StringRef name;
+
     // Color of the province, used for mapping the province's shape from the map_div.png file
-    uint32_t color = 0;
+    std::uint32_t color = 0;
 
     bool is_coastal = false;
 
@@ -70,9 +72,7 @@ public:
     Eng3D::Decimal supply_rem = 0.f;
     // Attractiveness of province
     Eng3D::Decimal base_attractive = 0.f;
-
-    // Number of tiles this province takes
-    size_t n_tiles = 0;
+    
     // Rectangle coordinates (x,y - x,y) for "area" scanning a province when needed
     // (for example, when changing owners)
     size_t min_x = 65532, min_y = 65532, max_x = 0, max_y = 0;

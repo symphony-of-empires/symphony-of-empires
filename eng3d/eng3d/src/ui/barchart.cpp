@@ -49,7 +49,7 @@ BarChart::BarChart(int _x, int _y, unsigned w, unsigned h, std::vector<ChartData
     max{ 0 },
     Widget(_parent, _x, _y, w, h, UI::WidgetType::BAR_CHART)
 {
-    
+
 }
 
 BarChart::BarChart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
@@ -57,7 +57,7 @@ BarChart::BarChart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     max{ 0 },
     Widget(_parent, _x, _y, w, h, UI::WidgetType::BAR_CHART)
 {
-    
+
 }
 
 void BarChart::set_data(std::vector<ChartData> new_data) {

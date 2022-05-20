@@ -56,19 +56,9 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
 
     // Recollect offenders
     // - Those who are allied to us
-    for(unsigned int i = 0; i < world.nations.size(); i++) {
-        const auto& relation = this->relations[i];
-        // Our puppets called into war
-        if(world.nations[i]->puppet_master == this) {
-            war->attackers.push_back(world.nations[i]);
-        // Puppets of allies are called into war
-        } else if(world.nations[i] == this || (relation.has_alliance&& world.nations[i]->puppet_master == nullptr)) {
-            for(const auto& other_nation : world.nations) {
-                if(other_nation == world.nations[i] || other_nation->puppet_master != world.nations[i]) {
-                    continue;
-                }
-                war->attackers.push_back(other_nation);
-            }
+    for(std::size_t i = 0; i < world.nations.size(); i++) {
+        const auto& relation = world.get_relation(i, world.get_id(*this));
+        if(relation.has_alliance || world.nations[i]->puppet_master == this) {
             war->attackers.push_back(world.nations[i]);
         }
     }
@@ -82,21 +72,10 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     // Recollect defenders
     // - Those who are on a defensive pact with the target
     // - Those who are allied with the target
-    for(unsigned int i = 0; i < world.nations.size(); i++) {
-        const auto& relation = this->relations[i];
-        // Puppets of the defending nation
-        if(world.nations[i]->puppet_master == &nation) {
-            war->defenders.push_back(world.nations[i]);
-        // Puppets of their allies
-        } else if(world.nations[i] == &nation || (relation.has_alliance && world.nations[i]->puppet_master == nullptr)) {
-            for(const auto& other_nation : world.nations) {
-                if(other_nation == world.nations[i] || other_nation->puppet_master != world.nations[i]) {
-                    continue;
-                }
-
-                war->defenders.push_back(other_nation);
-            }
-            war->defenders.push_back(world.nations[i]);
+    for(std::size_t i = 0; i < world.nations.size(); i++) {
+        const auto& relation = world.get_relation(i, world.get_id(nation));
+        if(relation.has_alliance || relation.has_defensive_pact || world.nations[i]->puppet_master == &nation) {
+            war->attackers.push_back(world.nations[i]);
         }
     }
     war->defenders.push_back(&nation);
@@ -104,22 +83,21 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     // Attackers are at war with the defenders
     for(auto& attacker : war->attackers) {
         for(auto& defender : war->defenders) {
+            assert(attacker != defender);
+
             if(attacker->puppet_master == defender) {
                 attacker->puppet_master = nullptr;
             } else if(defender->puppet_master == attacker) {
                 defender->puppet_master = nullptr;
             }
 
-            // Bilateral war
-            attacker->relations[world.get_id(*defender)].has_war = true;
-            attacker->relations[world.get_id(*defender)].has_alliance = false;
-            attacker->relations[world.get_id(*defender)].has_defensive_pact = false;
-            attacker->relations[world.get_id(*defender)].relation = -100.f;
+            auto& relation = world.get_relation(world.get_id(*defender), world.get_id(*attacker));
 
-            defender->relations[world.get_id(*attacker)].has_war = true;
-            defender->relations[world.get_id(*attacker)].has_alliance = false;
-            defender->relations[world.get_id(*attacker)].has_defensive_pact = false;
-            defender->relations[world.get_id(*attacker)].relation = -100.f;
+            // Declare war
+            relation.has_war = true;
+            relation.has_alliance = false;
+            relation.has_defensive_pact = false;
+            relation.relation = -100.f;
         }
     }
 
@@ -135,18 +113,20 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
 }
 
 bool Nation::is_ally(const Nation& nation) {
-    const World& world = World::get_instance();
+    World& world = World::get_instance();
+    auto& relation = world.get_relation(world.get_id(*this), world.get_id(nation));
 
-    if(nation.relations[world.get_id(*this)].has_war || this->relations[world.get_id(nation)].has_war) {
+    if(relation.has_war) {
         return false;
     }
     return true;
 }
 
 bool Nation::is_enemy(const Nation& nation) {
-    const World& world = World::get_instance();
+    World& world = World::get_instance();
+    auto& relation = world.get_relation(world.get_id(*this), world.get_id(nation));
 
-    if(nation.relations[world.get_id(*this)].has_war || this->relations[world.get_id(nation)].has_war) {
+    if(relation.has_war) {
         return true;
     }
     return false;
@@ -170,23 +150,19 @@ inline bool Nation::can_do_diplomacy() {
 }
 
 void Nation::increase_relation(Nation& target) {
-    //if(!can_do_diplomacy()) return;
+    World& world = World::get_instance();
+    auto& relation = world.get_relation(world.get_id(*this), world.get_id(target));
 
-    const World& world = World::get_instance();
-    this->relations[world.get_id(target)].relation += 5.f;
-    target.relations[world.get_id(*this)].relation += 5.f;
-
+    relation.relation += 5.f;
     Eng3D::Log::debug("game", ref_name + " increases relations with " + target.ref_name);
     this->do_diplomacy();
 }
 
 void Nation::decrease_relation(Nation& target) {
-    //if(!can_do_diplomacy()) return;
+    World& world = World::get_instance();
+    auto& relation = world.get_relation(world.get_id(*this), world.get_id(target));
 
-    const World& world = World::get_instance();
-    this->relations[world.get_id(target)].relation -= 5.f;
-    target.relations[world.get_id(*this)].relation -= 5.f;
-
+    relation.relation -= 5.f;
     Eng3D::Log::debug("game", ref_name + " decreases relations with " + target.ref_name);
     this->do_diplomacy();
 }
@@ -221,7 +197,7 @@ void Nation::set_policy(const Policies& policies) {
                 continue;
             }
 
-            const Policies& pop_policies = pop.get_ideology()->policies;
+            const Policies& pop_policies = pop.get_ideology().policies;
 
             // Disapproval of old (current) policy
             const int old_disapproval = current_policy.difference(pop_policies);
@@ -405,7 +381,8 @@ std::vector<Nation*> Nation::get_allies(void) {
 
     std::vector<Nation*> list;
     for(const auto& nation : world.nations) {
-        if(relations[world.get_id(*nation)].has_alliance) {
+        const auto& relation = g_world->get_relation(world.get_id(*this), world.get_id(*nation));
+        if(relation.has_alliance) {
             list.push_back(nation);
         }
     }

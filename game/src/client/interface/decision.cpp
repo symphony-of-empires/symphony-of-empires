@@ -44,11 +44,11 @@ DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
     event{ _event }
 {
     // Title of the event
-    this->text(this->event.title.c_str());
+    this->text(this->event.title.get_string());
 
     // Body of the event text
     auto* txt = new UI::Text(0, 0, this->width, 24, this);
-    txt->text(this->event.text);
+    txt->text(this->event.text.get_string());
 
     this->height = txt->height + (this->event.decisions.size() * 24) + (24 * 4);
 
@@ -57,7 +57,7 @@ DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
     for(const auto& decision : this->event.decisions) {
         auto* decide_btn = new UI::Button(0, 0, this->width, 24, this);
         decide_btn->text(decision.name.get_string());
-        decide_btn->set_on_click([this, decision](UI::Widget& w) {
+        decide_btn->set_on_click([this, decision](UI::Widget&) {
             Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
             Archive ar = Archive();
             ActionType action = ActionType::NATION_TAKE_DECISION;
@@ -68,7 +68,7 @@ DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
             this->gs.client->send(packet);
             this->kill();
         });
-        this->set_tooltip(decision.effects);
+        this->set_tooltip(decision.effects.get_string());
         
         decide_btn->below_of(*txt);
         if(last != nullptr) {

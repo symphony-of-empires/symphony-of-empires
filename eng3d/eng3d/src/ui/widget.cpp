@@ -62,8 +62,7 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
         x += parent->padding.x;
         y += parent->padding.y;
         parent->add_child(*this);
-    }
-    else {
+    } else {
         // Add the widget to the context in each construction without parent
         g_ui_context->add_widget(this);
     }
@@ -83,8 +82,7 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
         x += parent->padding.x;
         y += parent->padding.y;
         parent->add_child(*this);
-    }
-    else {
+    } else {
         // Add the widget to the context in each construction without parent
         g_ui_context->add_widget(this);
     }
@@ -103,8 +101,8 @@ Widget::~Widget(void) {
 
 void Widget::draw_rect(const Eng3D::Texture* tex, Eng3D::Rect rect_pos, Eng3D::Rect rect_tex, Eng3D::Rect viewport) {
     glm::vec2 pos_size = rect_pos.size();
-    pos_size.x = pos_size.x > 0? pos_size.x : 1.f;
-    pos_size.y = pos_size.y > 0? pos_size.y : 1.f;
+    pos_size.x = pos_size.x > 0 ? pos_size.x : 1.f;
+    pos_size.y = pos_size.y > 0 ? pos_size.y : 1.f;
     glm::vec2 tex_size = rect_tex.size();
 
     if(rect_pos.left < viewport.left) {
@@ -134,22 +132,6 @@ void Widget::draw_rect(const Eng3D::Texture* tex, Eng3D::Rect rect_pos, Eng3D::R
     }
     auto square = Eng3D::Square(rect_pos, rect_tex);
     square.draw();
-}
-
-void Widget::above_of(const Widget& rhs) {
-    y = rhs.y - height;
-}
-
-void Widget::below_of(const Widget& rhs) {
-    y = rhs.y + rhs.height;
-}
-
-void Widget::left_side_of(const Widget& rhs) {
-    x = rhs.x - width;
-}
-
-void Widget::right_side_of(const Widget& rhs) {
-    x = rhs.x + rhs.width;
 }
 
 void Widget::draw_border(Border& border, Eng3D::Rect viewport) {
@@ -301,15 +283,13 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
         int y_offset = text_offset_y;
         if(text_align_x == UI::Align::CENTER) {
             x_offset = (width - text_texture->width) / 2;
-        }
-        else if(text_align_x == UI::Align::END) {
+        } else if(text_align_x == UI::Align::END) {
             x_offset = width - text_texture->width - text_offset_x;
         }
 
         if(text_align_y == UI::Align::CENTER) {
             y_offset = (height - text_texture->height) / 2;
-        }
-        else if(text_align_y == UI::Align::END) {
+        } else if(text_align_y == UI::Align::END) {
             y_offset = height - text_texture->height - text_offset_y;
         }
         draw_rectangle(x_offset, y_offset, text_texture->width, text_texture->height, viewport, text_texture);
@@ -325,23 +305,12 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
 }
 
 /**
- * @brief Moves a widget by x and y
- *
- * @param _x
- * @param _y
- */
-void Widget::move_by(int _x, int _y) {
-    x += _x;
-    y += _y;
-}
-
-/**
  * @brief Recalculates the position of each children inside the widget
  * this is only used when Flex is used on a widget and it will automatically
  * align the widget's children depending on the other Flex properties
  *
  */
-void Widget::recalc_child_pos() {
+void Widget::recalc_child_pos(void) {
     if(flex == Flex::NONE) {
         return;
     }
@@ -368,8 +337,7 @@ void Widget::recalc_child_pos() {
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + flex_gap;
-            }
-            else {
+            } else {
                 child->y = current_lenght;
                 current_lenght += child->height + flex_gap;
             }
@@ -385,8 +353,7 @@ void Widget::recalc_child_pos() {
             if(is_row) {
                 child->x = current_lenght - child->width - flex_gap;
                 current_lenght -= child->width;
-            }
-            else {
+            } else {
                 child->y = current_lenght - child->height - flex_gap;
                 current_lenght -= child->height;
             }
@@ -403,8 +370,7 @@ void Widget::recalc_child_pos() {
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + difference;
-            }
-            else {
+            } else {
                 child->y = current_lenght;
                 current_lenght += child->height + difference;
             }
@@ -421,8 +387,7 @@ void Widget::recalc_child_pos() {
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + difference;
-            }
-            else {
+            } else {
                 child->y = current_lenght;
                 current_lenght += child->height + difference;
             }
@@ -436,8 +401,7 @@ void Widget::recalc_child_pos() {
             if(child->is_pinned) continue;
             if(is_row) {
                 child->y = 0;
-            }
-            else {
+            } else {
                 child->x = 0;
             }
         }
@@ -447,8 +411,7 @@ void Widget::recalc_child_pos() {
             if(child->is_pinned) continue;
             if(is_row) {
                 child->y = std::max<int>(0, height - child->height);
-            }
-            else {
+            } else {
                 child->x = std::max<int>(0, width - child->width);
             }
         }
@@ -458,8 +421,7 @@ void Widget::recalc_child_pos() {
             if(child->is_pinned) continue;
             if(is_row) {
                 child->y = std::max<int>(0, height - child->height) / 2;
-            }
-            else {
+            } else {
                 child->x = std::max<int>(0, width - child->width) / 2;
             }
         }
@@ -564,6 +526,7 @@ void Widget::scroll(int _y) {
             child_bottom = std::max(child_bottom, child->y + (int)child->height);
         }
     }
+
     child_bottom -= height;
     _y = std::min(-child_top, _y);
     _y = std::max(-child_bottom, _y);

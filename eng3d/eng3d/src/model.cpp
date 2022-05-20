@@ -54,10 +54,6 @@ void Eng3D::OpenGL::VAO::bind(void) const {
     glBindVertexArray(id);
 }
 
-GLuint Eng3D::OpenGL::VAO::get_id(void) const {
-    return id;
-}
-
 //
 // VBO
 //
@@ -71,10 +67,6 @@ Eng3D::OpenGL::VBO::~VBO(void) {
 
 void Eng3D::OpenGL::VBO::bind(GLenum target) const {
     glBindBuffer(target, id);
-}
-
-GLuint Eng3D::OpenGL::VBO::get_id(void) const {
-    return id;
 }
 
 //
@@ -146,7 +138,7 @@ const Eng3D::Model& Eng3D::ModelManager::load_wavefront(const std::string& path)
 
     class WavefrontObj {
     public:
-        WavefrontObj(const std::string& _name): name(_name) {};
+        WavefrontObj(const std::string& _name) : name(_name) {};
         std::string name;
         std::vector<WavefrontFace> faces;
         const Eng3D::Material* material = nullptr;
@@ -184,33 +176,27 @@ const Eng3D::Model& Eng3D::ModelManager::load_wavefront(const std::string& path)
             if(asset.get() != nullptr) {
                 Eng3D::State::get_instance().material_man->load_wavefront(asset->abs_path, path);
             }
-        }
-        else if(cmd == "usemtl") {
+        } else if(cmd == "usemtl") {
             std::string name = path;
             sline >> name;
             objects.back().material = Eng3D::State::get_instance().material_man->load(path + "-" + name);
-        }
-        else if(cmd == "o") {
+        } else if(cmd == "o") {
             std::string name;
             sline >> name;
             objects.push_back(WavefrontObj(name));
-        }
-        else if(cmd == "v") {
+        } else if(cmd == "v") {
             glm::vec3 vert;
             sline >> vert.x >> vert.y >> vert.z;
             vertices.push_back(vert);
-        }
-        else if(cmd == "vt") {
+        } else if(cmd == "vt") {
             glm::vec2 tex;
             sline >> tex.x >> tex.y;
             texcoords.push_back(tex);
-        }
-        else if(cmd == "vn") {
+        } else if(cmd == "vn") {
             glm::vec3 norm;
             sline >> norm.x >> norm.y >> norm.z;
             normals.push_back(norm);
-        }
-        else if(cmd == "f") {
+        } else if(cmd == "f") {
             WavefrontFace face = WavefrontFace();
             while(sline.peek() != -1) {
                 // Assemble faces - allowing for any number of vertices
@@ -249,20 +235,17 @@ const Eng3D::Model& Eng3D::ModelManager::load_wavefront(const std::string& path)
 
             if(face.vertices.size() < 3) {
                 Eng3D::Log::error("model", "Cannot create polygon - malformed face?");
-            }
-            else {
+            } else {
                 objects.back().faces.push_back(face);
             }
-        }
-        else if(cmd == "s") {
+        } else if(cmd == "s") {
             std::string light_mode;
             sline >> light_mode;
 
             if(light_mode != "off") {
                 Eng3D::Log::error("model", "No light mode " + light_mode);
             }
-        }
-        else {
+        } else {
             Eng3D::Log::error("model", "No command " + cmd);
         }
     }
@@ -283,8 +266,7 @@ const Eng3D::Model& Eng3D::ModelManager::load_wavefront(const std::string& path)
                         glm::vec2(texcoords[(*face).texcoords[i] - 1])
                         ));
                 }
-            }
-            else {
+            } else {
                 for(unsigned int i = 0; i < (*face).vertices.size(); i++) {
                     cluster.push_back(Eng3D::MeshData<glm::vec3, glm::vec2>(
                         glm::vec3(vertices[(*face).vertices[i] - 1]),
@@ -366,8 +348,7 @@ const Eng3D::Model& Eng3D::ModelManager::load(const std::string& path) {
         // TODO: This is too horrible, we need a better solution
         if(path.length() > 3 && path[path.length() - 3] == 's' && path[path.length() - 2] == 't' && path[path.length() - 1] == 'l') {
             return load_stl(path);
-        }
-        else {
+        } else {
             return load_wavefront(path);
         }
     } catch(std::ifstream::failure& e) {

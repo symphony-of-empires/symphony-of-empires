@@ -114,18 +114,6 @@ void Eng3D::OpenGL::Shader::compile(GLuint type) {
     Eng3D::Log::debug("shader", "Status: Sucess");
 }
 
-GLuint Eng3D::OpenGL::Shader::get_id(void) const {
-    return id;
-}
-
-// Deconstructs the shader object and we have to delete the shader from the OpenGL
-// driver by calling glDeleteShader
-Eng3D::OpenGL::Shader::~Shader() {
-    if(id) {
-        glDeleteShader(id);
-    }
-}
-
 //
 // Vertex shader
 //
@@ -191,30 +179,13 @@ Eng3D::OpenGL::TessEvalShader::~TessEvalShader(void) {
 
 }
 
-//
-// Program
-//
-Eng3D::OpenGL::Program::Program(void) {
-    id = glCreateProgram();
-    if(!id) {
-        CXX_THROW(Eng3D::ShaderException, "Can't create new program");
-    }
-    glBindAttribLocation(id, 0, "m_pos");
-    glBindAttribLocation(id, 1, "m_texcoord");
-}
-
-Eng3D::OpenGL::Program::~Program(void) {
-
-}
-
-// Attaches a shader to the program - this will make it so when the program is compiled the shader
-// will then be linked onto it
-void Eng3D::OpenGL::Program::attach_shader(const Eng3D::OpenGL::Shader* shader) {
-    glAttachShader(id, shader->get_id());
-}
-
+/**
+ * @brief Links the whole program into itself, all attached shaders that were
+ * previously given to this program will be linked (hopefully) by OpenGL.
+ *
+ */
 void Eng3D::OpenGL::Program::link(void) {
-    debug_assert(id != 0); // Program has no Id
+    assert(id != 0); // Program has no Id
     glLinkProgram(id);
 
     // Check for errors of the shader
@@ -228,62 +199,4 @@ void Eng3D::OpenGL::Program::link(void) {
     }
 }
 
-void Eng3D::OpenGL::Program::use(void) const {
-    glUseProgram(id);
-}
-
-// Uniform overloads
-// It allows the game engine to call these functions without worrying about type specifications
-void Eng3D::OpenGL::Program::set_uniform(const std::string& name, glm::mat4 uniform) const {
-    glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, glm::value_ptr(uniform));
-}
-
-void Eng3D::OpenGL::Program::set_uniform(const std::string& name, float value1, float value2) const {
-    glUniform2f(glGetUniformLocation(id, name.c_str()), value1, value2);
-}
-
-void Eng3D::OpenGL::Program::set_uniform(const std::string& name, float value1, float value2, float value3) const {
-    glUniform3f(glGetUniformLocation(id, name.c_str()), value1, value2, value3);
-}
-
-void Eng3D::OpenGL::Program::set_uniform(const std::string& name, glm::vec3 uniform) const {
-    set_uniform(name, uniform.x, uniform.y, uniform.z);
-}
-
-void Eng3D::OpenGL::Program::set_uniform(const std::string& name, glm::vec4 uniform) const {
-    set_uniform(name, uniform.x, uniform.y, uniform.z, uniform.w);
-}
-
-void Eng3D::OpenGL::Program::set_uniform(const std::string& name, float value1, float value2, float value3, float value4) const {
-    glUniform4f(glGetUniformLocation(id, name.c_str()), value1, value2, value3, value4);
-}
-
-void Eng3D::OpenGL::Program::set_uniform(const std::string& name, float value) const {
-    glUniform1f(glGetUniformLocation(id, name.c_str()), value);
-}
-
-void Eng3D::OpenGL::Program::set_uniform(const std::string& name, int value) const {
-    glUniform1i(glGetUniformLocation(id, name.c_str()), value);
-}
-
-// Sets the texture (sampler2D) into the shader,
-void Eng3D::OpenGL::Program::set_texture(int value, const std::string& name, const Eng3D::Texture& texture) const {
-    debug_assert(texture.gl_tex_num != 0); // Texture with invalid Id
-
-    glActiveTexture(GL_TEXTURE0 + value);
-    set_uniform(name, value);
-    glBindTexture(GL_TEXTURE_2D, texture.gl_tex_num);
-}
-
-void Eng3D::OpenGL::Program::set_texture(int value, const std::string& name, const Eng3D::TextureArray& texture) const {
-    debug_assert(texture.gl_tex_num != 0); // Texture with invalid Id
-
-    glActiveTexture(GL_TEXTURE0 + value);
-    set_uniform(name, value);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, texture.gl_tex_num);
-}
-
-GLuint Eng3D::OpenGL::Program::get_id(void) const {
-    return id;
-}
 #endif

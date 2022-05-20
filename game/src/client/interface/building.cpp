@@ -100,19 +100,17 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
 
     auto* province_btn = new UI::Button(0, 0, 128, 24, this);
     province_btn->text(Eng3D::Locale::translate("Province"));
-    province_btn->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<BuildingBuildView&>(*w.parent);
-        o.province_tab->is_render = true;
-        o.type_tab->is_render = false;
+    province_btn->set_on_click([this](UI::Widget&) {
+        this->province_tab->is_render = true;
+        this->type_tab->is_render = false;
     });
 
     auto* build_btn = new UI::Button(0, 0, 128, 24, this);
     build_btn->below_of(*province_btn);
     build_btn->text(Eng3D::Locale::translate("Build"));
-    build_btn->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<BuildingBuildView&>(*w.parent);
-        o.province_tab->is_render = false;
-        o.type_tab->is_render = true;
+    build_btn->set_on_click([this](UI::Widget&) {
+        this->province_tab->is_render = false;
+        this->type_tab->is_render = true;
     });
 
     auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);

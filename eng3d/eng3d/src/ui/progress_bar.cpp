@@ -43,13 +43,13 @@ ProgressBar::ProgressBar(int _x, int _y, unsigned w, unsigned h, const float _mi
     min{ _min },
     Widget(_parent, _x, _y, w, h, UI::WidgetType::PROGRESS_BAR)
 {
-    
+
 }
 
 Eng3D::Rect get_rect(Eng3D::Rect rect_pos, Eng3D::Rect viewport) {
     glm::vec2 pos_size = rect_pos.size();
-    pos_size.x = pos_size.x > 0? pos_size.x : 1.f;
-    pos_size.y = pos_size.y > 0? pos_size.y : 1.f;
+    pos_size.x = pos_size.x > 0 ? pos_size.x : 1.f;
+    pos_size.y = pos_size.y > 0 ? pos_size.y : 1.f;
 
     if(rect_pos.left < viewport.left) {
         //float x_ratio = (viewport.left - rect_pos.left) / pos_size.x;

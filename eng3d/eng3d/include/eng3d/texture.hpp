@@ -60,7 +60,7 @@ namespace Eng3D {
             : BinaryImageException(filename, message)
         {
 
-        };
+        }
     };
 
     class TextureOptions {
@@ -88,16 +88,8 @@ namespace Eng3D {
         bool editable = false;
         bool compressed = true;
 
-        bool operator==(const TextureOptions& o) const {
-            return target == o.target
-                && wrap_s == o.wrap_s
-                && wrap_t == o.wrap_t
-                && min_filter == o.min_filter
-                && mag_filter == o.mag_filter
-                && internal_format == o.internal_format
-                && format == o.format
-                && type == o.type
-                && editable == o.editable;
+        inline bool operator==(const TextureOptions& o) const {
+            return target == o.target && wrap_s == o.wrap_s && wrap_t == o.wrap_t && min_filter == o.min_filter && mag_filter == o.mag_filter && internal_format == o.internal_format && format == o.format && type == o.type && editable == o.editable;
         }
     };
     const TextureOptions default_options;
@@ -143,8 +135,11 @@ namespace Eng3D {
         s ^= h(v) + 0x9e3779b9 + (s << 6) + (s >> 2);
     }
 
-    struct TextureMapHash
-    {
+    /**
+     * @brief Texture map has implementation
+     * 
+     */
+    struct TextureMapHash {
         std::size_t operator()(std::pair<std::string, TextureOptions> const& key) const
         {
             std::size_t res = 0;
@@ -162,8 +157,12 @@ namespace Eng3D {
             return res;
         }
     };
-    // This texture manager helps to cache textures instead of loading them of the disk each time they are used
-    // and also acts as a "texture loader"
+
+    /**
+     * @brief General manager for textures, caches textures into the memory instead of reading them off the disk
+     * every time they need to be accessed.
+     * 
+     */
     class TextureManager {
     private:
         std::unordered_map<std::pair<std::string, TextureOptions>, std::shared_ptr<Eng3D::Texture>, TextureMapHash> textures;
