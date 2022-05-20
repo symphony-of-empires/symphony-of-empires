@@ -316,8 +316,6 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
         }
     }
 
-    // Water
-    province_color.push_back(ProvinceColor((Province::Id)-2, Eng3D::Color::rgba32(0x00000000)));
     // Land
     province_color.push_back(ProvinceColor(Province::invalid(), Eng3D::Color::rgba32(0xffdddddd)));
     return province_color;
