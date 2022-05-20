@@ -590,12 +590,14 @@ void handle_popups(std::vector<Event>& displayed_events, std::vector<Treaty*>& d
 }
 
 void GameState::update_on_tick(void) {
+    world->profiler.start("UI_TICK");
     ui_ctx->do_tick();
+    world->profiler.stop("UI_TICK");
 
     // TODO: This is inefficient and we should only update **when** needed
     if(current_mode != MapMode::NO_MAP) {
         map->update_mapmode();
-        map->create_labels();
+        // map->create_labels();
     }
 }
 
@@ -624,6 +626,8 @@ void GameState::world_thread(void) {
                 Eng3D::Log::error("game", e.what());
                 paused = true;
             }
+            auto end = std::chrono::system_clock::now();
+            printf("%ld\n", std::chrono::duration_cast<std::chrono::milliseconds>(end-start_time).count());
 
             while(1) {
                 auto end_time = std::chrono::system_clock::now();
