@@ -643,9 +643,7 @@ void Map::draw(const GameState& gs) {
                 const std::pair<float, float> pos = std::make_pair(prov_pos.first - (2.f * i) - 3.f, prov_pos.second - y);
                 glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
                 model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
-                obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
                 obj_shader->set_uniform("model", model);
-                preproc_quad.draw();
 
                 // Model
                 unit_type_models[world.get_id(*unit->type)]->draw(*obj_shader);
@@ -658,9 +656,7 @@ void Map::draw(const GameState& gs) {
                 const std::pair<float, float> pos = std::make_pair(prov_pos.first + (2.f * i) + 3.f, prov_pos.second - y);
                 glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
                 model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
-                obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
                 obj_shader->set_uniform("model", model);
-                preproc_quad.draw();
 
                 // Model
                 unit_type_models[world.get_id(*unit->type)]->draw(*obj_shader);
@@ -723,9 +719,7 @@ void Map::draw(const GameState& gs) {
                 line_square.draw();
             }
             model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
-            obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
             obj_shader->set_uniform("model", model);
-            preproc_quad.draw();
 
             // Model
             obj_shader->set_uniform("model", model);
