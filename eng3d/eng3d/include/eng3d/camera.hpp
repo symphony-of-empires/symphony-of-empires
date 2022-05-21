@@ -64,6 +64,9 @@ namespace Eng3D {
         glm::vec3 get_world_pos() {
             return world_position;
         }
+        glm::vec2 get_map_size() {
+            return map_size;
+        }
 
         virtual void update(void) = 0;
 

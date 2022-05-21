@@ -362,8 +362,7 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
             for(auto& c : path) {
                 if(c == '\\') {
                     m_path += "\\\\";
-                }
-                else {
+                } else {
                     m_path += c;
                 }
             }
@@ -384,11 +383,11 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
 
 void World::load_initial(void) {
     // Execute all lua files
-    lua_exec_all_of(*this, (std::vector<std::string>){
+    lua_exec_all_of(*this, (std::vector<std::string>) {
         "terrain_types", "good_types", "ideologies", "cultures",
-        "building_types", "technology", "religions", "pop_types",
-        "industry_types", "unit_types", "boat_types",
-        "nations", "provinces", "init"
+            "building_types", "technology", "religions", "pop_types",
+            "industry_types", "unit_types", "boat_types",
+            "nations", "provinces", "init"
     }, "lua/entities");
     // std::sort(this->provinces.begin(), this->provinces.end(), [](const auto& lhs, const auto& rhs) {
     //     return lhs->color > rhs->color;
@@ -448,7 +447,7 @@ void World::load_initial(void) {
             province_color_table[province->color & 0xffffff] = this->get_id(*province);
         }
 
-        const uint32_t *raw_buffer = div->buffer.get();
+        const uint32_t* raw_buffer = div->buffer.get();
         for(size_t i = 0; i < width * height; i++) {
             const Province::Id province_id = province_color_table[raw_buffer[i] & 0xffffff];
             if(province_id == (Province::Id)-1) {
@@ -474,9 +473,9 @@ void World::load_initial(void) {
                 for(size_t i = 0; i < province_color_table.size(); i++) {
                     uint32_t color = i << 8;
 
-                    if(i % 128) {
-                        continue;
-                    }
+                        if(i % 128) {
+                            continue;
+                        }
 
                     if(Province::is_invalid(province_color_table[i])) {
                         fprintf(color_fp.get(), "%06lx\n", static_cast<unsigned long int>(bswap32(color)));
@@ -547,7 +546,7 @@ void World::load_initial(void) {
     // Relations between nations start at 0 (and latter modified by lua scripts)
     // since we use cantor's pairing function we only have to make an n*2 array so yeah let's do that!
     this->relations = std::make_unique<NationRelation[]>(this->nations.size() * this->nations.size() * this->nations.size());
-    
+
     Eng3D::Log::debug("game", Eng3D::Locale::translate("World partially intiialized"));
     // Auto-relocate capitals for countries which do not have one
     for(auto& nation : this->nations) {
@@ -682,7 +681,7 @@ static inline void unit_do_tick(Unit& unit)
         } else {
             unit.set_province(*unit.target);
             unit.target = nullptr;
-            
+
             // If we are at war with the person we are crossing their provinces at, then take 'em (albeit with resistance)
             const auto& relation = g_world->get_relation(g_world->get_id(*unit.province->controller), g_world->get_id(*unit.owner));
             if(can_take && relation.has_war) {
@@ -730,7 +729,6 @@ void World::do_tick() {
         g_server->broadcast(Action::ProvinceUpdate::form_packet(provinces));
     }
     profiler.stop("Economy");
-
 
     profiler.start("Research");
     std::vector<Eng3D::Decimal> mil_research_pts(nations.size(), 0.f);

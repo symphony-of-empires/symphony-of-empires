@@ -173,6 +173,10 @@ namespace Eng3D {
                 glUniform3f(glGetUniformLocation(id, name.c_str()), value1, value2, value3);
             }
 
+            inline void set_uniform(const std::string& name, glm::vec2 uniform) const {
+                set_uniform(name, uniform.x, uniform.y);
+            }
+
             inline void set_uniform(const std::string& name, glm::vec3 uniform) const {
                 set_uniform(name, uniform.x, uniform.y, uniform.z);
             }
