@@ -69,12 +69,6 @@ vec4 get_terrain_mix(vec2 tex_coords) {
 	return mix(color_x0, color_x1, scaling.y);
 }
 
-
-float is_not_water(vec2 coords) {
-	vec4 terrain = texture(terrain_map, coords);
-	return terrain.r < 2.0 / 255.0 ? 0.0 : 1.0;
-}
-
 // Used by get_border to check if province id differs
 vec2 get_diff(vec4 v) {
 	float provinceDiff = min((abs(v.x) + abs(v.y)) * 255., 1.0);
@@ -183,7 +177,14 @@ float isLake(vec2 coords) {
 }
 float isOcean(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);
-	return terrain.r == 0.0 ? 1.0 : 0.0;
+	float true = terrain.r == 0.0 ? 1.0 : 0.0;
+
+	// Check to make sure there is no lake here
+	vec2 coord = texture(tile_map, coords).xy;
+	vec2 prov_color_coord = coord * vec2(255.0 / 256.0);
+	vec4 prov_color = texture(tile_sheet, prov_color_coord).rgba;
+	true *= length(prov_color.xyz) == 0.0 ? 1.0 : 0.0;
+	return true;
 }
 float isWater(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);
@@ -242,7 +243,7 @@ float get_lighting(vec2 tex_coords, float beach) {
 	normal.xy *= mix(0.7, 0.2, far_from_map);
 	normal = normalize(normal);
 	normal.z *= -1;
-	float is_water = step(1., max(isWater(tex_coords), beach));
+	float is_water = step(1., beach);
 #ifdef WATER
 	vec3 water_normal = get_water_normal(time, wave1, wave2, tex_coords);
 	normal = mix(normal, water_normal, is_water * (1. - far_from_map));
@@ -331,6 +332,7 @@ void main() {
 	float beach = beach_water_ocean.x;
 	// The ocean beach
 	float beach_ocean = beach_water_ocean.y;
+	beach = mix(beach, beach_ocean, far_from_map);
 
 	// Change the beach to the right format and apply noise
 	float noise = texture(noise_texture, 20.0 * tex_coords).x;

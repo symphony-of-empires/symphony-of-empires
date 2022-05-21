@@ -226,7 +226,8 @@ MapRender::MapRender(const World& _world)
     border_sdf = std::make_unique<Eng3D::Texture>(Eng3D::Texture(Path::get("map/sdf_map.png")));
     border_sdf->upload(sdf_options);
     border_sdf->gen_mipmaps();
-    // update_border_sdf(Eng3D::Rect(0, 0, 5400, 2700));
+    // update_border_sdf(Eng3D::Rect(0, 0, 5400, 2700), glm::vec2(100, 100));
+    // border_sdf->to_file("test.png");
 }
 
 void MapRender::reload_shaders() {
@@ -400,6 +401,13 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
 
 // Updates the province color texture with the changed provinces 
 void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
+    // Water
+    for(unsigned int i = 0; i < world.provinces.size(); i++) {
+        auto terrain_type = world.provinces[i]->terrain_type;
+        if(terrain_type->is_water_body) {
+            province_colors[i] = ProvinceColor(i, Eng3D::Color::rgba32(0x00000000));
+        }
+    }
     for(auto const& province_color : province_colors) {
         tile_sheet->buffer.get()[province_color.id] = province_color.color.get_value();
     }

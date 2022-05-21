@@ -117,8 +117,8 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     Eng3D::State& s = Eng3D::State::get_instance();
     camera = new Eng3D::FlatCamera(glm::vec2(screen_width, screen_height), glm::vec2(world.width, world.height));
 
-    rivers = new Rivers();
-    borders = new Borders();
+    // rivers = new Rivers();
+    // borders = new Borders();
     map_render = new MapRender(world);
 
     // Shader used for drawing the models using custom model render
@@ -189,21 +189,20 @@ void Map::create_labels() {
 
         glm::vec2 x_step = glm::vec2(std::min(max_point.x - mid_point.x, 250.f), 0);
 
-        glm::vec3 center = camera->get_tile_world_pos(mid_point);
-        glm::vec3 left = camera->get_tile_world_pos(mid_point - x_step);
-        glm::vec3 right = camera->get_tile_world_pos(mid_point + x_step);
+        glm::vec3 center = glm::vec3(mid_point, 0.f);
+        glm::vec3 left = glm::vec3(mid_point - x_step, 0.f);
+        glm::vec3 right = glm::vec3(mid_point + x_step, 0.f);
 
         float width = glm::length(left - right);
         width *= 0.25f;
 
-        glm::vec3 right_dir = camera->get_tile_world_pos(glm::vec2(mid_point.x + 1.f, mid_point.y));
+        glm::vec3 right_dir = glm::vec3(mid_point.x + 1.f, mid_point.y, 0.);
         right_dir  = right_dir - center;
-        glm::vec3 top_dir = camera->get_tile_world_pos(glm::vec2(mid_point.x, mid_point.y - 1.f));
+        glm::vec3 top_dir = glm::vec3(mid_point.x, mid_point.y - 1.f, 0.);
         top_dir = top_dir - center;
 
-        auto* label = map_font->gen_text(Eng3D::Locale::translate(province->name.get_string()), top_dir, right_dir, width);
-        //center.z -= 0.1f;
-        label->model = glm::translate(label->model, center);
+        center.z -= 0.1f;
+        auto* label = map_font->gen_text(Eng3D::Locale::translate(province->name.get_string()), top_dir, right_dir, width, center);
         province_labels.push_back(label);
     }
 
@@ -214,8 +213,8 @@ void Map::create_labels() {
     nation_labels.clear();
     for(const auto& nation : world.nations) {
         if(!nation->exists()) {
-            auto* label = map_font->gen_text(Eng3D::Locale::translate(nation->get_client_hint().alt_name.get_string()), glm::vec3(-10.f), glm::vec3(-5.f), 1.f);
-            nation_labels.push_back(label);
+            // auto* label = map_font->gen_text(Eng3D::Locale::translate(nation->get_client_hint().alt_name.get_string()), glm::vec3(-10.f), glm::vec3(-5.f), 1.f);
+            // nation_labels.push_back(label);
             continue;
         }
 
@@ -259,14 +258,14 @@ void Map::create_labels() {
         lab_max = center_2;
 
         glm::vec2 mid_point = 0.5f * (lab_min + lab_max);
-        glm::vec3 center = camera->get_tile_world_pos(mid_point);
+        glm::vec3 center = glm::vec3(mid_point, 0.f);
         glm::vec2 x_step = glm::vec2(lab_max.x - mid_point.x, 0.f);
-        glm::vec3 left = camera->get_tile_world_pos(mid_point - x_step);
-        glm::vec3 right = camera->get_tile_world_pos(mid_point + x_step);
+        glm::vec3 left = glm::vec3(mid_point - x_step, 0.f);
+        glm::vec3 right = glm::vec3(mid_point + x_step, 0.f);
         float width = glm::length(left - right);
 
-        glm::vec3 right_dir = camera->get_tile_world_pos(glm::vec2(mid_point.x + 1.f, mid_point.y)) - center;
-        glm::vec3 top_dir = camera->get_tile_world_pos(glm::vec2(mid_point.x, mid_point.y - 1.f)) - center;
+        glm::vec3 right_dir = glm::vec3(mid_point.x + 1.f, mid_point.y, 0.f) - center;
+        glm::vec3 top_dir = glm::vec3(mid_point.x, mid_point.y - 1.f, 0.f) - center;
         glm::vec3 normal = glm::cross(top_dir, right_dir);
         normal = glm::normalize(normal);
 
@@ -281,10 +280,12 @@ void Map::create_labels() {
             angle += M_PI;
         }
 
-        auto* label = map_font->gen_text(Eng3D::Locale::translate(nation->get_client_hint().alt_name.get_string()), top_dir, right_dir, width, 15.f);
-        //center.z -= 0.1f;
-        label->model = glm::translate(label->model, center);
-        label->model = glm::rotate(label->model, angle, normal);
+        glm::mat4 rot = glm::rotate(glm::mat4(1.), angle, normal);
+        top_dir = rot * glm::vec4(top_dir, 1.);
+        right_dir = rot * glm::vec4(right_dir, 1.);
+
+        center.z -= 0.1f;
+        auto* label = map_font->gen_text(Eng3D::Locale::translate(nation->get_client_hint().alt_name.get_string()), top_dir, right_dir, width, center);
         nation_labels.push_back(label);
     }
 }
@@ -300,7 +301,7 @@ void Map::set_view(MapView view) {
         camera = new Eng3D::OrbitCamera(*old_camera, GLOBE_RADIUS);
     }
     delete old_camera;
-    create_labels();
+    // create_labels();
 }
 
 // The standard map mode with each province color = country color
@@ -316,8 +317,6 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
         }
     }
 
-    // Water
-    province_color.push_back(ProvinceColor((Province::Id)-2, Eng3D::Color::rgba32(0x00000000)));
     // Land
     province_color.push_back(ProvinceColor(Province::invalid(), Eng3D::Color::rgba32(0xffdddddd)));
     return province_color;
@@ -614,7 +613,7 @@ void Map::update_mapmode() {
 
 void Map::draw(const GameState& gs) {
     map_render->draw(camera, view_mode);
-    rivers->draw(camera);
+    // rivers->draw(camera);
     //borders->draw(camera);
 
     // TODO: We need to better this
@@ -643,9 +642,7 @@ void Map::draw(const GameState& gs) {
                 const std::pair<float, float> pos = std::make_pair(prov_pos.first - (2.f * i) - 3.f, prov_pos.second - y);
                 glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
                 model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
-                obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
                 obj_shader->set_uniform("model", model);
-                preproc_quad.draw();
 
                 // Model
                 unit_type_models[world.get_id(*unit->type)]->draw(*obj_shader);
@@ -658,9 +655,7 @@ void Map::draw(const GameState& gs) {
                 const std::pair<float, float> pos = std::make_pair(prov_pos.first + (2.f * i) + 3.f, prov_pos.second - y);
                 glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
                 model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
-                obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
                 obj_shader->set_uniform("model", model);
-                preproc_quad.draw();
 
                 // Model
                 unit_type_models[world.get_id(*unit->type)]->draw(*obj_shader);
@@ -723,9 +718,7 @@ void Map::draw(const GameState& gs) {
                 line_square.draw();
             }
             model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
-            obj_shader->set_texture(0, "diffuse_map", *nation_flags[world.get_id(*unit->owner)]);
             obj_shader->set_uniform("model", model);
-            preproc_quad.draw();
 
             // Model
             obj_shader->set_uniform("model", model);
@@ -778,10 +771,10 @@ void Map::draw(const GameState& gs) {
     glm::vec3 map_pos = camera->get_map_pos();
     float distance_to_map = map_pos.z / world.width;
     if(distance_to_map < 0.070) {
-        map_font->draw(province_labels, projection, view);
+        map_font->draw(province_labels, camera, view_mode == MapView::SPHERE_VIEW);
     }
     else {
-        map_font->draw(nation_labels, projection, view);
+        map_font->draw(nation_labels, camera, view_mode == MapView::SPHERE_VIEW);
     }
 
     wind_osc += 0.1f;
