@@ -29,7 +29,7 @@
 #include "eng3d/ui/close_button.hpp"
 #include "eng3d/network.hpp"
 
-#include "client/interface/event.hpp"
+#include "client/interface/editor.hpp"
 #include "client/client_network.hpp"
 #include "event.hpp"
 #include "action.hpp"
