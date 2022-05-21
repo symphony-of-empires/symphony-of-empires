@@ -86,6 +86,7 @@ std::pair<Eng3D::Number, Eng3D::Number> Unit::get_pos(void) const {
 }
 
 void Unit::set_target(Province& _province) {
+    assert(this->can_move());
     target = &_province;
     move_progress = std::sqrt(std::abs((province->max_x + ((province->max_x - province->min_x) / 2.f)) - (target->max_x + ((target->max_x - target->min_x) / 2.f))) + std::abs((province->max_y + ((province->max_y - province->min_y) / 2.f)) - (target->max_y + ((target->max_y - target->min_y) / 2.f))));
 }
@@ -118,6 +119,7 @@ Eng3D::Decimal Unit::get_speed(void) const {
 }
 
 void Unit::set_province(Province& _province) {
+    assert(this->can_move()); // Must be able to move to perform this...
     // Delete the unit from the previous cache list of units
     if(province != nullptr) {
         auto it = std::find(province->units.begin(), province->units.end(), this);
