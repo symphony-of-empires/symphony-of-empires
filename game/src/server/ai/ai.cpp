@@ -43,6 +43,28 @@
 #include "io_impl.hpp"
 #include "server/server_network.hpp"
 
+enum AiMode {
+    AI_IDLE,
+    AI_ACTIVE,
+};
+
+class AiData {
+public:
+    enum AiMode mode;
+    std::vector<double> nations_risk_factor;
+};
+
+static std::vector<AiData> g_ai_data;
+
+void ai_init(World& world) {
+    g_ai_data.resize(world.nations.size());
+    for(auto& ai_data : g_ai_data) {
+        ai_data.nations_risk_factor.resize(world.nations.size());
+        ai_data.nations_risk_factor.shrink_to_fit();
+    }
+    g_ai_data.shrink_to_fit();
+}
+
 // Obtain best potential good
 static inline Good* ai_get_potential_good(Nation& nation) {
     World& world = World::get_instance();
@@ -399,6 +421,8 @@ void ai_do_tick(Nation& nation) {
         return;
     }
 
+    auto& ai_data = g_ai_data[world.get_id(nation)];
+
     // Once we hit a economical tick & we are controlled by AI
     if(!(world.time % world.ticks_per_month) && nation.ai_controlled) {
         // Do a policy reform every 6 months
@@ -565,26 +589,22 @@ void ai_do_tick(Nation& nation) {
 
     // TODO: make a better algorithm
     if(nation.ai_do_cmd_troops) {
-        std::vector<double> nations_risk_factor(world.nations.size(), 0);
+        std::fill(ai_data.nations_risk_factor.begin(), ai_data.nations_risk_factor.end(), 0.f);
         for(const auto& other : world.nations) {
-            if(other == &nation) {
-                continue;
-            }
-
             // Here we calculate the risk factor of each nation and then we put it on a lookup table
             // because we can't afford to calculate this for EVERY FUCKING province
             const NationRelation& relation = world.get_relation(world.get_id(nation), world.get_id(*other));
             // Risk is augmentated when we border any non-ally nation
             if(!relation.has_alliance) {
-                nations_risk_factor[world.get_id(*other)] += 1.f * ((400.f - std::max<double>(relation.relation + 200.f, 1.f)) / 50.f);
+                ai_data.nations_risk_factor[world.get_id(*other)] += 1.f * ((400.f - std::max<double>(relation.relation + 200.f, 1.f)) / 50.f);
             } else if(relation.has_war) {
-                nations_risk_factor[world.get_id(*other)] += 1000.f;
+                ai_data.nations_risk_factor[world.get_id(*other)] += 100.f;
             }
         }
         // Our own nation is safe, let's set it to 0
-        nations_risk_factor[world.get_id(nation)] = 0;
+        ai_data.nations_risk_factor[world.get_id(nation)] = 0.f;
 
-        std::vector<double> potential_risk(world.provinces.size(), 0);
+        std::vector<double> potential_risk(world.provinces.size(), 0.f);
         for(const auto& province : nation.controlled_provinces) {
             // The "cooling" value which basically makes us ignore some provinces with lots of defenses
             // so we don't rack up deathstacks on a border with some micronation
@@ -596,7 +616,7 @@ void ai_do_tick(Nation& nation) {
                 // This works because nations which are threatening to us have positive values, so they
                 // basically make the draw_away_force negative, which in turns does not draw away but rather
                 // draw in even more units
-                draw_away_force += (-nations_risk_factor[world.get_id(*unit->owner)]) * unit_strength;
+                draw_away_force += (-ai_data.nations_risk_factor[world.get_id(*unit->owner)]) * unit_strength;
             }
             potential_risk[world.get_id(*province)] -= draw_away_force;
 
@@ -610,9 +630,9 @@ void ai_do_tick(Nation& nation) {
                     continue;
                 }
                 
-                potential_risk[world.get_id(*neighbour)] += nations_risk_factor[world.get_id(*neighbour->controller)];
+                potential_risk[world.get_id(*neighbour)] += ai_data.nations_risk_factor[world.get_id(*neighbour->controller)];
                 // Spread out the heat
-                potential_risk[world.get_id(*neighbour)] += (potential_risk[world.get_id(*province)] + 1) / province->neighbours.size();
+                potential_risk[world.get_id(*neighbour)] += std::max<double>(potential_risk[world.get_id(*province)], 1) / province->neighbours.size();
             }
         }
 
@@ -628,7 +648,7 @@ void ai_do_tick(Nation& nation) {
                     continue;
                 }
 
-                if(unit->can_move()) {
+                if(unit->can_move() || 1) {
                     // See which province has the most potential_risk so we cover it from potential threats
                     Province* highest_risk = unit->province;
                     for(const auto& province : unit->province->neighbours) {
@@ -636,7 +656,7 @@ void ai_do_tick(Nation& nation) {
                             continue;
                         }
 
-                        if(province->controller == nullptr || (!unit->type->is_naval && province->terrain_type->is_water_body)) {
+                        if(!unit->type->is_naval && province->terrain_type->is_water_body) {
                             continue;
                         }
 

@@ -177,14 +177,14 @@ float isLake(vec2 coords) {
 }
 float isOcean(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);
-	float true = terrain.r == 0.0 ? 1.0 : 0.0;
+	float true_terrain = terrain.r == 0.0 ? 1.0 : 0.0;
 
 	// Check to make sure there is no lake here
 	vec2 coord = texture(tile_map, coords).xy;
 	vec2 prov_color_coord = coord * vec2(255.0 / 256.0);
 	vec4 prov_color = texture(tile_sheet, prov_color_coord).rgba;
-	true *= length(prov_color.xyz) == 0.0 ? 1.0 : 0.0;
-	return true;
+	true_terrain *= length(prov_color.xyz) == 0.0 ? 1.0 : 0.0;
+	return true_terrain;
 }
 float isWater(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);

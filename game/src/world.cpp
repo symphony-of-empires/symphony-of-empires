@@ -94,6 +94,7 @@ World& World::get_instance(void) {
     return *g_world;
 }
 
+void ai_init(World& world);
 void ai_do_tick(Nation& nation);
 
 // Creates a new world
@@ -457,31 +458,27 @@ void World::load_initial(void) {
         div.reset();
 
         if(!colors_found.empty()) {
-            {
-                std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen("uprovinces.lua", "w+t"), fclose);
-                if(fp != nullptr) {
-                    for(const auto& color_raw : colors_found) {
-                        uint32_t color = color_raw << 8;
-                        fprintf(fp.get(), "province = Province:new{ ref_name = \"province_%06x\", color = 0x%06x }\n", static_cast<unsigned int>(bswap32(color)), static_cast<unsigned int>(bswap32(color)));
-                        fprintf(fp.get(), "province.name = _(\"Province_%06x\")\n", static_cast<unsigned int>(bswap32(color)));
-                        fprintf(fp.get(), "province:register()\n");
-                    }
+            std::unique_ptr<FILE, int(*)(FILE*)> province_fp(fopen("uprovinces.lua", "w+t"), fclose);
+            if(province_fp != nullptr) {
+                for(const auto& color_raw : colors_found) {
+                    uint32_t color = color_raw << 8;
+                    fprintf(province_fp.get(), "province = Province:new{ ref_name = \"province_%06x\", color = 0x%06x }\n", static_cast<unsigned int>(bswap32(color)), static_cast<unsigned int>(bswap32(color)));
+                    fprintf(province_fp.get(), "province.name = _(\"Province_%06x\")\n", static_cast<unsigned int>(bswap32(color)));
+                    fprintf(province_fp.get(), "province:register()\n");
                 }
             }
 
-            {
-                std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen("ucolors.txt", "w+t"), fclose);
-                if(fp != nullptr) {
-                    for(size_t i = 0; i < province_color_table.size(); i++) {
-                        uint32_t color = i << 8;
+            std::unique_ptr<FILE, int(*)(FILE*)> color_fp(fopen("ucolors.txt", "w+t"), fclose);
+            if(color_fp != nullptr) {
+                for(size_t i = 0; i < province_color_table.size(); i++) {
+                    uint32_t color = i << 8;
 
                         if(i % 128) {
                             continue;
                         }
 
-                        if(Province::is_invalid(province_color_table[i])) {
-                            fprintf(fp.get(), "%06lx\n", static_cast<unsigned long int>(bswap32(color)));
-                        }
+                    if(Province::is_invalid(province_color_table[i])) {
+                        fprintf(color_fp.get(), "%06lx\n", static_cast<unsigned long int>(bswap32(color)));
                     }
                 }
             }
@@ -598,6 +595,9 @@ void World::load_mod(void) {
         policy.min_sv_for_parliament = 2.f;
     }
     Eng3D::Log::debug("game", Eng3D::Locale::translate("World fully intiialized"));
+
+    // Initialize the AI
+    ai_init(*this);
 }
 
 static inline void unit_do_tick(Unit& unit)
@@ -730,106 +730,6 @@ void World::do_tick() {
     }
     profiler.stop("Economy");
 
-    profiler.start("Units");
-    // Evaluate units
-    for(size_t i = 0; i < units.size(); i++) {
-        Unit* unit = units[i];
-        unit_do_tick(*unit);
-    }
-    profiler.stop("Units");
-
-    // Perform all battles of the active wars
-    profiler.start("Battles");
-    std::for_each(std::execution::par, wars.begin(), wars.end(), [this](auto& war) {
-        assert(!war->attackers.empty() && !war->defenders.empty());
-        for(size_t j = 0; j < war->battles.size(); j++) {
-            auto& battle = war->battles[j];
-            assert(battle.province != nullptr);
-
-            // Attackers attack Defenders
-            for(auto& attacker : battle.attackers) {
-                assert(attacker != nullptr);
-                for(size_t i = 0; i < battle.defenders.size(); ) {
-                    Unit* unit = battle.defenders[i];
-                    assert(unit != nullptr);
-
-                    const size_t prev_size = unit->size;
-                    attacker->attack(*unit);
-                    battle.defender_casualties += prev_size - unit->size;
-                    if(!unit->size) {
-                        Eng3D::Log::debug("game", "Removing attacker \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
-                        battle.defenders.erase(battle.defenders.begin() + i);
-                        assert(unit->province != nullptr && unit->province == battle.province);
-
-                        auto it = std::find(battle.province->units.begin(), battle.province->units.end(), unit);
-                        assert(it != battle.province->units.end());
-                        battle.province->units.erase(it);
-                        this->remove(*unit);
-                        delete unit;
-                        continue;
-                    }
-                    i++;
-                }
-            }
-
-            // Defenders attack attackers
-            for(auto& defender : battle.defenders) {
-                assert(defender != nullptr);
-                for(size_t i = 0; i < battle.attackers.size(); ) {
-                    Unit* unit = battle.attackers[i];
-                    assert(unit != nullptr);
-
-                    const size_t prev_size = unit->size;
-                    defender->attack(*unit);
-                    battle.attacker_casualties += prev_size - unit->size;
-                    if(!unit->size) {
-                        Eng3D::Log::debug("game", "Removing defender \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
-                        battle.attackers.erase(battle.attackers.begin() + i);
-                        assert(unit->province != nullptr && unit->province == battle.province);
-
-                        auto it = std::find(battle.province->units.begin(), battle.province->units.end(), unit);
-                        assert(it != battle.province->units.end());
-                        battle.province->units.erase(it);
-                        this->remove(*unit);
-                        delete unit;
-                        continue;
-                    }
-                    i++;
-                }
-            }
-
-            // Once one side has fallen this battle has ended
-            if(battle.defenders.empty() || battle.attackers.empty()) {
-                // Defenders defeated
-                if(battle.defenders.empty()) {
-                    battle.attackers[0]->owner->control_province(*battle.province);
-                    // Clear flags of all units
-                    for(auto& unit : battle.attackers) {
-                        unit->on_battle = false;
-                    }
-                    Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": attackers win");
-                }
-                // Defenders won
-                else if(battle.attackers.empty()) {
-                    battle.defenders[0]->owner->control_province(*battle.province);
-                    for(auto& unit : battle.defenders) {
-                        unit->on_battle = false;
-                    }
-                    Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": defenders win");
-                }
-                // Nobody won?
-                else {
-                    Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": nobody won");
-                }
-
-                war->battles.erase(war->battles.begin() + j);
-                j--;
-                continue;
-            }
-        }
-    });
-    profiler.stop("Battles");
-
     profiler.start("Research");
     std::vector<Eng3D::Decimal> mil_research_pts(nations.size(), 0.f);
     std::vector<Eng3D::Decimal> naval_research_pts(nations.size(), 0.f);
@@ -866,10 +766,6 @@ void World::do_tick() {
         }
     }
     profiler.stop("Research");
-
-    profiler.start("Send packets");
-    g_server->broadcast(Action::UnitUpdate::form_packet(units));
-    profiler.stop("Send packets");
 
     profiler.start("Treaties");
     // Do the treaties clauses
@@ -947,9 +843,138 @@ void World::do_tick() {
     }
     profiler.stop("Treaties");
 
+    profiler.start("Units");
+    wcmap_mutex.lock();
+    // Evaluate units
+    for(size_t i = 0; i < units.size(); i++) {
+        Unit* unit = units[i];
+        unit_do_tick(*unit);
+    }
+    wcmap_mutex.unlock();
+    profiler.stop("Units");
+
+    std::vector<Unit*> clear_units;
+    std::mutex clear_units_lock;
+
+    // Perform all battles of the active wars
+    profiler.start("Battles");
+    wcmap_mutex.lock();
+    std::for_each(std::execution::par, wars.begin(), wars.end(), [this, &clear_units, &clear_units_lock](auto& war) {
+        std::vector<Unit*> local_clear_units;
+        assert(!war->attackers.empty() && !war->defenders.empty());
+        for(size_t j = 0; j < war->battles.size(); j++) {
+            auto& battle = war->battles[j];
+            assert(battle.province != nullptr);
+
+            // Attackers attack Defenders
+            for(auto& attacker : battle.attackers) {
+                assert(attacker != nullptr);
+                for(size_t i = 0; i < battle.defenders.size(); ) {
+                    Unit* unit = battle.defenders[i];
+                    assert(unit != nullptr);
+
+                    const size_t prev_size = unit->size;
+                    attacker->attack(*unit);
+                    battle.defender_casualties += prev_size - unit->size;
+                    if(!unit->size) {
+                        Eng3D::Log::debug("game", "Removing attacker \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
+                        battle.defenders.erase(battle.defenders.begin() + i);
+                        assert(unit->province != nullptr && unit->province == battle.province);
+
+                        auto it = std::find(battle.province->units.begin(), battle.province->units.end(), unit);
+                        assert(it != battle.province->units.end());
+                        battle.province->units.erase(it);
+                        this->remove(*unit);
+                        local_clear_units.push_back(unit);
+                        continue;
+                    }
+                    i++;
+                }
+            }
+
+            // Defenders attack attackers
+            for(auto& defender : battle.defenders) {
+                assert(defender != nullptr);
+                for(size_t i = 0; i < battle.attackers.size(); ) {
+                    Unit* unit = battle.attackers[i];
+                    assert(unit != nullptr);
+
+                    const size_t prev_size = unit->size;
+                    defender->attack(*unit);
+                    battle.attacker_casualties += prev_size - unit->size;
+                    if(!unit->size) {
+                        Eng3D::Log::debug("game", "Removing defender \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
+                        battle.attackers.erase(battle.attackers.begin() + i);
+                        assert(unit->province != nullptr && unit->province == battle.province);
+
+                        auto it = std::find(battle.province->units.begin(), battle.province->units.end(), unit);
+                        assert(it != battle.province->units.end());
+                        battle.province->units.erase(it);
+                        this->remove(*unit);
+                        local_clear_units.push_back(unit);
+                        continue;
+                    }
+                    i++;
+                }
+            }
+
+            // Once one side has fallen this battle has ended
+            if(battle.defenders.empty() || battle.attackers.empty()) {
+                // Defenders defeated
+                if(battle.defenders.empty()) {
+                    battle.attackers[0]->owner->control_province(*battle.province);
+                    // Clear flags of all units
+                    for(auto& unit : battle.attackers) {
+                        unit->on_battle = false;
+                    }
+                    Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": attackers win");
+                }
+                // Defenders won
+                else if(battle.attackers.empty()) {
+                    battle.defenders[0]->owner->control_province(*battle.province);
+                    for(auto& unit : battle.defenders) {
+                        unit->on_battle = false;
+                    }
+                    Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": defenders win");
+                }
+                // Nobody won?
+                else {
+                    Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": nobody won");
+                }
+
+                war->battles.erase(war->battles.begin() + j);
+                j--;
+                continue;
+            }
+        }
+
+        if(!local_clear_units.empty()) {
+            clear_units_lock.lock();
+            for(auto& unit : local_clear_units) {
+                clear_units.push_back(unit);
+            }
+            clear_units_lock.unlock();
+        }
+    });
+    wcmap_mutex.unlock();
+    profiler.stop("Battles");
+
     profiler.start("Events");
     //LuaAPI::check_events(lua);
     profiler.stop("Events");
+
+    profiler.start("Cleaning");
+    wcmap_mutex.lock();
+    for(auto& unit : clear_units) {
+        delete unit;
+    }
+    clear_units.clear();
+    wcmap_mutex.unlock();
+    profiler.stop("Cleaning");
+
+    profiler.start("Send packets");
+    g_server->broadcast(Action::UnitUpdate::form_packet(units));
+    profiler.stop("Send packets");
 
     if(!(time % ticks_per_month)) {
         Eng3D::Log::debug("game", std::to_string(time / 12 / ticks_per_month) + "/" + std::to_string((time / ticks_per_month % 12) + 1) + +"/" + std::to_string((time % ticks_per_month) + 1));

@@ -93,6 +93,12 @@ public:
     Eng3D::Decimal get_speed(void) const;
     void set_province(Province& province);
 
+    /**
+     * @brief Checks if the unit can move (if it can set_province)
+     * 
+     * @return true 
+     * @return false 
+     */
     inline bool can_move(void) const {
         // Unit must not be on a battle
         return !(this->on_battle);
