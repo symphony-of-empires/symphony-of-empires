@@ -47,7 +47,7 @@ Window::Window(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     glm::ivec2 offset(0, 24);
     this->border = Border(g_ui_context->border_tex, size, texture_size, offset);
 
-    set_have_close_btn(true);
+    // set_have_close_btn(true);
 }
 
 // There are a number of improvement to be made here
@@ -55,8 +55,8 @@ Window::Window(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 //      would be better to have it in the beginning
 // * This function is not general, would be nice to set your own exit btn
 // * We should add an on_close event that is called when exiting
-void Window::set_have_close_btn(bool have) {
-    if(have) {
+void Window::set_close_btn_function(std::function<void(Widget&)> _on_click) {
+    if(_on_click) {
         if(!this->close_btn) {
             const int size = 24;
             auto padding = this->padding;
@@ -67,9 +67,7 @@ void Window::set_have_close_btn(bool have) {
             const int btn_size = (int)(size * 0.75f);
             const int offset = (size - btn_size) / 2;
             auto* btn = Image::make_transparent(offset, offset, btn_size, btn_size, "gfx/ui/button/exit_btn.png", true, btn_wrapper);
-            btn->set_on_click([this](Widget&) {
-                this->kill();
-            });
+            btn->set_on_click(_on_click);
             this->close_btn = btn_wrapper;
         }
     } else {

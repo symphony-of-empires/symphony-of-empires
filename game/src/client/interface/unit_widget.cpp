@@ -54,14 +54,15 @@ UnitWidget::UnitWidget(Unit* unit, Map* _map, UI::Widget* parent)
     this->size_label = new UI::Div(41, 1, 48, 28, this);
     this->size_label->text_align_x = UI::Align::END;
     this->size_label->background_color = Eng3D::Color(0.41f, 0.84f, 0.36f, 1.f);
-    this->size_label->on_each_tick = ([this](UI::Widget& w) {
+    this->size_label->on_each_tick = ([this](UI::Widget&) {
         auto unit_size = (int)this->unit->size;
         this->size_label->text(std::to_string(unit_size));
     });
     this->size_label->on_each_tick(*this->size_label);
 
-    this->morale_bar = new UI::ProgressBar(91, 1, 8, 28, 0, 1);
+    this->morale_bar = new UI::ProgressBar(91, 1, 8, 28, 0, 1, this);
     this->morale_bar->set_value(unit->morale);
+    this->morale_bar->direction = UI::Direction::BOTTOM_TO_TOP;
 }
 
 void UnitWidget::set_unit(Unit* _unit) {

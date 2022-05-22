@@ -34,7 +34,6 @@ namespace UI {
     class Image;
     class Label;
     class Button;
-    class CloseButton;
 }
 namespace Interface {
     class NationMarketView : public UI::Window {

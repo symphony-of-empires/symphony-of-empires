@@ -192,7 +192,10 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
         this->gs.ui_ctx->prompt("Policy", "New policy enacted!");
     });
 
-    auto* close_btn = new UI::CloseButton(207, 0, 128, 24, this);
+    auto* close_btn = new UI::Button(207, 0, 128, 24, this);
     close_btn->below_of(*enact_btn);
     close_btn->text("Close");
+    close_btn->set_on_click([this](UI::Widget&) {
+        this->kill();
+    });
 }

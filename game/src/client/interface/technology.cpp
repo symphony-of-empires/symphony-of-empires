@@ -60,6 +60,10 @@ TechTreeView::TechTreeView(GameState& _gs)
         gs.right_side_panel->kill();
     }
     gs.right_side_panel = this;
+    this->set_close_btn_function([this](Widget&) {
+        this->kill();
+        this->gs.right_side_panel = nullptr;
+    });
 
     this->origin = UI::Origin::UPPER_RIGHT_SCREEN;
     this->is_scroll = false;
@@ -140,12 +144,5 @@ TechTreeView::TechTreeView(GameState& _gs)
         this->social_tab->is_render = false;
         this->economic_tab->is_render = false;
         this->politics_tab->is_render = true;
-    });
-
-    auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
-    close_btn->right_side_of(*politics_ibtn);
-    close_btn->text("Close");
-    close_btn->set_on_click([this](UI::Widget&) {
-        this->kill();
     });
 }

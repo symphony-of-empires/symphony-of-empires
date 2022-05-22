@@ -171,7 +171,10 @@ Settings::Settings(GameState& _gs)
     });
     sound_volume_sld->set_tooltip("Controls the volume of the sounds");
 
-    auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
+    auto* close_btn = new UI::Button(0, 0, 128, 24, this);
     close_btn->below_of(*sound_volume_sld);
     close_btn->text("Cancel");
+    close_btn->set_on_click([this](UI::Widget&) {
+        this->kill();
+    });
 }

@@ -53,8 +53,11 @@ NationMarketView::NationMarketView(GameState& _gs, Nation* _nation)
         i++;
     }*/
 
-    auto* close_btn = new UI::CloseButton(0, 0, this->width, 24, this);
+    auto* close_btn = new UI::Button(0, 0, this->width, 24, this);
     close_btn->text(Eng3D::Locale::translate("Close"));
+    close_btn->set_on_click([this](UI::Widget&) {
+        this->kill();
+    });
 }
 
 NationView::NationView(GameState& _gs, Nation* _nation)

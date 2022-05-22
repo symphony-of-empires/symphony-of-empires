@@ -113,9 +113,12 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
         this->type_tab->is_render = true;
     });
 
-    auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
+    auto* close_btn = new UI::Button(0, 0, 128, 24, this);
     close_btn->below_of(*build_btn);
     close_btn->text(Eng3D::Locale::translate("Close"));
+    close_btn->set_on_click([this](UI::Widget&) {
+        this->kill();
+    });
 }
 
 BuildingView::BuildingView(GameState& _gs, Building* _building)
@@ -126,7 +129,10 @@ BuildingView::BuildingView(GameState& _gs, Building* _building)
     this->is_scroll = false;
     this->text(Eng3D::Locale::translate("Information for this building"));
 
-    auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
+    auto* close_btn = new UI::Button(0, 0, 128, 24, this);
     //close_btn->below_of(*build_btn);
     close_btn->text(Eng3D::Locale::translate("Close"));
+    close_btn->set_on_click([this](UI::Widget&) {
+        this->kill();
+    });
 }

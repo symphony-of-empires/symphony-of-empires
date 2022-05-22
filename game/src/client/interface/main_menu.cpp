@@ -93,9 +93,12 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
         delete this->gs.client;
     });
 
-    auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
+    auto* close_btn = new UI::Button(0, 0, 128, 24, this);
     close_btn->below_of(*this->conn_btn);
     close_btn->text("Cancel");
+    close_btn->set_on_click([this](UI::Widget&) {
+        this->kill();
+    });
 }
 
 //
