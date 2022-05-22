@@ -35,7 +35,6 @@ namespace UI {
     class Label;
     class Image;
     class PieChart;
-    class CloseButton;
     class Chart;
     class Group;
 }
@@ -48,7 +47,6 @@ namespace Interface {
         UI::Image* icon_img;
         UI::PieChart *supply_pie;
         UI::Chart* price_chart,* supply_chart,* demand_chart;
-        UI::CloseButton* close_btn;
     public:
         ProductView(GameState& gs, Product* product);
     };
@@ -60,7 +58,6 @@ namespace Interface {
         UI::Image* icon_img;
         UI::PieChart *sellers_pie;
         UI::Chart* avg_price_chart;
-        UI::CloseButton* close_btn;
     public:
         GoodView(GameState& gs, Good* good);
     };

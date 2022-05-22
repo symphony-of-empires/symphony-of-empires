@@ -44,7 +44,7 @@ namespace UI {
     public:
         Window(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
         virtual ~Window() override {};
-        void set_have_close_btn(bool have);
+        void set_close_btn_function(std::function<void(Widget&)> on_click);
         bool is_movable = true;
     private:
         Widget* close_btn = nullptr;

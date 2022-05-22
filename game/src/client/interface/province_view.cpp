@@ -90,7 +90,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
 
     if(province->owner != nullptr) {
         this->owner_flag = new UI::AspectImage(0, 0, 96, 48, gs.get_nation_flag(*this->province->owner), this);
-        this->owner_flag->set_on_click([this](UI::Widget& w) {
+        this->owner_flag->set_on_click([this](UI::Widget&) {
             new Interface::NationView(this->gs, this->province->owner);
         });
         this->owner_flag->set_tooltip(this->province->owner->name + " owns this province");
@@ -101,7 +101,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     int dx = 0;
     for(const auto& nation : province->nuclei) {
         this->owner_flag = new UI::AspectImage(dx, this->landscape_img->height - 24, 32, 24, gs.get_nation_flag(*nation), this);
-        this->owner_flag->set_on_click([this, nation](UI::Widget& w) {
+        this->owner_flag->set_on_click([this, nation](UI::Widget&) {
             new Interface::NationView(this->gs, nation);
         });
         this->owner_flag->set_tooltip(nation->name + " has nuclei on this province");
@@ -290,7 +290,7 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
             name->text(name_str);
             name->set_tooltip(name_str);
             name->set_key(name_str);
-            name->set_on_click([this, &terrain_type](UI::Widget& w) {
+            name->set_on_click([this, &terrain_type](UI::Widget&) {
                 this->province->terrain_type = &terrain_type;
                 this->gs.map->update_mapmode();
             });
@@ -309,6 +309,12 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
     }
     gs.right_side_panel = this;
     gs.map->set_selected_province(true, _gs.world->get_id(*_province));
+
+    this->set_close_btn_function([this](Widget&) {
+        this->kill();
+        this->gs.right_side_panel = nullptr;
+        gs.map->set_selected_province(false, 0);
+    });
 
     this->origin = UI::Origin::UPPER_RIGHT_SCREEN;
     this->is_scroll = false;

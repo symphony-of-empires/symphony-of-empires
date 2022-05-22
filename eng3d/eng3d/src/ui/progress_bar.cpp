@@ -71,13 +71,29 @@ Eng3D::Rect get_rect(Eng3D::Rect rect_pos, Eng3D::Rect viewport) {
 }
 
 void ProgressBar::on_render(Context&, Eng3D::Rect viewport) {
-    // TODO: Fix broken progress bar
-    const Eng3D::Rect pos_rect(0, 0, (value / max) * width, height);
+    // TODO: Fix broken progress bar. Is it still broken, hmm ?
     g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man->get_white());
+    g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.f, 0.f, 1.f, 1.f));
+    Eng3D::Square(0, 0, width, height).draw();
+    float ratio = value / max;
+    Eng3D::Rect pos_rect(0, 0, width, height);
+    switch (direction)
+    {
+    case Direction::LEFT_TO_RIGHT:
+        pos_rect.right = width * ratio;
+        break;
+    case Direction::RIGHT_TO_LEFT:
+        pos_rect.left = width * (1 - ratio);
+        break;
+    case Direction::TOP_TO_BOTTOM:
+        pos_rect.bottom = height * ratio;
+        break;
+    case Direction::BOTTOM_TO_TOP:
+        pos_rect.top = height * (1 - ratio);
+        break;
+    }
     g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.f, 1.f, 0.f, 1.f));
     Eng3D::Square(pos_rect.left, pos_rect.top, pos_rect.right, pos_rect.bottom).draw();
-    g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.f, 0.f, 1.f, 1.f));
-    Eng3D::Square(pos_rect.right, pos_rect.top, width, pos_rect.bottom).draw();
 
     if(text_texture != nullptr) {
         if(!text_texture->gl_tex_num) {

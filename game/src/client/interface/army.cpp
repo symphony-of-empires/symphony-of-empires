@@ -52,8 +52,7 @@ ArmyArmyTab::ArmyArmyTab(GameState& _gs, int x, int y, UI::Widget* parent)
     for(const auto& unit : gs.world->units) {
         if(unit->owner != gs.curr_nation) {
             continue;
-        }
-        else if(!(unit->type->is_ground == true && unit->type->is_naval == false)) {
+        } else if(!(unit->type->is_ground == true && unit->type->is_naval == false)) {
             continue;
         }
 
@@ -73,8 +72,7 @@ ArmyAirforceTab::ArmyAirforceTab(GameState& _gs, int x, int y, UI::Widget* paren
     for(const auto& unit : gs.world->units) {
         if(unit->owner != gs.curr_nation) {
             continue;
-        }
-        else if(!(unit->type->is_ground == true && unit->type->is_naval == true)) {
+        } else if(!(unit->type->is_ground == true && unit->type->is_naval == true)) {
             continue;
         }
 
@@ -94,8 +92,7 @@ ArmyNavyTab::ArmyNavyTab(GameState& _gs, int x, int y, UI::Widget* parent)
     for(const auto& unit : gs.world->units) {
         if(unit->owner != gs.curr_nation) {
             continue;
-        }
-        else if(!(unit->type->is_ground == false && unit->type->is_naval == true)) {
+        } else if(!(unit->type->is_ground == false && unit->type->is_naval == true)) {
             continue;
         }
 
@@ -228,6 +225,10 @@ ArmyView::ArmyView(GameState& _gs)
         gs.right_side_panel->kill();
     }
     gs.right_side_panel = this;
+    this->set_close_btn_function([this](Widget&) {
+        this->kill();
+        this->gs.right_side_panel = nullptr;
+    });
 
     this->origin = UI::Origin::UPPER_RIGHT_SCREEN;
     this->is_scroll = false;
@@ -301,11 +302,4 @@ ArmyView::ArmyView(GameState& _gs)
     });
     new_unit_ibtn->tooltip = new UI::Tooltip(new_unit_ibtn, 512, 24);
     new_unit_ibtn->tooltip->text(Eng3D::Locale::translate("New unit"));
-
-    auto* close_btn = new UI::CloseButton(0, 0, 128, 24, this);
-    close_btn->right_side_of(*new_unit_ibtn);
-    close_btn->text(Eng3D::Locale::translate("Close"));
-    close_btn->set_on_click([this](UI::Widget& w) {
-        this->kill();
-    });
 }

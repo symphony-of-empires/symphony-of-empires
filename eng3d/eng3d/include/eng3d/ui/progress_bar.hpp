@@ -40,6 +40,13 @@ namespace UI {
      * @brief Progressbar widget
      *
      */
+    enum class Direction {
+        LEFT_TO_RIGHT,
+        RIGHT_TO_LEFT,
+        TOP_TO_BOTTOM,
+        BOTTOM_TO_TOP
+    };
+
     class ProgressBar: public Widget {
         float value;
     public:
@@ -47,6 +54,7 @@ namespace UI {
         virtual ~ProgressBar() override {};
         virtual void on_render(Context& ctx, Eng3D::Rect viewport);
         float max, min;
+        Direction direction = Direction::LEFT_TO_RIGHT;
 
         inline void set_value(const float _value) {
             value = std::clamp(_value, min, max);

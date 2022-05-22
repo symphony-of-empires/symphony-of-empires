@@ -51,7 +51,7 @@
 #include "eng3d/ui/label.hpp"
 #include "eng3d/ui/window.hpp"
 #include "eng3d/ui/text.hpp"
-#include "eng3d/ui/close_button.hpp"
+#include "eng3d/ui/button.hpp"
 #include "eng3d/ui/tooltip.hpp"
 #include "eng3d/ui/widget.hpp"
 #include "eng3d/ui/slider.hpp"
@@ -184,9 +184,12 @@ void Context::prompt(const std::string& title, const std::string& text) {
     txt->text(text);
     txt->is_scroll = true;
 
-    auto* ok_btn = new UI::CloseButton(0, 0, 128, 24, win);
+    auto* ok_btn = new UI::Button(0, 0, 128, 24, win);
     ok_btn->below_of(*txt);
     ok_btn->text("OK");
+    ok_btn->set_on_click([win](UI::Widget&) {
+        win->kill();
+    });
 
     win->height = ok_btn->y + ok_btn->height;
 }
