@@ -159,6 +159,7 @@ namespace UI {
 
         void prompt(const std::string& title, const std::string& text);
 
+        std::shared_ptr<Eng3D::Texture> foreground;
         std::shared_ptr<Eng3D::Texture> background;
         std::shared_ptr<Eng3D::Texture> window_top;
         std::shared_ptr<Eng3D::Texture> button;
