@@ -626,8 +626,6 @@ void GameState::world_thread(void) {
                 Eng3D::Log::error("game", e.what());
                 paused = true;
             }
-            auto end = std::chrono::system_clock::now();
-            printf("%ld\n", std::chrono::duration_cast<std::chrono::milliseconds>(end-start_time).count());
 
             while(1) {
                 auto end_time = std::chrono::system_clock::now();
