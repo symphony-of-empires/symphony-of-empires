@@ -49,7 +49,7 @@
 
 using namespace Interface;
 
-UnitButton::UnitButton(GameState& _gs, int x, int y, Unit* _unit, UI::Widget* parent)
+UnitButton::UnitButton(GameState& _gs, int x, int y, const Unit* _unit, UI::Widget* parent)
     : UI::Button(x, y, parent->width, 24, parent),
     gs{ _gs },
     unit{ _unit }
@@ -60,7 +60,7 @@ UnitButton::UnitButton(GameState& _gs, int x, int y, Unit* _unit, UI::Widget* pa
     });
 }
 
-UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType* _unit_type, UI::Widget* parent)
+UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, const UnitType* _unit_type, UI::Widget* parent)
     : UI::Group(x, y, parent->width, 24, parent),
     gs{ _gs },
     unit_type{ _unit_type }
@@ -75,7 +75,7 @@ UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType* _unit_typ
     this->name_btn->text(this->unit_type->name.get_string());
 }
 
-ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province* _province, UI::Widget* parent)
+ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, const Province* _province, UI::Widget* parent)
     : UI::Button(x, y, parent->width, 24, parent),
     gs{ _gs },
     province{ _province }
@@ -89,7 +89,7 @@ ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province* _province
     });
 }
 
-NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Widget* parent)
+NationButton::NationButton(GameState& _gs, int x, int y, const Nation* _nation, UI::Widget* parent)
     : UI::Group(x, y, parent->width, 24, parent),
     gs{ _gs },
     nation{ _nation }
@@ -117,7 +117,7 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation* _nation, UI::Wi
     });
 }
 
-BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province* _province, unsigned int _idx, UI::Widget* parent)
+BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, const Province* _province, unsigned int _idx, UI::Widget* parent)
     : UI::Group(x, y, parent->width, 24 * 2, parent),
     gs{ _gs },
     province{ _province },
@@ -177,7 +177,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province* _province, un
     money_lab->on_each_tick(*money_lab);
 }
 
-BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, BuildingType* _building_type, UI::Widget* parent)
+BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, const BuildingType* _building_type, UI::Widget* parent)
     : UI::Button(x, y, parent->width, 24, parent),
     gs{ _gs },
     building_type{_building_type}
@@ -185,7 +185,7 @@ BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, BuildingTyp
     this->text(building_type->name.get_string());
 }
 
-TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _technology, UI::Widget* parent)
+TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, const Technology* _technology, UI::Widget* parent)
     : UI::Group(x, y, parent->width, 48, parent),
     gs{ _gs },
     technology{ _technology }
@@ -217,7 +217,7 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _techno
     });
     chk->set_on_click([this](UI::Widget&) {
         if(this->gs.curr_nation->can_research(*this->technology)) {
-            this->gs.client->send(Action::FocusTech::form_packet(this->technology));
+            this->gs.client->send(Action::FocusTech::form_packet(*this->technology));
         }
     });
     chk->on_each_tick(*chk);
@@ -228,7 +228,7 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology* _techno
     });
 }
 
-PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, UI::Widget* parent)
+PopInfo::PopInfo(GameState& _gs, int x, int y, const Province* _province, std::size_t _index, UI::Widget* parent)
     : UI::Group(x, y, parent->width, 24, parent),
     gs{ _gs },
     province{ _province },
@@ -272,7 +272,7 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province* _province, int _index, 
     this->on_each_tick(*this);
 }
 
-ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province* _province, Good* _good, UI::Widget* parent)
+ProductInfo::ProductInfo(GameState& _gs, int x, int y, const Province* _province, const Good* _good, UI::Widget* parent)
     : UI::Group(x, y, parent->width, 24, parent),
     gs{ _gs },
     province{ _province },
@@ -326,8 +326,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province* _province, Good
             return;
         }
 
-        Product& product = o.province->products[o.gs.world->get_id(*o.good)];
-
+        const Product& product = o.province->products[o.gs.world->get_id(*o.good)];
         o.price_chart->data.clear();
         for(const auto& data : product.price_history) {
             o.price_chart->data.push_back(data);

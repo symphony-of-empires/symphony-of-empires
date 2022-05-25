@@ -38,15 +38,15 @@ namespace UI {
 namespace Interface {
     class NationMarketView : public UI::Window {
         GameState& gs;
-        Nation* nation;
+        const Nation* nation;
     public:
-        NationMarketView(GameState& gs, Nation* nation);
+        NationMarketView(GameState& gs, const Nation* nation);
     };
 
     class NationView : public UI::Window {
         GameState& gs;
-        Nation* nation;
+        const Nation* nation;
     public:
-        NationView(GameState& gs, Nation* nation);
+        NationView(GameState& gs, const Nation* nation);
     };
 };

@@ -107,3 +107,9 @@ bool Province::is_neighbour(Province& province) const {
     }
     return false;
 }
+
+void Province::add_building(const BuildingType& building_type) {
+    // Now build the building
+    this->buildings[g_world->get_id(building_type)].level += 1;
+    this->buildings[g_world->get_id(building_type)].req_goods = building_type.req_goods;
+}

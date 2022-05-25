@@ -42,23 +42,23 @@ namespace UI {
 namespace Interface {
     class ProductView : public UI::Window {
         GameState& gs;
-        Product* product;
+        const Product* product;
 
         UI::Image* icon_img;
         UI::PieChart *supply_pie;
         UI::Chart* price_chart,* supply_chart,* demand_chart;
     public:
-        ProductView(GameState& gs, Product* product);
+        ProductView(GameState& gs, const Product* product);
     };
 
     class GoodView : public UI::Window {
         GameState& gs;
-        Good* good;
+        const Good* good;
 
         UI::Image* icon_img;
         UI::PieChart *sellers_pie;
         UI::Chart* avg_price_chart;
     public:
-        GoodView(GameState& gs, Good* good);
+        GoodView(GameState& gs, const Good* good);
     };
 };

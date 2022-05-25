@@ -40,18 +40,18 @@ namespace Interface {
     class TreatyDraftView : public UI::Window {
         GameState& gs;
         Treaty treaty;
-        Nation* nation;
+        const Nation* nation;
     public:
-        TreatyDraftView(GameState& gs, Nation* nation);
+        TreatyDraftView(GameState& gs, const Nation* nation);
     };
 
     class TreatyChooseWindow : public UI::Window {
         GameState& gs;
-        Treaty* treaty;
+        const Treaty* treaty;
 
         UI::Text* body_txt;
         UI::Button* approve_btn,* deny_btn;
     public:
-        TreatyChooseWindow(GameState& gs, Treaty* treaty);
+        TreatyChooseWindow(GameState& gs, const Treaty* treaty);
     };
 };

@@ -72,7 +72,7 @@ void make_building_header(UI::Div* table) {
 	production_scale_lab->border = border;
 }
 
-void make_building_row(UI::Div* table, Building& building, BuildingType* type, Province* province) {
+void make_building_row(UI::Div* table, Building& building, const BuildingType* type, const Province* province) {
 	auto* row = new UI::Div(0, 0, 800, 35, table);
 	row->flex = UI::Flex::ROW;
 	row->flex_justify = UI::FlexJustify::START;

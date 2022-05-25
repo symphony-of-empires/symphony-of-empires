@@ -98,7 +98,7 @@ void GameState::play_nation() {
     top_win = new Interface::TopWindow(*this);
     // new MapDevView(map);
     minimap = new Interface::Minimap(*this, -400, -200, UI::Origin::LOWER_RIGHT_SCREEN);
-    g_client->send(Action::SelectNation::form_packet(this->curr_nation));
+    g_client->send(Action::SelectNation::form_packet(*this->curr_nation));
     Eng3D::Log::debug("game", "Selected nation " + this->curr_nation->ref_name);
 
     // Set AI to all off
@@ -110,10 +110,10 @@ void GameState::play_nation() {
     this->curr_nation->ai_controlled = false;
     this->curr_nation->ai_controlled = false;
     this->curr_nation->ai_controlled = false;
-    this->client->send(Action::AiControl::form_packet(this->curr_nation));
+    this->client->send(Action::AiControl::form_packet(*this->curr_nation));
 }
 
-std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(Nation& nation) {
+std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(const Nation& nation) {
     Nation::Id id = world->get_id(nation);
     return map->nation_flags[id];
 }
@@ -862,7 +862,7 @@ void start_client(int, char**) {
                 if(gs.current_mode == MapMode::NORMAL) {
                     // Production queue
                     for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
-                        UnitType* unit_type = gs.production_queue[i];
+                        const UnitType* unit_type = gs.production_queue[i];
 
                         // TODO: Make a better queue AI
                         bool is_built = false;
@@ -875,7 +875,7 @@ void start_client(int, char**) {
                                 }
 
                                 is_built = true;
-                                g_client->send(Action::BuildingStartProducingUnit::form_packet(province, &building_type, gs.curr_nation, unit_type));
+                                g_client->send(Action::BuildingStartProducingUnit::form_packet(*province, building_type, *gs.curr_nation, *unit_type));
                                 break;
                             }
 

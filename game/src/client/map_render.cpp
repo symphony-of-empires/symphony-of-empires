@@ -142,8 +142,9 @@ MapRender::MapRender(const World& _world)
             break;
         }
     }
+    
     Eng3D::TextureOptions single_color{};
-    single_color.internal_format = GL_RGB;
+    single_color.internal_format = GL_RGBA;
     single_color.compressed = false;
     terrain_map->upload(single_color);
     //terrain_map->gen_mipmaps();

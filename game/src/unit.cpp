@@ -63,11 +63,15 @@ UnitTrait::~UnitTrait(void) {
 //
 // Unit
 //
-/*Unit::Unit(void) {
-
+#include "eng3d/log.hpp"
+#include <string>
+#include <algorithm>
+Unit::Unit(void) {
+    Eng3D::Log::debug("unit", "Construct unit " + std::to_string((std::uintptr_t)this));
 }
 
 Unit::~Unit(void) {
+    Eng3D::Log::debug("unit", "Destruct unit " + std::to_string((std::uintptr_t)this));
     if(province != nullptr) {
         auto it = std::find(province->units.begin(), province->units.end(), this);
         province->units.erase(it);

@@ -216,7 +216,7 @@ void Server::net_loop(int id) {
                     ::deserialize(ar, &building_type);
                     province->buildings[g_world->get_id(*building_type)].level += 1;
                     // Rebroadcast
-                    broadcast(Action::BuildingAdd::form_packet(province, building_type));
+                    broadcast(Action::BuildingAdd::form_packet(*province, *building_type));
                 } break;
                 // Client tells server that it wants to colonize a province, this can be rejected
                 // or accepted, client should check via the next PROVINCE_UPDATE action

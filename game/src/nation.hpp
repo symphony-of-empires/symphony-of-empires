@@ -121,7 +121,7 @@ public:
     Eng3D::Decimal get_tax(const Pop& pop) const;
     void give_province(Province& province);
     void control_province(Province& province);
-    const NationClientHint& get_client_hint(void);
+    const NationClientHint& get_client_hint(void) const;
     Eng3D::Decimal get_research_points(void) const;
     bool can_research(const Technology& tech) const;
     void change_research_focus(const Technology& tech);

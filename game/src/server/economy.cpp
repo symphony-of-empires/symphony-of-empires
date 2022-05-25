@@ -62,8 +62,8 @@ struct PopNeed {
     float budget;
 };
 
-void militancy_update(World& world, Nation* nation) {
-    for(const auto& province : nation->controlled_provinces) {
+void militancy_update(World& world, Nation& nation) {
+    for(const auto& province : nation.controlled_provinces) {
         for(auto& pop : province->pops) {
             // More literacy means more educated persons with less children
             Eng3D::Decimal growth = pop.size / (pop.literacy + 1.f);
@@ -81,13 +81,14 @@ void militancy_update(World& world, Nation* nation) {
             pop.ideology_approval[world.get_id(*province->owner->ideology)] += (pop.life_needs_met + 1.f) / 10.f;
         }
     }
+
     // Total anger in population (global)
     Eng3D::Decimal total_anger = 0.f;
     // Anger per ideology (how much we hate the current ideology)
     std::vector<Eng3D::Decimal> ideology_anger(world.ideologies.size(), 0.f);
     const Eng3D::Decimal coup_chances = 1000.f;
     auto rand = Eng3D::get_local_generator();
-    for(const auto& province : nation->controlled_provinces) {
+    for(const auto& province : nation.controlled_provinces) {
         for(const auto& pop : province->pops) {
             // TODO: Ok, look, the justification is that educated people
             // almost never do coups - in comparasion to uneducated
@@ -153,19 +154,19 @@ void militancy_update(World& world, Nation* nation) {
 
         // Ideology_anger and ideologies are mapped 1:1 - so we just pick up the associated ideology
         // Apply the policies of the ideology
-        nation->current_policy = world.ideologies[idx].policies;
+        nation.current_policy = world.ideologies[idx].policies;
 
         // Switch ideologies of nation
-        nation->ideology = &world.ideologies[idx];
+        nation.ideology = &world.ideologies[idx];
 
         // People who are aligned to the ideology are VERY happy now
-        for(const auto& province : nation->owned_provinces) {
+        for(const auto& province : nation.owned_provinces) {
             for(auto& pop : province->pops) {
                 pop.militancy = -50.f;
             }
         }
 
-        Eng3D::Log::debug("game", "Coup d' etat on " + nation->ref_name + " by " + nation->ideology->ref_name);
+        Eng3D::Log::debug("game", "Coup d' etat on " + nation.ref_name + " by " + nation.ideology->ref_name);
     }
 }
 
@@ -173,8 +174,8 @@ constexpr int32_t price_update_delay = 2;
 constexpr float price_change_rate = 0.025f;
 constexpr float base_price = 1.f;
 constexpr float purchasing_change_rate = 1.f;
-void economy_single_good_tick(World& world, Good* good) {
-    auto good_id = world.get_id(*good);
+void economy_single_good_tick(World& world, Good& good) {
+    auto good_id = world.get_id(good);
 
     auto province_size = world.provinces.size();
     // determine new prices
@@ -199,7 +200,7 @@ constexpr float scale_speed(float v) {
     return 1.f - production_scaling_speed_factor + production_scaling_speed_factor * v;
 }
 // Updates supply, demand, and set wages for workers
-void update_factory_production(World& world, Building& building, BuildingType* building_type, Province* province, float& pop_payment)
+void update_factory_production(World& world, Building& building, BuildingType* building_type, Province& province, float& pop_payment)
 {
     if(building_type->output == nullptr) {
         return;
@@ -208,7 +209,7 @@ void update_factory_production(World& world, Building& building, BuildingType* b
     // TODO add output modifier
     // Calculate outputs
     auto output = building_type->output;
-    Product& output_product = province->products[world.get_id(*output)];
+    Product& output_product = province.products[world.get_id(*output)];
     auto output_price = output_product.price;
     auto output_amount = 1.f * building.production_scale;
 
@@ -226,7 +227,7 @@ void update_factory_production(World& world, Building& building, BuildingType* b
         auto input = building_type->req_goods[i];
         auto good = input.first;
         auto amount = input.second;
-        Product& product = province->products[world.get_id(*good)];
+        Product& product = province.products[world.get_id(*good)];
         auto price = product.price;
         inputs_cost += price * amount;
     }
@@ -240,7 +241,7 @@ void update_factory_production(World& world, Building& building, BuildingType* b
         auto input = building_type->req_goods[i];
         auto good = input.first;
         auto amount = input.second;
-        Product& product = province->products[world.get_id(*good)];
+        Product& product = province.products[world.get_id(*good)];
         product.demand += amount; // * price ?
     }
 
@@ -259,10 +260,10 @@ void update_factory_production(World& world, Building& building, BuildingType* b
 }
 
 // Update the factory employment
-void update_factories_employment(const World& world, Province* province, std::vector<float>& new_workers) {
+void update_factories_employment(const World& world, Province& province, std::vector<float>& new_workers) {
     float unallocated_workers;
-    for(uint32_t i = 0; i < province->pops.size(); i++) {
-        auto& pop = province->pops[i];
+    for(uint32_t i = 0; i < province.pops.size(); i++) {
+        auto& pop = province.pops[i];
         if(pop.type->group == PopGroup::LABORER) {
             unallocated_workers += pop.size;
         }
@@ -271,17 +272,17 @@ void update_factories_employment(const World& world, Province* province, std::ve
 
     // Sort factories by production scale, which is suppose to represent how profitable the factory is
     // Might be better to calculate how profitable it really is and use that instead
-    std::vector<std::pair<uint32_t, float>> factories_by_profitability(province->buildings.size());
-    for(uint32_t i = 0; i < province->buildings.size(); i++) {
-        factories_by_profitability[i] = std::pair<uint32_t, float>(i, province->buildings[i].production_scale);
+    std::vector<std::pair<uint32_t, float>> factories_by_profitability(province.buildings.size());
+    for(uint32_t i = 0; i < province.buildings.size(); i++) {
+        factories_by_profitability[i] = std::pair<uint32_t, float>(i, province.buildings[i].production_scale);
     }
 
     std::sort(std::begin(factories_by_profitability), std::end(factories_by_profitability), [](std::pair<uint32_t, float> const& a, std::pair<uint32_t, float> const& b) { return a.second > b.second; });
 
     // The most profitable factory gets to pick workers first
-    for(uint32_t i = 0; i < province->buildings.size(); i++) {
+    for(uint32_t i = 0; i < province.buildings.size(); i++) {
         auto factory_index = factories_by_profitability[i].first;
-        auto& building = province->buildings[factory_index];
+        auto& building = province.buildings[factory_index];
         const auto& type = world.building_types[factory_index];
         float factory_workers = building.level * type.num_req_workers * building.production_scale;
         float amount_needed = factory_workers;
@@ -338,17 +339,17 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
 }
 
 // Buildings who have fullfilled requirements to build stuff will spawn a unit
-Unit* build_unit(Building& building, Province* province) {
+Unit* build_unit(Building& building, Province& province) {
     bool can_build_unit = building.can_build_unit();
 
     // Ratio of health:person is 25, thus making units very expensive
     const Eng3D::Number army_size = 100;
     // TODO: Consume special soldier pops instead of farmers!!!
-    auto it = std::find_if(province->pops.begin(), province->pops.end(), [building, army_size](const auto& e) {
+    auto it = std::find_if(province.pops.begin(), province.pops.end(), [building, army_size](const auto& e) {
         return (e.size >= army_size && e.type->group == PopGroup::FARMER);
     });
 
-    if(it == province->pops.end()) {
+    if(it == province.pops.end()) {
         can_build_unit = false;
     }
 
@@ -359,9 +360,9 @@ Unit* build_unit(Building& building, Province* province) {
     if(can_build_unit && final_size) {
         // Spawn a unit
         Unit* unit = new Unit();
-        unit->set_province(*province);
+        unit->set_province(province);
         unit->type = building.working_unit_type;
-        unit->owner = province->owner;
+        unit->owner = province.owner;
         unit->budget = 5000.f;
         unit->experience = 1.f;
         unit->morale = 1.f;
@@ -370,7 +371,7 @@ Unit* build_unit(Building& building, Province* province) {
         unit->base = unit->type->max_health;
 
         building.working_unit_type = nullptr;
-        Eng3D::Log::debug("economy", "[" + province->ref_name + "]: Has built an unit of [" + unit->type->ref_name + "]");
+        Eng3D::Log::debug("economy", "[" + province.ref_name + "]: Has built an unit of [" + unit->type->ref_name + "]");
         return unit;
     } else {
         return nullptr;
@@ -393,10 +394,10 @@ void Economy::do_tick(World& world) {
         market.demand.reserve(provinces_size);
 
         for(size_t i = 0; i < world.provinces.size(); i++) {
-            Province* province = world.provinces[i];
-            Product& product = province->products[market.good];
+            Province& province = *world.provinces[i];
+            Product& product = province.products[market.good];
             market.demand[i] = 0.f;
-            if(province->owner) {
+            if(province.owner) {
                 market.prices[i] = product.price;
                 market.supply[i] = product.supply;
             } else {
@@ -411,22 +412,21 @@ void Economy::do_tick(World& world) {
     world.profiler.start("E-trade");
     std::for_each(std::execution::par, markets.begin(), markets.end(), [&world](auto& market) {
         for(size_t i = 0; i < world.provinces.size(); i++) {
-            Province* province = world.provinces[i];
-
-            Product& product = province->products[market.good];
+            Province& province = *world.provinces[i];
+            Product& product = province.products[market.good];
 
             if(product.supply <= 0.f) {
                 continue;;
             }
 
-            for(auto neighbour : province->neighbours) {
+            for(auto neighbour : province.neighbours) {
                 if(neighbour->owner) continue;
 
                 Product& other_product = neighbour->products[market.good];
 
                 // transfer goods
                 if(other_product.price > product.price) {
-                    float amount = product.supply / province->neighbours.size();
+                    float amount = product.supply / province.neighbours.size();
                     market.supply[i] -= amount;
                     market.demand[i] += amount;
                 } else {
@@ -440,9 +440,8 @@ void Economy::do_tick(World& world) {
 
     int coastal = 0;
     for(size_t i = 0; i < world.provinces.size(); i++) {
-        Province* province = world.provinces[i];
-
-        for(auto neighbour : province->neighbours) {
+        Province& province = *world.provinces[i];
+        for(auto neighbour : province.neighbours) {
             if(neighbour->terrain_type->is_water_body) {
                 coastal++;
                 break;
@@ -452,7 +451,7 @@ void Economy::do_tick(World& world) {
 
     world.profiler.start("E-good");
     std::for_each(std::execution::par, markets.begin(), markets.end(), [&world](const auto& market) {
-        economy_single_good_tick(world, &world.goods[market.good]);
+        economy_single_good_tick(world, world.goods[market.good]);
     });
     world.profiler.stop("E-good");
 
@@ -470,29 +469,29 @@ void Economy::do_tick(World& world) {
     std::for_each(std::execution::par, province_ids.begin(), province_ids.end(), [
         &world, &buildings_new_worker, &province_new_units, &pops_new_needs](const auto& province_id)
     {
-        Province* province = world.provinces[province_id];
-        if(!province->owner) return;
+        Province& province = *world.provinces[province_id];
+        if(!province.owner) return;
 
         float laborers_payment = 0.f;
         for(auto& building_type : world.building_types) {
-            auto& building = province->buildings[world.get_id(building_type)];
+            auto& building = province.buildings[world.get_id(building_type)];
             update_factory_production(world, building, &building_type, province, laborers_payment);
         }
         std::vector<PopNeed>& new_needs = pops_new_needs[province_id];
-        new_needs.assign(province->pops.size(), PopNeed());
-        for(uint32_t i = 0; i < province->pops.size(); i++) {
-            auto& pop = province->pops[i];
+        new_needs.assign(province.pops.size(), PopNeed());
+        for(uint32_t i = 0; i < province.pops.size(); i++) {
+            auto& pop = province.pops[i];
             new_needs[i].budget = pop.budget;
         }
         float laborers_amount = 0.f;
-        for(uint32_t i = 0; i < province->pops.size(); i++) {
-            auto& pop = province->pops[i];
+        for(uint32_t i = 0; i < province.pops.size(); i++) {
+            auto& pop = province.pops[i];
             if(pop.type->group == PopGroup::LABORER) {
                 laborers_amount += pop.size;
             }
         }
-        for(uint32_t i = 0; i < province->pops.size(); i++) {
-            auto& pop = province->pops[i];
+        for(uint32_t i = 0; i < province.pops.size(); i++) {
+            auto& pop = province.pops[i];
             if(pop.type->group == PopGroup::LABORER) {
                 float ratio = pop.size / laborers_amount;
                 new_needs[i].budget += laborers_payment * ratio;
@@ -503,10 +502,10 @@ void Economy::do_tick(World& world) {
         new_workers.assign(world.building_types.size(), 0.f);
         update_factories_employment(world, province, new_workers);
 
-        update_pop_needs(world, *province, new_needs);
+        update_pop_needs(world, province, new_needs);
 
-        for(int i = 0; i < province->buildings.size(); i++) {
-            Building& building = province->buildings[i];
+        for(int i = 0; i < province.buildings.size(); i++) {
+            Building& building = province.buildings[i];
 
             if(building.working_unit_type != nullptr) {
                 Unit* unit = build_unit(building, province);
@@ -539,19 +538,19 @@ void Economy::do_tick(World& world) {
     std::for_each(std::execution::par, province_ids.begin(), province_ids.end(), [
         &world, &pops_new_needs, &buildings_new_worker](const auto& province_id)
     {
-        Province* province = world.provinces[province_id];
-        if(!province->owner) return;
+        Province& province = *world.provinces[province_id];
+        if(province.owner == nullptr) return;
 
         std::vector<PopNeed>& new_needs = pops_new_needs[province_id];
-        for(uint32_t i = 0; i < province->pops.size(); i++) {
-            auto& pop = province->pops[i];
+        for(uint32_t i = 0; i < province.pops.size(); i++) {
+            auto& pop = province.pops[i];
             pop.budget = new_needs[i].budget;
             pop.life_needs_met = new_needs[i].life_needs_met;
             pop.everyday_needs_met = new_needs[i].everyday_needs_met;
         }
         std::vector<float>& new_workers = buildings_new_worker[province_id];
-        for(uint32_t i = 0; i < province->buildings.size(); i++) {
-            auto& building = province->buildings[i];
+        for(uint32_t i = 0; i < province.buildings.size(); i++) {
+            auto& building = province.buildings[i];
             building.workers = new_workers[i];
         }
     });
@@ -564,7 +563,7 @@ void Economy::do_tick(World& world) {
             nation->research[world.get_id(*nation->focus_tech)] += research;
         }
 
-        militancy_update(world, nation);
+        militancy_update(world, *nation);
     });
 
     if(!new_units.empty()) {

@@ -44,6 +44,43 @@
 template<>
 class Serializer<ActionType>: public SerializerMemcpy<ActionType> {};
 
+// Global references
+template<>
+class Serializer<const Province*>: public SerializerReference<World, Province> {};
+template<>
+class Serializer<const Nation*>: public SerializerReference<World, Nation> {};
+template<>
+class Serializer<const Event*>: public SerializerReference<World, Event> {};
+template<>
+class Serializer<const Treaty*>: public SerializerReference<World, Treaty> {};
+template<>
+class Serializer<const Unit*>: public SerializerReference<World, Unit> {};
+
+// Local references
+template<>
+class Serializer<const Culture*>: public SerializerReferenceLocal<World, Culture> {};
+template<>
+class Serializer<const Good*>: public SerializerReferenceLocal<World, Good> {};
+template<>
+class Serializer<const UnitType*>: public SerializerReferenceLocal<World, UnitType> {};
+template<>
+class Serializer<const UnitTrait*>: public SerializerReferenceLocal<World, UnitTrait> {};
+template<>
+class Serializer<const BuildingType*>: public SerializerReferenceLocal<World, BuildingType> {};
+template<>
+class Serializer<const Ideology*>: public SerializerReferenceLocal<World, Ideology> {};
+template<>
+class Serializer<const Technology*>: public SerializerReferenceLocal<World, Technology> {};
+template<>
+class Serializer<const PopType*>: public SerializerReferenceLocal<World, PopType> {};
+template<>
+class Serializer<const Religion*>: public SerializerReferenceLocal<World, Religion> {};
+template<>
+class Serializer<const NationModifier*>: public SerializerReferenceLocal<World, NationModifier> {};
+template<>
+class Serializer<const TerrainType*>: public SerializerReferenceLocal<World, TerrainType> {};
+
+// Global references
 template<>
 class Serializer<Province*>: public SerializerReference<World, Province> {};
 template<>
@@ -55,6 +92,7 @@ class Serializer<Treaty*>: public SerializerReference<World, Treaty> {};
 template<>
 class Serializer<Unit*>: public SerializerReference<World, Unit> {};
 
+// Local references
 template<>
 class Serializer<Culture*>: public SerializerReferenceLocal<World, Culture> {};
 template<>
@@ -78,6 +116,7 @@ class Serializer<NationModifier*>: public SerializerReferenceLocal<World, Nation
 template<>
 class Serializer<TerrainType*>: public SerializerReferenceLocal<World, TerrainType> {};
 
+// Other objects
 template<>
 class Serializer<PopGroup>: public SerializerMemcpy<PopGroup> {};
 

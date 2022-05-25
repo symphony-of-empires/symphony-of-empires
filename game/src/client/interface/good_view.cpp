@@ -40,7 +40,7 @@
 
 using namespace Interface;
 
-ProductView::ProductView(GameState& _gs, Product* _product)
+ProductView::ProductView(GameState& _gs, const Product* _product)
     : UI::Window(0, 0, 512, 320),
     gs{ _gs },
     product{ _product }
@@ -114,7 +114,7 @@ ProductView::ProductView(GameState& _gs, Product* _product)
     });
 }
 
-GoodView::GoodView(GameState& _gs, Good* _good)
+GoodView::GoodView(GameState& _gs, const Good* _good)
     : UI::Window(0, 0, 512, 320),
     gs{ _gs },
     good{ _good }

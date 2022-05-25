@@ -78,7 +78,7 @@ void ProvincePopulationTab::update_piecharts() {
     pop_types_pie->set_data(pop_types_data);
 }
 
-ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
+ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, const Province* _province, UI::Widget* _parent)
     : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
     gs{ _gs },
     province{ _province }
@@ -176,7 +176,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     this->on_each_tick(*this);
 }
 
-ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
+ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, const Province* _province, UI::Widget* _parent)
     : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
     gs{ _gs },
     province{ _province }
@@ -195,7 +195,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
         int i = 0;
         for(const auto& good : o.gs.world->goods) {
             const auto good_col = Eng3D::Color(i * 12, i * 31, i * 97);
-            Product& product = o.province->products[o.gs.world->get_id(good)];
+            const Product& product = o.province->products[o.gs.world->get_id(good)];
             goods_data.push_back(UI::ChartData(product.demand, good.name.get_string(), good_col));
             i++;
         }
@@ -212,7 +212,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province* _
     }
 }
 
-ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
+ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, const Province* _province, UI::Widget* _parent)
     : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
     gs{ _gs },
     province{ _province }
@@ -238,7 +238,7 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province*
     }
 }
 
-ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
+ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, const Province* _province, UI::Widget* _parent)
     : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
     gs{ _gs },
     province{ _province }
@@ -251,7 +251,7 @@ ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, Pro
         auto* btn = new UI::Button(0, dy, 128, 24, this);
         btn->text(culture.name.get_string());
         btn->set_on_click([this, &culture](UI::Widget&) {
-            for(auto& pop : this->province->pops) {
+            for(auto& pop : const_cast<Province*>(this->province)->pops) {
                 pop.culture = &culture;
             }
             this->gs.map->update_mapmode();
@@ -260,7 +260,7 @@ ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, Pro
     }
 }
 
-ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Province* _province, UI::Widget* _parent)
+ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, const Province* _province, UI::Widget* _parent)
     : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
     gs{ _gs },
     province{ _province }
@@ -291,7 +291,7 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
             name->set_tooltip(name_str);
             name->set_key(name_str);
             name->set_on_click([this, &terrain_type](UI::Widget&) {
-                this->province->terrain_type = &terrain_type;
+                const_cast<Province*>(this->province)->terrain_type = const_cast<TerrainType*>(&terrain_type);
                 this->gs.map->update_mapmode();
             });
         }
@@ -299,7 +299,7 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
     table->on_each_tick(*table);
 }
 
-ProvinceView::ProvinceView(GameState& _gs, Province* _province)
+ProvinceView::ProvinceView(GameState& _gs, const Province* _province)
     : UI::Window(-400, 0, 400, _gs.height),
     gs{ _gs },
     province{ _province }
@@ -362,7 +362,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         auto* xchg_name_btn = new UI::Button(0, this->height - (64 + 24), 32, 32, this);
         xchg_name_btn->right_side_of(*rename_inp);
         xchg_name_btn->set_on_click([this](UI::Widget&) {
-            this->province->name = this->rename_inp->get_buffer();
+            const_cast<Province*>(this->province)->name = this->rename_inp->get_buffer();
             this->gs.map->create_labels();
             this->gs.ui_ctx->prompt("Update", "Updated name of province to \"" + this->province->name + "\"!");
         });
@@ -374,7 +374,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         density_sld->set_on_click([this](UI::Widget& w) {
             w.text(std::to_string(((UI::Slider&)w).get_value()));
             const float den = this->density_sld->value;
-            for(auto& pop : this->province->pops) {
+            for(auto& pop : const_cast<Province*>(this->province)->pops) {
                 pop.size *= den;
             }
             this->gs.map->update_mapmode();
@@ -399,7 +399,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
                 pop.size = 1000.f / std::max<Eng3D::Decimal>(0.01f, pop_type.social_value);
                 pop.literacy = max_sv / std::max<Eng3D::Decimal>(0.01f, pop_type.social_value);
                 pop.budget = 100.f * max_sv;
-                this->province->pops.push_back(pop);
+                const_cast<Province*>(this->province)->pops.push_back(pop);
             }
             this->gs.map->update_mapmode();
             this->gs.ui_ctx->prompt("Update", "Added POPs to province \"" + this->province->name + "\"!");
@@ -410,7 +410,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province* _province)
         clear_pops_btn->below_of(*density_sld);
         clear_pops_btn->right_side_of(*fill_pops_btn);
         clear_pops_btn->set_on_click([this](UI::Widget&) {
-            this->province->pops.clear();
+            const_cast<Province*>(this->province)->pops.clear();
             this->gs.map->update_mapmode();
             this->gs.ui_ctx->prompt("Update", "Cleared POPs of province \"" + this->province->name + "\"!");
         });
