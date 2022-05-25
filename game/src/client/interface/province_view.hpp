@@ -45,7 +45,7 @@ namespace Interface {
     // on the specified province
     class ProvincePopulationTab: public UI::Group {
         GameState& gs;
-        Province* province;
+        const Province* province;
 
         UI::Image* owner_flag;
         UI::Image* landscape_img;
@@ -55,7 +55,7 @@ namespace Interface {
         UI::PieChart* pop_types_pie;
 
     public:
-        ProvincePopulationTab(GameState& gs, int x, int y, Province* province, UI::Widget* _parent);
+        ProvincePopulationTab(GameState& gs, int x, int y, const Province* province, UI::Widget* _parent);
 
         void update_piecharts();
     };
@@ -67,39 +67,39 @@ namespace Interface {
 
         std::vector<ProductInfo*> product_infos;
     public:
-        ProvinceEconomyTab(GameState& gs, int x, int y, Province* province, UI::Widget* _parent);
+        ProvinceEconomyTab(GameState& gs, int x, int y, const Province* province, UI::Widget* _parent);
 
         GameState& gs;
-        Province* province;
+        const Province* province;
     };
 
     class ProvinceBuildingTab: public UI::Group {
         std::vector<BuildingInfo*> building_infos;
     public:
-        ProvinceBuildingTab(GameState& gs, int x, int y, Province* province, UI::Widget* _parent);
+        ProvinceBuildingTab(GameState& gs, int x, int y, const Province* province, UI::Widget* _parent);
         GameState& gs;
-        Province* province;
+        const Province* province;
     };
 
     class ProvinceEditCultureTab : public UI::Group {
     public:
-        ProvinceEditCultureTab(GameState& gs, int x, int y, Province* province, UI::Widget* _parent);
+        ProvinceEditCultureTab(GameState& gs, int x, int y, const Province* province, UI::Widget* _parent);
         GameState& gs;
-        Province* province;
-        Culture* culture;
+        const Province* province;
+        const Culture* culture;
     };
 
     class ProvinceEditTerrainTab : public UI::Group {
     public:
-        ProvinceEditTerrainTab(GameState& gs, int x, int y, Province* province, UI::Widget* _parent);
+        ProvinceEditTerrainTab(GameState& gs, int x, int y, const Province* province, UI::Widget* _parent);
         GameState& gs;
-        Province* province;
-        TerrainType* terrain_type;
+        const Province* province;
+        const TerrainType* terrain_type;
     };
 
     class ProvinceView: public UI::Window {
         GameState& gs;
-        Province* province;
+        const Province* province;
 		
         UI::Input* rename_inp;
         UI::Slider* density_sld;
@@ -110,7 +110,7 @@ namespace Interface {
         ProvinceEditCultureTab* edit_culture_tab;
         ProvinceEditTerrainTab* edit_terrain_tab;
     public:
-        ProvinceView(GameState& gs, Province* province);
+        ProvinceView(GameState& gs, const Province* province);
         ~ProvinceView() override;
         friend class ProvinceBuildingTab;
     };
@@ -120,6 +120,6 @@ namespace Interface {
         UI::PieChart* cultures_pie;
         UI::Chart* economy_chart;
     public:
-        ProvinceBrief(GameState& gs, Province* province);
+        ProvinceBrief(GameState& gs, const Province* province);
     };
 };

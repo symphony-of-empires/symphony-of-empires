@@ -36,7 +36,7 @@
 
 using namespace Interface;
 
-UnitWidget::UnitWidget(Unit* unit, Map* _map, UI::Widget* parent)
+UnitWidget::UnitWidget(const Unit* unit, Map* _map, UI::Widget* parent)
     : UI::Div(0, 0, 100, 30, parent), unit{ unit }, map{ _map }
 {
     Eng3D::Camera* camera = map->camera;
@@ -65,7 +65,7 @@ UnitWidget::UnitWidget(Unit* unit, Map* _map, UI::Widget* parent)
     this->morale_bar->direction = UI::Direction::BOTTOM_TO_TOP;
 }
 
-void UnitWidget::set_unit(Unit* _unit) {
+void UnitWidget::set_unit(const Unit* _unit) {
     unit = _unit;
     Eng3D::Camera* camera = map->camera;
     auto unit_pos = this->unit->get_pos();

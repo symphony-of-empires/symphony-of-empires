@@ -50,7 +50,7 @@ AISettingsWindow::AISettingsWindow(GameState& _gs)
     close_btn->below_of(*cmd_chk);
     close_btn->text(Eng3D::Locale::translate("Close"));
     close_btn->set_on_click([this](UI::Widget& w) {
-        this->gs.client->send(Action::AiControl::form_packet(this->gs.curr_nation));
+        this->gs.client->send(Action::AiControl::form_packet(*this->gs.curr_nation));
         this->kill();
     });
 }

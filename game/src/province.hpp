@@ -58,6 +58,7 @@ public:
     const std::vector<Building>& get_buildings(void) const;
     std::vector<Building>& get_buildings(void);
     bool is_neighbour(Province& province) const;
+    void add_building(const BuildingType& building_type);
 
     Eng3D::StringRef name;
 

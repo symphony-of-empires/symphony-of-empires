@@ -100,22 +100,22 @@ class Technology;
 namespace Action {
     class AiControl {
     public:
-        static Eng3D::Networking::Packet form_packet(Nation* target);
+        static Eng3D::Networking::Packet form_packet(const Nation& nation);
     };
 
     class DiploIncRelations {
     public:
-        static Eng3D::Networking::Packet form_packet(Nation* target);
+        static Eng3D::Networking::Packet form_packet(const Nation& nation);
     };
 
     class DiploDecRelations {
     public:
-        static Eng3D::Networking::Packet form_packet(Nation* target);
+        static Eng3D::Networking::Packet form_packet(const Nation& nation);
     };
 
     class DiploDeclareWar {
     public:
-        static Eng3D::Networking::Packet form_packet(Nation* target);
+        static Eng3D::Networking::Packet form_packet(const Nation& nation);
     };
 
     class ProvinceUpdate {
@@ -130,22 +130,22 @@ namespace Action {
 
     class SelectNation {
     public:
-        static Eng3D::Networking::Packet form_packet(Nation* nation);
+        static Eng3D::Networking::Packet form_packet(const Nation& nation);
     };
 
     class BuildingStartProducingUnit {
     public:
-        static Eng3D::Networking::Packet form_packet(Province* province, BuildingType* building_type, Nation* nation, UnitType* unit_type);
+        static Eng3D::Networking::Packet form_packet(const Province& province, const BuildingType& building_type, const Nation& nation, const UnitType& unit_type);
     };
 	
 	class BuildingAdd {
 	public:
-        static Eng3D::Networking::Packet form_packet(Province* province, BuildingType* building_type);
+        static Eng3D::Networking::Packet form_packet(const Province& province, const BuildingType& building_type);
 	};
 
     class FocusTech {
     public:
-		static Eng3D::Networking::Packet form_packet(Technology* technology);
+		static Eng3D::Networking::Packet form_packet(const Technology& technology);
     };
 
     class NationAdd {

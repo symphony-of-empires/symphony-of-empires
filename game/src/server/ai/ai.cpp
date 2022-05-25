@@ -404,14 +404,14 @@ static inline void ai_build_commercial(Nation& nation) {
     auto it = std::begin(nation.owned_provinces);
     std::advance(it, std::rand() % nation.owned_provinces.size());
 
-    Province* province = *it;
+    Province& province = **it;
     
     // Now build the building
-    BuildingType* building_type = &world.building_types.at(0);
-    province->buildings[world.get_id(*building_type)].level += 1;
+    const BuildingType& building_type = world.building_types.at(0);
+    province.add_building(building_type);
     // Broadcast the addition of the building to the clients
     g_server->broadcast(Action::BuildingAdd::form_packet(province, building_type));
-    Eng3D::Log::debug("ai", "Building of " + building_type->ref_name + ", from " + nation.ref_name + " built on " + province->ref_name);
+    Eng3D::Log::debug("ai", "Building of " + building_type.ref_name + ", from " + nation.ref_name + " built on " + province.ref_name);
 }
 
 void ai_do_tick(Nation& nation) {
@@ -549,14 +549,13 @@ void ai_do_tick(Nation& nation) {
         if(std::rand() % (base_reluctance / defense_factor) == 0) {
             auto it = std::begin(nation.owned_provinces);
             std::advance(it, std::rand() % nation.owned_provinces.size());
-            Province* province = *it;
+            Province& province = **it;
             
-            BuildingType* building_type = &world.building_types[0];
-            province->buildings[world.get_id(*building_type)].level += 1;
-            province->buildings[world.get_id(*building_type)].req_goods = building_type->req_goods;
+            const BuildingType& building_type = world.building_types[0];
+            province.add_building(building_type);
             // Broadcast the addition of the building to the clients
             g_server->broadcast(Action::BuildingAdd::form_packet(province, building_type));
-            Eng3D::Log::debug("ai", "Construction of building " + building_type->name + " from " + nation.name + " built on " + province->name);
+            Eng3D::Log::debug("ai", "Construction of building " + building_type.name + " from " + nation.name + " built on " + province.name);
         }
 
         if(std::rand() % (base_reluctance / defense_factor) == 0) {

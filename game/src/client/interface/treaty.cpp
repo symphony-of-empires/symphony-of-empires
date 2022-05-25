@@ -31,7 +31,7 @@
 
 using namespace Interface;
 
-std::string treaty_to_text(Treaty* treaty) {
+std::string treaty_to_text(const Treaty* treaty) {
     std::string text = "";
     for(const auto& clause : treaty->clauses) {
         if(clause->type == TreatyClauseType::MONEY) {
@@ -68,7 +68,7 @@ std::string treaty_to_text(Treaty* treaty) {
     return text;
 }
 
-TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
+TreatyDraftView::TreatyDraftView(GameState& _gs, const Nation* _nation)
     : UI::Window(0, 0, 256, 512),
     gs{ _gs },
     nation{ _nation }
@@ -77,7 +77,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
     this->text("Draft treaty");
 
     this->treaty.sender = gs.curr_nation;
-    this->treaty.receiver = nation;
+    this->treaty.receiver = const_cast<Nation*>(nation);
 
     auto* ceasefire_btn = new UI::Checkbox(0, 0, 128, 24, this);
     ceasefire_btn->text("Ceasefire");
@@ -85,7 +85,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
         if(((UI::Checkbox&)w).get_value()) {
             auto* clause = new TreatyClause::Ceasefire();
             clause->sender = this->gs.curr_nation;
-            clause->receiver = this->nation;
+            clause->receiver = const_cast<Nation*>(this->nation);
             clause->days_duration = 360;
             this->treaty.clauses.push_back(clause);
         } else {
@@ -106,7 +106,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
         if(((UI::Checkbox&)w).get_value()) {
             auto* clause = new TreatyClause::AnnexProvince();
             clause->sender = this->gs.curr_nation;
-            clause->receiver = this->nation;
+            clause->receiver = const_cast<Nation*>(this->nation);
             clause->days_duration = 0;
             for(auto& province : this->nation->controlled_provinces) {
                 clause->provinces.push_back(province);
@@ -130,7 +130,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
         if(((UI::Checkbox&)w).get_value()) {
             auto* clause = new TreatyClause::AnnexProvince();
             clause->sender = this->gs.curr_nation;
-            clause->receiver = this->nation;
+            clause->receiver = const_cast<Nation*>(this->nation);
             clause->days_duration = 0;
             for(auto& province : this->nation->owned_provinces) {
                 clause->provinces.push_back(province);
@@ -167,7 +167,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation* _nation)
     });
 }
 
-TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, Treaty* _treaty)
+TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, const Treaty* _treaty)
     : UI::Window(0, 0, 512, 256),
     gs{ _gs },
     treaty{ _treaty }

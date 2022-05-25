@@ -48,8 +48,8 @@ namespace Interface {
     class UnitButton : public UI::Button {
         GameState& gs;
     public:
-        Unit* unit;
-        UnitButton(GameState& gs, int x, int y, Unit* unit, UI::Widget* parent);
+        const Unit* unit;
+        UnitButton(GameState& gs, int x, int y, const Unit* unit, UI::Widget* parent);
     };
 
     class UnitTypeButton : public UI::Group {
@@ -57,15 +57,15 @@ namespace Interface {
         UI::Image* icon_img;
         UI::Button* name_btn;
     public:
-        UnitType* unit_type;
-        UnitTypeButton(GameState& gs, int x, int y, UnitType* unit_type, UI::Widget* parent);
+        const UnitType* unit_type;
+        UnitTypeButton(GameState& gs, int x, int y, const UnitType* unit_type, UI::Widget* parent);
     };
 
     class ProvinceButton : public UI::Button {
         GameState& gs;
     public:
-        Province* province;
-        ProvinceButton(GameState& gs, int x, int y, Province* province, UI::Widget* parent);
+        const Province* province;
+        ProvinceButton(GameState& gs, int x, int y, const Province* province, UI::Widget* parent);
     };
 
     class NationButton : public UI::Group {
@@ -73,56 +73,56 @@ namespace Interface {
         UI::Image* flag_icon;
         UI::Button* name_btn;
     public:
-        Nation* nation;
-        NationButton(GameState& gs, int x, int y, Nation* nation, UI::Widget* parent);
+        const Nation* nation;
+        NationButton(GameState& gs, int x, int y, const Nation* nation, UI::Widget* parent);
     };
 
     class BuildingInfo : public UI::Group {
         GameState& gs;
     public:
-        Province* province;
+        const Province* province;
         unsigned int idx;
-        BuildingInfo(GameState& gs, int x, int y, Province* province, unsigned int idx, UI::Widget* parent);
+        BuildingInfo(GameState& gs, int x, int y, const Province* province, unsigned int idx, UI::Widget* parent);
     };
 
     class BuildingTypeButton : public UI::Button {
         GameState& gs;
         UI::Button* name_btn;
     public:
-        BuildingType* building_type;
-        BuildingTypeButton(GameState& gs, int x, int y, BuildingType* building_type, UI::Widget* parent);
+        const BuildingType* building_type;
+        BuildingTypeButton(GameState& gs, int x, int y, const BuildingType* building_type, UI::Widget* parent);
     };
 
     class TechnologyInfo : public UI::Group {
         GameState& gs;
-        Technology* technology;
+        const Technology* technology;
     public:
-        TechnologyInfo(GameState& gs, int x, int y, Technology* technology, UI::Widget* parent);
+        TechnologyInfo(GameState& gs, int x, int y, const Technology* technology, UI::Widget* parent);
     };
 
     // More extended information about these elements (information display, for example)
     class PopInfo : public UI::Group {
         GameState& gs;
-        Province* province;
-        int index;
+        const Province* province;
+        std::size_t index;
 
         UI::Image* type_icon;
         UI::Button* size_btn,* budget_btn;
         UI::Image* religion_ibtn,* culture_ibtn;
     public:
-        PopInfo(GameState& gs, int x, int y, Province* province, int index, UI::Widget* parent);
+        PopInfo(GameState& gs, int x, int y, const Province* province, std::size_t index, UI::Widget* parent);
     };
 
     class ProductInfo : public UI::Group {
         GameState& gs;
-        Province* province;
-        Good* good;
+        const Province* province;
+        const Good* good;
 
         UI::Image* good_ibtn;
         UI::Button* name_btn,* province_btn;
         UI::Button* price_btn,* price_rate_btn;
         UI::Chart* price_chart,* demand_chart,* supply_chart;
     public:
-        ProductInfo(GameState& gs, int x, int y, Province* province, Good* good, UI::Widget* parent);
+        ProductInfo(GameState& gs, int x, int y, const Province* province, const Good* good, UI::Widget* parent);
     };
 };

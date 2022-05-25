@@ -136,7 +136,7 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
     flex_column->flex = UI::Flex::COLUMN;
     for(const auto& province : gs.curr_nation->owned_provinces) {
         for(const auto& building_type : gs.world->building_types) {
-            if(building_type.flags & BuildingType::BUILD_LAND_UNITS == 0) {
+            if((building_type.flags & BuildingType::BUILD_LAND_UNITS) == 0) {
                 continue;
             }
             new ArmyProductionUnitInfo(gs, 0, 0, province, gs.world->get_id(building_type), flex_column);
@@ -144,7 +144,7 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
     }
 }
 
-ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Province* _province, unsigned int _idx, UI::Widget* parent)
+ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, const Province* _province, unsigned int _idx, UI::Widget* parent)
     : UI::Group(x, y, parent->width - x, 48, parent),
     gs{ _gs },
     province{ _province },

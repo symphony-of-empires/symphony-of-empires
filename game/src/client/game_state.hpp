@@ -126,13 +126,13 @@ public:
     Interface::ProfilerView* profiler_view = nullptr;
 
     std::vector<std::shared_ptr<Eng3D::Texture>> nation_flags;
-    std::shared_ptr<Eng3D::Texture> get_nation_flag(Nation& nation);
+    std::shared_ptr<Eng3D::Texture> get_nation_flag(const Nation& nation);
 
     // Used for synchronization between the networking client and the rendering thread
     std::mutex render_lock;
 
     // Queue of production for unit_types
-    std::deque<UnitType*> production_queue;
+    std::deque<const UnitType*> production_queue;
 
     TutorialState tutorial;
 

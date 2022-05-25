@@ -257,7 +257,7 @@ void Map::create_labels() {
         lab_min = center_1;
         lab_max = center_2;
 
-        glm::vec2 mid_point = 0.5f * (lab_min + lab_max);
+        glm::vec2 mid_point = (lab_min + lab_max) / 2.f;
         glm::vec3 center = glm::vec3(mid_point, 0.f);
         glm::vec2 x_step = glm::vec2(lab_max.x - mid_point.x, 0.f);
         glm::vec3 left = glm::vec3(mid_point - x_step, 0.f);
@@ -275,8 +275,7 @@ void Map::create_labels() {
         float angle = glm::atan(lab_max.y - lab_min.y, lab_max.x - lab_min.x);
         if(angle > M_PI_2) {
             angle -= M_PI;
-        }
-        else if(angle < -M_PI_2) {
+        } else if(angle < -M_PI_2) {
             angle += M_PI;
         }
 

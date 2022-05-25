@@ -72,22 +72,22 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
                 return;
             }
             
-            const BuildingType* building_type = ((BuildingTypeButton&)w).building_type;
-            o.province->buildings[o.gs.world->get_id(*building_type)].level += 1;
-            g_client->send(Action::BuildingAdd::form_packet(o.province, ((BuildingTypeButton&)w).building_type));
-            o.gs.ui_ctx->prompt("Production", "Building a " + building_type->name + " in " + o.province->ref_name + "; owned by " + o.province->controller->name);
+            const BuildingType& building_type = *((BuildingTypeButton&)w).building_type;
+            const_cast<Province*>(o.province)->add_building(building_type);
+            g_client->send(Action::BuildingAdd::form_packet(*o.province, building_type));
+            o.gs.ui_ctx->prompt("Production", "Building a " + building_type.name + " in " + o.province->ref_name + "; owned by " + o.province->controller->name);
         });
         i++;
     }
 }
 
-BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_tile, Province* _province)
+BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_tile, const Province* _province)
     : UI::Window(0, 0, 512, 512),
     gs{ _gs },
-    tx{ _tx },
-    ty{ _ty },
+    province{ _province },
     in_tile{ _in_tile },
-    province{ _province }
+    tx{ _tx },
+    ty{ _ty }
 {
     this->is_scroll = false;
     this->text(Eng3D::Locale::translate("Build a new building"));
@@ -121,7 +121,7 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
     });
 }
 
-BuildingView::BuildingView(GameState& _gs, Building* _building)
+BuildingView::BuildingView(GameState& _gs, const Building* _building)
     : UI::Window(0, 0, 512, 512),
     gs{ _gs },
     building{ _building }

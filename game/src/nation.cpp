@@ -330,7 +330,7 @@ void Nation::control_province(Province& province) {
     }
 }
 
-const NationClientHint& Nation::get_client_hint(void) {
+const NationClientHint& Nation::get_client_hint(void) const {
     return this->client_hints[g_world->get_id(*this->ideology)];
 }
 
