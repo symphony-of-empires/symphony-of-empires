@@ -234,8 +234,8 @@ public:
     inline NationRelation& get_relation(int a, int b) {
         if(a > b) {
             int tmp = a;
-            b = a;
-            a = tmp;
+            a = b;
+            b = tmp;
         }
         return relations[((a + b + 1) * (a + b)) / 2 + b];
     }
@@ -243,8 +243,8 @@ public:
     inline const NationRelation& get_relation(int a, int b) const {
         if(a > b) {
             int tmp = a;
-            b = a;
-            a = tmp;
+            a = b;
+            b = tmp;
         }
         return relations[((a + b + 1) * (a + b)) / 2 + b];
     }

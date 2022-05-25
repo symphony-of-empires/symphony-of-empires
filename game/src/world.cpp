@@ -886,7 +886,6 @@ void World::do_tick() {
                         auto it = std::find(battle.province->units.begin(), battle.province->units.end(), unit);
                         assert(it != battle.province->units.end());
                         battle.province->units.erase(it);
-                        this->remove(*unit);
                         local_clear_units.push_back(unit);
                         continue;
                     }
@@ -912,7 +911,6 @@ void World::do_tick() {
                         auto it = std::find(battle.province->units.begin(), battle.province->units.end(), unit);
                         assert(it != battle.province->units.end());
                         battle.province->units.erase(it);
-                        this->remove(*unit);
                         local_clear_units.push_back(unit);
                         continue;
                     }
@@ -968,6 +966,7 @@ void World::do_tick() {
     profiler.start("Cleaning");
     wcmap_mutex.lock();
     for(auto& unit : clear_units) {
+        this->remove(*unit);
         delete unit;
     }
     clear_units.clear();

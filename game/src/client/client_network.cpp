@@ -151,6 +151,8 @@ void Client::net_loop(void) {
                 ar.rewind();
                 ::deserialize(ar, &action);
 
+                const std::scoped_lock lock(world.world_mutex);
+
                 Eng3D::Log::debug("client", "Receiving package of " + std::to_string(packet.size()));
                 if(!gs.host_mode) {
                     // Ping from server, we should answer with a pong!
