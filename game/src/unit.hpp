@@ -111,7 +111,7 @@ public:
     // Who owns this unit
     Nation* owner;
     Province* target = nullptr;
-    Province* province;
+    Province* province = nullptr;
 
     // Size of the unit (soldiers in unit)
     Eng3D::Number size;

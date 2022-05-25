@@ -296,44 +296,45 @@ void update_factories_employment(const World& world, Province& province, std::ve
 }
 
 void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& pop_needs) {
-    pop_needs.assign(province.pops.size(), PopNeed());
+    pop_needs.assign(province.pops.size(), PopNeed{});
     for(size_t i = 0; i < province.pops.size(); i++) {
+        PopNeed& pop_need = pop_needs[i];
         Pop& pop = province.pops[i];
-        PopType& type = *pop.type;
+        const PopType& type = *pop.type;
 
-        pop_needs[i].life_needs_met = 0.f;
+        pop_need.life_needs_met = 0.f;
         // Do basic needs
         {
             float total_price = 0;
-            for(size_t i = 0; i < world.goods.size(); i++) {
-                auto price = province.products[i].price;
-                total_price += type.basic_needs_amount[i] * price;
+            for(size_t j = 0; j < world.goods.size(); j++) {
+                auto price = province.products[j].price;
+                total_price += type.basic_needs_amount[j] * price;
             }
-            float buying_factor = std::min(1.f, (float)pop_needs[i].budget / total_price);
-            for(size_t i = 0; i < world.goods.size(); i++) {
-                Product& product = province.products[i];
-                product.demand += type.basic_needs_amount[i] * buying_factor;
+            float buying_factor = std::min(1.f, (float)pop_need.budget / total_price);
+            for(size_t j = 0; j < world.goods.size(); j++) {
+                Product& product = province.products[j];
+                product.demand += type.basic_needs_amount[j] * buying_factor;
             }
-            pop_needs[i].life_needs_met = buying_factor;
-            pop_needs[i].budget = std::max(0.f, (float)pop_needs[i].budget - total_price);
+            pop_need.life_needs_met = buying_factor;
+            pop_need.budget = std::max(0.f, (float)pop_need.budget - total_price);
         }
 
-        pop_needs[i].everyday_needs_met = 0.f;
+        pop_need.everyday_needs_met = 0.f;
         // Do luxury needs
         // TODO proper calulcation with pops trying to optimize satifcation
         {
             float total_price = 0;
-            for(size_t i = 0; i < world.goods.size(); i++) {
-                auto price = province.products[i].price;
-                total_price += type.luxury_needs_satisfaction[i] * price;
+            for(size_t j = 0; j < world.goods.size(); j++) {
+                auto price = province.products[j].price;
+                total_price += type.luxury_needs_satisfaction[j] * price;
             }
-            float buying_factor = std::min(1.f, (float)pop_needs[i].budget / total_price);
-            for(size_t i = 0; i < world.goods.size(); i++) {
-                Product& product = province.products[i];
-                product.demand += type.basic_needs_amount[i] * buying_factor;
+            float buying_factor = std::min(1.f, (float)pop_need.budget / total_price);
+            for(size_t j = 0; j < world.goods.size(); j++) {
+                Product& product = province.products[j];
+                product.demand += type.basic_needs_amount[j] * buying_factor;
             }
-            pop_needs[i].everyday_needs_met = buying_factor;
-            pop_needs[i].budget = std::max(0.f, (float)pop_needs[i].budget - total_price);
+            pop_need.everyday_needs_met = buying_factor;
+            pop_need.budget = std::max(0.f, (float)pop_need.budget - total_price);
         }
     }
 }
@@ -378,13 +379,15 @@ Unit* build_unit(Building& building, Province& province) {
     }
 }
 
-
 void Economy::do_tick(World& world) {
     world.world_mutex.unlock();
     world.profiler.start("E-init");
     std::vector<Market> markets(world.goods.size());
-    size_t provinces_size = world.provinces.size();
-    for(Good::Id good_id = 0; good_id < world.goods.size(); good_id++) {
+    
+    const size_t provinces_size = world.provinces.size();
+    const size_t goods_size = world.goods.size();
+
+    for(Good::Id good_id = 0; good_id < goods_size; good_id++) {
         Market& market = markets[good_id];
         market.good = good_id;
     }
@@ -410,13 +413,13 @@ void Economy::do_tick(World& world) {
     world.profiler.stop("E-init");
 
     world.profiler.start("E-trade");
-    std::for_each(std::execution::par, markets.begin(), markets.end(), [&world](auto& market) {
-        for(size_t i = 0; i < world.provinces.size(); i++) {
+    std::for_each(std::execution::par, markets.begin(), markets.end(), [&world, provinces_size](auto& market) {
+        for(size_t i = 0; i < provinces_size; i++) {
             Province& province = *world.provinces[i];
             Product& product = province.products[market.good];
 
             if(product.supply <= 0.f) {
-                continue;;
+                continue;
             }
 
             for(auto neighbour : province.neighbours) {
@@ -456,22 +459,22 @@ void Economy::do_tick(World& world) {
     world.profiler.stop("E-good");
 
     world.profiler.start("E-big");
-    std::vector<Province::Id> province_ids;
-    province_ids.reserve(world.provinces.size());
-    for(Province::Id id = 0; id < world.provinces.size(); id++) {
-        province_ids.push_back(id);
+    std::vector<Province::Id> province_ids(provinces_size);
+    Province::Id last_id = 0;
+    for(Province::Id id = 0; id < provinces_size; id++) {
+        if(world.provinces[id]->owner == nullptr) {
+            continue;
+        }
+        province_ids[last_id++] = id;
     }
+    province_ids.resize(last_id);
 
     std::vector<std::vector<Unit*>> province_new_units(provinces_size);
-
-    std::vector<std::vector<float>> buildings_new_worker(province_ids.size());
-    std::vector<std::vector<PopNeed>> pops_new_needs(province_ids.size());
-    std::for_each(std::execution::par, province_ids.begin(), province_ids.end(), [
-        &world, &buildings_new_worker, &province_new_units, &pops_new_needs](const auto& province_id)
+    std::vector<std::vector<float>> buildings_new_worker(provinces_size);
+    std::vector<std::vector<PopNeed>> pops_new_needs(provinces_size);
+    std::for_each(std::execution::par, province_ids.begin(), province_ids.end(), [&world, &buildings_new_worker, &province_new_units, &pops_new_needs, provinces_size](const auto& province_id)
     {
         Province& province = *world.provinces[province_id];
-        if(!province.owner) return;
-
         float laborers_payment = 0.f;
         for(auto& building_type : world.building_types) {
             auto& building = province.buildings[world.get_id(building_type)];
@@ -479,18 +482,20 @@ void Economy::do_tick(World& world) {
         }
         std::vector<PopNeed>& new_needs = pops_new_needs[province_id];
         new_needs.assign(province.pops.size(), PopNeed());
-        for(uint32_t i = 0; i < province.pops.size(); i++) {
+
+        const size_t pops_size = province.pops.size();
+        for(uint32_t i = 0; i < pops_size; i++) {
             auto& pop = province.pops[i];
             new_needs[i].budget = pop.budget;
         }
         float laborers_amount = 0.f;
-        for(uint32_t i = 0; i < province.pops.size(); i++) {
+        for(uint32_t i = 0; i < pops_size; i++) {
             auto& pop = province.pops[i];
             if(pop.type->group == PopGroup::LABORER) {
                 laborers_amount += pop.size;
             }
         }
-        for(uint32_t i = 0; i < province.pops.size(); i++) {
+        for(uint32_t i = 0; i < pops_size; i++) {
             auto& pop = province.pops[i];
             if(pop.type->group == PopGroup::LABORER) {
                 float ratio = pop.size / laborers_amount;
@@ -506,10 +511,11 @@ void Economy::do_tick(World& world) {
 
         for(int i = 0; i < province.buildings.size(); i++) {
             Building& building = province.buildings[i];
-
             if(building.working_unit_type != nullptr) {
+                world.world_mutex.lock();
                 Unit* unit = build_unit(building, province);
-                if(unit) province_new_units[province_id].push_back(unit);
+                if(unit != nullptr) province_new_units[province_id].push_back(unit);
+                world.world_mutex.unlock();
             }
         }
     });
@@ -539,8 +545,6 @@ void Economy::do_tick(World& world) {
         &world, &pops_new_needs, &buildings_new_worker](const auto& province_id)
     {
         Province& province = *world.provinces[province_id];
-        if(province.owner == nullptr) return;
-
         std::vector<PopNeed>& new_needs = pops_new_needs[province_id];
         for(uint32_t i = 0; i < province.pops.size(); i++) {
             auto& pop = province.pops[i];
