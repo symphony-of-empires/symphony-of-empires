@@ -85,6 +85,7 @@ Context::Context() {
     }
     widgets.reserve(255);
 
+    foreground = gs.tex_man->load(gs.package_man->get_unique("gfx/button2.png"));
     background = gs.tex_man->load(gs.package_man->get_unique("gfx/window_background.png"));
     window_top = gs.tex_man->load(gs.package_man->get_unique("gfx/window_top3.png"));
     button = gs.tex_man->load(gs.package_man->get_unique("gfx/button2.png"));
