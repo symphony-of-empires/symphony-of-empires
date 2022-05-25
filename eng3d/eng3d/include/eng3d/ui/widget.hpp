@@ -253,7 +253,7 @@ namespace UI {
         // If you can move the children by scrolling
         bool is_scroll = false;
 
-        u_int32_t is_hover = 0;
+        uint32_t is_hover = 0;
         bool is_float = false;
         bool is_fullscreen = false;
         bool is_transparent = false;

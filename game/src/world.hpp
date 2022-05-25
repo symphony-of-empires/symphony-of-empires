@@ -207,7 +207,7 @@ public:
      * @param y Position to get distance from
      * @return float 
      */
-    constexpr float get_dist_from_equator(float y) const {
+    inline float get_dist_from_equator(float y) const {
         return std::fabs(std::fabs(y) - (this->width / 2.0));
     }
 
