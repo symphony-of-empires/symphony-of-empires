@@ -68,7 +68,7 @@ DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
             this->gs.client->send(packet);
             this->kill();
         });
-        this->set_tooltip(decision.effects.get_string());
+        decide_btn->set_tooltip(decision.effects.get_string());
         
         decide_btn->below_of(*txt);
         if(last != nullptr) {

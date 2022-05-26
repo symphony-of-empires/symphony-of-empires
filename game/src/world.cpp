@@ -956,22 +956,19 @@ void World::do_tick() {
             clear_units_lock.unlock();
         }
     });
-    wcmap_mutex.unlock();
     profiler.stop("Battles");
 
-    profiler.start("Events");
-    //LuaAPI::check_events(lua);
-    profiler.stop("Events");
-
     profiler.start("Cleaning");
-    wcmap_mutex.lock();
     for(auto& unit : clear_units) {
-        this->remove(*unit);
         delete unit;
     }
     clear_units.clear();
     wcmap_mutex.unlock();
     profiler.stop("Cleaning");
+
+    profiler.start("Events");
+    LuaAPI::check_events(lua);
+    profiler.stop("Events");
 
     profiler.start("Send packets");
     g_server->broadcast(Action::UnitUpdate::form_packet(units));

@@ -104,6 +104,7 @@ function Policies:new(o)
 end
 
 require('classes/good')
+require('classes/province')
 require('classes/nation')
 
 Pop = {
@@ -135,7 +136,6 @@ function Pop:set_ideology_approval(ideology, approval)
 	set_province_pop_ideology_approval(self.province_id, self.id, ideology.id, approval)
 end
 
-require('classes/province')
 require('classes/event')
 
 PopType = {

@@ -520,8 +520,10 @@ void ai_do_tick(Nation& nation) {
         }
 
         // Taking events
-        for(auto& event : nation.inbox) {
+        for(size_t i = 0; i < nation.inbox.size(); i++) {
+            auto& event = nation.inbox[i];
             event.take_decision(nation, event.decisions[std::rand() % event.decisions.size()]);
+            i--;
         }
 
         // Build a factory/non-militar building

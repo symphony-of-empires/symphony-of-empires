@@ -140,24 +140,22 @@ int LuaAPI::get_terrain_type_by_id(lua_State* L) {
     const auto terrain_type = g_world->terrain_types.at(lua_tonumber(L, 1));
 
     lua_pushstring(L, terrain_type.ref_name.c_str());
-    lua_pushstring(L, terrain_type.ref_name.c_str());
     lua_pushstring(L, terrain_type.name.c_str());
     lua_pushnumber(L, bswap32((terrain_type.color & 0x00ffffff) << 8));
     lua_pushnumber(L, (terrain_type.movement_penalty));
     lua_pushboolean(L, terrain_type.is_water_body);
-    return 6;
+    return 5;
 }
 
 int LuaAPI::get_terrain_type(lua_State* L) {
     const auto terrain_type = find_or_throw_local<TerrainType>(luaL_checkstring(L, 1));
 
     lua_pushnumber(L, g_world->get_id(*terrain_type));
-    lua_pushstring(L, terrain_type->ref_name.c_str());
     lua_pushstring(L, terrain_type->name.c_str());
     lua_pushnumber(L, bswap32((terrain_type->color & 0x00ffffff) << 8));
     lua_pushnumber(L, (terrain_type->movement_penalty));
     lua_pushboolean(L, terrain_type->is_water_body);
-    return 6;
+    return 5;
 }
 
 int LuaAPI::set_nation_mod_to_invention(lua_State* L) {
@@ -748,7 +746,7 @@ int LuaAPI::get_province_by_id(lua_State* L) {
             lua_newtable(L);
             append_to_table(L, 1, g_world->goods[i].ref_name.c_str());
             append_to_table(L, 2, province->rgo_size[i]);
-
+            
             lua_settable(L, -3);
         }
     }
@@ -1378,15 +1376,15 @@ void LuaAPI::check_events(lua_State* L) {
     // Do decisions taken effects in the queue, then clear it awaiting
     // other taken decisions :)
     for(auto& dec : g_world->taken_decisions) {
-        Eng3D::Log::debug("event", dec.second->ref_name + " took the decision " + dec.first->do_decision_function);
+        Eng3D::Log::debug("event", dec.second->ref_name + " took the decision " + dec.first.do_decision_function);
 
-        lua_getglobal(L, dec.first->do_decision_function.c_str());
+        lua_getglobal(L, dec.first.do_decision_function.c_str());
         lua_pushstring(L, dec.second->ref_name.c_str());
         if(call_func(L, 1, 0)) {
-            std::string err_msg = lua_tostring(L, -1);
+            const std::string err_msg = lua_tostring(L, -1);
             Eng3D::Log::error("lua", "lua_pcall failed: " + err_msg);
             lua_pop(L, 1);
-            throw LuaAPI::Exception(dec.first->do_decision_function + "(" + dec.second->ref_name + "): " + err_msg);
+            throw LuaAPI::Exception(dec.first.do_decision_function + "(" + dec.second->ref_name + "): " + err_msg);
         }
     }
     g_world->taken_decisions.clear();

@@ -49,6 +49,7 @@ function Province:get(ref_name)
 	return o
 end
 function Province:get_by_id(id)
+	print("-----------------------")
 	o = Province:new()
 	local terrain_id = 0
 	o.ref_name, o.name, o.color, terrain_id, o.rgo_size = get_province_by_id(id)
