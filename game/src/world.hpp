@@ -268,7 +268,7 @@ public:
     std::mutex world_mutex;
     std::mutex list_mutex;
     std::mutex wcmap_mutex; // World map on clients require some data to be stable for read-only operations
-    std::vector<std::pair<Decision*, Nation*>> taken_decisions;
+    std::vector<std::pair<Decision, Nation*>> taken_decisions;
 };
 
 extern World* g_world;

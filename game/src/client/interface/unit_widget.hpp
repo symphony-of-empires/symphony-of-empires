@@ -29,7 +29,6 @@
 
 class Map;
 class Unit;
-
 namespace UI {
     class Image;
     class ProgressBar;
@@ -45,7 +44,7 @@ namespace Interface {
         UI::ProgressBar* morale_bar;
     public:
         UnitWidget(const Unit* unit, Map* map, UI::Widget* parent);
-        void set_unit(const Unit* unit);
+        void set_unit(const Unit* _unit);
         virtual ~UnitWidget();
     };
 };

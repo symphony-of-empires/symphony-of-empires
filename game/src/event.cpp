@@ -57,15 +57,11 @@ Event::~Event(void) {
 
 void Event::take_decision(Nation& sender, Decision& dec) {
     auto receiver = std::find(receivers.begin(), receivers.end(), &sender);
-
     // Confirm that the sender is in receiver's list
-    if(receiver == receivers.end()) {
-        // Not in receiver's list so it's not allowed
-        return;
-    }
+    assert(receiver != receivers.end());
 
     // Tell the world that we took a decision
-    g_world->taken_decisions.push_back(std::make_pair(&dec, &sender));
+    g_world->taken_decisions.push_back(std::make_pair(dec, &sender));
 
     // Remove from the receivers list so we don't duplicate decisions
     //receivers.erase(receiver);
@@ -74,7 +70,9 @@ void Event::take_decision(Nation& sender, Decision& dec) {
     for(auto it = sender.inbox.begin(); it != sender.inbox.end(); it++) {
         if((*it).ref_name == this->ref_name) {
             sender.inbox.erase(it);
-            break;
+            return;
         }
     }
+    // Reaching this code means our inbox is corrupted
+    assert(false);
 }

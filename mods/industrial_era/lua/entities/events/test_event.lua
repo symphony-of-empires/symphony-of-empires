@@ -34,7 +34,7 @@ end
 function cake_event(ref_name)
 	decision = Decision:new{
 		ref_name = "cake_decision_0",
-		name = "I think i will eat it",
+		name = "I think I will eat it",
 		decision_fn = "cake_decision_0",
 		effects = "You will consume cake"
 	}

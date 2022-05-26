@@ -31,8 +31,8 @@
 #include "client/interface/unit_widget.hpp"
 #include "client/map.hpp"
 #include "client/game_state.hpp"
-#include "unit.hpp"
 #include "nation.hpp"
+#include "unit.hpp"
 
 using namespace Interface;
 
@@ -66,7 +66,8 @@ UnitWidget::UnitWidget(const Unit* unit, Map* _map, UI::Widget* parent)
 }
 
 void UnitWidget::set_unit(const Unit* _unit) {
-    unit = _unit;
+    this->unit = _unit;
+
     Eng3D::Camera* camera = map->camera;
     auto unit_pos = this->unit->get_pos();
     auto screen_pos = camera->get_tile_screen_pos(glm::vec2(unit_pos.first, unit_pos.second));
