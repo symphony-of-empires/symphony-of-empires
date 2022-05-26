@@ -74,6 +74,7 @@ Unit::~Unit(void) {
     Eng3D::Log::debug("unit", "Destruct unit " + std::to_string((std::uintptr_t)this));
     if(province != nullptr) {
         auto it = std::find(province->units.begin(), province->units.end(), this);
+        assert(it != province->units.end());
         province->units.erase(it);
     }
 }

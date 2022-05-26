@@ -56,6 +56,9 @@ function Province:get_by_id(id)
 	o.id = id
 	return o
 end
+function Province:add_unit(unit_type, size)
+	province_add_unit(self.id, unit_type.id, size)
+end
 function Province:update_building(building_type, level)
 	update_province_building(self.id, building_type.id, level)
 end

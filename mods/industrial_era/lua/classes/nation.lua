@@ -87,6 +87,12 @@ function Nation:get_all()
 	return new_table
 end
 
+--- Declares a war to another nation without a cb
+--- @param other Nation to declare war to
+function Nation:declare_no_cb(other)
+	nation_declare_war_no_cb(self.id, other.id)
+end
+
 function Nation:get_friends()
 	local table = self:get_all()
 	local new_table = {}
