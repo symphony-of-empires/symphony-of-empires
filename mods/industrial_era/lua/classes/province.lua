@@ -32,7 +32,7 @@ Province = {
 	rgo_size = {}
 }
 function Province:new(o)
-	o = o or {}
+	local o = o or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o
@@ -41,7 +41,7 @@ function Province:register()
 	self.id = add_province(self.ref_name, self.color, self.name, self.terrain.id, self.rgo_size)
 end
 function Province:get(ref_name)
-	o = Province:new()
+	local o = Province:new()
 	local terrain_id = 0
 	o.id, o.name, o.color, terrain_id, o.rgo_size = get_province(ref_name)
 	o.terrain = TerrainType:get_by_id(terrain_id)
@@ -49,8 +49,7 @@ function Province:get(ref_name)
 	return o
 end
 function Province:get_by_id(id)
-	print("-----------------------")
-	o = Province:new()
+	local o = Province:new()
 	local terrain_id = 0
 	o.ref_name, o.name, o.color, terrain_id, o.rgo_size = get_province_by_id(id)
 	o.terrain = TerrainType:get_by_id(terrain_id)
@@ -88,9 +87,9 @@ function Province:get_nuclei()
 	end
 	return new_table
 end
--- function Province:__get_pop_size()
--- 	return get_province_pops_size(self.id)
--- end
+function Province:__get_pop_size()
+ 	return get_province_pops_size(self.id)
+end
 function Province:get_pops()
 	local n_pops = get_province_pops_size(self.id) - 1
 	local new_table = {}

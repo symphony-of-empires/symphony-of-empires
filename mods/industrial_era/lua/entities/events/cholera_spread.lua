@@ -139,9 +139,7 @@ end
 function cholera_2_event(ref_name)
     local prov_list = Nation:get(ref_name):get_owned_provinces()
     local n_prov_list = 0
-    for _ in pairs(prov_list) do
-        n_prov_list = n_prov_list + 1
-    end
+    for _ in pairs(prov_list) do n_prov_list = n_prov_list + 1 end
     local random_province = prov_list[math.random(0, n_prov_list)]
 
 	local disease_names = {

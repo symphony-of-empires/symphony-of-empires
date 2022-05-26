@@ -108,6 +108,7 @@ namespace LuaAPI {
     int get_province_controller(lua_State* L);
     int get_province_neighbours(lua_State* L);
     int get_province_nuclei(lua_State* L);
+    int get_province_pops_size(lua_State* L);
     int get_province_pop(lua_State* L);
     int set_province_pop(lua_State* L);
     int get_province_pop_ideology_approval(lua_State* L);

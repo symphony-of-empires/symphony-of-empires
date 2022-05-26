@@ -32,7 +32,7 @@ Technology = {
 	type = TECH_STRATEGIC
 }
 function Technology:new(o)
-	o = o or {}
+	local o = o or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o
@@ -41,7 +41,7 @@ function Technology:register()
 	self.id = add_technology(self.ref_name, self.name, self.description, self.cost, self.type)
 end
 function Technology:get(o, ref_name)
-	o = Technology:new()
+	local o = Technology:new()
 	o.id, o.name, o.description, o.type = get_technology(ref_name)
 	o.ref_name = ref_name
 	return o
