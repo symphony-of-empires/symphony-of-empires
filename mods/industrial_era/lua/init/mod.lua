@@ -99,6 +99,8 @@ Nation:get("austria"):make_puppet(Nation:get("tuscany"))
 
 Nation:get("denmark"):make_puppet(Nation:get("holstein"))
 
+Nation:get("russia"):declare_no_cb(Nation:get("turkey"))
+
 -- Relevant nations to choose
 --Nation:get("united_kingdom"):make_relevant()
 --Nation:get("france"):make_relevant()

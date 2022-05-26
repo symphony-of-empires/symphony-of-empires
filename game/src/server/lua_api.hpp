@@ -77,6 +77,7 @@ namespace LuaAPI {
     int get_nation(lua_State* L);
     int get_nation_by_id(lua_State* L);
     int get_all_nations(lua_State* L);
+    int nation_declare_war_no_cb(lua_State* L);
 
     int get_provinces_owned_by_nation(lua_State* L);
     int get_provinces_with_nucleus_by_nation(lua_State* L);
@@ -101,6 +102,7 @@ namespace LuaAPI {
     int update_province(lua_State* L);
     int get_province(lua_State* L);
     int get_province_by_id(lua_State* L);
+    int province_add_unit(lua_State* L);
     int update_province_building(lua_State* L);
     int give_province_to(lua_State* L);
     int give_hard_province_to(lua_State* L);

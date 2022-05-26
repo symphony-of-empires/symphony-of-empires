@@ -130,6 +130,7 @@ World::World() {
     lua_register(lua, "get_nation", LuaAPI::get_nation);
     lua_register(lua, "get_nation_by_id", LuaAPI::get_nation_by_id);
     lua_register(lua, "get_all_nations", LuaAPI::get_all_nations);
+    lua_register(lua, "nation_declare_war_no_cb", LuaAPI::nation_declare_war_no_cb);
 
     lua_register(lua, "get_provinces_owned_by_nation", LuaAPI::get_provinces_owned_by_nation);
     lua_register(lua, "get_provinces_with_nucleus_by_nation", LuaAPI::get_provinces_with_nucleus_by_nation);
@@ -153,6 +154,7 @@ World::World() {
     lua_register(lua, "update_province", LuaAPI::update_province);
     lua_register(lua, "get_province", LuaAPI::get_province);
     lua_register(lua, "get_province_by_id", LuaAPI::get_province_by_id);
+    lua_register(lua, "province_add_unit", LuaAPI::province_add_unit);
     lua_register(lua, "update_province_building", LuaAPI::update_province_building);
     lua_register(lua, "add_province_pop", LuaAPI::add_province_pop);
     lua_register(lua, "give_province_to", LuaAPI::give_province_to);
@@ -671,13 +673,14 @@ static inline void unit_do_tick(Unit& unit)
         }
     }
 
-    if(!unit.can_move()) {
-        unit.target = nullptr;
-        unit.move_progress = 0.f;
-    }
-
     if(unit.target != nullptr) {
-        if(0 && unit.move_progress) {
+        if(!unit.can_move()) {
+            unit.target = nullptr;
+            unit.move_progress = 0.f;
+            return;
+        }
+
+        if(unit.move_progress) {
             unit.move_progress -= std::min<Eng3D::Decimal>(unit.move_progress, unit.get_speed());
         } else {
             unit.set_province(*unit.target);
@@ -846,22 +849,19 @@ void World::do_tick() {
     }
     profiler.stop("Treaties");
 
-    profiler.start("Units");
     wcmap_mutex.lock();
+    profiler.start("Units");
     // Evaluate units
     for(size_t i = 0; i < units.size(); i++) {
         Unit* unit = units[i];
         unit_do_tick(*unit);
     }
-    wcmap_mutex.unlock();
     profiler.stop("Units");
 
     std::vector<Unit*> clear_units;
     std::mutex clear_units_lock;
-
     // Perform all battles of the active wars
     profiler.start("Battles");
-    wcmap_mutex.lock();
     std::for_each(std::execution::par, wars.begin(), wars.end(), [this, &clear_units, &clear_units_lock](auto& war) {
         std::vector<Unit*> local_clear_units;
         assert(!war->attackers.empty() && !war->defenders.empty());
@@ -963,9 +963,8 @@ void World::do_tick() {
     for(auto& unit : clear_units) {
         delete unit;
     }
-    clear_units.clear();
-    wcmap_mutex.unlock();
     profiler.stop("Cleaning");
+    wcmap_mutex.unlock();
 
     profiler.start("Events");
     LuaAPI::check_events(lua);

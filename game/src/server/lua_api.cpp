@@ -347,14 +347,12 @@ int LuaAPI::get_all_nations(lua_State* L) {
     return 1;
 }
 
-// TODO: Make wars be dynamically named with cassus bellis??
-/*int LuaAPI::set_war_of_nation(lua_State* L) {
-    const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
-    const auto* other_nation = g_world->nations.at(lua_tonumber(L, 2));
-
-    const NationRelation& relation = nation->relations[g_world->get_id(other_nation)];
+int LuaAPI::nation_declare_war_no_cb(lua_State* L) {
+    Nation& nation = *g_world->nations.at(lua_tonumber(L, 1));
+    Nation& other_nation = *g_world->nations.at(lua_tonumber(L, 2));
+    nation.declare_war(other_nation);
     return 0;
-}*/
+}
 
 int LuaAPI::get_provinces_owned_by_nation(lua_State* L) {
     const auto* nation = g_world->nations.at(lua_tonumber(L, 1));
@@ -751,6 +749,24 @@ int LuaAPI::get_province_by_id(lua_State* L) {
         }
     }
     return 5;
+}
+
+int LuaAPI::province_add_unit(lua_State* L) {
+    Province& province = *g_world->provinces.at(lua_tonumber(L, 1));
+    UnitType& unit_type = g_world->unit_types.at(lua_tonumber(L, 2));
+    const size_t size = lua_tonumber(L, 3);
+
+    Unit* unit = new Unit();
+    unit->set_province(province);
+    unit->type = &unit_type;
+    unit->owner = province.owner;
+    unit->budget = 5000.f;
+    unit->experience = 1.f;
+    unit->morale = 1.f;
+    unit->supply = 1.f;
+    unit->size = size;
+    unit->base = unit->type->max_health;
+    return 0;
 }
 
 int LuaAPI::update_province_building(lua_State* L) {

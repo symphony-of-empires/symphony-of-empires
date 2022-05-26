@@ -344,6 +344,7 @@ void save(GameState& gs) {
                 }
             }
 
+            // RGO
             const uint32_t color = bswap32((province->color & 0x00ffffff) << 8);
             std::string rgo_size_out = "";
             for(Good::Id id = 0; id < province->rgo_size.size(); id++) {
@@ -369,20 +370,29 @@ void save(GameState& gs) {
                 }
             }
 
+            // Pops
             for(const auto& pop : province->pops) {
                 fprintf(fp, "province:add_pop(PopType:get(\"%s\"), Culture:get(\"%s\"), Religion:get(\"%s\"), %f, %f)\n", pop.type->ref_name.c_str(), pop.culture->ref_name.c_str(), pop.religion->ref_name.c_str(), pop.size, pop.literacy);
             }
 
+            // Nuclei of the provinces
             for(const auto& nucleus : province->nuclei) {
                 fprintf(fp, "province:add_nucleus(Nation:get(\"%s\"))\n", nucleus->ref_name.c_str());
             }
 
+            // Give province to owner
             if(province->owner != nullptr) {
                 fprintf(fp, "province:give_to(Nation:get(\"%s\"))\n", province->owner->ref_name.c_str());
                 if(province->owner->capital == province) {
                     fprintf(fp, "Nation:get(\"%s\"):set_capital(province)\n", province->owner->ref_name.c_str());
                 }
             }
+
+            // Units
+            for(const auto& unit : province->get_units()) {
+                fprintf(fp, "province:add_unit(UnitType(\"%s\"), %zu)\n", unit->type->ref_name.c_str(), unit->size);
+            }
+
             cnt++;
         }
         if(!cnt) {
