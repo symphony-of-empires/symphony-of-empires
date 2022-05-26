@@ -33,7 +33,7 @@ Nation = {
 	combo_form = ""
 }
 function Nation:new(o)
-	o = o or {}
+	local o = o or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o
@@ -42,13 +42,13 @@ function Nation:register()
 	self.id = add_nation(self.ref_name, self.name)
 end
 function Nation:get(ref_name)
-	o = Nation:new()
+	local o = Nation:new()
 	o.id, o.name = get_nation(ref_name)
 	o.ref_name = ref_name
 	return o
 end
 function Nation:get_by_id(id)
-	o = Nation:new()
+	local o = Nation:new()
 	o.name, o.ref_name = get_nation_by_id(id)
 	o.id = id
 	return o
@@ -63,8 +63,7 @@ function Nation:add_accepted_religion(religion)
 	add_nation_accepted_religion(self.id, religion.id)
 end
 function Nation:get_policies()
-	o = Policies:new()
-
+	local o = Policies:new()
 	-- If someone knows a better way to do this please do a PR
 	o.treatment, o.migration, o.immigration, o.censorship, o.build_infrastructure, o.build_factories, o.national_id, o.men_suffrage, o.men_labour, o.women_suffrage, o.women_labour, o.private_property, o.companies_allowed, o.public_education, o.secular_education, o.public_healthcare, o.social_security, o.slavery, o.legislative_parliament, o.executive_parliament, o.constitutional, o.foreign_trade, o.import_tax, o.export_tax, o.domestic_import_tax, o.domestic_export_tax, o.poor_flat_tax, o.med_flat_tax, o.rich_flat_tax, o.industry_tax, o.military_spending, o.free_supplies, o.min_wage, o.min_sv_for_parliament = get_nation_policies(self.id)
 	return o

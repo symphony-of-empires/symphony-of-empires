@@ -42,7 +42,7 @@ NationMod = {
 	luxury_needs_met = 1.0
 }
 function NationMod:new(o)
-	o = o or {}
+	local o = o or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o
@@ -51,7 +51,7 @@ function NationMod:register()
 	self.id = add_nation_mod(self.ref_name, self.name, self.industry_output, self.industry_input, self.workers_needed, self.salary_paid, self.delivery_cost, self.literacy_learn, self.reproduction, self.death, self.militancy, self.militancy, self.life_needs_met, self.everyday_needs_met, self.luxury_needs_met)
 end
 function NationMod:get(ref_name)
-	o = NationMod:new()
+	local o = NationMod:new()
 	o.id, o.name, o.industry_output, o.industry_input, o.workers_needed, o.salary_paid, o.delivery_cost, o.literacy_learn, o.reproduction, o.death, o.militancy, o.militancy, o.life_needs_met, o.everyday_needs_met, o.luxury_needs_met = get_nation_mod(ref_name)
 	o.ref_name = ref_name
 	return o
@@ -97,7 +97,7 @@ Policies = {
 	min_sv_for_parliament = 0.0
 }
 function Policies:new(o)
-	o = o or {}
+	local o = o or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o
@@ -124,7 +124,7 @@ Pop = {
 	militancy = 0,
 }
 function Pop:new(o)
-	o = o or {}
+	local o = o or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o
@@ -151,19 +151,19 @@ PopType = {
 	luxury_needs = {}
 }
 function PopType:new(o)
-	o = o or {}
+	local o = o or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o
 end
 function PopType:get(ref_name)
-	o = PopType:new()
+	local o = PopType:new()
 	o.id, o.name, o.social_value, o.is_burgeoise, o.is_slave, o.is_farmer, o.is_laborer, o.basic_needs, o.luxury_needs = get_pop_type(ref_name)
 	o.ref_name = ref_name
 	return o
 end
 function PopType:get_by_id(id)
-	o = PopType:new()
+	local o = PopType:new()
 	o.ref_name, o.name, o.social_value, o.is_burgeoise, o.is_slave, o.is_farmer, o.is_laborer, o.basic_needs, o.luxury_needs = get_pop_type_by_id(id)
 	o.id = id
 	return o
@@ -182,19 +182,19 @@ Culture = {
 	color = 0x00000000
 }
 function Culture:new(o)
-	o = o or {}
+	local o = o or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o
 end
 function Culture:get(ref_name)
-	o = Culture:new()
+	local o = Culture:new()
 	o.id, o.name, o.color, o.adjective, o.noun, o.combo_form = get_culture(ref_name)
 	o.ref_name = ref_name
 	return o
 end
 function Culture:get_by_id(id)
-	o = Culture:new()
+	local o = Culture:new()
 	o.ref_name, o.name, o.color, o.adjective, o.noun, o.combo_form = get_culture_by_id(id)
 	o.id = id
 	return o
@@ -210,19 +210,19 @@ Religion = {
 	color = 0x00000000
 }
 function Religion:new(o)
-	o = o or {}
+	local o = o or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o
 end
 function Religion:get(ref_name)
-	o = Religion:new()
+	local o = Religion:new()
 	o.id, o.name, o.color = get_religion(ref_name)
 	o.ref_name = ref_name
 	return o
 end
 function Religion:get_by_id(id)
-	o = Religion:new()
+	local o = Religion:new()
 	o.ref_name, o.name, o.color = get_religion_by_id(id)
 	o.id = id
 	return o
@@ -242,7 +242,7 @@ TerrainType = {
 	is_water_body = false
 }
 function TerrainType:new(o)
-	o = o or {}
+	local o = o or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o
@@ -251,13 +251,13 @@ function TerrainType:register()
 	self.id = add_terrain_type(self.ref_name, self.name, self.color, self.movement_penalty, self.is_water_body)
 end
 function TerrainType:get(ref_name)
-	o = TerrainType:new()
+	local o = TerrainType:new()
 	o.id, o.name, o.color, o.movement_penalty, o.is_water_body = get_terrain_type(ref_name)
 	o.ref_name = ref_name
 	return o
 end
 function TerrainType:get_by_id(id)
-	o = TerrainType:new()
+	local o = TerrainType:new()
 	o.ref_name, o.name, o.color, o.movement_penalty, o.is_water_body = get_terrain_type_by_id(id)
 	o.id = id
 	return o

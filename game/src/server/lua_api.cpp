@@ -142,7 +142,7 @@ int LuaAPI::get_terrain_type_by_id(lua_State* L) {
     lua_pushstring(L, terrain_type.ref_name.c_str());
     lua_pushstring(L, terrain_type.name.c_str());
     lua_pushnumber(L, bswap32((terrain_type.color & 0x00ffffff) << 8));
-    lua_pushnumber(L, (terrain_type.movement_penalty));
+    lua_pushnumber(L, terrain_type.movement_penalty);
     lua_pushboolean(L, terrain_type.is_water_body);
     return 5;
 }
@@ -153,7 +153,7 @@ int LuaAPI::get_terrain_type(lua_State* L) {
     lua_pushnumber(L, g_world->get_id(*terrain_type));
     lua_pushstring(L, terrain_type->name.c_str());
     lua_pushnumber(L, bswap32((terrain_type->color & 0x00ffffff) << 8));
-    lua_pushnumber(L, (terrain_type->movement_penalty));
+    lua_pushnumber(L, terrain_type->movement_penalty);
     lua_pushboolean(L, terrain_type->is_water_body);
     return 5;
 }
@@ -746,7 +746,7 @@ int LuaAPI::get_province_by_id(lua_State* L) {
             lua_newtable(L);
             append_to_table(L, 1, g_world->goods[i].ref_name.c_str());
             append_to_table(L, 2, province->rgo_size[i]);
-            
+
             lua_settable(L, -3);
         }
     }
@@ -829,6 +829,12 @@ int LuaAPI::get_province_nuclei(lua_State* L) {
         lua_rawseti(L, -2, i + 1);
         ++i;
     }
+    return 1;
+}
+
+int LuaAPI::get_province_pops_size(lua_State* L) {
+    const Province* province = g_world->provinces.at(lua_tonumber(L, 1));
+    lua_pushnumber(L, province->pops.size());
     return 1;
 }
 
@@ -1356,9 +1362,17 @@ void LuaAPI::check_events(lua_State* L) {
                     local_event.checked = true;
                     if(local_event.decisions.empty()) {
                         Eng3D::Log::error("event", "Event " + local_event.ref_name + " has no decisions (ref_name = " + nation->ref_name + ")");
+                    } else {
+                        // Check that descisions have functions
+                        for(const auto& descision : local_event.decisions) {
+                            if(descision.do_decision_function.get_string().empty()) {
+                                Eng3D::Log::error("lua", "Lua event " + orig_event.ref_name + " on descision " + descision.ref_name + " failed");
+                                goto restore_original;
+                            }
+                        }
+                        nation->inbox.push_back(local_event);
+                        Eng3D::Log::debug("event", "Event triggered! " + local_event.ref_name + " (with " + std::to_string(local_event.decisions.size()) + " decisions)");
                     }
-                    nation->inbox.push_back(local_event);
-                    Eng3D::Log::debug("event", "Event triggered! " + local_event.ref_name + " (with " + std::to_string(local_event.decisions.size()) + " decisions)");
                 }
 
             restore_original:

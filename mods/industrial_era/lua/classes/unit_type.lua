@@ -37,13 +37,13 @@ UnitType = {
 	speed = 1.0
 }
 function UnitType:new(o)
-	o = o or {}
+	local o = o or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o
 end
 function UnitType:get( ref_name)
-	o = UnitType:new()
+	local o = UnitType:new()
 	o.id, o.name, o.attack, o.defense, o.health, o.is_ground, o.is_naval, o.speed = get_unit_type(ref_name)
 	o.ref_name = ref_name
 	return o
@@ -59,7 +59,7 @@ BoatType = UnitType
 BoatType.is_ground = false
 BoatType.is_naval = true
 function BoatType:new(o)
-	o = o or {}
+	local o = o or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o
@@ -69,7 +69,7 @@ AirplaneType = UnitType
 AirplaneType.is_ground = true
 AirplaneType.is_naval = true
 function AirplaneType:new(o)
-	o = o or {}
+	local o = o or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o

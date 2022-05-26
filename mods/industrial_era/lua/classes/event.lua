@@ -32,7 +32,7 @@ Event = {
 	checked = false
 }
 function Event:new(o)
-	o = o or {}
+	local o = o or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o
@@ -44,7 +44,7 @@ function Event:update()
 	update_event(self.id, self.ref_name, self.conditions_fn, self.event_fn, self.title, self.text, self.checked)
 end
 function Event:get(ref_name)
-	o = Event:new()
+	local o = Event:new()
 	o.id, o.conditions_fn, o.event_fn, o.title, o.text, o.checked = get_event(ref_name)
 	o.ref_name = ref_name
 	return o
@@ -67,7 +67,7 @@ Decision = {
 	effects = ""
 }
 function Decision:new(o)
-	o = o or {}
+	local o = o or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o

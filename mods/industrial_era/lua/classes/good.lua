@@ -29,7 +29,7 @@ Good = {
 	ref_name = ""
 }
 function Good:new(o)
-	o = o or {}
+	local o = o or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o
@@ -38,7 +38,7 @@ function Good:register()
 	self.id = add_good(self.ref_name, self.name)
 end
 function Good:get(ref_name)
-	o = Good:new()
+	local o = Good:new()
 	o.id, o.name = get_good(ref_name)
 	o.ref_name = ref_name
 	return o

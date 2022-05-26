@@ -30,19 +30,19 @@ Ideology = {
 	color = 0x00000000
 }
 function Ideology:new(o)
-	o = o or {}
+	local o = o or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o
 end
 function Ideology:get(ref_name)
-	o = Ideology:new()
+	local o = Ideology:new()
 	o.id, o.name, o.color = get_ideology(ref_name)
 	o.ref_name = ref_name
 	return o
 end
 function Ideology:get_by_id(id)
-	o = Ideology:new()
+	local o = Ideology:new()
 	o.ref_name, o.name, o.color = get_ideology_by_id(id)
 	o.id = id
 	return o

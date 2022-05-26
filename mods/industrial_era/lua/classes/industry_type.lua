@@ -34,7 +34,7 @@ BuildingType = {
 	is_factory = false,
 }
 function BuildingType:new(o)
-	o = o or {}
+	local o = o or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o
@@ -43,7 +43,7 @@ function BuildingType:register()
 	self.id = add_building_type(self.ref_name, self.name, self.is_naval, self.is_build_land_units, self.is_build_naval_units, self.defense_bonus)
 end
 function BuildingType:get(ref_name)
-	o = BuildingType:new()
+	local o = BuildingType:new()
 	o.id, o.name, o.is_naval, o.is_build_land_units, o.is_build_naval_units, o.defense_bonus = get_building_type(ref_name)
 	o.ref_name = ref_name
 	return o
@@ -63,7 +63,7 @@ end
 
 IndustryType = BuildingType
 function IndustryType:new(o)
-	o = o or {}
+	local o = o or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o

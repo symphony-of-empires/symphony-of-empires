@@ -56,8 +56,8 @@ function taza_concession_event(ref_name)
 	return EVENT_DO_ONE_TIME
 end
 function taza_concession_decision_0(ref_name)
-	local nation = Nation:get("morrocco"):get_nuclei_provinces()
-	for k, v in pairs(prov) do
+	local provinces = Nation:get("morrocco"):get_nuclei_provinces()
+	for k, v in pairs(provinces) do
 		print(v.ref_name)
         v:give_and_relinquish_to(Nation:get("spain"))
 	end
