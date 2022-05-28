@@ -126,7 +126,7 @@ void Widget::draw_rect(const Eng3D::Texture* tex, Eng3D::Rect rect_pos, Eng3D::R
         rect_pos.bottom = viewport.bottom;
     }
 
-    // TODO: rect_tex
+    /// @todo rect_tex
     if(tex != nullptr) {
         g_ui_context->obj_shader->set_texture(0, "diffuse_map", *tex);
     } else {

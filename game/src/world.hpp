@@ -65,7 +65,7 @@ public:
     Province::Id province_id;
 };
 
-// TODO: Make bookmark.hpp?
+/// @todo Make bookmark.hpp?
 class Bookmark {
 public:
     Eng3D::String ref_name;

@@ -35,7 +35,7 @@ namespace UI {
 	class Context;
 	class Label;
 
-    // TODO: Markdown support?
+    /// @todo Markdown support?
     /**
      * @ingroup UI
      * @brief Multiline textbox that allows more descriptive paragraphs

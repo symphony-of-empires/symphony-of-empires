@@ -105,7 +105,7 @@ TopWindow::TopWindow(GameState& _gs)
     save_ibtn->set_on_click([this](UI::Widget&) {
         save(this->gs);
     });
-    // TODO: Save the lua state
+    /// @todo Save the lua state
     save_ibtn->set_tooltip("Saves the current game");
 
     /*

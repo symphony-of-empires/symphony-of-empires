@@ -178,7 +178,7 @@ public:
     std::vector<float> religion_discrim;
 
     // List of provinces which are owned by this nation (including partial ownership)
-    // TODO: Add controlled provinces to serializer
+    /// @todo Add controlled provinces to serializer
     std::set<Province*> owned_provinces, controlled_provinces;
 
     // List of neighbouring nations

@@ -318,7 +318,7 @@ void Eng3D::State::clear(void) const {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearDepth(1.f);
 #else
-    // TODO: RGX clear function
+    /// @todo RGX clear function
 #endif
 }
 

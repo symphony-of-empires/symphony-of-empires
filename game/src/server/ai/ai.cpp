@@ -147,7 +147,7 @@ static inline Good* ai_get_potential_good(Nation& nation) {
 }
 
 // Reforms the policies of a nation taking in account several factors
-// TODO: Take in account several factors
+/// @todo Take in account several factors
 static inline void ai_reform(Nation& nation) {
     World& world = World::get_instance();
     Policies new_policy = nation.current_policy;
@@ -240,7 +240,7 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
 
         // We really hate our enemies, don't we?
         if(relation.relation < -50.f && !relation.has_war) {
-            // TODO: Do not war if it's beyond our capabilities (i.e Liechestein vs. France, Prussia and UK)
+            /// @todo Do not war if it's beyond our capabilities (i.e Liechestein vs. France, Prussia and UK)
             nation.declare_war(other);
         }
     }
@@ -578,7 +578,7 @@ void ai_do_tick(Nation& nation) {
                         continue;
                     }
 
-                    // TODO: Actually produce something appropriate
+                    /// @todo Actually produce something appropriate
                     auto* unit_type = &world.unit_types[std::rand() % world.unit_types.size()];
                     building.working_unit_type = unit_type;
                     building.req_goods_for_unit = unit_type->req_goods;
@@ -588,7 +588,7 @@ void ai_do_tick(Nation& nation) {
         }
     }
 
-    // TODO: make a better algorithm
+    /// @todo make a better algorithm
     if(nation.ai_do_cmd_troops) {
         std::fill(ai_data.nations_risk_factor.begin(), ai_data.nations_risk_factor.end(), 0.f);
         for(const auto& other : world.nations) {
@@ -644,12 +644,12 @@ void ai_do_tick(Nation& nation) {
                 }
 
                 // Do not change targets
-                // TODO: Change targets when urgent
+                /// @todo Change targets when urgent
                 if(unit->target != nullptr) {
                     continue;
                 }
 
-                if(unit->can_move() || 1) {
+                if(unit->can_move()) {
                     // See which province has the most potential_risk so we cover it from potential threats
                     Province* highest_risk = unit->province;
                     for(const auto& province : unit->province->neighbours) {

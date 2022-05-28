@@ -109,7 +109,7 @@ public:
 };
 
 
-// TODO: On some compilers a boolean can be something not a uint8_t, we should
+/// @todo On some compilers a boolean can be something not a uint8_t, we should
 // explicitly recast this boolean into a uint8_t to avoid problems
 template<>
 class Serializer<bool> : public SerializerMemcpy<bool> {};
@@ -338,4 +338,4 @@ public:
     };
 };
 
-// TODO: Template for entities
+/// @todo Template for entities

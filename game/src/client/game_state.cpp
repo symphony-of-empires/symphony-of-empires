@@ -604,14 +604,14 @@ void GameState::update_on_tick(void) {
     ui_ctx->do_tick();
     world->profiler.stop("UI_TICK");
 
-    // TODO: This is inefficient and we should only update **when** needed
+    /// @todo This is inefficient and we should only update **when** needed
     if(current_mode != MapMode::NO_MAP) {
         map->update_mapmode();
         // map->create_labels();
     }
 }
 
-// TODO: Don't run this thread if not needed (i.e non-host-mode)
+/// @todo Don't run this thread if not needed (i.e non-host-mode)
 void GameState::world_thread(void) {
     while(run) {
         // Gamestate thread hasn't acknowledged the updated tick just yet
@@ -770,7 +770,7 @@ void start_client(int, char**) {
         // so no world lock is needed beforehand
         handle_event(gs.input, gs);
 
-        // TODO: first create the map and separately load all the assets
+        /// @todo first create the map and separately load all the assets
         std::scoped_lock lock(gs.render_lock);
         gs.clear();
         if(gs.loaded_world) {
@@ -872,7 +872,7 @@ void start_client(int, char**) {
                     for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
                         const UnitType* unit_type = gs.production_queue[i];
 
-                        // TODO: Make a better queue AI
+                        /// @todo Make a better queue AI
                         bool is_built = false;
                         for(auto& building_type : gs.world->building_types) {
                             for(const auto& province : gs.curr_nation->controlled_provinces) {

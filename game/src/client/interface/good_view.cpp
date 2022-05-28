@@ -55,7 +55,7 @@ ProductView::ProductView(GameState& _gs, const Product* _product)
             nations_data.push_back(UI::ChartData(0.f, nation->get_client_hint().alt_name.get_string(), nation->get_client_hint().color));
         }
 
-        // TODO: Account for products that are based on this good on every province
+        /// @todo Account for products that are based on this good on every province
         this->supply_pie->set_data(nations_data);
     });
 
@@ -139,7 +139,7 @@ GoodView::GoodView(GameState& _gs, const Good* _good)
             nations_data.push_back(UI::ChartData(0.f, nation->get_client_hint().alt_name.get_string(), nation->get_client_hint().color));
         }
 
-        // TODO: Account for products that are based on this good
+        /// @todo Account for products that are based on this good
         this->sellers_pie->set_data(nations_data);
     });
 

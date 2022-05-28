@@ -120,7 +120,7 @@ void Eng3D::Texture::upload(TextureOptions options) {
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
 
-    // TODO: This causes a lot of issues!
+    /// @todo This causes a lot of issues!
     // Compress the texture if it can't be edited
     if(!options.editable && options.compressed) {
         switch(options.internal_format) {

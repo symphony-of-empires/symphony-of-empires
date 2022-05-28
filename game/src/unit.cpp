@@ -27,6 +27,7 @@
 #ifndef M_PI
 #   define M_PI 3.1415f
 #endif
+#include "eng3d/assert.hpp"
 
 #include "unit.hpp"
 #include "province.hpp"
@@ -73,15 +74,15 @@ Unit::Unit(void) {
 Unit::~Unit(void) {
     Eng3D::Log::debug("unit", "Destruct unit " + std::to_string((std::uintptr_t)this));
     if(province != nullptr) {
-        auto it = std::find(province->units.begin(), province->units.end(), this);
-        assert(it != province->units.end());
+        const auto it = std::find(province->units.cbegin(), province->units.cend(), this);
+        assert(it != province->units.cend());
         province->units.erase(it);
     }
 }
 //*/
 
 void Unit::attack(Unit& enemy) {
-    // TODO: Better attack algorithm
+    /// @todo Better attack algorithm
     const Eng3D::Decimal damage = type->attack;
     enemy.size -= std::min<size_t>(enemy.size, damage);
 }
@@ -107,7 +108,7 @@ Eng3D::Decimal Unit::get_speed(const Province& _province) const {
     const Eng3D::Decimal y_dist = (end_pos.second - start_pos.second);
     const Eng3D::Decimal angle = std::atan2(x_dist, y_dist);
 
-    // TODO: The comment above makes no sense since we don't do (max_move_progress / move_progress)
+    /// @todo The comment above makes no sense since we don't do (max_move_progress / move_progress)
     const Eng3D::Decimal dist_div = move_progress;
 
     //const float linear_dist = std::fabs(std::sqrt(x_dist * x_dist + y_dist * y_dist) / dist_div);
@@ -125,10 +126,12 @@ Eng3D::Decimal Unit::get_speed(void) const {
 
 void Unit::set_province(Province& _province) {
     assert(this->can_move()); // Must be able to move to perform this...
+
     // Delete the unit from the previous cache list of units
     if(province != nullptr) {
-        auto it = std::find(province->units.begin(), province->units.end(), this);
-        province->units.erase(it);
+        std::erase_if(province->units, [this](const auto& e) {
+            return e == this;
+        });
     }
 
     province = &_province;

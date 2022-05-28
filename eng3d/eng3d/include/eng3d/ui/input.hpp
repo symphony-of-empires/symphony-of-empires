@@ -50,6 +50,6 @@ namespace UI {
 		bool is_selected = false;
 	private:
 		std::string buffer = "";
-		int timer; // TODO: Needs to not be frame dependant
+		int timer; /// @todo Needs to not be frame dependant
 	};
 };

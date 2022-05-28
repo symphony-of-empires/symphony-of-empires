@@ -96,7 +96,7 @@ public:
     UnitType* working_unit_type = nullptr;
 
     // Required goods for building the working unit
-    // TODO: change this to a struct instead of a pair for readablity
+    /// @todo change this to a struct instead of a pair for readablity
     std::vector<std::pair<Good*, Eng3D::Number>> req_goods_for_unit;
     // Required goods for building this, or repairing this after a military attack
     std::vector<std::pair<Good*, Eng3D::Number>> req_goods;

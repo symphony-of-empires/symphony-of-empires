@@ -277,7 +277,7 @@ const Eng3D::Model& Eng3D::ModelManager::load_wavefront(const std::string& path)
             clusters.push_back(cluster);
         }
 
-        // TODO: This can be optimized even more
+        /// @todo This can be optimized even more
 
         // Now it's time to merge it all into a single mesh
 
@@ -310,7 +310,7 @@ const Eng3D::Model& Eng3D::ModelManager::load_stl(const std::string& path) {
     Eng3D::Model* final_model = new Eng3D::Model();
     Eng3D::SimpleModel* model = new Eng3D::SimpleModel(Eng3D::MeshMode::TRIANGLES);
 
-    // TODO: This needs more work
+    /// @todo This needs more work
     // 1. we need little endian reading
     uint32_t n_triangles;
     std::memcpy(&n_triangles, &buffer[80], sizeof(uint32_t));
@@ -318,7 +318,7 @@ const Eng3D::Model& Eng3D::ModelManager::load_stl(const std::string& path) {
     for(uint32_t i = 0; i < n_triangles; i++) {
         glm::vec3 vert;
 
-        // TODO: We need to guarantee 2 things:
+        /// @todo We need to guarantee 2 things:
         // 1. that the floating point is 32-bits
         // 2. little endian
         // 3. ieee787 floating point
@@ -345,7 +345,7 @@ const Eng3D::Model& Eng3D::ModelManager::load(const std::string& path) {
 
     // Wavefront OBJ loader
     try {
-        // TODO: This is too horrible, we need a better solution
+        /// @todo This is too horrible, we need a better solution
         if(path.length() > 3 && path[path.length() - 3] == 's' && path[path.length() - 2] == 't' && path[path.length() - 1] == 'l') {
             return load_stl(path);
         } else {

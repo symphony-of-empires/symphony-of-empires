@@ -24,6 +24,7 @@
 // ----------------------------------------------------------------------------
 
 #include "eng3d/log.hpp"
+#include "eng3d/assert.hpp"
 
 #include "nation.hpp"
 #include "world.hpp"
@@ -44,7 +45,7 @@ Nation::~Nation(void) {
 //*/
 
 // Declare war
-// TODO: Make some form of "WarParticipationRequest" so we don't force allies to join
+/// @todo Make some form of "WarParticipationRequest" so we don't force allies to join
 // and we also make sure betrayals are possible
 void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> clauses) {
     World& world = World::get_instance();
@@ -83,6 +84,10 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     // Attackers are at war with the defenders
     for(auto& attacker : war->attackers) {
         for(auto& defender : war->defenders) {
+            /// @todo A better way to make sure these two nations don't equal
+            if(attacker == defender) {
+                continue;
+            }
             assert(attacker != defender);
 
             if(attacker->puppet_master == defender) {
@@ -140,7 +145,7 @@ bool Nation::exists(void) {
 }
 
 inline void Nation::do_diplomacy() {
-    // TODO: Fix this formula which is currently broken
+    /// @todo Fix this formula which is currently broken
     //diplomatic_timer = std::max((60 * 48) - std::min(10.f * 48.f, prestige / 100.f), 4.f);
     diplomatic_timer = 48;
 }

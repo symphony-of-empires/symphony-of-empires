@@ -615,7 +615,7 @@ void Map::draw(const GameState& gs) {
     // rivers->draw(camera);
     //borders->draw(camera);
 
-    // TODO: We need to better this
+    /// @todo We need to better this
     obj_shader->use();
     const glm::mat4 projection = camera->get_projection();
     obj_shader->set_uniform("projection", projection);

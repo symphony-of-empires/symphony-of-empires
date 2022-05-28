@@ -125,6 +125,6 @@ public:
     Eng3D::Decimal supply;
     // Money that the unit has
     Eng3D::Decimal budget;
-    // TODO: ser/deser
+    /// @todo ser/deser
     bool on_battle = false;
 };
