@@ -49,7 +49,7 @@ public:
     // Obtain an element or construct a new one from a provided
     // construct which accepts ident
     virtual const T& get(const I& ident) {
-        // TODO: How do we remove this duplicate code? :/
+        /// @todo How do we remove this duplicate code? :/
         for(const auto& o : elems) {
             if(o.second == ident) {
                 return *(o.first);

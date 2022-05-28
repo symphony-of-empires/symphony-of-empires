@@ -40,7 +40,7 @@
 #include "action.hpp"
 #include "diplomacy.hpp"
 
-// TODO: Endianess compatibility
+/// @todo Endianess compatibility
 template<>
 class Serializer<ActionType>: public SerializerMemcpy<ActionType> {};
 

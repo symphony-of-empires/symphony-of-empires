@@ -27,7 +27,7 @@
 
 namespace Eng3D::Keyboard {
 	enum class Key : unsigned char {
-		// TODO: What usecase this even has?
+		/// @todo What usecase this even has?
 		NONE,
 
 		// Alphabet

@@ -616,60 +616,55 @@ static inline void unit_do_tick(Unit& unit)
             continue;
         }
 
-        // Must not our unit and only if we are at war
-        const auto& relation = g_world->get_relation(g_world->get_id(*other_unit->owner), g_world->get_id(*unit.owner));
-        if(!relation.has_war) {
-            continue;
-        }
-
+        // Can we take this province?
         can_take = false;
         // If there is another unit of a country we are at war with we will start a battle
         for(auto& war : g_world->wars) {
-            if(!war->is_involved(*unit.owner)) {
-                continue;
-            }
+            if(war->is_involved(*unit.owner) && war->is_involved(*other_unit->owner)) {
+                auto it = std::find_if(war->battles.begin(), war->battles.end(), [&unit](const auto& e) {
+                    return e.province == unit.province;
+                });
 
-            auto it = std::find_if(war->battles.begin(), war->battles.end(), [&unit](const auto& e) {
-                return e.province == unit.province;
-            });
-
-            // Create a new battle if none is occurring on this province
-            unit.target = nullptr;
-            if(it == war->battles.end()) {
-                Battle battle = Battle(*war, *unit.province);
-                battle.name = "Battle of " + unit.province->name;
-                if(war->is_attacker(*unit.owner)) {
-                    battle.attackers.push_back(&unit);
-                    battle.defenders.push_back(other_unit);
-                } else {
-                    battle.attackers.push_back(other_unit);
-                    battle.defenders.push_back(&unit);
-                }
-                unit.on_battle = true;
-                other_unit->on_battle = true;
-                war->battles.push_back(battle);
-                Eng3D::Log::debug("game", "New battle of \"" + battle.name + "\"");
-            } else {
-                Battle& battle = *it;
-
-                // Add the unit to one side depending on who are we attacking
-                // However unit must not be already involved
-                // TODO: Make it be instead depending on who attacked first in this battle
-                if(war->is_attacker(*unit.owner)) {
-                    if(std::find(battle.attackers.begin(), battle.attackers.end(), &unit) == battle.attackers.end()) {
-                        battle.attackers.push_back(&unit);
+                // Create a new battle if none is occurring on this province
+                unit.target = nullptr;
+                if(it == war->battles.end()) {
+                    if(!other_unit->on_battle) {
                         unit.on_battle = true;
+                        other_unit->on_battle = true;
+                        
+                        Battle battle = Battle(*war, *unit.province);
+                        battle.name = "Battle of " + unit.province->name;
+                        if(war->is_attacker(*unit.owner)) {
+                            battle.attackers.push_back(&unit);
+                            battle.defenders.push_back(other_unit);
+                        } else {
+                            battle.attackers.push_back(other_unit);
+                            battle.defenders.push_back(&unit);
+                        }
+                        war->battles.push_back(battle);
+                        Eng3D::Log::debug("game", "New battle of \"" + battle.name + "\"");
+                    } else {
+                        Battle& battle = *it;
+
+                        // Add the unit to one side depending on who are we attacking
+                        // However unit must not be already involved
+                        /// @todo Make it be instead depending on who attacked first in this battle
+                        if(war->is_attacker(*unit.owner)) {
+                            assert(std::find(battle.attackers.begin(), battle.attackers.end(), &unit) == battle.attackers.end());
+                            unit.on_battle = true;
+                            battle.attackers.push_back(&unit);
+                            Eng3D::Log::debug("game", "Adding unit <attacker> to battle of \"" + battle.name + "\"");
+                        } else {
+                            assert(war->is_defender(*unit.owner));
+                            assert(std::find(battle.defenders.begin(), battle.defenders.end(), &unit) == battle.defenders.end());
+                            unit.on_battle = true;
+                            battle.defenders.push_back(&unit);
+                            Eng3D::Log::debug("game", "Adding unit <defender> to battle of \"" + battle.name + "\"");
+                        }
                     }
-                    Eng3D::Log::debug("game", "Adding unit <attacker> to battle of \"" + battle.name + "\"");
-                } else if(war->is_defender(*unit.owner)) {
-                    if(std::find(battle.defenders.begin(), battle.defenders.end(), &unit) == battle.defenders.end()) {
-                        battle.defenders.push_back(&unit);
-                        unit.on_battle = true;
-                    }
-                    Eng3D::Log::debug("game", "Adding unit <defender> to battle of \"" + battle.name + "\"");
+                    break;
                 }
             }
-            break;
         }
     }
 
@@ -683,14 +678,14 @@ static inline void unit_do_tick(Unit& unit)
         if(unit.move_progress) {
             unit.move_progress -= std::min<Eng3D::Decimal>(unit.move_progress, unit.get_speed());
         } else {
-            unit.set_province(*unit.target);
-            unit.target = nullptr;
-
             // If we are at war with the person we are crossing their provinces at, then take 'em (albeit with resistance)
             const auto& relation = g_world->get_relation(g_world->get_id(*unit.province->controller), g_world->get_id(*unit.owner));
             if(can_take && relation.has_war) {
                 unit.owner->control_province(*unit.province);
             }
+
+            unit.set_province(*unit.target);
+            unit.target = nullptr;
         }
     }
 }
@@ -840,9 +835,9 @@ void World::do_tick() {
             // Rebellion
             if(clause->sender->ref_name == clause->receiver->ref_name) {
                 if(clause->sender->owned_provinces.empty()) {
-                    // TODO: Delete clause->sender (and fixup references) !!!
+                    /// @todo Delete clause->sender (and fixup references) !!!
                 } else if(clause->receiver->owned_provinces.empty()) {
-                    // TODO: Delete clause->receiver (and fixup references) !!!
+                    /// @todo Delete clause->receiver (and fixup references) !!!
                 }
             }
         }
@@ -883,10 +878,6 @@ void World::do_tick() {
                         Eng3D::Log::debug("game", "Removing attacker \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                         battle.defenders.erase(battle.defenders.begin() + i);
                         assert(unit->province != nullptr && unit->province == battle.province);
-
-                        auto it = std::find(battle.province->units.begin(), battle.province->units.end(), unit);
-                        assert(it != battle.province->units.end());
-                        battle.province->units.erase(it);
                         local_clear_units.push_back(unit);
                         continue;
                     }
@@ -908,10 +899,6 @@ void World::do_tick() {
                         Eng3D::Log::debug("game", "Removing defender \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                         battle.attackers.erase(battle.attackers.begin() + i);
                         assert(unit->province != nullptr && unit->province == battle.province);
-
-                        auto it = std::find(battle.province->units.begin(), battle.province->units.end(), unit);
-                        assert(it != battle.province->units.end());
-                        battle.province->units.erase(it);
                         local_clear_units.push_back(unit);
                         continue;
                     }
@@ -950,17 +937,18 @@ void World::do_tick() {
         }
 
         if(!local_clear_units.empty()) {
-            clear_units_lock.lock();
+            std::scoped_lock lock(clear_units_lock);
             for(auto& unit : local_clear_units) {
+                assert(std::find(clear_units.cbegin(), clear_units.cend(), unit) == clear_units.end());
                 clear_units.push_back(unit);
             }
-            clear_units_lock.unlock();
         }
     });
     profiler.stop("Battles");
 
     profiler.start("Cleaning");
     for(auto& unit : clear_units) {
+        g_world->remove(*unit);
         delete unit;
     }
     profiler.stop("Cleaning");

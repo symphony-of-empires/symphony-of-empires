@@ -444,7 +444,7 @@ void MapRender::update_visibility(void)
         return;
     }
 
-    // TODO: Check that unit is allied with us/province owned by an ally
+    /// @todo Check that unit is allied with us/province owned by an ally
 
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;

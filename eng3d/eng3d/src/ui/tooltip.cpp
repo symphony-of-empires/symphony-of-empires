@@ -88,7 +88,7 @@ void Tooltip::text(const std::string& text) {
     }
 
     // Separate the text in multiple labels and break on space
-    // TODO: only works for monospace fonts width width 12, fix it for all fonts
+    /// @todo only works for monospace fonts width width 12, fix it for all fonts
     size_t pos = 0, y = 0;
     size_t line_width = std::max<size_t>(1, this->width / 12);
     while(pos < text.length()) {

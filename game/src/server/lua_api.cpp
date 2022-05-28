@@ -912,7 +912,7 @@ int LuaAPI::add_province_pop(lua_State* L) {
     pop.literacy = (lua_tonumber(L, 6));
     pop.budget = pop.size * 420.69f;
 
-    // TODO: Make ideology NOT be random
+    /// @todo Make ideology NOT be random
     pop.ideology_approval.resize(g_world->ideologies.size(), 0.f);
 
     if(!pop.size) {

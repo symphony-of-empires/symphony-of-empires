@@ -70,7 +70,7 @@ void PieChart::draw_triangle(Eng3D::Mesh<glm::vec2, glm::vec2>& mesh, float star
     float radius = std::min<float>(width, height) * 0.5;
     float x_offset, y_offset, scale;
 
-    // TODO: colour on piechart
+    /// @todo colour on piechart
     //glColor3f(color.r, color.g, color.b);
 
     x_offset = cos((start_ratio - 0.25f) * 2 * M_PI);

@@ -89,13 +89,9 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, const Nation* _nation)
             clause->days_duration = 360;
             this->treaty.clauses.push_back(clause);
         } else {
-            auto it = std::find_if(this->treaty.clauses.begin(), this->treaty.clauses.end(), [](const auto& e) {
+            std::erase_if(this->treaty.clauses, [](const auto& e) {
                 return e->type == TreatyClauseType::CEASEFIRE;
             });
-
-            if(it != this->treaty.clauses.end()) {
-                this->treaty.clauses.erase(it);
-            }
         }
     });
 
@@ -113,13 +109,9 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, const Nation* _nation)
             }
             this->treaty.clauses.push_back(clause);
         } else {
-            auto it = std::find_if(this->treaty.clauses.begin(), this->treaty.clauses.end(), [](const auto& e) {
+            std::erase_if(this->treaty.clauses, [](const auto& e) {
                 return e->type == TreatyClauseType::ANNEX_PROVINCES;
             });
-
-            if(it != this->treaty.clauses.end()) {
-                this->treaty.clauses.erase(it);
-            }
         }
     });
 
@@ -138,13 +130,9 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, const Nation* _nation)
             this->treaty.clauses.push_back(clause);
         }
         else {
-            auto it = std::find_if(this->treaty.clauses.begin(), this->treaty.clauses.end(), [](const auto& e) {
+            std::erase_if(this->treaty.clauses, [](const auto& e) {
                 return e->type == TreatyClauseType::ANNEX_PROVINCES;
             });
-
-            if(it != this->treaty.clauses.end()) {
-                this->treaty.clauses.erase(it);
-            }
         }
     });
 

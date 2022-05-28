@@ -66,7 +66,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
             return;
         }
 
-        // TODO: More dynamic names
+        /// @todo More dynamic names
         if(this->gs.curr_nation->ideology != nullptr) {
             w.text(this->gs.curr_nation->ideology->name.get_string());
         }

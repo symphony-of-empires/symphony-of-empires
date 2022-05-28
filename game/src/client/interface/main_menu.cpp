@@ -72,7 +72,7 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     conn_btn->set_on_click([this](UI::Widget& w) {
         Eng3D::Log::debug("ui", "Okey, connecting to [" + this->ip_addr_inp->get_buffer() + "]");
 
-        // TODO: Handle when mods differ (i.e checksum not equal to host)
+        /// @todo Handle when mods differ (i.e checksum not equal to host)
         this->gs.host_mode = false;
         try {
             this->gs.client = new Client(this->gs, this->ip_addr_inp->get_buffer(), 1836);

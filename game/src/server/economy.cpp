@@ -90,7 +90,7 @@ void militancy_update(World& world, Nation& nation) {
     auto rand = Eng3D::get_local_generator();
     for(const auto& province : nation.controlled_provinces) {
         for(const auto& pop : province->pops) {
-            // TODO: Ok, look, the justification is that educated people
+            /// @todo Ok, look, the justification is that educated people
             // almost never do coups - in comparasion to uneducated
             // peseants, rich people don't need to protest!
             const Eng3D::Decimal anger = (std::max<Eng3D::Decimal>(pop.militancy, 0.001f) / std::max<Eng3D::Decimal>(pop.literacy, 1.f) / std::max<Eng3D::Decimal>(pop.life_needs_met, 0.001f));
@@ -102,9 +102,9 @@ void militancy_update(World& world, Nation& nation) {
     }
 
     // Rebellions!
-    // TODO: Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
+    /// @todo Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
     if(!std::fmod(rand(), std::max<Eng3D::Decimal>(1, coup_chances - total_anger))) {
-#if 0 // TODO: Fix so this works in parrallel
+#if 0 /// @todo Fix so this works in parrallel
         // Compile list of uprising provinces
         std::vector<Province*> uprising_provinces;
         for(const auto& province : nation->owned_provinces) {
@@ -125,8 +125,8 @@ void militancy_update(World& world, Nation& nation) {
         // Make the most angry provinces revolt!
         std::vector<TreatyClause::BaseClause*> clauses;
         for(auto& province : uprising_provinces) {
-            // TODO: We should make a copy of the `rebel` nation for every rebellion!!!
-            // TODO: We should also give them an unique ideology!!!
+            /// @todo We should make a copy of the `rebel` nation for every rebellion!!!
+            /// @todo We should also give them an unique ideology!!!
             rebel_nation->give_province(*province);
             for(auto& unit : province->get_units()) {
                 unit->owner = rebel_nation;
@@ -345,7 +345,7 @@ Unit* build_unit(Building& building, Province& province) {
 
     // Ratio of health:person is 25, thus making units very expensive
     const Eng3D::Number army_size = 100;
-    // TODO: Consume special soldier pops instead of farmers!!!
+    /// @todo Consume special soldier pops instead of farmers!!!
     auto it = std::find_if(province.pops.begin(), province.pops.end(), [building, army_size](const auto& e) {
         return (e.size >= army_size && e.type->group == PopGroup::FARMER);
     });
@@ -354,7 +354,7 @@ Unit* build_unit(Building& building, Province& province) {
         can_build_unit = false;
     }
 
-    // TODO: Maybe delete if size becomes 0?
+    /// @todo Maybe delete if size becomes 0?
     //const Eng3D::Number final_size = std::min<Eng3D::Number>((*it).size, army_size);
     //(*it).size -= final_size;
     const Eng3D::Number final_size = army_size;

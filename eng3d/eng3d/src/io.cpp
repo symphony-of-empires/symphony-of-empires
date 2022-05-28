@@ -149,7 +149,7 @@ Eng3D::IO::Package::~Package(void) {
 Eng3D::IO::PackageManager::PackageManager(void) {
     const std::string asset_path = ::Path::get_full();
 
-    // TODO: Replace with a custom filesystem implementation
+    /// @todo Replace with a custom filesystem implementation
     // Register packages
     for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
         if(!entry.is_directory()) {

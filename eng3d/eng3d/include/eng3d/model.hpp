@@ -47,7 +47,7 @@ namespace Eng3D {
 
 namespace Eng3D {
     // A simple object - use these to store "simple" objects that MAY repeat
-    // TODO: We should use instancing tricks on simple objects
+    /// @todo We should use instancing tricks on simple objects
     class SimpleModel : public Eng3D::Mesh<glm::vec3, glm::vec2> {
     public:
         SimpleModel(enum Eng3D::MeshMode _mode);

@@ -25,6 +25,8 @@
 
 #include <algorithm>
 
+#include "eng3d/assert.hpp"
+
 #include "event.hpp"
 #include "world.hpp"
 #include "nation.hpp"
@@ -62,17 +64,9 @@ void Event::take_decision(Nation& sender, Decision& dec) {
 
     // Tell the world that we took a decision
     g_world->taken_decisions.push_back(std::make_pair(dec, &sender));
-
-    // Remove from the receivers list so we don't duplicate decisions
-    //receivers.erase(receiver);
-
+    
     // Remove from inbox too
-    for(auto it = sender.inbox.begin(); it != sender.inbox.end(); it++) {
-        if((*it).ref_name == this->ref_name) {
-            sender.inbox.erase(it);
-            return;
-        }
-    }
-    // Reaching this code means our inbox is corrupted
-    assert(false);
+    std::erase_if(sender.inbox, [this](const auto& e) {
+        return this->ref_name == e.ref_name;
+    });
 }

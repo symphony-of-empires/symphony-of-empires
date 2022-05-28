@@ -60,7 +60,7 @@ static std::vector<Tile *> generate_neighbors(const World& world, const Nation& 
 
             Tile* neighbour = &(world.get_tile(t_x + i, t_y + j));
 
-            // TODO: Check that this unit can pass
+            /// @todo Check that this unit can pass
             //if(unit_can_pass)
 
             // Check that we can diplomatically pass thru their lands
@@ -116,7 +116,7 @@ static inline float tile_cost(const World& world, Tile* t1, Tile* t2) {
     const int x_diff = t1_x - t2_x;
     const int y_diff = t1_y - t2_y;
 
-    // TODO: Terrain penalties apply PER UNIT TYPE
+    /// @todo Terrain penalties apply PER UNIT TYPE
     // a boat can pass thru water but for an army it will have a horrible cost!
 
     // Maximum penalties difference accounts to same cost as one jump in x or y direction (1.0)

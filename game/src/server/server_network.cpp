@@ -113,7 +113,7 @@ void Server::net_loop(int id) {
         ActionType action = ActionType::PING;
         packet.send(&action);
         
-        // TODO: The world mutex is not properly unlocked when an exception occours
+        /// @todo The world mutex is not properly unlocked when an exception occours
         // this allows clients to abruptly disconnect and softlock a server
         // so we did this little trick of manually unlocking - but this is a bad idea
         // we need to use RAII to just unlock the thing on destruction *(specifically when
@@ -146,7 +146,7 @@ void Server::net_loop(int id) {
                     Policies policies;
                     ::deserialize(ar, &policies);
 
-                    // TODO: Do parliament checks and stuff
+                    /// @todo Do parliament checks and stuff
                     selected_nation->current_policy = policies;
                 } break;
                 // - Client tells server to change target of unit
@@ -198,9 +198,9 @@ void Server::net_loop(int id) {
                         throw ServerException("Unknown unit type");
                     }
 
-                    // TODO: Find building
+                    /// @todo Find building
                     Building& building = province->get_buildings()[g_world->get_id(*building_type)];
-                    // TODO: Check nation can build this unit
+                    /// @todo Check nation can build this unit
 
                     // Tell the building to build this specific unit type
                     building.working_unit_type = unit_type;
