@@ -29,9 +29,8 @@
 using namespace Eng3D;
 
 // Keep data for 10 seconds
-const float MS_TO_KEEP_DATA = 10 * 1e3;
-
-const uint32_t colors[] = {
+static const float MS_TO_KEEP_DATA = 10 * 1e3;
+static const uint32_t colors[] = {
     0xFF000000, 0xFF00FF00, 0xFF0000FF, 0xFFFF0000, 0xFF01FFFE, 0xFFFFA6FE,
     0xFFFFDB66, 0xFF006401, 0xFF010067, 0xFF95003A, 0xFF007DB5, 0xFFFF00F6,
     0xFFFFEEE8, 0xFF774D00, 0xFF90FB92, 0xFF0076FF, 0xFFD5FF00, 0xFFFF937E,
@@ -159,10 +158,8 @@ void Profiler::render_done() {
 
 std::vector<BenchmarkTask*> Profiler::get_tasks() {
     std::vector<BenchmarkTask*> out_tasks;
-
     for(auto& task : tasks) {
         out_tasks.push_back(&task.second);
     }
-
     return out_tasks;
 }
