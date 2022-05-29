@@ -45,6 +45,8 @@ enum class MapMode : unsigned char {
 
 class Unit;
 class Building;
+class Culture;
+class Religion;
 
 class Input {
 public:
@@ -54,6 +56,9 @@ public:
     std::pair<int, int> mouse_pos;
 
     std::vector<Unit*> selected_units;
+
+    Culture* selected_culture = nullptr;
+    Religion* selected_religion = nullptr;
 
     std::pair<int, int> drag_coord;
 

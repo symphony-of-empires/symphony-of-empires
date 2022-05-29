@@ -89,6 +89,14 @@ namespace Interface {
         const Culture* culture;
     };
 
+    class ProvinceEditReligionTab : public UI::Group {
+    public:
+        ProvinceEditReligionTab(GameState& gs, int x, int y, const Province* province, UI::Widget* _parent);
+        GameState& gs;
+        const Province* province;
+        const Religion* religion;
+    };
+
     class ProvinceEditTerrainTab : public UI::Group {
     public:
         ProvinceEditTerrainTab(GameState& gs, int x, int y, const Province* province, UI::Widget* _parent);
@@ -108,6 +116,7 @@ namespace Interface {
         ProvinceEconomyTab* econ_tab;
         ProvinceBuildingTab* build_tab;
         ProvinceEditCultureTab* edit_culture_tab;
+        ProvinceEditReligionTab* edit_religion_tab;
         ProvinceEditTerrainTab* edit_terrain_tab;
     public:
         ProvinceView(GameState& gs, const Province* province);
