@@ -37,6 +37,9 @@ WarDeclarePrompt::WarDeclarePrompt(GameState& _gs, const Nation* _nation)
     nation{ _nation }
 {
     this->is_scroll = false;
+    this->set_close_btn_function([this](Widget&) {
+        this->kill();
+    });
 
     this->body_txt = new UI::Text(0, 0, this->width, 24, this);
     this->body_txt->text("TODO: add cassus bellis");

@@ -44,6 +44,10 @@ ProfilerView::ProfilerView(GameState& _gs)
     this->text("Profiler");
     this->is_scroll = false;
 
+    this->set_close_btn_function([this](Widget&) {
+        this->kill();
+    });
+
     Eng3D::Profiler& profiler = gs.world->profiler;
     float fps = profiler.get_fps();
 

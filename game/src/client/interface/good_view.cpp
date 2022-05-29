@@ -48,6 +48,10 @@ ProductView::ProductView(GameState& _gs, const Product* _product)
     this->is_scroll = false;
     this->text(Eng3D::Locale::translate("ProductName"));
 
+    this->set_close_btn_function([this](Widget&) {
+        this->kill();
+    });
+
     this->supply_pie = new UI::PieChart(0, 0, 128, 128, this);
     this->supply_pie->on_each_tick = ([this](UI::Widget&) {
         std::vector<UI::ChartData> nations_data;
@@ -105,13 +109,6 @@ ProductView::ProductView(GameState& _gs, const Product* _product)
     good_btn->set_on_click([](UI::Widget&) {
 
     });
-
-    auto* close_btn = new UI::Button(0, 0, 128, 24, this);
-    close_btn->below_of(*good_btn);
-    close_btn->text("Close");
-    close_btn->set_on_click([this](UI::Widget&) {
-        this->kill();
-    });
 }
 
 GoodView::GoodView(GameState& _gs, const Good* _good)
@@ -123,6 +120,10 @@ GoodView::GoodView(GameState& _gs, const Good* _good)
 
     this->is_scroll = false;
     this->text(Eng3D::Locale::translate(good->name.get_string()));
+
+    this->set_close_btn_function([this](Widget&) {
+        this->kill();
+    });
 
     this->icon_img = new UI::Image(0, 0, 128, 96, this->gs.tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
 
@@ -203,11 +204,4 @@ GoodView::GoodView(GameState& _gs, const Good* _good)
         icon_ibtn->tooltip->text(building_type.name.get_string());
         dx += icon_ibtn->width;
     }
-
-    auto* close_btn = new UI::Button(0, 0, 128, 24, this);
-    close_btn->below_of(*input_lab);
-    close_btn->text("Close");
-    close_btn->set_on_click([this](UI::Widget&) {
-        this->kill();
-    });
 }

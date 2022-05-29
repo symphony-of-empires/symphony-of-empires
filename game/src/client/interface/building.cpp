@@ -92,6 +92,10 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
     this->is_scroll = false;
     this->text(Eng3D::Locale::translate("Build a new building"));
 
+    this->set_close_btn_function([this](Widget&) {
+        this->kill();
+    });
+
     this->province_tab = new BuildingSelectProvinceTab(gs, 128, 24, this);
     this->province_tab->is_render = false;
 
@@ -112,13 +116,6 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
         this->province_tab->is_render = false;
         this->type_tab->is_render = true;
     });
-
-    auto* close_btn = new UI::Button(0, 0, 128, 24, this);
-    close_btn->below_of(*build_btn);
-    close_btn->text(Eng3D::Locale::translate("Close"));
-    close_btn->set_on_click([this](UI::Widget&) {
-        this->kill();
-    });
 }
 
 BuildingView::BuildingView(GameState& _gs, const Building* _building)
@@ -129,10 +126,7 @@ BuildingView::BuildingView(GameState& _gs, const Building* _building)
     this->is_scroll = false;
     this->text(Eng3D::Locale::translate("Information for this building"));
 
-    auto* close_btn = new UI::Button(0, 0, 128, 24, this);
-    //close_btn->below_of(*build_btn);
-    close_btn->text(Eng3D::Locale::translate("Close"));
-    close_btn->set_on_click([this](UI::Widget&) {
+    this->set_close_btn_function([this](Widget&) {
         this->kill();
     });
 }

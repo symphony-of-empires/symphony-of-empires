@@ -57,6 +57,10 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     this->is_scroll = false;
     this->text("Internet multiplayer");
 
+    this->set_close_btn_function([this](Widget&) {
+        this->kill();
+    });
+
     ip_addr_inp = new UI::Input(0, 0, 128, 24, this);
     ip_addr_inp->set_buffer("127.0.0.1");
     ip_addr_inp->tooltip = new UI::Tooltip(this->ip_addr_inp, 512, 24);
@@ -91,13 +95,6 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
             this->gs.ui_ctx->prompt("Server error", e.what());
         }
         delete this->gs.client;
-    });
-
-    auto* close_btn = new UI::Button(0, 0, 128, 24, this);
-    close_btn->below_of(*this->conn_btn);
-    close_btn->text("Cancel");
-    close_btn->set_on_click([this](UI::Widget&) {
-        this->kill();
     });
 }
 
