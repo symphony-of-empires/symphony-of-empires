@@ -88,7 +88,7 @@ namespace Eng3D {
             return out_pos;
         }
 
-        glm::mat4 get_view(void) override {
+        glm::mat4 get_view(void) const override {
             glm::vec3 look_at = world_position;
             look_at.z = 0;
             look_at.y -= world_position.z > -300.f ? 0.06f * (300.f + world_position.z) : 0.f;
@@ -96,7 +96,7 @@ namespace Eng3D {
             return glm::lookAt(world_position, look_at, up_vector);
         };
 
-        bool get_cursor_map_pos(std::pair<int, int> mouse_pos, glm::ivec2& out_pos) override {
+        bool get_cursor_map_pos(std::pair<int, int> mouse_pos, glm::ivec2& out_pos) const override {
             float mouse_x = mouse_pos.first;
             float mouse_y = screen_size.y - 1.f - mouse_pos.second;
 
@@ -128,7 +128,7 @@ namespace Eng3D {
             return hit;
         };
 
-        glm::vec3 get_tile_world_pos(glm::vec2 tile_pos) override {
+        glm::vec3 get_tile_world_pos(glm::vec2 tile_pos) const override {
             return glm::vec3(tile_pos.x, tile_pos.y, 0.f);
         }
     };
