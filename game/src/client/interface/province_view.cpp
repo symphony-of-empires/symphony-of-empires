@@ -244,6 +244,7 @@ ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, con
     province{ _province }
 {
     this->text(province->name.get_string());
+    this->is_scroll = true;
 
     // Initial product info
     unsigned int dy = 0;
@@ -255,6 +256,31 @@ ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, con
                 pop.culture = &culture;
             }
             this->gs.map->update_mapmode();
+            this->gs.input.selected_culture = &culture;
+        });
+        dy += btn->height;
+    }
+}
+
+ProvinceEditReligionTab::ProvinceEditReligionTab(GameState& _gs, int x, int y, const Province* _province, UI::Widget* _parent)
+    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
+    gs{ _gs },
+    province{ _province }
+{
+    this->text(province->name.get_string());
+    this->is_scroll = true;
+
+    // Initial product info
+    unsigned int dy = 0;
+    for(auto& religion : gs.world->religions) {
+        auto* btn = new UI::Button(0, dy, 128, 24, this);
+        btn->text(religion.name.get_string());
+        btn->set_on_click([this, &religion](UI::Widget&) {
+            for(auto& pop : const_cast<Province*>(this->province)->pops) {
+                pop.religion = &religion;
+            }
+            this->gs.map->update_mapmode();
+            this->gs.input.selected_religion = &religion;
         });
         dy += btn->height;
     }
@@ -391,18 +417,24 @@ ProvinceView::ProvinceView(GameState& _gs, const Province* _province)
                 }
             }
 
+            if(this->gs.input.selected_culture == nullptr) {
+                this->gs.input.selected_culture = &this->gs.world->cultures[0];
+            }
+            if(this->gs.input.selected_religion == nullptr) {
+                this->gs.input.selected_religion = &this->gs.world->religions[0];
+            }
+
             for(auto& pop_type : this->gs.world->pop_types) {
                 Pop pop;
-                pop.type = &g_world->pop_types.at(0);
-                pop.culture = &g_world->cultures.at(0);
-                pop.religion = &g_world->religions.at(0);
+                pop.type = &pop_type;
+                pop.culture = this->gs.input.selected_culture;
+                pop.religion = this->gs.input.selected_religion;
                 pop.size = 1000.f / std::max<Eng3D::Decimal>(0.01f, pop_type.social_value);
                 pop.literacy = max_sv / std::max<Eng3D::Decimal>(0.01f, pop_type.social_value);
                 pop.budget = 100.f * max_sv;
                 const_cast<Province*>(this->province)->pops.push_back(pop);
             }
             this->gs.map->update_mapmode();
-            this->gs.ui_ctx->prompt("Update", "Added POPs to province \"" + this->province->name + "\"!");
         });
         fill_pops_btn->set_tooltip("Add POPs (will add " + std::to_string(gs.world->pop_types.size()) + "POPs)");
 
@@ -412,7 +444,6 @@ ProvinceView::ProvinceView(GameState& _gs, const Province* _province)
         clear_pops_btn->set_on_click([this](UI::Widget&) {
             const_cast<Province*>(this->province)->pops.clear();
             this->gs.map->update_mapmode();
-            this->gs.ui_ctx->prompt("Update", "Cleared POPs of province \"" + this->province->name + "\"!");
         });
         clear_pops_btn->set_tooltip("Removes all POPs from this province ;)");
 
@@ -427,21 +458,39 @@ ProvinceView::ProvinceView(GameState& _gs, const Province* _province)
             this->econ_tab->is_render = false;
             this->build_tab->is_render = false;
             this->edit_culture_tab->is_render = true;
+            this->edit_religion_tab->is_render = false;
             this->edit_terrain_tab->is_render = false;
         });
         edit_culture_btn->set_tooltip("Edit culture");
+
+        this->edit_religion_tab = new ProvinceEditReligionTab(gs, 0, 32, province, this);
+        this->edit_religion_tab->is_render = false;
+
+        auto* edit_religion_btn = new UI::Button(0, this->height - 64, 32, 32, this);
+        edit_religion_btn->below_of(*density_sld);
+        edit_religion_btn->right_side_of(*edit_culture_btn);
+        edit_religion_btn->set_on_click([this](UI::Widget&) {
+            this->pop_tab->is_render = false;
+            this->econ_tab->is_render = false;
+            this->build_tab->is_render = false;
+            this->edit_culture_tab->is_render = false;
+            this->edit_religion_tab->is_render = true;
+            this->edit_terrain_tab->is_render = false;
+        });
+        edit_religion_btn->set_tooltip("Edit religion");
 
         this->edit_terrain_tab = new ProvinceEditTerrainTab(gs, 0, 32, province, this);
         this->edit_terrain_tab->is_render = false;
 
         auto* edit_terrain_btn = new UI::Button(0, this->height - 64, 32, 32, this);
         edit_terrain_btn->below_of(*density_sld);
-        edit_terrain_btn->right_side_of(*edit_culture_btn);
+        edit_terrain_btn->right_side_of(*edit_religion_btn);
         edit_terrain_btn->set_on_click([this](UI::Widget&) {
             this->pop_tab->is_render = false;
             this->econ_tab->is_render = false;
             this->build_tab->is_render = false;
             this->edit_culture_tab->is_render = false;
+            this->edit_religion_tab->is_render = false;
             this->edit_terrain_tab->is_render = true;
         });
         edit_terrain_btn->set_tooltip("Edit terrain");
