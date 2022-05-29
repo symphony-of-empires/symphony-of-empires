@@ -390,7 +390,7 @@ void save(GameState& gs) {
 
             // Units
             for(const auto& unit : province->get_units()) {
-                fprintf(fp, "province:add_unit(UnitType(\"%s\"), %zu)\n", unit->type->ref_name.c_str(), unit->size);
+                fprintf(fp, "province:add_unit(UnitType:get(\"%s\"), %zu)\n", unit->type->ref_name.c_str(), unit->size);
             }
 
             cnt++;
