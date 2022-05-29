@@ -31,6 +31,9 @@
 #include <functional>
 #include <cstddef>
 
+#include "eng3d/color.hpp"
+#include "eng3d/primitive.hpp"
+
 namespace Eng3D {
     class Texture;
     class Model;
@@ -56,11 +59,10 @@ namespace UI {
 }
 namespace Interface {
     class UnitWidget;
+    class BattleWidget;
 }
 
 #include "province.hpp"
-#include "eng3d/color.hpp"
-#include "eng3d/primitive.hpp"
 
 enum class MapView {
     SPHERE_VIEW,
@@ -144,6 +146,7 @@ public:
 
     UI::Group* map_ui_layer;
     std::vector<Interface::UnitWidget*> unit_widgets;
+    std::vector<Interface::BattleWidget*> battle_widgets;
 
     std::shared_ptr<Eng3D::Texture> id_map;
     std::shared_ptr<Eng3D::Texture> province_color_tex;
