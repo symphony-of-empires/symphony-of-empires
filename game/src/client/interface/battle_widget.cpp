@@ -41,7 +41,7 @@ using namespace Interface;
 BattleWidget::BattleWidget(const War* _war, size_t _idx, Map* _map, UI::Widget* parent)
     : UI::Div(0, 0, 188, 30, parent), war{ _war }, idx{ _idx }, map{ _map }
 {
-    this->background_color = Eng3D::Color(1, 1, 1, 1);
+    this->background_color = Eng3D::Color(1.f, 1.f, 1.f, 1.f);
     /// @todo On click display information about the battle
 
     auto nation_flag = map->nation_flags[0];
@@ -49,7 +49,7 @@ BattleWidget::BattleWidget(const War* _war, size_t _idx, Map* _map, UI::Widget* 
     this->left_flag_img = new UI::Image(1, 1, 38, 28, nation_flag, this);
     this->left_size_label = new UI::Div(41, 1, 48, 28, this);
     this->left_size_label->text_align_x = UI::Align::END;
-    this->left_size_label->background_color = Eng3D::Color(0.41f, 0.84f, 0.36f, 1.f);
+    this->left_size_label->background_color = Eng3D::Color(0.5f, 0.f, 0.f, 1.f);
     this->left_size_label->on_each_tick = ([this](UI::Widget&) {
         if(this->idx >= this->war->battles.size()) {
             return;
@@ -63,10 +63,10 @@ BattleWidget::BattleWidget(const War* _war, size_t _idx, Map* _map, UI::Widget* 
         this->left_size_label->text(std::to_string(unit_size));
     });
 
-    this->right_flag_img = new UI::Image(90, 1, 38, 28, nation_flag, this);
-    this->right_size_label = new UI::Div(139, 1, 48, 28, this);
+    this->right_flag_img = new UI::Image(139, 1, 38, 28, nation_flag, this);
+    this->right_size_label = new UI::Div(90, 1, 48, 28, this);
     this->right_size_label->text_align_x = UI::Align::END;
-    this->right_size_label->background_color = Eng3D::Color(0.41f, 0.84f, 0.36f, 1.f);
+    this->right_size_label->background_color = Eng3D::Color(0.f, 0.f, 0.5f, 1.f);
     this->right_size_label->on_each_tick = ([this](UI::Widget&) {
         if(this->idx >= this->war->battles.size()) {
             return;
@@ -95,13 +95,17 @@ void BattleWidget::set_battle(const War* _war, size_t _idx) {
     this->x = screen_pos.x - this->width / 2;
     this->y = screen_pos.y - this->height / 2;
 
-    auto left_nation_flag = map->nation_flags[battle.attackers[0]->owner->cached_id];
-    this->left_flag_img->current_texture = left_nation_flag;
-    this->left_size_label->on_each_tick(*this->left_size_label);
+    if(!battle.attackers.empty()) {
+        auto left_nation_flag = map->nation_flags[battle.attackers[0]->owner->cached_id];
+        this->left_flag_img->current_texture = left_nation_flag;
+        this->left_size_label->on_each_tick(*this->left_size_label);
+    }
 
-    auto right_nation_flag = map->nation_flags[battle.defenders[0]->owner->cached_id];
-    this->right_flag_img->current_texture = right_nation_flag;
-    this->right_size_label->on_each_tick(*this->right_size_label);
+    if(!battle.defenders.empty()) {
+        auto right_nation_flag = map->nation_flags[battle.defenders[0]->owner->cached_id];
+        this->right_flag_img->current_texture = right_nation_flag;
+        this->right_size_label->on_each_tick(*this->right_size_label);
+    }
 }
 
 BattleWidget::~BattleWidget() {

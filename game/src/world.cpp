@@ -677,9 +677,10 @@ static inline void unit_do_tick(Unit& unit, const std::vector<std::vector<Battle
             return;
         }
 
-        if(unit.move_progress) {
-            unit.move_progress -= std::min<Eng3D::Decimal>(unit.move_progress, unit.get_speed());
-        } else {
+        if(1) {
+        //if(unit.move_progress) {
+        //    unit.move_progress -= std::min<Eng3D::Decimal>(unit.move_progress, unit.get_speed());
+        //} else {
             // If we are at war with the person we are crossing their provinces at, then take 'em (albeit with resistance)
             const auto& relation = g_world->get_relation(g_world->get_id(*unit.province->controller), g_world->get_id(*unit.owner));
             if(can_take && relation.has_war) {
