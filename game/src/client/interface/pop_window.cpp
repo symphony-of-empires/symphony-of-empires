@@ -43,6 +43,10 @@ PopWindow::PopWindow(GameState& gs)
 	this->text("Population");
 	this->is_scroll = false;
 
+	this->set_close_btn_function([this](Widget&) {
+        this->kill();
+    });
+
 	const Nation& nation = *gs.curr_nation;
 
 	int size = 0;

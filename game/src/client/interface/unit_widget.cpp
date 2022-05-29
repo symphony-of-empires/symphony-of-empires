@@ -36,19 +36,15 @@
 
 using namespace Interface;
 
-UnitWidget::UnitWidget(const Unit* unit, Map* _map, UI::Widget* parent)
-    : UI::Div(0, 0, 100, 30, parent), unit{ unit }, map{ _map }
+UnitWidget::UnitWidget(const Unit* _unit, Map* _map, UI::Widget* parent)
+    : UI::Div(0, 0, 100, 30, parent), unit{ _unit }, map{ _map }
 {
-    Eng3D::Camera* camera = map->camera;
-    auto unit_pos = this->unit->get_pos();
-    auto screen_pos = camera->get_tile_screen_pos(glm::vec2(unit_pos.first, unit_pos.second));
-
-    this->x = screen_pos.x - this->width / 2;
-    this->y = screen_pos.y - this->height / 2;
-
     this->background_color = Eng3D::Color(1, 1, 1, 1);
+    this->set_on_click([this](UI::Widget&) {
+        ((GameState&)Eng3D::State::get_instance()).input.selected_units.push_back(const_cast<Unit *>(this->unit));
+    });
 
-    auto nation_flag = map->nation_flags[unit->owner->cached_id];
+    auto nation_flag = map->nation_flags[0];
     this->flag_img = new UI::Image(1, 1, 38, 28, nation_flag, this);
 
     this->size_label = new UI::Div(41, 1, 48, 28, this);
@@ -58,30 +54,30 @@ UnitWidget::UnitWidget(const Unit* unit, Map* _map, UI::Widget* parent)
         auto unit_size = (int)this->unit->size;
         this->size_label->text(std::to_string(unit_size));
     });
-    this->size_label->on_each_tick(*this->size_label);
 
     this->morale_bar = new UI::ProgressBar(91, 1, 8, 28, 0, 1, this);
-    this->morale_bar->set_value(unit->morale);
+    this->morale_bar->on_each_tick = ([this](UI::Widget&) {
+        this->morale_bar->set_value(this->unit->morale);
+    });
     this->morale_bar->direction = UI::Direction::BOTTOM_TO_TOP;
+
+    this->set_unit(unit);
 }
 
 void UnitWidget::set_unit(const Unit* _unit) {
     this->unit = _unit;
 
-    Eng3D::Camera* camera = map->camera;
+    const Eng3D::Camera& camera = *map->camera;
     auto unit_pos = this->unit->get_pos();
-    auto screen_pos = camera->get_tile_screen_pos(glm::vec2(unit_pos.first, unit_pos.second));
+    auto screen_pos = camera.get_tile_screen_pos(glm::vec2(unit_pos.first, unit_pos.second));
 
     this->x = screen_pos.x - this->width / 2;
     this->y = screen_pos.y - this->height / 2;
 
     auto nation_flag = map->nation_flags[unit->owner->cached_id];
     this->flag_img->current_texture = nation_flag;
-
-    auto unit_size = (int)unit->size;
-    this->size_label->text(std::to_string(unit_size));
-
-    this->morale_bar->set_value(unit->morale);
+    this->size_label->on_each_tick(*this->size_label);
+    this->morale_bar->on_each_tick(*this->morale_bar);
 }
 
 UnitWidget::~UnitWidget() {

@@ -59,6 +59,10 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     this->is_scroll = false;
     this->new_policy = gs.curr_nation->current_policy;
 
+    this->set_close_btn_function([this](Widget&) {
+        this->kill();
+    });
+
     auto* gov_lab = new UI::Label(0, 0, "Goverment", this);
     auto* ideology_lab = new UI::Label(6, 38, "IDEOLOGY", this);
     ideology_lab->on_each_tick = ([this](UI::Widget& w) {
@@ -190,12 +194,5 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
         g_client->pending_packets.push_back(packet);
 
         this->gs.ui_ctx->prompt("Policy", "New policy enacted!");
-    });
-
-    auto* close_btn = new UI::Button(207, 0, 128, 24, this);
-    close_btn->below_of(*enact_btn);
-    close_btn->text("Close");
-    close_btn->set_on_click([this](UI::Widget&) {
-        this->kill();
     });
 }

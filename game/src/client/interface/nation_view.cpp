@@ -71,6 +71,10 @@ NationView::NationView(GameState& _gs, const Nation* _nation)
     });
     this->on_each_tick(*this);
 
+    this->set_close_btn_function([this](Widget&) {
+        this->kill();
+    });
+
     auto* flag_img = new UI::AspectImage(0, 0, 128, 96, this->gs.get_nation_flag(*this->nation), this);
     flag_img->on_each_tick = ([this](UI::Widget& w) {
         w.current_texture = this->gs.get_nation_flag(*this->nation);

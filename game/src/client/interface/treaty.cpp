@@ -128,8 +128,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, const Nation* _nation)
                 clause->provinces.push_back(province);
             }
             this->treaty.clauses.push_back(clause);
-        }
-        else {
+        } else {
             std::erase_if(this->treaty.clauses, [](const auto& e) {
                 return e->type == TreatyClauseType::ANNEX_PROVINCES;
             });
