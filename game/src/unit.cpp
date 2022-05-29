@@ -83,7 +83,10 @@ Unit::~Unit(void) {
 
 void Unit::attack(Unit& enemy) {
     /// @todo Better attack algorithm
-    const Eng3D::Decimal damage = type->attack;
+
+    // It's important that a size of zero nullifies the attack, this prevents the edge case
+    // of 1 v 1 units that kill each other
+    const Eng3D::Decimal damage = (type->attack * (Eng3D::Decimal)this->size) * 0.025f;
     enemy.size -= std::min<size_t>(enemy.size, damage);
 }
 

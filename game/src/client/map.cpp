@@ -402,9 +402,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             }
 
             // Check if we selected an unit
-            input.selected_units.clear();
             is_drag = false;
-
             if(input.selected_units.empty()) {
                 // Show province information when clicking on a province
                 if(tile.province_id < gs.world->provinces.size()) {
@@ -419,7 +417,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         return;
     } else if(event.button.button == SDL_BUTTON_RIGHT) {
         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
-        if(Province::is_valid(tile.province_id)) {
+        if(!Province::is_valid(tile.province_id)) {
             return;
         }
 
@@ -469,6 +467,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                 gs.sound_queue.push_back(new Eng3D::Audio(entries[std::rand() % entries.size()]));
             }
         }
+        input.selected_units.clear();
     }
 }
 

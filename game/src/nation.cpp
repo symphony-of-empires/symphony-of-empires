@@ -300,19 +300,14 @@ Eng3D::Decimal Nation::get_tax(const Pop& pop) const {
 #include "client/map_render.hpp"
 // Gives this nation a specified province (for example on a treaty)
 void Nation::give_province(Province& province) {
-    if(province.controller != nullptr) {
-        province.controller->controlled_provinces.erase(&province);
-    }
+    this->control_province(province);
 
     if(province.owner != nullptr) {
         province.owner->owned_provinces.erase(&province);
     }
-
-    controlled_provinces.insert(&province);
     owned_provinces.insert(&province);
 
     province.owner = this;
-    province.controller = this;
 
     // Update the map visibility
     auto& gs = (GameState&)GameState::get_instance();
@@ -332,6 +327,13 @@ void Nation::control_province(Province& province) {
     auto& gs = (GameState&)GameState::get_instance();
     if(gs.map != nullptr) {
         gs.map->map_render->request_update_visibility();
+    }
+
+    // Cancel the unit construction projects
+    for(auto& building : province.get_buildings()) {
+        if(building.working_unit_type) {
+            building.working_unit_type = nullptr;
+        }
     }
 }
 

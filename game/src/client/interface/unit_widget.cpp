@@ -41,7 +41,15 @@ UnitWidget::UnitWidget(const Unit* _unit, Map* _map, UI::Widget* parent)
 {
     this->background_color = Eng3D::Color(1, 1, 1, 1);
     this->set_on_click([this](UI::Widget&) {
-        ((GameState&)Eng3D::State::get_instance()).input.selected_units.push_back(const_cast<Unit *>(this->unit));
+        auto& gs = (GameState&)Eng3D::State::get_instance();
+        auto it = std::find(gs.input.selected_units.begin(), gs.input.selected_units.end(), const_cast<Unit *>(this->unit));
+        if(it == gs.input.selected_units.end()) {
+            // Select if not on selected units list
+            gs.input.selected_units.push_back(const_cast<Unit *>(this->unit));
+        } else {
+            // Erase if already on selected units (deselect)
+            gs.input.selected_units.erase(it);
+        }
     });
 
     auto nation_flag = map->nation_flags[0];
