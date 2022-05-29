@@ -423,7 +423,7 @@ lubeck.name = _("Lubeck")
 lubeck:register()
 lubeck:set_ideology(monarchy)
 lubeck:add_accepted_culture(german)
-lubeck:add_client_hint(monarchy, _("Lubeck"), 0x755446)
+lubeck:add_client_hint(monarchy, _("Hanseatic City of Lubeck"), 0x755446)
 
 waldeck = Nation:new{ ref_name = "waldeck" }
 waldeck.name = _("Waldeck")

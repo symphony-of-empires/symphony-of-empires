@@ -128,6 +128,7 @@ haiti:register()
 haiti:set_ideology(republic)
 haiti:add_accepted_culture(haitian)
 haiti:add_client_hint(republic, _("Haiti"), 0xb147cc)
+haiti:add_client_hint(monarchy, _("Hayti"), 0xb147cc)
 
 mapuche = Nation:new{ ref_name = "mapuche" }
 mapuche.name = _("Mapuche")
