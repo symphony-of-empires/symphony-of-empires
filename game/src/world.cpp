@@ -614,14 +614,14 @@ static inline void unit_do_tick(Unit& unit, const std::vector<std::vector<Battle
         return;
     }
 
-    bool can_take = true;
+    bool can_move_to_province = true;
     for(auto& other_unit : unit.province->get_units()) {
         if(other_unit->owner == unit.owner) {
             continue;
         }
 
         // Can we take this province?
-        can_take = false;
+        can_move_to_province = false;
         // If there is another unit of a country we are at war with we will start a battle
         for(auto& war : g_world->wars) {
             if(war->is_involved(*unit.owner) && war->is_involved(*other_unit->owner)) {
@@ -677,18 +677,20 @@ static inline void unit_do_tick(Unit& unit, const std::vector<std::vector<Battle
             return;
         }
 
-        if(1) {
-        //if(unit.move_progress) {
-        //    unit.move_progress -= std::min<Eng3D::Decimal>(unit.move_progress, unit.get_speed());
-        //} else {
-            // If we are at war with the person we are crossing their provinces at, then take 'em (albeit with resistance)
-            const auto& relation = g_world->get_relation(g_world->get_id(*unit.province->controller), g_world->get_id(*unit.owner));
-            if(can_take && relation.has_war) {
-                unit.owner->control_province(*unit.province);
+        if(unit.move_progress) {
+            unit.move_progress -= std::min<Eng3D::Decimal>(unit.move_progress, unit.get_speed());
+        } else {
+            if(can_move_to_province) {
+                unit.set_province(*unit.target);
+                unit.target = nullptr;
+                if(unit.province->controller != unit.owner) {
+                    // If we are at war with the person we are crossing their provinces at, then take 'em (albeit with resistance)
+                    const auto& relation = g_world->get_relation(g_world->get_id(*unit.province->controller), g_world->get_id(*unit.owner));
+                    if(relation.has_war) {
+                        unit.owner->control_province(*unit.province);
+                    }
+                }
             }
-
-            unit.set_province(*unit.target);
-            unit.target = nullptr;
         }
     }
 }
