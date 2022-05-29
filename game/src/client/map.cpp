@@ -639,7 +639,11 @@ void Map::draw(const GameState& gs) {
     for(const auto& province : world.provinces) {
         const glm::vec2 prov_pos = glm::vec2(province->get_pos().first, province->get_pos().second);
         for(const auto& unit : province->get_units()) {
-            bool unit_visible = !unit->on_battle;
+            if(unit->on_battle) {
+                continue;
+            }
+            
+            bool unit_visible = true;
             if(view_mode == MapView::SPHERE_VIEW) {
                 glm::vec3 cam_pos = camera->get_world_pos();
                 glm::vec3 world_pos = camera->get_tile_world_pos(prov_pos);
