@@ -452,3 +452,13 @@ thuringia_monarchy
 holstein_monarchy
 	HISTORIC: I think this is the wrong holstein, there were 2 holsteins AFAIK?
 	By Sir Iain - Own work by uploader, based on Flags Of The World;Historical Flags (Schleswig-Holstein, Germany). Used elements from File:Crown of a Prince of Denmark.svg and File:Royal Arms of Norway &amp; Denmark (1523-1535).svg by User:Sodacan., Public Domain, https://commons.wikimedia.org/w/index.php?curid=6947542
+
+lubeck_monarchy
+	HISTORIC: It's a copy of the Polish flag... maybe we should... just use that?
+	Public Domain, https://commons.wikimedia.org/w/index.php?curid=1378580
+
+liechtenstein_monarchy
+	By Mnmazur and others - This file depicts the flag or the banner of a Liechtenstein Körperschaft des öffentlichen Rechts (corporation governed by public law). Official works like flags or banners are gemeinfrei (in the public domain).Note: The usage of flags or banners is governed by legal restrictions, independent of the copyright status of the depiction shown here.Deutsch | English | +/−, Public Domain, https://commons.wikimedia.org/w/index.php?curid=433227
+
+hamburg_monarchy
+	By Greentubing - drawn by me (red colour #DA121A from official version of the flag on www.hamburg.de/wappen), Public Domain, https://commons.wikimedia.org/w/index.php?curid=566662
