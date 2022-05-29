@@ -188,6 +188,7 @@ Eng3D::Label3D::Label3D(TriangleList* _triangles, float _size)
     : triangles(_triangles),
     size{ _size }
 {
+    
 }
 
 Eng3D::Label3D::~Label3D() {
