@@ -139,7 +139,7 @@ static void GLAPIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint
 }
 #endif
 
-Eng3D::State::State(void) {
+Eng3D::State::State(const std::vector<std::string>& pkg_paths) {
     // Make sure we're the only state running
     if(g_state != nullptr) {
         CXX_THROW(std::runtime_error, "Duplicate instancing of GameState");
@@ -150,13 +150,20 @@ Eng3D::State::State(void) {
 #endif
 
     // Initialize the IO first, as other subsystems may require access to files (i.e the UI context)
-    package_man = new Eng3D::IO::PackageManager();
-    const std::string asset_path = Path::get_full();
-    Eng3D::Log::debug("gamestate", "Assets path: " + asset_path);
-    for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
-        if(entry.is_directory()) {
-            const auto& path = entry.path().lexically_relative(asset_path);
-            Path::add_path(path.string());
+    package_man = new Eng3D::IO::PackageManager(pkg_paths);
+
+    if(pkg_paths.empty()) {
+        const std::string asset_path = Path::get_full();
+        Eng3D::Log::debug("gamestate", "Assets path: " + asset_path);
+        for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
+            if(entry.is_directory()) {
+                const auto& path = entry.path().lexically_relative(asset_path);
+                Path::add_path(path.string());
+            }
+        }
+    } else {
+        for(const auto& entry : pkg_paths) {
+            Path::add_path(entry);
         }
     }
 

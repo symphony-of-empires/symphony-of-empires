@@ -146,33 +146,57 @@ Eng3D::IO::Package::~Package(void) {
 //
 // Package manager
 //
-Eng3D::IO::PackageManager::PackageManager(void) {
-    const std::string asset_path = ::Path::get_full();
+Eng3D::IO::PackageManager::PackageManager(const std::vector<std::string>& pkg_paths) {
+    if(pkg_paths.empty()) {
+        const std::string asset_path = ::Path::get_full();
 
-    /// @todo Replace with a custom filesystem implementation
-    // Register packages
-    for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
-        if(!entry.is_directory()) {
-            continue;
-        }
-
-        auto package = Eng3D::IO::Package();
-        package.name = entry.path().lexically_relative(asset_path).string();
-        for(const auto& _entry : std::filesystem::recursive_directory_iterator(entry.path())) {
-            if(_entry.is_directory()) {
+        /// @todo Replace with a custom filesystem implementation
+        // Register packages
+        for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
+            if(!entry.is_directory()) {
                 continue;
             }
 
-            std::shared_ptr<Eng3D::IO::Asset::File> asset = std::make_shared<Eng3D::IO::Asset::File>();
-            asset->path = _entry.path().lexically_relative(entry.path()).string();
-            asset->abs_path = _entry.path().string();
+            auto package = Eng3D::IO::Package();
+            package.name = entry.path().lexically_relative(asset_path).string();
+            for(const auto& _entry : std::filesystem::recursive_directory_iterator(entry.path())) {
+                if(_entry.is_directory()) {
+                    continue;
+                }
+
+                std::shared_ptr<Eng3D::IO::Asset::File> asset = std::make_shared<Eng3D::IO::Asset::File>();
+                asset->path = _entry.path().lexically_relative(entry.path()).string();
+                asset->abs_path = _entry.path().string();
 #ifdef E3D_TARGET_WINDOWS
-            std::replace(asset->path.begin(), asset->path.end(), '\\', '/');
-            std::replace(asset->abs_path.begin(), asset->abs_path.end(), '\\', '/');
+                std::replace(asset->path.begin(), asset->path.end(), '\\', '/');
+                std::replace(asset->abs_path.begin(), asset->abs_path.end(), '\\', '/');
 #endif
-            package.assets.push_back(asset);
+                package.assets.push_back(asset);
+            }
+            packages.push_back(package);
         }
-        packages.push_back(package);
+    } else {
+        /// @todo Replace with a custom filesystem implementation
+        // Register packages using pkg_paths
+        for(const auto& entry : pkg_paths) {
+            auto package = Eng3D::IO::Package();
+            package.name = entry;
+            for(const auto& _entry : std::filesystem::recursive_directory_iterator(entry)) {
+                if(_entry.is_directory()) {
+                    continue;
+                }
+
+                std::shared_ptr<Eng3D::IO::Asset::File> asset = std::make_shared<Eng3D::IO::Asset::File>();
+                asset->path = _entry.path().lexically_relative(entry).string();
+                asset->abs_path = _entry.path().string();
+#ifdef E3D_TARGET_WINDOWS
+                std::replace(asset->path.begin(), asset->path.end(), '\\', '/');
+                std::replace(asset->abs_path.begin(), asset->abs_path.end(), '\\', '/');
+#endif
+                package.assets.push_back(asset);
+            }
+            packages.push_back(package);
+        }
     }
 
     //for(const auto& package : packages) {
