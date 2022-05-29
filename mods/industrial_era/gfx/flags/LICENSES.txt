@@ -122,6 +122,8 @@ austria_republic
 	By Bundesministerium für Landesverteidigung - Dekorationen, Insignien und Hoheitszeichen in Verbindung mit / in conjunction with Grundsätzliche Bestimmungen über Verwendung des Hoheitszeichens sowie über die Fahnenordnung des Österreichischen Bundesheeres. Erlass vom 14. Mai 2018, GZ S93592/3-MFW/2018., Public Domain, https://commons.wikimedia.org/w/index.php?curid=342954
 
 bulgaria_republic
+bulgaria_monarchy
+	HISTORIC: Republic and Monarchy are the same flag
 	By SKopp - The flag of Bulgaria. The colors are specified at http://www.government.bg/cgi-bin/e-cms/vis/vis.pl?s=001&amp;p=0034&amp;n=000005&amp;g= as:White: Pantone SafeGreen: 17-5936 (Green TC) [textile color] [1]Red: 18-1664 (Fiery Red TC) [2], Public Domain, https://commons.wikimedia.org/w/index.php?curid=342993
 
 bulgaria_socialism
@@ -427,4 +429,26 @@ lower_yafa_monarchy
 fadhli_monarchy
 	By Orange Tuesday (talk) - Own work (Original text: self-made), Public Domain, https://commons.wikimedia.org/w/index.php?curid=4172639
 
+haiti_republic
+	By Wrestlingring - [1]Originally at Image:Flag of Haiti.svg. Drawn by Zscout370, Public Domain, https://commons.wikimedia.org/w/index.php?curid=3499443
 
+haiti_monarchy
+	By Saul ipCode cleanup by Mnmazur - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=4524400
+
+ashantee_monarchy
+	By Himasaram - This vector image was created with Inkscape., Public Domain, https://commons.wikimedia.org/w/index.php?curid=1049568
+
+burma_monarchy
+	HISTORIC: Konbung dynasty used this flag, not burma per se
+	By Albert Poliakoff - This W3C-unspecified vector image was created with Inkscape., Public Domain, https://commons.wikimedia.org/w/index.php?curid=106557994
+
+brittany_monarchy
+	HISTORIC: Conflicting sources, some say this flag some say it's not
+	By Lexicon and GwenofGwened - File:Drapeau de la province de Bretagne (1532).svg from GwenofGwened and earlier versions of this file, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=1393080
+
+thuringia_monarchy
+	Public Domain, https://commons.wikimedia.org/w/index.php?curid=601476
+
+holstein_monarchy
+	HISTORIC: I think this is the wrong holstein, there were 2 holsteins AFAIK?
+	By Sir Iain - Own work by uploader, based on Flags Of The World;Historical Flags (Schleswig-Holstein, Germany). Used elements from File:Crown of a Prince of Denmark.svg and File:Royal Arms of Norway &amp; Denmark (1523-1535).svg by User:Sodacan., Public Domain, https://commons.wikimedia.org/w/index.php?curid=6947542
