@@ -29,6 +29,7 @@
 #include <mutex>
 #include <memory>
 #include <map>
+#include <string>
 
 #ifdef E3D_BACKEND_OPENGL
 #   include <GL/glew.h>
@@ -61,7 +62,7 @@ namespace Eng3D {
 
     class State {
     public:
-        State();
+        State(const std::vector<std::string>& pkg_paths);
         ~State();
         void clear(void) const;
         void swap(void) const;

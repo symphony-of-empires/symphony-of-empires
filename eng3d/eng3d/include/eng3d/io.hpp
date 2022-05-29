@@ -121,7 +121,7 @@ namespace Eng3D::IO {
 
     class PackageManager {
     public:
-        PackageManager();
+        PackageManager(const std::vector<std::string>& pkg_paths);
         ~PackageManager();
         std::shared_ptr<Eng3D::IO::Asset::Base> get_unique(const IO::Path& path);
         std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> get_multiple(const Eng3D::IO::Path& path);

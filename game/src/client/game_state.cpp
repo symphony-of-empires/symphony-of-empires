@@ -697,8 +697,22 @@ void GameState::load_world_thread(void) {
 
 #include "client/interface/main_menu.hpp"
 
-void start_client(int, char**) {
-    GameState gs{};
+void start_client(int argc, char** argv) {
+    std::vector<std::string> pkg_paths;
+    for(int i = 1; i < argc; i++) {
+        std::string arg = std::string(argv[i]);
+        if(arg == "--mod") {
+            i++;
+            if(i >= argc) {
+                throw std::runtime_error("Expected an absolute path after --mod");
+            }
+
+            arg = std::string(argv[i]);
+            pkg_paths.push_back(arg);
+        }
+    }
+
+    GameState gs(pkg_paths);
     gs.input = Input();
     gs.run = true;
     std::thread music_th(&GameState::music_thread, &gs);
