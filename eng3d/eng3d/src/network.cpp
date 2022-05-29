@@ -64,39 +64,6 @@
 #include "eng3d/utils.hpp"
 
 //
-// Packet
-//
-Eng3D::Networking::Packet::Packet() {
-
-}
-
-Eng3D::Networking::Packet::Packet(int _fd) {
-    stream = Eng3D::Networking::SocketStream(_fd);
-}
-
-Eng3D::Networking::Packet::~Packet(void) {
-
-}
-
-void* Eng3D::Networking::Packet::data(void) {
-    return (void*)&buffer[0];
-}
-
-void Eng3D::Networking::Packet::data(void* buf, size_t size) {
-    n_data = size;
-    buffer.resize(n_data);
-    std::memcpy(&buffer[0], buf, size);
-}
-
-size_t Eng3D::Networking::Packet::size(void) const {
-    return n_data;
-}
-
-bool Eng3D::Networking::Packet::is_ok(void) const {
-    return (code == PacketCode::OK);
-}
-
-//
 // Socket stream
 //
 Eng3D::Networking::SocketStream::SocketStream(void) {
