@@ -33,6 +33,10 @@
 #ifndef _MSC_VER
 #	include <sys/cdefs.h>
 #endif
+#include <tbb/blocked_range.h>
+#include <tbb/concurrent_vector.h>
+#include <tbb/parallel_for.h>
+#include <tbb/combinable.h>
 
 #include "eng3d/binary_image.hpp"
 #include "eng3d/path.hpp"
@@ -405,7 +409,7 @@ void World::load_initial(void) {
     bool recalc_province = true;
     try {
         Archive ar = Archive();
-        ar.from_file("cache_map.dat");
+        ar.from_file("map.cache");
 
         // If the cache has the same checksum as us then we just have to read from the file
         std::uint64_t cache_checksum;
@@ -541,7 +545,7 @@ void World::load_initial(void) {
         for(size_t i = 0; i < width * height; i++) {
             ::serialize(ar, &tiles[i]);
         }
-        ar.to_file("cache_map.dat");
+        ar.to_file("map.cache");
     }
 
     // Create diplomatic relations between nations
@@ -603,7 +607,7 @@ void World::load_mod(void) {
     ai_init(*this);
 }
 
-static inline void unit_do_tick(Unit& unit)
+static inline void unit_do_tick(Unit& unit, const std::vector<std::vector<Battle*>>& battles_per_province)
 {
     assert(unit.province != nullptr);
     if(unit.on_battle) {
@@ -627,43 +631,41 @@ static inline void unit_do_tick(Unit& unit)
 
                 // Create a new battle if none is occurring on this province
                 unit.target = nullptr;
-                if(it == war->battles.end()) {
-                    if(!other_unit->on_battle) {
-                        unit.on_battle = true;
-                        other_unit->on_battle = true;
-                        
-                        Battle battle = Battle(*war, *unit.province);
-                        battle.name = "Battle of " + unit.province->name;
-                        if(war->is_attacker(*unit.owner)) {
-                            battle.attackers.push_back(&unit);
-                            battle.defenders.push_back(other_unit);
-                        } else {
-                            battle.attackers.push_back(other_unit);
-                            battle.defenders.push_back(&unit);
-                        }
-                        war->battles.push_back(battle);
-                        Eng3D::Log::debug("game", "New battle of \"" + battle.name + "\"");
+                if(it == war->battles.end() && !other_unit->on_battle) {
+                    unit.on_battle = true;
+                    other_unit->on_battle = true;
+                    
+                    Battle battle = Battle(*war, *unit.province);
+                    battle.name = "Battle of " + unit.province->name;
+                    if(war->is_attacker(*unit.owner)) {
+                        battle.attackers.push_back(&unit);
+                        battle.defenders.push_back(other_unit);
                     } else {
-                        Battle& battle = *it;
-
-                        // Add the unit to one side depending on who are we attacking
-                        // However unit must not be already involved
-                        /// @todo Make it be instead depending on who attacked first in this battle
-                        if(war->is_attacker(*unit.owner)) {
-                            assert(std::find(battle.attackers.begin(), battle.attackers.end(), &unit) == battle.attackers.end());
-                            unit.on_battle = true;
-                            battle.attackers.push_back(&unit);
-                            Eng3D::Log::debug("game", "Adding unit <attacker> to battle of \"" + battle.name + "\"");
-                        } else {
-                            assert(war->is_defender(*unit.owner));
-                            assert(std::find(battle.defenders.begin(), battle.defenders.end(), &unit) == battle.defenders.end());
-                            unit.on_battle = true;
-                            battle.defenders.push_back(&unit);
-                            Eng3D::Log::debug("game", "Adding unit <defender> to battle of \"" + battle.name + "\"");
-                        }
+                        battle.attackers.push_back(other_unit);
+                        battle.defenders.push_back(&unit);
                     }
-                    break;
+                    war->battles.push_back(battle);
+                    Eng3D::Log::debug("game", "New battle of \"" + battle.name + "\"");
+                } else {
+                    Battle& battle = *it;
+
+                    // Add the unit to one side depending on who are we attacking
+                    // However unit must not be already involved
+                    /// @todo Make it be instead depending on who attacked first in this battle
+                    if(war->is_attacker(*unit.owner)) {
+                        assert(std::find(battle.attackers.begin(), battle.attackers.end(), &unit) == battle.attackers.end());
+                        unit.on_battle = true;
+                        battle.attackers.push_back(&unit);
+                        Eng3D::Log::debug("game", "Adding unit <attacker> to battle of \"" + battle.name + "\"");
+                    } else {
+                        assert(war->is_defender(*unit.owner));
+                        assert(std::find(battle.defenders.begin(), battle.defenders.end(), &unit) == battle.defenders.end());
+                        unit.on_battle = true;
+                        battle.defenders.push_back(&unit);
+                        Eng3D::Log::debug("game", "Adding unit <defender> to battle of \"" + battle.name + "\"");
+                    }
                 }
+                break;
             }
         }
     }
@@ -846,111 +848,111 @@ void World::do_tick() {
 
     wcmap_mutex.lock();
     profiler.start("Units");
+    // Build the "list of battles per province"
+    std::vector<std::vector<Battle*>> battles_per_province(this->provinces.size());
+    for(auto& war : this->wars) {
+        for(auto& battle : war->battles) {
+            battles_per_province[this->get_id(*battle.province)].push_back(&battle);
+        }
+    }
     // Evaluate units
-    for(size_t i = 0; i < units.size(); i++) {
-        Unit* unit = units[i];
-        unit_do_tick(*unit);
+    for(const auto& unit : this->units) {
+        unit_do_tick(*unit, battles_per_province);
     }
     profiler.stop("Units");
 
-    std::vector<Unit*> clear_units;
-    std::mutex clear_units_lock;
     // Perform all battles of the active wars
     profiler.start("Battles");
-    std::for_each(std::execution::par, wars.begin(), wars.end(), [this, &clear_units, &clear_units_lock](auto& war) {
-        std::vector<Unit*> local_clear_units;
-        assert(!war->attackers.empty() && !war->defenders.empty());
-        for(size_t j = 0; j < war->battles.size(); j++) {
-            auto& battle = war->battles[j];
-            assert(battle.province != nullptr);
+    tbb::combinable<tbb::concurrent_vector<Unit*>> clear_units;
+    tbb::parallel_for(tbb::blocked_range(wars.begin(), wars.end()), [this, &clear_units](auto& wars_range) {
+        for(const auto& war : wars_range) {
+            assert(!war->attackers.empty() && !war->defenders.empty());
+            for(size_t j = 0; j < war->battles.size(); j++) {
+                auto& battle = war->battles[j];
+                assert(battle.province != nullptr);
 
-            // Attackers attack Defenders
-            for(auto& attacker : battle.attackers) {
-                assert(attacker != nullptr);
-                for(size_t i = 0; i < battle.defenders.size(); ) {
-                    Unit* unit = battle.defenders[i];
-                    assert(unit != nullptr);
+                // Attackers attack Defenders
+                for(auto& attacker : battle.attackers) {
+                    assert(attacker != nullptr);
+                    for(size_t i = 0; i < battle.defenders.size(); ) {
+                        Unit* unit = battle.defenders[i];
+                        assert(unit != nullptr);
 
-                    const size_t prev_size = unit->size;
-                    attacker->attack(*unit);
-                    battle.defender_casualties += prev_size - unit->size;
-                    if(!unit->size) {
-                        Eng3D::Log::debug("game", "Removing attacker \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
-                        battle.defenders.erase(battle.defenders.begin() + i);
-                        assert(unit->province != nullptr && unit->province == battle.province);
-                        local_clear_units.push_back(unit);
-                        continue;
+                        const size_t prev_size = unit->size;
+                        attacker->attack(*unit);
+                        battle.defender_casualties += prev_size - unit->size;
+                        if(!unit->size) {
+                            Eng3D::Log::debug("game", "Removing attacker \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
+                            battle.defenders.erase(battle.defenders.begin() + i);
+                            assert(unit->province != nullptr && unit->province == battle.province);
+                            clear_units.local().push_back(unit);
+                            continue;
+                        }
+                        i++;
                     }
-                    i++;
                 }
-            }
 
-            // Defenders attack attackers
-            for(auto& defender : battle.defenders) {
-                assert(defender != nullptr);
-                for(size_t i = 0; i < battle.attackers.size(); ) {
-                    Unit* unit = battle.attackers[i];
-                    assert(unit != nullptr);
+                // Defenders attack attackers
+                for(auto& defender : battle.defenders) {
+                    assert(defender != nullptr);
+                    for(size_t i = 0; i < battle.attackers.size(); ) {
+                        Unit* unit = battle.attackers[i];
+                        assert(unit != nullptr);
 
-                    const size_t prev_size = unit->size;
-                    defender->attack(*unit);
-                    battle.attacker_casualties += prev_size - unit->size;
-                    if(!unit->size) {
-                        Eng3D::Log::debug("game", "Removing defender \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
-                        battle.attackers.erase(battle.attackers.begin() + i);
-                        assert(unit->province != nullptr && unit->province == battle.province);
-                        local_clear_units.push_back(unit);
-                        continue;
+                        const size_t prev_size = unit->size;
+                        defender->attack(*unit);
+                        battle.attacker_casualties += prev_size - unit->size;
+                        if(!unit->size) {
+                            Eng3D::Log::debug("game", "Removing defender \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
+                            battle.attackers.erase(battle.attackers.begin() + i);
+                            assert(unit->province != nullptr && unit->province == battle.province);
+                            clear_units.local().push_back(unit);
+                            continue;
+                        }
+                        i++;
                     }
-                    i++;
                 }
-            }
 
-            // Once one side has fallen this battle has ended
-            if(battle.defenders.empty() || battle.attackers.empty()) {
-                // Defenders defeated
-                if(battle.defenders.empty()) {
-                    battle.attackers[0]->owner->control_province(*battle.province);
-                    // Clear flags of all units
-                    for(auto& unit : battle.attackers) {
-                        unit->on_battle = false;
+                // Once one side has fallen this battle has ended
+                if(battle.defenders.empty() || battle.attackers.empty()) {
+                    // Defenders defeated
+                    if(battle.defenders.empty()) {
+                        battle.attackers[0]->owner->control_province(*battle.province);
+                        // Clear flags of all units
+                        for(auto& unit : battle.attackers) {
+                            unit->on_battle = false;
+                        }
+                        Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": attackers win");
                     }
-                    Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": attackers win");
-                }
-                // Defenders won
-                else if(battle.attackers.empty()) {
-                    battle.defenders[0]->owner->control_province(*battle.province);
-                    for(auto& unit : battle.defenders) {
-                        unit->on_battle = false;
+                    // Defenders won
+                    else if(battle.attackers.empty()) {
+                        battle.defenders[0]->owner->control_province(*battle.province);
+                        for(auto& unit : battle.defenders) {
+                            unit->on_battle = false;
+                        }
+                        Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": defenders win");
                     }
-                    Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": defenders win");
-                }
-                // Nobody won?
-                else {
-                    Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": nobody won");
-                }
+                    // Nobody won?
+                    else {
+                        Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": nobody won");
+                    }
 
-                war->battles.erase(war->battles.begin() + j);
-                j--;
-                continue;
-            }
-        }
-
-        if(!local_clear_units.empty()) {
-            std::scoped_lock lock(clear_units_lock);
-            for(auto& unit : local_clear_units) {
-                assert(std::find(clear_units.cbegin(), clear_units.cend(), unit) == clear_units.end());
-                clear_units.push_back(unit);
+                    war->battles.erase(war->battles.begin() + j);
+                    j--;
+                    continue;
+                }
             }
         }
     });
     profiler.stop("Battles");
 
     profiler.start("Cleaning");
-    for(auto& unit : clear_units) {
-        g_world->remove(*unit);
-        delete unit;
-    }
+    clear_units.combine_each([&](const auto& units_clear_list) {
+        for(auto& unit : units_clear_list) {
+            this->remove(*unit);
+            delete unit;
+        }
+    });
     profiler.stop("Cleaning");
     wcmap_mutex.unlock();
 
