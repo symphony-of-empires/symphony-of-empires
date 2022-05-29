@@ -26,6 +26,10 @@
 #include <algorithm>
 #include <execution>
 #include <cstdio>
+#include <tbb/blocked_range.h>
+#include <tbb/concurrent_vector.h>
+#include <tbb/parallel_for.h>
+#include <tbb/combinable.h>
 
 #include "eng3d/log.hpp"
 #include "eng3d/serializer.hpp"
@@ -340,7 +344,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
 }
 
 // Buildings who have fullfilled requirements to build stuff will spawn a unit
-Unit* build_unit(Building& building, Province& province) {
+static inline Unit* build_unit(Building& building, Province& province) {
     bool can_build_unit = building.can_build_unit();
 
     // Ratio of health:person is 25, thus making units very expensive
@@ -469,67 +473,67 @@ void Economy::do_tick(World& world) {
     }
     province_ids.resize(last_id);
 
-    std::vector<std::vector<Unit*>> province_new_units(provinces_size);
+    tbb::combinable<tbb::concurrent_vector<Unit*>> province_new_units;
     std::vector<std::vector<float>> buildings_new_worker(provinces_size);
     std::vector<std::vector<PopNeed>> pops_new_needs(provinces_size);
-    std::for_each(std::execution::par, province_ids.begin(), province_ids.end(), [&world, &buildings_new_worker, &province_new_units, &pops_new_needs, provinces_size](const auto& province_id)
-    {
-        Province& province = *world.provinces[province_id];
-        float laborers_payment = 0.f;
-        for(auto& building_type : world.building_types) {
-            auto& building = province.buildings[world.get_id(building_type)];
-            update_factory_production(world, building, &building_type, province, laborers_payment);
-        }
-        std::vector<PopNeed>& new_needs = pops_new_needs[province_id];
-        new_needs.assign(province.pops.size(), PopNeed());
-
-        const size_t pops_size = province.pops.size();
-        for(uint32_t i = 0; i < pops_size; i++) {
-            auto& pop = province.pops[i];
-            new_needs[i].budget = pop.budget;
-        }
-        float laborers_amount = 0.f;
-        for(uint32_t i = 0; i < pops_size; i++) {
-            auto& pop = province.pops[i];
-            if(pop.type->group == PopGroup::LABORER) {
-                laborers_amount += pop.size;
+    tbb::parallel_for(tbb::blocked_range(province_ids.begin(), province_ids.end()), [&world, &buildings_new_worker, &province_new_units, &pops_new_needs, provinces_size](const auto& province_ids_ranges) {
+        for(const auto& province_id : province_ids_ranges) {
+            Province& province = *world.provinces[province_id];
+            float laborers_payment = 0.f;
+            for(auto& building_type : world.building_types) {
+                auto& building = province.buildings[world.get_id(building_type)];
+                update_factory_production(world, building, &building_type, province, laborers_payment);
             }
-        }
-        for(uint32_t i = 0; i < pops_size; i++) {
-            auto& pop = province.pops[i];
-            if(pop.type->group == PopGroup::LABORER) {
-                float ratio = pop.size / laborers_amount;
-                new_needs[i].budget += laborers_payment * ratio;
+            std::vector<PopNeed>& new_needs = pops_new_needs[province_id];
+            new_needs.assign(province.pops.size(), PopNeed());
+
+            const size_t pops_size = province.pops.size();
+            for(uint32_t i = 0; i < pops_size; i++) {
+                auto& pop = province.pops[i];
+                new_needs[i].budget = pop.budget;
             }
-        }
+            float laborers_amount = 0.f;
+            for(uint32_t i = 0; i < pops_size; i++) {
+                auto& pop = province.pops[i];
+                if(pop.type->group == PopGroup::LABORER) {
+                    laborers_amount += pop.size;
+                }
+            }
+            for(uint32_t i = 0; i < pops_size; i++) {
+                auto& pop = province.pops[i];
+                if(pop.type->group == PopGroup::LABORER) {
+                    float ratio = pop.size / laborers_amount;
+                    new_needs[i].budget += laborers_payment * ratio;
+                }
+            }
 
-        std::vector<float>& new_workers = buildings_new_worker[province_id];
-        new_workers.assign(world.building_types.size(), 0.f);
-        update_factories_employment(world, province, new_workers);
+            std::vector<float>& new_workers = buildings_new_worker[province_id];
+            new_workers.assign(world.building_types.size(), 0.f);
+            update_factories_employment(world, province, new_workers);
 
-        update_pop_needs(world, province, new_needs);
+            update_pop_needs(world, province, new_needs);
 
-        for(int i = 0; i < province.buildings.size(); i++) {
-            Building& building = province.buildings[i];
-            if(building.working_unit_type != nullptr) {
-                world.world_mutex.lock();
-                Unit* unit = build_unit(building, province);
-                if(unit != nullptr) province_new_units[province_id].push_back(unit);
-                world.world_mutex.unlock();
+            for(int i = 0; i < province.buildings.size(); i++) {
+                Building& building = province.buildings[i];
+                if(building.working_unit_type != nullptr) {
+                    Unit* unit = build_unit(building, province);
+                    if(unit != nullptr) {
+                        province_new_units.local().push_back(unit);
+                    }
+                }
             }
         }
     });
 
     std::vector<Unit*> new_units;
-    for(const auto& unit_list : province_new_units) {
+    province_new_units.combine_each([&new_units](const auto& unit_list) {
         for(const auto& unit : unit_list) {
             new_units.push_back(unit);
         }
-    }
+    });
     world.profiler.stop("E-big");
 
     world.profiler.start("E-mutex");
-
     // Collect list of nations that exist
     std::vector<Nation*> eval_nations;
     for(const auto& nation : world.nations) {
@@ -541,8 +545,7 @@ void Economy::do_tick(World& world) {
     // -------------------------- MUTEX PROTECTED WORLD CHANGES BELOW -------------------------------
     world.world_mutex.lock();
 
-    std::for_each(std::execution::par, province_ids.begin(), province_ids.end(), [
-        &world, &pops_new_needs, &buildings_new_worker](const auto& province_id)
+    std::for_each(std::execution::par, province_ids.begin(), province_ids.end(), [&world, &pops_new_needs, &buildings_new_worker](const auto& province_id)
     {
         Province& province = *world.provinces[province_id];
         std::vector<PopNeed>& new_needs = pops_new_needs[province_id];
@@ -558,6 +561,7 @@ void Economy::do_tick(World& world) {
             building.workers = new_workers[i];
         }
     });
+
     std::for_each(std::execution::par, eval_nations.begin(), eval_nations.end(), [&world](const auto& nation) {
         std::vector<Unit*> new_nation_units;
 
@@ -566,22 +570,15 @@ void Economy::do_tick(World& world) {
             const Eng3D::Decimal research = nation->get_research_points() / nation->focus_tech->cost;
             nation->research[world.get_id(*nation->focus_tech)] += research;
         }
-
         militancy_update(world, *nation);
     });
 
-    if(!new_units.empty()) {
-        // Lock for world is already acquired since the economy runs inside the world's do_tick which
-        // should be lock guarded by the callee
-        for(const auto& unit : new_units) {
-            if(world.units.size() >= 10000) {
-                continue;
-            }
-
-            // Now commit the transaction of the new units into the main world area
-            world.insert(*unit);
-            g_server->broadcast(Action::UnitAdd::form_packet(*unit));
-        }
+    // Lock for world is already acquired since the economy runs inside the world's do_tick which
+    // should be lock guarded by the callee
+    for(const auto& unit : new_units) {
+        // Now commit the transaction of the new units into the main world area
+        world.insert(*unit);
+        g_server->broadcast(Action::UnitAdd::form_packet(*unit));
     }
     world.profiler.stop("E-mutex");
 
