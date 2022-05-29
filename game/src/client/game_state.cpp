@@ -325,8 +325,10 @@ void save(GameState& gs) {
 
                 // And if it exceeds 999,999 people, downsize it
                 if(it->size > 999999.f) {
-                    it->size = 10110.f;
+                    it->size = 999999.f;
                 }
+
+                // Or exceeds literacy
                 if(it->literacy > 1.f) {
                     it->literacy = std::min<float>(it->literacy * 0.001f, 1.f);
                 }
@@ -370,7 +372,7 @@ void save(GameState& gs) {
                 }
             }
 
-            // Pops
+            // POPs
             for(const auto& pop : province->pops) {
                 fprintf(fp, "province:add_pop(PopType:get(\"%s\"), Culture:get(\"%s\"), Religion:get(\"%s\"), %f, %f)\n", pop.type->ref_name.c_str(), pop.culture->ref_name.c_str(), pop.religion->ref_name.c_str(), pop.size, pop.literacy);
             }
@@ -390,7 +392,11 @@ void save(GameState& gs) {
 
             // Units
             for(const auto& unit : province->get_units()) {
-                fprintf(fp, "province:add_unit(UnitType:get(\"%s\"), %zu)\n", unit->type->ref_name.c_str(), unit->size);
+                // Units can't exceed max health
+                if(unit->size > unit->type->max_health) {
+                    unit->size = unit->type->max_health;
+                }
+                fprintf(fp, "province:add_unit(UnitType:get(\"%s\"), %zu)\n", unit->type->ref_name.c_str(), (size_t)unit->size);
             }
 
             cnt++;
