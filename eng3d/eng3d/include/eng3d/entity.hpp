@@ -67,7 +67,7 @@ public:
      * @return false 
      */
     constexpr static bool is_valid(Id id) {
-        return !is_invalid(id);
+        return id != invalid();
     }
 
     /**
