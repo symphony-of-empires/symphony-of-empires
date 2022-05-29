@@ -51,6 +51,10 @@ Settings::Settings(GameState& _gs)
     this->is_scroll = false;
     this->text("Settings");
 
+    this->set_close_btn_function([this](Widget&) {
+        this->kill();
+    });
+
     auto* check_controller_btn = new UI::Button(0, 0, 128, 24, this);
     check_controller_btn->text("Check controller");
     check_controller_btn->set_on_click([this](UI::Widget& w) {
@@ -170,11 +174,4 @@ Settings::Settings(GameState& _gs)
         this->gs.sound_volume = static_cast<int>(((UI::Slider&)w).get_value());
     });
     sound_volume_sld->set_tooltip("Controls the volume of the sounds");
-
-    auto* close_btn = new UI::Button(0, 0, 128, 24, this);
-    close_btn->below_of(*sound_volume_sld);
-    close_btn->text("Cancel");
-    close_btn->set_on_click([this](UI::Widget&) {
-        this->kill();
-    });
 }
