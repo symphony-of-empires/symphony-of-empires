@@ -52,34 +52,36 @@ namespace Eng3D {
             map_size = camera.map_size;
             map_position = camera.get_map_pos();
         }
+
         virtual ~Camera() {};
 
-        void set_screen(const int width, const int height) {
+        inline void set_screen(const int width, const int height) {
             screen_size = glm::vec2(width, height);
         }
 
         virtual void move(float x_dir, float y_dir, float z_dir) = 0;
         virtual void set_pos(float x, float y) = 0;
         virtual glm::vec3 get_map_pos() const = 0;
-        glm::vec3 get_world_pos() {
+
+        inline glm::vec3 get_world_pos() const {
             return world_position;
         }
-        glm::vec2 get_map_size() {
+        
+        inline glm::vec2 get_map_size() const {
             return map_size;
         }
 
         virtual void update(void) = 0;
 
-        virtual glm::mat4 get_projection() {
-            float aspect_ratio = screen_size.x / screen_size.y;
+        virtual glm::mat4 get_projection() const {
+            const float aspect_ratio = screen_size.x / screen_size.y;
             return glm::perspective(glm::radians(fov), aspect_ratio, near_plane, far_plane);
         };
 
-        virtual glm::mat4 get_view() = 0;
-
-        virtual bool get_cursor_map_pos(std::pair<int, int> mouse_pos, glm::ivec2& out_pos) = 0;
-        virtual glm::vec3 get_tile_world_pos(glm::vec2 tile_pos) = 0;
-        virtual glm::vec2 get_tile_screen_pos(glm::vec2 tile_pos) {
+        virtual glm::mat4 get_view() const = 0;
+        virtual bool get_cursor_map_pos(std::pair<int, int> mouse_pos, glm::ivec2& out_pos) const = 0;
+        virtual glm::vec3 get_tile_world_pos(glm::vec2 tile_pos) const = 0;
+        virtual glm::vec2 get_tile_screen_pos(glm::vec2 tile_pos) const {
             auto world_pos = get_tile_world_pos(tile_pos);
             auto v = get_projection() * get_view() * glm::vec4(world_pos, 1);
             auto screen_pos = glm::vec2(v) / v.w;

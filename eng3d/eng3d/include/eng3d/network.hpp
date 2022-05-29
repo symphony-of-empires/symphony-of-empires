@@ -90,15 +90,35 @@ namespace Eng3D::Networking {
         size_t n_data = 0;
         PacketCode code = PacketCode::OK;
     public:
-        Packet();
-        Packet(int _fd);
-        ~Packet();
+        Packet() {
 
-        void* data(void);
-        void data(void* buf, size_t size);
-        size_t size(void) const;
+        }
 
-        bool is_ok(void) const;
+        Packet(int _fd) {
+            stream = Eng3D::Networking::SocketStream(_fd);
+        }
+
+        ~Packet() {
+
+        }
+
+        inline void* data(void) {
+            return static_cast<void*>(&buffer[0]);
+        }
+
+        inline void data(void* buf, size_t size) {
+            n_data = size;
+            buffer.resize(n_data);
+            std::memcpy(&buffer[0], buf, size);
+        }
+
+        inline size_t size(void) const {
+            return n_data;
+        }
+
+        inline bool is_ok(void) const {
+            return (code == PacketCode::OK);
+        }
 
         template<typename T>
         inline void send(const T* buf = nullptr, size_t size = sizeof(T)) {
@@ -158,7 +178,7 @@ namespace Eng3D::Networking {
             }
         }
 
-        void recv(void) {
+        inline void recv(void) {
             this->recv<void>(nullptr);
         }
 
