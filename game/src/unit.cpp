@@ -129,6 +129,7 @@ Eng3D::Decimal Unit::get_speed(void) const {
 
 void Unit::set_province(Province& _province) {
     assert(this->can_move()); // Must be able to move to perform this...
+    assert(this->province != &_province);
 
     // Delete the unit from the previous cache list of units
     if(province != nullptr) {

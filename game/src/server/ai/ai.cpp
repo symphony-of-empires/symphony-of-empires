@@ -598,10 +598,8 @@ void ai_do_tick(Nation& nation) {
             // Risk is augmentated when we border any non-ally nation
             if(!relation.has_alliance) {
                 ai_data.nations_risk_factor[world.get_id(*other)] += 1.f * ((400.f - std::max<double>(relation.relation + 200.f, 1.f)) / 50.f);
-            }
-            
-            if(relation.has_war) {
-                ai_data.nations_risk_factor[world.get_id(*other)] *= 100.f;
+            } else if(relation.has_war) {
+                ai_data.nations_risk_factor[world.get_id(*other)] += 100.f;
             }
         }
         // Our own nation is safe, let's set it to 0
@@ -611,8 +609,8 @@ void ai_do_tick(Nation& nation) {
         for(const auto& province : nation.controlled_provinces) {
             // The "cooling" value which basically makes us ignore some provinces with lots of defenses
             // so we don't rack up deathstacks on a border with some micronation
-            double draw_away_force = 0;
-            for(const auto& unit : province->get_units()) {
+            double draw_away_force = 0.f;
+            /*for(const auto& unit : province->get_units()) {
                 // Only account this for units that are of our nation
                 // because enemy units will require us to give more importance to it
                 const int unit_strength = static_cast<int>(unit->type->defense * unit->type->attack) * unit->size;
@@ -620,9 +618,10 @@ void ai_do_tick(Nation& nation) {
                 // basically make the draw_away_force negative, which in turns does not draw away but rather
                 // draw in even more units
                 draw_away_force += (-ai_data.nations_risk_factor[world.get_id(*unit->owner)]) * unit_strength;
-            }
+            }*/
             potential_risk[world.get_id(*province)] -= draw_away_force;
 
+            const size_t neighbours_size = province->neighbours.size();
             for(const auto& neighbour : province->neighbours) {
                 if(province->terrain_type->is_water_body) {
                     //continue;
@@ -635,7 +634,7 @@ void ai_do_tick(Nation& nation) {
                 
                 potential_risk[world.get_id(*neighbour)] += ai_data.nations_risk_factor[world.get_id(*neighbour->controller)];
                 // Spread out the heat
-                potential_risk[world.get_id(*neighbour)] += std::max<double>(potential_risk[world.get_id(*province)], 1) / province->neighbours.size();
+                potential_risk[world.get_id(*neighbour)] += std::max<double>(potential_risk[world.get_id(*province)], 1) / neighbours_size;
             }
         }
 
@@ -653,44 +652,52 @@ void ai_do_tick(Nation& nation) {
 
                 if(unit->can_move()) {
                     // See which province has the most potential_risk so we cover it from potential threats
-                    Province* highest_risk = unit->province;
-                    for(const auto& province : unit->province->neighbours) {
-                        if(std::rand() % 2) {
+                    Province& highest_risk = *unit->province;
+                    for(const auto& neighbour : unit->province->neighbours) {
+                        if(!unit->type->is_naval && neighbour->terrain_type->is_water_body) {
                             continue;
                         }
 
-                        if(!unit->type->is_naval && province->terrain_type->is_water_body) {
-                            continue;
-                        }
-
-                        if(potential_risk[world.get_id(*highest_risk)] < potential_risk[world.get_id(*province)]) {
-                            if(province->controller != nullptr) {
+                        if(potential_risk[world.get_id(highest_risk)] < potential_risk[world.get_id(*neighbour)]) {
+                            if(neighbour->controller != unit->owner) {
                                 const NationRelation& relation = world.get_relation(world.get_id(*province->controller), world.get_id(*unit->owner));
-                                if(relation.has_war || relation.has_alliance || province->owner == unit->owner) {
-                                    highest_risk = province;
+                                if(relation.has_war || relation.has_alliance || neighbour->owner == unit->owner) {
+                                    highest_risk = *neighbour;
                                 }
+                            } else {
+                                highest_risk = *neighbour;
                             }
                         }
                     }
 
-                    auto* target_province = highest_risk;
-                    if(target_province == unit->province || target_province == unit->target) {
+                    if(&highest_risk == unit->province) {
+                        if(highest_risk.neighbours.empty()) {
+                            continue;
+                        } else {
+                            auto it = std::begin(highest_risk.neighbours);
+                            std::advance(it, std::rand() % highest_risk.neighbours.size());
+                            highest_risk = **it;
+                        }
+                    }
+
+                    if(&highest_risk == unit->province) {
                         continue;
                     }
 
+                    auto& target_province = highest_risk;
                     bool can_target = true;
-                    if(target_province->controller != nullptr) {
-                        const NationRelation& relation = world.get_relation(world.get_id(*target_province->controller), world.get_id(*unit->owner));
+                    if(target_province.controller != nullptr) {
+                        const NationRelation& relation = world.get_relation(world.get_id(*target_province.controller), world.get_id(*unit->owner));
 
                         // Can only go to a province if we have military accesss, they are our ally or if we are at war
                         // also if it's ours we can move thru it - or if it's owned by no-one
-                        if(!(target_province->controller == unit->owner || relation.has_alliance || relation.has_military_access || relation.has_war)) {
+                        if(!(target_province.controller == unit->owner || relation.has_alliance || relation.has_military_access || relation.has_war)) {
                             can_target = false;
                         }
                     }
 
                     if(can_target) {
-                        unit->set_target(*target_province);
+                        unit->set_target(target_province);
                     }
                 }
             }
