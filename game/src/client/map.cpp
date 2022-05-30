@@ -435,20 +435,16 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         }
 
         for(const auto& unit : input.selected_units) {
-            if(!unit->province->is_neighbour(province)) {
+            if(!unit->province->is_neighbour(province) || !unit->can_move()) {
                 continue;
             }
 
-            if(unit->province->controller != nullptr && unit->province->controller != gs.curr_nation) {
+            if(province.controller != nullptr && province.controller != gs.curr_nation) {
                 // Must either be our ally, have military access with them or be at war
-                const NationRelation& relation = gs.world->get_relation(gs.world->get_id(*gs.curr_nation), gs.world->get_id(*unit->province->controller));
+                const NationRelation& relation = gs.world->get_relation(gs.world->get_id(*gs.curr_nation), gs.world->get_id(*province.controller));
                 if(!(relation.has_war || relation.has_alliance || relation.has_military_access)) {
                     continue;
                 }
-            }
-
-            if(!unit->can_move()) {
-                continue;
             }
 
             Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
@@ -458,8 +454,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             ::serialize(ar, &unit);
             ::serialize(ar, &province);
             packet.data(ar.get_buffer(), ar.size());
-            const std::scoped_lock lock1(gs.client->pending_packets_mutex);
-            gs.client->pending_packets.push_back(packet);
+            g_client->send(packet);
 
             const std::scoped_lock lock2(gs.sound_lock);
             auto entries = Path::get_all_recursive("sfx/land_move");

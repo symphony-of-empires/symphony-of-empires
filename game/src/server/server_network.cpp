@@ -165,10 +165,12 @@ void Server::net_loop(int id) {
                     Province* province;
                     ::deserialize(ar, &province);
                     if(province != nullptr) {
-                        Eng3D::Log::debug("server", "Unit changes targets to " + province->ref_name);
+                        Eng3D::Log::debug("server", "Unit changes targets to " + province->ref_name.get_string());
                     }
                     
-                    unit->set_target(*province);
+                    if(unit->can_move()) {
+                        unit->set_target(*province);
+                    }
                 } break;
                 // Client tells the server about the construction of a new unit, note that this will
                 // only make the building submit "construction tickets" to obtain materials to build
