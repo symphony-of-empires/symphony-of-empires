@@ -678,14 +678,18 @@ void ai_do_tick(Nation& nation) {
                         continue;
                     }
 
-                    // Can only go to a province if we have military accesss, they are our ally or if we are at war
-                    // also if it's ours we can move thru it - or if it's owned by no-one
+                    bool can_target = true;
                     if(target_province->controller != nullptr) {
                         const NationRelation& relation = world.get_relation(world.get_id(*target_province->controller), world.get_id(*unit->owner));
-                        if(target_province->controller == unit->owner || relation.has_alliance || relation.has_military_access || relation.has_war) {
-                            unit->set_target(*target_province);
+
+                        // Can only go to a province if we have military accesss, they are our ally or if we are at war
+                        // also if it's ours we can move thru it - or if it's owned by no-one
+                        if(!(target_province->controller == unit->owner || relation.has_alliance || relation.has_military_access || relation.has_war)) {
+                            can_target = false;
                         }
-                    } else {
+                    }
+
+                    if(can_target) {
                         unit->set_target(*target_province);
                     }
                 }
