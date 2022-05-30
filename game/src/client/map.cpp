@@ -382,12 +382,10 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
     }
 
     if(event.button.button == SDL_BUTTON_LEFT) {
-        std::pair<float, float>& select_pos = input.select_pos;
-
-        const Tile& tile = gs.world->get_tile(select_pos.first, select_pos.second);
+        const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
         switch(gs.current_mode) {
         case MapMode::COUNTRY_SELECT:
-            if(tile.province_id < (Province::Id)-3) {
+            if(Province::is_valid(tile.province_id)) {
                 auto province = world.provinces[tile.province_id];
                 if(province->controller != nullptr) {
                     gs.select_nation->change_nation(province->controller->cached_id);
@@ -396,7 +394,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             break;
         case MapMode::NORMAL:
             if(selector) {
-                auto province = world.provinces[tile.province_id];
+                auto* province = world.provinces[tile.province_id];
                 selector(world, *this, province);
                 break;
             }
@@ -417,7 +415,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         return;
     } else if(event.button.button == SDL_BUTTON_RIGHT) {
         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
-        if(!Province::is_valid(tile.province_id)) {
+        if(Province::is_invalid(tile.province_id)) {
             return;
         }
 
@@ -455,6 +453,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             ::serialize(ar, &province);
             packet.data(ar.get_buffer(), ar.size());
             g_client->send(packet);
+            unit->set_target(province);
 
             const std::scoped_lock lock2(gs.sound_lock);
             auto entries = Path::get_all_recursive("sfx/land_move");

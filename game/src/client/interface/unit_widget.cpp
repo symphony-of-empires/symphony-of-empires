@@ -33,6 +33,7 @@
 #include "client/game_state.hpp"
 #include "nation.hpp"
 #include "unit.hpp"
+#include "world.hpp"
 
 using namespace Interface;
 
@@ -40,6 +41,7 @@ UnitWidget::UnitWidget(const Unit* _unit, Map* _map, UI::Widget* parent)
     : UI::Div(0, 0, 100, 30, parent), unit{ _unit }, map{ _map }
 {
     this->background_color = Eng3D::Color(1, 1, 1, 1);
+
     this->set_on_click([this](UI::Widget&) {
         auto& gs = (GameState&)Eng3D::State::get_instance();
         auto it = std::find(gs.input.selected_units.begin(), gs.input.selected_units.end(), const_cast<Unit *>(this->unit));
@@ -57,7 +59,7 @@ UnitWidget::UnitWidget(const Unit* _unit, Map* _map, UI::Widget* parent)
 
     this->size_label = new UI::Div(41, 1, 48, 28, this);
     this->size_label->text_align_x = UI::Align::END;
-    this->size_label->background_color = Eng3D::Color(0.41f, 0.84f, 0.36f, 1.f);
+
     this->size_label->on_each_tick = ([this](UI::Widget&) {
         auto unit_size = (int)this->unit->size;
         this->size_label->text(std::to_string(unit_size));
@@ -81,6 +83,23 @@ void UnitWidget::set_unit(const Unit* _unit) {
 
     this->x = screen_pos.x - this->width / 2;
     this->y = screen_pos.y - this->height / 2;
+
+    GameState& gs = (GameState&)Eng3D::State::get_instance();
+    // Default background
+    this->size_label->background_color = Eng3D::Color(0.41f, 0.84f, 0.36f, 1.f);
+    // Paint according to relations
+    if(gs.curr_nation != nullptr && unit->owner != gs.curr_nation) {
+        const NationRelation& relation = gs.world->get_relation(gs.world->get_id(*gs.curr_nation), gs.world->get_id(*unit->owner));
+        if(relation.has_alliance) {
+            this->size_label->background_color = Eng3D::Color(0.3f, 0.8f, 0.3f, 1.f);
+        } else if(relation.has_war) {
+            this->size_label->background_color = Eng3D::Color(0.8f, 0.3f, 0.3f, 1.f);
+        } else {
+            this->size_label->background_color = Eng3D::Color(0.7f, 0.7f, 0.7f, 1.f);
+        }
+    } else if(unit->owner == gs.curr_nation) {
+        this->size_label->background_color = Eng3D::Color(0.4f, 0.4f, 0.8f, 1.f);
+    }
 
     auto nation_flag = map->nation_flags[unit->owner->cached_id];
     this->flag_img->current_texture = nation_flag;
