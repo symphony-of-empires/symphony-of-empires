@@ -610,28 +610,60 @@ void World::load_mod(void) {
 static inline void unit_do_tick(Unit& unit, const std::vector<std::vector<Battle*>>& battles_per_province)
 {
     assert(unit.province != nullptr);
+
+    // Do not evaluate if we have an ongoing battle
     if(unit.on_battle) {
+        unit.target = nullptr;
         return;
     }
 
-    bool can_move_to_province = true;
-    for(auto& other_unit : unit.province->get_units()) {
-        if(other_unit->owner == unit.owner) {
-            continue;
+    if(unit.target != nullptr) {
+        bool can_move = true, can_take = false;
+        if(unit.target->controller != unit.owner) {
+            const auto& relation = g_world->get_relation(g_world->get_id(*unit.target->controller), g_world->get_id(*unit.owner));
+            can_move = (relation.has_alliance || relation.has_defensive_pact || relation.has_war);
+            can_take = (relation.has_war);
         }
 
-        // Can we take this province?
-        can_move_to_province = false;
-        // If there is another unit of a country we are at war with we will start a battle
-        for(auto& war : g_world->wars) {
-            if(war->is_involved(*unit.owner) && war->is_involved(*other_unit->owner)) {
-                auto it = std::find_if(war->battles.begin(), war->battles.end(), [&unit](const auto& e) {
-                    return e.province == unit.province;
-                });
+        if(can_move) {
+            if(unit.move_progress) {
+                unit.move_progress -= std::min<Eng3D::Decimal>(unit.move_progress, unit.get_speed());
+            } else {
+                unit.set_province(*unit.target);
+                // Only take control of provinces of the people we're at war with
+                if(can_take) {
+                    unit.owner->control_province(*unit.target);
+                }
+            }
+        } else {
+            unit.target = nullptr;
+        }
+    }
+    
+    // If there is another unit of a country we are at war with we will start a battle
+    for(auto& war : g_world->wars) {
+        if(war->is_involved(*unit.owner)) {
+            auto it = std::find_if(war->battles.begin(), war->battles.end(), [&unit](const auto& e) {
+                return e.province == unit.province;
+            });
 
-                // Create a new battle if none is occurring on this province
-                unit.target = nullptr;
-                if(it == war->battles.end() && !other_unit->on_battle) {
+            // Create a new battle if none is occurring on this province
+            unit.target = nullptr;
+            if(it == war->battles.end()) {
+                // See above code, by our logic the other unit should already be in a battle if it's
+                // against us, and if it is not, and it's probably wise to attack them
+                for(auto& other_unit : unit.province->get_units()) {
+                    if(other_unit->owner == unit.owner || other_unit->on_battle) {
+                        continue;
+                    }
+
+                    // Check relations, if we're at war we will attack this unit
+                    const auto& relation = g_world->get_relation(g_world->get_id(*unit.owner), g_world->get_id(*other_unit->owner));
+                    if(!relation.has_war) {
+                        continue;
+                    }
+
+                    // If we found an unit we can attack, start a battle
                     unit.on_battle = true;
                     other_unit->on_battle = true;
                     
@@ -646,82 +678,66 @@ static inline void unit_do_tick(Unit& unit, const std::vector<std::vector<Battle
                     }
                     war->battles.push_back(battle);
                     Eng3D::Log::debug("game", "New battle of \"" + battle.name + "\"");
-                } else {
-                    Battle& battle = *it;
+                    break;
+                }
+            } else {
+                Battle& battle = *it;
 
-                    // Add the unit to one side depending on who are we attacking
-                    // However unit must not be already involved
-                    /// @todo Make it be instead depending on who attacked first in this battle
-                    if(war->is_attacker(*unit.owner)) {
-                        assert(std::find(battle.attackers.begin(), battle.attackers.end(), &unit) == battle.attackers.end());
-                        unit.on_battle = true;
-                        battle.attackers.push_back(&unit);
-                        Eng3D::Log::debug("game", "Adding unit <attacker> to battle of \"" + battle.name + "\"");
-                    } else {
-                        assert(war->is_defender(*unit.owner));
-                        assert(std::find(battle.defenders.begin(), battle.defenders.end(), &unit) == battle.defenders.end());
-                        unit.on_battle = true;
-                        battle.defenders.push_back(&unit);
-                        Eng3D::Log::debug("game", "Adding unit <defender> to battle of \"" + battle.name + "\"");
-                    }
+                // Add the unit to one side depending on who are we attacking
+                // However unit must not be already involved
+                /// @todo Make it be instead depending on who attacked first in this battle
+                if(war->is_attacker(*unit.owner)) {
+                    assert(std::find(battle.attackers.begin(), battle.attackers.end(), &unit) == battle.attackers.end());
+                    unit.on_battle = true;
+                    battle.attackers.push_back(&unit);
+                    Eng3D::Log::debug("game", "Adding unit <attacker> to battle of \"" + battle.name + "\"");
+                } else {
+                    assert(war->is_defender(*unit.owner));
+                    assert(std::find(battle.defenders.begin(), battle.defenders.end(), &unit) == battle.defenders.end());
+                    unit.on_battle = true;
+                    battle.defenders.push_back(&unit);
+                    Eng3D::Log::debug("game", "Adding unit <defender> to battle of \"" + battle.name + "\"");
                 }
                 break;
             }
         }
     }
-
-    if(unit.target != nullptr) {
-        if(!unit.can_move()) {
-            unit.target = nullptr;
-            unit.move_progress = 0.f;
-            return;
-        }
-
-        if(unit.move_progress) {
-            unit.move_progress -= std::min<Eng3D::Decimal>(unit.move_progress, unit.get_speed());
-        } else {
-            if(can_move_to_province) {
-                unit.set_province(*unit.target);
-                unit.target = nullptr;
-                if(unit.province->controller != unit.owner) {
-                    // If we are at war with the person we are crossing their provinces at, then take 'em (albeit with resistance)
-                    const auto& relation = g_world->get_relation(g_world->get_id(*unit.province->controller), g_world->get_id(*unit.owner));
-                    if(relation.has_war) {
-                        unit.owner->control_province(*unit.province);
-                    }
-                }
-            }
-        }
-    }
 }
+
+#include <tbb/blocked_range.h>
+#include <tbb/combinable.h>
+#include <tbb/concurrent_vector.h>
+#include <tbb/parallel_for.h>
 
 void World::do_tick() {
     profiler.start("AI");
     // Do the AI turns in parallel
-    std::for_each(std::execution::par, nations.begin(), nations.end(), [this](auto& nation) {
-        if(!nation->exists()) {
-            return;
-        }
-
-        // Diplomatic cooldown
-        if(nation->diplomatic_timer != 0) {
-            nation->diplomatic_timer--;
-        }
-
-        // Research stuff
-        Eng3D::Decimal research = nation->get_research_points();
-        if(nation->focus_tech != nullptr) {
-            Eng3D::Decimal* research_progress = &nation->research[get_id(*nation->focus_tech)];
-            *research_progress -= std::min(research, *research_progress);
-            if(!(*research_progress)) {
-                // Give the country the modifiers attached to the technology
-                for(auto& mod : nation->focus_tech->modifiers) {
-                    nation->modifiers.push_back(mod);
-                }
-                nation->focus_tech = nullptr;
+    tbb::parallel_for(tbb::blocked_range(nations.begin(), nations.end()), [this](auto& nations_range) {
+        for(const auto& nation : nations_range) {
+            if(!nation->exists()) {
+                return;
             }
+
+            // Diplomatic cooldown
+            if(nation->diplomatic_timer != 0) {
+                nation->diplomatic_timer--;
+            }
+
+            // Research stuff
+            Eng3D::Decimal research = nation->get_research_points();
+            if(nation->focus_tech != nullptr) {
+                Eng3D::Decimal* research_progress = &nation->research[get_id(*nation->focus_tech)];
+                *research_progress -= std::min(research, *research_progress);
+                if(!(*research_progress)) {
+                    // Give the country the modifiers attached to the technology
+                    for(auto& mod : nation->focus_tech->modifiers) {
+                        nation->modifiers.push_back(mod);
+                    }
+                    nation->focus_tech = nullptr;
+                }
+            }
+            ai_do_tick(*nation);
         }
-        ai_do_tick(*nation);
     });
     profiler.stop("AI");
 
