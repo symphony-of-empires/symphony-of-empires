@@ -134,6 +134,8 @@ void Server::net_loop(int id) {
                 if(selected_nation == nullptr && (action != ActionType::PONG && action != ActionType::CHAT_MESSAGE && action != ActionType::SELECT_NATION))
                     throw ServerException("Unallowed operation without selected nation");
                 
+                std::scoped_lock lock(g_world->world_mutex);
+
                 switch(action) {
                 // - Used to test connections between server and client
                 case ActionType::PONG:
