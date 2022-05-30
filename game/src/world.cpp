@@ -621,7 +621,7 @@ static inline void unit_do_tick(Unit& unit)
         assert(unit.target != unit.province);
 
         bool can_move = true, can_take = false;
-        if(unit.target->controller != unit.owner) {
+        if(unit.target->controller != unit.owner && unit.target->controller != nullptr) {
             const auto& relation = g_world->get_relation(g_world->get_id(*unit.target->controller), g_world->get_id(*unit.owner));
             can_move = (relation.has_alliance || relation.has_defensive_pact || relation.has_war);
             can_take = (relation.has_war);

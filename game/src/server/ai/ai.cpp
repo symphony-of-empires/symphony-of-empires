@@ -677,27 +677,23 @@ void ai_do_tick(Nation& nation) {
                             auto it = std::begin(highest_risk.neighbours);
                             std::advance(it, std::rand() % highest_risk.neighbours.size());
                             highest_risk = **it;
+                            assert(&highest_risk != unit->province);
                         }
                     }
 
-                    if(&highest_risk == unit->province) {
-                        continue;
-                    }
-
-                    auto& target_province = highest_risk;
                     bool can_target = true;
-                    if(target_province.controller != nullptr) {
-                        const NationRelation& relation = world.get_relation(world.get_id(*target_province.controller), world.get_id(*unit->owner));
+                    if(highest_risk.controller != nullptr) {
+                        const NationRelation& relation = world.get_relation(world.get_id(*highest_risk.controller), world.get_id(*unit->owner));
 
                         // Can only go to a province if we have military accesss, they are our ally or if we are at war
                         // also if it's ours we can move thru it - or if it's owned by no-one
-                        if(!(target_province.controller == unit->owner || relation.has_alliance || relation.has_military_access || relation.has_war)) {
+                        if(!(highest_risk.controller == unit->owner || relation.has_alliance || relation.has_military_access || relation.has_war)) {
                             can_target = false;
                         }
                     }
 
                     if(can_target) {
-                        unit->set_target(target_province);
+                        unit->set_target(const_cast<Province&>(highest_risk));
                     }
                 }
             }
