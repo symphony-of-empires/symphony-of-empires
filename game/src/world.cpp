@@ -444,6 +444,7 @@ void World::load_initial(void) {
 
         // Uncomment this and see a bit more below
         std::set<uint32_t> colors_found;
+        std::set<uint32_t> colors_used;
         Eng3D::Log::debug("game", Eng3D::Locale::translate("Associate tiles with provinces"));
 
         // Build a lookup table for super fast speed on finding provinces
@@ -460,6 +461,7 @@ void World::load_initial(void) {
             if(province_id == (Province::Id)-1) {
                 colors_found.insert(raw_buffer[i]);
             }
+            colors_used.insert(raw_buffer[i] & 0xffffff);
             tiles[i].province_id = province_id;
         }
         div.reset();
@@ -492,6 +494,14 @@ void World::load_initial(void) {
 
             // Exit
             CXX_THROW(std::runtime_error, "There are unregistered provinces, please register them!");
+        }
+
+        for(auto& province : provinces) {
+            if (!colors_used.contains(province->color & 0xffffff)) {
+                std::string error = "Province '" + province->ref_name + "' is registered but missing on province.png, please add it!";
+                Eng3D::Log::error("game", error);
+                // CXX_THROW(std::runtime_error, error.c_str());
+            }
         }
 
         // Calculate the edges of the province (min and max x and y coordinates)
