@@ -54,7 +54,7 @@ public:
     Eng3D::Number total_pops(void) const;
     Eng3D::Decimal get_attractiveness(const Pop& pop) const;
     std::pair<Eng3D::Decimal, Eng3D::Decimal> get_pos(void) const;
-    std::vector<Unit*> get_units(void) const;
+    const std::vector<Unit*> get_units(void) const;
     const std::vector<Building>& get_buildings(void) const;
     std::vector<Building>& get_buildings(void);
     bool is_neighbour(Province& province) const;

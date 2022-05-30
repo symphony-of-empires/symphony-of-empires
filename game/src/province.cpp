@@ -87,7 +87,7 @@ std::pair<Eng3D::Decimal, Eng3D::Decimal> Province::get_pos(void) const {
     return std::make_pair(min_x + ((max_x - min_x) / 2.f), min_y + ((max_y - min_y) / 2.f));
 }
 
-std::vector<Unit*> Province::get_units(void) const {
+const std::vector<Unit*> Province::get_units(void) const {
     return units;
 }
 
