@@ -470,7 +470,7 @@ void ai_do_tick(Nation& nation) {
             // Found an appropriate colony!
             if(!colonial_value.empty()) {
                 Province* target = (*std::max_element(colonial_value.begin(), colonial_value.end())).first;
-                if(target->owner == nullptr) {
+                if(target != nullptr && target->owner == nullptr) {
                     Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
                     Archive ar = Archive();
                     ActionType action = ActionType::PROVINCE_COLONIZE;
@@ -651,6 +651,13 @@ void ai_do_tick(Nation& nation) {
                 }
 
                 if(unit->can_move()) {
+                    auto it = std::begin(province->neighbours);
+                    std::advance(it, std::rand() % province->neighbours.size());
+                    if(*it != nullptr) {
+                        unit->set_province(**it);
+                    }
+                    continue;
+
                     // See which province has the most potential_risk so we cover it from potential threats
                     Province& highest_risk = *unit->province;
                     for(const auto& neighbour : unit->province->neighbours) {
@@ -659,7 +666,7 @@ void ai_do_tick(Nation& nation) {
                         }
 
                         if(potential_risk[world.get_id(highest_risk)] < potential_risk[world.get_id(*neighbour)]) {
-                            if(neighbour->controller != unit->owner) {
+                            if(neighbour->controller != nullptr && neighbour->controller != unit->owner) {
                                 const NationRelation& relation = world.get_relation(world.get_id(*province->controller), world.get_id(*unit->owner));
                                 if(relation.has_war || relation.has_alliance || neighbour->owner == unit->owner) {
                                     highest_risk = *neighbour;
@@ -682,7 +689,7 @@ void ai_do_tick(Nation& nation) {
                     }
 
                     bool can_target = true;
-                    if(highest_risk.controller != nullptr) {
+                    if(highest_risk.controller != nullptr && highest_risk.controller != unit->owner) {
                         const NationRelation& relation = world.get_relation(world.get_id(*highest_risk.controller), world.get_id(*unit->owner));
 
                         // Can only go to a province if we have military accesss, they are our ally or if we are at war
@@ -693,7 +700,7 @@ void ai_do_tick(Nation& nation) {
                     }
 
                     if(can_target) {
-                        unit->set_target(const_cast<Province&>(highest_risk));
+                        unit->set_target(highest_risk);
                     }
                 }
             }

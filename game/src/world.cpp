@@ -543,6 +543,10 @@ void World::load_initial(void) {
         ::serialize(ar, &width);
         ::serialize(ar, &height);
         for(const auto& province : provinces) {
+            // Remove self from province->neighbours
+            province->neighbours.erase(province);
+            assert(!province->neighbours.empty());
+
             ::serialize(ar, &province->neighbours);
             ::serialize(ar, &province->max_x);
             ::serialize(ar, &province->max_y);
