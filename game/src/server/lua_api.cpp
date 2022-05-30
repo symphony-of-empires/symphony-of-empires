@@ -766,6 +766,7 @@ int LuaAPI::province_add_unit(lua_State* L) {
     unit->supply = 1.f;
     unit->size = size;
     unit->base = unit->type->max_health;
+    g_world->insert(*unit);
     return 0;
 }
 

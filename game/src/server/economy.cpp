@@ -387,7 +387,7 @@ void Economy::do_tick(World& world) {
     world.world_mutex.unlock();
     world.profiler.start("E-init");
     std::vector<Market> markets(world.goods.size());
-    
+
     const size_t provinces_size = world.provinces.size();
     const size_t goods_size = world.goods.size();
 
@@ -420,6 +420,7 @@ void Economy::do_tick(World& world) {
     std::for_each(std::execution::par, markets.begin(), markets.end(), [&world, provinces_size](auto& market) {
         for(size_t i = 0; i < provinces_size; i++) {
             Province& province = *world.provinces[i];
+            const size_t province_neighbours_size = province.neighbours.size();
             Product& product = province.products[market.good];
 
             if(product.supply <= 0.f) {
@@ -429,15 +430,16 @@ void Economy::do_tick(World& world) {
             for(auto neighbour : province.neighbours) {
                 if(neighbour->owner) continue;
 
+                const size_t neighbour_neighbours_size = neighbour->neighbours.size();
                 Product& other_product = neighbour->products[market.good];
 
                 // transfer goods
                 if(other_product.price > product.price) {
-                    float amount = product.supply / province.neighbours.size();
+                    float amount = product.supply / province_neighbours_size;
                     market.supply[i] -= amount;
                     market.demand[i] += amount;
                 } else {
-                    float other_amount = other_product.supply / neighbour->neighbours.size();
+                    float other_amount = other_product.supply / neighbour_neighbours_size;
                     market.supply[i] += other_amount;
                 }
             }
@@ -524,13 +526,6 @@ void Economy::do_tick(World& world) {
             }
         }
     });
-
-    std::vector<Unit*> new_units;
-    province_new_units.combine_each([&new_units](const auto& unit_list) {
-        for(const auto& unit : unit_list) {
-            new_units.push_back(unit);
-        }
-    });
     world.profiler.stop("E-big");
 
     world.profiler.start("E-mutex");
@@ -545,8 +540,7 @@ void Economy::do_tick(World& world) {
     // -------------------------- MUTEX PROTECTED WORLD CHANGES BELOW -------------------------------
     world.world_mutex.lock();
 
-    std::for_each(std::execution::par, province_ids.begin(), province_ids.end(), [&world, &pops_new_needs, &buildings_new_worker](const auto& province_id)
-    {
+    std::for_each(std::execution::par, province_ids.begin(), province_ids.end(), [&world, &pops_new_needs, &buildings_new_worker](const auto& province_id) {
         Province& province = *world.provinces[province_id];
         std::vector<PopNeed>& new_needs = pops_new_needs[province_id];
         for(uint32_t i = 0; i < province.pops.size(); i++) {
@@ -575,11 +569,13 @@ void Economy::do_tick(World& world) {
 
     // Lock for world is already acquired since the economy runs inside the world's do_tick which
     // should be lock guarded by the callee
-    for(const auto& unit : new_units) {
-        // Now commit the transaction of the new units into the main world area
-        world.insert(*unit);
-        g_server->broadcast(Action::UnitAdd::form_packet(*unit));
-    }
+    province_new_units.combine_each([&world](const auto& unit_list) {
+        for(const auto& unit : unit_list) {
+            // Now commit the transaction of the new units into the main world area
+            world.insert(*unit);
+            g_server->broadcast(Action::UnitAdd::form_packet(*unit));
+        }
+    });
     world.profiler.stop("E-mutex");
 
     // do_emigration(world);

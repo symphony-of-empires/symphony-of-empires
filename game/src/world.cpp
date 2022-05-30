@@ -607,7 +607,7 @@ void World::load_mod(void) {
     ai_init(*this);
 }
 
-static inline void unit_do_tick(Unit& unit, const std::vector<std::vector<Battle*>>& battles_per_province)
+static inline void unit_do_tick(Unit& unit)
 {
     assert(unit.province != nullptr);
 
@@ -618,6 +618,8 @@ static inline void unit_do_tick(Unit& unit, const std::vector<std::vector<Battle
     }
 
     if(unit.target != nullptr) {
+        assert(unit.target != unit.province);
+
         bool can_move = true, can_take = false;
         if(unit.target->controller != unit.owner) {
             const auto& relation = g_world->get_relation(g_world->get_id(*unit.target->controller), g_world->get_id(*unit.owner));
@@ -635,8 +637,6 @@ static inline void unit_do_tick(Unit& unit, const std::vector<std::vector<Battle
                     unit.owner->control_province(*unit.target);
                 }
             }
-        } else {
-            unit.target = nullptr;
         }
     }
     
@@ -716,25 +716,6 @@ void World::do_tick() {
         for(const auto& nation : nations_range) {
             if(!nation->exists()) {
                 return;
-            }
-
-            // Diplomatic cooldown
-            if(nation->diplomatic_timer != 0) {
-                nation->diplomatic_timer--;
-            }
-
-            // Research stuff
-            Eng3D::Decimal research = nation->get_research_points();
-            if(nation->focus_tech != nullptr) {
-                Eng3D::Decimal* research_progress = &nation->research[get_id(*nation->focus_tech)];
-                *research_progress -= std::min(research, *research_progress);
-                if(!(*research_progress)) {
-                    // Give the country the modifiers attached to the technology
-                    for(auto& mod : nation->focus_tech->modifiers) {
-                        nation->modifiers.push_back(mod);
-                    }
-                    nation->focus_tech = nullptr;
-                }
             }
             ai_do_tick(*nation);
         }
@@ -867,16 +848,9 @@ void World::do_tick() {
 
     wcmap_mutex.lock();
     profiler.start("Units");
-    // Build the "list of battles per province"
-    std::vector<std::vector<Battle*>> battles_per_province(this->provinces.size());
-    for(auto& war : this->wars) {
-        for(auto& battle : war->battles) {
-            battles_per_province[this->get_id(*battle.province)].push_back(&battle);
-        }
-    }
     // Evaluate units
     for(const auto& unit : this->units) {
-        unit_do_tick(*unit, battles_per_province);
+        unit_do_tick(*unit);
     }
     profiler.stop("Units");
 
