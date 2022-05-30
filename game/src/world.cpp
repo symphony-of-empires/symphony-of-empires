@@ -887,7 +887,7 @@ void World::do_tick() {
                         if(!unit->size) {
                             Eng3D::Log::debug("game", "Removing attacker \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                             battle.defenders.erase(battle.defenders.begin() + i);
-                            assert(unit->province != nullptr && unit->province == battle.province);
+                            assert(unit->province == battle.province);
                             clear_units.local().push_back(unit);
                             continue;
                         }
@@ -908,7 +908,7 @@ void World::do_tick() {
                         if(!unit->size) {
                             Eng3D::Log::debug("game", "Removing defender \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                             battle.attackers.erase(battle.attackers.begin() + i);
-                            assert(unit->province != nullptr && unit->province == battle.province);
+                            assert(unit->province == battle.province);
                             clear_units.local().push_back(unit);
                             continue;
                         }
@@ -950,7 +950,7 @@ void World::do_tick() {
     profiler.stop("Battles");
 
     profiler.start("Cleaning");
-    clear_units.combine_each([&](const auto& units_clear_list) {
+    clear_units.combine_each([this](const auto& units_clear_list) {
         for(auto& unit : units_clear_list) {
             this->remove(*unit);
             delete unit;

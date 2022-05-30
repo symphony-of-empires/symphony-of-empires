@@ -598,8 +598,10 @@ void ai_do_tick(Nation& nation) {
             // Risk is augmentated when we border any non-ally nation
             if(!relation.has_alliance) {
                 ai_data.nations_risk_factor[world.get_id(*other)] += 1.f * ((400.f - std::max<double>(relation.relation + 200.f, 1.f)) / 50.f);
-            } else if(relation.has_war) {
-                ai_data.nations_risk_factor[world.get_id(*other)] += 100.f;
+            }
+            
+            if(relation.has_war) {
+                ai_data.nations_risk_factor[world.get_id(*other)] *= 100.f;
             }
         }
         // Our own nation is safe, let's set it to 0

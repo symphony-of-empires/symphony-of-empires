@@ -100,12 +100,7 @@ std::vector<Building>& Province::get_buildings(void) {
 }
 
 bool Province::is_neighbour(Province& province) const {
-    for(const auto& neighbour : this->neighbours) {
-        if(neighbour == &province) {
-            return true;
-        }
-    }
-    return false;
+    return std::find(this->neighbours.begin(), this->neighbours.end(), &province) != this->neighbours.end();
 }
 
 void Province::add_building(const BuildingType& building_type) {
