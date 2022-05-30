@@ -495,7 +495,7 @@ void World::load_initial(void) {
         }
 
         for(auto& province : provinces) {
-            if (!colors_found.contains(province->color)) {
+            if (!colors_found.contains(province->color & 0xffffff)) {
                 std::string error = "Province '" + province->ref_name + "' is registered but missing on province.png, please add it!";
                 Eng3D::Log::error("game", error);
                 // CXX_THROW(std::runtime_error, error.c_str());
