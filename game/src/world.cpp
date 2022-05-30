@@ -494,6 +494,14 @@ void World::load_initial(void) {
             CXX_THROW(std::runtime_error, "There are unregistered provinces, please register them!");
         }
 
+        for(auto& province : provinces) {
+            if (!colors_found.contains(province->color)) {
+                std::string error = "Province '" + province->ref_name + "' is registered but missing on province.png, please add it!";
+                Eng3D::Log::error("game", error);
+                // CXX_THROW(std::runtime_error, error.c_str());
+            }
+        }
+
         // Calculate the edges of the province (min and max x and y coordinates)
         Eng3D::Log::debug("game", Eng3D::Locale::translate("Calculate the edges of the province (min and max x and y coordinates)"));
         for(size_t j = 0; j < height; j++) {
