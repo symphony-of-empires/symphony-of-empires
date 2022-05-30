@@ -437,6 +437,11 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                 continue;
             }
 
+            // Don't change target if...
+            if(unit->province == &province || unit->target == &province) {
+                continue;
+            }
+
             if(province.controller != nullptr && province.controller != gs.curr_nation) {
                 // Must either be our ally, have military access with them or be at war
                 const NationRelation& relation = gs.world->get_relation(gs.world->get_id(*gs.curr_nation), gs.world->get_id(*province.controller));
@@ -450,7 +455,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             ActionType action = ActionType::UNIT_CHANGE_TARGET;
             ::serialize(ar, &action);
             ::serialize(ar, &unit);
-            ::serialize(ar, &province);
+            Province* tmp_province_ref = &province;
+            ::serialize(ar, &tmp_province_ref);
             packet.data(ar.get_buffer(), ar.size());
             g_client->send(packet);
             unit->set_target(province);
