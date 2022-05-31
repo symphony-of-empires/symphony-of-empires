@@ -106,10 +106,13 @@ namespace Eng3D::Networking {
             return static_cast<void*>(&buffer[0]);
         }
 
-        inline void data(void* buf, size_t size) {
+        template<typename T>
+        inline void data(const T* buf = nullptr, size_t size = sizeof(T)) {
             n_data = size;
             buffer.resize(n_data);
-            std::memcpy(&buffer[0], buf, size);
+            if(buf != nullptr) {
+                std::memcpy(&buffer[0], buf, size);
+            }
         }
 
         inline size_t size(void) const {

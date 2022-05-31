@@ -217,12 +217,24 @@ public:
     // https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
     inline NationRelation& get_relation(int a, int b) {
         assert(a != b);
-        return relations[a >= b ? a * a + a + b : a + b * b];
+        if(b > a) {
+            int tmp;
+            tmp = b;
+            b = a;
+            a = tmp;
+        }
+        return relations[(a * a - a) / 2 + b];
     }
 
     inline const NationRelation& get_relation(int a, int b) const {
         assert(a != b);
-        return relations[a >= b ? a * a + a + b : a + b * b];
+        if(b > a) {
+            int tmp;
+            tmp = b;
+            b = a;
+            a = tmp;
+        }
+        return relations[(a * a - a) / 2 + b];
     }
 
     // Lua state - for lua scripts, this is only used by the server and should not be

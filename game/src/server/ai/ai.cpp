@@ -592,6 +592,10 @@ void ai_do_tick(Nation& nation) {
     if(nation.ai_do_cmd_troops) {
         std::fill(ai_data.nations_risk_factor.begin(), ai_data.nations_risk_factor.end(), 0.f);
         for(const auto& other : world.nations) {
+            if(other == &nation) {
+                continue;
+            }
+
             // Here we calculate the risk factor of each nation and then we put it on a lookup table
             // because we can't afford to calculate this for EVERY FUCKING province
             const NationRelation& relation = world.get_relation(world.get_id(nation), world.get_id(*other));
@@ -660,7 +664,7 @@ void ai_do_tick(Nation& nation) {
 
                         if(potential_risk[world.get_id(highest_risk)] < potential_risk[world.get_id(*neighbour)]) {
                             if(neighbour->controller != nullptr && neighbour->controller != unit->owner) {
-                                const NationRelation& relation = world.get_relation(world.get_id(*province->controller), world.get_id(*unit->owner));
+                                const NationRelation& relation = world.get_relation(world.get_id(*neighbour->controller), world.get_id(*unit->owner));
                                 if(relation.has_war || relation.has_alliance || neighbour->owner == unit->owner) {
                                     highest_risk = *neighbour;
                                 }

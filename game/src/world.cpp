@@ -564,7 +564,19 @@ void World::load_initial(void) {
     Eng3D::Log::debug("game", Eng3D::Locale::translate("Creating diplomatic relations"));
     // Relations between nations start at 0 (and latter modified by lua scripts)
     // since we use cantor's pairing function we only have to make an n*2 array so yeah let's do that!
-    this->relations = std::make_unique<NationRelation[]>(this->nations.size() * this->nations.size());
+    size_t relations_len = this->nations.size() * this->nations.size();
+    this->relations = std::make_unique<NationRelation[]>(relations_len);
+    for(size_t i = 0; i < relations_len; i++) {
+        this->relations[i] = NationRelation();
+        this->relations[i].has_alliance = false;
+        this->relations[i].has_defensive_pact = false;
+        this->relations[i].has_embargo = false;
+        this->relations[i].has_market_access = false;
+        this->relations[i].has_military_access = false;
+        this->relations[i].has_war = false;
+        this->relations[i].interest = 0.f;
+        this->relations[i].relation = 0.f;
+    }
 
     Eng3D::Log::debug("game", Eng3D::Locale::translate("World partially intiialized"));
     // Auto-relocate capitals for countries which do not have one
