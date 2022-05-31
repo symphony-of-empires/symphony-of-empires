@@ -56,15 +56,15 @@ namespace Interface {
     class BuildingBuildView : public UI::Window {
         GameState& gs;
     public:
-        const Province* province = nullptr;
-        const BuildingType* building_type = nullptr;
+        Province& province;
+        BuildingType& building_type;
 
         BuildingSelectProvinceTab* province_tab;
         BuildingSelectTypeTab* type_tab;
 
         bool in_tile;
         int tx, ty;
-        BuildingBuildView(GameState& gs, int tx, int ty, bool in_tile, const Province* province = nullptr);
+        BuildingBuildView(GameState& gs, int tx, int ty, bool in_tile, Province& province);
 
         /* The tab holds buttons which sends the packets to the server - this requires access to the parent which holds private data :) */
         friend class BuildingSelectTypeTab;
@@ -72,8 +72,8 @@ namespace Interface {
 
     class BuildingView : public UI::Window {
         GameState& gs;
-        const Building* building;
+        Building& building;
     public:
-        BuildingView(GameState& gs, const Building* building);
+        BuildingView(GameState& gs, Building& building);
     };
 };

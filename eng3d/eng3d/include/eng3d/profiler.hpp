@@ -31,48 +31,54 @@
 #include <chrono>
 #include <vector>
 #include <queue>
+#include <atomic>
 #include <list>
 
 namespace Eng3D {
     class BenchmarkTask {
+        void clear_old();
     public:
-        BenchmarkTask(std::string task, uint32_t argb): name{ task }, color{ argb } {};
-        const std::string name;
-        const uint32_t color;
-
+        BenchmarkTask(std::string task, uint32_t argb)
+            : name{ task },
+            color{ argb }
+        {
+            running = false;
+        }
+        BenchmarkTask& operator=(const BenchmarkTask& lhs) = delete;
         void start();
         void stop();
         float get_average_time_ms();
         float get_largest_time_ms();
-    private:
-        void clear_old();
 
+        const std::string name;
+        const uint32_t color;
+    private:
         std::list<float> times;
         std::list<std::chrono::system_clock::time_point> start_times;
         std::chrono::system_clock::time_point start_time;
-        bool running = false;
+        bool running;
     };
 
     class Profiler {
     public:
-        Profiler() {};
+        Profiler() {
+            render_started = false;
+        }
         ~Profiler() {};
-
         void start(const std::string& name);
         void stop(const std::string& name);
         void tick_done();
         void render_done();
-
         float get_fps();
-        std::vector<BenchmarkTask*> get_tasks();
 
+        std::vector<BenchmarkTask*> get_tasks();
     private:
         size_t tick;
-        std::unordered_map<std::string, BenchmarkTask> tasks;
         float fps;
         std::chrono::system_clock::time_point fps_clock;
         float fps_timer = 0;
         size_t frames = 0;
-        bool render_started = false;
+        std::atomic<bool> render_started;
+        std::unordered_map<std::string, BenchmarkTask> tasks;
     };
 };

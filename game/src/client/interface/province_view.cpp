@@ -50,7 +50,7 @@ void ProvincePopulationTab::update_piecharts() {
     std::vector<size_t> culture_sizes(gs.world->cultures.size(), 0);
     std::vector<size_t> religion_sizes(gs.world->religions.size(), 0);
     std::vector<size_t> pop_type_sizes(gs.world->pop_types.size(), 0);
-    for(const auto& pop : province->pops) {
+    for(const auto& pop : province.pops) {
         culture_sizes[gs.world->get_id(*pop.culture)] += pop.size;
         religion_sizes[gs.world->get_id(*pop.religion)] += pop.size;
         pop_type_sizes[gs.world->get_id(*pop.type)] += pop.size;
@@ -78,31 +78,31 @@ void ProvincePopulationTab::update_piecharts() {
     pop_types_pie->set_data(pop_types_data);
 }
 
-ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, const Province* _province, UI::Widget* _parent)
+ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)
     : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
     gs{ _gs },
     province{ _province }
 {
     this->is_scroll = true;
-    this->text(province->name.get_string());
+    this->text(province.name.get_string());
 
-    this->landscape_img = new UI::Image(0, 0, this->width, 128 + 64 + 16, gs.tex_man->load(Path::get("gfx/terraintype/" + province->terrain_type->ref_name + ".png")), this);
+    this->landscape_img = new UI::Image(0, 0, this->width, 128 + 64 + 16, gs.tex_man->load(Path::get("gfx/terraintype/" + province.terrain_type->ref_name + ".png")), this);
 
-    if(province->owner != nullptr) {
-        this->owner_flag = new UI::AspectImage(0, 0, 96, 48, gs.get_nation_flag(*this->province->owner), this);
+    if(province.owner != nullptr) {
+        this->owner_flag = new UI::AspectImage(0, 0, 96, 48, gs.get_nation_flag(*this->province.owner), this);
         this->owner_flag->set_on_click([this](UI::Widget&) {
-            new Interface::NationView(this->gs, this->province->owner);
+            new Interface::NationView(this->gs, *this->province.owner);
         });
-        this->owner_flag->set_tooltip(this->province->owner->name + " owns this province");
+        this->owner_flag->set_tooltip(this->province.owner->name + " owns this province");
         new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width, this->owner_flag->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
     }
 
     // Display all the nuclei
     int dx = 0;
-    for(const auto& nation : province->nuclei) {
+    for(const auto& nation : province.nuclei) {
         this->owner_flag = new UI::AspectImage(dx, this->landscape_img->height - 24, 32, 24, gs.get_nation_flag(*nation), this);
         this->owner_flag->set_on_click([this, nation](UI::Widget&) {
-            new Interface::NationView(this->gs, nation);
+            new Interface::NationView(this->gs, *nation);
         });
         this->owner_flag->set_tooltip(nation->name + " has nuclei on this province");
         new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width, this->owner_flag->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
@@ -131,7 +131,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, const
     std::vector<int> sizes{ 96, 128, 24, 128 };
     std::vector<std::string> header{ "Size", "Budget", "Religion", "Culture" };
     auto table = new UI::Table<uint32_t>(0, 256 + 96, 0, 500, 30, sizes, header, this);
-    auto& pops = this->province->pops;
+    auto& pops = this->province.pops;
     table->reserve(pops.size());
     table->on_each_tick = [pops, table](Widget&) {
         for(size_t i = 0; i < pops.size(); i++) {
@@ -176,12 +176,12 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, const
     this->on_each_tick(*this);
 }
 
-ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, const Province* _province, UI::Widget* _parent)
+ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)
     : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
     gs{ _gs },
     province{ _province }
 {
-    this->text(province->name.get_string());
+    this->text(province.name.get_string());
     this->is_scroll = true;
 
     this->products_pie = new UI::PieChart(0, 0, 128, 128, this);
@@ -195,7 +195,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, const Provi
         int i = 0;
         for(const auto& good : o.gs.world->goods) {
             const auto good_col = Eng3D::Color(i * 12, i * 31, i * 97);
-            const Product& product = o.province->products[o.gs.world->get_id(good)];
+            const Product& product = o.province.products[o.gs.world->get_id(good)];
             goods_data.push_back(UI::ChartData(product.demand, good.name.get_string(), good_col));
             i++;
         }
@@ -206,18 +206,18 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, const Provi
     // Initial product info
     int i = 0;
     for(auto& good : gs.world->goods) {
-        auto* info = new ProductInfo(this->gs, 0, (i * 24) + 128, province, &good, this);
+        auto* info = new ProductInfo(this->gs, 0, (i * 24) + 128, province, good, this);
         product_infos.push_back(info);
         i++;
     }
 }
 
-ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, const Province* _province, UI::Widget* _parent)
+ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)
     : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
     gs{ _gs },
     province{ _province }
 {
-    this->text(province->name.get_string());
+    this->text(province.name.get_string());
 
     // Initial product info
     unsigned int dy = 0;
@@ -230,7 +230,7 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, const Pro
     dy += build_btn->height;
 
     for(unsigned int i = 0; i < gs.world->building_types.size(); i++) {
-        if(province->buildings[i].level) {
+        if(province.buildings[i].level) {
             auto* info = new BuildingInfo(this->gs, 0, dy, province, i, this);
             this->building_infos.push_back(info);
             dy += info->height;
@@ -238,12 +238,13 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, const Pro
     }
 }
 
-ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, const Province* _province, UI::Widget* _parent)
+ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)
     : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
     gs{ _gs },
-    province{ _province }
+    province{ _province },
+    culture{ _gs.world->cultures[0] }
 {
-    this->text(province->name.get_string());
+    this->text(province.name.get_string());
     this->is_scroll = true;
 
     // Initial product info
@@ -252,7 +253,7 @@ ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, con
         auto* btn = new UI::Button(0, dy, 128, 24, this);
         btn->text(culture.name.get_string());
         btn->set_on_click([this, &culture](UI::Widget&) {
-            for(auto& pop : const_cast<Province*>(this->province)->pops) {
+            for(auto& pop : const_cast<Province&>(this->province).pops) {
                 pop.culture = &culture;
             }
             this->gs.map->update_mapmode();
@@ -262,12 +263,13 @@ ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, con
     }
 }
 
-ProvinceEditReligionTab::ProvinceEditReligionTab(GameState& _gs, int x, int y, const Province* _province, UI::Widget* _parent)
+ProvinceEditReligionTab::ProvinceEditReligionTab(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)
     : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
     gs{ _gs },
-    province{ _province }
+    province{ _province },
+    religion{ _gs.world->religions[0] }
 {
-    this->text(province->name.get_string());
+    this->text(province.name.get_string());
     this->is_scroll = true;
 
     // Initial product info
@@ -276,7 +278,7 @@ ProvinceEditReligionTab::ProvinceEditReligionTab(GameState& _gs, int x, int y, c
         auto* btn = new UI::Button(0, dy, 128, 24, this);
         btn->text(religion.name.get_string());
         btn->set_on_click([this, &religion](UI::Widget&) {
-            for(auto& pop : const_cast<Province*>(this->province)->pops) {
+            for(auto& pop : const_cast<Province&>(this->province).pops) {
                 pop.religion = &religion;
             }
             this->gs.map->update_mapmode();
@@ -286,12 +288,13 @@ ProvinceEditReligionTab::ProvinceEditReligionTab(GameState& _gs, int x, int y, c
     }
 }
 
-ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, const Province* _province, UI::Widget* _parent)
+ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)
     : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
     gs{ _gs },
-    province{ _province }
+    province{ _province },
+    terrain_type{ _gs.world->terrain_types[0] }
 {
-    this->text(province->name.get_string());
+    this->text(province.name.get_string());
 
     std::vector<int> sizes{ 96, 128 };
     std::vector<std::string> header{ "Landscape", "Name" };
@@ -317,7 +320,7 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, con
             name->set_tooltip(name_str);
             name->set_key(name_str);
             name->set_on_click([this, &terrain_type](UI::Widget&) {
-                const_cast<Province*>(this->province)->terrain_type = const_cast<TerrainType*>(&terrain_type);
+                const_cast<Province&>(this->province).terrain_type = const_cast<TerrainType*>(&terrain_type);
                 this->gs.map->update_mapmode();
             });
         }
@@ -325,7 +328,7 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, con
     table->on_each_tick(*table);
 }
 
-ProvinceView::ProvinceView(GameState& _gs, const Province* _province)
+ProvinceView::ProvinceView(GameState& _gs, Province& _province)
     : UI::Window(-400, 0, 400, _gs.height),
     gs{ _gs },
     province{ _province }
@@ -334,7 +337,7 @@ ProvinceView::ProvinceView(GameState& _gs, const Province* _province)
         gs.right_side_panel->kill();
     }
     gs.right_side_panel = this;
-    gs.map->set_selected_province(true, _gs.world->get_id(*_province));
+    gs.map->set_selected_province(true, _gs.world->get_id(_province));
 
     this->set_close_btn_function([this](Widget&) {
         this->kill();
@@ -344,7 +347,7 @@ ProvinceView::ProvinceView(GameState& _gs, const Province* _province)
 
     this->origin = UI::Origin::UPPER_RIGHT_SCREEN;
     this->is_scroll = false;
-    this->text(province->name.get_string());
+    this->text(province.name.get_string());
 
     this->pop_tab = new ProvincePopulationTab(gs, 0, 32, province, this);
     this->pop_tab->is_render = true;
@@ -383,14 +386,14 @@ ProvinceView::ProvinceView(GameState& _gs, const Province* _province)
 
     if(gs.editor) {
         rename_inp = new UI::Input(0, this->height - (64 + 24), 128, 24, this);
-        rename_inp->set_buffer(province->name.get_string());
+        rename_inp->set_buffer(province.name.get_string());
 
         auto* xchg_name_btn = new UI::Button(0, this->height - (64 + 24), 32, 32, this);
         xchg_name_btn->right_side_of(*rename_inp);
         xchg_name_btn->set_on_click([this](UI::Widget&) {
-            const_cast<Province*>(this->province)->name = this->rename_inp->get_buffer();
+            const_cast<Province&>(this->province).name = this->rename_inp->get_buffer();
             this->gs.map->create_labels();
-            this->gs.ui_ctx->prompt("Update", "Updated name of province to \"" + this->province->name + "\"!");
+            this->gs.ui_ctx->prompt("Update", "Updated name of province to \"" + this->province.name + "\"!");
         });
         xchg_name_btn->set_tooltip("Rename province");
 
@@ -400,7 +403,7 @@ ProvinceView::ProvinceView(GameState& _gs, const Province* _province)
         density_sld->set_on_click([this](UI::Widget& w) {
             w.text(std::to_string(((UI::Slider&)w).get_value()));
             const float den = this->density_sld->value;
-            for(auto& pop : const_cast<Province*>(this->province)->pops) {
+            for(auto& pop : const_cast<Province&>(this->province).pops) {
                 pop.size *= den;
             }
             this->gs.map->update_mapmode();
@@ -432,7 +435,7 @@ ProvinceView::ProvinceView(GameState& _gs, const Province* _province)
                 pop.size = 1000.f / std::max<Eng3D::Decimal>(0.01f, pop_type.social_value);
                 pop.literacy = max_sv / std::max<Eng3D::Decimal>(0.01f, pop_type.social_value);
                 pop.budget = 100.f * max_sv;
-                const_cast<Province*>(this->province)->pops.push_back(pop);
+                const_cast<Province&>(this->province).pops.push_back(pop);
             }
             this->gs.map->update_mapmode();
         });
@@ -442,7 +445,7 @@ ProvinceView::ProvinceView(GameState& _gs, const Province* _province)
         clear_pops_btn->below_of(*density_sld);
         clear_pops_btn->right_side_of(*fill_pops_btn);
         clear_pops_btn->set_on_click([this](UI::Widget&) {
-            const_cast<Province*>(this->province)->pops.clear();
+            const_cast<Province&>(this->province).pops.clear();
             this->gs.map->update_mapmode();
         });
         clear_pops_btn->set_tooltip("Removes all POPs from this province ;)");

@@ -43,10 +43,6 @@ Eng3D::Line::Line(float start_x, float start_y, float end_x, float end_y)
     upload();
 }
 
-Eng3D::Line::~Line(void) {
-
-}
-
 Eng3D::Square::Square(float start_x, float start_y, float end_x, float end_y)
     : Eng3D::Mesh<glm::vec2, glm::vec2>(Eng3D::MeshMode::TRIANGLES)
 {
@@ -75,10 +71,6 @@ Eng3D::Square::Square(const Eng3D::Rect& pos, const Eng3D::Rect& texcoord)
     upload();
 }
 
-Eng3D::Square::~Square(void) {
-
-}
-
 Eng3D::TriangleList::TriangleList(std::vector<glm::vec3>& positions, std::vector<glm::vec2>& tex_coords)
     : Eng3D::Mesh<glm::vec3, glm::vec2>(Eng3D::MeshMode::TRIANGLES)
 {
@@ -87,10 +79,6 @@ Eng3D::TriangleList::TriangleList(std::vector<glm::vec3>& positions, std::vector
         buffer[i] = Eng3D::MeshData<glm::vec3, glm::vec2>(positions[i], tex_coords[i]);
     }
     upload();
-}
-
-Eng3D::TriangleList::~TriangleList(void) {
-
 }
 
 Eng3D::Quad::Quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4)
@@ -107,10 +95,6 @@ Eng3D::Quad::Quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4)
     upload();
 }
 
-Eng3D::Quad::~Quad(void) {
-
-}
-
 Eng3D::Quad2D::Quad2D(void)
     : Eng3D::Mesh<glm::vec2, glm::vec2>(Eng3D::MeshMode::TRIANGLES)
 {
@@ -123,10 +107,6 @@ Eng3D::Quad2D::Quad2D(void)
     buffer[5] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(1.f, 1.f), glm::vec2(1.f, 1.f));
 
     upload();
-}
-
-Eng3D::Quad2D::~Quad2D(void) {
-
 }
 
 Eng3D::Sphere::Sphere(float center_x, float center_y, float center_z, float _radius, int _resolution, bool cw_winding)
@@ -150,10 +130,6 @@ Eng3D::Sphere::Sphere(float center_x, float center_y, float center_z, float _rad
     }
 
     upload();
-}
-
-Eng3D::Sphere::~Sphere(void) {
-
 }
 
 Eng3D::MeshData<glm::vec3, glm::vec2> Eng3D::Sphere::calc_pos(glm::vec3 center_pos, float longitude, float latitude) {

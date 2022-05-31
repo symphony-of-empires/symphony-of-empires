@@ -136,9 +136,9 @@ public:
     LIST_FOR_LOCAL_TYPE(Technology, technologies, std::vector);
     LIST_FOR_LOCAL_TYPE(NationModifier, nation_modifiers, std::vector);
     LIST_FOR_LOCAL_TYPE(TerrainType, terrain_types, std::vector);
-
-    LIST_FOR_TYPE(Nation, nations, std::vector);
-    LIST_FOR_TYPE(Province, provinces, std::vector);
+    LIST_FOR_LOCAL_TYPE(Province, provinces, std::vector);
+    LIST_FOR_LOCAL_TYPE(Nation, nations, std::vector);
+    
     LIST_FOR_TYPE(Event, events, std::vector);
     LIST_FOR_TYPE(Unit, units, std::vector);
     LIST_FOR_TYPE(Treaty, treaties, std::vector);

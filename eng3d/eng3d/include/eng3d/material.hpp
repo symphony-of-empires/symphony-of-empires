@@ -40,6 +40,9 @@ namespace Eng3D {
         Material();
         ~Material();
 
+        glm::vec3 color;
+        float specular_exp;
+        float optical_density;
         glm::vec4 diffuse_color;
         std::shared_ptr<Eng3D::Texture> diffuse_map;
         glm::vec4 ambient_color;
@@ -52,10 +55,6 @@ namespace Eng3D {
         std::shared_ptr<Eng3D::Texture> height_map;
         std::shared_ptr<Eng3D::Texture> normal_map;
         std::shared_ptr<Eng3D::Texture> roughness_map;
-
-        glm::vec3 color;
-        float specular_exp;
-        float optical_density;
     };
 
     class MaterialManager {

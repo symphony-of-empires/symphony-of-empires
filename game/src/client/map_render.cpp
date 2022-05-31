@@ -96,7 +96,7 @@ MapRender::MapRender(const World& _world)
     size_t terrain_map_size = terrain_map->width * terrain_map->height;
     for(size_t i = 0; i < terrain_map_size; i++) {
         const uint32_t color = terrain_map->buffer.get()[i];
-        
+
         uint8_t idx = 0;
         switch(bswap32(color << 8)) {
         case 0x18200b:
@@ -142,7 +142,7 @@ MapRender::MapRender(const World& _world)
             break;
         }
     }
-    
+
     Eng3D::TextureOptions single_color{};
     single_color.internal_format = GL_RGBA;
     single_color.compressed = false;
@@ -183,14 +183,12 @@ MapRender::MapRender(const World& _world)
     // Texture holding each province color
     // The x & y coords are the province Red & Green color of the tile_map
     tile_sheet = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(256, 256));
-    for(unsigned int i = 0; i < 256 * 256; i++) {
+    for(unsigned int i = 0; i < 256 * 256; i++)
         tile_sheet->buffer.get()[i] = 0xffdddddd;
-    }
 
     tile_sheet_nation = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(256, 256));
-    for(unsigned int i = 0; i < 256 * 256; i++) {
+    for(unsigned int i = 0; i < 256 * 256; i++)
         tile_sheet_nation->buffer.get()[i] = 0xffdddddd;
-    }
 
     // By default textures will be dropped from the CPU in order to save memory, however we're trying
     // to make a buffer-texture so we have to keep it or we will have trouble
@@ -202,9 +200,8 @@ MapRender::MapRender(const World& _world)
 
     // Province options
     province_opt = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(256, 256));
-    for(unsigned int i = 0; i < 256 * 256; i++) {
+    for(unsigned int i = 0; i < 256 * 256; i++)
         province_opt->buffer.get()[i] = 0x000000ff;
-    }
     {
         Eng3D::TextureOptions no_drop_options{};
         no_drop_options.editable = true;
@@ -378,11 +375,10 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
         sdf_shader->set_uniform("jump", (float)step);
 
         fbo.set_texture(0, drawOnTex0 ? *border_sdf : *swap_tex);
-        if(step == max_dist) {
+        if(step == max_dist)
             sdf_shader->set_texture(0, "tex", border_tex);
-        } else {
+        else
             sdf_shader->set_texture(0, "tex", drawOnTex0 ? *swap_tex : *border_sdf);
-        }
         // Draw a plane over the entire screen to invoke shaders
         map_2d_quad->draw();
     }
@@ -404,14 +400,12 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
 void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
     // Water
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
-        auto terrain_type = world.provinces[i]->terrain_type;
-        if(terrain_type->is_water_body) {
+        auto terrain_type = world.provinces[i].terrain_type;
+        if(terrain_type->is_water_body)
             province_colors[i] = ProvinceColor(i, Eng3D::Color::rgba32(0x00000000));
-        }
     }
-    for(auto const& province_color : province_colors) {
+    for(auto const& province_color : province_colors)
         tile_sheet->buffer.get()[province_color.id] = province_color.color.get_value();
-    }
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
     no_drop_options.internal_format = GL_SRGB;
@@ -419,12 +413,11 @@ void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
 }
 
 // Updates nations
-void MapRender::update_nations(std::vector<Province*> provinces) {
+void MapRender::update_nations(std::vector<Province> provinces) {
     for(auto const& province : provinces) {
-        if(province->controller == nullptr) {
+        if(province.controller == nullptr)
             continue;
-        }
-        this->tile_sheet_nation->buffer.get()[province->cached_id] = province->controller->cached_id;
+        this->tile_sheet_nation->buffer.get()[province.cached_id] = province.controller->cached_id;
     }
 
     Eng3D::TextureOptions no_drop_options{};
@@ -440,39 +433,33 @@ void MapRender::request_update_visibility(void)
 void MapRender::update_visibility(void)
 {
     const auto& gs = (GameState&)GameState::get_instance();
-    if(gs.curr_nation == nullptr) {
+    if(gs.curr_nation == nullptr)
         return;
-    }
 
     /// @todo Check that unit is allied with us/province owned by an ally
 
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
-    for(unsigned int i = 0; i < 256 * 256; i++) {
+    for(unsigned int i = 0; i < 256 * 256; i++)
         province_opt->buffer.get()[i] = 0x00000080;
-    }
-    
+
     for(const auto& province : gs.curr_nation->controlled_provinces) {
         this->province_opt->buffer.get()[gs.world->get_id(*province)] = 0x000000ff;
-        for(const auto& neighbour : province->neighbours) {
+        for(const auto& neighbour : province->neighbours)
             this->province_opt->buffer.get()[gs.world->get_id(*neighbour)] = 0x000000ff;
-        }
     }
 
     for(const auto& unit : gs.world->units) {
         // Unit must be ours
-        if(unit->owner != gs.curr_nation) {
+        if(unit->owner != gs.curr_nation)
             continue;
-        }
 
         this->province_opt->buffer.get()[gs.world->get_id(*unit->province)] = 0x000000ff;
-        for(const auto& neighbour : unit->province->neighbours) {
+        for(const auto& neighbour : unit->province->neighbours)
             this->province_opt->buffer.get()[gs.world->get_id(*neighbour)] = 0x000000ff;
-        }
     }
-    if (gs.map->province_selected) {
+    if(gs.map->province_selected)
         this->province_opt->buffer.get()[gs.map->selected_province_id] = 0x400000ff;
-    }
     this->province_opt->upload(no_drop_options);
 }
 
@@ -498,26 +485,18 @@ void MapRender::draw(Eng3D::Camera* camera, MapView view_mode) {
     auto millisec_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
     float time = (float)(millisec_since_epoch % 1000000) / 1000.f;
     map_shader->set_uniform("time", time);
-
     // Map should have no "model" matrix since it's always static
     map_shader->set_texture(0, "tile_map", *tile_map); // 4 col
     map_shader->set_texture(1, "tile_sheet", *tile_sheet);
     map_shader->set_texture(2, "water_texture", *water_tex);
-    if(options.noise.used) {
+    if(options.noise.used)
         map_shader->set_texture(3, "noise_texture", *noise_tex);
-    }
     map_shader->set_texture(4, "terrain_map", *terrain_map); // 1 col
-
-    if(options.sdf.used) {
+    if(options.sdf.used)
         map_shader->set_texture(6, "border_sdf", *(border_sdf.get())); // 1 col
-    }
-
     map_shader->set_texture(7, "bathymethry", *bathymethry); // 1 col
-
-    if(options.rivers.used) {
+    if(options.rivers.used)
         map_shader->set_texture(9, "river_texture", *river_tex); // 1 col
-    }
-
     if(options.lighting.used) {
         map_shader->set_texture(10, "wave1", *wave1);
         map_shader->set_texture(11, "wave2", *wave2);
@@ -527,7 +506,6 @@ void MapRender::draw(Eng3D::Camera* camera, MapView view_mode) {
     // map_shader->set_texture(14, "stripes", *stripes_tex);
     map_shader->set_texture(14, "tile_sheet_nation", *tile_sheet_nation);
     map_shader->set_texture(15, "province_opt", *province_opt);
-
     map_shader->set_texture(16, "terrain_sheet", *terrain_sheet);
 
     if(view_mode == MapView::PLANE_VIEW) {

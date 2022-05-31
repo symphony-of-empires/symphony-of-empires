@@ -33,12 +33,10 @@ namespace Interface {
         GameState& gs;
     public:
         TopWindow(GameState& gs);
-
     };
     class TimeControlView : public UI::Group {
         GameState& gs;
     public:
         TimeControlView(GameState& gs);
-
     };
 };

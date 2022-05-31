@@ -343,10 +343,6 @@ World::~World() {
     lua_close(lua);
     for(auto& event : events) {
         delete event;
-    } for(auto& province : provinces) {
-        delete province;
-    } for(auto& nation : nations) {
-        delete nation;
     } for(auto& unit : units) {
         delete unit;
     } for(auto& war : wars) {
@@ -402,7 +398,7 @@ void World::load_initial(void) {
 
     std::uint64_t checksum = 0;
     for(auto& province : provinces) {
-        checksum += static_cast<std::uint64_t>(province->color);
+        checksum += static_cast<std::uint64_t>(province.color);
     }
     checksum = (checksum * width + height) * provinces.size();
 
@@ -421,11 +417,11 @@ void World::load_initial(void) {
             ::deserialize(ar, &height);
             tiles = std::make_unique<Tile[]>(width * height);
             for(auto& province : provinces) {
-                ::deserialize(ar, &province->neighbours);
-                ::deserialize(ar, &province->max_x);
-                ::deserialize(ar, &province->max_y);
-                ::deserialize(ar, &province->min_x);
-                ::deserialize(ar, &province->min_y);
+                ::deserialize(ar, &province.neighbours);
+                ::deserialize(ar, &province.max_x);
+                ::deserialize(ar, &province.max_y);
+                ::deserialize(ar, &province.min_x);
+                ::deserialize(ar, &province.min_y);
             }
 
             for(size_t i = 0; i < width * height; i++) {
@@ -452,7 +448,7 @@ void World::load_initial(void) {
         Eng3D::Log::debug("game", Eng3D::Locale::translate("Building the province lookup table"));
         std::vector<Province::Id> province_color_table(0xffffff + 1, Province::invalid());
         for(auto& province : provinces) {
-            province_color_table[province->color & 0xffffff] = this->get_id(*province);
+            province_color_table[province.color & 0xffffff] = this->get_id(province);
         }
 
         const uint32_t* raw_buffer = div->buffer.get();
@@ -482,9 +478,9 @@ void World::load_initial(void) {
                 for(size_t i = 0; i < province_color_table.size(); i++) {
                     uint32_t color = i << 8;
 
-                        if(i % 128) {
-                            continue;
-                        }
+                    if(i % 128) {
+                        continue;
+                    }
 
                     if(Province::is_invalid(province_color_table[i])) {
                         fprintf(color_fp.get(), "%06lx\n", static_cast<unsigned long int>(bswap32(color)));
@@ -497,8 +493,8 @@ void World::load_initial(void) {
         }
 
         for(auto& province : provinces) {
-            if (!colors_used.contains(province->color & 0xffffff)) {
-                std::string error = "Province '" + province->ref_name + "' is registered but missing on province.png, please add it!";
+            if(!colors_used.contains(province.color & 0xffffff)) {
+                std::string error = "Province '" + province.ref_name + "' is registered but missing on province.png, please add it!";
                 Eng3D::Log::error("game", error);
                 // CXX_THROW(std::runtime_error, error.c_str());
             }
@@ -509,7 +505,7 @@ void World::load_initial(void) {
         for(size_t j = 0; j < height; j++) {
             for(size_t i = 0; i < width; i++) {
                 const Tile& tile = this->get_tile(i, j);
-                auto& province = *provinces[tile.province_id];
+                auto& province = provinces[tile.province_id];
                 province.max_x = std::max(province.max_x, i);
                 province.max_y = std::max(province.max_y, j);
                 province.min_x = std::min(province.min_x, i);
@@ -520,8 +516,8 @@ void World::load_initial(void) {
         // Correct stuff from provinces
         Eng3D::Log::debug("game", Eng3D::Locale::translate("Correcting values for provinces"));
         for(auto& province : provinces) {
-            province->max_x = std::min(width, province->max_x);
-            province->max_y = std::min(height, province->max_y);
+            province.max_x = std::min(width, province.max_x);
+            province.max_y = std::min(height, province.max_y);
         }
 
         // Neighbours
@@ -529,11 +525,11 @@ void World::load_initial(void) {
         for(size_t i = 0; i < width * height; i++) {
             const Tile* tile = &this->tiles[i];
             if(tile->province_id < static_cast<Province::Id>(-3)) {
-                Province* province = this->provinces[this->tiles[i].province_id];
+                Province& province = this->provinces[this->tiles[i].province_id];
                 const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
                 for(const auto& other_tile : tiles) {
                     if(other_tile->province_id != tile->province_id && other_tile->province_id < (Province::Id)-3) {
-                        province->neighbours.insert(this->provinces.at(other_tile->province_id));
+                        province.neighbours.insert(&this->provinces.at(other_tile->province_id));
                     }
                 }
             }
@@ -546,13 +542,12 @@ void World::load_initial(void) {
         ::serialize(ar, &height);
         for(const auto& province : provinces) {
             // Remove self from province->neighbours
-            province->neighbours.erase(province);
-            assert(!province->neighbours.empty());
-            ::serialize(ar, &province->neighbours);
-            ::serialize(ar, &province->max_x);
-            ::serialize(ar, &province->max_y);
-            ::serialize(ar, &province->min_x);
-            ::serialize(ar, &province->min_y);
+            assert(!province.neighbours.empty());
+            ::serialize(ar, &province.neighbours);
+            ::serialize(ar, &province.max_x);
+            ::serialize(ar, &province.max_y);
+            ::serialize(ar, &province.min_x);
+            ::serialize(ar, &province.min_y);
         }
         for(size_t i = 0; i < width * height; i++) {
             ::serialize(ar, &tiles[i]);
@@ -581,18 +576,12 @@ void World::load_initial(void) {
     Eng3D::Log::debug("game", Eng3D::Locale::translate("World partially intiialized"));
     // Auto-relocate capitals for countries which do not have one
     for(auto& nation : this->nations) {
-        // Must exist
-        if(!nation->exists()) {
+        // Must exist and not have a capital
+        if(!nation.exists() || nation.capital != nullptr)
             continue;
-        }
 
-        // Must not have already a capital set
-        if(nation->capital != nullptr) {
-            continue;
-        }
-
-        Eng3D::Log::debug("game", Eng3D::Locale::translate("Relocating capital of [" + nation->ref_name + "]"));
-        nation->auto_relocate_capital();
+        Eng3D::Log::debug("game", Eng3D::Locale::translate("Relocating capital of [" + nation.ref_name + "]"));
+        nation.auto_relocate_capital();
     }
 }
 
@@ -607,9 +596,9 @@ void World::load_mod(void) {
 
     // Default init for policies
     for(auto& nation : this->nations) {
-        nation->budget = 10000.f;
+        nation.budget = 10000.f;
 
-        Policies& policy = nation->current_policy;
+        Policies& policy = nation.current_policy;
         policy.import_tax = 0.1f;
         policy.export_tax = 0.1f;
         policy.domestic_export_tax = 0.1f;
@@ -657,13 +646,12 @@ static inline void unit_do_tick(Unit& unit)
             } else {
                 unit.set_province(*unit.target);
                 // Only take control of provinces of the people we're at war with
-                if(can_take) {
+                if(can_take)
                     unit.owner->control_province(*unit.target);
-                }
             }
         }
     }
-    
+
     // If there is another unit of a country we are at war with we will start a battle
     for(auto& war : g_world->wars) {
         if(war->is_involved(*unit.owner)) {
@@ -677,20 +665,18 @@ static inline void unit_do_tick(Unit& unit)
                 // See above code, by our logic the other unit should already be in a battle if it's
                 // against us, and if it is not, and it's probably wise to attack them
                 for(auto& other_unit : unit.province->get_units()) {
-                    if(other_unit->owner == unit.owner || other_unit->on_battle) {
+                    if(other_unit->owner == unit.owner || other_unit->on_battle)
                         continue;
-                    }
 
                     // Check relations, if we're at war we will attack this unit
                     const auto& relation = g_world->get_relation(g_world->get_id(*unit.owner), g_world->get_id(*other_unit->owner));
-                    if(!relation.has_war) {
+                    if(!relation.has_war)
                         continue;
-                    }
 
                     // If we found an unit we can attack, start a battle
                     unit.on_battle = true;
                     other_unit->on_battle = true;
-                    
+
                     Battle battle = Battle(*war, *unit.province);
                     battle.name = "Battle of " + unit.province->name;
                     if(war->is_attacker(*unit.owner)) {
@@ -728,20 +714,14 @@ static inline void unit_do_tick(Unit& unit)
     }
 }
 
-#include <tbb/blocked_range.h>
-#include <tbb/combinable.h>
-#include <tbb/concurrent_vector.h>
-#include <tbb/parallel_for.h>
-
 void World::do_tick() {
     profiler.start("AI");
     // Do the AI turns in parallel
     tbb::parallel_for(tbb::blocked_range(nations.begin(), nations.end()), [this](auto& nations_range) {
-        for(const auto& nation : nations_range) {
-            if(!nation->exists()) {
+        for(auto& nation : nations_range) {
+            if(!nation.exists())
                 return;
-            }
-            ai_do_tick(*nation);
+            ai_do_tick(nation);
         }
     });
     profiler.stop("AI");
@@ -761,23 +741,22 @@ void World::do_tick() {
     std::vector<Eng3D::Decimal> mil_research_pts(nations.size(), 0.f);
     std::vector<Eng3D::Decimal> naval_research_pts(nations.size(), 0.f);
     // Now researches for every country are going to be accounted :)
-    for(const auto& nation : nations) {
-        assert(nation != nullptr);
+    for(auto& nation : nations) {
         for(const auto& technology : technologies) {
-            if(!nation->can_research(technology)) {
+            if(!nation.can_research(technology)) {
                 continue;
             }
 
-            Eng3D::Decimal* research_progress = &nation->research[get_id(technology)];
+            Eng3D::Decimal* research_progress = &nation.research[get_id(technology)];
             if(!(*research_progress)) {
                 continue;
             }
 
             Eng3D::Decimal* pts_count;
             if(technology.type == TechnologyType::MILITARY) {
-                pts_count = &mil_research_pts[get_id(*nation)];
+                pts_count = &mil_research_pts[get_id(nation)];
             } else if(technology.type == TechnologyType::NAVY) {
-                pts_count = &naval_research_pts[get_id(*nation)];
+                pts_count = &naval_research_pts[get_id(nation)];
             } else {
                 continue;
             }

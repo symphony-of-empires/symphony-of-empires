@@ -204,7 +204,7 @@ MainMenu::MainMenu(GameState& _gs)
     edit_btn->text("Editor");
     edit_btn->set_on_click([this](UI::Widget&) {
         gs.current_mode = MapMode::NORMAL;
-        
+
         gs.host_mode = true;
         gs.server = new Server(gs, 1836);
         gs.client = new Client(gs, "127.0.0.1", 1836);
@@ -214,7 +214,7 @@ MainMenu::MainMenu(GameState& _gs)
 
         this->kill();
 
-        gs.curr_nation = gs.world->nations[0];
+        gs.curr_nation = &gs.world->nations[0];
         this->gs.play_nation();
     });
 
@@ -245,11 +245,9 @@ MainMenu::MainMenu(GameState& _gs)
 }
 
 MainMenu::~MainMenu() {
-    if(settings_window != nullptr) {
+    if(settings_window != nullptr)
         settings_window->kill();
-    }
 
-    if(connect_window != nullptr) {
+    if(connect_window != nullptr)
         connect_window->kill();
-    }
 }

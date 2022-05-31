@@ -36,40 +36,41 @@ namespace Eng3D {
     class Line: public Eng3D::Mesh<glm::vec2, glm::vec2> {
     public:
         Line(float start_x, float start_y, float end_x, float end_y);
-        ~Line();
+        ~Line() {};
     };
 
     class Square: public Eng3D::Mesh<glm::vec2, glm::vec2> {
     public:
         Square(float start_x, float start_y, float end_x, float end_y);
         Square(const Eng3D::Rect& pos, const Eng3D::Rect& texcoord);
-        ~Square();
+        ~Square() {};
     };
 
     class TriangleList: public Eng3D::Mesh<glm::vec3, glm::vec2> {
     public:
         TriangleList(std::vector<glm::vec3>& positions, std::vector<glm::vec2>& tex_coords);
-        ~TriangleList();
+        ~TriangleList() {};
     };
     
     class Quad: public Eng3D::Mesh<glm::vec3, glm::vec2> {
     public:
         Quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4);
-        ~Quad();
+        ~Quad() {};
     };
 
     class Quad2D: public Eng3D::Mesh<glm::vec2, glm::vec2> {
     public:
         Quad2D();
-        ~Quad2D();
+        ~Quad2D() {};
     };
 
     class Sphere: public Eng3D::Mesh<glm::vec3, glm::vec2> {
-        Eng3D::MeshData<glm::vec3, glm::vec2> calc_pos(glm::vec3 center_pos, float longitude, float latitude);
-        int resolution;
     public:
         Sphere(float x, float y, float z, float radius, int resolution, bool cw_winding = true);
-        ~Sphere();
+        ~Sphere() {};
         float radius;
+    private:
+        Eng3D::MeshData<glm::vec3, glm::vec2> calc_pos(glm::vec3 center_pos, float longitude, float latitude);
+        int resolution;
     };
 }

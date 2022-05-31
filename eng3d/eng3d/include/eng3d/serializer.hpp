@@ -34,12 +34,12 @@
 #include <vector>
 #include <cstdio>
 #include <type_traits>
+#include "eng3d/utils.hpp"
 
 // The purpouse of the serializer is to serialize objects onto a byte stream
-// that can be transfered onto the disk or over the network.
-//
-// Should the object have any pointers - they would need to be converted to
-// indexes accordingly for proper transmission.
+// that can be transfered onto the disk or over the network. Should the object have
+// any pointers - they would need to be converted to indexes accordingly for
+// proper transmission.
 class SerializerException : public std::exception {
     std::string buffer;
 public:
@@ -57,16 +57,49 @@ class Archive {
 public:
     Archive() {};
     ~Archive() {};
-    void copy_to(void* ptr, size_t size);
-    void copy_from(const void* ptr, size_t size);
-    void expand(size_t amount);
-    void end_stream(void);
-    void rewind(void);
     void to_file(const std::string& path);
     void from_file(const std::string& path);
-    void* get_buffer(void);
-    void set_buffer(void* buf, size_t size);
-    size_t size(void);
+
+    inline void copy_to(void* ptr, size_t size) {
+        if(size > buffer.size() - this->ptr)
+            CXX_THROW(SerializerException, "Buffer too small for write");
+        
+        std::memcpy(ptr, &buffer[this->ptr], size);
+        this->ptr += size;
+    }
+
+    inline void copy_from(const void* ptr, size_t size) {
+        if(size > buffer.size() - this->ptr)
+            CXX_THROW(SerializerException, "Buffer too small for read");
+        
+        std::memcpy(&buffer[this->ptr], ptr, size);
+        this->ptr += size;
+    }
+
+    inline void expand(size_t amount) {
+        buffer.resize(buffer.size() + amount);
+    }
+
+    inline void end_stream(void) {
+        buffer.shrink_to_fit();
+    }
+
+    inline void rewind(void) {
+        ptr = 0;
+    }
+
+    inline const void* get_buffer(void) {
+        return static_cast<const void*>(&buffer[0]);
+    }
+    
+    inline void set_buffer(const void* buf, size_t size) {
+        buffer.resize(size);
+        std::memcpy(&buffer[0], buf, size);
+    }
+
+    inline size_t size(void) {
+        return buffer.size();
+    }
 
     std::vector<uint8_t> buffer;
     size_t ptr = 0;
@@ -94,7 +127,7 @@ inline void deser_dynamic(Archive& ar, T* obj) {
 }
 
 template<typename T>
-inline void serialize(Archive& ar, T* obj) {
+inline void serialize(Archive& ar, const T* obj) {
     Serializer<const T>::template deser_dynamic<true>(ar, obj);
 }
 
@@ -132,29 +165,33 @@ class SerializerNumber : public SerializerMemcpy<T> {};
 
 // Serializers for primitives only require memcpy
 template<>
-class Serializer<uint64_t> : public SerializerNumber<uint64_t> {};
+class Serializer<signed char> : public SerializerNumber<signed char> {};
 template<>
-class Serializer<uint32_t> : public SerializerNumber<uint32_t> {};
+class Serializer<signed short> : public SerializerNumber<signed short> {};
 template<>
-class Serializer<uint16_t> : public SerializerNumber<uint16_t> {};
+class Serializer<signed int> : public SerializerNumber<signed int> {};
 template<>
-class Serializer<uint8_t> : public SerializerNumber<uint8_t> {};
+class Serializer<signed long> : public SerializerNumber<signed long> {};
+template<>
+class Serializer<signed long long> : public SerializerNumber<signed long long> {};
 
 template<>
-class Serializer<int64_t> : public SerializerNumber<int64_t> {};
+class Serializer<unsigned char> : public SerializerNumber<unsigned char> {};
 template<>
-class Serializer<int32_t> : public SerializerNumber<int32_t> {};
+class Serializer<unsigned short> : public SerializerNumber<unsigned short> {};
 template<>
-class Serializer<int16_t> : public SerializerNumber<int16_t> {};
+class Serializer<unsigned int> : public SerializerNumber<unsigned int> {};
 template<>
-class Serializer<int8_t> : public SerializerNumber<int8_t> {};
+class Serializer<unsigned long> : public SerializerNumber<unsigned long> {};
+template<>
+class Serializer<unsigned long long> : public SerializerNumber<unsigned long long> {};
 
 template<>
-class Serializer<long double> : public SerializerNumber<long double> {};
+class Serializer<float> : public SerializerNumber<float> {};
 template<>
 class Serializer<double> : public SerializerNumber<double> {};
 template<>
-class Serializer<float> : public SerializerNumber<float> {};
+class Serializer<long double> : public SerializerNumber<long double> {};
 
 // A serializer specialized in strings
 // The serializer stores the lenght of the string and the string itself
@@ -165,14 +202,9 @@ public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, std::string* obj) {
         if constexpr(is_serialize) {
-            uint16_t len = obj->length();
-
             // Truncate lenght
-            if(len >= 1024)
-                len = 1024;
-
-            // Put length for later deserialization (since UTF-8/UTF-16 exists)
-            ::serialize(ar, &len);
+            uint16_t len = static_cast<uint16_t>(std::min<size_t>(std::numeric_limits<uint16_t>::max(), obj->length()));
+            ::serialize(ar, &len); // Put length for later deserialization (since UTF-8/UTF-16 exists)
 
             // Copy the string into the output
             if(len) {
@@ -180,9 +212,7 @@ public:
                 ar.copy_from(obj->c_str(), len);
             }
         } else {
-            uint16_t len;
-
-            // Obtain the lenght of the string to be read
+            uint16_t len; // Obtain the lenght of the string to be read
             ::deserialize(ar, &len);
             if(len >= 1024)
                 throw SerializerException("String is too lenghty");
@@ -214,7 +244,6 @@ public:
         } else {
             uint32_t len;
             ::deser_dynamic<is_serialize>(ar, &len);
-            obj_group->clear();
             for(size_t i = 0; i < len; i++) {
                 T obj;
                 Serializer<T>::template deser_dynamic<is_serialize>(ar, &obj);
@@ -343,9 +372,9 @@ public:
             ::deser_dynamic<is_serialize>(ar, &id);
             if(id >= W::get_instance().get_list((T*)nullptr).size()) {
                 *obj = nullptr;
-                return;
+            } else {
+                *obj = (id != T::invalid()) ? W::get_instance().get_list((T*)nullptr)[id] : nullptr;
             }
-            *obj = (id != T::invalid()) ? W::get_instance().get_list((T*)nullptr)[id] : nullptr;
         }
     }
 };
@@ -364,9 +393,9 @@ public:
             ::deser_dynamic<is_serialize>(ar, &id);
             if(id >= W::get_instance().get_list((T*)nullptr).size()) {
                 *obj = nullptr;
-                return;
+            } else {
+                *obj = (id != T::invalid()) ? &(W::get_instance().get_list((T*)nullptr)[id]) : nullptr;
             }
-            *obj = (id != T::invalid()) ? &(W::get_instance().get_list((T*)nullptr)[id]) : nullptr;
         }
     }
 };
