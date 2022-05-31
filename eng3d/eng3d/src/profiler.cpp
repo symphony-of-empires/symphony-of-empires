@@ -149,8 +149,8 @@ void Profiler::render_done() {
     fps_timer += std::chrono::duration_cast<std::chrono::milliseconds>(now - fps_clock).count();
     fps_clock = now;
     frames++;
-    if(fps_timer > 1000.0) {           //every second
-        fps = (float)frames * 0.5 + fps * 0.5;  //more stable
+    if(fps_timer > 1000.0) { // Every second
+        fps = (float)frames * 0.5 + fps * 0.5;  // More stable
         frames = 0;
         fps_timer -= 1000.;
     }

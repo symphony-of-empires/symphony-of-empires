@@ -36,9 +36,9 @@ namespace UI {
 
 namespace Interface {
     class BattleWidget: public UI::Div {
-        const War* war;
+        War& war;
         size_t idx;
-        Map* map;
+        Map& map;
 
         UI::Image* left_flag_img;
         UI::Div* left_size_label;
@@ -46,8 +46,8 @@ namespace Interface {
         UI::Image* right_flag_img;
         UI::Div* right_size_label;
     public:
-        BattleWidget(const War* war, size_t idx, Map* map, UI::Widget* parent);
-        void set_battle(const War* war, size_t idx);
+        BattleWidget(War& war, size_t idx, Map& map, UI::Widget* parent);
+        void set_battle(War& war, size_t idx);
         virtual ~BattleWidget();
     };
 };

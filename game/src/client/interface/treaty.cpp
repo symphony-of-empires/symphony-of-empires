@@ -23,6 +23,7 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#include <algorithm>
 #include "eng3d/ui/components.hpp"
 
 #include "client/interface/treaty.hpp"
@@ -31,9 +32,9 @@
 
 using namespace Interface;
 
-std::string treaty_to_text(const Treaty* treaty) {
+std::string treaty_to_text(const Treaty& treaty) {
     std::string text = "";
-    for(const auto& clause : treaty->clauses) {
+    for(const auto& clause : treaty.clauses) {
         if(clause->type == TreatyClauseType::MONEY) {
             const auto* dyn_clause = static_cast<const TreatyClause::WarReparations*>(clause);
             text += dyn_clause->sender->name + " demands $" + std::to_string(dyn_clause->amount) + " from " + dyn_clause->receiver->name;
@@ -68,7 +69,7 @@ std::string treaty_to_text(const Treaty* treaty) {
     return text;
 }
 
-TreatyDraftView::TreatyDraftView(GameState& _gs, const Nation* _nation)
+TreatyDraftView::TreatyDraftView(GameState& _gs, Nation& _nation)
     : UI::Window(0, 0, 256, 512),
     gs{ _gs },
     nation{ _nation }
@@ -77,7 +78,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, const Nation* _nation)
     this->text("Draft treaty");
 
     this->treaty.sender = gs.curr_nation;
-    this->treaty.receiver = const_cast<Nation*>(nation);
+    this->treaty.receiver = &this->nation;
 
     auto* ceasefire_btn = new UI::Checkbox(0, 0, 128, 24, this);
     ceasefire_btn->text("Ceasefire");
@@ -85,7 +86,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, const Nation* _nation)
         if(((UI::Checkbox&)w).get_value()) {
             auto* clause = new TreatyClause::Ceasefire();
             clause->sender = this->gs.curr_nation;
-            clause->receiver = const_cast<Nation*>(this->nation);
+            clause->receiver = &(const_cast<Nation&>(this->nation));
             clause->days_duration = 360;
             this->treaty.clauses.push_back(clause);
         } else {
@@ -102,9 +103,9 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, const Nation* _nation)
         if(((UI::Checkbox&)w).get_value()) {
             auto* clause = new TreatyClause::AnnexProvince();
             clause->sender = this->gs.curr_nation;
-            clause->receiver = const_cast<Nation*>(this->nation);
+            clause->receiver = &(const_cast<Nation&>(this->nation));
             clause->days_duration = 0;
-            for(auto& province : this->nation->controlled_provinces) {
+            for(auto& province : this->nation.controlled_provinces) {
                 clause->provinces.push_back(province);
             }
             this->treaty.clauses.push_back(clause);
@@ -122,9 +123,9 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, const Nation* _nation)
         if(((UI::Checkbox&)w).get_value()) {
             auto* clause = new TreatyClause::AnnexProvince();
             clause->sender = this->gs.curr_nation;
-            clause->receiver = const_cast<Nation*>(this->nation);
+            clause->receiver = &(const_cast<Nation&>(this->nation));
             clause->days_duration = 0;
-            for(auto& province : this->nation->owned_provinces) {
+            for(auto& province : this->nation.owned_provinces) {
                 clause->provinces.push_back(province);
             }
             this->treaty.clauses.push_back(clause);
@@ -149,7 +150,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, const Nation* _nation)
         packet.data(ar.get_buffer(), ar.size());
         std::scoped_lock lock(this->gs.client->pending_packets_mutex);
         this->gs.client->pending_packets.push_back(packet);
-        this->gs.ui_ctx->prompt("Treaty", "Treaty drafted: " + treaty_to_text(&this->treaty));
+        this->gs.ui_ctx->prompt("Treaty", "Treaty drafted: " + treaty_to_text(this->treaty));
         this->kill();
     });
 }
@@ -163,7 +164,7 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, const Treaty* _treaty)
     this->text("Treaty proposal");
 
     this->body_txt = new UI::Text(0, 0, this->width, this->height - 24, this);
-    this->body_txt->text(treaty_to_text(_treaty));
+    this->body_txt->text(treaty_to_text(*_treaty));
 
     auto* approve_btn = new UI::Button(0, 0, 128, 24, this);
     approve_btn->below_of(*this->body_txt);

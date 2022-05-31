@@ -39,15 +39,13 @@ BuildingSelectProvinceTab::BuildingSelectProvinceTab(GameState& _gs, int x, int 
     gs{ _gs }
 {
     unsigned int i = 0;
-    for(const auto& province : gs.world->provinces) {
-        if(province->owner != gs.curr_nation) {
+    for(auto& province : gs.world->provinces) {
+        if(province.owner != gs.curr_nation)
             continue;
-        }
 
         auto* btn = new ProvinceButton(gs, 0, 24 * i, province, this);
         btn->set_on_click([](UI::Widget& w) {
-            auto& o = static_cast<BuildingBuildView&>(*w.parent->parent);
-            o.province = static_cast<ProvinceButton&>(w).province;
+            (static_cast<BuildingBuildView&>(*w.parent->parent)).province = (static_cast<ProvinceButton&>(w)).province;
         });
         i++;
     }
@@ -59,39 +57,34 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
 {
     unsigned int i = 0;
     for(auto& building_type : gs.world->building_types) {
-        auto* btn = new BuildingTypeButton(gs, 0, 24 * i, &building_type, this);
+        auto* btn = new BuildingTypeButton(gs, 0, 24 * i, building_type, this);
         btn->set_on_click([](UI::Widget& w) {
             auto& o = static_cast<BuildingBuildView&>(*w.parent->parent);
-            if(o.province == nullptr) {
-                o.gs.ui_ctx->prompt("Error", "Select a province to build it on");
-                return;
-            }
-
             if(o.gs.curr_nation->owned_provinces.empty()) {
                 o.gs.ui_ctx->prompt("Error", "You do not own any provinces");
                 return;
             }
             
-            const BuildingType& building_type = *((BuildingTypeButton&)w).building_type;
-            const_cast<Province*>(o.province)->add_building(building_type);
-            g_client->send(Action::BuildingAdd::form_packet(*o.province, building_type));
-            o.gs.ui_ctx->prompt("Production", "Building a " + building_type.name + " in " + o.province->ref_name + "; owned by " + o.province->controller->name);
+            const BuildingType& building_type = ((BuildingTypeButton&)w).building_type;
+            const_cast<Province&>(o.province).add_building(building_type);
+            g_client->send(Action::BuildingAdd::form_packet(o.province, building_type));
+            o.gs.ui_ctx->prompt("Production", "Building a " + building_type.name + " in " + o.province.ref_name + "; owned by " + o.province.controller->name);
         });
         i++;
     }
 }
 
-BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_tile, const Province* _province)
+BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_tile, Province& _province)
     : UI::Window(0, 0, 512, 512),
     gs{ _gs },
     province{ _province },
+    building_type{ _gs.world->building_types[0] },
     in_tile{ _in_tile },
     tx{ _tx },
     ty{ _ty }
 {
     this->is_scroll = false;
     this->text(Eng3D::Locale::translate("Build a new building"));
-
     this->set_close_btn_function([this](Widget&) {
         this->kill();
     });
@@ -118,14 +111,13 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
     });
 }
 
-BuildingView::BuildingView(GameState& _gs, const Building* _building)
+BuildingView::BuildingView(GameState& _gs, Building& _building)
     : UI::Window(0, 0, 512, 512),
     gs{ _gs },
     building{ _building }
 {
     this->is_scroll = false;
     this->text(Eng3D::Locale::translate("Information for this building"));
-
     this->set_close_btn_function([this](Widget&) {
         this->kill();
     });

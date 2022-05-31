@@ -46,10 +46,6 @@ class Serializer<ActionType>: public SerializerMemcpy<ActionType> {};
 
 // Global references
 template<>
-class Serializer<const Province*>: public SerializerReference<World, Province> {};
-template<>
-class Serializer<const Nation*>: public SerializerReference<World, Nation> {};
-template<>
 class Serializer<const Event*>: public SerializerReference<World, Event> {};
 template<>
 class Serializer<const Treaty*>: public SerializerReference<World, Treaty> {};
@@ -57,6 +53,10 @@ template<>
 class Serializer<const Unit*>: public SerializerReference<World, Unit> {};
 
 // Local references
+template<>
+class Serializer<const Province*>: public SerializerReferenceLocal<World, Province> {};
+template<>
+class Serializer<const Nation*>: public SerializerReferenceLocal<World, Nation> {};
 template<>
 class Serializer<const Culture*>: public SerializerReferenceLocal<World, Culture> {};
 template<>
@@ -82,10 +82,6 @@ class Serializer<const TerrainType*>: public SerializerReferenceLocal<World, Ter
 
 // Global references
 template<>
-class Serializer<Province*>: public SerializerReference<World, Province> {};
-template<>
-class Serializer<Nation*>: public SerializerReference<World, Nation> {};
-template<>
 class Serializer<Event*>: public SerializerReference<World, Event> {};
 template<>
 class Serializer<Treaty*>: public SerializerReference<World, Treaty> {};
@@ -93,6 +89,10 @@ template<>
 class Serializer<Unit*>: public SerializerReference<World, Unit> {};
 
 // Local references
+template<>
+class Serializer<Province*>: public SerializerReferenceLocal<World, Province> {};
+template<>
+class Serializer<Nation*>: public SerializerReferenceLocal<World, Nation> {};
 template<>
 class Serializer<Culture*>: public SerializerReferenceLocal<World, Culture> {};
 template<>
@@ -656,10 +656,6 @@ public:
             //    ::deserialize(ar, &obj->tiles[i]);
             //}
 
-            const Nation::Id n_nations = obj->nations.size();
-            ::serialize(ar, &n_nations);
-            const Province::Id n_provinces = obj->provinces.size();
-            ::serialize(ar, &n_provinces);
             const Event::Id n_events = obj->events.size();
             ::serialize(ar, &n_events);
             const Treaty::Id n_treaties = obj->treaties.size();
@@ -677,15 +673,11 @@ public:
             ::serialize(ar, &obj->ideologies);
             ::serialize(ar, &obj->technologies);
             ::serialize(ar, &obj->nation_modifiers);
+            ::serialize(ar, &obj->nations);
+            ::serialize(ar, &obj->provinces);
 
             for(size_t i = 0; i < obj->nations.size() * 2; i++) {
                 ::serialize(ar, &obj->relations);
-            }
-            for(auto& sub_obj : obj->nations) {
-                ::serialize(ar, sub_obj);
-            }
-            for(auto& sub_obj : obj->provinces) {
-                ::serialize(ar, sub_obj);
             }
             for(auto& sub_obj : obj->events) {
                 ::serialize(ar, sub_obj);
@@ -708,8 +700,6 @@ public:
 
             // In order to avoid post-deserialization relational patcher, we will simply allocate everything with "empty" objects,
             // then we will fill those spots as we deserialize
-            Nation::Id n_nations = deserialize_and_create_list<Nation>(ar, obj);
-            Province::Id n_provinces = deserialize_and_create_list<Province>(ar, obj);
             Event::Id n_events = deserialize_and_create_list<Event>(ar, obj);
             Treaty::Id n_treaties = deserialize_and_create_list<Treaty>(ar, obj);
             War::Id n_wars = deserialize_and_create_list<War>(ar, obj);
@@ -723,16 +713,10 @@ public:
             ::deserialize(ar, &obj->ideologies);
             ::deserialize(ar, &obj->technologies);
             ::deserialize(ar, &obj->nation_modifiers);
-            for(size_t i = 0; i < n_nations; i++) {
+            ::deserialize(ar, &obj->nations);
+            ::deserialize(ar, &obj->provinces);
+            for(size_t i = 0; i < obj->nations.size() * obj->nations.size(); i++) {
                 ::deserialize(ar, &obj->relations[i]);
-            }
-            for(size_t i = 0; i < n_nations; i++) {
-                auto* sub_obj = obj->nations[i];
-                ::deserialize(ar, sub_obj);
-            }
-            for(size_t i = 0; i < n_provinces; i++) {
-                auto* sub_obj = obj->provinces[i];
-                ::deserialize(ar, sub_obj);
             }
             for(size_t i = 0; i < n_events; i++) {
                 auto* sub_obj = obj->events[i];

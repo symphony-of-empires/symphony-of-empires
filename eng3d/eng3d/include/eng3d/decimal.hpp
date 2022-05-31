@@ -27,6 +27,6 @@
 
 namespace Eng3D {
 	typedef double Decimal;
-	typedef float Number;
-	typedef double BigNumber;
+	typedef double Number;
+	typedef long double BigNumber;
 };

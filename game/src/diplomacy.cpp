@@ -41,14 +41,12 @@ inline bool Diplomacy::is_friend(Nation& us, Nation& them) {
         // is now cancelled out
         if(relation.interest >= relation.relation) {
             // Can't be friendly with negative relations
-            if(relation.relation <= 0.f) {
+            if(relation.relation <= 0.f)
                 return false;
-            }
 
             // Need to be interested enough to friend them
-            if(relation.relation >= relation.interest / relation.relation) {
+            if(relation.relation >= relation.interest / relation.relation)
                 return true;
-            }
         }
         return false;
     }

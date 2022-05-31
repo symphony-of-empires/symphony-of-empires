@@ -37,48 +37,50 @@
 
 using namespace Interface;
 
-UnitWidget::UnitWidget(const Unit* _unit, Map* _map, UI::Widget* parent)
-    : UI::Div(0, 0, 100, 30, parent), unit{ _unit }, map{ _map }
+UnitWidget::UnitWidget(Unit& _unit, Map& _map, UI::Widget* parent)
+    : UI::Div(0, 0, 100, 30, parent),
+    unit{ _unit },
+    map{ _map }
 {
     this->background_color = Eng3D::Color(1, 1, 1, 1);
 
     this->set_on_click([this](UI::Widget&) {
         auto& gs = (GameState&)Eng3D::State::get_instance();
-        auto it = std::find(gs.input.selected_units.begin(), gs.input.selected_units.end(), const_cast<Unit *>(this->unit));
+        auto it = std::find(gs.input.selected_units.begin(), gs.input.selected_units.end(), &(const_cast<Unit&>(this->unit)));
         if(it == gs.input.selected_units.end()) {
             // Select if not on selected units list
-            gs.input.selected_units.push_back(const_cast<Unit *>(this->unit));
+            gs.input.selected_units.push_back(&(const_cast<Unit&>(this->unit)));
         } else {
             // Erase if already on selected units (deselect)
             gs.input.selected_units.erase(it);
         }
     });
 
-    auto nation_flag = map->nation_flags[0];
+    auto nation_flag = map.nation_flags[0];
     this->flag_img = new UI::Image(1, 1, 38, 28, nation_flag, this);
 
     this->size_label = new UI::Div(41, 1, 48, 28, this);
     this->size_label->text_align_x = UI::Align::END;
 
     this->size_label->on_each_tick = ([this](UI::Widget&) {
-        auto unit_size = (int)this->unit->size;
+        auto unit_size = (int)this->unit.size;
         this->size_label->text(std::to_string(unit_size));
     });
 
     this->morale_bar = new UI::ProgressBar(91, 1, 8, 28, 0, 1, this);
     this->morale_bar->on_each_tick = ([this](UI::Widget&) {
-        this->morale_bar->set_value(this->unit->morale);
+        this->morale_bar->set_value(this->unit.morale);
     });
     this->morale_bar->direction = UI::Direction::BOTTOM_TO_TOP;
 
     this->set_unit(unit);
 }
 
-void UnitWidget::set_unit(const Unit* _unit) {
+void UnitWidget::set_unit(Unit& _unit) {
     this->unit = _unit;
 
-    const Eng3D::Camera& camera = *map->camera;
-    auto unit_pos = this->unit->get_pos();
+    const Eng3D::Camera& camera = *map.camera;
+    auto unit_pos = this->unit.get_pos();
     auto screen_pos = camera.get_tile_screen_pos(glm::vec2(unit_pos.first, unit_pos.second));
 
     this->x = screen_pos.x - this->width / 2;
@@ -88,8 +90,8 @@ void UnitWidget::set_unit(const Unit* _unit) {
     // Default background
     this->size_label->background_color = Eng3D::Color(0.41f, 0.84f, 0.36f, 1.f);
     // Paint according to relations
-    if(gs.curr_nation != nullptr && unit->owner != gs.curr_nation) {
-        const NationRelation& relation = gs.world->get_relation(gs.world->get_id(*gs.curr_nation), gs.world->get_id(*unit->owner));
+    if(gs.curr_nation != nullptr && unit.owner != gs.curr_nation) {
+        const NationRelation& relation = gs.world->get_relation(gs.world->get_id(*gs.curr_nation), gs.world->get_id(*unit.owner));
         if(relation.has_alliance) {
             this->size_label->background_color = Eng3D::Color(0.3f, 0.8f, 0.3f, 1.f);
         } else if(relation.has_war) {
@@ -97,11 +99,11 @@ void UnitWidget::set_unit(const Unit* _unit) {
         } else {
             this->size_label->background_color = Eng3D::Color(0.7f, 0.7f, 0.7f, 1.f);
         }
-    } else if(unit->owner == gs.curr_nation) {
+    } else if(unit.owner == gs.curr_nation) {
         this->size_label->background_color = Eng3D::Color(0.4f, 0.4f, 0.8f, 1.f);
     }
 
-    auto nation_flag = map->nation_flags[unit->owner->cached_id];
+    auto nation_flag = map.nation_flags[unit.owner->cached_id];
     this->flag_img->current_texture = nation_flag;
     this->size_label->on_each_tick(*this->size_label);
     this->morale_bar->on_each_tick(*this->morale_bar);

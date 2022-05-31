@@ -88,7 +88,7 @@ public:
 typedef std::function<std::string(const World& world, const Province::Id id)> mapmode_tooltip;
 typedef std::function<std::vector<ProvinceColor>(const World& world)> mapmode_generator;
 class Map;
-typedef std::function<void(const World& world, Map& map, Province* province)> selector_func;
+typedef std::function<void(const World& world, Map& map, Province& province)> selector_func;
 std::vector<ProvinceColor> political_map_mode(const World& world);
 std::string political_province_tooltip(const World& world, const Province::Id id);
 std::string empty_province_tooltip(const World& world, const Province::Id id);

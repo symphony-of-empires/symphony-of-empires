@@ -54,14 +54,18 @@
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_mouse.h>
 
+#include "eng3d/ui/ui.hpp"
+#include "eng3d/ui/input.hpp"
+#include "eng3d/ui/image.hpp"
+#include "eng3d/ui/progress_bar.hpp"
+#include "eng3d/audio.hpp"
+#include "eng3d/locale.hpp"
 #include "eng3d/event.hpp"
 #include "eng3d/path.hpp"
 #include "eng3d/serializer.hpp"
 #include "eng3d/material.hpp"
 #include "eng3d/model.hpp"
 #include "eng3d/texture.hpp"
-#include "eng3d/ui/ui.hpp"
-#include "eng3d/ui/input.hpp"
 #include "eng3d/log.hpp"
 #include "eng3d/camera.hpp"
 
@@ -84,6 +88,7 @@
 #include "client/map.hpp"
 #include "client/map_render.hpp"
 #include "server/server_network.hpp"
+#include "client/interface/main_menu.hpp"
 
 void GameState::play_nation() {
     current_mode = MapMode::NORMAL;
@@ -167,9 +172,8 @@ void handle_event(Input& input, GameState& gs) {
             if(click_on_ui) {
                 std::scoped_lock lock(gs.sound_lock);
                 auto entries = Path::get_all_recursive("sfx/click");
-                if(!entries.empty()) {
+                if(!entries.empty())
                     gs.sound_queue.push_back(new Eng3D::Audio(entries[std::rand() % entries.size()]));
-                }
             }
             break;
         case SDL_JOYBUTTONUP:
@@ -181,9 +185,8 @@ void handle_event(Input& input, GameState& gs) {
             if(click_on_ui) {
                 std::scoped_lock lock(gs.sound_lock);
                 auto entries = Path::get_all_recursive("sfx/click");
-                if(!entries.empty()) {
+                if(!entries.empty())
                     gs.sound_queue.push_back(new Eng3D::Audio(entries[std::rand() % entries.size()]));
-                }
             }
             break;
         case SDL_MOUSEMOTION:
@@ -211,9 +214,8 @@ void handle_event(Input& input, GameState& gs) {
                 }
                 break;
             case Eng3D::Keyboard::Key::F2:
-                if(gs.editor) {
+                if(gs.editor)
                     break;
-                }
 
                 if(gs.current_mode == MapMode::NORMAL) {
                     if(input.select_pos.first < gs.world->width || input.select_pos.second < gs.world->height) {
@@ -227,21 +229,18 @@ void handle_event(Input& input, GameState& gs) {
                 }
                 break;
             case Eng3D::Keyboard::Key::F3:
-                if(!click_on_ui) {
+                if(!click_on_ui)
                     new Interface::AISettingsWindow(gs);
-                }
                 break;
             case Eng3D::Keyboard::Key::F4:
-                if(gs.editor) {
+                if(gs.editor)
                     break;
-                }
 
                 if(gs.current_mode == MapMode::NORMAL) {
                     gs.paused = !gs.paused;
                     if(gs.paused) {
                         ui_ctx->prompt("Control", "Unpaused");
-                    }
-                    else {
+                    } else {
                         ui_ctx->prompt("Control", "Paused");
                     }
                 }
@@ -321,37 +320,33 @@ void save(GameState& gs) {
         }
 
         for(const auto& nation : gs.world->nations) {
-            fprintf(fp, "n_%s=Nation:get(\"%s\")\n", nation->ref_name.c_str(), nation->ref_name.c_str());
+            fprintf(fp, "n_%s=Nation:get(\"%s\")\n", nation.ref_name.c_str(), nation.ref_name.c_str());
         }
 
-        for(const auto& province : gs.world->provinces) {
-            if(province->neighbours.empty()) {
+        for(auto& province : gs.world->provinces) {
+            if(province.neighbours.empty()) {
                 continue;
             }
 
             // Remove pops with 0 size and ones that are redundant/duplicated
-            for(std::vector<Pop>::iterator it = province->pops.begin(); it != province->pops.end(); ) {
+            for(auto it = province.pops.begin(); it != province.pops.end(); ) {
                 // If the POP is zero then delete it
                 if(!it->size) {
-                    province->pops.erase(it);
-                    it = province->pops.begin();
+                    province.pops.erase(it);
+                    it = province.pops.begin();
                     continue;
                 }
 
                 // Or if it's duplicate, merge it
-                auto dup_it = std::find_if(province->pops.begin(), province->pops.end(), [&gs, &it](const auto& e) {
-                    return (
-                        gs.world->get_id(*it->culture) == gs.world->get_id(*e.culture)
-                        && gs.world->get_id(*it->religion) == gs.world->get_id(*e.religion)
-                        && gs.world->get_id(*it->type) == gs.world->get_id(*e.type)
-                    );
+                auto dup_it = std::find_if(province.pops.begin(), province.pops.end(), [&gs, &it](const auto& e) {
+                    return (gs.world->get_id(*it->culture) == gs.world->get_id(*e.culture) && gs.world->get_id(*it->religion) == gs.world->get_id(*e.religion) && gs.world->get_id(*it->type) == gs.world->get_id(*e.type));
                 });
 
-                if(dup_it != province->pops.end() && dup_it != it) {
+                if(dup_it != province.pops.end() && dup_it != it) {
                     it->budget += dup_it->budget;
                     it->size += dup_it->size;
-                    province->pops.erase(dup_it);
-                    it = province->pops.begin();
+                    province.pops.erase(dup_it);
+                    it = province.pops.begin();
                     continue;
                 }
 
@@ -368,36 +363,36 @@ void save(GameState& gs) {
                 it++;
             }
 
-            if(province->terrain_type->is_water_body && (province->controller != nullptr || province->owner != nullptr)) {
+            if(province.terrain_type->is_water_body && (province.controller != nullptr || province.owner != nullptr)) {
                 for(auto& terrain : gs.world->terrain_types) {
                     if(terrain.is_water_body) {
                         continue;
                     }
-                    province->terrain_type = &terrain;
+                    province.terrain_type = &terrain;
                     break;
                 }
             }
 
             // RGO
-            const uint32_t color = bswap32((province->color & 0x00ffffff) << 8);
+            const uint32_t color = bswap32((province.color & 0x00ffffff) << 8);
             std::string rgo_size_out = "";
-            for(Good::Id id = 0; id < province->rgo_size.size(); id++) {
+            for(Good::Id id = 0; id < province.rgo_size.size(); id++) {
                 const auto& good = gs.world->goods[id];
-                auto size = province->rgo_size[id];
+                auto size = province.rgo_size[id];
                 if(size != 0) {
                     rgo_size_out += "{" + good.ref_name + ",";
-                    rgo_size_out +=  std::to_string(size) + "},";
+                    rgo_size_out += std::to_string(size) + "},";
                 }
             }
             fprintf(fp, "province=Province:new{ref_name=\"%s\",name=_(\"%s\"),color=0x%x,terrain=tt_%s,rgo_size={%s}}\n",
-                province->ref_name.c_str(),
-                province->name.c_str(),
+                province.ref_name.c_str(),
+                province.name.c_str(),
                 (unsigned int)color,
-                province->terrain_type->ref_name.c_str(),
+                province.terrain_type->ref_name.c_str(),
                 rgo_size_out.c_str());
             fprintf(fp, "province:register()\n");
             for(const auto& building_type : gs.world->building_types) {
-                Building& building = province->buildings[gs.world->get_id(building_type)];
+                Building& building = province.buildings[gs.world->get_id(building_type)];
                 if(building.level) {
                     building.level = 1;
                     fprintf(fp, "province:update_building(bt_%s,%f)\n", building_type.ref_name.c_str(), building.level);
@@ -405,29 +400,25 @@ void save(GameState& gs) {
             }
 
             // POPs
-            for(const auto& pop : province->pops) {
+            for(const auto& pop : province.pops)
                 fprintf(fp, "province:add_pop(pt_%s,c_%s,r_%s,%f,%f)\n", pop.type->ref_name.c_str(), pop.culture->ref_name.c_str(), pop.religion->ref_name.c_str(), pop.size, pop.literacy);
-            }
 
             // Nuclei of the provinces
-            for(const auto& nucleus : province->nuclei) {
+            for(const auto& nucleus : province.nuclei)
                 fprintf(fp, "province:add_nucleus(n_%s)\n", nucleus->ref_name.c_str());
-            }
 
             // Give province to owner
-            if(province->owner != nullptr) {
-                fprintf(fp, "province:give_to(n_%s)\n", province->owner->ref_name.c_str());
-                if(province->owner->capital == province) {
-                    fprintf(fp, "n_%s:set_capital(province)\n", province->owner->ref_name.c_str());
-                }
+            if(province.owner != nullptr) {
+                fprintf(fp, "province:give_to(n_%s)\n", province.owner->ref_name.c_str());
+                if(province.owner->capital == &province)
+                    fprintf(fp, "n_%s:set_capital(province)\n", province.owner->ref_name.c_str());
             }
 
             // Units
-            for(const auto& unit : province->get_units()) {
+            for(const auto& unit : province.get_units()) {
                 // Units can't exceed max health
-                if(unit->size > unit->type->max_health) {
+                if(unit->size > unit->type->max_health)
                     unit->size = unit->type->max_health;
-                }
                 fprintf(fp, "province:add_unit(ut_%s,%zu)\n", unit->type->ref_name.c_str(), (size_t)unit->size);
             }
 
@@ -451,9 +442,8 @@ void save(GameState& gs) {
             fprintf(fp, "TerrainType:new{ ref_name = \"%s\", name = _(\"%s\"), color = 0x%x, is_water_body = %s }:register()\n", terrain_type.ref_name.c_str(), terrain_type.name.c_str(), (unsigned int)color, terrain_type.is_water_body ? "true" : "false");
             cnt++;
         }
-        if(!cnt) {
+        if(!cnt)
             fprintf(fp, "-- No terrain types, so it's all void now?\n");
-        }
         fclose(fp);
 
         // Religions
@@ -469,9 +459,8 @@ void save(GameState& gs) {
             fprintf(fp, "Religion:new{ ref_name = \"%s\", name = _(\"%s\"), color = 0x%x }:register()\n", religion.ref_name.c_str(), religion.name.c_str(), (unsigned int)color);
             cnt++;
         }
-        if(!cnt) {
+        if(!cnt)
             fprintf(fp, "-- no religions! :)\n");
-        }
         fclose(fp);
 
         // Pop types
@@ -514,15 +503,13 @@ void save(GameState& gs) {
             if(unit_type.is_ground == true && unit_type.is_naval == false) {
                 fprintf(fp, "v = UnitType:new{ ref_name = \"%s\", name = _(\"%s\"), defense = %f, attack = %f, health = %f, speed = %f }\n", unit_type.ref_name.c_str(), unit_type.name.c_str(), unit_type.defense, unit_type.attack, unit_type.max_health, unit_type.speed);
                 fprintf(fp, "v:register()\n");
-                for(const auto& good : unit_type.req_goods) {
+                for(const auto& good : unit_type.req_goods)
                     fprintf(fp, "v:requires_good(Good:get(\"%s\"), %f)\n", good.first->ref_name.c_str(), good.second);
-                }
                 cnt++;
             }
         }
-        if(!cnt) {
+        if(!cnt)
             fprintf(fp, "-- No unit types! no more war! :D\n");
-        }
         fclose(fp);
 
         // Boat types
@@ -538,9 +525,8 @@ void save(GameState& gs) {
             if(unit_type.is_ground == false && unit_type.is_naval == true) {
                 fprintf(fp, "v = BoatType:new{ ref_name = \"%s\", name = _(\"%s\"), defense = %f, attack = %f, health = %f, speed = %f }\n", unit_type.ref_name.c_str(), unit_type.name.c_str(), unit_type.defense, unit_type.attack, unit_type.max_health, unit_type.speed);
                 fprintf(fp, "v:register()\n");
-                for(const auto& good : unit_type.req_goods) {
+                for(const auto& good : unit_type.req_goods)
                     fprintf(fp, "v:requires_good(Good:get(\"%s\"), %f)\n", good.first->ref_name.c_str(), good.second);
-                }
                 cnt++;
             }
         }
@@ -562,9 +548,8 @@ void save(GameState& gs) {
             if(unit_type.is_ground == true && unit_type.is_naval == true) {
                 fprintf(fp, "v = AirplaneType:new{ ref_name = \"%s\", name = _(\"%s\"), defense = %f, attack = %f, health = %f, speed = %f }\n", unit_type.ref_name.c_str(), unit_type.name.c_str(), unit_type.defense, unit_type.attack, unit_type.max_health, unit_type.speed);
                 fprintf(fp, "v:register()\n");
-                for(const auto& good : unit_type.req_goods) {
+                for(const auto& good : unit_type.req_goods)
                     fprintf(fp, "v:requires_good(Good:get(\"%s\"), %f)\n", good.first->ref_name.c_str(), good.second);
-                }
                 cnt++;
             }
         }
@@ -584,9 +569,8 @@ void save(GameState& gs) {
             return;
         }
         fprintf(fp, "-- Generated by editor :)\n");
-        for(const auto& good_type : gs.world->goods) {
+        for(const auto& good_type : gs.world->goods)
             fprintf(fp, "GoodType:new{ ref_name = \"%s\", name = _(\"%s\") }:register()\n", good_type.ref_name.c_str(), good_type.name.c_str());
-        }
         if(!cnt) {
 #ifdef E3D_TARGET_WINDOWS
             fprintf(fp, "-- Economy.exe has stopped working\n");
@@ -611,9 +595,8 @@ void handle_popups(std::vector<Event>& displayed_events, std::vector<Treaty*>& d
     for(auto& msg : gs.curr_nation->inbox) {
         // Check that the event is not already displayed to the user
         auto iter = std::find_if(displayed_events.begin(), displayed_events.end(), [&msg](const auto& e) { return e.ref_name == msg.ref_name; });
-        if(iter != displayed_events.end()) {
+        if(iter != displayed_events.end())
             continue;
-        }
 
         new Interface::DecisionWindow(gs, msg);
         displayed_events.push_back(msg);
@@ -622,14 +605,12 @@ void handle_popups(std::vector<Event>& displayed_events, std::vector<Treaty*>& d
     for(auto& treaty : gs.world->treaties) {
         // Check that the treaty is not already displayed
         auto iter = std::find_if(displayed_treaties.begin(), displayed_treaties.end(), [&treaty](const auto& e) { return e == treaty; });
-        if(iter != displayed_treaties.end()) {
+        if(iter != displayed_treaties.end())
             continue;
-        }
 
         // Do not mess with treaties we don't partake in, hehe
-        if(!treaty->does_participate(*gs.curr_nation)) {
+        if(!treaty->does_participate(*gs.curr_nation))
             continue;
-        }
 
         // Must participate in treaty
         new Interface::TreatyChooseWindow(gs, treaty);
@@ -654,13 +635,12 @@ void GameState::world_thread(void) {
     while(run) {
         // Gamestate thread hasn't acknowledged the updated tick just yet
         while(paused) {
-            if(!run) {
+            if(!run)
                 return;
-            }
         }
 
         // Only run the economy simulation of host mode is ON, otherwise don't :-)
-        const auto delta = std::chrono::milliseconds{ms_delay_speed};
+        const auto delta = std::chrono::milliseconds{ ms_delay_speed };
         if(host_mode && world->world_mutex.try_lock()) {
             const auto start_time = std::chrono::system_clock::now();
             try {
@@ -677,10 +657,8 @@ void GameState::world_thread(void) {
 
             while(1) {
                 auto end_time = std::chrono::system_clock::now();
-                // Wait until time delta is fullfilled
-                if(end_time - start_time >= delta) {
+                if(end_time - start_time >= delta) // Wait until time delta is fullfilled
                     break;
-                }
             }
         }
     }
@@ -694,9 +672,8 @@ void GameState::music_thread(void) {
     auto path_entries = Path::get_all_recursive("sfx/music/ambience");
     std::vector<MusicEntry> entries;
     entries.reserve(path_entries.size());
-    for(const auto& path : path_entries) {
+    for(const auto& path : path_entries)
         entries.push_back(MusicEntry{ false, path });
-    }
     path_entries.clear();
     entries.shrink_to_fit();
 
@@ -726,24 +703,14 @@ void GameState::load_world_thread(void) {
     this->loaded_world = true;
 }
 
-#include <filesystem>
-
-#include "eng3d/ui/image.hpp"
-#include "eng3d/ui/progress_bar.hpp"
-#include "eng3d/audio.hpp"
-#include "eng3d/locale.hpp"
-
-#include "client/interface/main_menu.hpp"
-
 void start_client(int argc, char** argv) {
     std::vector<std::string> pkg_paths;
     for(int i = 1; i < argc; i++) {
         std::string arg = std::string(argv[i]);
         if(arg == "--mod") {
             i++;
-            if(i >= argc) {
+            if(i >= argc)
                 throw std::runtime_error("Expected an absolute path after --mod");
-            }
 
             arg = std::string(argv[i]);
             pkg_paths.push_back(arg);
@@ -776,9 +743,8 @@ void start_client(int argc, char** argv) {
             delete[] tmp;
             fclose(fp);
 
-            for(const auto& [key, value] : trans_msg) {
+            for(const auto& [key, value] : trans_msg)
                 Eng3D::Log::debug("trans", key + "=" + value);
-            }
         } else {
             Eng3D::Log::error("trans", "Cannot open locale file " + Path::get("locale/ko/main.po"));
         }
@@ -799,14 +765,14 @@ void start_client(int argc, char** argv) {
     auto* load_pbar = new UI::ProgressBar(0, -24, gs.width, 24, 0.f, 1.f);
     load_pbar->origin = UI::Origin::LOWER_LEFT_SCREEN;
     load_pbar->text_color = Eng3D::Color(1.f, 1.f, 1.f);
-    
+
     auto mod_logo_tex = gs.tex_man->load(Path::get("gfx/mod_logo.png"));
     auto* mod_logo_img = new UI::Image(0, 0, mod_logo_tex->width, mod_logo_tex->height, mod_logo_tex);
 
     // Pre-cache the textures that the map will use upon construction
     bool init_iterator = true;
     bool load_nation_flags = false;
-    std::vector<Nation*>::const_iterator load_it_nation;
+    std::vector<Nation>::const_iterator load_it_nation;
     bool load_building_type_icons = false;
     std::vector<BuildingType>::const_iterator load_it_building_type;
     bool load_unit_type_icons = false;
@@ -841,37 +807,32 @@ void start_client(int argc, char** argv) {
                 gs.loaded_map = true;
                 gs.load_progress = 1.f;
             } else if(!load_nation_flags) {
-                const std::string path = Path::get("gfx/flags/" + (*load_it_nation)->ref_name + "_" + ((*load_it_nation)->ideology == nullptr ? "none" : (*load_it_nation)->ideology->ref_name.get_string()) + ".png");
+                const std::string path = Path::get("gfx/flags/" + (*load_it_nation).ref_name + "_" + ((*load_it_nation).ideology == nullptr ? "none" : (*load_it_nation).ideology->ref_name.get_string()) + ".png");
                 gs.tex_man->load(path, mipmap_options)->gen_mipmaps();
-                if(!path.empty()) {
+                if(!path.empty())
                     load_pbar->text(path);
-                }
                 gs.load_progress = 0.1f + (0.3f / std::distance(load_it_nation, gs.world->nations.cend()));
                 load_it_nation++;
-                if(load_it_nation == gs.world->nations.end()) {
+                if(load_it_nation == gs.world->nations.end())
                     load_nation_flags = true;
-                }
             } else if(!load_building_type_icons) {
                 const std::string model_path = Path::get("models/building_types/" + (*load_it_building_type).ref_name + ".obj");
                 gs.model_man->load(model_path);
                 const std::string tex_path = Path::get("gfx/buildingtype/" + (*load_it_building_type).ref_name + ".png");
                 gs.tex_man->load(tex_path, mipmap_options)->gen_mipmaps();
-                if(!model_path.empty()) {
+                if(!model_path.empty())
                     load_pbar->text(model_path);
-                }
                 gs.load_progress = 0.4f + (0.3f / std::distance(load_it_building_type, gs.world->building_types.cend()));
                 load_it_building_type++;
-                if(load_it_building_type == gs.world->building_types.end()) {
+                if(load_it_building_type == gs.world->building_types.end())
                     load_building_type_icons = true;
-                }
             } else if(!load_unit_type_icons) {
                 const std::string model_path = Path::get("models/unit_types/" + (*load_it_unit_type).ref_name + ".obj");
                 gs.model_man->load(model_path);
                 const std::string tex_path = Path::get("gfx/unittype/" + (*load_it_unit_type).ref_name + ".png");
                 gs.tex_man->load(tex_path, mipmap_options)->gen_mipmaps();
-                if(!model_path.empty()) {
+                if(!model_path.empty())
                     load_pbar->text(model_path);
-                }
                 gs.load_progress = 0.7f + (0.3f / std::distance(load_it_unit_type, gs.world->unit_types.cend()));
                 load_it_unit_type++;
                 if(load_it_unit_type == gs.world->unit_types.end()) {
@@ -930,22 +891,19 @@ void start_client(int argc, char** argv) {
                             for(const auto& province : gs.curr_nation->controlled_provinces) {
                                 Building& building = province->get_buildings()[gs.world->get_id(building_type)];
                                 // Must not be working on something else
-                                if(building.working_unit_type != nullptr) {
+                                if(building.working_unit_type != nullptr)
                                     continue;
-                                }
 
                                 is_built = true;
                                 g_client->send(Action::BuildingStartProducingUnit::form_packet(*province, building_type, *gs.curr_nation, *unit_type));
                                 break;
                             }
 
-                            if(!is_built) {
+                            if(!is_built)
                                 break;
-                            }
                         }
-                        if(!is_built) {
+                        if(!is_built)
                             break;
-                        }
 
                         gs.production_queue.erase(gs.production_queue.begin() + i);
                         i--;
@@ -961,12 +919,12 @@ void start_client(int argc, char** argv) {
         }
 
         std::scoped_lock lock(gs.render_lock);
-        
+
         double prev_num = std::chrono::duration<double>(current_frame_time.time_since_epoch()).count();
         double now_num = std::chrono::duration<double>(std::chrono::system_clock::now().time_since_epoch()).count();
         current_frame_time = std::chrono::system_clock::now();
         gs.delta_time = now_num - prev_num;
-        
+
         gs.clear();
         if(gs.current_mode != MapMode::NO_MAP) {
             std::scoped_lock lock(gs.world->world_mutex);

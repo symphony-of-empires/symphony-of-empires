@@ -40,7 +40,7 @@
 
 using namespace Interface;
 
-ProductView::ProductView(GameState& _gs, const Product* _product)
+ProductView::ProductView(GameState& _gs, Product& _product)
     : UI::Window(0, 0, 512, 320),
     gs{ _gs },
     product{ _product }
@@ -55,9 +55,8 @@ ProductView::ProductView(GameState& _gs, const Product* _product)
     this->supply_pie = new UI::PieChart(0, 0, 128, 128, this);
     this->supply_pie->on_each_tick = ([this](UI::Widget&) {
         std::vector<UI::ChartData> nations_data;
-        for(const auto& nation : this->gs.world->nations) {
-            nations_data.push_back(UI::ChartData(0.f, nation->get_client_hint().alt_name.get_string(), nation->get_client_hint().color));
-        }
+        for(const auto& nation : this->gs.world->nations)
+            nations_data.push_back(UI::ChartData(0.f, nation.get_client_hint().alt_name.get_string(), nation.get_client_hint().color));
 
         /// @todo Account for products that are based on this good on every province
         this->supply_pie->set_data(nations_data);
@@ -67,40 +66,34 @@ ProductView::ProductView(GameState& _gs, const Product* _product)
     this->price_chart = new UI::Chart(0, 0, 128, 64, this);
     this->price_chart->right_side_of(*this->supply_pie);
     this->price_chart->on_each_tick = ([this](UI::Widget&) {
-        if(this->gs.world->time % this->gs.world->ticks_per_month) {
+        if(this->gs.world->time % this->gs.world->ticks_per_month)
             return;
-        }
         
-        this->price_chart->data.push_back(this->product->price);
-        if(this->price_chart->data.size() > 30) {
+        this->price_chart->data.push_back(this->product.price);
+        if(this->price_chart->data.size() > 30)
             this->price_chart->data.pop_front();
-        }
     });
 
     this->supply_chart = new UI::Chart(0, 0, 128, 64, this);
     this->supply_chart->right_side_of(*this->price_chart);
     this->supply_chart->on_each_tick = ([this](UI::Widget&) {
-        if(this->gs.world->time % this->gs.world->ticks_per_month) {
+        if(this->gs.world->time % this->gs.world->ticks_per_month)
             return;
-        }
 
-        this->supply_chart->data.push_back(this->product->supply);
-        if(this->supply_chart->data.size() > 30) {
+        this->supply_chart->data.push_back(this->product.supply);
+        if(this->supply_chart->data.size() > 30)
             this->supply_chart->data.pop_front();
-        }
     });
 
     this->demand_chart = new UI::Chart(0, 0, 128, 64, this);
     this->demand_chart->right_side_of(*this->supply_chart);
     this->demand_chart->on_each_tick = ([this](UI::Widget&) {
-        if(this->gs.world->time % this->gs.world->ticks_per_month) {
+        if(this->gs.world->time % this->gs.world->ticks_per_month)
             return;
-        }
 
-        this->demand_chart->data.push_back(this->product->demand);
-        if(this->demand_chart->data.size() > 30) {
+        this->demand_chart->data.push_back(this->product.demand);
+        if(this->demand_chart->data.size() > 30)
             this->demand_chart->data.pop_front();
-        }
     });
 
     auto* good_btn = new UI::Button(0, 0, 128, 24, this);
@@ -111,7 +104,7 @@ ProductView::ProductView(GameState& _gs, const Product* _product)
     });
 }
 
-GoodView::GoodView(GameState& _gs, const Good* _good)
+GoodView::GoodView(GameState& _gs, Good& _good)
     : UI::Window(0, 0, 512, 320),
     gs{ _gs },
     good{ _good }
@@ -119,26 +112,24 @@ GoodView::GoodView(GameState& _gs, const Good* _good)
     unsigned int i;
 
     this->is_scroll = false;
-    this->text(Eng3D::Locale::translate(good->name.get_string()));
+    this->text(Eng3D::Locale::translate(good.name.get_string()));
 
     this->set_close_btn_function([this](Widget&) {
         this->kill();
     });
 
-    this->icon_img = new UI::Image(0, 0, 128, 96, this->gs.tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
+    this->icon_img = new UI::Image(0, 0, 128, 96, this->gs.tex_man->load(Path::get("gfx/good/" + good.ref_name + ".png")), this);
 
     // Piechart denoting countries which have more supply of this good
     this->sellers_pie = new UI::PieChart(0, 0, 128, 128, this);
     this->sellers_pie->right_side_of(*this->icon_img);
     this->sellers_pie->on_each_tick = ([this](UI::Widget&) {
-        if(this->gs.world->time % this->gs.world->ticks_per_month) {
+        if(this->gs.world->time % this->gs.world->ticks_per_month)
             return;
-        }
 
         std::vector<UI::ChartData> nations_data;
-        for(const auto& nation : this->gs.world->nations) {
-            nations_data.push_back(UI::ChartData(0.f, nation->get_client_hint().alt_name.get_string(), nation->get_client_hint().color));
-        }
+        for(const auto& nation : this->gs.world->nations)
+            nations_data.push_back(UI::ChartData(0.f, nation.get_client_hint().alt_name.get_string(), nation.get_client_hint().color));
 
         /// @todo Account for products that are based on this good
         this->sellers_pie->set_data(nations_data);
@@ -148,9 +139,8 @@ GoodView::GoodView(GameState& _gs, const Good* _good)
     this->avg_price_chart = new UI::Chart(0, 0, 128, 128, this);
     this->avg_price_chart->right_side_of(*this->sellers_pie);
     this->avg_price_chart->on_each_tick = ([this](UI::Widget&) {
-        if(this->gs.world->time % this->gs.world->ticks_per_month) {
+        if(this->gs.world->time % this->gs.world->ticks_per_month)
             return;
-        }
 
         float price = 0.f;
         //for(const auto& product : this->gs.world->products) {
@@ -163,9 +153,8 @@ GoodView::GoodView(GameState& _gs, const Good* _good)
         //price /= this->gs.world->products.size();
 
         this->avg_price_chart->data.push_back(price);
-        if(this->avg_price_chart->data.size() > 30) {
+        if(this->avg_price_chart->data.size() > 30)
             this->avg_price_chart->data.pop_front();
-        }
     });
 
     // Industry types that produce this good
@@ -176,10 +165,9 @@ GoodView::GoodView(GameState& _gs, const Good* _good)
     output_lab->below_of(*avg_price_chart);
     dx += output_lab->width;
     for(const auto& building_type : this->gs.world->building_types) {
-        bool is_present = (building_type.output == this->good);
-        if(!is_present) {
+        bool is_present = (building_type.output == &this->good);
+        if(!is_present)
             continue;
-        }
 
         auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man->load(Path::get("gfx/production.png")), this);
         icon_ibtn->below_of(*avg_price_chart);
@@ -193,10 +181,9 @@ GoodView::GoodView(GameState& _gs, const Good* _good)
     input_lab->below_of(*avg_price_chart);
     dx += input_lab->width;
     for(const auto& building_type : this->gs.world->building_types) {
-        bool is_present = std::find(building_type.inputs.begin(), building_type.inputs.end(), this->good) != building_type.inputs.end();
-        if(!is_present) {
+        bool is_present = std::find(building_type.inputs.begin(), building_type.inputs.end(), &this->good) != building_type.inputs.end();
+        if(!is_present)
             continue;
-        }
         
         auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man->load(Path::get("gfx/production.png")), this);
         icon_ibtn->below_of(*avg_price_chart);

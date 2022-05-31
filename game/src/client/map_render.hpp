@@ -81,7 +81,7 @@ public:
     MapRender(const World& world);
     ~MapRender() {};
     void update_mapmode(std::vector<ProvinceColor> province_colors);
-    void update_nations(std::vector<Province*> nations);
+    void update_nations(std::vector<Province> nations);
     void request_update_visibility(void);
     void update_visibility(void);
     void draw(Eng3D::Camera* camera, MapView view_mode);

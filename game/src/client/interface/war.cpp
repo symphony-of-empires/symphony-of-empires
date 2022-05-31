@@ -31,7 +31,7 @@
 
 using namespace Interface;
 
-WarDeclarePrompt::WarDeclarePrompt(GameState& _gs, const Nation* _nation)
+WarDeclarePrompt::WarDeclarePrompt(GameState& _gs, const Nation& _nation)
     : UI::Window(0, 0, 256, 512),
     gs{ _gs },
     nation{ _nation }
@@ -47,7 +47,7 @@ WarDeclarePrompt::WarDeclarePrompt(GameState& _gs, const Nation* _nation)
     this->approve_btn = new UI::Button(0, 24, this->width, 24, this);
     this->approve_btn->text("Declare war");
     this->approve_btn->set_on_click([this](UI::Widget&) {
-        this->gs.client->send(Action::DiploDeclareWar::form_packet(*this->nation));
+        this->gs.client->send(Action::DiploDeclareWar::form_packet(this->nation));
         this->kill();
     });
 

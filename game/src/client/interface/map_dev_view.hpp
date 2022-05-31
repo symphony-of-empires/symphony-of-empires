@@ -34,9 +34,8 @@ namespace UI {
 
 class Map;
 class MapDevView: public UI::Window {
-public:
-	MapDevView(Map* map);
-
-	Map* map;
+	Map& map;
 	UI::Button* reload_shader_button;
+public:
+	MapDevView(Map& map);
 };

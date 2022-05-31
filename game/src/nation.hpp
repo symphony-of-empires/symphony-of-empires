@@ -108,14 +108,14 @@ public:
 
 class Nation : public RefnameEntity<uint16_t> {
     inline void do_diplomacy();
-    inline bool can_do_diplomacy();
+    inline bool can_do_diplomacy() const;
 public:
     Nation() {};
     ~Nation() {};
     void declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> clauses = std::vector<TreatyClause::BaseClause*>());
-    bool is_ally(const Nation& nation);
-    bool is_enemy(const Nation& nation);
-    bool exists(void);
+    bool is_ally(const Nation& nation) const;
+    bool is_enemy(const Nation& nation) const;
+    bool exists(void) const;
     void increase_relation(Nation& target);
     void decrease_relation(Nation& target);
     void auto_relocate_capital(void);

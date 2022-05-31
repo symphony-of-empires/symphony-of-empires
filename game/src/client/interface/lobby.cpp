@@ -24,17 +24,16 @@
 // ----------------------------------------------------------------------------
 
 #include <filesystem>
-
 #include "eng3d/ui/ui.hpp"
 #include "eng3d/ui/button.hpp"
 #include "eng3d/ui/label.hpp"
 #include "eng3d/ui/group.hpp"
+#include "eng3d/camera.hpp"
 
 #include "client/interface/lobby.hpp"
 #include "client/game_state.hpp"
 #include "world.hpp"
 #include "client/map.hpp"
-#include "eng3d/camera.hpp"
 #include "io_impl.hpp"
 
 using namespace Interface;
@@ -98,7 +97,7 @@ LobbySelectView::LobbySelectView(GameState& _gs)
         auto* ldgame_btn = new UI::Button(0, 24 * i, 128, 24, game_group);
         ldgame_btn->text(ldgame_data[i].file);
         auto data = &ldgame_data[i];
-        ldgame_btn->set_on_click([data](UI::Widget&){
+        ldgame_btn->set_on_click([data](UI::Widget&) {
             std::scoped_lock lock1(data->gs.world->world_mutex);
             if(data->gs.world != nullptr) {
                 delete data->gs.world;
@@ -127,23 +126,22 @@ void LobbySelectView::change_nation(size_t id) {
         id = 0;
     }
 
-    gs.curr_nation = gs.world->nations[id];
+    gs.curr_nation = &gs.world->nations[id];
     if(id > old_id) {
         while(gs.curr_nation->exists() == false) {
             id++;
             if(id >= gs.world->nations.size()) {
                 id = 0;
             }
-            gs.curr_nation = gs.world->nations[id];
+            gs.curr_nation = &gs.world->nations[id];
         }
-    }
-    else {
+    } else {
         while(gs.curr_nation->exists() == false) {
             id--;
             if(id >= gs.world->nations.size()) {
                 id = gs.world->nations.size() - 1;
             }
-            gs.curr_nation = gs.world->nations[id];
+            gs.curr_nation = &gs.world->nations[id];
         }
     }
 

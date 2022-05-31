@@ -36,15 +36,14 @@ namespace UI {
 
 namespace Interface {
     class UnitWidget: public UI::Div {
-        const Unit* unit;
-        Map* map;
-
+        Unit& unit;
+        Map& map;
         UI::Image* flag_img;
         UI::Div* size_label;
         UI::ProgressBar* morale_bar;
     public:
-        UnitWidget(const Unit* unit, Map* map, UI::Widget* parent);
-        void set_unit(const Unit* _unit);
+        UnitWidget(Unit& unit, Map& map, UI::Widget* parent);
+        void set_unit(Unit& _unit);
         virtual ~UnitWidget();
     };
 };

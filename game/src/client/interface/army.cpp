@@ -50,13 +50,12 @@ ArmyArmyTab::ArmyArmyTab(GameState& _gs, int x, int y, UI::Widget* parent)
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
     for(const auto& unit : gs.world->units) {
-        if(unit->owner != gs.curr_nation) {
+        if(unit->owner != gs.curr_nation)
             continue;
-        } else if(!(unit->type->is_ground == true && unit->type->is_naval == false)) {
+        else if(!(unit->type->is_ground == true && unit->type->is_naval == false))
             continue;
-        }
 
-        auto* btn = new UnitButton(gs, 0, 0, unit, flex_column);
+        auto* btn = new UnitButton(gs, 0, 0, *unit, flex_column);
         btn->set_on_click([](UI::Widget& w) {
 
         });
@@ -70,13 +69,12 @@ ArmyAirforceTab::ArmyAirforceTab(GameState& _gs, int x, int y, UI::Widget* paren
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
     for(const auto& unit : gs.world->units) {
-        if(unit->owner != gs.curr_nation) {
+        if(unit->owner != gs.curr_nation)
             continue;
-        } else if(!(unit->type->is_ground == true && unit->type->is_naval == true)) {
+        else if(!(unit->type->is_ground == true && unit->type->is_naval == true))
             continue;
-        }
 
-        auto* btn = new UnitButton(this->gs, 0, 0, unit, flex_column);
+        auto* btn = new UnitButton(this->gs, 0, 0, *unit, flex_column);
         btn->set_on_click([](UI::Widget& w) {
 
         });
@@ -96,7 +94,7 @@ ArmyNavyTab::ArmyNavyTab(GameState& _gs, int x, int y, UI::Widget* parent)
             continue;
         }
 
-        auto* btn = new UnitButton(this->gs, 0, 0, unit, flex_column);
+        auto* btn = new UnitButton(this->gs, 0, 0, *unit, flex_column);
         btn->set_on_click([](UI::Widget& w) {
 
         });
@@ -116,41 +114,39 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
         float reqtotal = 0.f;
         for(const auto& province : this->gs.curr_nation->owned_provinces) {
             for(const auto& building : province->get_buildings()) {
-                for(const auto& req : building.req_goods_for_unit) {
+                for(const auto& req : building.req_goods_for_unit)
                     reqtotal += req.second;
-                }
+                
 
-                for(const auto& req : building.req_goods) {
+                for(const auto& req : building.req_goods)
                     reqtotal += req.second;
-                }
             }
         }
 
         this->reqmat_chart->data.push_back(reqtotal);
-        if(this->reqmat_chart->data.size() >= 30) {
+        if(this->reqmat_chart->data.size() >= 30)
             this->reqmat_chart->data.pop_back();
-        }
     });
 
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
     for(const auto& province : gs.curr_nation->owned_provinces) {
         for(const auto& building_type : gs.world->building_types) {
-            if(!building_type.can_build_land_units()) {
+            if(!building_type.can_build_land_units())
                 continue;
-            }
-            new ArmyProductionUnitInfo(gs, 0, 0, province, gs.world->get_id(building_type), flex_column);
+            
+            new ArmyProductionUnitInfo(gs, 0, 0, *province, gs.world->get_id(building_type), flex_column);
         }
     }
 }
 
-ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, const Province* _province, unsigned int _idx, UI::Widget* parent)
+ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, const Province& _province, unsigned int _idx, UI::Widget* parent)
     : UI::Group(x, y, parent->width - x, 48, parent),
     gs{ _gs },
     province{ _province },
     idx{ _idx }
 {
-    const auto& building = province->get_buildings()[idx];
+    const auto& building = province.get_buildings()[idx];
     this->is_scroll = false;
 
     this->unit_icon = new UI::Image(0, 0, 24, 24, this);
@@ -161,16 +157,14 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, con
     this->province_lab = new UI::Label(0, 0, "?", this);
     this->province_lab->right_side_of(*this->unit_icon);
     this->province_lab->on_each_tick = ([this](UI::Widget& w) {
-        if(this->province != nullptr) {
-            w.text(Eng3D::Locale::translate(this->province->name.get_string()));
-        }
+        w.text(Eng3D::Locale::translate(this->province.name.get_string()));
     });
     this->province_lab->on_each_tick(*this->province_lab);
 
     this->name_lab = new UI::Label(0, 0, "?", this);
     this->name_lab->right_side_of(*this->province_lab);
     this->name_lab->on_each_tick = ([this](UI::Widget& w) {
-        auto& building = this->province->get_buildings()[this->idx];
+        auto& building = this->province.get_buildings()[this->idx];
         w.text((building.working_unit_type != nullptr) ? Eng3D::Locale::translate(building.working_unit_type->name.get_string()) : "No unit");
     });
     this->name_lab->on_each_tick(*this->name_lab);
@@ -178,9 +172,10 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, con
     auto* progress_pgbar = new UI::ProgressBar(0, 0, 128, 24, 0.f, 1.f, this);
     progress_pgbar->below_of(*this->name_lab);
     progress_pgbar->on_each_tick = ([this](UI::Widget& w) {
-        auto& building = this->province->get_buildings()[this->idx];
+        auto& building = this->province.get_buildings()[this->idx];
         if(!building.working_unit_type)
             return;
+        
         std::string text = "";
         size_t full = 0, needed = 0;
         text = "Needs ";
@@ -210,9 +205,9 @@ ArmyNewUnitTab::ArmyNewUnitTab(GameState& _gs, int x, int y, UI::Widget* parent)
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
     for(auto& unit_type : gs.world->unit_types) {
-        auto* btn = new UnitTypeButton(gs, 0, 0, &unit_type, flex_column);
+        auto* btn = new UnitTypeButton(gs, 0, 0, unit_type, flex_column);
         btn->set_on_click([this, btn](UI::Widget& w) {
-            this->gs.production_queue.push_back(btn->unit_type);
+            this->gs.production_queue.push_back(&btn->unit_type);
         });
     }
 }

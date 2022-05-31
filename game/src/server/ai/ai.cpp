@@ -433,22 +433,21 @@ void ai_do_tick(Nation& nation) {
 
         // Update relations with other nations
         for(auto& other : world.nations) {
-            if(!other->exists() || other == &nation) {
+            if(!other.exists() || &other == &nation) {
                 continue;
             }
 
-            ai_update_relations(nation, *other);
+            ai_update_relations(nation, other);
         }
 
         // Colonize a province
-        if(!(std::rand() % 50)) {
+        if(0) {
             // Pair denoting the weight a province has, the more the better
             std::vector<std::pair<Province*, float>> colonial_value;
-            for(const auto& province : world.provinces) {
-                if(province->terrain_type->is_water_body || province->owner != nullptr) {
+            for(auto& province : world.provinces) {
+                if(province.terrain_type->is_water_body || province.owner != nullptr)
                     continue;
-                }
-                colonial_value.push_back(std::make_pair(province, 0.f));
+                colonial_value.push_back(std::make_pair(&province, 0.f));
             }
 
             for(auto& prov : colonial_value) {
@@ -456,15 +455,13 @@ void ai_do_tick(Nation& nation) {
                 prov.second += prov.first->total_pops() * 0.005f;
                 // Bordering a province of ours means we are **to** colonize it
                 for(const auto& neighbour : prov.first->neighbours) {
-                    if(neighbour->controller == &nation) {
+                    if(neighbour->controller == &nation)
                         prov.second *= 100.f;
-                    }
                 }
                 // If it's a nucleus province it also gets a x100 multiplier to maximize priority
                 // on the nuclei provinces
-                if(prov.first->nuclei.find(&nation) != prov.first->nuclei.end()) {
+                if(prov.first->nuclei.find(&nation) != prov.first->nuclei.end())
                     prov.second *= 100.f;
-                }
             }
 
             // Found an appropriate colony!
@@ -487,15 +484,9 @@ void ai_do_tick(Nation& nation) {
 
         // Research technologies
         for(auto& technology : world.technologies) {
-            // Do not research if already been completed
-            if(!nation.research[world.get_id(technology)]) {
+            // Do not research if already been completed and be able to research it
+            if(!nation.research[world.get_id(technology)] || !nation.can_research(technology))
                 continue;
-            }
-
-            // Must be able to research it
-            if(!nation.can_research(technology)) {
-                continue;
-            }
 
             nation.change_research_focus(technology);
             Eng3D::Log::debug("ai", "[" + nation.ref_name + "] now researching [" + technology.ref_name + "] - " + std::to_string(nation.research[world.get_id(technology)]) + " research points (" + std::to_string(nation.get_research_points()) + ")");
@@ -507,7 +498,6 @@ void ai_do_tick(Nation& nation) {
             for(auto& part : treaty->approval_status) {
                 if(part.first == &nation) {
                     if(part.second == TreatyApproval::ACCEPTED || part.second == TreatyApproval::DENIED) break;
-
                     if(std::rand() % 50 >= 25) {
                         Eng3D::Log::debug("ai", "We, [" + nation.ref_name + "], deny the treaty of [" + treaty->name + "]");
                         part.second = TreatyApproval::DENIED;
@@ -534,14 +524,11 @@ void ai_do_tick(Nation& nation) {
         // Risk of invasion
         int defense_factor = 1;
         for(const auto& other : g_world->nations) {
-            if(other == &nation) {
+            if(&other == &nation)
                 continue;
-            }
-
-            const auto& relation = world.get_relation(world.get_id(*other), world.get_id(nation));
-            if(relation.has_war) {
+            const auto& relation = world.get_relation(world.get_id(other), world.get_id(nation));
+            if(relation.has_war)
                 defense_factor++;
-            }
         }
         defense_factor = std::min<float>(defense_factor, 100);
 
@@ -563,9 +550,8 @@ void ai_do_tick(Nation& nation) {
         if(std::rand() % (base_reluctance / defense_factor) == 0) {
             // Build units inside buildings that are not doing anything
             for(const auto& province : nation.controlled_provinces) {
-                if(std::rand() % (base_reluctance / defense_factor)) {
+                if(std::rand() % (base_reluctance / defense_factor))
                     continue;
-                }
 
                 for(size_t i = 0; i < world.building_types.size(); i++) {
                     const BuildingType* building_type = &world.building_types[i];
@@ -574,10 +560,8 @@ void ai_do_tick(Nation& nation) {
                     }
 
                     auto& building = province->buildings[i];
-                    if(building.level == 0 || building.working_unit_type != nullptr || !building.can_do_output()) {
+                    if(building.level == 0 || building.working_unit_type != nullptr || !building.can_do_output())
                         continue;
-                    }
-
                     /// @todo Actually produce something appropriate
                     auto* unit_type = &world.unit_types[std::rand() % world.unit_types.size()];
                     building.working_unit_type = unit_type;
@@ -589,21 +573,33 @@ void ai_do_tick(Nation& nation) {
     }
 
     /// @todo make a better algorithm
-    if(nation.ai_do_cmd_troops) {
+    for(const auto& province : nation.controlled_provinces) {
+        for(auto& unit : province->get_units()) {
+            if(unit->target == nullptr) {
+                for(auto& neighbour : province->neighbours) {
+                    if(std::rand() % 2) {
+                        unit->set_target(*neighbour);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    if(nation.ai_do_cmd_troops && 0) {
         std::fill(ai_data.nations_risk_factor.begin(), ai_data.nations_risk_factor.end(), 0.f);
         for(const auto& other : world.nations) {
-            if(other == &nation) {
+            if(&other == &nation)
                 continue;
-            }
 
             // Here we calculate the risk factor of each nation and then we put it on a lookup table
             // because we can't afford to calculate this for EVERY FUCKING province
-            const NationRelation& relation = world.get_relation(world.get_id(nation), world.get_id(*other));
+            const NationRelation& relation = world.get_relation(world.get_id(nation), world.get_id(other));
             // Risk is augmentated when we border any non-ally nation
             if(!relation.has_alliance) {
-                ai_data.nations_risk_factor[world.get_id(*other)] += 1.f * ((400.f - std::max<double>(relation.relation + 200.f, 1.f)) / 50.f);
+                ai_data.nations_risk_factor[world.get_id(other)] += 1.f * ((400.f - std::max<double>(relation.relation + 200.f, 1.f)) / 50.f);
             } else if(relation.has_war) {
-                ai_data.nations_risk_factor[world.get_id(*other)] += 500000.f;
+                ai_data.nations_risk_factor[world.get_id(other)] += 500000.f;
             }
         }
         // Our own nation is safe, let's set it to 0
@@ -643,6 +639,7 @@ void ai_do_tick(Nation& nation) {
         }
 
         for(const auto& province : nation.controlled_provinces) {
+            assert(province->controller == &nation);
             for(auto& unit : province->get_units()) {
                 if(unit->owner != &nation) {
                     continue;

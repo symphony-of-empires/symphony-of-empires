@@ -49,18 +49,18 @@
 
 using namespace Interface;
 
-UnitButton::UnitButton(GameState& _gs, int x, int y, const Unit* _unit, UI::Widget* parent)
+UnitButton::UnitButton(GameState& _gs, int x, int y, Unit& _unit, UI::Widget* parent)
     : UI::Button(x, y, parent->width, 24, parent),
     gs{ _gs },
     unit{ _unit }
 {
-    this->text(std::to_string(this->unit->size) + " " + this->unit->type->name.get_string());
+    this->text(std::to_string(this->unit.size) + " " + this->unit.type->name.get_string());
     this->on_each_tick = ([this](UI::Widget& w) {
-        w.text(std::to_string(this->unit->size) + " " + Eng3D::Locale::translate(this->unit->type->name.get_string()));
+        w.text(std::to_string(this->unit.size) + " " + Eng3D::Locale::translate(this->unit.type->name.get_string()));
     });
 }
 
-UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, const UnitType* _unit_type, UI::Widget* parent)
+UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType& _unit_type, UI::Widget* parent)
     : UI::Group(x, y, parent->width, 24, parent),
     gs{ _gs },
     unit_type{ _unit_type }
@@ -68,28 +68,27 @@ UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, const UnitType* _un
     this->is_scroll = false;
 
     this->icon_img = new UI::Image(0, 0, 32, 24, this);
-    this->icon_img->current_texture = Eng3D::State::get_instance().tex_man->load(Path::get("gfx/unittype/" + unit_type->ref_name + ".png"));
+    this->icon_img->current_texture = Eng3D::State::get_instance().tex_man->load(Path::get("gfx/unittype/" + this->unit_type.ref_name + ".png"));
 
     this->name_btn = new UI::Button(0, 0, this->width - 32, 24, this);
     this->name_btn->right_side_of(*this->icon_img);
-    this->name_btn->text(this->unit_type->name.get_string());
+    this->name_btn->text(this->unit_type.name.get_string());
 }
 
-ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, const Province* _province, UI::Widget* parent)
+ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province& _province, UI::Widget* parent)
     : UI::Button(x, y, parent->width, 24, parent),
     gs{ _gs },
     province{ _province }
 {
-    this->text(province->name.get_string());
+    this->text(this->province.name.get_string());
     this->on_each_tick = ([this](UI::Widget& w) {
-        if(this->gs.world->time % this->gs.world->ticks_per_month) {
+        if(this->gs.world->time % this->gs.world->ticks_per_month)
             return;
-        }
-        w.text(this->province->name.get_string());
+        w.text(this->province.name.get_string());
     });
 }
 
-NationButton::NationButton(GameState& _gs, int x, int y, const Nation* _nation, UI::Widget* parent)
+NationButton::NationButton(GameState& _gs, int x, int y, Nation& _nation, UI::Widget* parent)
     : UI::Group(x, y, parent->width, 24, parent),
     gs{ _gs },
     nation{ _nation }
@@ -97,27 +96,25 @@ NationButton::NationButton(GameState& _gs, int x, int y, const Nation* _nation, 
     this->is_scroll = false;
 
     this->flag_icon = new UI::Image(0, 0, 32, 24, this);
-    this->flag_icon->current_texture = this->gs.get_nation_flag(*this->nation);
+    this->flag_icon->current_texture = this->gs.get_nation_flag(this->nation);
     this->flag_icon->on_each_tick = ([this](UI::Widget& w) {
-        if(this->gs.world->time % this->gs.world->ticks_per_month) {
+        if(this->gs.world->time % this->gs.world->ticks_per_month)
             return;
-        }
-        w.current_texture = this->gs.get_nation_flag(*this->nation);
+        w.current_texture = this->gs.get_nation_flag(this->nation);
     });
 
     this->name_btn = new UI::Button(0, 0, this->width - 32, 24, this);
     this->name_btn->right_side_of(*this->flag_icon);
-    this->name_btn->text(nation->get_client_hint().alt_name.get_string());
+    this->name_btn->text(nation.get_client_hint().alt_name.get_string());
     this->name_btn->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<NationButton&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+        if(o.gs.world->time % o.gs.world->ticks_per_month)
             return;
-        }
-        w.text(Eng3D::Locale::translate(o.nation->get_client_hint().alt_name.get_string()));
+        w.text(Eng3D::Locale::translate(o.nation.get_client_hint().alt_name.get_string()));
     });
 }
 
-BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, const Province* _province, unsigned int _idx, UI::Widget* parent)
+BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, unsigned int _idx, UI::Widget* parent)
     : UI::Group(x, y, parent->width, 24 * 2, parent),
     gs{ _gs },
     province{ _province },
@@ -138,7 +135,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, const Province* _provin
             icon_ibtn->below_of(*name_btn);
             icon_ibtn->set_on_click([good](UI::Widget& w) {
                 auto& o = static_cast<BuildingInfo&>(*w.parent);
-                new GoodView(o.gs, good);
+                new GoodView(o.gs, *good);
             });
             icon_ibtn->set_tooltip(new UI::Tooltip(icon_ibtn, 512, 24));
             icon_ibtn->tooltip->text(good->name.get_string());
@@ -161,7 +158,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, const Province* _provin
         icon_ibtn->below_of(*name_btn);
         icon_ibtn->set_on_click([good](UI::Widget& w) {
             auto& o = static_cast<BuildingInfo&>(*w.parent);
-            new GoodView(o.gs, good);
+            new GoodView(o.gs, *good);
         });
         icon_ibtn->set_tooltip(new UI::Tooltip(icon_ibtn, 512, 24));
         icon_ibtn->tooltip->text(good->name.get_string());
@@ -172,20 +169,20 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, const Province* _provin
     money_lab->below_of(*name_btn);
     money_lab->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<BuildingInfo&>(*w.parent);
-        w.text(std::to_string(o.province->buildings[o.idx].budget));
+        w.text(std::to_string(o.province.buildings[o.idx].budget));
     });
     money_lab->on_each_tick(*money_lab);
 }
 
-BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, const BuildingType* _building_type, UI::Widget* parent)
+BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, BuildingType& _building_type, UI::Widget* parent)
     : UI::Button(x, y, parent->width, 24, parent),
     gs{ _gs },
-    building_type{_building_type}
+    building_type{ _building_type }
 {
-    this->text(building_type->name.get_string());
+    this->text(building_type.name.get_string());
 }
 
-TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, const Technology* _technology, UI::Widget* parent)
+TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology& _technology, UI::Widget* parent)
     : UI::Group(x, y, parent->width, 48, parent),
     gs{ _gs },
     technology{ _technology }
@@ -193,42 +190,40 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, const Technology* _
     this->is_scroll = false;
 
     auto* chk = new UI::Checkbox(0, 0, 128, 24, this);
-    chk->text(technology->name.get_string());
+    chk->text(technology.name.get_string());
     chk->tooltip = new UI::Tooltip(chk, 512, 24);
     chk->on_each_tick = ([this](UI::Widget& w) {
-        if(this->technology == this->gs.curr_nation->focus_tech || !this->gs.curr_nation->research[this->gs.world->get_id(*this->technology)]) {
+        if(&this->technology == this->gs.curr_nation->focus_tech || !this->gs.curr_nation->research[this->gs.world->get_id(this->technology)]) {
             ((UI::Checkbox&)w).set_value(true);
         } else {
             ((UI::Checkbox&)w).set_value(false);
         }
 
-        if(this->gs.curr_nation->can_research(*this->technology)) {
+        if(this->gs.curr_nation->can_research(this->technology)) {
             w.tooltip->text(Eng3D::Locale::translate("We can research this"));
         } else {
             std::string text = "";
             text = Eng3D::Locale::translate("We can't research this because we don't have ");
-            for(const auto& req_tech_id : this->technology->req_technologies) {
-                if(this->gs.curr_nation->research[req_tech_id] > 0.f) {
+            for(const auto& req_tech_id : this->technology.req_technologies) {
+                if(this->gs.curr_nation->research[req_tech_id] > 0.f)
                     text += Eng3D::Locale::translate(this->gs.world->technologies[req_tech_id].name.get_string()) + ", ";
-                }
             }
             w.tooltip->text(text);
         }
     });
     chk->set_on_click([this](UI::Widget&) {
-        if(this->gs.curr_nation->can_research(*this->technology)) {
-            this->gs.client->send(Action::FocusTech::form_packet(*this->technology));
-        }
+        if(this->gs.curr_nation->can_research(this->technology))
+            this->gs.client->send(Action::FocusTech::form_packet(this->technology));
     });
     chk->on_each_tick(*chk);
 
-    auto* pgbar = new UI::ProgressBar(0, 24, 128, 24, 0.f, technology->cost, this);
+    auto* pgbar = new UI::ProgressBar(0, 24, 128, 24, 0.f, technology.cost, this);
     pgbar->on_each_tick = ([this](UI::Widget& w) {
-        ((UI::ProgressBar&)w).set_value(std::fabs(this->gs.curr_nation->research[this->gs.world->get_id(*this->technology)] - this->technology->cost));
+        ((UI::ProgressBar&)w).set_value(std::fabs(this->gs.curr_nation->research[this->gs.world->get_id(this->technology)] - this->technology.cost));
     });
 }
 
-PopInfo::PopInfo(GameState& _gs, int x, int y, const Province* _province, std::size_t _index, UI::Widget* parent)
+PopInfo::PopInfo(GameState& _gs, int x, int y, Province& _province, std::size_t _index, UI::Widget* parent)
     : UI::Group(x, y, parent->width, 24, parent),
     gs{ _gs },
     province{ _province },
@@ -252,15 +247,12 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, const Province* _province, std::s
     
     this->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<PopInfo&>(w);
-        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+        if(o.gs.world->time % o.gs.world->ticks_per_month)
             return;
-        }
-
-        if(o.index >= o.province->pops.size()) {
+        if(o.index >= o.province.pops.size())
             return;
-        }
 
-        const Pop& pop = o.province->pops[o.index];
+        const Pop& pop = o.province.pops[o.index];
         o.size_btn->text(std::to_string(pop.size));
         o.budget_btn->text(std::to_string(pop.budget / pop.size));
         o.budget_btn->tooltip->text(Eng3D::Locale::translate("A total budget of") + " " + std::to_string(pop.budget));
@@ -272,7 +264,7 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, const Province* _province, std::s
     this->on_each_tick(*this);
 }
 
-ProductInfo::ProductInfo(GameState& _gs, int x, int y, const Province* _province, const Good* _good, UI::Widget* parent)
+ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province& _province, Good& _good, UI::Widget* parent)
     : UI::Group(x, y, parent->width, 24, parent),
     gs{ _gs },
     province{ _province },
@@ -280,13 +272,13 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, const Province* _province
 {
     this->is_scroll = false;
 
-    this->good_ibtn = new UI::Image(0, 0, 24, 24, this->gs.tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
+    this->good_ibtn = new UI::Image(0, 0, 24, 24, this->gs.tex_man->load(Path::get("gfx/good/" + good.ref_name + ".png")), this);
     this->good_ibtn->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
         new GoodView(o.gs, o.good);
     });
     this->good_ibtn->set_tooltip(new UI::Tooltip(this->good_ibtn, 512, 24));
-    this->good_ibtn->tooltip->text(Eng3D::Locale::translate(good->name.get_string()));
+    this->good_ibtn->tooltip->text(Eng3D::Locale::translate(good.name.get_string()));
 
     this->price_rate_btn = new UI::Button(0, 0, 96, 24, this);
     this->price_rate_btn->right_side_of(*this->good_ibtn);
@@ -322,41 +314,33 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, const Province* _province
         auto& o = static_cast<ProductInfo&>(w);
 
         // Only update every ticks_per_month ticks
-        if(o.gs.world->time % o.gs.world->ticks_per_month) {
+        if(o.gs.world->time % o.gs.world->ticks_per_month)
             return;
-        }
 
-        const Product& product = o.province->products[o.gs.world->get_id(*o.good)];
+        const Product& product = o.province.products[o.gs.world->get_id(o.good)];
         o.price_chart->data.clear();
-        for(const auto& data : product.price_history) {
+        for(const auto& data : product.price_history)
             o.price_chart->data.push_back(data);
-        }
-        if(!product.price_history.empty()) {
+        if(!product.price_history.empty())
             o.price_chart->tooltip->text(std::to_string(product.price_history.back()));
-        }
 
         o.supply_chart->data.clear();
-        for(const auto& data : product.supply_history) {
+        for(const auto& data : product.supply_history)
             o.supply_chart->data.push_back(data);
-        }
-        if(!product.supply_history.empty()) {
+        if(!product.supply_history.empty())
             o.supply_chart->tooltip->text(std::to_string((int)product.supply_history.back()));
-        }
 
         o.demand_chart->data.clear();
-        for(const auto& data : product.demand_history) {
+        for(const auto& data : product.demand_history)
             o.demand_chart->data.push_back(data);
-        }
-        if(!product.demand_history.empty()) {
+        if(!product.demand_history.empty())
             o.demand_chart->tooltip->text(std::to_string((int)product.demand_history.back()));
-        }
 
         o.price_rate_btn->text(std::to_string(product.price_vel));
-        if(product.price_vel >= 0.f) {
+        if(product.price_vel >= 0.f)
             o.price_rate_btn->text_color = Eng3D::Color(0, 255, 0);
-        } else {
+        else
             o.price_rate_btn->text_color = Eng3D::Color(255, 0, 0);
-        }
     });
     this->on_each_tick(*this);
 }
