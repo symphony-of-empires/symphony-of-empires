@@ -28,12 +28,10 @@
 #include <cstdint>
 #include <cstddef>
 #include <vector>
-
 #include "eng3d/entity.hpp"
 #include "eng3d/string.hpp"
 
 #include "policy.hpp"
-//#include "nation.hpp"
 
 class Nation;
 class Province;
@@ -41,7 +39,7 @@ class Province;
 namespace Diplomacy {
     // Determines if the other nation is a friendly potential ally
     inline bool is_friend(Nation& us, Nation& them);
-
+    
     // Determines if the other nation is an enemy and potential rival
     inline bool is_foe(Nation& us, Nation& them);
 };
@@ -60,26 +58,18 @@ enum class TreatyClauseType {
 namespace TreatyClause {
     class BaseClause {
     public:
-        // Type of clause
-        enum TreatyClauseType type;
-
-        // Nation who created this clause
-        Nation* sender = nullptr;
-        // Nation who should accept/reject this clause
-        Nation* receiver = nullptr;
-
-        // Number of days this clause lasts
-        size_t days_duration = 0;
-
-        // Used for 1 time clauses
-        bool done = false;
-
         BaseClause() = default;
         BaseClause(Nation& _sender, Nation& _receiver) {
             sender = &_sender;
             receiver = &_receiver;
         };
         virtual ~BaseClause() {};
+
+        enum TreatyClauseType type;
+        Nation* sender = nullptr; // Who created this clause
+        Nation* receiver = nullptr; // Who should accept/reject this clause
+        size_t days_duration = 0; // Days this clause lasts
+        bool done = false; // Used for 1 time clauses
 
         // Function to determine the "political" cost of this clause, and how much willing the AI
         // is to accept this clause, this is only used by the AI
@@ -211,7 +201,13 @@ class Unit;
 class War;
 class Battle : public IdEntity<uint16_t> {
 public:
-    Battle(War& war, Province& province);
+    Battle(War& war, Province& province)
+        : war{ &war },
+        province{ &province }
+    {
+
+    }
+    ~Battle() {};
 
     Eng3D::String name;
     
@@ -225,6 +221,8 @@ public:
 
 class War : public IdEntity<uint16_t> {
 public:
+    War() {};
+    ~War() {};
     bool is_involved(const Nation& nation) const;
     bool is_attacker(const Nation& nation) const;
     bool is_defender(const Nation& nation) const;

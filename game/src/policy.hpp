@@ -29,147 +29,65 @@
 #include "eng3d/decimal.hpp"
 
 enum AllowancePolicy {
-    // Nobody can enter the country
-    ALLOW_NOBODY,
-
-    // Only accepted cultures can enter the country
-    ALLOW_ACCEPTED_CULTURES,
-
-    // Everyone can enter, but at a cost
-    ALLOW_ALL_PAYMENT,
-
-    // Everyone can exit freely
-    ALLOW_ALL,
+    ALLOW_NOBODY, // Nobody can enter the country
+    ALLOW_ACCEPTED_CULTURES, // Only accepted cultures can enter the country
+    ALLOW_ALL_PAYMENT, // Everyone can enter, but at a cost
+    ALLOW_ALL, // Everyone can exit freely
 };
 
 enum CensorshipPolicy {
-    // All media censored
-    CENSORSHIP_ALL_CENSORED,
-
-    // Only state run media allowed
-    CENSORSHIP_ONLY_STATE,
-
-    // Only "approved" media is allowed
-    CENSORSHIP_ONLY_APPROVED,
-
-    // All media allowed
-    CENSORSHIP_ALL_ALLOWED,
+    CENSORSHIP_ALL_CENSORED, // All media censored
+    CENSORSHIP_ONLY_STATE, // Only state run media allowed
+    CENSORSHIP_ONLY_APPROVED, // Only "approved" media is allowed
+    CENSORSHIP_ALL_ALLOWED, // All media allowed
 };
 
 enum AutoBuildPolicy {
-    // POPs cannot auto build stuff
-    AUTO_BUILD_NONE,
-
-    // POPs can only build with approval
-    AUTO_BUILD_ONLY_APPROVED,
-
-    // All POPs can build freely
-    AUTO_BUILD_ALLOWED,
+    AUTO_BUILD_NONE, // POPs cannot auto build stuff
+    AUTO_BUILD_ONLY_APPROVED, // POPs can only build with approval
+    AUTO_BUILD_ALLOWED, // All POPs can build freely
 };
 
 enum TreatmentPolicy {
-    // Everyone is equal
-    TREATMENT_EVERYONE_EQUAL,
-
-    // Only accepted POPs are treated
-    TREATMENT_ONLY_ACCEPTED,
-
-    // Non-accepted are enslaved
-    TREATMENT_ENSLAVED,
-
-    // Exterminate
-    TREATMENT_EXTERMINATE,
-};
-
-class MaterialPolicy {
-    bool is_banned;
-    float max_stockpile_saved;
+    TREATMENT_EVERYONE_EQUAL, // Everyone is equal
+    TREATMENT_ONLY_ACCEPTED, // Only accepted POPs are treated
+    TREATMENT_ENSLAVED, // Non-accepted are enslaved
+    TREATMENT_EXTERMINATE, // Exterminate
 };
 
 class Policies {
 public:
     TreatmentPolicy treatment;
-
     AllowancePolicy migration;
     AllowancePolicy immigration;
     CensorshipPolicy censorship;
-
-    // Whetever POPs are able to build infrastructure
-    AutoBuildPolicy build_infrastructure;
-
-    // Whatever POPs are able to build factories
-    AutoBuildPolicy build_factories;
-
-    bool national_id;
-
-    bool men_suffrage;
-    bool men_labour;
-
-    bool women_suffrage;
-    bool women_labour;
-
+    AutoBuildPolicy build_infrastructure; // Are POPs able to build infrastructure
+    AutoBuildPolicy build_factories; // Are POPs able to build factories
     bool private_property;
     bool companies_allowed;
-
     bool public_education;
     bool secular_education;
-
     bool public_healthcare;
-
-    // Goverment pays bought food
-    bool social_security;
-
-    // Is slavery allowed?
-    bool slavery;
-
-    // Is there a parliament that is needed to approve laws?
-    bool legislative_parliament;
-
-    // Is there a parliament that is needed to do executive actions?
-    bool executive_parliament;
-
-    // Is there a constitution to limit the power of the leader?
-    bool constitutional;
-
-    // Do we allow foreign trade?
-    bool foreign_trade;
-
-    // Tax % for importing products
-    Eng3D::Decimal import_tax;
-
-    // Tax % for exporting products
-    Eng3D::Decimal export_tax;
-
-    // Tax % for domestic imports
-    Eng3D::Decimal domestic_import_tax;
-
-    // Tax % for domestic exports
-    Eng3D::Decimal domestic_export_tax;
-
-    // Flat tax rhs on the low-wage pops
-    Eng3D::Decimal poor_flat_tax;
-
-    // Flat tax rhs on the medium-wage pops
-    Eng3D::Decimal med_flat_tax;
-
-    // Flat tax rhs on the high-wage pops
-    Eng3D::Decimal rich_flat_tax;
-
-    // The tax given to the industrial sector
-    Eng3D::Decimal industry_tax;
-
-    // Spending done on military (% of budget)
-    Eng3D::Decimal military_spending;
-
+    bool social_security; // Goverment pays bought food
+    bool slavery; // Is slavery allowed?
+    bool legislative_parliament; // Is there a parliament that is needed to approve laws?
+    bool executive_parliament; // Is there a parliament that is needed to do executive actions?
+    bool constitutional; // Is there a constitution to limit the power of the leader?
+    bool foreign_trade; // Do we allow foreign trade?
+    Eng3D::Decimal import_tax; // Tax % for importing products
+    Eng3D::Decimal export_tax; // Tax % for exporting products
+    Eng3D::Decimal domestic_import_tax; // Tax % for domestic imports
+    Eng3D::Decimal domestic_export_tax; // Tax % for domestic exports
+    Eng3D::Decimal poor_flat_tax; // Flat tax rhs on the low-wage pops
+    Eng3D::Decimal med_flat_tax; // Flat tax rhs on the medium-wage pops
+    Eng3D::Decimal rich_flat_tax; // Flat tax rhs on the high-wage pops
+    Eng3D::Decimal industry_tax; // The tax given to the industrial sector
+    Eng3D::Decimal military_spending; // Spending done on military (% of budget)
     // Units can grab anything they want from DOMESTIC provinces
     // Please notice the DOMESTIC part of this, for foreign "free grab"; check diplomatic relations!!
     bool free_supplies;
-
-    // Minimum wage
-    Eng3D::Decimal min_wage;
-
-    // Minimum social value for people to be accounted on the parliament
-    Eng3D::Decimal min_sv_for_parliament;
+    Eng3D::Decimal min_wage; // Minimum wage
+    Eng3D::Decimal min_sv_for_parliament; // Minimum social value for people to be accounted on the parliament
 
     inline int difference(const Policies& rhs) const {
         int diff = 0;
@@ -179,11 +97,6 @@ public:
         diff += std::abs(static_cast<int>(rhs.censorship) - static_cast<int>(this->censorship));
         diff += std::abs(static_cast<int>(rhs.build_factories) - static_cast<int>(this->build_factories));
         diff += std::abs(rhs.build_infrastructure - this->build_infrastructure);
-        diff += (rhs.national_id != this->national_id) ? 1 : 0;
-        diff += (rhs.men_suffrage != this->men_suffrage) ? 1 : 0;
-        diff += (rhs.men_labour != this->men_labour) ? 1 : 0;
-        diff += (rhs.women_suffrage != this->women_suffrage) ? 1 : 0;
-        diff += (rhs.women_labour != this->women_labour) ? 1 : 0;
         diff += (rhs.private_property != this->private_property) ? 1 : 0;
         diff += (rhs.companies_allowed != this->companies_allowed) ? 1 : 0;
         diff += (rhs.public_education != this->public_education) ? 1 : 0;

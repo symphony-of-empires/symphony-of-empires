@@ -459,7 +459,6 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             ::serialize(ar, &tmp_province_ref);
             packet.data(ar.get_buffer(), ar.size());
             g_client->send(packet);
-            unit->set_target(province);
 
             const std::scoped_lock lock2(gs.sound_lock);
             auto entries = Path::get_all_recursive("sfx/land_move");

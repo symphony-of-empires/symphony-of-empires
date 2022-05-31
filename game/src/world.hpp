@@ -55,6 +55,8 @@
 #include "technology.hpp"
 #include "event.hpp"
 #include "diplomacy.hpp"
+#include "culture.hpp"
+#include "religion.hpp"
 
 // A single tile unit this is the smallest territorial unit in the game and it cannot be divided (and it shouldn't)
 class World;
@@ -112,12 +114,6 @@ public:
 
 // Contains the main world class object, containing all the data relevant for the simulation
 class World {
-    std::vector<Event*> daily_check_events;
-    std::vector<Event*> monthly_check_events;
-    std::vector<Event*> yearly_check_events;
-    std::vector<Event*> economical_check_events;
-    std::vector<std::pair<Event*, int>> rand_chance_events;
-
 public:
     static constexpr unsigned int ticks_per_month = 30;
 
@@ -176,47 +172,35 @@ public:
         list_mutex.unlock();
     }
 
-    /**
-     * @brief Get the id of a tile
-     * 
-     * @param obj Tile to get id from
-     * @return int The Id of the tile
-     */
+    /// @brief Get the id of a tile
+    /// @param obj Tile to get id from
+    /// @return int The Id of the tile
     inline int get_id(const Tile& obj) const {
         return static_cast<int>(((ptrdiff_t)&obj - (ptrdiff_t)tiles.get()) / sizeof(Tile));
     }
 
-    /**
-     * @brief Get the id of an object, this is the emplate for all types except
-     * for tiles and locally-stored types (we can do this because we can obtain the list
-     * from the type) with get_list helper functions. Please do not store the value of this
-     * function on a local variable because said variable could potentially get invalidated!
-     * 
-     * @tparam T Type of object
-     * @param obj Reference to the object
-     * @return T::Id Id of the object
-     */
+    /// @brief Get the id of an object, this is a template for all types except
+    /// for tiles and locally-stored types (we can do this because we can obtain the list
+    /// from the type) with get_list helper functions. Please do not store the value of this
+    /// function on a local variable because said variable could potentially get invalidated!
+    /// @tparam T Type of object
+    /// @param obj Reference to the object
+    /// @return T::Id Id of the object
     template<typename T>
     inline typename T::Id get_id(const T& obj) const {
         return obj.cached_id;
     }
 
-    /**
-     * @brief Get the dist from the equator in respect to Y
-     * 
-     * @param y Position to get distance from
-     * @return float 
-     */
+    /// @brief Get the dist from the equator in respect to Y
+    /// @param y Position to get distance from
+    /// @return float 
     inline float get_dist_from_equator(float y) const {
         return std::fabs(std::fabs(y) - (this->width / 2.0));
     }
 
-    /**
-     * @brief Obtains a tile from the world safely, and makes sure that it is in bounds
-     * 
-     * @param idx Index of the tile
-     * @return Tile& Returned tile
-     */
+    /// @brief Obtains a tile from the world safely, and makes sure that it is in bounds
+    /// @param idx Index of the tile
+    /// @return Tile& Returned tile
     inline Tile& get_tile(size_t idx) const {
         assert(idx < width * height); // Tile index exceeds boundaries
         return tiles[idx];

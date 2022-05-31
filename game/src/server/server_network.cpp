@@ -166,10 +166,11 @@ void Server::net_loop(int id) {
 
                     Province* province;
                     ::deserialize(ar, &province);
-                    if(province != nullptr) {
-                        Eng3D::Log::debug("server", "Unit changes targets to " + province->ref_name.get_string());
+                    if(province == nullptr) {
+                        throw ServerException("Unknown province");
                     }
-                    
+
+                    Eng3D::Log::debug("server", "Unit changes targets to " + province->ref_name.get_string());
                     if(unit->can_move()) {
                         unit->set_target(*province);
                     }

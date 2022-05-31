@@ -957,6 +957,11 @@ void World::do_tick() {
     clear_units.combine_each([this](const auto& units_clear_list) {
         for(auto& unit : units_clear_list) {
             this->remove(*unit);
+            if(unit->province != nullptr) {
+                const auto it = std::find(unit->province->units.begin(), unit->province->units.end(), unit);
+                assert(it != unit->province->units.end());
+                unit->province->units.erase(it);
+            }
             delete unit;
         }
     });

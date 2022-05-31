@@ -27,8 +27,10 @@
 #include "eng3d/assert.hpp"
 
 #include "nation.hpp"
-#include "world.hpp"
 #include "technology.hpp"
+#include "province.hpp"
+#include "ideology.hpp"
+#include "world.hpp"
 
 //
 // Nation

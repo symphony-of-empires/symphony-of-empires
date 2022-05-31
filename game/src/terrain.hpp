@@ -26,15 +26,14 @@
 #pragma once
 
 #include <string>
-
+#include "eng3d/string.hpp"
+#include "eng3d/color.hpp"
 #include "eng3d/entity.hpp"
 
 class TerrainType : public RefnameEntity<uint8_t>  {
 public:
     Eng3D::StringRef name;
-    // Associative color (with bitmap)
-    uint32_t color;
-    // Should this terrain be treated as sea?
-    bool is_water_body;
+    uint32_t color; // Associative color (with bitmap)
+    bool is_water_body; // Should this terrain be treated as sea?
     float movement_penalty;
 };

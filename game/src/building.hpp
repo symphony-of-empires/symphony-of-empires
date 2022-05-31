@@ -26,6 +26,7 @@
 #pragma once
 
 #include <vector>
+#include <bitset>
 #include <unordered_set>
 #include "eng3d/entity.hpp"
 #include "eng3d/decimal.hpp"
@@ -37,9 +38,6 @@ class Technology;
 // Type for military outposts
 class BuildingType: public RefnameEntity<uint8_t> {
 public:
-    //BuildingType();
-    //~BuildingType();
-
     static constexpr int PLOT_ON_SEA = 0x01;
     static constexpr int PLOT_ON_LAND = 0x02;
     static constexpr int BUILD_LAND_UNITS = 0x04;
@@ -47,6 +45,9 @@ public:
     static constexpr int BUILD_AIR_UNITS = 0x10;
     // Build any type of military
     static constexpr int BUILD_MILITARY = BUILD_LAND_UNITS | BUILD_NAVAL_UNITS | BUILD_AIR_UNITS;
+
+    BuildingType() {};
+    ~BuildingType() {};
 
     Eng3D::StringRef name;
     std::uint8_t flags;
@@ -71,37 +72,24 @@ public:
 // When adjacent to a water tile this serves as a shipyard for spawning naval units
 class Building {
 public:
-    Building();
-    ~Building();
+    Building() {};
+    ~Building() {};
     void add_to_stock(const Good& good, size_t add);
     bool can_do_output(void) const;
     bool can_build_unit(void) const;
 
-    // Remaining ticks until the unit is built
-    Eng3D::Number build_time;
-    // Total money that the factory has
-    Eng3D::Decimal budget = 0.f;
-    // Days that the factory has not been operational
-    Eng3D::Number days_unoperational = 0;
-    // Money needed to produce - helps determine the price of the output products
-    Eng3D::Decimal production_cost = 0.f;
-    // Level of building (all buildings start at 0)
-    Eng3D::Number level = 0;
-    // Amount of currently working pops
-    Eng3D::Number workers = 0;
-    // How much of the factory is being used. From 0-1
-    Eng3D::Decimal production_scale = 1.f;
-
-    // Unit that is currently being built here (nullptr indicates no unit)
-    UnitType* working_unit_type = nullptr;
-
+    Eng3D::Number build_time; // Remaining ticks until the unit is built
+    Eng3D::Decimal budget = 0.f; // Total money that the factory has
+    Eng3D::Number days_unoperational = 0; // Days that the factory has not been operational
+    Eng3D::Decimal production_cost = 0.f; // Money needed to produce - helps determine the price of the output products
+    Eng3D::Number level = 0; // Level/Capacity scale of the building
+    Eng3D::Number workers = 0; // Amount of workers
+    Eng3D::Decimal production_scale = 1.f; // How much of the factory is being used. From 0-1
+    UnitType* working_unit_type = nullptr; // Unit that is currently being built here (nullptr indicates no unit)
     // Required goods for building the working unit
     /// @todo change this to a struct instead of a pair for readablity
     std::vector<std::pair<Good*, Eng3D::Number>> req_goods_for_unit;
-    // Required goods for building this, or repairing this after a military attack
-    std::vector<std::pair<Good*, Eng3D::Number>> req_goods;
-    // Stockpile of inputs in the factory
-    std::vector<Eng3D::Number> stockpile;
-    // The employees needed per output
-    std::vector<Eng3D::Number> employees_needed_per_output;
+    std::vector<std::pair<Good*, Eng3D::Number>> req_goods; // Required goods for construction or for repairs
+    std::vector<Eng3D::Number> stockpile; // Stockpile of inputs in the factory
+    std::vector<Eng3D::Number> employees_needed_per_output; // Employees needed per output
 };

@@ -33,15 +33,6 @@
 //
 // Province
 //
-/*
-Province::Province(void) {
-
-}
-
-Province::~Province(void) {
-    
-}
-//*/
 
 // Calculates the total number of POPs in this province (total population)
 Eng3D::Number Province::total_pops(void) const {
@@ -62,22 +53,16 @@ Eng3D::Decimal Province::get_attractiveness(const Pop& pop) const {
         attractive *= scale;
     }
 
-    // Account for GDP difference
-    attractive -= this->owner->gdp * 0.0001f;
-
     // A social value between 0 and 1 is for poor people, the value for medium class
     // is between 1 and 2, for the rich is above 2
-
-    // For the lower class, lower taxes is good, and so on for other POPs
     if(pop.type->social_value >= 0.f && pop.type->social_value <= 1.f) {
+        // For the lower class, lower taxes is good, and so on for other POPs
         attractive += -(this->owner->current_policy.poor_flat_tax);
-    }
-    // For the medium class
-    else if(pop.type->social_value >= 1.f && pop.type->social_value <= 2.f) {
+    } else if(pop.type->social_value >= 1.f && pop.type->social_value <= 2.f) {
+        // For the medium class
         attractive += -(this->owner->current_policy.med_flat_tax);
-    }
-    // For the high class
-    else if(pop.type->social_value >= 2.f) {
+    } else if(pop.type->social_value >= 2.f) {
+        // For the high class
         attractive += -(this->owner->current_policy.rich_flat_tax);
     }
     return attractive;

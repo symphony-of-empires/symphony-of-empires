@@ -65,11 +65,11 @@ end
 function Nation:get_policies()
 	local o = Policies:new()
 	-- If someone knows a better way to do this please do a PR
-	o.treatment, o.migration, o.immigration, o.censorship, o.build_infrastructure, o.build_factories, o.national_id, o.men_suffrage, o.men_labour, o.women_suffrage, o.women_labour, o.private_property, o.companies_allowed, o.public_education, o.secular_education, o.public_healthcare, o.social_security, o.slavery, o.legislative_parliament, o.executive_parliament, o.constitutional, o.foreign_trade, o.import_tax, o.export_tax, o.domestic_import_tax, o.domestic_export_tax, o.poor_flat_tax, o.med_flat_tax, o.rich_flat_tax, o.industry_tax, o.military_spending, o.free_supplies, o.min_wage, o.min_sv_for_parliament = get_nation_policies(self.id)
+	o.treatment, o.migration, o.immigration, o.censorship, o.build_infrastructure, o.build_factories, o.private_property, o.companies_allowed, o.public_education, o.secular_education, o.public_healthcare, o.social_security, o.slavery, o.legislative_parliament, o.executive_parliament, o.constitutional, o.foreign_trade, o.import_tax, o.export_tax, o.domestic_import_tax, o.domestic_export_tax, o.poor_flat_tax, o.med_flat_tax, o.rich_flat_tax, o.industry_tax, o.military_spending, o.free_supplies, o.min_wage, o.min_sv_for_parliament = get_nation_policies(self.id)
 	return o
 end
 function Nation:set_policies(o)
-	set_nation_policies(self.id, o.treatment, o.migration, o.immigration, o.censorship, o.build_infrastructure, o.build_factories, o.national_id, o.men_suffrage, o.men_labour, o.women_suffrage, o.women_labour, o.private_property, o.companies_allowed, o.public_education, o.secular_education, o.public_healthcare, o.social_security, o.slavery, o.legislative_parliament, o.executive_parliament, o.constitutional, o.foreign_trade, o.import_tax, o.export_tax, o.domestic_import_tax, o.domestic_export_tax, o.poor_flat_tax, o.med_flat_tax, o.rich_flat_tax, o.industry_tax, o.military_spending, o.free_supplies, o.min_wage, o.min_sv_for_parliament)
+	set_nation_policies(self.id, o.treatment, o.migration, o.immigration, o.censorship, o.build_infrastructure, o.build_factories, o.private_property, o.companies_allowed, o.public_education, o.secular_education, o.public_healthcare, o.social_security, o.slavery, o.legislative_parliament, o.executive_parliament, o.constitutional, o.foreign_trade, o.import_tax, o.export_tax, o.domestic_import_tax, o.domestic_export_tax, o.poor_flat_tax, o.med_flat_tax, o.rich_flat_tax, o.industry_tax, o.military_spending, o.free_supplies, o.min_wage, o.min_sv_for_parliament)
 end
 function Nation:set_ideology(ideology)
 	set_nation_ideology(self.id, ideology.id)
@@ -228,11 +228,8 @@ NationRelation = {
     has_war = false,
     has_alliance = false,
     has_defensive_pact = false,
-    has_truce = false,
-    has_embassy = false,
     has_military_access = false,
-    has_market_access = false,
-    free_supplies = false
+    has_market_access = false
 }
 function NationRelation:new(o)
 	o = o or {}
@@ -242,16 +239,15 @@ function NationRelation:new(o)
 end
 function Nation:get_relation(other)
 	rel = NationRelation:new{} or {}
-	rel.relation, rel.interest, rel.has_embargo, rel.has_war, rel.has_alliance, rel.has_defensive_pact, rel.has_truce, rel.has_embassy, rel.has_military_access, rel.has_market_access, rel.free_supplies = get_nation_relation(self.id, other.id)
+	rel.relation, rel.interest, rel.has_embargo, rel.has_war, rel.has_alliance, rel.has_defensive_pact, rel.has_military_access, rel.has_market_access = get_nation_relation(self.id, other.id)
 	return rel
 end
 function Nation:set_relation(other, rel)
-	get_nation_relation(self.id, other.id, rel.relation, rel.interest, rel.has_embargo, rel.has_war, rel.has_alliance, rel.has_defensive_pact, rel.has_truce, rel.has_embassy, rel.has_military_access, rel.has_market_access, rel.free_supplies)
+	get_nation_relation(self.id, other.id, rel.relation, rel.interest, rel.has_embargo, rel.has_war, rel.has_alliance, rel.has_defensive_pact, rel.has_military_access, rel.has_market_access)
 end
 function Nation:make_ally(other)
 	rel = Nation:get_relation(self, other)
 	rel.has_embargo = false
-	rel.has_truce = false
 	rel.has_war = false
 	rel.has_alliance = true
 	Nation:set_relation(self, other, rel)

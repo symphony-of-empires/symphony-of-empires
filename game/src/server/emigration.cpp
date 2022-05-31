@@ -35,7 +35,6 @@ typedef SSIZE_T ssize_t;
 #endif
 #include <cstddef>
 #include <execution>
-
 #include "eng3d/disc_dist.hpp"
 
 #include "server/emigration.hpp"
@@ -43,8 +42,12 @@ typedef SSIZE_T ssize_t;
 
 class Emigrated {
 public:
-	Emigrated(Pop& pop) : emigred{pop} {};
-	~Emigrated() {};
+	Emigrated(Pop& pop)
+		: emigred{ pop }
+	{
+
+	}
+	~Emigrated() {}
 
 	Province* origin;
 	Province* target;
@@ -67,7 +70,7 @@ void conlonial_migration(World&) {
 }
 
 void internal_migration(World&) {
-	
+
 }
 
 // Basic 
@@ -144,15 +147,15 @@ void external_migration(World& world) {
 	}
 
 	std::vector<Emigrated> emigration;
-    // Collect list of nations that exist
-    std::vector<Nation*> eval_nations;
-    for(const auto& nation : world.nations) {
-        if(nation->exists()) {
-            eval_nations.push_back(nation);
-        }
-    }
+	// Collect list of nations that exist
+	std::vector<Nation*> eval_nations;
+	for(const auto& nation : world.nations) {
+		if(nation->exists()) {
+			eval_nations.push_back(nation);
+		}
+	}
 
-    std::for_each(std::execution::par, eval_nations.begin(), eval_nations.end(), [&emigration, &nation_distributions, &province_distributions, &world](const auto& nation) {
+	std::for_each(std::execution::par, eval_nations.begin(), eval_nations.end(), [&emigration, &nation_distributions, &province_distributions, &world](const auto& nation) {
 		// Check that laws on the province we are in allows for emigration
 		if(nation->current_policy.migration == ALLOW_NOBODY) {
 			return;
@@ -204,7 +207,7 @@ void external_migration(World& world) {
 	for(const auto& target : emigration) {
 		auto new_pop = std::find(target.target->pops.begin(), target.target->pops.end(), target.emigred);
 		if(new_pop == target.target->pops.end()) {
-			Pop i_pop( target.emigred );
+			Pop i_pop(target.emigred);
 			i_pop.size = target.size;
 			target.target->pops.push_back(i_pop);
 		} else {

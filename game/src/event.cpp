@@ -32,31 +32,8 @@
 #include "nation.hpp"
 
 //
-// Decision
-//
-/*
-Decision::Decision(void) {
-
-}
-
-Decision::~Decision(void) {
-
-}
-//*/
-
-//
 // Event
 //
-/*
-Event::Event(void) {
-
-}
-
-Event::~Event(void) {
-
-}
-//*/
-
 void Event::take_decision(Nation& sender, Decision& dec) {
     auto receiver = std::find(receivers.begin(), receivers.end(), &sender);
     // Confirm that the sender is in receiver's list
