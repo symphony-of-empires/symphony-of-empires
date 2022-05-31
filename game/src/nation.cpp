@@ -36,16 +36,6 @@
 // Nation
 //
 
-/*
-Nation::Nation(void) {
-
-}
-
-Nation::~Nation(void) {
-    
-}
-//*/
-
 // Declare war
 /// @todo Make some form of "WarParticipationRequest" so we don't force allies to join
 // and we also make sure betrayals are possible
@@ -60,6 +50,10 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     // Recollect offenders
     // - Those who are allied to us
     for(std::size_t i = 0; i < world.nations.size(); i++) {
+        if(world.nations[i] == this || world.nations[i] == &nation) {
+            continue;
+        }
+
         const auto& relation = world.get_relation(i, world.get_id(*this));
         if(relation.has_alliance || world.nations[i]->puppet_master == this) {
             war->attackers.push_back(world.nations[i]);
@@ -76,6 +70,10 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     // - Those who are on a defensive pact with the target
     // - Those who are allied with the target
     for(std::size_t i = 0; i < world.nations.size(); i++) {
+        if(world.nations[i] == this || world.nations[i] == &nation) {
+            continue;
+        }
+
         const auto& relation = world.get_relation(i, world.get_id(nation));
         if(relation.has_alliance || relation.has_defensive_pact || world.nations[i]->puppet_master == &nation) {
             war->attackers.push_back(world.nations[i]);
