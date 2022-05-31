@@ -73,36 +73,20 @@ void get_blob_bounds(std::set<Province*>* visited_provinces, const Nation& natio
     // Iterate over all neighbours
     for(const auto& neighbour : province.neighbours) {
         // Do not visit again
-        if(visited_provinces->find(neighbour) != visited_provinces->end()) {
+        if(visited_provinces->find(neighbour) != visited_provinces->end())
             continue;
-        }
-
-#if 1
-        // Province must not be morbidly big
-        if(std::fabs(neighbour->max_x - neighbour->min_x) >= g_world->width / 2.f || std::fabs(neighbour->max_y - neighbour->min_y) >= g_world->height / 2.f) {
+        // Province must not be absurdly big
+        if(std::fabs(neighbour->box_area.right - neighbour->box_area.left) >= g_world->width / 2.f || std::fabs(neighbour->box_area.bottom - neighbour->box_area.top) >= g_world->height / 2.f)
             continue;
-        }
-#endif
-
-        // Must own it
-        if(neighbour->owner != &nation) {
+        if(neighbour->owner != &nation) // Must own the province
             continue;
-        }
 
-        if(neighbour->min_x < min_x->x) {
-            min_x->x = neighbour->min_x;
-            min_x->y = neighbour->min_y;
-        } if(neighbour->min_y < min_y->y) {
-            min_y->x = neighbour->min_x;
-            min_y->y = neighbour->min_y;
-        }
-
-        if(neighbour->max_x > max_x->x) {
-            max_x->x = neighbour->max_x;
-            max_x->y = neighbour->max_y;
-        } if(neighbour->max_y > max_y->y) {
-            max_y->x = neighbour->max_x;
-            max_y->y = neighbour->max_y;
+        if(neighbour->box_area.left < min_x->x || neighbour->box_area.top < min_y->y) {
+            min_y->x = neighbour->box_area.left;
+            min_y->y = neighbour->box_area.top;
+        } else if(neighbour->box_area.right > max_x->x || neighbour->box_area.bottom > max_y->y) {
+            max_y->x = neighbour->box_area.right;
+            max_y->y = neighbour->box_area.bottom;
         }
 
         visited_provinces->insert(neighbour);
@@ -183,8 +167,8 @@ void Map::create_labels() {
         delete label;
     province_labels.clear();
     for(const auto& province : world.provinces) {
-        glm::vec2 min_point(province.min_x, province.min_y);
-        glm::vec2 max_point(province.max_x, province.max_y);
+        glm::vec2 min_point(province.box_area.left, province.box_area.top);
+        glm::vec2 max_point(province.box_area.right, province.box_area.bottom);
         glm::vec2 mid_point = 0.5f * (min_point + max_point);
 
         glm::vec2 x_step = glm::vec2(std::min(max_point.x - mid_point.x, 250.f), 0);
@@ -219,14 +203,10 @@ void Map::create_labels() {
 
         std::set<Province*> visited_provinces;
         if(nation.capital != nullptr) {
-            max_point_x.x = nation.capital->max_x;
-            max_point_x.y = nation.capital->max_y;
-            max_point_y.x = nation.capital->max_x;
-            max_point_y.y = nation.capital->max_y;
-            min_point_x.x = nation.capital->min_x;
-            min_point_x.y = nation.capital->min_y;
-            min_point_y.x = nation.capital->min_x;
-            min_point_y.y = nation.capital->min_y;
+            max_point_x = nation.capital->box_area.offset();
+            max_point_y = nation.capital->box_area.offset();
+            min_point_x = nation.capital->box_area.position();
+            min_point_y = nation.capital->box_area.position();
             get_blob_bounds(&visited_provinces, nation, *nation.capital, &min_point_x, &min_point_y, &max_point_x, &max_point_y);
         } else {
             get_blob_bounds(&visited_provinces, nation, **(nation.controlled_provinces.begin()), &min_point_x, &min_point_y, &max_point_x, &max_point_y);
@@ -676,11 +656,7 @@ void Map::draw(const GameState& gs) {
             glm::mat4 model = glm::translate(base_model, glm::vec3(pos.x, pos.y, 0.f));
             if(unit->target != nullptr) {
                 //Eng3D::Line target_line = Eng3D::Line(pos.x, pos.y, );
-                const glm::vec2 target_pos = glm::vec2(
-                    unit->target->min_x + ((unit->target->max_x - unit->target->min_x) / 2.f),
-                    unit->target->min_y + ((unit->target->max_y - unit->target->min_y) / 2.f)
-                );
-
+                const glm::vec2 target_pos = unit->target->get_pos();
                 const float dist = glm::sqrt(glm::pow(glm::abs(pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(pos.y - target_pos.y), 2.f));
                 auto line_square = Eng3D::Square(0.f, 0.f, dist, 0.5f);
                 glm::mat4 line_model = glm::rotate(model, glm::atan(target_pos.y - pos.y, target_pos.x - pos.x), glm::vec3(0.f, 0.f, 1.f));

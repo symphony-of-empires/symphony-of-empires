@@ -62,6 +62,6 @@ void UI::NumericInput::set_buffer(const std::string& _buffer) {
     inp->set_buffer(_buffer);
 }
 
-std::string UI::NumericInput::get_buffer(void) const {
+std::string UI::NumericInput::get_buffer() const {
     return inp->get_buffer();
 }

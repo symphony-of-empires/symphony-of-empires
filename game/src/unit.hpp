@@ -52,21 +52,11 @@ public:
     Eng3D::Decimal max_health;
     Eng3D::Decimal defense;
     Eng3D::Decimal attack;
-
-    // Capacity of units that can be carried (transport units)
-    Eng3D::Number capacity;
-
-    // Time needed to build
-    Eng3D::Number build_time;
-
-    // Can go on ground?
-    bool is_ground;
-    
-    // Can go on water?
-    bool is_naval;
-
-    // Required goods, first describes the id of the good and the second describes how many
-    std::vector<std::pair<Good *, Eng3D::Number>> req_goods;
+    Eng3D::Number capacity; // Capacity of units that can be carried (transport units)
+    Eng3D::Number build_time; // Time needed to build
+    bool is_ground; // Can go on ground?
+    bool is_naval; // Can go on water?
+    std::vector<std::pair<Good *, Eng3D::Number>> req_goods; // Required goods
 };
 
 // A trait for an unit; given randomly per each recruited unit
@@ -89,10 +79,10 @@ public:
     Unit() {};
     ~Unit() {};
     void attack(Unit& enemy);
-    std::pair<Eng3D::Number, Eng3D::Number> get_pos(void) const;
+    std::pair<Eng3D::Number, Eng3D::Number> get_pos() const;
     void set_target(Province& province);
     Eng3D::Decimal get_speed(const Province& province) const;
-    inline Eng3D::Decimal get_speed(void) const {
+    inline Eng3D::Decimal get_speed() const {
         return get_speed(*target);
     }
     void set_province(Province& province);
@@ -103,30 +93,22 @@ public:
      * @return true 
      * @return false 
      */
-    inline bool can_move(void) const {
+    inline bool can_move() const {
         // Unit must not be on a battle
         return !(this->on_battle);
     }
-    
-    // Type of unit
-    UnitType* type;
-    // Who owns this unit
-    Nation* owner;
-    Province* target = nullptr;
-    Province* province = nullptr;
 
-    // Size of the unit (soldiers in unit)
-    Eng3D::Number size;
+    UnitType* type; // Type of unit
+    Nation* owner; // Who owns this unit
+    Province* target = nullptr;
+    Province* province;
+    Eng3D::Number size; // Size of the unit (soldiers in unit)
     // Base size of the unit (max size due to anti-attrition)
     Eng3D::Number base;
     Eng3D::Decimal move_progress;
     Eng3D::Decimal morale;
-    // For perspective, 0.5 is the normal unit (i.e a soldier POP)
-    Eng3D::Decimal experience;
-    // Available supplies, 1.0 is all supplies fullfilled, lower than that and the unit starts shrinking
-    Eng3D::Decimal supply;
-    // Money that the unit has
-    Eng3D::Decimal budget;
-    /// @todo ser/deser
+    Eng3D::Decimal experience; // For perspective, 0.5 is the normal unit (i.e a soldier POP)
+    Eng3D::Decimal supply; // Available supplies, 1.0 is all supplies fullfilled, lower than that and the unit starts shrinking
+    Eng3D::Decimal budget; // Money that the unit has
     bool on_battle = false;
 };

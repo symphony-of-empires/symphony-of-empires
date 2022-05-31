@@ -30,7 +30,7 @@
 
 namespace Eng3D::Log {
     inline void debug(const std::string& category, const std::string& msg) {
-#if defined E3D_DEBUG || defined GS_DEBUG
+#if defined E3D_DEBUG || defined GS_DEBUG || 1
 #   ifdef E3D_LOG_TO_CONSOLE
         printf("<debug:%s> %s\n", category.c_str(), msg.c_str());
 #   endif

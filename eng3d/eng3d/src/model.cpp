@@ -42,26 +42,26 @@
 //
 // VAO
 //
-Eng3D::OpenGL::VAO::VAO(void) {
+Eng3D::OpenGL::VAO::VAO() {
     glGenVertexArrays(1, &id);
 }
 
-Eng3D::OpenGL::VAO::~VAO(void) {
+Eng3D::OpenGL::VAO::~VAO() {
     glDeleteVertexArrays(1, &id);
 }
 
-void Eng3D::OpenGL::VAO::bind(void) const {
+void Eng3D::OpenGL::VAO::bind() const {
     glBindVertexArray(id);
 }
 
 //
 // VBO
 //
-Eng3D::OpenGL::VBO::VBO(void) {
+Eng3D::OpenGL::VBO::VBO() {
     glGenBuffers(1, &id);
 }
 
-Eng3D::OpenGL::VBO::~VBO(void) {
+Eng3D::OpenGL::VBO::~VBO() {
     glDeleteBuffers(1, &id);
 }
 
@@ -78,7 +78,7 @@ Eng3D::SimpleModel::SimpleModel(enum Eng3D::MeshMode _mode)
 
 }
 
-Eng3D::SimpleModel::~SimpleModel(void) {
+Eng3D::SimpleModel::~SimpleModel() {
 
 }
 
@@ -107,25 +107,15 @@ void Eng3D::SimpleModel::draw(const Eng3D::OpenGL::Program& shader) const {
 //
 // Model
 //
-Eng3D::Model::Model(void) {
-
-}
-
-Eng3D::Model::~Model(void) {
-
-}
-
 void Eng3D::Model::draw(const Eng3D::OpenGL::Program& shader) const {
     std::vector<const Eng3D::SimpleModel*>::const_iterator model;
-    for(model = simple_models.cbegin(); model != simple_models.cend(); model++) {
+    for(model = simple_models.cbegin(); model != simple_models.cend(); model++)
         (*model)->draw(shader);
-    }
 }
 
-Eng3D::ModelManager::~ModelManager(void) {
-    for(const auto& model : models) {
+Eng3D::ModelManager::~ModelManager() {
+    for(const auto& model : models)
         delete model.second;
-    }
     models.clear();
 }
 
@@ -156,14 +146,12 @@ const Eng3D::Model& Eng3D::ModelManager::load_wavefront(const std::string& path)
     while(std::getline(file, line)) {
         // Skip whitespace
         size_t len = line.find_first_not_of(" \t");
-        if(len != std::string::npos) {
+        if(len != std::string::npos)
             line = line.substr(len, line.length() - len);
-        }
 
         // Comment
-        if(line[0] == '#' || line.empty()) {
+        if(line[0] == '#' || line.empty())
             continue;
-        }
 
         std::istringstream sline(line);
         std::string cmd;
@@ -171,11 +159,9 @@ const Eng3D::Model& Eng3D::ModelManager::load_wavefront(const std::string& path)
         if(cmd == "mtllib") {
             std::string name;
             sline >> name;
-
-            std::shared_ptr<Eng3D::IO::Asset::Base> asset = Eng3D::State::get_instance().package_man->get_unique("models/" + name);
-            if(asset.get() != nullptr) {
+            auto asset = Eng3D::State::get_instance().package_man->get_unique("models/" + name);
+            if(asset.get() != nullptr)
                 Eng3D::State::get_instance().material_man->load_wavefront(asset->abs_path, path);
-            }
         } else if(cmd == "usemtl") {
             std::string name = path;
             sline >> name;
@@ -241,10 +227,8 @@ const Eng3D::Model& Eng3D::ModelManager::load_wavefront(const std::string& path)
         } else if(cmd == "s") {
             std::string light_mode;
             sline >> light_mode;
-
-            if(light_mode != "off") {
+            if(light_mode != "off")
                 Eng3D::Log::error("model", "No light mode " + light_mode);
-            }
         } else {
             Eng3D::Log::error("model", "No command " + cmd);
         }
@@ -252,26 +236,25 @@ const Eng3D::Model& Eng3D::ModelManager::load_wavefront(const std::string& path)
 
     // Convert objects into (Eng3D) simple objects so we can now use them
     Eng3D::Model* final_model = new Eng3D::Model();
-    for(std::vector<WavefrontObj>::const_iterator obj = objects.cbegin(); obj != objects.cend(); obj++) {
+    for(auto obj = objects.cbegin(); obj != objects.cend(); obj++) {
         // Fill up the trigonometric buffers, we will first read all the faces and make them separate
         std::vector<std::vector<Eng3D::MeshData<glm::vec3, glm::vec2>>> clusters{};
-        for(std::vector<WavefrontFace>::const_iterator face = (*obj).faces.cbegin(); face != (*obj).faces.cend(); face++) {
+        for(auto face = (*obj).faces.cbegin(); face != (*obj).faces.cend(); face++) {
             std::vector<Eng3D::MeshData<glm::vec3, glm::vec2>> cluster{};
-
             // The faces dictate indices for the vertices and we will also subtract 1 because the indexing is 0 based
             if((*face).vertices.size() == (*face).texcoords.size()) {
-                for(unsigned int i = 0; i < (*face).vertices.size(); i++) {
+                for(size_t i = 0; i < (*face).vertices.size(); i++) {
                     cluster.push_back(Eng3D::MeshData<glm::vec3, glm::vec2>(
                         glm::vec3(vertices[(*face).vertices[i] - 1]),
                         glm::vec2(texcoords[(*face).texcoords[i] - 1])
-                        ));
+                    ));
                 }
             } else {
-                for(unsigned int i = 0; i < (*face).vertices.size(); i++) {
+                for(size_t i = 0; i < (*face).vertices.size(); i++) {
                     cluster.push_back(Eng3D::MeshData<glm::vec3, glm::vec2>(
                         glm::vec3(vertices[(*face).vertices[i] - 1]),
                         glm::vec2(0.f, 0.f)
-                        ));
+                    ));
                 }
             }
             clusters.push_back(cluster);
@@ -286,12 +269,8 @@ const Eng3D::Model& Eng3D::ModelManager::load_wavefront(const std::string& path)
         std::vector<std::vector<Eng3D::MeshData<glm::vec3, glm::vec2>>>::const_iterator cluster;
         for(cluster = clusters.cbegin(); cluster != clusters.cend(); cluster++) {
             Eng3D::SimpleModel* model = new Eng3D::SimpleModel(Eng3D::MeshMode::TRIANGLE_FAN);
-
-            std::vector<Eng3D::MeshData<glm::vec3, glm::vec2>>::const_iterator v1;
-            for(v1 = (*cluster).cbegin(); v1 != (*cluster).cend(); v1++) {
+            for(auto v1 = (*cluster).cbegin(); v1 != (*cluster).cend(); v1++)
                 model->buffer.push_back(*v1);
-            }
-
             Eng3D::Log::debug("model", "Created new SimpleModel with Vertices=" + std::to_string(model->buffer.size()));
             model->material = (*obj).material;
             model->upload();
@@ -317,7 +296,6 @@ const Eng3D::Model& Eng3D::ModelManager::load_stl(const std::string& path) {
 
     for(uint32_t i = 0; i < n_triangles; i++) {
         glm::vec3 vert;
-
         /// @todo We need to guarantee 2 things:
         // 1. that the floating point is 32-bits
         // 2. little endian
@@ -325,11 +303,10 @@ const Eng3D::Model& Eng3D::ModelManager::load_stl(const std::string& path) {
         memcpy(&vert.x, &buffer[84 + i * (sizeof(float) * 3)], sizeof(float));
         memcpy(&vert.y, &buffer[88 + i * (sizeof(float) * 3)], sizeof(float));
         memcpy(&vert.z, &buffer[92 + i * (sizeof(float) * 3)], sizeof(float));
-
         model->buffer.push_back(Eng3D::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(vert),
             glm::vec2(0.f, 0.f)
-            ));
+        ));
     }
 
     final_model->simple_models.push_back(model);
@@ -339,18 +316,16 @@ const Eng3D::Model& Eng3D::ModelManager::load_stl(const std::string& path) {
 
 const Eng3D::Model& Eng3D::ModelManager::load(const std::string& path) {
     std::map<std::string, Eng3D::Model*>::const_iterator it = models.find(path);
-    if(it != models.cend()) {
+    if(it != models.cend())
         return *((*it).second);
-    }
 
     // Wavefront OBJ loader
     try {
         /// @todo This is too horrible, we need a better solution
-        if(path.length() > 3 && path[path.length() - 3] == 's' && path[path.length() - 2] == 't' && path[path.length() - 1] == 'l') {
+        if(path.length() > 3 && path[path.length() - 3] == 's' && path[path.length() - 2] == 't' && path[path.length() - 1] == 'l')
             return load_stl(path);
-        } else {
+        else
             return load_wavefront(path);
-        }
     } catch(std::ifstream::failure& e) {
         CXX_THROW(std::string, "Model " + path + " not found");
     }

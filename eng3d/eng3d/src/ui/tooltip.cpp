@@ -64,7 +64,7 @@ Tooltip::Tooltip(Widget* parent, unsigned w, unsigned h)
     this->border = UI::Border(g_ui_context->border_tex, size, texture_size);
 }
 
-Tooltip::~Tooltip(void) {
+Tooltip::~Tooltip() {
 
 }
 
@@ -76,16 +76,13 @@ void Tooltip::set_pos(int _x, int _y, int, int _height, int screen_w, int screen
     } else {
         y = _y + _height + 10;
     }
-
     x = _x;
 }
 
 // Note! Code duplication of Text::text 
 void Tooltip::text(const std::string& text) {
     children.clear();
-    if(text.empty()) {
-        return;
-    }
+    if(text.empty()) return;
 
     // Separate the text in multiple labels and break on space
     /// @todo only works for monospace fonts width width 12, fix it for all fonts
@@ -94,9 +91,7 @@ void Tooltip::text(const std::string& text) {
     while(pos < text.length()) {
         size_t remaining_chars = text.length() - pos;
         size_t end_pos = text.length();
-        if(remaining_chars > line_width) {
-            end_pos = pos + line_width;
-        }
+        if(remaining_chars > line_width) end_pos = pos + line_width;
 
         bool break_line = false;
         for(int i = pos; i <= end_pos; i++) {
@@ -118,10 +113,8 @@ void Tooltip::text(const std::string& text) {
 
         std::string buf = text.substr(pos, end_pos - pos);
         pos = end_pos;
-        if(break_line) {
-            pos++;
-        }
-
+        if(break_line) pos++;
+        
         new UI::Label(8, y, buf, this);
         y += 24;
     }

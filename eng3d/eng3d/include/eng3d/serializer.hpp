@@ -46,7 +46,7 @@ public:
     SerializerException(const std::string& msg) {
         buffer = msg;
     };
-    virtual const char* what(void) const noexcept {
+    virtual const char* what() const noexcept {
         return buffer.c_str();
     };
 };
@@ -80,15 +80,15 @@ public:
         buffer.resize(buffer.size() + amount);
     }
 
-    inline void end_stream(void) {
+    inline void end_stream() {
         buffer.shrink_to_fit();
     }
 
-    inline void rewind(void) {
+    inline void rewind() {
         ptr = 0;
     }
 
-    inline const void* get_buffer(void) {
+    inline const void* get_buffer() {
         return static_cast<const void*>(&buffer[0]);
     }
     
@@ -97,7 +97,7 @@ public:
         std::memcpy(&buffer[0], buf, size);
     }
 
-    inline size_t size(void) {
+    inline size_t size() {
         return buffer.size();
     }
 
@@ -215,7 +215,7 @@ public:
             uint16_t len; // Obtain the lenght of the string to be read
             ::deserialize(ar, &len);
             if(len >= 1024)
-                throw SerializerException("String is too lenghty");
+                CXX_THROW(SerializerException, "String is too lenghty");
 
             // Obtain the string itself
             std::unique_ptr<char[]> string = std::unique_ptr<char[]>(new char[len + 1]);
@@ -397,6 +397,19 @@ public:
                 *obj = (id != T::invalid()) ? &(W::get_instance().get_list((T*)nullptr)[id]) : nullptr;
             }
         }
+    }
+};
+
+#include "eng3d/rectangle.hpp"
+template<>
+class Serializer<Eng3D::Rectangle> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, Eng3D::Rectangle* obj) {
+        ::deser_dynamic<is_serialize>(ar, &obj->left);
+        ::deser_dynamic<is_serialize>(ar, &obj->right);
+        ::deser_dynamic<is_serialize>(ar, &obj->top);
+        ::deser_dynamic<is_serialize>(ar, &obj->bottom);
     }
 };
 

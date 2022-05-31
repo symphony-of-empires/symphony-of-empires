@@ -35,11 +35,9 @@
 namespace UI {
 	class Label;
 
-    /**
-     * @ingroup UI
-     * @brief Tooltip widget
-     *
-     */
+    /// @ingroup UI
+    /// @brief Tooltip widget, used entirely for hovering purpouses, don't use any other
+    /// widget for hovering unless it inherits from Tooltip.
     class Tooltip: public Widget {
     public:
         Tooltip();

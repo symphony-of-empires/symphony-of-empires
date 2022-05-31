@@ -45,14 +45,10 @@ UI::Input::Input(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI::WidgetType::INPUT)
 {
     this->on_textinput = ([](UI::Input& w, const char* input) {
-        if(input != nullptr) {
-            w.buffer += input;
-        }
-
+        if(input != nullptr) w.buffer += input;
         if(!w.buffer.empty()) {
-            if(input == nullptr) {
+            if(input == nullptr)
                 w.buffer.resize(w.buffer.length() - 1);
-            }
 
             if(w.buffer.empty()) {
                 w.text(" ");
@@ -66,16 +62,12 @@ UI::Input::Input(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     this->on_update = &UI::Input::on_update_default;
 }
 
-UI::Input::~Input(void) {
-
-}
-
 void UI::Input::set_buffer(const std::string& _buffer) {
     buffer = _buffer;
     text(buffer);
 }
 
-std::string UI::Input::get_buffer(void) const {
+std::string UI::Input::get_buffer() const {
     return buffer;
 }
 
@@ -86,9 +78,8 @@ void UI::Input::on_click_default(UI::Widget& w) {
 
 void UI::Input::on_click_outside_default(UI::Widget& w) {
     UI::Input& input = static_cast<UI::Input&>(w);
-    if(input.is_selected) {
+    if(input.is_selected)
         input.text(input.buffer);
-    }
     input.is_selected = false;
 }
 

@@ -60,7 +60,7 @@ namespace UI {
             value = std::clamp(_value, min, max);
         }
 
-        inline float get_value(void) const {
+        inline float get_value() const {
             return value;
         }
     };

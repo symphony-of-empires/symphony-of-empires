@@ -40,24 +40,19 @@ NationMarketView::NationMarketView(GameState& _gs, Nation& _nation)
     gs{ _gs },
     nation{ _nation }
 {
-    //this->is_scroll = false;
+    this->is_scroll = true;
     this->text(Eng3D::Locale::translate("Market information"));
-
-    unsigned int i = 0;
-    /*for(const auto& product : gs.world->products) {
-        //if(product->building == nullptr || product->building->get_owner() != nation) {
-        //    continue;
-        //}
-
-        new ProductInfo(gs, 0, (i * 24) + 128, product, this);
-        i++;
-    }*/
-
-    auto* close_btn = new UI::Button(0, 0, this->width, 24, this);
-    close_btn->text(Eng3D::Locale::translate("Close"));
-    close_btn->set_on_click([this](UI::Widget&) {
+    this->set_close_btn_function([this](UI::Widget&) {
         this->kill();
     });
+
+    size_t i = 0;
+    for(const auto& province : nation.controlled_provinces) {
+        for(auto& good : gs.world->goods) {
+            new ProductInfo(gs, 0, (i * 24) + 128, *province, good, this);
+            i++;
+        }
+    }
 }
 
 NationView::NationView(GameState& _gs, Nation& _nation)
@@ -70,7 +65,6 @@ NationView::NationView(GameState& _gs, Nation& _nation)
         w.text(this->nation.get_client_hint().alt_name.get_string());
     });
     this->on_each_tick(*this);
-
     this->set_close_btn_function([this](Widget&) {
         this->kill();
     });
@@ -153,13 +147,13 @@ NationView::NationView(GameState& _gs, Nation& _nation)
             const auto& relation = this->gs.world->get_relation(this->gs.world->get_id(*this->gs.curr_nation), this->gs.world->get_id(this->nation));
             if(relation.has_war) {
                 w.text(Eng3D::Locale::translate("Propose treaty"));
-                w.set_on_click([this](UI::Widget& w) {
+                w.set_on_click([this](UI::Widget&) {
                     new Interface::TreatyDraftView(this->gs, this->nation);
                 });
                 w.tooltip->text(Eng3D::Locale::translate("End the war against this country and propose a peace deal"));
             } else {
                 w.text(Eng3D::Locale::translate("Declare war"));
-                w.set_on_click([this](UI::Widget& w) {
+                w.set_on_click([this](UI::Widget&) {
                     new Interface::WarDeclarePrompt(this->gs, this->nation);
                 });
                 w.tooltip->text(Eng3D::Locale::translate("Declaring war on this nation will bring all their allies to their side"));
@@ -196,7 +190,7 @@ NationView::NationView(GameState& _gs, Nation& _nation)
         switch_btn->text(Eng3D::Locale::translate("Switch to this nation"));
         switch_btn->tooltip = new UI::Tooltip(switch_btn, 512, 24);
         switch_btn->tooltip->text(Eng3D::Locale::translate("Switches to this nation (multiplayer disallow rule)"));
-        switch_btn->set_on_click([this](UI::Widget& w) {
+        switch_btn->set_on_click([this](UI::Widget&) {
             this->gs.curr_nation = &this->nation;
         });
     }

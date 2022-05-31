@@ -23,52 +23,22 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#include <string>
+#include <algorithm>
 #include <cmath>
 #ifndef M_PI
 #   define M_PI 3.1415f
 #endif
 #include "eng3d/assert.hpp"
+#include "eng3d/log.hpp"
 
 #include "unit.hpp"
 #include "province.hpp"
 #include "world.hpp"
 
 //
-// Unit type
-//
-
-/*
-UnitType::UnitType(void) {
-
-}
-
-UnitType::~UnitType(void) {
-
-}
-//*/
-
-//
-// Unit trait
-//
-
-/*
-UnitTrait::UnitTrait(void) {
-
-}
-
-UnitTrait::~UnitTrait(void) {
-    
-}
-//*/
-
-//
 // Unit
 //
-#include "eng3d/log.hpp"
-#include <string>
-#include <algorithm>
-//*/
-
 void Unit::attack(Unit& enemy) {
     /// @todo Better attack algorithm
 
@@ -78,14 +48,18 @@ void Unit::attack(Unit& enemy) {
     enemy.size -= std::min<size_t>(enemy.size, damage);
 }
 
-std::pair<Eng3D::Number, Eng3D::Number> Unit::get_pos(void) const {
+std::pair<Eng3D::Number, Eng3D::Number> Unit::get_pos() const {
     return province->get_pos();
 }
 
 void Unit::set_target(Province& _province) {
     assert(this->can_move());
     target = &_province;
-    move_progress = std::sqrt(std::abs((province->max_x + ((province->max_x - province->min_x) / 2.f)) - (target->max_x + ((target->max_x - target->min_x) / 2.f))) + std::abs((province->max_y + ((province->max_y - province->min_y) / 2.f)) - (target->max_y + ((target->max_y - target->min_y) / 2.f))));
+
+    // Calculate the required movement before it can reach the target
+    const auto& cur_pos = this->province->get_pos();
+    const auto& target_pos = this->target->get_pos();
+    move_progress = std::sqrt(std::abs(cur_pos.first - target_pos.first) + std::abs(cur_pos.second - target_pos.second));
 }
 
 Eng3D::Decimal Unit::get_speed(const Province& _province) const {
@@ -103,7 +77,6 @@ Eng3D::Decimal Unit::get_speed(const Province& _province) const {
     const Eng3D::Decimal dist_div = move_progress;
 
     //const float linear_dist = std::fabs(std::sqrt(x_dist * x_dist + y_dist * y_dist) / dist_div);
-    
     const Eng3D::Decimal speed = (type->speed) / _province.terrain_type->movement_penalty;
     Eng3D::Decimal radius_scale = std::cos(M_PI / (2 * World::get_instance().height) * (2 * (y_dist / dist_div) - World::get_instance().height));
     Eng3D::Decimal x_scale = 1 / (std::fabs(radius_scale) + 0.001f);

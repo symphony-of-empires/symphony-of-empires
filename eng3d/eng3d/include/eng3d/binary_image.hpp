@@ -41,7 +41,7 @@ public:
         buffer = "" + filename + ": " + message;
     }
 
-    virtual const char* what(void) const noexcept {
+    virtual const char* what() const noexcept {
         return buffer.c_str();
     }
 };
@@ -51,12 +51,12 @@ public:
 // NOT rendering - for rendering purpouses see texture class from client's implementation
 class BinaryImage {
 public:
-    BinaryImage(void);
+    BinaryImage();
     BinaryImage(const Eng3D::IO::Path& path);
     BinaryImage(size_t _width, size_t _height);
     BinaryImage(const BinaryImage& tex);
     BinaryImage& operator=(const BinaryImage&) = default;
-    virtual ~BinaryImage(void);
+    virtual ~BinaryImage();
     virtual void from_file(const Eng3D::IO::Path& path);
 
     /**

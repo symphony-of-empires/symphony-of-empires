@@ -94,9 +94,8 @@ void GameState::play_nation() {
     current_mode = MapMode::NORMAL;
 
     const auto* capital = this->curr_nation->capital;
-    if(capital != nullptr) {
-        map->camera->set_pos(capital->max_x, capital->max_y);
-    }
+    if(capital != nullptr)
+        map->camera->set_pos(capital->box_area.right, capital->box_area.bottom);
     map->map_render->update_visibility();
 
     // Make topwindow
@@ -584,7 +583,7 @@ void save(GameState& gs) {
     } else {
         Archive ar = Archive();
         ::serialize(ar, gs.world);
-        ar.to_file("default.scv");
+        ar.to_file("default.sc4");
         gs.ui_ctx->prompt("Save", "Saved sucessfully!");
     }
 }
@@ -618,7 +617,7 @@ void handle_popups(std::vector<Event>& displayed_events, std::vector<Treaty*>& d
     }
 }
 
-void GameState::update_on_tick(void) {
+void GameState::update_on_tick() {
     world->profiler.start("UI_TICK");
     ui_ctx->do_tick();
     world->profiler.stop("UI_TICK");
@@ -631,7 +630,7 @@ void GameState::update_on_tick(void) {
 }
 
 /// @todo Don't run this thread if not needed (i.e non-host-mode)
-void GameState::world_thread(void) {
+void GameState::world_thread() {
     while(run) {
         // Gamestate thread hasn't acknowledged the updated tick just yet
         while(paused) {
@@ -664,7 +663,7 @@ void GameState::world_thread(void) {
     }
 }
 
-void GameState::music_thread(void) {
+void GameState::music_thread() {
     struct MusicEntry {
         bool has_played;
         std::string path;
@@ -694,7 +693,7 @@ void GameState::music_thread(void) {
     }
 }
 
-void GameState::load_world_thread(void) {
+void GameState::load_world_thread() {
     this->world = new World();
     this->world->load_initial();
     this->load_progress = 0.0f;

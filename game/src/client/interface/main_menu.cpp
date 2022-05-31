@@ -73,7 +73,7 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
 
     conn_btn = new UI::Button(0, 48, 128, 24, this);
     conn_btn->text("Connect");
-    conn_btn->set_on_click([this](UI::Widget& w) {
+    conn_btn->set_on_click([this](UI::Widget&) {
         Eng3D::Log::debug("ui", "Okey, connecting to [" + this->ip_addr_inp->get_buffer() + "]");
 
         /// @todo Handle when mods differ (i.e checksum not equal to host)
@@ -94,6 +94,7 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
         } catch(ServerException& e) {
             this->gs.ui_ctx->prompt("Server error", e.what());
         }
+        
         delete this->gs.client;
     });
 }
@@ -226,7 +227,7 @@ MainMenu::MainMenu(GameState& _gs)
     cfg_btn->text_align_x = UI::Align::CENTER;
     cfg_btn->text_align_y = UI::Align::CENTER;
     cfg_btn->text("Settings");
-    cfg_btn->set_on_click([this](UI::Widget& w) {
+    cfg_btn->set_on_click([this](UI::Widget&) {
         this->settings_window = new Interface::Settings(this->gs);
     });
 
@@ -239,7 +240,7 @@ MainMenu::MainMenu(GameState& _gs)
     exit_btn->text_color = text_color;
     exit_btn->origin = UI::Origin::LOWER_MIDDLE;
     exit_btn->text("Exit");
-    exit_btn->set_on_click([this](UI::Widget& w) {
+    exit_btn->set_on_click([this](UI::Widget&) {
         this->gs.run = false;
     });
 }

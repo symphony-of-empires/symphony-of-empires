@@ -70,7 +70,7 @@ void Curve::create_line(std::vector<glm::vec3> points, std::vector<glm::vec3> no
     glm::vec3 prev_c2;
     glm::vec3 prev_c3;
     glm::vec3 prev_c4;
-    for(int i = 0; i < points.size() - 1; i++) {
+    for(size_t i = 0; i < points.size() - 1; i++) {
         glm::vec3 p1 = points[i];
         glm::vec3 p2 = points[i + 1];
         glm::vec3 normal = normals[i];
@@ -103,9 +103,7 @@ void Curve::create_line(std::vector<glm::vec3> points, std::vector<glm::vec3> no
 
 #ifdef E3D_BACKEND_OPENGL
 void Curve::draw() {
-    if(!quads) {
-        upload();
-    }
+    if(!quads) upload();
     quads->draw();
 }
 #elif defined E3D_BACKEND_RGX

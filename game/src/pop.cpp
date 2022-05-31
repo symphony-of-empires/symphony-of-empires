@@ -29,7 +29,7 @@
 #include "religion.hpp"
 #include "world.hpp"
 
-Ideology& Pop::get_ideology(void) const {
+Ideology& Pop::get_ideology() const {
     // Obtain ideology with highest approval
     auto* v = &g_world->ideologies[std::distance(
         this->ideology_approval.begin(),
@@ -41,7 +41,7 @@ Ideology& Pop::get_ideology(void) const {
     return *v;
 }
 
-uint32_t Pop::get_type_id(void) const {
+uint32_t Pop::get_type_id() const {
     uint32_t id = this->type->cached_id;
     id |= this->culture->cached_id << 8;
     id |= this->religion->cached_id << 24;

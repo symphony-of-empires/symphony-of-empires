@@ -41,7 +41,7 @@ namespace Eng3D {
         using Id = uint16_t;
         Id id;
 
-        StringRef(void) {
+        StringRef() {
             this->id = (Eng3D::StringRef::Id)-1;
         }
 
@@ -53,11 +53,11 @@ namespace Eng3D {
             
         }
 
-        ~StringRef(void) {
+        ~StringRef() {
 
         }
 
-        const std::string& get_string(void) const;
+        const std::string& get_string() const;
 
         inline StringRef& operator=(const String& rhs)
         {
@@ -75,7 +75,7 @@ namespace Eng3D {
             return this->get_string() == rhs;
         };
 
-        inline const char *c_str(void) const
+        inline const char *c_str() const
         {
             return this->get_string().c_str();
         };
@@ -109,11 +109,11 @@ namespace Eng3D {
     class StringManager {
         std::vector<Eng3D::String> strings;
     public:
-        StringManager(void) {
+        StringManager() {
 
         }
 
-        ~StringManager(void) {
+        ~StringManager() {
 
         }
         
@@ -126,6 +126,6 @@ namespace Eng3D {
             return this->strings[ref.id];
         }
 
-        static StringManager& get_instance(void);
+        static StringManager& get_instance();
     };
 };

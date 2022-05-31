@@ -96,17 +96,17 @@ namespace Eng3D {
 
     class Texture: public BinaryImage {
     public:
-        Texture(void);
+        Texture();
         Texture(const std::string& path);
         Texture(const Eng3D::IO::Asset::Base* asset);
         Texture(size_t _width, size_t _height);
         Texture(TTF_Font* font, Eng3D::Color color, const std::string& msg);
-        ~Texture(void) override;
+        ~Texture() override;
         void create_dummy();
         void upload(TextureOptions options = default_options);
         void upload(SDL_Surface* surface);
         void gen_mipmaps() const;
-        void bind(void) const;
+        void bind() const;
         void delete_gputex();
         void guillotine(const Eng3D::Texture& map, int x, int y, int w, int h);
         void to_file(const std::string& filename);
@@ -120,7 +120,7 @@ namespace Eng3D {
     class TextureArray: public BinaryImage {
     public:
         TextureArray(const std::string& path, size_t _tiles_x, size_t _tiles_y);
-        void upload(void);
+        void upload();
         size_t layers;
         size_t tiles_x, tiles_y;
 #ifdef E3D_BACKEND_OPENGL
@@ -171,6 +171,6 @@ namespace Eng3D {
         ~TextureManager();
         std::shared_ptr<Texture> load(const std::string& path, TextureOptions options = default_options);
         std::shared_ptr<Texture> load(std::shared_ptr<Eng3D::IO::Asset::Base> asset, TextureOptions options = default_options);
-        std::shared_ptr<Texture> get_white(void);
+        std::shared_ptr<Texture> get_white();
     };
 };

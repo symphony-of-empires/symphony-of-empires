@@ -124,6 +124,7 @@ namespace EventEditor {
 namespace Interface {
     class EventEditorNode: public UI::Group {
         GameState& gs;
+        EventEditor::BaseNode* node;
     public:
         EventEditorNode(GameState& gs, EventEditor::BaseNode* node, UI::Widget* parent);
     };

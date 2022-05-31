@@ -43,11 +43,8 @@ namespace Eng3D {
     class Texture;
 };
 
-/**
- * @defgroup UI UI
- * The ui widgets used to create the interface
- *
- */
+/// @defgroup UI UI
+/// The UI widgets used to create the interface
 namespace UI {
     enum class ClickState {
         NOT_CLICKED,
@@ -59,11 +56,8 @@ namespace UI {
     class Tooltip;
     typedef void (*Callback)(Widget&);
 
-    /**
-     * @ingroup UI
-     * @brief The ui context that handles all the ui widgets
-     *
-     */
+    /// @ingroup UI
+    /// @brief The UI context that handles all the ui widgets
     class Context {
         int drag_x, drag_y;
         bool is_drag;
@@ -151,7 +145,8 @@ namespace UI {
         /**
          * @brief Removes all widgets
          */
-        void clear(void);
+        void clear();
+        
         /**
          * @brief Removes all widgets that have been killed
          */

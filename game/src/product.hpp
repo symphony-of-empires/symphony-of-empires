@@ -34,7 +34,7 @@ class Product : public IdEntity<uint16_t> {
 public:
     Product() {};
     ~Product() {};
-    inline void close_market(void) {
+    inline void close_market() {
 
         if(this->demand > this->supply) {
             // Increase price with more demand

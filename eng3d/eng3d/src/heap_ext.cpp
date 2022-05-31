@@ -34,15 +34,9 @@ void* operator new(std::size_t size) {
 #ifdef E3D_DEBUG
     std::printf("Alloc size = %zu\n", size);
 #endif
-    if(size == 0) {
-        size++;
-    }
-
+    if(size == 0) size++;
     void* p = std::malloc(size);
-    if(p) {
-        return p;
-    }
-
+    if(p) return p;
     CXX_THROW(std::bad_alloc);
 }
 
@@ -54,14 +48,9 @@ void* operator new[](std::size_t size) {
 #ifdef E3D_DEBUG
     std::printf("Alloc[] size = %zu\n", size);
 #endif
-    if(size == 0) {
-        size++;
-    }
-
+    if(size == 0) size++;
     void* p = std::malloc(size);
-    if(p) {
-        return p;
-    }
+    if(p) return p;
     CXX_THROW(std::bad_alloc);
 }
 

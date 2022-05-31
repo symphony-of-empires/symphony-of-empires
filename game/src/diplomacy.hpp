@@ -73,16 +73,16 @@ namespace TreatyClause {
 
         // Function to determine the "political" cost of this clause, and how much willing the AI
         // is to accept this clause, this is only used by the AI
-        virtual unsigned cost(void) {
+        virtual unsigned cost() {
             return 0;
         };
 
         // Function to enforce the policy per day (or higher time spans)
-        virtual void enforce(void) {};
+        virtual void enforce() {};
 
         // Determines whenever the clause is in effect or not, when it is not in effect
         // then it's removed permanently
-        virtual bool in_effect(void) const {
+        virtual bool in_effect() const {
             return false;
         };
     };
@@ -93,9 +93,9 @@ namespace TreatyClause {
         WarReparations(): BaseClause() {
             type = TreatyClauseType::MONEY;
         };
-        unsigned cost(void);
-        void enforce(void);
-        bool in_effect(void) const;
+        unsigned cost();
+        void enforce();
+        bool in_effect() const;
 
         float amount = 0.f;
     };
@@ -106,9 +106,9 @@ namespace TreatyClause {
         Humiliate(): BaseClause() {
             type = TreatyClauseType::HUMILIATE;
         };
-        unsigned cost(void);
-        void enforce(void);
-        bool in_effect(void) const;
+        unsigned cost();
+        void enforce();
+        bool in_effect() const;
 
         float amount = 0.f;
     };
@@ -119,9 +119,9 @@ namespace TreatyClause {
         LiberateNation(): BaseClause() {
             type = TreatyClauseType::LIBERATE_NATION;
         };
-        unsigned cost(void);
-        void enforce(void);
-        bool in_effect(void) const;
+        unsigned cost();
+        void enforce();
+        bool in_effect() const;
 
         Nation* liberated = nullptr;
         std::vector<Province*> provinces;
@@ -133,9 +133,9 @@ namespace TreatyClause {
         ImposePolicies(): BaseClause() {
             type = TreatyClauseType::IMPOSE_POLICIES;
         };
-        unsigned cost(void);
-        void enforce(void);
-        bool in_effect(void) const;
+        unsigned cost();
+        void enforce();
+        bool in_effect() const;
 
         Policies imposed;
     };
@@ -146,9 +146,9 @@ namespace TreatyClause {
         AnnexProvince(): BaseClause() {
             type = TreatyClauseType::ANNEX_PROVINCES;
         };
-        unsigned cost(void);
-        void enforce(void);
-        bool in_effect(void) const;
+        unsigned cost();
+        void enforce();
+        bool in_effect() const;
 
         std::vector<Province*> provinces;
     };
@@ -159,9 +159,9 @@ namespace TreatyClause {
         Ceasefire(): BaseClause() {
             type = TreatyClauseType::CEASEFIRE;
         };
-        unsigned cost(void);
-        void enforce(void);
-        bool in_effect(void) const;
+        unsigned cost();
+        void enforce();
+        bool in_effect() const;
     };
 
     // Makes the receiver the puppet of the sender
@@ -170,9 +170,9 @@ namespace TreatyClause {
         Puppet(): BaseClause() {
             type = TreatyClauseType::PUPPET;
         };
-        unsigned cost(void);
-        void enforce(void);
-        bool in_effect(void) const;
+        unsigned cost();
+        void enforce();
+        bool in_effect() const;
     };
 };
 
@@ -186,7 +186,7 @@ enum class TreatyApproval {
 class Treaty : public IdEntity<uint16_t> {
 public:
     bool does_participate(Nation& nation);
-	bool in_effect(void) const;
+	bool in_effect() const;
 
     Eng3D::String name;
     Nation* sender; // The one who sent the treaty

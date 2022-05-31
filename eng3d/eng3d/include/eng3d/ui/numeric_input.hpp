@@ -43,7 +43,7 @@ namespace UI {
 	public:
 		NumericInput(int _x, int _y, unsigned w, unsigned h, Widget* _parent);
 		void set_buffer(const std::string& _buffer);
-		std::string get_buffer(void) const;
+		std::string get_buffer() const;
 
         Input* inp;
         Button* add_btn;

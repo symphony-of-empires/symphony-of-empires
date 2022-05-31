@@ -73,7 +73,7 @@ void Checkbox::init_checkbox(int size) {
     this->clickable_effect = false;
 }
 
-bool Checkbox::get_value(void) const {
+bool Checkbox::get_value() const {
     return this->value;
 }
 

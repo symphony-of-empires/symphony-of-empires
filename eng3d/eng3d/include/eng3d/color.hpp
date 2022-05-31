@@ -38,7 +38,7 @@ namespace Eng3D {
         float r, g, b;
         float a = 1.f;
     public:
-        Color(void)
+        Color()
             : r{ 0.f },
             g{ 0.f },
             b{ 0.f },
@@ -56,7 +56,7 @@ namespace Eng3D {
 
         }
 
-        ~Color(void)
+        ~Color()
         {
 
         }
@@ -105,7 +105,7 @@ namespace Eng3D {
          * 
          * @return uint32_t The raw value
          */
-        inline uint32_t get_value(void) const {
+        inline uint32_t get_value() const {
             uint8_t alpha = (uint8_t)(a * 256);
             uint8_t red = (uint8_t)(r * 256);
             uint8_t green = (uint8_t)(g * 256);

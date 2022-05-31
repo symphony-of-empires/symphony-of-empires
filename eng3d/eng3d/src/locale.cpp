@@ -27,8 +27,7 @@
 
 std::map<std::string, std::string> trans_msg;
 std::string Eng3D::Locale::translate(const std::string& str) {
-    if(trans_msg[str].empty()) {
+    if(trans_msg[str].empty())
         return str;
-    }
     return trans_msg[str];
 }

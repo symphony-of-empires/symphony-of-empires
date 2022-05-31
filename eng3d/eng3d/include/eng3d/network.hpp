@@ -57,6 +57,8 @@
 #    include <unistd.h>
 #endif
 
+#include "eng3d/utils.hpp"
+
 namespace Eng3D::Networking {
     class SocketException : public std::exception {
         std::string buffer;
@@ -64,7 +66,7 @@ namespace Eng3D::Networking {
         SocketException(const std::string& msg) {
             buffer = msg;
         }
-        virtual const char* what(void) const noexcept {
+        virtual const char* what() const noexcept {
             return buffer.c_str();
         }
     };
@@ -72,9 +74,9 @@ namespace Eng3D::Networking {
     class SocketStream {
         bool is_server_stream = false;
     public:
-        SocketStream(void);
-        SocketStream(int _fd);
-        ~SocketStream(void);
+        SocketStream() {};
+        SocketStream(int _fd) : fd(_fd) {};
+        ~SocketStream() {};
         void send(const void* data, size_t size);
         void recv(void* data, size_t size);
         
@@ -90,19 +92,13 @@ namespace Eng3D::Networking {
         size_t n_data = 0;
         PacketCode code = PacketCode::OK;
     public:
-        Packet() {
-
-        }
-
+        Packet() {};
         Packet(int _fd) {
             stream = Eng3D::Networking::SocketStream(_fd);
         }
+        ~Packet() {};
 
-        ~Packet() {
-
-        }
-
-        inline void* data(void) {
+        inline void* data() {
             return static_cast<void*>(&buffer[0]);
         }
 
@@ -115,11 +111,11 @@ namespace Eng3D::Networking {
             }
         }
 
-        inline size_t size(void) const {
+        inline size_t size() const {
             return n_data;
         }
 
-        inline bool is_ok(void) const {
+        inline bool is_ok() const {
             return (code == PacketCode::OK);
         }
 
@@ -147,7 +143,7 @@ namespace Eng3D::Networking {
             stream.send(&eof_marker, sizeof(eof_marker));
         }
 
-        inline void send(void) {
+        inline void send() {
             send<void>(nullptr, 0);
         }
 
@@ -176,12 +172,11 @@ namespace Eng3D::Networking {
 
             uint16_t eof_marker;
             stream.recv(&eof_marker, sizeof(eof_marker));
-            if(ntohs(eof_marker) != 0xE0F) {
-                throw Eng3D::Networking::SocketException("Packet with invalid EOF");
-            }
+            if(ntohs(eof_marker) != 0xE0F)
+                CXX_THROW(Eng3D::Networking::SocketException, "Packet with invalid EOF");
         }
 
-        inline void recv(void) {
+        inline void recv() {
             this->recv<void>(nullptr);
         }
 
@@ -192,24 +187,24 @@ namespace Eng3D::Networking {
     class ServerClient {
         int conn_fd = 0;
     public:
-        ServerClient();
-        ~ServerClient();
+        ServerClient() {
+            is_active = false;
+        }
+        ~ServerClient() {
+            thread.join();
+        }
         int try_connect(int fd);
-        void flush_packets(void);
-        bool has_pending(void);
+        void flush_packets();
+        bool has_pending();
 
-        std::thread thread;
-        // Is our thread currently polling/serving?
-        bool is_active;
+        bool is_active; // Is our thread currently polling/serving?
         std::atomic<bool> is_connected;
-        
         std::deque<Eng3D::Networking::Packet> pending_packets;
         std::mutex pending_packets_mutex;
-        
         std::deque<Eng3D::Networking::Packet> packets;
         std::mutex packets_mutex;
-        
         std::string username;
+        std::thread thread;
     };
 
     class Server {
@@ -219,7 +214,7 @@ namespace Eng3D::Networking {
         std::atomic<bool> run;
     public:
         Server(unsigned port, unsigned max_conn);
-        virtual ~Server(void);
+        virtual ~Server();
         void broadcast(const Eng3D::Networking::Packet& packet);
 
         ServerClient* clients;
@@ -234,15 +229,25 @@ namespace Eng3D::Networking {
     public:
         Client(std::string host, const unsigned port);
         ~Client();
-        int get_fd(void) const;
-        void send(const Eng3D::Networking::Packet& packet);
+
+        inline void send(const Eng3D::Networking::Packet& packet) {
+            if(packets_mutex.try_lock()) {
+                packets.push_back(packet);
+                packets_mutex.unlock();
+            } else {
+                std::scoped_lock lock(pending_packets_mutex);
+                pending_packets.push_back(packet);
+            }
+        }
+        
+        inline int get_fd() const {
+            return fd;
+        }
         
         std::deque<Eng3D::Networking::Packet> packets;
         std::mutex packets_mutex;
-        
         std::deque<Eng3D::Networking::Packet> pending_packets;
         std::mutex pending_packets_mutex;
-
         std::string username;
     };
 };

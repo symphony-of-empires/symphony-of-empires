@@ -39,10 +39,6 @@
 //
 // Audio
 //
-Eng3D::Audio::Audio() {
-
-}
-
 Eng3D::Audio::Audio(const std::string& path) {
     SDL_AudioSpec wave;
     SDL_AudioCVT cvt;
@@ -50,9 +46,8 @@ Eng3D::Audio::Audio(const std::string& path) {
     int channels, rate;
     uint8_t* decoded;
     this->len = stb_vorbis_decode_filename(path.c_str(), &channels, &rate, (short**)&decoded);
-    if(!this->len) {
+    if(!this->len)
         CXX_THROW(Eng3D::AudioException, path, "0 length audio");
-    }
     this->len = this->len * channels * (sizeof(int16_t) / sizeof(uint8_t));
     this->data = decoded;
     this->pos = 0;
@@ -61,9 +56,8 @@ Eng3D::Audio::Audio(const std::string& path) {
     // and the rest is already given by stb
     SDL_BuildAudioCVT(&cvt, AUDIO_S16, channels, rate, AUDIO_S16, 1, 11050);
     cvt.buf = (Uint8*)malloc(this->len * cvt.len_mult);
-    if(cvt.buf == nullptr) {
+    if(cvt.buf == nullptr)
         CXX_THROW(Eng3D::AudioException, path, "Cannot allocate memory");
-    }
     std::memcpy(cvt.buf, this->data, this->len);
     cvt.len = this->len;
     SDL_ConvertAudio(&cvt);
@@ -73,31 +67,24 @@ Eng3D::Audio::Audio(const std::string& path) {
     this->pos = 0;
 }
 
-Eng3D::Audio::~Audio() {
-    free(this->data);
-}
-
 //
 // Audio manager
 //
-Eng3D::AudioManager::~AudioManager(void) {
-    for(const auto& sound : sounds) {
+Eng3D::AudioManager::~AudioManager() {
+    for(const auto& sound : sounds)
         delete sound.second;
-    }
     sounds.clear();
 }
 
 const Eng3D::Audio& Eng3D::AudioManager::load(const std::string& path) {
     // Find Sound when wanting to be loaded
     std::map<std::string, Eng3D::Audio*>::const_iterator it = sounds.find(path);
-    if(it != sounds.cend()) {
+    if(it != sounds.cend())
         return *((*it).second);
-    }
 
     // Otherwise Sound is not in our control, so we create a new one
     Eng3D::Audio* sound = new Eng3D::Audio(path);
     sounds[path] = sound;
     Eng3D::Log::debug("audio", "Loaded and cached sound " + path + std::to_string(sound->len));
-
     return *(static_cast<const Eng3D::Audio*>(sound));
 }

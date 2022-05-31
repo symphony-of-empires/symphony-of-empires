@@ -42,7 +42,7 @@ namespace Eng3D {
         std::string buffer;
     public:
         ShaderException(const std::string& _buffer): buffer(_buffer) {};
-        virtual const char* what(void) const noexcept {
+        virtual const char* what() const noexcept {
             return buffer.c_str();
         }
     };
@@ -66,7 +66,7 @@ namespace Eng3D {
 
             }
 
-            std::string get_option(void) const {
+            std::string get_option() const {
                 return _option;
             }
         };
@@ -93,45 +93,45 @@ namespace Eng3D {
                 }
             }
 
-            inline GLuint get_id(void) const {
+            inline GLuint get_id() const {
                 return id;
             }
         };
 
         class VertexShader: public Shader {
         public:
-            VertexShader(const std::string& _buffer);
-            ~VertexShader();
+            VertexShader(const std::string& _buffer) : Shader(_buffer, GL_VERTEX_SHADER) {};
+            ~VertexShader() {};
         };
 
         class FragmentShader: public Shader {
         public:
             FragmentShader(const std::string& _buffer, bool use_transpiler = true, std::vector<Eng3D::OpenGL::GLSL_Define> defintions = {});
-            ~FragmentShader();
+            ~FragmentShader() {};
         };
 
         class GeometryShader: public Shader {
         public:
-            GeometryShader(const std::string& _buffer);
-            ~GeometryShader();
+            GeometryShader(const std::string& _buffer) : Shader(_buffer, GL_GEOMETRY_SHADER) {};
+            ~GeometryShader() {};
         };
 
         class TessControlShader: public Shader {
         public:
-            TessControlShader(const std::string& _buffer);
-            ~TessControlShader();
+            TessControlShader(const std::string& _buffer) : Shader(_buffer, GL_TESS_CONTROL_SHADER) {};
+            ~TessControlShader() {};
         };
 
         class TessEvalShader: public Shader {
         public:
-            TessEvalShader(const std::string& _buffer);
-            ~TessEvalShader();
+            TessEvalShader(const std::string& _buffer) : Shader(_buffer, GL_TESS_EVALUATION_SHADER) {};
+            ~TessEvalShader() {};
         };
 
         class Program {
             GLuint id;
         public:
-            Program(void) {
+            Program() {
                 id = glCreateProgram();
                 if(!id) {
                     CXX_THROW(Eng3D::ShaderException, "Can't create new program");
@@ -140,11 +140,11 @@ namespace Eng3D {
                 glBindAttribLocation(id, 1, "m_texcoord");
             }
 
-            ~Program(void) {
+            ~Program() {
 
             }
 
-            void link(void);
+            void link();
 
             /**
              * @brief Attaches a shader to the program - this will make it so when the program
@@ -156,7 +156,7 @@ namespace Eng3D {
                 glAttachShader(id, shader.get_id());
             }
 
-            inline void use(void) const {
+            inline void use() const {
                 glUseProgram(id);
             }
 
@@ -215,7 +215,7 @@ namespace Eng3D {
                 glBindTexture(GL_TEXTURE_2D_ARRAY, texture.gl_tex_num);
             }
 
-            inline GLuint get_id(void) const {
+            inline GLuint get_id() const {
                 return id;
             }
         };

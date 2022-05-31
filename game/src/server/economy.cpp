@@ -490,10 +490,8 @@ void Economy::do_tick(World& world) {
             std::vector<float>& new_workers = buildings_new_worker[province_id];
             new_workers.assign(world.building_types.size(), 0.f);
             update_factories_employment(world, province, new_workers);
-
             update_pop_needs(world, province, new_needs);
-
-            for(int i = 0; i < province.buildings.size(); i++) {
+            for(size_t i = 0; i < province.buildings.size(); i++) {
                 Building& building = province.buildings[i];
                 if(building.working_unit_type != nullptr) {
                     Unit* unit = build_unit(building, province);

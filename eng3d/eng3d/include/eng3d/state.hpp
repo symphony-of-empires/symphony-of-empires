@@ -64,11 +64,11 @@ namespace Eng3D {
     public:
         State(const std::vector<std::string>& pkg_paths);
         ~State();
-        void clear(void) const;
-        void swap(void) const;
+        void clear() const;
+        void swap() const;
         void set_multisamples(int samples) const;
         static void mixaudio(void* userdata, uint8_t* stream, int len);
-        static State& get_instance(void);
+        static State& get_instance();
 
         SDL_Joystick* joy = nullptr;
         float joy_sensivity = 2.f;

@@ -29,7 +29,6 @@
 #include <cmath>
 #include <algorithm>
 #include <glm/vec2.hpp>
-
 #include <GL/glew.h>
 #include <GL/gl.h>
 
@@ -88,15 +87,12 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
     }
 }
 
-Widget::~Widget(void) {
+Widget::~Widget() {
     // Common texture also deleted?
-    if(text_texture != nullptr) {
+    if(text_texture != nullptr)
         delete text_texture;
-    }
-
-    if(tooltip != nullptr) {
+    if(tooltip != nullptr)
         delete tooltip;
-    }
 }
 
 void Widget::draw_rect(const Eng3D::Texture* tex, Eng3D::Rect rect_pos, Eng3D::Rect rect_tex, Eng3D::Rect viewport) {
@@ -249,36 +245,27 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
         g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.f, 0.f, 0.8f, 1.f));
         auto square = Eng3D::Square(16.f, 16.f, width + 16.f, height + 16.f);
     }
-
     g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
-    if(type == UI::WidgetType::INPUT) {
+    if(type == UI::WidgetType::INPUT)
         draw_rect(nullptr, pos_rect, tex_rect, viewport);
-    }
-
     if(background_color.a != 0) {
         g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(background_color.r, background_color.g, background_color.b, background_color.a));
         draw_rect(nullptr, pos_rect, tex_rect, viewport);
         g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
     }
-
-    if(current_texture != nullptr) {
+    if(current_texture != nullptr)
         draw_rectangle(0, 0, width, height, viewport, current_texture.get());
-    }
 
     // Top bar of windows display
     g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
-    if(type == UI::WidgetType::WINDOW) {
+    if(type == UI::WidgetType::WINDOW)
         draw_rectangle(0, 0, width, 24, viewport, ctx.window_top.get());
-    }
-
-    if(border.texture != nullptr) {
+    if(border.texture != nullptr)
         draw_border(border, viewport);
-    }
 
     if(text_texture != nullptr) {
-        if(!text_texture->gl_tex_num) {
+        if(!text_texture->gl_tex_num)
             text_texture->upload();
-        }
         //g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
 
         int x_offset = text_offset_x;
@@ -312,11 +299,8 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
  * align the widget's children depending on the other Flex properties
  *
  */
-void Widget::recalc_child_pos(void) {
-    if(flex == Flex::NONE) {
-        return;
-    }
-
+void Widget::recalc_child_pos() {
+    if(flex == Flex::NONE) return;
     bool is_row = flex == Flex::ROW;
     size_t lenght = 0;
     int movable_children = 0;
@@ -333,9 +317,7 @@ void Widget::recalc_child_pos(void) {
     case FlexJustify::START:
         current_lenght = 0;
         for(auto& child : children) {
-            if(child->is_pinned) {
-                continue;
-            }
+            if(child->is_pinned) continue;
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + flex_gap;
@@ -349,9 +331,7 @@ void Widget::recalc_child_pos(void) {
         current_lenght = is_row ? width : height;
         for(int i = children.size() - 1; i >= 0; i--) {
             auto& child = children[i];
-            if(child->is_pinned) {
-                continue;
-            }
+            if(child->is_pinned) continue;
             if(is_row) {
                 child->x = current_lenght - child->width - flex_gap;
                 current_lenght -= child->width;
@@ -366,9 +346,7 @@ void Widget::recalc_child_pos(void) {
         size = is_row ? width : height;
         difference = (size - lenght) / (std::max(1, movable_children - 1));
         for(auto& child : children) {
-            if(child->is_pinned) {
-                continue;
-            }
+            if(child->is_pinned) continue;
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + difference;
@@ -383,9 +361,7 @@ void Widget::recalc_child_pos(void) {
         difference = (size - lenght) / movable_children;
         current_lenght = std::max<int>(0, difference / 2);
         for(auto& child : children) {
-            if(child->is_pinned) {
-                continue;
-            }
+            if(child->is_pinned) continue;
             if(is_row) {
                 child->x = current_lenght;
                 current_lenght += child->width + difference;
@@ -432,9 +408,8 @@ void Widget::recalc_child_pos(void) {
     int child_index = 0;
     for(auto& child : children) {
         if(!child->is_pinned) {
-            if(child->on_pos_recalc) {
+            if(child->on_pos_recalc)
                 child->on_pos_recalc(*child, child_index);
-            }
             child_index++;
         }
     }
@@ -456,9 +431,8 @@ void Widget::add_child(UI::Widget& child) {
 
 static inline unsigned int power_two_floor(const unsigned int val) {
     unsigned int power = 2, nextVal = power * 2;
-    while((nextVal *= 2) <= val) {
+    while((nextVal *= 2) <= val)
         power *= 2;
-    }
     return power * 2;
 }
 
@@ -469,9 +443,7 @@ static inline unsigned int power_two_floor(const unsigned int val) {
  * @param _text
  */
 void Widget::text(const std::string& _text) {
-    if(this->text_str == _text) {
-        return;
-    }
+    if(this->text_str == _text) return;
     text_str = _text;
 
     // Copy _text to a local scope (SDL2 does not like references)
@@ -481,10 +453,7 @@ void Widget::text(const std::string& _text) {
         text_texture = nullptr;
     }
 
-    if(_text.empty()) {
-        return;
-    }
-
+    if(_text.empty()) return;
     TTF_Font* text_font = font ? font : g_ui_context->default_font;
     text_texture = new Eng3D::Texture(text_font, text_color, _text);
 }
@@ -507,9 +476,7 @@ void Widget::set_tooltip(UI::Tooltip* _tooltip) {
  * @param text Text for the new tooltip
  */
 void Widget::set_tooltip(const std::string& text) {
-    if(text.empty()) {
-        return;
-    }
+    if(text.empty()) return;
     this->set_tooltip(new UI::Tooltip(this, std::min<unsigned int>(text.size() * 12, 512), ((text.size() * 12) / 512) * 24));
     this->tooltip->text(text);
 }
@@ -534,8 +501,7 @@ void Widget::scroll(int _y) {
     _y = std::max(-child_bottom, _y);
 
     for(auto& child : children) {
-        if(!child->is_pinned) {
+        if(!child->is_pinned)
             child->y += _y;
-        }
     }
 }

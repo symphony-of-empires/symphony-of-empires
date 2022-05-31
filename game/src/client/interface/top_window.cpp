@@ -66,19 +66,19 @@ TopWindow::TopWindow(GameState& _gs)
     int icon_size = 25;
 
     auto* policy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/book.png", flex_column);
-    policy_ibtn->set_on_click([this](UI::Widget& w) {
+    policy_ibtn->set_on_click([this](UI::Widget&) {
         new Interface::PoliciesScreen(this->gs);
     });
     policy_ibtn->set_tooltip("Laws & Policies");
 
     auto* economy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/economy.png", flex_column);
-    economy_ibtn->set_on_click([this](UI::Widget& w) {
-        // auto& o = static_cast<TopWindow&>(*w.parent->parent);
+    economy_ibtn->set_on_click([this](UI::Widget&) {
+
     });
     economy_ibtn->set_tooltip("Economy & World Market");
 
     auto* pops_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/pv_1.png", flex_column);
-    pops_ibtn->set_on_click([this](UI::Widget& w) {
+    pops_ibtn->set_on_click([this](UI::Widget&) {
         new Interface::PopWindow(this->gs);
     });
     pops_ibtn->set_tooltip("Population");
@@ -108,26 +108,22 @@ TopWindow::TopWindow(GameState& _gs)
     /// @todo Save the lua state
     save_ibtn->set_tooltip("Saves the current game");
 
-    /*
     auto* load_ibtn = new UI::Image(9, 275, 25, 25, "gfx/top_bar/save.png", flex_column);
-    load_ibtn->set_on_click(UI::Callback)([](UI::Widget& w) {
+    load_ibtn->set_on_click([this](UI::Widget& w) {
         auto& o = static_cast<TopWindow&>(*w.parent);
 
         delete this->gs.world;
         this->gs.world = new World();
         this->gs.world->load_initial();
         this->gs.world->load_mod();
-
-        this->gs.curr_nation = this->gs.world->nations[0];
+        this->gs.curr_nation = &this->gs.world->nations[0];
 
         Archive ar = Archive();
+        ar.from_file("default.sc4");
         ::deserialize(ar, this->gs.world);
-        ar.to_file("default.scv");
-        this->gs.ui_ctx->prompt("Loaded", "Loaded sucessfully!");
+        this->gs.ui_ctx->prompt("Loaded", "Loaded savefile");
     });
-    load_ibtn->tooltip = new UI::Tooltip(load_ibtn, 512, 24);
-    load_ibtn->tooltip->text("Loads the current game");
-    */
+    load_ibtn->set_tooltip("Load this savefule");
 
     auto* exit_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/exit.png", flex_column);
     exit_ibtn->set_on_click([this](UI::Widget& w) {

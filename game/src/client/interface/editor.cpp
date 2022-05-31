@@ -38,9 +38,10 @@
 
 using namespace Interface;
 
-EventEditorNode::EventEditorNode(GameState& _gs, EventEditor::BaseNode* node, UI::Widget* _parent)
+EventEditorNode::EventEditorNode(GameState& _gs, EventEditor::BaseNode* _node, UI::Widget* _parent)
     : UI::Group(0, 0, _parent->width, _parent->height),
-    gs{ _gs }
+    gs{ _gs },
+    node{ _node }
 {
     this->is_scroll = false;
 }

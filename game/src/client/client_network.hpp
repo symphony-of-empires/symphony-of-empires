@@ -39,7 +39,7 @@ public:
     ClientException(const std::string& msg) {
         buffer = msg;
     }
-    virtual const char* what(void) const noexcept {
+    virtual const char* what() const noexcept {
         return buffer.c_str();
     }
 };
@@ -51,8 +51,8 @@ class Client : public Eng3D::Networking::Client {
 public:
     Client(GameState& gs, std::string host, const unsigned port);
     ~Client();
-    void net_loop(void);
-    void wait_for_snapshot(void);
+    void net_loop();
+    void wait_for_snapshot();
 };
 
 extern Client* g_client;

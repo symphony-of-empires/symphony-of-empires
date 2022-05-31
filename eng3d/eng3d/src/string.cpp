@@ -33,7 +33,7 @@ Eng3D::StringRef::StringRef(const std::string& str) {
 }
 
 static Eng3D::String g_empty_str = " ";
-const Eng3D::String& Eng3D::StringRef::get_string(void) const
+const Eng3D::String& Eng3D::StringRef::get_string() const
 {
     if(this->id == (Eng3D::StringRef::Id)-1) {
         return g_empty_str;
@@ -45,7 +45,7 @@ const Eng3D::String& Eng3D::StringRef::get_string(void) const
 // StringManager
 //
 static Eng3D::StringManager g_string_man;
-Eng3D::StringManager& Eng3D::StringManager::get_instance(void)
+Eng3D::StringManager& Eng3D::StringManager::get_instance()
 {
     return g_string_man;
 }

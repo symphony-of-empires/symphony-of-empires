@@ -60,11 +60,11 @@ namespace Eng3D::IO {
         public:
             Base();
             ~Base();
-            virtual void open(void);
-            virtual void close(void);
-            virtual void read(void*, size_t);
-            virtual void write(const void*, size_t);
-            virtual void seek(Eng3D::IO::SeekType, int);
+            virtual void open() {};
+            virtual void close() {};
+            virtual void read(void*, size_t) {};
+            virtual void write(const void*, size_t) {};
+            virtual void seek(Eng3D::IO::SeekType, int) {};
 
             std::string path;
             std::string abs_path;
@@ -90,10 +90,10 @@ namespace Eng3D::IO {
         public:
             FILE* fp;
         //public:
-            File();
-            ~File();
-            virtual void open(void);
-            virtual void close(void);
+            File() {};
+            ~File() {};
+            virtual void open();
+            virtual void close();
             virtual void read(void* buf, size_t n);
             virtual void write(const void* buf, size_t n);
             virtual void seek(Eng3D::IO::SeekType type, int offset);
@@ -104,7 +104,7 @@ namespace Eng3D::IO {
         std::string buffer;
     public:
         PackageException(const std::string& _buffer) : buffer(_buffer) {};
-        virtual const char* what(void) const noexcept {
+        virtual const char* what() const noexcept {
             return buffer.c_str();
         }
     };
@@ -112,8 +112,8 @@ namespace Eng3D::IO {
     // A package containing a set of assets
     class Package {
     public:
-        Package();
-        ~Package();
+        Package() {};
+        ~Package() {};
 
         std::string name;
         std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> assets;

@@ -61,7 +61,7 @@ namespace Eng3D {
          * @brief Construct a new Thread Pool object, this initializes threads for the pool
          * 
          */
-        ThreadPool(void) {
+        ThreadPool() {
             // It's a good idea to use as many threads as the hardware implementation
             // supports. Otherwise we can run into performance hits.
             const size_t n_threads = (size_t)std::thread::hardware_concurrency();
@@ -82,7 +82,7 @@ namespace Eng3D {
          * @brief Destroy the Thread Pool, closing all the pending jobs
          * 
          */
-        ~ThreadPool(void) {
+        ~ThreadPool() {
             // We are going to signal all threads to shutdown
             std::unique_lock<std::mutex> latch(job_mutex);
             running = false;
@@ -113,7 +113,7 @@ namespace Eng3D {
          * is to check in the list of available jobs for jobs we can take
          * 
          */
-        void thread_loop(void) {
+        void thread_loop() {
             while(true) {
                 std::unique_lock<std::mutex> latch(job_mutex);
                 cv_task.wait(latch, [this]() {
@@ -143,7 +143,7 @@ namespace Eng3D {
          * @brief Waits until the job list is empty
          * 
          */
-        void wait_finished(void) {
+        void wait_finished() {
             std::unique_lock<std::mutex> lock(job_mutex);
             cv_finished.wait(lock, [this]() {
                 return (jobs.empty() && (busy == 0));

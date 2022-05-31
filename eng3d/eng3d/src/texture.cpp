@@ -36,7 +36,7 @@
 //
 // Texture
 //
-Eng3D::Texture::Texture(void) {
+Eng3D::Texture::Texture() {
 
 }
 
@@ -86,7 +86,7 @@ Eng3D::Texture::Texture(TTF_Font* font, Eng3D::Color color, const std::string& m
     }
 }
 
-Eng3D::Texture::~Texture(void) {
+Eng3D::Texture::~Texture() {
 #ifdef E3D_BACKEND_OPENGL
     if(gl_tex_num) {
         delete_gputex();
@@ -242,7 +242,7 @@ void Eng3D::Texture::upload(SDL_Surface* surface) {
 }
 
 // Binds the texture to the current OpenGL context
-void Eng3D::Texture::bind(void) const {
+void Eng3D::Texture::bind() const {
 #ifdef E3D_BACKEND_OPENGL
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
 #endif
@@ -286,7 +286,7 @@ Eng3D::TextureArray::TextureArray(const std::string& path, size_t _tiles_x, size
 }
 
 // Uploads the TextureArray to the driver
-void Eng3D::TextureArray::upload(void) {
+void Eng3D::TextureArray::upload() {
 #ifdef E3D_BACKEND_OPENGL
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D_ARRAY, gl_tex_num);
@@ -323,7 +323,7 @@ void Eng3D::TextureArray::upload(void) {
 //
 // Texture manager
 //
-std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::get_white(void) {
+std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::get_white() {
     if(white.get() == nullptr) {
         white = std::make_shared<Eng3D::Texture>(1, 1);
         white->buffer.get()[0] = 0xFFFFFFFF;
@@ -332,7 +332,7 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::get_white(void) {
     return std::shared_ptr<Eng3D::Texture>(white);
 }
 
-Eng3D::TextureManager::~TextureManager(void) {
+Eng3D::TextureManager::~TextureManager() {
     textures.clear();
 }
 

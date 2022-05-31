@@ -33,6 +33,7 @@
 
 #include "eng3d/entity.hpp"
 #include "eng3d/decimal.hpp"
+#include "eng3d/rectangle.hpp"
 
 class World;
 class Nation;
@@ -52,12 +53,12 @@ class Province : public RefnameEntity<uint16_t> {
 public:
     Province() {};
     ~Province() {};
-    Eng3D::Number total_pops(void) const;
+    Eng3D::Number total_pops() const;
     Eng3D::Decimal get_attractiveness(const Pop& pop) const;
-    std::pair<Eng3D::Decimal, Eng3D::Decimal> get_pos(void) const;
-    const std::vector<Unit*> get_units(void) const;
-    const std::vector<Building>& get_buildings(void) const;
-    std::vector<Building>& get_buildings(void);
+    std::pair<Eng3D::Decimal, Eng3D::Decimal> get_pos() const;
+    const std::vector<Unit*> get_units() const;
+    const std::vector<Building>& get_buildings() const;
+    std::vector<Building>& get_buildings();
     bool is_neighbour(Province& province) const;
     void add_building(const BuildingType& building_type);
 
@@ -77,25 +78,16 @@ public:
     
     // Rectangle coordinates (x,y - x,y) for "area" scanning a province when needed
     // (for example, when changing owners)
-    size_t min_x = 65532, min_y = 65532, max_x = 0, max_y = 0;
+    Eng3D::Rect box_area;
 
-    // The owner of this province
-    Nation* owner = nullptr;
+    Nation* owner = nullptr; // The owner of this province
     Nation* controller = nullptr;
     TerrainType* terrain_type = nullptr;
 
-    // List containing all nations who have a nucleus in this province
-    std::set<Nation*> nuclei;
-
-    // List containing how much of each rgo that can be extracted
-    std::vector<uint32_t> rgo_size;
-
-    // List of all neighbouring provinces (*should* be used for pathfinding)
-    std::set<Province*> neighbours;
-
-    // List of pops in this province
-    std::vector<Pop> pops;
-    // These structures normally won't change on a normal playthru
+    std::set<Nation*> nuclei; // Nations who have a nuclei in this province
+    std::vector<uint32_t> rgo_size; // How much of each rgo that can be extracted
+    std::set<Province*> neighbours; // Neighbouring provinces
+    std::vector<Pop> pops; // List of pops in this province
     std::vector<Product> products;
     std::vector<Unit*> units;
     std::vector<Building> buildings;

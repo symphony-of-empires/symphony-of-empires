@@ -59,7 +59,7 @@ PopWindow::PopWindow(GameState& gs)
 	auto table = new UI::Table<uint64_t>(5, 5, 800-10, 800-5, 35, sizes, header, this);
 	this->width = table->width + 5 + this->padding.x;
 	table->reserve(size);
-	table->on_each_tick = [nation, table](Widget&) {
+	table->on_each_tick = [nation, table](UI::Widget&) {
 		for(auto prov : nation.owned_provinces) {
 			uint16_t prov_id = prov->cached_id;
 			for(auto& pop : prov->pops) {

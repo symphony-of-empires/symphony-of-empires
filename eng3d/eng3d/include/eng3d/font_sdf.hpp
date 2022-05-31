@@ -42,6 +42,7 @@ namespace Eng3D {
     class Glyph {
     public:
         Glyph(float _advance, Rectangle _atlas_bounds, Rectangle _plane_bounds);
+        
         float advance;
         Rectangle atlas_bounds;
         Rectangle plane_bounds;
@@ -51,8 +52,8 @@ namespace Eng3D {
     public:
         Label3D(TriangleList* triangles, float size);
         ~Label3D();
-
         void draw();
+
         float size;
     private:
         TriangleList* triangles;

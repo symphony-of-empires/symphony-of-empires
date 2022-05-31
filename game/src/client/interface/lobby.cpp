@@ -70,7 +70,7 @@ LobbySelectView::LobbySelectView(GameState& _gs)
     next_country_btn->text("Next");
     next_country_btn->right_side_of(*curr_country_btn);
     next_country_btn->user_data = this;
-    next_country_btn->set_on_click([this](UI::Widget& w) {
+    next_country_btn->set_on_click([this](UI::Widget&) {
         this->change_nation(this->curr_selected_nation + 1);
     });
 
@@ -78,7 +78,7 @@ LobbySelectView::LobbySelectView(GameState& _gs)
     prev_country_btn->origin = UI::Origin::LOWER_MIDDLE_SCREEN;
     prev_country_btn->text("Prev");
     prev_country_btn->left_side_of(*curr_country_btn);
-    prev_country_btn->set_on_click([this](UI::Widget& w) {
+    prev_country_btn->set_on_click([this](UI::Widget&) {
         this->change_nation(this->curr_selected_nation - 1);
     });
 
@@ -86,8 +86,7 @@ LobbySelectView::LobbySelectView(GameState& _gs)
     auto* game_group = new UI::Group(0, 0, 128, gs.height);
     for(const auto& entry : std::filesystem::directory_iterator(path)) {
         if(!entry.is_directory() && entry.path().extension() == ".scv") {
-            LoadGameBtnData data{ gs };
-            data.file = entry.path().lexically_relative(path).string();
+            LoadGameBtnData data{ gs, entry.path().lexically_relative(path).string() };
             ldgame_data.push_back(data);
         }
     }
@@ -96,19 +95,15 @@ LobbySelectView::LobbySelectView(GameState& _gs)
     for(const auto& ldgame : ldgame_data) {
         auto* ldgame_btn = new UI::Button(0, 24 * i, 128, 24, game_group);
         ldgame_btn->text(ldgame_data[i].file);
-        auto data = &ldgame_data[i];
-        ldgame_btn->set_on_click([data](UI::Widget&) {
-            std::scoped_lock lock1(data->gs.world->world_mutex);
-            if(data->gs.world != nullptr) {
-                delete data->gs.world;
-            }
-
+        ldgame_btn->set_on_click([ldgame](UI::Widget&) {
+            std::scoped_lock lock1(ldgame.gs.world->world_mutex);
+            if(ldgame.gs.world != nullptr)
+                delete ldgame.gs.world;
+            
             Archive ar = Archive();
-            data->gs.world = new World();
-            ::deserialize(ar, data->gs.world);
-            data->gs.world->load_mod();
-
-            data->gs.map->update_mapmode();
+            ldgame.gs.world = new World();
+            ::deserialize(ar, ldgame.gs.world);
+            ldgame.gs.map->update_mapmode();
         });
         ++i;
     }
@@ -148,7 +143,6 @@ void LobbySelectView::change_nation(size_t id) {
     curr_selected_nation = id;
     curr_country_btn->text(gs.curr_nation->name.c_str());
     const Province* capital = gs.curr_nation->capital;
-    if(capital != nullptr) {
-        gs.map->camera->set_pos(capital->max_x, capital->max_y);
-    }
+    if(capital != nullptr)
+        gs.map->camera->set_pos(capital->box_area.right, capital->box_area.bottom);
 }

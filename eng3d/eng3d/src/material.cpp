@@ -37,22 +37,22 @@
 //
 // Material
 //
-Eng3D::Material::Material(void) {
+Eng3D::Material::Material() {
 
 }
 
-Eng3D::Material::~Material(void) {
+Eng3D::Material::~Material() {
 
 }
 
 //
 // Material manager
 //
-Eng3D::MaterialManager::MaterialManager(void) {
+Eng3D::MaterialManager::MaterialManager() {
 
 }
 
-Eng3D::MaterialManager::~MaterialManager(void) {
+Eng3D::MaterialManager::~MaterialManager() {
     for(const auto& material : materials) {
         delete material.second;
     }

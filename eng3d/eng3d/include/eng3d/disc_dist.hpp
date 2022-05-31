@@ -30,10 +30,10 @@
 #include <cstddef>
 #include <vector>
 
-// https://www.keithschwarz.com/darts-dice-coins/
-// https://en.wikipedia.org/wiki/Alias_method
-
-// Uses the Aiias method to generate a lookup table of with different probabilties
+/// @brief Uses the Aiias method to generate a lookup table of with different probabilties
+/// @tparam T The type of items to obtain the probability from
+/// https://www.keithschwarz.com/darts-dice-coins/
+/// https://en.wikipedia.org/wiki/Alias_method
 template<typename T>
 class DiscreteDistribution {
 private:
@@ -47,9 +47,7 @@ public:
 		// Scale each probabilty
 		float total = std::accumulate(probabilities.begin(), probabilities.end(), 0);
 		float scale = probabilities.size() / total;
-		for(size_t i = 0; i < probabilities.size(); i++) {
-			probabilities[i] *= scale;
-		}
+		for(auto& p : probabilities) p *= scale;
 
 		// Fill two work tables with probabilities larger/smaller than 1
 		std::vector<std::pair<float, size_t>> small;
@@ -57,11 +55,10 @@ public:
 		std::vector<std::pair<float, size_t>> big;
 		big.reserve(probabilities.size());
 		for(size_t i = 0; i < probabilities.size(); i++) {
-			if(probabilities[i] < 1.0f) {
+			if(probabilities[i] < 1.0f)
 				small.push_back(std::make_pair(probabilities[i], i));
-			} else {
+			else
 				big.push_back(std::make_pair(probabilities[i], i));
-			}
 		}
 
 		// Remove from the bigger one and place on the smaller ones
@@ -75,11 +72,10 @@ public:
 			prob[less.second] = less.first;
 			alias[less.second] = greater.second;
 			greater.first = (greater.first + less.first) - 1;
-			if(greater.first < 1.f) {
+			if(greater.first < 1.f)
 				small.push_back(greater);
-			} else {
+			else
 				big.push_back(greater);
-			}
 		}
 
 		while(big.size() > 0) {
@@ -95,18 +91,16 @@ public:
 		}
 	}
 	
-	~DiscreteDistribution(void)
+	~DiscreteDistribution()
 	{
 
 	};
 
 	// Get a random item with a certian probabilty
-	T get_item(void) {
+	T get_item() {
 		size_t index = std::rand() % _items.size();
 		float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-		if(prob[index] < r) {
-			index = alias[index];
-		}
+		if(prob[index] < r) index = alias[index];
 		return _items[index];
 	}
 };

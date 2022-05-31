@@ -38,7 +38,7 @@ void Building::add_to_stock(const Good& good, const size_t add) {
 }
 
 // Checks if the building can produce output (if it has enough input)
-bool Building::can_do_output(void) const {
+bool Building::can_do_output() const {
     // Always can produce if RGO
     //if(type->inputs.empty()) {
     //    return true;
@@ -53,7 +53,7 @@ bool Building::can_do_output(void) const {
     return true;
 }
 
-bool Building::can_build_unit(void) const {
+bool Building::can_build_unit() const {
     for(const auto& req : req_goods_for_unit) {
         if(req.second) {
             return false;

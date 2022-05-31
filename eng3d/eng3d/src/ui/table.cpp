@@ -49,21 +49,20 @@ void TableElement::set_key(std::string key) {
     key_type = KeyType::STRING;
     key_string = key;
 }
+
 void TableElement::set_key(float key) {
     key_type = KeyType::NUMBER;
     key_number = key;
 }
+
 bool TableElement::operator< (const TableElement& right) const {
-    if(this->key_type != right.key_type) {
+    if(this->key_type != right.key_type)
         return this->key_type < right.key_type;
-    }
+    
     switch(this->key_type) {
-    case KeyType::NUMBER:
-        return this->key_number < right.key_number;
-    case KeyType::STRING:
-        return this->key_string < right.key_string;
-    case KeyType::NONE:
-        return false;
+    case KeyType::NUMBER: return this->key_number < right.key_number;
+    case KeyType::STRING: return this->key_string < right.key_string;
+    case KeyType::NONE: return false;
     }
 }
 
@@ -101,8 +100,6 @@ TableRow::TableRow(Widget* _parent, int _width, int _height, std::vector<int>& _
 }
 
 TableElement* TableRow::get_element(size_t index) {
-    if(index > elements.size()) {
-        throw std::runtime_error("Table - Index out of bounds");
-    }
+    CXX_THROW(std::runtime_error, "Table - Index out of bounds");
     return elements[index];
 }

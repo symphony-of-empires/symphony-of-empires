@@ -51,8 +51,8 @@ namespace Eng3D::OpenGL {
         VAO(VAO&&) noexcept = default;
         VAO& operator=(const VAO&) = default;
 
-        void bind(void) const;
-        inline GLuint get_id(void) const {
+        void bind() const;
+        inline GLuint get_id() const {
             return id;
         }
     };
@@ -67,7 +67,7 @@ namespace Eng3D::OpenGL {
         VBO& operator=(const VBO&) = default;
 
         void bind(GLenum target = GL_ARRAY_BUFFER) const;
-        inline GLuint get_id(void) const {
+        inline GLuint get_id() const {
             return id;
         }
     };
@@ -92,7 +92,7 @@ namespace Eng3D {
     template<typename V = glm::vec3, typename T = glm::vec2>
     class MeshData {
     public:
-        MeshData(void) {};
+        MeshData() {};
         MeshData(V _vert, T _tex): vert(_vert), tex(_tex) {};
         ~MeshData() {};
         MeshData(const MeshData&) = default;
@@ -114,7 +114,7 @@ namespace Eng3D {
         Mesh& operator=(const Mesh&) = default;
 
 #ifdef E3D_BACKEND_OPENGL
-        virtual void draw(void) const {
+        virtual void draw() const {
             vao.bind();
             glDrawArrays(static_cast<GLenum>(mode), 0, buffer.size());
         };
@@ -123,7 +123,7 @@ namespace Eng3D {
 #endif
 
 #ifdef E3D_BACKEND_OPENGL
-        virtual void upload(void) const {
+        virtual void upload() const {
             if(buffer.empty()) {
                 return;
             }

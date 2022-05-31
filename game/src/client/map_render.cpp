@@ -425,12 +425,12 @@ void MapRender::update_nations(std::vector<Province> provinces) {
     this->tile_sheet_nation->upload(no_drop_options);
 }
 
-void MapRender::request_update_visibility(void)
+void MapRender::request_update_visibility()
 {
     this->req_update_vision = true;
 }
 
-void MapRender::update_visibility(void)
+void MapRender::update_visibility()
 {
     const auto& gs = (GameState&)GameState::get_instance();
     if(gs.curr_nation == nullptr)

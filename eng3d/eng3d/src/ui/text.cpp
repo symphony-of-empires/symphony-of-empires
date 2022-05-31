@@ -34,19 +34,13 @@ Text::Text(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 
 }
 
-Text::~Text(void) {
-
-}
-
 void Text::on_render(Context&, Eng3D::Rect) {
 
 }
 
 void Text::text(const std::string& text) {
     children.clear();
-    if(text.empty()) {
-        return;
-    }
+    if(text.empty()) return;
 
     // Separate the text in multiple labels and break on space
     /// @todo only works for monospace fonts width width 12, fix it for all fonts
@@ -55,9 +49,8 @@ void Text::text(const std::string& text) {
     while(pos < text.length()) {
         size_t remaining_chars = text.length() - pos;
         size_t end_pos = text.length();
-        if(remaining_chars > line_width) {
+        if(remaining_chars > line_width)
             end_pos = pos + line_width;
-        }
 
         bool break_line = false;
         for(int i = pos; i <= end_pos; i++) {
@@ -79,10 +72,7 @@ void Text::text(const std::string& text) {
 
         std::string buf = text.substr(pos, end_pos - pos);
         pos = end_pos;
-        if(break_line) {
-            pos++;
-        }
-
+        if(break_line) pos++;
         new UI::Label(0, y, buf, this);
         y += 24;
     }

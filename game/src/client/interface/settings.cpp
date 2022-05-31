@@ -50,23 +50,19 @@ Settings::Settings(GameState& _gs)
 {
     this->is_scroll = false;
     this->text("Settings");
-
     this->set_close_btn_function([this](Widget&) {
         this->kill();
     });
 
     auto* check_controller_btn = new UI::Button(0, 0, 128, 24, this);
     check_controller_btn->text("Check controller");
-    check_controller_btn->set_on_click([this](UI::Widget& w) {
-        if(this->gs.joy != nullptr) {
+    check_controller_btn->set_on_click([this](UI::Widget&) {
+        if(this->gs.joy != nullptr)
             SDL_JoystickClose(this->gs.joy);
-        }
-        
-        if(SDL_NumJoysticks() >= 1) {
+        if(SDL_NumJoysticks() >= 1)
             this->gs.joy = SDL_JoystickOpen(0);
-        } else {
+        else
             this->gs.ui_ctx->prompt("Gamepad", "No present joysticks");
-        }
     });
     check_controller_btn->set_tooltip("Checks for any new gamepads - click this if you've connected a gamepad and experience issues");
 

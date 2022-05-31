@@ -87,7 +87,7 @@ Client::Client(GameState& _gs, std::string host, const unsigned port)
 // if the client runs out of memory it needs to disconnect and then reconnect in order
 // to establish a new connection; since the server won't hand out snapshots - wait...
 // if you need snapshots for any reason (like desyncs) you can request with ActionType::SNAPSHOT
-void Client::net_loop(void) {
+void Client::net_loop() {
     World& world = *(gs.world);
     
     {
@@ -117,10 +117,8 @@ void Client::net_loop(void) {
 			if(!pending_packets.empty()) {
 				if(pending_packets_mutex.try_lock()) {
                     std::scoped_lock lock(packets_mutex);
-                    for(const auto& packet : pending_packets) {
+                    for(const auto& packet : pending_packets)
                         packets.push_back(packet);
-                    }
-
 					pending_packets.clear();
 					pending_packets_mutex.unlock();
 				}
@@ -175,9 +173,8 @@ void Client::net_loop(void) {
                         for(Nation::Id i = 0; i < size; i++) {
                             Nation* nation;
                             ::deserialize(ar, &nation);
-                            if(nation == nullptr) {
-                                throw ClientException("Unknown nation");
-                            }
+                            if(nation == nullptr)
+                                CXX_THROW(ClientException, "Unknown nation");
                             ::deserialize(ar, nation);
                         }
                     } break;
@@ -191,7 +188,7 @@ void Client::net_loop(void) {
                         Nation* nation;
                         ::deserialize(ar, &nation);
                         if(nation == nullptr)
-                            throw ClientException("Unknown nation");
+                            CXX_THROW(ClientException, "Unknown nation");
                         Policies policy;
                         ::deserialize(ar, &policy);
                         nation->current_policy = policy;
@@ -203,7 +200,7 @@ void Client::net_loop(void) {
                             Province* province;
                             ::deserialize(ar, &province);
                             if(province == nullptr)
-                                throw ClientException("Unknown province");
+                                CXX_THROW(ClientException, "Unknown province");
                             ::deserialize(ar, province);
                         }
                     } break;
@@ -213,9 +210,8 @@ void Client::net_loop(void) {
                         for(Unit::Id i = 0; i < size; i++) {
                             Unit* unit;
                             ::deserialize(ar, &unit);
-                            if(unit == nullptr) {
-                                throw ClientException("Unknown unit");
-                            }
+                            if(unit == nullptr)
+                                CXX_THROW(ClientException, "Unknown unit");
                             ::deserialize(ar, unit);
                         }
                     } break;
@@ -244,9 +240,8 @@ void Client::net_loop(void) {
                         ::deserialize(ar, treaty);
                         world.insert(*treaty);
                         Eng3D::Log::debug("client", "New treaty from " + treaty->sender->ref_name);
-                        for(const auto& status : treaty->approval_status) {
+                        for(const auto& status : treaty->approval_status)
                             Eng3D::Log::debug("client", ">" + status.first->ref_name);
-                        }
                     } break;
                     case ActionType::WORLD_TICK: {
                         // Give up the world mutex for now
@@ -256,9 +251,8 @@ void Client::net_loop(void) {
                     case ActionType::PROVINCE_COLONIZE: {
                         Province* province;
                         ::deserialize(ar, &province);
-                        if(province == nullptr) {
+                        if(province == nullptr)
                             throw ClientException("Unknown province");
-                        }
                         ::deserialize(ar, province);
                     } break;
                     default:
@@ -282,7 +276,7 @@ void Client::net_loop(void) {
 }
 
 // Waits to receive the server initial world snapshot
-void Client::wait_for_snapshot(void) {
+void Client::wait_for_snapshot() {
     while(!has_snapshot) {
         // Just wait...
     }
