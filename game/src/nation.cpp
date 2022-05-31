@@ -388,6 +388,10 @@ std::vector<Nation*> Nation::get_allies(void) {
 
     std::vector<Nation*> list;
     for(const auto& nation : world.nations) {
+        if(nation == this) {
+            continue;
+        }
+
         const auto& relation = g_world->get_relation(world.get_id(*this), world.get_id(*nation));
         if(relation.has_alliance) {
             list.push_back(nation);

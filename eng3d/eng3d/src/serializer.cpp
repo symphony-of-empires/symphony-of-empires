@@ -23,6 +23,7 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#include <memory>
 #include "eng3d/serializer.hpp"
 #include "eng3d/utils.hpp"
 
@@ -59,9 +60,10 @@ void Archive::rewind(void) {
 }
 
 void Archive::to_file(const std::string& path) {
-    FILE* fp = fopen(path.c_str(), "wb");
-    fwrite(&buffer[0], 1, buffer.size(), fp);
-    fclose(fp);
+    if(!buffer.empty()) {
+        std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen(path.c_str(), "wb"), fclose);
+        fwrite((const void*)&buffer[0], 1, buffer.size(), fp.get());
+    }
 }
 
 #include <fstream>
