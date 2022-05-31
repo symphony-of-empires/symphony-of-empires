@@ -84,9 +84,9 @@ namespace Eng3D::OpenGL {
         ~GLSL_Context();
         std::string get_identifier(std::string::iterator& it);
         std::string get_literal(std::string::iterator& it);
-        void lexer(void);
-        void parser(void);
-        std::string to_text(void);
+        void lexer();
+        void parser();
+        std::string to_text();
 
         std::vector<GLSL_Variable> vars;
         std::vector<GLSL_Function> funcs;
@@ -99,7 +99,7 @@ namespace Eng3D::OpenGL {
         std::string buffer;
     public:
         GLSL_Exception(std::vector<GLSL_Token>::iterator _it, const std::string& _buffer): buffer(_buffer), it(_it) {};
-        virtual const char* what(void) const noexcept {
+        virtual const char* what() const noexcept {
             return buffer.c_str();
         }
 

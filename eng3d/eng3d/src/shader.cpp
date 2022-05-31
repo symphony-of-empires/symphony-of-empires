@@ -52,9 +52,8 @@ Eng3D::OpenGL::Shader::Shader(const std::string& _buffer, GLuint type, bool use_
     }
 
     id = glCreateShader(type);
-    if(!id) {
+    if(!id)
         CXX_THROW(Eng3D::ShaderException, "Can't create shader");
-    }
     const char* c_code = buffer.c_str();
     glShaderSource(id, 1, &c_code, NULL);
     compile(type);
@@ -99,32 +98,16 @@ void Eng3D::OpenGL::Shader::compile(GLuint type) {
         for(it = buffer.begin(); it != buffer.end() && row_rem; it++) {
             if(*it == '\n') {
                 row_rem--;
-                if(!row_rem) {
-                    break;
-                }
+                if(!row_rem) break;
             }
         }
 
         std::string line_buf = "(No line info)";
-        if(it != buffer.end()) {
+        if(it != buffer.end())
             line_buf = buffer.substr(std::distance(buffer.begin(), it), buffer.find_first_of('\n', std::distance(buffer.begin(), it)));
-        }
         CXX_THROW(Eng3D::ShaderException, line_buf + "\n" + error_info);
     }
     Eng3D::Log::debug("shader", "Status: Sucess");
-}
-
-//
-// Vertex shader
-//
-Eng3D::OpenGL::VertexShader::VertexShader(const std::string& _buffer)
-    : Shader(_buffer, GL_VERTEX_SHADER)
-{
-
-}
-
-Eng3D::OpenGL::VertexShader::~VertexShader(void) {
-
 }
 
 //
@@ -136,55 +119,12 @@ Eng3D::OpenGL::FragmentShader::FragmentShader(const std::string& _buffer, bool u
 
 }
 
-Eng3D::OpenGL::FragmentShader::~FragmentShader(void) {
-
-}
-
-//
-// Geometry shader
-//
-Eng3D::OpenGL::GeometryShader::GeometryShader(const std::string& _buffer)
-    : Shader(_buffer, GL_GEOMETRY_SHADER)
-{
-
-}
-
-Eng3D::OpenGL::GeometryShader::~GeometryShader(void) {
-
-}
-
-//
-// Tessellation control shader
-//
-Eng3D::OpenGL::TessControlShader::TessControlShader(const std::string& _buffer)
-    : Shader(_buffer, GL_TESS_CONTROL_SHADER)
-{
-
-}
-
-Eng3D::OpenGL::TessControlShader::~TessControlShader(void) {
-
-}
-
-//
-// Tessellation evaluation shader
-//
-Eng3D::OpenGL::TessEvalShader::TessEvalShader(const std::string& _buffer)
-    : Shader(_buffer, GL_TESS_EVALUATION_SHADER)
-{
-
-}
-
-Eng3D::OpenGL::TessEvalShader::~TessEvalShader(void) {
-
-}
-
 /**
  * @brief Links the whole program into itself, all attached shaders that were
  * previously given to this program will be linked (hopefully) by OpenGL.
  *
  */
-void Eng3D::OpenGL::Program::link(void) {
+void Eng3D::OpenGL::Program::link() {
     assert(id != 0); // Program has no Id
     glLinkProgram(id);
 

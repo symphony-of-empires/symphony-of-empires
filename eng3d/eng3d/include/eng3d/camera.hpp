@@ -71,7 +71,7 @@ namespace Eng3D {
             return map_size;
         }
 
-        virtual void update(void) = 0;
+        virtual void update() = 0;
 
         virtual glm::mat4 get_projection() const {
             const float aspect_ratio = screen_size.x / screen_size.y;

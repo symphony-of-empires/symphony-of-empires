@@ -37,7 +37,7 @@
 #include "eng3d/state.hpp"
 #include "eng3d/log.hpp"
 
-BinaryImage::BinaryImage(void) {
+BinaryImage::BinaryImage() {
     
 }
 

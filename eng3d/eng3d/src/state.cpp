@@ -59,7 +59,6 @@
 // Used for the singleton
 static Eng3D::State* g_state = nullptr;
 
-
 #ifdef E3D_BACKEND_OPENGL
 // Callback function for printing debug statements
 static void GLAPIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* msg, const void* data) {
@@ -141,9 +140,8 @@ static void GLAPIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint
 
 Eng3D::State::State(const std::vector<std::string>& pkg_paths) {
     // Make sure we're the only state running
-    if(g_state != nullptr) {
+    if(g_state != nullptr)
         CXX_THROW(std::runtime_error, "Duplicate instancing of GameState");
-    }
     g_state = this;
 
 #ifdef E3D_BACKEND_RGX // RVL GX
@@ -162,9 +160,8 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths) {
             }
         }
     } else {
-        for(const auto& entry : pkg_paths) {
+        for(const auto& entry : pkg_paths)
             Path::add_path(entry);
-        }
     }
 
     // Startup-initialization of SDL
@@ -188,9 +185,8 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths) {
     Eng3D::Log::debug("opengl", std::string() + "OpenGL Version: " + (const char*)glGetString(GL_VERSION));
     glewExperimental = GL_TRUE;
     GLenum err = glewInit();
-    if(err != GLEW_OK) {
+    if(err != GLEW_OK)
         CXX_THROW(std::runtime_error, "Failed to init GLEW");
-    }
 
     GLint size;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
@@ -231,9 +227,8 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths) {
     fmt.samples = 512;
     fmt.callback = &Eng3D::State::mixaudio;
     fmt.userdata = this;
-    if(SDL_OpenAudio(&fmt, NULL) < 0) {
+    if(SDL_OpenAudio(&fmt, NULL) < 0)
         CXX_THROW(std::runtime_error, "Unable to open audio: " + std::string(SDL_GetError()));
-    }
     SDL_PauseAudio(0);
 
     tex_man = new Eng3D::TextureManager();
@@ -299,7 +294,7 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths) {
     ui_ctx->resize(width, height);
 }
 
-Eng3D::State::~State(void) {
+Eng3D::State::~State() {
     delete tex_man;
     delete sound_man;
     delete material_man;
@@ -319,7 +314,7 @@ Eng3D::State::~State(void) {
     g_state = nullptr;
 }
 
-void Eng3D::State::clear(void) const {
+void Eng3D::State::clear() const {
 #ifdef E3D_BACKEND_OPENGL
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -329,7 +324,7 @@ void Eng3D::State::clear(void) const {
 #endif
 }
 
-void Eng3D::State::swap(void) const {
+void Eng3D::State::swap() const {
 #ifdef E3D_BACKEND_OPENGL
     // Required by macOS
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -349,57 +344,42 @@ void Eng3D::State::mixaudio(void* userdata, uint8_t* stream, int len) {
 
     if(gs.sound_lock.try_lock()) {
         for(unsigned int i = 0; i < gs.sound_queue.size(); ) {
-            int size = gs.sound_queue.size();
-            Eng3D::Audio* sound = gs.sound_queue[i];
-
-            int amount = sound->len - sound->pos;
-            if(amount > len) {
-                amount = len;
-            }
-
+            Eng3D::Audio& sound = *gs.sound_queue[i];
+            const int amount = std::min<int>(len, sound.len - sound.pos);
             if(amount <= 0) {
-                delete sound;
+                delete &sound;
                 gs.sound_queue.erase(gs.sound_queue.begin() + i);
                 continue;
             }
 
             const float volume = (SDL_MIX_MAXVOLUME / 100.f) * gs.sound_volume;
-            SDL_MixAudio(stream, &sound->data[sound->pos], amount, volume);
-            sound->pos += amount;
+            SDL_MixAudio(stream, &sound.data[sound.pos], amount, volume);
+            sound.pos += amount;
             i++;
         }
 
         for(unsigned int i = 0; i < gs.music_queue.size(); ) {
-            Eng3D::Audio* music = gs.music_queue[i];
-
-            int amount = music->len - music->pos;
-            if(amount > len) {
-                amount = len;
-            }
-
+            Eng3D::Audio& music = *gs.music_queue[i];
+            const int amount = std::min<int>(len, music.len - music.pos);
             if(amount <= 0) {
-                delete music;
+                delete &music;
                 gs.music_queue.erase(gs.music_queue.begin() + i);
                 continue;
             }
 
             const float volume = (SDL_MIX_MAXVOLUME / 100.f) * gs.music_volume;
             const float fade = (SDL_MIX_MAXVOLUME / 100.f) * gs.music_fade_value;
-            SDL_MixAudio(stream, &music->data[music->pos], amount, volume - fade);
-            music->pos += amount;
+            SDL_MixAudio(stream, &music.data[music.pos], amount, volume - fade);
+            music.pos += amount;
             i++;
         }
         gs.sound_lock.unlock();
     }
 
-    if(gs.music_fade_value > 1.f) {
+    if(gs.music_fade_value > 1.f)
         gs.music_fade_value -= 1.f;
-    }
 }
 
-Eng3D::State& Eng3D::State::get_instance(void) {
+Eng3D::State& Eng3D::State::get_instance() {
     return *g_state;
 }
-
-#ifdef E3D_BACKEND_RGX
-#endif

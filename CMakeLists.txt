@@ -47,6 +47,8 @@ ELSEIF(UNIX)
 	include_directories(/usr/include/SDL2) # Some distrobutions have different paths...
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_TARGET_UNIX=1")
 ELSE()
+	link_directories("${DEVKITPRO}/libogc/lib")
+	include_directories("${DEVKITPRO}/libogc/include")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_TARGET_UNIX=1")
 ENDIF()
 IF(UNIT_TEST)

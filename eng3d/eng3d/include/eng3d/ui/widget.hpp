@@ -171,7 +171,7 @@ namespace UI {
      */
     class Widget {
     public:
-        Widget(void) {};
+        Widget() {};
         Widget(Widget* parent, int x, int y, unsigned w, unsigned h, WidgetType type);
         Widget(Widget* parent, int x, int y, unsigned w, unsigned h, WidgetType type, std::shared_ptr<Eng3D::Texture> tex);
         Widget(const Widget&) = default;
@@ -181,7 +181,7 @@ namespace UI {
 #ifndef _MSC_VER
         Widget& operator=(Widget&) noexcept = default;
 #endif
-        virtual ~Widget(void);
+        virtual ~Widget();
 
         /**
          * @brief Moves a widget by x and y
@@ -241,7 +241,7 @@ namespace UI {
          * widgets are cleared by the UI context
          * 
          */
-        inline void kill(void) {
+        inline void kill() {
             dead = true;
             notice_death();
         }
@@ -303,7 +303,7 @@ namespace UI {
         void draw_rect(const Eng3D::Texture* tex, Eng3D::Rect rect_pos, Eng3D::Rect rect_tex, Eng3D::Rect viewport);
         bool clickable_effect = true;
     private:
-        void recalc_child_pos(void);
+        void recalc_child_pos();
         void draw_border(Border& border, Eng3D::Rect viewport);
 
         /**
@@ -311,7 +311,7 @@ namespace UI {
          * will only clear widgets which have a dead child.
          * 
          */
-        inline void notice_death(void) {
+        inline void notice_death() {
             if(!dead_child) {
                 dead_child = true;
                 if(parent) {

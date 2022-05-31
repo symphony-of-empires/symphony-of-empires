@@ -35,7 +35,7 @@ Eng3D::OpenGL::GLSL_Context::GLSL_Context(const std::string& _buffer)
 
 }
 
-Eng3D::OpenGL::GLSL_Context::~GLSL_Context(void) {
+Eng3D::OpenGL::GLSL_Context::~GLSL_Context() {
 
 }
 
@@ -43,9 +43,8 @@ std::string Eng3D::OpenGL::GLSL_Context::get_identifier(std::string::iterator& i
     std::string::iterator start_it = it;
 
     // Alphanumerics, _ and dots are allowed as identifiers
-    while(it != buffer.end() && (isalnum(*it) || *it == '_' || *it == '.')) {
+    while(it != buffer.end() && (isalnum(*it) || *it == '_' || *it == '.'))
         it++;
-    }
 
     std::string str = buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
     return str;
@@ -55,37 +54,30 @@ std::string Eng3D::OpenGL::GLSL_Context::get_literal(std::string::iterator& it) 
     std::string::iterator start_it = it;
 
     // Literal
-    while(it != buffer.end() && (isdigit(*it) || *it == '.')) {
+    while(it != buffer.end() && (isdigit(*it) || *it == '.'))
         it++;
-    }
 
     // Skip "float" specifier
-    if(it != buffer.end() && *it == 'f') {
+    if(it != buffer.end() && *it == 'f')
         it++;
-    }
 
     std::string str = buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
     return str;
 }
 
-void Eng3D::OpenGL::GLSL_Context::lexer(void) {
+void Eng3D::OpenGL::GLSL_Context::lexer() {
     // Output the final stuff
     std::string::iterator it = buffer.begin();
     for(; it != buffer.end(); ) {
-        while(it != buffer.end() && (*it == ' ' || *it == '\t' || *it == '\r' || *it == '\n')) {
+        while(it != buffer.end() && isspace(*it) && (*it == '\r' || *it == '\n'))
             it++;
-        }
 
-        if(it == buffer.end()) {
-            break;
-        }
-
+        if(it == buffer.end()) break;
         if((*(it + 0) == '/' && *(it + 1) == '/')) {
             it += 2;
             // Single-line comments
-            while(it != buffer.end() && (*it != '\n')) {
+            while(it != buffer.end() && (*it != '\n'))
                 it++;
-            }
         } else if((*(it + 0) == '/' && *(it + 1) == '*')) {
             it += 2;
             // Multiline comments
@@ -98,11 +90,9 @@ void Eng3D::OpenGL::GLSL_Context::lexer(void) {
             }
         } else if(*it == '#') {
             it++;
-
-            std::string::iterator start_it = it;
-            while(it != buffer.end() && (*it != '\n')) {
+            auto start_it = it;
+            while(it != buffer.end() && (*it != '\n'))
                 it++;
-            }
 
             GLSL_Token tok = GLSL_Token(GLSL_TokenType::MACRO);
             tok.data = buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
@@ -211,7 +201,7 @@ void Eng3D::OpenGL::GLSL_Context::lexer(void) {
     }
 }
 
-void Eng3D::OpenGL::GLSL_Context::parser(void) {
+void Eng3D::OpenGL::GLSL_Context::parser() {
     GLSL_Function fn;
 
     fn = GLSL_Function();
@@ -268,7 +258,7 @@ void Eng3D::OpenGL::GLSL_Context::parser(void) {
     }
 }
 
-std::string Eng3D::OpenGL::GLSL_Context::to_text(void) {
+std::string Eng3D::OpenGL::GLSL_Context::to_text() {
     std::vector<GLSL_Token>::const_iterator it = tokens.begin();
     std::string end_buffer;
 
@@ -276,9 +266,8 @@ std::string Eng3D::OpenGL::GLSL_Context::to_text(void) {
     if(it->type == GLSL_TokenType::MACRO) {
         end_buffer += "#" + it->data + "\r\n";
         it++;
-        for(const auto& define : defines) {
+        for(const auto& define : defines)
             end_buffer += "#define " + define.name + " " + define.value + "\r\n";
-        }
     }
 
     for(; it != tokens.end(); it++) {
@@ -359,13 +348,12 @@ std::string Eng3D::OpenGL::GLSL_Context::to_text(void) {
             end_buffer += it->data;
             break;
         case GLSL_TokenType::IDENTIFIER:
-            if(it->data == "layout") {
+            if(it->data == "layout")
                 end_buffer += it->data + " ";
-            } else if(it->data == "provided") {
+            else if(it->data == "provided")
                 end_buffer += " uniform ";
-            } else {
+            else
                 end_buffer += " " + it->data + " ";
-            }
             break;
         case GLSL_TokenType::ASSIGN:
             end_buffer += "=";

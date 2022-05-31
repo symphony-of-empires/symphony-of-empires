@@ -51,7 +51,7 @@ Label::Label(int _x, int _y, const std::string& _text, Widget* _parent)
     height = text_texture->height;
 }
 
-Label::~Label(void) {
+Label::~Label() {
 
 }
 

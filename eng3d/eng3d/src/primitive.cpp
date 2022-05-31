@@ -95,7 +95,7 @@ Eng3D::Quad::Quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4)
     upload();
 }
 
-Eng3D::Quad2D::Quad2D(void)
+Eng3D::Quad2D::Quad2D()
     : Eng3D::Mesh<glm::vec2, glm::vec2>(Eng3D::MeshMode::TRIANGLES)
 {
     buffer.resize(6);

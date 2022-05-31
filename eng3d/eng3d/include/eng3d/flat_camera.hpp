@@ -64,7 +64,7 @@ namespace Eng3D {
             target.z = glm::clamp(target.z, 10.f, map_size.x / 2.f);
         }
 
-        void update(void) override {
+        void update() override {
             map_position = chase.move_towards(map_position, target);
             map_position.y = glm::clamp(map_position.y, 0.f, map_size.y);
             map_position.z = glm::clamp(map_position.z, 10.f, map_size.x / 2.f);
@@ -82,13 +82,13 @@ namespace Eng3D {
             update();
         }
 
-        glm::vec3 get_map_pos(void) const override {
+        glm::vec3 get_map_pos() const override {
             glm::vec3 out_pos = map_position;
             out_pos.x = glm::mod(out_pos.x, map_size.x);
             return out_pos;
         }
 
-        glm::mat4 get_view(void) const override {
+        glm::mat4 get_view() const override {
             glm::vec3 look_at = world_position;
             look_at.z = 0;
             look_at.y -= world_position.z > -300.f ? 0.06f * (300.f + world_position.z) : 0.f;
@@ -122,9 +122,8 @@ namespace Eng3D {
             out_pos.x = intersection_point.x;
             out_pos.x = glm::mod((float)out_pos.x, map_size.x);
             out_pos.y = intersection_point.y;
-            if(intersection_point.y < 0 || intersection_point.y > map_size.y) {
+            if(intersection_point.y < 0 || intersection_point.y > map_size.y)
                 hit = false;
-            }
             return hit;
         };
 

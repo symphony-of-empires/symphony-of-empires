@@ -41,28 +41,28 @@ public:
     BuildingType() {};
     ~BuildingType() {};
 
-    inline bool can_plot_on_sea(void) const {
+    inline bool can_plot_on_sea() const {
         return flags[0];
     }
     
-    inline bool can_plot_on_land(void) const {
+    inline bool can_plot_on_land() const {
         return flags[1];
     }
     
-    inline bool can_build_land_units(void) const {
+    inline bool can_build_land_units() const {
         return flags[2];
     }
     
-    inline bool can_build_naval_units(void) const {
+    inline bool can_build_naval_units() const {
         return flags[3];
     }
     
-    inline bool can_build_air_units(void) const {
+    inline bool can_build_air_units() const {
         return flags[4];
     }
 
     /// @brief Can this building type build a military unit
-    inline bool can_build_military(void) const {
+    inline bool can_build_military() const {
         return can_build_land_units() | can_build_air_units() | can_build_naval_units();
     }
 
@@ -106,13 +106,12 @@ public:
     Building() {};
     ~Building() {};
     void add_to_stock(const Good& good, size_t add);
-    bool can_do_output(void) const;
-    bool can_build_unit(void) const;
+    bool can_do_output() const;
+    bool can_build_unit() const;
 
     Eng3D::Number build_time; // Remaining ticks until the unit is built
     Eng3D::Decimal budget = 0.f; // Total money that the factory has
     Eng3D::Number days_unoperational = 0; // Days that the factory has not been operational
-    Eng3D::Decimal production_cost = 0.f; // Money needed to produce - helps determine the price of the output products
     Eng3D::Number level = 0; // Level/Capacity scale of the building
     Eng3D::Number workers = 0; // Amount of workers
     Eng3D::Decimal production_scale = 1.f; // How much of the factory is being used. From 0-1
@@ -122,5 +121,4 @@ public:
     std::vector<std::pair<Good*, Eng3D::Number>> req_goods_for_unit;
     std::vector<std::pair<Good*, Eng3D::Number>> req_goods; // Required goods for construction or for repairs
     std::vector<Eng3D::Number> stockpile; // Stockpile of inputs in the factory
-    std::vector<Eng3D::Number> employees_needed_per_output; // Employees needed per output
 };

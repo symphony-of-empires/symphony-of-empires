@@ -63,8 +63,8 @@ public:
     inline bool operator==(const Pop& rhs) const {
         return (this->culture == rhs.culture && this->religion == rhs.religion && this->type == rhs.type);
     }
-    Ideology& get_ideology(void) const;
-    uint32_t get_type_id(void) const;
+    Ideology& get_ideology() const;
+    uint32_t get_type_id() const;
 
     PopType* type;
     Culture* culture;

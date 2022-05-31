@@ -46,7 +46,7 @@ namespace UI {
         Checkbox(int size, Widget* parent = nullptr);
         Checkbox(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
         virtual ~Checkbox() override {};
-        bool get_value(void) const;
+        bool get_value() const;
         void set_value(bool checked);
         void set_on_click(std::function<void(Widget&)> on_click) override;
         void text(const std::string& _text) override;

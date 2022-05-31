@@ -46,42 +46,6 @@ class Serializer<ActionType>: public SerializerMemcpy<ActionType> {};
 
 // Global references
 template<>
-class Serializer<const Event*>: public SerializerReference<World, Event> {};
-template<>
-class Serializer<const Treaty*>: public SerializerReference<World, Treaty> {};
-template<>
-class Serializer<const Unit*>: public SerializerReference<World, Unit> {};
-
-// Local references
-template<>
-class Serializer<const Province*>: public SerializerReferenceLocal<World, Province> {};
-template<>
-class Serializer<const Nation*>: public SerializerReferenceLocal<World, Nation> {};
-template<>
-class Serializer<const Culture*>: public SerializerReferenceLocal<World, Culture> {};
-template<>
-class Serializer<const Good*>: public SerializerReferenceLocal<World, Good> {};
-template<>
-class Serializer<const UnitType*>: public SerializerReferenceLocal<World, UnitType> {};
-template<>
-class Serializer<const UnitTrait*>: public SerializerReferenceLocal<World, UnitTrait> {};
-template<>
-class Serializer<const BuildingType*>: public SerializerReferenceLocal<World, BuildingType> {};
-template<>
-class Serializer<const Ideology*>: public SerializerReferenceLocal<World, Ideology> {};
-template<>
-class Serializer<const Technology*>: public SerializerReferenceLocal<World, Technology> {};
-template<>
-class Serializer<const PopType*>: public SerializerReferenceLocal<World, PopType> {};
-template<>
-class Serializer<const Religion*>: public SerializerReferenceLocal<World, Religion> {};
-template<>
-class Serializer<const NationModifier*>: public SerializerReferenceLocal<World, NationModifier> {};
-template<>
-class Serializer<const TerrainType*>: public SerializerReferenceLocal<World, TerrainType> {};
-
-// Global references
-template<>
 class Serializer<Event*>: public SerializerReference<World, Event> {};
 template<>
 class Serializer<Treaty*>: public SerializerReference<World, Treaty> {};
@@ -269,6 +233,7 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->province);
         ::deser_dynamic<is_serialize>(ar, &obj->owner);
         ::deser_dynamic<is_serialize>(ar, &obj->move_progress);
+        ::deser_dynamic<is_serialize>(ar, &obj->on_battle);
     }
 };
 
@@ -400,10 +365,7 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->name);
         ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
         ::deser_dynamic<is_serialize>(ar, &obj->color);
-        ::deser_dynamic<is_serialize>(ar, &obj->max_x);
-        ::deser_dynamic<is_serialize>(ar, &obj->max_y);
-        ::deser_dynamic<is_serialize>(ar, &obj->min_x);
-        ::deser_dynamic<is_serialize>(ar, &obj->min_y);
+        ::deser_dynamic<is_serialize>(ar, &obj->box_area);
         ::deser_dynamic<is_serialize>(ar, &obj->supply_limit);
         ::deser_dynamic<is_serialize>(ar, &obj->supply_rem);
         ::deser_dynamic<is_serialize>(ar, &obj->owner);
@@ -442,7 +404,6 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->build_time);
         ::deser_dynamic<is_serialize>(ar, &obj->budget);
         ::deser_dynamic<is_serialize>(ar, &obj->days_unoperational);
-        ::deser_dynamic<is_serialize>(ar, &obj->production_cost);
         ::deser_dynamic<is_serialize>(ar, &obj->stockpile);
         ::deser_dynamic<is_serialize>(ar, &obj->req_goods);
     }
@@ -490,107 +451,88 @@ public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, TreatyClause::BaseClause** obj) {
         if constexpr(is_serialize) {
-            ::serialize(ar, &(*obj)->type);
+            ::deser_dynamic<is_serialize>(ar, &(*obj)->type);
             switch((*obj)->type) {
             case TreatyClauseType::ANNEX_PROVINCES: {
                 const auto dyn_clause = static_cast<const TreatyClause::AnnexProvince*>(*obj);
                 if(dyn_clause == nullptr)
-                    throw SerializerException("Dynamic cast failed for TreatyClause::AnnexProvince");
-                ::serialize(ar, &dyn_clause->provinces);
+                    CXX_THROW(SerializerException, "Dynamic cast failed for TreatyClause::AnnexProvince");
+                ::deser_dynamic<is_serialize>(ar, &dyn_clause->provinces);
             } break;
             case TreatyClauseType::LIBERATE_NATION: {
                 const auto dyn_clause = static_cast<const TreatyClause::LiberateNation*>(*obj);
                 if(dyn_clause == nullptr)
-                    throw SerializerException("Dynamic cast failed for TreatyClause::LiberateNation");
-                ::serialize(ar, &dyn_clause->provinces);
-                ::serialize(ar, &dyn_clause->liberated);
+                    CXX_THROW(SerializerException, "Dynamic cast failed for TreatyClause::LiberateNation");
+                ::deser_dynamic<is_serialize>(ar, &dyn_clause->provinces);
+                ::deser_dynamic<is_serialize>(ar, &dyn_clause->liberated);
             } break;
             case TreatyClauseType::IMPOSE_POLICIES: {
                 const auto dyn_clause = static_cast<const TreatyClause::ImposePolicies*>(*obj);
                 if(dyn_clause == nullptr)
-                    throw SerializerException("Dynamic cast failed for TreatyClause::ImposePolicies");
-                ::serialize(ar, &dyn_clause->imposed);
+                    CXX_THROW(SerializerException, "Dynamic cast failed for TreatyClause::ImposePolicies");
+                ::deser_dynamic<is_serialize>(ar, &dyn_clause->imposed);
             } break;
             case TreatyClauseType::MONEY: {
                 const auto dyn_clause = static_cast<const TreatyClause::WarReparations*>(*obj);
                 if(dyn_clause == nullptr)
-                    throw SerializerException("Dynamic cast failed for TreatyClause::WarReparations");
-                ::serialize(ar, &dyn_clause->amount);
+                    CXX_THROW(SerializerException, "Dynamic cast failed for TreatyClause::WarReparations");
+                ::deser_dynamic<is_serialize>(ar, &dyn_clause->amount);
             } break;
             case TreatyClauseType::HUMILIATE: {
                 const auto dyn_clause = static_cast<const TreatyClause::Humiliate*>(*obj);
                 if(dyn_clause == nullptr)
-                    throw SerializerException("Dynamic cast failed for TreatyClause::Humiliate");
-                ::serialize(ar, &dyn_clause->amount);
+                    CXX_THROW(SerializerException, "Dynamic cast failed for TreatyClause::Humiliate");
+                ::deser_dynamic<is_serialize>(ar, &dyn_clause->amount);
             } break;
             default:
                 break;
             }
-
-            // This statements must not be before the switch above, since the polymorphic
-            // trans-serializer is not going to handle this well (see deserializer)
-            ::serialize(ar, &(*obj)->sender);
-            ::serialize(ar, &(*obj)->receiver);
-            ::serialize(ar, &(*obj)->days_duration);
-            ::serialize(ar, &(*obj)->done);
         } else {
-            *obj = new TreatyClause::BaseClause();
-
-            // We will also need to destroy the original pointer and allocate a new
-            // one to accomodate the polymorphic stuff, if we dont destroy-then-construct
-            // we will have serious SIGSEGV
-            ::deserialize(ar, &(*obj)->type);
-            switch((*obj)->type) {
+            TreatyClauseType type;
+            ::deser_dynamic<is_serialize>(ar, &type);
+            switch(type) {
             case TreatyClauseType::ANNEX_PROVINCES: {
-                delete* obj;
                 *obj = new TreatyClause::AnnexProvince();
                 auto dyn_clause = (TreatyClause::AnnexProvince*)*obj;
-                ::deserialize(ar, &dyn_clause->provinces);
+                ::deser_dynamic<is_serialize>(ar, &dyn_clause->provinces);
             } break;
             case TreatyClauseType::LIBERATE_NATION: {
-                delete* obj;
                 *obj = new TreatyClause::LiberateNation();
                 auto dyn_clause = (TreatyClause::LiberateNation*)*obj;
-                ::deserialize(ar, &dyn_clause->provinces);
-                ::deserialize(ar, &dyn_clause->liberated);
+                ::deser_dynamic<is_serialize>(ar, &dyn_clause->provinces);
+                ::deser_dynamic<is_serialize>(ar, &dyn_clause->liberated);
             } break;
             case TreatyClauseType::IMPOSE_POLICIES: {
-                delete* obj;
                 *obj = new TreatyClause::ImposePolicies();
                 auto dyn_clause = (TreatyClause::ImposePolicies*)*obj;
-                ::deserialize(ar, &dyn_clause->imposed);
+                ::deser_dynamic<is_serialize>(ar, &dyn_clause->imposed);
             } break;
             case TreatyClauseType::MONEY: {
-                delete* obj;
                 *obj = new TreatyClause::WarReparations();
                 auto dyn_clause = (TreatyClause::WarReparations*)*obj;
-                ::deserialize(ar, &dyn_clause->amount);
+                ::deser_dynamic<is_serialize>(ar, &dyn_clause->amount);
             } break;
             case TreatyClauseType::HUMILIATE: {
-                delete* obj;
                 *obj = new TreatyClause::Humiliate();
                 auto dyn_clause = (TreatyClause::Humiliate*)*obj;
-                ::deserialize(ar, &dyn_clause->amount);
+                ::deser_dynamic<is_serialize>(ar, &dyn_clause->amount);
             } break;
             case TreatyClauseType::CEASEFIRE: {
-                delete* obj;
                 *obj = new TreatyClause::Ceasefire();
                 //auto dyn_clause = (TreatyClause::Ceasefire*)*obj;
             } break;
             case TreatyClauseType::PUPPET: {
-                delete* obj;
                 *obj = new TreatyClause::Puppet();
                 //auto dyn_clause = (TreatyClause::Puppet*)*obj;
             } break;
             default:
                 break;
             }
-
-            ::deserialize(ar, &(*obj)->sender);
-            ::deserialize(ar, &(*obj)->receiver);
-            ::deserialize(ar, &(*obj)->days_duration);
-            ::deserialize(ar, &(*obj)->done);
         }
+        ::deser_dynamic<is_serialize>(ar, &(*obj)->sender);
+        ::deser_dynamic<is_serialize>(ar, &(*obj)->receiver);
+        ::deser_dynamic<is_serialize>(ar, &(*obj)->days_duration);
+        ::deser_dynamic<is_serialize>(ar, &(*obj)->done);
     }
 };
 
@@ -647,88 +589,65 @@ public:
 
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, World* obj) {
+        ::deser_dynamic<is_serialize>(ar, &obj->width);
+        ::deser_dynamic<is_serialize>(ar, &obj->height);
+        ::deser_dynamic<is_serialize>(ar, &obj->time);
+        ::deser_dynamic<is_serialize>(ar, &obj->goods);
+        ::deser_dynamic<is_serialize>(ar, &obj->unit_types);
+        ::deser_dynamic<is_serialize>(ar, &obj->religions);
+        ::deser_dynamic<is_serialize>(ar, &obj->cultures);
+        ::deser_dynamic<is_serialize>(ar, &obj->pop_types);
+        ::deser_dynamic<is_serialize>(ar, &obj->terrain_types);
+        ::deser_dynamic<is_serialize>(ar, &obj->building_types);
+        ::deser_dynamic<is_serialize>(ar, &obj->ideologies);
+        ::deser_dynamic<is_serialize>(ar, &obj->technologies);
+        ::deser_dynamic<is_serialize>(ar, &obj->nation_modifiers);
+        ::deser_dynamic<is_serialize>(ar, &obj->nations);
+        ::deser_dynamic<is_serialize>(ar, &obj->provinces);
         if constexpr(is_serialize) {
-            ::serialize(ar, &obj->width);
-            ::serialize(ar, &obj->height);
-            ::deserialize(ar, &obj->time);
-
-            //for(size_t i = 0; i < obj->width * obj->height; i++) {
-            //    ::deserialize(ar, &obj->tiles[i]);
-            //}
-
+            //for(size_t i = 0; i < obj->width * obj->height; i++)
+            //    ::deser_dynamic<is_serialize>(ar, &obj->tiles[i]);
             const Event::Id n_events = obj->events.size();
-            ::serialize(ar, &n_events);
+            ::deser_dynamic<is_serialize>(ar, &n_events);
             const Treaty::Id n_treaties = obj->treaties.size();
-            ::serialize(ar, &n_treaties);
+            ::deser_dynamic<is_serialize>(ar, &n_treaties);
             const War::Id n_wars = obj->wars.size();
-            ::serialize(ar, &n_wars);
-
-            ::serialize(ar, &obj->goods);
-            ::serialize(ar, &obj->unit_types);
-            ::serialize(ar, &obj->religions);
-            ::serialize(ar, &obj->cultures);
-            ::serialize(ar, &obj->pop_types);
-            ::serialize(ar, &obj->terrain_types);
-            ::serialize(ar, &obj->building_types);
-            ::serialize(ar, &obj->ideologies);
-            ::serialize(ar, &obj->technologies);
-            ::serialize(ar, &obj->nation_modifiers);
-            ::serialize(ar, &obj->nations);
-            ::serialize(ar, &obj->provinces);
-
+            ::deser_dynamic<is_serialize>(ar, &n_wars);
             for(size_t i = 0; i < obj->nations.size() * 2; i++) {
-                ::serialize(ar, &obj->relations);
+                ::deser_dynamic<is_serialize>(ar, &obj->relations);
             }
             for(auto& sub_obj : obj->events) {
-                ::serialize(ar, sub_obj);
+                ::deser_dynamic<is_serialize>(ar, sub_obj);
             }
             for(auto& sub_obj : obj->treaties) {
-                ::serialize(ar, sub_obj);
+                ::deser_dynamic<is_serialize>(ar, sub_obj);
             }
             for(auto& sub_obj : obj->wars) {
-                ::serialize(ar, sub_obj);
+                ::deser_dynamic<is_serialize>(ar, sub_obj);
             }
         } else {
-            ::deserialize(ar, &obj->width);
-            ::deserialize(ar, &obj->height);
-            ::deserialize(ar, &obj->time);
-
             //obj->tiles = new Tile[obj->width * obj->height];
-            //for(size_t i = 0; i < obj->width * obj->height; i++) {
-            //    ::deserialize(ar, &obj->tiles[i]);
-            //}
-
+            //for(size_t i = 0; i < obj->width * obj->height; i++)
+            //    ::deser_dynamic<is_serialize>(ar, &obj->tiles[i]);
             // In order to avoid post-deserialization relational patcher, we will simply allocate everything with "empty" objects,
             // then we will fill those spots as we deserialize
             Event::Id n_events = deserialize_and_create_list<Event>(ar, obj);
             Treaty::Id n_treaties = deserialize_and_create_list<Treaty>(ar, obj);
             War::Id n_wars = deserialize_and_create_list<War>(ar, obj);
-            ::deserialize(ar, &obj->goods);
-            ::deserialize(ar, &obj->unit_types);
-            ::deserialize(ar, &obj->religions);
-            ::deserialize(ar, &obj->cultures);
-            ::deserialize(ar, &obj->pop_types);
-            ::deserialize(ar, &obj->terrain_types);
-            ::deserialize(ar, &obj->building_types);
-            ::deserialize(ar, &obj->ideologies);
-            ::deserialize(ar, &obj->technologies);
-            ::deserialize(ar, &obj->nation_modifiers);
-            ::deserialize(ar, &obj->nations);
-            ::deserialize(ar, &obj->provinces);
             for(size_t i = 0; i < obj->nations.size() * obj->nations.size(); i++) {
-                ::deserialize(ar, &obj->relations[i]);
+                ::deser_dynamic<is_serialize>(ar, &obj->relations[i]);
             }
             for(size_t i = 0; i < n_events; i++) {
                 auto* sub_obj = obj->events[i];
-                ::deserialize(ar, sub_obj);
+                ::deser_dynamic<is_serialize>(ar, sub_obj);
             }
             for(size_t i = 0; i < n_treaties; i++) {
                 auto* sub_obj = obj->treaties[i];
-                ::deserialize(ar, sub_obj);
+                ::deser_dynamic<is_serialize>(ar, sub_obj);
             }
             for(size_t i = 0; i < n_wars; i++) {
                 auto* sub_obj = obj->wars[i];
-                ::deserialize(ar, sub_obj);
+                ::deser_dynamic<is_serialize>(ar, sub_obj);
             }
         }
     }

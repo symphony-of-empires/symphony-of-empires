@@ -56,7 +56,7 @@ ArmyArmyTab::ArmyArmyTab(GameState& _gs, int x, int y, UI::Widget* parent)
             continue;
 
         auto* btn = new UnitButton(gs, 0, 0, *unit, flex_column);
-        btn->set_on_click([](UI::Widget& w) {
+        btn->set_on_click([](UI::Widget&) {
 
         });
     }
@@ -75,7 +75,7 @@ ArmyAirforceTab::ArmyAirforceTab(GameState& _gs, int x, int y, UI::Widget* paren
             continue;
 
         auto* btn = new UnitButton(this->gs, 0, 0, *unit, flex_column);
-        btn->set_on_click([](UI::Widget& w) {
+        btn->set_on_click([](UI::Widget&) {
 
         });
     }
@@ -88,14 +88,13 @@ ArmyNavyTab::ArmyNavyTab(GameState& _gs, int x, int y, UI::Widget* parent)
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
     for(const auto& unit : gs.world->units) {
-        if(unit->owner != gs.curr_nation) {
+        if(unit->owner != gs.curr_nation)
             continue;
-        } else if(!(unit->type->is_ground == false && unit->type->is_naval == true)) {
+        else if(!(unit->type->is_ground == false && unit->type->is_naval == true))
             continue;
-        }
 
         auto* btn = new UnitButton(this->gs, 0, 0, *unit, flex_column);
-        btn->set_on_click([](UI::Widget& w) {
+        btn->set_on_click([](UI::Widget&) {
 
         });
     }
@@ -110,14 +109,12 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
     // Chart showing total number of required materials
     this->reqmat_chart = new UI::Chart(0, 0, 128, 128, this);
     this->reqmat_chart->text("Material demand");
-    this->reqmat_chart->on_each_tick = ([this](UI::Widget& w) {
+    this->reqmat_chart->on_each_tick = ([this](UI::Widget&) {
         float reqtotal = 0.f;
         for(const auto& province : this->gs.curr_nation->owned_provinces) {
             for(const auto& building : province->get_buildings()) {
                 for(const auto& req : building.req_goods_for_unit)
                     reqtotal += req.second;
-                
-
                 for(const auto& req : building.req_goods)
                     reqtotal += req.second;
             }
@@ -134,7 +131,6 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
         for(const auto& building_type : gs.world->building_types) {
             if(!building_type.can_build_land_units())
                 continue;
-            
             new ArmyProductionUnitInfo(gs, 0, 0, *province, gs.world->get_id(building_type), flex_column);
         }
     }
@@ -182,12 +178,9 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, con
         for(size_t i = 0; i < building.req_goods_for_unit.size(); i++) {
             auto need_req = building.req_goods_for_unit[i];
             auto full_req = building.working_unit_type->req_goods[i];
-
             full_req.second -= need_req.second;
-
             full += full_req.second;
             needed += need_req.second;
-
             text += std::to_string(need_req.second) + " of " + Eng3D::Locale::translate(need_req.first->name.get_string()) + " (has " + std::to_string(full_req.second) + "), ";
         }
 
@@ -206,7 +199,7 @@ ArmyNewUnitTab::ArmyNewUnitTab(GameState& _gs, int x, int y, UI::Widget* parent)
     flex_column->flex = UI::Flex::COLUMN;
     for(auto& unit_type : gs.world->unit_types) {
         auto* btn = new UnitTypeButton(gs, 0, 0, unit_type, flex_column);
-        btn->set_on_click([this, btn](UI::Widget& w) {
+        btn->set_on_click([this, btn](UI::Widget&) {
             this->gs.production_queue.push_back(&btn->unit_type);
         });
     }
@@ -216,9 +209,8 @@ ArmyView::ArmyView(GameState& _gs)
     : UI::Window(-400, 0, 400, _gs.height),
     gs{ _gs }
 {
-    if(gs.right_side_panel != nullptr) {
+    if(gs.right_side_panel != nullptr)
         gs.right_side_panel->kill();
-    }
     gs.right_side_panel = this;
     this->set_close_btn_function([this](Widget&) {
         this->kill();
@@ -232,7 +224,7 @@ ArmyView::ArmyView(GameState& _gs)
     this->army_tab = new ArmyArmyTab(gs, 0, 32, this);
     this->army_tab->is_render = true;
     auto* army_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(Path::get("gfx/military_score.png")), this);
-    army_ibtn->set_on_click([this](UI::Widget& w) {
+    army_ibtn->set_on_click([this](UI::Widget&) {
         this->army_tab->is_render = true;
         this->airforce_tab->is_render = false;
         this->navy_tab->is_render = false;
@@ -246,7 +238,7 @@ ArmyView::ArmyView(GameState& _gs)
     this->airforce_tab->is_render = false;
     auto* airforce_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(Path::get("gfx/airforce.png")), this);
     airforce_ibtn->right_side_of(*army_ibtn);
-    airforce_ibtn->set_on_click([this](UI::Widget& w) {
+    airforce_ibtn->set_on_click([this](UI::Widget&) {
         this->army_tab->is_render = false;
         this->airforce_tab->is_render = true;
         this->navy_tab->is_render = false;
@@ -260,7 +252,7 @@ ArmyView::ArmyView(GameState& _gs)
     this->navy_tab->is_render = false;
     auto* navy_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(Path::get("gfx/navy.png")), this);
     navy_ibtn->right_side_of(*airforce_ibtn);
-    navy_ibtn->set_on_click([this](UI::Widget& w) {
+    navy_ibtn->set_on_click([this](UI::Widget&) {
         this->army_tab->is_render = false;
         this->airforce_tab->is_render = false;
         this->navy_tab->is_render = true;
@@ -274,7 +266,7 @@ ArmyView::ArmyView(GameState& _gs)
     this->production_tab->is_render = false;
     auto* production_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(Path::get("gfx/production.png")), this);
     production_ibtn->right_side_of(*navy_ibtn);
-    production_ibtn->set_on_click([this](UI::Widget& w) {
+    production_ibtn->set_on_click([this](UI::Widget&) {
         this->army_tab->is_render = false;
         this->airforce_tab->is_render = false;
         this->navy_tab->is_render = false;
@@ -288,7 +280,7 @@ ArmyView::ArmyView(GameState& _gs)
     this->new_unit_tab->is_render = false;
     auto* new_unit_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(Path::get("gfx/new_unit.png")), this);
     new_unit_ibtn->right_side_of(*production_ibtn);
-    new_unit_ibtn->set_on_click([this](UI::Widget& w) {
+    new_unit_ibtn->set_on_click([this](UI::Widget&) {
         this->army_tab->is_render = false;
         this->airforce_tab->is_render = false;
         this->navy_tab->is_render = false;

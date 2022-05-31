@@ -94,14 +94,14 @@ public:
     {
 
     }
-    ~GameState(void);
+    ~GameState();
 
     void play_nation();
     void send_command(Archive& archive);
-    void update_on_tick(void);
-    void world_thread(void);
-    void music_thread(void);
-    void load_world_thread(void);
+    void update_on_tick();
+    void world_thread();
+    void music_thread();
+    void load_world_thread();
 
     Client* client = nullptr;
     Server* server = nullptr;

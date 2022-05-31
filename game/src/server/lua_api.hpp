@@ -45,7 +45,7 @@ namespace LuaAPI {
         Exception(const std::string& message) {
             buffer = message;
         }
-        virtual const char* what(void) const noexcept {
+        virtual const char* what() const noexcept {
             return buffer.c_str();
         }
     };

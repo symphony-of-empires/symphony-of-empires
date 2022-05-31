@@ -36,17 +36,13 @@ namespace UI {
 	class Label;
 
     /// @todo Markdown support?
-    /**
-     * @ingroup UI
-     * @brief Multiline textbox that allows more descriptive paragraphs
-     * than the Label widget.
-     *
-     */
+    /// @ingroup UI
+    /// @brief Multiline textbox that allows more descriptive paragraphs
+    /// than the Label widget.
     class Text: public Widget {
     public:
         Text(int x, int y, unsigned w, unsigned h, Widget* parent);
-        virtual ~Text();
-
+        virtual ~Text() {};
         virtual void on_render(Context& ctx, Eng3D::Rect viewport);
         virtual void text(const std::string& text);
 

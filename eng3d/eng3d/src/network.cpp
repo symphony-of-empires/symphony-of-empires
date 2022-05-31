@@ -66,28 +66,12 @@
 //
 // Socket stream
 //
-Eng3D::Networking::SocketStream::SocketStream(void) {
-
-}
-
-Eng3D::Networking::SocketStream::SocketStream(int _fd)
-    : fd(_fd)
-{
-
-}
-
-Eng3D::Networking::SocketStream::~SocketStream(void) {
-
-}
-
 void Eng3D::Networking::SocketStream::send(const void* data, size_t size) {
     const char* c_data = (const char*)data;
     for(size_t i = 0; i < size; ) {
         int r = ::send(fd, &c_data[i], std::min<std::size_t>(1024, size - i), 0);
-        if(r < 0) {
+        if(r < 0)
             CXX_THROW(Eng3D::Networking::SocketException, "Can't send data of packet");
-        }
-
         i += static_cast<size_t>(r);
     }
 }
@@ -96,10 +80,8 @@ void Eng3D::Networking::SocketStream::recv(void* data, size_t size) {
     char* c_data = (char*)data;
     for(size_t i = 0; i < size; ) {
         int r = ::recv(fd, &c_data[i], std::min<std::size_t>(1024, size - i), MSG_WAITALL);
-        if(r < 0) {
+        if(r < 0)
             CXX_THROW(Eng3D::Networking::SocketException, "Can't receive data of packet");
-        }
-
         i += static_cast<std::size_t>(r);
     }
 }
@@ -107,23 +89,17 @@ void Eng3D::Networking::SocketStream::recv(void* data, size_t size) {
 //
 // Server client
 //
-Eng3D::Networking::ServerClient::ServerClient(void) {
-    is_active = false;
-}
-
 int Eng3D::Networking::ServerClient::try_connect(int fd) {
     sockaddr_in client;
     socklen_t len = sizeof(client);
     try {
         conn_fd = accept(fd, (sockaddr*)&client, &len);
-        if(conn_fd == INVALID_SOCKET) {
+        if(conn_fd == INVALID_SOCKET)
             CXX_THROW(Eng3D::Networking::SocketException, "Cannot accept client connection");
-        }
-
+        
         // At this point the client's connection was accepted - so we only have to check
         // Then we check if the server is running and we throw accordingly
         is_connected = true;
-
         Eng3D::Log::debug("server", "New client connection established");
         return conn_fd;
     } catch(Eng3D::Networking::SocketException& e) {
@@ -136,44 +112,32 @@ int Eng3D::Networking::ServerClient::try_connect(int fd) {
 // Push pending_packets to the packets queue (the packets queue is managed
 // by us and requires almost 0 locking, so the host does not stagnate when
 // trying to send packets to a certain client)
-void Eng3D::Networking::ServerClient::flush_packets(void) {
+void Eng3D::Networking::ServerClient::flush_packets() {
     if(!pending_packets.empty()) {
         if(pending_packets_mutex.try_lock()) {
-            std::lock_guard<std::mutex> lock(packets_mutex);
-
-            std::deque<Eng3D::Networking::Packet>::iterator packet;
-            for(packet = pending_packets.begin(); packet != pending_packets.end(); packet++) {
+            std::scoped_lock lock(packets_mutex);
+            for(auto packet = pending_packets.begin(); packet != pending_packets.end(); packet++)
                 packets.push_back(*packet);
-            }
             pending_packets.clear();
             pending_packets_mutex.unlock();
         }
     }
 }
 
-bool Eng3D::Networking::ServerClient::has_pending(void) {
+bool Eng3D::Networking::ServerClient::has_pending() {
     // Check if we need to read packets
 #ifdef E3D_TARGET_UNIX
-    struct pollfd pfd = {};
+    struct pollfd pfd{};
     pfd.fd = conn_fd;
     pfd.events = POLLIN;
-
     int has_pending = poll(&pfd, 1, 10);
-    if(pfd.revents & POLLIN || has_pending) {
-        return true;
-    }
+    if(pfd.revents & POLLIN || has_pending) return true;
 #elif defined E3D_TARGET_WINDOWS
     u_long has_pending = 0;
     int test = ioctlsocket(conn_fd, FIONREAD, &has_pending);
-    if(has_pending) {
-        return true;
-    }
+    if(has_pending) return true;
 #endif
     return false;
-}
-
-Eng3D::Networking::ServerClient::~ServerClient(void) {
-    thread.join();
 }
 
 //
@@ -193,31 +157,23 @@ Eng3D::Networking::Server::Server(const unsigned port, const unsigned max_conn)
     addr.sin_port = htons(port);
 
     fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if(fd == INVALID_SOCKET) {
+    if(fd == INVALID_SOCKET)
         CXX_THROW(Eng3D::Networking::SocketException, "Cannot create server socket");
-    }
-
 #ifdef E3D_TARGET_UNIX
     int enable = 1;
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
     setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(int));
 #endif
-    if(bind(fd, (sockaddr*)&addr, sizeof(addr)) != 0) {
+    if(bind(fd, (sockaddr*)&addr, sizeof(addr)) != 0)
         CXX_THROW(Eng3D::Networking::SocketException, "Cannot bind server");
-    }
-
-    if(listen(fd, max_conn) != 0) {
+    if(listen(fd, max_conn) != 0)
         CXX_THROW(Eng3D::Networking::SocketException, "Cannot listen in specified number of concurrent connections");
-    }
-
 #ifdef E3D_TARGET_UNIX
     // Allow non-blocking operations on this socket (we don't want to block on multi-listener servers)
     fcntl(fd, F_SETFL, fcntl(fd, F_GETFD, 0) | O_NONBLOCK);
-
     // We need to ignore pipe signals since any client disconnecting **will** kill the server
     signal(SIGPIPE, SIG_IGN);
 #endif
-
     run = true;
     Eng3D::Log::debug("serber", "Server created sucessfully and listening to " + std::to_string(port) + "; now invite people!");
 }
@@ -244,18 +200,15 @@ void Eng3D::Networking::Server::broadcast(const Eng3D::Networking::Packet& packe
                 clients[i].packets.push_back(packet);
                 clients[i].packets_mutex.unlock();
             } else {
-                std::lock_guard<std::mutex> lock(clients[i].pending_packets_mutex);
+                std::scoped_lock lock(clients[i].pending_packets_mutex);
                 clients[i].pending_packets.push_back(packet);
             }
 
             // Disconnect the client when more than 200 MB is used
             // we can't save your packets buddy - other clients need their stuff too!
             size_t total_size = 0;
-
-            std::deque<Eng3D::Networking::Packet>::const_iterator packet_q;
-            for(packet_q = clients[i].pending_packets.cbegin(); packet_q != clients[i].pending_packets.cend(); packet_q++) {
+            for(auto packet_q = clients[i].pending_packets.cbegin(); packet_q != clients[i].pending_packets.cend(); packet_q++)
                 total_size += (*packet_q).buffer.size();
-            }
 
             if(total_size >= 200 * 1000000) {
                 clients[i].is_connected = false;
@@ -300,20 +253,6 @@ Eng3D::Networking::Client::Client(std::string host, const unsigned port) {
         closesocket(fd);
 #endif
         CXX_THROW(Eng3D::Networking::SocketException, "Can't connect to server");
-    }
-}
-
-int Eng3D::Networking::Client::get_fd(void) const {
-    return fd;
-}
-
-void Eng3D::Networking::Client::send(const Eng3D::Networking::Packet& packet) {
-    if(packets_mutex.try_lock()) {
-        packets.push_back(packet);
-        packets_mutex.unlock();
-    } else {
-        std::lock_guard<std::mutex> lock(pending_packets_mutex);
-        pending_packets.push_back(packet);
     }
 }
 

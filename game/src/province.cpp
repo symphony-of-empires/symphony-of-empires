@@ -35,7 +35,7 @@
 //
 
 // Calculates the total number of POPs in this province (total population)
-Eng3D::Number Province::total_pops(void) const {
+Eng3D::Number Province::total_pops() const {
     Eng3D::Number total = 0;
     for(const auto& pop : pops) {
         total += pop.size;
@@ -68,19 +68,19 @@ Eng3D::Decimal Province::get_attractiveness(const Pop& pop) const {
     return attractive;
 }
 
-std::pair<Eng3D::Decimal, Eng3D::Decimal> Province::get_pos(void) const {
-    return std::make_pair(min_x + ((max_x - min_x) / 2.f), min_y + ((max_y - min_y) / 2.f));
+std::pair<Eng3D::Decimal, Eng3D::Decimal> Province::get_pos() const {
+    return std::make_pair(box_area.left + ((box_area.right - box_area.left) / 2.f), box_area.top + ((box_area.bottom - box_area.top) / 2.f));
 }
 
-const std::vector<Unit*> Province::get_units(void) const {
+const std::vector<Unit*> Province::get_units() const {
     return units;
 }
 
-const std::vector<Building>& Province::get_buildings(void) const {
+const std::vector<Building>& Province::get_buildings() const {
     return buildings;
 }
 
-std::vector<Building>& Province::get_buildings(void) {
+std::vector<Building>& Province::get_buildings() {
     return buildings;
 }
 

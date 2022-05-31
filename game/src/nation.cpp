@@ -124,7 +124,7 @@ bool Nation::is_enemy(const Nation& nation) const {
 // Whetever the nation exists at all - we cannot add nations in-game so we just check
 // if the nation "exists" at all, this means that it has a presence and a goverment
 // must own atleast 1 province
-bool Nation::exists(void) const {
+bool Nation::exists() const {
     return !(controlled_provinces.empty());
 }
 
@@ -158,7 +158,7 @@ void Nation::decrease_relation(Nation& target) {
 
 // Automatically relocates the capital of a nation to another province
 // Use this when a treaty makes a nation lose it's capital
-void Nation::auto_relocate_capital(void) {
+void Nation::auto_relocate_capital() {
     auto best_candidate = std::max_element(owned_provinces.begin(), owned_provinces.end(),
         [](const auto* lhs, const auto* rhs) {
         return (lhs->total_pops() < rhs->total_pops());
@@ -300,11 +300,11 @@ void Nation::control_province(Province& province) {
     }
 }
 
-const NationClientHint& Nation::get_client_hint(void) const {
+const NationClientHint& Nation::get_client_hint() const {
     return this->client_hints[g_world->get_id(*this->ideology)];
 }
 
-Eng3D::Decimal Nation::get_research_points(void) const {
+Eng3D::Decimal Nation::get_research_points() const {
     Eng3D::Decimal research = 0.f;
     for(const auto& province : this->owned_provinces) {
         for(const auto& pop : province->pops)
@@ -338,7 +338,7 @@ void Nation::change_research_focus(const Technology& technology) {
     this->focus_tech = const_cast<Technology*>(&technology);
 }
 
-std::vector<Nation*> Nation::get_allies(void) {
+std::vector<Nation*> Nation::get_allies() {
     World& world = World::get_instance();
 
     std::vector<Nation*> list;
@@ -359,91 +359,91 @@ std::vector<Nation*> Nation::get_allies(void) {
     }
 }*/
 
-Eng3D::Decimal Nation::get_industry_output_mod(void) {
+Eng3D::Decimal Nation::get_industry_output_mod() {
     Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->industry_input_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_industry_input_mod(void) {
+Eng3D::Decimal Nation::get_industry_input_mod() {
     Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->industry_input_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_workers_needed_mod(void) {
+Eng3D::Decimal Nation::get_workers_needed_mod() {
     Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->workers_needed_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_salary_paid_mod(void) {
+Eng3D::Decimal Nation::get_salary_paid_mod() {
     Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->salary_paid_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_delivery_cost_mod(void) {
+Eng3D::Decimal Nation::get_delivery_cost_mod() {
     Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->delivery_cost_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_literacy_learn_mod(void) {
+Eng3D::Decimal Nation::get_literacy_learn_mod() {
     Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->literacy_learn_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_reproduction_mod(void) {
+Eng3D::Decimal Nation::get_reproduction_mod() {
     Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->reproduction_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_death_mod(void) {
+Eng3D::Decimal Nation::get_death_mod() {
     Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->death_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_militancy_mod(void) {
+Eng3D::Decimal Nation::get_militancy_mod() {
     Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->militancy_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_life_needs_met_mod(void) {
+Eng3D::Decimal Nation::get_life_needs_met_mod() {
     Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->life_needs_met_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_everyday_needs_met_mod(void) {
+Eng3D::Decimal Nation::get_everyday_needs_met_mod() {
     Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->everyday_needs_met_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_luxury_needs_met_mod(void) {
+Eng3D::Decimal Nation::get_luxury_needs_met_mod() {
     Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->luxury_needs_met_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_immigration_attraction_mod(void) {
+Eng3D::Decimal Nation::get_immigration_attraction_mod() {
     Eng3D::Decimal c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->immigration_attraction;

@@ -333,9 +333,8 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
     gs{ _gs },
     province{ _province }
 {
-    if(gs.right_side_panel != nullptr) {
+    if(gs.right_side_panel != nullptr)
         gs.right_side_panel->kill();
-    }
     gs.right_side_panel = this;
     gs.map->set_selected_province(true, _gs.world->get_id(_province));
 
@@ -403,9 +402,8 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
         density_sld->set_on_click([this](UI::Widget& w) {
             w.text(std::to_string(((UI::Slider&)w).get_value()));
             const float den = this->density_sld->value;
-            for(auto& pop : const_cast<Province&>(this->province).pops) {
+            for(auto& pop : const_cast<Province&>(this->province).pops)
                 pop.size *= den;
-            }
             this->gs.map->update_mapmode();
         });
 
@@ -415,17 +413,14 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
             // Get max sv
             float max_sv = 1.f;
             for(const auto& pop_type : this->gs.world->pop_types) {
-                if(pop_type.social_value > max_sv) {
+                if(pop_type.social_value > max_sv)
                     max_sv = pop_type.social_value;
-                }
             }
 
-            if(this->gs.input.selected_culture == nullptr) {
+            if(this->gs.input.selected_culture == nullptr)
                 this->gs.input.selected_culture = &this->gs.world->cultures[0];
-            }
-            if(this->gs.input.selected_religion == nullptr) {
+            if(this->gs.input.selected_religion == nullptr)
                 this->gs.input.selected_religion = &this->gs.world->religions[0];
-            }
 
             for(auto& pop_type : this->gs.world->pop_types) {
                 Pop pop;

@@ -63,8 +63,8 @@ namespace Eng3D {
     // A complex object being composed by many simple objects
     class Model {
     public:
-        Model();
-        virtual ~Model();
+        Model() {};
+        virtual ~Model() {};
         Model(const Model&) = default;
         Model(Model&&) noexcept = default;
         Model& operator=(const Model&) = default;

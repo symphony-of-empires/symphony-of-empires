@@ -40,10 +40,8 @@ namespace Eng3D {
         Curve() {};
         Curve(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width);
         // Curve(glm::vec2 p1, glm::vec2 p2, float width);
-
         void add_line(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width);
         void upload();
-
 #ifdef E3D_BACKEND_OPENGL
         void draw();
 #else

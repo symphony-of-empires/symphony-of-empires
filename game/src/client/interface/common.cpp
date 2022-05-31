@@ -286,27 +286,24 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province& _province, Good
     this->price_chart = new UI::Chart(0, 0, 96, 24, this);
     this->price_chart->right_side_of(*this->price_rate_btn);
     this->price_chart->text("Price");
-    this->price_chart->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<ProductInfo&>(*w.parent);
-        //new ProductView(o.gs, o.product);
+    this->price_chart->set_on_click([](UI::Widget&) {
+
     });
     this->price_chart->set_tooltip(new UI::Tooltip(this->price_chart, 512, 24));
 
     this->supply_chart = new UI::Chart(0, 0, 96, 24, this);
     this->supply_chart->right_side_of(*this->price_chart);
     this->supply_chart->text("Supply");
-    this->supply_chart->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<ProductInfo&>(*w.parent);
-        //new ProductView(o.gs, o.product);
+    this->supply_chart->set_on_click([](UI::Widget&) {
+
     });
     this->supply_chart->set_tooltip(new UI::Tooltip(this->supply_chart, 512, 24));
 
     this->demand_chart = new UI::Chart(0, 0, 96, 24, this);
     this->demand_chart->right_side_of(*this->supply_chart);
     this->demand_chart->text("Demand");
-    this->demand_chart->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<ProductInfo&>(*w.parent);
-        //new ProductView(o.gs, o.province->products[o.gs.world->get_id(*o.good)]);
+    this->demand_chart->set_on_click([](UI::Widget&) {
+
     });
     this->demand_chart->set_tooltip(new UI::Tooltip(this->demand_chart, 512, 24));
 

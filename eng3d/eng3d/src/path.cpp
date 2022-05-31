@@ -60,7 +60,7 @@ namespace Path {
         return f.good();
     }
 
-    std::string get_full(void) {
+    std::string get_full() {
 #ifdef E3D_TARGET_WINDOWS
         char buf[MAX_PATH];
         const auto len = GetModuleFileNameA(nullptr, buf, MAX_PATH);
@@ -68,12 +68,9 @@ namespace Path {
         char buf[PATH_MAX];
         ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
 #endif
-        if(len < 0) {
+        if(len < 0)
             CXX_THROW(std::runtime_error, "Error reading exec path");
-        }
-
         buf[len] = '\0';
-
         std::string rsult = buf;
         size_t found = rsult.find_last_of("/\\");
         rsult = rsult.substr(0, found);
@@ -81,7 +78,6 @@ namespace Path {
         found = rsult.find_last_of("/\\");
         rsult = rsult.substr(0, found);
 #endif
-
         rsult += "/mods/";
         return rsult;
     }
@@ -91,15 +87,11 @@ namespace Path {
         std::string end_path;
         end_path += path;
         end_path += "/";
-
         mod_paths.push_back(end_path);
     }
 
     std::string get(const std::string& str) {
-        if(str[0] == '/' || str[1] == ':') {
-            return str;
-        }
-
+        if(str[0] == '/' || str[1] == ':') return str;
         std::string end_path;
         bool file_found = false;
         for(const auto& path : mod_paths) {
@@ -111,9 +103,8 @@ namespace Path {
                 break;
             }
         }
-        if(!file_found) {
+        if(!file_found)
             Eng3D::Log::error("path", "Path could not find file " + str);
-        }
 #ifdef E3D_TARGET_WINDOWS
         std::replace(end_path.begin(), end_path.end(), '/', '\\');
 #endif
@@ -123,9 +114,8 @@ namespace Path {
     // Gets all paths where a file with this name exists
     std::vector<std::string> get_all(const std::string& str) {
         std::vector<std::string> list;
-        if(str[0] == '/' || str[1] == ':') {
+        if(str[0] == '/' || str[1] == ':')
             return list;
-        }
 
         for(const auto& path : mod_paths) {
             std::string end_path = get_full() + path + str;
@@ -138,17 +128,15 @@ namespace Path {
             }
         }
 
-        if(list.empty()) {
+        if(list.empty())
             Eng3D::Log::error("path", "File " + str + " does not exist");
-        }
         return list;
     }
 
     std::vector<std::string> get_data(const std::string& str) {
         std::vector<std::string> files_text;
-        if(mod_paths.size() == 0) {
+        if(mod_paths.empty())
             Eng3D::Log::error("path", "No mods founds");
-        }
         bool found = false;
         for(const auto& path : mod_paths) {
             std::string rsult = get_full() + path + str;
@@ -169,13 +157,12 @@ namespace Path {
                 found = true;
             }
         }
-        if(!found) {
+        if(!found)
             Eng3D::Log::debug("path", "Path does not exist so not added " + str);
-        }
         return files_text;
     }
 
-    std::vector<std::string> get_paths(void) {
+    std::vector<std::string> get_paths() {
         std::vector<std::string> p_list;
         for(const auto& path : mod_paths) {
             std::string rsult = get_full() + path;
@@ -196,18 +183,14 @@ namespace Path {
 
     std::vector<std::string> get_all_recursive(const std::string& str) {
         std::vector<std::string> list;
-        if(str[0] == '/' || str[1] == ':') {
-            return list;
-        }
-
+        if(str[0] == '/' || str[1] == ':') return list;
         for(const auto& path : mod_paths) {
             std::string end_path = get_full() + path + str;
             if(std::filesystem::is_directory(end_path)) {
                 auto entries = std::filesystem::recursive_directory_iterator(end_path);
                 for(const auto& entry : entries) {
-                    if(entry.is_regular_file()) {
+                    if(entry.is_regular_file())
                         list.push_back(clean_path(entry.path().string()));
-                    }
                 }
             }
         }
@@ -217,9 +200,7 @@ namespace Path {
     std::string cat_strings(const std::vector<std::string>& vec)
     {
         std::string str;
-        for(const auto& _str : vec) {
-            str += _str;
-        }
+        for(const auto& _str : vec) str += _str;
         return str;
     }
 };

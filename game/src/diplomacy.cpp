@@ -59,11 +59,11 @@ inline bool Diplomacy::is_foe(Nation& us, Nation& them) {
 //
 // WarReparations
 //
-unsigned TreatyClause::WarReparations::cost(void) {
+unsigned TreatyClause::WarReparations::cost() {
     return (receiver->economy_score * (amount * days_duration)) / 100;
 }
 
-void TreatyClause::WarReparations::enforce(void) {
+void TreatyClause::WarReparations::enforce() {
     sender->prestige += 0.0001f;
     receiver->prestige -= 0.0001f;
     sender->budget -= amount;
@@ -71,35 +71,35 @@ void TreatyClause::WarReparations::enforce(void) {
     days_duration--;
 }
 
-bool TreatyClause::WarReparations::in_effect(void) const {
+bool TreatyClause::WarReparations::in_effect() const {
     return (days_duration != 0);
 }
 
 //
 // Humiliate
 //
-unsigned TreatyClause::Humiliate::cost(void) {
+unsigned TreatyClause::Humiliate::cost() {
     return (receiver->prestige * (amount * days_duration)) / 100;
 }
 
-void TreatyClause::Humiliate::enforce(void) {
+void TreatyClause::Humiliate::enforce() {
     sender->prestige += amount;
     receiver->prestige -= amount;
     days_duration--;
 }
 
-bool TreatyClause::Humiliate::in_effect(void) const {
+bool TreatyClause::Humiliate::in_effect() const {
     return (days_duration != 0);
 }
 
 //
 // LiberateNation
 //
-unsigned TreatyClause::LiberateNation::cost(void) {
+unsigned TreatyClause::LiberateNation::cost() {
     return 0;
 }
 
-void TreatyClause::LiberateNation::enforce(void) {
+void TreatyClause::LiberateNation::enforce() {
     // Reduce prestige due to lost lands
     sender->prestige += cost() * 0.0000025f;
     receiver->prestige -= cost() * 0.000005f;
@@ -113,34 +113,34 @@ void TreatyClause::LiberateNation::enforce(void) {
     done = true;
 }
 
-bool TreatyClause::LiberateNation::in_effect(void) const {
+bool TreatyClause::LiberateNation::in_effect() const {
     return !done;
 }
 
 //
 // ImposePolicies
 //
-unsigned TreatyClause::ImposePolicies::cost(void) {
+unsigned TreatyClause::ImposePolicies::cost() {
     return imposed.difference(receiver->current_policy);
 }
 
-void TreatyClause::ImposePolicies::enforce(void) {
+void TreatyClause::ImposePolicies::enforce() {
     receiver->current_policy = imposed;
     done = true;
 }
 
-bool TreatyClause::ImposePolicies::in_effect(void) const {
+bool TreatyClause::ImposePolicies::in_effect() const {
     return !done;
 }
 
 //
 // AnnexProvince
 //
-unsigned TreatyClause::AnnexProvince::cost(void) {
+unsigned TreatyClause::AnnexProvince::cost() {
     return 0;
 }
 
-void TreatyClause::AnnexProvince::enforce(void) {
+void TreatyClause::AnnexProvince::enforce() {
     sender->prestige += cost() * 0.0000025f;
     receiver->prestige -= cost() * 0.000005f;
 
@@ -155,7 +155,7 @@ void TreatyClause::AnnexProvince::enforce(void) {
     done = true;
 }
 
-bool TreatyClause::AnnexProvince::in_effect(void) const {
+bool TreatyClause::AnnexProvince::in_effect() const {
     return !done;
 }
 
@@ -203,7 +203,7 @@ bool Treaty::does_participate(Nation& nation) {
 }
 
 // Checks if the treaty has any clause which may still make the treaty be in effect
-bool Treaty::in_effect(void) const {
+bool Treaty::in_effect() const {
     bool on_effect = false;
     for(const auto& clause : this->clauses) {
         if(clause->type == TreatyClauseType::MONEY) {

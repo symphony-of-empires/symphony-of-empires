@@ -103,26 +103,21 @@ Label3D* Eng3D::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::v
 
     float text_width = 0.f;
     for(char32_t& character : unicode_text) {
-        if(!unicode_map.count(character)) {
-            continue;
-        }
-
+        if(!unicode_map.count(character)) continue;
         Eng3D::Glyph& glyph = unicode_map.at(character);
         text_width += glyph.advance;
     }
     float scale = width / text_width;
     top = glm::normalize(top);
     right = glm::normalize(right);
-    glm::vec3 start = center -right * width * 0.5f;
+    glm::vec3 start = center - right * width * 0.5f;
 
     std::vector<glm::vec3> positions;
     std::vector<glm::vec2> tex_coords;
 
     int idx = 1;
     for(char32_t& character : unicode_text) {
-        if(!unicode_map.count(character)) {
-            continue;
-        }
+        if(!unicode_map.count(character)) continue;
 
         Glyph glyph = unicode_map.at(character);
 
@@ -166,11 +161,8 @@ Label3D* Eng3D::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::v
 
 void Eng3D::FontSDF::draw(const std::vector<Label3D*>& labels, Camera* camera, bool sphere) {
     Eng3D::OpenGL::Program* shader;
-    if (sphere) {
-        shader = sphere_shader.get();
-    } else {
-        shader = flat_shader.get();
-    }
+    if(sphere) shader = sphere_shader.get();
+    else shader = flat_shader.get();
     shader->use();
     shader->set_uniform("projection", camera->get_projection());
     shader->set_uniform("view", camera->get_view());
@@ -188,7 +180,7 @@ Eng3D::Label3D::Label3D(TriangleList* _triangles, float _size)
     : triangles(_triangles),
     size{ _size }
 {
-    
+
 }
 
 Eng3D::Label3D::~Label3D() {

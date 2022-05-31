@@ -44,7 +44,7 @@ public:
      * 
      * @return constexpr Id The invalid id
      */
-    constexpr static Id invalid(void) {
+    constexpr static Id invalid() {
         return (Id)-1;
     }
 
@@ -76,7 +76,7 @@ public:
      * @return true 
      * @return false 
      */
-    constexpr bool is_invalid(void) const {
+    constexpr bool is_invalid() const {
         return is_invalid(this->id);
     }
 
@@ -86,7 +86,7 @@ public:
      * @return true 
      * @return false 
      */
-    constexpr bool is_valid(void) const {
+    constexpr bool is_valid() const {
         return !invalid();
     }
 };

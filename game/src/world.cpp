@@ -94,7 +94,7 @@ const std::vector<const Tile*> Tile::get_neighbours(const World& world) const {
 
 World* g_world;
 
-World& World::get_instance(void) {
+World& World::get_instance() {
     return *g_world;
 }
 
@@ -283,7 +283,7 @@ World::World() {
             auto result = std::find_if(g_world->ideologies.begin(), g_world->ideologies.end(),
             [&ref_name](const auto& o) { return (o.ref_name == ref_name); });
             if(result == g_world->ideologies.end())
-                throw LuaAPI::Exception("Ideology " + ref_name + " not found");
+                CXX_THROW(LuaAPI::Exception, "Ideology " + ref_name + " not found");
 
             Ideology** ideology = (Ideology**)lua_newuserdata(L, sizeof(Ideology*));
             *ideology = &*result;
@@ -356,9 +356,8 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
         std::vector<std::string> paths = Path::get_all(dir + "/" + file + ".lua");
         for(const auto& path : paths) {
             /*luaL_dofile(lua, path.c_str());
-
             if(luaL_dofile(lua, path.c_str()) != LUA_OK) {
-                throw LuaAPI::Exception(lua_tostring(lua, -1));
+                CXX_THROW(LuaAPI::Exception, lua_tostring(lua, -1));
             }*/
 #ifdef E3D_TARGET_WINDOWS
             std::string m_path;
@@ -380,11 +379,11 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
     Eng3D::Log::debug("game", "files_buf: " + files_buf);
 
     if(luaL_loadstring(world.lua, files_buf.c_str()) != LUA_OK || lua_pcall(world.lua, 0, 0, 0) != LUA_OK) {
-        throw LuaAPI::Exception(lua_tostring(world.lua, -1));
+        CXX_THROW(LuaAPI::Exception, lua_tostring(world.lua, -1));
     }
 }
 
-void World::load_initial(void) {
+void World::load_initial() {
     // Execute all lua files
     lua_exec_all_of(*this, (std::vector<std::string>) {
         "terrain_types", "good_types", "ideologies", "cultures",
@@ -412,18 +411,13 @@ void World::load_initial(void) {
         ::deserialize(ar, &cache_checksum);
         if(checksum == cache_checksum) {
             recalc_province = false;
-
             ::deserialize(ar, &width);
             ::deserialize(ar, &height);
             tiles = std::make_unique<Tile[]>(width * height);
             for(auto& province : provinces) {
                 ::deserialize(ar, &province.neighbours);
-                ::deserialize(ar, &province.max_x);
-                ::deserialize(ar, &province.max_y);
-                ::deserialize(ar, &province.min_x);
-                ::deserialize(ar, &province.min_y);
+                ::deserialize(ar, &province.box_area);
             }
-
             for(size_t i = 0; i < width * height; i++) {
                 ::deserialize(ar, &tiles[i]);
             }
@@ -476,13 +470,8 @@ void World::load_initial(void) {
             std::unique_ptr<FILE, int(*)(FILE*)> color_fp(fopen("ucolors.txt", "w+t"), fclose);
             if(color_fp != nullptr) {
                 for(size_t i = 0; i < province_color_table.size(); i++) {
-                    uint32_t color = i << 8;
-
-                    if(i % 128) {
-                        continue;
-                    }
-
-                    if(Province::is_invalid(province_color_table[i])) {
+                    if(i % 128 == 0 && Province::is_invalid(province_color_table[i])) {
+                        const uint32_t color = i << 8;
                         fprintf(color_fp.get(), "%06lx\n", static_cast<unsigned long int>(bswap32(color)));
                     }
                 }
@@ -506,18 +495,18 @@ void World::load_initial(void) {
             for(size_t i = 0; i < width; i++) {
                 const Tile& tile = this->get_tile(i, j);
                 auto& province = provinces[tile.province_id];
-                province.max_x = std::max(province.max_x, i);
-                province.max_y = std::max(province.max_y, j);
-                province.min_x = std::min(province.min_x, i);
-                province.min_y = std::min(province.min_y, j);
+                province.box_area.right = std::max<float>(province.box_area.right, i);
+                province.box_area.bottom = std::max<float>(province.box_area.bottom, j);
+                province.box_area.left = std::min<float>(province.box_area.left, i);
+                province.box_area.top = std::min<float>(province.box_area.top, j);
             }
         }
 
         // Correct stuff from provinces
         Eng3D::Log::debug("game", Eng3D::Locale::translate("Correcting values for provinces"));
         for(auto& province : provinces) {
-            province.max_x = std::min(width, province.max_x);
-            province.max_y = std::min(height, province.max_y);
+            province.box_area.right = std::min<float>(width, province.box_area.right);
+            province.box_area.bottom = std::min<float>(height, province.box_area.bottom);
         }
 
         // Neighbours
@@ -528,9 +517,8 @@ void World::load_initial(void) {
                 Province& province = this->provinces[this->tiles[i].province_id];
                 const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
                 for(const auto& other_tile : tiles) {
-                    if(other_tile->province_id != tile->province_id && other_tile->province_id < (Province::Id)-3) {
+                    if(other_tile->province_id != tile->province_id && other_tile->province_id < (Province::Id)-3)
                         province.neighbours.insert(&this->provinces.at(other_tile->province_id));
-                    }
                 }
             }
         }
@@ -544,14 +532,10 @@ void World::load_initial(void) {
             // Remove self from province->neighbours
             assert(!province.neighbours.empty());
             ::serialize(ar, &province.neighbours);
-            ::serialize(ar, &province.max_x);
-            ::serialize(ar, &province.max_y);
-            ::serialize(ar, &province.min_x);
-            ::serialize(ar, &province.min_y);
+            ::serialize(ar, &province.box_area);
         }
-        for(size_t i = 0; i < width * height; i++) {
+        for(size_t i = 0; i < width * height; i++)
             ::serialize(ar, &tiles[i]);
-        }
         ar.to_file("map.cache");
     }
 
@@ -585,7 +569,7 @@ void World::load_initial(void) {
     }
 }
 
-void World::load_mod(void) {
+void World::load_mod() {
     const std::vector<std::string> mod_files = {
         "mod", "postinit"
     };

@@ -29,19 +29,9 @@
 #include <cstddef>
 #include <new>
 
-#if __cplusplus >= 202002L
 [[nodiscard]] void* operator new(std::size_t size);
 [[nodiscard]] void operator delete(void* ptr) noexcept;
-#else
-void* operator new(std::size_t size);
-void operator delete(void* ptr) noexcept;
-#endif
 
-#if __cplusplus >= 202002L
 [[nodiscard]] void* operator new[](std::size_t size);
 [[nodiscard]] void operator delete[](void* ptr) noexcept;
-#else
-void* operator new[](std::size_t size);
-void operator delete[](void* ptr) noexcept;
-#endif
 #endif

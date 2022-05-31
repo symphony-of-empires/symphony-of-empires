@@ -120,10 +120,10 @@ public:
     World();
     World& operator=(const World&) = default;
     ~World();
-    static World& get_instance(void);
-    void do_tick(void);
-    void load_initial(void);
-    void load_mod(void);
+    static World& get_instance();
+    void do_tick();
+    void load_initial();
+    void load_mod();
     Eng3D::Profiler profiler;
 
     LIST_FOR_LOCAL_TYPE(Good, goods, std::vector);

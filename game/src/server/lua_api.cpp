@@ -55,7 +55,7 @@ const T* find_or_throw(const std::string& ref_name) {
     });
 
     if(result == list.end())
-        throw LuaAPI::Exception(std::string() + "Object<" + typeid(T).name() + "> " + ref_name + " not found");
+        CXX_THROW(LuaAPI::Exception, std::string() + "Object<" + typeid(T).name() + "> " + ref_name + " not found");
     return (*result);
 }
 
@@ -67,7 +67,7 @@ const T* find_or_throw_local(const std::string& ref_name) {
     });
 
     if(result == list.end())
-        throw LuaAPI::Exception(std::string() + "Object<" + typeid(T).name() + "> " + ref_name + " not found");
+        CXX_THROW(LuaAPI::Exception, std::string() + "Object<" + typeid(T).name() + "> " + ref_name + " not found");
     return &(*result);
 }
 
@@ -100,7 +100,7 @@ static float pop_number(lua_State* L) {
 static std::string pop_string(lua_State* L) {
     const std::string& text = luaL_checkstring(L, -1);
     if(text.empty())
-        throw LuaAPI::Exception("Expected a text but got empty string");
+        CXX_THROW(LuaAPI::Exception, "Expected a text but got empty string");
     lua_pop(L, 1);
     return text;
 }
@@ -116,7 +116,7 @@ int LuaAPI::register_new_table(lua_State* L, const std::string& name, const luaL
 
 int LuaAPI::add_terrain_type(lua_State* L) {
     if(g_world->needs_to_sync)
-        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+        CXX_THROW(LuaAPI::Exception, "MP-Sync in this function is not supported");
 
     TerrainType terrain_type{};
     terrain_type.ref_name = luaL_checkstring(L, 1);
@@ -609,7 +609,7 @@ int LuaAPI::add_province(lua_State* L) {
         else if(province.ref_name == g_world->provinces[i].ref_name)
             throw LuaAPI::Exception("Duplicate ref_name " + province.ref_name);
     }
-
+    
     province.products.resize(g_world->goods.size());
     province.products.shrink_to_fit();
     province.buildings.resize(g_world->building_types.size());
@@ -618,15 +618,9 @@ int LuaAPI::add_province(lua_State* L) {
         province.buildings[g_world->get_id(building_type)].stockpile.resize(building_type.inputs.size(), 0);
         province.buildings[g_world->get_id(building_type)].stockpile.shrink_to_fit();
     }
-
     // Set bounding box of province to the whole world (will later be resized at the bitmap-processing step)
-    province.max_x = std::numeric_limits<uint32_t>::min();
-    province.max_y = std::numeric_limits<uint32_t>::min();
-    province.min_x = std::numeric_limits<uint32_t>::max();
-    province.min_y = std::numeric_limits<uint32_t>::max();
-
+    province.box_area = Eng3D::Rect(0, 0, std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max());
     province.pops.reserve(100);
-
     g_world->insert(province);
     lua_pushnumber(L, g_world->get_id(province));
     return 1;
@@ -693,7 +687,7 @@ int LuaAPI::province_add_unit(lua_State* L) {
     UnitType& unit_type = g_world->unit_types.at(lua_tonumber(L, 2));
     const size_t size = lua_tonumber(L, 3);
 
-    Unit* unit = new Unit();
+    /*Unit* unit = new Unit();
     unit->set_province(province);
     unit->type = &unit_type;
     unit->owner = province.owner;
@@ -703,7 +697,7 @@ int LuaAPI::province_add_unit(lua_State* L) {
     unit->supply = 1.f;
     unit->size = size;
     unit->base = unit->type->max_health;
-    g_world->insert(*unit);
+    g_world->insert(*unit);*/
     return 0;
 }
 

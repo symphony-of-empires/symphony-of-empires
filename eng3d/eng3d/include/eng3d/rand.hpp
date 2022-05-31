@@ -45,16 +45,15 @@ namespace Eng3D {
         using result_type = uint32_t;
         constexpr static uint32_t initial_seed = 0xf1ea5eed;
 
-        Rand(void) {
+        Rand() {
 
         }
 
         Rand(uint32_t seed) {
             a = Rand::initial_seed;
             b = c = d = seed;
-            for(size_t i = 0; i < 20; ++i) {
+            for(size_t i = 0; i < 20; ++i)
                 (*this)();
-            }
         }
 
         Rand(Rand const& o) noexcept
@@ -80,7 +79,7 @@ namespace Eng3D {
          * 
          * @return constexpr uint32_t 
          */
-        constexpr static uint32_t max(void) {
+        constexpr static uint32_t max() {
             return std::numeric_limits<uint32_t>::max();
         }
         
@@ -89,11 +88,11 @@ namespace Eng3D {
          * 
          * @return constexpr uint32_t 
          */
-        constexpr static uint32_t min(void) {
+        constexpr static uint32_t min() {
             return std::numeric_limits<uint32_t>::min();
         }
 
-        inline uint32_t operator()(void) {
+        inline uint32_t operator()() {
             uint32_t e = a - rot32(b, 27);
             a = b ^ rot32(c, 17);
             b = c + d;
@@ -103,17 +102,16 @@ namespace Eng3D {
         }
 
         template<int32_t n>
-        inline void advance_n(void) {
-            for(int32_t i = n; i--; ) {
+        inline void advance_n() {
+            for(int32_t i = n; i--; )
                 this->operator()();
-            }
         }
 
         Rand& operator=(Rand const&) noexcept = default;
         Rand& operator=(Rand&&) noexcept = default;
     };
 
-    inline Rand& get_local_generator(void) {
+    inline Rand& get_local_generator() {
         static thread_local Rand local_generator(std::random_device{}());
         return local_generator;
     }

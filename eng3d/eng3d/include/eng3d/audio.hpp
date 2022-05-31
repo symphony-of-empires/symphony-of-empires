@@ -38,16 +38,16 @@ namespace Eng3D {
             buffer = filename + message;
         }
 
-        virtual const char* what(void) const noexcept {
+        virtual const char* what() const noexcept {
             return buffer.c_str();
         }
     };
 
     class Audio {
     public:
-        Audio();
+        Audio() {};
         Audio(const std::string& path);
-        ~Audio();
+        ~Audio() {};
 
         std::uint8_t *data;
         std::uint32_t pos;

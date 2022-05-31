@@ -71,7 +71,7 @@ namespace Eng3D {
             target.z = glm::clamp(target.z, radius - 60.f, map_size.x / 2.f);
         }
 
-        void update(void) override {
+        void update() override {
             map_position = chase.move_towards(map_position, target);
             map_position.y = glm::clamp(map_position.y, 0.f, map_size.y);
             map_position.z = glm::clamp(map_position.z, 0.f, map_size.x / 2.f);
@@ -97,7 +97,7 @@ namespace Eng3D {
             update();
         }
 
-        glm::mat4 get_view(void) const override {
+        glm::mat4 get_view() const override {
             glm::vec3 look_at = glm::vec3(0);
             glm::vec3 up_vector = glm::vec3(0.f, -1.f, 0.f);
 
@@ -118,7 +118,7 @@ namespace Eng3D {
             return glm::lookAt(world_position, look_at, up_vector);
         };
 
-        glm::vec3 get_map_pos(void) const override {
+        glm::vec3 get_map_pos() const override {
             glm::vec3 out_pos = map_position;
             out_pos.x = glm::mod(out_pos.x, map_size.x);
             return out_pos;

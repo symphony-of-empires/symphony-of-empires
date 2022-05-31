@@ -43,7 +43,7 @@ public:
     ServerException(const std::string& msg) {
         buffer = msg;
     }
-    virtual const char* what(void) const noexcept {
+    virtual const char* what() const noexcept {
         return buffer.c_str();
     }
 };
@@ -53,7 +53,7 @@ class Server : public Eng3D::Networking::Server {
     GameState& gs;
 public:
     Server(GameState& gs, unsigned port = 1825, unsigned max_conn = 16);
-    ~Server(void);
+    ~Server();
     void net_loop(int id);
 };
 

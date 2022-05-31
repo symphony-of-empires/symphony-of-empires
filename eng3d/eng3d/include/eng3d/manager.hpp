@@ -39,7 +39,7 @@ public:
     static Manager<T, I>* singleton;
 
     // Singleton pattern ;)
-    inline static Manager<T, I>& get_instance(void) {
+    inline static Manager<T, I>& get_instance() {
         return *singleton;
     };
 
@@ -63,6 +63,6 @@ public:
                 return *(o.first);
             }
         }
-        throw std::runtime_error("Can't load " + ident);
+        CXX_THROW(std::runtime_error, "Can't load " + ident);
     };
 };

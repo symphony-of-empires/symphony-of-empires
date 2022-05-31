@@ -78,25 +78,22 @@ ProfilerView::ProfilerView(GameState& _gs)
         chart.set_data(data);
     });
 
-    this->on_update = ([this](UI::Widget& w) {
+    this->on_update = ([this](UI::Widget&) {
         Eng3D::Profiler& profiler = this->gs.world->profiler;
         auto tasks = profiler.get_tasks();
         auto& task_views = this->task_views;
 
         if(task_views.size() < tasks.size()) {
-            for(size_t i = task_views.size(); i < tasks.size(); i++) {
+            for(size_t i = task_views.size(); i < tasks.size(); i++)
                 task_views.push_back(new ProfilerTaskView(this, 10, 50 + i * 25));
-            }
         } else if(task_views.size() > tasks.size()) {
-            for(size_t i = tasks.size(); i < task_views.size(); i++) {
+            for(size_t i = tasks.size(); i < task_views.size(); i++)
                 task_views[i]->kill();
-            }
             task_views.erase(task_views.begin() + tasks.size(), task_views.end());
         }
 		
-        for(size_t i = 0; i < task_views.size(); i++) {
+        for(size_t i = 0; i < task_views.size(); i++)
             task_views[i]->set_task(tasks[i]);
-        }
     });
 }
 

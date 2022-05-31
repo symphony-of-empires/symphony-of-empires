@@ -32,6 +32,11 @@ namespace Eng3D {
     class Rectangle {
     public:
         float left, top, right, bottom;
+        Rectangle()
+        {
+
+        }
+
         Rectangle(float x, float y, float width, float height)
             : left{ x },
             top{ y },
@@ -50,7 +55,7 @@ namespace Eng3D {
 
         }
 
-        ~Rectangle(void) {
+        ~Rectangle() {
 
         }
 
@@ -59,7 +64,7 @@ namespace Eng3D {
          * 
          * @return float Width of the rectangle
          */
-        inline float width(void) const {
+        inline float width() const {
             return right - left;
         }
 
@@ -68,7 +73,7 @@ namespace Eng3D {
          * 
          * @return float Height of the rectangle
          */
-        inline float height(void) const {
+        inline float height() const {
             return bottom - top;
         }
 
@@ -77,7 +82,7 @@ namespace Eng3D {
          * 
          * @return glm::vec2 The size of the rectangle
          */
-        inline glm::vec2 size(void) const {
+        inline glm::vec2 size() const {
             return glm::vec2{ right - left, bottom - top };
         }
 
@@ -101,7 +106,7 @@ namespace Eng3D {
          * 
          * @return glm::vec2 The base position
          */
-        inline glm::vec2 position(void) const {
+        inline glm::vec2 position() const {
             return glm::vec2{ left, top };
         }
 

@@ -63,29 +63,23 @@ void BenchmarkTask::stop() {
 
 float BenchmarkTask::get_average_time_ms() {
     clear_old();
-    if(times.size() == 0) {
-        return 0;
-    }
+    if(times.empty()) return 0;
     
     float total_time = 0;
-    for(auto const& time : times) {
+    for(auto const& time : times)
         total_time += time;
-    }
     return total_time / (MS_TO_KEEP_DATA / 1e3);
 }
 
 float BenchmarkTask::get_largest_time_ms() {
     clear_old();
-    if(times.size() == 0) {
-        return 0;
-    }
+    if(times.empty()) return 0;
     
     float max_time = 0;
     for(size_t i = 0; i < times.size(); i++) {
         for(auto const& time : times) {
-            if(time > max_time) {
+            if(time > max_time)
                 max_time = time;
-            }
         }
     }
     return max_time;

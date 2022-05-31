@@ -122,7 +122,7 @@ protected:
     Foo(const Bar*);
 
     // methods
-    int add_cmpxchg_sse3(void);
+    int add_cmpxchg_sse3();
 
     // members
     int stuff;
@@ -164,7 +164,7 @@ struct FooBar {
     FooBar() {};
     ~FooBar() {};
 
-    int method(void) {
+    int method() {
         return 0;
     };
 

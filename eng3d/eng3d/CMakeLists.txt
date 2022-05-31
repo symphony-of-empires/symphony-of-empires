@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5.1)
 project(eng3d)
 #set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/src)
 #set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 IF(NOT E3D_TARGET_RVL)
 	# Workaround for clang (see https://bugs.launchpad.net/ubuntu/+source/libsdl2-ttf/+bug/1872023)
