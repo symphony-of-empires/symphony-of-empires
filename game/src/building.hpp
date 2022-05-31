@@ -38,34 +38,65 @@ class Technology;
 // Type for military outposts
 class BuildingType: public RefnameEntity<uint8_t> {
 public:
-    static constexpr int PLOT_ON_SEA = 0x01;
-    static constexpr int PLOT_ON_LAND = 0x02;
-    static constexpr int BUILD_LAND_UNITS = 0x04;
-    static constexpr int BUILD_NAVAL_UNITS = 0x08;
-    static constexpr int BUILD_AIR_UNITS = 0x10;
-    // Build any type of military
-    static constexpr int BUILD_MILITARY = BUILD_LAND_UNITS | BUILD_NAVAL_UNITS | BUILD_AIR_UNITS;
-
     BuildingType() {};
     ~BuildingType() {};
 
-    Eng3D::StringRef name;
-    std::uint8_t flags;
+    inline bool can_plot_on_sea(void) const {
+        return flags[0];
+    }
+    
+    inline bool can_plot_on_land(void) const {
+        return flags[1];
+    }
+    
+    inline bool can_build_land_units(void) const {
+        return flags[2];
+    }
+    
+    inline bool can_build_naval_units(void) const {
+        return flags[3];
+    }
+    
+    inline bool can_build_air_units(void) const {
+        return flags[4];
+    }
 
+    /// @brief Can this building type build a military unit
+    inline bool can_build_military(void) const {
+        return can_build_land_units() | can_build_air_units() | can_build_naval_units();
+    }
+
+    inline void can_plot_on_sea(bool b) {
+        flags[0] = b;
+    }
+
+    inline void can_plot_on_land(bool b) {
+        flags[1] = b;
+    }
+
+    inline void can_build_land_units(bool b) {
+        flags[2] = b;
+    }
+
+    inline void can_build_naval_units(bool b) {
+        flags[3] = b;
+    }
+
+    inline void can_build_air_units(bool b) {
+        flags[4] = b;
+    }
+
+    Eng3D::StringRef name;
+    std::bitset<4> flags;
     // We used to calculate these per each economical tick but now we can just store them
     // and multiply it by the level of the factory - this is the **minimum** amount of employed
     // people we should have at a time
     Eng3D::Number num_req_workers = 0;
-
-    // List of goods that this factory type creates
-    Good* output = nullptr;
-
-    // List of goods required to create output
-    std::vector<Good*> inputs;
+    Good* output = nullptr; // Good that this building creates
+    std::vector<Good*> inputs; // Goods required to create output
     // Required goods, first describes the id of the good and the second describes how many
     std::vector<std::pair<Good*, Eng3D::Number>> req_goods;
-    // Required technologies
-    std::vector<Technology*> req_technologies;
+    std::vector<Technology*> req_technologies; // Required technologies to build
 };
 
 // A military outpost, on land serves as a "spawn" place for units

@@ -569,7 +569,7 @@ void ai_do_tick(Nation& nation) {
 
                 for(size_t i = 0; i < world.building_types.size(); i++) {
                     const BuildingType* building_type = &world.building_types[i];
-                    if((building_type->flags & BuildingType::BUILD_MILITARY) == 0) {
+                    if(!building_type->can_build_military()) {
                         //continue;
                     }
 

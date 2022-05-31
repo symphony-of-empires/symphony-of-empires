@@ -548,14 +548,12 @@ void World::load_initial(void) {
             // Remove self from province->neighbours
             province->neighbours.erase(province);
             assert(!province->neighbours.empty());
-
             ::serialize(ar, &province->neighbours);
             ::serialize(ar, &province->max_x);
             ::serialize(ar, &province->max_y);
             ::serialize(ar, &province->min_x);
             ::serialize(ar, &province->min_y);
         }
-
         for(size_t i = 0; i < width * height; i++) {
             ::serialize(ar, &tiles[i]);
         }
@@ -566,7 +564,7 @@ void World::load_initial(void) {
     Eng3D::Log::debug("game", Eng3D::Locale::translate("Creating diplomatic relations"));
     // Relations between nations start at 0 (and latter modified by lua scripts)
     // since we use cantor's pairing function we only have to make an n*2 array so yeah let's do that!
-    this->relations = std::make_unique<NationRelation[]>(this->nations.size() * this->nations.size() * this->nations.size());
+    this->relations = std::make_unique<NationRelation[]>(this->nations.size() * this->nations.size());
 
     Eng3D::Log::debug("game", Eng3D::Locale::translate("World partially intiialized"));
     // Auto-relocate capitals for countries which do not have one
