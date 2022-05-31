@@ -33,19 +33,19 @@ using namespace Diplomacy;
 
 inline bool Diplomacy::is_friend(Nation& us, Nation& them) {
     const NationRelation& relation = g_world->get_relation(g_world->get_id(us), g_world->get_id(them));
-
-    // A high relation means we are friendly <3
-    if(relation.free_supplies >= 50.f) {
+    // High enough relation with the threshold means it is friendly
+    if(relation.relation >= 50.f) {
         return true;
     } else {
-        // Well, but maybe our interest is able to determine our friendliness towards them?
+        // The interest is greater than the relation, that means whatever the relation has
+        // is now cancelled out
         if(relation.interest >= relation.relation) {
-            // We cannot be friendly with negative relations
+            // Can't be friendly with negative relations
             if(relation.relation <= 0.f) {
                 return false;
             }
 
-            // Well, we need to be interested enough to like them
+            // Need to be interested enough to friend them
             if(relation.relation >= relation.interest / relation.relation) {
                 return true;
             }
@@ -170,9 +170,7 @@ unsigned TreatyClause::Ceasefire::cost() {
 
 void TreatyClause::Ceasefire::enforce() {
     auto& relation = g_world->get_relation(g_world->get_id(*receiver), g_world->get_id(*sender));
-    relation.has_truce = true;
     relation.has_war = false;
-
     days_duration--;
 }
 
@@ -208,43 +206,36 @@ bool Treaty::does_participate(Nation& nation) {
 
 // Checks if the treaty has any clause which may still make the treaty be in effect
 bool Treaty::in_effect(void) const {
-	bool on_effect = false;
-	for(const auto& clause : this->clauses) {
-		if(clause->type == TreatyClauseType::MONEY) {
-			const auto* dyn_clause = static_cast<const TreatyClause::WarReparations*>(clause);
-			on_effect = dyn_clause->in_effect();
-		} else if(clause->type == TreatyClauseType::ANNEX_PROVINCES) {
-			const auto* dyn_clause = static_cast<const TreatyClause::AnnexProvince*>(clause);
-			on_effect = dyn_clause->in_effect();
-		} else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
-			const auto* dyn_clause = static_cast<const TreatyClause::LiberateNation*>(clause);
-			on_effect = dyn_clause->in_effect();
-		} else if(clause->type == TreatyClauseType::HUMILIATE) {
-			const auto* dyn_clause = static_cast<const TreatyClause::Humiliate*>(clause);
-			on_effect = dyn_clause->in_effect();
-		} else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
-			const auto* dyn_clause = static_cast<const TreatyClause::ImposePolicies*>(clause);
-			on_effect = dyn_clause->in_effect();
-		} else if(clause->type == TreatyClauseType::CEASEFIRE) {
-			const auto* dyn_clause = static_cast<const TreatyClause::Ceasefire*>(clause);
-			on_effect = dyn_clause->in_effect();
-		} else if(clause->type == TreatyClauseType::PUPPET) {
-			const auto* dyn_clause = static_cast<const TreatyClause::Puppet*>(clause);
-			on_effect = dyn_clause->in_effect();
-		}
-		
-		if(on_effect) {
+    bool on_effect = false;
+    for(const auto& clause : this->clauses) {
+        if(clause->type == TreatyClauseType::MONEY) {
+            const auto* dyn_clause = static_cast<const TreatyClause::WarReparations*>(clause);
+            on_effect = dyn_clause->in_effect();
+        } else if(clause->type == TreatyClauseType::ANNEX_PROVINCES) {
+            const auto* dyn_clause = static_cast<const TreatyClause::AnnexProvince*>(clause);
+            on_effect = dyn_clause->in_effect();
+        } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
+            const auto* dyn_clause = static_cast<const TreatyClause::LiberateNation*>(clause);
+            on_effect = dyn_clause->in_effect();
+        } else if(clause->type == TreatyClauseType::HUMILIATE) {
+            const auto* dyn_clause = static_cast<const TreatyClause::Humiliate*>(clause);
+            on_effect = dyn_clause->in_effect();
+        } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
+            const auto* dyn_clause = static_cast<const TreatyClause::ImposePolicies*>(clause);
+            on_effect = dyn_clause->in_effect();
+        } else if(clause->type == TreatyClauseType::CEASEFIRE) {
+            const auto* dyn_clause = static_cast<const TreatyClause::Ceasefire*>(clause);
+            on_effect = dyn_clause->in_effect();
+        } else if(clause->type == TreatyClauseType::PUPPET) {
+            const auto* dyn_clause = static_cast<const TreatyClause::Puppet*>(clause);
+            on_effect = dyn_clause->in_effect();
+        }
+
+        if(on_effect) {
             break;
         }
-	}
-	return on_effect;	
-}
-
-Battle::Battle(War& war, Province& province)
-    : war{ &war },
-    province{ &province }
-{
-
+    }
+    return on_effect;
 }
 
 bool War::is_involved(const Nation& nation) const {

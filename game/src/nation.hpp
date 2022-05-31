@@ -37,38 +37,41 @@
 #include "eng3d/string.hpp"
 
 #include "policy.hpp"
-#include "province.hpp"
-#include "diplomacy.hpp"
 #include "event.hpp"
-#include "ideology.hpp"
-#include "pop.hpp"
 
+class Province;
+class Ideology;
 class Technology;
+class Pop;
+class Culture;
+class Religion;
+namespace TreatyClause {
+    class BaseClause;
+}
 
 // Defines a one side relation between a country
 // This allows for cases where a country A hates country B, but country B loves country A
 class NationRelation {
 public:
-    Eng3D::Decimal relation;
-    // Interest of a nation on this nation
-    Eng3D::Decimal interest;
+    NationRelation() {};
+    ~NationRelation() {};
 
-    // Whetever commercial operations are allowed on on the target country
+    Eng3D::Decimal relation;
+    Eng3D::Decimal interest;
     bool has_embargo;
     bool has_war;
     bool has_alliance;
     bool has_defensive_pact;
-    bool has_truce;
-    bool has_embassy;
     bool has_military_access;
     bool has_market_access;
-    // A nation can have free supplies to feed their soldiers
-    bool free_supplies;
 };
 
 // Hints for the client on how to display the nation
 class NationClientHint {
 public:
+    NationClientHint() {};
+    ~NationClientHint() {};
+
     uint32_t color;
 
     // Alternate name, for example communist Russia would be called USSR
@@ -80,6 +83,9 @@ public:
 
 class NationModifier : public RefnameEntity<uint16_t> {
 public:
+    NationModifier() {};
+    ~NationModifier() {};
+
     Eng3D::StringRef name;
     // Modifiers for a nation, which increases/decreases certain stuff
     // They should never be 0, a modifier of 1.0 is equal to no modifer at
@@ -104,8 +110,8 @@ class Nation : public RefnameEntity<uint16_t> {
     inline void do_diplomacy();
     inline bool can_do_diplomacy();
 public:
-    //Nation();
-    //~Nation();
+    Nation() {};
+    ~Nation() {};
     void declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> clauses = std::vector<TreatyClause::BaseClause*>());
     bool is_ally(const Nation& nation);
     bool is_enemy(const Nation& nation);
@@ -141,68 +147,37 @@ public:
     Eng3D::Decimal get_immigration_attraction_mod(void);
 
     Eng3D::StringRef name;
-
-    // Our puppetmaster
-    Nation* puppet_master = nullptr;
-
-    // Number of diplomacy points available
-    Eng3D::Decimal diplomacy_points;
-
-    // Total number of prestige
-    Eng3D::Decimal prestige = 0.1f;
-
-    // Level of infamy
-    Eng3D::Decimal infamy = 0;
-
+    Nation* puppet_master = nullptr; // Pupeeter of this nation (if any)
+    Eng3D::Decimal diplomacy_points; // Amount of diplomacy points available
+    Eng3D::Decimal prestige = 0.1f; // Amount of prestige
+    Eng3D::Decimal infamy = 0; // Level of infamy
     // 3 key scores used to define a nation's minimum prestige, how willing would the AI
     // be to challenge this nations and other valuable stuff
     Eng3D::Decimal military_score = 0, naval_score = 0, economy_score = 0;
-
     // Total budget of the nation (money in ark), this is not equal to GDP, the GDP is the total sum of the price
     // of all products in the nation, which are volatile unless they are sold
     Eng3D::Decimal budget;
+    // Default and can be disabled by the player
+    bool ai_controlled = true;
+    bool ai_do_cmd_troops = true;
 
-    // Total GDP of the nation
-    Eng3D::Decimal gdp = 0;
-
-    // The capital of this nation (can be nullptr)
-    Province* capital = nullptr;
+    Province* capital = nullptr; // The capital of this nation (can be nullptr)
+    Ideology* ideology = nullptr; // Current ideology of the nation
+    Policies current_policy; // Current policy of this nation
+    uint16_t diplomatic_timer; // Time until a diplomacy can be done
+    Technology* focus_tech = nullptr; // Current tech being researched
 
     // Hints for the client on how to draw a nation :)
     std::vector<NationClientHint> client_hints;
-    Ideology* ideology = nullptr;
-
     // Accepted cultures in this nation, the accepted cultures may have some bonuses on provinces *totally*
     // owned by this nation
     std::vector<float> culture_discrim;
     std::vector<float> religion_discrim;
-
     // List of provinces which are owned by this nation (including partial ownership)
     /// @todo Add controlled provinces to serializer
     std::set<Province*> owned_provinces, controlled_provinces;
-
-    // List of neighbouring nations
-    std::set<Nation*> neighbours;
-
-    // A pointer to a class defining the current policy of this nation
-    Policies current_policy;
-
-    // Time until a diplomatic action can be done
-    uint16_t diplomatic_timer;
-
-    //std::vector<std::pair<Technology*, float>> techs;
-    std::vector<NationModifier*> modifiers;
-
-    // Inbox of the nation; events that require our attention / should be processed
-    std::deque<Event> inbox;
-
-    // Progress on technologies (1:1)
-    std::vector<Eng3D::Decimal> research;
-
-    // Current focused tech
-    Technology* focus_tech = nullptr;
-
-    // Default and can be disabled by the player
-    bool ai_controlled = true;
-    bool ai_do_cmd_troops = true;
+    std::set<Nation*> neighbours; // Neighbouring nations
+    std::vector<NationModifier*> modifiers; //std::vector<std::pair<Technology*, float>> techs;
+    std::deque<Event> inbox; // Inbox of the nation; events that require our attention / should be processed
+    std::vector<Eng3D::Decimal> research; // Progress on technologies (1:1)
 };

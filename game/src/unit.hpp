@@ -42,8 +42,8 @@ class Province;
 // this is moddable via a lua script and new unit types can be added
 class UnitType : public RefnameEntity<uint8_t> {
 public:
-    //UnitType();
-    //~UnitType();
+    UnitType() {};
+    ~UnitType() {};
 
     Eng3D::StringRef name;
     
@@ -72,8 +72,8 @@ public:
 // A trait for an unit; given randomly per each recruited unit
 class UnitTrait : public RefnameEntity<uint8_t> {
 public:
-    //UnitTrait();
-    //~UnitTrait();
+    UnitTrait() {};
+    ~UnitTrait() {};
     
     Eng3D::Decimal supply_consumption_mod;
     Eng3D::Decimal speed_mod;
@@ -86,13 +86,15 @@ public:
 // Roughly a batallion, consisting of approximately 500 soldiers each
 class Unit : public IdEntity<uint16_t> {
 public:
-    Unit();
-    ~Unit();
+    Unit() {};
+    ~Unit() {};
     void attack(Unit& enemy);
     std::pair<Eng3D::Number, Eng3D::Number> get_pos(void) const;
     void set_target(Province& province);
     Eng3D::Decimal get_speed(const Province& province) const;
-    Eng3D::Decimal get_speed(void) const;
+    inline Eng3D::Decimal get_speed(void) const {
+        return get_speed(*target);
+    }
     void set_province(Province& province);
 
     /**

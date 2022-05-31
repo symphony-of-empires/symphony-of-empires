@@ -67,18 +67,6 @@ UnitTrait::~UnitTrait(void) {
 #include "eng3d/log.hpp"
 #include <string>
 #include <algorithm>
-Unit::Unit(void) {
-    Eng3D::Log::debug("unit", "Construct unit " + std::to_string((std::uintptr_t)this));
-}
-
-Unit::~Unit(void) {
-    Eng3D::Log::debug("unit", "Destruct unit " + std::to_string((std::uintptr_t)this));
-    if(province != nullptr) {
-        const auto it = std::find(province->units.cbegin(), province->units.cend(), this);
-        assert(it != province->units.cend());
-        province->units.erase(it);
-    }
-}
 //*/
 
 void Unit::attack(Unit& enemy) {
@@ -121,10 +109,6 @@ Eng3D::Decimal Unit::get_speed(const Province& _province) const {
     Eng3D::Decimal x_scale = 1 / (std::fabs(radius_scale) + 0.001f);
     Eng3D::Decimal speed_scale = std::sqrt(std::pow(std::sin(angle), 2) + std::pow(std::cos(angle) * x_scale, 2));
     return (speed * speed_scale) / 100.f;
-}
-
-Eng3D::Decimal Unit::get_speed(void) const {
-    return get_speed(*target);
 }
 
 void Unit::set_province(Province& _province) {

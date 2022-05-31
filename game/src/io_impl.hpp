@@ -157,27 +157,21 @@ template<>
 class Serializer<NationRelation>: public SerializerMemcpy<NationRelation> {
 public:
     static inline void serialize(Archive& stream, const NationRelation* obj) {
-        ::serialize(stream, &obj->free_supplies);
         ::serialize(stream, &obj->has_alliance);
         ::serialize(stream, &obj->has_defensive_pact);
         ::serialize(stream, &obj->has_embargo);
-        ::serialize(stream, &obj->has_embassy);
         ::serialize(stream, &obj->has_market_access);
         ::serialize(stream, &obj->has_military_access);
-        ::serialize(stream, &obj->has_truce);
         ::serialize(stream, &obj->has_war);
         ::serialize(stream, &obj->interest);
         ::serialize(stream, &obj->relation);
     }
     static inline void deserialize(Archive& stream, NationRelation* obj) {
-        ::deserialize(stream, &obj->free_supplies);
         ::deserialize(stream, &obj->has_alliance);
         ::deserialize(stream, &obj->has_defensive_pact);
         ::deserialize(stream, &obj->has_embargo);
-        ::deserialize(stream, &obj->has_embassy);
         ::deserialize(stream, &obj->has_market_access);
         ::deserialize(stream, &obj->has_military_access);
-        ::deserialize(stream, &obj->has_truce);
         ::deserialize(stream, &obj->has_war);
         ::deserialize(stream, &obj->interest);
         ::deserialize(stream, &obj->relation);
@@ -203,11 +197,8 @@ public:
         ::serialize(stream, &obj->industry_tax);
         ::serialize(stream, &obj->legislative_parliament);
         ::serialize(stream, &obj->med_flat_tax);
-        ::serialize(stream, &obj->men_labour);
-        ::serialize(stream, &obj->men_suffrage);
         ::serialize(stream, &obj->migration);
         ::serialize(stream, &obj->military_spending);
-        ::serialize(stream, &obj->national_id);
         ::serialize(stream, &obj->poor_flat_tax);
         ::serialize(stream, &obj->private_property);
         ::serialize(stream, &obj->public_education);
@@ -217,8 +208,6 @@ public:
         ::serialize(stream, &obj->slavery);
         ::serialize(stream, &obj->social_security);
         ::serialize(stream, &obj->treatment);
-        ::serialize(stream, &obj->women_labour);
-        ::serialize(stream, &obj->women_suffrage);
         ::serialize(stream, &obj->min_wage);
         ::serialize(stream, &obj->min_sv_for_parliament);
     }
@@ -229,11 +218,8 @@ public:
         ::deserialize(stream, &obj->industry_tax);
         ::deserialize(stream, &obj->legislative_parliament);
         ::deserialize(stream, &obj->med_flat_tax);
-        ::deserialize(stream, &obj->men_labour);
-        ::deserialize(stream, &obj->men_suffrage);
         ::deserialize(stream, &obj->migration);
         ::deserialize(stream, &obj->military_spending);
-        ::deserialize(stream, &obj->national_id);
         ::deserialize(stream, &obj->poor_flat_tax);
         ::deserialize(stream, &obj->private_property);
         ::deserialize(stream, &obj->public_education);
@@ -243,8 +229,6 @@ public:
         ::deserialize(stream, &obj->slavery);
         ::deserialize(stream, &obj->social_security);
         ::deserialize(stream, &obj->treatment);
-        ::deserialize(stream, &obj->women_labour);
-        ::deserialize(stream, &obj->women_suffrage);
         ::deserialize(stream, &obj->min_wage);
         ::deserialize(stream, &obj->min_sv_for_parliament);
     }

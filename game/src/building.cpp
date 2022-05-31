@@ -29,29 +29,8 @@
 #include "world.hpp"
 
 //
-// Building type
-//
-/*
-BuildingType::BuildingType(void) {
-
-}
-
-BuildingType::~BuildingType(void) {
-    
-}
-//*/
-
-//
 // Building
 //
-Building::Building(void) {
-
-}
-
-Building::~Building() {
-
-}
-
 // Adds a good by id to a building stockpile
 void Building::add_to_stock(const Good& good, const size_t add) {
     const World& world = World::get_instance();

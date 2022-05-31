@@ -24,11 +24,10 @@
 // ----------------------------------------------------------------------------
 
 #include "pop.hpp"
+#include "ideology.hpp"
+#include "culture.hpp"
+#include "religion.hpp"
 #include "world.hpp"
-
-bool Pop::operator==(const Pop& rhs) const {
-    return (this->culture == rhs.culture && this->religion == rhs.religion && this->type == rhs.type);
-}
 
 Ideology& Pop::get_ideology(void) const {
     // Obtain ideology with highest approval
@@ -43,8 +42,7 @@ Ideology& Pop::get_ideology(void) const {
 }
 
 uint32_t Pop::get_type_id(void) const {
-    uint32_t id;
-    id = this->type->cached_id;
+    uint32_t id = this->type->cached_id;
     id |= this->culture->cached_id << 8;
     id |= this->religion->cached_id << 24;
     return id;

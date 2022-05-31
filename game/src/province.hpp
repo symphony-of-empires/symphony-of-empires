@@ -44,13 +44,14 @@ class Building;
 
 #include "pop.hpp"
 #include "building.hpp"
+#include "product.hpp"
 
 // A single province, which is used to simulate economy in a "bulk-tiles" way
 // instead of doing economical operations on every single tile
 class Province : public RefnameEntity<uint16_t> {
 public:
-    //Province();
-    //~Province();
+    Province() {};
+    ~Province() {};
     Eng3D::Number total_pops(void) const;
     Eng3D::Decimal get_attractiveness(const Pop& pop) const;
     std::pair<Eng3D::Decimal, Eng3D::Decimal> get_pos(void) const;
@@ -94,9 +95,8 @@ public:
 
     // List of pops in this province
     std::vector<Pop> pops;
-    std::vector<Unit*> units;
-
     // These structures normally won't change on a normal playthru
     std::vector<Product> products;
+    std::vector<Unit*> units;
     std::vector<Building> buildings;
 };

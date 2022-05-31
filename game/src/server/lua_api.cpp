@@ -444,11 +444,6 @@ int LuaAPI::get_nation_policies(lua_State* L) {
     lua_pushnumber(L, policy.censorship);
     lua_pushnumber(L, policy.build_infrastructure);
     lua_pushnumber(L, policy.build_factories);
-    lua_pushboolean(L, policy.national_id);
-    lua_pushboolean(L, policy.men_suffrage);
-    lua_pushboolean(L, policy.men_labour);
-    lua_pushboolean(L, policy.women_suffrage);
-    lua_pushboolean(L, policy.women_labour);
     lua_pushboolean(L, policy.private_property);
     lua_pushboolean(L, policy.companies_allowed);
     lua_pushboolean(L, policy.public_education);
@@ -472,7 +467,7 @@ int LuaAPI::get_nation_policies(lua_State* L) {
     lua_pushboolean(L, policy.free_supplies);
     lua_pushnumber(L, (policy.min_wage));
     lua_pushnumber(L, (policy.min_sv_for_parliament));
-    return 34;
+    return 29;
 }
 
 int LuaAPI::set_nation_policies(lua_State* L) {
@@ -488,34 +483,29 @@ int LuaAPI::set_nation_policies(lua_State* L) {
     policy.censorship = static_cast<CensorshipPolicy>(lua_tonumber(L, 4));
     policy.build_infrastructure = static_cast<AutoBuildPolicy>(lua_tonumber(L, 5));
     policy.build_factories = static_cast<AutoBuildPolicy>(lua_tonumber(L, 6));
-    policy.national_id = lua_toboolean(L, 7);
-    policy.men_suffrage = lua_toboolean(L, 8);
-    policy.men_labour = lua_toboolean(L, 9);
-    policy.women_suffrage = lua_toboolean(L, 10);
-    policy.women_labour = lua_toboolean(L, 11);
-    policy.private_property = lua_toboolean(L, 12);
-    policy.companies_allowed = lua_toboolean(L, 13);
-    policy.public_education = lua_toboolean(L, 14);
-    policy.secular_education = lua_toboolean(L, 15);
-    policy.public_healthcare = lua_toboolean(L, 16);
-    policy.social_security = lua_toboolean(L, 17);
-    policy.slavery = lua_toboolean(L, 18);
-    policy.legislative_parliament = lua_toboolean(L, 19);
-    policy.executive_parliament = lua_toboolean(L, 20);
-    policy.constitutional = lua_toboolean(L, 21);
-    policy.foreign_trade = lua_toboolean(L, 22);
-    policy.import_tax = (lua_tonumber(L, 23));
-    policy.export_tax = (lua_tonumber(L, 24));
-    policy.domestic_import_tax = (lua_tonumber(L, 25));
-    policy.domestic_export_tax = (lua_tonumber(L, 26));
-    policy.poor_flat_tax = (lua_tonumber(L, 27));
-    policy.med_flat_tax = (lua_tonumber(L, 28));
-    policy.rich_flat_tax = (lua_tonumber(L, 29));
-    policy.industry_tax = (lua_tonumber(L, 30));
-    policy.military_spending = (lua_tonumber(L, 31));
-    policy.free_supplies = lua_toboolean(L, 32);
-    policy.min_wage = (lua_tonumber(L, 33));
-    policy.min_sv_for_parliament = (lua_tonumber(L, 34));
+    policy.private_property = lua_toboolean(L, 7);
+    policy.companies_allowed = lua_toboolean(L, 8);
+    policy.public_education = lua_toboolean(L, 9);
+    policy.secular_education = lua_toboolean(L, 10);
+    policy.public_healthcare = lua_toboolean(L, 11);
+    policy.social_security = lua_toboolean(L, 12);
+    policy.slavery = lua_toboolean(L, 13);
+    policy.legislative_parliament = lua_toboolean(L, 14);
+    policy.executive_parliament = lua_toboolean(L, 15);
+    policy.constitutional = lua_toboolean(L, 16);
+    policy.foreign_trade = lua_toboolean(L, 17);
+    policy.import_tax = (lua_tonumber(L, 18));
+    policy.export_tax = (lua_tonumber(L, 19));
+    policy.domestic_import_tax = (lua_tonumber(L, 20));
+    policy.domestic_export_tax = (lua_tonumber(L, 21));
+    policy.poor_flat_tax = (lua_tonumber(L, 22));
+    policy.med_flat_tax = (lua_tonumber(L, 23));
+    policy.rich_flat_tax = (lua_tonumber(L, 24));
+    policy.industry_tax = (lua_tonumber(L, 25));
+    policy.military_spending = (lua_tonumber(L, 26));
+    policy.free_supplies = lua_toboolean(L, 27);
+    policy.min_wage = (lua_tonumber(L, 28));
+    policy.min_sv_for_parliament = (lua_tonumber(L, 29));
     return 0;
 }
 
@@ -537,12 +527,9 @@ int LuaAPI::get_nation_relation(lua_State* L) {
     lua_pushboolean(L, relation.has_war);
     lua_pushboolean(L, relation.has_alliance);
     lua_pushboolean(L, relation.has_defensive_pact);
-    lua_pushboolean(L, relation.has_truce);
-    lua_pushboolean(L, relation.has_embassy);
     lua_pushboolean(L, relation.has_military_access);
-    lua_pushboolean(L, relation.free_supplies);
     lua_pushboolean(L, relation.has_market_access);
-    return 12;
+    return 9;
 }
 
 int LuaAPI::set_nation_relation(lua_State* L) {
@@ -556,11 +543,8 @@ int LuaAPI::set_nation_relation(lua_State* L) {
     relation.has_war = lua_toboolean(L, 6);
     relation.has_alliance = lua_toboolean(L, 7);
     relation.has_defensive_pact = lua_toboolean(L, 8);
-    relation.has_truce = lua_toboolean(L, 9);
-    relation.has_embassy = lua_toboolean(L, 10);
-    relation.has_military_access = lua_toboolean(L, 11);
-    relation.has_market_access = lua_toboolean(L, 12);
-    relation.free_supplies = lua_toboolean(L, 13);
+    relation.has_military_access = lua_toboolean(L, 9);
+    relation.has_market_access = lua_toboolean(L, 10);
     return 0;
 }
 

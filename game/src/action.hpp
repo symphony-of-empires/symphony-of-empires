@@ -31,59 +31,53 @@
 enum class ActionType {
     // Errors
     BAD,
-
     // Tell client that a whole tick has been done
     WORLD_TICK,
-
     // Self-explanaitory
     SELECT_NATION,
-
     // Gaming chatting
     CONNECT,
     DISCONNECT,
     CHAT_MESSAGE,
     CHAT_NICKNAME,
-
     // Testing
     PING,
     PONG,
-
+    // Province
     PROVINCE_UPDATE,
     PROVINCE_ADD,
     PROVINCE_REMOVE,
     PROVINCE_COLONIZE,
-
+    // Nation
     NATION_UPDATE,
     NATION_ADD,
     NATION_REMOVE,
     NATION_ENACT_POLICY,
     NATION_TAKE_DECISION,
-
+    // Unit
     UNIT_UPDATE,
     UNIT_ADD,
     UNIT_REMOVE,
     UNIT_CHANGE_TARGET,
-
+    // Building
     BUILDING_UPDATE,
     BUILDING_ADD,
     BUILDING_REMOVE,
     BUILDING_START_BUILDING_UNIT,
-
+    // Tile
     TILE_UPDATE,
-
+    // Treaty
     CHANGE_TREATY_APPROVAL,
     DRAFT_TREATY,
     TREATY_ADD,
-
-    // Diplomatic actions
+    // Diplomacy
     DIPLO_INC_RELATIONS,
     DIPLO_DEC_RELATIONS,
     DIPLO_EMBARGO,
     DIPLO_DECLARE_WAR,
     DIPLO_ALLOW_MIL_ACCESS,
-
+    // Technology
     FOCUS_TECH,
-    
     // Change AI status
     AI_CONTROL,
 };

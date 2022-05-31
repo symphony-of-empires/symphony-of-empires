@@ -32,6 +32,9 @@
 
 class Culture : public RefnameEntity<uint16_t> {
 public:
+    Culture() {};
+    ~Culture() {};
+    
     std::uint32_t color;
     Eng3D::StringRef name;
     Eng3D::StringRef adjective;

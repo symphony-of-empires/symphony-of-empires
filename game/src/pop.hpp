@@ -29,7 +29,11 @@
 #include <string>
 #include "eng3d/entity.hpp"
 #include "eng3d/decimal.hpp"
-#include "ideology.hpp"
+
+class Ideology;
+class PopType;
+class Culture;
+class Religion;
 
 enum class PopGroup : int {
     OTHER = 0x01,
@@ -41,22 +45,24 @@ enum class PopGroup : int {
 
 class PopType : public RefnameEntity<uint8_t> {
 public:
+    PopType() {};
+    ~PopType() {};
+
     Eng3D::StringRef name;
     Eng3D::Decimal social_value;
     enum PopGroup group;
-    // The amount of goods needed to satisfy basic needs
-    std::vector<float> basic_needs_amount; 
-    // The amount of satisfaction each luxury good gives
-    std::vector<float> luxury_needs_satisfaction; 
-    // The deminishing returns factor of the luxury good satisfaction
-    std::vector<float> luxury_needs_deminishing_factor; 
+    std::vector<float> basic_needs_amount; // Amount of goods needed to satisfy basic needs
+    std::vector<float> luxury_needs_satisfaction; // Amount of satisfaction each luxury good gives
+    std::vector<float> luxury_needs_deminishing_factor; // Deminishing returns factor of the luxury good satisfaction
 };
 
-#include "culture.hpp"
-#include "religion.hpp"
 class Pop {
 public:
-    bool operator==(const Pop& rhs) const;
+    Pop() {};
+    ~Pop() {};
+    inline bool operator==(const Pop& rhs) const {
+        return (this->culture == rhs.culture && this->religion == rhs.religion && this->type == rhs.type);
+    }
     Ideology& get_ideology(void) const;
     uint32_t get_type_id(void) const;
 
@@ -65,10 +71,12 @@ public:
     Religion* religion;
 
     Eng3D::Number size = 0.f;
-    Eng3D::Decimal life_needs_met = 0.f, everyday_needs_met = 0.f, luxury_needs_met = 0.f;
-    Eng3D::Decimal literacy = 0.f, militancy = 0.f;
-    Eng3D::Decimal budget = 0.f, savings = 0.f;
-
-    // Approval % of all the ideologies (1:1)
-    std::vector<Eng3D::Decimal> ideology_approval;
+    Eng3D::Decimal life_needs_met = 0.f;
+    Eng3D::Decimal everyday_needs_met = 0.f;
+    Eng3D::Decimal luxury_needs_met = 0.f;
+    Eng3D::Decimal literacy = 0.f;
+    Eng3D::Decimal militancy = 0.f;
+    Eng3D::Decimal budget = 0.f;
+    Eng3D::Decimal savings = 0.f;
+    std::vector<Eng3D::Decimal> ideology_approval; // Approval % of all the ideologies (1:1)
 };

@@ -30,7 +30,6 @@
 #include <tbb/concurrent_vector.h>
 #include <tbb/parallel_for.h>
 #include <tbb/combinable.h>
-
 #include "eng3d/log.hpp"
 #include "eng3d/serializer.hpp"
 #include "eng3d/thread_pool.hpp"
@@ -203,6 +202,7 @@ constexpr float production_scaling_speed_factor = 0.5f;
 constexpr float scale_speed(float v) {
     return 1.f - production_scaling_speed_factor + production_scaling_speed_factor * v;
 }
+
 // Updates supply, demand, and set wages for workers
 void update_factory_production(World& world, Building& building, BuildingType* building_type, Province& province, float& pop_payment)
 {
@@ -359,9 +359,8 @@ static inline Unit* build_unit(Building& building, Province& province) {
     }
 
     /// @todo Maybe delete if size becomes 0?
-    //const Eng3D::Number final_size = std::min<Eng3D::Number>((*it).size, army_size);
-    //(*it).size -= final_size;
-    const Eng3D::Number final_size = army_size;
+    const Eng3D::Number final_size = std::min<Eng3D::Number>((*it).size, army_size);
+    (*it).size -= final_size;
     if(can_build_unit && final_size) {
         // Spawn a unit
         Unit* unit = new Unit();

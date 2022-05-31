@@ -34,7 +34,6 @@
 #include "eng3d/audio.hpp"
 #include "eng3d/state.hpp"
 #include "eng3d/decimal.hpp"
-#include "tutorial.hpp"
 
 enum class MapMode : unsigned char {
     COUNTRY_SELECT,
@@ -142,8 +141,6 @@ public:
 
     // Queue of production for unit_types
     std::deque<const UnitType*> production_queue;
-
-    TutorialState tutorial;
 
     UI::Widget* right_side_panel = nullptr;
 

@@ -29,16 +29,52 @@
 #include <deque>
 #include "eng3d/decimal.hpp"
 
-#include "province.hpp"
-#include "good.hpp"
-#include "building.hpp"
-
 // A product (based off a Good) which can be bought by POPs, converted by factories and transported
 class Product : public IdEntity<uint16_t> {
 public:
-    //Product();
-    //~Product();
-    void close_market(void);
+    Product() {};
+    ~Product() {};
+    inline void close_market(void) {
+
+        if(this->demand > this->supply) {
+            // Increase price with more demand
+            this->price_vel += 0.001f * (this->demand - this->supply);
+        } else if(this->demand < this->supply) {
+            // Increase supply with more demand
+            this->price_vel -= 0.001f * (this->supply - this->demand);
+        } else {
+            // Gravitate towards absolute zero due to volatility decay
+            // (i.e, product price becomes stable without market activity)
+            if(this->price_vel > 0.1f) {
+                this->price_vel -= 0.01f;
+            } else if(this->price_vel < -0.1f) {
+                this->price_vel += 0.01f;
+            } else {
+                this->price_vel = -0.01f;
+            }
+        }
+
+        // Set the new price
+        this->price = std::max<Eng3D::Decimal>(0.01f, this->price + this->price_vel);
+
+        // Save prices and stuff onto history (for the charts!)
+        this->demand_history.push_back(this->demand);
+        if(this->demand_history.size() > 60) {
+            this->demand_history.pop_front();
+        }
+
+        this->supply_history.push_back(this->supply);
+        if(this->supply_history.size() > 60) {
+            this->supply_history.pop_front();
+        }
+
+        this->price_history.push_back(this->price);
+        if(this->price_history.size() > 60) {
+            this->price_history.pop_front();
+        }
+
+        this->demand = 0;
+    }
 
     // Price of the product
     Eng3D::Decimal price;
