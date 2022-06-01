@@ -49,21 +49,24 @@ void Unit::attack(Unit& enemy) {
 }
 
 std::pair<Eng3D::Number, Eng3D::Number> Unit::get_pos() const {
-    return province->get_pos();
+    const World& world = World::get_instance();
+    return world.provinces[this->province_id].get_pos();
 }
 
 void Unit::set_target(Province& _province) {
+    const World& world = World::get_instance();
     assert(this->can_move());
-    target = &_province;
+    target_province_id = world.get_id(_province);
 
     // Calculate the required movement before it can reach the target
-    const auto& cur_pos = this->province->get_pos();
-    const auto& target_pos = this->target->get_pos();
+    const auto& cur_pos = world.provinces[this->province_id].get_pos();
+    const auto& target_pos = world.provinces[this->target_province_id].get_pos();
     move_progress = std::sqrt(std::abs(cur_pos.first - target_pos.first) + std::abs(cur_pos.second - target_pos.second));
 }
 
 Eng3D::Decimal Unit::get_speed(const Province& _province) const {
-    auto start_pos = province->get_pos();
+    const World& world = World::get_instance();
+    auto start_pos = world.provinces[this->province_id].get_pos();
     auto end_pos = _province.get_pos();
 
     // Get the linear distance from the current deduced position of the unit and the target
@@ -84,16 +87,21 @@ Eng3D::Decimal Unit::get_speed(const Province& _province) const {
     return (speed * speed_scale) / 100.f;
 }
 
+Eng3D::Decimal Unit::get_speed() const {
+    return this->get_speed(World::get_instance().provinces[this->target_province_id]);
+}
+
 void Unit::set_province(Province& _province) {
+    World& world = World::get_instance();
     assert(this->can_move()); // Must be able to move to perform this...
-    assert(this->province != &_province);
+    assert(this->province_id != world.get_id(_province)); // Not setting to same province
 
     // Delete the unit from the previous cache list of units
-    if(province != nullptr) {
-        std::erase(province->units, this);
+    if(Province::is_valid(this->province_id)) {
+        std::erase(world.provinces[this->province_id].units, this);
     }
 
-    province = &_province;
+    this->province_id = world.get_id(_province);
     // Add unit to "cache list" of units
-    province->units.push_back(this);
+    world.provinces[this->province_id].units.push_back(this);
 }

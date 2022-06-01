@@ -31,9 +31,10 @@
 #include "eng3d/entity.hpp"
 #include "eng3d/decimal.hpp"
 
-#include "unit.hpp"
-
 class Technology;
+class Unit;
+class UnitType;
+class Good;
 
 // Type for military outposts
 class BuildingType: public RefnameEntity<uint8_t> {

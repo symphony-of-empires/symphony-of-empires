@@ -60,8 +60,8 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
         auto* btn = new BuildingTypeButton(gs, 0, 24 * i, building_type, this);
         btn->set_on_click([](UI::Widget& w) {
             auto& o = static_cast<BuildingBuildView&>(*w.parent->parent);
-            if(o.gs.curr_nation->owned_provinces.empty()) {
-                o.gs.ui_ctx->prompt("Error", "You do not own any provinces");
+            if(!o.gs.curr_nation->exists()) {
+                o.gs.ui_ctx->prompt("Error", "You don't exist");
                 return;
             }
             

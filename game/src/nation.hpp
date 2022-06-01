@@ -32,7 +32,6 @@
 #include <unordered_set>
 #include <string>
 #include <vector>
-
 #include "eng3d/entity.hpp"
 #include "eng3d/string.hpp"
 
@@ -48,6 +47,9 @@ class Religion;
 namespace TreatyClause {
     class BaseClause;
 }
+
+// Included due to ids
+#include "province.hpp"
 
 // Defines a one side relation between a country
 // This allows for cases where a country A hates country B, but country B loves country A
@@ -147,7 +149,7 @@ public:
     Eng3D::Decimal get_immigration_attraction_mod();
 
     Eng3D::StringRef name;
-    Nation* puppet_master = nullptr; // Pupeeter of this nation (if any)
+    Nation* puppet_master; // Pupeeter of this nation (if any)
     Eng3D::Decimal diplomacy_points; // Amount of diplomacy points available
     Eng3D::Decimal prestige = 0.1f; // Amount of prestige
     Eng3D::Decimal infamy = 0; // Level of infamy
@@ -161,7 +163,7 @@ public:
     bool ai_controlled = true;
     bool ai_do_cmd_troops = true;
 
-    Province* capital = nullptr; // The capital of this nation (can be nullptr)
+    Province::Id capital_id = Province::invalid(); // The capital of this nation (can be nullptr)
     Ideology* ideology = nullptr; // Current ideology of the nation
     Policies current_policy; // Current policy of this nation
     uint16_t diplomatic_timer; // Time until a diplomacy can be done
@@ -175,8 +177,8 @@ public:
     std::vector<float> religion_discrim;
     // List of provinces which are owned by this nation (including partial ownership)
     /// @todo Add controlled provinces to serializer
-    std::set<Province*> owned_provinces, controlled_provinces;
-    std::set<Nation*> neighbours; // Neighbouring nations
+    std::set<Province::Id> owned_provinces;
+    std::set<Province::Id> controlled_provinces;
     std::vector<NationModifier*> modifiers; //std::vector<std::pair<Technology*, float>> techs;
     std::deque<Event> inbox; // Inbox of the nation; events that require our attention / should be processed
     std::vector<Eng3D::Decimal> research; // Progress on technologies (1:1)

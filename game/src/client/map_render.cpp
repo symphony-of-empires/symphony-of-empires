@@ -276,7 +276,6 @@ void MapRender::reload_shaders() {
 }
 
 void MapRender::update_options(MapOptions new_options) {
-    //map_shader = Eng3D::OpenGL::Program::create(options.get_options(), "shaders/map.vs", "shaders/map.fs");
     map_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
         std::vector<Eng3D::OpenGL::GLSL_Define> defined_options;
@@ -440,17 +439,18 @@ void MapRender::update_visibility()
     for(unsigned int i = 0; i < 256 * 256; i++)
         province_opt->buffer.get()[i] = 0x00000080;
 
-    for(const auto& province : gs.curr_nation->controlled_provinces) {
-        this->province_opt->buffer.get()[gs.world->get_id(*province)] = 0x000000ff;
-        for(const auto& neighbour : province->neighbours)
-            this->province_opt->buffer.get()[gs.world->get_id(*neighbour)] = 0x000000ff;
+    for(const auto& province_id : gs.curr_nation->controlled_provinces) {
+        const auto& province = gs.world->provinces[province_id];
+        this->province_opt->buffer.get()[province_id] = 0x000000ff;
+        for(const auto& neighbour : province.neighbours)
+            this->province_opt->buffer.get()[province_id] = 0x000000ff;
     }
 
     for(const auto& unit : gs.world->units) {
         // Unit must be ours
         if(unit->owner != gs.curr_nation) continue;
-        this->province_opt->buffer.get()[gs.world->get_id(*unit->province)] = 0x000000ff;
-        for(const auto& neighbour : unit->province->neighbours)
+        this->province_opt->buffer.get()[unit->province_id] = 0x000000ff;
+        for(const auto& neighbour : gs.world->provinces[unit->province_id].neighbours)
             this->province_opt->buffer.get()[gs.world->get_id(*neighbour)] = 0x000000ff;
     }
     if(gs.map->province_selected)

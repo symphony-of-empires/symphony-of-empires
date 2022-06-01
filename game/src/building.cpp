@@ -27,6 +27,7 @@
 #include "product.hpp"
 #include "province.hpp"
 #include "world.hpp"
+#include "unit.hpp"
 
 //
 // Building

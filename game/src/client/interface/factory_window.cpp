@@ -37,129 +37,126 @@
 using namespace Interface;
 
 void make_building_header(UI::Div* table) {
-	auto* row = new UI::Div(0, 0, 800, 35, table);
-	row->flex = UI::Flex::ROW;
-	row->flex_justify = UI::FlexJustify::START;
+    auto* row = new UI::Div(0, 0, 800, 35, table);
+    row->flex = UI::Flex::ROW;
+    row->flex_justify = UI::FlexJustify::START;
 
-	glm::ivec2 size(4, 4);
-	glm::ivec2 texture_size(10, 10);
-	auto tex_man = Eng3D::State::get_instance().tex_man;
-	auto border_tex = tex_man->load(Path::get("gfx/border2.png"));
-	auto border = UI::Border(border_tex, size, texture_size);
+    glm::ivec2 size(4, 4);
+    glm::ivec2 texture_size(10, 10);
+    auto tex_man = Eng3D::State::get_instance().tex_man;
+    auto border_tex = tex_man->load(Path::get("gfx/border2.png"));
+    auto border = UI::Border(border_tex, size, texture_size);
 
-	auto name_lab = new UI::Div(0, 0, 150, 35, row);
-	name_lab->text("Name");
-	name_lab->border = border;
+    auto name_lab = new UI::Div(0, 0, 150, 35, row);
+    name_lab->text("Name");
+    name_lab->border = border;
 
-	auto workers_lab = new UI::Div(0, 0, 100, 35, row);
-	workers_lab->text("Workers");
-	workers_lab->border = border;
+    auto workers_lab = new UI::Div(0, 0, 100, 35, row);
+    workers_lab->text("Workers");
+    workers_lab->border = border;
 
-	auto province_lab = new UI::Div(0, 0, 200, 35, row);
-	province_lab->text("Province");
-	province_lab->border = border;
+    auto province_lab = new UI::Div(0, 0, 200, 35, row);
+    province_lab->text("Province");
+    province_lab->border = border;
 
-	auto input_lab = new UI::Div(0, 0, 150, 35, row);
-	input_lab->text("Inputs");
-	input_lab->border = border;
+    auto input_lab = new UI::Div(0, 0, 150, 35, row);
+    input_lab->text("Inputs");
+    input_lab->border = border;
 
-	auto output_lab = new UI::Div(0, 0, 35, 35, row);
-	output_lab->text("Output");
-	output_lab->border = border;
+    auto output_lab = new UI::Div(0, 0, 35, 35, row);
+    output_lab->text("Output");
+    output_lab->border = border;
 
-	auto production_scale_lab = new UI::Div(0, 0, 50, 35, row);
-	production_scale_lab->text("Scale");
-	production_scale_lab->border = border;
+    auto production_scale_lab = new UI::Div(0, 0, 50, 35, row);
+    production_scale_lab->text("Scale");
+    production_scale_lab->border = border;
 }
 
-void make_building_row(UI::Div* table, Building& building, const BuildingType* type, const Province* province) {
-	auto* row = new UI::Div(0, 0, 800, 35, table);
-	row->flex = UI::Flex::ROW;
-	row->flex_justify = UI::FlexJustify::START;
+void make_building_row(UI::Div* table, Building& building, const BuildingType* type, const Province& province) {
+    auto* row = new UI::Div(0, 0, 800, 35, table);
+    row->flex = UI::Flex::ROW;
+    row->flex_justify = UI::FlexJustify::START;
 
-	glm::ivec2 size(4, 4);
-	glm::ivec2 texture_size(10, 10);
-	auto tex_man = Eng3D::State::get_instance().tex_man;
-	auto border_tex = tex_man->load(Path::get("gfx/border2.png"));
-	auto border = UI::Border(border_tex, size, texture_size);
+    glm::ivec2 size(4, 4);
+    glm::ivec2 texture_size(10, 10);
+    auto tex_man = Eng3D::State::get_instance().tex_man;
+    auto border_tex = tex_man->load(Path::get("gfx/border2.png"));
+    auto border = UI::Border(border_tex, size, texture_size);
 
-	auto name_lab = new UI::Div(0, 0, 150, 35, row);
-	name_lab->text(type->name.get_string());
-	name_lab->border = border;
+    auto name_lab = new UI::Div(0, 0, 150, 35, row);
+    name_lab->text(type->name.get_string());
+    name_lab->border = border;
 
-	auto workers_lab = new UI::Div(0, 0, 100, 35, row);
-	workers_lab->text(Eng3D::string_format("%d", building.workers));
-	workers_lab->border = border;
+    auto workers_lab = new UI::Div(0, 0, 100, 35, row);
+    workers_lab->text(Eng3D::string_format("%d", building.workers));
+    workers_lab->border = border;
 
-	auto province_lab = new UI::Div(0, 0, 200, 35, row);
-	province_lab->text(province->name.get_string());
-	province_lab->border = border;
+    auto province_lab = new UI::Div(0, 0, 200, 35, row);
+    province_lab->text(province.name.get_string());
+    province_lab->border = border;
 
-	auto input_div = new UI::Div(0, 0, 150, 35, row);
-	input_div->border = border;
-	input_div->flex = UI::Flex::ROW;
-	input_div->flex_justify = UI::FlexJustify::START;
+    auto input_div = new UI::Div(0, 0, 150, 35, row);
+    input_div->border = border;
+    input_div->flex = UI::Flex::ROW;
+    input_div->flex_justify = UI::FlexJustify::START;
 
-	for(auto good : type->inputs) {
-		auto input_good_image = new UI::Image(0, 0, 35, 35, "gfx/good/" + good->ref_name + ".png", true, input_div);
-		input_good_image->set_tooltip(good->name.get_string());
-	}
+    for(auto good : type->inputs) {
+        auto input_good_image = new UI::Image(0, 0, 35, 35, "gfx/good/" + good->ref_name + ".png", true, input_div);
+        input_good_image->set_tooltip(good->name.get_string());
+    }
 
-	auto output = type->output;
-	auto output_div = new UI::Div(0, 0, 35, 35, row);
-	output_div->border = border;
-	auto output_good_image = new UI::Image(0, 0, 35, 35, "gfx/good/" + output->ref_name + ".png", true, output_div);
-	output_good_image->set_tooltip(output->name.get_string());
+    auto output = type->output;
+    auto output_div = new UI::Div(0, 0, 35, 35, row);
+    output_div->border = border;
+    auto output_good_image = new UI::Image(0, 0, 35, 35, "gfx/good/" + output->ref_name + ".png", true, output_div);
+    output_good_image->set_tooltip(output->name.get_string());
 
-	auto production_scale_lab = new UI::Div(0, 0, 50, 35, row);
-	production_scale_lab->text(Eng3D::string_format("%1.2f", building.production_scale));
-	production_scale_lab->border = border;
+    auto production_scale_lab = new UI::Div(0, 0, 50, 35, row);
+    production_scale_lab->text(Eng3D::string_format("%1.2f", building.production_scale));
+    production_scale_lab->border = border;
 }
 
 FactoryWindow::FactoryWindow(GameState& gs)
-	: UI::Window(-400, -400, 800, 800),
-	gs{ gs }
+    : UI::Window(-400, -400, 800, 800),
+    gs{ gs }
 {
-	this->origin = UI::Origin::CENTER_SCREEN;
-	this->text("Factories");
-	this->is_scroll = false;
+    this->origin = UI::Origin::CENTER_SCREEN;
+    this->text("Factories");
+    this->is_scroll = false;
 
-	this->set_close_btn_function([this](Widget&) {
+    this->set_close_btn_function([this](Widget&) {
         this->kill();
     });
 
-	Nation* nation = gs.curr_nation;
+    Nation* nation = gs.curr_nation;
 
-	int size = 0;
-	for(auto prov : nation->owned_provinces) {
-		for(size_t i = 0; i < prov->buildings.size(); i++) {
-			auto& building = prov->buildings[i];
-			if(building.level != 0) {
-				size++;
-			}
-		}
-	}
+    int size = 0;
+    for(auto province_id : nation->owned_provinces) {
+        const auto& province = gs.world->provinces[province_id];
+        for(size_t i = 0; i < province.buildings.size(); i++) {
+            auto& building = province.buildings[i];
+            if(building.level != 0) size++;
+        }
+    }
 
-	auto* header_column = new UI::Div(5, 5, 800 - 10, 35, this);
-	make_building_header(header_column);
+    auto* header_column = new UI::Div(5, 5, 800 - 10, 35, this);
+    make_building_header(header_column);
 
-	auto* table = new UI::Div(5, 40, 800 - 10, 700, this);
-	table->is_scroll = true;
-	new UI::Scrollbar(700, 0, 20, 700, table);
+    auto* table = new UI::Div(5, 40, 800 - 10, 700, this);
+    table->is_scroll = true;
+    new UI::Scrollbar(700, 0, 20, 700, table);
 
-	auto* flex_column = new UI::Div(0, 0, 800 - 10, size * 35, table);
-	flex_column->flex = UI::Flex::COLUMN;
-	flex_column->flex_justify = UI::FlexJustify::START;
+    auto* flex_column = new UI::Div(0, 0, 800 - 10, size * 35, table);
+    flex_column->flex = UI::Flex::COLUMN;
+    flex_column->flex_justify = UI::FlexJustify::START;
 
-	for(auto prov : nation->owned_provinces) {
-		for(size_t i = 0; i < prov->buildings.size(); i++) {
-			auto& building = prov->buildings[i];
-			auto* type = &gs.world->building_types[i];
-			if(building.level == 0) {
-				continue;
-			}
-
-			make_building_row(flex_column, building, type, prov);
-		}
-	}
+    for(auto province_id : nation->owned_provinces) {
+        auto& province = gs.world->provinces[province_id];
+        for(size_t i = 0; i < province.buildings.size(); i++) {
+            auto& building = province.buildings[i];
+            auto* type = &gs.world->building_types[i];
+            if(!building.level == 0) continue;
+            make_building_row(flex_column, building, type, province);
+        }
+    }
 }

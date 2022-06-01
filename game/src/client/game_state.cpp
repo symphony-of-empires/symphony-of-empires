@@ -93,9 +93,8 @@
 void GameState::play_nation() {
     current_mode = MapMode::NORMAL;
 
-    const auto* capital = this->curr_nation->capital;
-    if(capital != nullptr)
-        map->camera->set_pos(capital->box_area.right, capital->box_area.bottom);
+    const auto& capital = this->world->provinces[this->curr_nation->capital_id];
+    map->camera->set_pos(capital.box_area.right, capital.box_area.bottom);
     map->map_render->update_visibility();
 
     // Make topwindow
@@ -369,7 +368,7 @@ void save(GameState& gs) {
             // Give province to owner
             if(province.owner != nullptr) {
                 fprintf(fp.get(), "province:give_to(n_%s)\n", province.owner->ref_name.c_str());
-                if(province.owner->capital == &province)
+                if(province.owner->capital_id == gs.world->get_id(province))
                     fprintf(fp.get(), "n_%s:set_capital(province)\n", province.owner->ref_name.c_str());
             }
             // Units
@@ -744,12 +743,13 @@ void start_client(int argc, char** argv) {
                         /// @todo Make a better queue AI
                         bool is_built = false;
                         for(auto& building_type : gs.world->building_types) {
-                            for(const auto& province : gs.curr_nation->controlled_provinces) {
-                                Building& building = province->get_buildings()[gs.world->get_id(building_type)];
+                            for(const auto& province_id : gs.curr_nation->controlled_provinces) {
+                                auto& province = gs.world->provinces[province_id];
+                                Building& building = province.get_buildings()[gs.world->get_id(building_type)];
                                 // Must not be working on something else
                                 if(building.working_unit_type != nullptr) continue;
                                 is_built = true;
-                                g_client->send(Action::BuildingStartProducingUnit::form_packet(*province, building_type, *gs.curr_nation, *unit_type));
+                                g_client->send(Action::BuildingStartProducingUnit::form_packet(province, building_type, *gs.curr_nation, *unit_type));
                                 break;
                             }
 

@@ -66,8 +66,9 @@ struct PopNeed {
 };
 
 void militancy_update(World& world, Nation& nation) {
-    for(const auto& province : nation.controlled_provinces) {
-        for(auto& pop : province->pops) {
+    for(const auto& province_id : nation.controlled_provinces) {
+        auto& province = world.provinces[province_id];
+        for(auto& pop : province.pops) {
             // More literacy means more educated persons with less children
             Eng3D::Decimal growth = pop.size / (pop.literacy + 1.f);
             growth *= pop.life_needs_met;
@@ -77,9 +78,9 @@ void militancy_update(World& world, Nation& nation) {
             // Met life needs means less militancy
             // For example, having 1.0 life needs means that we obtain -0.01 militancy per ecotick
             // and the opposite happens with negative life needs
-            pop.militancy += 0.01f * (-pop.life_needs_met) * province->owner->get_militancy_mod();
+            pop.militancy += 0.01f * (-pop.life_needs_met) * province.owner->get_militancy_mod();
             // Current liking of the party is influenced by the life_needs_met
-            pop.ideology_approval[world.get_id(*province->owner->ideology)] += (pop.life_needs_met + 1.f) / 10.f;
+            pop.ideology_approval[world.get_id(*province.owner->ideology)] += (pop.life_needs_met + 1.f) / 10.f;
         }
     }
 
@@ -89,8 +90,9 @@ void militancy_update(World& world, Nation& nation) {
     std::vector<Eng3D::Decimal> ideology_anger(world.ideologies.size(), 0.f);
     const Eng3D::Decimal coup_chances = 1000.f;
     auto rand = Eng3D::get_local_generator();
-    for(const auto& province : nation.controlled_provinces) {
-        for(const auto& pop : province->pops) {
+    for(const auto& province_id : nation.controlled_provinces) {
+        const auto& province = world.provinces[province_id];
+        for(const auto& pop : province.pops) {
             /// @todo Ok, look, the justification is that educated people
             // almost never do coups - in comparasion to uneducated
             // peseants, rich people don't need to protest!
@@ -107,7 +109,8 @@ void militancy_update(World& world, Nation& nation) {
 #if 0 /// @todo Fix so this works in parrallel
         // Compile list of uprising provinces
         std::vector<Province*> uprising_provinces;
-        for(const auto& province : nation->owned_provinces) {
+        for(const auto& province_id : nation->owned_provinces) {
+            const auto& province = world.provinces[province_id];
             Eng3D::Decimal province_anger = 0.f;
             Eng3D::Decimal province_threshold = 0.f;
             for(const auto& pop : province->pops) {
@@ -115,9 +118,8 @@ void militancy_update(World& world, Nation& nation) {
                 province_threshold += pop.literacy * pop.life_needs_met;
             }
 
-            if(province_anger > province_threshold) {
+            if(province_anger > province_threshold)
                 uprising_provinces.push_back(province);
-            }
         }
 
         // Nation 0 is always the rebel nation
@@ -151,21 +153,17 @@ void militancy_update(World& world, Nation& nation) {
         // etat) - amgry radicals will surely throw off the current administration
         // while peaceful people wonq't
         const int idx = std::distance(ideology_anger.begin(), std::max_element(ideology_anger.begin(), ideology_anger.end()));
-
         // Ideology_anger and ideologies are mapped 1:1 - so we just pick up the associated ideology
         // Apply the policies of the ideology
         nation.current_policy = world.ideologies[idx].policies;
-
         // Switch ideologies of nation
         nation.ideology = &world.ideologies[idx];
-
         // People who are aligned to the ideology are VERY happy now
-        for(const auto& province : nation.owned_provinces) {
-            for(auto& pop : province->pops) {
+        for(const auto& province_id : nation.owned_provinces) {
+            auto& province = world.provinces[province_id];
+            for(auto& pop : province.pops)
                 pop.militancy = -50.f;
-            }
         }
-
         Eng3D::Log::debug("game", "Coup d' etat on " + nation.ref_name + " by " + nation.ideology->ref_name);
     }
 }
@@ -200,8 +198,7 @@ constexpr float scale_speed(float v) {
 // Updates supply, demand, and set wages for workers
 void update_factory_production(World& world, Building& building, BuildingType* building_type, Province& province, float& pop_payment)
 {
-    if(building_type->output == nullptr)
-        return;
+    if(building_type->output == nullptr) return;
 
     // TODO add output modifier
     // Calculate outputs

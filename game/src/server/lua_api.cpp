@@ -338,8 +338,8 @@ int LuaAPI::get_provinces_owned_by_nation(lua_State* L) {
     lua_newtable(L);
 
     size_t i = 0;
-    for(const auto& province : nation.owned_provinces) {
-        lua_pushnumber(L, g_world->get_id(*province));
+    for(const auto& province_id : nation.owned_provinces) {
+        lua_pushnumber(L, province_id);
         lua_rawseti(L, -2, i + 1);
         ++i;
     }
@@ -373,7 +373,7 @@ int LuaAPI::set_nation_primary_culture(lua_State* L) {
 
 int LuaAPI::set_nation_capital(lua_State* L) {
     Nation& nation = g_world->nations.at(lua_tonumber(L, 1));
-    nation.capital = &g_world->provinces.at(lua_tonumber(L, 2));
+    nation.capital_id = lua_tonumber(L, 2);
     return 0;
 }
 
@@ -719,7 +719,7 @@ int LuaAPI::give_hard_province_to(lua_State* L) {
     Province& province = g_world->provinces.at(lua_tonumber(L, 1));
     Nation& nation = g_world->nations.at(lua_tonumber(L, 2));
     for(auto& unit : g_world->units) {
-        if(unit->province == &province && unit->owner == province.controller)
+        if(unit->province_id == g_world->get_id(province) && unit->owner == province.controller)
             unit->owner = &nation;
     }
     nation.give_province(province);

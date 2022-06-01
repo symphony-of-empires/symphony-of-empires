@@ -30,21 +30,18 @@
 #include <iostream>
 #include <mutex>
 #include <memory>
-
+#include <unordered_set>
 #define NOMINMAX 1
-
 #include <glm/gtc/matrix_transform.hpp>
 // Required before GL/gl.h
 #include <GL/glew.h>
 #include <GL/gl.h>
-
 #include "eng3d/state.hpp"
 #include "eng3d/ui/tooltip.hpp"
 #include "eng3d/font_sdf.hpp"
 #include "eng3d/path.hpp"
 #include "eng3d/texture.hpp"
 #include "eng3d/primitive.hpp"
-#include "eng3d/shader.hpp"
 #include "eng3d/framebuffer.hpp"
 #include "eng3d/model.hpp"
 #include "eng3d/serializer.hpp"
@@ -69,18 +66,13 @@
 #include "client/rivers.hpp"
 #include "client/borders.hpp"
 
-void get_blob_bounds(std::set<Province*>* visited_provinces, const Nation& nation, const Province& province, glm::vec2* min_x, glm::vec2* min_y, glm::vec2* max_x, glm::vec2* max_y) {
+static inline void get_blob_bounds(std::unordered_set<Province*>& visited_provinces, const Nation& nation, const Province& province, glm::vec2* min_x, glm::vec2* min_y, glm::vec2* max_x, glm::vec2* max_y) {
     // Iterate over all neighbours
     for(const auto& neighbour : province.neighbours) {
         // Do not visit again
-        if(visited_provinces->find(neighbour) != visited_provinces->end())
-            continue;
-        // Province must not be absurdly big
-        if(std::fabs(neighbour->box_area.right - neighbour->box_area.left) >= g_world->width / 2.f || std::fabs(neighbour->box_area.bottom - neighbour->box_area.top) >= g_world->height / 2.f)
-            continue;
-        if(neighbour->owner != &nation) // Must own the province
-            continue;
-
+        if(visited_provinces.find(neighbour) != visited_provinces.end()) continue;
+        // Must own the province
+        if(neighbour->owner != &nation) continue;
         if(neighbour->box_area.left < min_x->x || neighbour->box_area.top < min_y->y) {
             min_y->x = neighbour->box_area.left;
             min_y->y = neighbour->box_area.top;
@@ -88,8 +80,7 @@ void get_blob_bounds(std::set<Province*>* visited_provinces, const Nation& natio
             max_y->x = neighbour->box_area.right;
             max_y->y = neighbour->box_area.bottom;
         }
-
-        visited_provinces->insert(neighbour);
+        visited_provinces.insert(neighbour);
         get_blob_bounds(visited_provinces, nation, *neighbour, min_x, min_y, max_x, max_y);
     }
 }
@@ -101,7 +92,6 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
 {
     Eng3D::State& s = Eng3D::State::get_instance();
     camera = new Eng3D::FlatCamera(glm::vec2(screen_width, screen_height), glm::vec2(world.width, world.height));
-
     // rivers = new Rivers();
     // borders = new Borders();
     map_render = new MapRender(world);
@@ -119,15 +109,12 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     mipmap_options.wrap_t = GL_REPEAT;
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
-
     line_tex = s.tex_man->load(Path::get("gfx/line_target.png"), mipmap_options);
     skybox_tex = s.tex_man->load(Path::get("gfx/space.png"), mipmap_options);
 
     // Set the mapmode
     set_map_mode(political_map_mode, empty_province_tooltip);
-
     Eng3D::Log::debug("game", "Preloading-important stuff");
-
     map_font = new Eng3D::FontSDF("fonts/cinzel_sdf/cinzel");
 
     // Query the initial nation flags
@@ -137,7 +124,6 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
         flag_texture->gen_mipmaps();
         nation_flags.push_back(flag_texture);
     }
-
     for(const auto& building_type : world.building_types) {
         std::string path;
         path = Path::get("models/building_types/" + building_type.ref_name + ".obj");
@@ -145,7 +131,6 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
         path = Path::get("gfx/buildingtype/" + building_type.ref_name + ".png");
         building_type_icons.push_back(s.tex_man->load(path));
     }
-
     for(const auto& unit_type : world.unit_types) {
         std::string path;
         path = Path::get("models/unit_types/" + unit_type.ref_name + ".obj");
@@ -153,12 +138,7 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
         path = Path::get("gfx/unittype/" + unit_type.ref_name + ".png");
         unit_type_icons.push_back(s.tex_man->load(path));
     }
-
     create_labels();
-}
-
-Map::~Map() {
-
 }
 
 void Map::create_labels() {
@@ -170,13 +150,10 @@ void Map::create_labels() {
         glm::vec2 min_point(province.box_area.left, province.box_area.top);
         glm::vec2 max_point(province.box_area.right, province.box_area.bottom);
         glm::vec2 mid_point = 0.5f * (min_point + max_point);
-
         glm::vec2 x_step = glm::vec2(std::min(max_point.x - mid_point.x, 250.f), 0);
-
         glm::vec3 center = glm::vec3(mid_point, 0.f);
         glm::vec3 left = glm::vec3(mid_point - x_step, 0.f);
         glm::vec3 right = glm::vec3(mid_point + x_step, 0.f);
-
         float width = glm::length(left - right);
         width *= 0.25f;
 
@@ -184,7 +161,6 @@ void Map::create_labels() {
         right_dir = right_dir - center;
         glm::vec3 top_dir = glm::vec3(mid_point.x, mid_point.y - 1.f, 0.);
         top_dir = top_dir - center;
-
         center.z -= 0.1f;
         auto* label = map_font->gen_text(Eng3D::Locale::translate(province.name.get_string()), top_dir, right_dir, width, center);
         province_labels.push_back(label);
@@ -195,23 +171,17 @@ void Map::create_labels() {
         delete label;
     nation_labels.clear();
     for(const auto& nation : world.nations) {
-        if(!nation.exists())
-            continue;
+        if(!nation.exists()) continue;
 
         glm::vec2 min_point_x(world.width - 1.f, world.height - 1.f), min_point_y(world.width - 1.f, world.height - 1.f);
         glm::vec2 max_point_x(0.f, 0.f), max_point_y(0.f, 0.f);
-
-        std::set<Province*> visited_provinces;
-        if(nation.capital != nullptr) {
-            max_point_x = nation.capital->box_area.position() + nation.capital->box_area.size();
-            max_point_y = nation.capital->box_area.position() + nation.capital->box_area.size();
-            min_point_x = nation.capital->box_area.position();
-            min_point_y = nation.capital->box_area.position();
-            get_blob_bounds(&visited_provinces, nation, *nation.capital, &min_point_x, &min_point_y, &max_point_x, &max_point_y);
-        } else {
-            get_blob_bounds(&visited_provinces, nation, **(nation.controlled_provinces.begin()), &min_point_x, &min_point_y, &max_point_x, &max_point_y);
-        }
-
+        const auto& capital = g_world->provinces[nation.capital_id];
+        max_point_x = capital.box_area.position() + capital.box_area.size();
+        max_point_y = capital.box_area.position() + capital.box_area.size();
+        min_point_x = capital.box_area.position();
+        min_point_y = capital.box_area.position();
+        std::unordered_set<Province*> visited_provinces;
+        get_blob_bounds(visited_provinces, nation, capital, &min_point_x, &min_point_y, &max_point_x, &max_point_y);
 #if 0
         // Stop super-big labels
         if(glm::abs(min_point_x.x - max_point_x.x) >= world.width / 2.f || glm::abs(min_point_y.y - max_point_y.y) >= world.height / 2.f) {
@@ -221,32 +191,21 @@ void Map::create_labels() {
             continue;
         }
 #endif
-
-        glm::vec2 lab_min, lab_max;
-
-        glm::vec2 center_1 = (max_point_x + max_point_y + min_point_y) / 3.f;
-        glm::vec2 center_2 = (max_point_y + min_point_x + min_point_y) / 3.f;
-
-        lab_min = center_1;
-        lab_max = center_2;
-
+        glm::vec2 lab_min = (max_point_x + max_point_y + min_point_y) / 3.f;
+        glm::vec2 lab_max = (max_point_y + min_point_x + min_point_y) / 3.f;
         glm::vec2 mid_point = (lab_min + lab_max) / 2.f;
         glm::vec3 center = glm::vec3(mid_point, 0.f);
         glm::vec2 x_step = glm::vec2(lab_max.x - mid_point.x, 0.f);
         glm::vec3 left = glm::vec3(mid_point - x_step, 0.f);
         glm::vec3 right = glm::vec3(mid_point + x_step, 0.f);
         float width = glm::length(left - right);
-
         glm::vec3 right_dir = glm::vec3(mid_point.x + 1.f, mid_point.y, 0.f) - center;
         glm::vec3 top_dir = glm::vec3(mid_point.x, mid_point.y - 1.f, 0.f) - center;
         glm::vec3 normal = glm::cross(top_dir, right_dir);
         normal = glm::normalize(normal);
         float angle = glm::atan(lab_max.y - lab_min.y, lab_max.x - lab_min.x);
-        if(angle > (M_PI / 2.0f))
-            angle -= M_PI;
-        else if(angle < -(M_PI / 2.0f))
-            angle += M_PI;
-
+        if(angle > (M_PI / 2.0f)) angle -= M_PI;
+        else if(angle < -(M_PI / 2.0f)) angle += M_PI;
         glm::mat4 rot = glm::rotate(glm::mat4(1.), angle, normal);
         top_dir = rot * glm::vec4(top_dir, 1.);
         right_dir = rot * glm::vec4(right_dir, 1.);
@@ -318,22 +277,19 @@ void Map::draw_flag(const Eng3D::OpenGL::Program& shader, const Nation& nation) 
     // looks nice and it's super cheap to make - only using sine
     const float n_steps = 8.f; // Resolution of flag in one side (in vertices)
     const float step = 90.f; // Steps per vertice
-
     auto flag = Eng3D::Mesh<glm::vec3, glm::vec2>(Eng3D::MeshMode::TRIANGLE_STRIP);
     for(float r = 0.f; r <= (n_steps * step); r += step) {
         float sin_r = (sin(r + wind_osc) / 24.f);
-
         sin_r = sin(r + wind_osc) / 24.f;
         flag.buffer.push_back(Eng3D::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),
             glm::vec2((r / step) / n_steps, 0.f)
-            ));
-
+        ));
         sin_r = sin(r + wind_osc + 160.f) / 24.f;
         flag.buffer.push_back(Eng3D::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
-            ));
+        ));
     }
     flag.upload();
     shader.set_texture(0, "diffuse_map", *nation_flags[world.get_id(nation)]);
@@ -379,9 +335,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         return;
     } else if(event.button.button == SDL_BUTTON_RIGHT) {
         const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
-        if(Province::is_invalid(tile.province_id))
-            return;
-
+        if(Province::is_invalid(tile.province_id)) return;
         Province& province = gs.world->provinces[tile.province_id];
         if(gs.editor) {
             switch(gs.current_mode) {
@@ -396,16 +350,14 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         }
 
         for(const auto& unit : input.selected_units) {
-            if(!unit->province->is_neighbour(province) || !unit->can_move())
-                continue;
-            // Don't change target if...
-            if(unit->province == &province || unit->target == &province)
+            if(!gs.world->provinces[unit->province_id].is_neighbour(province) || !unit->can_move()) continue;
+            // Don't change target if ID is the same...
+            if(unit->province_id == gs.world->get_id(province) || unit->target_province_id == gs.world->get_id(province))
                 continue;
             if(province.controller != nullptr && province.controller != gs.curr_nation) {
                 // Must either be our ally, have military access with them or be at war
                 const NationRelation& relation = gs.world->get_relation(gs.world->get_id(*gs.curr_nation), gs.world->get_id(*province.controller));
-                if(!(relation.has_war || relation.has_alliance || relation.has_military_access))
-                    continue;
+                if(!(relation.has_war || relation.has_alliance || relation.has_military_access)) continue;
             }
 
             Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
@@ -434,7 +386,6 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, Game
     case SDL_JOYBUTTONDOWN:
     case SDL_MOUSEBUTTONDOWN:
         SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
-
         is_drag = false;
         if(event.button.button == SDL_BUTTON_MIDDLE) {
             glm::ivec2 map_pos;
@@ -456,15 +407,11 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, Game
     case SDL_JOYAXISMOTION: {
         int xrel = SDL_JoystickGetAxis(input.joy, 0);
         int yrel = SDL_JoystickGetAxis(input.joy, 1);
-
         const float sensivity = Eng3D::State::get_instance().joy_sensivity;
-
         float x_force = xrel / sensivity;
         float y_force = yrel / sensivity;
-
         input.mouse_pos.first += x_force;
         input.mouse_pos.second += y_force;
-
         if(input.middle_mouse_down) {  // Drag the map with middlemouse
             glm::ivec2 map_pos;
             if(camera->get_cursor_map_pos(input.mouse_pos, map_pos)) {
@@ -492,16 +439,13 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, Game
         }
 
         if(camera->get_cursor_map_pos(mouse_pos, map_pos)) {
-            if(map_pos.x < 0 || map_pos.x >(int)world.width || map_pos.y < 0 || map_pos.y >(int)world.height)
-                break;
-
+            if(map_pos.x < 0 || map_pos.x >(int)world.width || map_pos.y < 0 || map_pos.y >(int)world.height) break;
             input.select_pos.first = map_pos.x;
             input.select_pos.second = map_pos.y;
             auto prov_id = world.get_tile(map_pos.x, map_pos.y).province_id;
             if(mapmode_tooltip_func != nullptr) {
-                std::string text = mapmode_tooltip_func(world, prov_id);
                 UI::Tooltip* tooltip = new UI::Tooltip();
-                tooltip->text(text);
+                tooltip->text(mapmode_tooltip_func(world, prov_id));
                 ui_ctx->use_tooltip(tooltip, glm::ivec2(mouse_pos.first, mouse_pos.second));
             }
         }
@@ -552,48 +496,14 @@ void Map::draw(const GameState& gs) {
     // Properly display textures :)
     glm::mat4 base_model = glm::mat4(1.f);
     std::vector<float> province_units_y(world.provinces.size(), 0.f);
-    for(const auto& war : world.wars) {
-        for(const auto& battle : war->battles) {
-            unsigned int i;
-
-            const float y = province_units_y[world.get_id(*battle.province)];
-            province_units_y[world.get_id(*battle.province)] += 2.5f;
-            const std::pair<float, float> prov_pos = battle.province->get_pos();
-
-            // Attackers on the left side
-            i = 0;
-            for(const auto& unit : battle.attackers) {
-                const std::pair<float, float> pos = std::make_pair(prov_pos.first - (2.f * i) - 3.f, prov_pos.second - y);
-                glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
-                model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
-                obj_shader->set_uniform("model", model);
-                // Model
-                unit_type_models[world.get_id(*unit->type)]->draw(*obj_shader);
-                i++;
-            }
-
-            // Defenders on the right side
-            i = 1;
-            for(const auto& unit : battle.defenders) {
-                const std::pair<float, float> pos = std::make_pair(prov_pos.first + (2.f * i) + 3.f, prov_pos.second - y);
-                glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
-                model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
-                obj_shader->set_uniform("model", model);
-                // Model
-                unit_type_models[world.get_id(*unit->type)]->draw(*obj_shader);
-                i++;
-            }
-        }
-    }
 
     // Display units that aren't on battles
-    size_t unit_index = 0;
+    size_t unit_index = 0, battle_index = 0;
     for(const auto& province : world.provinces) {
         const glm::vec2 prov_pos = glm::vec2(province.get_pos().first, province.get_pos().second);
+        // And display units
         for(const auto& unit : province.get_units()) {
-            if(unit->on_battle)
-                continue;
-
+            if(unit->on_battle) continue;
             bool unit_visible = true;
             if(view_mode == MapView::SPHERE_VIEW) {
                 glm::vec3 cam_pos = camera->get_world_pos();
@@ -610,17 +520,9 @@ void Map::draw(const GameState& gs) {
                 unit_index++;
             }
         }
-    }
-    for(size_t i = unit_index; i < unit_widgets.size(); i++)
-        unit_widgets[i]->kill();
-    unit_widgets.resize(unit_index);
 
-    // Display battles on the map (units on a battle are hidden automatically)
-    size_t battle_index = 0;
-    for(const auto& war : world.wars) {
         size_t war_battle_idx = 0;
-        for(const auto& battle : war->battles) {
-            const glm::vec2 prov_pos = glm::vec2(battle.province->get_pos().first, battle.province->get_pos().second);
+        for(const auto& battle : province.battles) {
             bool battle_visible = true;
             if(view_mode == MapView::SPHERE_VIEW) {
                 glm::vec3 cam_pos = camera->get_world_pos();
@@ -631,14 +533,17 @@ void Map::draw(const GameState& gs) {
 
             if(battle_visible) {
                 if(battle_index < battle_widgets.size())
-                    battle_widgets[battle_index]->set_battle(*war, war_battle_idx);
+                    battle_widgets[battle_index]->set_battle(province, war_battle_idx);
                 else
-                    battle_widgets.push_back(new Interface::BattleWidget(*war, war_battle_idx, *this, map_ui_layer));
+                    battle_widgets.push_back(new Interface::BattleWidget(province, war_battle_idx, *this, map_ui_layer));
                 battle_index++;
             }
             war_battle_idx++;
         }
     }
+    for(size_t i = unit_index; i < unit_widgets.size(); i++)
+        unit_widgets[i]->kill();
+    unit_widgets.resize(unit_index);
     for(size_t i = battle_index; i < battle_widgets.size(); i++)
         battle_widgets[i]->kill();
     battle_widgets.resize(battle_index);
@@ -654,9 +559,10 @@ void Map::draw(const GameState& gs) {
             pos.x -= 1.5f * ((province.get_units().size() / 2) - i);
             pos.y -= y;
             glm::mat4 model = glm::translate(base_model, glm::vec3(pos.x, pos.y, 0.f));
-            if(unit->target != nullptr) {
+            if(Province::is_valid(unit->target_province_id)) {
                 //Eng3D::Line target_line = Eng3D::Line(pos.x, pos.y, );
-                const glm::vec2 target_pos = glm::vec2(unit->target->get_pos().first, unit->target->get_pos().second);
+                const auto& unit_target = world.provinces[unit->target_province_id];
+                const glm::vec2 target_pos = glm::vec2(unit_target.get_pos().first, unit_target.get_pos().second);
                 const float dist = glm::sqrt(glm::pow(glm::abs(pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(pos.y - target_pos.y), 2.f));
                 auto line_square = Eng3D::Square(0.f, 0.f, dist, 0.5f);
                 glm::mat4 line_model = glm::rotate(model, glm::atan(target_pos.y - pos.y, target_pos.x - pos.x), glm::vec3(0.f, 0.f, 1.f));
@@ -675,9 +581,7 @@ void Map::draw(const GameState& gs) {
 
         for(const auto& building_type : world.building_types) {
             continue;
-            if(province.buildings[world.get_id(building_type)].level == 0)
-                continue;
-
+            if(!province.buildings[world.get_id(building_type)].level) continue;
             glm::vec2 pos = prov_pos;
             glm::mat4 model = glm::translate(base_model, glm::vec3(pos.x, pos.y, 0.f));
             model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));

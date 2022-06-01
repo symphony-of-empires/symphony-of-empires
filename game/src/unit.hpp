@@ -38,6 +38,9 @@ class Nation;
 class Good;
 class Province;
 
+// Included due to ids
+#include "province.hpp"
+
 // Defines a type of unit, it can be a tank, garrison, infantry, etc
 // this is moddable via a lua script and new unit types can be added
 class UnitType : public RefnameEntity<uint8_t> {
@@ -82,9 +85,7 @@ public:
     std::pair<Eng3D::Number, Eng3D::Number> get_pos() const;
     void set_target(Province& province);
     Eng3D::Decimal get_speed(const Province& province) const;
-    inline Eng3D::Decimal get_speed() const {
-        return get_speed(*target);
-    }
+    Eng3D::Decimal get_speed() const;
     void set_province(Province& province);
 
     /**
@@ -100,8 +101,8 @@ public:
 
     UnitType* type; // Type of unit
     Nation* owner; // Who owns this unit
-    Province* target = nullptr;
-    Province* province;
+    Province::Id target_province_id = Province::invalid();
+    Province::Id province_id = Province::invalid();
     Eng3D::Number size; // Size of the unit (soldiers in unit)
     // Base size of the unit (max size due to anti-attrition)
     Eng3D::Number base;

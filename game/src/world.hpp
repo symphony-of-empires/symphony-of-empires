@@ -57,12 +57,13 @@
 #include "diplomacy.hpp"
 #include "culture.hpp"
 #include "religion.hpp"
+#include "pop.hpp"
 
 // A single tile unit this is the smallest territorial unit in the game and it cannot be divided (and it shouldn't)
 class World;
 class Tile {
 public:
-    const std::vector<const Tile*> get_neighbours(const World& world) const;
+    std::vector<Tile> get_neighbours(const World& world) const;
     // ID of the province where this tile belongs to
     Province::Id province_id;
 };
@@ -206,8 +207,7 @@ public:
         return tiles[idx];
     }
 
-    template<typename T>
-    inline Tile& get_tile(T x, T y) const {
+    inline Tile& get_tile(size_t x, size_t y) const {
         assert(x < this->width && y < this->height); // Tile out of bounds
         return this->get_tile(x + y * this->width);
     }

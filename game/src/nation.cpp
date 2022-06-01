@@ -152,10 +152,11 @@ void Nation::decrease_relation(Nation& target) {
 // Automatically relocates the capital of a nation to another province
 // Use this when a treaty makes a nation lose it's capital
 void Nation::auto_relocate_capital() {
-    auto best_candidate = std::max_element(owned_provinces.begin(), owned_provinces.end(), [](const auto* lhs, const auto* rhs) {
-        return (lhs->total_pops() < rhs->total_pops());
+    const World& world = World::get_instance();
+    auto best_candidate = std::max_element(owned_provinces.begin(), owned_provinces.end(), [&world](const auto& lhs, const auto& rhs) {
+        return world.provinces[lhs].total_pops() < world.provinces[rhs].total_pops();
     });
-    capital = *best_candidate;
+    capital_id = *best_candidate;
 }
 
 // Enacts a policy on a nation
@@ -170,8 +171,9 @@ void Nation::set_policy(const Policies& policies) {
 
     unsigned int approvals = 0, disapprovals = 0;
     std::vector<Pop*> disapprovers, approvers;
-    for(const auto& province : owned_provinces) {
-        for(auto& pop : province->pops) {
+    for(const auto& province_id : owned_provinces) {
+        auto& province = World::get_instance().provinces[province_id];
+        for(auto& pop : province.pops) {
             // Must have the minimum required social value
             // the min-social-value is taken from the new enacted policy
             if(pop.type->social_value < policies.min_sv_for_parliament) continue;
@@ -260,10 +262,11 @@ Eng3D::Decimal Nation::get_tax(const Pop& pop) const {
 #include "client/map_render.hpp"
 // Gives this nation a specified province (for example on a treaty)
 void Nation::give_province(Province& province) {
+    const World& world = World::get_instance();
     this->control_province(province);
     if(province.owner != nullptr)
-        province.owner->owned_provinces.erase(&province);
-    owned_provinces.insert(&province);
+        province.owner->owned_provinces.erase(world.get_id(province));
+    owned_provinces.insert(world.get_id(province));
     province.owner = this;
 
     // Update the map visibility
@@ -273,9 +276,10 @@ void Nation::give_province(Province& province) {
 }
 
 void Nation::control_province(Province& province) {
+    const World& world = World::get_instance();
     if(province.controller != nullptr)
-        province.controller->controlled_provinces.erase(&province);
-    controlled_provinces.insert(&province);
+        province.controller->controlled_provinces.erase(world.get_id(province));
+    controlled_provinces.insert(world.get_id(province));
     province.controller = this;
 
     // Update the map visibility
@@ -296,11 +300,12 @@ const NationClientHint& Nation::get_client_hint() const {
 
 Eng3D::Decimal Nation::get_research_points() const {
     Eng3D::Decimal research = 0.f;
-    for(const auto& province : this->owned_provinces) {
-        for(const auto& pop : province->pops)
+    for(const auto& province_id : this->owned_provinces) {
+        const auto& province = World::get_instance().provinces[province_id];
+        for(const auto& pop : province.pops)
             research += pop.size * pop.literacy;
-        if(research && !province->pops.empty())
-            research /= province->pops.size();
+        if(research && !province.pops.empty())
+            research /= province.pops.size();
     }
     return research / 100.f;
 }
