@@ -225,70 +225,6 @@ World::World() {
         return 1;
     });
 
-    const struct luaL_Reg ideology_meta[] = {
-        { "__gc", [](lua_State* L) {
-            Eng3D::Log::debug("lua", "__gc?");
-            return 0;
-        }},
-        { "__index", [](lua_State* L) {
-            Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
-            std::string member = luaL_checkstring(L, 2);
-            if(member == "ref_name")
-                lua_pushstring(L, (*ideology)->ref_name.c_str());
-            else if(member == "name")
-                lua_pushstring(L, (*ideology)->name.c_str());
-            Eng3D::Log::debug("lua", "__index?");
-            return 1;
-        }},
-        { "__newindex", [](lua_State* L) {
-            Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
-            std::string member = luaL_checkstring(L, 2);
-            if(member == "ref_name")
-                (*ideology)->ref_name = Eng3D::StringRef(luaL_checkstring(L, 3));
-            else if(member == "name")
-                (*ideology)->name = Eng3D::StringRef(luaL_checkstring(L, 3));
-            Eng3D::Log::debug("lua", "__newindex?");
-            return 0;
-        }},
-        { NULL, NULL }
-    };
-    const luaL_Reg ideology_methods[] = {
-        { "new", [](lua_State* L) {
-            Ideology** ideology = (Ideology**)lua_newuserdata(L, sizeof(Ideology*));
-            *ideology = new Ideology();
-            luaL_setmetatable(L, "Ideology");
-
-            (*ideology)->ref_name = Eng3D::StringRef(luaL_checkstring(L, 1));
-            (*ideology)->name = Eng3D::StringRef(luaL_optstring(L, 2, (*ideology)->ref_name.c_str()));
-
-            Eng3D::Log::debug("lua", "__new?");
-            return 1;
-        }},
-        { "register", [](lua_State* L) {
-            Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
-            g_world->insert(**ideology);
-            Eng3D::Log::debug("lua", "New ideology " + (*ideology)->ref_name);
-            Eng3D::Log::debug("lua", "__register?");
-            return 0;
-        }},
-        { "get", [](lua_State* L) {
-            const std::string ref_name = Eng3D::StringRef(lua_tostring(L, 1)).get_string();
-            auto result = std::find_if(g_world->ideologies.begin(), g_world->ideologies.end(),
-            [&ref_name](const auto& o) { return (o.ref_name == ref_name); });
-            if(result == g_world->ideologies.end())
-                CXX_THROW(LuaAPI::Exception, "Ideology " + ref_name + " not found");
-
-            Ideology** ideology = (Ideology**)lua_newuserdata(L, sizeof(Ideology*));
-            *ideology = &*result;
-            luaL_setmetatable(L, "Ideology");
-
-            Eng3D::Log::debug("lua", "__get?");
-            return 1;
-        }},
-        { NULL, NULL }
-    };
-    //LuaAPI::register_new_table(lua, "Ideology", ideology_meta, ideology_methods);
-
     // Constants for ease of readability
     lua_pushboolean(lua, true);
     lua_setglobal(lua, "EVENT_CONDITIONS_MET");
@@ -372,47 +308,22 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
 }
 
 void World::load_initial() {
-    // Execute all lua files
-    lua_exec_all_of(*this, (std::vector<std::string>) {
-        "terrain_types", "good_types", "ideologies", "cultures",
-        "building_types", "technology", "religions", "pop_types",
-        "industry_types", "unit_types", "boat_types",
-        "nations", "provinces", "init"
-    }, "lua/entities");
-    // std::sort(this->provinces.begin(), this->provinces.end(), [](const auto& lhs, const auto& rhs) {
-    //     return lhs->color > rhs->color;
-    // });
-
-    std::uint64_t checksum = 1;
-    for(auto& province : provinces)
-        checksum *= static_cast<std::uint64_t>(province.color);
-    checksum = checksum * width * height * provinces.size();
-
     bool recalc_province = true;
     try {
         Archive ar = Archive();
-        ar.from_file("map.cache");
-
-        // If the cache has the same checksum as us then we just have to read from the file
-        std::uint64_t cache_checksum;
-        ::deserialize(ar, &cache_checksum);
-        if(checksum == cache_checksum) {
-            recalc_province = false;
-            ::deserialize(ar, &width);
-            ::deserialize(ar, &height);
-            tiles = std::make_unique<Tile[]>(width * height);
-            for(auto& province : provinces) {
-                ::deserialize(ar, &province.neighbours);
-                ::deserialize(ar, &province.box_area);
-            }
-            for(size_t i = 0; i < width * height; i++)
-                ::deserialize(ar, &tiles[i]);
-        }
+        ar.from_file("world.cache");
+        ::deserialize(ar, this);
     } catch(const std::exception& e) {
         Eng3D::Log::error("cache", e.what());
-    }
 
-    if(recalc_province) {
+        // Execute all lua files
+        lua_exec_all_of(*this, (std::vector<std::string>) {
+            "terrain_types", "good_types", "ideologies", "cultures",
+            "building_types", "technology", "religions", "pop_types",
+            "industry_types", "unit_types", "boat_types",
+            "nations", "provinces", "init"
+        }, "lua/entities");
+
         std::unique_ptr<BinaryImage> div = std::make_unique<BinaryImage>(Path::get("map/provinces.png"));
         width = div->width;
         height = div->height;
@@ -507,47 +418,35 @@ void World::load_initial() {
             }
         }
 
-        // Write the cache file
-        Archive ar = Archive();
-        ::serialize(ar, &checksum);
-        ::serialize(ar, &width);
-        ::serialize(ar, &height);
-        for(const auto& province : provinces) {
-            // Remove self from province->neighbours
-            assert(!province.neighbours.empty());
-            ::serialize(ar, &province.neighbours);
-            ::serialize(ar, &province.box_area);
+        // Create diplomatic relations between nations
+        Eng3D::Log::debug("game", Eng3D::Locale::translate("Creating diplomatic relations"));
+        // Relations between nations start at 0 (and latter modified by lua scripts)
+        // since we use cantor's pairing function we only have to make an n*2 array so yeah let's do that!
+        size_t relations_len = this->nations.size() * this->nations.size();
+        this->relations = std::make_unique<NationRelation[]>(relations_len);
+        for(size_t i = 0; i < relations_len; i++) {
+            this->relations[i] = NationRelation();
+            this->relations[i].has_alliance = false;
+            this->relations[i].has_defensive_pact = false;
+            this->relations[i].has_embargo = false;
+            this->relations[i].has_market_access = false;
+            this->relations[i].has_military_access = false;
+            this->relations[i].has_war = false;
+            this->relations[i].interest = 0.f;
+            this->relations[i].relation = 0.f;
         }
-        for(size_t i = 0; i < width * height; i++)
-            ::serialize(ar, &tiles[i]);
-        ar.to_file("map.cache");
-    }
 
-    // Create diplomatic relations between nations
-    Eng3D::Log::debug("game", Eng3D::Locale::translate("Creating diplomatic relations"));
-    // Relations between nations start at 0 (and latter modified by lua scripts)
-    // since we use cantor's pairing function we only have to make an n*2 array so yeah let's do that!
-    size_t relations_len = this->nations.size() * this->nations.size();
-    this->relations = std::make_unique<NationRelation[]>(relations_len);
-    for(size_t i = 0; i < relations_len; i++) {
-        this->relations[i] = NationRelation();
-        this->relations[i].has_alliance = false;
-        this->relations[i].has_defensive_pact = false;
-        this->relations[i].has_embargo = false;
-        this->relations[i].has_market_access = false;
-        this->relations[i].has_military_access = false;
-        this->relations[i].has_war = false;
-        this->relations[i].interest = 0.f;
-        this->relations[i].relation = 0.f;
+        // Write the entire world to the cache file
+        Archive ar = Archive();
+        ::serialize(ar, this);
+        ar.to_file("world.cache");
     }
 
     Eng3D::Log::debug("game", Eng3D::Locale::translate("World partially intiialized"));
     // Auto-relocate capitals for countries which do not have one
     for(auto& nation : this->nations) {
         // Must exist and not have a capital
-        if(!nation.exists() || Province::is_invalid(nation.capital_id))
-            continue;
-
+        if(!nation.exists() || Province::is_invalid(nation.capital_id)) continue;
         Eng3D::Log::debug("game", Eng3D::Locale::translate("Relocating capital of [" + nation.ref_name + "]"));
         nation.auto_relocate_capital();
     }
