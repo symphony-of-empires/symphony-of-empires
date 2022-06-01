@@ -229,8 +229,8 @@ public:
     static inline void deser_dynamic(Archive& ar, Unit* obj) {
         ::deser_dynamic<is_serialize>(ar, &obj->type);
         ::deser_dynamic<is_serialize>(ar, &obj->size);
-        ::deser_dynamic<is_serialize>(ar, &obj->target);
-        ::deser_dynamic<is_serialize>(ar, &obj->province);
+        ::deser_dynamic<is_serialize>(ar, &obj->target_province_id);
+        ::deser_dynamic<is_serialize>(ar, &obj->province_id);
         ::deser_dynamic<is_serialize>(ar, &obj->owner);
         ::deser_dynamic<is_serialize>(ar, &obj->move_progress);
         ::deser_dynamic<is_serialize>(ar, &obj->on_battle);
@@ -318,7 +318,7 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->naval_score);
         ::deser_dynamic<is_serialize>(ar, &obj->economy_score);
         ::deser_dynamic<is_serialize>(ar, &obj->budget);
-        ::deser_dynamic<is_serialize>(ar, &obj->capital);
+        ::deser_dynamic<is_serialize>(ar, &obj->capital_id);
         ::deser_dynamic<is_serialize>(ar, &obj->culture_discrim);
         ::deser_dynamic<is_serialize>(ar, &obj->religion_discrim);
         ::deser_dynamic<is_serialize>(ar, &obj->owned_provinces);

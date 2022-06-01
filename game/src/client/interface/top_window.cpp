@@ -109,9 +109,7 @@ TopWindow::TopWindow(GameState& _gs)
     save_ibtn->set_tooltip("Saves the current game");
 
     auto* load_ibtn = new UI::Image(9, 275, 25, 25, "gfx/top_bar/save.png", flex_column);
-    load_ibtn->set_on_click([this](UI::Widget& w) {
-        auto& o = static_cast<TopWindow&>(*w.parent);
-
+    load_ibtn->set_on_click([this](UI::Widget&) {
         delete this->gs.world;
         this->gs.world = new World();
         this->gs.world->load_initial();

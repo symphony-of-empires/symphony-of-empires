@@ -29,6 +29,7 @@
 #include "good.hpp"
 #include "unit.hpp"
 #include "building.hpp"
+#include "pop.hpp"
 
 //
 // Province

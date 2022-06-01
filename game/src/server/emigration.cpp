@@ -55,9 +55,9 @@ public:
     size_t size;
 };
 
-void conlonial_migration(World& world);
-void internal_migration(World& world);
-void external_migration(World& world);
+static inline void conlonial_migration(World& world);
+static inline void internal_migration(World& world);
+static inline void external_migration(World& world);
 
 void do_emigration(World& world) {
     external_migration(world);
@@ -65,16 +65,16 @@ void do_emigration(World& world) {
     conlonial_migration(world);
 }
 
-void conlonial_migration(World&) {
+static inline void conlonial_migration(World&) {
 
 }
 
-void internal_migration(World&) {
+static inline void internal_migration(World&) {
 
 }
 
-// Basic 
-float nation_attraction(Nation& nation, Culture& culture) {
+// Basic
+static inline float nation_attraction(Nation& nation, Culture& culture) {
     float attraction = nation.get_immigration_attraction_mod();
     if(nation.is_accepted_culture(culture)) {
         // Linearized version, instead of using if-else trees we just
@@ -86,22 +86,22 @@ float nation_attraction(Nation& nation, Culture& culture) {
     return attraction;
 }
 
-float province_attraction(Province* province) {
-    float attraction = province->base_attractive;
+static inline float province_attraction(const Province& province) {
+    float attraction = province.base_attractive;
     return attraction;
 }
 
-void external_migration(World& world) {
+static inline void external_migration(World& world) {
     std::vector<DiscreteDistribution<Province*>*> province_distributions;
     for(auto nation : world.nations) {
         std::vector<float> attractions;
         std::vector<Province*> viable_provinces;
-        for(auto province : nation.owned_provinces) {
+        for(auto province_id : nation.owned_provinces) {
+            auto& province = world.provinces[province_id];
             float attraction = province_attraction(province);
             if(attraction <= 0) continue;
-
             attractions.push_back(attraction);
-            viable_provinces.push_back(province);
+            viable_provinces.push_back(&province);
         }
 
         DiscreteDistribution<Province*>* distribution = nullptr;
@@ -146,15 +146,15 @@ void external_migration(World& world) {
 
     std::for_each(std::execution::par, eval_nations.begin(), eval_nations.end(), [&emigration, &nation_distributions, &province_distributions, &world](const auto& nation) {
         // Check that laws on the province we are in allows for emigration
-        if(nation->current_policy.migration == ALLOW_NOBODY)
-            return;
-        for(const auto& province : nation->controlled_provinces) {
+        if(nation->current_policy.migration == ALLOW_NOBODY) return;
+        for(const auto& province_id : nation->controlled_provinces) {
+            auto& province = world.provinces[province_id];
             // Guaranteed that province->controller != nullptr and that the province is not a water body
 
             // Randomness factor to emulate a pseudo-imperfect economy
             const float fuzz = static_cast<float>(std::rand() + 1) / 1000.f;
-            for(size_t i = 0; i < province->pops.size(); i++) {
-                Pop& pop = province->pops[i];
+            for(size_t i = 0; i < province.pops.size(); i++) {
+                Pop& pop = province.pops[i];
                 // Depending on how much not our life needs are being met is how many we
                 // want to get out of here
                 // And literacy determines "best" spot, for example a low literacy will
@@ -170,10 +170,10 @@ void external_migration(World& world) {
                     if(province_distribution == nullptr) continue;
 
                     auto choosen_province = province_distribution->get_item();
-                    Emigrated emigrated = Emigrated(province->pops[i]);
+                    Emigrated emigrated = Emigrated(province.pops[i]);
                     emigrated.target = choosen_province;
                     emigrated.size = emigreers;
-                    emigrated.origin = province;
+                    emigrated.origin = &province;
 
                     emigration.push_back(emigrated);
                     pop.size -= emigreers;

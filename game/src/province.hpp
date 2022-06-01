@@ -30,22 +30,38 @@
 #include <unordered_set>
 #include <string>
 #include <memory>
-
 #include "eng3d/entity.hpp"
 #include "eng3d/decimal.hpp"
 #include "eng3d/rectangle.hpp"
 
+#include "pop.hpp"
+#include "product.hpp"
+#include "building.hpp"
+#include "diplomacy.hpp"
+
 class World;
 class Nation;
-class Industry;
-class Product;
 class TerrainType;
 class Unit;
-class Building;
 
-#include "pop.hpp"
-#include "building.hpp"
-#include "product.hpp"
+class Unit;
+class War;
+class Battle : public IdEntity<uint16_t> {
+public:
+    Battle(War& war)
+        : war{ &war }
+    {
+
+    }
+    ~Battle() {};
+
+    Eng3D::String name;
+    War* war = nullptr;
+    Eng3D::Number attacker_casualties = 0;
+    Eng3D::Number defender_casualties = 0;
+    std::vector<Unit*> attackers;
+    std::vector<Unit*> defenders;
+};
 
 // A single province, which is used to simulate economy in a "bulk-tiles" way
 // instead of doing economical operations on every single tile
@@ -102,8 +118,9 @@ public:
     std::vector<uint32_t> rgo_size; // How much of each rgo that can be extracted
     std::vector<Pop> pops; // List of pops in this province
     std::vector<Product> products;
-    std::vector<Unit*> units;
     std::vector<Building> buildings;
+    std::vector<Battle> battles;
+    std::vector<Unit*> units;
     std::unordered_set<Nation*> nuclei; // Nations who have a nuclei in this province
     std::unordered_set<Province*> neighbours; // Neighbouring provinces
 };

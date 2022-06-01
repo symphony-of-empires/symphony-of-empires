@@ -197,28 +197,6 @@ public:
     std::vector<std::pair<Nation*, TreatyApproval>> approval_status;
 };
 
-class Unit;
-class War;
-class Battle : public IdEntity<uint16_t> {
-public:
-    Battle(War& war, Province& province)
-        : war{ &war },
-        province{ &province }
-    {
-
-    }
-    ~Battle() {};
-
-    Eng3D::String name;
-    
-    War* war = nullptr;
-    Province* province = nullptr;
-    Eng3D::Number attacker_casualties = 0;
-    Eng3D::Number defender_casualties = 0;
-    std::vector<Unit*> attackers;
-    std::vector<Unit*> defenders;
-};
-
 class War : public IdEntity<uint16_t> {
 public:
     War() {};
@@ -230,5 +208,4 @@ public:
     Eng3D::String name;
     std::vector<Nation*> attackers, defenders;
     std::vector<TreatyClause::BaseClause*> wargoals;
-    std::vector<Battle> battles;
 };

@@ -35,7 +35,6 @@ public:
     Product() {};
     ~Product() {};
     inline void close_market() {
-
         if(this->demand > this->supply) {
             // Increase price with more demand
             this->price_vel += 0.001f * (this->demand - this->supply);
@@ -59,19 +58,16 @@ public:
 
         // Save prices and stuff onto history (for the charts!)
         this->demand_history.push_back(this->demand);
-        if(this->demand_history.size() > 60) {
+        if(this->demand_history.size() > 60)
             this->demand_history.pop_front();
-        }
-
+        
         this->supply_history.push_back(this->supply);
-        if(this->supply_history.size() > 60) {
+        if(this->supply_history.size() > 60)
             this->supply_history.pop_front();
-        }
 
         this->price_history.push_back(this->price);
-        if(this->price_history.size() > 60) {
+        if(this->price_history.size() > 60)
             this->price_history.pop_front();
-        }
 
         this->demand = 0;
     }

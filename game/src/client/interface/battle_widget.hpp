@@ -27,7 +27,7 @@
 
 #include "eng3d/ui/div.hpp"
 
-class War;
+class Province;
 class Map;
 namespace UI {
     class Image;
@@ -36,7 +36,7 @@ namespace UI {
 
 namespace Interface {
     class BattleWidget: public UI::Div {
-        War& war;
+        Province& province;
         size_t idx;
         Map& map;
 
@@ -46,8 +46,8 @@ namespace Interface {
         UI::Image* right_flag_img;
         UI::Div* right_size_label;
     public:
-        BattleWidget(War& war, size_t idx, Map& map, UI::Widget* parent);
-        void set_battle(War& war, size_t idx);
-        virtual ~BattleWidget();
+        BattleWidget(Province& province, size_t idx, Map& map, UI::Widget* parent);
+        void set_battle(Province& province, size_t idx);
+        virtual ~BattleWidget() {};
     };
 };

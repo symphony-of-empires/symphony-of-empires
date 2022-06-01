@@ -94,13 +94,12 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
             return;
 
         float num = 0.f;
-        if(!this->gs.curr_nation->owned_provinces.empty()) {
-            for(const auto& province : this->gs.curr_nation->owned_provinces) {
-                for(const auto& pop : province->pops)
-                    num += pop.militancy;
-            }
-            num /= this->gs.curr_nation->owned_provinces.size();
+        for(const auto& province_id : this->gs.curr_nation->owned_provinces) {
+            const auto& province = this->gs.world->provinces[province_id];
+            for(const auto& pop : province.pops)
+                num += pop.militancy;
         }
+        num /= this->gs.curr_nation->owned_provinces.size();
         w.text("Militancy: " + std::to_string(num));
     });
     militancy_lab->on_each_tick(*militancy_lab);
