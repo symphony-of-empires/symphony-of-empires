@@ -70,9 +70,9 @@ namespace Eng3D {
         void tick_done();
         void render_done();
         float get_fps();
-
-        std::vector<BenchmarkTask*> get_tasks();
+        const std::vector<BenchmarkTask*> get_tasks();
     private:
+        std::mutex lock;
         size_t tick;
         float fps;
         std::chrono::system_clock::time_point fps_clock;
