@@ -53,9 +53,6 @@ namespace UI {
         ProgressBar(int x, int y, unsigned w, unsigned h, float min, float max, Widget* _parent = nullptr);
         virtual ~ProgressBar() override {};
         virtual void on_render(Context& ctx, Eng3D::Rect viewport);
-        float max, min;
-        Direction direction = Direction::LEFT_TO_RIGHT;
-
         inline void set_value(const float _value) {
             value = std::clamp(_value, min, max);
         }
@@ -63,5 +60,8 @@ namespace UI {
         inline float get_value() const {
             return value;
         }
+
+        float max, min;
+        Direction direction = Direction::LEFT_TO_RIGHT;
     };
 };

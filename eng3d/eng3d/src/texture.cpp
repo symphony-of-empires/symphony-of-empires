@@ -256,7 +256,9 @@ void Eng3D::Texture::delete_gputex() {
 }
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION 1
+extern "C" {
 #include "eng3d/stb_image_write.h"
+}
 void Eng3D::Texture::to_file(const std::string& filename) {
     int channel_count = 4;
     int stride = channel_count * width;

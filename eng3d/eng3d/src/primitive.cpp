@@ -111,8 +111,8 @@ Eng3D::Quad2D::Quad2D()
 
 Eng3D::Sphere::Sphere(float center_x, float center_y, float center_z, float _radius, int _resolution, bool cw_winding)
     : Eng3D::Mesh<glm::vec3, glm::vec2>(Eng3D::MeshMode::TRIANGLES),
-    resolution{ _resolution },
-    radius{ _radius }
+    radius{ _radius },
+    resolution{ _resolution }
 {
     buffer.resize(6 * resolution * resolution);
     glm::vec3 center_pos(center_x, center_y, center_z);

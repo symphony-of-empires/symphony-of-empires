@@ -67,12 +67,12 @@ void Eng3D::OpenGL::Shader::compile(GLuint type) {
     GLint r = 0;
     glGetShaderiv(id, GL_COMPILE_STATUS, &r);
     if(!r) {
-        GLchar* error_info;
-        glGetShaderInfoLog(id, GL_INFO_LOG_LENGTH, NULL, error_info);
-        Eng3D::Log::error("opengl", error_info);
+        std::unique_ptr<GLchar[]> error_info(new GLchar[GL_INFO_LOG_LENGTH]);
+        glGetShaderInfoLog(id, GL_INFO_LOG_LENGTH, NULL, error_info.get());
+        Eng3D::Log::error("opengl", error_info.get());
 
         // Nvidia's style of errors
-        std::istringstream sline(error_info);
+        std::istringstream sline(error_info.get());
         int slot, row, col;
         char ch;
 
@@ -105,7 +105,7 @@ void Eng3D::OpenGL::Shader::compile(GLuint type) {
         std::string line_buf = "(No line info)";
         if(it != buffer.end())
             line_buf = buffer.substr(std::distance(buffer.begin(), it), buffer.find_first_of('\n', std::distance(buffer.begin(), it)));
-        CXX_THROW(Eng3D::ShaderException, line_buf + "\n" + error_info);
+        CXX_THROW(Eng3D::ShaderException, line_buf + "\n" + error_info.get());
     }
     Eng3D::Log::debug("shader", "Status: Sucess");
 }
@@ -132,10 +132,10 @@ void Eng3D::OpenGL::Program::link() {
     GLint r = 0;
     glGetProgramiv(id, GL_LINK_STATUS, &r);
     if(!r) {
-        std::string error_info;
-        glGetProgramInfoLog(id, GL_INFO_LOG_LENGTH, NULL, &error_info[0]);
-        Eng3D::Log::error("shader", std::string() + "Program error " + error_info.c_str());
-        CXX_THROW(Eng3D::ShaderException, error_info);
+        std::unique_ptr<GLchar[]> error_info(new GLchar[GL_INFO_LOG_LENGTH]);
+        glGetShaderInfoLog(id, GL_INFO_LOG_LENGTH, NULL, error_info.get());
+        Eng3D::Log::error("shader", std::string() + "Program error " + error_info.get());
+        CXX_THROW(Eng3D::ShaderException, error_info.get());
     }
 }
 

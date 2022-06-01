@@ -45,17 +45,17 @@
 using namespace UI;
 
 BarChart::BarChart(int _x, int _y, unsigned w, unsigned h, std::vector<ChartData> chart_data, Widget* _parent)
-    : data{ chart_data },
-    max{ 0 },
-    Widget(_parent, _x, _y, w, h, UI::WidgetType::BAR_CHART)
+    : Widget(_parent, _x, _y, w, h, UI::WidgetType::BAR_CHART),
+    data{ chart_data },
+    max{ 0 }
 {
 
 }
 
 BarChart::BarChart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
-    : data{ std::vector<ChartData>() },
-    max{ 0 },
-    Widget(_parent, _x, _y, w, h, UI::WidgetType::BAR_CHART)
+    : Widget(_parent, _x, _y, w, h, UI::WidgetType::BAR_CHART),
+    data{ std::vector<ChartData>() },
+    max{ 0 }
 {
 
 }
@@ -63,12 +63,11 @@ BarChart::BarChart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 void BarChart::set_data(std::vector<ChartData> new_data) {
     data = new_data;
     max = 0;
-    for(const auto& slice : data) {
+    for(const auto& slice : data)
         max += slice.num;
-    }
 }
 
-void BarChart::on_render(Context& ctx, Eng3D::Rect viewport) {
+void BarChart::on_render(Context&, Eng3D::Rect viewport) {
     float counter = 0.f;
     float last_ratio = 0.f;
     for(auto& slice : data) {

@@ -47,9 +47,9 @@ using namespace UI;
 // Calculate the positon of the triangle
 // and then uses its barycentric coordinates to check if the point p is inside it
 PieChart::PieChart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
-    : data{ std::vector<ChartData>() },
-    max{ 0 },
-    Widget(_parent, _x, _y, w, h, UI::WidgetType::PIE_CHART)
+    : Widget(_parent, _x, _y, w, h, UI::WidgetType::PIE_CHART),
+    data{ std::vector<ChartData>() },
+    max{ 0 }
 {
     tooltip = new Tooltip(this, 512, 24);
     tooltip->is_render = false;

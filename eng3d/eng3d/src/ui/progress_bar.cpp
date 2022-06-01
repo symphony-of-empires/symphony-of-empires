@@ -39,9 +39,9 @@
 using namespace UI;
 
 ProgressBar::ProgressBar(int _x, int _y, unsigned w, unsigned h, const float _min, const float _max, Widget* _parent)
-    : max{ _max },
-    min{ _min },
-    Widget(_parent, _x, _y, w, h, UI::WidgetType::PROGRESS_BAR)
+    : Widget(_parent, _x, _y, w, h, UI::WidgetType::PROGRESS_BAR),
+    max{ _max },
+    min{ _min }
 {
 
 }

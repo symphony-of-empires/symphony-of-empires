@@ -94,7 +94,7 @@ void Tooltip::text(const std::string& text) {
         if(remaining_chars > line_width) end_pos = pos + line_width;
 
         bool break_line = false;
-        for(int i = pos; i <= end_pos; i++) {
+        for(size_t i = pos; i <= end_pos; i++) {
             if(text[i] == '\n') {
                 end_pos = i;
                 break_line = true;
@@ -103,7 +103,7 @@ void Tooltip::text(const std::string& text) {
         }
 
         if(!break_line && remaining_chars > line_width) {
-            for(int i = end_pos; i > pos; i--) {
+            for(size_t i = end_pos; i > pos; i--) {
                 if(text[i] == ' ') {
                     end_pos = i;
                     break;
