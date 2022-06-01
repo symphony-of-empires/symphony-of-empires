@@ -273,7 +273,7 @@ int LuaAPI::add_nation(lua_State* L) {
     if(g_world->needs_to_sync)
         CXX_THROW(LuaAPI::Exception, "MP-Sync in this function is not supported");
 
-    auto nation = Nation();
+    Nation nation{};
     nation.ref_name = luaL_checkstring(L, 1);
     nation.name = luaL_checkstring(L, 2);
     nation.ideology = &g_world->ideologies.at(0);
@@ -288,8 +288,10 @@ int LuaAPI::add_nation(lua_State* L) {
     nation.research.shrink_to_fit();
 
     // Check for duplicates
-    for(size_t i = 0; i < g_world->nations.size(); i++) {
-        if(nation.ref_name == g_world->nations[i].ref_name)
+    for(const auto& other_nation : g_world->nations) {
+        if(Nation::is_invalid(other_nation.get_id()))
+            CXX_THROW(LuaAPI::Exception, "Nation with invalid Id!");
+        if(nation.ref_name == other_nation.ref_name)
             CXX_THROW(LuaAPI::Exception, "Duplicate ref_name " + nation.ref_name);
     }
 
@@ -317,7 +319,8 @@ int LuaAPI::get_all_nations(lua_State* L) {
 
     size_t i = 0;
     for(const auto& nation : g_world->nations) {
-        lua_pushnumber(L, g_world->get_id(nation));
+        assert(Nation::is_valid(nation.get_id()));
+        lua_pushnumber(L, nation.get_id());
         lua_rawseti(L, -2, i + 1);
         ++i;
     }
@@ -577,7 +580,7 @@ int LuaAPI::add_province(lua_State* L) {
     if(g_world->needs_to_sync)
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
 
-    auto province = Province();
+    Province province{};
     province.ref_name = luaL_checkstring(L, 1);
     province.color = (bswap32(lua_tonumber(L, 2)) >> 8) | 0xff000000;
     province.name = luaL_checkstring(L, 3);

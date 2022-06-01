@@ -41,6 +41,7 @@
 #include "eng3d/profiler.hpp"
 #include "eng3d/assert.hpp"
 #include "eng3d/string.hpp"
+#include "eng3d/log.hpp"
 
 #include "nation.hpp"
 #include "product.hpp"
@@ -98,6 +99,7 @@ public:
         auto& list = this->get_list((type*)nullptr);\
         list_mutex.lock();\
         ptr.cached_id = list.size();\
+        Eng3D::Log::debug("world_insert", "Inserting object " #type " with ID=%zu" + std::to_string(ptr.cached_id));\
         list.push_back(ptr);\
         list_mutex.unlock();\
     };\
@@ -105,6 +107,8 @@ public:
         type::Id cached_id = this->get_id<type>(ptr);\
         auto& list = this->get_list((type*)nullptr);\
         list_mutex.lock();\
+        cached_id = list.size();\
+        Eng3D::Log::debug("world_remove", "Removing object " #type " with ID=" + std::to_string(cached_id));\
         for(type::Id i = cached_id + 1; i < list.size(); i++) {\
             list[i].cached_id--;\
         }\
