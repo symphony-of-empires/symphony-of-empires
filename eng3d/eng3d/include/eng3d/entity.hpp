@@ -107,6 +107,10 @@ public:
      * 
      */
     Id cached_id = (Id)-1;
+
+    inline Id get_id(void) const {
+        return cached_id;
+    }
 };
 
 /**
