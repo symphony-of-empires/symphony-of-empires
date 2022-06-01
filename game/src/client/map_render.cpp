@@ -443,7 +443,7 @@ void MapRender::update_visibility()
         const auto& province = gs.world->provinces[province_id];
         this->province_opt->buffer.get()[province_id] = 0x000000ff;
         for(const auto& neighbour : province.neighbours)
-            this->province_opt->buffer.get()[province_id] = 0x000000ff;
+            this->province_opt->buffer.get()[gs.world->get_id(*neighbour)] = 0x000000ff;
     }
 
     for(const auto& unit : gs.world->units) {
