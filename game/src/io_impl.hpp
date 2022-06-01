@@ -601,6 +601,7 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->nation_modifiers);
         ::deser_dynamic<is_serialize>(ar, &obj->nations);
         ::deser_dynamic<is_serialize>(ar, &obj->provinces);
+        const size_t n_relations = obj->nations.size() * obj->nations.size();
         if constexpr(is_serialize) {
             const Event::Id n_events = obj->events.size();
             ::deser_dynamic<is_serialize>(ar, &n_events);
@@ -608,13 +609,17 @@ public:
             ::deser_dynamic<is_serialize>(ar, &n_treaties);
             const War::Id n_wars = obj->wars.size();
             ::deser_dynamic<is_serialize>(ar, &n_wars);
-            for(size_t i = 0; i < obj->nations.size() * 2; i++)
-                ::deser_dynamic<is_serialize>(ar, &obj->relations);
+            const Unit::Id n_units = obj->units.size();
+            ::deser_dynamic<is_serialize>(ar, &n_units);
+            for(size_t i = 0; i < n_relations; i++)
+                ::deser_dynamic<is_serialize>(ar, &obj->relations[i]);
             for(auto& sub_obj : obj->events)
                 ::deser_dynamic<is_serialize>(ar, sub_obj);
             for(auto& sub_obj : obj->treaties)
                 ::deser_dynamic<is_serialize>(ar, sub_obj);
             for(auto& sub_obj : obj->wars)
+                ::deser_dynamic<is_serialize>(ar, sub_obj);
+            for(auto& sub_obj : obj->units)
                 ::deser_dynamic<is_serialize>(ar, sub_obj);
         } else {
             // In order to avoid post-deserialization relational patcher, we will simply allocate everything with "empty" objects,
@@ -622,7 +627,9 @@ public:
             Event::Id n_events = deserialize_and_create_list<Event>(ar, obj);
             Treaty::Id n_treaties = deserialize_and_create_list<Treaty>(ar, obj);
             War::Id n_wars = deserialize_and_create_list<War>(ar, obj);
-            for(size_t i = 0; i < obj->nations.size() * obj->nations.size(); i++)
+            Unit::Id n_units = deserialize_and_create_list<Unit>(ar, obj);
+            obj->relations.reset(new NationRelation[obj->nations.size() * obj->nations.size()]);
+            for(size_t i = 0; i < n_relations; i++)
                 ::deser_dynamic<is_serialize>(ar, &obj->relations[i]);
             for(size_t i = 0; i < n_events; i++) {
                 auto* sub_obj = obj->events[i];
@@ -634,6 +641,10 @@ public:
             }
             for(size_t i = 0; i < n_wars; i++) {
                 auto* sub_obj = obj->wars[i];
+                ::deser_dynamic<is_serialize>(ar, sub_obj);
+            }
+            for(size_t i = 0; i < n_units; i++) {
+                auto* sub_obj = obj->units[i];
                 ::deser_dynamic<is_serialize>(ar, sub_obj);
             }
             obj->tiles.reset(new Tile[obj->width * obj->height]);

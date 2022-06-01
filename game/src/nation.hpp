@@ -75,12 +75,8 @@ public:
     ~NationClientHint() {};
 
     uint32_t color;
-
-    // Alternate name, for example communist Russia would be called USSR
-    Eng3D::StringRef alt_name;
-
-    // Ideology to which this hint applies to (nullptr = default fallback)
-    Ideology* ideology;
+    Eng3D::StringRef alt_name; // Alternate name, for example communist Russia would be called USSR
+    Ideology* ideology = nullptr; // Ideology to which this hint applies to (nullptr = default fallback)
 };
 
 class NationModifier : public RefnameEntity<uint16_t> {
@@ -149,7 +145,7 @@ public:
     Eng3D::Decimal get_immigration_attraction_mod();
 
     Eng3D::StringRef name;
-    Nation* puppet_master; // Pupeeter of this nation (if any)
+    Nation* puppet_master = nullptr; // Pupeeter of this nation (if any)
     Eng3D::Decimal diplomacy_points; // Amount of diplomacy points available
     Eng3D::Decimal prestige = 0.1f; // Amount of prestige
     Eng3D::Decimal infamy = 0; // Level of infamy
