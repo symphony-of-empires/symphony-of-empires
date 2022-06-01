@@ -55,12 +55,27 @@ public:
     ~Province() {};
     Eng3D::Number total_pops() const;
     Eng3D::Decimal get_attractiveness(const Pop& pop) const;
-    std::pair<Eng3D::Decimal, Eng3D::Decimal> get_pos() const;
-    const std::vector<Unit*> get_units() const;
-    const std::vector<Building>& get_buildings() const;
-    std::vector<Building>& get_buildings();
-    bool is_neighbour(Province& province) const;
     void add_building(const BuildingType& building_type);
+
+    inline std::pair<Eng3D::Decimal, Eng3D::Decimal> get_pos() const {
+        return std::make_pair(box_area.left + ((box_area.right - box_area.left) / 2.f), box_area.top + ((box_area.bottom - box_area.top) / 2.f));
+    }
+
+    inline const std::vector<Unit*> get_units() const {
+        return units;
+    }
+
+    inline const std::vector<Building>& get_buildings() const {
+        return buildings;
+    }
+
+    inline std::vector<Building>& get_buildings() {
+        return buildings;
+    }
+
+    inline bool is_neighbour(Province& province) const {
+        return std::find(this->neighbours.begin(), this->neighbours.end(), &province) != this->neighbours.end();
+    }
 
     Eng3D::StringRef name;
 
