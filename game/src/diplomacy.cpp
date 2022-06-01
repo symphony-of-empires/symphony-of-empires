@@ -41,12 +41,9 @@ inline bool Diplomacy::is_friend(Nation& us, Nation& them) {
         // is now cancelled out
         if(relation.interest >= relation.relation) {
             // Can't be friendly with negative relations
-            if(relation.relation <= 0.f)
-                return false;
-
+            if(relation.relation <= 0.f) return false;
             // Need to be interested enough to friend them
-            if(relation.relation >= relation.interest / relation.relation)
-                return true;
+            if(relation.relation >= relation.interest / relation.relation) return true;
         }
         return false;
     }
@@ -103,12 +100,9 @@ void TreatyClause::LiberateNation::enforce() {
     // Reduce prestige due to lost lands
     sender->prestige += cost() * 0.0000025f;
     receiver->prestige -= cost() * 0.000005f;
-
     // Give provinces to this liberated nation
-    for(auto& province : provinces) {
+    for(auto& province : provinces)
         province->owner = liberated;
-    }
-
     // One-time clause
     done = true;
 }
@@ -143,14 +137,12 @@ unsigned TreatyClause::AnnexProvince::cost() {
 void TreatyClause::AnnexProvince::enforce() {
     sender->prestige += cost() * 0.0000025f;
     receiver->prestige -= cost() * 0.000005f;
-
     // Give provinces to the winner
     for(auto& province : provinces) {
         Eng3D::Log::debug("game", "Giving " + province->ref_name + " to " + sender->ref_name + " from " + receiver->ref_name);
         // Change ownership of provinces
         sender->give_province(*province);
     }
-
     // One-time clause
     done = true;
 }
@@ -195,9 +187,7 @@ bool TreatyClause::Puppet::in_effect() const {
 // Checks if the specified nations participates in the treaty
 bool Treaty::does_participate(Nation& nation) {
     for(auto& status : this->approval_status) {
-        if(status.first == &nation) {
-            return true;
-        }
+        if(status.first == &nation) return true;
     }
     return false;
 }
@@ -228,10 +218,7 @@ bool Treaty::in_effect() const {
             const auto* dyn_clause = static_cast<const TreatyClause::Puppet*>(clause);
             on_effect = dyn_clause->in_effect();
         }
-
-        if(on_effect) {
-            break;
-        }
+        if(on_effect) break;
     }
     return on_effect;
 }

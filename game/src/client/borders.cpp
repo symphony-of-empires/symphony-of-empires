@@ -67,12 +67,17 @@ class BorderGenerator
     int width;
     int height;
     BorderGenerator(std::vector<std::vector<glm::vec3>>& borders, uint32_t* pixels, int width, int height)
-        : borders{ borders }, pixels{ pixels }, width{ width }, height{ height } {};
+        : borders{ borders },
+        pixels{ pixels },
+        width{ width },
+        height{ height }
+    {
+
+    }
 
     bool check_neighbor(int new_x, int new_y) {
-        if(new_x < 0 || new_y < 0 || new_x >= width - 1 || new_y >= height - 1) {
+        if(new_x < 0 || new_y < 0 || new_x >= width - 1 || new_y >= height - 1)
             return false;
-        }
         int new_index = new_x + new_y * width;
 
         uint32_t color_ul = pixels[new_index];
@@ -80,9 +85,8 @@ class BorderGenerator
         uint32_t color_ur = pixels[new_index + 1];
         uint32_t color_dr = pixels[new_index + width + 1];
         // Different neighbor, ie its a border
-        if(color_ul != color_ur || color_ur != color_dr || color_dr != color_dl || color_dl != color_ul) {
+        if(color_ul != color_ur || color_ur != color_dr || color_dr != color_dl || color_dl != color_ul)
             return true;
-        }
         return false;
     }
 
@@ -91,11 +95,8 @@ class BorderGenerator
             int old_index = prev_x + prev_y * width;
             int new_index = new_x + new_y * width;
             int index = 2 * std::min(old_index, new_index) + std::abs(prev_x - new_x);
-            if(walked_paths.count(index)) {
-                return;
-            }
+            if(walked_paths.count(index)) return;
             walked_positions.insert(new_index);
-
             if(connections++ > 1) {
                 unexplored_paths.push(old_index);
             } else {
@@ -174,9 +175,8 @@ void Borders::build_borders() {
         std::vector<glm::vec3> mid_points(length + 3);
         mid_points[0] = river[0];
         mid_points[1] = river[0];
-        for(size_t j = 0; j < length - 1; j++) {
+        for(size_t j = 0; j < length - 1; j++)
             mid_points[j + 2] = 0.5f * (river[j] + river[j + 1]);
-        }
         mid_points[length + 1] = river[length - 1];
         mid_points[length + 2] = river[length - 1];
 
@@ -190,14 +190,12 @@ void Borders::build_borders() {
             p1 = mid_points[j];
             p2 = mid_points[j + 1];
             p3 = mid_points[j + 2];
-
             float step = 1 / 1.;
             for(float t = 1.f; t > 0.f; t -= step) {
                 float t0 = t - 2;
                 float t1 = t - 1;
                 float t2 = t + 0;
                 float t3 = t + 1;
-
                 glm::vec3 pt(0, 0, 0);
                 pt += p0 * (+1.f / 6.f * glm::pow(t0, 3.f) + 2.f * t0 + 4.f / 3.f + glm::pow(t0, 2.f));
                 pt += p3 * (-1.f / 6.f * glm::pow(t3, 3.f) - 2.f * t3 + 4.f / 3.f + glm::pow(t3, 2.f));
@@ -214,10 +212,6 @@ void Borders::build_borders() {
     this->curves.push_back(curve);
 }
 
-Borders::~Borders() {
-
-}
-
 void Borders::draw(Eng3D::Camera* camera) {
     line_shader->use();
     glm::mat4 model(1.f);
@@ -225,7 +219,6 @@ void Borders::draw(Eng3D::Camera* camera) {
     line_shader->set_uniform("projection", camera->get_projection());
     line_shader->set_uniform("view", camera->get_view());
     line_shader->set_texture(0, "water_texture", *water_tex);
-    for(auto curve : curves) {
+    for(auto curve : curves)
         curve->draw();
-    }
 }
