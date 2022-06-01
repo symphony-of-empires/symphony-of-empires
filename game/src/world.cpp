@@ -413,7 +413,7 @@ void World::load_initial() {
                 const auto tiles = tile->get_neighbours(*this);
                 for(const auto& other_tile : tiles) {
                     if(Province::is_valid(other_tile.province_id))
-                        province.neighbours.insert(&this->provinces[other_tile.province_id]);
+                        province.neighbours.insert(other_tile.province_id);
                 }
             }
         }
