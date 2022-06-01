@@ -109,7 +109,9 @@ template<typename T>
 class Serializer {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive&, const T*) {}
+    static inline void deser_dynamic(Archive&, const T*) {
+        CXX_THROW(SerializerException, "Implement your serializer function!");
+    }
 };
 
 /// @brief Template generic (de)-serializer
@@ -120,14 +122,19 @@ inline void deser_dynamic(Archive& ar, T* obj) {
     Serializer<T>::template deser_dynamic<is_serialize>(ar, obj);
 }
 
-template<typename T>
-inline void serialize(Archive& ar, const T* obj) {
-    Serializer<const T>::template deser_dynamic<true>(ar, obj);
+template<bool is_serialize, typename T>
+inline void deser_dynamic(Archive& ar, const T* obj) {
+    Serializer<T>::template deser_dynamic<is_serialize>(ar, const_cast<T*>(obj));
 }
 
 template<typename T>
-inline void deserialize(Archive& ar, T* obj) {
-    Serializer<T>::template deser_dynamic<false>(ar, obj);
+inline void serialize(Archive& ar, const T* obj) {
+    Serializer<T>::template deser_dynamic<true>(ar, const_cast<T*>(obj));
+}
+
+template<typename T>
+inline void deserialize(Archive& ar, const T* obj) {
+    Serializer<T>::template deser_dynamic<false>(ar, const_cast<T*>(obj));
 }
 
 // A serializer optimized to memcpy directly the element into the byte stream
@@ -146,7 +153,6 @@ public:
         }
     }
 };
-
 
 /// @todo On some compilers a boolean can be something not a uint8_t, we should
 // explicitly recast this boolean into a uint8_t to avoid problems
@@ -233,14 +239,14 @@ public:
             uint32_t len = obj_group->size();
             ::deser_dynamic<is_serialize>(ar, &len);
             for(auto& obj : *obj_group) {
-                Serializer<T>::template deser_dynamic<is_serialize>(ar, &obj);
+                ::deser_dynamic<is_serialize>(ar, &obj);
             }
         } else {
             uint32_t len;
             ::deser_dynamic<is_serialize>(ar, &len);
             for(size_t i = 0; i < len; i++) {
                 T obj;
-                Serializer<T>::template deser_dynamic<is_serialize>(ar, &obj);
+                ::deser_dynamic<is_serialize>(ar, &obj);
                 obj_group->insert(obj);
             }
         }
@@ -253,8 +259,8 @@ class Serializer<std::pair<T, U>> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, std::pair<T, U>* obj) {
-        ::deser_dynamic(ar, &obj->first);
-        ::deser_dynamic(ar, &obj->second);
+        ::deser_dynamic<is_serialize>(ar, &obj->first);
+        ::deser_dynamic<is_serialize>(ar, &obj->second);
     }
 };
 
@@ -262,16 +268,16 @@ public:
 template<>
 class Serializer<Eng3D::StringRef> {
 public:
-    template<bool is_serialize, typename T2 = Eng3D::StringRef>
-    static inline void deser_dynamic(Archive& ar, T2* obj) {
-        ::deser_dynamic(ar, &obj->id);
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, Eng3D::StringRef* obj) {
+        ::deser_dynamic<is_serialize>(ar, &obj->id);
     }
 };
 
 // Contigous container serializers implementations
 #include <vector>
-template<typename T>
-class Serializer<std::vector<T>> : public SerializerContainer<T, std::vector<T>> {
+template<typename T, typename A>
+class Serializer<std::vector<T, A>> : public SerializerContainer<T, std::vector<T, A>> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, std::vector<T>* obj_group) {
@@ -295,8 +301,8 @@ public:
 };
 
 #include <deque>
-template<typename T>
-class Serializer<std::deque<T>> : public SerializerContainer<T, std::deque<T>> {
+template<typename T, typename A>
+class Serializer<std::deque<T, A>> : public SerializerContainer<T, std::deque<T, A>> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, std::deque<T>* obj_group) {
@@ -320,16 +326,16 @@ public:
 };
 
 #include <queue>
-template<typename T>
-class Serializer<std::queue<T>> : public SerializerContainer<T, std::queue<T>> {};
+template<typename T, typename S>
+class Serializer<std::queue<T, S>> : public SerializerContainer<T, std::queue<T, S>> {};
 
 #include <set>
-template<typename T>
-class Serializer<std::set<T>> : public SerializerContainer<T, std::set<T>> {};
+template<typename K, typename C, typename A>
+class Serializer<std::set<K, C, A>> : public SerializerContainer<K, std::set<K, C, A>> {};
 
 #include <unordered_set>
-template<typename T>
-class Serializer<std::unordered_set<T>> : public SerializerContainer<T, std::unordered_set<T>> {};
+template<typename V, typename H, typename P, typename A>
+class Serializer<std::unordered_set<V, H, P, A>> : public SerializerContainer<V, std::unordered_set<V, H, P, A>> {};
 
 #include <bitset>
 template<typename T, int N>

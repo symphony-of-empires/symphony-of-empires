@@ -34,6 +34,8 @@ void Archive::to_file(const std::string& path) {
     if(!buffer.empty()) {
         std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen(path.c_str(), "wb"), fclose);
         fwrite((const void*)&buffer[0], 1, buffer.size(), fp.get());
+    } else {
+        CXX_THROW(SerializerException, "Can't output an empty archive to file " + path);
     }
 }
 
