@@ -75,6 +75,7 @@ void Eng3D::OpenGL::Shader::compile(GLuint type) {
         glGetShaderInfoLog(id, infoLen, NULL, &shader_error_info[0]);
 
         std::ostringstream output_error;
+        output_error << "Shader did not compile:\n";
         std::istringstream error_lines(shader_error_info);
         std::string error;
         getline(error_lines, error);
@@ -98,11 +99,21 @@ void Eng3D::OpenGL::Shader::compile(GLuint type) {
                 sline >> row >> ch;
             }
 
+            int read_lines = 0;
+            std::stringstream code(buffer);
+            std::string error_code;
+            while(read_lines < row && !code.eof()) {
+                getline(code, error_code);
+                read_lines++;
+            }
+
             getline(sline, error);
             if(row > 0 && row - 1 < line_numbers.size()) {
                 row = line_numbers[row - 1];
             }
-            output_error << "(" << row << ")" << error << "\n";
+
+            output_error << "(" << row << ")" << ":" << error_code;
+            output_error << "\n^^^: " << error << "\n";
             getline(error_lines, error);
         }
         Eng3D::Log::error("opengl", output_error.str());
