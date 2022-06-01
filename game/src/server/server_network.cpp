@@ -110,11 +110,6 @@ void Server::net_loop(int id) {
         ActionType action = ActionType::PING;
         packet.send(&action);
         
-        /// @todo The world mutex is not properly unlocked when an exception occours
-        // this allows clients to abruptly disconnect and softlock a server
-        // so we did this little trick of manually unlocking - but this is a bad idea
-        // we need to use RAII to just unlock the thing on destruction *(specifically when
-        // an exception is thrown), since we are using C++
         Archive ar = Archive();
         while(run && cl.is_connected == true) {
             cl.flush_packets();
@@ -132,7 +127,6 @@ void Server::net_loop(int id) {
                     throw ServerException("Unallowed operation without selected nation");
                 
                 std::scoped_lock lock(g_world->world_mutex);
-
                 switch(action) {
                 // - Used to test connections between server and client
                 case ActionType::PONG:

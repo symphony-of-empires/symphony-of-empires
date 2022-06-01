@@ -96,10 +96,7 @@ LobbySelectView::LobbySelectView(GameState& _gs)
         auto* ldgame_btn = new UI::Button(0, 24 * i, 128, 24, game_group);
         ldgame_btn->text(ldgame_data[i].file);
         ldgame_btn->set_on_click([this, ldgame](UI::Widget&) {
-            std::scoped_lock lock1(this->gs.world->world_mutex);
-            if(ldgame.gs.world != nullptr)
-                delete ldgame.gs.world;
-            
+            if(ldgame.gs.world != nullptr) delete ldgame.gs.world;
             Archive ar = Archive();
             ldgame.gs.world = new World();
             ::deserialize(ar, ldgame.gs.world);

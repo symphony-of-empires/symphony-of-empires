@@ -436,6 +436,14 @@ void World::load_initial() {
             this->relations[i].relation = 0.f;
         }
 
+        // Auto-relocate capitals for countries which do not have one
+        for(auto& nation : this->nations) {
+            // Must exist and not have a capital
+            if(!nation.exists() || Province::is_invalid(nation.capital_id)) continue;
+            Eng3D::Log::debug("game", Eng3D::Locale::translate("Relocating capital of [" + nation.ref_name + "]"));
+            nation.auto_relocate_capital();
+        }
+
         // Write the entire world to the cache file
         Archive ar = Archive();
         ::serialize(ar, this);
@@ -443,13 +451,6 @@ void World::load_initial() {
     }
 
     Eng3D::Log::debug("game", Eng3D::Locale::translate("World partially intiialized"));
-    // Auto-relocate capitals for countries which do not have one
-    for(auto& nation : this->nations) {
-        // Must exist and not have a capital
-        if(!nation.exists() || Province::is_invalid(nation.capital_id)) continue;
-        Eng3D::Log::debug("game", Eng3D::Locale::translate("Relocating capital of [" + nation.ref_name + "]"));
-        nation.auto_relocate_capital();
-    }
 }
 
 void World::load_mod() {

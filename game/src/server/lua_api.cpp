@@ -823,7 +823,7 @@ int LuaAPI::set_province_pop_ideology_approval(lua_State* L) {
 
 int LuaAPI::add_province_pop(lua_State* L) {
     Province& province = g_world->provinces.at(lua_tonumber(L, 1));
-    Pop pop;
+    auto pop = Pop();
     pop.type = &g_world->pop_types.at(lua_tonumber(L, 2));
     pop.culture = &g_world->cultures.at(lua_tonumber(L, 3));
     pop.religion = &g_world->religions.at(lua_tonumber(L, 4));
