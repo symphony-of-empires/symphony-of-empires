@@ -643,7 +643,7 @@ static inline void unit_do_tick(Unit& unit)
                     unit.on_battle = true;
                     other_unit->on_battle = true;
                     // Create a new battle
-                    Battle battle = Battle(*war, unit_province);
+                    Battle battle = Battle(*war);
                     battle.name = "Battle of " + unit_province.name;
                     if(war->is_attacker(*unit.owner)) {
                         battle.attackers.push_back(&unit);
@@ -791,10 +791,9 @@ void World::do_tick() {
     profiler.start("Battles");
     tbb::combinable<tbb::concurrent_vector<Unit*>> clear_units;
     tbb::parallel_for(tbb::blocked_range(provinces.begin(), provinces.end()), [this, &clear_units](auto& provinces_range) {
-        for(const auto& province : provinces_range) {
+        for(auto& province : provinces_range) {
             for(size_t j = 0; j < province.battles.size(); j++) {
                 auto& battle = province.battles[j];
-
                 // Attackers attack Defenders
                 for(auto& attacker : battle.attackers) {
                     assert(attacker != nullptr);
@@ -807,7 +806,7 @@ void World::do_tick() {
                         if(!unit->size) {
                             Eng3D::Log::debug("game", "Removing attacker \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                             battle.defenders.erase(battle.defenders.begin() + i);
-                            assert(unit->province_id == this->get_id(*battle.province));
+                            assert(unit->province_id == this->get_id(province));
                             clear_units.local().push_back(unit);
                             continue;
                         }
@@ -827,7 +826,7 @@ void World::do_tick() {
                         if(!unit->size) {
                             Eng3D::Log::debug("game", "Removing defender \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                             battle.attackers.erase(battle.attackers.begin() + i);
-                            assert(unit->province_id == this->get_id(*battle.province));
+                            assert(unit->province_id == this->get_id(province));
                             clear_units.local().push_back(unit);
                             continue;
                         }
@@ -839,7 +838,7 @@ void World::do_tick() {
                 if(battle.defenders.empty() || battle.attackers.empty()) {
                     // Defenders defeated
                     if(battle.defenders.empty()) {
-                        battle.attackers[0]->owner->control_province(*battle.province);
+                        battle.attackers[0]->owner->control_province(province);
                         // Clear flags of all units
                         for(auto& unit : battle.attackers)
                             unit->on_battle = false;
@@ -847,7 +846,7 @@ void World::do_tick() {
                     }
                     // Defenders won
                     else if(battle.attackers.empty()) {
-                        battle.defenders[0]->owner->control_province(*battle.province);
+                        battle.defenders[0]->owner->control_province(province);
                         for(auto& unit : battle.defenders)
                             unit->on_battle = false;
                         Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": defenders win");

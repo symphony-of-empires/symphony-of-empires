@@ -499,7 +499,7 @@ void Map::draw(const GameState& gs) {
 
     // Display units that aren't on battles
     size_t unit_index = 0, battle_index = 0;
-    for(const auto& province : world.provinces) {
+    for(auto& province : const_cast<World&>(world).provinces) {
         const glm::vec2 prov_pos = glm::vec2(province.get_pos().first, province.get_pos().second);
         // And display units
         for(const auto& unit : province.get_units()) {
@@ -522,7 +522,7 @@ void Map::draw(const GameState& gs) {
         }
 
         size_t war_battle_idx = 0;
-        for(const auto& battle : province.battles) {
+        for(auto& battle : province.battles) {
             bool battle_visible = true;
             if(view_mode == MapView::SPHERE_VIEW) {
                 glm::vec3 cam_pos = camera->get_world_pos();
