@@ -99,12 +99,13 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
 
     // Display all the nuclei
     int dx = 0;
-    for(const auto& nation : province.nuclei) {
-        this->owner_flag = new UI::AspectImage(dx, this->landscape_img->height - 24, 32, 24, gs.get_nation_flag(*nation), this);
-        this->owner_flag->set_on_click([this, nation](UI::Widget&) {
-            new Interface::NationView(this->gs, *nation);
+    for(const auto& nucleus_id : province.nuclei) {
+        auto& nucleus = g_world->nations[nucleus_id];
+        this->owner_flag = new UI::AspectImage(dx, this->landscape_img->height - 24, 32, 24, gs.get_nation_flag(nucleus), this);
+        this->owner_flag->set_on_click([this, &nucleus](UI::Widget&) {
+            new Interface::NationView(this->gs, nucleus);
         });
-        this->owner_flag->set_tooltip(nation->name + " has nuclei on this province");
+        this->owner_flag->set_tooltip(nucleus.name + " has nuclei on this province");
         new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width, this->owner_flag->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
         dx += this->owner_flag->width;
     }

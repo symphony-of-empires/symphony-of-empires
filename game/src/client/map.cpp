@@ -68,20 +68,21 @@
 
 static inline void get_blob_bounds(std::unordered_set<Province*>& visited_provinces, const Nation& nation, const Province& province, glm::vec2* min_x, glm::vec2* min_y, glm::vec2* max_x, glm::vec2* max_y) {
     // Iterate over all neighbours
-    for(const auto& neighbour : province.neighbours) {
+    for(const auto& neighbour_id : province.neighbours) {
+        auto& neighbour = g_world->provinces[neighbour_id];
         // Do not visit again
-        if(visited_provinces.find(neighbour) != visited_provinces.end()) continue;
+        if(visited_provinces.find(&neighbour) != visited_provinces.end()) continue;
         // Must own the province
-        if(neighbour->owner != &nation) continue;
-        if(neighbour->box_area.left < min_x->x || neighbour->box_area.top < min_y->y) {
-            min_y->x = neighbour->box_area.left;
-            min_y->y = neighbour->box_area.top;
-        } else if(neighbour->box_area.right > max_x->x || neighbour->box_area.bottom > max_y->y) {
-            max_y->x = neighbour->box_area.right;
-            max_y->y = neighbour->box_area.bottom;
+        if(neighbour.owner != &nation) continue;
+        if(neighbour.box_area.left < min_x->x || neighbour.box_area.top < min_y->y) {
+            min_y->x = neighbour.box_area.left;
+            min_y->y = neighbour.box_area.top;
+        } else if(neighbour.box_area.right > max_x->x || neighbour.box_area.bottom > max_y->y) {
+            max_y->x = neighbour.box_area.right;
+            max_y->y = neighbour.box_area.bottom;
         }
-        visited_provinces.insert(neighbour);
-        get_blob_bounds(visited_provinces, nation, *neighbour, min_x, min_y, max_x, max_y);
+        visited_provinces.insert(&neighbour);
+        get_blob_bounds(visited_provinces, nation, neighbour, min_x, min_y, max_x, max_y);
     }
 }
 
@@ -341,7 +342,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             switch(gs.current_mode) {
             case MapMode::NORMAL:
                 gs.curr_nation->give_province(province);
-                province.nuclei.insert(gs.curr_nation);
+                province.nuclei.insert(gs.world->get_id(*gs.curr_nation));
                 update_mapmode();
                 break;
             default:

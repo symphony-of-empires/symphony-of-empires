@@ -363,8 +363,8 @@ void save(GameState& gs) {
             for(const auto& pop : province.pops)
                 fprintf(fp.get(), "province:add_pop(pt_%s,c_%s,r_%s,%f,%f)\n", pop.type->ref_name.c_str(), pop.culture->ref_name.c_str(), pop.religion->ref_name.c_str(), pop.size, pop.literacy);
             // Nuclei of the provinces
-            for(const auto& nucleus : province.nuclei)
-                fprintf(fp.get(), "province:add_nucleus(n_%s)\n", nucleus->ref_name.c_str());
+            for(const auto& nucleus_id : province.nuclei)
+                fprintf(fp.get(), "province:add_nucleus(n_%s)\n", gs.world->nations[nucleus_id].ref_name.c_str());
             // Give province to owner
             if(province.owner != nullptr) {
                 fprintf(fp.get(), "province:give_to(n_%s)\n", province.owner->ref_name.c_str());
