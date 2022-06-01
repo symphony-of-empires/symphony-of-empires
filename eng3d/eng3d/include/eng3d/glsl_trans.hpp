@@ -32,9 +32,9 @@
 namespace Eng3D::OpenGL {
     enum class GLSL_TokenType {
         ASSIGN, TERNARY, LITERAL, IDENTIFIER,
-        ADD, SUB, MUL, DIV, REM, AND, OR,
+        ADD, SUB, MUL, DIV, REM, AND, OR, XOR,
         SEMICOLON, COMMA, COLON, DOT,
-        CMP_EQ, CMP_GT, CMP_LT, CMP_GTEQ, CMP_LTEQ, CMP_OR, CMP_AND,
+        CMP_EQ, CMP_NEQ, CMP_GT, CMP_LT, CMP_GTEQ, CMP_LTEQ, CMP_OR, CMP_AND,
         LPAREN, RPAREN,
         LBRACKET, RBRACKET,
         LBRACE, RBRACE,
