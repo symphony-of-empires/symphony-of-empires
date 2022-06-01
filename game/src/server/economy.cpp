@@ -405,10 +405,11 @@ void Economy::do_tick(World& world) {
             const size_t province_neighbours_size = province.neighbours.size();
             Product& product = province.products[market.good];
             if(product.supply <= 0.f) continue;
-            for(auto neighbour : province.neighbours) {
-                if(neighbour->owner) continue;
-                const size_t neighbour_neighbours_size = neighbour->neighbours.size();
-                Product& other_product = neighbour->products[market.good];
+            for(auto neighbour_id : province.neighbours) {
+                auto& neighbour = g_world->provinces[neighbour_id];
+                if(neighbour.owner) continue;
+                const size_t neighbour_neighbours_size = neighbour.neighbours.size();
+                Product& other_product = neighbour.products[market.good];
 
                 // transfer goods
                 if(other_product.price > product.price) {
@@ -427,8 +428,9 @@ void Economy::do_tick(World& world) {
     int coastal = 0;
     for(size_t i = 0; i < world.provinces.size(); i++) {
         Province& province = world.provinces[i];
-        for(auto neighbour : province.neighbours) {
-            if(neighbour->terrain_type->is_water_body) {
+        for(auto neighbour_id : province.neighbours) {
+            auto& neighbour = g_world->provinces[neighbour_id];
+            if(neighbour.terrain_type->is_water_body) {
                 coastal++;
                 break;
             }

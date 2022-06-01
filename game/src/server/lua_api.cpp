@@ -273,7 +273,7 @@ int LuaAPI::add_nation(lua_State* L) {
     if(g_world->needs_to_sync)
         CXX_THROW(LuaAPI::Exception, "MP-Sync in this function is not supported");
 
-    auto nation = Nation();
+    Nation nation{};
     nation.ref_name = luaL_checkstring(L, 1);
     nation.name = luaL_checkstring(L, 2);
     nation.ideology = &g_world->ideologies.at(0);
@@ -288,13 +288,15 @@ int LuaAPI::add_nation(lua_State* L) {
     nation.research.shrink_to_fit();
 
     // Check for duplicates
-    for(size_t i = 0; i < g_world->nations.size(); i++) {
-        if(nation.ref_name == g_world->nations[i].ref_name)
+    for(const auto& other_nation : g_world->nations) {
+        if(Nation::is_invalid(other_nation.get_id()))
+            CXX_THROW(LuaAPI::Exception, "Nation with invalid Id!");
+        if(nation.ref_name == other_nation.ref_name)
             CXX_THROW(LuaAPI::Exception, "Duplicate ref_name " + nation.ref_name);
     }
 
     g_world->insert(nation);
-    lua_pushnumber(L, g_world->get_id(nation));
+    lua_pushnumber(L, g_world->nations.size() - 1);
     return 1;
 }
 
@@ -317,7 +319,8 @@ int LuaAPI::get_all_nations(lua_State* L) {
 
     size_t i = 0;
     for(const auto& nation : g_world->nations) {
-        lua_pushnumber(L, g_world->get_id(nation));
+        assert(Nation::is_valid(nation.get_id()));
+        lua_pushnumber(L, nation.get_id());
         lua_rawseti(L, -2, i + 1);
         ++i;
     }
@@ -353,8 +356,9 @@ int LuaAPI::get_provinces_with_nucleus_by_nation(lua_State* L) {
     size_t i = 0;
     for(const auto& province : g_world->provinces) {
         bool is_nuclei = false;
-        for(const auto& nuclei : province.nuclei) {
-            if(nuclei == &nation) {
+        for(const auto& nucleus_id : province.nuclei) {
+            auto& nucleus = g_world->nations[nucleus_id];
+            if(&nucleus == &nation) {
                 is_nuclei = true;
                 break;
             }
@@ -576,7 +580,7 @@ int LuaAPI::add_province(lua_State* L) {
     if(g_world->needs_to_sync)
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
 
-    auto province = Province();
+    Province province{};
     province.ref_name = luaL_checkstring(L, 1);
     province.color = (bswap32(lua_tonumber(L, 2)) >> 8) | 0xff000000;
     province.name = luaL_checkstring(L, 3);
@@ -618,7 +622,7 @@ int LuaAPI::add_province(lua_State* L) {
     province.box_area = Eng3D::Rect(0, 0, std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max());
     province.pops.reserve(100);
     g_world->insert(province);
-    lua_pushnumber(L, g_world->get_id(province));
+    lua_pushnumber(L, g_world->provinces.size() - 1);
     return 1;
 }
 
@@ -748,8 +752,8 @@ int LuaAPI::get_province_neighbours(lua_State* L) {
     const Province& province = g_world->provinces.at(lua_tonumber(L, 1));
     lua_newtable(L);
     size_t i = 0;
-    for(const auto& neighbour : province.neighbours) {
-        lua_pushnumber(L, g_world->get_id(*neighbour));
+    for(const auto& neighbour_id : province.neighbours) {
+        lua_pushnumber(L, neighbour_id);
         lua_rawseti(L, -2, i + 1);
         ++i;
     }
@@ -760,8 +764,8 @@ int LuaAPI::get_province_nuclei(lua_State* L) {
     const Province& province = g_world->provinces.at(lua_tonumber(L, 1));
     lua_newtable(L);
     size_t i = 0;
-    for(const auto& nucleus : province.nuclei) {
-        lua_pushnumber(L, g_world->get_id(*nucleus));
+    for(const auto& nucleus_id : province.nuclei) {
+        lua_pushnumber(L, nucleus_id);
         lua_rawseti(L, -2, i + 1);
         ++i;
     }
@@ -848,7 +852,7 @@ int LuaAPI::rename_province(lua_State* L) {
 }
 
 int LuaAPI::add_province_nucleus(lua_State* L) {
-    g_world->provinces.at(lua_tonumber(L, 1)).nuclei.insert(&g_world->nations.at(lua_tonumber(L, 2)));
+    g_world->provinces.at(lua_tonumber(L, 1)).nuclei.insert(lua_tonumber(L, 2));
     return 0;
 }
 

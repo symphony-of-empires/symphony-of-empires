@@ -442,16 +442,16 @@ void MapRender::update_visibility()
     for(const auto& province_id : gs.curr_nation->controlled_provinces) {
         const auto& province = gs.world->provinces[province_id];
         this->province_opt->buffer.get()[province_id] = 0x000000ff;
-        for(const auto& neighbour : province.neighbours)
-            this->province_opt->buffer.get()[gs.world->get_id(*neighbour)] = 0x000000ff;
+        for(const auto& neighbour_id : province.neighbours)
+            this->province_opt->buffer.get()[neighbour_id] = 0x000000ff;
     }
 
     for(const auto& unit : gs.world->units) {
         // Unit must be ours
         if(unit->owner != gs.curr_nation) continue;
         this->province_opt->buffer.get()[unit->province_id] = 0x000000ff;
-        for(const auto& neighbour : gs.world->provinces[unit->province_id].neighbours)
-            this->province_opt->buffer.get()[gs.world->get_id(*neighbour)] = 0x000000ff;
+        for(const auto& neighbour_id : gs.world->provinces[unit->province_id].neighbours)
+            this->province_opt->buffer.get()[neighbour_id] = 0x000000ff;
     }
     if(gs.map->province_selected)
         this->province_opt->buffer.get()[gs.map->selected_province_id] = 0x400000ff;

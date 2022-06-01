@@ -73,3 +73,7 @@ void Province::add_building(const BuildingType& building_type) {
     this->buildings[g_world->get_id(building_type)].level += 1;
     this->buildings[g_world->get_id(building_type)].req_goods = building_type.req_goods;
 }
+
+bool Province::is_neighbour(Province& province) const {
+    return std::find(this->neighbours.begin(), this->neighbours.end(), g_world->get_id(province)) != this->neighbours.end();
+}

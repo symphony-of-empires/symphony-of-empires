@@ -72,6 +72,7 @@ public:
     Eng3D::Number total_pops() const;
     Eng3D::Decimal get_attractiveness(const Pop& pop) const;
     void add_building(const BuildingType& building_type);
+    bool is_neighbour(Province& province) const;
 
     inline std::pair<Eng3D::Decimal, Eng3D::Decimal> get_pos() const {
         return std::make_pair(box_area.left + ((box_area.right - box_area.left) / 2.f), box_area.top + ((box_area.bottom - box_area.top) / 2.f));
@@ -87,10 +88,6 @@ public:
 
     inline std::vector<Building>& get_buildings() {
         return buildings;
-    }
-
-    inline bool is_neighbour(Province& province) const {
-        return std::find(this->neighbours.begin(), this->neighbours.end(), &province) != this->neighbours.end();
     }
 
     Eng3D::StringRef name;
@@ -111,6 +108,6 @@ public:
     std::vector<Building> buildings;
     std::vector<Battle> battles;
     std::vector<Unit*> units;
-    std::unordered_set<Nation*> nuclei; // Nations who have a nuclei in this province
-    std::unordered_set<Province*> neighbours; // Neighbouring provinces
+    std::unordered_set<uint16_t> nuclei; // Nations who have a nuclei in this province
+    std::unordered_set<Province::Id> neighbours; // Neighbouring provinces
 };
