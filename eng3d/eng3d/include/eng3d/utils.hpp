@@ -65,11 +65,8 @@
 #endif
 
 #if !defined(E3D_EXCEPTIONS)
-#   define CXX_THROW(class, ...) \
-    throw class(__VA_ARGS__);
+#   define CXX_THROW(class, ...) throw class(__VA_ARGS__);
 #else
 #include <cstdio>
-#   define CXX_THROW(class, ...) \
-    fprintf(stderr, class(__VA_ARGS__).what()); \
-    abort();
+#   define CXX_THROW(class, ...) { fprintf(stderr, class(__VA_ARGS__).what()); abort(); }
 #endif

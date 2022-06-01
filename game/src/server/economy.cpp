@@ -370,7 +370,6 @@ static inline Unit* build_unit(Building& building, Province& province) {
 }
 
 void Economy::do_tick(World& world) {
-    world.world_mutex.unlock();
     world.profiler.start("E-init");
     std::vector<Market> markets(world.goods.size());
 
@@ -512,7 +511,7 @@ void Economy::do_tick(World& world) {
     }
 
     // -------------------------- MUTEX PROTECTED WORLD CHANGES BELOW -------------------------------
-    world.world_mutex.lock();
+    std::scoped_lock lock(world.world_mutex);
 
     std::for_each(std::execution::par, province_ids.begin(), province_ids.end(), [&world, &pops_new_needs, &buildings_new_worker](const auto& province_id) {
         Province& province = world.provinces[province_id];
@@ -550,6 +549,5 @@ void Economy::do_tick(World& world) {
         }
     });
     world.profiler.stop("E-mutex");
-
     // do_emigration(world);
 }

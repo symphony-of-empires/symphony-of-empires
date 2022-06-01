@@ -42,15 +42,15 @@
 #include "eng3d/state.hpp"
 #include "eng3d/utils.hpp"
 #include "eng3d/log.hpp"
+#include "eng3d/orbit_camera.hpp"
+#include "eng3d/flat_camera.hpp"
+#include "eng3d/camera.hpp"
 
 #include "map.hpp"
 #include "world.hpp"
 #include "province.hpp"
 #include "client/map_render.hpp"
 #include "client/map.hpp"
-#include "eng3d/orbit_camera.hpp"
-#include "eng3d/flat_camera.hpp"
-#include "eng3d/camera.hpp"
 
 MapRender::MapRender(const World& _world)
     : world(_world)
@@ -96,7 +96,6 @@ MapRender::MapRender(const World& _world)
     size_t terrain_map_size = terrain_map->width * terrain_map->height;
     for(size_t i = 0; i < terrain_map_size; i++) {
         const uint32_t color = terrain_map->buffer.get()[i];
-
         uint8_t idx = 0;
         switch(bswap32(color << 8)) {
         case 0x18200b:
@@ -415,8 +414,7 @@ void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
 // Updates nations
 void MapRender::update_nations(std::vector<Province> provinces) {
     for(auto const& province : provinces) {
-        if(province.controller == nullptr)
-            continue;
+        if(province.controller == nullptr) continue;
         this->tile_sheet_nation->buffer.get()[province.cached_id] = province.controller->cached_id;
     }
 
@@ -433,8 +431,7 @@ void MapRender::request_update_visibility()
 void MapRender::update_visibility()
 {
     const auto& gs = (GameState&)GameState::get_instance();
-    if(gs.curr_nation == nullptr)
-        return;
+    if(gs.curr_nation == nullptr) return;
 
     /// @todo Check that unit is allied with us/province owned by an ally
 
@@ -451,9 +448,7 @@ void MapRender::update_visibility()
 
     for(const auto& unit : gs.world->units) {
         // Unit must be ours
-        if(unit->owner != gs.curr_nation)
-            continue;
-
+        if(unit->owner != gs.curr_nation) continue;
         this->province_opt->buffer.get()[gs.world->get_id(*unit->province)] = 0x000000ff;
         for(const auto& neighbour : unit->province->neighbours)
             this->province_opt->buffer.get()[gs.world->get_id(*neighbour)] = 0x000000ff;
@@ -509,9 +504,8 @@ void MapRender::draw(Eng3D::Camera* camera, MapView view_mode) {
     map_shader->set_texture(16, "terrain_sheet", *terrain_sheet);
 
     if(view_mode == MapView::PLANE_VIEW) {
-        for(const auto& map_quad : map_quads) {
+        for(const auto& map_quad : map_quads)
             map_quad->draw();
-        }
     } else if(view_mode == MapView::SPHERE_VIEW) {
         map_sphere->draw();
     }
