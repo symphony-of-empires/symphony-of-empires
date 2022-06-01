@@ -74,21 +74,17 @@ const std::vector<const Tile*> Tile::get_neighbours(const World& world) const {
     const size_t idx = world.get_id(*this);
 
     // Up
-    if(idx > world.width) {
+    if(idx > world.width)
         tiles.push_back(&world.tiles[idx - world.width]);
-    }
     // Down
-    if(idx < (world.width * world.height) - world.width) {
+    if(idx < (world.width * world.height) - world.width)
         tiles.push_back(&world.tiles[idx + world.width]);
-    }
     // Left
-    if(idx > 1) {
+    if(idx > 1)
         tiles.push_back(&world.tiles[idx - 1]);
-    }
     // Right
-    if(idx < (world.width * world.height) - 1) {
+    if(idx < (world.width * world.height) - 1)
         tiles.push_back(&world.tiles[idx + 1]);
-    }
     return tiles;
 }
 
@@ -238,22 +234,20 @@ World::World() {
         { "__index", [](lua_State* L) {
             Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
             std::string member = luaL_checkstring(L, 2);
-            if(member == "ref_name") {
+            if(member == "ref_name")
                 lua_pushstring(L, (*ideology)->ref_name.c_str());
-            } else if(member == "name") {
+            else if(member == "name")
                 lua_pushstring(L, (*ideology)->name.c_str());
-            }
             Eng3D::Log::debug("lua", "__index?");
             return 1;
         }},
         { "__newindex", [](lua_State* L) {
             Ideology** ideology = (Ideology**)luaL_checkudata(L, 1, "Ideology");
             std::string member = luaL_checkstring(L, 2);
-            if(member == "ref_name") {
+            if(member == "ref_name")
                 (*ideology)->ref_name = Eng3D::StringRef(luaL_checkstring(L, 3));
-            } else if(member == "name") {
+            else if(member == "name")
                 (*ideology)->name = Eng3D::StringRef(luaL_checkstring(L, 3));
-            }
             Eng3D::Log::debug("lua", "__newindex?");
             return 0;
         }},
@@ -329,10 +323,8 @@ World::World() {
 
     // Add all scripts onto the path (with glob operator '?')
     std::vector<std::string> mod_paths = Path::get_paths();
-    for(const auto& path : mod_paths) {
+    for(const auto& path : mod_paths)
         curr_path.append(";" + path + "lua/?.lua");
-    }
-
     lua_pop(lua, 1);
     lua_pushstring(lua, curr_path.c_str());
     lua_setfield(lua, -2, "path");
@@ -341,13 +333,12 @@ World::World() {
 
 World::~World() {
     lua_close(lua);
-    for(auto& event : events) {
+    for(auto& event : events)
         delete event;
-    } for(auto& unit : units) {
+    for(auto& unit : units)
         delete unit;
-    } for(auto& war : wars) {
+    for(auto& war : wars)
         delete war;
-    }
 }
 
 static void lua_exec_all_of(World& world, const std::vector<std::string> files, const std::string& dir = "lua") {
@@ -362,11 +353,10 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
 #ifdef E3D_TARGET_WINDOWS
             std::string m_path;
             for(auto& c : path) {
-                if(c == '\\') {
+                if(c == '\\')
                     m_path += "\\\\";
-                } else {
+                else
                     m_path += c;
-                }
             }
 #else
             std::string m_path = path;
@@ -378,28 +368,26 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
     }
     Eng3D::Log::debug("game", "files_buf: " + files_buf);
 
-    if(luaL_loadstring(world.lua, files_buf.c_str()) != LUA_OK || lua_pcall(world.lua, 0, 0, 0) != LUA_OK) {
+    if(luaL_loadstring(world.lua, files_buf.c_str()) != LUA_OK || lua_pcall(world.lua, 0, 0, 0) != LUA_OK)
         CXX_THROW(LuaAPI::Exception, lua_tostring(world.lua, -1));
-    }
 }
 
 void World::load_initial() {
     // Execute all lua files
     lua_exec_all_of(*this, (std::vector<std::string>) {
         "terrain_types", "good_types", "ideologies", "cultures",
-            "building_types", "technology", "religions", "pop_types",
-            "industry_types", "unit_types", "boat_types",
-            "nations", "provinces", "init"
+        "building_types", "technology", "religions", "pop_types",
+        "industry_types", "unit_types", "boat_types",
+        "nations", "provinces", "init"
     }, "lua/entities");
     // std::sort(this->provinces.begin(), this->provinces.end(), [](const auto& lhs, const auto& rhs) {
     //     return lhs->color > rhs->color;
     // });
 
-    std::uint64_t checksum = 0;
-    for(auto& province : provinces) {
-        checksum += static_cast<std::uint64_t>(province.color);
-    }
-    checksum = (checksum * width + height) * provinces.size();
+    std::uint64_t checksum = 1;
+    for(auto& province : provinces)
+        checksum *= static_cast<std::uint64_t>(province.color);
+    checksum = checksum * width * height * provinces.size();
 
     bool recalc_province = true;
     try {
@@ -418,9 +406,8 @@ void World::load_initial() {
                 ::deserialize(ar, &province.neighbours);
                 ::deserialize(ar, &province.box_area);
             }
-            for(size_t i = 0; i < width * height; i++) {
+            for(size_t i = 0; i < width * height; i++)
                 ::deserialize(ar, &tiles[i]);
-            }
         }
     } catch(const std::exception& e) {
         Eng3D::Log::error("cache", e.what());
@@ -441,16 +428,14 @@ void World::load_initial() {
         // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
         Eng3D::Log::debug("game", Eng3D::Locale::translate("Building the province lookup table"));
         std::vector<Province::Id> province_color_table(0xffffff + 1, Province::invalid());
-        for(auto& province : provinces) {
+        for(auto& province : provinces)
             province_color_table[province.color & 0xffffff] = this->get_id(province);
-        }
 
         const uint32_t* raw_buffer = div->buffer.get();
         for(size_t i = 0; i < width * height; i++) {
             const Province::Id province_id = province_color_table[raw_buffer[i] & 0xffffff];
-            if(province_id == (Province::Id)-1) {
+            if(province_id == (Province::Id)-1)
                 colors_found.insert(raw_buffer[i]);
-            }
             colors_used.insert(raw_buffer[i] & 0xffffff);
             tiles[i].province_id = province_id;
         }
@@ -485,7 +470,7 @@ void World::load_initial() {
             if(!colors_used.contains(province.color & 0xffffff)) {
                 std::string error = "Province '" + province.ref_name + "' is registered but missing on province.png, please add it!";
                 Eng3D::Log::error("game", error);
-                // CXX_THROW(std::runtime_error, error.c_str());
+                CXX_THROW(std::runtime_error, error.c_str());
             }
         }
 
@@ -517,7 +502,7 @@ void World::load_initial() {
                 Province& province = this->provinces[this->tiles[i].province_id];
                 const std::vector<const Tile*> tiles = tile->get_neighbours(*this);
                 for(const auto& other_tile : tiles) {
-                    if(other_tile->province_id != tile->province_id && other_tile->province_id < (Province::Id)-3)
+                    if(Province::is_valid(other_tile->province_id))
                         province.neighbours.insert(&this->provinces.at(other_tile->province_id));
                 }
             }
@@ -649,13 +634,10 @@ static inline void unit_do_tick(Unit& unit)
                 // See above code, by our logic the other unit should already be in a battle if it's
                 // against us, and if it is not, and it's probably wise to attack them
                 for(auto& other_unit : unit.province->get_units()) {
-                    if(other_unit->owner == unit.owner || other_unit->on_battle)
-                        continue;
-
+                    if(other_unit->owner == unit.owner || other_unit->on_battle) continue;
                     // Check relations, if we're at war we will attack this unit
                     const auto& relation = g_world->get_relation(g_world->get_id(*unit.owner), g_world->get_id(*other_unit->owner));
-                    if(!relation.has_war)
-                        continue;
+                    if(!relation.has_war) continue;
 
                     // If we found an unit we can attack, start a battle
                     unit.on_battle = true;
@@ -703,8 +685,7 @@ void World::do_tick() {
     // Do the AI turns in parallel
     tbb::parallel_for(tbb::blocked_range(nations.begin(), nations.end()), [this](auto& nations_range) {
         for(auto& nation : nations_range) {
-            if(!nation.exists())
-                return;
+            if(!nation.exists()) return;
             ai_do_tick(nation);
         }
     });
@@ -727,14 +708,9 @@ void World::do_tick() {
     // Now researches for every country are going to be accounted :)
     for(auto& nation : nations) {
         for(const auto& technology : technologies) {
-            if(!nation.can_research(technology)) {
-                continue;
-            }
-
+            if(!nation.can_research(technology)) continue;
             Eng3D::Decimal* research_progress = &nation.research[get_id(technology)];
-            if(!(*research_progress)) {
-                continue;
-            }
+            if(!(*research_progress)) continue;
 
             Eng3D::Decimal* pts_count;
             if(technology.type == TechnologyType::MILITARY) {
@@ -744,10 +720,7 @@ void World::do_tick() {
             } else {
                 continue;
             }
-
-            if(*pts_count <= 0.f) {
-                continue;
-            }
+            if(*pts_count <= 0.f) continue;
 
             const Eng3D::Decimal pts = *pts_count / 4.f;
             *research_progress += pts;
@@ -764,14 +737,9 @@ void World::do_tick() {
 
         // Check that the treaty is agreed by all parties before enforcing it
         bool on_effect = !(std::find_if(treaty->approval_status.begin(), treaty->approval_status.end(), [](auto& status) { return (status.second != TreatyApproval::ACCEPTED); }) != treaty->approval_status.end());
-        if(!on_effect) {
-            continue;
-        }
-
+        if(!on_effect) continue;
         // Check with treaty
-        if(!treaty->in_effect()) {
-            continue;
-        }
+        if(!treaty->in_effect()) continue;
 
         // Treaties clauses now will be enforced
         Eng3D::Log::debug("game", "Enforcing treaty " + treaty->name);
@@ -779,55 +747,32 @@ void World::do_tick() {
             assert(clause != nullptr);
             if(clause->type == TreatyClauseType::MONEY) {
                 auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);
-                if(!dyn_clause->in_effect()) {
-                    continue;
-                }
+                if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
             } else if(clause->type == TreatyClauseType::ANNEX_PROVINCES) {
                 auto dyn_clause = static_cast<TreatyClause::AnnexProvince*>(clause);
-                if(!dyn_clause->in_effect()) {
-                    continue;
-                }
+                if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
             } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
                 auto dyn_clause = static_cast<TreatyClause::LiberateNation*>(clause);
-                if(!dyn_clause->in_effect()) {
-                    continue;
-                }
+                if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
             } else if(clause->type == TreatyClauseType::HUMILIATE) {
                 auto dyn_clause = static_cast<TreatyClause::Humiliate*>(clause);
-                if(!dyn_clause->in_effect()) {
-                    continue;
-                }
+                if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
             } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
                 auto dyn_clause = static_cast<TreatyClause::ImposePolicies*>(clause);
-                if(!dyn_clause->in_effect()) {
-                    continue;
-                }
+                if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
             } else if(clause->type == TreatyClauseType::CEASEFIRE) {
                 auto dyn_clause = static_cast<TreatyClause::Ceasefire*>(clause);
-                if(!dyn_clause->in_effect()) {
-                    continue;
-                }
+                if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
             } else if(clause->type == TreatyClauseType::PUPPET) {
                 auto dyn_clause = static_cast<TreatyClause::Puppet*>(clause);
-                if(!dyn_clause->in_effect()) {
-                    continue;
-                }
+                if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
-            }
-
-            // Rebellion
-            if(clause->sender->ref_name == clause->receiver->ref_name) {
-                if(clause->sender->owned_provinces.empty()) {
-                    /// @todo Delete clause->sender (and fixup references) !!!
-                } else if(clause->receiver->owned_provinces.empty()) {
-                    /// @todo Delete clause->receiver (and fixup references) !!!
-                }
             }
         }
     }
@@ -899,17 +844,15 @@ void World::do_tick() {
                     if(battle.defenders.empty()) {
                         battle.attackers[0]->owner->control_province(*battle.province);
                         // Clear flags of all units
-                        for(auto& unit : battle.attackers) {
+                        for(auto& unit : battle.attackers)
                             unit->on_battle = false;
-                        }
                         Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": attackers win");
                     }
                     // Defenders won
                     else if(battle.attackers.empty()) {
                         battle.defenders[0]->owner->control_province(*battle.province);
-                        for(auto& unit : battle.defenders) {
+                        for(auto& unit : battle.defenders)
                             unit->on_battle = false;
-                        }
                         Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": defenders win");
                     }
                     // Nobody won?
@@ -949,10 +892,8 @@ void World::do_tick() {
     g_server->broadcast(Action::UnitUpdate::form_packet(units));
     profiler.stop("Send packets");
 
-    if(!(time % ticks_per_month)) {
+    if(!(time % ticks_per_month))
         Eng3D::Log::debug("game", std::to_string(time / 12 / ticks_per_month) + "/" + std::to_string((time / ticks_per_month % 12) + 1) + +"/" + std::to_string((time % ticks_per_month) + 1));
-    }
-
     Eng3D::Log::debug("game", "Tick " + std::to_string(time) + " done");
     time++;
 

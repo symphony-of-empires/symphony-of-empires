@@ -90,9 +90,7 @@ void Unit::set_province(Province& _province) {
 
     // Delete the unit from the previous cache list of units
     if(province != nullptr) {
-        std::erase_if(province->units, [this](const auto& e) {
-            return e == this;
-        });
+        std::erase(province->units, this);
     }
 
     province = &_province;
