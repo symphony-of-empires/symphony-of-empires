@@ -179,10 +179,10 @@ void Client::net_loop() {
                         }
                     } break;
                     case ActionType::NATION_ADD: {
-                        Nation* nation = new Nation();
-                        ::deserialize(ar, nation);
-                        world.insert(*nation);
-                        Eng3D::Log::debug("client", "New nation " + nation->ref_name);
+                        Nation nation;
+                        ::deserialize(ar, &nation);
+                        world.insert(nation);
+                        Eng3D::Log::debug("client", "New nation " + nation.ref_name);
                     } break;
                     case ActionType::NATION_ENACT_POLICY: {
                         Nation* nation;
@@ -252,7 +252,7 @@ void Client::net_loop() {
                         Province* province;
                         ::deserialize(ar, &province);
                         if(province == nullptr)
-                            throw ClientException("Unknown province");
+                            CXX_THROW(ClientException, "Unknown province");
                         ::deserialize(ar, province);
                     } break;
                     default:

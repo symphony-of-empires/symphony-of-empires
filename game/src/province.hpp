@@ -27,7 +27,7 @@
 
 #include <cstdint>
 #include <vector>
-#include <set>
+#include <unordered_set>
 #include <string>
 #include <memory>
 
@@ -99,11 +99,11 @@ public:
     Nation* controller = nullptr;
     TerrainType* terrain_type = nullptr;
 
-    std::set<Nation*> nuclei; // Nations who have a nuclei in this province
     std::vector<uint32_t> rgo_size; // How much of each rgo that can be extracted
-    std::set<Province*> neighbours; // Neighbouring provinces
     std::vector<Pop> pops; // List of pops in this province
     std::vector<Product> products;
     std::vector<Unit*> units;
     std::vector<Building> buildings;
+    std::unordered_set<Nation*> nuclei; // Nations who have a nuclei in this province
+    std::unordered_set<Province*> neighbours; // Neighbouring provinces
 };

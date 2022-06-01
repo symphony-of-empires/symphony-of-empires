@@ -43,8 +43,7 @@ class Borders
 {
 public:
     Borders();
-    ~Borders();
-
+    ~Borders() {};
     void draw(Eng3D::Camera* camera);
 private:
     void build_borders();

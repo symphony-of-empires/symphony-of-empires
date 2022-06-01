@@ -64,7 +64,6 @@ void BenchmarkTask::stop() {
 float BenchmarkTask::get_average_time_ms() {
     clear_old();
     if(times.empty()) return 0;
-    
     float total_time = 0;
     for(auto const& time : times)
         total_time += time;
@@ -74,14 +73,9 @@ float BenchmarkTask::get_average_time_ms() {
 float BenchmarkTask::get_largest_time_ms() {
     clear_old();
     if(times.empty()) return 0;
-    
     float max_time = 0;
-    for(size_t i = 0; i < times.size(); i++) {
-        for(auto const& time : times) {
-            if(time > max_time)
-                max_time = time;
-        }
-    }
+    for(const auto& time : times)
+        max_time = std::max<float>(max_time, time);
     return max_time;
 }
 
@@ -150,10 +144,9 @@ void Profiler::render_done() {
     }
 }
 
-std::vector<BenchmarkTask*> Profiler::get_tasks() {
+const std::vector<BenchmarkTask*> Profiler::get_tasks() {
     std::vector<BenchmarkTask*> out_tasks;
-    for(auto& task : tasks) {
+    for(auto& task : tasks)
         out_tasks.push_back(&task.second);
-    }
     return out_tasks;
 }

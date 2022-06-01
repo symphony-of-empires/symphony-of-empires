@@ -50,8 +50,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     // Recollect offenders
     // - Those who are allied to us
     for(std::size_t i = 0; i < world.nations.size(); i++) {
-        if(&world.nations[i] == this || &world.nations[i] == &nation)
-            continue;
+        if(&world.nations[i] == this || &world.nations[i] == &nation) continue;
 
         const auto& relation = world.get_relation(i, world.get_id(*this));
         if(relation.has_alliance || world.nations[i].puppet_master == this)
@@ -60,17 +59,14 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     war->attackers.push_back(this);
 
     Eng3D::Log::debug("game", "Attackers");
-    for(const auto& attacker : war->attackers) {
+    for(const auto& attacker : war->attackers)
         Eng3D::Log::debug("game", attacker->ref_name.get_string());
-    }
 
     // Recollect defenders
     // - Those who are on a defensive pact with the target
     // - Those who are allied with the target
     for(std::size_t i = 0; i < world.nations.size(); i++) {
-        if(&world.nations[i] == this || &world.nations[i] == &nation)
-            continue;
-
+        if(&world.nations[i] == this || &world.nations[i] == &nation) continue;
         const auto& relation = world.get_relation(i, world.get_id(nation));
         if(relation.has_alliance || relation.has_defensive_pact || world.nations[i].puppet_master == &nation)
             war->attackers.push_back(&world.nations[i]);
@@ -81,8 +77,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     for(auto& attacker : war->attackers) {
         for(auto& defender : war->defenders) {
             /// @todo A better way to make sure these two nations don't equal
-            if(attacker == defender)
-                continue;
+            if(attacker == defender) continue;
             assert(attacker != defender);
             if(attacker->puppet_master == defender)
                 attacker->puppet_master = nullptr;
@@ -108,16 +103,14 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
 bool Nation::is_ally(const Nation& nation) const {
     const World& world = World::get_instance();
     const auto& relation = world.get_relation(world.get_id(*this), world.get_id(nation));
-    if(relation.has_war)
-        return false;
+    if(relation.has_war) return false;
     return true;
 }
 
 bool Nation::is_enemy(const Nation& nation) const {
     const World& world = World::get_instance();
     const auto& relation = world.get_relation(world.get_id(*this), world.get_id(nation));
-    if(relation.has_war)
-        return true;
+    if(relation.has_war) return true;
     return false;
 }
 
@@ -159,8 +152,7 @@ void Nation::decrease_relation(Nation& target) {
 // Automatically relocates the capital of a nation to another province
 // Use this when a treaty makes a nation lose it's capital
 void Nation::auto_relocate_capital() {
-    auto best_candidate = std::max_element(owned_provinces.begin(), owned_provinces.end(),
-        [](const auto* lhs, const auto* rhs) {
+    auto best_candidate = std::max_element(owned_provinces.begin(), owned_provinces.end(), [](const auto* lhs, const auto* rhs) {
         return (lhs->total_pops() < rhs->total_pops());
     });
     capital = *best_candidate;
@@ -182,9 +174,7 @@ void Nation::set_policy(const Policies& policies) {
         for(auto& pop : province->pops) {
             // Must have the minimum required social value
             // the min-social-value is taken from the new enacted policy
-            if(pop.type->social_value < policies.min_sv_for_parliament)
-                continue;
-
+            if(pop.type->social_value < policies.min_sv_for_parliament) continue;
             const Policies& pop_policies = pop.get_ideology().policies;
             // Disapproval of old (current) policy
             const int old_disapproval = current_policy.difference(pop_policies);
@@ -322,19 +312,16 @@ bool Nation::can_research(const Technology& technology) const {
 
     // All required technologies for this one must be researched
     for(const auto& req_tech_id : technology.req_technologies) {
-        if(research[req_tech_id] > 0.f)
-            return false;
+        if(research[req_tech_id] > 0.f) return false;
     }
     return true;
 }
 
 void Nation::change_research_focus(const Technology& technology) {
     // Can't have already researched it (it would be dumb to re-research
-    if(!this->research[World::get_instance().get_id(technology)])
-        return;
+    if(!this->research[World::get_instance().get_id(technology)]) return;
     // Must be able to research it
-    if(!this->can_research(technology))
-        return;
+    if(!this->can_research(technology)) return;
     this->focus_tech = const_cast<Technology*>(&technology);
 }
 
@@ -343,9 +330,7 @@ std::vector<Nation*> Nation::get_allies() {
 
     std::vector<Nation*> list;
     for(auto& nation : world.nations) {
-        if(&nation == this)
-            continue;
-
+        if(&nation == this) continue;
         const auto& relation = g_world->get_relation(world.get_id(*this), world.get_id(nation));
         if(relation.has_alliance)
             list.push_back(&nation);
