@@ -294,7 +294,7 @@ int LuaAPI::add_nation(lua_State* L) {
     }
 
     g_world->insert(nation);
-    lua_pushnumber(L, g_world->get_id(nation));
+    lua_pushnumber(L, g_world->nations.size() - 1);
     return 1;
 }
 
@@ -353,8 +353,9 @@ int LuaAPI::get_provinces_with_nucleus_by_nation(lua_State* L) {
     size_t i = 0;
     for(const auto& province : g_world->provinces) {
         bool is_nuclei = false;
-        for(const auto& nuclei : province.nuclei) {
-            if(nuclei == &nation) {
+        for(const auto& nucleus_id : province.nuclei) {
+            auto& nucleus = g_world->nations[nucleus_id];
+            if(&nucleus == &nation) {
                 is_nuclei = true;
                 break;
             }
@@ -618,7 +619,7 @@ int LuaAPI::add_province(lua_State* L) {
     province.box_area = Eng3D::Rect(0, 0, std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max());
     province.pops.reserve(100);
     g_world->insert(province);
-    lua_pushnumber(L, g_world->get_id(province));
+    lua_pushnumber(L, g_world->provinces.size() - 1);
     return 1;
 }
 
@@ -748,8 +749,8 @@ int LuaAPI::get_province_neighbours(lua_State* L) {
     const Province& province = g_world->provinces.at(lua_tonumber(L, 1));
     lua_newtable(L);
     size_t i = 0;
-    for(const auto& neighbour : province.neighbours) {
-        lua_pushnumber(L, g_world->get_id(*neighbour));
+    for(const auto& neighbour_id : province.neighbours) {
+        lua_pushnumber(L, neighbour_id);
         lua_rawseti(L, -2, i + 1);
         ++i;
     }
@@ -760,8 +761,8 @@ int LuaAPI::get_province_nuclei(lua_State* L) {
     const Province& province = g_world->provinces.at(lua_tonumber(L, 1));
     lua_newtable(L);
     size_t i = 0;
-    for(const auto& nucleus : province.nuclei) {
-        lua_pushnumber(L, g_world->get_id(*nucleus));
+    for(const auto& nucleus_id : province.nuclei) {
+        lua_pushnumber(L, nucleus_id);
         lua_rawseti(L, -2, i + 1);
         ++i;
     }
@@ -848,7 +849,7 @@ int LuaAPI::rename_province(lua_State* L) {
 }
 
 int LuaAPI::add_province_nucleus(lua_State* L) {
-    g_world->provinces.at(lua_tonumber(L, 1)).nuclei.insert(&g_world->nations.at(lua_tonumber(L, 2)));
+    g_world->provinces.at(lua_tonumber(L, 1)).nuclei.insert(lua_tonumber(L, 2));
     return 0;
 }
 
