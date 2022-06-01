@@ -58,8 +58,8 @@ namespace Eng3D::IO {
     namespace Asset {
         class Base {
         public:
-            Base();
-            ~Base();
+            Base() {};
+            ~Base() {};
             virtual void open() {};
             virtual void close() {};
             virtual void read(void*, size_t) {};

@@ -203,8 +203,8 @@ void Map::create_labels() {
 
         std::set<Province*> visited_provinces;
         if(nation.capital != nullptr) {
-            max_point_x = nation.capital->box_area.offset();
-            max_point_y = nation.capital->box_area.offset();
+            max_point_x = nation.capital->box_area.position() + nation.capital->box_area.size();
+            max_point_y = nation.capital->box_area.position() + nation.capital->box_area.size();
             min_point_x = nation.capital->box_area.position();
             min_point_y = nation.capital->box_area.position();
             get_blob_bounds(&visited_provinces, nation, *nation.capital, &min_point_x, &min_point_y, &max_point_x, &max_point_y);
@@ -656,7 +656,7 @@ void Map::draw(const GameState& gs) {
             glm::mat4 model = glm::translate(base_model, glm::vec3(pos.x, pos.y, 0.f));
             if(unit->target != nullptr) {
                 //Eng3D::Line target_line = Eng3D::Line(pos.x, pos.y, );
-                const glm::vec2 target_pos = unit->target->get_pos();
+                const glm::vec2 target_pos = glm::vec2(unit->target->get_pos().first, unit->target->get_pos().second);
                 const float dist = glm::sqrt(glm::pow(glm::abs(pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(pos.y - target_pos.y), 2.f));
                 auto line_square = Eng3D::Square(0.f, 0.f, dist, 0.5f);
                 glm::mat4 line_model = glm::rotate(model, glm::atan(target_pos.y - pos.y, target_pos.x - pos.x), glm::vec3(0.f, 0.f, 1.f));
