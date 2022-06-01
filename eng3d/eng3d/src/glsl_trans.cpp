@@ -69,11 +69,16 @@ void Eng3D::OpenGL::GLSL_Context::lexer() {
     // Output the final stuff
     std::string::iterator it = buffer.begin();
     for(; it != buffer.end(); ) {
-        while(it != buffer.end() && isspace(*it) && (*it == '\r' || *it == '\n'))
+        while(it != buffer.end() && isspace(*it) && (*it == '\r'))
             it++;
 
+
         if(it == buffer.end()) break;
-        if((*(it + 0) == '/' && *(it + 1) == '/')) {
+
+        if (*it == '\n') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::NEWLINE));
+            it++;
+        } else if((*(it + 0) == '/' && *(it + 1) == '/')) {
             it += 2;
             // Single-line comments
             while(it != buffer.end() && (*it != '\n'))
@@ -85,6 +90,8 @@ void Eng3D::OpenGL::GLSL_Context::lexer() {
                 if(*(it + 0) == '*' || *(it + 1) == '/') {
                     it += 2;
                     break;
+                } else if (*it == '\n') {
+                    tokens.push_back(GLSL_Token(GLSL_TokenType::NEWLINE));
                 }
                 it++;
             }
@@ -261,22 +268,30 @@ void Eng3D::OpenGL::GLSL_Context::parser() {
 std::string Eng3D::OpenGL::GLSL_Context::to_text() {
     std::vector<GLSL_Token>::const_iterator it = tokens.begin();
     std::string end_buffer;
+    int current_line = 1;
 
     // Go after the first instance of a preprocessor macro
     if(it->type == GLSL_TokenType::MACRO) {
         end_buffer += "#" + it->data + "\r\n";
-        it++;
-        for(const auto& define : defines)
+        line_numbers.push_back(current_line++);
+        it+=2; // Skip the NEWLINE also
+        for(const auto& define : defines) {
             end_buffer += "#define " + define.name + " " + define.value + "\r\n";
+            line_numbers.push_back(current_line);
+        }
     }
 
     for(; it != tokens.end(); it++) {
         switch(it->type) {
         case GLSL_TokenType::MACRO:
-            end_buffer += "#" + it->data + "\r\n";
+            end_buffer += "#" + it->data;
+            break;
+        case GLSL_TokenType::NEWLINE:
+            line_numbers.push_back(current_line++);
+            end_buffer += "\n";
             break;
         case GLSL_TokenType::SEMICOLON:
-            end_buffer += ";\r\n";
+            end_buffer += ";";
             break;
         case GLSL_TokenType::COMMA:
             end_buffer += ",";
@@ -294,10 +309,10 @@ std::string Eng3D::OpenGL::GLSL_Context::to_text() {
             end_buffer += "]";
             break;
         case GLSL_TokenType::LBRACE:
-            end_buffer += "{\n";
+            end_buffer += "{";
             break;
         case GLSL_TokenType::RBRACE:
-            end_buffer += "}\n";
+            end_buffer += "}";
             break;
         case GLSL_TokenType::ADD:
             end_buffer += "+";

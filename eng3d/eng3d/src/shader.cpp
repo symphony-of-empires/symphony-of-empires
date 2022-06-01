@@ -49,6 +49,7 @@ Eng3D::OpenGL::Shader::Shader(const std::string& _buffer, GLuint type, bool use_
             Eng3D::Log::error("shder", e.it->data + " -> " + e.what());
         }
         buffer = ctx.to_text();
+        line_numbers = ctx.line_numbers;
     }
 
     id = glCreateShader(type);
@@ -68,47 +69,44 @@ void Eng3D::OpenGL::Shader::compile(GLuint type) {
     glGetShaderiv(id, GL_COMPILE_STATUS, &r);
     if(!r) {
         GLint infoLen = 0;
-		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &infoLen);
-        std::string error_info;
-        error_info.resize(infoLen);
-        glGetShaderInfoLog(id, infoLen, NULL, &error_info[0]);
-        Eng3D::Log::error("opengl", error_info);
+        glGetShaderiv(id, GL_INFO_LOG_LENGTH, &infoLen);
+        std::string shader_error_info;
+        shader_error_info.resize(infoLen);
+        glGetShaderInfoLog(id, infoLen, NULL, &shader_error_info[0]);
 
-        // Nvidia's style of errors
-        std::istringstream sline(error_info);
-        int slot, row, col;
-        char ch;
+        std::ostringstream output_error;
+        std::istringstream error_lines(shader_error_info);
+        std::string error;
+        getline(error_lines, error);
+        while(!error_lines.eof()) {
+            std::istringstream sline(error);
+            // Nvidia's style of errors
+            int slot, row, col;
+            char ch;
 
-        // nvidia styles errors the following way:
-        // slot:row(column)
-        // They also like to fuck me over, so they use
-        // slot(row) <-- fuck this
-        sline >> slot >> ch;
-        if(ch == ':') {
-            sline >> row >> ch;
-            if(ch == '(') {
-                sline >> col;
+            // nvidia styles errors the following way:
+            // slot:row(column)
+            // They also like to fuck me over, so they use
+            // slot(row) <-- fuck this
+            sline >> slot >> ch;
+            if(ch == ':') {
+                sline >> row >> ch;
+                if(ch == '(') {
+                    sline >> col;
+                }
+            } else if(ch == '(') {
+                sline >> row >> ch;
             }
-        } else if(ch == '(') {
-            sline >> row;
-        }
 
-        // Now we will pray that this actually worked
-
-        // Next we will read over the shader file and find the line
-        int row_rem = row;
-        std::string::iterator it;
-        for(it = buffer.begin(); it != buffer.end() && row_rem; it++) {
-            if(*it == '\n') {
-                row_rem--;
-                if(!row_rem) break;
+            getline(sline, error);
+            if(row > 0 && row - 1 < line_numbers.size()) {
+                row = line_numbers[row - 1];
             }
+            output_error << "(" << row << ")" << error << "\n";
+            getline(error_lines, error);
         }
-
-        std::string line_buf = "(No line info)";
-        if(it != buffer.end())
-            line_buf = buffer.substr(std::distance(buffer.begin(), it), buffer.find_first_of('\n', std::distance(buffer.begin(), it)));
-        CXX_THROW(Eng3D::ShaderException, line_buf + "\n" + error_info);
+        Eng3D::Log::error("opengl", output_error.str());
+        CXX_THROW(Eng3D::ShaderException, output_error.str());
     }
     Eng3D::Log::debug("shader", "Status: Sucess");
 }

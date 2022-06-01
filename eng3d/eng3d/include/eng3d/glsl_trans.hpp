@@ -38,6 +38,7 @@ namespace Eng3D::OpenGL {
         LPAREN, RPAREN,
         LBRACKET, RBRACKET,
         LBRACE, RBRACE,
+        NEWLINE,
 
         // Special "hacky" stuff
         MACRO,
@@ -88,6 +89,7 @@ namespace Eng3D::OpenGL {
         void parser();
         std::string to_text();
 
+        std::vector<int> line_numbers;
         std::vector<GLSL_Variable> vars;
         std::vector<GLSL_Function> funcs;
         std::vector<GLSL_Token> tokens;

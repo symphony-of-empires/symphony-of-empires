@@ -80,6 +80,7 @@ namespace Eng3D {
             void compile(GLuint type);
             std::string buffer;
             GLuint id;
+            std::vector<int> line_numbers;
         public:
             Shader(const std::string& _buffer, GLuint type, bool use_transpiler = true, std::vector<Eng3D::OpenGL::GLSL_Define> defintions = {});
             
