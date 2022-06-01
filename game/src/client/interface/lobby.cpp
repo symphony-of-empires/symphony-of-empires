@@ -114,25 +114,22 @@ void LobbySelectView::change_nation(size_t id) {
         return;
     }
 
-    if(id >= g_world->nations.size()) {
+    if(id >= g_world->nations.size())
         id = 0;
-    }
 
     gs.curr_nation = &gs.world->nations[id];
     if(id > old_id) {
         while(gs.curr_nation->exists() == false) {
             id++;
-            if(id >= gs.world->nations.size()) {
+            if(id >= gs.world->nations.size())
                 id = 0;
-            }
             gs.curr_nation = &gs.world->nations[id];
         }
     } else {
         while(gs.curr_nation->exists() == false) {
             id--;
-            if(id >= gs.world->nations.size()) {
+            if(id >= gs.world->nations.size())
                 id = gs.world->nations.size() - 1;
-            }
             gs.curr_nation = &gs.world->nations[id];
         }
     }
