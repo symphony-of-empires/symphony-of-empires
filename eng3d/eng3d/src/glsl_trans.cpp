@@ -57,8 +57,8 @@ std::string Eng3D::OpenGL::GLSL_Context::get_literal(std::string::iterator& it) 
     while(it != buffer.end() && (isdigit(*it) || *it == '.'))
         it++;
 
-    // Skip "float" specifier
-    if(it != buffer.end() && *it == 'f')
+    // Skip 'type' specifier
+    while(it != buffer.end() && isalpha(*it))
         it++;
 
     std::string str = buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
@@ -143,6 +143,9 @@ void Eng3D::OpenGL::GLSL_Context::lexer() {
         } else if(*it == '%') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::REM));
             it++;
+        } else if(*it == '^') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::XOR));
+            it++;
         } else if(*it == '<') {
             it++;
             if(it != buffer.end() && *it == '=') {
@@ -192,6 +195,9 @@ void Eng3D::OpenGL::GLSL_Context::lexer() {
         } else if(*it == '.') {
             tokens.push_back(GLSL_Token(GLSL_TokenType::DOT));
             it++;
+        } else if(*it == '!' && (it+1) != buffer.end() && *(it+1) == '=') {
+            tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_NEQ));
+            it+=2;
         } else {
             if(isdigit(*it) || *it == '.') {
                 GLSL_Token tok = GLSL_Token(GLSL_TokenType::LITERAL);
@@ -326,6 +332,12 @@ std::string Eng3D::OpenGL::GLSL_Context::to_text() {
         case GLSL_TokenType::DIV:
             end_buffer += "/";
             break;
+        case GLSL_TokenType::REM:
+            end_buffer += "%";
+            break;
+        case GLSL_TokenType::XOR:
+            end_buffer += "^";
+            break;
         case GLSL_TokenType::CMP_AND:
             end_buffer += "&&";
             break;
@@ -375,6 +387,9 @@ std::string Eng3D::OpenGL::GLSL_Context::to_text() {
             break;
         case GLSL_TokenType::CMP_EQ:
             end_buffer += "==";
+            break;
+        case GLSL_TokenType::CMP_NEQ:
+            end_buffer += "!=";
             break;
         default:
             break;
