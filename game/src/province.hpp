@@ -94,27 +94,17 @@ public:
     }
 
     Eng3D::StringRef name;
-
-    // Color of the province, used for mapping the province's shape from the map_div.png file
-    std::uint32_t color = 0;
-
+    std::uint32_t color = 0; // Color of the province, used for mapping the province's shape from the map_div.png file
     bool is_coastal = false;
-
-    // The (military) supply limit of the province, the max number of supplies there can be per tick
-    Eng3D::Decimal supply_limit = 0.f;
-    // The number of remaining (military) supplies in the province
-    Eng3D::Decimal supply_rem = 0.f;
-    // Attractiveness of province
-    Eng3D::Decimal base_attractive = 0.f;
-    
+    Eng3D::Decimal supply_limit = 0.f; // The (military) supply limit of the province, the max number of supplies there can be per tick
+    Eng3D::Decimal supply_rem = 0.f; // The number of remaining (military) supplies in the province
+    Eng3D::Decimal base_attractive = 0.f; // Attractiveness of province
     // Rectangle coordinates (x,y - x,y) for "area" scanning a province when needed
     // (for example, when changing owners)
     Eng3D::Rect box_area;
-
     Nation* owner = nullptr; // The owner of this province
     Nation* controller = nullptr;
     TerrainType* terrain_type = nullptr;
-
     std::vector<uint32_t> rgo_size; // How much of each rgo that can be extracted
     std::vector<Pop> pops; // List of pops in this province
     std::vector<Product> products;

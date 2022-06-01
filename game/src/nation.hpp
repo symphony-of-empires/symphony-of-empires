@@ -175,7 +175,7 @@ public:
     /// @todo Add controlled provinces to serializer
     std::set<Province::Id> owned_provinces;
     std::set<Province::Id> controlled_provinces;
-    std::vector<NationModifier*> modifiers; //std::vector<std::pair<Technology*, float>> techs;
+    std::vector<NationModifier*> modifiers;
     std::deque<Event> inbox; // Inbox of the nation; events that require our attention / should be processed
     std::vector<Eng3D::Decimal> research; // Progress on technologies (1:1)
 };
