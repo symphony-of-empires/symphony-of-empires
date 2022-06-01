@@ -49,13 +49,13 @@
 using namespace UI;
 
 Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned h, WidgetType _type)
-    : is_show{ 1 },
+    : parent{ _parent },
     type{ _type },
     x{ _x },
     y{ _y },
     width{ w },
     height{ h },
-    parent{ _parent }
+    is_show{ true }
 {
     if(parent != nullptr) {
         x += parent->padding.x;
@@ -68,14 +68,14 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
 }
 
 Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned h, WidgetType _type, std::shared_ptr<Eng3D::Texture> tex)
-    : is_show{ 1 },
+    : parent{ _parent },
     type{ _type },
     x{ _x },
     y{ _y },
     width{ w },
     height{ h },
-    parent{ _parent },
-    current_texture{ tex }
+    current_texture{ tex },
+    is_show{ true }
 {
     if(parent != nullptr) {
         x += parent->padding.x;

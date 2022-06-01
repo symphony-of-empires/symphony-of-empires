@@ -40,7 +40,6 @@
 // Audio
 //
 Eng3D::Audio::Audio(const std::string& path) {
-    SDL_AudioSpec wave;
     SDL_AudioCVT cvt;
 
     int channels, rate;

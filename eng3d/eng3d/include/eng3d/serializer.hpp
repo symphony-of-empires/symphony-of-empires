@@ -63,7 +63,6 @@ public:
     inline void copy_to(void* ptr, size_t size) {
         if(size > buffer.size() - this->ptr)
             CXX_THROW(SerializerException, "Buffer too small for write");
-        
         std::memcpy(ptr, &buffer[this->ptr], size);
         this->ptr += size;
     }
@@ -71,7 +70,6 @@ public:
     inline void copy_from(const void* ptr, size_t size) {
         if(size > buffer.size() - this->ptr)
             CXX_THROW(SerializerException, "Buffer too small for read");
-        
         std::memcpy(&buffer[this->ptr], ptr, size);
         this->ptr += size;
     }
@@ -119,11 +117,7 @@ public:
 /// @tparam T the type to (de)-serialize
 template<bool is_serialize, typename T>
 inline void deser_dynamic(Archive& ar, T* obj) {
-    if constexpr(is_serialize) {
-        Serializer<const T>::template deser_dynamic<is_serialize>(ar, obj);
-    } else {
-        Serializer<T>::template deser_dynamic<is_serialize>(ar, obj);
-    }
+    Serializer<T>::template deser_dynamic<is_serialize>(ar, obj);
 }
 
 template<typename T>

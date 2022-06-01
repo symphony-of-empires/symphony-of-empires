@@ -134,7 +134,14 @@ static void GLAPIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint
         break;
     }
 
-    printf("%d: %s of %s severity, raised from %s: %s\n", id, _type.c_str(), _severity.c_str(), _source.c_str(), msg);
+    std::unique_ptr<char[]> tmpbuf(new char[512]);
+    snprintf(tmpbuf.get(), 512, "%d: %s of %s severity, raised from %s: %s", id, _type.c_str(), _severity.c_str(), _source.c_str(), msg);
+    // Do not put double-newlines
+    if(std::strchr(tmpbuf.get(), '\n') == nullptr) {
+        Eng3D::Log::debug("opengl_msg", std::string() + tmpbuf.get() + "\n");
+    } else {
+        Eng3D::Log::debug("opengl_msg", tmpbuf.get());
+    }
 }
 #endif
 
