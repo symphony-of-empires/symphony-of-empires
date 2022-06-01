@@ -84,14 +84,11 @@ class Serializer<TerrainType*>: public SerializerReferenceLocal<World, TerrainTy
 template<>
 class Serializer<PopGroup>: public SerializerMemcpy<PopGroup> {};
 
-template<typename T>
-class SerializerEntity : public Serializer<T> {};
-
 template<>
-class SerializerEntity<NationModifier> {
+class Serializer<NationModifier> {
 public:
-    template<bool is_serialize, typename T>
-    static inline void deser_dynamic(Archive& ar, T* obj) {
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, NationModifier* obj) {
         ::deser_dynamic<is_serialize>(ar, &obj->name);
         ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
         ::deser_dynamic<is_serialize>(ar, &obj->death_mod);
@@ -108,7 +105,7 @@ public:
 };
 
 template<>
-class SerializerEntity<NationRelation> {
+class Serializer<NationRelation> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, NationRelation* obj) {
@@ -133,7 +130,7 @@ template<>
 class Serializer<enum TreatmentPolicy>: public SerializerMemcpy<enum TreatmentPolicy> {};
 
 template<>
-class SerializerEntity<Policies> {
+class Serializer<Policies> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Policies* obj) {
@@ -160,7 +157,7 @@ public:
 };
 
 template<>
-class SerializerEntity<PopType> {
+class Serializer<PopType> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, PopType* obj) {
@@ -172,7 +169,7 @@ public:
 };
 
 template<>
-class SerializerEntity<TerrainType> {
+class Serializer<TerrainType> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, TerrainType* obj) {
@@ -185,7 +182,7 @@ public:
 };
 
 template<>
-class SerializerEntity<Culture> {
+class Serializer<Culture> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Culture* obj) {
@@ -199,7 +196,7 @@ public:
 };
 
 template<>
-class SerializerEntity<Religion> {
+class Serializer<Religion> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Religion* obj) {
@@ -210,7 +207,7 @@ public:
 };
 
 template<>
-class SerializerEntity<UnitTrait> {
+class Serializer<UnitTrait> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, UnitTrait* obj) {
@@ -223,7 +220,7 @@ public:
 };
 
 template<>
-class SerializerEntity<Unit> {
+class Serializer<Unit> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Unit* obj) {
@@ -238,7 +235,7 @@ public:
 };
 
 template<>
-class SerializerEntity<Pop> {
+class Serializer<Pop> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Pop* obj) {
@@ -257,7 +254,7 @@ public:
 };
 
 template<>
-class SerializerEntity<Decision> {
+class Serializer<Decision> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Decision* obj) {
@@ -269,7 +266,7 @@ public:
 };
 
 template<>
-class SerializerEntity<Event> {
+class Serializer<Event> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Event* obj) {
@@ -284,7 +281,7 @@ public:
 };
 
 template<>
-class SerializerEntity<Tile> {
+class Serializer<Tile> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Tile* obj) {
@@ -293,7 +290,7 @@ public:
 };
 
 template<>
-class SerializerEntity<NationClientHint> {
+class Serializer<NationClientHint> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, NationClientHint* obj) {
@@ -304,7 +301,7 @@ public:
 };
 
 template<>
-class SerializerEntity<Nation> {
+class Serializer<Nation> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Nation* obj) {
@@ -340,7 +337,7 @@ template<>
 class Serializer<enum TreatyApproval>: public SerializerMemcpy<enum TreatyApproval> {};
 
 template<>
-class SerializerEntity<UnitType> {
+class Serializer<UnitType> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, UnitType* obj) {
@@ -358,7 +355,7 @@ public:
 };
 
 template<>
-class SerializerEntity<Province> {
+class Serializer<Province> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Province* obj) {
@@ -381,7 +378,7 @@ public:
 };
 
 template<>
-class SerializerEntity<BuildingType> {
+class Serializer<BuildingType> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, BuildingType* obj) {
@@ -396,7 +393,7 @@ public:
 };
 
 template<>
-class SerializerEntity<Building> {
+class Serializer<Building> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Building* obj) {
@@ -410,7 +407,7 @@ public:
 };
 
 template<>
-class SerializerEntity<Product> {
+class Serializer<Product> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Product* obj) {
@@ -422,7 +419,7 @@ public:
 };
 
 template<>
-class SerializerEntity<Technology> {
+class Serializer<Technology> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Technology* obj) {
@@ -436,7 +433,7 @@ public:
 };
 
 template<>
-class SerializerEntity<Good> {
+class Serializer<Good> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Good* obj) {
@@ -446,7 +443,7 @@ public:
 };
 
 template<>
-class SerializerEntity<TreatyClause::BaseClause*> {
+class Serializer<TreatyClause::BaseClause*> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, TreatyClause::BaseClause** obj) {
@@ -537,7 +534,7 @@ public:
 };
 
 template<>
-class SerializerEntity<Treaty> {
+class Serializer<Treaty> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Treaty* obj) {
@@ -550,7 +547,7 @@ public:
 };
 
 template<>
-class SerializerEntity<War> {
+class Serializer<War> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, War* obj) {
@@ -562,7 +559,7 @@ public:
 };
 
 template<>
-class SerializerEntity<Ideology> {
+class Serializer<Ideology> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Ideology* obj) {
@@ -574,7 +571,7 @@ public:
 };
 
 template<>
-class SerializerEntity<World> {
+class Serializer<World> {
 public:
     template<typename T>
     static inline typename T::Id deserialize_and_create_list(Archive& ar, World* obj) {
@@ -605,38 +602,28 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->nations);
         ::deser_dynamic<is_serialize>(ar, &obj->provinces);
         if constexpr(is_serialize) {
-            //for(size_t i = 0; i < obj->width * obj->height; i++)
-            //    ::deser_dynamic<is_serialize>(ar, &obj->tiles[i]);
             const Event::Id n_events = obj->events.size();
             ::deser_dynamic<is_serialize>(ar, &n_events);
             const Treaty::Id n_treaties = obj->treaties.size();
             ::deser_dynamic<is_serialize>(ar, &n_treaties);
             const War::Id n_wars = obj->wars.size();
             ::deser_dynamic<is_serialize>(ar, &n_wars);
-            for(size_t i = 0; i < obj->nations.size() * 2; i++) {
+            for(size_t i = 0; i < obj->nations.size() * 2; i++)
                 ::deser_dynamic<is_serialize>(ar, &obj->relations);
-            }
-            for(auto& sub_obj : obj->events) {
+            for(auto& sub_obj : obj->events)
                 ::deser_dynamic<is_serialize>(ar, sub_obj);
-            }
-            for(auto& sub_obj : obj->treaties) {
+            for(auto& sub_obj : obj->treaties)
                 ::deser_dynamic<is_serialize>(ar, sub_obj);
-            }
-            for(auto& sub_obj : obj->wars) {
+            for(auto& sub_obj : obj->wars)
                 ::deser_dynamic<is_serialize>(ar, sub_obj);
-            }
         } else {
-            //obj->tiles = new Tile[obj->width * obj->height];
-            //for(size_t i = 0; i < obj->width * obj->height; i++)
-            //    ::deser_dynamic<is_serialize>(ar, &obj->tiles[i]);
             // In order to avoid post-deserialization relational patcher, we will simply allocate everything with "empty" objects,
             // then we will fill those spots as we deserialize
             Event::Id n_events = deserialize_and_create_list<Event>(ar, obj);
             Treaty::Id n_treaties = deserialize_and_create_list<Treaty>(ar, obj);
             War::Id n_wars = deserialize_and_create_list<War>(ar, obj);
-            for(size_t i = 0; i < obj->nations.size() * obj->nations.size(); i++) {
+            for(size_t i = 0; i < obj->nations.size() * obj->nations.size(); i++)
                 ::deser_dynamic<is_serialize>(ar, &obj->relations[i]);
-            }
             for(size_t i = 0; i < n_events; i++) {
                 auto* sub_obj = obj->events[i];
                 ::deser_dynamic<is_serialize>(ar, sub_obj);
@@ -649,6 +636,11 @@ public:
                 auto* sub_obj = obj->wars[i];
                 ::deser_dynamic<is_serialize>(ar, sub_obj);
             }
+            obj->tiles.reset(new Tile[obj->width * obj->height]);
         }
+
+        // (De-)serialize all the tiles, for the deserialization path, see above
+        for(size_t i = 0; i < obj->width * obj->height; i++)
+            ::deser_dynamic<is_serialize>(ar, &obj->tiles[i]);
     }
 };
