@@ -40,6 +40,9 @@ gfx/religion/shinto
 gfx/cursor_b
 	Credits for Pattrck - made ui icons and graphical interface style in photoshop
 
+gfx/load_screen
+	By Charles Clément Calderon (1870 - 1906) - Bonhams gallery - uploaded by 0x010C, Public Domain, https://commons.wikimedia.org/w/index.php?curid=56404313
+
 gfx/ideology/communism
 gfx/ideology/fascism
 	By Higralfo

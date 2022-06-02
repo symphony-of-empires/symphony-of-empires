@@ -615,7 +615,7 @@ void start_client(int argc, char** argv) {
     auto map_layer = new UI::Group(0, 0);
 
     auto load_screen_tex = gs.tex_man->load(Path::get("gfx/load_screen.png"));
-    auto* bg_img = new UI::Image(-(gs.width / 2.f), -(load_screen_tex->height / 2.f), gs.width, load_screen_tex->height, load_screen_tex);
+    auto* bg_img = new UI::Image(-(gs.width / 2.f), -(gs.height / 2.f), gs.width, gs.height, load_screen_tex);
     bg_img->origin = UI::Origin::CENTER_SCREEN;
 
     auto* load_pbar = new UI::ProgressBar(0, -24, gs.width, 24, 0.f, 1.f);
