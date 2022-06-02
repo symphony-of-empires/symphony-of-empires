@@ -268,8 +268,6 @@ World::World() {
 
 World::~World() {
     lua_close(lua);
-    for(auto& event : events)
-        delete event;
     for(auto& unit : units)
         delete unit;
     for(auto& war : wars)
