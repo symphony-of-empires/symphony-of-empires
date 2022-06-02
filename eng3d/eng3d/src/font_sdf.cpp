@@ -156,7 +156,7 @@ Label3D* Eng3D::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::v
     }
 
     TriangleList* triangles = new TriangleList(positions, tex_coords);
-    return new Label3D(triangles, scale);
+    return new Label3D(triangles, scale, center);
 }
 
 void Eng3D::FontSDF::draw(const std::vector<Label3D*>& labels, Camera* camera, bool sphere) {
@@ -169,15 +169,16 @@ void Eng3D::FontSDF::draw(const std::vector<Label3D*>& labels, Camera* camera, b
     shader->set_texture(0, "atlas", *atlas);
     for(auto& label : labels) {
         shader->set_uniform("map_size", camera->get_map_size());
-        shader->set_uniform("radius", 101.f);
+        shader->set_uniform("center", label->center.x, label->center.y);
+        shader->set_uniform("radius", 100.f + 0.01f * label->size);
         shader->set_uniform("model", glm::mat4(1));
         shader->set_uniform("px_range", label->size * 0.5f);
         label->draw();
     }
 }
 
-Eng3D::Label3D::Label3D(TriangleList* _triangles, float _size)
-    : size{ _size },
+Eng3D::Label3D::Label3D(TriangleList* _triangles, float _size, glm::vec3 _center)
+    : size{ _size }, center{ _center },
     triangles(_triangles)
 {
 

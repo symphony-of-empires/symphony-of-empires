@@ -379,9 +379,10 @@ void main() {
 	prov_color = hsv2rgb(prov_color_hsv);
 
 	vec3 water_hsv = rgb2hsv(water);
+	// Use saturation *= 0.3 for paper map look
 	water_hsv.y *= 1.3; // Saturation
 	water_hsv.z *= 0.7; // Brightness
-	water = hsv2rgb(water_hsv);
+	water = mix(water, hsv2rgb(water_hsv), far_from_map);
 
 	// The terrain color
 	vec3 terrain_color = get_terrain_mix(tex_coords).rgb;
@@ -395,7 +396,6 @@ void main() {
 	country_border *= mix(1.0, 0.0, far_from_map);
 	beach_ocean *= mix(1.0, 0.0, far_from_map);
 
-	out_color = mix(out_color, vec3(1.0), 1.0 - far_from_map);
 	out_color = mix(out_color, mix(ground, water, beach), 1.0 - far_from_map);
 #else
 	out_color = mix(ground, water, beach);
