@@ -28,9 +28,12 @@
 #include "eng3d/ui/button.hpp"
 #include "eng3d/ui/label.hpp"
 #include "eng3d/ui/group.hpp"
+#include "eng3d/ui/image.hpp"
+#include "eng3d/ui/window.hpp"
 #include "eng3d/camera.hpp"
 
 #include "client/interface/lobby.hpp"
+#include "client/interface/main_menu.hpp"
 #include "client/game_state.hpp"
 #include "world.hpp"
 #include "client/map.hpp"
@@ -43,41 +46,46 @@ LobbySelectView::LobbySelectView(GameState& _gs)
     : gs{ _gs },
     curr_selected_nation{ 0 }
 {
-    select_country_lab = new UI::Button(-(320 / 2), 8, 320, 24);
-    select_country_lab->origin = UI::Origin::UPPER_MIDDLE_SCREEN;
-    select_country_lab->text("Select a country");
+    this->ctrl_window = new UI::Window(-576, 0, 576, 128);
+    this->ctrl_window->origin = UI::Origin::UPPER_RIGHT_SCREEN;
 
-    curr_country_btn = new UI::Button(-(320 / 2), -48, 320, 24);
-    curr_country_btn->origin = UI::Origin::LOWER_MIDDLE_SCREEN;
-    curr_country_btn->text("No selected");
+    // Flag with shadow
+    this->curr_country_flag_img = new UI::Image(0, 0, 38, 28, gs.tex_man->get_white(), ctrl_window);
+    auto* drop_shadow_img = new UI::Image(0, 0, 38, 28, "gfx/drop_shadow.png", ctrl_window);
+
+    // Country button for selection
+    this->curr_country_btn = new UI::Button(0, 0, 320, 28, ctrl_window);
+    curr_country_btn->right_side_of(*this->curr_country_flag_img);
+    curr_country_btn->text("Select a country");
     curr_country_btn->set_on_click([this](UI::Widget&) {
         if(this->gs.curr_nation != nullptr) {
             // Didn't seem to be able to delete them in a callback so this will do
-            this->next_country_btn->kill();
-            this->next_country_btn = nullptr;
-            this->prev_country_btn->kill();
-            this->prev_country_btn = nullptr;
-            this->select_country_lab->kill();
-            this->select_country_lab = nullptr;
-            this->curr_country_btn->kill();
-            this->curr_country_btn = nullptr;
+            this->ctrl_window->kill();
+            this->ctrl_window = nullptr;
             this->gs.play_nation();
         }
     });
 
-    next_country_btn = new UI::Button(0, -48, 128, 24);
-    next_country_btn->origin = UI::Origin::LOWER_MIDDLE_SCREEN;
+    auto* back_btn = new UI::Button(0, 0, 128, 24, ctrl_window);
+    back_btn->text("Back");
+    back_btn->below_of(*curr_country_btn);
+    back_btn->set_on_click([this](UI::Widget&) {
+        this->ctrl_window->kill();
+        new Interface::MainMenu(gs);
+    });
+
+    auto* next_country_btn = new UI::Button(0, 0, 128, 24, ctrl_window);
     next_country_btn->text("Next");
-    next_country_btn->right_side_of(*curr_country_btn);
-    next_country_btn->user_data = this;
+    next_country_btn->below_of(*curr_country_btn);
+    next_country_btn->right_side_of(*back_btn);
     next_country_btn->set_on_click([this](UI::Widget&) {
         this->change_nation(this->curr_selected_nation + 1);
     });
 
-    prev_country_btn = new UI::Button(0, -48, 128, 24);
-    prev_country_btn->origin = UI::Origin::LOWER_MIDDLE_SCREEN;
-    prev_country_btn->text("Prev");
-    prev_country_btn->left_side_of(*curr_country_btn);
+    auto* prev_country_btn = new UI::Button(0, 0, 128, 24, ctrl_window);
+    prev_country_btn->text("Previous");
+    prev_country_btn->below_of(*curr_country_btn);
+    prev_country_btn->right_side_of(*next_country_btn);
     prev_country_btn->set_on_click([this](UI::Widget&) {
         this->change_nation(this->curr_selected_nation - 1);
     });
@@ -135,7 +143,8 @@ void LobbySelectView::change_nation(size_t id) {
     }
 
     curr_selected_nation = id;
-    curr_country_btn->text(gs.curr_nation->name.c_str());
+    this->curr_country_flag_img->current_texture = gs.map->nation_flags[id];
+    this->curr_country_btn->text(gs.curr_nation->name.c_str());
     const Province& capital = gs.world->provinces[gs.curr_nation->capital_id];
     gs.map->camera->set_pos(capital.box_area.right, capital.box_area.bottom);
 }
