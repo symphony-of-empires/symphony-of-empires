@@ -386,6 +386,21 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->buildings);
         ::deser_dynamic<is_serialize>(ar, &obj->controller);
         ::deser_dynamic<is_serialize>(ar, &obj->terrain_type);
+        if constexpr(is_serialize) {
+            const Unit::Id n_units = obj->units.size();
+            ::deser_dynamic<is_serialize>(ar, &n_units);
+            for(auto& sub_obj : obj->units)
+                ::deser_dynamic<is_serialize>(ar, sub_obj);
+        } else {
+            Unit::Id n_units;
+            ::deserialize(ar, &n_units);
+            obj->units.reserve(n_units);
+            for(size_t i = 0; i < n_units; i++) {
+                auto* unit = new Unit();
+                ::deser_dynamic<is_serialize>(ar, unit);
+                obj->units.push_back(unit);
+            }
+        }
     }
 };
 
