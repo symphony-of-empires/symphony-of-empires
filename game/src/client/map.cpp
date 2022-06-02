@@ -74,10 +74,20 @@ static inline void get_blob_bounds(std::unordered_set<Province*>& visited_provin
         if(visited_provinces.find(&neighbour) != visited_provinces.end()) continue;
         // Must own the province
         if(neighbour.owner != &nation) continue;
-        if(neighbour.box_area.left < min_x->x || neighbour.box_area.top < min_y->y) {
+
+        if(neighbour.box_area.left < min_x->x) {
+            min_x->x = neighbour.box_area.left;
+            min_x->y = neighbour.box_area.top;
+        }
+        if (neighbour.box_area.top < min_y->y) {
             min_y->x = neighbour.box_area.left;
             min_y->y = neighbour.box_area.top;
-        } else if(neighbour.box_area.right > max_x->x || neighbour.box_area.bottom > max_y->y) {
+        } 
+        if(neighbour.box_area.right > max_x->x) {
+            max_x->x = neighbour.box_area.right;
+            max_x->y = neighbour.box_area.bottom;
+        }
+        if (neighbour.box_area.bottom > max_y->y) {
             max_y->x = neighbour.box_area.right;
             max_y->y = neighbour.box_area.bottom;
         }

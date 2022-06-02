@@ -41,6 +41,8 @@ const vec3 river_col = RGB(0.0, 0.0, 0.3);
 
 vec3 get_water_normal(float time, sampler2D wave1, sampler2D wave2, vec2 tex_coords);
 vec4 no_tiling(sampler2D tex, vec2 uv, sampler2D noisy_tex);
+vec3 rgb2hsv(vec3 c);
+vec3 hsv2rgb(vec3 c);
 
 vec4 get_terrain(vec2 tex_coords, vec2 offset) {
 	const float size = 16.0;
@@ -371,6 +373,15 @@ void main() {
 	float is_diag = borders_diag.z;
 
 	vec3 prov_color = get_province_color(tex_coords, is_diag);
+
+	vec3 prov_color_hsv = rgb2hsv(prov_color);
+	prov_color_hsv.z *= 0.8; // Brightness
+	prov_color = hsv2rgb(prov_color_hsv);
+
+	vec3 water_hsv = rgb2hsv(water);
+	water_hsv.y *= 1.3; // Saturation
+	water_hsv.z *= 0.7; // Brightness
+	water = hsv2rgb(water_hsv);
 
 	// The terrain color
 	vec3 terrain_color = get_terrain_mix(tex_coords).rgb;
