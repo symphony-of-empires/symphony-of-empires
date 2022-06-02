@@ -867,62 +867,58 @@ int LuaAPI::add_event(lua_State* L) {
     if(g_world->needs_to_sync)
         CXX_THROW(LuaAPI::Exception, "MP-Sync in this function is not supported");
 
-    Event* event = new Event();
-
-    event->ref_name = luaL_checkstring(L, 1);
-    event->conditions_function = luaL_checkstring(L, 2);
-    event->do_event_function = luaL_checkstring(L, 3);
-    event->title = luaL_checkstring(L, 4);
-    event->text = luaL_checkstring(L, 5);
-    event->checked = lua_toboolean(L, 6);
+    auto event = Event{};
+    event.ref_name = luaL_checkstring(L, 1);
+    event.conditions_function = luaL_checkstring(L, 2);
+    event.do_event_function = luaL_checkstring(L, 3);
+    event.title = luaL_checkstring(L, 4);
+    event.text = luaL_checkstring(L, 5);
+    event.checked = lua_toboolean(L, 6);
 
     // Add onto vector
-    g_world->insert(*event);
-    lua_pushnumber(L, g_world->get_id(*event));
+    g_world->insert(event);
+    lua_pushnumber(L, g_world->get_id(event));
     return 1;
 }
 
 int LuaAPI::update_event(lua_State* L) {
-    auto* event = g_world->events[lua_tonumber(L, 1)];
-    event->ref_name = luaL_checkstring(L, 2);
-    event->conditions_function = luaL_checkstring(L, 3);
-    event->do_event_function = luaL_checkstring(L, 4);
-    event->title = luaL_checkstring(L, 5);
-    event->text = luaL_checkstring(L, 6);
-    event->checked = lua_toboolean(L, 7);
+    auto& event = g_world->events[lua_tonumber(L, 1)];
+    event.ref_name = luaL_checkstring(L, 2);
+    event.conditions_function = luaL_checkstring(L, 3);
+    event.do_event_function = luaL_checkstring(L, 4);
+    event.title = luaL_checkstring(L, 5);
+    event.text = luaL_checkstring(L, 6);
+    event.checked = lua_toboolean(L, 7);
     return 0;
 }
 
 int LuaAPI::get_event(lua_State* L) {
-    const auto* event = find_or_throw<Event>(luaL_checkstring(L, 1));
-    lua_pushnumber(L, g_world->get_id(*event));
-    lua_pushstring(L, event->conditions_function.c_str());
-    lua_pushstring(L, event->do_event_function.c_str());
-    lua_pushstring(L, event->title.c_str());
-    lua_pushstring(L, event->text.c_str());
-    lua_pushboolean(L, event->checked);
+    const auto& event = find_or_throw_local<Event>(luaL_checkstring(L, 1));
+    lua_pushnumber(L, g_world->get_id(event));
+    lua_pushstring(L, event.conditions_function.c_str());
+    lua_pushstring(L, event.do_event_function.c_str());
+    lua_pushstring(L, event.title.c_str());
+    lua_pushstring(L, event.text.c_str());
+    lua_pushboolean(L, event.checked);
     return 6;
 }
 
 int LuaAPI::add_event_receivers(lua_State* L) {
     // Add receivers of the event by id
-    Event* event = g_world->events.at(lua_tonumber(L, 1));
+    auto& event = g_world->events.at(lua_tonumber(L, 1));
     for(size_t i = 0; i < lua_tonumber(L, 2); i++)
-        event->receivers.push_back(&g_world->nations.at(lua_tonumber(L, 3 + i)));
+        event.receivers.push_back(&g_world->nations.at(lua_tonumber(L, 3 + i)));
     return 0;
 }
 
 int LuaAPI::add_decision(lua_State* L) {
-    Event* event = g_world->events.at(lua_tonumber(L, 1));
-
+    Event& event = g_world->events.at(lua_tonumber(L, 1));
     Decision decision = Decision();
     decision.ref_name = luaL_checkstring(L, 2);
     decision.name = luaL_checkstring(L, 3);
     decision.do_decision_function = luaL_checkstring(L, 4);
     decision.effects = luaL_checkstring(L, 5);
-
-    // Add onto vector
-    event->decisions.push_back(decision);
+    event.decisions.push_back(decision); // Add onto vector
     return 0;
 }
 
@@ -1231,14 +1227,13 @@ int call_func(lua_State* L, int nargs, int nret) {
 // Checks all events and their condition functions
 void LuaAPI::check_events(lua_State* L) {
     for(auto& event : g_world->events) {
-        assert(event != nullptr);
-        if(event->checked) continue;
+        if(event.checked) continue;
         bool is_multi = true;
         bool has_fired = false;
-        for(auto& nation : event->receivers) {
+        for(auto& nation : event.receivers) {
             assert(nation != nullptr);
             if(!nation->exists()) continue;
-            lua_getglobal(L, event->conditions_function.c_str());
+            lua_getglobal(L, event.conditions_function.c_str());
             lua_pushstring(L, nation->ref_name.c_str());
             lua_pcall(L, 1, 1, 0);
             bool r = lua_toboolean(L, -1);
@@ -1249,11 +1244,11 @@ void LuaAPI::check_events(lua_State* L) {
                 has_fired = true;
 
                 // Save the original event & momentarily replace it on the big world
-                auto orig_event = Event(*event);
+                auto orig_event = Event(event);
 
                 // Call the "do event" function
-                Eng3D::Log::debug("event", "Event " + event->ref_name + " using " + event->do_event_function + " function");
-                lua_getglobal(L, event->do_event_function.c_str());
+                Eng3D::Log::debug("event", "Event " + event.ref_name + " using " + event.do_event_function + " function");
+                lua_getglobal(L, event.do_event_function.c_str());
                 lua_pushstring(L, nation->ref_name.c_str());
                 if(call_func(L, 1, 1)) {
                     Eng3D::Log::error("lua", std::string() + "lua_pcall failed: " + lua_tostring(L, -1));
@@ -1265,7 +1260,7 @@ void LuaAPI::check_events(lua_State* L) {
 
                 {
                     // The changes done to the event "locally" are then created into a new local event
-                    auto local_event = Event(*event);
+                    auto local_event = Event(event);
                     local_event.cached_id = Event::invalid();
                     local_event.ref_name = Eng3D::StringRef(local_event.ref_name + "_local_" + nation->ref_name);
                     // Do not relaunch a local event
@@ -1287,13 +1282,13 @@ void LuaAPI::check_events(lua_State* L) {
 
             restore_original:
                 // Original event then gets restored
-                *event = orig_event;
+                event = orig_event;
             }
         }
 
         // Event is marked as checked if it's not of multiple occurences
         if(has_fired && !is_multi)
-            event->checked = true;
+            event.checked = true;
     }
 
     // Do decisions taken effects in the queue, then clear it awaiting
