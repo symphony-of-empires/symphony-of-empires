@@ -32,7 +32,10 @@
 class GameState;
 namespace UI {
     class Button;
+    class Image;
+    class Window;
 }
+
 namespace Interface {
     /*class LobbyPlayerView : public UI::Window {
         GameState& gs;
@@ -49,11 +52,9 @@ namespace Interface {
 
     class LobbySelectView {
         GameState& gs;
+        UI::Window* ctrl_window;
+        UI::Image* curr_country_flag_img;
         UI::Button* curr_country_btn;
-        UI::Button* select_country_lab;
-        UI::Button* next_country_btn;
-        UI::Button* prev_country_btn;
-
         std::vector<class LoadGameBtnData> ldgame_data;
     public:
         LobbySelectView(GameState& gs);
