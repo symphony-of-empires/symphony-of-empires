@@ -317,9 +317,9 @@ void World::load_initial() {
         // Execute all lua files
         lua_exec_all_of(*this, (std::vector<std::string>) {
             "terrain_types", "good_types", "ideologies", "cultures",
-            "building_types", "technology", "religions", "pop_types",
-            "industry_types", "unit_types", "boat_types",
-            "nations", "provinces", "init"
+                "building_types", "technology", "religions", "pop_types",
+                "industry_types", "unit_types", "boat_types",
+                "nations", "provinces", "init"
         }, "lua/entities");
 
         std::unique_ptr<BinaryImage> div = std::make_unique<BinaryImage>(Path::get("map/provinces.png"));
@@ -384,6 +384,14 @@ void World::load_initial() {
 
         // Calculate the edges of the province (min and max x and y coordinates)
         Eng3D::Log::debug("game", Eng3D::Locale::translate("Calculate the edges of the province (min and max x and y coordinates)"));
+
+        // Init the province bounds
+        for(auto& province : provinces) {
+            province.box_area.right = 0;
+            province.box_area.bottom = 0;
+            province.box_area.left = width;
+            province.box_area.top = height;
+        }
         for(size_t j = 0; j < height; j++) {
             for(size_t i = 0; i < width; i++) {
                 const Tile& tile = this->get_tile(i, j);
