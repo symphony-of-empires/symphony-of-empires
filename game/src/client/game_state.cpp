@@ -503,10 +503,10 @@ void GameState::update_on_tick() {
 
 /// @todo Don't run this thread if not needed (i.e non-host-mode)
 void GameState::world_thread() {
-    while(run) {
+    while(this->run) {
         // Gamestate thread hasn't acknowledged the updated tick just yet
-        while(paused) {
-            if(!run) return;
+        while(this->paused) {
+            if(!this->run) return;
         }
 
         // Only run the economy simulation of host mode is ON, otherwise don't :-)

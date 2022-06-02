@@ -629,23 +629,20 @@ public:
             ::deser_dynamic<is_serialize>(ar, &n_wars);
             const Unit::Id n_units = obj->units.size();
             ::deser_dynamic<is_serialize>(ar, &n_units);
-            for(size_t i = 0; i < n_relations; i++)
-                ::deser_dynamic<is_serialize>(ar, &obj->relations[i]);
             for(auto& sub_obj : obj->treaties)
                 ::deser_dynamic<is_serialize>(ar, sub_obj);
             for(auto& sub_obj : obj->wars)
                 ::deser_dynamic<is_serialize>(ar, sub_obj);
             for(auto& sub_obj : obj->units)
                 ::deser_dynamic<is_serialize>(ar, sub_obj);
+            for(size_t i = 0; i < n_relations; i++)
+                ::deser_dynamic<is_serialize>(ar, &obj->relations[i]);
         } else {
             // In order to avoid post-deserialization relational patcher, we will simply allocate everything with "empty" objects,
             // then we will fill those spots as we deserialize
             Treaty::Id n_treaties = deserialize_and_create_list<Treaty>(ar, obj);
             War::Id n_wars = deserialize_and_create_list<War>(ar, obj);
             Unit::Id n_units = deserialize_and_create_list<Unit>(ar, obj);
-            obj->relations.reset(new NationRelation[obj->nations.size() * obj->nations.size()]);
-            for(size_t i = 0; i < n_relations; i++)
-                ::deser_dynamic<is_serialize>(ar, &obj->relations[i]);
             for(size_t i = 0; i < n_treaties; i++) {
                 auto* sub_obj = obj->treaties[i];
                 ::deser_dynamic<is_serialize>(ar, sub_obj);
@@ -658,6 +655,9 @@ public:
                 auto* sub_obj = obj->units[i];
                 ::deser_dynamic<is_serialize>(ar, sub_obj);
             }
+            obj->relations.reset(new NationRelation[obj->nations.size() * obj->nations.size()]);
+            for(size_t i = 0; i < n_relations; i++)
+                ::deser_dynamic<is_serialize>(ar, &obj->relations[i]);
             obj->tiles.reset(new Tile[obj->width * obj->height]);
         }
 

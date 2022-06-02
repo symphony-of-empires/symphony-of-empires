@@ -228,7 +228,7 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths) {
 
     // Initialize sound subsystem (at 11,050 hz)
     SDL_AudioSpec fmt;
-    fmt.freq = 11050;
+    fmt.freq = 8000;
     fmt.format = AUDIO_S16;
     fmt.channels = 1;
     fmt.samples = 512;
