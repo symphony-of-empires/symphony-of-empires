@@ -53,7 +53,7 @@ Eng3D::Audio::Audio(const std::string& path) {
 
     // stb already loads OGG as a series of U16 nodes, so we only have to use AUDIO_S16
     // and the rest is already given by stb
-    SDL_BuildAudioCVT(&cvt, AUDIO_S16, channels, rate, AUDIO_S16, 1, 11050);
+    SDL_BuildAudioCVT(&cvt, AUDIO_S16, channels, rate, AUDIO_S16, 1, 8000);
     cvt.buf = (Uint8*)malloc(this->len * cvt.len_mult);
     if(cvt.buf == nullptr)
         CXX_THROW(Eng3D::AudioException, path, "Cannot allocate memory");
