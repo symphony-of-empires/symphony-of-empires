@@ -50,11 +50,12 @@ namespace Eng3D {
 
     class Label3D {
     public:
-        Label3D(TriangleList* triangles, float size);
+        Label3D(TriangleList* triangles, float size, glm::vec3 center);
         ~Label3D();
         void draw();
 
         float size;
+        glm::vec3 center;
     private:
         TriangleList* triangles;
     };
