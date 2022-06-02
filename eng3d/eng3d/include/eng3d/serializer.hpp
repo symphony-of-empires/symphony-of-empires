@@ -270,7 +270,13 @@ class Serializer<Eng3D::StringRef> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Eng3D::StringRef* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->id);
+        if constexpr(is_serialize) {
+            ::deser_dynamic<is_serialize>(ar, &obj->get_string());
+        } else {
+            std::string deserialized_string;
+            ::deser_dynamic<is_serialize>(ar, &deserialized_string);
+            *obj = Eng3D::StringRef(deserialized_string);
+        }
     }
 };
 
