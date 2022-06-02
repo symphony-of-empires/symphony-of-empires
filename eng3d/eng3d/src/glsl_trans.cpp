@@ -87,7 +87,7 @@ void Eng3D::OpenGL::GLSL_Context::lexer() {
             it += 2;
             // Multiline comments
             while((it + 1) != buffer.end()) {
-                if(*(it + 0) == '*' || *(it + 1) == '/') {
+                if(*(it + 0) == '*' && *(it + 1) == '/') {
                     it += 2;
                     break;
                 } else if (*it == '\n') {
