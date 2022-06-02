@@ -46,13 +46,13 @@ class Serializer<ActionType>: public SerializerMemcpy<ActionType> {};
 
 // Global references
 template<>
-class Serializer<Event*>: public SerializerReference<World, Event> {};
-template<>
 class Serializer<Treaty*>: public SerializerReference<World, Treaty> {};
 template<>
 class Serializer<Unit*>: public SerializerReference<World, Unit> {};
 
 // Local references
+template<>
+class Serializer<Event*>: public SerializerReferenceLocal<World, Event> {};
 template<>
 class Serializer<Province*>: public SerializerReferenceLocal<World, Province> {};
 template<>
@@ -620,10 +620,9 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->nation_modifiers);
         ::deser_dynamic<is_serialize>(ar, &obj->nations);
         ::deser_dynamic<is_serialize>(ar, &obj->provinces);
+        ::deser_dynamic<is_serialize>(ar, &obj->events);
         const size_t n_relations = obj->nations.size() * obj->nations.size();
         if constexpr(is_serialize) {
-            const Event::Id n_events = obj->events.size();
-            ::deser_dynamic<is_serialize>(ar, &n_events);
             const Treaty::Id n_treaties = obj->treaties.size();
             ::deser_dynamic<is_serialize>(ar, &n_treaties);
             const War::Id n_wars = obj->wars.size();
@@ -632,8 +631,6 @@ public:
             ::deser_dynamic<is_serialize>(ar, &n_units);
             for(size_t i = 0; i < n_relations; i++)
                 ::deser_dynamic<is_serialize>(ar, &obj->relations[i]);
-            for(auto& sub_obj : obj->events)
-                ::deser_dynamic<is_serialize>(ar, sub_obj);
             for(auto& sub_obj : obj->treaties)
                 ::deser_dynamic<is_serialize>(ar, sub_obj);
             for(auto& sub_obj : obj->wars)
@@ -643,17 +640,12 @@ public:
         } else {
             // In order to avoid post-deserialization relational patcher, we will simply allocate everything with "empty" objects,
             // then we will fill those spots as we deserialize
-            Event::Id n_events = deserialize_and_create_list<Event>(ar, obj);
             Treaty::Id n_treaties = deserialize_and_create_list<Treaty>(ar, obj);
             War::Id n_wars = deserialize_and_create_list<War>(ar, obj);
             Unit::Id n_units = deserialize_and_create_list<Unit>(ar, obj);
             obj->relations.reset(new NationRelation[obj->nations.size() * obj->nations.size()]);
             for(size_t i = 0; i < n_relations; i++)
                 ::deser_dynamic<is_serialize>(ar, &obj->relations[i]);
-            for(size_t i = 0; i < n_events; i++) {
-                auto* sub_obj = obj->events[i];
-                ::deser_dynamic<is_serialize>(ar, sub_obj);
-            }
             for(size_t i = 0; i < n_treaties; i++) {
                 auto* sub_obj = obj->treaties[i];
                 ::deser_dynamic<is_serialize>(ar, sub_obj);
