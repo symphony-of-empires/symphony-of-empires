@@ -100,8 +100,8 @@ void GameState::play_nation() {
     // Make topwindow
     top_win = new Interface::TopWindow(*this);
     minimap = new Interface::Minimap(*this, -400, -200, UI::Origin::LOWER_RIGHT_SCREEN);
+    Eng3D::Log::debug("game", "Selecting nation " + this->curr_nation->ref_name);
     g_client->send(Action::SelectNation::form_packet(*this->curr_nation));
-    Eng3D::Log::debug("game", "Selected nation " + this->curr_nation->ref_name);
 
     // Set AI to all off
     this->curr_nation->ai_controlled = false;
@@ -131,9 +131,8 @@ void handle_event(Input& input, GameState& gs) {
     //   - needed cause the window sometimes changes size without calling the change window size event
     SDL_GetWindowSize(gs.window, &width, &height);
     gs.ui_ctx->resize(width, height);
-    if(gs.map != nullptr) {
+    if(gs.map != nullptr)
         gs.map->camera->set_screen(width, height);
-    }
 
     SDL_Event event;
     bool click_on_ui = false;
@@ -506,20 +505,24 @@ void GameState::world_thread() {
     while(this->run) {
         // Gamestate thread hasn't acknowledged the updated tick just yet
         while(this->paused) {
-            if(!this->run) return;
+            if(!this->run) {
+                Eng3D::Log::debug("world_thread", "Unpaused game");
+                break;
+            }
         }
 
         // Only run the economy simulation of host mode is ON, otherwise don't :-)
         const auto delta = std::chrono::milliseconds{ ms_delay_speed };
         if(host_mode) {
             const auto start_time = std::chrono::system_clock::now();
+            Eng3D::Log::debug("world_thread", "World tick performed!");
             try {
                 world->do_tick();
                 update_tick = true;
             } catch(const std::exception& e) {
                 std::scoped_lock lock(render_lock);
                 ui_ctx->prompt("Runtime exception", e.what());
-                Eng3D::Log::error("game", e.what());
+                Eng3D::Log::error("world_thread", e.what());
                 paused = true;
             }
 
@@ -583,8 +586,13 @@ void start_client(int argc, char** argv) {
     }
 
     GameState gs(pkg_paths);
+   // After loading everything initialize the gamestate initial properties
+    // Call update_on_tick on start of the gamestate
+    gs.update_tick = true;
+    gs.in_game = false;
     gs.input = Input();
     gs.run = true;
+    gs.paused = true;
     std::thread music_th(&GameState::music_thread, &gs);
 
     if(0) {
@@ -709,12 +717,6 @@ void start_client(int argc, char** argv) {
     mod_logo_img->kill();
     // new MapDevView(*gs.map);
 
-    // After loading everything initialize the gamestate initial properties
-    // Call update_on_tick on start of the gamestate
-    gs.update_tick = true;
-    gs.paused = true;
-    gs.in_game = false;
-
     // Connect to server prompt
     new Interface::MainMenu(gs);
 
@@ -762,10 +764,8 @@ void start_client(int argc, char** argv) {
                 }
             }
 
-            if(gs.current_mode == MapMode::DISPLAY_ONLY) {
+            if(gs.current_mode == MapMode::DISPLAY_ONLY)
                 gs.map->camera->move(0.05f, 0.f, 0.f);
-            }
-
             gs.world->world_mutex.unlock();
         }
 
