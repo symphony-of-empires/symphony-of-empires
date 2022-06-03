@@ -58,8 +58,8 @@ public:
     NationRelation() {};
     ~NationRelation() {};
 
-    Eng3D::Decimal relation;
-    Eng3D::Decimal interest;
+    float relation;
+    float interest;
     bool has_embargo;
     bool has_war;
     bool has_alliance;
@@ -89,19 +89,19 @@ public:
     // They should never be 0, a modifier of 1.0 is equal to no modifer at
     // all. And a modifier of 0.5 would cause a 1/2. Similar to a 2 which
     // would make a x2
-    Eng3D::Decimal industry_output_mod = 1.f;
-    Eng3D::Decimal industry_input_mod = 1.f;
-    Eng3D::Decimal workers_needed_mod = 1.f;
-    Eng3D::Decimal salary_paid_mod = 1.f;
-    Eng3D::Decimal delivery_cost_mod = 1.f;
-    Eng3D::Decimal literacy_learn_mod = 1.f;
-    Eng3D::Decimal reproduction_mod = 1.f;
-    Eng3D::Decimal death_mod = 1.f;
-    Eng3D::Decimal militancy_mod = 1.f;
-    Eng3D::Decimal life_needs_met_mod = 1.f;
-    Eng3D::Decimal everyday_needs_met_mod = 1.f;
-    Eng3D::Decimal luxury_needs_met_mod = 1.f;
-    Eng3D::Decimal immigration_attraction = 1.f;
+    float industry_output_mod = 1.f;
+    float industry_input_mod = 1.f;
+    float workers_needed_mod = 1.f;
+    float salary_paid_mod = 1.f;
+    float delivery_cost_mod = 1.f;
+    float literacy_learn_mod = 1.f;
+    float reproduction_mod = 1.f;
+    float death_mod = 1.f;
+    float militancy_mod = 1.f;
+    float life_needs_met_mod = 1.f;
+    float everyday_needs_met_mod = 1.f;
+    float luxury_needs_met_mod = 1.f;
+    float immigration_attraction = 1.f;
 };
 
 class Nation : public RefnameEntity<uint16_t> {
@@ -122,39 +122,39 @@ public:
     bool is_accepted_culture(const Culture& culture) const;
     bool is_accepted_religion(const Pop& pop) const;
     bool is_accepted_religion(const Religion& relgion) const;
-    Eng3D::Decimal get_tax(const Pop& pop) const;
+    float get_tax(const Pop& pop) const;
     void give_province(Province& province);
     void control_province(Province& province);
     const NationClientHint& get_client_hint() const;
-    Eng3D::Decimal get_research_points() const;
+    float get_research_points() const;
     bool can_research(const Technology& tech) const;
     void change_research_focus(const Technology& tech);
     std::vector<Nation*> get_allies();
-    Eng3D::Decimal get_industry_output_mod();
-    Eng3D::Decimal get_industry_input_mod();
-    Eng3D::Decimal get_workers_needed_mod();
-    Eng3D::Decimal get_salary_paid_mod();
-    Eng3D::Decimal get_delivery_cost_mod();
-    Eng3D::Decimal get_literacy_learn_mod();
-    Eng3D::Decimal get_reproduction_mod();
-    Eng3D::Decimal get_death_mod();
-    Eng3D::Decimal get_militancy_mod();
-    Eng3D::Decimal get_life_needs_met_mod();
-    Eng3D::Decimal get_everyday_needs_met_mod();
-    Eng3D::Decimal get_luxury_needs_met_mod();
-    Eng3D::Decimal get_immigration_attraction_mod();
+    float get_industry_output_mod();
+    float get_industry_input_mod();
+    float get_workers_needed_mod();
+    float get_salary_paid_mod();
+    float get_delivery_cost_mod();
+    float get_literacy_learn_mod();
+    float get_reproduction_mod();
+    float get_death_mod();
+    float get_militancy_mod();
+    float get_life_needs_met_mod();
+    float get_everyday_needs_met_mod();
+    float get_luxury_needs_met_mod();
+    float get_immigration_attraction_mod();
 
     Eng3D::StringRef name;
     Nation* puppet_master = nullptr; // Pupeeter of this nation (if any)
-    Eng3D::Decimal diplomacy_points; // Amount of diplomacy points available
-    Eng3D::Decimal prestige = 0.1f; // Amount of prestige
-    Eng3D::Decimal infamy = 0; // Level of infamy
+    float diplomacy_points; // Amount of diplomacy points available
+    float prestige = 0.1f; // Amount of prestige
+    float infamy = 0; // Level of infamy
     // 3 key scores used to define a nation's minimum prestige, how willing would the AI
     // be to challenge this nations and other valuable stuff
-    Eng3D::Decimal military_score = 0, naval_score = 0, economy_score = 0;
+    float military_score = 0, naval_score = 0, economy_score = 0;
     // Total budget of the nation (money in ark), this is not equal to GDP, the GDP is the total sum of the price
     // of all products in the nation, which are volatile unless they are sold
-    Eng3D::Decimal budget;
+    float budget;
     // Default and can be disabled by the player
     bool ai_controlled = true;
     bool ai_do_cmd_troops = true;
@@ -177,5 +177,5 @@ public:
     std::set<uint16_t> controlled_provinces;
     std::vector<NationModifier*> modifiers;
     std::deque<Event> inbox; // Inbox of the nation; events that require our attention / should be processed
-    std::vector<Eng3D::Decimal> research; // Progress on technologies (1:1)
+    std::vector<float> research; // Progress on technologies (1:1)
 };

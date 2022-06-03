@@ -80,7 +80,7 @@ static inline Good* ai_get_potential_good(Nation& nation) {
 
         // So our formula would be:
         // Sucess = Sum(Demand / (Supply + 1) * Price)
-        std::vector<Eng3D::Decimal> avg_prob(world.goods.size(), 0.f);
+        std::vector<float> avg_prob(world.goods.size(), 0.f);
         avg_prob.shrink_to_fit();
         for(const auto& province_id : nation.owned_provinces) {
             const auto& province = world.provinces[province_id];
@@ -107,7 +107,7 @@ static inline Good* ai_get_potential_good(Nation& nation) {
 
         // The more buildings there are in the world the less we are wiling to construct one
         //float saturation = std::max<size_t>(1, world.buildings.size()) / 100;
-        Eng3D::Decimal saturation = 1.f;
+        float saturation = 1.f;
         if(std::fmod(std::rand(), saturation)) {
             Eng3D::Log::debug("ai", "Too much market saturation");
             return nullptr;
@@ -267,7 +267,7 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
     }
 
     // Our strength as attackers
-    Eng3D::Decimal our_power = 1.f;
+    float our_power = 1.f;
     for(const auto& ally_nation : nation.get_allies()) {
         for(const auto& province_id : ally_nation->owned_provinces) {
             const auto& province = world.provinces[province_id];
@@ -280,7 +280,7 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
     }
 
     // The strength of the defenders
-    Eng3D::Decimal other_power = 1.f;
+    float other_power = 1.f;
     for(const auto& ally_nation : other.get_allies()) {
         for(const auto& province_id : ally_nation->owned_provinces) {
             const auto& province = world.provinces[province_id];
@@ -296,8 +296,8 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
     // Calculate the times the other nation has our power, multiply that by a factor of 1,000,000
     // If the relation is negative then we divide by the positive sum of it
     if(relation.relation < -1.f) {
-        const Eng3D::Decimal force_dist = 10.f * ((1.f + other_power) / (1.f + our_power));
-        const int chance = std::max<Eng3D::Decimal>(0, force_dist - -relation.relation);
+        const float force_dist = 10.f * ((1.f + other_power) / (1.f + our_power));
+        const int chance = std::max<float>(0, force_dist - -relation.relation);
         if(std::rand() % (100 + (chance * 10)) == 0) {
             if(!relation.has_war) {
                 // Check we border said nation

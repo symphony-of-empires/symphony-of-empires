@@ -237,8 +237,8 @@ bool Nation::is_accepted_religion(const Religion& religion) const {
 
 // Gets the total tax applied to a POP depending on their "wealth"
 // (not exactly like that, more like by their type/status)
-Eng3D::Decimal Nation::get_tax(const Pop& pop) const {
-    Eng3D::Decimal base_tax = 1.f;
+float Nation::get_tax(const Pop& pop) const {
+    float base_tax = 1.f;
 
     if(!is_accepted_culture(pop) && !is_accepted_religion(pop)) {
         // Exterminate imposes a scale of 3(+1), which will be enough to drive off most POPs
@@ -298,8 +298,8 @@ const NationClientHint& Nation::get_client_hint() const {
     return this->client_hints[g_world->get_id(*this->ideology)];
 }
 
-Eng3D::Decimal Nation::get_research_points() const {
-    Eng3D::Decimal research = 0.f;
+float Nation::get_research_points() const {
+    float research = 0.f;
     for(const auto& province_id : this->owned_provinces) {
         const auto& province = World::get_instance().provinces[province_id];
         for(const auto& pop : province.pops)
@@ -349,92 +349,92 @@ std::vector<Nation*> Nation::get_allies() {
     }
 }*/
 
-Eng3D::Decimal Nation::get_industry_output_mod() {
-    Eng3D::Decimal c = 1.f;
+float Nation::get_industry_output_mod() {
+    float c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->industry_input_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_industry_input_mod() {
-    Eng3D::Decimal c = 1.f;
+float Nation::get_industry_input_mod() {
+    float c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->industry_input_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_workers_needed_mod() {
-    Eng3D::Decimal c = 1.f;
+float Nation::get_workers_needed_mod() {
+    float c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->workers_needed_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_salary_paid_mod() {
-    Eng3D::Decimal c = 1.f;
+float Nation::get_salary_paid_mod() {
+    float c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->salary_paid_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_delivery_cost_mod() {
-    Eng3D::Decimal c = 1.f;
+float Nation::get_delivery_cost_mod() {
+    float c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->delivery_cost_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_literacy_learn_mod() {
-    Eng3D::Decimal c = 1.f;
+float Nation::get_literacy_learn_mod() {
+    float c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->literacy_learn_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_reproduction_mod() {
-    Eng3D::Decimal c = 1.f;
+float Nation::get_reproduction_mod() {
+    float c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->reproduction_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_death_mod() {
-    Eng3D::Decimal c = 1.f;
+float Nation::get_death_mod() {
+    float c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->death_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_militancy_mod() {
-    Eng3D::Decimal c = 1.f;
+float Nation::get_militancy_mod() {
+    float c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->militancy_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_life_needs_met_mod() {
-    Eng3D::Decimal c = 1.f;
+float Nation::get_life_needs_met_mod() {
+    float c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->life_needs_met_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_everyday_needs_met_mod() {
-    Eng3D::Decimal c = 1.f;
+float Nation::get_everyday_needs_met_mod() {
+    float c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->everyday_needs_met_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_luxury_needs_met_mod() {
-    Eng3D::Decimal c = 1.f;
+float Nation::get_luxury_needs_met_mod() {
+    float c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->luxury_needs_met_mod;
     return ((1.f));
 }
 
-Eng3D::Decimal Nation::get_immigration_attraction_mod() {
-    Eng3D::Decimal c = 1.f;
+float Nation::get_immigration_attraction_mod() {
+    float c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->immigration_attraction;
     return ((1.f));

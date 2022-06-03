@@ -74,20 +74,20 @@ public:
     bool executive_parliament; // Is there a parliament that is needed to do executive actions?
     bool constitutional; // Is there a constitution to limit the power of the leader?
     bool foreign_trade; // Do we allow foreign trade?
-    Eng3D::Decimal import_tax; // Tax % for importing products
-    Eng3D::Decimal export_tax; // Tax % for exporting products
-    Eng3D::Decimal domestic_import_tax; // Tax % for domestic imports
-    Eng3D::Decimal domestic_export_tax; // Tax % for domestic exports
-    Eng3D::Decimal poor_flat_tax; // Flat tax rhs on the low-wage pops
-    Eng3D::Decimal med_flat_tax; // Flat tax rhs on the medium-wage pops
-    Eng3D::Decimal rich_flat_tax; // Flat tax rhs on the high-wage pops
-    Eng3D::Decimal industry_tax; // The tax given to the industrial sector
-    Eng3D::Decimal military_spending; // Spending done on military (% of budget)
+    float import_tax; // Tax % for importing products
+    float export_tax; // Tax % for exporting products
+    float domestic_import_tax; // Tax % for domestic imports
+    float domestic_export_tax; // Tax % for domestic exports
+    float poor_flat_tax; // Flat tax rhs on the low-wage pops
+    float med_flat_tax; // Flat tax rhs on the medium-wage pops
+    float rich_flat_tax; // Flat tax rhs on the high-wage pops
+    float industry_tax; // The tax given to the industrial sector
+    float military_spending; // Spending done on military (% of budget)
     // Units can grab anything they want from DOMESTIC provinces
     // Please notice the DOMESTIC part of this, for foreign "free grab"; check diplomatic relations!!
     bool free_supplies;
-    Eng3D::Decimal min_wage; // Minimum wage
-    Eng3D::Decimal min_sv_for_parliament; // Minimum social value for people to be accounted on the parliament
+    float min_wage; // Minimum wage
+    float min_sv_for_parliament; // Minimum social value for people to be accounted on the parliament
 
     inline int difference(const Policies& rhs) const {
         int diff = 0;

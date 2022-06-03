@@ -428,8 +428,8 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
                 pop.type = &pop_type;
                 pop.culture = this->gs.input.selected_culture;
                 pop.religion = this->gs.input.selected_religion;
-                pop.size = 1000.f / std::max<Eng3D::Decimal>(0.01f, pop_type.social_value);
-                pop.literacy = max_sv / std::max<Eng3D::Decimal>(0.01f, pop_type.social_value);
+                pop.size = 1000.f / std::max<float>(0.01f, pop_type.social_value);
+                pop.literacy = max_sv / std::max<float>(0.01f, pop_type.social_value);
                 pop.budget = 100.f * max_sv;
                 const_cast<Province&>(this->province).pops.push_back(pop);
             }

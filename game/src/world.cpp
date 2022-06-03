@@ -516,7 +516,7 @@ static inline void unit_do_tick(Unit& unit)
 
         if(can_move) {
             if(unit.move_progress) {
-                unit.move_progress -= std::min<Eng3D::Decimal>(unit.move_progress, unit.get_speed());
+                unit.move_progress -= std::min<float>(unit.move_progress, unit.get_speed());
             } else {
                 unit.set_province(unit_target);
                 // Only take control of provinces of the people we're at war with
@@ -609,16 +609,16 @@ void World::do_tick() {
     profiler.stop("Economy");
 
     profiler.start("Research");
-    std::vector<Eng3D::Decimal> mil_research_pts(nations.size(), 0.f);
-    std::vector<Eng3D::Decimal> naval_research_pts(nations.size(), 0.f);
+    std::vector<float> mil_research_pts(nations.size(), 0.f);
+    std::vector<float> naval_research_pts(nations.size(), 0.f);
     // Now researches for every country are going to be accounted :)
     for(auto& nation : nations) {
         for(const auto& technology : technologies) {
             if(!nation.can_research(technology)) continue;
-            Eng3D::Decimal* research_progress = &nation.research[get_id(technology)];
+            float* research_progress = &nation.research[get_id(technology)];
             if(!(*research_progress)) continue;
 
-            Eng3D::Decimal* pts_count;
+            float* pts_count;
             if(technology.type == TechnologyType::MILITARY) {
                 pts_count = &mil_research_pts[get_id(nation)];
             } else if(technology.type == TechnologyType::NAVY) {
@@ -628,7 +628,7 @@ void World::do_tick() {
             }
             if(*pts_count <= 0.f) continue;
 
-            const Eng3D::Decimal pts = *pts_count / 4.f;
+            const float pts = *pts_count / 4.f;
             *research_progress += pts;
             *pts_count -= pts;
             break;

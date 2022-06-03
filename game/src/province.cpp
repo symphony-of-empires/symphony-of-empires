@@ -36,22 +36,22 @@
 //
 
 // Calculates the total number of POPs in this province (total population)
-Eng3D::Number Province::total_pops() const {
-    Eng3D::Number total = 0;
+float Province::total_pops() const {
+    float total = 0;
     for(const auto& pop : pops)
         total += pop.size;
     return total;
 }
 
-Eng3D::Decimal Province::get_attractiveness(const Pop& pop) const {
-    Eng3D::Decimal attractive = this->base_attractive;
+float Province::get_attractiveness(const Pop& pop) const {
+    float attractive = this->base_attractive;
 
     const auto& owner = g_world->nations[this->owner_id];
     if(!owner.is_accepted_culture(pop) && !owner.is_accepted_religion(pop)) {
         // Linearized version, instead of using if-else trees we just
         // multiply the attractive by the scale; EXTERMINATE = 3, so 3 - 3 is 0 which nullifies the attractivenes
         // and the more open the borders are the more lenient the "scale" becomes
-        const Eng3D::Number scale = 3 - owner.current_policy.treatment;
+        const float scale = 3 - owner.current_policy.treatment;
         attractive *= scale;
     }
 

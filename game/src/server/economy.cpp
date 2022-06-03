@@ -70,11 +70,11 @@ void militancy_update(World& world, Nation& nation) {
         auto& province = world.provinces[province_id];
         for(auto& pop : province.pops) {
             // More literacy means more educated persons with less children
-            Eng3D::Decimal growth = pop.size / (pop.literacy + 1.f);
+            float growth = pop.size / (pop.literacy + 1.f);
             growth *= pop.life_needs_met;
-            growth = std::min<Eng3D::Decimal>(std::fmod(rand(), 10.f), growth);
+            growth = std::min<float>(std::fmod(rand(), 10.f), growth);
             //growth *= (growth > 0.f) ? nation->get_reproduction_mod() : nation->get_death_mod();
-            pop.size += static_cast<Eng3D::Number>((int)growth);
+            pop.size += static_cast<float>((int)growth);
             // Met life needs means less militancy
             // For example, having 1.0 life needs means that we obtain -0.01 militancy per ecotick
             // and the opposite happens with negative life needs
@@ -85,10 +85,10 @@ void militancy_update(World& world, Nation& nation) {
     }
 
     // Total anger in population (global)
-    Eng3D::Decimal total_anger = 0.f;
+    float total_anger = 0.f;
     // Anger per ideology (how much we hate the current ideology)
-    std::vector<Eng3D::Decimal> ideology_anger(world.ideologies.size(), 0.f);
-    const Eng3D::Decimal coup_chances = 1000.f;
+    std::vector<float> ideology_anger(world.ideologies.size(), 0.f);
+    const float coup_chances = 1000.f;
     auto rand = Eng3D::get_local_generator();
     for(const auto& province_id : nation.controlled_provinces) {
         const auto& province = world.provinces[province_id];
@@ -96,7 +96,7 @@ void militancy_update(World& world, Nation& nation) {
             /// @todo Ok, look, the justification is that educated people
             // almost never do coups - in comparasion to uneducated
             // peseants, rich people don't need to protest!
-            const Eng3D::Decimal anger = (std::max<Eng3D::Decimal>(pop.militancy, 0.001f) / std::max<Eng3D::Decimal>(pop.literacy, 1.f) / std::max<Eng3D::Decimal>(pop.life_needs_met, 0.001f));
+            const float anger = (std::max<float>(pop.militancy, 0.001f) / std::max<float>(pop.literacy, 1.f) / std::max<float>(pop.life_needs_met, 0.001f));
             total_anger += anger;
             for(const auto& ideology : world.ideologies)
                 ideology_anger[world.get_id(ideology)] += (pop.ideology_approval[world.get_id(ideology)] * anger) * (pop.size / 1000);
@@ -105,14 +105,14 @@ void militancy_update(World& world, Nation& nation) {
 
     // Rebellions!
     /// @todo Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
-    if(!std::fmod(rand(), std::max<Eng3D::Decimal>(1, coup_chances - total_anger))) {
+    if(!std::fmod(rand(), std::max<float>(1, coup_chances - total_anger))) {
 #if 0 /// @todo Fix so this works in parrallel
         // Compile list of uprising provinces
         std::vector<Province*> uprising_provinces;
         for(const auto& province_id : nation->owned_provinces) {
             const auto& province = world.provinces[province_id];
-            Eng3D::Decimal province_anger = 0.f;
-            Eng3D::Decimal province_threshold = 0.f;
+            float province_anger = 0.f;
+            float province_threshold = 0.f;
             for(const auto& pop : province->pops) {
                 province_anger += pop.militancy;
                 province_threshold += pop.literacy * pop.life_needs_met;
@@ -335,7 +335,7 @@ static inline Unit* build_unit(Building& building, Province& province) {
     bool can_build_unit = building.can_build_unit();
 
     // Ratio of health:person is 25, thus making units very expensive
-    const Eng3D::Number army_size = 100;
+    const float army_size = 100;
     /// @todo Consume special soldier pops instead of farmers!!!
     auto it = std::find_if(province.pops.begin(), province.pops.end(), [building, army_size](const auto& e) {
         return (e.size >= army_size && e.type->group == PopGroup::FARMER);
@@ -344,7 +344,7 @@ static inline Unit* build_unit(Building& building, Province& province) {
         can_build_unit = false;
 
     /// @todo Maybe delete if size becomes 0?
-    const Eng3D::Number final_size = std::min<Eng3D::Number>((*it).size, army_size);
+    const float final_size = std::min<float>((*it).size, army_size);
     (*it).size -= final_size;
     if(can_build_unit && final_size) {
         // Spawn a unit
@@ -532,7 +532,7 @@ void Economy::do_tick(World& world) {
         std::vector<Unit*> new_nation_units;
         // Do research on focused research
         if(nation->focus_tech != nullptr) {
-            const Eng3D::Decimal research = nation->get_research_points() / nation->focus_tech->cost;
+            const float research = nation->get_research_points() / nation->focus_tech->cost;
             nation->research[world.get_id(*nation->focus_tech)] += research;
         }
         militancy_update(world, *nation);

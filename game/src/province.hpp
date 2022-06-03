@@ -55,8 +55,8 @@ public:
 
     Eng3D::String name;
     War* war = nullptr;
-    Eng3D::Number attacker_casualties = 0;
-    Eng3D::Number defender_casualties = 0;
+    float attacker_casualties = 0;
+    float defender_casualties = 0;
     std::vector<uint16_t> attackers_ids;
     std::vector<uint16_t> defenders_ids;
 };
@@ -67,12 +67,12 @@ class Province : public RefnameEntity<uint16_t> {
 public:
     Province() {};
     ~Province() {};
-    Eng3D::Number total_pops() const;
-    Eng3D::Decimal get_attractiveness(const Pop& pop) const;
+    float total_pops() const;
+    float get_attractiveness(const Pop& pop) const;
     void add_building(const BuildingType& building_type);
     bool is_neighbour(Province& province) const;
 
-    inline std::pair<Eng3D::Decimal, Eng3D::Decimal> get_pos() const {
+    inline std::pair<float, float> get_pos() const {
         return std::make_pair(box_area.left + ((box_area.right - box_area.left) / 2.f), box_area.top + ((box_area.bottom - box_area.top) / 2.f));
     }
 
@@ -91,9 +91,9 @@ public:
     Eng3D::StringRef name;
     std::uint32_t color = 0; // Color of the province, used for mapping the province's shape from the map_div.png file
     bool is_coastal = false;
-    Eng3D::Decimal supply_limit = 0.f; // The (military) supply limit of the province, the max number of supplies there can be per tick
-    Eng3D::Decimal supply_rem = 0.f; // The number of remaining (military) supplies in the province
-    Eng3D::Decimal base_attractive = 0.f; // Attractiveness of province
+    float supply_limit = 0.f; // The (military) supply limit of the province, the max number of supplies there can be per tick
+    float supply_rem = 0.f; // The number of remaining (military) supplies in the province
+    float base_attractive = 0.f; // Attractiveness of province
     // Rectangle coordinates (x,y - x,y) for "area" scanning a province when needed
     // (for example, when changing owners)
     Eng3D::Rect box_area;
