@@ -24,6 +24,7 @@
 // ----------------------------------------------------------------------------
 
 #include <algorithm>
+#include <cmath>
 #include <cstdlib>
 #include <cstring>
 #include <functional>
@@ -74,6 +75,9 @@ static inline void get_blob_bounds(std::unordered_set<Province*>& visited_provin
         if(visited_provinces.find(&neighbour) != visited_provinces.end()) continue;
         // Must own the province
         if(neighbour.owner_id != nation.get_id()) continue;
+        // Big provinces not taken in account
+        if(abs(neighbour.box_area.left - neighbour.box_area.right) >= g_world->width / 3.f) continue;
+        if(abs(neighbour.box_area.top - neighbour.box_area.bottom) >= g_world->height / 3.f) continue;
 
         if(neighbour.box_area.left < min_x->x) {
             min_x->x = neighbour.box_area.left;
