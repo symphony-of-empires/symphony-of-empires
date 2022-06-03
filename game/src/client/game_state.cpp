@@ -324,7 +324,7 @@ void save(GameState& gs) {
                 it++;
             }
 
-            if(province.terrain_type->is_water_body && (province.controller != nullptr || province.owner != nullptr)) {
+            if(province.terrain_type->is_water_body && (province.controller != nullptr || Nation::is_valid(province.owner_id))) {
                 for(auto& terrain : gs.world->terrain_types) {
                     if(terrain.is_water_body) continue;
                     province.terrain_type = &terrain;
@@ -364,13 +364,14 @@ void save(GameState& gs) {
             for(const auto& nucleus_id : province.nuclei)
                 fprintf(fp.get(), "province:add_nucleus(n_%s)\n", gs.world->nations[nucleus_id].ref_name.c_str());
             // Give province to owner
-            if(province.owner != nullptr) {
-                fprintf(fp.get(), "province:give_to(n_%s)\n", province.owner->ref_name.c_str());
-                if(province.owner->capital_id == gs.world->get_id(province))
-                    fprintf(fp.get(), "n_%s:set_capital(province)\n", province.owner->ref_name.c_str());
+            if(Nation::is_valid(province.owner_id)) {
+                fprintf(fp.get(), "province:give_to(n_%s)\n", gs.world->nations[province.owner_id].ref_name.c_str());
+                if(gs.world->nations[province.owner_id].capital_id == gs.world->get_id(province))
+                    fprintf(fp.get(), "n_%s:set_capital(province)\n", gs.world->nations[province.owner_id].ref_name.c_str());
             }
             // Units
-            for(const auto& unit : province.get_units()) {
+            for(const auto& unit_id : province.get_units()) {
+                auto* unit = g_world->units[unit_id];
                 // Units can't exceed max health
                 if(unit->size > unit->type->max_health)
                     unit->size = unit->type->max_health;
@@ -622,7 +623,7 @@ void start_client(int argc, char** argv) {
 
     auto map_layer = new UI::Group(0, 0);
 
-    auto load_screen_tex = gs.tex_man->load(Path::get("gfx/load_screen.png"));
+    auto load_screen_tex = gs.tex_man->load(Path::get("gfx/load_screen/002.png"));
     auto* bg_img = new UI::Image(-(gs.width / 2.f), -(gs.height / 2.f), gs.width, gs.height, load_screen_tex);
     bg_img->origin = UI::Origin::CENTER_SCREEN;
 

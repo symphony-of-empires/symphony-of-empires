@@ -100,7 +100,7 @@ public:
     }
 
     UnitType* type; // Type of unit
-    Nation* owner; // Who owns this unit
+    uint16_t owner_id; // Who owns this unit
     Province::Id target_province_id = Province::invalid();
     Province::Id province_id = Province::invalid();
     Eng3D::Number size; // Size of the unit (soldiers in unit)

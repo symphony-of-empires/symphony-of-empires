@@ -268,10 +268,8 @@ mapmode_generator good_map_mode(Good::Id id) {
 }
 
 void relations_map_mode_selector(const World& world, Map& map, Province& province) {
-    if(province.controller == nullptr) {
-        return;
-    }
-    Nation::Id nation_id = world.get_id(*province.owner);
+    if(province.controller == nullptr) return;
+    Nation::Id nation_id = province.owner_id;
     mapmode_generator map_mode = relations_map_mode(nation_id);
     mapmode_tooltip tooltip = relations_tooltip(nation_id);
     map.set_map_mode(map_mode, tooltip);
@@ -323,11 +321,11 @@ mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
             return str;
         }
 
-        if(province.controller == province.owner) {
+        if(province.controller != nullptr && province.controller->get_id() == province.owner_id) {
             str += Eng3D::Locale::translate(province.controller->get_client_hint().alt_name.get_string());
         } else {
             str += Eng3D::Locale::translate("Owned by") + " ";
-            str += Eng3D::Locale::translate(province.owner->get_client_hint().alt_name.get_string());
+            str += Eng3D::Locale::translate(world.nations[province.owner_id].get_client_hint().alt_name.get_string());
             str += " " + Eng3D::Locale::translate("controlled by") + " ";
             str += Eng3D::Locale::translate(province.controller->get_client_hint().alt_name.get_string());
         }

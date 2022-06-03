@@ -92,8 +92,8 @@ void UnitWidget::set_unit(Unit& _unit) {
 
     GameState& gs = (GameState&)Eng3D::State::get_instance();
     // Paint according to relations
-    if(gs.curr_nation != nullptr && unit.owner != gs.curr_nation) {
-        const NationRelation& relation = gs.world->get_relation(gs.world->get_id(*gs.curr_nation), gs.world->get_id(*unit.owner));
+    if(gs.curr_nation != nullptr && unit.owner_id != gs.curr_nation->get_id()) {
+        const NationRelation& relation = gs.world->get_relation(gs.world->get_id(*gs.curr_nation), unit.owner_id);
         if(relation.has_alliance) {
             this->size_label->background_color = Eng3D::Color::rgba8(0x1e, 0x80, 0x0f, 0x80);
         } else if(relation.has_war) {
@@ -101,11 +101,11 @@ void UnitWidget::set_unit(Unit& _unit) {
         } else {
             this->size_label->background_color = Eng3D::Color::rgba8(0xff, 0xff, 0xff, 0x80);
         }
-    } else if(unit.owner == gs.curr_nation) {
+    } else if(gs.curr_nation != nullptr && unit.owner_id == gs.curr_nation->get_id()) {
         this->size_label->background_color = Eng3D::Color::rgba8(0x1e, 0x80, 0x0f, 0x80);
     }
 
-    auto nation_flag = map.nation_flags[unit.owner->cached_id];
+    auto nation_flag = map.nation_flags[unit.owner_id];
     this->flag_img->current_texture = nation_flag;
     this->size_label->on_each_tick(*this->size_label);
     this->morale_bar->on_each_tick(*this->morale_bar);

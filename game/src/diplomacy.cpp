@@ -102,7 +102,7 @@ void TreatyClause::LiberateNation::enforce() {
     receiver->prestige -= cost() * 0.000005f;
     // Give provinces to this liberated nation
     for(auto& province : provinces)
-        province->owner = liberated;
+        province->owner_id = g_world->get_id(*liberated);
     // One-time clause
     done = true;
 }

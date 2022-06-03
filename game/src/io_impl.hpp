@@ -201,6 +201,9 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
         ::deser_dynamic<is_serialize>(ar, &obj->social_value);
         ::deser_dynamic<is_serialize>(ar, &obj->group);
+        ::deser_dynamic<is_serialize>(ar, &obj->basic_needs_amount);
+        ::deser_dynamic<is_serialize>(ar, &obj->luxury_needs_satisfaction);
+        ::deser_dynamic<is_serialize>(ar, &obj->luxury_needs_deminishing_factor);
     }
 };
 
@@ -269,7 +272,7 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->size);
         ::deser_dynamic<is_serialize>(ar, &obj->target_province_id);
         ::deser_dynamic<is_serialize>(ar, &obj->province_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->owner);
+        ::deser_dynamic<is_serialize>(ar, &obj->owner_id);
         ::deser_dynamic<is_serialize>(ar, &obj->move_progress);
         ::deser_dynamic<is_serialize>(ar, &obj->on_battle);
     }
@@ -411,7 +414,7 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->box_area);
         ::deser_dynamic<is_serialize>(ar, &obj->supply_limit);
         ::deser_dynamic<is_serialize>(ar, &obj->supply_rem);
-        ::deser_dynamic<is_serialize>(ar, &obj->owner);
+        ::deser_dynamic<is_serialize>(ar, &obj->owner_id);
         ::deser_dynamic<is_serialize>(ar, &obj->nuclei);
         ::deser_dynamic<is_serialize>(ar, &obj->rgo_size);
         ::deser_dynamic<is_serialize>(ar, &obj->neighbours);
@@ -420,21 +423,7 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->buildings);
         ::deser_dynamic<is_serialize>(ar, &obj->controller);
         ::deser_dynamic<is_serialize>(ar, &obj->terrain_type);
-        if constexpr(is_serialize) {
-            const Unit::Id n_units = obj->units.size();
-            ::deser_dynamic<is_serialize>(ar, &n_units);
-            for(auto& sub_obj : obj->units)
-                ::deser_dynamic<is_serialize>(ar, sub_obj);
-        } else {
-            Unit::Id n_units;
-            ::deserialize(ar, &n_units);
-            obj->units.reserve(n_units);
-            for(size_t i = 0; i < n_units; i++) {
-                auto* unit = new Unit();
-                ::deser_dynamic<is_serialize>(ar, unit);
-                obj->units.push_back(unit);
-            }
-        }
+        ::deser_dynamic<is_serialize>(ar, &obj->units_ids);
     }
 };
 

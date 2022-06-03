@@ -40,8 +40,7 @@ BuildingSelectProvinceTab::BuildingSelectProvinceTab(GameState& _gs, int x, int 
 {
     unsigned int i = 0;
     for(auto& province : gs.world->provinces) {
-        if(province.owner != gs.curr_nation)
-            continue;
+        if(province.owner_id != gs.curr_nation->get_id()) continue;
 
         auto* btn = new ProvinceButton(gs, 0, 24 * i, province, this);
         btn->set_on_click([](UI::Widget& w) {

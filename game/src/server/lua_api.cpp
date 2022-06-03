@@ -294,7 +294,6 @@ int LuaAPI::add_nation(lua_State* L) {
         if(nation.ref_name == other_nation.ref_name)
             CXX_THROW(LuaAPI::Exception, "Duplicate ref_name " + nation.ref_name);
     }
-
     g_world->insert(nation);
     lua_pushnumber(L, g_world->nations.size() - 1);
     return 1;
@@ -534,10 +533,8 @@ int LuaAPI::add_nation_mod(lua_State* L) {
         CXX_THROW(LuaAPI::Exception, "MP-Sync in this function is not supported");
 
     NationModifier mod{};
-
     mod.ref_name = luaL_checkstring(L, 1);
     mod.name = luaL_checkstring(L, 2);
-
     mod.industry_output_mod = (lua_tonumber(L, 3));
     mod.industry_input_mod = (lua_tonumber(L, 4));
     mod.workers_needed_mod = (lua_tonumber(L, 5));
@@ -550,7 +547,6 @@ int LuaAPI::add_nation_mod(lua_State* L) {
     mod.life_needs_met_mod = (lua_tonumber(L, 13));
     mod.everyday_needs_met_mod = (lua_tonumber(L, 14));
     mod.luxury_needs_met_mod = (lua_tonumber(L, 15));
-
     g_world->insert(mod);
     lua_pushnumber(L, g_world->get_id(mod));
     return 1;
@@ -689,16 +685,16 @@ int LuaAPI::province_add_unit(lua_State* L) {
     const size_t size = lua_tonumber(L, 3);
 
     Unit* unit = new Unit();
+    g_world->insert(*unit);
     unit->set_province(province);
     unit->type = &unit_type;
-    unit->owner = province.owner;
+    unit->owner_id = province.owner_id;
     unit->budget = 5000.f;
     unit->experience = 1.f;
     unit->morale = 1.f;
     unit->supply = 1.f;
     unit->size = size;
     unit->base = unit->type->max_health;
-    g_world->insert(*unit);
     return 0;
 }
 
@@ -723,8 +719,8 @@ int LuaAPI::give_hard_province_to(lua_State* L) {
     Province& province = g_world->provinces.at(lua_tonumber(L, 1));
     Nation& nation = g_world->nations.at(lua_tonumber(L, 2));
     for(auto& unit : g_world->units) {
-        if(unit->province_id == g_world->get_id(province) && unit->owner == province.controller)
-            unit->owner = &nation;
+        if(unit->province_id == g_world->get_id(province) && province.controller != nullptr && unit->owner_id == province.controller->get_id())
+            unit->owner_id = nation.get_id();
     }
     nation.give_province(province);
     return 0;
@@ -867,15 +863,13 @@ int LuaAPI::add_event(lua_State* L) {
     if(g_world->needs_to_sync)
         CXX_THROW(LuaAPI::Exception, "MP-Sync in this function is not supported");
 
-    auto event = Event{};
+    Event event{};
     event.ref_name = luaL_checkstring(L, 1);
     event.conditions_function = luaL_checkstring(L, 2);
     event.do_event_function = luaL_checkstring(L, 3);
     event.title = luaL_checkstring(L, 4);
     event.text = luaL_checkstring(L, 5);
     event.checked = lua_toboolean(L, 6);
-
-    // Add onto vector
     g_world->insert(event);
     lua_pushnumber(L, g_world->get_id(event));
     return 1;
@@ -926,7 +920,7 @@ int LuaAPI::add_pop_type(lua_State* L) {
     if(g_world->needs_to_sync)
         CXX_THROW(LuaAPI::Exception, "MP-Sync in this function is not supported");
     
-    auto pop_type = PopType();
+    PopType pop_type{};
     pop_type.ref_name = luaL_checkstring(L, 1);
     pop_type.name = luaL_checkstring(L, 2);
     pop_type.social_value = lua_tonumber(L, 3);
@@ -977,7 +971,6 @@ int LuaAPI::add_pop_type(lua_State* L) {
     }
     lua_pop(L, 1);
 
-    // Add onto vector
     g_world->insert(pop_type);
     lua_pushnumber(L, g_world->pop_types.size() - 1);
     return 1;
@@ -1065,14 +1058,13 @@ int LuaAPI::add_culture(lua_State* L) {
     if(g_world->needs_to_sync)
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
 
-    auto culture = Culture();
+    Culture culture{};
     culture.ref_name = luaL_checkstring(L, 1);
     culture.name = luaL_checkstring(L, 2);
     culture.color = (bswap32(lua_tonumber(L, 3)) >> 8) | 0xff000000;
     culture.adjective = luaL_checkstring(L, 4);
     culture.noun = luaL_checkstring(L, 5);
     culture.combo_form = luaL_checkstring(L, 6);
-
     g_world->insert(culture);
     lua_pushnumber(L, g_world->cultures.size() - 1);
     return 1;
@@ -1105,7 +1097,7 @@ int LuaAPI::add_religion(lua_State* L) {
     if(g_world->needs_to_sync)
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
 
-    auto religion = Religion();
+    Religion religion{};
     religion.ref_name = luaL_checkstring(L, 1);
     religion.name = luaL_checkstring(L, 2);
     religion.color = (bswap32(lua_tonumber(L, 3)) >> 8) | 0xff000000;
@@ -1134,7 +1126,7 @@ int LuaAPI::add_unit_type(lua_State* L) {
     if(g_world->needs_to_sync)
         CXX_THROW(LuaAPI::Exception, "MP-Sync in this function is not supported");
 
-    auto unit_type = UnitType();
+    UnitType unit_type{};
     unit_type.ref_name = luaL_checkstring(L, 1);
     unit_type.name = luaL_checkstring(L, 2);
     unit_type.attack = (lua_tonumber(L, 3));
@@ -1174,7 +1166,7 @@ int LuaAPI::add_ideology(lua_State* L) {
     if(g_world->needs_to_sync)
         CXX_THROW(LuaAPI::Exception, "MP-Sync in this function is not supported");
 
-    auto ideology = Ideology();
+    Ideology ideology{};
     ideology.ref_name = luaL_checkstring(L, 1);
     ideology.name = luaL_checkstring(L, 2);
     ideology.color = (bswap32(lua_tonumber(L, 3)) >> 8) | 0xff000000;

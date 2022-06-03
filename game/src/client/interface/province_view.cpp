@@ -88,12 +88,12 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
 
     this->landscape_img = new UI::Image(0, 0, this->width, 128 + 64 + 16, gs.tex_man->load(Path::get("gfx/terraintype/" + province.terrain_type->ref_name + ".png")), this);
 
-    if(province.owner != nullptr) {
-        this->owner_flag = new UI::AspectImage(0, 0, 96, 48, gs.get_nation_flag(*this->province.owner), this);
+    if(Nation::is_valid(province.owner_id)) {
+        this->owner_flag = new UI::AspectImage(0, 0, 96, 48, gs.get_nation_flag(gs.world->nations[this->province.owner_id]), this);
         this->owner_flag->set_on_click([this](UI::Widget&) {
-            new Interface::NationView(this->gs, *this->province.owner);
+            new Interface::NationView(this->gs, gs.world->nations[this->province.owner_id]);
         });
-        this->owner_flag->set_tooltip(this->province.owner->name + " owns this province");
+        this->owner_flag->set_tooltip(gs.world->nations[this->province.owner_id].name + " owns this province");
         new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width, this->owner_flag->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
     }
 

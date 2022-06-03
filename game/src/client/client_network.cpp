@@ -149,10 +149,9 @@ void Client::net_loop() {
                 ar.rewind();
                 ::deserialize(ar, &action);
 
-                const std::scoped_lock lock(world.world_mutex);
-
                 Eng3D::Log::debug("client", "Receiving package of " + std::to_string(packet.size()));
                 if(!gs.host_mode) {
+                    const std::scoped_lock lock(world.world_mutex);
                     // Ping from server, we should answer with a pong!
                     switch(action) {
                     case ActionType::PONG: {
@@ -219,7 +218,7 @@ void Client::net_loop() {
                         Unit* unit = new Unit();
                         ::deserialize(ar, unit);
                         world.insert(*unit);
-                        Eng3D::Log::debug("client", "New unit of " + unit->owner->ref_name);
+                        Eng3D::Log::debug("client", "New unit of " + g_world->nations[unit->owner_id].ref_name);
                     } break;
                     case ActionType::BUILDING_ADD: {
                         Province* province;

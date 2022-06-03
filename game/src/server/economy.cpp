@@ -78,9 +78,9 @@ void militancy_update(World& world, Nation& nation) {
             // Met life needs means less militancy
             // For example, having 1.0 life needs means that we obtain -0.01 militancy per ecotick
             // and the opposite happens with negative life needs
-            pop.militancy += 0.01f * (-pop.life_needs_met) * province.owner->get_militancy_mod();
+            pop.militancy += 0.01f * (-pop.life_needs_met) * world.nations[province.owner_id].get_militancy_mod();
             // Current liking of the party is influenced by the life_needs_met
-            pop.ideology_approval[world.get_id(*province.owner->ideology)] += (pop.life_needs_met + 1.f) / 10.f;
+            pop.ideology_approval[world.get_id(*world.nations[province.owner_id].ideology)] += (pop.life_needs_met + 1.f) / 10.f;
         }
     }
 
@@ -130,8 +130,9 @@ void militancy_update(World& world, Nation& nation) {
             /// @todo We should make a copy of the `rebel` nation for every rebellion!!!
             /// @todo We should also give them an unique ideology!!!
             rebel_nation->give_province(*province);
-            for(auto& unit : province->get_units()) {
-                unit->owner = rebel_nation;
+            for(auto& unit_id : province->get_units()) {
+                auto* unit = g_world->units[unit_id];
+                unit->owner_id = rebel_nation->get_id();
             }
 
             // Declare war seeking all provinces from the owner
@@ -350,14 +351,13 @@ static inline Unit* build_unit(Building& building, Province& province) {
         Unit* unit = new Unit();
         unit->set_province(province);
         unit->type = building.working_unit_type;
-        unit->owner = province.owner;
+        unit->owner_id = province.owner_id;
         unit->budget = 5000.f;
         unit->experience = 1.f;
         unit->morale = 1.f;
         unit->supply = 1.f;
         unit->size = final_size;
         unit->base = unit->type->max_health;
-
         building.working_unit_type = nullptr;
         Eng3D::Log::debug("economy", "[" + province.ref_name + "]: Has built an unit of [" + unit->type->ref_name + "]");
         return unit;
@@ -386,7 +386,7 @@ void Economy::do_tick(World& world) {
             Province& province = world.provinces[i];
             Product& product = province.products[market.good];
             market.demand[i] = 0.f;
-            if(province.owner) {
+            if(Nation::is_valid(province.owner_id)) {
                 market.prices[i] = product.price;
                 market.supply[i] = product.supply;
             } else {
@@ -407,7 +407,7 @@ void Economy::do_tick(World& world) {
             if(product.supply <= 0.f) continue;
             for(auto neighbour_id : province.neighbours) {
                 auto& neighbour = g_world->provinces[neighbour_id];
-                if(neighbour.owner) continue;
+                if(Nation::is_valid(neighbour.owner_id)) continue;
                 const size_t neighbour_neighbours_size = neighbour.neighbours.size();
                 Product& other_product = neighbour.products[market.good];
 
@@ -447,7 +447,7 @@ void Economy::do_tick(World& world) {
     std::vector<Province::Id> province_ids(provinces_size);
     Province::Id last_id = 0;
     for(Province::Id id = 0; id < provinces_size; id++) {
-        if(world.provinces[id].owner == nullptr) continue;
+        if(Nation::is_invalid(world.provinces[id].owner_id)) continue;
         province_ids[last_id++] = id;
     }
     province_ids.resize(last_id);

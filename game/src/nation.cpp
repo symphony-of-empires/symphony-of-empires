@@ -262,12 +262,12 @@ Eng3D::Decimal Nation::get_tax(const Pop& pop) const {
 #include "client/map_render.hpp"
 // Gives this nation a specified province (for example on a treaty)
 void Nation::give_province(Province& province) {
-    const World& world = World::get_instance();
+    World& world = World::get_instance();
     this->control_province(province);
-    if(province.owner != nullptr)
-        province.owner->owned_provinces.erase(world.get_id(province));
+    if(province.owner_id != (Nation::Id)-1)
+        world.nations[province.owner_id].owned_provinces.erase(province.get_id());
     owned_provinces.insert(world.get_id(province));
-    province.owner = this;
+    province.owner_id = this->get_id();
 
     // Update the map visibility
     auto& gs = (GameState&)GameState::get_instance();
