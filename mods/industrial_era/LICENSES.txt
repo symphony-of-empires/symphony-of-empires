@@ -40,8 +40,20 @@ gfx/religion/shinto
 gfx/cursor_b
 	Credits for Pattrck - made ui icons and graphical interface style in photoshop
 
-gfx/load_screen
+gfx/load_screen/001
 	By Charles Clément Calderon (1870 - 1906) - Bonhams gallery - uploaded by 0x010C, Public Domain, https://commons.wikimedia.org/w/index.php?curid=56404313
+
+gfx/load_screen/002
+	By Josef Karl Berthold Puttner (1821 - 1881) - Bonhams gallery - uploaded by 0x010C, Public Domain, https://commons.wikimedia.org/w/index.php?curid=56403658
+
+gfx/load_screen/003
+	By Albert Goodwin (1845 - 1932) - Bonhams gallery - uploaded by 0x010C, Public Domain, https://commons.wikimedia.org/w/index.php?curid=56403680
+
+gfx/load_screen/004
+	By Eugène Lami - [1], Public Domain, https://commons.wikimedia.org/w/index.php?curid=4085857
+
+gfx/load_screen/005
+	By Joseph Nash - https://twitter.com/UKHouseofLords/status/1290593833185673221/photo/1, Public Domain, https://commons.wikimedia.org/w/index.php?curid=96679288
 
 gfx/ideology/communism
 gfx/ideology/fascism
