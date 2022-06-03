@@ -73,7 +73,7 @@ static inline void get_blob_bounds(std::unordered_set<Province*>& visited_provin
         // Do not visit again
         if(visited_provinces.find(&neighbour) != visited_provinces.end()) continue;
         // Must own the province
-        if(neighbour.owner != &nation) continue;
+        if(neighbour.owner_id != nation.get_id()) continue;
 
         if(neighbour.box_area.left < min_x->x) {
             min_x->x = neighbour.box_area.left;
@@ -513,7 +513,8 @@ void Map::draw(const GameState& gs) {
     for(auto& province : const_cast<World&>(world).provinces) {
         const glm::vec2 prov_pos = glm::vec2(province.get_pos().first, province.get_pos().second);
         // And display units
-        for(const auto& unit : province.get_units()) {
+        for(const auto& unit_id : province.get_units()) {
+            auto* unit = g_world->units[unit_id];
             if(unit->on_battle) continue;
             bool unit_visible = true;
             if(view_mode == MapView::SPHERE_VIEW) {
@@ -565,11 +566,13 @@ void Map::draw(const GameState& gs) {
         const glm::vec2 prov_pos = glm::vec2(province.get_pos().first, province.get_pos().second);
 
         unsigned int i = 0;
-        for(const auto& unit : province.get_units()) {
+        for(const auto& unit_id : province.get_units()) {
             glm::vec2 pos = prov_pos;
             pos.x -= 1.5f * ((province.get_units().size() / 2) - i);
             pos.y -= y;
             glm::mat4 model = glm::translate(base_model, glm::vec3(pos.x, pos.y, 0.f));
+
+            auto* unit = g_world->units[unit_id];
             if(Province::is_valid(unit->target_province_id)) {
                 //Eng3D::Line target_line = Eng3D::Line(pos.x, pos.y, );
                 const auto& unit_target = world.provinces[unit->target_province_id];

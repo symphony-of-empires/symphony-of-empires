@@ -50,7 +50,7 @@ ArmyArmyTab::ArmyArmyTab(GameState& _gs, int x, int y, UI::Widget* parent)
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
     for(const auto& unit : gs.world->units) {
-        if(unit->owner != gs.curr_nation)
+        if(unit->owner_id != gs.curr_nation->get_id())
             continue;
         else if(!(unit->type->is_ground == true && unit->type->is_naval == false))
             continue;
@@ -69,7 +69,7 @@ ArmyAirforceTab::ArmyAirforceTab(GameState& _gs, int x, int y, UI::Widget* paren
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
     for(const auto& unit : gs.world->units) {
-        if(unit->owner != gs.curr_nation)
+        if(unit->owner_id != gs.curr_nation->get_id())
             continue;
         else if(!(unit->type->is_ground == true && unit->type->is_naval == true))
             continue;
@@ -88,7 +88,7 @@ ArmyNavyTab::ArmyNavyTab(GameState& _gs, int x, int y, UI::Widget* parent)
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
     for(const auto& unit : gs.world->units) {
-        if(unit->owner != gs.curr_nation)
+        if(unit->owner_id != gs.curr_nation->get_id())
             continue;
         else if(!(unit->type->is_ground == false && unit->type->is_naval == true))
             continue;

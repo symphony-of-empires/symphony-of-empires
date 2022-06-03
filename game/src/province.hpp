@@ -42,10 +42,8 @@
 class World;
 class Nation;
 class TerrainType;
-class Unit;
-
-class Unit;
 class War;
+
 class Battle : public IdEntity<uint16_t> {
 public:
     Battle(War& war)
@@ -59,8 +57,8 @@ public:
     War* war = nullptr;
     Eng3D::Number attacker_casualties = 0;
     Eng3D::Number defender_casualties = 0;
-    std::vector<Unit*> attackers;
-    std::vector<Unit*> defenders;
+    std::vector<uint16_t> attackers_ids;
+    std::vector<uint16_t> defenders_ids;
 };
 
 // A single province, which is used to simulate economy in a "bulk-tiles" way
@@ -78,8 +76,8 @@ public:
         return std::make_pair(box_area.left + ((box_area.right - box_area.left) / 2.f), box_area.top + ((box_area.bottom - box_area.top) / 2.f));
     }
 
-    inline const std::vector<Unit*> get_units() const {
-        return units;
+    inline const std::vector<uint16_t>& get_units() const {
+        return units_ids;
     }
 
     inline const std::vector<Building>& get_buildings() const {
@@ -99,7 +97,7 @@ public:
     // Rectangle coordinates (x,y - x,y) for "area" scanning a province when needed
     // (for example, when changing owners)
     Eng3D::Rect box_area;
-    Nation* owner = nullptr; // The owner of this province
+    uint16_t owner_id = (uint16_t)-1; // The owner of this province
     Nation* controller = nullptr;
     TerrainType* terrain_type = nullptr;
     std::vector<uint32_t> rgo_size; // How much of each rgo that can be extracted
@@ -107,7 +105,7 @@ public:
     std::vector<Product> products;
     std::vector<Building> buildings;
     std::vector<Battle> battles;
-    std::vector<Unit*> units;
+    std::vector<uint16_t> units_ids;
     std::unordered_set<uint16_t> nuclei; // Nations who have a nuclei in this province
     std::unordered_set<Province::Id> neighbours; // Neighbouring provinces
 };

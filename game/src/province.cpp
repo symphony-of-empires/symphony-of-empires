@@ -45,11 +45,13 @@ Eng3D::Number Province::total_pops() const {
 
 Eng3D::Decimal Province::get_attractiveness(const Pop& pop) const {
     Eng3D::Decimal attractive = this->base_attractive;
-    if(!this->owner->is_accepted_culture(pop) && !this->owner->is_accepted_religion(pop)) {
+
+    const auto& owner = g_world->nations[this->owner_id];
+    if(!owner.is_accepted_culture(pop) && !owner.is_accepted_religion(pop)) {
         // Linearized version, instead of using if-else trees we just
         // multiply the attractive by the scale; EXTERMINATE = 3, so 3 - 3 is 0 which nullifies the attractivenes
         // and the more open the borders are the more lenient the "scale" becomes
-        const Eng3D::Number scale = 3 - this->owner->current_policy.treatment;
+        const Eng3D::Number scale = 3 - owner.current_policy.treatment;
         attractive *= scale;
     }
 
@@ -57,13 +59,13 @@ Eng3D::Decimal Province::get_attractiveness(const Pop& pop) const {
     // is between 1 and 2, for the rich is above 2
     if(pop.type->social_value >= 0.f && pop.type->social_value <= 1.f) {
         // For the lower class, lower taxes is good, and so on for other POPs
-        attractive += -(this->owner->current_policy.poor_flat_tax);
+        attractive += -(owner.current_policy.poor_flat_tax);
     } else if(pop.type->social_value >= 1.f && pop.type->social_value <= 2.f) {
         // For the medium class
-        attractive += -(this->owner->current_policy.med_flat_tax);
+        attractive += -(owner.current_policy.med_flat_tax);
     } else if(pop.type->social_value >= 2.f) {
         // For the high class
-        attractive += -(this->owner->current_policy.rich_flat_tax);
+        attractive += -(owner.current_policy.rich_flat_tax);
     }
     return attractive;
 }

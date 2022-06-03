@@ -98,10 +98,10 @@ void Unit::set_province(Province& _province) {
 
     // Delete the unit from the previous cache list of units
     if(Province::is_valid(this->province_id)) {
-        std::erase(world.provinces[this->province_id].units, this);
+        std::erase(world.provinces[this->province_id].units_ids, this->get_id());
     }
 
     this->province_id = world.get_id(_province);
     // Add unit to "cache list" of units
-    world.provinces[this->province_id].units.push_back(this);
+    world.provinces[this->province_id].units_ids.push_back(this->get_id());
 }

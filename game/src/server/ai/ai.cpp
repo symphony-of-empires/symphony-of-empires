@@ -271,7 +271,8 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
     for(const auto& ally_nation : nation.get_allies()) {
         for(const auto& province_id : ally_nation->owned_provinces) {
             const auto& province = world.provinces[province_id];
-            for(const auto& unit : province.get_units()) {
+            for(const auto& unit_id : province.get_units()) {
+                auto* unit = g_world->units[unit_id];
                 our_power += unit->type->attack * unit->size;
                 our_power += unit->type->defense * unit->size;
             }
@@ -283,7 +284,8 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
     for(const auto& ally_nation : other.get_allies()) {
         for(const auto& province_id : ally_nation->owned_provinces) {
             const auto& province = world.provinces[province_id];
-            for(const auto& unit : province.get_units()) {
+            for(const auto& unit_id : province.get_units()) {
+                auto* unit = g_world->units[unit_id];
                 other_power += unit->type->attack * unit->size;
                 other_power += unit->type->defense * unit->size;
             }
@@ -443,8 +445,7 @@ void ai_do_tick(Nation& nation) {
             // Pair denoting the weight a province has, the more the better
             std::vector<std::pair<Province*, float>> colonial_value;
             for(auto& province : world.provinces) {
-                if(province.terrain_type->is_water_body || province.owner != nullptr)
-                    continue;
+                if(province.terrain_type->is_water_body || Province::is_valid(province.owner_id)) continue;
                 colonial_value.push_back(std::make_pair(&province, 0.f));
             }
 
@@ -466,7 +467,7 @@ void ai_do_tick(Nation& nation) {
             // Found an appropriate colony!
             if(!colonial_value.empty()) {
                 Province* target = (*std::max_element(colonial_value.begin(), colonial_value.end())).first;
-                if(target != nullptr && target->owner == nullptr) {
+                if(target != nullptr && Nation::is_invalid(target->owner_id)) {
                     Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
                     Archive ar = Archive();
                     ActionType action = ActionType::PROVINCE_COLONIZE;
@@ -572,7 +573,8 @@ void ai_do_tick(Nation& nation) {
     /// @todo make a better algorithm
     for(const auto& province_id : nation.controlled_provinces) {
         const auto& province = world.provinces[province_id];
-        for(auto& unit : province.get_units()) {
+        for(auto& unit_id : province.get_units()) {
+            auto* unit = g_world->units[unit_id];
             if(Province::is_invalid(unit->target_province_id)) {
                 for(const auto& neighbour_id : province.neighbours) {
                     auto& neighbour = g_world->provinces[neighbour_id];
@@ -609,14 +611,15 @@ void ai_do_tick(Nation& nation) {
             // The "cooling" value which basically makes us ignore some provinces with lots of defenses
             // so we don't rack up deathstacks on a border with some micronation
             double draw_away_force = 0.f;
-            for(const auto& unit : province.get_units()) {
+            for(const auto& unit_id : province.get_units()) {
+                auto* unit = g_world->units[unit_id];
                 // Only account this for units that are of our nation
                 // because enemy units will require us to give more importance to it
                 const int unit_strength = static_cast<int>(unit->type->defense * unit->type->attack) * unit->size;
                 // This works because nations which are threatening to us have positive values, so they
                 // basically make the draw_away_force negative, which in turns does not draw away but rather
                 // draw in even more units
-                draw_away_force += (-ai_data.nations_risk_factor[world.get_id(*unit->owner)]) * unit_strength;
+                draw_away_force += (-ai_data.nations_risk_factor[unit->owner_id]) * unit_strength;
             }
             potential_risk[province_id] -= draw_away_force;
 
@@ -635,8 +638,9 @@ void ai_do_tick(Nation& nation) {
         for(const auto& province_id : nation.controlled_provinces) {
             const auto& province = world.provinces[province_id];
             assert(province.controller == &nation);
-            for(auto& unit : province.get_units()) {
-                if(unit->owner != &nation) continue;
+            for(auto& unit_id : province.get_units()) {
+                auto* unit = g_world->units[unit_id];
+                if(unit->owner_id != nation.get_id()) continue;
 
                 // Do not change targets
                 /// @todo Change targets when urgent
@@ -649,9 +653,9 @@ void ai_do_tick(Nation& nation) {
                         auto& neighbour = g_world->provinces[neighbour_id];
                         if(!unit->type->is_naval && neighbour.terrain_type->is_water_body) continue;
                         if(potential_risk[world.get_id(highest_risk)] < potential_risk[neighbour_id]) {
-                            if(neighbour.controller != nullptr && neighbour.controller != unit->owner) {
-                                const NationRelation& relation = world.get_relation(world.get_id(*neighbour.controller), world.get_id(*unit->owner));
-                                if(relation.has_war || relation.has_alliance || neighbour.owner == unit->owner)
+                            if(neighbour.controller != nullptr && neighbour.controller->get_id() != unit->owner_id) {
+                                const NationRelation& relation = world.get_relation(world.get_id(*neighbour.controller), unit->owner_id);
+                                if(relation.has_war || relation.has_alliance || neighbour.owner_id == unit->owner_id)
                                     highest_risk = neighbour;
                             } else {
                                 highest_risk = neighbour;
@@ -669,8 +673,8 @@ void ai_do_tick(Nation& nation) {
                     }
 
                     bool can_target = true;
-                    if(highest_risk.controller != nullptr && highest_risk.controller != unit->owner) {
-                        const NationRelation& relation = world.get_relation(world.get_id(*highest_risk.controller), world.get_id(*unit->owner));
+                    if(highest_risk.controller != nullptr && highest_risk.controller->get_id() != unit->owner_id) {
+                        const NationRelation& relation = world.get_relation(world.get_id(*highest_risk.controller), unit->owner_id);
 
                         // Can only go to a province if we have military accesss, they are our ally or if we are at war
                         // also if it's ours we can move thru it - or if it's owned by no-one

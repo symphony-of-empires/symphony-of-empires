@@ -448,7 +448,7 @@ void MapRender::update_visibility()
 
     for(const auto& unit : gs.world->units) {
         // Unit must be ours
-        if(unit->owner != gs.curr_nation) continue;
+        if(unit->owner_id != gs.curr_nation->get_id()) continue;
         this->province_opt->buffer.get()[unit->province_id] = 0x000000ff;
         for(const auto& neighbour_id : gs.world->provinces[unit->province_id].neighbours)
             this->province_opt->buffer.get()[neighbour_id] = 0x000000ff;

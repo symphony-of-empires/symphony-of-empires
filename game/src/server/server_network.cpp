@@ -126,7 +126,7 @@ void Server::net_loop(int id) {
                 if(selected_nation == nullptr && (action != ActionType::PONG && action != ActionType::CHAT_MESSAGE && action != ActionType::SELECT_NATION))
                     throw ServerException("Unallowed operation without selected nation");
                 
-                std::scoped_lock lock(g_world->world_mutex);
+                const std::scoped_lock lock(g_world->world_mutex);
                 switch(action) {
                 // - Used to test connections between server and client
                 case ActionType::PONG:
@@ -149,7 +149,7 @@ void Server::net_loop(int id) {
                     if(unit == nullptr)
                         throw ServerException("Unknown unit");
                     // Must control unit
-                    if(selected_nation != unit->owner)
+                    if(selected_nation == nullptr || selected_nation->get_id() != unit->owner_id)
                         throw ServerException("Nation does not control unit");
 
                     Province* province;
@@ -207,9 +207,11 @@ void Server::net_loop(int id) {
                     if(province == nullptr)
                         throw ServerException("Unknown province");
                     // Must not be already owned
-                    if(province->owner != nullptr)
+                    if(Nation::is_valid(province->owner_id))
                         throw ServerException("Province already has an owner");
-                    province->owner = selected_nation;
+                    if(selected_nation == nullptr)
+                        throw ServerException("You don't control a country");
+                    province->owner_id = selected_nation->get_id();
                     // Rebroadcast
                     broadcast(packet);
                 } break;
