@@ -80,6 +80,40 @@ class Serializer<NationModifier*>: public SerializerReferenceLocal<World, Nation
 template<>
 class Serializer<TerrainType*>: public SerializerReferenceLocal<World, TerrainType> {};
 
+/// @todo We need a better way to perform the serialization than copy-pasting this all over the place
+template<>
+class Serializer<const Treaty*>: public SerializerReference<World, const Treaty> {};
+template<>
+class Serializer<const Unit*>: public SerializerReference<World, const Unit> {};
+template<>
+class Serializer<const Event*>: public SerializerReferenceLocal<World, const Event> {};
+template<>
+class Serializer<const Province*>: public SerializerReferenceLocal<World, const Province> {};
+template<>
+class Serializer<const Nation*>: public SerializerReferenceLocal<World, const Nation> {};
+template<>
+class Serializer<const Culture*>: public SerializerReferenceLocal<World, const Culture> {};
+template<>
+class Serializer<const Good*>: public SerializerReferenceLocal<World, const Good> {};
+template<>
+class Serializer<const UnitType*>: public SerializerReferenceLocal<World, const UnitType> {};
+template<>
+class Serializer<const UnitTrait*>: public SerializerReferenceLocal<World, const UnitTrait> {};
+template<>
+class Serializer<const BuildingType*>: public SerializerReferenceLocal<World, const BuildingType> {};
+template<>
+class Serializer<const Ideology*>: public SerializerReferenceLocal<World, const Ideology> {};
+template<>
+class Serializer<const Technology*>: public SerializerReferenceLocal<World, const Technology> {};
+template<>
+class Serializer<const PopType*>: public SerializerReferenceLocal<World, const PopType> {};
+template<>
+class Serializer<const Religion*>: public SerializerReferenceLocal<World, const Religion> {};
+template<>
+class Serializer<const NationModifier*>: public SerializerReferenceLocal<World, const NationModifier> {};
+template<>
+class Serializer<const TerrainType*>: public SerializerReferenceLocal<World, const TerrainType> {};
+
 // Other objects
 template<>
 class Serializer<PopGroup>: public SerializerMemcpy<PopGroup> {};
