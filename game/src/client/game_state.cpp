@@ -319,8 +319,8 @@ void save(GameState& gs) {
                     continue;
                 }
 
-                it->size = std::min<Eng3D::Number>(it->size, 10000000.f); // Limit pop size
-                it->literacy = std::min<Eng3D::Decimal>(it->literacy, 1.f); // Limit literacy
+                it->size = std::min<float>(it->size, 10000000.f); // Limit pop size
+                it->literacy = std::min<float>(it->literacy, 1.f); // Limit literacy
                 it++;
             }
 

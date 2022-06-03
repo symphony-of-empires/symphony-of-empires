@@ -92,11 +92,11 @@ public:
     // We used to calculate these per each economical tick but now we can just store them
     // and multiply it by the level of the factory - this is the **minimum** amount of employed
     // people we should have at a time
-    Eng3D::Number num_req_workers = 0;
+    float num_req_workers = 0;
     Good* output = nullptr; // Good that this building creates
     std::vector<Good*> inputs; // Goods required to create output
     // Required goods, first describes the id of the good and the second describes how many
-    std::vector<std::pair<Good*, Eng3D::Number>> req_goods;
+    std::vector<std::pair<Good*, float>> req_goods;
     std::vector<Technology*> req_technologies; // Required technologies to build
 };
 
@@ -110,16 +110,16 @@ public:
     bool can_do_output() const;
     bool can_build_unit() const;
 
-    Eng3D::Number build_time; // Remaining ticks until the unit is built
-    Eng3D::Decimal budget = 0.f; // Total money that the factory has
-    Eng3D::Number days_unoperational = 0; // Days that the factory has not been operational
-    Eng3D::Number level = 0; // Level/Capacity scale of the building
-    Eng3D::Number workers = 0; // Amount of workers
-    Eng3D::Decimal production_scale = 1.f; // How much of the factory is being used. From 0-1
+    float build_time; // Remaining ticks until the unit is built
+    float budget = 0.f; // Total money that the factory has
+    float days_unoperational = 0; // Days that the factory has not been operational
+    float level = 0; // Level/Capacity scale of the building
+    float workers = 0; // Amount of workers
+    float production_scale = 1.f; // How much of the factory is being used. From 0-1
     UnitType* working_unit_type = nullptr; // Unit that is currently being built here (nullptr indicates no unit)
     // Required goods for building the working unit
     /// @todo change this to a struct instead of a pair for readablity
-    std::vector<std::pair<Good*, Eng3D::Number>> req_goods_for_unit;
-    std::vector<std::pair<Good*, Eng3D::Number>> req_goods; // Required goods for construction or for repairs
-    std::vector<Eng3D::Number> stockpile; // Stockpile of inputs in the factory
+    std::vector<std::pair<Good*, float>> req_goods_for_unit;
+    std::vector<std::pair<Good*, float>> req_goods; // Required goods for construction or for repairs
+    std::vector<float> stockpile; // Stockpile of inputs in the factory
 };

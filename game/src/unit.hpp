@@ -50,16 +50,16 @@ public:
 
     Eng3D::StringRef name;
     
-    Eng3D::Decimal supply_consumption;
-    Eng3D::Decimal speed;
-    Eng3D::Decimal max_health;
-    Eng3D::Decimal defense;
-    Eng3D::Decimal attack;
-    Eng3D::Number capacity; // Capacity of units that can be carried (transport units)
-    Eng3D::Number build_time; // Time needed to build
+    float supply_consumption;
+    float speed;
+    float max_health;
+    float defense;
+    float attack;
+    float capacity; // Capacity of units that can be carried (transport units)
+    float build_time; // Time needed to build
     bool is_ground; // Can go on ground?
     bool is_naval; // Can go on water?
-    std::vector<std::pair<Good *, Eng3D::Number>> req_goods; // Required goods
+    std::vector<std::pair<Good *, float>> req_goods; // Required goods
 };
 
 // A trait for an unit; given randomly per each recruited unit
@@ -68,12 +68,12 @@ public:
     UnitTrait() {};
     ~UnitTrait() {};
     
-    Eng3D::Decimal supply_consumption_mod;
-    Eng3D::Decimal speed_mod;
-    Eng3D::Decimal max_health_mod;
-    Eng3D::Decimal defense_mod;
-    Eng3D::Decimal attack_mod;
-    Eng3D::Decimal morale_mod;
+    float supply_consumption_mod;
+    float speed_mod;
+    float max_health_mod;
+    float defense_mod;
+    float attack_mod;
+    float morale_mod;
 };
 
 // Roughly a batallion, consisting of approximately 500 soldiers each
@@ -82,10 +82,10 @@ public:
     Unit() {};
     ~Unit() {};
     void attack(Unit& enemy);
-    std::pair<Eng3D::Number, Eng3D::Number> get_pos() const;
+    std::pair<float, float> get_pos() const;
     void set_target(Province& province);
-    Eng3D::Decimal get_speed(const Province& province) const;
-    Eng3D::Decimal get_speed() const;
+    float get_speed(const Province& province) const;
+    float get_speed() const;
     void set_province(Province& province);
 
     /**
@@ -103,13 +103,13 @@ public:
     uint16_t owner_id; // Who owns this unit
     Province::Id target_province_id = Province::invalid();
     Province::Id province_id = Province::invalid();
-    Eng3D::Number size; // Size of the unit (soldiers in unit)
+    float size; // Size of the unit (soldiers in unit)
     // Base size of the unit (max size due to anti-attrition)
-    Eng3D::Number base;
-    Eng3D::Decimal move_progress;
-    Eng3D::Decimal morale;
-    Eng3D::Decimal experience; // For perspective, 0.5 is the normal unit (i.e a soldier POP)
-    Eng3D::Decimal supply; // Available supplies, 1.0 is all supplies fullfilled, lower than that and the unit starts shrinking
-    Eng3D::Decimal budget; // Money that the unit has
+    float base;
+    float move_progress;
+    float morale;
+    float experience; // For perspective, 0.5 is the normal unit (i.e a soldier POP)
+    float supply; // Available supplies, 1.0 is all supplies fullfilled, lower than that and the unit starts shrinking
+    float budget; // Money that the unit has
     bool on_battle = false;
 };

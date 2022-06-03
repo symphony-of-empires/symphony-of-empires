@@ -49,7 +49,7 @@ public:
     ~PopType() {};
 
     Eng3D::StringRef name;
-    Eng3D::Decimal social_value;
+    float social_value;
     enum PopGroup group;
     std::vector<float> basic_needs_amount; // Amount of goods needed to satisfy basic needs
     std::vector<float> luxury_needs_satisfaction; // Amount of satisfaction each luxury good gives
@@ -70,13 +70,13 @@ public:
     Culture* culture;
     Religion* religion;
 
-    Eng3D::Number size = 0.f;
-    Eng3D::Decimal life_needs_met = 0.f;
-    Eng3D::Decimal everyday_needs_met = 0.f;
-    Eng3D::Decimal luxury_needs_met = 0.f;
-    Eng3D::Decimal literacy = 0.f;
-    Eng3D::Decimal militancy = 0.f;
-    Eng3D::Decimal budget = 0.f;
-    Eng3D::Decimal savings = 0.f;
-    std::vector<Eng3D::Decimal> ideology_approval; // Approval % of all the ideologies (1:1)
+    float size = 0.f;
+    float life_needs_met = 0.f;
+    float everyday_needs_met = 0.f;
+    float luxury_needs_met = 0.f;
+    float literacy = 0.f;
+    float militancy = 0.f;
+    float budget = 0.f;
+    float savings = 0.f;
+    std::vector<float> ideology_approval; // Approval % of all the ideologies (1:1)
 };

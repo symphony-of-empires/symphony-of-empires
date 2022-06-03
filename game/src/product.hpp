@@ -54,7 +54,7 @@ public:
         }
 
         // Set the new price
-        this->price = std::max<Eng3D::Decimal>(0.01f, this->price + this->price_vel);
+        this->price = std::max<float>(0.01f, this->price + this->price_vel);
 
         // Save prices and stuff onto history (for the charts!)
         this->demand_history.push_back(this->demand);
@@ -73,19 +73,19 @@ public:
     }
 
     // Price of the product
-    Eng3D::Decimal price;
+    float price;
 
     // Velocity of change of price of the product
-    Eng3D::Decimal price_vel;
+    float price_vel;
 
     // Total supply of the product
-    Eng3D::Number supply;
+    float supply;
 
     // Total demand of the product
-    Eng3D::Number demand;
+    float demand;
 
     // History of price, supply and demand for the past 30 days
-    std::deque<Eng3D::Decimal> price_history;
-    std::deque<Eng3D::Number> supply_history;
-    std::deque<Eng3D::Number> demand_history;
+    std::deque<float> price_history;
+    std::deque<float> supply_history;
+    std::deque<float> demand_history;
 };
