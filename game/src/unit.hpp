@@ -86,7 +86,6 @@ public:
     void set_target(Province& province);
     float get_speed(const Province& province) const;
     float get_speed() const;
-    void set_province(Province& province);
 
     /**
      * @brief Checks if the unit can move (if it can set_province)
@@ -102,7 +101,9 @@ public:
     UnitType* type; // Type of unit
     uint16_t owner_id; // Who owns this unit
     Province::Id target_province_id = Province::invalid();
-    Province::Id province_id = Province::invalid();
+    // Province::Id province_id = Province::invalid();
+    Province::Id province_id() const;
+
     float size; // Size of the unit (soldiers in unit)
     // Base size of the unit (max size due to anti-attrition)
     float base;
@@ -112,4 +113,38 @@ public:
     float supply; // Available supplies, 1.0 is all supplies fullfilled, lower than that and the unit starts shrinking
     float budget; // Money that the unit has
     bool on_battle = false;
+};
+
+class UnitManager {
+public:
+    UnitManager() {};
+    // Fill in the relationship vectors for each nation
+    void init(World& world);
+
+    void add_unit(Unit unit, Province::Id unit_current_province);
+    void remove_unit(Unit::Id unit);
+    void move_unit(Unit::Id unit, Province::Id target_province);
+
+    template<typename T>
+    inline void for_each_unit(T const& lambda) {
+        for(Unit::Id id = 0; id < units.size(); id++) {
+            if (units[id].is_valid())
+                lambda(units[id]);
+        }
+    }
+    inline std::vector<Province::Id> get_province_units(Province::Id province_id) const {
+        return province_units[province_id];
+    }
+    inline Province::Id get_unit_current_province(Unit::Id unit_id) const {
+        return unit_province[unit_id];
+    }
+
+    // The actual units
+    std::vector<Unit> units;
+    // The unit slots that are free to use
+    std::vector<Unit::Id> free_unit_slots;
+    // Vector for each unit
+    std::vector<Province::Id> unit_province;
+    // Vector for each province
+    std::vector<std::vector<Unit::Id>> province_units;
 };

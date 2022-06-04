@@ -349,7 +349,7 @@ static inline Unit* build_unit(Building& building, Province& province) {
     if(can_build_unit && final_size) {
         // Spawn a unit
         Unit* unit = new Unit();
-        unit->set_province(province);
+        unit->target_province_id = province.cached_id;
         unit->type = building.working_unit_type;
         unit->owner_id = province.owner_id;
         unit->budget = 5000.f;
@@ -543,7 +543,9 @@ void Economy::do_tick(World& world) {
     province_new_units.combine_each([&world](const auto& unit_list) {
         for(const auto& unit : unit_list) {
             // Now commit the transaction of the new units into the main world area
-            world.insert(*unit);
+            Province::Id target_province_id = unit->target_province_id;
+            unit->target_province_id = Province::invalid();
+            world.unit_manager.add_unit(*unit, target_province_id);
             g_server->broadcast(Action::UnitAdd::form_packet(*unit));
         }
     });

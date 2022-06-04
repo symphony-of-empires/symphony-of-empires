@@ -154,6 +154,6 @@ namespace Action {
 
     class UnitUpdate {
     public:
-        static Eng3D::Networking::Packet form_packet(const std::vector<Unit*>& units);
+        static Eng3D::Networking::Packet form_packet(const std::vector<Unit>& units);
     };
 };

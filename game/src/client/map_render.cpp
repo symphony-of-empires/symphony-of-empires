@@ -446,13 +446,14 @@ void MapRender::update_visibility()
             this->province_opt->buffer.get()[neighbour_id] = 0x000000ff;
     }
 
-    for(const auto& unit : gs.world->units) {
+    gs.world->unit_manager.for_each_unit([this, &gs](Unit& unit) {
         // Unit must be ours
-        if(unit->owner_id != gs.curr_nation->get_id()) continue;
-        this->province_opt->buffer.get()[unit->province_id] = 0x000000ff;
-        for(const auto& neighbour_id : gs.world->provinces[unit->province_id].neighbours)
+        if(unit.owner_id != gs.curr_nation->get_id()) return;
+        auto prov_id = gs.world->unit_manager.get_unit_current_province(unit.cached_id);
+        this->province_opt->buffer.get()[prov_id] = 0x000000ff;
+        for(const auto& neighbour_id : gs.world->provinces[prov_id].neighbours)
             this->province_opt->buffer.get()[neighbour_id] = 0x000000ff;
-    }
+    });
     if(gs.map->province_selected)
         this->province_opt->buffer.get()[gs.map->selected_province_id] = 0x400000ff;
     this->province_opt->upload(no_drop_options);

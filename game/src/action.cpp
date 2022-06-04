@@ -182,11 +182,13 @@ Eng3D::Networking::Packet UnitAdd::form_packet(const Unit& unit) {
     ActionType action = ActionType::UNIT_ADD;
     ::serialize(ar, &action);
     ::serialize(ar, &unit);
+    Province::Id prov_id = unit.province_id();
+    ::serialize(ar, &prov_id);
     packet.data(ar.get_buffer(), ar.size());
     return packet;
 }
 
-Eng3D::Networking::Packet UnitUpdate::form_packet(const std::vector<Unit*>& units) {
+Eng3D::Networking::Packet UnitUpdate::form_packet(const std::vector<Unit>& units) {
     Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
     Archive ar = Archive();
     ActionType action = ActionType::UNIT_UPDATE;
@@ -195,7 +197,6 @@ Eng3D::Networking::Packet UnitUpdate::form_packet(const std::vector<Unit*>& unit
     ::serialize(ar, &size);
     for(const auto& unit : units) {
         ::serialize(ar, &unit);
-        ::serialize(ar, unit);
     }
     packet.data(ar.get_buffer(), ar.size());
     return packet;

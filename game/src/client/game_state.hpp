@@ -34,6 +34,7 @@
 #include "eng3d/audio.hpp"
 #include "eng3d/state.hpp"
 #include "eng3d/decimal.hpp"
+#include "unit.hpp"
 
 enum class MapMode : unsigned char {
     COUNTRY_SELECT,
@@ -42,7 +43,6 @@ enum class MapMode : unsigned char {
     DISPLAY_ONLY,
 };
 
-class Unit;
 class Building;
 class Culture;
 class Religion;
@@ -54,7 +54,7 @@ public:
     std::pair<float, float> last_camera_mouse_pos;
     std::pair<int, int> mouse_pos;
 
-    std::vector<Unit*> selected_units;
+    std::vector<Unit::Id> selected_units;
 
     Culture* selected_culture = nullptr;
     Religion* selected_religion = nullptr;
