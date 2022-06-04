@@ -317,29 +317,6 @@ void save(GameState& gs) {
             fprintf(fp.get(), "n_%s=Nation:get(\"%s\")\n", nation.ref_name.c_str(), nation.ref_name.c_str());
         for(auto& province : gs.world->provinces) {
             if(province.neighbours.empty()) continue;
-            // Remove pops with 0 size and ones that are redundant/duplicated
-            for(auto it = province.pops.begin(); it != province.pops.end(); ) {
-                // Delete ill'formed or invalid pops
-                if(!it->size) {
-                    province.pops.erase(it);
-                    it = province.pops.begin();
-                    continue;
-                }
-
-                // Merge duplicate pops
-                auto dup_it = std::find(province.pops.begin(), province.pops.end(), *it);
-                if(dup_it != province.pops.end() && dup_it != it) {
-                    it->budget += dup_it->budget;
-                    it->size += dup_it->size;
-                    province.pops.erase(dup_it);
-                    it = province.pops.begin();
-                    continue;
-                }
-
-                it->size = std::min<float>(it->size, 10000000.f); // Limit pop size
-                it->literacy = std::min<float>(it->literacy, 1.f); // Limit literacy
-                it++;
-            }
 
             if(province.terrain_type->is_water_body && (province.controller != nullptr || Nation::is_valid(province.owner_id))) {
                 for(auto& terrain : gs.world->terrain_types) {

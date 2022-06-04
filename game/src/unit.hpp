@@ -78,6 +78,9 @@ public:
 
 // Roughly a batallion, consisting of approximately 500 soldiers each
 class Unit : public IdEntity<uint16_t> {
+    Unit & operator=(const Unit&) = default;
+    friend class Client;
+    friend class UnitManager;
 public:
     Unit() {};
     ~Unit() {};
