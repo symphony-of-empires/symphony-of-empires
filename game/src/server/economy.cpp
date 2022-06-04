@@ -178,7 +178,7 @@ void economy_single_good_tick(World& world, Good& good) {
     auto province_size = world.provinces.size();
     // determine new prices
     for(uint32_t i = 0; i < province_size; i++) {
-        auto province = world.provinces[i];
+        auto& province = world.provinces[i];
         auto& product = province.products[good_id];
         auto demand = product.demand;
         auto supply = product.supply;
