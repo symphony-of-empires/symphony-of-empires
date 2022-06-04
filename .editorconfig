@@ -57,3 +57,10 @@ cpp_space_around_assignment_operator=insert
 cpp_space_pointer_reference_alignment=left
 cpp_space_around_ternary_operator=insert
 cpp_wrap_preserve_blocks=one_liners
+insert_final_newline = true
+trim_trailing_whitespace = true
+charset = utf-8
+
+[**.{cpp,hpp,lua}]
+indent_style = space
+indent_size = 4
