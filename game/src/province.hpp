@@ -110,4 +110,6 @@ public:
     std::vector<uint16_t> units_ids;
     std::unordered_set<uint16_t> nuclei; // Nations who have a nuclei in this province
     std::unordered_set<Province::Id> neighbours; // Neighbouring provinces
+
+    void clean_pops();
 };

@@ -57,6 +57,8 @@ public:
 };
 
 class Pop {
+    Pop & operator=(const Pop&) = default;
+    friend class Province;
 public:
     Pop() {};
     ~Pop() {};

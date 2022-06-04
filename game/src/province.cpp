@@ -31,6 +31,8 @@
 #include "building.hpp"
 #include "pop.hpp"
 
+#include "eng3d/common.hpp"
+
 //
 // Province
 //
@@ -78,4 +80,34 @@ void Province::add_building(const BuildingType& building_type) {
 
 bool Province::is_neighbour(Province& province) const {
     return std::find(this->neighbours.begin(), this->neighbours.end(), g_world->get_id(province)) != this->neighbours.end();
+}
+
+void Province::clean_pops() {
+    // Remove pops with 0 size and ones that are redundant/duplicated
+    for(auto it = pops.begin(); it != pops.end(); ) {
+        // Delete ill'formed or invalid pops
+        if(!it->size) {
+            // Overwrite with last one and remove last one
+            *it = pops.back();
+            pops.pop_back();
+            it = pops.begin();
+            continue;
+        }
+
+        // Merge duplicate pops
+        auto dup_it = std::find(pops.begin(), pops.end(), *it);
+        if(dup_it != pops.end() && dup_it != it) {
+            it->budget += dup_it->budget;
+            it->size += dup_it->size;
+            // Overwrite with last one and remove last one
+            *it = pops.back();
+            pops.pop_back();
+            it = pops.begin();
+            continue;
+        }
+
+        it->size = std::min<float>(it->size, 10000000.f); // Limit pop size
+        it->literacy = std::min<float>(it->literacy, 1.f); // Limit literacy
+        it++;
+    }
 }
