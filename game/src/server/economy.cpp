@@ -66,7 +66,7 @@ struct PopNeed {
 };
 
 void militancy_update(World& world, Nation& nation) {
-    for(const auto& province_id : nation.controlled_provinces) {
+    for(const auto province_id : nation.controlled_provinces) {
         auto& province = world.provinces[province_id];
         for(auto& pop : province.pops) {
             // More literacy means more educated persons with less children
@@ -90,7 +90,7 @@ void militancy_update(World& world, Nation& nation) {
     std::vector<float> ideology_anger(world.ideologies.size(), 0.f);
     const float coup_chances = 1000.f;
     auto rand = Eng3D::get_local_generator();
-    for(const auto& province_id : nation.controlled_provinces) {
+    for(const auto province_id : nation.controlled_provinces) {
         const auto& province = world.provinces[province_id];
         for(const auto& pop : province.pops) {
             /// @todo Ok, look, the justification is that educated people
@@ -109,7 +109,7 @@ void militancy_update(World& world, Nation& nation) {
 #if 0 /// @todo Fix so this works in parrallel
         // Compile list of uprising provinces
         std::vector<Province*> uprising_provinces;
-        for(const auto& province_id : nation->owned_provinces) {
+        for(const auto province_id : nation->owned_provinces) {
             const auto& province = world.provinces[province_id];
             float province_anger = 0.f;
             float province_threshold = 0.f;
@@ -130,7 +130,7 @@ void militancy_update(World& world, Nation& nation) {
             /// @todo We should make a copy of the `rebel` nation for every rebellion!!!
             /// @todo We should also give them an unique ideology!!!
             rebel_nation->give_province(*province);
-            for(auto& unit_id : province->get_units()) {
+            for(const auto unit_id : province->get_units()) {
                 auto* unit = g_world->units[unit_id];
                 unit->owner_id = rebel_nation->get_id();
             }
@@ -160,7 +160,7 @@ void militancy_update(World& world, Nation& nation) {
         // Switch ideologies of nation
         nation.ideology = &world.ideologies[idx];
         // People who are aligned to the ideology are VERY happy now
-        for(const auto& province_id : nation.owned_provinces) {
+        for(const auto province_id : nation.owned_provinces) {
             auto& province = world.provinces[province_id];
             for(auto& pop : province.pops)
                 pop.militancy = -50.f;
@@ -369,13 +369,12 @@ void Economy::do_tick(World& world) {
             const size_t province_neighbours_size = province.neighbours.size();
             Product& product = province.products[market.good];
             if(product.supply <= 0.f) continue;
-            for(auto neighbour_id : province.neighbours) {
+            for(const auto neighbour_id : province.neighbours) {
                 auto& neighbour = g_world->provinces[neighbour_id];
                 if(Nation::is_valid(neighbour.owner_id)) continue;
                 const size_t neighbour_neighbours_size = neighbour.neighbours.size();
                 Product& other_product = neighbour.products[market.good];
-
-                // transfer goods
+                // Transfer goods
                 if(other_product.price > product.price) {
                     float amount = product.supply / province_neighbours_size;
                     market.supply[i] -= amount;
@@ -392,7 +391,7 @@ void Economy::do_tick(World& world) {
     int coastal = 0;
     for(size_t i = 0; i < world.provinces.size(); i++) {
         Province& province = world.provinces[i];
-        for(auto neighbour_id : province.neighbours) {
+        for(const auto neighbour_id : province.neighbours) {
             auto& neighbour = g_world->provinces[neighbour_id];
             if(neighbour.terrain_type->is_water_body) {
                 coastal++;
@@ -419,8 +418,8 @@ void Economy::do_tick(World& world) {
     tbb::combinable<tbb::concurrent_vector<Unit>> province_new_units;
     std::vector<std::vector<float>> buildings_new_worker(provinces_size);
     std::vector<std::vector<PopNeed>> pops_new_needs(provinces_size);
-    tbb::parallel_for(tbb::blocked_range(province_ids.begin(), province_ids.end()), [&world, &buildings_new_worker, &province_new_units, &pops_new_needs, provinces_size](const auto& province_ids_ranges) {
-        for(const auto& province_id : province_ids_ranges) {
+    tbb::parallel_for(tbb::blocked_range(province_ids.begin(), province_ids.end()), [&world, &buildings_new_worker, &province_new_units, &pops_new_needs, provinces_size](const auto province_ids_ranges) {
+        for(const auto province_id : province_ids_ranges) {
             Province& province = world.provinces[province_id];
             float laborers_payment = 0.f;
             for(auto& building_type : world.building_types) {
@@ -502,7 +501,7 @@ void Economy::do_tick(World& world) {
     // -------------------------- MUTEX PROTECTED WORLD CHANGES BELOW -------------------------------
     std::scoped_lock lock(world.world_mutex);
 
-    std::for_each(std::execution::par, province_ids.begin(), province_ids.end(), [&world, &pops_new_needs, &buildings_new_worker](const auto& province_id) {
+    std::for_each(std::execution::par, province_ids.begin(), province_ids.end(), [&world, &pops_new_needs, &buildings_new_worker](const auto province_id) {
         Province& province = world.provinces[province_id];
         std::vector<PopNeed>& new_needs = pops_new_needs[province_id];
         for(uint32_t i = 0; i < province.pops.size(); i++) {

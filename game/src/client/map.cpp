@@ -69,7 +69,7 @@
 
 static inline void get_blob_bounds(std::unordered_set<Province*>& visited_provinces, const Nation& nation, const Province& province, glm::vec2* min_x, glm::vec2* min_y, glm::vec2* max_x, glm::vec2* max_y) {
     // Iterate over all neighbours
-    for(const auto& neighbour_id : province.neighbours) {
+    for(const auto neighbour_id : province.neighbours) {
         auto& neighbour = g_world->provinces[neighbour_id];
         // Do not visit again
         if(visited_provinces.find(&neighbour) != visited_provinces.end()) continue;
@@ -364,9 +364,9 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             }
         }
 
-        for(const auto& unit_id : gs.input.selected_units) {
+        for(const auto unit_id : gs.input.selected_units) {
             auto& unit = gs.world->unit_manager.units[unit_id];
-            auto& province_id = gs.world->unit_manager.unit_province[unit_id];
+            auto province_id = gs.world->unit_manager.unit_province[unit_id];
             if(!gs.world->provinces[province_id].is_neighbour(province) || !unit.can_move()) continue;
             // Don't change target if ID is the same...
             if(province_id == gs.world->get_id(province) || unit.target_province_id == gs.world->get_id(province))
@@ -575,7 +575,7 @@ void Map::draw(const GameState& gs) {
         const glm::vec2 prov_pos = glm::vec2(province.get_pos().first, province.get_pos().second);
 
         unsigned int i = 0;
-        for(const auto& unit_id : province.get_units()) {
+        for(const auto unit_id : province.get_units()) {
             glm::vec2 pos = prov_pos;
             pos.x -= 1.5f * ((province.get_units().size() / 2) - i);
             pos.y -= y;
@@ -615,7 +615,7 @@ void Map::draw(const GameState& gs) {
     //*/
 
     // Highlight for units
-    for(const auto& unit_id : gs.input.selected_units) {
+    for(const auto unit_id : gs.input.selected_units) {
         auto& unit = gs.world->unit_manager.units[unit_id];
         const std::pair<float, float> pos = unit.get_pos();
         glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));

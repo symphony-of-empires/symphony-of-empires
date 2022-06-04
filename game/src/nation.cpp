@@ -171,7 +171,7 @@ void Nation::set_policy(const Policies& policies) {
 
     unsigned int approvals = 0, disapprovals = 0;
     std::vector<Pop*> disapprovers, approvers;
-    for(const auto& province_id : owned_provinces) {
+    for(const auto province_id : owned_provinces) {
         auto& province = World::get_instance().provinces[province_id];
         for(auto& pop : province.pops) {
             // Must have the minimum required social value
@@ -300,7 +300,7 @@ const NationClientHint& Nation::get_client_hint() const {
 
 float Nation::get_research_points() const {
     float research = 0.f;
-    for(const auto& province_id : this->owned_provinces) {
+    for(const auto province_id : this->owned_provinces) {
         const auto& province = World::get_instance().provinces[province_id];
         for(const auto& pop : province.pops)
             research += pop.size * pop.literacy;
