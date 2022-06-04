@@ -282,7 +282,6 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->free_unit_slots);
         ::deser_dynamic<is_serialize>(ar, &obj->unit_province);
         ::deser_dynamic<is_serialize>(ar, &obj->province_units);
-
     }
 };
 
