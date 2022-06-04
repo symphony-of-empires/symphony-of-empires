@@ -62,7 +62,7 @@ Province::Id Unit::province_id() const {
     return world.unit_manager.unit_province[cached_id];
 }
 
-void Unit::set_target(Province& _province) {
+void Unit::set_target(const Province& _province) {
     assert(this->target_province_id != this->province_id());
 
     const World& world = World::get_instance();

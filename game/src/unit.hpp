@@ -83,7 +83,7 @@ public:
     ~Unit() {};
     void attack(Unit& enemy);
     std::pair<float, float> get_pos() const;
-    void set_target(Province& province);
+    void set_target(const Province& province);
     float get_speed(const Province& province) const;
     float get_speed() const;
 
