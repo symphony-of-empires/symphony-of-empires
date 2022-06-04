@@ -145,10 +145,9 @@ public:
     UI::Widget* right_side_panel = nullptr;
 
     bool in_game = false;
-    // Settings
-    bool motion_blur = true;
-    // Editor options
-    bool editor = true;
+    bool motion_blur = true; // Settings
+    bool editor = true; // Editor options
+    bool show_ui = true;
 };
 
 // Run world tick and pending commands

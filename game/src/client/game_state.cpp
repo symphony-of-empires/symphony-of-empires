@@ -141,17 +141,21 @@ void handle_event(Input& input, GameState& gs) {
         case SDL_CONTROLLERDEVICEADDED:
             break;
         case SDL_MOUSEBUTTONDOWN:
-            click_on_ui = ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
-            if(event.button.button == SDL_BUTTON_LEFT) {
-                SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
-                ui_ctx->check_drag(mouse_pos.first, mouse_pos.second);
+            if(gs.show_ui) {
+                click_on_ui = ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
+                if(event.button.button == SDL_BUTTON_LEFT) {
+                    SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
+                    ui_ctx->check_drag(mouse_pos.first, mouse_pos.second);
+                }
             }
-            if(event.button.button == SDL_BUTTON_MIDDLE) {
+            
+            if(event.button.button == SDL_BUTTON_MIDDLE)
                 input.middle_mouse_down = true;
-            }
             break;
         case SDL_JOYBUTTONDOWN:
-            ui_ctx->check_drag(mouse_pos.first, mouse_pos.second);
+            if(gs.show_ui) {
+                ui_ctx->check_drag(mouse_pos.first, mouse_pos.second);
+            }
             break;
         case SDL_MOUSEBUTTONUP:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
@@ -160,9 +164,11 @@ void handle_event(Input& input, GameState& gs) {
                 break;
             }
 
-            click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
-            if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
-                gs.map->handle_click(gs, event);
+            if(gs.show_ui) {
+                click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
+                if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
+                    gs.map->handle_click(gs, event);
+                }
             }
 
             if(click_on_ui) {
@@ -173,9 +179,11 @@ void handle_event(Input& input, GameState& gs) {
             }
             break;
         case SDL_JOYBUTTONUP:
-            click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
-            if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
-                gs.map->handle_click(gs, event);
+            if(gs.show_ui) {
+                click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
+                if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
+                    gs.map->handle_click(gs, event);
+                }
             }
 
             if(click_on_ui) {
@@ -187,19 +195,28 @@ void handle_event(Input& input, GameState& gs) {
             break;
         case SDL_MOUSEMOTION:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
-            click_on_ui = ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
+            if(gs.show_ui) {
+                click_on_ui = ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
+            }
             break;
         case SDL_MOUSEWHEEL:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
-            ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
-            click_on_ui = ui_ctx->check_wheel(mouse_pos.first, mouse_pos.second, event.wheel.y * 6);
+            if(gs.show_ui) {
+                ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
+                click_on_ui = ui_ctx->check_wheel(mouse_pos.first, mouse_pos.second, event.wheel.y * 6);
+            }
             break;
         case SDL_TEXTINPUT:
-            ui_ctx->check_text_input((const char*)&event.text.text);
+            if(gs.show_ui) {
+                ui_ctx->check_text_input((const char*)&event.text.text);
+            }
             break;
         case SDL_KEYDOWN:
             switch(Eng3D::Keyboard::from_sdlk(event.key.keysym.sym)) {
             case Eng3D::Keyboard::Key::F1:
+                gs.show_ui = !gs.show_ui;
+                break;
+            case Eng3D::Keyboard::Key::F2:
                 if(gs.current_mode == MapMode::NORMAL) {
                     if(gs.profiler_view) {
                         delete gs.profiler_view;
@@ -209,7 +226,7 @@ void handle_event(Input& input, GameState& gs) {
                     }
                 }
                 break;
-            case Eng3D::Keyboard::Key::F2:
+            case Eng3D::Keyboard::Key::F3:
                 if(gs.editor)
                     break;
 
@@ -224,11 +241,11 @@ void handle_event(Input& input, GameState& gs) {
                     }
                 }
                 break;
-            case Eng3D::Keyboard::Key::F3:
+            case Eng3D::Keyboard::Key::F4:
                 if(!click_on_ui)
                     new Interface::AISettingsWindow(gs);
                 break;
-            case Eng3D::Keyboard::Key::F4:
+            case Eng3D::Keyboard::Key::F5:
                 if(gs.editor)
                     break;
 
@@ -784,7 +801,9 @@ void start_client(int argc, char** argv) {
             gs.map->draw(gs);
         }
         gs.ui_ctx->clear_dead();
-        gs.ui_ctx->render_all(glm::ivec2(gs.input.mouse_pos.first, gs.input.mouse_pos.second));
+        if(gs.show_ui) {
+            gs.ui_ctx->render_all(glm::ivec2(gs.input.mouse_pos.first, gs.input.mouse_pos.second));
+        }
         gs.swap();
         gs.world->profiler.render_done();
     }
