@@ -747,7 +747,7 @@ void World::do_tick() {
                     if(battle.defenders_ids.empty()) {
                         this->nations[units[battle.attackers_ids[0]].owner_id].control_province(province);
                         // Clear flags of all units
-                        for(auto& unit_id : battle.attackers_ids) {
+                        for(const auto unit_id : battle.attackers_ids) {
                             auto& unit = units[unit_id];
                             unit.on_battle = false;
                         }
@@ -756,7 +756,7 @@ void World::do_tick() {
                     // Defenders won
                     else if(battle.attackers_ids.empty()) {
                         this->nations[units[battle.defenders_ids[0]].owner_id].control_province(province);
-                        for(auto& unit_id : battle.defenders_ids) {
+                        for(const auto unit_id : battle.defenders_ids) {
                             auto& unit = units[unit_id];
                             unit.on_battle = false;
                         }

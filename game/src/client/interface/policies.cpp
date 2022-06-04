@@ -94,7 +94,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
             return;
 
         float num = 0.f;
-        for(const auto& province_id : this->gs.curr_nation->owned_provinces) {
+        for(const auto province_id : this->gs.curr_nation->owned_provinces) {
             const auto& province = this->gs.world->provinces[province_id];
             for(const auto& pop : province.pops)
                 num += pop.militancy;

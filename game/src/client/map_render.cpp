@@ -439,10 +439,10 @@ void MapRender::update_visibility()
     for(unsigned int i = 0; i < 256 * 256; i++)
         province_opt->buffer.get()[i] = 0x00000080;
 
-    for(const auto& province_id : gs.curr_nation->controlled_provinces) {
+    for(const auto province_id : gs.curr_nation->controlled_provinces) {
         const auto& province = gs.world->provinces[province_id];
         this->province_opt->buffer.get()[province_id] = 0x000000ff;
-        for(const auto& neighbour_id : province.neighbours)
+        for(const auto neighbour_id : province.neighbours)
             this->province_opt->buffer.get()[neighbour_id] = 0x000000ff;
     }
 
@@ -451,7 +451,7 @@ void MapRender::update_visibility()
         if(unit.owner_id != gs.curr_nation->get_id()) return;
         auto prov_id = gs.world->unit_manager.get_unit_current_province(unit.cached_id);
         this->province_opt->buffer.get()[prov_id] = 0x000000ff;
-        for(const auto& neighbour_id : gs.world->provinces[prov_id].neighbours)
+        for(const auto neighbour_id : gs.world->provinces[prov_id].neighbours)
             this->province_opt->buffer.get()[neighbour_id] = 0x000000ff;
     });
     if(gs.map->province_selected)
