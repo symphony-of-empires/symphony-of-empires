@@ -497,7 +497,6 @@ void World::load_mod() {
 static inline void unit_do_tick(Unit& unit)
 {
     assert(Province::is_valid(unit.province_id()));
-
     // Do not evaluate if we have an ongoing battle
     if(unit.on_battle) {
         unit.target_province_id = Province::invalid();
