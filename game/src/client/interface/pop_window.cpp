@@ -50,7 +50,7 @@ PopWindow::PopWindow(GameState& gs)
     const Nation& nation = *gs.curr_nation;
 
     int size = 0;
-    for(auto province_id : nation.owned_provinces)
+    for(const auto province_id : nation.owned_provinces)
         size += gs.world->provinces[province_id].pops.size();
 
     std::vector<int> sizes{ 75, 200, 100, 100, 120, 50, 50, 70, 70 };
@@ -59,7 +59,7 @@ PopWindow::PopWindow(GameState& gs)
     this->width = table->width + 5 + this->padding.x;
     table->reserve(size);
     table->on_each_tick = [this, nation, table](UI::Widget&) {
-        for(auto province_id : nation.owned_provinces) {
+        for(const auto province_id : nation.owned_provinces) {
             const auto& province = this->gs.world->provinces[province_id];
             uint16_t prov_id = province.cached_id;
             for(auto& pop : province.pops) {

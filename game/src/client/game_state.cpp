@@ -387,7 +387,7 @@ void save(GameState& gs) {
                     fprintf(fp.get(), "n_%s:set_capital(province)\n", gs.world->nations[province.owner_id].ref_name.c_str());
             }
             // Units
-            for(const auto& unit_id : province.get_units()) {
+            for(const auto unit_id : province.get_units()) {
                 auto& unit = g_world->unit_manager.units[unit_id];
                 // Units can't exceed max health
                 if(unit.size > unit.type->max_health)
@@ -763,7 +763,7 @@ void start_client(int argc, char** argv) {
                         /// @todo Make a better queue AI
                         bool is_built = false;
                         for(auto& building_type : gs.world->building_types) {
-                            for(const auto& province_id : gs.curr_nation->controlled_provinces) {
+                            for(const auto province_id : gs.curr_nation->controlled_provinces) {
                                 auto& province = gs.world->provinces[province_id];
                                 Building& building = province.get_buildings()[gs.world->get_id(building_type)];
                                 // Must not be working on something else

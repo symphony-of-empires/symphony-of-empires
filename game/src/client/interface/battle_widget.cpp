@@ -58,7 +58,7 @@ BattleWidget::BattleWidget(Province& _province, size_t _idx, Map& _map, UI::Widg
         if(this->idx >= this->province.battles.size()) return;
         const Battle& battle = this->province.battles[this->idx];
         auto unit_size = 0;
-        for(const auto& unit_id : battle.attackers_ids) {
+        for(const auto unit_id : battle.attackers_ids) {
             const auto& unit = g_world->unit_manager.units[unit_id];
             unit_size += (int)unit.size;
         }
@@ -73,7 +73,7 @@ BattleWidget::BattleWidget(Province& _province, size_t _idx, Map& _map, UI::Widg
         if(this->idx >= this->province.battles.size()) return;
         const Battle& battle = this->province.battles[this->idx];
         auto unit_size = 0;
-        for(const auto& unit_id : battle.defenders_ids) {
+        for(const auto unit_id : battle.defenders_ids) {
             const auto& unit = g_world->unit_manager.units[unit_id];
             unit_size += (int)unit.size;
         }

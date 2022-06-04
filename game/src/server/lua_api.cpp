@@ -340,7 +340,7 @@ int LuaAPI::get_provinces_owned_by_nation(lua_State* L) {
     lua_newtable(L);
 
     size_t i = 0;
-    for(const auto& province_id : nation.owned_provinces) {
+    for(const auto province_id : nation.owned_provinces) {
         lua_pushnumber(L, province_id);
         lua_rawseti(L, -2, i + 1);
         ++i;
@@ -717,8 +717,8 @@ int LuaAPI::give_province_to(lua_State* L) {
 int LuaAPI::give_hard_province_to(lua_State* L) {
     Province& province = g_world->provinces.at(lua_tonumber(L, 1));
     Nation& nation = g_world->nations.at(lua_tonumber(L, 2));
-    auto unit_ids = g_world->unit_manager.get_province_units(province.cached_id);
-    for(auto& unit_id : unit_ids) {
+    const auto& unit_ids = g_world->unit_manager.get_province_units(province.cached_id);
+    for(const auto unit_id : unit_ids) {
         auto& unit = g_world->unit_manager.units[unit_id];
         if(unit.province_id() == g_world->get_id(province) && province.controller != nullptr && unit.owner_id == province.controller->get_id())
             unit.owner_id = nation.get_id();
@@ -749,7 +749,7 @@ int LuaAPI::get_province_neighbours(lua_State* L) {
     const Province& province = g_world->provinces.at(lua_tonumber(L, 1));
     lua_newtable(L);
     size_t i = 0;
-    for(const auto& neighbour_id : province.neighbours) {
+    for(const auto neighbour_id : province.neighbours) {
         lua_pushnumber(L, neighbour_id);
         lua_rawseti(L, -2, i + 1);
         ++i;

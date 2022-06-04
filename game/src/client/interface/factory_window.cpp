@@ -131,7 +131,7 @@ FactoryWindow::FactoryWindow(GameState& gs)
     Nation* nation = gs.curr_nation;
 
     int size = 0;
-    for(auto province_id : nation->owned_provinces) {
+    for(const auto province_id : nation->owned_provinces) {
         const auto& province = gs.world->provinces[province_id];
         for(size_t i = 0; i < province.buildings.size(); i++) {
             auto& building = province.buildings[i];
@@ -150,7 +150,7 @@ FactoryWindow::FactoryWindow(GameState& gs)
     flex_column->flex = UI::Flex::COLUMN;
     flex_column->flex_justify = UI::FlexJustify::START;
 
-    for(auto province_id : nation->owned_provinces) {
+    for(const auto province_id : nation->owned_provinces) {
         auto& province = gs.world->provinces[province_id];
         for(size_t i = 0; i < province.buildings.size(); i++) {
             auto& building = province.buildings[i];
