@@ -330,42 +330,6 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
     }
 }
 
-// Buildings who have fullfilled requirements to build stuff will spawn a unit
-static inline Unit* build_unit(Building& building, Province& province) {
-    bool can_build_unit = building.can_build_unit();
-
-    // Ratio of health:person is 25, thus making units very expensive
-    const float army_size = 100;
-    /// @todo Consume special soldier pops instead of farmers!!!
-    auto it = std::find_if(province.pops.begin(), province.pops.end(), [building, army_size](const auto& e) {
-        return (e.size >= army_size && e.type->group == PopGroup::FARMER);
-    });
-    if(it == province.pops.end())
-        can_build_unit = false;
-
-    /// @todo Maybe delete if size becomes 0?
-    const float final_size = std::min<float>((*it).size, army_size);
-    (*it).size -= final_size;
-    if(can_build_unit && final_size) {
-        // Spawn a unit
-        Unit* unit = new Unit();
-        unit->target_province_id = province.cached_id;
-        unit->type = building.working_unit_type;
-        unit->owner_id = province.owner_id;
-        unit->budget = 5000.f;
-        unit->experience = 1.f;
-        unit->morale = 1.f;
-        unit->supply = 1.f;
-        unit->size = final_size;
-        unit->base = unit->type->max_health;
-        building.working_unit_type = nullptr;
-        Eng3D::Log::debug("economy", "[" + province.ref_name + "]: Has built an unit of [" + unit->type->ref_name + "]");
-        return unit;
-    } else {
-        return nullptr;
-    }
-}
-
 void Economy::do_tick(World& world) {
     world.profiler.start("E-init");
     std::vector<Market> markets(world.goods.size());
@@ -452,7 +416,7 @@ void Economy::do_tick(World& world) {
     }
     province_ids.resize(last_id);
 
-    tbb::combinable<tbb::concurrent_vector<Unit*>> province_new_units;
+    tbb::combinable<tbb::concurrent_vector<Unit>> province_new_units;
     std::vector<std::vector<float>> buildings_new_worker(provinces_size);
     std::vector<std::vector<PopNeed>> pops_new_needs(provinces_size);
     tbb::parallel_for(tbb::blocked_range(province_ids.begin(), province_ids.end()), [&world, &buildings_new_worker, &province_new_units, &pops_new_needs, provinces_size](const auto& province_ids_ranges) {
@@ -492,9 +456,35 @@ void Economy::do_tick(World& world) {
             for(size_t i = 0; i < province.buildings.size(); i++) {
                 Building& building = province.buildings[i];
                 if(building.working_unit_type != nullptr) {
-                    Unit* unit = build_unit(building, province);
-                    if(unit != nullptr)
+                    bool can_build_unit = building.can_build_unit();
+
+                    // Ratio of health:person is 25, thus making units very expensive
+                    const float army_size = 100;
+                    /// @todo Consume special soldier pops instead of farmers!!!
+                    auto it = std::find_if(province.pops.begin(), province.pops.end(), [building, army_size](const auto& e) {
+                        return (e.size >= army_size && e.type->group == PopGroup::FARMER);
+                    });
+                    if(it == province.pops.end())
+                        can_build_unit = false;
+
+                    /// @todo Maybe delete if size becomes 0?
+                    const float final_size = std::min<float>((*it).size, army_size);
+                    (*it).size -= final_size;
+                    if(can_build_unit && final_size) {
+                        Unit unit;
+                        unit.type = building.working_unit_type;
+                        unit.owner_id = province.owner_id;
+                        unit.budget = 5000.f;
+                        unit.experience = 1.f;
+                        unit.morale = 1.f;
+                        unit.supply = 1.f;
+                        unit.size = final_size;
+                        unit.base = unit.type->max_health;
+                        unit.target_province_id = province.get_id();
                         province_new_units.local().push_back(unit);
+                        building.working_unit_type = nullptr;
+                        Eng3D::Log::debug("economy", "[" + province.ref_name + "]: Has built an unit of [" + unit.type->ref_name + "]");
+                    }
                 }
             }
         }
@@ -540,13 +530,13 @@ void Economy::do_tick(World& world) {
 
     // Lock for world is already acquired since the economy runs inside the world's do_tick which
     // should be lock guarded by the callee
-    province_new_units.combine_each([&world](const auto& unit_list) {
-        for(const auto& unit : unit_list) {
+    province_new_units.combine_each([&world](auto& unit_list) {
+        for(auto& unit : unit_list) {
             // Now commit the transaction of the new units into the main world area
-            Province::Id target_province_id = unit->target_province_id;
-            unit->target_province_id = Province::invalid();
-            world.unit_manager.add_unit(*unit, target_province_id);
-            g_server->broadcast(Action::UnitAdd::form_packet(*unit));
+            Province::Id target_province_id = unit.target_province_id;
+            unit.target_province_id = Province::invalid();
+            world.unit_manager.add_unit(unit, target_province_id);
+            g_server->broadcast(Action::UnitAdd::form_packet(unit));
         }
     });
     world.profiler.stop("E-mutex");
