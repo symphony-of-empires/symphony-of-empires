@@ -684,17 +684,16 @@ int LuaAPI::province_add_unit(lua_State* L) {
     UnitType& unit_type = g_world->unit_types.at(lua_tonumber(L, 2));
     const size_t size = lua_tonumber(L, 3);
 
-    Unit* unit = new Unit();
-    g_world->insert(*unit);
-    unit->set_province(province);
-    unit->type = &unit_type;
-    unit->owner_id = province.owner_id;
-    unit->budget = 5000.f;
-    unit->experience = 1.f;
-    unit->morale = 1.f;
-    unit->supply = 1.f;
-    unit->size = size;
-    unit->base = unit->type->max_health;
+    Unit unit;
+    unit.type = &unit_type;
+    unit.owner_id = province.owner_id;
+    unit.budget = 5000.f;
+    unit.experience = 1.f;
+    unit.morale = 1.f;
+    unit.supply = 1.f;
+    unit.size = size;
+    unit.base = unit.type->max_health;
+    g_world->unit_manager.add_unit(unit, province.cached_id);
     return 0;
 }
 
@@ -718,9 +717,11 @@ int LuaAPI::give_province_to(lua_State* L) {
 int LuaAPI::give_hard_province_to(lua_State* L) {
     Province& province = g_world->provinces.at(lua_tonumber(L, 1));
     Nation& nation = g_world->nations.at(lua_tonumber(L, 2));
-    for(auto& unit : g_world->units) {
-        if(unit->province_id == g_world->get_id(province) && province.controller != nullptr && unit->owner_id == province.controller->get_id())
-            unit->owner_id = nation.get_id();
+    auto unit_ids = g_world->unit_manager.get_province_units(province.cached_id);
+    for(auto& unit_id : unit_ids) {
+        auto& unit = g_world->unit_manager.units[unit_id];
+        if(unit.province_id() == g_world->get_id(province) && province.controller != nullptr && unit.owner_id == province.controller->get_id())
+            unit.owner_id = nation.get_id();
     }
     nation.give_province(province);
     return 0;

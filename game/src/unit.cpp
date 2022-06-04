@@ -31,6 +31,7 @@
 #endif
 #include "eng3d/assert.hpp"
 #include "eng3d/log.hpp"
+#include "eng3d/common.hpp"
 
 #include "unit.hpp"
 #include "province.hpp"
@@ -50,7 +51,15 @@ void Unit::attack(Unit& enemy) {
 
 std::pair<float, float> Unit::get_pos() const {
     const World& world = World::get_instance();
-    return world.provinces[this->province_id].get_pos();
+    auto prov_id = this->province_id();
+    auto& province = world.provinces[prov_id];
+    return province.get_pos();
+}
+
+Province::Id Unit::province_id() const {
+    // Don't know if this is cleaner than getting it from unit manager :thinking:
+    const World& world = World::get_instance();
+    return world.unit_manager.unit_province[cached_id];
 }
 
 void Unit::set_target(Province& _province) {
@@ -59,14 +68,14 @@ void Unit::set_target(Province& _province) {
     target_province_id = world.get_id(_province);
 
     // Calculate the required movement before it can reach the target
-    const auto& cur_pos = world.provinces[this->province_id].get_pos();
+    const auto& cur_pos = world.provinces[this->province_id()].get_pos();
     const auto& target_pos = world.provinces[this->target_province_id].get_pos();
     move_progress = std::sqrt(std::abs(cur_pos.first - target_pos.first) + std::abs(cur_pos.second - target_pos.second));
 }
 
 float Unit::get_speed(const Province& _province) const {
     const World& world = World::get_instance();
-    auto start_pos = world.provinces[this->province_id].get_pos();
+    auto start_pos = world.provinces[this->province_id()].get_pos();
     auto end_pos = _province.get_pos();
 
     // Get the linear distance from the current deduced position of the unit and the target
@@ -91,17 +100,45 @@ float Unit::get_speed() const {
     return this->get_speed(World::get_instance().provinces[this->target_province_id]);
 }
 
-void Unit::set_province(Province& _province) {
-    World& world = World::get_instance();
-    assert(this->can_move()); // Must be able to move to perform this...
-    assert(this->province_id != world.get_id(_province)); // Not setting to same province
+void UnitManager::init(World& world) {
+    province_units.resize(world.provinces.size());
+}
 
-    // Delete the unit from the previous cache list of units
-    if(Province::is_valid(this->province_id)) {
-        std::erase(world.provinces[this->province_id].units_ids, this->get_id());
+void UnitManager::add_unit(Unit unit, Province::Id unit_current_province) {
+    Unit::Id id;
+    if(free_unit_slots.size() > 0) {
+        id = free_unit_slots.back();
+        free_unit_slots.pop_back();
+        units[id] = unit;
+        unit_province[id] = unit_current_province;
+    } else {
+        id = units.size();
+        units.emplace_back(unit);
+        unit_province.push_back(unit_current_province);
     }
+    units[id].cached_id = id;
+    if (unit_current_province >= province_units.size()) {
+        province_units.resize(unit_current_province + 1);
+    }
+    province_units[unit_current_province].push_back(id);
+}
 
-    this->province_id = world.get_id(_province);
-    // Add unit to "cache list" of units
-    world.provinces[this->province_id].units_ids.push_back(this->get_id());
+void UnitManager::remove_unit(Unit::Id unit_id) {
+    Province::Id current_province_id = unit_province[unit_id];
+
+    auto units_in_province = province_units[current_province_id];
+    Eng3D::fast_erase(units_in_province, unit_id);
+    units[unit_id].cached_id = Province::invalid();
+}
+
+void UnitManager::move_unit(Unit::Id unit_id, Province::Id target_province_id) {
+    assert(units[unit_id].can_move()); // Must be able to move to perform this...
+    assert(unit_province[unit_id] != target_province_id); // Not setting to same province
+
+    Province::Id current_province_id = unit_province[unit_id];
+
+    auto units_in_province = province_units[current_province_id];
+    Eng3D::fast_erase(units_in_province, unit_id);
+    unit_province[unit_id] = target_province_id;
+    province_units[current_province_id].push_back(unit_id);
 }

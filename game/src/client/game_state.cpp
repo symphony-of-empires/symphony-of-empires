@@ -388,11 +388,11 @@ void save(GameState& gs) {
             }
             // Units
             for(const auto& unit_id : province.get_units()) {
-                auto* unit = g_world->units[unit_id];
+                auto& unit = g_world->unit_manager.units[unit_id];
                 // Units can't exceed max health
-                if(unit->size > unit->type->max_health)
-                    unit->size = unit->type->max_health;
-                fprintf(fp.get(), "province:add_unit(ut_%s,%zu)\n", unit->type->ref_name.c_str(), (size_t)unit->size);
+                if(unit.size > unit.type->max_health)
+                    unit.size = unit.type->max_health;
+                fprintf(fp.get(), "province:add_unit(ut_%s,%zu)\n", unit.type->ref_name.c_str(), (size_t)unit.size);
             }
             cnt++;
         }

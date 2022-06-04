@@ -270,11 +270,11 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
     float our_power = 1.f;
     for(const auto& ally_nation : nation.get_allies()) {
         for(const auto& province_id : ally_nation->owned_provinces) {
-            const auto& province = world.provinces[province_id];
-            for(const auto& unit_id : province.get_units()) {
-                auto* unit = g_world->units[unit_id];
-                our_power += unit->type->attack * unit->size;
-                our_power += unit->type->defense * unit->size;
+            const auto& unit_ids = world.unit_manager.get_province_units(province_id);
+            for(const auto& unit_id : unit_ids) {
+                auto& unit = g_world->unit_manager.units[unit_id];
+                our_power += unit.type->attack * unit.size;
+                our_power += unit.type->defense * unit.size;
             }
         }
     }
@@ -283,11 +283,11 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
     float other_power = 1.f;
     for(const auto& ally_nation : other.get_allies()) {
         for(const auto& province_id : ally_nation->owned_provinces) {
-            const auto& province = world.provinces[province_id];
-            for(const auto& unit_id : province.get_units()) {
-                auto* unit = g_world->units[unit_id];
-                other_power += unit->type->attack * unit->size;
-                other_power += unit->type->defense * unit->size;
+            const auto& unit_ids = world.unit_manager.get_province_units(province_id);
+            for(const auto& unit_id : unit_ids) {
+                auto& unit = g_world->unit_manager.units[unit_id];
+                other_power += unit.type->attack * unit.size;
+                other_power += unit.type->defense * unit.size;
             }
         }
     }
@@ -573,13 +573,14 @@ void ai_do_tick(Nation& nation) {
     /// @todo make a better algorithm
     for(const auto& province_id : nation.controlled_provinces) {
         const auto& province = world.provinces[province_id];
-        for(auto& unit_id : province.get_units()) {
-            auto* unit = g_world->units[unit_id];
-            if(Province::is_invalid(unit->target_province_id)) {
+        const auto& unit_ids = world.unit_manager.get_province_units(province_id);
+        for(const auto& unit_id : unit_ids) {
+            auto& unit = g_world->unit_manager.units[unit_id];
+            if(Province::is_invalid(unit.target_province_id)) {
                 for(const auto& neighbour_id : province.neighbours) {
                     auto& neighbour = g_world->provinces[neighbour_id];
                     if(std::rand() % 2) {
-                        unit->set_target(neighbour);
+                        unit.set_target(neighbour);
                         break;
                     }
                 }
@@ -611,15 +612,16 @@ void ai_do_tick(Nation& nation) {
             // The "cooling" value which basically makes us ignore some provinces with lots of defenses
             // so we don't rack up deathstacks on a border with some micronation
             double draw_away_force = 0.f;
-            for(const auto& unit_id : province.get_units()) {
-                auto* unit = g_world->units[unit_id];
+            const auto& unit_ids = world.unit_manager.get_province_units(province_id);
+            for(const auto& unit_id : unit_ids) {
+                auto& unit = g_world->unit_manager.units[unit_id];
                 // Only account this for units that are of our nation
                 // because enemy units will require us to give more importance to it
-                const int unit_strength = static_cast<int>(unit->type->defense * unit->type->attack) * unit->size;
+                const int unit_strength = static_cast<int>(unit.type->defense * unit.type->attack) * unit.size;
                 // This works because nations which are threatening to us have positive values, so they
                 // basically make the draw_away_force negative, which in turns does not draw away but rather
                 // draw in even more units
-                draw_away_force += (-ai_data.nations_risk_factor[unit->owner_id]) * unit_strength;
+                draw_away_force += (-ai_data.nations_risk_factor[unit.owner_id]) * unit_strength;
             }
             potential_risk[province_id] -= draw_away_force;
 
@@ -638,24 +640,25 @@ void ai_do_tick(Nation& nation) {
         for(const auto& province_id : nation.controlled_provinces) {
             const auto& province = world.provinces[province_id];
             assert(province.controller == &nation);
-            for(auto& unit_id : province.get_units()) {
-                auto* unit = g_world->units[unit_id];
-                if(unit->owner_id != nation.get_id()) continue;
+            const auto& unit_ids = world.unit_manager.get_province_units(province_id);
+            for(const auto& unit_id : unit_ids) {
+                auto& unit = g_world->unit_manager.units[unit_id];
+                if(unit.owner_id != nation.get_id()) continue;
 
                 // Do not change targets
                 /// @todo Change targets when urgent
-                if(Province::is_invalid(unit->target_province_id)) continue;
-                if(unit->can_move()) {
-                    Province& unit_province = world.provinces[unit->province_id];
+                if(Province::is_invalid(unit.target_province_id)) continue;
+                if(unit.can_move()) {
+                    Province& unit_province = world.provinces[unit.province_id()];
                     // See which province has the most potential_risk so we cover it from potential threats
                     Province& highest_risk = unit_province;
                     for(const auto& neighbour_id : unit_province.neighbours) {
                         auto& neighbour = g_world->provinces[neighbour_id];
-                        if(!unit->type->is_naval && neighbour.terrain_type->is_water_body) continue;
+                        if(!unit.type->is_naval && neighbour.terrain_type->is_water_body) continue;
                         if(potential_risk[world.get_id(highest_risk)] < potential_risk[neighbour_id]) {
-                            if(neighbour.controller != nullptr && neighbour.controller->get_id() != unit->owner_id) {
-                                const NationRelation& relation = world.get_relation(world.get_id(*neighbour.controller), unit->owner_id);
-                                if(relation.has_war || relation.has_alliance || neighbour.owner_id == unit->owner_id)
+                            if(neighbour.controller != nullptr && neighbour.controller->get_id() != unit.owner_id) {
+                                const NationRelation& relation = world.get_relation(world.get_id(*neighbour.controller), unit.owner_id);
+                                if(relation.has_war || relation.has_alliance || neighbour.owner_id == unit.owner_id)
                                     highest_risk = neighbour;
                             } else {
                                 highest_risk = neighbour;
@@ -673,8 +676,8 @@ void ai_do_tick(Nation& nation) {
                     }
 
                     bool can_target = true;
-                    if(highest_risk.controller != nullptr && highest_risk.controller->get_id() != unit->owner_id) {
-                        const NationRelation& relation = world.get_relation(world.get_id(*highest_risk.controller), unit->owner_id);
+                    if(highest_risk.controller != nullptr && highest_risk.controller->get_id() != unit.owner_id) {
+                        const NationRelation& relation = world.get_relation(world.get_id(*highest_risk.controller), unit.owner_id);
 
                         // Can only go to a province if we have military accesss, they are our ally or if we are at war
                         // also if it's ours we can move thru it - or if it's owned by no-one
@@ -683,7 +686,7 @@ void ai_do_tick(Nation& nation) {
                     }
 
                     if(can_target)
-                        unit->set_target(highest_risk);
+                        unit.set_target(highest_risk);
                 }
             }
         }
