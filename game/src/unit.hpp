@@ -132,9 +132,11 @@ public:
                 lambda(units[id]);
         }
     }
+    
     inline std::vector<Province::Id> get_province_units(Province::Id province_id) const {
         return province_units[province_id];
     }
+
     inline Province::Id get_unit_current_province(Unit::Id unit_id) const {
         return unit_province[unit_id];
     }

@@ -518,11 +518,11 @@ static inline void unit_do_tick(Unit& unit)
             if(unit.move_progress) {
                 unit.move_progress -= std::min<float>(unit.move_progress, unit.get_speed());
             } else {
-                unit.target_province_id = Province::invalid();
                 g_world->unit_manager.move_unit(unit.cached_id, unit.target_province_id);
                 // Only take control of provinces of the people we're at war with
                 if(can_take)
                     g_world->nations[unit.owner_id].control_province(unit_target);
+                unit.target_province_id = Province::invalid();
             }
         }
     }
