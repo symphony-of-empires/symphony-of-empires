@@ -65,12 +65,12 @@ Province::Id Unit::province_id() const {
 void Unit::set_target(Province& _province) {
     const World& world = World::get_instance();
     assert(this->can_move());
-    target_province_id = world.get_id(_province);
+    this->target_province_id = world.get_id(_province);
 
     // Calculate the required movement before it can reach the target
     const auto& cur_pos = world.provinces[this->province_id()].get_pos();
     const auto& target_pos = world.provinces[this->target_province_id].get_pos();
-    move_progress = std::sqrt(std::abs(cur_pos.first - target_pos.first) + std::abs(cur_pos.second - target_pos.second));
+    this->move_progress = std::sqrt(std::abs(cur_pos.first - target_pos.first) + std::abs(cur_pos.second - target_pos.second));
 }
 
 float Unit::get_speed(const Province& _province) const {
