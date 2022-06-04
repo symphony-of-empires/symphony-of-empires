@@ -39,6 +39,18 @@ class Entity {
 public:
     using Id = IdType;
 
+};
+
+/**
+ * @brief Alias for Entity that uses a cached_id for faster lookups
+ * 
+ * @tparam IdType The type used for the Id
+ */
+template<typename IdType>
+class IdEntity : public Entity<IdType> {
+public:
+    using Id = IdType;
+
     /**
      * @brief Returns an invalid id
      * 
@@ -71,13 +83,21 @@ public:
     }
 
     /**
+     * @brief Id used to speed up Id lookups on any context
+     * NOTE: This depends that the container is sequential (as if it was
+     * a contigous array) - Otherwise this optimization **will** break
+     * 
+     */
+    Id cached_id = (Id)-1;
+
+    /**
      * @brief Checks if the current id is invalid
      * 
      * @return true 
      * @return false 
      */
     constexpr bool is_invalid() const {
-        return is_invalid(this->id);
+        return is_invalid(cached_id);
     }
 
     /**
@@ -87,26 +107,8 @@ public:
      * @return false 
      */
     constexpr bool is_valid() const {
-        return !invalid();
+        return !is_invalid();
     }
-};
-
-/**
- * @brief Alias for Entity that uses a cached_id for faster lookups
- * 
- * @tparam IdType The type used for the Id
- */
-template<typename IdType>
-class IdEntity : public Entity<IdType> {
-public:
-    using Id = IdType;
-    /**
-     * @brief Id used to speed up Id lookups on any context
-     * NOTE: This depends that the container is sequential (as if it was
-     * a contigous array) - Otherwise this optimization **will** break
-     * 
-     */
-    Id cached_id = (Id)-1;
 
     inline Id get_id(void) const {
         return cached_id;

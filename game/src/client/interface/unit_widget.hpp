@@ -26,6 +26,7 @@
 #pragma once
 
 #include "eng3d/ui/div.hpp"
+#include "unit.hpp"
 
 class Map;
 class Unit;
@@ -36,7 +37,7 @@ namespace UI {
 
 namespace Interface {
     class UnitWidget: public UI::Div {
-        Unit& unit;
+        Unit::Id unit_id;
         Map& map;
         UI::Image* flag_img;
         UI::Div* size_label;
