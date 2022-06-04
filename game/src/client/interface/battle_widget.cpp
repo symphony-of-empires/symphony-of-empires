@@ -41,7 +41,7 @@ using namespace Interface;
 
 BattleWidget::BattleWidget(Province& _province, size_t _idx, Map& _map, UI::Widget* parent)
     : UI::Div(0, 0, 188, 30, parent),
-    province{ _province },
+    province{ &_province },
     idx{ _idx },
     map{ _map }
 {
@@ -55,8 +55,8 @@ BattleWidget::BattleWidget(Province& _province, size_t _idx, Map& _map, UI::Widg
     this->left_size_label->text_align_x = UI::Align::END;
     this->left_size_label->background_color = Eng3D::Color(0.5f, 0.f, 0.f, 1.f);
     this->left_size_label->on_each_tick = ([this](UI::Widget&) {
-        if(this->idx >= this->province.battles.size()) return;
-        const Battle& battle = this->province.battles[this->idx];
+        if(this->idx >= this->province->battles.size()) return;
+        const Battle& battle = this->province->battles[this->idx];
         auto unit_size = 0;
         for(const auto unit_id : battle.attackers_ids) {
             const auto& unit = g_world->unit_manager.units[unit_id];
@@ -70,8 +70,8 @@ BattleWidget::BattleWidget(Province& _province, size_t _idx, Map& _map, UI::Widg
     this->right_size_label->text_align_x = UI::Align::END;
     this->right_size_label->background_color = Eng3D::Color(0.f, 0.f, 0.5f, 1.f);
     this->right_size_label->on_each_tick = ([this](UI::Widget&) {
-        if(this->idx >= this->province.battles.size()) return;
-        const Battle& battle = this->province.battles[this->idx];
+        if(this->idx >= this->province->battles.size()) return;
+        const Battle& battle = this->province->battles[this->idx];
         auto unit_size = 0;
         for(const auto unit_id : battle.defenders_ids) {
             const auto& unit = g_world->unit_manager.units[unit_id];
@@ -80,16 +80,16 @@ BattleWidget::BattleWidget(Province& _province, size_t _idx, Map& _map, UI::Widg
         this->right_size_label->text(std::to_string(unit_size));
     });
 
-    this->set_battle(this->province, this->idx);
+    this->set_battle(*this->province, this->idx);
 }
 
 void BattleWidget::set_battle(Province& _province, size_t _idx) {
-    this->province = _province;
+    this->province = &_province;
     this->idx = _idx;
-    const Battle& battle = this->province.battles[this->idx];
+    const Battle& battle = this->province->battles[this->idx];
 
     const Eng3D::Camera& camera = *map.camera;
-    const auto battle_pos = province.get_pos();
+    const auto battle_pos = province->get_pos();
     const auto screen_pos = camera.get_tile_screen_pos(glm::vec2(battle_pos.first, battle_pos.second));
 
     this->x = screen_pos.x - this->width / 2;

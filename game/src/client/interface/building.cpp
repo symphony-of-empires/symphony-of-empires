@@ -44,7 +44,7 @@ BuildingSelectProvinceTab::BuildingSelectProvinceTab(GameState& _gs, int x, int 
 
         auto* btn = new ProvinceButton(gs, 0, 24 * i, province, this);
         btn->set_on_click([](UI::Widget& w) {
-            (static_cast<BuildingBuildView&>(*w.parent->parent)).province = (static_cast<ProvinceButton&>(w)).province;
+            (static_cast<BuildingBuildView&>(*w.parent->parent)).province = &(static_cast<ProvinceButton&>(w)).province;
         });
         i++;
     }
@@ -65,9 +65,9 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
             }
             
             const BuildingType& building_type = ((BuildingTypeButton&)w).building_type;
-            const_cast<Province&>(o.province).add_building(building_type);
-            g_client->send(Action::BuildingAdd::form_packet(o.province, building_type));
-            o.gs.ui_ctx->prompt("Production", "Building a " + building_type.name + " in " + o.province.ref_name + "; owned by " + o.province.controller->name);
+            const_cast<Province&>(*o.province).add_building(building_type);
+            g_client->send(Action::BuildingAdd::form_packet(*o.province, building_type));
+            o.gs.ui_ctx->prompt("Production", "Building a " + building_type.name + " in " + o.province->ref_name + "; owned by " + o.province->controller->name);
         });
         i++;
     }
@@ -76,7 +76,7 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
 BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_tile, Province& _province)
     : UI::Window(0, 0, 512, 512),
     gs{ _gs },
-    province{ _province },
+    province{ &_province },
     building_type{ _gs.world->building_types[0] },
     in_tile{ _in_tile },
     tx{ _tx },

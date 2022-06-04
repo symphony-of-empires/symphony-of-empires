@@ -64,6 +64,8 @@ public:
 // A single province, which is used to simulate economy in a "bulk-tiles" way
 // instead of doing economical operations on every single tile
 class Province : public RefnameEntity<uint16_t> {
+private:
+    Province & operator=(const Province&) = default;
 public:
     Province() {};
     ~Province() {};

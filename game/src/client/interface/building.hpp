@@ -56,7 +56,7 @@ namespace Interface {
     class BuildingBuildView : public UI::Window {
         GameState& gs;
     public:
-        Province& province;
+        Province* province;
         BuildingType& building_type;
 
         BuildingSelectProvinceTab* province_tab;
