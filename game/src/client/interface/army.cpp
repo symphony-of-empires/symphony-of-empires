@@ -49,17 +49,17 @@ ArmyArmyTab::ArmyArmyTab(GameState& _gs, int x, int y, UI::Widget* parent)
 {
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
-    for(const auto& unit : gs.world->units) {
-        if(unit->owner_id != gs.curr_nation->get_id())
-            continue;
-        else if(!(unit->type->is_ground == true && unit->type->is_naval == false))
-            continue;
+    gs.world->unit_manager.for_each_unit([this, flex_column](Unit& unit) {
+        if(unit.owner_id != this->gs.curr_nation->get_id())
+            return;
+        else if(!(unit.type->is_ground == true && unit.type->is_naval == false))
+            return;
 
-        auto* btn = new UnitButton(gs, 0, 0, *unit, flex_column);
+        auto* btn = new UnitButton(this->gs, 0, 0, unit, flex_column);
         btn->set_on_click([](UI::Widget&) {
 
         });
-    }
+    });
 }
 
 ArmyAirforceTab::ArmyAirforceTab(GameState& _gs, int x, int y, UI::Widget* parent)
@@ -68,17 +68,17 @@ ArmyAirforceTab::ArmyAirforceTab(GameState& _gs, int x, int y, UI::Widget* paren
 {
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
-    for(const auto& unit : gs.world->units) {
-        if(unit->owner_id != gs.curr_nation->get_id())
-            continue;
-        else if(!(unit->type->is_ground == true && unit->type->is_naval == true))
-            continue;
+    gs.world->unit_manager.for_each_unit([this, flex_column](Unit& unit) {
+        if(unit.owner_id != this->gs.curr_nation->get_id())
+            return;
+        else if(!(unit.type->is_ground == true && unit.type->is_naval == true))
+            return;
 
-        auto* btn = new UnitButton(this->gs, 0, 0, *unit, flex_column);
+        auto* btn = new UnitButton(this->gs, 0, 0, unit, flex_column);
         btn->set_on_click([](UI::Widget&) {
 
         });
-    }
+    });
 }
 
 ArmyNavyTab::ArmyNavyTab(GameState& _gs, int x, int y, UI::Widget* parent)
@@ -87,17 +87,17 @@ ArmyNavyTab::ArmyNavyTab(GameState& _gs, int x, int y, UI::Widget* parent)
 {
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
-    for(const auto& unit : gs.world->units) {
-        if(unit->owner_id != gs.curr_nation->get_id())
-            continue;
-        else if(!(unit->type->is_ground == false && unit->type->is_naval == true))
-            continue;
+    gs.world->unit_manager.for_each_unit([this, flex_column](Unit& unit) {
+        if(unit.owner_id != this->gs.curr_nation->get_id())
+            return;
+        else if(!(unit.type->is_ground == false && unit.type->is_naval == true))
+            return;
 
-        auto* btn = new UnitButton(this->gs, 0, 0, *unit, flex_column);
+        auto* btn = new UnitButton(this->gs, 0, 0, unit, flex_column);
         btn->set_on_click([](UI::Widget&) {
 
         });
-    }
+    });
 }
 
 ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* parent)

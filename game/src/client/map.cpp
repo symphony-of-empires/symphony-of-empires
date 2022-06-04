@@ -364,10 +364,12 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             }
         }
 
-        for(const auto& unit : input.selected_units) {
-            if(!gs.world->provinces[unit->province_id].is_neighbour(province) || !unit->can_move()) continue;
+        for(const auto& unit_id : gs.input.selected_units) {
+            auto& unit = gs.world->unit_manager.units[unit_id];
+            auto& province_id = gs.world->unit_manager.unit_province[unit_id];
+            if(!gs.world->provinces[province_id].is_neighbour(province) || !unit.can_move()) continue;
             // Don't change target if ID is the same...
-            if(unit->province_id == gs.world->get_id(province) || unit->target_province_id == gs.world->get_id(province))
+            if(province_id == gs.world->get_id(province) || unit.target_province_id == gs.world->get_id(province))
                 continue;
             if(province.controller != nullptr && province.controller != gs.curr_nation) {
                 // Must either be our ally, have military access with them or be at war
@@ -514,29 +516,32 @@ void Map::draw(const GameState& gs) {
 
     // Display units that aren't on battles
     size_t unit_index = 0, battle_index = 0;
-    for(auto& province : const_cast<World&>(world).provinces) {
+    // for(auto& province : const_cast<World&>(world).provinces) {
+    gs.world->unit_manager.for_each_unit([this, &gs, &unit_index](Unit& unit) {
+        auto prov_id = gs.world->unit_manager.unit_province[unit.cached_id];
+        auto& province = gs.world->provinces[prov_id];
+        auto& camera = this->camera;
         const glm::vec2 prov_pos = glm::vec2(province.get_pos().first, province.get_pos().second);
         // And display units
-        for(const auto& unit_id : province.get_units()) {
-            auto* unit = g_world->units[unit_id];
-            if(unit->on_battle) continue;
-            bool unit_visible = true;
-            if(view_mode == MapView::SPHERE_VIEW) {
-                glm::vec3 cam_pos = camera->get_world_pos();
-                glm::vec3 world_pos = camera->get_tile_world_pos(prov_pos);
-                if(glm::dot(cam_pos, world_pos) <= 0)
-                    unit_visible = false;
-            }
-
-            if(unit_visible) {
-                if(unit_index < unit_widgets.size())
-                    unit_widgets[unit_index]->set_unit(*unit);
-                else
-                    unit_widgets.push_back(new Interface::UnitWidget(*unit, *this, map_ui_layer));
-                unit_index++;
-            }
+        if(unit.on_battle) return;
+        bool unit_visible = true;
+        if(this->view_mode == MapView::SPHERE_VIEW) {
+            glm::vec3 cam_pos = camera->get_world_pos();
+            glm::vec3 world_pos = camera->get_tile_world_pos(prov_pos);
+            if(glm::dot(cam_pos, world_pos) <= 0)
+                unit_visible = false;
         }
 
+        if(unit_visible) {
+            if(unit_index < unit_widgets.size())
+                this->unit_widgets[unit_index]->set_unit(unit);
+            else
+                this->unit_widgets.push_back(new Interface::UnitWidget(unit, *this, this->map_ui_layer));
+            unit_index++;
+        }
+    });
+    for(auto& province : const_cast<World&>(world).provinces) {
+        const glm::vec2 prov_pos = glm::vec2(province.get_pos().first, province.get_pos().second);
         size_t war_battle_idx = 0;
         for(auto& battle : province.battles) {
             bool battle_visible = true;
@@ -576,10 +581,10 @@ void Map::draw(const GameState& gs) {
             pos.y -= y;
             glm::mat4 model = glm::translate(base_model, glm::vec3(pos.x, pos.y, 0.f));
 
-            auto* unit = g_world->units[unit_id];
-            if(Province::is_valid(unit->target_province_id)) {
+            auto& unit = g_world->unit_manager.units[unit_id];
+            if(Province::is_valid(unit.target_province_id)) {
                 //Eng3D::Line target_line = Eng3D::Line(pos.x, pos.y, );
-                const auto& unit_target = world.provinces[unit->target_province_id];
+                const auto& unit_target = world.provinces[unit.target_province_id];
                 const glm::vec2 target_pos = glm::vec2(unit_target.get_pos().first, unit_target.get_pos().second);
                 const float dist = glm::sqrt(glm::pow(glm::abs(pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(pos.y - target_pos.y), 2.f));
                 auto line_square = Eng3D::Square(0.f, 0.f, dist, 0.5f);
@@ -593,7 +598,7 @@ void Map::draw(const GameState& gs) {
 
             // Model
             obj_shader->set_uniform("model", model);
-            unit_type_models[world.get_id(*unit->type)]->draw(*obj_shader);
+            unit_type_models[world.get_id(*unit.type)]->draw(*obj_shader);
             i++;
         }
 
@@ -610,8 +615,9 @@ void Map::draw(const GameState& gs) {
     //*/
 
     // Highlight for units
-    for(const auto& unit : gs.input.selected_units) {
-        const std::pair<float, float> pos = unit->get_pos();
+    for(const auto& unit_id : gs.input.selected_units) {
+        auto& unit = gs.world->unit_manager.units[unit_id];
+        const std::pair<float, float> pos = unit.get_pos();
         glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
         obj_shader->set_uniform("model", model);
         obj_shader->set_texture(0, "diffuse_map", *gs.tex_man->load(Path::get("gfx/select_border.png")).get());

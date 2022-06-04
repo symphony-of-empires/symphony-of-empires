@@ -268,8 +268,6 @@ World::World() {
 
 World::~World() {
     lua_close(lua);
-    for(auto& unit : units)
-        delete unit;
     for(auto& war : wars)
         delete war;
 }
@@ -424,6 +422,8 @@ void World::load_initial() {
             }
         }
 
+        unit_manager.init(*this);
+
         // Create diplomatic relations between nations
         Eng3D::Log::debug("game", Eng3D::Locale::translate("Creating diplomatic relations"));
         // Relations between nations start at 0 (and latter modified by lua scripts)
@@ -496,7 +496,7 @@ void World::load_mod() {
 
 static inline void unit_do_tick(Unit& unit)
 {
-    assert(Province::is_valid(unit.province_id));
+    assert(Province::is_valid(unit.province_id()));
 
     // Do not evaluate if we have an ongoing battle
     if(unit.on_battle) {
@@ -506,7 +506,7 @@ static inline void unit_do_tick(Unit& unit)
 
     auto& unit_target = g_world->provinces[unit.target_province_id];
     if(Province::is_valid(unit.target_province_id)) {
-        assert(unit.target_province_id != unit.province_id);
+        assert(unit.target_province_id != unit.province_id());
         bool can_move = true, can_take = false;
         if(unit_target.controller != nullptr && unit_target.controller->get_id() != unit.owner_id && unit_target.controller != nullptr) {
             const auto& relation = g_world->get_relation(g_world->get_id(*unit_target.controller), unit.owner_id);
@@ -518,7 +518,7 @@ static inline void unit_do_tick(Unit& unit)
             if(unit.move_progress) {
                 unit.move_progress -= std::min<float>(unit.move_progress, unit.get_speed());
             } else {
-                unit.set_province(unit_target);
+                g_world->unit_manager.move_unit(unit.cached_id, unit.target_province_id);
                 // Only take control of provinces of the people we're at war with
                 if(can_take)
                     g_world->nations[unit.owner_id].control_province(unit_target);
@@ -527,7 +527,8 @@ static inline void unit_do_tick(Unit& unit)
         }
     }
 
-    auto& unit_province = g_world->provinces[unit.province_id];
+    Province::Id prov_id = g_world->unit_manager.get_unit_current_province(unit.cached_id);
+    auto& unit_province = g_world->provinces[prov_id];
     // If there is another unit of a country we are at war with we will start a battle
     for(auto& war : g_world->wars) {
         if(war->is_involved(g_world->nations[unit.owner_id])) {
@@ -540,23 +541,24 @@ static inline void unit_do_tick(Unit& unit)
             if(it == unit_province.battles.end()) {
                 // See above code, by our logic the other unit should already be in a battle if it's
                 // against us, and if it is not, and it's probably wise to attack them
-                for(auto& other_unit_id : unit_province.get_units()) {
-                    auto* other_unit = g_world->units[other_unit_id];
-                    if(other_unit->owner_id == unit.owner_id || other_unit->on_battle) continue;
+                const auto& unit_ids = g_world->unit_manager.get_province_units(prov_id);
+                for(const auto& other_unit_id : unit_ids) {
+                    auto& other_unit = g_world->unit_manager.units[other_unit_id];
+                    if(other_unit.owner_id == unit.owner_id || other_unit.on_battle) continue;
                     // Check relations, if we're at war we will attack this unit
-                    const auto& relation = g_world->get_relation(unit.owner_id, other_unit->owner_id);
+                    const auto& relation = g_world->get_relation(unit.owner_id, other_unit.owner_id);
                     if(!relation.has_war) continue;
                     // If we found an unit we can attack, start a battle
                     unit.on_battle = true;
-                    other_unit->on_battle = true;
+                    other_unit.on_battle = true;
                     // Create a new battle
                     Battle battle = Battle(*war);
                     battle.name = "Battle of " + unit_province.name;
                     if(war->is_attacker(g_world->nations[unit.owner_id])) {
                         battle.attackers_ids.push_back(g_world->get_id(unit));
-                        battle.defenders_ids.push_back(g_world->get_id(*other_unit));
+                        battle.defenders_ids.push_back(g_world->get_id(other_unit));
                     } else {
-                        battle.attackers_ids.push_back(g_world->get_id(*other_unit));
+                        battle.attackers_ids.push_back(g_world->get_id(other_unit));
                         battle.defenders_ids.push_back(g_world->get_id(unit));
                     }
                     unit_province.battles.push_back(battle);
@@ -592,7 +594,7 @@ void World::do_tick() {
     tbb::parallel_for(tbb::blocked_range(nations.begin(), nations.end()), [this](auto& nations_range) {
         for(auto& nation : nations_range) {
             if(!nation.exists()) return;
-            //ai_do_tick(nation);
+            ai_do_tick(nation);
         }
     });
     profiler.stop("AI");
@@ -687,32 +689,32 @@ void World::do_tick() {
     wcmap_mutex.lock();
     profiler.start("Units");
     // Evaluate units
-    for(const auto& unit : this->units)
-        unit_do_tick(*unit);
+    this->unit_manager.for_each_unit(unit_do_tick);
     profiler.stop("Units");
 
     // Perform all battles of the active wars
     profiler.start("Battles");
-    tbb::combinable<tbb::concurrent_vector<Unit*>> clear_units;
+    tbb::combinable<tbb::concurrent_vector<Unit::Id>> clear_units;
     tbb::parallel_for(tbb::blocked_range(provinces.begin(), provinces.end()), [this, &clear_units](auto& provinces_range) {
         for(auto& province : provinces_range) {
             for(size_t j = 0; j < province.battles.size(); j++) {
                 auto& battle = province.battles[j];
                 // Attackers attack Defenders
+                auto& units = this->unit_manager.units;
                 for(auto& attacker_id : battle.attackers_ids) {
-                    Unit* attacker = this->units[attacker_id];
-                    assert(attacker != nullptr);
+                    Unit& attacker = units[attacker_id];
+                    assert(attacker.is_valid());
                     for(size_t i = 0; i < battle.defenders_ids.size(); ) {
-                        Unit* unit = this->units[battle.defenders_ids[i]];
-                        assert(unit != nullptr);
-                        const size_t prev_size = unit->size;
-                        attacker->attack(*unit);
-                        battle.defender_casualties += prev_size - unit->size;
-                        if(!unit->size) {
-                            Eng3D::Log::debug("game", "Removing attacker \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
+                        Unit& unit = units[battle.defenders_ids[i]];
+                        assert(unit.is_valid());
+                        const size_t prev_size = unit.size;
+                        attacker.attack(unit);
+                        battle.defender_casualties += prev_size - unit.size;
+                        if(!unit.size) {
+                            Eng3D::Log::debug("game", "Removing attacker \"" + unit.type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                             battle.defenders_ids.erase(battle.defenders_ids.begin() + i);
-                            assert(unit->province_id == this->get_id(province));
-                            clear_units.local().push_back(unit);
+                            assert(unit.province_id() == this->get_id(province));
+                            clear_units.local().push_back(unit.cached_id);
                             continue;
                         }
                         i++;
@@ -721,19 +723,19 @@ void World::do_tick() {
 
                 // Defenders attack attackers
                 for(auto& defender_id : battle.defenders_ids) {
-                    Unit* defender = this->units[defender_id];
-                    assert(defender != nullptr);
+                    Unit& defender = units[defender_id];
+                    assert(defender.is_valid());
                     for(size_t i = 0; i < battle.attackers_ids.size(); ) {
-                        Unit* unit = this->units[battle.attackers_ids[i]];
-                        assert(unit != nullptr);
-                        const size_t prev_size = unit->size;
-                        defender->attack(*unit);
-                        battle.attacker_casualties += prev_size - unit->size;
-                        if(!unit->size) {
-                            Eng3D::Log::debug("game", "Removing defender \"" + unit->type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
+                        Unit& unit = units[battle.attackers_ids[i]];
+                        assert(unit.is_valid());
+                        const size_t prev_size = unit.size;
+                        defender.attack(unit);
+                        battle.attacker_casualties += prev_size - unit.size;
+                        if(!unit.size) {
+                            Eng3D::Log::debug("game", "Removing defender \"" + unit.type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                             battle.attackers_ids.erase(battle.attackers_ids.begin() + i);
-                            assert(unit->province_id == this->get_id(province));
-                            clear_units.local().push_back(unit);
+                            // assert(unit.province_id == this->get_id(province));
+                            clear_units.local().push_back(unit.cached_id);
                             continue;
                         }
                         i++;
@@ -744,20 +746,20 @@ void World::do_tick() {
                 if(battle.defenders_ids.empty() || battle.attackers_ids.empty()) {
                     // Defenders defeated
                     if(battle.defenders_ids.empty()) {
-                        this->nations[this->units[battle.attackers_ids[0]]->owner_id].control_province(province);
+                        this->nations[units[battle.attackers_ids[0]].owner_id].control_province(province);
                         // Clear flags of all units
                         for(auto& unit_id : battle.attackers_ids) {
-                            auto* unit = this->units[unit_id];
-                            unit->on_battle = false;
+                            auto& unit = units[unit_id];
+                            unit.on_battle = false;
                         }
                         Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": attackers win");
                     }
                     // Defenders won
                     else if(battle.attackers_ids.empty()) {
-                        this->nations[this->units[battle.defenders_ids[0]]->owner_id].control_province(province);
+                        this->nations[units[battle.defenders_ids[0]].owner_id].control_province(province);
                         for(auto& unit_id : battle.defenders_ids) {
-                            auto* unit = this->units[unit_id];
-                            unit->on_battle = false;
+                            auto& unit = units[unit_id];
+                            unit.on_battle = false;
                         }
                         Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": defenders win");
                     }
@@ -779,14 +781,7 @@ void World::do_tick() {
     profiler.start("Cleaning");
     clear_units.combine_each([this](const auto& units_clear_list) {
         for(auto& unit : units_clear_list) {
-            this->remove(*unit);
-            if(Province::is_valid(unit->province_id)) {
-                auto& unit_province = this->provinces[unit->province_id];
-                const auto it = std::find(unit_province.units_ids.begin(), unit_province.units_ids.end(), unit->get_id());
-                assert(it != unit_province.units_ids.end());
-                unit_province.units_ids.erase(it);
-            }
-            delete unit;
+            this->unit_manager.remove_unit(unit);
         }
     });
     profiler.stop("Cleaning");
@@ -797,7 +792,7 @@ void World::do_tick() {
     profiler.stop("Events");
 
     profiler.start("Send packets");
-    g_server->broadcast(Action::UnitUpdate::form_packet(units));
+    g_server->broadcast(Action::UnitUpdate::form_packet(this->unit_manager.units));
     profiler.stop("Send packets");
 
     if(!(time % ticks_per_month))
