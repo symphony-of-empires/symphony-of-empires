@@ -570,24 +570,25 @@ void ai_do_tick(Nation& nation) {
         }
     }
 
-    /// @todo make a better algorithm
     for(const auto& province_id : nation.controlled_provinces) {
         const auto& province = world.provinces[province_id];
         const auto& unit_ids = world.unit_manager.get_province_units(province_id);
         for(const auto& unit_id : unit_ids) {
             auto& unit = g_world->unit_manager.units[unit_id];
-            if(Province::is_invalid(unit.target_province_id)) {
-                for(const auto& neighbour_id : province.neighbours) {
-                    auto& neighbour = g_world->provinces[neighbour_id];
-                    if(std::rand() % 2) {
-                        unit.set_target(neighbour);
-                        break;
-                    }
-                }
+            if(unit.owner_id != nation.get_id()) continue; // We must be controlling this unit
+            if(Province::is_valid(unit.target_province_id)) continue; // And no target set before
+            for(const auto& neighbour_id : province.neighbours) {
+                if(std::rand() % province.neighbours.size()) continue;
+                auto& neighbour = g_world->provinces[neighbour_id];
+                if(neighbour.terrain_type->is_water_body) continue;
+                if(neighbour.get_id() == unit.province_id()) continue;
+                unit.set_target(neighbour);
+                break;
             }
         }
     }
 
+    /// @todo make a better algorithm
     if(nation.ai_do_cmd_troops && 0) {
         std::fill(ai_data.nations_risk_factor.begin(), ai_data.nations_risk_factor.end(), 0.f);
         for(const auto& other : world.nations) {
@@ -639,54 +640,56 @@ void ai_do_tick(Nation& nation) {
 
         for(const auto& province_id : nation.controlled_provinces) {
             const auto& province = world.provinces[province_id];
-            assert(province.controller == &nation);
             const auto& unit_ids = world.unit_manager.get_province_units(province_id);
             for(const auto& unit_id : unit_ids) {
                 auto& unit = g_world->unit_manager.units[unit_id];
-                if(unit.owner_id != nation.get_id()) continue;
-
+                if(unit.owner_id != nation.get_id() || unit.can_move()) continue;
                 // Do not change targets
                 /// @todo Change targets when urgent
                 if(Province::is_invalid(unit.target_province_id)) continue;
-                if(unit.can_move()) {
-                    Province& unit_province = world.provinces[unit.province_id()];
-                    // See which province has the most potential_risk so we cover it from potential threats
-                    Province& highest_risk = unit_province;
-                    for(const auto& neighbour_id : unit_province.neighbours) {
-                        auto& neighbour = g_world->provinces[neighbour_id];
-                        if(!unit.type->is_naval && neighbour.terrain_type->is_water_body) continue;
-                        if(potential_risk[world.get_id(highest_risk)] < potential_risk[neighbour_id]) {
-                            if(neighbour.controller != nullptr && neighbour.controller->get_id() != unit.owner_id) {
-                                const NationRelation& relation = world.get_relation(world.get_id(*neighbour.controller), unit.owner_id);
-                                if(relation.has_war || relation.has_alliance || neighbour.owner_id == unit.owner_id)
-                                    highest_risk = neighbour;
-                            } else {
+
+                Province& unit_province = world.provinces[unit.province_id()];
+                // See which province has the most potential_risk so we cover it from potential threats
+                Province& highest_risk = unit_province;
+                for(const auto& neighbour_id : unit_province.neighbours) {
+                    auto& neighbour = g_world->provinces[neighbour_id];
+                    if(std::rand() % 2) continue;
+                    if(!unit.type->is_naval && neighbour.terrain_type->is_water_body) continue;
+                    if(potential_risk[world.get_id(highest_risk)] < potential_risk[neighbour_id]) {
+                        if(neighbour.controller != nullptr && neighbour.controller->get_id() != unit.owner_id) {
+                            const NationRelation& relation = world.get_relation(world.get_id(*neighbour.controller), unit.owner_id);
+                            if(relation.has_war || relation.has_alliance || neighbour.owner_id == unit.owner_id)
                                 highest_risk = neighbour;
-                            }
+                        } else {
+                            highest_risk = neighbour;
                         }
                     }
+                }
 
-                    if(&highest_risk == &unit_province) {
-                        assert(!highest_risk.neighbours.empty());
-                        auto it = std::begin(highest_risk.neighbours);
-                        std::advance(it, std::rand() % highest_risk.neighbours.size());
-                        highest_risk = world.provinces[*it];
-                        if(&highest_risk == &unit_province) continue;
-                        assert(&highest_risk != &unit_province);
-                    }
+                if(&highest_risk == &unit_province) {
+                    assert(!highest_risk.neighbours.empty());
+                    auto it = std::begin(highest_risk.neighbours);
+                    std::advance(it, std::rand() % highest_risk.neighbours.size());
+                    highest_risk = world.provinces[*it];
+                    assert(&highest_risk != &unit_province);
+                }
 
-                    bool can_target = true;
-                    if(highest_risk.controller != nullptr && highest_risk.controller->get_id() != unit.owner_id) {
-                        const NationRelation& relation = world.get_relation(world.get_id(*highest_risk.controller), unit.owner_id);
+                bool can_target = true;
+                if(highest_risk.controller != nullptr && highest_risk.controller->get_id() != unit.owner_id) {
+                    const NationRelation& relation = world.get_relation(world.get_id(*highest_risk.controller), unit.owner_id);
 
-                        // Can only go to a province if we have military accesss, they are our ally or if we are at war
-                        // also if it's ours we can move thru it - or if it's owned by no-one
-                        if(!(relation.has_alliance || relation.has_military_access || relation.has_war))
-                            can_target = false;
-                    }
+                    // Can only go to a province if we have military accesss, they are our ally or if we are at war
+                    // also if it's ours we can move thru it - or if it's owned by no-one
+                    if(!(relation.has_alliance || relation.has_military_access || relation.has_war))
+                        can_target = false;
+                }
 
-                    if(can_target)
-                        unit.set_target(highest_risk);
+                if(can_target) {
+                    unit.set_target(highest_risk);
+                    
+                    /// @todo Setting the province to the same province we're at shouldn't be possible :)
+                    if(unit.target_province_id == unit.province_id())
+                        unit.target_province_id = Province::invalid();
                 }
             }
         }

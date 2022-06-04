@@ -63,6 +63,8 @@ Province::Id Unit::province_id() const {
 }
 
 void Unit::set_target(Province& _province) {
+    assert(this->target_province_id != this->province_id());
+
     const World& world = World::get_instance();
     assert(this->can_move());
     this->target_province_id = world.get_id(_province);
