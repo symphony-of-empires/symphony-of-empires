@@ -88,6 +88,24 @@ public:
     };\
     list_type<type*> list;
 
+// Vectors we don't remove from
+#define CONST_LIST_FOR_LOCAL_TYPE(type, list, list_type)\
+    inline const list_type<type>& get_list(const type* = nullptr) const {\
+        return list;\
+    };\
+    inline list_type<type>& get_list(const type* = nullptr) {\
+        return list;\
+    };\
+    inline void insert(type& ptr) {\
+        auto& list = this->get_list((type*)nullptr);\
+        list_mutex.lock();\
+        ptr.cached_id = list.size();\
+        Eng3D::Log::debug("world_insert", "Inserting object " #type " with ID=%zu" + std::to_string(ptr.cached_id));\
+        list.push_back(ptr);\
+        list_mutex.unlock();\
+    };\
+    list_type<type> list;
+
 #define LIST_FOR_LOCAL_TYPE(type, list, list_type)\
     inline const list_type<type>& get_list(const type* = nullptr) const {\
         return list;\
@@ -141,7 +159,7 @@ public:
     LIST_FOR_LOCAL_TYPE(Technology, technologies, std::vector);
     LIST_FOR_LOCAL_TYPE(NationModifier, nation_modifiers, std::vector);
     LIST_FOR_LOCAL_TYPE(TerrainType, terrain_types, std::vector);
-    LIST_FOR_LOCAL_TYPE(Province, provinces, std::vector);
+    CONST_LIST_FOR_LOCAL_TYPE(Province, provinces, std::vector);
     LIST_FOR_LOCAL_TYPE(Nation, nations, std::vector);
     LIST_FOR_LOCAL_TYPE(Event, events, std::vector);
 
