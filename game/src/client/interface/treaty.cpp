@@ -105,7 +105,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation& _nation)
             clause->sender = this->gs.curr_nation;
             clause->receiver = &(const_cast<Nation&>(this->nation));
             clause->days_duration = 0;
-            for(auto& province_id : this->nation.controlled_provinces)
+            for(const auto province_id : this->nation.controlled_provinces)
                 clause->provinces.push_back(&this->gs.world->provinces[province_id]);
             this->treaty.clauses.push_back(clause);
         } else {
@@ -124,7 +124,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation& _nation)
             clause->sender = this->gs.curr_nation;
             clause->receiver = &(const_cast<Nation&>(this->nation));
             clause->days_duration = 0;
-            for(auto& province_id : this->nation.owned_provinces)
+            for(const auto province_id : this->nation.owned_provinces)
                 clause->provinces.push_back(&this->gs.world->provinces[province_id]);
             this->treaty.clauses.push_back(clause);
         } else {

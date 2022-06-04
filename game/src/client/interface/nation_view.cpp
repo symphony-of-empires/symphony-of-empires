@@ -47,7 +47,7 @@ NationMarketView::NationMarketView(GameState& _gs, Nation& _nation)
     });
 
     size_t i = 0;
-    for(const auto& province_id : nation.controlled_provinces) {
+    for(const auto province_id : nation.controlled_provinces) {
         auto& province = gs.world->provinces[province_id];
         for(auto& good : gs.world->goods) {
             new ProductInfo(gs, 0, (i * 24) + 128, province, good, this);

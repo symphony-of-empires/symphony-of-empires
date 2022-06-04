@@ -96,7 +96,7 @@ static inline void external_migration(World& world) {
     for(auto nation : world.nations) {
         std::vector<float> attractions;
         std::vector<Province*> viable_provinces;
-        for(auto province_id : nation.owned_provinces) {
+        for(const auto province_id : nation.owned_provinces) {
             auto& province = world.provinces[province_id];
             float attraction = province_attraction(province);
             if(attraction <= 0) continue;
@@ -147,7 +147,7 @@ static inline void external_migration(World& world) {
     std::for_each(std::execution::par, eval_nations.begin(), eval_nations.end(), [&emigration, &nation_distributions, &province_distributions, &world](const auto& nation) {
         // Check that laws on the province we are in allows for emigration
         if(nation->current_policy.migration == ALLOW_NOBODY) return;
-        for(const auto& province_id : nation->controlled_provinces) {
+        for(const auto province_id : nation->controlled_provinces) {
             auto& province = world.provinces[province_id];
             // Guaranteed that province->controller != nullptr and that the province is not a water body
 

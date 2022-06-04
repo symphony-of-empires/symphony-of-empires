@@ -111,7 +111,7 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
     this->reqmat_chart->text("Material demand");
     this->reqmat_chart->on_each_tick = ([this](UI::Widget&) {
         float reqtotal = 0.f;
-        for(const auto& province_id : this->gs.curr_nation->owned_provinces) {
+        for(const auto province_id : this->gs.curr_nation->owned_provinces) {
             const auto& province = gs.world->provinces[province_id];
             for(const auto& building : province.get_buildings()) {
                 for(const auto& req : building.req_goods_for_unit)
@@ -128,7 +128,7 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
 
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
-    for(const auto& province_id : gs.curr_nation->owned_provinces) {
+    for(const auto province_id : gs.curr_nation->owned_provinces) {
         const auto& province = gs.world->provinces[province_id];
         for(const auto& building_type : gs.world->building_types) {
             if(!building_type.can_build_land_units())

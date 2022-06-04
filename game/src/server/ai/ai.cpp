@@ -82,7 +82,7 @@ static inline Good* ai_get_potential_good(Nation& nation) {
         // Sucess = Sum(Demand / (Supply + 1) * Price)
         std::vector<float> avg_prob(world.goods.size(), 0.f);
         avg_prob.shrink_to_fit();
-        for(const auto& province_id : nation.owned_provinces) {
+        for(const auto province_id : nation.owned_provinces) {
             const auto& province = world.provinces[province_id];
             for(const auto& good : world.goods) {
                 const Product& product = province.products[world.get_id(good)];
@@ -255,9 +255,9 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
 
     // Check if we even border them
     bool is_border = false;
-    for(const auto& province_id : nation.controlled_provinces) {
+    for(const auto province_id : nation.controlled_provinces) {
         const auto& province = world.provinces[province_id];
-        for(const auto& neighbour_id : province.neighbours) {
+        for(const auto neighbour_id : province.neighbours) {
             auto& neighbour = g_world->provinces[neighbour_id];
             if(neighbour.controller == &other) {
                 is_border = true;
@@ -269,9 +269,9 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
     // Our strength as attackers
     float our_power = 1.f;
     for(const auto& ally_nation : nation.get_allies()) {
-        for(const auto& province_id : ally_nation->owned_provinces) {
+        for(const auto province_id : ally_nation->owned_provinces) {
             const auto& unit_ids = world.unit_manager.get_province_units(province_id);
-            for(const auto& unit_id : unit_ids) {
+            for(const auto unit_id : unit_ids) {
                 auto& unit = g_world->unit_manager.units[unit_id];
                 our_power += unit.type->attack * unit.size;
                 our_power += unit.type->defense * unit.size;
@@ -282,9 +282,9 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
     // The strength of the defenders
     float other_power = 1.f;
     for(const auto& ally_nation : other.get_allies()) {
-        for(const auto& province_id : ally_nation->owned_provinces) {
+        for(const auto province_id : ally_nation->owned_provinces) {
             const auto& unit_ids = world.unit_manager.get_province_units(province_id);
-            for(const auto& unit_id : unit_ids) {
+            for(const auto unit_id : unit_ids) {
                 auto& unit = g_world->unit_manager.units[unit_id];
                 other_power += unit.type->attack * unit.size;
                 other_power += unit.type->defense * unit.size;
@@ -303,10 +303,10 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
                 // Check we border said nation
                 bool has_border = false;
                 bool has_units = false;
-                for(const auto& province_id : nation.controlled_provinces) {
+                for(const auto province_id : nation.controlled_provinces) {
                     const auto& province = world.provinces[province_id];
                     // Check for borders
-                    for(const auto& neighbour_id : province.neighbours) {
+                    for(const auto neighbour_id : province.neighbours) {
                         auto& neighbour = g_world->provinces[neighbour_id];
                         if(neighbour.controller == &other) {
                             has_border = true;
@@ -337,7 +337,7 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
                 auto* clause = new TreatyClause::AnnexProvince();
                 clause->sender = &nation;
                 clause->receiver = &other;
-                for(const auto& province_id : other.owned_provinces) {
+                for(const auto province_id : other.owned_provinces) {
                     auto& province = world.provinces[province_id];
                     if(province.controller == &nation) {
                         if(!(std::rand() % 10))
@@ -356,7 +356,7 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
                 clause->receiver = &other;
 
                 clause->liberated = nullptr;
-                for(const auto& province_id : other.owned_provinces) {
+                for(const auto province_id : other.owned_provinces) {
                     const auto& province = world.provinces[province_id];
                     for(const auto& nucleus_id : province.nuclei) {
                         auto& nucleus = g_world->nations[nucleus_id];
@@ -453,7 +453,7 @@ void ai_do_tick(Nation& nation) {
                 // The more population the better
                 prov.second += prov.first->total_pops() * 0.005f;
                 // Bordering a province of ours means we are **to** colonize it
-                for(const auto& neighbour_id : prov.first->neighbours) {
+                for(const auto neighbour_id : prov.first->neighbours) {
                     auto& neighbour = g_world->provinces[neighbour_id];
                     if(neighbour.controller == &nation)
                         prov.second *= 100.f;
@@ -547,7 +547,7 @@ void ai_do_tick(Nation& nation) {
 
         if(std::rand() % (base_reluctance / defense_factor) == 0) {
             // Build units inside buildings that are not doing anything
-            for(const auto& province_id : nation.controlled_provinces) {
+            for(const auto province_id : nation.controlled_provinces) {
                 if(std::rand() % (base_reluctance / defense_factor)) continue;
 
                 auto& province = world.provinces[province_id];
@@ -590,13 +590,13 @@ void ai_do_tick(Nation& nation) {
         ai_data.nations_risk_factor[world.get_id(nation)] = 0.f;
 
         std::vector<double> potential_risk(world.provinces.size(), 0.f);
-        for(const auto& province : g_world->provinces) {
-            const auto& province_id = province.get_id();
+        for(const auto province_id : nation.controlled_provinces) {
+            const auto& province = world.provinces[province_id];
             // The "cooling" value which basically makes us ignore some provinces with lots of defenses
             // so we don't rack up deathstacks on a border with some micronation
             double draw_away_force = 0.f;
             const auto& unit_ids = world.unit_manager.get_province_units(province_id);
-            for(const auto& unit_id : unit_ids) {
+            for(const auto unit_id : unit_ids) {
                 auto& unit = g_world->unit_manager.units[unit_id];
                 // Only account this for units that are of our nation
                 // because enemy units will require us to give more importance to it
@@ -609,7 +609,7 @@ void ai_do_tick(Nation& nation) {
             potential_risk[province_id] -= draw_away_force;
 
             const size_t neighbours_size = province.neighbours.size();
-            for(const auto& neighbour_id : province.neighbours) {
+            for(const auto neighbour_id : province.neighbours) {
                 auto& neighbour = g_world->provinces[neighbour_id];
                 if(neighbour.terrain_type->is_water_body) continue;
                 // Only if neighbour has a controller
@@ -620,10 +620,10 @@ void ai_do_tick(Nation& nation) {
             }
         }
 
-        for(const auto& province : g_world->provinces) {
-            const auto& province_id = province.get_id();
+        for(const auto province_id : nation.controlled_provinces) {
+            const auto& province = world.provinces[province_id];
             const auto& unit_ids = world.unit_manager.get_province_units(province_id);
-            for(const auto& unit_id : unit_ids) {
+            for(const auto unit_id : unit_ids) {
                 auto& unit = g_world->unit_manager.units[unit_id];
                 if(unit.owner_id != nation.get_id() || !unit.can_move()) continue;
                 // Do not change targets
@@ -633,7 +633,7 @@ void ai_do_tick(Nation& nation) {
                 Province& unit_province = world.provinces[unit.province_id()];
                 // See which province has the most potential_risk so we cover it from potential threats
                 Province* highest_risk = &unit_province;
-                for(const auto& neighbour_id : unit_province.neighbours) {
+                for(const auto neighbour_id : unit_province.neighbours) {
                     auto& neighbour = g_world->provinces[neighbour_id];
                     if(!unit.type->is_naval && neighbour.terrain_type->is_water_body) continue;
                     if(potential_risk[world.get_id(*highest_risk)] < potential_risk[neighbour_id]) {
