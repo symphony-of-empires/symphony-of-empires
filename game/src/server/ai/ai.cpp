@@ -583,7 +583,7 @@ void ai_do_tick(Nation& nation) {
             if(!relation.has_alliance) {
                 ai_data.nations_risk_factor[world.get_id(other)] += 1.f * ((400.f - std::max<double>(relation.relation + 200.f, 1.f)) / 50.f);
             } else if(relation.has_war) {
-                ai_data.nations_risk_factor[world.get_id(other)] += 100.f;
+                ai_data.nations_risk_factor[world.get_id(other)] += 1000.f;
             }
         }
         // Our own nation is safe, let's set it to 0
@@ -647,13 +647,7 @@ void ai_do_tick(Nation& nation) {
                     }
                 }
 
-                if(highest_risk == &unit_province) {
-                    assert(!highest_risk->neighbours.empty());
-                    auto it = std::begin(highest_risk->neighbours);
-                    std::advance(it, std::rand() % highest_risk->neighbours.size());
-                    highest_risk = &world.provinces[*it];
-                    if(highest_risk == &unit_province) continue;
-                }
+                if(highest_risk == &unit_province) continue;
 
                 bool can_target = true;
                 if(highest_risk->controller != nullptr && highest_risk->controller->get_id() != unit.owner_id) {

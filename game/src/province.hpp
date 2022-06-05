@@ -53,7 +53,7 @@ public:
     }
     ~Battle() {};
 
-    Eng3D::String name;
+    Eng3D::StringRef name;
     War* war = nullptr;
     float attacker_casualties = 0;
     float defender_casualties = 0;

@@ -105,7 +105,7 @@ namespace EventEditor {
         NodeVariable() {};
         ~NodeVariable() {};
 
-        Eng3D::String name;
+        std::string name;
     };
 
     /**
