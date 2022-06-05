@@ -107,6 +107,8 @@ public:
 class Nation : public RefnameEntity<uint16_t> {
     inline void do_diplomacy();
     inline bool can_do_diplomacy() const;
+
+    Nation & operator=(const Nation&) = default;
 public:
     Nation() {};
     ~Nation() {};
