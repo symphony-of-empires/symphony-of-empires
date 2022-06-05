@@ -188,7 +188,7 @@ public:
     bool does_participate(Nation& nation);
 	bool in_effect() const;
 
-    Eng3D::String name;
+    Eng3D::StringRef name;
     Nation* sender; // The one who sent the treaty
     Nation* receiver; // The one who is going to receive this treaty
     // Clauses of this treaty;
@@ -205,7 +205,7 @@ public:
     bool is_attacker(const Nation& nation) const;
     bool is_defender(const Nation& nation) const;
 
-    Eng3D::String name;
+    Eng3D::StringRef name;
     std::vector<Nation*> attackers, defenders;
     std::vector<TreatyClause::BaseClause*> wargoals;
 };

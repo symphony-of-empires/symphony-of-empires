@@ -72,8 +72,8 @@ public:
 /// @todo Make bookmark.hpp?
 class Bookmark {
 public:
-    Eng3D::String ref_name;
-    Eng3D::String name;
+    Eng3D::StringRef ref_name;
+    Eng3D::StringRef name;
     uint64_t start_time;
     std::vector<Nation*> interest_picks;
 };

@@ -30,8 +30,6 @@
 #include <cstdint>
 
 namespace Eng3D {
-    typedef std::string String;
-
     /**
      * @brief A reference to a string on the global string pool
      * 
@@ -59,7 +57,7 @@ namespace Eng3D {
 
         const std::string& get_string() const;
 
-        inline StringRef& operator=(const String& rhs)
+        inline StringRef& operator=(const std::string& rhs)
         {
             *this = StringRef(rhs);
             return *this;
@@ -70,7 +68,7 @@ namespace Eng3D {
             return this->get_string() == rhs.get_string();
         };
 
-        inline bool operator==(const String& rhs) const
+        inline bool operator==(const std::string& rhs) const
         {
             return this->get_string() == rhs;
         };
@@ -81,22 +79,22 @@ namespace Eng3D {
         };
     };
 
-    inline String operator+(const char *lhs, const StringRef& rhs)
+    inline std::string operator+(const char *lhs, const StringRef& rhs)
     {
-        return String(lhs) + rhs.get_string();
+        return std::string(lhs) + rhs.get_string();
     };
 
-    inline String operator+(const StringRef& lhs, const char *rhs)
+    inline std::string operator+(const StringRef& lhs, const char *rhs)
     {
         return lhs.get_string() + rhs;
     };
 
-    inline String operator+(const String& lhs, const StringRef& rhs)
+    inline std::string operator+(const std::string& lhs, const StringRef& rhs)
     {
-        return String(lhs) + rhs.get_string();
+        return std::string(lhs) + rhs.get_string();
     };
 
-    inline String operator+(const StringRef& lhs, const String& rhs)
+    inline std::string operator+(const StringRef& lhs, const std::string& rhs)
     {
         return lhs.get_string() + rhs;
     };
@@ -107,7 +105,7 @@ namespace Eng3D {
      * 
      */
     class StringManager {
-        std::vector<Eng3D::String> strings;
+        std::vector<std::string> strings;
     public:
         StringManager() {
 
@@ -117,12 +115,12 @@ namespace Eng3D {
 
         }
         
-        inline Eng3D::StringRef insert(const String& str) {
+        inline Eng3D::StringRef insert(const std::string& str) {
             this->strings.push_back(str);
             return Eng3D::StringRef(this->strings.size() - 1);
         }
 
-        inline const String& get_by_id(const Eng3D::StringRef ref) const {
+        inline const std::string& get_by_id(const Eng3D::StringRef ref) const {
             return this->strings[ref.id];
         }
 
