@@ -52,7 +52,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     this->padding.x = 0;
     this->padding.y = 48;
 
-    this->current_texture = this->gs.tex_man->load(Path::get("gfx/policies_screen.png"));
+    this->current_texture = this->gs.tex_man->load(this->gs.package_man->get_unique("gfx/policies_screen.png"));
     this->width = this->current_texture->width;
     this->height = this->current_texture->height;
     this->text("Laws and goverment");

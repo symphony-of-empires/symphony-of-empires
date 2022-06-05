@@ -42,12 +42,13 @@ Rivers::Rivers() {
     mipmap_options.mag_filter = GL_LINEAR;
     mipmap_options.internal_format = GL_SRGB;
 
-    water_tex = Eng3D::State::get_instance().tex_man->load(Path::get("gfx/water_tex.png"), mipmap_options);
+    auto& gs = Eng3D::State::get_instance();
+    water_tex = gs.tex_man->load(gs.package_man->get_unique("gfx/water_tex.png"), mipmap_options);
     line_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        auto vs_shader = *Eng3D::State::get_instance().builtin_shaders["vs_3d"].get();
+        auto vs_shader = *gs.builtin_shaders["vs_3d"].get();
         line_shader->attach_shader(vs_shader);
-        auto fs_shader = Eng3D::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/curve.fs")), true);
+        auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man->get_unique("shaders/curve.fs")->read_all(), true);
         line_shader->attach_shader(fs_shader);
         line_shader->link();
     }
@@ -69,13 +70,10 @@ void get_river(std::vector<glm::vec3>& river, int current_index, int prev_index,
     river.push_back(glm::vec3(x, y, -0.05));
 
     const auto check_neighbor = [current_index, prev_index, pixels, width, height](std::vector<glm::vec3>& river, int new_x, int new_y) {
-        if(new_x < 0 || new_y < 0 || new_x >= width || new_y >= height) {
+        if(new_x < 0 || new_y < 0 || new_x >= width || new_y >= height)
             return;
-        }
         int new_index = new_x + new_y * width;
-        if(new_index == prev_index) {
-            return;
-        }
+        if(new_index == prev_index) return;
 
         uint32_t neighbor_color = pixels[new_index];
         if(neighbor_color == 0xFFFF0000) {
@@ -94,7 +92,7 @@ void Rivers::build_rivers() {
     auto tex_man = Eng3D::State::get_instance().tex_man;
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
-    auto river_tex = tex_man->load(Path::get("map/river.png"), no_drop_options);
+    auto river_tex = tex_man->load(Eng3D::State::get_instance().package_man->get_unique("map/river.png"), no_drop_options);
 
     std::vector<int> rivers_starts;
     int height = river_tex->height;
@@ -104,9 +102,8 @@ void Rivers::build_rivers() {
         for(int x = 0; x < width; x++) {
             int curr_index = x + y * river_tex->width;
             uint32_t color = pixels[curr_index];
-            if(color == 0xFF0000FF) {
+            if(color == 0xFF0000FF)
                 rivers_starts.push_back(x + y * width);
-            }
         }
     }
 
@@ -115,17 +112,14 @@ void Rivers::build_rivers() {
         std::vector<glm::vec3> river;
         get_river(river, rivers_starts[i], -1, pixels, width, height);
 
-        size_t length = river.size();
-        if(length < 2) {
-            continue;
-        }
+        const size_t length = river.size();
+        if(length < 2) continue;
 
         std::vector<glm::vec3> mid_points(length + 3);
         mid_points[0] = river[0];
         mid_points[1] = river[0];
-        for(size_t j = 0; j < length - 1; j++) {
+        for(size_t j = 0; j < length - 1; j++)
             mid_points[j + 2] = 0.5f * (river[j] + river[j + 1]);
-        }
         mid_points[length + 1] = river[length - 1];
         mid_points[length + 2] = river[length - 1];
 
@@ -174,7 +168,6 @@ void Rivers::draw(Eng3D::Camera* camera) {
     line_shader->set_uniform("projection", camera->get_projection());
     line_shader->set_uniform("view", camera->get_view());
     line_shader->set_texture(0, "water_texture", *water_tex);
-    for(auto curve : curves) {
+    for(auto curve : curves)
         curve->draw();
-    }
 }

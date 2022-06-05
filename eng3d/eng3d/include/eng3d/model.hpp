@@ -37,6 +37,7 @@
 #include <GL/glu.h>
 
 #include "eng3d/mesh.hpp"
+#include "eng3d/io.hpp"
 
 namespace Eng3D {
     class Material;
@@ -51,7 +52,7 @@ namespace Eng3D {
     class SimpleModel : public Eng3D::Mesh<glm::vec3, glm::vec2> {
     public:
         SimpleModel(enum Eng3D::MeshMode _mode);
-        ~SimpleModel();
+        ~SimpleModel() {};
         SimpleModel(const SimpleModel&) = default;
         SimpleModel(SimpleModel&&) noexcept = default;
         SimpleModel& operator=(const SimpleModel&) = default;
@@ -74,11 +75,12 @@ namespace Eng3D {
     };
 
     class ModelManager {
-        std::map<std::string, Eng3D::Model*> models;
-        const Eng3D::Model& load_wavefront(const std::string& path);
-        const Eng3D::Model& load_stl(const std::string& path);
+        std::map<std::string, std::shared_ptr<Eng3D::Model>> models;
+        Eng3D::Model load_wavefront(const std::string& path);
+        Eng3D::Model load_stl(const std::string& path);
     public:
-        ~ModelManager();
-        const Eng3D::Model& load(const std::string& path);
+        ~ModelManager() {};
+        std::shared_ptr<Eng3D::Model> load(const std::string& path);
+        std::shared_ptr<Eng3D::Model> load(std::shared_ptr<Eng3D::IO::Asset::Base> asset);
     };
 }

@@ -37,8 +37,9 @@ Window::Window(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI::WidgetType::WINDOW),
     is_movable{ true }
 {
+    auto& s = Eng3D::State::get_instance();
     this->padding = glm::ivec2(8, 24 + 8);
-    this->current_texture = Eng3D::State::get_instance().tex_man->load(Path::get("gfx/window_background.png"));
+    this->current_texture = s.tex_man->load(s.package_man->get_unique("gfx/window_background.png"));
     this->is_scroll = true;
     this->text_color = Eng3D::Color(1.f, 1.f, 1.f);
 

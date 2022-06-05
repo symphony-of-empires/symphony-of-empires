@@ -25,48 +25,23 @@
 //      implement custom paths.
 // ----------------------------------------------------------------------------
 
+#include <filesystem>
+#include "eng3d/path.hpp"
 #include "eng3d/io.hpp"
 #include "eng3d/utils.hpp"
 
 //
-// IO::Path
-//
-// The path class abstracts away most of the burden from handling system-dependant
-// filesystem paths
-//
-Eng3D::IO::Path::Path() {
-
-}
-
-Eng3D::IO::Path::Path(const std::string& path)
-    : str(path)
-{
-
-}
-
-Eng3D::IO::Path::Path(const char* path)
-    : str(std::string(path))
-{
-
-}
-
-Eng3D::IO::Path::~Path() {
-
-}
-
-//
 // Asset::File
-//
-// A "file" version of the base asset, mostly to identify an asset on a physical disk
 //
 void Eng3D::IO::Asset::File::open() {
     this->fp = ::fopen(abs_path.c_str(), "rb");
-    //if(fp == nullptr)
-    //    throw std::runtime_error("Can't open file " + path);
+    if(fp == nullptr)
+        CXX_THROW(std::runtime_error, "Can't open file " + path);
 }
 
 void Eng3D::IO::Asset::File::close() {
     ::fclose(this->fp);
+    this->fp = nullptr;
 }
 
 void Eng3D::IO::Asset::File::read(void* buf, size_t n) {
@@ -87,64 +62,64 @@ void Eng3D::IO::Asset::File::seek(SeekType type, int offset) {
     }
 }
 
-//
-// Package
-//
-#include <filesystem>
-#include "eng3d/path.hpp"
+size_t Eng3D::IO::Asset::File::get_size(void) const {
+    FILE* cfp = const_cast<FILE*>(this->fp);
+    fpos_t pos;
+    ::fgetpos(cfp, &pos); // Save
+    ::fseek(cfp, 0, SEEK_END); // Go to the end
+    long size = ::ftell(cfp); // Get size
+    ::fsetpos(cfp, &pos); // Reset
+    return static_cast<size_t>(size);
+}
+
 //
 // Package manager
 //
+void Eng3D::IO::PackageManager::recursive_filesystem_walk(Eng3D::IO::Package& package, const std::string& root, const std::string& current) {
+    // Register paths into our virtual filesystem
+    for(const auto& entry : std::filesystem::recursive_directory_iterator(current)) {
+        if(entry.is_directory()) continue;
+        auto asset = std::make_shared<Eng3D::IO::Asset::File>();
+        asset->path = entry.path().lexically_relative(root).string();
+        asset->abs_path = entry.path().string();
+#ifdef E3D_TARGET_WINDOWS
+        std::replace(asset->path.begin(), asset->path.end(), '\\', '/');
+        std::replace(asset->abs_path.begin(), asset->abs_path.end(), '\\', '/');
+#endif
+        package.assets.push_back(asset);
+    }
+}
+
 Eng3D::IO::PackageManager::PackageManager(const std::vector<std::string>& pkg_paths) {
     if(pkg_paths.empty()) {
         const std::string asset_path = ::Path::get_full();
-
-        /// @todo Replace with a custom filesystem implementation
-        // Register packages
+        // All folders inside mods/
         for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
             if(!entry.is_directory()) continue;
             auto package = Eng3D::IO::Package();
-            package.name = entry.path().lexically_relative(asset_path).string();
-            for(const auto& _entry : std::filesystem::recursive_directory_iterator(entry.path())) {
-                if(_entry.is_directory()) continue;
-                std::shared_ptr<Eng3D::IO::Asset::File> asset = std::make_shared<Eng3D::IO::Asset::File>();
-                asset->path = _entry.path().lexically_relative(entry.path()).string();
-                asset->abs_path = _entry.path().string();
-#ifdef E3D_TARGET_WINDOWS
-                std::replace(asset->path.begin(), asset->path.end(), '\\', '/');
-                std::replace(asset->abs_path.begin(), asset->abs_path.end(), '\\', '/');
-#endif
-                package.assets.push_back(asset);
-            }
-            packages.push_back(package);
+            package.name = entry.path().lexically_relative(asset_path).string(); // Relative (for nicer names)
+            package.abs_path = entry.path(); // Absolute
+            recursive_filesystem_walk(package, entry.path(), entry.path());
+            this->packages.push_back(package);
         }
     } else {
-        /// @todo Replace with a custom filesystem implementation
-        // Register packages using pkg_paths
+        // Manually specified paths (can be outside mods/)
         for(const auto& entry : pkg_paths) {
             auto package = Eng3D::IO::Package();
             package.name = entry;
-            for(const auto& _entry : std::filesystem::recursive_directory_iterator(entry)) {
-                if(_entry.is_directory()) continue;
-                std::shared_ptr<Eng3D::IO::Asset::File> asset = std::make_shared<Eng3D::IO::Asset::File>();
-                asset->path = _entry.path().lexically_relative(entry).string();
-                asset->abs_path = _entry.path().string();
-#ifdef E3D_TARGET_WINDOWS
-                std::replace(asset->path.begin(), asset->path.end(), '\\', '/');
-                std::replace(asset->abs_path.begin(), asset->abs_path.end(), '\\', '/');
-#endif
-                package.assets.push_back(asset);
-            }
-            packages.push_back(package);
+            package.abs_path = entry;
+            recursive_filesystem_walk(package, entry, entry);
+            this->packages.push_back(package);
         }
     }
 }
 
-Eng3D::IO::PackageManager::~PackageManager() {
-
-}
-
-// Obtaining an unique asset means the "first-found" policy applies
+/**
+ * @brief Obtaining an unique asset means the "first-found" policy applies
+ * 
+ * @param path The path to obtain
+ * @return std::shared_ptr<Eng3D::IO::Asset::Base> Obtained asset object
+ */
 std::shared_ptr<Eng3D::IO::Asset::Base> Eng3D::IO::PackageManager::get_unique(const Eng3D::IO::Path& path) {
     std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> list = this->get_multiple(path);
     if(list.empty())
@@ -152,17 +127,50 @@ std::shared_ptr<Eng3D::IO::Asset::Base> Eng3D::IO::PackageManager::get_unique(co
     return list.at(0);
 }
 
+/**
+ * @brief Obtains multiple assets iff they share a common path (useful for concating
+ * files that might clash, such as lua scripts)
+ * 
+ * @param path 
+ * @return std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> 
+ */
 std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> Eng3D::IO::PackageManager::get_multiple(const Eng3D::IO::Path& path) {
     std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> list;
-
-    std::vector<Eng3D::IO::Package>::const_iterator package;
-    std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>>::const_iterator asset;
-
-    for(package = packages.begin(); package != packages.end(); package++) {
-        for(asset = (*package).assets.begin(); asset != (*package).assets.end(); asset++) {
-            if((*asset)->path == path.str)
-                list.push_back(*asset);
+    for(const auto& package : this->packages) {
+        for(const auto& asset : package.assets) {
+            if(asset->path == path.str)
+                list.push_back(asset);
         }
     }
     return list;
+}
+
+/**
+ * @brief Obtains all assets starting with a given prefix
+ * 
+ * @param prefix The prefix to check for
+ * @return std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> 
+ */
+std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> Eng3D::IO::PackageManager::get_multiple_prefix(const Eng3D::IO::Path& prefix) {
+    std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> list;
+    for(const auto& package : this->packages) {
+        for(const auto& asset : package.assets) {
+            if(asset->path.substr(0, prefix.str.length()) == prefix.str)
+                list.push_back(asset);
+        }
+    }
+    return list;
+}
+
+/**
+ * @brief Obtain all the paths that are currently under the management of a package, that is
+ * return the absolute root directory of all packages
+ * 
+ * @return std::vector<std::string> The list of paths
+ */
+std::vector<std::string> Eng3D::IO::PackageManager::get_paths(void) const {
+    std::vector<std::string> paths;
+    for(const auto& package : this->packages)
+        paths.push_back(package.abs_path);
+    return paths;
 }

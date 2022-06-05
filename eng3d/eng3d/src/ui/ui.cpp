@@ -79,10 +79,9 @@ Context::Context() {
 
     Eng3D::State& gs = Eng3D::State::get_instance();
     // default_font = TTF_OpenFont(gs.package_man->get_uniqu("gfx/fonts/FreeMono.ttf").c_str(), 16);
-    default_font = TTF_OpenFont(Eng3D::IO::Asset::Base::get_abs_path(*gs.package_man->get_unique("fonts/Poppins/Poppins-SemiBold.ttf").get()).c_str(), 16);
-    if(default_font == nullptr) {
+    default_font = TTF_OpenFont(gs.package_man->get_unique("fonts/Poppins/Poppins-SemiBold.ttf")->get_abs_path().c_str(), 16);
+    if(default_font == nullptr)
         CXX_THROW(std::runtime_error, std::string() + "Font could not be loaded: " + TTF_GetError());
-    }
     widgets.reserve(255);
 
     foreground = gs.tex_man->load(gs.package_man->get_unique("gfx/button2.png"));
@@ -98,9 +97,9 @@ Context::Context() {
     // Shader used for orthogonally drawing the objects on the 2D plane
     obj_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        auto vs_shader = Eng3D::OpenGL::VertexShader(Path::cat_strings(Path::get_data("shaders/vs_2d.vs")));
+        auto vs_shader = Eng3D::OpenGL::VertexShader(Eng3D::State::get_instance().package_man->get_unique("shaders/vs_2d.vs")->read_all());
         obj_shader->attach_shader(vs_shader);
-        auto fs_shader = Eng3D::OpenGL::FragmentShader(Path::cat_strings(Path::get_data("shaders/fs_2d.fs")));
+        auto fs_shader = Eng3D::OpenGL::FragmentShader(Eng3D::State::get_instance().package_man->get_unique("shaders/fs_2d.fs")->read_all());
         obj_shader->attach_shader(fs_shader);
         obj_shader->link();
     }

@@ -257,9 +257,11 @@ World::World() {
     std::string curr_path = lua_tostring(lua, -1);
 
     // Add all scripts onto the path (with glob operator '?')
-    std::vector<std::string> mod_paths = Path::get_paths();
-    for(const auto& path : mod_paths)
-        curr_path.append(";" + path + "lua/?.lua");
+    const std::vector<std::string> paths = Eng3D::State::get_instance().package_man->get_paths();
+    for(const auto& path : paths) {
+        Eng3D::Log::debug("lua", "Added path " + path);
+        curr_path.append(";" + path + "/lua/?.lua");
+    }
     lua_pop(lua, 1);
     lua_pushstring(lua, curr_path.c_str());
     lua_setfield(lua, -2, "path");
@@ -275,7 +277,7 @@ World::~World() {
 static void lua_exec_all_of(World& world, const std::vector<std::string> files, const std::string& dir = "lua") {
     std::string files_buf = "require(\"classes/base\")\n\n";
     for(const auto& file : files) {
-        std::vector<std::string> paths = Path::get_all(dir + "/" + file + ".lua");
+        auto paths = Eng3D::State::get_instance().package_man->get_multiple(dir + "/" + file + ".lua");
         for(const auto& path : paths) {
             /*luaL_dofile(lua, path.c_str());
             if(luaL_dofile(lua, path.c_str()) != LUA_OK) {
@@ -283,18 +285,17 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
             }*/
 #ifdef E3D_TARGET_WINDOWS
             std::string m_path;
-            for(auto& c : path) {
+            for(auto& c : path->get_abs_path()) {
                 if(c == '\\')
                     m_path += "\\\\";
                 else
                     m_path += c;
             }
 #else
-            std::string m_path = path;
+            std::string m_path = path->get_abs_path();
 #endif
             files_buf += "print(\"" + m_path + "\")\n";
-            files_buf += "f = loadfile(\"" + m_path + "\")\n";
-            files_buf += "f()\n";
+            files_buf += "loadfile(\"" + m_path + "\")()\n";
         }
     }
     Eng3D::Log::debug("game", "files_buf: " + files_buf);
@@ -320,7 +321,7 @@ void World::load_initial() {
                 "nations", "provinces", "init"
         }, "lua/entities");
 
-        std::unique_ptr<BinaryImage> div = std::make_unique<BinaryImage>(Path::get("map/provinces.png"));
+        std::unique_ptr<BinaryImage> div = std::make_unique<BinaryImage>(Eng3D::State::get_instance().package_man->get_unique("map/provinces.png")->get_abs_path());
         width = div->width;
         height = div->height;
         tiles = std::make_unique<Tile[]>(width * height);
@@ -507,17 +508,17 @@ static inline void unit_do_tick(Unit& unit)
     if(Province::is_valid(unit.target_province_id)) {
         assert(unit.target_province_id != unit.province_id());
         bool can_move = true, can_take = false;
-        if(unit_target.controller != nullptr && unit_target.controller->get_id() != unit.owner_id && unit_target.controller != nullptr) {
-            const auto& relation = g_world->get_relation(g_world->get_id(*unit_target.controller), unit.owner_id);
+        if(unit_target.controller != nullptr && unit_target.controller->get_id() != unit.owner_id) {
+            const auto& relation = g_world->get_relation(unit_target.controller->get_id(), unit.owner_id);
             can_move = (relation.has_alliance || relation.has_defensive_pact || relation.has_war);
-            can_take = (relation.has_war);
+            can_take = relation.has_war;
         }
 
         if(can_move) {
             if(unit.move_progress) {
                 unit.move_progress -= std::min<float>(unit.move_progress, unit.get_speed());
             } else {
-                g_world->unit_manager.move_unit(unit.cached_id, unit.target_province_id);
+                g_world->unit_manager.move_unit(unit.get_id(), unit.target_province_id);
                 // Only take control of provinces of the people we're at war with
                 if(can_take)
                     g_world->nations[unit.owner_id].control_province(unit_target);
@@ -565,19 +566,18 @@ static inline void unit_do_tick(Unit& unit)
                     break;
                 }
             } else {
+                unit.on_battle = true;
                 Battle& battle = *it;
                 // Add the unit to one side depending on who are we attacking
                 // However unit must not be already involved
                 /// @todo Make it be instead depending on who attacked first in this battle
                 if(war->is_attacker(g_world->nations[unit.owner_id])) {
                     assert(std::find(battle.attackers_ids.begin(), battle.attackers_ids.end(), g_world->get_id(unit)) == battle.attackers_ids.end());
-                    unit.on_battle = true;
                     battle.attackers_ids.push_back(g_world->get_id(unit));
                     Eng3D::Log::debug("game", "Adding unit <attacker> to battle of \"" + battle.name + "\"");
                 } else {
                     assert(war->is_defender(g_world->nations[unit.owner_id]));
                     assert(std::find(battle.defenders_ids.begin(), battle.defenders_ids.end(), g_world->get_id(unit)) == battle.defenders_ids.end());
-                    unit.on_battle = true;
                     battle.defenders_ids.push_back(g_world->get_id(unit));
                     Eng3D::Log::debug("game", "Adding unit <defender> to battle of \"" + battle.name + "\"");
                 }
@@ -712,7 +712,7 @@ void World::do_tick() {
                         if(!unit.size) {
                             Eng3D::Log::debug("game", "Removing attacker \"" + unit.type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                             battle.defenders_ids.erase(battle.defenders_ids.begin() + i);
-                            assert(unit.province_id() == this->get_id(province));
+                            // assert(unit.province_id() == this->get_id(province));
                             clear_units.local().push_back(unit.cached_id);
                             continue;
                         }
