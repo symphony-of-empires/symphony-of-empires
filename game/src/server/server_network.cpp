@@ -144,12 +144,13 @@ void Server::net_loop(int id) {
                 } break;
                 // - Client tells server to change target of unit
                 case ActionType::UNIT_CHANGE_TARGET: {
-                    Unit* unit;
-                    ::deserialize(ar, &unit);
-                    if(unit == nullptr)
+                    Unit::Id unit_id;
+                    ::deserialize(ar, &unit_id);
+                    if(Unit::is_invalid(unit_id))
                         throw ServerException("Unknown unit");
                     // Must control unit
-                    if(selected_nation == nullptr || selected_nation->get_id() != unit->owner_id)
+                    auto& unit = g_world->unit_manager.units[unit_id];
+                    if(selected_nation == nullptr || selected_nation->get_id() != unit.owner_id)
                         throw ServerException("Nation does not control unit");
 
                     Province* province;
@@ -157,8 +158,8 @@ void Server::net_loop(int id) {
                     if(province == nullptr)
                         throw ServerException("Unknown province");
                     Eng3D::Log::debug("server", "Unit changes targets to " + province->ref_name.get_string());
-                    if(unit->can_move())
-                        unit->set_target(*province);
+                    if(unit.can_move())
+                        unit.set_target(*province);
                 } break;
                 // Client tells the server about the construction of a new unit, note that this will
                 // only make the building submit "construction tickets" to obtain materials to build

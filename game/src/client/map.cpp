@@ -363,7 +363,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                 break;
             }
         }
-
+        
+        /// @todo Handle the case where an unit is deleted
         for(const auto unit_id : gs.input.selected_units) {
             auto& unit = gs.world->unit_manager.units[unit_id];
             auto province_id = gs.world->unit_manager.unit_province[unit_id];
@@ -381,7 +382,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             Archive ar = Archive();
             ActionType action = ActionType::UNIT_CHANGE_TARGET;
             ::serialize(ar, &action);
-            ::serialize(ar, &unit);
+            ::serialize(ar, &unit_id);
             Province* tmp_province_ref = &province;
             ::serialize(ar, &tmp_province_ref);
             packet.data(ar.get_buffer(), ar.size());
