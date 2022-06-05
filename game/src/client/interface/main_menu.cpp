@@ -117,18 +117,18 @@ MainMenu::MainMenu(GameState& _gs)
     mipmap_options.wrap_s = GL_CLAMP_TO_EDGE;
     mipmap_options.wrap_t = GL_CLAMP_TO_EDGE;
 
-    auto font = TTF_OpenFont(Path::get("fonts/neon_euler/euler.ttf").c_str(), 20);
+    auto font = TTF_OpenFont(gs.package_man->get_unique("fonts/neon_euler/euler.ttf")->get_abs_path().c_str(), 20);
     auto text_color = Eng3D::Color(1.f, 1.f, 1.f);
 
-    this->current_texture = tex_man->load(Path::get("gfx/ui/bg/main_menu.png"), mipmap_options);
-    auto main_menu_border = tex_man->load(Path::get("gfx/ui/bg/main_menu_border.png"));
+    this->current_texture = tex_man->load(gs.package_man->get_unique("gfx/ui/bg/main_menu.png"), mipmap_options);
+    auto main_menu_border = tex_man->load(gs.package_man->get_unique("gfx/ui/bg/main_menu_border.png"));
     this->border = UI::Border(main_menu_border, glm::ivec2(16), glm::ivec2(16));
 
-    auto logo = tex_man->load(Path::get("gfx/ui/image/logo.png"), mipmap_options);
+    auto logo = tex_man->load(gs.package_man->get_unique("gfx/ui/image/logo.png"), mipmap_options);
     new UI::Image(0, 0, 300, 120, logo, this);
 
-    auto button_image = tex_man->load(Path::get("gfx/ui/button/button.png"), mipmap_options);
-    auto button_border_image = tex_man->load(Path::get("gfx/ui/button/button_border.png"));
+    auto button_image = tex_man->load(gs.package_man->get_unique("gfx/ui/button/button.png"), mipmap_options);
+    auto button_border_image = tex_man->load(gs.package_man->get_unique("gfx/ui/button/button_border.png"));
     glm::ivec2 size(3, 3);
     glm::ivec2 texture_size(3, 3);
     auto button_border = UI::Border(button_border_image, size, texture_size);

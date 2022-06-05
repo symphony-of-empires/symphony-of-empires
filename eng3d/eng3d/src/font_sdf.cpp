@@ -49,7 +49,7 @@ Eng3D::Glyph::Glyph(float _advance, Eng3D::Rectangle _atlas_bounds, Eng3D::Recta
 Eng3D::FontSDF::FontSDF(const std::string& filename) {
     sphere_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        auto vs_shader = Eng3D::OpenGL::VertexShader(Path::cat_strings(Path::get_data("shaders/sphere_mapping.vs")));
+        auto vs_shader = Eng3D::OpenGL::VertexShader(Eng3D::State::get_instance().package_man->get_unique("shaders/sphere_mapping.vs")->read_all());
         sphere_shader->attach_shader(vs_shader);
         sphere_shader->attach_shader(*Eng3D::State::get_instance().builtin_shaders["fs_font_sdf"].get());
         sphere_shader->link();

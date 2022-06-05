@@ -123,7 +123,8 @@ public:
     MapRender* map_render;
     MapView view_mode = MapView::PLANE_VIEW;
 
-    std::vector<const Eng3D::Model*> building_type_models, unit_type_models;
+    std::vector<std::shared_ptr<Eng3D::Model>> building_type_models;
+    std::vector<std::shared_ptr<Eng3D::Model>> unit_type_models;
     std::vector<std::shared_ptr<Eng3D::Texture>> building_type_icons;
     std::vector<std::shared_ptr<Eng3D::Texture>> unit_type_icons;
     std::vector<std::shared_ptr<Eng3D::Texture>> nation_flags;

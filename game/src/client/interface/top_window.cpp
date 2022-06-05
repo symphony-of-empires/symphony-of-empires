@@ -56,7 +56,7 @@ TopWindow::TopWindow(GameState& _gs)
     flag_img->on_each_tick = ([this](UI::Widget& w) {
         w.current_texture = this->gs.get_nation_flag(*this->gs.curr_nation);
     });
-    new UI::Image(0, 0, flag_img->width, flag_img->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
+    new UI::Image(0, 0, flag_img->width, flag_img->height, gs.tex_man->load(this->gs.package_man->get_unique("gfx/flag_rug.png")), this);
 
     auto* flex_column = new UI::Div(3, 96, 42, 390, this);
     flex_column->flex = UI::Flex::COLUMN;
@@ -172,7 +172,7 @@ TimeControlView::TimeControlView(GameState& _gs)
         speed3_btn->set_tooltip("Fire speed");
     }
 
-    auto font = TTF_OpenFont(Path::get("fonts/neon_euler/euler.ttf").c_str(), 20);
+    auto font = TTF_OpenFont(gs.package_man->get_unique("fonts/neon_euler/euler.ttf")->get_abs_path().c_str(), 20);
     auto text_color = Eng3D::Color(1., 1., 1.);
 
     auto* time_lab = new UI::Label(50, 30, " ", this);

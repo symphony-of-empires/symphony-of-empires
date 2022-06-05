@@ -31,13 +31,32 @@
 #include <vector>
 #include <memory>
 
+/**
+ * @brief Implements the I/O functions for interacting with assets, please note that
+ * this is however outdated because <filesystem> now exists, but we are
+ * given more flexibility if we roll our own implementation to make a "mini Virtual-Filesystem"
+ * 
+ */
 namespace Eng3D::IO {
+    /**
+     * @brief The path class abstracts away most of the burden from handling system-dependant
+     * filesystem paths
+     * 
+     */
     class Path {
     public:
-        Path();
-        Path(const std::string& path);
-        Path(const char* path);
-        ~Path();
+        Path() {};
+        Path(const std::string& path)
+            : str(path)
+        {
+
+        }
+        Path(const char* path)
+            : str(std::string(path))
+        {
+
+        }
+        ~Path() {};
         std::string str;
     };
 
@@ -65,9 +84,26 @@ namespace Eng3D::IO {
             virtual void read(void*, size_t) {};
             virtual void write(const void*, size_t) {};
             virtual void seek(Eng3D::IO::SeekType, int) {};
+            virtual size_t get_size(void) const { return 0; };
 
             std::string path;
             std::string abs_path;
+
+            /**
+             * @brief Read the entire file into a string
+             * 
+             * @return std::string The file contents
+             */
+            inline std::string read_all(void) {
+                this->open();
+                const size_t size = this->get_size();
+                std::string str;
+                str.resize(size + 1, ' ');
+                this->read(&str[0], size);
+                str[size] = '\0';
+                this->close();
+                return str;
+            }
 
             /**
              * @brief Get the abs path object in a safe manner, such as that the access does not
@@ -77,15 +113,19 @@ namespace Eng3D::IO {
              * @param asset 
              * @return std::string 
              */
-            static inline std::string get_abs_path(const Eng3D::IO::Asset::Base& asset) {
-                std::string path = asset.abs_path;
+            inline std::string get_abs_path(void) const {
+                std::string path = this->abs_path;
 #ifdef E3D_TARGET_WINDOWS
                 std::replace(path.begin(), path.end(), '/', '\\');
 #endif
                 return path;
-            };
+            }
         };
 
+        /**
+         * @brief A "file" version of the base asset, mostly to identify an asset on a physical disk
+         * 
+         */
         class File : public Asset::Base {
         public:
             FILE* fp;
@@ -97,6 +137,7 @@ namespace Eng3D::IO {
             virtual void read(void* buf, size_t n);
             virtual void write(const void* buf, size_t n);
             virtual void seek(Eng3D::IO::SeekType type, int offset);
+            virtual size_t get_size(void) const;
         };
     };
 
@@ -116,15 +157,19 @@ namespace Eng3D::IO {
         ~Package() {};
 
         std::string name;
+        std::string abs_path; // Absolute path of this package root
         std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> assets;
     };
 
     class PackageManager {
     public:
         PackageManager(const std::vector<std::string>& pkg_paths);
-        ~PackageManager();
+        ~PackageManager() {};
+        void recursive_filesystem_walk(Eng3D::IO::Package& package, const std::string& root, const std::string& current);
         std::shared_ptr<Eng3D::IO::Asset::Base> get_unique(const IO::Path& path);
         std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> get_multiple(const Eng3D::IO::Path& path);
+        std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> get_multiple_prefix(const Eng3D::IO::Path& path);
+        std::vector<std::string> get_paths(void) const;
         std::vector<Package> packages;
     };
 };

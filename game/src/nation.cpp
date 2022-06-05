@@ -88,7 +88,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
             relation.has_war = true;
             relation.has_alliance = false;
             relation.has_defensive_pact = false;
-            relation.relation = -100.f;
+            relation.relation = -200.f;
         }
     }
 

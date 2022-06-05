@@ -157,20 +157,6 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths) {
     // Initialize the IO first, as other subsystems may require access to files (i.e the UI context)
     package_man = new Eng3D::IO::PackageManager(pkg_paths);
 
-    if(pkg_paths.empty()) {
-        const std::string asset_path = Path::get_full();
-        Eng3D::Log::debug("gamestate", "Assets path: " + asset_path);
-        for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
-            if(entry.is_directory()) {
-                const auto& path = entry.path().lexically_relative(asset_path);
-                Path::add_path(path.string());
-            }
-        }
-    } else {
-        for(const auto& entry : pkg_paths)
-            Path::add_path(entry);
-    }
-
     // Startup-initialization of SDL
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
@@ -244,8 +230,8 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths) {
     model_man = new Eng3D::ModelManager();
 
     // Compile built-in shaders
-    const auto read_file = [](std::string file_name) {
-        return Path::cat_strings(Path::get_data("shaders/" + file_name));
+    const auto read_file = [this](const std::string& file_name) {
+        return this->package_man->get_unique("shaders/" + file_name)->read_all();
     };
     const auto load_fragment_shader = [read_file](std::string file_name) {
         return std::unique_ptr<Eng3D::OpenGL::FragmentShader>(new Eng3D::OpenGL::FragmentShader(read_file(file_name)));

@@ -173,9 +173,9 @@ void handle_event(Input& input, GameState& gs) {
 
             if(click_on_ui) {
                 std::scoped_lock lock(gs.sound_lock);
-                auto entries = Path::get_all_recursive("sfx/click");
+                auto entries = gs.package_man->get_multiple_prefix("sfx/click");
                 if(!entries.empty())
-                    gs.sound_queue.push_back(new Eng3D::Audio(entries[std::rand() % entries.size()]));
+                    gs.sound_queue.push_back(new Eng3D::Audio(entries[std::rand() % entries.size()]->get_abs_path()));
             }
             break;
         case SDL_JOYBUTTONUP:
@@ -188,9 +188,9 @@ void handle_event(Input& input, GameState& gs) {
 
             if(click_on_ui) {
                 std::scoped_lock lock(gs.sound_lock);
-                auto entries = Path::get_all_recursive("sfx/click");
+                auto entries = gs.package_man->get_multiple_prefix("sfx/click");
                 if(!entries.empty())
-                    gs.sound_queue.push_back(new Eng3D::Audio(entries[std::rand() % entries.size()]));
+                    gs.sound_queue.push_back(new Eng3D::Audio(entries[std::rand() % entries.size()]->get_abs_path()));
             }
             break;
         case SDL_MOUSEMOTION:
@@ -534,11 +534,11 @@ void GameState::music_thread() {
         bool has_played;
         std::string path;
     };
-    auto path_entries = Path::get_all_recursive("sfx/music/ambience");
+    auto path_entries = Eng3D::State::get_instance().package_man->get_multiple_prefix("sfx/music/ambience");
     std::vector<MusicEntry> entries;
     entries.reserve(path_entries.size());
     for(const auto& path : path_entries)
-        entries.push_back(MusicEntry{ false, path });
+        entries.push_back(MusicEntry{ false, path->get_abs_path() });
     path_entries.clear();
     entries.shrink_to_fit();
 
@@ -581,7 +581,7 @@ void start_client(int argc, char** argv) {
     }
 
     GameState gs(pkg_paths);
-   // After loading everything initialize the gamestate initial properties
+    // After loading everything initialize the gamestate initial properties
     // Call update_on_tick on start of the gamestate
     gs.update_tick = true;
     gs.in_game = false;
@@ -590,7 +590,8 @@ void start_client(int argc, char** argv) {
     gs.paused = true;
     std::thread music_th(&GameState::music_thread, &gs);
 
-    if(0) {
+#if 0
+    {
         std::unique_ptr<FILE, int (*)(FILE*)> fp(fopen(Path::get("locale/es/main.po").c_str(), "rt"), fclose);
         std::unique_ptr<char[]> tmp(new char[1000]);
         while(fgets(tmp.get(), 1000, fp.get()) != nullptr) {
@@ -608,6 +609,7 @@ void start_client(int argc, char** argv) {
         for(const auto& [key, value] : trans_msg)
             Eng3D::Log::debug("trans", key + "=" + value);
     }
+#endif
 
     gs.loaded_world = false;
     gs.loaded_map = false;
@@ -617,7 +619,7 @@ void start_client(int argc, char** argv) {
 
     auto map_layer = new UI::Group(0, 0);
 
-    auto load_screen_tex = gs.tex_man->load(Path::get("gfx/load_screen/002.png"));
+    auto load_screen_tex = gs.tex_man->load(gs.package_man->get_unique("gfx/load_screen/002.png"));
     auto* bg_img = new UI::Image(-(gs.width / 2.f), -(gs.height / 2.f), gs.width, gs.height, load_screen_tex);
     bg_img->origin = UI::Origin::CENTER_SCREEN;
 
@@ -625,7 +627,7 @@ void start_client(int argc, char** argv) {
     load_pbar->origin = UI::Origin::LOWER_LEFT_SCREEN;
     load_pbar->text_color = Eng3D::Color(1.f, 1.f, 1.f);
 
-    auto mod_logo_tex = gs.tex_man->load(Path::get("gfx/mod_logo.png"));
+    auto mod_logo_tex = gs.tex_man->load(gs.package_man->get_unique("gfx/mod_logo.png"));
     auto* mod_logo_img = new UI::Image(0, 0, mod_logo_tex->width, mod_logo_tex->height, mod_logo_tex);
 
     // Pre-cache the textures that the map will use upon construction
@@ -666,8 +668,8 @@ void start_client(int argc, char** argv) {
                 gs.loaded_map = true;
                 gs.load_progress = 1.f;
             } else if(!load_nation_flags) {
-                const std::string path = Path::get("gfx/flags/" + (*load_it_nation).ref_name + "_" + ((*load_it_nation).ideology == nullptr ? "none" : (*load_it_nation).ideology->ref_name.get_string()) + ".png");
-                gs.tex_man->load(path, mipmap_options)->gen_mipmaps();
+                const std::string path = "gfx/flags/" + (*load_it_nation).ref_name + "_" + ((*load_it_nation).ideology == nullptr ? "none" : (*load_it_nation).ideology->ref_name.get_string()) + ".png";
+                gs.tex_man->load(gs.package_man->get_unique(path), mipmap_options);
                 if(!path.empty())
                     load_pbar->text(path);
                 gs.load_progress = 0.1f + (0.3f / std::distance(load_it_nation, gs.world->nations.cend()));
@@ -675,10 +677,10 @@ void start_client(int argc, char** argv) {
                 if(load_it_nation == gs.world->nations.end())
                     load_nation_flags = true;
             } else if(!load_building_type_icons) {
-                const std::string model_path = Path::get("models/building_types/" + (*load_it_building_type).ref_name + ".obj");
-                gs.model_man->load(model_path);
-                const std::string tex_path = Path::get("gfx/buildingtype/" + (*load_it_building_type).ref_name + ".png");
-                gs.tex_man->load(tex_path, mipmap_options)->gen_mipmaps();
+                const std::string model_path = "models/building_types/" + (*load_it_building_type).ref_name + ".obj";
+                gs.model_man->load(gs.package_man->get_unique(model_path));
+                const std::string tex_path = "gfx/buildingtype/" + (*load_it_building_type).ref_name + ".png";
+                gs.tex_man->load(gs.package_man->get_unique(tex_path), mipmap_options);
                 if(!model_path.empty())
                     load_pbar->text(model_path);
                 gs.load_progress = 0.4f + (0.3f / std::distance(load_it_building_type, gs.world->building_types.cend()));
@@ -686,10 +688,10 @@ void start_client(int argc, char** argv) {
                 if(load_it_building_type == gs.world->building_types.end())
                     load_building_type_icons = true;
             } else if(!load_unit_type_icons) {
-                const std::string model_path = Path::get("models/unit_types/" + (*load_it_unit_type).ref_name + ".obj");
-                gs.model_man->load(model_path);
-                const std::string tex_path = Path::get("gfx/unittype/" + (*load_it_unit_type).ref_name + ".png");
-                gs.tex_man->load(tex_path, mipmap_options)->gen_mipmaps();
+                const std::string model_path = "models/unit_types/" + (*load_it_unit_type).ref_name + ".obj";
+                gs.model_man->load(gs.package_man->get_unique(model_path));
+                const std::string tex_path = "gfx/unittype/" + (*load_it_unit_type).ref_name + ".png";
+                gs.tex_man->load(gs.package_man->get_unique(tex_path), mipmap_options);
                 if(!model_path.empty())
                     load_pbar->text(model_path);
                 gs.load_progress = 0.7f + (0.3f / std::distance(load_it_unit_type, gs.world->unit_types.cend()));

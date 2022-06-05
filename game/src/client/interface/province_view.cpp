@@ -86,7 +86,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     this->is_scroll = true;
     this->text(province.name.get_string());
 
-    this->landscape_img = new UI::Image(0, 0, this->width, 128 + 64 + 16, gs.tex_man->load(Path::get("gfx/terraintype/" + province.terrain_type->ref_name + ".png")), this);
+    this->landscape_img = new UI::Image(0, 0, this->width, 128 + 64 + 16, gs.tex_man->load(gs.package_man->get_unique("gfx/terraintype/" + province.terrain_type->ref_name + ".png")), this);
 
     if(Nation::is_valid(province.owner_id)) {
         this->owner_flag = new UI::AspectImage(0, 0, 96, 48, gs.get_nation_flag(gs.world->nations[this->province.owner_id]), this);
@@ -94,7 +94,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
             new Interface::NationView(this->gs, gs.world->nations[this->province.owner_id]);
         });
         this->owner_flag->set_tooltip(gs.world->nations[this->province.owner_id].name + " owns this province");
-        new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width, this->owner_flag->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
+        new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width, this->owner_flag->height, gs.tex_man->load(gs.package_man->get_unique("gfx/flag_rug.png")), this);
     }
 
     // Display all the nuclei
@@ -106,7 +106,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
             new Interface::NationView(this->gs, nucleus);
         });
         this->owner_flag->set_tooltip(nucleus.name + " has nuclei on this province");
-        new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width, this->owner_flag->height, gs.tex_man->load(Path::get("gfx/flag_rug.png")), this);
+        new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width, this->owner_flag->height, gs.tex_man->load(gs.package_man->get_unique("gfx/flag_rug.png")), this);
         dx += this->owner_flag->width;
     }
 
@@ -134,14 +134,14 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     auto table = new UI::Table<uint32_t>(0, 256 + 96, 0, 500, 30, sizes, header, this);
     auto& pops = this->province.pops;
     table->reserve(pops.size());
-    table->on_each_tick = [pops, table](Widget&) {
+    table->on_each_tick = [pops, table](UI::Widget&) {
         for(size_t i = 0; i < pops.size(); i++) {
             auto& pop = pops[i];
             uint32_t id = pop.get_type_id();
             auto* row = table->get_row(id);
             size_t row_index = 0;
 
-            auto tex_man = Eng3D::State::get_instance().tex_man;
+            auto& s = Eng3D::State::get_instance();
 
             auto size = row->get_element(row_index++);
             auto size_str = Eng3D::string_format("%.0f", pop.size);
@@ -156,7 +156,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
             budget->set_key(pop.budget / pop.size);
 
             auto religion = row->get_element(row_index++);
-            auto religion_icon = tex_man->load(Path::get("gfx/religion/" + pop.religion->ref_name + ".png"));
+            auto religion_icon = s.tex_man->load(s.package_man->get_unique("gfx/religion/" + pop.religion->ref_name + ".png"));
             religion->current_texture = religion_icon;
             auto religion_tip = Eng3D::Locale::translate(pop.religion->name.get_string());
             religion->set_tooltip(religion_tip);
@@ -309,7 +309,7 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
             auto tex_man = Eng3D::State::get_instance().tex_man;
 
             auto landscape = row->get_element(row_index++);
-            auto landscape_icon = tex_man->load(Path::get("gfx/terraintype/" + terrain_type.ref_name + ".png"));
+            auto landscape_icon = tex_man->load(gs.package_man->get_unique("gfx/terraintype/" + terrain_type.ref_name + ".png"));
             landscape->current_texture = landscape_icon;
             auto landscape_tip = Eng3D::Locale::translate(terrain_type.name.get_string());
             landscape->set_tooltip(landscape_tip);
@@ -351,7 +351,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
 
     this->pop_tab = new ProvincePopulationTab(gs, 0, 32, province, this);
     this->pop_tab->is_render = true;
-    auto* pop_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(Path::get("gfx/pv_1.png")), this);
+    auto* pop_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(gs.package_man->get_unique("gfx/pv_1.png")), this);
     pop_ibtn->set_on_click([this](UI::Widget&) {
         this->pop_tab->is_render = true;
         this->econ_tab->is_render = false;
@@ -362,7 +362,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
 
     this->econ_tab = new ProvinceEconomyTab(gs, 0, 32, province, this);
     this->econ_tab->is_render = false;
-    auto* econ_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(Path::get("gfx/money.png")), this);
+    auto* econ_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(gs.package_man->get_unique("gfx/money.png")), this);
     econ_ibtn->right_side_of(*pop_ibtn);
     econ_ibtn->set_on_click([this](UI::Widget&) {
         this->pop_tab->is_render = false;
@@ -374,7 +374,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
 
     this->build_tab = new ProvinceBuildingTab(gs, 0, 32, province, this);
     this->build_tab->is_render = false;
-    auto* build_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(Path::get("gfx/pv_0.png")), this);
+    auto* build_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(gs.package_man->get_unique("gfx/pv_0.png")), this);
     build_ibtn->right_side_of(*econ_ibtn);
     build_ibtn->set_on_click([this](UI::Widget&) {
         this->pop_tab->is_render = false;

@@ -354,9 +354,8 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(const std::string& p
     // Find texture when wanting to be loaded and load texture from cached texture list
     auto key = std::make_pair(path, options);
     auto it = textures.find(key);
-    if(it != textures.end()) {
+    if(it != textures.end())
         return (*it).second;
-    }
 
     Eng3D::Log::debug("texture", "Loaded and cached texture " + path);
 
@@ -369,13 +368,12 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(const std::string& p
         tex->create_dummy();
     }
     tex->upload(options);
-    if(options.min_filter == GL_NEAREST_MIPMAP_NEAREST || options.min_filter == GL_NEAREST_MIPMAP_LINEAR || options.min_filter == GL_LINEAR_MIPMAP_NEAREST || options.min_filter == GL_LINEAR_MIPMAP_LINEAR) {
+    if(options.min_filter == GL_NEAREST_MIPMAP_NEAREST || options.min_filter == GL_NEAREST_MIPMAP_LINEAR || options.min_filter == GL_LINEAR_MIPMAP_NEAREST || options.min_filter == GL_LINEAR_MIPMAP_LINEAR)
         tex->gen_mipmaps();
-    }
     textures[key] = tex;
     return textures[key];
 }
 
 std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(std::shared_ptr<Eng3D::IO::Asset::Base> asset, TextureOptions options) {
-    return this->load(asset.get() != nullptr ? Eng3D::IO::Asset::Base::get_abs_path(*asset.get()) : "", options);
+    return this->load(asset.get() != nullptr ? asset->get_abs_path() : "", options);
 }

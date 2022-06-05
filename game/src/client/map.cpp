@@ -124,8 +124,8 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     mipmap_options.wrap_t = GL_REPEAT;
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
-    line_tex = s.tex_man->load(Path::get("gfx/line_target.png"), mipmap_options);
-    skybox_tex = s.tex_man->load(Path::get("gfx/space.png"), mipmap_options);
+    line_tex = s.tex_man->load(s.package_man->get_unique("gfx/line_target.png"), mipmap_options);
+    skybox_tex = s.tex_man->load(s.package_man->get_unique("gfx/space.png"), mipmap_options);
 
     // Set the mapmode
     set_map_mode(political_map_mode, empty_province_tooltip);
@@ -134,24 +134,24 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
 
     // Query the initial nation flags
     for(const auto& nation : world.nations) {
-        std::string path = Path::get("gfx/flags/" + nation.ref_name + "_" + (nation.ideology == nullptr ? "none" : nation.ideology->ref_name.get_string()) + ".png");
-        auto flag_texture = s.tex_man->load(path, mipmap_options);
+        std::string path = "gfx/flags/" + nation.ref_name + "_" + (nation.ideology == nullptr ? "none" : nation.ideology->ref_name.get_string()) + ".png";
+        auto flag_texture = s.tex_man->load(s.package_man->get_unique(path), mipmap_options);
         flag_texture->gen_mipmaps();
         nation_flags.push_back(flag_texture);
     }
     for(const auto& building_type : world.building_types) {
         std::string path;
-        path = Path::get("models/building_types/" + building_type.ref_name + ".obj");
-        building_type_models.push_back(&s.model_man->load(path));
-        path = Path::get("gfx/buildingtype/" + building_type.ref_name + ".png");
-        building_type_icons.push_back(s.tex_man->load(path));
+        path = "models/building_types/" + building_type.ref_name + ".obj";
+        building_type_models.push_back(s.model_man->load(s.package_man->get_unique(path)));
+        path = "gfx/buildingtype/" + building_type.ref_name + ".png";
+        building_type_icons.push_back(s.tex_man->load(s.package_man->get_unique((path))));
     }
     for(const auto& unit_type : world.unit_types) {
         std::string path;
-        path = Path::get("models/unit_types/" + unit_type.ref_name + ".obj");
-        unit_type_models.push_back(&s.model_man->load(path));
-        path = Path::get("gfx/unittype/" + unit_type.ref_name + ".png");
-        unit_type_icons.push_back(s.tex_man->load(path));
+        path = "models/unit_types/" + unit_type.ref_name + ".obj";
+        unit_type_models.push_back(s.model_man->load(s.package_man->get_unique(path)));
+        path = "gfx/unittype/" + unit_type.ref_name + ".png";
+        unit_type_icons.push_back(s.tex_man->load(s.package_man->get_unique(path)));
     }
     create_labels();
 }
@@ -389,9 +389,9 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             g_client->send(packet);
 
             const std::scoped_lock lock2(gs.sound_lock);
-            auto entries = Path::get_all_recursive("sfx/land_move");
+            auto entries = gs.package_man->get_multiple_prefix("sfx/land_move");
             if(!entries.empty())
-                gs.sound_queue.push_back(new Eng3D::Audio(entries[std::rand() % entries.size()]));
+                gs.sound_queue.push_back(new Eng3D::Audio(entries[std::rand() % entries.size()]->get_abs_path()));
         }
         input.selected_units.clear();
     }
@@ -621,7 +621,7 @@ void Map::draw(const GameState& gs) {
         const std::pair<float, float> pos = unit.get_pos();
         glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
         obj_shader->set_uniform("model", model);
-        obj_shader->set_texture(0, "diffuse_map", *gs.tex_man->load(Path::get("gfx/select_border.png")).get());
+        obj_shader->set_texture(0, "diffuse_map", *gs.tex_man->load(gs.package_man->get_unique("gfx/select_border.png")).get());
         preproc_quad.draw();
     }
 

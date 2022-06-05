@@ -78,23 +78,19 @@ Eng3D::SimpleModel::SimpleModel(enum Eng3D::MeshMode _mode)
 
 }
 
-Eng3D::SimpleModel::~SimpleModel() {
-
-}
-
 void Eng3D::SimpleModel::draw(const Eng3D::OpenGL::Program& shader) const {
     // Change color if material wants it
     if(material != nullptr) {
         if(material->diffuse_map != nullptr) {
             shader.set_texture(0, "diffuse_map", *material->diffuse_map);
         } else {
-            std::shared_ptr<Eng3D::Texture> white_tex = Eng3D::State::get_instance().tex_man->get_white();
+            auto white_tex = Eng3D::State::get_instance().tex_man->get_white();
             shader.set_texture(0, "diffuse_map", *white_tex.get());
         }
         shader.set_uniform("ambient_color", material->ambient_color);
         shader.set_uniform("diffuse_color", material->diffuse_color);
     } else {
-        std::shared_ptr<Eng3D::Texture> white_tex = Eng3D::State::get_instance().tex_man->get_white();
+        auto white_tex = Eng3D::State::get_instance().tex_man->get_white();
         shader.set_texture(0, "diffuse_map", *white_tex.get());
         shader.set_uniform("ambient_color", glm::vec4(1.f));
         shader.set_uniform("diffuse_color", glm::vec4(1.f));
@@ -108,18 +104,11 @@ void Eng3D::SimpleModel::draw(const Eng3D::OpenGL::Program& shader) const {
 // Model
 //
 void Eng3D::Model::draw(const Eng3D::OpenGL::Program& shader) const {
-    std::vector<const Eng3D::SimpleModel*>::const_iterator model;
-    for(model = simple_models.cbegin(); model != simple_models.cend(); model++)
-        (*model)->draw(shader);
+    for(auto& model : simple_models)
+        model->draw(shader);
 }
 
-Eng3D::ModelManager::~ModelManager() {
-    for(const auto& model : models)
-        delete model.second;
-    models.clear();
-}
-
-const Eng3D::Model& Eng3D::ModelManager::load_wavefront(const std::string& path) {
+Eng3D::Model Eng3D::ModelManager::load_wavefront(const std::string& path) {
     class WavefrontFace {
     public:
         // Indexes to the actual points
@@ -145,13 +134,12 @@ const Eng3D::Model& Eng3D::ModelManager::load_wavefront(const std::string& path)
     objects.push_back(WavefrontObj("default"));
     while(std::getline(file, line)) {
         // Skip whitespace
-        size_t len = line.find_first_not_of(" \t");
+        const size_t len = line.find_first_not_of(" \t");
         if(len != std::string::npos)
             line = line.substr(len, line.length() - len);
 
         // Comment
-        if(line[0] == '#' || line.empty())
-            continue;
+        if(line[0] == '#' || line.empty()) continue;
 
         std::istringstream sline(line);
         std::string cmd;
@@ -188,13 +176,11 @@ const Eng3D::Model& Eng3D::ModelManager::load_wavefront(const std::string& path)
                 // Assemble faces - allowing for any number of vertices
                 // (and respecting the optional-ity of vt and vn fields)
                 int value;
-                char ch;
-
                 // Vertices
                 sline >> value;
                 face.vertices.push_back(value);
 
-                ch = sline.peek();
+                char ch = sline.peek();
                 if(ch == '/') {
                     sline >> ch;
 
@@ -235,7 +221,7 @@ const Eng3D::Model& Eng3D::ModelManager::load_wavefront(const std::string& path)
     }
 
     // Convert objects into (Eng3D) simple objects so we can now use them
-    Eng3D::Model* final_model = new Eng3D::Model();
+    Eng3D::Model final_model{};
     for(auto obj = objects.cbegin(); obj != objects.cend(); obj++) {
         // Fill up the trigonometric buffers, we will first read all the faces and make them separate
         std::vector<std::vector<Eng3D::MeshData<glm::vec3, glm::vec2>>> clusters{};
@@ -266,27 +252,24 @@ const Eng3D::Model& Eng3D::ModelManager::load_wavefront(const std::string& path)
 
         // It's time to merge clusters which share triangle nodes, in such case we reorganize the triangles so they
         // are to "follow" the triangle fan
-        std::vector<std::vector<Eng3D::MeshData<glm::vec3, glm::vec2>>>::const_iterator cluster;
-        for(cluster = clusters.cbegin(); cluster != clusters.cend(); cluster++) {
+        for(auto cluster = clusters.cbegin(); cluster != clusters.cend(); cluster++) {
             Eng3D::SimpleModel* model = new Eng3D::SimpleModel(Eng3D::MeshMode::TRIANGLE_FAN);
             for(auto v1 = (*cluster).cbegin(); v1 != (*cluster).cend(); v1++)
                 model->buffer.push_back(*v1);
             Eng3D::Log::debug("model", "Created new SimpleModel with Vertices=" + std::to_string(model->buffer.size()));
             model->material = (*obj).material;
             model->upload();
-            final_model->simple_models.push_back(model);
+            final_model.simple_models.push_back(model);
         }
     }
-
-    models[path] = final_model;
-    return *final_model;
+    return final_model;
 }
 
-const Eng3D::Model& Eng3D::ModelManager::load_stl(const std::string& path) {
+Eng3D::Model Eng3D::ModelManager::load_stl(const std::string& path) {
     std::ifstream file(path, std::ios::binary);
     std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(file), {});
 
-    Eng3D::Model* final_model = new Eng3D::Model();
+    Eng3D::Model final_model{};
     Eng3D::SimpleModel* model = new Eng3D::SimpleModel(Eng3D::MeshMode::TRIANGLES);
 
     /// @todo This needs more work
@@ -309,24 +292,31 @@ const Eng3D::Model& Eng3D::ModelManager::load_stl(const std::string& path) {
         ));
     }
 
-    final_model->simple_models.push_back(model);
-    models[path] = final_model;
-    return *final_model;
+    final_model.simple_models.push_back(model);
+    return final_model;
 }
 
-const Eng3D::Model& Eng3D::ModelManager::load(const std::string& path) {
-    std::map<std::string, Eng3D::Model*>::const_iterator it = models.find(path);
+std::shared_ptr<Eng3D::Model> Eng3D::ModelManager::load(const std::string& path) {
+    auto it = models.find(path);
     if(it != models.cend())
-        return *((*it).second);
+        return (*it).second;
 
     // Wavefront OBJ loader
+    std::shared_ptr<Eng3D::Model> model;
     try {
         /// @todo This is too horrible, we need a better solution
         if(path.length() > 3 && path[path.length() - 3] == 's' && path[path.length() - 2] == 't' && path[path.length() - 1] == 'l')
-            return load_stl(path);
+            model = std::make_shared<Eng3D::Model>(load_stl(path));
         else
-            return load_wavefront(path);
+            model = std::make_shared<Eng3D::Model>(load_wavefront(path));
     } catch(std::ifstream::failure& e) {
-        CXX_THROW(std::string, "Model " + path + " not found");
+        // Make a dummy model
+        model = std::make_shared<Eng3D::Model>(Eng3D::Model());   
     }
+    models[path] = model;
+    return model;
+}
+
+std::shared_ptr<Eng3D::Model> Eng3D::ModelManager::load(std::shared_ptr<Eng3D::IO::Asset::Base> asset) {
+    return this->load(asset.get() != nullptr ? asset->get_abs_path() : "");
 }

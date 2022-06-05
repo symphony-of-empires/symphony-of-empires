@@ -68,7 +68,7 @@ UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType& _unit_typ
     this->is_scroll = false;
 
     this->icon_img = new UI::Image(0, 0, 32, 24, this);
-    this->icon_img->current_texture = Eng3D::State::get_instance().tex_man->load(Path::get("gfx/unittype/" + this->unit_type.ref_name + ".png"));
+    this->icon_img->current_texture = Eng3D::State::get_instance().tex_man->load(gs.package_man->get_unique("gfx/unittype/" + this->unit_type.ref_name + ".png"));
 
     this->name_btn = new UI::Button(0, 0, this->width - 32, 24, this);
     this->name_btn->right_side_of(*this->icon_img);
@@ -131,7 +131,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, un
         makes_lab->below_of(*name_btn);
         dx += makes_lab->width;
         for(const auto& good : building_type.inputs) {
-            auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
+            auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man->load(gs.package_man->get_unique("gfx/good/" + good->ref_name + ".png")), this);
             icon_ibtn->below_of(*name_btn);
             icon_ibtn->set_on_click([good](UI::Widget& w) {
                 auto& o = static_cast<BuildingInfo&>(*w.parent);
@@ -154,7 +154,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, un
     if(building_type.output != nullptr) {
         auto* good = building_type.output;
 
-        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, Eng3D::State::get_instance().tex_man->load(Path::get("gfx/good/" + good->ref_name + ".png")), this);
+        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, Eng3D::State::get_instance().tex_man->load(gs.package_man->get_unique("gfx/good/" + good->ref_name + ".png")), this);
         icon_ibtn->below_of(*name_btn);
         icon_ibtn->set_on_click([good](UI::Widget& w) {
             auto& o = static_cast<BuildingInfo&>(*w.parent);
@@ -245,21 +245,18 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province& _province, std::size_t 
     this->culture_ibtn->right_side_of(*this->religion_ibtn);
     this->culture_ibtn->set_tooltip(new UI::Tooltip(this->culture_ibtn, 512, 24));
     
-    this->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<PopInfo&>(w);
-        if(o.gs.world->time % o.gs.world->ticks_per_month)
-            return;
-        if(o.index >= o.province.pops.size())
-            return;
+    this->on_each_tick = ([this](UI::Widget& w) {
+        if(this->gs.world->time % this->gs.world->ticks_per_month) return;
+        if(this->index >= this->province.pops.size()) return;
 
-        const Pop& pop = o.province.pops[o.index];
-        o.size_btn->text(std::to_string(pop.size));
-        o.budget_btn->text(std::to_string(pop.budget / pop.size));
-        o.budget_btn->tooltip->text(Eng3D::Locale::translate("A total budget of") + " " + std::to_string(pop.budget));
-        o.religion_ibtn->current_texture = o.gs.tex_man->load(Path::get("gfx/religion/" + pop.religion->ref_name + ".png"));
-        o.religion_ibtn->tooltip->text(Eng3D::Locale::translate(pop.religion->name.get_string()));
-        o.culture_ibtn->current_texture = o.gs.tex_man->load(Path::get("gfx/noicon.png"));
-        o.culture_ibtn->tooltip->text(Eng3D::Locale::translate(pop.culture->name.get_string()));
+        const Pop& pop = this->province.pops[this->index];
+        this->size_btn->text(std::to_string(pop.size));
+        this->budget_btn->text(std::to_string(pop.budget / pop.size));
+        this->budget_btn->tooltip->text(Eng3D::Locale::translate("A total budget of") + " " + std::to_string(pop.budget));
+        this->religion_ibtn->current_texture = this->gs.tex_man->load(this->gs.package_man->get_unique("gfx/religion/" + pop.religion->ref_name + ".png"));
+        this->religion_ibtn->tooltip->text(Eng3D::Locale::translate(pop.religion->name.get_string()));
+        this->culture_ibtn->current_texture = this->gs.tex_man->load(this->gs.package_man->get_unique("gfx/noicon.png"));
+        this->culture_ibtn->tooltip->text(Eng3D::Locale::translate(pop.culture->name.get_string()));
     });
     this->on_each_tick(*this);
 }
@@ -272,7 +269,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province& _province, Good
 {
     this->is_scroll = false;
 
-    this->good_ibtn = new UI::Image(0, 0, 24, 24, this->gs.tex_man->load(Path::get("gfx/good/" + good.ref_name + ".png")), this);
+    this->good_ibtn = new UI::Image(0, 0, 24, 24, this->gs.tex_man->load(this->gs.package_man->get_unique("gfx/good/" + good.ref_name + ".png")), this);
     this->good_ibtn->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
         new GoodView(o.gs, o.good);
