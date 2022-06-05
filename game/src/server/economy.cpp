@@ -466,23 +466,25 @@ void Economy::do_tick(World& world) {
                     if(it == province.pops.end())
                         can_build_unit = false;
 
-                    /// @todo Maybe delete if size becomes 0?
-                    const float final_size = std::min<float>((*it).size, army_size);
-                    (*it).size -= final_size;
-                    if(can_build_unit && final_size) {
-                        Unit unit;
-                        unit.type = building.working_unit_type;
-                        unit.owner_id = province.owner_id;
-                        unit.budget = 5000.f;
-                        unit.experience = 1.f;
-                        unit.morale = 1.f;
-                        unit.supply = 1.f;
-                        unit.size = final_size;
-                        unit.base = unit.type->max_health;
-                        unit.target_province_id = province.get_id();
-                        province_new_units.local().push_back(unit);
-                        building.working_unit_type = nullptr;
-                        Eng3D::Log::debug("economy", "[" + province.ref_name + "]: Has built an unit of [" + unit.type->ref_name + "]");
+                    if(can_build_unit) {
+                        /// @todo Maybe delete if size becomes 0?
+                        const float final_size = std::min<float>((*it).size, army_size);
+                        (*it).size -= final_size;
+                        if(final_size) {
+                            Unit unit;
+                            unit.type = building.working_unit_type;
+                            unit.owner_id = province.owner_id;
+                            unit.budget = 5000.f;
+                            unit.experience = 1.f;
+                            unit.morale = 1.f;
+                            unit.supply = 1.f;
+                            unit.size = final_size;
+                            unit.base = unit.type->max_health;
+                            unit.target_province_id = province.get_id();
+                            province_new_units.local().push_back(unit);
+                            building.working_unit_type = nullptr;
+                            Eng3D::Log::debug("economy", "[" + province.ref_name + "]: Has built an unit of [" + unit.type->ref_name + "]");
+                        }
                     }
                 }
             }
@@ -535,7 +537,8 @@ void Economy::do_tick(World& world) {
             Province::Id target_province_id = unit.target_province_id;
             unit.target_province_id = Province::invalid();
             world.unit_manager.add_unit(unit, target_province_id);
-            g_server->broadcast(Action::UnitAdd::form_packet(unit));
+            /// @todo Obtain the cached ID of the newly added unit
+            //g_server->broadcast(Action::UnitAdd::form_packet(unit));
         }
     });
     world.profiler.stop("E-mutex");
