@@ -517,7 +517,7 @@ void Map::draw(const GameState& gs) {
     // Display units that aren't on battles
     size_t unit_index = 0, battle_index = 0;
     // for(auto& province : const_cast<World&>(world).provinces) {
-    gs.world->unit_manager.for_each_unit([this, &gs, &unit_index](Unit& unit) {
+    gs.world->unit_manager.for_each_unit([this, &gs, &unit_index](auto& unit) {
         auto prov_id = gs.world->unit_manager.unit_province[unit.cached_id];
         auto& province = gs.world->provinces[prov_id];
         auto& camera = this->camera;
