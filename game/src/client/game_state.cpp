@@ -542,8 +542,6 @@ void GameState::music_thread() {
     path_entries.clear();
     entries.shrink_to_fit();
 
-    //this->music_queue.push_back(new Eng3D::Audio(Path::get("sfx/music/ambience/02_Ii-AndanteMoltoMosso.ogg")));
-
     while(this->run) {
         if(this->music_queue.empty()) {
             this->music_fade_value = 0.f;
@@ -552,6 +550,7 @@ void GameState::music_thread() {
                 const int music_index = std::rand() % entries.size();
                 std::scoped_lock lock(this->sound_lock);
                 this->music_queue.push_back(new Eng3D::Audio(entries[music_index].path));
+                Eng3D::Log::debug("music", "Now playing music file " + entries[music_index].path);
                 entries[music_index].has_played = true;
             }
         }
