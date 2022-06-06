@@ -42,6 +42,8 @@
 Eng3D::Audio::Audio(const std::string& path) {
     SDL_AudioCVT cvt;
 
+    Eng3D::Log::debug("audio", "Decoding audio " + path);
+
     int channels, rate;
     uint8_t* decoded;
     this->len = stb_vorbis_decode_filename(path.c_str(), &channels, &rate, (short**)&decoded);
@@ -56,7 +58,7 @@ Eng3D::Audio::Audio(const std::string& path) {
     SDL_BuildAudioCVT(&cvt, AUDIO_S16, channels, rate, AUDIO_S16, 1, 8000);
     cvt.buf = (Uint8*)malloc(this->len * cvt.len_mult);
     if(cvt.buf == nullptr)
-        CXX_THROW(Eng3D::AudioException, path, "Cannot allocate memory");
+        CXX_THROW(Eng3D::AudioException, path, "Can't allocate memory");
     std::memcpy(cvt.buf, this->data, this->len);
     cvt.len = this->len;
     SDL_ConvertAudio(&cvt);
