@@ -184,11 +184,11 @@ MapRender::MapRender(const World& _world)
     // Texture holding each province color
     // The x & y coords are the province Red & Green color of the tile_map
     tile_sheet = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(256, 256));
-    for(unsigned int i = 0; i < 256 * 256; i++)
+    for(size_t i = 0; i < 256 * 256; i++)
         tile_sheet->buffer.get()[i] = 0xffdddddd;
 
     tile_sheet_nation = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(256, 256));
-    for(unsigned int i = 0; i < 256 * 256; i++)
+    for(size_t i = 0; i < 256 * 256; i++)
         tile_sheet_nation->buffer.get()[i] = 0xffdddddd;
 
     // By default textures will be dropped from the CPU in order to save memory, however we're trying
@@ -201,7 +201,7 @@ MapRender::MapRender(const World& _world)
 
     // Province options
     province_opt = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(256, 256));
-    for(unsigned int i = 0; i < 256 * 256; i++)
+    for(size_t i = 0; i < 256 * 256; i++)
         province_opt->buffer.get()[i] = 0x000000ff;
     {
         Eng3D::TextureOptions no_drop_options{};
