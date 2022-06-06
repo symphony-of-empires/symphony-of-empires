@@ -504,9 +504,10 @@ static inline void unit_do_tick(Unit& unit)
         return;
     }
 
-    auto& unit_target = g_world->provinces[unit.target_province_id];
     if(Province::is_valid(unit.target_province_id)) {
         assert(unit.target_province_id != unit.province_id());
+
+        auto& unit_target = g_world->provinces[unit.target_province_id];
         bool can_move = true, can_take = false;
         if(unit_target.controller != nullptr && unit_target.controller->get_id() != unit.owner_id) {
             const auto& relation = g_world->get_relation(unit_target.controller->get_id(), unit.owner_id);
