@@ -534,9 +534,10 @@ static inline void unit_do_tick(Unit& unit)
         }
 
         if(can_move) {
-            if(unit.move_progress) {
+            /// @todo Fix movement progress
+            /*if(unit.move_progress) {
                 unit.move_progress -= std::min<float>(unit.move_progress, unit.get_speed());
-            } else {
+            } else*/ {
                 g_world->unit_manager.move_unit(unit.get_id(), unit.target_province_id);
                 // Only take control of provinces of the people we're at war with
                 if(can_take)
