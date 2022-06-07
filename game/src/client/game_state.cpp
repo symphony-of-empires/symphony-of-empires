@@ -84,7 +84,6 @@
 #include "client/interface/building.hpp"
 #include "client/interface/minimap.hpp"
 #include "client/interface/profiler_view.hpp"
-#include "client/interface/ai.hpp"
 #include "client/map.hpp"
 #include "client/map_render.hpp"
 #include "server/server_network.hpp"
@@ -242,8 +241,9 @@ void handle_event(Input& input, GameState& gs) {
                 }
                 break;
             case Eng3D::Keyboard::Key::F4:
-                if(!click_on_ui)
-                    new Interface::AISettingsWindow(gs);
+                if(!click_on_ui) {
+                    LuaAPI::invoke_registered_callback(gs.world->lua, "ai_settings_window_invoke");
+                }
                 break;
             case Eng3D::Keyboard::Key::F5:
                 if(gs.editor)

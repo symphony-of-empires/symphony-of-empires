@@ -289,7 +289,6 @@ namespace UI {
         UI::Tooltip* tooltip = nullptr;
 
         void* user_data = nullptr;
-        int dpad_index = -1; // Index for `select_dpad_ui_widget`, -1 means index=Auto (first to last)
 
         std::function<void(Widget&)> on_update;
         std::function<void(Widget&)> on_click;
@@ -297,6 +296,12 @@ namespace UI {
         std::function<void(Widget&)> on_each_tick;
         std::function<void(Widget&, int i)> on_pos_recalc;
         std::function<void(Widget&, glm::ivec2 mouse_pos, glm::ivec2 widget_pos)> on_hover;
+
+        // Used by lua to call closures upon one of these callbacks, note that
+        // the C++ callback part will be replaced by the lua driver, you can't mix C++ and Lua
+        // callbacks on the same widget!
+        int lua_on_update = 0, lua_on_click = 0, lua_on_click_outside = 0, lua_on_each_tick = 0;
+        int dpad_index = 0; // Index for `select_dpad_ui_widget`, 0 means index=Auto (first to last)
 
         friend class Context;
     protected:

@@ -154,7 +154,16 @@ Culture:new{ ref_name = "kyrgyz", name = _("Kyrgyz") }:register()
 Culture:new{ ref_name = "afghan", name = _("Afghan"), combo_form = _("Afghano") }:register()
 
 -- East asian
-Culture:new{ ref_name = "korean", name = _("Korean") }:register()
+korean = Culture:new{ ref_name = "korean", name = _("Korean") }
+korean:register()
+chinesse = Culture:new{ ref_name = "chinesse", name = _("Chinesse") }
+chinesse:register()
+burmesse = Culture:new{ ref_name = "burmesse", name = _("Burmesse") }
+burmesse:register()
+thai = Culture:new{ ref_name = "thai", name = _("Thai") }
+thai:register()
+vietnamesse = Culture:new{ ref_name = "vietnamesse", name = _("Vietnamesse") }
+vietnamesse:register()
 
 -- American
 Culture:new{ ref_name = "american", name = _("American"), adjective = _("American"), color = 0x6ea5cc }:register()

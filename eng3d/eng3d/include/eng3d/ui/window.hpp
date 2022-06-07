@@ -45,7 +45,10 @@ namespace UI {
         Window(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
         virtual ~Window() override {};
         void set_close_btn_function(std::function<void(Widget&)> on_click);
+
         bool is_movable = true;
+        // For the Lua API bindings
+        int lua_on_close_btn = 0;
     private:
         Widget* close_btn = nullptr;
     };

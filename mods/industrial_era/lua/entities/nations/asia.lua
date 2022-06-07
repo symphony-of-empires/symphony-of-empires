@@ -92,12 +92,19 @@ nation = Nation:new{ ref_name = "siam", name = _("Siam") }
 nation.adjective = _("Siam")
 nation:register()
 nation:set_ideology(monarchy)
---nation:add_accepted_culture(siamesse)
+nation:add_accepted_culture(thai)
 nation:add_client_hint(monarchy, _("Siam"), 0x2F54BD)
 
 nation = Nation:new{ ref_name = "burma", name = _("Burma") }
 nation.adjective = _("Burma")
 nation:register()
 nation:set_ideology(monarchy)
---nation:add_accepted_culture(burmesse)
+nation:add_accepted_culture(burmesse)
 nation:add_client_hint(monarchy, _("Burma"), 0x2FFFBD)
+
+nation = Nation:new{ ref_name = "vietnam", name = _("Vietnam") }
+nation.adjective = _("Vietnam")
+nation:register()
+nation:set_ideology(monarchy)
+nation:add_accepted_culture(vietnamesse)
+nation:add_client_hint(monarchy, _("Vietnam"), 0x2FFFBD)

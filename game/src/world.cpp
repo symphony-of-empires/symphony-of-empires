@@ -230,11 +230,22 @@ World::World() {
     lua_register(lua, "ui_new_div", LuaAPI::ui_new_div);
     lua_register(lua, "ui_new_group", LuaAPI::ui_new_group);
     lua_register(lua, "ui_new_image", LuaAPI::ui_new_image);
+    lua_register(lua, "ui_new_checkbox", LuaAPI::ui_new_checkbox);
+    lua_register(lua, "ui_set_checkbox_value", LuaAPI::ui_set_checkbox_value);
+    lua_register(lua, "ui_get_checkbox_value", LuaAPI::ui_get_checkbox_value);
     lua_register(lua, "ui_new_label", LuaAPI::ui_new_label);
     lua_register(lua, "ui_new_window", LuaAPI::ui_new_window);
     lua_register(lua, "ui_get_image", LuaAPI::ui_get_image);
     lua_register(lua, "ui_set_image", LuaAPI::ui_set_image);
+    lua_register(lua, "ui_set_scroll", LuaAPI::ui_set_scroll);
     lua_register(lua, "ui_set_text", LuaAPI::ui_set_text);
+    lua_register(lua, "ui_set_on_click", LuaAPI::ui_set_on_click);
+    lua_register(lua, "ui_set_window_on_click_close_btn", LuaAPI::ui_set_window_on_click_close_btn);
+    lua_register(lua, "ui_get_widget", LuaAPI::ui_get_widget);
+    lua_register(lua, "ui_widget_kill", LuaAPI::ui_widget_kill);
+    lua_register(lua, "ui_widget_set_tooltip", LuaAPI::ui_widget_set_tooltip);
+    lua_register(lua, "UI_RegisterCallback", LuaAPI::ui_register_callback);
+    lua_register(lua, "UI_CallBuiltin", LuaAPI::ui_call_builtin);
     
     /*LuaAPI::register_new_table(lua, "Ideology", {}, {
         { "test", [](lua_State* L) {
