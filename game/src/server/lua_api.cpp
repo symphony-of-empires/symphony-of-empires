@@ -1320,12 +1320,38 @@ void LuaAPI::check_events(lua_State* L) {
 }
 
 #include <unordered_map>
+#include <map>
 #include "eng3d/state.hpp"
 #include "eng3d/ui/ui.hpp"
-#include "eng3d/ui/components.hpp"
-static std::unordered_map<int, UI::Widget*> lua_widgets;
-static std::unordered_map<int, std::shared_ptr<Eng3D::Texture>> lua_textures;
-static int brk = 1;
+#include "eng3d/ui/widget.hpp"
+#include "eng3d/ui/barchart.hpp"
+#include "eng3d/ui/button.hpp"
+#include "eng3d/ui/chart.hpp"
+#include "eng3d/ui/checkbox.hpp"
+#include "eng3d/ui/close_button.hpp"
+#include "eng3d/ui/div.hpp"
+#include "eng3d/ui/group.hpp"
+#include "eng3d/ui/image.hpp"
+#include "eng3d/ui/input.hpp"
+#include "eng3d/ui/label.hpp"
+#include "eng3d/ui/piechart.hpp"
+#include "eng3d/ui/progress_bar.hpp"
+#include "eng3d/ui/slider.hpp"
+#include "eng3d/ui/text.hpp"
+#include "eng3d/ui/tooltip.hpp"
+#include "eng3d/ui/window.hpp"
+
+std::map<int, UI::Widget*> lua_widgets;
+std::map<int, std::shared_ptr<Eng3D::Texture>> lua_textures;
+std::map<std::string, int> lua_ui_callbacks; 
+
+// TODO: Make this thread-safe
+static int id = 1;
+static inline int get_unique_id() {
+    id++;
+    return id;
+}
+
 int LuaAPI::ui_new_button(lua_State* L) {
     int x = luaL_checkinteger(L, 1); // x
     int y = luaL_checkinteger(L, 2); // y
@@ -1334,10 +1360,9 @@ int LuaAPI::ui_new_button(lua_State* L) {
     int parent_ref = luaL_checkinteger(L, 5); // parent
     UI::Widget* parent = !parent_ref ? nullptr : lua_widgets[parent_ref];
 
-    auto& s = Eng3D::State::get_instance();
-    lua_widgets[brk] = new UI::Button(x, y, w, h, parent);
-    lua_pushinteger(L, brk);
-    brk++;
+    const auto widget_id = get_unique_id();
+    lua_widgets[widget_id] = new UI::Button(x, y, w, h, parent);
+    lua_pushinteger(L, widget_id);
     return 1;
 }
 
@@ -1349,10 +1374,9 @@ int LuaAPI::ui_new_image(lua_State* L) {
     int parent_ref = luaL_checkinteger(L, 5); // parent
     UI::Widget* parent = !parent_ref ? nullptr : lua_widgets[parent_ref];
 
-    auto& s = Eng3D::State::get_instance();
-    lua_widgets[brk] = new UI::Image(x, y, w, h, parent);
-    lua_pushinteger(L, brk);
-    brk++;
+    const auto widget_id = get_unique_id();
+    lua_widgets[widget_id] = new UI::Image(x, y, w, h, parent);
+    lua_pushinteger(L, widget_id);
     return 1;
 }
 
@@ -1364,10 +1388,9 @@ int LuaAPI::ui_new_group(lua_State* L) {
     int parent_ref = luaL_checkinteger(L, 5); // parent
     UI::Widget* parent = !parent_ref ? nullptr : lua_widgets[parent_ref];
 
-    auto& s = Eng3D::State::get_instance();
-    lua_widgets[brk] = new UI::Group(x, y, w, h, parent);
-    lua_pushinteger(L, brk);
-    brk++;
+    const auto widget_id = get_unique_id();
+    lua_widgets[widget_id] = new UI::Group(x, y, w, h, parent);
+    lua_pushinteger(L, widget_id);
     return 1;
 }
 
@@ -1379,10 +1402,9 @@ int LuaAPI::ui_new_div(lua_State* L) {
     int parent_ref = luaL_checkinteger(L, 5); // parent
     UI::Widget* parent = !parent_ref ? nullptr : lua_widgets[parent_ref];
 
-    auto& s = Eng3D::State::get_instance();
-    lua_widgets[brk] = new UI::Div(x, y, w, h, parent);
-    lua_pushinteger(L, brk);
-    brk++;
+    const auto widget_id = get_unique_id();
+    lua_widgets[widget_id] = new UI::Div(x, y, w, h, parent);
+    lua_pushinteger(L, widget_id);
     return 1;
 }
 
@@ -1394,10 +1416,35 @@ int LuaAPI::ui_new_window(lua_State* L) {
     int parent_ref = luaL_checkinteger(L, 5); // parent
     UI::Widget* parent = !parent_ref ? nullptr : lua_widgets[parent_ref];
 
-    auto& s = Eng3D::State::get_instance();
-    lua_widgets[brk] = new UI::Window(x, y, w, h, parent);
-    lua_pushinteger(L, brk);
-    brk++;
+    const auto widget_id = get_unique_id();
+    lua_widgets[widget_id] = new UI::Window(x, y, w, h, parent);
+    lua_pushinteger(L, widget_id);
+    return 1;
+}
+
+int LuaAPI::ui_new_checkbox(lua_State* L) {
+    int x = luaL_checkinteger(L, 1); // x
+    int y = luaL_checkinteger(L, 2); // y
+    int w = luaL_checkinteger(L, 3); // w
+    int h = luaL_checkinteger(L, 4); // h
+    int parent_ref = luaL_checkinteger(L, 5); // parent
+    UI::Widget* parent = !parent_ref ? nullptr : lua_widgets[parent_ref];
+
+    const auto widget_id = get_unique_id();
+    lua_widgets[widget_id] = new UI::Checkbox(x, y, w, h, parent);
+    lua_pushinteger(L, widget_id);
+    return 1;
+}
+
+int LuaAPI::ui_set_checkbox_value(lua_State* L) {
+    UI::Checkbox* widget = static_cast<UI::Checkbox*>(lua_widgets[luaL_checkinteger(L, 1)]);
+    widget->set_value(lua_toboolean(L, 2));
+    return 0;
+}
+
+int LuaAPI::ui_get_checkbox_value(lua_State* L) {
+    UI::Checkbox* widget = static_cast<UI::Checkbox*>(lua_widgets[luaL_checkinteger(L, 1)]);
+    lua_pushboolean(L, widget->get_value());
     return 1;
 }
 
@@ -1407,10 +1454,9 @@ int LuaAPI::ui_new_label(lua_State* L) {
     int parent_ref = luaL_checkinteger(L, 3); // parent
     UI::Widget* parent = !parent_ref ? nullptr : lua_widgets[parent_ref];
 
-    auto& s = Eng3D::State::get_instance();
-    lua_widgets[brk] = new UI::Label(x, y, " ", parent);
-    lua_pushinteger(L, brk);
-    brk++;
+    const auto widget_id = get_unique_id();
+    lua_widgets[widget_id] = new UI::Label(x, y, " ", parent);
+    lua_pushinteger(L, widget_id);
     return 1;
 }
 
@@ -1423,9 +1469,10 @@ int LuaAPI::ui_set_text(lua_State* L) {
 int LuaAPI::ui_get_image(lua_State* L) {
     const std::string path = luaL_checkstring(L, 1);
     auto& s = Eng3D::State::get_instance();
-    lua_textures[brk] = s.tex_man->load(s.package_man->get_unique(path));
-    lua_pushinteger(L, brk);
-    brk++;
+
+    const auto widget_id = get_unique_id();
+    lua_textures[widget_id] = s.tex_man->load(s.package_man->get_unique(path));
+    lua_pushinteger(L, widget_id);
     return 1;
 }
 
@@ -1436,8 +1483,129 @@ int LuaAPI::ui_set_image(lua_State* L) {
     return 0;
 }
 
-int LuaAPI::ui_set_onclick(lua_State* L) {
+int LuaAPI::ui_set_scroll(lua_State* L) {
     UI::Widget* widget = lua_widgets[luaL_checkinteger(L, 1)];
-    /// @todo this
+    widget->is_scroll = lua_toboolean(L, 2);
     return 0;
+}
+
+int LuaAPI::ui_set_on_click(lua_State* L) {
+    UI::Widget* widget = lua_widgets[luaL_checkinteger(L, 1)];
+    lua_pushvalue(L, 2); // Obtain closure id
+    widget->lua_on_click = luaL_ref(L, LUA_REGISTRYINDEX);
+    widget->set_on_click([L](UI::Widget& w) { // Special callback for handling this closure
+        lua_pushstring(L, "UI_DriverCallOnClick");
+        lua_rawgeti(L, LUA_REGISTRYINDEX, w.lua_on_click);
+        // Find the widget on the map
+        auto it = std::find_if(lua_widgets.begin(), lua_widgets.end(), [&w](const auto& e) {
+            return e.second == &w;
+        });
+        lua_pushinteger(L, it->first);
+        if(call_func(L, 2, 0)) {
+            const std::string err_msg = lua_tostring(L, -1);
+            Eng3D::Log::error("lua", "lua_pcall failed: " + err_msg);
+            lua_pop(L, 1);
+            throw LuaAPI::Exception("Failure on UI callback: " + err_msg);
+        }
+    });
+    return 0;
+}
+
+int LuaAPI::ui_set_window_on_click_close_btn(lua_State* L) {
+    UI::Window* widget = static_cast<UI::Window*>(lua_widgets[luaL_checkinteger(L, 1)]);
+    lua_pushvalue(L, 2); // Obtain closure id
+    widget->lua_on_close_btn = luaL_ref(L, LUA_REGISTRYINDEX);
+    widget->set_close_btn_function([L](UI::Widget& w) { // Special callback for handling this closure
+        lua_pushstring(L, "UI_DriverCallOnClick");
+        lua_rawgeti(L, LUA_REGISTRYINDEX, ((UI::Window&)w).lua_on_close_btn);
+        // Find the widget on the map
+        auto it = std::find_if(lua_widgets.begin(), lua_widgets.end(), [&w](const auto& e) {
+            return e.second == &w;
+        });
+        lua_pushinteger(L, it->first);
+        if(call_func(L, 2, 0)) {
+            const std::string err_msg = lua_tostring(L, -1);
+            Eng3D::Log::error("lua", "lua_pcall failed: " + err_msg);
+            lua_pop(L, 1);
+            throw LuaAPI::Exception("Failure on UI callback: " + err_msg);
+        }
+    });
+    return 0;
+}
+
+int LuaAPI::ui_get_widget(lua_State* L) {
+    UI::Widget* widget = lua_widgets[luaL_checkinteger(L, 1)];
+    lua_pushinteger(L, widget->width);
+    lua_pushinteger(L, widget->height);
+    lua_pushinteger(L, widget->x);
+    lua_pushinteger(L, widget->y);
+    return 4;
+}
+
+int LuaAPI::ui_widget_kill(lua_State* L) {
+    const int widget_id = luaL_checkinteger(L, 1);
+    UI::Widget* widget = lua_widgets[widget_id];
+    widget->kill(); // Kill the widget (not now, but later...)
+    lua_widgets.erase(widget_id); // Delete from lua_widgets to avoid dead-pointer referencing
+    return 0;
+}
+
+int LuaAPI::ui_widget_set_tooltip(lua_State* L) {
+    UI::Widget* widget = lua_widgets[luaL_checkinteger(L, 1)];
+    widget->set_tooltip(luaL_checkstring(L, 2));
+    return 0;
+}
+
+int LuaAPI::ui_register_callback(lua_State* L) {
+    const std::string name = luaL_checkstring(L, 1);
+    lua_pushvalue(L, 2); // Obtain closure id
+    lua_ui_callbacks[name] = luaL_ref(L, LUA_REGISTRYINDEX);
+    // Now the UI callback is registered
+    return 0;
+}
+
+#include "client/game_state.hpp"
+#include "action.hpp"
+#include "client/client_network.hpp"
+#include "server/server_network.hpp"
+int LuaAPI::ui_call_builtin(lua_State* L) {
+    const std::string builtin_fn = luaL_checkstring(L, 1);
+    auto& gs = static_cast<GameState&>(Eng3D::State::get_instance());
+
+    if(builtin_fn == "gs.ai_control.form_packet") {
+        gs.client->send(Action::AiControl::form_packet(*gs.curr_nation));
+        return 0;
+    } else if(builtin_fn == "gs.ai_do_cmd_troops.get") {
+        if(gs.curr_nation == nullptr)
+            return 0;
+        lua_pushboolean(L, gs.curr_nation->ai_do_cmd_troops);
+        return 1;
+    } else if(builtin_fn == "gs.ai_do_cmd_troops.set") {
+        if(gs.curr_nation == nullptr)
+            return 0;
+        gs.curr_nation->ai_do_cmd_troops = lua_toboolean(L, 2);
+        return 0;
+    }
+
+    // Invalid callback name
+    return 0;
+}
+
+/**
+ * @brief Some UI functions are hardcoded, for example the main menu is hardcoded
+ * to appear when the game starts, in order to mantain scriptability we just invoke
+ * functions coded in lua
+ * 
+ * @param L 
+ * @param name 
+ * @return int 
+ */
+void LuaAPI::invoke_registered_callback(lua_State* L, const std::string& name) {
+    lua_rawgeti(L, LUA_REGISTRYINDEX, lua_ui_callbacks[name]);
+    if(call_func(L, 0, 0)) {
+        const std::string err_msg = lua_tostring(L, -1);
+        Eng3D::Log::error("lua", "lua_pcall failed: " + err_msg);
+        lua_pop(L, 1);
+        CXX_THROW(LuaAPI::Exception, "Failure on UI callback: " + err_msg);
+    }
 }

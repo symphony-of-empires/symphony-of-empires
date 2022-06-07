@@ -157,10 +157,21 @@ namespace LuaAPI {
     int ui_new_group(lua_State* L);
     int ui_new_div(lua_State* L);
     int ui_new_window(lua_State* L);
+    int ui_new_checkbox(lua_State* L);
+    int ui_set_checkbox_value(lua_State* L);
+    int ui_get_checkbox_value(lua_State* L);
     int ui_new_label(lua_State* L);
     int ui_set_text(lua_State* L);
     int ui_get_image(lua_State* L);
     int ui_set_image(lua_State* L);
-    /// @todo This
-    int ui_set_onclick(lua_State* L);
+    int ui_set_scroll(lua_State* L);
+    int ui_set_on_click(lua_State* L);
+    int ui_set_window_on_click_close_btn(lua_State* L);
+    int ui_get_widget(lua_State* L);
+    int ui_widget_kill(lua_State* L);
+    int ui_widget_set_tooltip(lua_State* L);
+    int ui_register_callback(lua_State* L);
+    int ui_call_builtin(lua_State* L);
+
+    void invoke_registered_callback(lua_State* L, const std::string& name);
 };

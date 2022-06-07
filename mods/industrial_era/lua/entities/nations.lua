@@ -35,17 +35,6 @@ rebel:add_client_hint(republic, _("Democratic Rebellion"), 0x808000)
 rebel:add_client_hint(anarchy, _("Anarchist Rebellion"), 0x808000)
 rebel:add_client_hint(tribal, _("Primitivism Rebellion"), 0x808000)
 
-hawai_i = Nation:new{ ref_name = "hawai_i" }
-hawai_i.name = _("Hawai'i")
-hawai_i:register()
-hawai_i:set_ideology(monarchy)
-hawai_i:add_accepted_culture(polynesian)
-hawai_i:add_client_hint(monarchy, _("Hawai'i"), 0x808000)
-hawai_i:add_client_hint(communism, _("Hawai'i"), 0x808000)
-hawai_i:add_client_hint(socialism, _("Hawai'i"), 0x808000)
-hawai_i:add_client_hint(fascism, _("Hawai'i"), 0x808000)
-hawai_i:add_client_hint(republic, _("Hawai'i"), 0x808000)
-
 local nation = {}
 
 require('entities/nations/africa')
