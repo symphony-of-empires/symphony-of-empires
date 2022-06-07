@@ -160,6 +160,9 @@ namespace LuaAPI {
     int ui_new_checkbox(lua_State* L);
     int ui_set_checkbox_value(lua_State* L);
     int ui_get_checkbox_value(lua_State* L);
+    int ui_new_slider(lua_State* L);
+    int ui_get_slider_value(lua_State* L);
+    int ui_set_slider_value(lua_State* L);
     int ui_new_label(lua_State* L);
     int ui_set_text(lua_State* L);
     int ui_get_image(lua_State* L);
@@ -171,6 +174,7 @@ namespace LuaAPI {
     int ui_widget_kill(lua_State* L);
     int ui_widget_set_tooltip(lua_State* L);
     int ui_register_callback(lua_State* L);
+    int ui_widget_set_flex(lua_State* L);
     int ui_call_builtin(lua_State* L);
 
     void invoke_registered_callback(lua_State* L, const std::string& name);

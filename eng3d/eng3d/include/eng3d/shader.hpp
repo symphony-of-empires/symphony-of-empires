@@ -57,8 +57,9 @@ namespace Eng3D {
         class Option {
             std::string _option;
         public:
-            bool used;
+            bool used = false;
 
+            Option() = default;
             Option(std::string option, bool use)
                 : _option{ option },
                 used{ use }

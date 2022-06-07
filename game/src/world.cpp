@@ -233,6 +233,9 @@ World::World() {
     lua_register(lua, "ui_new_checkbox", LuaAPI::ui_new_checkbox);
     lua_register(lua, "ui_set_checkbox_value", LuaAPI::ui_set_checkbox_value);
     lua_register(lua, "ui_get_checkbox_value", LuaAPI::ui_get_checkbox_value);
+    lua_register(lua, "ui_new_slider", LuaAPI::ui_new_slider);
+    lua_register(lua, "ui_get_slider_value", LuaAPI::ui_get_slider_value);
+    lua_register(lua, "ui_set_slider_value", LuaAPI::ui_set_slider_value);
     lua_register(lua, "ui_new_label", LuaAPI::ui_new_label);
     lua_register(lua, "ui_new_window", LuaAPI::ui_new_window);
     lua_register(lua, "ui_get_image", LuaAPI::ui_get_image);
@@ -245,6 +248,7 @@ World::World() {
     lua_register(lua, "ui_widget_kill", LuaAPI::ui_widget_kill);
     lua_register(lua, "ui_widget_set_tooltip", LuaAPI::ui_widget_set_tooltip);
     lua_register(lua, "UI_RegisterCallback", LuaAPI::ui_register_callback);
+    lua_register(lua, "ui_widget_set_flex", LuaAPI::ui_widget_set_flex);
     lua_register(lua, "UI_CallBuiltin", LuaAPI::ui_call_builtin);
     
     /*LuaAPI::register_new_table(lua, "Ideology", {}, {

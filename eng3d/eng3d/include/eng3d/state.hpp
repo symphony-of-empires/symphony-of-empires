@@ -86,7 +86,7 @@ namespace Eng3D {
         Eng3D::IO::PackageManager* package_man;
         UI::Context* ui_ctx;
 
-        float music_volume = 50.f, sound_volume = 50.f;
+        float music_volume = 0.5f, sound_volume = 0.5f;
 #ifdef E3D_BACKEND_RGX
         // RVL uses global state variables that are platform specific
 #else

@@ -42,7 +42,7 @@ function UnitType:new(o)
     self.__index = self
     return o
 end
-function UnitType:get( ref_name)
+function UnitType:get(ref_name)
     local o = UnitType:new()
     o.id, o.name, o.attack, o.defense, o.health, o.is_ground, o.is_naval, o.speed = get_unit_type(ref_name)
     o.ref_name = ref_name

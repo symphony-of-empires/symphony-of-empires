@@ -345,7 +345,7 @@ void Eng3D::State::mixaudio(void* userdata, uint8_t* stream, int len) {
                 continue;
             }
 
-            const float volume = (SDL_MIX_MAXVOLUME / 100.f) * gs.sound_volume;
+            const float volume = SDL_MIX_MAXVOLUME * gs.sound_volume;
             SDL_MixAudio(stream, &sound.data[sound.pos], amount, volume);
             sound.pos += amount;
             i++;
@@ -360,8 +360,8 @@ void Eng3D::State::mixaudio(void* userdata, uint8_t* stream, int len) {
                 continue;
             }
 
-            const float volume = (SDL_MIX_MAXVOLUME / 100.f) * gs.music_volume;
-            const float fade = (SDL_MIX_MAXVOLUME / 100.f) * gs.music_fade_value;
+            const float volume = SDL_MIX_MAXVOLUME * gs.music_volume;
+            const float fade = SDL_MIX_MAXVOLUME * gs.music_fade_value;
             SDL_MixAudio(stream, &music.data[music.pos], amount, volume - fade);
             music.pos += amount;
             i++;
