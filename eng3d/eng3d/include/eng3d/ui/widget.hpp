@@ -289,6 +289,7 @@ namespace UI {
         UI::Tooltip* tooltip = nullptr;
 
         void* user_data = nullptr;
+        int dpad_index = -1; // Index for `select_dpad_ui_widget`, -1 means index=Auto (first to last)
 
         std::function<void(Widget&)> on_update;
         std::function<void(Widget&)> on_click;

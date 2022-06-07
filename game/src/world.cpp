@@ -225,6 +225,24 @@ World::World() {
         return 1;
     });
 
+    // And for the UI too
+    lua_register(lua, "ui_new_button", LuaAPI::ui_new_button);
+    lua_register(lua, "ui_new_div", LuaAPI::ui_new_div);
+    lua_register(lua, "ui_new_group", LuaAPI::ui_new_group);
+    lua_register(lua, "ui_new_image", LuaAPI::ui_new_image);
+    lua_register(lua, "ui_new_label", LuaAPI::ui_new_label);
+    lua_register(lua, "ui_new_window", LuaAPI::ui_new_window);
+    lua_register(lua, "ui_get_image", LuaAPI::ui_get_image);
+    lua_register(lua, "ui_set_image", LuaAPI::ui_set_image);
+    lua_register(lua, "ui_set_text", LuaAPI::ui_set_text);
+    
+    /*LuaAPI::register_new_table(lua, "Ideology", {}, {
+        { "test", [](lua_State* L) {
+            Eng3D::Log::debug("lua_test", "hello world");
+            return 0;
+        }}
+    });*/
+
     // Constants for ease of readability
     lua_pushboolean(lua, true);
     lua_setglobal(lua, "EVENT_CONDITIONS_MET");
@@ -316,9 +334,9 @@ void World::load_initial() {
         // Execute all lua files
         lua_exec_all_of(*this, (std::vector<std::string>) {
             "terrain_types", "good_types", "ideologies", "cultures",
-                "building_types", "technology", "religions", "pop_types",
-                "industry_types", "unit_types", "boat_types",
-                "nations", "provinces", "init"
+            "building_types", "technology", "religions", "pop_types",
+            "industry_types", "unit_types", "boat_types",
+            "nations", "provinces", "init"
         }, "lua/entities");
 
         std::unique_ptr<BinaryImage> div = std::make_unique<BinaryImage>(Eng3D::State::get_instance().package_man->get_unique("map/provinces.png")->get_abs_path());

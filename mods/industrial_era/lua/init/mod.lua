@@ -25,8 +25,6 @@
 
 math.randomseed(os.time())
 
-print("Hello!")
-
 require('entities/events/catholic_relief_act')
 require('entities/events/cholera_spread')
 require('entities/events/gevhdl_001')
@@ -109,9 +107,12 @@ Nation:get("russia"):declare_no_cb(Nation:get("turkey"))
 --Nation:get("austria"):make_relevant()
 --Nation:get("united_states"):make_relevant()
 
+require('entities/ui/init')
+
 --invalid_shit()
 set_date(1825, 0, 0)
-print("********************************************************************************")
 print("Industrial era mod")
 print("Date: ", get_year(), "/", get_month(), "/", get_day())
-print("********************************************************************************")
+
+local test_btn = UI_Button:new(16, 16, 128, 48, "")
+test_btn:text("Hello world this is a lua button")

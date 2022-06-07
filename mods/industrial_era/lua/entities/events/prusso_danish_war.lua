@@ -26,61 +26,54 @@
 --
 -- Unify germany "magic" event
 --
-
-function prusso_danish_war_test()
-	local year = get_year()
-    if year >= 1820 and math.random(0, 100) == 0 then
-        local has_german = false
-
-        -- Only if denmark owns german lands
-        local prov = Nation:get("denmark"):get_owned_provinces()
-	    for k, province in pairs(prov) do
-            local nucleus = province:get_nuclei()
-            for k, v in pairs(nucleus) do
-                if nucleus.ref_name == "germany" then
-                    has_german = true
-                    break
-                end
-            end
-        end
-
-        if has_german == true then
-            return EVENT_CONDITIONS_MET
-        else
-            return EVENT_CONDITIONS_UNMET
-        end
-    end
-	return EVENT_CONDITIONS_UNMET
-end
-function prusso_danish_war_event(ref_name)
-	decision = Decision:new{
-		ref_name = "prusso_danish_war_decision_0",
-		name = "Yes",
-		decision_fn = "prusso_danish_war_decision_0",
-		effects = "+1.0 militancy on all German POPs, -1.0 militancy on all Danish POPs, +50 relations with Denmark"
-	}
-	prusso_danish_war_evhdl:add_decision(decision)
-	
-	decision = Decision:new{
-		ref_name = "prusso_danish_war_decision_1",
-		name = "No",
-		decision_fn = "prusso_danish_war_decision_1",
-		effects = "Declares war on Denmark"
-	}
-	prusso_danish_war_evhdl:add_decision(decision)
-	return EVENT_DO_ONE_TIME
-end
-function prusso_danish_war_decision_0(ref_name)
-
-end
-function prusso_danish_war_decision_1(ref_name)
-	Nation:get(ref_name):declare_unjustified_war(Nation:get("denmark"))
-end
-
 prusso_danish_war_evhdl = Event:new{
 	ref_name = "prusso_danish_war",
-	conditions_fn = "prusso_danish_war_test",
-	event_fn = "prusso_danish_war_event",
+	conditions_fn = function()
+		local year = get_year()
+		if year >= 1820 and math.random(0, 100) == 0 then
+			local has_german = false
+	
+			-- Only if denmark owns german lands
+			local prov = Nation:get("denmark"):get_owned_provinces()
+			for k, province in pairs(prov) do
+				local nucleus = province:get_nuclei()
+				for k, v in pairs(nucleus) do
+					if nucleus.ref_name == "germany" then
+						has_german = true
+						break
+					end
+				end
+			end
+	
+			if has_german == true then
+				return EVENT_CONDITIONS_MET
+			else
+				return EVENT_CONDITIONS_UNMET
+			end
+		end
+		return EVENT_CONDITIONS_UNMET
+	end,
+	event_fn = function(ref_name)
+		decision = Decision:new{
+			ref_name = "prusso_danish_war_decision_0",
+			name = "Yes",
+			decision_fn = function(ref_name)
+	
+			end,
+			effects = "+1.0 militancy on all German POPs, -1.0 militancy on all Danish POPs, +50 relations with Denmark"
+		}
+		prusso_danish_war_evhdl:add_decision(decision)
+		decision = Decision:new{
+			ref_name = "prusso_danish_war_decision_1",
+			name = "No",
+			decision_fn = function(ref_name)
+				Nation:get(ref_name):declare_unjustified_war(Nation:get("denmark"))
+			end,
+			effects = "Declares war on Denmark"
+		}
+		prusso_danish_war_evhdl:add_decision(decision)
+		return EVENT_DO_ONE_TIME
+	end,
 	title = "The Holstein-Schweilg question",
 	text = "Denmark owns lands which are rightfully part of our greater german state; should we let them own these and prevent the unification of all the germanic people?"
 }
