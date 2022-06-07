@@ -36,7 +36,6 @@ generic_militancy_nationwide_evhdl = Event:new{
 			title = "Stop the activists",
 			text = "Some activists are trying to undermine us with false statments about the efficiency of our goverment - we can always crack down on those liars but we may upset free-speech supporters"	
 		}
-	
 		decision = Decision:new{
 			ref_name = "generic_militancy_nationwide_decision_0",
 			name = "",

@@ -24,101 +24,96 @@
 -- ----------------------------------------------------------------------------
 
 cholera_evhdl = Event:new{
-	ref_name = "cholera_evhdl",
-	conditions_fn = function()
-		if math.random(0, 100) == 0 then
-			return EVENT_CONDITIONS_MET
-		end
-		return EVENT_CONDITIONS_UNMET
-	end,
-	event_fn = function(ref_name)
-		local prov_list = Nation:get(ref_name):get_owned_provinces()
-		local n_prov_list = 0
-		for _ in pairs(prov_list) do
-			n_prov_list = n_prov_list + 1
-		end
-		local random_province = prov_list[math.random(0, n_prov_list)]
-	
-		local disease_names = {
-			"Disentery",
-			"Cholera",
-			"Tuberculosis",
-		}
-		local disease_names_idx = math.random(1, 3)
-		local texts = {
-			{
-				title = "Large " .. disease_names[disease_names_idx] .. " Spread in " .. random_province.name,
-				text = "Due to largely failed attempts in " .. random_province.name .. " to control " .. disease_names[disease_names_idx] .. ", many people have simply been exposed to the disease, whether in the sewers"
-			}, {
-				title = "Mass Spreading Event in " .. random_province.name,
-				text = "A large party in ".. random_province.name .. " is believed to be one of the causes of a major spread of " .. disease_names[disease_names_idx] .. ". The disease had a large semi-exposed sewer which could've helped spread the disease"
-			}, {
-				title = disease_names[disease_names_idx] .. "Dominates in ".. random_province.name,
-				text = "A large " .. disease_names[disease_names_idx] .. " outbreak in " .. random_province.name .. " has occured. Many have been infected"
-			}, { 
-				title = disease_names[disease_names_idx] .. " Ravages ".. random_province.name,
-				text = "A strain of " .. disease_names[disease_names_idx] .. " is ravaging the small villages of " .. random_province.name .." . This is proving to be a disaster as government officials in that area prepare a rescue mission"
-			},
-		}
-		local texts_idx = math.random(1, 4)
-		cholera_evhdl.title = texts[texts_idx].title
-		cholera_evhdl.text = texts[texts_idx].title
-		cholera_evhdl:update()
-		decision = Decision:new{
-			ref_name = "cholera_decision_0",
-			name = "We have to deal with this outbreak.",
-			decision_fn = function(ref_name)
-				local prov_list = Nation:get(ref_name):get_owned_provinces()
-				for k, province in pairs(prov_list) do
-					local pops = province:get_pops()
-					for k, pop in pairs(pops) do
-						pop.militancy = pop.militancy + 1.0
-						province:update_pop(pop)
-					end
-					province:update_pops()
-				end
-			end,
-			effects = "+1 militancy"
-		}
-		cholera_evhdl:add_decision(decision)
-		decision = Decision:new{
-			ref_name = "cholera_decision_1",
-			name = "Send a small amount of aid to the area",
-			decision_fn = function(ref_name)
-				local prov_list = Nation:get(ref_name):get_owned_provinces()
-				for k, province in pairs(prov_list) do
-					local pops = province:get_pops()
-					for k, pop in pairs(pops) do
-						pop.militancy = pop.militancy + 0.5
-						province:update_pop(pop)
-					end
-					province:update_pops()
-				end
-			end,
-			effects = "+0.5 militancy"
-		}
-		cholera_evhdl:add_decision(decision)
-		decision = Decision:new{
-			ref_name = "cholera_decision_2",
-			name = "Eh, They can deal with it themselves",
-			decision_fn = function(ref_name)
-				local prov_list = Nation:get(ref_name):get_owned_provinces()
-				for k, province in pairs(prov_list) do
-					local pops = province:get_pops()
-					for k, pop in pairs(pops) do
-						pop.militancy = pop.militancy + 1.0
-						province:update_pop(pop)
-					end
-					province:update_pops()
-				end
-			end,
-			effects = "+1 militancy"
-		}
-		cholera_evhdl:add_decision(decision)
-		return EVENT_DO_MANY_TIMES
-	end,
+    ref_name = "cholera_evhdl",
+    conditions_fn = function()
+        if math.random(0, 100) == 0 then
+            return EVENT_CONDITIONS_MET
+        end
+        return EVENT_CONDITIONS_UNMET
+    end,
+    event_fn = function(ref_name)
+        local prov_list = Nation:get(ref_name):get_owned_provinces()
+        local random_province = prov_list[math.random(0, table.size(prov_list))]
+        local disease_names = {
+            "Disentery",
+            "Cholera",
+            "Tuberculosis",
+        }
+        local disease_names_idx = math.random(1, table.size(disease_names))
+        local texts = {
+            {
+                title = "Large " .. disease_names[disease_names_idx] .. " Spread in " .. random_province.name,
+                text = "Due to largely failed attempts in " .. random_province.name .. " to control " .. disease_names[disease_names_idx] .. ", many people have simply been exposed to the disease, whether in the sewers"
+            }, {
+                title = "Mass Spreading Event in " .. random_province.name,
+                text = "A large party in ".. random_province.name .. " is believed to be one of the causes of a major spread of " .. disease_names[disease_names_idx] .. ". The disease had a large semi-exposed sewer which could've helped spread the disease"
+            }, {
+                title = disease_names[disease_names_idx] .. "Dominates in ".. random_province.name,
+                text = "A large " .. disease_names[disease_names_idx] .. " outbreak in " .. random_province.name .. " has occured. Many have been infected"
+            }, { 
+                title = disease_names[disease_names_idx] .. " Ravages ".. random_province.name,
+                text = "A strain of " .. disease_names[disease_names_idx] .. " is ravaging the small villages of " .. random_province.name .." . This is proving to be a disaster as government officials in that area prepare a rescue mission"
+            },
+        }
+        local texts_idx = math.random(1, table.size(texts))
+        cholera_evhdl.title = texts[texts_idx].title
+        cholera_evhdl.text = texts[texts_idx].title
+        cholera_evhdl:update()
+        decision = Decision:new{
+            ref_name = "cholera_decision_0",
+            name = "We have to deal with this outbreak.",
+            decision_fn = function(ref_name)
+                local prov_list = Nation:get(ref_name):get_owned_provinces()
+                for k, province in pairs(prov_list) do
+                    local pops = province:get_pops()
+                    for k, pop in pairs(pops) do
+                        pop.militancy = pop.militancy + 1.0
+                        province:update_pop(pop)
+                    end
+                    province:update_pops()
+                end
+            end,
+            effects = "+1 militancy"
+        }
+        cholera_evhdl:add_decision(decision)
+        decision = Decision:new{
+            ref_name = "cholera_decision_1",
+            name = "Send a small amount of aid to the area",
+            decision_fn = function(ref_name)
+                local prov_list = Nation:get(ref_name):get_owned_provinces()
+                for k, province in pairs(prov_list) do
+                    local pops = province:get_pops()
+                    for k, pop in pairs(pops) do
+                        pop.militancy = pop.militancy + 0.5
+                        province:update_pop(pop)
+                    end
+                    province:update_pops()
+                end
+            end,
+            effects = "+0.5 militancy"
+        }
+        cholera_evhdl:add_decision(decision)
+        decision = Decision:new{
+            ref_name = "cholera_decision_2",
+            name = "Eh, They can deal with it themselves",
+            decision_fn = function(ref_name)
+                local prov_list = Nation:get(ref_name):get_owned_provinces()
+                for k, province in pairs(prov_list) do
+                    local pops = province:get_pops()
+                    for k, pop in pairs(pops) do
+                        pop.militancy = pop.militancy + 1.0
+                        province:update_pop(pop)
+                    end
+                    province:update_pops()
+                end
+            end,
+            effects = "+1 militancy"
+        }
+        cholera_evhdl:add_decision(decision)
+        return EVENT_DO_MANY_TIMES
+    end,
     title = "",
-	text = ""
+    text = ""
 }
 cholera_evhdl:register()
 cholera_evhdl:add_receivers(table.unpack(Nation:get_all()))
@@ -159,7 +154,7 @@ cholera_evhdl:add_receivers(table.unpack(Nation:get_all()))
 -- 	cholera_evhdl_2.title = texts[texts_idx].title
 -- 	cholera_evhdl_2.text = texts[texts_idx].title
 -- 	cholera_evhdl_2:update()
-		
+        
 -- 	decision = Decision:new{
 -- 		ref_name = "cholera_2_decision_0",
 -- 		name = "Fire Them! They have no place in our government",
@@ -244,7 +239,7 @@ cholera_evhdl:add_receivers(table.unpack(Nation:get_all()))
 -- 	cholera_evhdl_3.title = texts[texts_idx].title
 -- 	cholera_evhdl_3.text = texts[texts_idx].title
 -- 	cholera_evhdl_3:update()
-		
+        
 -- 	decision = Decision:new{
 -- 		ref_name = "cholera_3_decision_0",
 -- 		name = "Send in Police to deal with them",

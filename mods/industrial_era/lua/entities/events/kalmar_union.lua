@@ -34,7 +34,7 @@ kalmar_union_evhdl = Event:new{
             -- Norwegian key provinces
             "oslo"
         }
-        local n_needed_provinces = 11
+        local n_needed_provinces = table.size(needed_provinces)
     
         -- Only these countries can form Scandinavia
         local sweden = Nation:get("sweden")
@@ -45,7 +45,6 @@ kalmar_union_evhdl = Event:new{
         local n_norway_provinces = 0
         for k, v in pairs(needed_provinces) do
             province = Province:get(v)
-    
             if province.owner_id == sweden.id then
                 n_sweden_provinces = n_sweden_provinces + 1
             elseif province.owner_id == finland.id then
@@ -77,7 +76,6 @@ kalmar_union_evhdl = Event:new{
             effects = "Become Kalmar Union"
         }
         kalmar_union_evhdl:add_decision(decision)
-    
         decision = Decision:new{
             ref_name = "kalmar_union_decision_1",
             name = "We don't need the others, right?",

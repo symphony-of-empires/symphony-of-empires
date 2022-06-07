@@ -24,53 +24,53 @@
 -- ----------------------------------------------------------------------------
 
 UnitType = {
-	id = 0,
-	ref_name = "",
-	name = "",
-	health = 100.0,
-	defense = 1.0,
-	attack = 1.0,
-	max_defensive_ticks = 25,
-	position_defense = 0.1,
-	is_ground = false,
-	is_naval = false,
-	speed = 1.0
+    id = 0,
+    ref_name = "",
+    name = "",
+    health = 100.0,
+    defense = 1.0,
+    attack = 1.0,
+    max_defensive_ticks = 25,
+    position_defense = 0.1,
+    is_ground = false,
+    is_naval = false,
+    speed = 1.0
 }
 function UnitType:new(o)
-	local o = o or {}
-	setmetatable(o, self)
-	self.__index = self
-	return o
+    local o = o or {}
+    setmetatable(o, self)
+    self.__index = self
+    return o
 end
 function UnitType:get( ref_name)
-	local o = UnitType:new()
-	o.id, o.name, o.attack, o.defense, o.health, o.is_ground, o.is_naval, o.speed = get_unit_type(ref_name)
-	o.ref_name = ref_name
-	return o
+    local o = UnitType:new()
+    o.id, o.name, o.attack, o.defense, o.health, o.is_ground, o.is_naval, o.speed = get_unit_type(ref_name)
+    o.ref_name = ref_name
+    return o
 end
 function UnitType:register()
-	self.id = add_unit_type(self.ref_name, self.name, self.attack, self.defense, self.health, self.is_ground, self.is_naval, self.speed)
+    self.id = add_unit_type(self.ref_name, self.name, self.attack, self.defense, self.health, self.is_ground, self.is_naval, self.speed)
 end
 function UnitType:requires_good(good, amount)
-	add_req_good_unit_type(self.id, good.id, amount)
+    add_req_good_unit_type(self.id, good.id, amount)
 end
 
 BoatType = UnitType
 BoatType.is_ground = false
 BoatType.is_naval = true
 function BoatType:new(o)
-	local o = o or {}
-	setmetatable(o, self)
-	self.__index = self
-	return o
+    local o = o or {}
+    setmetatable(o, self)
+    self.__index = self
+    return o
 end
 
 AirplaneType = UnitType
 AirplaneType.is_ground = true
 AirplaneType.is_naval = true
 function AirplaneType:new(o)
-	local o = o or {}
-	setmetatable(o, self)
-	self.__index = self
-	return o
+    local o = o or {}
+    setmetatable(o, self)
+    self.__index = self
+    return o
 end
