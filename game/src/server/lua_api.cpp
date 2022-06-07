@@ -1494,7 +1494,7 @@ int LuaAPI::ui_set_on_click(lua_State* L) {
     lua_pushvalue(L, 2); // Obtain closure id
     widget->lua_on_click = luaL_ref(L, LUA_REGISTRYINDEX);
     widget->set_on_click([L](UI::Widget& w) { // Special callback for handling this closure
-        lua_pushstring(L, "UI_DriverCallOnClick");
+        lua_getglobal(L, "UI_DriverCallOnClick");
         lua_rawgeti(L, LUA_REGISTRYINDEX, w.lua_on_click);
         // Find the widget on the map
         auto it = std::find_if(lua_widgets.begin(), lua_widgets.end(), [&w](const auto& e) {
@@ -1516,11 +1516,12 @@ int LuaAPI::ui_set_window_on_click_close_btn(lua_State* L) {
     lua_pushvalue(L, 2); // Obtain closure id
     widget->lua_on_close_btn = luaL_ref(L, LUA_REGISTRYINDEX);
     widget->set_close_btn_function([L](UI::Widget& w) { // Special callback for handling this closure
-        lua_pushstring(L, "UI_DriverCallOnClick");
-        lua_rawgeti(L, LUA_REGISTRYINDEX, ((UI::Window&)w).lua_on_close_btn);
+        auto& o = (UI::Window&)(*w.parent->parent);
+        lua_getglobal(L, "UI_DriverCallOnClick");
+        lua_rawgeti(L, LUA_REGISTRYINDEX, o.lua_on_close_btn);
         // Find the widget on the map
-        auto it = std::find_if(lua_widgets.begin(), lua_widgets.end(), [&w](const auto& e) {
-            return e.second == &w;
+        auto it = std::find_if(lua_widgets.begin(), lua_widgets.end(), [&o](const auto& e) {
+            return e.second == &o;
         });
         lua_pushinteger(L, it->first);
         if(call_func(L, 2, 0)) {
@@ -1529,6 +1530,7 @@ int LuaAPI::ui_set_window_on_click_close_btn(lua_State* L) {
             lua_pop(L, 1);
             throw LuaAPI::Exception("Failure on UI callback: " + err_msg);
         }
+        o.kill(); // Implicitly kill object
     });
     return 0;
 }

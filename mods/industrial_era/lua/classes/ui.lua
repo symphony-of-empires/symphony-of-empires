@@ -25,10 +25,10 @@
 
 UI_Widget = {
     id = -1,
-	width = 0,
-	height = 0,
-	x = 0,
-	y = 0,
+    width = 0,
+    height = 0,
+    x = 0,
+    y = 0,
 }
 function UI_Widget:text(msg)
     ui_set_text(self.id, msg)
@@ -43,108 +43,119 @@ function UI_Widget:set_scroll(value)
     ui_set_scroll(self.id, value)
 end
 function UI_Widget:get(id)
-	self.id = id
-	self.width, self.height, self.x, self.y = ui_get_widget(id)
+    local o = {}
+    setmetatable(o, self)
+    self.__index = self
+    o.id = id
+    o.width, o.height, o.x, o.y = ui_get_widget(id)
+    return o
 end
 function UI_Widget:kill()
-	ui_widget_kill(self.id)
+    ui_widget_kill(self.id)
 end
 function UI_Widget:set_tooltip(msg)
-	ui_widget_set_tooltip(self.id, msg)
+    ui_widget_set_tooltip(self.id, msg)
 end
 
-UI_Button = UI_Widget
+UI_Button = table.deepcopy(UI_Widget)
 function UI_Button:new(x, y, w, h, parent)
-	local o = { x = x, y = y, w = w, h = h }
-	setmetatable(o, self)
-	self.__index = self
-    o.id = ui_new_button(x, y, w, h, parent)
-	print("New UI_Button " .. o.id)
-	return o
+    local o = { x = x, y = y, width = w, height = h }
+    o.parent = parent or 0 -- Parent or if it's nil, 0
+    setmetatable(o, self)
+    self.__index = self
+    o.id = ui_new_button(o.x, o.y, o.width, o.height, o.parent)
+    print("New UI_Button " .. o.id)
+    return o
 end
 
-UI_Image = UI_Widget
+UI_Image = table.deepcopy(UI_Widget)
 function UI_Image:new(x, y, w, h, parent)
-	local o = { x = x, y = y, w = w, h = h }
-	setmetatable(o, self)
-	self.__index = self
-    o.id = ui_new_image(x, y, w, h, parent)
-	print("New UI_Image " .. o.id)
-	return o
+    local o = { x = x, y = y, width = w, height = h }
+    o.parent = parent or 0 -- Parent or if it's nil, 0
+    setmetatable(o, self)
+    self.__index = self
+    o.id = ui_new_image(o.x, o.y, o.width, o.height, o.parent)
+    print("New UI_Image " .. o.id)
+    return o
 end
 
-UI_Group = UI_Widget
+UI_Group = table.deepcopy(UI_Widget)
 function UI_Group:new(x, y, w, h, parent)
-	local o = { x = x, y = y, w = w, h = h }
-	setmetatable(o, self)
-	self.__index = self
-    o.id = ui_new_group(x, y, w, h, parent)
-	print("New UI_Group " .. o.id)
-	return o
+    local o = { x = x, y = y, width = w, height = h }
+    o.parent = parent or 0 -- Parent or if it's nil, 0
+    setmetatable(o, self)
+    self.__index = self
+    o.id = ui_new_group(o.x, o.y, o.width, o.height, o.parent)
+    print("New UI_Group " .. o.id)
+    return o
 end
 
-UI_Div = UI_Widget
+UI_Div = table.deepcopy(UI_Widget)
 function UI_Div:new(x, y, w, h, parent)
-	local o = { x = x, y = y, w = w, h = h }
-	setmetatable(o, self)
-	self.__index = self
-    o.id = ui_new_div(x, y, w, h, parent)
-	print("New UI_Div " .. o.id)
-	return o
+    local o = { x = x, y = y, width = w, height = h }
+    o.parent = parent or 0 -- Parent or if it's nil, 0
+    setmetatable(o, self)
+    self.__index = self
+    o.id = ui_new_div(o.x, o.y, o.width, o.height, o.parent)
+    print("New UI_Div " .. o.id)
+    return o
 end
 
-UI_Window = UI_Widget
+UI_Window = table.deepcopy(UI_Widget)
 function UI_Window:new(x, y, w, h, parent)
-	local o = { x = x, y = y, w = w, h = h }
-	setmetatable(o, self)
-	self.__index = self
-    o.id = ui_new_window(o.x, o.y, o.w, o.h, parent)
-	print("New UI_Window " .. o.id)
-	return o
+    local o = { x = x, y = y, width = w, height = h }
+    o.parent = parent or 0 -- Parent or if it's nil, 0
+    setmetatable(o, self)
+    self.__index = self
+    o.id = ui_new_window(o.x, o.y, o.width, o.height, o.parent)
+    print("New UI_Window " .. o.id)
+    return o
 end
-function UI_Widget:set_close_btn_func(fn)
-	print(self.id)
+function UI_Window:set_close_btn_func(fn)
     ui_set_window_on_click_close_btn(self.id, fn)
 end
 
-UI_Checkbox = UI_Widget
+UI_Checkbox = table.deepcopy(UI_Widget)
 function UI_Checkbox:new(x, y, w, h, parent)
-	local o = { x = x, y = y, w = w, h = h }
-	setmetatable(o, self)
-	self.__index = self
-    o.id = ui_new_checkbox(x, y, w, h, parent)
-	print("New UI_Checkbox " .. o.id)
-	return o
+    local o = { x = x, y = y, width = w, height = h }
+    o.parent = parent or 0 -- Parent or if it's nil, 0
+    setmetatable(o, self)
+    self.__index = self
+    o.id = ui_new_checkbox(o.x, o.y, o.width, o.height, o.parent)
+    print("New UI_Checkbox " .. o.id)
+    return o
 end
 function UI_Checkbox:set_value(value)
-	ui_set_checkbox_value(self.id, value)
+    ui_set_checkbox_value(self.id, value)
+end
+function UI_Checkbox:get_value()
+    return ui_get_checkbox_value(self.id)
 end
 
-UI_Label = UI_Widget
+UI_Label = table.deepcopy(UI_Widget)
 function UI_Label:new(x, y, parent)
-	local o = { x = x, y = y }
-	setmetatable(o, self)
-	self.__index = self
-    o.id = ui_new_label(x, y, parent)
-	print("New UI_Label " .. o.id)
-	-- TODO: Obtain size of widget dynamically
-	o.w = 24
-	o.h = 24
-	return o
+    local o = { x = x, y = y }
+    o.parent = parent or 0 -- Parent or if it's nil, 0
+    setmetatable(o, self)
+    self.__index = self
+    o.id = ui_new_label(o.x, o.y, o.parent)
+    print("New UI_Label " .. o.id)
+    -- TODO: Obtain size of widget dynamically
+    o.width = 24
+    o.height = 24
+    return o
 end
 
 function UI_ReinterpretAs(cast, obj)
-	local o = cast
-	o.id = obj.id
-	o.x = obj.x
-	o.y = obj.y
-	o.w = obj.w
-	o.h = obj.h
-	return o
+    local o = { id = obj.id, x = obj.x, y = obj.y, width = obj.width, height = obj.height }
+    setmetatable(o, cast)
+    cast.__index = cast
+    return o
 end
 
 -- Driver on_click callback, transforms the widget_id object onto a full UI_Widget object
 function UI_DriverCallOnClick(fn, widget_id)
-	fn(UI_Widget:get(widget_id)) -- TODO: call function like this?
+    local widget = UI_Widget:get(widget_id)
+    fn(widget) -- TODO: call function like this?
 end
 
