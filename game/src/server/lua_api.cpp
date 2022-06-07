@@ -1448,6 +1448,32 @@ int LuaAPI::ui_get_checkbox_value(lua_State* L) {
     return 1;
 }
 
+int LuaAPI::ui_new_slider(lua_State* L) {
+    int x = luaL_checkinteger(L, 1); // x
+    int y = luaL_checkinteger(L, 2); // y
+    int w = luaL_checkinteger(L, 3); // w
+    int h = luaL_checkinteger(L, 4); // h
+    int parent_ref = luaL_checkinteger(L, 5); // parent
+    UI::Widget* parent = !parent_ref ? nullptr : lua_widgets[parent_ref];
+
+    const auto widget_id = get_unique_id();
+    lua_widgets[widget_id] = new UI::Slider(x, y, w, h, 0.f, 1.f, parent);
+    lua_pushinteger(L, widget_id);
+    return 1;
+}
+
+int LuaAPI::ui_get_slider_value(lua_State* L) {
+    UI::Slider* widget = static_cast<UI::Slider*>(lua_widgets[luaL_checkinteger(L, 1)]);
+    lua_pushnumber(L, widget->get_value());
+    return 1;
+}
+
+int LuaAPI::ui_set_slider_value(lua_State* L) {
+    UI::Slider* widget = static_cast<UI::Slider*>(lua_widgets[luaL_checkinteger(L, 1)]);
+    widget->set_value(luaL_checknumber(L, 2));
+    return 0;
+}
+
 int LuaAPI::ui_new_label(lua_State* L) {
     int x = luaL_checkinteger(L, 1); // x
     int y = luaL_checkinteger(L, 2); // y
@@ -1566,10 +1592,25 @@ int LuaAPI::ui_register_callback(lua_State* L) {
     return 0;
 }
 
+int LuaAPI::ui_widget_set_flex(lua_State* L) {
+    UI::Widget* widget = lua_widgets[luaL_checkinteger(L, 1)];
+    int flex_mode = luaL_checkinteger(L, 2);
+    if(flex_mode == 1) {
+        widget->flex = UI::Flex::COLUMN;
+    } else if(flex_mode == 2) {
+        widget->flex = UI::Flex::ROW;
+    } else {
+        widget->flex = UI::Flex::NONE;
+    }
+    return 0;
+}
+
 #include "client/game_state.hpp"
 #include "action.hpp"
 #include "client/client_network.hpp"
 #include "server/server_network.hpp"
+#include "client/map.hpp"
+#include "client/map_render.hpp"
 int LuaAPI::ui_call_builtin(lua_State* L) {
     const std::string builtin_fn = luaL_checkstring(L, 1);
     auto& gs = static_cast<GameState&>(Eng3D::State::get_instance());
@@ -1587,6 +1628,81 @@ int LuaAPI::ui_call_builtin(lua_State* L) {
             return 0;
         gs.curr_nation->ai_do_cmd_troops = lua_toboolean(L, 2);
         return 0;
+    } else if(builtin_fn == "gs.map.reload_shaders") {
+        gs.map->reload_shaders();
+        return 0;
+    } else if(builtin_fn == "gs.shader_opt.set") {
+        auto options = gs.map->map_render->options.get_options();
+        std::string optname = luaL_checkstring(L, 2);
+        for(const auto& option : options) {
+            if(option.get_option() == optname) {
+                bool is_used = lua_toboolean(L, 3);
+                Eng3D::Log::debug("lua_bind", "Setting map_shader option " + optname + " to " + (is_used ? "TRUE" : "FALSE"));
+                if(optname == "NOISE") {
+                    gs.map->map_render->options.noise.used = is_used;
+                } else if(optname == "SDF") {
+                    gs.map->map_render->options.sdf.used = is_used;
+                } else if(optname == "LIGHTING") {
+                    gs.map->map_render->options.lighting.used = is_used;
+                } else if(optname == "PARALLAX") {
+                    gs.map->map_render->options.parallax.used = is_used;
+                } else if(optname == "RIVERS") {
+                    gs.map->map_render->options.rivers.used = is_used;
+                } else if(optname == "WATER") {
+                    gs.map->map_render->options.water.used = is_used;
+                } else if(optname == "GRID") {
+                    gs.map->map_render->options.grid.used = is_used;
+                }
+                gs.map->reload_shaders();
+                break;
+            }
+        }
+        return 0;
+    } else if(builtin_fn == "gs.shader_opt.get") {
+        auto options = gs.map->map_render->options.get_options();
+        std::string optname = luaL_checkstring(L, 2);
+        for(const auto& option : options) {
+            if(option.get_option() == optname) {
+                bool is_used = false;
+                if(optname == "NOISE") {
+                    is_used = gs.map->map_render->options.noise.used;
+                } else if(optname == "SDF") {
+                    is_used = gs.map->map_render->options.sdf.used;
+                } else if(optname == "LIGHTING") {
+                    is_used = gs.map->map_render->options.lighting.used;
+                } else if(optname == "PARALLAX") {
+                    is_used = gs.map->map_render->options.parallax.used;
+                } else if(optname == "RIVERS") {
+                    is_used = gs.map->map_render->options.rivers.used;
+                } else if(optname == "WATER") {
+                    is_used = gs.map->map_render->options.water.used;
+                } else if(optname == "GRID") {
+                    is_used = gs.map->map_render->options.grid.used;
+                }
+                Eng3D::Log::debug("lua_bind", "Getting map_shader option " + optname + " is " + (is_used ? "TRUE" : "FALSE"));
+                lua_pushboolean(L, is_used);
+                return 1;
+            }
+        }
+        return 0;
+    } else if(builtin_fn == "gs.motion_blur.set") {
+        gs.motion_blur = lua_toboolean(L, 2);
+        return 0;
+    } else if(builtin_fn == "gs.motion_blur.get") {
+        lua_pushboolean(L, gs.motion_blur);
+        return 1;
+    } else if(builtin_fn == "gs.music_volume.set") {
+        gs.music_volume = luaL_checknumber(L, 2);
+        return 0;
+    } else if(builtin_fn == "gs.sound_volume.set") {
+        gs.sound_volume = luaL_checknumber(L, 2);
+        return 0;
+    } else if(builtin_fn == "gs.music_volume.get") {
+        lua_pushnumber(L, gs.music_volume);
+        return 1;
+    } else if(builtin_fn == "gs.sound_volume.get") {
+        lua_pushnumber(L, gs.sound_volume);
+        return 1;
     }
 
     // Invalid callback name

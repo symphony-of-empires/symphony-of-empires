@@ -79,7 +79,6 @@
 #include "client/interface/lobby.hpp"
 #include "client/interface/top_window.hpp"
 #include "client/interface/treaty.hpp"
-#include "client/interface/map_dev_view.hpp"
 #include "client/interface/army.hpp"
 #include "client/interface/building.hpp"
 #include "client/interface/minimap.hpp"
@@ -713,7 +712,7 @@ void start_client(int argc, char** argv) {
     bg_img->kill();
     load_pbar->kill();
     mod_logo_img->kill();
-    new MapDevView(*gs.map);
+    LuaAPI::invoke_registered_callback(gs.world->lua, "map_dev_view_invoke");
 
     // Connect to server prompt
     new Interface::MainMenu(gs);

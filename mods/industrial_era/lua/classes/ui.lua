@@ -56,6 +56,9 @@ end
 function UI_Widget:set_tooltip(msg)
     ui_widget_set_tooltip(self.id, msg)
 end
+function UI_Widget:set_flex(flexmode)
+    ui_widget_set_flex(self.id, flexmode)
+end
 
 UI_Button = table.deepcopy(UI_Widget)
 function UI_Button:new(x, y, w, h, parent)
@@ -132,6 +135,23 @@ function UI_Checkbox:get_value()
     return ui_get_checkbox_value(self.id)
 end
 
+UI_Slider = table.deepcopy(UI_Widget)
+function UI_Slider:new(x, y, w, h, parent)
+    local o = { x = x, y = y, width = w, height = h }
+    o.parent = parent or 0 -- Parent or if it's nil, 0
+    setmetatable(o, self)
+    self.__index = self
+    o.id = ui_new_slider(o.x, o.y, o.width, o.height, o.parent)
+    print("New UI_Slider " .. o.id)
+    return o
+end
+function UI_Slider:set_value(value)
+    ui_set_slider_value(self.id, value)
+end
+function UI_Slider:get_value()
+    return ui_get_slider_value(self.id)
+end
+
 UI_Label = table.deepcopy(UI_Widget)
 function UI_Label:new(x, y, parent)
     local o = { x = x, y = y }
@@ -159,3 +179,6 @@ function UI_DriverCallOnClick(fn, widget_id)
     fn(widget) -- TODO: call function like this?
 end
 
+-- Hardcoded values
+UI_FlexColumn = 1
+UI_FlexRow = 2

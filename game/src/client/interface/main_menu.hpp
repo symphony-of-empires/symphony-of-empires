@@ -44,8 +44,7 @@ namespace Interface {
         UI::Input* username_inp;
         UI::Button* conn_btn;
     };
-
-    class Settings;
+    
     class MainMenu: public UI::Div {
     public:
         MainMenu(GameState& gs);
@@ -53,6 +52,5 @@ namespace Interface {
 
         GameState& gs;
         MainMenuConnectServer* connect_window = nullptr;
-        Settings* settings_window = nullptr;
     };
 };

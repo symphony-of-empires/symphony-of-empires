@@ -37,7 +37,6 @@
 #include "eng3d/ui/close_button.hpp"
 
 #include "client/interface/main_menu.hpp"
-#include "client/interface/settings.hpp"
 #include "client/client_network.hpp"
 #include "server/server_network.hpp"
 #include "world.hpp"
@@ -228,7 +227,7 @@ MainMenu::MainMenu(GameState& _gs)
     cfg_btn->text_align_y = UI::Align::CENTER;
     cfg_btn->text("Settings");
     cfg_btn->set_on_click([this](UI::Widget&) {
-        this->settings_window = new Interface::Settings(this->gs);
+        LuaAPI::invoke_registered_callback(this->gs.world->lua, "settings_window_invoke");
     });
 
     auto* exit_btn = new UI::Button(-75, -60, 150, b_height, this);
@@ -246,9 +245,6 @@ MainMenu::MainMenu(GameState& _gs)
 }
 
 MainMenu::~MainMenu() {
-    if(settings_window != nullptr)
-        settings_window->kill();
-
     if(connect_window != nullptr)
         connect_window->kill();
 }
