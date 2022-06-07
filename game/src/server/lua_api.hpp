@@ -50,7 +50,7 @@ namespace LuaAPI {
         }
     };
 
-    int register_new_table(lua_State* L, const std::string& name, const luaL_Reg meta[], const luaL_Reg methods[]);
+    int register_new_table(lua_State* L, const std::string& name, const std::vector<luaL_Reg> meta, const std::vector<luaL_Reg> methods);
 
     int add_terrain_type(lua_State* L);
     int get_terrain_type(lua_State* L);
@@ -150,4 +150,17 @@ namespace LuaAPI {
 
     // Functions not part of the API
     void check_events(lua_State* L);
+
+    // UI stuff
+    int ui_new_button(lua_State* L);
+    int ui_new_image(lua_State* L);
+    int ui_new_group(lua_State* L);
+    int ui_new_div(lua_State* L);
+    int ui_new_window(lua_State* L);
+    int ui_new_label(lua_State* L);
+    int ui_set_text(lua_State* L);
+    int ui_get_image(lua_State* L);
+    int ui_set_image(lua_State* L);
+    /// @todo This
+    int ui_set_onclick(lua_State* L);
 };

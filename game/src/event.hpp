@@ -37,8 +37,10 @@ public:
     ~Decision() {};
 
     Eng3D::StringRef name;
-    Eng3D::StringRef do_decision_function;
     Eng3D::StringRef effects;
+
+    /// @todo Reload these when serializing
+    int do_decision_function = 0;
 };
 
 class Nation;
@@ -49,12 +51,13 @@ public:
     void take_decision(Nation& sender, Decision& dec);
 
     Eng3D::StringRef name;
-    Eng3D::StringRef conditions_function;
-    Eng3D::StringRef do_event_function;
     std::vector<Nation *> receivers;
     std::vector<Decision> decisions;
     Eng3D::StringRef text;
     Eng3D::StringRef title;
-
     bool checked = false;
+
+    /// @todo Reload these when serializing
+    int conditions_function = 0;
+    int do_event_function = 0;
 };

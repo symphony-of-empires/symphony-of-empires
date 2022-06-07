@@ -561,6 +561,8 @@ void GameState::load_world_thread() {
     this->world = new World();
     this->world->load_initial();
     this->load_progress = 0.0f;
+    /// @todo Events can't be properly reloaded right now :/
+    this->world->events.clear();
     this->world->load_mod();
     this->load_progress = 0.1f;
     this->loaded_world = true;
@@ -711,7 +713,7 @@ void start_client(int argc, char** argv) {
     bg_img->kill();
     load_pbar->kill();
     mod_logo_img->kill();
-    // new MapDevView(*gs.map);
+    new MapDevView(*gs.map);
 
     // Connect to server prompt
     new Interface::MainMenu(gs);

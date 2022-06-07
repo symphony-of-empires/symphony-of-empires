@@ -43,6 +43,27 @@
 #include "event.hpp"
 #include "building.hpp"
 
+int LuaAPI::register_new_table(lua_State* L, const std::string& name, const std::vector<luaL_Reg> meta, const std::vector<luaL_Reg> methods) {
+    if(luaL_newmetatable(L, name.c_str())) {
+        lua_newtable(L);
+
+        // Methods
+        for(const auto& reg : methods)
+            lua_register(L, reg.name, reg.func);
+        lua_setfield(L, -2, "__index");
+
+        // Metatable
+        for(const auto& reg : meta)
+            lua_register(L, reg.name, reg.func);
+
+        lua_pushstring(L, name.c_str());
+        lua_setfield(L, -2, "__metatable");
+
+        lua_setglobal(L, name.c_str());
+    }
+    return 0;
+}
+
 // !!! IMPORTANT !!!
 // Doing changes to the world state (like Nation and Province) does NOT require an explicit update as this is done
 // after each economical tick
@@ -103,15 +124,6 @@ static std::string pop_string(lua_State* L) {
         CXX_THROW(LuaAPI::Exception, "Expected a text but got empty string");
     lua_pop(L, 1);
     return text;
-}
-
-int LuaAPI::register_new_table(lua_State* L, const std::string& name, const luaL_Reg meta[], const luaL_Reg methods[]) {
-    luaL_newlib(L, methods);
-    luaL_newmetatable(L, name.c_str());
-    luaL_setfuncs(L, methods, 0);
-    lua_setmetatable(L, -2);
-    lua_setglobal(L, name.c_str());
-    return 0;
 }
 
 int LuaAPI::add_terrain_type(lua_State* L) {
@@ -866,8 +878,10 @@ int LuaAPI::add_event(lua_State* L) {
 
     Event event{};
     event.ref_name = luaL_checkstring(L, 1);
-    event.conditions_function = luaL_checkstring(L, 2);
-    event.do_event_function = luaL_checkstring(L, 3);
+    lua_pushvalue(L, 2);
+    event.conditions_function = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_pushvalue(L, 3);
+    event.do_event_function = luaL_ref(L, LUA_REGISTRYINDEX);
     event.title = luaL_checkstring(L, 4);
     event.text = luaL_checkstring(L, 5);
     event.checked = lua_toboolean(L, 6);
@@ -879,8 +893,10 @@ int LuaAPI::add_event(lua_State* L) {
 int LuaAPI::update_event(lua_State* L) {
     auto& event = g_world->events[lua_tonumber(L, 1)];
     event.ref_name = luaL_checkstring(L, 2);
-    event.conditions_function = luaL_checkstring(L, 3);
-    event.do_event_function = luaL_checkstring(L, 4);
+    lua_pushvalue(L, 3);
+    event.conditions_function = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_pushvalue(L, 4);
+    event.do_event_function = luaL_ref(L, LUA_REGISTRYINDEX);
     event.title = luaL_checkstring(L, 5);
     event.text = luaL_checkstring(L, 6);
     event.checked = lua_toboolean(L, 7);
@@ -890,8 +906,9 @@ int LuaAPI::update_event(lua_State* L) {
 int LuaAPI::get_event(lua_State* L) {
     const auto& event = find_or_throw_local<Event>(luaL_checkstring(L, 1));
     lua_pushnumber(L, g_world->get_id(event));
-    lua_pushstring(L, event.conditions_function.c_str());
-    lua_pushstring(L, event.do_event_function.c_str());
+    /// @todo A better way to get closures
+    lua_pushinteger(L, event.conditions_function);
+    lua_pushinteger(L, event.do_event_function);
     lua_pushstring(L, event.title.c_str());
     lua_pushstring(L, event.text.c_str());
     lua_pushboolean(L, event.checked);
@@ -911,7 +928,8 @@ int LuaAPI::add_decision(lua_State* L) {
     Decision decision = Decision();
     decision.ref_name = luaL_checkstring(L, 2);
     decision.name = luaL_checkstring(L, 3);
-    decision.do_decision_function = luaL_checkstring(L, 4);
+    lua_pushvalue(L, 4);
+    decision.do_decision_function = luaL_ref(L, LUA_REGISTRYINDEX);
     decision.effects = luaL_checkstring(L, 5);
     event.decisions.push_back(decision); // Add onto vector
     return 0;
@@ -1226,7 +1244,7 @@ void LuaAPI::check_events(lua_State* L) {
         for(auto& nation : event.receivers) {
             assert(nation != nullptr);
             if(!nation->exists()) continue;
-            lua_getglobal(L, event.conditions_function.c_str());
+            lua_rawgeti(L, LUA_REGISTRYINDEX, event.conditions_function);
             lua_pushstring(L, nation->ref_name.c_str());
             lua_pcall(L, 1, 1, 0);
             bool r = lua_toboolean(L, -1);
@@ -1240,8 +1258,8 @@ void LuaAPI::check_events(lua_State* L) {
                 auto orig_event = Event(event);
 
                 // Call the "do event" function
-                Eng3D::Log::debug("event", "Event " + event.ref_name + " using " + event.do_event_function + " function");
-                lua_getglobal(L, event.do_event_function.c_str());
+                Eng3D::Log::debug("event", "Event " + event.ref_name + " using " + std::to_string(event.do_event_function) + " function");
+                lua_rawgeti(L, LUA_REGISTRYINDEX, event.do_event_function);
                 lua_pushstring(L, nation->ref_name.c_str());
                 if(call_func(L, 1, 1)) {
                     Eng3D::Log::error("lua", std::string() + "lua_pcall failed: " + lua_tostring(L, -1));
@@ -1263,7 +1281,7 @@ void LuaAPI::check_events(lua_State* L) {
                     } else {
                         // Check that descisions have functions
                         for(const auto& descision : local_event.decisions) {
-                            if(descision.do_decision_function.get_string().empty()) {
+                            if(descision.do_decision_function == 0) {
                                 Eng3D::Log::error("lua", "Lua event " + orig_event.ref_name + " on descision " + descision.ref_name + " failed");
                                 goto restore_original;
                             }
@@ -1287,16 +1305,139 @@ void LuaAPI::check_events(lua_State* L) {
     // Do decisions taken effects in the queue, then clear it awaiting
     // other taken decisions :)
     for(auto& dec : g_world->taken_decisions) {
-        Eng3D::Log::debug("event", dec.second->ref_name + " took the decision " + dec.first.do_decision_function);
+        Eng3D::Log::debug("event", dec.second->ref_name + " took the decision " + std::to_string(dec.first.do_decision_function));
 
-        lua_getglobal(L, dec.first.do_decision_function.c_str());
+        lua_rawgeti(L, LUA_REGISTRYINDEX, dec.first.do_decision_function);
         lua_pushstring(L, dec.second->ref_name.c_str());
         if(call_func(L, 1, 0)) {
             const std::string err_msg = lua_tostring(L, -1);
             Eng3D::Log::error("lua", "lua_pcall failed: " + err_msg);
             lua_pop(L, 1);
-            throw LuaAPI::Exception(dec.first.do_decision_function + "(" + dec.second->ref_name + "): " + err_msg);
+            throw LuaAPI::Exception(std::to_string(dec.first.do_decision_function) + "(" + dec.second->ref_name + "): " + err_msg);
         }
     }
     g_world->taken_decisions.clear();
+}
+
+#include <unordered_map>
+#include "eng3d/state.hpp"
+#include "eng3d/ui/ui.hpp"
+#include "eng3d/ui/components.hpp"
+static std::unordered_map<int, UI::Widget*> lua_widgets;
+static std::unordered_map<int, std::shared_ptr<Eng3D::Texture>> lua_textures;
+static int brk = 1;
+int LuaAPI::ui_new_button(lua_State* L) {
+    int x = luaL_checkinteger(L, 1); // x
+    int y = luaL_checkinteger(L, 2); // y
+    int w = luaL_checkinteger(L, 3); // w
+    int h = luaL_checkinteger(L, 4); // h
+    int parent_ref = luaL_checkinteger(L, 5); // parent
+    UI::Widget* parent = !parent_ref ? nullptr : lua_widgets[parent_ref];
+
+    auto& s = Eng3D::State::get_instance();
+    lua_widgets[brk] = new UI::Button(x, y, w, h, parent);
+    lua_pushinteger(L, brk);
+    brk++;
+    return 1;
+}
+
+int LuaAPI::ui_new_image(lua_State* L) {
+    int x = luaL_checkinteger(L, 1); // x
+    int y = luaL_checkinteger(L, 2); // y
+    int w = luaL_checkinteger(L, 3); // w
+    int h = luaL_checkinteger(L, 4); // h
+    int parent_ref = luaL_checkinteger(L, 5); // parent
+    UI::Widget* parent = !parent_ref ? nullptr : lua_widgets[parent_ref];
+
+    auto& s = Eng3D::State::get_instance();
+    lua_widgets[brk] = new UI::Image(x, y, w, h, parent);
+    lua_pushinteger(L, brk);
+    brk++;
+    return 1;
+}
+
+int LuaAPI::ui_new_group(lua_State* L) {
+    int x = luaL_checkinteger(L, 1); // x
+    int y = luaL_checkinteger(L, 2); // y
+    int w = luaL_checkinteger(L, 3); // w
+    int h = luaL_checkinteger(L, 4); // h
+    int parent_ref = luaL_checkinteger(L, 5); // parent
+    UI::Widget* parent = !parent_ref ? nullptr : lua_widgets[parent_ref];
+
+    auto& s = Eng3D::State::get_instance();
+    lua_widgets[brk] = new UI::Group(x, y, w, h, parent);
+    lua_pushinteger(L, brk);
+    brk++;
+    return 1;
+}
+
+int LuaAPI::ui_new_div(lua_State* L) {
+    int x = luaL_checkinteger(L, 1); // x
+    int y = luaL_checkinteger(L, 2); // y
+    int w = luaL_checkinteger(L, 3); // w
+    int h = luaL_checkinteger(L, 4); // h
+    int parent_ref = luaL_checkinteger(L, 5); // parent
+    UI::Widget* parent = !parent_ref ? nullptr : lua_widgets[parent_ref];
+
+    auto& s = Eng3D::State::get_instance();
+    lua_widgets[brk] = new UI::Div(x, y, w, h, parent);
+    lua_pushinteger(L, brk);
+    brk++;
+    return 1;
+}
+
+int LuaAPI::ui_new_window(lua_State* L) {
+    int x = luaL_checkinteger(L, 1); // x
+    int y = luaL_checkinteger(L, 2); // y
+    int w = luaL_checkinteger(L, 3); // w
+    int h = luaL_checkinteger(L, 4); // h
+    int parent_ref = luaL_checkinteger(L, 5); // parent
+    UI::Widget* parent = !parent_ref ? nullptr : lua_widgets[parent_ref];
+
+    auto& s = Eng3D::State::get_instance();
+    lua_widgets[brk] = new UI::Window(x, y, w, h, parent);
+    lua_pushinteger(L, brk);
+    brk++;
+    return 1;
+}
+
+int LuaAPI::ui_new_label(lua_State* L) {
+    int x = luaL_checkinteger(L, 1); // x
+    int y = luaL_checkinteger(L, 2); // y
+    int parent_ref = luaL_checkinteger(L, 3); // parent
+    UI::Widget* parent = !parent_ref ? nullptr : lua_widgets[parent_ref];
+
+    auto& s = Eng3D::State::get_instance();
+    lua_widgets[brk] = new UI::Label(x, y, " ", parent);
+    lua_pushinteger(L, brk);
+    brk++;
+    return 1;
+}
+
+int LuaAPI::ui_set_text(lua_State* L) {
+    UI::Widget* widget = lua_widgets[luaL_checkinteger(L, 1)];
+    widget->text(luaL_checkstring(L, 2));
+    return 0;
+}
+
+int LuaAPI::ui_get_image(lua_State* L) {
+    const std::string path = luaL_checkstring(L, 1);
+    auto& s = Eng3D::State::get_instance();
+    lua_textures[brk] = s.tex_man->load(s.package_man->get_unique(path));
+    lua_pushinteger(L, brk);
+    brk++;
+    return 1;
+}
+
+int LuaAPI::ui_set_image(lua_State* L) {
+    UI::Widget* widget = lua_widgets[luaL_checkinteger(L, 1)];
+    auto tex = lua_textures[luaL_checkinteger(L, 2)];
+    widget->current_texture = tex;
+    return 0;
+}
+
+int LuaAPI::ui_set_onclick(lua_State* L) {
+    UI::Widget* widget = lua_widgets[luaL_checkinteger(L, 1)];
+    /// @todo this
+    return 0;
 }

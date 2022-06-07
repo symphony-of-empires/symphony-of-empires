@@ -23,61 +23,57 @@
 --      Does important stuff
 -- ----------------------------------------------------------------------------
 
-function generic_militancy_nationwide_test()
-    if math.random(0, 100) == 0 then
-        return EVENT_CONDITIONS_MET
-    end
-	return EVENT_CONDITIONS_UNMET
-end
-function generic_militancy_nationwide_event(ref_name)
-	local texts = {
-		title = "Stop the activists",
-		text = "Some activists are trying to undermine us with false statments about the efficiency of our goverment - we can always crack down on those liars but we may upset free-speech supporters"	
-	}
-
-	decision = Decision:new{
-		ref_name = "generic_militancy_nationwide_decision_0",
-		name = "",
-		decision_fn = "generic_militancy_nationwide_decision_0",
-		effects = "+0.50 militancy and +0.50 militancy nationwide"
-	}
-	generic_militancy_nationwide_evhdl:add_decision(decision)
-    decision = Decision:new{
-		ref_name = "generic_militancy_nationwide_decision_1",
-		name = "Take them down",
-		decision_fn = "generic_militancy_nationwide_decision_1",
-		effects = "+0.75 militancy nationwide"
-	}
-	generic_militancy_nationwide_evhdl:add_decision(decision)
-	return EVENT_DO_MANY_TIMES
-end
-function generic_militancy_nationwide_decision_0(ref_name)
-	local prov_list = Nation:get(ref_name):get_owned_provinces()
-	for k, province in pairs(prov_list) do
-		local pops = province:get_pops()
-		for k, pop in pairs(pops) do
-			pop.militancy = pop.militancy + 0.50
-			pop.militancy = pop.militancy + 0.50
-			province:update_pop(pop)
-		end
-		province:update_pops()
-	end
-end
-function generic_militancy_nationwide_decision_1(ref_name)
-	local prov_list = Nation:get(ref_name):get_owned_provinces()
-	for k, province in pairs(prov_list) do
-		local pops = province:get_pops()
-		for k, pop in pairs(pops) do
-			pop.militancy = pop.militancy + 0.75
-			province:update_pop(pop)
-		end
-		province:update_pops()
-	end
-end
 generic_militancy_nationwide_evhdl = Event:new{
 	ref_name = "generic_militancy_nationwide",
-	conditions_fn = "generic_militancy_nationwide_test",
-	event_fn = "generic_militancy_nationwide_event",
+	conditions_fn = function()
+		if math.random(0, 100) == 0 then
+			return EVENT_CONDITIONS_MET
+		end
+		return EVENT_CONDITIONS_UNMET
+	end,
+	event_fn = function(ref_name)
+		local texts = {
+			title = "Stop the activists",
+			text = "Some activists are trying to undermine us with false statments about the efficiency of our goverment - we can always crack down on those liars but we may upset free-speech supporters"	
+		}
+	
+		decision = Decision:new{
+			ref_name = "generic_militancy_nationwide_decision_0",
+			name = "",
+			decision_fn = function(ref_name)
+				local prov_list = Nation:get(ref_name):get_owned_provinces()
+				for k, province in pairs(prov_list) do
+					local pops = province:get_pops()
+					for k, pop in pairs(pops) do
+						pop.militancy = pop.militancy + 0.50
+						pop.militancy = pop.militancy + 0.50
+						province:update_pop(pop)
+					end
+					province:update_pops()
+				end
+			end,
+			effects = "+0.50 militancy and +0.50 militancy nationwide"
+		}
+		generic_militancy_nationwide_evhdl:add_decision(decision)
+		decision = Decision:new{
+			ref_name = "generic_militancy_nationwide_decision_1",
+			name = "Take them down",
+			decision_fn = function(ref_name)
+				local prov_list = Nation:get(ref_name):get_owned_provinces()
+				for k, province in pairs(prov_list) do
+					local pops = province:get_pops()
+					for k, pop in pairs(pops) do
+						pop.militancy = pop.militancy + 0.75
+						province:update_pop(pop)
+					end
+					province:update_pops()
+				end
+			end,
+			effects = "+0.75 militancy nationwide"
+		}
+		generic_militancy_nationwide_evhdl:add_decision(decision)
+		return EVENT_DO_MANY_TIMES
+	end,
     title = "",
 	text = ""
 }

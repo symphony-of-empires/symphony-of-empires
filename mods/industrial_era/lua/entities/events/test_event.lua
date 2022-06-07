@@ -26,61 +26,54 @@
 --
 -- This is just a test event
 -- 
-
-function cake_test()
-	-- Requirements
-	return EVENT_CONDITIONS_MET
-end
-function cake_event(ref_name)
-	decision = Decision:new{
-		ref_name = "cake_decision_0",
-		name = "I think I will eat it",
-		decision_fn = "cake_decision_0",
-		effects = "You will consume cake"
-	}
-	cake_evhdl:add_decision(decision)
-	
-	decision = Decision:new{
-		ref_name = "cake_decision_1",
-		name = "Fuck you",
-		decision_fn = "cake_decision_1",
-		effects = "You will consume cake anyways"
-	}
-	cake_evhdl:add_decision(decision)
-
-	decision = Decision:new{
-		ref_name = "cake_decision_2",
-		name = "Cake!?",
-		decision_fn = "cake_decision_2",
-		effects = "Your compulsory desire for cake has began to grow"
-	}
-	cake_evhdl:add_decision(decision)
-
-	decision = Decision:new{
-		ref_name = "cake_decision_3",
-		name = "Britain, we have a problem",
-		decision_fn = "cake_decision_3",
-		effects = "What the fuck is britain gonna do, invade us?"
-	}
-	cake_evhdl:add_decision(decision)
-	return EVENT_DO_ONE_TIME
-end
-function cake_decision_0(ref_name)
-	print('The cake tasted like a cake, what a surprise! and you find a bunch of peseants outside your palace... oh no')
-end
-function cake_decision_1(ref_name)
-	print('Why no eat my poisoned cake? i put so much poison in it :(')
-end
-function cake_decision_2(ref_name)
-	print('Bruh, where the fuck am i?')
-end
-function cake_decision_3(ref_name)
-	print('Britain converted the cake into tea')
-end
 cake_evhdl = Event:new{
 	ref_name = "cake_evhdl",
-	conditions_fn = "cake_test",
-	event_fn = "cake_event",
+	conditions_fn = function()
+		-- Requirements
+		return EVENT_CONDITIONS_MET
+	end,
+	event_fn = function(ref_name)
+		decision = Decision:new{
+			ref_name = "cake_decision_0",
+			name = "I think I will eat it",
+			decision_fn = function(ref_name)
+				print('The cake tasted like a cake, what a surprise! and you find a bunch of peseants outside your palace... oh no')
+			end,
+			effects = "You will consume cake"
+		}
+		cake_evhdl:add_decision(decision)
+		
+		decision = Decision:new{
+			ref_name = "cake_decision_1",
+			name = "Fuck you",
+			decision_fn = function(ref_name)
+				print('Why no eat my poisoned cake? i put so much poison in it :(')
+			end,
+			effects = "You will consume cake anyways"
+		}
+		cake_evhdl:add_decision(decision)
+	
+		decision = Decision:new{
+			ref_name = "cake_decision_2",
+			name = "Cake!?",
+			decision_fn = function(ref_name)
+				print('Where the fuck am i?')
+			end,
+			effects = "Your compulsory desire for cake has began to grow"
+		}
+		cake_evhdl:add_decision(decision)
+	
+		decision = Decision:new{
+			ref_name = "cake_decision_3",
+			name = "Britain, we have a problem",
+			decision_fn = function(ref_name)
+				print('Britain converted the cake into tea')
+			end,
+			effects = "What the fuck is britain gonna do, invade us?"
+		}
+		cake_evhdl:add_decision(decision)
+		return EVENT_DO_ONE_TIME
+	end,
 	title = "Cake",
 	text = "Sir, a cake has just magically appeared in your desk, what would you like to do?"
 }

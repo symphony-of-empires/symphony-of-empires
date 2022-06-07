@@ -25,52 +25,47 @@
 
 -- Catholic Relief Act of 1829
 -- https://en.wikipedia.org/wiki/Roman_Catholic_Relief_Act_1829
-function catholic_relief_act_of_1829_test()
-    local year = get_year()
-    if year == 1829 and math.random(0, 100) == 0 then
-        return EVENT_CONDITIONS_MET
-    end
-	return EVENT_CONDITIONS_UNMET
-end
-function catholic_relief_act_of_1829_event()
-	decision = Decision:new{
-		ref_name = "catholic_relief_act_of_1829_decision_0",
-		name = "Yes, allow catholics on the parliament",
-		decision_fn = "catholic_relief_act_of_1829_decision_0",
-		effects = "None"
-	}
-	catholic_relief_act_of_1829:add_decision(decision)
-	
-    decision = Decision:new{
-		ref_name = "catholic_relief_act_of_1829_decision_1",
-		name = "No, the church and the state must remain separate",
-		decision_fn = "catholic_relief_act_of_1829_decision_1",
-		effects = "x100 more militancy, x100 more conciousness"
-	}
-	catholic_relief_act_of_1829:add_decision(decision)
-	return EVENT_DO_ONE_TIME
-end
-function catholic_relief_act_of_1829_decision_0()
-    united_kingdom:add_accepted_religion(Religion:get("christian"))
-end
-function catholic_relief_act_of_1829_decision_1()
-    local prov = Nation:get_owned_provinces()
-    for k, province in pairs(prov) do
-		local pops = province:get_pops()
-		for k, pop in pairs(pops) do
-			if pop.religion.id == Religion:get("christian").id then
-				pop.militancy = pop.militancy * 1.5
-				pop.militancy = pop.militancy * 1.5
-				province:update_pop(pop)
-			end
-		end
-		province:update_pops()
-    end
-end
 catholic_relief_act_of_1829 = Event:new{
 	ref_name = "catholic_relief_act_of_1829",
-	conditions_fn = "catholic_relief_act_of_1829_test",
-	event_fn = "catholic_relief_act_of_1829_event",
+	conditions_fn = function()
+		local year = get_year()
+		if year == 1829 and math.random(0, 100) == 0 then
+			return EVENT_CONDITIONS_MET
+		end
+		return EVENT_CONDITIONS_UNMET
+	end,
+	event_fn = function(ref_name)
+		decision = Decision:new{
+			ref_name = "catholic_relief_act_of_1829_decision_0",
+			name = "Yes, allow catholics on the parliament",
+			decision_fn = function(ref_name)
+				united_kingdom:add_accepted_religion(Religion:get("christian"))
+			end,
+			effects = "None"
+		}
+		catholic_relief_act_of_1829:add_decision(decision)
+		decision = Decision:new{
+			ref_name = "catholic_relief_act_of_1829_decision_1",
+			name = "No, the church and the state must remain separate",
+			decision_fn = function(ref_name)
+				local prov = Nation:get_owned_provinces()
+				for k, province in pairs(prov) do
+					local pops = province:get_pops()
+					for k, pop in pairs(pops) do
+						if pop.religion.id == Religion:get("christian").id then
+							pop.militancy = pop.militancy * 1.5
+							pop.militancy = pop.militancy * 1.5
+							province:update_pop(pop)
+						end
+					end
+					province:update_pops()
+				end
+			end,
+			effects = "x100 more militancy, x100 more conciousness"
+		}
+		catholic_relief_act_of_1829:add_decision(decision)
+		return EVENT_DO_ONE_TIME
+	end,
     title = "Catholic Relief Act of 1829",
 	text = "Daniel O'Connell threatens insurrection in Ireland if the catholic relief act is not passed"
 }
