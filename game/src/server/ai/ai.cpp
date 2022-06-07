@@ -567,7 +567,6 @@ void ai_do_tick(Nation& nation) {
         }
     }
 
-    return;
     /// @todo make a better algorithm
     if(nation.ai_do_cmd_troops) {
         std::fill(ai_data.nations_risk_factor.begin(), ai_data.nations_risk_factor.end(), 0.f);
@@ -653,6 +652,8 @@ void ai_do_tick(Nation& nation) {
                         const NationRelation& relation = world.get_relation(world.get_id(*highest_risk->controller), unit.owner_id);
                         if(!(relation.has_war || relation.has_alliance)) continue;
                     }
+
+                    if(highest_risk == &unit_province) continue;
                 }
                 
                 unit.set_target(*highest_risk);
