@@ -89,8 +89,8 @@ public:
     void update_options(MapOptions options);
 
     MapOptions options;
-private:
     void update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_size);
+private:
 
     const World& world;
 
