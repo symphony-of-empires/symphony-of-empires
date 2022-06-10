@@ -5,11 +5,11 @@ project(SymphonyOfEmpires CXX C)
 option(BUILD_ENGINE "Enable building Eng3D" ON)
 option(BUILD_GAME "Enable building SymphonyOfEmpires" ON)
 
-IF(E3D_LOG_TO_CONSOLE)
-	add_compile_definitions(E3D_LOG_TO_CONSOLE)
-ENDIF()
 IF(NO_COPY_MODS)
 	add_compile_definitions(NO_COPY_MODS)
+ENDIF()
+IF(SANITIZE_ON)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined -fsanitize=thread")
 ENDIF()
 
 # Backend selection

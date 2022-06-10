@@ -113,7 +113,3 @@ require('entities/ui/init')
 set_date(1825, 0, 0)
 print("Industrial era mod")
 print("Date: ", get_year(), "/", get_month(), "/", get_day())
-
-local test_btn = UI_Window:new(16, 16, 256, 256, 0)
-test_btn:text("Hello world this is a lua button")
-test_btn:kill()

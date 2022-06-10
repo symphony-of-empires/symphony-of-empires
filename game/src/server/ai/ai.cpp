@@ -405,6 +405,8 @@ static inline void ai_build_commercial(Nation& nation) {
     // Otherwise -- do not build anything since the highest valued good cannot be produced
     if(type == nullptr) return;
 
+    if(nation.owned_provinces.size() == 0) return;
+
     Eng3D::Log::debug("ai", nation.ref_name + " Good " + target_good->ref_name + " seems to be on a high-trend - building industry " + type->ref_name + " which makes that good");
 
     auto it = std::begin(nation.owned_provinces);
