@@ -271,8 +271,12 @@ void Nation::give_province(Province& province) {
 
     // Update the map visibility
     auto& gs = (GameState&)GameState::get_instance();
-    if(gs.map != nullptr)
+    if(gs.map != nullptr) {
         gs.map->map_render->request_update_visibility();
+        glm::ivec2 screen_size(gs.width, gs.height);
+        Eng3D::Rect update_area = province.box_area;
+        gs.map->map_render->update_border_sdf(update_area, screen_size);
+    }
 }
 
 void Nation::control_province(Province& province) {

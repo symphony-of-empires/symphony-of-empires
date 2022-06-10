@@ -712,7 +712,7 @@ void start_client(int argc, char** argv) {
     bg_img->kill();
     load_pbar->kill();
     mod_logo_img->kill();
-    LuaAPI::invoke_registered_callback(gs.world->lua, "map_dev_view_invoke");
+    // LuaAPI::invoke_registered_callback(gs.world->lua, "map_dev_view_invoke");
 
     // Connect to server prompt
     new Interface::MainMenu(gs);
