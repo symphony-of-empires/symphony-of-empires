@@ -164,7 +164,7 @@ namespace UI {
         std::shared_ptr<Eng3D::Texture> button_border;
         std::shared_ptr<Eng3D::Texture> cursor_tex;
 
-        TTF_Font* default_font;
+        TTF_Font* default_font = nullptr;
 
         std::unique_ptr<Eng3D::OpenGL::Program> obj_shader;
     };
