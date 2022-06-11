@@ -92,7 +92,7 @@ Builds can be built using Visual C compiler. The trick is to create a new soluti
 ## Running
 In order to run the game you just need to run it via the command line or left-click the executable:
 ```sh
-./game
+./SymphonyOfEmpires
 ```
 
 If the server crashes and the port needs to be re-aquired do the following under *NIX systems:

@@ -323,20 +323,17 @@ void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport,
 void Context::render_all(glm::ivec2 mouse_pos) {
     std::scoped_lock lock(prompt_queue_mutex);
     for(const auto& prompt : prompt_queue) {
-        auto* win = new UI::Window(0, 0, 512, 128, nullptr);
+        auto* win = new UI::Window(0, 0, 512, 512, nullptr);
+        win->set_close_btn_function([](UI::Widget& w) {
+            w.parent->kill();
+        });
         win->origin = UI::Origin::CENTER_SCREEN;
         win->text(prompt.first);
         win->is_scroll = true;
         auto* txt = new UI::Text(0, 0, win->width, win->height, win);
         txt->text(prompt.second);
         txt->is_scroll = true;
-        auto* ok_btn = new UI::Button(0, 0, 128, 24, win);
-        ok_btn->below_of(*txt);
-        ok_btn->text("OK");
-        ok_btn->set_on_click([win](UI::Widget&) {
-            win->kill();
-        });
-        win->height = ok_btn->y + ok_btn->height;
+        win->height = txt->y + txt->height;
     }
 
     obj_shader->use();
