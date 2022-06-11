@@ -88,7 +88,7 @@ void militancy_update(World& world, Nation& nation) {
     float total_anger = 0.f;
     // Anger per ideology (how much we hate the current ideology)
     std::vector<float> ideology_anger(world.ideologies.size(), 0.f);
-    const float coup_chances = 1000.f;
+    const float coup_chances = 100.f;
     auto rand = Eng3D::get_local_generator();
     for(const auto province_id : nation.controlled_provinces) {
         const auto& province = world.provinces[province_id];
@@ -105,47 +105,48 @@ void militancy_update(World& world, Nation& nation) {
 
     // Rebellions!
     /// @todo Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
-    if(!std::fmod(rand(), std::max<float>(1, coup_chances - total_anger))) {
-#if 0 /// @todo Fix so this works in parrallel
+    if(!std::fmod(std::rand(), std::max<float>(1, coup_chances - total_anger))) {
+        /// @todo This might cause multithreading problems
+
         // Compile list of uprising provinces
         std::vector<Province*> uprising_provinces;
-        for(const auto province_id : nation->owned_provinces) {
-            const auto& province = world.provinces[province_id];
+        for(const auto province_id : nation.owned_provinces) {
+            auto& province = world.provinces[province_id];
             float province_anger = 0.f;
             float province_threshold = 0.f;
-            for(const auto& pop : province->pops) {
+            for(const auto& pop : province.pops) {
                 province_anger += pop.militancy;
                 province_threshold += pop.literacy * pop.life_needs_met;
             }
 
             if(province_anger > province_threshold)
-                uprising_provinces.push_back(province);
+                uprising_provinces.push_back(&province);
         }
 
         // Nation 0 is always the rebel nation
-        Nation* rebel_nation = g_world->nations[0];
+        Nation& rebel_nation = g_world->nations[0];
         // Make the most angry provinces revolt!
         std::vector<TreatyClause::BaseClause*> clauses;
         for(auto& province : uprising_provinces) {
             /// @todo We should make a copy of the `rebel` nation for every rebellion!!!
             /// @todo We should also give them an unique ideology!!!
-            rebel_nation->give_province(*province);
+            rebel_nation.control_province(*province);
             for(const auto unit_id : province->get_units()) {
-                auto* unit = g_world->units[unit_id];
-                unit->owner_id = rebel_nation->get_id();
+                auto& unit = g_world->unit_manager.units[unit_id];
+                if(unit.on_battle) continue;
+                unit.owner_id = rebel_nation.get_id();
             }
 
             // Declare war seeking all provinces from the owner
             TreatyClause::AnnexProvince* cl = new TreatyClause::AnnexProvince();
             cl->provinces = uprising_provinces;
-            cl->sender = rebel_nation;
-            cl->receiver = nation;
+            cl->sender = &rebel_nation;
+            cl->receiver = &nation;
             cl->type = TreatyClauseType::ANNEX_PROVINCES;
             clauses.push_back(cl);
-            Eng3D::Log::debug("game", "Revolt on " + province->ref_name + " by " + rebel_nation->ideology->ref_name);
+            Eng3D::Log::debug("game", "Revolt on " + province->ref_name + " by " + rebel_nation.ideology->ref_name);
         }
-        rebel_nation->declare_war(*nation, clauses);
-#endif
+        rebel_nation.declare_war(nation, clauses);
     }
 
     // Roll a dice! (more probability with more anger!)

@@ -167,6 +167,9 @@ namespace UI {
         TTF_Font* default_font = nullptr;
 
         std::unique_ptr<Eng3D::OpenGL::Program> obj_shader;
+
+        std::vector<std::pair<std::string, std::string>> prompt_queue;
+        std::mutex prompt_queue_mutex;
     };
     extern Context* g_ui_context;
 }; // namespace UI

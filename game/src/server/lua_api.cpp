@@ -1633,7 +1633,7 @@ int LuaAPI::ui_call_builtin(lua_State* L) {
         return 0;
     } else if(builtin_fn == "gs.shader_opt.set") {
         auto options = gs.map->map_render->options.get_options();
-        std::string optname = luaL_checkstring(L, 2);
+        const std::string optname = luaL_checkstring(L, 2);
         for(const auto& option : options) {
             if(option.get_option() == optname) {
                 bool is_used = lua_toboolean(L, 3);
@@ -1660,7 +1660,7 @@ int LuaAPI::ui_call_builtin(lua_State* L) {
         return 0;
     } else if(builtin_fn == "gs.shader_opt.get") {
         auto options = gs.map->map_render->options.get_options();
-        std::string optname = luaL_checkstring(L, 2);
+        const std::string optname = luaL_checkstring(L, 2);
         for(const auto& option : options) {
             if(option.get_option() == optname) {
                 bool is_used = false;

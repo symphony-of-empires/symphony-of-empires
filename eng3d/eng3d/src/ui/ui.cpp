@@ -71,9 +71,8 @@ using namespace UI;
 
 Context* UI::g_ui_context = nullptr;
 Context::Context() {
-    if(g_ui_context != nullptr) {
+    if(g_ui_context != nullptr)
         CXX_THROW(std::runtime_error, "UI context already constructed");
-    }
     g_ui_context = this;
     is_drag = false;
 
@@ -175,23 +174,8 @@ void Context::clear_dead() {
 }
 
 void Context::prompt(const std::string& title, const std::string& text) {
-    auto* win = new UI::Window(0, 0, 512, 128, nullptr);
-    win->origin = UI::Origin::CENTER_SCREEN;
-    win->text(title);
-    win->is_scroll = true;
-
-    auto* txt = new UI::Text(0, 0, win->width, win->height, win);
-    txt->text(text);
-    txt->is_scroll = true;
-
-    auto* ok_btn = new UI::Button(0, 0, 128, 24, win);
-    ok_btn->below_of(*txt);
-    ok_btn->text("OK");
-    ok_btn->set_on_click([win](UI::Widget&) {
-        win->kill();
-    });
-
-    win->height = ok_btn->y + ok_btn->height;
+    std::scoped_lock lock(prompt_queue_mutex);
+    this->prompt_queue.push_back(std::make_pair(title, text));
 }
 
 // void Context::clear_dead_recursive(Widget* w) {
@@ -337,6 +321,24 @@ void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport,
 }
 
 void Context::render_all(glm::ivec2 mouse_pos) {
+    std::scoped_lock lock(prompt_queue_mutex);
+    for(const auto& prompt : prompt_queue) {
+        auto* win = new UI::Window(0, 0, 512, 128, nullptr);
+        win->origin = UI::Origin::CENTER_SCREEN;
+        win->text(prompt.first);
+        win->is_scroll = true;
+        auto* txt = new UI::Text(0, 0, win->width, win->height, win);
+        txt->text(prompt.second);
+        txt->is_scroll = true;
+        auto* ok_btn = new UI::Button(0, 0, 128, 24, win);
+        ok_btn->below_of(*txt);
+        ok_btn->text("OK");
+        ok_btn->set_on_click([win](UI::Widget&) {
+            win->kill();
+        });
+        win->height = ok_btn->y + ok_btn->height;
+    }
+
     obj_shader->use();
 
     glActiveTexture(GL_TEXTURE0);
