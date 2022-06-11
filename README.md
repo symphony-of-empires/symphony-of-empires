@@ -14,6 +14,11 @@ Required to build:
 
 ## Build on Linux
 
+**If you simply want to play the game on linux:**
+```
+./quick_build.sh
+```
+
 ### Debian-based distros
 Install all dependencies with this command:
 ```
