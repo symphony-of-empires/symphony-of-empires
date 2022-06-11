@@ -532,7 +532,7 @@ void ai_do_tick(Nation& nation) {
         const int base_reluctance = 100;
         
         // Build defenses
-        if(std::rand() % (base_reluctance / defense_factor) == 0) {
+        if(std::rand() % (base_reluctance / defense_factor) == 0 && !nation.owned_provinces.empty()) {
             auto it = std::begin(nation.owned_provinces);
             std::advance(it, std::rand() % nation.owned_provinces.size());
             Province& province = world.provinces[*it];
@@ -607,6 +607,9 @@ void ai_do_tick(Nation& nation) {
                     // basically make the draw_in_force negative, which in turns does not draw away but rather
                     // draw in even more units
                     draw_in_force += ai_data.nations_risk_factor[unit.owner_id] * unit_strength;
+                    if(unit.on_battle) {
+                        draw_in_force += unit_strength * 100;
+                    }
                 }
                 // Only if neighbour has a controller
                 if(neighbour.controller != nullptr)

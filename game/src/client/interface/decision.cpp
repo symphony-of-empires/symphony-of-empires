@@ -71,9 +71,8 @@ DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
         decide_btn->set_tooltip(decision.effects.get_string());
         
         decide_btn->below_of(*txt);
-        if(last != nullptr) {
+        if(last != nullptr)
             decide_btn->below_of(*last);
-        }
         last = decide_btn;
     }
 }
