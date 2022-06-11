@@ -462,3 +462,10 @@ liechtenstein_monarchy
 
 hamburg_monarchy
 	By Greentubing - drawn by me (red colour #DA121A from official version of the flag on www.hamburg.de/wappen), Public Domain, https://commons.wikimedia.org/w/index.php?curid=566662
+
+vietnam_socialism
+vietnam_communism
+	By See File history below for details. - https://www.fotw.info/flags/vn.html (Construction sheet)Chính phủ Việt Nam / 政府越南 / Gouvernement du Viêt Nam / Government of Vietnam, Public Domain, https://commons.wikimedia.org/w/index.php?curid=383863
+
+vietnam_republic
+	By (many, see history) - (see history);BASED ON THIS CONSTRUCTION SHEET:, Public Domain, https://commons.wikimedia.org/w/index.php?curid=434803
