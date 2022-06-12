@@ -28,6 +28,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <mutex>
 
 namespace Eng3D {
     /**
@@ -116,14 +117,18 @@ namespace Eng3D {
         }
         
         inline Eng3D::StringRef insert(const std::string& str) {
+            std::scoped_lock lock(this->strings_mutex);
             this->strings.push_back(str);
             return Eng3D::StringRef(this->strings.size() - 1);
         }
 
         inline const std::string& get_by_id(const Eng3D::StringRef ref) const {
+            std::scoped_lock lock(this->strings_mutex);
             return this->strings[ref.id];
         }
 
         static StringManager& get_instance();
+
+        mutable std::mutex strings_mutex;
     };
 };

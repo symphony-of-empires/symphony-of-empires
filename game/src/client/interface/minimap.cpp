@@ -336,41 +336,42 @@ mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
             return str;
         }
 
-        const NationRelation& rel = g_world->get_relation(g_world->get_id(*province.controller), nation_id);
-        if(rel.has_alliance) {
-            str += "allied with " + world.nations[nation_id].get_client_hint().alt_name;
-            return str;
-        } else if(rel.has_war) {
-            str += "at war with " + world.nations[nation_id].get_client_hint().alt_name;
-            return str;
-        }
-
-        const std::vector<std::string> rel_lvls = {
-            "nemesis",
-            "enemy",
-            "disrespectful",
-            "neutral",
-            "respectful",
-            "collaborates",
-            "friendly"
-        };
-
-        int idx = ((rel.relation + 200.f) / (200.f * 2.f)) * rel_lvls.size();
-        str += std::to_string(rel.relation) + "(" + rel_lvls[idx % rel_lvls.size()] + ")";
-
-        /*int ally_cnt = 0;
-        str += Eng3D::Locale::translate("Allied with") + " ";
-        for(const auto& nation : gs.world->nations) {
-            const NationRelation& rel = province.controller->relations[world.get_id(*nation)];
+        if(g_world->get_id(*province.controller) != nation_id) {
+            const NationRelation& rel = world.get_relation(world.get_id(*province.controller), nation_id);
             if(rel.has_alliance) {
-                str += Eng3D::Locale::translate(nation->get_client_hint().alt_name.get_string());
-                str += ", ";
-                ally_cnt++;
+                str += "allied with " + world.nations[nation_id].get_client_hint().alt_name;
+            } else if(rel.has_war) {
+                str += "at war with " + world.nations[nation_id].get_client_hint().alt_name;
+            }
+
+            const std::vector<std::string> rel_lvls = {
+                "nemesis",
+                "enemy",
+                "disrespectful",
+                "neutral",
+                "respectful",
+                "collaborates",
+                "friendly"
+            };
+
+            int idx = ((rel.relation + 200.f) / (200.f * 2.f)) * rel_lvls.size();
+            str += std::to_string(rel.relation) + "(" + rel_lvls[idx % rel_lvls.size()] + ")";
+
+            int ally_cnt = 0;
+            str += Eng3D::Locale::translate("Allied with") + " ";
+            for(const auto& nation : world.nations) {
+                if(&nation == province.controller) continue;
+                const NationRelation& rel = world.get_relation(world.get_id(*province.controller), world.get_id(nation));
+                if(rel.has_alliance) {
+                    str += Eng3D::Locale::translate(nation.get_client_hint().alt_name.get_string());
+                    str += ", ";
+                    ally_cnt++;
+                }
+            }
+            if(ally_cnt == 0) {
+                str += Eng3D::Locale::translate("nobody");
             }
         }
-        if(ally_cnt == 0) {
-            str += Eng3D::Locale::translate("nobody");
-        }*/
         return str;
     };
 }
