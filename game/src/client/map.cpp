@@ -544,7 +544,7 @@ void Map::draw(const GameState& gs) {
     for(auto& province : const_cast<World&>(world).provinces) {
         const glm::vec2 prov_pos = glm::vec2(province.get_pos().first, province.get_pos().second);
         size_t war_battle_idx = 0;
-        for(auto& battle : province.battles) {
+        for(const auto& battle : province.battles) {
             bool battle_visible = true;
             if(view_mode == MapView::SPHERE_VIEW) {
                 glm::vec3 cam_pos = camera->get_world_pos();
@@ -562,6 +562,29 @@ void Map::draw(const GameState& gs) {
             }
             war_battle_idx++;
         }
+
+        const auto& province_units = world.unit_manager.get_province_units(world.get_id(province));
+        if(!province_units.empty()) {
+            const auto& unit = world.unit_manager.units[province_units[0]];
+            glm::mat4 model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
+
+            if(Province::is_valid(unit.target_province_id)) {
+                const auto& unit_target = world.provinces[unit.target_province_id];
+                const glm::vec2 target_pos = glm::vec2(unit_target.get_pos().first, unit_target.get_pos().second);
+                const float dist = glm::sqrt(glm::pow(glm::abs(prov_pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(prov_pos.y - target_pos.y), 2.f));
+                auto line_square = Eng3D::Square(0.f, 0.f, dist, 0.5f);
+                glm::mat4 line_model = glm::rotate(model, glm::atan(target_pos.y - prov_pos.y, target_pos.x - prov_pos.x), glm::vec3(0.f, 0.f, 1.f));
+                obj_shader->set_texture(0, "diffuse_map", *line_tex);
+                obj_shader->set_uniform("model", line_model);
+                line_square.draw();
+            }
+            model = glm::rotate(model, wind_osc, glm::vec3(1.f, 0.f, 0.f));
+            obj_shader->set_uniform("model", model);
+
+            // Model
+            obj_shader->set_uniform("model", model);
+            unit_type_models[world.get_id(*unit.type)]->draw(*obj_shader);
+        }
     }
     for(size_t i = unit_index; i < unit_widgets.size(); i++)
         unit_widgets[i]->kill();
@@ -576,41 +599,14 @@ void Map::draw(const GameState& gs) {
         const glm::vec2 prov_pos = glm::vec2(province.get_pos().first, province.get_pos().second);
 
         unsigned int i = 0;
-        for(const auto unit_id : province.get_units()) {
-            glm::vec2 pos = prov_pos;
-            pos.x -= 1.5f * ((province.get_units().size() / 2) - i);
-            pos.y -= y;
-            glm::mat4 model = glm::translate(base_model, glm::vec3(pos.x, pos.y, 0.f));
-
-            auto& unit = g_world->unit_manager.units[unit_id];
-            if(Province::is_valid(unit.target_province_id)) {
-                //Eng3D::Line target_line = Eng3D::Line(pos.x, pos.y, );
-                const auto& unit_target = world.provinces[unit.target_province_id];
-                const glm::vec2 target_pos = glm::vec2(unit_target.get_pos().first, unit_target.get_pos().second);
-                const float dist = glm::sqrt(glm::pow(glm::abs(pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(pos.y - target_pos.y), 2.f));
-                auto line_square = Eng3D::Square(0.f, 0.f, dist, 0.5f);
-                glm::mat4 line_model = glm::rotate(model, glm::atan(target_pos.y - pos.y, target_pos.x - pos.x), glm::vec3(0.f, 0.f, 1.f));
-                obj_shader->set_texture(0, "diffuse_map", *line_tex);
-                obj_shader->set_uniform("model", line_model);
-                line_square.draw();
-            }
-            model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
-            obj_shader->set_uniform("model", model);
-
-            // Model
-            obj_shader->set_uniform("model", model);
-            unit_type_models[world.get_id(*unit.type)]->draw(*obj_shader);
-            i++;
-        }
-
         for(const auto& building_type : world.building_types) {
-            continue;
             if(!province.buildings[world.get_id(building_type)].level) continue;
             glm::vec2 pos = prov_pos;
             glm::mat4 model = glm::translate(base_model, glm::vec3(pos.x, pos.y, 0.f));
-            model = glm::rotate(model, 180.f, glm::vec3(1.f, 0.f, 0.f));
+            model = glm::rotate(model, wind_osc, glm::vec3(1.f, 0.f, 0.f));
             obj_shader->set_uniform("model", model);
             building_type_models[world.get_id(building_type)]->draw(*obj_shader);
+            break;
         }
     }
     //*/

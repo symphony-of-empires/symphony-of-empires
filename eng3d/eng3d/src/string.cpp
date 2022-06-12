@@ -23,6 +23,7 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#include <mutex>
 #include "eng3d/string.hpp"
 
 //
@@ -35,9 +36,8 @@ Eng3D::StringRef::StringRef(const std::string& str) {
 static std::string g_empty_str = " ";
 const std::string& Eng3D::StringRef::get_string() const
 {
-    if(this->id == (Eng3D::StringRef::Id)-1) {
+    if(this->id == (Eng3D::StringRef::Id)-1)
         return g_empty_str;
-    }
     return Eng3D::StringManager::get_instance().get_by_id(this->id);
 }
 

@@ -195,7 +195,7 @@ MapRender::MapRender(const World& _world)
     // to make a buffer-texture so we have to keep it or we will have trouble
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
-    no_drop_options.internal_format = GL_SRGB;
+    no_drop_options.internal_format = GL_SRGB_ALPHA;
     no_drop_options.compressed = false;
     tile_sheet->upload(no_drop_options);
 

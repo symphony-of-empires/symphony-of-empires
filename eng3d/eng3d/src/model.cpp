@@ -256,7 +256,6 @@ Eng3D::Model Eng3D::ModelManager::load_wavefront(const std::string& path) {
             Eng3D::SimpleModel* model = new Eng3D::SimpleModel(Eng3D::MeshMode::TRIANGLE_FAN);
             for(auto v1 = (*cluster).cbegin(); v1 != (*cluster).cend(); v1++)
                 model->buffer.push_back(*v1);
-            Eng3D::Log::debug("model", "Created new SimpleModel with Vertices=" + std::to_string(model->buffer.size()));
             model->material = (*obj).material;
             model->upload();
             final_model.simple_models.push_back(model);
