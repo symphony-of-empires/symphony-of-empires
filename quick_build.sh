@@ -61,13 +61,13 @@ fi
 if [ ! -d build/ ]; then
     mkdir -p build/
     ln -s ../mods mods || exit
-    cmake -DCMAKE_BUILD_TYPE=Release -DE3D_BACKEND_OPENGL=1 -B build/ .
-    echo "Finished cmake setup"
+    echo "Finished setup"
 fi
 
-cd build
-make
+cmake -DCMAKE_BUILD_TYPE=Release -DE3D_BACKEND_OPENGL=1 -B build/ .
 
+cd build
+make || exit
 echo "Launching game"
 # Runs the game
 MESA_GL_VERSION_OVERRIDE=4.4 MESA_GLSL_VERSION_OVERRIDE=440 ./SymphonyOfEmpires
