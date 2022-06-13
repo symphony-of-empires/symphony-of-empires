@@ -54,13 +54,19 @@ Eng3D::SimpleModel::SimpleModel(enum Eng3D::MeshMode _mode)
 
 void Eng3D::SimpleModel::draw(const Eng3D::OpenGL::Program& shader) const {
     // Change color if material wants it
-    if(material != nullptr) {
+    if(material.get() != nullptr) {
         shader.set_texture(0, "diffuse_map", *material->diffuse_map);
+        shader.set_texture(1, "ambient_map", *material->ambient_map);
+        shader.set_texture(2, "occlussion_map", *material->occlussion_map);
+        shader.set_texture(3, "height_map", *material->height_map);
         shader.set_uniform("ambient_color", material->ambient_color);
         shader.set_uniform("diffuse_color", material->diffuse_color);
     } else {
         auto white_tex = Eng3D::State::get_instance().tex_man->get_white();
         shader.set_texture(0, "diffuse_map", *white_tex.get());
+        shader.set_texture(1, "ambient_map", *white_tex.get());
+        shader.set_texture(2, "occlussion_map", *white_tex.get());
+        shader.set_texture(3, "height_map", *white_tex.get());
         shader.set_uniform("ambient_color", glm::vec4(1.f));
         shader.set_uniform("diffuse_color", glm::vec4(1.f));
     }
@@ -81,6 +87,7 @@ static inline std::shared_ptr<Eng3D::Texture> get_material_texture(const aiMater
     for(size_t i = 0; i < material.GetTextureCount(type); i++) {
         aiString str;
         material.GetTexture(type, i, &str);
+        Eng3D::Log::debug("assimp", std::string() + "Loading texture for material " + str.C_Str());
         return s.tex_man->load(s.package_man->get_unique(str.C_Str()));
     }
     return s.tex_man->get_white();
@@ -90,7 +97,6 @@ Eng3D::SimpleModel Eng3D::Model::process_simple_model(aiMesh& mesh, const aiScen
     Eng3D::SimpleModel simple_model = Eng3D::SimpleModel(Eng3D::MeshMode::TRIANGLES);
     auto& s = Eng3D::State::get_instance();
 
-    simple_model.buffer.resize(mesh.mNumVertices);
     glm::vec3 max_vert = glm::vec3(0.00001f, 0.00001f, 0.00001f);
     for(size_t i = 0; i < mesh.mNumVertices; i++) {
         auto vertice = glm::vec3(mesh.mVertices[i].x, mesh.mVertices[i].y, mesh.mVertices[i].z);
@@ -108,6 +114,7 @@ Eng3D::SimpleModel Eng3D::Model::process_simple_model(aiMesh& mesh, const aiScen
     max_vert.y = 1.f / max_vert.y;
     max_vert.z = 1.f / max_vert.z;
 
+    simple_model.buffer.resize(mesh.mNumVertices);
     for(size_t i = 0; i < mesh.mNumVertices; i++) {
         auto vertice = glm::vec3(mesh.mVertices[i].x * max_vert.x, mesh.mVertices[i].y * max_vert.y, mesh.mVertices[i].z * max_vert.z);
         auto texcoord = glm::vec2(0.f, 0.f);
@@ -118,6 +125,7 @@ Eng3D::SimpleModel Eng3D::Model::process_simple_model(aiMesh& mesh, const aiScen
 
     for(size_t i = 0; i < mesh.mNumFaces; i++) {
         auto& face = mesh.mFaces[i];
+        simple_model.indices.reserve(simple_model.indices.size() + face.mNumIndices);
         for(size_t j = 0; j < face.mNumIndices; j++)
             simple_model.indices.push_back(face.mIndices[j]);
     }

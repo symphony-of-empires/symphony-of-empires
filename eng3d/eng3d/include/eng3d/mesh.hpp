@@ -40,6 +40,7 @@
 #   include <gccore.h>
 #endif
 
+/// @todo We aren't deleting the OpenGL objects!!!!
 #ifdef E3D_BACKEND_OPENGL
 namespace Eng3D::OpenGL {
     class VAO {
@@ -50,7 +51,7 @@ namespace Eng3D::OpenGL {
         }
 
         ~VAO() {
-            glDeleteVertexArrays(1, &id);
+            //glDeleteVertexArrays(1, &id);
         }
 
         VAO(const VAO&) = default;
@@ -74,7 +75,7 @@ namespace Eng3D::OpenGL {
         }
 
         ~VBO() {
-            glDeleteBuffers(1, &id);
+            //glDeleteBuffers(1, &id);
         }
 
         VBO(const VBO&) = default;
@@ -98,7 +99,7 @@ namespace Eng3D::OpenGL {
         }
 
         ~EBO() {
-            glDeleteBuffers(1, &id);
+            //glDeleteBuffers(1, &id);
         }
 
         EBO(const EBO&) = default;
@@ -177,10 +178,6 @@ namespace Eng3D {
 
 #ifdef E3D_BACKEND_OPENGL
         virtual void upload() const {
-            if(buffer.empty()) {
-                return;
-            }
-
             vao.bind();
             vbo.bind();
             glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(buffer[0]), &buffer[0], GL_STATIC_DRAW);
@@ -192,7 +189,7 @@ namespace Eng3D {
             glEnableVertexAttribArray(0);
 
             // Texcoords
-            constexpr int tex_stride = ((int)V::length() * (int)sizeof(float));
+            constexpr int tex_stride = sizeof(buffer[0].vert);
             glVertexAttribPointer(1, T::length(), GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)((uintptr_t)tex_stride));
             glEnableVertexAttribArray(1);
         };
