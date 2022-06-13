@@ -45,13 +45,22 @@ namespace Eng3D::OpenGL {
     class VAO {
         GLuint id;
     public:
-        VAO();
-        ~VAO();
+        VAO() {
+            glGenVertexArrays(1, &id);
+        }
+
+        ~VAO() {
+            glDeleteVertexArrays(1, &id);
+        }
+
         VAO(const VAO&) = default;
         VAO(VAO&&) noexcept = default;
         VAO& operator=(const VAO&) = default;
 
-        void bind() const;
+        inline void bind() const {
+            glBindVertexArray(id);
+        }
+
         inline GLuint get_id() const {
             return id;
         }
@@ -60,13 +69,46 @@ namespace Eng3D::OpenGL {
     class VBO {
         GLuint id;
     public:
-        VBO();
-        ~VBO();
+        VBO() {
+            glGenBuffers(1, &id);
+        }
+
+        ~VBO() {
+            glDeleteBuffers(1, &id);
+        }
+
         VBO(const VBO&) = default;
         VBO(VBO&&) noexcept = default;
         VBO& operator=(const VBO&) = default;
 
-        void bind(GLenum target = GL_ARRAY_BUFFER) const;
+        inline void bind(GLenum target = GL_ARRAY_BUFFER) const {
+            glBindBuffer(target, id);
+        }
+
+        inline GLuint get_id() const {
+            return id;
+        }
+    };
+
+    class EBO {
+        GLuint id;
+    public:
+        EBO() {
+            glGenBuffers(1, &id);
+        }
+
+        ~EBO() {
+            glDeleteBuffers(1, &id);
+        }
+
+        EBO(const EBO&) = default;
+        EBO(EBO&&) noexcept = default;
+        EBO& operator=(const EBO&) = default;
+
+        inline void bind(GLenum target = GL_ELEMENT_ARRAY_BUFFER) const {
+            glBindBuffer(target, id);
+        }
+
         inline GLuint get_id() const {
             return id;
         }
@@ -131,6 +173,8 @@ namespace Eng3D {
             vao.bind();
             vbo.bind(GL_ARRAY_BUFFER);
             glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(buffer[0]), &buffer[0], GL_STATIC_DRAW);
+            ebo.bind();
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices[0]), &indices[0], GL_STATIC_DRAW);
 
             // Vertices
             glVertexAttribPointer(0, V::length(), GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)0);
@@ -146,6 +190,7 @@ namespace Eng3D {
 #endif
 
         std::vector<Eng3D::MeshData<V, T>> buffer;
+        std::vector<unsigned int> indices;
         enum Eng3D::MeshMode mode;
 
 #ifdef E3D_BACKEND_OPENGL
@@ -153,6 +198,7 @@ namespace Eng3D {
         // then initialize the VBO!
         Eng3D::OpenGL::VAO vao;
         Eng3D::OpenGL::VBO vbo;
+        Eng3D::OpenGL::EBO ebo;
 #else
 #   error not implemented
 #endif
