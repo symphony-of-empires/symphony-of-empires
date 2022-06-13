@@ -44,6 +44,7 @@ if [ "$system_type" = "debian" ]; then
     apt_install_package "libglew-dev"
     apt_install_package "libglm-dev"
     apt_install_package "liblua5.3-dev"
+    apt_install_package "libassimp-dev"
 elif [ "$system_type" = "arch" ]; then
     pacman_install_package "libpng"
     pacman_install_package "sdl2"
@@ -52,6 +53,7 @@ elif [ "$system_type" = "arch" ]; then
     pacman_install_package "glew"
     pacman_install_package "lua53"
     pacman_install_package "glm"
+    pacman_install_package "assimp"
 else
     echo "I don't know $system_type"
     exit
@@ -64,13 +66,13 @@ if [ ! -d build/ ]; then
     echo "Finished setup"
 fi
 
-cmake -DCMAKE_BUILD_TYPE=Release -DE3D_BACKEND_OPENGL=1 -B build/ .
+cmake -DCMAKE_BUILD_TYPE=Debug -DE3D_BACKEND_OPENGL=1 -B build/ .
 
 cd build
-make || exit
+make -j`nproc` || exit
 echo "Launching game"
 # Runs the game
-MESA_GL_VERSION_OVERRIDE=4.4 MESA_GLSL_VERSION_OVERRIDE=440 ./SymphonyOfEmpires
+MESA_GL_VERSION_OVERRIDE=4.4 MESA_GLSL_VERSION_OVERRIDE=440 gdb ./SymphonyOfEmpires
 echo "Exiting game"
 
 cd ..
