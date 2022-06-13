@@ -106,10 +106,12 @@ void make_building_row(UI::Div* table, Building& building, const BuildingType* t
     }
 
     auto output = type->output;
-    auto output_div = new UI::Div(0, 0, 35, 35, row);
-    output_div->border = border;
-    auto output_good_image = new UI::Image(0, 0, 35, 35, "gfx/good/" + output->ref_name + ".png", true, output_div);
-    output_good_image->set_tooltip(output->name.get_string());
+    if(output != nullptr) {
+        auto output_div = new UI::Div(0, 0, 35, 35, row);
+        output_div->border = border;
+        auto output_good_image = new UI::Image(0, 0, 35, 35, "gfx/good/" + output->ref_name + ".png", true, output_div);
+        output_good_image->set_tooltip(output->name.get_string());
+    }
 
     auto production_scale_lab = new UI::Div(0, 0, 50, 35, row);
     production_scale_lab->text(Eng3D::string_format("%1.2f", building.production_scale));
