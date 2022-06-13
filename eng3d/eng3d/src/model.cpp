@@ -59,6 +59,7 @@ void Eng3D::SimpleModel::draw(const Eng3D::OpenGL::Program& shader) const {
         shader.set_texture(1, "ambient_map", *material->ambient_map);
         shader.set_texture(2, "occlussion_map", *material->occlussion_map);
         shader.set_texture(3, "height_map", *material->height_map);
+        shader.set_texture(4, "specular_map", *material->specular_map);
         shader.set_uniform("ambient_color", material->ambient_color);
         shader.set_uniform("diffuse_color", material->diffuse_color);
     } else {
@@ -67,6 +68,7 @@ void Eng3D::SimpleModel::draw(const Eng3D::OpenGL::Program& shader) const {
         shader.set_texture(1, "ambient_map", *white_tex.get());
         shader.set_texture(2, "occlussion_map", *white_tex.get());
         shader.set_texture(3, "height_map", *white_tex.get());
+        shader.set_texture(4, "specular_map", *white_tex.get());
         shader.set_uniform("ambient_color", glm::vec4(1.f));
         shader.set_uniform("diffuse_color", glm::vec4(1.f));
     }

@@ -55,7 +55,7 @@ namespace Eng3D {
     public:
         SimpleModel(enum Eng3D::MeshMode _mode);
         ~SimpleModel() {};
-        SimpleModel(const SimpleModel&) = default;
+        SimpleModel(const SimpleModel&) = delete;
         SimpleModel(SimpleModel&&) noexcept = default;
         SimpleModel& operator=(const SimpleModel&) = default;
         virtual void draw(const Eng3D::OpenGL::Program& shader) const;
@@ -68,7 +68,7 @@ namespace Eng3D {
     public:
         Model() {};
         virtual ~Model() {};
-        Model(const Model&) = default;
+        Model(const Model&) = delete;
         Model(Model&&) noexcept = default;
         Model& operator=(const Model&) = default;
         virtual void draw(const Eng3D::OpenGL::Program& shader) const {

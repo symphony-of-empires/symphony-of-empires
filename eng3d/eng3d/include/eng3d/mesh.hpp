@@ -46,17 +46,32 @@ namespace Eng3D::OpenGL {
     class VAO {
         GLuint id;
     public:
+        VAO(GLuint _id)
+            : id{ _id }
+        {
+
+        }
+
         VAO() {
             glGenVertexArrays(1, &id);
         }
 
         ~VAO() {
-            //glDeleteVertexArrays(1, &id);
+            glDeleteVertexArrays(1, &id);
         }
 
-        VAO(const VAO&) = default;
-        VAO(VAO&&) noexcept = default;
-        VAO& operator=(const VAO&) = default;
+        VAO(const VAO&) = delete;
+
+        VAO(VAO&& rhs) noexcept {
+            this->id = rhs.id;
+            rhs.id = 0;
+        }
+
+        VAO& operator=(VAO& rhs) {
+            this->id = rhs.id;
+            rhs.id = 0;
+            return *this;
+        }
 
         inline void bind() const {
             glBindVertexArray(id);
@@ -70,17 +85,32 @@ namespace Eng3D::OpenGL {
     class VBO {
         GLuint id;
     public:
+        VBO(GLuint _id)
+            : id{ _id }
+        {
+
+        }
+
         VBO() {
             glGenBuffers(1, &id);
         }
 
         ~VBO() {
-            //glDeleteBuffers(1, &id);
+            glDeleteBuffers(1, &id);
         }
 
-        VBO(const VBO&) = default;
-        VBO(VBO&&) noexcept = default;
-        VBO& operator=(const VBO&) = default;
+        VBO(const VBO&) = delete;
+
+        VBO(VBO&& rhs) noexcept {
+            this->id = rhs.id;
+            rhs.id = 0;
+        }
+
+        VBO& operator=(VBO& rhs) {
+            this->id = rhs.id;
+            rhs.id = 0;
+            return *this;
+        }
 
         inline void bind() const {
             glBindBuffer(GL_ARRAY_BUFFER, id);
@@ -94,17 +124,32 @@ namespace Eng3D::OpenGL {
     class EBO {
         GLuint id;
     public:
+        EBO(GLuint _id)
+            : id{ _id }
+        {
+
+        }
+
         EBO() {
             glGenBuffers(1, &id);
         }
 
         ~EBO() {
-            //glDeleteBuffers(1, &id);
+            glDeleteBuffers(1, &id);
         }
 
-        EBO(const EBO&) = default;
-        EBO(EBO&&) noexcept = default;
-        EBO& operator=(const EBO&) = default;
+        EBO(const EBO&) = delete;
+
+        EBO(EBO&& rhs) noexcept {
+            this->id = rhs.id;
+            rhs.id = 0;
+        }
+
+        EBO& operator=(EBO& rhs) {
+            this->id = rhs.id;
+            rhs.id = 0;
+            return *this;
+        }
 
         inline void bind() const {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
@@ -138,7 +183,7 @@ namespace Eng3D {
         MeshData() {};
         MeshData(V _vert, T _tex): vert(_vert), tex(_tex) {};
         ~MeshData() {};
-        MeshData(const MeshData&) = default;
+        MeshData(const MeshData&) = delete;
         MeshData(MeshData&&) noexcept = default;
         MeshData& operator=(const MeshData&) = default;
 
@@ -159,7 +204,7 @@ namespace Eng3D {
 
         }
         virtual ~Mesh() {};
-        Mesh(const Mesh&) = default;
+        Mesh(const Mesh&) = delete;
         Mesh(Mesh&&) noexcept = default;
         Mesh& operator=(const Mesh&) = default;
 
