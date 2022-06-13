@@ -60,10 +60,10 @@ vec4 get_terrain_mix(vec2 tex_coords) {
 	vec2 offset = 320.0 * tex_coords;
 	offset.y *= xx / yy;
 
-	vec4 color_00 = get_terrain(tex_coords + 0.5 * vec2(-xx, -yy), offset);
+	vec4 color_00 = get_terrain(tex_coords + 0.5 * -pix.xy, offset);
 	vec4 color_01 = get_terrain(tex_coords + 0.5 * vec2(-xx, yy), offset);
 	vec4 color_10 = get_terrain(tex_coords + 0.5 * vec2(xx, -yy), offset);
-	vec4 color_11 = get_terrain(tex_coords + 0.5 * vec2(xx, yy), offset);
+	vec4 color_11 = get_terrain(tex_coords + 0.5 * pix.xy, offset);
 
 	vec4 color_x0 = mix(color_00, color_10, scaling.x);
 	vec4 color_x1 = mix(color_01, color_11, scaling.x);
@@ -73,8 +73,8 @@ vec4 get_terrain_mix(vec2 tex_coords) {
 
 // Used by get_border to check if province id differs
 vec2 get_diff(vec4 v) {
-	float provinceDiff = min((abs(v.x) + abs(v.y)) * 255., 1.0);
-	float countryDiff = min((abs(v.z) + abs(v.w)) * 255., 1.0);
+	float provinceDiff = min((abs(v.x) + abs(v.y)) * 255.0, 1.0);
+	float countryDiff = min((abs(v.z) + abs(v.w)) * 255.0, 1.0);
 	return vec2(provinceDiff, countryDiff);
 }
 // Returns a vec4
@@ -142,7 +142,7 @@ vec2 get_diag_coords(vec2 tex_coords, float is_diag) {
 
 	vec2 mOff = mod(tex_coords + 0.5 * pix, pix) - 0.5 * pix;
 	vec2 dOff = mOff / pix;
-	float far = 1.-step(0.5, abs(dOff.x) + abs(dOff.y));
+	float far = 1.0 - step(0.5, abs(dOff.x) + abs(dOff.y));
 	vec2 diag_coords = tex_coords;
 	diag_coords -= mOff * 2.;
 	diag_coords = mix(tex_coords, diag_coords, is_diag * far);
@@ -150,12 +150,11 @@ vec2 get_diag_coords(vec2 tex_coords, float is_diag) {
 }
 
 // Get the province color
-vec3 get_province_color(vec2 tex_coords, float is_diag) {
+vec4 get_province_color(vec2 tex_coords, float is_diag) {
 	vec2 diag_coords = get_diag_coords(tex_coords, is_diag);
 	vec2 coord = texture(tile_map, diag_coords).xy;
-
 	vec2 prov_color_coord = coord * vec2(255.0 / 256.0);
-	vec3 prov_color = texture(tile_sheet, prov_color_coord).rgb;
+	vec4 prov_color = texture(tile_sheet, prov_color_coord).rgba;
 	return prov_color;
 }
 
@@ -168,26 +167,24 @@ float get_province_shadow(vec2 tex_coords, float is_diag) {
 	float prov_shadow = texture(province_opt, prov_color_coord).r;
 	// Ugly solution, but will do for now
 	prov_shadow += texture(province_opt, prov_color_coord).a;
-	// prov_shadow += texture(province_opt, prov_color_coord).g;
-	// prov_shadow += texture(province_opt, prov_color_coord).b;
 	return prov_shadow;
 }
 
 float isLake(vec2 coords) {
-	vec4 terrain = texture(terrain_map, coords);
 	return 0.0;
 }
+
 float isOcean(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);
-	float ttrain = terrain.r == 0.0 ? 1.0 : 0.0;
-
+	float is_v_ocean = trunc(smoothstep(1.0, 0.0, terrain.r));
 	// Check to make sure there is no lake here
 	vec2 coord = texture(tile_map, coords).xy;
 	vec2 prov_color_coord = coord * vec2(255.0 / 256.0);
 	vec4 prov_color = texture(tile_sheet, prov_color_coord).rgba;
-	ttrain *= length(prov_color.xyz) == 0.0 ? 1.0 : 0.0;
-	return ttrain;
+	is_v_ocean *= trunc(smoothstep(1.0, 0.0, length(prov_color.xyz)));
+	return is_v_ocean;
 }
+
 float isWater(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);
 	return terrain.r < 2.0 / 255.0 ? 1.0 : 0.0;
@@ -196,9 +193,6 @@ float isWater(vec2 coords) {
 vec2 get_beach(vec2 tex_coords) {
 	vec2 pix = vec2(1.0) / map_size;
 	vec2 mPos = tex_coords - mod(tex_coords + 0.5 * pix, pix);
-
-	float xx = pix.x;
-	float yy = pix.y;
 	vec2 scaling = mod(tex_coords + 0.5 * pix, pix) / pix;
 
 	vec2 coords_00 = mPos + pix * vec2(0.25, 0.25);
@@ -219,21 +213,18 @@ vec2 get_beach(vec2 tex_coords) {
 // Makes the grid lines on the water
 float get_grid(vec2 tex_coords) {
 	vec2 pix = vec2(1.0) / map_size;
-
-	vec2 gSize = pix * 1.2; 			// Grid size
-	vec2 gNumber = vec2(25.0, 25.0); 	// Number of lines to use
-	gNumber = 1.0 / (gNumber + 1.0);
+	vec2 gSize = pix * 1.2; // Grid size
+	const vec2 gNumber = vec2(1.0 / (25.0 + 1.0)); // Number of lines to use
 	vec2 gEdge = gNumber;
 	vec2 gCoord = abs(gNumber * 0.5 - mod(tex_coords + gNumber * 0.5, gNumber));
 	vec2 grid = smoothstep(gSize, vec2(0.0, 0.0), gCoord);
 	return max(grid.x, grid.y);
 }
 
-
 // Ambient, diffuse and specular lighting
 float get_lighting(vec2 tex_coords, float beach) {
 	// The non directional lighting
-	float ambient = 0.1;
+	const float ambient = 0.1;
 
 	float far_from_map = smoothstep(45.0, 65.0, dist_to_map * 1000.0);
 	vec3 view_dir = normalize(view_pos - v_frag_pos);
@@ -254,7 +245,7 @@ float get_lighting(vec2 tex_coords, float beach) {
 
 	// The bump mapping
 	float diffuse = max(dot(lightDir, normal), 0.0);
-	diffuse *= mix(0.6, 1., far_from_map);
+	diffuse *= mix(0.6, 1.0, far_from_map);
 
 	// The shiny directional light
 	float water_shine = mix(256, 64, far_from_map);
@@ -276,7 +267,6 @@ void distance_effect(inout vec3 out_color, inout vec3 water, vec3 prov_color, ve
 	vec3 paper = texture(paper_tex, 20.*paper_coords).rgb;
 
 	float bSdf = texture(border_sdf, tex_coords + pix * 0.5, 1).z;
-	float sdf_mix;
 	vec3 paper_border0;
 	vec3 paper_border1;
 	vec3 paper_mix = mix(paper, paper_col, 0.3);
@@ -284,10 +274,11 @@ void distance_effect(inout vec3 out_color, inout vec3 water, vec3 prov_color, ve
 	vec3 greyed_color = prov_color * paper_mix;
 	float whiteness = dot(prov_color, vec3(1.0, 1.0, 1.0));
 
-	float b3 = 0.5;
-	float b2 = 0.90;
-	float b1 = 0.97;
-	float b0 = 0.99;
+	const float b3 = 0.5;
+	const float b2 = 0.90;
+	const float b1 = 0.97;
+	const float b0 = 0.99;
+	float sdf_mix;
 
 	sdf_mix = smoothstep(b3, b2, bSdf);
 	paper_border0 = mix(greyed_color, paper_mix, 0.3);
@@ -355,7 +346,6 @@ void main() {
 	// Apply a paper effect
 	water = get_paper_water(water, far_from_map, tex_coords);
 #endif
-
 #ifdef GRID
 	float grid = get_grid(tex_coords);
 	water = mix(water, vec3(0.0, 0.0, 0.0), grid * 0.2);
@@ -364,7 +354,7 @@ void main() {
 	// The bathymetric effect
 	// TODO fix the scaling of the texture, now it goes from 0.5 - 0.7
 	float bathy = texture(bathymethry, tex_coords).x;
-	bathy = (bathy - 0.50) / (0.70 - 0.50);
+	bathy = (bathy - 0.50) * 5; // (0.70 - 0.50) = 0.20, so 5
 	water = water * mix(0.8, 1.0, bathy);
 
 	vec4 borders_diag = get_border(tex_coords);
@@ -372,11 +362,11 @@ void main() {
 	float country_border = borders_diag.y;
 	float is_diag = borders_diag.z;
 
-	vec3 prov_color = get_province_color(tex_coords, is_diag);
+	vec4 prov_color = get_province_color(tex_coords, is_diag);
 
-	vec3 prov_color_hsv = rgb2hsv(prov_color);
+	vec3 prov_color_hsv = rgb2hsv(vec3(prov_color.r, prov_color.g, prov_color.b));
 	prov_color_hsv.z *= 0.8; // Brightness
-	prov_color = hsv2rgb(prov_color_hsv);
+	prov_color = vec4(hsv2rgb(prov_color_hsv).rgb, 1.0);
 
 	vec3 water_hsv = rgb2hsv(water);
 	// Use saturation *= 0.3 for paper map look
@@ -384,14 +374,16 @@ void main() {
 	water_hsv.z *= 0.7; // Brightness
 	water = mix(water, hsv2rgb(water_hsv), far_from_map);
 
+	float bSdf = texture(border_sdf, tex_coords + pix * 0.5, 1).z;
 	// The terrain color
 	vec3 terrain_color = get_terrain_mix(tex_coords).rgb;
-	vec3 ground = mix(terrain_color, prov_color, 0.5);
+	vec3 ground = terrain_color;
+	ground = mix(ground, vec3(prov_color.r, prov_color.g, prov_color.b), smoothstep(0.93, 1.0, bSdf));
 
 	vec3 out_color;
 #ifdef SDF
 	// Change the out_color and water based on the distance from the border
-	distance_effect(out_color, water, prov_color, tex_coords, far_from_map);
+	distance_effect(out_color, water, vec3(prov_color.r, prov_color.g, prov_color.b), tex_coords, far_from_map);
 
 	country_border *= mix(1.0, 0.0, far_from_map);
 	beach_ocean *= mix(1.0, 0.0, far_from_map);
@@ -407,11 +399,13 @@ void main() {
 	out_color = mix(out_color, country_border_col, country_border);
 	prov_border *= (1.0 - far_from_map) * (1.0 - beach);
 	out_color = mix(out_color, province_border_col, prov_border);
-	
+
+#ifdef SHORE_OUTLINE
 	// Draw a black outline from the shore
-	// beach_ocean *= mix(1.0, 1.0, far_from_map);
-	// out_color = mix(out_color, province_border_col, beach_ocean);
-	
+	beach_ocean *= mix(1.0, 1.0, far_from_map);
+	out_color = mix(out_color, province_border_col, beach_ocean);
+#endif
+
 	// Draw the rivers
 	float river = texture(river_texture, tex_coords).x;
 	river = smoothstep(0.1, 0.65, river) * far_from_map;
@@ -425,8 +419,6 @@ void main() {
 #ifdef LIGHTING
 	light = get_lighting(tex_coords, beach) * 1.0;
 #endif
-
-	f_frag_color.rgb = light * out_color;
-	f_frag_color.rgb = pow(f_frag_color.rgb, vec3(1. / 2.2)); // SRGB -> RGB
+	f_frag_color.rgb = pow(light * out_color, vec3(1.0 / 2.2)); // SRGB -> RGB
 	f_frag_color.a = 1.0;
 }

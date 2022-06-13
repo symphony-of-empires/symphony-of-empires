@@ -48,6 +48,5 @@ vec4 get_lighting() {
 
 void main() {
     vec4 tex_color = get_lighting();
-    //tex_color = mix(tex_color, diffuse_color, texture(diffuse_map, v_texcoord));
     f_color = tex_color;
 }
