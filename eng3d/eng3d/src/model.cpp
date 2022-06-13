@@ -55,12 +55,7 @@ Eng3D::SimpleModel::SimpleModel(enum Eng3D::MeshMode _mode)
 void Eng3D::SimpleModel::draw(const Eng3D::OpenGL::Program& shader) const {
     // Change color if material wants it
     if(material != nullptr) {
-        if(material->diffuse_map != nullptr) {
-            shader.set_texture(0, "diffuse_map", *material->diffuse_map);
-        } else {
-            auto white_tex = Eng3D::State::get_instance().tex_man->get_white();
-            shader.set_texture(0, "diffuse_map", *white_tex.get());
-        }
+        shader.set_texture(0, "diffuse_map", *material->diffuse_map);
         shader.set_uniform("ambient_color", material->ambient_color);
         shader.set_uniform("diffuse_color", material->diffuse_color);
     } else {
@@ -71,18 +66,50 @@ void Eng3D::SimpleModel::draw(const Eng3D::OpenGL::Program& shader) const {
     }
 
     vao.bind();
-    glDrawArrays(static_cast<GLenum>(mode), 0, buffer.size());
+    if(!indices.empty()) {
+        glDrawElements(static_cast<GLenum>(mode), indices.size(), GL_UNSIGNED_INT, 0);
+    } else if(!buffer.empty()) {
+        glDrawArrays(static_cast<GLenum>(mode), 0, buffer.size());
+    }
 }
 
 //
 // Model
 //
+static inline std::shared_ptr<Eng3D::Texture> get_material_texture(const aiMaterial& material, aiTextureType type) {
+    auto& s = Eng3D::State::get_instance();
+    for(size_t i = 0; i < material.GetTextureCount(type); i++) {
+        aiString str;
+        material.GetTexture(type, i, &str);
+        return s.tex_man->load(s.package_man->get_unique(str.C_Str()));
+    }
+    return s.tex_man->get_white();
+}
+
 Eng3D::SimpleModel Eng3D::Model::process_simple_model(aiMesh& mesh, const aiScene& scene) {
     Eng3D::SimpleModel simple_model = Eng3D::SimpleModel(Eng3D::MeshMode::TRIANGLES);
+    auto& s = Eng3D::State::get_instance();
 
     simple_model.buffer.resize(mesh.mNumVertices);
+    glm::vec3 max_vert = glm::vec3(0.00001f, 0.00001f, 0.00001f);
     for(size_t i = 0; i < mesh.mNumVertices; i++) {
         auto vertice = glm::vec3(mesh.mVertices[i].x, mesh.mVertices[i].y, mesh.mVertices[i].z);
+        if(std::abs(vertice.x) > std::abs(max_vert.x)) {
+            max_vert.x = vertice.x;   
+        } else if(std::abs(vertice.y) > std::abs(max_vert.y)) {
+            max_vert.y = vertice.y;   
+        } else if(std::abs(vertice.z) > std::abs(max_vert.z)) {
+            max_vert.z = vertice.z;   
+        }
+    }
+
+    // Use the reciprocal for using mutliply instead of fucking division
+    max_vert.x = 1.f / max_vert.x;
+    max_vert.y = 1.f / max_vert.y;
+    max_vert.z = 1.f / max_vert.z;
+
+    for(size_t i = 0; i < mesh.mNumVertices; i++) {
+        auto vertice = glm::vec3(mesh.mVertices[i].x * max_vert.x, mesh.mVertices[i].y * max_vert.y, mesh.mVertices[i].z * max_vert.z);
         auto texcoord = glm::vec2(0.f, 0.f);
         if(mesh.mTextureCoords[0])
             texcoord = glm::vec2(mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y);
@@ -94,6 +121,15 @@ Eng3D::SimpleModel Eng3D::Model::process_simple_model(aiMesh& mesh, const aiScen
         for(size_t j = 0; j < face.mNumIndices; j++)
             simple_model.indices.push_back(face.mIndices[j]);
     }
+
+    auto& material = *scene.mMaterials[mesh.mMaterialIndex];
+
+    simple_model.material = s.material_man->load(material.GetName().C_Str());
+    simple_model.material->diffuse_map = get_material_texture(material, aiTextureType_DIFFUSE);
+    simple_model.material->specular_map = get_material_texture(material, aiTextureType_SPECULAR);
+    simple_model.material->ambient_map = get_material_texture(material, aiTextureType_AMBIENT);
+    simple_model.material->height_map = get_material_texture(material, aiTextureType_HEIGHT);
+    simple_model.material->occlussion_map = get_material_texture(material, aiTextureType_AMBIENT_OCCLUSION);
 
     simple_model.upload();
     return simple_model;

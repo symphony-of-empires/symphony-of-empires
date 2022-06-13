@@ -37,8 +37,11 @@ namespace Eng3D {
     /// A definition for a surface/color/texture to be applied to a model
     class Material {
     public:
-        Material();
-        ~Material();
+        Material() {};
+        ~Material() {};
+        Material(const Material&) = default;
+        Material(Material&&) noexcept = default;
+        Material& operator=(const Material&) = default;
 
         glm::vec3 color;
         float specular_exp;
@@ -59,11 +62,10 @@ namespace Eng3D {
 
     class MaterialManager {
     private:
-        std::map<std::string, Material*> materials;
+        std::map<std::string, std::shared_ptr<Eng3D::Material>> materials;
     public:
-        MaterialManager();
-        ~MaterialManager();
-        std::vector<std::pair<Material*, std::string>> load_wavefront(const std::string& path, const std::string& model_name);
-        const Material* load(const std::string& path);
+        MaterialManager() {};
+        ~MaterialManager() {};
+        const std::shared_ptr<Eng3D::Material> load(const std::string& name);
     };
 }
