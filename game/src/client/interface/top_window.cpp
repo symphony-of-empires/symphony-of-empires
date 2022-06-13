@@ -110,18 +110,19 @@ TopWindow::TopWindow(GameState& _gs)
 
     auto* load_ibtn = new UI::Image(9, 275, 25, 25, "gfx/top_bar/save.png", flex_column);
     load_ibtn->set_on_click([this](UI::Widget&) {
+        const auto nation_id = this->gs.curr_nation->get_id();
+        
         delete this->gs.world;
         this->gs.world = new World();
-        this->gs.world->load_initial();
-        this->gs.world->load_mod();
-        this->gs.curr_nation = &this->gs.world->nations[0];
-
         Archive ar = Archive();
         ar.from_file("default.sc4");
         ::deserialize(ar, this->gs.world);
+        this->gs.world->load_mod();
+
+        this->gs.curr_nation = &this->gs.world->nations[nation_id];
         this->gs.ui_ctx->prompt("Loaded", "Loaded savefile");
     });
-    load_ibtn->set_tooltip("Load this savefule");
+    load_ibtn->set_tooltip("Load this savefile");
 
     auto* exit_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/exit.png", flex_column);
     exit_ibtn->set_on_click([this](UI::Widget& w) {

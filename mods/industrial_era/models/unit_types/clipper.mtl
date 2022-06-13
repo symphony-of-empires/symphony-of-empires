@@ -20,7 +20,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.013
 Ns 225.000000
@@ -31,7 +31,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.014
 Ns 225.000000
@@ -42,7 +42,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.015
 Ns 225.000000
@@ -53,7 +53,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.019
 Ns 225.000000
@@ -64,7 +64,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.020
 Ns 225.000000
@@ -75,7 +75,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.021
 Ns 225.000000
@@ -86,7 +86,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.022
 Ns 225.000000
@@ -97,7 +97,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.023
 Ns 225.000000
@@ -108,7 +108,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.027
 Ns 225.000000
@@ -119,7 +119,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.028
 Ns 225.000000
@@ -130,7 +130,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.038
 Ns 225.000000
@@ -141,7 +141,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.039
 Ns 225.000000
@@ -152,7 +152,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.040
 Ns 225.000000
@@ -163,7 +163,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.059
 Ns 225.000000
@@ -174,7 +174,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.060
 Ns 225.000000
@@ -185,7 +185,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.061
 Ns 225.000000
@@ -196,7 +196,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.062
 Ns 225.000000
@@ -207,7 +207,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.063
 Ns 225.000000
@@ -218,7 +218,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.064
 Ns 225.000000
@@ -229,7 +229,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.065
 Ns 225.000000
@@ -240,7 +240,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.066
 Ns 225.000000
@@ -251,7 +251,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.067
 Ns 225.000000
@@ -262,7 +262,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.068
 Ns 225.000000
@@ -273,7 +273,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.069
 Ns 225.000000
@@ -284,7 +284,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.070
 Ns 225.000000
@@ -295,7 +295,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.071
 Ns 225.000000
@@ -306,7 +306,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.072
 Ns 225.000000
@@ -317,7 +317,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.073
 Ns 225.000000
@@ -328,7 +328,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.074
 Ns 225.000000
@@ -339,7 +339,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.075
 Ns 225.000000
@@ -350,7 +350,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl Material.076
 Ns 225.000000
@@ -361,7 +361,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd .
+map_Kd whitehouse.png
 
 newmtl None
 Ns 500
