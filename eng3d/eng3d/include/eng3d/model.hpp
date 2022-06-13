@@ -35,6 +35,8 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 #include "eng3d/mesh.hpp"
 #include "eng3d/io.hpp"
@@ -69,15 +71,19 @@ namespace Eng3D {
         Model(const Model&) = default;
         Model(Model&&) noexcept = default;
         Model& operator=(const Model&) = default;
-        virtual void draw(const Eng3D::OpenGL::Program& shader) const;
+        virtual void draw(const Eng3D::OpenGL::Program& shader) const {
+            for(auto& model : simple_models)
+                model.draw(shader);
+        }
 
-        std::vector<const Eng3D::SimpleModel*> simple_models;
+        Eng3D::SimpleModel process_simple_model(aiMesh& mesh, const aiScene& scene);
+        void process_node(aiNode& node, const aiScene& scene);
+
+        std::vector<Eng3D::SimpleModel> simple_models;
     };
 
     class ModelManager {
         std::map<std::string, std::shared_ptr<Eng3D::Model>> models;
-        Eng3D::Model load_wavefront(const std::string& path);
-        Eng3D::Model load_stl(const std::string& path);
     public:
         ~ModelManager() {};
         std::shared_ptr<Eng3D::Model> load(const std::string& path);

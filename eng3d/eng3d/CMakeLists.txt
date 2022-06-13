@@ -40,7 +40,7 @@ ELSEIF(UNIX)
 ELSE()
 
 ENDIF()
-target_link_libraries(eng3d PUBLIC SDL2 SDL2_ttf z tbb)
+target_link_libraries(eng3d PUBLIC SDL2 SDL2_ttf z tbb assimp)
 
 # Find pthreads
 find_package(Threads)

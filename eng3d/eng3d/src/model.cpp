@@ -29,6 +29,10 @@
 #include <vector>
 #include <iterator>
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 #include "eng3d/model.hpp"
 #include "eng3d/shader.hpp"
 #include "eng3d/path.hpp"
@@ -38,36 +42,6 @@
 #include "eng3d/state.hpp"
 #include "eng3d/utils.hpp"
 #include "eng3d/log.hpp"
-
-//
-// VAO
-//
-Eng3D::OpenGL::VAO::VAO() {
-    glGenVertexArrays(1, &id);
-}
-
-Eng3D::OpenGL::VAO::~VAO() {
-    glDeleteVertexArrays(1, &id);
-}
-
-void Eng3D::OpenGL::VAO::bind() const {
-    glBindVertexArray(id);
-}
-
-//
-// VBO
-//
-Eng3D::OpenGL::VBO::VBO() {
-    glGenBuffers(1, &id);
-}
-
-Eng3D::OpenGL::VBO::~VBO() {
-    glDeleteBuffers(1, &id);
-}
-
-void Eng3D::OpenGL::VBO::bind(GLenum target) const {
-    glBindBuffer(target, id);
-}
 
 //
 // Simple model
@@ -103,196 +77,37 @@ void Eng3D::SimpleModel::draw(const Eng3D::OpenGL::Program& shader) const {
 //
 // Model
 //
-void Eng3D::Model::draw(const Eng3D::OpenGL::Program& shader) const {
-    for(auto& model : simple_models)
-        model->draw(shader);
+Eng3D::SimpleModel Eng3D::Model::process_simple_model(aiMesh& mesh, const aiScene& scene) {
+    Eng3D::SimpleModel simple_model = Eng3D::SimpleModel(Eng3D::MeshMode::TRIANGLES);
+
+    simple_model.buffer.resize(mesh.mNumVertices);
+    for(size_t i = 0; i < mesh.mNumVertices; i++) {
+        auto vertice = glm::vec3(mesh.mVertices[i].x, mesh.mVertices[i].y, mesh.mVertices[i].z);
+        auto texcoord = glm::vec2(0.f, 0.f);
+        if(mesh.mTextureCoords[0])
+            texcoord = glm::vec2(mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y);
+        simple_model.buffer[i] = Eng3D::MeshData<glm::vec3, glm::vec2>(vertice, texcoord);
+    }
+
+    for(size_t i = 0; i < mesh.mNumFaces; i++) {
+        auto& face = mesh.mFaces[i];
+        for(size_t j = 0; j < face.mNumIndices; j++)
+            simple_model.indices.push_back(face.mIndices[j]);
+    }
+
+    simple_model.upload();
+    return simple_model;
 }
 
-Eng3D::Model Eng3D::ModelManager::load_wavefront(const std::string& path) {
-    class WavefrontFace {
-    public:
-        // Indexes to the actual points
-        std::vector<int> vertices, texcoords, normals;
-    };
-
-    class WavefrontObj {
-    public:
-        WavefrontObj(const std::string& _name) : name(_name) {};
-        std::string name;
-        std::vector<WavefrontFace> faces;
-        const Eng3D::Material* material = nullptr;
-    };
-
-    std::ifstream file(path);
-    std::string line;
-
-    // Recollect all data from the .OBJ file
-    std::vector<glm::vec3> vertices, normals;
-    std::vector<glm::vec2> texcoords;
-
-    std::vector<WavefrontObj> objects;
-    objects.push_back(WavefrontObj("default"));
-    while(std::getline(file, line)) {
-        // Skip whitespace
-        const size_t len = line.find_first_not_of(" \t");
-        if(len != std::string::npos)
-            line = line.substr(len, line.length() - len);
-
-        // Comment
-        if(line[0] == '#' || line.empty()) continue;
-
-        std::istringstream sline(line);
-        std::string cmd;
-        sline >> cmd;
-        if(cmd == "mtllib") {
-            std::string name;
-            sline >> name;
-            auto asset = Eng3D::State::get_instance().package_man->get_unique("models/" + name);
-            if(asset.get() != nullptr)
-                Eng3D::State::get_instance().material_man->load_wavefront(asset->abs_path, path);
-        } else if(cmd == "usemtl") {
-            std::string name = path;
-            sline >> name;
-            objects.back().material = Eng3D::State::get_instance().material_man->load(path + "-" + name);
-        } else if(cmd == "o") {
-            std::string name;
-            sline >> name;
-            objects.push_back(WavefrontObj(name));
-        } else if(cmd == "v") {
-            glm::vec3 vert;
-            sline >> vert.x >> vert.y >> vert.z;
-            vertices.push_back(vert);
-        } else if(cmd == "vt") {
-            glm::vec2 tex;
-            sline >> tex.x >> tex.y;
-            texcoords.push_back(tex);
-        } else if(cmd == "vn") {
-            glm::vec3 norm;
-            sline >> norm.x >> norm.y >> norm.z;
-            normals.push_back(norm);
-        } else if(cmd == "f") {
-            WavefrontFace face = WavefrontFace();
-            while(sline.peek() != -1) {
-                // Assemble faces - allowing for any number of vertices
-                // (and respecting the optional-ity of vt and vn fields)
-                int value;
-                // Vertices
-                sline >> value;
-                face.vertices.push_back(value);
-
-                char ch = sline.peek();
-                if(ch == '/') {
-                    sline >> ch;
-
-                    // Texcoords
-                    sline >> value;
-                    face.texcoords.push_back(value);
-
-                    ch = sline.peek();
-                    if(ch == '/') {
-                        sline >> ch;
-
-                        // Normals
-                        sline >> value;
-                        face.normals.push_back(value);
-
-                        ch = sline.peek();
-                        if(ch == '/') {
-                            Eng3D::Log::error("model", "Invalid face declaration");
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if(face.vertices.size() < 3) {
-                Eng3D::Log::error("model", "Cannot create polygon - malformed face?");
-            } else {
-                objects.back().faces.push_back(face);
-            }
-        } else if(cmd == "s") {
-            std::string light_mode;
-            sline >> light_mode;
-            if(light_mode != "off")
-                Eng3D::Log::error("model", "No light mode " + light_mode);
-        } else {
-            Eng3D::Log::error("model", "No command " + cmd);
-        }
+void Eng3D::Model::process_node(aiNode& node, const aiScene& scene) {
+    // process all thehis-> node's meshes (if any)
+    for(size_t i = 0; i < node.mNumMeshes; i++) {
+        auto& mesh = *scene.mMeshes[node.mMeshes[i]];
+        this->simple_models.push_back(this->process_simple_model(mesh, scene));
     }
-
-    // Convert objects into (Eng3D) simple objects so we can now use them
-    Eng3D::Model final_model{};
-    for(auto obj = objects.cbegin(); obj != objects.cend(); obj++) {
-        // Fill up the trigonometric buffers, we will first read all the faces and make them separate
-        std::vector<std::vector<Eng3D::MeshData<glm::vec3, glm::vec2>>> clusters{};
-        for(auto face = (*obj).faces.cbegin(); face != (*obj).faces.cend(); face++) {
-            std::vector<Eng3D::MeshData<glm::vec3, glm::vec2>> cluster{};
-            // The faces dictate indices for the vertices and we will also subtract 1 because the indexing is 0 based
-            if((*face).vertices.size() == (*face).texcoords.size()) {
-                for(size_t i = 0; i < (*face).vertices.size(); i++) {
-                    cluster.push_back(Eng3D::MeshData<glm::vec3, glm::vec2>(
-                        glm::vec3(vertices[(*face).vertices[i] - 1]),
-                        glm::vec2(texcoords[(*face).texcoords[i] - 1])
-                    ));
-                }
-            } else {
-                for(size_t i = 0; i < (*face).vertices.size(); i++) {
-                    cluster.push_back(Eng3D::MeshData<glm::vec3, glm::vec2>(
-                        glm::vec3(vertices[(*face).vertices[i] - 1]),
-                        glm::vec2(0.f, 0.f)
-                    ));
-                }
-            }
-            clusters.push_back(cluster);
-        }
-
-        /// @todo This can be optimized even more
-
-        // Now it's time to merge it all into a single mesh
-
-        // It's time to merge clusters which share triangle nodes, in such case we reorganize the triangles so they
-        // are to "follow" the triangle fan
-        for(auto cluster = clusters.cbegin(); cluster != clusters.cend(); cluster++) {
-            Eng3D::SimpleModel* model = new Eng3D::SimpleModel(Eng3D::MeshMode::TRIANGLE_FAN);
-            for(auto v1 = (*cluster).cbegin(); v1 != (*cluster).cend(); v1++)
-                model->buffer.push_back(*v1);
-            model->material = (*obj).material;
-            model->upload();
-            final_model.simple_models.push_back(model);
-        }
-    }
-    return final_model;
-}
-
-Eng3D::Model Eng3D::ModelManager::load_stl(const std::string& path) {
-    std::ifstream file(path, std::ios::binary);
-    std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(file), {});
-
-    Eng3D::Model final_model{};
-    Eng3D::SimpleModel* model = new Eng3D::SimpleModel(Eng3D::MeshMode::TRIANGLES);
-
-    /// @todo This needs more work
-    // 1. we need little endian reading
-    uint32_t n_triangles;
-    std::memcpy(&n_triangles, &buffer[80], sizeof(uint32_t));
-
-    for(uint32_t i = 0; i < n_triangles; i++) {
-        glm::vec3 vert;
-        /// @todo We need to guarantee 2 things:
-        // 1. that the floating point is 32-bits
-        // 2. little endian
-        // 3. ieee787 floating point
-        memcpy(&vert.x, &buffer[84 + i * (sizeof(float) * 3)], sizeof(float));
-        memcpy(&vert.y, &buffer[88 + i * (sizeof(float) * 3)], sizeof(float));
-        memcpy(&vert.z, &buffer[92 + i * (sizeof(float) * 3)], sizeof(float));
-        model->buffer.push_back(Eng3D::MeshData<glm::vec3, glm::vec2>(
-            glm::vec3(vert),
-            glm::vec2(0.f, 0.f)
-        ));
-    }
-
-    final_model.simple_models.push_back(model);
-    return final_model;
+    // then do the same for each of its children
+    for(size_t i = 0; i < node.mNumChildren; i++)
+        this->process_node(*node.mChildren[i], scene);
 }
 
 std::shared_ptr<Eng3D::Model> Eng3D::ModelManager::load(const std::string& path) {
@@ -304,13 +119,17 @@ std::shared_ptr<Eng3D::Model> Eng3D::ModelManager::load(const std::string& path)
     std::shared_ptr<Eng3D::Model> model;
     try {
         /// @todo This is too horrible, we need a better solution
-        if(path.length() > 3 && path[path.length() - 3] == 's' && path[path.length() - 2] == 't' && path[path.length() - 1] == 'l')
-            model = std::make_shared<Eng3D::Model>(load_stl(path));
-        else
-            model = std::make_shared<Eng3D::Model>(load_wavefront(path));
-    } catch(std::ifstream::failure& e) {
+        // model =
+        Assimp::Importer importer;
+        const auto* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+        if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || scene->mRootNode == nullptr)
+            CXX_THROW(std::runtime_error, importer.GetErrorString());
+
+        model = std::make_shared<Eng3D::Model>(Eng3D::Model());
+        model->process_node(*scene->mRootNode, *scene);
+    } catch(std::runtime_error& e) {
         // Make a dummy model
-        model = std::make_shared<Eng3D::Model>(Eng3D::Model());   
+        model = std::make_shared<Eng3D::Model>(Eng3D::Model());
     }
     models[path] = model;
     return model;

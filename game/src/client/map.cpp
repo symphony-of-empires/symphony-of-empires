@@ -580,9 +580,6 @@ void Map::draw(const GameState& gs) {
             }
             model = glm::rotate(model, wind_osc, glm::vec3(1.f, 0.f, 0.f));
             obj_shader->set_uniform("model", model);
-
-            // Model
-            obj_shader->set_uniform("model", model);
             unit_type_models[world.get_id(*unit.type)]->draw(*obj_shader);
         }
     }
