@@ -54,24 +54,19 @@ Eng3D::SimpleModel::SimpleModel(enum Eng3D::MeshMode _mode)
 
 void Eng3D::SimpleModel::draw(const Eng3D::OpenGL::Program& shader) const {
     // Change color if material wants it
-    if(material.get() != nullptr) {
-        shader.set_texture(0, "diffuse_map", *material->diffuse_map);
-        shader.set_texture(1, "ambient_map", *material->ambient_map);
-        shader.set_texture(2, "occlussion_map", *material->occlussion_map);
-        shader.set_texture(3, "height_map", *material->height_map);
-        shader.set_texture(4, "specular_map", *material->specular_map);
-        shader.set_uniform("ambient_color", material->ambient_color);
-        shader.set_uniform("diffuse_color", material->diffuse_color);
-    } else {
-        auto white_tex = Eng3D::State::get_instance().tex_man->get_white();
-        shader.set_texture(0, "diffuse_map", *white_tex.get());
-        shader.set_texture(1, "ambient_map", *white_tex.get());
-        shader.set_texture(2, "occlussion_map", *white_tex.get());
-        shader.set_texture(3, "height_map", *white_tex.get());
-        shader.set_texture(4, "specular_map", *white_tex.get());
-        shader.set_uniform("ambient_color", glm::vec4(1.f));
-        shader.set_uniform("diffuse_color", glm::vec4(1.f));
-    }
+    shader.set_texture(0, "diffuse_map", *material->diffuse_map);
+    shader.set_uniform("diffuse_color", material->diffuse_color);
+
+    shader.set_texture(1, "ambient_map", *material->ambient_map);
+    shader.set_uniform("ambient_color", material->ambient_color);
+    
+    shader.set_texture(2, "occlussion_map", *material->occlussion_map);
+    shader.set_texture(3, "height_map", *material->height_map);
+    
+    shader.set_texture(4, "specular_map", *material->specular_map);
+    shader.set_uniform("specular_color", material->specular_color);
+
+    shader.set_texture(5, "normal_map", *material->normal_map);
 
     vao.bind();
     if(!indices.empty()) {
@@ -90,7 +85,8 @@ static inline std::shared_ptr<Eng3D::Texture> get_material_texture(const aiMater
         aiString str;
         material.GetTexture(type, i, &str);
         Eng3D::Log::debug("assimp", std::string() + "Loading texture for material " + str.C_Str());
-        return s.tex_man->load(s.package_man->get_unique(str.C_Str()));
+        std::string path = std::string("gfx/") + str.C_Str();
+        return s.tex_man->load(s.package_man->get_unique(path));
     }
     return s.tex_man->get_white();
 }
@@ -99,26 +95,9 @@ Eng3D::SimpleModel Eng3D::Model::process_simple_model(aiMesh& mesh, const aiScen
     Eng3D::SimpleModel simple_model = Eng3D::SimpleModel(Eng3D::MeshMode::TRIANGLES);
     auto& s = Eng3D::State::get_instance();
 
-    glm::vec3 max_vert = glm::vec3(0.00001f, 0.00001f, 0.00001f);
-    for(size_t i = 0; i < mesh.mNumVertices; i++) {
-        auto vertice = glm::vec3(mesh.mVertices[i].x, mesh.mVertices[i].y, mesh.mVertices[i].z);
-        if(std::abs(vertice.x) > std::abs(max_vert.x)) {
-            max_vert.x = vertice.x;   
-        } else if(std::abs(vertice.y) > std::abs(max_vert.y)) {
-            max_vert.y = vertice.y;   
-        } else if(std::abs(vertice.z) > std::abs(max_vert.z)) {
-            max_vert.z = vertice.z;   
-        }
-    }
-
-    // Use the reciprocal for using mutliply instead of fucking division
-    max_vert.x = 1.f / max_vert.x;
-    max_vert.y = 1.f / max_vert.y;
-    max_vert.z = 1.f / max_vert.z;
-
     simple_model.buffer.resize(mesh.mNumVertices);
     for(size_t i = 0; i < mesh.mNumVertices; i++) {
-        auto vertice = glm::vec3(mesh.mVertices[i].x * max_vert.x, mesh.mVertices[i].y * max_vert.y, mesh.mVertices[i].z * max_vert.z);
+        auto vertice = glm::vec3(mesh.mVertices[i].x, mesh.mVertices[i].y, mesh.mVertices[i].z);
         auto texcoord = glm::vec2(0.f, 0.f);
         if(mesh.mTextureCoords[0])
             texcoord = glm::vec2(mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y);
@@ -134,12 +113,25 @@ Eng3D::SimpleModel Eng3D::Model::process_simple_model(aiMesh& mesh, const aiScen
 
     auto& material = *scene.mMaterials[mesh.mMaterialIndex];
 
+    // Textures
     simple_model.material = s.material_man->load(material.GetName().C_Str());
     simple_model.material->diffuse_map = get_material_texture(material, aiTextureType_DIFFUSE);
     simple_model.material->specular_map = get_material_texture(material, aiTextureType_SPECULAR);
     simple_model.material->ambient_map = get_material_texture(material, aiTextureType_AMBIENT);
     simple_model.material->height_map = get_material_texture(material, aiTextureType_HEIGHT);
     simple_model.material->occlussion_map = get_material_texture(material, aiTextureType_AMBIENT_OCCLUSION);
+    simple_model.material->normal_map = get_material_texture(material, aiTextureType_NORMALS);
+
+    // Colors
+    aiColor4D diffuse;
+    if(AI_SUCCESS == aiGetMaterialColor(&material, AI_MATKEY_COLOR_DIFFUSE, &diffuse))
+        simple_model.material->diffuse_color = glm::vec4(diffuse.r, diffuse.g, diffuse.b, diffuse.a);
+    aiColor4D specular;
+    if(AI_SUCCESS == aiGetMaterialColor(&material, AI_MATKEY_COLOR_SPECULAR, &specular))
+        simple_model.material->specular_color = glm::vec4(specular.r, specular.g, specular.b, specular.a);
+    aiColor4D ambient;
+    if(AI_SUCCESS == aiGetMaterialColor(&material, AI_MATKEY_COLOR_AMBIENT, &ambient))
+        simple_model.material->ambient_color = glm::vec4(ambient.r, ambient.g, ambient.b, ambient.a);
 
     simple_model.upload();
     return simple_model;

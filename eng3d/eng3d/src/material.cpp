@@ -43,6 +43,8 @@ const std::shared_ptr<Eng3D::Material> Eng3D::MaterialManager::load(const std::s
         return it->second;
 
     Eng3D::Log::error("material", name + " not found");
-    materials[name] = std::make_shared<Eng3D::Material>();
+    std::shared_ptr<Eng3D::Material> material;
+    material = std::make_shared<Eng3D::Material>(Eng3D::Material());
+    materials[name] = material;
     return materials[name];
 }

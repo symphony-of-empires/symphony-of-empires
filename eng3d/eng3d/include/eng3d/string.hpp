@@ -108,13 +108,8 @@ namespace Eng3D {
     class StringManager {
         std::vector<std::string> strings;
     public:
-        StringManager() {
-
-        }
-
-        ~StringManager() {
-
-        }
+        StringManager() {};
+        ~StringManager() {};
         
         inline Eng3D::StringRef insert(const std::string& str) {
             std::scoped_lock lock(this->strings_mutex);

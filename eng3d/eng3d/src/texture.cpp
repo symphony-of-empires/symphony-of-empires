@@ -334,11 +334,7 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::get_white() {
     return std::shared_ptr<Eng3D::Texture>(white);
 }
 
-Eng3D::TextureManager::~TextureManager() {
-    textures.clear();
-}
 
-//
 // Finds a texture in the list of a texture manager
 // if the texture is already in the list we load the saved texture from the list
 // instead of loading it from the disk.
@@ -349,7 +345,6 @@ Eng3D::TextureManager::~TextureManager() {
 // and program should not modify the contents of it since it will differ from the texture
 // on the disk, and our main point is to mirror loaded textures from the disk - not modify
 // them.
-//
 std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(const std::string& path, TextureOptions options) {
     // Find texture when wanting to be loaded and load texture from cached texture list
     auto key = std::make_pair(path, options);
