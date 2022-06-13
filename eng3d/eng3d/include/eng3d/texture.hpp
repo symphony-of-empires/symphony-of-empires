@@ -168,7 +168,8 @@ namespace Eng3D {
         std::unordered_map<std::pair<std::string, TextureOptions>, std::shared_ptr<Eng3D::Texture>, TextureMapHash> textures;
         std::shared_ptr<Eng3D::Texture> white = nullptr;
     public:
-        ~TextureManager();
+        TextureManager() {};
+        ~TextureManager() {};
         std::shared_ptr<Texture> load(const std::string& path, TextureOptions options = default_options);
         std::shared_ptr<Texture> load(std::shared_ptr<Eng3D::IO::Asset::Base> asset, TextureOptions options = default_options);
         std::shared_ptr<Texture> get_white();

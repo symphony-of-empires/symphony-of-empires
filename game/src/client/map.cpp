@@ -500,7 +500,7 @@ void Map::update_mapmode() {
 void Map::draw(const GameState& gs) {
     map_render->draw(camera, view_mode);
     // rivers->draw(camera);
-    //borders->draw(camera);
+    // borders->draw(camera);
 
     /// @todo We need to better this
     obj_shader->use();
@@ -578,7 +578,7 @@ void Map::draw(const GameState& gs) {
                 obj_shader->set_uniform("model", line_model);
                 line_square.draw();
             }
-            model = glm::rotate(model, wind_osc, glm::vec3(1.f, 0.f, 0.f));
+            model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
             obj_shader->set_uniform("model", model);
             unit_type_models[world.get_id(*unit.type)]->draw(*obj_shader);
         }
@@ -600,7 +600,7 @@ void Map::draw(const GameState& gs) {
             if(!province.buildings[world.get_id(building_type)].level) continue;
             glm::vec2 pos = prov_pos;
             glm::mat4 model = glm::translate(base_model, glm::vec3(pos.x, pos.y, 0.f));
-            model = glm::rotate(model, wind_osc, glm::vec3(1.f, 0.f, 0.f));
+            model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
             obj_shader->set_uniform("model", model);
             building_type_models[world.get_id(building_type)]->draw(*obj_shader);
             break;
