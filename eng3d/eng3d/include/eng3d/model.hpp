@@ -59,8 +59,8 @@ namespace Eng3D {
         SimpleModel(SimpleModel&&) noexcept = default;
         SimpleModel& operator=(const SimpleModel&) = default;
         virtual void draw(const Eng3D::OpenGL::Program& shader) const;
-
-        const Material* material = nullptr;
+        
+        std::shared_ptr<Eng3D::Material> material;
     };
 
     // A complex object being composed by many simple objects

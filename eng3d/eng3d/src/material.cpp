@@ -35,105 +35,14 @@
 #include "eng3d/log.hpp"
 
 //
-// Material
-//
-Eng3D::Material::Material() {
-
-}
-
-Eng3D::Material::~Material() {
-
-}
-
-//
 // Material manager
 //
-Eng3D::MaterialManager::MaterialManager() {
+const std::shared_ptr<Eng3D::Material> Eng3D::MaterialManager::load(const std::string& name) {
+    auto it = materials.find(name);
+    if(it != materials.end())
+        return it->second;
 
-}
-
-Eng3D::MaterialManager::~MaterialManager() {
-    for(const auto& material : materials) {
-        delete material.second;
-    }
-    materials.clear();
-}
-
-std::vector<std::pair<Eng3D::Material*, std::string>> Eng3D::MaterialManager::load_wavefront(const std::string& path, const std::string& model_name) {
-    std::ifstream file(path);
-    std::string line;
-
-    Eng3D::Log::debug("material", "Loading " + path);
-
-    std::vector<std::pair<Eng3D::Material*, std::string>> tmp_mat;
-    Eng3D::Material* curr_mat = nullptr;
-    while(std::getline(file, line)) {
-        // Skip whitespace
-        size_t len = line.find_first_not_of(" \t");
-        if(len != std::string::npos) {
-            line = line.substr(len, line.length() - len);
-        }
-
-        // Comment
-        if(line[0] == '#' || line.empty()) {
-            continue;
-        }
-
-        std::istringstream sline(line);
-        std::string cmd;
-        sline >> cmd;
-        if(cmd != "newmtl" && curr_mat == nullptr) {
-            continue;
-        }
-
-        if(cmd == "newmtl") {
-            std::string name;
-            sline >> name;
-            curr_mat = new Eng3D::Material();
-            tmp_mat.push_back(std::make_pair(curr_mat, model_name + "-" + name));
-        } else if(cmd == "Ka") {
-            glm::vec3 color;
-            sline >> color.x >> color.y >> color.z;
-            curr_mat->ambient_color = glm::vec4(color, 1.f);
-        } else if(cmd == "Kd") {
-            glm::vec3 color;
-            sline >> color.x >> color.y >> color.z;
-            curr_mat->diffuse_color = glm::vec4(color, 1.f);
-        } else if(cmd == "Ks") {
-            glm::vec3 color;
-            sline >> color.x >> color.y >> color.z;
-            curr_mat->specular_color = glm::vec4(color, 1.f);
-        } else if(cmd == "Ns") {
-            sline >> curr_mat->specular_exp;
-        } else if(cmd == "Ni") {
-            sline >> curr_mat->optical_density;
-        } else if(cmd == "map_Kd") {
-            std::string map_path;
-            sline >> map_path;
-
-            if(map_path[0] == '.') {
-                continue;
-            }
-            curr_mat->diffuse_map = Eng3D::State::get_instance().tex_man->load(Eng3D::State::get_instance().package_man->get_unique("gfx/" + map_path));
-        } else {
-            Eng3D::Log::debug("material", "Command " + cmd + " unknown");
-        }
-    }
-
-    std::vector<std::pair<Eng3D::Material*, std::string>>::const_iterator mat;
-    for(mat = tmp_mat.begin(); mat != tmp_mat.end(); mat++) {
-        materials[(*mat).second] = (*mat).first;
-    }
-    return tmp_mat;
-}
-
-const Eng3D::Material* Eng3D::MaterialManager::load(const std::string& path) {
-    std::map<std::string, Eng3D::Material*>::const_iterator it;
-    it = materials.find(path);
-    if(it != materials.end()) {
-        return ((*it).second);
-    }
-
-    Eng3D::Log::error("material", path + " not found");
-    return nullptr;
+    Eng3D::Log::error("material", name + " not found");
+    materials[name] = std::make_shared<Eng3D::Material>();
+    return materials[name];
 }

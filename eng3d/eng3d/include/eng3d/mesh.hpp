@@ -81,8 +81,8 @@ namespace Eng3D::OpenGL {
         VBO(VBO&&) noexcept = default;
         VBO& operator=(const VBO&) = default;
 
-        inline void bind(GLenum target = GL_ARRAY_BUFFER) const {
-            glBindBuffer(target, id);
+        inline void bind() const {
+            glBindBuffer(GL_ARRAY_BUFFER, id);
         }
 
         inline GLuint get_id() const {
@@ -105,8 +105,8 @@ namespace Eng3D::OpenGL {
         EBO(EBO&&) noexcept = default;
         EBO& operator=(const EBO&) = default;
 
-        inline void bind(GLenum target = GL_ELEMENT_ARRAY_BUFFER) const {
-            glBindBuffer(target, id);
+        inline void bind() const {
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
         }
 
         inline GLuint get_id() const {
@@ -149,7 +149,14 @@ namespace Eng3D {
     template<typename V = glm::vec3, typename T = glm::vec2>
     class Mesh {
     public:
-        Mesh(enum Eng3D::MeshMode _mode) : mode(_mode) {};
+        Mesh(enum Eng3D::MeshMode _mode)
+            : mode(_mode),
+            vao(),
+            vbo(),
+            ebo()
+        {
+
+        }
         virtual ~Mesh() {};
         Mesh(const Mesh&) = default;
         Mesh(Mesh&&) noexcept = default;
@@ -158,7 +165,11 @@ namespace Eng3D {
 #ifdef E3D_BACKEND_OPENGL
         virtual void draw() const {
             vao.bind();
-            glDrawArrays(static_cast<GLenum>(mode), 0, buffer.size());
+            if(!indices.empty()) {
+                glDrawElements(static_cast<GLenum>(mode), indices.size(), GL_UNSIGNED_INT, 0);
+            } else if(!buffer.empty()) {
+                glDrawArrays(static_cast<GLenum>(mode), 0, buffer.size());
+            }
         };
 #else
 #   error not implemented
@@ -171,7 +182,7 @@ namespace Eng3D {
             }
 
             vao.bind();
-            vbo.bind(GL_ARRAY_BUFFER);
+            vbo.bind();
             glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(buffer[0]), &buffer[0], GL_STATIC_DRAW);
             ebo.bind();
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices[0]), &indices[0], GL_STATIC_DRAW);
