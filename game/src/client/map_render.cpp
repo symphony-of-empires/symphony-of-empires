@@ -309,7 +309,7 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
     glEnable(GL_SCISSOR_TEST);
     glViewport(update_area.left, update_area.top, update_area.width(), update_area.height());
     glScissor(update_area.left, update_area.top, update_area.width(), update_area.height());
-    auto border_tex = Eng3D::Texture(world.width, world.height);
+    Eng3D::Texture border_tex(world.width, world.height);
     Eng3D::TextureOptions border_tex_options{};
     border_tex_options.internal_format = GL_RGBA32F;
     border_tex_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;

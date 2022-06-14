@@ -65,6 +65,7 @@ namespace Eng3D {
         State(const std::vector<std::string>& pkg_paths);
         ~State();
         void clear() const;
+        void reload_shaders();
         void swap() const;
         void set_multisamples(int samples) const;
         static void mixaudio(void* userdata, uint8_t* stream, int len);
