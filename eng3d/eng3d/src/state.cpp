@@ -200,9 +200,9 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths) {
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CW);
+    //glEnable(GL_CULL_FACE);
+    //glCullFace(GL_BACK);
+    //glFrontFace(GL_CW);
 
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
@@ -291,19 +291,16 @@ void Eng3D::State::reload_shaders() {
         return std::unique_ptr<Eng3D::OpenGL::VertexShader>(new Eng3D::OpenGL::VertexShader(read_file(file_name)));
     };
 
+    builtin_shaders.clear();
 #ifdef E3D_BACKEND_OPENGL
     // Big library used mostly by every shader, compiled for faster linking or other stuff
     builtin_shaders["fs_lib"] = load_fragment_shader("fs_lib.fs");
-
     // 2D generic fragment shader
     builtin_shaders["fs_2d"] = load_fragment_shader("fs_2d.fs");
-
     // 2D generic vertex shader
     builtin_shaders["vs_2d"] = load_vertex_shader("vs_2d.vs");
-
     // 3D generic fragment shader
     builtin_shaders["fs_3d"] = load_fragment_shader("fs_3d.fs");
-
     // 3D generic vertex shader
     builtin_shaders["vs_3d"] = load_vertex_shader("vs_3d.vs");
     builtin_shaders["vs_font_sdf"] = load_vertex_shader("vs_font_sdf.vs");

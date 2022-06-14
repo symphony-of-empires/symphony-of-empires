@@ -17,39 +17,12 @@ uniform vec4 ambient_color;
 uniform vec4 diffuse_color;
 uniform vec4 specular_color;
 
-const float far_from_map = 0.f;
-
-vec4 get_lighting() {
-	// The non directional lighting
-	vec3 view_dir = normalize(v_view_pos - vec3(v_texcoord.x, v_texcoord.y, 1.0));
-	vec3 light_dir = normalize(vec3(-2, -1, -4));
-
-	// Get the normal
-	vec3 normal = texture(normal_map, v_texcoord).xyz;
-	normal = normal * 2. - 1.;
-	normal.xy *= mix(0.7, 0.2, far_from_map);
-	normal = normalize(normal);
-	normal.z *= -1;
-
-	// The bump mapping
-	float diffuse = max(dot(light_dir, normal), 0.) * mix(0.6, 1., far_from_map);
-
-	// The shiny directional light
-	float shininess = mix(256, 64, far_from_map);
-	float specular_strength = 0.6 * mix(3., 1., far_from_map);
-	vec3 reflect_dir = reflect(-light_dir, normal);  
-	float specular = specular_strength * pow(max(dot(view_dir, reflect_dir), 0.), shininess);
-
-	vec4 final_diffuse_color = texture(diffuse_map, v_texcoord);
-	//vec4 final_specular_color = texture(specular_map, v_texcoord);
-	vec4 final_specular_color = specular_color;
-
-	vec4 light = final_diffuse_color + final_specular_color;	
-	light.a = 1.;
-	return light;
-}
-
 void main() {
-    vec4 tex_color = get_lighting();
+    vec4 tex_color;
+
+	// Final diffusion colour
+	tex_color = texture(diffuse_map, v_texcoord);
+	tex_color.a = 1.;
+
     f_color = tex_color;
 }

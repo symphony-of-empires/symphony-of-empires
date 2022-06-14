@@ -46,11 +46,11 @@ namespace Eng3D {
         glm::vec3 color;
         float specular_exp;
         float optical_density;
-        glm::vec4 diffuse_color;
+        glm::vec4 diffuse_color = glm::vec4(1.f);
         std::shared_ptr<Eng3D::Texture> diffuse_map;
-        glm::vec4 ambient_color;
+        glm::vec4 ambient_color = glm::vec4(1.f);
         std::shared_ptr<Eng3D::Texture> ambient_map;
-        glm::vec4 specular_color;
+        glm::vec4 specular_color = glm::vec4(1.f);
         std::shared_ptr<Eng3D::Texture> specular_map;
         std::shared_ptr<Eng3D::Texture> displacement_map;
         std::shared_ptr<Eng3D::Texture> occlussion_map;
