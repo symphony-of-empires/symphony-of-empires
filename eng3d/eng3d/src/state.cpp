@@ -229,35 +229,7 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths) {
     material_man = new Eng3D::MaterialManager();
     model_man = new Eng3D::ModelManager();
 
-    // Compile built-in shaders
-    const auto read_file = [this](const std::string& file_name) {
-        return this->package_man->get_unique("shaders/" + file_name)->read_all();
-    };
-    const auto load_fragment_shader = [read_file](std::string file_name) {
-        return std::unique_ptr<Eng3D::OpenGL::FragmentShader>(new Eng3D::OpenGL::FragmentShader(read_file(file_name)));
-    };
-    const auto load_vertex_shader = [read_file](std::string file_name) {
-        return std::unique_ptr<Eng3D::OpenGL::VertexShader>(new Eng3D::OpenGL::VertexShader(read_file(file_name)));
-    };
-
-#ifdef E3D_BACKEND_OPENGL
-    // Big library used mostly by every shader, compiled for faster linking or other stuff
-    builtin_shaders["fs_lib"] = load_fragment_shader("fs_lib.fs");
-
-    // 2D generic fragment shader
-    builtin_shaders["fs_2d"] = load_fragment_shader("fs_2d.fs");
-
-    // 2D generic vertex shader
-    builtin_shaders["vs_2d"] = load_vertex_shader("vs_2d.vs");
-
-    // 3D generic fragment shader
-    builtin_shaders["fs_3d"] = load_fragment_shader("fs_3d.fs");
-
-    // 3D generic vertex shader
-    builtin_shaders["vs_3d"] = load_vertex_shader("vs_3d.vs");
-    builtin_shaders["vs_font_sdf"] = load_vertex_shader("vs_font_sdf.vs");
-    builtin_shaders["fs_font_sdf"] = load_fragment_shader("fs_font_sdf.fs");
-#endif
+    this->reload_shaders();
 
     // Plugins system (still wip)
     /*for(const auto& plugin : Path::get_all("plugin.dll")) {
@@ -305,6 +277,38 @@ Eng3D::State::~State() {
     SDL_Quit();
 
     g_state = nullptr;
+}
+
+void Eng3D::State::reload_shaders() {
+    // Compile built-in shaders
+    const auto read_file = [this](const std::string& file_name) {
+        return this->package_man->get_unique("shaders/" + file_name)->read_all();
+    };
+    const auto load_fragment_shader = [read_file](std::string file_name) {
+        return std::unique_ptr<Eng3D::OpenGL::FragmentShader>(new Eng3D::OpenGL::FragmentShader(read_file(file_name)));
+    };
+    const auto load_vertex_shader = [read_file](std::string file_name) {
+        return std::unique_ptr<Eng3D::OpenGL::VertexShader>(new Eng3D::OpenGL::VertexShader(read_file(file_name)));
+    };
+
+#ifdef E3D_BACKEND_OPENGL
+    // Big library used mostly by every shader, compiled for faster linking or other stuff
+    builtin_shaders["fs_lib"] = load_fragment_shader("fs_lib.fs");
+
+    // 2D generic fragment shader
+    builtin_shaders["fs_2d"] = load_fragment_shader("fs_2d.fs");
+
+    // 2D generic vertex shader
+    builtin_shaders["vs_2d"] = load_vertex_shader("vs_2d.vs");
+
+    // 3D generic fragment shader
+    builtin_shaders["fs_3d"] = load_fragment_shader("fs_3d.fs");
+
+    // 3D generic vertex shader
+    builtin_shaders["vs_3d"] = load_vertex_shader("vs_3d.vs");
+    builtin_shaders["vs_font_sdf"] = load_vertex_shader("vs_font_sdf.vs");
+    builtin_shaders["fs_font_sdf"] = load_fragment_shader("fs_font_sdf.fs");
+#endif
 }
 
 void Eng3D::State::clear() const {

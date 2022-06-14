@@ -40,9 +40,12 @@ vec4 get_lighting() {
 	vec3 reflect_dir = reflect(-light_dir, normal);  
 	float specular = specular_strength * pow(max(dot(view_dir, reflect_dir), 0.), shininess);
 
-	vec4 light = mix(vec4(0.), ambient_color, 1.0);
-    light = mix(light, diffuse_color, diffuse);
-    light = mix(light, specular_color, specular);	
+	vec4 final_diffuse_color = texture(diffuse_map, v_texcoord);
+	//vec4 final_specular_color = texture(specular_map, v_texcoord);
+	vec4 final_specular_color = specular_color;
+
+	vec4 light = final_diffuse_color + final_specular_color;	
+	light.a = 1.;
 	return light;
 }
 
