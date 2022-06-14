@@ -577,7 +577,7 @@ void Map::draw(const GameState& gs) {
                 obj_shader->set_uniform("model", line_model);
                 line_square.draw();
             }
-            model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
+            model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
             obj_shader->set_uniform("model", model);
             unit_type_models[world.get_id(*unit.type)]->draw(*obj_shader);
         }
