@@ -430,7 +430,6 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->buildings);
         ::deser_dynamic<is_serialize>(ar, &obj->controller);
         ::deser_dynamic<is_serialize>(ar, &obj->terrain_type);
-        ::deser_dynamic<is_serialize>(ar, &obj->units_ids);
     }
 };
 
