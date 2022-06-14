@@ -363,7 +363,7 @@ void save(GameState& gs) {
                     fprintf(fp.get(), "n_%s:set_capital(province)\n", gs.world->nations[province.owner_id].ref_name.c_str());
             }
             // Units
-            for(const auto unit_id : province.get_units()) {
+            for(const auto unit_id : g_world->unit_manager.get_province_units(province.get_id())) {
                 auto& unit = g_world->unit_manager.units[unit_id];
                 // Units can't exceed max health
                 if(unit.size > unit.type->max_health)

@@ -124,15 +124,15 @@ void militancy_update(World& world, Nation& nation) {
         }
 
         // Nation 0 is always the rebel nation
-        Nation& rebel_nation = g_world->nations[0];
+        Nation& rebel_nation = world.nations[0];
         // Make the most angry provinces revolt!
         std::vector<TreatyClause::BaseClause*> clauses;
         for(auto& province : uprising_provinces) {
             /// @todo We should make a copy of the `rebel` nation for every rebellion!!!
             /// @todo We should also give them an unique ideology!!!
             rebel_nation.control_province(*province);
-            for(const auto unit_id : province->get_units()) {
-                auto& unit = g_world->unit_manager.units[unit_id];
+            for(const auto unit_id : world.unit_manager.get_province_units(province->get_id())) {
+                auto& unit = world.unit_manager.units[unit_id];
                 if(unit.on_battle) continue;
                 unit.owner_id = rebel_nation.get_id();
             }

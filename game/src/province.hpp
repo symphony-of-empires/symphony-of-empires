@@ -78,10 +78,6 @@ public:
         return std::make_pair(box_area.left + ((box_area.right - box_area.left) / 2.f), box_area.top + ((box_area.bottom - box_area.top) / 2.f));
     }
 
-    inline const std::vector<uint16_t>& get_units() const {
-        return units_ids;
-    }
-
     inline const std::vector<Building>& get_buildings() const {
         return buildings;
     }
@@ -107,7 +103,6 @@ public:
     std::vector<Product> products;
     std::vector<Building> buildings;
     std::vector<Battle> battles;
-    std::vector<uint16_t> units_ids;
     std::unordered_set<uint16_t> nuclei; // Nations who have a nuclei in this province
     std::unordered_set<Province::Id> neighbours; // Neighbouring provinces
 

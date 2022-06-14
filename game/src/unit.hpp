@@ -143,7 +143,7 @@ public:
     inline Province::Id get_unit_current_province(Unit::Id unit_id) const {
         return unit_province[unit_id];
     }
-
+    
     // The actual units
     std::vector<Unit> units;
     // The unit slots that are free to use

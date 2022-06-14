@@ -119,7 +119,7 @@ void UnitManager::add_unit(Unit unit, Province::Id unit_current_province) {
         unit_province.push_back(unit_current_province);
     }
     units[id].cached_id = id;
-    if (unit_current_province >= province_units.size()) {
+    if(unit_current_province >= province_units.size()) {
         province_units.resize(unit_current_province + 1);
     }
     province_units[unit_current_province].push_back(id);
@@ -142,3 +142,10 @@ void UnitManager::move_unit(Unit::Id unit_id, Province::Id target_province_id) {
     unit_province[unit_id] = target_province_id;
     province_units[current_province_id].push_back(unit_id);
 }
+
+/*
+- Hi, greetings!
+- Symphony Of Empires is a game were you rule a country in the victorian era
+- You can do whatever you want! But you must keep your nation together by 1935
+- We're in the Netherlands, we have a colony on the Indonesian archipielago
+*/

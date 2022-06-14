@@ -567,7 +567,6 @@ void Map::draw(const GameState& gs) {
         if(!province_units.empty()) {
             const auto& unit = world.unit_manager.units[province_units[0]];
             glm::mat4 model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
-
             if(Province::is_valid(unit.target_province_id)) {
                 const auto& unit_target = world.provinces[unit.target_province_id];
                 const glm::vec2 target_pos = glm::vec2(unit_target.get_pos().first, unit_target.get_pos().second);
