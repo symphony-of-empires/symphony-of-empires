@@ -72,6 +72,7 @@ public:
     float total_pops() const;
     float get_attractiveness(const Pop& pop) const;
     void add_building(const BuildingType& building_type);
+    void cancel_construction_project();
     bool is_neighbour(Province& province) const;
 
     inline std::pair<float, float> get_pos() const {
@@ -107,4 +108,37 @@ public:
     std::unordered_set<Province::Id> neighbours; // Neighbouring provinces
 
     void clean_pops();
+};
+
+class ProvinceOwnershipManager
+{
+public:
+    ProvinceOwnershipManager() {};
+
+    inline void mark_province_owner_changed(Province::Id province_id) {
+        recently_changed_owner.push_back(province_id);
+    }
+    inline void mark_province_control_changed(Province::Id province_id) {
+        recently_changed_control.push_back(province_id);
+    }
+    inline void clear() {
+        recently_changed_owner.clear();
+        recently_changed_control.clear();
+    }
+    
+    inline const std::vector<Province::Id>& get_changed_owner_provinces() const {
+        return recently_changed_owner;
+    }
+    inline const std::vector<Province::Id>& get_changed_control_provinces() const {
+        return recently_changed_control;
+    }
+    inline bool is_provinces_changed() const {
+        return !recently_changed_owner.empty() || !recently_changed_control.empty();
+    }
+
+private:
+    ProvinceOwnershipManager& operator=(const ProvinceOwnershipManager&) = default;
+    std::vector<Province::Id> recently_changed_owner;
+    std::vector<Province::Id> recently_changed_control;
+    bool changed; 
 };
