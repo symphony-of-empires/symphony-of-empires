@@ -573,7 +573,7 @@ static inline void unit_do_tick(Unit& unit)
 
             // Create a new battle if none is occurring on this province
             unit.target_province_id = Province::invalid();
-            if(it == unit_province.battles.end()) {
+            if(it == unit_province.battles.end() && !unit.on_battle) {
                 // See above code, by our logic the other unit should already be in a battle if it's
                 // against us, and if it is not, and it's probably wise to attack them
                 const auto& unit_ids = g_world->unit_manager.get_province_units(prov_id);
@@ -600,7 +600,7 @@ static inline void unit_do_tick(Unit& unit)
                     Eng3D::Log::debug("game", "New battle of \"" + battle.name + "\"");
                     break;
                 }
-            } else {
+            } else if(it != unit_province.battles.end()) {
                 unit.on_battle = true;
                 Battle& battle = *it;
                 // Add the unit to one side depending on who are we attacking
@@ -787,21 +787,19 @@ void World::do_tick() {
                         for(const auto unit_id : battle.attackers_ids) {
                             auto& unit = units[unit_id];
                             unit.on_battle = false;
+                            assert(unit.size != 0);
                         }
                         Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": attackers win");
                     }
                     // Defenders won
-                    else if(battle.attackers_ids.empty()) {
+                    else {
                         this->nations[units[battle.defenders_ids[0]].owner_id].control_province(province);
                         for(const auto unit_id : battle.defenders_ids) {
                             auto& unit = units[unit_id];
                             unit.on_battle = false;
+                            assert(unit.size != 0);
                         }
                         Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": defenders win");
-                    }
-                    // Nobody won?
-                    else {
-                        Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": nobody won");
                     }
 
                     // Erase the battle from the province
