@@ -67,7 +67,7 @@ MapRender::MapRender(const World& _world)
     // Simple 2D quad that fills viewport, used for making the border_sdf
     map_2d_quad = new Eng3D::Quad2D();
 
-    auto& gs = Eng3D::State::get_instance();
+    auto& gs = (GameState&)Eng3D::State::get_instance();
     auto tex_man = gs.tex_man;
 
     // Mipmapped textures
@@ -215,18 +215,22 @@ MapRender::MapRender(const World& _world)
     reload_shaders();
 
     Eng3D::Log::debug("game", "Creating border textures");
-    Eng3D::TextureOptions sdf_options{};
-    sdf_options.wrap_s = GL_REPEAT;
-    sdf_options.wrap_t = GL_REPEAT;
-    sdf_options.internal_format = GL_RGB32F;
-    sdf_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-    sdf_options.mag_filter = GL_LINEAR;
-    sdf_options.compressed = false;
-    border_sdf = std::make_unique<Eng3D::Texture>(Eng3D::Texture(gs.package_man->get_unique("map/sdf_map.png")->get_abs_path()));
-    border_sdf->upload(sdf_options);
-    border_sdf->gen_mipmaps();
-    // update_border_sdf(Eng3D::Rect(0, 0, 5400, 2700), glm::vec2(100, 100));
-    // border_sdf->to_file("test.png");
+    std::unique_ptr<FILE, int(*)(FILE*)> fp(::fopen("sdf_cache.png", "rb"), ::fclose);
+    if(fp.get() == nullptr) {
+        this->update_border_sdf(Eng3D::Rect(0, 0, gs.world->width, gs.world->height), glm::vec2(gs.width, gs.height));
+        border_sdf->to_file("sdf_cache.png");
+    } else {
+        Eng3D::TextureOptions sdf_options{};
+        sdf_options.wrap_s = GL_REPEAT;
+        sdf_options.wrap_t = GL_REPEAT;
+        sdf_options.internal_format = GL_RGB32F;
+        sdf_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+        sdf_options.mag_filter = GL_LINEAR;
+        sdf_options.compressed = false;
+        border_sdf = std::make_unique<Eng3D::Texture>(Eng3D::Texture("sdf_cache.png"));
+        border_sdf->upload(sdf_options);
+        border_sdf->gen_mipmaps();
+    }
 }
 
 void MapRender::reload_shaders() {
@@ -300,8 +304,6 @@ void MapRender::update_options(MapOptions new_options) {
     }
 }
 
-#include "client/game_state.hpp"
-
 // Creates the "waving" border around the continent to give it a 19th century map feel
 // Generate a distance field to from each border using the jump flooding algorithm
 // Used to create borders thicker than one tile
@@ -309,12 +311,14 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
     glEnable(GL_SCISSOR_TEST);
     glViewport(update_area.left, update_area.top, update_area.width(), update_area.height());
     glScissor(update_area.left, update_area.top, update_area.width(), update_area.height());
-    Eng3D::Texture border_tex(world.width, world.height);
+
     Eng3D::TextureOptions border_tex_options{};
     border_tex_options.internal_format = GL_RGBA32F;
     border_tex_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     border_tex_options.mag_filter = GL_LINEAR;
     border_tex_options.editable = true;
+    
+    Eng3D::Texture border_tex(world.width, world.height);
     border_tex.upload(border_tex_options);
     border_tex.gen_mipmaps();
 
@@ -344,23 +348,23 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
     sdf_shader->use();
     sdf_shader->set_uniform("map_size", width, height);
     sdf_shader->set_uniform("tex_coord_scale", tex_coord_scale.left, tex_coord_scale.top, tex_coord_scale.right, tex_coord_scale.bottom);
+    
     Eng3D::TextureOptions fbo_mipmap_options{};
     fbo_mipmap_options.internal_format = GL_RGB32F;
     fbo_mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     fbo_mipmap_options.mag_filter = GL_LINEAR;
     fbo_mipmap_options.editable = true;
-
     // The Red & Green color channels are the coords on the map
     // The Blue is the distance to a border
-    if(border_sdf == nullptr) {
+    if(border_sdf.get() == nullptr) {
         border_sdf = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(border_tex.width, border_tex.height));
         border_sdf->upload(fbo_mipmap_options);
     }
 
-    auto swap_tex = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(width, height));
+    std::unique_ptr<Eng3D::Texture> swap_tex(new Eng3D::Texture(width, height));
     swap_tex->upload(fbo_mipmap_options);
 
-    Eng3D::OpenGL::Framebuffer fbo = Eng3D::OpenGL::Framebuffer();
+    Eng3D::OpenGL::Framebuffer fbo();
     fbo.use();
 
     // Jump flooding iterations, each step give a distance field 2^steps pixels away from the border
@@ -368,25 +372,25 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
     const float max_dist = std::pow(2, max_steps);
     sdf_shader->set_uniform("max_dist", max_dist);
 
-    bool drawOnTex0 = true;
+    bool draw_on_tex0 = true;
     for(int step = max_dist; step >= 1; step /= 2) {
         // Swap read/write buffers
-        drawOnTex0 = !drawOnTex0;
+        draw_on_tex0 = !draw_on_tex0;
         border_sdf->gen_mipmaps();
         swap_tex->gen_mipmaps();
         sdf_shader->set_uniform("jump", (float)step);
 
-        fbo.set_texture(0, drawOnTex0 ? *border_sdf : *swap_tex);
+        fbo.set_texture(0, draw_on_tex0 ? *border_sdf : *swap_tex);
         if(step == max_dist)
             sdf_shader->set_texture(0, "tex", border_tex);
         else
-            sdf_shader->set_texture(0, "tex", drawOnTex0 ? *swap_tex : *border_sdf);
+            sdf_shader->set_texture(0, "tex", draw_on_tex0 ? *swap_tex : *border_sdf);
         // Draw a plane over the entire screen to invoke shaders
         map_2d_quad->draw();
     }
 
     // Delete the textures no used from memory
-    if(drawOnTex0) {
+    if(draw_on_tex0) {
         swap_tex.reset();
     } else {
         border_sdf.reset();
@@ -395,7 +399,6 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
     border_sdf->gen_mipmaps();
     glDisable(GL_SCISSOR_TEST);
     glViewport(0, 0, window_size.x, window_size.y);
-    return;
 }
 
 // Updates the province color texture with the changed provinces 
@@ -463,22 +466,23 @@ void MapRender::update_visibility(GameState& gs)
 }
 
 void MapRender::update(GameState& gs) {
-    if(gs.world->province_manager.is_provinces_changed()) {
+    if(gs.world->province_manager.is_provinces_changed())
         this->req_update_vision = true;
-    }
+    
     if(this->req_update_vision) {
         this->update_visibility(gs);
         this->req_update_vision = false;
     }
+
     auto& changed_owner_provinces = gs.world->province_manager.get_changed_owner_provinces();
-    if (!changed_owner_provinces.empty()) {
+    if(!changed_owner_provinces.empty()) {
         Eng3D::Rect update_area = gs.world->provinces[0].box_area;
-        for (size_t i = 1; i < changed_owner_provinces.size(); i++) {
+        for(size_t i = 1; i < changed_owner_provinces.size(); i++) {
             Province& province = gs.world->provinces[changed_owner_provinces[i]];
             update_area = update_area.join(province.box_area);
         }
         glm::ivec2 screen_size(gs.width, gs.height);
-        update_border_sdf(update_area, screen_size);
+        this->update_border_sdf(update_area, screen_size);
     }
 }
 
