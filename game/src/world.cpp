@@ -623,6 +623,8 @@ static inline void unit_do_tick(Unit& unit)
 }
 
 void World::do_tick() {
+    province_manager.clear();
+
     profiler.start("AI");
     // Do the AI turns in parallel
     tbb::parallel_for(tbb::blocked_range(nations.begin(), nations.end()), [this](auto& nations_range) {

@@ -67,7 +67,7 @@ MapRender::MapRender(const World& _world)
     // Simple 2D quad that fills viewport, used for making the border_sdf
     map_2d_quad = new Eng3D::Quad2D();
 
-    auto& gs = static_cast<GameState&>(Eng3D::State::get_instance());
+    auto& gs = Eng3D::State::get_instance();
     auto tex_man = gs.tex_man;
 
     // Mipmapped textures
@@ -431,9 +431,8 @@ void MapRender::request_update_visibility()
     this->req_update_vision = true;
 }
 
-void MapRender::update_visibility()
+void MapRender::update_visibility(GameState& gs)
 {
-    const auto& gs = (GameState&)GameState::get_instance();
     if(gs.curr_nation == nullptr) return;
 
     /// @todo Check that unit is allied with us/province owned by an ally
@@ -463,11 +462,27 @@ void MapRender::update_visibility()
     this->province_opt->upload(no_drop_options);
 }
 
-void MapRender::draw(Eng3D::Camera* camera, MapView view_mode) {
+void MapRender::update(GameState& gs) {
+    if(gs.world->province_manager.is_provinces_changed()) {
+        this->req_update_vision = true;
+    }
     if(this->req_update_vision) {
-        this->update_visibility();
+        this->update_visibility(gs);
         this->req_update_vision = false;
     }
+    auto& changed_owner_provinces = gs.world->province_manager.get_changed_owner_provinces();
+    if (!changed_owner_provinces.empty()) {
+        Eng3D::Rect update_area = gs.world->provinces[0].box_area;
+        for (size_t i = 1; i < changed_owner_provinces.size(); i++) {
+            Province& province = gs.world->provinces[changed_owner_provinces[i]];
+            update_area = update_area.join(province.box_area);
+        }
+        glm::ivec2 screen_size(gs.width, gs.height);
+        update_border_sdf(update_area, screen_size);
+    }
+}
+
+void MapRender::draw(Eng3D::Camera* camera, MapView view_mode) {
 
     map_shader->use();
     const glm::mat4 view = camera->get_view();

@@ -119,6 +119,8 @@ public:
 };
 
 class UnitManager {
+private:
+    UnitManager& operator=(const UnitManager&) = default;
 public:
     UnitManager() {};
     // Fill in the relationship vectors for each nation
