@@ -304,6 +304,8 @@ void MapRender::update_options(MapOptions new_options) {
     }
 }
 
+#include "eng3d/framebuffer.hpp"
+
 // Creates the "waving" border around the continent to give it a 19th century map feel
 // Generate a distance field to from each border using the jump flooding algorithm
 // Used to create borders thicker than one tile
@@ -364,7 +366,7 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
     std::unique_ptr<Eng3D::Texture> swap_tex(new Eng3D::Texture(width, height));
     swap_tex->upload(fbo_mipmap_options);
 
-    Eng3D::OpenGL::Framebuffer fbo();
+    auto fbo = Eng3D::OpenGL::Framebuffer();
     fbo.use();
 
     // Jump flooding iterations, each step give a distance field 2^steps pixels away from the border
