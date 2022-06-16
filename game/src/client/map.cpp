@@ -284,7 +284,7 @@ void Map::set_map_mode(mapmode_generator mapmode_generator, mapmode_tooltip tool
 void Map::set_selected_province(bool selected, Province::Id id) {
     this->province_selected = selected;
     this->selected_province_id = id;
-    map_render->update_visibility();
+    map_render->request_update_visibility();
 }
 
 void Map::draw_flag(const Eng3D::OpenGL::Program& shader, const Nation& nation) {

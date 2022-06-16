@@ -188,6 +188,20 @@ namespace Eng3D {
             float i_bottom = glm::min(this->bottom, rect.bottom);
             return Eng3D::Rectangle{ i_left, i_top, i_right - i_left, i_bottom - i_top };
         }
+
+        /**
+         * @brief Obtains the intersection rectangle from two other rectangles R1 and R2
+         * 
+         * @param rect Second rectangle to perform the intersection for
+         * @return Rectangle Intersection area rectangle
+         */
+        inline Rectangle join(const Rectangle& rect) const {
+            float i_left = glm::min(this->left, rect.left);
+            float i_top = glm::min(this->top, rect.top);
+            float i_right = glm::max(this->right, rect.right);
+            float i_bottom = glm::max(this->bottom, rect.bottom);
+            return Eng3D::Rectangle{ i_left, i_top, i_right - i_left, i_bottom - i_top };
+        }
     };
 
     typedef class Rectangle Rect;

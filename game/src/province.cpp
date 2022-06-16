@@ -78,6 +78,13 @@ void Province::add_building(const BuildingType& building_type) {
     this->buildings[g_world->get_id(building_type)].req_goods = building_type.req_goods;
 }
 
+void Province::cancel_construction_project() {
+    for(auto& building : buildings) {
+        if(building.working_unit_type)
+            building.working_unit_type = nullptr;
+    }
+}
+
 bool Province::is_neighbour(Province& province) const {
     return std::find(this->neighbours.begin(), this->neighbours.end(), g_world->get_id(province)) != this->neighbours.end();
 }

@@ -95,7 +95,7 @@ void GameState::play_nation() {
 
     const auto& capital = this->world->provinces[this->curr_nation->capital_id];
     map->camera->set_pos(capital.box_area.right, capital.box_area.bottom);
-    map->map_render->update_visibility();
+    map->map_render->request_update_visibility();
 
     // Make topwindow
     top_win = new Interface::TopWindow(*this);
@@ -549,9 +549,9 @@ void GameState::world_thread() {
                 paused = true;
             }
 
-            // Wait until time delta is fullfilled
+            // Wait until time delta is fullfilled and update_tick is false
             auto end_time = std::chrono::system_clock::now();
-            while(end_time - start_time < delta)
+            while(end_time - start_time < delta && update_tick)
                 end_time = std::chrono::system_clock::now();
         }
     }
@@ -756,12 +756,14 @@ void start_client(int argc, char** argv) {
         if(gs.world->world_mutex.try_lock()) {
             // Required since events may request world data
             handle_event(gs.input, gs);
+
             if(gs.current_mode == MapMode::NORMAL)
                 handle_popups(displayed_events, displayed_treaties, gs);
 
             if(gs.update_tick) {
                 gs.update_on_tick();
                 gs.update_tick = false;
+                gs.map->map_render->update(gs);
 
                 if(gs.current_mode == MapMode::NORMAL) {
                     // Production queue

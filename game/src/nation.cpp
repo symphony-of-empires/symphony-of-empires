@@ -269,33 +269,23 @@ void Nation::give_province(Province& province) {
     owned_provinces.insert(world.get_id(province));
     province.owner_id = this->get_id();
 
-    // Update the map visibility
-    auto& gs = (GameState&)GameState::get_instance();
-    if(gs.map != nullptr) {
-        gs.map->map_render->request_update_visibility();
-        glm::ivec2 screen_size(gs.width, gs.height);
-        Eng3D::Rect update_area = province.box_area;
-        gs.map->map_render->update_border_sdf(update_area, screen_size);
-    }
+
+    // Update the province changed
+    world.province_manager.mark_province_owner_changed(province.get_id());
 }
 
 void Nation::control_province(Province& province) {
-    const World& world = World::get_instance();
+    World& world = World::get_instance();
     if(province.controller != nullptr)
         province.controller->controlled_provinces.erase(world.get_id(province));
     controlled_provinces.insert(world.get_id(province));
     province.controller = this;
 
-    // Update the map visibility
-    auto& gs = (GameState&)GameState::get_instance();
-    if(gs.map != nullptr)
-        gs.map->map_render->request_update_visibility();
+    // Update the province changed
+    world.province_manager.mark_province_control_changed(province.get_id());
 
     // Cancel the unit construction projects
-    for(auto& building : province.get_buildings()) {
-        if(building.working_unit_type)
-            building.working_unit_type = nullptr;
-    }
+    province.cancel_construction_project();
 }
 
 const NationClientHint& Nation::get_client_hint() const {
