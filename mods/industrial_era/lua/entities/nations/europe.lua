@@ -33,7 +33,7 @@ united_kingdom:register()
 united_kingdom:set_ideology(monarchy)
 united_kingdom:add_accepted_culture(british)
 united_kingdom:add_accepted_culture(irish)
-united_kingdom:add_client_hint(monarchy, _("United Kingdom"), 0xc94c40)
+united_kingdom:add_client_hint(monarchy, _("United Kingdom"), 0xa81e11)
 
 netherlands = Nation:new{ ref_name = "netherlands" }
 netherlands.name = _("Netherlands")
