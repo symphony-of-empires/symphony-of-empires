@@ -209,7 +209,12 @@ MapRender::MapRender(const World& _world)
         province_opt->upload(no_drop_options);
     }
 
-    update_nations(world.provinces);
+    std::vector<Province::Id> province_ids;
+    province_ids.reserve(world.provinces.size());
+    for(auto const& province : world.provinces) {
+        province_ids.push_back(province.get_id());
+    }
+    update_nations(province_ids);
 
     // The map shader that draws everything on the map 
     reload_shaders();
@@ -420,8 +425,9 @@ void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
 }
 
 // Updates nations
-void MapRender::update_nations(std::vector<Province> provinces) {
-    for(auto const& province : provinces) {
+void MapRender::update_nations(std::vector<Province::Id> province_ids) {
+    for(auto const& id : province_ids) {
+        auto& province = world.provinces[id]; 
         if(province.controller == nullptr) continue;
         this->tile_sheet_nation->buffer.get()[province.cached_id] = province.controller->cached_id;
     }
@@ -478,6 +484,7 @@ void MapRender::update(GameState& gs) {
 
     auto& changed_owner_provinces = gs.world->province_manager.get_changed_owner_provinces();
     if(!changed_owner_provinces.empty()) {
+        update_nations(changed_owner_provinces);
         Eng3D::Rect update_area = gs.world->provinces[0].box_area;
         for(size_t i = 1; i < changed_owner_provinces.size(); i++) {
             Province& province = gs.world->provinces[changed_owner_provinces[i]];
