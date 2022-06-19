@@ -762,8 +762,8 @@ void start_client(int argc, char** argv) {
 
             if(gs.update_tick) {
                 gs.update_on_tick();
-                gs.update_tick = false;
                 gs.map->map_render->update(gs);
+                gs.update_tick = false;
 
                 if(gs.current_mode == MapMode::NORMAL) {
                     // Production queue
