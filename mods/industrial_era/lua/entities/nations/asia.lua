@@ -89,21 +89,21 @@ nation:add_client_hint(republic, _("Johor"), 0x896241)
 nation:add_client_hint(socialism, _("Johor"), 0x896241)
 
 nation = Nation:new{ ref_name = "siam", name = _("Siam") }
-nation.adjective = _("Siam")
+nation.adjective = _("Siamesse")
 nation:register()
 nation:set_ideology(monarchy)
 nation:add_accepted_culture(thai)
 nation:add_client_hint(monarchy, _("Siam"), 0x2F54BD)
 
 nation = Nation:new{ ref_name = "burma", name = _("Burma") }
-nation.adjective = _("Burma")
+nation.adjective = _("Burmesse")
 nation:register()
 nation:set_ideology(monarchy)
 nation:add_accepted_culture(burmesse)
 nation:add_client_hint(monarchy, _("Burma"), 0x2FFFBD)
 
 nation = Nation:new{ ref_name = "vietnam", name = _("Vietnam") }
-nation.adjective = _("Vietnam")
+nation.adjective = _("Vietnamesse")
 nation:register()
 nation:set_ideology(monarchy)
 nation:add_accepted_culture(vietnamesse)
@@ -112,8 +112,15 @@ nation:add_client_hint(socialism, _("Vietnam"), 0xF57732)
 nation:add_client_hint(communism, _("Vietnam"), 0xF57732)
 
 nation = Nation:new{ ref_name = "cambodia", name = _("Cambodia") }
-nation.adjective = _("Cambodia")
+nation.adjective = _("Cambodian")
 nation:register()
 nation:set_ideology(monarchy)
 nation:add_accepted_culture(vietnamesse)
 nation:add_client_hint(monarchy, _("Cambodia"), 0x512f91)
+
+nation = Nation:new{ ref_name = "east_india_company", name = _("East India Company") }
+nation.adjective = _("British Indian")
+nation:register()
+nation:set_ideology(monarchy)
+nation:add_accepted_culture(vietnamesse)
+nation:add_client_hint(monarchy, _("East India Company"), 0xdb5656)
