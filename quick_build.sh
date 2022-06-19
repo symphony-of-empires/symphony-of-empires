@@ -62,7 +62,9 @@ fi
 # Create build directory
 if [ ! -d build/ ]; then
     mkdir -p build/
+    cd build
     ln -s ../mods mods || exit
+    cd ..
     echo "Finished setup"
 fi
 
