@@ -74,8 +74,8 @@ public:
     void cancel_construction_project();
     bool is_neighbour(Province& province) const;
 
-    inline std::pair<float, float> get_pos() const {
-        return std::make_pair(box_area.left + ((box_area.right - box_area.left) / 2.f), box_area.top + ((box_area.bottom - box_area.top) / 2.f));
+    inline glm::vec2 get_pos() const {
+        return glm::vec2(box_area.left + ((box_area.right - box_area.left) / 2.f), box_area.top + ((box_area.bottom - box_area.top) / 2.f));
     }
 
     inline const std::vector<Building>& get_buildings() const {
