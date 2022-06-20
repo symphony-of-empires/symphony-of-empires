@@ -45,11 +45,11 @@ namespace Eng3D {
 
     class Audio {
     public:
-        Audio() {};
+        Audio() = default;
         Audio(const std::string& path);
-        ~Audio() {};
+        ~Audio() = default;
 
-        std::uint8_t *data;
+        std::uint8_t *data; // TODO: Use RAII pointers for this
         std::uint32_t pos;
         std::uint32_t len;
     };
@@ -58,6 +58,7 @@ namespace Eng3D {
     private:
         std::map<std::string, Eng3D::Audio*> sounds;
     public:
+        AudioManager() = default;
         ~AudioManager();
         const Audio& load(const std::string& path);
     };

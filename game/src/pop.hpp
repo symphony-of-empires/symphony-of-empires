@@ -28,7 +28,6 @@
 #include <vector>
 #include <string>
 #include "eng3d/entity.hpp"
-#include "eng3d/decimal.hpp"
 
 class Ideology;
 class PopType;
@@ -45,8 +44,8 @@ enum class PopGroup : int {
 
 class PopType : public RefnameEntity<uint8_t> {
 public:
-    PopType() {};
-    ~PopType() {};
+    PopType() = default;
+    ~PopType() = default;
 
     Eng3D::StringRef name;
     float social_value;
@@ -60,11 +59,13 @@ class Pop {
     Pop & operator=(const Pop&) = default;
     friend class Province;
 public:
-    Pop() {};
-    ~Pop() {};
-    inline bool operator==(const Pop& rhs) const {
+    Pop() = default;
+    ~Pop() = default;
+
+    constexpr bool operator==(const Pop& rhs) const {
         return (this->culture == rhs.culture && this->religion == rhs.religion && this->type == rhs.type);
     }
+
     Ideology& get_ideology() const;
     uint32_t get_type_id() const;
 

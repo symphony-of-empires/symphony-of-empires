@@ -9,7 +9,7 @@ namespace Eng3D {
         float friction;
         std::chrono::system_clock::time_point last_time;
     public:
-        ValueChase(float _friction) noexcept
+        constexpr ValueChase(float _friction) noexcept
             : friction{ _friction }
         {
 

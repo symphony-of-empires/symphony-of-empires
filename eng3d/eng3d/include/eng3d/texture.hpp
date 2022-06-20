@@ -88,7 +88,7 @@ namespace Eng3D {
         bool editable = false;
         bool compressed = true;
 
-        inline bool operator==(const TextureOptions& o) const {
+        constexpr bool operator==(const TextureOptions& o) const {
             return target == o.target && wrap_s == o.wrap_s && wrap_t == o.wrap_t && min_filter == o.min_filter && mag_filter == o.mag_filter && internal_format == o.internal_format && format == o.format && type == o.type && editable == o.editable;
         }
     };
@@ -129,7 +129,7 @@ namespace Eng3D {
     };
 
     template <class T>
-    inline void hash_combine(std::size_t& s, const T& v)
+    void hash_combine(std::size_t& s, const T& v)
     {
         std::hash<T> h;
         s ^= h(v) + 0x9e3779b9 + (s << 6) + (s >> 2);
@@ -140,7 +140,7 @@ namespace Eng3D {
      * 
      */
     struct TextureMapHash {
-        std::size_t operator()(std::pair<std::string, TextureOptions> const& key) const
+        std::size_t operator()(const std::pair<std::string, TextureOptions>& key) const
         {
             std::size_t res = 0;
             hash_combine(res, key.first);
@@ -166,10 +166,10 @@ namespace Eng3D {
     class TextureManager {
     private:
         std::unordered_map<std::pair<std::string, TextureOptions>, std::shared_ptr<Eng3D::Texture>, TextureMapHash> textures;
-        std::shared_ptr<Eng3D::Texture> white = nullptr;
+        std::shared_ptr<Eng3D::Texture> white;
     public:
-        TextureManager() {};
-        ~TextureManager() {};
+        TextureManager() = default;
+        ~TextureManager() = default;
         std::shared_ptr<Texture> load(const std::string& path, TextureOptions options = default_options);
         std::shared_ptr<Texture> load(std::shared_ptr<Eng3D::IO::Asset::Base> asset, TextureOptions options = default_options);
         std::shared_ptr<Texture> get_white();

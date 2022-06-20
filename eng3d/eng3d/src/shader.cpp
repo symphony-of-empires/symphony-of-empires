@@ -26,11 +26,11 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <cassert>
 
 #include "eng3d/shader.hpp"
 #include "eng3d/glsl_trans.hpp"
 #include "eng3d/utils.hpp"
-#include "eng3d/assert.hpp"
 #include "eng3d/log.hpp"
 
 #ifdef E3D_BACKEND_OPENGL

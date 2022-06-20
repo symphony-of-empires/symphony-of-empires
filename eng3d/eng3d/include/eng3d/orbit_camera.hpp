@@ -76,14 +76,14 @@ namespace Eng3D {
             map_position.y = glm::clamp(map_position.y, 0.f, map_size.y);
             map_position.z = glm::clamp(map_position.z, 0.f, map_size.x / 2.f);
 
-            glm::vec3 normalized_pos = map_position / glm::vec3(map_size.x, map_size.y, map_size.x / 2.f);
+            const glm::vec3 normalized_pos = map_position / glm::vec3(map_size.x, map_size.y, map_size.x / 2.f);
             glm::vec2 radiance_pos;
             constexpr float pi = glm::pi<float>();
             radiance_pos.x = glm::mod(normalized_pos.x * 2.f * pi, 2.f * pi);
             radiance_pos.y = glm::max(0.f, glm::min(pi, normalized_pos.y * pi));
 
             // float distance = radius - normalized_pos.z * circumference * 0.5f;
-            float distance = radius + normalized_pos.z * circumference * 0.5f;
+            const float distance = radius + normalized_pos.z * circumference * 0.5f;
             zoom_dist = normalized_pos.z * circumference * 0.5f;
             world_position.x = distance * cos(radiance_pos.x) * sin(radiance_pos.y);
             world_position.y = distance * sin(radiance_pos.x) * sin(radiance_pos.y);
@@ -94,7 +94,7 @@ namespace Eng3D {
             map_position.x = glm::mod(x, map_size.x);
             map_position.y = glm::clamp(y, 0.f, map_size.y);
             target = map_position;
-            update();
+            this->update();
         }
 
         glm::mat4 get_view() const override {

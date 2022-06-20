@@ -40,13 +40,15 @@ namespace Eng3D {
         using Id = uint16_t;
         Id id;
 
-        StringRef() {
-            this->id = (Eng3D::StringRef::Id)-1;
+        constexpr StringRef()
+            : id{ static_cast<Eng3D::StringRef::Id>(-1) }
+        {
+
         }
 
         StringRef(const std::string& str);
 
-        StringRef(Id _id)
+        constexpr StringRef(Id _id)
             : id{ _id }
         {
             
@@ -62,22 +64,22 @@ namespace Eng3D {
         {
             *this = StringRef(rhs);
             return *this;
-        };
+        }
 
         inline bool operator==(const StringRef& rhs) const
         {
             return this->get_string() == rhs.get_string();
-        };
+        }
 
         inline bool operator==(const std::string& rhs) const
         {
             return this->get_string() == rhs;
-        };
+        }
 
         inline const char *c_str() const
         {
             return this->get_string().c_str();
-        };
+        }
     };
 
     inline std::string operator+(const char *lhs, const StringRef& rhs)
@@ -108,17 +110,17 @@ namespace Eng3D {
     class StringManager {
         std::vector<std::string> strings;
     public:
-        StringManager() {};
-        ~StringManager() {};
+        StringManager() = default;
+        ~StringManager() = default;
         
         inline Eng3D::StringRef insert(const std::string& str) {
-            std::scoped_lock lock(this->strings_mutex);
+            const std::scoped_lock lock(this->strings_mutex);
             this->strings.push_back(str);
             return Eng3D::StringRef(this->strings.size() - 1);
         }
 
         inline const std::string& get_by_id(const Eng3D::StringRef ref) const {
-            std::scoped_lock lock(this->strings_mutex);
+            const std::scoped_lock lock(this->strings_mutex);
             return this->strings[ref.id];
         }
 

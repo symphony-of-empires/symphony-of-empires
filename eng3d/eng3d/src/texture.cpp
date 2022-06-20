@@ -25,13 +25,13 @@
 // ----------------------------------------------------------------------------
 
 #include <algorithm>
+#include <cassert>
 
 #include "eng3d/texture.hpp"
 #include "eng3d/path.hpp"
 #include "eng3d/framebuffer.hpp"
 #include "eng3d/utils.hpp"
 #include "eng3d/log.hpp"
-#include "eng3d/assert.hpp"
 
 //
 // Texture

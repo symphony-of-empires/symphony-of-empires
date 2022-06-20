@@ -23,8 +23,9 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#include <cassert>
+
 #include "eng3d/log.hpp"
-#include "eng3d/assert.hpp"
 
 #include "nation.hpp"
 #include "technology.hpp"

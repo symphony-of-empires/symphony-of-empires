@@ -219,9 +219,8 @@ public:
 
             // Obtain the string itself
             std::unique_ptr<char[]> string = std::unique_ptr<char[]>(new char[len + 1]);
-            if(len) {
+            if(len)
                 ar.copy_to(string.get(), len);
-            }
             string.get()[len] = '\0';
             *obj = string.get();
         }
@@ -238,9 +237,8 @@ public:
         if constexpr(is_serialize) {
             uint32_t len = obj_group->size();
             ::deser_dynamic<is_serialize>(ar, &len);
-            for(auto& obj : *obj_group) {
+            for(auto& obj : *obj_group)
                 ::deser_dynamic<is_serialize>(ar, &obj);
-            }
         } else {
             uint32_t len;
             ::deser_dynamic<is_serialize>(ar, &len);
@@ -290,9 +288,8 @@ public:
         if constexpr(is_serialize) {
             uint32_t len = obj_group->size();
             ::deser_dynamic<is_serialize>(ar, &len);
-            for(auto& obj : *obj_group) {
+            for(auto& obj : *obj_group)
                 ::deser_dynamic<is_serialize>(ar, &obj);
-            }
         } else {
             uint32_t len;
             ::deser_dynamic<is_serialize>(ar, &len);
@@ -315,9 +312,8 @@ public:
         if constexpr(is_serialize) {
             uint32_t len = obj_group->size();
             ::deser_dynamic<is_serialize>(ar, &len);
-            for(auto& obj : *obj_group) {
+            for(auto& obj : *obj_group)
                 ::deser_dynamic<is_serialize>(ar, &obj);
-            }
         } else {
             uint32_t len;
             ::deser_dynamic<is_serialize>(ar, &len);

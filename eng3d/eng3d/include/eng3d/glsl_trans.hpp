@@ -39,7 +39,6 @@ namespace Eng3D::OpenGL {
         LBRACKET, RBRACKET,
         LBRACE, RBRACE,
         NEWLINE,
-
         // Special "hacky" stuff
         MACRO,
     };
@@ -47,7 +46,7 @@ namespace Eng3D::OpenGL {
     class GLSL_Token {
     public:
         GLSL_Token(GLSL_TokenType _type): type(_type) {};
-        ~GLSL_Token() {};
+        ~GLSL_Token() = default;
 
         enum GLSL_TokenType type;
         std::string data;
