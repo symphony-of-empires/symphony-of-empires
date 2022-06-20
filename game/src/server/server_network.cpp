@@ -126,7 +126,7 @@ void Server::net_loop(int id) {
                 if(selected_nation == nullptr && (action != ActionType::PONG && action != ActionType::CHAT_MESSAGE && action != ActionType::SELECT_NATION))
                     throw ServerException("Unallowed operation without selected nation");
                 
-                const std::scoped_lock lock(g_world->world_mutex);
+                const std::scoped_lock lock(g_world.world_mutex);
                 switch(action) {
                 // - Used to test connections between server and client
                 case ActionType::PONG:
@@ -149,7 +149,7 @@ void Server::net_loop(int id) {
                     if(Unit::is_invalid(unit_id))
                         throw ServerException("Unknown unit");
                     // Must control unit
-                    auto& unit = g_world->unit_manager.units[unit_id];
+                    auto& unit = g_world.unit_manager.units[unit_id];
                     if(selected_nation == nullptr || selected_nation->get_id() != unit.owner_id)
                         throw ServerException("Nation does not control unit");
 
@@ -184,7 +184,7 @@ void Server::net_loop(int id) {
                     if(unit_type == nullptr)
                         throw ServerException("Unknown unit type");
                     /// @todo Find building
-                    Building& building = province->get_buildings()[g_world->get_id(*building_type)];
+                    Building& building = province->get_buildings()[g_world.get_id(*building_type)];
                     /// @todo Check nation can build this unit
                     // Tell the building to build this specific unit type
                     building.working_unit_type = unit_type;
@@ -198,7 +198,7 @@ void Server::net_loop(int id) {
                     ::deserialize(ar, &province);
                     BuildingType* building_type;
                     ::deserialize(ar, &building_type);
-                    province->buildings[g_world->get_id(*building_type)].level += 1;
+                    province->buildings[g_world.get_id(*building_type)].level += 1;
                     // Rebroadcast
                     broadcast(Action::BuildingAdd::form_packet(*province, *building_type));
                 } break;
@@ -274,7 +274,7 @@ void Server::net_loop(int id) {
                             break;
                         }
                     }
-                    g_world->insert(*treaty);
+                    g_world.insert(*treaty);
                     // Rebroadcast to client
                     // We are going to add a treaty to the client
                     Archive tmp_ar = Archive();
@@ -289,10 +289,10 @@ void Server::net_loop(int id) {
                     // Find event by reference name
                     std::string event_ref_name;
                     ::deserialize(ar, &event_ref_name);
-                    auto event = std::find_if(g_world->events.begin(), g_world->events.end(), [&event_ref_name](const auto& e) {
+                    auto event = std::find_if(g_world.events.begin(), g_world.events.end(), [&event_ref_name](const auto& e) {
                         return e.ref_name == event_ref_name;
                     });
-                    if(event == g_world->events.end())
+                    if(event == g_world.events.end())
                         throw ServerException("Event not found");
                     // Find decision by reference name
                     std::string decision_ref_name;

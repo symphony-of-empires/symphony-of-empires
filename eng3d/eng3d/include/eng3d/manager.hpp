@@ -41,7 +41,7 @@ public:
     // Singleton pattern ;)
     inline static Manager<T, I>& get_instance() {
         return *singleton;
-    };
+    }
 
     // Load an element, this is the function that must be defined by the inheritor
     virtual void load(const I& ident) {};
@@ -51,17 +51,15 @@ public:
     virtual const T& get(const I& ident) {
         /// @todo How do we remove this duplicate code? :/
         for(const auto& o : elems) {
-            if(o.second == ident) {
+            if(o.second == ident)
                 return *(o.first);
-            }
         }
 
         load(ident);
 
         for(const auto& o : elems) {
-            if(o.second == ident) {
+            if(o.second == ident)
                 return *(o.first);
-            }
         }
         CXX_THROW(std::runtime_error, "Can't load " + ident);
     };

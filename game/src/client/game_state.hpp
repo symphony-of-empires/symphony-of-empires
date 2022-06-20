@@ -33,7 +33,6 @@
 #include "eng3d/serializer.hpp"
 #include "eng3d/audio.hpp"
 #include "eng3d/state.hpp"
-#include "eng3d/decimal.hpp"
 #include "unit.hpp"
 
 enum class MapMode : unsigned char {

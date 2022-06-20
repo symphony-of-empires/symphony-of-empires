@@ -41,6 +41,7 @@
 
 namespace Eng3D {
     class Texture;
+    class State;
 };
 
 /// @defgroup UI UI
@@ -76,8 +77,10 @@ namespace UI {
 
         std::vector<Widget*> widgets;
         Tooltip* tooltip_widget = nullptr;
+        Eng3D::State& s;
     public:
-        Context();
+        Context() = delete;
+        Context(Eng3D::State& s);
         ~Context();
         void load_textures();
         void add_widget(Widget* widget);

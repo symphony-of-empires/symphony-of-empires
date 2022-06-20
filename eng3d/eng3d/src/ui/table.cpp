@@ -91,7 +91,7 @@ TableRow::TableRow(Widget* _parent, int _width, int _height, std::vector<int>& _
         Eng3D::TextureOptions tex_options{};
         tex_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
         tex_options.mag_filter = GL_LINEAR;
-        auto border_tex = tex_man->load(s.package_man->get_unique("gfx/test.png"), tex_options);
+        auto border_tex = tex_man.load(s.package_man.get_unique("gfx/test.png"), tex_options);
         if(index % 2 == 0) {
             this->border.texture = border_tex;
         } else {

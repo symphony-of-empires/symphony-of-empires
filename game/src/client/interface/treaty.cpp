@@ -148,7 +148,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation& _nation)
         packet.data(ar.get_buffer(), ar.size());
         std::scoped_lock lock(this->gs.client->pending_packets_mutex);
         this->gs.client->pending_packets.push_back(packet);
-        this->gs.ui_ctx->prompt("Treaty", "Treaty drafted: " + treaty_to_text(this->treaty));
+        this->gs.ui_ctx.prompt("Treaty", "Treaty drafted: " + treaty_to_text(this->treaty));
         this->kill();
     });
 }

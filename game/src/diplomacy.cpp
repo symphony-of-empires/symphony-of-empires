@@ -32,7 +32,7 @@
 using namespace Diplomacy;
 
 inline bool Diplomacy::is_friend(Nation& us, Nation& them) {
-    const NationRelation& relation = g_world->get_relation(g_world->get_id(us), g_world->get_id(them));
+    const NationRelation& relation = g_world.get_relation(g_world.get_id(us), g_world.get_id(them));
     // High enough relation with the threshold means it is friendly
     if(relation.relation >= 50.f) {
         return true;
@@ -102,7 +102,7 @@ void TreatyClause::LiberateNation::enforce() {
     receiver->prestige -= cost() * 0.000005f;
     // Give provinces to this liberated nation
     for(auto& province : provinces)
-        province->owner_id = g_world->get_id(*liberated);
+        province->owner_id = g_world.get_id(*liberated);
     // One-time clause
     done = true;
 }
@@ -159,7 +159,7 @@ unsigned TreatyClause::Ceasefire::cost() {
 }
 
 void TreatyClause::Ceasefire::enforce() {
-    auto& relation = g_world->get_relation(g_world->get_id(*receiver), g_world->get_id(*sender));
+    auto& relation = g_world.get_relation(g_world.get_id(*receiver), g_world.get_id(*sender));
     relation.has_war = false;
     days_duration--;
 }

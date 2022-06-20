@@ -63,7 +63,7 @@ void BinaryImage::from_file(const Eng3D::IO::Path& path) {
     int i_width, i_height, i_channels;
 
     /*
-    std::shared_ptr<Eng3D::IO::Asset::Base> asset = Eng3D::State::get_instance().package_man->get_unique(path.str.c_str());
+    std::shared_ptr<Eng3D::IO::Asset::Base> asset = Eng3D::State::get_instance().package_man.get_unique(path.str.c_str());
     if(asset.get() == nullptr) {
         CXX_THROW(BinaryImageException, path.str, "Can't find image");
     }

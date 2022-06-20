@@ -63,7 +63,7 @@ namespace TreatyClause {
             sender = &_sender;
             receiver = &_receiver;
         };
-        virtual ~BaseClause() {};
+        virtual ~BaseClause() = default;
 
         enum TreatyClauseType type;
         Nation* sender = nullptr; // Who created this clause
@@ -90,7 +90,9 @@ namespace TreatyClause {
     // Makes loser to pay war reparations to the winner
     class WarReparations: public BaseClause {
     public:
-        WarReparations(): BaseClause() {
+        WarReparations()
+            : BaseClause()
+        {
             type = TreatyClauseType::MONEY;
         };
         unsigned cost();
@@ -103,9 +105,11 @@ namespace TreatyClause {
     // Reduces prestige of loser and increments prestige from winner
     class Humiliate: public BaseClause {
     public:
-        Humiliate(): BaseClause() {
+        Humiliate()
+            : BaseClause()
+        {
             type = TreatyClauseType::HUMILIATE;
-        };
+        }
         unsigned cost();
         void enforce();
         bool in_effect() const;
@@ -116,9 +120,11 @@ namespace TreatyClause {
     // Liberates a nation from another
     class LiberateNation: public BaseClause {
     public:
-        LiberateNation(): BaseClause() {
+        LiberateNation()
+            : BaseClause()
+        {
             type = TreatyClauseType::LIBERATE_NATION;
-        };
+        }
         unsigned cost();
         void enforce();
         bool in_effect() const;
@@ -130,9 +136,11 @@ namespace TreatyClause {
     // Imposes a policy to be put in action on a nation
     class ImposePolicies: public BaseClause {
     public:
-        ImposePolicies(): BaseClause() {
+        ImposePolicies()
+            : BaseClause()
+        {
             type = TreatyClauseType::IMPOSE_POLICIES;
-        };
+        }
         unsigned cost();
         void enforce();
         bool in_effect() const;
@@ -143,9 +151,11 @@ namespace TreatyClause {
     // Annexes territory from the loser
     class AnnexProvince: public BaseClause {
     public:
-        AnnexProvince(): BaseClause() {
+        AnnexProvince()
+            : BaseClause()
+        {
             type = TreatyClauseType::ANNEX_PROVINCES;
-        };
+        }
         unsigned cost();
         void enforce();
         bool in_effect() const;
@@ -156,9 +166,11 @@ namespace TreatyClause {
     // Calls for a ceasefire
     class Ceasefire: public BaseClause {
     public:
-        Ceasefire(): BaseClause() {
+        Ceasefire()
+            : BaseClause()
+        {
             type = TreatyClauseType::CEASEFIRE;
-        };
+        }
         unsigned cost();
         void enforce();
         bool in_effect() const;
@@ -167,9 +179,11 @@ namespace TreatyClause {
     // Makes the receiver the puppet of the sender
     class Puppet: public BaseClause {
     public:
-        Puppet(): BaseClause() {
+        Puppet()
+            : BaseClause()
+        {
             type = TreatyClauseType::PUPPET;
-        };
+        }
         unsigned cost();
         void enforce();
         bool in_effect() const;
@@ -199,8 +213,8 @@ public:
 
 class War : public IdEntity<uint16_t> {
 public:
-    War() {};
-    ~War() {};
+    War() = default;
+    ~War() = default;
     bool is_involved(const Nation& nation) const;
     bool is_attacker(const Nation& nation) const;
     bool is_defender(const Nation& nation) const;

@@ -32,7 +32,6 @@
 #include <type_traits>
 
 #include "eng3d/entity.hpp"
-#include "eng3d/decimal.hpp"
 
 class Nation;
 class Good;

@@ -26,7 +26,6 @@
 #pragma once
 
 #include <cmath>
-#include "eng3d/decimal.hpp"
 
 enum AllowancePolicy {
     ALLOW_NOBODY, // Nobody can enter the country

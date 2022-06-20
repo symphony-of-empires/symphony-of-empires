@@ -110,7 +110,7 @@ GoodView::GoodView(GameState& _gs, Good& _good)
         this->kill();
     });
 
-    this->icon_img = new UI::Image(0, 0, 128, 96, this->gs.tex_man->load(gs.package_man->get_unique("gfx/good/" + good.ref_name + ".png")), this);
+    this->icon_img = new UI::Image(0, 0, 128, 96, this->gs.tex_man.load(gs.package_man.get_unique("gfx/good/" + good.ref_name + ".png")), this);
 
     // Piechart denoting countries which have more supply of this good
     this->sellers_pie = new UI::PieChart(0, 0, 128, 128, this);
@@ -156,7 +156,7 @@ GoodView::GoodView(GameState& _gs, Good& _good)
     for(const auto& building_type : this->gs.world->building_types) {
         bool is_present = (building_type.output == &this->good);
         if(!is_present) continue;
-        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man->load(gs.package_man->get_unique("gfx/production.png")), this);
+        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/production.png")), this);
         icon_ibtn->below_of(*avg_price_chart);
         icon_ibtn->set_tooltip(new UI::Tooltip(icon_ibtn, 512, 24));
         icon_ibtn->tooltip->text(building_type.name.get_string());
@@ -170,7 +170,7 @@ GoodView::GoodView(GameState& _gs, Good& _good)
     for(const auto& building_type : this->gs.world->building_types) {
         bool is_present = std::find(building_type.inputs.begin(), building_type.inputs.end(), &this->good) != building_type.inputs.end();
         if(!is_present) continue;
-        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man->load(gs.package_man->get_unique("gfx/production.png")), this);
+        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/production.png")), this);
         icon_ibtn->below_of(*avg_price_chart);
         icon_ibtn->set_tooltip(new UI::Tooltip(icon_ibtn, 512, 24));
         icon_ibtn->tooltip->text(building_type.name.get_string());

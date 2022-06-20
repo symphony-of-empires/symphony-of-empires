@@ -189,9 +189,9 @@ namespace UI {
          * @param _x
          * @param _y
          */
-        inline void move_by(int _x, int _y) {
-            x += _x;
-            y += _y;
+        constexpr void move_by(int _x, int _y) {
+            this->x += _x;
+            this->y += _y;
         }
         
         void add_child(UI::Widget& child);
@@ -202,20 +202,20 @@ namespace UI {
         virtual void set_tooltip(const std::string& text);
         void scroll(int y);
 
-        inline void above_of(const Widget& rhs) {
-            y = rhs.y - height;
+        constexpr void above_of(const Widget& rhs) {
+            this->y = rhs.y - this->height;
         }
 
-        inline void below_of(const Widget& rhs) {
-            y = rhs.y + rhs.height;
+        constexpr void below_of(const Widget& rhs) {
+            this->y = rhs.y + rhs.height;
         }
 
-        inline void left_side_of(const Widget& rhs) {
-            x = rhs.x - width;
+        constexpr void left_side_of(const Widget& rhs) {
+            this->x = rhs.x - this->width;
         }
 
-        inline void right_side_of(const Widget& rhs) {
-            x = rhs.x + rhs.width;
+        constexpr void right_side_of(const Widget& rhs) {
+            this->x = rhs.x + rhs.width;
         }
 
         /**
@@ -223,7 +223,7 @@ namespace UI {
          * 
          */
         virtual void set_on_click(std::function<void(Widget&)> _on_click) {
-            on_click = _on_click;
+            this->on_click = _on_click;
         }
 
         /**
@@ -232,8 +232,8 @@ namespace UI {
          * @param comp Comparison function
          */
         inline void sort_children(std::function<bool(const std::unique_ptr<UI::Widget>& a, const std::unique_ptr<UI::Widget>& b)> comp) {
-            std::sort(begin(children), end(children), comp);
-            need_recalc = true;
+            std::sort(begin(this->children), end(this->children), comp);
+            this->need_recalc = true;
         }
 
         /**
@@ -242,8 +242,8 @@ namespace UI {
          * 
          */
         inline void kill() {
-            dead = true;
-            notice_death();
+            this->dead = true;
+            this->notice_death();
         }
 
         // If the widget can't be moved when scrolling
@@ -318,11 +318,10 @@ namespace UI {
          * 
          */
         inline void notice_death() {
-            if(!dead_child) {
-                dead_child = true;
-                if(parent) {
-                    parent->notice_death();
-                }
+            if(!this->dead_child) {
+                this->dead_child = true;
+                if(this->parent)
+                    this->parent->notice_death();
             }
         };
 

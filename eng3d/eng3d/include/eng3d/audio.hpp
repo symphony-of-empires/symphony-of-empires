@@ -31,6 +31,8 @@
 #include <exception>
 
 namespace Eng3D {
+    class State;
+
     class AudioException : public std::exception {
         std::string buffer;
     public:
@@ -45,11 +47,11 @@ namespace Eng3D {
 
     class Audio {
     public:
-        Audio() {};
+        Audio() = default;
         Audio(const std::string& path);
-        ~Audio() {};
+        ~Audio() = default;
 
-        std::uint8_t *data;
+        std::uint8_t *data; // TODO: Use RAII pointers for this
         std::uint32_t pos;
         std::uint32_t len;
     };
@@ -57,8 +59,19 @@ namespace Eng3D {
     class AudioManager {
     private:
         std::map<std::string, Eng3D::Audio*> sounds;
+        Eng3D::State& s;
     public:
+        AudioManager() = delete;
+        AudioManager(Eng3D::State& s);
         ~AudioManager();
+        static void mixaudio(void* userdata, uint8_t* stream, int len);
         const Audio& load(const std::string& path);
+
+        // Queue of sounds/music
+        std::mutex sound_lock;
+        std::vector<Eng3D::Audio*> sound_queue;
+        std::vector<Eng3D::Audio*> music_queue;
+        float music_fade_value = 1.f;
+        float music_volume = 0.5f, sound_volume = 0.5f;
     };
 };

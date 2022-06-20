@@ -41,19 +41,25 @@ namespace Eng3D {
     public:
         float fov = 45.0f, near_plane = 1.0f, far_plane = 20000.0f;
 
-        Camera(glm::vec2 _screen_size, glm::vec2 _map_size) {
-            screen_size = _screen_size;
-            map_size = _map_size;
-            map_position = glm::vec3(1.0f);
+        constexpr Camera(glm::vec2 _screen_size, glm::vec2 _map_size)
+            : map_position{ glm::vec3(1.f) },
+            world_position{ glm::vec3(1.f) },
+            screen_size{ _screen_size },
+            map_size{ _map_size }
+        {
+
         }
 
-        Camera(const Camera& camera) {
-            screen_size = camera.screen_size;
-            map_size = camera.map_size;
-            map_position = camera.get_map_pos();
+        constexpr Camera(const Camera& camera)
+            : map_position{ camera.get_map_pos() },
+            world_position{ glm::vec3(1.f) },
+            screen_size{ camera.screen_size },
+            map_size{ camera.map_size }
+        {
+
         }
 
-        virtual ~Camera() {};
+        virtual ~Camera() = default;
 
         inline void set_screen(const int width, const int height) {
             screen_size = glm::vec2(width, height);

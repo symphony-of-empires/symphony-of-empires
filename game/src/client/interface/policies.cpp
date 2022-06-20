@@ -52,7 +52,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     this->padding.x = 0;
     this->padding.y = 48;
 
-    this->current_texture = this->gs.tex_man->load(this->gs.package_man->get_unique("gfx/policies_screen.png"));
+    this->current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/policies_screen.png"));
     this->width = this->current_texture->width;
     this->height = this->current_texture->height;
     this->text("Laws and goverment");
@@ -184,6 +184,6 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
         packet.data(ar.get_buffer(), ar.size());
         std::scoped_lock lock(g_client->pending_packets_mutex);
         g_client->pending_packets.push_back(packet);
-        this->gs.ui_ctx->prompt("Policy", "New policy enacted!");
+        this->gs.ui_ctx.prompt("Policy", "New policy enacted!");
     });
 }

@@ -56,7 +56,7 @@ TopWindow::TopWindow(GameState& _gs)
     flag_img->on_each_tick = ([this](UI::Widget& w) {
         w.current_texture = this->gs.get_nation_flag(*this->gs.curr_nation);
     });
-    new UI::Image(0, 0, flag_img->width, flag_img->height, gs.tex_man->load(this->gs.package_man->get_unique("gfx/flag_rug.png")), this);
+    new UI::Image(0, 0, flag_img->width, flag_img->height, gs.tex_man.load(this->gs.package_man.get_unique("gfx/flag_rug.png")), this);
 
     auto* flex_column = new UI::Div(3, 96, 42, 390, this);
     flex_column->flex = UI::Flex::COLUMN;
@@ -111,16 +111,13 @@ TopWindow::TopWindow(GameState& _gs)
     auto* load_ibtn = new UI::Image(9, 275, 25, 25, "gfx/top_bar/save.png", flex_column);
     load_ibtn->set_on_click([this](UI::Widget&) {
         const auto nation_id = this->gs.curr_nation->get_id();
-        
-        delete this->gs.world;
-        this->gs.world = new World();
         Archive ar = Archive();
         ar.from_file("default.sc4");
         ::deserialize(ar, this->gs.world);
         this->gs.world->load_mod();
 
         this->gs.curr_nation = &this->gs.world->nations[nation_id];
-        this->gs.ui_ctx->prompt("Loaded", "Loaded savefile");
+        this->gs.ui_ctx.prompt("Loaded", "Loaded savefile");
     });
     load_ibtn->set_tooltip("Load this savefile");
 
@@ -173,7 +170,7 @@ TimeControlView::TimeControlView(GameState& _gs)
         speed3_btn->set_tooltip("Fire speed");
     }
 
-    auto font = TTF_OpenFont(gs.package_man->get_unique("fonts/neon_euler/euler.ttf")->get_abs_path().c_str(), 20);
+    auto font = TTF_OpenFont(gs.package_man.get_unique("fonts/neon_euler/euler.ttf")->get_abs_path().c_str(), 20);
     auto text_color = Eng3D::Color(1., 1., 1.);
 
     auto* time_lab = new UI::Label(50, 30, " ", this);

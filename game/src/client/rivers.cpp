@@ -43,12 +43,12 @@ Rivers::Rivers() {
     mipmap_options.internal_format = GL_SRGB;
 
     auto& gs = Eng3D::State::get_instance();
-    water_tex = gs.tex_man->load(gs.package_man->get_unique("gfx/water_tex.png"), mipmap_options);
+    water_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/water_tex.png"), mipmap_options);
     line_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
         auto vs_shader = *gs.builtin_shaders["vs_3d"].get();
         line_shader->attach_shader(vs_shader);
-        auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man->get_unique("shaders/curve.fs")->read_all(), true);
+        auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man.get_unique("shaders/curve.fs")->read_all(), true);
         line_shader->attach_shader(fs_shader);
         line_shader->link();
     }
@@ -92,7 +92,7 @@ void Rivers::build_rivers() {
     auto tex_man = Eng3D::State::get_instance().tex_man;
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
-    auto river_tex = tex_man->load(Eng3D::State::get_instance().package_man->get_unique("map/river.png"), no_drop_options);
+    auto river_tex = tex_man.load(Eng3D::State::get_instance().package_man.get_unique("map/river.png"), no_drop_options);
 
     std::vector<int> rivers_starts;
     int height = river_tex->height;

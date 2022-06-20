@@ -70,14 +70,14 @@
 static inline void get_blob_bounds(std::unordered_set<Province*>& visited_provinces, const Nation& nation, const Province& province, glm::vec2* min_x, glm::vec2* min_y, glm::vec2* max_x, glm::vec2* max_y) {
     // Iterate over all neighbours
     for(const auto neighbour_id : province.neighbours) {
-        auto& neighbour = g_world->provinces[neighbour_id];
+        auto& neighbour = g_world.provinces[neighbour_id];
         // Do not visit again
         if(visited_provinces.find(&neighbour) != visited_provinces.end()) continue;
         // Must own the province
         if(neighbour.owner_id != nation.get_id()) continue;
         // Big provinces not taken in account
-        if(abs(neighbour.box_area.left - neighbour.box_area.right) >= g_world->width / 3.f) continue;
-        if(abs(neighbour.box_area.top - neighbour.box_area.bottom) >= g_world->height / 3.f) continue;
+        if(abs(neighbour.box_area.left - neighbour.box_area.right) >= g_world.width / 3.f) continue;
+        if(abs(neighbour.box_area.top - neighbour.box_area.bottom) >= g_world.height / 3.f) continue;
 
         if(neighbour.box_area.left < min_x->x) {
             min_x->x = neighbour.box_area.left;
@@ -124,8 +124,8 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     mipmap_options.wrap_t = GL_REPEAT;
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
-    line_tex = s.tex_man->load(s.package_man->get_unique("gfx/line_target.png"), mipmap_options);
-    skybox_tex = s.tex_man->load(s.package_man->get_unique("gfx/space.png"), mipmap_options);
+    line_tex = s.tex_man.load(s.package_man.get_unique("gfx/line_target.png"), mipmap_options);
+    skybox_tex = s.tex_man.load(s.package_man.get_unique("gfx/space.png"), mipmap_options);
 
     // Set the mapmode
     set_map_mode(political_map_mode, empty_province_tooltip);
@@ -135,23 +135,23 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     // Query the initial nation flags
     for(const auto& nation : world.nations) {
         std::string path = "gfx/flags/" + nation.ref_name + "_" + (nation.ideology == nullptr ? "none" : nation.ideology->ref_name.get_string()) + ".png";
-        auto flag_texture = s.tex_man->load(s.package_man->get_unique(path), mipmap_options);
+        auto flag_texture = s.tex_man.load(s.package_man.get_unique(path), mipmap_options);
         flag_texture->gen_mipmaps();
         nation_flags.push_back(flag_texture);
     }
     for(const auto& building_type : world.building_types) {
         std::string path;
         path = "models/building_types/" + building_type.ref_name + ".obj";
-        building_type_models.push_back(s.model_man->load(s.package_man->get_unique(path)));
+        building_type_models.push_back(s.model_man.load(s.package_man.get_unique(path)));
         path = "gfx/buildingtype/" + building_type.ref_name + ".png";
-        building_type_icons.push_back(s.tex_man->load(s.package_man->get_unique((path))));
+        building_type_icons.push_back(s.tex_man.load(s.package_man.get_unique((path))));
     }
     for(const auto& unit_type : world.unit_types) {
         std::string path;
         path = "models/unit_types/" + unit_type.ref_name + ".obj";
-        unit_type_models.push_back(s.model_man->load(s.package_man->get_unique(path)));
+        unit_type_models.push_back(s.model_man.load(s.package_man.get_unique(path)));
         path = "gfx/unittype/" + unit_type.ref_name + ".png";
-        unit_type_icons.push_back(s.tex_man->load(s.package_man->get_unique(path)));
+        unit_type_icons.push_back(s.tex_man.load(s.package_man.get_unique(path)));
     }
     create_labels();
 }
@@ -190,7 +190,7 @@ void Map::create_labels() {
 
         glm::vec2 min_point_x(world.width - 1.f, world.height - 1.f), min_point_y(world.width - 1.f, world.height - 1.f);
         glm::vec2 max_point_x(0.f, 0.f), max_point_y(0.f, 0.f);
-        const auto& capital = g_world->provinces[nation.capital_id];
+        const auto& capital = g_world.provinces[nation.capital_id];
         max_point_x = capital.box_area.position() + capital.box_area.size();
         max_point_y = capital.box_area.position() + capital.box_area.size();
         min_point_x = capital.box_area.position();
@@ -388,10 +388,10 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             packet.data(ar.get_buffer(), ar.size());
             g_client->send(packet);
 
-            const std::scoped_lock lock2(gs.sound_lock);
-            auto entries = gs.package_man->get_multiple_prefix("sfx/land_move");
+            const std::scoped_lock lock2(gs.audio_man.sound_lock);
+            auto entries = gs.package_man.get_multiple_prefix("sfx/land_move");
             if(!entries.empty())
-                gs.sound_queue.push_back(new Eng3D::Audio(entries[std::rand() % entries.size()]->get_abs_path()));
+                gs.audio_man.sound_queue.push_back(new Eng3D::Audio(entries[std::rand() % entries.size()]->get_abs_path()));
         }
         input.selected_units.clear();
     }
@@ -462,7 +462,7 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, Game
             input.select_pos.second = map_pos.y;
             auto prov_id = world.get_tile(map_pos.x, map_pos.y).province_id;
             if(mapmode_tooltip_func != nullptr) {
-                UI::Tooltip* tooltip = new UI::Tooltip();
+                auto* tooltip = new UI::Tooltip();
                 tooltip->text(mapmode_tooltip_func(world, prov_id));
                 ui_ctx->use_tooltip(tooltip, glm::ivec2(mouse_pos.first, mouse_pos.second));
             }
@@ -497,7 +497,7 @@ void Map::update_mapmode() {
     map_render->update_mapmode(province_colors);
 }
 
-void Map::draw(const GameState& gs) {
+void Map::draw(GameState& gs) {
     map_render->draw(camera, view_mode);
     // rivers->draw(camera);
     // borders->draw(camera);
@@ -613,7 +613,7 @@ void Map::draw(const GameState& gs) {
         const std::pair<float, float> pos = unit.get_pos();
         glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
         obj_shader->set_uniform("model", model);
-        obj_shader->set_texture(0, "diffuse_map", *gs.tex_man->load(gs.package_man->get_unique("gfx/select_border.png")).get());
+        obj_shader->set_texture(0, "diffuse_map", *gs.tex_man.load(gs.package_man.get_unique("gfx/select_border.png")).get());
         preproc_quad.draw();
     }
 

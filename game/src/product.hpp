@@ -27,13 +27,13 @@
 
 #include <string>
 #include <deque>
-#include "eng3d/decimal.hpp"
 
 // A product (based off a Good) which can be bought by POPs, converted by factories and transported
 class Product : public IdEntity<uint16_t> {
 public:
-    Product() {};
-    ~Product() {};
+    Product() = default;
+    ~Product() = default;
+    
     inline void close_market() {
         if(this->demand > this->supply) {
             // Increase price with more demand

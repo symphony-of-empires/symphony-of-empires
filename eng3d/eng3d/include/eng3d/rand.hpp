@@ -37,17 +37,12 @@ namespace Eng3D {
      */
     class Rand {
     private:
-        uint32_t a;
-        uint32_t b;
-        uint32_t c;
-        uint32_t d;
+        uint32_t a = 0, b = 0, c = 0, d = 0;
     public:
         using result_type = uint32_t;
         constexpr static uint32_t initial_seed = 0xf1ea5eed;
 
-        Rand() {
-
-        }
+        constexpr Rand() = default;
 
         Rand(uint32_t seed) {
             a = Rand::initial_seed;
@@ -56,7 +51,7 @@ namespace Eng3D {
                 (*this)();
         }
 
-        Rand(Rand const& o) noexcept
+        constexpr Rand(Rand const& o) noexcept
             : a{ o.a },
             b{ o.b },
             c{ o.c },
@@ -65,7 +60,7 @@ namespace Eng3D {
 
         }
 
-        Rand(Rand&& o) noexcept
+        constexpr Rand(Rand&& o) noexcept
             : a{ o.a },
             b{ o.b },
             c{ o.c },
@@ -92,7 +87,7 @@ namespace Eng3D {
             return std::numeric_limits<uint32_t>::min();
         }
 
-        inline uint32_t operator()() {
+        constexpr uint32_t operator()() {
             uint32_t e = a - rot32(b, 27);
             a = b ^ rot32(c, 17);
             b = c + d;
@@ -102,7 +97,7 @@ namespace Eng3D {
         }
 
         template<int32_t n>
-        inline void advance_n() {
+        constexpr void advance_n() {
             for(int32_t i = n; i--; )
                 this->operator()();
         }
