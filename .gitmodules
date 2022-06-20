@@ -1,0 +1,15 @@
+[submodule "vendor/sdl2"]
+	path = vendor/sdl2
+	url = https://github.com/libsdl-org/SDL
+[submodule "vendor/onetbb"]
+	path = vendor/onetbb
+	url = https://github.com/oneapi-src/oneTBB
+[submodule "vendor/glm"]
+	path = vendor/glm
+	url = https://github.com/g-truc/glm
+[submodule "vendor/glfw"]
+	path = vendor/glfw
+	url = https://github.com/glfw/glfw
+[submodule "vendor/assimp"]
+	path = vendor/assimp
+	url = https://github.com/assimp/assimp
