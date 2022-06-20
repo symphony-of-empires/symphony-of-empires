@@ -152,26 +152,31 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     : s{ _s }
 {
     // Startup-initialization of SDL
-    SDL_Init(SDL_INIT_EVERYTHING);
-    TTF_Init();
+    if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
+        CXX_THROW(std::runtime_error, std::string() + "Failed to init SDL " + SDL_GetError());
+    if(TTF_Init() < 0)
+        CXX_THROW(std::runtime_error, std::string() + "Failed to init TTF " + TTF_GetError());
+    SDL_ShowCursor(SDL_DISABLE);
 #ifdef E3D_BACKEND_OPENGL // Normal PC computer
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_ShowCursor(SDL_DISABLE);
 
     // Create the initial window
     s.width = 1024;
     s.height = 720;
     s.window = SDL_CreateWindow("Symphony of Empires", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, s.width, s.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    if(s.window == nullptr)
+        CXX_THROW(std::runtime_error, std::string() + "Failed to init SDL window " + SDL_GetError());
 
     // OpenGL configurations
     s.context = SDL_GL_CreateContext(s.window);
+    if(s.context == nullptr)
+        CXX_THROW(std::runtime_error, std::string() + "Failed to init SDL context " + SDL_GetError());
     SDL_GL_SetSwapInterval(1);
 
     Eng3D::Log::debug("opengl", std::string() + "OpenGL Version: " + (const char*)glGetString(GL_VERSION));
     glewExperimental = GL_TRUE;
-    GLenum err = glewInit();
-    if(err != GLEW_OK)
+    if(glewInit() != GLEW_OK)
         CXX_THROW(std::runtime_error, "Failed to init GLEW");
 
     GLint size;
@@ -208,10 +213,10 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
 
 Eng3D::Installer::~Installer()
 {
-    SDL_DestroyWindow(s.window);
 #ifdef E3D_BACKEND_OPENGL
     SDL_GL_DeleteContext(s.context);
 #endif
+    SDL_DestroyWindow(s.window);
     SDL_CloseAudio();
     TTF_Quit();
     SDL_Quit();
