@@ -21,6 +21,10 @@ out vec3 vTangentFragPos;
 void main() {
 	gl_Position = (projection * view) * vec4(m_pos, 1.0);
 	v_texcoord = m_texcoord;
-	v_view_pos = vec3(view[3][0], view[3][1], view[3][2]);
+	
+	vec4 view_pos = inverse(projection * view) * vec4(0., 0., 1., 1.);
+	view_pos.xyz /= view_pos.w * view_pos.w;
+	v_view_pos = vec3(view_pos.xyz);
+
 	v_frag_pos = m_pos;
 }
