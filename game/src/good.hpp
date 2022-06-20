@@ -31,8 +31,8 @@
 // A good, mostly serves as a "product type"
 class Good : public RefnameEntity<uint16_t> {
 public:
-    Good() {};
-    ~Good() {};
+    Good() = default;
+    ~Good() = default;
     
     Eng3D::StringRef name;
 };

@@ -33,8 +33,8 @@
 
 class Decision : public RefnameEntity<uint8_t> {
 public:
-    Decision() {};
-    ~Decision() {};
+    Decision() = default;
+    ~Decision() = default;
 
     Eng3D::StringRef name;
     Eng3D::StringRef effects;
@@ -46,8 +46,8 @@ public:
 class Nation;
 class Event : public RefnameEntity<uint16_t> {
 public:
-    Event() {};
-    ~Event() {};
+    Event() = default;
+    ~Event() = default;
     void take_decision(Nation& sender, Decision& dec);
 
     Eng3D::StringRef name;

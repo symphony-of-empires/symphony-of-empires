@@ -42,6 +42,7 @@
 #include "eng3d/io.hpp"
 
 namespace Eng3D {
+    class State;
     class Material;
     namespace OpenGL {
         class Program;
@@ -66,8 +67,8 @@ namespace Eng3D {
     // A complex object being composed by many simple objects
     class Model {
     public:
-        Model() {};
-        virtual ~Model() {};
+        Model() = default;
+        virtual ~Model() = default;
         Model(const Model&) = delete;
         Model(Model&&) noexcept = default;
         Model& operator=(const Model&) = default;
@@ -84,8 +85,11 @@ namespace Eng3D {
 
     class ModelManager {
         std::map<std::string, std::shared_ptr<Eng3D::Model>> models;
+        Eng3D::State& s;
     public:
-        ~ModelManager() {};
+        ModelManager() = delete;
+        ModelManager(Eng3D::State& _s);
+        ~ModelManager() = default;
         std::shared_ptr<Eng3D::Model> load(const std::string& path);
         std::shared_ptr<Eng3D::Model> load(std::shared_ptr<Eng3D::IO::Asset::Base> asset);
     };

@@ -59,7 +59,7 @@ BattleWidget::BattleWidget(Province& _province, size_t _idx, Map& _map, UI::Widg
         const Battle& battle = this->province->battles[this->idx];
         auto unit_size = 0;
         for(const auto unit_id : battle.attackers_ids) {
-            const auto& unit = g_world->unit_manager.units[unit_id];
+            const auto& unit = g_world.unit_manager.units[unit_id];
             unit_size += (int)unit.size;
         }
         this->left_size_label->text(std::to_string(unit_size));
@@ -74,7 +74,7 @@ BattleWidget::BattleWidget(Province& _province, size_t _idx, Map& _map, UI::Widg
         const Battle& battle = this->province->battles[this->idx];
         auto unit_size = 0;
         for(const auto unit_id : battle.defenders_ids) {
-            const auto& unit = g_world->unit_manager.units[unit_id];
+            const auto& unit = g_world.unit_manager.units[unit_id];
             unit_size += (int)unit.size;
         }
         this->right_size_label->text(std::to_string(unit_size));
@@ -96,13 +96,13 @@ void BattleWidget::set_battle(Province& _province, size_t _idx) {
     this->y = screen_pos.y - this->height / 2;
 
     if(!battle.attackers_ids.empty()) {
-        auto left_nation_flag = map.nation_flags[g_world->unit_manager.units[battle.attackers_ids[0]].owner_id];
+        auto left_nation_flag = map.nation_flags[g_world.unit_manager.units[battle.attackers_ids[0]].owner_id];
         this->left_flag_img->current_texture = left_nation_flag;
         this->left_size_label->on_each_tick(*this->left_size_label);
     }
 
     if(!battle.defenders_ids.empty()) {
-        auto right_nation_flag = map.nation_flags[g_world->unit_manager.units[battle.defenders_ids[0]].owner_id];
+        auto right_nation_flag = map.nation_flags[g_world.unit_manager.units[battle.defenders_ids[0]].owner_id];
         this->right_flag_img->current_texture = right_nation_flag;
         this->right_size_label->on_each_tick(*this->right_size_label);
     }

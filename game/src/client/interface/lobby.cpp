@@ -50,7 +50,7 @@ LobbySelectView::LobbySelectView(GameState& _gs)
     this->ctrl_window->origin = UI::Origin::UPPER_RIGHT_SCREEN;
 
     // Flag with shadow
-    this->curr_country_flag_img = new UI::Image(0, 0, 38, 28, gs.tex_man->get_white(), ctrl_window);
+    this->curr_country_flag_img = new UI::Image(0, 0, 38, 28, gs.tex_man.get_white(), ctrl_window);
     auto* drop_shadow_img = new UI::Image(0, 0, 38, 28, "gfx/drop_shadow.png", ctrl_window);
 
     // Country button for selection
@@ -106,8 +106,7 @@ LobbySelectView::LobbySelectView(GameState& _gs)
         ldgame_btn->set_on_click([this, ldgame](UI::Widget&) {
             if(ldgame.gs.world != nullptr) delete ldgame.gs.world;
             Archive ar = Archive();
-            ldgame.gs.world = new World();
-            ::deserialize(ar, ldgame.gs.world);
+            ::deserialize(ar, &ldgame.gs.world);
             ldgame.gs.map->update_mapmode();
         });
         ++i;
@@ -117,12 +116,12 @@ LobbySelectView::LobbySelectView(GameState& _gs)
 // Change nation in start screen
 void LobbySelectView::change_nation(size_t id) {
     size_t old_id = curr_selected_nation;
-    if(!g_world->nations.size()) {
-        gs.ui_ctx->prompt("Error", "No nations to select");
+    if(!g_world.nations.size()) {
+        gs.ui_ctx.prompt("Error", "No nations to select");
         return;
     }
 
-    if(id >= g_world->nations.size())
+    if(id >= g_world.nations.size())
         id = 0;
 
     gs.curr_nation = &gs.world->nations[id];

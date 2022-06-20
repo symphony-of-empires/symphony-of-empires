@@ -180,9 +180,9 @@ namespace Eng3D {
     template<typename V = glm::vec3, typename T = glm::vec2>
     class MeshData {
     public:
-        MeshData() {};
+        MeshData() = default;
         MeshData(V _vert, T _tex): vert(_vert), tex(_tex) {};
-        ~MeshData() {};
+        ~MeshData() = default;
         MeshData(const MeshData&) = delete;
         MeshData(MeshData&&) noexcept = default;
         MeshData& operator=(const MeshData&) = default;
@@ -203,7 +203,7 @@ namespace Eng3D {
         {
 
         }
-        virtual ~Mesh() {};
+        virtual ~Mesh() = default;
         Mesh(const Mesh&) = delete;
         Mesh(Mesh&&) noexcept = default;
         Mesh& operator=(const Mesh&) = default;

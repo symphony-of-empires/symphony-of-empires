@@ -26,10 +26,11 @@
 #include <string>
 #include <algorithm>
 #include <cmath>
+#include <cassert>
 #ifndef M_PI
 #   define M_PI 3.1415f
 #endif
-#include "eng3d/assert.hpp"
+
 #include "eng3d/log.hpp"
 #include "eng3d/common.hpp"
 

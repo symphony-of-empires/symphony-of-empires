@@ -70,35 +70,36 @@
 using namespace UI;
 
 Context* UI::g_ui_context = nullptr;
-Context::Context() {
+Context::Context(Eng3D::State& _s)
+    : s{ _s }
+{
     if(g_ui_context != nullptr)
         CXX_THROW(std::runtime_error, "UI context already constructed");
     g_ui_context = this;
     is_drag = false;
 
-    Eng3D::State& gs = Eng3D::State::get_instance();
-    // default_font = TTF_OpenFont(gs.package_man->get_uniqu("gfx/fonts/FreeMono.ttf").c_str(), 16);
-    default_font = TTF_OpenFont(gs.package_man->get_unique("fonts/Poppins/Poppins-SemiBold.ttf")->get_abs_path().c_str(), 16);
+    // default_font = TTF_OpenFont(s.package_man.get_uniqu("gfx/fonts/FreeMono.ttf").c_str(), 16);
+    default_font = TTF_OpenFont(s.package_man.get_unique("fonts/Poppins/Poppins-SemiBold.ttf")->get_abs_path().c_str(), 16);
     if(default_font == nullptr)
         CXX_THROW(std::runtime_error, std::string() + "Font could not be loaded: " + TTF_GetError());
     widgets.reserve(255);
 
-    foreground = gs.tex_man->load(gs.package_man->get_unique("gfx/button2.png"));
-    background = gs.tex_man->load(gs.package_man->get_unique("gfx/window_background.png"));
-    window_top = gs.tex_man->load(gs.package_man->get_unique("gfx/window_top3.png"));
-    button = gs.tex_man->load(gs.package_man->get_unique("gfx/button2.png"));
-    tooltip_tex = gs.tex_man->load(gs.package_man->get_unique("gfx/tooltip.png"));
-    piechart_overlay = gs.tex_man->load(gs.package_man->get_unique("gfx/piechart.png"));
-    border_tex = gs.tex_man->load(gs.package_man->get_unique("gfx/border2.png"));
-    button_border = gs.tex_man->load(gs.package_man->get_unique("gfx/border_sharp2.png"));
-    cursor_tex = gs.tex_man->load(gs.package_man->get_unique("gfx/cursor_b.png"));
+    foreground = s.tex_man.load(s.package_man.get_unique("gfx/button2.png"));
+    background = s.tex_man.load(s.package_man.get_unique("gfx/window_background.png"));
+    window_top = s.tex_man.load(s.package_man.get_unique("gfx/window_top3.png"));
+    button = s.tex_man.load(s.package_man.get_unique("gfx/button2.png"));
+    tooltip_tex = s.tex_man.load(s.package_man.get_unique("gfx/tooltip.png"));
+    piechart_overlay = s.tex_man.load(s.package_man.get_unique("gfx/piechart.png"));
+    border_tex = s.tex_man.load(s.package_man.get_unique("gfx/border2.png"));
+    button_border = s.tex_man.load(s.package_man.get_unique("gfx/border_sharp2.png"));
+    cursor_tex = s.tex_man.load(s.package_man.get_unique("gfx/cursor_b.png"));
 
     // Shader used for orthogonally drawing the objects on the 2D plane
     obj_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        auto vs_shader = Eng3D::OpenGL::VertexShader(Eng3D::State::get_instance().package_man->get_unique("shaders/vs_2d.vs")->read_all());
+        auto vs_shader = Eng3D::OpenGL::VertexShader(s.package_man.get_unique("shaders/vs_2d.vs")->read_all());
         obj_shader->attach_shader(vs_shader);
-        auto fs_shader = Eng3D::OpenGL::FragmentShader(Eng3D::State::get_instance().package_man->get_unique("shaders/fs_2d.fs")->read_all());
+        auto fs_shader = Eng3D::OpenGL::FragmentShader(s.package_man.get_unique("shaders/fs_2d.fs")->read_all());
         obj_shader->attach_shader(fs_shader);
         obj_shader->link();
     }

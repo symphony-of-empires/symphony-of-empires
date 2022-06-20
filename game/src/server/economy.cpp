@@ -371,7 +371,7 @@ void Economy::do_tick(World& world) {
             Product& product = province.products[market.good];
             if(product.supply <= 0.f) continue;
             for(const auto neighbour_id : province.neighbours) {
-                auto& neighbour = g_world->provinces[neighbour_id];
+                auto& neighbour = g_world.provinces[neighbour_id];
                 if(Nation::is_valid(neighbour.owner_id)) continue;
                 const size_t neighbour_neighbours_size = neighbour.neighbours.size();
                 Product& other_product = neighbour.products[market.good];
@@ -393,7 +393,7 @@ void Economy::do_tick(World& world) {
     for(size_t i = 0; i < world.provinces.size(); i++) {
         Province& province = world.provinces[i];
         for(const auto neighbour_id : province.neighbours) {
-            auto& neighbour = g_world->provinces[neighbour_id];
+            auto& neighbour = g_world.provinces[neighbour_id];
             if(neighbour.terrain_type->is_water_body) {
                 coastal++;
                 break;

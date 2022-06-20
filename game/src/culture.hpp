@@ -32,8 +32,8 @@
 
 class Culture : public RefnameEntity<uint16_t> {
 public:
-    Culture() {};
-    ~Culture() {};
+    Culture() = default;
+    ~Culture() = default;
     
     std::uint32_t color;
     Eng3D::StringRef name;

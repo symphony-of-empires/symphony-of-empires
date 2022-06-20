@@ -46,6 +46,10 @@
 
 #include "eng3d/io.hpp"
 #include "eng3d/ui/ui.hpp"
+#include "eng3d/audio.hpp"
+#include "eng3d/material.hpp"
+#include "eng3d/model.hpp"
+#include "eng3d/texture.hpp"
 
 namespace Eng3D {
     class TextureManager;
@@ -60,10 +64,19 @@ namespace Eng3D {
         class Shader;
     };
 
+    class State;
+    class Installer {
+        Eng3D::State& s;
+    public:
+        Installer(Eng3D::State& s);
+        ~Installer();
+    };
+
     class State {
     public:
         State(const std::vector<std::string>& pkg_paths);
         ~State();
+        void init_window(void);
         void clear() const;
         void reload_shaders();
         void swap() const;
@@ -74,30 +87,21 @@ namespace Eng3D {
         SDL_Joystick* joy = nullptr;
         float joy_sensivity = 2.f;
 
-        // Queue of sounds/music
-        std::mutex sound_lock;
-        std::vector<Eng3D::Audio*> sound_queue;
-        std::vector<Eng3D::Audio*> music_queue;
-        float music_fade_value = 1.f;
-
-        Eng3D::AudioManager* sound_man;
-        Eng3D::TextureManager* tex_man;
-        Eng3D::MaterialManager* material_man;
-        Eng3D::ModelManager* model_man;
-        Eng3D::IO::PackageManager* package_man;
-        UI::Context* ui_ctx;
-
-        float music_volume = 0.5f, sound_volume = 0.5f;
-#ifdef E3D_BACKEND_RGX
-        // RVL uses global state variables that are platform specific
-#else
+        Installer installer;
+        Eng3D::IO::PackageManager package_man;
+        Eng3D::AudioManager audio_man;
+        Eng3D::TextureManager tex_man;
+        Eng3D::MaterialManager material_man;
+        Eng3D::ModelManager model_man;
+        UI::Context ui_ctx;
+#ifdef E3D_BACKEND_OPENGL
         SDL_Window* window;
         SDL_GLContext context;
         int width, height;
-#endif
-#ifdef E3D_BACKEND_OPENGL
         // Builtin shaders
         std::map<std::string, std::unique_ptr<Eng3D::OpenGL::Shader>> builtin_shaders;
+#else
+        // RVL uses global state variables that are platform specific
 #endif
     };
 }

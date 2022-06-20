@@ -55,24 +55,24 @@ namespace TreatyClause {
 // This allows for cases where a country A hates country B, but country B loves country A
 class NationRelation {
 public:
-    NationRelation() {};
-    ~NationRelation() {};
+    constexpr NationRelation() = default;
+    ~NationRelation() = default;
 
-    float relation;
-    float interest;
-    bool has_embargo;
-    bool has_war;
-    bool has_alliance;
-    bool has_defensive_pact;
-    bool has_military_access;
-    bool has_market_access;
+    float relation = 0.f;
+    float interest = 0.f;
+    bool has_embargo = false;
+    bool has_war = false;
+    bool has_alliance = false;
+    bool has_defensive_pact = false;
+    bool has_military_access = false;
+    bool has_market_access = false;
 };
 
 // Hints for the client on how to display the nation
 class NationClientHint {
 public:
-    NationClientHint() {};
-    ~NationClientHint() {};
+    NationClientHint() = default;
+    ~NationClientHint() = default;
 
     uint32_t color;
     Eng3D::StringRef alt_name; // Alternate name, for example communist Russia would be called USSR
@@ -81,8 +81,8 @@ public:
 
 class NationModifier : public RefnameEntity<uint16_t> {
 public:
-    NationModifier() {};
-    ~NationModifier() {};
+    NationModifier() = default;
+    ~NationModifier() = default;
 
     Eng3D::StringRef name;
     // Modifiers for a nation, which increases/decreases certain stuff
@@ -110,8 +110,8 @@ class Nation : public RefnameEntity<uint16_t> {
 
     Nation & operator=(const Nation&) = default;
 public:
-    Nation() {};
-    ~Nation() {};
+    Nation() = default;
+    ~Nation() = default;
     void declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> clauses = std::vector<TreatyClause::BaseClause*>());
     bool is_ally(const Nation& nation) const;
     bool is_enemy(const Nation& nation) const;

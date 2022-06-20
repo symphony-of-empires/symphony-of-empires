@@ -24,8 +24,7 @@
 // ----------------------------------------------------------------------------
 
 #include <algorithm>
-
-#include "eng3d/assert.hpp"
+#include <cassert>
 
 #include "event.hpp"
 #include "world.hpp"
@@ -40,7 +39,7 @@ void Event::take_decision(Nation& sender, Decision& dec) {
     assert(receiver != receivers.end());
 
     // Tell the world that we took a decision
-    g_world->taken_decisions.push_back(std::make_pair(dec, &sender));
+    g_world.taken_decisions.push_back(std::make_pair(dec, &sender));
     
     // Remove from inbox too
     std::erase_if(sender.inbox, [this](const auto& e) {

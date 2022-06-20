@@ -48,7 +48,7 @@ float Province::total_pops() const {
 float Province::get_attractiveness(const Pop& pop) const {
     float attractive = this->base_attractive;
 
-    const auto& owner = g_world->nations[this->owner_id];
+    const auto& owner = g_world.nations[this->owner_id];
     if(!owner.is_accepted_culture(pop) && !owner.is_accepted_religion(pop)) {
         // Linearized version, instead of using if-else trees we just
         // multiply the attractive by the scale; EXTERMINATE = 3, so 3 - 3 is 0 which nullifies the attractivenes
@@ -74,8 +74,8 @@ float Province::get_attractiveness(const Pop& pop) const {
 
 void Province::add_building(const BuildingType& building_type) {
     // Now build the building
-    this->buildings[g_world->get_id(building_type)].level += 1;
-    this->buildings[g_world->get_id(building_type)].req_goods = building_type.req_goods;
+    this->buildings[g_world.get_id(building_type)].level += 1;
+    this->buildings[g_world.get_id(building_type)].req_goods = building_type.req_goods;
 }
 
 void Province::cancel_construction_project() {
@@ -86,7 +86,7 @@ void Province::cancel_construction_project() {
 }
 
 bool Province::is_neighbour(Province& province) const {
-    return std::find(this->neighbours.begin(), this->neighbours.end(), g_world->get_id(province)) != this->neighbours.end();
+    return std::find(this->neighbours.begin(), this->neighbours.end(), g_world.get_id(province)) != this->neighbours.end();
 }
 
 void Province::clean_pops() {
