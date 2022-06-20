@@ -190,13 +190,19 @@ void Map::create_labels() {
 
         glm::vec2 min_point_x(world.width - 1.f, world.height - 1.f), min_point_y(world.width - 1.f, world.height - 1.f);
         glm::vec2 max_point_x(0.f, 0.f), max_point_y(0.f, 0.f);
-        const auto& capital = g_world.provinces[nation.capital_id];
-        max_point_x = capital.box_area.position() + capital.box_area.size();
-        max_point_y = capital.box_area.position() + capital.box_area.size();
-        min_point_x = capital.box_area.position();
-        min_point_y = capital.box_area.position();
+        if (nation.owned_provinces.size() == 0)
+            continue;
+        Province::Id prov_id = *nation.owned_provinces.begin();
+        if (Province::is_valid(nation.capital_id)) 
+            prov_id = nation.capital_id;
+        
+        const Province& province = g_world.provinces[prov_id];
+        max_point_x = province.box_area.position() + province.box_area.size();
+        max_point_y = province.box_area.position() + province.box_area.size();
+        min_point_x = province.box_area.position();
+        min_point_y = province.box_area.position();
         std::unordered_set<Province*> visited_provinces;
-        get_blob_bounds(visited_provinces, nation, capital, &min_point_x, &min_point_y, &max_point_x, &max_point_y);
+        get_blob_bounds(visited_provinces, nation, province, &min_point_x, &min_point_y, &max_point_x, &max_point_y);
 #if 0
         // Stop super-big labels
         if(glm::abs(min_point_x.x - max_point_x.x) >= world.width / 2.f || glm::abs(min_point_y.y - max_point_y.y) >= world.height / 2.f) {
@@ -522,7 +528,7 @@ void Map::draw(GameState& gs) {
         auto prov_id = gs.world->unit_manager.unit_province[unit.cached_id];
         auto& province = gs.world->provinces[prov_id];
         auto& camera = this->camera;
-        const glm::vec2 prov_pos = glm::vec2(province.get_pos().first, province.get_pos().second);
+        const glm::vec2 prov_pos = province.get_pos();
         // And display units
         if(unit.on_battle) return;
         bool unit_visible = true;
@@ -542,7 +548,7 @@ void Map::draw(GameState& gs) {
         }
     });
     for(auto& province : const_cast<World&>(world).provinces) {
-        const glm::vec2 prov_pos = glm::vec2(province.get_pos().first, province.get_pos().second);
+        const glm::vec2 prov_pos = province.get_pos();
         size_t war_battle_idx = 0;
         for(const auto& battle : province.battles) {
             bool battle_visible = true;
@@ -569,7 +575,7 @@ void Map::draw(GameState& gs) {
             glm::mat4 model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
             if(Province::is_valid(unit.target_province_id)) {
                 const auto& unit_target = world.provinces[unit.target_province_id];
-                const glm::vec2 target_pos = glm::vec2(unit_target.get_pos().first, unit_target.get_pos().second);
+                const glm::vec2 target_pos = unit_target.get_pos();
                 const float dist = glm::sqrt(glm::pow(glm::abs(prov_pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(prov_pos.y - target_pos.y), 2.f));
                 auto line_square = Eng3D::Square(0.f, 0.f, dist, 0.5f);
                 glm::mat4 line_model = glm::rotate(model, glm::atan(target_pos.y - prov_pos.y, target_pos.x - prov_pos.x), glm::vec3(0.f, 0.f, 1.f));
@@ -592,7 +598,7 @@ void Map::draw(GameState& gs) {
     for(const auto& province : world.provinces) {
         const float y = province_units_y[world.get_id(province)];
         province_units_y[world.get_id(province)] += 2.5f;
-        const glm::vec2 prov_pos = glm::vec2(province.get_pos().first, province.get_pos().second);
+        const glm::vec2 prov_pos = province.get_pos();
 
         unsigned int i = 0;
         for(const auto& building_type : world.building_types) {
@@ -610,8 +616,8 @@ void Map::draw(GameState& gs) {
     // Highlight for units
     for(const auto unit_id : gs.input.selected_units) {
         auto& unit = gs.world->unit_manager.units[unit_id];
-        const std::pair<float, float> pos = unit.get_pos();
-        glm::mat4 model = glm::translate(base_model, glm::vec3(pos.first, pos.second, 0.f));
+        const auto pos = unit.get_pos();
+        glm::mat4 model = glm::translate(base_model, glm::vec3(pos.x, pos.y, 0.f));
         obj_shader->set_uniform("model", model);
         obj_shader->set_texture(0, "diffuse_map", *gs.tex_man.load(gs.package_man.get_unique("gfx/select_border.png")).get());
         preproc_quad.draw();

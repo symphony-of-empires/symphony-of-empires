@@ -90,7 +90,7 @@ void BattleWidget::set_battle(Province& _province, size_t _idx) {
 
     const Eng3D::Camera& camera = *map.camera;
     const auto battle_pos = province->get_pos();
-    const auto screen_pos = camera.get_tile_screen_pos(glm::vec2(battle_pos.first, battle_pos.second));
+    const auto screen_pos = camera.get_tile_screen_pos(battle_pos);
 
     this->x = screen_pos.x - this->width / 2;
     this->y = screen_pos.y - this->height / 2;
