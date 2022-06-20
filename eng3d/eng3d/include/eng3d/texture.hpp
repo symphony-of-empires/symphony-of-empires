@@ -54,6 +54,8 @@ namespace Eng3D::IO {
 };
 
 namespace Eng3D {
+    class State;
+
     class TextureException: public BinaryImageException {
     public:
         TextureException(const std::string& filename, const std::string& message)
@@ -167,8 +169,10 @@ namespace Eng3D {
     private:
         std::unordered_map<std::pair<std::string, TextureOptions>, std::shared_ptr<Eng3D::Texture>, TextureMapHash> textures;
         std::shared_ptr<Eng3D::Texture> white;
+        Eng3D::State& s;
     public:
-        TextureManager() = default;
+        TextureManager() = delete;
+        TextureManager(Eng3D::State& s);
         ~TextureManager() = default;
         std::shared_ptr<Texture> load(const std::string& path, TextureOptions options = default_options);
         std::shared_ptr<Texture> load(std::shared_ptr<Eng3D::IO::Asset::Base> asset, TextureOptions options = default_options);

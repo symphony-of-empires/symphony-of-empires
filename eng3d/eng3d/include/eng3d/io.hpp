@@ -31,12 +31,13 @@
 #include <vector>
 #include <memory>
 
-/**
- * @brief Implements the I/O functions for interacting with assets, please note that
- * this is however outdated because <filesystem> now exists, but we are
- * given more flexibility if we roll our own implementation to make a "mini Virtual-Filesystem"
- * 
- */
+namespace Eng3D {
+    class State;
+}
+
+/// @brief Implements the I/O functions for interacting with assets, please note that
+/// this is however outdated because <filesystem> now exists, but we are
+/// given more flexibility if we roll our own implementation to make a "mini Virtual-Filesystem"
 namespace Eng3D::IO {
     /**
      * @brief The path class abstracts away most of the burden from handling system-dependant
@@ -164,8 +165,10 @@ namespace Eng3D::IO {
     };
 
     class PackageManager {
+        Eng3D::State& s;
     public:
-        PackageManager(const std::vector<std::string>& pkg_paths);
+        PackageManager() = delete;
+        PackageManager(Eng3D::State& s, const std::vector<std::string>& pkg_paths);
         ~PackageManager() = default;
         void recursive_filesystem_walk(Eng3D::IO::Package& package, const std::string& root, const std::string& current);
         std::shared_ptr<Eng3D::IO::Asset::Base> get_unique(const IO::Path& path);

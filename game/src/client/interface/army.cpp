@@ -149,7 +149,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, con
 
     this->unit_icon = new UI::Image(0, 0, 24, 24, this);
     if(building.working_unit_type != nullptr)
-        this->unit_icon->current_texture = gs.tex_man->load(gs.package_man->get_unique("gfx/" + building.working_unit_type->ref_name + ".png"));
+        this->unit_icon->current_texture = gs.tex_man.load(gs.package_man.get_unique("gfx/" + building.working_unit_type->ref_name + ".png"));
 
     this->province_lab = new UI::Label(0, 0, "?", this);
     this->province_lab->right_side_of(*this->unit_icon);
@@ -224,7 +224,7 @@ ArmyView::ArmyView(GameState& _gs)
 
     this->army_tab = new ArmyArmyTab(gs, 0, 32, this);
     this->army_tab->is_render = true;
-    auto* army_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(gs.package_man->get_unique("gfx/military_score.png")), this);
+    auto* army_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/military_score.png")), this);
     army_ibtn->set_on_click([this](UI::Widget&) {
         this->army_tab->is_render = true;
         this->airforce_tab->is_render = false;
@@ -237,7 +237,7 @@ ArmyView::ArmyView(GameState& _gs)
 
     this->airforce_tab = new ArmyAirforceTab(gs, 0, 32, this);
     this->airforce_tab->is_render = false;
-    auto* airforce_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(gs.package_man->get_unique("gfx/airforce.png")), this);
+    auto* airforce_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/airforce.png")), this);
     airforce_ibtn->right_side_of(*army_ibtn);
     airforce_ibtn->set_on_click([this](UI::Widget&) {
         this->army_tab->is_render = false;
@@ -251,7 +251,7 @@ ArmyView::ArmyView(GameState& _gs)
 
     this->navy_tab = new ArmyNavyTab(gs, 0, 32, this);
     this->navy_tab->is_render = false;
-    auto* navy_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(gs.package_man->get_unique("gfx/navy.png")), this);
+    auto* navy_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/navy.png")), this);
     navy_ibtn->right_side_of(*airforce_ibtn);
     navy_ibtn->set_on_click([this](UI::Widget&) {
         this->army_tab->is_render = false;
@@ -265,7 +265,7 @@ ArmyView::ArmyView(GameState& _gs)
 
     this->production_tab = new ArmyProductionTab(gs, 0, 32, this);
     this->production_tab->is_render = false;
-    auto* production_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(gs.package_man->get_unique("gfx/production.png")), this);
+    auto* production_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/production.png")), this);
     production_ibtn->right_side_of(*navy_ibtn);
     production_ibtn->set_on_click([this](UI::Widget&) {
         this->army_tab->is_render = false;
@@ -279,7 +279,7 @@ ArmyView::ArmyView(GameState& _gs)
 
     this->new_unit_tab = new ArmyNewUnitTab(gs, 0, 32, this);
     this->new_unit_tab->is_render = false;
-    auto* new_unit_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man->load(gs.package_man->get_unique("gfx/new_unit.png")), this);
+    auto* new_unit_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/new_unit.png")), this);
     new_unit_ibtn->right_side_of(*production_ibtn);
     new_unit_ibtn->set_on_click([this](UI::Widget&) {
         this->army_tab->is_render = false;

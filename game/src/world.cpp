@@ -87,19 +87,13 @@ std::vector<Tile> Tile::get_neighbours(const World& world) const {
     return tiles;
 }
 
-World* g_world;
-
-World& World::get_instance() {
-    return *g_world;
-}
+World g_world;
 
 void ai_init(World& world);
 void ai_do_tick(Nation& nation);
 
 // Creates a new world
-World::World() {
-    g_world = this;
-
+void World::init_lua() {
     lua = luaL_newstate();
     luaL_openlibs(lua);
 
@@ -199,22 +193,22 @@ World::World() {
     lua_register(lua, "get_ideology_by_id", LuaAPI::get_ideology_by_id);
 
     lua_register(lua, "get_day", [](lua_State* L) {
-        lua_pushnumber(L, 1 + (g_world->time % g_world->ticks_per_month));
+        lua_pushnumber(L, 1 + (g_world.time % g_world.ticks_per_month));
         return 1;
     });
     lua_register(lua, "get_month", [](lua_State* L) {
-        lua_pushnumber(L, 1 + (g_world->time / g_world->ticks_per_month % 12));
+        lua_pushnumber(L, 1 + (g_world.time / g_world.ticks_per_month % 12));
         return 1;
     });
     lua_register(lua, "get_year", [](lua_State* L) {
-        lua_pushnumber(L, g_world->time / g_world->ticks_per_month / 12);
+        lua_pushnumber(L, g_world.time / g_world.ticks_per_month / 12);
         return 1;
     });
     lua_register(lua, "set_date", [](lua_State* L) {
         const int year = lua_tonumber(L, 1) * 12 * 30;
         const int month = lua_tonumber(L, 2) * 30;
         const int day = lua_tonumber(L, 3);
-        g_world->time = year + month + day;
+        g_world.time = year + month + day;
         return 1;
     });
 
@@ -290,7 +284,7 @@ World::World() {
     std::string curr_path = lua_tostring(lua, -1);
 
     // Add all scripts onto the path (with glob operator '?')
-    const std::vector<std::string> paths = Eng3D::State::get_instance().package_man->get_paths();
+    const std::vector<std::string> paths = Eng3D::State::get_instance().package_man.get_paths();
     for(const auto& path : paths) {
         Eng3D::Log::debug("lua", "Added path " + path);
         curr_path.append(";" + path + "/lua/?.lua");
@@ -310,7 +304,7 @@ World::~World() {
 static void lua_exec_all_of(World& world, const std::vector<std::string> files, const std::string& dir = "lua") {
     std::string files_buf = "require(\"classes/base\")\n\n";
     for(const auto& file : files) {
-        auto paths = Eng3D::State::get_instance().package_man->get_multiple(dir + "/" + file + ".lua");
+        auto paths = Eng3D::State::get_instance().package_man.get_multiple(dir + "/" + file + ".lua");
         for(const auto& path : paths) {
             /*luaL_dofile(lua, path.c_str());
             if(luaL_dofile(lua, path.c_str()) != LUA_OK) {
@@ -354,7 +348,7 @@ void World::load_initial() {
             "nations", "provinces", "init"
         }, "lua/entities");
 
-        std::unique_ptr<BinaryImage> div = std::make_unique<BinaryImage>(Eng3D::State::get_instance().package_man->get_unique("map/provinces.png")->get_abs_path());
+        std::unique_ptr<BinaryImage> div = std::make_unique<BinaryImage>(Eng3D::State::get_instance().package_man.get_unique("map/provinces.png")->get_abs_path());
         width = div->width;
         height = div->height;
         tiles = std::make_unique<Tile[]>(width * height);
@@ -540,10 +534,10 @@ static inline void unit_do_tick(Unit& unit)
     if(Province::is_valid(unit.target_province_id)) {
         assert(unit.target_province_id != unit.province_id());
 
-        auto& unit_target = g_world->provinces[unit.target_province_id];
+        auto& unit_target = g_world.provinces[unit.target_province_id];
         bool can_move = true, can_take = false;
         if(unit_target.controller != nullptr && unit_target.controller->get_id() != unit.owner_id) {
-            const auto& relation = g_world->get_relation(unit_target.controller->get_id(), unit.owner_id);
+            const auto& relation = g_world.get_relation(unit_target.controller->get_id(), unit.owner_id);
             can_move = (relation.has_alliance || relation.has_defensive_pact || relation.has_war);
             can_take = relation.has_war;
         }
@@ -553,20 +547,20 @@ static inline void unit_do_tick(Unit& unit)
             /*if(unit.move_progress) {
                 unit.move_progress -= std::min<float>(unit.move_progress, unit.get_speed());
             } else*/ {
-                g_world->unit_manager.move_unit(unit.get_id(), unit.target_province_id);
+                g_world.unit_manager.move_unit(unit.get_id(), unit.target_province_id);
                 // Only take control of provinces of the people we're at war with
                 if(can_take)
-                    g_world->nations[unit.owner_id].control_province(unit_target);
+                    g_world.nations[unit.owner_id].control_province(unit_target);
                 unit.target_province_id = Province::invalid();
             }
         }
     }
 
-    Province::Id prov_id = g_world->unit_manager.get_unit_current_province(unit.cached_id);
-    auto& unit_province = g_world->provinces[prov_id];
+    Province::Id prov_id = g_world.unit_manager.get_unit_current_province(unit.cached_id);
+    auto& unit_province = g_world.provinces[prov_id];
     // If there is another unit of a country we are at war with we will start a battle
-    for(auto& war : g_world->wars) {
-        if(war->is_involved(g_world->nations[unit.owner_id])) {
+    for(auto& war : g_world.wars) {
+        if(war->is_involved(g_world.nations[unit.owner_id])) {
             auto it = std::find_if(unit_province.battles.begin(), unit_province.battles.end(), [war](const auto& e) {
                 return e.war == war;
             });
@@ -576,12 +570,12 @@ static inline void unit_do_tick(Unit& unit)
             if(it == unit_province.battles.end() && !unit.on_battle) {
                 // See above code, by our logic the other unit should already be in a battle if it's
                 // against us, and if it is not, and it's probably wise to attack them
-                const auto& unit_ids = g_world->unit_manager.get_province_units(prov_id);
+                const auto& unit_ids = g_world.unit_manager.get_province_units(prov_id);
                 for(const auto& other_unit_id : unit_ids) {
-                    auto& other_unit = g_world->unit_manager.units[other_unit_id];
+                    auto& other_unit = g_world.unit_manager.units[other_unit_id];
                     if(other_unit.owner_id == unit.owner_id || other_unit.on_battle) continue;
                     // Check relations, if we're at war we will attack this unit
-                    const auto& relation = g_world->get_relation(unit.owner_id, other_unit.owner_id);
+                    const auto& relation = g_world.get_relation(unit.owner_id, other_unit.owner_id);
                     if(!relation.has_war) continue;
                     // If we found an unit we can attack, start a battle
                     unit.on_battle = true;
@@ -589,12 +583,12 @@ static inline void unit_do_tick(Unit& unit)
                     // Create a new battle
                     Battle battle = Battle(*war);
                     battle.name = "Battle of " + unit_province.name;
-                    if(war->is_attacker(g_world->nations[unit.owner_id])) {
-                        battle.attackers_ids.push_back(g_world->get_id(unit));
-                        battle.defenders_ids.push_back(g_world->get_id(other_unit));
+                    if(war->is_attacker(g_world.nations[unit.owner_id])) {
+                        battle.attackers_ids.push_back(g_world.get_id(unit));
+                        battle.defenders_ids.push_back(g_world.get_id(other_unit));
                     } else {
-                        battle.attackers_ids.push_back(g_world->get_id(other_unit));
-                        battle.defenders_ids.push_back(g_world->get_id(unit));
+                        battle.attackers_ids.push_back(g_world.get_id(other_unit));
+                        battle.defenders_ids.push_back(g_world.get_id(unit));
                     }
                     unit_province.battles.push_back(battle);
                     Eng3D::Log::debug("game", "New battle of \"" + battle.name + "\"");
@@ -606,14 +600,14 @@ static inline void unit_do_tick(Unit& unit)
                 // Add the unit to one side depending on who are we attacking
                 // However unit must not be already involved
                 /// @todo Make it be instead depending on who attacked first in this battle
-                if(war->is_attacker(g_world->nations[unit.owner_id])) {
-                    assert(std::find(battle.attackers_ids.begin(), battle.attackers_ids.end(), g_world->get_id(unit)) == battle.attackers_ids.end());
-                    battle.attackers_ids.push_back(g_world->get_id(unit));
+                if(war->is_attacker(g_world.nations[unit.owner_id])) {
+                    assert(std::find(battle.attackers_ids.begin(), battle.attackers_ids.end(), g_world.get_id(unit)) == battle.attackers_ids.end());
+                    battle.attackers_ids.push_back(g_world.get_id(unit));
                     Eng3D::Log::debug("game", "Adding unit <attacker> to battle of \"" + battle.name + "\"");
                 } else {
-                    assert(war->is_defender(g_world->nations[unit.owner_id]));
-                    assert(std::find(battle.defenders_ids.begin(), battle.defenders_ids.end(), g_world->get_id(unit)) == battle.defenders_ids.end());
-                    battle.defenders_ids.push_back(g_world->get_id(unit));
+                    assert(war->is_defender(g_world.nations[unit.owner_id]));
+                    assert(std::find(battle.defenders_ids.begin(), battle.defenders_ids.end(), g_world.get_id(unit)) == battle.defenders_ids.end());
+                    battle.defenders_ids.push_back(g_world.get_id(unit));
                     Eng3D::Log::debug("game", "Adding unit <defender> to battle of \"" + battle.name + "\"");
                 }
                 break;

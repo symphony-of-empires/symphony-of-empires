@@ -140,11 +140,15 @@ class World {
 public:
     static constexpr unsigned int ticks_per_month = 30;
 
-    World();
+    World() = default;
     World& operator=(const World&) = default;
     ~World();
-    static World& get_instance();
+    static World& get_instance() {
+        extern World g_world;
+        return g_world;
+    }
     void do_tick();
+    void init_lua();
     void load_initial();
     void load_mod();
     Eng3D::Profiler profiler;
@@ -282,4 +286,4 @@ public:
     std::vector<std::pair<Decision, Nation*>> taken_decisions;
 };
 
-extern World* g_world;
+extern World g_world;

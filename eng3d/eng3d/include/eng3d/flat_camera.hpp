@@ -72,7 +72,7 @@ namespace Eng3D {
             world_position = map_position;
             world_position.x = glm::mod(world_position.x, map_size.x);
             world_position.z *= -1;
-        };
+        }
 
         void set_pos(float x, float y) override {
             map_position.x = glm::mod(x, map_size.x);
@@ -97,8 +97,8 @@ namespace Eng3D {
         };
 
         bool get_cursor_map_pos(std::pair<int, int> mouse_pos, glm::ivec2& out_pos) const override {
-            float mouse_x = mouse_pos.first;
-            float mouse_y = screen_size.y - 1.f - mouse_pos.second;
+            const float mouse_x = mouse_pos.first;
+            const float mouse_y = screen_size.y - 1.f - mouse_pos.second;
 
             const glm::mat4 view = get_view();
             const glm::mat4 projection = get_projection();

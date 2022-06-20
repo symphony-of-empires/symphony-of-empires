@@ -32,23 +32,20 @@ namespace Eng3D::Log {
     inline void debug(const std::string& category, const std::string& msg) {
 #if defined E3D_DEBUG || defined GS_DEBUG || 1
         std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen("log.txt", "a+t"), fclose);
-        if(fp != nullptr) {
+        if(fp != nullptr)
             fprintf(fp.get(), "<debug:%s> %s\n", category.c_str(), msg.c_str());
-        }
 #endif
     };
 
     inline void warning(const std::string& category, const std::string& msg) {
         std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen("log.txt", "a+t"), fclose);
-        if(fp != nullptr) {
+        if(fp != nullptr)
             fprintf(fp.get(), "<warning:%s> %s\n", category.c_str(), msg.c_str());
-        }
     };
 
     inline void error(const std::string& category, const std::string& msg) {
         std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen("log.txt", "a+t"), fclose);
-        if(fp != nullptr) {
+        if(fp != nullptr)
             fprintf(fp.get(), "<error:%s> %s\n", category.c_str(), msg.c_str());
-        }
     };
 };

@@ -109,7 +109,7 @@ public:
     void update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, GameState& gs);
     void update_mapmode();
     void draw_flag(const Eng3D::OpenGL::Program& shader, const Nation& nation);
-    void draw(const GameState& gs);
+    void draw(GameState& gs);
     void handle_click(GameState& gs, SDL_Event event);
     void set_map_mode(mapmode_generator mapmode_func, mapmode_tooltip tooltip_func);
     void set_selected_province(bool selected, Province::Id id);

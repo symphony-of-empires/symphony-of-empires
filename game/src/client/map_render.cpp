@@ -78,23 +78,23 @@ MapRender::MapRender(const World& _world)
     mipmap_options.mag_filter = GL_LINEAR;
     mipmap_options.compressed = false;
 
-    noise_tex = tex_man->load(gs.package_man->get_unique("gfx/noise_tex.png"), mipmap_options);
+    noise_tex = tex_man.load(gs.package_man.get_unique("gfx/noise_tex.png"), mipmap_options);
 
     mipmap_options.compressed = true;
 
-    wave1 = tex_man->load(gs.package_man->get_unique("gfx/wave1.png"), mipmap_options);
-    wave2 = tex_man->load(gs.package_man->get_unique("gfx/wave2.png"), mipmap_options);
+    wave1 = tex_man.load(gs.package_man.get_unique("gfx/wave1.png"), mipmap_options);
+    wave2 = tex_man.load(gs.package_man.get_unique("gfx/wave2.png"), mipmap_options);
 
     mipmap_options.internal_format = GL_SRGB;
-    water_tex = tex_man->load(gs.package_man->get_unique("gfx/water_tex.png"), mipmap_options);
-    paper_tex = tex_man->load(gs.package_man->get_unique("gfx/paper.png"), mipmap_options);
-    stripes_tex = tex_man->load(gs.package_man->get_unique("gfx/stripes.png"), mipmap_options);
+    water_tex = tex_man.load(gs.package_man.get_unique("gfx/water_tex.png"), mipmap_options);
+    paper_tex = tex_man.load(gs.package_man.get_unique("gfx/paper.png"), mipmap_options);
+    stripes_tex = tex_man.load(gs.package_man.get_unique("gfx/stripes.png"), mipmap_options);
 
     mipmap_options.internal_format = GL_RED;
-    bathymethry = tex_man->load(gs.package_man->get_unique("map/bathymethry.png"), mipmap_options);
-    river_tex = tex_man->load(gs.package_man->get_unique("map/river_smooth.png"), mipmap_options);
+    bathymethry = tex_man.load(gs.package_man.get_unique("map/bathymethry.png"), mipmap_options);
+    river_tex = tex_man.load(gs.package_man.get_unique("map/river_smooth.png"), mipmap_options);
 
-    terrain_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man->get_unique("map/color.png")->get_abs_path()));
+    terrain_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/color.png")->get_abs_path()));
     size_t terrain_map_size = terrain_map->width * terrain_map->height;
     for(size_t i = 0; i < terrain_map_size; i++) {
         const uint32_t color = terrain_map->buffer.get()[i];
@@ -150,8 +150,8 @@ MapRender::MapRender(const World& _world)
     terrain_map->upload(single_color);
     //terrain_map->gen_mipmaps();
 
-    auto topo_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man->get_unique("map/topo.png")->get_abs_path()));
-    normal_topo = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man->get_unique("map/normal.png")->get_abs_path()));
+    auto topo_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/topo.png")->get_abs_path()));
+    normal_topo = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/normal.png")->get_abs_path()));
     size_t map_size = topo_map->width * topo_map->height;
     for(unsigned int i = 0; i < map_size; i++) {
         normal_topo->buffer.get()[i] &= (0x00FFFFFF);
@@ -164,7 +164,7 @@ MapRender::MapRender(const World& _world)
     normal_topo->gen_mipmaps();
 
     // Terrain textures to sample from
-    terrain_sheet = std::unique_ptr<Eng3D::TextureArray>(new Eng3D::TextureArray(gs.package_man->get_unique("gfx/terrain_sheet.png")->get_abs_path(), 4, 4));
+    terrain_sheet = std::unique_ptr<Eng3D::TextureArray>(new Eng3D::TextureArray(gs.package_man.get_unique("gfx/terrain_sheet.png")->get_abs_path(), 4, 4));
     terrain_sheet->upload();
 
     Eng3D::Log::debug("game", "Creating tile map & tile sheet");
@@ -252,9 +252,9 @@ void MapRender::reload_shaders() {
             }
         }
 
-        auto vs_shader = Eng3D::OpenGL::VertexShader(gs.package_man->get_unique("shaders/map.vs")->read_all());
+        auto vs_shader = Eng3D::OpenGL::VertexShader(gs.package_man.get_unique("shaders/map.vs")->read_all());
         map_shader->attach_shader(vs_shader);
-        auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man->get_unique("shaders/map.fs")->read_all(), true, defined_options);
+        auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man.get_unique("shaders/map.fs")->read_all(), true, defined_options);
         map_shader->attach_shader(fs_shader);
         map_shader->attach_shader(*gs.builtin_shaders["fs_lib"].get());
         map_shader->link();
@@ -262,18 +262,18 @@ void MapRender::reload_shaders() {
     //border_gen_shader = Eng3D::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_gen.fs");
     border_gen_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        auto vs_shader = Eng3D::OpenGL::VertexShader(gs.package_man->get_unique("shaders/2d_scale.vs")->read_all());
+        auto vs_shader = Eng3D::OpenGL::VertexShader(gs.package_man.get_unique("shaders/2d_scale.vs")->read_all());
         border_gen_shader->attach_shader(vs_shader);
-        auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man->get_unique("shaders/border_gen.fs")->read_all());
+        auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man.get_unique("shaders/border_gen.fs")->read_all());
         border_gen_shader->attach_shader(fs_shader);
         border_gen_shader->link();
     }
     //sdf_shader = Eng3D::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_sdf.fs");
     sdf_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        auto vs_shader = Eng3D::OpenGL::VertexShader(gs.package_man->get_unique("shaders/2d_scale.vs")->read_all());
+        auto vs_shader = Eng3D::OpenGL::VertexShader(gs.package_man.get_unique("shaders/2d_scale.vs")->read_all());
         sdf_shader->attach_shader(vs_shader);
-        auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man->get_unique("shaders/border_sdf.fs")->read_all());
+        auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man.get_unique("shaders/border_sdf.fs")->read_all());
         sdf_shader->attach_shader(fs_shader);
         sdf_shader->link();
     }
@@ -281,7 +281,7 @@ void MapRender::reload_shaders() {
     output_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
         output_shader->attach_shader(*gs.builtin_shaders["vs_2d"].get());
-        auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man->get_unique("shaders/border_sdf_output.fs")->read_all());
+        auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man.get_unique("shaders/border_sdf_output.fs")->read_all());
         output_shader->attach_shader(fs_shader);
         output_shader->link();
     }
@@ -300,9 +300,9 @@ void MapRender::update_options(MapOptions new_options) {
             }
         }
 
-        auto vs_shader = Eng3D::OpenGL::VertexShader(gs.package_man->get_unique("shaders/map.vs")->read_all());
+        auto vs_shader = Eng3D::OpenGL::VertexShader(gs.package_man.get_unique("shaders/map.vs")->read_all());
         map_shader->attach_shader(vs_shader);
-        auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man->get_unique("shaders/map.fs")->read_all(), true, defined_options);
+        auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man.get_unique("shaders/map.fs")->read_all(), true, defined_options);
         map_shader->attach_shader(fs_shader);
         map_shader->attach_shader(*Eng3D::State::get_instance().builtin_shaders["fs_lib"].get());
         map_shader->link();

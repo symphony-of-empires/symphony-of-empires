@@ -72,7 +72,7 @@ Eng3D::Rect get_rect(Eng3D::Rect rect_pos, Eng3D::Rect viewport) {
 
 void ProgressBar::on_render(Context&, Eng3D::Rect viewport) {
     /// @todo Fix broken progress bar. Is it still broken, hmm ?
-    //g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man->get_white());
+    //g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man.get_white());
     
     g_ui_context->obj_shader->set_texture(0, "diffuse_map", *g_ui_context->button);
     g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f, 1.f, 1.f, 1.f));

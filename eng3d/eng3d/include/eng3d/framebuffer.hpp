@@ -34,7 +34,6 @@
 #include "eng3d/texture.hpp"
 
 namespace Eng3D {
-#ifdef E3D_BACKEND_OPENGL
     namespace OpenGL {
         class Framebuffer {
         public:
@@ -43,20 +42,12 @@ namespace Eng3D {
             void set_texture(int index, const Eng3D::Texture& texture);
             void use();
         private:
+#ifdef E3D_BACKEND_OPENGL
             GLuint id = 0;
+#elif defined E3D_BACKEND_RGX
+            // No
+#endif
         };
     }
     using Framebuffer = OpenGL::Framebuffer;
-#elif defined E3D_BACKEND_RGX
-    namespace RGX {
-        class Framebuffer {
-        public:
-            Framebuffer();
-            ~Framebuffer();
-            void set_texture(int index, const Eng3D::Texture& texture);
-            void use();
-        };
-    }
-    using Framebuffer = RGX::Framebuffer;
-#endif
 }

@@ -35,6 +35,7 @@
 #include "eng3d/audio.hpp"
 #include "eng3d/utils.hpp"
 #include "eng3d/log.hpp"
+#include "eng3d/state.hpp"
 
 //
 // Audio
@@ -71,10 +72,66 @@ Eng3D::Audio::Audio(const std::string& path) {
 //
 // Audio manager
 //
+Eng3D::AudioManager::AudioManager(Eng3D::State& _s)
+    : s{ _s }
+{
+    // Initialize sound subsystem (at 11,050 hz)
+    SDL_AudioSpec fmt;
+    fmt.freq = 8000;
+    fmt.format = AUDIO_S16;
+    fmt.channels = 1;
+    fmt.samples = 512;
+    fmt.callback = &Eng3D::AudioManager::mixaudio;
+    fmt.userdata = this;
+    if(SDL_OpenAudio(&fmt, NULL) < 0)
+        CXX_THROW(std::runtime_error, "Unable to open audio: " + std::string(SDL_GetError()));
+    SDL_PauseAudio(0);
+}
+
 Eng3D::AudioManager::~AudioManager() {
     for(const auto& sound : sounds)
         delete sound.second;
     sounds.clear();
+}
+
+void Eng3D::AudioManager::mixaudio(void* userdata, uint8_t* stream, int len) {
+    Eng3D::AudioManager& audio_man = *(static_cast<Eng3D::AudioManager*>(userdata));
+    std::memset(stream, 0, len);
+
+    const std::scoped_lock lock(audio_man.sound_lock);
+    for(unsigned int i = 0; i < audio_man.sound_queue.size(); ) {
+        Eng3D::Audio& sound = *audio_man.sound_queue[i];
+        const int amount = std::min<int>(len, sound.len - sound.pos);
+        if(amount <= 0) {
+            delete &sound;
+            audio_man.sound_queue.erase(audio_man.sound_queue.begin() + i);
+            continue;
+        }
+
+        const float volume = SDL_MIX_MAXVOLUME * audio_man.sound_volume;
+        SDL_MixAudio(stream, &sound.data[sound.pos], amount, volume);
+        sound.pos += amount;
+        i++;
+    }
+
+    for(unsigned int i = 0; i < audio_man.music_queue.size(); ) {
+        Eng3D::Audio& music = *audio_man.music_queue[i];
+        const int amount = std::min<int>(len, music.len - music.pos);
+        if(amount <= 0) {
+            delete &music;
+            audio_man.music_queue.erase(audio_man.music_queue.begin() + i);
+            continue;
+        }
+
+        const float volume = SDL_MIX_MAXVOLUME * audio_man.music_volume;
+        const float fade = SDL_MIX_MAXVOLUME * audio_man.music_fade_value;
+        SDL_MixAudio(stream, &music.data[music.pos], amount, volume - fade);
+        music.pos += amount;
+        i++;
+    }
+
+    if(audio_man.music_fade_value > 1.f)
+        audio_man.music_fade_value -= 1.f;
 }
 
 const Eng3D::Audio& Eng3D::AudioManager::load(const std::string& path) {
