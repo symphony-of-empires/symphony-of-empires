@@ -37,10 +37,7 @@ namespace Eng3D {
      */
     class Rand {
     private:
-        uint32_t a;
-        uint32_t b;
-        uint32_t c;
-        uint32_t d;
+        uint32_t a = 0, b = 0, c = 0, d = 0;
     public:
         using result_type = uint32_t;
         constexpr static uint32_t initial_seed = 0xf1ea5eed;
