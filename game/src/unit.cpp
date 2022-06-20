@@ -42,6 +42,8 @@
 // Unit
 //
 void Unit::attack(Unit& enemy) {
+    assert(this->is_valid());
+    assert(enemy.is_valid());
     /// @todo Better attack algorithm
 
     // It's important that a size of zero nullifies the attack, this prevents the edge case
@@ -51,6 +53,7 @@ void Unit::attack(Unit& enemy) {
 }
 
 std::pair<float, float> Unit::get_pos() const {
+    assert(this->is_valid());
     const World& world = World::get_instance();
     auto prov_id = this->province_id();
     auto& province = world.provinces[prov_id];
@@ -58,12 +61,14 @@ std::pair<float, float> Unit::get_pos() const {
 }
 
 Province::Id Unit::province_id() const {
+    assert(this->is_valid());
     // Don't know if this is cleaner than getting it from unit manager :thinking:
     const World& world = World::get_instance();
     return world.unit_manager.unit_province[cached_id];
 }
 
 void Unit::set_target(const Province& _province) {
+    assert(this->is_valid());
     assert(this->target_province_id != this->province_id());
 
     const World& world = World::get_instance();
@@ -77,6 +82,7 @@ void Unit::set_target(const Province& _province) {
 }
 
 float Unit::get_speed(const Province& _province) const {
+    assert(this->is_valid());
     const World& world = World::get_instance();
     auto start_pos = world.provinces[this->province_id()].get_pos();
     auto end_pos = _province.get_pos();
@@ -100,6 +106,7 @@ float Unit::get_speed(const Province& _province) const {
 }
 
 float Unit::get_speed() const {
+    assert(this->is_valid());
     return this->get_speed(World::get_instance().provinces[this->target_province_id]);
 }
 
