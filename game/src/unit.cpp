@@ -129,6 +129,7 @@ void UnitManager::remove_unit(Unit::Id unit_id) {
     const Province::Id current_province_id = unit_province[unit_id];
     Eng3D::fast_erase(province_units[current_province_id], unit_id);
     units[unit_id].cached_id = Province::invalid();
+    free_unit_slots.push_back(unit_id);
 }
 
 void UnitManager::move_unit(Unit::Id unit_id, Province::Id target_province_id) {
