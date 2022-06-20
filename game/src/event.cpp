@@ -24,8 +24,7 @@
 // ----------------------------------------------------------------------------
 
 #include <algorithm>
-
-#include "eng3d/assert.hpp"
+#include <cassert>
 
 #include "event.hpp"
 #include "world.hpp"

@@ -41,8 +41,8 @@ enum TechnologyType {
 class NationModifier;
 class Technology : public RefnameEntity<uint16_t> {
 public:
-    Technology() {};
-    ~Technology() {};
+    Technology() = default;
+    ~Technology() = default;
     
     Eng3D::StringRef name;
     Eng3D::StringRef description;

@@ -28,6 +28,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
+#include <cassert>
 #include <execution>
 #include <set>
 #ifndef _MSC_VER
@@ -45,7 +46,6 @@
 #include "eng3d/state.hpp"
 #include "eng3d/utils.hpp"
 #include "eng3d/locale.hpp"
-#include "eng3d/assert.hpp"
 
 #include "io_impl.hpp"
 #include "province.hpp"

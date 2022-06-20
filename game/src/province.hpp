@@ -31,7 +31,6 @@
 #include <string>
 #include <memory>
 #include "eng3d/entity.hpp"
-#include "eng3d/decimal.hpp"
 #include "eng3d/rectangle.hpp"
 
 #include "pop.hpp"
@@ -65,10 +64,10 @@ public:
 // instead of doing economical operations on every single tile
 class Province : public RefnameEntity<uint16_t> {
 private:
-    Province & operator=(const Province&) = default;
+    Province& operator=(const Province&) = default;
 public:
-    Province() {};
-    ~Province() {};
+    Province() = default;
+    ~Province() = default;
     float total_pops() const;
     float get_attractiveness(const Pop& pop) const;
     void add_building(const BuildingType& building_type);
@@ -113,7 +112,7 @@ public:
 class ProvinceOwnershipManager
 {
 public:
-    ProvinceOwnershipManager() {};
+    ProvinceOwnershipManager() = default;
 
     inline void mark_province_owner_changed(Province::Id province_id) {
         recently_changed_owner.push_back(province_id);

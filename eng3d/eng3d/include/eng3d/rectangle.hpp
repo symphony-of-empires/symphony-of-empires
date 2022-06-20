@@ -31,13 +31,11 @@
 namespace Eng3D {
     class Rectangle {
     public:
-        float left, top, right, bottom;
-        Rectangle()
-        {
+        float left = 0.f, top = 0.f, right = 0.f, bottom = 0.f;
 
-        }
+        constexpr Rectangle() = default;
 
-        Rectangle(float x, float y, float width, float height)
+        constexpr Rectangle(float x, float y, float width, float height)
             : left{ x },
             top{ y },
             right{ x + width },
@@ -46,7 +44,7 @@ namespace Eng3D {
 
         }
 
-        Rectangle(glm::vec2 position, glm::vec2 size)
+        constexpr Rectangle(glm::vec2 position, glm::vec2 size)
             : left{ position.x },
             top{ position.y },
             right{ position.x + size.x },
@@ -55,16 +53,14 @@ namespace Eng3D {
 
         }
 
-        ~Rectangle() {
-
-        }
+        ~Rectangle() = default;
 
         /**
          * @brief Obtains the width
          * 
          * @return float Width of the rectangle
          */
-        inline float width() const {
+        constexpr float width() const {
             return right - left;
         }
 
@@ -73,7 +69,7 @@ namespace Eng3D {
          * 
          * @return float Height of the rectangle
          */
-        inline float height() const {
+        constexpr float height() const {
             return bottom - top;
         }
 
@@ -82,7 +78,7 @@ namespace Eng3D {
          * 
          * @return glm::vec2 The size of the rectangle
          */
-        inline glm::vec2 size() const {
+        constexpr glm::vec2 size() const {
             return glm::vec2{ right - left, bottom - top };
         }
 
@@ -91,13 +87,13 @@ namespace Eng3D {
          * 
          * @param size Size to set it to
          */
-        inline void size(glm::vec2 size) {
+        constexpr void size(glm::vec2 size) {
             right = left + size.x;
             bottom = top + size.y;
         }
 
         template<typename T>
-        inline void size(T x, T y) {
+        constexpr void size(T x, T y) {
             size(glm::vec2(x, y));
         }
 
@@ -106,7 +102,7 @@ namespace Eng3D {
          * 
          * @return glm::vec2 The base position
          */
-        inline glm::vec2 position() const {
+        constexpr glm::vec2 position() const {
             return glm::vec2{ left, top };
         }
 
@@ -115,13 +111,13 @@ namespace Eng3D {
          * 
          * @param position Position to set
          */
-        inline void position(glm::vec2 position) {
+        constexpr void position(glm::vec2 position) {
             left = position.x;
             top = position.y;
         }
 
         template<typename T>
-        inline void position(T x, T y) {
+        constexpr void position(T x, T y) {
             position(glm::vec2(x, y));
         }
 
@@ -130,7 +126,7 @@ namespace Eng3D {
          * 
          * @param factor Factor to scale rectangle by
          */
-        inline void scale(glm::vec2 factor) {
+        constexpr void scale(glm::vec2 factor) {
             left *= factor.x;
             top *= factor.y;
             right *= factor.x;
@@ -138,7 +134,7 @@ namespace Eng3D {
         }
 
         template<typename T>
-        inline void scale(T x, T y) {
+        constexpr void scale(T x, T y) {
             scale(glm::vec2(x, y));
         }
 
@@ -147,7 +143,7 @@ namespace Eng3D {
          * 
          * @param offset Offset to apply to the rectangle
          */
-        inline void offset(glm::vec2 offset) {
+        constexpr void offset(glm::vec2 offset) {
             left += offset.x;
             top += offset.y;
             right += offset.x;
@@ -155,7 +151,7 @@ namespace Eng3D {
         }
 
         template<typename T>
-        inline void offset(T x, T y) {
+        constexpr void offset(T x, T y) {
             offset(glm::vec2(x, y));
         }
 
@@ -166,12 +162,12 @@ namespace Eng3D {
          * @return true Rectangle not in bounds
          * @return false Rectangle is in bounds
          */
-        inline bool in_bounds(glm::vec2 pos) const {
+        constexpr bool in_bounds(glm::vec2 pos) const {
             return (pos.x >= left && pos.x <= right && pos.y >= top && pos.y <= bottom);
         }
 
         template<typename T>
-        inline bool in_bounds(T x, T y) const {
+        constexpr bool in_bounds(T x, T y) const {
             return in_bounds(glm::vec2(x, y));
         }
 
@@ -181,11 +177,11 @@ namespace Eng3D {
          * @param rect Second rectangle to perform the intersection for
          * @return Rectangle Intersection area rectangle
          */
-        inline Rectangle intersection(const Rectangle& rect) const {
-            float i_left = glm::max(this->left, rect.left);
-            float i_top = glm::max(this->top, rect.top);
-            float i_right = glm::min(this->right, rect.right);
-            float i_bottom = glm::min(this->bottom, rect.bottom);
+        constexpr Rectangle intersection(const Rectangle& rect) const {
+            const float i_left = glm::max(this->left, rect.left);
+            const float i_top = glm::max(this->top, rect.top);
+            const float i_right = glm::min(this->right, rect.right);
+            const float i_bottom = glm::min(this->bottom, rect.bottom);
             return Eng3D::Rectangle{ i_left, i_top, i_right - i_left, i_bottom - i_top };
         }
 
@@ -195,11 +191,11 @@ namespace Eng3D {
          * @param rect Second rectangle to perform the intersection for
          * @return Rectangle Intersection area rectangle
          */
-        inline Rectangle join(const Rectangle& rect) const {
-            float i_left = glm::min(this->left, rect.left);
-            float i_top = glm::min(this->top, rect.top);
-            float i_right = glm::max(this->right, rect.right);
-            float i_bottom = glm::max(this->bottom, rect.bottom);
+        constexpr Rectangle join(const Rectangle& rect) const {
+            const float i_left = glm::min(this->left, rect.left);
+            const float i_top = glm::min(this->top, rect.top);
+            const float i_right = glm::max(this->right, rect.right);
+            const float i_bottom = glm::max(this->bottom, rect.bottom);
             return Eng3D::Rectangle{ i_left, i_top, i_right - i_left, i_bottom - i_top };
         }
     };

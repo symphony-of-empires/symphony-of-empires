@@ -31,8 +31,8 @@
 
 class Religion : public RefnameEntity<uint8_t> {
 public:
-    Religion() {};
-    ~Religion() {};
+    Religion() = default;
+    ~Religion() = default;
 
     Eng3D::StringRef name;
     std::uint32_t color;

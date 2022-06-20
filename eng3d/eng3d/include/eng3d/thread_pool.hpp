@@ -69,9 +69,8 @@ namespace Eng3D {
             this->running = true;
 
             //this->threads = std::vector<std::thread>(n_threads, th);
-            for(size_t i = 0; i < n_threads; i++) {
+            for(size_t i = 0; i < n_threads; i++)
                 this->threads.push_back(std::thread(&ThreadPool::thread_loop, this));
-            }
 
             // This vector is not going to expand anymore
             this->threads.shrink_to_fit();
@@ -91,10 +90,8 @@ namespace Eng3D {
 
             // After that we will start joining all threads - if a thread is executing
             // by a prolonged time, it will block the entire process
-            std::vector<std::thread>::iterator job;
-            for(job = threads.begin(); job != threads.end(); job++) {
+            for(auto job = threads.begin(); job != threads.end(); job++)
                 (*job).join();
-            }
         }
 
         /**
@@ -103,7 +100,7 @@ namespace Eng3D {
          * @param job 
          */
         void add_job(std::function<void()> job) {
-            std::scoped_lock lock(job_mutex);
+            const std::scoped_lock lock(job_mutex);
             jobs.push(job);
             cv_task.notify_one();
         }
@@ -120,9 +117,7 @@ namespace Eng3D {
                     return (!running || !jobs.empty());
                 });
 
-                if(!running) {
-                    break;
-                }
+                if(!running) break;
 
                 // pull from queue
                 std::function<void()> fn = jobs.front();

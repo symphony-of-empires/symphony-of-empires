@@ -29,6 +29,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <cstring>
+#include <cassert>
 #include <ctime>
 #include <algorithm>
 #include <mutex>
@@ -39,7 +40,6 @@
 #include <glm/vec2.hpp>
 
 #include "eng3d/profiler.hpp"
-#include "eng3d/assert.hpp"
 #include "eng3d/string.hpp"
 #include "eng3d/log.hpp"
 

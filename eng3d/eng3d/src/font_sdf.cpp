@@ -178,8 +178,9 @@ void Eng3D::FontSDF::draw(const std::vector<Label3D*>& labels, Camera* camera, b
 }
 
 Eng3D::Label3D::Label3D(TriangleList* _triangles, float _size, glm::vec3 _center)
-    : size{ _size }, center{ _center },
-    triangles(_triangles)
+    : size{ _size },
+    center{ _center },
+    triangles{ _triangles }
 {
 
 }

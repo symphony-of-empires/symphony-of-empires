@@ -45,18 +45,20 @@ namespace Eng3D::IO {
      */
     class Path {
     public:
-        Path() {};
+        Path() = default;
         Path(const std::string& path)
             : str(path)
         {
 
         }
+
         Path(const char* path)
-            : str(std::string(path))
+            : str(path)
         {
 
         }
-        ~Path() {};
+
+        ~Path() = default;
         std::string str;
     };
 
@@ -77,8 +79,8 @@ namespace Eng3D::IO {
     namespace Asset {
         class Base {
         public:
-            Base() {};
-            ~Base() {};
+            Base() = default;
+            ~Base() = default;
             virtual void open() {};
             virtual void close() {};
             virtual void read(void*, size_t) {};
@@ -130,8 +132,8 @@ namespace Eng3D::IO {
         public:
             FILE* fp;
         //public:
-            File() {};
-            ~File() {};
+            File() = default;
+            ~File() = default;
             virtual void open();
             virtual void close();
             virtual void read(void* buf, size_t n);
@@ -153,8 +155,8 @@ namespace Eng3D::IO {
     // A package containing a set of assets
     class Package {
     public:
-        Package() {};
-        ~Package() {};
+        Package() = default;
+        ~Package() = default;
 
         std::string name;
         std::string abs_path; // Absolute path of this package root
@@ -164,12 +166,13 @@ namespace Eng3D::IO {
     class PackageManager {
     public:
         PackageManager(const std::vector<std::string>& pkg_paths);
-        ~PackageManager() {};
+        ~PackageManager() = default;
         void recursive_filesystem_walk(Eng3D::IO::Package& package, const std::string& root, const std::string& current);
         std::shared_ptr<Eng3D::IO::Asset::Base> get_unique(const IO::Path& path);
         std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> get_multiple(const Eng3D::IO::Path& path);
         std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> get_multiple_prefix(const Eng3D::IO::Path& path);
         std::vector<std::string> get_paths(void) const;
+        
         std::vector<Package> packages;
     };
 };

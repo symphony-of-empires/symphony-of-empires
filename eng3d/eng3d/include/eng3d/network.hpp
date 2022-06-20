@@ -74,9 +74,9 @@ namespace Eng3D::Networking {
     class SocketStream {
         bool is_server_stream = false;
     public:
-        SocketStream() {};
+        SocketStream() = default;
         SocketStream(int _fd) : fd(_fd) {};
-        ~SocketStream() {};
+        ~SocketStream() = default;
         void send(const void* data, size_t size);
         void recv(void* data, size_t size);
         
@@ -92,11 +92,11 @@ namespace Eng3D::Networking {
         size_t n_data = 0;
         PacketCode code = PacketCode::OK;
     public:
-        Packet() {};
+        Packet() = default;
         Packet(int _fd) {
             stream = Eng3D::Networking::SocketStream(_fd);
         }
-        ~Packet() {};
+        ~Packet() = default;
 
         inline void* data() {
             return static_cast<void*>(&buffer[0]);
@@ -106,9 +106,8 @@ namespace Eng3D::Networking {
         inline void data(const T* buf = nullptr, size_t size = sizeof(T)) {
             n_data = size;
             buffer.resize(n_data);
-            if(buf != nullptr) {
+            if(buf != nullptr)
                 std::memcpy(&buffer[0], buf, size);
-            }
         }
 
         inline size_t size() const {
@@ -187,12 +186,16 @@ namespace Eng3D::Networking {
     class ServerClient {
         int conn_fd = 0;
     public:
-        ServerClient() {
-            is_active = false;
+        ServerClient()
+            : is_active{ false }
+        {
+
         }
+
         ~ServerClient() {
             thread.join();
         }
+        
         int try_connect(int fd);
         void flush_packets();
         bool has_pending();

@@ -38,7 +38,7 @@ namespace Eng3D {
     class BenchmarkTask {
         void clear_old();
     public:
-        BenchmarkTask(std::string task, uint32_t argb)
+        BenchmarkTask(const std::string& task, uint32_t argb)
             : name{ task },
             color{ argb }
         {
@@ -64,7 +64,7 @@ namespace Eng3D {
         Profiler() {
             render_started = false;
         }
-        ~Profiler() {};
+        ~Profiler() = default;
         void start(const std::string& name);
         void stop(const std::string& name);
         void tick_done();
