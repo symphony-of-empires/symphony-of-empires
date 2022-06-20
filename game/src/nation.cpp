@@ -290,7 +290,7 @@ void Nation::control_province(Province& province) {
 }
 
 const NationClientHint& Nation::get_client_hint() const {
-    return this->client_hints[g_world->get_id(*this->ideology)];
+    return this->client_hints[g_world.get_id(*this->ideology)];
 }
 
 float Nation::get_research_points() const {
@@ -331,7 +331,7 @@ std::vector<Nation*> Nation::get_allies() {
     std::vector<Nation*> list;
     for(auto& nation : world.nations) {
         if(&nation == this) continue;
-        const auto& relation = g_world->get_relation(world.get_id(*this), world.get_id(nation));
+        const auto& relation = g_world.get_relation(world.get_id(*this), world.get_id(nation));
         if(relation.has_alliance)
             list.push_back(&nation);
     }

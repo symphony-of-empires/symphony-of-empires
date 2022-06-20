@@ -77,7 +77,7 @@ NationView::NationView(GameState& _gs, Nation& _nation)
     flag_img->on_each_tick(*flag_img);
     flag_img->tooltip = new UI::Tooltip(flag_img, 512, 24);
     flag_img->tooltip->text(Eng3D::Locale::translate("The flag which represents the country"));
-    new UI::Image(0, 0, flag_img->width, flag_img->height, gs.tex_man->load(gs.package_man->get_unique("gfx/flag_rug.png")), this);
+    new UI::Image(0, 0, flag_img->width, flag_img->height, gs.tex_man.load(gs.package_man.get_unique("gfx/flag_rug.png")), this);
 
     auto* flex_actions_column = new UI::Div(0, 0, 512, 512, this);
     flex_actions_column->below_of(*flag_img);

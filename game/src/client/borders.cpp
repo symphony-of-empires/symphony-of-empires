@@ -45,12 +45,12 @@ Borders::Borders() {
     mipmap_options.internal_format = GL_SRGB;
 
     auto& gs = Eng3D::State::get_instance();
-    water_tex = gs.tex_man->load(gs.package_man->get_unique("gfx/water_tex.png"), mipmap_options);
+    water_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/water_tex.png"), mipmap_options);
     line_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
         auto vs_shader = *Eng3D::State::get_instance().builtin_shaders["vs_3d"].get();
         line_shader->attach_shader(vs_shader);
-        auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man->get_unique("shaders/curve.fs")->read_all(), true);
+        auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man.get_unique("shaders/curve.fs")->read_all(), true);
         line_shader->attach_shader(fs_shader);
         line_shader->link();
     }
@@ -158,7 +158,7 @@ void Borders::build_borders() {
     auto tex_man = s.tex_man;
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
-    std::shared_ptr<Eng3D::Texture> border_tex = tex_man->load(s.package_man->get_unique("map/provinces.png"), no_drop_options);
+    std::shared_ptr<Eng3D::Texture> border_tex = tex_man.load(s.package_man.get_unique("map/provinces.png"), no_drop_options);
 
     std::vector<std::vector<glm::vec3>> borders;
     int height = border_tex->height;

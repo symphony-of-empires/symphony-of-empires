@@ -49,7 +49,7 @@ Eng3D::Glyph::Glyph(float _advance, Eng3D::Rectangle _atlas_bounds, Eng3D::Recta
 Eng3D::FontSDF::FontSDF(const std::string& filename) {
     sphere_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        auto vs_shader = Eng3D::OpenGL::VertexShader(Eng3D::State::get_instance().package_man->get_unique("shaders/sphere_mapping.vs")->read_all());
+        auto vs_shader = Eng3D::OpenGL::VertexShader(Eng3D::State::get_instance().package_man.get_unique("shaders/sphere_mapping.vs")->read_all());
         sphere_shader->attach_shader(vs_shader);
         sphere_shader->attach_shader(*Eng3D::State::get_instance().builtin_shaders["fs_font_sdf"].get());
         sphere_shader->link();
@@ -68,14 +68,14 @@ Eng3D::FontSDF::FontSDF(const std::string& filename) {
     mipmap_options.wrap_t = GL_CLAMP_TO_EDGE;
     mipmap_options.compressed = false;
 
-    std::shared_ptr<Eng3D::IO::Asset::Base> asset = Eng3D::State::get_instance().package_man->get_unique(filename + ".png");
-    atlas = Eng3D::State::get_instance().tex_man->load(asset->abs_path, mipmap_options);
+    std::shared_ptr<Eng3D::IO::Asset::Base> asset = Eng3D::State::get_instance().package_man.get_unique(filename + ".png");
+    atlas = Eng3D::State::get_instance().tex_man.load(asset->abs_path, mipmap_options);
 
     char buff;
     uint32_t unicode;
     float advance, top, bottom, left, right;
     std::string line;
-    std::ifstream glyph_data(Eng3D::State::get_instance().package_man->get_unique(filename + ".csv")->abs_path);
+    std::ifstream glyph_data(Eng3D::State::get_instance().package_man.get_unique(filename + ".csv")->abs_path);
     if(glyph_data.is_open()) {
         while(std::getline(glyph_data, line)) {
             std::istringstream data(line);

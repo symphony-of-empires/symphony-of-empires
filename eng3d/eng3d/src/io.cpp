@@ -28,6 +28,7 @@
 #include <filesystem>
 #include "eng3d/path.hpp"
 #include "eng3d/io.hpp"
+#include "eng3d/state.hpp"
 #include "eng3d/utils.hpp"
 
 //
@@ -90,7 +91,12 @@ void Eng3D::IO::PackageManager::recursive_filesystem_walk(Eng3D::IO::Package& pa
     }
 }
 
-Eng3D::IO::PackageManager::PackageManager(const std::vector<std::string>& pkg_paths) {
+//
+// PackageManager
+//
+Eng3D::IO::PackageManager::PackageManager(Eng3D::State& _s, const std::vector<std::string>& pkg_paths)
+    : s{ _s }
+{
     if(pkg_paths.empty()) {
         const std::string asset_path = ::Path::get_full();
         // All folders inside mods/

@@ -86,15 +86,14 @@ static inline std::shared_ptr<Eng3D::Texture> get_material_texture(const aiMater
         material.GetTexture(type, i, &str);
         Eng3D::Log::debug("assimp", std::string() + "Loading texture for material " + str.C_Str());
         std::string path = std::string("gfx/") + str.C_Str();
-        return s.tex_man->load(s.package_man->get_unique(path));
+        return s.tex_man.load(s.package_man.get_unique(path));
     }
-    return s.tex_man->get_white();
+    return s.tex_man.get_white();
 }
 
 Eng3D::SimpleModel Eng3D::Model::process_simple_model(aiMesh& mesh, const aiScene& scene) {
     Eng3D::SimpleModel simple_model = Eng3D::SimpleModel(Eng3D::MeshMode::TRIANGLES);
     auto& s = Eng3D::State::get_instance();
-
     simple_model.buffer.resize(mesh.mNumVertices);
     for(size_t i = 0; i < mesh.mNumVertices; i++) {
         auto vertice = glm::vec3(mesh.mVertices[i].x, mesh.mVertices[i].y, mesh.mVertices[i].z);
@@ -114,7 +113,7 @@ Eng3D::SimpleModel Eng3D::Model::process_simple_model(aiMesh& mesh, const aiScen
     auto& material = *scene.mMaterials[mesh.mMaterialIndex];
 
     // Textures
-    simple_model.material = s.material_man->load(material.GetName().C_Str());
+    simple_model.material = s.material_man.load(material.GetName().C_Str());
     simple_model.material->diffuse_map = get_material_texture(material, aiTextureType_DIFFUSE);
     simple_model.material->specular_map = get_material_texture(material, aiTextureType_SPECULAR);
     simple_model.material->ambient_map = get_material_texture(material, aiTextureType_AMBIENT);
@@ -146,6 +145,15 @@ void Eng3D::Model::process_node(aiNode& node, const aiScene& scene) {
     // then do the same for each of its children
     for(size_t i = 0; i < node.mNumChildren; i++)
         this->process_node(*node.mChildren[i], scene);
+}
+
+//
+// ModelManager
+//
+Eng3D::ModelManager::ModelManager(Eng3D::State& _s)
+    : s{ _s }
+{
+
 }
 
 std::shared_ptr<Eng3D::Model> Eng3D::ModelManager::load(const std::string& path) {

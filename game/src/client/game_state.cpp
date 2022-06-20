@@ -122,15 +122,14 @@ std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(const Nation& nation)
 
 void handle_event(Input& input, GameState& gs) {
     std::pair<int, int>& mouse_pos = input.mouse_pos;
-    UI::Context* ui_ctx = gs.ui_ctx;
-
+    UI::Context& ui_ctx = gs.ui_ctx;
     int& width = gs.width;
     int& height = gs.height;
 
     // Check window size every update
     //   - needed cause the window sometimes changes size without calling the change window size event
     SDL_GetWindowSize(gs.window, &width, &height);
-    gs.ui_ctx->resize(width, height);
+    gs.ui_ctx.resize(width, height);
     if(gs.map != nullptr)
         gs.map->camera->set_screen(width, height);
 
@@ -142,10 +141,10 @@ void handle_event(Input& input, GameState& gs) {
             break;
         case SDL_MOUSEBUTTONDOWN:
             if(gs.show_ui) {
-                click_on_ui = ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
+                click_on_ui = ui_ctx.check_hover(mouse_pos.first, mouse_pos.second);
                 if(event.button.button == SDL_BUTTON_LEFT) {
                     SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
-                    ui_ctx->check_drag(mouse_pos.first, mouse_pos.second);
+                    ui_ctx.check_drag(mouse_pos.first, mouse_pos.second);
                 }
             }
             
@@ -154,7 +153,7 @@ void handle_event(Input& input, GameState& gs) {
             break;
         case SDL_JOYBUTTONDOWN:
             if(gs.show_ui) {
-                ui_ctx->check_drag(mouse_pos.first, mouse_pos.second);
+                ui_ctx.check_drag(mouse_pos.first, mouse_pos.second);
             }
             break;
         case SDL_MOUSEBUTTONUP:
@@ -165,50 +164,50 @@ void handle_event(Input& input, GameState& gs) {
             }
 
             if(gs.show_ui) {
-                click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
+                click_on_ui = ui_ctx.check_click(mouse_pos.first, mouse_pos.second);
                 if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
                     gs.map->handle_click(gs, event);
                 }
             }
 
             if(click_on_ui) {
-                std::scoped_lock lock(gs.sound_lock);
-                auto entries = gs.package_man->get_multiple_prefix("sfx/click");
+                std::scoped_lock lock(gs.audio_man.sound_lock);
+                auto entries = gs.package_man.get_multiple_prefix("sfx/click");
                 if(!entries.empty())
-                    gs.sound_queue.push_back(new Eng3D::Audio(entries[std::rand() % entries.size()]->get_abs_path()));
+                    gs.audio_man.sound_queue.push_back(new Eng3D::Audio(entries[std::rand() % entries.size()]->get_abs_path()));
             }
             break;
         case SDL_JOYBUTTONUP:
             if(gs.show_ui) {
-                click_on_ui = ui_ctx->check_click(mouse_pos.first, mouse_pos.second);
+                click_on_ui = ui_ctx.check_click(mouse_pos.first, mouse_pos.second);
                 if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
                     gs.map->handle_click(gs, event);
                 }
             }
 
             if(click_on_ui) {
-                std::scoped_lock lock(gs.sound_lock);
-                auto entries = gs.package_man->get_multiple_prefix("sfx/click");
+                std::scoped_lock lock(gs.audio_man.sound_lock);
+                auto entries = gs.package_man.get_multiple_prefix("sfx/click");
                 if(!entries.empty())
-                    gs.sound_queue.push_back(new Eng3D::Audio(entries[std::rand() % entries.size()]->get_abs_path()));
+                    gs.audio_man.sound_queue.push_back(new Eng3D::Audio(entries[std::rand() % entries.size()]->get_abs_path()));
             }
             break;
         case SDL_MOUSEMOTION:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
             if(gs.show_ui) {
-                click_on_ui = ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
+                click_on_ui = ui_ctx.check_hover(mouse_pos.first, mouse_pos.second);
             }
             break;
         case SDL_MOUSEWHEEL:
             SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
             if(gs.show_ui) {
-                ui_ctx->check_hover(mouse_pos.first, mouse_pos.second);
-                click_on_ui = ui_ctx->check_wheel(mouse_pos.first, mouse_pos.second, event.wheel.y * 6);
+                ui_ctx.check_hover(mouse_pos.first, mouse_pos.second);
+                click_on_ui = ui_ctx.check_wheel(mouse_pos.first, mouse_pos.second, event.wheel.y * 6);
             }
             break;
         case SDL_TEXTINPUT:
             if(gs.show_ui) {
-                ui_ctx->check_text_input((const char*)&event.text.text);
+                ui_ctx.check_text_input((const char*)&event.text.text);
             }
             break;
         case SDL_KEYDOWN:
@@ -253,9 +252,9 @@ void handle_event(Input& input, GameState& gs) {
                 if(gs.current_mode == MapMode::NORMAL) {
                     gs.paused = !gs.paused;
                     if(gs.paused) {
-                        ui_ctx->prompt("Control", "Unpaused");
+                        ui_ctx.prompt("Control", "Unpaused");
                     } else {
-                        ui_ctx->prompt("Control", "Paused");
+                        ui_ctx.prompt("Control", "Paused");
                     }
                 }
                 break;
@@ -268,17 +267,17 @@ void handle_event(Input& input, GameState& gs) {
                     gs.map->obj_shader->attach_shader(*gs.builtin_shaders["fs_3d"].get());
                     gs.map->obj_shader->link();
                 }
-                ui_ctx->prompt("Debug", "Shaders reloaded");
+                ui_ctx.prompt("Debug", "Shaders reloaded");
                 break;
             case Eng3D::Keyboard::Key::BACKSPACE:
-                ui_ctx->check_text_input(nullptr);
+                ui_ctx.check_text_input(nullptr);
                 break;
             default:
                 break;
             }
             break;
         case SDL_JOYAXISMOTION:
-            ui_ctx->check_hover(gs.input.mouse_pos.first, gs.input.mouse_pos.second);
+            ui_ctx.check_hover(gs.input.mouse_pos.first, gs.input.mouse_pos.second);
             break;
         case SDL_QUIT:
             gs.run = false;
@@ -288,13 +287,13 @@ void handle_event(Input& input, GameState& gs) {
         }
 
         if(gs.current_mode != MapMode::NO_MAP && !click_on_ui) {
-            gs.map->update(event, input, ui_ctx, gs);
+            gs.map->update(event, input, &ui_ctx, gs);
         }
     }
-    ui_ctx->clear_dead();
+    ui_ctx.clear_dead();
 
-    std::scoped_lock lock(ui_ctx->prompt_queue_mutex);
-    for(const auto& prompt : ui_ctx->prompt_queue) {
+    std::scoped_lock lock(ui_ctx.prompt_queue_mutex);
+    for(const auto& prompt : ui_ctx.prompt_queue) {
         auto* win = new UI::Window(0, 0, 512, 512);
         win->origin = UI::Origin::CENTER_SCREEN;
         win->text(prompt.first);
@@ -307,7 +306,7 @@ void handle_event(Input& input, GameState& gs) {
         txt->is_scroll = true;
         win->height = txt->y + txt->height;
     }
-    ui_ctx->prompt_queue.clear();
+    ui_ctx.prompt_queue.clear();
 }
 
 void GameState::send_command(Archive& archive) {
@@ -392,8 +391,8 @@ void save(GameState& gs) {
                     fprintf(fp.get(), "n_%s:set_capital(province)\n", gs.world->nations[province.owner_id].ref_name.c_str());
             }
             // Units
-            for(const auto unit_id : g_world->unit_manager.get_province_units(province.get_id())) {
-                auto& unit = g_world->unit_manager.units[unit_id];
+            for(const auto unit_id : g_world.unit_manager.get_province_units(province.get_id())) {
+                auto& unit = g_world.unit_manager.units[unit_id];
                 // Units can't exceed max health
                 if(unit.size > unit.type->max_health)
                     unit.size = unit.type->max_health;
@@ -478,12 +477,12 @@ void save(GameState& gs) {
             fprintf(fp.get(), "-- Economy.exe has stopped working and the stock market has been /dev/null -ed, add some goods? :)\n");
         fp.reset();
 
-        gs.ui_ctx->prompt("Save", "Editor data saved! (check editor folder)");
+        gs.ui_ctx.prompt("Save", "Editor data saved! (check editor folder)");
     } else {
         Archive ar = Archive();
         ::serialize(ar, gs.world);
         ar.to_file("default.sc4");
-        gs.ui_ctx->prompt("Save", "Saved sucessfully!");
+        gs.ui_ctx.prompt("Save", "Saved sucessfully!");
     }
 }
 
@@ -513,7 +512,7 @@ void handle_popups(std::vector<Event>& displayed_events, std::vector<Treaty*>& d
 
 void GameState::update_on_tick() {
     world->profiler.start("UI_TICK");
-    ui_ctx->do_tick();
+    ui_ctx.do_tick();
     world->profiler.stop("UI_TICK");
 
     /// @todo This is inefficient and we should only update **when** needed
@@ -544,7 +543,7 @@ void GameState::world_thread() {
                 update_tick = true;
             } catch(const std::exception& e) {
                 std::scoped_lock lock(render_lock);
-                ui_ctx->prompt("Runtime exception", e.what());
+                ui_ctx.prompt("Runtime exception", e.what());
                 Eng3D::Log::error("world_thread", e.what());
                 paused = true;
             }
@@ -562,7 +561,7 @@ void GameState::music_thread() {
         bool has_played;
         std::string path;
     };
-    auto path_entries = Eng3D::State::get_instance().package_man->get_multiple_prefix("sfx/music/ambience");
+    auto path_entries = Eng3D::State::get_instance().package_man.get_multiple_prefix("sfx/music/ambience");
     std::vector<MusicEntry> entries;
     entries.reserve(path_entries.size());
     for(const auto& path : path_entries)
@@ -571,13 +570,13 @@ void GameState::music_thread() {
     entries.shrink_to_fit();
 
     while(this->run) {
-        if(this->music_queue.empty()) {
-            this->music_fade_value = 0.f;
+        if(this->audio_man.music_queue.empty()) {
+            this->audio_man.music_fade_value = 0.f;
             // Search through all the music in 'music/ambience' and picks a random
             if(!entries.empty()) {
                 const int music_index = std::rand() % entries.size();
-                std::scoped_lock lock(this->sound_lock);
-                this->music_queue.push_back(new Eng3D::Audio(entries[music_index].path));
+                std::scoped_lock lock(this->audio_man.sound_lock);
+                this->audio_man.music_queue.push_back(new Eng3D::Audio(entries[music_index].path));
                 Eng3D::Log::debug("music", "Now playing music file " + entries[music_index].path);
                 entries[music_index].has_played = true;
             }
@@ -586,7 +585,8 @@ void GameState::music_thread() {
 }
 
 void GameState::load_world_thread() {
-    this->world = new World();
+    this->world = &World::get_instance();
+    this->world->init_lua();
     this->world->load_initial();
     this->load_progress = 0.0f;
     /// @todo Events can't be properly reloaded right now :/
@@ -648,7 +648,7 @@ void start_client(int argc, char** argv) {
 
     auto map_layer = new UI::Group(0, 0);
 
-    auto load_screen_tex = gs.tex_man->load(gs.package_man->get_unique("gfx/load_screen/002.png"));
+    auto load_screen_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/load_screen/002.png"));
     auto* bg_img = new UI::Image(-(gs.width / 2.f), -(gs.height / 2.f), gs.width, gs.height, load_screen_tex);
     bg_img->origin = UI::Origin::CENTER_SCREEN;
 
@@ -656,7 +656,7 @@ void start_client(int argc, char** argv) {
     load_pbar->origin = UI::Origin::LOWER_LEFT_SCREEN;
     load_pbar->text_color = Eng3D::Color(1.f, 1.f, 1.f);
 
-    auto mod_logo_tex = gs.tex_man->load(gs.package_man->get_unique("gfx/mod_logo.png"));
+    auto mod_logo_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/mod_logo.png"));
     auto* mod_logo_img = new UI::Image(0, 0, mod_logo_tex->width, mod_logo_tex->height, mod_logo_tex);
 
     // Pre-cache the textures that the map will use upon construction
@@ -698,7 +698,7 @@ void start_client(int argc, char** argv) {
                 gs.load_progress = 1.f;
             } else if(!load_nation_flags) {
                 const std::string path = "gfx/flags/" + (*load_it_nation).ref_name + "_" + ((*load_it_nation).ideology == nullptr ? "none" : (*load_it_nation).ideology->ref_name.get_string()) + ".png";
-                gs.tex_man->load(gs.package_man->get_unique(path), mipmap_options);
+                gs.tex_man.load(gs.package_man.get_unique(path), mipmap_options);
                 if(!path.empty())
                     load_pbar->text(path);
                 gs.load_progress = 0.1f + (0.3f / std::distance(load_it_nation, gs.world->nations.cend()));
@@ -707,9 +707,9 @@ void start_client(int argc, char** argv) {
                     load_nation_flags = true;
             } else if(!load_building_type_icons) {
                 const std::string model_path = "models/building_types/" + (*load_it_building_type).ref_name + ".obj";
-                gs.model_man->load(gs.package_man->get_unique(model_path));
+                gs.model_man.load(gs.package_man.get_unique(model_path));
                 const std::string tex_path = "gfx/buildingtype/" + (*load_it_building_type).ref_name + ".png";
-                gs.tex_man->load(gs.package_man->get_unique(tex_path), mipmap_options);
+                gs.tex_man.load(gs.package_man.get_unique(tex_path), mipmap_options);
                 if(!model_path.empty())
                     load_pbar->text(model_path);
                 gs.load_progress = 0.4f + (0.3f / std::distance(load_it_building_type, gs.world->building_types.cend()));
@@ -718,9 +718,9 @@ void start_client(int argc, char** argv) {
                     load_building_type_icons = true;
             } else if(!load_unit_type_icons) {
                 const std::string model_path = "models/unit_types/" + (*load_it_unit_type).ref_name + ".obj";
-                gs.model_man->load(gs.package_man->get_unique(model_path));
+                gs.model_man.load(gs.package_man.get_unique(model_path));
                 const std::string tex_path = "gfx/unittype/" + (*load_it_unit_type).ref_name + ".png";
-                gs.tex_man->load(gs.package_man->get_unique(tex_path), mipmap_options);
+                gs.tex_man.load(gs.package_man.get_unique(tex_path), mipmap_options);
                 if(!model_path.empty())
                     load_pbar->text(model_path);
                 gs.load_progress = 0.7f + (0.3f / std::distance(load_it_unit_type, gs.world->unit_types.cend()));
@@ -733,7 +733,7 @@ void start_client(int argc, char** argv) {
         }
 
         load_pbar->set_value(gs.load_progress);
-        gs.ui_ctx->render_all(glm::ivec2(gs.input.mouse_pos.first, gs.input.mouse_pos.second));
+        gs.ui_ctx.render_all(glm::ivec2(gs.input.mouse_pos.first, gs.input.mouse_pos.second));
         gs.swap();
         gs.world->profiler.render_done();
     }
@@ -810,9 +810,9 @@ void start_client(int argc, char** argv) {
             gs.map->camera->update();
             gs.map->draw(gs);
         }
-        gs.ui_ctx->clear_dead();
+        gs.ui_ctx.clear_dead();
         if(gs.show_ui) {
-            gs.ui_ctx->render_all(glm::ivec2(gs.input.mouse_pos.first, gs.input.mouse_pos.second));
+            gs.ui_ctx.render_all(glm::ivec2(gs.input.mouse_pos.first, gs.input.mouse_pos.second));
         }
         gs.swap();
         gs.world->profiler.render_done();

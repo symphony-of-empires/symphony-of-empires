@@ -209,7 +209,7 @@ void Client::net_loop() {
                         for(Unit::Id i = 0; i < size; i++) {
                             Unit unit;
                             ::deserialize(ar, &unit);
-                            g_world->unit_manager.units[unit.cached_id] = unit;
+                            g_world.unit_manager.units[unit.cached_id] = unit;
                         }
                     } break;
                     case ActionType::UNIT_ADD: {
@@ -218,7 +218,7 @@ void Client::net_loop() {
                         Province::Id prov_id;
                         ::deserialize(ar, &prov_id);
                         world.unit_manager.add_unit(unit, prov_id);
-                        Eng3D::Log::debug("client", "New unit of " + g_world->nations[unit.owner_id].ref_name);
+                        Eng3D::Log::debug("client", "New unit of " + g_world.nations[unit.owner_id].ref_name);
                     } break;
                     case ActionType::BUILDING_ADD: {
                         Province* province;

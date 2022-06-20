@@ -325,6 +325,12 @@ void Eng3D::TextureArray::upload() {
 //
 // Texture manager
 //
+Eng3D::TextureManager::TextureManager(Eng3D::State& _s)
+    : s{ _s }
+{
+
+}
+
 std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::get_white() {
     if(white.get() == nullptr) {
         white = std::make_shared<Eng3D::Texture>(1, 1);

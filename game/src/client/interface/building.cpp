@@ -60,14 +60,14 @@ BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::W
         btn->set_on_click([](UI::Widget& w) {
             auto& o = static_cast<BuildingBuildView&>(*w.parent->parent);
             if(!o.gs.curr_nation->exists()) {
-                o.gs.ui_ctx->prompt("Error", "You don't exist");
+                o.gs.ui_ctx.prompt("Error", "You don't exist");
                 return;
             }
             
             const BuildingType& building_type = ((BuildingTypeButton&)w).building_type;
             const_cast<Province&>(*o.province).add_building(building_type);
             g_client->send(Action::BuildingAdd::form_packet(*o.province, building_type));
-            o.gs.ui_ctx->prompt("Production", "Building a " + building_type.name + " in " + o.province->ref_name + "; owned by " + o.province->controller->name);
+            o.gs.ui_ctx.prompt("Production", "Building a " + building_type.name + " in " + o.province->ref_name + "; owned by " + o.province->controller->name);
         });
         i++;
     }

@@ -145,34 +145,27 @@ static void GLAPIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint
 }
 #endif
 
-Eng3D::State::State(const std::vector<std::string>& pkg_paths) {
-    // Make sure we're the only state running
-    if(g_state != nullptr)
-        CXX_THROW(std::runtime_error, "Duplicate instancing of GameState");
-    g_state = this;
-
-#ifdef E3D_BACKEND_RGX // RVL GX
-#endif
-
-    // Initialize the IO first, as other subsystems may require access to files (i.e the UI context)
-    package_man = new Eng3D::IO::PackageManager(pkg_paths);
-
+//
+// Installer
+//
+Eng3D::Installer::Installer(Eng3D::State& _s)
+    : s{ _s }
+{
     // Startup-initialization of SDL
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
-
 #ifdef E3D_BACKEND_OPENGL // Normal PC computer
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_ShowCursor(SDL_DISABLE);
 
     // Create the initial window
-    width = 1280;
-    height = 800;
-    window = SDL_CreateWindow("Symphony of Empires", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    s.width = 1024;
+    s.height = 720;
+    s.window = SDL_CreateWindow("Symphony of Empires", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, s.width, s.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
     // OpenGL configurations
-    context = SDL_GL_CreateContext(window);
+    s.context = SDL_GL_CreateContext(s.window);
     SDL_GL_SetSwapInterval(1);
 
     Eng3D::Log::debug("opengl", std::string() + "OpenGL Version: " + (const char*)glGetString(GL_VERSION));
@@ -211,23 +204,35 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths) {
 
     glClearColor(0.3f, 0.3f, 0.3f, 0.0f);
 #endif
+}
 
-    // Initialize sound subsystem (at 11,050 hz)
-    SDL_AudioSpec fmt;
-    fmt.freq = 8000;
-    fmt.format = AUDIO_S16;
-    fmt.channels = 1;
-    fmt.samples = 512;
-    fmt.callback = &Eng3D::State::mixaudio;
-    fmt.userdata = this;
-    if(SDL_OpenAudio(&fmt, NULL) < 0)
-        CXX_THROW(std::runtime_error, "Unable to open audio: " + std::string(SDL_GetError()));
-    SDL_PauseAudio(0);
+Eng3D::Installer::~Installer()
+{
+    SDL_DestroyWindow(s.window);
+#ifdef E3D_BACKEND_OPENGL
+    SDL_GL_DeleteContext(s.context);
+#endif
+    SDL_CloseAudio();
+    TTF_Quit();
+    SDL_Quit();
+}
 
-    tex_man = new Eng3D::TextureManager();
-    sound_man = new Eng3D::AudioManager();
-    material_man = new Eng3D::MaterialManager();
-    model_man = new Eng3D::ModelManager();
+//
+// State
+//
+Eng3D::State::State(const std::vector<std::string>& pkg_paths)
+    : installer(*this),
+    package_man(*this, pkg_paths), // Initialize the IO first, as other subsystems may require access to files (i.e the UI context)
+    audio_man(*this),
+    tex_man(*this),
+    material_man(*this),
+    model_man(*this),
+    ui_ctx(*this)
+{
+    // Make sure we're the only state running
+    if(g_state != nullptr)
+        CXX_THROW(std::runtime_error, "Duplicate instancing of GameState");
+    g_state = this;
 
     this->reload_shaders();
 
@@ -254,35 +259,17 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths) {
         }
 #endif
     }*/
-
-    ui_ctx = new UI::Context();
-    ui_ctx->resize(width, height);
+    ui_ctx.resize(width, height);
 }
 
 Eng3D::State::~State() {
-    delete tex_man;
-    delete sound_man;
-    delete material_man;
-    delete model_man;
-    delete package_man;
-
-    delete ui_ctx;
-
-#ifdef E3D_BACKEND_OPENGL
-    SDL_GL_DeleteContext(context);
-#endif
-    SDL_CloseAudio();
-
-    TTF_Quit();
-    SDL_Quit();
-
     g_state = nullptr;
 }
 
 void Eng3D::State::reload_shaders() {
     // Compile built-in shaders
     const auto read_file = [this](const std::string& file_name) {
-        return this->package_man->get_unique("shaders/" + file_name)->read_all();
+        return this->package_man.get_unique("shaders/" + file_name)->read_all();
     };
     const auto load_fragment_shader = [read_file](std::string file_name) {
         return std::unique_ptr<Eng3D::OpenGL::FragmentShader>(new Eng3D::OpenGL::FragmentShader(read_file(file_name)));
@@ -324,54 +311,13 @@ void Eng3D::State::swap() const {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     SDL_GL_SwapWindow(window);
 #else
+
 #endif
 }
 
 void Eng3D::State::set_multisamples(int samples) const {
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, samples);
-}
-
-void Eng3D::State::mixaudio(void* userdata, uint8_t* stream, int len) {
-    Eng3D::State& gs = *(static_cast<Eng3D::State*>(userdata));
-    std::memset(stream, 0, len);
-
-    if(gs.sound_lock.try_lock()) {
-        for(unsigned int i = 0; i < gs.sound_queue.size(); ) {
-            Eng3D::Audio& sound = *gs.sound_queue[i];
-            const int amount = std::min<int>(len, sound.len - sound.pos);
-            if(amount <= 0) {
-                delete &sound;
-                gs.sound_queue.erase(gs.sound_queue.begin() + i);
-                continue;
-            }
-
-            const float volume = SDL_MIX_MAXVOLUME * gs.sound_volume;
-            SDL_MixAudio(stream, &sound.data[sound.pos], amount, volume);
-            sound.pos += amount;
-            i++;
-        }
-
-        for(unsigned int i = 0; i < gs.music_queue.size(); ) {
-            Eng3D::Audio& music = *gs.music_queue[i];
-            const int amount = std::min<int>(len, music.len - music.pos);
-            if(amount <= 0) {
-                delete &music;
-                gs.music_queue.erase(gs.music_queue.begin() + i);
-                continue;
-            }
-
-            const float volume = SDL_MIX_MAXVOLUME * gs.music_volume;
-            const float fade = SDL_MIX_MAXVOLUME * gs.music_fade_value;
-            SDL_MixAudio(stream, &music.data[music.pos], amount, volume - fade);
-            music.pos += amount;
-            i++;
-        }
-        gs.sound_lock.unlock();
-    }
-
-    if(gs.music_fade_value > 1.f)
-        gs.music_fade_value -= 1.f;
 }
 
 Eng3D::State& Eng3D::State::get_instance() {

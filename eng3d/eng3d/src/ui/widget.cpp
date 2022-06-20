@@ -126,7 +126,7 @@ void Widget::draw_rect(const Eng3D::Texture* tex, Eng3D::Rect rect_pos, Eng3D::R
     if(tex != nullptr) {
         g_ui_context->obj_shader->set_texture(0, "diffuse_map", *tex);
     } else {
-        g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man->get_white());
+        g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man.get_white());
     }
     auto square = Eng3D::Square(rect_pos, rect_tex);
     square.draw();
@@ -238,7 +238,7 @@ void Widget::draw_rectangle(int _x, int _y, unsigned _w, unsigned _h, Eng3D::Rec
 void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
     const Eng3D::Rect pos_rect((int)0u, 0u, width, height);
     const Eng3D::Rect tex_rect((int)0u, 0u, 1u, 1u);
-    g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man->get_white());
+    g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man.get_white());
 
     // Shadow
     if(have_shadow) {
@@ -287,7 +287,7 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
     // Semi-transparent over hover elements which can be clicked
     bool hover_effect = is_hover == g_ui_context->hover_update;
     if(clickable_effect && ((on_click && hover_effect) || is_clickable)) {
-        g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man->get_white());
+        g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man.get_white());
         g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.5f, 0.5f, 0.5f, 0.5f));
         draw_rect(nullptr, pos_rect, tex_rect, viewport);
     }

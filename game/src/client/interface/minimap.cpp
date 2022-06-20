@@ -171,7 +171,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     });
     good_price_ibtn->set_tooltip("Prices");
 
-    new UI::Image(65, 5, 332, 166, Eng3D::State::get_instance().tex_man->load(gs.package_man->get_unique("gfx/minimap.png")), this);
+    new UI::Image(65, 5, 332, 166, Eng3D::State::get_instance().tex_man.load(gs.package_man.get_unique("gfx/minimap.png")), this);
 }
 
 void Minimap::set_mapmode_options(Widget* widget) {
@@ -186,13 +186,13 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
     gs{ gs }
 {
     this->origin = UI::Origin::MIDDLE_RIGHT_SCREEN;
-    this->current_texture = Eng3D::State::get_instance().tex_man->load(gs.package_man->get_unique("gfx/window_background.png"));
+    this->current_texture = Eng3D::State::get_instance().tex_man.load(gs.package_man.get_unique("gfx/window_background.png"));
     this->is_scroll = true;
 
     glm::ivec2 size(4, 4);
     glm::ivec2 texture_size(10, 10);
     auto tex_man = Eng3D::State::get_instance().tex_man;
-    auto border_tex = tex_man->load(gs.package_man->get_unique("gfx/border2.png"));
+    auto border_tex = tex_man.load(gs.package_man.get_unique("gfx/border2.png"));
     this->border = UI::Border(border_tex, size, texture_size);
 
     auto goods = gs.world->goods;
@@ -206,7 +206,7 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
         Eng3D::TextureOptions options;
         options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
         options.mag_filter = GL_LINEAR;
-        auto good_tex = tex_man->load(gs.package_man->get_unique("gfx/good/" + good->ref_name + ".png"), options);
+        auto good_tex = tex_man.load(gs.package_man.get_unique("gfx/good/" + good->ref_name + ".png"), options);
 
         auto* good_div = new UI::Div(0, 0, 200, 35, flex_column);
         new UI::Image(0, 0, 35, 35, good_tex, good_div);
@@ -294,7 +294,7 @@ mapmode_generator relations_map_mode(Nation::Id id) {
                 continue;
             }
 
-            const NationRelation& rel = g_world->get_relation(g_world->get_id(*province.controller), id);
+            const NationRelation& rel = g_world.get_relation(g_world.get_id(*province.controller), id);
             if(rel.has_alliance) {
                 Eng3D::Color color = Eng3D::Color::rgba32(bswap32(0x20d4d1ff));
                 provinces_color.push_back(ProvinceColor(i, color));
@@ -336,7 +336,7 @@ mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
             return str;
         }
 
-        if(g_world->get_id(*province.controller) != nation_id) {
+        if(g_world.get_id(*province.controller) != nation_id) {
             const NationRelation& rel = world.get_relation(world.get_id(*province.controller), nation_id);
             if(rel.has_alliance) {
                 str += "allied with " + world.nations[nation_id].get_client_hint().alt_name;
