@@ -161,7 +161,7 @@ public:
     bool ai_controlled = true;
     bool ai_do_cmd_troops = true;
 
-    Province::Id capital_id = Province::invalid(); // The capital of this nation (can be nullptr)
+    Province::Id capital_id = Province::invalid(); // The capital of this nation (can be invalid id)
     Ideology* ideology = nullptr; // Current ideology of the nation
     Policies current_policy; // Current policy of this nation
     uint16_t diplomatic_timer; // Time until a diplomacy can be done

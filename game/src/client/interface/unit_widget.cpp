@@ -78,7 +78,7 @@ void UnitWidget::set_unit(Unit& _unit) {
 
     const Eng3D::Camera& camera = *map.camera;
     auto unit_pos = _unit.get_pos();
-    auto screen_pos = camera.get_tile_screen_pos(glm::vec2(unit_pos.first, unit_pos.second));
+    auto screen_pos = camera.get_tile_screen_pos(unit_pos);
 
     this->x = screen_pos.x - this->width / 2;
     this->y = screen_pos.y - this->height / 2;
