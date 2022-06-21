@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.5.1)
-
 project(SymphonyOfEmpires CXX C)
 
 option(BUILD_ENGINE "Enable building Eng3D" ON)
@@ -59,6 +58,8 @@ IF(WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_TARGET_WINDOWS=1")
 ELSEIF(UNIX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_TARGET_UNIX=1")
+ELSEIF(ANDROID)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_TARGET_UNIX=1 -DE3D_TARGET_ANDROID=1")
 ELSE()
 	link_directories("${DEVKITPRO}/libogc/lib")
 	include_directories("${DEVKITPRO}/libogc/include")
@@ -82,7 +83,11 @@ file(GLOB MAIN_SOURCES
 	"${PROJECT_SOURCE_DIR}/game/src/server/*.cpp"
 	"${PROJECT_SOURCE_DIR}/game/src/server/ai/*.cpp"
 )
-add_executable(SymphonyOfEmpires ${MAIN_SOURCES})
+IF(ANDROID)
+	add_executable(SymphonyOfEmpires "${MAIN_SOURCES}" "${ANDROID_NDK_HOME}/sources/android/native_app_glue/android_native_app_glue.c")
+ELSE()
+	add_executable(SymphonyOfEmpires "${MAIN_SOURCES}")
+ENDIF()
 
 #
 # Linking
@@ -122,6 +127,10 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/sdl2_ttf)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/sdl2_ttf)
 target_link_libraries(SymphonyOfEmpires PUBLIC SDL2_ttf)
 
+IF(ANDROID)
+	target_link_libraries(SymphonyOfEmpires PUBLIC android)
+ENDIF()
+
 IF(WIN32)
 	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR MSVC)
 		
@@ -140,57 +149,11 @@ IF(Threads_FOUND)
 	target_link_libraries(SymphonyOfEmpires PRIVATE Threads::Threads)
 ENDIF()
 
-#
-# Precompiled headers
-#
-# Standard C++ library headers
-target_precompile_headers(SymphonyOfEmpires PRIVATE
-	<cstdint>
-	<cstddef>
-	<cstring>
-	<cstdlib>
-	<cstdio>
-	<climits>
-	<ctime>
-	<sstream>
-	<fstream>
-	<string>
-	<vector>
-	<set>
-	<deque>
-	<atomic>
-	<thread>
-	<mutex>
-	<utility>
-	<numeric>
-	<functional>
-	<type_traits>
-	<algorithm>
-	<memory>
-	<iostream>
-	<unordered_map>
-)
-
-IF(E3D_BACKEND_OPENGL)
-	# OpenGL header files
-	target_precompile_headers(SymphonyOfEmpires PRIVATE
-		<GL/glew.h>
-		<GL/gl.h>
-		<GL/glu.h>
-		<GL/glext.h>
-	)
-ELSEIF(E3D_BACKEND_GLES)
-	# No precompile
-ENDIF()
-
-# glm header files
-target_precompile_headers(SymphonyOfEmpires PRIVATE
-	<glm/glm.hpp>
-	<glm/mat4x4.hpp>
-	<glm/common.hpp>
-	<glm/vec2.hpp>
-	<glm/vec3.hpp>
-	<glm/gtx/intersect.hpp>
-	<glm/gtc/type_ptr.hpp>
-	<glm/gtc/matrix_transform.hpp>
+set(APP_SHARED_LIBRARIES
+	${LIBRARY_OUTPUT_PATH}/libtbb.so
+	${LIBRARY_OUTPUT_PATH}/libassimp.so
+	${LIBRARY_OUTPUT_PATH}/libSDL2.so
+	${LIBRARY_OUTPUT_PATH}/libSDL2_ttf.so
+	${LIBRARY_OUTPUT_PATH}/liblua.so
+	${LIBRARY_OUTPUT_PATH}/libeng3d.so
 )
