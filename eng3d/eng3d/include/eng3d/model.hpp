@@ -33,7 +33,9 @@
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 #include <assimp/scene.h>
+extern "C" {
 #include <assimp/postprocess.h>
+}
 
 #include "eng3d/mesh.hpp"
 #include "eng3d/io.hpp"
@@ -51,7 +53,7 @@ namespace Eng3D {
     /// @todo We should use instancing tricks on simple objects
     class SimpleModel : public Eng3D::Mesh<glm::vec3, glm::vec2> {
     public:
-        SimpleModel(enum Eng3D::MeshMode _mode);
+        SimpleModel(enum Eng3D::MeshMode _mode) : Eng3D::Mesh<glm::vec3, glm::vec2>(_mode) {};
         ~SimpleModel() = default;
         SimpleModel(const SimpleModel&) = delete;
         SimpleModel(SimpleModel&&) noexcept = default;

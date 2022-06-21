@@ -222,15 +222,15 @@ namespace Eng3D {
             }
         }
 
-        virtual void draw(const Eng3D::OpenGL::Program& program) const {
+        virtual void draw(const Eng3D::OpenGL::Program&) const {
             this->draw();
         }
 #else
 #   error not implemented
 #endif
 
-#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         virtual void upload() const {
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
             vao.bind();
             vbo.bind();
             glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(buffer[0]), &buffer[0], GL_STATIC_DRAW);
@@ -245,10 +245,10 @@ namespace Eng3D {
             constexpr int tex_stride = sizeof(buffer[0].vert);
             glVertexAttribPointer(1, T::length(), GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)((uintptr_t)tex_stride));
             glEnableVertexAttribArray(1);
-        };
 #else
 #   error not implemented
 #endif
+        }
 
         std::vector<Eng3D::MeshData<V, T>> buffer;
         std::vector<unsigned int> indices;
