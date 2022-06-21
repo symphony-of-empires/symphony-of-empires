@@ -97,9 +97,8 @@ namespace Eng3D {
              * 
              */
             inline ~Shader() {
-                if(id) {
+                if(id)
                     glDeleteShader(id);
-                }
             }
 
             inline GLuint get_id() const {
@@ -144,9 +143,8 @@ namespace Eng3D {
         public:
             Program() {
                 id = glCreateProgram();
-                if(!id) {
+                if(!id)
                     CXX_THROW(Eng3D::ShaderException, "Can't create new program");
-                }
                 glBindAttribLocation(id, 0, "m_pos");
                 glBindAttribLocation(id, 1, "m_texcoord");
             }

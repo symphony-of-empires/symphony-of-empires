@@ -34,7 +34,6 @@ typedef SSIZE_T ssize_t;
 #endif
 #endif
 #include <cstddef>
-#include <execution>
 #include <tbb/blocked_range.h>
 #include <tbb/concurrent_vector.h>
 #include <tbb/parallel_for.h>

@@ -36,14 +36,16 @@
 #include <SDL_ttf.h>
 
 #include <glm/vec2.hpp>
+#include <glm/mat4x4.hpp>
+
+#include "eng3d/shader.hpp"
 #include "eng3d/rectangle.hpp"
 #include "eng3d/color.hpp"
-#include "eng3d/shader.hpp"
 
 namespace Eng3D {
     class Texture;
     class State;
-};
+}
 
 /// @defgroup UI UI
 /// The UI widgets used to create the interface

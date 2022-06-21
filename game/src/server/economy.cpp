@@ -24,7 +24,6 @@
 // ----------------------------------------------------------------------------
 
 #include <algorithm>
-#include <execution>
 #include <cstdio>
 #include <tbb/blocked_range.h>
 #include <tbb/concurrent_vector.h>
