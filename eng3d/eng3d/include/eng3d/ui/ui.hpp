@@ -29,6 +29,7 @@
 #include <deque>
 #include <functional>
 #include <vector>
+#include <mutex>
 #include <string>
 
 #include <SDL_surface.h>

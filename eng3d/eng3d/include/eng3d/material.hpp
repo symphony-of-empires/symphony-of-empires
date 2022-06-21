@@ -30,6 +30,7 @@
 #include <vector>
 
 #include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 namespace Eng3D {
     class State;
