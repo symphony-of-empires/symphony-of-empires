@@ -57,13 +57,11 @@ void start_client(int argc, char** argv);
 #ifdef E3D_TARGET_ANDROID
 #include <android_native_app_glue.h>
 #include <android/log.h>
-
-#define APPNAME "CMakeExampleApp"
-
+#define APPNAME "baseapp"
 void android_main(struct android_app* state)
 {
     app_dummy(); // Make sure glue isn't stripped
-    __android_log_print(ANDROID_LOG_INFO, APPNAME, "HolyShit you did it !");
+    main(0, { NULL });
     ANativeActivity_finish(state->activity);
 }
 #endif

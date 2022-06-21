@@ -32,6 +32,7 @@
 #include <numeric>
 #include <string>
 #include <vector>
+#include <memory>
 #include <cstdio>
 #include <type_traits>
 #include "eng3d/utils.hpp"

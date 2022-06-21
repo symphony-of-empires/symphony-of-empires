@@ -98,7 +98,7 @@ ENDIF()
 set(ASSIMP_INSTALL ON)
 set(ASSIMP_NO_EXPORT ON)
 set(ASSIMP_IGNORE_GIT_HASH ON)
-
+set(ASSIMP_WARNINGS_AS_ERRORS OFF)
 add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/assimp)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/assimp/include)
 include_directories(${CMAKE_BINARY_DIR}/vendor/assimp/include) # assimp generates config.h here

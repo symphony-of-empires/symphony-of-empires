@@ -27,6 +27,7 @@
 
 #ifdef E3D_BACKEND_OPENGL
 #   include <GL/glew.h>
+#   include <GL/gl.h>
 #elif defined E3D_BACKEND_RGX
 #   include <gccore.h>
 #endif

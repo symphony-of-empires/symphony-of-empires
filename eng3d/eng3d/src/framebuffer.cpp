@@ -23,6 +23,10 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#ifdef E3D_BACKEND_OPENGL
+#   include <GL/glew.h>
+#endif
+
 #include "eng3d/framebuffer.hpp"
 #include "eng3d/log.hpp"
 

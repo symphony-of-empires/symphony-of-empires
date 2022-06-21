@@ -37,6 +37,7 @@
 
 #ifdef E3D_BACKEND_OPENGL
 // MSVC does not know about glext, mingw does so we just use this ifdef
+#   include <GL/glew.h>
 #   ifndef _MSC_VER
 #       include <GL/glext.h>
 #   endif
