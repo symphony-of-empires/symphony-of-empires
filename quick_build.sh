@@ -121,13 +121,12 @@ if [ "$1" = "android" ]; then
         keytool -genkeypair -keystore keystore.jks -alias soe -validity 10000 -keyalg RSA -keysize 2048
     fi
 
-    cp SymphonyOfEmpires apk/libSymphonyOfEmpires.so || exit
-    cp vendor/assimp/bin/libassimp.so apk/ || exit
-    cp vendor/glm/libglm_shared.so apk/ || exit
-    cp vendor/lua/liblua.a apk/ || exit
-    cp vendor/sdl2/libSDL2.so apk/ || exit
-    cp vendor/sdl2/libSDL2main.a apk/ || exit
-    cp vendor/sdl2_ttf/libSDL2_ttf.so apk/ || exit
+    mkdir -p apk/lib/armeabi-v7a
+    cp SymphonyOfEmpires apk/lib/armeabi-v7a/libSymphonyOfEmpires.so || exit
+    cp vendor/assimp/bin/libassimp.so apk/lib/armeabi-v7a || exit
+    cp vendor/glm/glm/libglm_shared.so apk/lib/armeabi-v7a || exit
+    cp vendor/sdl2/libSDL2.so apk/lib/armeabi-v7a || exit
+    cp vendor/sdl2_ttf/libSDL2_ttf.so apk/lib/armeabi-v7a || exit
 
     # Package the APK
     $BUILD_TOOLS/aapt package -f \
