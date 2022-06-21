@@ -66,6 +66,7 @@ void Chart::on_render(Context&, Eng3D::Rect viewport) {
         draw_rectangle(0, 0, width, height, viewport, current_texture.get());
     }
 
+#ifdef E3D_BACKEND_OPENGL
     glBindTexture(GL_TEXTURE_2D, 0);
     if(data.size() > 1) {
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -106,6 +107,7 @@ void Chart::on_render(Context&, Eng3D::Rect viewport) {
         }
         glEnd();
     }
+#endif
 
     if(text_texture != nullptr) {
         g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));

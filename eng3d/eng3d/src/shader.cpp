@@ -33,7 +33,7 @@
 #include "eng3d/utils.hpp"
 #include "eng3d/log.hpp"
 
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
 // Construct a shader by opening the provided path and creating a temporal ifstream, reading
 // from that stream in text mode and then compiling the shader
 Eng3D::OpenGL::Shader::Shader(const std::string& _buffer, GLuint type, bool use_transpiler, std::vector<Eng3D::OpenGL::GLSL_Define> defintions)
@@ -150,5 +150,4 @@ void Eng3D::OpenGL::Program::link() {
         CXX_THROW(Eng3D::ShaderException, error_info.get());
     }
 }
-
 #endif

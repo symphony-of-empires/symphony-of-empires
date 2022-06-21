@@ -30,6 +30,7 @@
 #include <tbb/concurrent_vector.h>
 #include <tbb/parallel_for.h>
 #include <tbb/combinable.h>
+
 #include "eng3d/log.hpp"
 #include "eng3d/serializer.hpp"
 #include "eng3d/thread_pool.hpp"
@@ -342,47 +343,50 @@ void Economy::do_tick(World& world) {
         Market& market = markets[good_id];
         market.good = good_id;
     }
-    std::for_each(std::execution::par, markets.begin(), markets.end(), [&world, provinces_size](auto& market) {
-        market.prices.reserve(provinces_size);
-        market.supply.reserve(provinces_size);
-        market.demand.reserve(provinces_size);
+    tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world, provinces_size](const auto& markets_range) {
+        for(auto& market : markets_range) {
+            market.prices.reserve(provinces_size);
+            market.supply.reserve(provinces_size);
+            market.demand.reserve(provinces_size);
 
-        for(size_t i = 0; i < world.provinces.size(); i++) {
-            Province& province = world.provinces[i];
-            Product& product = province.products[market.good];
-            market.demand[i] = 0.f;
-            if(Nation::is_valid(province.owner_id)) {
-                market.prices[i] = product.price;
-                market.supply[i] = product.supply;
-            } else {
-                market.prices[i] = product.price;
-                market.supply[i] = product.supply;
+            for(size_t i = 0; i < world.provinces.size(); i++) {
+                Province& province = world.provinces[i];
+                Product& product = province.products[market.good];
+                market.demand[i] = 0.f;
+                if(Nation::is_valid(province.owner_id)) {
+                    market.prices[i] = product.price;
+                    market.supply[i] = product.supply;
+                } else {
+                    market.prices[i] = product.price;
+                    market.supply[i] = product.supply;
+                }
             }
-
         }
     });
     world.profiler.stop("E-init");
 
     world.profiler.start("E-trade");
-    std::for_each(std::execution::par, markets.begin(), markets.end(), [&world, provinces_size](auto& market) {
-        for(size_t i = 0; i < provinces_size; i++) {
-            Province& province = world.provinces[i];
-            const size_t province_neighbours_size = province.neighbours.size();
-            Product& product = province.products[market.good];
-            if(product.supply <= 0.f) continue;
-            for(const auto neighbour_id : province.neighbours) {
-                auto& neighbour = g_world.provinces[neighbour_id];
-                if(Nation::is_valid(neighbour.owner_id)) continue;
-                const size_t neighbour_neighbours_size = neighbour.neighbours.size();
-                Product& other_product = neighbour.products[market.good];
-                // Transfer goods
-                if(other_product.price > product.price) {
-                    float amount = product.supply / province_neighbours_size;
-                    market.supply[i] -= amount;
-                    market.demand[i] += amount;
-                } else {
-                    float other_amount = other_product.supply / neighbour_neighbours_size;
-                    market.supply[i] += other_amount;
+    tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world, provinces_size](const auto& markets_range) {
+        for(auto& market : markets_range) {
+            for(size_t i = 0; i < provinces_size; i++) {
+                Province& province = world.provinces[i];
+                const size_t province_neighbours_size = province.neighbours.size();
+                Product& product = province.products[market.good];
+                if(product.supply <= 0.f) continue;
+                for(const auto neighbour_id : province.neighbours) {
+                    auto& neighbour = g_world.provinces[neighbour_id];
+                    if(Nation::is_valid(neighbour.owner_id)) continue;
+                    const size_t neighbour_neighbours_size = neighbour.neighbours.size();
+                    Product& other_product = neighbour.products[market.good];
+                    // Transfer goods
+                    if(other_product.price > product.price) {
+                        float amount = product.supply / province_neighbours_size;
+                        market.supply[i] -= amount;
+                        market.demand[i] += amount;
+                    } else {
+                        float other_amount = other_product.supply / neighbour_neighbours_size;
+                        market.supply[i] += other_amount;
+                    }
                 }
             }
         }
@@ -402,8 +406,10 @@ void Economy::do_tick(World& world) {
     }
 
     world.profiler.start("E-good");
-    std::for_each(std::execution::par, markets.begin(), markets.end(), [&world](const auto& market) {
-        economy_single_good_tick(world, world.goods[market.good]);
+    tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world](const auto& markets_range) {
+        for(const auto& market : markets_range) {
+            economy_single_good_tick(world, world.goods[market.good]);
+        }
     });
     world.profiler.stop("E-good");
 
@@ -504,30 +510,33 @@ void Economy::do_tick(World& world) {
     // -------------------------- MUTEX PROTECTED WORLD CHANGES BELOW -------------------------------
     std::scoped_lock lock(world.world_mutex);
 
-    std::for_each(std::execution::par, province_ids.begin(), province_ids.end(), [&world, &pops_new_needs, &buildings_new_worker](const auto province_id) {
-        Province& province = world.provinces[province_id];
-        std::vector<PopNeed>& new_needs = pops_new_needs[province_id];
-        for(uint32_t i = 0; i < province.pops.size(); i++) {
-            auto& pop = province.pops[i];
-            pop.budget = new_needs[i].budget;
-            pop.life_needs_met = new_needs[i].life_needs_met;
-            pop.everyday_needs_met = new_needs[i].everyday_needs_met;
-        }
-        std::vector<float>& new_workers = buildings_new_worker[province_id];
-        for(uint32_t i = 0; i < province.buildings.size(); i++) {
-            auto& building = province.buildings[i];
-            building.workers = new_workers[i];
+    tbb::parallel_for(tbb::blocked_range(province_ids.begin(), province_ids.end()), [&world, &pops_new_needs, &buildings_new_worker](const auto provinces_id_range) {
+        for(const auto& province_id : provinces_id_range) {
+            Province& province = world.provinces[province_id];
+            std::vector<PopNeed>& new_needs = pops_new_needs[province_id];
+            for(uint32_t i = 0; i < province.pops.size(); i++) {
+                auto& pop = province.pops[i];
+                pop.budget = new_needs[i].budget;
+                pop.life_needs_met = new_needs[i].life_needs_met;
+                pop.everyday_needs_met = new_needs[i].everyday_needs_met;
+            }
+            std::vector<float>& new_workers = buildings_new_worker[province_id];
+            for(uint32_t i = 0; i < province.buildings.size(); i++) {
+                auto& building = province.buildings[i];
+                building.workers = new_workers[i];
+            }
         }
     });
 
-    std::for_each(std::execution::par, eval_nations.begin(), eval_nations.end(), [&world](const auto& nation) {
-        std::vector<Unit*> new_nation_units;
-        // Do research on focused research
-        if(nation->focus_tech != nullptr) {
-            const float research = nation->get_research_points() / nation->focus_tech->cost;
-            nation->research[world.get_id(*nation->focus_tech)] += research;
+    tbb::parallel_for(tbb::blocked_range(eval_nations.begin(), eval_nations.end()), [&world](const auto& nations_range) {
+        for(const auto& nation : nations_range) {
+            // Do research on focused research
+            if(nation->focus_tech != nullptr) {
+                const float research = nation->get_research_points() / nation->focus_tech->cost;
+                nation->research[world.get_id(*nation->focus_tech)] += research;
+            }
+            militancy_update(world, *nation);
         }
-        militancy_update(world, *nation);
     });
 
     // Lock for world is already acquired since the economy runs inside the world's do_tick which

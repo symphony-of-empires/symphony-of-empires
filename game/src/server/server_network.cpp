@@ -153,7 +153,7 @@ void Server::net_loop(int id) {
                     if(selected_nation == nullptr || selected_nation->get_id() != unit.owner_id)
                         throw ServerException("Nation does not control unit");
 
-                    Province* province;
+                    Province* province = nullptr;
                     ::deserialize(ar, &province);
                     if(province == nullptr)
                         throw ServerException("Unknown province");
@@ -167,7 +167,7 @@ void Server::net_loop(int id) {
                 // only make the building submit "construction tickets" to obtain materials to build
                 // the unit can only be created by the server, not by the clients
                 case ActionType::BUILDING_START_BUILDING_UNIT: {
-                    Province* province;
+                    Province* province = nullptr;
                     ::deserialize(ar, &province);
                     if(province == nullptr)
                         throw ServerException("Unknown province");
@@ -175,11 +175,11 @@ void Server::net_loop(int id) {
                     ::deserialize(ar, &building_type);
                     if(building_type == nullptr)
                         throw ServerException("Unknown building");
-                    Nation* nation;
+                    Nation* nation = nullptr;
                     ::deserialize(ar, &nation);
                     if(nation == nullptr)
                         throw ServerException("Unknown nation");
-                    UnitType* unit_type;
+                    UnitType* unit_type = nullptr;
                     ::deserialize(ar, &unit_type);
                     if(unit_type == nullptr)
                         throw ServerException("Unknown unit type");
@@ -194,9 +194,9 @@ void Server::net_loop(int id) {
                 // Client tells server to build new outpost, the location (& type) is provided by
                 // the client and the rest of the fields are filled by the server
                 case ActionType::BUILDING_ADD: {
-                    Province* province;
+                    Province* province = nullptr;
                     ::deserialize(ar, &province);
-                    BuildingType* building_type;
+                    BuildingType* building_type = nullptr;
                     ::deserialize(ar, &building_type);
                     province->buildings[g_world.get_id(*building_type)].level += 1;
                     // Rebroadcast
@@ -205,7 +205,7 @@ void Server::net_loop(int id) {
                 // Client tells server that it wants to colonize a province, this can be rejected
                 // or accepted, client should check via the next PROVINCE_UPDATE action
                 case ActionType::PROVINCE_COLONIZE: {
-                    Province* province;
+                    Province* province = nullptr;
                     ::deserialize(ar, &province);
                     if(province == nullptr)
                         throw ServerException("Unknown province");
@@ -228,7 +228,7 @@ void Server::net_loop(int id) {
                 } break;
                 // Client changes it's approval on certain treaty
                 case ActionType::CHANGE_TREATY_APPROVAL: {
-                    Treaty* treaty;
+                    Treaty* treaty = nullptr;
                     ::deserialize(ar, &treaty);
                     if(treaty == nullptr)
                         throw ServerException("Treaty not found");
@@ -323,22 +323,22 @@ void Server::net_loop(int id) {
                     Eng3D::Log::debug("server", "Nation " + selected_nation->ref_name + " selected by client " + std::to_string(id));
                 } break;
                 case ActionType::DIPLO_INC_RELATIONS: {
-                    Nation* target;
+                    Nation* target = nullptr;
                     ::deserialize(ar, &target);
                     selected_nation->increase_relation(*target);
                 } break;
                 case ActionType::DIPLO_DEC_RELATIONS: {
-                    Nation* target;
+                    Nation* target = nullptr;
                     ::deserialize(ar, &target);
                     selected_nation->decrease_relation(*target);
                 } break;
                 case ActionType::DIPLO_DECLARE_WAR: {
-                    Nation* target;
+                    Nation* target = nullptr;
                     ::deserialize(ar, &target);
                     selected_nation->declare_war(*target);
                 } break;
                 case ActionType::FOCUS_TECH: {
-                    Technology* technology;
+                    Technology* technology = nullptr;
                     ::deserialize(ar, &technology);
                     if(technology == nullptr)
                         throw ServerException("Unknown technology");

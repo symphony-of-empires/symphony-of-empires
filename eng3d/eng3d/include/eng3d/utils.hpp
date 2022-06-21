@@ -25,44 +25,27 @@
 
 #pragma once
 
-// GNU C does not - so we have to define them by hand
-#ifdef E3D_TARGET_WINDOWS
-#   define bswap32(x) _byteswap_ulong(x)
-#   define bswap64(x) _byteswap_uint64(x)
-#elif defined _MSC_VER
-#   include <cstdlib>
-#   define bswap32(x) _byteswap_ulong(x)
-#   define bswap64(x) _byteswap_uint64(x)
-#elif defined __GNUC__ && !defined __MINGW32__
-#   define bswap32(x) __bswap_32(x)
-#   define bswap64(x) __bswap_64(x)
-// Mingw and MSVC is a bit more "special" - Instead of numbers we got AT&T-like specification of sizes
-#elif defined __MINGW32__
-#   include <cstdlib>
-#   define bswap32(x) ({\
-    uint8_t b[4];\
-    b[0] = x & 0xff;\
-    b[1] = (x >> 8) & 0xff;\
-    b[2] = (x >> 16) & 0xff;\
-    b[3] = (x >> 24) & 0xff;\
-    x = (b[0] << 24) | (b[1] << 16) | (b[2] << 8) | (b[3]);\
-})
+#include <cstdint>
 
-#   define bswap64(x) _byteswap_uint64(x) ({\
-    uint8_t b[4];\
-    b[0] = x & 0xff;\
-    b[1] = (x >> 8) & 0xff;\
-    b[2] = (x >> 16) & 0xff;\
-    b[3] = (x >> 24) & 0xff;\
-    b[4] = (x >> 32) & 0xff;\
-    b[5] = (x >> 40) & 0xff;\
-    b[6] = (x >> 48) & 0xff;\
-    b[7] = (x >> 56) & 0xff;\
-    x = (b[0] << 56) | (b[1] << 48) | (b[2] << 40) | (b[3] << 32) | (b[4] << 24) | (b[5] << 16) | (b[6] << 8) | (b[7]);\
-})
-#else
-#   include <byteswap.h>
-#endif
+static inline uint32_t bswap32(const uint32_t x) {
+    return
+        ((x << 24) & 0xff000000ULL) |
+        ((x << 8) & 0x00ff0000ULL) |
+        ((x >> 8) & 0x0000ff00ULL) |
+        ((x >> 24) & 0x000000ffULL);
+}
+
+static inline uint64_t bswap64(const uint64_t x) {
+    return
+        ((x << 56) & 0xff00000000000000ULL) |
+        ((x << 40) & 0x00ff000000000000ULL) |
+        ((x << 24) & 0x0000ff0000000000ULL) |
+        ((x << 8) & 0x000000ff00000000ULL) |
+        ((x >> 8) & 0x00000000ff000000ULL) |
+        ((x >> 24) & 0x0000000000ff0000ULL) |
+        ((x >> 40) & 0x000000000000ff00ULL) |
+        ((x >> 56) & 0x00000000000000ffULL);
+}
 
 #if !defined(E3D_EXCEPTIONS)
 #   define CXX_THROW(class, ...) throw class(__VA_ARGS__);
