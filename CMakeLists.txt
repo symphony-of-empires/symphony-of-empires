@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.5.1)
+
 project(SymphonyOfEmpires CXX C)
 
 option(BUILD_ENGINE "Enable building Eng3D" ON)
