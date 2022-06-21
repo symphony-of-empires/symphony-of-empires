@@ -36,6 +36,8 @@
 #   include <GL/glew.h>
 #   include <GL/gl.h>
 #   include <GL/glu.h>
+#elif defined E3D_BACKEND_GLES
+#   include <GLES3/gl31.h>
 #elif defined E3D_BACKEND_RGX
 #   include <gccore.h>
 #endif

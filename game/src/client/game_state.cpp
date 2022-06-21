@@ -43,13 +43,20 @@
 #   endif
 #endif
 
-#include <GL/glew.h>
+#ifdef E3D_BACKEND_OPENGL
+#   include <GL/glew.h>
 // MSVC does not know about glext, mingw does so we just use this ifdef
-#ifndef _MSC_VER
-#   include <GL/glext.h>
+#   ifndef _MSC_VER
+#       include <GL/glext.h>
+#   endif
+#   include <GL/gl.h>
+#   include <GL/glu.h>
+#elif defined E3D_BACKEND_GLES
+#   include <GLES3/gl31.h>
+#   include <GLES3/gl3ext.h>
 #endif
-#include <GL/gl.h>
-#include <GL/glu.h>
+
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_mouse.h>
