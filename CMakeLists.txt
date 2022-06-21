@@ -116,7 +116,7 @@ target_link_libraries(SymphonyOfEmpires PUBLIC tbb)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/sdl2)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/sdl2/include)
-target_link_libraries(SymphonyOfEmpires PUBLIC SDL2)
+target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 SDL2main)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/lua)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/lua)
