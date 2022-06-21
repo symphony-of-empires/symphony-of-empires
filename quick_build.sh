@@ -46,14 +46,14 @@ if [ "$1" == "android" ]; then
     
 else
     cmake \
-        -DCMAKE_BUILD_TYPE=Debug \
+        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
         -DE3D_BACKEND_OPENGL=1 \
         -B build/ \
         .
 fi
 
 cd build
-make -j`nproc` || exit
+make -j`nproc` VERBOSE=1 || exit
 echo "Launching game"
 if [ "$1" = "android" ]; then
     mkdir -p apk

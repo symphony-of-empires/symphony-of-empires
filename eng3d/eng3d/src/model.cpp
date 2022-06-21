@@ -31,7 +31,10 @@
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
+extern "C" {
 #include <assimp/postprocess.h>
+#include <assimp/material.h>
+}
 
 #include "eng3d/model.hpp"
 #include "eng3d/shader.hpp"
@@ -46,12 +49,6 @@
 //
 // Simple model
 //
-Eng3D::SimpleModel::SimpleModel(enum Eng3D::MeshMode _mode)
-    : Eng3D::Mesh<glm::vec3, glm::vec2>(_mode)
-{
-
-}
-
 void Eng3D::SimpleModel::draw(const Eng3D::OpenGL::Program& shader) const {
     // Change color if material wants it
     shader.set_texture(0, "diffuse_map", *material->diffuse_map);

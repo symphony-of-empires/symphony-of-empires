@@ -95,15 +95,6 @@ ENDIF()
 #
 
 # Dependencies
-set(ASSIMP_INSTALL ON)
-set(ASSIMP_NO_EXPORT ON)
-set(ASSIMP_IGNORE_GIT_HASH ON)
-set(ASSIMP_WARNINGS_AS_ERRORS OFF)
-add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/assimp)
-include_directories(${CMAKE_SOURCE_DIR}/vendor/assimp/include)
-include_directories(${CMAKE_BINARY_DIR}/vendor/assimp/include) # assimp generates config.h here
-target_link_libraries(SymphonyOfEmpires PUBLIC assimp)
-
 add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/glm)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/glm)
 target_link_libraries(SymphonyOfEmpires PUBLIC glm)
@@ -114,6 +105,9 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/onetbb)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/onetbb/include)
 target_link_libraries(SymphonyOfEmpires PUBLIC tbb)
 
+set(SDL2_DISABLE_SDL2MAIN ON)
+set(SDL2_DISABLE_INSTALL ON)
+set(SDL2_DISABLE_UNINSTALL ON)
 add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/sdl2)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/sdl2/include)
 target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 SDL2main)
@@ -123,12 +117,41 @@ include_directories(${CMAKE_SOURCE_DIR}/vendor/lua)
 target_link_libraries(SymphonyOfEmpires PUBLIC lua)
 
 set(SDL2TTF_VENDORED ON)
+set(SDL2TTF_INSTALL OFF)
 set(SDL2TTF_SAMPLES OFF)
 add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/sdl2_ttf)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/sdl2_ttf)
 target_link_libraries(SymphonyOfEmpires PUBLIC SDL2_ttf)
 
-IF(ANDROID)
+set(SDL2MIXER_INSTALL OFF)
+set(SDL2MIXER_SAMPLES OFF)
+set(SDL2MIXER_VENDORED ON)
+add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/sdl2_mixer)
+include_directories(${CMAKE_SOURCE_DIR}/vendor/sdl2_mixer)
+target_link_libraries(SymphonyOfEmpires PUBLIC SDL2_mixer)
+
+set(ASSIMP_INSTALL OFF)
+#set(ASSIMP_NO_EXPORT ON)
+#set(ASSIMP_IGNORE_GIT_HASH ON)
+set(ASSIMP_WARNINGS_AS_ERRORS OFF)
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
+set(ASSIMP_BUILD_SAMPLES OFF)
+set(ASSIMP_BUILD_TESTS OFF)
+add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/assimp)
+include_directories(${CMAKE_SOURCE_DIR}/vendor/assimp/include)
+include_directories(${CMAKE_BINARY_DIR}/vendor/assimp/include) # assimp generates config.h here
+target_link_libraries(SymphonyOfEmpires PUBLIC assimp)
+
+# Platform-specific libraries
+IF(NOT ANDROID)
+	IF(E3D_BACKEND_OPENGL)
+		set(GLFW_BUILD_TESTS OFF)
+		set(GLFW_BUILD_EXAMPLES OFF)
+		add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/glfw)
+		include_directories(${CMAKE_SOURCE_DIR}/vendor/glfw)
+		target_link_libraries(SymphonyOfEmpires PUBLIC glfw)
+	ENDIF()
+ELSEIF(ANDROID)
 	target_link_libraries(SymphonyOfEmpires PUBLIC android)
 ENDIF()
 
