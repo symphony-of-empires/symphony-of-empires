@@ -1,39 +1,5 @@
 #!/bin/bash
 
-# Obtains the system type
-function get_system_type() {
-    system_type="generic"
-    if [ -f "/etc/arch-release" ]; then
-        system_type="arch"
-    else
-        system_type="debian"
-    fi
-}
-# Call once
-get_system_type
-
-# apt check for installed packages
-# @param The name of the package
-function apt_install_package() {
-    pkg_is_ok=$(dpkg-query -W --showformat='${Status}\n' $1 | grep "install ok installed")
-    echo Checking for $1: $pkg_is_ok
-    if [ "" = "$pkg_is_ok" ]; then
-        echo "No $1. Installing..."
-        sudo apt install -y $1 || exit
-    fi
-}
-
-# pacman check for installed packages
-# @param The name of the package
-function pacman_install_package() {
-    if pacman -Qs $1 > /dev/null ; then
-        echo "Checking for $1: install ok installed"
-    else
-        echo "No $1. Installing..."
-        pacman -S libpng sdl2 sdl2_ttf glew lua53 glm tbb
-    fi
-}
-
 if [ "$1" = "android" ]; then
     export ANDROID_HOME="$HOME/Android/Sdk"
     export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/24.0.8215888"
@@ -50,30 +16,6 @@ if [ "$1" = "android" ]; then
         cd build
         if [ ! -d mods ]; then ln -s ../mods mods || exit; fi
         cd ..
-    else
-        echo "I don't know $system_type"
-        exit
-    fi
-else
-    # Install packages
-    if [ "$system_type" = "debian" ]; then
-        apt_install_package "libpng-dev"
-        apt_install_package "libsdl2-dev"
-        apt_install_package "libsdl2-ttf-dev"
-        apt_install_package "libtbb-dev"
-        apt_install_package "libglew-dev"
-        apt_install_package "libglm-dev"
-        apt_install_package "liblua5.3-dev"
-        apt_install_package "libassimp-dev"
-    elif [ "$system_type" = "arch" ]; then
-        pacman_install_package "libpng"
-        pacman_install_package "sdl2"
-        pacman_install_package "sdl2_ttf"
-        pacman_install_package "tbb"
-        pacman_install_package "glew"
-        pacman_install_package "lua53"
-        pacman_install_package "glm"
-        pacman_install_package "assimp"
     else
         echo "I don't know $system_type"
         exit
