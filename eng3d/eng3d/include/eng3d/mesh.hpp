@@ -37,13 +37,13 @@
 #   include <GL/gl.h>
 #   include <GL/glu.h>
 #elif defined E3D_BACKEND_GLES
-#   include <GLES3/gl31.h>
+#   include <GLES3/gl3.h>
 #elif defined E3D_BACKEND_RGX
 #   include <gccore.h>
 #endif
 
 /// @todo We aren't deleting the OpenGL objects!!!!
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
 namespace Eng3D::OpenGL {
     class VAO {
         GLuint id;
@@ -166,7 +166,7 @@ namespace Eng3D::OpenGL {
 
 namespace Eng3D {
     enum class MeshMode {
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         TRIANGLE_FAN = GL_TRIANGLE_FAN,
         TRIANGLE_STRIP = GL_TRIANGLE_STRIP,
         TRIANGLES = GL_TRIANGLES,
@@ -210,7 +210,7 @@ namespace Eng3D {
         Mesh(Mesh&&) noexcept = default;
         Mesh& operator=(const Mesh&) = default;
 
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         virtual void draw() const {
             vao.bind();
             if(!indices.empty()) {
@@ -223,7 +223,7 @@ namespace Eng3D {
 #   error not implemented
 #endif
 
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         virtual void upload() const {
             vao.bind();
             vbo.bind();
@@ -248,7 +248,7 @@ namespace Eng3D {
         std::vector<unsigned int> indices;
         enum Eng3D::MeshMode mode;
 
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         // The initialization should be done in this order, first the VAO
         // then initialize the VBO!
         Eng3D::OpenGL::VAO vao;

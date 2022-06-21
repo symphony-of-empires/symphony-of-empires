@@ -31,18 +31,13 @@
 #include <map>
 #include <string>
 
-#ifdef E3D_BACKEND_OPENGL
-#   include <GL/glew.h>
-#elif defined E3D_BACKEND_RGX
-#endif
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_keycode.h>
-#include <SDL2/SDL_mouse.h>
-#include <SDL2/SDL_opengl.h>
-#include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_audio.h>
-#include <SDL2/SDL_joystick.h>
+#include <SDL.h>
+#include <SDL_events.h>
+#include <SDL_keycode.h>
+#include <SDL_mouse.h>
+#include <SDL_ttf.h>
+#include <SDL_audio.h>
+#include <SDL_joystick.h>
 
 #include "eng3d/io.hpp"
 #include "eng3d/ui/ui.hpp"
@@ -94,7 +89,7 @@ namespace Eng3D {
         Eng3D::MaterialManager material_man;
         Eng3D::ModelManager model_man;
         UI::Context ui_ctx;
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         SDL_Window* window;
         SDL_GLContext context;
         int width, height;

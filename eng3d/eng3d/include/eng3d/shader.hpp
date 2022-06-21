@@ -29,6 +29,13 @@
 #include <string>
 #include <exception>
 
+#ifdef E3D_BACKEND_OPENGL
+#   include <GL/glew.h>
+#   include <GL/gl.h>
+#elif defined E3D_BACKEND_GLES
+#   include <GLES3/gl3.h>
+#endif
+
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/mat4x4.hpp>
 
@@ -47,7 +54,7 @@ namespace Eng3D {
         }
     };
 
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     namespace OpenGL {
         /**
          * @brief Option that is passed to the GLSL transpiler for preprocessing
@@ -112,6 +119,7 @@ namespace Eng3D {
             ~FragmentShader() {};
         };
 
+#if !defined E3D_BACKEND_GLES
         class GeometryShader: public Shader {
         public:
             GeometryShader(const std::string& _buffer) : Shader(_buffer, GL_GEOMETRY_SHADER) {};
@@ -129,6 +137,7 @@ namespace Eng3D {
             TessEvalShader(const std::string& _buffer) : Shader(_buffer, GL_TESS_EVALUATION_SHADER) {};
             ~TessEvalShader() {};
         };
+#endif
 
         class Program {
             GLuint id;

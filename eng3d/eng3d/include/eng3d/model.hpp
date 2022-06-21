@@ -35,7 +35,7 @@
 #   include <GL/gl.h>
 #   include <GL/glu.h>
 #elif defined E3D_BACKEND_GLES
-#   include <GLES3/gl31.h>
+#   include <GLES3/gl3.h>
 #endif
 
 #include <glm/vec3.hpp>

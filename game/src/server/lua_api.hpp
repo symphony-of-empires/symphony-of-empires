@@ -25,15 +25,7 @@
 
 #pragma once
 
-#ifdef E3D_TARGET_WINDOWS
-#  include <lua.hpp>
-#else
-#  ifdef LUA54
-#    include <lua5.4/lua.hpp>
-#  else
-#    include <lua5.3/lua.hpp>
-#  endif
-#endif
+#include <lua.hpp>
 #include <string>
 #include <vector>
 #include <exception>

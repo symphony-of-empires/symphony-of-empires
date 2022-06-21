@@ -52,14 +52,13 @@
 #   include <GL/gl.h>
 #   include <GL/glu.h>
 #elif defined E3D_BACKEND_GLES
-#   include <GLES3/gl31.h>
 #   include <GLES3/gl3ext.h>
+#   include <GLES3/gl3.h>
 #endif
 
-
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_mouse.h>
+#include <SDL.h>
+#include <SDL_events.h>
+#include <SDL_mouse.h>
 
 #include "eng3d/ui/ui.hpp"
 #include "eng3d/ui/input.hpp"
