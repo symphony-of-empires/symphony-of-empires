@@ -29,6 +29,8 @@
 #include <unordered_map>
 #include <memory>
 
+#include <glm/vec3.hpp>
+
 #include "eng3d/rectangle.hpp"
 
 namespace Eng3D {

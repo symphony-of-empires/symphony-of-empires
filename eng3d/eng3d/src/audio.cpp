@@ -29,7 +29,6 @@
 #include <SDL.h>
 #include <SDL_audio.h>
 
-#include <filesystem>
 #include "stb_vorbis.c"
 
 #include "eng3d/audio.hpp"
