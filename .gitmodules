@@ -13,3 +13,12 @@
 [submodule "vendor/assimp"]
 	path = vendor/assimp
 	url = https://github.com/assimp/assimp
+[submodule "vendor/lua"]
+	path = vendor/lua
+	url = https://github.com/lua/lua
+[submodule "vendor/sdl2_mixer"]
+	path = vendor/sdl2_mixer
+	url = https://github.com/libsdl-org/SDL_mixer
+[submodule "vendor/sdl2_ttf"]
+	path = vendor/sdl2_ttf
+	url = https://github.com/libsdl-org/SDL_ttf

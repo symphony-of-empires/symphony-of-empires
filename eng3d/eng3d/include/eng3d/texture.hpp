@@ -40,7 +40,10 @@
 #ifdef E3D_BACKEND_OPENGL
 #   include <GL/glew.h>
 #   include <GL/gl.h>
+#elif defined E3D_BACKEND_GLES
+#   include <GLES3/gl31.h>
 #endif
+
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_surface.h>
 

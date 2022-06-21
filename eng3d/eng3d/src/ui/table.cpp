@@ -23,9 +23,6 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include <GL/glew.h>
-#include <GL/gl.h>
-
 #include "eng3d/ui/table.hpp"
 #include "eng3d/ui/widget.hpp"
 #include "eng3d/ui/ui.hpp"

@@ -29,8 +29,13 @@
 #include <cmath>
 #include <algorithm>
 
-#include <GL/glew.h>
-#include <GL/gl.h>
+#ifdef E3D_BACKEND_OPENGL
+#   include <GL/glew.h>
+#   include <GL/gl.h>
+#elif defined E3D_BACKEND_GLES
+#   include <GLES3/gl31.h>
+#endif
+
 #include <glm/vec2.hpp>
 
 #include "eng3d/ui/widget.hpp"

@@ -1,22 +1,15 @@
 cmake_minimum_required(VERSION 3.5.1)
 
 project(eng3d)
-#set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/src)
-#set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 set(CMAKE_CXX_STANDARD 20)
 
 IF(NOT E3D_TARGET_RVL)
 	# Workaround for clang (see https://bugs.launchpad.net/ubuntu/+source/libsdl2-ttf/+bug/1872023)
-	include_directories(/usr/include/SDL2)
 	link_directories(/usr/local/lib)
 ELSE()
 
 ENDIF()
 include_directories("${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/include")
-
-# TODO: Windows specific
-link_directories(${CMAKE_SOURCE_DIR}/vendor/lib)
-include_directories(${CMAKE_SOURCE_DIR}/vendor/include)
 
 #
 # Source code files
@@ -27,20 +20,39 @@ add_library(eng3d STATIC ${MAIN_SOURCES})
 #
 # Linking
 #
+#add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/assimp)
+#target_link_libraries(eng3d PUBLIC Assimp)
+#add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/glm)
+#target_link_libraries(eng3d PUBLIC glm)
+#add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/onetbb)
+#target_link_libraries(eng3d PUBLIC TBB)
+#add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/sdl2)
+#target_link_libraries(eng3d PUBLIC SDL2)
+#add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/lua)
+#target_link_libraries(eng3d PUBLIC lua)
+
 IF(WIN32)
 	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR MSVC)
 		
 	ELSE()
 		target_link_libraries(eng3d PUBLIC m stdc++ winpthread)
 	ENDIF()
-	target_link_libraries(eng3d PUBLIC glew32 opengl32 glu32 ws2_32 wsock32)
-ELSEIF(UNIX)
-	include_directories(/usr/include/SDL2) # Some distrobutions have different paths...
-	target_link_libraries(eng3d PUBLIC m stdc++ GL GLU GLEW SDL2main)
+	target_link_libraries(eng3d PUBLIC ws2_32 wsock32)
+	IF(E3D_BACKEND_OPENGL)
+		target_link_libraries(eng3d PUBLIC glew32 opengl32 glu32)
+	ENDIF()
+ELSEIF(UNIX OR ANDROID)
+	target_link_libraries(eng3d PUBLIC m stdc++)
+	IF(E3D_BACKEND_OPENGL OR E3D_BACKEND_GLES)
+		IF(E3D_BACKEND_OPENGL)
+			target_link_libraries(eng3d PUBLIC GLEW)
+		ENDIF()
+		target_link_libraries(eng3d PUBLIC GL GLU)
+	ENDIF()
 ELSE()
 
 ENDIF()
-target_link_libraries(eng3d PUBLIC SDL2 SDL2_ttf z tbb assimp)
+target_link_libraries(eng3d PUBLIC z)
 
 # Find pthreads
 find_package(Threads)
@@ -87,6 +99,8 @@ IF(E3D_BACKEND_OPENGL)
 		<GL/gl.h>
 		<GL/glu.h>
 	)
+ELSEIF(E3D_BACKEND_GLES)
+	# No precompile
 ENDIF()
 
 # glm header files

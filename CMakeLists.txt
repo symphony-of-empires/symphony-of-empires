@@ -5,6 +5,20 @@ project(SymphonyOfEmpires CXX C)
 option(BUILD_ENGINE "Enable building Eng3D" ON)
 option(BUILD_GAME "Enable building SymphonyOfEmpires" ON)
 
+IF(ANDROID)
+	set(NDK_PROJECT_PATH $ENV{PWD}) # Set project path to current directory
+	set(ANDROID_STL c++_static) # Static libc++
+	IF(NOT DEFINED ANDROID_HOME)
+		message(FATAL_ERROR "Please define ANDROID_NDK_HOME")
+	ENDIF()
+	IF(NOT DEFINED ANDROID_NDK_HOME)
+		message(FATAL_ERROR "Please define ANDROID_NDK_HOME")
+	ENDIF()
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIE -fPIC")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIE -fPIC")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fPIE -pie")
+ENDIF()
+
 IF(NO_COPY_MODS)
 	add_compile_definitions(NO_COPY_MODS)
 ENDIF()
@@ -15,23 +29,23 @@ ENDIF()
 # Backend selection
 IF(E3D_BACKEND_OPENGL)
 	message("Using OpenGL backend")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_BACKEND_OPENGL=1")
-ELSE()
-	IF(E3D_BACKEND_D3D9)
-		message("Using DirectX 9 SDK")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_BACKEND_D3D9=1")
-	ELSE()
-		
+	IF(ANDROID)
+		message(FATAL_ERROR "Use E3D_BACKEND_GLES instead on Android")
 	ENDIF()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_BACKEND_OPENGL=1")
+ELSEIF(E3D_BACKEND_GLES)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_BACKEND_GLES=1")
+ELSEIF(E3D_BACKEND_D3D9)
+	message("Using DirectX 9 SDK")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_BACKEND_D3D9=1")
+ELSE()
+	message(FATAL_ERROR "No backend specified!")
 ENDIF()
 
 # Build stuff
-if(BUILD_ENGINE)
-    add_subdirectory(${CMAKE_SOURCE_DIR}/eng3d)
-endif()
-
-#set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/src)
-#set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
+IF(BUILD_ENGINE)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/eng3d ${CMAKE_BINARY_DIR}/eng3d)
+ENDIF()
 
 #
 # Compilation flags
@@ -44,7 +58,6 @@ ENDIF()
 IF(WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_TARGET_WINDOWS=1")
 ELSEIF(UNIX)
-	include_directories(/usr/include/SDL2) # Some distrobutions have different paths...
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_TARGET_UNIX=1")
 ELSE()
 	link_directories("${DEVKITPRO}/libogc/lib")
@@ -56,9 +69,6 @@ IF(UNIT_TEST)
 ENDIF()
 
 include_directories("${PROJECT_SOURCE_DIR}/game/src" "${CMAKE_SOURCE_DIR}/eng3d/eng3d/include")
-
-link_directories(${CMAKE_SOURCE_DIR}/vendor/lib)
-include_directories(${CMAKE_SOURCE_DIR}/vendor/include)
 
 #
 # Source code files
@@ -77,7 +87,26 @@ add_executable(SymphonyOfEmpires ${MAIN_SOURCES})
 #
 # Linking
 #
-target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 eng3d tbb)
+
+# Dependencies
+set(ASSIMP_INSTALL ON)
+set(ASSIMP_NO_EXPORT ON)
+set(ASSIMP_IGNORE_GIT_HASH ON)
+add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/assimp)
+target_link_libraries(SymphonyOfEmpires PUBLIC Assimp)
+
+add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/glm)
+target_link_libraries(SymphonyOfEmpires PUBLIC glm)
+
+add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/onetbb)
+target_link_libraries(SymphonyOfEmpires PUBLIC TBB)
+
+add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/sdl2)
+target_link_libraries(SymphonyOfEmpires PUBLIC SDL2)
+
+add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/lua)
+target_link_libraries(SymphonyOfEmpires PUBLIC lua)
+
 IF(WIN32)
 	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR MSVC)
 		
@@ -93,31 +122,6 @@ find_package(Threads)
 IF(Threads_FOUND)
 	set(THREADS_PREFER_PTHREAD_FLAG ON)
 	target_link_libraries(SymphonyOfEmpires PRIVATE Threads::Threads)
-ENDIF()
-
-# Lua library is quite strange and requires some conditionals to be able to compile it
-
-IF(NOT MINGW AND NOT MSYS)
-	IF(lua54)
-		message(STATUS "Using lua v5.4")
-		IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR MSVC)
-			target_link_libraries(SymphonyOfEmpires PUBLIC lua54)
-		ELSE()
-			target_link_libraries(SymphonyOfEmpires PUBLIC lua5.4)
-		ENDIF()
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLUA54")
-	ELSE()
-		message(STATUS "Using lua v5.3")
-		IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR MSVC)
-			target_link_libraries(SymphonyOfEmpires PUBLIC lua53)
-		ELSE()
-			target_link_libraries(SymphonyOfEmpires PUBLIC lua5.3)
-		ENDIF()
-	ENDIF()
-# msys is simple - just lua, no lua5.4 or lua5.3
-ELSE()
-	message(STATUS "Using an unknown lua version")
-	target_link_libraries(SymphonyOfEmpires PUBLIC lua)
 ENDIF()
 
 #
@@ -159,6 +163,8 @@ IF(E3D_BACKEND_OPENGL)
 		<GL/glu.h>
 		<GL/glext.h>
 	)
+ELSEIF(E3D_BACKEND_GLES)
+	# No precompile
 ENDIF()
 
 # glm header files

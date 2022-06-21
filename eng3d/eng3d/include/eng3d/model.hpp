@@ -30,11 +30,16 @@
 #include <map>
 #include <cstdint>
 
+#ifdef E3D_BACKEND_OPENGL
+#   include <GL/glew.h>
+#   include <GL/gl.h>
+#   include <GL/glu.h>
+#elif defined E3D_BACKEND_GLES
+#   include <GLES3/gl31.h>
+#endif
+
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
-#include <GL/glew.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
