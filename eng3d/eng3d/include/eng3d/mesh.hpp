@@ -161,6 +161,8 @@ namespace Eng3D::OpenGL {
             return id;
         }
     };
+
+    class Program;
 };
 #endif
 
@@ -208,7 +210,7 @@ namespace Eng3D {
         virtual ~Mesh() = default;
         Mesh(const Mesh&) = delete;
         Mesh(Mesh&&) noexcept = default;
-        Mesh& operator=(const Mesh&) = default;
+        Mesh& operator=(const Mesh&) = delete;
 
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         virtual void draw() const {
@@ -218,7 +220,11 @@ namespace Eng3D {
             } else if(!buffer.empty()) {
                 glDrawArrays(static_cast<GLenum>(mode), 0, buffer.size());
             }
-        };
+        }
+
+        virtual void draw(const Eng3D::OpenGL::Program& program) const {
+            this->draw();
+        }
 #else
 #   error not implemented
 #endif

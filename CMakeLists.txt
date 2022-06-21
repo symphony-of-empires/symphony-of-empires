@@ -95,15 +95,18 @@ set(ASSIMP_IGNORE_GIT_HASH ON)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/assimp)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/assimp/include)
-target_link_libraries(SymphonyOfEmpires PUBLIC Assimp)
+include_directories(${CMAKE_BINARY_DIR}/vendor/assimp/include) # assimp generates config.h here
+target_link_libraries(SymphonyOfEmpires PUBLIC assimp)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/glm)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/glm)
 target_link_libraries(SymphonyOfEmpires PUBLIC glm)
 
+set(TBB_TEST OFF)
+set(TBB_EXAMPLES OFF)
 add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/onetbb)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/onetbb/include)
-target_link_libraries(SymphonyOfEmpires PUBLIC TBB)
+target_link_libraries(SymphonyOfEmpires PUBLIC tbb)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/sdl2)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/sdl2/include)
@@ -114,9 +117,10 @@ include_directories(${CMAKE_SOURCE_DIR}/vendor/lua)
 target_link_libraries(SymphonyOfEmpires PUBLIC lua)
 
 set(SDL2TTF_VENDORED ON)
+set(SDL2TTF_SAMPLES OFF)
 add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/sdl2_ttf)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/sdl2_ttf)
-target_link_libraries(SymphonyOfEmpires PUBLIC sdl2_ttf)
+target_link_libraries(SymphonyOfEmpires PUBLIC SDL2_ttf)
 
 IF(WIN32)
 	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR MSVC)
@@ -127,6 +131,7 @@ IF(WIN32)
 ELSE()
 	target_link_libraries(SymphonyOfEmpires PUBLIC m stdc++)
 ENDIF()
+target_link_libraries(SymphonyOfEmpires PUBLIC eng3d)
 
 # Pthread
 find_package(Threads)

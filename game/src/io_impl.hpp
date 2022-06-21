@@ -638,7 +638,7 @@ class Serializer<World> {
 public:
     template<typename T>
     static inline typename T::Id deserialize_and_create_list(Archive& ar, World* obj) {
-        typename T::Id n_elems;
+        typename T::Id n_elems = (typename T::Id)0;
         ::deserialize(ar, &n_elems);
         for(size_t i = 0; i < n_elems; i++) {
             T* sub_obj = new T();

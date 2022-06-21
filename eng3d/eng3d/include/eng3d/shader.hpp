@@ -110,32 +110,32 @@ namespace Eng3D {
         class VertexShader: public Shader {
         public:
             VertexShader(const std::string& _buffer) : Shader(_buffer, GL_VERTEX_SHADER) {};
-            ~VertexShader() {};
+            ~VertexShader() = default;
         };
 
         class FragmentShader: public Shader {
         public:
             FragmentShader(const std::string& _buffer, bool use_transpiler = true, std::vector<Eng3D::OpenGL::GLSL_Define> defintions = {});
-            ~FragmentShader() {};
+            ~FragmentShader() = default;
         };
 
 #if !defined E3D_BACKEND_GLES
         class GeometryShader: public Shader {
         public:
             GeometryShader(const std::string& _buffer) : Shader(_buffer, GL_GEOMETRY_SHADER) {};
-            ~GeometryShader() {};
+            ~GeometryShader() = default;
         };
 
         class TessControlShader: public Shader {
         public:
             TessControlShader(const std::string& _buffer) : Shader(_buffer, GL_TESS_CONTROL_SHADER) {};
-            ~TessControlShader() {};
+            ~TessControlShader() = default;
         };
 
         class TessEvalShader: public Shader {
         public:
             TessEvalShader(const std::string& _buffer) : Shader(_buffer, GL_TESS_EVALUATION_SHADER) {};
-            ~TessEvalShader() {};
+            ~TessEvalShader() = default;
         };
 #endif
 

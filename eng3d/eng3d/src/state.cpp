@@ -35,12 +35,16 @@
 #   undef WIN32_LEAN_AND_MEAN
 #endif
 
+#ifdef E3D_BACKEND_OPENGL
 // MSVC does not know about glext, mingw does so we just use this ifdef
-#ifndef _MSC_VER
-#   include <GL/glext.h>
+#   ifndef _MSC_VER
+#       include <GL/glext.h>
+#   endif
+#   include <GL/gl.h>
+#   include <GL/glu.h>
+#elif defined E3D_BACKEND_GLES
+#   include <GLES3/gl3.h>
 #endif
-#include <GL/gl.h>
-#include <GL/glu.h>
 
 #include <filesystem>
 #include <cstring>
@@ -59,7 +63,7 @@
 // Used for the singleton
 static Eng3D::State* g_state = nullptr;
 
-#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
+#if defined E3D_BACKEND_OPENGL
 // Callback function for printing debug statements
 static void GLAPIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* msg, const void* data) {
     std::string _source;
@@ -175,28 +179,40 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     SDL_GL_SetSwapInterval(1);
 
     Eng3D::Log::debug("opengl", std::string() + "OpenGL Version: " + (const char*)glGetString(GL_VERSION));
+#   ifdef E3D_BACKEND_OPENGL
     glewExperimental = GL_TRUE;
     if(glewInit() != GLEW_OK)
         CXX_THROW(std::runtime_error, "Failed to init GLEW");
+#   endif
 
     GLint size;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
     Eng3D::Log::debug("gamestate", std::to_string(size));
 
+#   ifdef E3D_BACKEND_OPENGL
     glHint(GL_TEXTURE_COMPRESSION_HINT, GL_FASTEST);
+#   endif
 
+#   ifdef E3D_BACKEND_OPENGL
+#       ifndef NDEBUG
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(GLDebugMessageCallback, 0);
+#       endif
+#   endif
 
+#   ifdef E3D_BACKEND_OPENGL
     glEnable(GL_MULTISAMPLE);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 1);
+#   endif
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glEnable(GL_TEXTURE_2D);
+#   ifdef E3D_BACKEND_OPENGL
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+#   endif
 
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);
@@ -205,8 +221,11 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LEQUAL);
+#   ifdef E3D_BACKEND_OPENGL
     glDepthRange(0.f, 1.f);
-
+#   else
+    glDepthRangef(0.f, 1.f);
+#   endif
     glClearColor(0.3f, 0.3f, 0.3f, 0.0f);
 #endif
 }
@@ -304,7 +323,9 @@ void Eng3D::State::clear() const {
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#   ifdef E3D_BACKEND_OPENGL
     glClearDepth(1.f);
+#   endif
 #else
     /// @todo RGX clear function
 #endif
@@ -321,8 +342,10 @@ void Eng3D::State::swap() const {
 }
 
 void Eng3D::State::set_multisamples(int samples) const {
+#ifdef E3D_BACKEND_OPENGL
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, samples);
+#endif
 }
 
 Eng3D::State& Eng3D::State::get_instance() {

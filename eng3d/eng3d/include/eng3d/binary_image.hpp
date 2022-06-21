@@ -55,7 +55,7 @@ public:
     BinaryImage(const Eng3D::IO::Path& path);
     BinaryImage(size_t _width, size_t _height);
     BinaryImage(const BinaryImage& tex);
-    BinaryImage& operator=(const BinaryImage&) = default;
+    BinaryImage& operator=(const BinaryImage&) = delete;
     virtual ~BinaryImage();
     virtual void from_file(const Eng3D::IO::Path& path);
 

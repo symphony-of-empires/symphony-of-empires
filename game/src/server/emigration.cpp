@@ -35,6 +35,11 @@ typedef SSIZE_T ssize_t;
 #endif
 #include <cstddef>
 #include <execution>
+#include <tbb/blocked_range.h>
+#include <tbb/concurrent_vector.h>
+#include <tbb/parallel_for.h>
+#include <tbb/combinable.h>
+
 #include "eng3d/disc_dist.hpp"
 
 #include "server/emigration.hpp"
@@ -93,7 +98,7 @@ static inline float province_attraction(const Province& province) {
 
 static inline void external_migration(World& world) {
     std::vector<DiscreteDistribution<Province*>*> province_distributions;
-    for(auto nation : world.nations) {
+    for(auto& nation : world.nations) {
         std::vector<float> attractions;
         std::vector<Province*> viable_provinces;
         for(const auto province_id : nation.owned_provinces) {
@@ -111,10 +116,10 @@ static inline void external_migration(World& world) {
     }
 
     std::vector<DiscreteDistribution<Nation*>*> nation_distributions;
-    for(auto culture : world.cultures) {
+    for(auto& culture : world.cultures) {
         std::vector<float> attractions;
         std::vector<Nation*> viable_nations;
-        for(auto nation : world.nations) {
+        for(auto& nation : world.nations) {
             if(!nation.exists()) continue;
 
             if(nation.current_policy.migration == ALLOW_NOBODY) {
@@ -144,39 +149,41 @@ static inline void external_migration(World& world) {
             eval_nations.push_back(&nation);
     }
 
-    std::for_each(std::execution::par, eval_nations.begin(), eval_nations.end(), [&emigration, &nation_distributions, &province_distributions, &world](const auto& nation) {
-        // Check that laws on the province we are in allows for emigration
-        if(nation->current_policy.migration == ALLOW_NOBODY) return;
-        for(const auto province_id : nation->controlled_provinces) {
-            auto& province = world.provinces[province_id];
-            // Guaranteed that province->controller != nullptr and that the province is not a water body
+    tbb::parallel_for(tbb::blocked_range(eval_nations.begin(), eval_nations.end()), [&emigration, &nation_distributions, &province_distributions, &world](const auto& nations_range) {
+        for(const auto& nation : nations_range) {
+            // Check that laws on the province we are in allows for emigration
+            if(nation->current_policy.migration == ALLOW_NOBODY) return;
+            for(const auto province_id : nation->controlled_provinces) {
+                auto& province = world.provinces[province_id];
+                // Guaranteed that province->controller != nullptr and that the province is not a water body
 
-            // Randomness factor to emulate a pseudo-imperfect economy
-            const float fuzz = static_cast<float>(std::rand() + 1) / 1000.f;
-            for(size_t i = 0; i < province.pops.size(); i++) {
-                Pop& pop = province.pops[i];
-                // Depending on how much not our life needs are being met is how many we
-                // want to get out of here
-                // And literacy determines "best" spot, for example a low literacy will
-                // choose a slightly less desirable location
-                const int emigration_desire = std::max<int>(pop.militancy * -pop.life_needs_met, 1);
-                const size_t emigreers = std::min<size_t>((pop.size * emigration_desire) * std::fmod(fuzz + 1.f, 1.f), pop.size);
-                if(emigreers > 0) {
-                    auto nation_distribution = nation_distributions[pop.culture->cached_id];
-                    if(nation_distribution == nullptr) continue;
+                // Randomness factor to emulate a pseudo-imperfect economy
+                const float fuzz = static_cast<float>(std::rand() + 1) / 1000.f;
+                for(size_t i = 0; i < province.pops.size(); i++) {
+                    Pop& pop = province.pops[i];
+                    // Depending on how much not our life needs are being met is how many we
+                    // want to get out of here
+                    // And literacy determines "best" spot, for example a low literacy will
+                    // choose a slightly less desirable location
+                    const int emigration_desire = std::max<int>(pop.militancy * -pop.life_needs_met, 1);
+                    const size_t emigreers = std::min<size_t>((pop.size * emigration_desire) * std::fmod(fuzz + 1.f, 1.f), pop.size);
+                    if(emigreers > 0) {
+                        auto nation_distribution = nation_distributions[pop.culture->cached_id];
+                        if(nation_distribution == nullptr) continue;
 
-                    auto nation = nation_distribution->get_item();
-                    auto province_distribution = province_distributions[nation->cached_id];
-                    if(province_distribution == nullptr) continue;
+                        auto nation = nation_distribution->get_item();
+                        auto province_distribution = province_distributions[nation->cached_id];
+                        if(province_distribution == nullptr) continue;
 
-                    auto choosen_province = province_distribution->get_item();
-                    Emigrated emigrated = Emigrated(province.pops[i]);
-                    emigrated.target = choosen_province;
-                    emigrated.size = emigreers;
-                    emigrated.origin = &province;
+                        auto choosen_province = province_distribution->get_item();
+                        Emigrated emigrated = Emigrated(province.pops[i]);
+                        emigrated.target = choosen_province;
+                        emigrated.size = emigreers;
+                        emigrated.origin = &province;
 
-                    emigration.push_back(emigrated);
-                    pop.size -= emigreers;
+                        emigration.push_back(emigrated);
+                        pop.size -= emigreers;
+                    }
                 }
             }
         }

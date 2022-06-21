@@ -42,7 +42,7 @@ namespace Eng3D {
             void set_texture(int index, const Eng3D::Texture& texture);
             void use();
         private:
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
             GLuint id = 0;
 #elif defined E3D_BACKEND_RGX
             // No
