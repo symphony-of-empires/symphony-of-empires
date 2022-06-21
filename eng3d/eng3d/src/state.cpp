@@ -59,7 +59,7 @@
 // Used for the singleton
 static Eng3D::State* g_state = nullptr;
 
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
 // Callback function for printing debug statements
 static void GLAPIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* msg, const void* data) {
     std::string _source;
@@ -157,7 +157,7 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     if(TTF_Init() < 0)
         CXX_THROW(std::runtime_error, std::string() + "Failed to init TTF " + TTF_GetError());
     SDL_ShowCursor(SDL_DISABLE);
-#ifdef E3D_BACKEND_OPENGL // Normal PC computer
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES // Normal PC computer
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
@@ -213,7 +213,7 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
 
 Eng3D::Installer::~Installer()
 {
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     SDL_GL_DeleteContext(s.context);
 #endif
     SDL_DestroyWindow(s.window);
@@ -284,7 +284,7 @@ void Eng3D::State::reload_shaders() {
     };
 
     builtin_shaders.clear();
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     // Big library used mostly by every shader, compiled for faster linking or other stuff
     builtin_shaders["fs_lib"] = load_fragment_shader("fs_lib.fs");
     // 2D generic fragment shader
@@ -301,7 +301,7 @@ void Eng3D::State::reload_shaders() {
 }
 
 void Eng3D::State::clear() const {
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearDepth(1.f);
@@ -311,7 +311,7 @@ void Eng3D::State::clear() const {
 }
 
 void Eng3D::State::swap() const {
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     // Required by macOS
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     SDL_GL_SwapWindow(window);
