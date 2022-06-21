@@ -35,15 +35,16 @@ function pacman_install_package() {
 }
 
 if [ "$1" = "android" ]; then
+    export ANDROID_HOME="$HOME/Android/Sdk"
+    export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/24.0.8215888"
+    export PATH="$ANDROID_NDK_HOME:$ANDROID_HOME/platform-tools:$ANDROID_HOME:$PATH"
+    export BUILD_TOOLS="$ANDROID_HOME/build-tools/33.0.0"
+
     # Android setup
     if [ "$system_type" = "debian" ]; then
         apt_install_package "openjdk-17-jdk"
         apt_install_package "ant"
         apt_install_package "android-sdk-platform-tools-common"
-
-        export ANDROID_HOME="$HOME/Android/Sdk"
-        export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/24.0.8215888"
-        export PATH="$ANDROID_NDK_HOME:$ANDROID_HOME/platform-tools:$ANDROID_HOME:$PATH"
 
         mkdir -p build/
         cd build
@@ -100,6 +101,7 @@ if [ "$1" == "android" ]; then
         -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
         -B build/ \
         .
+    
 else
     cmake \
         -DCMAKE_BUILD_TYPE=Debug \
@@ -111,7 +113,51 @@ fi
 cd build
 make -j`nproc` || exit
 echo "Launching game"
-if [ ! "$1" = "android" ]; then
+if [ "$1" = "android" ]; then
+    mkdir -p apk
+
+    # Create the keystorage sha256 stuff
+    if [ ! -f "keystore.jks" ]; then
+        keytool -genkeypair -keystore keystore.jks -alias soe -validity 10000 -keyalg RSA -keysize 2048
+    fi
+
+    cp SymphonyOfEmpires apk/libSymphonyOfEmpires.so || exit
+    cp vendor/assimp/bin/libassimp.so apk/ || exit
+    cp vendor/glm/libglm_shared.so apk/ || exit
+    cp vendor/lua/liblua.a apk/ || exit
+    cp vendor/sdl2/libSDL2.so apk/ || exit
+    cp vendor/sdl2/libSDL2main.a apk/ || exit
+    cp vendor/sdl2_ttf/libSDL2_ttf.so apk/ || exit
+
+    # Package the APK
+    $BUILD_TOOLS/aapt package -f \
+        -M ../game/AndroidManifest.xml \
+        -I "$ANDROID_HOME/platforms/android-33/android.jar" \
+        -F SymphonyOfEmpires.unsigned.apk apk/ || exit
+    
+    # Sign the JAR (we also need to sign the APK)
+    jarsigner \
+        -sigalg SHA256withRSA \
+        -digestalg SHA256 \
+        -keystore keystore.jks \
+        -signedjar SymphonyOfEmpires.unaligned.apk \
+        SymphonyOfEmpires.unsigned.apk \
+        soe || exit
+
+    # Align the APK
+    $BUILD_TOOLS/zipalign -f -p 4 \
+        SymphonyOfEmpires.unaligned.apk \
+        SymphonyOfEmpires.aligned.apk || exit
+    
+    # Sign the APK
+    $BUILD_TOOLS/apksigner sign --ks keystore.jks \
+        --ks-key-alias soe \
+        --out SymphonyOfEmpires.apk \
+        SymphonyOfEmpires.aligned.apk || exit
+
+    $BUILD_TOOLS/aapt list -v SymphonyOfEmpires.apk || exit 
+    $ANDROID_HOME/platform-tools/adb install -r $PWD/SymphonyOfEmpires.apk || exit
+else
     # Runs the game
     export MESA_GL_VERSION_OVERRIDE=4.4
     export MESA_GLSL_VERSION_OVERRIDE=440
