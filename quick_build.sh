@@ -7,19 +7,14 @@ if [ "$1" = "android" ]; then
     export BUILD_TOOLS="$ANDROID_HOME/build-tools/33.0.0"
 
     # Android setup
-    if [ "$system_type" = "debian" ]; then
-        apt_install_package "openjdk-17-jdk"
-        apt_install_package "ant"
-        apt_install_package "android-sdk-platform-tools-common"
+    #apt_install_package "openjdk-17-jdk"
+    #apt_install_package "ant"
+    #apt_install_package "android-sdk-platform-tools-common"
 
-        mkdir -p build/
-        cd build
-        if [ ! -d mods ]; then ln -s ../mods mods || exit; fi
-        cd ..
-    else
-        echo "I don't know $system_type"
-        exit
-    fi
+    mkdir -p build/
+    cd build
+    if [ ! -d mods ]; then ln -s ../mods mods || exit; fi
+    cd ..
 fi
 
 # Create build directory
@@ -38,6 +33,7 @@ if [ "$1" == "android" ]; then
         -DE3D_BACKEND_GLES=1 \
         -DAPP_PLATFORM="android-24" \
         -DANDROID_PLATFORM="android-24" \
+        -DANDROID_ABI=armeabi-v7a \
         -DANDROID_HOME="$ANDROID_HOME" \
         -DANDROID_NDK_HOME="$ANDROID_NDK_HOME" \
         -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
@@ -53,7 +49,7 @@ else
 fi
 
 cd build
-make -j`nproc` VERBOSE=1 || exit
+VERBOSE=1 make -j`nproc` || exit
 echo "Launching game"
 if [ "$1" = "android" ]; then
     mkdir -p apk
