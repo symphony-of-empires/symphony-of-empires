@@ -1,6 +1,8 @@
-cmake_minimum_required(VERSION 3.5.1)
-
+cmake_minimum_required(VERSION 3.14)
 project(SymphonyOfEmpires CXX C)
+include(FetchContent)
+set(FETCHCONTENT_QUIET FALSE)
+
 set(CMAKE_CXX_STANDARD 20)
 
 option(BUILD_ENGINE "Enable building Eng3D" ON)
@@ -42,6 +44,44 @@ ELSEIF(E3D_BACKEND_D3D9)
 ELSE()
 	message(FATAL_ERROR "No backend specified!")
 ENDIF()
+
+#
+# Dependencies
+#
+set(SDL2_DISABLE_SDL2MAIN ON)
+set(SDL2_DISABLE_INSTALL ON)
+set(SDL2_DISABLE_UNINSTALL ON)
+FetchContent_Declare(sdl2 GIT_REPOSITORY "https://github.com/libsdl-org/SDL" GIT_TAG main GIT_PROGRESS TRUE)
+set(SDL2TTF_VENDORED ON)
+set(SDL2TTF_INSTALL OFF)
+set(SDL2TTF_SAMPLES OFF)
+FetchContent_Declare(sdl2_ttf GIT_REPOSITORY "https://github.com/libsdl-org/SDL_ttf" GIT_TAG main GIT_PROGRESS TRUE)
+set(SDL2MIXER_INSTALL OFF)
+set(SDL2MIXER_SAMPLES OFF)
+set(SDL2MIXER_VENDORED ON)
+FetchContent_Declare(sdl2_mixer GIT_REPOSITORY "https://github.com/libsdl-org/SDL_mixer" GIT_TAG main GIT_PROGRESS TRUE)
+FetchContent_Declare(lua GIT_REPOSITORY "https://github.com/andyroiiid/lua" GIT_TAG 031b4661b22cbd7fb781d53d20460e9cc59ec2c1 GIT_PROGRESS TRUE)
+FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm" GIT_PROGRESS TRUE)
+set(TBB_TEST OFF)
+set(TBB_EXAMPLES OFF)
+FetchContent_Declare(opentbb GIT_REPOSITORY "https://github.com/oneapi-src/oneTBB" GIT_PROGRESS TRUE)
+set(ASSIMP_INSTALL OFF)
+set(ASSIMP_NO_EXPORT ON)
+set(ASSIMP_IGNORE_GIT_HASH ON)
+set(ASSIMP_WARNINGS_AS_ERRORS OFF)
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
+set(ASSIMP_BUILD_SAMPLES OFF)
+set(ASSIMP_BUILD_TESTS OFF)
+FetchContent_Declare(assimp GIT_REPOSITORY "https://github.com/assimp/assimp" GIT_PROGRESS TRUE)
+IF(NOT ANDROID)
+	IF(E3D_BACKEND_OPENGL)
+		set(GLFW_BUILD_TESTS OFF)
+		set(GLFW_BUILD_EXAMPLES OFF)
+		FetchContent_Declare(glfw GIT_REPOSITORY "https://github.com/glfw/glfw")
+	ENDIF()
+ENDIF()
+FetchContent_MakeAvailable(sdl2 sdl2_ttf sdl2_mixer lua glm opentbb assimp glfw)
+include_directories("${lua_SOURCE_DIR}/include" "${sdl2_BINARY_DIR}/include" "${sdl2_BINARY_DIR}/include-config-relwithdebinfo" "${sdl2_ttf_SOURCE_DIR}" "${sdl2_mixer_SOURCE_DIR}/include")
 
 # Build stuff
 IF(BUILD_ENGINE)
@@ -93,61 +133,10 @@ ENDIF()
 # Linking
 #
 
-# Dependencies
-set(ASSIMP_INSTALL OFF)
-set(ASSIMP_NO_EXPORT ON)
-set(ASSIMP_IGNORE_GIT_HASH ON)
-set(ASSIMP_WARNINGS_AS_ERRORS OFF)
-set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
-set(ASSIMP_BUILD_SAMPLES OFF)
-set(ASSIMP_BUILD_TESTS OFF)
-#add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/assimp)
-#include_directories(${CMAKE_SOURCE_DIR}/vendor/assimp/include)
-#include_directories(${CMAKE_BINARY_DIR}/vendor/assimp/include) # assimp generates config.h here
-target_link_libraries(SymphonyOfEmpires PUBLIC assimp)
-
-add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/glm)
-include_directories(${CMAKE_SOURCE_DIR}/vendor/glm)
-target_link_libraries(SymphonyOfEmpires PUBLIC glm)
-
-set(TBB_TEST OFF)
-set(TBB_EXAMPLES OFF)
-add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/onetbb)
-include_directories(${CMAKE_SOURCE_DIR}/vendor/onetbb/include)
-target_link_libraries(SymphonyOfEmpires PUBLIC tbb)
-
-set(SDL2_DISABLE_SDL2MAIN ON)
-set(SDL2_DISABLE_INSTALL ON)
-set(SDL2_DISABLE_UNINSTALL ON)
-add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/sdl2)
-include_directories(${CMAKE_SOURCE_DIR}/vendor/sdl2/include)
-target_link_libraries(SymphonyOfEmpires PUBLIC SDL2)
-
-add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/lua)
-include_directories(${CMAKE_SOURCE_DIR}/vendor/lua)
-target_link_libraries(SymphonyOfEmpires PUBLIC lua)
-
-set(SDL2TTF_VENDORED ON)
-set(SDL2TTF_INSTALL OFF)
-set(SDL2TTF_SAMPLES OFF)
-add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/sdl2_ttf)
-include_directories(${CMAKE_SOURCE_DIR}/vendor/sdl2_ttf)
-target_link_libraries(SymphonyOfEmpires PUBLIC SDL2_ttf)
-
-set(SDL2MIXER_INSTALL OFF)
-set(SDL2MIXER_SAMPLES OFF)
-set(SDL2MIXER_VENDORED ON)
-add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/sdl2_mixer)
-include_directories(${CMAKE_SOURCE_DIR}/vendor/sdl2_mixer)
-target_link_libraries(SymphonyOfEmpires PUBLIC SDL2_mixer)
-
 # Platform-specific libraries
+target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 SDL2_ttf SDL2_mixer lua glm tbb assimp)
 IF(NOT ANDROID)
 	IF(E3D_BACKEND_OPENGL)
-		set(GLFW_BUILD_TESTS OFF)
-		set(GLFW_BUILD_EXAMPLES OFF)
-		add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/glfw)
-		include_directories(${CMAKE_SOURCE_DIR}/vendor/glfw)
 		target_link_libraries(SymphonyOfEmpires PUBLIC glfw)
 	ENDIF()
 ELSEIF(ANDROID)

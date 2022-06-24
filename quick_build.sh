@@ -49,7 +49,7 @@ else
 fi
 
 cd build
-VERBOSE=1 make -j`nproc` || exit
+make -j`nproc` || exit
 echo "Launching game"
 if [ "$1" = "android" ]; then
     mkdir -p apk
