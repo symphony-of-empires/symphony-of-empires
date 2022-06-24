@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5.1)
 
 project(eng3d CXX C)
+set(CMAKE_CXX_STANDARD 20)
 
 option(E3D_BUILD_ENGINE "Enable building the Eng3D library" ON)
 
@@ -35,7 +36,6 @@ ENDIF()
 #
 # Compilation flags
 #
-set(CMAKE_CXX_STANDARD 20)
 IF(NOT MSVC)
 	set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS}")
 ENDIF()

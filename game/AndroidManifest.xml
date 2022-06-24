@@ -2,11 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.symphony.of.empires.siodesk" android:versionCode="1" android:versionName="1.0">
     <application android:label="Symphony Of Empires" android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" android:debuggable="true" android:hasCode="false">
         <activity android:name="android.app.NativeActivity" android:screenOrientation="landscape" android:configChanges="orientation|keyboardHidden">
-            <meta-data android:name="android.app.lib_name" android:value="lib/armeabi-v7a/libSymphonyOfEmpires.so"/>
-            <meta-data android:name="android.app.lib_name" android:value="lib/armeabi-v7a/libassimp.so"/>
-            <meta-data android:name="android.app.lib_name" android:value="lib/armeabi-v7a/libglm_shared.so"/>
-            <meta-data android:name="android.app.lib_name" android:value="lib/armeabi-v7a/libSDL2.so"/>
-            <meta-data android:name="android.app.lib_name" android:value="lib/armeabi-v7a/libSDL2_ttf.so"/>
+            <meta-data android:name="android.app.lib_name" android:value="SymphonyOfEmpires"/>
+            <meta-data android:name="android.app.lib_name" android:value="assimp"/>
+            <meta-data android:name="android.app.lib_name" android:value="glm_shared"/>
+            <meta-data android:name="android.app.lib_name" android:value="SDL2"/>
+            <meta-data android:name="android.app.lib_name" android:value="SDL2_ttf"/>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

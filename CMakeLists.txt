@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5.1)
 
 project(SymphonyOfEmpires CXX C)
+set(CMAKE_CXX_STANDARD 20)
 
 option(BUILD_ENGINE "Enable building Eng3D" ON)
 option(BUILD_GAME "Enable building SymphonyOfEmpires" ON)
@@ -50,8 +51,6 @@ ENDIF()
 #
 # Compilation flags
 #
-set(CMAKE_CXX_STANDARD 20)
-
 IF(NOT MSVC)
 	set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS}")
 ENDIF()
@@ -95,6 +94,18 @@ ENDIF()
 #
 
 # Dependencies
+set(ASSIMP_INSTALL OFF)
+set(ASSIMP_NO_EXPORT ON)
+set(ASSIMP_IGNORE_GIT_HASH ON)
+set(ASSIMP_WARNINGS_AS_ERRORS OFF)
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
+set(ASSIMP_BUILD_SAMPLES OFF)
+set(ASSIMP_BUILD_TESTS OFF)
+#add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/assimp)
+#include_directories(${CMAKE_SOURCE_DIR}/vendor/assimp/include)
+#include_directories(${CMAKE_BINARY_DIR}/vendor/assimp/include) # assimp generates config.h here
+target_link_libraries(SymphonyOfEmpires PUBLIC assimp)
+
 add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/glm)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/glm)
 target_link_libraries(SymphonyOfEmpires PUBLIC glm)
@@ -110,7 +121,7 @@ set(SDL2_DISABLE_INSTALL ON)
 set(SDL2_DISABLE_UNINSTALL ON)
 add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/sdl2)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/sdl2/include)
-target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 SDL2main)
+target_link_libraries(SymphonyOfEmpires PUBLIC SDL2)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/lua)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/lua)
@@ -129,18 +140,6 @@ set(SDL2MIXER_VENDORED ON)
 add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/sdl2_mixer)
 include_directories(${CMAKE_SOURCE_DIR}/vendor/sdl2_mixer)
 target_link_libraries(SymphonyOfEmpires PUBLIC SDL2_mixer)
-
-set(ASSIMP_INSTALL OFF)
-#set(ASSIMP_NO_EXPORT ON)
-#set(ASSIMP_IGNORE_GIT_HASH ON)
-set(ASSIMP_WARNINGS_AS_ERRORS OFF)
-set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
-set(ASSIMP_BUILD_SAMPLES OFF)
-set(ASSIMP_BUILD_TESTS OFF)
-add_subdirectory(${CMAKE_SOURCE_DIR}/vendor/assimp)
-include_directories(${CMAKE_SOURCE_DIR}/vendor/assimp/include)
-include_directories(${CMAKE_BINARY_DIR}/vendor/assimp/include) # assimp generates config.h here
-target_link_libraries(SymphonyOfEmpires PUBLIC assimp)
 
 # Platform-specific libraries
 IF(NOT ANDROID)
