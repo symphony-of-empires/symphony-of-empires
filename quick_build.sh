@@ -1,6 +1,12 @@
 #!/bin/bash
 
 if [ "$1" = "android" ]; then
+    export BUILD_DIR=build-android
+else
+    export BUILD_DIR=build
+fi
+
+if [ "$1" = "android" ]; then
     export ANDROID_HOME="$HOME/Android/Sdk"
     export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/24.0.8215888"
     export PATH="$ANDROID_NDK_HOME:$ANDROID_HOME/platform-tools:$ANDROID_HOME:$PATH"
@@ -11,16 +17,16 @@ if [ "$1" = "android" ]; then
     #apt_install_package "ant"
     #apt_install_package "android-sdk-platform-tools-common"
 
-    mkdir -p build/
-    cd build
+    mkdir -p $BUILD_DIR
+    cd $BUILD_DIR
     if [ ! -d mods ]; then ln -s ../mods mods || exit; fi
     cd ..
 fi
 
 # Create build directory
-if [ ! -d build/ ]; then
-    mkdir -p build/
-    cd build
+if [ ! -d $BUILD_DIR ]; then
+    mkdir -p $BUILD_DIR
+    cd $BUILD_DIR
     if [ ! -d mods ]; then ln -s ../mods mods || exit; fi
     cd ..
     echo "Finished setup"
@@ -37,18 +43,18 @@ if [ "$1" == "android" ]; then
         -DANDROID_HOME="$ANDROID_HOME" \
         -DANDROID_NDK_HOME="$ANDROID_NDK_HOME" \
         -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
-        -B build/ \
+        -B $BUILD_DIR \
         .
     
 else
     cmake \
         -DCMAKE_BUILD_TYPE=RelWithDebInfo \
         -DE3D_BACKEND_OPENGL=1 \
-        -B build/ \
+        -B $BUILD_DIR \
         .
 fi
 
-cd build
+cd $BUILD_DIR
 make -j`nproc` || exit
 echo "Launching game"
 if [ "$1" = "android" ]; then

@@ -86,8 +86,7 @@ CMakeCache.txt
 
 # build directories
 [Bb]uild/
-[Bb]uild32/
-[Bb]uild64/
+[Bb]uild-android/
 *-build/
 
 # libs
