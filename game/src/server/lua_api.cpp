@@ -381,7 +381,7 @@ int LuaAPI::get_provinces_with_nucleus_by_nation(lua_State* L) {
     return 1;
 }
 
-int LuaAPI::set_nation_primary_culture(lua_State* L) {
+int LuaAPI::set_nation_primary_culture(lua_State*) {
     return 0;
 }
 
