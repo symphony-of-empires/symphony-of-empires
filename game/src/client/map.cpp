@@ -83,15 +83,15 @@ static inline void get_blob_bounds(std::unordered_set<Province*>& visited_provin
             min_x->x = neighbour.box_area.left;
             min_x->y = neighbour.box_area.top;
         }
-        if (neighbour.box_area.top < min_y->y) {
+        if(neighbour.box_area.top < min_y->y) {
             min_y->x = neighbour.box_area.left;
             min_y->y = neighbour.box_area.top;
-        } 
+        }
         if(neighbour.box_area.right > max_x->x) {
             max_x->x = neighbour.box_area.right;
             max_x->y = neighbour.box_area.bottom;
         }
-        if (neighbour.box_area.bottom > max_y->y) {
+        if(neighbour.box_area.bottom > max_y->y) {
             max_y->x = neighbour.box_area.right;
             max_y->y = neighbour.box_area.bottom;
         }
@@ -190,12 +190,12 @@ void Map::create_labels() {
 
         glm::vec2 min_point_x(world.width - 1.f, world.height - 1.f), min_point_y(world.width - 1.f, world.height - 1.f);
         glm::vec2 max_point_x(0.f, 0.f), max_point_y(0.f, 0.f);
-        if (nation.owned_provinces.size() == 0)
+        if(nation.owned_provinces.size() == 0)
             continue;
         Province::Id prov_id = *nation.owned_provinces.begin();
-        if (Province::is_valid(nation.capital_id)) 
+        if(Province::is_valid(nation.capital_id))
             prov_id = nation.capital_id;
-        
+
         const Province& province = g_world.provinces[prov_id];
         max_point_x = province.box_area.position() + province.box_area.size();
         max_point_y = province.box_area.position() + province.box_area.size();
@@ -305,12 +305,12 @@ void Map::draw_flag(const Eng3D::OpenGL::Program& shader, const Nation& nation) 
         flag.buffer.push_back(Eng3D::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),
             glm::vec2((r / step) / n_steps, 0.f)
-        ));
+            ));
         sin_r = sin(r + wind_osc + 160.f) / 24.f;
         flag.buffer.push_back(Eng3D::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
-        ));
+            ));
     }
     flag.upload();
     shader.set_texture(0, "diffuse_map", *nation_flags[world.get_id(nation)]);
@@ -369,7 +369,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                 break;
             }
         }
-        
+
         /// @todo Handle the case where an unit is deleted
         for(const auto unit_id : gs.input.selected_units) {
             auto& unit = gs.world->unit_manager.units[unit_id];
@@ -528,9 +528,13 @@ void Map::draw(GameState& gs) {
         if(unit.on_battle) return;
         bool unit_visible = true;
         if(this->view_mode == MapView::SPHERE_VIEW) {
+            Eng3D::OrbitCamera* orbit_camera = dynamic_cast<Eng3D::OrbitCamera*>(camera);
+
             glm::vec3 cam_pos = camera->get_world_pos();
             glm::vec3 world_pos = camera->get_tile_world_pos(prov_pos);
-            if(glm::dot(cam_pos, world_pos) <= 0)
+            glm::vec3 world_to_camera =
+                glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
+            if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
                 unit_visible = false;
         }
 
@@ -548,9 +552,13 @@ void Map::draw(GameState& gs) {
         for(const auto& battle : province.battles) {
             bool battle_visible = true;
             if(view_mode == MapView::SPHERE_VIEW) {
+                Eng3D::OrbitCamera* orbit_camera = dynamic_cast<Eng3D::OrbitCamera*>(camera);
+
                 glm::vec3 cam_pos = camera->get_world_pos();
                 glm::vec3 world_pos = camera->get_tile_world_pos(prov_pos);
-                if(glm::dot(cam_pos, world_pos) <= 0)
+                glm::vec3 world_to_camera =
+                    glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
+                if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
                     battle_visible = false;
             }
 
