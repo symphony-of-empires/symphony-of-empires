@@ -37,10 +37,6 @@
 #include "eng3d/state.hpp"
 #include "eng3d/log.hpp"
 
-BinaryImage::BinaryImage() {
-    
-}
-
 BinaryImage::BinaryImage(const Eng3D::IO::Path& path) {
     from_file(path.str);
 }
@@ -84,8 +80,4 @@ void BinaryImage::from_file(const Eng3D::IO::Path& path) {
     buffer = std::make_unique<uint32_t[]>(width * height);
     std::memcpy(buffer.get(), c_buffer, sizeof(uint32_t) * width * height);
     std::free(c_buffer);
-}
-
-BinaryImage::~BinaryImage() {
-    
 }

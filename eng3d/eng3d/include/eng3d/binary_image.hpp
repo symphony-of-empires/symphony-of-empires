@@ -51,12 +51,12 @@ public:
 // NOT rendering - for rendering purpouses see texture class from client's implementation
 class BinaryImage {
 public:
-    BinaryImage();
+    constexpr BinaryImage() = default;
     BinaryImage(const Eng3D::IO::Path& path);
     BinaryImage(size_t _width, size_t _height);
     BinaryImage(const BinaryImage& tex);
     BinaryImage& operator=(const BinaryImage&) = delete;
-    virtual ~BinaryImage();
+    virtual ~BinaryImage() = default;
     virtual void from_file(const Eng3D::IO::Path& path);
 
     /**

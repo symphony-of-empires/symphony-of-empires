@@ -151,7 +151,7 @@ Eng3D::Networking::Server::Server(const unsigned port, const unsigned max_conn)
     WSAStartup(MAKEWORD(2, 2), &data);
 #endif
 
-    std::memset(&addr, 0, sizeof(addr));
+    addr = {};
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
     addr.sin_port = htons(port);
@@ -231,7 +231,7 @@ Eng3D::Networking::Client::Client(std::string host, const unsigned port) {
     }
 #endif
 
-    std::memset(&addr, 0, sizeof(addr));
+    addr = {};
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = inet_addr(host.c_str());
     addr.sin_port = htons(port);

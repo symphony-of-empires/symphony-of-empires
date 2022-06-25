@@ -29,18 +29,8 @@
 //
 // GLSL Context
 //
-Eng3D::OpenGL::GLSL_Context::GLSL_Context(const std::string& _buffer)
-    : buffer(_buffer)
-{
-
-}
-
-Eng3D::OpenGL::GLSL_Context::~GLSL_Context() {
-
-}
-
 std::string Eng3D::OpenGL::GLSL_Context::get_identifier(std::string::iterator& it) {
-    std::string::iterator start_it = it;
+    const auto start_it = it;
 
     // Alphanumerics, _ and dots are allowed as identifiers
     while(it != buffer.end() && (isalnum(*it) || *it == '_' || *it == '.'))
@@ -51,8 +41,7 @@ std::string Eng3D::OpenGL::GLSL_Context::get_identifier(std::string::iterator& i
 }
 
 std::string Eng3D::OpenGL::GLSL_Context::get_literal(std::string::iterator& it) {
-    std::string::iterator start_it = it;
-
+    const auto start_it = it;
     // Literal
     while(it != buffer.end() && (isdigit(*it) || *it == '.'))
         it++;
@@ -67,11 +56,9 @@ std::string Eng3D::OpenGL::GLSL_Context::get_literal(std::string::iterator& it) 
 
 void Eng3D::OpenGL::GLSL_Context::lexer() {
     // Output the final stuff
-    std::string::iterator it = buffer.begin();
-    for(; it != buffer.end(); ) {
+    for(auto it = buffer.begin(); it != buffer.end(); ) {
         while(it != buffer.end() && isspace(*it) && (*it == '\r'))
             it++;
-
 
         if(it == buffer.end()) break;
 
@@ -200,11 +187,11 @@ void Eng3D::OpenGL::GLSL_Context::lexer() {
             it+=2;
         } else {
             if(isdigit(*it) || *it == '.') {
-                GLSL_Token tok = GLSL_Token(GLSL_TokenType::LITERAL);
+                GLSL_Token tok(GLSL_TokenType::LITERAL);
                 tok.data = get_literal(it);
                 tokens.push_back(tok);
             } else if(isalnum(*it) || *it == '_') {
-                GLSL_Token tok = GLSL_Token(GLSL_TokenType::IDENTIFIER);
+                GLSL_Token tok(GLSL_TokenType::IDENTIFIER);
                 tok.data = get_identifier(it);
                 tokens.push_back(tok);
             } else {
@@ -243,8 +230,8 @@ void Eng3D::OpenGL::GLSL_Context::parser() {
 
     // Register all the overloads for this function
     std::vector<std::string> mix_strings = { "vec2", "vec3", "vec4", "sampler2D" };
-    for(std::vector<std::string>::const_iterator it1 = mix_strings.begin(); it1 != mix_strings.end(); it1++) {
-        for(std::vector<std::string>::const_iterator it2 = mix_strings.begin(); it2 != mix_strings.end(); it2++) {
+    for(auto it1 = mix_strings.begin(); it1 != mix_strings.end(); it1++) {
+        for(auto it2 = mix_strings.begin(); it2 != mix_strings.end(); it2++) {
             fn = GLSL_Function();
             fn.name = "mix";
             fn.ret_type = "vec4";
@@ -263,8 +250,7 @@ void Eng3D::OpenGL::GLSL_Context::parser() {
     fn.args.push_back(std::make_pair("float", "max"));
     funcs.push_back(fn);
 
-    std::vector<GLSL_Token>::iterator it;
-    for(it = tokens.begin(); it != tokens.end(); it++) {
+    for(auto it = tokens.begin(); it != tokens.end(); it++) {
         if(it->type == GLSL_TokenType::ASSIGN) {
 
         }
@@ -272,7 +258,7 @@ void Eng3D::OpenGL::GLSL_Context::parser() {
 }
 
 std::string Eng3D::OpenGL::GLSL_Context::to_text() {
-    std::vector<GLSL_Token>::const_iterator it = tokens.begin();
+    auto it = tokens.begin();
     std::string end_buffer;
     int current_line = 1;
 

@@ -69,7 +69,7 @@ Eng3D::FontSDF::FontSDF(const std::string& filename) {
     mipmap_options.wrap_t = GL_CLAMP_TO_EDGE;
     mipmap_options.compressed = false;
 
-    std::shared_ptr<Eng3D::IO::Asset::Base> asset = Eng3D::State::get_instance().package_man.get_unique(filename + ".png");
+    auto asset = Eng3D::State::get_instance().package_man.get_unique(filename + ".png");
     atlas = Eng3D::State::get_instance().tex_man.load(asset->abs_path, mipmap_options);
 
     char buff;
@@ -97,7 +97,7 @@ Eng3D::FontSDF::FontSDF(const std::string& filename) {
 }
 
 Label3D* Eng3D::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::vec3 right, float width, glm::vec3 center) {
-    Eng3D::Color color = Eng3D::Color(0.f, 0.f, 0.f);
+    Eng3D::Color color(0.f, 0.f, 0.f);
 
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
     std::u32string unicode_text = conv_utf8_utf32.from_bytes(text);
@@ -108,6 +108,10 @@ Label3D* Eng3D::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::v
         Eng3D::Glyph& glyph = unicode_map.at(character);
         text_width += glyph.advance;
     }
+
+    if(text_width == 0.f)
+        CXX_THROW(std::runtime_error, "Empty text label");
+
     float scale = width / text_width;
     top = glm::normalize(top);
     right = glm::normalize(right);
@@ -120,7 +124,7 @@ Label3D* Eng3D::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::v
     for(char32_t& character : unicode_text) {
         if(!unicode_map.count(character)) continue;
 
-        Glyph glyph = unicode_map.at(character);
+        const auto& glyph = unicode_map.at(character);
 
         glm::vec2 atlas_tl(glyph.atlas_bounds.left, glyph.atlas_bounds.top);
         glm::vec2 atlas_bl(glyph.atlas_bounds.left, glyph.atlas_bounds.bottom);
