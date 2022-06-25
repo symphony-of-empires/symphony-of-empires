@@ -40,9 +40,12 @@
 #ifdef E3D_BACKEND_OPENGL
 #   include <GL/glew.h>
 #   include <GL/gl.h>
+#elif defined E3D_BACKEND_GLES
+#   include <GLES3/gl3.h>
 #endif
-#include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_surface.h>
+
+#include <SDL_ttf.h>
+#include <SDL_surface.h>
 
 #include "eng3d/binary_image.hpp"
 #include "eng3d/color.hpp"
@@ -68,7 +71,7 @@ namespace Eng3D {
     class TextureOptions {
     public:
         TextureOptions() {};
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         GLenum target = GL_TEXTURE_2D;
         GLuint wrap_s = GL_REPEAT;
         GLuint wrap_t = GL_REPEAT;
@@ -113,7 +116,7 @@ namespace Eng3D {
         void guillotine(const Eng3D::Texture& map, int x, int y, int w, int h);
         void to_file(const std::string& filename);
 
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         GLuint gl_tex_num = 0;
 #endif
     };
@@ -125,7 +128,7 @@ namespace Eng3D {
         void upload();
         size_t layers;
         size_t tiles_x, tiles_y;
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         GLuint gl_tex_num = 0;
 #endif
     };

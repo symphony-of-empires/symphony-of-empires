@@ -36,12 +36,14 @@
 #   include <GL/glew.h>
 #   include <GL/gl.h>
 #   include <GL/glu.h>
+#elif defined E3D_BACKEND_GLES
+#   include <GLES3/gl3.h>
 #elif defined E3D_BACKEND_RGX
 #   include <gccore.h>
 #endif
 
 /// @todo We aren't deleting the OpenGL objects!!!!
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
 namespace Eng3D::OpenGL {
     class VAO {
         GLuint id;
@@ -159,12 +161,14 @@ namespace Eng3D::OpenGL {
             return id;
         }
     };
+
+    class Program;
 };
 #endif
 
 namespace Eng3D {
     enum class MeshMode {
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         TRIANGLE_FAN = GL_TRIANGLE_FAN,
         TRIANGLE_STRIP = GL_TRIANGLE_STRIP,
         TRIANGLES = GL_TRIANGLES,
@@ -206,9 +210,9 @@ namespace Eng3D {
         virtual ~Mesh() = default;
         Mesh(const Mesh&) = delete;
         Mesh(Mesh&&) noexcept = default;
-        Mesh& operator=(const Mesh&) = default;
+        Mesh& operator=(const Mesh&) = delete;
 
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         virtual void draw() const {
             vao.bind();
             if(!indices.empty()) {
@@ -216,13 +220,17 @@ namespace Eng3D {
             } else if(!buffer.empty()) {
                 glDrawArrays(static_cast<GLenum>(mode), 0, buffer.size());
             }
-        };
+        }
+
+        virtual void draw(const Eng3D::OpenGL::Program&) const {
+            this->draw();
+        }
 #else
 #   error not implemented
 #endif
 
-#ifdef E3D_BACKEND_OPENGL
         virtual void upload() const {
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
             vao.bind();
             vbo.bind();
             glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(buffer[0]), &buffer[0], GL_STATIC_DRAW);
@@ -237,16 +245,16 @@ namespace Eng3D {
             constexpr int tex_stride = sizeof(buffer[0].vert);
             glVertexAttribPointer(1, T::length(), GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)((uintptr_t)tex_stride));
             glEnableVertexAttribArray(1);
-        };
 #else
 #   error not implemented
 #endif
+        }
 
         std::vector<Eng3D::MeshData<V, T>> buffer;
         std::vector<unsigned int> indices;
         enum Eng3D::MeshMode mode;
 
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         // The initialization should be done in this order, first the VAO
         // then initialize the VBO!
         Eng3D::OpenGL::VAO vao;

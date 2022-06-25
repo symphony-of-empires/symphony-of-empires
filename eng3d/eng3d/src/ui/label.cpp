@@ -29,8 +29,6 @@
 #include <cmath>
 #include <algorithm>
 
-#include <GL/glew.h>
-#include <GL/gl.h>
 #include <glm/vec2.hpp>
 
 #include "eng3d/ui/widget.hpp"

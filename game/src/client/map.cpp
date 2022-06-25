@@ -34,9 +34,15 @@
 #include <unordered_set>
 #define NOMINMAX 1
 #include <glm/gtc/matrix_transform.hpp>
+
+#ifdef E3D_BACKEND_OPENGL
 // Required before GL/gl.h
-#include <GL/glew.h>
-#include <GL/gl.h>
+#   include <GL/glew.h>
+#   include <GL/gl.h>
+#elif defined E3D_BACKEND_GLES
+#   include <GLES3/gl3.h>
+#endif
+
 #include "eng3d/state.hpp"
 #include "eng3d/ui/tooltip.hpp"
 #include "eng3d/font_sdf.hpp"

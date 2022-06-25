@@ -91,7 +91,7 @@ namespace Eng3D {
         glm::mat4 get_view() const override {
             glm::vec3 look_at = world_position;
             look_at.z = 0;
-            look_at.y -= world_position.z > -300.f ? 0.06f * (300.f + world_position.z) : 0.f;
+            look_at.y -= world_position.z > -300.f ? 0.08f * (300.f + world_position.z) : 0.f;
             glm::vec3 up_vector = glm::vec3(0.f, -1.f, 0.f);
             return glm::lookAt(world_position, look_at, up_vector);
         };

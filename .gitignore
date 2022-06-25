@@ -89,7 +89,6 @@ CMakeCache.txt
 [Bb]uild32/
 [Bb]uild64/
 *-build/
-vendor/
 
 # libs
 external/

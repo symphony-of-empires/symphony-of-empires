@@ -32,6 +32,7 @@
 #include <numeric>
 #include <string>
 #include <vector>
+#include <memory>
 #include <cstdio>
 #include <type_traits>
 #include "eng3d/utils.hpp"
@@ -212,7 +213,7 @@ public:
                 ar.copy_from(obj->c_str(), len);
             }
         } else {
-            uint16_t len; // Obtain the lenght of the string to be read
+            uint16_t len = 0; // Obtain the lenght of the string to be read
             ::deserialize(ar, &len);
             if(len >= 1024)
                 CXX_THROW(SerializerException, "String is too lenghty");
@@ -240,7 +241,7 @@ public:
             for(auto& obj : *obj_group)
                 ::deser_dynamic<is_serialize>(ar, &obj);
         } else {
-            uint32_t len;
+            uint32_t len = 0;
             ::deser_dynamic<is_serialize>(ar, &len);
             for(size_t i = 0; i < len; i++) {
                 T obj;
@@ -291,7 +292,7 @@ public:
             for(auto& obj : *obj_group)
                 ::deser_dynamic<is_serialize>(ar, &obj);
         } else {
-            uint32_t len;
+            uint32_t len = 0;
             ::deser_dynamic<is_serialize>(ar, &len);
             obj_group->clear();
             for(size_t i = 0; i < len; i++) {
@@ -315,7 +316,7 @@ public:
             for(auto& obj : *obj_group)
                 ::deser_dynamic<is_serialize>(ar, &obj);
         } else {
-            uint32_t len;
+            uint32_t len = 0;
             ::deser_dynamic<is_serialize>(ar, &len);
             obj_group->clear();
             for(size_t i = 0; i < len; i++) {

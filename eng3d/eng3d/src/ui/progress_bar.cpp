@@ -23,9 +23,6 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include <GL/glew.h>
-#include <GL/gl.h>
-
 #include "eng3d/ui/progress_bar.hpp"
 #include "eng3d/ui/widget.hpp"
 #include "eng3d/ui/input.hpp"

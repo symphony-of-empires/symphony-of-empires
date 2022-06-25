@@ -141,7 +141,7 @@ public:
     static constexpr unsigned int ticks_per_month = 30;
 
     World() = default;
-    World& operator=(const World&) = default;
+    World& operator=(const World&) = delete;
     ~World();
     static World& get_instance() {
         extern World g_world;

@@ -1,9 +1,26 @@
-cmake_minimum_required(VERSION 3.5.1)
-
+cmake_minimum_required(VERSION 3.14)
 project(SymphonyOfEmpires CXX C)
+include(FetchContent)
+set(FETCHCONTENT_QUIET FALSE)
+
+set(CMAKE_CXX_STANDARD 20)
 
 option(BUILD_ENGINE "Enable building Eng3D" ON)
 option(BUILD_GAME "Enable building SymphonyOfEmpires" ON)
+
+IF(ANDROID)
+	set(NDK_PROJECT_PATH $ENV{PWD}) # Set project path to current directory
+	set(ANDROID_STL c++_static) # Static libc++
+	IF(NOT DEFINED ANDROID_HOME)
+		message(FATAL_ERROR "Please define ANDROID_NDK_HOME")
+	ENDIF()
+	IF(NOT DEFINED ANDROID_NDK_HOME)
+		message(FATAL_ERROR "Please define ANDROID_NDK_HOME")
+	ENDIF()
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIE -fPIC")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIE -fPIC")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fPIE -pie")
+ENDIF()
 
 IF(NO_COPY_MODS)
 	add_compile_definitions(NO_COPY_MODS)
@@ -15,37 +32,74 @@ ENDIF()
 # Backend selection
 IF(E3D_BACKEND_OPENGL)
 	message("Using OpenGL backend")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_BACKEND_OPENGL=1")
-ELSE()
-	IF(E3D_BACKEND_D3D9)
-		message("Using DirectX 9 SDK")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_BACKEND_D3D9=1")
-	ELSE()
-		
+	IF(ANDROID)
+		message(FATAL_ERROR "Use E3D_BACKEND_GLES instead on Android")
 	ENDIF()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_BACKEND_OPENGL=1")
+ELSEIF(E3D_BACKEND_GLES)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_BACKEND_GLES=1")
+ELSEIF(E3D_BACKEND_D3D9)
+	message("Using DirectX 9 SDK")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_BACKEND_D3D9=1")
+ELSE()
+	message(FATAL_ERROR "No backend specified!")
 ENDIF()
 
-# Build stuff
-if(BUILD_ENGINE)
-    add_subdirectory(${CMAKE_SOURCE_DIR}/eng3d)
-endif()
+#
+# Dependencies
+#
+set(SDL2_DISABLE_SDL2MAIN ON)
+set(SDL2_DISABLE_INSTALL ON)
+set(SDL2_DISABLE_UNINSTALL ON)
+FetchContent_Declare(sdl2 GIT_REPOSITORY "https://github.com/libsdl-org/SDL" GIT_TAG main GIT_PROGRESS TRUE)
+set(SDL2TTF_VENDORED ON)
+set(SDL2TTF_INSTALL OFF)
+set(SDL2TTF_SAMPLES OFF)
+FetchContent_Declare(sdl2_ttf GIT_REPOSITORY "https://github.com/libsdl-org/SDL_ttf" GIT_TAG main GIT_PROGRESS TRUE)
+set(SDL2MIXER_INSTALL OFF)
+set(SDL2MIXER_SAMPLES OFF)
+set(SDL2MIXER_VENDORED ON)
+FetchContent_Declare(sdl2_mixer GIT_REPOSITORY "https://github.com/libsdl-org/SDL_mixer" GIT_TAG main GIT_PROGRESS TRUE)
+FetchContent_Declare(lua GIT_REPOSITORY "https://github.com/andyroiiid/lua" GIT_TAG 031b4661b22cbd7fb781d53d20460e9cc59ec2c1 GIT_PROGRESS TRUE)
+FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm" GIT_PROGRESS TRUE)
+set(TBB_TEST OFF)
+set(TBB_EXAMPLES OFF)
+FetchContent_Declare(opentbb GIT_REPOSITORY "https://github.com/oneapi-src/oneTBB" GIT_PROGRESS TRUE)
+set(ASSIMP_INSTALL OFF)
+set(ASSIMP_NO_EXPORT ON)
+set(ASSIMP_IGNORE_GIT_HASH ON)
+set(ASSIMP_WARNINGS_AS_ERRORS OFF)
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
+set(ASSIMP_BUILD_SAMPLES OFF)
+set(ASSIMP_BUILD_TESTS OFF)
+FetchContent_Declare(assimp GIT_REPOSITORY "https://github.com/assimp/assimp" GIT_PROGRESS TRUE)
+IF(NOT ANDROID)
+	IF(E3D_BACKEND_OPENGL)
+		set(GLFW_BUILD_TESTS OFF)
+		set(GLFW_BUILD_EXAMPLES OFF)
+		FetchContent_Declare(glfw GIT_REPOSITORY "https://github.com/glfw/glfw")
+	ENDIF()
+ENDIF()
+FetchContent_MakeAvailable(sdl2 sdl2_ttf sdl2_mixer lua glm opentbb assimp glfw)
+include_directories("${lua_SOURCE_DIR}/include" "${sdl2_BINARY_DIR}/include" "${sdl2_BINARY_DIR}/include-config-relwithdebinfo" "${sdl2_ttf_SOURCE_DIR}" "${sdl2_mixer_SOURCE_DIR}/include")
 
-#set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/src)
-#set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
+# Build stuff
+IF(BUILD_ENGINE)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/eng3d ${CMAKE_BINARY_DIR}/eng3d)
+ENDIF()
 
 #
 # Compilation flags
 #
-set(CMAKE_CXX_STANDARD 20)
-
 IF(NOT MSVC)
 	set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS}")
 ENDIF()
 IF(WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_TARGET_WINDOWS=1")
 ELSEIF(UNIX)
-	include_directories(/usr/include/SDL2) # Some distrobutions have different paths...
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_TARGET_UNIX=1")
+ELSEIF(ANDROID)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_TARGET_UNIX=1 -DE3D_TARGET_ANDROID=1")
 ELSE()
 	link_directories("${DEVKITPRO}/libogc/lib")
 	include_directories("${DEVKITPRO}/libogc/include")
@@ -56,9 +110,6 @@ IF(UNIT_TEST)
 ENDIF()
 
 include_directories("${PROJECT_SOURCE_DIR}/game/src" "${CMAKE_SOURCE_DIR}/eng3d/eng3d/include")
-
-link_directories(${CMAKE_SOURCE_DIR}/vendor/lib)
-include_directories(${CMAKE_SOURCE_DIR}/vendor/include)
 
 #
 # Source code files
@@ -72,12 +123,26 @@ file(GLOB MAIN_SOURCES
 	"${PROJECT_SOURCE_DIR}/game/src/server/*.cpp"
 	"${PROJECT_SOURCE_DIR}/game/src/server/ai/*.cpp"
 )
-add_executable(SymphonyOfEmpires ${MAIN_SOURCES})
+IF(ANDROID)
+	add_executable(SymphonyOfEmpires "${MAIN_SOURCES}" "${ANDROID_NDK_HOME}/sources/android/native_app_glue/android_native_app_glue.c")
+ELSE()
+	add_executable(SymphonyOfEmpires "${MAIN_SOURCES}")
+ENDIF()
 
 #
 # Linking
 #
-target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 eng3d tbb)
+
+# Platform-specific libraries
+target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 SDL2_ttf SDL2_mixer lua glm tbb assimp)
+IF(NOT ANDROID)
+	IF(E3D_BACKEND_OPENGL)
+		target_link_libraries(SymphonyOfEmpires PUBLIC glfw)
+	ENDIF()
+ELSEIF(ANDROID)
+	target_link_libraries(SymphonyOfEmpires PUBLIC android)
+ENDIF()
+
 IF(WIN32)
 	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR MSVC)
 		
@@ -87,6 +152,7 @@ IF(WIN32)
 ELSE()
 	target_link_libraries(SymphonyOfEmpires PUBLIC m stdc++)
 ENDIF()
+target_link_libraries(SymphonyOfEmpires PUBLIC eng3d)
 
 # Pthread
 find_package(Threads)
@@ -95,80 +161,11 @@ IF(Threads_FOUND)
 	target_link_libraries(SymphonyOfEmpires PRIVATE Threads::Threads)
 ENDIF()
 
-# Lua library is quite strange and requires some conditionals to be able to compile it
-
-IF(NOT MINGW AND NOT MSYS)
-	IF(lua54)
-		message(STATUS "Using lua v5.4")
-		IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR MSVC)
-			target_link_libraries(SymphonyOfEmpires PUBLIC lua54)
-		ELSE()
-			target_link_libraries(SymphonyOfEmpires PUBLIC lua5.4)
-		ENDIF()
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLUA54")
-	ELSE()
-		message(STATUS "Using lua v5.3")
-		IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR MSVC)
-			target_link_libraries(SymphonyOfEmpires PUBLIC lua53)
-		ELSE()
-			target_link_libraries(SymphonyOfEmpires PUBLIC lua5.3)
-		ENDIF()
-	ENDIF()
-# msys is simple - just lua, no lua5.4 or lua5.3
-ELSE()
-	message(STATUS "Using an unknown lua version")
-	target_link_libraries(SymphonyOfEmpires PUBLIC lua)
-ENDIF()
-
-#
-# Precompiled headers
-#
-# Standard C++ library headers
-target_precompile_headers(SymphonyOfEmpires PRIVATE
-	<cstdint>
-	<cstddef>
-	<cstring>
-	<cstdlib>
-	<cstdio>
-	<climits>
-	<ctime>
-	<sstream>
-	<fstream>
-	<string>
-	<vector>
-	<set>
-	<deque>
-	<atomic>
-	<thread>
-	<mutex>
-	<utility>
-	<numeric>
-	<functional>
-	<type_traits>
-	<algorithm>
-	<memory>
-	<iostream>
-	<unordered_map>
-)
-
-IF(E3D_BACKEND_OPENGL)
-	# OpenGL header files
-	target_precompile_headers(SymphonyOfEmpires PRIVATE
-		<GL/glew.h>
-		<GL/gl.h>
-		<GL/glu.h>
-		<GL/glext.h>
-	)
-ENDIF()
-
-# glm header files
-target_precompile_headers(SymphonyOfEmpires PRIVATE
-	<glm/glm.hpp>
-	<glm/mat4x4.hpp>
-	<glm/common.hpp>
-	<glm/vec2.hpp>
-	<glm/vec3.hpp>
-	<glm/gtx/intersect.hpp>
-	<glm/gtc/type_ptr.hpp>
-	<glm/gtc/matrix_transform.hpp>
+set(APP_SHARED_LIBRARIES
+	${LIBRARY_OUTPUT_PATH}/libtbb.so
+	${LIBRARY_OUTPUT_PATH}/libassimp.so
+	${LIBRARY_OUTPUT_PATH}/libSDL2.so
+	${LIBRARY_OUTPUT_PATH}/libSDL2_ttf.so
+	${LIBRARY_OUTPUT_PATH}/liblua.so
+	${LIBRARY_OUTPUT_PATH}/libeng3d.so
 )
