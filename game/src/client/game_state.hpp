@@ -48,17 +48,16 @@ class Religion;
 
 class Input {
 public:
-    std::pair<float, float> select_pos;
+    glm::vec2 select_pos;
     bool middle_mouse_down = false;
-    std::pair<float, float> last_camera_mouse_pos;
-    std::pair<int, int> mouse_pos;
+    glm::ivec2 mouse_pos;
 
     std::vector<Unit::Id> selected_units;
 
     Culture* selected_culture = nullptr;
     Religion* selected_religion = nullptr;
 
-    std::pair<int, int> drag_coord;
+    glm::ivec2 drag_coord;
 
     SDL_Joystick* joy = nullptr;
 };
