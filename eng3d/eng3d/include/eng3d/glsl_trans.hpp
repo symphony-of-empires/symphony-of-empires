@@ -31,6 +31,7 @@
 
 namespace Eng3D::OpenGL {
     enum class GLSL_TokenType {
+        NONE,
         ASSIGN, TERNARY, LITERAL, IDENTIFIER,
         ADD, SUB, MUL, DIV, REM, AND, OR, XOR,
         SEMICOLON, COMMA, COLON, DOT,
@@ -45,10 +46,15 @@ namespace Eng3D::OpenGL {
 
     class GLSL_Token {
     public:
-        GLSL_Token(GLSL_TokenType _type): type(_type) {};
+        GLSL_Token(GLSL_TokenType _type)
+            : type{ _type }
+        {
+
+        }
+
         ~GLSL_Token() = default;
 
-        enum GLSL_TokenType type;
+        enum GLSL_TokenType type = GLSL_TokenType::NONE;
         std::string data;
     };
 
@@ -58,6 +64,9 @@ namespace Eng3D::OpenGL {
 
     class GLSL_Variable {
     public:
+        GLSL_Variable() = default;
+        ~GLSL_Variable() = default;
+        
         enum GLSL_VariableType type;
         std::string type_name;
         std::string name;
@@ -80,8 +89,13 @@ namespace Eng3D::OpenGL {
 
     class GLSL_Context {
     public:
-        GLSL_Context(const std::string& buffer);
-        ~GLSL_Context();
+        GLSL_Context(const std::string& _buffer)
+            : buffer{ _buffer }
+        {
+
+        }
+
+        ~GLSL_Context() = default;
         std::string get_identifier(std::string::iterator& it);
         std::string get_literal(std::string::iterator& it);
         void lexer();
@@ -99,7 +113,13 @@ namespace Eng3D::OpenGL {
     class GLSL_Exception: public std::exception {
         std::string buffer;
     public:
-        GLSL_Exception(std::vector<GLSL_Token>::iterator _it, const std::string& _buffer): buffer(_buffer), it(_it) {};
+        GLSL_Exception(std::vector<GLSL_Token>::iterator _it, const std::string& _buffer)
+            : buffer{ _buffer },
+            it{ _it }
+        {
+
+        }
+
         virtual const char* what() const noexcept {
             return buffer.c_str();
         }
