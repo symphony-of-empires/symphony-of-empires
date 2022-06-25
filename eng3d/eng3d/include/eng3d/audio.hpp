@@ -29,6 +29,8 @@
 #include <map>
 #include <string>
 #include <exception>
+#include <mutex>
+#include <vector>
 
 namespace Eng3D {
     class State;

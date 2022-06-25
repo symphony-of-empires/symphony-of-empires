@@ -28,6 +28,7 @@
 #include <string>
 #include <codecvt>
 #include <locale>
+#include <sstream>
 
 #include "eng3d/font_sdf.hpp"
 #include "eng3d/state.hpp"

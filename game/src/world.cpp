@@ -29,7 +29,6 @@
 #include <cstring>
 #include <cmath>
 #include <cassert>
-#include <execution>
 #include <set>
 #ifndef _MSC_VER
 #	include <sys/cdefs.h>

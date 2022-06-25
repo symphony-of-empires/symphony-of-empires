@@ -228,7 +228,7 @@ float get_lighting(vec2 tex_coords, float beach) {
 
 	float far_from_map = smoothstep(45.0, 65.0, dist_to_map * 1000.0);
 	vec3 view_dir = normalize(view_pos - v_frag_pos);
-	vec3 lightDir = normalize(vec3(-2, -1, -4));
+	vec3 light_dir = normalize(vec3(-2, -1, -4));
 
 	// Get the normal
 	vec3 normal = texture(normal, tex_coords).xyz;
@@ -244,7 +244,7 @@ float get_lighting(vec2 tex_coords, float beach) {
 #endif
 
 	// The bump mapping
-	float diffuse = max(dot(lightDir, normal), 0.0);
+	float diffuse = max(dot(light_dir, normal), 0.0);
 	diffuse *= mix(0.6, 1.0, far_from_map);
 
 	// The shiny directional light
@@ -252,7 +252,7 @@ float get_lighting(vec2 tex_coords, float beach) {
 	float shininess = is_water == 1. ? water_shine : 8;
 	float specularStrength = is_water == 1. ? 0.6 : 0.2;
 	specularStrength *= mix(3., 1., far_from_map);
-	vec3 reflectDir = reflect(-lightDir, normal);  
+	vec3 reflectDir = reflect(-light_dir, normal);  
 	float spec = pow(max(dot(view_dir, reflectDir), 0.0), shininess);
 	float specular = specularStrength * spec;
 
@@ -414,6 +414,11 @@ void main() {
 	// The fog of war effect
 	float prov_shadow = get_province_shadow(tex_coords, is_diag);
 	out_color = out_color * prov_shadow;
+
+	// Fog, dissolve the further we zoom out, also we have to take the reciprocal to amoritze
+	// the density
+	float d = (smoothstep(1., 0., 100. / distance(view_pos, v_frag_pos))) * (1. - max(far_from_map - 1., 0.));
+	out_color = mix(out_color, vec3(0.7, 0.7, 0.7), d);
 
 	float light = 1.0;
 #ifdef LIGHTING

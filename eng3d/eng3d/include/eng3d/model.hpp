@@ -32,11 +32,10 @@
 
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
-#include <GL/glew.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include <assimp/scene.h>
+extern "C" {
 #include <assimp/postprocess.h>
+}
 
 #include "eng3d/mesh.hpp"
 #include "eng3d/io.hpp"
@@ -54,11 +53,11 @@ namespace Eng3D {
     /// @todo We should use instancing tricks on simple objects
     class SimpleModel : public Eng3D::Mesh<glm::vec3, glm::vec2> {
     public:
-        SimpleModel(enum Eng3D::MeshMode _mode);
-        ~SimpleModel() {};
+        SimpleModel(enum Eng3D::MeshMode _mode) : Eng3D::Mesh<glm::vec3, glm::vec2>(_mode) {};
+        ~SimpleModel() = default;
         SimpleModel(const SimpleModel&) = delete;
         SimpleModel(SimpleModel&&) noexcept = default;
-        SimpleModel& operator=(const SimpleModel&) = default;
+        SimpleModel& operator=(const SimpleModel&) = delete;
         virtual void draw(const Eng3D::OpenGL::Program& shader) const;
         
         std::shared_ptr<Eng3D::Material> material;
@@ -71,7 +70,7 @@ namespace Eng3D {
         virtual ~Model() = default;
         Model(const Model&) = delete;
         Model(Model&&) noexcept = default;
-        Model& operator=(const Model&) = default;
+        Model& operator=(const Model&) = delete;
         virtual void draw(const Eng3D::OpenGL::Program& shader) const {
             for(auto& model : simple_models)
                 model.draw(shader);

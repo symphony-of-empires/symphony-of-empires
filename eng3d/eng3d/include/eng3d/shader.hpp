@@ -29,6 +29,13 @@
 #include <string>
 #include <exception>
 
+#ifdef E3D_BACKEND_OPENGL
+#   include <GL/glew.h>
+#   include <GL/gl.h>
+#elif defined E3D_BACKEND_GLES
+#   include <GLES3/gl3.h>
+#endif
+
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/mat4x4.hpp>
 
@@ -47,7 +54,7 @@ namespace Eng3D {
         }
     };
 
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     namespace OpenGL {
         /**
          * @brief Option that is passed to the GLSL transpiler for preprocessing
@@ -90,9 +97,8 @@ namespace Eng3D {
              * 
              */
             inline ~Shader() {
-                if(id) {
+                if(id)
                     glDeleteShader(id);
-                }
             }
 
             inline GLuint get_id() const {
@@ -103,41 +109,42 @@ namespace Eng3D {
         class VertexShader: public Shader {
         public:
             VertexShader(const std::string& _buffer) : Shader(_buffer, GL_VERTEX_SHADER) {};
-            ~VertexShader() {};
+            ~VertexShader() = default;
         };
 
         class FragmentShader: public Shader {
         public:
             FragmentShader(const std::string& _buffer, bool use_transpiler = true, std::vector<Eng3D::OpenGL::GLSL_Define> defintions = {});
-            ~FragmentShader() {};
+            ~FragmentShader() = default;
         };
 
+#if !defined E3D_BACKEND_GLES
         class GeometryShader: public Shader {
         public:
             GeometryShader(const std::string& _buffer) : Shader(_buffer, GL_GEOMETRY_SHADER) {};
-            ~GeometryShader() {};
+            ~GeometryShader() = default;
         };
 
         class TessControlShader: public Shader {
         public:
             TessControlShader(const std::string& _buffer) : Shader(_buffer, GL_TESS_CONTROL_SHADER) {};
-            ~TessControlShader() {};
+            ~TessControlShader() = default;
         };
 
         class TessEvalShader: public Shader {
         public:
             TessEvalShader(const std::string& _buffer) : Shader(_buffer, GL_TESS_EVALUATION_SHADER) {};
-            ~TessEvalShader() {};
+            ~TessEvalShader() = default;
         };
+#endif
 
         class Program {
             GLuint id;
         public:
             Program() {
                 id = glCreateProgram();
-                if(!id) {
+                if(!id)
                     CXX_THROW(Eng3D::ShaderException, "Can't create new program");
-                }
                 glBindAttribLocation(id, 0, "m_pos");
                 glBindAttribLocation(id, 1, "m_texcoord");
             }

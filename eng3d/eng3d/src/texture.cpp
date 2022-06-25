@@ -87,10 +87,9 @@ Eng3D::Texture::Texture(TTF_Font* font, Eng3D::Color color, const std::string& m
 }
 
 Eng3D::Texture::~Texture() {
-#ifdef E3D_BACKEND_OPENGL
-    if(gl_tex_num) {
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
+    if(gl_tex_num)
         delete_gputex();
-    }
 #endif
 }
 
@@ -106,22 +105,21 @@ void Eng3D::Texture::create_dummy() {
 
     // Fill in with a permutation pattern of pink and black
     // This should be autovectorized by gcc
-    for(size_t i = 0; i < width * height; i++) {
+    for(size_t i = 0; i < width * height; i++)
         buffer.get()[i] = 0xff000000 | (i * 16);
-    }
 }
 
 void Eng3D::Texture::upload(TextureOptions options) {
-#ifdef E3D_BACKEND_OPENGL
-    if(gl_tex_num) {
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
+    if(gl_tex_num)
         delete_gputex();
-    }
 
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
 
+#if !defined E3D_BACKEND_GLES
     /// @todo This causes a lot of issues!
-    // Compress the texture if it can't be edited
+    // Compress the texture if it can't be edited, this is only available on normal OpenGL through
     if(!options.editable && options.compressed) {
         switch(options.internal_format) {
         case GL_ALPHA:
@@ -158,6 +156,7 @@ void Eng3D::Texture::upload(TextureOptions options) {
             break;
         }
     }
+#endif
 
     glTexImage2D(GL_TEXTURE_2D, 0, options.internal_format, width, height, 0, options.format, options.type, buffer.get());
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, options.wrap_s);
@@ -182,7 +181,7 @@ void Eng3D::Texture::upload(TextureOptions options) {
 }
 
 void Eng3D::Texture::gen_mipmaps() const {
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
     glGenerateMipmap(GL_TEXTURE_2D);
 #endif
@@ -195,21 +194,29 @@ void Eng3D::Texture::upload(SDL_Surface* surface) {
     }
 
     int colors = surface->format->BytesPerPixel;
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     GLuint texture_format;
     if(colors == 4) {
         // Alpha
         if(surface->format->Rmask == 0x000000ff) {
             texture_format = GL_RGBA;
         } else {
+#ifdef E3D_BACKEND_OPENGL
             texture_format = GL_BGRA;
+#else
+            CXX_THROW(std::runtime_error, "Unsupported texture format");
+#endif
         }
     } else {
         // No alpha
         if(surface->format->Rmask == 0x000000ff) {
             texture_format = GL_RGB;
         } else {
+#ifdef E3D_BACKEND_OPENGL
             texture_format = GL_BGR;
+#else
+            CXX_THROW(std::runtime_error, "Unsupported texture format");
+#endif
         }
     }
 
@@ -243,14 +250,14 @@ void Eng3D::Texture::upload(SDL_Surface* surface) {
 
 // Binds the texture to the current OpenGL context
 void Eng3D::Texture::bind() const {
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
 #endif
 }
 
 // Deletes the OpenGL representation of this texture
 void Eng3D::Texture::delete_gputex() {
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     glDeleteTextures(1, &gl_tex_num);
 #endif
 }
@@ -264,14 +271,15 @@ void Eng3D::Texture::to_file(const std::string& filename) {
     int stride = channel_count * width;
     int data_size = stride * height;
 
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
-
-    GLubyte* data = (GLubyte*)malloc(data_size);
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    stbi_write_png(filename.c_str(), width, height, channel_count, data, stride);
 #endif
+    uint8_t* data = (uint8_t*)malloc(data_size);
+#if defined E3D_BACKEND_OPENGL
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+#endif
+    stbi_write_png(filename.c_str(), width, height, channel_count, data, stride);
 }
 
 //
@@ -289,7 +297,7 @@ Eng3D::TextureArray::TextureArray(const std::string& path, size_t _tiles_x, size
 
 // Uploads the TextureArray to the driver
 void Eng3D::TextureArray::upload() {
-#ifdef E3D_BACKEND_OPENGL
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D_ARRAY, gl_tex_num);
 

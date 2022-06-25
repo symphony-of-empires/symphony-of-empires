@@ -13,8 +13,13 @@ out vec3 v_view_pos;
 out vec3 v_frag_pos;
 
 void main() {
-	gl_Position = projection * view * model * vec4(m_pos, 1.0);
+	mat4 mvp = projection * view * model;
+	gl_Position = mvp * vec4(m_pos, 1.0);
 	v_texcoord = m_texcoord;
-	v_view_pos = vec3(view[3][0], view[3][1], view[3][2]);
+
+	vec4 view_pos = inverse(projection * view) * vec4(0., 0., 1., 1.);
+	view_pos.xyz /= view_pos.w;
+	v_view_pos = vec3(view_pos.xyz);
+
 	v_frag_pos = m_pos;
 }

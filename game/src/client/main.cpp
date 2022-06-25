@@ -54,7 +54,17 @@
 
 void start_client(int argc, char** argv);
 
-int main(int argc, char** argv) {
+#ifdef E3D_TARGET_ANDROID
+#   include <android_native_app_glue.h>
+#   define APPNAME "baseapp"
+void android_main(struct android_app* state)
+{
+    main(0, { NULL });
+    ANativeActivity_finish(state->activity);
+}
+#endif
+
+extern "C" int main(int argc, char** argv) {
 #ifdef E3D_TARGET_WINDOWS
     system("cls");
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
@@ -85,7 +95,7 @@ int main(int argc, char** argv) {
 }
 
 #ifdef E3D_TARGET_WINDOWS
-#include <cstring>
+#   include <cstring>
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument, int iShow) {
     char* argv[1];
     argv[0] = new char[2];
