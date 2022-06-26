@@ -89,15 +89,15 @@ static inline void get_blob_bounds(std::unordered_set<Province*>& visited_provin
             min_x->x = neighbour.box_area.left;
             min_x->y = neighbour.box_area.top;
         }
-        if (neighbour.box_area.top < min_y->y) {
+        if(neighbour.box_area.top < min_y->y) {
             min_y->x = neighbour.box_area.left;
             min_y->y = neighbour.box_area.top;
-        } 
+        }
         if(neighbour.box_area.right > max_x->x) {
             max_x->x = neighbour.box_area.right;
             max_x->y = neighbour.box_area.bottom;
         }
-        if (neighbour.box_area.bottom > max_y->y) {
+        if(neighbour.box_area.bottom > max_y->y) {
             max_y->x = neighbour.box_area.right;
             max_y->y = neighbour.box_area.bottom;
         }
@@ -196,12 +196,12 @@ void Map::create_labels() {
 
         glm::vec2 min_point_x(world.width - 1.f, world.height - 1.f), min_point_y(world.width - 1.f, world.height - 1.f);
         glm::vec2 max_point_x(0.f, 0.f), max_point_y(0.f, 0.f);
-        if (nation.owned_provinces.size() == 0)
+        if(nation.owned_provinces.size() == 0)
             continue;
         Province::Id prov_id = *nation.owned_provinces.begin();
-        if (Province::is_valid(nation.capital_id)) 
+        if(Province::is_valid(nation.capital_id))
             prov_id = nation.capital_id;
-        
+
         const Province& province = g_world.provinces[prov_id];
         max_point_x = province.box_area.position() + province.box_area.size();
         max_point_y = province.box_area.position() + province.box_area.size();
@@ -311,12 +311,12 @@ void Map::draw_flag(const Eng3D::OpenGL::Program& shader, const Nation& nation) 
         flag.buffer.push_back(Eng3D::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),
             glm::vec2((r / step) / n_steps, 0.f)
-        ));
+            ));
         sin_r = sin(r + wind_osc + 160.f) / 24.f;
         flag.buffer.push_back(Eng3D::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
-        ));
+            ));
     }
     flag.upload();
     shader.set_texture(0, "diffuse_map", *nation_flags[world.get_id(nation)]);
@@ -326,11 +326,11 @@ void Map::draw_flag(const Eng3D::OpenGL::Program& shader, const Nation& nation) 
 void Map::handle_click(GameState& gs, SDL_Event event) {
     Input& input = gs.input;
 
-    if(input.select_pos.first < 0 || input.select_pos.first >= this->world.width || input.select_pos.second < 0 || input.select_pos.second >= this->world.height)
+    if(input.select_pos.x < 0 || input.select_pos.x >= this->world.width || input.select_pos.y < 0 || input.select_pos.y >= this->world.height)
         return;
 
     if(event.button.button == SDL_BUTTON_LEFT) {
-        const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
+        const Tile& tile = gs.world->get_tile(input.select_pos.x, input.select_pos.y);
         switch(gs.current_mode) {
         case MapMode::COUNTRY_SELECT:
             if(Province::is_valid(tile.province_id)) {
@@ -361,7 +361,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         }
         return;
     } else if(event.button.button == SDL_BUTTON_RIGHT) {
-        const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
+        const Tile& tile = gs.world->get_tile(input.select_pos.x, input.select_pos.y);
         if(Province::is_invalid(tile.province_id)) return;
         Province& province = gs.world->provinces[tile.province_id];
         if(gs.editor) {
@@ -375,7 +375,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                 break;
             }
         }
-        
+
         /// @todo Handle the case where an unit is deleted
         for(const auto unit_id : gs.input.selected_units) {
             auto& unit = gs.world->unit_manager.units[unit_id];
@@ -410,23 +410,20 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
 }
 
 void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, GameState& gs) {
-    std::pair<int, int>& mouse_pos = input.mouse_pos;
+    glm::ivec2& mouse_pos = input.mouse_pos;
     // std::pair<float, float>& select_pos = input.select_pos;
     switch(event.type) {
     case SDL_JOYBUTTONDOWN:
     case SDL_MOUSEBUTTONDOWN:
-        SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
+        SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
         is_drag = false;
         if(event.button.button == SDL_BUTTON_MIDDLE) {
             glm::ivec2 map_pos;
             if(camera->get_cursor_map_pos(input.mouse_pos, map_pos)) {
                 last_camera_drag_pos = map_pos;
-                input.last_camera_mouse_pos = mouse_pos;
             }
         } else if(event.button.button == SDL_BUTTON_LEFT) {
             input.drag_coord = input.select_pos;
-            input.drag_coord.first = (int)input.drag_coord.first;
-            input.drag_coord.second = (int)input.drag_coord.second;
             is_drag = true;
         }
         break;
@@ -440,8 +437,8 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, Game
         const float sensivity = Eng3D::State::get_instance().joy_sensivity;
         float x_force = xrel / sensivity;
         float y_force = yrel / sensivity;
-        input.mouse_pos.first += x_force;
-        input.mouse_pos.second += y_force;
+        input.mouse_pos.x += x_force;
+        input.mouse_pos.y += y_force;
         if(input.middle_mouse_down) {  // Drag the map with middlemouse
             glm::ivec2 map_pos;
             if(camera->get_cursor_map_pos(input.mouse_pos, map_pos)) {
@@ -452,12 +449,11 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, Game
         }
         glm::ivec2 map_pos;
         if(camera->get_cursor_map_pos(input.mouse_pos, map_pos)) {
-            input.select_pos.first = map_pos.x;
-            input.select_pos.second = map_pos.y;
+            input.select_pos = map_pos;
         }
     } break;
     case SDL_MOUSEMOTION:
-        SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
+        SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
         glm::ivec2 map_pos;
 
         if(input.middle_mouse_down) {  // Drag the map with middlemouse
@@ -470,18 +466,17 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, Game
 
         if(camera->get_cursor_map_pos(mouse_pos, map_pos)) {
             if(map_pos.x < 0 || map_pos.x >(int)world.width || map_pos.y < 0 || map_pos.y >(int)world.height) break;
-            input.select_pos.first = map_pos.x;
-            input.select_pos.second = map_pos.y;
+            input.select_pos = map_pos;
             auto prov_id = world.get_tile(map_pos.x, map_pos.y).province_id;
             if(mapmode_tooltip_func != nullptr) {
                 auto* tooltip = new UI::Tooltip();
                 tooltip->text(mapmode_tooltip_func(world, prov_id));
-                ui_ctx->use_tooltip(tooltip, glm::ivec2(mouse_pos.first, mouse_pos.second));
+                ui_ctx->use_tooltip(tooltip, mouse_pos);
             }
         }
         break;
     case SDL_MOUSEWHEEL:
-        SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
+        SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
         camera->move(0.f, 0.f, -event.wheel.y * gs.delta_time * 120.f);
         break;
     case SDL_KEYDOWN:
@@ -539,9 +534,13 @@ void Map::draw(GameState& gs) {
         if(unit.on_battle) return;
         bool unit_visible = true;
         if(this->view_mode == MapView::SPHERE_VIEW) {
+            Eng3D::OrbitCamera* orbit_camera = dynamic_cast<Eng3D::OrbitCamera*>(camera);
+
             glm::vec3 cam_pos = camera->get_world_pos();
             glm::vec3 world_pos = camera->get_tile_world_pos(prov_pos);
-            if(glm::dot(cam_pos, world_pos) <= 0)
+            glm::vec3 world_to_camera =
+                glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
+            if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
                 unit_visible = false;
         }
 
@@ -559,9 +558,13 @@ void Map::draw(GameState& gs) {
         for(const auto& battle : province.battles) {
             bool battle_visible = true;
             if(view_mode == MapView::SPHERE_VIEW) {
+                Eng3D::OrbitCamera* orbit_camera = dynamic_cast<Eng3D::OrbitCamera*>(camera);
+
                 glm::vec3 cam_pos = camera->get_world_pos();
                 glm::vec3 world_pos = camera->get_tile_world_pos(prov_pos);
-                if(glm::dot(cam_pos, world_pos) <= 0)
+                glm::vec3 world_to_camera =
+                    glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
+                if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
                     battle_visible = false;
             }
 
@@ -634,7 +637,7 @@ void Map::draw(GameState& gs) {
         glm::mat4 model = base_model;
         obj_shader->set_uniform("model", model);
         obj_shader->set_texture(0, "diffuse_map", *line_tex);
-        Eng3D::Square dragbox_square = Eng3D::Square(gs.input.drag_coord.first, gs.input.drag_coord.second, gs.input.select_pos.first, gs.input.select_pos.second);
+        Eng3D::Square dragbox_square = Eng3D::Square(gs.input.drag_coord.x, gs.input.drag_coord.y, gs.input.select_pos.x, gs.input.select_pos.y);
         dragbox_square.draw();
     }
 

@@ -127,7 +127,7 @@ std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(const Nation& nation)
 }
 
 void handle_event(Input& input, GameState& gs) {
-    std::pair<int, int>& mouse_pos = input.mouse_pos;
+    glm::ivec2& mouse_pos = input.mouse_pos;
     UI::Context& ui_ctx = gs.ui_ctx;
     int& width = gs.width;
     int& height = gs.height;
@@ -147,10 +147,10 @@ void handle_event(Input& input, GameState& gs) {
             break;
         case SDL_MOUSEBUTTONDOWN:
             if(gs.show_ui) {
-                click_on_ui = ui_ctx.check_hover(mouse_pos.first, mouse_pos.second);
+                click_on_ui = ui_ctx.check_hover(mouse_pos.x, mouse_pos.y);
                 if(event.button.button == SDL_BUTTON_LEFT) {
-                    SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
-                    ui_ctx.check_drag(mouse_pos.first, mouse_pos.second);
+                    SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
+                    ui_ctx.check_drag(mouse_pos.x, mouse_pos.y);
                 }
             }
             
@@ -159,18 +159,18 @@ void handle_event(Input& input, GameState& gs) {
             break;
         case SDL_JOYBUTTONDOWN:
             if(gs.show_ui) {
-                ui_ctx.check_drag(mouse_pos.first, mouse_pos.second);
+                ui_ctx.check_drag(mouse_pos.x, mouse_pos.y);
             }
             break;
         case SDL_MOUSEBUTTONUP:
-            SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
+            SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
             if(event.button.button == SDL_BUTTON_MIDDLE) {
                 input.middle_mouse_down = false;
                 break;
             }
 
             if(gs.show_ui) {
-                click_on_ui = ui_ctx.check_click(mouse_pos.first, mouse_pos.second);
+                click_on_ui = ui_ctx.check_click(mouse_pos.x, mouse_pos.y);
                 if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
                     gs.map->handle_click(gs, event);
                 }
@@ -186,7 +186,7 @@ void handle_event(Input& input, GameState& gs) {
             break;
         case SDL_JOYBUTTONUP:
             if(gs.show_ui) {
-                click_on_ui = ui_ctx.check_click(mouse_pos.first, mouse_pos.second);
+                click_on_ui = ui_ctx.check_click(mouse_pos.x, mouse_pos.y);
                 if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
                     gs.map->handle_click(gs, event);
                 }
@@ -201,16 +201,16 @@ void handle_event(Input& input, GameState& gs) {
             }
             break;
         case SDL_MOUSEMOTION:
-            SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
+            SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
             if(gs.show_ui) {
-                click_on_ui = ui_ctx.check_hover(mouse_pos.first, mouse_pos.second);
+                click_on_ui = ui_ctx.check_hover(mouse_pos.x, mouse_pos.y);
             }
             break;
         case SDL_MOUSEWHEEL:
-            SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
+            SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
             if(gs.show_ui) {
-                ui_ctx.check_hover(mouse_pos.first, mouse_pos.second);
-                click_on_ui = ui_ctx.check_wheel(mouse_pos.first, mouse_pos.second, event.wheel.y * 6);
+                ui_ctx.check_hover(mouse_pos.x, mouse_pos.y);
+                click_on_ui = ui_ctx.check_wheel(mouse_pos.x, mouse_pos.y, event.wheel.y * 6);
             }
             break;
         case SDL_TEXTINPUT:
@@ -238,13 +238,13 @@ void handle_event(Input& input, GameState& gs) {
                     break;
 
                 if(gs.current_mode == MapMode::NORMAL) {
-                    if(input.select_pos.first < gs.world->width || input.select_pos.second < gs.world->height) {
-                        const Tile& tile = gs.world->get_tile(input.select_pos.first, input.select_pos.second);
+                    if(input.select_pos.x < gs.world->width || input.select_pos.y < gs.world->height) {
+                        const Tile& tile = gs.world->get_tile(input.select_pos.x, input.select_pos.y);
                         if(tile.province_id >= gs.world->provinces.size()) {
                             break;
                         }
 
-                        new Interface::BuildingBuildView(gs, input.select_pos.first, input.select_pos.second, true, gs.world->provinces[tile.province_id]);
+                        new Interface::BuildingBuildView(gs, input.select_pos.x, input.select_pos.y, true, gs.world->provinces[tile.province_id]);
                     }
                 }
                 break;
@@ -285,7 +285,7 @@ void handle_event(Input& input, GameState& gs) {
             }
             break;
         case SDL_JOYAXISMOTION:
-            ui_ctx.check_hover(gs.input.mouse_pos.first, gs.input.mouse_pos.second);
+            ui_ctx.check_hover(gs.input.mouse_pos.x, gs.input.mouse_pos.y);
             break;
         case SDL_QUIT:
             gs.run = false;
@@ -741,7 +741,7 @@ void start_client(int argc, char** argv) {
         }
 
         load_pbar->set_value(gs.load_progress);
-        gs.ui_ctx.render_all(glm::ivec2(gs.input.mouse_pos.first, gs.input.mouse_pos.second));
+        gs.ui_ctx.render_all(gs.input.mouse_pos);
         gs.swap();
         gs.world->profiler.render_done();
     }
@@ -820,7 +820,7 @@ void start_client(int argc, char** argv) {
         }
         gs.ui_ctx.clear_dead();
         if(gs.show_ui) {
-            gs.ui_ctx.render_all(glm::ivec2(gs.input.mouse_pos.first, gs.input.mouse_pos.second));
+            gs.ui_ctx.render_all(gs.input.mouse_pos);
         }
         gs.swap();
         gs.world->profiler.render_done();
