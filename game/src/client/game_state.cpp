@@ -558,7 +558,7 @@ void GameState::world_thread() {
 
             // Wait until time delta is fullfilled and update_tick is false
             auto end_time = std::chrono::system_clock::now();
-            while(end_time - start_time < delta && update_tick)
+            while(end_time - start_time < delta)
                 end_time = std::chrono::system_clock::now();
         }
     }
