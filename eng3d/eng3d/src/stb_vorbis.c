@@ -5143,9 +5143,6 @@ static int8 channel_position[7][6] =
    { L, C, R, L, R, C },
 };
 
-#undef L
-#undef C
-#undef R
 
 #ifndef STB_VORBIS_NO_FAST_SCALED_FLOAT
    typedef union {
@@ -5585,3 +5582,7 @@ ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ------------------------------------------------------------------------------
 */
+
+#undef L
+#undef C
+#undef R

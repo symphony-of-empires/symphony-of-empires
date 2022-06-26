@@ -179,8 +179,9 @@ void handle_event(Input& input, GameState& gs) {
             if(click_on_ui) {
                 std::scoped_lock lock(gs.audio_man.sound_lock);
                 auto entries = gs.package_man.get_multiple_prefix("sfx/click");
-                if(!entries.empty())
-                    gs.audio_man.sound_queue.push_back(new Eng3D::Audio(entries[std::rand() % entries.size()]->get_abs_path()));
+                if(!entries.empty()) {
+                    gs.audio_man.sound_queue.push_back(std::unique_ptr<Eng3D::Audio>(new Eng3D::Audio(entries[std::rand() % entries.size()]->get_abs_path())));
+                }
             }
             break;
         case SDL_JOYBUTTONUP:
@@ -194,8 +195,9 @@ void handle_event(Input& input, GameState& gs) {
             if(click_on_ui) {
                 std::scoped_lock lock(gs.audio_man.sound_lock);
                 auto entries = gs.package_man.get_multiple_prefix("sfx/click");
-                if(!entries.empty())
-                    gs.audio_man.sound_queue.push_back(new Eng3D::Audio(entries[std::rand() % entries.size()]->get_abs_path()));
+                if(!entries.empty()) {
+                    gs.audio_man.sound_queue.push_back(std::unique_ptr<Eng3D::Audio>(new Eng3D::Audio(entries[std::rand() % entries.size()]->get_abs_path())));
+                }
             }
             break;
         case SDL_MOUSEMOTION:
@@ -582,7 +584,7 @@ void GameState::music_thread() {
             if(!entries.empty()) {
                 const int music_index = std::rand() % entries.size();
                 std::scoped_lock lock(this->audio_man.sound_lock);
-                this->audio_man.music_queue.push_back(new Eng3D::Audio(entries[music_index].path));
+                this->audio_man.music_queue.push_back(std::unique_ptr<Eng3D::Audio>(new Eng3D::Audio(entries[music_index].path)));
                 Eng3D::Log::debug("music", "Now playing music file " + entries[music_index].path);
                 entries[music_index].has_played = true;
             }
