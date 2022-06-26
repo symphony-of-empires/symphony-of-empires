@@ -96,9 +96,9 @@ namespace Eng3D {
             return glm::lookAt(world_position, look_at, up_vector);
         };
 
-        bool get_cursor_map_pos(std::pair<int, int> mouse_pos, glm::ivec2& out_pos) const override {
-            const float mouse_x = mouse_pos.first;
-            const float mouse_y = screen_size.y - 1.f - mouse_pos.second;
+        bool get_cursor_map_pos(glm::ivec2 mouse_pos, glm::ivec2& out_pos) const override {
+            const float mouse_x = mouse_pos.x;
+            const float mouse_y = screen_size.y - 1.f - mouse_pos.y;
 
             const glm::mat4 view = get_view();
             const glm::mat4 projection = get_projection();
