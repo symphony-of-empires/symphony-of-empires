@@ -51,21 +51,19 @@ Eng3D::Audio::Audio(const std::string& path) {
         CXX_THROW(Eng3D::AudioException, path, "0 length audio");
     this->len = this->len * channels * (sizeof(int16_t) / sizeof(uint8_t));
     this->data = decoded;
-    this->pos = 0;
 
     // stb already loads OGG as a series of U16 nodes, so we only have to use AUDIO_S16
     // and the rest is already given by stb
-    SDL_BuildAudioCVT(&cvt, AUDIO_S16, channels, rate, AUDIO_S16, 1, 8000);
+    SDL_BuildAudioCVT(&cvt, AUDIO_S16, channels, rate, AUDIO_S16, 1, 44100);
     cvt.buf = (Uint8*)malloc(this->len * cvt.len_mult);
     if(cvt.buf == nullptr)
         CXX_THROW(Eng3D::AudioException, path, "Can't allocate memory");
     std::memcpy(cvt.buf, this->data, this->len);
     cvt.len = this->len;
     SDL_ConvertAudio(&cvt);
-
-    this->data = cvt.buf;
+    std::memcpy(this->data, cvt.buf, this->len);
+    free(cvt.buf);
     this->len = cvt.len_cvt;
-    this->pos = 0;
 }
 
 //
@@ -76,10 +74,10 @@ Eng3D::AudioManager::AudioManager(Eng3D::State& _s)
 {
     // Initialize sound subsystem (at 11,050 hz)
     SDL_AudioSpec fmt;
-    fmt.freq = 8000;
+    fmt.freq = 44100;
     fmt.format = AUDIO_S16;
     fmt.channels = 1;
-    fmt.samples = 512;
+    fmt.samples = 16 * fmt.channels;
     fmt.callback = &Eng3D::AudioManager::mixaudio;
     fmt.userdata = this;
     if(SDL_OpenAudio(&fmt, NULL) < 0)
@@ -87,22 +85,15 @@ Eng3D::AudioManager::AudioManager(Eng3D::State& _s)
     SDL_PauseAudio(0);
 }
 
-Eng3D::AudioManager::~AudioManager() {
-    for(const auto& sound : sounds)
-        delete sound.second;
-    sounds.clear();
-}
-
 void Eng3D::AudioManager::mixaudio(void* userdata, uint8_t* stream, int len) {
-    Eng3D::AudioManager& audio_man = *(static_cast<Eng3D::AudioManager*>(userdata));
+    Eng3D::AudioManager& audio_man = *(reinterpret_cast<Eng3D::AudioManager*>(userdata));
     std::memset(stream, 0, len);
 
     const std::scoped_lock lock(audio_man.sound_lock);
-    for(unsigned int i = 0; i < audio_man.sound_queue.size(); ) {
-        Eng3D::Audio& sound = *audio_man.sound_queue[i];
-        const int amount = std::min<int>(len, sound.len - sound.pos);
+    for(size_t i = 0; i < audio_man.sound_queue.size(); ) {
+        auto& sound = *audio_man.sound_queue[i];
+        const auto amount = std::min<int>(len, sound.len - sound.pos);
         if(amount <= 0) {
-            delete &sound;
             audio_man.sound_queue.erase(audio_man.sound_queue.begin() + i);
             continue;
         }
@@ -113,11 +104,10 @@ void Eng3D::AudioManager::mixaudio(void* userdata, uint8_t* stream, int len) {
         i++;
     }
 
-    for(unsigned int i = 0; i < audio_man.music_queue.size(); ) {
-        Eng3D::Audio& music = *audio_man.music_queue[i];
-        const int amount = std::min<int>(len, music.len - music.pos);
+    for(size_t i = 0; i < audio_man.music_queue.size(); ) {
+        auto& music = *audio_man.music_queue[i];
+        const auto amount = std::min<int>(len, music.len - music.pos);
         if(amount <= 0) {
-            delete &music;
             audio_man.music_queue.erase(audio_man.music_queue.begin() + i);
             continue;
         }
@@ -135,13 +125,12 @@ void Eng3D::AudioManager::mixaudio(void* userdata, uint8_t* stream, int len) {
 
 const Eng3D::Audio& Eng3D::AudioManager::load(const std::string& path) {
     // Find Sound when wanting to be loaded
-    std::map<std::string, Eng3D::Audio*>::const_iterator it = sounds.find(path);
+    auto it = sounds.find(path);
     if(it != sounds.cend())
         return *((*it).second);
 
     // Otherwise Sound is not in our control, so we create a new one
-    Eng3D::Audio* sound = new Eng3D::Audio(path);
-    sounds[path] = sound;
-    Eng3D::Log::debug("audio", "Loaded and cached sound " + path + std::to_string(sound->len));
-    return *(static_cast<const Eng3D::Audio*>(sound));
+    sounds[path] = std::unique_ptr<Eng3D::Audio>(new Eng3D::Audio(path));
+    Eng3D::Log::debug("audio", "Loaded and cached sound " + path + std::to_string(sounds[path]->len));
+    return *sounds[path].get();
 }

@@ -30,28 +30,27 @@ if [ ! -d $BUILD_DIR ]; then
     if [ ! -d mods ]; then ln -s ../mods mods || exit; fi
     cd ..
     echo "Finished setup"
-fi
-
-if [ "$1" == "android" ]; then
-    cmake \
-        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-        -DANDROID=1 \
-        -DE3D_BACKEND_GLES=1 \
-        -DAPP_PLATFORM="android-24" \
-        -DANDROID_PLATFORM="android-24" \
-        -DANDROID_ABI=armeabi-v7a \
-        -DANDROID_HOME="$ANDROID_HOME" \
-        -DANDROID_NDK_HOME="$ANDROID_NDK_HOME" \
-        -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
-        -B $BUILD_DIR \
-        .
-    
-else
-    cmake \
-        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-        -DE3D_BACKEND_OPENGL=1 \
-        -B $BUILD_DIR \
-        .
+    if [ "$1" == "android" ]; then
+        cmake \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DANDROID=1 \
+            -DE3D_BACKEND_GLES=1 \
+            -DAPP_PLATFORM="android-24" \
+            -DANDROID_PLATFORM="android-24" \
+            -DANDROID_ABI=armeabi-v7a \
+            -DANDROID_HOME="$ANDROID_HOME" \
+            -DANDROID_NDK_HOME="$ANDROID_NDK_HOME" \
+            -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
+            -B $BUILD_DIR \
+            .
+        
+    else
+        cmake \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DE3D_BACKEND_OPENGL=1 \
+            -B $BUILD_DIR \
+            .
+    fi
 fi
 
 cd $BUILD_DIR
@@ -67,10 +66,10 @@ if [ "$1" = "android" ]; then
 
     mkdir -p apk/lib/armeabi-v7a
     cp SymphonyOfEmpires apk/lib/armeabi-v7a/libSymphonyOfEmpires.so || exit
-    cp vendor/assimp/bin/libassimp.so apk/lib/armeabi-v7a || exit
-    cp vendor/glm/glm/libglm_shared.so apk/lib/armeabi-v7a || exit
-    cp vendor/sdl2/libSDL2.so apk/lib/armeabi-v7a || exit
-    cp vendor/sdl2_ttf/libSDL2_ttf.so apk/lib/armeabi-v7a || exit
+    cp _deps/assimp-build/bin/libassimp.so apk/lib/armeabi-v7a || exit
+    cp _deps/glm-build/glm/libglm_shared.so apk/lib/armeabi-v7a || exit
+    cp _deps/sdl2-build/libSDL2.so apk/lib/armeabi-v7a || exit
+    cp _deps/sdl2_ttf-build/libSDL2_ttf.so apk/lib/armeabi-v7a || exit
 
     # Package the APK
     $BUILD_TOOLS/aapt package -f \
