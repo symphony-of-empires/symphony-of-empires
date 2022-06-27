@@ -63,7 +63,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     });
 
     new UI::Label(0, 0, "Goverment", this);
-    auto* ideology_lab = new UI::Label(6, 38, "", this);
+    auto* ideology_lab = new UI::Label(6, 38, " ", this);
     ideology_lab->on_each_tick = ([this](UI::Widget& w) {
         if(this->gs.world->time % this->gs.world->ticks_per_month)
             return;

@@ -111,11 +111,13 @@ void Tooltip::text(const std::string& text) {
             }
         }
 
-        std::string buf = text.substr(pos, end_pos - pos);
+        auto buf = text.substr(pos, end_pos - pos);
         pos = end_pos;
         if(break_line) pos++;
         
-        new UI::Label(8, y, buf, this);
+        auto *lab = new UI::Label(8, y, " ", this);
+        lab->text_color = Eng3D::Color(1.f, 1.f, 1.f);
+        lab->text(buf);
         y += 24;
     }
     height = y;

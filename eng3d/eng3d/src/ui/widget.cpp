@@ -271,8 +271,7 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
     if(text_texture != nullptr) {
         if(!text_texture->gl_tex_num)
             text_texture->upload();
-        //g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
-
+        
         int x_offset = text_offset_x;
         int y_offset = text_offset_y;
         if(text_align_x == UI::Align::CENTER) {
@@ -286,6 +285,8 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
         } else if(text_align_y == UI::Align::END) {
             y_offset = height - text_texture->height - text_offset_y;
         }
+
+        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
         draw_rectangle(x_offset, y_offset, text_texture->width, text_texture->height, viewport, text_texture);
     }
 
