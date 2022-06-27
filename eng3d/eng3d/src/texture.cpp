@@ -69,10 +69,9 @@ Eng3D::Texture::Texture(TTF_Font* font, Eng3D::Color color, const std::string& m
         0
     };
 
-    SDL_Surface* surface = TTF_RenderUTF8_Blended(font, msg.c_str(), text_color);
-    if(surface == nullptr) {
+    auto* surface = TTF_RenderUTF8_Blended(font, msg.c_str(), text_color);
+    if(surface == nullptr)
         CXX_THROW(std::runtime_error, std::string() + "Cannot create text surface: " + TTF_GetError());
-    }
 
     buffer.reset();
     width = static_cast<size_t>(surface->w);
