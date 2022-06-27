@@ -99,7 +99,7 @@ void Eng3D::AudioManager::mixaudio(void* userdata, uint8_t* stream, int len) {
         }
 
         const float volume = SDL_MIX_MAXVOLUME * audio_man.sound_volume;
-        SDL_MixAudio(stream, &sound.data[sound.pos], amount, std::max<int>(SDL_MIX_MAXVOLUME, volume));
+        SDL_MixAudio(stream, &sound.data[sound.pos], amount, std::min<int>(SDL_MIX_MAXVOLUME, volume));
         sound.pos += amount;
         i++;
     }
@@ -114,7 +114,7 @@ void Eng3D::AudioManager::mixaudio(void* userdata, uint8_t* stream, int len) {
 
         const float volume = SDL_MIX_MAXVOLUME * audio_man.music_volume;
         const float fade = SDL_MIX_MAXVOLUME * audio_man.music_fade_value;
-        SDL_MixAudio(stream, &music.data[music.pos], amount, std::max<int>(SDL_MIX_MAXVOLUME, volume - fade));
+        SDL_MixAudio(stream, &music.data[music.pos], amount, std::min<int>(SDL_MIX_MAXVOLUME, volume - fade));
         music.pos += amount;
         i++;
     }
