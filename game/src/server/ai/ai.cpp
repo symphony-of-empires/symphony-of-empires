@@ -201,8 +201,8 @@ static inline void ai_reform(Nation& nation) {
 
 // Update relations with another nation
 static inline void ai_update_relations(Nation& nation, Nation& other) {
-    World& world = World::get_instance();
-    NationRelation& relation = world.get_relation(world.get_id(nation), world.get_id(other));
+    auto& world = World::get_instance();
+    auto& relation = world.get_relation(world.get_id(nation), world.get_id(other));
 
     // Try to increase relations with our friend
     if(nation.is_ally(other) && !(std::rand() % 250)) {
@@ -326,9 +326,8 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
 
     if(relation.has_war) {
         // Offer treaties
-        if(!(std::rand() % 5000)) {
-            Treaty* treaty = new Treaty();
-
+        if(!(std::rand() % 100)) {
+            auto* treaty = new Treaty();
             {
                 auto* clause = new TreatyClause::AnnexProvince();
                 clause->sender = &nation;
@@ -382,33 +381,30 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
 }
 
 static inline void ai_build_commercial(Nation& nation) {
+    if(nation.owned_provinces.empty()) return;
+
     World& world = World::get_instance();
     Good* target_good;
     target_good = ai_get_potential_good(nation);
-    if(target_good == nullptr) {
-        return;
-    }
+    if(target_good == nullptr) return;
 
     // Find an industry type which outputs this good
     BuildingType* type = nullptr;
-    for(const auto& building_type : world.building_types) {
+    for(auto& building_type : world.building_types) {
         if(building_type.output == target_good) {
-            type = (BuildingType*)&building_type;
+            type = &building_type;
             break;
         }
     }
 
     // Otherwise -- do not build anything since the highest valued good cannot be produced
     if(type == nullptr) return;
-
-    if(nation.owned_provinces.size() == 0) return;
-
     Eng3D::Log::debug("ai", nation.ref_name + " Good " + target_good->ref_name + " seems to be on a high-trend - building industry " + type->ref_name + " which makes that good");
 
     auto it = std::begin(nation.owned_provinces);
     std::advance(it, std::rand() % nation.owned_provinces.size());
 
-    Province& province = world.provinces[*it];
+    auto& province = world.provinces[*it];
     
     // Now build the building
     const BuildingType& building_type = world.building_types.at(0);
@@ -419,7 +415,7 @@ static inline void ai_build_commercial(Nation& nation) {
 }
 
 void ai_do_tick(Nation& nation) {
-    World& world = World::get_instance();
+    auto& world = World::get_instance();
     if(!nation.exists()) return;
     auto& ai_data = g_ai_data[world.get_id(nation)];
 
@@ -495,7 +491,9 @@ void ai_do_tick(Nation& nation) {
             for(auto& part : treaty->approval_status) {
                 if(part.first == &nation) {
                     if(part.second == TreatyApproval::ACCEPTED || part.second == TreatyApproval::DENIED) break;
-                    if(std::rand() % 50 >= 25) {
+                    // We can only deny treaties if NOT ALL of our country is sieged
+                    // also we can surrender if our capital is taken, but only if it's the sender of the treaty itself
+                    if(!nation.controlled_provinces.empty() || world.provinces[nation.capital_id].controller == treaty->sender) {
                         Eng3D::Log::debug("ai", "We, [" + nation.ref_name + "], deny the treaty of [" + treaty->name + "]");
                         part.second = TreatyApproval::DENIED;
                     } else {
