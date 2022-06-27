@@ -54,7 +54,7 @@ if [ ! -d $BUILD_DIR ]; then
 fi
 
 cd $BUILD_DIR
-make -j`nproc` || exit
+cmake --build .
 echo "Launching game"
 if [ "$1" = "android" ]; then
     mkdir -p apk
@@ -103,6 +103,7 @@ else
     # Runs the game
     export MESA_GL_VERSION_OVERRIDE=4.4
     export MESA_GLSL_VERSION_OVERRIDE=440
+    export LIBGL_ALWAYS_SOFTWARE=1
     gdb ./SymphonyOfEmpires
 fi
 echo "Exiting game"
