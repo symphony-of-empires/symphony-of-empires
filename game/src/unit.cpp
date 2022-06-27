@@ -127,9 +127,8 @@ void UnitManager::add_unit(Unit unit, Province::Id unit_current_province) {
         unit_province.push_back(unit_current_province);
     }
     units[id].cached_id = id;
-    if(unit_current_province >= province_units.size()) {
+    if(unit_current_province >= province_units.size())
         province_units.resize(unit_current_province + 1);
-    }
     province_units[unit_current_province].push_back(id);
 }
 

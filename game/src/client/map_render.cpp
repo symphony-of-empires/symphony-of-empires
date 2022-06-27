@@ -454,23 +454,36 @@ void MapRender::update_visibility(GameState& gs)
 
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
-    for(unsigned int i = 0; i < 256 * 256; i++)
-        province_opt->buffer.get()[i] = 0x00000080;
-
-    for(const auto province_id : gs.curr_nation->controlled_provinces) {
-        const auto& province = gs.world->provinces[province_id];
-        this->province_opt->buffer.get()[province_id] = 0x000000ff;
-        for(const auto neighbour_id : province.neighbours)
-            this->province_opt->buffer.get()[neighbour_id] = 0x000000ff;
+    for(size_t i = 0; i < 256 * 256; i++)
+        province_opt->buffer[i] = 0x00000080;
+    
+    for(const auto& nation : gs.world->nations) {
+        const auto nation_id = nation.get_id();
+        // If it's our own nation or an ally of ours we can see them
+        if(nation_id == gs.curr_nation->get_id() || gs.world->get_relation(nation_id, gs.curr_nation->get_id()).has_alliance) {
+            for(const auto province_id : gs.world->nations[nation_id].controlled_provinces) {
+                const auto& province = gs.world->provinces[province_id];
+                this->province_opt->buffer[province_id] = 0x000000ff;
+                for(const auto neighbour_id : province.neighbours)
+                    this->province_opt->buffer[neighbour_id] = 0x000000ff;
+            }
+        }
     }
 
     gs.world->unit_manager.for_each_unit([this, &gs](Unit& unit) {
         // Unit must be ours
-        if(unit.owner_id != gs.curr_nation->get_id()) return;
+        if(unit.owner_id != gs.curr_nation->get_id()) {
+            // Or be owned by our ally
+            if(gs.world->get_relation(unit.owner_id, gs.curr_nation->get_id()).has_alliance) {
+                // ...
+            } else {
+                return;
+            }
+        }
         auto prov_id = gs.world->unit_manager.get_unit_current_province(unit.cached_id);
-        this->province_opt->buffer.get()[prov_id] = 0x000000ff;
+        this->province_opt->buffer[prov_id] = 0x000000ff;
         for(const auto neighbour_id : gs.world->provinces[prov_id].neighbours)
-            this->province_opt->buffer.get()[neighbour_id] = 0x000000ff;
+            this->province_opt->buffer[neighbour_id] = 0x000000ff;
     });
     if(gs.map->province_selected)
         this->province_opt->buffer.get()[gs.map->selected_province_id] = 0x400000ff;
