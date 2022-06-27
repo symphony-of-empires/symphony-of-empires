@@ -47,6 +47,7 @@ namespace Eng3D {
     }
 }
 
+#include "eng3d/texture.hpp"
 #include "eng3d/color.hpp"
 #include "eng3d/shader.hpp"
 
@@ -90,8 +91,10 @@ public:
 
     MapOptions options;
     void update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_size);
+    inline uint32_t get_province_opt(const Province::Id id) {
+        return this->province_opt->buffer[id];
+    }
 private:
-
     const World& world;
     void update_visibility(GameState& gs);
 

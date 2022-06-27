@@ -270,7 +270,6 @@ void Nation::give_province(Province& province) {
     owned_provinces.insert(world.get_id(province));
     province.owner_id = this->get_id();
 
-
     // Update the province changed
     world.province_manager.mark_province_owner_changed(province.get_id());
 }

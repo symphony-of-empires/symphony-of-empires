@@ -410,8 +410,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
 }
 
 void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, GameState& gs) {
-    glm::ivec2& mouse_pos = input.mouse_pos;
-    // std::pair<float, float>& select_pos = input.select_pos;
+    auto& mouse_pos = input.mouse_pos;
     switch(event.type) {
     case SDL_JOYBUTTONDOWN:
     case SDL_MOUSEBUTTONDOWN:
@@ -528,36 +527,13 @@ void Map::draw(GameState& gs) {
     gs.world->unit_manager.for_each_unit([this, &gs, &unit_index](auto& unit) {
         auto prov_id = gs.world->unit_manager.unit_province[unit.cached_id];
         auto& province = gs.world->provinces[prov_id];
-        auto& camera = this->camera;
-        const glm::vec2 prov_pos = province.get_pos();
-        // And display units
-        if(unit.on_battle) return;
-        bool unit_visible = true;
-        if(this->view_mode == MapView::SPHERE_VIEW) {
-            Eng3D::OrbitCamera* orbit_camera = dynamic_cast<Eng3D::OrbitCamera*>(camera);
-
-            glm::vec3 cam_pos = camera->get_world_pos();
-            glm::vec3 world_pos = camera->get_tile_world_pos(prov_pos);
-            glm::vec3 world_to_camera =
-                glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
-            if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
-                unit_visible = false;
-        }
-
-        if(unit_visible) {
-            if(unit_index < unit_widgets.size())
-                this->unit_widgets[unit_index]->set_unit(unit);
-            else
-                this->unit_widgets.push_back(new Interface::UnitWidget(unit, *this, this->map_ui_layer));
-            unit_index++;
-        }
-    });
-    for(auto& province : const_cast<World&>(world).provinces) {
-        const glm::vec2 prov_pos = province.get_pos();
-        size_t war_battle_idx = 0;
-        for(const auto& battle : province.battles) {
-            bool battle_visible = true;
-            if(view_mode == MapView::SPHERE_VIEW) {
+        if((this->map_render->get_province_opt(province.get_id()) & 0x000000ff) == 0x000000ff) {
+            auto& camera = this->camera;
+            const glm::vec2 prov_pos = province.get_pos();
+            // And display units
+            if(unit.on_battle) return;
+            bool unit_visible = true;
+            if(this->view_mode == MapView::SPHERE_VIEW) {
                 Eng3D::OrbitCamera* orbit_camera = dynamic_cast<Eng3D::OrbitCamera*>(camera);
 
                 glm::vec3 cam_pos = camera->get_world_pos();
@@ -565,36 +541,63 @@ void Map::draw(GameState& gs) {
                 glm::vec3 world_to_camera =
                     glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
                 if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
-                    battle_visible = false;
+                    unit_visible = false;
             }
 
-            if(battle_visible) {
-                if(battle_index < battle_widgets.size())
-                    battle_widgets[battle_index]->set_battle(province, war_battle_idx);
+            if(unit_visible) {
+                if(unit_index < unit_widgets.size())
+                    this->unit_widgets[unit_index]->set_unit(unit);
                 else
-                    battle_widgets.push_back(new Interface::BattleWidget(province, war_battle_idx, *this, map_ui_layer));
-                battle_index++;
+                    this->unit_widgets.push_back(new Interface::UnitWidget(unit, *this, this->map_ui_layer));
+                unit_index++;
             }
-            war_battle_idx++;
         }
+    });
+    for(auto& province : const_cast<World&>(world).provinces) {
+        if((this->map_render->get_province_opt(province.get_id()) & 0x000000ff) == 0x000000ff) {
+            const glm::vec2 prov_pos = province.get_pos();
+            size_t war_battle_idx = 0;
+            for(const auto& battle : province.battles) {
+                bool battle_visible = true;
+                if(view_mode == MapView::SPHERE_VIEW) {
+                    Eng3D::OrbitCamera* orbit_camera = dynamic_cast<Eng3D::OrbitCamera*>(camera);
 
-        const auto& province_units = world.unit_manager.get_province_units(world.get_id(province));
-        if(!province_units.empty()) {
-            const auto& unit = world.unit_manager.units[province_units[0]];
-            glm::mat4 model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
-            if(Province::is_valid(unit.target_province_id)) {
-                const auto& unit_target = world.provinces[unit.target_province_id];
-                const glm::vec2 target_pos = unit_target.get_pos();
-                const float dist = glm::sqrt(glm::pow(glm::abs(prov_pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(prov_pos.y - target_pos.y), 2.f));
-                auto line_square = Eng3D::Square(0.f, 0.f, dist, 0.5f);
-                glm::mat4 line_model = glm::rotate(model, glm::atan(target_pos.y - prov_pos.y, target_pos.x - prov_pos.x), glm::vec3(0.f, 0.f, 1.f));
-                obj_shader->set_texture(0, "diffuse_map", *line_tex);
-                obj_shader->set_uniform("model", line_model);
-                line_square.draw();
+                    glm::vec3 cam_pos = camera->get_world_pos();
+                    glm::vec3 world_pos = camera->get_tile_world_pos(prov_pos);
+                    glm::vec3 world_to_camera =
+                        glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
+                    if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
+                        battle_visible = false;
+                }
+
+                if(battle_visible) {
+                    if(battle_index < battle_widgets.size())
+                        battle_widgets[battle_index]->set_battle(province, war_battle_idx);
+                    else
+                        battle_widgets.push_back(new Interface::BattleWidget(province, war_battle_idx, *this, map_ui_layer));
+                    battle_index++;
+                }
+                war_battle_idx++;
             }
-            model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
-            obj_shader->set_uniform("model", model);
-            unit_type_models[world.get_id(*unit.type)]->draw(*obj_shader);
+
+            const auto& province_units = world.unit_manager.get_province_units(world.get_id(province));
+            if(!province_units.empty()) {
+                const auto& unit = world.unit_manager.units[province_units[0]];
+                glm::mat4 model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
+                if(Province::is_valid(unit.target_province_id)) {
+                    const auto& unit_target = world.provinces[unit.target_province_id];
+                    const glm::vec2 target_pos = unit_target.get_pos();
+                    const float dist = glm::sqrt(glm::pow(glm::abs(prov_pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(prov_pos.y - target_pos.y), 2.f));
+                    auto line_square = Eng3D::Square(0.f, 0.f, dist, 0.5f);
+                    glm::mat4 line_model = glm::rotate(model, glm::atan(target_pos.y - prov_pos.y, target_pos.x - prov_pos.x), glm::vec3(0.f, 0.f, 1.f));
+                    obj_shader->set_texture(0, "diffuse_map", *line_tex);
+                    obj_shader->set_uniform("model", line_model);
+                    line_square.draw();
+                }
+                model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
+                obj_shader->set_uniform("model", model);
+                unit_type_models[world.get_id(*unit.type)]->draw(*obj_shader);
+            }
         }
     }
     for(size_t i = unit_index; i < unit_widgets.size(); i++)
@@ -609,7 +612,7 @@ void Map::draw(GameState& gs) {
         province_units_y[world.get_id(province)] += 2.5f;
         const glm::vec2 prov_pos = province.get_pos();
 
-        unsigned int i = 0;
+        size_t i = 0;
         for(const auto& building_type : world.building_types) {
             if(!province.buildings[world.get_id(building_type)].level) continue;
             glm::vec2 pos = prov_pos;
