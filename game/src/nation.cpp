@@ -205,20 +205,24 @@ void Nation::set_policy(const Policies& policies) {
         this->current_policy = policies;
         // All who agreed are happy
         for(auto& pop : approvers)
-            pop->militancy *= 0.9f;
+            pop->militancy *= 0.8f;
         // All who disagreed are angered
-        for(auto& pop : disapprovers)
-            pop->militancy *= 1.1f;
+        for(auto& pop : disapprovers) {
+            pop->militancy += 0.2f;
+            pop->militancy *= 1.2f;
+        }
         Eng3D::Log::debug("game", "New enacted policy passed parliament!");
     }
     // Legislation does not make it into the official law
     else {
         // All people who agreed gets angered
-        for(auto& pop : approvers)
-            pop->militancy *= 0.9f;
-        // All people who disagreed gets happy
         for(auto& pop : disapprovers)
-            pop->militancy *= 1.1f;
+            pop->militancy *= 0.8f;
+        // All people who disagreed gets happy
+        for(auto& pop : approvers) {
+            pop->militancy += 0.2f;
+            pop->militancy *= 1.2f;
+        }
         Eng3D::Log::debug("game", "New enacted policy did not made it into the parliament!");
     }
 }
