@@ -173,9 +173,14 @@ namespace UI {
         TTF_Font* default_font = nullptr;
 
         std::unique_ptr<Eng3D::OpenGL::Program> obj_shader;
+        std::unique_ptr<Eng3D::OpenGL::Program> piechart_shader;
 
         std::vector<std::pair<std::string, std::string>> prompt_queue;
         std::mutex prompt_queue_mutex;
+
+        glm::mat4 projection; // Projection & view (recalculated on resize)
+        glm::mat4 view;
+        glm::mat4 model; // Base model matrix
     };
     extern Context* g_ui_context;
 }; // namespace UI

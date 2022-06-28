@@ -27,7 +27,7 @@
 
 #include <cstdint>
 
-static inline uint32_t bswap32(const uint32_t x) {
+constexpr uint32_t bswap32(const uint32_t x) {
     return
         ((x << 24) & 0xff000000ULL) |
         ((x << 8) & 0x00ff0000ULL) |
@@ -35,7 +35,7 @@ static inline uint32_t bswap32(const uint32_t x) {
         ((x >> 24) & 0x000000ffULL);
 }
 
-static inline uint64_t bswap64(const uint64_t x) {
+constexpr uint64_t bswap64(const uint64_t x) {
     return
         ((x << 56) & 0xff00000000000000ULL) |
         ((x << 40) & 0x00ff000000000000ULL) |

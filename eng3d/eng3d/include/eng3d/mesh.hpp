@@ -181,12 +181,46 @@ namespace Eng3D {
 #endif
     };
 
-    template<typename V = glm::vec3, typename T = glm::vec2>
-    class MeshData {
-    public:
-        MeshData() = default;
-        MeshData(V _vert, T _tex): vert(_vert), tex(_tex) {};
-        ~MeshData() = default;
+    template<typename V = glm::vec3, typename T = glm::vec2, typename C = void>
+    struct MeshData {
+        constexpr static bool has_color = true;
+
+        constexpr MeshData() = default;
+        constexpr MeshData(V _vert, T _tex)
+            : vert{ _vert },
+            tex{ _tex }
+        {
+
+        }
+        constexpr MeshData(V _vert, T _tex, C _color)
+            : vert{ _vert },
+            tex{ _tex },
+            color{ _color }
+        {
+
+        }
+        constexpr ~MeshData() = default;
+        MeshData(const MeshData&) = delete;
+        MeshData(MeshData&&) noexcept = default;
+        MeshData& operator=(const MeshData&) = default;
+
+        V vert;
+        T tex;
+        C color;
+    };
+
+    template<typename V, typename T>
+    struct MeshData<V, T, void> {
+        constexpr static bool has_color = false;
+
+        constexpr MeshData() = default;
+        constexpr MeshData(V _vert, T _tex)
+            : vert{ _vert },
+            tex{ _tex }
+        {
+
+        }
+        constexpr ~MeshData() = default;
         MeshData(const MeshData&) = delete;
         MeshData(MeshData&&) noexcept = default;
         MeshData& operator=(const MeshData&) = default;
@@ -196,9 +230,11 @@ namespace Eng3D {
     };
 
     // Packed model - packs both vertices and texcoords into the same buffer
-    template<typename V = glm::vec3, typename T = glm::vec2>
+    template<typename V = glm::vec3, typename T = glm::vec2, typename C = void>
     class Mesh {
     public:
+        using DataType = Eng3D::MeshData<V, T, C>;
+
         Mesh(enum Eng3D::MeshMode _mode)
             : mode(_mode),
             vao(),
@@ -245,12 +281,19 @@ namespace Eng3D {
             constexpr int tex_stride = sizeof(buffer[0].vert);
             glVertexAttribPointer(1, T::length(), GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)((uintptr_t)tex_stride));
             glEnableVertexAttribArray(1);
+
+            if constexpr(DataType::has_color) {
+                // Color
+                constexpr int color_stride = tex_stride + sizeof(buffer[0].tex);
+                glVertexAttribPointer(2, C::length(), GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)((uintptr_t)color_stride));
+                glEnableVertexAttribArray(2);
+            }
 #else
 #   error not implemented
 #endif
         }
 
-        std::vector<Eng3D::MeshData<V, T>> buffer;
+        std::vector<DataType> buffer;
         std::vector<unsigned int> indices;
         enum Eng3D::MeshMode mode;
 
@@ -264,4 +307,4 @@ namespace Eng3D {
 #   error not implemented
 #endif
     };
-};
+}
