@@ -167,18 +167,24 @@ void Nation::set_policy(const Policies& policies) {
     if(current_policy.legislative_parliament != true) {
         this->current_policy = policies;
         Eng3D::Log::debug("game", "Parliament-less policy passed!");
-        return;
     }
 
     unsigned int approvals = 0, disapprovals = 0;
     std::vector<Pop*> disapprovers, approvers;
+    const size_t ideology_size = World::get_instance().ideologies.size();
     for(const auto province_id : owned_provinces) {
         auto& province = World::get_instance().provinces[province_id];
         for(auto& pop : province.pops) {
+            const Policies& pop_policies = pop.get_ideology().policies;
+            // To "cheese it up" we mix some ideologies of the people, randomly
+            for(size_t i = 0; i < ideology_size; i++) {
+                pop.ideology_approval[i] += std::fmod(std::rand() / 1000.f, current_policy.difference(pop_policies));
+                pop.ideology_approval[i] = glm::clamp<float>(pop.ideology_approval[i], -1.f, 1.f); // Clamp
+            }
+
             // Must have the minimum required social value
             // the min-social-value is taken from the new enacted policy
             if(pop.type->social_value < policies.min_sv_for_parliament) continue;
-            const Policies& pop_policies = pop.get_ideology().policies;
             // Disapproval of old (current) policy
             const int old_disapproval = current_policy.difference(pop_policies);
             // Dissaproval of new policy
@@ -215,7 +221,6 @@ void Nation::set_policy(const Policies& policies) {
             pop->militancy *= 1.1f;
         Eng3D::Log::debug("game", "New enacted policy did not made it into the parliament!");
     }
-    return;
 }
 
 // Checks if a POP is part of one of our accepted cultures
