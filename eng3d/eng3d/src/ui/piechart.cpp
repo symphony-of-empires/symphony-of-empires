@@ -55,8 +55,6 @@ PieChart::PieChart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     data{ std::vector<ChartData>() },
     max{ 0 }
 {
-    tooltip = new Tooltip(this, 512, 24);
-    tooltip->is_render = false;
     on_hover = &PieChart::on_hover_default;
 }
 
@@ -140,7 +138,7 @@ static inline bool in_triangle(glm::vec2 p, glm::vec2 center, float radius, floa
 }
 
 void PieChart::on_hover_default(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 widget_pos) {
-    PieChart& piechart = static_cast<PieChart&>(w);
+    auto& piechart = static_cast<PieChart&>(w);
     mouse_pos -= widget_pos;
     float counter = 0;
     float last_corner = -0.125f;
@@ -152,10 +150,7 @@ void PieChart::on_hover_default(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 widg
     float radius = std::min<float>(piechart.width, piechart.height) * 0.5;
 
     glm::vec2 centered_pos = mouse_pos - center;
-    if(glm::length(centered_pos) > radius) {
-        piechart.tooltip->is_render = false;
-        return;
-    }
+    if(glm::length(centered_pos) > radius) return;
 
     for(auto& slice : piechart.data) {
         counter += slice.num;
@@ -164,8 +159,7 @@ void PieChart::on_hover_default(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 widg
             last_corner += 0.25f;
             bool is_inside = in_triangle(mouse_pos, center, radius, last_ratio, last_corner);
             if(is_inside) {
-                piechart.tooltip->text(slice.info);
-                piechart.tooltip->is_render = true;
+                piechart.set_tooltip(slice.info);
                 return;
             }
             last_ratio = last_corner;
@@ -173,8 +167,7 @@ void PieChart::on_hover_default(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 widg
 
         bool is_inside = in_triangle(mouse_pos, center, radius, last_ratio, last_corner);
         if(is_inside) {
-            piechart.tooltip->text(slice.info);
-            piechart.tooltip->is_render = true;
+            piechart.set_tooltip(slice.info);
             return;
         }
         last_ratio = ratio;
