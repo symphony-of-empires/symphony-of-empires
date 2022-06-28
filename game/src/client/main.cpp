@@ -65,11 +65,6 @@ void android_main(struct android_app* state)
 #endif
 
 extern "C" int main(int argc, char** argv) {
-#ifdef E3D_TARGET_WINDOWS
-    system("cls");
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
-#endif
-
     // Clean the log files
     if(1) {
         FILE* fp = fopen("log.txt", "wt");
