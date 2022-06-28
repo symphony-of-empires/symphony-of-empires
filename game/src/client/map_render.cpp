@@ -221,7 +221,7 @@ MapRender::MapRender(const World& _world)
     update_nations(province_ids);
 
     // The map shader that draws everything on the map 
-    reload_shaders();
+    this->reload_shaders();
 
     Eng3D::Log::debug("game", "Creating border textures");
     std::unique_ptr<FILE, int(*)(FILE*)> fp(::fopen("sdf_cache.png", "rb"), ::fclose);
@@ -260,7 +260,7 @@ void MapRender::reload_shaders() {
         map_shader->attach_shader(vs_shader);
         auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man.get_unique("shaders/map.fs")->read_all(), true, defined_options);
         map_shader->attach_shader(fs_shader);
-        map_shader->attach_shader(*gs.builtin_shaders["fs_lib"].get());
+        map_shader->attach_shader(*gs.builtin_shaders["fs_lib"]);
         map_shader->link();
     }
     //border_gen_shader = Eng3D::OpenGL::Program::create("shaders/2d_shader.vs", "shaders/border_gen.fs");
@@ -308,7 +308,7 @@ void MapRender::update_options(MapOptions new_options) {
         map_shader->attach_shader(vs_shader);
         auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man.get_unique("shaders/map.fs")->read_all(), true, defined_options);
         map_shader->attach_shader(fs_shader);
-        map_shader->attach_shader(*Eng3D::State::get_instance().builtin_shaders["fs_lib"].get());
+        map_shader->attach_shader(*gs.builtin_shaders["fs_lib"]);
         map_shader->link();
     }
 }

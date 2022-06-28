@@ -78,6 +78,8 @@ Context* UI::g_ui_context = nullptr;
 Context::Context(Eng3D::State& _s)
     : s{ _s }
 {
+    s.reload_shaders();
+
     if(g_ui_context != nullptr)
         CXX_THROW(std::runtime_error, "UI context already constructed");
     g_ui_context = this;
@@ -102,11 +104,16 @@ Context::Context(Eng3D::State& _s)
     // Shader used for orthogonally drawing the objects on the 2D plane
     obj_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        auto vs_shader = Eng3D::OpenGL::VertexShader(s.package_man.get_unique("shaders/vs_2d.vs")->read_all());
-        obj_shader->attach_shader(vs_shader);
-        auto fs_shader = Eng3D::OpenGL::FragmentShader(s.package_man.get_unique("shaders/fs_2d.fs")->read_all());
-        obj_shader->attach_shader(fs_shader);
+        obj_shader->attach_shader(*s.builtin_shaders["vs_2d"]);
+        obj_shader->attach_shader(*s.builtin_shaders["fs_2d"]);
         obj_shader->link();
+    }
+
+    piechart_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
+    {
+        piechart_shader->attach_shader(*s.builtin_shaders["vs_piechart"]);
+        piechart_shader->attach_shader(*s.builtin_shaders["fs_piechart"]);
+        piechart_shader->link();
     }
 }
 
@@ -273,9 +280,13 @@ glm::ivec2 Context::get_pos(Widget& w, glm::ivec2 offset) {
 }
 
 void Context::resize(int _width, int _height) {
-    width = _width;
-    height = _height;
-    glViewport(0, 0, width, height);
+    this->width = _width;
+    this->height = _height;
+    glViewport(0, 0, this->width, this->height);
+
+    this->projection = glm::ortho(0.f, static_cast<float>(this->width), static_cast<float>(this->height), 0.f, 0.f, 1.f);
+    this->view = glm::mat4(1.f);
+    this->model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
 }
 
 void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport, glm::vec2 offset) {
@@ -306,7 +317,9 @@ void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport,
 
     local_viewport.offset(-offset);
 
+    /// @todo Don't set model unescesarily!
     obj_shader->set_uniform("model", glm::translate(model, glm::vec3(offset, 0.f))); // Offset the widget start pos
+    piechart_shader->set_uniform("model", glm::translate(model, glm::vec3(offset, 0.f)));
     if(local_viewport.width() > 0 && local_viewport.height() > 0)
         w.on_render(*this, local_viewport); // Render the widget, only render what's inside the viewport
 
@@ -324,24 +337,23 @@ void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport,
 }
 
 void Context::render_all(glm::ivec2 mouse_pos) {
-    obj_shader->use();
+    this->model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
 
     glActiveTexture(GL_TEXTURE0);
-    glm::mat4 projection = glm::ortho(0.f, static_cast<float>(width), static_cast<float>(height), 0.f, 0.0f, 1.f);
-    obj_shader->set_uniform("projection", projection);
-    glm::mat4 view = glm::mat4(1.f);
-    obj_shader->set_uniform("view", view);
-    glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
-    obj_shader->set_uniform("model", model);
+
+    this->obj_shader->use();
+    this->obj_shader->set_uniform("projection", this->projection);
+    this->obj_shader->set_uniform("view", this->view);
+    this->obj_shader->set_uniform("model", this->model);
 
     Eng3D::Rect viewport(0, 0, width, height);
     for(auto& widget : this->widgets)
-        this->render_recursive(*widget, model, viewport, glm::vec2(0.f));
+        this->render_recursive(*widget, this->model, viewport, glm::vec2(0.f));
     if(tooltip_widget != nullptr)
-        this->render_recursive(*tooltip_widget, model, viewport, glm::vec2(0.f));
+        this->render_recursive(*tooltip_widget, this->model, viewport, glm::vec2(0.f));
     
     // Display the cursor
-    g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
+    obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
     obj_shader->set_texture(0, "diffuse_map", *cursor_tex);
     obj_shader->set_uniform("model", glm::translate(glm::mat4(1.f), glm::vec3(mouse_pos, 0.f)));
     auto cursor_quad = Eng3D::Square(0.f, 0.f, 32.f, 32.f);

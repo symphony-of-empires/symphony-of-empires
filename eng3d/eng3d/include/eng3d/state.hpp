@@ -82,13 +82,7 @@ namespace Eng3D {
         SDL_Joystick* joy = nullptr;
         float joy_sensivity = 2.f;
 
-        Installer installer;
-        Eng3D::IO::PackageManager package_man;
-        Eng3D::AudioManager audio_man;
-        Eng3D::TextureManager tex_man;
-        Eng3D::MaterialManager material_man;
-        Eng3D::ModelManager model_man;
-        UI::Context ui_ctx;
+        // These variables needs to be initialized before any installers
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         SDL_Window* window;
         SDL_GLContext context;
@@ -98,5 +92,14 @@ namespace Eng3D {
 #else
         // RVL uses global state variables that are platform specific
 #endif
+
+        // Above variables might get modified by these so keep them in order as-is
+        Eng3D::Installer installer;
+        Eng3D::IO::PackageManager package_man;
+        Eng3D::AudioManager audio_man;
+        Eng3D::TextureManager tex_man;
+        Eng3D::MaterialManager material_man;
+        Eng3D::ModelManager model_man;
+        UI::Context ui_ctx;
     };
 }

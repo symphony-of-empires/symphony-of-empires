@@ -259,10 +259,9 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths)
         CXX_THROW(std::runtime_error, "Duplicate instancing of GameState");
     g_state = this;
 
-    this->reload_shaders();
-
     // Plugins system (still wip)
-    /*for(const auto& plugin : Path::get_all("plugin.dll")) {
+#if 0
+    for(const auto& plugin : Path::get_all("plugin.dll")) {
 #ifdef E3D_TARGET_WINDOWS
         HINSTANCE hGetProcIDDLL = LoadLibrary(plugin.c_str());
         // This shouldn't happen - like ever!
@@ -283,7 +282,8 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths)
             Eng3D::Log::warning("plugin", "Error RET=" + std::to_string(r) + " on plugin " + plugin);
         }
 #endif
-    }*/
+    }
+#endif
     ui_ctx.resize(width, height);
 }
 
@@ -317,6 +317,9 @@ void Eng3D::State::reload_shaders() {
     builtin_shaders["vs_3d"] = load_vertex_shader("vs_3d.vs");
     builtin_shaders["vs_font_sdf"] = load_vertex_shader("vs_font_sdf.vs");
     builtin_shaders["fs_font_sdf"] = load_fragment_shader("fs_font_sdf.fs");
+    // 2D Piechart shaders
+    builtin_shaders["vs_piechart"] = load_vertex_shader("vs_piechart.vs");
+    builtin_shaders["fs_piechart"] = load_fragment_shader("fs_piechart.fs");
 #endif
 }
 

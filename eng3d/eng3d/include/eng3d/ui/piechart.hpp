@@ -53,7 +53,7 @@ namespace UI {
 		void set_data(std::vector<ChartData> data);
 	private:
         static void on_hover_default(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 widget_pos);
-		void draw_triangle(Eng3D::Mesh<glm::vec2, glm::vec2>& mesh, float start_angle, float end_angle, Eng3D::Color color);
+		void draw_triangle(Eng3D::Mesh<glm::vec2, glm::vec2, glm::vec3>& mesh, float start_angle, float end_angle, Eng3D::Color color);
 		std::vector<ChartData> data;
 		Tooltip* slice_tooltip;
 		float max = 1.f;
