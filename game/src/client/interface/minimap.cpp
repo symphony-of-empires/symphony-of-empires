@@ -323,7 +323,7 @@ mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
 
         if(province.controller != nullptr && province.controller->get_id() == province.owner_id) {
             str += Eng3D::Locale::translate(province.controller->get_client_hint().alt_name.get_string());
-        } else {
+        } else if(Nation::is_valid(province.owner_id)) {
             str += Eng3D::Locale::translate("Owned by") + " ";
             str += Eng3D::Locale::translate(world.nations[province.owner_id].get_client_hint().alt_name.get_string());
             str += " " + Eng3D::Locale::translate("controlled by") + " ";
