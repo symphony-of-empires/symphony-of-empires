@@ -119,7 +119,7 @@ unsigned TreatyClause::ImposePolicies::cost() {
 }
 
 void TreatyClause::ImposePolicies::enforce() {
-    receiver->current_policy = imposed;
+    receiver->set_policy(imposed);
     done = true;
 }
 

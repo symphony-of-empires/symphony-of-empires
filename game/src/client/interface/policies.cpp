@@ -42,8 +42,7 @@ using namespace Interface;
         ((UI::Checkbox&)w).set_value((this->new_policy).x);\
     });\
     x## _chk->set_value(new_policy.x);\
-    x## _chk->tooltip = new UI::Tooltip(x## _chk, 512, 24);\
-    x## _chk->tooltip->text(body);
+    x## _chk->set_tooltip(body);
 
 PoliciesScreen::PoliciesScreen(GameState& _gs)
     : UI::Window(0, 0, 512, 400, nullptr),
@@ -65,8 +64,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     new UI::Label(0, 0, "Goverment", this);
     auto* ideology_lab = new UI::Label(6, 38, " ", this);
     ideology_lab->on_each_tick = ([this](UI::Widget& w) {
-        if(this->gs.world->time % this->gs.world->ticks_per_month)
-            return;
+        if(this->gs.world->time % this->gs.world->ticks_per_month) return;
 
         /// @todo More dynamic names
         if(this->gs.curr_nation->ideology != nullptr)
@@ -78,20 +76,28 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     auto* ideology_pie = new UI::PieChart(0, 0, 128, 128, this);
     ideology_pie->below_of(*ideology_pie_lab);
     ideology_pie->on_each_tick = ([this](UI::Widget& w) {
-        if(this->gs.world->time % this->gs.world->ticks_per_month)
-            return;
+        if(this->gs.world->time % this->gs.world->ticks_per_month) return;
 
         std::vector<UI::ChartData> ideology_data;
         for(const auto& ideology : this->gs.world->ideologies)
             ideology_data.push_back(UI::ChartData(1.f, ideology.name.get_string(), ideology.color));
+        
+        for(const auto& province_id : this->gs.curr_nation->owned_provinces) {
+            for(const auto& pop : this->gs.world->provinces[province_id].pops) {
+                Ideology::Id id = 0;
+                for(const auto& ideology_approval : pop.ideology_approval) {
+                    ideology_data[id++].num += ideology_approval * pop.size;
+                }
+            }
+        }
+
         ((UI::PieChart&)w).set_data(ideology_data);
     });
     ideology_pie->on_each_tick(*ideology_pie);
 
     auto* militancy_lab = new UI::Label(0, 290, " ", this);
     militancy_lab->on_each_tick = ([this](UI::Widget& w) {
-        if(this->gs.world->time % this->gs.world->ticks_per_month)
-            return;
+        if(this->gs.world->time % this->gs.world->ticks_per_month) return;
 
         float num = 0.f;
         for(const auto province_id : this->gs.curr_nation->owned_provinces) {
@@ -125,38 +131,35 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     POLICY_CHECKBOX(social_security, "Social security", "Help people in need with goverment support");
     social_security_chk->below_of(*public_healthcare_chk);
 
-    auto* poor_tax_sld = new UI::Slider(0, 0, 128, 24, -10.f, 100.f, reform_grp);
+    auto* poor_tax_sld = new UI::Slider(0, 0, 128, 24, -1.f, 1.f, reform_grp);
     poor_tax_sld->below_of(*social_security_chk);
     poor_tax_sld->text(std::to_string(new_policy.poor_flat_tax));
     poor_tax_sld->set_value(new_policy.poor_flat_tax);
     poor_tax_sld->set_on_click([this](UI::Widget& w) {
         this->new_policy.poor_flat_tax = ((UI::Slider&)w).get_value();
-        w.text(std::to_string(this->new_policy.poor_flat_tax));
+        w.text(std::to_string(this->new_policy.poor_flat_tax * 100.f) + "%");
     });
-    poor_tax_sld->tooltip = new UI::Tooltip(poor_tax_sld, 512, 24);
-    poor_tax_sld->tooltip->text("The taxing done to the low class (flat %)");
+    poor_tax_sld->set_tooltip("The taxing done to the low class (flat %)");
 
-    auto* med_tax_sld = new UI::Slider(0, 0, 128, 24, -10.f, 100.f, reform_grp);
+    auto* med_tax_sld = new UI::Slider(0, 0, 128, 24, -1.f, 1.f, reform_grp);
     med_tax_sld->below_of(*poor_tax_sld);
     med_tax_sld->text(std::to_string(new_policy.poor_flat_tax));
     med_tax_sld->set_value(new_policy.med_flat_tax);
     med_tax_sld->set_on_click([this](UI::Widget& w) {
         this->new_policy.med_flat_tax = ((UI::Slider&)w).get_value();
-        w.text(std::to_string(this->new_policy.med_flat_tax));
+        w.text(std::to_string(this->new_policy.med_flat_tax * 100.f) + "%");
     });
-    med_tax_sld->tooltip = new UI::Tooltip(med_tax_sld, 512, 24);
-    med_tax_sld->tooltip->text("The taxing done to the medium class (flat %)");
+    med_tax_sld->set_tooltip("The taxing done to the medium class (flat %)");
 
-    auto* rich_tax_sld = new UI::Slider(0, 0, 128, 24, -10.f, 100.f, reform_grp);
+    auto* rich_tax_sld = new UI::Slider(0, 0, 128, 24, -1.f, 1.f, reform_grp);
     rich_tax_sld->below_of(*med_tax_sld);
     rich_tax_sld->text(std::to_string(new_policy.poor_flat_tax));
     rich_tax_sld->set_value(new_policy.rich_flat_tax);
     rich_tax_sld->set_on_click([this](UI::Widget& w) {
         this->new_policy.rich_flat_tax = ((UI::Slider&)w).get_value();
-        w.text(std::to_string(this->new_policy.rich_flat_tax));
+        w.text(std::to_string(this->new_policy.rich_flat_tax * 100.f) + "%");
     });
-    rich_tax_sld->tooltip = new UI::Tooltip(rich_tax_sld, 512, 24);
-    rich_tax_sld->tooltip->text("The taxing done to the high class (flat %)");
+    rich_tax_sld->set_tooltip("The taxing done to the high class (flat %)");
 
     // Goverment structure
     POLICY_CHECKBOX(legislative_parliament, "Legislative parliament", "The legislative parliament allows to have a democratic vote on laws");
