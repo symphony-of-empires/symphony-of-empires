@@ -503,8 +503,8 @@ void MapRender::update(GameState& gs) {
     if(!changed_owner_provinces.empty()) {
         update_nations(changed_owner_provinces);
         Eng3D::Rect update_area = gs.world->provinces[0].box_area;
-        for(size_t i = 1; i < changed_owner_provinces.size(); i++) {
-            Province& province = gs.world->provinces[changed_owner_provinces[i]];
+        for(Province::Id i = 1; i < changed_owner_provinces.size(); i++) {
+            auto& province = gs.world->provinces[changed_owner_provinces[i]];
             update_area = update_area.join(province.box_area);
         }
         glm::ivec2 screen_size(gs.width, gs.height);

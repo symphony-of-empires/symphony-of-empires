@@ -35,7 +35,7 @@
 
 using namespace Economy;
 
-void shortest_path_from_source(Province::Id source, const std::vector<std::vector<Trade::Vertex>>& neighbour_relations, std::vector<float>& costs) {
+static inline void shortest_path_from_source(Province::Id source, const std::vector<std::vector<Trade::Vertex>>& neighbour_relations, std::vector<float>& costs) {
     auto cmp = [](Trade::Vertex const& a, Trade::Vertex const& b) {return a.cost < b.cost;};
     std::priority_queue<Trade::Vertex, std::vector<Trade::Vertex>, decltype(cmp)> heap;
 
@@ -44,16 +44,12 @@ void shortest_path_from_source(Province::Id source, const std::vector<std::vecto
     while(!heap.empty()) {
         Trade::Vertex vertex = heap.top();
         heap.pop();
-
         if(vertex.cost < costs[vertex.province_id]) {
             costs[vertex.province_id] = vertex.cost;
             const auto& neighbours = neighbour_relations[vertex.province_id];
-
-            for(const Trade::Vertex neighbour : neighbours) {
-                const Province::Id neighbour_id = neighbour.province_id;
-                const float trade_cost = neighbour.cost;
-                if(trade_cost < costs[neighbour_id]) {
-                    heap.emplace(Trade::Vertex{ trade_cost, neighbour_id });
+            for(const auto& neighbour : neighbours) {
+                if(neighbour.cost < costs[neighbour.province_id]) {
+                    heap.emplace(Trade::Vertex{ neighbour.cost, neighbour.province_id });
                 }
             }
         }
@@ -61,67 +57,60 @@ void shortest_path_from_source(Province::Id source, const std::vector<std::vecto
 }
 
 void Trade::recalculate(const World& world) {
-    if (trade_cost.empty())
+    if(trade_cost.empty())
         initialize(world);
 
     glm::vec2 world_size{ world.width, world.height };
-    auto& costs = trade_cost;
-    auto& neighbour_relations = neighbours;
 
     // tbb::blocked_range<Province::Id> range(static_cast<Province::Id>(0), static_cast<Province::Id>(world.provinces.size()));
-    tbb::parallel_for((u_int16_t)0, (uint16_t)world.provinces.size(),
-        [&costs, &neighbour_relations, &world](uint16_t province_id) {
-            if (world.provinces[province_id].is_coastal)
-                return;
-            auto& local_costs = costs[province_id];
-            shortest_path_from_source(province_id, neighbour_relations, local_costs);
+    tbb::parallel_for((Province::Id)0, (Province::Id)world.provinces.size(), [this, &world](Province::Id province_id) {
+        if(world.provinces[province_id].is_coastal) return;
+        auto& local_costs = this->trade_cost[province_id];
+        shortest_path_from_source(province_id, this->neighbours, local_costs);
     }, tbb::auto_partitioner());
 }
 
-glm::vec3 get_sphere_coord(const Province& province, glm::vec2 world_size) {
+static inline glm::vec3 get_sphere_coord(const Province& province, glm::vec2 world_size) {
     const glm::vec2 normalized_pos = province.get_pos() / world_size;
     glm::vec2 radiance_pos;
-    constexpr float pi = glm::pi<float>();
-    radiance_pos.x = normalized_pos.x * 2.f * pi;
-    radiance_pos.y = normalized_pos.y * pi;
+    radiance_pos.x = normalized_pos.x * 2.f * glm::pi<float>();
+    radiance_pos.y = normalized_pos.y * glm::pi<float>();
 
     glm::vec3 sphere_position;
-    sphere_position.x = cos(radiance_pos.x) * sin(radiance_pos.y);
-    sphere_position.y = sin(radiance_pos.x) * sin(radiance_pos.y);
-    sphere_position.z = cos(radiance_pos.y);
+    sphere_position.x = glm::cos(radiance_pos.x) * glm::sin(radiance_pos.y);
+    sphere_position.y = glm::sin(radiance_pos.x) * glm::sin(radiance_pos.y);
+    sphere_position.z = glm::cos(radiance_pos.y);
     return sphere_position;
 }
 
-float get_trade_cost(const Province& province1, const Province& province2, glm::vec2 world_size) {
+static inline float get_trade_cost(const Province& province1, const Province& province2, glm::vec2 world_size) {
     glm::vec3 sphere_coord1 = get_sphere_coord(province1, world_size);
     glm::vec3 sphere_coord2 = get_sphere_coord(province2, world_size);
 
-    float cosAngle = glm::dot(sphere_coord1, sphere_coord2);
-    float angle = glm::acos(cosAngle);
+    float cos_angle = glm::dot(sphere_coord1, sphere_coord2);
+    float angle = glm::acos(cos_angle);
     float distance = angle / (2 * glm::pi<float>());
     // Cost to travel around the globe
-    float trade_cost = 1000;
+    constexpr float trade_cost = 1000;
     return distance * trade_cost;
 }
 
 void Trade::initialize(const World& world) {
-    int num_provinces = world.provinces.size();
-
-    trade_cost.reserve(num_provinces);
-    for(int i = 0; i < num_provinces; i++) {
-        std::vector<float> prov_trade_cost(num_provinces, std::numeric_limits<float>::max());
+    trade_cost.reserve(world.provinces.size());
+    for(Province::Id i = 0; i < world.provinces.size(); i++) {
+        std::vector<float> prov_trade_cost(world.provinces.size(), std::numeric_limits<float>::max());
         trade_cost.push_back(prov_trade_cost);
     }
 
     glm::vec2 world_size{ world.width, world.height };
-    neighbours.reserve(num_provinces);
-    for (const auto& province : world.provinces) {
+    neighbours.reserve(world.provinces.size());
+    for(const auto& province : world.provinces) {
         std::vector<Trade::Vertex> prov_neighbours;
         prov_neighbours.reserve(prov_neighbours.size());
-        for (const auto& neighbour_id : province.neighbours) {
-            const Province& neighbour = world.provinces[neighbour_id];
-            float trade_cost = get_trade_cost(province, neighbour, world_size);
-            prov_neighbours.emplace_back(Vertex{trade_cost, neighbour_id});
+        for(const auto neighbour_id : province.neighbours) {
+            const auto& neighbour = world.provinces[neighbour_id];
+            const auto trade_cost = get_trade_cost(province, neighbour, world_size);
+            prov_neighbours.emplace_back(Vertex{ trade_cost, neighbour_id });
         }
         neighbours.emplace_back(prov_neighbours);
     }

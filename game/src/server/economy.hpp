@@ -36,10 +36,9 @@ class World;
 namespace Economy {
     class EconomyState final {
     public:
-        EconomyState() { }
-
+        EconomyState() = default;
         Trade trade;
     };
 
-    void do_tick(World& world, EconomyState& economy);
+    void do_tick(World& world, EconomyState& economy_state);
 };
