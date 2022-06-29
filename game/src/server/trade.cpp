@@ -64,6 +64,13 @@ void Trade::recalculate(const World& world) {
     if (trade_cost.empty())
         initialize(world);
 
+    int num_provinces = world.provinces.size();
+    for(int i = 0; i < num_provinces; i++) {
+        for(int j = 0; j < num_provinces; j++) {
+            trade_cost[i][j] = std::numeric_limits<float>::max();
+        }
+    }
+
     glm::vec2 world_size{ world.width, world.height };
     auto& costs = trade_cost;
     auto& neighbour_relations = neighbours;
