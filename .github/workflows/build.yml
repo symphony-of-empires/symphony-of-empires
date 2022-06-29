@@ -12,7 +12,9 @@ jobs:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
+    - name: "Install"
+      run: |
+        sudo apt install -y cmake make xorg-dev libglu1-mesa-dev
     - name: "Build"
       run: |
-        sudo apt install -y cmake make
         ./quick_build.sh
