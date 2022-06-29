@@ -199,7 +199,7 @@ namespace Eng3D {
         {
 
         }
-        constexpr ~MeshData() = default;
+        ~MeshData() = default;
         MeshData(const MeshData&) = delete;
         MeshData(MeshData&&) noexcept = default;
         MeshData& operator=(const MeshData&) = default;
@@ -220,7 +220,7 @@ namespace Eng3D {
         {
 
         }
-        constexpr ~MeshData() = default;
+        ~MeshData() = default;
         MeshData(const MeshData&) = delete;
         MeshData(MeshData&&) noexcept = default;
         MeshData& operator=(const MeshData&) = default;
