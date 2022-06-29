@@ -493,12 +493,17 @@ void ai_do_tick(Nation& nation) {
                     if(part.second == TreatyApproval::ACCEPTED || part.second == TreatyApproval::DENIED) break;
                     // We can only deny treaties if NOT ALL of our country is sieged
                     // also we can surrender if our capital is taken, but only if it's the sender of the treaty itself
-                    if(!nation.controlled_provinces.empty() || world.provinces[nation.capital_id].controller == treaty->sender) {
-                        Eng3D::Log::debug("ai", "We, [" + nation.ref_name + "], deny the treaty of [" + treaty->name + "]");
-                        part.second = TreatyApproval::DENIED;
-                    } else {
-                        Eng3D::Log::debug("ai", "We, [" + nation.ref_name + "], accept the treaty of [" + treaty->name + "]");
+                    if(nation.controlled_provinces.empty() || world.provinces[nation.capital_id].controller == treaty->sender) {
+                        Eng3D::Log::debug("ai", "We, [" + nation.ref_name + "], surrender & accept the treaty of [" + treaty->name + "]");
                         part.second = TreatyApproval::ACCEPTED;
+                    } else {
+                        if(std::rand() % 10) {
+                            Eng3D::Log::debug("ai", "We, [" + nation.ref_name + "], deny the treaty of [" + treaty->name + "]");
+                            part.second = TreatyApproval::DENIED;
+                        } else {
+                            Eng3D::Log::debug("ai", "We, [" + nation.ref_name + "], accept the treaty of [" + treaty->name + "]");
+                            part.second = TreatyApproval::ACCEPTED;
+                        }
                     }
                 }
             }

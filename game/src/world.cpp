@@ -419,7 +419,7 @@ void World::load_initial() {
         }
         for(size_t j = 0; j < height; j++) {
             for(size_t i = 0; i < width; i++) {
-                const Tile& tile = this->get_tile(i, j);
+                const auto& tile = this->get_tile(i, j);
                 auto& province = provinces[tile.province_id];
                 province.box_area.right = std::max<float>(province.box_area.right, i);
                 province.box_area.bottom = std::max<float>(province.box_area.bottom, j);
@@ -438,7 +438,7 @@ void World::load_initial() {
         // Neighbours
         Eng3D::Log::debug("game", Eng3D::Locale::translate("Creating neighbours for provinces"));
         for(size_t i = 0; i < width * height; i++) {
-            const Tile* tile = &this->tiles[i];
+            const auto* tile = &this->tiles[i];
             if(tile->province_id < static_cast<Province::Id>(-3)) {
                 Province& province = this->provinces[this->tiles[i].province_id];
                 const auto tiles = tile->get_neighbours(*this);
@@ -726,17 +726,17 @@ void World::do_tick() {
     tbb::combinable<tbb::concurrent_vector<Unit::Id>> clear_units;
     tbb::parallel_for(tbb::blocked_range(provinces.begin(), provinces.end()), [this, &clear_units](auto& provinces_range) {
         for(auto& province : provinces_range) {
-            for(size_t j = 0; j < province.battles.size(); j++) {
+            for(Battle::Id j = 0; j < province.battles.size(); j++) {
                 auto& battle = province.battles[j];
                 // Attackers attack Defenders
                 auto& units = this->unit_manager.units;
-                for(auto& attacker_id : battle.attackers_ids) {
-                    Unit& attacker = units[attacker_id];
+                for(auto attacker_id : battle.attackers_ids) {
+                    auto& attacker = units[attacker_id];
                     assert(attacker.is_valid());
-                    for(size_t i = 0; i < battle.defenders_ids.size(); ) {
-                        Unit& unit = units[battle.defenders_ids[i]];
+                    for(Unit::Id i = 0; i < battle.defenders_ids.size(); ) {
+                        auto& unit = units[battle.defenders_ids[i]];
                         assert(unit.is_valid());
-                        const size_t prev_size = unit.size;
+                        const auto prev_size = unit.size;
                         attacker.attack(unit);
                         battle.defender_casualties += prev_size - unit.size;
                         if(!unit.size) {
@@ -751,13 +751,13 @@ void World::do_tick() {
                 }
 
                 // Defenders attack attackers
-                for(auto& defender_id : battle.defenders_ids) {
-                    Unit& defender = units[defender_id];
+                for(auto defender_id : battle.defenders_ids) {
+                    auto& defender = units[defender_id];
                     assert(defender.is_valid());
-                    for(size_t i = 0; i < battle.attackers_ids.size(); ) {
-                        Unit& unit = units[battle.attackers_ids[i]];
+                    for(Unit::Id i = 0; i < battle.attackers_ids.size(); ) {
+                        auto& unit = units[battle.attackers_ids[i]];
                         assert(unit.is_valid());
-                        const size_t prev_size = unit.size;
+                        const auto prev_size = unit.size;
                         defender.attack(unit);
                         battle.attacker_casualties += prev_size - unit.size;
                         if(!unit.size) {

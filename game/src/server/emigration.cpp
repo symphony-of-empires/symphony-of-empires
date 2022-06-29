@@ -158,7 +158,7 @@ static inline void external_migration(World& world) {
 
                 // Randomness factor to emulate a pseudo-imperfect economy
                 const float fuzz = static_cast<float>(std::rand() + 1) / 1000.f;
-                for(size_t i = 0; i < province.pops.size(); i++) {
+                for(Pop::Id i = 0; i < province.pops.size(); i++) {
                     Pop& pop = province.pops[i];
                     // Depending on how much not our life needs are being met is how many we
                     // want to get out of here

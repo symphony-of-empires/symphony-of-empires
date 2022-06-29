@@ -135,7 +135,7 @@ FactoryWindow::FactoryWindow(GameState& gs)
     int size = 0;
     for(const auto province_id : nation->owned_provinces) {
         const auto& province = gs.world->provinces[province_id];
-        for(size_t i = 0; i < province.buildings.size(); i++) {
+        for(Building::Id i = 0; i < province.buildings.size(); i++) {
             auto& building = province.buildings[i];
             if(building.level != 0) size++;
         }
@@ -154,7 +154,7 @@ FactoryWindow::FactoryWindow(GameState& gs)
 
     for(const auto province_id : nation->owned_provinces) {
         auto& province = gs.world->provinces[province_id];
-        for(size_t i = 0; i < province.buildings.size(); i++) {
+        for(Building::Id i = 0; i < province.buildings.size(); i++) {
             auto& building = province.buildings[i];
             auto* type = &gs.world->building_types[i];
             if(!building.level == 0) continue;

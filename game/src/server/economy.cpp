@@ -176,9 +176,9 @@ constexpr float base_price = 1.f;
 constexpr float purchasing_change_rate = 1.f;
 void economy_single_good_tick(World& world, Good& good) {
     auto good_id = world.get_id(good);
-    auto province_size = world.provinces.size();
+    const size_t province_size = world.provinces.size();
     // determine new prices
-    for(uint32_t i = 0; i < province_size; i++) {
+    for(size_t i = 0; i < province_size; i++) {
         auto& province = world.provinces[i];
         auto& product = province.products[good_id];
         auto demand = product.demand;
@@ -217,9 +217,11 @@ void update_factory_production(World& world, Building& building, BuildingType* b
     float total_worker_pop = building.workers;
     min_wage = std::max(min_wage, 0.0001f);
 
+    const auto req_goods_size = building_type->req_goods.size();
+
     // TODO add input modifier
     float inputs_cost = 0.f;
-    for(uint32_t i = 0; i < building_type->req_goods.size(); i++) {
+    for(size_t i = 0; i < req_goods_size; i++) {
         auto input = building_type->req_goods[i];
         auto good = input.first;
         auto amount = input.second;
@@ -233,11 +235,11 @@ void update_factory_production(World& world, Building& building, BuildingType* b
 
     output_product.supply += output_amount;
 
-    for(uint32_t i = 0; i < building_type->req_goods.size(); i++) {
+    for(size_t i = 0; i < req_goods_size; i++) {
         auto input = building_type->req_goods[i];
         auto good = input.first;
         auto amount = input.second;
-        Product& product = province.products[world.get_id(*good)];
+        auto& product = province.products[world.get_id(*good)];
         product.demand += amount; // * price ?
     }
 
@@ -257,7 +259,7 @@ void update_factory_production(World& world, Building& building, BuildingType* b
 // Update the factory employment
 void update_factories_employment(const World& world, Province& province, std::vector<float>& new_workers) {
     float unallocated_workers;
-    for(uint32_t i = 0; i < province.pops.size(); i++) {
+    for(size_t i = 0; i < province.pops.size(); i++) {
         auto& pop = province.pops[i];
         if(pop.type->group == PopGroup::LABORER)
             unallocated_workers += pop.size;
@@ -266,13 +268,13 @@ void update_factories_employment(const World& world, Province& province, std::ve
 
     // Sort factories by production scale, which is suppose to represent how profitable the factory is
     // Might be better to calculate how profitable it really is and use that instead
-    std::vector<std::pair<uint32_t, float>> factories_by_profitability(province.buildings.size());
-    for(uint32_t i = 0; i < province.buildings.size(); i++)
-        factories_by_profitability[i] = std::pair<uint32_t, float>(i, province.buildings[i].production_scale);
-    std::sort(std::begin(factories_by_profitability), std::end(factories_by_profitability), [](std::pair<uint32_t, float> const& a, std::pair<uint32_t, float> const& b) { return a.second > b.second; });
+    std::vector<std::pair<size_t, float>> factories_by_profitability(province.buildings.size());
+    for(size_t i = 0; i < province.buildings.size(); i++)
+        factories_by_profitability[i] = std::pair<size_t, float>(i, province.buildings[i].production_scale);
+    std::sort(std::begin(factories_by_profitability), std::end(factories_by_profitability), [](const auto& a, const auto& b) { return a.second > b.second; });
 
     // The most profitable factory gets to pick workers first
-    for(uint32_t i = 0; i < province.buildings.size(); i++) {
+    for(size_t i = 0; i < province.buildings.size(); i++) {
         auto factory_index = factories_by_profitability[i].first;
         auto& building = province.buildings[factory_index];
         const auto& type = world.building_types[factory_index];
@@ -304,7 +306,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
             }
             float buying_factor = std::min(1.f, (float)pop_need.budget / total_price);
             for(size_t j = 0; j < world.goods.size(); j++) {
-                Product& product = province.products[j];
+                auto& product = province.products[j];
                 product.demand += type.basic_needs_amount[j] * buying_factor;
             }
             pop_need.life_needs_met = buying_factor;
@@ -322,7 +324,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
             }
             float buying_factor = std::min(1.f, (float)pop_need.budget / total_price);
             for(size_t j = 0; j < world.goods.size(); j++) {
-                Product& product = province.products[j];
+                auto& product = province.products[j];
                 product.demand += type.basic_needs_amount[j] * buying_factor;
             }
             pop_need.everyday_needs_met = buying_factor;
@@ -331,22 +333,18 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
     }
 }
 
-void Economy::do_tick(World& world, EconomyState& economyState) {
+void Economy::do_tick(World& world, EconomyState& economy_state) {
     world.profiler.start("E-init");
     std::vector<Market> markets(world.goods.size());
-
-    const size_t provinces_size = world.provinces.size();
-    const size_t goods_size = world.goods.size();
-
-    for(Good::Id good_id = 0; good_id < goods_size; good_id++) {
-        Market& market = markets[good_id];
+    for(Good::Id good_id = 0; good_id < world.goods.size(); good_id++) {
+        auto& market = markets[good_id];
         market.good = good_id;
     }
-    tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world, provinces_size](const auto& markets_range) {
+    tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world](const auto& markets_range) {
         for(auto& market : markets_range) {
-            market.prices.reserve(provinces_size);
-            market.supply.reserve(provinces_size);
-            market.demand.reserve(provinces_size);
+            market.prices.reserve(world.provinces.size());
+            market.supply.reserve(world.provinces.size());
+            market.demand.reserve(world.provinces.size());
 
             for(size_t i = 0; i < world.provinces.size(); i++) {
                 Province& province = world.provinces[i];
@@ -365,12 +363,10 @@ void Economy::do_tick(World& world, EconomyState& economyState) {
     world.profiler.stop("E-init");
 
     world.profiler.start("E-trade");
-    #if 0
-        economyState.trade.recalculate(world);
-    #endif
-    tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world, provinces_size](const auto& markets_range) {
+    economy_state.trade.recalculate(world);
+    tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world](const auto& markets_range) {
         for(auto& market : markets_range) {
-            for(size_t i = 0; i < provinces_size; i++) {
+            for(size_t i = 0; i < world.provinces.size(); i++) {
                 Province& province = world.provinces[i];
                 const size_t province_neighbours_size = province.neighbours.size();
                 Product& product = province.products[market.good];
@@ -395,18 +391,6 @@ void Economy::do_tick(World& world, EconomyState& economyState) {
     });
     world.profiler.stop("E-trade");
 
-    int coastal = 0;
-    for(size_t i = 0; i < world.provinces.size(); i++) {
-        Province& province = world.provinces[i];
-        for(const auto neighbour_id : province.neighbours) {
-            auto& neighbour = g_world.provinces[neighbour_id];
-            if(neighbour.terrain_type->is_water_body) {
-                coastal++;
-                break;
-            }
-        }
-    }
-
     world.profiler.start("E-good");
     tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world](const auto& markets_range) {
         for(const auto& market : markets_range) {
@@ -416,18 +400,18 @@ void Economy::do_tick(World& world, EconomyState& economyState) {
     world.profiler.stop("E-good");
 
     world.profiler.start("E-big");
-    std::vector<Province::Id> province_ids(provinces_size);
+    std::vector<Province::Id> province_ids(world.provinces.size());
     Province::Id last_id = 0;
-    for(Province::Id id = 0; id < provinces_size; id++) {
+    for(Province::Id id = 0; id < world.provinces.size(); id++) {
         if(Nation::is_invalid(world.provinces[id].owner_id)) continue;
         province_ids[last_id++] = id;
     }
     province_ids.resize(last_id);
 
     tbb::combinable<tbb::concurrent_vector<Unit>> province_new_units;
-    std::vector<std::vector<float>> buildings_new_worker(provinces_size);
-    std::vector<std::vector<PopNeed>> pops_new_needs(provinces_size);
-    tbb::parallel_for(tbb::blocked_range(province_ids.begin(), province_ids.end()), [&world, &buildings_new_worker, &province_new_units, &pops_new_needs, provinces_size](const auto province_ids_ranges) {
+    std::vector<std::vector<float>> buildings_new_worker(world.provinces.size());
+    std::vector<std::vector<PopNeed>> pops_new_needs(world.provinces.size());
+    tbb::parallel_for(tbb::blocked_range(province_ids.begin(), province_ids.end()), [&world, &buildings_new_worker, &province_new_units, &pops_new_needs](const auto province_ids_ranges) {
         for(const auto province_id : province_ids_ranges) {
             Province& province = world.provinces[province_id];
             float laborers_payment = 0.f;
@@ -435,21 +419,19 @@ void Economy::do_tick(World& world, EconomyState& economyState) {
                 auto& building = province.buildings[world.get_id(building_type)];
                 update_factory_production(world, building, &building_type, province, laborers_payment);
             }
-            std::vector<PopNeed>& new_needs = pops_new_needs[province_id];
-            new_needs.assign(province.pops.size(), PopNeed());
-
-            const size_t pops_size = province.pops.size();
-            for(uint32_t i = 0; i < pops_size; i++) {
+            auto& new_needs = pops_new_needs[province_id];
+            new_needs.assign(province.pops.size(), PopNeed{});
+            for(Pop::Id i = 0; i < province.pops.size(); i++) {
                 auto& pop = province.pops[i];
                 new_needs[i].budget = pop.budget;
             }
             float laborers_amount = 0.f;
-            for(uint32_t i = 0; i < pops_size; i++) {
+            for(Pop::Id i = 0; i < province.pops.size(); i++) {
                 auto& pop = province.pops[i];
                 if(pop.type->group == PopGroup::LABORER)
                     laborers_amount += pop.size;
             }
-            for(uint32_t i = 0; i < pops_size; i++) {
+            for(Pop::Id i = 0; i < province.pops.size(); i++) {
                 auto& pop = province.pops[i];
                 if(pop.type->group == PopGroup::LABORER) {
                     float ratio = pop.size / laborers_amount;
@@ -461,8 +443,8 @@ void Economy::do_tick(World& world, EconomyState& economyState) {
             new_workers.assign(world.building_types.size(), 0.f);
             update_factories_employment(world, province, new_workers);
             update_pop_needs(world, province, new_needs);
-            for(size_t i = 0; i < province.buildings.size(); i++) {
-                Building& building = province.buildings[i];
+            for(Pop::Id i = 0; i < province.buildings.size(); i++) {
+                auto& building = province.buildings[i];
                 if(building.working_unit_type != nullptr) {
                     bool can_build_unit = building.can_build_unit();
 
@@ -510,7 +492,7 @@ void Economy::do_tick(World& world, EconomyState& economyState) {
     }
 
     // -------------------------- MUTEX PROTECTED WORLD CHANGES BELOW -------------------------------
-    std::scoped_lock lock(world.world_mutex);
+    const std::scoped_lock lock(world.world_mutex);
 
     tbb::parallel_for(tbb::blocked_range(province_ids.begin(), province_ids.end()), [&world, &pops_new_needs, &buildings_new_worker](const auto provinces_id_range) {
         for(const auto& province_id : provinces_id_range) {

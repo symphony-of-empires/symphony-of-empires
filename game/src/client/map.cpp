@@ -522,7 +522,7 @@ void Map::draw(GameState& gs) {
     std::vector<float> province_units_y(world.provinces.size(), 0.f);
 
     // Display units that aren't on battles
-    size_t unit_index = 0, battle_index = 0;
+    Unit::Id unit_index = 0, battle_index = 0;
     // for(auto& province : const_cast<World&>(world).provinces) {
     gs.world->unit_manager.for_each_unit([this, &gs, &unit_index](auto& unit) {
         auto prov_id = gs.world->unit_manager.unit_province[unit.cached_id];
@@ -534,12 +534,10 @@ void Map::draw(GameState& gs) {
             if(unit.on_battle) return;
             bool unit_visible = true;
             if(this->view_mode == MapView::SPHERE_VIEW) {
-                Eng3D::OrbitCamera* orbit_camera = dynamic_cast<Eng3D::OrbitCamera*>(camera);
-
+                auto* orbit_camera = dynamic_cast<Eng3D::OrbitCamera*>(camera);
                 glm::vec3 cam_pos = camera->get_world_pos();
                 glm::vec3 world_pos = camera->get_tile_world_pos(prov_pos);
-                glm::vec3 world_to_camera =
-                    glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
+                glm::vec3 world_to_camera = glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
                 if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
                     unit_visible = false;
             }
@@ -560,12 +558,10 @@ void Map::draw(GameState& gs) {
             for(const auto& battle : province.battles) {
                 bool battle_visible = true;
                 if(view_mode == MapView::SPHERE_VIEW) {
-                    Eng3D::OrbitCamera* orbit_camera = dynamic_cast<Eng3D::OrbitCamera*>(camera);
-
+                    auto* orbit_camera = dynamic_cast<Eng3D::OrbitCamera*>(camera);
                     glm::vec3 cam_pos = camera->get_world_pos();
                     glm::vec3 world_pos = camera->get_tile_world_pos(prov_pos);
-                    glm::vec3 world_to_camera =
-                        glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
+                    glm::vec3 world_to_camera = glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
                     if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
                         battle_visible = false;
                 }
@@ -600,10 +596,10 @@ void Map::draw(GameState& gs) {
             }
         }
     }
-    for(size_t i = unit_index; i < unit_widgets.size(); i++)
+    for(Unit::Id i = unit_index; i < unit_widgets.size(); i++)
         unit_widgets[i]->kill();
     unit_widgets.resize(unit_index);
-    for(size_t i = battle_index; i < battle_widgets.size(); i++)
+    for(Unit::Id i = battle_index; i < battle_widgets.size(); i++)
         battle_widgets[i]->kill();
     battle_widgets.resize(battle_index);
 
@@ -614,12 +610,11 @@ void Map::draw(GameState& gs) {
 
         size_t i = 0;
         for(const auto& building_type : world.building_types) {
-            if(!province.buildings[world.get_id(building_type)].level) continue;
-            glm::vec2 pos = prov_pos;
-            glm::mat4 model = glm::translate(base_model, glm::vec3(pos.x, pos.y, 0.f));
+            if(!province.buildings[building_type.get_id()].level) continue;
+            glm::mat4 model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
             model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
             obj_shader->set_uniform("model", model);
-            building_type_models[world.get_id(building_type)]->draw(*obj_shader);
+            building_type_models[building_type.get_id()]->draw(*obj_shader);
             break;
         }
     }
