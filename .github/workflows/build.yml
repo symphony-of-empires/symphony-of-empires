@@ -14,14 +14,4 @@ jobs:
         fetch-depth: 0
     - name: "Build"
       run: |
-        echo "Test"
-
-#    - name: "Build"
-#      run: |
-#       cmake -DUNIT_TEST=1 -DCMAKE_BUILD_TYPE=Release -DE3D_BACKEND_OPENGL=1 .
-#       make -j$(nproc)
-#       make -j
-#    - name: "Run"
-#      run: |
-#       echo "Yay!"
-#       ./SymphonyOfEmpires
+        ./quick_build.sh
