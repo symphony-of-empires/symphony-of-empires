@@ -81,7 +81,7 @@ Eng3D::AudioManager::AudioManager(Eng3D::State& _s)
     fmt.callback = &Eng3D::AudioManager::mixaudio;
     fmt.userdata = this;
     if(SDL_OpenAudio(&fmt, NULL) < 0)
-        Eng3D::Log::warning("audio", "Unable to open audio: " + std::string(SDL_GetError()));
+        CXX_THROW(std::runtime_error, "Unable to open audio: " + std::string(SDL_GetError()));
     SDL_PauseAudio(0);
 }
 
