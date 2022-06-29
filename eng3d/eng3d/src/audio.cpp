@@ -90,32 +90,30 @@ void Eng3D::AudioManager::mixaudio(void* userdata, uint8_t* stream, int len) {
     std::memset(stream, 0, len);
 
     const std::scoped_lock lock(audio_man.sound_lock);
-    for(size_t i = 0; i < audio_man.sound_queue.size(); ) {
-        auto& sound = *audio_man.sound_queue[i];
-        const auto amount = std::min<int>(len, sound.len - sound.pos);
-        if(amount <= 0) {
-            audio_man.sound_queue.erase(audio_man.sound_queue.begin() + i);
-            continue;
-        }
-
-        const float volume = SDL_MIX_MAXVOLUME * audio_man.sound_volume;
-        SDL_MixAudio(stream, &sound.data[sound.pos], amount, std::min<int>(SDL_MIX_MAXVOLUME, volume));
-        sound.pos += amount;
-        i++;
-    }
-
     for(size_t i = 0; i < audio_man.music_queue.size(); ) {
         auto& music = *audio_man.music_queue[i];
         const auto amount = std::min<int>(len, music.len - music.pos);
-        if(amount <= 0) {
-            audio_man.music_queue.erase(audio_man.music_queue.begin() + i);
-            continue;
-        }
-
         const float volume = SDL_MIX_MAXVOLUME * audio_man.music_volume;
         const float fade = SDL_MIX_MAXVOLUME * audio_man.music_fade_value;
         SDL_MixAudio(stream, &music.data[music.pos], amount, std::min<int>(SDL_MIX_MAXVOLUME, volume - fade));
         music.pos += amount;
+        if(music.pos >= music.len) {
+            audio_man.music_queue.erase(audio_man.music_queue.begin() + i);
+            continue;
+        }
+        i++;
+    }
+
+    for(size_t i = 0; i < audio_man.sound_queue.size(); ) {
+        auto& sound = *audio_man.sound_queue[i];
+        const auto amount = std::min<int>(len, sound.len - sound.pos);
+        const float volume = SDL_MIX_MAXVOLUME * audio_man.sound_volume;
+        SDL_MixAudio(stream, &sound.data[sound.pos], amount, std::min<int>(SDL_MIX_MAXVOLUME, volume));
+        sound.pos += amount;
+        if(sound.pos >= sound.len) {
+            audio_man.sound_queue.erase(audio_man.sound_queue.begin() + i);
+            continue;
+        }
         i++;
     }
 

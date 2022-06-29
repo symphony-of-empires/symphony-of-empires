@@ -103,6 +103,7 @@ public:
 // When adjacent to a water tile this serves as a shipyard for spawning naval units
 class Building {
 public:
+    using Id = BuildingType::Id;
     Building() = default;
     ~Building() = default;
     void add_to_stock(const Good& good, size_t add);
