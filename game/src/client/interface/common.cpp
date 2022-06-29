@@ -253,10 +253,10 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province& _province, std::size_t 
         this->size_btn->text(std::to_string(pop.size));
         this->budget_btn->text(std::to_string(pop.budget / pop.size));
         this->budget_btn->tooltip->text(Eng3D::Locale::translate("A total budget of") + " " + std::to_string(pop.budget));
-        this->religion_ibtn->current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/religion/" + pop.religion->ref_name + ".png"));
-        this->religion_ibtn->tooltip->text(Eng3D::Locale::translate(pop.religion->name.get_string()));
+        this->religion_ibtn->current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/religion/" + this->gs.world->religions[pop.religion_id].ref_name + ".png"));
+        this->religion_ibtn->tooltip->text(Eng3D::Locale::translate(this->gs.world->religions[pop.religion_id].name.get_string()));
         this->culture_ibtn->current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/noicon.png"));
-        this->culture_ibtn->tooltip->text(Eng3D::Locale::translate(pop.culture->name.get_string()));
+        this->culture_ibtn->tooltip->text(Eng3D::Locale::translate(this->gs.world->cultures[pop.culture_id].name.get_string()));
     });
     this->on_each_tick(*this);
 }

@@ -388,7 +388,7 @@ void save(GameState& gs) {
             }
             // POPs
             for(const auto& pop : province.pops)
-                fprintf(fp.get(), "province:add_pop(pt_%s,c_%s,r_%s,%f,%f)\n", pop.type->ref_name.c_str(), pop.culture->ref_name.c_str(), pop.religion->ref_name.c_str(), pop.size, pop.literacy);
+                fprintf(fp.get(), "province:add_pop(pt_%s,c_%s,r_%s,%f,%f)\n", gs.world->pop_types[pop.type_id].ref_name.c_str(), gs.world->cultures[pop.culture_id].ref_name.c_str(), gs.world->religions[pop.religion_id].ref_name.c_str(), pop.size, pop.literacy);
             // Nuclei of the provinces
             for(const auto& nucleus_id : province.nuclei)
                 fprintf(fp.get(), "province:add_nucleus(n_%s)\n", gs.world->nations[nucleus_id].ref_name.c_str());

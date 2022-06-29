@@ -447,32 +447,32 @@ std::string population_tooltip(const World& world, const Province::Id id){
 
 std::vector<ProvinceColor> culture_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
-    Eng3D::Color min = Eng3D::Color::rgb8(255, 255, 255);
-    for(unsigned int i = 0; i < world.provinces.size(); i++) {
-        const Province& province = world.provinces[i];
+    const auto min = Eng3D::Color::rgb8(255, 255, 255);
+    for(Province::Id i = 0; i < world.provinces.size(); i++) {
+        const auto& province = world.provinces[i];
         std::unordered_map<Culture::Id, size_t> culture_amounts;
         size_t total_amount = 0;
         size_t max_amount = 0;
         Culture::Id max_culture_id = 0;
-        for(unsigned int j = 0; j < province.pops.size(); j++) {
-            const Pop& pop = province.pops[j];
+        for(Pop::Id j = 0; j < province.pops.size(); j++) {
+            const auto& pop = province.pops[j];
             total_amount += pop.size;
 
-            auto search = culture_amounts.find(pop.culture->cached_id);
+            auto search = culture_amounts.find(pop.culture_id);
             if(search == culture_amounts.end()) {
-                culture_amounts[pop.culture->cached_id] = pop.size;
+                culture_amounts[pop.culture_id] = pop.size;
             } else {
-                culture_amounts[pop.culture->cached_id] += pop.size;
+                culture_amounts[pop.culture_id] += pop.size;
             }
 
-            size_t amount = culture_amounts[pop.culture->cached_id];
+            const auto amount = culture_amounts[pop.culture_id];
             if(amount > max_amount) {
                 max_amount = amount;
-                max_culture_id = pop.culture->cached_id;
+                max_culture_id = pop.culture_id;
             }
         }
-        Eng3D::Color max = Eng3D::Color::rgba32(world.cultures[max_culture_id].color);
-        Eng3D::Color color = Eng3D::Color::lerp(min, max, ((float)max_amount) / total_amount);
+        const auto max = Eng3D::Color::rgba32(world.cultures[max_culture_id].color);
+        const auto color = Eng3D::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.push_back(ProvinceColor(i, color));
     }
 
@@ -484,27 +484,25 @@ std::vector<ProvinceColor> culture_map_mode(const World& world) {
 }
 
 std::string culture_tooltip(const World& world, const Province::Id id){
-    const Province& province = world.provinces[id];
-
-    typedef std::pair<Culture::Id, size_t> culture_amount;
-    std::vector<culture_amount> cultures;
-    for(unsigned int i = 0; i < province.pops.size(); i++) {
-        const Pop& pop = province.pops[i];
+    const auto& province = world.provinces[id];
+    std::vector<std::pair<Culture::Id, size_t>> cultures;
+    for(Province::Id i = 0; i < province.pops.size(); i++) {
+        const auto& pop = province.pops[i];
 
         bool found = false;
         for(auto culture_amount : cultures) {
-            if(culture_amount.first == pop.culture->cached_id) {
+            if(culture_amount.first == pop.culture_id) {
                 culture_amount.second += pop.size;
                 found = true;
             }
         }
 
         if(!found) {
-            cultures.push_back(std::make_pair(pop.culture->cached_id, pop.size));
+            cultures.push_back(std::make_pair(pop.culture_id, pop.size));
         }
     }
 
-    std::sort(cultures.begin(), cultures.end(), [](culture_amount a, culture_amount b) {
+    std::sort(cultures.begin(), cultures.end(), [](const auto& a, const auto& b) {
         return a.second > b.second;
     });
 
@@ -517,32 +515,32 @@ std::string culture_tooltip(const World& world, const Province::Id id){
 
 std::vector<ProvinceColor> religion_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
-    Eng3D::Color min = Eng3D::Color::rgb8(255, 255, 255);
-    for(unsigned int i = 0; i < world.provinces.size(); i++) {
-        const Province& province = world.provinces[i];
+    auto min = Eng3D::Color::rgb8(255, 255, 255);
+    for(Province::Id i = 0; i < world.provinces.size(); i++) {
+        const auto& province = world.provinces[i];
         std::unordered_map<Religion::Id, size_t> religion_amounts;
         size_t total_amount = 0;
         size_t max_amount = 0;
         Religion::Id max_religion_id = 0;
-        for(unsigned int j = 0; j < province.pops.size(); j++) {
+        for(Pop::Id j = 0; j < province.pops.size(); j++) {
             const Pop& pop = province.pops[j];
             total_amount += pop.size;
 
-            auto search = religion_amounts.find(pop.religion->cached_id);
+            auto search = religion_amounts.find(pop.religion_id);
             if(search == religion_amounts.end()) {
-                religion_amounts[pop.religion->cached_id] = pop.size;
+                religion_amounts[pop.religion_id] = pop.size;
             } else {
-                religion_amounts[pop.religion->cached_id] += pop.size;
+                religion_amounts[pop.religion_id] += pop.size;
             }
 
-            size_t amount = religion_amounts[pop.religion->cached_id];
+            size_t amount = religion_amounts[pop.religion_id];
             if(amount > max_amount) {
                 max_amount = amount;
-                max_religion_id = pop.religion->cached_id;
+                max_religion_id = pop.religion_id;
             }
         }
-        Eng3D::Color max = Eng3D::Color::rgba32(world.religions[max_religion_id].color);
-        Eng3D::Color color = Eng3D::Color::lerp(min, max, ((float)max_amount) / total_amount);
+        const auto max = Eng3D::Color::rgba32(world.religions[max_religion_id].color);
+        const auto color = Eng3D::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.push_back(ProvinceColor(i, color));
     }
 
@@ -554,27 +552,25 @@ std::vector<ProvinceColor> religion_map_mode(const World& world) {
 }
 
 std::string religion_tooltip(const World& world, const Province::Id id){
-    const Province& province = world.provinces[id];
-
-    typedef std::pair<Religion::Id, size_t> religion_amount;
-    std::vector<religion_amount> religions;
-    for(unsigned int i = 0; i < province.pops.size(); i++) {
-        const Pop& pop = province.pops[i];
+    const auto& province = world.provinces[id];
+    std::vector<std::pair<Religion::Id, size_t>> religions;
+    for(Pop::Id i = 0; i < province.pops.size(); i++) {
+        const auto& pop = province.pops[i];
 
         bool found = false;
         for(auto religion_amount : religions) {
-            if(religion_amount.first == pop.religion->cached_id) {
+            if(religion_amount.first == pop.religion_id) {
                 religion_amount.second += pop.size;
                 found = true;
             }
         }
 
         if(!found) {
-            religions.push_back(std::make_pair(pop.religion->cached_id, pop.size));
+            religions.push_back(std::make_pair(pop.religion_id, pop.size));
         }
     }
 
-    std::sort(religions.begin(), religions.end(), [](religion_amount a, religion_amount b) {
+    std::sort(religions.begin(), religions.end(), [](const auto& a, const auto& b) {
         return a.second > b.second;
     });
 

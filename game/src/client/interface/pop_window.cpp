@@ -61,10 +61,9 @@ PopWindow::PopWindow(GameState& gs)
     table->on_each_tick = [this, nation, table](UI::Widget&) {
         for(const auto province_id : nation.owned_provinces) {
             const auto& province = this->gs.world->provinces[province_id];
-            uint16_t prov_id = province.cached_id;
+            Province::Id prov_id = province.get_id();
             for(auto& pop : province.pops) {
-                uint64_t id = pop.get_type_id();
-                id += (uint64_t)prov_id << 32;
+                const auto id = pop.get_type_id() + ((uint64_t)prov_id << 32);
                 auto* row = table->get_row(id);
                 size_t row_index = 0;
 
@@ -78,20 +77,20 @@ PopWindow::PopWindow(GameState& gs)
                 prov_name->set_key(province.name.get_string());
 
                 auto type = row->get_element(row_index++);
-                type->text(pop.type->name.get_string());
-                type->set_key(pop.type->name.get_string());
+                type->text(this->gs.world->pop_types[pop.type_id].name.get_string());
+                type->set_key(this->gs.world->pop_types[pop.type_id].name.get_string());
 
                 auto culture = row->get_element(row_index++);
-                auto culture_str = Eng3D::Locale::translate(pop.culture->name.get_string());
+                auto culture_str = Eng3D::Locale::translate(this->gs.world->cultures[pop.culture_id].name.get_string());
                 culture->text(culture_str);
                 culture->set_key(culture_str);
 
                 auto religion = row->get_element(row_index++);
                 religion->flex = UI::Flex::ROW;
                 religion->flex_justify = UI::FlexJustify::END;
-                auto religion_str = Eng3D::Locale::translate(pop.religion->name.get_string());
+                auto religion_str = Eng3D::Locale::translate(this->gs.world->religions[pop.religion_id].name.get_string());
                 new UI::Label(0, 0, religion_str, religion);
-                new UI::Image(0, 0, 35, 35, "gfx/religion/" + pop.religion->ref_name + ".png", true, religion);
+                new UI::Image(0, 0, 35, 35, "gfx/religion/" + this->gs.world->religions[pop.religion_id].ref_name + ".png", true, religion);
                 religion->set_key(religion_str);
 
                 auto militancy = row->get_element(row_index++);

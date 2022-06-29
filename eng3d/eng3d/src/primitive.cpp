@@ -29,10 +29,6 @@
 
 #include "eng3d/primitive.hpp"
 
-#ifndef M_PI
-#	define M_PI 3.1418f
-#endif
-
 Eng3D::Line::Line(float start_x, float start_y, float end_x, float end_y)
     : Eng3D::Mesh<glm::vec2, glm::vec2>(Eng3D::MeshMode::LINES)
 {
@@ -134,15 +130,15 @@ Eng3D::Sphere::Sphere(float center_x, float center_y, float center_z, float _rad
 
 Eng3D::MeshData<glm::vec3, glm::vec2> Eng3D::Sphere::calc_pos(glm::vec3 center_pos, float longitude, float latitude) {
     const float longitude_ratio = ((float)longitude) / resolution;
-    const float longitude_rad = longitude_ratio * 2 * M_PI;
+    const float longitude_rad = longitude_ratio * 2 * glm::pi<float>();
     const float latitude_ratio = ((float)latitude) / resolution;
-    const float latitude_rad = latitude_ratio * M_PI;
+    const float latitude_rad = latitude_ratio * glm::pi<float>();
 
-    const float x = radius * std::cos(longitude_rad) * std::sin(latitude_rad);
-    const float y = radius * std::sin(longitude_rad) * std::sin(latitude_rad);
-    const float z = radius * std::cos(latitude_rad);
+    const float x = radius * glm::cos(longitude_rad) * glm::sin(latitude_rad);
+    const float y = radius * glm::sin(longitude_rad) * glm::sin(latitude_rad);
+    const float z = radius * glm::cos(latitude_rad);
 
-    glm::vec3 pos(x, y, z);
+    glm::vec3 pos{ x, y, z };
     pos += center_pos;
     glm::vec2 tex_coord(longitude_ratio, latitude_ratio);
     return Eng3D::MeshData<glm::vec3, glm::vec2>(pos, tex_coord);
