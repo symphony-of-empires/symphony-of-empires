@@ -51,7 +51,7 @@ public:
 // NOT rendering - for rendering purpouses see texture class from client's implementation
 class BinaryImage {
 public:
-    constexpr BinaryImage() = default;
+    BinaryImage() = default;
     BinaryImage(const Eng3D::IO::Path& path);
     BinaryImage(size_t _width, size_t _height);
     BinaryImage(const BinaryImage& tex);
