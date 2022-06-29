@@ -39,6 +39,7 @@ namespace Economy {
 
         struct Vertex
         {
+            Vertex(float _cost, Province::Id _province_id) : cost{_cost}, province_id{_province_id} {};
             float cost;
             Province::Id province_id;
         };
