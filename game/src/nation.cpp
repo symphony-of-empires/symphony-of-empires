@@ -50,7 +50,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
 
     // Recollect offenders
     // - Those who are allied to us
-    for(std::size_t i = 0; i < world.nations.size(); i++) {
+    for(Nation::Id i = 0; i < world.nations.size(); i++) {
         if(&world.nations[i] == this || &world.nations[i] == &nation) continue;
 
         const auto& relation = world.get_relation(i, world.get_id(*this));
@@ -66,7 +66,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     // Recollect defenders
     // - Those who are on a defensive pact with the target
     // - Those who are allied with the target
-    for(std::size_t i = 0; i < world.nations.size(); i++) {
+    for(Nation::Id i = 0; i < world.nations.size(); i++) {
         if(&world.nations[i] == this || &world.nations[i] == &nation) continue;
         const auto& relation = world.get_relation(i, world.get_id(nation));
         if(relation.has_alliance || relation.has_defensive_pact || world.nations[i].puppet_master == &nation)
@@ -75,8 +75,8 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     war->defenders.push_back(&nation);
 
     // Attackers are at war with the defenders
-    for(auto& attacker : war->attackers) {
-        for(auto& defender : war->defenders) {
+    for(auto attacker : war->attackers) {
+        for(auto defender : war->defenders) {
             /// @todo A better way to make sure these two nations don't equal
             if(attacker == defender) continue;
             assert(attacker != defender);
@@ -171,13 +171,12 @@ void Nation::set_policy(const Policies& policies) {
 
     unsigned int approvals = 0, disapprovals = 0;
     std::vector<Pop*> disapprovers, approvers;
-    const size_t ideology_size = World::get_instance().ideologies.size();
     for(const auto province_id : owned_provinces) {
         auto& province = World::get_instance().provinces[province_id];
         for(auto& pop : province.pops) {
             const Policies& pop_policies = pop.get_ideology().policies;
             // To "cheese it up" we mix some ideologies of the people, randomly
-            for(size_t i = 0; i < ideology_size; i++) {
+            for(Ideology::Id i = 0; i < World::get_instance().ideologies.size(); i++) {
                 pop.ideology_approval[i] += std::fmod(std::rand() / 1000.f, current_policy.difference(pop_policies));
                 pop.ideology_approval[i] = glm::clamp<float>(pop.ideology_approval[i], -1.f, 1.f); // Clamp
             }

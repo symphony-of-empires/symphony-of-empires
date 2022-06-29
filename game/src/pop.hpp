@@ -59,6 +59,8 @@ class Pop {
     Pop & operator=(const Pop&) = default;
     friend class Province;
 public:
+    using Id = uint_fast16_t;
+
     Pop() = default;
     ~Pop() = default;
 
