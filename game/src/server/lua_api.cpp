@@ -854,7 +854,7 @@ int LuaAPI::add_province_pop(lua_State* L) {
 }
 
 int LuaAPI::rename_province(lua_State* L) {
-    Province& province = g_world.provinces.at(lua_tonumber(L, 1));
+    auto& province = g_world.provinces.at(lua_tonumber(L, 1));
     province.name = luaL_checkstring(L, 2);
     return 0;
 }
@@ -865,8 +865,8 @@ int LuaAPI::add_province_nucleus(lua_State* L) {
 }
 
 int LuaAPI::add_province_owner(lua_State* L) {
-    Province& province = g_world.provinces.at(lua_tonumber(L, 1));
-    Nation& nation = g_world.nations.at(lua_tonumber(L, 2));
+    auto& province = g_world.provinces.at(lua_tonumber(L, 1));
+    auto& nation = g_world.nations.at(lua_tonumber(L, 2));
     nation.give_province(province);
     return 0;
 }

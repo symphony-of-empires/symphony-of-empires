@@ -36,13 +36,13 @@
 using namespace Economy;
 
 static inline void shortest_path_from_source(Province::Id source, const std::vector<std::vector<Trade::Vertex>>& neighbour_relations, std::vector<float>& costs) {
-    auto cmp = [](Trade::Vertex const& a, Trade::Vertex const& b) {return a.cost < b.cost;};
+    auto cmp = [](Trade::Vertex const& a, Trade::Vertex const& b) { return a.cost < b.cost; };
     std::priority_queue<Trade::Vertex, std::vector<Trade::Vertex>, decltype(cmp)> heap;
 
     heap.emplace(Trade::Vertex{ 0, source });
 
     while(!heap.empty()) {
-        Trade::Vertex vertex = heap.top();
+        auto vertex = heap.top();
         heap.pop();
         if(vertex.cost < costs[vertex.province_id]) {
             costs[vertex.province_id] = vertex.cost;
