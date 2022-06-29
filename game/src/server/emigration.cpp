@@ -167,11 +167,11 @@ static inline void external_migration(World& world) {
                     const int emigration_desire = std::max<int>(pop.militancy * -pop.life_needs_met, 1);
                     const size_t emigreers = std::min<size_t>((pop.size * emigration_desire) * std::fmod(fuzz + 1.f, 1.f), pop.size);
                     if(emigreers > 0) {
-                        auto nation_distribution = nation_distributions[pop.culture->cached_id];
+                        auto nation_distribution = nation_distributions[pop.culture_id];
                         if(nation_distribution == nullptr) continue;
 
                         auto nation = nation_distribution->get_item();
-                        auto province_distribution = province_distributions[nation->cached_id];
+                        auto province_distribution = province_distributions[nation->get_id()];
                         if(province_distribution == nullptr) continue;
 
                         auto choosen_province = province_distribution->get_item();
