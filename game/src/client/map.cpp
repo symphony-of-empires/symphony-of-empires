@@ -534,7 +534,7 @@ void Map::draw(GameState& gs) {
             if(unit.on_battle) return;
             bool unit_visible = true;
             if(this->view_mode == MapView::SPHERE_VIEW) {
-                auto* orbit_camera = dynamic_cast<Eng3D::OrbitCamera*>(camera);
+                auto* orbit_camera = static_cast<Eng3D::OrbitCamera*>(camera);
                 glm::vec3 cam_pos = camera->get_world_pos();
                 glm::vec3 world_pos = camera->get_tile_world_pos(prov_pos);
                 glm::vec3 world_to_camera = glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
@@ -558,7 +558,7 @@ void Map::draw(GameState& gs) {
             for(const auto& battle : province.battles) {
                 bool battle_visible = true;
                 if(view_mode == MapView::SPHERE_VIEW) {
-                    auto* orbit_camera = dynamic_cast<Eng3D::OrbitCamera*>(camera);
+                    auto* orbit_camera = static_cast<Eng3D::OrbitCamera*>(camera);
                     glm::vec3 cam_pos = camera->get_world_pos();
                     glm::vec3 world_pos = camera->get_tile_world_pos(prov_pos);
                     glm::vec3 world_to_camera = glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;

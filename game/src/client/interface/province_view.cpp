@@ -51,9 +51,9 @@ void ProvincePopulationTab::update_piecharts() {
     std::vector<size_t> religion_sizes(gs.world->religions.size(), 0);
     std::vector<size_t> pop_type_sizes(gs.world->pop_types.size(), 0);
     for(const auto& pop : province.pops) {
-        culture_sizes[gs.world->get_id(*pop.culture)] += pop.size;
-        religion_sizes[gs.world->get_id(*pop.religion)] += pop.size;
-        pop_type_sizes[gs.world->get_id(*pop.type)] += pop.size;
+        culture_sizes[pop.culture_id] += pop.size;
+        religion_sizes[pop.religion_id] += pop.size;
+        pop_type_sizes[pop.type_id] += pop.size;
     }
 
     std::vector<UI::ChartData> cultures_data, religions_data, pop_types_data;
@@ -134,7 +134,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     auto table = new UI::Table<uint32_t>(0, 256 + 96, 0, 500, 30, sizes, header, this);
     auto& pops = this->province.pops;
     table->reserve(pops.size());
-    table->on_each_tick = [pops, table](UI::Widget&) {
+    table->on_each_tick = [this, pops, table](UI::Widget&) {
         for(size_t i = 0; i < pops.size(); i++) {
             auto& pop = pops[i];
             uint32_t id = pop.get_type_id();
@@ -156,14 +156,14 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
             budget->set_key(pop.budget / pop.size);
 
             auto religion = row->get_element(row_index++);
-            auto religion_icon = s.tex_man.load(s.package_man.get_unique("gfx/religion/" + pop.religion->ref_name + ".png"));
+            auto religion_icon = s.tex_man.load(s.package_man.get_unique("gfx/religion/" + this->gs.world->religions[pop.religion_id].ref_name + ".png"));
             religion->current_texture = religion_icon;
-            auto religion_tip = Eng3D::Locale::translate(pop.religion->name.get_string());
+            auto religion_tip = Eng3D::Locale::translate(this->gs.world->religions[pop.religion_id].name.get_string());
             religion->set_tooltip(religion_tip);
             religion->set_key(religion_tip);
 
             auto culture = row->get_element(row_index++);
-            auto culture_str = Eng3D::Locale::translate(pop.culture->name.get_string());
+            auto culture_str = Eng3D::Locale::translate(this->gs.world->cultures[pop.culture_id].name.get_string());
             culture->text(culture_str);
             culture->set_key(culture_str);
         }
@@ -255,7 +255,7 @@ ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, Pro
         btn->text(culture.name.get_string());
         btn->set_on_click([this, &culture](UI::Widget&) {
             for(auto& pop : const_cast<Province&>(this->province).pops) {
-                pop.culture = &culture;
+                pop.culture_id = culture.get_id();
             }
             this->gs.map->update_mapmode();
             this->gs.input.selected_culture = &culture;
@@ -280,7 +280,7 @@ ProvinceEditReligionTab::ProvinceEditReligionTab(GameState& _gs, int x, int y, P
         btn->text(religion.name.get_string());
         btn->set_on_click([this, &religion](UI::Widget&) {
             for(auto& pop : const_cast<Province&>(this->province).pops) {
-                pop.religion = &religion;
+                pop.religion_id = religion.get_id();
             }
             this->gs.map->update_mapmode();
             this->gs.input.selected_religion = &religion;
@@ -425,9 +425,9 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
 
             for(auto& pop_type : this->gs.world->pop_types) {
                 Pop pop;
-                pop.type = &pop_type;
-                pop.culture = this->gs.input.selected_culture;
-                pop.religion = this->gs.input.selected_religion;
+                pop.type_id = pop_type.get_id();
+                pop.culture_id = this->gs.input.selected_culture->get_id();
+                pop.religion_id = this->gs.input.selected_religion->get_id();
                 pop.size = 1000.f / std::max<float>(0.01f, pop_type.social_value);
                 pop.literacy = max_sv / std::max<float>(0.01f, pop_type.social_value);
                 pop.budget = 100.f * max_sv;

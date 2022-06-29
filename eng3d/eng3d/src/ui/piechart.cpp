@@ -68,12 +68,12 @@ void PieChart::set_data(std::vector<ChartData> new_data) {
 inline void PieChart::draw_triangle(float start_ratio, float end_ratio, Eng3D::Color color) {
     const float x_center = width / 2.f;
     const float y_center = height / 2.f;
-    float radius = std::min<float>(width, height) * 0.5;
+    const float radius = glm::min<float>(width, height) * 0.5;
     float x_offset, y_offset, scale;
 
-    x_offset = cos((start_ratio - 0.25f) * 2 * M_PI);
-    y_offset = sin((start_ratio - 0.25f) * 2 * M_PI);
-    scale = std::min<float>(1.f / std::abs(x_offset), 1.f / std::abs(y_offset));
+    x_offset = glm::cos((start_ratio - 0.25f) * 2 * glm::pi<float>());
+    y_offset = glm::sin((start_ratio - 0.25f) * 2 * glm::pi<float>());
+    scale = glm::min<float>(1.f / glm::abs(x_offset), 1.f / glm::abs(y_offset));
     x_offset *= scale;
     y_offset *= scale;
 
@@ -82,9 +82,9 @@ inline void PieChart::draw_triangle(float start_ratio, float end_ratio, Eng3D::C
     Eng3D::State::get_instance().ui_ctx.obj_shader->set_uniform("diffuse_color", glm::vec4(color.r, color.g, color.b, 1.f));
     mesh.buffer.push_back(Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(x_center + x_offset * radius, y_center + y_offset * radius), glm::vec2(0.5f + x_offset * 0.5f, 0.5f + y_offset * 0.5f)));
 
-    x_offset = cos((end_ratio - 0.25f) * 2 * M_PI);
-    y_offset = sin((end_ratio - 0.25f) * 2 * M_PI);
-    scale = std::min<float>(1.f / std::abs(x_offset), 1.f / std::abs(y_offset));
+    x_offset = glm::cos((end_ratio - 0.25f) * 2 * glm::pi<float>());
+    y_offset = glm::sin((end_ratio - 0.25f) * 2 * glm::pi<float>());
+    scale = glm::min<float>(1.f / glm::abs(x_offset), 1.f / glm::abs(y_offset));
     x_offset *= scale;
     y_offset *= scale;
     mesh.buffer.push_back(Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(x_center + x_offset * radius, y_center + y_offset * radius), glm::vec2(0.5f + x_offset * 0.5f, 0.5f + y_offset * 0.5f)));
@@ -113,21 +113,20 @@ void PieChart::on_render(UI::Context& ctx, Eng3D::Rect viewport) {
 
 static inline bool in_triangle(glm::vec2 p, glm::vec2 center, float radius, float start_ratio, float end_ratio) {
     float x_offset, y_offset, scale;
-    x_offset = cos((start_ratio - 0.25f) * 2 * M_PI);
-    y_offset = sin((start_ratio - 0.25f) * 2 * M_PI);
-    scale = std::min<float>(1.f / abs(x_offset), 1.f / abs(y_offset));
+    x_offset = glm::cos((start_ratio - 0.25f) * 2 * glm::pi<float>());
+    y_offset = glm::sin((start_ratio - 0.25f) * 2 * glm::pi<float>());
+    scale = glm::min<float>(1.f / abs(x_offset), 1.f / abs(y_offset));
     x_offset *= scale;
     y_offset *= scale;
-    glm::vec2 a(center.x + x_offset * radius, center.y + y_offset * radius);
+    glm::vec2 a{ center.x + x_offset * radius, center.y + y_offset * radius };
 
-    x_offset = cos((end_ratio - 0.25f) * 2 * M_PI);
-    y_offset = sin((end_ratio - 0.25f) * 2 * M_PI);
-    scale = std::min<float>(1.f / abs(x_offset), 1.f / abs(y_offset));
+    x_offset = glm::cos((end_ratio - 0.25f) * 2 * glm::pi<float>());
+    y_offset = glm::sin((end_ratio - 0.25f) * 2 * glm::pi<float>());
+    scale = glm::min<float>(1.f / abs(x_offset), 1.f / abs(y_offset));
     x_offset *= scale;
     y_offset *= scale;
-    glm::vec2 b(center.x + x_offset * radius, center.y + y_offset * radius);
-
-    glm::vec2 c(center.x, center.y);
+    glm::vec2 b{ center.x + x_offset * radius, center.y + y_offset * radius };
+    glm::vec2 c{ center.x, center.y };
 
     float A = 0.5f * (-b.y * c.x + a.y * (-b.x + c.x) + a.x * (b.y - c.y) + b.x * c.y);
     float sign = A < 0 ? -1 : 1;

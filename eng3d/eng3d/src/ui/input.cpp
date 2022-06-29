@@ -62,7 +62,7 @@ UI::Input::Input(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 
 void UI::Input::set_buffer(const std::string& _buffer) {
     buffer = _buffer;
-    text(buffer);
+    this->text(buffer);
 }
 
 std::string UI::Input::get_buffer() const {

@@ -27,9 +27,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cassert>
-#ifndef M_PI
-#   define M_PI 3.1415f
-#endif
+#include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 #include "eng3d/log.hpp"
 #include "eng3d/common.hpp"
@@ -78,7 +77,7 @@ void Unit::set_target(const Province& _province) {
     // Calculate the required movement before it can reach the target
     const auto& cur_pos = world.provinces[this->province_id()].get_pos();
     const auto& target_pos = world.provinces[this->target_province_id].get_pos();
-    this->move_progress = std::sqrt(std::abs(cur_pos.x - target_pos.x) + std::abs(cur_pos.y - target_pos.y));
+    this->move_progress = glm::sqrt(glm::abs(cur_pos.x - target_pos.x) + glm::abs(cur_pos.y - target_pos.y));
 }
 
 float Unit::get_speed(const Province& _province) const {
@@ -99,9 +98,9 @@ float Unit::get_speed(const Province& _province) const {
 
     //const float linear_dist = std::fabs(std::sqrt(x_dist * x_dist + y_dist * y_dist) / dist_div);
     const float speed = (type->speed) / _province.terrain_type->movement_penalty;
-    float radius_scale = std::cos(M_PI / (2 * World::get_instance().height) * (2 * (y_dist / dist_div) - World::get_instance().height));
-    float x_scale = 1 / (std::fabs(radius_scale) + 0.001f);
-    float speed_scale = std::sqrt(std::pow(std::sin(angle), 2) + std::pow(std::cos(angle) * x_scale, 2));
+    float radius_scale = glm::cos(glm::pi<float>() / (2 * World::get_instance().height) * (2 * (y_dist / dist_div) - World::get_instance().height));
+    float x_scale = 1 / (glm::abs(radius_scale) + 0.001f);
+    float speed_scale = glm::sqrt(glm::pow(glm::sin(angle), 2) + glm::pow(glm::cos(angle) * x_scale, 2));
     return (speed * speed_scale) / 100.f;
 }
 

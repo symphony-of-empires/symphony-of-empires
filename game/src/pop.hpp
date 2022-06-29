@@ -29,10 +29,9 @@
 #include <string>
 #include "eng3d/entity.hpp"
 
-class Ideology;
-class PopType;
-class Culture;
-class Religion;
+#include "religion.hpp"
+#include "ideology.hpp"
+#include "culture.hpp"
 
 enum class PopGroup : int {
     OTHER = 0x01,
@@ -65,15 +64,15 @@ public:
     ~Pop() = default;
 
     constexpr bool operator==(const Pop& rhs) const {
-        return (this->culture == rhs.culture && this->religion == rhs.religion && this->type == rhs.type);
+        return (this->culture_id == rhs.culture_id && this->religion_id == rhs.religion_id && this->type_id == rhs.type_id);
     }
 
     Ideology& get_ideology() const;
     uint32_t get_type_id() const;
 
-    PopType* type;
-    Culture* culture;
-    Religion* religion;
+    PopType::Id type_id;
+    Culture::Id culture_id;
+    Religion::Id religion_id;
 
     float size = 0.f;
     float life_needs_met = 0.f;
