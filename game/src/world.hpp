@@ -51,6 +51,7 @@
 #include "ideology.hpp"
 #include "terrain.hpp"
 #include "server/lua_api.hpp"
+#include "server/economy.hpp"
 #include "province.hpp"
 #include "unit.hpp"
 #include "technology.hpp"
@@ -137,6 +138,9 @@ public:
 
 // Contains the main world class object, containing all the data relevant for the simulation
 class World {
+private:
+    Economy::EconomyState economyState;
+
 public:
     static constexpr unsigned int ticks_per_month = 30;
 

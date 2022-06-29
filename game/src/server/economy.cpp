@@ -331,7 +331,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
     }
 }
 
-void Economy::do_tick(World& world) {
+void Economy::do_tick(World& world, EconomyState& economyState) {
     world.profiler.start("E-init");
     std::vector<Market> markets(world.goods.size());
 
@@ -365,6 +365,9 @@ void Economy::do_tick(World& world) {
     world.profiler.stop("E-init");
 
     world.profiler.start("E-trade");
+    #if 0
+        economyState.trade.recalculate(world);
+    #endif
     tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world, provinces_size](const auto& markets_range) {
         for(auto& market : markets_range) {
             for(size_t i = 0; i < provinces_size; i++) {

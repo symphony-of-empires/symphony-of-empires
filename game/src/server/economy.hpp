@@ -25,10 +25,21 @@
 
 #pragma once
 
+#include "server/trade.hpp"
+
 class World;
 
 // Functions that do a economy simulation in various steps, divided to reduce
 // overhead, they are distributed accross 48 ticks
+
+
 namespace Economy {
-    void do_tick(World& world);
+    class EconomyState final {
+    public:
+        EconomyState() { }
+
+        Trade trade;
+    };
+
+    void do_tick(World& world, EconomyState& economy);
 };
