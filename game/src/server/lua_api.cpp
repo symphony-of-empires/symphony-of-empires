@@ -795,9 +795,9 @@ int LuaAPI::get_province_pop(lua_State* L) {
     lua_pushnumber(L, (pop.life_needs_met));
     lua_pushnumber(L, (pop.everyday_needs_met));
     lua_pushnumber(L, (pop.luxury_needs_met));
-    lua_pushnumber(L, g_world.get_id(*pop.type));
-    lua_pushnumber(L, g_world.get_id(*pop.culture));
-    lua_pushnumber(L, g_world.get_id(*pop.religion));
+    lua_pushnumber(L, pop.type_id);
+    lua_pushnumber(L, pop.culture_id);
+    lua_pushnumber(L, pop.religion_id);
     lua_pushnumber(L, g_world.get_id(pop.get_ideology()));
     lua_pushnumber(L, (pop.militancy));
     return 9;
@@ -812,9 +812,9 @@ int LuaAPI::set_province_pop(lua_State* L) {
     pop.life_needs_met = (lua_tonumber(L, 6));
     pop.everyday_needs_met = (lua_tonumber(L, 7));
     pop.luxury_needs_met = (lua_tonumber(L, 8));
-    pop.type = &g_world.pop_types.at(lua_tonumber(L, 9));
-    pop.culture = &g_world.cultures.at(lua_tonumber(L, 10));
-    pop.religion = &g_world.religions.at(lua_tonumber(L, 11));
+    pop.type_id = lua_tonumber(L, 9);
+    pop.culture_id = lua_tonumber(L, 10);
+    pop.religion_id = lua_tonumber(L, 11);
     pop.militancy = (lua_tonumber(L, 12));
     return 0;
 }
@@ -836,11 +836,11 @@ int LuaAPI::set_province_pop_ideology_approval(lua_State* L) {
 int LuaAPI::add_province_pop(lua_State* L) {
     Province& province = g_world.provinces.at(lua_tonumber(L, 1));
     auto pop = Pop();
-    pop.type = &g_world.pop_types.at(lua_tonumber(L, 2));
-    pop.culture = &g_world.cultures.at(lua_tonumber(L, 3));
-    pop.religion = &g_world.religions.at(lua_tonumber(L, 4));
-    pop.size = (lua_tonumber(L, 5));
-    pop.literacy = (lua_tonumber(L, 6));
+    pop.type_id = lua_tonumber(L, 2);
+    pop.culture_id = lua_tonumber(L, 3);
+    pop.religion_id = lua_tonumber(L, 4);
+    pop.size = lua_tonumber(L, 5);
+    pop.literacy = lua_tonumber(L, 6);
     pop.budget = pop.size * 420.69f;
 
     /// @todo Make ideology NOT be random

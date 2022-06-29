@@ -297,9 +297,9 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->life_needs_met);
         ::deser_dynamic<is_serialize>(ar, &obj->everyday_needs_met);
         ::deser_dynamic<is_serialize>(ar, &obj->luxury_needs_met);
-        ::deser_dynamic<is_serialize>(ar, &obj->type);
-        ::deser_dynamic<is_serialize>(ar, &obj->culture);
-        ::deser_dynamic<is_serialize>(ar, &obj->religion);
+        ::deser_dynamic<is_serialize>(ar, &obj->type_id);
+        ::deser_dynamic<is_serialize>(ar, &obj->culture_id);
+        ::deser_dynamic<is_serialize>(ar, &obj->religion_id);
         ::deser_dynamic<is_serialize>(ar, &obj->ideology_approval);
     }
 };

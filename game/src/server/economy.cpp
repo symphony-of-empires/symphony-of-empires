@@ -261,7 +261,7 @@ void update_factories_employment(const World& world, Province& province, std::ve
     float unallocated_workers;
     for(size_t i = 0; i < province.pops.size(); i++) {
         auto& pop = province.pops[i];
-        if(pop.type->group == PopGroup::LABORER)
+        if(world.pop_types[pop.type_id].group == PopGroup::LABORER)
             unallocated_workers += pop.size;
     }
     // TODO set pop size to float ?
@@ -291,21 +291,21 @@ void update_factories_employment(const World& world, Province& province, std::ve
 
 void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& pop_needs) {
     pop_needs.assign(province.pops.size(), PopNeed{});
-    for(size_t i = 0; i < province.pops.size(); i++) {
-        PopNeed& pop_need = pop_needs[i];
-        Pop& pop = province.pops[i];
-        const PopType& type = *pop.type;
+    for(Pop::Id i = 0; i < province.pops.size(); i++) {
+        auto& pop_need = pop_needs[i];
+        auto& pop = province.pops[i];
+        const auto& type = world.pop_types[pop.type_id];
 
         pop_need.life_needs_met = 0.f;
         // Do basic needs
         {
             float total_price = 0;
-            for(size_t j = 0; j < world.goods.size(); j++) {
+            for(Good::Id j = 0; j < world.goods.size(); j++) {
                 auto price = province.products[j].price;
                 total_price += type.basic_needs_amount[j] * price;
             }
             float buying_factor = std::min(1.f, (float)pop_need.budget / total_price);
-            for(size_t j = 0; j < world.goods.size(); j++) {
+            for(Good::Id j = 0; j < world.goods.size(); j++) {
                 auto& product = province.products[j];
                 product.demand += type.basic_needs_amount[j] * buying_factor;
             }
@@ -318,12 +318,12 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         // TODO proper calulcation with pops trying to optimize satifcation
         {
             float total_price = 0;
-            for(size_t j = 0; j < world.goods.size(); j++) {
+            for(Good::Id j = 0; j < world.goods.size(); j++) {
                 auto price = province.products[j].price;
                 total_price += type.luxury_needs_satisfaction[j] * price;
             }
             float buying_factor = std::min(1.f, (float)pop_need.budget / total_price);
-            for(size_t j = 0; j < world.goods.size(); j++) {
+            for(Good::Id j = 0; j < world.goods.size(); j++) {
                 auto& product = province.products[j];
                 product.demand += type.basic_needs_amount[j] * buying_factor;
             }
@@ -428,12 +428,12 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             float laborers_amount = 0.f;
             for(Pop::Id i = 0; i < province.pops.size(); i++) {
                 auto& pop = province.pops[i];
-                if(pop.type->group == PopGroup::LABORER)
+                if(world.pop_types[pop.type_id].group == PopGroup::LABORER)
                     laborers_amount += pop.size;
             }
             for(Pop::Id i = 0; i < province.pops.size(); i++) {
                 auto& pop = province.pops[i];
-                if(pop.type->group == PopGroup::LABORER) {
+                if(world.pop_types[pop.type_id].group == PopGroup::LABORER) {
                     float ratio = pop.size / laborers_amount;
                     new_needs[i].budget += laborers_payment * ratio;
                 }
@@ -451,8 +451,8 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                     // Ratio of health:person is 25, thus making units very expensive
                     const float army_size = 100;
                     /// @todo Consume special soldier pops instead of farmers!!!
-                    auto it = std::find_if(province.pops.begin(), province.pops.end(), [building, army_size](const auto& e) {
-                        return (e.size >= army_size && e.type->group == PopGroup::FARMER);
+                    auto it = std::find_if(province.pops.begin(), province.pops.end(), [&world, building, army_size](const auto& e) {
+                        return (e.size >= army_size && world.pop_types[e.type_id].group == PopGroup::FARMER);
                     });
                     if(it == province.pops.end())
                         can_build_unit = false;
@@ -514,6 +514,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
 
     tbb::parallel_for(tbb::blocked_range(eval_nations.begin(), eval_nations.end()), [&world](const auto& nations_range) {
         for(const auto& nation : nations_range) {
+            if(!nation->exists()) continue;
             // Do research on focused research
             if(nation->focus_tech != nullptr) {
                 const float research = nation->get_research_points() / nation->focus_tech->cost;

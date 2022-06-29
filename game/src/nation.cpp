@@ -183,7 +183,7 @@ void Nation::set_policy(const Policies& policies) {
 
             // Must have the minimum required social value
             // the min-social-value is taken from the new enacted policy
-            if(pop.type->social_value < policies.min_sv_for_parliament) continue;
+            if(World::get_instance().pop_types[pop.type_id].social_value < policies.min_sv_for_parliament) continue;
             // Disapproval of old (current) policy
             const int old_disapproval = current_policy.difference(pop_policies);
             // Dissaproval of new policy
@@ -228,7 +228,7 @@ void Nation::set_policy(const Policies& policies) {
 
 // Checks if a POP is part of one of our accepted cultures
 bool Nation::is_accepted_culture(const Pop& pop) const {
-    return is_accepted_culture(*pop.culture);
+    return is_accepted_culture(World::get_instance().cultures[pop.culture_id]);
 }
 // Checks if a CULTURE is part of one of our accepted cultures
 bool Nation::is_accepted_culture(const Culture& culture) const {
@@ -237,7 +237,7 @@ bool Nation::is_accepted_culture(const Culture& culture) const {
 
 // Checks if a POP is part of one of our accepted religion
 bool Nation::is_accepted_religion(const Pop& pop) const {
-    return is_accepted_religion(*pop.religion);
+    return is_accepted_religion(World::get_instance().religions[pop.religion_id]);
 }
 // Checks if a RELIGION is part of one of our accepted relgion
 bool Nation::is_accepted_religion(const Religion& religion) const {
@@ -255,13 +255,13 @@ float Nation::get_tax(const Pop& pop) const {
         base_tax *= 2 * scale;
     }
 
-    if(pop.type->social_value <= 1.f)
+    if(World::get_instance().pop_types[pop.type_id].social_value <= 1.f)
         return current_policy.poor_flat_tax * base_tax;
     // For the medium class
-    else if(pop.type->social_value <= 2.f)
+    else if(World::get_instance().pop_types[pop.type_id].social_value <= 2.f)
         return current_policy.med_flat_tax * base_tax;
     // For the high class
-    else if(pop.type->social_value <= 3.f)
+    else if(World::get_instance().pop_types[pop.type_id].social_value <= 3.f)
         return current_policy.rich_flat_tax * base_tax;
     return base_tax;
 }
