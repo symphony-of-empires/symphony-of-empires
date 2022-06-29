@@ -49,7 +49,7 @@ static inline void shortest_path_from_source(Province::Id source, const std::vec
             const auto& neighbours = neighbour_relations[vertex.province_id];
             for(const auto& neighbour : neighbours) {
                 if(neighbour.cost < costs[neighbour.province_id]) {
-                    heap.emplace(Trade::Vertex{ neighbour.cost, neighbour.province_id });
+                    heap.emplace(neighbour.cost, neighbour.province_id);
                 }
             }
         }
@@ -60,9 +60,8 @@ void Trade::recalculate(const World& world) {
     if(trade_cost.empty())
         initialize(world);
 
-    int num_provinces = world.provinces.size();
-    for(int i = 0; i < num_provinces; i++) {
-        for(int j = 0; j < num_provinces; j++) {
+    for(size_t i = 0; i < world.provinces.size(); i++) {
+        for(size_t j = 0; j < world.provinces.size(); j++) {
             trade_cost[i][j] = std::numeric_limits<float>::max();
         }
     }
@@ -117,7 +116,7 @@ void Trade::initialize(const World& world) {
         for(const auto neighbour_id : province.neighbours) {
             const auto& neighbour = world.provinces[neighbour_id];
             const auto trade_cost = get_trade_cost(province, neighbour, world_size);
-            prov_neighbours.emplace_back(Vertex{ trade_cost, neighbour_id });
+            prov_neighbours.emplace_back(trade_cost, neighbour_id);
         }
         neighbours.emplace_back(prov_neighbours);
     }
