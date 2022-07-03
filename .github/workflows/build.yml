@@ -17,8 +17,8 @@ jobs:
         sudo apt install -y cmake make xorg-dev libglu1-mesa-dev libglew-dev
     - name: "CMake build"
       uses: actions/cache@v3
-      key: cmake-deps
       with:
+        key: cmake-dependencies
         path: |
           build/_deps
     - name: "Build"
