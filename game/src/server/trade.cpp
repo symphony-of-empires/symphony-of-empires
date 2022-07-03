@@ -60,8 +60,8 @@ void Trade::recalculate(const World& world) {
     if(trade_cost.empty())
         initialize(world);
 
-    for(size_t i = 0; i < world.provinces.size(); i++) {
-        for(size_t j = 0; j < world.provinces.size(); j++) {
+    for(Province::Id i = 0; i < world.provinces.size(); i++) {
+        for(Province::Id j = 0; j < world.provinces.size(); j++) {
             trade_cost[i][j] = std::numeric_limits<float>::max();
         }
     }
