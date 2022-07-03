@@ -9,12 +9,20 @@ jobs:
   build_linux:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
     - name: "Install"
       run: |
-        sudo apt install -y cmake make xorg-dev libglu1-mesa-dev
+        sudo apt install -y cmake make xorg-dev libglu1-mesa-dev libglew-dev
+    - name: "CMake build"
+      uses: actions/cache@v3
+      key: cmake-deps
+      with:
+        path: |
+          build/_deps
     - name: "Build"
       run: |
-        ./quick_build.sh
+        cmake -DCMAKE_BUILD_TYPE=Release -DE3D_BACKEND_OPENGL=1 -B build/ .
+        ln -s ../mods mods
+        cmake --build . -- -j$(nproc)
