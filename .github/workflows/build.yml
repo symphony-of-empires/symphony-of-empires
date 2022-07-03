@@ -25,4 +25,6 @@ jobs:
       run: |
         cmake -DCMAKE_BUILD_TYPE=Release -DE3D_BACKEND_OPENGL=1 -B build/ .
         ln -s ../mods mods
+        cd build
         cmake --build . -- -j$(nproc)
+        cd ..
