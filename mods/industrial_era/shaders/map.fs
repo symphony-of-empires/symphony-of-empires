@@ -417,8 +417,8 @@ void main() {
 
 	// Fog, dissolve the further we zoom out, also we have to take the reciprocal to amoritze
 	// the density
-	float d = (smoothstep(1., 0., 100. / distance(view_pos, v_frag_pos))) * (1. - max(far_from_map - 1., 0.));
-	out_color = mix(out_color, vec3(0.7, 0.7, 0.7), d);
+	//float d = (smoothstep(1., 0., 100. / distance(view_pos, v_frag_pos))) * (1. - max(far_from_map - 1., 0.));
+	//out_color = mix(out_color, vec3(0.7, 0.7, 0.7), d);
 
 	float light = 1.0;
 #ifdef LIGHTING
