@@ -53,9 +53,8 @@ if [ ! -d $BUILD_DIR ]; then
     fi
 fi
 
-cmake --build build/ || exit
-
 cd $BUILD_DIR
+cmake --build . -- -j8 || exit
 echo "Launching game"
 if [ "$1" = "android" ]; then
     mkdir -p apk
