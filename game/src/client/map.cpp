@@ -159,6 +159,19 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
         path = "gfx/unittype/" + unit_type.ref_name + ".png";
         unit_type_icons.push_back(s.tex_man.load(s.package_man.get_unique(path)));
     }
+
+    for(const auto& terrain_type : world.terrain_types) {
+        std::string path = "models/trees/" + terrain_type.ref_name + ".obj";
+        tree_type_models.push_back(s.model_man.load(s.package_man.get_unique(path)));
+    }
+
+    tree_spawn_pos.resize(world.provinces.size());
+    for(const auto& province : world.provinces) {
+        glm::vec2 pos = province.get_pos();
+        // TODO: Don't just place at the fucking center
+        tree_spawn_pos[province.get_id()].push_back(std::make_pair(pos, province.terrain_type->get_id()));
+    }
+
     create_labels();
 }
 
@@ -524,6 +537,15 @@ void Map::draw(GameState& gs) {
     // Display units that aren't on battles
     Unit::Id unit_index = 0, battle_index = 0;
     for(auto& province : const_cast<World&>(world).provinces) {
+        // Trees
+        for(const auto& tree : tree_spawn_pos[province.get_id()]) {
+            glm::mat4 model = glm::translate(base_model, glm::vec3(tree.first.x, tree.first.y, 0.f));
+            model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
+            obj_shader->set_uniform("model", model);
+            tree_type_models[tree.second]->draw(*obj_shader);
+        }
+
+        // Units
         if(!gs.world->unit_manager.get_province_units(province.get_id()).empty()) {
             size_t total_stack_size = 0; // Calculate the total size of our stack
             for(const auto unit_id : gs.world->unit_manager.get_province_units(province.get_id())) {
@@ -560,10 +582,10 @@ void Map::draw(GameState& gs) {
                     has_widget = true;
                 }
             }
-
             if(has_widget) this->unit_widgets[unit_index - 1]->set_size(total_stack_size);
         }
 
+        // Battles
         if((this->map_render->get_province_opt(province.get_id()) & 0x000000ff) == 0x000000ff) {
             const glm::vec2 prov_pos = province.get_pos();
             size_t war_battle_idx = 0;
