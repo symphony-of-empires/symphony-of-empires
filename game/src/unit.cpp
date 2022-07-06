@@ -115,15 +115,15 @@ void UnitManager::init(World& world) {
 
 void UnitManager::add_unit(Unit unit, Province::Id unit_current_province) {
     Unit::Id id;
-    if(free_unit_slots.size() > 0) {
+    if(free_unit_slots.empty()) {
+        id = units.size();
+        units.emplace_back(unit);
+        unit_province.push_back(unit_current_province);
+    } else {
         id = free_unit_slots.back();
         free_unit_slots.pop_back();
         units[id] = unit;
         unit_province[id] = unit_current_province;
-    } else {
-        id = units.size();
-        units.emplace_back(unit);
-        unit_province.push_back(unit_current_province);
     }
     units[id].cached_id = id;
     if(unit_current_province >= province_units.size())

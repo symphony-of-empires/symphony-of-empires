@@ -45,6 +45,7 @@ namespace Interface {
     public:
         UnitWidget(Unit& unit, Map& map, UI::Widget* parent);
         void set_unit(Unit& _unit);
+        void set_size(size_t size);
         virtual ~UnitWidget();
     };
 };

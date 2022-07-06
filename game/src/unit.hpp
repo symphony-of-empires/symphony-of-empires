@@ -137,7 +137,7 @@ public:
         }
     }
     
-    inline std::vector<Province::Id> get_province_units(Province::Id province_id) const {
+    inline std::vector<Unit::Id> get_province_units(Province::Id province_id) const {
         return province_units[province_id];
     }
 
