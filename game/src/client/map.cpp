@@ -523,35 +523,47 @@ void Map::draw(GameState& gs) {
 
     // Display units that aren't on battles
     Unit::Id unit_index = 0, battle_index = 0;
-    // for(auto& province : const_cast<World&>(world).provinces) {
-    gs.world->unit_manager.for_each_unit([this, &gs, &unit_index](auto& unit) {
-        auto prov_id = gs.world->unit_manager.unit_province[unit.cached_id];
-        auto& province = gs.world->provinces[prov_id];
-        if((this->map_render->get_province_opt(province.get_id()) & 0x000000ff) == 0x000000ff) {
-            auto& camera = this->camera;
-            const glm::vec2 prov_pos = province.get_pos();
-            // And display units
-            if(unit.on_battle) return;
-            bool unit_visible = true;
-            if(this->view_mode == MapView::SPHERE_VIEW) {
-                auto* orbit_camera = static_cast<Eng3D::OrbitCamera*>(camera);
-                glm::vec3 cam_pos = camera->get_world_pos();
-                glm::vec3 world_pos = camera->get_tile_world_pos(prov_pos);
-                glm::vec3 world_to_camera = glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
-                if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
-                    unit_visible = false;
+    for(auto& province : const_cast<World&>(world).provinces) {
+        if(!gs.world->unit_manager.get_province_units(province.get_id()).empty()) {
+            size_t total_stack_size = 0; // Calculate the total size of our stack
+            for(const auto unit_id : gs.world->unit_manager.get_province_units(province.get_id())) {
+                const auto& unit = gs.world->unit_manager.units[unit_id];
+                total_stack_size += unit.size;
             }
 
-            if(unit_visible) {
-                if(unit_index < unit_widgets.size())
-                    this->unit_widgets[unit_index]->set_unit(unit);
-                else
-                    this->unit_widgets.push_back(new Interface::UnitWidget(unit, *this, this->map_ui_layer));
-                unit_index++;
+            // Get first/topmost unit
+            const auto unit_id = gs.world->unit_manager.get_province_units(province.get_id())[0];
+            auto& unit = gs.world->unit_manager.units[unit_id];
+            bool has_widget = false;
+            if((this->map_render->get_province_opt(province.get_id()) & 0x000000ff) == 0x000000ff) {
+                auto& camera = this->camera;
+                const glm::vec2 prov_pos = province.get_pos();
+                // And display units
+                if(unit.on_battle) return;
+                bool unit_visible = true;
+                if(this->view_mode == MapView::SPHERE_VIEW) {
+                    auto* orbit_camera = static_cast<Eng3D::OrbitCamera*>(camera);
+                    glm::vec3 cam_pos = camera->get_world_pos();
+                    glm::vec3 world_pos = camera->get_tile_world_pos(prov_pos);
+                    glm::vec3 world_to_camera = glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
+                    if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
+                        unit_visible = false;
+                }
+
+                if(unit_visible) {
+                    if(unit_index < unit_widgets.size()) {
+                        this->unit_widgets[unit_index]->set_unit(unit);
+                    } else {
+                        this->unit_widgets.push_back(new Interface::UnitWidget(unit, *this, this->map_ui_layer));
+                    }
+                    unit_index++;
+                    has_widget = true;
+                }
             }
+
+            if(has_widget) this->unit_widgets[unit_index - 1]->set_size(total_stack_size);
         }
-    });
-    for(auto& province : const_cast<World&>(world).provinces) {
+
         if((this->map_render->get_province_opt(province.get_id()) & 0x000000ff) == 0x000000ff) {
             const glm::vec2 prov_pos = province.get_pos();
             size_t war_battle_idx = 0;

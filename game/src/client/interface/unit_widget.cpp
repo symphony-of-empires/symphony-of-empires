@@ -101,8 +101,12 @@ void UnitWidget::set_unit(Unit& _unit) {
     auto nation_flag = map.nation_flags[_unit.owner_id];
     this->flag_img->current_texture = nation_flag;
     auto unit_size = (int)_unit.size;
-    this->size_label->text(std::to_string(unit_size));
+    this->set_size(unit_size);
     this->morale_bar->set_value(_unit.morale);
+}
+
+void UnitWidget::set_size(size_t size) {
+    this->size_label->text(std::to_string(size));
 }
 
 UnitWidget::~UnitWidget() {
