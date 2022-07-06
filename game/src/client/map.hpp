@@ -63,6 +63,7 @@ namespace Interface {
 }
 
 #include "province.hpp"
+#include "terrain.hpp"
 
 enum class MapView {
     SPHERE_VIEW,
