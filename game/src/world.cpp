@@ -335,6 +335,9 @@ void World::load_initial() {
     try {
         Archive ar = Archive();
         ar.from_file("world.cache");
+        std::string creat_date;
+        ::deserialize(ar, &creat_date);
+        if(creat_date != __DATE__) CXX_THROW(std::runtime_error, "Unmatching cache");
         ::deserialize(ar, this);
     } catch(const std::exception& e) {
         Eng3D::Log::error("cache", e.what());
@@ -479,6 +482,8 @@ void World::load_initial() {
 
         // Write the entire world to the cache file
         Archive ar = Archive();
+        std::string creat_date = __DATE__;
+        ::serialize(ar, &creat_date);
         ::serialize(ar, this);
         ar.to_file("world.cache");
     }
