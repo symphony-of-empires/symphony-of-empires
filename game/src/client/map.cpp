@@ -161,7 +161,7 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     }
 
     for(const auto& terrain_type : world.terrain_types) {
-        std::string path = "models/trees/" + terrain_type.ref_name + ".obj";
+        std::string path = "models/trees/" + terrain_type.ref_name + ".fbx";
         tree_type_models.push_back(s.model_man.load(s.package_man.get_unique(path)));
     }
 
@@ -169,7 +169,14 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     for(const auto& province : world.provinces) {
         glm::vec2 pos = province.get_pos();
         // TODO: Don't just place at the fucking center
-        tree_spawn_pos[province.get_id()].push_back(std::make_pair(pos, province.terrain_type->get_id()));
+        auto& spawn_list = tree_spawn_pos[province.get_id()];
+        for(size_t x = province.box_area.left; x < province.box_area.right; x++) {
+            for(size_t y = province.box_area.top; y < province.box_area.bottom; y++) {
+                if((std::rand() & 0xFF) == 0) {
+                    spawn_list.push_back(std::make_pair(glm::vec2(x, y), province.terrain_type->get_id()));
+                }
+            }
+        }
     }
 
     create_labels();

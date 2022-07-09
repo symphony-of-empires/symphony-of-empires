@@ -92,8 +92,17 @@ Eng3D::SimpleModel Eng3D::Model::process_simple_model(aiMesh& mesh, const aiScen
     Eng3D::SimpleModel simple_model = Eng3D::SimpleModel(Eng3D::MeshMode::TRIANGLES);
     auto& s = Eng3D::State::get_instance();
     simple_model.buffer.resize(mesh.mNumVertices);
+    glm::vec3 max_vert{};
     for(size_t i = 0; i < mesh.mNumVertices; i++) {
-        auto vertice = glm::vec3(mesh.mVertices[i].x, mesh.mVertices[i].y, mesh.mVertices[i].z);
+        max_vert = glm::vec3(std::max<float>(max_vert.x, mesh.mVertices[i].x), std::max<float>(max_vert.y, mesh.mVertices[i].y), std::max<float>(max_vert.z, mesh.mVertices[i].z));
+    }
+
+    max_vert = glm::vec3(max_vert.x, std::max<float>(max_vert.y, max_vert.x), std::max<float>(max_vert.z, max_vert.x));
+    max_vert = glm::vec3(std::max<float>(max_vert.x, max_vert.y), max_vert.y, std::max<float>(max_vert.z, max_vert.y));
+    max_vert = glm::vec3(std::max<float>(max_vert.x, max_vert.z), std::max<float>(max_vert.y, max_vert.z), max_vert.z);
+
+    for(size_t i = 0; i < mesh.mNumVertices; i++) {
+        auto vertice = glm::vec3(mesh.mVertices[i].x, mesh.mVertices[i].y, mesh.mVertices[i].z) / max_vert;
         auto texcoord = glm::vec2(0.f, 0.f);
         if(mesh.mTextureCoords[0])
             texcoord = glm::vec2(mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y);

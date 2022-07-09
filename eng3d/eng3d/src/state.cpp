@@ -306,20 +306,20 @@ void Eng3D::State::reload_shaders() {
     builtin_shaders.clear();
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     // Big library used mostly by every shader, compiled for faster linking or other stuff
-    builtin_shaders["fs_lib"] = load_fragment_shader("fs_lib.fs");
+    builtin_shaders["fs_lib"] = load_fragment_shader("lib.fs");
     // 2D generic fragment shader
-    builtin_shaders["fs_2d"] = load_fragment_shader("fs_2d.fs");
+    builtin_shaders["fs_2d"] = load_fragment_shader("2d.fs");
     // 2D generic vertex shader
-    builtin_shaders["vs_2d"] = load_vertex_shader("vs_2d.vs");
+    builtin_shaders["vs_2d"] = load_vertex_shader("2d.vs");
     // 3D generic fragment shader
-    builtin_shaders["fs_3d"] = load_fragment_shader("fs_3d.fs");
+    builtin_shaders["fs_3d"] = load_fragment_shader("3d.fs");
     // 3D generic vertex shader
-    builtin_shaders["vs_3d"] = load_vertex_shader("vs_3d.vs");
-    builtin_shaders["vs_font_sdf"] = load_vertex_shader("vs_font_sdf.vs");
-    builtin_shaders["fs_font_sdf"] = load_fragment_shader("fs_font_sdf.fs");
+    builtin_shaders["vs_3d"] = load_vertex_shader("3d.vs");
+    builtin_shaders["vs_font_sdf"] = load_vertex_shader("font_sdf.vs");
+    builtin_shaders["fs_font_sdf"] = load_fragment_shader("font_sdf.fs");
     // 2D Piechart shaders
-    builtin_shaders["vs_piechart"] = load_vertex_shader("vs_piechart.vs");
-    builtin_shaders["fs_piechart"] = load_fragment_shader("fs_piechart.fs");
+    builtin_shaders["vs_piechart"] = load_vertex_shader("piechart.vs");
+    builtin_shaders["fs_piechart"] = load_fragment_shader("piechart.fs");
 #endif
 }
 
