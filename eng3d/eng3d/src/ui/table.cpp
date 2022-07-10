@@ -84,7 +84,7 @@ TableRow::TableRow(Widget* _parent, int _width, int _height, std::vector<int>& _
     this->border = border;
     this->on_pos_recalc = [this](Widget&, int index) {
         auto& s = Eng3D::State::get_instance();
-        auto tex_man = s.tex_man;
+        auto& tex_man = s.tex_man;
         Eng3D::TextureOptions tex_options{};
         tex_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
         tex_options.mag_filter = GL_LINEAR;

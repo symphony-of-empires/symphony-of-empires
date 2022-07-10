@@ -127,7 +127,7 @@ public:
     std::vector<std::shared_ptr<Eng3D::Model>> building_type_models;
     std::vector<std::shared_ptr<Eng3D::Model>> unit_type_models;
     std::vector<std::shared_ptr<Eng3D::Model>> tree_type_models;
-    std::vector<std::vector<std::pair<glm::vec2, TerrainType::Id>>> tree_spawn_pos; // Location of where to place trees
+    std::vector<std::pair<glm::vec2, TerrainType::Id>> tree_spawn_pos; // Location of where to place trees
     std::vector<std::shared_ptr<Eng3D::Texture>> building_type_icons;
     std::vector<std::shared_ptr<Eng3D::Texture>> unit_type_icons;
     std::vector<std::shared_ptr<Eng3D::Texture>> nation_flags;
@@ -157,5 +157,6 @@ public:
     std::shared_ptr<Eng3D::Texture> skybox_tex;
     Eng3D::Sphere skybox;
     std::unique_ptr<Eng3D::OpenGL::Program> obj_shader;
+    std::unique_ptr<Eng3D::OpenGL::Program> tree_shder;
 };
 

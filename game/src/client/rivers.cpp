@@ -89,7 +89,7 @@ void get_river(std::vector<glm::vec3>& river, int current_index, int prev_index,
 
 
 void Rivers::build_rivers() {
-    auto tex_man = Eng3D::State::get_instance().tex_man;
+    auto& tex_man = Eng3D::State::get_instance().tex_man;
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
     auto river_tex = tex_man.load(Eng3D::State::get_instance().package_man.get_unique("map/river.png"), no_drop_options);

@@ -125,6 +125,13 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
         obj_shader->link();
     }
 
+    tree_shder = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
+    {
+        obj_shader->attach_shader(*s.builtin_shaders["vs_tree"].get());
+        obj_shader->attach_shader(*s.builtin_shaders["fs_tree"].get());
+        obj_shader->link();
+    }
+
     Eng3D::TextureOptions mipmap_options{};
     mipmap_options.wrap_s = GL_REPEAT;
     mipmap_options.wrap_t = GL_REPEAT;
@@ -142,7 +149,6 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     for(const auto& nation : world.nations) {
         std::string path = "gfx/flags/" + nation.ref_name + "_" + (nation.ideology == nullptr ? "none" : nation.ideology->ref_name.get_string()) + ".png";
         auto flag_texture = s.tex_man.load(s.package_man.get_unique(path), mipmap_options);
-        flag_texture->gen_mipmaps();
         nation_flags.push_back(flag_texture);
     }
     for(const auto& building_type : world.building_types) {
@@ -166,19 +172,8 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     }
 
     tree_spawn_pos.resize(world.provinces.size());
-    for(const auto& province : world.provinces) {
-        glm::vec2 pos = province.get_pos();
-        // TODO: Don't just place at the fucking center
-        auto& spawn_list = tree_spawn_pos[province.get_id()];
-        for(size_t x = province.box_area.left; x < province.box_area.right; x++) {
-            for(size_t y = province.box_area.top; y < province.box_area.bottom; y++) {
-                if((std::rand() & 0xFF) == 0) {
-                    spawn_list.push_back(std::make_pair(glm::vec2(x, y), province.terrain_type->get_id()));
-                }
-            }
-        }
-    }
-
+    for(const auto& province : world.provinces)
+        tree_spawn_pos[province.get_id()] = std::make_pair(province.get_pos(), province.terrain_type->get_id());
     create_labels();
 }
 
@@ -524,34 +519,39 @@ void Map::update_mapmode() {
 }
 
 void Map::draw(GameState& gs) {
+    const auto projection = camera->get_projection();
+    const auto view = camera->get_view();
+    glm::mat4 base_model = glm::mat4(1.f);
+
     map_render->draw(camera, view_mode);
     // rivers->draw(camera);
     // borders->draw(camera);
 
     /// @todo We need to better this
     obj_shader->use();
-    const glm::mat4 projection = camera->get_projection();
     obj_shader->set_uniform("projection", projection);
-    const glm::mat4 view = camera->get_view();
     obj_shader->set_uniform("view", view);
+    if(view_mode == MapView::SPHERE_VIEW) {
+        // Universe skybox
+        const glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
+        obj_shader->set_uniform("model", model);
+        obj_shader->set_texture(0, "diffuse_map", *skybox_tex);
+        obj_shader->set_texture(1, "ambient_map", *skybox_tex);
+        obj_shader->set_texture(2, "occlussion_map", *skybox_tex);
+        obj_shader->set_texture(3, "height_map", *skybox_tex);
+        obj_shader->set_texture(4, "specular_map", *skybox_tex);
+        obj_shader->set_texture(5, "normal_map", *skybox_tex);
+        skybox.draw();
+    }
 
     auto preproc_quad = Eng3D::Quad2D(); // Reused a bunch of times
 
     // Properly display textures :)
-    glm::mat4 base_model = glm::mat4(1.f);
     std::vector<float> province_units_y(world.provinces.size(), 0.f);
 
     // Display units that aren't on battles
     Unit::Id unit_index = 0, battle_index = 0;
     for(auto& province : const_cast<World&>(world).provinces) {
-        // Trees
-        for(const auto& tree : tree_spawn_pos[province.get_id()]) {
-            glm::mat4 model = glm::translate(base_model, glm::vec3(tree.first.x, tree.first.y, 0.f));
-            model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
-            obj_shader->set_uniform("model", model);
-            tree_type_models[tree.second]->draw(*obj_shader);
-        }
-
         // Units
         if(!gs.world->unit_manager.get_province_units(province.get_id()).empty()) {
             size_t total_stack_size = 0; // Calculate the total size of our stack
@@ -571,10 +571,10 @@ void Map::draw(GameState& gs) {
                 if(unit.on_battle) return;
                 bool unit_visible = true;
                 if(this->view_mode == MapView::SPHERE_VIEW) {
-                    auto* orbit_camera = static_cast<Eng3D::OrbitCamera*>(camera);
-                    glm::vec3 cam_pos = camera->get_world_pos();
-                    glm::vec3 world_pos = camera->get_tile_world_pos(prov_pos);
-                    glm::vec3 world_to_camera = glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
+                    const auto* orbit_camera = static_cast<const Eng3D::OrbitCamera*>(camera);
+                    const auto cam_pos = camera->get_world_pos();
+                    const auto world_pos = camera->get_tile_world_pos(prov_pos);
+                    const auto world_to_camera = glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
                     if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
                         unit_visible = false;
                 }
@@ -594,15 +594,15 @@ void Map::draw(GameState& gs) {
 
         // Battles
         if((this->map_render->get_province_opt(province.get_id()) & 0x000000ff) == 0x000000ff) {
-            const glm::vec2 prov_pos = province.get_pos();
+            const auto prov_pos = province.get_pos();
             size_t war_battle_idx = 0;
             for(const auto& battle : province.battles) {
                 bool battle_visible = true;
                 if(view_mode == MapView::SPHERE_VIEW) {
-                    auto* orbit_camera = static_cast<Eng3D::OrbitCamera*>(camera);
-                    glm::vec3 cam_pos = camera->get_world_pos();
-                    glm::vec3 world_pos = camera->get_tile_world_pos(prov_pos);
-                    glm::vec3 world_to_camera = glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
+                    const auto* orbit_camera = static_cast<const Eng3D::OrbitCamera*>(camera);
+                    const auto cam_pos = camera->get_world_pos();
+                    const auto world_pos = camera->get_tile_world_pos(prov_pos);
+                    const auto world_to_camera = glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
                     if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
                         battle_visible = false;
                 }
@@ -620,13 +620,13 @@ void Map::draw(GameState& gs) {
             const auto& province_units = world.unit_manager.get_province_units(world.get_id(province));
             if(!province_units.empty()) {
                 const auto& unit = world.unit_manager.units[province_units[0]];
-                glm::mat4 model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
+                auto model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
                 if(Province::is_valid(unit.target_province_id)) {
                     const auto& unit_target = world.provinces[unit.target_province_id];
-                    const glm::vec2 target_pos = unit_target.get_pos();
-                    const float dist = glm::sqrt(glm::pow(glm::abs(prov_pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(prov_pos.y - target_pos.y), 2.f));
+                    const auto target_pos = unit_target.get_pos();
+                    const auto dist = glm::sqrt(glm::pow(glm::abs(prov_pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(prov_pos.y - target_pos.y), 2.f));
                     auto line_square = Eng3D::Square(0.f, 0.f, dist, 0.5f);
-                    glm::mat4 line_model = glm::rotate(model, glm::atan(target_pos.y - prov_pos.y, target_pos.x - prov_pos.x), glm::vec3(0.f, 0.f, 1.f));
+                    const auto line_model = glm::rotate(model, glm::atan(target_pos.y - prov_pos.y, target_pos.x - prov_pos.x), glm::vec3(0.f, 0.f, 1.f));
                     obj_shader->set_texture(0, "diffuse_map", *line_tex);
                     obj_shader->set_uniform("model", line_model);
                     line_square.draw();
@@ -647,7 +647,7 @@ void Map::draw(GameState& gs) {
     for(const auto& province : world.provinces) {
         const float y = province_units_y[world.get_id(province)];
         province_units_y[world.get_id(province)] += 2.5f;
-        const glm::vec2 prov_pos = province.get_pos();
+        const auto prov_pos = province.get_pos();
 
         size_t i = 0;
         for(const auto& building_type : world.building_types) {
@@ -665,7 +665,7 @@ void Map::draw(GameState& gs) {
     for(const auto unit_id : gs.input.selected_units) {
         auto& unit = gs.world->unit_manager.units[unit_id];
         const auto pos = unit.get_pos();
-        glm::mat4 model = glm::translate(base_model, glm::vec3(pos.x, pos.y, 0.f));
+        const auto model = glm::translate(base_model, glm::vec3(pos.x, pos.y, 0.f));
         obj_shader->set_uniform("model", model);
         obj_shader->set_texture(0, "diffuse_map", *gs.tex_man.load(gs.package_man.get_unique("gfx/select_border.png")).get());
         preproc_quad.draw();
@@ -673,26 +673,30 @@ void Map::draw(GameState& gs) {
 
     // Draw the "drag area" box
     if(is_drag) {
-        glm::mat4 model = base_model;
+        auto model = base_model;
         obj_shader->set_uniform("model", model);
         obj_shader->set_texture(0, "diffuse_map", *line_tex);
         Eng3D::Square dragbox_square = Eng3D::Square(gs.input.drag_coord.x, gs.input.drag_coord.y, gs.input.select_pos.x, gs.input.select_pos.y);
         dragbox_square.draw();
     }
 
-    if(view_mode == MapView::SPHERE_VIEW) {
-        // Universe skybox
-        const glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
-        obj_shader->set_uniform("model", model);
-        obj_shader->set_texture(0, "diffuse_map", *skybox_tex);
-        skybox.draw();
-    }
+    const auto map_pos = camera->get_map_pos();
+    const auto distance_to_map = map_pos.z / world.width;
+    if(distance_to_map < 0.070) map_font->draw(province_labels, camera, view_mode == MapView::SPHERE_VIEW);
+    else map_font->draw(nation_labels, camera, view_mode == MapView::SPHERE_VIEW);
 
-    glm::vec3 map_pos = camera->get_map_pos();
-    float distance_to_map = map_pos.z / world.width;
-    if(distance_to_map < 0.070)
-        map_font->draw(province_labels, camera, view_mode == MapView::SPHERE_VIEW);
-    else
-        map_font->draw(nation_labels, camera, view_mode == MapView::SPHERE_VIEW);
+    // Drawing trees
+    /*tree_shder->use();
+    tree_shder->set_uniform("projection", projection);
+    tree_shder->set_uniform("view", view);
+    for(auto& province : const_cast<World&>(world).provinces) {
+        const auto& tree = tree_spawn_pos[province.get_id()];
+        glm::mat4 model = glm::translate(base_model, glm::vec3(tree.first, 0.f));
+        model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
+        tree_shder->set_uniform("model", model);
+        for(const auto& simple_model : tree_type_models[tree.second]->simple_models)
+            simple_model.draw(*tree_shder, 10);
+    }*/
+
     wind_osc += 0.1f;
 }

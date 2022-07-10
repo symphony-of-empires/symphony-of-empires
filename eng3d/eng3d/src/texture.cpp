@@ -31,15 +31,12 @@
 #include "eng3d/path.hpp"
 #include "eng3d/framebuffer.hpp"
 #include "eng3d/utils.hpp"
+#include "eng3d/state.hpp"
 #include "eng3d/log.hpp"
 
 //
 // Texture
 //
-Eng3D::Texture::Texture() {
-
-}
-
 Eng3D::Texture::Texture(const std::string& path)
     : BinaryImage(path)
 {
@@ -80,9 +77,8 @@ Eng3D::Texture::Texture(TTF_Font* font, Eng3D::Color color, const std::string& m
     SDL_FreeSurface(surface);
 
     const std::string error_msg = SDL_GetError();
-    if(!error_msg.empty()) {
+    if(!error_msg.empty())
         Eng3D::Log::error("sdl", error_msg);
-    }
 }
 
 Eng3D::Texture::~Texture() {
@@ -90,6 +86,13 @@ Eng3D::Texture::~Texture() {
     if(gl_tex_num)
         delete_gputex();
 #endif
+    if(managed) {
+        auto& s = Eng3D::State::get_instance();
+        auto it = std::find_if(s.tex_man.unuploaded_textures.begin(), s.tex_man.unuploaded_textures.end(), [this](const auto& e) {
+            return e.texture == this;
+        });
+        s.tex_man.unuploaded_textures.erase(it);
+    }
 }
 
 // This dummy texture helps to avoid crashes due to missing buffers or so, and also gives
@@ -98,9 +101,8 @@ void Eng3D::Texture::create_dummy() {
     width = 8;
     height = 8;
     buffer = std::make_unique<uint32_t[]>(width * height);
-    if(buffer.get() == nullptr) {
+    if(buffer.get() == nullptr)
         CXX_THROW(TextureException, "Dummy", "Out of memory for dummy texture");
-    }
 
     // Fill in with a permutation pattern of pink and black
     // This should be autovectorized by gcc
@@ -108,7 +110,40 @@ void Eng3D::Texture::create_dummy() {
         buffer.get()[i] = 0xff000000 | (i * 16);
 }
 
+/**
+ * @brief Frontend for uploading (schedules or instantly uploads)
+ * 
+ * @param options Options for upload
+ */
 void Eng3D::Texture::upload(TextureOptions options) {
+    auto& s = Eng3D::State::get_instance();
+    if(options.instant_upload || !managed) {
+        this->_upload(options); // Do upload instantly
+    } else {
+        if(managed) {
+            TextureUploadRequest request{};
+            request.texture = this;
+            request.options = options;
+            s.tex_man.unuploaded_textures.push_back(request); // Schedule upload for later
+        }
+    }
+}
+
+void Eng3D::Texture::upload(SDL_Surface* surface) {
+    auto& s = Eng3D::State::get_instance();
+    if(!managed) {
+        this->_upload(surface);
+    } else {
+        if(managed) {
+            TextureUploadRequest request{};
+            request.texture = this;
+            request.surface = surface;
+            s.tex_man.unuploaded_textures.push_back(request);
+        }
+    }
+}
+
+void Eng3D::Texture::_upload(TextureOptions options) {
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     if(gl_tex_num)
         delete_gputex();
@@ -177,20 +212,13 @@ void Eng3D::Texture::upload(TextureOptions options) {
         buffer.reset();
     }
 #endif
-}
-
-void Eng3D::Texture::gen_mipmaps() const {
-#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
-    glBindTexture(GL_TEXTURE_2D, gl_tex_num);
-    glGenerateMipmap(GL_TEXTURE_2D);
-#endif
+    if(options.min_filter == GL_NEAREST_MIPMAP_NEAREST || options.min_filter == GL_NEAREST_MIPMAP_LINEAR || options.min_filter == GL_LINEAR_MIPMAP_NEAREST || options.min_filter == GL_LINEAR_MIPMAP_LINEAR)
+        this->gen_mipmaps();
 }
 
 // Converts the texture into a OpenGL texture, and assigns it a number
-void Eng3D::Texture::upload(SDL_Surface* surface) {
-    if(surface->w == 0 || surface->h == 0) {
-        return;
-    }
+void Eng3D::Texture::_upload(SDL_Surface* surface) {
+    if(surface->w == 0 || surface->h == 0) return;
 
     int colors = surface->format->BytesPerPixel;
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
@@ -244,6 +272,14 @@ void Eng3D::Texture::upload(SDL_Surface* surface) {
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+#endif
+    this->gen_mipmaps();
+}
+
+void Eng3D::Texture::gen_mipmaps() const {
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
+    glBindTexture(GL_TEXTURE_2D, gl_tex_num);
+    glGenerateMipmap(GL_TEXTURE_2D);
 #endif
 }
 
@@ -362,8 +398,7 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(const std::string& p
     // Find texture when wanting to be loaded and load texture from cached texture list
     auto key = std::make_pair(path, options);
     auto it = textures.find(key);
-    if(it != textures.end())
-        return (*it).second;
+    if(it != textures.end()) return (*it).second;
 
     Eng3D::Log::debug("texture", "Loaded and cached texture " + path);
 
@@ -371,13 +406,12 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(const std::string& p
     std::shared_ptr<Eng3D::Texture> tex;
     try {
         tex = std::make_shared<Eng3D::Texture>(path);
-    } catch(BinaryImageException&) {
+    } catch(const BinaryImageException&) {
         tex = std::make_shared<Eng3D::Texture>();
         tex->create_dummy();
     }
+    tex->managed = true;
     tex->upload(options);
-    if(options.min_filter == GL_NEAREST_MIPMAP_NEAREST || options.min_filter == GL_NEAREST_MIPMAP_LINEAR || options.min_filter == GL_LINEAR_MIPMAP_NEAREST || options.min_filter == GL_LINEAR_MIPMAP_LINEAR)
-        tex->gen_mipmaps();
     textures[key] = tex;
     return textures[key];
 }

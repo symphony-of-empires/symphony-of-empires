@@ -306,7 +306,7 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
             auto* row = table->get_row(this->gs.world->get_id(terrain_type));
             size_t row_index = 0;
 
-            auto tex_man = Eng3D::State::get_instance().tex_man;
+            auto& tex_man = Eng3D::State::get_instance().tex_man;
 
             auto landscape = row->get_element(row_index++);
             auto landscape_icon = tex_man.load(gs.package_man.get_unique("gfx/terraintype/" + terrain_type.ref_name + ".png"));
