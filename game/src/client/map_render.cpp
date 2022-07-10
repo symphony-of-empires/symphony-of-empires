@@ -449,7 +449,7 @@ void MapRender::update_visibility(GameState& gs)
 
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
-    for(Province::Id i = 0; i < 256 * 256; i++)
+    for(Province::Id i = 0; i < gs.world->provinces.size(); i++)
         province_opt->buffer[i] = 0x00000080;
     
     for(const auto& nation : gs.world->nations) {
