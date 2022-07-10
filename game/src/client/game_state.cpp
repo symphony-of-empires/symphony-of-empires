@@ -666,21 +666,7 @@ void start_client(int argc, char** argv) {
 
     auto mod_logo_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/mod_logo.png"));
     auto* mod_logo_img = new UI::Image(0, 0, mod_logo_tex->width, mod_logo_tex->height, mod_logo_tex);
-
-    // Pre-cache the textures that the map will use upon construction
-    bool init_iterator = true;
-    bool load_nation_flags = false;
-    std::vector<Nation>::const_iterator load_it_nation;
-    bool load_building_type_icons = false;
-    std::vector<BuildingType>::const_iterator load_it_building_type;
-    bool load_unit_type_icons = false;
-    std::vector<UnitType>::const_iterator load_it_unit_type;
-
-    Eng3D::TextureOptions mipmap_options{};
-    mipmap_options.wrap_s = GL_REPEAT;
-    mipmap_options.wrap_t = GL_REPEAT;
-    mipmap_options.min_filter = GL_NEAREST_MIPMAP_LINEAR;
-    mipmap_options.mag_filter = GL_LINEAR;
+    
     while(!gs.loaded_map) {
         // Widgets here SHOULD NOT REQUEST UPON WORLD DATA
         // so no world lock is needed beforehand
@@ -690,54 +676,12 @@ void start_client(int argc, char** argv) {
         std::scoped_lock lock(gs.render_lock);
         gs.clear();
         if(gs.loaded_world) {
-            if(init_iterator) {
-                load_it_nation = gs.world->nations.begin();
-                load_it_building_type = gs.world->building_types.begin();
-                load_it_unit_type = gs.world->unit_types.begin();
-                init_iterator = false;
-            }
-
-            if(load_nation_flags && load_building_type_icons && load_unit_type_icons) {
-                gs.map = new Map(*gs.world, map_layer, gs.width, gs.height);
-                gs.current_mode = MapMode::DISPLAY_ONLY;
-                gs.map->set_view(MapView::SPHERE_VIEW);
-                gs.map->camera->move(0.f, 50.f, 10.f);
-                gs.loaded_map = true;
-                gs.load_progress = 1.f;
-            } else if(!load_nation_flags) {
-                const std::string path = "gfx/flags/" + (*load_it_nation).ref_name + "_" + ((*load_it_nation).ideology == nullptr ? "none" : (*load_it_nation).ideology->ref_name.get_string()) + ".png";
-                gs.tex_man.load(gs.package_man.get_unique(path), mipmap_options);
-                if(!path.empty())
-                    load_pbar->text(path);
-                gs.load_progress = 0.1f + (0.3f / std::distance(load_it_nation, gs.world->nations.cend()));
-                load_it_nation++;
-                if(load_it_nation == gs.world->nations.end())
-                    load_nation_flags = true;
-            } else if(!load_building_type_icons) {
-                const std::string model_path = "models/building_types/" + (*load_it_building_type).ref_name + ".obj";
-                gs.model_man.load(gs.package_man.get_unique(model_path));
-                const std::string tex_path = "gfx/buildingtype/" + (*load_it_building_type).ref_name + ".png";
-                gs.tex_man.load(gs.package_man.get_unique(tex_path), mipmap_options);
-                if(!model_path.empty())
-                    load_pbar->text(model_path);
-                gs.load_progress = 0.4f + (0.3f / std::distance(load_it_building_type, gs.world->building_types.cend()));
-                load_it_building_type++;
-                if(load_it_building_type == gs.world->building_types.end())
-                    load_building_type_icons = true;
-            } else if(!load_unit_type_icons) {
-                const std::string model_path = "models/unit_types/" + (*load_it_unit_type).ref_name + ".obj";
-                gs.model_man.load(gs.package_man.get_unique(model_path));
-                const std::string tex_path = "gfx/unittype/" + (*load_it_unit_type).ref_name + ".png";
-                gs.tex_man.load(gs.package_man.get_unique(tex_path), mipmap_options);
-                if(!model_path.empty())
-                    load_pbar->text(model_path);
-                gs.load_progress = 0.7f + (0.3f / std::distance(load_it_unit_type, gs.world->unit_types.cend()));
-                load_it_unit_type++;
-                if(load_it_unit_type == gs.world->unit_types.end()) {
-                    load_unit_type_icons = true;
-                    load_pbar->text("Creating the map");
-                }
-            }
+            gs.map = new Map(*gs.world, map_layer, gs.width, gs.height);
+            gs.current_mode = MapMode::DISPLAY_ONLY;
+            gs.map->set_view(MapView::SPHERE_VIEW);
+            gs.map->camera->move(0.f, 50.f, 10.f);
+            gs.loaded_map = true;
+            gs.load_progress = 1.f;
         }
 
         load_pbar->set_value(gs.load_progress);

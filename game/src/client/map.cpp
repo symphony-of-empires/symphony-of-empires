@@ -132,24 +132,22 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
         obj_shader->link();
     }
 
-    Eng3D::TextureOptions mipmap_options{};
-    mipmap_options.wrap_s = GL_REPEAT;
-    mipmap_options.wrap_t = GL_REPEAT;
-    mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-    mipmap_options.mag_filter = GL_LINEAR;
-    line_tex = s.tex_man.load(s.package_man.get_unique("gfx/line_target.png"), mipmap_options);
-    skybox_tex = s.tex_man.load(s.package_man.get_unique("gfx/space.png"), mipmap_options);
-
     // Set the mapmode
     set_map_mode(political_map_mode, empty_province_tooltip);
     Eng3D::Log::debug("game", "Preloading-important stuff");
     map_font = new Eng3D::FontSDF("fonts/cinzel_sdf/cinzel");
 
+    Eng3D::TextureOptions mipmap_options{};
+    mipmap_options.wrap_s = GL_REPEAT;
+    mipmap_options.wrap_t = GL_REPEAT;
+    mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+    mipmap_options.mag_filter = GL_LINEAR;
+    mipmap_options.compressed = false;
+
     // Query the initial nation flags
     for(const auto& nation : world.nations) {
         std::string path = "gfx/flags/" + nation.ref_name + "_" + (nation.ideology == nullptr ? "none" : nation.ideology->ref_name.get_string()) + ".png";
-        auto flag_texture = s.tex_man.load(s.package_man.get_unique(path), mipmap_options);
-        nation_flags.push_back(flag_texture);
+        nation_flags.push_back(s.tex_man.load(s.package_man.get_unique(path), mipmap_options));
     }
     for(const auto& building_type : world.building_types) {
         std::string path;
@@ -165,6 +163,9 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
         path = "gfx/unittype/" + unit_type.ref_name + ".png";
         unit_type_icons.push_back(s.tex_man.load(s.package_man.get_unique(path)));
     }
+
+    line_tex = s.tex_man.load(s.package_man.get_unique("gfx/line_target.png"), mipmap_options);
+    skybox_tex = s.tex_man.load(s.package_man.get_unique("gfx/space.png"), mipmap_options);
 
     for(const auto& terrain_type : world.terrain_types) {
         std::string path = "models/trees/" + terrain_type.ref_name + ".fbx";
@@ -211,8 +212,7 @@ void Map::create_labels() {
 
         glm::vec2 min_point_x(world.width - 1.f, world.height - 1.f), min_point_y(world.width - 1.f, world.height - 1.f);
         glm::vec2 max_point_x(0.f, 0.f), max_point_y(0.f, 0.f);
-        if(nation.owned_provinces.size() == 0)
-            continue;
+        if(nation.owned_provinces.empty()) continue;
         Province::Id prov_id = *nation.owned_provinces.begin();
         if(Province::is_valid(nation.capital_id))
             prov_id = nation.capital_id;
@@ -273,8 +273,8 @@ void Map::set_view(MapView view) {
 // The standard map mode with each province color = country color
 std::vector<ProvinceColor> political_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
-    for(unsigned int i = 0; i < world.provinces.size(); i++) {
-        Nation* province_owner = world.provinces[i].controller;
+    for(Province::Id i = 0; i < world.provinces.size(); i++) {
+        auto* province_owner = world.provinces[i].controller;
         if(province_owner == nullptr)
             province_color.push_back(ProvinceColor(i, Eng3D::Color::rgba32(0xffdddddd)));
         else
@@ -339,8 +339,7 @@ void Map::draw_flag(const Eng3D::OpenGL::Program& shader, const Nation& nation) 
 }
 
 void Map::handle_click(GameState& gs, SDL_Event event) {
-    Input& input = gs.input;
-
+    auto& input = gs.input;
     if(input.select_pos.x < 0 || input.select_pos.x >= this->world.width || input.select_pos.y < 0 || input.select_pos.y >= this->world.height)
         return;
 
@@ -531,18 +530,6 @@ void Map::draw(GameState& gs) {
     obj_shader->use();
     obj_shader->set_uniform("projection", projection);
     obj_shader->set_uniform("view", view);
-    if(view_mode == MapView::SPHERE_VIEW) {
-        // Universe skybox
-        const glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
-        obj_shader->set_uniform("model", model);
-        obj_shader->set_texture(0, "diffuse_map", *skybox_tex);
-        obj_shader->set_texture(1, "ambient_map", *skybox_tex);
-        obj_shader->set_texture(2, "occlussion_map", *skybox_tex);
-        obj_shader->set_texture(3, "height_map", *skybox_tex);
-        obj_shader->set_texture(4, "specular_map", *skybox_tex);
-        obj_shader->set_texture(5, "normal_map", *skybox_tex);
-        skybox.draw();
-    }
 
     auto preproc_quad = Eng3D::Quad2D(); // Reused a bunch of times
 
@@ -676,7 +663,12 @@ void Map::draw(GameState& gs) {
         auto model = base_model;
         obj_shader->set_uniform("model", model);
         obj_shader->set_texture(0, "diffuse_map", *line_tex);
-        Eng3D::Square dragbox_square = Eng3D::Square(gs.input.drag_coord.x, gs.input.drag_coord.y, gs.input.select_pos.x, gs.input.select_pos.y);
+        obj_shader->set_texture(1, "ambient_map", *gs.tex_man.get_white());
+        obj_shader->set_texture(2, "occlussion_map", *gs.tex_man.get_white());
+        obj_shader->set_texture(3, "height_map", *gs.tex_man.get_white());
+        obj_shader->set_texture(4, "specular_map", *gs.tex_man.get_white());
+        obj_shader->set_texture(5, "normal_map", *gs.tex_man.get_white());
+        auto dragbox_square = Eng3D::Square(gs.input.drag_coord.x, gs.input.drag_coord.y, gs.input.select_pos.x, gs.input.select_pos.y);
         dragbox_square.draw();
     }
 
@@ -684,6 +676,19 @@ void Map::draw(GameState& gs) {
     const auto distance_to_map = map_pos.z / world.width;
     if(distance_to_map < 0.070) map_font->draw(province_labels, camera, view_mode == MapView::SPHERE_VIEW);
     else map_font->draw(nation_labels, camera, view_mode == MapView::SPHERE_VIEW);
+
+    if(view_mode == MapView::SPHERE_VIEW) {
+        // Universe skybox
+        const auto model = base_model;
+        obj_shader->set_uniform("model", model);
+        obj_shader->set_texture(0, "diffuse_map", *skybox_tex);
+        obj_shader->set_texture(1, "ambient_map", *gs.tex_man.get_white());
+        obj_shader->set_texture(2, "occlussion_map", *gs.tex_man.get_white());
+        obj_shader->set_texture(3, "height_map", *gs.tex_man.get_white());
+        obj_shader->set_texture(4, "specular_map", *gs.tex_man.get_white());
+        obj_shader->set_texture(5, "normal_map", *gs.tex_man.get_white());
+        skybox.draw();
+    }
 
     // Drawing trees
     /*tree_shder->use();
