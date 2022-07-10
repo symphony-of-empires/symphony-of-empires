@@ -247,9 +247,9 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
     }
 
     // Randomness to spice stuff up
-    if(!(std::rand() % 10)) {
+    if(!(std::rand() % 100)) {
         nation.increase_relation(other);
-    } else if(!(std::rand() % 10)) {
+    } else if(!(std::rand() % 100)) {
         nation.decrease_relation(other);
     }
 
