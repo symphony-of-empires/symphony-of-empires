@@ -147,7 +147,6 @@ MapRender::MapRender(const World& _world)
     Eng3D::TextureOptions single_color{};
     single_color.internal_format = GL_RGBA;
     single_color.compressed = false;
-    single_color.instant_upload = true;
     terrain_map->upload(single_color);
 
     auto topo_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/topo.png")->get_abs_path()));
@@ -160,7 +159,6 @@ MapRender::MapRender(const World& _world)
     topo_map.reset(nullptr);
     mipmap_options.internal_format = GL_RGBA;
     mipmap_options.compressed = false;
-    mipmap_options.instant_upload = true;
     normal_topo->upload(mipmap_options);
 
     // Terrain textures to sample from
@@ -178,7 +176,6 @@ MapRender::MapRender(const World& _world)
     tile_map_options.internal_format = GL_RGBA32F;
     tile_map_options.editable = true;
     tile_map_options.compressed = false;
-    tile_map_options.instant_upload = true;
     tile_map->upload(tile_map_options);
 
     // Texture holding each province color

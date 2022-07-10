@@ -69,7 +69,6 @@ Eng3D::FontSDF::FontSDF(const std::string& filename) {
     mipmap_options.wrap_s = GL_CLAMP_TO_EDGE;
     mipmap_options.wrap_t = GL_CLAMP_TO_EDGE;
     mipmap_options.compressed = false;
-    mipmap_options.instant_upload = true; // Instantly upload
 
     auto asset = s.package_man.get_unique(filename + ".png");
     atlas = s.tex_man.load(asset->abs_path, mipmap_options);

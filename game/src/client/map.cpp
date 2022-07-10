@@ -111,7 +111,7 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     map_ui_layer(_map_ui_layer),
     skybox(0.f, 0.f, 0.f, 255.f * 10.f, 40, false)
 {
-    Eng3D::State& s = Eng3D::State::get_instance();
+    auto& s = Eng3D::State::get_instance();
     camera = new Eng3D::FlatCamera(glm::vec2(screen_width, screen_height), glm::vec2(world.width, world.height));
     // rivers = new Rivers();
     // borders = new Borders();
