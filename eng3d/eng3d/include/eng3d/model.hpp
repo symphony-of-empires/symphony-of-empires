@@ -58,7 +58,7 @@ namespace Eng3D {
         SimpleModel(const SimpleModel&) = delete;
         SimpleModel(SimpleModel&&) noexcept = default;
         SimpleModel& operator=(const SimpleModel&) = delete;
-        virtual void draw(const Eng3D::OpenGL::Program& shader) const;
+        virtual void draw(const Eng3D::OpenGL::Program& shader, int instances = 0) const;
         
         std::shared_ptr<Eng3D::Material> material;
     };

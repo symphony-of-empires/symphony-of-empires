@@ -68,7 +68,7 @@ MapRender::MapRender(const World& _world)
     map_2d_quad = new Eng3D::Quad2D();
 
     auto& gs = (GameState&)Eng3D::State::get_instance();
-    auto tex_man = gs.tex_man;
+    auto& tex_man = gs.tex_man;
 
     // Mipmapped textures
     Eng3D::TextureOptions mipmap_options{};
@@ -147,8 +147,8 @@ MapRender::MapRender(const World& _world)
     Eng3D::TextureOptions single_color{};
     single_color.internal_format = GL_RGBA;
     single_color.compressed = false;
+    single_color.instant_upload = true;
     terrain_map->upload(single_color);
-    //terrain_map->gen_mipmaps();
 
     auto topo_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/topo.png")->get_abs_path()));
     normal_topo = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/normal.png")->get_abs_path()));
@@ -160,8 +160,8 @@ MapRender::MapRender(const World& _world)
     topo_map.reset(nullptr);
     mipmap_options.internal_format = GL_RGBA;
     mipmap_options.compressed = false;
+    mipmap_options.instant_upload = true;
     normal_topo->upload(mipmap_options);
-    normal_topo->gen_mipmaps();
 
     // Terrain textures to sample from
     terrain_sheet = std::unique_ptr<Eng3D::TextureArray>(new Eng3D::TextureArray(gs.package_man.get_unique("gfx/terrain_sheet.png")->get_abs_path(), 4, 4));
@@ -171,15 +171,15 @@ MapRender::MapRender(const World& _world)
     // The tile map, used to store per-tile information
     tile_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(world.width, world.height));
     for(size_t i = 0; i < world.width * world.height; i++) {
-        const Tile& tile = world.get_tile(i);
+        const auto& tile = world.get_tile(i);
         tile_map->buffer.get()[i] = tile.province_id & 0xffff;
     }
     Eng3D::TextureOptions tile_map_options{};
     tile_map_options.internal_format = GL_RGBA32F;
     tile_map_options.editable = true;
     tile_map_options.compressed = false;
+    tile_map_options.instant_upload = true;
     tile_map->upload(tile_map_options);
-    tile_map->gen_mipmaps();
 
     // Texture holding each province color
     // The x & y coords are the province Red & Green color of the tile_map
@@ -238,7 +238,6 @@ MapRender::MapRender(const World& _world)
         sdf_options.compressed = false;
         border_sdf = std::make_unique<Eng3D::Texture>(Eng3D::Texture("sdf_cache.png"));
         border_sdf->upload(sdf_options);
-        border_sdf->gen_mipmaps();
     }
 }
 
@@ -328,7 +327,6 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
     border_tex_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     border_tex_options.mag_filter = GL_LINEAR;
     border_tex_options.editable = true;
-    
     Eng3D::Texture border_tex(world.width, world.height);
     border_tex.upload(border_tex_options);
     border_tex.gen_mipmaps();
@@ -416,7 +414,7 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
 void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
     // Water
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
-        auto terrain_type = world.provinces[i].terrain_type;
+        auto* terrain_type = world.provinces[i].terrain_type;
         if(terrain_type->is_water_body)
             province_colors[i] = ProvinceColor(i, Eng3D::Color::rgba32(0x00000000));
     }
@@ -454,7 +452,7 @@ void MapRender::update_visibility(GameState& gs)
 
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
-    for(size_t i = 0; i < 256 * 256; i++)
+    for(Province::Id i = 0; i < 256 * 256; i++)
         province_opt->buffer[i] = 0x00000080;
     
     for(const auto& nation : gs.world->nations) {
@@ -513,7 +511,6 @@ void MapRender::update(GameState& gs) {
 }
 
 void MapRender::draw(Eng3D::Camera* camera, MapView view_mode) {
-
     map_shader->use();
     const glm::mat4 view = camera->get_view();
     map_shader->set_uniform("view", view);

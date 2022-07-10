@@ -191,7 +191,7 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
 
     glm::ivec2 size(4, 4);
     glm::ivec2 texture_size(10, 10);
-    auto tex_man = Eng3D::State::get_instance().tex_man;
+    auto& tex_man = Eng3D::State::get_instance().tex_man;
     auto border_tex = tex_man.load(gs.package_man.get_unique("gfx/border2.png"));
     this->border = UI::Border(border_tex, size, texture_size);
 

@@ -76,8 +76,7 @@ void ProgressBar::on_render(Context&, Eng3D::Rect viewport) {
     Eng3D::Square(0, 0, width, height).draw();
     float ratio = value / max;
     Eng3D::Rect pos_rect(0, 0, width, height);
-    switch(direction)
-    {
+    switch(direction) {
     case Direction::LEFT_TO_RIGHT:
         pos_rect.right = width * ratio;
         break;

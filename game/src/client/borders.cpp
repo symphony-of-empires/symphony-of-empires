@@ -155,7 +155,7 @@ public:
 
 void Borders::build_borders() {
     auto& s = Eng3D::State::get_instance();
-    auto tex_man = s.tex_man;
+    auto& tex_man = s.tex_man;
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
     std::shared_ptr<Eng3D::Texture> border_tex = tex_man.load(s.package_man.get_unique("map/provinces.png"), no_drop_options);

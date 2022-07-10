@@ -144,10 +144,12 @@ void Eng3D::OpenGL::Program::link() {
     GLint r = 0;
     glGetProgramiv(id, GL_LINK_STATUS, &r);
     if(!r) {
-        std::unique_ptr<GLchar[]> error_info(new GLchar[GL_INFO_LOG_LENGTH]);
-        glGetShaderInfoLog(id, GL_INFO_LOG_LENGTH, NULL, error_info.get());
-        Eng3D::Log::error("shader", std::string() + "Program error " + error_info.get());
-        CXX_THROW(Eng3D::ShaderException, error_info.get());
+        GLint infoLen = 0;
+        glGetProgramiv(id, GL_INFO_LOG_LENGTH, &infoLen);
+        std::string shader_error_info;
+        shader_error_info.resize(infoLen);
+        glGetShaderInfoLog(id, infoLen, NULL, &shader_error_info[0]);
+        Eng3D::Log::error("shader", std::string() + "Program error " + shader_error_info);
     }
 }
 #endif

@@ -58,6 +58,7 @@ namespace Eng3D::IO {
 
 namespace Eng3D {
     class State;
+    class TextureManager;
 
     class TextureException: public BinaryImageException {
     public:
@@ -92,7 +93,8 @@ namespace Eng3D {
 #endif
         bool editable = false;
         bool compressed = true;
-
+        bool instant_upload = false; // Has to be uploaded immediately and not async
+        
         constexpr bool operator==(const TextureOptions& o) const {
             return target == o.target && wrap_s == o.wrap_s && wrap_t == o.wrap_t && min_filter == o.min_filter && mag_filter == o.mag_filter && internal_format == o.internal_format && format == o.format && type == o.type && editable == o.editable;
         }
@@ -100,8 +102,10 @@ namespace Eng3D {
     const TextureOptions default_options;
 
     class Texture: public BinaryImage {
+        void _upload(TextureOptions options = default_options);
+        void _upload(SDL_Surface* surface);
     public:
-        Texture();
+        Texture() = default;
         Texture(const std::string& path);
         Texture(const Eng3D::IO::Asset::Base* asset);
         Texture(size_t _width, size_t _height);
@@ -118,7 +122,9 @@ namespace Eng3D {
 
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         GLuint gl_tex_num = 0;
+        bool managed = false;
 #endif
+        friend class Eng3D::TextureManager;
     };
 
     // Array of textures
@@ -163,6 +169,13 @@ namespace Eng3D {
         }
     };
 
+    class TextureUploadRequest {
+    public:
+        Texture* texture;
+        TextureOptions options;
+        SDL_Surface* surface = nullptr;
+    };
+
     /**
      * @brief General manager for textures, caches textures into the memory instead of reading them off the disk
      * every time they need to be accessed.
@@ -171,6 +184,7 @@ namespace Eng3D {
     class TextureManager {
     private:
         std::unordered_map<std::pair<std::string, TextureOptions>, std::shared_ptr<Eng3D::Texture>, TextureMapHash> textures;
+        std::vector<TextureUploadRequest> unuploaded_textures; // Textures that needs to be uploaded
         std::shared_ptr<Eng3D::Texture> white;
         Eng3D::State& s;
     public:
@@ -180,5 +194,19 @@ namespace Eng3D {
         std::shared_ptr<Texture> load(const std::string& path, TextureOptions options = default_options);
         std::shared_ptr<Texture> load(std::shared_ptr<Eng3D::IO::Asset::Base> asset, TextureOptions options = default_options);
         std::shared_ptr<Texture> get_white();
+        inline void upload() {
+            if(!this->unuploaded_textures.empty()) {
+                auto it = this->unuploaded_textures.begin();
+                auto request = *it;
+                if(request.surface != nullptr) {
+                    request.texture->_upload(request.surface);
+                } else {
+                    request.texture->_upload(request.options);
+                }
+                this->unuploaded_textures.erase(it);
+            }
+        }
+
+        friend class Eng3D::Texture;
     };
 };

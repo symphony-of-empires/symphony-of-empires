@@ -49,7 +49,7 @@ extern "C" {
 //
 // Simple model
 //
-void Eng3D::SimpleModel::draw(const Eng3D::OpenGL::Program& shader) const {
+void Eng3D::SimpleModel::draw(const Eng3D::OpenGL::Program& shader, int instances) const {
     // Change color if material wants it
     shader.set_texture(0, "diffuse_map", *material->diffuse_map);
     shader.set_uniform("diffuse_color", material->diffuse_color);
@@ -66,10 +66,20 @@ void Eng3D::SimpleModel::draw(const Eng3D::OpenGL::Program& shader) const {
     shader.set_texture(5, "normal_map", *material->normal_map);
 
     vao.bind();
-    if(!indices.empty()) {
-        glDrawElements(static_cast<GLenum>(mode), indices.size(), GL_UNSIGNED_INT, 0);
-    } else if(!buffer.empty()) {
-        glDrawArrays(static_cast<GLenum>(mode), 0, buffer.size());
+    if(!instances) {
+        // Single-draw
+        if(!indices.empty()) {
+            glDrawElements(static_cast<GLenum>(mode), indices.size(), GL_UNSIGNED_INT, nullptr);
+        } else if(!buffer.empty()) {
+            glDrawArrays(static_cast<GLenum>(mode), 0, buffer.size());
+        }
+    } else {
+        // Instanced
+        if(!indices.empty()) {
+            glDrawElementsInstanced(static_cast<GLenum>(mode), indices.size(), GL_UNSIGNED_INT, nullptr, instances);
+        } else if(!buffer.empty()) {
+            glDrawArraysInstanced(static_cast<GLenum>(mode), 0, buffer.size(), instances);
+        }
     }
 }
 

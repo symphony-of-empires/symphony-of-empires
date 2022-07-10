@@ -156,6 +156,11 @@ static void GLAPIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint
 Eng3D::Installer::Installer(Eng3D::State& _s)
     : s{ _s }
 {
+    // Make sure we're the only state being installed
+    if(g_state != nullptr)
+        CXX_THROW(std::runtime_error, "Duplicate instancing of GameState");
+    g_state = &s;
+
     // Startup-initialization of SDL
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
         CXX_THROW(std::runtime_error, std::string() + "Failed to init SDL " + SDL_GetError());
@@ -254,11 +259,6 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths)
     model_man(*this),
     ui_ctx(*this)
 {
-    // Make sure we're the only state running
-    if(g_state != nullptr)
-        CXX_THROW(std::runtime_error, "Duplicate instancing of GameState");
-    g_state = this;
-
     // Plugins system (still wip)
 #if 0
     for(const auto& plugin : Path::get_all("plugin.dll")) {
@@ -315,6 +315,10 @@ void Eng3D::State::reload_shaders() {
     builtin_shaders["fs_3d"] = load_fragment_shader("3d.fs");
     // 3D generic vertex shader
     builtin_shaders["vs_3d"] = load_vertex_shader("3d.vs");
+    // 3D tree fragment shader
+    builtin_shaders["fs_tree"] = load_fragment_shader("tree.fs");
+    // 3D tree vertex shader
+    builtin_shaders["vs_tree"] = load_vertex_shader("tree.vs");
     builtin_shaders["vs_font_sdf"] = load_vertex_shader("font_sdf.vs");
     builtin_shaders["fs_font_sdf"] = load_fragment_shader("font_sdf.fs");
     // 2D Piechart shaders
@@ -335,7 +339,7 @@ void Eng3D::State::clear() const {
 #endif
 }
 
-void Eng3D::State::swap() const {
+void Eng3D::State::swap() {
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     // Required by macOS
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -343,6 +347,7 @@ void Eng3D::State::swap() const {
 #else
 
 #endif
+    tex_man.upload();
 }
 
 void Eng3D::State::set_multisamples(int samples) const {

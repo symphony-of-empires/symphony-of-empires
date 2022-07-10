@@ -48,17 +48,18 @@ Eng3D::Glyph::Glyph(float _advance, Eng3D::Rectangle _atlas_bounds, Eng3D::Recta
 }
 
 Eng3D::FontSDF::FontSDF(const std::string& filename) {
+    auto& s = Eng3D::State::get_instance();
     sphere_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        auto vs_shader = Eng3D::OpenGL::VertexShader(Eng3D::State::get_instance().package_man.get_unique("shaders/sphere_mapping.vs")->read_all());
+        auto vs_shader = Eng3D::OpenGL::VertexShader(s.package_man.get_unique("shaders/sphere_mapping.vs")->read_all());
         sphere_shader->attach_shader(vs_shader);
-        sphere_shader->attach_shader(*Eng3D::State::get_instance().builtin_shaders["fs_font_sdf"].get());
+        sphere_shader->attach_shader(*s.builtin_shaders["fs_font_sdf"].get());
         sphere_shader->link();
     }
     flat_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
-        flat_shader->attach_shader(*Eng3D::State::get_instance().builtin_shaders["vs_font_sdf"].get());
-        flat_shader->attach_shader(*Eng3D::State::get_instance().builtin_shaders["fs_font_sdf"].get());
+        flat_shader->attach_shader(*s.builtin_shaders["vs_font_sdf"].get());
+        flat_shader->attach_shader(*s.builtin_shaders["fs_font_sdf"].get());
         flat_shader->link();
     }
 
@@ -68,15 +69,16 @@ Eng3D::FontSDF::FontSDF(const std::string& filename) {
     mipmap_options.wrap_s = GL_CLAMP_TO_EDGE;
     mipmap_options.wrap_t = GL_CLAMP_TO_EDGE;
     mipmap_options.compressed = false;
+    mipmap_options.instant_upload = true; // Instantly upload
 
-    auto asset = Eng3D::State::get_instance().package_man.get_unique(filename + ".png");
-    atlas = Eng3D::State::get_instance().tex_man.load(asset->abs_path, mipmap_options);
+    auto asset = s.package_man.get_unique(filename + ".png");
+    atlas = s.tex_man.load(asset->abs_path, mipmap_options);
 
     char buff;
     uint32_t unicode;
     float advance, top, bottom, left, right;
     std::string line;
-    std::ifstream glyph_data(Eng3D::State::get_instance().package_man.get_unique(filename + ".csv")->abs_path);
+    std::ifstream glyph_data(s.package_man.get_unique(filename + ".csv")->abs_path);
     if(glyph_data.is_open()) {
         while(std::getline(glyph_data, line)) {
             std::istringstream data(line);
@@ -136,7 +138,7 @@ Label3D* Eng3D::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::v
         glm::vec2 plane_tr(glyph.plane_bounds.right, glyph.plane_bounds.top);
         glm::vec2 plane_br(glyph.plane_bounds.right, glyph.plane_bounds.bottom);
 
-        const glm::mat2x3 base = glm::mat2x3(right, top) * scale;
+        const auto base = glm::mat2x3(right, top) * scale;
         glm::vec3 char_tl = start + base * plane_tl;
         glm::vec3 char_bl = start + base * plane_bl;
         glm::vec3 char_tr = start + base * plane_tr;
@@ -165,9 +167,7 @@ Label3D* Eng3D::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::v
 }
 
 void Eng3D::FontSDF::draw(const std::vector<Label3D*>& labels, Camera* camera, bool sphere) {
-    Eng3D::OpenGL::Program* shader;
-    if(sphere) shader = sphere_shader.get();
-    else shader = flat_shader.get();
+    auto* shader = sphere ? sphere_shader.get() : flat_shader.get();
     shader->use();
     shader->set_uniform("projection", camera->get_projection());
     shader->set_uniform("view", camera->get_view());

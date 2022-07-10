@@ -43,7 +43,7 @@ void make_building_header(UI::Div* table) {
 
     glm::ivec2 size(4, 4);
     glm::ivec2 texture_size(10, 10);
-    auto tex_man = Eng3D::State::get_instance().tex_man;
+    auto& tex_man = Eng3D::State::get_instance().tex_man;
     auto border_tex = tex_man.load(Eng3D::State::get_instance().package_man.get_unique("gfx/border2.png"));
     auto border = UI::Border(border_tex, size, texture_size);
 
@@ -79,7 +79,7 @@ void make_building_row(UI::Div* table, Building& building, const BuildingType* t
 
     glm::ivec2 size(4, 4);
     glm::ivec2 texture_size(10, 10);
-    auto tex_man = Eng3D::State::get_instance().tex_man;
+    auto& tex_man = Eng3D::State::get_instance().tex_man;
     auto border_tex = tex_man.load(Eng3D::State::get_instance().package_man.get_unique("gfx/border2.png"));
     auto border = UI::Border(border_tex, size, texture_size);
 
