@@ -49,25 +49,30 @@ Eng3D::Audio::Audio(const std::string& path) {
     this->len = stb_vorbis_decode_filename(path.c_str(), &channels, &rate, (short**)&decoded);
     if(!this->len)
         CXX_THROW(Eng3D::AudioException, path, "0 length audio");
-    this->len = this->len * channels * (sizeof(int16_t) / sizeof(uint8_t));
+    this->len = this->len * channels;
     this->data = decoded;
 
     // stb already loads OGG as a series of U16 nodes, so we only have to use AUDIO_S16
     // and the rest is already given by stb
-    SDL_BuildAudioCVT(&cvt, AUDIO_S16, channels, rate, AUDIO_S16, 1, 44100);
-    auto ptr_cvt_buf = std::unique_ptr<Uint8[]>(new Uint8[this->len * cvt.len_mult]);
-    cvt.buf = ptr_cvt_buf.get();
-    if(cvt.buf == nullptr)
-        CXX_THROW(Eng3D::AudioException, path, "Can't allocate memory");
-    std::memset(cvt.buf, 0, cvt.len_cvt * cvt.len_mult);
-    std::memcpy(cvt.buf, this->data, this->len);
-    cvt.len = this->len;
-    SDL_ConvertAudio(&cvt);
-
-    this->data = (uint8_t*)::realloc(this->data, cvt.len_cvt * cvt.len_mult);
-    std::memset(this->data, 0, cvt.len_cvt * cvt.len_mult);
-    std::memcpy(this->data, cvt.buf, cvt.len_cvt * cvt.len_mult);
-    this->len = cvt.len_cvt;
+    int r = SDL_BuildAudioCVT(&cvt, AUDIO_S16, channels, rate, AUDIO_S16, 1, 44100);
+    if(r < 0)
+        CXX_THROW(Eng3D::AudioException, path, std::string() + "Error building audio CVT " + SDL_GetError());
+    
+    // Audio conversion required
+    if(r == 1) {
+        Eng3D::Log::debug("audio", "Converting audio");
+        auto ptr_cvt_buf = std::unique_ptr<Uint8[]>(new Uint8[this->len * cvt.len_mult]);
+        cvt.buf = ptr_cvt_buf.get();
+        std::memset(cvt.buf, 0, cvt.len_cvt * cvt.len_mult);
+        std::memcpy(cvt.buf, this->data, this->len);
+        cvt.len = this->len;
+        if(SDL_ConvertAudio(&cvt))
+            CXX_THROW(Eng3D::AudioException, path, "Can't convert audio");
+        this->data = (uint8_t*)::realloc(this->data, cvt.len_cvt * cvt.len_mult);
+        std::memset(this->data, 0, cvt.len_cvt * cvt.len_mult);
+        std::memcpy(this->data, cvt.buf, cvt.len_cvt * cvt.len_mult);
+        this->len = cvt.len_cvt;
+    }
 }
 
 //
@@ -90,39 +95,29 @@ Eng3D::AudioManager::AudioManager(Eng3D::State& _s)
 }
 
 void Eng3D::AudioManager::mixaudio(void* userdata, uint8_t* stream, int len) {
-    Eng3D::AudioManager& audio_man = *(reinterpret_cast<Eng3D::AudioManager*>(userdata));
+    auto& audio_man = *(reinterpret_cast<Eng3D::AudioManager*>(userdata));
     std::memset(stream, 0, len);
 
     const std::scoped_lock lock(audio_man.sound_lock);
-    for(size_t i = 0; i < audio_man.music_queue.size(); ) {
-        auto& music = *audio_man.music_queue[i];
-        const auto amount = std::min<int>(len, music.len - music.pos);
-        const float volume = SDL_MIX_MAXVOLUME * audio_man.music_volume;
-        const float fade = SDL_MIX_MAXVOLUME * audio_man.music_fade_value;
-        SDL_MixAudio(stream, &music.data[music.pos], amount, std::min<int>(SDL_MIX_MAXVOLUME, volume - fade));
-        music.pos += amount;
-        if(music.pos >= music.len) {
-            audio_man.music_queue.erase(audio_man.music_queue.begin() + i);
-            continue;
-        }
-        i++;
-    }
-
-    for(size_t i = 0; i < audio_man.sound_queue.size(); ) {
-        auto& sound = *audio_man.sound_queue[i];
+    if(!audio_man.sound_queue.empty()) {
+        auto& sound = **audio_man.sound_queue.begin();
         const auto amount = std::min<int>(len, sound.len - sound.pos);
         const float volume = SDL_MIX_MAXVOLUME * audio_man.sound_volume;
-        SDL_MixAudio(stream, &sound.data[sound.pos], amount, std::min<int>(SDL_MIX_MAXVOLUME, volume));
+        SDL_MixAudio(stream, &sound.data[sound.pos], amount, volume);
         sound.pos += amount;
-        if(sound.pos >= sound.len) {
-            audio_man.sound_queue.erase(audio_man.sound_queue.begin() + i);
-            continue;
-        }
-        i++;
+        if(sound.pos >= sound.len)
+            audio_man.sound_queue.erase(audio_man.sound_queue.begin());
     }
-
-    if(audio_man.music_fade_value > 1.f)
-        audio_man.music_fade_value -= 1.f;
+    
+    if(!audio_man.music_queue.empty()) {
+        auto& music = **audio_man.music_queue.begin();
+        const auto amount = std::min<int>(len, music.len - music.pos);
+        const float volume = SDL_MIX_MAXVOLUME * audio_man.music_volume;
+        SDL_MixAudio(stream, &music.data[music.pos], amount, volume);
+        music.pos += amount;
+        if(music.pos >= music.len)
+            audio_man.music_queue.erase(audio_man.music_queue.begin());
+    }
 }
 
 const Eng3D::Audio& Eng3D::AudioManager::load(const std::string& path) {
