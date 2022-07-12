@@ -63,7 +63,7 @@ TopWindow::TopWindow(GameState& _gs)
     flex_column->flex_justify = UI::FlexJustify::SPACE_AROUND;
     flex_column->flex_align = UI::Align::CENTER;
 
-    int icon_size = 25;
+    int icon_size = 28;
 
     auto* policy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/book.png", flex_column);
     policy_ibtn->set_on_click([this](UI::Widget&) {
@@ -75,15 +75,15 @@ TopWindow::TopWindow(GameState& _gs)
     economy_ibtn->set_on_click([this](UI::Widget&) {
 
     });
-    economy_ibtn->set_tooltip("Economy & World Market");
+    economy_ibtn->set_tooltip("Economy");
 
-    auto* pops_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/pv_1.png", flex_column);
+    auto* pops_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/pop.png", flex_column);
     pops_ibtn->set_on_click([this](UI::Widget&) {
         new Interface::PopWindow(this->gs);
     });
     pops_ibtn->set_tooltip("Population");
 
-    auto* factory_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/pv_0.png", flex_column);
+    auto* factory_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/factory.png", flex_column);
     factory_ibtn->set_on_click([this](UI::Widget&) {
         new Interface::FactoryWindow(this->gs);
     });
