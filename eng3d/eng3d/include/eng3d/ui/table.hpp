@@ -31,6 +31,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <stdexcept>
 #include "eng3d/ui/widget.hpp"
 #include "eng3d/ui/div.hpp"
 #include "eng3d/ui/scrollbar.hpp"

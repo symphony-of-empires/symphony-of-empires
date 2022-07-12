@@ -33,6 +33,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <algorithm>
 
 #include <SDL_surface.h>
 #include <SDL_ttf.h>

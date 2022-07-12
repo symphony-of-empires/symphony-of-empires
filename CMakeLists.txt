@@ -8,6 +8,11 @@ set(CMAKE_CXX_STANDARD 20)
 option(BUILD_ENGINE "Enable building Eng3D" ON)
 option(BUILD_GAME "Enable building SymphonyOfEmpires" ON)
 
+IF(WIN32)
+	add_definitions( -DNOMINMAX=1 )
+	add_definitions( -DWIN32_LEAN_AND_MEAN=1 )
+ENDIF()
+
 IF(ANDROID)
 	set(NDK_PROJECT_PATH $ENV{PWD}) # Set project path to current directory
 	set(ANDROID_STL c++_static) # Static libc++
@@ -48,6 +53,15 @@ ENDIF()
 #
 # Dependencies
 #
+
+#FetchContent_Declare(zlib GIT_REPOSITORY "https://github.com/madler/zlib" GIT_TAG 21767c654d31d2dccdde4330529775c6c5fd5389 GIT_PROGRESS TRUE)
+set(ONLY_LIBS ON)
+set(glew-cmake_BUILD_SHARED OFF)
+FetchContent_Declare(glew-cmake GIT_REPOSITORY "https://github.com/Perlmint/glew-cmake" GIT_PROGRESS TRUE)
+set(SDL2_DISABLE_SDL2MAIN ON)
+set(SDL2_DISABLE_INSTALL ON)
+set(SDL2_DISABLE_UNINSTALL ON)
+FetchContent_Declare(sdl2 GIT_REPOSITORY "https://github.com/libsdl-org/SDL" GIT_TAG main GIT_PROGRESS TRUE)
 set(SDL2_DISABLE_SDL2MAIN ON)
 set(SDL2_DISABLE_INSTALL ON)
 set(SDL2_DISABLE_UNINSTALL ON)
@@ -56,15 +70,19 @@ set(SDL2TTF_VENDORED ON)
 set(SDL2TTF_INSTALL OFF)
 set(SDL2TTF_SAMPLES OFF)
 FetchContent_Declare(sdl2_ttf GIT_REPOSITORY "https://github.com/libsdl-org/SDL_ttf" GIT_TAG main GIT_PROGRESS TRUE)
-set(LUA_ENABLE_SHARED ON)
 set(LUA_BUILD_BINARY OFF)
 set(LUA_BUILD_COMPILER OFF)
 FetchContent_Declare(lua GIT_REPOSITORY "https://github.com/walterschell/Lua" GIT_PROGRESS TRUE)
 FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm" GIT_PROGRESS TRUE)
+FetchContent_Declare(hwloc URL "https://download.open-mpi.org/release/hwloc/v2.7/hwloc-win64-build-2.7.1.zip")
+FetchContent_MakeAvailable(hwloc)
+set(CMAKE_HWLOC_2_5_DLL_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.dll.a" )
+set(CMAKE_HWLOC_2_5_LIBRARY_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.lib" )
+set(CMAKE_HWLOC_2_5_INCLUDE_PATH "${hwloc_SOURCE_DIR}/include" )
 set(TBB_TEST OFF)
 set(TBB_EXAMPLES OFF)
-set(BUILD_SHARED_LIBS ON)
-FetchContent_Declare(opentbb GIT_REPOSITORY "https://github.com/oneapi-src/oneTBB" GIT_PROGRESS TRUE)
+set(TBB_ENABLE_IPO OFF)
+FetchContent_Declare(opentbb GIT_REPOSITORY "https://github.com/oneapi-src/oneTBB" GIT_TAG 3df08fe234f23e732a122809b40eb129ae22733f GIT_PROGRESS TRUE)
 set(ASSIMP_INSTALL OFF)
 set(ASSIMP_NO_EXPORT ON)
 set(ASSIMP_IGNORE_GIT_HASH ON)
@@ -82,8 +100,9 @@ IF(NOT ANDROID)
 		set(EXTRA_FETCH_CONENT_LIST glfw)
 	ENDIF()
 ENDIF()
-FetchContent_MakeAvailable(sdl2 sdl2_ttf lua glm opentbb assimp ${EXTRA_FETCH_CONENT_LIST})
-include_directories("${lua_SOURCE_DIR}/lua-5.4.4/include" "${sdl2_BINARY_DIR}/include" "${sdl2_BINARY_DIR}/include-config-relwithdebinfo" "${sdl2_ttf_SOURCE_DIR}" "${sdl2_mixer_SOURCE_DIR}/include")
+FetchContent_MakeAvailable(glew-cmake sdl2 sdl2_ttf lua glm opentbb assimp ${EXTRA_FETCH_CONENT_LIST})
+include_directories("${glew-cmake_SOURCE_DIR}/include" "${lua_SOURCE_DIR}/lua-5.4.4/include" "${sdl2_BINARY_DIR}/include" "${sdl2_BINARY_DIR}/include-config-relwithdebinfo" "${sdl2_ttf_SOURCE_DIR}" "${sdl2_mixer_SOURCE_DIR}/include")
+
 
 # Build stuff
 IF(BUILD_ENGINE)
@@ -136,7 +155,7 @@ ENDIF()
 #
 
 # Platform-specific libraries
-target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 SDL2_ttf SDL2_mixer lua glm tbb assimp)
+target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 SDL2_ttf SDL2_mixer lua_static glm tbb assimp libglew_static zlibstatic)
 IF(NOT ANDROID)
 	IF(E3D_BACKEND_OPENGL)
 		target_link_libraries(SymphonyOfEmpires PUBLIC glfw)

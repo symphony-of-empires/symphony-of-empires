@@ -30,6 +30,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <algorithm>
 
 namespace Eng3D {
     class State;
