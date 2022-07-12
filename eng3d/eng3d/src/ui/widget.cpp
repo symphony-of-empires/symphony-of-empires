@@ -47,10 +47,6 @@
 #include "eng3d/ui/tooltip.hpp"
 #include "eng3d/primitive.hpp"
 
-#if !defined NOMINMAX
-#   define NOMINMAX 1
-#endif
-
 using namespace UI;
 
 Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned h, WidgetType _type)

@@ -40,6 +40,8 @@
 #       endif
 #       include <windows.h>
 #       undef WIN32_LEAN_AND_MEAN
+#       undef max
+#       undef min
 #   endif
 #endif
 
@@ -180,7 +182,8 @@ void handle_event(Input& input, GameState& gs) {
                 std::scoped_lock lock(gs.audio_man.sound_lock);
                 auto entries = gs.package_man.get_multiple_prefix("sfx/click");
                 if(!entries.empty()) {
-                    gs.audio_man.sound_queue.push_back(std::unique_ptr<Eng3D::Audio>(new Eng3D::Audio(entries[std::rand() % entries.size()]->get_abs_path())));
+                    auto audio = gs.audio_man.load(entries[std::rand() % entries.size()]->get_abs_path());
+                    gs.audio_man.sound_queue.push_back(audio);
                 }
             }
             break;
@@ -196,7 +199,8 @@ void handle_event(Input& input, GameState& gs) {
                 std::scoped_lock lock(gs.audio_man.sound_lock);
                 auto entries = gs.package_man.get_multiple_prefix("sfx/click");
                 if(!entries.empty()) {
-                    gs.audio_man.sound_queue.push_back(std::unique_ptr<Eng3D::Audio>(new Eng3D::Audio(entries[std::rand() % entries.size()]->get_abs_path())));
+                    auto audio = gs.audio_man.load(entries[std::rand() % entries.size()]->get_abs_path());
+                    gs.audio_man.sound_queue.push_back(audio);
                 }
             }
             break;
@@ -582,9 +586,10 @@ void GameState::music_thread() {
             this->audio_man.music_fade_value = 0.f;
             // Search through all the music in 'music/ambience' and picks a random
             if(!entries.empty()) {
+                const std::scoped_lock lock(this->audio_man.sound_lock);
                 const int music_index = std::rand() % entries.size();
-                std::scoped_lock lock(this->audio_man.sound_lock);
-                this->audio_man.music_queue.push_back(std::unique_ptr<Eng3D::Audio>(new Eng3D::Audio(entries[music_index].path)));
+                auto audio = gs.audio_man.load(entries[music_index]->get_abs_path());
+                this->audio_man.music_queue.push_back(audio);
                 Eng3D::Log::debug("music", "Now playing music file " + entries[music_index].path);
                 entries[music_index].has_played = true;
             }

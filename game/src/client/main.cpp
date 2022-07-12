@@ -40,6 +40,8 @@
 #   endif
 #   include <windows.h>
 #   include <WinCon.h>
+#   undef max
+#   undef min
 #endif
 #include <vector>
 #include <map>

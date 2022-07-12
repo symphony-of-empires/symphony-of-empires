@@ -55,6 +55,8 @@
 #	define _WINSOCK_DEPRECATED_NO_WARNINGS 1
 #	include <winsock2.h>
 #	include <ws2tcpip.h>
+#   undef max
+#   undef min
 #endif
 
 #include <sys/types.h>
