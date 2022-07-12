@@ -42,8 +42,10 @@
 //#   ifndef __MINGW32__
 //#       include <ws2def.h>
 //#   endif
-#   include <winsock2.h>
-#   include <ws2tcpip.h>
+#   ifndef WINSOCK2_IMPORTED
+#       define WINSOCK2_IMPORTED
+#       include <winsock2.h>
+#   endif
 #endif
 
 #ifdef E3D_TARGET_UNIX

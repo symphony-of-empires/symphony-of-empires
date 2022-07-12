@@ -27,14 +27,11 @@
 
 // Required before GL/gl.h
 #ifdef E3D_TARGET_WINDOWS
-#   define WIN32_LEAN_AND_MEAN 1
-#   ifndef NOMINMAX
-#       define NOMINMAX 1
+#   ifndef WINSOCK2_IMPORTED
+#       define WINSOCK2_IMPORTED
+#       include <winsock2.h>
 #   endif
 #   include <windows.h>
-#   undef WIN32_LEAN_AND_MEAN
-#   undef max
-#   undef min
 #endif
 
 #ifdef E3D_BACKEND_OPENGL
@@ -44,7 +41,6 @@
 #       include <GL/glext.h>
 #   endif
 #   include <GL/gl.h>
-#   include <GL/glu.h>
 #elif defined E3D_BACKEND_GLES
 #   include <GLES3/gl3.h>
 #endif
