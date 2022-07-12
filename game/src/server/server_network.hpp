@@ -32,7 +32,10 @@
 #include <thread>
 
 #ifdef E3D_TARGET_WINDOWS
-#include <winsock2.h>
+#ifndef WINSOCK2_IMPORTED
+#   define WINSOCK2_IMPORTED
+#   include <winsock2.h>
+#endif
 #endif
 
 #include "eng3d/network.hpp"
