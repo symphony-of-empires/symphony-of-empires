@@ -209,16 +209,12 @@ namespace Eng3D {
 
             // Sets the texture (sampler2D) into the shader,
             inline void set_texture(int value, const std::string& name, const Eng3D::Texture& texture) const {
-                assert(texture.gl_tex_num != 0); // Texture with invalid Id
-
                 glActiveTexture(GL_TEXTURE0 + value);
                 set_uniform(name, value);
                 glBindTexture(GL_TEXTURE_2D, texture.gl_tex_num);
             }
 
             inline void set_texture(int value, const std::string& name, const Eng3D::TextureArray& texture) const {
-                assert(texture.gl_tex_num != 0); // Texture with invalid Id
-
                 glActiveTexture(GL_TEXTURE0 + value);
                 set_uniform(name, value);
                 glBindTexture(GL_TEXTURE_2D_ARRAY, texture.gl_tex_num);
