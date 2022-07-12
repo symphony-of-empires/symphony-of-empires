@@ -60,6 +60,7 @@ FetchContent_Declare(lua GIT_REPOSITORY "https://github.com/andyroiiid/lua" GIT_
 FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm" GIT_PROGRESS TRUE)
 set(TBB_TEST OFF)
 set(TBB_EXAMPLES OFF)
+set(BUILD_SHARED_LIBS ON)
 FetchContent_Declare(opentbb GIT_REPOSITORY "https://github.com/oneapi-src/oneTBB" GIT_PROGRESS TRUE)
 set(ASSIMP_INSTALL OFF)
 set(ASSIMP_NO_EXPORT ON)
