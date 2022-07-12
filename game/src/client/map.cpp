@@ -32,7 +32,6 @@
 #include <mutex>
 #include <memory>
 #include <unordered_set>
-#define NOMINMAX 1
 #include <glm/gtc/matrix_transform.hpp>
 
 #ifdef E3D_BACKEND_OPENGL
@@ -381,6 +380,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         if(gs.editor) {
             switch(gs.current_mode) {
             case MapMode::NORMAL:
+                gs.curr_nation->control_province(province);
                 gs.curr_nation->give_province(province);
                 province.nuclei.insert(gs.world->get_id(*gs.curr_nation));
                 update_mapmode();
@@ -416,8 +416,10 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
 
             const std::scoped_lock lock2(gs.audio_man.sound_lock);
             auto entries = gs.package_man.get_multiple_prefix("sfx/land_move");
-            if(!entries.empty())
-                gs.audio_man.sound_queue.push_back(std::unique_ptr<Eng3D::Audio>(new Eng3D::Audio(entries[std::rand() % entries.size()]->get_abs_path())));
+            if(!entries.empty()) {
+                auto audio = gs.audio_man.load(entries[music_index]->get_abs_path());
+                gs.audio_man.sound_queue.push_back(audio);
+            }
         }
         input.selected_units.clear();
     }

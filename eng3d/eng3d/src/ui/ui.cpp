@@ -36,6 +36,8 @@
 #   endif
 #   include <windows.h>
 #   undef WIN32_LEAN_AND_MEAN
+#   undef max
+#   undef min
 #endif
 
 #ifdef E3D_BACKEND_OPENGL
@@ -67,10 +69,6 @@
 #include "eng3d/utils.hpp"
 #include "eng3d/primitive.hpp"
 #include "eng3d/log.hpp"
-
-#if !defined NOMINMAX
-#   define NOMINMAX 1
-#endif
 
 using namespace UI;
 

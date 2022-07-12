@@ -27,14 +27,14 @@
 #ifdef E3D_TARGET_UNIX
 #	include <unistd.h>
 #elif defined E3D_TARGET_WINDOWS
-#	ifndef _WINDOWS_
-#       ifndef NOMINMAX
-#	        define NOMINMAX 1
-#       endif
-#		define WIN32_LEAN_AND_MEAN 1
-#		include <windows.h>
-#		undef WIN32_LEAN_AND_MEAN
-#	endif
+#   ifndef NOMINMAX
+#	    define NOMINMAX 1
+#   endif
+#	define WIN32_LEAN_AND_MEAN 1
+#	include <windows.h>
+#	undef WIN32_LEAN_AND_MEAN
+#   undef max
+#   undef min
 #endif
 #include <climits>
 #include <string>
