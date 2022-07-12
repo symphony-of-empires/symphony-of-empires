@@ -417,7 +417,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             const std::scoped_lock lock2(gs.audio_man.sound_lock);
             auto entries = gs.package_man.get_multiple_prefix("sfx/land_move");
             if(!entries.empty()) {
-                auto audio = gs.audio_man.load(entries[music_index]->get_abs_path());
+                auto audio = gs.audio_man.load(entries[std::rand() % entries.size()]->get_abs_path());
                 gs.audio_man.sound_queue.push_back(audio);
             }
         }

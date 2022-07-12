@@ -588,7 +588,7 @@ void GameState::music_thread() {
             if(!entries.empty()) {
                 const std::scoped_lock lock(this->audio_man.sound_lock);
                 const int music_index = std::rand() % entries.size();
-                auto audio = gs.audio_man.load(entries[music_index]->get_abs_path());
+                auto audio = this->audio_man.load(entries[music_index].path);
                 this->audio_man.music_queue.push_back(audio);
                 Eng3D::Log::debug("music", "Now playing music file " + entries[music_index].path);
                 entries[music_index].has_played = true;
