@@ -52,28 +52,25 @@ namespace Eng3D {
     public:
         Audio() = default;
         Audio(const std::string& path);
-        ~Audio() = default;
-
-        std::uint8_t *data = nullptr; // TODO: Use RAII pointers for this
-        std::uint32_t pos = 0;
-        std::uint32_t len = 0;
+        ~Audio();
+        void *stream = nullptr; // TODO: Use RAII pointers for this
     };
 
     class AudioManager {
     private:
-        std::map<std::string, std::unique_ptr<Eng3D::Audio>> sounds;
+        std::map<std::string, std::shared_ptr<Eng3D::Audio>> sounds;
         Eng3D::State& s;
     public:
         AudioManager() = delete;
         AudioManager(Eng3D::State& s);
         ~AudioManager() = default;
         static void mixaudio(void* userdata, uint8_t* stream, int len);
-        const Audio& load(const std::string& path);
+        const std::shared_ptr<Audio> load(const std::string& path);
 
         // Queue of sounds/music
         std::mutex sound_lock;
-        std::vector<std::unique_ptr<Eng3D::Audio>> sound_queue;
-        std::vector<std::unique_ptr<Eng3D::Audio>> music_queue;
+        std::vector<std::shared_ptr<Eng3D::Audio>> sound_queue;
+        std::vector<std::shared_ptr<Eng3D::Audio>> music_queue;
         float music_fade_value = 1.f;
         float music_volume = 0.5f, sound_volume = 0.5f;
     };
