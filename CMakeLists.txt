@@ -83,7 +83,7 @@ IF(NOT ANDROID)
 	ENDIF()
 ENDIF()
 FetchContent_MakeAvailable(sdl2 sdl2_ttf lua glm opentbb assimp ${EXTRA_FETCH_CONENT_LIST})
-include_directories("${lua_SOURCE_DIR}/include" "${sdl2_BINARY_DIR}/include" "${sdl2_BINARY_DIR}/include-config-relwithdebinfo" "${sdl2_ttf_SOURCE_DIR}" "${sdl2_mixer_SOURCE_DIR}/include")
+include_directories("${lua_SOURCE_DIR}/lua-5.4.4/include" "${sdl2_BINARY_DIR}/include" "${sdl2_BINARY_DIR}/include-config-relwithdebinfo" "${sdl2_ttf_SOURCE_DIR}" "${sdl2_mixer_SOURCE_DIR}/include")
 
 # Build stuff
 IF(BUILD_ENGINE)
