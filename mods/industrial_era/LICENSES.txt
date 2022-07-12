@@ -58,3 +58,7 @@ gfx/load_screen/005
 gfx/ideology/communism
 gfx/ideology/fascism
 	By Higralfo
+
+gfx/pop
+gfx/factory
+	By _JERUME
