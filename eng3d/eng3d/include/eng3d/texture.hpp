@@ -196,7 +196,7 @@ namespace Eng3D {
         std::shared_ptr<Texture> get_white();
         inline void upload() {
             if(!this->unuploaded_textures.empty()) {
-                auto it = this->unuploaded_textures.begin();
+                auto it = this->unuploaded_textures.end() - 1;
                 auto request = *it;
                 if(request.surface != nullptr) {
                     request.texture->_upload(request.surface);
