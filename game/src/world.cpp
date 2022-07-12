@@ -343,7 +343,7 @@ void World::load_initial() {
         Eng3D::Log::error("cache", e.what());
 
         // Execute all lua files
-        lua_exec_all_of(*this, (std::vector<std::string>) {
+        lua_exec_all_of(*this, std::vector<std::string> {
             "terrain_types", "good_types", "ideologies", "cultures",
             "building_types", "technology", "religions", "pop_types",
             "industry_types", "unit_types", "boat_types",

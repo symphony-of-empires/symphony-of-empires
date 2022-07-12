@@ -36,6 +36,8 @@
 #include <cstdio>
 #include <type_traits>
 #include "eng3d/utils.hpp"
+#include <limits>
+
 
 // The purpouse of the serializer is to serialize objects onto a byte stream
 // that can be transfered onto the disk or over the network. Should the object have

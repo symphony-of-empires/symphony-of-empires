@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.14)
 
 project(eng3d)
 set(CMAKE_CXX_STANDARD 20)
@@ -14,6 +14,11 @@ include_directories("${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/include")
 #
 # Dependencies
 #
+
+#FetchContent_Declare(zlib GIT_REPOSITORY "https://github.com/madler/zlib" GIT_TAG 21767c654d31d2dccdde4330529775c6c5fd5389 GIT_PROGRESS TRUE)
+set(ONLY_LIBS ON)
+set(glew-cmake_BUILD_SHARED OFF)
+FetchContent_Declare(glew-cmake GIT_REPOSITORY "https://github.com/Perlmint/glew-cmake" GIT_PROGRESS TRUE)
 set(SDL2_DISABLE_SDL2MAIN ON)
 set(SDL2_DISABLE_INSTALL ON)
 set(SDL2_DISABLE_UNINSTALL ON)
@@ -33,15 +38,19 @@ set(SDL2MIXER_OPUS OFF)
 set(SDL2MIXER_WAVE OFF)
 set(SDL2MIXER_CMD OFF)
 FetchContent_Declare(sdl2_mixer GIT_REPOSITORY "https://github.com/libsdl-org/SDL_mixer" GIT_TAG main GIT_PROGRESS TRUE)
-set(LUA_ENABLE_SHARED ON)
 set(LUA_BUILD_BINARY OFF)
 set(LUA_BUILD_COMPILER OFF)
 FetchContent_Declare(lua GIT_REPOSITORY "https://github.com/walterschell/Lua" GIT_PROGRESS TRUE)
 FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm" GIT_PROGRESS TRUE)
+FetchContent_Declare(hwloc URL "https://download.open-mpi.org/release/hwloc/v2.7/hwloc-win64-build-2.7.1.zip")
+FetchContent_MakeAvailable(hwloc)
+set(CMAKE_HWLOC_2_5_DLL_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.dll.a")
+set(CMAKE_HWLOC_2_5_LIBRARY_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.lib" )
+set(CMAKE_HWLOC_2_5_INCLUDE_PATH "${hwloc_SOURCE_DIR}/include" )
 set(TBB_TEST OFF)
 set(TBB_EXAMPLES OFF)
-set(BUILD_SHARED_LIBS ON)
-FetchContent_Declare(opentbb GIT_REPOSITORY "https://github.com/oneapi-src/oneTBB" GIT_PROGRESS TRUE)
+set(TBB_ENABLE_IPO OFF)
+FetchContent_Declare(opentbb GIT_REPOSITORY "https://github.com/oneapi-src/oneTBB" GIT_TAG 3df08fe234f23e732a122809b40eb129ae22733f GIT_PROGRESS TRUE)
 set(ASSIMP_INSTALL OFF)
 set(ASSIMP_NO_EXPORT ON)
 set(ASSIMP_IGNORE_GIT_HASH ON)
@@ -59,8 +68,8 @@ IF(NOT ANDROID)
 		set(EXTRA_FETCH_CONENT_LIST glfw)
 	ENDIF()
 ENDIF()
-FetchContent_MakeAvailable(sdl2 sdl2_ttf sdl2_mixer lua glm opentbb assimp ${EXTRA_FETCH_CONENT_LIST})
-include_directories("${sdl2_BINARY_DIR}/include" "${sdl2_BINARY_DIR}/include-config-relwithdebinfo" "${sdl2_ttf_SOURCE_DIR}" "${sdl2_mixer_SOURCE_DIR}/include")
+FetchContent_MakeAvailable(glew-cmake sdl2 sdl2_ttf sdl2_mixer lua glm opentbb assimp ${EXTRA_FETCH_CONENT_LIST})
+include_directories("${glew-cmake_SOURCE_DIR}/include" "${sdl2_BINARY_DIR}/include" "${sdl2_BINARY_DIR}/include-config-relwithdebinfo" "${sdl2_ttf_SOURCE_DIR}" "${sdl2_mixer_SOURCE_DIR}/include")
 
 #
 # Source code files
@@ -71,7 +80,7 @@ add_library(eng3d STATIC ${MAIN_SOURCES})
 #
 # Linking
 #
-target_link_libraries(eng3d PUBLIC SDL2 SDL2_ttf SDL2_mixer lua glm tbb assimp)
+target_link_libraries(eng3d PUBLIC SDL2 SDL2_ttf SDL2_mixer lua_static glm tbb assimp libglew_static zlibstatic)
 IF(WIN32)
 	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR MSVC)
 		
@@ -80,19 +89,19 @@ IF(WIN32)
 	ENDIF()
 	target_link_libraries(eng3d PUBLIC ws2_32 wsock32)
 	IF(E3D_BACKEND_OPENGL)
-		target_link_libraries(eng3d PUBLIC glew32 opengl32 glu32)
+		target_link_libraries(eng3d PUBLIC opengl32)
 	ENDIF()
 ELSEIF(UNIX OR ANDROID)
 	target_link_libraries(eng3d PUBLIC m stdc++)
 	IF(E3D_BACKEND_OPENGL)
-		target_link_libraries(eng3d PUBLIC GLEW GL GLU)
+		target_link_libraries(eng3d PUBLIC GL)
 	ELSEIF(E3D_BACKEND_GLES)
 		target_link_libraries(eng3d PUBLIC EGL GLESv1_CM GLESv2 GLESv3)
 	ENDIF()
 ELSE()
 
 ENDIF()
-target_link_libraries(eng3d PUBLIC z)
+#target_link_libraries(eng3d PUBLIC z)
 
 # Find pthreads
 find_package(Threads)

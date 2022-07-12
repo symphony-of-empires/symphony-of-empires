@@ -66,23 +66,15 @@ compile_commands.json
 *.user
 *.userosscache
 *.sln.docstates
-# Visual Studio 2015/2017 cache/options directory
+# Visual Studio
 .vs/
 out/
-Debug/
-Release/
-RelWithDebInfo/
-MinSizeRel/
-packages/
-*.sln
-*.vcxproj
-*.vcxproj.user
-*.vcxproj.filters
 
 # cmake stuff
 CMakeFiles/
 cmake_install.cmake
 CMakeCache.txt
+CMakeSettings.json
 
 # build directories
 [Bb]uild/
