@@ -29,6 +29,7 @@
 #include "unit.hpp"
 
 class Map;
+class GameState;
 class Unit;
 namespace UI {
     class Image;
@@ -39,11 +40,13 @@ namespace Interface {
     class UnitWidget: public UI::Div {
         Unit::Id unit_id;
         Map& map;
+        GameState& gs;
+        std::shared_ptr<Eng3D::Texture> select_border_texture;
         UI::Image* flag_img;
         UI::Div* size_label;
         UI::ProgressBar* morale_bar;
     public:
-        UnitWidget(Unit& unit, Map& map, UI::Widget* parent);
+        UnitWidget(Unit& unit, Map& map, GameState& gamestate, UI::Widget* parent);
         void set_unit(Unit& _unit);
         void set_size(size_t size);
         virtual ~UnitWidget();
