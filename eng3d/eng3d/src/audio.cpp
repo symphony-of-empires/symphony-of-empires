@@ -87,9 +87,7 @@ void Eng3D::AudioManager::mixaudio(void* userdata, uint8_t* stream, int len) {
             audio_man.sound_queue.erase(audio_man.sound_queue.begin());
         }
         SDL_MixAudio(stream, audiobuf.get(), len, SDL_MIX_MAXVOLUME * audio_man.sound_volume);
-    }
-    
-    if(!audio_man.music_queue.empty()) {
+    } else if(!audio_man.music_queue.empty()) {
         auto& audio = **audio_man.music_queue.begin();
         auto* audio_stream = reinterpret_cast<stb_vorbis*>(audio.stream);
         stb_vorbis_info info = stb_vorbis_get_info(audio_stream);
