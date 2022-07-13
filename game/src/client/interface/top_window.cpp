@@ -65,50 +65,50 @@ TopWindow::TopWindow(GameState& _gs)
 
     int icon_size = 28;
 
-    auto* policy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/book.png", flex_column);
+    auto* policy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/book.png", true, flex_column);
     policy_ibtn->set_on_click([this](UI::Widget&) {
         new Interface::PoliciesScreen(this->gs);
     });
     policy_ibtn->set_tooltip("Laws & Policies");
 
-    auto* economy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/economy.png", flex_column);
+    auto* economy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/economy.png", true, flex_column);
     economy_ibtn->set_on_click([this](UI::Widget&) {
 
     });
     economy_ibtn->set_tooltip("Economy");
 
-    auto* pops_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/pop.png", flex_column);
+    auto* pops_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/pop.png", true, flex_column);
     pops_ibtn->set_on_click([this](UI::Widget&) {
         new Interface::PopWindow(this->gs);
     });
     pops_ibtn->set_tooltip("Population");
 
-    auto* factory_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/factory.png", flex_column);
+    auto* factory_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/factory.png", true, flex_column);
     factory_ibtn->set_on_click([this](UI::Widget&) {
         new Interface::FactoryWindow(this->gs);
     });
     factory_ibtn->set_tooltip("Factories");
 
-    auto* military_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/military_score.png", flex_column);
+    auto* military_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/military_score.png", true, flex_column);
     military_ibtn->set_on_click([this](UI::Widget&) {
         new Interface::ArmyView(this->gs);
     });
     military_ibtn->set_tooltip("Military");
 
-    auto* research_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/tech.png", flex_column);
+    auto* research_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/tech.png", true, flex_column);
     research_ibtn->set_on_click([this](UI::Widget&) {
         new Interface::TechTreeView(this->gs);
     });
     research_ibtn->set_tooltip("Research");
 
-    auto* save_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/save.png", flex_column);
+    auto* save_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/save.png", true, flex_column);
     save_ibtn->set_on_click([this](UI::Widget&) {
         save(this->gs);
     });
     /// @todo Save the lua state
     save_ibtn->set_tooltip("Saves the current game");
 
-    auto* load_ibtn = new UI::Image(9, 275, 25, 25, "gfx/top_bar/save.png", flex_column);
+    auto* load_ibtn = new UI::Image(9, 275, 25, 25, "gfx/top_bar/save.png", true, flex_column);
     load_ibtn->set_on_click([this](UI::Widget&) {
         const auto nation_id = this->gs.curr_nation->get_id();
         Archive ar = Archive();
@@ -121,8 +121,8 @@ TopWindow::TopWindow(GameState& _gs)
     });
     load_ibtn->set_tooltip("Load this savefile");
 
-    auto* exit_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/exit.png", flex_column);
-    exit_ibtn->set_on_click([this](UI::Widget& w) {
+    auto* exit_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/exit.png", true, flex_column);
+    exit_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.run = false;
     });
     exit_ibtn->set_tooltip("Exits");
