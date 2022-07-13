@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.14)
 project(SymphonyOfEmpires CXX C)
 include(FetchContent)
 set(FETCHCONTENT_QUIET FALSE)
-
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 
 option(BUILD_ENGINE "Enable building Eng3D" ON)
 option(BUILD_GAME "Enable building SymphonyOfEmpires" ON)
@@ -77,10 +77,10 @@ FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm" GIT_PROG
 IF(WIN32)
 	FetchContent_Declare(hwloc URL "https://download.open-mpi.org/release/hwloc/v2.7/hwloc-win64-build-2.7.1.zip")
 	FetchContent_MakeAvailable(hwloc)
+	set(CMAKE_HWLOC_2_5_DLL_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.dll.a")
+	set(CMAKE_HWLOC_2_5_LIBRARY_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.lib" )
+	set(CMAKE_HWLOC_2_5_INCLUDE_PATH "${hwloc_SOURCE_DIR}/include" )
 ENDIF()
-set(CMAKE_HWLOC_2_5_DLL_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.dll.a" )
-set(CMAKE_HWLOC_2_5_LIBRARY_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.lib" )
-set(CMAKE_HWLOC_2_5_INCLUDE_PATH "${hwloc_SOURCE_DIR}/include" )
 set(TBB_TEST OFF)
 set(TBB_EXAMPLES OFF)
 set(TBB_ENABLE_IPO OFF)
@@ -156,8 +156,18 @@ ENDIF()
 # Linking
 #
 
+# Pthread
+find_package(Threads)
+IF(Threads_FOUND)
+	set(THREADS_PREFER_PTHREAD_FLAG ON)
+	target_link_libraries(SymphonyOfEmpires PRIVATE Threads::Threads)
+ENDIF()
+set(ZLIB_USE_STATIC_LIBS ON)
+find_package(ZLIB REQUIRED)
+target_link_libraries(SymphonyOfEmpires PUBLIC ZLIB::ZLIB)
+
 # Platform-specific libraries
-target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 SDL2_ttf SDL2_mixer lua_static glm tbb assimp libglew_static zlibstatic)
+target_link_libraries(SymphonyOfEmpires PUBLIC SDL2 SDL2_ttf SDL2_mixer lua_static glm tbb assimp)
 IF(NOT ANDROID)
 	IF(E3D_BACKEND_OPENGL)
 		target_link_libraries(SymphonyOfEmpires PUBLIC glfw)
@@ -168,21 +178,17 @@ ENDIF()
 
 IF(WIN32)
 	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR MSVC)
-		
+		target_link_libraries(SymphonyOfEmpires PUBLIC libglew_static zlibstatic)
 	ELSE()
 		target_link_libraries(SymphonyOfEmpires PUBLIC stdc++ m winpthread)
 	ENDIF()
 ELSE()
+	IF(E3D_BACKEND_OPENGL)
+		target_link_libraries(SymphonyOfEmpires PUBLIC GLEW)
+	ENDIF()
 	target_link_libraries(SymphonyOfEmpires PUBLIC m stdc++)
 ENDIF()
 target_link_libraries(SymphonyOfEmpires PUBLIC eng3d)
-
-# Pthread
-find_package(Threads)
-IF(Threads_FOUND)
-	set(THREADS_PREFER_PTHREAD_FLAG ON)
-	target_link_libraries(SymphonyOfEmpires PRIVATE Threads::Threads)
-ENDIF()
 
 set(APP_SHARED_LIBRARIES
 	${LIBRARY_OUTPUT_PATH}/libtbb.so

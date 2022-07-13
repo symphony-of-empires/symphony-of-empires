@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 
 project(eng3d)
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 
 IF(NOT E3D_TARGET_RVL)
 	# Workaround for clang (see https://bugs.launchpad.net/ubuntu/+source/libsdl2-ttf/+bug/1872023)
@@ -45,10 +46,10 @@ FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm" GIT_PROG
 IF(WIN32)
 	FetchContent_Declare(hwloc URL "https://download.open-mpi.org/release/hwloc/v2.7/hwloc-win64-build-2.7.1.zip")
 	FetchContent_MakeAvailable(hwloc)
+	set(CMAKE_HWLOC_2_5_DLL_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.dll.a")
+	set(CMAKE_HWLOC_2_5_LIBRARY_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.lib" )
+	set(CMAKE_HWLOC_2_5_INCLUDE_PATH "${hwloc_SOURCE_DIR}/include" )
 ENDIF()
-set(CMAKE_HWLOC_2_5_DLL_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.dll.a")
-set(CMAKE_HWLOC_2_5_LIBRARY_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.lib" )
-set(CMAKE_HWLOC_2_5_INCLUDE_PATH "${hwloc_SOURCE_DIR}/include" )
 set(TBB_TEST OFF)
 set(TBB_EXAMPLES OFF)
 set(TBB_ENABLE_IPO OFF)
@@ -82,10 +83,14 @@ add_library(eng3d STATIC ${MAIN_SOURCES})
 #
 # Linking
 #
-target_link_libraries(eng3d PUBLIC SDL2 SDL2_ttf SDL2_mixer lua_static glm tbb assimp libglew_static zlibstatic)
+set(ZLIB_USE_STATIC_LIBS ON)
+find_package(ZLIB REQUIRED)
+target_link_libraries(eng3d PRIVATE ZLIB::ZLIB)
+
+target_link_libraries(eng3d PUBLIC SDL2 SDL2_ttf SDL2_mixer lua_static glm tbb assimp)
 IF(WIN32)
 	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR MSVC)
-		
+		target_link_libraries(eng3d PUBLIC libglew_static zlibstatic)
 	ELSE()
 		target_link_libraries(eng3d PUBLIC m stdc++ winpthread)
 	ENDIF()
@@ -96,14 +101,13 @@ IF(WIN32)
 ELSEIF(UNIX OR ANDROID)
 	target_link_libraries(eng3d PUBLIC m stdc++)
 	IF(E3D_BACKEND_OPENGL)
-		target_link_libraries(eng3d PUBLIC GL)
+		target_link_libraries(eng3d PUBLIC GL GLEW)
 	ELSEIF(E3D_BACKEND_GLES)
 		target_link_libraries(eng3d PUBLIC EGL GLESv1_CM GLESv2 GLESv3)
 	ENDIF()
 ELSE()
 
 ENDIF()
-#target_link_libraries(eng3d PUBLIC z)
 
 # Find pthreads
 find_package(Threads)
