@@ -56,6 +56,8 @@ Image::Image(int _x, int _y, unsigned w, unsigned h, const std::string& texture_
     if(mipmap) {
         options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
         options.mag_filter = GL_LINEAR;
+        options.wrap_s = GL_CLAMP_TO_EDGE;
+        options.wrap_t = GL_CLAMP_TO_EDGE;
     }
 
     auto& s = Eng3D::State::get_instance();

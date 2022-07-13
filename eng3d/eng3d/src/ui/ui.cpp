@@ -94,7 +94,12 @@ Context::Context(Eng3D::State& _s)
     piechart_overlay = s.tex_man.load(s.package_man.get_unique("gfx/piechart.png"));
     border_tex = s.tex_man.load(s.package_man.get_unique("gfx/border2.png"));
     button_border = s.tex_man.load(s.package_man.get_unique("gfx/border_sharp2.png"));
-    cursor_tex = s.tex_man.load(s.package_man.get_unique("gfx/cursor_b.png"));
+    Eng3D::TextureOptions options;
+    options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+    options.mag_filter = GL_LINEAR;
+    options.wrap_s = GL_CLAMP_TO_EDGE;
+    options.wrap_t = GL_CLAMP_TO_EDGE;
+    cursor_tex = s.tex_man.load(s.package_man.get_unique("gfx/cursor_b.png"), options);
 
     // Shader used for orthogonally drawing the objects on the 2D plane
     obj_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());

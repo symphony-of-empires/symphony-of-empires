@@ -16,7 +16,7 @@ include_directories("${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/include")
 # Dependencies
 #
 
-#FetchContent_Declare(zlib GIT_REPOSITORY "https://github.com/madler/zlib" GIT_TAG 21767c654d31d2dccdde4330529775c6c5fd5389 GIT_PROGRESS TRUE)
+FetchContent_Declare(zlib GIT_REPOSITORY "https://github.com/madler/zlib" GIT_TAG 21767c654d31d2dccdde4330529775c6c5fd5389 GIT_PROGRESS TRUE)
 set(ONLY_LIBS ON)
 set(glew-cmake_BUILD_SHARED OFF)
 FetchContent_Declare(glew-cmake GIT_REPOSITORY "https://github.com/Perlmint/glew-cmake" GIT_PROGRESS TRUE)
@@ -71,7 +71,7 @@ IF(NOT ANDROID)
 		set(EXTRA_FETCH_CONENT_LIST glfw)
 	ENDIF()
 ENDIF()
-FetchContent_MakeAvailable(glew-cmake sdl2 sdl2_ttf sdl2_mixer lua glm opentbb assimp ${EXTRA_FETCH_CONENT_LIST})
+FetchContent_MakeAvailable(zlib glew-cmake sdl2 sdl2_ttf sdl2_mixer lua glm opentbb assimp ${EXTRA_FETCH_CONENT_LIST})
 include_directories("${glew-cmake_SOURCE_DIR}/include" "${sdl2_BINARY_DIR}/include" "${sdl2_BINARY_DIR}/include-config-relwithdebinfo" "${sdl2_ttf_SOURCE_DIR}" "${sdl2_mixer_SOURCE_DIR}/include")
 
 #
@@ -83,14 +83,10 @@ add_library(eng3d STATIC ${MAIN_SOURCES})
 #
 # Linking
 #
-set(ZLIB_USE_STATIC_LIBS ON)
-find_package(ZLIB REQUIRED)
-target_link_libraries(eng3d PRIVATE ZLIB::ZLIB)
-
 target_link_libraries(eng3d PUBLIC SDL2 SDL2_ttf SDL2_mixer lua_static glm tbb assimp)
 IF(WIN32)
 	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR MSVC)
-		target_link_libraries(eng3d PUBLIC libglew_static zlibstatic)
+		target_link_libraries(eng3d PUBLIC libglew_static zlib)
 	ELSE()
 		target_link_libraries(eng3d PUBLIC m stdc++ winpthread)
 	ENDIF()
