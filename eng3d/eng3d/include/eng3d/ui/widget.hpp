@@ -154,7 +154,7 @@ namespace UI {
         std::shared_ptr<Eng3D::Texture> texture = nullptr;
         glm::ivec2 size;
         glm::ivec2 texture_size;
-        glm::ivec2 offset;
+        glm::ivec2 offset = glm::ivec2(0, 0);
 
         Border() {};
         Border(std::shared_ptr<Eng3D::Texture> _texture, glm::ivec2 _size, glm::ivec2 _texture_size, glm::ivec2 _offset = glm::ivec2(0))
