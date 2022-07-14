@@ -28,7 +28,9 @@
 #include <queue>
 #include <mutex>
 #include <vector>
+#include <set>
 #include <atomic>
+#include <algorithm>
 
 #include "eng3d/serializer.hpp"
 #include "eng3d/audio.hpp"
@@ -47,12 +49,31 @@ class Culture;
 class Religion;
 
 class Input {
+    std::set<Unit::Id> selected_units;
 public:
     glm::vec2 select_pos;
     bool middle_mouse_down = false;
     glm::ivec2 mouse_pos;
 
-    std::vector<Unit::Id> selected_units;
+    inline const std::set<Unit::Id> get_selected_units() const {
+        return selected_units;
+    }
+
+    inline bool is_selected_unit(Unit::Id id) const {
+        return std::count(selected_units.begin(), selected_units.end(), id);       
+    }
+
+    inline void select_unit(Unit::Id id) {
+        selected_units.insert(id);       
+    }
+
+    inline void unselect_unit(Unit::Id id) {
+        selected_units.erase(id);
+    }
+
+    inline void clear_selected_units() {
+        selected_units.clear();
+    }
 
     Culture* selected_culture = nullptr;
     Religion* selected_religion = nullptr;

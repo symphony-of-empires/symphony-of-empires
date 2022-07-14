@@ -361,7 +361,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
 
             // Check if we selected an unit
             is_drag = false;
-            if(input.selected_units.empty()) {
+            if(input.get_selected_units().empty()) {
                 // Show province information when clicking on a province
                 if(tile.province_id < gs.world->provinces.size()) {
                     new Interface::ProvinceView(gs, gs.world->provinces[tile.province_id]);
@@ -391,7 +391,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         }
 
         /// @todo Handle the case where an unit is deleted
-        for(const auto unit_id : gs.input.selected_units) {
+        for(const auto unit_id : gs.input.get_selected_units()) {
             auto& unit = gs.world->unit_manager.units[unit_id];
             auto province_id = gs.world->unit_manager.unit_province[unit_id];
             if(!gs.world->provinces[province_id].is_neighbour(province) || !unit.can_move()) continue;
@@ -421,7 +421,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                 gs.audio_man.sound_queue.push_back(audio);
             }
         }
-        input.selected_units.clear();
+        input.clear_selected_units();
     }
 }
 
