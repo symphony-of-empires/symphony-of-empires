@@ -267,7 +267,7 @@ mapmode_generator good_map_mode(Good::Id id) {
     };
 }
 
-void relations_map_mode_selector(const World& world, Map& map, Province& province) {
+void relations_map_mode_selector(const World& , Map& map, Province& province) {
     if(province.controller == nullptr) return;
     Nation::Id nation_id = province.owner_id;
     mapmode_generator map_mode = relations_map_mode(nation_id);
