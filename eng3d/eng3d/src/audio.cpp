@@ -62,7 +62,7 @@ Eng3D::AudioManager::AudioManager(Eng3D::State& _s)
     fmt.freq = 44100;
     fmt.format = AUDIO_S16;
     fmt.channels = 2;
-    fmt.samples = 256;
+    fmt.samples = 16;
     fmt.callback = &Eng3D::AudioManager::mixaudio;
     fmt.userdata = this;
     if(SDL_OpenAudio(&fmt, NULL) < 0)
