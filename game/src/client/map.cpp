@@ -572,7 +572,7 @@ void Map::draw(GameState& gs) {
                     if(unit_index < unit_widgets.size()) {
                         this->unit_widgets[unit_index]->set_unit(unit);
                     } else {
-                        this->unit_widgets.push_back(new Interface::UnitWidget(unit, *this, this->map_ui_layer));
+                        this->unit_widgets.push_back(new Interface::UnitWidget(unit, *this, gs, this->map_ui_layer));
                     }
                     unit_index++;
                     has_widget = true;
@@ -585,7 +585,7 @@ void Map::draw(GameState& gs) {
         if((this->map_render->get_province_opt(province.get_id()) & 0x000000ff) == 0x000000ff) {
             const auto prov_pos = province.get_pos();
             size_t war_battle_idx = 0;
-            for(const auto& battle : province.battles) {
+            for (size_t i = 0; i < province.battles.size(); i++) {
                 bool battle_visible = true;
                 if(view_mode == MapView::SPHERE_VIEW) {
                     const auto* orbit_camera = static_cast<const Eng3D::OrbitCamera*>(camera);
@@ -634,11 +634,9 @@ void Map::draw(GameState& gs) {
     battle_widgets.resize(battle_index);
 
     for(const auto& province : world.provinces) {
-        const float y = province_units_y[world.get_id(province)];
         province_units_y[world.get_id(province)] += 2.5f;
         const auto prov_pos = province.get_pos();
 
-        size_t i = 0;
         for(const auto& building_type : world.building_types) {
             if(!province.buildings[building_type.get_id()].level) continue;
             glm::mat4 model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
@@ -649,16 +647,6 @@ void Map::draw(GameState& gs) {
         }
     }
     //*/
-
-    // Highlight for units
-    for(const auto unit_id : gs.input.selected_units) {
-        auto& unit = gs.world->unit_manager.units[unit_id];
-        const auto pos = unit.get_pos();
-        const auto model = glm::translate(base_model, glm::vec3(pos.x, pos.y, 0.f));
-        obj_shader->set_uniform("model", model);
-        obj_shader->set_texture(0, "diffuse_map", *gs.tex_man.load(gs.package_man.get_unique("gfx/select_border.png")).get());
-        preproc_quad.draw();
-    }
 
     // Draw the "drag area" box
     if(is_drag) {

@@ -37,17 +37,22 @@
 
 using namespace Interface;
 
-UnitWidget::UnitWidget(Unit& _unit, Map& _map, UI::Widget* parent)
+UnitWidget::UnitWidget(Unit& _unit, Map& _map, GameState& _gs, UI::Widget* parent)
     : UI::Div(0, 0, 100, 30, parent),
     unit_id{ _unit.cached_id },
-    map{ _map }
+    map{ _map },
+    gs{ _gs }
 {
     this->background_color = Eng3D::Color(1, 1, 1, 1);
+
+    auto& s = Eng3D::State::get_instance();
+    select_border_texture = s.tex_man.load(s.package_man.get_unique("gfx/border_sharp2.png"));
+    this->border.size = glm::ivec2{this->width, this->height};
+    this->border.texture_size = glm::ivec2{7, 7};
 
     new UI::Image(1, 1, this->width - 1, this->height - 1, "gfx/drop_shadow.png", this);
 
     this->set_on_click([this](UI::Widget&) {
-        auto& gs = (GameState&)Eng3D::State::get_instance();
         auto it = std::find(gs.input.selected_units.begin(), gs.input.selected_units.end(), this->unit_id);
         if(it == gs.input.selected_units.end()) {
             // Select if not on selected units list
@@ -74,7 +79,7 @@ UnitWidget::UnitWidget(Unit& _unit, Map& _map, UI::Widget* parent)
 }
 
 void UnitWidget::set_unit(Unit& _unit) {
-    this->unit_id = _unit.cached_id;
+    this->unit_id = _unit.get_id();
 
     const Eng3D::Camera& camera = *map.camera;
     auto unit_pos = _unit.get_pos();
@@ -83,7 +88,13 @@ void UnitWidget::set_unit(Unit& _unit) {
     this->x = screen_pos.x - this->width / 2;
     this->y = screen_pos.y - this->height / 2;
 
-    GameState& gs = (GameState&)Eng3D::State::get_instance();
+    const auto& selected_units = gs.input.selected_units;
+    if (std::count(selected_units.begin(), selected_units.end(), this->unit_id)) {
+        this->border.texture = this->select_border_texture;
+    } else {
+        this->border.texture = nullptr;
+    }
+
     // Paint according to relations
     if(gs.curr_nation != nullptr && _unit.owner_id != gs.curr_nation->get_id()) {
         const NationRelation& relation = gs.world->get_relation(gs.world->get_id(*gs.curr_nation), _unit.owner_id);
