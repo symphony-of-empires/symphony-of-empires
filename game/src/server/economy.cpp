@@ -363,7 +363,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     world.profiler.stop("E-init");
 
     world.profiler.start("E-trade");
-    economy_state.trade.recalculate(world);
+    // economy_state.trade.recalculate(world);
     tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world](const auto& markets_range) {
         for(auto& market : markets_range) {
             for(size_t i = 0; i < world.provinces.size(); i++) {
