@@ -270,7 +270,7 @@ public:
 
     // Lua state - for lua scripts, this is only used by the server and should not be
     // accesible to the client
-    lua_State* lua;
+    lua_State* lua = nullptr;
 
     // 2-Dimensional Array of tiles
     std::unique_ptr<Tile[]> tiles;

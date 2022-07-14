@@ -295,7 +295,9 @@ void World::init_lua() {
 }
 
 World::~World() {
-    lua_close(lua);
+    if(lua != nullptr)
+        lua_close(lua);
+    
     for(auto& war : wars)
         delete war;
 }
