@@ -65,6 +65,13 @@ struct PopNeed {
     float budget;
 };
 
+struct NewUnit {
+    Unit unit;
+    Province::Id unit_province;
+    NewUnit(Unit& _unit, Province::Id _unit_province) 
+        : unit{_unit}, unit_province{ _unit_province } {}
+};
+
 void militancy_update(World& world, Nation& nation) {
     for(const auto province_id : nation.controlled_provinces) {
         auto& province = world.provinces[province_id];
@@ -408,7 +415,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     }
     province_ids.resize(last_id);
 
-    tbb::combinable<tbb::concurrent_vector<Unit>> province_new_units;
+    tbb::combinable<tbb::concurrent_vector<NewUnit>> province_new_units;
     std::vector<std::vector<float>> buildings_new_worker(world.provinces.size());
     std::vector<std::vector<PopNeed>> pops_new_needs(world.provinces.size());
     tbb::parallel_for(tbb::blocked_range(province_ids.begin(), province_ids.end()), [&world, &buildings_new_worker, &province_new_units, &pops_new_needs](const auto province_ids_ranges) {
@@ -471,8 +478,8 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                             unit.supply = 1.f;
                             unit.size = final_size;
                             unit.base = unit.type->max_health;
-                            unit.target_province_id = province.get_id();
-                            province_new_units.local().push_back(unit);
+                            Province::Id province_id = province.get_id(); 
+                            province_new_units.local().emplace_back(unit, province_id);
                             building.working_unit_type = nullptr;
                             Eng3D::Log::debug("economy", "[" + province.ref_name + "]: Has built an unit of [" + unit.type->ref_name + "]");
                         }
@@ -526,12 +533,10 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
 
     // Lock for world is already acquired since the economy runs inside the world's do_tick which
     // should be lock guarded by the callee
-    province_new_units.combine_each([&world](auto& unit_list) {
-        for(auto& unit : unit_list) {
+    province_new_units.combine_each([&world](auto& new_unit_list) {
+        for(auto& new_unit : new_unit_list) {
             // Now commit the transaction of the new units into the main world area
-            Province::Id target_province_id = unit.target_province_id;
-            unit.target_province_id = Province::invalid();
-            world.unit_manager.add_unit(unit, target_province_id);
+            world.unit_manager.add_unit(new_unit.unit, new_unit.unit_province);
             /// @todo Obtain the cached ID of the newly added unit
             //g_server->broadcast(Action::UnitAdd::form_packet(unit));
         }
