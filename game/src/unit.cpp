@@ -66,47 +66,46 @@ Province::Id Unit::province_id() const {
     return world.unit_manager.unit_province[cached_id];
 }
 
-void Unit::set_target(const Province& _province) {
+void Unit::set_target(const Province& province) {
     assert(this->is_valid());
     assert(this->target_province_id != this->province_id());
+    assert(province.get_id() != this->province_id());
 
-    const World& world = World::get_instance();
     assert(this->can_move());
-    this->target_province_id = world.get_id(_province);
 
-    // Calculate the required movement before it can reach the target
-    const auto& cur_pos = world.provinces[this->province_id()].get_pos();
-    const auto& target_pos = world.provinces[this->target_province_id].get_pos();
-    this->move_progress = glm::sqrt(glm::abs(cur_pos.x - target_pos.x) + glm::abs(cur_pos.y - target_pos.y));
+    this->target_province_id = province.get_id();
+    this->days_left_until_move = days_to_move_to(province);
 }
 
-float Unit::get_speed(const Province& _province) const {
+void Unit::stop_movement() {
+    this->target_province_id = Province::invalid();
+    this->days_left_until_move = 0;
+}
+
+float Unit::days_to_move_to(const Province& _province) const {
     assert(this->is_valid());
     const World& world = World::get_instance();
-    auto start_pos = world.provinces[this->province_id()].get_pos();
-    auto end_pos = _province.get_pos();
+    auto start_province = world.provinces[this->province_id()];
+    auto end_province = _province;
 
-    // Get the linear distance from the current deduced position of the unit and the target
-    // the current position of the unit is relative to the move progress it has done (so if it's
-    // halfway thru a province it will then be placed at half of the distance)
-    const float x_dist = (end_pos.x - start_pos.x);
-    const float y_dist = (end_pos.y - start_pos.y);
-    const float angle = std::atan2(x_dist, y_dist);
-
-    /// @todo The comment above makes no sense since we don't do (max_move_progress / move_progress)
-    const float dist_div = move_progress;
-
-    //const float linear_dist = std::fabs(std::sqrt(x_dist * x_dist + y_dist * y_dist) / dist_div);
-    const float speed = (type->speed) / _province.terrain_type->movement_penalty;
-    float radius_scale = glm::cos(glm::pi<float>() / (2 * World::get_instance().height) * (2 * (y_dist / dist_div) - World::get_instance().height));
-    float x_scale = 1 / (glm::abs(radius_scale) + 0.001f);
-    float speed_scale = glm::sqrt(glm::pow(glm::sin(angle), 2) + glm::pow(glm::cos(angle) * x_scale, 2));
-    return (speed * speed_scale) / 100.f;
+    const glm::vec2 world_size{ world.width, world.height };
+    auto distance = start_province.euclidean_distance(end_province, world_size, 100);
+    return distance;
 }
 
-float Unit::get_speed() const {
-    assert(this->is_valid());
-    return this->get_speed(World::get_instance().provinces[this->target_province_id]);
+bool Unit::update_movement(UnitManager& unit_manager) {
+    if (target_province_id == Province::invalid())
+        return false;
+
+    days_left_until_move--;
+    if (days_left_until_move <= 0) {
+        days_left_until_move = 0;
+
+        unit_manager.move_unit(this->get_id(), target_province_id);
+        target_province_id = Province::invalid();
+        return true;
+    }
+    return false;
 }
 
 void UnitManager::init(World& world) {
