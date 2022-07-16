@@ -162,6 +162,7 @@ public:
     std::deque<const UnitType*> production_queue;
 
     UI::Widget* right_side_panel = nullptr;
+    UI::Widget* lower_left_panel = nullptr;
 
     bool in_game = false;
     bool motion_blur = true; // Settings

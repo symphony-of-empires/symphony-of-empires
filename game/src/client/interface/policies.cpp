@@ -62,15 +62,17 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     });
 
     new UI::Label(0, 0, "Goverment", this);
-    auto* ideology_lab = new UI::Label(6, 38, " ", this);
-    ideology_lab->on_each_tick = ([this](UI::Widget& w) {
+    auto* ideology_img = new UI::Image(6, 38, 32, 32, this);
+    ideology_img->on_each_tick = ([this](UI::Widget& w) {
         if(this->gs.world->time % this->gs.world->ticks_per_month) return;
 
         /// @todo More dynamic names
-        if(this->gs.curr_nation->ideology != nullptr)
+        if(this->gs.curr_nation->ideology != nullptr) {
             w.text(this->gs.curr_nation->ideology->name.get_string());
+            w.current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/ideology/" + this->gs.curr_nation->ideology->ref_name.get_string() + ".png"));
+        }
     });
-    ideology_lab->on_each_tick(*ideology_lab);
+    ideology_img->on_each_tick(*ideology_img);
 
     auto* ideology_pie_lab = new UI::Label(0, 82, "House", this);
     auto* ideology_pie = new UI::PieChart(0, 0, 128, 128, this);
@@ -99,7 +101,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     militancy_lab->on_each_tick = ([this](UI::Widget& w) {
         if(this->gs.world->time % this->gs.world->ticks_per_month) return;
 
-        float num = 0.f;
+        auto num = 0.f;
         for(const auto province_id : this->gs.curr_nation->owned_provinces) {
             const auto& province = this->gs.world->provinces[province_id];
             for(const auto& pop : province.pops)

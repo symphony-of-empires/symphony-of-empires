@@ -287,23 +287,18 @@ void Server::net_loop(int id) {
                 // Client takes a decision
                 case ActionType::NATION_TAKE_DECISION: {
                     // Find event by reference name
-                    std::string event_ref_name;
-                    ::deserialize(ar, &event_ref_name);
-                    auto event = std::find_if(g_world.events.begin(), g_world.events.end(), [&event_ref_name](const auto& e) {
-                        return e.ref_name == event_ref_name;
-                    });
-                    if(event == g_world.events.end())
-                        throw ServerException("Event not found");
+                    Event local_event;
+                    ::deserialize(ar, &local_event);
                     // Find decision by reference name
                     std::string decision_ref_name;
                     ::deserialize(ar, &decision_ref_name);
-                    auto decision = std::find_if(event->decisions.begin(), event->decisions.end(), [&decision_ref_name](const Decision& d) {
+                    auto decision = std::find_if(local_event.decisions.begin(), local_event.decisions.end(), [&decision_ref_name](const Decision& d) {
                         return d.ref_name == decision_ref_name;
                     });
-                    if(decision == event->decisions.end())
+                    if(decision == local_event.decisions.end())
                         throw ServerException("Decision " + decision_ref_name + " not found");
-                    event->take_decision(*selected_nation, *decision);
-                    Eng3D::Log::debug("server", "Event " + event_ref_name + " takes descision " + decision_ref_name + " by nation " + selected_nation->ref_name);
+                    local_event.take_decision(*selected_nation, *decision);
+                    Eng3D::Log::debug("server", "Event " + local_event.ref_name.get_string() + " takes descision " + decision_ref_name + " by nation " + selected_nation->ref_name);
                 } break;
                 // The client selects a nation
                 case ActionType::SELECT_NATION: {

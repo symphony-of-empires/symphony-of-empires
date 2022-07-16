@@ -26,6 +26,7 @@
 #pragma once
 
 #include "eng3d/ui/div.hpp"
+#include "eng3d/ui/window.hpp"
 #include "unit.hpp"
 
 class Map;
@@ -49,6 +50,14 @@ namespace Interface {
         UnitWidget(Unit& unit, Map& map, GameState& gamestate, UI::Widget* parent);
         void set_unit(Unit& _unit);
         void set_size(size_t size);
-        virtual ~UnitWidget();
+        virtual ~UnitWidget() = default;
+    };
+
+    class UnitView: public UI::Window {
+        GameState& gs;
+        Unit::Id unit_id;
+    public:
+        UnitView(GameState& _gs, Unit& unit);
+        virtual ~UnitView() = default;
     };
 };
