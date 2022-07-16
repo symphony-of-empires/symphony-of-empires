@@ -43,7 +43,7 @@
 #elif defined E3D_BACKEND_GLES
 #   include <GLES3/gl3.h>
 #endif
-
+#include <SDL_ttf.h>
 #include <glm/vec2.hpp>
 
 #ifndef M_PI

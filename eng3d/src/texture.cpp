@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <SDL_ttf.h>
 
 #include "eng3d/texture.hpp"
 #include "eng3d/path.hpp"
@@ -55,7 +56,7 @@ Eng3D::Texture::Texture(size_t _width, size_t _height)
 
 }
 
-Eng3D::Texture::Texture(TTF_Font* font, Eng3D::Color color, const std::string& msg) {
+Eng3D::Texture::Texture(Eng3D::TrueType::Font* font, Eng3D::Color color, const std::string& msg) {
     assert(font != nullptr);
 
     // TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);

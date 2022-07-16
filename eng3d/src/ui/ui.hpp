@@ -33,10 +33,10 @@
 #include <string>
 
 #include <SDL_surface.h>
-#include <SDL_ttf.h>
 #include <glm/vec2.hpp>
 #include <glm/mat4x4.hpp>
 
+#include "eng3d/ttf.hpp"
 #include "eng3d/shader.hpp"
 #include "eng3d/rectangle.hpp"
 #include "eng3d/color.hpp"
@@ -169,7 +169,7 @@ namespace UI {
         std::shared_ptr<Eng3D::Texture> button_border;
         std::shared_ptr<Eng3D::Texture> cursor_tex;
 
-        TTF_Font* default_font = nullptr;
+        Eng3D::TrueType::Font* default_font = nullptr;
 
         std::unique_ptr<Eng3D::OpenGL::Program> obj_shader;
         std::unique_ptr<Eng3D::OpenGL::Program> piechart_shader;
