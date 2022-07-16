@@ -98,11 +98,9 @@ NationView::NationView(GameState& _gs, Nation& _nation)
     ideology_lab->on_each_tick(*ideology_lab);
     ideology_lab->tooltip = new UI::Tooltip(ideology_lab, 512, 24);
     ideology_lab->tooltip->text(Eng3D::Locale::translate("The ideology according to their policies"));
-
-    UI::Label* interest_lab;
-    UI::Label* rel_lab;
+    
     if(gs.curr_nation != &nation) {
-        rel_lab = new UI::Label(0, 0, "?", flex_actions_column);
+        auto* rel_lab = new UI::Label(0, 0, "?", flex_actions_column);
         rel_lab->on_each_tick = ([this](UI::Widget& w) {
             const auto& relation = this->gs.world->get_relation(this->gs.world->get_id(*this->gs.curr_nation), this->gs.world->get_id(this->nation));
             w.text(std::to_string(relation.relation));
@@ -111,7 +109,7 @@ NationView::NationView(GameState& _gs, Nation& _nation)
         rel_lab->tooltip = new UI::Tooltip(rel_lab, 512, 24);
         rel_lab->tooltip->text(Eng3D::Locale::translate("Our diplomatic relations with them"));
 
-        interest_lab = new UI::Label(0, 0, "?", flex_actions_column);
+        auto* interest_lab = new UI::Label(0, 0, "?", flex_actions_column);
         interest_lab->on_each_tick = ([this](UI::Widget& w) {
             const auto& relation = this->gs.world->get_relation(this->gs.world->get_id(*this->gs.curr_nation), this->gs.world->get_id(this->nation));
             w.text(std::to_string(relation.interest));

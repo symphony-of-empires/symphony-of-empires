@@ -24,9 +24,12 @@
 // ----------------------------------------------------------------------------
 
 #include "eng3d/ui/image.hpp"
+#include "eng3d/ui/label.hpp"
 #include "eng3d/ui/progress_bar.hpp"
+#include "eng3d/string_format.hpp"
 #include "eng3d/camera.hpp"
 #include "eng3d/color.hpp"
+#include "eng3d/locale.hpp"
 
 #include "client/interface/unit_widget.hpp"
 #include "client/map.hpp"
@@ -39,7 +42,7 @@ using namespace Interface;
 
 UnitWidget::UnitWidget(Unit& _unit, Map& _map, GameState& _gs, UI::Widget* parent)
     : UI::Div(0, 0, 100, 30, parent),
-    unit_id{ _unit.cached_id },
+    unit_id{ _unit.get_id() },
     map{ _map },
     gs{ _gs }
 {
@@ -53,11 +56,12 @@ UnitWidget::UnitWidget(Unit& _unit, Map& _map, GameState& _gs, UI::Widget* paren
     new UI::Image(1, 1, this->width - 1, this->height - 1, "gfx/drop_shadow.png", this);
 
     this->set_on_click([this](UI::Widget&) {
-        if (gs.input.is_selected_unit(this->unit_id)) {
+        if(gs.input.is_selected_unit(this->unit_id)) {
             gs.input.unselect_unit(this->unit_id);
         } else {
             gs.input.select_unit(this->unit_id);
         }
+        new UnitView(this->gs, this->gs.world->unit_manager.units[this->unit_id]);
     });
 
     auto nation_flag = map.nation_flags[0];
@@ -67,7 +71,6 @@ UnitWidget::UnitWidget(Unit& _unit, Map& _map, GameState& _gs, UI::Widget* paren
 
     this->size_label = new UI::Div(41, 1, 48, 28, this);
     this->size_label->text_align_x = UI::Align::END;
-
 
     this->morale_bar = new UI::ProgressBar(91, 1, 8, 28, 0, 1, this);
     this->morale_bar->direction = UI::Direction::BOTTOM_TO_TOP;
@@ -79,15 +82,15 @@ UnitWidget::UnitWidget(Unit& _unit, Map& _map, GameState& _gs, UI::Widget* paren
 void UnitWidget::set_unit(Unit& _unit) {
     this->unit_id = _unit.get_id();
 
-    const Eng3D::Camera& camera = *map.camera;
+    const auto& camera = *map.camera;
     auto unit_pos = _unit.get_pos();
     auto screen_pos = camera.get_tile_screen_pos(unit_pos);
 
     this->x = screen_pos.x - this->width / 2;
     this->y = screen_pos.y - this->height / 2;
 
-    // If the unit is selected set give it a border
-    if (gs.input.is_selected_unit(this->unit_id)) {
+    // If the unit is not selected set give it a border
+    if(!gs.input.is_selected_unit(this->unit_id)) {
         this->border.texture = this->select_border_texture;
     } else {
         this->border.texture = nullptr;
@@ -118,6 +121,47 @@ void UnitWidget::set_size(size_t size) {
     this->size_label->text(std::to_string(size));
 }
 
-UnitWidget::~UnitWidget() {
 
+UnitView::UnitView(GameState& _gs, Unit& _unit)
+    : UI::Window(0, -256, 400, 256),
+    gs{ _gs },
+    unit_id{ _unit.get_id() }
+{
+    if(this->gs.lower_left_panel != nullptr)
+        this->gs.lower_left_panel->kill();
+    this->gs.lower_left_panel = this;
+    this->set_close_btn_function([this](Widget&) {
+        this->kill();
+        this->gs.lower_left_panel = nullptr;
+    });
+
+    this->origin = UI::Origin::LOWER_LEFT_SCREEN;
+    this->is_scroll = false;
+
+    auto& unit = this->gs.world->unit_manager.units[this->unit_id];
+    this->text(Eng3D::Locale::translate("Overview for") + " " + unit.type->name.get_string() + " from " + this->gs.world->nations[unit.owner_id].name.get_string());
+
+    auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
+    flex_column->flex = UI::Flex::COLUMN;
+
+    auto* size_lab = new UI::Label(0, 0, " ", flex_column);
+    size_lab->on_each_tick = ([this](UI::Widget& w) {
+        auto& unit = this->gs.world->unit_manager.units[this->unit_id];
+        w.text("Size: " + Eng3D::string_format("%.0f", unit.size));
+    });
+    size_lab->on_each_tick(*size_lab);
+
+    auto* morale_lab = new UI::Label(0, 0, " ", flex_column);
+    morale_lab->on_each_tick = ([this](UI::Widget& w) {
+        auto& unit = this->gs.world->unit_manager.units[this->unit_id];
+        w.text("Morale: " + Eng3D::string_format("%.2f", unit.morale));
+    });
+    morale_lab->on_each_tick(*morale_lab);
+
+    auto* attdef_lab = new UI::Label(0, 0, " ", flex_column);
+    attdef_lab->on_each_tick = ([this](UI::Widget& w) {
+        auto& unit = this->gs.world->unit_manager.units[this->unit_id];
+        w.text("Attack/Defense: " + Eng3D::string_format("%.2f", unit.attack) + "/" + Eng3D::string_format("%.2f", unit.defense));
+    });
+    attdef_lab->on_each_tick(*attdef_lab);
 }
