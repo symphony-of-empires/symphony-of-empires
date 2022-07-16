@@ -245,7 +245,7 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province& _province, std::size_t 
     this->culture_ibtn->right_side_of(*this->religion_ibtn);
     this->culture_ibtn->set_tooltip(new UI::Tooltip(this->culture_ibtn, 512, 24));
     
-    this->on_each_tick = ([this](UI::Widget& w) {
+    this->on_each_tick = ([this](UI::Widget&) {
         if(this->gs.world->time % this->gs.world->ticks_per_month) return;
         if(this->index >= this->province.pops.size()) return;
 

@@ -53,13 +53,10 @@ UnitWidget::UnitWidget(Unit& _unit, Map& _map, GameState& _gs, UI::Widget* paren
     new UI::Image(1, 1, this->width - 1, this->height - 1, "gfx/drop_shadow.png", this);
 
     this->set_on_click([this](UI::Widget&) {
-        auto it = std::find(gs.input.selected_units.begin(), gs.input.selected_units.end(), this->unit_id);
-        if(it == gs.input.selected_units.end()) {
-            // Select if not on selected units list
-            gs.input.selected_units.push_back(this->unit_id);
+        if (gs.input.is_selected_unit(this->unit_id)) {
+            gs.input.unselect_unit(this->unit_id);
         } else {
-            // Erase if already on selected units (deselect)
-            gs.input.selected_units.erase(it);
+            gs.input.select_unit(this->unit_id);
         }
     });
 
@@ -78,6 +75,7 @@ UnitWidget::UnitWidget(Unit& _unit, Map& _map, GameState& _gs, UI::Widget* paren
     this->set_unit(_unit);
 }
 
+// This is expected to be called every framed
 void UnitWidget::set_unit(Unit& _unit) {
     this->unit_id = _unit.get_id();
 
@@ -88,8 +86,8 @@ void UnitWidget::set_unit(Unit& _unit) {
     this->x = screen_pos.x - this->width / 2;
     this->y = screen_pos.y - this->height / 2;
 
-    const auto& selected_units = gs.input.selected_units;
-    if (std::count(selected_units.begin(), selected_units.end(), this->unit_id)) {
+    // If the unit is selected set give it a border
+    if (gs.input.is_selected_unit(this->unit_id)) {
         this->border.texture = this->select_border_texture;
     } else {
         this->border.texture = nullptr;

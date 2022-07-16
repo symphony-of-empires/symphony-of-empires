@@ -30,6 +30,8 @@
 #include <unordered_set>
 #include <string>
 #include <memory>
+#include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 #include "eng3d/entity.hpp"
 #include "eng3d/rectangle.hpp"
 
@@ -78,6 +80,10 @@ public:
         return glm::vec2(box_area.left + ((box_area.right - box_area.left) / 2.f), box_area.top + ((box_area.bottom - box_area.top) / 2.f));
     }
 
+    glm::vec3 get_sphere_coord(glm::vec2 world_size, float radius) const;
+
+    float euclidean_distance(const Province& other_province, glm::vec2 world_size, float radius) const;
+
     inline const std::vector<Building>& get_buildings() const {
         return buildings;
     }
@@ -117,7 +123,7 @@ public:
     inline void mark_province_owner_changed(Province::Id province_id) {
         recently_changed_owner.push_back(province_id);
     }
-    
+
     inline void mark_province_control_changed(Province::Id province_id) {
         recently_changed_control.push_back(province_id);
     }
@@ -126,15 +132,15 @@ public:
         recently_changed_owner.clear();
         recently_changed_control.clear();
     }
-    
+
     inline const std::vector<Province::Id>& get_changed_owner_provinces() const {
         return recently_changed_owner;
     }
-    
+
     inline const std::vector<Province::Id>& get_changed_control_provinces() const {
         return recently_changed_control;
     }
-    
+
     inline bool is_provinces_changed() const {
         return !recently_changed_owner.empty() || !recently_changed_control.empty();
     }
@@ -143,5 +149,5 @@ private:
     ProvinceOwnershipManager& operator=(const ProvinceOwnershipManager&) = default;
     std::vector<Province::Id> recently_changed_owner;
     std::vector<Province::Id> recently_changed_control;
-    bool changed; 
+    bool changed;
 };
