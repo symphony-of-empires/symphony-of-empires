@@ -24,6 +24,7 @@
 // ----------------------------------------------------------------------------
 
 #include "eng3d/serializer.hpp"
+#include "eng3d/ui/div.hpp"
 #include "eng3d/ui/close_button.hpp"
 #include "eng3d/locale.hpp"
 
@@ -34,80 +35,31 @@
 
 using namespace Interface;
 
-BuildingSelectProvinceTab::BuildingSelectProvinceTab(GameState& _gs, int x, int y, UI::Widget* _parent)
-    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
-    gs{ _gs }
-{
-    unsigned int i = 0;
-    for(auto& province : gs.world->provinces) {
-        if(province.owner_id != gs.curr_nation->get_id()) continue;
-
-        auto* btn = new ProvinceButton(gs, 0, 24 * i, province, this);
-        btn->set_on_click([](UI::Widget& w) {
-            (static_cast<BuildingBuildView&>(*w.parent->parent)).province = &(static_cast<ProvinceButton&>(w)).province;
-        });
-        i++;
-    }
-}
-
-BuildingSelectTypeTab::BuildingSelectTypeTab(GameState& _gs, int x, int y, UI::Widget* _parent)
-    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
-    gs{ _gs }
-{
-    unsigned int i = 0;
-    for(auto& building_type : gs.world->building_types) {
-        auto* btn = new BuildingTypeButton(gs, 0, 24 * i, building_type, this);
-        btn->set_on_click([](UI::Widget& w) {
-            auto& o = static_cast<BuildingBuildView&>(*w.parent->parent);
-            if(!o.gs.curr_nation->exists()) {
-                o.gs.ui_ctx.prompt("Error", "You don't exist");
-                return;
-            }
-            
-            const BuildingType& building_type = ((BuildingTypeButton&)w).building_type;
-            const_cast<Province&>(*o.province).add_building(building_type);
-            g_client->send(Action::BuildingAdd::form_packet(*o.province, building_type));
-            o.gs.ui_ctx.prompt("Production", "Building a " + building_type.name + " in " + o.province->ref_name + "; owned by " + o.province->controller->name);
-        });
-        i++;
-    }
-}
-
 BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_tile, Province& _province)
-    : UI::Window(0, 0, 512, 512),
+    : UI::Window(0, 0, 256, 256),
     gs{ _gs },
-    province{ &_province },
-    building_type{ _gs.world->building_types[0] },
+    province{ _province },
     in_tile{ _in_tile },
     tx{ _tx },
     ty{ _ty }
 {
-    this->is_scroll = false;
-    this->text(Eng3D::Locale::translate("Build a new building"));
-    this->set_close_btn_function([this](Widget&) {
+    this->is_scroll = true;
+    this->text(Eng3D::Locale::translate("Construction of buildings"));
+    this->set_close_btn_function([this](UI::Widget&) {
         this->kill();
     });
 
-    this->province_tab = new BuildingSelectProvinceTab(gs, 128, 24, this);
-    this->province_tab->is_render = false;
-
-    this->type_tab = new BuildingSelectTypeTab(gs, 128, 24, this);
-    this->type_tab->is_render = false;
-
-    auto* province_btn = new UI::Button(0, 0, 128, 24, this);
-    province_btn->text(Eng3D::Locale::translate("Province"));
-    province_btn->set_on_click([this](UI::Widget&) {
-        this->province_tab->is_render = true;
-        this->type_tab->is_render = false;
-    });
-
-    auto* build_btn = new UI::Button(0, 0, 128, 24, this);
-    build_btn->below_of(*province_btn);
-    build_btn->text(Eng3D::Locale::translate("Build"));
-    build_btn->set_on_click([this](UI::Widget&) {
-        this->province_tab->is_render = false;
-        this->type_tab->is_render = true;
-    });
+    auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
+    flex_column->flex = UI::Flex::COLUMN;
+    for(auto& building_type : gs.world->building_types) {
+        auto* btn = new BuildingTypeButton(gs, 0, 0, building_type, flex_column);
+        btn->set_on_click([this](UI::Widget& w) {
+            const auto& building_type = ((BuildingTypeButton&)w).building_type;
+            const_cast<Province&>(this->province).add_building(building_type);
+            g_client->send(Action::BuildingAdd::form_packet(this->province, building_type));
+            this->gs.ui_ctx.prompt("Production", "Building " + building_type.name + " in " + this->province.ref_name + " by " + this->province.controller->name);
+        });
+    }
 }
 
 BuildingView::BuildingView(GameState& _gs, Building& _building)
