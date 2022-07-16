@@ -14,7 +14,7 @@ jobs:
         fetch-depth: 0
     - name: "Install"
       run: |
-        sudo apt install -y cmake make xorg-dev libglu1-mesa-dev libglew-dev
+        sudo apt install -y cmake make libglu1-mesa-dev libglew-dev
     - name: "CMake build"
       uses: actions/cache@v3
       with:
