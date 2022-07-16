@@ -30,6 +30,10 @@
 #include "unit.hpp"
 #include "building.hpp"
 #include "pop.hpp"
+#include <glm/vec3.hpp>
+#include <glm/gtc/constants.hpp>
+#include <glm/trigonometric.hpp>
+#include <glm/geometric.hpp>
 
 #include "eng3d/common.hpp"
 
@@ -83,6 +87,30 @@ void Province::cancel_construction_project() {
         if(building.working_unit_type)
             building.working_unit_type = nullptr;
     }
+}
+
+glm::vec3 Province::get_sphere_coord(glm::vec2 world_size, float radius) const {
+    const glm::vec2 normalized_pos = get_pos() / world_size;
+    glm::vec2 radiance_pos;
+    radiance_pos.x = normalized_pos.x * 2.f * glm::pi<float>();
+    radiance_pos.y = normalized_pos.y * glm::pi<float>();
+
+    glm::vec3 sphere_position;
+    sphere_position.x = glm::cos(radiance_pos.x) * glm::sin(radiance_pos.y);
+    sphere_position.y = glm::sin(radiance_pos.x) * glm::sin(radiance_pos.y);
+    sphere_position.z = glm::cos(radiance_pos.y);
+    sphere_position *= radius;
+    return sphere_position;
+}
+
+float Province::euclidean_distance(const Province& other_province, glm::vec2 world_size, float radius) const {
+    glm::vec3 sphere_coord1 = get_sphere_coord(world_size, radius);
+    glm::vec3 sphere_coord2 = other_province.get_sphere_coord(world_size, radius);
+
+    float cos_angle = glm::dot(sphere_coord1, sphere_coord2) / (radius * radius);
+    float angle = glm::acos(cos_angle);
+    float distance = angle * radius;
+    return distance;
 }
 
 bool Province::is_neighbour(Province& province) const {

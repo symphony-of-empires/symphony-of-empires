@@ -268,7 +268,8 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->size);
         ::deser_dynamic<is_serialize>(ar, &obj->target_province_id);
         ::deser_dynamic<is_serialize>(ar, &obj->owner_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->move_progress);
+        ::deser_dynamic<is_serialize>(ar, &obj->days_left_until_move);
+        ::deser_dynamic<is_serialize>(ar, &obj->path);
         ::deser_dynamic<is_serialize>(ar, &obj->on_battle);
     }
 };

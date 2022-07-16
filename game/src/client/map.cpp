@@ -112,8 +112,8 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
 {
     auto& s = Eng3D::State::get_instance();
     camera = new Eng3D::FlatCamera(glm::vec2(screen_width, screen_height), glm::vec2(world.width, world.height));
-    // rivers = new Rivers();
-    // borders = new Borders();
+    rivers = new Rivers();
+    borders = new Borders();
     map_render = new MapRender(world);
 
     // Shader used for drawing the models using custom model render
@@ -361,7 +361,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
 
             // Check if we selected an unit
             is_drag = false;
-            if(input.selected_units.empty()) {
+            if(input.get_selected_units().empty()) {
                 // Show province information when clicking on a province
                 if(tile.province_id < gs.world->provinces.size()) {
                     new Interface::ProvinceView(gs, gs.world->provinces[tile.province_id]);
@@ -391,12 +391,12 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         }
 
         /// @todo Handle the case where an unit is deleted
-        for(const auto unit_id : gs.input.selected_units) {
+        for(const auto unit_id : gs.input.get_selected_units()) {
             auto& unit = gs.world->unit_manager.units[unit_id];
             auto province_id = gs.world->unit_manager.unit_province[unit_id];
             if(!gs.world->provinces[province_id].is_neighbour(province) || !unit.can_move()) continue;
             // Don't change target if ID is the same...
-            if(province_id == gs.world->get_id(province) || unit.target_province_id == gs.world->get_id(province))
+            if(province_id == gs.world->get_id(province) || unit.get_target_province_id() == gs.world->get_id(province))
                 continue;
             if(province.controller != nullptr && province.controller != gs.curr_nation) {
                 // Must either be our ally, have military access with them or be at war
@@ -421,7 +421,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
                 gs.audio_man.sound_queue.push_back(audio);
             }
         }
-        input.selected_units.clear();
+        input.clear_selected_units();
     }
 }
 
@@ -585,7 +585,7 @@ void Map::draw(GameState& gs) {
         if((this->map_render->get_province_opt(province.get_id()) & 0x000000ff) == 0x000000ff) {
             const auto prov_pos = province.get_pos();
             size_t war_battle_idx = 0;
-            for (size_t i = 0; i < province.battles.size(); i++) {
+            for(size_t i = 0; i < province.battles.size(); i++) {
                 bool battle_visible = true;
                 if(view_mode == MapView::SPHERE_VIEW) {
                     const auto* orbit_camera = static_cast<const Eng3D::OrbitCamera*>(camera);
@@ -610,8 +610,8 @@ void Map::draw(GameState& gs) {
             if(!province_units.empty()) {
                 const auto& unit = world.unit_manager.units[province_units[0]];
                 auto model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
-                if(Province::is_valid(unit.target_province_id)) {
-                    const auto& unit_target = world.provinces[unit.target_province_id];
+                if(Province::is_valid(unit.get_target_province_id())) {
+                    const auto& unit_target = world.provinces[unit.get_target_province_id()];
                     const auto target_pos = unit_target.get_pos();
                     const auto dist = glm::sqrt(glm::pow(glm::abs(prov_pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(prov_pos.y - target_pos.y), 2.f));
                     auto line_square = Eng3D::Square(0.f, 0.f, dist, 0.5f);
@@ -633,6 +633,17 @@ void Map::draw(GameState& gs) {
         battle_widgets[i]->kill();
     battle_widgets.resize(battle_index);
 
+    // Unit movement lines
+    gs.world->unit_manager.for_each_unit([&gs] (Unit& unit) {
+        if (gs.curr_nation && unit.owner_id != gs.curr_nation->get_id()) 
+            return;
+        
+        const auto& path = unit.get_path();
+
+    });
+
+
+    // Buildings
     for(const auto& province : world.provinces) {
         province_units_y[world.get_id(province)] += 2.5f;
         const auto prov_pos = province.get_pos();

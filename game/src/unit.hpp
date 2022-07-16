@@ -75,19 +75,31 @@ public:
     float morale_mod;
 };
 
+class UnitManager;
+template <class T>
+class Serializer;
 // Roughly a batallion, consisting of approximately 500 soldiers each
 class Unit : public IdEntity<uint16_t> {
     Unit & operator=(const Unit&) = default;
     friend class Client;
     friend class UnitManager;
+    friend class Serializer<Unit>;
+
+    std::vector<Province::Id> path;
+    float days_left_until_move = 0;
+    Province::Id target_province_id = Province::invalid();
 public:
     Unit() {};
     ~Unit() {};
     void attack(Unit& enemy);
     glm::vec2 get_pos() const;
     void set_target(const Province& province);
-    float get_speed(const Province& province) const;
+    void stop_movement();
+    float days_to_move_to(const Province& province) const;
+    // Returns true if unit moved
+    bool update_movement(UnitManager& unit_manager);
     float get_speed() const;
+
 
     /**
      * @brief Checks if the unit can move (if it can set_province)
@@ -100,16 +112,22 @@ public:
         return !(this->on_battle);
     }
 
+    inline const std::vector<Province::Id> get_path() const {
+        return path;        
+    }
+
+    inline Province::Id get_target_province_id() const {
+        return target_province_id;
+    }
+
     UnitType* type; // Type of unit
     uint16_t owner_id; // Who owns this unit
-    Province::Id target_province_id = Province::invalid();
     // Province::Id province_id = Province::invalid();
     Province::Id province_id() const;
 
     float size; // Size of the unit (soldiers in unit)
     // Base size of the unit (max size due to anti-attrition)
     float base;
-    float move_progress;
     float morale;
     float experience; // For perspective, 0.5 is the normal unit (i.e a soldier POP)
     float supply; // Available supplies, 1.0 is all supplies fullfilled, lower than that and the unit starts shrinking

@@ -51,7 +51,7 @@ LobbySelectView::LobbySelectView(GameState& _gs)
 
     // Flag with shadow
     this->curr_country_flag_img = new UI::Image(0, 0, 38, 28, gs.tex_man.get_white(), ctrl_window);
-    auto* drop_shadow_img = new UI::Image(0, 0, 38, 28, "gfx/drop_shadow.png", ctrl_window);
+    new UI::Image(0, 0, 38, 28, "gfx/drop_shadow.png", ctrl_window);
 
     // Country button for selection
     this->curr_country_btn = new UI::Button(0, 0, 320, 28, ctrl_window);
