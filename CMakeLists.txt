@@ -61,6 +61,7 @@ ENDIF()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 FetchContent_Declare(zlib GIT_REPOSITORY "https://github.com/madler/zlib" GIT_TAG 21767c654d31d2dccdde4330529775c6c5fd5389 GIT_PROGRESS TRUE)
 FetchContent_MakeAvailable(zlib)
+IF(0)
 set(SDL2_DISABLE_SDL2MAIN ON)
 set(SDL2_DISABLE_INSTALL ON)
 set(SDL2_DISABLE_UNINSTALL ON)
@@ -80,6 +81,7 @@ ENDIF()
 FetchContent_Declare(sdl2 GIT_REPOSITORY "https://github.com/libsdl-org/SDL" GIT_TAG main GIT_PROGRESS TRUE)
 FetchContent_MakeAvailable(sdl2)
 include_directories("${sdl2_BINARY_DIR}/include-config-debug" "${sdl2_BINARY_DIR}/include-config-release" "${sdl2_BINARY_DIR}/include-config-relwithdebinfo" "${sdl2_BINARY_DIR}/include")
+ENDIF()
 IF(0)
 set(ASSIMP_INSTALL OFF)
 set(ASSIMP_NO_EXPORT ON)
@@ -143,6 +145,7 @@ IF(UNIT_TEST)
 ENDIF()
 
 include_directories("${PROJECT_SOURCE_DIR}/game/src" "${CMAKE_SOURCE_DIR}/eng3d")
+include_directories("/usr/include/SDL2")
 
 #
 # Source code files
