@@ -46,12 +46,18 @@ if [ ! -d $BUILD_DIR ]; then
         
     else
         cmake \
-            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_BUILD_TYPE=Debug \
             -DE3D_BACKEND_OPENGL=1 \
             -B $BUILD_DIR \
             .
     fi
 fi
+
+cmake \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DE3D_BACKEND_OPENGL=1 \
+    -B $BUILD_DIR \
+    .
 
 cd $BUILD_DIR
 cmake --build . -- -j8 || exit
@@ -103,7 +109,7 @@ else
     # Runs the game
     export MESA_GL_VERSION_OVERRIDE=4.4
     export MESA_GLSL_VERSION_OVERRIDE=440
-    #export LIBGL_ALWAYS_SOFTWARE=1
+    export LIBGL_ALWAYS_SOFTWARE=1
     gdb ./SymphonyOfEmpires
 fi
 echo "Exiting game"

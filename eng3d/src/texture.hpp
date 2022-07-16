@@ -44,8 +44,8 @@
 #   include <GLES3/gl3.h>
 #endif
 
-#include <SDL_ttf.h>
 #include <SDL_surface.h>
+#include <SDL_ttf.h>
 
 #include "eng3d/binary_image.hpp"
 #include "eng3d/color.hpp"
