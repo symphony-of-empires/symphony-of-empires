@@ -37,7 +37,6 @@
 #include <SDL_mouse.h>
 #include <SDL_audio.h>
 #include <SDL_joystick.h>
-#include <SDL_ttf.h>
 
 #include "eng3d/io.hpp"
 #include "eng3d/ui/ui.hpp"

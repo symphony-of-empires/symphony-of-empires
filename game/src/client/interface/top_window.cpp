@@ -27,6 +27,7 @@
 #include "eng3d/texture.hpp"
 #include "eng3d/ui/components.hpp"
 #include "eng3d/locale.hpp"
+#include "eng3d/ttf.hpp"
 
 #include "client/interface/top_window.hpp"
 #include "client/game_state.hpp"
@@ -170,7 +171,7 @@ TimeControlView::TimeControlView(GameState& _gs)
         speed3_btn->set_tooltip("Fire speed");
     }
 
-    auto font = TTF_OpenFont(gs.package_man.get_unique("fonts/neon_euler/euler.ttf")->get_abs_path().c_str(), 20);
+    auto font = Eng3D::TrueType::open_font(gs.package_man.get_unique("fonts/neon_euler/euler.ttf")->get_abs_path(), 20);
     auto text_color = Eng3D::Color(1., 1., 1.);
 
     auto* time_lab = new UI::Label(50, 30, " ", this);

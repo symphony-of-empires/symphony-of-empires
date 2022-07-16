@@ -26,6 +26,8 @@
 // ----------------------------------------------------------------------------
 
 // Required before GL/gl.h
+#include <filesystem>
+#include <cstring>
 #ifdef E3D_TARGET_WINDOWS
 #   ifndef WINSOCK2_IMPORTED
 #       define WINSOCK2_IMPORTED
@@ -44,9 +46,7 @@
 #elif defined E3D_BACKEND_GLES
 #   include <GLES3/gl3.h>
 #endif
-
-#include <filesystem>
-#include <cstring>
+#include <SDL_ttf.h>
 
 #include "eng3d/state.hpp"
 #include "eng3d/path.hpp"

@@ -36,9 +36,9 @@
 #include <algorithm>
 
 #include <SDL_surface.h>
-#include <SDL_ttf.h>
 #include <glm/vec2.hpp>
 
+#include "eng3d/ttf.hpp"
 #include "eng3d/rectangle.hpp"
 #include "eng3d/color.hpp"
 
@@ -278,7 +278,7 @@ namespace UI {
         Align text_align_y = Align::START;
         Align text_align_x = Align::START;
         Eng3D::Color text_color = Eng3D::Color(0.f, 0.f, 0.f);
-        TTF_Font* font = nullptr;
+        Eng3D::TrueType::Font* font = nullptr;
         Border border;
         Eng3D::Color background_color = Eng3D::Color(1.f, 1.f, 1.f, 0.f);
 

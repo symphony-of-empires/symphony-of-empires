@@ -23,6 +23,7 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#include "eng3d/ttf.hpp"
 #include "eng3d/log.hpp"
 #include "eng3d/path.hpp"
 #include "eng3d/texture.hpp"
@@ -116,7 +117,7 @@ MainMenu::MainMenu(GameState& _gs)
     mipmap_options.wrap_s = GL_CLAMP_TO_EDGE;
     mipmap_options.wrap_t = GL_CLAMP_TO_EDGE;
 
-    auto font = TTF_OpenFont(gs.package_man.get_unique("fonts/neon_euler/euler.ttf")->get_abs_path().c_str(), 20);
+    auto font = Eng3D::TrueType::open_font(gs.package_man.get_unique("fonts/neon_euler/euler.ttf")->get_abs_path(), 20);
     auto text_color = Eng3D::Color(1.f, 1.f, 1.f);
 
     this->current_texture = tex_man.load(gs.package_man.get_unique("gfx/ui/bg/main_menu.png"), mipmap_options);

@@ -29,13 +29,13 @@
 #include <cmath>
 #include <algorithm>
 #include <glm/vec2.hpp>
-
 #ifdef E3D_BACKEND_OPENGL
 #   include <GL/glew.h>
 #   include <GL/gl.h>
 #elif defined E3D_BACKEND_GLES
 #   include <GLES3/gl3.h>
 #endif
+#include <SDL_ttf.h>
 
 #include "eng3d/ui/widget.hpp"
 #include "eng3d/ui/ui.hpp"
@@ -456,7 +456,7 @@ void Widget::text(const std::string& _text) {
     }
 
     if(_text.empty()) return;
-    TTF_Font* text_font = font ? font : g_ui_context->default_font;
+    auto* text_font = font ? font : g_ui_context->default_font;
     text_texture = new Eng3D::Texture(text_font, text_color, _text);
 }
 

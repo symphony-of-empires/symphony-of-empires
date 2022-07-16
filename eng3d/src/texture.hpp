@@ -45,8 +45,8 @@
 #endif
 
 #include <SDL_surface.h>
-#include <SDL_ttf.h>
 
+#include "eng3d/ttf.hpp"
 #include "eng3d/binary_image.hpp"
 #include "eng3d/color.hpp"
 
@@ -109,7 +109,7 @@ namespace Eng3D {
         Texture(const std::string& path);
         Texture(const Eng3D::IO::Asset::Base* asset);
         Texture(size_t _width, size_t _height);
-        Texture(TTF_Font* font, Eng3D::Color color, const std::string& msg);
+        Texture(Eng3D::TrueType::Font* font, Eng3D::Color color, const std::string& msg);
         ~Texture() override;
         void create_dummy();
         void upload(TextureOptions options = default_options);
