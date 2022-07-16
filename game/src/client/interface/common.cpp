@@ -49,8 +49,8 @@
 
 using namespace Interface;
 
-UnitButton::UnitButton(GameState& _gs, int x, int y, Unit& _unit, UI::Widget* parent)
-    : UI::Button(x, y, parent->width, 24, parent),
+UnitButton::UnitButton(GameState& _gs, int x, int y, Unit& _unit, UI::Widget* _parent)
+    : UI::Button(x, y, _parent->width, 24, _parent),
     gs{ _gs },
     unit{ _unit }
 {
@@ -60,8 +60,8 @@ UnitButton::UnitButton(GameState& _gs, int x, int y, Unit& _unit, UI::Widget* pa
     });
 }
 
-UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType& _unit_type, UI::Widget* parent)
-    : UI::Group(x, y, parent->width, 24, parent),
+UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType& _unit_type, UI::Widget* _parent)
+    : UI::Group(x, y, _parent->width, 24, _parent),
     gs{ _gs },
     unit_type{ _unit_type }
 {
@@ -75,8 +75,8 @@ UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType& _unit_typ
     this->name_btn->text(this->unit_type.name.get_string());
 }
 
-ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province& _province, UI::Widget* parent)
-    : UI::Button(x, y, parent->width, 24, parent),
+ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)
+    : UI::Button(x, y, _parent->width, 24, _parent),
     gs{ _gs },
     province{ _province }
 {
@@ -88,8 +88,8 @@ ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province& _province
     });
 }
 
-NationButton::NationButton(GameState& _gs, int x, int y, Nation& _nation, UI::Widget* parent)
-    : UI::Group(x, y, parent->width, 24, parent),
+NationButton::NationButton(GameState& _gs, int x, int y, Nation& _nation, UI::Widget* _parent)
+    : UI::Group(x, y, _parent->width, 24, _parent),
     gs{ _gs },
     nation{ _nation }
 {
@@ -108,21 +108,20 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation& _nation, UI::Wi
     this->name_btn->text(nation.get_client_hint().alt_name.get_string());
     this->name_btn->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<NationButton&>(*w.parent);
-        if(o.gs.world->time % o.gs.world->ticks_per_month)
-            return;
+        if(o.gs.world->time % o.gs.world->ticks_per_month) return;
         w.text(Eng3D::Locale::translate(o.nation.get_client_hint().alt_name.get_string()));
     });
 }
 
-BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, unsigned int _idx, UI::Widget* parent)
-    : UI::Group(x, y, parent->width, 24 * 2, parent),
+BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, unsigned int _idx, UI::Widget* _parent)
+    : UI::Group(x, y, _parent->width, 24 * 2, _parent),
     gs{ _gs },
     province{ _province },
     idx{ _idx }
 {
     is_scroll = false;
 
-    const BuildingType& building_type = gs.world->building_types[idx];
+    const auto& building_type = gs.world->building_types[idx];
     auto* name_btn = new UI::Label(0, 0, building_type.name.get_string(), this);
 
     unsigned int dx = 0;
@@ -174,16 +173,19 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, un
     money_lab->on_each_tick(*money_lab);
 }
 
-BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, BuildingType& _building_type, UI::Widget* parent)
-    : UI::Button(x, y, parent->width, 24, parent),
+BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, BuildingType& _building_type, UI::Widget* _parent)
+    : UI::Button(x, y, _parent->width, 24, _parent),
     gs{ _gs },
     building_type{ _building_type }
 {
     this->text(building_type.name.get_string());
+    if(this->gs.editor) {
+        this->text(building_type.name.get_string() + "(" + building_type.ref_name.get_string() + ")");
+    }
 }
 
-TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology& _technology, UI::Widget* parent)
-    : UI::Group(x, y, parent->width, 48, parent),
+TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology& _technology, UI::Widget* _parent)
+    : UI::Group(x, y, _parent->width, 48, _parent),
     gs{ _gs },
     technology{ _technology }
 {
@@ -191,7 +193,6 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology& _techno
 
     auto* chk = new UI::Checkbox(0, 0, 128, 24, this);
     chk->text(technology.name.get_string());
-    chk->tooltip = new UI::Tooltip(chk, 512, 24);
     chk->on_each_tick = ([this](UI::Widget& w) {
         if(&this->technology == this->gs.curr_nation->focus_tech || !this->gs.curr_nation->research[this->gs.world->get_id(this->technology)]) {
             ((UI::Checkbox&)w).set_value(true);
@@ -200,7 +201,7 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology& _techno
         }
 
         if(this->gs.curr_nation->can_research(this->technology)) {
-            w.tooltip->text(Eng3D::Locale::translate("We can research this"));
+            w.set_tooltip(Eng3D::Locale::translate("We can research this"));
         } else {
             std::string text = "";
             text = Eng3D::Locale::translate("We can't research this because we don't have ");
@@ -208,7 +209,7 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology& _techno
                 if(this->gs.curr_nation->research[req_tech_id] > 0.f)
                     text += Eng3D::Locale::translate(this->gs.world->technologies[req_tech_id].name.get_string()) + ", ";
             }
-            w.tooltip->text(text);
+            w.set_tooltip(text);
         }
     });
     chk->set_on_click([this](UI::Widget&) {

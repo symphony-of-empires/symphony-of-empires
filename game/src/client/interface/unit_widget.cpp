@@ -161,7 +161,7 @@ UnitView::UnitView(GameState& _gs, Unit& _unit)
     auto* attdef_lab = new UI::Label(0, 0, " ", flex_column);
     attdef_lab->on_each_tick = ([this](UI::Widget& w) {
         auto& unit = this->gs.world->unit_manager.units[this->unit_id];
-        w.text("Attack/Defense: " + Eng3D::string_format("%.2f", unit.attack) + "/" + Eng3D::string_format("%.2f", unit.defense));
+        w.text("Attack/Defense: " + Eng3D::string_format("%.2f", unit.type->attack) + "/" + Eng3D::string_format("%.2f", unit.type->defense));
     });
     attdef_lab->on_each_tick(*attdef_lab);
 }

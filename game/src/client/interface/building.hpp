@@ -34,34 +34,11 @@
 #include "client/interface/common.hpp"
 
 namespace Interface {
-    class BuildingSelectProvinceTab : public UI::Group {
-        GameState& gs;
-    public:
-        BuildingSelectProvinceTab(GameState& gs, int x, int y, UI::Widget* parent);
-    };
-
-    class BuildingSelectNationTab : public UI::Group {
-        GameState& gs;
-    public:
-        BuildingSelectNationTab(GameState& gs, int x, int y, UI::Widget* parent);
-    };
-
-    class BuildingSelectTypeTab : public UI::Group {
-        GameState& gs;
-    public:
-        BuildingSelectTypeTab(GameState& gs, int x, int y, UI::Widget* parent);
-    };
-
     // Set building site for production and placement of a new building
     class BuildingBuildView : public UI::Window {
         GameState& gs;
     public:
-        Province* province;
-        BuildingType& building_type;
-
-        BuildingSelectProvinceTab* province_tab;
-        BuildingSelectTypeTab* type_tab;
-
+        Province& province;
         bool in_tile;
         int tx, ty;
         BuildingBuildView(GameState& gs, int tx, int ty, bool in_tile, Province& province);
