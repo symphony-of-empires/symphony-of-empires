@@ -195,9 +195,9 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province& _
         std::vector<UI::ChartData> goods_data;
         int i = 0;
         for(const auto& good : o.gs.world->goods) {
-            const auto good_col = Eng3D::Color(i * 12, i * 31, i * 97);
-            const Product& product = o.province.products[o.gs.world->get_id(good)];
-            goods_data.push_back(UI::ChartData(product.demand, good.name.get_string(), good_col));
+            const auto good_col = Eng3D::Color::rgb8((uint8_t)(i * 12), (uint8_t)(i * 31), (uint8_t)(i * 97));
+            const auto& product = o.province.products[o.gs.world->get_id(good)];
+            goods_data.push_back(UI::ChartData(std::max<float>(product.demand, 0.1f), good.name.get_string(), good_col));
             i++;
         }
         o.products_pie->set_data(goods_data);
@@ -205,11 +205,11 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province& _
     this->on_each_tick(*this);
 
     // Initial product info
-    int i = 0;
+    auto* flex_column = new UI::Div(0, 128, this->width, this->height - 128, this);
+    flex_column->flex = UI::Flex::COLUMN;
     for(auto& good : gs.world->goods) {
-        auto* info = new ProductInfo(this->gs, 0, (i * 24) + 128, province, good, this);
+        auto* info = new ProductInfo(this->gs, 0, 0, province, good, flex_column);
         product_infos.push_back(info);
-        i++;
     }
 }
 
@@ -221,20 +221,20 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province&
     this->text(province.name.get_string());
 
     // Initial product info
-    unsigned int dy = 0;
-
     auto* build_btn = new UI::Button(0, 0, 128, 24, this);
     build_btn->text("Build new");
     build_btn->set_on_click([this](UI::Widget&) {
         new BuildingBuildView(this->gs, 0, 0, false, this->province);
     });
-    dy += build_btn->height;
 
+    auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
+    flex_column->flex = UI::Flex::COLUMN;
+    flex_column->is_scroll = true;
+    flex_column->below_of(*build_btn);
     for(unsigned int i = 0; i < gs.world->building_types.size(); i++) {
         if(province.buildings[i].level) {
-            auto* info = new BuildingInfo(this->gs, 0, dy, province, i, this);
+            auto* info = new BuildingInfo(this->gs, 0, 0, province, i, flex_column);
             this->building_infos.push_back(info);
-            dy += info->height;
         }
     }
 }
@@ -412,7 +412,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
         fill_pops_btn->below_of(*density_sld);
         fill_pops_btn->set_on_click([this](UI::Widget&) {
             // Get max sv
-            float max_sv = 1.f;
+            auto max_sv = 1.f;
             for(const auto& pop_type : this->gs.world->pop_types) {
                 if(pop_type.social_value > max_sv)
                     max_sv = pop_type.social_value;
