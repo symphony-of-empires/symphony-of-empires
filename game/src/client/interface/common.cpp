@@ -119,7 +119,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, un
     province{ _province },
     idx{ _idx }
 {
-    is_scroll = false;
+    this->is_scroll = false;
 
     const auto& building_type = gs.world->building_types[idx];
     auto* name_btn = new UI::Label(0, 0, building_type.name.get_string(), this);

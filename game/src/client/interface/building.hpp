@@ -46,11 +46,4 @@ namespace Interface {
         /* The tab holds buttons which sends the packets to the server - this requires access to the parent which holds private data :) */
         friend class BuildingSelectTypeTab;
     };
-
-    class BuildingView : public UI::Window {
-        GameState& gs;
-        Building& building;
-    public:
-        BuildingView(GameState& gs, Building& building);
-    };
 };

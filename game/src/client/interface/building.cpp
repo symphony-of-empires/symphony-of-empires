@@ -61,15 +61,3 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
         });
     }
 }
-
-BuildingView::BuildingView(GameState& _gs, Building& _building)
-    : UI::Window(0, 0, 512, 512),
-    gs{ _gs },
-    building{ _building }
-{
-    this->is_scroll = false;
-    this->text(Eng3D::Locale::translate("Information for this building"));
-    this->set_close_btn_function([this](Widget&) {
-        this->kill();
-    });
-}
