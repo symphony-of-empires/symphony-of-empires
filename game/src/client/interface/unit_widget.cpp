@@ -123,7 +123,7 @@ void UnitWidget::set_size(size_t size) {
 
 
 UnitView::UnitView(GameState& _gs, Unit& _unit)
-    : UI::Window(0, -256, 400, 256),
+    : UI::Window(0, -200, 400, 200),
     gs{ _gs },
     unit_id{ _unit.get_id() }
 {
