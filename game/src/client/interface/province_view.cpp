@@ -249,9 +249,11 @@ ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, Pro
     this->is_scroll = true;
 
     // Initial product info
-    unsigned int dy = 0;
+    auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
+    flex_column->flex = UI::Flex::COLUMN;
+    flex_column->is_scroll = true;
     for(auto& culture : gs.world->cultures) {
-        auto* btn = new UI::Button(0, dy, 128, 24, this);
+        auto* btn = new UI::Button(0, 0, 128, 24, flex_column);
         btn->text(culture.name.get_string());
         btn->set_on_click([this, &culture](UI::Widget&) {
             for(auto& pop : const_cast<Province&>(this->province).pops) {
@@ -260,7 +262,6 @@ ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, Pro
             this->gs.map->update_mapmode();
             this->gs.input.selected_culture = &culture;
         });
-        dy += btn->height;
     }
 }
 
@@ -274,9 +275,11 @@ ProvinceEditReligionTab::ProvinceEditReligionTab(GameState& _gs, int x, int y, P
     this->is_scroll = true;
 
     // Initial product info
-    unsigned int dy = 0;
+    auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
+    flex_column->flex = UI::Flex::COLUMN;
+    flex_column->is_scroll = true;
     for(auto& religion : gs.world->religions) {
-        auto* btn = new UI::Button(0, dy, 128, 24, this);
+        auto* btn = new UI::Button(0, 0, 128, 24, flex_column);
         btn->text(religion.name.get_string());
         btn->set_on_click([this, &religion](UI::Widget&) {
             for(auto& pop : const_cast<Province&>(this->province).pops) {
@@ -285,7 +288,6 @@ ProvinceEditReligionTab::ProvinceEditReligionTab(GameState& _gs, int x, int y, P
             this->gs.map->update_mapmode();
             this->gs.input.selected_religion = &religion;
         });
-        dy += btn->height;
     }
 }
 
