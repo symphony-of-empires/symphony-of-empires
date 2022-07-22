@@ -36,7 +36,7 @@ aptr_evhdl = Event:new{
 		-- Requirements
 		return EVENT_CONDITIONS_MET
 	end,
-	event_fn = function aptr_event(ref_name)
+	event_fn = function(ref_name)
 		local nation = Nation:get(ref_name)
 		local canal_prov = Province:get("colon")
 		-- TODO: Generate names dynamically based on culture (for multicultural states it's just random chance)
@@ -88,8 +88,10 @@ eapcp_evhdl = Event:new{
 	ref_name = "eapcp",
 	conditions_fn = function()
 		-- TODO: Requirements
-		if CANAL_CAMPAING_DATA[ref_name]
-		return EVENT_CONDITIONS_MET
+		if CANAL_CAMPAING_DATA[ref_name] then
+			return EVENT_CONDITIONS_MET
+		end
+		return EVENT_CONDITIONS_UNMET
 	end,
 	event_fn = function(ref_name)
 		local nation = Nation:get(ref_name)
@@ -98,7 +100,7 @@ eapcp_evhdl = Event:new{
 			ref_name = "dsc0",
 			name = "We're grateful of your ingenous ideas",
 			decision_fn = function(ref_name)
-				CANAL_CAMPAING_DATA[ref_name].ambition += 5.0
+				CANAL_CAMPAING_DATA[ref_name].ambition = CANAL_CAMPAING_DATA[ref_name].ambition + 5.0
 				CANAL_CAMPAING_DATA[ref_name].with_plan = true
 			end,
 			effects = "Start the preparations for a canal on Panama"
@@ -108,7 +110,7 @@ eapcp_evhdl = Event:new{
 			ref_name = "dsc1",
 			name = "This plan is too much for us!",
 			decision_fn = function(ref_name)
-				CANAL_CAMPAING_DATA[ref_name].ambition += 50.0
+				CANAL_CAMPAING_DATA[ref_name].ambition = CANAL_CAMPAING_DATA[ref_name].ambition + 50.0
 				print('Country ' .. ref_name .. ' rejected the canal proposal')
 			end,
 			effects = "Panama canal idea is aborted"
@@ -120,7 +122,7 @@ eapcp_evhdl = Event:new{
 	text = "Our engineer contacted us and gave us a plan to terraform a canal in Panama, what should we do?"
 }
 eapcp_evhdl:register()
-eapcp_evhdl:add_receivers(unpack(Nation:get_all()))
+eapcp_evhdl:add_receivers(table.unpack(Nation:get_all()))
 
 eapcp_evhdl = Event:new{
 	ref_name = "eapcp",

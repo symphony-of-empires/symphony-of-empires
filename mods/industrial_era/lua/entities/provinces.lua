@@ -5184,7 +5184,7 @@ province:add_pop(pt_officer,c_colombian,r_protestant,666.666687,0.001667)
 province:add_pop(pt_craftsmen,c_colombian,r_protestant,666.666687,0.001667)
 province:add_nucleus(n_gran_colombia)
 province:give_to(n_gran_colombia)
-province=Province:new{ref_name="province_c045eb00",name=_("Province_eb45c0"),color=0xeb45c0,terrain=tt_plains,rgo_size={}}
+province=Province:new{ref_name="colon",name=_("Colon"),color=0xeb45c0,terrain=tt_plains,rgo_size={}}
 province:register()
 province:update_building(bt_wheat_farm,1.000000)
 province:add_pop(pt_burgeoise,c_colombian,r_protestant,500.000000,0.001250)
