@@ -57,6 +57,7 @@ gfx/load_screen/005
 
 gfx/ideology/communism
 gfx/ideology/fascism
+gfx/ideology/republic
 	By Higralfo
 
 gfx/pop
