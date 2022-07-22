@@ -91,13 +91,12 @@ NationView::NationView(GameState& _gs, Nation& _nation)
     name_lab->tooltip = new UI::Tooltip(name_lab, 512, 24);
     name_lab->tooltip->text(Eng3D::Locale::translate("The official name"));
 
-    auto* ideology_lab = new UI::Label(0, 0, "?", flex_actions_column);
-    ideology_lab->on_each_tick = ([this](UI::Widget& w) {
-        w.text(this->nation.get_client_hint().ideology->name.get_string());
+    auto* ideology_img = new UI::Image(0, 0, 24, 24, this);
+    ideology_img->on_each_tick = ([this](UI::Widget& w) {
+        ((UI::Image&)w).current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/ideology/" + this->nation.get_client_hint().ideology->ref_name.get_string() + ".png"));
+        w.set_tooltip(Eng3D::Locale::translate(this->nation.get_client_hint().ideology->ref_name.get_string()));
     });
-    ideology_lab->on_each_tick(*ideology_lab);
-    ideology_lab->tooltip = new UI::Tooltip(ideology_lab, 512, 24);
-    ideology_lab->tooltip->text(Eng3D::Locale::translate("The ideology according to their policies"));
+    ideology_img->on_each_tick(*ideology_img);
     
     if(gs.curr_nation != &nation) {
         auto* rel_lab = new UI::Label(0, 0, "?", flex_actions_column);

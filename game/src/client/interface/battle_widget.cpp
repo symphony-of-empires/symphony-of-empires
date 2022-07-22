@@ -53,7 +53,7 @@ BattleWidget::BattleWidget(Province& _province, size_t _idx, Map& _map, UI::Widg
     this->left_flag_img = new UI::Image(1, 1, 38, 28, nation_flag, this);
     this->left_size_label = new UI::Div(41, 1, 48, 28, this);
     this->left_size_label->text_align_x = UI::Align::END;
-    this->left_size_label->background_color = Eng3D::Color(0.5f, 0.f, 0.f, 1.f);
+    this->left_size_label->background_color = Eng3D::Color(0.8f, 0.f, 0.f, 1.f);
     this->left_size_label->on_each_tick = ([this](UI::Widget&) {
         if(this->idx >= this->province->battles.size()) return;
         const Battle& battle = this->province->battles[this->idx];
@@ -68,7 +68,7 @@ BattleWidget::BattleWidget(Province& _province, size_t _idx, Map& _map, UI::Widg
     this->right_flag_img = new UI::Image(139, 1, 38, 28, nation_flag, this);
     this->right_size_label = new UI::Div(90, 1, 48, 28, this);
     this->right_size_label->text_align_x = UI::Align::END;
-    this->right_size_label->background_color = Eng3D::Color(0.f, 0.f, 0.5f, 1.f);
+    this->right_size_label->background_color = Eng3D::Color(0.f, 0.f, 0.8f, 1.f);
     this->right_size_label->on_each_tick = ([this](UI::Widget&) {
         if(this->idx >= this->province->battles.size()) return;
         const Battle& battle = this->province->battles[this->idx];
