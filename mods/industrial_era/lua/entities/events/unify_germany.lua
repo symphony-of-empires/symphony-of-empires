@@ -31,7 +31,7 @@ unify_germany_evhdl = Event:new{
 	ref_name = "unify_germany",
 	conditions_fn = function()
 		local year = get_year()
-		if year >= 1840 and math.random(0, 100) == 0 then
+		if year >= 1810 and math.random(0, 100) == 0 then
 			return EVENT_CONDITIONS_MET
 		end
 		return EVENT_CONDITIONS_UNMET
