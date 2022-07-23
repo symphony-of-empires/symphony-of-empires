@@ -65,9 +65,6 @@ include_directories("${PROJECT_SOURCE_DIR}")
 #
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 IF(E3D_VENDORED)
-	# ZLIB
-	FetchContent_Declare(zlib GIT_REPOSITORY "https://github.com/madler/zlib" GIT_TAG 21767c654d31d2dccdde4330529775c6c5fd5389 GIT_PROGRESS TRUE)
-	FetchContent_MakeAvailable(zlib)
 	# GLEW
 	IF(WIN32)
 		set(ONLY_LIBS ON)
@@ -116,9 +113,6 @@ IF(E3D_VENDORED)
 	set(ENABLE_BOOST_WORKAROUND ON)
 	FetchContent_Declare(assimp GIT_REPOSITORY "https://github.com/assimp/assimp" GIT_TAG v5.2.4 GIT_PROGRESS TRUE)
 	FetchContent_MakeAvailable(assimp)
-	# GLM
-	FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm" GIT_PROGRESS TRUE)
-	FetchContent_MakeAvailable(glm)
 	# TBB (and hwloc if needed)
 	IF(WIN32)
 		FetchContent_Declare(hwloc URL "https://download.open-mpi.org/release/hwloc/v2.7/hwloc-win64-build-2.7.1.zip")
@@ -147,6 +141,12 @@ IF(E3D_VENDORED)
 	ENDIF()
 ENDIF()
 
+# ZLIB
+FetchContent_Declare(zlib GIT_REPOSITORY "https://github.com/madler/zlib" GIT_TAG 21767c654d31d2dccdde4330529775c6c5fd5389 GIT_PROGRESS TRUE)
+FetchContent_MakeAvailable(zlib)
+# GLM
+FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm" GIT_PROGRESS TRUE)
+FetchContent_MakeAvailable(glm)
 # LUA
 set(LUA_BUILD_BINARY OFF)
 set(LUA_BUILD_COMPILER OFF)
