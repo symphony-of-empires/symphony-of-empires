@@ -9,27 +9,25 @@ option(E3D_BUILD_ENGINE "Enable building the Eng3D library" ON)
 #
 # Defines - see README.1st
 #
-option(E3D_DEBUG, "E3D_DEBUG" ON)
+option(E3D_DEBUG, "Enable debug" ON)
+option(E3D_BACKEND_OPENGL, "Enable the OpenGL backend" ON)
+option(E3D_BACKEND_GLES, "Enable the GLES backend" ON)
+option(E3D_BACKEND_RGX, "E3D_BACKEND_RGX" ON)
+option(E3D_MANAGED_HEAP, "Allow Eng3D to manage heap (useful for debugging without instrumentation)" ON)
+option(E3D_VENDORED, "Build libraries instead of using the system ones" OFF)
+
 IF(E3D_DEBUG)
 	add_definitions(-DE3D_DEBUG=1)
 ENDIF()
-
-option(E3D_BACKEND_OPENGL, "Enable the OpenGL backend" ON)
 IF(E3D_BACKEND_OPENGL)
 	add_definitions(-DE3D_BACKEND_OPENGL=1)
 ENDIF()
-
-option(E3D_BACKEND_GLES, "Enable the GLES backend" ON)
 IF(E3D_BACKEND_GLES)
 	add_definitions(-DE3D_BACKEND_GLES=1)
 ENDIF()
-
-option(E3D_BACKEND_RGX, "E3D_BACKEND_RGX" ON)
 IF(E3D_BACKEND_RGX)
 	add_definitions(-DE3D_BACKEND_RGX=1)
 ENDIF()
-
-option(E3D_MANAGED_HEAP, "Allow Eng3D to manage heap (useful for debugging without instrumentation)" ON)
 IF(E3D_MANAGED_HEAP)
 	add_definitions(-DE3D_MANAGED_HEAP=1)
 ENDIF()
@@ -66,7 +64,7 @@ include_directories("${PROJECT_SOURCE_DIR}")
 # Dependencies
 #
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-IF(ENG3D_VENDORED)
+IF(E3D_VENDORED)
 	# ZLIB
 	FetchContent_Declare(zlib GIT_REPOSITORY "https://github.com/madler/zlib" GIT_TAG 21767c654d31d2dccdde4330529775c6c5fd5389 GIT_PROGRESS TRUE)
 	FetchContent_MakeAvailable(zlib)
