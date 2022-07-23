@@ -81,6 +81,7 @@ IF(UNIT_TEST)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNIT_TEST")
 ENDIF()
 
+include_directories("/usr/include/SDL2")
 include_directories("${PROJECT_SOURCE_DIR}/game/src" "${CMAKE_SOURCE_DIR}/eng3d")
 
 #
