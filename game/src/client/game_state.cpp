@@ -175,7 +175,7 @@ void handle_event(Input& input, GameState& gs) {
             }
 
             if(click_on_ui) {
-                std::scoped_lock lock(gs.audio_man.sound_lock);
+                const std::scoped_lock lock(gs.audio_man.sound_lock);
                 auto entries = gs.package_man.get_multiple_prefix("sfx/click");
                 if(!entries.empty()) {
                     auto audio = gs.audio_man.load(entries[std::rand() % entries.size()]->get_abs_path());
@@ -192,7 +192,7 @@ void handle_event(Input& input, GameState& gs) {
             }
 
             if(click_on_ui) {
-                std::scoped_lock lock(gs.audio_man.sound_lock);
+                const std::scoped_lock lock(gs.audio_man.sound_lock);
                 auto entries = gs.package_man.get_multiple_prefix("sfx/click");
                 if(!entries.empty()) {
                     auto audio = gs.audio_man.load(entries[std::rand() % entries.size()]->get_abs_path());
@@ -652,14 +652,15 @@ void start_client(int argc, char** argv) {
     gs.loaded_world = false;
     gs.loaded_map = false;
     gs.load_progress = 0.f;
-
     std::thread load_world_th(&GameState::load_world_thread, &gs);
 
     auto map_layer = new UI::Group(0, 0);
 
-    auto load_screen_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/load_screen/002.png"));
-    auto* bg_img = new UI::Image(-(gs.width / 2.f), -(gs.height / 2.f), gs.width, gs.height, load_screen_tex);
+    auto *bg_img = new UI::Image(-(gs.width / 2.f), -(gs.height / 2.f), gs.width, gs.height);
     bg_img->origin = UI::Origin::CENTER_SCREEN;
+    auto load_screen_entries = gs.package_man.get_multiple_prefix("gfx/load_screen");
+    if(!load_screen_entries.empty())
+        bg_img->current_texture = gs.tex_man.load(load_screen_entries[std::rand() % load_screen_entries.size()]->get_abs_path());
 
     auto* load_pbar = new UI::ProgressBar(0, -24, gs.width, 24, 0.f, 1.f);
     load_pbar->origin = UI::Origin::LOWER_LEFT_SCREEN;
@@ -690,10 +691,11 @@ void start_client(int argc, char** argv) {
         gs.swap();
         gs.world->profiler.render_done();
     }
-    load_world_th.join();
     bg_img->kill();
     load_pbar->kill();
     mod_logo_img->kill();
+
+    load_world_th.join();
     // LuaAPI::invoke_registered_callback(gs.world->lua, "map_dev_view_invoke");
 
     // Connect to server prompt
