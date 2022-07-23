@@ -34,7 +34,11 @@ aptr_evhdl = Event:new{
 	ref_name = "aptr_evhdl",
 	conditions_fn = function()
 		-- Requirements
-		return EVENT_CONDITIONS_MET
+		local year = get_year()
+		if year >= 1850 and math.random(0, 100) == 0 then
+			return EVENT_CONDITIONS_MET
+		end
+		return EVENT_CONDITIONS_UNMET
 	end,
 	event_fn = function(ref_name)
 		local nation = Nation:get(ref_name)
@@ -127,7 +131,11 @@ eapcp_evhdl:add_receivers(table.unpack(Nation:get_all()))
 eapcp_evhdl = Event:new{
 	ref_name = "eapcp",
 	conditions_fn = function()
-		return EVENT_CONDITIONS_MET
+		local year = get_year()
+		if year >= 1850 and math.random(0, 100) == 0 then
+			return EVENT_CONDITIONS_MET
+		end
+		return EVENT_CONDITIONS_UNMET
 	end,
 	event_fn = function(ref_name)
 		local nation = Nation:get(ref_name)
