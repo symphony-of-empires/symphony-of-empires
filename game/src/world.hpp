@@ -101,7 +101,7 @@ public:
         auto& list = this->get_list((type*)nullptr);\
         list_mutex.lock();\
         ptr.cached_id = list.size();\
-        Eng3D::Log::debug("world_insert", "Inserting object " #type " with ID=%zu" + std::to_string(ptr.cached_id));\
+        Eng3D::Log::debug("world_insert", "Inserting object " #type " with ID=" + std::to_string(ptr.cached_id));\
         list.push_back(ptr);\
         list_mutex.unlock();\
     };\
@@ -118,7 +118,7 @@ public:
         auto& list = this->get_list((type*)nullptr);\
         list_mutex.lock();\
         ptr.cached_id = list.size();\
-        Eng3D::Log::debug("world_insert", "Inserting object " #type " with ID=%zu" + std::to_string(ptr.cached_id));\
+        Eng3D::Log::debug("world_insert", "Inserting object " #type " with ID=" + std::to_string(ptr.cached_id));\
         list.push_back(ptr);\
         list_mutex.unlock();\
     };\
