@@ -145,10 +145,6 @@ IF(E3D_VENDORED)
 			FetchContent_MakeAvailable(glfw)
 		ENDIF()
 	ENDIF()
-ELSE()
-	find_package(SDL2 REQUIRED)
-	include_directories(${SDL2_INCLUDE_DIRS})
-	target_link_libraries(eng3d PRIVATE ${SDL2_LIBRARIES})
 ENDIF()
 
 # LUA
@@ -166,6 +162,12 @@ include_directories("${lua_SOURCE_DIR}/lua-5.4.4/include")
 file(GLOB MAIN_SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/ui/*.cpp")
 execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/eng3d")
 add_library(eng3d SHARED ${MAIN_SOURCES})
+
+IF(NOT E3D_VENDORED)
+	find_package(SDL2 REQUIRED)
+	include_directories(${SDL2_INCLUDE_DIRS})
+	target_link_libraries(eng3d PRIVATE ${SDL2_LIBRARIES})
+ENDIF()
 
 #
 # Linking
