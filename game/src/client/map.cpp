@@ -132,7 +132,7 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     }
 
     // Set the mapmode
-    set_map_mode(political_map_mode, empty_province_tooltip);
+    set_map_mode(political_map_mode, political_province_tooltip);
     Eng3D::Log::debug("game", "Preloading-important stuff");
     map_font = new Eng3D::FontSDF("fonts/cinzel_sdf/cinzel");
 
@@ -269,6 +269,14 @@ void Map::set_view(MapView view) {
     // create_labels();
 }
 
+std::string political_province_tooltip(const World& world, const Province::Id id) {
+    if(((GameState&)Eng3D::State::get_instance()).editor) {
+        return world.provinces[id].ref_name.get_string();
+    } else {
+        return "";
+    }
+}
+
 // The standard map mode with each province color = country color
 std::vector<ProvinceColor> political_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
@@ -283,10 +291,6 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
     // Land
     province_color.push_back(ProvinceColor(Province::invalid(), Eng3D::Color::rgba32(0xffdddddd)));
     return province_color;
-}
-
-std::string political_province_tooltip(const World& world, const Province::Id id) {
-    return world.provinces[id].name.get_string();
 }
 
 std::string empty_province_tooltip(const World&, const Province::Id) {

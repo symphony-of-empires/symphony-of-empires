@@ -104,7 +104,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
         this->gs.map->set_selection(nullptr);
 
         mapmode_generator map_mode = political_map_mode;
-        mapmode_tooltip tooltip = empty_province_tooltip;
+        mapmode_tooltip tooltip = political_province_tooltip;
         this->gs.map->set_map_mode(map_mode, tooltip);
         set_mapmode_options(nullptr);
     });
