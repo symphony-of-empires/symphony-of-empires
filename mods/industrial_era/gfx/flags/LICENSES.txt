@@ -469,3 +469,22 @@ vietnam_communism
 
 vietnam_republic
 	By (many, see history) - (see history);BASED ON THIS CONSTRUCTION SHEET:, Public Domain, https://commons.wikimedia.org/w/index.php?curid=434803
+
+algeirs_monarchy
+	By Marce79 - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=17975900
+
+tunis_republic
+	By Various Wikimedia Commons&#039; contributors - BASED ON THIS SOURCE (PDF): Loi du 30 juin 1999 relative au drapeau de la République tunisienne - Journal Officiel de la République Tunisienne (54), page 1088 (6 juillet 1999)., Public Domain, https://commons.wikimedia.org/w/index.php?curid=433047
+
+tunis_monarchy
+	By Abjiklam - Own work. Based on reproduction by Mario Fabretto, 13 July 1997 of an 18th century design (according to Fabretto). The oldest reference cited explicitly is &quot;Flaggen Almanack (ca. 1844)&quot;. Latest known attestation as contemporary is in Grand Dictionnaire Universelle du XIXe Siècle&#039; (Paris 1865). First uploaded as GIF by DrFO.Jr.Tn., CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=16195240
+
+haydarabad_monarchy
+	HISTORIC: Adopted in 1924?
+	By Skjoldbro - Own work, based on file:Flag of Hyderabad 1900-1947.png and this, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=69963508
+
+east_india_company_monarchy
+	By No machine-readable author provided. Yaddah assumed (based on copyright claims). - No machine-readable source provided. Own work assumed (based on copyright claims)., Public Domain, https://commons.wikimedia.org/w/index.php?curid=837871
+
+morrocco_monarchy
+	By Flaspec - Own work[1], CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=98749941
