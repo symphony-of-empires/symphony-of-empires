@@ -569,7 +569,7 @@ void GameState::music_thread() {
         bool has_played;
         std::string path;
     };
-    auto path_entries = Eng3D::State::get_instance().package_man.get_multiple_prefix("sfx/music/ambience");
+    auto path_entries = this->package_man.get_multiple_prefix("sfx/music/ambience");
     std::vector<MusicEntry> entries;
     entries.reserve(path_entries.size());
     for(const auto& path : path_entries)

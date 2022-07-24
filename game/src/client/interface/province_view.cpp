@@ -141,8 +141,6 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
             auto* row = table->get_row(id);
             size_t row_index = 0;
 
-            auto& s = Eng3D::State::get_instance();
-
             auto size = row->get_element(row_index++);
             auto size_str = Eng3D::string_format("%.0f", pop.size);
             size->text(size_str);
@@ -156,7 +154,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
             budget->set_key(pop.budget / pop.size);
 
             auto religion = row->get_element(row_index++);
-            auto religion_icon = s.tex_man.load(s.package_man.get_unique("gfx/religion/" + this->gs.world->religions[pop.religion_id].ref_name + ".png"));
+            auto religion_icon = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/religion/" + this->gs.world->religions[pop.religion_id].ref_name + ".png"));
             religion->current_texture = religion_icon;
             auto religion_tip = Eng3D::Locale::translate(this->gs.world->religions[pop.religion_id].name.get_string());
             religion->set_tooltip(religion_tip);
@@ -308,10 +306,8 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
             auto* row = table->get_row(this->gs.world->get_id(terrain_type));
             size_t row_index = 0;
 
-            auto& tex_man = Eng3D::State::get_instance().tex_man;
-
             auto landscape = row->get_element(row_index++);
-            auto landscape_icon = tex_man.load(gs.package_man.get_unique("gfx/terraintype/" + terrain_type.ref_name + ".png"));
+            auto landscape_icon = this->gs.tex_man.load(gs.package_man.get_unique("gfx/terraintype/" + terrain_type.ref_name + ".png"));
             landscape->current_texture = landscape_icon;
             auto landscape_tip = Eng3D::Locale::translate(terrain_type.name.get_string());
             landscape->set_tooltip(landscape_tip);

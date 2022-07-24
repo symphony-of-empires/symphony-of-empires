@@ -58,6 +58,7 @@ enum class MapView;
 union SDL_Event;
 class Input;
 class ProvinceColors;
+class Map;
 
 typedef Eng3D::OpenGL::Option Option;
 class MapOptions {
@@ -79,7 +80,7 @@ public:
 
 class MapRender {
 public:
-    MapRender(const World& world);
+    MapRender(const World& world, Map& map);
     ~MapRender() {};
     void update_mapmode(std::vector<ProvinceColor> province_colors);
     void update_nations(std::vector<Province::Id> nations);
@@ -96,6 +97,7 @@ public:
     }
 private:
     const World& world;
+    Map& map;
     void update_visibility(GameState& gs);
 
     // Map textures

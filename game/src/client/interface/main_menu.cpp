@@ -110,7 +110,7 @@ MainMenu::MainMenu(GameState& _gs)
     this->is_pinned = true;
     this->is_scroll = false;
     // this->text("Symphony of Empires");
-    auto& tex_man = Eng3D::State::get_instance().tex_man;
+    auto& tex_man = gs.tex_man;
     Eng3D::TextureOptions mipmap_options;
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;

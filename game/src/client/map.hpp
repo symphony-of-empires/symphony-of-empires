@@ -33,6 +33,7 @@
 #include "eng3d/color.hpp"
 #include "eng3d/primitive.hpp"
 #include "eng3d/shader.hpp"
+#include "eng3d/font_sdf.hpp"
 
 namespace Eng3D {
     class Texture;
@@ -40,8 +41,6 @@ namespace Eng3D {
     class TextureArray;
     class Model;
     class Quad;
-    class FontSDF;
-    class Label3D;
     class Camera;
 
     namespace OpenGL {
@@ -116,6 +115,7 @@ public:
     void set_selected_province(bool selected, Province::Id id);
     void set_view(MapView view);
     void reload_shaders();
+    void update_nation_label(const Nation& nation);
     void create_labels();
 
     bool province_selected = false;
@@ -132,9 +132,9 @@ public:
     std::vector<std::shared_ptr<Eng3D::Texture>> unit_type_icons;
     std::vector<std::shared_ptr<Eng3D::Texture>> nation_flags;
 
-    std::vector<Eng3D::Label3D*> province_labels;
-    std::vector<Eng3D::Label3D*> nation_labels;
-    Eng3D::FontSDF* map_font;
+    std::vector<std::unique_ptr<Eng3D::Label3D>> province_labels;
+    std::vector<std::unique_ptr<Eng3D::Label3D>> nation_labels;
+    Eng3D::FontSDF* map_font = nullptr;
 
     // Wind oscillator (for flags)
     float wind_osc = 0.f;

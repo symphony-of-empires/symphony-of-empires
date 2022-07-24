@@ -78,8 +78,8 @@ static inline void get_blob_bounds(std::unordered_set<Province*>& visited_provin
         auto& neighbour = g_world.provinces[neighbour_id];
         // Do not visit again
         if(visited_provinces.find(&neighbour) != visited_provinces.end()) continue;
-        // Must own the province
-        if(neighbour.owner_id != nation.get_id()) continue;
+        // Must control the province
+        if(neighbour.controller != &nation) continue;
         // Big provinces not taken in account
         if(abs(neighbour.box_area.left - neighbour.box_area.right) >= g_world.width / 3.f) continue;
         if(abs(neighbour.box_area.top - neighbour.box_area.bottom) >= g_world.height / 3.f) continue;
@@ -106,15 +106,15 @@ static inline void get_blob_bounds(std::unordered_set<Province*>& visited_provin
 }
 
 Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int screen_height)
-    : world(_world),
-    map_ui_layer(_map_ui_layer),
+    : world{ _world },
+    map_ui_layer{ _map_ui_layer },
     skybox(0.f, 0.f, 0.f, 255.f * 10.f, 40, false)
 {
     auto& s = Eng3D::State::get_instance();
     camera = new Eng3D::FlatCamera(glm::vec2(screen_width, screen_height), glm::vec2(world.width, world.height));
     rivers = new Rivers();
     borders = new Borders();
-    map_render = new MapRender(world);
+    map_render = new MapRender(world, *this);
 
     // Shader used for drawing the models using custom model render
     obj_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
@@ -174,13 +174,64 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     tree_spawn_pos.resize(world.provinces.size());
     for(const auto& province : world.provinces)
         tree_spawn_pos[province.get_id()] = std::make_pair(province.get_pos(), province.terrain_type->get_id());
-    create_labels();
+    this->create_labels();
+}
+
+void Map::update_nation_label(const Nation& nation) {
+    if(!nation.exists()) return;
+
+    glm::vec2 min_point_x(world.width - 1.f, world.height - 1.f), min_point_y(world.width - 1.f, world.height - 1.f);
+    glm::vec2 max_point_x(0.f, 0.f), max_point_y(0.f, 0.f);
+    if(nation.owned_provinces.empty()) return;
+    Province::Id prov_id = *nation.owned_provinces.begin();
+    if(Province::is_valid(nation.capital_id))
+        prov_id = nation.capital_id;
+
+    const auto& province = world.provinces[prov_id];
+    max_point_x = province.box_area.position() + province.box_area.size();
+    max_point_y = province.box_area.position() + province.box_area.size();
+    min_point_x = province.box_area.position();
+    min_point_y = province.box_area.position();
+    std::unordered_set<Province*> visited_provinces;
+    get_blob_bounds(visited_provinces, nation, province, &min_point_x, &min_point_y, &max_point_x, &max_point_y);
+#if 0
+    // Stop super-big labels
+    if(glm::abs(min_point_x.x - max_point_x.x) >= world.width / 2.f || glm::abs(min_point_y.y - max_point_y.y) >= world.height / 2.f) {
+        auto label = this->map_font->gen_text(nation->get_client_hint().alt_name, glm::vec3(-10.f), glm::vec3(-5.f), 1.f);
+        nation_labels.push_back(label);
+        Eng3D::Log::debug("game", "Extremely big nation: " + nation->ref_name);
+        return;
+    }
+#endif
+    glm::vec2 lab_min = (max_point_x + max_point_y + min_point_y) / 3.f;
+    glm::vec2 lab_max = (max_point_y + min_point_x + min_point_y) / 3.f;
+    glm::vec2 mid_point = (lab_min + lab_max) / 2.f;
+    glm::vec3 center = glm::vec3(mid_point, 0.f);
+    glm::vec2 x_step = glm::vec2(lab_max.x - mid_point.x, 0.f);
+    glm::vec3 left = glm::vec3(mid_point - x_step, 0.f);
+    glm::vec3 right = glm::vec3(mid_point + x_step, 0.f);
+    float width = glm::length(left - right);
+    glm::vec3 right_dir = glm::vec3(mid_point.x + 1.f, mid_point.y, 0.f) - center;
+    glm::vec3 top_dir = glm::vec3(mid_point.x, mid_point.y - 1.f, 0.f) - center;
+    glm::vec3 normal = glm::cross(top_dir, right_dir);
+    normal = glm::normalize(normal);
+    float angle = glm::atan(lab_max.y - lab_min.y, lab_max.x - lab_min.x);
+    if(angle > (M_PI / 2.0f)) angle -= M_PI;
+    else if(angle < -(M_PI / 2.0f)) angle += M_PI;
+    glm::mat4 rot = glm::rotate(glm::mat4(1.), angle, normal);
+    top_dir = rot * glm::vec4(top_dir, 1.);
+    right_dir = rot * glm::vec4(right_dir, 1.);
+
+    center.z -= 0.1f;
+    auto label = this->map_font->gen_text(Eng3D::Locale::translate(nation.get_client_hint().alt_name.get_string()), top_dir, right_dir, width, center);
+
+    // Replace old label
+    assert(nation_labels.size() >= nation.get_id());
+    nation_labels[nation.get_id()] = std::move(label);
 }
 
 void Map::create_labels() {
     // Provinces
-    for(auto& label : province_labels)
-        delete label;
     province_labels.clear();
     for(const auto& province : world.provinces) {
         glm::vec2 min_point(province.box_area.left, province.box_area.top);
@@ -198,62 +249,14 @@ void Map::create_labels() {
         glm::vec3 top_dir = glm::vec3(mid_point.x, mid_point.y - 1.f, 0.);
         top_dir = top_dir - center;
         center.z -= 0.1f;
-        auto* label = map_font->gen_text(Eng3D::Locale::translate(province.name.get_string()), top_dir, right_dir, width, center);
-        province_labels.push_back(label);
+        auto label = this->map_font->gen_text(Eng3D::Locale::translate(province.name.get_string()), top_dir, right_dir, width, center);
+        province_labels.push_back(std::move(label));
     }
 
     // Nations
-    for(auto& label : nation_labels)
-        delete label;
     nation_labels.clear();
     for(const auto& nation : world.nations) {
-        if(!nation.exists()) continue;
-
-        glm::vec2 min_point_x(world.width - 1.f, world.height - 1.f), min_point_y(world.width - 1.f, world.height - 1.f);
-        glm::vec2 max_point_x(0.f, 0.f), max_point_y(0.f, 0.f);
-        if(nation.owned_provinces.empty()) continue;
-        Province::Id prov_id = *nation.owned_provinces.begin();
-        if(Province::is_valid(nation.capital_id))
-            prov_id = nation.capital_id;
-
-        const Province& province = g_world.provinces[prov_id];
-        max_point_x = province.box_area.position() + province.box_area.size();
-        max_point_y = province.box_area.position() + province.box_area.size();
-        min_point_x = province.box_area.position();
-        min_point_y = province.box_area.position();
-        std::unordered_set<Province*> visited_provinces;
-        get_blob_bounds(visited_provinces, nation, province, &min_point_x, &min_point_y, &max_point_x, &max_point_y);
-#if 0
-        // Stop super-big labels
-        if(glm::abs(min_point_x.x - max_point_x.x) >= world.width / 2.f || glm::abs(min_point_y.y - max_point_y.y) >= world.height / 2.f) {
-            auto* label = map_font->gen_text(nation->get_client_hint().alt_name, glm::vec3(-10.f), glm::vec3(-5.f), 1.f);
-            nation_labels.push_back(label);
-            Eng3D::Log::debug("game", "Extremely big nation: " + nation->ref_name);
-            continue;
-        }
-#endif
-        glm::vec2 lab_min = (max_point_x + max_point_y + min_point_y) / 3.f;
-        glm::vec2 lab_max = (max_point_y + min_point_x + min_point_y) / 3.f;
-        glm::vec2 mid_point = (lab_min + lab_max) / 2.f;
-        glm::vec3 center = glm::vec3(mid_point, 0.f);
-        glm::vec2 x_step = glm::vec2(lab_max.x - mid_point.x, 0.f);
-        glm::vec3 left = glm::vec3(mid_point - x_step, 0.f);
-        glm::vec3 right = glm::vec3(mid_point + x_step, 0.f);
-        float width = glm::length(left - right);
-        glm::vec3 right_dir = glm::vec3(mid_point.x + 1.f, mid_point.y, 0.f) - center;
-        glm::vec3 top_dir = glm::vec3(mid_point.x, mid_point.y - 1.f, 0.f) - center;
-        glm::vec3 normal = glm::cross(top_dir, right_dir);
-        normal = glm::normalize(normal);
-        float angle = glm::atan(lab_max.y - lab_min.y, lab_max.x - lab_min.x);
-        if(angle > (M_PI / 2.0f)) angle -= M_PI;
-        else if(angle < -(M_PI / 2.0f)) angle += M_PI;
-        glm::mat4 rot = glm::rotate(glm::mat4(1.), angle, normal);
-        top_dir = rot * glm::vec4(top_dir, 1.);
-        right_dir = rot * glm::vec4(right_dir, 1.);
-
-        center.z -= 0.1f;
-        auto* label = map_font->gen_text(Eng3D::Locale::translate(nation.get_client_hint().alt_name.get_string()), top_dir, right_dir, width, center);
-        nation_labels.push_back(label);
+        this->update_nation_label(nation);
     }
 }
 

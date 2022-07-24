@@ -97,7 +97,7 @@ Eng3D::FontSDF::FontSDF(const std::string& filename) {
     }
 }
 
-Label3D* Eng3D::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::vec3 right, float width, glm::vec3 center) {
+std::unique_ptr<Label3D> Eng3D::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::vec3 right, float width, glm::vec3 center) {
     Eng3D::Color color(0.f, 0.f, 0.f);
 
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
@@ -160,12 +160,10 @@ Label3D* Eng3D::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::v
         start.y += right.y * glyph.advance * scale;
         idx++;
     }
-
-    TriangleList* triangles = new TriangleList(positions, tex_coords);
-    return new Label3D(triangles, scale, center);
+    return std::unique_ptr(new Eng3D::Label3D(new Eng3D::TriangleList(positions, tex_coords), scale, center));
 }
 
-void Eng3D::FontSDF::draw(const std::vector<Label3D*>& labels, Camera* camera, bool sphere) {
+void Eng3D::FontSDF::draw(const std::vector<std::unique_ptr<Label3D>>& labels, Camera* camera, bool sphere) {
     auto* shader = sphere ? sphere_shader.get() : flat_shader.get();
     shader->use();
     shader->set_uniform("projection", camera->get_projection());

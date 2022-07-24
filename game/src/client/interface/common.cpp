@@ -68,7 +68,7 @@ UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType& _unit_typ
     this->is_scroll = false;
 
     this->icon_img = new UI::Image(0, 0, 32, 24, this);
-    this->icon_img->current_texture = Eng3D::State::get_instance().tex_man.load(gs.package_man.get_unique("gfx/unittype/" + this->unit_type.ref_name + ".png"));
+    this->icon_img->current_texture = this->gs.tex_man.load(gs.package_man.get_unique("gfx/unittype/" + this->unit_type.ref_name + ".png"));
 
     this->name_btn = new UI::Button(0, 0, this->width - 32, 24, this);
     this->name_btn->right_side_of(*this->icon_img);
@@ -153,7 +153,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, un
     if(building_type.output != nullptr) {
         auto* good = building_type.output;
 
-        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, Eng3D::State::get_instance().tex_man.load(gs.package_man.get_unique("gfx/good/" + good->ref_name + ".png")), this);
+        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/good/" + good->ref_name + ".png")), this);
         icon_ibtn->below_of(*name_btn);
         icon_ibtn->set_on_click([good](UI::Widget& w) {
             auto& o = static_cast<BuildingInfo&>(*w.parent);

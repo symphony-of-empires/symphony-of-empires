@@ -53,8 +53,9 @@
 #include "client/map_render.hpp"
 #include "client/map.hpp"
 
-MapRender::MapRender(const World& _world)
-    : world(_world)
+MapRender::MapRender(const World& _world, Map& _map)
+    : world{ _world },
+    map{ _map }
 {
     // Flat surface for drawing flat map 
     for(int x = -1; x <= 1; x++) {
@@ -68,7 +69,6 @@ MapRender::MapRender(const World& _world)
     map_2d_quad = new Eng3D::Quad2D();
 
     auto& gs = (GameState&)Eng3D::State::get_instance();
-    auto& tex_man = gs.tex_man;
 
     // Mipmapped textures
     Eng3D::TextureOptions mipmap_options{};
@@ -78,21 +78,21 @@ MapRender::MapRender(const World& _world)
     mipmap_options.mag_filter = GL_LINEAR;
     mipmap_options.compressed = false;
 
-    noise_tex = tex_man.load(gs.package_man.get_unique("gfx/noise_tex.png"), mipmap_options);
+    noise_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/noise_tex.png"), mipmap_options);
 
     mipmap_options.compressed = true;
 
-    wave1 = tex_man.load(gs.package_man.get_unique("gfx/wave1.png"), mipmap_options);
-    wave2 = tex_man.load(gs.package_man.get_unique("gfx/wave2.png"), mipmap_options);
+    wave1 = gs.tex_man.load(gs.package_man.get_unique("gfx/wave1.png"), mipmap_options);
+    wave2 = gs.tex_man.load(gs.package_man.get_unique("gfx/wave2.png"), mipmap_options);
 
     mipmap_options.internal_format = GL_SRGB;
-    water_tex = tex_man.load(gs.package_man.get_unique("gfx/water_tex.png"), mipmap_options);
-    paper_tex = tex_man.load(gs.package_man.get_unique("gfx/paper.png"), mipmap_options);
-    stripes_tex = tex_man.load(gs.package_man.get_unique("gfx/stripes.png"), mipmap_options);
+    water_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/water_tex.png"), mipmap_options);
+    paper_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/paper.png"), mipmap_options);
+    stripes_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/stripes.png"), mipmap_options);
 
     mipmap_options.internal_format = GL_RED;
-    bathymethry = tex_man.load(gs.package_man.get_unique("map/bathymethry.png"), mipmap_options);
-    river_tex = tex_man.load(gs.package_man.get_unique("map/river_smooth.png"), mipmap_options);
+    bathymethry = gs.tex_man.load(gs.package_man.get_unique("map/bathymethry.png"), mipmap_options);
+    river_tex = gs.tex_man.load(gs.package_man.get_unique("map/river_smooth.png"), mipmap_options);
 
     terrain_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/color.png")->get_abs_path()));
     size_t terrain_map_size = terrain_map->width * terrain_map->height;
@@ -212,10 +212,9 @@ MapRender::MapRender(const World& _world)
 
     std::vector<Province::Id> province_ids;
     province_ids.reserve(world.provinces.size());
-    for(auto const& province : world.provinces) {
+    for(auto const& province : world.provinces)
         province_ids.push_back(province.get_id());
-    }
-    update_nations(province_ids);
+    this->update_nations(province_ids);
 
     // The map shader that draws everything on the map 
     this->reload_shaders();
@@ -423,15 +422,21 @@ void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
 
 // Updates nations
 void MapRender::update_nations(std::vector<Province::Id> province_ids) {
+    std::unordered_set<Nation::Id> nation_ids;
     for(const auto id : province_ids) {
-        auto& province = world.provinces[id]; 
+        auto& province = this->world.provinces[id]; 
         if(province.controller == nullptr) continue;
         this->tile_sheet_nation->buffer.get()[province.get_id()] = province.controller->get_id();
+        nation_ids.insert(province.controller->get_id());
     }
 
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
     this->tile_sheet_nation->upload(no_drop_options);
+
+    // Update labels of the nations
+    for(const auto id : nation_ids)
+        this->map.update_nation_label(this->world.nations[id]);
 }
 
 void MapRender::request_update_visibility()
@@ -497,7 +502,7 @@ void MapRender::update(GameState& gs) {
 
     auto& changed_owner_provinces = gs.world->province_manager.get_changed_owner_provinces();
     if(!changed_owner_provinces.empty()) {
-        update_nations(changed_owner_provinces);
+        this->update_nations(changed_owner_provinces);
         for(Province::Id i = 0; i < changed_owner_provinces.size(); i++) {
             auto& province = gs.world->provinces[changed_owner_provinces[i]];
             update_area = update_area.join(province.box_area);
@@ -507,7 +512,7 @@ void MapRender::update(GameState& gs) {
 
     auto& changed_control_provinces = gs.world->province_manager.get_changed_control_provinces();
     if(!changed_control_provinces.empty()) {
-        update_nations(changed_control_provinces);
+        this->update_nations(changed_control_provinces);
         for(Province::Id i = 0; i < changed_control_provinces.size(); i++) {
             auto& province = gs.world->provinces[changed_control_provinces[i]];
             update_area = update_area.join(province.box_area);
