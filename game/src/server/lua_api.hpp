@@ -74,6 +74,7 @@ namespace LuaAPI {
     int get_nation(lua_State* L);
     int get_nation_by_id(lua_State* L);
     int get_all_nations(lua_State* L);
+    int switch_nation_soul(lua_State* L);
     int nation_declare_war_no_cb(lua_State* L);
 
     int get_provinces_owned_by_nation(lua_State* L);

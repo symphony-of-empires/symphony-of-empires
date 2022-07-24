@@ -87,6 +87,11 @@ function Nation:get_all()
 	return new_table
 end
 
+--- Switches the player of nation A to nation B
+function Nation:switch_soul(target)
+	switch_nation_soul(self.id, target.id)
+end
+
 --- Declares a war to another nation without a cb
 --- @param other Nation to declare war to
 function Nation:declare_no_cb(other)

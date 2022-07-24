@@ -337,9 +337,19 @@ int LuaAPI::get_all_nations(lua_State* L) {
     return 1;
 }
 
+int LuaAPI::switch_nation_soul(lua_State* L) {
+    auto& nation = g_world.nations.at(lua_tonumber(L, 1));
+    auto& target = g_world.nations.at(lua_tonumber(L, 2));
+    if(&nation == &target)
+        CXX_THROW(LuaAPI::Exception, nation.ref_name.get_string() + " can't switch to itself");
+    
+    /// @todo Broadcast this to all clients?
+    return 0;
+}
+
 int LuaAPI::nation_declare_war_no_cb(lua_State* L) {
-    Nation& nation = g_world.nations.at(lua_tonumber(L, 1));
-    Nation& other_nation = g_world.nations.at(lua_tonumber(L, 2));
+    auto& nation = g_world.nations.at(lua_tonumber(L, 1));
+    auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
     if(&nation == &other_nation)
         CXX_THROW(LuaAPI::Exception, nation.ref_name.get_string() + " can't declare war with itself");
     nation.declare_war(other_nation);

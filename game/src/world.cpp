@@ -122,6 +122,7 @@ void World::init_lua() {
     lua_register(lua, "get_nation", LuaAPI::get_nation);
     lua_register(lua, "get_nation_by_id", LuaAPI::get_nation_by_id);
     lua_register(lua, "get_all_nations", LuaAPI::get_all_nations);
+    lua_register(lua, "switch_nation_soul", LuaAPI::switch_nation_soul);
     lua_register(lua, "nation_declare_war_no_cb", LuaAPI::nation_declare_war_no_cb);
 
     lua_register(lua, "get_provinces_owned_by_nation", LuaAPI::get_provinces_owned_by_nation);

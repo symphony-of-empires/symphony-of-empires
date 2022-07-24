@@ -48,7 +48,7 @@ unify_germany_evhdl = Event:new{
 					print(v.ref_name)
 					v:give_and_relinquish_to(Nation:get("germany"))
 				end
-				Nation:get(ref_name):switch_player_to(Nation:get("germany"))
+				Nation:get(ref_name):switch_soul(Nation:get("germany"))
 			end,
 			effects = "Prussia acquires all provinces that are a nuclei of Germany"
 		}
