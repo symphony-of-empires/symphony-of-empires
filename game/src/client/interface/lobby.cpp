@@ -91,25 +91,35 @@ LobbySelectView::LobbySelectView(GameState& _gs)
     });
 
     const std::string path = std::filesystem::current_path().string();
-    auto* game_group = new UI::Group(0, 0, 128, gs.height);
+    auto* game_group = new UI::Group(0, 0, 128, gs.height, ctrl_window);
+    game_group->below_of(*prev_country_btn);
+    game_group->flex = UI::Flex::COLUMN;
+    game_group->is_scroll = true;
     for(const auto& entry : std::filesystem::directory_iterator(path)) {
-        if(!entry.is_directory() && entry.path().extension() == ".scv") {
-            LoadGameBtnData data{ gs, entry.path().lexically_relative(path).string() };
-            ldgame_data.push_back(data);
-        }
-    }
+        if(!entry.is_directory() && entry.path().extension() == ".sc4") {
+            auto savefile_path = entry.path().lexically_relative(path).string();
+            auto* ldgame_btn = new UI::Button(0, 0, 128, 24, game_group);
+            ldgame_btn->text(savefile_path);
+            ldgame_btn->set_on_click([this, savefile_path](UI::Widget&) {
+                if(this->gs.curr_nation == nullptr) {
+                    this->change_nation(0);
+                }
+                const auto nation_id = this->gs.curr_nation->get_id();
+                this->gs.paused = true;
 
-    size_t i = 0;
-    for(const auto& ldgame : ldgame_data) {
-        auto* ldgame_btn = new UI::Button(0, 24 * i, 128, 24, game_group);
-        ldgame_btn->text(ldgame_data[i].file);
-        ldgame_btn->set_on_click([this, ldgame](UI::Widget&) {
-            if(ldgame.gs.world != nullptr) delete ldgame.gs.world;
-            Archive ar = Archive();
-            ::deserialize(ar, &ldgame.gs.world);
-            ldgame.gs.map->update_mapmode();
-        });
-        ++i;
+                Archive ar = Archive();
+                ar.from_file(savefile_path);
+                ::deserialize(ar, this->gs.world);
+                /// @todo Events aren't properly saved yet
+                this->gs.world->events.clear();
+                this->gs.world->taken_decisions.clear();
+                for(auto& nation : this->gs.world->nations)
+                    nation.inbox.clear();
+                this->gs.world->load_mod();
+                this->gs.curr_nation = &this->gs.world->nations[nation_id];
+                this->gs.ui_ctx.prompt("Loaded", "Loaded savefile");
+            });
+        }
     }
 }
 
