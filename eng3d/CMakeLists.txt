@@ -167,13 +167,17 @@ IF(NOT E3D_VENDORED)
 	find_package(SDL2 REQUIRED)
 	include_directories(${SDL2_INCLUDE_DIRS})
 	target_link_libraries(eng3d PRIVATE ${SDL2_LIBRARIES})
+
+	find_package(assimp REQUIRED)
+	include_directories(${ASSIMP_INCLUDE_DIRS})
+	target_link_libraries(eng3d PRIVATE ${ASSIMP_LIBRARIES})
 ENDIF()
 
 #
 # Linking
 #
 target_link_libraries(eng3d PUBLIC glm tbb lua_static)
-target_link_libraries(eng3d PRIVATE SDL2_ttf assimp)
+target_link_libraries(eng3d PRIVATE SDL2_ttf)
 IF(WIN32)
 	target_link_libraries(eng3d PRIVATE ws2_32 wsock32)
 	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR MSVC)
