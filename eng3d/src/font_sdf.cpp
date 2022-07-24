@@ -160,7 +160,7 @@ std::unique_ptr<Label3D> Eng3D::FontSDF::gen_text(const std::string& text, glm::
         start.y += right.y * glyph.advance * scale;
         idx++;
     }
-    return std::unique_ptr(new Eng3D::Label3D(new Eng3D::TriangleList(positions, tex_coords), scale, center));
+    return std::unique_ptr<Eng3D::Label3D>(new Eng3D::Label3D(new Eng3D::TriangleList(positions, tex_coords), scale, center));
 }
 
 void Eng3D::FontSDF::draw(const std::vector<std::unique_ptr<Label3D>>& labels, Camera* camera, bool sphere) {
@@ -168,12 +168,13 @@ void Eng3D::FontSDF::draw(const std::vector<std::unique_ptr<Label3D>>& labels, C
     shader->use();
     shader->set_uniform("projection", camera->get_projection());
     shader->set_uniform("view", camera->get_view());
+    shader->set_uniform("map_size", camera->get_map_size());
+    shader->set_uniform("model", glm::mat4(1));
     shader->set_texture(0, "atlas", *atlas);
     for(auto& label : labels) {
-        shader->set_uniform("map_size", camera->get_map_size());
+        if(label.get() == nullptr) continue;
         shader->set_uniform("center", label->center.x, label->center.y);
         shader->set_uniform("radius", 100.f + 0.01f * label->size);
-        shader->set_uniform("model", glm::mat4(1));
         shader->set_uniform("px_range", label->size * 0.5f);
         label->draw();
     }

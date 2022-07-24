@@ -114,6 +114,8 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     camera = new Eng3D::FlatCamera(glm::vec2(screen_width, screen_height), glm::vec2(world.width, world.height));
     rivers = new Rivers();
     borders = new Borders();
+    map_font = new Eng3D::FontSDF("fonts/cinzel_sdf/cinzel");
+    this->create_labels();
     map_render = new MapRender(world, *this);
 
     // Shader used for drawing the models using custom model render
@@ -134,7 +136,6 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     // Set the mapmode
     set_map_mode(political_map_mode, political_province_tooltip);
     Eng3D::Log::debug("game", "Preloading-important stuff");
-    map_font = new Eng3D::FontSDF("fonts/cinzel_sdf/cinzel");
 
     Eng3D::TextureOptions mipmap_options{};
     mipmap_options.wrap_s = GL_REPEAT;
@@ -174,7 +175,6 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     tree_spawn_pos.resize(world.provinces.size());
     for(const auto& province : world.provinces)
         tree_spawn_pos[province.get_id()] = std::make_pair(province.get_pos(), province.terrain_type->get_id());
-    this->create_labels();
 }
 
 void Map::update_nation_label(const Nation& nation) {
@@ -198,7 +198,7 @@ void Map::update_nation_label(const Nation& nation) {
     // Stop super-big labels
     if(glm::abs(min_point_x.x - max_point_x.x) >= world.width / 2.f || glm::abs(min_point_y.y - max_point_y.y) >= world.height / 2.f) {
         auto label = this->map_font->gen_text(nation->get_client_hint().alt_name, glm::vec3(-10.f), glm::vec3(-5.f), 1.f);
-        nation_labels.push_back(label);
+        nation_labels[nation.get_id()] = std::move(label);
         Eng3D::Log::debug("game", "Extremely big nation: " + nation->ref_name);
         return;
     }
@@ -206,10 +206,10 @@ void Map::update_nation_label(const Nation& nation) {
     glm::vec2 lab_min = (max_point_x + max_point_y + min_point_y) / 3.f;
     glm::vec2 lab_max = (max_point_y + min_point_x + min_point_y) / 3.f;
     glm::vec2 mid_point = (lab_min + lab_max) / 2.f;
-    glm::vec3 center = glm::vec3(mid_point, 0.f);
-    glm::vec2 x_step = glm::vec2(lab_max.x - mid_point.x, 0.f);
-    glm::vec3 left = glm::vec3(mid_point - x_step, 0.f);
-    glm::vec3 right = glm::vec3(mid_point + x_step, 0.f);
+    glm::vec3 center(mid_point, 0.f);
+    glm::vec2 x_step(lab_max.x - mid_point.x, 0.f);
+    glm::vec3 left(mid_point - x_step, 0.f);
+    glm::vec3 right(mid_point + x_step, 0.f);
     float width = glm::length(left - right);
     glm::vec3 right_dir = glm::vec3(mid_point.x + 1.f, mid_point.y, 0.f) - center;
     glm::vec3 top_dir = glm::vec3(mid_point.x, mid_point.y - 1.f, 0.f) - center;
@@ -223,41 +223,38 @@ void Map::update_nation_label(const Nation& nation) {
     right_dir = rot * glm::vec4(right_dir, 1.);
 
     center.z -= 0.1f;
-    auto label = this->map_font->gen_text(Eng3D::Locale::translate(nation.get_client_hint().alt_name.get_string()), top_dir, right_dir, width, center);
-
+    
     // Replace old label
-    assert(nation_labels.size() >= nation.get_id());
-    nation_labels[nation.get_id()] = std::move(label);
+    assert(this->nation_labels.size() > nation.get_id());
+    auto label = this->map_font->gen_text(Eng3D::Locale::translate(nation.get_client_hint().alt_name.get_string()), top_dir, right_dir, width, center);
+    this->nation_labels[nation.get_id()] = std::move(label);
 }
 
 void Map::create_labels() {
     // Provinces
-    province_labels.clear();
+    this->province_labels.clear();
     for(const auto& province : world.provinces) {
         glm::vec2 min_point(province.box_area.left, province.box_area.top);
         glm::vec2 max_point(province.box_area.right, province.box_area.bottom);
         glm::vec2 mid_point = 0.5f * (min_point + max_point);
-        glm::vec2 x_step = glm::vec2(std::min(max_point.x - mid_point.x, 250.f), 0);
-        glm::vec3 center = glm::vec3(mid_point, 0.f);
-        glm::vec3 left = glm::vec3(mid_point - x_step, 0.f);
-        glm::vec3 right = glm::vec3(mid_point + x_step, 0.f);
+        glm::vec2 x_step(std::min(max_point.x - mid_point.x, 250.f), 0);
+        glm::vec3 center(mid_point, 0.f);
+        glm::vec3 left(mid_point - x_step, 0.f);
+        glm::vec3 right(mid_point + x_step, 0.f);
         float width = glm::length(left - right);
         width *= 0.25f;
 
-        glm::vec3 right_dir = glm::vec3(mid_point.x + 1.f, mid_point.y, 0.);
-        right_dir = right_dir - center;
-        glm::vec3 top_dir = glm::vec3(mid_point.x, mid_point.y - 1.f, 0.);
-        top_dir = top_dir - center;
+        glm::vec3 right_dir = glm::vec3(mid_point.x + 1.f, mid_point.y, 0.) - center;
+        glm::vec3 top_dir = glm::vec3(mid_point.x, mid_point.y - 1.f, 0.) - center;
         center.z -= 0.1f;
         auto label = this->map_font->gen_text(Eng3D::Locale::translate(province.name.get_string()), top_dir, right_dir, width, center);
-        province_labels.push_back(std::move(label));
+        this->province_labels.push_back(std::move(label));
     }
 
     // Nations
-    nation_labels.clear();
-    for(const auto& nation : world.nations) {
+    this->nation_labels.resize(this->world.nations.size());
+    for(const auto& nation : world.nations)
         this->update_nation_label(nation);
-    }
 }
 
 void Map::set_view(MapView view) {
