@@ -14,7 +14,7 @@ jobs:
         fetch-depth: 0
     - name: "Install"
       run: |
-        sudo apt install -y cmake make libglu1-mesa-dev libglew-dev libsdl2-dev libsdl2-ttf-dev libtbb-dev
+        sudo apt install -y cmake make libglu1-mesa-dev libglew-dev libsdl2-dev libsdl2-ttf-dev libtbb-dev libassimp-dev
     - name: "CMake build"
       uses: actions/cache@v3
       with:
