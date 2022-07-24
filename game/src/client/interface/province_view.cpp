@@ -323,7 +323,18 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
             name->set_tooltip(name_str);
             name->set_key(name_str);
             name->set_on_click([this, &terrain_type](UI::Widget&) {
-                const_cast<Province&>(this->province).terrain_type = const_cast<TerrainType*>(&terrain_type);
+                auto& nc_province = const_cast<Province&>(this->province);
+                nc_province.terrain_type = const_cast<TerrainType*>(&terrain_type);
+                if(terrain_type.is_water_body) {
+                    nc_province.pops.clear();
+                    nc_province.nuclei.clear();
+                    nc_province.controller = nullptr;
+                    nc_province.owner_id = Nation::invalid();
+                    for(auto& building : nc_province.buildings) {
+                        building.level = 0;
+                    }
+                }
+
                 this->gs.map->update_mapmode();
             });
         }
