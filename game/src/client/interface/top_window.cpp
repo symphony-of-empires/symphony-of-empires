@@ -112,9 +112,16 @@ TopWindow::TopWindow(GameState& _gs)
     auto* load_ibtn = new UI::Image(9, 275, 25, 25, "gfx/top_bar/save.png", true, flex_column);
     load_ibtn->set_on_click([this](UI::Widget&) {
         const auto nation_id = this->gs.curr_nation->get_id();
+        this->gs.paused = true;
+
         Archive ar = Archive();
         ar.from_file("default.sc4");
         ::deserialize(ar, this->gs.world);
+        /// @todo Events aren't properly saved yet
+        this->gs.world->events.clear();
+        this->gs.world->taken_decisions.clear();
+        for(auto& nation : this->gs.world->nations)
+            nation.inbox.clear();
         this->gs.world->load_mod();
 
         this->gs.curr_nation = &this->gs.world->nations[nation_id];
