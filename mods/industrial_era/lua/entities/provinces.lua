@@ -3832,8 +3832,6 @@ province=Province:new{ref_name="province_3f6a60",name=_("Province_3f6a60"),color
 province:register()
 province=Province:new{ref_name="province_3f6d60",name=_("Province_3f6d60"),color=0x3f6d60,terrain=tt_sea,rgo_size={}}
 province:register()
-province=Province:new{ref_name="province_3f7060",name=_("Province_3f7060"),color=0x3f7060,terrain=tt_sea,rgo_size={}}
-province:register()
 province=Province:new{ref_name="province_3f5d80",name=_("Province_3f5d80"),color=0x3f5d80,terrain=tt_sea,rgo_size={}}
 province:register()
 province=Province:new{ref_name="province_3f6b80",name=_("Province_3f6b80"),color=0x3f6b80,terrain=tt_sea,rgo_size={}}
@@ -29745,10 +29743,6 @@ province=Province:new{ref_name="province_606b2800",name=_("Province_286b60"),col
 province:register()
 province=Province:new{ref_name="province_606bab00",name=_("Province_ab6b60"),color=0xab6b60,terrain=tt_sea,rgo_size={}}
 province:register()
-province=Province:new{ref_name="province_60701f00",name=_("Province_1f7060"),color=0x1f7060,terrain=tt_plains,rgo_size={}}
-province:register()
-province:add_nucleus(n_united_kingdom)
-province:give_to(n_united_kingdom)
 province=Province:new{ref_name="province_6071f400",name=_("Province_f47160"),color=0xf47160,terrain=tt_sea,rgo_size={}}
 province:register()
 province=Province:new{ref_name="province_607ae200",name=_("Province_e27a60"),color=0xe27a60,terrain=tt_plains,rgo_size={}}
@@ -29789,11 +29783,6 @@ province:add_nucleus(n_united_kingdom)
 province:give_to(n_united_kingdom)
 province=Province:new{ref_name="province_60a0e700",name=_("Province_e7a060"),color=0xe7a060,terrain=tt_sea,rgo_size={}}
 province:register()
-province=Province:new{ref_name="province_60a14d00",name=_("Province_4da160"),color=0x4da160,terrain=tt_plains,rgo_size={}}
-province:register()
-province:add_nucleus(n_united_kingdom)
-province:add_nucleus(n_east_india_company)
-province:give_to(n_east_india_company)
 province=Province:new{ref_name="province_60a3a000",name=_("Province_a0a360"),color=0xa0a360,terrain=tt_plains,rgo_size={}}
 province:register()
 province:add_nucleus(n_burma)
@@ -30618,8 +30607,6 @@ province=Province:new{ref_name="province_9bfffd00",name=_("Province_fdff9b"),col
 province:register()
 province:add_nucleus(n_wahidi)
 province:give_to(n_wahidi)
-province=Province:new{ref_name="province_9c99ff00",name=_("Province_ff999c"),color=0xff999c,terrain=tt_sea,rgo_size={}}
-province:register()
 province=Province:new{ref_name="province_9e23ff00",name=_("Province_ff239e"),color=0xff239e,terrain=tt_sea,rgo_size={}}
 province:register()
 province=Province:new{ref_name="province_9fff8400",name=_("Province_84ff9f"),color=0x84ff9f,terrain=tt_savanna,rgo_size={}}
@@ -31559,10 +31546,6 @@ province:add_nucleus(n_russia)
 province:give_to(n_russia)
 province=Province:new{ref_name="province_c0cdf100",name=_("Province_f1cdc0"),color=0xf1cdc0,terrain=tt_sea,rgo_size={}}
 province:register()
-province=Province:new{ref_name="province_c0ce6200",name=_("Province_62cec0"),color=0x62cec0,terrain=tt_plains,rgo_size={}}
-province:register()
-province:add_nucleus(n_united_kingdom)
-province:give_to(n_united_kingdom)
 province=Province:new{ref_name="province_c0d0c800",name=_("Province_c8d0c0"),color=0xc8d0c0,terrain=tt_plains,rgo_size={}}
 province:register()
 province:add_nucleus(n_aceh)
@@ -31581,10 +31564,6 @@ province:add_nucleus(n_siak)
 province:give_to(n_siak)
 province=Province:new{ref_name="province_c0d77200",name=_("Province_72d7c0"),color=0x72d7c0,terrain=tt_sea,rgo_size={}}
 province:register()
-province=Province:new{ref_name="province_c0d9d800",name=_("Province_d8d9c0"),color=0xd8d9c0,terrain=tt_plains,rgo_size={}}
-province:register()
-province:add_nucleus(n_united_kingdom)
-province:give_to(n_united_kingdom)
 province=Province:new{ref_name="province_c0dc1c00",name=_("Province_1cdcc0"),color=0x1cdcc0,terrain=tt_plains,rgo_size={}}
 province:register()
 province:add_nucleus(n_united_kingdom)
@@ -31911,8 +31890,6 @@ province=Province:new{ref_name="province_e03f1300",name=_("Province_133fe0"),col
 province:register()
 province:add_nucleus(n_united_kingdom)
 province:give_to(n_united_kingdom)
-province=Province:new{ref_name="province_e03f5700",name=_("Province_573fe0"),color=0x573fe0,terrain=tt_sea,rgo_size={}}
-province:register()
 province=Province:new{ref_name="province_e042c300",name=_("Province_c342e0"),color=0xc342e0,terrain=tt_plains,rgo_size={}}
 province:register()
 province:add_nucleus(n_burma)
@@ -32870,11 +32847,6 @@ province:register()
 province:add_nucleus(n_united_kingdom)
 province:add_nucleus(n_east_india_company)
 province:give_to(n_east_india_company)
-province=Province:new{ref_name="province_2e8c20",name=_("Province_2e8c20"),color=0x2e8c20,terrain=tt_plains,rgo_size={}}
-province:register()
-province:add_nucleus(n_united_kingdom)
-province:add_nucleus(n_east_india_company)
-province:give_to(n_east_india_company)
 province=Province:new{ref_name="province_d49020",name=_("Province_d49020"),color=0xd49020,terrain=tt_sea,rgo_size={}}
 province:register()
 province=Province:new{ref_name="province_c8a420",name=_("Province_c8a420"),color=0xc8a420,terrain=tt_sea,rgo_size={}}
@@ -32903,10 +32875,6 @@ province:add_nucleus(n_east_india_company)
 province:give_to(n_east_india_company)
 province=Province:new{ref_name="province_c2f720",name=_("Province_c2f720"),color=0xc2f720,terrain=tt_sea,rgo_size={}}
 province:register()
-province=Province:new{ref_name="province_cead35",name=_("Province_cead35"),color=0xcead35,terrain=tt_plains,rgo_size={}}
-province:register()
-province:add_nucleus(n_united_kingdom)
-province:give_to(n_united_kingdom)
 province=Province:new{ref_name="province_bf0440",name=_("Province_bf0440"),color=0xbf0440,terrain=tt_plains,rgo_size={}}
 province:register()
 province:add_nucleus(n_united_kingdom)
@@ -35689,8 +35657,6 @@ province=Province:new{ref_name="province_8082fd",name=_("Province_8082fd"),color
 province:register()
 province=Province:new{ref_name="province_0083fd",name=_("Province_0083fd"),color=0x83fd,terrain=tt_sea,rgo_size={}}
 province:register()
-province=Province:new{ref_name="province_f9eed3",name=_("Province_f9eed3"),color=0xf9eed3,terrain=tt_sea,rgo_size={}}
-province:register()
 province=Province:new{ref_name="province_8000ff",name=_("Province_8000ff"),color=0x8000ff,terrain=tt_sea,rgo_size={}}
 province:register()
 province=Province:new{ref_name="province_8001ff",name=_("Province_8001ff"),color=0x8001ff,terrain=tt_sea,rgo_size={}}
@@ -35903,11 +35869,7 @@ province=Province:new{ref_name="province_00fdff",name=_("Province_00fdff"),color
 province:register()
 province=Province:new{ref_name="province_80ffff",name=_("Province_80ffff"),color=0x80ffff,terrain=tt_sea,rgo_size={}}
 province:register()
-province=Province:new{ref_name="province_689460",name=_("Province_689460"),color=0x689460,terrain=tt_sea,rgo_size={}}
-province:register()
 province=Province:new{ref_name="province_3f6b81",name=_("Province_3f6b81"),color=0x3f6b81,terrain=tt_sea,rgo_size={}}
-province:register()
-province=Province:new{ref_name="province_b0d4a0",name=_("Province_b0d4a0"),color=0xb0d4a0,terrain=tt_sea,rgo_size={}}
 province:register()
 province=Province:new{ref_name="province_004dff",name=_("Province_004dff"),color=0x4dff,terrain=tt_sea,rgo_size={}}
 province:register()
@@ -35918,8 +35880,6 @@ province:register()
 province=Province:new{ref_name="province_0060ff",name=_("Province_0060ff"),color=0x60ff,terrain=tt_sea,rgo_size={}}
 province:register()
 province=Province:new{ref_name="province_8064ff",name=_("Province_8064ff"),color=0x8064ff,terrain=tt_sea,rgo_size={}}
-province:register()
-province=Province:new{ref_name="province_fff9ff",name=_("Province_fff9ff"),color=0xfff9ff,terrain=tt_sea,rgo_size={}}
 province:register()
 province=Province:new{ref_name="province_5a0b00",name=_("Unknown"),color=0x5a0b00,terrain=tt_sea,rgo_size={}}
 province:register()

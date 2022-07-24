@@ -384,8 +384,7 @@ void World::load_initial() {
             if(province_fp != nullptr) {
                 for(const auto& color_raw : colors_found) {
                     uint32_t color = color_raw << 8;
-                    fprintf(province_fp.get(), "province = Province:new{ ref_name = \"province_%06x\", color = 0x%06x }\n", static_cast<unsigned int>(bswap32(color)), static_cast<unsigned int>(bswap32(color)));
-                    fprintf(province_fp.get(), "province.name = _(\"Province_%06x\")\n", static_cast<unsigned int>(bswap32(color)));
+                    fprintf(province_fp.get(), "province=Province:new{ref_name=\"province_%06x\",name=_(\"Unknown\"),color=0x%06x,terrain=tt_sea,rgo_size={}}\n", static_cast<unsigned int>(bswap32(color)), static_cast<unsigned int>(bswap32(color)));
                     fprintf(province_fp.get(), "province:register()\n");
                 }
             }
@@ -400,16 +399,25 @@ void World::load_initial() {
                 }
             }
 
+            // Flush files before throwing
+            province_fp.reset();
+            color_fp.reset();
+
             // Exit
             CXX_THROW(std::runtime_error, "There are unregistered provinces, please register them!");
         }
 
+        std::string provinces_ref_names = "";
         for(auto& province : provinces) {
             if(!colors_used.contains(province.color & 0xffffff)) {
-                std::string error = "Province '" + province.ref_name + "' is registered but missing on province.png, please add it!";
-                Eng3D::Log::error("game", error);
-                CXX_THROW(std::runtime_error, error.c_str());
+                provinces_ref_names += "'" + province.ref_name + "'";
             }
+        }
+
+        if(!provinces_ref_names.empty()) {
+            std::string error = "Province " + provinces_ref_names + " is registered but missing on province.png, please add it!";
+            Eng3D::Log::error("game", error);
+            CXX_THROW(std::runtime_error, error.c_str());
         }
 
         // Calculate the edges of the province (min and max x and y coordinates)
