@@ -141,10 +141,10 @@ void UnitManager::move_unit(Unit::Id unit_id, Province::Id target_province_id) {
     assert(units[unit_id].can_move()); // Must be able to move to perform this...
     assert(unit_province[unit_id] != target_province_id); // Not setting to same province
 
-    const Province::Id current_province_id = unit_province[unit_id];
+    const auto current_province_id = unit_province[unit_id];
     Eng3D::fast_erase(province_units[current_province_id], unit_id);
     unit_province[unit_id] = target_province_id;
-    province_units[current_province_id].push_back(unit_id);
+    province_units[target_province_id].push_back(unit_id);
 }
 
 /*
