@@ -387,10 +387,8 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
         sdf_shader->set_uniform("jump", (float)step);
 
         fbo.set_texture(0, draw_on_tex0 ? *border_sdf : *swap_tex);
-        if(step == max_dist)
-            sdf_shader->set_texture(0, "tex", border_tex);
-        else
-            sdf_shader->set_texture(0, "tex", draw_on_tex0 ? *swap_tex : *border_sdf);
+        if(step == max_dist) sdf_shader->set_texture(0, "tex", border_tex);
+        else sdf_shader->set_texture(0, "tex", draw_on_tex0 ? *swap_tex : *border_sdf);
         // Draw a plane over the entire screen to invoke shaders
         map_2d_quad->draw();
     }
@@ -410,25 +408,25 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
 // Updates the province color texture with the changed provinces 
 void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
     // Water
-    for(unsigned int i = 0; i < world.provinces.size(); i++) {
+    for(Province::Id i = 0; i < world.provinces.size(); i++) {
         auto* terrain_type = world.provinces[i].terrain_type;
         if(terrain_type->is_water_body)
             province_colors[i] = ProvinceColor(i, Eng3D::Color::rgba32(0x00000000));
     }
-    for(auto const& province_color : province_colors)
+    for(const auto province_color : province_colors)
         tile_sheet->buffer.get()[province_color.id] = province_color.color.get_value();
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
     no_drop_options.internal_format = GL_SRGB;
-    tile_sheet->upload(no_drop_options);
+    this->tile_sheet->upload(no_drop_options);
 }
 
 // Updates nations
 void MapRender::update_nations(std::vector<Province::Id> province_ids) {
-    for(auto const& id : province_ids) {
+    for(const auto id : province_ids) {
         auto& province = world.provinces[id]; 
         if(province.controller == nullptr) continue;
-        this->tile_sheet_nation->buffer.get()[province.cached_id] = province.controller->cached_id;
+        this->tile_sheet_nation->buffer.get()[province.get_id()] = province.controller->get_id();
     }
 
     Eng3D::TextureOptions no_drop_options{};
@@ -494,16 +492,31 @@ void MapRender::update(GameState& gs) {
         this->req_update_vision = false;
     }
 
+    bool update_sdf = false;
+    Eng3D::Rect update_area{ 0, 0, 0, 0 };
+
     auto& changed_owner_provinces = gs.world->province_manager.get_changed_owner_provinces();
     if(!changed_owner_provinces.empty()) {
         update_nations(changed_owner_provinces);
-        Eng3D::Rect update_area{ 0, 0, 0, 0 };
         for(Province::Id i = 0; i < changed_owner_provinces.size(); i++) {
             auto& province = gs.world->provinces[changed_owner_provinces[i]];
             update_area = update_area.join(province.box_area);
         }
-        glm::ivec2 screen_size(gs.width, gs.height);
-        this->update_border_sdf(update_area, screen_size);
+        update_sdf = true;
+    }
+
+    auto& changed_control_provinces = gs.world->province_manager.get_changed_control_provinces();
+    if(!changed_control_provinces.empty()) {
+        update_nations(changed_control_provinces);
+        for(Province::Id i = 0; i < changed_control_provinces.size(); i++) {
+            auto& province = gs.world->provinces[changed_control_provinces[i]];
+            update_area = update_area.join(province.box_area);
+        }
+        update_sdf = true;
+    }
+
+    if(update_sdf) {
+        this->update_border_sdf(update_area, glm::ivec2(gs.width, gs.height));
     }
 }
 

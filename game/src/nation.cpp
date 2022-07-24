@@ -271,9 +271,9 @@ float Nation::get_tax(const Pop& pop) const {
 #include "client/map_render.hpp"
 // Gives this nation a specified province (for example on a treaty)
 void Nation::give_province(Province& province) {
-    World& world = World::get_instance();
+    auto& world = World::get_instance();
     this->control_province(province);
-    if(province.owner_id != (Nation::Id)-1)
+    if(Nation::is_valid(province.owner_id))
         world.nations[province.owner_id].owned_provinces.erase(province.get_id());
     owned_provinces.insert(world.get_id(province));
     province.owner_id = this->get_id();
@@ -283,7 +283,7 @@ void Nation::give_province(Province& province) {
 }
 
 void Nation::control_province(Province& province) {
-    World& world = World::get_instance();
+    auto& world = World::get_instance();
     if(province.controller != nullptr)
         province.controller->controlled_provinces.erase(world.get_id(province));
     controlled_provinces.insert(world.get_id(province));
