@@ -488,3 +488,6 @@ east_india_company_monarchy
 
 morrocco_monarchy
 	By Flaspec - Own work[1], CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=98749941
+
+tripolitania_monarchy
+	By Bamse - Own work by uploader based on Tripoli. Johnson&#039;s new chart of national emblems, 1868.jpg, Public Domain, https://commons.wikimedia.org/w/index.php?curid=5459055
