@@ -124,3 +124,45 @@ nation:register()
 nation:set_ideology(monarchy)
 nation:add_accepted_culture(vietnamesse)
 nation:add_client_hint(monarchy, _("East India Company"), 0xdb5656)
+
+nation = Nation:new{ ref_name = "mysore", name = _("Mysore") }
+nation.adjective = _("Mysorian")
+nation:register()
+nation:set_ideology(monarchy)
+nation:add_accepted_culture(vietnamesse)
+nation:add_client_hint(monarchy, _("Mysore"), 0x512f91)
+
+nation = Nation:new{ ref_name = "haydarabad", name = _("Haydarabad") }
+nation.adjective = _("Haydarabad")
+nation:register()
+nation:set_ideology(monarchy)
+nation:add_accepted_culture(vietnamesse)
+nation:add_client_hint(monarchy, _("Haydarabad"), 0x512f91)
+
+nation = Nation:new{ ref_name = "awadh", name = _("Awadh") }
+nation.adjective = _("Awadh")
+nation:register()
+nation:set_ideology(monarchy)
+nation:add_accepted_culture(vietnamesse)
+nation:add_client_hint(monarchy, _("Awadh"), 0x512f91)
+
+nation = Nation:new{ ref_name = "bhutan", name = _("Bhutan") }
+nation.adjective = _("Bhutan")
+nation:register()
+nation:set_ideology(monarchy)
+nation:add_accepted_culture(vietnamesse)
+nation:add_client_hint(monarchy, _("Bhutan"), 0x512f91)
+
+nation = Nation:new{ ref_name = "nepal", name = _("Nepal") }
+nation.adjective = _("Nepal")
+nation:register()
+nation:set_ideology(monarchy)
+nation:add_accepted_culture(vietnamesse)
+nation:add_client_hint(monarchy, _("Nepal"), 0x512f91)
+
+nation = Nation:new{ ref_name = "kashmir", name = _("Kashmir") }
+nation.adjective = _("Kashmir")
+nation:register()
+nation:set_ideology(monarchy)
+nation:add_accepted_culture(vietnamesse)
+nation:add_client_hint(monarchy, _("Kashmir"), 0x512f91)
