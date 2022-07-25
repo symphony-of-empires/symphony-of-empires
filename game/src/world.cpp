@@ -473,13 +473,30 @@ void World::load_initial() {
         this->relations = std::make_unique<NationRelation[]>(relations_len);
         for(size_t i = 0; i < relations_len; i++)
             this->relations[i] = NationRelation();
-
+        
         // Auto-relocate capitals for countries which do not have one
         for(auto& nation : this->nations) {
             // Must exist and not have a capital
             if(!nation.exists() || Province::is_invalid(nation.capital_id)) continue;
             Eng3D::Log::debug("game", Eng3D::Locale::translate("Relocating capital of [" + nation.ref_name + "]"));
             nation.auto_relocate_capital();
+
+            nation.budget = 10000.f;
+            auto& policy = nation.current_policy; // Default init for policies
+            policy.import_tax = 0.1f;
+            policy.export_tax = 0.1f;
+            policy.domestic_export_tax = 0.1f;
+            policy.domestic_import_tax = 0.1f;
+            policy.med_flat_tax = 0.1f;
+            policy.poor_flat_tax = 0.1f;
+            policy.rich_flat_tax = 0.1f;
+            policy.private_property = true;
+            policy.immigration = ALLOW_ALL;
+            policy.migration = ALLOW_ALL;
+            policy.industry_tax = 0.1f;
+            policy.foreign_trade = true;
+            policy.min_wage = 1.f;
+            policy.min_sv_for_parliament = 2.f;
         }
 
         // Write the entire world to the cache file
@@ -501,31 +518,8 @@ void World::load_mod() {
 
     // Server needs now to sync changes to clients (changing state is not enough)
     this->needs_to_sync = true;
-
-    // Default init for policies
-    for(auto& nation : this->nations) {
-        nation.budget = 10000.f;
-
-        Policies& policy = nation.current_policy;
-        policy.import_tax = 0.1f;
-        policy.export_tax = 0.1f;
-        policy.domestic_export_tax = 0.1f;
-        policy.domestic_import_tax = 0.1f;
-        policy.med_flat_tax = 0.1f;
-        policy.poor_flat_tax = 0.1f;
-        policy.rich_flat_tax = 0.1f;
-        policy.private_property = true;
-        policy.immigration = ALLOW_ALL;
-        policy.migration = ALLOW_ALL;
-        policy.industry_tax = 0.1f;
-        policy.foreign_trade = true;
-        policy.min_wage = 1.f;
-        policy.min_sv_for_parliament = 2.f;
-    }
     Eng3D::Log::debug("game", Eng3D::Locale::translate("World fully intiialized"));
-
-    // Initialize the AI
-    ai_init(*this);
+    ai_init(*this); // Initialize the AI
 }
 
 static inline void unit_do_tick(World& world, Unit& unit)

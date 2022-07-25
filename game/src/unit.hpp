@@ -120,8 +120,8 @@ public:
         return target_province_id;
     }
 
-    UnitType* type; // Type of unit
-    uint16_t owner_id; // Who owns this unit
+    UnitType* type = nullptr; // Type of unit
+    uint16_t owner_id = (uint16_t)-1; // Who owns this unit
     // Province::Id province_id = Province::invalid();
     Province::Id province_id() const;
 
@@ -139,7 +139,6 @@ private:
     UnitManager& operator=(const UnitManager&) = default;
 public:
     UnitManager() {};
-    // Fill in the relationship vectors for each nation
     void init(World& world);
 
     void add_unit(Unit unit, Province::Id unit_current_province);

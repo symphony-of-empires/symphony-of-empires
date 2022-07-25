@@ -53,7 +53,7 @@ void Unit::attack(Unit& enemy) {
 
 glm::vec2 Unit::get_pos() const {
     assert(this->is_valid());
-    const World& world = World::get_instance();
+    const auto& world = World::get_instance();
     auto prov_id = this->province_id();
     auto& province = world.provinces[prov_id];
     return province.get_pos();
@@ -62,7 +62,7 @@ glm::vec2 Unit::get_pos() const {
 Province::Id Unit::province_id() const {
     assert(this->is_valid());
     // Don't know if this is cleaner than getting it from unit manager :thinking:
-    const World& world = World::get_instance();
+    const auto& world = World::get_instance();
     return world.unit_manager.unit_province[cached_id];
 }
 
@@ -70,9 +70,7 @@ void Unit::set_target(const Province& province) {
     assert(this->is_valid());
     assert(this->target_province_id != this->province_id());
     assert(province.get_id() != this->province_id());
-
     assert(this->can_move());
-
     this->target_province_id = province.get_id();
     this->days_left_until_move = days_to_move_to(province);
 }
@@ -84,7 +82,7 @@ void Unit::stop_movement() {
 
 float Unit::days_to_move_to(const Province& _province) const {
     assert(this->is_valid());
-    const World& world = World::get_instance();
+    const auto& world = World::get_instance();
     auto start_province = world.provinces[this->province_id()];
     auto end_province = _province;
 
@@ -94,11 +92,10 @@ float Unit::days_to_move_to(const Province& _province) const {
 }
 
 bool Unit::update_movement(UnitManager& unit_manager) {
-    if (target_province_id == Province::invalid())
-        return false;
+    if(Province::is_invalid(target_province_id)) return false;
 
     days_left_until_move--;
-    if (days_left_until_move <= 0) {
+    if(days_left_until_move <= 0) {
         days_left_until_move = 0;
 
         unit_manager.move_unit(this->get_id(), target_province_id);
@@ -108,6 +105,7 @@ bool Unit::update_movement(UnitManager& unit_manager) {
     return false;
 }
 
+/// @brief Fill in the relationship vectors for each nation
 void UnitManager::init(World& world) {
     province_units.resize(world.provinces.size());
 }
