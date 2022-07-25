@@ -561,7 +561,6 @@ void Map::draw(GameState& gs) {
                 auto& camera = this->camera;
                 const glm::vec2 prov_pos = province.get_pos();
                 // And display units
-                if(unit.on_battle) return;
                 bool unit_visible = true;
                 if(this->view_mode == MapView::SPHERE_VIEW) {
                     const auto* orbit_camera = static_cast<const Eng3D::OrbitCamera*>(camera);
@@ -571,6 +570,8 @@ void Map::draw(GameState& gs) {
                     if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
                         unit_visible = false;
                 }
+
+                if(unit.on_battle) unit_visible = false;
 
                 if(unit_visible) {
                     if(unit_index < unit_widgets.size()) this->unit_widgets[unit_index]->set_unit(unit);
@@ -598,10 +599,8 @@ void Map::draw(GameState& gs) {
                 }
 
                 if(battle_visible) {
-                    if(battle_index < battle_widgets.size())
-                        battle_widgets[battle_index]->set_battle(province, war_battle_idx);
-                    else
-                        battle_widgets.push_back(new Interface::BattleWidget(province, war_battle_idx, *this, map_ui_layer));
+                    if(battle_index < battle_widgets.size()) battle_widgets[battle_index]->set_battle(province, war_battle_idx);
+                    else battle_widgets.push_back(new Interface::BattleWidget(province, war_battle_idx, *this, map_ui_layer));
                     battle_index++;
                 }
                 war_battle_idx++;
