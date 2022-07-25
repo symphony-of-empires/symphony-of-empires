@@ -451,7 +451,8 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             update_pop_needs(world, province, new_needs);
             for(Pop::Id i = 0; i < province.buildings.size(); i++) {
                 auto& building = province.buildings[i];
-                if(building.working_unit_type != nullptr) {
+                // There must not be conflict ongoing otherwise they wont be able to build shit
+                if(province.controller->get_id() == province.owner_id && building.working_unit_type != nullptr) {
                     bool can_build_unit = building.can_build_unit();
 
                     // Ratio of health:person is 25, thus making units very expensive
