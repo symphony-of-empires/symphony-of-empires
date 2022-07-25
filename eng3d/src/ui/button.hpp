@@ -28,11 +28,8 @@
 #include "eng3d/ui/widget.hpp"
 
 namespace UI {
-    /**
-     * @ingroup UI
-     * @brief Button widget
-     *
-     */
+    /// @ingroup UI
+    /// @brief Button widget
     class Button: public Widget {
     public:
         Button(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);

@@ -34,12 +34,9 @@
 #include "eng3d/ui/widget.hpp"
 
 namespace UI {
-    /**
-     * @ingroup UI
-     * @brief Window widget, this widget is similar to a Group widget, the key
-     * difference is that this one can be moved along the screen.
-     *
-     */
+    /// @ingroup UI
+    /// @brief Window widget, this widget is similar to a Group widget, the key
+    /// difference is that this one can be moved along the screen.
     class Window: public Widget {
     public:
         Window(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);

@@ -146,10 +146,7 @@ namespace Eng3D {
         s ^= h(v) + 0x9e3779b9 + (s << 6) + (s >> 2);
     }
 
-    /**
-     * @brief Texture map has implementation
-     * 
-     */
+    /// @brief Texture map has implementation
     struct TextureMapHash {
         std::size_t operator()(const std::pair<std::string, TextureOptions>& key) const
         {
@@ -176,11 +173,8 @@ namespace Eng3D {
         SDL_Surface* surface = nullptr;
     };
 
-    /**
-     * @brief General manager for textures, caches textures into the memory instead of reading them off the disk
-     * every time they need to be accessed.
-     * 
-     */
+    /// @brief General manager for textures, caches textures into the memory instead of reading them off the disk
+    /// every time they need to be accessed.
     class TextureManager {
     private:
         std::unordered_map<std::pair<std::string, TextureOptions>, std::shared_ptr<Eng3D::Texture>, TextureMapHash> textures;

@@ -41,11 +41,8 @@ namespace Eng3D {
 
 namespace UI {
     class Context;
-    /**
-     * @ingroup UI
-     * @brief A graph chart
-     *
-     */
+    /// @ingroup UI
+    /// @brief A graph chart
     class Chart: public Widget {
     public:
         Chart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);

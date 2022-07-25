@@ -35,11 +35,8 @@
 
 namespace UI {
 	class Context;
-    /**
-     * @ingroup UI
-     * @brief Button which kills the parent on click
-     *
-     */
+    /// @ingroup UI
+    /// @brief Button which kills the parent on click
     class CloseButton: public Widget {
     public:
         CloseButton(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
