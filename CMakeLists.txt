@@ -7,6 +7,12 @@ set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 
 option(BUILD_ENGINE "Enable building Eng3D" ON)
 option(BUILD_GAME "Enable building SymphonyOfEmpires" ON)
+option(SOE_UBSAN "Enable UBSAN instrumentation" OFF)
+
+IF(SOE_UBSAN)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
+ENDIF()
 
 IF(WIN32)
 	add_definitions( -DNOMINMAX=1 )
