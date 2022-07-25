@@ -497,7 +497,6 @@ void MapRender::update(GameState& gs) {
         this->req_update_vision = false;
     }
 
-    bool update_sdf = false;
     Eng3D::Rect update_area{ 0, 0, 0, 0 };
 
     auto& changed_owner_provinces = gs.world->province_manager.get_changed_owner_provinces();
@@ -506,23 +505,19 @@ void MapRender::update(GameState& gs) {
         for(Province::Id i = 0; i < changed_owner_provinces.size(); i++) {
             auto& province = gs.world->provinces[changed_owner_provinces[i]];
             update_area = update_area.join(province.box_area);
+            this->update_border_sdf(province.box_area, glm::ivec2(gs.width, gs.height));
         }
-        update_sdf = true;
     }
 
-    auto& changed_control_provinces = gs.world->province_manager.get_changed_control_provinces();
+    /*auto& changed_control_provinces = gs.world->province_manager.get_changed_control_provinces();
     if(!changed_control_provinces.empty()) {
         this->update_nations(changed_control_provinces);
         for(Province::Id i = 0; i < changed_control_provinces.size(); i++) {
             auto& province = gs.world->provinces[changed_control_provinces[i]];
             update_area = update_area.join(province.box_area);
+            this->update_border_sdf(province.box_area, glm::ivec2(gs.width, gs.height));
         }
-        update_sdf = true;
-    }
-
-    if(update_sdf) {
-        this->update_border_sdf(update_area, glm::ivec2(gs.width, gs.height));
-    }
+    }*/
 }
 
 void MapRender::draw(Eng3D::Camera* camera, MapView view_mode) {
