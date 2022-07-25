@@ -64,6 +64,15 @@ include_directories("${PROJECT_SOURCE_DIR}")
 # Dependencies
 #
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+# GLEW
+IF(WIN32 AND E3D_BACKEND_OPENGL)
+	set(ONLY_LIBS ON)
+	set(glew-cmake_BUILD_SHARED ON)
+	FetchContent_Declare(glew-cmake GIT_REPOSITORY "https://github.com/Perlmint/glew-cmake" GIT_PROGRESS TRUE)
+	FetchContent_MakeAvailable(glew-cmake)
+	include_directories("${glew-cmake_SOURCE_DIR}/include")
+ENDIF()
+
 IF(E3D_VENDORED)
 	# GLEW
 	IF(WIN32)
@@ -172,11 +181,11 @@ IF(NOT E3D_VENDORED)
 	include_directories(${ASSIMP_INCLUDE_DIRS})
 	target_link_libraries(eng3d PRIVATE ${ASSIMP_LIBRARIES})
 
-	IF(E3D_BACKEND_OPENGL)
-		find_package(GLEW REQUIRED)
-		include_directories(${GLEW_INCLUDE_DIRS})
-		link_libraries(${GLEW_LIBRARIES})
-	ENDIF()
+	#IF(E3D_BACKEND_OPENGL)
+	#	find_package(GLEW REQUIRED)
+	#	include_directories(${GLEW_INCLUDE_DIRS})
+	#	link_libraries(${GLEW_LIBRARIES})
+	#ENDIF()
 ENDIF()
 
 #
