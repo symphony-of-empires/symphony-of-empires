@@ -594,35 +594,35 @@ static inline void unit_do_tick(World& world, Unit& unit)
                 if(other_unit.owner_id == unit.owner_id || other_unit.on_battle) continue;
                 // Check relations, if we're at war we will attack this unit
                 const auto& relation = world.get_relation(unit.owner_id, other_unit.owner_id);
-                if(!relation.has_war) continue;
-                // Find war with both nations
-                const auto& other_unit_nation = world.nations[unit.owner_id];
-                auto wars_it = std::find_if(world.wars.begin(), world.wars.end(), [unit_nation, other_unit_nation](const auto& war) {
-                    return war->is_involved(unit_nation) && war->is_involved(other_unit_nation);
-                });
-                // Since `relation.has_war` is true we have to find at least one war
-                assert(wars_it != world.wars.end());
-                if(wars_it == world.wars.end()) break;
-                auto& war = *wars_it;
+                if(relation.has_war) {
+                    // Find war with both nations
+                    const auto& other_unit_nation = world.nations[unit.owner_id];
+                    auto wars_it = std::find_if(world.wars.begin(), world.wars.end(), [unit_nation, other_unit_nation](const auto& war) {
+                        return war->is_involved(unit_nation) && war->is_involved(other_unit_nation);
+                    });
+                    // Since `relation.has_war` is true we have to find at least one war
+                    assert(wars_it != world.wars.end());
+                    auto& war = *wars_it;
 
-                // If we found an unit we can attack, start a battle
-                unit.on_battle = true;
-                unit.stop_movement();
-                other_unit.on_battle = true;
-                other_unit.stop_movement();
-                // Create a new battle
-                Battle battle(*war);
-                battle.name = "Battle of " + unit_province.name;
-                if(war->is_attacker(world.nations[unit.owner_id])) {
-                    battle.attackers_ids.push_back(world.get_id(unit));
-                    battle.defenders_ids.push_back(world.get_id(other_unit));
-                } else {
-                    battle.attackers_ids.push_back(world.get_id(other_unit));
-                    battle.defenders_ids.push_back(world.get_id(unit));
+                    // If we found an unit we can attack, start a battle
+                    unit.on_battle = true;
+                    unit.stop_movement();
+                    other_unit.on_battle = true;
+                    other_unit.stop_movement();
+                    // Create a new battle
+                    Battle battle(*war);
+                    battle.name = "Battle of " + unit_province.name;
+                    if(war->is_attacker(world.nations[unit.owner_id])) {
+                        battle.attackers_ids.push_back(world.get_id(unit));
+                        battle.defenders_ids.push_back(world.get_id(other_unit));
+                    } else {
+                        battle.attackers_ids.push_back(world.get_id(other_unit));
+                        battle.defenders_ids.push_back(world.get_id(unit));
+                    }
+                    unit_province.battles.push_back(battle);
+                    Eng3D::Log::debug("game", "New battle of \"" + battle.name + "\"");
+                    break;
                 }
-                unit_province.battles.push_back(battle);
-                Eng3D::Log::debug("game", "New battle of \"" + battle.name + "\"");
-                break;
             }
         }
     }

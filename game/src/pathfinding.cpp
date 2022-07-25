@@ -51,7 +51,7 @@ static std::vector<Province::Id> generate_neighbors(const World& world, const Na
     for(const auto& neighbour_id : province.neighbours) {
         result.push_back(neighbour_id);
 
-        const Province& neighbour = world.provinces[neighbour_id];
+        const auto& neighbour = world.provinces[neighbour_id];
 
         // // Check that we can diplomatically pass thru their lands
         // // Our own lands and lands without owners are automatically passable

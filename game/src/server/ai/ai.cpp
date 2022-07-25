@@ -318,7 +318,6 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
                     has_units = !g_world.unit_manager.get_province_units(province_id).empty();
                     if(has_border && has_units) break;
                 }
-
                 if(has_border) nation.declare_war(other);
             }
         }

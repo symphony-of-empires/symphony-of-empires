@@ -37,9 +37,9 @@
 // Nation
 //
 
-// Declare war
+/// @brief Declare war
 /// @todo Make some form of "WarParticipationRequest" so we don't force allies to join
-// and we also make sure betrayals are possible
+/// and we also make sure betrayals are possible
 void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> clauses) {
     auto& world = World::get_instance();
     auto* war = new War();
@@ -74,14 +74,13 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     // Attackers are at war with the defenders
     for(auto attacker : war->attackers) {
         for(auto defender : war->defenders) {
-            /// @todo A better way to make sure these two nations don't equal
-            if(attacker == defender) continue;
             assert(attacker != defender);
+
             if(attacker->puppet_master == defender) attacker->puppet_master = nullptr;
             else if(defender->puppet_master == attacker) defender->puppet_master = nullptr;
+            
             auto& relation = world.get_relation(world.get_id(*defender), world.get_id(*attacker));
-            // Declare war
-            relation.has_war = true;
+            relation.has_war = true; // Declare war
             relation.has_alliance = false;
             relation.has_defensive_pact = false;
             relation.relation = -100;

@@ -526,7 +526,6 @@ int LuaAPI::set_nation_relation(lua_State* L) {
     relation.relation = lua_tonumber(L, 3);
     relation.interest = lua_tonumber(L, 4);
     relation.has_embargo = lua_toboolean(L, 5);
-    relation.has_war = false;
     relation.has_alliance = lua_toboolean(L, 6);
     relation.has_defensive_pact = lua_toboolean(L, 7);
     relation.has_military_access = lua_toboolean(L, 8);
@@ -535,15 +534,15 @@ int LuaAPI::set_nation_relation(lua_State* L) {
 }
 
 int LuaAPI::nation_make_puppet(lua_State* L) {
-    Nation& nation = g_world.nations.at(lua_tonumber(L, 1));
-    Nation& other_nation = g_world.nations.at(lua_tonumber(L, 2));
+    auto& nation = g_world.nations.at(lua_tonumber(L, 1));
+    auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
     other_nation.puppet_master = &nation;
     return 0;
 }
 
 int LuaAPI::nation_declare_unjustified_war(lua_State* L) {
-    Nation& nation = g_world.nations.at(lua_tonumber(L, 1));
-    Nation& other_nation = g_world.nations.at(lua_tonumber(L, 2));
+    auto& nation = g_world.nations.at(lua_tonumber(L, 1));
+    auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
     if(!g_world.get_relation(g_world.get_id(nation), g_world.get_id(other_nation)).has_war)
         nation.declare_war(other_nation);
     return 0;
