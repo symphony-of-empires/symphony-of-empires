@@ -91,7 +91,6 @@ namespace Eng3D {
 #else
         // RVL uses global state variables that are platform specific
 #endif
-
         // Above variables might get modified by these so keep them in order as-is
         Eng3D::Installer installer;
         Eng3D::IO::PackageManager package_man;

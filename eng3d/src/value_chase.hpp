@@ -15,7 +15,7 @@ namespace Eng3D {
 
         }
 
-        inline T move_towards(T current, T target) {
+        constexpr T move_towards(T current, T target) {
             auto now = std::chrono::system_clock::now();
             float time = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_time).count();
             time /= 1e3;

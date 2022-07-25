@@ -35,11 +35,8 @@
 
 namespace UI {
     class Div;
-    /**
-     * @ingroup UI
-     * @brief Checkbox widget
-     *
-     */
+    /// @ingroup UI
+    /// @brief Checkbox widget
     class Checkbox: public Widget {
     public:
         Checkbox(Widget* parent = nullptr);

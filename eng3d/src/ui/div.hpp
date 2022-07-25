@@ -34,11 +34,8 @@
 #include "eng3d/ui/widget.hpp"
 
 namespace UI {
-    /**
-     * @ingroup UI
-     * @brief A basic widget without any presets
-     *
-     */
+    /// @ingroup UI
+    /// @brief A basic widget without any presets
     class Div : public Widget {
     public:
         Div(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
