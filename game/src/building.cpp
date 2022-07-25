@@ -48,8 +48,7 @@ bool Building::can_do_output() const {
 }
 
 bool Building::can_build_unit() const {
-    for(const auto& req : req_goods_for_unit) {
+    for(const auto& req : req_goods_for_unit)
         if(req.second) return false;
-    }
     return true;
 }

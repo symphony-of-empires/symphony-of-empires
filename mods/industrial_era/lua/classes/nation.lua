@@ -248,7 +248,7 @@ function Nation:get_relation(other)
 	return rel
 end
 function Nation:set_relation(other, rel)
-	get_nation_relation(self.id, other.id, rel.relation, rel.interest, rel.has_embargo, rel.has_war, rel.has_alliance, rel.has_defensive_pact, rel.has_military_access, rel.has_market_access)
+	get_nation_relation(self.id, other.id, rel.relation, rel.interest, rel.has_embargo, rel.has_alliance, rel.has_defensive_pact, rel.has_military_access, rel.has_market_access)
 end
 function Nation:make_ally(other)
 	rel = Nation:get_relation(self, other)

@@ -249,8 +249,8 @@ int LuaAPI::get_good(lua_State* L) {
 }
 
 int LuaAPI::add_input_to_industry_type(lua_State* L) {
-    BuildingType& industry_type = g_world.building_types.at(lua_tonumber(L, 1));
-    Good& good = g_world.goods.at(lua_tonumber(L, 2));
+    auto& industry_type = g_world.building_types.at(lua_tonumber(L, 1));
+    auto& good = g_world.goods.at(lua_tonumber(L, 2));
     industry_type.inputs.push_back(&good);
     industry_type.num_req_workers += industry_type.inputs.size() * 100;
     return 0;
@@ -520,17 +520,17 @@ int LuaAPI::get_nation_relation(lua_State* L) {
 }
 
 int LuaAPI::set_nation_relation(lua_State* L) {
-    Nation& nation = g_world.nations.at(lua_tonumber(L, 1));
-    Nation& other_nation = g_world.nations.at(lua_tonumber(L, 2));
+    auto& nation = g_world.nations.at(lua_tonumber(L, 1));
+    auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
     auto& relation = g_world.get_relation(g_world.get_id(nation), g_world.get_id(other_nation));
     relation.relation = (lua_tonumber(L, 3));
     relation.interest = (lua_tonumber(L, 4));
     relation.has_embargo = lua_toboolean(L, 5);
-    relation.has_war = lua_toboolean(L, 6);
-    relation.has_alliance = lua_toboolean(L, 7);
-    relation.has_defensive_pact = lua_toboolean(L, 8);
-    relation.has_military_access = lua_toboolean(L, 9);
-    relation.has_market_access = lua_toboolean(L, 10);
+    relation.has_war = false;
+    relation.has_alliance = lua_toboolean(L, 6);
+    relation.has_defensive_pact = lua_toboolean(L, 7);
+    relation.has_military_access = lua_toboolean(L, 8);
+    relation.has_market_access = lua_toboolean(L, 9);
     return 0;
 }
 
@@ -1183,8 +1183,8 @@ int LuaAPI::get_unit_type(lua_State* L) {
 }
 
 int LuaAPI::add_req_good_unit_type(lua_State* L) {
-    UnitType& unit_type = g_world.unit_types.at(lua_tonumber(L, 1));
-    Good& good = g_world.goods.at(lua_tonumber(L, 2));
+    auto& unit_type = g_world.unit_types.at(lua_tonumber(L, 1));
+    auto& good = g_world.goods.at(lua_tonumber(L, 2));
     size_t amount = lua_tonumber(L, 3);
     unit_type.req_goods.push_back(std::make_pair(&good, amount));
     return 0;

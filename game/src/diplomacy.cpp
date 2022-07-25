@@ -161,6 +161,24 @@ unsigned TreatyClause::Ceasefire::cost() {
 void TreatyClause::Ceasefire::enforce() {
     auto& relation = g_world.get_relation(g_world.get_id(*receiver), g_world.get_id(*sender));
     relation.has_war = false;
+    // Remove the receiver from the wars
+    for(War::Id i = 0; i < g_world.wars.size(); i++) {
+        auto& war = g_world.wars[i];
+        auto attackers_it = std::find(war->attackers.begin(), war->attackers.end(), receiver);
+        if(attackers_it != war->attackers.end())
+            war->attackers.erase(attackers_it);
+        
+        auto defenders_it = std::find(war->defenders.begin(), war->defenders.end(), receiver);
+        if(defenders_it != war->defenders.end())
+            war->defenders.erase(defenders_it);
+
+        if(war->attackers.empty() || war->defenders.empty()) {
+            Eng3D::Log::debug("war", "War of " + war->name + " finished!");
+            g_world.wars.erase(g_world.wars.begin() + i); // Erase war from world
+            delete war;
+            break;
+        }
+    }
     days_duration--;
 }
 

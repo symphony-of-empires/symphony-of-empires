@@ -52,25 +52,22 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     // - Those who are allied to us
     for(Nation::Id i = 0; i < world.nations.size(); i++) {
         if(&world.nations[i] == this || &world.nations[i] == &nation) continue;
-
         const auto& relation = world.get_relation(i, world.get_id(*this));
         if(relation.has_alliance || world.nations[i].puppet_master == this)
             war->attackers.push_back(&world.nations[i]);
     }
     war->attackers.push_back(this);
 
-    Eng3D::Log::debug("game", "Attackers");
-    for(const auto& attacker : war->attackers)
-        Eng3D::Log::debug("game", attacker->ref_name.get_string());
-
     // Recollect defenders
     // - Those who are on a defensive pact with the target
     // - Those who are allied with the target
+    // - And those who aren't already attacking
     for(Nation::Id i = 0; i < world.nations.size(); i++) {
         if(&world.nations[i] == this || &world.nations[i] == &nation) continue;
+        if(std::find(war->attackers.begin(), war->attackers.end(), &world.nations[i]) != war->attackers.end()) continue;
         const auto& relation = world.get_relation(i, world.get_id(nation));
         if(relation.has_alliance || relation.has_defensive_pact || world.nations[i].puppet_master == &nation)
-            war->attackers.push_back(&world.nations[i]);
+            war->defenders.push_back(&world.nations[i]);
     }
     war->defenders.push_back(&nation);
 
@@ -80,10 +77,8 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
             /// @todo A better way to make sure these two nations don't equal
             if(attacker == defender) continue;
             assert(attacker != defender);
-            if(attacker->puppet_master == defender)
-                attacker->puppet_master = nullptr;
-            else if(defender->puppet_master == attacker)
-                defender->puppet_master = nullptr;
+            if(attacker->puppet_master == defender) attacker->puppet_master = nullptr;
+            else if(defender->puppet_master == attacker) defender->puppet_master = nullptr;
             auto& relation = world.get_relation(world.get_id(*defender), world.get_id(*attacker));
             // Declare war
             relation.has_war = true;
@@ -93,9 +88,12 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
         }
     }
 
+    Eng3D::Log::debug("game", "Attackers");
+    for(const auto& attacker : war->attackers)
+        Eng3D::Log::debug("game", "\t" + attacker->ref_name.get_string());
     Eng3D::Log::debug("game", "Defenders");
     for(const auto& defender : war->defenders)
-        Eng3D::Log::debug("game", defender->ref_name.get_string());
+        Eng3D::Log::debug("game", "\t" + defender->ref_name.get_string());
     war->name = "War of " + this->name + " against " + nation.name;
     Eng3D::Log::debug("game", war->name.get_string());
     world.insert(*war);

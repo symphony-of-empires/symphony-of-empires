@@ -176,7 +176,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, con
         std::string text = "";
         size_t full = 0, needed = 0;
         text = "Needs ";
-        for(size_t i = 0; i < building.req_goods_for_unit.size(); i++) {
+        for(Good::Id i = 0; i < building.req_goods_for_unit.size(); i++) {
             auto need_req = building.req_goods_for_unit[i];
             auto full_req = building.working_unit_type->req_goods[i];
             full_req.second -= need_req.second;

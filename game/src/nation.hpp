@@ -153,10 +153,10 @@ public:
     float infamy = 0; // Level of infamy
     // 3 key scores used to define a nation's minimum prestige, how willing would the AI
     // be to challenge this nations and other valuable stuff
-    float military_score = 0, naval_score = 0, economy_score = 0;
+    float military_score = 0.f, naval_score = 0.f, economy_score = 0.f;
     // Total budget of the nation (money in ark), this is not equal to GDP, the GDP is the total sum of the price
     // of all products in the nation, which are volatile unless they are sold
-    float budget;
+    float budget = 0.f;
     // Default and can be disabled by the player
     bool ai_controlled = true;
     bool ai_do_cmd_troops = true;

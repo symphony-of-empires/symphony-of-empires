@@ -126,8 +126,7 @@ public:
     Province::Id province_id() const;
 
     float size; // Size of the unit (soldiers in unit)
-    // Base size of the unit (max size due to anti-attrition)
-    float base;
+    float base; // Base size of the unit (max size due to anti-attrition)
     float morale;
     float experience; // For perspective, 0.5 is the normal unit (i.e a soldier POP)
     float supply; // Available supplies, 1.0 is all supplies fullfilled, lower than that and the unit starts shrinking

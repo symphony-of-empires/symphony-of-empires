@@ -212,7 +212,7 @@ void update_factory_production(World& world, Building& building, BuildingType* b
     // TODO add output modifier
     // Calculate outputs
     auto output = building_type->output;
-    Product& output_product = province.products[world.get_id(*output)];
+    auto& output_product = province.products[world.get_id(*output)];
     auto output_price = output_product.price;
     auto output_amount = 1.f * building.production_scale;
 
@@ -228,11 +228,11 @@ void update_factory_production(World& world, Building& building, BuildingType* b
 
     // TODO add input modifier
     float inputs_cost = 0.f;
-    for(size_t i = 0; i < req_goods_size; i++) {
+    for(Good::Id i = 0; i < req_goods_size; i++) {
         auto input = building_type->req_goods[i];
         auto good = input.first;
         auto amount = input.second;
-        Product& product = province.products[world.get_id(*good)];
+        auto& product = province.products[world.get_id(*good)];
         auto price = product.price;
         inputs_cost += price * amount;
     }
@@ -241,8 +241,7 @@ void update_factory_production(World& world, Building& building, BuildingType* b
     auto profit = output_value - min_wage - inputs_cost;
 
     output_product.supply += output_amount;
-
-    for(size_t i = 0; i < req_goods_size; i++) {
+    for(Good::Id i = 0; i < req_goods_size; i++) {
         auto input = building_type->req_goods[i];
         auto good = input.first;
         auto amount = input.second;
@@ -354,8 +353,8 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             market.demand.reserve(world.provinces.size());
 
             for(size_t i = 0; i < world.provinces.size(); i++) {
-                Province& province = world.provinces[i];
-                Product& product = province.products[market.good];
+                auto& province = world.provinces[i];
+                auto& product = province.products[market.good];
                 market.demand[i] = 0.f;
                 if(Nation::is_valid(province.owner_id)) {
                     market.prices[i] = product.price;
@@ -374,15 +373,15 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world](const auto& markets_range) {
         for(auto& market : markets_range) {
             for(size_t i = 0; i < world.provinces.size(); i++) {
-                Province& province = world.provinces[i];
+                auto& province = world.provinces[i];
                 const size_t province_neighbours_size = province.neighbours.size();
-                Product& product = province.products[market.good];
+                auto& product = province.products[market.good];
                 if(product.supply <= 0.f) continue;
                 for(const auto neighbour_id : province.neighbours) {
                     auto& neighbour = g_world.provinces[neighbour_id];
                     if(Nation::is_valid(neighbour.owner_id)) continue;
                     const size_t neighbour_neighbours_size = neighbour.neighbours.size();
-                    Product& other_product = neighbour.products[market.good];
+                    auto& other_product = neighbour.products[market.good];
                     // Transfer goods
                     if(other_product.price > product.price) {
                         float amount = product.supply / province_neighbours_size;
@@ -420,7 +419,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     std::vector<std::vector<PopNeed>> pops_new_needs(world.provinces.size());
     tbb::parallel_for(tbb::blocked_range(province_ids.begin(), province_ids.end()), [&world, &buildings_new_worker, &province_new_units, &pops_new_needs](const auto province_ids_ranges) {
         for(const auto province_id : province_ids_ranges) {
-            Province& province = world.provinces[province_id];
+            auto& province = world.provinces[province_id];
             float laborers_payment = 0.f;
             for(auto& building_type : world.building_types) {
                 auto& building = province.buildings[world.get_id(building_type)];
@@ -461,18 +460,23 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                     auto it = std::find_if(province.pops.begin(), province.pops.end(), [&world, building, army_size](const auto& e) {
                         return (e.size >= army_size && world.pop_types[e.type_id].group == PopGroup::FARMER);
                     });
-                    if(it == province.pops.end())
-                        can_build_unit = false;
 
-                    if(can_build_unit) {
+                    if(it != province.pops.end()) {
+                        auto& nation = world.nations[province.owner_id];
+                        const auto final_size = std::min<float>((*it).size, army_size);
+                        const auto given_money = final_size;
+                        // Nation must have money to pay the units
+                        if(given_money >= nation.budget) continue;
+
                         /// @todo Maybe delete if size becomes 0?
-                        const float final_size = std::min<float>((*it).size, army_size);
                         (*it).size -= final_size;
                         if(final_size) {
+                            nation.budget -= given_money;
+
                             Unit unit;
                             unit.type = building.working_unit_type;
                             unit.owner_id = province.owner_id;
-                            unit.budget = 5000.f;
+                            unit.budget = given_money;
                             unit.experience = 1.f;
                             unit.morale = 1.f;
                             unit.supply = 1.f;
