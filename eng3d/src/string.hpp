@@ -110,6 +110,7 @@ namespace Eng3D {
         inline Eng3D::StringRef insert(const std::string& str) {
             const std::scoped_lock lock(this->strings_mutex);
             this->strings.push_back(str);
+            this->strings[this->strings.size() - 1].shrink_to_fit();
             return Eng3D::StringRef(this->strings.size() - 1);
         }
 

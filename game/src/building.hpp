@@ -111,7 +111,7 @@ public:
     bool can_build_unit() const;
 
     float build_time; // Remaining ticks until the unit is built
-    float budget = 0.f; // Total money that the factory has
+    float budget = 0; // Total money that the factory has
     float days_unoperational = 0; // Days that the factory has not been operational
     float level = 0; // Level/Capacity scale of the building
     float workers = 0; // Amount of workers

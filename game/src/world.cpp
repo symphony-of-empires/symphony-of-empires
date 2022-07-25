@@ -598,13 +598,7 @@ static inline void unit_do_tick(World& world, Unit& unit)
                 // Find war with both nations
                 const auto& other_unit_nation = world.nations[unit.owner_id];
                 auto wars_it = std::find_if(world.wars.begin(), world.wars.end(), [unit_nation, other_unit_nation](const auto& war) {
-                    if(war->is_attacker(unit_nation) && war->is_defender(other_unit_nation)) {
-                        return true;
-                    } else if(war->is_defender(unit_nation) && war->is_attacker(other_unit_nation)) {
-                        return true;
-                    } else {
-                        return false;
-                    }
+                    return war->is_involved(unit_nation) && war->is_involved(other_unit_nation);
                 });
                 // Since `relation.has_war` is true we have to find at least one war
                 assert(wars_it != world.wars.end());
