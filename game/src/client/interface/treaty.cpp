@@ -153,16 +153,16 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation& _nation)
     });
 }
 
-TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, const Treaty* _treaty)
+TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, const Treaty::Id _treaty_id)
     : UI::Window(0, 0, 512, 256),
     gs{ _gs },
-    treaty{ _treaty }
+    treaty_id{ _treaty_id }
 {
     this->is_scroll = true;
     this->text("Treaty proposal");
 
     this->body_txt = new UI::Text(0, 0, this->width, this->height - 24, this);
-    this->body_txt->text(treaty_to_text(*_treaty));
+    this->body_txt->text(treaty_to_text(this->gs.world->treaties[this->treaty_id]));
 
     auto* approve_btn = new UI::Button(0, 0, 128, 24, this);
     approve_btn->below_of(*this->body_txt);
@@ -171,7 +171,7 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, const Treaty* _treaty)
         Archive ar = Archive();
         ActionType action = ActionType::CHANGE_TREATY_APPROVAL;
         ::serialize(ar, &action);
-        ::serialize(ar, &this->treaty);
+        ::serialize(ar, &this->treaty_id);
         TreatyApproval approval = TreatyApproval::ACCEPTED;
         ::serialize(ar, &approval);
         this->gs.send_command(ar);
@@ -186,7 +186,7 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, const Treaty* _treaty)
         Archive ar = Archive();
         ActionType action = ActionType::CHANGE_TREATY_APPROVAL;
         ::serialize(ar, &action);
-        ::serialize(ar, &this->treaty);
+        ::serialize(ar, &this->treaty_id);
         TreatyApproval approval = TreatyApproval::DENIED;
         ::serialize(ar, &approval);
         this->gs.send_command(ar);

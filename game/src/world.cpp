@@ -298,9 +298,6 @@ void World::init_lua() {
 World::~World() {
     if(lua != nullptr)
         lua_close(lua);
-
-    for(auto& war : wars)
-        delete war;
 }
 
 static void lua_exec_all_of(World& world, const std::vector<std::string> files, const std::string& dir = "lua") {
@@ -555,44 +552,42 @@ static inline void unit_do_tick(World& world, Unit& unit)
     if(!unit.on_battle) {
         const auto& unit_nation = world.nations[unit.owner_id];
         // Get the first province_battles that we are involved in
-        auto prov_battles_it = std::find_if(unit_province.battles.begin(), unit_province.battles.end(), [unit_nation](const auto& e) {
-            return e.war->is_involved(unit_nation);
+        auto prov_battles_it = std::find_if(unit_province.battles.begin(), unit_province.battles.end(), [&unit_nation, &world](const auto& e) {
+            return world.wars[e.war_id].is_involved(unit_nation);
         });
-        if(prov_battles_it != unit_province.battles.end()) { // No battle on the current province, create a new one
-            // If there is a relevant battle in the province
-            // The unit joins the battle
+        if(prov_battles_it != unit_province.battles.end()) { 
+            // If there is a relevant battle in the province the unit joins the battle
             unit.on_battle = true;
             unit.stop_movement();
             auto& battle = *prov_battles_it;
 
-            // Add the unit to one side depending on who are we attacking
-            // However unit must not be already involved
+            // Add the unit to one side depending on who are we attacking however unit must not be already involved
             /// @todo Make it be instead depending on who attacked first in this battle
-            if(battle.war->is_attacker(world.nations[unit.owner_id])) {
-                assert(std::find(battle.attackers_ids.begin(), battle.attackers_ids.end(), world.get_id(unit)) == battle.attackers_ids.end());
+            assert(std::find(battle.attackers_ids.begin(), battle.attackers_ids.end(), world.get_id(unit)) == battle.attackers_ids.end());
+            assert(std::find(battle.defenders_ids.begin(), battle.defenders_ids.end(), world.get_id(unit)) == battle.defenders_ids.end());
+            if(world.wars[battle.war_id].is_attacker(world.nations[unit.owner_id])) {
                 battle.attackers_ids.push_back(unit.get_id());
                 Eng3D::Log::debug("game", "Adding unit <attacker> to battle of \"" + battle.name + "\"");
             } else {
-                assert(battle.war->is_defender(world.nations[unit.owner_id]));
-                assert(std::find(battle.defenders_ids.begin(), battle.defenders_ids.end(), world.get_id(unit)) == battle.defenders_ids.end());
+                assert(world.wars[battle.war_id].is_defender(world.nations[unit.owner_id]));
                 battle.defenders_ids.push_back(unit.get_id());
                 Eng3D::Log::debug("game", "Adding unit <defender> to battle of \"" + battle.name + "\"");
             }
-        } else { // Battle in province
-            // If there is no battle in the province
-            // Check if we can start a new battle
+        } else {
+            // No battle on the current province, create a new one so check if we can start a new battle
             const auto& unit_ids = world.unit_manager.get_province_units(prov_id);
-            for(const auto& other_unit_id : unit_ids) {
+            for(const auto other_unit_id : unit_ids) {
                 auto& other_unit = world.unit_manager.units[other_unit_id];
-                // Make sure the other unit isn't the same nation or already in battle
-                if(other_unit.owner_id == unit.owner_id || other_unit.on_battle) continue;
+                // Make sure the other unit isn't the same nation or already in battle, remember that if it's already
+                // in battle then we can't probably join
+                if(unit.owner_id == other_unit.owner_id || other_unit.on_battle) continue;
                 // Check relations, if we're at war we will attack this unit
                 const auto& relation = world.get_relation(unit.owner_id, other_unit.owner_id);
                 if(relation.has_war) {
                     // Find war with both nations
                     const auto& other_unit_nation = world.nations[unit.owner_id];
-                    auto wars_it = std::find_if(world.wars.begin(), world.wars.end(), [unit_nation, other_unit_nation](const auto& war) {
-                        return war->is_involved(unit_nation) && war->is_involved(other_unit_nation);
+                    auto wars_it = std::find_if(world.wars.begin(), world.wars.end(), [&unit_nation, &other_unit_nation](const auto& e) {
+                        return e.is_involved(unit_nation) && e.is_involved(other_unit_nation);
                     });
                     // Since `relation.has_war` is true we have to find at least one war
                     assert(wars_it != world.wars.end());
@@ -604,9 +599,9 @@ static inline void unit_do_tick(World& world, Unit& unit)
                     other_unit.on_battle = true;
                     other_unit.stop_movement();
                     // Create a new battle
-                    Battle battle(*war);
+                    Battle battle(war);
                     battle.name = "Battle of " + unit_province.name;
-                    if(war->is_attacker(world.nations[unit.owner_id])) {
+                    if(war.is_attacker(world.nations[unit.owner_id])) {
                         battle.attackers_ids.push_back(world.get_id(unit));
                         battle.defenders_ids.push_back(world.get_id(other_unit));
                     } else {
@@ -677,17 +672,15 @@ void World::do_tick() {
     profiler.start("Treaties");
     // Do the treaties clauses
     for(const auto& treaty : treaties) {
-        assert(treaty != nullptr);
-
         // Check that the treaty is agreed by all parties before enforcing it
-        bool on_effect = !(std::find_if(treaty->approval_status.begin(), treaty->approval_status.end(), [](auto& status) { return (status.second != TreatyApproval::ACCEPTED); }) != treaty->approval_status.end());
+        bool on_effect = !(std::find_if(treaty.approval_status.begin(), treaty.approval_status.end(), [](auto& status) { return (status.second != TreatyApproval::ACCEPTED); }) != treaty.approval_status.end());
         if(!on_effect) continue;
         // Check with treaty
-        if(!treaty->in_effect()) continue;
+        if(!treaty.in_effect()) continue;
 
         // Treaties clauses now will be enforced
-        Eng3D::Log::debug("game", "Enforcing treaty " + treaty->name);
-        for(auto& clause : treaty->clauses) {
+        Eng3D::Log::debug("game", "Enforcing treaty " + treaty.name);
+        for(auto& clause : treaty.clauses) {
             assert(clause != nullptr);
             if(clause->type == TreatyClauseType::MONEY) {
                 auto dyn_clause = static_cast<TreatyClause::WarReparations*>(clause);

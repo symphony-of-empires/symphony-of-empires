@@ -237,11 +237,11 @@ void Client::net_loop() {
                         province->buildings[world.get_id(*building_type)].level--;
                     } break;
                     case ActionType::TREATY_ADD: {
-                        Treaty* treaty = new Treaty();
-                        ::deserialize(ar, treaty);
-                        world.insert(*treaty);
-                        Eng3D::Log::debug("client", "New treaty from " + treaty->sender->ref_name);
-                        for(const auto& status : treaty->approval_status)
+                        Treaty treaty;
+                        ::deserialize(ar, &treaty);
+                        world.insert(treaty);
+                        Eng3D::Log::debug("client", "New treaty from " + treaty.sender->ref_name);
+                        for(const auto& status : treaty.approval_status)
                             Eng3D::Log::debug("client", ">" + status.first->ref_name);
                     } break;
                     case ActionType::WORLD_TICK: {

@@ -71,11 +71,23 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     }
     war->defenders.push_back(&nation);
 
+    /// @todo We have to remove these since some are duplicated
+    /// at the best case we should probably just put them on the attacking side?
+    /// or also we could just make it an event where everyone is involved yknow
+    for(auto attacker : war->attackers) {
+        for(size_t i = 0; i < war->defenders.size(); i++) {
+            if(attacker == war->defenders[i]) {
+                war->defenders.erase(war->defenders.begin() + i);
+                i--;
+                continue;
+            }
+        }
+    }
+
     // Attackers are at war with the defenders
     for(auto attacker : war->attackers) {
         for(auto defender : war->defenders) {
             assert(attacker != defender);
-
             if(attacker->puppet_master == defender) attacker->puppet_master = nullptr;
             else if(defender->puppet_master == attacker) defender->puppet_master = nullptr;
             

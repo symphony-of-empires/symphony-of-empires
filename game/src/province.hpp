@@ -43,19 +43,18 @@
 class World;
 class Nation;
 class TerrainType;
-class War;
 
 class Battle : public IdEntity<uint16_t> {
 public:
     Battle(War& war)
-        : war{ &war }
+        : war_id{ war.get_id() }
     {
 
     }
     ~Battle() {};
 
     Eng3D::StringRef name;
-    War* war = nullptr;
+    War::Id war_id = (War::Id)-1;
     float attacker_casualties = 0;
     float defender_casualties = 0;
     std::vector<uint16_t> attackers_ids;

@@ -494,27 +494,26 @@ void save(GameState& gs) {
     }
 }
 
-void handle_popups(std::vector<Event>& displayed_events, std::vector<Treaty*>& displayed_treaties, GameState& gs) {
+void handle_popups(std::vector<Event>& displayed_events, std::vector<Treaty::Id>& displayed_treaties, GameState& gs) {
     // Put popups
     // Event + Decision popups
     for(auto& msg : gs.curr_nation->inbox) {
         // Check that the event is not already displayed to the user
         auto iter = std::find_if(displayed_events.begin(), displayed_events.end(), [&msg](const auto& e) { return e.ref_name == msg.ref_name; });
         if(iter != displayed_events.end()) continue;
-
         new Interface::DecisionWindow(gs, msg);
         displayed_events.push_back(msg);
     }
 
     for(auto& treaty : gs.world->treaties) {
         // Check that the treaty is not already displayed
-        auto iter = std::find_if(displayed_treaties.begin(), displayed_treaties.end(), [&treaty](const auto& e) { return e == treaty; });
+        auto iter = std::find_if(displayed_treaties.begin(), displayed_treaties.end(), [&treaty](const auto& e) { return e == treaty.get_id(); });
         if(iter != displayed_treaties.end()) continue;
         // Do not mess with treaties we don't partake in, hehe
-        if(!treaty->does_participate(*gs.curr_nation)) continue;
+        if(!treaty.does_participate(*gs.curr_nation)) continue;
         // Must participate in treaty
-        new Interface::TreatyChooseWindow(gs, treaty);
-        displayed_treaties.push_back(treaty);
+        new Interface::TreatyChooseWindow(gs, treaty.get_id());
+        displayed_treaties.push_back(treaty.get_id());
     }
 }
 
@@ -702,7 +701,7 @@ void start_client(int argc, char** argv) {
     new Interface::MainMenu(gs);
 
     std::vector<Event> displayed_events;
-    std::vector<Treaty*> displayed_treaties;
+    std::vector<Treaty::Id> displayed_treaties;
     auto current_frame_time = std::chrono::system_clock::now();
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);

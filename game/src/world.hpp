@@ -170,9 +170,8 @@ public:
     CONST_LIST_FOR_LOCAL_TYPE(Province, provinces, std::vector);
     CONST_LIST_FOR_LOCAL_TYPE(Nation, nations, std::vector);
     LIST_FOR_LOCAL_TYPE(Event, events, std::vector);
-
-    LIST_FOR_TYPE(Treaty, treaties, std::vector);
-    LIST_FOR_TYPE(War, wars, std::vector);
+    LIST_FOR_LOCAL_TYPE(Treaty, treaties, std::vector);
+    LIST_FOR_LOCAL_TYPE(War, wars, std::vector);
     UnitManager unit_manager;
     ProvinceOwnershipManager province_manager;
 

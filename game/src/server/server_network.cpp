@@ -228,10 +228,8 @@ void Server::net_loop(int id) {
                 } break;
                 // Client changes it's approval on certain treaty
                 case ActionType::CHANGE_TREATY_APPROVAL: {
-                    Treaty* treaty = nullptr;
+                    Treaty* treaty;
                     ::deserialize(ar, &treaty);
-                    if(treaty == nullptr)
-                        throw ServerException("Treaty not found");
                     TreatyApproval approval;
                     ::deserialize(ar, &approval);
                     Eng3D::Log::debug("server", selected_nation->ref_name + " approves treaty " + treaty->name + " A=" + (approval == TreatyApproval::ACCEPTED ? "YES" : "NO"));
@@ -242,45 +240,45 @@ void Server::net_loop(int id) {
                 } break;
                 // Client sends a treaty to someone
                 case ActionType::DRAFT_TREATY: {
-                    Treaty* treaty = new Treaty();
-                    ::deserialize(ar, &treaty->clauses);
-                    ::deserialize(ar, &treaty->name);
-                    ::deserialize(ar, &treaty->sender);
+                    Treaty treaty;
+                    ::deserialize(ar, &treaty.clauses);
+                    ::deserialize(ar, &treaty.name);
+                    ::deserialize(ar, &treaty.sender);
                     // Validate data
-                    if(!treaty->clauses.size())
+                    if(!treaty.clauses.size())
                         throw ServerException("Clause-less treaty");
-                    if(treaty->sender == nullptr)
+                    if(treaty.sender == nullptr)
                         throw ServerException("Treaty has invalid ends");
                     // Obtain participants of the treaty
                     std::set<Nation*> approver_nations = std::set<Nation*>();
-                    for(auto& clause : treaty->clauses) {
+                    for(auto& clause : treaty.clauses) {
                         if(clause->receiver == nullptr || clause->sender == nullptr)
                             throw ServerException("Invalid clause receiver/sender");
                         approver_nations.insert(clause->receiver);
                         approver_nations.insert(clause->sender);
                     }
 
-                    Eng3D::Log::debug("server", "Participants of treaty " + treaty->name);
+                    Eng3D::Log::debug("server", "Participants of treaty " + treaty.name);
                     // Then fill as undecided (and ask nations to sign this treaty)
                     for(auto& nation : approver_nations) {
-                        treaty->approval_status.push_back(std::make_pair(nation, TreatyApproval::UNDECIDED));
+                        treaty.approval_status.push_back(std::make_pair(nation, TreatyApproval::UNDECIDED));
                         Eng3D::Log::debug("server", ">" + nation->ref_name);
                     }
 
                     // The sender automatically accepts the treaty (they are the ones who drafted it)
-                    for(auto& status : treaty->approval_status) {
+                    for(auto& status : treaty.approval_status) {
                         if(status.first == selected_nation) {
                             status.second = TreatyApproval::ACCEPTED;
                             break;
                         }
                     }
-                    g_world.insert(*treaty);
+                    g_world.insert(treaty);
                     // Rebroadcast to client
                     // We are going to add a treaty to the client
                     Archive tmp_ar = Archive();
                     action = ActionType::TREATY_ADD;
                     ::serialize(tmp_ar, &action);
-                    ::serialize(tmp_ar, treaty);
+                    ::serialize(tmp_ar, &treaty);
                     packet.data(tmp_ar.get_buffer(), tmp_ar.size());
                     broadcast(packet);
                 } break;

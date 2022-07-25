@@ -47,11 +47,11 @@ namespace Interface {
 
     class TreatyChooseWindow : public UI::Window {
         GameState& gs;
-        const Treaty* treaty;
+        const Treaty::Id treaty_id;
 
         UI::Text* body_txt;
         UI::Button* approve_btn,* deny_btn;
     public:
-        TreatyChooseWindow(GameState& gs, const Treaty* treaty);
+        TreatyChooseWindow(GameState& gs, const Treaty::Id treaty_id);
     };
 };
