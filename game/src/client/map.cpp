@@ -546,16 +546,16 @@ void Map::draw(GameState& gs) {
     Unit::Id unit_index = 0, battle_index = 0;
     for(auto& province : const_cast<World&>(world).provinces) {
         // Units
-        if(!gs.world->unit_manager.get_province_units(province.get_id()).empty()) {
+        const auto& province_units = this->world.unit_manager.get_province_units(province.get_id());
+        if(!province_units.empty()) {
             size_t total_stack_size = 0; // Calculate the total size of our stack
-            for(const auto unit_id : gs.world->unit_manager.get_province_units(province.get_id())) {
-                const auto& unit = gs.world->unit_manager.units[unit_id];
+            for(const auto unit_id : province_units) {
+                const auto& unit = this->world.unit_manager.units[unit_id];
                 total_stack_size += unit.size;
             }
 
             // Get first/topmost unit
-            const auto unit_id = gs.world->unit_manager.get_province_units(province.get_id())[0];
-            auto& unit = gs.world->unit_manager.units[unit_id];
+            auto& unit = gs.world->unit_manager.units[province_units[0]];
             bool has_widget = false;
             if((this->map_render->get_province_opt(province.get_id()) & 0x000000ff) == 0x000000ff) {
                 auto& camera = this->camera;
@@ -573,11 +573,8 @@ void Map::draw(GameState& gs) {
                 }
 
                 if(unit_visible) {
-                    if(unit_index < unit_widgets.size()) {
-                        this->unit_widgets[unit_index]->set_unit(unit);
-                    } else {
-                        this->unit_widgets.push_back(new Interface::UnitWidget(unit, *this, gs, this->map_ui_layer));
-                    }
+                    if(unit_index < unit_widgets.size()) this->unit_widgets[unit_index]->set_unit(unit);
+                    else this->unit_widgets.push_back(new Interface::UnitWidget(unit, *this, gs, this->map_ui_layer));
                     unit_index++;
                     has_widget = true;
                 }
@@ -609,13 +606,12 @@ void Map::draw(GameState& gs) {
                 }
                 war_battle_idx++;
             }
-
-            const auto& province_units = world.unit_manager.get_province_units(world.get_id(province));
+            
             if(!province_units.empty()) {
-                const auto& unit = world.unit_manager.units[province_units[0]];
+                const auto& unit = this->world.unit_manager.units[province_units[0]];
                 auto model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
                 if(Province::is_valid(unit.get_target_province_id())) {
-                    const auto& unit_target = world.provinces[unit.get_target_province_id()];
+                    const auto& unit_target = this->world.provinces[unit.get_target_province_id()];
                     const auto target_pos = unit_target.get_pos();
                     const auto dist = glm::sqrt(glm::pow(glm::abs(prov_pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(prov_pos.y - target_pos.y), 2.f));
                     auto line_square = Eng3D::Square(0.f, 0.f, dist, 0.5f);
@@ -626,7 +622,7 @@ void Map::draw(GameState& gs) {
                 }
                 model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
                 obj_shader->set_uniform("model", model);
-                unit_type_models[world.get_id(*unit.type)]->draw(*obj_shader);
+                unit_type_models[this->world.get_id(*unit.type)]->draw(*obj_shader);
             }
         }
     }
@@ -639,13 +635,9 @@ void Map::draw(GameState& gs) {
 
     // Unit movement lines
     gs.world->unit_manager.for_each_unit([&gs] (Unit& unit) {
-        if (gs.curr_nation && unit.owner_id != gs.curr_nation->get_id()) 
-            return;
-        
+        if(gs.curr_nation && unit.owner_id != gs.curr_nation->get_id())  return;
         const auto& path = unit.get_path();
-
     });
-
 
     // Buildings
     for(const auto& province : world.provinces) {
