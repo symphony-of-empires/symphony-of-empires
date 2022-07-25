@@ -131,11 +131,8 @@ Eng3D::OpenGL::FragmentShader::FragmentShader(const std::string& _buffer, bool u
 
 }
 
-/**
- * @brief Links the whole program into itself, all attached shaders that were
- * previously given to this program will be linked (hopefully) by OpenGL.
- *
- */
+/// @brief Links the whole program into itself, all attached shaders that were
+/// previously given to this program will be linked (hopefully) by OpenGL.
 void Eng3D::OpenGL::Program::link() {
     assert(id != 0); // Program has no Id
     glLinkProgram(id);

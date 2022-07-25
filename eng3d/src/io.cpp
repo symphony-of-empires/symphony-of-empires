@@ -120,12 +120,9 @@ Eng3D::IO::PackageManager::PackageManager(Eng3D::State& _s, const std::vector<st
     }
 }
 
-/**
- * @brief Obtaining an unique asset means the "first-found" policy applies
- *
- * @param path The path to obtain
- * @return std::shared_ptr<Eng3D::IO::Asset::Base> Obtained asset object
- */
+/// @brief Obtaining an unique asset means the "first-found" policy applies
+/// @param path The path to obtain
+/// @return std::shared_ptr<Eng3D::IO::Asset::Base> Obtained asset object
 std::shared_ptr<Eng3D::IO::Asset::Base> Eng3D::IO::PackageManager::get_unique(const Eng3D::IO::Path& path) {
     std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> list = this->get_multiple(path);
     if(list.empty())
@@ -133,13 +130,10 @@ std::shared_ptr<Eng3D::IO::Asset::Base> Eng3D::IO::PackageManager::get_unique(co
     return list.at(0);
 }
 
-/**
- * @brief Obtains multiple assets iff they share a common path (useful for concating
- * files that might clash, such as lua scripts)
- *
- * @param path
- * @return std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>>
- */
+/// @brief Obtains multiple assets iff they share a common path (useful for concating
+/// files that might clash, such as lua scripts)
+/// @param path
+/// @return std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>>
 std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> Eng3D::IO::PackageManager::get_multiple(const Eng3D::IO::Path& path) {
     std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> list;
     for(const auto& package : this->packages) {
@@ -151,12 +145,9 @@ std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> Eng3D::IO::PackageManager::
     return list;
 }
 
-/**
- * @brief Obtains all assets starting with a given prefix
- *
- * @param prefix The prefix to check for
- * @return std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>>
- */
+/// @brief Obtains all assets starting with a given prefix
+/// @param prefix The prefix to check for
+/// @return std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>>
 std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> Eng3D::IO::PackageManager::get_multiple_prefix(const Eng3D::IO::Path& prefix) {
     std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> list;
     for(const auto& package : this->packages) {
@@ -168,12 +159,9 @@ std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> Eng3D::IO::PackageManager::
     return list;
 }
 
-/**
- * @brief Obtain all the paths that are currently under the management of a package, that is
- * return the absolute root directory of all packages
- *
- * @return std::vector<std::string> The list of paths
- */
+/// @brief Obtain all the paths that are currently under the management of a package, that is
+/// return the absolute root directory of all packages
+/// @return std::vector<std::string> The list of paths
 std::vector<std::string> Eng3D::IO::PackageManager::get_paths(void) const {
     std::vector<std::string> paths;
     for(const auto& package : this->packages)

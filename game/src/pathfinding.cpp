@@ -36,17 +36,13 @@
 #include <glm/trigonometric.hpp>
 #include <glm/geometric.hpp>
 
-/**
- * Checks whether the given coordinates are within bounds for the given world
- */
+/// @brief Checks whether the given coordinates are within bounds for the given world
 static constexpr bool coord_in_bounds(const World& world, int x, int y) {
     return y >= 0 && (size_t)y < world.height;
 }
 
-/**
- * Calculates the neighbors for a given Tile. The neighbors are the 8 tiles around
- * it, while taking into account the map bounds.
- */
+/// @brief Calculates the neighbors for a given Tile. The neighbors are the 8 tiles around
+/// it, while taking into account the map bounds.
 static std::vector<Province::Id> generate_neighbors(const World& world, const Nation& nation, Province::Id province_id) {
     const Province& province = world.provinces[province_id];
 
@@ -60,7 +56,7 @@ static std::vector<Province::Id> generate_neighbors(const World& world, const Na
         // // Check that we can diplomatically pass thru their lands
         // // Our own lands and lands without owners are automatically passable
         // if(neighbour.owner_id != nation.get_id() && neighbour.owner_id != (Nation::Id)-1) {
-        //     const NationRelation& relation = world.nations[neighbour->owner_id]->relations[nation_id];
+        //     const auto& relation = world.nations[neighbour->owner_id]->relations[nation_id];
 
         //     // Does not have military acces AND does not have alliance AND is not at war
         //     // Means the country is neutral towards us and we can't cross there
@@ -98,10 +94,8 @@ static inline float euclidean_distance(const Province& province1, const Province
     return distance;
 }
 
-/**
- * Calculates the cost accrued by moving from one tile to another, taking into
- * account elevation and infrastructure.
- */
+///@brief Calculates the cost accrued by moving from one tile to another, taking into
+/// account elevation and infrastructure.
 static inline float tile_cost(const World& world, Province::Id t1, Province::Id t2) {
     const Province& prov_1 = world.provinces[t1];
     const Province& prov_2 = world.provinces[t2];
@@ -111,10 +105,8 @@ static inline float tile_cost(const World& world, Province::Id t1, Province::Id 
     return distance;
 }
 
-/**
- * Finds the path between the given start and end tiles with the given world configuration
- * Implements the A* algorithm with euclidean distance as heuristic.
- */
+/// @brief Finds the path between the given start and end tiles with the given world configuration
+/// @brief Implements the A* algorithm with euclidean distance as heuristic.
 std::vector<Province::Id> Pathfind::unit_path(const World& world, const Nation& nation, Province::Id start, Province::Id end) {
     // We can't go to sea
     //if(start->elevation <= world.sea_level && end->elevation <= world.sea_level) {
@@ -148,20 +140,16 @@ std::vector<Province::Id> Pathfind::unit_path(const World& world, const Nation& 
 
         // If the current node has been previously visited, 
         // it's optimal cost has already been calculated, and we can skip it  
-        if(visited.count(current))
-            continue;
-
+        if(visited.count(current)) continue;
         visited.insert(current);
 
         // We are done
-        if(current == end)
-            break;
+        if(current == end) break;
 
         // Generate neighbours
         for(const auto neighbor : generate_neighbors(world, nation, current)) {
             // If the neighbor is visited, we already have the optimal path to it
-            if(visited.count(neighbor))
-                continue;
+            if(visited.count(neighbor)) continue;
 
             const float cost = cost_map[current] + tile_cost(world, current, neighbor);
 

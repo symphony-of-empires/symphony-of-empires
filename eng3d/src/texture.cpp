@@ -96,8 +96,8 @@ Eng3D::Texture::~Texture() {
     }
 }
 
-// This dummy texture helps to avoid crashes due to missing buffers or so, and also gives
-// visual aid of errors
+/// @brief This dummy texture helps to avoid crashes due to missing buffers or so, and also gives
+/// visual aid of errors
 void Eng3D::Texture::create_dummy() {
     width = 8;
     height = 8;
@@ -111,11 +111,8 @@ void Eng3D::Texture::create_dummy() {
         buffer.get()[i] = 0xff000000 | (i * 16);
 }
 
-/**
- * @brief Frontend for uploading (schedules or instantly uploads)
- * 
- * @param options Options for upload
- */
+/// @brief Frontend for uploading (schedules or instantly uploads)
+/// @param options Options for upload
 void Eng3D::Texture::upload(TextureOptions options) {
     auto& s = Eng3D::State::get_instance();
     if(options.instant_upload || !managed) {

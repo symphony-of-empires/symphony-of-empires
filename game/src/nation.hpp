@@ -58,8 +58,8 @@ public:
     constexpr NationRelation() = default;
     ~NationRelation() = default;
 
-    float relation = 0.f;
-    float interest = 0.f;
+    char relation = 0;
+    char interest = 0;
     bool has_embargo = false;
     bool has_war = false;
     bool has_alliance = false;

@@ -55,38 +55,26 @@ namespace Eng3D {
 
         ~Rectangle() = default;
 
-        /**
-         * @brief Obtains the width
-         * 
-         * @return float Width of the rectangle
-         */
+        /// @brief Obtains the width
+        /// @return float Width of the rectangle
         constexpr float width() const {
             return right - left;
         }
 
-        /**
-         * @brief Obtains the height
-         * 
-         * @return float Height of the rectangle
-         */
+        /// @brief Obtains the height
+        /// @return float Height of the rectangle
         constexpr float height() const {
             return bottom - top;
         }
 
-        /**
-         * @brief Obtains the current size of the rectangle
-         * 
-         * @return glm::vec2 The size of the rectangle
-         */
+        /// @brief Obtains the current size of the rectangle
+        /// @return glm::vec2 The size of the rectangle
         constexpr glm::vec2 size() const {
             return glm::vec2{ right - left, bottom - top };
         }
 
-        /**
-         * @brief Sets the size of the rectangle
-         * 
-         * @param size Size to set it to
-         */
+        /// @brief Sets the size of the rectangle
+        /// @param size Size to set it to
         constexpr void size(glm::vec2 size) {
             right = left + size.x;
             bottom = top + size.y;
@@ -97,20 +85,14 @@ namespace Eng3D {
             size(glm::vec2(x, y));
         }
 
-        /**
-         * @brief Obtains the current position of the rectangle
-         * 
-         * @return glm::vec2 The base position
-         */
+        /// @brief Obtains the current position of the rectangle
+        /// @return glm::vec2 The base position
         constexpr glm::vec2 position() const {
             return glm::vec2{ left, top };
         }
 
-        /**
-         * @brief Sets the base position of the rectangle, modifying it's size
-         * 
-         * @param position Position to set
-         */
+        /// @brief Sets the base position of the rectangle, modifying it's size
+        /// @param position Position to set
         constexpr void position(glm::vec2 position) {
             left = position.x;
             top = position.y;
@@ -121,11 +103,8 @@ namespace Eng3D {
             position(glm::vec2(x, y));
         }
 
-        /**
-         * @brief Scales the rectangle by factor
-         * 
-         * @param factor Factor to scale rectangle by
-         */
+        /// @brief Scales the rectangle by factor
+        /// @param factor Factor to scale rectangle by
         constexpr void scale(glm::vec2 factor) {
             left *= factor.x;
             top *= factor.y;
@@ -138,11 +117,8 @@ namespace Eng3D {
             scale(glm::vec2(x, y));
         }
 
-        /**
-         * @brief Offset the rectangle by the given parameter
-         * 
-         * @param offset Offset to apply to the rectangle
-         */
+        /// @brief Offset the rectangle by the given parameter
+        /// @param offset Offset to apply to the rectangle
         constexpr void offset(glm::vec2 offset) {
             left += offset.x;
             top += offset.y;
@@ -155,13 +131,10 @@ namespace Eng3D {
             offset(glm::vec2(x, y));
         }
 
-        /**
-         * @brief Checks if the rectangle is in bounds
-         * 
-         * @param pos Position to check (rectangle must cover this point)
-         * @return true Rectangle not in bounds
-         * @return false Rectangle is in bounds
-         */
+        /// @brief Checks if the rectangle is in bounds
+        /// @param pos Position to check (rectangle must cover this point)
+        /// @return true Rectangle not in bounds
+        /// @return false Rectangle is in bounds
         constexpr bool in_bounds(glm::vec2 pos) const {
             return (pos.x >= left && pos.x <= right && pos.y >= top && pos.y <= bottom);
         }
@@ -171,31 +144,25 @@ namespace Eng3D {
             return in_bounds(glm::vec2(x, y));
         }
 
-        /**
-         * @brief Obtains the intersection rectangle from two other rectangles R1 and R2
-         * 
-         * @param rect Second rectangle to perform the intersection for
-         * @return Rectangle Intersection area rectangle
-         */
+        /// @brief Obtains the intersection rectangle from two other rectangles R1 and R2
+        /// @param rect Second rectangle to perform the intersection for
+        /// @return Rectangle Intersection area rectangle
         constexpr Rectangle intersection(const Rectangle& rect) const {
-            const float i_left = glm::max(this->left, rect.left);
-            const float i_top = glm::max(this->top, rect.top);
-            const float i_right = glm::min(this->right, rect.right);
-            const float i_bottom = glm::min(this->bottom, rect.bottom);
+            const auto i_left = glm::max(this->left, rect.left);
+            const auto i_top = glm::max(this->top, rect.top);
+            const auto i_right = glm::min(this->right, rect.right);
+            const auto i_bottom = glm::min(this->bottom, rect.bottom);
             return Eng3D::Rectangle{ i_left, i_top, i_right - i_left, i_bottom - i_top };
         }
 
-        /**
-         * @brief Obtains the intersection rectangle from two other rectangles R1 and R2
-         * 
-         * @param rect Second rectangle to perform the intersection for
-         * @return Rectangle Intersection area rectangle
-         */
+        /// @brief Obtains the intersection rectangle from two other rectangles R1 and R2
+        /// @param rect Second rectangle to perform the intersection for
+        /// @return Rectangle Intersection area rectangle
         constexpr Rectangle join(const Rectangle& rect) const {
-            const float i_left = glm::min(this->left, rect.left);
-            const float i_top = glm::min(this->top, rect.top);
-            const float i_right = glm::max(this->right, rect.right);
-            const float i_bottom = glm::max(this->bottom, rect.bottom);
+            const auto i_left = glm::min(this->left, rect.left);
+            const auto i_top = glm::min(this->top, rect.top);
+            const auto i_right = glm::max(this->right, rect.right);
+            const auto i_bottom = glm::max(this->bottom, rect.bottom);
             return Eng3D::Rectangle{ i_left, i_top, i_right - i_left, i_bottom - i_top };
         }
     };

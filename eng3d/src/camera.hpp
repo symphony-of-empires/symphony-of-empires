@@ -34,13 +34,13 @@
 namespace Eng3D {
     class Camera {
     protected:
-        /// The cameras position on the map, where the Z-axis is the zoom
+        /// @brief The cameras position on the map, where the Z-axis is the zoom
         glm::vec3 map_position;
-        /// The cameras world position
+        /// @brief The cameras world position
         glm::vec3 world_position;
-        /// The size of the screen
+        /// @brief The size of the screen
         glm::vec2 screen_size;
-        /// The size of the map
+        /// @brief The size of the map
         glm::vec2 map_size;
     public:
         float fov = 45.0f, near_plane = 1.0f, far_plane = 20000.0f;
@@ -65,55 +65,52 @@ namespace Eng3D {
 
         virtual ~Camera() = default;
 
-        /// Set the width and height of the screen.
+        /// @brief Set the width and height of the screen.
         inline void set_screen(const int width, const int height) {
             screen_size = glm::vec2(width, height);
         }
 
-        /// Move the camera in the specified direction. Uses the map coordinate system, where the Z-axis is the map zoom.
+        /// @brief Move the camera in the specified direction. Uses the map coordinate system, where the Z-axis is the map zoom.
         virtual void move(float x_dir, float y_dir, float z_dir) = 0;
 
-        /// Set the map position of the camera.
+        /// @brief Set the map position of the camera.
         virtual void set_pos(float x, float y) = 0;
 
-        /// Get the map position of the camera.
+        /// @brief Get the map position of the camera.
         virtual glm::vec3 get_map_pos() const = 0;
 
-        /// Get the world positions of the camera.
+        /// @brief Get the world positions of the camera.
         inline glm::vec3 get_world_pos() const {
             return world_position;
         }
 
-        /// Get the size of the map.
+        /// @brief Get the size of the map.
         inline glm::vec2 get_map_size() const {
             return map_size;
         }
 
-        /// Update the movement of the camera. Used for smooth camera movement.
+        /// @brief Update the movement of the camera. Used for smooth camera movement.
         virtual void update() = 0;
 
-        /// Get the projection matrix.
+        /// @brief Get the projection matrix.
         virtual glm::mat4 get_projection() const {
             const float aspect_ratio = screen_size.x / screen_size.y;
             return glm::perspective(glm::radians(fov), aspect_ratio, near_plane, far_plane);
-        };
+        }
 
-        /// Get the view matrix.
+        /// @brief Get the view matrix.
         virtual glm::mat4 get_view() const = 0;
 
-        /** Get the cursors position on the map.
-         * 
-         * @param mouse_pos the cursor position on the screen
-         * @param out_pos where the cursor position on the map is written to
-         * 
-         * @returns true if the the cursor is inside the map otherwise false
-         */
+        /// @brief Get the cursors position on the map.
+        /// @param mouse_pos the cursor position on the screen
+        /// @param out_pos where the cursor position on the map is written to
+        /// @returns true if the the cursor is inside the map otherwise false
         virtual bool get_cursor_map_pos(glm::ivec2 mouse_pos, glm::ivec2& out_pos) const = 0;
 
-        /// Get the tiles world position.
+        /// @brief Get the tiles world position.
         virtual glm::vec3 get_tile_world_pos(glm::vec2 tile_pos) const = 0;
 
-        /// Get the tiles position on the screen
+        /// @brief Get the tiles position on the screen
         virtual glm::vec2 get_tile_screen_pos(glm::vec2 tile_pos) const {
             auto world_pos = get_tile_world_pos(tile_pos);
             auto v = get_projection() * get_view() * glm::vec4(world_pos, 1);
@@ -121,6 +118,6 @@ namespace Eng3D {
             screen_pos.y *= -1;
             screen_pos = (0.5f * (screen_pos + 1.f)) * screen_size;
             return screen_pos;
-        };
+        }
     };
 };

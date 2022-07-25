@@ -31,10 +31,7 @@
 #include <mutex>
 
 namespace Eng3D {
-    /**
-     * @brief A reference to a string on the global string pool
-     * 
-     */
+    /// @brief A reference to a string on the global string pool
     class StringRef {
     public:
         using Id = uint16_t;
@@ -85,28 +82,25 @@ namespace Eng3D {
     inline std::string operator+(const char *lhs, const StringRef& rhs)
     {
         return std::string(lhs) + rhs.get_string();
-    };
+    }
 
     inline std::string operator+(const StringRef& lhs, const char *rhs)
     {
         return lhs.get_string() + rhs;
-    };
+    }
 
     inline std::string operator+(const std::string& lhs, const StringRef& rhs)
     {
         return std::string(lhs) + rhs.get_string();
-    };
+    }
 
     inline std::string operator+(const StringRef& lhs, const std::string& rhs)
     {
         return lhs.get_string() + rhs;
-    };
+    }
 
-    /**
-     * @brief The string pool manager (singleton), used mainly for translation
-     * purpouses. But also helps to reduce the memory size of various objects.
-     * 
-     */
+    /// @brief The string pool manager (singleton), used mainly for translation
+    /// purpouses. But also helps to reduce the memory size of various objects.
     class StringManager {
         std::vector<std::string> strings;
     public:
@@ -125,7 +119,6 @@ namespace Eng3D {
         }
 
         static StringManager& get_instance();
-
         mutable std::mutex strings_mutex;
     };
 };

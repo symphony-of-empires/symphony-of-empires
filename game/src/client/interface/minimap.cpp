@@ -301,8 +301,8 @@ mapmode_generator relations_map_mode(Nation::Id id) {
                 continue;
             }
 
-            const uint8_t r = (rel.relation < 0.f) ? -rel.relation : 0.f;
-            const uint8_t g = (rel.relation > 0.f) ? rel.relation : 0.f;
+            const uint8_t r = (rel.relation < 0) ? -rel.relation : 0;
+            const uint8_t g = (rel.relation > 0) ? rel.relation : 0;
             const uint8_t b = g;
             Eng3D::Color color = Eng3D::Color::rgba32(bswap32(~(0x00000000 | (b << 24) | (r << 16) | (g << 8))));
             provinces_color.push_back(ProvinceColor(i, color));
@@ -354,7 +354,7 @@ mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
                 "friendly"
             };
 
-            int idx = ((rel.relation + 200.f) / (200.f * 2.f)) * rel_lvls.size();
+            int idx = ((rel.relation + 100) / (100 * 2)) * rel_lvls.size();
             str += std::to_string(rel.relation) + "(" + rel_lvls[idx % rel_lvls.size()] + ")";
 
             int ally_cnt = 0;

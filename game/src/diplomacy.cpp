@@ -32,16 +32,16 @@
 using namespace Diplomacy;
 
 inline bool Diplomacy::is_friend(Nation& us, Nation& them) {
-    const NationRelation& relation = g_world.get_relation(g_world.get_id(us), g_world.get_id(them));
+    const auto& relation = g_world.get_relation(g_world.get_id(us), g_world.get_id(them));
     // High enough relation with the threshold means it is friendly
-    if(relation.relation >= 50.f) {
+    if(relation.relation >= 50) {
         return true;
     } else {
         // The interest is greater than the relation, that means whatever the relation has
         // is now cancelled out
         if(relation.interest >= relation.relation) {
             // Can't be friendly with negative relations
-            if(relation.relation <= 0.f) return false;
+            if(relation.relation <= 0) return false;
             // Need to be interested enough to friend them
             if(relation.relation >= relation.interest / relation.relation) return true;
         }

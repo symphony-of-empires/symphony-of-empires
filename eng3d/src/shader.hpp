@@ -56,11 +56,8 @@ namespace Eng3D {
 
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     namespace OpenGL {
-        /**
-         * @brief Option that is passed to the GLSL transpiler for preprocessing
-         * the shaders and programming them on the fly.
-         * 
-         */
+        /// @brief Option that is passed to the GLSL transpiler for preprocessing
+        /// the shaders and programming them on the fly.
         class Option {
             std::string _option;
         public:
@@ -79,10 +76,7 @@ namespace Eng3D {
             }
         };
 
-        /**
-         * @brief OpenGL shader object
-         * 
-         */
+        /// @brief OpenGL shader object
         class Shader {
         private:
             void compile(GLuint type);
@@ -92,10 +86,8 @@ namespace Eng3D {
         public:
             Shader(const std::string& _buffer, GLuint type, bool use_transpiler = true, std::vector<Eng3D::OpenGL::GLSL_Define> defintions = {});
             
-            /**
-             * @brief Destroy the Shader object, dditionaly we have to delete the shader from the OpenGL driver by calling glDeleteShader
-             * 
-             */
+            /// @brief Destroy the Shader object, dditionaly we have to delete the
+            /// shader from the OpenGL driver by calling glDeleteShader
             inline ~Shader() {
                 if(id)
                     glDeleteShader(id);
@@ -155,12 +147,9 @@ namespace Eng3D {
 
             void link();
 
-            /**
-             * @brief Attaches a shader to the program - this will make it so when the program
-             * is compiled the shader will then be linked onto it and usable for the GPU.
-             * 
-             * @param shader Shader to attach
-             */
+            /// @brief Attaches a shader to the program - this will make it so when the program
+            /// is compiled the shader will then be linked onto it and usable for the GPU.
+            /// @param shader Shader to attach
             inline void attach_shader(const Shader& shader) {
                 glAttachShader(id, shader.get_id());
             }
@@ -207,7 +196,7 @@ namespace Eng3D {
                 glUniform1i(glGetUniformLocation(id, name.c_str()), value);
             }
 
-            // Sets the texture (sampler2D) into the shader,
+            /// @brief Sets the texture (sampler2D) into the shader,
             inline void set_texture(int value, const std::string& name, const Eng3D::Texture& texture) const {
                 glActiveTexture(GL_TEXTURE0 + value);
                 set_uniform(name, value);

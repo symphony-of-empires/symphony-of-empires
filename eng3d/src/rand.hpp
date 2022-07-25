@@ -31,10 +31,7 @@
 #define rot32(x, k) (((x) << (k)) | ((x) >> (32 - (k))))
 
 namespace Eng3D {
-    /**
-     * @brief Thread safe random number generator
-     * 
-     */
+    /// @brief Thread safe random number generator
     class Rand {
     private:
         uint32_t a = 0, b = 0, c = 0, d = 0;
@@ -69,20 +66,14 @@ namespace Eng3D {
 
         }
 
-        /**
-         * @brief Obtains the maximum generable number
-         * 
-         * @return constexpr uint32_t 
-         */
+        /// @brief Obtains the maximum generable number
+        /// @return constexpr uint32_t 
         constexpr static uint32_t max() {
             return std::numeric_limits<uint32_t>::max();
         }
         
-        /**
-         * @brief Obtains the minimum generable number
-         * 
-         * @return constexpr uint32_t 
-         */
+        /// @brief Obtains the minimum generable number
+        /// @return constexpr uint32_t 
         constexpr static uint32_t min() {
             return std::numeric_limits<uint32_t>::min();
         }

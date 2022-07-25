@@ -36,36 +36,23 @@ namespace Eng3D {
     class ThreadPool {
         // An atomic all idling threads use
         std::atomic<bool> running;
-
         // While std::thread is not copy-able, the std::vector STL container
         // allows for movable elements instead. keep this in mind when a bug happens
         std::vector<std::thread> threads;
-
         // Queues are suited for the job here, since first-requested-jobs
         // should have higher priority than the last one, this allows sequential
         // completion of tasks
         std::queue<std::function<void()>> jobs;
-
-        // Our mutex for preventing race conditions on the queue above
-        std::mutex job_mutex;
-
-        // Called when job is added
-        std::condition_variable cv_task;
-        // Called when job is finished
-        std::condition_variable cv_finished;
-
-        // Amount of threads currently working
-        size_t busy = 0;
+        std::mutex job_mutex; // Our mutex for preventing race conditions on the queue above
+        std::condition_variable cv_task; // Called when job is added
+        std::condition_variable cv_finished; // Called when job is finished
+        size_t busy = 0; // Amount of threads currently working
     public:
-        /**
-         * @brief Construct a new Thread Pool object, this initializes threads for the pool
-         * 
-         */
+        /// @brief Construct a new Thread Pool object, this initializes threads for the pool
         ThreadPool() {
             // It's a good idea to use as many threads as the hardware implementation
             // supports. Otherwise we can run into performance hits.
             const size_t n_threads = (size_t)std::thread::hardware_concurrency();
-
             this->running = true;
 
             //this->threads = std::vector<std::thread>(n_threads, th);
@@ -77,10 +64,7 @@ namespace Eng3D {
             // We now have our threads running at this point - waiting for jobs to take
         }
 
-        /**
-         * @brief Destroy the Thread Pool, closing all the pending jobs
-         * 
-         */
+        /// @brief Destroy the Thread Pool, closing all the pending jobs
         ~ThreadPool() {
             // We are going to signal all threads to shutdown
             std::unique_lock<std::mutex> latch(job_mutex);
@@ -94,22 +78,16 @@ namespace Eng3D {
                 (*job).join();
         }
 
-        /**
-         * @brief Adds a job to the list of pending jobs
-         * 
-         * @param job 
-         */
+        /// @brief Adds a job to the list of pending jobs
+        /// @param job Job to add to the queue
         void add_job(std::function<void()> job) {
             const std::scoped_lock lock(job_mutex);
             jobs.push(job);
             cv_task.notify_one();
         }
 
-        /**
-         * @brief This loop is executed on each thread on the thread list, what this basically does
-         * is to check in the list of available jobs for jobs we can take
-         * 
-         */
+        /// @brief This loop is executed on each thread on the thread list, what this basically does
+        /// is to check in the list of available jobs for jobs we can take
         void thread_loop() {
             while(true) {
                 std::unique_lock<std::mutex> latch(job_mutex);
@@ -134,10 +112,7 @@ namespace Eng3D {
             }
         }
 
-        /**
-         * @brief Waits until the job list is empty
-         * 
-         */
+        /// @brief Waits until the job list is empty
         void wait_finished() {
             std::unique_lock<std::mutex> lock(job_mutex);
             cv_finished.wait(lock, [this]() {

@@ -46,9 +46,9 @@ public:
     }
 };
 
-// This binary image class helps load images and visual resources from the disk; the
-// binary image IS NOT a texture, it is intended to be used in contextes which are
-// NOT rendering - for rendering purpouses see texture class from client's implementation
+/// @brief This binary image class helps load images and visual resources from the disk; the
+/// binary image IS NOT a texture, it is intended to be used in contextes which are
+/// NOT rendering - for rendering purpouses see texture class from client's implementation
 class BinaryImage {
 public:
     BinaryImage() = default;
@@ -59,13 +59,10 @@ public:
     virtual ~BinaryImage() = default;
     virtual void from_file(const Eng3D::IO::Path& path);
 
-    /**
-     * @brief Obtains a pixel from the binary image
-     * 
-     * @param x X coordinate
-     * @param y Y coordinate
-     * @return uint32_t The colour
-     */
+    /// @brief Obtains a pixel from the binary image
+    /// @param x X coordinate
+    /// @param y Y coordinate
+    /// @return uint32_t The colour
     inline Eng3D::Color get_pixel(size_t x, size_t y) const {
         return Eng3D::Color::rgba32(buffer[x + y * width]);
     }

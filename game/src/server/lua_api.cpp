@@ -396,26 +396,26 @@ int LuaAPI::set_nation_primary_culture(lua_State*) {
 }
 
 int LuaAPI::set_nation_capital(lua_State* L) {
-    Nation& nation = g_world.nations.at(lua_tonumber(L, 1));
+    auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     nation.capital_id = lua_tonumber(L, 2);
     return 0;
 }
 
 int LuaAPI::add_accepted_culture(lua_State* L) {
-    Nation& nation = g_world.nations.at(lua_tonumber(L, 1));
+    auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     nation.culture_discrim.at(lua_tonumber(L, 2)) = 1.f;
     return 0;
 }
 
 int LuaAPI::add_accepted_religion(lua_State* L) {
-    Nation& nation = g_world.nations.at(lua_tonumber(L, 1));
+    auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     nation.religion_discrim.at(lua_tonumber(L, 2)) = 1.f;
     return 0;
 }
 
 int LuaAPI::add_nation_client_hint(lua_State* L) {
-    Nation& nation = g_world.nations.at(lua_tonumber(L, 1));
-    NationClientHint hint;
+    auto& nation = g_world.nations.at(lua_tonumber(L, 1));
+    NationClientHint hint{};
     hint.ideology = &g_world.ideologies.at(lua_tonumber(L, 2));
     hint.alt_name = luaL_checkstring(L, 3);
     hint.color = bswap32(lua_tonumber(L, 4)) >> 8;
@@ -425,10 +425,10 @@ int LuaAPI::add_nation_client_hint(lua_State* L) {
 }
 
 int LuaAPI::get_nation_policies(lua_State* L) {
-    const Nation& nation = g_world.nations.at(lua_tonumber(L, 1));
+    const auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     // We are going to push everything in the policies structure
     // this is horrible - reflection may help in this case
-    const Policies& policy = nation.current_policy;
+    const auto& policy = nation.current_policy;
     lua_pushnumber(L, policy.treatment);
     lua_pushnumber(L, policy.migration);
     lua_pushnumber(L, policy.immigration);
@@ -462,10 +462,10 @@ int LuaAPI::get_nation_policies(lua_State* L) {
 }
 
 int LuaAPI::set_nation_policies(lua_State* L) {
-    Nation& nation = g_world.nations.at(lua_tonumber(L, 1));
+    auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     // We are going to push everything in the policies structure
     // this is horrible - reflection may help in this case
-    Policies& policy = nation.current_policy;
+    auto& policy = nation.current_policy;
     policy.treatment = static_cast<TreatmentPolicy>(lua_tonumber(L, 1));
     policy.migration = static_cast<AllowancePolicy>(lua_tonumber(L, 2));
     policy.immigration = static_cast<AllowancePolicy>(lua_tonumber(L, 3));
@@ -499,17 +499,17 @@ int LuaAPI::set_nation_policies(lua_State* L) {
 }
 
 int LuaAPI::set_nation_ideology(lua_State* L) {
-    Nation& nation = g_world.nations.at(lua_tonumber(L, 1));
+    auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     nation.ideology = &g_world.ideologies.at(lua_tonumber(L, 2));
     return 0;
 }
 
 int LuaAPI::get_nation_relation(lua_State* L) {
-    Nation& nation = g_world.nations.at(lua_tonumber(L, 1));
-    Nation& other_nation = g_world.nations.at(lua_tonumber(L, 2));
+    auto& nation = g_world.nations.at(lua_tonumber(L, 1));
+    auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
     auto& relation = g_world.get_relation(g_world.get_id(nation), g_world.get_id(other_nation));
-    lua_pushnumber(L, (relation.relation));
-    lua_pushnumber(L, (relation.interest));
+    lua_pushnumber(L, relation.relation);
+    lua_pushnumber(L, relation.interest);
     lua_pushboolean(L, relation.has_embargo);
     lua_pushboolean(L, relation.has_war);
     lua_pushboolean(L, relation.has_alliance);
@@ -523,8 +523,8 @@ int LuaAPI::set_nation_relation(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
     auto& relation = g_world.get_relation(g_world.get_id(nation), g_world.get_id(other_nation));
-    relation.relation = (lua_tonumber(L, 3));
-    relation.interest = (lua_tonumber(L, 4));
+    relation.relation = lua_tonumber(L, 3);
+    relation.interest = lua_tonumber(L, 4);
     relation.has_embargo = lua_toboolean(L, 5);
     relation.has_war = false;
     relation.has_alliance = lua_toboolean(L, 6);
@@ -1718,15 +1718,12 @@ int LuaAPI::ui_call_builtin(lua_State* L) {
     return 0;
 }
 
-/**
- * @brief Some UI functions are hardcoded, for example the main menu is hardcoded
- * to appear when the game starts, in order to mantain scriptability we just invoke
- * functions coded in lua
- * 
- * @param L 
- * @param name 
- * @return int 
- */
+/// @brief Some UI functions are hardcoded, for example the main menu is hardcoded
+/// to appear when the game starts, in order to mantain scriptability we just invoke
+/// functions coded in lua
+/// @param L 
+/// @param name 
+/// @return int 
 void LuaAPI::invoke_registered_callback(lua_State* L, const std::string& name) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, lua_ui_callbacks[name]);
     if(call_func(L, 0, 0)) {

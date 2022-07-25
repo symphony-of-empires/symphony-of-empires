@@ -41,7 +41,7 @@
 /// @todo Make some form of "WarParticipationRequest" so we don't force allies to join
 // and we also make sure betrayals are possible
 void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> clauses) {
-    World& world = World::get_instance();
+    auto& world = World::get_instance();
     auto* war = new War();
 
     Eng3D::Log::debug("game", ref_name + " has declared war on " + nation.ref_name);
@@ -84,7 +84,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
             relation.has_war = true;
             relation.has_alliance = false;
             relation.has_defensive_pact = false;
-            relation.relation = -200.f;
+            relation.relation = -100;
         }
     }
 
@@ -100,14 +100,14 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
 }
 
 bool Nation::is_ally(const Nation& nation) const {
-    const World& world = World::get_instance();
+    const auto& world = World::get_instance();
     const auto& relation = world.get_relation(world.get_id(*this), world.get_id(nation));
     if(relation.has_war) return false;
     return true;
 }
 
 bool Nation::is_enemy(const Nation& nation) const {
-    const World& world = World::get_instance();
+    const auto& world = World::get_instance();
     const auto& relation = world.get_relation(world.get_id(*this), world.get_id(nation));
     if(relation.has_war) return true;
     return false;
@@ -131,19 +131,17 @@ inline bool Nation::can_do_diplomacy() const {
 }
 
 void Nation::increase_relation(Nation& target) {
-    World& world = World::get_instance();
+    auto& world = World::get_instance();
     auto& relation = world.get_relation(world.get_id(*this), world.get_id(target));
-
-    relation.relation += 5.f;
+    relation.relation += 5;
     Eng3D::Log::debug("game", ref_name + " increases relations with " + target.ref_name);
     this->do_diplomacy();
 }
 
 void Nation::decrease_relation(Nation& target) {
-    World& world = World::get_instance();
+    auto& world = World::get_instance();
     auto& relation = world.get_relation(world.get_id(*this), world.get_id(target));
-
-    relation.relation -= 5.f;
+    relation.relation -= 5;
     Eng3D::Log::debug("game", ref_name + " decreases relations with " + target.ref_name);
     this->do_diplomacy();
 }
@@ -151,7 +149,7 @@ void Nation::decrease_relation(Nation& target) {
 // Automatically relocates the capital of a nation to another province
 // Use this when a treaty makes a nation lose it's capital
 void Nation::auto_relocate_capital() {
-    const World& world = World::get_instance();
+    const auto& world = World::get_instance();
     auto best_candidate = std::max_element(owned_provinces.begin(), owned_provinces.end(), [&world](const auto& lhs, const auto& rhs) {
         return world.provinces[lhs].total_pops() < world.provinces[rhs].total_pops();
     });
@@ -331,7 +329,7 @@ void Nation::change_research_focus(const Technology& technology) {
 }
 
 std::vector<Nation*> Nation::get_allies() {
-    World& world = World::get_instance();
+    auto& world = World::get_instance();
 
     std::vector<Nation*> list;
     for(auto& nation : world.nations) {
@@ -430,12 +428,12 @@ float Nation::get_luxury_needs_met_mod() {
     float c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->luxury_needs_met_mod;
-    return ((1.f));
+    return 1.f;
 }
 
 float Nation::get_immigration_attraction_mod() {
     float c = 1.f;
     for(const auto& mod : modifiers)
         c += mod->immigration_attraction;
-    return ((1.f));
+    return 1.f;
 }

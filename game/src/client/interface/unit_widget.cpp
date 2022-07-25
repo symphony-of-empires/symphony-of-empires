@@ -98,7 +98,7 @@ void UnitWidget::set_unit(Unit& _unit) {
 
     // Paint according to relations
     if(gs.curr_nation != nullptr && _unit.owner_id != gs.curr_nation->get_id()) {
-        const NationRelation& relation = gs.world->get_relation(gs.world->get_id(*gs.curr_nation), _unit.owner_id);
+        const auto& relation = gs.world->get_relation(gs.world->get_id(*gs.curr_nation), _unit.owner_id);
         if(relation.has_alliance) {
             this->size_label->background_color = Eng3D::Color::rgba8(0x1e, 0x80, 0x0f, 0x80);
         } else if(relation.has_war) {

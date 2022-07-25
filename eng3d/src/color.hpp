@@ -27,12 +27,9 @@
 
 #include <cstdint>
 
-// Maybe make it a template so it could be either float or uint8_t
+/// @todo Maybe make it a template so it could be either float or uint8_t
 namespace Eng3D {
-    /**
-     * @brief Primitive color type used through the engine
-     * 
-     */
+    /// @brief Primitive color type used through the engine
     class Color {
     public:
         float r = 0.f, g = 0.f, b = 0.f;
@@ -58,37 +55,28 @@ namespace Eng3D {
 
         ~Color() = default;
 
-        /**
-         * @brief Create a color from RGBA components
-         * 
-         * @param red Red component
-         * @param green Green component
-         * @param blue Blue component
-         * @param alpha Alpha component
-         * @return Color Resulting color
-         */
+        /// @brief Create a color from RGBA components
+        /// @param red Red component
+        /// @param green Green component
+        /// @param blue Blue component
+        /// @param alpha Alpha component
+        /// @return Color Resulting color
         constexpr static Color rgba8(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) {
             return Color(red / 256.f, green / 256.f, blue / 256.f, alpha / 256.f);
         }
 
-        /**
-         * @brief Create a color from RGB components
-         * 
-         * @param red Red component
-         * @param green Green component
-         * @param blue Blue component
-         * @return Color Resulting color
-         */
+        /// @brief Create a color from RGB components
+        /// @param red Red component
+        /// @param green Green component
+        /// @param blue Blue component
+        /// @return Color Resulting color
         constexpr static Color rgb8(uint8_t red, uint8_t green, uint8_t blue) {
             return Color(red / 256.f, green / 256.f, blue / 256.f);
         }
 
-        /**
-         * @brief Create a color from RGBA32 components
-         * 
-         * @param argb The ARGB32 color
-         * @return Color Resulting color
-         */
+        /// @brief Create a color from RGBA32 components
+        /// @param argb The ARGB32 color
+        /// @return Color Resulting color
         constexpr static Color rgba32(uint32_t argb) {
             float a = ((argb >> 24) & 0xff) / 256.f;
             float b = ((argb >> 16) & 0xff) / 256.f;
@@ -97,11 +85,8 @@ namespace Eng3D {
             return Color(r, g, b, a);
         }
 
-        /**
-         * @brief Get the raw value of the color
-         * 
-         * @return uint32_t The raw value
-         */
+        /// @brief Get the raw value of the color
+        /// @return uint32_t The raw value
         constexpr uint32_t get_value() const {
             uint8_t alpha = static_cast<uint8_t>(a * 256);
             uint8_t red = static_cast<uint8_t>(r * 256);
@@ -111,14 +96,11 @@ namespace Eng3D {
             return color;
         }
 
-        /**
-         * @brief Combine two colors with LERP
-         * 
-         * @param color1 Color 1
-         * @param color2 Color 2
-         * @param lamda Intensity of merge in respect to Color 2
-         * @return Color Resulting color
-         */
+        /// @brief Combine two colors with LERP
+        /// @param color1 Color 1
+        /// @param color2 Color 2
+        /// @param lamda Intensity of merge in respect to Color 2
+        /// @return Color Resulting color
         constexpr static Color lerp(Color color1, Color color2, float lamda) {
             const float r = color1.r * (1 - lamda) + color2.r * lamda;
             const float g = color1.g * (1 - lamda) + color2.g * lamda;
