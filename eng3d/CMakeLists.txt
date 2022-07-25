@@ -181,11 +181,11 @@ IF(NOT E3D_VENDORED)
 	include_directories(${ASSIMP_INCLUDE_DIRS})
 	target_link_libraries(eng3d PRIVATE ${ASSIMP_LIBRARIES})
 
-	#IF(E3D_BACKEND_OPENGL)
-	#	find_package(GLEW REQUIRED)
-	#	include_directories(${GLEW_INCLUDE_DIRS})
-	#	link_libraries(${GLEW_LIBRARIES})
-	#ENDIF()
+	IF(E3D_BACKEND_OPENGL)
+		find_package(GLEW REQUIRED)
+		include_directories(${GLEW_INCLUDE_DIRS})
+		link_libraries(${GLEW_LIBRARIES})
+	ENDIF()
 ENDIF()
 
 #
