@@ -229,29 +229,51 @@ void Eng3D::OpenGL::GLSL_Context::parser() {
     funcs.push_back(fn);
 
     // Register all the overloads for this function
-    std::vector<std::string> mix_strings = { "vec2", "vec3", "vec4", "sampler2D" };
-    for(auto it1 = mix_strings.begin(); it1 != mix_strings.end(); it1++) {
-        for(auto it2 = mix_strings.begin(); it2 != mix_strings.end(); it2++) {
+    std::vector<std::string> vec_types = { "vec2", "vec3", "vec4", "sampler2D" };
+    std::vector<std::string> vec_and_sample_types = { "vec2", "vec3", "vec4", "sampler2D" };
+
+    for(const auto& it1 : vec_and_sample_types) {
+        for(const auto& it2 : vec_and_sample_types) {
             fn = GLSL_Function();
             fn.name = "mix";
             fn.ret_type = "vec4";
-            fn.args.push_back(std::make_pair(*it1, "x"));
-            fn.args.push_back(std::make_pair(*it2, "y"));
-            fn.args.push_back(std::make_pair("float", "z"));
+            fn.args.push_back(std::make_pair(it1, "x"));
+            fn.args.push_back(std::make_pair(it2, "y"));
+            fn.args.push_back(std::make_pair("float", "weight"));
             funcs.push_back(fn);
         }
     }
 
     fn = GLSL_Function();
     fn.name = "clamp";
-    fn.ret_type = "float";
-    fn.args.push_back(std::make_pair("float", "num"));
-    fn.args.push_back(std::make_pair("float", "min"));
-    fn.args.push_back(std::make_pair("float", "max"));
+    for(const auto& it1 : vec_types) {
+        fn.ret_type = it1;
+        fn.args.push_back(std::make_pair(it1, "num"));
+        fn.args.push_back(std::make_pair(it1, "min"));
+        fn.args.push_back(std::make_pair(it1, "max"));
+    }
     funcs.push_back(fn);
 
-    for(auto it = tokens.begin(); it != tokens.end(); it++) {
-        if(it->type == GLSL_TokenType::ASSIGN) {
+    fn = GLSL_Function();
+    fn.name = "min";
+    for(const auto& it1 : vec_types) {
+        fn.ret_type = it1;
+        fn.args.push_back(std::make_pair(it1, "x"));
+        fn.args.push_back(std::make_pair(it1, "y"));
+    }
+    funcs.push_back(fn);
+
+    fn = GLSL_Function();
+    fn.name = "max";
+    for(const auto& it1 : vec_types) {
+        fn.ret_type = it1;
+        fn.args.push_back(std::make_pair(it1, "x"));
+        fn.args.push_back(std::make_pair(it1, "y"));
+    }
+    funcs.push_back(fn);
+
+    for(const auto& tok : tokens) {
+        if(tok.type == GLSL_TokenType::ASSIGN) {
 
         }
     }
