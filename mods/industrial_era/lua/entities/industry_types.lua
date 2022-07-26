@@ -29,85 +29,85 @@
 glass_factory = IndustryType:new{ ref_name = "glass_factory", name = _("Glass factory") }
 glass_factory:register()
 -- glass factories can new glass from thin air
-glass_factory:add_output(glass)
+glass_factory:add_output(Good:get("glass"))
 
 oil_refinery = IndustryType:new{ ref_name = "oil_refinery", name = _("Oil refinery") }
 oil_refinery:register()
 -- thin air oil, i think the air needs some democracy!
-oil_refinery:add_output(oil)
+oil_refinery:add_output(Good:get("oil"))
 
 lumberjack = IndustryType:new{ ref_name = "lumberjack", name = _("Lumberjack") }
 lumberjack:register()
 -- same logic here
-lumberjack:add_output(timber)
+lumberjack:add_output(Good:get("timber"))
 
 vineyard = IndustryType:new{ ref_name = "vineyard", name = _("Vineyard") }
 vineyard:register()
-vineyard:add_output(grapes)
+vineyard:add_output(Good:get("grapes"))
 
 wheat_farm = IndustryType:new{ ref_name = "wheat_farm", name = _("Wheat farm") }
 wheat_farm:register()
-wheat_farm:add_output(wheat)
+wheat_farm:add_output(Good:get("wheat"))
 
 rice_farm = IndustryType:new{ ref_name = "rice_farm", name = _("Rice farm") }
 rice_farm:register()
-rice_farm:add_output(rice)
+rice_farm:add_output(Good:get("rice"))
 
 cotton_farm = IndustryType:new{ ref_name = "cotton_farm", name = _("Cotton farm") }
 cotton_farm:register()
-cotton_farm:add_output(cotton)
+cotton_farm:add_output(Good:get("cotton"))
 
 -- Mines can new stuff from thin air, but don't worry because this is
 -- not abuse-ble
 coal_mine = IndustryType:new{ ref_name = "coal_mine", name = _("Coal mine") }
 coal_mine:register()
-coal_mine:add_output(coal)
+coal_mine:add_output(Good:get("coal"))
 
 copper_mine = IndustryType:new{ ref_name = "copper_mine", name = _("Copper mine") }
 copper_mine:register()
-copper_mine:add_output(copper)
+copper_mine:add_output(Good:get("copper"))
 
 iron_mine = IndustryType:new{ ref_name = "iron_mine", name = _("Iron mine") }
 iron_mine:register()
-iron_mine:add_output(iron)
+iron_mine:add_output(Good:get("iron"))
 
 gold_mine = IndustryType:new{ ref_name = "gold_mine", name = _("Gold mine") }
 gold_mine:register()
-gold_mine:add_output(gold)
+gold_mine:add_output(Good:get("gold"))
 
 sulphur_mine = IndustryType:new{ ref_name = "sulphur_mine", name = _("Sulfur mine") }
 sulphur_mine:register()
-sulphur_mine:add_output(sulphur)
+sulphur_mine:add_output(Good:get("sulphur"))
 
 -- Secondary sector industries (now the fun begins)
 iron_smelter = IndustryType:new{ ref_name = "iron_smelter", name = _("Iron smelter") }
 iron_smelter:register()
-iron_smelter:add_input(iron)
-iron_smelter:add_input(coal)
-iron_smelter:add_output(steel)
+iron_smelter:add_input(Good:get("iron"))
+iron_smelter:add_input(Good:get("coal"))
+iron_smelter:add_output(Good:get("steel"))
 
 ammunition_factory = IndustryType:new{ ref_name = "ammunition_factory", name = _("Ammunition factory") }
 ammunition_factory:register()
-ammunition_factory:add_input(sulphur)
-ammunition_factory:add_input(coal)
-ammunition_factory:add_input(steel)
-ammunition_factory:add_output(ammunition)
+ammunition_factory:add_input(Good:get("sulphur"))
+ammunition_factory:add_input(Good:get("coal"))
+ammunition_factory:add_input(Good:get("steel"))
+ammunition_factory:add_output(Good:get("ammunition"))
 
 arms_factory = IndustryType:new{ ref_name = "arms_factory", name = _("Arms factory") }
 arms_factory:register()
-arms_factory:add_input(timber)
-arms_factory:add_input(ammunition)
-arms_factory:add_output(arms)
+arms_factory:add_input(Good:get("timber"))
+arms_factory:add_input(Good:get("ammunition"))
+arms_factory:add_output(Good:get("arms"))
 
 sails_factory = IndustryType:new{ ref_name = "sails_factory", name = _("Sails factory") }
 sails_factory:register()
-sails_factory:add_input(dye)
-sails_factory:add_input(timber)
-sails_factory:add_input(fabric)
-sails_factory:add_output(sail)
+sails_factory:add_input(Good:get("dye"))
+sails_factory:add_input(Good:get("timber"))
+sails_factory:add_input(Good:get("fabric"))
+sails_factory:add_output(Good:get("sail"))
 
 -- Food factories
 bakery = IndustryType:new{ ref_name = "bakery", name = _("Bakery") }
 bakery:register()
-bakery:add_input(wheat)
-bakery:add_output(bread)
+bakery:add_input(Good:get("wheat"))
+bakery:add_output(Good:get("bread"))

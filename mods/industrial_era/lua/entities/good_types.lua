@@ -25,94 +25,30 @@
 
 -- Good types
 -- Farmable stuff
-wheat = Good:new{ ref_name = "wheat" }
-wheat.name = _("Wheat")
-wheat:register()
-grapes = Good:new{ ref_name = "grapes" }
-grapes.name = _("Grapes")
-grapes:register()
-rice = Good:new{ ref_name = "rice" }
-rice.name = _("Rice")
-rice:register()
-cotton = Good:new{ ref_name = "cotton" }
-cotton.name = _("Cotton")
-cotton:register()
-coffee = Good:new{ ref_name = "coffee" }
-coffee.name = _("Coffe bean")
-coffee:register()
-
--- Industrial materials
-fuel = Good:new{ ref_name = "fuel" }
-fuel.name = _("Fuel")
-fuel:register()
-silk = Good:new{ ref_name = "silk" }
-silk.name = _("Silk")
-silk:register()
-glass = Good:new{ ref_name = "glass" }
-glass.name = _("Glass")
-glass:register()
-fabric = Good:new{ ref_name = "fabric" }
-fabric.name = _("Fabric")
-fabric:register()
-dye = Good:new{ ref_name = "dye" }
-dye.name = _("Dye")
-dye:register()
-
--- Military stuff
-arms = Good:new{ ref_name = "arms" }
-arms.name = _("Arms")
-arms:register()
-ammunition = Good:new{ ref_name = "ammunition" }
-ammunition.name = _("Ammunition")
-ammunition:register()
-sail = Good:new{ ref_name = "sail" }
-sail.name = _("Sail")
-sail:register()
-
--- Minerals
-copper = Good:new{ ref_name = "copper" }
-copper.name = _("Copper")
-copper:register()
-gold = Good:new{ ref_name = "gold" }
-gold.name = _("Gold")
-gold:register()
-iron = Good:new{ ref_name = "iron" }
-iron.name = _("Iron")
-iron:register()
-oil = Good:new{ ref_name = "oil" }
-oil.name = _("Oil")
-oil:register()
-timber = Good:new{ ref_name = "timber" }
-timber.name = _("Timber")
-timber:register()
-coal = Good:new{ ref_name = "coal" }
-coal.name = _("Coal")
-coal:register()
-sulphur = Good:new{ ref_name = "sulphur" }
-sulphur.name = _("Sulfur")
-sulphur:register()
-steel = Good:new{ ref_name = "steel" }
-steel.name = _("Steel bean")
-steel:register()
-
--- Food
-bread = Good:new{ ref_name = "bread" }
-bread.name = _("Bread")
-bread:register()
-salt = Good:new{ ref_name = "salt" }
-salt.name = _("Salt")
-salt:register()
-
--- Commodities
-wine = Good:new{ ref_name = "wine" }
-wine.name = _("Wine")
-wine:register()
-alcohol = Good:new{ ref_name = "alcohol" }
-alcohol.name = _("Alcohol")
-alcohol:register()
-opium = Good:new{ ref_name = "opium" }
-opium.name = _("Opium")
-opium:register()
-spices = Good:new{ ref_name = "spices" }
-spices.name = _("Spices")
-spices:register()
+Good:new{ref_name="wheat",name=_("Wheat")}:register()
+Good:new{ref_name="grapes",name=_("Grapes")}:register()
+Good:new{ref_name="rice",name=_("Rice")}:register()
+Good:new{ref_name="cotton",name=_("Cotton")}:register()
+Good:new{ref_name="coffee",name=_("Coffe bean")}:register()
+Good:new{ref_name="fuel",name=_("Fuel")}:register()
+Good:new{ref_name="silk",name=_("Silk")}:register()
+Good:new{ref_name="glass",name=_("Glass")}:register()
+Good:new{ref_name="fabric",name=_("Fabric")}:register()
+Good:new{ref_name="dye",name=_("Dye")}:register()
+Good:new{ref_name="arms",name=_("Arms")}:register()
+Good:new{ref_name="ammunition",name=_("Ammunition")}:register()
+Good:new{ref_name="sail",name=_("Sail")}:register()
+Good:new{ref_name="copper",name=_("Copper")}:register()
+Good:new{ref_name="gold",name=_("Gold")}:register()
+Good:new{ref_name="iron",name=_("Iron")}:register()
+Good:new{ref_name="oil",name=_("Oil")}:register()
+Good:new{ref_name="timber",name=_("Timber")}:register()
+Good:new{ref_name="coal",name=_("Coal")}:register()
+Good:new{ref_name="sulphur",name=_("Sulfur")}:register()
+Good:new{ref_name="steel",name=_("Steel bean")}:register()
+Good:new{ref_name="bread",name=_("Bread")}:register()
+Good:new{ref_name="salt",name=_("Salt")}:register()
+Good:new{ref_name="wine",name=_("Wine")}:register()
+Good:new{ref_name="alcohol",name=_("Alcohol")}:register()
+Good:new{ref_name="opium",name=_("Opium")}:register()
+Good:new{ref_name="spices",name=_("Spices")}:register()

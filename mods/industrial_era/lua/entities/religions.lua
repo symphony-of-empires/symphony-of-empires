@@ -24,47 +24,12 @@
 -- ----------------------------------------------------------------------------
 
 -- Religion
-protestant = Religion:new{ ref_name = "protestant" }
-protestant.name = _("Protestant")
-protestant.color = 0x610b96
-protestant:register()
-
-christian = Religion:new{ ref_name = "christian" }
-christian.name = _("Christian")
-christian.color = 0xe8de97
-christian:register()
-
-orthodox = Religion:new{ ref_name = "orthodox" }
-orthodox.name = _("Orthodox")
-orthodox.color = 0xf5db1b
-orthodox:register()
-
-islamic = Religion:new{ ref_name = "islamic" }
-islamic.name = _("Islamic")
-islamic.color = 0x487a4b
-islamic:register()
-
-buddhist = Religion:new{ ref_name = "buddhist" }
-buddhist.name = _("Buddhist")
-buddhist.color = 0xf5db1b
-buddhist:register()
-
-hinduism = Religion:new{ ref_name = "hinduism" }
-hinduism.name = _("Hinduism")
-hinduism.color = 0x1c9fc7
-hinduism:register()
-
-taoism = Religion:new{ ref_name = "taoism" }
-taoism.name = _("Taoism")
-taoism.color = 0x1c9fc7
-taoism:register()
-
-atheist = Religion:new{ ref_name = "atheist" }
-atheist.name = _("Atheist")
-atheist.color = 0xd2a5d4
-atheist:register()
-
-other = Religion:new{ ref_name = "other" }
-other.name = _("Other")
-other.color = 0x616161
-other:register()
+Religion:new{ref_name="protestant",name=_("Protestant"),color=0x610b96}:register()
+Religion:new{ref_name="christian",name=_("Christian"),color=0xe8de97}:register()
+Religion:new{ref_name="orthodox",name=_("Orthodox"),color=0xf5db1b}:register()
+Religion:new{ref_name="islamic",name=_("Islamic"),color=0x487a4b}:register()
+Religion:new{ref_name="buddhist",name=_("Buddhist"),color=0xf5db1b}:register()
+Religion:new{ref_name="hinduism",name=_("Hinduism"),color=0x1c9fc7}:register()
+Religion:new{ref_name="taoism",name=_("Taoism"),color=0x1c9fc7}:register()
+Religion:new{ref_name="atheist",name=_("Atheist"),color=0xd2a5d4}:register()
+Religion:new{ref_name="other",name=_("Other"),color=0x616161}:register()
