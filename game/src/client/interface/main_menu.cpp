@@ -63,13 +63,11 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
 
     ip_addr_inp = new UI::Input(0, 0, 128, 24, this);
     ip_addr_inp->set_buffer("127.0.0.1");
-    ip_addr_inp->tooltip = new UI::Tooltip(this->ip_addr_inp, 512, 24);
-    ip_addr_inp->tooltip->text("IP Address of the server");
+    ip_addr_inp->set_tooltip("IP Address of the server");
 
     username_inp = new UI::Input(0, 24, 512, 24, this);
     username_inp->set_buffer("Player");
-    username_inp->tooltip = new UI::Tooltip(this->username_inp, 512, 24);
-    username_inp->tooltip->text("Your publicly visible username");
+    username_inp->set_tooltip("Your publicly visible username");
 
     conn_btn = new UI::Button(0, 48, 128, 24, this);
     conn_btn->text("Connect");

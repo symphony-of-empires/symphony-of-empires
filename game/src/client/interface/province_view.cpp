@@ -366,8 +366,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
         this->econ_tab->is_render = false;
         this->build_tab->is_render = false;
     });
-    pop_ibtn->tooltip = new UI::Tooltip(pop_ibtn, 512, 24);
-    pop_ibtn->tooltip->text("Population");
+    pop_ibtn->set_tooltip("Population");
 
     this->econ_tab = new ProvinceEconomyTab(gs, 0, 32, province, this);
     this->econ_tab->is_render = false;
@@ -378,8 +377,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
         this->econ_tab->is_render = true;
         this->build_tab->is_render = false;
     });
-    econ_ibtn->tooltip = new UI::Tooltip(econ_ibtn, 512, 24);
-    econ_ibtn->tooltip->text("Economy");
+    econ_ibtn->set_tooltip("Economy");
 
     this->build_tab = new ProvinceBuildingTab(gs, 0, 32, province, this);
     this->build_tab->is_render = false;
@@ -390,8 +388,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
         this->econ_tab->is_render = false;
         this->build_tab->is_render = true;
     });
-    build_ibtn->tooltip = new UI::Tooltip(build_ibtn, 512, 24);
-    build_ibtn->tooltip->text("Buildings");
+    build_ibtn->set_tooltip("Buildings");
 
     if(gs.editor) {
         rename_inp = new UI::Input(0, this->height - (64 + 24), 128, 24, this);

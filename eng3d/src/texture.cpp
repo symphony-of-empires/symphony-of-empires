@@ -143,8 +143,7 @@ void Eng3D::Texture::upload(SDL_Surface* surface) {
 
 void Eng3D::Texture::_upload(TextureOptions options) {
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
-    if(gl_tex_num)
-        delete_gputex();
+    if(gl_tex_num) delete_gputex();
 
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);

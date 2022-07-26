@@ -186,9 +186,8 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, con
         }
 
         ((UI::ProgressBar&)w).set_value((float)full / (float)needed);
-        w.tooltip->text(text);
+        w.set_tooltip(text);
     });
-    progress_pgbar->tooltip = new UI::Tooltip(progress_pgbar, 512, 24);
     progress_pgbar->on_each_tick(*progress_pgbar);
 }
 
@@ -232,8 +231,7 @@ ArmyView::ArmyView(GameState& _gs)
         this->production_tab->is_render = false;
         this->new_unit_tab->is_render = false;
     });
-    army_ibtn->tooltip = new UI::Tooltip(army_ibtn, 512, 24);
-    army_ibtn->tooltip->text(Eng3D::Locale::translate("Army"));
+    army_ibtn->set_tooltip(Eng3D::Locale::translate("Army"));
 
     this->airforce_tab = new ArmyAirforceTab(gs, 0, 32, this);
     this->airforce_tab->is_render = false;
@@ -246,8 +244,7 @@ ArmyView::ArmyView(GameState& _gs)
         this->production_tab->is_render = false;
         this->new_unit_tab->is_render = false;
     });
-    airforce_ibtn->tooltip = new UI::Tooltip(airforce_ibtn, 512, 24);
-    airforce_ibtn->tooltip->text(Eng3D::Locale::translate("Airforce"));
+    airforce_ibtn->set_tooltip(Eng3D::Locale::translate("Airforce"));
 
     this->navy_tab = new ArmyNavyTab(gs, 0, 32, this);
     this->navy_tab->is_render = false;
@@ -260,8 +257,7 @@ ArmyView::ArmyView(GameState& _gs)
         this->production_tab->is_render = false;
         this->new_unit_tab->is_render = false;
     });
-    navy_ibtn->tooltip = new UI::Tooltip(navy_ibtn, 512, 24);
-    navy_ibtn->tooltip->text(Eng3D::Locale::translate("Navy"));
+    navy_ibtn->set_tooltip(Eng3D::Locale::translate("Navy"));
 
     this->production_tab = new ArmyProductionTab(gs, 0, 32, this);
     this->production_tab->is_render = false;
@@ -274,8 +270,7 @@ ArmyView::ArmyView(GameState& _gs)
         this->production_tab->is_render = true;
         this->new_unit_tab->is_render = false;
     });
-    production_ibtn->tooltip = new UI::Tooltip(production_ibtn, 512, 24);
-    production_ibtn->tooltip->text(Eng3D::Locale::translate("Production"));
+    production_ibtn->set_tooltip(Eng3D::Locale::translate("Production"));
 
     this->new_unit_tab = new ArmyNewUnitTab(gs, 0, 32, this);
     this->new_unit_tab->is_render = false;
@@ -288,6 +283,5 @@ ArmyView::ArmyView(GameState& _gs)
         this->production_tab->is_render = false;
         this->new_unit_tab->is_render = true;
     });
-    new_unit_ibtn->tooltip = new UI::Tooltip(new_unit_ibtn, 512, 24);
-    new_unit_ibtn->tooltip->text(Eng3D::Locale::translate("New unit"));
+    new_unit_ibtn->set_tooltip(Eng3D::Locale::translate("New unit"));
 }
