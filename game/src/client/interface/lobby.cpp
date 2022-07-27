@@ -126,7 +126,7 @@ LobbySelectView::LobbySelectView(GameState& _gs)
 // Change nation in start screen
 void LobbySelectView::change_nation(size_t id) {
     size_t old_id = curr_selected_nation;
-    if(!g_world.nations.size()) {
+    if(g_world.nations.empty()) {
         gs.ui_ctx.prompt("Error", "No nations to select");
         return;
     }

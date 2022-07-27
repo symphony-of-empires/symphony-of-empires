@@ -240,9 +240,8 @@ void handle_event(Input& input, GameState& gs) {
                 if(gs.current_mode == MapMode::NORMAL) {
                     if(input.select_pos.x < gs.world->width || input.select_pos.y < gs.world->height) {
                         const Tile& tile = gs.world->get_tile(input.select_pos.x, input.select_pos.y);
-                        if(tile.province_id >= gs.world->provinces.size()) {
+                        if(tile.province_id >= gs.world->provinces.size())
                             break;
-                        }
 
                         new Interface::BuildingBuildView(gs, input.select_pos.x, input.select_pos.y, true, gs.world->provinces[tile.province_id]);
                     }

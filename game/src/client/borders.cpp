@@ -120,14 +120,14 @@ class BorderGenerator
     }
 
     void clear_stack() {
-        while(current_paths.size() || unexplored_paths.size()) {
-            while(current_paths.size()) {
+        while(!current_paths.empty() || !unexplored_paths.empty()) {
+            while(!current_paths.empty()) {
                 auto current_path = current_paths.top();
                 current_paths.pop();
                 get_border(current_path, 1);
             }
 
-            if(unexplored_paths.size()) {
+            if(!unexplored_paths.empty()) {
                 current_paths.push(unexplored_paths.top());
                 unexplored_paths.pop();
                 borders.push_back(std::vector<glm::vec3>());

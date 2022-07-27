@@ -245,7 +245,7 @@ void Server::net_loop(int id) {
                     ::deserialize(ar, &treaty.name);
                     ::deserialize(ar, &treaty.sender);
                     // Validate data
-                    if(!treaty.clauses.size())
+                    if(treaty.clauses.empty())
                         throw ServerException("Clause-less treaty");
                     if(treaty.sender == nullptr)
                         throw ServerException("Treaty has invalid ends");

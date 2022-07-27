@@ -124,9 +124,9 @@ bool Nation::is_enemy(const Nation& nation) const {
     return false;
 }
 
-// Whetever the nation exists at all - we cannot add nations in-game so we just check
-// if the nation "exists" at all, this means that it has a presence and a goverment
-// must own atleast 1 province
+/// @brief Whetever the nation exists at all - we cannot add nations in-game so we just check
+/// if the nation "exists" at all, this means that it has a presence and a goverment
+/// must own atleast 1 province
 bool Nation::exists() const {
     return !(controlled_provinces.empty());
 }
@@ -157,8 +157,8 @@ void Nation::decrease_relation(Nation& target) {
     this->do_diplomacy();
 }
 
-// Automatically relocates the capital of a nation to another province
-// Use this when a treaty makes a nation lose it's capital
+/// @brief Automatically relocates the capital of a nation to another province
+/// Use this when a treaty makes a nation lose it's capital
 void Nation::auto_relocate_capital() {
     const auto& world = World::get_instance();
     auto best_candidate = std::max_element(owned_provinces.begin(), owned_provinces.end(), [&world](const auto& lhs, const auto& rhs) {
@@ -167,8 +167,8 @@ void Nation::auto_relocate_capital() {
     capital_id = *best_candidate;
 }
 
-// Enacts a policy on a nation
-// @return false if policy draft failed to be applied, true if policy passed and is in-effect
+/// @brief Enacts a policy on a nation
+/// @return false if policy draft failed to be applied, true if policy passed and is in-effect
 void Nation::set_policy(const Policies& policies) {
     // No parliament? No referendum
     if(current_policy.legislative_parliament != true) {
@@ -233,26 +233,27 @@ void Nation::set_policy(const Policies& policies) {
     }
 }
 
-// Checks if a POP is part of one of our accepted cultures
+/// @brief Checks if a POP is part of one of our accepted cultures
 bool Nation::is_accepted_culture(const Pop& pop) const {
     return is_accepted_culture(World::get_instance().cultures[pop.culture_id]);
 }
-// Checks if a CULTURE is part of one of our accepted cultures
+/// @brief Checks if a CULTURE is part of one of our accepted cultures
 bool Nation::is_accepted_culture(const Culture& culture) const {
     return culture_discrim[World::get_instance().get_id(culture)] >= 0.5f;
 }
 
-// Checks if a POP is part of one of our accepted religion
+/// @brief Checks if a POP is part of one of our accepted religion
 bool Nation::is_accepted_religion(const Pop& pop) const {
     return is_accepted_religion(World::get_instance().religions[pop.religion_id]);
 }
-// Checks if a RELIGION is part of one of our accepted relgion
+
+/// @brief Checks if a RELIGION is part of one of our accepted relgion
 bool Nation::is_accepted_religion(const Religion& religion) const {
     return religion_discrim[World::get_instance().get_id(religion)] >= 0.5f;
 }
 
-// Gets the total tax applied to a POP depending on their "wealth"
-// (not exactly like that, more like by their type/status)
+/// @brief Gets the total tax applied to a POP depending on their "wealth"
+/// (not exactly like that, more like by their type/status)
 float Nation::get_tax(const Pop& pop) const {
     float base_tax = 1.f;
 
@@ -276,7 +277,7 @@ float Nation::get_tax(const Pop& pop) const {
 #include "client/game_state.hpp"
 #include "client/map.hpp"
 #include "client/map_render.hpp"
-// Gives this nation a specified province (for example on a treaty)
+/// @brief Gives this nation a specified province (for example on a treaty)
 void Nation::give_province(Province& province) {
     auto& world = World::get_instance();
     this->control_province(province);

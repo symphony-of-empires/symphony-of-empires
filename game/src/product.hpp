@@ -44,13 +44,12 @@ public:
         } else {
             // Gravitate towards absolute zero due to volatility decay
             // (i.e, product price becomes stable without market activity)
-            if(this->price_vel > 0.1f) {
+            if(this->price_vel > 0.1f)
                 this->price_vel -= 0.01f;
-            } else if(this->price_vel < -0.1f) {
+            else if(this->price_vel < -0.1f)
                 this->price_vel += 0.01f;
-            } else {
+            else
                 this->price_vel = -0.01f;
-            }
         }
 
         // Set the new price

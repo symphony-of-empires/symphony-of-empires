@@ -40,7 +40,6 @@
 //
 // Province
 //
-
 // Calculates the total number of POPs in this province (total population)
 float Province::total_pops() const {
     float total = 0;
@@ -90,7 +89,7 @@ void Province::cancel_construction_project() {
 }
 
 glm::vec3 Province::get_sphere_coord(glm::vec2 world_size, float radius) const {
-    const glm::vec2 normalized_pos = get_pos() / world_size;
+    const auto normalized_pos = this->get_pos() / world_size;
     glm::vec2 radiance_pos;
     radiance_pos.x = normalized_pos.x * 2.f * glm::pi<float>();
     radiance_pos.y = normalized_pos.y * glm::pi<float>();
@@ -104,12 +103,11 @@ glm::vec3 Province::get_sphere_coord(glm::vec2 world_size, float radius) const {
 }
 
 float Province::euclidean_distance(const Province& other_province, glm::vec2 world_size, float radius) const {
-    glm::vec3 sphere_coord1 = get_sphere_coord(world_size, radius);
-    glm::vec3 sphere_coord2 = other_province.get_sphere_coord(world_size, radius);
-
-    float cos_angle = glm::dot(sphere_coord1, sphere_coord2) / (radius * radius);
-    float angle = glm::acos(cos_angle);
-    float distance = angle * radius;
+    const auto sphere_coord1 = get_sphere_coord(world_size, radius);
+    const auto sphere_coord2 = other_province.get_sphere_coord(world_size, radius);
+    const auto cos_angle = glm::dot(sphere_coord1, sphere_coord2) / (radius * radius);
+    const auto angle = glm::acos(cos_angle);
+    const auto distance = angle * radius;
     return distance;
 }
 

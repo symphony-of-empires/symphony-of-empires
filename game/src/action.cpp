@@ -56,7 +56,7 @@ Eng3D::Networking::Packet AiControl::form_packet(const Nation& nation) {
 }
 
 Eng3D::Networking::Packet DiploIncRelations::form_packet(const Nation& nation) {
-    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
+    auto packet = Eng3D::Networking::Packet();
     Archive ar = Archive();
     ActionType action = ActionType::DIPLO_INC_RELATIONS;
     ::serialize(ar, &action);
@@ -67,8 +67,8 @@ Eng3D::Networking::Packet DiploIncRelations::form_packet(const Nation& nation) {
 }
 
 Eng3D::Networking::Packet DiploDecRelations::form_packet(const Nation& nation) {
-    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
-    Archive ar = Archive();
+    Eng3D::Networking::Packet packet{};
+    Archive ar{};
     ActionType action = ActionType::DIPLO_DEC_RELATIONS;
     ::serialize(ar, &action);
     const auto* _nation = &nation;
@@ -78,8 +78,8 @@ Eng3D::Networking::Packet DiploDecRelations::form_packet(const Nation& nation) {
 }
 
 Eng3D::Networking::Packet DiploDeclareWar::form_packet(const Nation& nation) {
-    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
-    Archive ar = Archive();
+    Eng3D::Networking::Packet packet{};
+    Archive ar{};
     ActionType action = ActionType::DIPLO_DECLARE_WAR;
     ::serialize(ar, &action);
     const auto* _nation = &nation;
@@ -89,8 +89,8 @@ Eng3D::Networking::Packet DiploDeclareWar::form_packet(const Nation& nation) {
 }
 
 Eng3D::Networking::Packet ProvinceUpdate::form_packet(const std::vector<Province*>& list) {
-    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
-    Archive ar = Archive();
+    Eng3D::Networking::Packet packet{};
+    Archive ar{};
     ActionType action = ActionType::PROVINCE_UPDATE;
     ::serialize(ar, &action);
     for(const auto& province : list) {
@@ -102,8 +102,8 @@ Eng3D::Networking::Packet ProvinceUpdate::form_packet(const std::vector<Province
 }
 
 Eng3D::Networking::Packet NationUpdate::form_packet(const std::vector<Nation*>& list) {
-    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
-    Archive ar = Archive();
+    Eng3D::Networking::Packet packet{};
+    Archive ar{};
     ActionType action = ActionType::NATION_UPDATE;
     ::serialize(ar, &action);
     for(const auto& nation : list) {
@@ -115,8 +115,8 @@ Eng3D::Networking::Packet NationUpdate::form_packet(const std::vector<Nation*>& 
 }
 
 Eng3D::Networking::Packet SelectNation::form_packet(const Nation& nation) {
-    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
-    Archive ar = Archive();
+    Eng3D::Networking::Packet packet{};
+    Archive ar{};
     ActionType action = ActionType::SELECT_NATION;
     ::serialize(ar, &action);
     const auto* _nation = &nation;
@@ -126,8 +126,8 @@ Eng3D::Networking::Packet SelectNation::form_packet(const Nation& nation) {
 }
 
 Eng3D::Networking::Packet BuildingStartProducingUnit::form_packet(const Province& province, const BuildingType& building_type, const Nation& nation, const UnitType& unit_type) {
-    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
-    Archive ar = Archive();
+    Eng3D::Networking::Packet packet{};
+    Archive ar{};
     ActionType action = ActionType::BUILDING_START_BUILDING_UNIT;
     ::serialize(ar, &action);
     const auto* _province = &province;
@@ -143,8 +143,8 @@ Eng3D::Networking::Packet BuildingStartProducingUnit::form_packet(const Province
 }
 
 Eng3D::Networking::Packet BuildingAdd::form_packet(const Province& province, const BuildingType& building_type) {
-    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
-    Archive ar = Archive();
+    Eng3D::Networking::Packet packet{};
+    Archive ar{};
     ActionType action = ActionType::BUILDING_ADD;
     ::serialize(ar, &action);
     const auto* _province = &province;
@@ -156,8 +156,8 @@ Eng3D::Networking::Packet BuildingAdd::form_packet(const Province& province, con
 }
 
 Eng3D::Networking::Packet FocusTech::form_packet(const Technology& technology) {
-    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
-    Archive ar = Archive();
+    Eng3D::Networking::Packet packet{};
+    Archive ar{};
     ActionType action = ActionType::FOCUS_TECH;
     ::serialize(ar, &action);
     const auto* _technology = &technology;
@@ -167,8 +167,8 @@ Eng3D::Networking::Packet FocusTech::form_packet(const Technology& technology) {
 }
 
 Eng3D::Networking::Packet NationAdd::form_packet(const Nation& nation) {
-    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
-    Archive ar = Archive();
+    Eng3D::Networking::Packet packet{};
+    Archive ar{};
     ActionType action = ActionType::NATION_ADD;
     ::serialize(ar, &action);
     ::serialize(ar, &nation);
@@ -177,27 +177,26 @@ Eng3D::Networking::Packet NationAdd::form_packet(const Nation& nation) {
 }
 
 Eng3D::Networking::Packet UnitAdd::form_packet(const Unit& unit) {
-    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
-    Archive ar = Archive();
+    Eng3D::Networking::Packet packet{};
+    Archive ar{};
     ActionType action = ActionType::UNIT_ADD;
     ::serialize(ar, &action);
     ::serialize(ar, &unit);
-    Province::Id prov_id = unit.province_id();
+    auto prov_id = unit.province_id();
     ::serialize(ar, &prov_id);
     packet.data(ar.get_buffer(), ar.size());
     return packet;
 }
 
 Eng3D::Networking::Packet UnitUpdate::form_packet(const std::vector<Unit>& units) {
-    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
-    Archive ar = Archive();
+    Eng3D::Networking::Packet packet{};
+    Archive ar{};
     ActionType action = ActionType::UNIT_UPDATE;
     ::serialize(ar, &action);
     Unit::Id size = units.size();
     ::serialize(ar, &size);
-    for(const auto& unit : units) {
+    for(const auto& unit : units)
         ::serialize(ar, &unit);
-    }
     packet.data(ar.get_buffer(), ar.size());
     return packet;
 }

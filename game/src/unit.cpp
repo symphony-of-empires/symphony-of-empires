@@ -72,7 +72,7 @@ void Unit::set_target(const Province& province) {
     assert(province.get_id() != this->province_id());
     assert(this->can_move());
     this->target_province_id = province.get_id();
-    this->days_left_until_move = days_to_move_to(province);
+    this->days_left_until_move = this->days_to_move_to(province);
 }
 
 void Unit::stop_movement() {
@@ -129,7 +129,7 @@ void UnitManager::add_unit(Unit unit, Province::Id unit_current_province) {
 }
 
 void UnitManager::remove_unit(Unit::Id unit_id) {
-    const Province::Id current_province_id = unit_province[unit_id];
+    const auto current_province_id = unit_province[unit_id];
     Eng3D::fast_erase(province_units[current_province_id], unit_id);
     units[unit_id].cached_id = Province::invalid();
     free_unit_slots.push_back(unit_id);

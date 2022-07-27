@@ -70,7 +70,7 @@ namespace std {
 
 std::vector<Tile> Tile::get_neighbours(const World& world) const {
     std::vector<Tile> tiles;
-    const size_t idx = world.get_id(*this);
+    const auto idx = world.get_id(*this);
     // Up
     if(idx > world.width)
         tiles.push_back(world.tiles[idx - world.width]);
@@ -281,10 +281,10 @@ void World::init_lua() {
     // without using data/scripts
     lua_getglobal(lua, "package");
     lua_getfield(lua, -1, "path");
-    std::string curr_path = lua_tostring(lua, -1);
+    auto curr_path = lua_tostring(lua, -1);
 
     // Add all scripts onto the path (with glob operator '?')
-    const std::vector<std::string> paths = Eng3D::State::get_instance().package_man.get_paths();
+    const auto paths = Eng3D::State::get_instance().package_man.get_paths();
     for(const auto& path : paths) {
         Eng3D::Log::debug("lua", "Added path " + path);
         curr_path.append(";" + path + "/lua/?.lua");
@@ -333,7 +333,7 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
 void World::load_initial() {
     bool recalc_province = true;
     try {
-        Archive ar = Archive();
+        Archive ar{};
         ar.from_file("world.cache");
         std::string creat_date;
         ::deserialize(ar, &creat_date);
@@ -350,7 +350,7 @@ void World::load_initial() {
                 "nations", "provinces", "init"
         }, "lua/entities");
 
-        std::unique_ptr<BinaryImage> div = std::make_unique<BinaryImage>(Eng3D::State::get_instance().package_man.get_unique("map/provinces.png")->get_abs_path());
+        auto div = std::make_unique<BinaryImage>(Eng3D::State::get_instance().package_man.get_unique("map/provinces.png")->get_abs_path());
         width = div->width;
         height = div->height;
         tiles = std::make_unique<Tile[]>(width * height);
@@ -497,7 +497,7 @@ void World::load_initial() {
         }
 
         // Write the entire world to the cache file
-        Archive ar = Archive();
+        Archive ar{};
         std::string creat_date = __DATE__;
         ::serialize(ar, &creat_date);
         ::serialize(ar, this);
