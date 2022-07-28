@@ -281,7 +281,7 @@ void World::init_lua() {
     // without using data/scripts
     lua_getglobal(lua, "package");
     lua_getfield(lua, -1, "path");
-    auto curr_path = lua_tostring(lua, -1);
+    std::string curr_path = lua_tostring(lua, -1);
 
     // Add all scripts onto the path (with glob operator '?')
     const auto paths = Eng3D::State::get_instance().package_man.get_paths();
