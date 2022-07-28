@@ -100,7 +100,11 @@ file(GLOB_RECURSE MAIN_SOURCES
 )
 IF(ANDROID)
 	add_executable(SymphonyOfEmpires "${MAIN_SOURCES}" "${ANDROID_NDK_HOME}/sources/android/native_app_glue/android_native_app_glue.c")
+ELSEIF(WIN32)
+	# Build as a windows application
+	add_executable(SymphonyOfEmpires WIN32 "${MAIN_SOURCES}")
 ELSE()
+	# The rest is a normal application
 	add_executable(SymphonyOfEmpires "${MAIN_SOURCES}")
 ENDIF()
 
