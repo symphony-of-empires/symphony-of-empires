@@ -143,7 +143,7 @@ public:
     inline bool is_provinces_changed() const {
         return !recently_changed_owner.empty() || !recently_changed_control.empty();
     }
-
+    
 private:
     ProvinceOwnershipManager& operator=(const ProvinceOwnershipManager&) = default;
     std::vector<Province::Id> recently_changed_owner;

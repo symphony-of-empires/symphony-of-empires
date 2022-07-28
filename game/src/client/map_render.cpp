@@ -235,6 +235,9 @@ MapRender::MapRender(const World& _world, Map& _map)
         border_sdf = std::make_unique<Eng3D::Texture>(Eng3D::Texture("sdf_cache.png"));
         border_sdf->upload(sdf_options);
     }
+
+    // We are already updating the whole map, don't do it twice
+    const_cast<World&>(this->world).province_manager.clear();
 }
 
 void MapRender::reload_shaders() {
@@ -505,8 +508,8 @@ void MapRender::update(GameState& gs) {
         for(Province::Id i = 0; i < changed_owner_provinces.size(); i++) {
             auto& province = gs.world->provinces[changed_owner_provinces[i]];
             update_area = update_area.join(province.box_area);
+            this->update_border_sdf(province.box_area, glm::ivec2(gs.width, gs.height));
         }
-        this->update_border_sdf(update_area, glm::ivec2(gs.width, gs.height));
     }
 
     /*auto& changed_control_provinces = gs.world->province_manager.get_changed_control_provinces();
