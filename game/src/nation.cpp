@@ -302,6 +302,11 @@ void Nation::control_province(Province& province) {
 
     // Cancel the unit construction projects
     province.cancel_construction_project();
+
+    if(province.controller->get_id() != province.owner_id) {
+        for(auto& pop : province.pops)
+            pop.militancy += 0.1f;
+    }
 }
 
 const NationClientHint& Nation::get_client_hint() const {
