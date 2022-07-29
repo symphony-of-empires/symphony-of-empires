@@ -80,6 +80,7 @@ CMakeCache.txt
 CMakeSettings.json
 
 # build directories
+[Bb]uild-*/
 [Bb]uild/
 [Bb]uild-android/
 *-build/
