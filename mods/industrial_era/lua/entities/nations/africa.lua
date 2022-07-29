@@ -71,7 +71,7 @@ tripolitania:add_client_hint(monarchy, _("Tripolitania"), 0x91D38A)
 ashantee = Nation:new{ ref_name = "ashantee" }
 ashantee.name = _("Ashantee")
 ashantee:register()
-ashantee:add_client_hint(monarchy, _("Ashantee"), 0x808000)
+ashantee:add_client_hint(monarchy, _("Ashantee"), 0x9ba324)
 -- Formable nations
 arabia = Nation:new{ ref_name = "arabia" }
 arabia.name = _("Arabia")
@@ -79,7 +79,7 @@ arabia.adjective = "Arabic"
 arabia.noun = "Arab"
 arabia:register()
 arabia:add_accepted_culture(arabic)
-arabia:add_client_hint(monarchy, _("Arabia"), 0x808000)
+arabia:add_client_hint(monarchy, _("Arabia"), 0x388713)
 -----------------------------------------------------------------------
 
 -----------------------------------------------------------------------
@@ -89,10 +89,10 @@ sokoto = Nation:new{ ref_name = "sokoto" }
 sokoto.name = _("Sokoto")
 sokoto:register()
 sokoto:add_accepted_culture(arabic)
-sokoto:add_client_hint(monarchy, _("Sokoto"), 0x808000)
-sokoto:add_client_hint(fascism, _("Sokoto"), 0x808000)
-sokoto:add_client_hint(communism, _("Sokoto"), 0x808000)
-sokoto:add_client_hint(socialism, _("Sokoto"), 0x808000)
+sokoto:add_client_hint(monarchy, _("Sokoto"), 0x135910)
+sokoto:add_client_hint(fascism, _("Sokoto"), 0x135910)
+sokoto:add_client_hint(communism, _("Sokoto"), 0x135910)
+sokoto:add_client_hint(socialism, _("Sokoto"), 0x135910)
 
 wadai_empire = Nation:new{ ref_name = "wadai_empire" }
 wadai_empire.name = _("Wadai Empire")
@@ -102,10 +102,15 @@ wadai_empire:add_client_hint(monarchy, _("Wadai Empire"), 0x808000)
 bornu = Nation:new{ ref_name = "bornu" }
 bornu.name = _("Bornu")
 bornu:register()
-bornu:add_client_hint(monarchy, _("Bornu"), 0x808000)
+bornu:add_client_hint(monarchy, _("Bornu"), 0x58d69b)
+
+jolof = Nation:new{ ref_name = "jolof" }
+jolof.name = _("Jolof")
+jolof:register()
+jolof:add_client_hint(monarchy, _("Jolof"), 0xdce30e)
 
 dahomey = Nation:new{ ref_name = "dahomey" }
 dahomey.name = _("Dahomey")
 dahomey:register()
-dahomey:add_client_hint(monarchy, _("Dahomey"), 0x808000)
+dahomey:add_client_hint(monarchy, _("Dahomey"), 0x3f9bd1)
 -----------------------------------------------------------------------

@@ -153,6 +153,22 @@ galicia:register()
 galicia:add_client_hint(monarchy, _("Galicia"), 0x808000)
 galicia:add_accepted_culture(galician)
 
+andorra = Nation:new{ ref_name = "andorra" }
+andorra.name = _("Andorra")
+andorra.adjective = _("Andorrian")
+andorra:register()
+andorra:add_client_hint(monarchy, _("Andorra"), 0xdb70d8)
+andorra:add_accepted_culture(spanish)
+andorra:add_accepted_culture(french)
+
+monaco = Nation:new{ ref_name = "monaco" }
+monaco.name = _("Monaco")
+monaco.adjective = _("Monacense")
+monaco:register()
+monaco:add_client_hint(monarchy, _("Monaco"), 0xe3acce)
+monaco:add_accepted_culture(italian)
+monaco:add_accepted_culture(french)
+
 aragon = Nation:new{ ref_name = "aragon" }
 aragon.name = _("Aragon")
 aragon.adjective = _("Aragonesse")
