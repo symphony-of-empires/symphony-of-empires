@@ -55,6 +55,7 @@ public:
 };
 
 static std::vector<AiData> g_ai_data;
+static std::vector<Province::Id> g_water_provinces;
 
 void ai_init(World& world) {
     g_ai_data.resize(world.nations.size());
@@ -63,6 +64,13 @@ void ai_init(World& world) {
         ai_data.nations_risk_factor.shrink_to_fit();
     }
     g_ai_data.shrink_to_fit();
+
+    g_water_provinces.reserve(world.provinces.size());
+    for(const auto& province : world.provinces) {
+        if(province.terrain_type->is_water_body)
+            g_water_provinces.push_back(province.get_id());
+    }
+    g_water_provinces.shrink_to_fit();
 }
 
 // Obtain best potential good
@@ -423,6 +431,10 @@ void ai_do_tick(Nation& nation) {
         std::fill(ai_data.nations_risk_factor.begin(), ai_data.nations_risk_factor.end(), 1.f);
         std::vector<Province::Id> eval_provinces; // Provinces that can be evaluated for war
         eval_provinces.reserve(world.provinces.size());
+
+        for(const auto province_id : g_water_provinces)
+            eval_provinces.push_back(province_id);
+
         for(const auto& other : world.nations) {
             if(&other == &nation) {
                 // Add our own nation's province ids
