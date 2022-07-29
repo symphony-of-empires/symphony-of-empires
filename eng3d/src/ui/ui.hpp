@@ -77,7 +77,7 @@ namespace UI {
         int do_tick_recursive(Widget& w);
         void clear_dead_recursive(Widget* w);
 
-        std::vector<Widget*> widgets;
+        std::vector<std::unique_ptr<Widget>> widgets;
         Tooltip* tooltip_widget = nullptr;
         Eng3D::State& s;
     public:

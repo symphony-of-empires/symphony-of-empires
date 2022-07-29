@@ -121,23 +121,19 @@ Context::~Context() {
     TTF_CloseFont(default_font);
 }
 
-void Context::add_widget(Widget* widget) {
+void Context::add_widget(UI::Widget* widget) {
     widget->is_show = 1;
 
     // Not already here
-    if(std::count(widgets.begin(), widgets.end(), widget)) {
+    if(std::find_if(widgets.cbegin(), widgets.cend(), [widget](const auto& e) { return e.get() == widget; }) != widgets.cend())
         return;
-    }
 
-    widgets.push_back(widget);
+    widgets.push_back(std::unique_ptr<UI::Widget>(widget));
 }
 
 void Context::remove_widget(Widget* widget) {
     for(size_t i = 0; i < widgets.size(); i++) {
-        if(widgets[i] != widget) {
-            continue;
-        }
-
+        if(widgets[i].get() != widget) continue;
         widgets.erase(widgets.begin() + i);
         break;
     }
@@ -170,11 +166,10 @@ void Context::clear_dead_recursive(Widget* w) {
 void Context::clear_dead() {
     for(size_t index = 0; index < widgets.size(); index++) {
         if(widgets[index]->dead) {
-            delete widgets[index];
             widgets.erase(widgets.begin() + index);
             index--;
         } else if(widgets[index]->dead_child) {
-            clear_dead_recursive(widgets[index]);
+            clear_dead_recursive(widgets[index].get());
             widgets[index]->dead_child = false;
         }
     }
@@ -348,7 +343,7 @@ void Context::render_all(glm::ivec2 mouse_pos) {
 
     Eng3D::Rect viewport(0, 0, width, height);
     for(auto& widget : this->widgets)
-        this->render_recursive(*widget, this->model, viewport, glm::vec2(0.f));
+        this->render_recursive(*widget.get(), this->model, viewport, glm::vec2(0.f));
     if(tooltip_widget != nullptr)
         this->render_recursive(*tooltip_widget, this->model, viewport, glm::vec2(0.f));
     
@@ -422,7 +417,7 @@ bool Context::check_hover(const unsigned mx, const unsigned my) {
     bool is_hover = false;
     tooltip_widget = nullptr;
     for(int i = widgets.size() - 1; i >= 0; i--) {
-        is_hover |= check_hover_recursive(*widgets[i], mx, my, 0, 0);
+        is_hover |= check_hover_recursive(*widgets[i].get(), mx, my, 0, 0);
         if(is_hover) return is_hover;
     }
     return is_hover;
@@ -497,7 +492,7 @@ bool Context::check_click(const unsigned mx, const unsigned my) {
 
     bool is_click = false;
     for(int i = widgets.size() - 1; i >= 0; i--) {
-        click_state = check_click_recursive(*widgets[i], mx, my, 0, 0, click_state, true);
+        click_state = check_click_recursive(*widgets[i].get(), mx, my, 0, 0, click_state, true);
         // Ignore further clicks, prevents clicking causing clicks on elements behind
         if(click_state != UI::ClickState::NOT_CLICKED) {
             is_click = true;
@@ -511,9 +506,9 @@ bool Context::check_click(const unsigned mx, const unsigned my) {
 
     if(click_wind_index != -1) {
         // Only movable and UI::WidgetType::WINDOWS are able to move to the top
-        Widget* window = widgets[click_wind_index];
-        if(window->type == UI::WidgetType::WINDOW && !window->is_pinned) {
-            std::vector<UI::Widget*>::iterator it = widgets.begin() + click_wind_index;
+        auto& window = *widgets[click_wind_index].get();
+        if(window.type == UI::WidgetType::WINDOW && !window.is_pinned) {
+            auto it = widgets.begin() + click_wind_index;
             std::rotate(it, it + 1, widgets.end());
         }
     }
@@ -522,14 +517,14 @@ bool Context::check_click(const unsigned mx, const unsigned my) {
 
 void Context::check_drag(const unsigned mx, const unsigned my) {
     for(int i = widgets.size() - 1; i >= 0; i--) {
-        Widget& widget = *widgets[i];
+        auto& widget = *widgets[i].get();
 
         // Only windows can be dragged around
         if(widget.type != UI::WidgetType::WINDOW) continue;
         // Pinned widgets are not movable
         if(widget.is_pinned) continue;
 
-        const Eng3D::Rect r = Eng3D::Rect(widget.x, widget.y, widget.width, widget.y + 24);
+        const Eng3D::Rect r(widget.x, widget.y, widget.width, widget.y + 24);
         if(r.in_bounds(glm::vec2(mx, my))) {
             Window& c_widget = static_cast<Window&>(widget);
             if(!c_widget.is_movable) continue;
@@ -559,7 +554,7 @@ bool check_text_input_recursive(Widget& widget, const char* _input) {
 
 bool Context::check_text_input(const char* _input) {
     for(const auto& widget : widgets) {
-        bool r = check_text_input_recursive(*widget, _input);
+        bool r = check_text_input_recursive(*widget.get(), _input);
         if(r) return true;
     }
     return false;
@@ -615,18 +610,18 @@ bool Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_o
 
 bool Context::check_wheel(unsigned mx, unsigned my, int y) {
     for(int i = widgets.size() - 1; i >= 0; i--) {
-        bool scrolled = check_wheel_recursive(*widgets[i], mx, my, 0, 0, y);
+        bool scrolled = check_wheel_recursive(*widgets[i].get(), mx, my, 0, 0, y);
         if(scrolled) return true;
     }
     return false;
 }
 
-// These functions are called on each world tick - this is to allow to update widgets on
-// each world tick, and are also framerate independent and thus more reliable than doing
-// the usual `if (tick % ticks_per_month == 24) {}`, which can cause issues on slow PCs or very fast hosts
+/// @brief These functions are called on each world tick - this is to allow to update widgets on
+/// each world tick, and are also framerate independent and thus more reliable than doing
+/// the usual `if (tick % ticks_per_month == 24) {}`, which can cause issues on slow PCs or very fast hosts
 void Context::do_tick() {
     for(int i = widgets.size() - 1; i >= 0; i--)
-        do_tick_recursive(*widgets[i]);
+        do_tick_recursive(*widgets[i].get());
     return;
 }
 
