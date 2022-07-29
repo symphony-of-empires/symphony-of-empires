@@ -30,6 +30,7 @@
 #include <tbb/parallel_for.h>
 #include <tbb/combinable.h>
 #include <cmath>
+#include <glm/gtx/compatibility.hpp>
 
 #include "eng3d/log.hpp"
 #include "eng3d/serializer.hpp"
@@ -106,7 +107,7 @@ void militancy_update(World& world, Nation& nation) {
             /// @todo Ok, look, the justification is that educated people
             // almost never do coups - in comparasion to uneducated
             // peseants, rich people don't need to protest!
-            const float anger = std::max<float>(pop.militancy, 0.001f);
+            const float anger = glm::max<float>(pop.militancy, 0.001f);
             total_anger += anger;
             for(const auto& ideology : world.ideologies)
                 ideology_anger[world.get_id(ideology)] += (pop.ideology_approval[world.get_id(ideology)] * anger) * (pop.size / 1000);
@@ -115,7 +116,7 @@ void militancy_update(World& world, Nation& nation) {
 
     // Rebellions!
     /// @todo Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
-    if(std::fmod(std::rand(), std::max<float>(1.f, coup_chances - total_anger)) == 0) {
+    if(std::fmod(std::rand(), glm::max<float>(1.f, coup_chances - total_anger)) == 0) {
         /// @todo This might cause multithreading problems
 
         // Compile list of uprising provinces
@@ -148,7 +149,7 @@ void militancy_update(World& world, Nation& nation) {
             }
 
             // Declare war seeking all provinces from the owner
-            TreatyClause::AnnexProvince* cl = new TreatyClause::AnnexProvince();
+            auto* cl = new TreatyClause::AnnexProvince();
             cl->provinces = uprising_provinces;
             cl->sender = &rebel_nation;
             cl->receiver = &nation;
@@ -160,7 +161,7 @@ void militancy_update(World& world, Nation& nation) {
     }
 
     // Roll a dice! (more probability with more anger!)
-    if(!std::fmod(rand(), std::max(coup_chances, coup_chances - total_anger))) {
+    if(!std::fmod(rand(), glm::max(coup_chances, coup_chances - total_anger))) {
         // Choose the ideology with most "anger" (the one more probable to coup d'
         // etat) - amgry radicals will surely throw off the current administration
         // while peaceful people wonq't
@@ -189,16 +190,15 @@ constexpr float epsilon = 0.001f;
 constexpr float purchasing_change_rate = 1.f;
 void economy_single_good_tick(World& world, const Market& market) {
     auto good_id = market.good;
-    const size_t province_size = world.provinces.size();
-    // determine new prices
-    for(size_t i = 0; i < province_size; i++) {
+    // Determine new prices
+    for(size_t i = 0; i < world.provinces.size(); i++) {
         auto& province = world.provinces[i];
         auto& product = province.products[good_id];
         auto supply = market.supply[i] + epsilon;
         auto demand_in_state = market.global_demand[i] + epsilon;
         auto current_price = market.prices[i];
         auto new_price = current_price * demand_in_state / supply;
-        new_price = std::clamp<float>(new_price, base_price * min_price, base_price * max_price);
+        new_price = glm::clamp<float>(new_price, base_price * min_price, base_price * max_price);
         auto state_price_delta = (std::lerp(current_price, new_price, price_change_rate) - current_price) / price_update_delay;
         product.price += state_price_delta;
     }
@@ -222,12 +222,11 @@ void update_factory_production(World& world, Building& building, BuildingType* b
     auto output_amount = 1.f * building.production_scale;
 
     // TODO set min wages
-    float min_wage = 0;
-    min_wage = 1.f;
+    float min_wage = 1.f;
 
     // TODO set output depending on amount of workers
     float total_worker_pop = building.workers;
-    min_wage = std::max(min_wage, 0.0001f);
+    min_wage = glm::max(min_wage, 0.0001f);
 
     const auto req_goods_size = building_type->req_goods.size();
 
@@ -264,12 +263,12 @@ void update_factory_production(World& world, Building& building, BuildingType* b
 
     // Rescale production
     // This is used to set how much the of the maximum capicity the factory produce
-    building.production_scale = std::clamp<float>(building.production_scale * scale_speed((float)output_value / (min_wage + inputs_cost)), 0.05f, 1.f);
+    building.production_scale = glm::clamp<float>(building.production_scale * scale_speed((float)output_value / (min_wage + inputs_cost)), 0.05f, 1.f);
 }
 
 // Update the factory employment
 void update_factories_employment(const World& world, Province& province, std::vector<float>& new_workers) {
-    float unallocated_workers;
+    unsigned int unallocated_workers = 0;
     for(size_t i = 0; i < province.pops.size(); i++) {
         auto& pop = province.pops[i];
         if(world.pop_types[pop.type_id].group == PopGroup::LABORER)
@@ -289,9 +288,9 @@ void update_factories_employment(const World& world, Province& province, std::ve
         auto factory_index = factories_by_profitability[i].first;
         auto& building = province.buildings[factory_index];
         const auto& type = world.building_types[factory_index];
-        float factory_workers = building.level * type.num_req_workers * building.production_scale;
-        float amount_needed = factory_workers;
-        float allocated_workers = std::min(amount_needed, unallocated_workers);
+        unsigned int factory_workers = building.level * type.num_req_workers * building.production_scale;
+        unsigned int amount_needed = factory_workers;
+        unsigned int allocated_workers = glm::min(amount_needed, unallocated_workers);
 
         // Average with how much the factory had before
         // Makes is more stable so everyone don't change workplace immediately
@@ -315,13 +314,13 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
                 auto price = province.products[j].price;
                 total_price += type.basic_needs_amount[j] * price;
             }
-            float buying_factor = std::min(1.f, (float)pop_need.budget / total_price);
+            float buying_factor = glm::min(1.f, (float)pop_need.budget / total_price);
             for(Good::Id j = 0; j < world.goods.size(); j++) {
                 auto& product = province.products[j];
                 product.demand += type.basic_needs_amount[j] * buying_factor;
             }
             pop_need.life_needs_met = buying_factor;
-            pop_need.budget = std::max(0.f, (float)pop_need.budget - total_price);
+            pop_need.budget = glm::max(0.f, (float)pop_need.budget - total_price);
         }
 
         pop_need.everyday_needs_met = 0.f;
@@ -333,13 +332,13 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
                 auto price = province.products[j].price;
                 total_price += type.luxury_needs_satisfaction[j] * price;
             }
-            float buying_factor = std::min(1.f, (float)pop_need.budget / total_price);
+            float buying_factor = glm::min(1.f, (float)pop_need.budget / total_price);
             for(Good::Id j = 0; j < world.goods.size(); j++) {
                 auto& product = province.products[j];
                 product.demand += type.basic_needs_amount[j] * buying_factor;
             }
             pop_need.everyday_needs_met = buying_factor;
-            pop_need.budget = std::max(0.f, (float)pop_need.budget - total_price);
+            pop_need.budget = glm::max(0.f, (float)pop_need.budget - total_price);
         }
     }
 }
@@ -461,9 +460,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             for(Pop::Id i = 0; i < province.buildings.size(); i++) {
                 auto& building = province.buildings[i];
                 // There must not be conflict ongoing otherwise they wont be able to build shit
-                if(province.controller->get_id() == province.owner_id && building.working_unit_type != nullptr) {
-                    bool can_build_unit = building.can_build_unit();
-
+                if(province.controller->get_id() == province.owner_id && building.working_unit_type != nullptr && building.can_build_unit()) {
                     // Ratio of health:person is 25, thus making units very expensive
                     const float army_size = 100;
                     /// @todo Consume special soldier pops instead of farmers!!!
