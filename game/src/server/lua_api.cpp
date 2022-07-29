@@ -537,6 +537,8 @@ int LuaAPI::nation_make_puppet(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
     other_nation.puppet_master = &nation;
+    auto& relation = g_world.get_relation(g_world.get_id(nation), g_world.get_id(other_nation));
+    relation.has_alliance = true;
     return 0;
 }
 

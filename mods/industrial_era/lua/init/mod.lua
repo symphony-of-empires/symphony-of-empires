@@ -37,12 +37,15 @@ require('entities/events/test_event')
 require('entities/events/taza_concession')
 require('entities/events/unify_germany')
 
+-- Puppets
 Nation:get("france"):make_puppet(Nation:get("piedmont_sardinia"))
 
 Nation:get("turkey"):make_puppet(Nation:get("tunis"))
 Nation:get("turkey"):make_puppet(Nation:get("algeirs"))
 Nation:get("turkey"):make_puppet(Nation:get("egypt"))
 Nation:get("turkey"):make_puppet(Nation:get("tripolitania"))
+Nation:get("turkey"):make_puppet(Nation:get("wallachia"))
+Nation:get("turkey"):make_puppet(Nation:get("moldavia"))
 
 Nation:get("netherlands"):make_puppet(Nation:get("luxembourg"))
 
@@ -97,6 +100,7 @@ Nation:get("austria"):make_puppet(Nation:get("tuscany"))
 
 Nation:get("denmark"):make_puppet(Nation:get("holstein"))
 
+-- Ongoing wars
 Nation:get("russia"):declare_no_cb(Nation:get("turkey"))
 Nation:get("burma"):declare_no_cb(Nation:get("united_kingdom"))
 

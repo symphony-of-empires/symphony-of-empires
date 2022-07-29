@@ -882,7 +882,6 @@ moldavia:set_ideology(monarchy)
 moldavia:add_accepted_culture(romanian)
 moldavia:add_client_hint(socialism, _("Moldavia"), 0xbdc232)
 moldavia:add_client_hint(monarchy, _("Moldavia"), 0xbdc232)
-Nation:get("turkey"):make_puppet(moldavia)
 
 wallachia = Nation:new{ ref_name = "wallachia" }
 wallachia.name = _("Wallachia")
@@ -891,7 +890,6 @@ wallachia:set_ideology(monarchy)
 wallachia:add_accepted_culture(romanian)
 wallachia:add_client_hint(socialism, _("Wallachia"), 0x535096)
 wallachia:add_client_hint(monarchy, _("Wallachia"), 0x535096)
-Nation:get("turkey"):make_puppet(wallachia)
 
 -- Releasable nations
 kosovo = Nation:new{ ref_name = "kosovo" }
