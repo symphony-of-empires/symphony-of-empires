@@ -64,7 +64,7 @@ typedef Eng3D::OpenGL::Option Option;
 class MapOptions {
 public:
     Option noise{ "NOISE", true };
-    Option sdf{ "SDF", true };
+    Option sdf{ "SDF", false };
     Option lighting{ "LIGHTING", true };
     Option parallax{ "PARALLAX", false };
     Option rivers{ "RIVERS", true };

@@ -705,7 +705,6 @@ void start_client(int argc, char** argv) {
         if(gs.world->world_mutex.try_lock()) {
             // Required since events may request world data
             handle_event(gs.input, gs);
-
             if(gs.current_mode == MapMode::NORMAL)
                 handle_popups(displayed_treaties, gs);
 

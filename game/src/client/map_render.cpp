@@ -321,17 +321,17 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
     glViewport(update_area.left, update_area.top, update_area.width(), update_area.height());
     glScissor(update_area.left, update_area.top, update_area.width(), update_area.height());
 
+    float width = world.width;
+    float height = world.height;
+
     Eng3D::TextureOptions border_tex_options{};
     border_tex_options.internal_format = GL_RGBA32F;
     border_tex_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     border_tex_options.mag_filter = GL_LINEAR;
     border_tex_options.editable = true;
-    Eng3D::Texture border_tex(world.width, world.height);
+    Eng3D::Texture border_tex(width, height);
     border_tex.upload(border_tex_options);
     border_tex.gen_mipmaps();
-
-    float width = world.width;
-    float height = world.height;
 
     auto tex_coord_scale = update_area;
     tex_coord_scale.scale(1.f / glm::vec2(width, height));
@@ -502,25 +502,28 @@ void MapRender::update(GameState& gs) {
 
     Eng3D::Rect update_area{ 0, 0, 0, 0 };
 
+    std::unordered_set<Province::Id> update_provinces;
     auto& changed_owner_provinces = gs.world->province_manager.get_changed_owner_provinces();
-    if(!changed_owner_provinces.empty()) {
-        this->update_nations(changed_owner_provinces);
-        for(Province::Id i = 0; i < changed_owner_provinces.size(); i++) {
-            auto& province = gs.world->provinces[changed_owner_provinces[i]];
+    for(const auto province_id : changed_owner_provinces)
+        update_provinces.insert(province_id);
+    auto& changed_control_provinces = gs.world->province_manager.get_changed_control_provinces();
+    for(const auto province_id : changed_control_provinces)
+        update_provinces.insert(province_id);
+
+    if(!update_provinces.empty()) {
+        std::vector<Province::Id> update_provinces_vec;
+        for(const auto province_id : update_provinces)
+            update_provinces_vec.push_back(province_id);
+        this->update_nations(update_provinces_vec);
+
+        for(const auto province_id : update_provinces_vec) {
+            auto& province = gs.world->provinces[province_id];
             update_area = update_area.join(province.box_area);
-            this->update_border_sdf(province.box_area, glm::ivec2(gs.width, gs.height));
+            if(this->options.sdf.used) {
+                this->update_border_sdf(province.box_area, glm::ivec2(gs.width, gs.height));
+            }
         }
     }
-
-    /*auto& changed_control_provinces = gs.world->province_manager.get_changed_control_provinces();
-    if(!changed_control_provinces.empty()) {
-        this->update_nations(changed_control_provinces);
-        for(Province::Id i = 0; i < changed_control_provinces.size(); i++) {
-            auto& province = gs.world->provinces[changed_control_provinces[i]];
-            update_area = update_area.join(province.box_area);
-            this->update_border_sdf(province.box_area, glm::ivec2(gs.width, gs.height));
-        }
-    }*/
 }
 
 void MapRender::draw(Eng3D::Camera* camera, MapView view_mode) {
