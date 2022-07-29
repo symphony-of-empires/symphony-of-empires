@@ -32,23 +32,7 @@
 //
 // Building
 //
-// Adds a good by id to a building stockpile
+/// @brief Adds a good by id to a building stockpile
 void Building::add_to_stock(const Good& good, const size_t add) {
-    const World& world = World::get_instance();
-    stockpile[world.get_id(good)] += add;
-}
-
-// Checks if the building can produce output (if it has enough input)
-bool Building::can_do_output() const {
-    // Check that we have enough stockpile
-    for(const auto& stock : this->stockpile) {
-        if(!stock) return false;
-    }
-    return true;
-}
-
-bool Building::can_build_unit() const {
-    for(const auto& req : req_goods_for_unit)
-        if(req.second) return false;
-    return true;
+    stockpile[good.get_id()] += add;
 }

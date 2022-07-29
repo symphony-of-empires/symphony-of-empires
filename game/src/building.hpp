@@ -107,8 +107,20 @@ public:
     Building() = default;
     ~Building() = default;
     void add_to_stock(const Good& good, size_t add);
-    bool can_do_output() const;
-    bool can_build_unit() const;
+
+    /// @brief Checks if the building can produce output (if it has enough input)
+    inline bool can_do_output() const {
+        // Check that we have enough stockpile
+        for(const auto& stock : this->stockpile)
+            if(!stock) return false;
+        return true;
+    }
+
+    inline bool can_build_unit() const {
+        for(const auto& req : req_goods_for_unit)
+            if(req.second) return false;
+        return true;
+    }
 
     float build_time; // Remaining ticks until the unit is built
     float budget = 0; // Total money that the factory has
