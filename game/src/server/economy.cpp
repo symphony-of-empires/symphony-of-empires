@@ -95,7 +95,7 @@ void militancy_update(World& world, Nation& nation) {
     float total_anger = 0.f;
     // Anger per ideology (how much we hate the current ideology)
     std::vector<float> ideology_anger(world.ideologies.size(), 0.f);
-    const float coup_chances = 100.f;
+    const float coup_chances = nation.controlled_provinces.size() * 1000.f;
     auto rand = Eng3D::get_local_generator();
     for(const auto province_id : nation.controlled_provinces) {
         const auto& province = world.provinces[province_id];
@@ -103,7 +103,7 @@ void militancy_update(World& world, Nation& nation) {
             /// @todo Ok, look, the justification is that educated people
             // almost never do coups - in comparasion to uneducated
             // peseants, rich people don't need to protest!
-            const float anger = (std::max<float>(pop.militancy, 0.001f) / std::max<float>(pop.literacy, 1.f) / std::max<float>(pop.life_needs_met, 0.001f));
+            const float anger = std::max<float>(pop.militancy, 0.001f);
             total_anger += anger;
             for(const auto& ideology : world.ideologies)
                 ideology_anger[world.get_id(ideology)] += (pop.ideology_approval[world.get_id(ideology)] * anger) * (pop.size / 1000);
@@ -112,7 +112,7 @@ void militancy_update(World& world, Nation& nation) {
 
     // Rebellions!
     /// @todo Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
-    if(!std::fmod(std::rand(), std::max<float>(1, coup_chances - total_anger))) {
+    if(std::fmod(std::rand(), std::max<float>(1.f, coup_chances - total_anger)) == 0) {
         /// @todo This might cause multithreading problems
 
         // Compile list of uprising provinces
@@ -131,7 +131,7 @@ void militancy_update(World& world, Nation& nation) {
         }
 
         // Nation 0 is always the rebel nation
-        Nation& rebel_nation = world.nations[0];
+        auto& rebel_nation = world.nations[0];
         // Make the most angry provinces revolt!
         std::vector<TreatyClause::BaseClause*> clauses;
         for(auto& province : uprising_provinces) {
