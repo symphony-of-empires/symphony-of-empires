@@ -391,6 +391,7 @@ void main() {
 	out_color = mix(out_color, mix(ground, water, beach), 1.0 - far_from_map);
 #else
 	out_color = mix(ground, water, beach);
+	out_color = mix(out_color, vec3(prov_color.r, prov_color.g, prov_color.b), 0.8);
 #endif
 	out_color = mix(out_color, water, beach * far_from_map);
 
