@@ -491,3 +491,18 @@ morrocco_monarchy
 
 tripolitania_monarchy
 	By Bamse - Own work by uploader based on Tripoli. Johnson&#039;s new chart of national emblems, 1868.jpg, Public Domain, https://commons.wikimedia.org/w/index.php?curid=5459055
+
+monaco_monarchy
+	Public Domain, https://commons.wikimedia.org/w/index.php?curid=343663
+
+andorra_monarchy
+	Public Domain, https://commons.wikimedia.org/w/index.php?curid=343663
+
+andorra_republic
+	Public Domain, https://commons.wikimedia.org/w/index.php?curid=343663
+
+mysore_monarchy
+	By Samhanin - Own work, source is crwflags.com image., CC0, https://commons.wikimedia.org/w/index.php?curid=49362194
+
+sikh_monarchy
+	By Samhanin - Own work, source is crwflags.com image., CC0, https://commons.wikimedia.org/w/index.php?curid=49362194

@@ -166,3 +166,24 @@ nation:register()
 nation:set_ideology(monarchy)
 nation:add_accepted_culture(vietnamesse)
 nation:add_client_hint(monarchy, _("Kashmir"), 0x512f91)
+
+nation = Nation:new{ ref_name = "berah", name = _("Berah") }
+nation.adjective = _("Berah")
+nation:register()
+nation:set_ideology(monarchy)
+nation:add_accepted_culture(vietnamesse)
+nation:add_client_hint(monarchy, _("Berah"), 0xb86339)
+
+nation = Nation:new{ ref_name = "sindh", name = _("Sindh") }
+nation.adjective = _("Sindh")
+nation:register()
+nation:set_ideology(monarchy)
+nation:add_accepted_culture(vietnamesse)
+nation:add_client_hint(monarchy, _("Sindh"), 0x375c38)
+
+nation = Nation:new{ ref_name = "sikh", name = _("Sikh") }
+nation.adjective = _("Sikh")
+nation:register()
+nation:set_ideology(monarchy)
+nation:add_accepted_culture(vietnamesse)
+nation:add_client_hint(monarchy, _("Sikh"), 0xd65718)

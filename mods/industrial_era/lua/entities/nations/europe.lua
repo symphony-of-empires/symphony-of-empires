@@ -158,6 +158,7 @@ andorra.name = _("Andorra")
 andorra.adjective = _("Andorrian")
 andorra:register()
 andorra:add_client_hint(monarchy, _("Andorra"), 0xdb70d8)
+andorra:add_client_hint(republic, _("Andorra"), 0xdb70d8)
 andorra:add_accepted_culture(spanish)
 andorra:add_accepted_culture(french)
 
