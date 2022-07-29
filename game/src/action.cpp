@@ -176,6 +176,17 @@ Eng3D::Networking::Packet NationAdd::form_packet(const Nation& nation) {
     return packet;
 }
 
+Eng3D::Networking::Packet NationTakeDecision::form_packet(const Event& event, const Decision& decision) {
+    Eng3D::Networking::Packet packet{};
+    Archive ar{};
+    ActionType action = ActionType::NATION_TAKE_DECISION;
+    ::serialize(ar, &action);
+    ::serialize(ar, &event);
+    ::serialize(ar, &decision.ref_name);
+    packet.data(ar.get_buffer(), ar.size());
+    return packet;
+}
+
 Eng3D::Networking::Packet UnitAdd::form_packet(const Unit& unit) {
     Eng3D::Networking::Packet packet{};
     Archive ar{};

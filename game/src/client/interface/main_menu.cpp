@@ -56,7 +56,6 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
 {
     this->is_scroll = false;
     this->text("Internet multiplayer");
-
     this->set_close_btn_function([this](Widget&) {
         this->kill();
     });

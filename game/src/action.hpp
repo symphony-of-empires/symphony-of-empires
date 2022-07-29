@@ -89,6 +89,8 @@ class Building;
 class BuildingType;
 class Unit;
 class UnitType;
+class Decision;
+class Event;
 class Technology;
 
 namespace Action {
@@ -145,6 +147,11 @@ namespace Action {
     class NationAdd {
     public:
         static Eng3D::Networking::Packet form_packet(const Nation& nation);
+    };
+
+    class NationTakeDecision {
+    public:
+        static Eng3D::Networking::Packet form_packet(const Event& event, const Decision& decision);
     };
 
     class UnitAdd {

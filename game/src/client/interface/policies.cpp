@@ -187,8 +187,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
         ::serialize(ar, &action);
         ::serialize(ar, &this->new_policy); // PoliciesObj
         packet.data(ar.get_buffer(), ar.size());
-        std::scoped_lock lock(g_client->pending_packets_mutex);
-        g_client->pending_packets.push_back(packet);
+        this->gs.client->send(packet);
         this->gs.ui_ctx.prompt("Policy", "New policy enacted!");
     });
 }

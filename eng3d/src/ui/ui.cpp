@@ -153,11 +153,11 @@ void Context::clear() {
 void Context::clear_dead_recursive(Widget* w) {
     bool changed = false;
     for(size_t index = 0; index < w->children.size(); index++) {
-        if((w->children[index])->dead) {
+        if(w->children[index]->dead) {
             w->children.erase(w->children.begin() + index);
             index--;
             changed = true;
-        } else if((w->children[index])->dead_child) {
+        } else if(w->children[index]->dead_child) {
             clear_dead_recursive(w->children[index].get());
             w->children[index]->dead_child = false;
         }
@@ -169,11 +169,11 @@ void Context::clear_dead_recursive(Widget* w) {
 
 void Context::clear_dead() {
     for(size_t index = 0; index < widgets.size(); index++) {
-        if((widgets[index])->dead) {
+        if(widgets[index]->dead) {
             delete widgets[index];
             widgets.erase(widgets.begin() + index);
             index--;
-        } else if((widgets[index])->dead_child) {
+        } else if(widgets[index]->dead_child) {
             clear_dead_recursive(widgets[index]);
             widgets[index]->dead_child = false;
         }

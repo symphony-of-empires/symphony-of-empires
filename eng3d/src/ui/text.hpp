@@ -47,5 +47,7 @@ namespace UI {
         virtual void text(const std::string& text);
 
         int min_height = 0;
+        /// @brief Whetever to auto adjust the widget depending on the text
+        bool auto_adjust = true;
     };
 };

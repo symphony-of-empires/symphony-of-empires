@@ -208,7 +208,7 @@ void Eng3D::Networking::Server::broadcast(const Eng3D::Networking::Packet& packe
             size_t total_size = 0;
             for(auto packet_q = clients[i].pending_packets.cbegin(); packet_q != clients[i].pending_packets.cend(); packet_q++)
                 total_size += (*packet_q).buffer.size();
-
+            
             if(total_size >= 200 * 1000000) {
                 clients[i].is_connected = false;
                 Eng3D::Log::debug("server", "Client#" + std::to_string(i) + " has exceeded max quota! - It has used " + std::to_string(total_size) + "B!");

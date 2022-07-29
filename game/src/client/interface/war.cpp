@@ -52,7 +52,7 @@ WarDeclarePrompt::WarDeclarePrompt(GameState& _gs, const Nation& _nation)
     });
 
     this->deny_btn = new UI::Button(0, 48, this->width, 24, this);
-    this->deny_btn->text("Nevermind");
+    this->deny_btn->text("Cancel");
     this->deny_btn->set_on_click([this](UI::Widget&) {
         this->kill();
     });

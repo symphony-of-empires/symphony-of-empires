@@ -65,9 +65,8 @@ void Checkbox::init_checkbox(int size) {
     this->box->current_texture = this->unchecked_texture;
     this->on_click = ([this](UI::Widget& w) {
         this->set_value(!this->value);
-        if(this->outside_on_click) {
+        if(this->outside_on_click)
             this->outside_on_click(w);
-        }
     });
     this->text_offset_x = size + 4;
     this->clickable_effect = false;

@@ -105,7 +105,7 @@ void GameState::play_nation() {
     top_win = new Interface::TopWindow(*this);
     minimap = new Interface::Minimap(*this, -400, -200, UI::Origin::LOWER_RIGHT_SCREEN);
     Eng3D::Log::debug("game", "Selecting nation " + this->curr_nation->ref_name);
-    g_client->send(Action::SelectNation::form_packet(*this->curr_nation));
+    this->client->send(Action::SelectNation::form_packet(*this->curr_nation));
 
     // Set AI to all off
     this->curr_nation->ai_controlled = false;
@@ -319,7 +319,7 @@ void handle_event(Input& input, GameState& gs) {
 void GameState::send_command(Archive& archive) {
     std::scoped_lock lock(client->pending_packets_mutex);
 
-    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet(g_client->get_fd());
+    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet(this->client->get_fd());
     packet.data(archive.get_buffer(), archive.size());
     client->pending_packets.push_back(packet);
 }
@@ -493,16 +493,14 @@ void save(GameState& gs) {
     }
 }
 
-void handle_popups(std::vector<Event>& displayed_events, std::vector<Treaty::Id>& displayed_treaties, GameState& gs) {
+void handle_popups(std::vector<Treaty::Id>& displayed_treaties, GameState& gs) {
     // Put popups
     // Event + Decision popups
     for(auto& msg : gs.curr_nation->inbox) {
         // Check that the event is not already displayed to the user
-        auto iter = std::find_if(displayed_events.begin(), displayed_events.end(), [&msg](const auto& e) { return e.ref_name == msg.ref_name; });
-        if(iter != displayed_events.end()) continue;
         new Interface::DecisionWindow(gs, msg);
-        displayed_events.push_back(msg);
     }
+    gs.curr_nation->inbox.clear(); // Clear the inbox
 
     for(auto& treaty : gs.world->treaties) {
         // Check that the treaty is not already displayed
@@ -698,8 +696,6 @@ void start_client(int argc, char** argv) {
 
     // Connect to server prompt
     new Interface::MainMenu(gs);
-
-    std::vector<Event> displayed_events;
     std::vector<Treaty::Id> displayed_treaties;
     auto current_frame_time = std::chrono::system_clock::now();
     // Start the world thread
@@ -711,7 +707,7 @@ void start_client(int argc, char** argv) {
             handle_event(gs.input, gs);
 
             if(gs.current_mode == MapMode::NORMAL)
-                handle_popups(displayed_events, displayed_treaties, gs);
+                handle_popups(displayed_treaties, gs);
 
             if(gs.update_tick) {
                 gs.update_on_tick();
@@ -732,7 +728,7 @@ void start_client(int argc, char** argv) {
                                 // Must not be working on something else
                                 if(building.working_unit_type != nullptr) continue;
                                 is_built = true;
-                                g_client->send(Action::BuildingStartProducingUnit::form_packet(province, building_type, *gs.curr_nation, *unit_type));
+                                gs.client->send(Action::BuildingStartProducingUnit::form_packet(province, building_type, *gs.curr_nation, *unit_type));
                                 break;
                             }
 

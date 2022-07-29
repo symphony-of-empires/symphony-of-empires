@@ -47,30 +47,23 @@ DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
     // Title of the event
     this->text(this->event.title.get_string());
 
-    // Body of the event text
-    auto* txt = new UI::Text(0, 0, this->width, 24, this);
-    txt->text(this->event.text.get_string());
-
-    this->height = txt->height + (this->event.decisions.size() * 24) + (24 * 4);
-
-    auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
+    // Body of the event tex
+    auto* flex_column = new UI::Div(0, 0, this->width, (this->event.decisions.size() * 24) + (24 * 8), this);
     flex_column->flex = UI::Flex::COLUMN;
-    flex_column->below_of(*txt);
+    this->height = flex_column->height;
+
+    auto* txt = new UI::Text(0, 0, this->width, 24, flex_column);
+    txt->text(this->event.text.get_string());
+    txt->is_scroll = true;
+
     // Buttons for decisions for the event
     for(const auto& decision : this->event.decisions) {
         auto* decide_btn = new UI::Button(0, 0, this->width, 24, flex_column);
         decide_btn->text(decision.name.get_string());
-        decide_btn->set_on_click([this, decision](UI::Widget&) {
-            auto packet = Eng3D::Networking::Packet();
-            auto ar = Archive();
-            ActionType action = ActionType::NATION_TAKE_DECISION;
-            ::serialize(ar, &action);
-            ::serialize(ar, &this->event);
-            ::serialize(ar, &decision.ref_name);
-            packet.data(ar.get_buffer(), ar.size());
-            this->gs.client->send(packet);
+        decide_btn->set_tooltip(decision.effects.get_string());
+        decide_btn->set_on_click([this, &decision](UI::Widget&) {
+            this->gs.client->send(Action::NationTakeDecision::form_packet(this->event, decision));
             this->kill();
         });
-        decide_btn->set_tooltip(decision.effects.get_string());
     }
 }

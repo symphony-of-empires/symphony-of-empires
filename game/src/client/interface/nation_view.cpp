@@ -125,13 +125,13 @@ NationView::NationView(GameState& _gs, Nation& _nation)
         auto* inc_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         inc_btn->text(Eng3D::Locale::translate("Increment relations"));
         inc_btn->set_on_click([this](UI::Widget&) {
-            g_client->send(Action::DiploIncRelations::form_packet(this->nation));
+            this->gs.client->send(Action::DiploIncRelations::form_packet(this->nation));
         });
 
         auto* dec_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         dec_btn->text(Eng3D::Locale::translate("Decrement relations"));
         dec_btn->set_on_click([this](UI::Widget&) {
-            g_client->send(Action::DiploDecRelations::form_packet(this->nation));
+            this->gs.client->send(Action::DiploDecRelations::form_packet(this->nation));
         });
 
         auto* dow_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);

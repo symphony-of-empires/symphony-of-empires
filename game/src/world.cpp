@@ -560,16 +560,17 @@ static inline void unit_do_tick(World& world, Unit& unit)
             unit.on_battle = true;
             unit.stop_movement();
             auto& battle = *prov_battles_it;
+            auto& war = world.wars[battle.war_id];
 
             // Add the unit to one side depending on who are we attacking however unit must not be already involved
             /// @todo Make it be instead depending on who attacked first in this battle
-            assert(std::find(battle.attackers_ids.begin(), battle.attackers_ids.end(), world.get_id(unit)) == battle.attackers_ids.end());
-            assert(std::find(battle.defenders_ids.begin(), battle.defenders_ids.end(), world.get_id(unit)) == battle.defenders_ids.end());
-            if(world.wars[battle.war_id].is_attacker(world.nations[unit.owner_id])) {
+            assert(std::find(battle.attackers_ids.begin(), battle.attackers_ids.end(), unit.get_id()) == battle.attackers_ids.end());
+            assert(std::find(battle.defenders_ids.begin(), battle.defenders_ids.end(), unit.get_id()) == battle.defenders_ids.end());
+            if(war.is_attacker(unit_nation)) {
                 battle.attackers_ids.push_back(unit.get_id());
                 Eng3D::Log::debug("game", "Adding unit <attacker> to battle of \"" + battle.name + "\"");
             } else {
-                assert(world.wars[battle.war_id].is_defender(world.nations[unit.owner_id]));
+                assert(war.is_defender(unit_nation));
                 battle.defenders_ids.push_back(unit.get_id());
                 Eng3D::Log::debug("game", "Adding unit <defender> to battle of \"" + battle.name + "\"");
             }

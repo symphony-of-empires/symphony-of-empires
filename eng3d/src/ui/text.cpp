@@ -28,18 +28,18 @@
 
 using namespace UI;
 
-Text::Text(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
+UI::Text::Text(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI::WidgetType::GROUP)
 {
 
 }
 
-void Text::on_render(Context&, Eng3D::Rect) {
+void UI::Text::on_render(Context&, Eng3D::Rect) {
 
 }
 
-void Text::text(const std::string& text) {
-    children.clear();
+void UI::Text::text(const std::string& text) {
+    this->children.clear();
     if(text.empty()) return;
 
     // Separate the text in multiple labels and break on space
@@ -76,5 +76,8 @@ void Text::text(const std::string& text) {
         new UI::Label(0, y, buf, this);
         y += 24;
     }
-    height = y;
+
+    if(this->auto_adjust) {
+        this->height = y;
+    }
 }
