@@ -83,6 +83,7 @@ CMakeSettings.json
 [Bb]uild/
 [Bb]uild-android/
 *-build/
+eng3d/eng3d/
 
 # libs
 external/
