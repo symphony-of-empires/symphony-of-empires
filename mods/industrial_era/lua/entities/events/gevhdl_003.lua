@@ -39,13 +39,13 @@ generic_militancy_nationwide_evhdl = Event:new{
 		decision = Decision:new{
 			ref_name = "generic_militancy_nationwide_decision_0",
 			name = "",
+			effects = "Every POP gets +0.5 militancy",
 			decision_fn = function(ref_name)
 				local prov_list = Nation:get(ref_name):get_owned_provinces()
 				for k, province in pairs(prov_list) do
 					local pops = province:get_pops()
 					for k, pop in pairs(pops) do
-						pop.militancy = pop.militancy + 0.50
-						pop.militancy = pop.militancy + 0.50
+						pop.militancy = pop.militancy + 0.5
 						province:update_pop(pop)
 					end
 					province:update_pops()
@@ -57,6 +57,7 @@ generic_militancy_nationwide_evhdl = Event:new{
 		decision = Decision:new{
 			ref_name = "generic_militancy_nationwide_decision_1",
 			name = "Take them down",
+			effects = "Every POP gets +0.75 militancy",
 			decision_fn = function(ref_name)
 				local prov_list = Nation:get(ref_name):get_owned_provinces()
 				for k, province in pairs(prov_list) do

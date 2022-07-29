@@ -59,7 +59,7 @@ gevhdl001 = Event:new{
 				for k, province in pairs(prov_list) do
 					local pops = province:get_pops()
 					for k, pop in pairs(pops) do
-						pop.militancy = pop.militancy + 0.5
+						pop.militancy = pop.militancy + 0.1
 						province:update_pop(pop)
 					end
 					province:update_pops()

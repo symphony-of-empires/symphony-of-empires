@@ -98,11 +98,7 @@ function Province:get_pops()
 	local new_table = {}
 	for i = 0, n_pops do
 		local tb = Pop:new()
-		tb.size, tb.budget, tb.literacy, tb.life_needs_met, tb.everday_needs_met, tb.luxury_needs_met, tb.type, tb.culture, tb.religion, tb.ideology, tb.militancy, tb.militancy = get_province_pop(self.id, i)
-		tb.type = PopType:get_by_id(tb.type)
-		tb.culture = Culture:get_by_id(tb.culture)
-		tb.religion = Religion:get_by_id(tb.religion)
-		tb.ideology = Ideology:get_by_id(tb.ideology)
+		tb.size, tb.budget, tb.literacy, tb.life_needs_met, tb.everday_needs_met, tb.luxury_needs_met, tb.type_id, tb.culture_id, tb.religion_id, tb.ideology_id, tb.militancy = get_province_pop(self.id, i)
 		tb.id = i
 		tb.province_id = self.id
 		new_table[i] = tb
@@ -110,7 +106,7 @@ function Province:get_pops()
 	return new_table
 end
 function Province:update_pop(pop)
-	set_province_pop(self.id, pop.id, pop.size, pop.budget, pop.literacy, pop.life_needs_met, pop.everday_needs_met, pop.luxury_needs_met, pop.type.id, pop.culture.id, pop.religion.id, pop.militancy, pop.militancy)
+	set_province_pop(self.id, pop.id, pop.size, pop.budget, pop.literacy, pop.life_needs_met, pop.everday_needs_met, pop.luxury_needs_met, pop.type_id, pop.culture_id, pop.religion_id, pop.militancy)
 end
 function Province:update_pops(pop)
 	-- TODO: Do important stuff
@@ -132,7 +128,7 @@ end
 function Province:multiply_militancy_by_culture(culture, factor)
 	local pops = self:get_pops()
 	for k, pop in pairs(pops) do
-		if pop.culture.id == culture.id then
+		if pop.culture_id == culture.id then
 			pop.militancy = pop.militancy * factor
 			self:update_pop(pop)
 		end
@@ -142,7 +138,7 @@ end
 function Province:multiply_militancy_by_religion(religion, factor)
 	local pops = self:get_pops()
 	for k, pop in pairs(pops) do
-		if pop.religion.id == religion.id then
+		if pop.religion_id == religion.id then
 			pop.militancy = pop.militancy * factor
 			self:update_pop(pop)
 		end

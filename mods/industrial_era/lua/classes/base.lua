@@ -115,6 +115,9 @@ Pop = {
     culture = {},
     religion = {},
     ideology = {},
+    culture_id = 0,
+    religion_id = 0,
+    ideology_id = 0,
     militancy = 0,
     militancy = 0,
 }

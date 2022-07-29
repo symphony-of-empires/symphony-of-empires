@@ -40,6 +40,7 @@ gevhdl002_evhdl = Event:new{
 		decision = Decision:new{
 			ref_name = "gevhdl002_decision_0",
 			name = "Shut them down",
+			effects = "Every POP that supports " .. tmp_data.ideology.name .. " gets 0.1 militancy",
 			decision_fn = function(ref_name)
 				local prov_list = Nation:get(ref_name):get_owned_provinces()
 				for k, province in pairs(prov_list) do
@@ -56,11 +57,11 @@ gevhdl002_evhdl = Event:new{
 				end
 			end
 		}
-		decision.effects = "Every POP that supports " .. tmp_data.ideology.name .. " gets 0.1 militancy"
 		gevhdl002_evhdl:add_decision(decision)
 		decision = Decision:new{
 			ref_name = "gevhdl002_decision_1",
 			name = "Let them be",
+			effects = "Every POP that supports " .. tmp_data.ideology.name .. " gets 0.05 militancy",
 			decision_fn = function(ref_name)
 				local prov_list = Nation:get(ref_name):get_owned_provinces()
 				for k, province in pairs(prov_list) do
@@ -69,7 +70,7 @@ gevhdl002_evhdl = Event:new{
 						if pop.ideology.ref_name == tmp_data.ideology.ref_name then
 							goto continue
 						end
-						pop.militancy = pop.militancy + 0.1
+						pop.militancy = pop.militancy + 0.05
 						province:update_pop(pop)
 						::continue::
 					end
@@ -77,7 +78,6 @@ gevhdl002_evhdl = Event:new{
 				end
 			end,
 		}
-		decision.effects = "Every POP that supports " .. tmp_data.ideology.name .. " gets 0.1 conciousness"
 		gevhdl002_evhdl:add_decision(decision)
 		return EVENT_DO_MANY_TIMES
 	end,
