@@ -57,10 +57,11 @@ bool TableElement::operator< (const TableElement& right) const {
         return this->key_type < right.key_type;
     
     switch(this->key_type) {
-    case KeyType::NUMBER: return this->key_number < right.key_number;
-    case KeyType::STRING: return this->key_string < right.key_string;
-    case KeyType::NONE: return false;
+        case KeyType::NUMBER: return this->key_number < right.key_number;
+        case KeyType::STRING: return this->key_string < right.key_string;
+        case KeyType::NONE: return false;
     }
+    CXX_THROW(std::runtime_error, std::string() + "TableElement KeyType not supported");
 }
 
 TableRow::TableRow(Widget* _parent, int _width, int _height, std::vector<int>& _columns_width)

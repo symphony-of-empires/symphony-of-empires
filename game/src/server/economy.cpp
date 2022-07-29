@@ -29,6 +29,7 @@
 #include <tbb/concurrent_vector.h>
 #include <tbb/parallel_for.h>
 #include <tbb/combinable.h>
+#include <cmath>
 
 #include "eng3d/log.hpp"
 #include "eng3d/serializer.hpp"
@@ -57,6 +58,8 @@ struct Market {
     std::vector<float> prices;
     std::vector<float> supply;
     std::vector<float> demand;
+    std::vector<float> global_demand;
+    float total_reciprocal_price;
 };
 
 struct PopNeed {
@@ -177,24 +180,26 @@ void militancy_update(World& world, Nation& nation) {
     }
 }
 
-constexpr int32_t price_update_delay = 2;
+constexpr float price_update_delay = 2;
 constexpr float price_change_rate = 0.025f;
 constexpr float base_price = 1.f;
+constexpr float min_price = 0.01f;
+constexpr float max_price = 10.f;
+constexpr float epsilon = 0.001f;
 constexpr float purchasing_change_rate = 1.f;
-void economy_single_good_tick(World& world, Good& good) {
-    auto good_id = world.get_id(good);
+void economy_single_good_tick(World& world, const Market& market) {
+    auto good_id = market.good;
     const size_t province_size = world.provinces.size();
     // determine new prices
     for(size_t i = 0; i < province_size; i++) {
         auto& province = world.provinces[i];
         auto& product = province.products[good_id];
-        auto demand = product.demand;
-        auto supply = product.supply;
-        auto demand_in_state = std::max<double>(demand, 0.001f);
-        auto current_price = product.price;
-        float final_dot_product = current_price * demand_in_state / (supply + 0.0001f);
-        auto new_price = std::clamp<float>(final_dot_product, 0.01f, base_price * 10.0f);
-        auto state_price_delta = ((current_price * (1.0f - price_change_rate) + new_price * price_change_rate) - current_price) / float(price_update_delay);
+        auto supply = market.supply[i] + epsilon;
+        auto demand_in_state = market.global_demand[i] + epsilon;
+        auto current_price = market.prices[i];
+        auto new_price = current_price * demand_in_state / supply;
+        new_price = std::clamp<float>(new_price, base_price * min_price, base_price * max_price);
+        auto state_price_delta = (std::lerp(current_price, new_price, price_change_rate) - current_price) / price_update_delay;
         product.price += state_price_delta;
     }
 }
@@ -351,46 +356,50 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             market.prices.reserve(world.provinces.size());
             market.supply.reserve(world.provinces.size());
             market.demand.reserve(world.provinces.size());
+            market.global_demand = std::vector(world.provinces.size(), 0.f);
+            market.total_reciprocal_price = 0;
 
             for(size_t i = 0; i < world.provinces.size(); i++) {
                 auto& province = world.provinces[i];
                 auto& product = province.products[market.good];
                 market.demand[i] = 0.f;
-                if(Nation::is_valid(province.owner_id)) {
-                    market.prices[i] = product.price;
-                    market.supply[i] = product.supply;
-                } else {
-                    market.prices[i] = product.price;
-                    market.supply[i] = product.supply;
-                }
+                market.prices[i] = product.price;
+                market.supply[i] = product.supply;
+                market.total_reciprocal_price += 1 / (product.price + epsilon);
             }
         }
     });
     world.profiler.stop("E-init");
 
     world.profiler.start("E-trade");
-    // economy_state.trade.recalculate(world);
-    tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world](const auto& markets_range) {
+    if (economy_state.trade.trade_cost.empty())
+        economy_state.trade.recalculate(world);
+    auto& trade = economy_state.trade;
+
+    std::vector<float> total_reciprocal_trade_costs;
+    total_reciprocal_trade_costs.reserve(world.provinces.size());
+    std::vector<size_t> province_range{world.provinces.size()};
+    std::iota(province_range.begin(), province_range.end(), 0);
+    tbb::parallel_for(tbb::blocked_range(province_range.begin(), province_range.end()), [&trade, &total_reciprocal_trade_costs](const auto& iterator_range) {
+        for(auto& i : iterator_range) {
+            float total_reciprocal_trade_cost = 0;
+            for(size_t j = 0; j < total_reciprocal_trade_costs.size(); j++) {
+                total_reciprocal_trade_cost += 1 / (trade.trade_cost[i][j] + epsilon);
+            }
+            total_reciprocal_trade_costs.push_back(total_reciprocal_trade_cost);
+        }
+    });
+
+    tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world, &trade, &total_reciprocal_trade_costs](const auto& markets_range) {
         for(auto& market : markets_range) {
             for(size_t i = 0; i < world.provinces.size(); i++) {
-                auto& province = world.provinces[i];
-                const size_t province_neighbours_size = province.neighbours.size();
-                auto& product = province.products[market.good];
-                if(product.supply <= 0.f) continue;
-                for(const auto neighbour_id : province.neighbours) {
-                    auto& neighbour = g_world.provinces[neighbour_id];
-                    if(Nation::is_valid(neighbour.owner_id)) continue;
-                    const size_t neighbour_neighbours_size = neighbour.neighbours.size();
-                    auto& other_product = neighbour.products[market.good];
-                    // Transfer goods
-                    if(other_product.price > product.price) {
-                        float amount = product.supply / province_neighbours_size;
-                        market.supply[i] -= amount;
-                        market.demand[i] += amount;
-                    } else {
-                        float other_amount = other_product.supply / neighbour_neighbours_size;
-                        market.supply[i] += other_amount;
-                    }
+                float reciprocal_price = 1 / (market.prices[i] + epsilon);
+                float total_reciprocal_price = market.total_reciprocal_price;
+                for(size_t j = 0; j < world.provinces.size(); j++) {
+                    float reciprocal_trade_cost = 1 / (trade.trade_cost[i][j] + epsilon);
+                    float reciprocal_cost = reciprocal_price + reciprocal_trade_cost;
+                    float total_reciprocal_cost = total_reciprocal_price + total_reciprocal_trade_costs[j];
+                    market.global_demand[i] += market.demand[j] * (reciprocal_cost / total_reciprocal_cost);
                 }
             }
         }
@@ -400,7 +409,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     world.profiler.start("E-good");
     tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world](const auto& markets_range) {
         for(const auto& market : markets_range) {
-            economy_single_good_tick(world, world.goods[market.good]);
+            economy_single_good_tick(world, market);
         }
     });
     world.profiler.stop("E-good");

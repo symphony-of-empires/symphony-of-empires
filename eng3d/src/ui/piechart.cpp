@@ -93,7 +93,7 @@ inline void PieChart::draw_triangle(float start_ratio, float end_ratio, Eng3D::C
     mesh.draw();
 }
 
-void PieChart::on_render(UI::Context& ctx, Eng3D::Rect viewport) {
+void PieChart::on_render(UI::Context& ctx, Eng3D::Rect) {
     ctx.piechart_shader->set_texture(0, "diffuse_map", *ctx.piechart_overlay);
     float counter = 0;
     float last_corner = -0.125f;

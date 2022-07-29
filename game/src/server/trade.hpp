@@ -43,10 +43,11 @@ namespace Economy {
             float cost;
             Province::Id province_id;
         };
+
+        std::vector<std::vector<float>> trade_cost;
     private:
         void initialize(const World& world);
 
-        std::vector<std::vector<float>> trade_cost;
         std::vector<std::vector<Vertex>> neighbours;
     };
 };
