@@ -55,6 +55,15 @@ gfx/load_screen/004
 gfx/load_screen/005
 	By Joseph Nash - https://twitter.com/UKHouseofLords/status/1290593833185673221/photo/1, Public Domain, https://commons.wikimedia.org/w/index.php?curid=96679288
 
+gfx/load_screen/006
+	By Francis Holman - https://www.rmg.co.uk/collections/objects/rmgc-object-15584, Public Domain, https://commons.wikimedia.org/w/index.php?curid=22131652
+
+gfx/load_screen/007
+	By Francis Holman - https://www.rmg.co.uk/collections/objects/rmgc-object-15584, Public Domain, https://commons.wikimedia.org/w/index.php?curid=22131652
+
+gfx/load_screen/008
+	By Otto Bache - [1], Public Domain, https://commons.wikimedia.org/w/index.php?curid=3428232
+
 gfx/ideology/communism
 gfx/ideology/fascism
 gfx/ideology/republic
