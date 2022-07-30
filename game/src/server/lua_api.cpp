@@ -289,14 +289,11 @@ int LuaAPI::add_nation(lua_State* L) {
     nation.name = luaL_checkstring(L, 2);
     nation.ideology = &g_world.ideologies.at(0);
     nation.religion_discrim.resize(g_world.religions.size(), 0.5f);
-    nation.religion_discrim.shrink_to_fit();
     nation.culture_discrim.resize(g_world.cultures.size(), 0.5f);
-    nation.culture_discrim.shrink_to_fit();
     nation.client_hints.resize(g_world.ideologies.size());
-    nation.client_hints.shrink_to_fit();
+    nation.research.resize(g_world.technologies.size());
     for(const auto& technology : g_world.technologies)
-        nation.research.push_back(technology.cost);
-    nation.research.shrink_to_fit();
+        nation.research[technology.get_id()] = technology.cost;
 
     // Check for duplicates
     for(const auto& other_nation : g_world.nations) {
@@ -605,7 +602,6 @@ int LuaAPI::add_province(lua_State* L) {
     province.terrain_type = &g_world.terrain_types.at(lua_tonumber(L, 4));
     // load rgo_size
     province.rgo_size.resize(g_world.goods.size(), 0);
-    province.rgo_size.shrink_to_fit();
     lua_pushvalue(L, 5);
     lua_pushnil(L);
     while(lua_next(L, -2)) {
@@ -629,13 +625,9 @@ int LuaAPI::add_province(lua_State* L) {
     }
     
     province.products.resize(g_world.goods.size());
-    province.products.shrink_to_fit();
     province.buildings.resize(g_world.building_types.size());
-    province.buildings.shrink_to_fit();
-    for(const auto& building_type : g_world.building_types) {
+    for(const auto& building_type : g_world.building_types)
         province.buildings[g_world.get_id(building_type)].stockpile.resize(building_type.inputs.size(), 0);
-        province.buildings[g_world.get_id(building_type)].stockpile.shrink_to_fit();
-    }
     // Set bounding box of province to the whole world (will later be resized at the bitmap-processing step)
     province.box_area = Eng3D::Rect(0, 0, std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max());
     province.pops.reserve(100);
@@ -964,11 +956,8 @@ int LuaAPI::add_pop_type(lua_State* L) {
     else pop_type.group = PopGroup::OTHER;
 
     pop_type.basic_needs_amount.resize(g_world.goods.size(), 0);
-    pop_type.basic_needs_amount.shrink_to_fit();
     pop_type.luxury_needs_satisfaction.resize(g_world.goods.size(), 0);
-    pop_type.luxury_needs_satisfaction.shrink_to_fit();
     pop_type.luxury_needs_deminishing_factor.resize(g_world.goods.size(), 0);
-    pop_type.luxury_needs_deminishing_factor.shrink_to_fit();
 
     // Lua next = pops top and then pushes key & value in table
     lua_pushvalue(L, 8);

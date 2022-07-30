@@ -568,7 +568,6 @@ void GameState::music_thread() {
     for(const auto& path : path_entries)
         entries.push_back(MusicEntry{ false, path->get_abs_path() });
     path_entries.clear();
-    entries.shrink_to_fit();
 
     while(this->run) {
         if(this->audio_man.music_queue.empty()) {

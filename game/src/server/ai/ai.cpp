@@ -59,18 +59,13 @@ static std::vector<Province::Id> g_water_provinces;
 
 void ai_init(World& world) {
     g_ai_data.resize(world.nations.size());
-    for(auto& ai_data : g_ai_data) {
+    for(auto& ai_data : g_ai_data)
         ai_data.nations_risk_factor.resize(world.nations.size());
-        ai_data.nations_risk_factor.shrink_to_fit();
-    }
-    g_ai_data.shrink_to_fit();
 
     g_water_provinces.reserve(world.provinces.size());
-    for(const auto& province : world.provinces) {
+    for(const auto& province : world.provinces)
         if(province.terrain_type->is_water_body)
             g_water_provinces.push_back(province.get_id());
-    }
-    g_water_provinces.shrink_to_fit();
 }
 
 // Obtain best potential good
@@ -89,7 +84,6 @@ static inline Good* ai_get_potential_good(Nation& nation) {
         // So our formula would be:
         // Sucess = Sum(Demand / (Supply + 1) * Price)
         std::vector<float> avg_prob(world.goods.size(), 0.f);
-        avg_prob.shrink_to_fit();
         for(const auto province_id : nation.owned_provinces) {
             const auto& province = world.provinces[province_id];
             for(const auto& good : world.goods) {
@@ -461,10 +455,8 @@ void ai_do_tick(Nation& nation) {
             if(relation.has_war)
                 ai_data.nations_risk_factor[other.get_id()] = 10.f;
         }
-        eval_provinces.shrink_to_fit();
 
         std::vector<double> potential_risk(world.provinces.size(), 1.f);
-        potential_risk.shrink_to_fit();
         for(const auto province_id : eval_provinces) {
             const auto& province = world.provinces[province_id];
             for(const auto neighbour_id : province.neighbours) {

@@ -346,7 +346,6 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
 void Economy::do_tick(World& world, EconomyState& economy_state) {
     world.profiler.start("E-init");
     std::vector<Market> markets{ world.goods.size() };
-    markets.shrink_to_fit();
     for(Good::Id good_id = 0; good_id < world.goods.size(); good_id++) {
         auto& market = markets[good_id];
         market.good = good_id;
@@ -377,7 +376,6 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     auto& trade = economy_state.trade;
 
     std::vector<float> total_reciprocal_trade_costs(world.provinces.size(), 0.f);
-    total_reciprocal_trade_costs.shrink_to_fit();
     tbb::parallel_for((Province::Id)0, (Province::Id)world.provinces.size(), [&trade, &total_reciprocal_trade_costs](Province::Id province_id) {
         float total_reciprocal_trade_cost = 0;
         for(Province::Id j = 0; j < total_reciprocal_trade_costs.size(); j++)
@@ -416,7 +414,6 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         province_ids[last_id++] = id;
     }
     province_ids.resize(last_id);
-    province_ids.shrink_to_fit();
 
     tbb::combinable<tbb::concurrent_vector<NewUnit>> province_new_units;
     std::vector<std::vector<float>> buildings_new_worker(world.provinces.size());
