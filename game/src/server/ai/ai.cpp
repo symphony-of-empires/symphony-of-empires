@@ -483,11 +483,11 @@ void ai_do_tick(Nation& nation) {
                     // basically make the draw_in_force negative, which in turns does not draw away but rather
                     // draw in even more units
                     draw_in_force += unit_strength * ai_data.nations_risk_factor[unit.owner_id];
-                    draw_in_force *= unit.on_battle ? 1.5f : 1.f;
+                    draw_in_force *= unit.on_battle ? 3.f : 1.f;
                 }
                 // Only if neighbour has a controller
                 if(neighbour.controller != nullptr)
-                    draw_in_force *= ai_data.nations_risk_factor[neighbour.controller->get_id()];
+                    draw_in_force *= ai_data.nations_risk_factor[neighbour.controller->get_id()] * 2.f;
                 // Spread out the heat
                 potential_risk[province_id] += draw_in_force;
                 potential_risk[neighbour_id] += potential_risk[province_id] / province.neighbours.size();
@@ -510,7 +510,6 @@ void ai_do_tick(Nation& nation) {
                 for(const auto neighbour_id : unit_province.neighbours) {
                     const auto& neighbour = g_world.provinces[neighbour_id];
                     if(!unit.type->is_naval && neighbour.terrain_type->is_water_body) continue;
-                    if(std::rand() % 3 == 0) continue;
                     if(potential_risk[neighbour_id] > potential_risk[highest_risk->get_id()]) {
                         if(neighbour.controller != nullptr && neighbour.controller->get_id() != unit.owner_id) {
                             const auto& relation = world.get_relation(neighbour.controller->get_id(), unit.owner_id);
@@ -523,7 +522,7 @@ void ai_do_tick(Nation& nation) {
                 }
 
                 // Above we made sure high_risk province is valid for us to step in
-                if(highest_risk == &unit_province || std::rand() % 8 == 0) {
+                if(highest_risk == &unit_province || std::rand() % 32 == 0) {
                     auto it = highest_risk->neighbours.begin();
                     std::advance(it, std::rand() % highest_risk->neighbours.size());
                     highest_risk = &g_world.provinces[*it];
