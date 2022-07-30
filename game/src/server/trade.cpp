@@ -36,7 +36,7 @@
 using namespace Economy;
 
 static inline void shortest_path_from_source(Province::Id source, const std::vector<std::vector<Trade::Vertex>>& neighbour_relations, std::vector<float>& costs) {
-    auto cmp = [](Trade::Vertex const& a, Trade::Vertex const& b) { return a.cost < b.cost; };
+    auto cmp = [](const Trade::Vertex& a, const Trade::Vertex& b) { return a.cost < b.cost; };
     std::priority_queue<Trade::Vertex, std::vector<Trade::Vertex>, decltype(cmp)> heap;
 
     heap.emplace(Trade::Vertex{ 0, source });
@@ -48,9 +48,8 @@ static inline void shortest_path_from_source(Province::Id source, const std::vec
             costs[vertex.province_id] = vertex.cost;
             const auto& neighbours = neighbour_relations[vertex.province_id];
             for(const auto& neighbour : neighbours) {
-                if(neighbour.cost < costs[neighbour.province_id]) {
+                if(neighbour.cost < costs[neighbour.province_id])
                     heap.emplace(neighbour.cost, neighbour.province_id);
-                }
             }
         }
     }
@@ -71,8 +70,7 @@ void Trade::recalculate(const World& world) {
     // tbb::blocked_range<Province::Id> range(static_cast<Province::Id>(0), static_cast<Province::Id>(world.provinces.size()));
     tbb::parallel_for((Province::Id)0, (Province::Id)world.provinces.size(), [this, &world](Province::Id province_id) {
         if(world.provinces[province_id].is_coastal) return;
-        auto& local_costs = this->trade_cost[province_id];
-        shortest_path_from_source(province_id, this->neighbours, local_costs);
+        shortest_path_from_source(province_id, this->neighbours, this->trade_cost[province_id]);
     }, tbb::auto_partitioner());
 }
 

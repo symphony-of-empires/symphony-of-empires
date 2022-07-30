@@ -33,13 +33,12 @@ class World;
 namespace Economy {
     class Trade final {
     public:
-        Trade() {};
+        Trade() = default;
 
         void recalculate(const World& world);
 
-        struct Vertex
-        {
-            Vertex(float _cost, Province::Id _province_id) : cost{_cost}, province_id{_province_id} {};
+        struct Vertex {
+            constexpr Vertex(float _cost, Province::Id _province_id) : cost{_cost}, province_id{_province_id} {};
             float cost;
             Province::Id province_id;
         };

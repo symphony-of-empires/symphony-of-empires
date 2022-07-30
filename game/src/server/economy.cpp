@@ -378,14 +378,11 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
 
     std::vector<float> total_reciprocal_trade_costs(world.provinces.size(), 0.f);
     total_reciprocal_trade_costs.shrink_to_fit();
-    tbb::parallel_for(tbb::blocked_range(world.provinces.begin(), world.provinces.end()), [&trade, &total_reciprocal_trade_costs](const auto& provinces_range) {
-        for(const auto& province : provinces_range) {
-            float total_reciprocal_trade_cost = 0;
-            for(Province::Id j = 0; j < total_reciprocal_trade_costs.size(); j++) {
-                total_reciprocal_trade_cost += 1 / (trade.trade_cost[province.get_id()][j] + epsilon);
-            }
-            total_reciprocal_trade_costs[province.get_id()] = total_reciprocal_trade_cost;
-        }
+    tbb::parallel_for((Province::Id)0, (Province::Id)world.provinces.size(), [&trade, &total_reciprocal_trade_costs](Province::Id province_id) {
+        float total_reciprocal_trade_cost = 0;
+        for(Province::Id j = 0; j < total_reciprocal_trade_costs.size(); j++)
+            total_reciprocal_trade_cost += 1 / (trade.trade_cost[province_id][j] + epsilon);
+        total_reciprocal_trade_costs[province_id] = total_reciprocal_trade_cost;
     });
 
     tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world, &trade, &total_reciprocal_trade_costs](const auto& markets_range) {
@@ -406,9 +403,8 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
 
     world.profiler.start("E-good");
     tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world](const auto& markets_range) {
-        for(const auto& market : markets_range) {
+        for(const auto& market : markets_range)
             economy_single_good_tick(world, market);
-        }
     });
     world.profiler.stop("E-good");
 
@@ -420,6 +416,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         province_ids[last_id++] = id;
     }
     province_ids.resize(last_id);
+    province_ids.shrink_to_fit();
 
     tbb::combinable<tbb::concurrent_vector<NewUnit>> province_new_units;
     std::vector<std::vector<float>> buildings_new_worker(world.provinces.size());
