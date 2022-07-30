@@ -60,7 +60,7 @@ TopWindow::TopWindow(GameState& _gs)
     });
     new UI::Image(0, 0, flag_img->width, flag_img->height, gs.tex_man.load(this->gs.package_man.get_unique("gfx/flag_rug.png")), this);
 
-    auto* score_flex_column = new UI::Div(150, 0, 128, 320, this);
+    auto* score_flex_column = new UI::Div(150, 0, 150, 24 * 5, this);
 
     score_flex_column->flex = UI::Flex::COLUMN;
     auto* money_lab = new UI::Label(0, 0, " ", score_flex_column);
