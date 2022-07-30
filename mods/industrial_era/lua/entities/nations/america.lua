@@ -99,6 +99,13 @@ upca:add_client_hint(republic, _("United Provinces of Central America"), 0x5bb2c
 upca:add_client_hint(communism, _("United Provinces of Central America"), 0x5bb2cf)
 upca:add_client_hint(socialism, _("United Provinces of Central America"), 0x5bb2cf)
 
+miskito_coast = Nation:new{ ref_name = "miskito_coast" }
+miskito_coast.name = _("Miskito Coast")
+miskito_coast:register()
+miskito_coast:set_ideology(monarchy)
+miskito_coast:add_accepted_culture(mexican)
+miskito_coast:add_client_hint(monarchy, _("Miskito Coast"), 0xd49285)
+
 mexico = Nation:new{ ref_name = "mexico" }
 mexico.name = _("Mexico")
 mexico.adjective = _("Mexican")
