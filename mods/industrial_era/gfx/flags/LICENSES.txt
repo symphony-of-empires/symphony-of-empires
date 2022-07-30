@@ -470,7 +470,7 @@ vietnam_communism
 vietnam_republic
 	By (many, see history) - (see history);BASED ON THIS CONSTRUCTION SHEET:, Public Domain, https://commons.wikimedia.org/w/index.php?curid=434803
 
-algeirs_monarchy
+algiers_monarchy
 	By Marce79 - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=17975900
 
 tunis_republic

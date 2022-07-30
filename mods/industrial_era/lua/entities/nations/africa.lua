@@ -34,13 +34,13 @@ tunis:set_ideology(monarchy)
 tunis:add_accepted_culture(arabic)
 tunis:add_client_hint(monarchy, _("Tunis"), 0xAC433A)
 
-algeirs = Nation:new{ ref_name = "algeirs" }
-algeirs.name = _("Algeirs")
-algeirs.adjective = _("Algerian")
-algeirs:register()
-algeirs:set_ideology(monarchy)
-algeirs:add_accepted_culture(arabic)
-algeirs:add_client_hint(monarchy, _("Algeirs"), 0x509095)
+algiers = Nation:new{ ref_name = "algiers" }
+algiers.name = _("Algiers")
+algiers.adjective = _("Algerian")
+algiers:register()
+algiers:set_ideology(monarchy)
+algiers:add_accepted_culture(arabic)
+algiers:add_client_hint(monarchy, _("Algiers"), 0x509095)
 
 abbyssina = Nation:new{ ref_name = "abbyssina" }
 abbyssina.name = _("Abbyssina")

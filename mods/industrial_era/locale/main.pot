@@ -96,7 +96,7 @@ msgid "Alexandrovski"
 msgstr ""
 
 #: nations/africa.lua:13 nations/africa.lua:17
-msgid "Algeirs"
+msgid "Algiers"
 msgstr ""
 
 #: nations/africa.lua:14
