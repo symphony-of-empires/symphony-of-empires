@@ -123,6 +123,27 @@ UI_RegisterCallback("settings_window_invoke", function()
     grid_chk:set_on_click(function(widget)
         UI_CallBuiltin("gs.shader_opt.set", "GRID", UI_ReinterpretAs(UI_Checkbox, widget):get_value())
     end)
+    
+    local units_chk = UI_Checkbox:new(0, 0, 256, 24, graphics_flex.id)
+    units_chk:text(_("Units"))
+    units_chk:set_value(UI_CallBuiltin("gs.shader_opt.get", "UNITS"))
+    units_chk:set_on_click(function(widget)
+        UI_CallBuiltin("gs.shader_opt.set", "UNITS", UI_ReinterpretAs(UI_Checkbox, widget):get_value())
+    end)
+    
+    local buildings_chk = UI_Checkbox:new(0, 0, 256, 24, graphics_flex.id)
+    buildings_chk:text(_("Buildings"))
+    buildings_chk:set_value(UI_CallBuiltin("gs.shader_opt.get", "BUILDINGS"))
+    buildings_chk:set_on_click(function(widget)
+        UI_CallBuiltin("gs.shader_opt.set", "BUILDINGS", UI_ReinterpretAs(UI_Checkbox, widget):get_value())
+    end)
+    
+    local trees_chk = UI_Checkbox:new(0, 0, 256, 24, graphics_flex.id)
+    trees_chk:text(_("Trees"))
+    trees_chk:set_value(UI_CallBuiltin("gs.shader_opt.get", "TREES"))
+    trees_chk:set_on_click(function(widget)
+        UI_CallBuiltin("gs.shader_opt.set", "TREES", UI_ReinterpretAs(UI_Checkbox, widget):get_value())
+    end)
 
     -- TODO: Motion blur get
     local motion_blur_chk = UI_Checkbox:new(0, 0, 256, 24, graphics_flex.id)
