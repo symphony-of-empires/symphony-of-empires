@@ -54,7 +54,7 @@ namespace Eng3D {
 
         }
 
-        constexpr Camera(const Camera& camera)
+        Camera(const Camera& camera)
             : map_position{ camera.get_map_pos() },
             world_position{ glm::vec3(1.f) },
             screen_size{ camera.screen_size },

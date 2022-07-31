@@ -12,18 +12,30 @@ Required to build:
 * GL and GLU
 * libavcodec (on most package managers it's ffmpeg)
 
-## Build on Linux
+## Installing pre-requisites
 
 **If you simply want to play the game on linux:**
 ```
 ./quick_build.sh
 ```
 
-### Debian-based distros
-Install all dependencies with this command:
+### NetBSD
+```sh
+pkgin in SDL2 SDL2_ttf assimp lua54 glew MesaLib glu libatomic
 ```
+oneTBB doesn't come in pkgin form, so you'll have to compile it yourself. Make sure to symlink libc.* to libdl.* on `/usr/lib` - since the libc already contains dl functions and oneTBB will try to use them.
+Make sure ot also correctly set pkgin directories `/usr/pkg/include` and `/usr/pkg/lib`.
+Additionally you need to rebuild libstdc++-v3 from source code, so clone gcc and run `mkdir -p build-gcc && cd build-gcc && ../configure --disable-nls`. Depending on your setup you might need to patch gcc for missing includes, this task can take from 5 to 8 hours.
+
+### Debian-based distros
+```sh
 sudo apt install -y libpng-dev libsdl2-dev libsdl2-ttf-dev liblua5.3-dev libtbb-dev libglew-dev libglm-dev libassimp-dev
 ```
+
+### Windows
+Use either vcpkg or nuget to do dependencies.
+
+## Building
 
 The build with these commands once all the dependencies are met:
 ```sh
@@ -34,8 +46,7 @@ cmake -DE3D_DEBUG=1 -DE3D_BACKEND_OPENGL=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo .
 make
 ```
 
-Specifying `-j` to make will freeze systems, use `-j$(nproc)` instead, if a multithreaded compilation is desired.
-
+### Workaround for Ubuntu
 Use this code to install Lua5.4
 ```sh
 wget http://mirrors.kernel.org/ubuntu/pool/universe/l/lua5.4/liblua5.4-0_5.4.0-2_amd64.deb

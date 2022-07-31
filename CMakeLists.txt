@@ -88,6 +88,7 @@ IF(UNIT_TEST)
 ENDIF()
 
 include_directories("/usr/include/SDL2")
+include_directories("/usr/pkg/include/SDL2")
 include_directories("${PROJECT_SOURCE_DIR}/game/src" "${CMAKE_SOURCE_DIR}/eng3d")
 
 #
@@ -131,7 +132,7 @@ IF(WIN32)
 		target_link_libraries(SymphonyOfEmpires PRIVATE opengl32)
 	ENDIF()
 ELSEIF(UNIX OR ANDROID)
-	target_link_libraries(SymphonyOfEmpires PRIVATE m stdc++)
+	target_link_libraries(SymphonyOfEmpires PRIVATE m stdc++ atomic)
 	IF(E3D_BACKEND_OPENGL)
 		target_link_libraries(SymphonyOfEmpires PRIVATE GL GLEW)
 	ELSEIF(E3D_BACKEND_GLES)
