@@ -109,9 +109,16 @@ void UnitWidget::set_unit(Unit& _unit) {
     } else if(gs.curr_nation != nullptr && _unit.owner_id == gs.curr_nation->get_id()) {
         this->size_label->background_color = Eng3D::Color::rgba8(0x1e, 0x80, 0x0f, 0x80);
     }
-
-    auto nation_flag = map.nation_flags[_unit.owner_id];
-    this->flag_img->current_texture = nation_flag;
+    
+    Eng3D::TextureOptions mipmap_options{};
+    mipmap_options.wrap_s = GL_REPEAT;
+    mipmap_options.wrap_t = GL_REPEAT;
+    mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+    mipmap_options.mag_filter = GL_LINEAR;
+    mipmap_options.compressed = false;
+    const auto& nation = this->gs.world->nations[_unit.owner_id];
+    std::string path = "gfx/flags/" + nation.ref_name + "_" + (nation.ideology == nullptr ? "none" : nation.ideology->ref_name.get_string()) + ".png";
+    this->flag_img->current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique(path), mipmap_options);
     auto unit_size = (int)_unit.size;
     this->set_size(unit_size);
     this->morale_bar->set_value(_unit.morale);

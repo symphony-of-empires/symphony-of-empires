@@ -146,22 +146,17 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
 
     // Query the initial nation flags
     for(const auto& nation : world.nations) {
-        std::string path = "gfx/flags/" + nation.ref_name + "_" + (nation.ideology == nullptr ? "none" : nation.ideology->ref_name.get_string()) + ".png";
-        nation_flags.push_back(s.tex_man.load(s.package_man.get_unique(path), mipmap_options));
+        nation_flags.push_back(s.tex_man.get_white());
     }
     for(const auto& building_type : world.building_types) {
-        std::string path;
-        path = "models/building_types/" + building_type.ref_name + ".obj";
+        const std::string path = "models/building_types/" + building_type.ref_name + ".obj";
         building_type_models.push_back(s.model_man.load(s.package_man.get_unique(path)));
-        path = "gfx/buildingtype/" + building_type.ref_name + ".png";
-        building_type_icons.push_back(s.tex_man.load(s.package_man.get_unique((path))));
+        building_type_icons.push_back(s.tex_man.get_white());
     }
     for(const auto& unit_type : world.unit_types) {
-        std::string path;
-        path = "models/unit_types/" + unit_type.ref_name + ".obj";
+        const std::string path = "models/unit_types/" + unit_type.ref_name + ".obj";
         unit_type_models.push_back(s.model_man.load(s.package_man.get_unique(path)));
-        path = "gfx/unittype/" + unit_type.ref_name + ".png";
-        unit_type_icons.push_back(s.tex_man.load(s.package_man.get_unique(path)));
+        unit_type_icons.push_back(s.tex_man.get_white());
     }
 
     line_tex = s.tex_man.load(s.package_man.get_unique("gfx/line_target.png"), mipmap_options);

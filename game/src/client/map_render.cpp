@@ -218,26 +218,6 @@ MapRender::MapRender(const World& _world, Map& _map)
 
     // The map shader that draws everything on the map 
     this->reload_shaders();
-
-    Eng3D::Log::debug("game", "Creating border textures");
-    std::unique_ptr<FILE, int(*)(FILE*)> fp(::fopen("sdf_cache.png", "rb"), ::fclose);
-    if(fp.get() == nullptr) {
-        this->update_border_sdf(Eng3D::Rect(0, 0, gs.world->width, gs.world->height), glm::vec2(gs.width, gs.height));
-        border_sdf->to_file("sdf_cache.png");
-    } else {
-        Eng3D::TextureOptions sdf_options{};
-        sdf_options.wrap_s = GL_REPEAT;
-        sdf_options.wrap_t = GL_REPEAT;
-        sdf_options.internal_format = GL_RGB32F;
-        sdf_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-        sdf_options.mag_filter = GL_LINEAR;
-        sdf_options.compressed = false;
-        border_sdf = std::make_unique<Eng3D::Texture>(Eng3D::Texture("sdf_cache.png"));
-        border_sdf->upload(sdf_options);
-    }
-
-    // We are already updating the whole map, don't do it twice
-    const_cast<World&>(this->world).province_manager.clear();
 }
 
 void MapRender::reload_shaders() {
@@ -286,6 +266,30 @@ void MapRender::reload_shaders() {
         auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man.get_unique("shaders/border_sdf_output.fs")->read_all());
         output_shader->attach_shader(fs_shader);
         output_shader->link();
+    }
+    
+    // Only perform the updates/generation on the SDF map when SDF is actually used
+    if(this->options.sdf.used) {
+        Eng3D::Log::debug("game", "Creating border textures");
+        std::unique_ptr<FILE, int(*)(FILE*)> fp(::fopen("sdf_cache.png", "rb"), ::fclose);
+        if(fp.get() == nullptr) {
+            this->update_border_sdf(Eng3D::Rect(0, 0, gs.world->width, gs.world->height), glm::vec2(gs.width, gs.height));
+            border_sdf->to_file("sdf_cache.png");
+        } else {
+            Eng3D::TextureOptions sdf_options{};
+            sdf_options.wrap_s = GL_REPEAT;
+            sdf_options.wrap_t = GL_REPEAT;
+            sdf_options.internal_format = GL_RGB32F;
+            sdf_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+            sdf_options.mag_filter = GL_LINEAR;
+            sdf_options.compressed = false;
+            border_sdf = std::make_unique<Eng3D::Texture>(Eng3D::Texture("sdf_cache.png"));
+            border_sdf->upload(sdf_options);
+        }
+        // We are already updating the whole map, don't do it twice
+        const_cast<World&>(this->world).province_manager.clear();
+    } else { // Otherwise use a dummy texture
+        border_sdf = gs.tex_man.get_white();
     }
 }
 
