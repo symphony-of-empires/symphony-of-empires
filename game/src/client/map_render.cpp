@@ -334,9 +334,9 @@ void MapRender::update_options(MapOptions new_options) {
 
 #include "eng3d/framebuffer.hpp"
 
-// Creates the "waving" border around the continent to give it a 19th century map feel
-// Generate a distance field to from each border using the jump flooding algorithm
-// Used to create borders thicker than one tile
+/// @brief Creates the "waving" border around the continent to give it a 19th century map feel
+/// Generate a distance field to from each border using the jump flooding algorithm
+/// Used to create borders thicker than one tile
 void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_size) {
     glEnable(GL_SCISSOR_TEST);
     glViewport(update_area.left, update_area.top, update_area.width(), update_area.height());
@@ -448,7 +448,7 @@ void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
 void MapRender::update_nations(std::vector<Province::Id> province_ids) {
     std::unordered_set<Nation::Id> nation_ids;
     for(const auto id : province_ids) {
-        auto& province = this->world.provinces[id]; 
+        const auto& province = this->world.provinces[id]; 
         if(province.controller == nullptr) continue;
         this->tile_sheet_nation->buffer.get()[province.get_id()] = province.controller->get_id();
         nation_ids.insert(province.controller->get_id());
@@ -473,10 +473,9 @@ void MapRender::update_visibility(GameState& gs)
     if(gs.curr_nation == nullptr) return;
 
     /// @todo Check that unit is allied with us/province owned by an ally
-
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
-    for(Province::Id i = 0; i < gs.world->provinces.size(); i++)
+    for(Province::Id i = 0; i < 0xffff; i++)
         province_opt->buffer[i] = 0x00000080;
     
     for(const auto& nation : gs.world->nations) {

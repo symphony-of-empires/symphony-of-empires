@@ -1651,6 +1651,8 @@ int LuaAPI::ui_call_builtin(lua_State* L) {
                     gs.map->map_render->options.water.used = is_used;
                 } else if(optname == "GRID") {
                     gs.map->map_render->options.grid.used = is_used;
+                } else if(optname == "UNITS") {
+                    gs.map->map_render->options.units.used = is_used;
                 }
                 gs.map->reload_shaders();
                 break;

@@ -63,17 +63,19 @@ class Map;
 typedef Eng3D::OpenGL::Option Option;
 class MapOptions {
 public:
-    Option noise{ "NOISE", true };
-    Option sdf{ "SDF", false };
-    Option lighting{ "LIGHTING", false };
-    Option parallax{ "PARALLAX", false };
-    Option rivers{ "RIVERS", false };
-    Option water{ "WATER", true };
-    Option grid{ "GRID", true };
+    Option noise{ "NOISE", true }; // Randomization for more variety
+    Option sdf{ "SDF", false }; // Pretty shadow borders
+    Option lighting{ "LIGHTING", false }; // Lights and reflections
+    Option parallax{ "PARALLAX", false }; // Parallax (3D) topography
+    Option rivers{ "RIVERS", false }; // Overlaid rivers
+    Option water{ "WATER", true }; // Textured water
+    Option grid{ "GRID", true }; // Square grid for the map
+    Option units{ "UNITS", false }; // 3D units
+    Option buildings{ "BUILDINGS", false }; // 3D buildings
 
     std::vector<Option> get_options() {
         return std::vector<Option>{
-            noise, sdf, lighting, parallax, rivers, water, grid
+            noise, sdf, lighting, parallax, rivers, water, grid, units
         };
     }
 };

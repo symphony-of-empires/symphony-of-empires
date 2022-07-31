@@ -567,7 +567,6 @@ void Map::draw(GameState& gs) {
                 }
 
                 if(unit.on_battle) unit_visible = false;
-
                 if(unit_visible) {
                     if(unit_index < unit_widgets.size()) this->unit_widgets[unit_index]->set_unit(unit);
                     else this->unit_widgets.push_back(new Interface::UnitWidget(unit, *this, gs, this->map_ui_layer));
@@ -601,7 +600,8 @@ void Map::draw(GameState& gs) {
                 war_battle_idx++;
             }
             
-            if(!province_units.empty()) {
+            // Only display units of set so
+            if(this->map_render->options.units.used && !province_units.empty()) {
                 const auto& unit = this->world.unit_manager.units[province_units[0]];
                 auto model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
                 if(Province::is_valid(unit.get_target_province_id())) {
@@ -634,20 +634,20 @@ void Map::draw(GameState& gs) {
     });
 
     // Buildings
-    for(const auto& province : world.provinces) {
-        province_units_y[world.get_id(province)] += 2.5f;
-        const auto prov_pos = province.get_pos();
-
-        for(const auto& building_type : world.building_types) {
-            if(!province.buildings[building_type.get_id()].level) continue;
-            glm::mat4 model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
-            model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
-            obj_shader->set_uniform("model", model);
-            building_type_models[building_type.get_id()]->draw(*obj_shader);
-            break;
+    if(this->map_render->options.buildings.used) {
+        for(const auto& province : world.provinces) {
+            province_units_y[world.get_id(province)] += 2.5f;
+            const auto prov_pos = province.get_pos();
+            for(const auto& building_type : world.building_types) {
+                if(!province.buildings[building_type.get_id()].level) continue;
+                glm::mat4 model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
+                model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
+                obj_shader->set_uniform("model", model);
+                building_type_models[building_type.get_id()]->draw(*obj_shader);
+                break;
+            }
         }
     }
-    //*/
 
     // Draw the "drag area" box
     if(is_drag) {
