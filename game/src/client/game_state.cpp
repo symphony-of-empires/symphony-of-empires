@@ -265,7 +265,7 @@ void handle_event(Input& input, GameState& gs) {
                     }
                 }
                 break;
-            case Eng3D::Keyboard::Key::F6:
+            case Eng3D::Keyboard::Key::F6: {
                 gs.reload_shaders();
                 // Shader used for drawing the models using custom model render
                 gs.map->obj_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
@@ -274,8 +274,12 @@ void handle_event(Input& input, GameState& gs) {
                     gs.map->obj_shader->attach_shader(*gs.builtin_shaders["fs_3d"].get());
                     gs.map->obj_shader->link();
                 }
-                ui_ctx.prompt("Debug", "Shaders reloaded");
-                break;
+
+                const std::scoped_lock lock(gs.audio_man.sound_lock);
+                gs.audio_man.music_queue.clear();
+
+                ui_ctx.prompt("Debug", "Partial reload");
+            } break;
             case Eng3D::Keyboard::Key::BACKSPACE:
                 ui_ctx.check_text_input(nullptr);
                 break;
