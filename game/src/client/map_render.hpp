@@ -72,10 +72,11 @@ public:
     Option grid{ "GRID", true }; // Square grid for the map
     Option units{ "UNITS", false }; // 3D units
     Option buildings{ "BUILDINGS", false }; // 3D buildings
+    Option trees{ "TREES", false }; // 3D hyper realistic trees
 
     std::vector<Option> get_options() {
         return std::vector<Option>{
-            noise, sdf, lighting, parallax, rivers, water, grid, units
+            noise, sdf, lighting, parallax, rivers, water, grid, units, trees
         };
     }
 };

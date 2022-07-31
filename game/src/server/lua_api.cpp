@@ -1653,6 +1653,10 @@ int LuaAPI::ui_call_builtin(lua_State* L) {
                     gs.map->map_render->options.grid.used = is_used;
                 } else if(optname == "UNITS") {
                     gs.map->map_render->options.units.used = is_used;
+                } else if(optname == "BUILDINGS") {
+                    gs.map->map_render->options.buildings.used = is_used;
+                } else if(optname == "TREES") {
+                    gs.map->map_render->options.trees.used = is_used;
                 }
                 gs.map->reload_shaders();
                 break;
@@ -1679,6 +1683,12 @@ int LuaAPI::ui_call_builtin(lua_State* L) {
                     is_used = gs.map->map_render->options.water.used;
                 } else if(optname == "GRID") {
                     is_used = gs.map->map_render->options.grid.used;
+                } else if(optname == "UNITS") {
+                    is_used = gs.map->map_render->options.units.used;
+                } else if(optname == "BUILDINGS") {
+                    is_used = gs.map->map_render->options.buildings.used;
+                } else if(optname == "TREES") {
+                    is_used = gs.map->map_render->options.trees.used;
                 }
                 Eng3D::Log::debug("lua_bind", "Getting map_shader option " + optname + " is " + (is_used ? "TRUE" : "FALSE"));
                 lua_pushboolean(L, is_used);

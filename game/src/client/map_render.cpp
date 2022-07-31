@@ -58,9 +58,8 @@ MapRender::MapRender(const World& _world, Map& _map)
     map{ _map }
 {
     // Flat surface for drawing flat map 
-    for(int x = -1; x <= 1; x++) {
+    for(int x = -1; x <= 1; x++)
         map_quads.push_back(new Eng3D::Square((int)world.width * x, 0.f, (int)world.width * (x + 1), world.height));
-    }
 
     // Sphere surface for drawing globe map
     map_sphere = new Eng3D::Sphere(0.f, 0.f, 0.f, GLOBE_RADIUS, 100);
@@ -199,9 +198,6 @@ MapRender::MapRender(const World& _world, Map& _map)
     for(auto const& province : world.provinces)
         province_ids.push_back(province.get_id());
     this->update_nations(province_ids);
-
-    // The map shader that draws everything on the map 
-    this->reload_shaders();
 }
 
 void MapRender::reload_shaders() {

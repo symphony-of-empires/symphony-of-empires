@@ -144,6 +144,9 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     mipmap_options.mag_filter = GL_LINEAR;
     mipmap_options.compressed = false;
 
+    line_tex = s.tex_man.load(s.package_man.get_unique("gfx/line_target.png"), mipmap_options);
+    skybox_tex = s.tex_man.load(s.package_man.get_unique("gfx/space.png"), mipmap_options);
+
     // Query the initial nation flags
     for(const auto& nation : world.nations) {
         nation_flags.push_back(s.tex_man.get_white());
@@ -158,18 +161,8 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
         unit_type_models.push_back(s.model_man.load(s.package_man.get_unique(path)));
         unit_type_icons.push_back(s.tex_man.get_white());
     }
-
-    line_tex = s.tex_man.load(s.package_man.get_unique("gfx/line_target.png"), mipmap_options);
-    skybox_tex = s.tex_man.load(s.package_man.get_unique("gfx/space.png"), mipmap_options);
-
-    for(const auto& terrain_type : world.terrain_types) {
-        std::string path = "models/trees/" + terrain_type.ref_name + ".fbx";
-        tree_type_models.push_back(s.model_man.load(s.package_man.get_unique(path)));
-    }
-
-    tree_spawn_pos.resize(world.provinces.size());
-    for(const auto& province : world.provinces)
-        tree_spawn_pos[province.get_id()] = std::make_pair(province.get_pos(), province.terrain_type->get_id());
+    
+    this->reload_shaders();
 }
 
 void Map::update_nation_label(const Nation& nation) {
@@ -189,15 +182,6 @@ void Map::update_nation_label(const Nation& nation) {
     min_point_y = province.box_area.position();
     std::unordered_set<Province*> visited_provinces;
     get_blob_bounds(visited_provinces, nation, province, &min_point_x, &min_point_y, &max_point_x, &max_point_y);
-#if 0
-    // Stop super-big labels
-    if(glm::abs(min_point_x.x - max_point_x.x) >= world.width / 2.f || glm::abs(min_point_y.y - max_point_y.y) >= world.height / 2.f) {
-        auto label = this->map_font->gen_text(nation->get_client_hint().alt_name, glm::vec3(-10.f), glm::vec3(-5.f), 1.f);
-        nation_labels[nation.get_id()] = std::move(label);
-        Eng3D::Log::debug("game", "Extremely big nation: " + nation->ref_name);
-        return;
-    }
-#endif
     glm::vec2 lab_min = (max_point_x + max_point_y + min_point_y) / 3.f;
     glm::vec2 lab_max = (max_point_y + min_point_x + min_point_y) / 3.f;
     glm::vec2 mid_point = (lab_min + lab_max) / 2.f;
@@ -293,7 +277,17 @@ std::string empty_province_tooltip(const World&, const Province::Id) {
 }
 
 void Map::reload_shaders() {
+    auto& s = Eng3D::State::get_instance();
     map_render->reload_shaders();
+    if(this->map_render->options.trees.used) {
+        for(const auto& terrain_type : world.terrain_types) {
+            std::string path = "models/trees/" + terrain_type.ref_name + ".fbx";
+            tree_type_models.push_back(s.model_man.load(s.package_man.get_unique(path)));
+        }
+        tree_spawn_pos.resize(world.provinces.size());
+        for(const auto& province : world.provinces)
+            tree_spawn_pos[province.get_id()] = std::make_pair(province.get_pos(), province.terrain_type->get_id());
+    }
 }
 
 void Map::set_selection(selector_func _selector) {
@@ -324,12 +318,12 @@ void Map::draw_flag(const Eng3D::OpenGL::Program& shader, const Nation& nation) 
         flag.buffer.push_back(Eng3D::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -2.f),
             glm::vec2((r / step) / n_steps, 0.f)
-            ));
+        ));
         sin_r = sin(r + wind_osc + 160.f) / 24.f;
         flag.buffer.push_back(Eng3D::MeshData<glm::vec3, glm::vec2>(
             glm::vec3(((r / step) / n_steps) * 1.5f, sin_r, -1.f),
             glm::vec2((r / step) / n_steps, 1.f)
-            ));
+        ));
     }
     flag.upload();
     shader.set_texture(0, "diffuse_map", *nation_flags[world.get_id(nation)]);
@@ -681,18 +675,20 @@ void Map::draw(GameState& gs) {
         skybox.draw();
     }
 
-    // Drawing trees
-    /*tree_shder->use();
-    tree_shder->set_uniform("projection", projection);
-    tree_shder->set_uniform("view", view);
-    for(auto& province : const_cast<World&>(world).provinces) {
-        const auto& tree = tree_spawn_pos[province.get_id()];
-        glm::mat4 model = glm::translate(base_model, glm::vec3(tree.first, 0.f));
-        model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
-        tree_shder->set_uniform("model", model);
-        for(const auto& simple_model : tree_type_models[tree.second]->simple_models)
-            simple_model.draw(*tree_shder, 10);
-    }*/
+    if(this->map_render->options.trees.used) {
+        // Drawing trees
+        tree_shder->use();
+        tree_shder->set_uniform("projection", projection);
+        tree_shder->set_uniform("view", view);
+        for(auto& province : const_cast<World&>(world).provinces) {
+            const auto& tree = tree_spawn_pos[province.get_id()];
+            glm::mat4 model = glm::translate(base_model, glm::vec3(tree.first, 0.f));
+            model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
+            tree_shder->set_uniform("model", model);
+            for(const auto& simple_model : tree_type_models[tree.second]->simple_models)
+                simple_model.draw(*tree_shder, 10);
+        }
+    }
 
     wind_osc += 0.1f;
 }
