@@ -90,10 +90,6 @@ MapRender::MapRender(const World& _world, Map& _map)
     paper_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/paper.png"), mipmap_options);
     stripes_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/stripes.png"), mipmap_options);
 
-    mipmap_options.internal_format = GL_RED;
-    bathymethry = gs.tex_man.load(gs.package_man.get_unique("map/bathymethry.png"), mipmap_options);
-    river_tex = gs.tex_man.load(gs.package_man.get_unique("map/river_smooth.png"), mipmap_options);
-
     terrain_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/color.png")->get_abs_path()));
     size_t terrain_map_size = terrain_map->width * terrain_map->height;
     for(size_t i = 0; i < terrain_map_size; i++) {
@@ -148,19 +144,7 @@ MapRender::MapRender(const World& _world, Map& _map)
     single_color.internal_format = GL_RGBA;
     single_color.compressed = false;
     terrain_map->upload(single_color);
-
-    auto topo_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/topo.png")->get_abs_path()));
-    normal_topo = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/normal.png")->get_abs_path()));
-    size_t map_size = topo_map->width * topo_map->height;
-    for(unsigned int i = 0; i < map_size; i++) {
-        normal_topo->buffer.get()[i] &= (0x00FFFFFF);
-        normal_topo->buffer.get()[i] |= (topo_map->buffer.get()[i] & 0xFF) << 24;
-    }
-    topo_map.reset(nullptr);
-    mipmap_options.internal_format = GL_RGBA;
-    mipmap_options.compressed = false;
-    normal_topo->upload(mipmap_options);
-
+    
     // Terrain textures to sample from
     terrain_sheet = std::unique_ptr<Eng3D::TextureArray>(new Eng3D::TextureArray(gs.package_man.get_unique("gfx/terrain_sheet.png")->get_abs_path(), 4, 4));
     terrain_sheet->upload();
@@ -268,12 +252,45 @@ void MapRender::reload_shaders() {
         output_shader->link();
     }
     
+    if(this->options.rivers.used) {
+        Eng3D::TextureOptions mipmap_options{};
+        mipmap_options.wrap_s = GL_REPEAT;
+        mipmap_options.wrap_t = GL_REPEAT;
+        mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+        mipmap_options.mag_filter = GL_LINEAR;
+        mipmap_options.compressed = false;
+        mipmap_options.compressed = true;
+        mipmap_options.internal_format = GL_RED;
+        this->bathymethry = gs.tex_man.load(gs.package_man.get_unique("map/bathymethry.png"), mipmap_options);
+        this->river_tex = gs.tex_man.load(gs.package_man.get_unique("map/river_smooth.png"), mipmap_options);
+    } else {
+        this->bathymethry = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(1, 1));
+        this->river_tex = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(1, 1));
+    }
+    
+    // Load normal and topographic maps only w lighting
+    if(this->options.lighting.used) {
+        auto topo_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/topo.png")->get_abs_path()));
+        this->normal_topo = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/normal.png")->get_abs_path()));
+        size_t map_size = topo_map->width * topo_map->height;
+        for(size_t i = 0; i < map_size; i++) {
+            this->normal_topo->buffer.get()[i] &= (0x00FFFFFF);
+            this->normal_topo->buffer.get()[i] |= (topo_map->buffer.get()[i] & 0xFF) << 24;
+        }
+        Eng3D::TextureOptions mipmap_options{};
+        mipmap_options.internal_format = GL_RGBA;
+        mipmap_options.compressed = false;
+        this->normal_topo->upload(mipmap_options);
+    } else {
+        this->normal_topo = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(1, 1));
+    }
+    
     // Only perform the updates/generation on the SDF map when SDF is actually used
     if(this->options.sdf.used) {
         Eng3D::Log::debug("game", "Creating border textures");
         std::unique_ptr<FILE, int(*)(FILE*)> fp(::fopen("sdf_cache.png", "rb"), ::fclose);
         if(fp.get() == nullptr) {
-            this->update_border_sdf(Eng3D::Rect(0, 0, gs.world->width, gs.world->height), glm::vec2(gs.width, gs.height));
+            this->update_border_sdf(Eng3D::Rect(0, 0, this->world.width, this->world.height), glm::vec2(gs.width, gs.height));
             border_sdf->to_file("sdf_cache.png");
         } else {
             Eng3D::TextureOptions sdf_options{};
@@ -289,7 +306,7 @@ void MapRender::reload_shaders() {
         // We are already updating the whole map, don't do it twice
         const_cast<World&>(this->world).province_manager.clear();
     } else { // Otherwise use a dummy texture
-        border_sdf = gs.tex_man.get_white();
+        border_sdf = std::make_unique<Eng3D::Texture>(Eng3D::Texture(1, 1));
     }
 }
 

@@ -65,9 +65,9 @@ class MapOptions {
 public:
     Option noise{ "NOISE", true };
     Option sdf{ "SDF", false };
-    Option lighting{ "LIGHTING", true };
+    Option lighting{ "LIGHTING", false };
     Option parallax{ "PARALLAX", false };
-    Option rivers{ "RIVERS", true };
+    Option rivers{ "RIVERS", false };
     Option water{ "WATER", true };
     Option grid{ "GRID", true };
 
