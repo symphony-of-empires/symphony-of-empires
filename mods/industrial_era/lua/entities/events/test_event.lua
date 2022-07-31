@@ -42,7 +42,6 @@ cake_evhdl = Event:new{
 			effects = "You will consume cake"
 		}
 		cake_evhdl:add_decision(decision)
-		
 		decision = Decision:new{
 			ref_name = "cake_decision_1",
 			name = "Fuck you",
@@ -52,7 +51,6 @@ cake_evhdl = Event:new{
 			effects = "You will consume cake anyways"
 		}
 		cake_evhdl:add_decision(decision)
-	
 		decision = Decision:new{
 			ref_name = "cake_decision_2",
 			name = "Cake!?",
@@ -62,7 +60,6 @@ cake_evhdl = Event:new{
 			effects = "Your compulsory desire for cake has began to grow"
 		}
 		cake_evhdl:add_decision(decision)
-	
 		decision = Decision:new{
 			ref_name = "cake_decision_3",
 			name = "Britain, we have a problem",

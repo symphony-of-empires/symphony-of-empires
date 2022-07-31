@@ -56,7 +56,7 @@ unify_germany_evhdl = Event:new{
 		decision = Decision:new{
 			ref_name = "unify_germany_decision_1",
 			name = "No",
-			decision_fn = function()
+			decision_fn = function(ref_name)
 				print('Germany isn\'t going to be a thing :<')
 			end,
 			effects = "Nothing happens"
