@@ -15,11 +15,9 @@ IF(SOE_UBSAN)
 ENDIF()
 
 IF(WIN32)
-	add_definitions( -DNOMINMAX=1 )
-	add_definitions( -DWIN32_LEAN_AND_MEAN=1 )
-ENDIF()
-
-IF(ANDROID)
+	add_definitions(-DNOMINMAX=1)
+	add_definitions(-DWIN32_LEAN_AND_MEAN=1)
+ELSEIF(ANDROID)
 	set(NDK_PROJECT_PATH $ENV{PWD}) # Set project path to current directory
 	set(ANDROID_STL c++_static) # Static libc++
 	IF(NOT DEFINED ANDROID_HOME)

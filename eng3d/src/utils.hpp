@@ -27,7 +27,8 @@
 
 #include <cstdint>
 
-#if 0
+// NetBSD defines these as functions already
+#if !defined(E3D_TARGET_NETBSD)
 constexpr uint32_t bswap32(const uint32_t x) {
     return
         ((x << 24) & 0xff000000ULL) |
