@@ -28,6 +28,7 @@
 #include <glm/gtx/intersect.hpp>
 
 #include "eng3d/primitive.hpp"
+#include "eng3d/rectangle.hpp"
 
 Eng3D::Line::Line(float start_x, float start_y, float end_x, float end_y)
     : Eng3D::Mesh<glm::vec2, glm::vec2>(Eng3D::MeshMode::LINES)
@@ -53,7 +54,7 @@ Eng3D::Square::Square(float start_x, float start_y, float end_x, float end_y)
     upload();
 }
 
-Eng3D::Square::Square(const Eng3D::Rect& pos, const Eng3D::Rect& texcoord)
+Eng3D::Square::Square(const Eng3D::Rectangle& pos, const Eng3D::Rectangle& texcoord)
     : Eng3D::Mesh<glm::vec2, glm::vec2>(Eng3D::MeshMode::TRIANGLES)
 {
     buffer.resize(6);

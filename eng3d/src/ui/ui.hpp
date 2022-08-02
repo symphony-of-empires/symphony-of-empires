@@ -91,70 +91,48 @@ namespace UI {
         void render_all(glm::ivec2 mouse_pos);
         void resize(const int width, const int height);
 
-        /**
-         * @brief Check for on_hover events
-         * If the mouse is above a widget call the widgets on_hover or show its tooltip if possible
-         *
-         * @param mx The mouse x position
-         * @param my The mouse y position
-         * @return true if the mouse position was above a ui widget
-         */
+        /// @brief Check for on_hover events
+        /// If the mouse is above a widget call the widgets on_hover or show its tooltip if possible
+        /// @param mx The mouse x position
+        /// @param my The mouse y position
+        /// @return true if the mouse position was above a ui widget
         bool check_hover(unsigned mx, unsigned my);
         uint32_t hover_update = 1;
 
-        /**
-         * @brief Check for on_click events
-         * Check if the mouse is above a widget and call the widgets on_click if possible
-         * Also move the clicked window to the top,
-         * only works for Window widget with is_pinned = false
-         *
-         * @param mx The mouse x position
-         * @param my The mouse y position
-         * @return true if the mouse position was above a ui widget
-         */
+        /// @brief Check for on_click events. Check if the mouse is above a widget and call
+        /// the widgets on_click if possible. Also move the clicked window to the top, only works
+        /// for Window widget with is_pinned = false
+        /// @param mx The mouse x position
+        /// @param my The mouse y position
+        /// @return true if the mouse position was above a ui widget
         bool check_click(unsigned mx, unsigned my);
 
-        /**
-         * @brief Check for on_drag events, will move Window widgets with is_pinned = false
-         *
-         * @param mx The mouse x position
-         * @param my The mouse y position
-         */
+        /// @brief Check for on_drag events, will move Window widgets with is_pinned = false
+        /// @param mx The mouse x position
+        /// @param my The mouse y position
         void check_drag(unsigned mx, unsigned my);
 
-        /**
-         * @brief Check if the mouse is above a widget and scroll widget
-         *
-         * @param mx The mouse x position
-         * @param my The mouse x position
-         * @param y The mouse scroll wheel amount
-         * @return true if the mouse position was above a ui widget
-         */
+        /// @brief Check if the mouse is above a widget and scroll widget
+        /// @param mx The mouse x position
+        /// @param my The mouse x position
+        /// @param y The mouse scroll wheel amount
+        /// @return true if the mouse position was above a ui widget
         bool check_wheel(unsigned mx, unsigned my, int y);
 
-        /**
-         * @brief Will give keyboard input to Input Widget if one is selected 
-         * 
-         * @param input The input characters
-         * @return true if there is a currently selected input widget
-         */
+        /// @brief Will give keyboard input to Input Widget if one is selected 
+        /// @param input The input characters
+        /// @return true if there is a currently selected input widget
         bool check_text_input(const char* input);
 
         void use_tooltip(Tooltip* tooltip, glm::ivec2 pos);
 
-        /**
-         * @brief Will call on_tick on all widgets
-         */
+        /// @brief Will call on_tick on all widgets
         void do_tick();
 
-        /**
-         * @brief Removes all widgets
-         */
+        /// @brief Removes all widgets
         void clear();
         
-        /**
-         * @brief Removes all widgets that have been killed
-         */
+        /// @brief Removes all widgets that have been killed
         void clear_dead();
 
         void prompt(const std::string& title, const std::string& text);

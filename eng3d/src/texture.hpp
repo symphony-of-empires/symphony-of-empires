@@ -36,6 +36,7 @@
 #include <unordered_map>
 #include <functional>
 #include <memory>
+#include <mutex>
 
 #ifdef E3D_BACKEND_OPENGL
 #   include <GL/glew.h>
@@ -140,16 +141,14 @@ namespace Eng3D {
     };
 
     template <class T>
-    void hash_combine(std::size_t& s, const T& v)
-    {
+    void hash_combine(std::size_t& s, const T& v) {
         std::hash<T> h;
         s ^= h(v) + 0x9e3779b9 + (s << 6) + (s >> 2);
     }
 
     /// @brief Texture map has implementation
     struct TextureMapHash {
-        std::size_t operator()(const std::pair<std::string, TextureOptions>& key) const
-        {
+        std::size_t operator()(const std::pair<std::string, TextureOptions>& key) const {
             std::size_t res = 0;
             hash_combine(res, key.first);
             TextureOptions s = key.second;
@@ -179,6 +178,7 @@ namespace Eng3D {
     private:
         std::unordered_map<std::pair<std::string, TextureOptions>, std::shared_ptr<Eng3D::Texture>, TextureMapHash> textures;
         std::vector<TextureUploadRequest> unuploaded_textures; // Textures that needs to be uploaded
+        std::mutex unuploaded_lock;
         std::shared_ptr<Eng3D::Texture> white;
         Eng3D::State& s;
     public:
@@ -190,6 +190,7 @@ namespace Eng3D {
         std::shared_ptr<Texture> get_white();
         inline void upload() {
             if(!this->unuploaded_textures.empty()) {
+                const std::scoped_lock lock(this->unuploaded_lock);
                 auto it = this->unuploaded_textures.end() - 1;
                 auto request = *it;
                 if(request.surface != nullptr) {

@@ -20,7 +20,7 @@
 //      profiler.hpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Allows profiling of various systems of the game.
 // ----------------------------------------------------------------------------
 
 #include "eng3d/profiler.hpp"

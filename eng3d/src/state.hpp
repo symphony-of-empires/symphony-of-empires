@@ -46,14 +46,6 @@
 #include "eng3d/texture.hpp"
 
 namespace Eng3D {
-    class TextureManager;
-    class MaterialManager;
-    class ModelManager;
-    class AudioManager;
-    class Audio;
-    namespace IO {
-        class PackageManager;
-    };
     namespace OpenGL {
         class Shader;
     };

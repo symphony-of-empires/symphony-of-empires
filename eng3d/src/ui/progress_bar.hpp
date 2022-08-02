@@ -35,11 +35,8 @@
 
 namespace UI {
     class Context;
-    /**
-     * @ingroup UI
-     * @brief Progressbar widget
-     *
-     */
+    /// @ingroup UI
+    /// @brief Progressbar widget
     enum class Direction {
         LEFT_TO_RIGHT,
         RIGHT_TO_LEFT,

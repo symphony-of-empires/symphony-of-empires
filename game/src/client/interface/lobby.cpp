@@ -152,7 +152,8 @@ void LobbySelectView::change_nation(size_t id) {
     }
 
     curr_selected_nation = id;
-    this->curr_country_flag_img->current_texture = gs.map->nation_flags[id];
+    this->curr_country_flag_img->current_texture = this->gs.get_nation_flag(*this->gs.curr_nation);
+
     this->curr_country_btn->text(gs.curr_nation->name.c_str());
     const Province& capital = gs.world->provinces[gs.curr_nation->capital_id];
     gs.map->camera->set_pos(capital.box_area.right, capital.box_area.bottom);

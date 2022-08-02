@@ -38,12 +38,8 @@
 #include "eng3d/utils.hpp"
 
 namespace UI {
-    /**
-     * @ingroup UI
-     * @brief Table widget
-     *
-     */
-
+    /// @ingroup UI
+    /// @brief Table widget
     class TableRow;
 
     /// @ingroup UI

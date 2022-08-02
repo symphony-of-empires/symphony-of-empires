@@ -25,11 +25,10 @@
 
 #pragma once
 
-#include "nation.hpp"
-#include "world.hpp"
-#include "client/game_state.hpp"
 #include "eng3d/ui/window.hpp"
 
+class Nation;
+class GameState;
 namespace UI {
     class Text;
     class Button;

@@ -30,9 +30,10 @@
 #include <glm/vec3.hpp>
 
 #include "eng3d/mesh.hpp"
-#include "eng3d/rectangle.hpp"
 
 namespace Eng3D {
+    class Rectangle;
+
     class Line: public Eng3D::Mesh<glm::vec2, glm::vec2> {
     public:
         Line(float start_x, float start_y, float end_x, float end_y);
@@ -42,7 +43,7 @@ namespace Eng3D {
     class Square: public Eng3D::Mesh<glm::vec2, glm::vec2> {
     public:
         Square(float start_x, float start_y, float end_x, float end_y);
-        Square(const Eng3D::Rect& pos, const Eng3D::Rect& texcoord);
+        Square(const Eng3D::Rectangle& pos, const Eng3D::Rectangle& texcoord);
         ~Square() = default;
     };
 

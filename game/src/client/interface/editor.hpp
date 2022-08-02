@@ -35,20 +35,14 @@
 #include "client/game_state.hpp"
 
 namespace EventEditor {
-    /**
-     * @brief Base node all nodes inherit from
-     * 
-     */
+    /// @brief Base node all nodes inherit from
     class BaseNode {
     public:
         BaseNode() {};
         virtual ~BaseNode() {};
     };
 
-    /**
-     * @brief Conditional negation
-     * 
-     */
+    /// @brief Conditional negation
     class NodeCondNot : public BaseNode {
     public:
         NodeCondNot() {};
@@ -57,10 +51,7 @@ namespace EventEditor {
         std::unique_ptr<BaseNode> lhs;
     };
 
-    /**
-     * @brief Conditional "IS EQUAL"
-     * 
-     */
+    /// @brief Conditional "IS EQUAL"
     class NodeCondIsEqual : public BaseNode {
     public:
         NodeCondIsEqual() {};
@@ -70,10 +61,7 @@ namespace EventEditor {
         std::unique_ptr<BaseNode> rhs;
     };
 
-    /**
-     * @brief Basic WHILE loop construct
-     * 
-     */
+    /// @brief Basic WHILE loop construct
     class NodeWhileLoop : public BaseNode {
     public:
         NodeWhileLoop() {};
@@ -83,10 +71,7 @@ namespace EventEditor {
         std::vector<std::unique_ptr<BaseNode>> body;
     };
 
-    /**
-     * @brief An IF expression
-     * 
-     */
+    /// @brief An IF expression
     class NodeIfExpr : public BaseNode {
     public:
         NodeIfExpr() {};
@@ -96,10 +81,7 @@ namespace EventEditor {
         std::vector<std::unique_ptr<BaseNode>> body;
     };
 
-    /**
-     * @brief Declares a new variable
-     * 
-     */
+    /// @brief Declares a new variable
     class NodeVariable : public BaseNode {
     public:
         NodeVariable() {};
@@ -108,10 +90,7 @@ namespace EventEditor {
         std::string name;
     };
 
-    /**
-     * @brief References a variable
-     * 
-     */
+    /// @brief References a variable
     class NodeVarRef : public BaseNode {
     public:
         NodeVarRef() {};

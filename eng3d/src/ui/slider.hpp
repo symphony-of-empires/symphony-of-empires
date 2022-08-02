@@ -34,11 +34,8 @@
 #include "eng3d/ui/widget.hpp"
 #include "eng3d/ui/progress_bar.hpp"
 namespace UI {
-    /**
-     * @ingroup UI
-     * @brief Slider widget
-     *
-     */
+    /// @ingroup UI
+    /// @brief Slider widget
 	class Slider: public ProgressBar {
 	public:
 		Slider(int x, int y, unsigned w, unsigned h, float min, float max, Widget* _parent = nullptr);

@@ -39,11 +39,8 @@ namespace Eng3D {
 
 namespace UI {
 	class Context;
-    /**
-     * @ingroup UI
-     * @brief Image widget, can display pictures or effects on the screen
-     *
-     */
+    /// @ingroup UI
+    /// @brief Image widget, can display pictures or effects on the screen
     class Image: public Widget {
     public:
         Image(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
@@ -55,11 +52,8 @@ namespace UI {
         virtual ~Image() override {};
     };
 
-    /**
-     * @ingroup UI
-     * @brief A version of the Image widget that keeps aspect ratio of the image (useful for flags)
-     *
-     */
+    /// @ingroup UI
+    /// @brief A version of the Image widget that keeps aspect ratio of the image (useful for flags)
     class AspectImage : public Image {
     public:
         AspectImage(int x, int y, unsigned w, unsigned max_h, std::shared_ptr<Eng3D::Texture> tex, Widget* parent = nullptr);

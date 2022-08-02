@@ -24,6 +24,9 @@
 // ----------------------------------------------------------------------------
 
 #include "client/interface/war.hpp"
+#include "nation.hpp"
+#include "world.hpp"
+#include "client/game_state.hpp"
 #include "client/client_network.hpp"
 #include "io_impl.hpp"
 #include "action.hpp"

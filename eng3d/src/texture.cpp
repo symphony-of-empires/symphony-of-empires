@@ -89,6 +89,7 @@ Eng3D::Texture::~Texture() {
 #endif
     if(managed) {
         auto& s = Eng3D::State::get_instance();
+        const std::scoped_lock lock(s.tex_man.unuploaded_lock);
         auto it = std::find_if(s.tex_man.unuploaded_textures.begin(), s.tex_man.unuploaded_textures.end(), [this](const auto& e) {
             return e.texture == this;
         });
@@ -122,6 +123,8 @@ void Eng3D::Texture::upload(TextureOptions options) {
             TextureUploadRequest request{};
             request.texture = this;
             request.options = options;
+            
+            const std::scoped_lock lock(s.tex_man.unuploaded_lock);
             s.tex_man.unuploaded_textures.push_back(request); // Schedule upload for later
         }
     }
@@ -136,6 +139,8 @@ void Eng3D::Texture::upload(SDL_Surface* surface) {
             TextureUploadRequest request{};
             request.texture = this;
             request.surface = surface;
+
+            const std::scoped_lock lock(s.tex_man.unuploaded_lock);
             s.tex_man.unuploaded_textures.push_back(request);
         }
     }
@@ -213,7 +218,7 @@ void Eng3D::Texture::_upload(TextureOptions options) {
         this->gen_mipmaps();
 }
 
-// Converts the texture into a OpenGL texture, and assigns it a number
+/// @brief Converts the texture into a OpenGL texture, and assigns it a number
 void Eng3D::Texture::_upload(SDL_Surface* surface) {
     if(surface->w == 0 || surface->h == 0) return;
 
@@ -280,14 +285,14 @@ void Eng3D::Texture::gen_mipmaps() const {
 #endif
 }
 
-// Binds the texture to the current OpenGL context
+/// @brief Binds the texture to the current OpenGL context
 void Eng3D::Texture::bind() const {
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
 #endif
 }
 
-// Deletes the OpenGL representation of this texture
+/// @brief Deletes the OpenGL representation of this texture
 void Eng3D::Texture::delete_gputex() {
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     glDeleteTextures(1, &gl_tex_num);
@@ -318,7 +323,7 @@ void Eng3D::Texture::to_file(const std::string& filename) {
 // Texture array
 //
 
-// Creates a new texture array
+/// @brief Creates a new texture array
 Eng3D::TextureArray::TextureArray(const std::string& path, size_t _tiles_x, size_t _tiles_y)
     : BinaryImage(path),
     tiles_x{ _tiles_x },
@@ -327,7 +332,7 @@ Eng3D::TextureArray::TextureArray(const std::string& path, size_t _tiles_x, size
 
 }
 
-// Uploads the TextureArray to the driver
+/// @brief Uploads the TextureArray to the driver
 void Eng3D::TextureArray::upload() {
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     glGenTextures(1, &gl_tex_num);
@@ -381,16 +386,12 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::get_white() {
 }
 
 
-// Finds a texture in the list of a texture manager
-// if the texture is already in the list we load the saved texture from the list
-// instead of loading it from the disk.
-//
-// Otherwise we load it from the disk and add it to the saved texture list
-//
-// The object returned is a pointer and we will not give ownership of textures in the list
-// and program should not modify the contents of it since it will differ from the texture
-// on the disk, and our main point is to mirror loaded textures from the disk - not modify
-// them.
+/// @brief Finds a texture in the list of a texture manager if the texture is already in the
+/// list we load the saved texture from the list instead of loading it from the disk. Otherwise
+/// we load it from the disk and add it to the saved texture list. The object returned is a
+/// pointer and we will not give ownership of textures in the list and program should not modify
+/// the contents of it since it will differ from the texture on the disk, and our main point is to
+/// mirror loaded textures from the disk - not modify them.
 std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(const std::string& path, TextureOptions options) {
     // Find texture when wanting to be loaded and load texture from cached texture list
     auto key = std::make_pair(path, options);

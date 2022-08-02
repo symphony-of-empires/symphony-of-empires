@@ -39,11 +39,8 @@
 
 namespace UI {
 	class Context;
-    /**
-     * @ingroup UI
-     * @brief Piechart widget
-     *
-     */
+    /// @ingroup UI
+    /// @brief Piechart widget
 	class PieChart: public Widget {
 	public:
 		PieChart(int x, int y, unsigned w, unsigned h, std::vector<ChartData> data = std::vector<ChartData>(), Widget* _parent = nullptr);

@@ -28,11 +28,8 @@
 #include "eng3d/ui/widget.hpp"
 
 namespace UI {
-    /**
-     * @ingroup UI
-     * @brief Window widget
-     *
-     */
+    /// @ingroup UI
+    /// @brief Window widget
     class Scrollbar : public Widget {
     public:
         Scrollbar(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);

@@ -120,8 +120,8 @@ void GameState::play_nation() {
 }
 
 std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(const Nation& nation) {
-    Nation::Id id = world->get_id(nation);
-    return map->nation_flags[id];
+    std::string path = "gfx/flags/" + nation.ref_name + "_" + (nation.ideology == nullptr ? "none" : nation.ideology->ref_name.get_string()) + ".png";
+    return this->tex_man.load(this->package_man.get_unique(path));
 }
 
 void handle_event(Input& input, GameState& gs) {

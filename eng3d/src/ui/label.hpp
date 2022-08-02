@@ -36,11 +36,8 @@
 
 namespace UI {
 	class Context;
-    /**
-     * @ingroup UI
-     * @brief Simple widget for drawing text on the screen, no multiline support
-     *
-     */
+    /// @ingroup UI
+    /// @brief Simple widget for drawing text on the screen, no multiline support
     class Label: public Widget {
     public:
         Label(int x, int y, const std::string& text = " ", Widget* parent = nullptr);

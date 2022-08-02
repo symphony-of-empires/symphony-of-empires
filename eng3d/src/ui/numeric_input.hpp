@@ -34,11 +34,8 @@ namespace UI {
     class Input;
     class Button;
     
-    /**
-     * @ingroup UI
-     * @brief A version of the Input widget that only allows numbers.
-     *
-     */
+    /// @ingroup UI
+    /// @brief A version of the Input widget that only allows numbers.
 	class NumericInput : public Group {
 	public:
 		NumericInput(int _x, int _y, unsigned w, unsigned h, Widget* _parent);

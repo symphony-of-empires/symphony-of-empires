@@ -47,11 +47,8 @@ namespace Eng3D {
 };
 
 namespace UI {
-    /**
-     * @ingroup UI
-     * @brief The origin of the widget
-     * 
-     */
+    /// @ingroup UI
+    /// @brief The origin of the widget
     enum class Origin {
         CENTER,
         MIDDLE_LEFT,
@@ -73,11 +70,9 @@ namespace UI {
         LOWER_RIGHT_SCREEN,
     };
 
-    /**
-     * @ingroup UI
-     * @brief The type of the widget, some widgets share types
-     * between them to keep simplicity
-     */
+    /// @ingroup UI
+    /// @brief The type of the widget, some widgets share types
+    /// between them to keep simplicity
     enum class WidgetType {
         DIV,
         BUTTON,
@@ -99,22 +94,16 @@ namespace UI {
         TABLE_ELEMENT
     };
 
-    /**
-     * @ingroup UI
-     * @brief Ordering mode for flex
-     * 
-     */
+    /// @ingroup UI
+    /// @brief Ordering mode for flex
     enum class Flex {
         NONE,
         ROW,
         COLUMN
     };
 
-    /**
-     * @ingroup UI
-     * @brief Justification alignment for flex
-     * 
-     */
+    /// @ingroup UI
+    /// @brief Justification alignment for flex
     enum class FlexJustify {
         START,
         END,
@@ -128,12 +117,9 @@ namespace UI {
         CENTER,
     };
 
-    /**
-     * @ingroup UI
-     * @brief Generalized chart data, used mostly by chart widgets, however it's
-     * not specific to any widget
-     * 
-     */
+    /// @ingroup UI
+    /// @brief Generalized chart data, used mostly by chart widgets, however it's
+    /// not specific to any widget
     class ChartData {
     public:
         ChartData(float _num, std::string _info, Eng3D::Color _color): num{ _num }, info{ _info }, color{ _color } {}
@@ -144,11 +130,8 @@ namespace UI {
         Eng3D::Color color;
     };
 
-    /**
-     * @ingroup UI
-     * @brief Border class that defines the texture and size of borders of the widgets
-     * 
-     */
+    /// @ingroup UI
+    /// @brief Border class that defines the texture and size of borders of the widgets
     class Border {
     public:
         std::shared_ptr<Eng3D::Texture> texture = nullptr;
@@ -163,13 +146,9 @@ namespace UI {
 
     class Context;
     class Tooltip;
-    /**
-     * @ingroup UI
-     * @brief The master widget all the other widgets inherit from, do not use directly
-     * instead use one of the many derivated widgets - unless you're making a new widget
-     * type.
-     *
-     */
+    /// @ingroup UI
+    /// @brief The master widget all the other widgets inherit from, do not use directly
+    /// instead use one of the many derivated widgets - unless you're making a new widget type.
     class Widget {
     public:
         Widget() {};
@@ -184,12 +163,9 @@ namespace UI {
 #endif
         virtual ~Widget();
 
-        /**
-         * @brief Moves a widget by x and y
-         *
-         * @param _x
-         * @param _y
-         */
+        /// @brief Moves a widget by x and y
+        /// @param _x
+        /// @param _y
         constexpr void move_by(int _x, int _y) {
             this->x += _x;
             this->y += _y;
@@ -219,29 +195,20 @@ namespace UI {
             this->x = rhs.x + rhs.width;
         }
 
-        /**
-         * @brief Sets the on_click function of this widget
-         * 
-         */
+        /// @brief Sets the on_click function of this widget
         virtual void set_on_click(std::function<void(Widget&)> _on_click) {
             this->on_click = _on_click;
         }
 
-        /**
-         * @brief Sort the children of this widget
-         * 
-         * @param comp Comparison function
-         */
+        /// @brief Sort the children of this widget
+        /// @param comp Comparison function
         inline void sort_children(std::function<bool(const std::unique_ptr<UI::Widget>& a, const std::unique_ptr<UI::Widget>& b)> comp) {
             std::sort(begin(this->children), end(this->children), comp);
             this->need_recalc = true;
         }
 
-        /**
-         * @brief Kills the current widget, setting it up for deletion when dead
-         * widgets are cleared by the UI context
-         * 
-         */
+        /// @brief Kills the current widget, setting it up for deletion when dead
+        /// widgets are cleared by the UI context
         inline void kill() {
             this->dead = true;
             this->notice_death();
@@ -313,11 +280,8 @@ namespace UI {
         void recalc_child_pos();
         void draw_border(Border& border, Eng3D::Rect viewport);
 
-        /**
-         * @brief Recursively notify parents of the dead widgets, since the UI context
-         * will only clear widgets which have a dead child.
-         * 
-         */
+        /// @brief Recursively notify parents of the dead widgets, since the UI context
+        /// will only clear widgets which have a dead child.
         inline void notice_death() {
             if(!this->dead_child) {
                 this->dead_child = true;

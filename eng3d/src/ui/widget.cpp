@@ -295,12 +295,9 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
     }
 }
 
-/**
- * @brief Recalculates the position of each children inside the widget
- * this is only used when Flex is used on a widget and it will automatically
- * align the widget's children depending on the other Flex properties
- *
- */
+/// @brief Recalculates the position of each children inside the widget
+/// this is only used when Flex is used on a widget and it will automatically
+/// align the widget's children depending on the other Flex properties
 void Widget::recalc_child_pos() {
     if(flex == Flex::NONE) return;
     bool is_row = flex == Flex::ROW;
@@ -417,11 +414,8 @@ void Widget::recalc_child_pos() {
     }
 }
 
-/**
- * @brief Adds a children to the widget
- *
- * @param child Widget to add as a children
- */
+/// @brief Adds a children to the widget
+/// @param child Widget to add as a children
 void Widget::add_child(UI::Widget& child) {
     // Add to list
     children.push_back(std::move(std::unique_ptr<UI::Widget>(&child)));
@@ -438,12 +432,8 @@ static inline unsigned int power_two_floor(const unsigned int val) {
     return power * 2;
 }
 
-/**
- * @brief Generates text for the widget and overrides the current
- * text texture
- *
- * @param _text
- */
+/// @brief Generates text for the widget and overrides the current text texture
+/// @param _text
 void Widget::text(const std::string& _text) {
     if(this->text_str == _text) return;
     text_str = _text;
@@ -460,34 +450,25 @@ void Widget::text(const std::string& _text) {
     text_texture = new Eng3D::Texture(text_font, text_color, _text);
 }
 
-/**
- * @brief Set the tooltip to be shown when this widget is hovered, overrides
- * the previous tooltip
- *
- * @param _tooltip New tooltip to set
- */
+/// @brief Set the tooltip to be shown when this widget is hovered, overrides
+/// the previous tooltip
+/// @param _tooltip New tooltip to set
 void Widget::set_tooltip(UI::Tooltip* _tooltip) {
     this->tooltip = _tooltip;
     this->tooltip->parent = this;
 }
 
-/**
- * @brief Set the tooltip to be shown when this widget is hovered, but generate
- * it from a string instead of taking an already existing widget
- *
- * @param text Text for the new tooltip
- */
+/// @brief Set the tooltip to be shown when this widget is hovered, but generate
+/// it from a string instead of taking an already existing widget
+/// @param text Text for the new tooltip
 void Widget::set_tooltip(const std::string& text) {
     if(text.empty()) return;
     this->set_tooltip(new UI::Tooltip(this, std::min<unsigned int>(text.size() * 12, 512), ((text.size() * 12) / 512) * 24 + 24));
     this->tooltip->text(text);
 }
 
-/**
- * @brief Scrolls all the children of this widget by a factor of y
- *
- * @param y
- */
+/// @brief Scrolls all the children of this widget by a factor of y
+/// @param y
 void Widget::scroll(int _y) {
     int child_top = 0;
     int child_bottom = height;
