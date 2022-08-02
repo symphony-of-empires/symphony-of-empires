@@ -81,6 +81,7 @@ Client::Client(GameState& _gs, std::string host, const unsigned port)
     g_client = this;
     
     // Launch the receive and send thread
+    this->run = true;
     net_thread = std::thread(&Client::net_loop, this);
     has_snapshot = false;
 }
@@ -113,7 +114,7 @@ void Client::net_loop() {
         pfd.fd = fd;
         pfd.events = POLLIN;
 #endif
-        while(1) {
+        while(this->run) {
 			// Update packets with pending list (acquiring the lock has priority to be lenient
 			// since the client takes most of it's time sending to the server anyways)
 			if(!pending_packets.empty()) {
@@ -284,5 +285,6 @@ void Client::wait_for_snapshot() {
 }
 
 Client::~Client() {
-    net_thread.join();
+    this->run = false;
+    this->net_thread.join();
 }

@@ -239,9 +239,9 @@ Eng3D::Installer::~Installer()
     SDL_GL_DeleteContext(s.context);
 #endif
     SDL_DestroyWindow(s.window);
-    SDL_CloseAudio();
     TTF_Quit();
     SDL_Quit();
+    g_state = nullptr;
 }
 
 //
@@ -285,7 +285,7 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths)
 }
 
 Eng3D::State::~State() {
-    g_state = nullptr;
+    
 }
 
 void Eng3D::State::reload_shaders() {

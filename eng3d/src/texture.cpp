@@ -93,7 +93,8 @@ Eng3D::Texture::~Texture() {
         auto it = std::find_if(s.tex_man.unuploaded_textures.begin(), s.tex_man.unuploaded_textures.end(), [this](const auto& e) {
             return e.texture == this;
         });
-        s.tex_man.unuploaded_textures.erase(it);
+        if(it != s.tex_man.unuploaded_textures.end())
+            s.tex_man.unuploaded_textures.erase(it);
     }
 }
 

@@ -63,7 +63,7 @@ namespace Eng3D {
     public:
         AudioManager() = delete;
         AudioManager(Eng3D::State& s);
-        ~AudioManager() = default;
+        ~AudioManager();
         static void mixaudio(void* userdata, uint8_t* stream, int len);
         const std::shared_ptr<Audio> load(const std::string& path);
 

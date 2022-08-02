@@ -47,6 +47,7 @@ public:
 class Client : public Eng3D::Networking::Client {
     std::thread net_thread;
     std::atomic<bool> has_snapshot;
+    std::atomic<bool> run;
     GameState& gs;
 public:
     Client(GameState& gs, std::string host, const unsigned port);

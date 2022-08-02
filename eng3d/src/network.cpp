@@ -108,9 +108,9 @@ int Eng3D::Networking::ServerClient::try_connect(int fd) {
     return 0;
 }
 
-// Push pending_packets to the packets queue (the packets queue is managed
-// by us and requires almost 0 locking, so the host does not stagnate when
-// trying to send packets to a certain client)
+/// @brief Push pending_packets to the packets queue (the packets queue is managed
+/// by us and requires almost 0 locking, so the host does not stagnate when
+/// trying to send packets to a certain client)
 void Eng3D::Networking::ServerClient::flush_packets() {
     if(!pending_packets.empty()) {
         if(pending_packets_mutex.try_lock()) {
@@ -130,13 +130,12 @@ bool Eng3D::Networking::ServerClient::has_pending() {
     pfd.fd = conn_fd;
     pfd.events = POLLIN;
     int has_pending = poll(&pfd, 1, 10);
-    if(pfd.revents & POLLIN || has_pending) return true;
+    return (pfd.revents & POLLIN) != 0 || has_pending;
 #elif defined E3D_TARGET_WINDOWS
     u_long has_pending = 0;
     int test = ioctlsocket(conn_fd, FIONREAD, &has_pending);
-    if(has_pending) return true;
+    return has_pending;
 #endif
-    return false;
 }
 
 //

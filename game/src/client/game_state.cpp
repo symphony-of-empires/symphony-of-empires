@@ -767,12 +767,14 @@ void start_client(int argc, char** argv) {
     }
     world_th.join();
     music_th.join();
-    return;
 }
 
 GameState::~GameState() {
-    // delete world;
-    // delete curr_nation;
-    // delete map;
-    // delete ui_ctx;
-};
+    if(this->client)
+        delete this->client;
+    
+    if(this->server)
+        delete this->server;
+    
+    this->run = false;
+}

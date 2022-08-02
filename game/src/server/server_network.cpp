@@ -58,12 +58,12 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
 }
 
 Server::~Server() {
-
+    this->run = false;
 }
 
-// This is the handling thread-function for handling a connection to a single client
-// Sending packets will only be received by the other end, when trying to broadcast please
-// put the packets on the send queue, they will be sent accordingly
+/// @brief This is the handling thread-function for handling a connection to a single client
+/// Sending packets will only be received by the other end, when trying to broadcast please
+/// put the packets on the send queue, they will be sent accordingly
 void Server::net_loop(int id) {
     Eng3D::Networking::ServerClient& cl = clients[id];
     int conn_fd = 0;
