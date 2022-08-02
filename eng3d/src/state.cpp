@@ -26,7 +26,6 @@
 // ----------------------------------------------------------------------------
 
 // Required before GL/gl.h
-#include <filesystem>
 #include <cstring>
 #ifdef E3D_TARGET_WINDOWS
 #   ifndef WINSOCK2_IMPORTED

@@ -27,6 +27,8 @@
 
 #include <cstdint>
 
+// NetBSD defines these as functions already
+#if !defined(E3D_TARGET_NETBSD)
 constexpr uint32_t bswap32(const uint32_t x) {
     return
         ((x << 24) & 0xff000000ULL) |
@@ -46,6 +48,7 @@ constexpr uint64_t bswap64(const uint64_t x) {
         ((x >> 40) & 0x000000000000ff00ULL) |
         ((x >> 56) & 0x00000000000000ffULL);
 }
+#endif
 
 #if !defined(E3D_EXCEPTIONS)
 #   define CXX_THROW(class, ...) throw class(__VA_ARGS__);

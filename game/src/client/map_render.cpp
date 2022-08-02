@@ -58,9 +58,8 @@ MapRender::MapRender(const World& _world, Map& _map)
     map{ _map }
 {
     // Flat surface for drawing flat map 
-    for(int x = -1; x <= 1; x++) {
+    for(int x = -1; x <= 1; x++)
         map_quads.push_back(new Eng3D::Square((int)world.width * x, 0.f, (int)world.width * (x + 1), world.height));
-    }
 
     // Sphere surface for drawing globe map
     map_sphere = new Eng3D::Sphere(0.f, 0.f, 0.f, GLOBE_RADIUS, 100);
@@ -89,10 +88,6 @@ MapRender::MapRender(const World& _world, Map& _map)
     water_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/water_tex.png"), mipmap_options);
     paper_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/paper.png"), mipmap_options);
     stripes_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/stripes.png"), mipmap_options);
-
-    mipmap_options.internal_format = GL_RED;
-    bathymethry = gs.tex_man.load(gs.package_man.get_unique("map/bathymethry.png"), mipmap_options);
-    river_tex = gs.tex_man.load(gs.package_man.get_unique("map/river_smooth.png"), mipmap_options);
 
     terrain_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/color.png")->get_abs_path()));
     size_t terrain_map_size = terrain_map->width * terrain_map->height;
@@ -148,19 +143,7 @@ MapRender::MapRender(const World& _world, Map& _map)
     single_color.internal_format = GL_RGBA;
     single_color.compressed = false;
     terrain_map->upload(single_color);
-
-    auto topo_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/topo.png")->get_abs_path()));
-    normal_topo = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/normal.png")->get_abs_path()));
-    size_t map_size = topo_map->width * topo_map->height;
-    for(unsigned int i = 0; i < map_size; i++) {
-        normal_topo->buffer.get()[i] &= (0x00FFFFFF);
-        normal_topo->buffer.get()[i] |= (topo_map->buffer.get()[i] & 0xFF) << 24;
-    }
-    topo_map.reset(nullptr);
-    mipmap_options.internal_format = GL_RGBA;
-    mipmap_options.compressed = false;
-    normal_topo->upload(mipmap_options);
-
+    
     // Terrain textures to sample from
     terrain_sheet = std::unique_ptr<Eng3D::TextureArray>(new Eng3D::TextureArray(gs.package_man.get_unique("gfx/terrain_sheet.png")->get_abs_path(), 4, 4));
     terrain_sheet->upload();
@@ -215,29 +198,6 @@ MapRender::MapRender(const World& _world, Map& _map)
     for(auto const& province : world.provinces)
         province_ids.push_back(province.get_id());
     this->update_nations(province_ids);
-
-    // The map shader that draws everything on the map 
-    this->reload_shaders();
-
-    Eng3D::Log::debug("game", "Creating border textures");
-    std::unique_ptr<FILE, int(*)(FILE*)> fp(::fopen("sdf_cache.png", "rb"), ::fclose);
-    if(fp.get() == nullptr) {
-        this->update_border_sdf(Eng3D::Rect(0, 0, gs.world->width, gs.world->height), glm::vec2(gs.width, gs.height));
-        border_sdf->to_file("sdf_cache.png");
-    } else {
-        Eng3D::TextureOptions sdf_options{};
-        sdf_options.wrap_s = GL_REPEAT;
-        sdf_options.wrap_t = GL_REPEAT;
-        sdf_options.internal_format = GL_RGB32F;
-        sdf_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-        sdf_options.mag_filter = GL_LINEAR;
-        sdf_options.compressed = false;
-        border_sdf = std::make_unique<Eng3D::Texture>(Eng3D::Texture("sdf_cache.png"));
-        border_sdf->upload(sdf_options);
-    }
-
-    // We are already updating the whole map, don't do it twice
-    const_cast<World&>(this->world).province_manager.clear();
 }
 
 void MapRender::reload_shaders() {
@@ -287,6 +247,63 @@ void MapRender::reload_shaders() {
         output_shader->attach_shader(fs_shader);
         output_shader->link();
     }
+    
+    if(this->options.rivers.used) {
+        Eng3D::TextureOptions mipmap_options{};
+        mipmap_options.wrap_s = GL_REPEAT;
+        mipmap_options.wrap_t = GL_REPEAT;
+        mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+        mipmap_options.mag_filter = GL_LINEAR;
+        mipmap_options.compressed = false;
+        mipmap_options.compressed = true;
+        mipmap_options.internal_format = GL_RED;
+        this->bathymethry = gs.tex_man.load(gs.package_man.get_unique("map/bathymethry.png"), mipmap_options);
+        this->river_tex = gs.tex_man.load(gs.package_man.get_unique("map/river_smooth.png"), mipmap_options);
+    } else {
+        this->bathymethry = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(1, 1));
+        this->river_tex = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(1, 1));
+    }
+    
+    // Load normal and topographic maps only w lighting
+    if(this->options.lighting.used) {
+        auto topo_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/topo.png")->get_abs_path()));
+        this->normal_topo = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/normal.png")->get_abs_path()));
+        size_t map_size = topo_map->width * topo_map->height;
+        for(size_t i = 0; i < map_size; i++) {
+            this->normal_topo->buffer.get()[i] &= (0x00FFFFFF);
+            this->normal_topo->buffer.get()[i] |= (topo_map->buffer.get()[i] & 0xFF) << 24;
+        }
+        Eng3D::TextureOptions mipmap_options{};
+        mipmap_options.internal_format = GL_RGBA;
+        mipmap_options.compressed = false;
+        this->normal_topo->upload(mipmap_options);
+    } else {
+        this->normal_topo = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(1, 1));
+    }
+    
+    // Only perform the updates/generation on the SDF map when SDF is actually used
+    if(this->options.sdf.used) {
+        Eng3D::Log::debug("game", "Creating border textures");
+        std::unique_ptr<FILE, int(*)(FILE*)> fp(::fopen("sdf_cache.png", "rb"), ::fclose);
+        if(fp.get() == nullptr) {
+            this->update_border_sdf(Eng3D::Rect(0, 0, this->world.width, this->world.height), glm::vec2(gs.width, gs.height));
+            border_sdf->to_file("sdf_cache.png");
+        } else {
+            Eng3D::TextureOptions sdf_options{};
+            sdf_options.wrap_s = GL_REPEAT;
+            sdf_options.wrap_t = GL_REPEAT;
+            sdf_options.internal_format = GL_RGB32F;
+            sdf_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+            sdf_options.mag_filter = GL_LINEAR;
+            sdf_options.compressed = false;
+            border_sdf = std::make_unique<Eng3D::Texture>(Eng3D::Texture("sdf_cache.png"));
+            border_sdf->upload(sdf_options);
+        }
+        // We are already updating the whole map, don't do it twice
+        const_cast<World&>(this->world).province_manager.clear();
+    } else { // Otherwise use a dummy texture
+        border_sdf = std::make_unique<Eng3D::Texture>(Eng3D::Texture(1, 1));
+    }
 }
 
 void MapRender::update_options(MapOptions new_options) {
@@ -313,9 +330,9 @@ void MapRender::update_options(MapOptions new_options) {
 
 #include "eng3d/framebuffer.hpp"
 
-// Creates the "waving" border around the continent to give it a 19th century map feel
-// Generate a distance field to from each border using the jump flooding algorithm
-// Used to create borders thicker than one tile
+/// @brief Creates the "waving" border around the continent to give it a 19th century map feel
+/// Generate a distance field to from each border using the jump flooding algorithm
+/// Used to create borders thicker than one tile
 void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_size) {
     glEnable(GL_SCISSOR_TEST);
     glViewport(update_area.left, update_area.top, update_area.width(), update_area.height());
@@ -427,7 +444,7 @@ void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
 void MapRender::update_nations(std::vector<Province::Id> province_ids) {
     std::unordered_set<Nation::Id> nation_ids;
     for(const auto id : province_ids) {
-        auto& province = this->world.provinces[id]; 
+        const auto& province = this->world.provinces[id]; 
         if(province.controller == nullptr) continue;
         this->tile_sheet_nation->buffer.get()[province.get_id()] = province.controller->get_id();
         nation_ids.insert(province.controller->get_id());
@@ -452,10 +469,9 @@ void MapRender::update_visibility(GameState& gs)
     if(gs.curr_nation == nullptr) return;
 
     /// @todo Check that unit is allied with us/province owned by an ally
-
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
-    for(Province::Id i = 0; i < gs.world->provinces.size(); i++)
+    for(Province::Id i = 0; i < 0xffff; i++)
         province_opt->buffer[i] = 0x00000080;
     
     for(const auto& nation : gs.world->nations) {

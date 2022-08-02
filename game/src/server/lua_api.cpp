@@ -132,7 +132,7 @@ int LuaAPI::add_terrain_type(lua_State* L) {
     TerrainType terrain_type{};
     terrain_type.ref_name = luaL_checkstring(L, 1);
     terrain_type.name = luaL_checkstring(L, 2);
-    terrain_type.color = bswap32(lua_tonumber(L, 3)) >> 8;
+    terrain_type.color = bswap32(static_cast<int>(lua_tonumber(L, 3))) >> 8;
     terrain_type.color |= 0xff000000;
     terrain_type.movement_penalty = (lua_tonumber(L, 4));
     terrain_type.is_water_body = lua_toboolean(L, 5);
@@ -415,7 +415,7 @@ int LuaAPI::add_nation_client_hint(lua_State* L) {
     NationClientHint hint{};
     hint.ideology = &g_world.ideologies.at(lua_tonumber(L, 2));
     hint.alt_name = luaL_checkstring(L, 3);
-    hint.color = bswap32(lua_tonumber(L, 4)) >> 8;
+    hint.color = bswap32(static_cast<int>(lua_tonumber(L, 4))) >> 8;
     hint.color |= 0xff000000;
     nation.client_hints[g_world.get_id(*hint.ideology)] = hint;
     return 0;
@@ -597,7 +597,7 @@ int LuaAPI::add_province(lua_State* L) {
 
     Province province{};
     province.ref_name = luaL_checkstring(L, 1);
-    province.color = (bswap32(lua_tonumber(L, 2)) >> 8) | 0xff000000;
+    province.color = (bswap32(static_cast<int>(lua_tonumber(L, 2))) >> 8) | 0xff000000;
     province.name = luaL_checkstring(L, 3);
     province.terrain_type = &g_world.terrain_types.at(lua_tonumber(L, 4));
     // load rgo_size
@@ -639,7 +639,7 @@ int LuaAPI::add_province(lua_State* L) {
 int LuaAPI::update_province(lua_State* L) {
     Province& province = g_world.provinces.at(lua_tonumber(L, 1));
     province.ref_name = luaL_checkstring(L, 2);
-    province.color = (bswap32(lua_tonumber(L, 3)) >> 8) | 0xff000000;
+    province.color = (bswap32(static_cast<int>(lua_tonumber(L, 3))) >> 8) | 0xff000000;
     province.name = luaL_checkstring(L, 4);
     province.terrain_type = &g_world.terrain_types.at(lua_tonumber(L, 5));
     // Check for duplicates
@@ -1079,7 +1079,7 @@ int LuaAPI::add_culture(lua_State* L) {
     Culture culture{};
     culture.ref_name = luaL_checkstring(L, 1);
     culture.name = luaL_checkstring(L, 2);
-    culture.color = (bswap32(lua_tonumber(L, 3)) >> 8) | 0xff000000;
+    culture.color = (bswap32(static_cast<int>(lua_tonumber(L, 3))) >> 8) | 0xff000000;
     culture.adjective = luaL_checkstring(L, 4);
     culture.noun = luaL_checkstring(L, 5);
     culture.combo_form = luaL_checkstring(L, 6);
@@ -1118,7 +1118,7 @@ int LuaAPI::add_religion(lua_State* L) {
     Religion religion{};
     religion.ref_name = luaL_checkstring(L, 1);
     religion.name = luaL_checkstring(L, 2);
-    religion.color = (bswap32(lua_tonumber(L, 3)) >> 8) | 0xff000000;
+    religion.color = (bswap32(static_cast<int>(lua_tonumber(L, 3))) >> 8) | 0xff000000;
     g_world.insert(religion);
     lua_pushnumber(L, g_world.religions.size() - 1);
     return 1;
@@ -1187,7 +1187,7 @@ int LuaAPI::add_ideology(lua_State* L) {
     Ideology ideology{};
     ideology.ref_name = luaL_checkstring(L, 1);
     ideology.name = luaL_checkstring(L, 2);
-    ideology.color = (bswap32(lua_tonumber(L, 3)) >> 8) | 0xff000000;
+    ideology.color = (bswap32(static_cast<int>(lua_tonumber(L, 3))) >> 8) | 0xff000000;
     g_world.insert(ideology);
     lua_pushnumber(L, g_world.ideologies.size() - 1);
     return 1;
@@ -1651,6 +1651,12 @@ int LuaAPI::ui_call_builtin(lua_State* L) {
                     gs.map->map_render->options.water.used = is_used;
                 } else if(optname == "GRID") {
                     gs.map->map_render->options.grid.used = is_used;
+                } else if(optname == "UNITS") {
+                    gs.map->map_render->options.units.used = is_used;
+                } else if(optname == "BUILDINGS") {
+                    gs.map->map_render->options.buildings.used = is_used;
+                } else if(optname == "TREES") {
+                    gs.map->map_render->options.trees.used = is_used;
                 }
                 gs.map->reload_shaders();
                 break;
@@ -1677,6 +1683,12 @@ int LuaAPI::ui_call_builtin(lua_State* L) {
                     is_used = gs.map->map_render->options.water.used;
                 } else if(optname == "GRID") {
                     is_used = gs.map->map_render->options.grid.used;
+                } else if(optname == "UNITS") {
+                    is_used = gs.map->map_render->options.units.used;
+                } else if(optname == "BUILDINGS") {
+                    is_used = gs.map->map_render->options.buildings.used;
+                } else if(optname == "TREES") {
+                    is_used = gs.map->map_render->options.trees.used;
                 }
                 Eng3D::Log::debug("lua_bind", "Getting map_shader option " + optname + " is " + (is_used ? "TRUE" : "FALSE"));
                 lua_pushboolean(L, is_used);
