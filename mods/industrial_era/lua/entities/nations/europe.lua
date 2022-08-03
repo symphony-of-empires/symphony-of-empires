@@ -356,6 +356,13 @@ muscovy:register()
 muscovy:add_accepted_culture(russian)
 muscovy:add_client_hint(monarchy, _("Muscovy"), 0x808000)
 
+circassia = Nation:new{ ref_name = "circassia" }
+circassia.name = _("Circassia")
+circassia.adjective = _("Circassian")
+circassia:register()
+circassia:add_accepted_culture(Culture:get("kazakh"))
+circassia:add_client_hint(monarchy, _("Circassia"), 0x91d1db)
+
 great_horde = Nation:new{ ref_name = "great_horde" }
 great_horde.name = _("Great Horde")
 great_horde:register()

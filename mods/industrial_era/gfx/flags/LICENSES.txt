@@ -522,6 +522,9 @@ miskito_coast_monarchy
 san_marino_monarchy
 	By Flag_of_San_Marino.svg:derivative work: Fry1989 eh? 02:30, 10 September 2011 (UTC) - Flag_of_San_Marino.svg, Public Domain, https://commons.wikimedia.org/w/index.php?curid=16410502
 
+circassia_monarchy
+	By Octane - Own work, vectorised from File:Circass.gif, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=6590591
+
 _republic
 	HISTORIC: This is the flag for democracy, not republics, but eh - it should be fine
 	By Philip Kanellopoulos, https://www.peristanom.org/ - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=17206446

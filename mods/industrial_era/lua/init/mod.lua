@@ -100,9 +100,12 @@ Nation:get("austria"):make_puppet(Nation:get("tuscany"))
 
 Nation:get("denmark"):make_puppet(Nation:get("holstein"))
 
+Nation:get("united_kingdom"):make_puppet(Nation:get("east_india_company"))
+
 -- Ongoing wars
-Nation:get("russia"):declare_no_cb(Nation:get("turkey"))
-Nation:get("burma"):declare_no_cb(Nation:get("united_kingdom"))
+Nation:get("russia"):declare_no_cb(Nation:get("turkey")) -- Russo-Turkish war
+Nation:get("russia"):declare_no_cb(Nation:get("circassia")) -- Russo-Circassian war
+Nation:get("united_kingdom"):declare_no_cb(Nation:get("burma")) -- Anglo-Burmesse war (1825)
 
 -- Relevant nations to choose
 --Nation:get("united_kingdom"):make_relevant()
