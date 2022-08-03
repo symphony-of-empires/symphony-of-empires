@@ -232,24 +232,24 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
     }
 
     // Hate our enemies more
-    if(nation.is_enemy(other) && !(std::rand() % 250)) {
+    if(nation.is_enemy(other) && !(std::rand() % 500)) {
         nation.decrease_relation(other);
 
         // Embargo them
-        if(relation.relation < -5) {
+        if(relation.relation < -15) {
             relation.has_embargo = true;
             Eng3D::Log::debug("ai", nation.ref_name + " has placed an embargo on " + other.ref_name);
         }
 
         // We really hate our enemies, don't we?
-        if(relation.relation < -80 && !relation.has_war) {
+        if(relation.relation < -90 && !relation.has_war) {
             /// @todo Do not war if it's beyond our capabilities (i.e Liechestein vs. France, Prussia and UK)
             nation.declare_war(other);
         }
     }
 
     // Randomness to spice stuff up
-    if(!(std::rand() % 100)) {
+    if(!(std::rand() % 50)) {
         nation.increase_relation(other);
     } else if(!(std::rand() % 100)) {
         nation.decrease_relation(other);
@@ -422,6 +422,10 @@ void ai_do_tick(Nation& nation) {
 
     /// @todo make a better algorithm
     if(nation.ai_do_cmd_troops) {
+        constexpr auto war_weight = 10.f; // Weight of war
+        constexpr auto unit_battle_weight = 4.5f; // Attraction of units into entering on pre-existing battles
+        constexpr auto unit_exist_weight = 1.5f; // Weight of an unit by just existing
+
         std::fill(ai_data.nations_risk_factor.begin(), ai_data.nations_risk_factor.end(), 1.f);
         std::vector<Province::Id> eval_provinces; // Provinces that can be evaluated for war
         eval_provinces.reserve(world.provinces.size());
@@ -453,7 +457,7 @@ void ai_do_tick(Nation& nation) {
                 ai_data.nations_risk_factor[other.get_id()] = (relation_range - (relation.relation + relation_max)) / relation_max;
             
             if(relation.has_war)
-                ai_data.nations_risk_factor[other.get_id()] = 10.f;
+                ai_data.nations_risk_factor[other.get_id()] = war_weight;
         }
 
         std::vector<double> potential_risk(world.provinces.size(), 1.f);
@@ -475,7 +479,7 @@ void ai_do_tick(Nation& nation) {
                     // basically make the draw_in_force negative, which in turns does not draw away but rather
                     // draw in even more units
                     draw_in_force += unit_strength * ai_data.nations_risk_factor[unit.owner_id];
-                    draw_in_force *= unit.on_battle ? 3.f : 1.f;
+                    draw_in_force *= unit.on_battle ? unit_battle_weight : unit_exist_weight;
                 }
                 // Only if neighbour has a controller
                 if(neighbour.controller != nullptr)
