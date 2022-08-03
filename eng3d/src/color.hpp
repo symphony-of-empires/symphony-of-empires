@@ -71,7 +71,7 @@ namespace Eng3D {
         /// @param blue Blue component
         /// @return Color Resulting color
         constexpr static Color rgb8(uint8_t red, uint8_t green, uint8_t blue) {
-            return Color(red / 256.f, green / 256.f, blue / 256.f);
+            return rgba8(red, green, blue, 0xff);
         }
 
         /// @brief Create a color from RGBA32 components
