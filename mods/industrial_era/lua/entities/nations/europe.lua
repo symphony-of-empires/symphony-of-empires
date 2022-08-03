@@ -360,13 +360,28 @@ circassia = Nation:new{ ref_name = "circassia" }
 circassia.name = _("Circassia")
 circassia.adjective = _("Circassian")
 circassia:register()
-circassia:add_accepted_culture(Culture:get("kazakh"))
+circassia:add_accepted_culture(Culture:get("circassian"))
 circassia:add_client_hint(monarchy, _("Circassia"), 0x91d1db)
+
+mingrelia = Nation:new{ ref_name = "mingrelia" }
+mingrelia.name = _("Mingrelia")
+mingrelia.adjective = _("Mingrelia")
+mingrelia:register()
+mingrelia:add_accepted_culture(Culture:get("circassian"))
+mingrelia:add_client_hint(monarchy, _("Mingrelia"), 0x292080)
+
+-- Avar khanate
+avar = Nation:new{ ref_name = "avar" }
+avar.name = _("Avar")
+avar.adjective = _("Avar")
+avar:register()
+avar:add_accepted_culture(Culture:get("circassian"))
+avar:add_client_hint(monarchy, _("Avar Khanate"), 0xc24094)
 
 great_horde = Nation:new{ ref_name = "great_horde" }
 great_horde.name = _("Great Horde")
 great_horde:register()
-great_horde:add_accepted_culture(turkish)
+great_horde:add_accepted_culture(Culture:get("circassian"))
 great_horde:add_client_hint(monarchy, _("Great Horde"), 0x808000)
 
 novgorod = Nation:new{ ref_name = "novgorod" }

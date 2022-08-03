@@ -148,6 +148,7 @@ Culture:new{ ref_name = "nogai", name = _("Nogai") }:register()
 
 -- Central Asia
 Culture:new{ ref_name = "kazakh", name = _("Kazakh") }:register()
+Culture:new{ ref_name = "circassian", name = _("Circassian") }:register()
 Culture:new{ ref_name = "uzbek", name = _("Uzbek") }:register()
 Culture:new{ ref_name = "tajik", name = _("Tajik") }:register()
 Culture:new{ ref_name = "kyrgyz", name = _("Kyrgyz") }:register()

@@ -55,9 +55,13 @@ Nation:get("united_kingdom"):make_puppet(Nation:get("hannover"))
 Nation:get("united_kingdom"):make_puppet(Nation:get("ruperts_land"))
 Nation:get("united_kingdom"):make_puppet(Nation:get("lower_canada"))
 Nation:get("united_kingdom"):make_puppet(Nation:get("upper_canada"))
+Nation:get("united_kingdom"):make_puppet(Nation:get("east_india_company"))
+Nation:get("united_kingdom"):make_puppet(Nation:get("mysore"))
+Nation:get("united_kingdom"):make_puppet(Nation:get("haydarabad"))
 
 Nation:get("russia"):make_puppet(Nation:get("finland"))
 Nation:get("russia"):make_puppet(Nation:get("congress_poland"))
+Nation:get("russia"):make_puppet(Nation:get("mingrelia"))
 
 Nation:get("prussia"):make_puppet(Nation:get("salzburg"))
 Nation:get("prussia"):make_puppet(Nation:get("thuringia"))
@@ -100,11 +104,10 @@ Nation:get("austria"):make_puppet(Nation:get("tuscany"))
 
 Nation:get("denmark"):make_puppet(Nation:get("holstein"))
 
-Nation:get("united_kingdom"):make_puppet(Nation:get("east_india_company"))
-
 -- Ongoing wars
 Nation:get("russia"):declare_no_cb(Nation:get("turkey")) -- Russo-Turkish war
 Nation:get("russia"):declare_no_cb(Nation:get("circassia")) -- Russo-Circassian war
+Nation:get("russia"):declare_no_cb(Nation:get("avar"))
 Nation:get("united_kingdom"):declare_no_cb(Nation:get("burma")) -- Anglo-Burmesse war (1825)
 
 -- Relevant nations to choose
