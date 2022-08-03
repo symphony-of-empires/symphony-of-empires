@@ -53,11 +53,7 @@ TopWindow::TopWindow(GameState& _gs)
     new TimeControlView(gs);
 
     UI::Image::make_transparent(0, 0, 147, 499, "gfx/top_window.png", this);
-    auto* flag_img = new UI::AspectImage(5, 4, 138, 88, gs.tex_man.get_white(), this);
-    flag_img->on_each_tick = ([this](UI::Widget& w) {
-        w.current_texture = this->gs.get_nation_flag(*this->gs.curr_nation);
-    });
-    flag_img->on_each_tick(*flag_img);
+    auto* flag_img = new UI::AspectImage(5, 4, 138, 88, this->gs.get_nation_flag(*this->gs.curr_nation), this);
     new UI::Image(0, 0, flag_img->width, flag_img->height, gs.tex_man.load(this->gs.package_man.get_unique("gfx/flag_rug.png")), this);
 
     auto* score_flex_column = new UI::Div(150, 0, 150, 24 * 5, this);
