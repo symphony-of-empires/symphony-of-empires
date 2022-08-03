@@ -541,8 +541,6 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         for(auto& new_unit : new_unit_list) {
             // Now commit the transaction of the new units into the main world area
             world.unit_manager.add_unit(new_unit.unit, new_unit.unit_province);
-            /// @todo Obtain the cached ID of the newly added unit
-            //g_server->broadcast(Action::UnitAdd::form_packet(unit));
         }
     });
     world.profiler.stop("E-mutex");

@@ -138,7 +138,7 @@ TopWindow::TopWindow(GameState& _gs)
         const auto nation_id = this->gs.curr_nation->get_id();
         this->gs.paused = true;
 
-        Archive ar = Archive();
+        Archive ar{};
         ar.from_file("default.sc4");
         ::deserialize(ar, this->gs.world);
         /// @todo Events aren't properly saved yet
@@ -155,9 +155,10 @@ TopWindow::TopWindow(GameState& _gs)
 
     auto* exit_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/exit.png", true, flex_column);
     exit_ibtn->set_on_click([this](UI::Widget&) {
+        this->gs.paused = true;
         this->gs.run = false;
     });
-    exit_ibtn->set_tooltip("Exits");
+    exit_ibtn->set_tooltip("Back to the main menu");
 }
 
 TimeControlView::TimeControlView(GameState& _gs)

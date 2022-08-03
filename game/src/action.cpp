@@ -88,27 +88,29 @@ Eng3D::Networking::Packet DiploDeclareWar::form_packet(const Nation& nation) {
     return packet;
 }
 
-Eng3D::Networking::Packet ProvinceUpdate::form_packet(const std::vector<Province*>& list) {
+Eng3D::Networking::Packet ProvinceUpdate::form_packet(const std::vector<Province>& list) {
     Eng3D::Networking::Packet packet{};
     Archive ar{};
     ActionType action = ActionType::PROVINCE_UPDATE;
     ::serialize(ar, &action);
     for(const auto& province : list) {
-        ::serialize(ar, &province); // ProvinceRef
-        ::serialize(ar, province); // ProvinceObj
+        auto* ref = &province;
+        ::serialize(ar, &ref); // ProvinceRef
+        ::serialize(ar, &province); // ProvinceObj
     }
     packet.data(ar.get_buffer(), ar.size());
     return packet;
 }
 
-Eng3D::Networking::Packet NationUpdate::form_packet(const std::vector<Nation*>& list) {
+Eng3D::Networking::Packet NationUpdate::form_packet(const std::vector<Nation>& list) {
     Eng3D::Networking::Packet packet{};
     Archive ar{};
     ActionType action = ActionType::NATION_UPDATE;
     ::serialize(ar, &action);
     for(const auto& nation : list) {
-        ::serialize(ar, &nation); // NationRef
-        ::serialize(ar, nation); // NationObj
+        auto* ref = &nation;
+        ::serialize(ar, &ref); // NationRef
+        ::serialize(ar, &nation); // NationObj
     }
     packet.data(ar.get_buffer(), ar.size());
     return packet;
@@ -208,6 +210,30 @@ Eng3D::Networking::Packet UnitUpdate::form_packet(const std::vector<Unit>& units
     ::serialize(ar, &size);
     for(const auto& unit : units)
         ::serialize(ar, &unit);
+    packet.data(ar.get_buffer(), ar.size());
+    return packet;
+}
+
+Eng3D::Networking::Packet UnitRemove::form_packet(const Unit& unit) {
+    Eng3D::Networking::Packet packet{};
+    Archive ar{};
+    ActionType action = ActionType::UNIT_REMOVE;
+    ::serialize(ar, &action);
+    const auto unit_id = unit.get_id();
+    ::serialize(ar, &unit_id);
+    packet.data(ar.get_buffer(), ar.size());
+    return packet;
+}
+
+Eng3D::Networking::Packet UnitMove::form_packet(const Unit& unit, const Province& province) {
+    Eng3D::Networking::Packet packet{};
+    Archive ar{};
+    ActionType action = ActionType::UNIT_MOVE;
+    ::serialize(ar, &action);
+    const auto unit_id = unit.get_id();
+    ::serialize(ar, &unit_id);
+    const auto province_id = province.get_id();
+    ::serialize(ar, &province_id);
     packet.data(ar.get_buffer(), ar.size());
     return packet;
 }

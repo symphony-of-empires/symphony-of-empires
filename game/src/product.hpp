@@ -27,8 +27,9 @@
 
 #include <string>
 #include <deque>
+#include <limits>
 
-// A product (based off a Good) which can be bought by POPs, converted by factories and transported
+/// @brief A product (based off a Good) which can be bought by POPs, converted by factories and transported
 class Product : public IdEntity<uint16_t> {
 public:
     Product() = default;
@@ -57,33 +58,29 @@ public:
 
         // Save prices and stuff onto history (for the charts!)
         this->demand_history.push_back(this->demand);
-        if(this->demand_history.size() > 60)
+        if(this->demand_history.size() > 30)
             this->demand_history.pop_front();
         
         this->supply_history.push_back(this->supply);
-        if(this->supply_history.size() > 60)
+        if(this->supply_history.size() > 30)
             this->supply_history.pop_front();
 
         this->price_history.push_back(this->price);
-        if(this->price_history.size() > 60)
+        if(this->price_history.size() > 30)
             this->price_history.pop_front();
 
         this->demand = 0;
     }
 
-    // Price of the product
+    /// @brief Price of the product
     float price;
-
-    // Velocity of change of price of the product
+    /// @brief Velocity of change of price of the product
     float price_vel;
-
-    // Total supply of the product
+    /// @brief Total supply of the product
     float supply;
-
-    // Total demand of the product
+    /// @brief Total demand of the product
     float demand;
-
-    // History of price, supply and demand for the past 30 days
+    /// @brief History of price, supply and demand for the past 30 days
     std::deque<float> price_history;
     std::deque<float> supply_history;
     std::deque<float> demand_history;

@@ -33,6 +33,8 @@
 #include "eng3d/log.hpp"
 #include "eng3d/common.hpp"
 
+#include "server/server_network.hpp"
+#include "action.hpp"
 #include "unit.hpp"
 #include "province.hpp"
 #include "world.hpp"
@@ -126,12 +128,19 @@ void UnitManager::add_unit(Unit unit, Province::Id unit_current_province) {
     if(unit_current_province >= province_units.size())
         province_units.resize(unit_current_province + 1);
     province_units[unit_current_province].push_back(id);
+
+    if(g_server != nullptr)
+        /// @todo Obtain the cached ID of the newly added unit
+        g_server->broadcast(Action::UnitAdd::form_packet(units[id]));
 }
 
 void UnitManager::remove_unit(Unit::Id unit_id) {
+    if(g_server != nullptr)
+        g_server->broadcast(Action::UnitRemove::form_packet(units[unit_id]));
+
     const auto current_province_id = unit_province[unit_id];
     Eng3D::fast_erase(province_units[current_province_id], unit_id);
-    units[unit_id].cached_id = Province::invalid();
+    units[unit_id].cached_id = Unit::invalid();
     free_unit_slots.push_back(unit_id);
 }
 
@@ -143,11 +152,7 @@ void UnitManager::move_unit(Unit::Id unit_id, Province::Id target_province_id) {
     Eng3D::fast_erase(province_units[current_province_id], unit_id);
     unit_province[unit_id] = target_province_id;
     province_units[target_province_id].push_back(unit_id);
-}
 
-/*
-- Hi, greetings!
-- Symphony Of Empires is a game were you rule a country in the victorian era
-- You can do whatever you want! But you must keep your nation together by 1935
-- We're in the Netherlands, we have a colony on the Indonesian archipielago
-*/
+    if(g_server != nullptr)
+        g_server->broadcast(Action::UnitMove::form_packet(units[unit_id], World::get_instance().provinces[target_province_id]));
+}

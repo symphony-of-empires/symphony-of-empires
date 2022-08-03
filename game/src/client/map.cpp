@@ -249,11 +249,14 @@ void Map::set_view(MapView view) {
 }
 
 std::string political_province_tooltip(const World& world, const Province::Id id) {
+    std::string end_str;
+    if(world.provinces[id].controller != nullptr)
+        end_str += world.provinces[id].controller->client_username;
+
     if(((GameState&)Eng3D::State::get_instance()).editor) {
-        return world.provinces[id].ref_name.get_string();
-    } else {
-        return "";
+        end_str += "(" + world.provinces[id].ref_name.get_string() + ")";
     }
+    return end_str;
 }
 
 // The standard map mode with each province color = country color

@@ -537,6 +537,7 @@ void GameState::world_thread() {
                 break;
             }
         }
+        if(!this->run) break;
 
         // Only run the economy simulation of host mode is ON, otherwise don't :-)
         const auto delta = std::chrono::milliseconds{ ms_delay_speed };

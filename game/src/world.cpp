@@ -633,13 +633,11 @@ void World::do_tick() {
 
     profiler.start("Economy");
     // Every ticks_per_month ticks do an economical tick
-    // if(!(time % ticks_per_month)) {
     Economy::do_tick(*this, economyState);
     profiler.start("E-packages");
-        // g_server->broadcast(Action::NationUpdate::form_packet(nations));
-        // g_server->broadcast(Action::ProvinceUpdate::form_packet(provinces));
+    g_server->broadcast(Action::NationUpdate::form_packet(nations));
+    g_server->broadcast(Action::ProvinceUpdate::form_packet(provinces));
     profiler.stop("E-packages");
-    // }
     profiler.stop("Economy");
 
     profiler.start("Research");

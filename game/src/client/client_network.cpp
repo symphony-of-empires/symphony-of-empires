@@ -91,10 +91,10 @@ Client::Client(GameState& _gs, std::string host, const unsigned port)
 // to establish a new connection; since the server won't hand out snapshots - wait...
 // if you need snapshots for any reason (like desyncs) you can request with ActionType::SNAPSHOT
 void Client::net_loop() {
-    World& world = *(gs.world);
+    auto& world = *(gs.world);
     
     {
-        Archive ar = Archive();
+        Archive ar{};
 
         ActionType action = ActionType::CONNECT;
         ::serialize(ar, &action);
@@ -203,7 +203,14 @@ void Client::net_loop() {
                             ::deserialize(ar, &province);
                             if(province == nullptr)
                                 CXX_THROW(ClientException, "Unknown province");
+                            
+                            auto old_owner_id = province->owner_id;
+                            auto old_controller = province->controller;
                             ::deserialize(ar, province);
+                            if(province->owner_id != old_owner_id)
+                                world.province_manager.mark_province_owner_changed(province->get_id());
+                            if(province->controller != old_controller)
+                                world.province_manager.mark_province_control_changed(province->get_id());
                         }
                     } break;
                     case ActionType::UNIT_UPDATE: {
@@ -212,7 +219,8 @@ void Client::net_loop() {
                         for(Unit::Id i = 0; i < size; i++) {
                             Unit unit;
                             ::deserialize(ar, &unit);
-                            g_world.unit_manager.units[unit.cached_id] = unit;
+                            assert(g_world.unit_manager.units.size() > unit.get_id());
+                            g_world.unit_manager.units[unit.get_id()] = unit;
                         }
                     } break;
                     case ActionType::UNIT_ADD: {
@@ -222,6 +230,18 @@ void Client::net_loop() {
                         ::deserialize(ar, &prov_id);
                         world.unit_manager.add_unit(unit, prov_id);
                         Eng3D::Log::debug("client", "New unit of " + g_world.nations[unit.owner_id].ref_name);
+                    } break;
+                    case ActionType::UNIT_REMOVE: {
+                        Unit::Id unit_id;
+                        ::deserialize(ar, &unit_id);
+                        world.unit_manager.remove_unit(unit_id);
+                    } break;
+                    case ActionType::UNIT_MOVE: {
+                        Unit::Id unit_id;
+                        ::deserialize(ar, &unit_id);
+                        Province::Id province_id;
+                        ::deserialize(ar, &province_id);
+                        world.unit_manager.move_unit(unit_id, province_id);
                     } break;
                     case ActionType::BUILDING_ADD: {
                         Province* province;
@@ -256,6 +276,13 @@ void Client::net_loop() {
                         if(province == nullptr)
                             CXX_THROW(ClientException, "Unknown province");
                         ::deserialize(ar, province);
+                    } break;
+                    case ActionType::SELECT_NATION: {
+                        Nation* nation;
+                        ::deserialize(ar, &nation);
+                        std::string username;
+                        ::deserialize(ar, &username);
+                        nation->client_username = username;
                     } break;
                     default:
                         break;

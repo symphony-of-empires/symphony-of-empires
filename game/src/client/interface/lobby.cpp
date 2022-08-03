@@ -34,6 +34,8 @@
 
 #include "client/interface/lobby.hpp"
 #include "client/interface/main_menu.hpp"
+#include "client/client_network.hpp"
+#include "server/server_network.hpp"
 #include "client/game_state.hpp"
 #include "world.hpp"
 #include "client/map.hpp"
@@ -62,6 +64,23 @@ LobbySelectView::LobbySelectView(GameState& _gs)
             // Didn't seem to be able to delete them in a callback so this will do
             this->ctrl_window->kill();
             this->ctrl_window = nullptr;
+
+            if(this->gs.host_mode) {
+                if(this->gs.server != nullptr)
+                    delete this->gs.server;
+                this->gs.server = new Server(gs, 1836);
+
+                if(this->gs.client != nullptr)
+                    delete this->gs.client;
+                this->gs.client = new Client(gs, "127.0.0.1", 1836);
+            } else {
+                // Control of server and client creation is on the caller/invoker
+            }
+
+            this->gs.client->username = this->gs.editor ? "Editor" : "Guest";
+            this->gs.client->username += "-";
+            this->gs.client->username += this->gs.host_mode ? "Host" : "Player";
+            this->gs.in_game = true;
             this->gs.play_nation();
         }
     });

@@ -52,12 +52,14 @@ public:
 };
 
 class GameState;
+class Nation;
 class Server : public Eng3D::Networking::Server {
     GameState& gs;
 public:
-    Server(GameState& gs, unsigned port = 1825, unsigned max_conn = 16);
-    ~Server();
+    Server(GameState& gs, unsigned port = 1825, unsigned max_conn = 4);
+    ~Server() = default;
     void net_loop(int id);
+    std::vector<Nation*> clients_extra_data;
 };
 
 extern Server* g_server;

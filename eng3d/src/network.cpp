@@ -66,7 +66,7 @@
 // Socket stream
 //
 void Eng3D::Networking::SocketStream::send(const void* data, size_t size) {
-    const char* c_data = (const char*)data;
+    const auto* c_data = reinterpret_cast<const char*>(data);
     for(size_t i = 0; i < size; ) {
         int r = ::send(fd, &c_data[i], std::min<std::size_t>(1024, size - i), 0);
         if(r < 0)
@@ -76,13 +76,63 @@ void Eng3D::Networking::SocketStream::send(const void* data, size_t size) {
 }
 
 void Eng3D::Networking::SocketStream::recv(void* data, size_t size) {
-    char* c_data = (char*)data;
+    auto* c_data = reinterpret_cast<char*>(data);
     for(size_t i = 0; i < size; ) {
-        int r = ::recv(fd, &c_data[i], std::min<std::size_t>(1024, size - i), MSG_WAITALL);
-        if(r < 0)
-            CXX_THROW(Eng3D::Networking::SocketException, "Can't receive data of packet");
+        int r = ::recv(fd, &c_data[i], std::min<std::size_t>(1024, size - i), MSG_DONTWAIT);
+        if(r < 0) {
+            if(errno == EAGAIN || errno == EWOULDBLOCK) {
+                r = ::recv(fd, &c_data[i], std::min<std::size_t>(1024, size - i), MSG_WAITALL);
+                if(r < 0)
+                    CXX_THROW(Eng3D::Networking::SocketException, "Can't receive data of packet (even as blocking)");
+            } else {
+                CXX_THROW(Eng3D::Networking::SocketException, "Can't receive data of packet");
+            }
+        }
         i += static_cast<std::size_t>(r);
     }
+}
+
+void Eng3D::Networking::SocketStream::set_timeout(int seconds) {
+    // See https://stackoverflow.com/questions/2876024/linux-is-there-a-read-or-recv-from-socket-with-timeout
+#ifdef E3D_TARGET_UNIX
+    struct timeval tv;
+    tv.tv_sec = seconds;
+    tv.tv_usec = 0;
+    setsockopt(this->fd, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&tv), sizeof tv);
+#elif defined E3D_TARGET_WINDOWS
+    DWORD timeout = seconds * 1000;
+    setsockopt(this->fd, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&timeout), sizeof timeout);
+#endif
+}
+
+bool Eng3D::Networking::SocketStream::has_pending() {
+    // Check if we need to read packets
+#ifdef E3D_TARGET_UNIX
+    struct pollfd pfd{};
+    pfd.fd = this->fd;
+    pfd.events = POLLIN;
+    int has_pending = poll(&pfd, 1, 10);
+    return (pfd.revents & POLLIN) != 0 || has_pending;
+#elif defined E3D_TARGET_WINDOWS
+    u_long has_pending = 0;
+    int test = ioctlsocket(this->fd, FIONREAD, &has_pending);
+    return has_pending;
+#endif
+}
+
+void Eng3D::Networking::SocketStream::set_blocking(bool blocking) {
+#ifdef E3D_TARGET_UNIX
+    int flags = fcntl(fd, F_GETFL, 0);
+    if(flags == -1) {
+        Eng3D::Log::debug("socket_stream", "Can't set socket as non_blocking");
+        return;
+    }
+    flags = blocking ? (flags & (~O_NONBLOCK)) : (flags | O_NONBLOCK);
+    fcntl(fd, F_SETFL, flags);
+#elif defined E3D_TARGET_WINDOWS
+    u_long mode = blocking ? 0 : 1;
+    ioctlsocket(fd, FIONBIO, &mode);
+#endif
 }
 
 //
@@ -92,7 +142,7 @@ int Eng3D::Networking::ServerClient::try_connect(int fd) {
     sockaddr_in client;
     socklen_t len = sizeof(client);
     try {
-        conn_fd = accept(fd, (sockaddr*)&client, &len);
+        conn_fd = accept(fd, reinterpret_cast<sockaddr*>(&client), &len);
         if(conn_fd == INVALID_SOCKET)
             CXX_THROW(Eng3D::Networking::SocketException, "Cannot accept client connection");
         
@@ -115,8 +165,8 @@ void Eng3D::Networking::ServerClient::flush_packets() {
     if(!pending_packets.empty()) {
         if(pending_packets_mutex.try_lock()) {
             std::scoped_lock lock(packets_mutex);
-            for(auto packet = pending_packets.begin(); packet != pending_packets.end(); packet++)
-                packets.push_back(*packet);
+            for(auto& packet : pending_packets) // Put all pending packets into the main queue
+                packets.push_back(packet);
             pending_packets.clear();
             pending_packets_mutex.unlock();
         }
@@ -124,18 +174,7 @@ void Eng3D::Networking::ServerClient::flush_packets() {
 }
 
 bool Eng3D::Networking::ServerClient::has_pending() {
-    // Check if we need to read packets
-#ifdef E3D_TARGET_UNIX
-    struct pollfd pfd{};
-    pfd.fd = conn_fd;
-    pfd.events = POLLIN;
-    int has_pending = poll(&pfd, 1, 10);
-    return (pfd.revents & POLLIN) != 0 || has_pending;
-#elif defined E3D_TARGET_WINDOWS
-    u_long has_pending = 0;
-    int test = ioctlsocket(conn_fd, FIONREAD, &has_pending);
-    return has_pending;
-#endif
+    return Eng3D::Networking::SocketStream(conn_fd).has_pending();
 }
 
 //
@@ -162,7 +201,7 @@ Eng3D::Networking::Server::Server(const unsigned port, const unsigned max_conn)
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
     setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(int));
 #endif
-    if(bind(fd, (sockaddr*)&addr, sizeof(addr)) != 0)
+    if(bind(fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) != 0)
         CXX_THROW(Eng3D::Networking::SocketException, "Cannot bind server");
     if(listen(fd, max_conn) != 0)
         CXX_THROW(Eng3D::Networking::SocketException, "Cannot listen in specified number of concurrent connections");
@@ -172,22 +211,27 @@ Eng3D::Networking::Server::Server(const unsigned port, const unsigned max_conn)
     // We need to ignore pipe signals since any client disconnecting **will** kill the server
     signal(SIGPIPE, SIG_IGN);
 #endif
-    run = true;
+    this->run = true;
     Eng3D::Log::debug("serber", "Server created sucessfully and listening to " + std::to_string(port) + "; now invite people!");
 }
 
 Eng3D::Networking::Server::~Server() {
-    run = false;
+    this->run = false;
 #ifdef E3D_TARGET_UNIX
     close(fd);
 #elif defined E3D_TARGET_WINDOWS
     closesocket(fd);
     WSACleanup();
 #endif
-    delete[] clients;
+    // Join all threads before deletion
+    for(size_t i = 0; i < this->n_clients; i++) {
+        if(this->clients[i].is_active)
+            this->clients[i].thread.join();
+    }
+    delete[] this->clients;
 }
 
-// This will broadcast the given packet to all clients currently on the server
+/// @brief This will broadcast the given packet to all clients currently on the server
 void Eng3D::Networking::Server::broadcast(const Eng3D::Networking::Packet& packet) {
     for(size_t i = 0; i < n_clients; i++) {
         if(clients[i].is_connected == true) {

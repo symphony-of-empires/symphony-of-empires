@@ -51,21 +51,19 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
     clients = new Eng3D::Networking::ServerClient[n_clients];
     for(size_t i = 0; i < n_clients; i++)
         clients[i].is_connected = false;
+    
+    clients_extra_data.resize(n_clients, nullptr);
 
     // "Starting" thread, this one will wake up all the other ones
     clients[0].thread = std::thread(&Server::net_loop, this, 0);
     clients[0].is_active = true;
 }
 
-Server::~Server() {
-    this->run = false;
-}
-
 /// @brief This is the handling thread-function for handling a connection to a single client
 /// Sending packets will only be received by the other end, when trying to broadcast please
 /// put the packets on the send queue, they will be sent accordingly
 void Server::net_loop(int id) {
-    Eng3D::Networking::ServerClient& cl = clients[id];
+    auto& cl = clients[id];
     int conn_fd = 0;
     try {
         cl.is_connected = false;
@@ -76,7 +74,7 @@ void Server::net_loop(int id) {
         }
 
         Nation* selected_nation = nullptr;
-        Eng3D::Networking::Packet packet = Eng3D::Networking::Packet(conn_fd);
+        Eng3D::Networking::Packet packet(conn_fd);
 
         player_count++;
         // Wake up another thread
@@ -84,12 +82,13 @@ void Server::net_loop(int id) {
             if(clients[i].is_active == false) {
                 clients[i].thread = std::thread(&Server::net_loop, this, i);
                 clients[i].is_active = true;
+                break;
             }
         }
 
         // Read the data from client
         {
-            Archive ar = Archive();
+            Archive ar{};
             packet.recv();
             ar.set_buffer(packet.data(), packet.size());
 
@@ -100,17 +99,32 @@ void Server::net_loop(int id) {
 
         // Tell all other clients about the connection of this new client
         {
-            Archive ar = Archive();
+            Archive ar{};
             ActionType action = ActionType::CONNECT;
             ::serialize(ar, &action);
             packet.data(ar.get_buffer(), ar.size());
             broadcast(packet);
+
+            // And update all the clients on the username of everyone
+            for(size_t i = 0; i < this->n_clients; i++) {
+                if(this->clients[i].is_active && this->clients[i].is_connected) {
+                    if(this->clients_extra_data[i] != nullptr) {
+                        auto* nation = this->clients_extra_data[i];
+                        Archive ar{};
+                        ActionType action = ActionType::SELECT_NATION;
+                        ::serialize(ar, &nation);
+                        ::serialize(ar, &this->clients[i].username);
+                        packet.data(ar.get_buffer(), ar.size());
+                        broadcast(packet);
+                    }
+                }
+            }
         }
 
         ActionType action = ActionType::PING;
         packet.send(&action);
         
-        Archive ar = Archive();
+        Archive ar{};
         while(run && cl.is_connected == true) {
             cl.flush_packets();
 
@@ -122,7 +136,6 @@ void Server::net_loop(int id) {
                 ::deserialize(ar, &action);
 
                 Eng3D::Log::debug("server", "Receiving " + std::to_string(packet.size()) + " from #" + std::to_string(id));
-
                 if(selected_nation == nullptr && (action != ActionType::PONG && action != ActionType::CHAT_MESSAGE && action != ActionType::SELECT_NATION))
                     throw ServerException("Unallowed operation without selected nation");
                 
@@ -313,7 +326,15 @@ void Server::net_loop(int id) {
                     nation->ai_controlled = false;
                     nation->ai_controlled = false;
                     selected_nation = nation;
-                    Eng3D::Log::debug("server", "Nation " + selected_nation->ref_name + " selected by client " + std::to_string(id));
+                    Eng3D::Log::debug("server", "Nation " + selected_nation->ref_name + " selected by client " + cl.username + "," + std::to_string(id));
+
+                    this->clients_extra_data[id] = nation;
+                    Archive ar{};
+                    ActionType action = ActionType::SELECT_NATION;
+                    ::serialize(ar, &nation);
+                    ::serialize(ar, &cl.username);
+                    packet.data(ar.get_buffer(), ar.size());
+                    broadcast(packet);
                 } break;
                 case ActionType::DIPLO_INC_RELATIONS: {
                     Nation* target = nullptr;

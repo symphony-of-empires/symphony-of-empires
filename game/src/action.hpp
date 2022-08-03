@@ -59,6 +59,7 @@ enum class ActionType {
     UNIT_ADD,
     UNIT_REMOVE,
     UNIT_CHANGE_TARGET,
+    UNIT_MOVE,
     // Building
     BUILDING_UPDATE,
     BUILDING_ADD,
@@ -116,12 +117,12 @@ namespace Action {
 
     class ProvinceUpdate {
     public:
-        static Eng3D::Networking::Packet form_packet(const std::vector<Province*>& list);
+        static Eng3D::Networking::Packet form_packet(const std::vector<Province>& list);
     };
 
     class NationUpdate {
     public:
-        static Eng3D::Networking::Packet form_packet(const std::vector<Nation*>& list);
+        static Eng3D::Networking::Packet form_packet(const std::vector<Nation>& list);
     };
 
     class SelectNation {
@@ -162,5 +163,15 @@ namespace Action {
     class UnitUpdate {
     public:
         static Eng3D::Networking::Packet form_packet(const std::vector<Unit>& units);
+    };
+
+    class UnitRemove {
+    public:
+        static Eng3D::Networking::Packet form_packet(const Unit& unit);
+    };
+
+    class UnitMove {
+    public:
+        static Eng3D::Networking::Packet form_packet(const Unit& unit, const Province& province);
     };
 };

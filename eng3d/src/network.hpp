@@ -81,7 +81,10 @@ namespace Eng3D::Networking {
         ~SocketStream() = default;
         void send(const void* data, size_t size);
         void recv(void* data, size_t size);
-        
+        void set_timeout(int seconds);
+        bool has_pending();
+        void set_blocking(bool value);
+
         int fd;
     };
 

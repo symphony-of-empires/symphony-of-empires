@@ -72,16 +72,13 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     conn_btn->text("Connect");
     conn_btn->set_on_click([this](UI::Widget&) {
         Eng3D::Log::debug("ui", "Okey, connecting to [" + this->ip_addr_inp->get_buffer() + "]");
-
         /// @todo Handle when mods differ (i.e checksum not equal to host)
         this->gs.host_mode = false;
+        this->gs.editor = false;
         try {
             this->gs.client = new Client(this->gs, this->ip_addr_inp->get_buffer(), 1836);
             this->gs.client->username = this->username_inp->get_buffer();
             this->gs.client->wait_for_snapshot();
-            this->gs.in_game = true;
-
-            this->gs.current_mode = MapMode::COUNTRY_SELECT;
             this->gs.select_nation = new Interface::LobbySelectView(gs);
             return;
         } catch(Eng3D::Networking::SocketException& e) {
@@ -148,14 +145,8 @@ MainMenu::MainMenu(GameState& _gs)
     single_btn->set_on_click([this](UI::Widget&) {
         gs.current_mode = MapMode::COUNTRY_SELECT;
         gs.select_nation = new Interface::LobbySelectView(gs);
-
         gs.host_mode = true;
-        gs.server = new Server(gs, 1836);
-        gs.client = new Client(gs, "127.0.0.1", 1836);
-        gs.client->username = "Player";
-        gs.in_game = true;
         gs.editor = false;
-
         this->kill();
     });
 
@@ -180,15 +171,10 @@ MainMenu::MainMenu(GameState& _gs)
     host_btn->text_align_y = UI::Align::CENTER;
     host_btn->text("Host");
     host_btn->set_on_click([this](UI::Widget&) {
-        gs.current_mode = MapMode::COUNTRY_SELECT;
-        gs.select_nation = new Interface::LobbySelectView(gs);
-
-        gs.host_mode = true;
-        gs.server = new Server(gs, 1836);
-        gs.client = new Client(gs, "127.0.0.1", 1836);
-        gs.client->username = "Host";
-        gs.in_game = true;
-
+        this->gs.current_mode = MapMode::COUNTRY_SELECT;
+        this->gs.select_nation = new Interface::LobbySelectView(this->gs);
+        this->gs.host_mode = true;
+        this->gs.editor = false;
         this->kill();
     });
 
@@ -201,18 +187,15 @@ MainMenu::MainMenu(GameState& _gs)
     edit_btn->text_align_y = UI::Align::CENTER;
     edit_btn->text("Editor");
     edit_btn->set_on_click([this](UI::Widget&) {
-        gs.current_mode = MapMode::NORMAL;
-
-        gs.host_mode = true;
-        gs.server = new Server(gs, 1836);
-        gs.client = new Client(gs, "127.0.0.1", 1836);
-        gs.client->username = "Player";
-        gs.in_game = true;
-        gs.editor = true;
-
+        this->gs.current_mode = MapMode::NORMAL;
+        // Create a local server in editor mode
+        this->gs.host_mode = true;
+        this->gs.editor = true;
+        this->gs.server = new Server(gs, 1836);
+        this->gs.client = new Client(gs, "127.0.0.1", 1836);
         this->kill();
 
-        gs.curr_nation = &gs.world->nations[0];
+        this->gs.curr_nation = &gs.world->nations[0];
         this->gs.play_nation();
     });
 
@@ -238,6 +221,7 @@ MainMenu::MainMenu(GameState& _gs)
     exit_btn->origin = UI::Origin::LOWER_MIDDLE;
     exit_btn->text("Exit");
     exit_btn->set_on_click([this](UI::Widget&) {
+        this->gs.paused = true;
         this->gs.run = false;
     });
 }

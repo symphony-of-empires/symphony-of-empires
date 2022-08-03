@@ -166,9 +166,6 @@ public:
     Policies current_policy; // Current policy of this nation
     uint16_t diplomatic_timer; // Time until a diplomacy can be done
     Technology* focus_tech = nullptr; // Current tech being researched
-
-    // Hints for the client on how to draw a nation :)
-    std::vector<NationClientHint> client_hints;
     // Accepted cultures in this nation, the accepted cultures may have some bonuses on provinces *totally*
     // owned by this nation
     std::vector<float> culture_discrim;
@@ -180,4 +177,7 @@ public:
     std::vector<NationModifier*> modifiers;
     std::deque<Event> inbox; // Inbox of the nation; events that require our attention / should be processed
     std::vector<float> research; // Progress on technologies (1:1)
+
+    std::vector<NationClientHint> client_hints; // Hints for the client on how to draw a nation on the client
+    std::string client_username; // Used by clients to store usernames from nations - not saved
 };
