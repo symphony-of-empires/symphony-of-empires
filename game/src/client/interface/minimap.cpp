@@ -289,22 +289,16 @@ mapmode_generator relations_map_mode(Nation::Id id) {
             }
 
             if(province.controller == &nation || province.controller->puppet_master == &nation) {
-                Eng3D::Color color = Eng3D::Color::rgba32(bswap32(0x8080ffff));
+                auto color = Eng3D::Color::rgba32(bswap32(0x8080ffff));
                 provinces_color.push_back(ProvinceColor(i, color));
                 continue;
             }
 
-            const NationRelation& rel = g_world.get_relation(g_world.get_id(*province.controller), id);
-            if(rel.has_alliance) {
-                Eng3D::Color color = Eng3D::Color::rgba32(bswap32(0x20d4d1ff));
-                provinces_color.push_back(ProvinceColor(i, color));
-                continue;
-            }
-
+            const auto& rel = g_world.get_relation(g_world.get_id(*province.controller), id);
             const uint8_t r = (rel.relation < 0) ? -rel.relation : 0;
             const uint8_t g = (rel.relation > 0) ? rel.relation : 0;
-            const uint8_t b = g;
-            Eng3D::Color color = Eng3D::Color::rgba32(bswap32(~(0x00000000 | (b << 24) | (r << 16) | (g << 8))));
+            const uint8_t b = rel.has_alliance ? 0xff : 0;
+            auto color = Eng3D::Color::rgba8(r, g, b, 0xff);
             provinces_color.push_back(ProvinceColor(i, color));
         }
         return provinces_color;
