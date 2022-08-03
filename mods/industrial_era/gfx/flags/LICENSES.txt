@@ -358,6 +358,7 @@ san_marino_fascism
 san_marino_republic
 saxony_communism
 saxony_republic
+bavaria_communism
     Flags made by TrumpShallPurgetheAnimeScourge
 
 baden_communism

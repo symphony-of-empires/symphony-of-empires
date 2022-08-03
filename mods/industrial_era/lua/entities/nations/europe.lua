@@ -455,6 +455,10 @@ saxony:register()
 saxony:set_ideology(monarchy)
 saxony:add_accepted_culture(german)
 saxony:add_client_hint(monarchy, _("Saxony"), 0xbde04a)
+saxony:add_client_hint(republic, _("Saxony"), 0xbde04a)
+saxony:add_client_hint(communism, _("Saxony"), 0xbde04a)
+saxony:add_client_hint(socialism, _("Saxony"), 0xbde04a)
+saxony:add_client_hint(fascism, _("Saxony"), 0xbde04a)
 
 hesse_kassel = Nation:new{ ref_name = "hesse_kassel" }
 hesse_kassel.name = _("Hesse-Kassel")
@@ -563,6 +567,8 @@ bavaria:register()
 bavaria:set_ideology(monarchy)
 bavaria:add_accepted_culture(german)
 bavaria:add_client_hint(monarchy, _("Bavaria"), 0x8feff2)
+bavaria:add_client_hint(communism, _("Bavaria"), 0x8feff2)
+bavaria:add_client_hint(socialism, _("Bavaria"), 0x8feff2)
 
 hannover = Nation:new{ ref_name = "hannover" }
 hannover.name = _("Hannover")
@@ -589,7 +595,7 @@ nassau:add_client_hint(monarchy, _("Nassau"), 0xcc5f29)
 baden = Nation:new{ ref_name = "baden" }
 baden.name = _("Baden")
 baden:register()
-baden:set_ideology(fascism)
+baden:set_ideology(monarchy)
 baden:add_accepted_culture(german)
 baden:add_client_hint(monarchy, _("Baden"), 0xf57915)
 baden:add_client_hint(fascism, _("Baden"), 0xf57915)
