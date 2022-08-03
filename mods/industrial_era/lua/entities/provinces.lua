@@ -34721,8 +34721,10 @@ province:add_nucleus(n_east_india_company)
 province:give_to(n_east_india_company)
 province=Province:new{ref_name="province_62fd60",name=_("Unknown"),color=0x62fd60,terrain=tt_plains,rgo_size={}}
 province:register()
-province=Province:new{ref_name="province_ffad7b",name=_("Unknown"),color=0xffad7b,terrain=tt_plains,rgo_size={}}
+province=Province:new{ref_name="san_marino",name=_("San Marino"),color=0xffad7b,terrain=tt_mountain,rgo_size={}}
 province:register()
+province:add_nucleus(Nation:get("san_marino"))
+province:give_to(Nation:get("san_marino"))
 province=Province:new{ref_name="province_c20480",name=_("Unknown"),color=0xc20480,terrain=tt_plains,rgo_size={}}
 province:register()
 province:add_nucleus(n_east_india_company)

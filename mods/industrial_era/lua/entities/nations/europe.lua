@@ -841,6 +841,17 @@ savoie:set_ideology(monarchy)
 savoie:add_accepted_culture(italian)
 savoie:add_client_hint(monarchy, _("Savoie"), 0xad8abd)
 
+san_marino = Nation:new{ ref_name = "san_marino" }
+san_marino.name = _("San Marino")
+san_marino:register()
+san_marino:set_ideology(monarchy)
+san_marino:add_accepted_culture(german)
+san_marino:add_client_hint(monarchy, _("San Marino"), 0x34e5eb)
+san_marino:add_client_hint(republic, _("San Marino"), 0x34e5eb)
+san_marino:add_client_hint(communism, _("San Marino"), 0x34e5eb)
+san_marino:add_client_hint(socialism, _("San Marino"), 0x34e5eb)
+san_marino:add_client_hint(fascism, _("San Marino"), 0x34e5eb)
+
 -- Formable nations
 italy = Nation:new{ ref_name = "italy" }
 italy.name = _("Italy")
