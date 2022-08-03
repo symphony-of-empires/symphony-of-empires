@@ -48,9 +48,9 @@ BattleWidget::BattleWidget(Province& _province, size_t _idx, Map& _map, UI::Widg
     this->background_color = Eng3D::Color(1.f, 1.f, 1.f, 1.f);
     /// @todo On click display information about the battle
 
-    auto nation_flag = map.nation_flags[0];
+    auto& gs = static_cast<GameState&>(Eng3D::State::get_instance());
 
-    this->left_flag_img = new UI::Image(1, 1, 38, 28, nation_flag, this);
+    this->left_flag_img = new UI::Image(1, 1, 38, 28, gs.tex_man.get_white(), this);
     this->left_size_label = new UI::Div(41, 1, 48, 28, this);
     this->left_size_label->text_align_x = UI::Align::END;
     this->left_size_label->background_color = Eng3D::Color(0.8f, 0.f, 0.f, 1.f);
@@ -65,7 +65,7 @@ BattleWidget::BattleWidget(Province& _province, size_t _idx, Map& _map, UI::Widg
         this->left_size_label->text(std::to_string(unit_size));
     });
 
-    this->right_flag_img = new UI::Image(139, 1, 38, 28, nation_flag, this);
+    this->right_flag_img = new UI::Image(139, 1, 38, 28, gs.tex_man.get_white(), this);
     this->right_size_label = new UI::Div(90, 1, 48, 28, this);
     this->right_size_label->text_align_x = UI::Align::END;
     this->right_size_label->background_color = Eng3D::Color(0.f, 0.f, 0.8f, 1.f);
@@ -86,23 +86,24 @@ BattleWidget::BattleWidget(Province& _province, size_t _idx, Map& _map, UI::Widg
 void BattleWidget::set_battle(Province& _province, size_t _idx) {
     this->province = &_province;
     this->idx = _idx;
-    const Battle& battle = this->province->battles[this->idx];
-
-    const Eng3D::Camera& camera = *map.camera;
+    const auto& battle = this->province->battles[this->idx];
+    const auto& camera = *map.camera;
     const auto battle_pos = province->get_pos();
     const auto screen_pos = camera.get_tile_screen_pos(battle_pos);
 
     this->x = screen_pos.x - this->width / 2;
     this->y = screen_pos.y - this->height / 2;
 
+    auto& gs = static_cast<GameState&>(Eng3D::State::get_instance());
+
     if(!battle.attackers_ids.empty()) {
-        auto left_nation_flag = map.nation_flags[g_world.unit_manager.units[battle.attackers_ids[0]].owner_id];
+        auto left_nation_flag = gs.get_nation_flag(gs.world->nations[gs.world->unit_manager.units[battle.attackers_ids[0]].owner_id]);
         this->left_flag_img->current_texture = left_nation_flag;
         this->left_size_label->on_each_tick(*this->left_size_label);
     }
 
     if(!battle.defenders_ids.empty()) {
-        auto right_nation_flag = map.nation_flags[g_world.unit_manager.units[battle.defenders_ids[0]].owner_id];
+        auto right_nation_flag = gs.get_nation_flag(gs.world->nations[gs.world->unit_manager.units[battle.defenders_ids[0]].owner_id]);
         this->right_flag_img->current_texture = right_nation_flag;
         this->right_size_label->on_each_tick(*this->right_size_label);
     }
