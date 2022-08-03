@@ -158,11 +158,11 @@ korean = Culture:new{ ref_name = "korean", name = _("Korean") }
 korean:register()
 chinesse = Culture:new{ ref_name = "chinesse", name = _("Chinesse") }
 chinesse:register()
-burmesse = Culture:new{ ref_name = "burmesse", name = _("Burmesse") }
+burmesse = Culture:new{ ref_name = "burmesse", name = _("Burmesse"), color = 0x2FFFBD }
 burmesse:register()
-thai = Culture:new{ ref_name = "thai", name = _("Thai") }
+thai = Culture:new{ ref_name = "thai", name = _("Thai"), color = 0x2F54BD }
 thai:register()
-vietnamesse = Culture:new{ ref_name = "vietnamesse", name = _("Vietnamesse") }
+vietnamesse = Culture:new{ ref_name = "vietnamesse", name = _("Vietnamesse"), color = 0x857732 }
 vietnamesse:register()
 
 -- American
@@ -202,9 +202,7 @@ polynesian.name = _("Polynesian")
 polynesian:register()
 
 -- Middle east
-arabic = Culture:new{ ref_name = "arabic" }
-arabic.name = _("Arabic")
-arabic.noun = _("Arab")
+arabic = Culture:new{ ref_name = "arabic", name = _("Arabic"), noun = _("Arab"), color = 0x388713 }
 arabic:register()
 
 -- African
