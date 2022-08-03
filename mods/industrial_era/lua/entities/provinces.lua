@@ -3681,7 +3681,7 @@ province=Province:new{ref_name="province_e80000",name=_("Province_e80000"),color
 province:register()
 province=Province:new{ref_name="province_e90000",name=_("Province_e90000"),color=0xe90000,terrain=tt_sea,rgo_size={}}
 province:register()
-province=Province:new{ref_name="province_ea0000",name=_("Province_ea0000"),color=0xea0000,terrain=tt_sea,rgo_size={}}
+province=Province:new{ref_name="province_ea0000",name=_("Istanbul strait"),color=0xea0000,terrain=tt_sea,rgo_size={}}
 province:register()
 province=Province:new{ref_name="province_3f6b00",name=_("Province_3f6b00"),color=0x3f6b00,terrain=tt_sea,rgo_size={}}
 province:register()
@@ -3843,9 +3843,9 @@ province=Province:new{ref_name="province_130089",name=_("Province_130089"),color
 province:register()
 province=Province:new{ref_name="province_140089",name=_("Province_140089"),color=0x140089,terrain=tt_sea,rgo_size={}}
 province:register()
-province=Province:new{ref_name="province_150089",name=_("Province_150089"),color=0x150089,terrain=tt_sea,rgo_size={}}
+province=Province:new{ref_name="province_150089",name=_("Gulf of Riga"),color=0x150089,terrain=tt_sea,rgo_size={}}
 province:register()
-province=Province:new{ref_name="province_160089",name=_("Province_160089"),color=0x160089,terrain=tt_sea,rgo_size={}}
+province=Province:new{ref_name="province_160089",name=_("Copenhagen Strait"),color=0x160089,terrain=tt_sea,rgo_size={}}
 province:register()
 province=Province:new{ref_name="province_170089",name=_("Province_170089"),color=0x170089,terrain=tt_sea,rgo_size={}}
 province:register()
@@ -3869,7 +3869,7 @@ province=Province:new{ref_name="province_200089",name=_("Province_200089"),color
 province:register()
 province=Province:new{ref_name="province_230089",name=_("Province_230089"),color=0x230089,terrain=tt_sea,rgo_size={}}
 province:register()
-province=Province:new{ref_name="province_240089",name=_("Province_240089"),color=0x240089,terrain=tt_sea,rgo_size={}}
+province=Province:new{ref_name="province_240089",name=_("Baltic Sea"),color=0x240089,terrain=tt_sea,rgo_size={}}
 province:register()
 province=Province:new{ref_name="province_250089",name=_("Province_250089"),color=0x250089,terrain=tt_sea,rgo_size={}}
 province:register()
@@ -7715,7 +7715,7 @@ province:add_pop(pt_officer,c_turkish,r_islamic,666.666687,1.666667)
 province:add_pop(pt_craftsmen,c_turkish,r_islamic,666.666687,1.666667)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_dcffc100",name=_("Constatinople"),color=0xc1ffdc,terrain=tt_plains,rgo_size={}}
+province=Province:new{ref_name="province_dcffc100",name=_("Istanbul"),color=0xc1ffdc,terrain=tt_plains,rgo_size={}}
 province:register()
 province:add_pop(pt_artisan,c_turkish,r_islamic,100.000000,0.100000)
 province:add_pop(pt_farmer,c_turkish,r_islamic,131.000000,0.121000)
@@ -8758,7 +8758,7 @@ province:add_pop(pt_craftsmen,c_arabic,r_islamic,666.666687,1.666667)
 province:add_nucleus(n_ottoman)
 province:add_nucleus(n_tripolitania)
 province:give_to(n_tripolitania)
-province=Province:new{ref_name="province_60165d00",name=_("Unknown"),color=0x5d1660,terrain=tt_savanna,rgo_size={}}
+province=Province:new{ref_name="province_60165d00",name=_("Tripoli"),color=0x5d1660,terrain=tt_savanna,rgo_size={}}
 province:register()
 province:add_pop(pt_burgeoise,c_arabic,r_islamic,500.000000,1.250000)
 province:add_pop(pt_artisan,c_arabic,r_islamic,1000.000000,2.500000)
