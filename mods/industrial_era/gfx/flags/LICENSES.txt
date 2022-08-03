@@ -354,11 +354,19 @@ norway_socialism
 norway_communism
 norway_fascism
 norway_republic
+san_marino_fascism
+san_marino_republic
+saxony_communism
+saxony_republic
     Flags made by TrumpShallPurgetheAnimeScourge
 
 baden_communism
     Flags made by TrumpShallPurgetheAnimeScourge
     By Jens Pattke (User:R-41) - Own work derived from [1], CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=69027388
+
+san_marino_communism
+	Flags made by TrumpShallPurgetheAnimeScourge
+	By Dahn - Own work, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=77394894
 
 rebel_communism
 rebel_socialism
@@ -507,4 +515,15 @@ mysore_monarchy
 sikh_monarchy
 	By Samhanin - Own work, source is crwflags.com image., CC0, https://commons.wikimedia.org/w/index.php?curid=49362194
 
+miskito_coast_monarchy
 	By Unknown - https://www.abovetopsecret.com/forum/thread957402/pg1, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=120101538
+
+san_marino_monarchy
+	By Flag_of_San_Marino.svg:derivative work: Fry1989 eh? 02:30, 10 September 2011 (UTC) - Flag_of_San_Marino.svg, Public Domain, https://commons.wikimedia.org/w/index.php?curid=16410502
+
+_republic
+	HISTORIC: This is the flag for democracy, not republics, but eh - it should be fine
+	By Philip Kanellopoulos, https://www.peristanom.org/ - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=17206446
+
+_socialism
+	By Philip Kanellopoulos, https://www.peristanom.org/ - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=17206446
