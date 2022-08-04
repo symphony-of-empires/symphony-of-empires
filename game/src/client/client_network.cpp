@@ -91,8 +91,6 @@ Client::Client(GameState& _gs, std::string host, const unsigned port)
 // to establish a new connection; since the server won't hand out snapshots - wait...
 // if you need snapshots for any reason (like desyncs) you can request with ActionType::SNAPSHOT
 void Client::net_loop() {
-    auto& world = *(gs.world);
-    
     {
         Archive ar{};
 
@@ -154,7 +152,7 @@ void Client::net_loop() {
 
                 Eng3D::Log::debug("client", "Receiving package of " + std::to_string(packet.size()));
                 if(!gs.host_mode) {
-                    const std::scoped_lock lock(world.world_mutex);
+                    const std::scoped_lock lock(gs.world->world_mutex);
                     // Ping from server, we should answer with a pong!
                     switch(action) {
                     case ActionType::PONG: {
@@ -183,7 +181,7 @@ void Client::net_loop() {
                     case ActionType::NATION_ADD: {
                         Nation nation;
                         ::deserialize(ar, &nation);
-                        world.insert(nation);
+                        gs.world->insert(nation);
                         Eng3D::Log::debug("client", "New nation " + nation.ref_name);
                     } break;
                     case ActionType::NATION_ENACT_POLICY: {
@@ -208,9 +206,9 @@ void Client::net_loop() {
                             auto old_controller = province->controller;
                             ::deserialize(ar, province);
                             if(province->owner_id != old_owner_id)
-                                world.province_manager.mark_province_owner_changed(province->get_id());
+                                gs.world->province_manager.mark_province_owner_changed(province->get_id());
                             if(province->controller != old_controller)
-                                world.province_manager.mark_province_control_changed(province->get_id());
+                                gs.world->province_manager.mark_province_control_changed(province->get_id());
                         }
                     } break;
                     case ActionType::UNIT_UPDATE: {
@@ -219,8 +217,8 @@ void Client::net_loop() {
                         for(Unit::Id i = 0; i < size; i++) {
                             Unit unit;
                             ::deserialize(ar, &unit);
-                            assert(g_world.unit_manager.units.size() > unit.get_id());
-                            g_world.unit_manager.units[unit.get_id()] = unit;
+                            assert(gs.world->unit_manager.units.size() > unit.get_id());
+                            gs.world->unit_manager.units[unit.get_id()] = unit;
                         }
                     } break;
                     case ActionType::UNIT_ADD: {
@@ -228,39 +226,39 @@ void Client::net_loop() {
                         ::deserialize(ar, &unit);
                         Province::Id prov_id;
                         ::deserialize(ar, &prov_id);
-                        world.unit_manager.add_unit(unit, prov_id);
+                        gs.world->unit_manager.add_unit(unit, prov_id);
                         Eng3D::Log::debug("client", "New unit of " + g_world.nations[unit.owner_id].ref_name);
                     } break;
                     case ActionType::UNIT_REMOVE: {
                         Unit::Id unit_id;
                         ::deserialize(ar, &unit_id);
-                        world.unit_manager.remove_unit(unit_id);
+                        gs.world->unit_manager.remove_unit(unit_id);
                     } break;
                     case ActionType::UNIT_MOVE: {
                         Unit::Id unit_id;
                         ::deserialize(ar, &unit_id);
                         Province::Id province_id;
                         ::deserialize(ar, &province_id);
-                        world.unit_manager.move_unit(unit_id, province_id);
+                        gs.world->unit_manager.move_unit(unit_id, province_id);
                     } break;
                     case ActionType::BUILDING_ADD: {
                         Province* province;
                         ::deserialize(ar, &province);
                         BuildingType* building_type;
                         ::deserialize(ar, &building_type);
-                        province->buildings[world.get_id(*building_type)].level++;
+                        province->buildings[gs.world->get_id(*building_type)].level++;
                     } break;
                     case ActionType::BUILDING_REMOVE: {
                         Province* province;
                         ::deserialize(ar, &province);
                         BuildingType* building_type;
                         ::deserialize(ar, &building_type);
-                        province->buildings[world.get_id(*building_type)].level--;
+                        province->buildings[gs.world->get_id(*building_type)].level--;
                     } break;
                     case ActionType::TREATY_ADD: {
                         Treaty treaty;
                         ::deserialize(ar, &treaty);
-                        world.insert(treaty);
+                        gs.world->insert(treaty);
                         Eng3D::Log::debug("client", "New treaty from " + treaty.sender->ref_name);
                         for(const auto& status : treaty.approval_status)
                             Eng3D::Log::debug("client", ">" + status.first->ref_name);
@@ -304,7 +302,7 @@ void Client::net_loop() {
     }
 }
 
-// Waits to receive the server initial world snapshot
+/// @brief Waits to receive the server initial world snapshot
 void Client::wait_for_snapshot() {
     while(!has_snapshot) {
         // Just wait...

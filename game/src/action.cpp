@@ -96,7 +96,7 @@ Eng3D::Networking::Packet ProvinceUpdate::form_packet(const std::vector<Province
     for(const auto& province : list) {
         auto* ref = &province;
         ::serialize(ar, &ref); // ProvinceRef
-        ::serialize(ar, &province); // ProvinceObj
+        ::serialize(ar, ref); // ProvinceObj
     }
     packet.data(ar.get_buffer(), ar.size());
     return packet;
