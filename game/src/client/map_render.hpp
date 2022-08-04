@@ -67,7 +67,7 @@ public:
     Option sdf{ "SDF", false }; // Pretty shadow borders
     Option lighting{ "LIGHTING", false }; // Lights and reflections
     Option parallax{ "PARALLAX", false }; // Parallax (3D) topography
-    Option rivers{ "RIVERS", false }; // Overlaid rivers
+    Option rivers{ "RIVERS", true }; // Overlaid rivers
     Option water{ "WATER", true }; // Textured water
     Option grid{ "GRID", true }; // Square grid for the map
     Option units{ "UNITS", false }; // 3D units
