@@ -202,8 +202,6 @@ MapRender::MapRender(const World& _world, Map& _map)
 
 void MapRender::reload_shaders() {
     auto& gs = static_cast<GameState&>(Eng3D::State::get_instance());
-    this->update_options(this->options);
-    
     border_gen_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
     {
         auto vs_shader = Eng3D::OpenGL::VertexShader(gs.package_man.get_unique("shaders/2d_scale.vs")->read_all());
@@ -229,6 +227,7 @@ void MapRender::reload_shaders() {
         output_shader->attach_shader(fs_shader);
         output_shader->link();
     }
+    this->update_options(this->options);
 }
 
 void MapRender::update_options(MapOptions new_options) {
@@ -262,10 +261,10 @@ void MapRender::update_options(MapOptions new_options) {
         mipmap_options.compressed = true;
         mipmap_options.internal_format = GL_RED;
         
-        if(this->bathymethry.get() == nullptr || (this->bathymethry->width == 1 && this->bathymethry->height == 1))
+        if(this->bathymethry.get() == nullptr)
             this->bathymethry = gs.tex_man.load(gs.package_man.get_unique("map/bathymethry.png"), mipmap_options);
         
-        if(this->river_tex.get() == nullptr || (this->river_tex->width == 1 && this->river_tex->height == 1))
+        if(this->river_tex.get() == nullptr)
             this->river_tex = gs.tex_man.load(gs.package_man.get_unique("map/river_smooth.png"), mipmap_options);
     } else {
         this->bathymethry = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(1, 1));
@@ -275,7 +274,7 @@ void MapRender::update_options(MapOptions new_options) {
     // Load normal and topographic maps only w lighting
     if(this->options.lighting.used) {
         // If reload is required
-        if(this->normal_topo.get() == nullptr || (this->normal_topo->width == 1 && this->normal_topo->height == 1)) {
+        if(this->normal_topo.get() == nullptr) {
             auto topo_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/topo.png")->get_abs_path()));
             this->normal_topo = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/normal.png")->get_abs_path()));
             size_t map_size = topo_map->width * topo_map->height;
@@ -288,14 +287,12 @@ void MapRender::update_options(MapOptions new_options) {
             mipmap_options.compressed = false;
             this->normal_topo->upload(mipmap_options);
         }
-    } else {
-        this->normal_topo = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(1, 1));
     }
     
     // Only perform the updates/generation on the SDF map when SDF is actually used
     if(this->options.sdf.used) {
         // If reload is required
-        if(this->border_sdf.get() == nullptr || (this->border_sdf->width == 1 && this->border_sdf->height == 1)) {
+        if(this->border_sdf.get() == nullptr) {
             Eng3D::Log::debug("game", "Creating border textures");
             std::unique_ptr<FILE, int(*)(FILE*)> fp(::fopen("sdf_cache.png", "rb"), ::fclose);
             if(fp.get() == nullptr) {
@@ -315,8 +312,6 @@ void MapRender::update_options(MapOptions new_options) {
             // We are already updating the whole map, don't do it twice
             const_cast<World&>(this->world).province_manager.clear();
         }
-    } else { // Otherwise use a dummy texture
-        border_sdf = std::make_unique<Eng3D::Texture>(Eng3D::Texture(1, 1));
     }
 }
 
