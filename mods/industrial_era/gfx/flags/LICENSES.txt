@@ -534,6 +534,9 @@ ruperts_land_monarchy
 mecklenburg_monarchy
 	By Staatskanzlei Mecklenburg-Vorpommerns - nach CD-Manual Flaggen auf Ein Land - ein Bild, Corporate Design für Mecklenburg-Vorpommern und seine Landesregierung von ludger1961 mit Texteditor erstellt., Public Domain, https://commons.wikimedia.org/w/index.php?curid=32522485
 
+selangor_monarchy
+	By Mysid at the English-language Wikipedia, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=1069135
+
 _republic
 	HISTORIC: This is the flag for democracy, not republics, but eh - it should be fine
 	By Philip Kanellopoulos, https://www.peristanom.org/ - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=17206446

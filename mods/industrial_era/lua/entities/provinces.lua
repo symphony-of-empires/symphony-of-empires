@@ -28367,8 +28367,10 @@ province:register()
 province:add_nucleus(n_east_india_company)
 province:add_nucleus(n_united_kingdom)
 province:give_to(n_east_india_company)
-province=Province:new{ref_name="province_60116d00",name=_("Selangor"),color=0x6d1160,terrain=tt_sea,rgo_size={}}
+province=Province:new{ref_name="province_60116d00",name=_("Selangor"),color=0x6d1160,terrain=tt_plains,rgo_size={}}
 province:register()
+province:add_nucleus(Nation:get("selangor"))
+province:give_to(Nation:get("selangor"))
 province=Province:new{ref_name="province_6013b100",name=_("Province_b11360"),color=0xb11360,terrain=tt_sea,rgo_size={}}
 province:register()
 province=Province:new{ref_name="province_60153900",name=_("Province_391560"),color=0x391560,terrain=tt_sea,rgo_size={}}

@@ -198,6 +198,9 @@ mapuche.name = _("Mapuche")
 mapuche:register()
 
 -- Oceanic cultures
+malay = Culture:new{ ref_name = "malay" }
+malay.name = _("Malay")
+malay:register()
 polynesian = Culture:new{ ref_name = "polynesian" }
 polynesian.name = _("Polynesian")
 polynesian:register()

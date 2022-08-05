@@ -38,7 +38,7 @@ nation = Nation:new{ ref_name = "aceh", name = _("Aceh") }
 nation.adjective = _("Aceh")
 nation:register()
 nation:set_ideology(monarchy)
---nation:add_accepted_culture(Culture:get("malay"))
+nation:add_accepted_culture(Culture:get("malay"))
 nation:add_client_hint(monarchy, _("Aceh"), 0xC82344)
 nation:add_client_hint(fascism, _("Aceh"), 0xC82344)
 nation:add_client_hint(republic, _("Aceh"), 0xC82344)
@@ -48,35 +48,35 @@ nation = Nation:new{ ref_name = "perak", name = _("Perak") }
 nation.adjective = _("Perak")
 nation:register()
 nation:set_ideology(monarchy)
---nation:add_accepted_culture(Culture:get("malay"))
+nation:add_accepted_culture(Culture:get("malay"))
 nation:add_client_hint(monarchy, _("Perak"), 0x85ACD6)
 
 nation = Nation:new{ ref_name = "pagaruyung", name = _("Pagaruyung") }
 nation.adjective = _("Pagaruyung")
 nation:register()
 nation:set_ideology(monarchy)
---nation:add_accepted_culture(Culture:get("malay"))
+nation:add_accepted_culture(Culture:get("malay"))
 nation:add_client_hint(monarchy, _("Pagaruyung"), 0xB5832F)
 
 nation = Nation:new{ ref_name = "deli", name = _("Deli") }
 nation.adjective = _("Deli")
 nation:register()
 nation:set_ideology(monarchy)
---nation:add_accepted_culture(Culture:get("malay"))
+nation:add_accepted_culture(Culture:get("malay"))
 nation:add_client_hint(monarchy, _("Deli"), 0xB5382F)
 
 nation = Nation:new{ ref_name = "siak", name = _("Siak") }
 nation.adjective = _("Siak")
 nation:register()
 nation:set_ideology(monarchy)
---nation:add_accepted_culture(Culture:get("malay"))
+nation:add_accepted_culture(Culture:get("malay"))
 nation:add_client_hint(monarchy, _("Siak"), 0x7046AF)
 
 nation = Nation:new{ ref_name = "sulu", name = _("Sulu") }
 nation.adjective = _("Sulu")
 nation:register()
 nation:set_ideology(monarchy)
---nation:add_accepted_culture(Culture:get("malay"))
+nation:add_accepted_culture(Culture:get("malay"))
 nation:add_client_hint(monarchy, _("Sulu"), 0x374A82)
 nation:add_client_hint(fascism, _("Sulu"), 0x374A82)
 nation:add_client_hint(republic, _("Sulu"), 0x374A82)
@@ -86,26 +86,33 @@ nation = Nation:new{ ref_name = "bali", name = _("Bali") }
 nation.adjective = _("Bali")
 nation:register()
 nation:set_ideology(monarchy)
---nation:add_accepted_culture(Culture:get("malay"))
+nation:add_accepted_culture(Culture:get("malay"))
 nation:add_client_hint(monarchy, _("Bali"), 0x494B82)
 
 nation = Nation:new{ ref_name = "lombok", name = _("Lombok") }
 nation.adjective = _("Lombok")
 nation:register()
 nation:set_ideology(monarchy)
---nation:add_accepted_culture(Culture:get("malay"))
+nation:add_accepted_culture(Culture:get("malay"))
 nation:add_client_hint(monarchy, _("Lombok"), 0x7D251B)
 
 nation = Nation:new{ ref_name = "bima", name = _("Bima") }
 nation.adjective = _("Bima")
 nation:register()
 nation:set_ideology(monarchy)
---nation:add_accepted_culture(Culture:get("malay"))
+nation:add_accepted_culture(Culture:get("malay"))
 nation:add_client_hint(monarchy, _("Bima"), 0xC31E3A)
 
 nation = Nation:new{ ref_name = "brunei", name = _("Brunei") }
 nation.adjective = _("Brunei")
 nation:register()
 nation:set_ideology(monarchy)
---nation:add_accepted_culture(Culture:get("malay"))
+nation:add_accepted_culture(Culture:get("malay"))
 nation:add_client_hint(monarchy, _("Brunei"), 0xFBFF41)
+
+nation = Nation:new{ ref_name = "selangor", name = _("Selangor") }
+nation.adjective = _("Selangor")
+nation:register()
+nation:set_ideology(monarchy)
+nation:add_accepted_culture(Culture:get("malay"))
+nation:add_client_hint(monarchy, _("Selangor"), 0xD62282)
