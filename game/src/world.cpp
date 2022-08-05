@@ -529,14 +529,10 @@ static inline void unit_do_tick(World& world, Unit& unit)
     }
 
     // Replenish units
-    if(unit.size < unit.base) {
-        unit.size += unit.morale * 10.f;
-        if(unit.size > unit.base)
-            unit.size = unit.base;
-    }
-
     if(unit.morale < 1.f)
         unit.morale += 0.1f;
+    if(unit.size < unit.base)
+        unit.size = std::min<float>(unit.base, unit.size + unit.morale * 10.f);
 
     if(Province::is_valid(unit.get_target_province_id())) {
         assert(unit.get_target_province_id() != unit.province_id());
@@ -551,8 +547,14 @@ static inline void unit_do_tick(World& world, Unit& unit)
 
         if(can_move) {
             bool unit_moved = unit.update_movement(world.unit_manager);
-            if(unit_moved && can_take)
-                world.nations[unit.owner_id].control_province(unit_target);
+            if(unit_moved && can_take) {
+                // Relation between original owner and the conqueree
+                const auto& relation = world.get_relation(unit_target.owner_id, unit.owner_id);
+                if(relation.has_alliance) // Allies will liberate countries implicitly
+                    world.nations[unit_target.owner_id].control_province(unit_target);
+                else // Non allied means provinces aren't returned implicitly
+                    world.nations[unit.owner_id].control_province(unit_target);
+            }
         }
     }
     

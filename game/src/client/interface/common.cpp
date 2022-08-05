@@ -173,15 +173,14 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, un
     money_lab->on_each_tick(*money_lab);
 }
 
-BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, BuildingType& _building_type, UI::Widget* _parent)
-    : UI::Button(x, y, _parent->width, 24, _parent),
+BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, const BuildingType& _building_type, UI::Widget* _parent)
+    : UI::Button(x, y, _parent->width - x, 24, _parent),
     gs{ _gs },
     building_type{ _building_type }
 {
-    this->text(building_type.name.get_string());
-    if(this->gs.editor) {
-        this->text(building_type.name.get_string() + "(" + building_type.ref_name.get_string() + ")");
-    }
+    this->text(this->building_type.name.get_string());
+    if(this->gs.editor)
+        this->text(this->building_type.name.get_string() + "(" + this->building_type.ref_name.get_string() + ")");
 }
 
 TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology& _technology, UI::Widget* _parent)

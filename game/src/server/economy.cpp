@@ -231,9 +231,8 @@ void update_factory_production(World& world, Building& building, BuildingType* b
     const auto req_goods_size = building_type->req_goods.size();
 
     // TODO add input modifier
-    float inputs_cost = 0.f;
-    for(Good::Id i = 0; i < req_goods_size; i++) {
-        auto input = building_type->req_goods[i];
+    auto inputs_cost = 0.f;
+    for(const auto input : building_type->req_goods) {
         auto good = input.first;
         auto amount = input.second;
         auto& product = province.products[world.get_id(*good)];
@@ -245,8 +244,7 @@ void update_factory_production(World& world, Building& building, BuildingType* b
     auto profit = output_value - min_wage - inputs_cost;
 
     output_product.supply += output_amount;
-    for(Good::Id i = 0; i < req_goods_size; i++) {
-        auto input = building_type->req_goods[i];
+    for(const auto input : building_type->req_goods) {
         auto good = input.first;
         auto amount = input.second;
         auto& product = province.products[world.get_id(*good)];

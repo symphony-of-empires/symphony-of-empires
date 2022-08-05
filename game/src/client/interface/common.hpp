@@ -87,10 +87,9 @@ namespace Interface {
 
     class BuildingTypeButton : public UI::Button {
         GameState& gs;
-        UI::Button* name_btn;
     public:
-        BuildingType& building_type;
-        BuildingTypeButton(GameState& gs, int x, int y, BuildingType& building_type, UI::Widget* parent);
+        const BuildingType& building_type;
+        BuildingTypeButton(GameState& gs, int x, int y, const BuildingType& building_type, UI::Widget* parent);
     };
 
     class TechnologyInfo : public UI::Group {

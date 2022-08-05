@@ -422,9 +422,10 @@ void ai_do_tick(Nation& nation) {
 
     /// @todo make a better algorithm
     if(nation.ai_do_cmd_troops) {
-        constexpr auto war_weight = 10.f; // Weight of war
-        constexpr auto unit_battle_weight = 4.5f; // Attraction of units into entering on pre-existing battles
-        constexpr auto unit_exist_weight = 1.5f; // Weight of an unit by just existing
+        constexpr auto base_weight = 1.f;
+        constexpr auto war_weight = 5.f; // Weight of war
+        constexpr auto unit_battle_weight = 5.5f; // Attraction of units into entering on pre-existing battles
+        constexpr auto unit_exist_weight = 2.5f; // Weight of an unit by just existing
 
         std::fill(ai_data.nations_risk_factor.begin(), ai_data.nations_risk_factor.end(), 1.f);
         std::vector<Province::Id> eval_provinces; // Provinces that can be evaluated for war
@@ -449,24 +450,23 @@ void ai_do_tick(Nation& nation) {
                     eval_provinces.push_back(province_id);
             }
 
-            constexpr auto relation_max = 100;
-            constexpr auto relation_range = relation_max * 2; // Range of relations, the max-min difference
+            constexpr auto relation_max = 100.f;
+            constexpr auto relation_range = relation_max * 2.f; // Range of relations, the max-min difference
             // Risk is augmentated when we border any non-ally nation
             if(!relation.has_alliance)
                 // Makes sure so 200 relations results on 0.0 attraction, while 1 or 0 relations result on 3.9 and 4.0
                 ai_data.nations_risk_factor[other.get_id()] = (relation_range - (relation.relation + relation_max)) / relation_max;
-            
             if(relation.has_war)
                 ai_data.nations_risk_factor[other.get_id()] = war_weight;
         }
 
-        std::vector<double> potential_risk(world.provinces.size(), 1.f);
+        std::vector<float> potential_risk(world.provinces.size(), 1.f);
         for(const auto province_id : eval_provinces) {
             const auto& province = world.provinces[province_id];
             for(const auto neighbour_id : province.neighbours) {
                 auto& neighbour = g_world.provinces[neighbour_id];
                 if(neighbour.terrain_type->is_water_body) continue;
-                double draw_in_force = 1.f;
+                float draw_in_force = base_weight;
                 // The "cooling" value which basically makes us ignore some provinces with lots of defenses
                 // so we don't rack up deathstacks on a border with some micronation
                 const auto& unit_ids = world.unit_manager.get_province_units(neighbour_id);
@@ -474,16 +474,15 @@ void ai_do_tick(Nation& nation) {
                     auto& unit = g_world.unit_manager.units[unit_id];
                     // Only account this for units that are of our nation
                     // because enemy units will require us to give more importance to it
-                    const double unit_strength = (unit.type->attack * unit.type->defense * unit.size) / 1000.f;
+                    const auto unit_strength = (unit.type->attack * unit.type->defense * unit.size) / 1000.f;
                     // This works because nations which are threatening to us have positive values, so they
                     // basically make the draw_in_force negative, which in turns does not draw away but rather
                     // draw in even more units
-                    draw_in_force += unit_strength * ai_data.nations_risk_factor[unit.owner_id];
-                    draw_in_force *= unit.on_battle ? unit_battle_weight : unit_exist_weight;
+                    draw_in_force += unit_strength * (unit.on_battle ? unit_battle_weight : unit_exist_weight);
                 }
                 // Only if neighbour has a controller
                 if(neighbour.controller != nullptr)
-                    draw_in_force *= ai_data.nations_risk_factor[neighbour.controller->get_id()] * 2.f;
+                    draw_in_force *= ai_data.nations_risk_factor[neighbour.controller->get_id()];
                 // Spread out the heat
                 potential_risk[province_id] += draw_in_force;
                 potential_risk[neighbour_id] += potential_risk[province_id] / province.neighbours.size();
