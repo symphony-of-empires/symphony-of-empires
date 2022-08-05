@@ -531,6 +531,9 @@ mingrelia_monarchy
 ruperts_land_monarchy
 	By Unknown author - Unknown source, Public Domain, https://commons.wikimedia.org/w/index.php?curid=980426
 
+mecklenburg_monarchy
+	By Staatskanzlei Mecklenburg-Vorpommerns - nach CD-Manual Flaggen auf Ein Land - ein Bild, Corporate Design für Mecklenburg-Vorpommern und seine Landesregierung von ludger1961 mit Texteditor erstellt., Public Domain, https://commons.wikimedia.org/w/index.php?curid=32522485
+
 _republic
 	HISTORIC: This is the flag for democracy, not republics, but eh - it should be fine
 	By Philip Kanellopoulos, https://www.peristanom.org/ - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=17206446
