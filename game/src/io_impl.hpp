@@ -443,6 +443,7 @@ public:
     static inline void deser_dynamic(Archive& ar, BuildingType* obj) {
         ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
         ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
+        ::deser_dynamic<is_serialize>(ar, &obj->name);
         ::deser_dynamic<is_serialize>(ar, &obj->flags);
         ::deser_dynamic<is_serialize>(ar, &obj->inputs);
         ::deser_dynamic<is_serialize>(ar, &obj->output);
