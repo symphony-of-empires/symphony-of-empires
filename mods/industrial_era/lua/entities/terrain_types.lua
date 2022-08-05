@@ -24,7 +24,6 @@
 -- ----------------------------------------------------------------------------
 
 -- Terrain types
-TerrainType:new{ref_name="deepsea",name=_("Deep sea"),color=0x0,is_water_body=true}:register()
 TerrainType:new{ref_name="sea",name=_("Sea"),color=0xff,is_water_body=true}:register()
 TerrainType:new{ref_name="plains",name=_("Plains"),color=0x10db32,is_water_body=false}:register()
 TerrainType:new{ref_name="forest",name=_("Forest"),color=0x3c5e35,is_water_body=false}:register()
