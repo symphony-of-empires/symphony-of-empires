@@ -436,7 +436,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
                 pop.religion_id = this->gs.input.selected_religion->get_id();
                 pop.size = 1000.f / std::max<float>(0.01f, pop_type.social_value);
                 pop.literacy = max_sv / std::max<float>(0.01f, pop_type.social_value);
-                pop.budget = 100.f * max_sv;
+                pop.budget = pop.size * 100.f * max_sv;
                 const_cast<Province&>(this->province).pops.push_back(pop);
             }
             this->gs.map->update_mapmode();

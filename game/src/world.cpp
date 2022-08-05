@@ -528,6 +528,16 @@ static inline void unit_do_tick(World& world, Unit& unit)
         return;
     }
 
+    // Replenish units
+    if(unit.size < unit.base) {
+        unit.size += unit.morale * 10.f;
+        if(unit.size > unit.base)
+            unit.size = unit.base;
+    }
+
+    if(unit.morale < 1.f)
+        unit.morale += 0.1f;
+
     if(Province::is_valid(unit.get_target_province_id())) {
         assert(unit.get_target_province_id() != unit.province_id());
 

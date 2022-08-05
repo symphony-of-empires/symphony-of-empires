@@ -701,7 +701,7 @@ int LuaAPI::province_add_unit(lua_State* L) {
     Unit unit;
     unit.type = &unit_type;
     unit.owner_id = province.owner_id;
-    unit.budget = 5000.f;
+    unit.budget = unit.size * 10.f;
     unit.experience = 1.f;
     unit.morale = 1.f;
     unit.supply = 1.f;
@@ -809,16 +809,16 @@ int LuaAPI::get_province_pop(lua_State* L) {
 int LuaAPI::set_province_pop(lua_State* L) {
     Province& province = g_world.provinces.at(lua_tonumber(L, 1));
     Pop& pop = province.pops.at(lua_tonumber(L, 2));
-    pop.size = (lua_tonumber(L, 3));
-    pop.budget = (lua_tonumber(L, 4));
-    pop.literacy = (lua_tonumber(L, 5));
-    pop.life_needs_met = (lua_tonumber(L, 6));
-    pop.everyday_needs_met = (lua_tonumber(L, 7));
-    pop.luxury_needs_met = (lua_tonumber(L, 8));
+    pop.size = lua_tonumber(L, 3);
+    pop.budget = lua_tonumber(L, 4);
+    pop.literacy = lua_tonumber(L, 5);
+    pop.life_needs_met = lua_tonumber(L, 6);
+    pop.everyday_needs_met = lua_tonumber(L, 7);
+    pop.luxury_needs_met = lua_tonumber(L, 8);
     pop.type_id = lua_tonumber(L, 9);
     pop.culture_id = lua_tonumber(L, 10);
     pop.religion_id = lua_tonumber(L, 11);
-    pop.militancy = (lua_tonumber(L, 12));
+    pop.militancy = lua_tonumber(L, 12);
     return 0;
 }
 
@@ -844,7 +844,7 @@ int LuaAPI::add_province_pop(lua_State* L) {
     pop.religion_id = lua_tonumber(L, 4);
     pop.size = lua_tonumber(L, 5);
     pop.literacy = lua_tonumber(L, 6);
-    pop.budget = pop.size * 420.69f;
+    pop.budget = pop.size * 100.f * g_world.pop_types[pop.type_id].social_value;
 
     /// @todo Make ideology NOT be random
     pop.ideology_approval.resize(g_world.ideologies.size(), 0.f);
