@@ -512,6 +512,11 @@ void ai_do_tick(Nation& nation) {
                     const auto& neighbour = g_world.provinces[neighbour_id];
                     if(!unit.type->is_naval && neighbour.terrain_type->is_water_body) continue;
                     if(std::rand() % 2 == 0) continue;
+
+                    // Uncolonized land is unsteppable
+                    if(neighbour.controller == nullptr && !neighbour.terrain_type->is_water_body)
+                        continue;
+
                     if(potential_risk[neighbour_id] > potential_risk[highest_risk->get_id()]) {
                         if(neighbour.controller != nullptr && neighbour.controller->get_id() != unit.owner_id) {
                             const auto& relation = world.get_relation(neighbour.controller->get_id(), unit.owner_id);
@@ -528,6 +533,7 @@ void ai_do_tick(Nation& nation) {
                     auto it = highest_risk->neighbours.begin();
                     std::advance(it, std::rand() % highest_risk->neighbours.size());
                     highest_risk = &g_world.provinces[*it];
+                    if(highest_risk->controller == nullptr && !highest_risk->terrain_type->is_water_body) continue;
                     if(highest_risk->controller != nullptr && highest_risk->controller->get_id() != unit.owner_id) {
                         const auto& relation = world.get_relation(highest_risk->controller->get_id(), unit.owner_id);
                         if(!(relation.has_war || relation.has_alliance || relation.has_military_access)) continue;

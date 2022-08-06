@@ -171,11 +171,11 @@ void Map::update_nation_label(const Nation& nation) {
     glm::vec2 min_point_x(world.width - 1.f, world.height - 1.f), min_point_y(world.width - 1.f, world.height - 1.f);
     glm::vec2 max_point_x(0.f, 0.f), max_point_y(0.f, 0.f);
     if(nation.owned_provinces.empty()) return;
-    Province::Id prov_id = *nation.owned_provinces.begin();
+    Province::Id province_id = *nation.owned_provinces.begin();
     if(Province::is_valid(nation.capital_id))
-        prov_id = nation.capital_id;
+        province_id = nation.capital_id;
 
-    const auto& province = world.provinces[prov_id];
+    const auto& province = world.provinces[province_id];
     max_point_x = province.box_area.position() + province.box_area.size();
     max_point_y = province.box_area.position() + province.box_area.size();
     min_point_x = province.box_area.position();
@@ -189,7 +189,7 @@ void Map::update_nation_label(const Nation& nation) {
     glm::vec2 x_step(lab_max.x - mid_point.x, 0.f);
     glm::vec3 left(mid_point - x_step, 0.f);
     glm::vec3 right(mid_point + x_step, 0.f);
-    float width = glm::length(left - right);
+    float width = glm::length(left - right) * 1.2f;
     glm::vec3 right_dir = glm::vec3(mid_point.x + 1.f, mid_point.y, 0.f) - center;
     glm::vec3 top_dir = glm::vec3(mid_point.x, mid_point.y - 1.f, 0.f) - center;
     glm::vec3 normal = glm::cross(top_dir, right_dir);
@@ -200,8 +200,6 @@ void Map::update_nation_label(const Nation& nation) {
     glm::mat4 rot = glm::rotate(glm::mat4(1.), angle, normal);
     top_dir = rot * glm::vec4(top_dir, 1.);
     right_dir = rot * glm::vec4(right_dir, 1.);
-
-    center.z -= 0.1f;
     
     // Replace old label
     assert(this->nation_labels.size() > nation.get_id());
@@ -531,119 +529,130 @@ void Map::draw(GameState& gs) {
 
     auto preproc_quad = Eng3D::Quad2D(); // Reused a bunch of times
 
-    // Properly display textures :)
-    std::vector<float> province_units_y(world.provinces.size(), 0.f);
+    const auto map_pos = camera->get_map_pos();
+    const auto distance_to_map = map_pos.z / world.width;
+    constexpr auto small_zoom_factor = 0.07f;
+    if(distance_to_map < small_zoom_factor) {
+        // Properly display textures :)
+        std::vector<float> province_units_y(world.provinces.size(), 0.f);
+        // Display units that aren't on battles
+        Unit::Id unit_index = 0, battle_index = 0;
+        for(auto& province : const_cast<World&>(world).provinces) {
+            // Units
+            const auto& province_units = this->world.unit_manager.get_province_units(province.get_id());
+            if(!province_units.empty()) {
+                size_t total_stack_size = 0; // Calculate the total size of our stack
+                for(const auto unit_id : province_units) {
+                    const auto& unit = this->world.unit_manager.units[unit_id];
+                    total_stack_size += unit.size;
+                }
 
-    // Display units that aren't on battles
-    Unit::Id unit_index = 0, battle_index = 0;
-    for(auto& province : const_cast<World&>(world).provinces) {
-        // Units
-        const auto& province_units = this->world.unit_manager.get_province_units(province.get_id());
-        if(!province_units.empty()) {
-            size_t total_stack_size = 0; // Calculate the total size of our stack
-            for(const auto unit_id : province_units) {
-                const auto& unit = this->world.unit_manager.units[unit_id];
-                total_stack_size += unit.size;
+                // Get first/topmost unit
+                auto& unit = gs.world->unit_manager.units[province_units[0]];
+                bool has_widget = false;
+                if((this->map_render->get_province_opt(province.get_id()) & 0x000000ff) == 0x000000ff) {
+                    auto& camera = this->camera;
+                    const glm::vec2 prov_pos = province.get_pos();
+                    // And display units
+                    bool unit_visible = true;
+                    if(this->view_mode == MapView::SPHERE_VIEW) {
+                        const auto* orbit_camera = static_cast<const Eng3D::OrbitCamera*>(camera);
+                        const auto cam_pos = camera->get_world_pos();
+                        const auto world_pos = camera->get_tile_world_pos(prov_pos);
+                        const auto world_to_camera = glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
+                        if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
+                            unit_visible = false;
+                    }
+
+                    if(unit.on_battle) unit_visible = false;
+                    if(unit_visible) {
+                        if(unit_index < unit_widgets.size()) this->unit_widgets[unit_index]->set_unit(unit);
+                        else this->unit_widgets.push_back(new Interface::UnitWidget(unit, *this, gs, this->map_ui_layer));
+                        unit_index++;
+                        has_widget = true;
+                    }
+                }
+                if(has_widget) this->unit_widgets[unit_index - 1]->set_size(total_stack_size);
             }
 
-            // Get first/topmost unit
-            auto& unit = gs.world->unit_manager.units[province_units[0]];
-            bool has_widget = false;
+            // Battles
             if((this->map_render->get_province_opt(province.get_id()) & 0x000000ff) == 0x000000ff) {
-                auto& camera = this->camera;
-                const glm::vec2 prov_pos = province.get_pos();
-                // And display units
-                bool unit_visible = true;
-                if(this->view_mode == MapView::SPHERE_VIEW) {
-                    const auto* orbit_camera = static_cast<const Eng3D::OrbitCamera*>(camera);
-                    const auto cam_pos = camera->get_world_pos();
-                    const auto world_pos = camera->get_tile_world_pos(prov_pos);
-                    const auto world_to_camera = glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
-                    if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
-                        unit_visible = false;
-                }
+                const auto prov_pos = province.get_pos();
+                size_t war_battle_idx = 0;
+                for(size_t i = 0; i < province.battles.size(); i++) {
+                    bool battle_visible = true;
+                    if(view_mode == MapView::SPHERE_VIEW) {
+                        const auto* orbit_camera = static_cast<const Eng3D::OrbitCamera*>(camera);
+                        const auto cam_pos = camera->get_world_pos();
+                        const auto world_pos = camera->get_tile_world_pos(prov_pos);
+                        const auto world_to_camera = glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
+                        if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
+                            battle_visible = false;
+                    }
 
-                if(unit.on_battle) unit_visible = false;
-                if(unit_visible) {
-                    if(unit_index < unit_widgets.size()) this->unit_widgets[unit_index]->set_unit(unit);
-                    else this->unit_widgets.push_back(new Interface::UnitWidget(unit, *this, gs, this->map_ui_layer));
-                    unit_index++;
-                    has_widget = true;
+                    if(battle_visible) {
+                        if(battle_index < battle_widgets.size()) battle_widgets[battle_index]->set_battle(province, war_battle_idx);
+                        else battle_widgets.push_back(new Interface::BattleWidget(province, war_battle_idx, *this, map_ui_layer));
+                        battle_index++;
+                    }
+                    war_battle_idx++;
                 }
-            }
-            if(has_widget) this->unit_widgets[unit_index - 1]->set_size(total_stack_size);
-        }
-
-        // Battles
-        if((this->map_render->get_province_opt(province.get_id()) & 0x000000ff) == 0x000000ff) {
-            const auto prov_pos = province.get_pos();
-            size_t war_battle_idx = 0;
-            for(size_t i = 0; i < province.battles.size(); i++) {
-                bool battle_visible = true;
-                if(view_mode == MapView::SPHERE_VIEW) {
-                    const auto* orbit_camera = static_cast<const Eng3D::OrbitCamera*>(camera);
-                    const auto cam_pos = camera->get_world_pos();
-                    const auto world_pos = camera->get_tile_world_pos(prov_pos);
-                    const auto world_to_camera = glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
-                    if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
-                        battle_visible = false;
+                
+                // Only display units of set so
+                if(this->map_render->options.units.used && !province_units.empty()) {
+                    const auto& unit = this->world.unit_manager.units[province_units[0]];
+                    auto model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
+                    if(Province::is_valid(unit.get_target_province_id())) {
+                        const auto& unit_target = this->world.provinces[unit.get_target_province_id()];
+                        const auto target_pos = unit_target.get_pos();
+                        const auto dist = glm::sqrt(glm::pow(glm::abs(prov_pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(prov_pos.y - target_pos.y), 2.f));
+                        auto line_square = Eng3D::Square(0.f, 0.f, dist, 0.5f);
+                        const auto line_model = glm::rotate(model, glm::atan(target_pos.y - prov_pos.y, target_pos.x - prov_pos.x), glm::vec3(0.f, 0.f, 1.f));
+                        obj_shader->set_texture(0, "diffuse_map", *line_tex);
+                        obj_shader->set_uniform("model", line_model);
+                        line_square.draw();
+                    }
+                    model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
+                    obj_shader->set_uniform("model", model);
+                    unit_type_models[this->world.get_id(*unit.type)]->draw(*obj_shader);
                 }
-
-                if(battle_visible) {
-                    if(battle_index < battle_widgets.size()) battle_widgets[battle_index]->set_battle(province, war_battle_idx);
-                    else battle_widgets.push_back(new Interface::BattleWidget(province, war_battle_idx, *this, map_ui_layer));
-                    battle_index++;
-                }
-                war_battle_idx++;
-            }
-            
-            // Only display units of set so
-            if(this->map_render->options.units.used && !province_units.empty()) {
-                const auto& unit = this->world.unit_manager.units[province_units[0]];
-                auto model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
-                if(Province::is_valid(unit.get_target_province_id())) {
-                    const auto& unit_target = this->world.provinces[unit.get_target_province_id()];
-                    const auto target_pos = unit_target.get_pos();
-                    const auto dist = glm::sqrt(glm::pow(glm::abs(prov_pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(prov_pos.y - target_pos.y), 2.f));
-                    auto line_square = Eng3D::Square(0.f, 0.f, dist, 0.5f);
-                    const auto line_model = glm::rotate(model, glm::atan(target_pos.y - prov_pos.y, target_pos.x - prov_pos.x), glm::vec3(0.f, 0.f, 1.f));
-                    obj_shader->set_texture(0, "diffuse_map", *line_tex);
-                    obj_shader->set_uniform("model", line_model);
-                    line_square.draw();
-                }
-                model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
-                obj_shader->set_uniform("model", model);
-                unit_type_models[this->world.get_id(*unit.type)]->draw(*obj_shader);
             }
         }
-    }
-    for(Unit::Id i = unit_index; i < unit_widgets.size(); i++)
-        unit_widgets[i]->kill();
-    unit_widgets.resize(unit_index);
-    for(Unit::Id i = battle_index; i < battle_widgets.size(); i++)
-        battle_widgets[i]->kill();
-    battle_widgets.resize(battle_index);
+        for(Unit::Id i = unit_index; i < unit_widgets.size(); i++)
+            unit_widgets[i]->kill();
+        unit_widgets.resize(unit_index);
+        for(Unit::Id i = battle_index; i < battle_widgets.size(); i++)
+            battle_widgets[i]->kill();
+        battle_widgets.resize(battle_index);
 
-    // Unit movement lines
-    gs.world->unit_manager.for_each_unit([&gs] (Unit& unit) {
-        if(gs.curr_nation && unit.owner_id != gs.curr_nation->get_id())  return;
-        const auto& path = unit.get_path();
-    });
+        // Unit movement lines
+        gs.world->unit_manager.for_each_unit([&gs] (Unit& unit) {
+            if(gs.curr_nation && unit.owner_id != gs.curr_nation->get_id())  return;
+            const auto& path = unit.get_path();
+        });
 
-    // Buildings
-    if(this->map_render->options.buildings.used) {
-        for(const auto& province : world.provinces) {
-            province_units_y[world.get_id(province)] += 2.5f;
-            const auto prov_pos = province.get_pos();
-            for(const auto& building_type : world.building_types) {
-                if(!province.buildings[building_type.get_id()].level) continue;
-                glm::mat4 model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
-                model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
-                obj_shader->set_uniform("model", model);
-                building_type_models[building_type.get_id()]->draw(*obj_shader);
-                break;
+        // Buildings
+        if(this->map_render->options.buildings.used) {
+            for(const auto& province : world.provinces) {
+                province_units_y[world.get_id(province)] += 2.5f;
+                const auto prov_pos = province.get_pos();
+                for(const auto& building_type : world.building_types) {
+                    if(!province.buildings[building_type.get_id()].level) continue;
+                    glm::mat4 model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
+                    model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
+                    obj_shader->set_uniform("model", model);
+                    building_type_models[building_type.get_id()]->draw(*obj_shader);
+                    break;
+                }
             }
         }
+    } else {
+        for(Unit::Id i = 0; i < unit_widgets.size(); i++)
+            unit_widgets[i]->kill();
+        unit_widgets.clear();
+        for(Unit::Id i = 0; i < battle_widgets.size(); i++)
+            battle_widgets[i]->kill();
+        battle_widgets.clear();
     }
 
     // Draw the "drag area" box
@@ -660,9 +669,7 @@ void Map::draw(GameState& gs) {
         dragbox_square.draw();
     }
 
-    const auto map_pos = camera->get_map_pos();
-    const auto distance_to_map = map_pos.z / world.width;
-    if(distance_to_map < 0.070) map_font->draw(province_labels, camera, view_mode == MapView::SPHERE_VIEW);
+    if(distance_to_map < small_zoom_factor) map_font->draw(province_labels, camera, view_mode == MapView::SPHERE_VIEW);
     else map_font->draw(nation_labels, camera, view_mode == MapView::SPHERE_VIEW);
 
     if(view_mode == MapView::SPHERE_VIEW) {
