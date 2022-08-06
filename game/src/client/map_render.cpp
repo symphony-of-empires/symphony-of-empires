@@ -264,8 +264,8 @@ void MapRender::update_options(MapOptions new_options) {
         if(this->river_tex.get() == nullptr)
             this->river_tex = gs.tex_man.load(gs.package_man.get_unique("map/river_smooth.png"), mipmap_options);
     } else {
-        this->bathymethry = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(1, 1));
-        this->river_tex = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(1, 1));
+        this->bathymethry.reset(new Eng3D::Texture(1, 1));
+        this->river_tex.reset(new Eng3D::Texture(1, 1));
     }
     
     // Load normal and topographic maps only w lighting

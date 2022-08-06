@@ -135,10 +135,11 @@ public:
     std::vector<std::unique_ptr<Eng3D::Label3D>> province_labels;
     std::vector<std::unique_ptr<Eng3D::Label3D>> nation_labels;
     Eng3D::FontSDF* map_font = nullptr;
+    bool gen_labels = false;
 
-    // Wind oscillator (for flags)
+    /// @brief Wind oscillator (for flags)
     float wind_osc = 0.f;
-    // Input states
+    /// @brief Input states
     bool is_drag = false;
     glm::vec2 last_camera_drag_pos;
 

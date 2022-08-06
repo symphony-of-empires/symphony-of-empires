@@ -115,7 +115,8 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     rivers = new Rivers();
     borders = new Borders();
     map_font = new Eng3D::FontSDF("fonts/cinzel_sdf/cinzel");
-    this->create_labels();
+    if(this->gen_labels)
+        this->create_labels();
     map_render = new MapRender(world, *this);
 
     // Shader used for drawing the models using custom model render
@@ -166,6 +167,8 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
 }
 
 void Map::update_nation_label(const Nation& nation) {
+    // No need to update if no labels are displayed!
+    if(!this->gen_labels) return;
     if(!nation.exists()) return;
 
     glm::vec2 min_point_x(world.width - 1.f, world.height - 1.f), min_point_y(world.width - 1.f, world.height - 1.f);
@@ -669,8 +672,10 @@ void Map::draw(GameState& gs) {
         dragbox_square.draw();
     }
 
-    if(distance_to_map < small_zoom_factor) map_font->draw(province_labels, camera, view_mode == MapView::SPHERE_VIEW);
-    else map_font->draw(nation_labels, camera, view_mode == MapView::SPHERE_VIEW);
+    if(this->gen_labels) {
+        if(distance_to_map < small_zoom_factor) map_font->draw(province_labels, camera, view_mode == MapView::SPHERE_VIEW);
+        else map_font->draw(nation_labels, camera, view_mode == MapView::SPHERE_VIEW);
+    }
 
     if(view_mode == MapView::SPHERE_VIEW) {
         // Universe skybox
