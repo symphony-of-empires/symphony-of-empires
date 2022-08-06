@@ -53,6 +53,8 @@ static std::vector<std::string> mod_paths;
 
 namespace Path {
     std::string get_full() {
+		return "./mods/";
+		
 #ifdef E3D_TARGET_WINDOWS
         char buf[MAX_PATH];
         const auto len = GetModuleFileNameA(nullptr, buf, MAX_PATH);
