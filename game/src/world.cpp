@@ -790,7 +790,7 @@ void World::do_tick() {
                         // Clear flags of all units
                         for(const auto unit_id : battle.attackers_ids) {
                             auto& unit = units[unit_id];
-                            this->nations[unit.owner_id].prestige += unit.base / 1000.f; // Prestige reward
+                            this->nations[unit.owner_id].prestige += unit.base / 10000.f; // Prestige reward
                             unit.on_battle = false;
                             assert(unit.size != 0);
                         }
@@ -801,7 +801,7 @@ void World::do_tick() {
                         this->nations[units[battle.defenders_ids[0]].owner_id].control_province(province);
                         for(const auto unit_id : battle.defenders_ids) {
                             auto& unit = units[unit_id];
-                            this->nations[unit.owner_id].prestige += unit.base / 1000.f; // Prestige reward
+                            this->nations[unit.owner_id].prestige += unit.base / 10000.f; // Prestige reward
                             unit.on_battle = false;
                             assert(unit.size != 0);
                         }
@@ -822,7 +822,7 @@ void World::do_tick() {
     clear_units.combine_each([this](const auto& units_clear_list) {
         for(auto unit_id : units_clear_list) {
             auto& unit = this->unit_manager.units[unit_id];
-            this->nations[unit.owner_id].prestige -= unit.base / 100.f; // Prestige penalty for losing unit
+            this->nations[unit.owner_id].prestige -= unit.base / 1000.f; // Prestige penalty for losing unit
             this->unit_manager.remove_unit(unit_id);
         }
     });
