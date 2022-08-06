@@ -134,7 +134,7 @@ int LuaAPI::add_terrain_type(lua_State* L) {
     terrain_type.name = luaL_checkstring(L, 2);
     terrain_type.color = bswap32(static_cast<int>(lua_tonumber(L, 3))) >> 8;
     terrain_type.color |= 0xff000000;
-    terrain_type.movement_penalty = (lua_tonumber(L, 4));
+    terrain_type.penalty = lua_tonumber(L, 4);
     terrain_type.is_water_body = lua_toboolean(L, 5);
     g_world.insert(terrain_type);
     lua_pushnumber(L, g_world.terrain_types.size() - 1);
@@ -147,7 +147,7 @@ int LuaAPI::get_terrain_type_by_id(lua_State* L) {
     lua_pushstring(L, terrain_type.ref_name.c_str());
     lua_pushstring(L, terrain_type.name.c_str());
     lua_pushnumber(L, bswap32((terrain_type.color & 0x00ffffff) << 8));
-    lua_pushnumber(L, terrain_type.movement_penalty);
+    lua_pushnumber(L, terrain_type.penalty);
     lua_pushboolean(L, terrain_type.is_water_body);
     return 5;
 }
@@ -157,7 +157,7 @@ int LuaAPI::get_terrain_type(lua_State* L) {
     lua_pushnumber(L, g_world.get_id(terrain_type));
     lua_pushstring(L, terrain_type.name.c_str());
     lua_pushnumber(L, bswap32((terrain_type.color & 0x00ffffff) << 8));
-    lua_pushnumber(L, terrain_type.movement_penalty);
+    lua_pushnumber(L, terrain_type.penalty);
     lua_pushboolean(L, terrain_type.is_water_body);
     return 5;
 }

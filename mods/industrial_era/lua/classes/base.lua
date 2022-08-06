@@ -236,7 +236,7 @@ TerrainType = {
     name = "",
     ref_name = "",
     color = 0x000000,
-    movement_penalty = 0.0,
+    penalty = 1.0,
     is_water_body = false
 }
 function TerrainType:new(o)
@@ -246,17 +246,17 @@ function TerrainType:new(o)
     return o
 end
 function TerrainType:register()
-    self.id = add_terrain_type(self.ref_name, self.name, self.color, self.movement_penalty, self.is_water_body)
+    self.id = add_terrain_type(self.ref_name, self.name, self.color, self.penalty, self.is_water_body)
 end
 function TerrainType:get(ref_name)
     local o = TerrainType:new()
-    o.id, o.name, o.color, o.movement_penalty, o.is_water_body = get_terrain_type(ref_name)
+    o.id, o.name, o.color, o.penalty, o.is_water_body = get_terrain_type(ref_name)
     o.ref_name = ref_name
     return o
 end
 function TerrainType:get_by_id(id)
     local o = TerrainType:new()
-    o.ref_name, o.name, o.color, o.movement_penalty, o.is_water_body = get_terrain_type_by_id(id)
+    o.ref_name, o.name, o.color, o.penalty, o.is_water_body = get_terrain_type_by_id(id)
     o.id = id
     return o
 end

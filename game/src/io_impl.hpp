@@ -214,7 +214,7 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->name);
         ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
         ::deser_dynamic<is_serialize>(ar, &obj->color);
-        ::deser_dynamic<is_serialize>(ar, &obj->movement_penalty);
+        ::deser_dynamic<is_serialize>(ar, &obj->penalty);
         ::deser_dynamic<is_serialize>(ar, &obj->is_water_body);
     }
 };

@@ -85,11 +85,11 @@ void Unit::stop_movement() {
 float Unit::days_to_move_to(const Province& _province) const {
     assert(this->is_valid());
     const auto& world = World::get_instance();
-    auto start_province = world.provinces[this->province_id()];
-    auto end_province = _province;
+    auto& start_province = world.provinces[this->province_id()];
+    auto& end_province = _province;
 
     const glm::vec2 world_size{ world.width, world.height };
-    auto distance = start_province.euclidean_distance(end_province, world_size, 100);
+    const auto distance = start_province.euclidean_distance(end_province, world_size, 100) * start_province.terrain_type->penalty * end_province.terrain_type->penalty;
     return distance;
 }
 
@@ -99,7 +99,6 @@ bool Unit::update_movement(UnitManager& unit_manager) {
     days_left_until_move--;
     if(days_left_until_move <= 0) {
         days_left_until_move = 0;
-
         unit_manager.move_unit(this->get_id(), target_province_id);
         target_province_id = Province::invalid();
         return true;

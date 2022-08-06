@@ -88,14 +88,14 @@ static inline glm::vec3 get_sphere_coord(const Province& province, glm::vec2 wor
 }
 
 static inline float get_trade_cost(const Province& province1, const Province& province2, glm::vec2 world_size) {
-    glm::vec3 sphere_coord1 = get_sphere_coord(province1, world_size);
-    glm::vec3 sphere_coord2 = get_sphere_coord(province2, world_size);
+    const auto sphere_coord1 = get_sphere_coord(province1, world_size);
+    const auto sphere_coord2 = get_sphere_coord(province2, world_size);
 
     float cos_angle = glm::dot(sphere_coord1, sphere_coord2);
     float angle = glm::acos(cos_angle);
-    float distance = angle / (2 * glm::pi<float>());
+    const auto distance = angle / (2 * glm::pi<float>());
     // Cost to travel around the globe
-    constexpr float trade_cost = 1000;
+    const auto trade_cost = 1000.f * province1.terrain_type->penalty * province2.terrain_type->penalty;
     return distance * trade_cost;
 }
 
