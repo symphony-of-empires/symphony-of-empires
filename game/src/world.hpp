@@ -267,21 +267,24 @@ public:
         return relations[(a * a - a) / 2 + b];
     }
 
-    // Lua state - for lua scripts, this is only used by the server and should not be
-    // accesible to the client
+    /// @brief Lua state - for lua scripts, this is only used by the server and should not be
+    /// accesible to the client
     lua_State* lua = nullptr;
 
-    // 2-Dimensional Array of tiles
+    /// @brief 2-Dimensional Array of tiles
     std::unique_ptr<Tile[]> tiles;
     mutable std::mutex tiles_mutex;
 
-    // The height and width of the world
+    /// @brief The height and width of the world
     size_t width, height;
 
-    // Current time (in ticks)
+    /// @brief Current time (in ticks)
     int time;
-
+    
+    /// @brief Used to signal the lua scripts of invalid operations (eg. adding a country midgame)
     bool needs_to_sync = false;
+    /// @brief Whetever to allow dynamic provinces that can change shape mid-game
+    bool dynamic_provinces = false;
 
     std::mutex world_mutex;
     std::mutex list_mutex;

@@ -75,15 +75,10 @@ MapRender::MapRender(const World& _world, Map& _map)
     mipmap_options.wrap_t = GL_REPEAT;
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
-    mipmap_options.compressed = false;
-
-    noise_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/noise_tex.png"), mipmap_options);
-
     mipmap_options.compressed = true;
-
+    noise_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/noise_tex.png"), mipmap_options);
     wave1 = gs.tex_man.load(gs.package_man.get_unique("gfx/wave1.png"), mipmap_options);
     wave2 = gs.tex_man.load(gs.package_man.get_unique("gfx/wave2.png"), mipmap_options);
-
     mipmap_options.internal_format = GL_SRGB;
     water_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/water_tex.png"), mipmap_options);
     paper_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/paper.png"), mipmap_options);
@@ -141,7 +136,7 @@ MapRender::MapRender(const World& _world, Map& _map)
 
     Eng3D::TextureOptions single_color{};
     single_color.internal_format = GL_RGBA;
-    single_color.compressed = false;
+    single_color.compressed = this->options.compress.used;
     terrain_map->upload(single_color);
     
     // Terrain textures to sample from
@@ -157,8 +152,12 @@ MapRender::MapRender(const World& _world, Map& _map)
     }
     Eng3D::TextureOptions tile_map_options{};
     tile_map_options.internal_format = GL_RGBA32F;
-    tile_map_options.editable = true;
-    tile_map_options.compressed = false;
+    if(world.dynamic_provinces) {
+        tile_map_options.editable = true;
+        tile_map_options.compressed = false;
+    } else {
+        tile_map_options.compressed = this->options.compress.used;
+    }
     tile_map->upload(tile_map_options);
 
     // Texture holding each province color
@@ -257,10 +256,8 @@ void MapRender::update_options(MapOptions new_options) {
         mipmap_options.wrap_t = GL_REPEAT;
         mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
         mipmap_options.mag_filter = GL_LINEAR;
-        mipmap_options.compressed = false;
-        mipmap_options.compressed = true;
+        mipmap_options.compressed = this->options.compress.used;
         mipmap_options.internal_format = GL_RED;
-        
         if(this->bathymethry.get() == nullptr)
             this->bathymethry = gs.tex_man.load(gs.package_man.get_unique("map/bathymethry.png"), mipmap_options);
         
@@ -284,7 +281,9 @@ void MapRender::update_options(MapOptions new_options) {
             }
             Eng3D::TextureOptions mipmap_options{};
             mipmap_options.internal_format = GL_RGBA;
-            mipmap_options.compressed = false;
+            mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
+            mipmap_options.mag_filter = GL_LINEAR;
+            mipmap_options.compressed = this->options.compress.used;
             this->normal_topo->upload(mipmap_options);
         }
     }
@@ -305,7 +304,7 @@ void MapRender::update_options(MapOptions new_options) {
                 sdf_options.internal_format = GL_RGB32F;
                 sdf_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
                 sdf_options.mag_filter = GL_LINEAR;
-                sdf_options.compressed = false;
+                sdf_options.compressed = this->options.compress.used;
                 this->border_sdf = std::make_unique<Eng3D::Texture>(Eng3D::Texture("sdf_cache.png"));
                 this->border_sdf->upload(sdf_options);
             }
