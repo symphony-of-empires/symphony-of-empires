@@ -159,6 +159,8 @@ korean = Culture:new{ ref_name = "korean", name = _("Korean") }
 korean:register()
 chinesse = Culture:new{ ref_name = "chinesse", name = _("Chinesse") }
 chinesse:register()
+japanesse = Culture:new{ ref_name = "japanesse", name = _("Japanesse") }
+japanesse:register()
 burmesse = Culture:new{ ref_name = "burmesse", name = _("Burmesse"), color = 0x2FFFBD }
 burmesse:register()
 thai = Culture:new{ ref_name = "thai", name = _("Thai"), color = 0x2F54BD }

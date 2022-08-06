@@ -61,22 +61,28 @@ nation:add_client_hint(republic, _("China"), 0x808080)
 nation:add_client_hint(communism, _("China"), 0x808080)
 
 nation = Nation:new{ ref_name = "yunnan", name = _("Yunnan") }
-nation.adjective = _("Chinesse")
+nation.adjective = _("Yunnan")
 nation:register()
 nation:add_accepted_culture(Culture:get("chinesse"))
 nation:add_client_hint(monarchy, _("Yunnan Dynasty"), 0x808080)
 
 nation = Nation:new{ ref_name = "guanxi", name = _("Guanxi") }
-nation.adjective = _("Chinesse")
+nation.adjective = _("Guanxi")
 nation:register()
 nation:add_accepted_culture(Culture:get("chinesse"))
 nation:add_client_hint(monarchy, _("Guanxi Clique"), 0x808080)
 
 nation = Nation:new{ ref_name = "shanxi", name = _("Shanxi") }
-nation.adjective = _("Chinesse")
+nation.adjective = _("Shanxi")
 nation:register()
 nation:add_accepted_culture(Culture:get("chinesse"))
 nation:add_client_hint(monarchy, _("Shanxi Clique"), 0x808080)
+
+nation = Nation:new{ ref_name = "tokugawa", name = _("Tokugawa") }
+nation.adjective = _("Japanesse")
+nation:register()
+nation:add_accepted_culture(Culture:get("japanesse"))
+nation:add_client_hint(monarchy, _("Edo Shogunate"), 0xf0b4d4)
 
 nation = Nation:new{ ref_name = "johor", name = _("Johor") }
 nation.adjective = _("Johor")

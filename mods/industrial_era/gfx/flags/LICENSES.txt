@@ -537,6 +537,9 @@ mecklenburg_monarchy
 selangor_monarchy
 	By Mysid at the English-language Wikipedia, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=1069135
 
+tokugawa_monarchy
+	By 百楽兎 - Own work, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=1056853
+
 _republic
 	HISTORIC: This is the flag for democracy, not republics, but eh - it should be fine
 	By Philip Kanellopoulos, https://www.peristanom.org/ - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=17206446
