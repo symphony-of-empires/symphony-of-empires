@@ -29,5 +29,11 @@
 #include <vector>
 
 namespace Path {
-    std::string get_full();
+    std::string get_full() {
+#ifdef NO_COPY_MODS
+        return "../mods/";
+#else
+        return "./mods/";
+#endif
+    }
 };
