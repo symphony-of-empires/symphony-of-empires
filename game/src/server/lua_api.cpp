@@ -729,15 +729,26 @@ int LuaAPI::give_province_to(lua_State* L) {
 }
 
 int LuaAPI::give_hard_province_to(lua_State* L) {
-    Province& province = g_world.provinces.at(lua_tonumber(L, 1));
-    Nation& nation = g_world.nations.at(lua_tonumber(L, 2));
-    const auto& unit_ids = g_world.unit_manager.get_province_units(province.cached_id);
-    for(const auto unit_id : unit_ids) {
-        auto& unit = g_world.unit_manager.units[unit_id];
-        if(unit.province_id() == g_world.get_id(province) && province.controller != nullptr && unit.owner_id == province.controller->get_id())
-            unit.owner_id = nation.get_id();
+    auto& province = g_world.provinces.at(lua_tonumber(L, 1));
+    auto& nation = g_world.nations.at(lua_tonumber(L, 2));
+    {
+        const auto& unit_ids = g_world.unit_manager.get_province_units(province.get_id());
+        for(const auto unit_id : unit_ids) {
+            auto& unit = g_world.unit_manager.units[unit_id];
+            if(province.controller != nullptr && unit.owner_id == province.controller->get_id())
+                unit.owner_id = nation.get_id();
+        }
     }
+    nation.control_province(province);
     nation.give_province(province);
+
+    // Take all the troops of the dead nation
+    if(province.controller != nullptr && !province.controller->exists()) {
+        for(auto& unit : g_world.unit_manager.units) {
+            if(unit.owner_id == province.controller->get_id())
+                unit.owner_id = nation.get_id();
+        }
+    }
     return 0;
 }
 
