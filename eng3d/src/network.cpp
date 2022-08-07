@@ -77,17 +77,17 @@ void Eng3D::Networking::SocketStream::send(const void* data, size_t size) {
 
 void Eng3D::Networking::SocketStream::recv(void* data, size_t size) {
     auto* c_data = reinterpret_cast<char*>(data);
+
+    constexpr auto max_tries = 10;
+    auto tries = 0;
     for(size_t i = 0; i < size; ) {
         int r = ::recv(fd, &c_data[i], std::min<std::size_t>(1024, size - i), MSG_DONTWAIT);
         if(r < 0) {
-            if(errno == EAGAIN || errno == EWOULDBLOCK) {
-                r = ::recv(fd, &c_data[i], std::min<std::size_t>(1024, size - i), MSG_WAITALL);
-                if(r < 0)
-                    CXX_THROW(Eng3D::Networking::SocketException, "Can't receive data of packet (even as blocking)");
-            } else {
+            if(tries > max_tries)
                 CXX_THROW(Eng3D::Networking::SocketException, "Can't receive data of packet");
-            }
+            tries++; // Give it a few tries
         }
+        tries = 0;
         i += static_cast<std::size_t>(r);
     }
 }
@@ -154,7 +154,6 @@ int Eng3D::Networking::ServerClient::try_connect(int fd) {
     } catch(Eng3D::Networking::SocketException& e) {
         // Continue
     }
-    std::this_thread::sleep_for(std::chrono::seconds(3));
     return 0;
 }
 
@@ -164,7 +163,7 @@ int Eng3D::Networking::ServerClient::try_connect(int fd) {
 void Eng3D::Networking::ServerClient::flush_packets() {
     if(!pending_packets.empty()) {
         if(pending_packets_mutex.try_lock()) {
-            std::scoped_lock lock(packets_mutex);
+            const std::scoped_lock lock(packets_mutex);
             for(auto& packet : pending_packets) // Put all pending packets into the main queue
                 packets.push_back(packet);
             pending_packets.clear();
@@ -287,7 +286,7 @@ Eng3D::Networking::Client::Client(std::string host, const unsigned port) {
         CXX_THROW(Eng3D::Networking::SocketException, "Can't create client socket");
     }
 
-    if(connect(fd, (sockaddr*)&addr, sizeof(addr)) != 0) {
+    if(connect(fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) != 0) {
 #ifdef E3D_TARGET_UNIX
         close(fd);
 #elif defined E3D_TARGET_WINDOWS

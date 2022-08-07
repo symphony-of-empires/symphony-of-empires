@@ -145,7 +145,15 @@ void Client::net_loop() {
                 Archive ar = Archive();
 
                 // Obtain the action from the server
-                packet.recv();
+                while(1) {
+                    try {
+                        packet.recv();
+                    } catch(Eng3D::Networking::SocketException& e) {
+                        // Pass
+                    }
+
+                    if(!this->run) CXX_THROW(ClientException, "Server closed");
+                }
                 ar.set_buffer(packet.data(), packet.size());
                 ar.rewind();
                 ::deserialize(ar, &action);

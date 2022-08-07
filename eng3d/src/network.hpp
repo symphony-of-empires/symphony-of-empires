@@ -191,21 +191,17 @@ namespace Eng3D::Networking {
     class ServerClient {
         int conn_fd = 0;
     public:
-        ServerClient()
-            : is_active{ false }
-        {
-
-        }
-
-        ~ServerClient() {
-            thread.join();
+        inline ServerClient() = default;
+        inline ~ServerClient() {
+            if(this->thread.joinable())
+                this->thread.join();
         }
         
         int try_connect(int fd);
         void flush_packets();
         bool has_pending();
 
-        bool is_active; // Is our thread currently polling/serving?
+        bool is_active = false; // Is our thread currently polling/serving?
         std::atomic<bool> is_connected;
         std::deque<Eng3D::Networking::Packet> pending_packets;
         std::mutex pending_packets_mutex;
@@ -222,7 +218,7 @@ namespace Eng3D::Networking {
         std::atomic<bool> run;
     public:
         Server(unsigned port, unsigned max_conn);
-        virtual ~Server();
+        ~Server();
         void broadcast(const Eng3D::Networking::Packet& packet);
 
         ServerClient* clients;

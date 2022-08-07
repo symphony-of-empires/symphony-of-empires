@@ -69,8 +69,15 @@ void Server::net_loop(int id) {
         cl.is_connected = false;
         while(!cl.is_connected) {
             conn_fd = cl.try_connect(fd);
-            if(!run)
-                CXX_THROW(ServerException, "Server closed");
+            
+            // Perform a 5 second delay between connection tries
+            const auto delta = std::chrono::milliseconds{ 5000 };
+            const auto start_time = std::chrono::system_clock::now();
+            auto end_time = std::chrono::system_clock::now();
+            while(end_time - start_time < delta) {
+                if(!this->run) CXX_THROW(ServerException, "Server closed");
+                end_time = std::chrono::system_clock::now();
+            }
         }
 
         Nation* selected_nation = nullptr;
