@@ -73,7 +73,7 @@ public:
     Option units{ "UNITS", false }; // 3D units
     Option buildings{ "BUILDINGS", false }; // 3D buildings
     Option trees{ "TREES", false }; // 3D hyper realistic trees
-    Option compress{ "COMPRESS", true }; // Use compression on textures
+    Option compress{ "COMPRESS", false }; // Use compression on textures
 
     std::vector<Option> get_options() {
         return std::vector<Option>{
