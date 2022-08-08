@@ -217,7 +217,7 @@ void update_factory_production(World& world, Building& building, BuildingType* b
     // TODO add output modifier
     // Calculate outputs
     auto output = building_type->output;
-    auto& output_product = province.products[world.get_id(*output)];
+    auto& output_product = province.products[output->get_id()];
     auto output_price = output_product.price;
     auto output_amount = 1.f * building.production_scale;
 
@@ -228,14 +228,12 @@ void update_factory_production(World& world, Building& building, BuildingType* b
     float total_worker_pop = building.workers;
     min_wage = glm::max(min_wage, 0.0001f);
 
-    const auto req_goods_size = building_type->req_goods.size();
-
     // TODO add input modifier
     auto inputs_cost = 0.f;
     for(const auto input : building_type->req_goods) {
         auto good = input.first;
         auto amount = input.second;
-        auto& product = province.products[world.get_id(*good)];
+        auto& product = province.products[good->get_id()];
         auto price = product.price;
         inputs_cost += price * amount;
     }
@@ -247,7 +245,7 @@ void update_factory_production(World& world, Building& building, BuildingType* b
     for(const auto input : building_type->req_goods) {
         auto good = input.first;
         auto amount = input.second;
-        auto& product = province.products[world.get_id(*good)];
+        auto& product = province.products[good->get_id()];
         product.demand += amount; // * price ?
     }
 
@@ -281,6 +279,9 @@ void update_factories_employment(const World& world, Province& province, std::ve
         factories_by_profitability[i] = std::pair<size_t, float>(i, province.buildings[i].production_scale);
     std::sort(std::begin(factories_by_profitability), std::end(factories_by_profitability), [](const auto& a, const auto& b) { return a.second > b.second; });
 
+    // Cancel operations
+    float is_operating = (province.controller_id == province.owner_id) ? 1.f : 0.f;
+
     // The most profitable factory gets to pick workers first
     for(size_t i = 0; i < province.buildings.size(); i++) {
         auto factory_index = factories_by_profitability[i].first;
@@ -292,18 +293,20 @@ void update_factories_employment(const World& world, Province& province, std::ve
 
         // Average with how much the factory had before
         // Makes is more stable so everyone don't change workplace immediately
-        new_workers[factory_index] = (allocated_workers) / 16.0f + (building.workers * 15.0f) / 16.0f;
-        unallocated_workers -= building.workers;
+        new_workers[factory_index] = ((allocated_workers) / 16.0f + (building.workers * 15.0f) / 16.0f) * is_operating;
+        unallocated_workers -= building.workers * is_operating;
     }
 }
 
+/// @brief Calculate the budget that we spend on each needs
 void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& pop_needs) {
     pop_needs.assign(province.pops.size(), PopNeed{});
+
     for(Pop::Id i = 0; i < province.pops.size(); i++) {
         auto& pop_need = pop_needs[i];
         auto& pop = province.pops[i];
         const auto& type = world.pop_types[pop.type_id];
-
+        
         pop_need.life_needs_met = 0.f;
         // Do basic needs
         {
@@ -318,7 +321,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
                 product.demand += type.basic_needs_amount[j] * buying_factor;
             }
             pop_need.life_needs_met = buying_factor;
-            pop_need.budget = glm::max(0.f, (float)pop_need.budget - total_price);
+            pop_need.budget = (float)pop_need.budget - total_price;
         }
 
         pop_need.everyday_needs_met = 0.f;
@@ -333,10 +336,10 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
             float buying_factor = glm::min(1.f, (float)pop_need.budget / total_price);
             for(Good::Id j = 0; j < world.goods.size(); j++) {
                 auto& product = province.products[j];
-                product.demand += type.basic_needs_amount[j] * buying_factor;
+                product.demand += type.luxury_needs_satisfaction[j] * buying_factor;
             }
             pop_need.everyday_needs_met = buying_factor;
-            pop_need.budget = glm::max(0.f, (float)pop_need.budget - total_price);
+            pop_need.budget = (float)pop_need.budget - total_price;
         }
     }
 }
@@ -419,7 +422,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     tbb::parallel_for(tbb::blocked_range(province_ids.begin(), province_ids.end()), [&world, &buildings_new_worker, &province_new_units, &pops_new_needs](const auto province_ids_ranges) {
         for(const auto province_id : province_ids_ranges) {
             auto& province = world.provinces[province_id];
-            float laborers_payment = 0.f;
+            float laborers_payment = 1.f;
             for(auto& building_type : world.building_types) {
                 auto& building = province.buildings[world.get_id(building_type)];
                 update_factory_production(world, building, &building_type, province, laborers_payment);
@@ -504,17 +507,17 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     const std::scoped_lock lock(world.world_mutex);
 
     tbb::parallel_for(tbb::blocked_range(province_ids.begin(), province_ids.end()), [&world, &pops_new_needs, &buildings_new_worker](const auto provinces_id_range) {
-        for(const auto& province_id : provinces_id_range) {
-            Province& province = world.provinces[province_id];
-            std::vector<PopNeed>& new_needs = pops_new_needs[province_id];
-            for(uint32_t i = 0; i < province.pops.size(); i++) {
+        for(const auto province_id : provinces_id_range) {
+            auto& province = world.provinces[province_id];
+            const auto& new_needs = pops_new_needs[province_id];
+            for(Pop::Id i = 0; i < province.pops.size(); i++) {
                 auto& pop = province.pops[i];
                 pop.budget = new_needs[i].budget;
                 pop.life_needs_met = new_needs[i].life_needs_met;
                 pop.everyday_needs_met = new_needs[i].everyday_needs_met;
             }
-            std::vector<float>& new_workers = buildings_new_worker[province_id];
-            for(uint32_t i = 0; i < province.buildings.size(); i++) {
+            const auto& new_workers = buildings_new_worker[province_id];
+            for(Building::Id i = 0; i < province.buildings.size(); i++) {
                 auto& building = province.buildings[i];
                 building.workers = new_workers[i];
             }
@@ -522,8 +525,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     });
 
     tbb::parallel_for(tbb::blocked_range(eval_nations.begin(), eval_nations.end()), [&world](const auto& nations_range) {
-        for(const auto& nation : nations_range) {
-            if(!nation->exists()) continue;
+        for(const auto nation : nations_range) {
             // Do research on focused research
             if(nation->focus_tech != nullptr) {
                 const float research = nation->get_research_points() / nation->focus_tech->cost;
