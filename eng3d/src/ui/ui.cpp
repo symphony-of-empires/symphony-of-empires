@@ -355,7 +355,7 @@ void Context::clear_hover_recursive(Widget& w) {
         clear_hover_recursive(*child);
 }
 
-bool is_inside_transparent(const Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset) {
+static inline bool is_inside_transparent(const Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset) {
     if(w.current_texture != nullptr) {
         glm::ivec2 tex_size{ w.current_texture->width, w.current_texture->height };
         glm::ivec2 tex_pos = ((mouse_pos - offset) * tex_size) / glm::ivec2(w.width, w.height); 
@@ -375,19 +375,18 @@ bool Context::check_hover_recursive(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 
     if(!w.is_show || !w.is_render || !w.width || !w.height)
         return false;
 
-    const Eng3D::Rect r = Eng3D::Rect(offset.x, offset.y, w.width, w.height);
+    const Eng3D::Rect r(offset.x, offset.y, w.width, w.height);
     if(!r.in_bounds(mouse_pos)) {
         w.is_hover = 0;
     } else if(w.is_transparent) {
-        if (is_inside_transparent(w, mouse_pos, offset))
+        if(is_inside_transparent(w, mouse_pos, offset))
             w.is_hover = 0;
     }
 
     bool consumed_hover = w.is_hover && w.type != UI::WidgetType::GROUP;
     if(w.is_hover) {
-        if(w.on_hover) {
+        if(w.on_hover)
             w.on_hover(w, mouse_pos, offset);
-        }
 
         if(w.tooltip != nullptr) {
             tooltip_widget = w.tooltip;
@@ -420,10 +419,9 @@ bool Context::check_hover(glm::ivec2 mouse_pos) {
 }
 
 UI::ClickState Context::check_click_recursive(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, UI::ClickState click_state, bool clickable) {
+    offset = this->get_pos(w, offset);
     if(click_state != UI::ClickState::NOT_CLICKED)
         clickable = true;
-
-    bool click_consumed = click_state == UI::ClickState::HANDLED;
 
     // Widget must be displayed
     if(!w.is_show || !w.is_render) {
@@ -431,9 +429,11 @@ UI::ClickState Context::check_click_recursive(Widget& w, glm::ivec2 mouse_pos, g
         return UI::ClickState::NOT_CLICKED;
     }
 
+    bool click_consumed = click_state == UI::ClickState::HANDLED;
+
     // Click must be within the widget's box if it's not a group
     if(w.type != UI::WidgetType::GROUP) {
-        const Eng3D::Rect r = Eng3D::Rect(offset.x, offset.y, w.width, w.height);
+        const Eng3D::Rect r(offset.x, offset.y, w.width, w.height);
         if(!r.in_bounds(mouse_pos)) {
             clickable = false;
         } else if(w.is_transparent) {
