@@ -701,7 +701,7 @@ int LuaAPI::province_add_unit(lua_State* L) {
     Unit unit;
     unit.type = &unit_type;
     unit.owner_id = province.owner_id;
-    unit.budget = unit.size * 10.f;
+    unit.budget = size * 10.f;
     unit.experience = 1.f;
     unit.morale = 1.f;
     unit.supply = 1.f;
