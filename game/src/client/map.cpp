@@ -162,7 +162,9 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
         unit_type_models.push_back(s.model_man.load(s.package_man.get_unique(path)));
         unit_type_icons.push_back(s.tex_man.get_white());
     }
-    
+
+    // Create tooltip for hovering on the map
+    this->tooltip = new UI::Tooltip();
     this->reload_shaders();
 }
 
@@ -481,9 +483,8 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, Game
             input.select_pos = map_pos;
             auto prov_id = world.get_tile(map_pos.x, map_pos.y).province_id;
             if(mapmode_tooltip_func != nullptr) {
-                auto* tooltip = new UI::Tooltip();
-                tooltip->text(mapmode_tooltip_func(world, prov_id));
-                ui_ctx->use_tooltip(tooltip, mouse_pos);
+                this->tooltip->text(mapmode_tooltip_func(world, prov_id));
+                ui_ctx->use_tooltip(this->tooltip, mouse_pos);
             }
         }
         break;

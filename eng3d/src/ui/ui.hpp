@@ -78,7 +78,7 @@ namespace UI {
         void clear_dead_recursive(Widget* w);
 
         std::vector<std::unique_ptr<Widget>> widgets;
-        Tooltip* tooltip_widget = nullptr;
+        UI::Tooltip* tooltip_widget = nullptr;
         Eng3D::State& s;
     public:
         Context() = delete;

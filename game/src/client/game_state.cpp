@@ -302,16 +302,15 @@ void handle_event(Input& input, GameState& gs) {
             gs.map->update(event, input, &ui_ctx, gs);
         }
     }
-    ui_ctx.clear_dead();
 
-    std::scoped_lock lock(ui_ctx.prompt_queue_mutex);
+    const std::scoped_lock lock(ui_ctx.prompt_queue_mutex);
     for(const auto& prompt : ui_ctx.prompt_queue) {
         auto* win = new UI::Window(0, 0, 512, 512);
         win->origin = UI::Origin::CENTER_SCREEN;
         win->text(prompt.first);
         win->is_scroll = true;
-        win->set_close_btn_function([win](UI::Widget&) {
-            win->kill();
+        win->set_close_btn_function([](UI::Widget& w) {
+            w.kill();
         });
         auto* txt = new UI::Text(0, 0, win->width, win->height, win);
         txt->text(prompt.second);
@@ -319,6 +318,7 @@ void handle_event(Input& input, GameState& gs) {
         win->height = txt->y + txt->height;
     }
     ui_ctx.prompt_queue.clear();
+    ui_ctx.clear_dead();
 }
 
 void GameState::send_command(Archive& archive) {
@@ -756,14 +756,12 @@ void start_client(int argc, char** argv) {
 
         gs.clear();
         if(gs.current_mode != MapMode::NO_MAP) {
-            std::scoped_lock lock(gs.world->world_mutex);
+            const std::scoped_lock lock(gs.world->world_mutex);
             gs.map->camera->update();
             gs.map->draw(gs);
         }
-        gs.ui_ctx.clear_dead();
-        if(gs.show_ui) {
+        if(gs.show_ui)
             gs.ui_ctx.render_all(gs.input.mouse_pos);
-        }
         gs.swap();
         gs.world->profiler.render_done();
     }

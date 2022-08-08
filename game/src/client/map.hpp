@@ -55,6 +55,7 @@ namespace Eng3D {
 namespace UI {
     class Context;
     class Group;
+    class Tooltip;
 }
 namespace Interface {
     class UnitWidget;
@@ -146,9 +147,10 @@ public:
     void set_selection(selector_func selector);
 
     const World& world;
-    Eng3D::Camera* camera;
+    Eng3D::Camera* camera = nullptr;
 
-    UI::Group* map_ui_layer;
+    UI::Tooltip* tooltip = nullptr;
+    UI::Group* map_ui_layer = nullptr;
     std::vector<Interface::UnitWidget*> unit_widgets;
     std::vector<Interface::BattleWidget*> battle_widgets;
 

@@ -31,7 +31,10 @@
 #include "eng3d/string_format.hpp"
 
 #include "client/interface/top_window.hpp"
+#include "client/interface/main_menu.hpp"
 #include "client/game_state.hpp"
+#include "client/client_network.hpp"
+#include "server/server_network.hpp"
 #include "client/map.hpp"
 #include "world.hpp"
 #include "client/interface/policies.hpp"
@@ -156,7 +159,16 @@ TopWindow::TopWindow(GameState& _gs)
     auto* exit_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/exit.png", true, flex_column);
     exit_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.paused = true;
-        this->gs.run = false;
+        if(this->gs.client)
+            delete this->gs.client;
+        this->gs.client = nullptr;
+        if(this->gs.server)
+            delete this->gs.server;
+        this->gs.server = nullptr;
+
+        this->gs.ui_ctx.clear();
+        this->gs.ui_ctx.use_tooltip(nullptr, { 0, 0 });
+        new Interface::MainMenu(this->gs);
     });
     exit_ibtn->set_tooltip("Back to the main menu");
 }

@@ -151,7 +151,7 @@ namespace UI {
     /// instead use one of the many derivated widgets - unless you're making a new widget type.
     class Widget {
     public:
-        Widget() {};
+        Widget() = default;
         Widget(Widget* parent, int x, int y, unsigned w, unsigned h, WidgetType type);
         Widget(Widget* parent, int x, int y, unsigned w, unsigned h, WidgetType type, std::shared_ptr<Eng3D::Texture> tex);
         Widget(const Widget&) = default;

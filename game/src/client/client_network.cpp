@@ -319,5 +319,6 @@ void Client::wait_for_snapshot() {
 
 Client::~Client() {
     this->run = false;
-    this->net_thread.join();
+    if(this->net_thread.joinable())
+        this->net_thread.join();
 }

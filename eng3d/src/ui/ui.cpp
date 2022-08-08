@@ -131,19 +131,17 @@ void Context::add_widget(UI::Widget* widget) {
     widgets.push_back(std::unique_ptr<UI::Widget>(widget));
 }
 
-void Context::remove_widget(Widget* widget) {
-    for(size_t i = 0; i < widgets.size(); i++) {
-        if(widgets[i].get() != widget) continue;
-        widgets.erase(widgets.begin() + i);
-        break;
-    }
+void Context::remove_widget(UI::Widget* widget) {
+    auto it = std::find_if(widgets.begin(), widgets.end(), [widget](const auto& e) { return e.get() == widget; });
+    widgets.erase(it);
 }
 
 void Context::clear() {
     // Remove all widgets
-    for(auto& widget : widgets)
+    for(auto& widget : widgets) {
+        if(widget.get() == this->tooltip_widget) continue;
         widget->kill();
-    widgets.clear();
+    }
 }
 
 void Context::clear_dead_recursive(Widget* w) {
@@ -173,9 +171,6 @@ void Context::clear_dead() {
             widgets[index]->dead_child = false;
         }
     }
-
-    if(tooltip_widget)
-        clear_dead_recursive(tooltip_widget);
 }
 
 void Context::prompt(const std::string& title, const std::string& text) {
@@ -560,9 +555,10 @@ bool Context::check_text_input(const char* _input) {
     return false;
 }
 
-void Context::use_tooltip(Tooltip* tooltip, glm::ivec2 pos) {
-    tooltip_widget = tooltip;
-    tooltip_widget->set_pos(pos.x, pos.y, tooltip->width, tooltip->height, width, height);
+void Context::use_tooltip(UI::Tooltip* tooltip, glm::ivec2 pos) {
+    this->tooltip_widget = tooltip;
+    if(this->tooltip_widget != nullptr)
+        this->tooltip_widget->set_pos(pos.x, pos.y, tooltip->width, tooltip->height, width, height);
 }
 
 bool Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y) {
