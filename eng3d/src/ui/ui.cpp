@@ -355,8 +355,20 @@ void Context::clear_hover_recursive(Widget& w) {
         clear_hover_recursive(*child);
 }
 
-bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off) {
-    glm::ivec2 offset{ x_off, y_off };
+bool is_inside_transparent(const Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset) {
+    if(w.current_texture != nullptr) {
+        glm::ivec2 tex_size{ w.current_texture->width, w.current_texture->height };
+        glm::ivec2 tex_pos = ((mouse_pos - offset) * tex_size) / glm::ivec2(w.width, w.height); 
+        const Eng3D::Rect tex_rect{ glm::ivec2(0), tex_size };
+        if(tex_rect.in_bounds(mouse_pos)) {
+            const uint32_t argb = w.current_texture->get_pixel(tex_pos.x, tex_pos.y).get_value();
+            if(((argb >> 24) & 0xff) == 0) return true;
+        }
+    }
+    return false;
+}
+
+bool Context::check_hover_recursive(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset) {
     offset = get_pos(w, offset);
 
     w.is_hover = hover_update;
@@ -364,25 +376,16 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
         return false;
 
     const Eng3D::Rect r = Eng3D::Rect(offset.x, offset.y, w.width, w.height);
-    if(!r.in_bounds(mx, my)) {
+    if(!r.in_bounds(mouse_pos)) {
         w.is_hover = 0;
     } else if(w.is_transparent) {
-        if(w.current_texture != nullptr) {
-            int tex_width = w.current_texture->width;
-            int tex_height = w.current_texture->height;
-            int tex_x = ((mx - offset.x) * tex_width) / w.width;
-            int tex_y = ((my - offset.y) * tex_height) / w.height;
-            if(tex_x >= 0 && tex_x < tex_width && tex_y >= 0 && tex_y < tex_height) {
-                const uint32_t argb = w.current_texture->get_pixel(tex_x, tex_y).get_value();
-                if(((argb >> 24) & 0xff) == 0) w.is_hover = 0;
-            }
-        }
+        if (is_inside_transparent(w, mouse_pos, offset))
+            w.is_hover = 0;
     }
 
     bool consumed_hover = w.is_hover && w.type != UI::WidgetType::GROUP;
     if(w.is_hover) {
         if(w.on_hover) {
-            glm::ivec2 mouse_pos(mx, my);
             w.on_hover(w, mouse_pos, offset);
         }
 
@@ -392,34 +395,31 @@ bool Context::check_hover_recursive(Widget& w, const unsigned int mx, const unsi
         }
 
         for(auto& child : w.children)
-            consumed_hover |= check_hover_recursive(*child, mx, my, offset.x, offset.y);
+            consumed_hover |= check_hover_recursive(*child, mouse_pos, offset);
     }
     return consumed_hover;
 }
 
-bool Context::check_hover(const unsigned mx, const unsigned my) {
+bool Context::check_hover(glm::ivec2 mouse_pos) {
     hover_update++;
     if(is_drag) {
-        std::pair<int, int> offset = std::make_pair(mx - this->drag_x, my - this->drag_y);
-        std::pair<int, int> diff = std::make_pair(offset.first - dragged_widget->x, offset.second - dragged_widget->y);
+        glm::ivec2 offset = mouse_pos - glm::ivec2(this->drag_x, this->drag_y);
+        glm::ivec2 diff = offset - glm::ivec2(dragged_widget->x, dragged_widget->y);
 
-        dragged_widget->move_by(diff.first, diff.second);
+        dragged_widget->move_by(diff.x, diff.x);
         return true;
     }
 
     bool is_hover = false;
     tooltip_widget = nullptr;
     for(int i = widgets.size() - 1; i >= 0; i--) {
-        is_hover |= check_hover_recursive(*widgets[i].get(), mx, my, 0, 0);
+        is_hover |= check_hover_recursive(*widgets[i].get(), mouse_pos, glm::ivec2(0));
         if(is_hover) return is_hover;
     }
     return is_hover;
 }
 
-UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, const unsigned int my, int x_off, int y_off, UI::ClickState click_state, bool clickable) {
-    glm::ivec2 offset{ x_off, y_off };
-    offset = this->get_pos(w, offset);
-
+UI::ClickState Context::check_click_recursive(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, UI::ClickState click_state, bool clickable) {
     if(click_state != UI::ClickState::NOT_CLICKED)
         clickable = true;
 
@@ -434,24 +434,16 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
     // Click must be within the widget's box if it's not a group
     if(w.type != UI::WidgetType::GROUP) {
         const Eng3D::Rect r = Eng3D::Rect(offset.x, offset.y, w.width, w.height);
-        if(!r.in_bounds(glm::vec2(mx, my))) {
+        if(!r.in_bounds(mouse_pos)) {
             clickable = false;
         } else if(w.is_transparent) {
-            if(w.current_texture != nullptr) {
-                int tex_width = w.current_texture->width;
-                int tex_height = w.current_texture->height;
-                int tex_x = ((mx - offset.x) * tex_width) / w.width;
-                int tex_y = ((my - offset.y) * tex_height) / w.height;
-                if(tex_x >= 0 && tex_x < tex_width && tex_y >= 0 && tex_y < tex_height) {
-                    const uint32_t argb = w.current_texture->get_pixel(tex_x, tex_y).get_value();
-                    if(((argb >> 24) & 0xff) == 0) clickable = false;
-                }
-            }
+            if (is_inside_transparent(w, mouse_pos, offset))
+                clickable = false;
         }
     }
 
     for(auto& child : w.children)
-        click_state = check_click_recursive(*child, mx, my, offset.x, offset.y, click_state, clickable);
+        click_state = check_click_recursive(*child, mouse_pos, offset, click_state, clickable);
 
     // Non-clickable group widgets are only taken in account
     if(w.type == UI::WidgetType::GROUP && w.on_click == nullptr)
@@ -466,7 +458,7 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
     if(w.on_click && clickable && !click_consumed) {
         if(w.type == UI::WidgetType::SLIDER) {
             Slider* wc = (Slider*)&w;
-            wc->set_value((static_cast<float>(std::abs(static_cast<int>(mx) - offset.x)) / static_cast<float>(wc->width)) * wc->max);
+            wc->set_value((static_cast<float>(std::abs(mouse_pos.x - offset.x)) / static_cast<float>(wc->width)) * wc->max);
         }
         w.on_click(w);
         return UI::ClickState::HANDLED;
@@ -477,14 +469,14 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
     return click_state;
 }
 
-bool Context::check_click(const unsigned mx, const unsigned my) {
+bool Context::check_click(glm::ivec2 mouse_pos) {
     is_drag = false;
     UI::ClickState click_state = UI::ClickState::NOT_CLICKED;
     int click_wind_index = -1;
 
     bool is_click = false;
     for(int i = widgets.size() - 1; i >= 0; i--) {
-        click_state = check_click_recursive(*widgets[i].get(), mx, my, 0, 0, click_state, true);
+        click_state = check_click_recursive(*widgets[i].get(), mouse_pos, glm::ivec2(0), click_state, true);
         // Ignore further clicks, prevents clicking causing clicks on elements behind
         if(click_state != UI::ClickState::NOT_CLICKED) {
             is_click = true;
@@ -507,7 +499,7 @@ bool Context::check_click(const unsigned mx, const unsigned my) {
     return is_click;
 }
 
-void Context::check_drag(const unsigned mx, const unsigned my) {
+void Context::check_drag(glm::ivec2 mouse_pos) {
     for(int i = widgets.size() - 1; i >= 0; i--) {
         auto& widget = *widgets[i].get();
 
@@ -517,12 +509,12 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
         if(widget.is_pinned) continue;
 
         const Eng3D::Rect r(widget.x, widget.y, widget.width, widget.y + 24);
-        if(r.in_bounds(glm::vec2(mx, my))) {
+        if(r.in_bounds(mouse_pos)) {
             auto& c_widget = static_cast<UI::Window&>(widget);
             if(!c_widget.is_movable) continue;
             if(!is_drag) {
-                drag_x = mx - widget.x;
-                drag_y = my - widget.y;
+                drag_x = mouse_pos.x - widget.x;
+                drag_y = mouse_pos.y - widget.y;
                 is_drag = true;
                 dragged_widget = &widget;
                 break;
@@ -557,27 +549,18 @@ void Context::use_tooltip(UI::Tooltip* tooltip, glm::ivec2 pos) {
         this->tooltip_widget->set_pos(pos.x, pos.y, tooltip->width, tooltip->height, width, height);
 }
 
-bool Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_off, int y_off, int y) {
-    glm::ivec2 offset{ x_off, y_off };
+bool Context::check_wheel_recursive(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, int y) {
     offset = get_pos(w, offset);
 
     // Widget must be shown
     if(!w.is_show || !w.is_render) return false;
 
     const Eng3D::Rect r = Eng3D::Rect(offset.x, offset.y, w.width, w.height);
-    if(!r.in_bounds(glm::vec2(mx, my))) {
+    if(!r.in_bounds(mouse_pos)) {
         return false;
     } else if(w.is_transparent) {
-        if(w.current_texture != nullptr) {
-            int tex_width = w.current_texture->width;
-            int tex_height = w.current_texture->height;
-            int tex_x = ((mx - offset.x) * tex_width) / w.width;
-            int tex_y = ((my - offset.y) * tex_height) / w.height;
-            if(tex_x >= 0 && tex_x < tex_width && tex_y >= 0 && tex_y < tex_height) {
-                const uint32_t argb = w.current_texture->get_pixel(tex_x, tex_y).get_value();
-                if(((argb >> 24) & 0xff) == 0) return false;
-            }
-        }
+        if (is_inside_transparent(w, mouse_pos, offset))
+            return false;
     }
 
     // When we check the children they shall return non-zero if they are a group/window
@@ -589,7 +572,7 @@ bool Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_o
     // the scrolling instructions - only the front child will
     bool scrolled = false;
     for(const auto& children : w.children) {
-        scrolled = check_wheel_recursive(*children, mx, my, offset.x, offset.y, y);
+        scrolled = check_wheel_recursive(*children, mouse_pos, offset, y);
         if(scrolled) break;
     }
 
@@ -600,9 +583,9 @@ bool Context::check_wheel_recursive(Widget& w, unsigned mx, unsigned my, int x_o
     return scrolled;
 }
 
-bool Context::check_wheel(unsigned mx, unsigned my, int y) {
+bool Context::check_wheel(glm::ivec2 mouse_pos, int y) {
     for(int i = widgets.size() - 1; i >= 0; i--) {
-        bool scrolled = check_wheel_recursive(*widgets[i].get(), mx, my, 0, 0, y);
+        bool scrolled = check_wheel_recursive(*widgets[i].get(), mouse_pos, glm::ivec2(0), y);
         if(scrolled) return true;
     }
     return false;

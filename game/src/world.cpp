@@ -70,7 +70,7 @@ namespace std {
 
 std::vector<Tile> Tile::get_neighbours(const World& world) const {
     std::vector<Tile> tiles;
-    const auto idx = world.get_id(*this);
+    const auto idx = (size_t)world.get_id(*this);
     // Up
     if(idx > world.width)
         tiles.push_back(world.tiles[idx - world.width]);
@@ -331,7 +331,6 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
 }
 
 void World::load_initial() {
-    bool recalc_province = true;
     try {
         Archive ar{};
         ar.from_file("world.cache");

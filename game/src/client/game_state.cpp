@@ -146,10 +146,10 @@ void handle_event(Input& input, GameState& gs) {
             break;
         case SDL_MOUSEBUTTONDOWN:
             if(gs.show_ui) {
-                click_on_ui = ui_ctx.check_hover(mouse_pos.x, mouse_pos.y);
+                click_on_ui = ui_ctx.check_hover(mouse_pos);
                 if(event.button.button == SDL_BUTTON_LEFT) {
                     SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
-                    ui_ctx.check_drag(mouse_pos.x, mouse_pos.y);
+                    ui_ctx.check_drag(mouse_pos);
                 }
             }
             
@@ -158,7 +158,7 @@ void handle_event(Input& input, GameState& gs) {
             break;
         case SDL_JOYBUTTONDOWN:
             if(gs.show_ui) {
-                ui_ctx.check_drag(mouse_pos.x, mouse_pos.y);
+                ui_ctx.check_drag(mouse_pos);
             }
             break;
         case SDL_MOUSEBUTTONUP:
@@ -169,7 +169,7 @@ void handle_event(Input& input, GameState& gs) {
             }
 
             if(gs.show_ui) {
-                click_on_ui = ui_ctx.check_click(mouse_pos.x, mouse_pos.y);
+                click_on_ui = ui_ctx.check_click(mouse_pos);
                 if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
                     gs.map->handle_click(gs, event);
                 }
@@ -186,7 +186,7 @@ void handle_event(Input& input, GameState& gs) {
             break;
         case SDL_JOYBUTTONUP:
             if(gs.show_ui) {
-                click_on_ui = ui_ctx.check_click(mouse_pos.x, mouse_pos.y);
+                click_on_ui = ui_ctx.check_click(mouse_pos);
                 if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
                     gs.map->handle_click(gs, event);
                 }
@@ -204,14 +204,14 @@ void handle_event(Input& input, GameState& gs) {
         case SDL_MOUSEMOTION:
             SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
             if(gs.show_ui) {
-                click_on_ui = ui_ctx.check_hover(mouse_pos.x, mouse_pos.y);
+                click_on_ui = ui_ctx.check_hover(mouse_pos);
             }
             break;
         case SDL_MOUSEWHEEL:
             SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
             if(gs.show_ui) {
-                ui_ctx.check_hover(mouse_pos.x, mouse_pos.y);
-                click_on_ui = ui_ctx.check_wheel(mouse_pos.x, mouse_pos.y, event.wheel.y * 6);
+                ui_ctx.check_hover(mouse_pos);
+                click_on_ui = ui_ctx.check_wheel(mouse_pos, event.wheel.y * 6);
             }
             break;
         case SDL_TEXTINPUT:
@@ -289,7 +289,7 @@ void handle_event(Input& input, GameState& gs) {
             }
             break;
         case SDL_JOYAXISMOTION:
-            ui_ctx.check_hover(gs.input.mouse_pos.x, gs.input.mouse_pos.y);
+            ui_ctx.check_hover(gs.input.mouse_pos);
             break;
         case SDL_QUIT:
             gs.run = false;
