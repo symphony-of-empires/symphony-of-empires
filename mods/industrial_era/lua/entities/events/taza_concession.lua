@@ -36,7 +36,7 @@ taza_concession = Event:new{
 			ref_name = "taza_concession_decision_0",
 			name = "Taza is ours, by any means!",
 			decision_fn = function(ref_name)
-				local provinces = Nation:get("morrocco"):get_nuclei_provinces()
+				local provinces = Nation:get("morocco"):get_nuclei_provinces()
 				for k, v in pairs(provinces) do
 					print(v.ref_name)
 					v:give_and_relinquish_to(Nation:get("spain"))
@@ -49,9 +49,9 @@ taza_concession = Event:new{
 			ref_name = "taza_concession_decision_1",
 			name = "Taza is rightful Spanish land!",
 			decision_fn = function(ref_name)
-				Nation:get("spain"):declare_unjustified_war(Nation:get("morrocco"))
+				Nation:get("spain"):declare_unjustified_war(Nation:get("morocco"))
 			end,
-			effects = "War with morrocco"
+			effects = "War with morocco"
 		}
 		taza_concession:add_decision(decision)
 		decision = Decision:new{
@@ -59,14 +59,14 @@ taza_concession = Event:new{
 			name = "Maybe we can sort this out diplomatically?",
 			decision_fn = function(ref_name)
 				local rel = {}
-				rel = Nation:get("spain"):get_relation(Nation:get("morrocco"))
+				rel = Nation:get("spain"):get_relation(Nation:get("morocco"))
 				rel.relation = rel.relation + 50.0
-				Nation:get("spain"):set_relation(Nation:get("morrocco"), rel)
+				Nation:get("spain"):set_relation(Nation:get("morocco"), rel)
 				rel = Nation:get("spain"):get_relation(Nation:get("france"))
 				rel.relation = rel.relation + 50.0
 				Nation:get("spain"):set_relation(Nation:get("france"), rel)
 			end,
-			effects = "+50 relations with Morrocco and France"
+			effects = "+50 relations with Morocco and France"
 		}
 		taza_concession:add_decision(decision)
 		return EVENT_DO_ONE_TIME

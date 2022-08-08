@@ -55,11 +55,11 @@ egypt:register()
 egypt:set_ideology(monarchy)
 egypt:add_client_hint(monarchy, _("Egypt"), 0xC1BC73)
 
-morrocco = Nation:new{ ref_name = "morrocco" }
-morrocco.name = _("Morrocco")
-morrocco:register()
-morrocco:set_ideology(monarchy)
-morrocco:add_client_hint(monarchy, _("Morrocco"), 0x802249)
+morocco = Nation:new{ ref_name = "morocco" }
+morocco.name = _("Morocco")
+morocco:register()
+morocco:set_ideology(monarchy)
+morocco:add_client_hint(monarchy, _("Morocco"), 0x802249)
 
 tripolitania = Nation:new{ ref_name = "tripolitania" }
 tripolitania.name = _("Tripolitania")
