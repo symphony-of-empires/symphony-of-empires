@@ -58,7 +58,7 @@ class Pop {
     Pop & operator=(const Pop&) = default;
     friend class Province;
 public:
-    using Id = uint_fast16_t;
+    using Id = uint8_t;
 
     Pop() = default;
     ~Pop() = default;
@@ -81,6 +81,5 @@ public:
     float literacy = 0.f;
     float militancy = 0.f;
     float budget = 0.f;
-    float savings = 0.f;
     std::vector<float> ideology_approval; // Approval % of all the ideologies (1:1)
 };

@@ -49,7 +49,6 @@ mapmode_tooltip relations_tooltip(Nation::Id id);
 std::vector<ProvinceColor> terrain_color_map_mode(const World& world);
 std::string terrain_type_tooltip(const World& world, const Province::Id id);
 std::vector<ProvinceColor> population_map_mode(const World& world);
-std::string population_tooltip(const World& world, const Province::Id id);
 std::vector<ProvinceColor> culture_map_mode(const World& world);
 std::string culture_tooltip(const World& world, const Province::Id id);
 std::vector<ProvinceColor> religion_map_mode(const World& world);
@@ -128,7 +127,18 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     population_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
         mapmode_generator map_mode = population_map_mode;
-        mapmode_tooltip tooltip = population_tooltip;
+        mapmode_tooltip tooltip = [](const World& world, const Province::Id id) -> std::string{
+            const auto& province = world.provinces[id];
+            if(province.pops.empty())
+                return "";
+            size_t amount = 0;
+            for(auto const& pop : province.pops)
+                amount += pop.size;
+            std::string out;
+            out += province.name + "\n";
+            out += "Population: " + std::to_string(amount);
+            return out;
+        };
         this->gs.map->set_map_mode(map_mode, tooltip);
         set_mapmode_options(nullptr);
     });
@@ -227,15 +237,15 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
 }
 
 mapmode_tooltip good_tooltip(Good::Id good_id) {
-    return [good_id](const World& world, const Province::Id id) {
+    return [good_id](const World& world, const Province::Id id) -> std::string {
         const auto& province = world.provinces[id];
         if(Nation::is_invalid(province.controller_id))
-            return Eng3D::Locale::translate("Uncontrolled");
+            return "";
         const auto& product = province.products[good_id]; 
         std::string str;
-        str += Eng3D::string_format("Price: %f\n", product.price);
-        str += Eng3D::string_format("Demand: %f\n", product.demand);
-        str += Eng3D::string_format("Supply: %f\n", product.supply);
+        str += Eng3D::string_format("Price: %.2f\n", product.price);
+        str += Eng3D::string_format("Demand: %.2f\n", product.demand);
+        str += Eng3D::string_format("Supply: %.2f\n", product.supply);
         return str;
     };
 }
@@ -297,16 +307,14 @@ mapmode_generator relations_map_mode(Nation::Id id) {
 }
 
 mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
-    return [nation_id](const World& world, const Province::Id id) {
+    return [nation_id](const World& world, const Province::Id id) -> std::string {
         const auto& province = world.provinces[id];
         const auto& province_controller = g_world.nations[province.controller_id];
         std::string str;
 
-        if(Nation::is_invalid(province.controller_id)) {
-            str += Eng3D::Locale::translate("Uncontrolled");
-            return str;
-        }
-
+        if(Nation::is_invalid(province.controller_id))
+            return "";
+        
         if(Nation::is_valid(province.controller_id) && province.controller_id == province.owner_id) {
             str += Eng3D::Locale::translate(province_controller.get_client_hint().alt_name.get_string());
         } else if(Nation::is_valid(province.owner_id)) {
@@ -417,17 +425,6 @@ std::vector<ProvinceColor> population_map_mode(const World& world) {
         province_color.push_back(ProvinceColor(prov_id, color));
     }
     return province_color;
-}
-
-std::string population_tooltip(const World& world, const Province::Id id){
-    const Province& province = world.provinces[id];
-    size_t amount = 0;
-    for(auto const& pop : province.pops)
-        amount += pop.size;
-    std::string out;
-    out += province.name + "\n";
-    out += "Population: " + std::to_string(amount);
-    return out;
 }
 
 std::vector<ProvinceColor> culture_map_mode(const World& world) {

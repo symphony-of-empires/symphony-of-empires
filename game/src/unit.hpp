@@ -124,9 +124,9 @@ public:
 
     float size; // Size of the unit (soldiers in unit)
     float base; // Base size of the unit (max size due to anti-attrition)
-    float morale;
-    float experience; // For perspective, 0.5 is the normal unit (i.e a soldier POP)
-    float supply; // Available supplies, 1.0 is all supplies fullfilled, lower than that and the unit starts shrinking
+    float morale = 1.f;
+    float experience = 1.f; // For perspective, 0.5 is the normal unit (i.e a soldier POP)
+    float supply = 1.f; // Available supplies, 1.0 is all supplies fullfilled, lower than that and the unit starts shrinking
     float budget; // Money that the unit has
     bool on_battle = false;
 };

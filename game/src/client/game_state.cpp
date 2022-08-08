@@ -357,12 +357,19 @@ void save(GameState& gs) {
         for(auto& province : gs.world->provinces) {
             if(province.neighbour_ids.empty()) continue;
 
+            // Give the province a terrain
             if(gs.world->terrain_types[province.terrain_type_id].is_water_body && (Nation::is_valid(province.controller_id) || Nation::is_valid(province.owner_id))) {
                 for(auto& terrain : gs.world->terrain_types) {
                     if(terrain.is_water_body) continue;
                     province.terrain_type_id = terrain.get_id();
                     break;
                 }
+            }
+
+            // Sea provinces dont have pops or RGOs
+            if(gs.world->terrain_types[province.terrain_type_id].is_water_body) {
+                province.rgo_size.clear();
+                province.pops.clear();
             }
 
             // RGO

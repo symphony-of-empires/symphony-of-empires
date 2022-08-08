@@ -120,14 +120,14 @@ static float pop_number(lua_State* L) {
 static std::string pop_string(lua_State* L) {
     const std::string& text = luaL_checkstring(L, -1);
     if(text.empty())
-        CXX_THROW(LuaAPI::Exception, "Expected a text but got empty string");
+        luaL_error(L, "Expected a text but got empty string");
     lua_pop(L, 1);
     return text;
 }
 
 int LuaAPI::add_terrain_type(lua_State* L) {
     if(g_world.needs_to_sync)
-        CXX_THROW(LuaAPI::Exception, "MP-Sync in this function is not supported");
+        luaL_error(L, "MP-Sync in this function is not supported");
 
     TerrainType terrain_type{};
     terrain_type.ref_name = luaL_checkstring(L, 1);
@@ -282,7 +282,7 @@ int LuaAPI::add_req_technology_to_industry_type(lua_State* L) {
 
 int LuaAPI::add_nation(lua_State* L) {
     if(g_world.needs_to_sync)
-        CXX_THROW(LuaAPI::Exception, "MP-Sync in this function is not supported");
+        luaL_error(L, "MP-Sync in this function is not supported");
 
     Nation nation{};
     nation.ref_name = luaL_checkstring(L, 1);
@@ -298,9 +298,9 @@ int LuaAPI::add_nation(lua_State* L) {
     // Check for duplicates
     for(const auto& other_nation : g_world.nations) {
         if(Nation::is_invalid(other_nation.get_id()))
-            CXX_THROW(LuaAPI::Exception, "Nation with invalid Id!");
+            luaL_error(L, "Nation with invalid Id!");
         if(nation.ref_name == other_nation.ref_name)
-            CXX_THROW(LuaAPI::Exception, "Duplicate ref_name " + nation.ref_name);
+            luaL_error(L, ("Duplicate ref_name " + nation.ref_name).c_str());
     }
     g_world.insert(nation);
     lua_pushnumber(L, g_world.nations.size() - 1);
@@ -338,7 +338,7 @@ int LuaAPI::switch_nation_soul(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     auto& target = g_world.nations.at(lua_tonumber(L, 2));
     if(&nation == &target)
-        CXX_THROW(LuaAPI::Exception, nation.ref_name.get_string() + " can't switch to itself");
+        luaL_error(L, (nation.ref_name + " can't switch to itself").c_str());
     
     /// @todo Broadcast this to all clients?
     return 0;
@@ -348,7 +348,7 @@ int LuaAPI::nation_declare_war_no_cb(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
     if(&nation == &other_nation)
-        CXX_THROW(LuaAPI::Exception, nation.ref_name.get_string() + " can't declare war with itself");
+        luaL_error(L, (nation.ref_name + " can't declare war with itself").c_str());
     nation.declare_war(other_nation);
     return 0;
 }
@@ -549,7 +549,7 @@ int LuaAPI::nation_declare_unjustified_war(lua_State* L) {
 
 int LuaAPI::add_nation_mod(lua_State* L) {
     if(g_world.needs_to_sync)
-        CXX_THROW(LuaAPI::Exception, "MP-Sync in this function is not supported");
+        luaL_error(L, "MP-Sync in this function is not supported");
 
     NationModifier mod{};
     mod.ref_name = luaL_checkstring(L, 1);
@@ -600,27 +600,36 @@ int LuaAPI::add_province(lua_State* L) {
     province.color = (bswap32(static_cast<int>(lua_tonumber(L, 2))) >> 8) | 0xff000000;
     province.name = luaL_checkstring(L, 3);
     province.terrain_type_id = lua_tonumber(L, 4);
-    // load rgo_size
+
+    // Load rgo_size
     province.rgo_size.resize(g_world.goods.size(), 0);
-    lua_pushvalue(L, 5);
-    lua_pushnil(L);
-    while(lua_next(L, -2)) {
-        lua_pushnil(L);
-        lua_next(L, -2);
-        const Good& good = find_or_throw_local<Good>(pop_string(L));
-        lua_next(L, -2);
-        const uint32_t amount = (uint32_t)pop_number(L);
-        lua_pop(L, 2);
-        province.rgo_size[g_world.get_id(good)] = amount;
+    luaL_checktype(L, 5, LUA_TTABLE);
+    size_t n_rgo_size = lua_rawlen(L, 5);
+    for(size_t i = 1; i <= n_rgo_size; i++) {
+        lua_rawgeti(L, 5, i);
+        if(!lua_istable(L, -1))
+            luaL_error(L, "RGO size is a multidimensional table, \'rgo_size={\"wheat\",1}\' is not valid, do \'rgo_size={{\"wheat\",1}}\' instead");
+        
+        {
+            lua_rawgeti(L, -1, 1);
+            const Good& good = find_or_throw_local<Good>(luaL_checkstring(L, -1));
+            lua_pop(L, 1);
+
+            lua_rawgeti(L, -1, 2);
+            const uint32_t amount = (uint32_t)lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            province.rgo_size[g_world.get_id(good)] = amount;
+        }
+        lua_pop(L, 1);
     }
-    lua_pop(L, 1);
 
     // Check for duplicates
     for(size_t i = 0; i < g_world.provinces.size(); i++) {
         if(province.color == g_world.provinces[i].color) {
-            CXX_THROW(LuaAPI::Exception, province.ref_name + " province has same color as " + g_world.provinces[i].ref_name);
+            luaL_error(L, (province.ref_name + " province has same color as " + g_world.provinces[i].ref_name).c_str());
         } else if(province.ref_name == g_world.provinces[i].ref_name) {
-            CXX_THROW(LuaAPI::Exception, "Duplicate ref_name " + province.ref_name);
+            luaL_error(L, ("Duplicate ref_name " + province.ref_name).c_str());
         }
     }
     
@@ -645,9 +654,9 @@ int LuaAPI::update_province(lua_State* L) {
     // Check for duplicates
     for(size_t i = 0; i < g_world.provinces.size(); i++) {
         if(province.color == g_world.provinces[i].color) {
-            CXX_THROW(LuaAPI::Exception, province.ref_name + " province has same color as " + g_world.provinces[i].ref_name);
+            luaL_error(L, (province.ref_name + " province has same color as " + g_world.provinces[i].ref_name).c_str());
         } else if(province.ref_name == g_world.provinces[i].ref_name) {
-            CXX_THROW(LuaAPI::Exception, "Duplicate ref_name " + province.ref_name);
+            luaL_error(L, ("Duplicate ref_name " + province.ref_name).c_str());
         }
     }
     return 0;
@@ -698,7 +707,7 @@ int LuaAPI::province_add_unit(lua_State* L) {
     UnitType& unit_type = g_world.unit_types.at(lua_tonumber(L, 2));
     const size_t size = lua_tonumber(L, 3);
 
-    Unit unit;
+    Unit unit{};
     unit.type = &unit_type;
     unit.owner_id = province.owner_id;
     unit.budget = size * 10.f;
@@ -706,6 +715,7 @@ int LuaAPI::province_add_unit(lua_State* L) {
     unit.morale = 1.f;
     unit.supply = 1.f;
     unit.size = size;
+    unit.budget = unit.size * 10.f;
     unit.base = unit.type->max_health;
     g_world.unit_manager.add_unit(unit, province.cached_id);
     return 0;
@@ -713,7 +723,7 @@ int LuaAPI::province_add_unit(lua_State* L) {
 
 int LuaAPI::update_province_building(lua_State* L) {
     if(g_world.needs_to_sync)
-        CXX_THROW(LuaAPI::Exception, "MP-Sync in this function is not supported");
+        luaL_error(L, "MP-Sync in this function is not supported");
     Province& province = g_world.provinces.at(lua_tonumber(L, 1));
     // Add up a level of upgrade
     BuildingType* building_type = &g_world.building_types.at(lua_tonumber(L, 2));
@@ -858,7 +868,7 @@ int LuaAPI::add_province_pop(lua_State* L) {
     pop.ideology_approval.resize(g_world.ideologies.size(), 0.f);
 
     if(!pop.size)
-        CXX_THROW(LuaAPI::Exception, "Can't create pops with 0 size");
+        luaL_error(L, "Can't create pops with 0 size");
     province.pops.push_back(pop);
     assert(province.pops.size() < 100);
     return 0;
@@ -884,7 +894,7 @@ int LuaAPI::add_province_owner(lua_State* L) {
 
 int LuaAPI::add_event(lua_State* L) {
     if(g_world.needs_to_sync)
-        CXX_THROW(LuaAPI::Exception, "MP-Sync in this function is not supported");
+        luaL_error(L, "MP-Sync in this function is not supported");
 
     Event event{};
     event.ref_name = luaL_checkstring(L, 1);
@@ -947,7 +957,7 @@ int LuaAPI::add_decision(lua_State* L) {
 
 int LuaAPI::add_pop_type(lua_State* L) {
     if(g_world.needs_to_sync)
-        CXX_THROW(LuaAPI::Exception, "MP-Sync in this function is not supported");
+        luaL_error(L, "MP-Sync in this function is not supported");
     
     PopType pop_type{};
     pop_type.ref_name = luaL_checkstring(L, 1);
@@ -1150,7 +1160,7 @@ int LuaAPI::get_religion_by_id(lua_State* L) {
 
 int LuaAPI::add_unit_type(lua_State* L) {
     if(g_world.needs_to_sync)
-        CXX_THROW(LuaAPI::Exception, "MP-Sync in this function is not supported");
+        luaL_error(L, "MP-Sync in this function is not supported");
 
     UnitType unit_type{};
     unit_type.ref_name = luaL_checkstring(L, 1);
@@ -1190,7 +1200,7 @@ int LuaAPI::add_req_good_unit_type(lua_State* L) {
 
 int LuaAPI::add_ideology(lua_State* L) {
     if(g_world.needs_to_sync)
-        CXX_THROW(LuaAPI::Exception, "MP-Sync in this function is not supported");
+        luaL_error(L, "MP-Sync in this function is not supported");
 
     Ideology ideology{};
     ideology.ref_name = luaL_checkstring(L, 1);
@@ -1740,6 +1750,6 @@ void LuaAPI::invoke_registered_callback(lua_State* L, const std::string& name) {
         const std::string err_msg = lua_tostring(L, -1);
         Eng3D::Log::error("lua", "lua_pcall failed: " + err_msg);
         lua_pop(L, 1);
-        CXX_THROW(LuaAPI::Exception, "Failure on UI callback: " + err_msg);
+        luaL_error(L, ("Failure on UI callback: " + err_msg).c_str());
     }
 }
