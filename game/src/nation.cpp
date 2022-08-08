@@ -292,25 +292,24 @@ void Nation::give_province(Province& province) {
 
 void Nation::control_province(Province& province) {
     auto& world = World::get_instance();
-    if(province.controller != nullptr)
-        province.controller->controlled_provinces.erase(world.get_id(province));
-    controlled_provinces.insert(world.get_id(province));
-    province.controller = this;
+    if(Province::is_valid(province.controller_id))
+        world.nations[province.controller_id].controlled_provinces.erase(province.get_id());
+    this->controlled_provinces.insert(province.get_id());
+    province.controller_id = this->get_id();
 
     // Update the province changed
     world.province_manager.mark_province_control_changed(province.get_id());
 
     // Cancel the unit construction projects
     province.cancel_construction_project();
-
-    if(province.controller->get_id() != province.owner_id) {
+    if(province.controller_id != province.owner_id) {
         for(auto& pop : province.pops)
             pop.militancy += 0.1f;
     }
 }
 
 const NationClientHint& Nation::get_client_hint() const {
-    return this->client_hints[g_world.get_id(*this->ideology)];
+    return this->client_hints[this->ideology->get_id()];
 }
 
 float Nation::get_research_points() const {

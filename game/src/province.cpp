@@ -112,7 +112,7 @@ float Province::euclidean_distance(const Province& other_province, glm::vec2 wor
 }
 
 bool Province::is_neighbour(Province& province) const {
-    return std::find(this->neighbours.begin(), this->neighbours.end(), g_world.get_id(province)) != this->neighbours.end();
+    return std::find(this->neighbour_ids.begin(), this->neighbour_ids.end(), g_world.get_id(province)) != this->neighbour_ids.end();
 }
 
 void Province::clean_pops() {

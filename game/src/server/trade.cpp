@@ -95,7 +95,7 @@ static inline float get_trade_cost(const Province& province1, const Province& pr
     float angle = glm::acos(cos_angle);
     const auto distance = angle / (2 * glm::pi<float>());
     // Cost to travel around the globe
-    const auto trade_cost = 1000.f * province1.terrain_type->penalty * province2.terrain_type->penalty;
+    const auto trade_cost = 1000.f * g_world.terrain_types[province1.terrain_type_id].penalty * g_world.terrain_types[province2.terrain_type_id].penalty;
     return distance * trade_cost;
 }
 
@@ -109,13 +109,13 @@ void Trade::initialize(const World& world) {
     glm::vec2 world_size{ world.width, world.height };
     neighbours.reserve(world.provinces.size());
     for(const auto& province : world.provinces) {
-        std::vector<Trade::Vertex> prov_neighbours;
-        prov_neighbours.reserve(prov_neighbours.size());
-        for(const auto neighbour_id : province.neighbours) {
+        std::vector<Trade::Vertex> province_neighbours;
+        province_neighbours.reserve(province.neighbour_ids.size());
+        for(const auto neighbour_id : province.neighbour_ids) {
             const auto& neighbour = world.provinces[neighbour_id];
             const auto trade_cost = get_trade_cost(province, neighbour, world_size);
-            prov_neighbours.emplace_back(trade_cost, neighbour_id);
+            province_neighbours.emplace_back(trade_cost, neighbour_id);
         }
-        neighbours.emplace_back(prov_neighbours);
+        neighbours.emplace_back(province_neighbours);
     }
 }

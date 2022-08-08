@@ -414,8 +414,7 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
 void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
     // Water
     for(Province::Id i = 0; i < world.provinces.size(); i++) {
-        auto* terrain_type = world.provinces[i].terrain_type;
-        if(terrain_type->is_water_body)
+        if(world.terrain_types[world.provinces[i].terrain_type_id].is_water_body)
             province_colors[i] = ProvinceColor(i, Eng3D::Color::rgba32(0x00000000));
     }
     for(const auto province_color : province_colors)
@@ -431,9 +430,9 @@ void MapRender::update_nations(std::vector<Province::Id> province_ids) {
     std::unordered_set<Nation::Id> nation_ids;
     for(const auto id : province_ids) {
         const auto& province = this->world.provinces[id]; 
-        if(province.controller == nullptr) continue;
-        this->tile_sheet_nation->buffer.get()[province.get_id()] = province.controller->get_id();
-        nation_ids.insert(province.controller->get_id());
+        if(Nation::is_invalid(province.controller_id)) continue;
+        this->tile_sheet_nation->buffer.get()[province.get_id()] = province.controller_id;
+        nation_ids.insert(province.controller_id);
     }
 
     Eng3D::TextureOptions no_drop_options{};
@@ -467,7 +466,7 @@ void MapRender::update_visibility(GameState& gs)
             for(const auto province_id : gs.world->nations[nation_id].controlled_provinces) {
                 const auto& province = gs.world->provinces[province_id];
                 this->province_opt->buffer[province_id] = 0x000000ff;
-                for(const auto neighbour_id : province.neighbours)
+                for(const auto neighbour_id : province.neighbour_ids)
                     this->province_opt->buffer[neighbour_id] = 0x000000ff;
             }
         }
@@ -485,7 +484,7 @@ void MapRender::update_visibility(GameState& gs)
         }
         auto prov_id = gs.world->unit_manager.get_unit_current_province(unit.cached_id);
         this->province_opt->buffer[prov_id] = 0x000000ff;
-        for(const auto neighbour_id : gs.world->provinces[prov_id].neighbours)
+        for(const auto neighbour_id : gs.world->provinces[prov_id].neighbour_ids)
             this->province_opt->buffer[neighbour_id] = 0x000000ff;
     });
     if(gs.map->province_selected)

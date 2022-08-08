@@ -86,7 +86,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     this->is_scroll = true;
     this->text(province.name.get_string());
 
-    this->landscape_img = new UI::Image(0, 0, this->width, 128 + 64 + 16, gs.tex_man.load(gs.package_man.get_unique("gfx/terraintype/" + province.terrain_type->ref_name + ".png")), this);
+    this->landscape_img = new UI::Image(0, 0, this->width, 128 + 64 + 16, gs.tex_man.load(gs.package_man.get_unique("gfx/terraintype/" + gs.world->terrain_types[province.terrain_type_id].ref_name + ".png")), this);
 
     if(Nation::is_valid(province.owner_id)) {
         this->owner_flag = new UI::AspectImage(0, 0, 96, 48, gs.get_nation_flag(gs.world->nations[this->province.owner_id]), this);
@@ -303,7 +303,7 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
     table->reserve(gs.world->terrain_types.size());
     table->on_each_tick = [this, table](Widget&) {
         for(auto& terrain_type : this->gs.world->terrain_types) {
-            auto* row = table->get_row(this->gs.world->get_id(terrain_type));
+            auto* row = table->get_row(terrain_type.get_id());
             size_t row_index = 0;
 
             auto landscape = row->get_element(row_index++);
@@ -320,15 +320,14 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
             name->set_key(name_str);
             name->set_on_click([this, &terrain_type](UI::Widget&) {
                 auto& nc_province = const_cast<Province&>(this->province);
-                nc_province.terrain_type = const_cast<TerrainType*>(&terrain_type);
+                nc_province.terrain_type_id = terrain_type.get_id();
                 if(terrain_type.is_water_body) {
                     nc_province.pops.clear();
                     nc_province.nuclei.clear();
-                    nc_province.controller = nullptr;
+                    nc_province.controller_id = Nation::invalid();
                     nc_province.owner_id = Nation::invalid();
-                    for(auto& building : nc_province.buildings) {
+                    for(auto& building : nc_province.buildings)
                         building.level = 0;
-                    }
                 }
 
                 this->gs.map->update_mapmode();

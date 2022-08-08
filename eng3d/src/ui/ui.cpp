@@ -195,9 +195,8 @@ glm::ivec2 Context::get_pos(Widget& w, glm::ivec2 offset) {
     glm::ivec2 pos{ w.x, w.y };
     glm::ivec2 screen_size{ width, height };
     glm::ivec2 parent_size{ 0, 0 };
-    if(w.parent != nullptr) {
+    if(w.parent != nullptr)
         parent_size = glm::ivec2{ w.parent->width, w.parent->height };
-    }
 
     switch(w.origin) {
     case UI::Origin::CENTER:

@@ -599,7 +599,7 @@ int LuaAPI::add_province(lua_State* L) {
     province.ref_name = luaL_checkstring(L, 1);
     province.color = (bswap32(static_cast<int>(lua_tonumber(L, 2))) >> 8) | 0xff000000;
     province.name = luaL_checkstring(L, 3);
-    province.terrain_type = &g_world.terrain_types.at(lua_tonumber(L, 4));
+    province.terrain_type_id = lua_tonumber(L, 4);
     // load rgo_size
     province.rgo_size.resize(g_world.goods.size(), 0);
     lua_pushvalue(L, 5);
@@ -641,7 +641,7 @@ int LuaAPI::update_province(lua_State* L) {
     province.ref_name = luaL_checkstring(L, 2);
     province.color = (bswap32(static_cast<int>(lua_tonumber(L, 3))) >> 8) | 0xff000000;
     province.name = luaL_checkstring(L, 4);
-    province.terrain_type = &g_world.terrain_types.at(lua_tonumber(L, 5));
+    province.terrain_type_id = lua_tonumber(L, 5);
     // Check for duplicates
     for(size_t i = 0; i < g_world.provinces.size(); i++) {
         if(province.color == g_world.provinces[i].color) {
@@ -658,7 +658,7 @@ int LuaAPI::get_province(lua_State* L) {
     lua_pushnumber(L, g_world.get_id(province));
     lua_pushstring(L, province.name.c_str());
     lua_pushnumber(L, bswap32((province.color & 0x00ffffff) << 8));
-    lua_pushnumber(L, g_world.get_id(*province.terrain_type));
+    lua_pushnumber(L, province.terrain_type_id);
     lua_newtable(L);
     size_t index = 1;
     for(size_t i = 0; i < province.rgo_size.size(); i++) {
@@ -678,7 +678,7 @@ int LuaAPI::get_province_by_id(lua_State* L) {
     lua_pushstring(L, province.ref_name.c_str());
     lua_pushstring(L, province.name.c_str());
     lua_pushnumber(L, bswap32((province.color & 0x00ffffff) << 8));
-    lua_pushnumber(L, g_world.get_id(*province.terrain_type));
+    lua_pushnumber(L, province.terrain_type_id);
     lua_newtable(L);
     size_t index = 1;
     for(size_t i = 0; i < province.rgo_size.size(); i++) {
@@ -735,7 +735,7 @@ int LuaAPI::give_hard_province_to(lua_State* L) {
         const auto& unit_ids = g_world.unit_manager.get_province_units(province.get_id());
         for(const auto unit_id : unit_ids) {
             auto& unit = g_world.unit_manager.units[unit_id];
-            if(province.controller != nullptr && unit.owner_id == province.controller->get_id())
+            if(unit.owner_id == province.controller_id)
                 unit.owner_id = nation.get_id();
         }
     }
@@ -743,9 +743,9 @@ int LuaAPI::give_hard_province_to(lua_State* L) {
     nation.give_province(province);
 
     // Take all the troops of the dead nation
-    if(province.controller != nullptr && !province.controller->exists()) {
+    if(Nation::is_valid(province.controller_id) && !g_world.nations[province.controller_id].exists()) {
         for(auto& unit : g_world.unit_manager.units) {
-            if(unit.owner_id == province.controller->get_id())
+            if(unit.owner_id == province.controller_id)
                 unit.owner_id = nation.get_id();
         }
     }
@@ -754,27 +754,24 @@ int LuaAPI::give_hard_province_to(lua_State* L) {
 
 // Obtains the owner of a province (ref_name)
 int LuaAPI::get_province_owner(lua_State* L) {
-    Province& province = g_world.provinces.at(lua_tonumber(L, 1));
-    lua_pushstring(L, province.controller->ref_name.c_str());
+    const auto& province = g_world.provinces.at(lua_tonumber(L, 1));
+    lua_pushstring(L, g_world.nations[province.controller_id].ref_name.c_str());
     return 1;
 }
 
 // Get the country who owms a larger chunk of the province - this is not the same as owner
 int LuaAPI::get_province_controller(lua_State* L) {
-    Province& province = g_world.provinces.at(lua_tonumber(L, 1));
-    if(province.controller == nullptr)
-        lua_pushnumber(L, -1);
-    else
-        lua_pushnumber(L, g_world.get_id(*province.controller));
+    const auto& province = g_world.provinces.at(lua_tonumber(L, 1));
+    lua_pushnumber(L, province.controller_id);
     return 1;
 }
 
 // Obtains the neighbours of a province (by ID)
 int LuaAPI::get_province_neighbours(lua_State* L) {
-    const Province& province = g_world.provinces.at(lua_tonumber(L, 1));
+    const auto& province = g_world.provinces.at(lua_tonumber(L, 1));
     lua_newtable(L);
     size_t i = 0;
-    for(const auto neighbour_id : province.neighbours) {
+    for(const auto neighbour_id : province.neighbour_ids) {
         lua_pushnumber(L, neighbour_id);
         lua_rawseti(L, -2, i + 1);
         ++i;
@@ -783,7 +780,7 @@ int LuaAPI::get_province_neighbours(lua_State* L) {
 }
 
 int LuaAPI::get_province_nuclei(lua_State* L) {
-    const Province& province = g_world.provinces.at(lua_tonumber(L, 1));
+    const auto& province = g_world.provinces.at(lua_tonumber(L, 1));
     lua_newtable(L);
     size_t i = 0;
     for(const auto& nucleus_id : province.nuclei) {
@@ -795,14 +792,14 @@ int LuaAPI::get_province_nuclei(lua_State* L) {
 }
 
 int LuaAPI::get_province_pops_size(lua_State* L) {
-    const Province& province = g_world.provinces.at(lua_tonumber(L, 1));
+    const auto& province = g_world.provinces.at(lua_tonumber(L, 1));
     lua_pushnumber(L, province.pops.size());
     return 1;
 }
 
 int LuaAPI::get_province_pop(lua_State* L) {
-    const Province& province = g_world.provinces.at(lua_tonumber(L, 1));
-    const Pop& pop = province.pops.at(lua_tonumber(L, 2));
+    const auto& province = g_world.provinces.at(lua_tonumber(L, 1));
+    const auto& pop = province.pops.at(lua_tonumber(L, 2));
     lua_pushnumber(L, pop.size);
     lua_pushnumber(L, pop.budget);
     lua_pushnumber(L, pop.literacy);
@@ -812,7 +809,7 @@ int LuaAPI::get_province_pop(lua_State* L) {
     lua_pushnumber(L, pop.type_id);
     lua_pushnumber(L, pop.culture_id);
     lua_pushnumber(L, pop.religion_id);
-    lua_pushnumber(L, g_world.get_id(pop.get_ideology()));
+    lua_pushnumber(L, pop.get_ideology().get_id());
     lua_pushnumber(L, pop.militancy);
     return 11;
 }

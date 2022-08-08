@@ -309,8 +309,8 @@ void handle_event(Input& input, GameState& gs) {
         win->origin = UI::Origin::CENTER_SCREEN;
         win->text(prompt.first);
         win->is_scroll = true;
-        win->set_close_btn_function([](UI::Widget& w) {
-            w.kill();
+        win->set_close_btn_function([win](UI::Widget&) {
+            win->kill();
         });
         auto* txt = new UI::Text(0, 0, win->width, win->height, win);
         txt->text(prompt.second);
@@ -355,12 +355,12 @@ void save(GameState& gs) {
         for(const auto& nation : gs.world->nations)
             fprintf(fp.get(), "n_%s=Nation:get(\"%s\")\n", nation.ref_name.c_str(), nation.ref_name.c_str());
         for(auto& province : gs.world->provinces) {
-            if(province.neighbours.empty()) continue;
+            if(province.neighbour_ids.empty()) continue;
 
-            if(province.terrain_type->is_water_body && (province.controller != nullptr || Nation::is_valid(province.owner_id))) {
+            if(gs.world->terrain_types[province.terrain_type_id].is_water_body && (Nation::is_valid(province.controller_id) || Nation::is_valid(province.owner_id))) {
                 for(auto& terrain : gs.world->terrain_types) {
                     if(terrain.is_water_body) continue;
-                    province.terrain_type = &terrain;
+                    province.terrain_type_id = terrain.get_id();
                     break;
                 }
             }
@@ -380,7 +380,7 @@ void save(GameState& gs) {
                 province.ref_name.c_str(),
                 province.name.c_str(),
                 (unsigned int)color,
-                province.terrain_type->ref_name.c_str(),
+                gs.world->terrain_types[province.terrain_type_id].ref_name.c_str(),
                 rgo_size_out.c_str());
             fprintf(fp.get(), "province:register()\n");
             for(const auto& building_type : gs.world->building_types) {

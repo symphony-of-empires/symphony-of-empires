@@ -74,12 +74,12 @@
 
 static inline void get_blob_bounds(std::unordered_set<Province*>& visited_provinces, const Nation& nation, const Province& province, glm::vec2* min_x, glm::vec2* min_y, glm::vec2* max_x, glm::vec2* max_y) {
     // Iterate over all neighbours
-    for(const auto neighbour_id : province.neighbours) {
+    for(const auto neighbour_id : province.neighbour_ids) {
         auto& neighbour = g_world.provinces[neighbour_id];
         // Do not visit again
         if(visited_provinces.find(&neighbour) != visited_provinces.end()) continue;
         // Must control the province
-        if(neighbour.controller != &nation) continue;
+        if(neighbour.controller_id != nation.get_id()) continue;
         // Big provinces not taken in account
         if(abs(neighbour.box_area.left - neighbour.box_area.right) >= g_world.width / 3.f) continue;
         if(abs(neighbour.box_area.top - neighbour.box_area.bottom) >= g_world.height / 3.f) continue;
@@ -253,12 +253,10 @@ void Map::set_view(MapView view) {
 
 std::string political_province_tooltip(const World& world, const Province::Id id) {
     std::string end_str;
-    if(world.provinces[id].controller != nullptr)
-        end_str += world.provinces[id].controller->client_username;
-
-    if(((GameState&)Eng3D::State::get_instance()).editor) {
+    if(Nation::is_valid(world.provinces[id].controller_id))
+        end_str += world.nations[world.provinces[id].controller_id].client_username;
+    if(((GameState&)Eng3D::State::get_instance()).editor)
         end_str += "(" + world.provinces[id].ref_name.get_string() + ")";
-    }
     return end_str;
 }
 
@@ -266,11 +264,12 @@ std::string political_province_tooltip(const World& world, const Province::Id id
 std::vector<ProvinceColor> political_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
     for(Province::Id i = 0; i < world.provinces.size(); i++) {
-        auto* province_owner = world.provinces[i].controller;
-        if(province_owner == nullptr)
+        if(Province::is_invalid(world.provinces[i].controller_id))
             province_color.push_back(ProvinceColor(i, Eng3D::Color::rgba32(0xffdddddd)));
-        else
-            province_color.push_back(ProvinceColor(i, Eng3D::Color::rgba32(province_owner->get_client_hint().color)));
+        else {
+            const auto& province_controller = world.nations[world.provinces[i].controller_id];
+            province_color.push_back(ProvinceColor(i, Eng3D::Color::rgba32(province_controller.get_client_hint().color)));
+        }
     }
 
     // Land
@@ -292,7 +291,7 @@ void Map::reload_shaders() {
         }
         tree_spawn_pos.resize(world.provinces.size());
         for(const auto& province : world.provinces)
-            tree_spawn_pos[province.get_id()] = std::make_pair(province.get_pos(), province.terrain_type->get_id());
+            tree_spawn_pos[province.get_id()] = std::make_pair(province.get_pos(), province.terrain_type_id);
     }
 }
 
@@ -347,8 +346,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         case MapMode::COUNTRY_SELECT:
             if(Province::is_valid(tile.province_id)) {
                 auto& province = world.provinces[tile.province_id];
-                if(province.controller != nullptr)
-                    gs.select_nation->change_nation(province.controller->cached_id);
+                if(Nation::is_valid(province.controller_id))
+                    gs.select_nation->change_nation(province.controller_id);
             }
             break;
         case MapMode::NORMAL:
@@ -373,9 +372,9 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         }
         return;
     } else if(event.button.button == SDL_BUTTON_RIGHT) {
-        const Tile& tile = gs.world->get_tile(input.select_pos.x, input.select_pos.y);
-        if(Province::is_invalid(tile.province_id)) return;
-        Province& province = gs.world->provinces[tile.province_id];
+        const auto& tile = gs.world->get_tile(input.select_pos.x, input.select_pos.y);
+        if(Nation::is_invalid(tile.province_id)) return;
+        auto& province = gs.world->provinces[tile.province_id];
         if(gs.editor) {
             switch(gs.current_mode) {
             case MapMode::NORMAL:
@@ -397,9 +396,9 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             // Don't change target if ID is the same...
             if(province_id == gs.world->get_id(province) || unit.get_target_province_id() == gs.world->get_id(province))
                 continue;
-            if(province.controller != nullptr && province.controller != gs.curr_nation) {
+            if(province.controller_id != gs.curr_nation->get_id()) {
                 // Must either be our ally, have military access with them or be at war
-                const auto& relation = gs.world->get_relation(gs.world->get_id(*gs.curr_nation), gs.world->get_id(*province.controller));
+                const auto& relation = gs.world->get_relation(gs.world->get_id(*gs.curr_nation), province.controller_id);
                 if(!(relation.has_war || relation.has_alliance || relation.has_military_access)) continue;
             }
 

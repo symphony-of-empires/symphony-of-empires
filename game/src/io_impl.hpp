@@ -427,12 +427,12 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->owner_id);
         ::deser_dynamic<is_serialize>(ar, &obj->nuclei);
         ::deser_dynamic<is_serialize>(ar, &obj->rgo_size);
-        ::deser_dynamic<is_serialize>(ar, &obj->neighbours);
+        ::deser_dynamic<is_serialize>(ar, &obj->neighbour_ids);
         ::deser_dynamic<is_serialize>(ar, &obj->products);
         ::deser_dynamic<is_serialize>(ar, &obj->pops);
         ::deser_dynamic<is_serialize>(ar, &obj->buildings);
-        ::deser_dynamic<is_serialize>(ar, &obj->controller);
-        ::deser_dynamic<is_serialize>(ar, &obj->terrain_type);
+        ::deser_dynamic<is_serialize>(ar, &obj->controller_id);
+        ::deser_dynamic<is_serialize>(ar, &obj->terrain_type_id);
     }
 };
 

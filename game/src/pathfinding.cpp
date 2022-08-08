@@ -47,8 +47,8 @@ static std::vector<Province::Id> generate_neighbors(const World& world, const Na
     const Province& province = world.provinces[province_id];
 
     std::vector<Province::Id> result;
-    result.reserve(province.neighbours.size());
-    for(const auto& neighbour_id : province.neighbours) {
+    result.reserve(province.neighbour_ids.size());
+    for(const auto neighbour_id : province.neighbour_ids) {
         result.push_back(neighbour_id);
 
         const auto& neighbour = world.provinces[neighbour_id];

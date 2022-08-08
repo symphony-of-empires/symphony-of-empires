@@ -451,7 +451,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             for(Pop::Id i = 0; i < province.buildings.size(); i++) {
                 auto& building = province.buildings[i];
                 // There must not be conflict ongoing otherwise they wont be able to build shit
-                if(province.controller->get_id() == province.owner_id && building.working_unit_type != nullptr && building.can_build_unit()) {
+                if(province.controller_id == province.owner_id && building.working_unit_type != nullptr && building.can_build_unit()) {
                     // Ratio of health:person is 25, thus making units very expensive
                     const float army_size = 100;
                     /// @todo Consume special soldier pops instead of farmers!!!

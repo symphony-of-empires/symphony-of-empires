@@ -455,7 +455,7 @@ void World::load_initial() {
                 const auto tiles = tile->get_neighbours(*this);
                 for(const auto& other_tile : tiles) {
                     if(Province::is_valid(other_tile.province_id))
-                        province.neighbours.insert(other_tile.province_id);
+                        province.neighbour_ids.insert(other_tile.province_id);
                 }
             }
         }
@@ -522,6 +522,8 @@ void World::load_mod() {
 static inline void unit_do_tick(World& world, Unit& unit)
 {
     assert(Province::is_valid(unit.province_id()));
+    assert(Nation::is_valid(unit.owner_id));
+
     // Do not evaluate if we have an ongoing battle
     if(unit.on_battle) {
         unit.stop_movement();
@@ -539,8 +541,8 @@ static inline void unit_do_tick(World& world, Unit& unit)
 
         auto& unit_target = world.provinces[unit.get_target_province_id()];
         bool can_move = true, can_take = false;
-        if(unit_target.controller != nullptr && unit_target.controller->get_id() != unit.owner_id) {
-            const auto& relation = world.get_relation(unit_target.controller->get_id(), unit.owner_id);
+        if(Nation::is_valid(unit_target.controller_id) && unit_target.controller_id != unit.owner_id) {
+            const auto& relation = world.get_relation(unit_target.controller_id, unit.owner_id);
             can_move = (relation.has_alliance || relation.has_defensive_pact || relation.has_war);
             can_take = relation.has_war;
         }

@@ -155,6 +155,7 @@ static inline void external_migration(World& world) {
             for(const auto province_id : nation->controlled_provinces) {
                 auto& province = world.provinces[province_id];
                 // Guaranteed that province->controller != nullptr and that the province is not a water body
+                assert(Nation::is_valid(province.controller_id));
 
                 // Randomness factor to emulate a pseudo-imperfect economy
                 const float fuzz = static_cast<float>(std::rand() + 1) / 1000.f;

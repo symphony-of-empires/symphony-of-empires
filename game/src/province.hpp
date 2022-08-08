@@ -101,15 +101,15 @@ public:
     // (for example, when changing owners)
     Eng3D::Rect box_area;
     uint16_t owner_id = (uint16_t)-1; // The owner of this province
-    Nation* controller = nullptr;
-    TerrainType* terrain_type = nullptr;
+    uint16_t controller_id = (uint16_t)-1;
+    uint8_t terrain_type_id = (uint8_t)-1;
     std::vector<uint32_t> rgo_size; // How much of each rgo that can be extracted
     std::vector<Pop> pops; // List of pops in this province
     std::vector<Product> products;
     std::vector<Building> buildings;
     std::vector<Battle> battles;
     std::unordered_set<uint16_t> nuclei; // Nations who have a nuclei in this province
-    std::unordered_set<Province::Id> neighbours; // Neighbouring provinces
+    std::unordered_set<Province::Id> neighbour_ids; // Neighbouring provinces
 
     void clean_pops();
 };

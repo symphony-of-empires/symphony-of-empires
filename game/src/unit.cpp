@@ -89,7 +89,7 @@ float Unit::days_to_move_to(const Province& _province) const {
     auto& end_province = _province;
 
     const glm::vec2 world_size{ world.width, world.height };
-    const auto distance = start_province.euclidean_distance(end_province, world_size, 100) * start_province.terrain_type->penalty * end_province.terrain_type->penalty;
+    const auto distance = start_province.euclidean_distance(end_province, world_size, 100) * world.terrain_types[start_province.terrain_type_id].penalty * world.terrain_types[end_province.terrain_type_id].penalty;
     return distance;
 }
 

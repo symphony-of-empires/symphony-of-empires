@@ -211,11 +211,11 @@ void Client::net_loop() {
                                 CXX_THROW(ClientException, "Unknown province");
                             
                             auto old_owner_id = province->owner_id;
-                            auto old_controller = province->controller;
+                            auto old_controller_id = province->controller_id;
                             ::deserialize(ar, province);
                             if(province->owner_id != old_owner_id)
                                 gs.world->province_manager.mark_province_owner_changed(province->get_id());
-                            if(province->controller != old_controller)
+                            if(province->controller_id != old_controller_id)
                                 gs.world->province_manager.mark_province_control_changed(province->get_id());
                         }
                     } break;
