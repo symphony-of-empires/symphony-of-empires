@@ -31,6 +31,8 @@
 #include "client/interface/common.hpp"
 #include "client/interface/treaty.hpp"
 #include "client/interface/war.hpp"
+#include "client/map.hpp"
+#include "client/map_render.hpp"
 #include "io_impl.hpp"
 
 using namespace Interface;
@@ -179,6 +181,8 @@ NationView::NationView(GameState& _gs, Nation& _nation)
         switch_btn->set_tooltip(Eng3D::Locale::translate("Switches to this nation (multiplayer disallow rule)"));
         switch_btn->set_on_click([this](UI::Widget&) {
             this->gs.curr_nation = &this->nation;
+            this->gs.map->map_render->request_update_visibility();
+            this->gs.map->map_render->update(this->gs);
         });
     }
 }

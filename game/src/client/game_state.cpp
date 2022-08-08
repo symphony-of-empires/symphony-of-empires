@@ -100,7 +100,7 @@ void GameState::play_nation() {
     const auto& capital = this->world->provinces[this->curr_nation->capital_id];
     map->camera->set_pos(capital.box_area.right, capital.box_area.bottom);
     map->map_render->request_update_visibility();
-    map->map_render->update(static_cast<GameState&>(Eng3D::State::get_instance()));
+    map->map_render->update(*this);
 
     // Make topwindow
     top_win = new Interface::TopWindow(*this);
