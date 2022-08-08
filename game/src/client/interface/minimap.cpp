@@ -243,9 +243,9 @@ mapmode_tooltip good_tooltip(Good::Id good_id) {
             return "";
         const auto& product = province.products[good_id]; 
         std::string str;
-        str += Eng3D::string_format("Price: %.2f\n", product.price);
-        str += Eng3D::string_format("Demand: %.2f\n", product.demand);
-        str += Eng3D::string_format("Supply: %.2f\n", product.supply);
+        str += Eng3D::string_format(_("Price: %.2f\n"), product.price);
+        str += Eng3D::string_format(_("Demand: %.2f\n"), product.demand);
+        str += Eng3D::string_format(_("Supply: %.2f\n"), product.supply);
         return str;
     };
 }

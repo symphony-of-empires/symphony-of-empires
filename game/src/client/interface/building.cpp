@@ -44,7 +44,7 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
     ty{ _ty }
 {
     this->is_scroll = true;
-    this->text(Eng3D::Locale::translate("Construction of buildings"));
+    this->text(_("Building construction"));
     this->set_close_btn_function([this](UI::Widget&) {
         this->kill();
     });

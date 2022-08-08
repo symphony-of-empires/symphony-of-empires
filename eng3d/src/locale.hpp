@@ -32,3 +32,5 @@ extern std::map<std::string, std::string> trans_msg;
 namespace Eng3D::Locale {
     std::string translate(const std::string& str);
 }
+
+#define _(x) Eng3D::Locale::translate(x)

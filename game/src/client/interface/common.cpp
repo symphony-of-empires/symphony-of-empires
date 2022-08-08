@@ -54,10 +54,10 @@ UnitButton::UnitButton(GameState& _gs, int x, int y, Unit& _unit, UI::Widget* _p
     gs{ _gs },
     unit{ _unit }
 {
-    this->text(std::to_string(this->unit.size) + " " + this->unit.type->name.get_string());
     this->on_each_tick = ([this](UI::Widget& w) {
-        w.text(std::to_string(this->unit.size) + " " + Eng3D::Locale::translate(this->unit.type->name.get_string()));
+        w.text(std::to_string(this->unit.size) + " " + _(this->unit.type->name.get_string()));
     });
+    this->on_each_tick(*this);
 }
 
 UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType& _unit_type, UI::Widget* _parent)
@@ -109,7 +109,7 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation& _nation, UI::Wi
     this->name_btn->on_each_tick = ([](UI::Widget& w) {
         auto& o = static_cast<NationButton&>(*w.parent);
         if(o.gs.world->time % o.gs.world->ticks_per_month) return;
-        w.text(Eng3D::Locale::translate(o.nation.get_client_hint().alt_name.get_string()));
+        w.text(_(o.nation.get_client_hint().alt_name.get_string()));
     });
 }
 
@@ -126,7 +126,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, un
 
     unsigned int dx = 0;
     if(!building_type.inputs.empty()) {
-        auto* makes_lab = new UI::Label(dx, 0, Eng3D::Locale::translate("Makes"), this);
+        auto* makes_lab = new UI::Label(dx, 0, _("Produces:"), this);
         makes_lab->below_of(*name_btn);
         dx += makes_lab->width;
         for(const auto& good : building_type.inputs) {
@@ -144,9 +144,9 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, un
 
     auto* arrow_lab = new UI::Label(dx, 0, "?", this);
     if(building_type.inputs.empty()) {
-        arrow_lab->text(Eng3D::Locale::translate("Produces"));
+        arrow_lab->text(_("Produces"));
     } else {
-        arrow_lab->text(Eng3D::Locale::translate("into"));
+        arrow_lab->text(_("into"));
     }
     arrow_lab->below_of(*name_btn);
     dx += arrow_lab->width;
@@ -200,13 +200,12 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology& _techno
         }
 
         if(this->gs.curr_nation->can_research(this->technology)) {
-            w.set_tooltip(Eng3D::Locale::translate("We can research this"));
+            w.set_tooltip(_("We can research this"));
         } else {
-            std::string text = "";
-            text = Eng3D::Locale::translate("We can't research this because we don't have ");
+            std::string text = _("We can't research this because we don't have ");
             for(const auto& req_tech_id : this->technology.req_technologies) {
                 if(this->gs.curr_nation->research[req_tech_id] > 0.f)
-                    text += Eng3D::Locale::translate(this->gs.world->technologies[req_tech_id].name.get_string()) + ", ";
+                    text += _(this->gs.world->technologies[req_tech_id].name.get_string()) + ", ";
             }
             w.set_tooltip(text);
         }
@@ -249,7 +248,7 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province& _province, std::size_t 
         if(this->gs.world->time % this->gs.world->ticks_per_month) return;
         if(this->index >= this->province.pops.size()) return;
 
-        const Pop& pop = this->province.pops[this->index];
+        const auto& pop = this->province.pops[this->index];
         this->size_btn->text(std::to_string(pop.size));
         this->budget_btn->text(std::to_string(pop.budget / pop.size));
         this->budget_btn->tooltip->text(Eng3D::Locale::translate("A total budget of") + " " + std::to_string(pop.budget));
@@ -275,7 +274,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province& _province, Good
         new GoodView(o.gs, o.good);
     });
     this->good_ibtn->set_tooltip(new UI::Tooltip(this->good_ibtn, 512, 24));
-    this->good_ibtn->tooltip->text(Eng3D::Locale::translate(good.name.get_string()));
+    this->good_ibtn->tooltip->text(_(good.name.get_string()));
 
     this->price_rate_btn = new UI::Button(0, 0, 96, 24, this);
     this->price_rate_btn->right_side_of(*this->good_ibtn);

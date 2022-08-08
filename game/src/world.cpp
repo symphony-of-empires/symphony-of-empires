@@ -357,11 +357,11 @@ void World::load_initial() {
         // Uncomment this and see a bit more below
         std::set<uint32_t> colors_found;
         std::set<uint32_t> colors_used;
-        Eng3D::Log::debug("game", Eng3D::Locale::translate("Associate tiles with provinces"));
+        Eng3D::Log::debug("game", _("Associate tiles with provinces"));
 
         // Build a lookup table for super fast speed on finding provinces
         // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
-        Eng3D::Log::debug("game", Eng3D::Locale::translate("Building the province lookup table"));
+        Eng3D::Log::debug("game", _("Building the province lookup table"));
         std::vector<Province::Id> province_color_table(0xffffff + 1, Province::invalid());
         for(auto& province : provinces)
             province_color_table[province.color & 0xffffff] = this->get_id(province);
@@ -418,7 +418,7 @@ void World::load_initial() {
         }
 
         // Calculate the edges of the province (min and max x and y coordinates)
-        Eng3D::Log::debug("game", Eng3D::Locale::translate("Calculate the edges of the province (min and max x and y coordinates)"));
+        Eng3D::Log::debug("game", _("Calculate the edges of the province (min and max x and y coordinates)"));
 
         // Init the province bounds
         for(auto& province : provinces) {
@@ -439,14 +439,14 @@ void World::load_initial() {
         }
 
         // Correct stuff from provinces
-        Eng3D::Log::debug("game", Eng3D::Locale::translate("Correcting values for provinces"));
+        Eng3D::Log::debug("game", _("Correcting values for provinces"));
         for(auto& province : provinces) {
             province.box_area.right = std::min<float>(width, province.box_area.right);
             province.box_area.bottom = std::min<float>(height, province.box_area.bottom);
         }
 
         // Neighbours
-        Eng3D::Log::debug("game", Eng3D::Locale::translate("Creating neighbours for provinces"));
+        Eng3D::Log::debug("game", _("Creating neighbours for provinces"));
         for(size_t i = 0; i < width * height; i++) {
             const auto* tile = &this->tiles[i];
             if(tile->province_id < static_cast<Province::Id>(-3)) {
@@ -462,7 +462,7 @@ void World::load_initial() {
         unit_manager.init(*this);
 
         // Create diplomatic relations between nations
-        Eng3D::Log::debug("game", Eng3D::Locale::translate("Creating diplomatic relations"));
+        Eng3D::Log::debug("game", _("Creating diplomatic relations"));
         // Relations between nations start at 0 (and latter modified by lua scripts)
         // since we use cantor's pairing function we only have to make an n*2 array so yeah let's do that!
         size_t relations_len = this->nations.size() * this->nations.size();
@@ -474,7 +474,7 @@ void World::load_initial() {
         for(auto& nation : this->nations) {
             // Must exist and not have a capital
             if(!nation.exists() || Province::is_invalid(nation.capital_id)) continue;
-            Eng3D::Log::debug("game", Eng3D::Locale::translate("Relocating capital of [" + nation.ref_name + "]"));
+            Eng3D::Log::debug("game", _("Relocating capital of [" + nation.ref_name + "]"));
             nation.auto_relocate_capital();
 
             nation.budget = 10000.f;
@@ -503,7 +503,7 @@ void World::load_initial() {
         ar.to_file("world.cache");
     }
 
-    Eng3D::Log::debug("game", Eng3D::Locale::translate("World partially intiialized"));
+    Eng3D::Log::debug("game", _("World partially intiialized"));
 }
 
 void World::load_mod() {
@@ -514,7 +514,7 @@ void World::load_mod() {
 
     // Server needs now to sync changes to clients (changing state is not enough)
     this->needs_to_sync = true;
-    Eng3D::Log::debug("game", Eng3D::Locale::translate("World fully intiialized"));
+    Eng3D::Log::debug("game", _("World fully intiialized"));
     ai_init(*this); // Initialize the AI
 }
 

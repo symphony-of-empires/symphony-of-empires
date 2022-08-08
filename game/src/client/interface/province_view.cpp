@@ -149,7 +149,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
             auto budget = row->get_element(row_index++);
             auto budget_str = Eng3D::string_format("%.0f", pop.budget / pop.size);
             budget->text(budget_str);
-            auto budget_tip = Eng3D::Locale::translate("A total budget of") + " " + Eng3D::string_format("%.0f", pop.budget);
+            auto budget_tip = Eng3D::string_format(_("Total budget: %.2f"), pop.budget);
             budget->set_tooltip(budget_tip);
             budget->set_key(pop.budget / pop.size);
 

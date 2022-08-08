@@ -208,7 +208,7 @@ void Map::update_nation_label(const Nation& nation) {
     
     // Replace old label
     assert(this->nation_labels.size() > nation.get_id());
-    auto label = this->map_font->gen_text(Eng3D::Locale::translate(nation.get_client_hint().alt_name.get_string()), top_dir, right_dir, width, center);
+    auto label = this->map_font->gen_text(_(nation.get_client_hint().alt_name.get_string()), top_dir, right_dir, width, center);
     this->nation_labels[nation.get_id()] = std::move(label);
 }
 
@@ -229,7 +229,7 @@ void Map::create_labels() {
         glm::vec3 right_dir = glm::vec3(mid_point.x + 1.f, mid_point.y, 0.) - center;
         glm::vec3 top_dir = glm::vec3(mid_point.x, mid_point.y - 1.f, 0.) - center;
         center.z -= 0.1f;
-        auto label = this->map_font->gen_text(Eng3D::Locale::translate(province.name.get_string()), top_dir, right_dir, width, center);
+        auto label = this->map_font->gen_text(_(province.name.get_string()), top_dir, right_dir, width, center);
         this->province_labels.push_back(std::move(label));
     }
 

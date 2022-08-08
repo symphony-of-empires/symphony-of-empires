@@ -136,7 +136,7 @@ UnitView::UnitView(GameState& _gs, Unit& _unit)
     this->is_scroll = false;
 
     auto& unit = this->gs.world->unit_manager.units[this->unit_id];
-    this->text(Eng3D::Locale::translate("Overview for") + " " + unit.type->name.get_string() + " from " + this->gs.world->nations[unit.owner_id].name.get_string());
+    this->text(Eng3D::string_format(_("Unit %s from %s"), unit.type->name.get_string(), this->gs.world->nations[unit.owner_id].name.get_string()));
 
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
@@ -144,21 +144,21 @@ UnitView::UnitView(GameState& _gs, Unit& _unit)
     auto* size_lab = new UI::Label(0, 0, " ", flex_column);
     size_lab->on_each_tick = ([this](UI::Widget& w) {
         auto& unit = this->gs.world->unit_manager.units[this->unit_id];
-        w.text("Size: " + Eng3D::string_format("%.0f", unit.size));
+        w.text(Eng3D::string_format(_("Size: %.0f"), unit.size));
     });
     size_lab->on_each_tick(*size_lab);
 
     auto* morale_lab = new UI::Label(0, 0, " ", flex_column);
     morale_lab->on_each_tick = ([this](UI::Widget& w) {
         auto& unit = this->gs.world->unit_manager.units[this->unit_id];
-        w.text("Morale: " + Eng3D::string_format("%.2f", unit.morale));
+        w.text(Eng3D::string_format(_("Morale: %.2f"), unit.morale));
     });
     morale_lab->on_each_tick(*morale_lab);
 
     auto* attdef_lab = new UI::Label(0, 0, " ", flex_column);
     attdef_lab->on_each_tick = ([this](UI::Widget& w) {
         auto& unit = this->gs.world->unit_manager.units[this->unit_id];
-        w.text("Attack/Defense: " + Eng3D::string_format("%.2f", unit.type->attack) + "/" + Eng3D::string_format("%.2f", unit.type->defense));
+        w.text(Eng3D::string_format(_("Attack/Defense: %.2f/%.2f"), unit.type->attack, unit.type->defense));
     });
     attdef_lab->on_each_tick(*attdef_lab);
 }

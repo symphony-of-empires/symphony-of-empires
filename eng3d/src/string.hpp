@@ -57,45 +57,37 @@ namespace Eng3D {
 
         const std::string& get_string() const;
 
-        inline StringRef& operator=(const std::string& rhs)
-        {
+        inline StringRef& operator=(const std::string& rhs) {
             *this = StringRef(rhs);
             return *this;
         }
 
-        inline bool operator==(const StringRef& rhs) const
-        {
+        inline bool operator==(const StringRef& rhs) const {
             return this->get_string() == rhs.get_string();
         }
 
-        inline bool operator==(const std::string& rhs) const
-        {
+        inline bool operator==(const std::string& rhs) const {
             return this->get_string() == rhs;
         }
 
-        inline const char *c_str() const
-        {
+        inline const char *c_str() const {
             return this->get_string().c_str();
         }
     };
 
-    inline std::string operator+(const char *lhs, const StringRef& rhs)
-    {
+    inline std::string operator+(const char *lhs, const StringRef& rhs) {
         return std::string(lhs) + rhs.get_string();
     }
 
-    inline std::string operator+(const StringRef& lhs, const char *rhs)
-    {
+    inline std::string operator+(const StringRef& lhs, const char *rhs) {
         return lhs.get_string() + rhs;
     }
 
-    inline std::string operator+(const std::string& lhs, const StringRef& rhs)
-    {
+    inline std::string operator+(const std::string& lhs, const StringRef& rhs) {
         return std::string(lhs) + rhs.get_string();
     }
 
-    inline std::string operator+(const StringRef& lhs, const std::string& rhs)
-    {
+    inline std::string operator+(const StringRef& lhs, const std::string& rhs) {
         return lhs.get_string() + rhs;
     }
 
