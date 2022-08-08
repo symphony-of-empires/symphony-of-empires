@@ -97,12 +97,11 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
         this->gs.map->set_map_mode(map_mode, tooltip);
         set_mapmode_options(nullptr);
     });
-    landscape_ibtn->set_tooltip("Political");
+    landscape_ibtn->set_tooltip("Terrain");
 
     auto* political_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
     political_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-
         mapmode_generator map_mode = political_map_mode;
         mapmode_tooltip tooltip = political_province_tooltip;
         this->gs.map->set_map_mode(map_mode, tooltip);
@@ -113,10 +112,9 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     auto* relations_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
     relations_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(relations_map_mode_selector);
-        Nation* current_nation = this->gs.curr_nation;
-        Nation::Id id = this->gs.world->get_id(*current_nation);
-        mapmode_generator map_mode = relations_map_mode(id);
-        mapmode_tooltip tooltip = relations_tooltip(id);
+        const auto nation_id = this->gs.curr_nation->get_id();
+        mapmode_generator map_mode = relations_map_mode(nation_id);
+        mapmode_tooltip tooltip = relations_tooltip(nation_id);
         this->gs.map->set_map_mode(map_mode, tooltip);
         set_mapmode_options(nullptr);
     });
@@ -128,7 +126,6 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
         mapmode_generator map_mode = population_map_mode;
         mapmode_tooltip tooltip = population_tooltip;
         this->gs.map->set_map_mode(map_mode, tooltip);
-        this->gs.current_mode = MapMode::NORMAL;
         set_mapmode_options(nullptr);
     });
     population_ibtn->set_tooltip("Population");
@@ -141,7 +138,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
         this->gs.map->set_map_mode(map_mode, tooltip);
         set_mapmode_options(nullptr);
     });
-    terrain_color_ibtn->set_tooltip("Terrain type");
+    terrain_color_ibtn->set_tooltip("Simple terrain");
 
     auto* culture_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
     culture_ibtn->set_on_click([this](UI::Widget&) {
@@ -348,7 +345,7 @@ mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
                 "friendly"
             };
 
-            int idx = ((rel.relation + 100) / (100 * 2)) * rel_lvls.size();
+            int idx = ((static_cast<float>(rel.relation) + 100.f) / 200.f) * rel_lvls.size();
             str += std::to_string(rel.relation) + "(" + rel_lvls[idx % rel_lvls.size()] + ")";
 
             int ally_cnt = 0;

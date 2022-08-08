@@ -300,9 +300,8 @@ void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport,
     Eng3D::Rect local_viewport = Eng3D::Rect{ offset, size };
     // Set the viewport to the intersection of the parents and currents widgets viewport
     local_viewport = local_viewport.intersection(Eng3D::Rect(0, 0, width, height));
-    if(!w.parent || w.parent->type != UI::WidgetType::GROUP) {
+    if(!w.parent || w.parent->type != UI::WidgetType::GROUP)
         local_viewport = viewport.intersection(local_viewport);
-    }
     viewport = local_viewport;
 
     local_viewport.offset(-offset);
@@ -452,9 +451,8 @@ UI::ClickState Context::check_click_recursive(Widget& w, const unsigned int mx, 
         }
     }
 
-    for(auto& child : w.children) {
+    for(auto& child : w.children)
         click_state = check_click_recursive(*child, mx, my, offset.x, offset.y, click_state, clickable);
-    }
 
     // Non-clickable group widgets are only taken in account
     if(w.type == UI::WidgetType::GROUP && w.on_click == nullptr)
@@ -521,7 +519,7 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
 
         const Eng3D::Rect r(widget.x, widget.y, widget.width, widget.y + 24);
         if(r.in_bounds(glm::vec2(mx, my))) {
-            Window& c_widget = static_cast<Window&>(widget);
+            auto& c_widget = static_cast<UI::Window&>(widget);
             if(!c_widget.is_movable) continue;
             if(!is_drag) {
                 drag_x = mx - widget.x;
@@ -536,14 +534,13 @@ void Context::check_drag(const unsigned mx, const unsigned my) {
 
 bool check_text_input_recursive(Widget& widget, const char* _input) {
     if(widget.type == UI::WidgetType::INPUT) {
-        UI::Input& c_widget = static_cast<UI::Input&>(widget);
+        auto& c_widget = reinterpret_cast<UI::Input&>(widget);
         if(c_widget.is_selected) c_widget.on_textinput(c_widget, _input);
         return true;
     }
 
-    for(const auto& children : widget.children) {
+    for(const auto& children : widget.children)
         if(check_text_input_recursive(*children, _input)) return true;
-    }
     return false;
 }
 

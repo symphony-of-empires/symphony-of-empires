@@ -158,6 +158,11 @@ TopWindow::TopWindow(GameState& _gs)
 
     auto* exit_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/exit.png", true, flex_column);
     exit_ibtn->set_on_click([this](UI::Widget&) {
+        this->gs.ui_ctx.clear();
+        this->gs.map->unit_widgets.clear();
+        this->gs.map->battle_widgets.clear();
+        this->gs.ui_ctx.use_tooltip(nullptr, { 0, 0 });
+        
         this->gs.paused = true;
         if(this->gs.client)
             delete this->gs.client;
@@ -166,8 +171,6 @@ TopWindow::TopWindow(GameState& _gs)
             delete this->gs.server;
         this->gs.server = nullptr;
 
-        this->gs.ui_ctx.clear();
-        this->gs.ui_ctx.use_tooltip(nullptr, { 0, 0 });
         new Interface::MainMenu(this->gs);
     });
     exit_ibtn->set_tooltip("Back to the main menu");

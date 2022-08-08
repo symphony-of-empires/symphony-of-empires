@@ -354,7 +354,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         case MapMode::NORMAL:
             if(this->selector) {
                 /// @todo Good selector function
-                //this->selector(this->world, *this, world.provinces[tile.province_id]);
+                this->selector(this->world, *this, world.provinces[tile.province_id]);
                 break;
             }
 
@@ -433,9 +433,8 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, Game
         is_drag = false;
         if(event.button.button == SDL_BUTTON_MIDDLE) {
             glm::ivec2 map_pos;
-            if(camera->get_cursor_map_pos(input.mouse_pos, map_pos)) {
+            if(camera->get_cursor_map_pos(input.mouse_pos, map_pos))
                 last_camera_drag_pos = map_pos;
-            }
         } else if(event.button.button == SDL_BUTTON_LEFT) {
             input.drag_coord = input.select_pos;
             is_drag = true;
@@ -462,9 +461,8 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, Game
             }
         }
         glm::ivec2 map_pos;
-        if(camera->get_cursor_map_pos(input.mouse_pos, map_pos)) {
+        if(camera->get_cursor_map_pos(input.mouse_pos, map_pos))
             input.select_pos = map_pos;
-        }
     } break;
     case SDL_MOUSEMOTION:
         SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
@@ -482,8 +480,10 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, Game
             if(map_pos.x < 0 || map_pos.x >(int)world.width || map_pos.y < 0 || map_pos.y >(int)world.height) break;
             input.select_pos = map_pos;
             auto prov_id = world.get_tile(map_pos.x, map_pos.y).province_id;
-            if(mapmode_tooltip_func != nullptr) {
-                this->tooltip->text(mapmode_tooltip_func(world, prov_id));
+            const std::string text = mapmode_tooltip_func != nullptr ? mapmode_tooltip_func(world, prov_id) : "";
+            
+            if(!text.empty()) {
+                this->tooltip->text(text);
                 ui_ctx->use_tooltip(this->tooltip, mouse_pos);
             }
         }
