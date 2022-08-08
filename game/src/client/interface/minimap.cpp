@@ -46,7 +46,6 @@ mapmode_tooltip good_tooltip(Good::Id id);
 mapmode_generator good_map_mode(Good::Id id);
 mapmode_generator relations_map_mode(Nation::Id id);
 mapmode_tooltip relations_tooltip(Nation::Id id);
-void relations_map_mode_selector(const World& world, Map& map, Province& province);
 std::vector<ProvinceColor> terrain_color_map_mode(const World& world);
 std::string terrain_type_tooltip(const World& world, const Province::Id id);
 std::vector<ProvinceColor> population_map_mode(const World& world);
@@ -91,7 +90,6 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     auto* landscape_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
     landscape_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-
         mapmode_generator map_mode = terrain_map_mode;
         mapmode_tooltip tooltip = empty_province_tooltip;
         this->gs.map->set_map_mode(map_mode, tooltip);
@@ -111,7 +109,13 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
 
     auto* relations_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
     relations_ibtn->set_on_click([this](UI::Widget&) {
-        this->gs.map->set_selection(relations_map_mode_selector);
+        this->gs.map->set_selection([](const World& , Map& map, const Province& province) {
+            if(province.controller == nullptr) return;
+            Nation::Id nation_id = province.owner_id;
+            mapmode_generator map_mode = relations_map_mode(nation_id);
+            mapmode_tooltip tooltip = relations_tooltip(nation_id);
+            map.set_map_mode(map_mode, tooltip);
+        });
         const auto nation_id = this->gs.curr_nation->get_id();
         mapmode_generator map_mode = relations_map_mode(nation_id);
         mapmode_tooltip tooltip = relations_tooltip(nation_id);
@@ -262,14 +266,6 @@ mapmode_generator good_map_mode(Good::Id id) {
         }
         return province_color;
     };
-}
-
-void relations_map_mode_selector(const World& , Map& map, Province& province) {
-    if(province.controller == nullptr) return;
-    Nation::Id nation_id = province.owner_id;
-    mapmode_generator map_mode = relations_map_mode(nation_id);
-    mapmode_tooltip tooltip = relations_tooltip(nation_id);
-    map.set_map_mode(map_mode, tooltip);
 }
 
 #include "eng3d/utils.hpp"

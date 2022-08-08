@@ -342,7 +342,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         return;
 
     if(event.button.button == SDL_BUTTON_LEFT) {
-        const Tile& tile = gs.world->get_tile(input.select_pos.x, input.select_pos.y);
+        const auto& tile = gs.world->get_tile(input.select_pos.x, input.select_pos.y);
         switch(gs.current_mode) {
         case MapMode::COUNTRY_SELECT:
             if(Province::is_valid(tile.province_id)) {
@@ -354,7 +354,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         case MapMode::NORMAL:
             if(this->selector) {
                 /// @todo Good selector function
-                this->selector(this->world, *this, world.provinces[tile.province_id]);
+                this->selector(this->world, *this, this->world.provinces[tile.province_id]);
                 break;
             }
 
