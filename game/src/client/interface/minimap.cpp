@@ -227,15 +227,15 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
 }
 
 mapmode_tooltip good_tooltip(Good::Id good_id) {
-    return [good_id](const World& world, const Province::Id id) {
+    return [good_id](const World& world, const Province::Id id) -> std::string {
         const auto& province = world.provinces[id];
         if(Nation::is_invalid(province.controller_id))
-            return Eng3D::Locale::translate("Uncontrolled");
+            return "";
         const auto& product = province.products[good_id]; 
         std::string str;
-        str += Eng3D::string_format("Price: %f\n", product.price);
-        str += Eng3D::string_format("Demand: %f\n", product.demand);
-        str += Eng3D::string_format("Supply: %f\n", product.supply);
+        str += Eng3D::string_format("Price: %.2f\n", product.price);
+        str += Eng3D::string_format("Demand: %.2f\n", product.demand);
+        str += Eng3D::string_format("Supply: %.2f\n", product.supply);
         return str;
     };
 }
@@ -297,16 +297,14 @@ mapmode_generator relations_map_mode(Nation::Id id) {
 }
 
 mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
-    return [nation_id](const World& world, const Province::Id id) {
+    return [nation_id](const World& world, const Province::Id id) -> std::string {
         const auto& province = world.provinces[id];
         const auto& province_controller = g_world.nations[province.controller_id];
         std::string str;
 
-        if(Nation::is_invalid(province.controller_id)) {
-            str += Eng3D::Locale::translate("Uncontrolled");
-            return str;
-        }
-
+        if(Nation::is_invalid(province.controller_id))
+            return "";
+        
         if(Nation::is_valid(province.controller_id) && province.controller_id == province.owner_id) {
             str += Eng3D::Locale::translate(province_controller.get_client_hint().alt_name.get_string());
         } else if(Nation::is_valid(province.owner_id)) {
