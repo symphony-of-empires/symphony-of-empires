@@ -73,13 +73,13 @@ public:
     }
 
     /// @brief Price of the product
-    float price;
+    float price = 1.f;
     /// @brief Velocity of change of price of the product
-    float price_vel;
+    float price_vel = 0.f;
     /// @brief Total supply of the product
-    float supply;
+    float supply = 0.f;
     /// @brief Total demand of the product
-    float demand;
+    float demand = 0.f;
     /// @brief History of price, supply and demand for the past 30 days
     std::deque<float> price_history;
     std::deque<float> supply_history;

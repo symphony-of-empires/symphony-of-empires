@@ -49,7 +49,6 @@ mapmode_tooltip relations_tooltip(Nation::Id id);
 std::vector<ProvinceColor> terrain_color_map_mode(const World& world);
 std::string terrain_type_tooltip(const World& world, const Province::Id id);
 std::vector<ProvinceColor> population_map_mode(const World& world);
-std::string population_tooltip(const World& world, const Province::Id id);
 std::vector<ProvinceColor> culture_map_mode(const World& world);
 std::string culture_tooltip(const World& world, const Province::Id id);
 std::vector<ProvinceColor> religion_map_mode(const World& world);
@@ -128,7 +127,18 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     population_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
         mapmode_generator map_mode = population_map_mode;
-        mapmode_tooltip tooltip = population_tooltip;
+        mapmode_tooltip tooltip = [](const World& world, const Province::Id id) -> std::string{
+            const auto& province = world.provinces[id];
+            if(province.pops.empty())
+                return "";
+            size_t amount = 0;
+            for(auto const& pop : province.pops)
+                amount += pop.size;
+            std::string out;
+            out += province.name + "\n";
+            out += "Population: " + std::to_string(amount);
+            return out;
+        };
         this->gs.map->set_map_mode(map_mode, tooltip);
         set_mapmode_options(nullptr);
     });
@@ -415,17 +425,6 @@ std::vector<ProvinceColor> population_map_mode(const World& world) {
         province_color.push_back(ProvinceColor(prov_id, color));
     }
     return province_color;
-}
-
-std::string population_tooltip(const World& world, const Province::Id id){
-    const Province& province = world.provinces[id];
-    size_t amount = 0;
-    for(auto const& pop : province.pops)
-        amount += pop.size;
-    std::string out;
-    out += province.name + "\n";
-    out += "Population: " + std::to_string(amount);
-    return out;
 }
 
 std::vector<ProvinceColor> culture_map_mode(const World& world) {
