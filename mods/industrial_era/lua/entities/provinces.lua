@@ -152,7 +152,7 @@ n_tunis=Nation:get("tunis")
 n_algiers=Nation:get("algiers")
 n_abbyssina=Nation:get("abbyssina")
 n_egypt=Nation:get("egypt")
-n_morrocco=Nation:get("morocco")
+n_morrocco=Nation:get("morrocco")
 n_tripolitania=Nation:get("tripolitania")
 n_ashantee=Nation:get("ashantee")
 n_arabia=Nation:get("arabia")
@@ -3781,7 +3781,7 @@ province=Province:new{ref_name="province_010086",name=_("Province_010086"),color
 province:register()
 province=Province:new{ref_name="province_010088",name=_("Province_010088"),color=0x10088,terrain=tt_sea,rgo_size={}}
 province:register()
-province=Province:new{ref_name="province_020088",name=_("Province_020088"),color=0x20088,terrain=tt_sea,rgo_size={}}
+province=Province:new{ref_name="province_020088",name=_("Adriatic sea"),color=0x20088,terrain=tt_sea,rgo_size={}}
 province:register()
 province=Province:new{ref_name="province_040088",name=_("Province_040088"),color=0x40088,terrain=tt_sea,rgo_size={}}
 province:register()
@@ -3813,7 +3813,7 @@ province=Province:new{ref_name="province_050089",name=_("Province_050089"),color
 province:register()
 province=Province:new{ref_name="province_060089",name=_("Province_060089"),color=0x60089,terrain=tt_sea,rgo_size={}}
 province:register()
-province=Province:new{ref_name="province_070089",name=_("Province_070089"),color=0x70089,terrain=tt_sea,rgo_size={}}
+province=Province:new{ref_name="province_070089",name=_("Gulf of Bari"),color=0x70089,terrain=tt_sea,rgo_size={}}
 province:register()
 province=Province:new{ref_name="province_080089",name=_("Province_080089"),color=0x80089,terrain=tt_sea,rgo_size={}}
 province:register()
@@ -3823,7 +3823,7 @@ province=Province:new{ref_name="province_0a0089",name=_("Province_0a0089"),color
 province:register()
 province=Province:new{ref_name="province_0b0089",name=_("Province_0b0089"),color=0xb0089,terrain=tt_sea,rgo_size={}}
 province:register()
-province=Province:new{ref_name="province_0c0089",name=_("Province_0c0089"),color=0xc0089,terrain=tt_sea,rgo_size={}}
+province=Province:new{ref_name="province_0c0089",name=_("Ionian sea"),color=0xc0089,terrain=tt_sea,rgo_size={}}
 province:register()
 province=Province:new{ref_name="province_0d0089",name=_("Province_0d0089"),color=0xd0089,terrain=tt_sea,rgo_size={}}
 province:register()
@@ -7984,7 +7984,7 @@ province:add_pop(pt_intellectual,c_bulgarian,r_christian,113.000000,0.114000)
 province:add_pop(pt_laborer,c_bulgarian,r_christian,116.000000,0.117000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_ff359600",name=_("Unknown"),color=0x9635ff,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ff359600",name=_("Bilisht"),color=0x9635ff,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_greek,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_greek,r_christian,129.000000,0.119000)
@@ -8968,7 +8968,7 @@ province:add_pop(pt_intellectual,c_bulgarian,r_christian,113.000000,0.114000)
 province:add_pop(pt_laborer,c_bulgarian,r_christian,116.000000,0.117000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_8298ff00",name=_("Unknown"),color=0xff9882,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_8298ff00",name=_("Prijedor"),color=0xff9882,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_croatian,r_islamic,100.000000,0.100000)
 province:add_pop(pt_farmer,c_croatian,r_islamic,132.000000,0.122000)
@@ -8980,7 +8980,7 @@ province:add_pop(pt_intellectual,c_croatian,r_islamic,112.000000,0.113000)
 province:add_pop(pt_laborer,c_croatian,r_islamic,115.000000,0.116000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_82a9ff00",name=_("Unknown"),color=0xffa982,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_82a9ff00",name=_("Bihac"),color=0xffa982,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_croatian,r_islamic,100.000000,0.100000)
 province:add_pop(pt_farmer,c_croatian,r_islamic,132.000000,0.122000)
@@ -8992,7 +8992,7 @@ province:add_pop(pt_intellectual,c_croatian,r_islamic,112.000000,0.113000)
 province:add_pop(pt_laborer,c_croatian,r_islamic,115.000000,0.116000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_85ff6000",name=_("Unknown"),color=0x60ff85,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_85ff6000",name=_("Banja Luka"),color=0x60ff85,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_croatian,r_islamic,100.000000,0.100000)
 province:add_pop(pt_farmer,c_croatian,r_islamic,132.000000,0.122000)
@@ -9004,7 +9004,7 @@ province:add_pop(pt_intellectual,c_croatian,r_islamic,112.000000,0.113000)
 province:add_pop(pt_laborer,c_croatian,r_islamic,115.000000,0.116000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_e42fe000",name=_("Unknown"),color=0xe02fe4,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_e42fe000",name=_("Mostar"),color=0xe02fe4,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_croatian,r_islamic,100.000000,0.100000)
 province:add_pop(pt_farmer,c_croatian,r_islamic,132.000000,0.122000)
@@ -9016,7 +9016,7 @@ province:add_pop(pt_intellectual,c_croatian,r_islamic,112.000000,0.113000)
 province:add_pop(pt_laborer,c_croatian,r_islamic,115.000000,0.116000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_ff9b7700",name=_("Unknown"),color=0x779bff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ff9b7700",name=_("Livno"),color=0x779bff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_croatian,r_islamic,100.000000,0.100000)
 province:add_pop(pt_farmer,c_croatian,r_islamic,132.000000,0.122000)
@@ -9028,7 +9028,7 @@ province:add_pop(pt_intellectual,c_croatian,r_islamic,112.000000,0.113000)
 province:add_pop(pt_laborer,c_croatian,r_islamic,115.000000,0.116000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_ff4c5200",name=_("Unknown"),color=0x524cff,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ff4c5200",name=_("Srajevo"),color=0x524cff,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_serbian,r_islamic,100.000000,0.100000)
 province:add_pop(pt_farmer,c_serbian,r_islamic,131.000000,0.121000)
@@ -9040,7 +9040,7 @@ province:add_pop(pt_intellectual,c_serbian,r_islamic,111.000000,0.112000)
 province:add_pop(pt_laborer,c_serbian,r_islamic,114.000000,0.115000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_ff9a8e00",name=_("Unknown"),color=0x8e9aff,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ff9a8e00",name=_("Niksic"),color=0x8e9aff,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_serbian,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_serbian,r_christian,131.000000,0.121000)
@@ -9052,7 +9052,7 @@ province:add_pop(pt_intellectual,c_serbian,r_christian,111.000000,0.112000)
 province:add_pop(pt_laborer,c_serbian,r_christian,114.000000,0.115000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_a6ff9900",name=_("Unknown"),color=0x99ffa6,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_a6ff9900",name=_("Priboj"),color=0x99ffa6,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_serbian,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_serbian,r_christian,131.000000,0.121000)
@@ -9064,7 +9064,7 @@ province:add_pop(pt_intellectual,c_serbian,r_christian,111.000000,0.112000)
 province:add_pop(pt_laborer,c_serbian,r_christian,114.000000,0.115000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_84d4ff00",name=_("Unknown"),color=0xffd484,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_84d4ff00",name=_("Belgrad"),color=0xffd484,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_serbian,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_serbian,r_christian,131.000000,0.121000)
@@ -9076,7 +9076,19 @@ province:add_pop(pt_intellectual,c_serbian,r_christian,111.000000,0.112000)
 province:add_pop(pt_laborer,c_serbian,r_christian,114.000000,0.115000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_3838ff00",name=_("Unknown"),color=0xff3838,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_3838ff00",name=_("Shkoder"),color=0xff3838,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province:register()
+province:add_pop(pt_artisan,c_serbian,r_islamic,100.000000,0.100000)
+province:add_pop(pt_farmer,c_serbian,r_islamic,131.000000,0.121000)
+province:add_pop(pt_soldier,c_serbian,r_islamic,108.000000,0.110000)
+province:add_pop(pt_craftsmen,c_serbian,r_islamic,109.000000,0.110000)
+province:add_pop(pt_bureaucrat,c_serbian,r_islamic,111.000000,0.112000)
+province:add_pop(pt_burgeoise,c_serbian,r_islamic,112.000000,0.113000)
+province:add_pop(pt_intellectual,c_serbian,r_islamic,111.000000,0.112000)
+province:add_pop(pt_laborer,c_serbian,r_islamic,114.000000,0.115000)
+province:add_nucleus(n_ottoman)
+province:give_to(n_ottoman)
+province=Province:new{ref_name="province_898fff00",name=_("Ulcinj"),color=0xff8f89,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_serbian,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_serbian,r_christian,131.000000,0.121000)
@@ -9088,19 +9100,7 @@ province:add_pop(pt_intellectual,c_serbian,r_christian,111.000000,0.112000)
 province:add_pop(pt_laborer,c_serbian,r_christian,114.000000,0.115000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_898fff00",name=_("Unknown"),color=0xff8f89,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
-province:register()
-province:add_pop(pt_artisan,c_serbian,r_christian,100.000000,0.100000)
-province:add_pop(pt_farmer,c_serbian,r_christian,131.000000,0.121000)
-province:add_pop(pt_soldier,c_serbian,r_christian,108.000000,0.110000)
-province:add_pop(pt_craftsmen,c_serbian,r_christian,109.000000,0.110000)
-province:add_pop(pt_bureaucrat,c_serbian,r_christian,111.000000,0.112000)
-province:add_pop(pt_burgeoise,c_serbian,r_christian,112.000000,0.113000)
-province:add_pop(pt_intellectual,c_serbian,r_christian,111.000000,0.112000)
-province:add_pop(pt_laborer,c_serbian,r_christian,114.000000,0.115000)
-province:add_nucleus(n_ottoman)
-province:give_to(n_ottoman)
-province=Province:new{ref_name="province_c06fb000",name=_("Unknown"),color=0xb06fc0,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_c06fb000",name=_("Podgorica"),color=0xb06fc0,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_serbian,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_serbian,r_christian,131.000000,0.121000)
@@ -9124,7 +9124,7 @@ province:add_pop(pt_intellectual,c_serbian,r_christian,111.000000,0.112000)
 province:add_pop(pt_laborer,c_serbian,r_christian,114.000000,0.115000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_ffadaa00",name=_("Unknown"),color=0xaaadff,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ffadaa00",name=_("Lezhe"),color=0xaaadff,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_turkish,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_turkish,r_christian,131.000000,0.121000)
@@ -9172,7 +9172,7 @@ province:add_pop(pt_intellectual,c_serbian,r_christian,111.000000,0.112000)
 province:add_pop(pt_laborer,c_serbian,r_christian,114.000000,0.115000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_8447ff00",name=_("Unknown"),color=0xff4784,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_8447ff00",name=_("Bijeljina"),color=0xff4784,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_serbian,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_serbian,r_christian,131.000000,0.121000)
@@ -9184,7 +9184,7 @@ province:add_pop(pt_intellectual,c_serbian,r_christian,111.000000,0.112000)
 province:add_pop(pt_laborer,c_serbian,r_christian,114.000000,0.115000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_ff638200",name=_("Unknown"),color=0x8263ff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ff638200",name=_("Doboj"),color=0x8263ff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_croatian,r_islamic,100.000000,0.100000)
 province:add_pop(pt_farmer,c_croatian,r_islamic,132.000000,0.122000)
@@ -9196,7 +9196,7 @@ province:add_pop(pt_intellectual,c_croatian,r_islamic,112.000000,0.113000)
 province:add_pop(pt_laborer,c_croatian,r_islamic,115.000000,0.116000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_ff9ba000",name=_("Unknown"),color=0xa09bff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ff9ba000",name=_("Zivinice"),color=0xa09bff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_croatian,r_islamic,100.000000,0.100000)
 province:add_pop(pt_farmer,c_croatian,r_islamic,132.000000,0.122000)
@@ -9280,79 +9280,79 @@ province:add_pop(pt_intellectual,c_serbian,r_christian,111.000000,0.112000)
 province:add_pop(pt_laborer,c_serbian,r_christian,114.000000,0.115000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_7792ff00",name=_("Unknown"),color=0xff9277,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_7792ff00",name=_("Korce"),color=0xff9277,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
-province:add_pop(pt_artisan,c_greek,r_christian,100.000000,0.100000)
-province:add_pop(pt_farmer,c_greek,r_christian,129.000000,0.119000)
-province:add_pop(pt_soldier,c_greek,r_christian,106.000000,0.108000)
-province:add_pop(pt_craftsmen,c_greek,r_christian,107.000000,0.108000)
-province:add_pop(pt_bureaucrat,c_greek,r_christian,109.000000,0.110000)
-province:add_pop(pt_burgeoise,c_greek,r_christian,110.000000,0.111000)
-province:add_pop(pt_intellectual,c_greek,r_christian,109.000000,0.110000)
-province:add_pop(pt_laborer,c_greek,r_christian,112.000000,0.113000)
+province:add_pop(pt_artisan,c_greek,r_islamic,100.000000,0.100000)
+province:add_pop(pt_farmer,c_greek,r_islamic,129.000000,0.119000)
+province:add_pop(pt_soldier,c_greek,r_islamic,106.000000,0.108000)
+province:add_pop(pt_craftsmen,c_greek,r_islamic,107.000000,0.108000)
+province:add_pop(pt_bureaucrat,c_greek,r_islamic,109.000000,0.110000)
+province:add_pop(pt_burgeoise,c_greek,r_islamic,110.000000,0.111000)
+province:add_pop(pt_intellectual,c_greek,r_islamic,109.000000,0.110000)
+province:add_pop(pt_laborer,c_greek,r_islamic,112.000000,0.113000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_54d9ff00",name=_("Unknown"),color=0xffd954,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_54d9ff00",name=_("Vlore"),color=0xffd954,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
-province:add_pop(pt_artisan,c_greek,r_christian,100.000000,0.100000)
-province:add_pop(pt_farmer,c_greek,r_christian,129.000000,0.119000)
-province:add_pop(pt_soldier,c_greek,r_christian,106.000000,0.108000)
-province:add_pop(pt_craftsmen,c_greek,r_christian,107.000000,0.108000)
-province:add_pop(pt_bureaucrat,c_greek,r_christian,109.000000,0.110000)
-province:add_pop(pt_burgeoise,c_greek,r_christian,110.000000,0.111000)
-province:add_pop(pt_intellectual,c_greek,r_christian,109.000000,0.110000)
-province:add_pop(pt_laborer,c_greek,r_christian,112.000000,0.113000)
+province:add_pop(pt_artisan,c_greek,r_islamic,100.000000,0.100000)
+province:add_pop(pt_farmer,c_greek,r_islamic,129.000000,0.119000)
+province:add_pop(pt_soldier,c_greek,r_islamic,106.000000,0.108000)
+province:add_pop(pt_craftsmen,c_greek,r_islamic,107.000000,0.108000)
+province:add_pop(pt_bureaucrat,c_greek,r_islamic,109.000000,0.110000)
+province:add_pop(pt_burgeoise,c_greek,r_islamic,110.000000,0.111000)
+province:add_pop(pt_intellectual,c_greek,r_islamic,109.000000,0.110000)
+province:add_pop(pt_laborer,c_greek,r_islamic,112.000000,0.113000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_b96bff00",name=_("Unknown"),color=0xff6bb9,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_b96bff00",name=_("Tepelene"),color=0xff6bb9,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
-province:add_pop(pt_artisan,c_turkish,r_christian,100.000000,0.100000)
-province:add_pop(pt_farmer,c_turkish,r_christian,131.000000,0.121000)
-province:add_pop(pt_soldier,c_turkish,r_christian,108.000000,0.110000)
-province:add_pop(pt_craftsmen,c_turkish,r_christian,109.000000,0.110000)
-province:add_pop(pt_bureaucrat,c_turkish,r_christian,111.000000,0.112000)
-province:add_pop(pt_burgeoise,c_turkish,r_christian,112.000000,0.113000)
-province:add_pop(pt_intellectual,c_turkish,r_christian,111.000000,0.112000)
-province:add_pop(pt_laborer,c_turkish,r_christian,114.000000,0.115000)
+province:add_pop(pt_artisan,c_turkish,r_islamic,100.000000,0.100000)
+province:add_pop(pt_farmer,c_turkish,r_islamic,131.000000,0.121000)
+province:add_pop(pt_soldier,c_turkish,r_islamic,108.000000,0.110000)
+province:add_pop(pt_craftsmen,c_turkish,r_islamic,109.000000,0.110000)
+province:add_pop(pt_bureaucrat,c_turkish,r_islamic,111.000000,0.112000)
+province:add_pop(pt_burgeoise,c_turkish,r_islamic,112.000000,0.113000)
+province:add_pop(pt_intellectual,c_turkish,r_islamic,111.000000,0.112000)
+province:add_pop(pt_laborer,c_turkish,r_islamic,114.000000,0.115000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_ff568600",name=_("Unknown"),color=0x8656ff,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ff568600",name=_("Elbasan"),color=0x8656ff,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
-province:add_pop(pt_artisan,c_turkish,r_christian,100.000000,0.100000)
-province:add_pop(pt_farmer,c_turkish,r_christian,131.000000,0.121000)
-province:add_pop(pt_soldier,c_turkish,r_christian,108.000000,0.110000)
-province:add_pop(pt_craftsmen,c_turkish,r_christian,109.000000,0.110000)
-province:add_pop(pt_bureaucrat,c_turkish,r_christian,111.000000,0.112000)
-province:add_pop(pt_burgeoise,c_turkish,r_christian,112.000000,0.113000)
-province:add_pop(pt_intellectual,c_turkish,r_christian,111.000000,0.112000)
-province:add_pop(pt_laborer,c_turkish,r_christian,114.000000,0.115000)
+province:add_pop(pt_artisan,c_turkish,r_islamic,100.000000,0.100000)
+province:add_pop(pt_farmer,c_turkish,r_islamic,131.000000,0.121000)
+province:add_pop(pt_soldier,c_turkish,r_islamic,108.000000,0.110000)
+province:add_pop(pt_craftsmen,c_turkish,r_islamic,109.000000,0.110000)
+province:add_pop(pt_bureaucrat,c_turkish,r_islamic,111.000000,0.112000)
+province:add_pop(pt_burgeoise,c_turkish,r_islamic,112.000000,0.113000)
+province:add_pop(pt_intellectual,c_turkish,r_islamic,111.000000,0.112000)
+province:add_pop(pt_laborer,c_turkish,r_islamic,114.000000,0.115000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_6bff8d00",name=_("Unknown"),color=0x8dff6b,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_6bff8d00",name=_("Tirana"),color=0x8dff6b,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
-province:add_pop(pt_artisan,c_turkish,r_christian,100.000000,0.100000)
-province:add_pop(pt_farmer,c_turkish,r_christian,131.000000,0.121000)
-province:add_pop(pt_soldier,c_turkish,r_christian,108.000000,0.110000)
-province:add_pop(pt_craftsmen,c_turkish,r_christian,109.000000,0.110000)
-province:add_pop(pt_bureaucrat,c_turkish,r_christian,111.000000,0.112000)
-province:add_pop(pt_burgeoise,c_turkish,r_christian,112.000000,0.113000)
-province:add_pop(pt_intellectual,c_turkish,r_christian,111.000000,0.112000)
-province:add_pop(pt_laborer,c_turkish,r_christian,114.000000,0.115000)
+province:add_pop(pt_artisan,c_turkish,r_islamic,100.000000,0.100000)
+province:add_pop(pt_farmer,c_turkish,r_islamic,131.000000,0.121000)
+province:add_pop(pt_soldier,c_turkish,r_islamic,108.000000,0.110000)
+province:add_pop(pt_craftsmen,c_turkish,r_islamic,109.000000,0.110000)
+province:add_pop(pt_bureaucrat,c_turkish,r_islamic,111.000000,0.112000)
+province:add_pop(pt_burgeoise,c_turkish,r_islamic,112.000000,0.113000)
+province:add_pop(pt_intellectual,c_turkish,r_islamic,111.000000,0.112000)
+province:add_pop(pt_laborer,c_turkish,r_islamic,114.000000,0.115000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_7c81ff00",name=_("Unknown"),color=0xff817c,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_7c81ff00",name=_("Fier"),color=0xff817c,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
-province:add_pop(pt_artisan,c_turkish,r_christian,100.000000,0.100000)
-province:add_pop(pt_farmer,c_turkish,r_christian,131.000000,0.121000)
-province:add_pop(pt_soldier,c_turkish,r_christian,108.000000,0.110000)
-province:add_pop(pt_craftsmen,c_turkish,r_christian,109.000000,0.110000)
-province:add_pop(pt_bureaucrat,c_turkish,r_christian,111.000000,0.112000)
-province:add_pop(pt_burgeoise,c_turkish,r_christian,112.000000,0.113000)
-province:add_pop(pt_intellectual,c_turkish,r_christian,111.000000,0.112000)
-province:add_pop(pt_laborer,c_turkish,r_christian,114.000000,0.115000)
+province:add_pop(pt_artisan,c_turkish,r_islamic,100.000000,0.100000)
+province:add_pop(pt_farmer,c_turkish,r_islamic,131.000000,0.121000)
+province:add_pop(pt_soldier,c_turkish,r_islamic,108.000000,0.110000)
+province:add_pop(pt_craftsmen,c_turkish,r_islamic,109.000000,0.110000)
+province:add_pop(pt_bureaucrat,c_turkish,r_islamic,111.000000,0.112000)
+province:add_pop(pt_burgeoise,c_turkish,r_islamic,112.000000,0.113000)
+province:add_pop(pt_intellectual,c_turkish,r_islamic,111.000000,0.112000)
+province:add_pop(pt_laborer,c_turkish,r_islamic,114.000000,0.115000)
 province:add_nucleus(n_ottoman)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_ff51f300",name=_("Unknown"),color=0xf351ff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ff51f300",name=_("Vlore"),color=0xf351ff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_turkish,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_turkish,r_christian,131.000000,0.121000)
@@ -9528,7 +9528,7 @@ province:add_pop(pt_laborer,c_german,r_christian,621.976318,0.114000)
 province:add_nucleus(n_austria)
 province:give_to(n_austria)
 province:add_unit(ut_garrison,500)
-province=Province:new{ref_name="province_b2ff7700",name=_("Unknown"),color=0x77ffb2,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_b2ff7700",name=_("Gorizia"),color=0x77ffb2,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_slovenian,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_slovenian,r_christian,133.000000,0.123000)
@@ -9567,7 +9567,7 @@ province:add_pop(pt_laborer,c_slovenian,r_christian,116.000000,0.117000)
 province:add_nucleus(n_austria)
 province:give_to(n_austria)
 province:add_unit(ut_garrison,500)
-province=Province:new{ref_name="province_ff7f9f00",name=_("Unknown"),color=0x9f7fff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ff7f9f00",name=_("Ljubljana"),color=0x9f7fff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_slovenian,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_slovenian,r_christian,133.000000,0.123000)
@@ -9580,7 +9580,7 @@ province:add_pop(pt_laborer,c_slovenian,r_christian,116.000000,0.117000)
 province:add_nucleus(n_austria)
 province:give_to(n_austria)
 province:add_unit(ut_garrison,500)
-province=Province:new{ref_name="province_0bb900",name=_("Unknown"),color=0xb90b00,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_0bb900",name=_("Littoral-Inner-Corniola"),color=0xb90b00,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_slovenian,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_slovenian,r_christian,133.000000,0.123000)
@@ -9726,7 +9726,7 @@ province:add_pop(pt_intellectual,c_croatian,r_christian,112.000000,0.113000)
 province:add_pop(pt_laborer,c_croatian,r_christian,115.000000,0.116000)
 province:add_nucleus(n_austria)
 province:give_to(n_austria)
-province=Province:new{ref_name="province_9d87ff00",name=_("Unknown"),color=0xff879d,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_9d87ff00",name=_("Makarska"),color=0xff879d,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_croatian,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_croatian,r_christian,132.000000,0.122000)
@@ -9762,7 +9762,7 @@ province:add_pop(pt_intellectual,c_italian,r_christian,111.000000,0.112000)
 province:add_pop(pt_laborer,c_italian,r_christian,114.000000,0.115000)
 province:add_nucleus(n_austria)
 province:give_to(n_austria)
-province=Province:new{ref_name="province_5954ff00",name=_("Unknown"),color=0xff5459,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_5954ff00",name=_("Ploce"),color=0xff5459,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_croatian,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_croatian,r_christian,132.000000,0.122000)
@@ -9810,7 +9810,7 @@ province:add_pop(pt_intellectual,c_croatian,r_christian,112.000000,0.113000)
 province:add_pop(pt_laborer,c_croatian,r_christian,115.000000,0.116000)
 province:add_nucleus(n_austria)
 province:give_to(n_austria)
-province=Province:new{ref_name="province_8cffe600",name=_("Unknown"),color=0xe6ff8c,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_8cffe600",name=_("Savinja"),color=0xe6ff8c,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_slovenian,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_slovenian,r_christian,133.000000,0.123000)
@@ -9822,7 +9822,7 @@ province:add_pop(pt_intellectual,c_slovenian,r_christian,113.000000,0.114000)
 province:add_pop(pt_laborer,c_slovenian,r_christian,116.000000,0.117000)
 province:add_nucleus(n_austria)
 province:give_to(n_austria)
-province=Province:new{ref_name="province_b970ff00",name=_("Unknown"),color=0xff70b9,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_b970ff00",name=_("Dubrovnik"),color=0xff70b9,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_croatian,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_croatian,r_christian,132.000000,0.122000)
@@ -9834,7 +9834,7 @@ province:add_pop(pt_intellectual,c_croatian,r_christian,112.000000,0.113000)
 province:add_pop(pt_laborer,c_croatian,r_christian,115.000000,0.116000)
 province:add_nucleus(n_austria)
 province:give_to(n_austria)
-province=Province:new{ref_name="province_66ff9900",name=_("Unknown"),color=0x99ff66,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_66ff9900",name=_("Neum West"),color=0x99ff66,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_croatian,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_croatian,r_christian,132.000000,0.122000)
@@ -9858,7 +9858,7 @@ province:add_pop(pt_intellectual,c_hungarian,r_christian,113.000000,0.114000)
 province:add_pop(pt_laborer,c_hungarian,r_christian,116.000000,0.117000)
 province:add_nucleus(n_austria)
 province:give_to(n_austria)
-province=Province:new{ref_name="province_6f47ff00",name=_("Unknown"),color=0xff476f,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_6f47ff00",name=_("Drava"),color=0xff476f,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_slovenian,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_slovenian,r_christian,133.000000,0.123000)
@@ -9870,7 +9870,7 @@ province:add_pop(pt_intellectual,c_slovenian,r_christian,113.000000,0.114000)
 province:add_pop(pt_laborer,c_slovenian,r_christian,116.000000,0.117000)
 province:add_nucleus(n_austria)
 province:give_to(n_austria)
-province=Province:new{ref_name="province_cc5bbb00",name=_("Unknown"),color=0xbb5bcc,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_cc5bbb00",name=_("Mura"),color=0xbb5bcc,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_hungarian,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_hungarian,r_christian,133.000000,0.123000)
@@ -9882,7 +9882,7 @@ province:add_pop(pt_intellectual,c_hungarian,r_christian,113.000000,0.114000)
 province:add_pop(pt_laborer,c_hungarian,r_christian,116.000000,0.117000)
 province:add_nucleus(n_austria)
 province:give_to(n_austria)
-province=Province:new{ref_name="province_24cc2700",name=_("Unknown"),color=0x27cc24,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_24cc2700",name=_("Szombathely"),color=0x27cc24,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_hungarian,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_hungarian,r_christian,133.000000,0.123000)
@@ -10062,7 +10062,7 @@ province:add_pop(pt_intellectual,c_hungarian,r_christian,113.000000,0.114000)
 province:add_pop(pt_laborer,c_hungarian,r_christian,116.000000,0.117000)
 province:add_nucleus(n_austria)
 province:give_to(n_austria)
-province=Province:new{ref_name="province_7b41cc00",name=_("Unknown"),color=0xcc417b,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_7b41cc00",name=_("Budapest"),color=0xcc417b,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_hungarian,r_christian,100.000000,0.100000)
 province:add_pop(pt_farmer,c_hungarian,r_christian,133.000000,0.123000)
@@ -10787,7 +10787,7 @@ province:add_pop(pt_intellectual,c_serbian,r_christian,111.000000,0.112000)
 province:add_pop(pt_laborer,c_serbian,r_christian,114.000000,0.115000)
 province:add_nucleus(n_austria)
 province:give_to(n_austria)
-province=Province:new{ref_name="province_ffc3bc00",name=_("Province_bcc3ff"),color=0xbcc3ff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ffc3bc00",name=_("Herceg Novi but East"),color=0xbcc3ff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_croatian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_croatian,r_orthodox,131.000000,0.121000)
@@ -10799,7 +10799,7 @@ province:add_pop(pt_intellectual,c_croatian,r_orthodox,111.000000,0.112000)
 province:add_pop(pt_laborer,c_croatian,r_orthodox,114.000000,0.115000)
 province:add_nucleus(n_montenegro)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_ffebb500",name=_("Province_b5ebff"),color=0xb5ebff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ffebb500",name=_("Herceg Novi"),color=0xb5ebff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_croatian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_croatian,r_orthodox,131.000000,0.121000)
@@ -10811,7 +10811,7 @@ province:add_pop(pt_intellectual,c_croatian,r_orthodox,111.000000,0.112000)
 province:add_pop(pt_laborer,c_croatian,r_orthodox,114.000000,0.115000)
 province:add_nucleus(n_montenegro)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_fff87a00",name=_("Province_7af8ff"),color=0x7af8ff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_fff87a00",name=_("Trebinje"),color=0x7af8ff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_serbian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_serbian,r_orthodox,130.000000,0.120000)
@@ -10823,7 +10823,7 @@ province:add_pop(pt_intellectual,c_serbian,r_orthodox,110.000000,0.111000)
 province:add_pop(pt_laborer,c_serbian,r_orthodox,113.000000,0.114000)
 province:add_nucleus(n_montenegro)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_ff21f700",name=_("Province_f721ff"),color=0xf721ff,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ff21f700",name=_("Cetinje"),color=0xf721ff,terrain=tt_mountain,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_serbian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_serbian,r_orthodox,130.000000,0.120000)
@@ -10835,7 +10835,7 @@ province:add_pop(pt_intellectual,c_serbian,r_orthodox,110.000000,0.111000)
 province:add_pop(pt_laborer,c_serbian,r_orthodox,113.000000,0.114000)
 province:add_nucleus(n_montenegro)
 province:give_to(n_ottoman)
-province=Province:new{ref_name="province_89f3ff00",name=_("Province_fff389"),color=0xfff389,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_89f3ff00",name=_("Loznica"),color=0xfff389,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_serbian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_serbian,r_orthodox,130.000000,0.120000)
@@ -17603,7 +17603,7 @@ province:add_nucleus(n_iberia)
 province:add_nucleus(n_portugal)
 province:give_to(n_portugal)
 province:add_unit(ut_garrison,500)
-province=Province:new{ref_name="province_ffee9b00",name=_("Unknown"),color=0x9beeff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ffee9b00",name=_("Riga"),color=0x9beeff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_latvian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_latvian,r_orthodox,130.000000,0.120000)
@@ -17616,7 +17616,7 @@ province:add_pop(pt_burgeoise,c_latvian,r_orthodox,108.000000,0.110000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
 province:add_unit(ut_garrison,500)
-province=Province:new{ref_name="province_ffa8c000",name=_("Unknown"),color=0xc0a8ff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ffa8c000",name=_("Valmiera"),color=0xc0a8ff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_latvian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_latvian,r_orthodox,130.000000,0.120000)
@@ -17629,7 +17629,7 @@ province:add_pop(pt_burgeoise,c_latvian,r_orthodox,108.000000,0.110000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
 province:add_unit(ut_garrison,500)
-province=Province:new{ref_name="province_c4ff8200",name=_("Unknown"),color=0x82ffc4,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_c4ff8200",name=_("Rezekne"),color=0x82ffc4,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_latvian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_latvian,r_orthodox,130.000000,0.120000)
@@ -17642,7 +17642,7 @@ province:add_pop(pt_burgeoise,c_latvian,r_orthodox,108.000000,0.110000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
 province:add_unit(ut_garrison,500)
-province=Province:new{ref_name="province_ff288900",name=_("Unknown"),color=0x8928ff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ff288900",name=_("Livani"),color=0x8928ff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_latvian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_latvian,r_orthodox,130.000000,0.120000)
@@ -17654,7 +17654,7 @@ province:add_pop(pt_laborer,c_latvian,r_orthodox,113.000000,0.114000)
 province:add_pop(pt_burgeoise,c_latvian,r_orthodox,108.000000,0.110000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_fff83200",name=_("Unknown"),color=0x32f8ff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_fff83200",name=_("Daugava"),color=0x32f8ff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_latvian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_latvian,r_orthodox,130.000000,0.120000)
@@ -17666,7 +17666,7 @@ province:add_pop(pt_laborer,c_latvian,r_orthodox,113.000000,0.114000)
 province:add_pop(pt_burgeoise,c_latvian,r_orthodox,108.000000,0.110000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_5e4cff00",name=_("Unknown"),color=0xff4c5e,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_5e4cff00",name=_("Bsuka"),color=0xff4c5e,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_latvian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_latvian,r_orthodox,130.000000,0.120000)
@@ -17678,7 +17678,7 @@ province:add_pop(pt_laborer,c_latvian,r_orthodox,113.000000,0.114000)
 province:add_pop(pt_burgeoise,c_latvian,r_orthodox,108.000000,0.110000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_87ffa900",name=_("Unknown"),color=0xa9ff87,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_87ffa900",name=_("Jurmala"),color=0xa9ff87,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_latvian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_latvian,r_orthodox,130.000000,0.120000)
@@ -17690,7 +17690,7 @@ province:add_pop(pt_laborer,c_latvian,r_orthodox,113.000000,0.114000)
 province:add_pop(pt_burgeoise,c_latvian,r_orthodox,108.000000,0.110000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_ffa49600",name=_("Unknown"),color=0x96a4ff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ffa49600",name=_("Roja"),color=0x96a4ff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_latvian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_latvian,r_orthodox,130.000000,0.120000)
@@ -17702,7 +17702,7 @@ province:add_pop(pt_laborer,c_latvian,r_orthodox,113.000000,0.114000)
 province:add_pop(pt_burgeoise,c_latvian,r_orthodox,108.000000,0.110000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_ff16e700",name=_("Unknown"),color=0xe716ff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ff16e700",name=_("Kuldiga"),color=0xe716ff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_lithuanian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_lithuanian,r_orthodox,133.000000,0.123000)
@@ -17714,7 +17714,7 @@ province:add_pop(pt_laborer,c_lithuanian,r_orthodox,116.000000,0.117000)
 province:add_pop(pt_burgeoise,c_lithuanian,r_orthodox,111.000000,0.113000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_b5faff00",name=_("Unknown"),color=0xfffab5,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_b5faff00",name=_("Jelgava"),color=0xfffab5,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_latvian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_latvian,r_orthodox,130.000000,0.120000)
@@ -17726,7 +17726,7 @@ province:add_pop(pt_laborer,c_latvian,r_orthodox,113.000000,0.114000)
 province:add_pop(pt_burgeoise,c_latvian,r_orthodox,108.000000,0.110000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_9d47ff00",name=_("Unknown"),color=0xff479d,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_9d47ff00",name=_("Ventspils"),color=0xff479d,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_latvian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_latvian,r_orthodox,130.000000,0.120000)
@@ -17738,7 +17738,7 @@ province:add_pop(pt_laborer,c_latvian,r_orthodox,113.000000,0.114000)
 province:add_pop(pt_burgeoise,c_latvian,r_orthodox,108.000000,0.110000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_ff519100",name=_("Unknown"),color=0x9151ff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ff519100",name=_("Liepaja"),color=0x9151ff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_lithuanian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_lithuanian,r_orthodox,133.000000,0.123000)
@@ -17750,7 +17750,7 @@ province:add_pop(pt_laborer,c_lithuanian,r_orthodox,116.000000,0.117000)
 province:add_pop(pt_burgeoise,c_lithuanian,r_orthodox,111.000000,0.113000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_ff6d9600",name=_("Unknown"),color=0x966dff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ff6d9600",name=_("Aluksne"),color=0x966dff,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_latvian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_latvian,r_orthodox,130.000000,0.120000)
@@ -19038,7 +19038,7 @@ province:add_pop(pt_laborer,c_russian,r_orthodox,113.000000,0.114000)
 province:add_pop(pt_burgeoise,c_russian,r_orthodox,108.000000,0.110000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_b2d700",name=_("Unknown"),color=0xd7b200,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_b2d700",name=_("Rostov-on-Don"),color=0xd7b200,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_russian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_russian,r_orthodox,130.000000,0.120000)
@@ -19050,7 +19050,7 @@ province:add_pop(pt_laborer,c_russian,r_orthodox,113.000000,0.114000)
 province:add_pop(pt_burgeoise,c_russian,r_orthodox,108.000000,0.110000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_df9100",name=_("Unknown"),color=0x91df00,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_df9100",name=_("Taganrog"),color=0x91df00,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_russian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_russian,r_orthodox,130.000000,0.120000)
@@ -19374,7 +19374,7 @@ province:add_pop(pt_burgeoise,c_russian,r_orthodox,108.000000,0.110000)
 province:add_nucleus(n_circassia)
 province:add_nucleus(n_russia)
 province:give_to(n_circassia)
-province=Province:new{ref_name="province_40cd6200",name=_("Anapa"),color=0x62cd40,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_40cd6200",name=_("Krasnodar"),color=0x62cd40,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_russian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_russian,r_orthodox,130.000000,0.120000)
@@ -19387,7 +19387,7 @@ province:add_pop(pt_burgeoise,c_russian,r_orthodox,108.000000,0.110000)
 province:add_nucleus(n_circassia)
 province:add_nucleus(n_russia)
 province:give_to(n_circassia)
-province=Province:new{ref_name="province_80e4d800",name=_("Unknown"),color=0xd8e480,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_80e4d800",name=_("Kerch"),color=0xd8e480,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_russian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_russian,r_orthodox,130.000000,0.120000)
@@ -19708,7 +19708,7 @@ province:add_pop(pt_laborer,c_russian,r_orthodox,113.000000,0.114000)
 province:add_pop(pt_burgeoise,c_russian,r_orthodox,108.000000,0.110000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_6028d100",name=_("Unknown"),color=0xd12860,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_6028d100",name=_("Sevastopol"),color=0xd12860,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_ukrainian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_ukrainian,r_orthodox,132.000000,0.124000)
@@ -19720,7 +19720,7 @@ province:add_pop(pt_laborer,c_ukrainian,r_orthodox,115.000000,0.118000)
 province:add_pop(pt_burgeoise,c_ukrainian,r_orthodox,110.000000,0.114000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_464e00",name=_("Unknown"),color=0x4e4600,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_464e00",name=_("Simferopol"),color=0x4e4600,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_ukrainian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_ukrainian,r_orthodox,132.000000,0.122000)
@@ -19732,7 +19732,7 @@ province:add_pop(pt_laborer,c_ukrainian,r_orthodox,115.000000,0.116000)
 province:add_pop(pt_burgeoise,c_ukrainian,r_orthodox,110.000000,0.112000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_8053c400",name=_("Unknown"),color=0xc45380,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_8053c400",name=_("Yevpatoriya"),color=0xc45380,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_ukrainian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_ukrainian,r_orthodox,132.000000,0.122000)
@@ -19744,7 +19744,7 @@ province:add_pop(pt_laborer,c_ukrainian,r_orthodox,115.000000,0.116000)
 province:add_pop(pt_burgeoise,c_ukrainian,r_orthodox,110.000000,0.112000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_80799e00",name=_("Unknown"),color=0x9e7980,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_80799e00",name=_("Feodosia"),color=0x9e7980,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_ukrainian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_ukrainian,r_orthodox,132.000000,0.122000)
@@ -19756,7 +19756,7 @@ province:add_pop(pt_laborer,c_ukrainian,r_orthodox,115.000000,0.116000)
 province:add_pop(pt_burgeoise,c_ukrainian,r_orthodox,110.000000,0.112000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_60eed600",name=_("Unknown"),color=0xd6ee60,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_60eed600",name=_("Nova Kakhovka"),color=0xd6ee60,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_ukrainian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_ukrainian,r_orthodox,132.000000,0.122000)
@@ -19768,7 +19768,7 @@ province:add_pop(pt_laborer,c_ukrainian,r_orthodox,115.000000,0.116000)
 province:add_pop(pt_burgeoise,c_ukrainian,r_orthodox,110.000000,0.112000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_e0a54400",name=_("Unknown"),color=0x44a5e0,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_e0a54400",name=_("Kherson"),color=0x44a5e0,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_ukrainian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_ukrainian,r_orthodox,132.000000,0.122000)
@@ -19780,7 +19780,7 @@ province:add_pop(pt_laborer,c_ukrainian,r_orthodox,115.000000,0.116000)
 province:add_pop(pt_burgeoise,c_ukrainian,r_orthodox,110.000000,0.112000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_80d65000",name=_("Unknown"),color=0x50d680,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_80d65000",name=_("Melitopol"),color=0x50d680,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_ukrainian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_ukrainian,r_orthodox,132.000000,0.122000)
@@ -19792,7 +19792,7 @@ province:add_pop(pt_laborer,c_ukrainian,r_orthodox,115.000000,0.116000)
 province:add_pop(pt_burgeoise,c_ukrainian,r_orthodox,110.000000,0.112000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_c0d27b00",name=_("Unknown"),color=0x7bd2c0,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_c0d27b00",name=_("Berdyansk"),color=0x7bd2c0,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_ukrainian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_ukrainian,r_orthodox,132.000000,0.122000)
@@ -19816,7 +19816,7 @@ province:add_pop(pt_laborer,c_russian,r_orthodox,113.000000,0.114000)
 province:add_pop(pt_burgeoise,c_russian,r_orthodox,108.000000,0.110000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_803f6f00",name=_("Unknown"),color=0x6f3f80,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_803f6f00",name=_("Mauripul"),color=0x6f3f80,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_russian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_russian,r_orthodox,130.000000,0.120000)
@@ -19828,7 +19828,7 @@ province:add_pop(pt_laborer,c_russian,r_orthodox,113.000000,0.114000)
 province:add_pop(pt_burgeoise,c_russian,r_orthodox,108.000000,0.110000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_e0376900",name=_("Unknown"),color=0x6937e0,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_e0376900",name=_("Mykolaiv"),color=0x6937e0,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_ukrainian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_ukrainian,r_orthodox,132.000000,0.122000)
@@ -19840,7 +19840,7 @@ province:add_pop(pt_laborer,c_ukrainian,r_orthodox,115.000000,0.116000)
 province:add_pop(pt_burgeoise,c_ukrainian,r_orthodox,110.000000,0.112000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_c02cc800",name=_("Unknown"),color=0xc82cc0,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_c02cc800",name=_("Odessa"),color=0xc82cc0,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_ukrainian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_ukrainian,r_orthodox,132.000000,0.122000)
@@ -21509,7 +21509,7 @@ province:add_pop(pt_burgeoise,c_lithuanian,r_orthodox,111.000000,0.113000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
 province:add_unit(ut_garrison,500)
-province=Province:new{ref_name="province_40fd4c00",name=_("Unknown"),color=0x4cfd40,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_40fd4c00",name=_("Hrodna"),color=0x4cfd40,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_lithuanian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_lithuanian,r_orthodox,133.000000,0.123000)
@@ -21798,7 +21798,7 @@ province:add_pop(pt_laborer,c_lithuanian,r_orthodox,116.000000,0.117000)
 province:add_pop(pt_burgeoise,c_lithuanian,r_orthodox,111.000000,0.113000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_e0aacc00",name=_("Unknown"),color=0xccaae0,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_e0aacc00",name=_("Brest"),color=0xccaae0,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_lithuanian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_lithuanian,r_orthodox,133.000000,0.123000)
@@ -21810,7 +21810,7 @@ province:add_pop(pt_laborer,c_lithuanian,r_orthodox,116.000000,0.117000)
 province:add_pop(pt_burgeoise,c_lithuanian,r_orthodox,111.000000,0.113000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_a0fbbb00",name=_("Unknown"),color=0xbbfba0,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_a0fbbb00",name=_("Vaukavyak"),color=0xbbfba0,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_lithuanian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_lithuanian,r_orthodox,133.000000,0.123000)
@@ -21822,7 +21822,7 @@ province:add_pop(pt_laborer,c_lithuanian,r_orthodox,116.000000,0.117000)
 province:add_pop(pt_burgeoise,c_lithuanian,r_orthodox,111.000000,0.113000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_a09c5600",name=_("Unknown"),color=0x569ca0,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_a09c5600",name=_("Byaroza"),color=0x569ca0,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_byelorussian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_byelorussian,r_orthodox,135.000000,0.125000)
@@ -21835,7 +21835,7 @@ province:add_pop(pt_burgeoise,c_byelorussian,r_orthodox,113.000000,0.115000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
 province:add_unit(ut_garrison,500)
-province=Province:new{ref_name="province_c005aa00",name=_("Unknown"),color=0xaa05c0,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_c005aa00",name=_("Slonim"),color=0xaa05c0,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_lithuanian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_lithuanian,r_orthodox,133.000000,0.123000)
@@ -21871,7 +21871,7 @@ province:add_pop(pt_laborer,c_byelorussian,r_orthodox,118.000000,0.119000)
 province:add_pop(pt_burgeoise,c_byelorussian,r_orthodox,113.000000,0.115000)
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
-province=Province:new{ref_name="province_e0258d00",name=_("Unknown"),color=0x8d25e0,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_e0258d00",name=_("Baranavichy"),color=0x8d25e0,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_artisan,c_byelorussian,r_orthodox,100.000000,0.100000)
 province:add_pop(pt_farmer,c_byelorussian,r_orthodox,135.000000,0.125000)
@@ -27016,7 +27016,7 @@ province=Province:new{ref_name="province_200ac300",name=_("Province_c30a20"),col
 province:register()
 province:add_nucleus(n_netherlands)
 province:give_to(n_netherlands)
-province=Province:new{ref_name="province_200b3200",name=_("Province_320b20"),color=0x320b20,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_200b3200",name=_("Lida"),color=0x320b20,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_nucleus(n_russia)
 province:give_to(n_russia)
@@ -28410,7 +28410,7 @@ province:register()
 province:add_nucleus(n_united_kingdom)
 province:add_nucleus(n_east_india_company)
 province:give_to(n_east_india_company)
-province=Province:new{ref_name="province_60a0e700",name=_("Province_e7a060"),color=0xe7a060,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_60a0e700",name=_("Anapa"),color=0xe7a060,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_nucleus(n_russia)
 province:add_nucleus(n_avar)
@@ -31681,7 +31681,7 @@ province=Province:new{ref_name="province_ff6bc800",name=_("Province_c86bff"),col
 province:register()
 province:add_nucleus(n_zaidi_imamate)
 province:give_to(n_zaidi_imamate)
-province=Province:new{ref_name="province_ff6db300",name=_("Province_b36dff"),color=0xb36dff,terrain=tt_sea,rgo_size={}}
+province=Province:new{ref_name="province_ff6db300",name=_("Neum"),color=0xb36dff,terrain=tt_plains,rgo_size={}}
 province:register()
 province=Province:new{ref_name="province_ff727900",name=_("Province_7972ff"),color=0x7972ff,terrain=tt_sea,rgo_size={}}
 province:register()
@@ -37595,7 +37595,7 @@ province:register()
 province:add_nucleus(n_mysore)
 province:add_nucleus(n_east_india_company)
 province:give_to(n_mysore)
-province=Province:new{ref_name="province_ffca48",name=_("Unknown"),color=0xffca48,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
+province=Province:new{ref_name="province_ffca48",name=_("Ploce"),color=0xffca48,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_pop(pt_burgeoise,c_serbian,r_islamic,500.000000,1.250000)
 province:add_pop(pt_artisan,c_serbian,r_islamic,1000.000000,2.500000)
@@ -37607,6 +37607,8 @@ province:add_pop(pt_laborer,c_serbian,r_islamic,1000.000000,2.500000)
 province:add_pop(pt_slave,c_serbian,r_islamic,10000.000000,25.000000)
 province:add_pop(pt_officer,c_serbian,r_islamic,666.666687,1.666667)
 province:add_pop(pt_craftsmen,c_serbian,r_islamic,666.666687,1.666667)
+province:add_nucleus(n_austria)
+province:give_to(n_austria)
 province=Province:new{ref_name="province_ff545f",name=_("Unknown"),color=0xff545f,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province=Province:new{ref_name="province_e61560",name=_("Unknown"),color=0xe61560,terrain=tt_plains,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
@@ -38060,8 +38062,10 @@ province=Province:new{ref_name="province_360c40",name=_("Unknown"),color=0x360c4
 province:register()
 province:add_nucleus(n_usa)
 province:give_to(n_usa)
-province=Province:new{ref_name="province_001140",name=_("Unknown"),color=0x1140,terrain=tt_sea,rgo_size={}}
+province=Province:new{ref_name="province_001140",name=_("Unknown"),color=0x1140,terrain=tt_jungle,rgo_size={}}
 province:register()
+province:add_nucleus(n_gran_colombia)
+province:give_to(n_gran_colombia)
 province=Province:new{ref_name="province_312940",name=_("Unknown"),color=0x312940,terrain=tt_forest,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_nucleus(n_usa)
@@ -38086,8 +38090,10 @@ province=Province:new{ref_name="province_825740",name=_("Unknown"),color=0x82574
 province:register()
 province=Province:new{ref_name="province_5a6c40",name=_("Unknown"),color=0x5a6c40,terrain=tt_sea,rgo_size={}}
 province:register()
-province=Province:new{ref_name="province_828a40",name=_("Unknown"),color=0x828a40,terrain=tt_sea,rgo_size={}}
+province=Province:new{ref_name="province_828a40",name=_("Unknown"),color=0x828a40,terrain=tt_jungle,rgo_size={}}
 province:register()
+province:add_nucleus(n_gran_colombia)
+province:give_to(n_gran_colombia)
 province=Province:new{ref_name="province_c89840",name=_("Unknown"),color=0xc89840,terrain=tt_sea,rgo_size={}}
 province:register()
 province=Province:new{ref_name="province_909e40",name=_("Unknown"),color=0x909e40,terrain=tt_forest,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
@@ -38268,7 +38274,7 @@ province=Province:new{ref_name="province_70da80",name=_("Unknown"),color=0x70da8
 province:register()
 province=Province:new{ref_name="province_70db80",name=_("Unknown"),color=0x70db80,terrain=tt_sea,rgo_size={}}
 province:register()
-province=Province:new{ref_name="province_70dc80",name=_("Unknown"),color=0x70dc80,terrain=tt_sea,rgo_size={}}
+province=Province:new{ref_name="province_70dc80",name=_("Sea of Azov"),color=0x70dc80,terrain=tt_sea,rgo_size={}}
 province:register()
 province=Province:new{ref_name="province_70dd80",name=_("Unknown"),color=0x70dd80,terrain=tt_sea,rgo_size={}}
 province:register()
@@ -38433,8 +38439,10 @@ province=Province:new{ref_name="province_70dfc0",name=_("Unknown"),color=0x70dfc
 province:register()
 province=Province:new{ref_name="province_70e0c0",name=_("Unknown"),color=0x70e0c0,terrain=tt_sea,rgo_size={}}
 province:register()
-province=Province:new{ref_name="province_d0f1c0",name=_("Unknown"),color=0xd0f1c0,terrain=tt_sea,rgo_size={}}
+province=Province:new{ref_name="province_d0f1c0",name=_("Unknown"),color=0xd0f1c0,terrain=tt_jungle,rgo_size={}}
 province:register()
+province:add_nucleus(n_gran_colombia)
+province:give_to(n_gran_colombia)
 province=Province:new{ref_name="province_d421e0",name=_("Unknown"),color=0xd421e0,terrain=tt_forest,rgo_size={{wheat,5},{rice,5},{coffee,5},{oil,2},}}
 province:register()
 province:add_nucleus(n_usa)
@@ -38487,7 +38495,7 @@ province=Province:new{ref_name="province_70d8e0",name=_("Unknown"),color=0x70d8e
 province:register()
 province=Province:new{ref_name="province_70dae0",name=_("Unknown"),color=0x70dae0,terrain=tt_sea,rgo_size={}}
 province:register()
-province=Province:new{ref_name="province_70dce0",name=_("Unknown"),color=0x70dce0,terrain=tt_sea,rgo_size={}}
+province=Province:new{ref_name="province_70dce0",name=_("Karkinit bay"),color=0x70dce0,terrain=tt_sea,rgo_size={}}
 province:register()
 province=Province:new{ref_name="province_70dfe0",name=_("Unknown"),color=0x70dfe0,terrain=tt_sea,rgo_size={}}
 province:register()
