@@ -100,7 +100,7 @@ Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
 
     Eng3D::TextureOptions single_color{};
     single_color.internal_format = GL_RGBA;
-    //single_color.compressed = true;
+    single_color.compressed = false;
     this->terrain_map->upload(single_color);
 
     // Terrain textures to sample from
