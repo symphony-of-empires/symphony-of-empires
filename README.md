@@ -21,11 +21,8 @@ Required to build:
 
 ### NetBSD
 ```sh
-pkgin in SDL2 SDL2_ttf assimp lua54 glew MesaLib glu libatomic
+pkgin in SDL2 SDL2_ttf assimp lua54 glew MesaLib glu libatomic threadingbuildingblocks
 ```
-oneTBB doesn't come in pkgin form, so you'll have to compile it yourself. Make sure to symlink libc.* to libdl.* on `/usr/lib` - since the libc already contains dl functions and oneTBB will try to use them.
-Make sure ot also correctly set pkgin directories `/usr/pkg/include` and `/usr/pkg/lib`.
-Additionally you need to rebuild libstdc++-v3 from source code, so clone gcc and run `mkdir -p build-gcc && cd build-gcc && ../configure --disable-nls`. Depending on your setup you might need to patch gcc for missing includes, this task can take from 5 to 8 hours.
 
 ### Debian-based distros
 ```sh
