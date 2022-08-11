@@ -79,7 +79,6 @@ class Input;
 class Rivers;
 class Borders;
 
-static const float GLOBE_RADIUS = 100.f;
 class ProvinceColor {
 public:
     Province::Id id;

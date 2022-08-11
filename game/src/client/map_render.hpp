@@ -50,6 +50,7 @@ namespace Eng3D {
 #include "eng3d/texture.hpp"
 #include "eng3d/color.hpp"
 #include "eng3d/shader.hpp"
+#include "eng3d/map.hpp"
 
 class World;
 class Nation;
@@ -82,10 +83,10 @@ public:
     }
 };
 
-class MapRender {
+class MapRender : public Eng3D::BaseMap {
 public:
     MapRender(const World& world, Map& map);
-    ~MapRender() {};
+    ~MapRender() = default;
     void update_mapmode(std::vector<ProvinceColor> province_colors);
     void update_nations(std::vector<Province::Id> nations);
     void request_update_visibility();
@@ -105,28 +106,13 @@ private:
     void update_visibility(GameState& gs);
 
     // Map textures
-    std::shared_ptr<Eng3D::Texture> water_tex;
-    std::shared_ptr<Eng3D::Texture> paper_tex;
-    std::shared_ptr<Eng3D::Texture> stripes_tex;
-    std::shared_ptr<Eng3D::Texture> noise_tex;
     std::shared_ptr<Eng3D::Texture> river_tex;
-    std::shared_ptr<Eng3D::Texture> wave1;
-    std::shared_ptr<Eng3D::Texture> wave2;
-    std::shared_ptr<Eng3D::Texture> bathymethry;
 
     std::unique_ptr<Eng3D::Texture> tile_sheet;
     std::unique_ptr<Eng3D::Texture> tile_sheet_nation;
-    std::unique_ptr<Eng3D::TextureArray> terrain_sheet;
-    std::unique_ptr<Eng3D::Texture> normal_topo;
     std::unique_ptr<Eng3D::Texture> province_opt;
     std::unique_ptr<Eng3D::Texture> tile_map;
-    std::unique_ptr<Eng3D::Texture> topo_map;
-    std::unique_ptr<Eng3D::Texture> terrain_map;
     std::unique_ptr<Eng3D::Texture> border_sdf;
-
-    std::vector<Eng3D::Square*> map_quads;
-    Eng3D::Sphere* map_sphere;
-    Eng3D::Quad2D* map_2d_quad;
 
     std::unique_ptr<Eng3D::OpenGL::Program> map_shader;
     std::unique_ptr<Eng3D::OpenGL::Program> sdf_shader;

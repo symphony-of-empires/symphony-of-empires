@@ -246,7 +246,7 @@ void Map::set_view(MapView view) {
     if(view == MapView::PLANE_VIEW)
         camera = new Eng3D::FlatCamera(*old_camera);
     else if(view == MapView::SPHERE_VIEW)
-        camera = new Eng3D::OrbitCamera(*old_camera, GLOBE_RADIUS);
+        camera = new Eng3D::OrbitCamera(*old_camera, Eng3D::GLOBE_RADIUS);
     delete old_camera;
     // create_labels();
 }

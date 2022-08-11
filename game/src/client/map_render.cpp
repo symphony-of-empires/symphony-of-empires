@@ -54,94 +54,11 @@
 #include "client/map.hpp"
 
 MapRender::MapRender(const World& _world, Map& _map)
-    : world{ _world },
+    : Eng3D::BaseMap(Eng3D::State::get_instance(), glm::ivec2{ _world.width, _world.height }),
+    world{ _world },
     map{ _map }
 {
-    // Flat surface for drawing flat map 
-    for(int x = -1; x <= 1; x++)
-        map_quads.push_back(new Eng3D::Square((int)world.width * x, 0.f, (int)world.width * (x + 1), world.height));
-
-    // Sphere surface for drawing globe map
-    map_sphere = new Eng3D::Sphere(0.f, 0.f, 0.f, GLOBE_RADIUS, 100);
-
-    // Simple 2D quad that fills viewport, used for making the border_sdf
-    map_2d_quad = new Eng3D::Quad2D();
-
     auto& gs = (GameState&)Eng3D::State::get_instance();
-
-    // Mipmapped textures
-    Eng3D::TextureOptions mipmap_options{};
-    mipmap_options.wrap_s = GL_REPEAT;
-    mipmap_options.wrap_t = GL_REPEAT;
-    mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-    mipmap_options.mag_filter = GL_LINEAR;
-    mipmap_options.compressed = true;
-    noise_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/noise_tex.png"), mipmap_options);
-    wave1 = gs.tex_man.load(gs.package_man.get_unique("gfx/wave1.png"), mipmap_options);
-    wave2 = gs.tex_man.load(gs.package_man.get_unique("gfx/wave2.png"), mipmap_options);
-    mipmap_options.internal_format = GL_SRGB;
-    water_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/water_tex.png"), mipmap_options);
-    paper_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/paper.png"), mipmap_options);
-    stripes_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/stripes.png"), mipmap_options);
-
-    terrain_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/color.png")->get_abs_path()));
-    size_t terrain_map_size = terrain_map->width * terrain_map->height;
-    for(size_t i = 0; i < terrain_map_size; i++) {
-        const uint32_t color = terrain_map->buffer.get()[i];
-        uint8_t idx = 0;
-        switch(bswap32(color << 8)) {
-        case 0x18200b:
-            idx = 0 * 16;
-            break;
-        case 0x4b482a:
-            idx = 1 * 16;
-            break;
-        case 0x273214:
-            idx = 3 * 16;
-            break;
-        case 0x9c8461:
-        case 0xbfa178:
-            idx = 6 * 16;
-            break;
-        case 0x969a9a:
-        case 0x686963:
-        case 0xffffff:
-            idx = 8 * 16;
-            break;
-        case 0x614a2f:
-            idx = 9 * 16;
-            break;
-        case 0x37311b:
-        case 0x7a6342:
-            idx = 10 * 16;
-            break;
-        default:
-            idx = 0;
-            break;
-        }
-
-        terrain_map->buffer.get()[i] = idx << 8;
-        switch(bswap32(color << 8)) {
-        case 0x243089:
-            terrain_map->buffer.get()[i] |= 0x00; // Ocean
-            break;
-        //case 0x243089:
-        //    terrain_map->buffer.get()[i] |= 0x01; // Lake
-        //    break;
-        default:
-            terrain_map->buffer.get()[i] |= 0x02; // Land
-            break;
-        }
-    }
-
-    Eng3D::TextureOptions single_color{};
-    single_color.internal_format = GL_RGBA;
-    single_color.compressed = this->options.compress.used;
-    terrain_map->upload(single_color);
-    
-    // Terrain textures to sample from
-    terrain_sheet = std::unique_ptr<Eng3D::TextureArray>(new Eng3D::TextureArray(gs.package_man.get_unique("gfx/terrain_sheet.png")->get_abs_path(), 4, 4));
-    terrain_sheet->upload();
 
     Eng3D::Log::debug("game", "Creating tile map & tile sheet");
     // The tile map, used to store per-tile information
@@ -529,20 +446,20 @@ void MapRender::update(GameState& gs) {
 
 void MapRender::draw(Eng3D::Camera* camera, MapView view_mode) {
     map_shader->use();
-    const glm::mat4 view = camera->get_view();
+    const auto view = camera->get_view();
     map_shader->set_uniform("view", view);
-    const glm::vec3 cam_pos = camera->get_world_pos();
+    const auto cam_pos = camera->get_world_pos();
     map_shader->set_uniform("view_pos", cam_pos.x, cam_pos.y, cam_pos.z);
-    const glm::mat4 projection = camera->get_projection();
+    const auto projection = camera->get_projection();
     map_shader->set_uniform("projection", projection);
-    const glm::vec3 map_pos = camera->get_map_pos();
+    const auto map_pos = camera->get_map_pos();
     float distance_to_map = map_pos.z / world.width;
     map_shader->set_uniform("dist_to_map", distance_to_map);
-    map_shader->set_uniform("map_size", (float)world.width, (float)world.height);
+    map_shader->set_uniform("map_size", static_cast<float>(world.width), static_cast<float>(world.height));
     // A time uniform to send to the shader
-    auto now = std::chrono::system_clock::now().time_since_epoch();
-    auto millisec_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
-    float time = (float)(millisec_since_epoch % 1000000) / 1000.f;
+    const auto now = std::chrono::system_clock::now().time_since_epoch();
+    const auto millisec_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
+    const auto time = static_cast<float>(millisec_since_epoch % 1000000) / 1000.f;
     map_shader->set_uniform("time", time);
     // Map should have no "model" matrix since it's always static
     map_shader->set_texture(0, "tile_map", *tile_map); // 4 col
