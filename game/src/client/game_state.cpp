@@ -379,7 +379,7 @@ void save(GameState& gs) {
                 const auto& good = gs.world->goods[id];
                 auto size = province.rgo_size[id];
                 if(size != 0) {
-                    rgo_size_out += "{" + good.ref_name + ",";
+                    rgo_size_out += "{\"" + good.ref_name + "\",";
                     rgo_size_out += std::to_string(size) + "},";
                 }
             }
