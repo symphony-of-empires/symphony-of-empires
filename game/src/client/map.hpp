@@ -64,6 +64,8 @@ namespace Interface {
 
 #include "province.hpp"
 #include "terrain.hpp"
+#include "borders.hpp"
+#include "rivers.hpp"
 
 enum class MapView {
     SPHERE_VIEW,
@@ -94,15 +96,11 @@ std::string political_province_tooltip(const World& world, const Province::Id id
 std::string empty_province_tooltip(const World& world, const Province::Id id);
 
 class Map {
-    // Called to get mapmode
+    /// @brief Called to get mapmode
     mapmode_generator mapmode_func;
-    // Called to get the provinces info to show in tooltip
+    /// @brief Called to get the provinces info to show in tooltip
     mapmode_tooltip mapmode_tooltip_func;
-    Rivers* rivers;
-    Borders* borders;
-
     selector_func selector = nullptr;
-
 public:
     Map(const World& world, UI::Group* map_ui_layer,  int screen_width, int screen_height);
     ~Map() {};
@@ -160,5 +158,8 @@ public:
     Eng3D::Sphere skybox;
     std::unique_ptr<Eng3D::OpenGL::Program> obj_shader;
     std::unique_ptr<Eng3D::OpenGL::Program> tree_shder;
+private:
+    Rivers rivers;
+    Borders borders;
 };
 

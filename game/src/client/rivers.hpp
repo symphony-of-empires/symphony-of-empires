@@ -27,9 +27,9 @@
 
 #include <memory>
 #include <vector>
+#include "eng3d/curve.hpp"
 
 namespace Eng3D {
-    class Curve;
     class Texture;
     class Camera;
     namespace OpenGL {
@@ -46,7 +46,7 @@ public:
     void draw(Eng3D::Camera* camera);
 private:
     void build_rivers();
-    std::vector<Eng3D::Curve*> curves;
+    std::vector<std::unique_ptr<Eng3D::Curve>> curves;
     std::unique_ptr<Eng3D::OpenGL::Program> line_shader;
     std::shared_ptr<Eng3D::Texture> water_tex;
 };

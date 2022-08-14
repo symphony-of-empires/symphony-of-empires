@@ -26,19 +26,21 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 #include <glm/vec2.hpp>
 #include <glm/mat4x4.hpp>
+#include "eng3d/primitive.hpp"
 
 namespace Eng3D {
-    class TriangleList;
     namespace OpenGL {
         class Program;
     }
 
     class Curve {
     public:
-        Curve() {};
+        Curve() = default;
         Curve(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width);
+        ~Curve() = default;
         // Curve(glm::vec2 p1, glm::vec2 p2, float width);
         void add_line(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width);
         void upload();
@@ -52,6 +54,6 @@ namespace Eng3D {
         void add_quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4);
         std::vector<glm::vec3> positions;
         std::vector<glm::vec2> tex_coords;
-        TriangleList* quads = nullptr;
+        std::unique_ptr<TriangleList> quads;
     };
 };

@@ -54,11 +54,10 @@ Borders::Borders() {
         line_shader->attach_shader(fs_shader);
         line_shader->link();
     }
-    build_borders();
+    this->build_borders();
 }
 
-class BorderGenerator
-{
+class BorderGenerator {
     std::unordered_set<int> walked_positions;
     std::unordered_set<int> walked_paths;
     std::stack<int> unexplored_paths;
@@ -155,23 +154,21 @@ public:
 
 void Borders::build_borders() {
     auto& s = Eng3D::State::get_instance();
-    auto& tex_man = s.tex_man;
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
-    std::shared_ptr<Eng3D::Texture> border_tex = tex_man.load(s.package_man.get_unique("map/provinces.png"), no_drop_options);
+    auto border_tex = s.tex_man.load(s.package_man.get_unique("map/provinces.png"), no_drop_options);
 
-    std::vector<std::vector<glm::vec3>> borders;
     int height = border_tex->height;
     int width = border_tex->width;
     auto pixels = border_tex->buffer.get();
+    std::vector<std::vector<glm::vec3>> borders;
     BorderGenerator::build_borders(borders, pixels, width, height);
 
     // TODO FIX THIS NOT INFINITE LOOP
-    auto* curve = new Eng3D::Curve();
+    auto curve = std::unique_ptr<Eng3D::Curve>(new Eng3D::Curve());
     for(size_t i = 0; i < borders.size(); i++) {
         std::vector<glm::vec3> river = borders[i];
-
-        size_t length = river.size();
+        auto length = river.size();
         if(length < 2) continue;
 
         std::vector<glm::vec3> mid_points(length + 3);
@@ -211,7 +208,7 @@ void Borders::build_borders() {
         curve->add_line(curve_points, normals, 1.0f);
     }
     curve->upload();
-    this->curves.push_back(curve);
+    this->curves.push_back(std::move(curve));
 }
 
 void Borders::draw(Eng3D::Camera* camera) {
@@ -221,6 +218,6 @@ void Borders::draw(Eng3D::Camera* camera) {
     line_shader->set_uniform("projection", camera->get_projection());
     line_shader->set_uniform("view", camera->get_view());
     line_shader->set_texture(0, "water_texture", *water_tex);
-    for(auto curve : curves)
+    for(auto& curve : curves)
         curve->draw();
 }

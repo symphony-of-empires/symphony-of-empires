@@ -151,8 +151,8 @@ void Rivers::build_rivers() {
         }
 
         std::vector<glm::vec3> normals(curve_points.size() - 1, glm::vec3(0, 0, 1));
-        auto* curve = new Eng3D::Curve(curve_points, normals, 1.0f);
-        this->curves.push_back(curve);
+        auto curve = std::unique_ptr<Eng3D::Curve>(new Eng3D::Curve(curve_points, normals, 1.0f));
+        this->curves.push_back(std::move(curve));
     }
 }
 
@@ -168,6 +168,6 @@ void Rivers::draw(Eng3D::Camera* camera) {
     line_shader->set_uniform("projection", camera->get_projection());
     line_shader->set_uniform("view", camera->get_view());
     line_shader->set_texture(0, "water_texture", *water_tex);
-    for(auto curve : curves)
+    for(auto& curve : curves)
         curve->draw();
 }

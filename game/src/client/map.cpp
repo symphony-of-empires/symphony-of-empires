@@ -108,12 +108,12 @@ static inline void get_blob_bounds(std::unordered_set<Province*>& visited_provin
 Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int screen_height)
     : world{ _world },
     map_ui_layer{ _map_ui_layer },
-    skybox(0.f, 0.f, 0.f, 255.f * 10.f, 40, false)
+    skybox(0.f, 0.f, 0.f, 255.f * 10.f, 40, false),
+    rivers(),
+    borders()
 {
     auto& s = Eng3D::State::get_instance();
     camera = new Eng3D::FlatCamera(glm::vec2(screen_width, screen_height), glm::vec2(world.width, world.height));
-    rivers = new Rivers();
-    borders = new Borders();
     map_font = new Eng3D::FontSDF("fonts/cinzel_sdf/cinzel");
     if(this->gen_labels)
         this->create_labels();
