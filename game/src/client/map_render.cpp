@@ -464,7 +464,8 @@ void MapRender::draw(Eng3D::Camera* camera, MapView view_mode) {
     // Map should have no "model" matrix since it's always static
     map_shader->set_texture(0, "tile_sheet", *tile_sheet);
     map_shader->set_texture(1, "tile_sheet_nation", *tile_sheet_nation);
-    map_shader->set_texture(2, "water_texture", *water_tex);
+    if(options.water.used)
+        map_shader->set_texture(2, "water_texture", *water_tex);
     if(options.noise.used)
         map_shader->set_texture(3, "noise_texture", *noise_tex);
     map_shader->set_texture(4, "terrain_map", *terrain_map); // 4 col

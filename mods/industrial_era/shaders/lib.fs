@@ -1,7 +1,7 @@
 #version 330 compatibility
 precision lowp float;
 
-// Generic function for normalization of the water
+/// @brief Generic function for normalization of the water
 vec3 get_water_normal(float time, sampler2D wave1, sampler2D wave2, vec2 tex_coords) {
     float offset = time * 0.01;
     vec2 coords = tex_coords * 50.0;
@@ -14,7 +14,8 @@ vec3 get_water_normal(float time, sampler2D wave1, sampler2D wave2, vec2 tex_coo
     return normal;
 }
 
-// https://iquilezles.org/www/articles/texturerepetition/texturerepetition.htm
+/// @brief Generate a vector 4 to avoid tilings
+/// https://iquilezles.org/www/articles/texturerepetition/texturerepetition.htm
 vec4 no_tiling(sampler2D tex, vec2 uv, sampler2D noisy_tex) {
     float k = texture(noisy_tex, 0.005 * uv).x; // cheap (cache friendly) lookup
     float v = 1.0;
@@ -37,8 +38,8 @@ vec4 no_tiling(sampler2D tex, vec2 uv, sampler2D noisy_tex) {
     return mix(cola, colb, smoothstep(0.2, 0.8, f - 0.1 * (diff.x + diff.y + diff.z)));
 }
 
-// Watercolor efffect
-// Not used and probably wont. Keep for now though
+/// @brief Watercolor efffect
+/// Not used and probably wont. Keep for now though
 float water_aquarelle(sampler2D noise_tex, vec2 tex_coords) {
     vec2 uv = tex_coords * 20.0;
     vec3 col = vec3(1.0);
@@ -56,7 +57,7 @@ float water_aquarelle(sampler2D noise_tex, vec2 tex_coords) {
     return layer1;
 }
 
-// Not used and probably wont. Keep for now though
+/// @brief Not used and probably wont. Keep for now though
 vec2 parallax_map(vec2 tex_coords, vec3 view_dir, sampler2D heightmap) {
 	const float height_scale = 0.0002;
 	const float other_scale = 10.;
@@ -102,8 +103,8 @@ vec2 parallax_map(vec2 tex_coords, vec3 view_dir, sampler2D heightmap) {
 	return finalTexCoords;
 }
 
-// Generate a normal from a height map. Using a normal map texture instead will give us better result and performance
-// Not used and probably wont. Keep for now though
+/// @brief Generate a normal from a height map. Using a normal map texture instead will give us better result and performance
+/// Not used and probably wont. Keep for now though
 vec3 gen_normal(vec2 tex_coords, sampler2D heightmap) {
 	const vec2 size = vec2(2.0, 0.0);
 	const ivec3 off = ivec3(-1, 0, 1);
@@ -121,7 +122,7 @@ vec3 gen_normal(vec2 tex_coords, sampler2D heightmap) {
 	return bump.xyz;
 }
 
-// All components are in the range [0…1], including hue.
+/// @brief All components are in the range [0…1], including hue.
 vec3 rgb2hsv(vec3 c)
 {
     vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
@@ -133,7 +134,7 @@ vec3 rgb2hsv(vec3 c)
     return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 }
 
-// All components are in the range [0…1], including hue.
+/// @brief All components are in the range [0…1], including hue.
 vec3 hsv2rgb(vec3 c)
 {
     vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);

@@ -14,15 +14,25 @@ uniform float dist_to_map;
 
 uniform sampler2D tile_sheet;
 uniform sampler2D tile_sheet_nation;
+#ifdef WATER
 uniform sampler2D water_texture;
+#endif
+#ifdef NOISE
 uniform sampler2D noise_texture;
+#endif
 uniform sampler2D terrain_map;
 uniform sampler2D border_tex;
+#ifdef SDF
 uniform sampler2D border_sdf;
+#endif
+#ifdef RIVERS
 uniform sampler2D river_texture;
+#endif
+#ifdef LIGHTING
 uniform sampler2D wave1;
 uniform sampler2D wave2;
 uniform sampler2D normal;
+#endif
 uniform sampler2D bathymethry;
 uniform sampler2D paper_tex;
 uniform sampler2D stripes;
@@ -220,8 +230,9 @@ float get_grid(vec2 tex_coords) {
 	return max(grid.x, grid.y);
 }
 
-// Ambient, diffuse and specular lighting
+/// @brief Ambient, diffuse and specular lighting
 float get_lighting(vec2 tex_coords, float beach) {
+#ifdef LIGHTING
 	// The non directional lighting
 	const float ambient = 0.1;
 
@@ -257,6 +268,9 @@ float get_lighting(vec2 tex_coords, float beach) {
 
 	float light = ambient + diffuse + specular;	
 	return light;
+#else
+	return 1.0;
+#endif
 }
 
 void distance_effect(inout vec3 out_color, inout vec3 water, vec3 prov_color, vec2 tex_coords, float far_from_map) {
@@ -265,7 +279,11 @@ void distance_effect(inout vec3 out_color, inout vec3 water, vec3 prov_color, ve
 	paper_coords.x *= map_size.y / map_size.x;
 	vec3 paper = texture(paper_tex, 20.*paper_coords).rgb;
 
-	float bSdf = texture(border_sdf, tex_coords + pix * 0.5, 1).z;
+#ifdef SDF
+	float b_sdf = texture(border_sdf, tex_coords + pix * 0.5, 1).z;
+#else
+	float b_sdf = 1.0;
+#endif
 	vec3 paper_border0;
 	vec3 paper_border1;
 	vec3 paper_mix = mix(paper, paper_col, 0.3);
@@ -279,22 +297,22 @@ void distance_effect(inout vec3 out_color, inout vec3 water, vec3 prov_color, ve
 	const float b0 = 0.99;
 	float sdf_mix;
 
-	sdf_mix = smoothstep(b3, b2, bSdf);
+	sdf_mix = smoothstep(b3, b2, b_sdf);
 	paper_border0 = mix(greyed_color, paper_mix, 0.3);
 	paper_border1 = mix(greyed_color, paper_mix, 0.5);
 	out_color = mix(paper_border1, paper_border0, sdf_mix);
 
-	sdf_mix = smoothstep(b2, b1, bSdf);
+	sdf_mix = smoothstep(b2, b1, b_sdf);
 	paper_border0 = mix(greyed_color, paper_mix, 0.2);
 	paper_border1 = mix(greyed_color, paper_mix, 0.3);
 	out_color = mix(out_color, paper_border0, sdf_mix);
 
 	greyed_color = prov_color * paper_mix * 1.0 / max(whiteness, 1.0);
-	sdf_mix = smoothstep(b1, b0, bSdf);
+	sdf_mix = smoothstep(b1, b0, b_sdf);
 	paper_border0 = mix(greyed_color, paper_mix, 0.05);
 	out_color = mix(out_color, paper_border0, sdf_mix);
 
-	sdf_mix = smoothstep(0.93, 1.0, bSdf);
+	sdf_mix = smoothstep(0.93, 1.0, b_sdf);
 	vec3 water_effect_col = mix(water_col, water, 0.75);
 	vec3 paper_water = mix(water, water_effect_col, 1.0);
 	water = mix(water, paper_water, sdf_mix);
@@ -326,17 +344,27 @@ void main() {
 	float beach_ocean = beach_water_ocean.y;
 	beach = mix(beach, beach_ocean, far_from_map);
 
+#ifdef NOISE
 	// Change the beach to the right format and apply noise
 	float noise = texture(noise_texture, 20.0 * tex_coords).x;
+#else
+	float noise = 1.f;
+#endif
 	beach += noise * 0.3 - 0.15;
 	beach = smoothstep(0.2, 0.3, beach);
 	beach_ocean = smoothstep(0.1, 0.0, abs(beach_ocean - 0.3) - 0.15);
 
 #ifdef WATER
 	vec2 water_coords = 100.0 * tex_coords + time * vec2(0.01);
+	// Obtain texture of the water
+#ifdef NOISE
 	vec3 water = no_tiling(water_texture, water_coords, noise_texture).rgb;
+#else
+	vec3 water = texture(water_texture, water_coords).rgb;
+#endif
 	water = mix(water, water_col * 0.7, far_from_map);
 #else
+	// If no water texture then use a simple colour
 	vec3 water = water_col * 0.7;
 #endif
 	water = mix(water, paper_col, 0.0);
@@ -373,20 +401,22 @@ void main() {
 	water_hsv.z *= 0.7; // Brightness
 	water = mix(water, hsv2rgb(water_hsv), far_from_map);
 
-	float bSdf = texture(border_sdf, tex_coords + pix * 0.5, 1).z;
-	// The terrain color
-	vec3 terrain_color = get_terrain_mix(tex_coords).rgb;
-	vec3 ground = terrain_color;
-	ground = mix(ground, vec3(prov_color.r, prov_color.g, prov_color.b), smoothstep(0.93, 1.0, bSdf));
+#ifdef SDF
+	// Obtain the intensity of the border SDF to apply
+	float b_sdf = texture(border_sdf, tex_coords + pix * 0.5, 1).z;
+#else
+	float b_sdf = 0.0;
+#endif
+	// Obtain the terrain colour and apply it to the ground's one
+	vec3 ground = get_terrain_mix(tex_coords).rgb;
+	ground = mix(ground, vec3(prov_color.r, prov_color.g, prov_color.b), smoothstep(0.93, 1.0, b_sdf));
 
 	vec3 out_color;
 #ifdef SDF
 	// Change the out_color and water based on the distance from the border
 	distance_effect(out_color, water, vec3(prov_color.r, prov_color.g, prov_color.b), tex_coords, far_from_map);
-
 	country_border *= mix(1.0, 0.0, far_from_map);
 	beach_ocean *= mix(1.0, 0.0, far_from_map);
-
 	out_color = mix(out_color, mix(ground, water, beach), 1.0 - far_from_map);
 #else
 	out_color = mix(ground, water, beach);
@@ -406,10 +436,12 @@ void main() {
 	out_color = mix(out_color, province_border_col, beach_ocean);
 #endif
 
+#ifdef RIVERS
 	// Draw the rivers
 	float river = texture(river_texture, tex_coords).x;
 	river = smoothstep(0.1, 0.65, river) * far_from_map;
 	out_color = mix(out_color, river_col * out_color, river * 0.5);
+#endif
 
 	// The fog of war effect
 	float prov_shadow = get_province_shadow(tex_coords, is_diag);
