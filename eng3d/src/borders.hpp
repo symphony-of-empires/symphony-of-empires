@@ -1,5 +1,5 @@
-// Symphony of Empires
-// Copyright (C) 2021, Symphony of Empires contributors
+// Eng3D - General purpouse game engine
+// Copyright (C) 2021, Eng3D contributors
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      client/rivers.hpp
+//      borders.hpp
 //
 // Abstract:
 //      Does some important stuff.
@@ -27,6 +27,8 @@
 
 #include <memory>
 #include <vector>
+#include <unordered_set>
+#include <set>
 #include "eng3d/curve.hpp"
 
 namespace Eng3D {
@@ -37,16 +39,37 @@ namespace Eng3D {
     }
 }
 
-class Rivers
-{
+class Borders {
 public:
-    Rivers();
-    ~Rivers();
-
-    void draw(Eng3D::Camera* camera);
+    Borders();
+    ~Borders() = default;
+    void draw(const Eng3D::Camera& camera);
 private:
-    void build_rivers();
+    void build_borders();
     std::vector<std::unique_ptr<Eng3D::Curve>> curves;
     std::unique_ptr<Eng3D::OpenGL::Program> line_shader;
     std::shared_ptr<Eng3D::Texture> water_tex;
 };
+
+// class BorderGenerator
+// {
+// public:
+//     std::set<int> walked_positions;
+//     std::vector<std::vector<glm::vec3>>& borders;
+//     uint32_t* pixels;
+//     int width;
+//     int height;
+
+//     bool check_neighbor(int new_x, int new_y);
+
+//     void add_neighbor(int new_x, int new_y, int& connections);
+
+//     void get_border(int x, int y, int connections);
+
+//     BorderGenerator(std::vector<std::vector<glm::vec3>>& borders, uint32_t* pixels, int width, int height)
+//         : borders{ borders }, pixels{ pixels }, width{ width }, height{ height }
+//     {
+//         walked_positions = std::set<int>();
+//     };
+//     void build_borders();
+// };

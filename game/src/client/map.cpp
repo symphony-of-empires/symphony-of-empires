@@ -56,6 +56,8 @@
 #include "eng3d/orbit_camera.hpp"
 #include "eng3d/flat_camera.hpp"
 #include "eng3d/camera.hpp"
+#include "eng3d/rivers.hpp"
+#include "eng3d/borders.hpp"
 
 #include "client/map.hpp"
 #include "client/map_render.hpp"
@@ -69,8 +71,6 @@
 #include "client/client_network.hpp"
 #include "io_impl.hpp"
 #include "action.hpp"
-#include "client/rivers.hpp"
-#include "client/borders.hpp"
 
 static inline void get_blob_bounds(std::unordered_set<Province*>& visited_provinces, const Nation& nation, const Province& province, glm::vec2* min_x, glm::vec2* min_y, glm::vec2* max_x, glm::vec2* max_y) {
     // Iterate over all neighbours

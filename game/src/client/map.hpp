@@ -34,6 +34,8 @@
 #include "eng3d/primitive.hpp"
 #include "eng3d/shader.hpp"
 #include "eng3d/font_sdf.hpp"
+#include "eng3d/borders.hpp"
+#include "eng3d/rivers.hpp"
 
 namespace Eng3D {
     class Texture;
@@ -64,8 +66,6 @@ namespace Interface {
 
 #include "province.hpp"
 #include "terrain.hpp"
-#include "borders.hpp"
-#include "rivers.hpp"
 
 enum class MapView {
     SPHERE_VIEW,
@@ -103,7 +103,7 @@ class Map {
     selector_func selector = nullptr;
 public:
     Map(const World& world, UI::Group* map_ui_layer,  int screen_width, int screen_height);
-    ~Map() {};
+    ~Map() = default;
     void update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, GameState& gs);
     void update_mapmode();
     void draw_flag(const Eng3D::OpenGL::Program& shader, const Nation& nation);

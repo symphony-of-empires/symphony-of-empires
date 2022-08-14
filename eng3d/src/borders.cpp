@@ -1,5 +1,5 @@
-// Symphony of Empires
-// Copyright (C) 2021, Symphony of Empires contributors
+// Eng3D - General purpouse game engine
+// Copyright (C) 2021, Eng3D contributors
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      client/borders.cpp
+//      borders.cpp
 //
 // Abstract:
 //      Does some important stuff.
@@ -25,16 +25,15 @@
 
 #include <unordered_set>
 #include <stack>
+#include <glm/mat4x4.hpp>
 
+#include "eng3d/borders.hpp"
 #include "eng3d/path.hpp"
 #include "eng3d/texture.hpp"
 #include "eng3d/state.hpp"
 #include "eng3d/curve.hpp"
 #include "eng3d/shader.hpp"
-
-#include "client/borders.hpp"
 #include "eng3d/camera.hpp"
-#include "glm/mat4x4.hpp"
 
 Borders::Borders() {
     Eng3D::TextureOptions mipmap_options{};
@@ -211,12 +210,12 @@ void Borders::build_borders() {
     this->curves.push_back(std::move(curve));
 }
 
-void Borders::draw(Eng3D::Camera* camera) {
+void Borders::draw(const Eng3D::Camera& camera) {
     line_shader->use();
     glm::mat4 model(1.f);
     line_shader->set_uniform("model", model);
-    line_shader->set_uniform("projection", camera->get_projection());
-    line_shader->set_uniform("view", camera->get_view());
+    line_shader->set_uniform("projection", camera.get_projection());
+    line_shader->set_uniform("view", camera.get_view());
     line_shader->set_texture(0, "water_texture", *water_tex);
     for(auto& curve : curves)
         curve->draw();
