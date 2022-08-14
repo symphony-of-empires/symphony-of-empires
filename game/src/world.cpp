@@ -68,22 +68,24 @@ namespace std {
 }
 #endif
 
-std::vector<Tile> Tile::get_neighbours(const World& world) const {
-    std::vector<Tile> tiles;
+/// @brief List so we don't reconstruct a vector every time we query a tile
+/// fortunely the size is a constant of 4 possible neighbours so we're good
+static thread_local std::vector<Tile> tmp_tile_list = std::vector<Tile>(4);
+const std::vector<Tile>& Tile::get_neighbours(const World& world) const {
     const auto idx = (size_t)world.get_id(*this);
     // Up
     if(idx > world.width)
-        tiles.push_back(world.tiles[idx - world.width]);
+        tmp_tile_list.push_back(world.tiles[idx - world.width]);
     // Down
     if(idx < (world.width * world.height) - world.width)
-        tiles.push_back(world.tiles[idx + world.width]);
+        tmp_tile_list.push_back(world.tiles[idx + world.width]);
     // Left
     if(idx > 1)
-        tiles.push_back(world.tiles[idx - 1]);
+        tmp_tile_list.push_back(world.tiles[idx - 1]);
     // Right
     if(idx < (world.width * world.height) - 1)
-        tiles.push_back(world.tiles[idx + 1]);
-    return tiles;
+        tmp_tile_list.push_back(world.tiles[idx + 1]);
+    return tmp_tile_list;
 }
 
 World g_world;

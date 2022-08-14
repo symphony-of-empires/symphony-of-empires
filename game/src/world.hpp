@@ -65,7 +65,7 @@
 class World;
 class Tile {
 public:
-    std::vector<Tile> get_neighbours(const World& world) const;
+    const std::vector<Tile>& get_neighbours(const World& world) const;
     // ID of the province where this tile belongs to
     Province::Id province_id;
 };
