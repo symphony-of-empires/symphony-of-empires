@@ -12,7 +12,6 @@ uniform vec2 map_size;
 uniform float time;
 uniform float dist_to_map;
 
-uniform sampler2D tile_map;
 uniform sampler2D tile_sheet;
 uniform sampler2D tile_sheet_nation;
 uniform sampler2D water_texture;
@@ -46,7 +45,7 @@ vec3 hsv2rgb(vec3 c);
 
 vec4 get_terrain(vec2 tex_coords, vec2 offset) {
 	const float size = 16.0;
-	float index = texture(terrain_map, tex_coords).g;
+	float index = texture(terrain_map, tex_coords).a;
 	index = trunc(index * size);
 	return texture(terrain_sheet, vec3(offset.x, offset.y, index));
 }
@@ -91,10 +90,10 @@ vec4 get_border(vec2 texcoord) {
 	vec2 coordRD = mPos + pix * vec2(0.75, 0.75);
 	vec4 provienceLU, provienceLD, provienceRU, provienceRD;
 
-	provienceLU.xy = texture(tile_map, coordLU).xy;
-	provienceLD.xy = texture(tile_map, coordLD).xy;
-	provienceRU.xy = texture(tile_map, coordRU).xy;
-	provienceRD.xy = texture(tile_map, coordRD).xy;
+	provienceLU.xy = texture(terrain_map, coordLU).xy;
+	provienceLD.xy = texture(terrain_map, coordLD).xy;
+	provienceRU.xy = texture(terrain_map, coordRU).xy;
+	provienceRD.xy = texture(terrain_map, coordRD).xy;
 
 	vec2 scale = vec2(255.0 / 256.0);
 	provienceLU.zw = texture(tile_sheet_nation, provienceLU.xy * scale).xy;
@@ -152,7 +151,7 @@ vec2 get_diag_coords(vec2 tex_coords, float is_diag) {
 // Get the province color
 vec4 get_province_color(vec2 tex_coords, float is_diag) {
 	vec2 diag_coords = get_diag_coords(tex_coords, is_diag);
-	vec2 coord = texture(tile_map, diag_coords).xy;
+	vec2 coord = texture(terrain_map, diag_coords).xy;
 	vec2 prov_color_coord = coord * vec2(255.0 / 256.0);
 	vec4 prov_color = texture(tile_sheet, prov_color_coord).rgba;
 	return prov_color;
@@ -161,7 +160,7 @@ vec4 get_province_color(vec2 tex_coords, float is_diag) {
 // Get the province shadow. Used for fog of war & province selected
 float get_province_shadow(vec2 tex_coords, float is_diag) {
 	vec2 diag_coords = get_diag_coords(tex_coords, is_diag);
-	vec2 coord = texture(tile_map, diag_coords).xy;
+	vec2 coord = texture(terrain_map, diag_coords).xy;
 
 	vec2 prov_color_coord = coord * vec2(255.0 / 256.0);
 	float prov_shadow = texture(province_opt, prov_color_coord).r;
@@ -176,9 +175,9 @@ float isLake(vec2 coords) {
 
 float isOcean(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);
-	float is_v_ocean = trunc(smoothstep(1.0, 0.0, terrain.r));
+	float is_v_ocean = trunc(smoothstep(1.0, 0.0, terrain.b));
 	// Check to make sure there is no lake here
-	vec2 coord = texture(tile_map, coords).xy;
+	vec2 coord = texture(terrain_map, coords).xy;
 	vec2 prov_color_coord = coord * vec2(255.0 / 256.0);
 	vec4 prov_color = texture(tile_sheet, prov_color_coord).rgba;
 	is_v_ocean *= trunc(smoothstep(1.0, 0.0, length(prov_color.xyz)));
@@ -187,7 +186,7 @@ float isOcean(vec2 coords) {
 
 float isWater(vec2 coords) {
 	vec4 terrain = texture(terrain_map, coords);
-	return terrain.r < 2.0 / 255.0 ? 1.0 : 0.0;
+	return terrain.b < 2.0 / 255.0 ? 1.0 : 0.0;
 }
 
 vec2 get_beach(vec2 tex_coords) {

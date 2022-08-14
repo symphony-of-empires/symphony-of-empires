@@ -147,7 +147,7 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     skybox_tex = s.tex_man.load(s.package_man.get_unique("gfx/space.png"), mipmap_options);
 
     // Query the initial nation flags
-    for (size_t i = 0; i < world.nations.size(); i++) {
+    for(size_t i = 0; i < world.nations.size(); i++) {
         nation_flags.push_back(s.tex_man.get_white());
     }
     for(const auto& building_type : world.building_types) {

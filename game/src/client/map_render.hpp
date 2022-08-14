@@ -102,7 +102,7 @@ public:
     }
 
     inline Province::Id get_tile_province_id(size_t x, size_t y) {
-        return static_cast<Province::Id>(tile_map->buffer.get()[x + y * tile_map->width] & 0xffff);
+        return static_cast<Province::Id>(this->terrain_map->buffer.get()[x + y * this->terrain_map->width] & 0xffff);
     }
 private:
     const World& world;
@@ -115,7 +115,6 @@ private:
     std::unique_ptr<Eng3D::Texture> tile_sheet;
     std::unique_ptr<Eng3D::Texture> tile_sheet_nation;
     std::unique_ptr<Eng3D::Texture> province_opt;
-    std::unique_ptr<Eng3D::Texture> tile_map;
     std::unique_ptr<Eng3D::Texture> border_sdf;
 
     std::unique_ptr<Eng3D::OpenGL::Program> map_shader;

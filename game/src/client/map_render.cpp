@@ -60,21 +60,23 @@ MapRender::MapRender(const World& _world, Map& _map)
 {
     auto& gs = (GameState&)Eng3D::State::get_instance();
 
+    if(world.width != this->terrain_map->width || world.height != this->terrain_map->height)
+        CXX_THROW(std::runtime_error, "Color map differs from province map!");
+    
+    // The terrain_map has 16 bits available for usage, so naturally we use them
+    // ------------------------------------------------------------
+    // | 16 bit Province id | 8 bit terrain index | 8 bit "flags" |
+    // ------------------------------------------------------------
     Eng3D::Log::debug("game", "Creating tile map & tile sheet");
-    // The tile map, used to store per-tile information
-    tile_map = std::make_unique<Eng3D::Texture>(world.width, world.height);
-    for(size_t i = 0; i < world.width * world.height; i++) {
-        const auto tile = world.get_tile(i);
-        tile_map->buffer.get()[i] = tile.province_id & 0xffff;
-    }
+    for(size_t i = 0; i < this->terrain_map->width * this->terrain_map->height; i++)
+        this->terrain_map->buffer.get()[i] |= world.get_tile(i).province_id & 0xffff;
+    Eng3D::TextureOptions terrain_map_options{};
+    terrain_map_options.internal_format = GL_RGBA;
+    terrain_map_options.editable = true;
+    terrain_map_options.compressed = false;
+    this->terrain_map->upload(terrain_map_options);
     // After this snippet of code we won't ever need tiles ever again
     const_cast<World&>(world).tiles.reset();
-
-    Eng3D::TextureOptions tile_map_options{};
-    tile_map_options.internal_format = GL_RGBA32F;
-    tile_map_options.editable = true;
-    tile_map_options.compressed = this->options.compress.used;
-    tile_map->upload(tile_map_options);
 
     // Texture holding each province color
     // The x & y coords are the province Red & Green color of the tile_map
@@ -264,9 +266,8 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
     border_gen_shader->use();
     border_gen_shader->set_uniform("map_size", width, height);
     border_gen_shader->set_uniform("tex_coord_scale", tex_coord_scale.left, tex_coord_scale.top, tex_coord_scale.right, tex_coord_scale.bottom);
-    border_gen_shader->set_texture(0, "tile_map", *tile_map);
-    border_gen_shader->set_texture(1, "terrain_map", *terrain_map);
-    border_gen_shader->set_texture(2, "tile_sheet_nation", *tile_sheet_nation);
+    border_gen_shader->set_texture(0, "terrain_map", *terrain_map);
+    border_gen_shader->set_texture(1, "tile_sheet_nation", *tile_sheet_nation);
     map_2d_quad->draw();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -461,27 +462,26 @@ void MapRender::draw(Eng3D::Camera* camera, MapView view_mode) {
     const auto time = static_cast<float>(millisec_since_epoch % 1000000) / 1000.f;
     map_shader->set_uniform("time", time);
     // Map should have no "model" matrix since it's always static
-    map_shader->set_texture(0, "tile_map", *tile_map); // 4 col
-    map_shader->set_texture(1, "tile_sheet", *tile_sheet);
+    map_shader->set_texture(0, "tile_sheet", *tile_sheet);
+    map_shader->set_texture(1, "tile_sheet_nation", *tile_sheet_nation);
     map_shader->set_texture(2, "water_texture", *water_tex);
     if(options.noise.used)
         map_shader->set_texture(3, "noise_texture", *noise_tex);
-    map_shader->set_texture(4, "terrain_map", *terrain_map); // 1 col
+    map_shader->set_texture(4, "terrain_map", *terrain_map); // 4 col
     if(options.sdf.used)
-        map_shader->set_texture(6, "border_sdf", *(border_sdf.get())); // 1 col
-    map_shader->set_texture(7, "bathymethry", *bathymethry); // 1 col
+        map_shader->set_texture(5, "border_sdf", *(border_sdf.get())); // 1 col
     if(options.rivers.used)
-        map_shader->set_texture(9, "river_texture", *river_tex); // 1 col
+        map_shader->set_texture(6, "river_texture", *river_tex); // 1 col
     if(options.lighting.used) {
-        map_shader->set_texture(10, "wave1", *wave1);
-        map_shader->set_texture(11, "wave2", *wave2);
-        map_shader->set_texture(12, "normal", *normal_topo); // 3 col
+        map_shader->set_texture(7, "wave1", *wave1);
+        map_shader->set_texture(8, "wave2", *wave2);
+        map_shader->set_texture(9, "normal", *normal_topo); // 3 col
     }
-    map_shader->set_texture(13, "paper_tex", *paper_tex);
-    // map_shader->set_texture(14, "stripes", *stripes_tex);
-    map_shader->set_texture(14, "tile_sheet_nation", *tile_sheet_nation);
-    map_shader->set_texture(15, "province_opt", *province_opt);
-    map_shader->set_texture(16, "terrain_sheet", *terrain_sheet);
+    map_shader->set_texture(10, "bathymethry", *bathymethry); // 1 col
+    map_shader->set_texture(11, "paper_tex", *paper_tex);
+    //map_shader->set_texture(12, "stripes", *stripes_tex);
+    map_shader->set_texture(13, "province_opt", *province_opt);
+    map_shader->set_texture(14, "terrain_sheet", *terrain_sheet);
 
     if(view_mode == MapView::PLANE_VIEW) {
         for(const auto& map_quad : map_quads)

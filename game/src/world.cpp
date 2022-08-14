@@ -96,7 +96,7 @@ void ai_do_tick(Nation& nation);
 // Creates a new world
 void World::init_lua() {
     tmp_tile_list.reserve(4);
-    
+
     lua = luaL_newstate();
     luaL_openlibs(lua);
 
@@ -452,14 +452,32 @@ void World::load_initial() {
         // Neighbours
         Eng3D::Log::debug("game", _("Creating neighbours for provinces"));
         for(size_t i = 0; i < width * height; i++) {
-            const auto* tile = &this->tiles[i];
-            if(tile->province_id < static_cast<Province::Id>(-3)) {
-                Province& province = this->provinces[this->tiles[i].province_id];
-                const auto tiles = tile->get_neighbours(*this);
-                for(const auto& other_tile : tiles) {
-                    if(Province::is_valid(other_tile.province_id))
-                        province.neighbour_ids.insert(other_tile.province_id);
-                }
+            const auto tile = this->tiles[i];
+            assert(Province::is_valid(tile->province_id));
+            auto& province = this->provinces[this->tiles[i].province_id];
+            // Up
+            if(i > this->width) {
+                auto other_tile = this->tiles[i - this->width];
+                if(Province::is_valid(other_tile.province_id))
+                    province.neighbour_ids.insert(other_tile.province_id);
+            }
+            // Down
+            if(i < (this->width * this->height) - this->width) {
+                auto other_tile = this->tiles[i + this->width];
+                if(Province::is_valid(other_tile.province_id))
+                    province.neighbour_ids.insert(other_tile.province_id);
+            }
+            // Left
+            if(i > 1) {
+                auto other_tile = this->tiles[i - 1];
+                if(Province::is_valid(other_tile.province_id))
+                    province.neighbour_ids.insert(other_tile.province_id);
+            }
+            // Right
+            if(i < (this->width * this->height) - 1) {
+                auto other_tile = this->tiles[i + 1];
+                if(Province::is_valid(other_tile.province_id))
+                    province.neighbour_ids.insert(other_tile.province_id);
             }
         }
 

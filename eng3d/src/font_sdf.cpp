@@ -99,7 +99,7 @@ Eng3D::FontSDF::FontSDF(const std::string& filename) {
     }
 }
 
-std::unique_ptr<Label3D> Eng3D::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::vec3 right, float width, glm::vec3 center) {
+std::unique_ptr<Eng3D::Label3D> Eng3D::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::vec3 right, float width, glm::vec3 center) {
     Eng3D::Color color(0.f, 0.f, 0.f);
 
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
@@ -166,18 +166,18 @@ std::unique_ptr<Label3D> Eng3D::FontSDF::gen_text(const std::string& text, glm::
 }
 
 void Eng3D::FontSDF::draw(const std::vector<std::unique_ptr<Label3D>>& labels, const Eng3D::Camera& camera, bool sphere) {
-    auto* shader = sphere ? sphere_shader.get() : flat_shader.get();
-    shader->use();
-    shader->set_uniform("projection", camera.get_projection());
-    shader->set_uniform("view", camera.get_view());
-    shader->set_uniform("map_size", camera.get_map_size());
-    shader->set_uniform("model", glm::mat4(1));
-    shader->set_texture(0, "atlas", *atlas);
+    auto& shader = sphere ? *sphere_shader : *flat_shader;
+    shader.use();
+    shader.set_uniform("projection", camera.get_projection());
+    shader.set_uniform("view", camera.get_view());
+    shader.set_uniform("map_size", camera.get_map_size());
+    shader.set_uniform("model", glm::mat4(1));
+    shader.set_texture(0, "atlas", *atlas);
     for(auto& label : labels) {
         if(label.get() == nullptr) continue;
-        shader->set_uniform("center", label->center.x, label->center.y);
-        shader->set_uniform("radius", 100.f + 0.01f * label->size);
-        shader->set_uniform("px_range", label->size * 0.5f);
+        shader.set_uniform("center", label->center.x, label->center.y);
+        shader.set_uniform("radius", 100.f + 0.01f * label->size);
+        shader.set_uniform("px_range", label->size * 0.5f);
         label->draw();
     }
 }

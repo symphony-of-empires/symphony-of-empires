@@ -63,7 +63,8 @@ Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
     this->terrain_map = std::make_unique<Eng3D::Texture>(this->s.package_man.get_unique("map/color.png")->get_abs_path());
     size_t terrain_map_size = this->terrain_map->width * this->terrain_map->height;
     for(size_t i = 0; i < terrain_map_size; i++) {
-        const uint32_t color = bswap32(this->terrain_map->buffer.get()[i] << 8);
+        auto* data = &(this->terrain_map->buffer.get()[i]);
+        const auto color = bswap32((*data) << 8);
         uint8_t idx = 0;
         switch(color) {
         case 0x18200b:
@@ -95,15 +96,9 @@ Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
             idx = 0;
             break;
         }
-
-        this->terrain_map->buffer.get()[i] = idx << 8;
-        this->terrain_map->buffer.get()[i] |= (color == 0x243089) ? 0x00 : 0x02; // Ocean, or ocean
+        *data = idx << 24;
+        *data |= (color == 0x243089 ? 0x00 : 0x02) << 16; // Ocean, or ocean
     }
-
-    Eng3D::TextureOptions single_color{};
-    single_color.internal_format = GL_RGBA;
-    single_color.compressed = false;
-    this->terrain_map->upload(single_color);
 
     // Terrain textures to sample from
     this->terrain_sheet = std::make_unique<Eng3D::TextureArray>(this->s.package_man.get_unique("gfx/terrain_sheet.png")->get_abs_path(), 4, 4);

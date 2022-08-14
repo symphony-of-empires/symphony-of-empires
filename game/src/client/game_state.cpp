@@ -776,11 +776,11 @@ void start_client(int argc, char** argv) {
 }
 
 GameState::~GameState() {
-    if(this->client)
+    if(this->client != nullptr)
         delete this->client;
-    
-    if(this->server)
+    if(this->server != nullptr)
         delete this->server;
-    
+    if(this->map != nullptr)
+        delete this->map;
     this->run = false;
 }

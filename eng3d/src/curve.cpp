@@ -51,6 +51,8 @@ void Curve::upload()
 }
 
 void Curve::add_quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4) {
+    positions.reserve(positions.size() + 6);
+    tex_coords.reserve(tex_coords.size() + 6);
     positions.push_back(c1);
     tex_coords.push_back(glm::vec2(0.f, 0.f));
     positions.push_back(c2);
