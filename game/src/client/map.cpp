@@ -108,9 +108,7 @@ static inline void get_blob_bounds(std::unordered_set<Province*>& visited_provin
 Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int screen_height)
     : world{ _world },
     map_ui_layer{ _map_ui_layer },
-    skybox(0.f, 0.f, 0.f, 255.f * 10.f, 40, false),
-    rivers(),
-    borders()
+    skybox(0.f, 0.f, 0.f, 255.f * 10.f, 40, false)
 {
     auto& s = Eng3D::State::get_instance();
     camera = new Eng3D::FlatCamera(glm::vec2(screen_width, screen_height), glm::vec2(world.width, world.height));
@@ -120,14 +118,14 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     map_render = new MapRender(world, *this);
 
     // Shader used for drawing the models using custom model render
-    obj_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
+    obj_shader = std::make_unique<Eng3D::OpenGL::Program>();
     {
         obj_shader->attach_shader(*s.builtin_shaders["vs_3d"].get());
         obj_shader->attach_shader(*s.builtin_shaders["fs_3d"].get());
         obj_shader->link();
     }
 
-    tree_shder = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
+    tree_shder = std::make_unique<Eng3D::OpenGL::Program>();
     {
         obj_shader->attach_shader(*s.builtin_shaders["vs_tree"].get());
         obj_shader->attach_shader(*s.builtin_shaders["fs_tree"].get());
@@ -673,8 +671,8 @@ void Map::draw(GameState& gs) {
     }
 
     if(this->gen_labels) {
-        if(distance_to_map < small_zoom_factor) map_font->draw(province_labels, camera, view_mode == MapView::SPHERE_VIEW);
-        else map_font->draw(nation_labels, camera, view_mode == MapView::SPHERE_VIEW);
+        if(distance_to_map < small_zoom_factor) map_font->draw(province_labels, *camera, view_mode == MapView::SPHERE_VIEW);
+        else map_font->draw(nation_labels, *camera, view_mode == MapView::SPHERE_VIEW);
     }
 
     if(view_mode == MapView::SPHERE_VIEW) {

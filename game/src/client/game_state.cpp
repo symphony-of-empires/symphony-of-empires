@@ -269,7 +269,7 @@ void handle_event(Input& input, GameState& gs) {
             case Eng3D::Keyboard::Key::F6: {
                 gs.reload_shaders();
                 // Shader used for drawing the models using custom model render
-                gs.map->obj_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
+                gs.map->obj_shader = std::make_unique<Eng3D::OpenGL::Program>();
                 {
                     gs.map->obj_shader->attach_shader(*gs.builtin_shaders["vs_3d"].get());
                     gs.map->obj_shader->attach_shader(*gs.builtin_shaders["fs_3d"].get());

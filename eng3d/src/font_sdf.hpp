@@ -44,30 +44,32 @@ namespace Eng3D {
 
     class Glyph {
     public:
-        Glyph(float _advance, Rectangle _atlas_bounds, Rectangle _plane_bounds);
+        Glyph() = default;
+        Glyph(float _advance, Eng3D::Rectangle _atlas_bounds, Eng3D::Rectangle _plane_bounds);
+        ~Glyph() = default;
         
         float advance;
-        Rectangle atlas_bounds;
-        Rectangle plane_bounds;
+        Eng3D::Rectangle atlas_bounds;
+        Eng3D::Rectangle plane_bounds;
     };
 
     class Label3D {
     public:
-        Label3D(TriangleList* triangles, float size, glm::vec3 center);
-        ~Label3D();
+        Label3D(Eng3D::TriangleList* triangles, float size, glm::vec3 center);
+        ~Label3D() = default;
         void draw();
 
         float size;
         glm::vec3 center;
     private:
-        TriangleList* triangles;
+        std::unique_ptr<Eng3D::TriangleList> triangles;
     };
 
     class FontSDF {
     public:
         FontSDF(const std::string& filename);
-        std::unique_ptr<Label3D> gen_text(const std::string& text, glm::vec3 top, glm::vec3 right, float width, glm::vec3 center);
-        void draw(const std::vector<std::unique_ptr<Label3D>>& labels, Camera* camera, bool sphere);
+        std::unique_ptr<Eng3D::Label3D> gen_text(const std::string& text, glm::vec3 top, glm::vec3 right, float width, glm::vec3 center);
+        void draw(const std::vector<std::unique_ptr<Label3D>>& labels, const Eng3D::Camera& camera, bool sphere);
     private:
         std::unordered_map<uint32_t, Glyph> unicode_map;
         std::shared_ptr<Eng3D::Texture> atlas;

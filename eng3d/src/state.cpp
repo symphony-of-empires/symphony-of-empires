@@ -294,10 +294,10 @@ void Eng3D::State::reload_shaders() {
         return this->package_man.get_unique("shaders/" + file_name)->read_all();
     };
     const auto load_fragment_shader = [read_file](std::string file_name) {
-        return std::unique_ptr<Eng3D::OpenGL::FragmentShader>(new Eng3D::OpenGL::FragmentShader(read_file(file_name)));
+        return std::make_unique<Eng3D::OpenGL::FragmentShader>(read_file(file_name));
     };
     const auto load_vertex_shader = [read_file](std::string file_name) {
-        return std::unique_ptr<Eng3D::OpenGL::VertexShader>(new Eng3D::OpenGL::VertexShader(read_file(file_name)));
+        return std::make_unique<Eng3D::OpenGL::VertexShader>(read_file(file_name));
     };
 
     builtin_shaders.clear();

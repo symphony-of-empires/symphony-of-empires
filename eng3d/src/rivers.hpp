@@ -35,18 +35,19 @@ namespace Eng3D {
     namespace OpenGL {
         class Program;
     }
+    class State;
+
+    class Rivers {
+        Eng3D::State& s;
+    public:
+        Rivers(Eng3D::State& s);
+        ~Rivers() = default;
+
+        void draw(const Eng3D::Camera& camera);
+    private:
+        void build_rivers();
+        std::vector<std::unique_ptr<Eng3D::Curve>> curves;
+        std::unique_ptr<Eng3D::OpenGL::Program> line_shader;
+        std::shared_ptr<Eng3D::Texture> water_tex;
+    };
 }
-
-class Rivers
-{
-public:
-    Rivers();
-    ~Rivers() = default;
-
-    void draw(const Eng3D::Camera& camera);
-private:
-    void build_rivers();
-    std::vector<std::unique_ptr<Eng3D::Curve>> curves;
-    std::unique_ptr<Eng3D::OpenGL::Program> line_shader;
-    std::shared_ptr<Eng3D::Texture> water_tex;
-};

@@ -29,7 +29,9 @@
 #include "eng3d/texture.hpp"
 
 Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
-    : s{ _s }
+    : s{ _s },
+    rivers(_s),
+    borders(_s)
 {
     // Flat surface for drawing flat map 
     for(int x = -1; x <= 1; x++)
@@ -58,7 +60,7 @@ Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
     this->paper_tex = this->s.tex_man.load(this->s.package_man.get_unique("gfx/paper.png"), mipmap_options);
     this->stripes_tex = this->s.tex_man.load(this->s.package_man.get_unique("gfx/stripes.png"), mipmap_options);
 
-    this->terrain_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(this->s.package_man.get_unique("map/color.png")->get_abs_path()));
+    this->terrain_map = std::make_unique<Eng3D::Texture>(this->s.package_man.get_unique("map/color.png")->get_abs_path());
     size_t terrain_map_size = this->terrain_map->width * this->terrain_map->height;
     for(size_t i = 0; i < terrain_map_size; i++) {
         const uint32_t color = bswap32(this->terrain_map->buffer.get()[i] << 8);
@@ -104,7 +106,7 @@ Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
     this->terrain_map->upload(single_color);
 
     // Terrain textures to sample from
-    this->terrain_sheet = std::unique_ptr<Eng3D::TextureArray>(new Eng3D::TextureArray(this->s.package_man.get_unique("gfx/terrain_sheet.png")->get_abs_path(), 4, 4));
+    this->terrain_sheet = std::make_unique<Eng3D::TextureArray>(this->s.package_man.get_unique("gfx/terrain_sheet.png")->get_abs_path(), 4, 4);
     this->terrain_sheet->upload();
 }
 

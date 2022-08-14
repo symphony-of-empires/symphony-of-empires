@@ -102,14 +102,14 @@ Context::Context(Eng3D::State& _s)
     cursor_tex = s.tex_man.load(s.package_man.get_unique("gfx/cursor_b.png"), options);
 
     // Shader used for orthogonally drawing the objects on the 2D plane
-    obj_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
+    obj_shader = std::make_unique<Eng3D::OpenGL::Program>();
     {
         obj_shader->attach_shader(*s.builtin_shaders["vs_2d"]);
         obj_shader->attach_shader(*s.builtin_shaders["fs_2d"]);
         obj_shader->link();
     }
 
-    piechart_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
+    piechart_shader = std::make_unique<Eng3D::OpenGL::Program>();
     {
         piechart_shader->attach_shader(*s.builtin_shaders["vs_piechart"]);
         piechart_shader->attach_shader(*s.builtin_shaders["fs_piechart"]);

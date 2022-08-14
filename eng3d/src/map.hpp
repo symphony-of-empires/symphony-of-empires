@@ -29,6 +29,9 @@
 #include <vector>
 #include <glm/vec2.hpp>
 
+#include "eng3d/borders.hpp"
+#include "eng3d/rivers.hpp"
+
 class MapRender;
 namespace Eng3D {
     static constexpr auto GLOBE_RADIUS = 100.f;
@@ -56,8 +59,10 @@ namespace Eng3D {
         std::shared_ptr<Eng3D::Texture> stripes_tex;
 
         std::vector<Eng3D::Square*> map_quads;
-        Eng3D::Sphere* map_sphere = nullptr;
-        Eng3D::Quad2D* map_2d_quad = nullptr;
+        Eng3D::Sphere* map_sphere;
+        Eng3D::Quad2D* map_2d_quad;
+        Eng3D::Rivers rivers;
+        Eng3D::Borders borders;
     public:
         BaseMap(Eng3D::State& s, glm::ivec2 size);
         ~BaseMap();

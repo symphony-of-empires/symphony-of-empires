@@ -34,8 +34,6 @@
 #include "eng3d/primitive.hpp"
 #include "eng3d/shader.hpp"
 #include "eng3d/font_sdf.hpp"
-#include "eng3d/borders.hpp"
-#include "eng3d/rivers.hpp"
 
 namespace Eng3D {
     class Texture;
@@ -158,8 +156,5 @@ public:
     Eng3D::Sphere skybox;
     std::unique_ptr<Eng3D::OpenGL::Program> obj_shader;
     std::unique_ptr<Eng3D::OpenGL::Program> tree_shder;
-private:
-    Rivers rivers;
-    Borders borders;
 };
 

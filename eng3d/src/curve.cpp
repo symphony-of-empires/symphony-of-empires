@@ -47,7 +47,7 @@ void Curve::add_line(std::vector<glm::vec3> points, std::vector<glm::vec3> norma
 
 void Curve::upload()
 {
-    this->quads = std::unique_ptr<Eng3D::TriangleList>(new Eng3D::TriangleList(positions, tex_coords));
+    this->quads = std::make_unique<Eng3D::TriangleList>(positions, tex_coords);
 }
 
 void Curve::add_quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4) {

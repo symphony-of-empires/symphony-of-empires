@@ -42,21 +42,23 @@
 using namespace Eng3D;
 
 Eng3D::Glyph::Glyph(float _advance, Eng3D::Rectangle _atlas_bounds, Eng3D::Rectangle _plane_bounds)
-    : advance(_advance), atlas_bounds(_atlas_bounds), plane_bounds(_plane_bounds)
+    : advance{ _advance },
+    atlas_bounds{ _atlas_bounds },
+    plane_bounds{ _plane_bounds }
 {
 
 }
 
 Eng3D::FontSDF::FontSDF(const std::string& filename) {
     auto& s = Eng3D::State::get_instance();
-    sphere_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
+    sphere_shader = std::make_unique<Eng3D::OpenGL::Program>();
     {
         auto vs_shader = Eng3D::OpenGL::VertexShader(s.package_man.get_unique("shaders/sphere_mapping.vs")->read_all());
         sphere_shader->attach_shader(vs_shader);
         sphere_shader->attach_shader(*s.builtin_shaders["fs_font_sdf"].get());
         sphere_shader->link();
     }
-    flat_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
+    flat_shader = std::make_unique<Eng3D::OpenGL::Program>();
     {
         flat_shader->attach_shader(*s.builtin_shaders["vs_font_sdf"].get());
         flat_shader->attach_shader(*s.builtin_shaders["fs_font_sdf"].get());
@@ -84,14 +86,14 @@ Eng3D::FontSDF::FontSDF(const std::string& filename) {
             data >> unicode >> buff;
             data >> advance >> buff;
             data >> left >> buff >> bottom >> buff >> right >> buff >> top >> buff;
-            Rectangle plane_bounds(left, top, right - left, bottom - top);
+            Eng3D::Rectangle plane_bounds(left, top, right - left, bottom - top);
             data >> left >> buff >> bottom >> buff >> right >> buff >> top;
             left /= atlas->width;
             right /= atlas->width;
             top /= atlas->height;
             bottom /= atlas->height;
-            Rectangle atlas_bounds(left, top, right - left, bottom - top);
-            Glyph glyph(advance, atlas_bounds, plane_bounds);
+            Eng3D::Rectangle atlas_bounds(left, top, right - left, bottom - top);
+            Eng3D::Glyph glyph(advance, atlas_bounds, plane_bounds);
             unicode_map.insert({ unicode, glyph });
         }
     }
@@ -104,9 +106,9 @@ std::unique_ptr<Label3D> Eng3D::FontSDF::gen_text(const std::string& text, glm::
     std::u32string unicode_text = conv_utf8_utf32.from_bytes(text);
 
     float text_width = 0.f;
-    for(char32_t& character : unicode_text) {
+    for(const auto& character : unicode_text) {
         if(!unicode_map.count(character)) continue;
-        Eng3D::Glyph& glyph = unicode_map.at(character);
+        const auto& glyph = unicode_map[character];
         text_width += glyph.advance;
     }
 
@@ -160,15 +162,15 @@ std::unique_ptr<Label3D> Eng3D::FontSDF::gen_text(const std::string& text, glm::
         start.y += right.y * glyph.advance * scale;
         idx++;
     }
-    return std::unique_ptr<Eng3D::Label3D>(new Eng3D::Label3D(new Eng3D::TriangleList(positions, tex_coords), scale, center));
+    return std::make_unique<Eng3D::Label3D>(new Eng3D::TriangleList(positions, tex_coords), scale, center);
 }
 
-void Eng3D::FontSDF::draw(const std::vector<std::unique_ptr<Label3D>>& labels, Camera* camera, bool sphere) {
+void Eng3D::FontSDF::draw(const std::vector<std::unique_ptr<Label3D>>& labels, const Eng3D::Camera& camera, bool sphere) {
     auto* shader = sphere ? sphere_shader.get() : flat_shader.get();
     shader->use();
-    shader->set_uniform("projection", camera->get_projection());
-    shader->set_uniform("view", camera->get_view());
-    shader->set_uniform("map_size", camera->get_map_size());
+    shader->set_uniform("projection", camera.get_projection());
+    shader->set_uniform("view", camera.get_view());
+    shader->set_uniform("map_size", camera.get_map_size());
     shader->set_uniform("model", glm::mat4(1));
     shader->set_texture(0, "atlas", *atlas);
     for(auto& label : labels) {
@@ -180,16 +182,12 @@ void Eng3D::FontSDF::draw(const std::vector<std::unique_ptr<Label3D>>& labels, C
     }
 }
 
-Eng3D::Label3D::Label3D(TriangleList* _triangles, float _size, glm::vec3 _center)
+Eng3D::Label3D::Label3D(Eng3D::TriangleList* _triangles, float _size, glm::vec3 _center)
     : size{ _size },
     center{ _center },
     triangles{ _triangles }
 {
 
-}
-
-Eng3D::Label3D::~Label3D() {
-    delete triangles;
 }
 
 void Eng3D::Label3D::draw() {

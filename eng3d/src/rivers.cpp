@@ -33,7 +33,9 @@
 #include "eng3d/shader.hpp"
 #include "eng3d/camera.hpp"
 
-Rivers::Rivers() {
+Eng3D::Rivers::Rivers(Eng3D::State& _s)
+    : s{ _s }
+{
     Eng3D::TextureOptions mipmap_options{};
     mipmap_options.wrap_s = GL_REPEAT;
     mipmap_options.wrap_t = GL_REPEAT;
@@ -41,13 +43,12 @@ Rivers::Rivers() {
     mipmap_options.mag_filter = GL_LINEAR;
     mipmap_options.internal_format = GL_SRGB;
 
-    auto& gs = Eng3D::State::get_instance();
-    water_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/water_tex.png"), mipmap_options);
-    line_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
+    water_tex = s.tex_man.load(s.package_man.get_unique("gfx/water_tex.png"), mipmap_options);
+    line_shader = std::make_unique<Eng3D::OpenGL::Program>();
     {
-        auto vs_shader = *gs.builtin_shaders["vs_3d"].get();
+        auto vs_shader = *s.builtin_shaders["vs_3d"].get();
         line_shader->attach_shader(vs_shader);
-        auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man.get_unique("shaders/curve.fs")->read_all(), true);
+        auto fs_shader = Eng3D::OpenGL::FragmentShader(s.package_man.get_unique("shaders/curve.fs")->read_all(), true);
         line_shader->attach_shader(fs_shader);
         line_shader->link();
     }
@@ -57,10 +58,20 @@ Rivers::Rivers() {
 class ConnectedNode {
 public:
     ConnectedNode* node = nullptr;
-    std::vector<glm::vec3>* river;
+    std::unique_ptr<std::vector<glm::vec3>> river;
+    ConnectedNode()
+        : river{ new std::vector<glm::vec3> }
+    {
 
-    ConnectedNode() : river{ new std::vector<glm::vec3> } {}
-    ConnectedNode(std::vector<glm::vec3>* _river): river{ _river } {}
+    }
+
+    ConnectedNode(const std::vector<glm::vec3>& _river)
+        : river{ std::make_unique<std::vector<glm::vec3>>(_river) }
+    {
+
+    }
+
+    ~ConnectedNode() = default;
 };
 
 void get_river(std::vector<glm::vec3>& river, int current_index, int prev_index, uint32_t* pixels, int width, int height) {
@@ -87,11 +98,10 @@ void get_river(std::vector<glm::vec3>& river, int current_index, int prev_index,
 }
 
 
-void Rivers::build_rivers() {
-    auto& tex_man = Eng3D::State::get_instance().tex_man;
+void Eng3D::Rivers::build_rivers() {
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
-    auto river_tex = tex_man.load(Eng3D::State::get_instance().package_man.get_unique("map/river.png"), no_drop_options);
+    auto river_tex = s.tex_man.load(s.package_man.get_unique("map/river.png"), no_drop_options);
 
     std::vector<int> rivers_starts;
     int height = river_tex->height;
@@ -150,12 +160,12 @@ void Rivers::build_rivers() {
         }
 
         std::vector<glm::vec3> normals(curve_points.size() - 1, glm::vec3(0, 0, 1));
-        auto curve = std::unique_ptr<Eng3D::Curve>(new Eng3D::Curve(curve_points, normals, 1.0f));
+        auto curve = std::make_unique<Eng3D::Curve>(curve_points, normals, 1.0f);
         this->curves.push_back(std::move(curve));
     }
 }
 
-void Rivers::draw(const Eng3D::Camera& camera) {
+void Eng3D::Rivers::draw(const Eng3D::Camera& camera) {
     line_shader->use();
     
     glm::mat4 model(1.f);

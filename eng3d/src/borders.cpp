@@ -35,7 +35,9 @@
 #include "eng3d/shader.hpp"
 #include "eng3d/camera.hpp"
 
-Borders::Borders() {
+Eng3D::Borders::Borders(Eng3D::State& _s)
+    : s{ _s }
+{
     Eng3D::TextureOptions mipmap_options{};
     mipmap_options.wrap_s = GL_REPEAT;
     mipmap_options.wrap_t = GL_REPEAT;
@@ -43,13 +45,12 @@ Borders::Borders() {
     mipmap_options.mag_filter = GL_LINEAR;
     mipmap_options.internal_format = GL_SRGB;
 
-    auto& gs = Eng3D::State::get_instance();
-    water_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/water_tex.png"), mipmap_options);
-    line_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
+    water_tex = s.tex_man.load(s.package_man.get_unique("gfx/water_tex.png"), mipmap_options);
+    line_shader = std::make_unique<Eng3D::OpenGL::Program>();
     {
-        auto vs_shader = *gs.builtin_shaders["vs_3d"];
+        auto vs_shader = *s.builtin_shaders["vs_3d"];
         line_shader->attach_shader(vs_shader);
-        auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man.get_unique("shaders/curve.fs")->read_all(), true);
+        auto fs_shader = Eng3D::OpenGL::FragmentShader(s.package_man.get_unique("shaders/curve.fs")->read_all(), true);
         line_shader->attach_shader(fs_shader);
         line_shader->link();
     }
@@ -62,10 +63,10 @@ class BorderGenerator {
     std::stack<int> unexplored_paths;
     std::stack<int> current_paths;
     std::vector<std::vector<glm::vec3>>& borders;
-    uint32_t* pixels;
+    const uint32_t* pixels;
     int width;
     int height;
-    BorderGenerator(std::vector<std::vector<glm::vec3>>& borders, uint32_t* pixels, int width, int height)
+    BorderGenerator(std::vector<std::vector<glm::vec3>>& borders, const uint32_t* pixels, int width, int height)
         : borders{ borders },
         pixels{ pixels },
         width{ width },
@@ -78,11 +79,10 @@ class BorderGenerator {
         if(new_x < 0 || new_y < 0 || new_x >= width - 1 || new_y >= height - 1)
             return false;
         int new_index = new_x + new_y * width;
-
-        uint32_t color_ul = pixels[new_index];
-        uint32_t color_dl = pixels[new_index + width];
-        uint32_t color_ur = pixels[new_index + 1];
-        uint32_t color_dr = pixels[new_index + width + 1];
+        const auto color_ul = pixels[new_index];
+        const auto color_dl = pixels[new_index + width];
+        const auto color_ur = pixels[new_index + 1];
+        const auto color_dr = pixels[new_index + width + 1];
         // Different neighbor, ie its a border
         if(color_ul != color_ur || color_ur != color_dr || color_dr != color_dl || color_dl != color_ul)
             return true;
@@ -136,7 +136,7 @@ class BorderGenerator {
 
 
 public:
-    static void build_borders(std::vector<std::vector<glm::vec3>>& borders, uint32_t* pixels, int width, int height) {
+    static void build_borders(std::vector<std::vector<glm::vec3>>& borders, const uint32_t* pixels, int width, int height) {
         BorderGenerator generator(borders, pixels, width, height);
         borders.push_back(std::vector<glm::vec3>());
         for(int y = 0; y < height; y++) {
@@ -151,8 +151,7 @@ public:
     }
 };
 
-void Borders::build_borders() {
-    auto& s = Eng3D::State::get_instance();
+void Eng3D::Borders::build_borders() {
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
     auto border_tex = s.tex_man.load(s.package_man.get_unique("map/provinces.png"), no_drop_options);
@@ -164,7 +163,7 @@ void Borders::build_borders() {
     BorderGenerator::build_borders(borders, pixels, width, height);
 
     // TODO FIX THIS NOT INFINITE LOOP
-    auto curve = std::unique_ptr<Eng3D::Curve>(new Eng3D::Curve());
+    auto curve = std::make_unique<Eng3D::Curve>();
     for(size_t i = 0; i < borders.size(); i++) {
         std::vector<glm::vec3> river = borders[i];
         auto length = river.size();
@@ -210,7 +209,7 @@ void Borders::build_borders() {
     this->curves.push_back(std::move(curve));
 }
 
-void Borders::draw(const Eng3D::Camera& camera) {
+void Eng3D::Borders::draw(const Eng3D::Camera& camera) {
     line_shader->use();
     glm::mat4 model(1.f);
     line_shader->set_uniform("model", model);

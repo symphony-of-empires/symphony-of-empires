@@ -37,39 +37,41 @@ namespace Eng3D {
     namespace OpenGL {
         class Program;
     }
+    class State;
+
+    class Borders {
+        Eng3D::State& s;
+        std::vector<std::unique_ptr<Eng3D::Curve>> curves;
+        std::unique_ptr<Eng3D::OpenGL::Program> line_shader;
+        std::shared_ptr<Eng3D::Texture> water_tex;
+    public:
+        Borders(Eng3D::State& s);
+        ~Borders() = default;
+        void draw(const Eng3D::Camera& camera);
+    private:
+        void build_borders();
+    };
+
+    // class BorderGenerator
+    // {
+    // public:
+    //     std::set<int> walked_positions;
+    //     std::vector<std::vector<glm::vec3>>& borders;
+    //     uint32_t* pixels;
+    //     int width;
+    //     int height;
+
+    //     bool check_neighbor(int new_x, int new_y);
+
+    //     void add_neighbor(int new_x, int new_y, int& connections);
+
+    //     void get_border(int x, int y, int connections);
+
+    //     BorderGenerator(std::vector<std::vector<glm::vec3>>& borders, uint32_t* pixels, int width, int height)
+    //         : borders{ borders }, pixels{ pixels }, width{ width }, height{ height }
+    //     {
+    //         walked_positions = std::set<int>();
+    //     };
+    //     void build_borders();
+    // };
 }
-
-class Borders {
-public:
-    Borders();
-    ~Borders() = default;
-    void draw(const Eng3D::Camera& camera);
-private:
-    void build_borders();
-    std::vector<std::unique_ptr<Eng3D::Curve>> curves;
-    std::unique_ptr<Eng3D::OpenGL::Program> line_shader;
-    std::shared_ptr<Eng3D::Texture> water_tex;
-};
-
-// class BorderGenerator
-// {
-// public:
-//     std::set<int> walked_positions;
-//     std::vector<std::vector<glm::vec3>>& borders;
-//     uint32_t* pixels;
-//     int width;
-//     int height;
-
-//     bool check_neighbor(int new_x, int new_y);
-
-//     void add_neighbor(int new_x, int new_y, int& connections);
-
-//     void get_border(int x, int y, int connections);
-
-//     BorderGenerator(std::vector<std::vector<glm::vec3>>& borders, uint32_t* pixels, int width, int height)
-//         : borders{ borders }, pixels{ pixels }, width{ width }, height{ height }
-//     {
-//         walked_positions = std::set<int>();
-//     };
-//     void build_borders();
-// };

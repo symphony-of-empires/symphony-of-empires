@@ -62,7 +62,7 @@ MapRender::MapRender(const World& _world, Map& _map)
 
     Eng3D::Log::debug("game", "Creating tile map & tile sheet");
     // The tile map, used to store per-tile information
-    tile_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(world.width, world.height));
+    tile_map = std::make_unique<Eng3D::Texture>(world.width, world.height);
     for(size_t i = 0; i < world.width * world.height; i++) {
         const auto& tile = world.get_tile(i);
         tile_map->buffer.get()[i] = tile.province_id & 0xffff;
@@ -79,11 +79,11 @@ MapRender::MapRender(const World& _world, Map& _map)
 
     // Texture holding each province color
     // The x & y coords are the province Red & Green color of the tile_map
-    tile_sheet = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(256, 256));
+    tile_sheet = std::make_unique<Eng3D::Texture>(256, 256);
     for(size_t i = 0; i < 256 * 256; i++)
         tile_sheet->buffer.get()[i] = 0xffdddddd;
 
-    tile_sheet_nation = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(256, 256));
+    tile_sheet_nation = std::make_unique<Eng3D::Texture>(256, 256);
     for(size_t i = 0; i < 256 * 256; i++)
         tile_sheet_nation->buffer.get()[i] = 0xffdddddd;
 
@@ -100,7 +100,7 @@ MapRender::MapRender(const World& _world, Map& _map)
     tile_sheet->upload(no_drop_options);
 
     // Province options
-    province_opt = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(256, 256));
+    province_opt = std::make_unique<Eng3D::Texture>(256, 256);
     for(size_t i = 0; i < 256 * 256; i++)
         province_opt->buffer.get()[i] = 0x000000ff;
     {
@@ -118,7 +118,7 @@ MapRender::MapRender(const World& _world, Map& _map)
 
 void MapRender::reload_shaders() {
     auto& gs = static_cast<GameState&>(Eng3D::State::get_instance());
-    border_gen_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
+    border_gen_shader = std::make_unique<Eng3D::OpenGL::Program>();
     {
         auto vs_shader = Eng3D::OpenGL::VertexShader(gs.package_man.get_unique("shaders/2d_scale.vs")->read_all());
         border_gen_shader->attach_shader(vs_shader);
@@ -127,7 +127,7 @@ void MapRender::reload_shaders() {
         border_gen_shader->link();
     }
 
-    sdf_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
+    sdf_shader = std::make_unique<Eng3D::OpenGL::Program>();
     {
         auto vs_shader = Eng3D::OpenGL::VertexShader(gs.package_man.get_unique("shaders/2d_scale.vs")->read_all());
         sdf_shader->attach_shader(vs_shader);
@@ -136,7 +136,7 @@ void MapRender::reload_shaders() {
         sdf_shader->link();
     }
 
-    output_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
+    output_shader = std::make_unique<Eng3D::OpenGL::Program>();
     {
         output_shader->attach_shader(*gs.builtin_shaders["vs_2d"].get());
         auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man.get_unique("shaders/border_sdf_output.fs")->read_all());
@@ -149,7 +149,7 @@ void MapRender::reload_shaders() {
 void MapRender::update_options(MapOptions new_options) {
     auto& gs = static_cast<GameState&>(Eng3D::State::get_instance());
 
-    map_shader = std::unique_ptr<Eng3D::OpenGL::Program>(new Eng3D::OpenGL::Program());
+    map_shader = std::make_unique<Eng3D::OpenGL::Program>();
     {
         std::vector<Eng3D::OpenGL::GLSL_Define> defined_options;
         for(auto& option : options.get_options()) {
@@ -189,8 +189,8 @@ void MapRender::update_options(MapOptions new_options) {
     if(this->options.lighting.used) {
         // If reload is required
         if(this->normal_topo.get() == nullptr) {
-            auto topo_map = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/topo.png")->get_abs_path()));
-            this->normal_topo = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(gs.package_man.get_unique("map/normal.png")->get_abs_path()));
+            auto topo_map = std::make_unique<Eng3D::Texture>(gs.package_man.get_unique("map/topo.png")->get_abs_path());
+            this->normal_topo = std::make_unique<Eng3D::Texture>(gs.package_man.get_unique("map/normal.png")->get_abs_path());
             size_t map_size = topo_map->width * topo_map->height;
             for(size_t i = 0; i < map_size; i++) {
                 this->normal_topo->buffer.get()[i] &= (0x00FFFFFF);
@@ -285,11 +285,11 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
     // The Red & Green color channels are the coords on the map
     // The Blue is the distance to a border
     if(border_sdf.get() == nullptr) {
-        border_sdf = std::unique_ptr<Eng3D::Texture>(new Eng3D::Texture(border_tex.width, border_tex.height));
+        border_sdf = std::make_unique<Eng3D::Texture>(border_tex.width, border_tex.height);
         border_sdf->upload(fbo_mipmap_options);
     }
 
-    std::unique_ptr<Eng3D::Texture> swap_tex(new Eng3D::Texture(width, height));
+    auto swap_tex = std::make_unique<Eng3D::Texture>(width, height);
     swap_tex->upload(fbo_mipmap_options);
 
     auto fbo = Eng3D::OpenGL::Framebuffer();

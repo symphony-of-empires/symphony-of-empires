@@ -72,9 +72,8 @@ Eng3D::TriangleList::TriangleList(std::vector<glm::vec3>& positions, std::vector
     : Eng3D::Mesh<glm::vec3, glm::vec2>(Eng3D::MeshMode::TRIANGLES)
 {
     buffer.resize(positions.size());
-    for(size_t i = 0; i < positions.size(); i++) {
+    for(size_t i = 0; i < positions.size(); i++)
         buffer[i] = Eng3D::MeshData<glm::vec3, glm::vec2>(positions[i], tex_coords[i]);
-    }
     upload();
 }
 
@@ -88,7 +87,6 @@ Eng3D::Quad::Quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4)
     buffer[3] = Eng3D::MeshData<glm::vec3, glm::vec2>(c3, glm::vec2(1.f, 1.f));
     buffer[4] = Eng3D::MeshData<glm::vec3, glm::vec2>(c4, glm::vec2(1.f, 0.f));
     buffer[5] = Eng3D::MeshData<glm::vec3, glm::vec2>(c1, glm::vec2(0.f, 0.f));
-
     upload();
 }
 
