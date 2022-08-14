@@ -35,14 +35,13 @@
 #include <memory>
 #include <cstdio>
 #include <type_traits>
-#include "eng3d/utils.hpp"
 #include <limits>
+#include "eng3d/utils.hpp"
 
-
-// The purpouse of the serializer is to serialize objects onto a byte stream
-// that can be transfered onto the disk or over the network. Should the object have
-// any pointers - they would need to be converted to indexes accordingly for
-// proper transmission.
+/// @brief The purpouse of the serializer is to serialize objects onto a byte stream
+/// that can be transfered onto the disk or over the network. Should the object have
+/// any pointers - they would need to be converted to indexes accordingly for
+/// proper transmission.
 class SerializerException : public std::exception {
     std::string buffer;
 public:
@@ -54,8 +53,8 @@ public:
     };
 };
 
-// Base class that serves as archiver, stores (in memory) the data required for
-// serialization/deserialization
+/// @brief Base class that serves as archiver, stores (in memory) the data required for
+/// serialization/deserialization
 class Archive {
 public:
     Archive() {};
@@ -106,8 +105,8 @@ public:
     size_t ptr = 0;
 };
 
-// A serializer (base class) which can be used to serialize objects
-// and create per-object optimized classes
+/// @brief A serializer (base class) which can be used to serialize objects
+/// and create per-object optimized classes
 template<typename T>
 class Serializer {
 public:
@@ -140,9 +139,9 @@ inline void deserialize(Archive& ar, const T* obj) {
     Serializer<T>::template deser_dynamic<false>(ar, const_cast<T*>(obj));
 }
 
-// A serializer optimized to memcpy directly the element into the byte stream
-// use only when the object can be copied without modification (i.e a class full of ints)
-// The elements must have a fixed size for this to work.
+/// @brief A serializer optimized to memcpy directly the element into the byte stream
+/// use only when the object can be copied without modification (i.e a class full of ints)
+/// The elements must have a fixed size for this to work.
 template<typename T>
 class SerializerMemcpy {
 public:
@@ -196,14 +195,16 @@ class Serializer<double> : public SerializerNumber<double> {};
 template<>
 class Serializer<long double> : public SerializerNumber<long double> {};
 
-// A serializer specialized in strings
-// The serializer stores the lenght of the string and the string itself
-// this is done so no errors can happen due to null stuff. (UTF-8 especially)
+/// @brief A serializer specialized in strings
+/// The serializer stores the lenght of the string and the string itself
+/// this is done so no errors can happen due to null stuff. (UTF-8 especially)
 template<>
 class Serializer<std::string> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, std::string* obj) {
+        /// @brief Used to reduce number of uneeded allocations
+        char tmpstr_buf[1024];
         if constexpr(is_serialize) {
             // Truncate lenght
             uint16_t len = static_cast<uint16_t>(std::min<size_t>(std::numeric_limits<uint16_t>::max(), obj->length()));
@@ -217,21 +218,20 @@ public:
         } else {
             uint16_t len = 0; // Obtain the lenght of the string to be read
             ::deserialize(ar, &len);
-            if(len >= 1024)
+            if(len >= sizeof(tmpstr_buf))
                 CXX_THROW(SerializerException, "String is too lenghty");
 
             // Obtain the string itself
-            std::unique_ptr<char[]> string = std::unique_ptr<char[]>(new char[len + 1]);
             if(len)
-                ar.copy_to(string.get(), len);
-            string.get()[len] = '\0';
-            *obj = string.get();
+                ar.copy_to(tmpstr_buf, len);
+            tmpstr_buf[len] = '\0';
+            *obj = tmpstr_buf;
         }
     }
 };
 
-// Non-contigous serializer for STL containers
-// This serializer class works primarly with containers whose memory is contiguous
+/// @brief Non-contigous serializer for STL containers
+/// This serializer class works primarly with containers whose memory is contiguous
 template<typename T, typename C>
 class SerializerContainer {
 public:
@@ -245,6 +245,7 @@ public:
         } else {
             uint32_t len = 0;
             ::deser_dynamic<is_serialize>(ar, &len);
+            obj_group->clear();
             for(size_t i = 0; i < len; i++) {
                 T obj;
                 ::deser_dynamic<is_serialize>(ar, &obj);
@@ -254,7 +255,7 @@ public:
     }
 };
 
-// Pair serializers
+/// @brief Pair serializers
 template<typename T, typename U>
 class Serializer<std::pair<T, U>> {
 public:
@@ -281,7 +282,7 @@ public:
     }
 };
 
-// Contigous container serializers implementations
+/// @brief Contigous container serializers implementations
 #include <vector>
 template<typename T, typename A>
 class Serializer<std::vector<T, A>> : public SerializerContainer<T, std::vector<T, A>> {
@@ -296,12 +297,9 @@ public:
         } else {
             uint32_t len = 0;
             ::deser_dynamic<is_serialize>(ar, &len);
-            obj_group->clear();
-            for(size_t i = 0; i < len; i++) {
-                T obj;
-                ::deser_dynamic<is_serialize>(ar, &obj);
-                obj_group->push_back(obj);
-            }
+            obj_group->resize(len);
+            for(size_t i = 0; i < len; i++)
+                ::deser_dynamic<is_serialize>(ar, &obj_group[i]);
         }
     }
 };
@@ -320,12 +318,9 @@ public:
         } else {
             uint32_t len = 0;
             ::deser_dynamic<is_serialize>(ar, &len);
-            obj_group->clear();
-            for(size_t i = 0; i < len; i++) {
-                T obj;
-                ::deser_dynamic<is_serialize>(ar, &obj);
-                obj_group->push_back(obj);
-            }
+            obj_group->resize(len);
+            for(size_t i = 0; i < len; i++)
+                ::deser_dynamic<is_serialize>(ar, &obj_group[i]);
         }
     }
 };
@@ -362,8 +357,8 @@ public:
 template<size_t bits>
 class Serializer<std::bitset<bits>> : public SerializerBitset<std::bitset<bits>, bits> {};
 
-// Used as a template for serializable objects (pointers mostly) which should be
-// treated as a reference instead of the object itself
+/// @brief Used as a template for serializable objects (pointers mostly) which should be
+/// treated as a reference instead of the object itself
 template<typename W, typename T>
 class SerializerReference {
 public:
