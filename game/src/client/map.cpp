@@ -166,6 +166,17 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     this->reload_shaders();
 }
 
+Map::~Map() {
+    if(this->map_render != nullptr)
+        delete this->map_render;
+    if(this->map_font != nullptr)
+        delete this->map_font;
+    if(this->camera != nullptr)
+        delete this->camera;
+    if(this->tooltip != nullptr)
+        delete this->tooltip;
+}
+
 void Map::update_nation_label(const Nation& nation) {
     // No need to update if no labels are displayed!
     if(!this->gen_labels) return;

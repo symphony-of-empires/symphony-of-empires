@@ -101,7 +101,7 @@ class Map {
     selector_func selector = nullptr;
 public:
     Map(const World& world, UI::Group* map_ui_layer,  int screen_width, int screen_height);
-    ~Map() = default;
+    ~Map();
     void update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, GameState& gs);
     void update_mapmode();
     void draw_flag(const Eng3D::OpenGL::Program& shader, const Nation& nation);
