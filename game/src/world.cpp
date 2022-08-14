@@ -70,7 +70,7 @@ namespace std {
 
 /// @brief List so we don't reconstruct a vector every time we query a tile
 /// fortunely the size is a constant of 4 possible neighbours so we're good
-static thread_local std::vector<Tile> tmp_tile_list = std::vector<Tile>(4);
+static thread_local std::vector<Tile> tmp_tile_list = std::vector<Tile>();
 const std::vector<Tile>& Tile::get_neighbours(const World& world) const {
     const auto idx = (size_t)world.get_id(*this);
     // Up
@@ -95,6 +95,8 @@ void ai_do_tick(Nation& nation);
 
 // Creates a new world
 void World::init_lua() {
+    tmp_tile_list.reserve(4);
+    
     lua = luaL_newstate();
     luaL_openlibs(lua);
 
