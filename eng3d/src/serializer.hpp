@@ -298,8 +298,8 @@ public:
             uint32_t len = 0;
             ::deser_dynamic<is_serialize>(ar, &len);
             obj_group->resize(len);
-            for(size_t i = 0; i < len; i++)
-                ::deser_dynamic<is_serialize>(ar, &obj_group[i]);
+            for(decltype(len) i = 0; i < len; i++)
+                ::deser_dynamic<is_serialize, T>(ar, &(*obj_group)[i]);
         }
     }
 };
@@ -319,8 +319,8 @@ public:
             uint32_t len = 0;
             ::deser_dynamic<is_serialize>(ar, &len);
             obj_group->resize(len);
-            for(size_t i = 0; i < len; i++)
-                ::deser_dynamic<is_serialize>(ar, &obj_group[i]);
+            for(decltype(len) i = 0; i < len; i++)
+                ::deser_dynamic<is_serialize, T>(ar, &(*obj_group)[i]);
         }
     }
 };
