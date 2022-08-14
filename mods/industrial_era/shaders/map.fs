@@ -44,7 +44,11 @@ uniform sampler2DArray terrain_sheet;
 
 const vec3 province_border_col = RGB(0.0, 0.0, 0.0);
 const vec3 country_border_col = RGB(0.2, 0.0, 0.0);
+#ifdef WATER
 const vec3 water_col = RGB(0.16, 0.35, 0.75);
+#else
+const vec3 water_col = RGB(0.0, 0.0, 1.0);
+#endif
 const vec3 paper_col = RGB(0.95294, 0.92157, 0.81569);
 const vec3 river_col = RGB(0.0, 0.0, 0.3);
 
