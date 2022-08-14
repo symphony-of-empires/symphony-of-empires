@@ -45,7 +45,7 @@ namespace Eng3D {
         std::unique_ptr<Eng3D::OpenGL::Program> line_shader;
         std::shared_ptr<Eng3D::Texture> water_tex;
     public:
-        Borders(Eng3D::State& s);
+        Borders(Eng3D::State& s, bool lazy_init = true);
         ~Borders() = default;
         void draw(const Eng3D::Camera& camera);
     private:

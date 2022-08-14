@@ -33,7 +33,10 @@
 #include "eng3d/shader.hpp"
 #include "eng3d/camera.hpp"
 
-Eng3D::Rivers::Rivers(Eng3D::State& _s)
+/// @brief Construct a new Eng3D::Rivers object
+/// @param _s Game state
+/// @param lazy_init Whetever to postpone creation until later
+Eng3D::Rivers::Rivers(Eng3D::State& _s, bool lazy_init)
     : s{ _s }
 {
     Eng3D::TextureOptions mipmap_options{};
@@ -52,7 +55,9 @@ Eng3D::Rivers::Rivers(Eng3D::State& _s)
         line_shader->attach_shader(fs_shader);
         line_shader->link();
     }
-    build_rivers();
+
+    if(!lazy_init)
+        this->build_rivers();
 }
 
 class ConnectedNode {

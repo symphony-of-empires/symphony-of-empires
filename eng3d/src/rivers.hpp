@@ -40,7 +40,7 @@ namespace Eng3D {
     class Rivers {
         Eng3D::State& s;
     public:
-        Rivers(Eng3D::State& s);
+        Rivers(Eng3D::State& s, bool lazy_init = true);
         ~Rivers() = default;
 
         void draw(const Eng3D::Camera& camera);

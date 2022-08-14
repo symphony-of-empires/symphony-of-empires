@@ -35,7 +35,10 @@
 #include "eng3d/shader.hpp"
 #include "eng3d/camera.hpp"
 
-Eng3D::Borders::Borders(Eng3D::State& _s)
+/// @brief Construct a new Eng 3D::Borders object
+/// @param _s Game state
+/// @param lazy_init Whetever to postpone creation until later
+Eng3D::Borders::Borders(Eng3D::State& _s, bool lazy_init)
     : s{ _s }
 {
     Eng3D::TextureOptions mipmap_options{};
@@ -44,7 +47,6 @@ Eng3D::Borders::Borders(Eng3D::State& _s)
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
     mipmap_options.internal_format = GL_SRGB;
-
     water_tex = s.tex_man.load(s.package_man.get_unique("gfx/water_tex.png"), mipmap_options);
     line_shader = std::make_unique<Eng3D::OpenGL::Program>();
     {
@@ -54,7 +56,9 @@ Eng3D::Borders::Borders(Eng3D::State& _s)
         line_shader->attach_shader(fs_shader);
         line_shader->link();
     }
-    this->build_borders();
+    
+    if(!lazy_init)
+        this->build_borders();
 }
 
 class BorderGenerator {
