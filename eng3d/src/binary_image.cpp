@@ -37,11 +37,11 @@
 #include "eng3d/state.hpp"
 #include "eng3d/log.hpp"
 
-BinaryImage::BinaryImage(const Eng3D::IO::Path& path) {
+Eng3D::BinaryImage::BinaryImage(const Eng3D::IO::Path& path) {
     from_file(path.str);
 }
 
-BinaryImage::BinaryImage(size_t _width, size_t _height)
+Eng3D::BinaryImage::BinaryImage(size_t _width, size_t _height)
     : width{ _width },
     height{ _height }
 {
@@ -49,23 +49,14 @@ BinaryImage::BinaryImage(size_t _width, size_t _height)
     std::memset(buffer.get(), 0, sizeof(uint32_t) * width * height);
 }
 
-BinaryImage::BinaryImage(const BinaryImage& tex)
-    : BinaryImage(tex.width, tex.height)
+Eng3D::BinaryImage::BinaryImage(const Eng3D::BinaryImage& tex)
+    : Eng3D::BinaryImage(tex.width, tex.height)
 {
     std::memcpy(buffer.get(), tex.buffer.get(), sizeof(uint32_t) * (width * height));
 }
 
-void BinaryImage::from_file(const Eng3D::IO::Path& path) {
+void Eng3D::BinaryImage::from_file(const Eng3D::IO::Path& path) {
     int i_width, i_height, i_channels;
-
-    /*
-    std::shared_ptr<Eng3D::IO::Asset::Base> asset = Eng3D::State::get_instance().package_man.get_unique(path.str.c_str());
-    if(asset.get() == nullptr) {
-        CXX_THROW(BinaryImageException, path.str, "Can't find image");
-    }
-
-    Eng3D::Log::debug("binary_image", "Asset path took " + asset->abs_path);
-    */
 
     // stbi can do the conversion to RGBA for us ;)
     stbi_uc* c_buffer = stbi_load(path.str.c_str(), &i_width, &i_height, &i_channels, 4);

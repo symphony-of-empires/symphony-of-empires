@@ -349,7 +349,7 @@ void World::load_initial() {
                 "nations", "provinces", "init"
         }, "lua/entities");
 
-        auto div = std::make_unique<BinaryImage>(Eng3D::State::get_instance().package_man.get_unique("map/provinces.png")->get_abs_path());
+        auto div = std::make_unique<Eng3D::BinaryImage>(Eng3D::State::get_instance().package_man.get_unique("map/provinces.png")->get_abs_path());
         width = div->width;
         height = div->height;
         tiles = std::make_unique<Tile[]>(width * height);

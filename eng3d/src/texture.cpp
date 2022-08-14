@@ -39,19 +39,19 @@
 // Texture
 //
 Eng3D::Texture::Texture(const std::string& path)
-    : BinaryImage(path)
+    : Eng3D::BinaryImage(path)
 {
 
 }
 
 Eng3D::Texture::Texture(const Eng3D::IO::Asset::Base* asset)
-    : BinaryImage((asset == nullptr) ? "" : asset->abs_path)
+    : Eng3D::BinaryImage((asset == nullptr) ? "" : asset->abs_path)
 {
 
 }
 
 Eng3D::Texture::Texture(size_t _width, size_t _height)
-    : BinaryImage(_width, _height)
+    : Eng3D::BinaryImage(_width, _height)
 {
 
 }
@@ -326,7 +326,7 @@ void Eng3D::Texture::to_file(const std::string& filename) {
 
 /// @brief Creates a new texture array
 Eng3D::TextureArray::TextureArray(const std::string& path, size_t _tiles_x, size_t _tiles_y)
-    : BinaryImage(path),
+    : Eng3D::BinaryImage(path),
     tiles_x{ _tiles_x },
     tiles_y{ _tiles_y }
 {
@@ -385,7 +385,6 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::get_white() {
     }
     return std::shared_ptr<Eng3D::Texture>(white);
 }
-
 
 /// @brief Finds a texture in the list of a texture manager if the texture is already in the
 /// list we load the saved texture from the list instead of loading it from the disk. Otherwise

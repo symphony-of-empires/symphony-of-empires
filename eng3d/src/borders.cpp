@@ -152,10 +152,7 @@ public:
 };
 
 void Eng3D::Borders::build_borders() {
-    Eng3D::TextureOptions no_drop_options{};
-    no_drop_options.editable = true;
-    auto border_tex = s.tex_man.load(s.package_man.get_unique("map/provinces.png"), no_drop_options);
-
+    auto border_tex = std::make_unique<Eng3D::BinaryImage>(s.package_man.get_unique("map/provinces.png")->get_abs_path());
     int height = border_tex->height;
     int width = border_tex->width;
     auto pixels = border_tex->buffer.get();

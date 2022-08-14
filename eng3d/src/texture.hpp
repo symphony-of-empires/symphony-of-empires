@@ -102,7 +102,7 @@ namespace Eng3D {
     };
     const TextureOptions default_options;
 
-    class Texture: public BinaryImage {
+    class Texture: public Eng3D::BinaryImage {
         void _upload(TextureOptions options = default_options);
         void _upload(SDL_Surface* surface);
     public:
@@ -129,7 +129,7 @@ namespace Eng3D {
     };
 
     // Array of textures
-    class TextureArray: public BinaryImage {
+    class TextureArray: public Eng3D::BinaryImage {
     public:
         TextureArray(const std::string& path, size_t _tiles_x, size_t _tiles_y);
         void upload();
