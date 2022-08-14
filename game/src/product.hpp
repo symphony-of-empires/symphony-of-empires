@@ -55,20 +55,6 @@ public:
 
         // Set the new price
         this->price = std::max<float>(0.01f, this->price + this->price_vel);
-
-        // Save prices and stuff onto history (for the charts!)
-        this->demand_history.push_back(this->demand);
-        if(this->demand_history.size() > 30)
-            this->demand_history.pop_front();
-        
-        this->supply_history.push_back(this->supply);
-        if(this->supply_history.size() > 30)
-            this->supply_history.pop_front();
-
-        this->price_history.push_back(this->price);
-        if(this->price_history.size() > 30)
-            this->price_history.pop_front();
-
         this->demand = 0;
     }
 
@@ -80,8 +66,4 @@ public:
     float supply = 0.f;
     /// @brief Total demand of the product
     float demand = 0.f;
-    /// @brief History of price, supply and demand for the past 30 days
-    std::deque<float> price_history;
-    std::deque<float> supply_history;
-    std::deque<float> demand_history;
 };

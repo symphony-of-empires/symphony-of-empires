@@ -113,16 +113,13 @@ std::vector<Province::Id> Pathfind::unit_path(const World& world, const Nation& 
     //    return std::vector<Tile *>();
     //}
 
-    // Keeps track of the costs so far
+    /// @brief Keeps track of the costs so far
     std::unordered_map<Province::Id, float> cost_map;
-
-    // Keeps track of the previous tile for each tile
+    /// @brief Keeps track of the previous tile for each tile
     std::unordered_map<Province::Id, Province::Id> prev_map;
-
-    // Keeps track of which tiles have been visited
+    /// @brief Keeps track of which tiles have been visited
     std::unordered_set<Province::Id> visited;
-
-    // Priority queue based on cost
+    /// @brief Priority queue based on cost
     std::priority_queue<
         std::pair<float, Province::Id>,
         std::vector<std::pair<float, Province::Id>>,

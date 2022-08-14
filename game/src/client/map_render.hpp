@@ -100,6 +100,10 @@ public:
     inline uint32_t get_province_opt(const Province::Id id) {
         return this->province_opt->buffer[id];
     }
+
+    inline Province::Id get_tile_province_id(size_t x, size_t y) {
+        return static_cast<Province::Id>(tile_map->buffer.get()[x + y * tile_map->width] & 0xffff);
+    }
 private:
     const World& world;
     Map& map;

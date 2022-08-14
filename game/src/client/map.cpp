@@ -350,11 +350,11 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         return;
 
     if(event.button.button == SDL_BUTTON_LEFT) {
-        const auto& tile = gs.world->get_tile(input.select_pos.x, input.select_pos.y);
+        const auto province_id = gs.map->map_render->get_tile_province_id(input.select_pos.x, input.select_pos.y);
         switch(gs.current_mode) {
         case MapMode::COUNTRY_SELECT:
-            if(Province::is_valid(tile.province_id)) {
-                auto& province = world.provinces[tile.province_id];
+            if(Province::is_valid(province_id)) {
+                auto& province = world.provinces[province_id];
                 if(Nation::is_valid(province.controller_id))
                     gs.select_nation->change_nation(province.controller_id);
             }
@@ -362,7 +362,7 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         case MapMode::NORMAL:
             if(this->selector) {
                 /// @todo Good selector function
-                this->selector(this->world, *this, this->world.provinces[tile.province_id]);
+                this->selector(this->world, *this, this->world.provinces[province_id]);
                 break;
             }
 
@@ -370,8 +370,8 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
             is_drag = false;
             if(input.get_selected_units().empty()) {
                 // Show province information when clicking on a province
-                if(tile.province_id < gs.world->provinces.size()) {
-                    new Interface::ProvinceView(gs, gs.world->provinces[tile.province_id]);
+                if(province_id < gs.world->provinces.size()) {
+                    new Interface::ProvinceView(gs, gs.world->provinces[province_id]);
                     return;
                 }
             }
@@ -381,9 +381,9 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
         }
         return;
     } else if(event.button.button == SDL_BUTTON_RIGHT) {
-        const auto& tile = gs.world->get_tile(input.select_pos.x, input.select_pos.y);
-        if(Nation::is_invalid(tile.province_id)) return;
-        auto& province = gs.world->provinces[tile.province_id];
+        const auto province_id = gs.map->map_render->get_tile_province_id(input.select_pos.x, input.select_pos.y);
+        if(Nation::is_invalid(province_id)) return;
+        auto& province = gs.world->provinces[province_id];
         if(gs.editor) {
             switch(gs.current_mode) {
             case MapMode::NORMAL:
@@ -487,7 +487,7 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, Game
         if(camera->get_cursor_map_pos(mouse_pos, map_pos)) {
             if(map_pos.x < 0 || map_pos.x >(int)world.width || map_pos.y < 0 || map_pos.y >(int)world.height) break;
             input.select_pos = map_pos;
-            auto prov_id = world.get_tile(map_pos.x, map_pos.y).province_id;
+            auto prov_id = map_render->get_tile_province_id(map_pos.x, map_pos.y);
             const std::string text = mapmode_tooltip_func != nullptr ? mapmode_tooltip_func(world, prov_id) : "";
             
             if(!text.empty()) {

@@ -64,17 +64,16 @@ MapRender::MapRender(const World& _world, Map& _map)
     // The tile map, used to store per-tile information
     tile_map = std::make_unique<Eng3D::Texture>(world.width, world.height);
     for(size_t i = 0; i < world.width * world.height; i++) {
-        const auto& tile = world.get_tile(i);
+        const auto tile = world.get_tile(i);
         tile_map->buffer.get()[i] = tile.province_id & 0xffff;
     }
+    // After this snippet of code we won't ever need tiles ever again
+    const_cast<World&>(world).tiles.reset();
+
     Eng3D::TextureOptions tile_map_options{};
     tile_map_options.internal_format = GL_RGBA32F;
-    if(world.dynamic_provinces) {
-        tile_map_options.editable = true;
-        tile_map_options.compressed = false;
-    } else {
-        tile_map_options.compressed = this->options.compress.used;
-    }
+    tile_map_options.editable = true;
+    tile_map_options.compressed = this->options.compress.used;
     tile_map->upload(tile_map_options);
 
     // Texture holding each province color

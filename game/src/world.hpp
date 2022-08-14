@@ -283,8 +283,6 @@ public:
     
     /// @brief Used to signal the lua scripts of invalid operations (eg. adding a country midgame)
     bool needs_to_sync = false;
-    /// @brief Whetever to allow dynamic provinces that can change shape mid-game
-    bool dynamic_provinces = false;
 
     std::mutex world_mutex;
     std::mutex list_mutex;

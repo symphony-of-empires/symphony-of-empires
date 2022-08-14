@@ -32,10 +32,11 @@
 #include "eng3d/ui/tooltip.hpp"
 #include "eng3d/ui/progress_bar.hpp"
 #include "eng3d/locale.hpp"
+#include "eng3d/path.hpp"
+#include "eng3d/string_format.hpp"
 
 #include "client/interface/common.hpp"
 #include "client/interface/good_view.hpp"
-#include "eng3d/path.hpp"
 #include "nation.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
@@ -303,37 +304,34 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province& _province, Good
     });
     this->demand_chart->set_tooltip(new UI::Tooltip(this->demand_chart, 512, 24));
 
-    this->on_each_tick = ([](UI::Widget& w) {
-        auto& o = static_cast<ProductInfo&>(w);
+    this->on_each_tick = ([this](UI::Widget&) {
+        const auto& product = this->province.products[this->gs.world->get_id(this->good)];
+        this->price_chart->data.clear();
+        for(const auto& data : this->price_history)
+            this->price_chart->data.push_back(data);
+        this->price_history.push_back(product.price);
+        if(!this->price_history.empty())
+            this->price_chart->tooltip->text(Eng3D::string_format("%.4f", this->price_history.back()));
 
-        // Only update every ticks_per_month ticks
-        if(o.gs.world->time % o.gs.world->ticks_per_month)
-            return;
+        this->supply_chart->data.clear();
+        for(const auto& data : this->supply_history)
+            this->supply_chart->data.push_back(data);
+        this->supply_history.push_back(product.supply);
+        if(!this->supply_history.empty())
+            this->supply_chart->tooltip->text(Eng3D::string_format("%.4f", this->supply_history.back()));
 
-        const Product& product = o.province.products[o.gs.world->get_id(o.good)];
-        o.price_chart->data.clear();
-        for(const auto& data : product.price_history)
-            o.price_chart->data.push_back(data);
-        if(!product.price_history.empty())
-            o.price_chart->tooltip->text(std::to_string(product.price_history.back()));
+        this->demand_chart->data.clear();
+        for(const auto& data : this->demand_history)
+            this->demand_chart->data.push_back(data);
+        this->demand_history.push_back(product.demand);
+        if(!this->demand_history.empty())
+            this->demand_chart->tooltip->text(Eng3D::string_format("%.4f", this->demand_history.back()));
 
-        o.supply_chart->data.clear();
-        for(const auto& data : product.supply_history)
-            o.supply_chart->data.push_back(data);
-        if(!product.supply_history.empty())
-            o.supply_chart->tooltip->text(std::to_string((int)product.supply_history.back()));
-
-        o.demand_chart->data.clear();
-        for(const auto& data : product.demand_history)
-            o.demand_chart->data.push_back(data);
-        if(!product.demand_history.empty())
-            o.demand_chart->tooltip->text(std::to_string((int)product.demand_history.back()));
-
-        o.price_rate_btn->text(std::to_string(product.price_vel));
+        this->price_rate_btn->text(std::to_string(product.price_vel));
         if(product.price_vel >= 0.f)
-            o.price_rate_btn->text_color = Eng3D::Color(0, 255, 0);
+            this->price_rate_btn->text_color = Eng3D::Color(0, 255, 0);
         else
-            o.price_rate_btn->text_color = Eng3D::Color(255, 0, 0);
+            this->price_rate_btn->text_color = Eng3D::Color(255, 0, 0);
     });
     this->on_each_tick(*this);
 }

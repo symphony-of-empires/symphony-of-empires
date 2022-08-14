@@ -121,6 +121,8 @@ namespace Interface {
         UI::Button* name_btn,* province_btn;
         UI::Button* price_btn,* price_rate_btn;
         UI::Chart* price_chart,* demand_chart,* supply_chart;
+
+        std::deque<float> price_history, supply_history, demand_history;
     public:
         ProductInfo(GameState& gs, int x, int y, Province& province, Good& good, UI::Widget* parent);
     };
