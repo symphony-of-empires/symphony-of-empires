@@ -110,7 +110,7 @@ namespace Eng3D {
         Texture(const std::string& path);
         Texture(const Eng3D::IO::Asset::Base* asset);
         Texture(size_t _width, size_t _height);
-        Texture(Eng3D::TrueType::Font* font, Eng3D::Color color, const std::string& msg);
+        Texture(Eng3D::TrueType::Font& font, Eng3D::Color color, const std::string& msg);
         ~Texture() override;
         void create_dummy();
         void upload(TextureOptions options = default_options);

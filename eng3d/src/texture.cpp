@@ -56,9 +56,7 @@ Eng3D::Texture::Texture(size_t _width, size_t _height)
 
 }
 
-Eng3D::Texture::Texture(Eng3D::TrueType::Font* font, Eng3D::Color color, const std::string& msg) {
-    assert(font != nullptr);
-
+Eng3D::Texture::Texture(Eng3D::TrueType::Font& font, Eng3D::Color color, const std::string& msg) {
     // TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
     const SDL_Color text_color = {
         static_cast<Uint8>(color.r * 255.f),
@@ -67,9 +65,11 @@ Eng3D::Texture::Texture(Eng3D::TrueType::Font* font, Eng3D::Color color, const s
         0
     };
 
-    auto* surface = TTF_RenderUTF8_Blended(font, msg.c_str(), text_color);
+    Eng3D::Log::debug("ttf", "Creating text for \"" + msg + "\"");
+    auto* surface = TTF_RenderUTF8_Blended(&font, msg.c_str(), text_color);
     if(surface == nullptr)
         CXX_THROW(std::runtime_error, std::string() + "Cannot create text surface: " + TTF_GetError());
+    Eng3D::Log::debug("ttf", "Sucessfully created text");
 
     buffer.reset();
     width = static_cast<size_t>(surface->w);
@@ -79,7 +79,7 @@ Eng3D::Texture::Texture(Eng3D::TrueType::Font* font, Eng3D::Color color, const s
 
     const std::string error_msg = SDL_GetError();
     if(!error_msg.empty())
-        Eng3D::Log::error("sdl", error_msg);
+        Eng3D::Log::error("ttf", error_msg);
 }
 
 Eng3D::Texture::~Texture() {
@@ -154,7 +154,7 @@ void Eng3D::Texture::_upload(TextureOptions options) {
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
 
-#if !defined E3D_BACKEND_GLES
+#ifndef E3D_BACKEND_GLES
     /// @todo This causes a lot of issues!
     // Compress the texture if it can't be edited, this is only available on normal OpenGL through
     if(!options.editable && options.compressed) {
@@ -222,6 +222,7 @@ void Eng3D::Texture::_upload(TextureOptions options) {
 /// @brief Converts the texture into a OpenGL texture, and assigns it a number
 void Eng3D::Texture::_upload(SDL_Surface* surface) {
     if(surface->w == 0 || surface->h == 0) return;
+    assert(surface->format != nullptr);
 
     int colors = surface->format->BytesPerPixel;
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
@@ -231,10 +232,10 @@ void Eng3D::Texture::_upload(SDL_Surface* surface) {
         if(surface->format->Rmask == 0x000000ff) {
             texture_format = GL_RGBA;
         } else {
-#ifdef E3D_BACKEND_OPENGL
+#ifdef GL_BGRA
             texture_format = GL_BGRA;
 #else
-            CXX_THROW(std::runtime_error, "Unsupported texture format");
+            texture_format = GL_RGBA; //CXX_THROW(std::runtime_error, "Unsupported texture format");
 #endif
         }
     } else {
@@ -242,18 +243,17 @@ void Eng3D::Texture::_upload(SDL_Surface* surface) {
         if(surface->format->Rmask == 0x000000ff) {
             texture_format = GL_RGB;
         } else {
-#ifdef E3D_BACKEND_OPENGL
+#ifdef GL_BGR
             texture_format = GL_BGR;
 #else
-            CXX_THROW(std::runtime_error, "Unsupported texture format");
+            texture_format = GL_RGB; //CXX_THROW(std::runtime_error, "Unsupported texture format");
 #endif
         }
     }
 
     int alignment = 8;
-    while(surface->pitch % alignment) {
+    while(surface->pitch % alignment)
         alignment >>= 1; // x%1==0 for any x
-    }
     glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
 
     int expected_pitch = (surface->w * surface->format->BytesPerPixel + alignment - 1) / alignment * alignment;
@@ -267,12 +267,8 @@ void Eng3D::Texture::_upload(SDL_Surface* surface) {
     glGenTextures(1, &gl_tex_num);
     glBindTexture(GL_TEXTURE_2D, gl_tex_num);
     glTexImage2D(GL_TEXTURE_2D, 0, colors, surface->w, surface->h, 0, texture_format, GL_UNSIGNED_BYTE, surface->pixels);
-
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glGenerateMipmap(GL_TEXTURE_2D);
-
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 #endif
