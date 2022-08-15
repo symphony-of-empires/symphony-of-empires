@@ -453,7 +453,7 @@ void World::load_initial() {
         Eng3D::Log::debug("game", _("Creating neighbours for provinces"));
         for(size_t i = 0; i < width * height; i++) {
             const auto tile = this->tiles[i];
-            assert(Province::is_valid(tile->province_id));
+            assert(Province::is_valid(tile.province_id));
             auto& province = this->provinces[this->tiles[i].province_id];
             // Up
             if(i > this->width) {
