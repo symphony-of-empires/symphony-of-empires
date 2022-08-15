@@ -39,8 +39,11 @@ Or if you have a 32-bit computer:
 ```sh
 pacman -S mingw-w64-i686-SDL2_ttf mingw-w64-i686-SDL2 mingw-w64-i686-glew mingw-w64-i686-glm mingw-w64-i686-zlib mingw-w64-i686-assimp  mingw-w64-i686-intel-tbb
 ```
-**Debian-based**: ``sudo apt install -y libpng-dev libsdl2-dev libsdl2-ttf-dev libtbb-dev libglew-dev libglm-dev libassimp-dev``
-**Arch-based**: ``pacman -S libpng sdl2 sdl2_ttf glew glm tbb assimp``
+
+**Debian-based**: ``sudo apt install -y libsdl2-dev libsdl2-ttf-dev libtbb-dev libglew-dev libglm-dev libassimp-dev``
+
+**Arch-based**: ``pacman -S sdl2 sdl2_ttf glew glm tbb assimp``
+
 **NetBSD**:
 ```sh
 pkgin in SDL2 SDL2_ttf assimp lua54 glew MesaLib glu libatomic threadingbuildingblocks

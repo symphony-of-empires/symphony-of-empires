@@ -71,22 +71,29 @@ IF(NOT MSVC)
 	set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS}")
 ENDIF()
 IF(WIN32)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_TARGET_WINDOWS=1")
+	add_definitions(-DE3D_TARGET_WINDOWS=1)
 ELSEIF(UNIX)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_TARGET_UNIX=1")
+	include_directories("/usr/include/SDL2")
+	add_definitions(-DE3D_TARGET_UNIX=1)
+	IF(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+		# Workaround for clang (see https://bugs.launchpad.net/ubuntu/+source/libsdl2-ttf/+bug/1872023)
+		link_directories(/usr/local/lib)
+	ENDIF()
 ELSEIF(ANDROID)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_TARGET_UNIX=1 -DE3D_TARGET_ANDROID=1")
-ELSE()
+	add_definitions(-DE3D_TARGET_UNIX=1)
+	add_definitions(-DE3D_TARGET_ANDROID=1)
+ELSEIF(CMAKE_SYSTEM_NAME STREQUAL "NetBSD")
+	include_directories("/usr/pkg/include/SDL2")
+	add_definitions(-DE3D_TARGET_UNIX=1)
+	add_definitions(-DE3D_TARGET_NETBSD=1)
 	link_directories("${DEVKITPRO}/libogc/lib")
 	include_directories("${DEVKITPRO}/libogc/include")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_TARGET_UNIX=1")
+	add_definitions(-DE3D_TARGET_RVL=1)
 ENDIF()
 IF(UNIT_TEST)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNIT_TEST")
 ENDIF()
 
-include_directories("/usr/include/SDL2")
-include_directories("/usr/pkg/include/SDL2")
 include_directories("${PROJECT_SOURCE_DIR}/game/src" "${CMAKE_SOURCE_DIR}/eng3d")
 
 #
@@ -118,6 +125,12 @@ IF(Threads_FOUND)
 	target_link_libraries(SymphonyOfEmpires PRIVATE Threads::Threads)
 ENDIF()
 
+find_package(TBB)
+IF(TBB_FOUND)
+	target_link_libraries(SymphonyOfEmpires PRIVATE TBB::TBB)
+	add_definitions(-DSOE_FEATURE_TBB)
+ENDIF()
+
 # Platform-specific libraries
 IF(WIN32)
 	target_link_libraries(SymphonyOfEmpires PRIVATE ws2_32 wsock32)
@@ -137,13 +150,10 @@ ELSEIF(UNIX OR ANDROID)
 		target_link_libraries(SymphonyOfEmpires PRIVATE EGL GLESv1_CM GLESv2 GLESv3)
 	ENDIF()
 ENDIF()
-target_link_libraries(SymphonyOfEmpires PUBLIC eng3d SDL2 SDL2_ttf)
+target_link_libraries(SymphonyOfEmpires PUBLIC eng3d SDL2)
 
-set(APP_SHARED_LIBRARIES
-	${LIBRARY_OUTPUT_PATH}/libtbb.so
-	${LIBRARY_OUTPUT_PATH}/libassimp.so
-	${LIBRARY_OUTPUT_PATH}/libSDL2.so
-	${LIBRARY_OUTPUT_PATH}/libSDL2_ttf.so
-	${LIBRARY_OUTPUT_PATH}/liblua.so
-	${LIBRARY_OUTPUT_PATH}/libeng3d.so
+IF(ANDROID)
+	set(APP_SHARED_LIBRARIES ${LIBRARY_OUTPUT_PATH}/libtbb.so ${LIBRARY_OUTPUT_PATH}/libSDL2.so ${LIBRARY_OUTPUT_PATH}/liblua.so ${LIBRARY_OUTPUT_PATH}/libeng3d.so)
+	string(APPEND APP_SHARED_LIBRARIES ${LIBRARY_OUTPUT_PATH}/libassimp.so)
+ENDIF()
 )
