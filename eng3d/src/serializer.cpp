@@ -29,17 +29,20 @@
 #include <memory>
 #include "eng3d/serializer.hpp"
 #include "eng3d/utils.hpp"
+#include "eng3d/log.hpp"
 
 void Archive::to_file(const std::string& path) {
     if(!buffer.empty()) {
-        std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen(path.c_str(), "wb"), fclose);
-        fwrite((const void*)&buffer[0], 1, buffer.size(), fp.get());
+        Eng3D::Log::debug("fs", "Writing archive " + path);
+        std::unique_ptr<FILE, int(*)(FILE*)> fp(::fopen(path.c_str(), "wb"), ::fclose);
+        ::fwrite((const void*)&buffer[0], 1, buffer.size(), fp.get());
     } else {
         CXX_THROW(SerializerException, "Can't output an empty archive to file " + path);
     }
 }
 
 void Archive::from_file(const std::string& path) {
+    Eng3D::Log::debug("fs", "Reading archive " + path);
     std::ifstream ifs(path, std::ios::binary);
     std::vector<uint8_t> tmpbuf(std::istreambuf_iterator<char>(ifs), {});
     buffer = tmpbuf;

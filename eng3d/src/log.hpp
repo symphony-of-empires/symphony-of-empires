@@ -28,24 +28,30 @@
 #include <string>
 #include <memory>
 
+
 namespace Eng3D::Log {
-    inline void debug(const std::string& category, const std::string& msg) {
-#if defined E3D_DEBUG || defined GS_DEBUG || 1
+    /// @brief Logs data to a file or console
+    inline void log(const std::string& severity, const std::string& category, const std::string& msg) {
+#if defined E3D_LOG_TO_FILE
         std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen("log.txt", "a+t"), fclose);
         if(fp != nullptr)
-            fprintf(fp.get(), "<debug:%s> %s\n", category.c_str(), msg.c_str());
+            fprintf(fp.get(), "<%s:%s> %s\n", severity.c_str(), category.c_str(), msg.c_str());
+#else
+        printf("<%s:%s> %s\n", severity.c_str(), category.c_str(), msg.c_str());
 #endif
-    };
+    }
+
+    inline void debug(const std::string& category, const std::string& msg) {
+#if defined E3D_DEBUG || 1
+        Eng3D::Log::log("debug", category, msg);
+#endif
+    }
 
     inline void warning(const std::string& category, const std::string& msg) {
-        std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen("log.txt", "a+t"), fclose);
-        if(fp != nullptr)
-            fprintf(fp.get(), "<warning:%s> %s\n", category.c_str(), msg.c_str());
-    };
+        Eng3D::Log::log("warning", category, msg);
+    }
 
     inline void error(const std::string& category, const std::string& msg) {
-        std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen("log.txt", "a+t"), fclose);
-        if(fp != nullptr)
-            fprintf(fp.get(), "<error:%s> %s\n", category.c_str(), msg.c_str());
-    };
+        Eng3D::Log::log("error", category, msg);
+    }
 };

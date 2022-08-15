@@ -10,9 +10,9 @@ option(E3D_BUILD_ENGINE "Enable building the Eng3D library" ON)
 # Defines - see README.1st
 #
 option(E3D_DEBUG, "Enable debug" ON)
-option(E3D_BACKEND_OPENGL, "Enable the OpenGL backend" ON)
+option(E3D_BACKEND_OPENGL, "Enable the OpenGL backend" OFF)
 option(E3D_BACKEND_GLES, "Enable the GLES backend" ON)
-option(E3D_BACKEND_RGX, "E3D_BACKEND_RGX" ON)
+option(E3D_BACKEND_RGX, "Enable dummy graphics" OFF)
 option(E3D_MANAGED_HEAP, "Allow Eng3D to manage heap (useful for debugging without instrumentation)" ON)
 option(E3D_VENDORED, "Build libraries instead of using the system ones" OFF)
 
@@ -153,14 +153,14 @@ IF(E3D_VENDORED)
 			FetchContent_MakeAvailable(glfw)
 		ENDIF()
 	ENDIF()
-ENDIF()
-
 # ZLIB
 FetchContent_Declare(zlib GIT_REPOSITORY "https://github.com/madler/zlib" GIT_TAG 21767c654d31d2dccdde4330529775c6c5fd5389 GIT_PROGRESS TRUE)
 FetchContent_MakeAvailable(zlib)
 # GLM
 FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm" GIT_PROGRESS TRUE)
 FetchContent_MakeAvailable(glm)
+ENDIF()
+
 # LUA
 set(LUA_BUILD_BINARY OFF)
 set(LUA_BUILD_COMPILER OFF)
@@ -199,11 +199,11 @@ ENDIF()
 #
 # Linking
 #
-target_link_libraries(eng3d PUBLIC glm tbb lua_static)
+target_link_libraries(eng3d PUBLIC lua_static)
 target_link_libraries(eng3d PRIVATE SDL2_ttf)
 IF(WIN32)
 	target_link_libraries(eng3d PRIVATE ws2_32 wsock32)
-	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR MSVC)
+	IF(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR MSVC)
 		target_link_libraries(eng3d PRIVATE zlib)
 	ELSE()
 		target_link_libraries(eng3d PRIVATE m stdc++)
@@ -220,7 +220,7 @@ ELSEIF(UNIX OR ANDROID)
 	ENDIF()
 ENDIF()
 
-# Pthread
+# pthread
 find_package(Threads)
 IF(Threads_FOUND)
 	set(THREADS_PREFER_PTHREAD_FLAG ON)
