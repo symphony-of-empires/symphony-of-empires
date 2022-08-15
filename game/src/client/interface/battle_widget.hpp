@@ -46,7 +46,7 @@ namespace Interface {
         UI::Image* right_flag_img;
         UI::Div* right_size_label;
     public:
-        BattleWidget(Province& province, size_t idx, Map& map, UI::Widget* parent);
+        BattleWidget(Map& map, UI::Widget* parent);
         void set_battle(Province& province, size_t idx);
         virtual ~BattleWidget() {};
     };

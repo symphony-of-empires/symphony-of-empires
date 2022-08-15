@@ -39,10 +39,8 @@
 
 using namespace Interface;
 
-BattleWidget::BattleWidget(Province& _province, size_t _idx, Map& _map, UI::Widget* parent)
+BattleWidget::BattleWidget(Map& _map, UI::Widget* parent)
     : UI::Div(0, 0, 188, 30, parent),
-    province{ &_province },
-    idx{ _idx },
     map{ _map }
 {
     this->background_color = Eng3D::Color(1.f, 1.f, 1.f, 1.f);
@@ -56,7 +54,7 @@ BattleWidget::BattleWidget(Province& _province, size_t _idx, Map& _map, UI::Widg
     this->left_size_label->background_color = Eng3D::Color(0.8f, 0.f, 0.f, 1.f);
     this->left_size_label->on_each_tick = ([this](UI::Widget&) {
         if(this->idx >= this->province->battles.size()) return;
-        const Battle& battle = this->province->battles[this->idx];
+        const auto& battle = this->province->battles[this->idx];
         auto unit_size = 0;
         for(const auto unit_id : battle.attackers_ids) {
             const auto& unit = g_world.unit_manager.units[unit_id];
@@ -71,7 +69,7 @@ BattleWidget::BattleWidget(Province& _province, size_t _idx, Map& _map, UI::Widg
     this->right_size_label->background_color = Eng3D::Color(0.f, 0.f, 0.8f, 1.f);
     this->right_size_label->on_each_tick = ([this](UI::Widget&) {
         if(this->idx >= this->province->battles.size()) return;
-        const Battle& battle = this->province->battles[this->idx];
+        const auto& battle = this->province->battles[this->idx];
         auto unit_size = 0;
         for(const auto unit_id : battle.defenders_ids) {
             const auto& unit = g_world.unit_manager.units[unit_id];
@@ -79,8 +77,6 @@ BattleWidget::BattleWidget(Province& _province, size_t _idx, Map& _map, UI::Widg
         }
         this->right_size_label->text(std::to_string(unit_size));
     });
-
-    this->set_battle(*this->province, this->idx);
 }
 
 void BattleWidget::set_battle(Province& _province, size_t _idx) {

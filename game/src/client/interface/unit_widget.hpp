@@ -47,7 +47,7 @@ namespace Interface {
         UI::Div* size_label;
         UI::ProgressBar* morale_bar;
     public:
-        UnitWidget(Unit& unit, Map& map, GameState& gamestate, UI::Widget* parent);
+        UnitWidget(Map& map, GameState& gamestate, UI::Widget* parent);
         void set_unit(Unit& _unit);
         void set_size(size_t size);
         virtual ~UnitWidget() = default;

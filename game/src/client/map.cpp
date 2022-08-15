@@ -164,6 +164,12 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     // Create tooltip for hovering on the map
     this->tooltip = new UI::Tooltip();
     this->reload_shaders();
+    this->unit_widgets.resize(world.provinces.size());
+    this->battle_widgets.resize(world.provinces.size());
+    for(Unit::Id i = 0; i < world.provinces.size(); i++) {
+        this->unit_widgets[i] = new Interface::UnitWidget(*this, reinterpret_cast<GameState&>(s), this->map_ui_layer);
+        this->battle_widgets[i] = new Interface::BattleWidget(*this, this->map_ui_layer);
+    }
 }
 
 Map::~Map() {
@@ -548,6 +554,20 @@ void Map::draw(GameState& gs) {
         // Display units that aren't on battles
         Unit::Id unit_index = 0, battle_index = 0;
         for(auto& province : const_cast<World&>(world).provinces) {
+            const auto prov_pos = province.get_pos();
+
+            this->unit_widgets[province.get_id()]->is_render = false;
+            this->battle_widgets[province.get_id()]->is_render = false;
+            if(this->view_mode == MapView::SPHERE_VIEW) {
+                const auto* orbit_camera = static_cast<const Eng3D::OrbitCamera*>(camera);
+                const auto cam_pos = camera->get_world_pos();
+                const auto world_pos = camera->get_tile_world_pos(prov_pos);
+                const auto world_to_camera = glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
+                // If outside our range of view we just don't evaluate this province
+                if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
+                    continue;
+            }
+
             // Units
             const auto& province_units = this->world.unit_manager.get_province_units(province.get_id());
             if(!province_units.empty()) {
@@ -562,50 +582,21 @@ void Map::draw(GameState& gs) {
                 bool has_widget = false;
                 if((this->map_render->get_province_opt(province.get_id()) & 0x000000ff) == 0x000000ff) {
                     auto& camera = this->camera;
-                    const glm::vec2 prov_pos = province.get_pos();
-                    // And display units
-                    bool unit_visible = true;
-                    if(this->view_mode == MapView::SPHERE_VIEW) {
-                        const auto* orbit_camera = static_cast<const Eng3D::OrbitCamera*>(camera);
-                        const auto cam_pos = camera->get_world_pos();
-                        const auto world_pos = camera->get_tile_world_pos(prov_pos);
-                        const auto world_to_camera = glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
-                        if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
-                            unit_visible = false;
-                    }
-
-                    if(unit.on_battle) unit_visible = false;
-                    if(unit_visible) {
-                        if(unit_index < unit_widgets.size()) this->unit_widgets[unit_index]->set_unit(unit);
-                        else this->unit_widgets.push_back(new Interface::UnitWidget(unit, *this, gs, this->map_ui_layer));
-                        unit_index++;
-                        has_widget = true;
+                    // Display unit only if not on a battle
+                    if(!unit.on_battle) {
+                        this->unit_widgets[province.get_id()]->set_unit(unit);
+                        this->unit_widgets[province.get_id()]->set_size(total_stack_size);
+                        this->unit_widgets[province.get_id()]->is_render = true;
                     }
                 }
-                if(has_widget) this->unit_widgets[unit_index - 1]->set_size(total_stack_size);
             }
 
             // Battles
             if((this->map_render->get_province_opt(province.get_id()) & 0x000000ff) == 0x000000ff) {
                 const auto prov_pos = province.get_pos();
-                size_t war_battle_idx = 0;
-                for(size_t i = 0; i < province.battles.size(); i++) {
-                    bool battle_visible = true;
-                    if(view_mode == MapView::SPHERE_VIEW) {
-                        const auto* orbit_camera = static_cast<const Eng3D::OrbitCamera*>(camera);
-                        const auto cam_pos = camera->get_world_pos();
-                        const auto world_pos = camera->get_tile_world_pos(prov_pos);
-                        const auto world_to_camera = glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
-                        if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
-                            battle_visible = false;
-                    }
-
-                    if(battle_visible) {
-                        if(battle_index < battle_widgets.size()) battle_widgets[battle_index]->set_battle(province, war_battle_idx);
-                        else battle_widgets.push_back(new Interface::BattleWidget(province, war_battle_idx, *this, map_ui_layer));
-                        battle_index++;
-                    }
-                    war_battle_idx++;
+                if(province.battles.empty()) {
+                    this->battle_widgets[province.get_id()]->set_battle(province, 0);
+                    this->battle_widgets[province.get_id()]->is_render = true;
                 }
                 
                 // Only display units of set so
@@ -628,12 +619,6 @@ void Map::draw(GameState& gs) {
                 }
             }
         }
-        for(Unit::Id i = unit_index; i < unit_widgets.size(); i++)
-            unit_widgets[i]->kill();
-        unit_widgets.resize(unit_index);
-        for(Unit::Id i = battle_index; i < battle_widgets.size(); i++)
-            battle_widgets[i]->kill();
-        battle_widgets.resize(battle_index);
 
         // Unit movement lines
         gs.world->unit_manager.for_each_unit([&gs] (Unit& unit) {
@@ -657,12 +642,11 @@ void Map::draw(GameState& gs) {
             }
         }
     } else {
-        for(Unit::Id i = 0; i < unit_widgets.size(); i++)
-            unit_widgets[i]->kill();
-        unit_widgets.clear();
-        for(Unit::Id i = 0; i < battle_widgets.size(); i++)
-            battle_widgets[i]->kill();
-        battle_widgets.clear();
+        for(auto& province : const_cast<World&>(world).provinces) {
+            const auto prov_pos = province.get_pos();
+            this->unit_widgets[province.get_id()]->is_render = false;
+            this->battle_widgets[province.get_id()]->is_render = false;
+    }
     }
 
     // Draw the "drag area" box

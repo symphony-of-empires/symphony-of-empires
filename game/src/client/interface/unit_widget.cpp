@@ -40,12 +40,12 @@
 
 using namespace Interface;
 
-UnitWidget::UnitWidget(Unit& _unit, Map& _map, GameState& _gs, UI::Widget* parent)
+UnitWidget::UnitWidget(Map& _map, GameState& _gs, UI::Widget* parent)
     : UI::Div(0, 0, 100, 30, parent),
-    unit_id{ _unit.get_id() },
     map{ _map },
     gs{ _gs }
 {
+    this->unit_id = 0;
     this->background_color = Eng3D::Color(1, 1, 1, 1);
 
     auto& s = Eng3D::State::get_instance();
@@ -74,8 +74,6 @@ UnitWidget::UnitWidget(Unit& _unit, Map& _map, GameState& _gs, UI::Widget* paren
 
     this->morale_bar = new UI::ProgressBar(91, 1, 8, 28, 0, 1, this);
     this->morale_bar->direction = UI::Direction::BOTTOM_TO_TOP;
-
-    this->set_unit(_unit);
 }
 
 // This is expected to be called every framed
