@@ -55,7 +55,7 @@ UnitButton::UnitButton(GameState& _gs, int x, int y, Unit& _unit, UI::Widget* _p
     gs{ _gs },
     unit{ _unit }
 {
-    this->on_each_tick = ([this](UI::Widget& w) {
+    this->set_on_each_tick([this](UI::Widget& w) {
         w.text(std::to_string(this->unit.size) + " " + _(this->unit.type->name.get_string()));
     });
     this->on_each_tick(*this);
@@ -82,7 +82,7 @@ ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province& _province
     province{ _province }
 {
     this->text(this->province.name.get_string());
-    this->on_each_tick = ([this](UI::Widget& w) {
+    this->set_on_each_tick([this](UI::Widget& w) {
         if(this->gs.world->time % this->gs.world->ticks_per_month)
             return;
         w.text(this->province.name.get_string());
@@ -98,7 +98,7 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation& _nation, UI::Wi
 
     this->flag_icon = new UI::Image(0, 0, 32, 24, this);
     this->flag_icon->current_texture = this->gs.get_nation_flag(this->nation);
-    this->flag_icon->on_each_tick = ([this](UI::Widget& w) {
+    this->flag_icon->set_on_each_tick([this](UI::Widget& w) {
         if(this->gs.world->time % this->gs.world->ticks_per_month)
             return;
         w.current_texture = this->gs.get_nation_flag(this->nation);
@@ -107,7 +107,7 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation& _nation, UI::Wi
     this->name_btn = new UI::Button(0, 0, this->width - 32, 24, this);
     this->name_btn->right_side_of(*this->flag_icon);
     this->name_btn->text(nation.get_client_hint().alt_name.get_string());
-    this->name_btn->on_each_tick = ([](UI::Widget& w) {
+    this->name_btn->set_on_each_tick([](UI::Widget& w) {
         auto& o = static_cast<NationButton&>(*w.parent);
         if(o.gs.world->time % o.gs.world->ticks_per_month) return;
         w.text(_(o.nation.get_client_hint().alt_name.get_string()));
@@ -167,7 +167,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, un
 
     auto* money_lab = new UI::Label(dx, 0, "?", this);
     money_lab->below_of(*name_btn);
-    money_lab->on_each_tick = ([](UI::Widget& w) {
+    money_lab->set_on_each_tick([](UI::Widget& w) {
         auto& o = static_cast<BuildingInfo&>(*w.parent);
         w.text(std::to_string(o.province.buildings[o.idx].budget));
     });
@@ -193,7 +193,7 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology& _techno
 
     auto* chk = new UI::Checkbox(0, 0, 128, 24, this);
     chk->text(technology.name.get_string());
-    chk->on_each_tick = ([this](UI::Widget& w) {
+    chk->set_on_each_tick([this](UI::Widget& w) {
         if(&this->technology == this->gs.curr_nation->focus_tech || !this->gs.curr_nation->research[this->gs.world->get_id(this->technology)]) {
             ((UI::Checkbox&)w).set_value(true);
         } else {
@@ -218,7 +218,7 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology& _techno
     chk->on_each_tick(*chk);
 
     auto* pgbar = new UI::ProgressBar(0, 24, 128, 24, 0.f, technology.cost, this);
-    pgbar->on_each_tick = ([this](UI::Widget& w) {
+    pgbar->set_on_each_tick([this](UI::Widget& w) {
         ((UI::ProgressBar&)w).set_value(std::fabs(this->gs.curr_nation->research[this->gs.world->get_id(this->technology)] - this->technology.cost));
     });
 }
@@ -245,7 +245,7 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province& _province, std::size_t 
     this->culture_ibtn->right_side_of(*this->religion_ibtn);
     this->culture_ibtn->set_tooltip(new UI::Tooltip(this->culture_ibtn, 512, 24));
     
-    this->on_each_tick = ([this](UI::Widget&) {
+    this->set_on_each_tick([this](UI::Widget&) {
         if(this->gs.world->time % this->gs.world->ticks_per_month) return;
         if(this->index >= this->province.pops.size()) return;
 
@@ -304,7 +304,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province& _province, Good
     });
     this->demand_chart->set_tooltip(new UI::Tooltip(this->demand_chart, 512, 24));
 
-    this->on_each_tick = ([this](UI::Widget&) {
+    this->set_on_each_tick([this](UI::Widget&) {
         const auto& product = this->province.products[this->gs.world->get_id(this->good)];
         this->price_chart->data.clear();
         for(const auto& data : this->price_history)

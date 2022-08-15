@@ -58,7 +58,7 @@ PopWindow::PopWindow(GameState& gs)
     auto table = new UI::Table<uint64_t>(5, 5, 800-10, 800-5, 35, sizes, header, this);
     this->width = table->width + 5 + this->padding.x;
     table->reserve(size);
-    table->on_each_tick = [this, nation, table](UI::Widget&) {
+    table->set_on_each_tick([this, nation, table](UI::Widget&) {
         for(const auto province_id : nation.owned_provinces) {
             const auto& province = this->gs.world->provinces[province_id];
             Province::Id prov_id = province.get_id();
@@ -109,6 +109,6 @@ PopWindow::PopWindow(GameState& gs)
                 budget->set_key(pop.budget / pop.size);
             }
         }
-    };
+    });
     table->on_each_tick(*table);
 }

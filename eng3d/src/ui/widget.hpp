@@ -195,8 +195,13 @@ namespace UI {
         }
 
         /// @brief Sets the on_click function of this widget
-        virtual void set_on_click(std::function<void(Widget&)> _on_click) {
+        virtual void set_on_click(std::function<void(UI::Widget&)> _on_click) {
             this->on_click = _on_click;
+        }
+
+        /// @brief Sets the on_each_tick function of this widget
+        virtual void set_on_each_tick(std::function<void(UI::Widget&)> _on_each_tick) {
+            this->on_each_tick = _on_each_tick;
         }
 
         /// @brief Sort the children of this widget

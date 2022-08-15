@@ -109,7 +109,7 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
     // Chart showing total number of required materials
     this->reqmat_chart = new UI::Chart(0, 0, 128, 128, this);
     this->reqmat_chart->text("Material demand");
-    this->reqmat_chart->on_each_tick = ([this](UI::Widget&) {
+    this->reqmat_chart->set_on_each_tick([this](UI::Widget&) {
         float reqtotal = 0.f;
         for(const auto province_id : this->gs.curr_nation->owned_provinces) {
             const auto& province = gs.world->provinces[province_id];
@@ -153,14 +153,14 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, con
 
     this->province_lab = new UI::Label(0, 0, "?", this);
     this->province_lab->right_side_of(*this->unit_icon);
-    this->province_lab->on_each_tick = ([this](UI::Widget& w) {
+    this->province_lab->set_on_each_tick([this](UI::Widget& w) {
         w.text(_(this->province.name.get_string()));
     });
     this->province_lab->on_each_tick(*this->province_lab);
 
     this->name_lab = new UI::Label(0, 0, "?", this);
     this->name_lab->right_side_of(*this->province_lab);
-    this->name_lab->on_each_tick = ([this](UI::Widget& w) {
+    this->name_lab->set_on_each_tick([this](UI::Widget& w) {
         auto& building = this->province.get_buildings()[this->idx];
         w.text((building.working_unit_type != nullptr) ? _(building.working_unit_type->name.get_string()) : _("No unit"));
     });
@@ -168,7 +168,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, con
 
     auto* progress_pgbar = new UI::ProgressBar(0, 0, 128, 24, 0.f, 1.f, this);
     progress_pgbar->below_of(*this->name_lab);
-    progress_pgbar->on_each_tick = ([this](UI::Widget& w) {
+    progress_pgbar->set_on_each_tick([this](UI::Widget& w) {
         auto& building = this->province.get_buildings()[this->idx];
         if(!building.working_unit_type)
             return;

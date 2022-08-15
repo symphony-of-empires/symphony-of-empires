@@ -64,7 +64,7 @@ NationView::NationView(GameState& _gs, Nation& _nation)
     nation{ _nation }
 {
     this->is_scroll = false;
-    this->on_each_tick = ([this](UI::Widget& w) {
+    this->set_on_each_tick([this](UI::Widget& w) {
         w.text(this->nation.get_client_hint().alt_name.get_string());
     });
     this->on_each_tick(*this);
@@ -73,7 +73,7 @@ NationView::NationView(GameState& _gs, Nation& _nation)
     });
 
     auto* flag_img = new UI::AspectImage(0, 0, 128, 96, this->gs.get_nation_flag(this->nation), this);
-    flag_img->on_each_tick = ([this](UI::Widget& w) {
+    flag_img->set_on_each_tick([this](UI::Widget& w) {
         w.current_texture = this->gs.get_nation_flag(this->nation);
     });
     flag_img->on_each_tick(*flag_img);
@@ -85,14 +85,14 @@ NationView::NationView(GameState& _gs, Nation& _nation)
     flex_actions_column->flex = UI::Flex::COLUMN;
 
     auto* name_lab = new UI::Label(0, 0, "?", flex_actions_column);
-    name_lab->on_each_tick = ([this](UI::Widget& w) {
+    name_lab->set_on_each_tick([this](UI::Widget& w) {
         w.text(this->nation.get_client_hint().alt_name.get_string());
     });
     name_lab->on_each_tick(*name_lab);
     name_lab->set_tooltip(Eng3D::Locale::translate("The official name"));
 
     auto* ideology_img = new UI::Image(0, 0, 24, 24, this);
-    ideology_img->on_each_tick = ([this](UI::Widget& w) {
+    ideology_img->set_on_each_tick([this](UI::Widget& w) {
         ((UI::Image&)w).current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/ideology/" + this->nation.get_client_hint().ideology->ref_name.get_string() + ".png"));
         w.set_tooltip(Eng3D::Locale::translate(this->nation.get_client_hint().ideology->ref_name.get_string()));
     });
@@ -100,7 +100,7 @@ NationView::NationView(GameState& _gs, Nation& _nation)
     
     if(gs.curr_nation != &nation) {
         auto* rel_lab = new UI::Label(0, 0, "?", flex_actions_column);
-        rel_lab->on_each_tick = ([this](UI::Widget& w) {
+        rel_lab->set_on_each_tick([this](UI::Widget& w) {
             const auto& relation = this->gs.world->get_relation(this->gs.world->get_id(*this->gs.curr_nation), this->gs.world->get_id(this->nation));
             w.text(std::to_string(relation.relation));
         });
@@ -108,7 +108,7 @@ NationView::NationView(GameState& _gs, Nation& _nation)
         rel_lab->set_tooltip(Eng3D::Locale::translate("Our diplomatic relations with them"));
 
         auto* interest_lab = new UI::Label(0, 0, "?", flex_actions_column);
-        interest_lab->on_each_tick = ([this](UI::Widget& w) {
+        interest_lab->set_on_each_tick([this](UI::Widget& w) {
             const auto& relation = this->gs.world->get_relation(this->gs.world->get_id(*this->gs.curr_nation), this->gs.world->get_id(this->nation));
             w.text(std::to_string(relation.interest));
         });
@@ -137,7 +137,7 @@ NationView::NationView(GameState& _gs, Nation& _nation)
         });
 
         auto* dow_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
-        dow_btn->on_each_tick = ([this](UI::Widget& w) {
+        dow_btn->set_on_each_tick([this](UI::Widget& w) {
             const auto& relation = this->gs.world->get_relation(this->gs.world->get_id(*this->gs.curr_nation), this->gs.world->get_id(this->nation));
             if(relation.has_war) {
                 w.text(Eng3D::Locale::translate("Propose treaty"));

@@ -63,25 +63,25 @@ TopWindow::TopWindow(GameState& _gs)
 
     score_flex_column->flex = UI::Flex::COLUMN;
     auto* money_lab = new UI::Label(0, 0, " ", score_flex_column);
-    money_lab->on_each_tick = ([this](UI::Widget& w) {
+    money_lab->set_on_each_tick([this](UI::Widget& w) {
         w.text(Eng3D::string_format(_("Money: %8.2f"), this->gs.curr_nation->budget));
     });
     money_lab->on_each_tick(*money_lab);
 
     auto* military_score_lab = new UI::Label(0, 0, " ", score_flex_column);
-    military_score_lab->on_each_tick = ([this](UI::Widget& w) {
+    military_score_lab->set_on_each_tick([this](UI::Widget& w) {
         w.text(Eng3D::string_format(_("Military: %8.2f"), this->gs.curr_nation->military_score));
     });
     military_score_lab->on_each_tick(*military_score_lab);
 
     auto* industrial_score_lab = new UI::Label(0, 0, " ", score_flex_column);
-    industrial_score_lab->on_each_tick = ([this](UI::Widget& w) {
+    industrial_score_lab->set_on_each_tick([this](UI::Widget& w) {
         w.text(Eng3D::string_format(_("Industrial: %8.2f"), this->gs.curr_nation->economy_score));
     });
     industrial_score_lab->on_each_tick(*industrial_score_lab);
 
     auto* prestige_score_lab = new UI::Label(0, 0, " ", score_flex_column);
-    prestige_score_lab->on_each_tick = ([this](UI::Widget& w) {
+    prestige_score_lab->set_on_each_tick([this](UI::Widget& w) {
         w.text(Eng3D::string_format(_("Prestige: %8.2f"), this->gs.curr_nation->prestige));
     });
     prestige_score_lab->on_each_tick(*prestige_score_lab);
@@ -222,7 +222,7 @@ TimeControlView::TimeControlView(GameState& _gs)
     auto text_color = Eng3D::Color(1., 1., 1.);
 
     auto* time_lab = new UI::Label(50, 30, " ", this);
-    time_lab->on_each_tick = ([this](UI::Widget& w) {
+    time_lab->set_on_each_tick([this](UI::Widget& w) {
         const std::string day_names[7] = {
             "Monday",
             "Tuesday",

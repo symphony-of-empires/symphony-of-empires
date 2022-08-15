@@ -63,7 +63,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
 
     new UI::Label(0, 0, "Goverment", this);
     auto* ideology_img = new UI::Image(6, 38, 32, 32, this);
-    ideology_img->on_each_tick = ([this](UI::Widget& w) {
+    ideology_img->set_on_each_tick([this](UI::Widget& w) {
         if(this->gs.world->time % this->gs.world->ticks_per_month) return;
 
         /// @todo More dynamic names
@@ -77,7 +77,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     auto* ideology_pie_lab = new UI::Label(0, 82, "House", this);
     auto* ideology_pie = new UI::PieChart(0, 0, 128, 128, this);
     ideology_pie->below_of(*ideology_pie_lab);
-    ideology_pie->on_each_tick = ([this](UI::Widget& w) {
+    ideology_pie->set_on_each_tick([this](UI::Widget& w) {
         if(this->gs.world->time % this->gs.world->ticks_per_month) return;
 
         std::vector<UI::ChartData> ideology_data;
@@ -98,7 +98,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     ideology_pie->on_each_tick(*ideology_pie);
 
     auto* militancy_lab = new UI::Label(0, 290, " ", this);
-    militancy_lab->on_each_tick = ([this](UI::Widget& w) {
+    militancy_lab->set_on_each_tick([this](UI::Widget& w) {
         if(this->gs.world->time % this->gs.world->ticks_per_month) return;
 
         auto num = 0.f;

@@ -134,7 +134,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     auto table = new UI::Table<uint32_t>(0, 256 + 96, 0, 500, 30, sizes, header, this);
     auto& pops = this->province.pops;
     table->reserve(pops.size());
-    table->on_each_tick = [this, pops, table](UI::Widget&) {
+    table->set_on_each_tick([this, pops, table](UI::Widget&) {
         for(size_t i = 0; i < pops.size(); i++) {
             auto& pop = pops[i];
             uint32_t id = pop.get_type_id();
@@ -165,10 +165,10 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
             culture->text(culture_str);
             culture->set_key(culture_str);
         }
-    };
+    });
     table->on_each_tick(*table);
 
-    this->on_each_tick = ([](UI::Widget& w) {
+    this->set_on_each_tick([](UI::Widget& w) {
         auto& o = static_cast<ProvincePopulationTab&>(w);
         o.update_piecharts();
     });
@@ -186,7 +186,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province& _
     this->products_pie = new UI::PieChart(0, 0, 128, 128, this);
     new UI::Label(0, 0, "Products", this);
 
-    this->on_each_tick = ([](UI::Widget& w) {
+    this->set_on_each_tick([](UI::Widget& w) {
         auto& o = static_cast<ProvinceEconomyTab&>(w);
 
         // Obtain demand, supply and other information about the goods
@@ -301,7 +301,7 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
     std::vector<std::string> header{ "Landscape", "Name" };
     auto table = new UI::Table<uint32_t>(0, 0, 0, this->height, 30, sizes, header, this);
     table->reserve(gs.world->terrain_types.size());
-    table->on_each_tick = [this, table](Widget&) {
+    table->set_on_each_tick([this, table](Widget&) {
         for(auto& terrain_type : this->gs.world->terrain_types) {
             auto* row = table->get_row(terrain_type.get_id());
             size_t row_index = 0;
@@ -333,7 +333,7 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
                 this->gs.map->update_mapmode();
             });
         }
-    };
+    });
     table->on_each_tick(*table);
 }
 

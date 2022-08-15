@@ -52,7 +52,7 @@ BattleWidget::BattleWidget(Map& _map, UI::Widget* parent)
     this->left_size_label = new UI::Div(41, 1, 48, 28, this);
     this->left_size_label->text_align_x = UI::Align::END;
     this->left_size_label->background_color = Eng3D::Color(0.8f, 0.f, 0.f, 1.f);
-    this->left_size_label->on_each_tick = ([this](UI::Widget&) {
+    this->left_size_label->set_on_each_tick([this](UI::Widget&) {
         if(this->province == nullptr) return;
         if(this->idx >= this->province->battles.size()) return;
         const auto& battle = this->province->battles[this->idx];
@@ -68,7 +68,7 @@ BattleWidget::BattleWidget(Map& _map, UI::Widget* parent)
     this->right_size_label = new UI::Div(90, 1, 48, 28, this);
     this->right_size_label->text_align_x = UI::Align::END;
     this->right_size_label->background_color = Eng3D::Color(0.f, 0.f, 0.8f, 1.f);
-    this->right_size_label->on_each_tick = ([this](UI::Widget&) {
+    this->right_size_label->set_on_each_tick([this](UI::Widget&) {
         if(this->province == nullptr) return;
         if(this->idx >= this->province->battles.size()) return;
         const auto& battle = this->province->battles[this->idx];

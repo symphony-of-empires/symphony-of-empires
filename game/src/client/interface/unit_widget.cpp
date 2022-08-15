@@ -140,21 +140,21 @@ UnitView::UnitView(GameState& _gs, Unit& _unit)
     flex_column->flex = UI::Flex::COLUMN;
 
     auto* size_lab = new UI::Label(0, 0, " ", flex_column);
-    size_lab->on_each_tick = ([this](UI::Widget& w) {
+    size_lab->set_on_each_tick([this](UI::Widget& w) {
         auto& unit = this->gs.world->unit_manager.units[this->unit_id];
         w.text(Eng3D::string_format(_("Size: %.0f"), unit.size));
     });
     size_lab->on_each_tick(*size_lab);
 
     auto* morale_lab = new UI::Label(0, 0, " ", flex_column);
-    morale_lab->on_each_tick = ([this](UI::Widget& w) {
+    morale_lab->set_on_each_tick([this](UI::Widget& w) {
         auto& unit = this->gs.world->unit_manager.units[this->unit_id];
         w.text(Eng3D::string_format(_("Morale: %.2f"), unit.morale));
     });
     morale_lab->on_each_tick(*morale_lab);
 
     auto* attdef_lab = new UI::Label(0, 0, " ", flex_column);
-    attdef_lab->on_each_tick = ([this](UI::Widget& w) {
+    attdef_lab->set_on_each_tick([this](UI::Widget& w) {
         auto& unit = this->gs.world->unit_manager.units[this->unit_id];
         w.text(Eng3D::string_format(_("Attack/Defense: %.2f/%.2f"), unit.type->attack, unit.type->defense));
     });
