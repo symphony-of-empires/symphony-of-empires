@@ -10,6 +10,7 @@ in vec3 v_frag_pos;
 uniform vec3 view_pos;
 uniform vec2 map_size;
 uniform float time;
+uniform int ticks;
 uniform float dist_to_map;
 
 uniform sampler2D tile_sheet;
@@ -39,8 +40,9 @@ uniform sampler2D stripes;
 uniform sampler2D province_opt;
 uniform sampler2DArray terrain_sheet;
 
-// RGB -> SRGB
+/// @brief RGB -> SRGB
 #define RGB(r, g, b) pow(vec3(r, g, b), vec3(2.2))
+#define PI 3.1416
 
 const vec3 province_border_col = RGB(0.0, 0.0, 0.0);
 const vec3 country_border_col = RGB(0.2, 0.0, 0.0);
@@ -58,10 +60,20 @@ vec3 rgb2hsv(vec3 c);
 vec3 hsv2rgb(vec3 c);
 
 vec4 get_terrain(vec2 tex_coords, vec2 offset) {
-	const float size = 16.0;
-	float index = texture(terrain_map, tex_coords).a;
-	index = trunc(index * size);
-	return texture(terrain_sheet, vec3(offset.x, offset.y, index));
+	const int snow_index = 16;
+	const int size = 16;
+	float index = texture(terrain_map, tex_coords).a * size;
+	vec4 color = texture(terrain_sheet, vec3(offset.x, offset.y, index));
+	vec4 snow_color = texture(terrain_sheet, vec3(offset.x, offset.y, snow_index));
+	// "Spike factor" making stuff near the equator less snowy
+	float spike_factor = abs(sin(tex_coords.y * PI));
+	// Phase spike, allowing winter to come and go by as time passes instead of
+	// abruptly resetting
+	float phase_spike_factor = abs(1.0 - sin((mod(ticks, 365) / 365) * PI));
+	// How clear of snow this tile is
+	// The sine wave will help us to make the center more clear
+	float clearness = abs(smoothstep(phase_spike_factor, 0.0, spike_factor));
+	return mix(color, snow_color, min(1.0, clearness * 5.0));
 }
 
 vec4 get_terrain_mix(vec2 tex_coords) {
@@ -84,15 +96,16 @@ vec4 get_terrain_mix(vec2 tex_coords) {
 	return mix(color_x0, color_x1, scaling.y);
 }
 
-// Used by get_border to check if province id differs
+/// @brief Used by get_border to check if province id differs
 vec2 get_diff(vec4 v) {
 	float provinceDiff = min((abs(v.x) + abs(v.y)) * 255.0, 1.0);
 	float countryDiff = min((abs(v.z) + abs(v.w)) * 255.0, 1.0);
 	return vec2(provinceDiff, countryDiff);
 }
-// Returns a vec4
-// First 2 values is if there is a province and country or border
-// Last 2 values is if it the current tile is suppose to be on the other side of the diagonal 
+
+/// @brief Returns a vec4
+/// First 2 values is if there is a province and country or border
+/// Last 2 values is if it the current tile is suppose to be on the other side of the diagonal 
 vec4 get_border(vec2 texcoord) {
 	// Pixel size on map texture
 	vec2 pix = vec2(1.0) / map_size;
@@ -149,7 +162,7 @@ vec4 get_border(vec2 texcoord) {
 	return vec4(border, is_diag);
 }
 
-// Gets the coordinates from the tile opposite from the center
+/// @brief Gets the coordinates from the tile opposite from the center
 vec2 get_diag_coords(vec2 tex_coords, float is_diag) {
 	vec2 pix = vec2(1.0) / map_size;
 
@@ -162,7 +175,7 @@ vec2 get_diag_coords(vec2 tex_coords, float is_diag) {
 	return diag_coords;
 }
 
-// Get the province color
+/// @brief Get the province color
 vec4 get_province_color(vec2 tex_coords, float is_diag) {
 	vec2 diag_coords = get_diag_coords(tex_coords, is_diag);
 	vec2 coord = texture(terrain_map, diag_coords).xy;
@@ -171,7 +184,7 @@ vec4 get_province_color(vec2 tex_coords, float is_diag) {
 	return prov_color;
 }
 
-// Get the province shadow. Used for fog of war & province selected
+/// @brief Get the province shadow. Used for fog of war & province selected
 float get_province_shadow(vec2 tex_coords, float is_diag) {
 	vec2 diag_coords = get_diag_coords(tex_coords, is_diag);
 	vec2 coord = texture(terrain_map, diag_coords).xy;
@@ -322,7 +335,7 @@ void distance_effect(inout vec3 out_color, inout vec3 water, vec3 prov_color, ve
 	water = mix(water, paper_water, sdf_mix);
 }
 
-// Paper effect for the water
+/// @brief Paper effect for the water
 vec3 get_paper_water(vec3 water, float far_from_map, vec2 tex_coords) {
 	vec2 paper_coords = tex_coords;
 	paper_coords.x *= map_size.y / map_size.x;

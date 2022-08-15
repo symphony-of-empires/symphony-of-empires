@@ -461,6 +461,7 @@ void MapRender::draw(Eng3D::Camera* camera, MapView view_mode) {
     const auto millisec_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
     const auto time = static_cast<float>(millisec_since_epoch % 1000000) / 1000.f;
     map_shader->set_uniform("time", time);
+    map_shader->set_uniform("ticks", this->world.time);
     // Map should have no "model" matrix since it's always static
     map_shader->set_texture(0, "tile_sheet", *tile_sheet);
     map_shader->set_texture(1, "tile_sheet_nation", *tile_sheet_nation);
