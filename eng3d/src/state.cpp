@@ -158,6 +158,11 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
         CXX_THROW(std::runtime_error, "Duplicate instancing of GameState");
     g_state = &s;
 
+
+    const int seed = (int)((uint32_t)time(NULL) * (uint32_t)getpid());
+    Eng3D::Log::debug("engine", "Using random seed of " + std::to_string(seed));
+    std::srand(seed);
+
     // Startup-initialization of SDL
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
         CXX_THROW(std::runtime_error, std::string() + "Failed to init SDL " + SDL_GetError());
@@ -171,7 +176,8 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     // Create the initial window
     s.width = 1024;
     s.height = 720;
-    s.window = SDL_CreateWindow("Symphony of Empires", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, s.width, s.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    Eng3D::Log::debug("sdl2", "New window " + std::to_string(s.width) + "x" + std::to_string(s.height));
+    s.window = SDL_CreateWindow("Symphony of Empires", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, s.width, s.height, SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_RESIZABLE);
     if(s.window == nullptr)
         CXX_THROW(std::runtime_error, std::string() + "Failed to init SDL window " + SDL_GetError());
 
@@ -282,6 +288,9 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths)
     }
 #endif
     ui_ctx.resize(width, height);
+
+    // Initialize joysticks if any
+    SDL_JoystickOpen(0);
 }
 
 Eng3D::State::~State() {

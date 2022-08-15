@@ -127,7 +127,6 @@ std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(const Nation& nation)
 
 void handle_event(Input& input, GameState& gs) {
     glm::ivec2& mouse_pos = input.mouse_pos;
-    UI::Context& ui_ctx = gs.ui_ctx;
     int& width = gs.width;
     int& height = gs.height;
 
@@ -146,20 +145,15 @@ void handle_event(Input& input, GameState& gs) {
             break;
         case SDL_MOUSEBUTTONDOWN:
             if(gs.show_ui) {
-                click_on_ui = ui_ctx.check_hover(mouse_pos);
+                click_on_ui = gs.ui_ctx.check_hover(mouse_pos);
                 if(event.button.button == SDL_BUTTON_LEFT) {
                     SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
-                    ui_ctx.check_drag(mouse_pos);
+                    gs.ui_ctx.check_drag(mouse_pos);
                 }
             }
             
             if(event.button.button == SDL_BUTTON_MIDDLE)
                 input.middle_mouse_down = true;
-            break;
-        case SDL_JOYBUTTONDOWN:
-            if(gs.show_ui) {
-                ui_ctx.check_drag(mouse_pos);
-            }
             break;
         case SDL_MOUSEBUTTONUP:
             SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
@@ -169,28 +163,10 @@ void handle_event(Input& input, GameState& gs) {
             }
 
             if(gs.show_ui) {
-                click_on_ui = ui_ctx.check_click(mouse_pos);
-                if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
+                click_on_ui = gs.ui_ctx.check_click(mouse_pos);
+                if(!click_on_ui && gs.current_mode != MapMode::NO_MAP)
                     gs.map->handle_click(gs, event);
                 }
-            }
-
-            if(click_on_ui) {
-                const std::scoped_lock lock(gs.audio_man.sound_lock);
-                auto entries = gs.package_man.get_multiple_prefix("sfx/click");
-                if(!entries.empty()) {
-                    auto audio = gs.audio_man.load(entries[std::rand() % entries.size()]->get_abs_path());
-                    gs.audio_man.sound_queue.push_back(audio);
-                }
-            }
-            break;
-        case SDL_JOYBUTTONUP:
-            if(gs.show_ui) {
-                click_on_ui = ui_ctx.check_click(mouse_pos);
-                if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
-                    gs.map->handle_click(gs, event);
-                }
-            }
 
             if(click_on_ui) {
                 const std::scoped_lock lock(gs.audio_man.sound_lock);
@@ -203,21 +179,19 @@ void handle_event(Input& input, GameState& gs) {
             break;
         case SDL_MOUSEMOTION:
             SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
-            if(gs.show_ui) {
-                click_on_ui = ui_ctx.check_hover(mouse_pos);
-            }
+            if(gs.show_ui)
+                click_on_ui = gs.ui_ctx.check_hover(mouse_pos);
             break;
         case SDL_MOUSEWHEEL:
             SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
             if(gs.show_ui) {
-                ui_ctx.check_hover(mouse_pos);
-                click_on_ui = ui_ctx.check_wheel(mouse_pos, event.wheel.y * 6);
+                gs.ui_ctx.check_hover(mouse_pos);
+                click_on_ui = gs.ui_ctx.check_wheel(mouse_pos, event.wheel.y * 6);
             }
             break;
         case SDL_TEXTINPUT:
-            if(gs.show_ui) {
-                ui_ctx.check_text_input((const char*)&event.text.text);
-            }
+            if(gs.show_ui)
+                gs.ui_ctx.check_text_input(reinterpret_cast<const char*>(&event.text.text));
             break;
         case SDL_KEYDOWN:
             switch(Eng3D::Keyboard::from_sdlk(event.key.keysym.sym)) {
@@ -259,9 +233,9 @@ void handle_event(Input& input, GameState& gs) {
                 if(gs.current_mode == MapMode::NORMAL) {
                     gs.paused = !gs.paused;
                     if(gs.paused) {
-                        ui_ctx.prompt("Control", "Unpaused");
+                        gs.ui_ctx.prompt("Control", "Unpaused");
                     } else {
-                        ui_ctx.prompt("Control", "Paused");
+                        gs.ui_ctx.prompt("Control", "Paused");
                     }
                 }
                 break;
@@ -278,17 +252,49 @@ void handle_event(Input& input, GameState& gs) {
                 const std::scoped_lock lock(gs.audio_man.sound_lock);
                 gs.audio_man.music_queue.clear();
 
-                ui_ctx.prompt("Debug", "Partial reload");
+                gs.ui_ctx.prompt("Debug", "Partial reload");
             } break;
             case Eng3D::Keyboard::Key::BACKSPACE:
-                ui_ctx.check_text_input(nullptr);
+                gs.ui_ctx.check_text_input(nullptr);
                 break;
             default:
                 break;
             }
             break;
+        case SDL_JOYBUTTONDOWN:
+            if(gs.show_ui) {
+                click_on_ui = gs.ui_ctx.check_hover(mouse_pos);
+                gs.ui_ctx.check_drag(mouse_pos);
+            }
+            break;
+        case SDL_JOYBUTTONUP:
+            if(gs.show_ui) {
+                click_on_ui = gs.ui_ctx.check_click(mouse_pos);
+                if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
+                    gs.map->handle_click(gs, event);
+                }
+            }
+
+            if(click_on_ui) {
+                const std::scoped_lock lock(gs.audio_man.sound_lock);
+                auto entries = gs.package_man.get_multiple_prefix("sfx/click");
+                if(!entries.empty()) {
+                    auto audio = gs.audio_man.load(entries[std::rand() % entries.size()]->get_abs_path());
+                    gs.audio_man.sound_queue.push_back(audio);
+                }
+            }
+            break;
         case SDL_JOYAXISMOTION:
-            ui_ctx.check_hover(gs.input.mouse_pos);
+            if(event.jaxis.which == 0) {
+                if(event.jaxis.axis == 0) {
+                    gs.input.mouse_pos.x += event.jaxis.value / 1000;
+                } else if(event.jaxis.axis == 1) {
+                    gs.input.mouse_pos.y += event.jaxis.value / 1000;
+                }
+            }
+            
+            if(gs.show_ui)
+                click_on_ui = gs.ui_ctx.check_hover(gs.input.mouse_pos);
             break;
         case SDL_QUIT:
             gs.run = false;
@@ -297,13 +303,12 @@ void handle_event(Input& input, GameState& gs) {
             break;
         }
 
-        if(gs.current_mode != MapMode::NO_MAP && !click_on_ui) {
-            gs.map->update(event, input, &ui_ctx, gs);
-        }
+        if(gs.current_mode != MapMode::NO_MAP && !click_on_ui)
+            gs.map->update(event, input, &gs.ui_ctx, gs);
     }
 
-    const std::scoped_lock lock(ui_ctx.prompt_queue_mutex);
-    for(const auto& prompt : ui_ctx.prompt_queue) {
+    const std::scoped_lock lock(gs.ui_ctx.prompt_queue_mutex);
+    for(const auto& prompt : gs.ui_ctx.prompt_queue) {
         auto* win = new UI::Window(0, 0, 512, 512);
         win->origin = UI::Origin::CENTER_SCREEN;
         win->text(prompt.first);
@@ -316,8 +321,8 @@ void handle_event(Input& input, GameState& gs) {
         txt->is_scroll = true;
         win->height = txt->y + txt->height;
     }
-    ui_ctx.prompt_queue.clear();
-    ui_ctx.clear_dead();
+    gs.ui_ctx.prompt_queue.clear();
+    gs.ui_ctx.clear_dead();
 }
 
 void GameState::send_command(Archive& archive) {

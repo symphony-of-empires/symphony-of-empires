@@ -433,9 +433,9 @@ void Map::handle_click(GameState& gs, SDL_Event event) {
 }
 
 void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, GameState& gs) {
+    auto& s = Eng3D::State::get_instance();
     auto& mouse_pos = input.mouse_pos;
     switch(event.type) {
-    case SDL_JOYBUTTONDOWN:
     case SDL_MOUSEBUTTONDOWN:
         SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
         is_drag = false;
@@ -448,30 +448,9 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, Game
             is_drag = true;
         }
         break;
-    case SDL_JOYBUTTONUP:
     case SDL_MOUSEBUTTONUP:
         is_drag = false;
         break;
-    case SDL_JOYAXISMOTION: {
-        int xrel = SDL_JoystickGetAxis(input.joy, 0);
-        int yrel = SDL_JoystickGetAxis(input.joy, 1);
-        const float sensivity = Eng3D::State::get_instance().joy_sensivity;
-        float x_force = xrel / sensivity;
-        float y_force = yrel / sensivity;
-        input.mouse_pos.x += x_force;
-        input.mouse_pos.y += y_force;
-        if(input.middle_mouse_down) {  // Drag the map with middlemouse
-            glm::ivec2 map_pos;
-            if(camera->get_cursor_map_pos(input.mouse_pos, map_pos)) {
-                glm::vec2 current_pos = glm::make_vec2(camera->get_map_pos());
-                const glm::vec2 pos = current_pos + last_camera_drag_pos - glm::vec2(map_pos);
-                camera->set_pos(pos.x, pos.y);
-            }
-        }
-        glm::ivec2 map_pos;
-        if(camera->get_cursor_map_pos(input.mouse_pos, map_pos))
-            input.select_pos = map_pos;
-    } break;
     case SDL_MOUSEMOTION:
         SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
         glm::ivec2 map_pos;
@@ -516,6 +495,23 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, Game
             break;
         }
         break;
+    case SDL_JOYAXISMOTION: {
+        float x_force = event.jaxis.value / 2;
+        float y_force = event.jaxis.value / 2;
+        input.mouse_pos.x += x_force;
+        input.mouse_pos.y += y_force;
+        if(input.middle_mouse_down) {  // Drag the map with middlemouse
+            glm::ivec2 map_pos;
+            if(camera->get_cursor_map_pos(input.mouse_pos, map_pos)) {
+                glm::vec2 current_pos = glm::make_vec2(camera->get_map_pos());
+                const glm::vec2 pos = current_pos + last_camera_drag_pos - glm::vec2(map_pos);
+                camera->set_pos(pos.x, pos.y);
+            }
+        }
+        glm::ivec2 map_pos;
+        if(camera->get_cursor_map_pos(input.mouse_pos, map_pos))
+            input.select_pos = map_pos;
+    } break;
     }
 }
 

@@ -48,12 +48,12 @@ ProfilerView::ProfilerView(GameState& _gs)
         this->kill();
     });
 
-    Eng3D::Profiler& profiler = gs.world->profiler;
+    auto& profiler = gs.world->profiler;
     float fps = profiler.get_fps();
 
     auto* fps_lab = new UI::Label(10, 0, "FPS: " + std::to_string((int)fps), this);
     fps_lab->on_update = ([this](UI::Widget& w) {
-        Eng3D::Profiler& profiler = this->gs.world->profiler;
+        auto& profiler = this->gs.world->profiler;
         float fps = profiler.get_fps();
         w.text("FPS: " + std::to_string((int)fps));
     });
@@ -68,7 +68,7 @@ ProfilerView::ProfilerView(GameState& _gs)
     auto* task_chart = new UI::BarChart(20, 20, 200, 20, this);
     task_chart->on_update = ([this](UI::Widget& w) {
         auto& chart = static_cast<UI::BarChart&>(w);
-        Eng3D::Profiler& profiler = this->gs.world->profiler;
+        auto& profiler = this->gs.world->profiler;
         std::vector<UI::ChartData> data;
         auto tasks = profiler.get_tasks();
         for(auto& task : tasks) {
@@ -79,7 +79,7 @@ ProfilerView::ProfilerView(GameState& _gs)
     });
 
     this->on_update = ([this](UI::Widget&) {
-        Eng3D::Profiler& profiler = this->gs.world->profiler;
+        auto& profiler = this->gs.world->profiler;
         auto tasks = profiler.get_tasks();
         auto& task_views = this->task_views;
 

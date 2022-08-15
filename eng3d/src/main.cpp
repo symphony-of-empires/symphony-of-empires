@@ -36,7 +36,8 @@ void android_main(struct android_app* state)
     main(0, { NULL });
     ANativeActivity_finish(state->activity);
 }
-#elif defined E3D_TARGET_WINDOWS
+#endif
+#ifdef E3D_TARGET_WINDOWS
 /// @brief Stub to transform the WinMain into a proper call for main so the game doesn't
 /// even notice we're on windows!
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument, int iShow) {

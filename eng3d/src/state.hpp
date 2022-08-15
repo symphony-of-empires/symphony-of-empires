@@ -70,8 +70,8 @@ namespace Eng3D {
         static void mixaudio(void* userdata, uint8_t* stream, int len);
         static State& get_instance();
 
-        SDL_Joystick* joy = nullptr;
-        float joy_sensivity = 2.f;
+        /// @brief Value to ignore x/y axis motion taps (useful ignoring stray joystick input)
+        static constexpr auto JOYSTICK_DEAD_ZONE = 8000;
 
         // These variables needs to be initialized before any installers
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES

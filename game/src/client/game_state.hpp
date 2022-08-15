@@ -79,8 +79,6 @@ public:
     Religion* selected_religion = nullptr;
 
     glm::ivec2 drag_coord;
-
-    SDL_Joystick* joy = nullptr;
 };
 
 class Client;
