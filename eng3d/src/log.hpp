@@ -28,6 +28,10 @@
 #include <string>
 #include <memory>
 
+#if defined E3D_TARGET_SWITCH
+struct PrintConsole;
+extern "C" void consoleUpdate(PrintConsole* console);
+#endif
 
 namespace Eng3D::Log {
     /// @brief Logs data to a file or console
@@ -37,7 +41,13 @@ namespace Eng3D::Log {
         if(fp != nullptr)
             fprintf(fp.get(), "<%s:%s> %s\n", severity.c_str(), category.c_str(), msg.c_str());
 #else
+#   ifndef E3D_TARGET_SWITCH
         printf("<%s:%s> %s\n", severity.c_str(), category.c_str(), msg.c_str());
+#   else
+        char tmpbuf[256];
+        snprintf(tmpbuf, sizeof(tmpbuf), "<%s:%s> %s", severity.c_str(), category.c_str(), msg.c_str());
+        fprintf(stderr, tmpbuf);
+#   endif
 #endif
     }
 

@@ -430,7 +430,9 @@ void Server::net_loop(int id) {
     Eng3D::Log::debug("server", "Client disconnected");
 #ifdef E3D_TARGET_WINDOWS
     shutdown(conn_fd, SD_BOTH);
-#elif defined E3D_TARGET_UNIX
+#elif defined E3D_TARGET_UNIX && !defined E3D_TARGET_SWITCH
+    // Switch doesn't support shutting down sockets
     shutdown(conn_fd, SHUT_RDWR);
 #endif
+    /// @todo Shutdown sockets for switch
 }

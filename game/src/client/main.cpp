@@ -53,6 +53,7 @@
 void start_client(int argc, char** argv);
 
 extern "C" int main(int argc, char** argv) {
+#ifndef E3D_TARGET_SWITCH
     // Clean the log files
     if(1) {
         FILE* fp = fopen("log.txt", "wt");
@@ -61,11 +62,7 @@ extern "C" int main(int argc, char** argv) {
             fclose(fp);
         }
     }
-
-    const int seed = (int)((uint32_t)time(NULL) * (uint32_t)getpid());
-    Eng3D::Log::debug("game", "Using random seed of " + std::to_string(seed));
-    std::srand(seed);
-    
+#endif
 #ifndef UNIT_TEST
     try {
         start_client(argc, argv);

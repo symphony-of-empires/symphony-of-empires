@@ -30,10 +30,14 @@
 
 namespace Path {
     static inline std::string get_full() {
-#ifdef NO_COPY_MODS
+#ifndef E3D_TARGET_SWITCH
+#   ifdef NO_COPY_MODS
         return "../mods/";
-#else
+#   else
         return "./mods/";
+#   endif
+#else
+        return "romfs:/";
 #endif
     }
 };

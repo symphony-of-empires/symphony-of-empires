@@ -67,7 +67,6 @@ namespace Eng3D {
         void reload_shaders();
         void swap();
         void set_multisamples(int samples) const;
-        static void mixaudio(void* userdata, uint8_t* stream, int len);
         static State& get_instance();
 
         /// @brief Value to ignore x/y axis motion taps (useful ignoring stray joystick input)
@@ -82,6 +81,9 @@ namespace Eng3D {
         std::map<std::string, std::unique_ptr<Eng3D::OpenGL::Shader>> builtin_shaders;
 #else
         // RVL uses global state variables that are platform specific
+#endif
+#if defined E3D_TARGET_SWITCH
+        uint64_t application_id = 0x0000000000000000;
 #endif
         // Above variables might get modified by these so keep them in order as-is
         Eng3D::Installer installer;

@@ -57,14 +57,13 @@ namespace Eng3D {
     };
 
     class AudioManager {
-    private:
+        static void mixaudio(void* userdata, uint8_t* stream, int len);
         std::map<std::string, std::shared_ptr<Eng3D::Audio>> sounds;
         Eng3D::State& s;
     public:
         AudioManager() = delete;
         AudioManager(Eng3D::State& s);
         ~AudioManager();
-        static void mixaudio(void* userdata, uint8_t* stream, int len);
         const std::shared_ptr<Audio> load(const std::string& path);
 
         // Queue of sounds/music

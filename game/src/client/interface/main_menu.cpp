@@ -45,12 +45,10 @@
 #include "client/map_render.hpp"
 #include "client/interface/lobby.hpp"
 
-using namespace Interface;
-
 //
 // Main menu connect server
 //
-MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
+Interface::MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     : UI::Window(0, 0, 512, 128, nullptr),
     gs{ _gs }
 {
@@ -96,7 +94,7 @@ MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
 //
 // Main menu
 //
-MainMenu::MainMenu(GameState& _gs)
+Interface::MainMenu::MainMenu(GameState& _gs)
     : UI::Div(250, -270, 300, 540),
     gs{ _gs }
 {
@@ -159,7 +157,7 @@ MainMenu::MainMenu(GameState& _gs)
     mp_btn->text_align_y = UI::Align::CENTER;
     mp_btn->text("Join LAN");
     mp_btn->set_on_click([this](UI::Widget&) {
-        this->connect_window = new MainMenuConnectServer(this->gs);
+        this->connect_window = new Interface::MainMenuConnectServer(this->gs);
     });
 
     auto* host_btn = new UI::Button(0, 0, b_width, b_height, button_list);
@@ -226,7 +224,7 @@ MainMenu::MainMenu(GameState& _gs)
     });
 }
 
-MainMenu::~MainMenu() {
+Interface::MainMenu::~MainMenu() {
     if(connect_window != nullptr)
         connect_window->kill();
 }
