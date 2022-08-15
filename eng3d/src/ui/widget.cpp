@@ -55,8 +55,7 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
     x{ _x },
     y{ _y },
     width{ w },
-    height{ h },
-    is_show{ true }
+    height{ h }
 {
     if(parent != nullptr) {
         x += parent->padding.x;
@@ -75,8 +74,7 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
     y{ _y },
     width{ w },
     height{ h },
-    current_texture{ tex },
-    is_show{ true }
+    current_texture{ tex }
 {
     if(parent != nullptr) {
         x += parent->padding.x;

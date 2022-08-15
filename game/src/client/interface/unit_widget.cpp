@@ -45,7 +45,7 @@ UnitWidget::UnitWidget(Map& _map, GameState& _gs, UI::Widget* parent)
     map{ _map },
     gs{ _gs }
 {
-    this->unit_id = 0;
+    this->unit_id = Unit::invalid();
     this->background_color = Eng3D::Color(1, 1, 1, 1);
 
     auto& s = Eng3D::State::get_instance();
@@ -54,14 +54,14 @@ UnitWidget::UnitWidget(Map& _map, GameState& _gs, UI::Widget* parent)
     this->border.texture_size = glm::ivec2{7, 7};
 
     new UI::Image(1, 1, this->width - 1, this->height - 1, "gfx/drop_shadow.png", this);
-
     this->set_on_click([this](UI::Widget&) {
+        if(Unit::is_invalid(this->unit_id)) return;
         if(gs.input.is_selected_unit(this->unit_id)) {
             gs.input.unselect_unit(this->unit_id);
         } else {
             gs.input.select_unit(this->unit_id);
         }
-        new UnitView(this->gs, this->gs.world->unit_manager.units[this->unit_id]);
+        new Interface::UnitView(this->gs, this->gs.world->unit_manager.units[this->unit_id]);
     });
 
     auto nation_flag = map.nation_flags[0];

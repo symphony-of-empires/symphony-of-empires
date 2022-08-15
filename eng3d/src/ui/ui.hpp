@@ -79,6 +79,7 @@ namespace UI {
         void clear_dead_recursive(Widget* w);
 
         std::vector<std::unique_ptr<Widget>> widgets;
+        std::vector<std::unique_ptr<Widget>> no_eval_widgets;
         UI::Tooltip* tooltip_widget = nullptr;
         Eng3D::State& s;
     public:
@@ -125,12 +126,9 @@ namespace UI {
 
         /// @brief Will call on_tick on all widgets
         void do_tick();
-
-        /// @brief Removes all widgets
         void clear();
-        
-        /// @brief Removes all widgets that have been killed
         void clear_dead();
+        void set_eval(UI::Widget& widget, bool eval);
 
         void prompt(const std::string& title, const std::string& text);
 

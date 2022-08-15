@@ -53,6 +53,7 @@ BattleWidget::BattleWidget(Map& _map, UI::Widget* parent)
     this->left_size_label->text_align_x = UI::Align::END;
     this->left_size_label->background_color = Eng3D::Color(0.8f, 0.f, 0.f, 1.f);
     this->left_size_label->on_each_tick = ([this](UI::Widget&) {
+        if(this->province == nullptr) return;
         if(this->idx >= this->province->battles.size()) return;
         const auto& battle = this->province->battles[this->idx];
         auto unit_size = 0;
@@ -68,6 +69,7 @@ BattleWidget::BattleWidget(Map& _map, UI::Widget* parent)
     this->right_size_label->text_align_x = UI::Align::END;
     this->right_size_label->background_color = Eng3D::Color(0.f, 0.f, 0.8f, 1.f);
     this->right_size_label->on_each_tick = ([this](UI::Widget&) {
+        if(this->province == nullptr) return;
         if(this->idx >= this->province->battles.size()) return;
         const auto& battle = this->province->battles[this->idx];
         auto unit_size = 0;
@@ -90,8 +92,7 @@ void BattleWidget::set_battle(Province& _province, size_t _idx) {
     this->x = screen_pos.x - this->width / 2;
     this->y = screen_pos.y - this->height / 2;
 
-    auto& gs = static_cast<GameState&>(Eng3D::State::get_instance());
-
+    auto& gs = reinterpret_cast<GameState&>(Eng3D::State::get_instance());
     if(!battle.attackers_ids.empty()) {
         auto left_nation_flag = gs.get_nation_flag(gs.world->nations[gs.world->unit_manager.units[battle.attackers_ids[0]].owner_id]);
         this->left_flag_img->current_texture = left_nation_flag;

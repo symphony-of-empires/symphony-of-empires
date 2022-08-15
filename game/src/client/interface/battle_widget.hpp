@@ -36,7 +36,7 @@ namespace UI {
 
 namespace Interface {
     class BattleWidget: public UI::Div {
-        Province* province;
+        Province* province = nullptr;
         size_t idx;
         Map& map;
 

@@ -295,8 +295,10 @@ namespace UI {
         }
 
         // Used internally for managing widgets outside of window bounds
-        bool is_show = true;
         bool need_recalc = false;
+        
+        /// @brief Used for determining if evaluable or not (do not modify)
+        bool is_eval = true;
 
         // The current text of the widget
         std::string text_str;

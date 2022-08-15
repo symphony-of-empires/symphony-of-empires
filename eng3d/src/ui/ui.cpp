@@ -84,7 +84,7 @@ Context::Context(Eng3D::State& _s)
     default_font = TTF_OpenFont(s.package_man.get_unique("fonts/Poppins/Poppins-SemiBold.ttf")->get_abs_path().c_str(), 16);
     if(default_font == nullptr)
         CXX_THROW(std::runtime_error, std::string() + "Font could not be loaded: " + TTF_GetError());
-    widgets.reserve(255);
+    widgets.reserve(8192);
 
     foreground = s.tex_man.load(s.package_man.get_unique("gfx/button2.png"));
     background = s.tex_man.load(s.package_man.get_unique("gfx/window_background.png"));
@@ -122,12 +122,9 @@ Context::~Context() {
 }
 
 void Context::add_widget(UI::Widget* widget) {
-    widget->is_show = 1;
-
     // Not already here
     if(std::find_if(widgets.cbegin(), widgets.cend(), [widget](const auto& e) { return e.get() == widget; }) != widgets.cend())
         return;
-
     widgets.push_back(std::unique_ptr<UI::Widget>(widget));
 }
 
@@ -136,6 +133,7 @@ void Context::remove_widget(UI::Widget* widget) {
     widgets.erase(it);
 }
 
+/// @brief Removes all widgets
 void Context::clear() {
     // Remove all widgets
     for(auto& widget : widgets) {
@@ -161,6 +159,7 @@ void Context::clear_dead_recursive(Widget* w) {
         w->need_recalc = true;
 }
 
+/// @brief Removes all widgets that have been killed
 void Context::clear_dead() {
     for(size_t index = 0; index < widgets.size(); index++) {
         if(widgets[index]->dead) {
@@ -171,6 +170,26 @@ void Context::clear_dead() {
             widgets[index]->dead_child = false;
         }
     }
+}
+
+/// @brief Moves a widget from evaluable to non-evaluable making a widget
+/// non-evaluable has side effects, don't delete widgets that have been set to
+/// not-evaluable, otherwise you risk destructing objects the UI manager thinks
+/// doesn't exist. Compare being non-evaluable with not existing.
+void UI::Context::set_eval(UI::Widget& widget, bool eval) {
+    if(widget.is_eval == eval) return;
+    if(eval) {
+        // From no-eval to evaluable
+        auto it = std::find_if(this->no_eval_widgets.begin(), this->no_eval_widgets.end(), [&widget](const auto& e) { return e.get() == &widget; });
+        this->widgets.push_back(std::unique_ptr<UI::Widget>());
+        std::iter_swap(it, this->widgets.end() - 1);
+    } else {
+        // From evaluable to no-eval
+        auto it = std::find_if(widgets.begin(), widgets.end(), [&widget](const auto& e) { return e.get() == &widget; });
+        this->no_eval_widgets.push_back(std::unique_ptr<UI::Widget>());
+        std::iter_swap(it, this->no_eval_widgets.end() - 1);
+    }
+    widget.is_eval = eval;
 }
 
 void Context::prompt(const std::string& title, const std::string& text) {
@@ -285,7 +304,7 @@ void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport,
     }
 
     // Only render widget that are shown
-    if(!w.is_show || !w.is_render) return;
+    if(!w.is_render) return;
     // Only render widget that have a width and height
     if(!w.width || !w.height) return;
     if(w.is_fullscreen) {
@@ -313,11 +332,11 @@ void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport,
 
     if(w.on_update) w.on_update(w);
     for(auto& child : w.children) {
-        child->is_show = true;
+        child->is_render = true;
         child->is_clickable = (w.on_click || w.is_clickable) && w.is_hover;
         if(viewport.size().x <= 0 || viewport.size().y <= 0) {
             if(!child->is_float)
-                child->is_show = false;
+                child->is_render = false;
         }
 
         this->render_recursive(*child, model, viewport, offset);
@@ -372,7 +391,7 @@ bool Context::check_hover_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::iv
     offset = this->get_pos(w, offset);
 
     w.is_hover = hover_update;
-    if(!w.is_show || !w.is_render || !w.width || !w.height)
+    if(!w.is_render || !w.width || !w.height)
         return false;
 
     const Eng3D::Rect r(offset.x, offset.y, w.width, w.height);
@@ -425,7 +444,7 @@ UI::ClickState Context::check_click_recursive(Widget& w, glm::ivec2 mouse_pos, g
         clickable = true;
 
     // Widget must be displayed
-    if(!w.is_show || !w.is_render) {
+    if(!w.is_render) {
         clickable = false;
         return UI::ClickState::NOT_CLICKED;
     }
@@ -566,7 +585,7 @@ bool Context::check_wheel_recursive(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 
     offset = get_pos(w, offset);
 
     // Widget must be shown
-    if(!w.is_show || !w.is_render) return false;
+    if(!w.is_render) return false;
 
     const Eng3D::Rect r = Eng3D::Rect(offset.x, offset.y, w.width, w.height);
     if(!r.in_bounds(mouse_pos)) {
