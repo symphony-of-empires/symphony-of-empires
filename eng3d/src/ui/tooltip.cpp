@@ -81,7 +81,7 @@ void Tooltip::set_pos(int _x, int _y, int, int _height, int screen_w, int screen
 
 // Note! Code duplication of Text::text 
 void Tooltip::text(const std::string& text) {
-    children.clear();
+    this->kill_children();
     if(text.empty()) return;
 
     // Separate the text in multiple labels and break on space

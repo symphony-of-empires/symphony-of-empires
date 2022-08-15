@@ -90,8 +90,6 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
 
 Widget::~Widget() {
     // Common texture also deleted?
-    if(text_texture != nullptr)
-        delete text_texture;
     if(tooltip != nullptr)
         delete tooltip;
 }
@@ -264,7 +262,7 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
     if(border.texture != nullptr)
         draw_border(border, viewport);
 
-    if(text_texture != nullptr) {
+    if(text_texture.get() != nullptr) {
         if(!text_texture->gl_tex_num)
             text_texture->upload();
         
@@ -283,7 +281,7 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
         }
 
         g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
-        draw_rectangle(x_offset, y_offset, text_texture->width, text_texture->height, viewport, text_texture);
+        draw_rectangle(x_offset, y_offset, text_texture->width, text_texture->height, viewport, text_texture.get());
     }
 
     // Semi-transparent over hover elements which can be clicked
@@ -436,18 +434,13 @@ static inline unsigned int power_two_floor(const unsigned int val) {
 /// @param _text
 void Widget::text(const std::string& _text) {
     if(this->text_str == _text) return;
-    text_str = _text;
-
     // Copy _text to a local scope (SDL2 does not like references)
-    if(text_texture != nullptr) {
-        // Auto deletes gl_texture
-        delete text_texture;
-        text_texture = nullptr;
-    }
-
+    text_str = _text;
+    // Auto deletes gl_texture
+    text_texture.reset();
     if(_text.empty()) return;
     auto* text_font = font ? font : g_ui_context->default_font;
-    text_texture = new Eng3D::Texture(text_font, text_color, _text);
+    //text_texture = std::make_unique<Eng3D::Texture>(text_font, text_color, _text);
 }
 
 /// @brief Set the tooltip to be shown when this widget is hovered, overrides

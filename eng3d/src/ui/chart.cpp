@@ -56,15 +56,13 @@ Chart::Chart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 
 void Chart::on_render(Context&, Eng3D::Rect viewport) {
     g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
-    if(text_texture != nullptr) {
-        if(!text_texture->gl_tex_num) {
+    if(text_texture.get() != nullptr) {
+        if(!text_texture->gl_tex_num)
             text_texture->upload();
-        }
     }
 
-    if(current_texture != nullptr && current_texture->gl_tex_num) {
+    if(current_texture != nullptr && current_texture->gl_tex_num)
         draw_rectangle(0, 0, width, height, viewport, current_texture.get());
-    }
 
 #ifdef E3D_BACKEND_OPENGL
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -109,9 +107,9 @@ void Chart::on_render(Context&, Eng3D::Rect viewport) {
     }
 #endif
 
-    if(text_texture != nullptr) {
+    if(text_texture.get() != nullptr) {
         g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
-        draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture);
+        draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture.get());
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);

@@ -41,22 +41,22 @@
 
 using namespace UI;
 
-Label::Label(int _x, int _y, const std::string& _text, Widget* _parent)
+UI::Label::Label(int _x, int _y, const std::string& _text, Widget* _parent)
     : Widget(_parent, _x, _y, 0, 0, UI::WidgetType::LABEL)
 {
-    text(_text);
-    width = text_texture->width + text_offset_x;
-    height = text_texture->height;
+    this->text(_text);
+    this->width = text_texture->width + text_offset_x;
+    this->height = text_texture->height;
 }
 
-Label::~Label() {
+UI::Label::~Label() {
 
 }
 
-void Label::text(const std::string& _text) {
+void UI::Label::text(const std::string& _text) {
     UI::Widget::text(_text);
-    if(text_texture != nullptr) {
-        width = text_texture->width + text_offset_x;
-        height = text_texture->height;
+    if(this->text_texture.get() != nullptr) {
+        this->width = text_texture->width + text_offset_x;
+        this->height = text_texture->height;
     }
 }

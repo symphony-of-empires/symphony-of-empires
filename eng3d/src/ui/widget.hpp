@@ -213,6 +213,11 @@ namespace UI {
             this->notice_death();
         }
 
+        inline void kill_children() {
+            for(auto& child : this->children)
+                child->kill();
+        }
+
         // If the widget can't be moved when scrolling
         bool is_pinned = false;
         bool is_render = true;
@@ -225,13 +230,13 @@ namespace UI {
         bool is_fullscreen = false;
         bool is_transparent = false;
 
-        Widget* parent = nullptr;
+        UI::Widget* parent = nullptr;
         std::vector<std::unique_ptr<UI::Widget>> children;
 
         bool have_shadow = false;
         UI::Origin origin = UI::Origin::UPPER_LEFT;
 
-        WidgetType type;
+        UI::WidgetType type;
 
         int x = 0, y = 0;
         glm::ivec2 padding{ 0 };
@@ -239,7 +244,7 @@ namespace UI {
         size_t width = 0, height = 0;
 
         std::shared_ptr<Eng3D::Texture> current_texture;
-        Eng3D::Texture* text_texture = nullptr;
+        std::unique_ptr<Eng3D::Texture> text_texture;
         int text_offset_x = 4, text_offset_y = 4;
         Align text_align_y = Align::START;
         Align text_align_x = Align::START;
@@ -287,7 +292,7 @@ namespace UI {
                 if(this->parent)
                     this->parent->notice_death();
             }
-        };
+        }
 
         // Used internally for managing widgets outside of window bounds
         bool is_show = true;

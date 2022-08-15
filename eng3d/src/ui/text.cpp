@@ -39,7 +39,7 @@ void UI::Text::on_render(Context&, Eng3D::Rect) {
 }
 
 void UI::Text::text(const std::string& text) {
-    this->children.clear();
+    this->kill_children();
     if(text.empty()) return;
 
     // Separate the text in multiple labels and break on space
