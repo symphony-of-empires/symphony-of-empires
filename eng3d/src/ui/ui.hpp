@@ -71,6 +71,7 @@ namespace UI {
         void clear_hover_recursive(Widget& w);
         bool check_hover_recursive(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset);
         UI::ClickState check_click_recursive(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, UI::ClickState click_state, bool clickable);
+        bool check_drag_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset);
         bool check_wheel_recursive(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, int y);
         // Render the widget and it's children
         void render_recursive(Widget& widget, glm::mat4 model, Eng3D::Rect viewport, glm::vec2 offset);

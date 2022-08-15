@@ -164,11 +164,10 @@ namespace UI {
         virtual ~Widget();
 
         /// @brief Moves a widget by x and y
-        /// @param _x
-        /// @param _y
-        constexpr void move_by(int _x, int _y) {
-            this->x += _x;
-            this->y += _y;
+        /// @param offset Offset to move by
+        constexpr void move_by(const glm::ivec2 offset) {
+            this->x += offset.x;
+            this->y += offset.y;
         }
         
         void add_child(UI::Widget& child);

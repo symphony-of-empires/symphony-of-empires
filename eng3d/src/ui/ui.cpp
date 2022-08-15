@@ -355,7 +355,7 @@ void Context::clear_hover_recursive(Widget& w) {
         clear_hover_recursive(*child);
 }
 
-static inline bool is_inside_transparent(const Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset) {
+static inline bool is_inside_transparent(const UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset) {
     if(w.current_texture != nullptr) {
         glm::ivec2 tex_size{ w.current_texture->width, w.current_texture->height };
         glm::ivec2 tex_pos = ((mouse_pos - offset) * tex_size) / glm::ivec2(w.width, w.height); 
@@ -368,8 +368,8 @@ static inline bool is_inside_transparent(const Widget& w, glm::ivec2 mouse_pos, 
     return false;
 }
 
-bool Context::check_hover_recursive(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset) {
-    offset = get_pos(w, offset);
+bool Context::check_hover_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset) {
+    offset = this->get_pos(w, offset);
 
     w.is_hover = hover_update;
     if(!w.is_show || !w.is_render || !w.width || !w.height)
@@ -402,10 +402,11 @@ bool Context::check_hover_recursive(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 
 bool Context::check_hover(glm::ivec2 mouse_pos) {
     hover_update++;
     if(is_drag) {
-        glm::ivec2 offset = mouse_pos - glm::ivec2(this->drag_x, this->drag_y);
-        glm::ivec2 diff = offset - glm::ivec2(dragged_widget->x, dragged_widget->y);
-
-        dragged_widget->move_by(diff.x, diff.x);
+        // Drag vector
+        const glm::ivec2 drag = mouse_pos - glm::ivec2(this->drag_x, this->drag_y);
+        const auto offset = this->get_pos(*dragged_widget, glm::ivec2(0));
+        const glm::ivec2 diff = drag - offset;
+        dragged_widget->move_by(diff);
         return true;
     }
 
@@ -457,7 +458,7 @@ UI::ClickState Context::check_click_recursive(Widget& w, glm::ivec2 mouse_pos, g
     // Call on_click if on_click hasnt been used and widget is hit by click
     if(w.on_click && clickable && !click_consumed) {
         if(w.type == UI::WidgetType::SLIDER) {
-            Slider* wc = (Slider*)&w;
+            UI::Slider* wc = (UI::Slider*)&w;
             wc->set_value((static_cast<float>(std::abs(mouse_pos.x - offset.x)) / static_cast<float>(wc->width)) * wc->max);
         }
         w.on_click(w);
@@ -499,28 +500,40 @@ bool Context::check_click(glm::ivec2 mouse_pos) {
     return is_click;
 }
 
-void Context::check_drag(glm::ivec2 mouse_pos) {
-    for(int i = widgets.size() - 1; i >= 0; i--) {
-        auto& widget = *widgets[i].get();
+bool UI::Context::check_drag_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset) {
+    // Only windows can be dragged around
+    if(w.type != UI::WidgetType::WINDOW) return false;
+    // Pinned widgets are not movable
+    if(w.is_pinned) return false;
 
-        // Only windows can be dragged around
-        if(widget.type != UI::WidgetType::WINDOW) continue;
-        // Pinned widgets are not movable
-        if(widget.is_pinned) continue;
+    offset = this->get_pos(w, offset);
+    const Eng3D::Rect r(offset.x, offset.y, w.width, w.y + 24);
+    if(r.in_bounds(mouse_pos)) {
+        auto& wc = reinterpret_cast<UI::Window&>(w);
+        if(!wc.is_movable) return false;
+        if(!this->is_drag) {
+            this->drag_x = mouse_pos.x - offset.x;
+            this->drag_y = mouse_pos.y - offset.y;
+            this->dragged_widget = reinterpret_cast<decltype(this->dragged_widget)>(&wc);
+            this->is_drag = true;
+            return true;
+        }
 
-        const Eng3D::Rect r(widget.x, widget.y, widget.width, widget.y + 24);
-        if(r.in_bounds(mouse_pos)) {
-            auto& c_widget = static_cast<UI::Window&>(widget);
-            if(!c_widget.is_movable) continue;
-            if(!is_drag) {
-                drag_x = mouse_pos.x - widget.x;
-                drag_y = mouse_pos.y - widget.y;
-                is_drag = true;
-                dragged_widget = &widget;
-                break;
-            }
+        for(auto& child : w.children) {
+            if(this->check_drag_recursive(*child.get(), mouse_pos, offset))
+                return true;
         }
     }
+    return false;
+}
+
+void UI::Context::check_drag(glm::ivec2 mouse_pos) {
+    for(int i = widgets.size() - 1; i >= 0; i--) {
+        auto& widget = *widgets[i].get();
+        if(this->check_drag_recursive(widget, mouse_pos, glm::ivec2(0)))
+            return;
+    }
+    return;
 }
 
 bool check_text_input_recursive(Widget& widget, const char* _input) {
