@@ -244,7 +244,7 @@ namespace UI {
         size_t width = 0, height = 0;
 
         std::shared_ptr<Eng3D::Texture> current_texture;
-        std::unique_ptr<Eng3D::Texture> text_texture;
+        std::shared_ptr<Eng3D::Texture> text_texture;
         int text_offset_x = 4, text_offset_y = 4;
         Align text_align_y = Align::START;
         Align text_align_x = Align::START;

@@ -56,32 +56,6 @@ Eng3D::Texture::Texture(size_t _width, size_t _height)
 
 }
 
-Eng3D::Texture::Texture(Eng3D::TrueType::Font& font, Eng3D::Color color, const std::string& msg) {
-    // TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
-    const SDL_Color text_color = {
-        static_cast<Uint8>(color.r * 255.f),
-        static_cast<Uint8>(color.g * 255.f),
-        static_cast<Uint8>(color.b * 255.f),
-        0
-    };
-
-    Eng3D::Log::debug("ttf", "Creating text for \"" + msg + "\"");
-    auto* surface = TTF_RenderUTF8_Blended(&font, msg.c_str(), text_color);
-    if(surface == nullptr)
-        CXX_THROW(std::runtime_error, std::string() + "Cannot create text surface: " + TTF_GetError());
-    Eng3D::Log::debug("ttf", "Sucessfully created text");
-
-    buffer.reset();
-    width = static_cast<size_t>(surface->w);
-    height = static_cast<size_t>(surface->h);
-    this->upload(surface);
-    SDL_FreeSurface(surface);
-
-    const std::string error_msg = SDL_GetError();
-    if(!error_msg.empty())
-        Eng3D::Log::error("ttf", error_msg);
-}
-
 Eng3D::Texture::~Texture() {
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     if(gl_tex_num)
@@ -131,6 +105,10 @@ void Eng3D::Texture::upload(TextureOptions options) {
     }
 }
 
+/// @brief Uploads a text texture (shceduled or not) if it's scheduled, the surface
+/// is handed ownership over to the scheduler and it will be automatically deallocated
+/// once the request is fullfilled
+/// @param surface Surface to base texture from
 void Eng3D::Texture::upload(SDL_Surface* surface) {
     auto& s = Eng3D::State::get_instance();
     if(!managed) {
@@ -223,6 +201,10 @@ void Eng3D::Texture::_upload(TextureOptions options) {
 void Eng3D::Texture::_upload(SDL_Surface* surface) {
     if(surface->w == 0 || surface->h == 0) return;
     assert(surface->format != nullptr);
+    
+    this->buffer.reset();
+    this->width = static_cast<size_t>(surface->w);
+    this->height = static_cast<size_t>(surface->h);
 
     int colors = surface->format->BytesPerPixel;
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
@@ -273,6 +255,8 @@ void Eng3D::Texture::_upload(SDL_Surface* surface) {
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 #endif
     this->gen_mipmaps();
+
+    SDL_FreeSurface(surface);
 }
 
 void Eng3D::Texture::gen_mipmaps() const {
@@ -412,4 +396,36 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(const std::string& p
 
 std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(std::shared_ptr<Eng3D::IO::Asset::Base> asset, TextureOptions options) {
     return this->load(asset.get() != nullptr ? asset->get_abs_path() : "", options);
+}
+
+std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::gen_text(Eng3D::TrueType::Font& font, Eng3D::Color color, const std::string& msg) {
+    // Find texture when wanting to be loaded and load texture from cached texture list
+    auto it = text_textures.find(msg);
+    if(it != text_textures.end()) return (*it).second;
+
+    Eng3D::Log::debug("texture", "Loaded and cached text texture for " + msg);
+
+    // Otherwise texture is not in our control, so we create a new texture
+    std::shared_ptr<Eng3D::Texture> tex;
+    try {
+        tex = std::make_shared<Eng3D::Texture>();
+        // TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
+        Eng3D::Log::debug("ttf", "Creating text for \"" + msg + "\"");
+        auto* surface = TTF_RenderUTF8_Blended(&font, msg.c_str(), (const SDL_Color){
+            static_cast<Uint8>(color.r * 255.f), static_cast<Uint8>(color.g * 255.f),
+            static_cast<Uint8>(color.b * 255.f), 0 });
+        if(surface == nullptr)
+            CXX_THROW(std::runtime_error, std::string() + "Cannot create text surface: " + TTF_GetError());
+        Eng3D::Log::debug("ttf", "Sucessfully created text");
+        tex->managed = true;
+        tex->upload(surface);
+        const std::string error_msg = SDL_GetError();
+        if(!error_msg.empty()) Eng3D::Log::error("ttf", error_msg);
+    } catch(const BinaryImageException&) {
+        tex = std::make_shared<Eng3D::Texture>();
+        tex->create_dummy();
+        tex->upload();
+    }
+    text_textures[msg] = tex;
+    return text_textures[msg];
 }

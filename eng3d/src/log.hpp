@@ -28,7 +28,7 @@
 #include <string>
 #include <memory>
 
-#if defined E3D_TARGET_SWITCH
+#ifdef E3D_TARGET_SWITCH
 struct PrintConsole;
 extern "C" void consoleUpdate(PrintConsole* console);
 #endif
@@ -36,7 +36,7 @@ extern "C" void consoleUpdate(PrintConsole* console);
 namespace Eng3D::Log {
     /// @brief Logs data to a file or console
     inline void log(const std::string& severity, const std::string& category, const std::string& msg) {
-#if defined E3D_LOG_TO_FILE
+#ifdef E3D_LOG_TO_FILE
         std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen("log.txt", "a+t"), fclose);
         if(fp != nullptr)
             fprintf(fp.get(), "<%s:%s> %s\n", severity.c_str(), category.c_str(), msg.c_str());

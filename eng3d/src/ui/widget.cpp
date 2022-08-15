@@ -440,7 +440,7 @@ void Widget::text(const std::string& _text) {
     text_texture.reset();
     if(_text.empty()) return;
     auto& text_font = font != nullptr ? *font : *g_ui_context->default_font;
-    text_texture = std::make_unique<Eng3D::Texture>(text_font, text_color, _text);
+    text_texture = Eng3D::State::get_instance().tex_man.gen_text(text_font, text_color, _text);
 }
 
 /// @brief Set the tooltip to be shown when this widget is hovered, overrides

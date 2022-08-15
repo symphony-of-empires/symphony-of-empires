@@ -161,7 +161,7 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
         CXX_THROW(std::runtime_error, "Duplicate instancing of GameState");
     g_state = &s;
 
-#if defined E3D_TARGET_SWITCH
+#ifdef E3D_TARGET_SWITCH
     ::consoleDebugInit(debugDevice_SVC);
     Eng3D::Log::debug("engine", "Hello world!");
     // Make sure to initialize RomFS properly
@@ -184,7 +184,7 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     // Create the initial window
-#if defined E3D_TARGET_SWITCH
+#ifdef E3D_TARGET_SWITCH
     s.width = 1280;
     s.height = 720;
 #else
@@ -215,9 +215,6 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
 
 #   ifdef E3D_BACKEND_OPENGL
     glHint(GL_TEXTURE_COMPRESSION_HINT, GL_FASTEST);
-#   endif
-
-#   ifdef E3D_BACKEND_OPENGL
 #       ifndef NDEBUG
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(GLDebugMessageCallback, 0);
@@ -262,7 +259,7 @@ Eng3D::Installer::~Installer()
     SDL_DestroyWindow(s.window);
     TTF_Quit();
     SDL_Quit();
-#if defined E3D_TARGET_SWITCH
+#ifdef E3D_TARGET_SWITCH
     // Make sure to gracefully unmount
     ::romfsExit();
 #endif

@@ -222,6 +222,7 @@ void Map::update_nation_label(const Nation& nation) {
 }
 
 void Map::create_labels() {
+#ifndef E3D_TARGET_SWITCH
     // Provinces
     this->province_labels.clear();
     for(const auto& province : world.provinces) {
@@ -241,6 +242,7 @@ void Map::create_labels() {
         auto label = this->map_font->gen_text(_(province.name.get_string()), top_dir, right_dir, width, center);
         this->province_labels.push_back(std::move(label));
     }
+#endif
 
     // Nations
     this->nation_labels.resize(this->world.nations.size());
@@ -678,8 +680,12 @@ void Map::draw(GameState& gs) {
     }
 
     if(this->gen_labels) {
+#ifndef E3D_TARGET_SWITCH
         if(distance_to_map < small_zoom_factor) map_font->draw(province_labels, *camera, view_mode == MapView::SPHERE_VIEW);
         else map_font->draw(nation_labels, *camera, view_mode == MapView::SPHERE_VIEW);
+#else
+        if(distance_to_map > small_zoom_factor) map_font->draw(nation_labels, *camera, view_mode == MapView::SPHERE_VIEW);
+#endif
     }
 
     if(view_mode == MapView::SPHERE_VIEW) {

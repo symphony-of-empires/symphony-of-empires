@@ -72,7 +72,7 @@ namespace Eng3D {
 
     class TextureOptions {
     public:
-        TextureOptions() {};
+        TextureOptions() = default;
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         GLenum target = GL_TEXTURE_2D;
         GLuint wrap_s = GL_REPEAT;
@@ -110,7 +110,6 @@ namespace Eng3D {
         Texture(const std::string& path);
         Texture(const Eng3D::IO::Asset::Base* asset);
         Texture(size_t _width, size_t _height);
-        Texture(Eng3D::TrueType::Font& font, Eng3D::Color color, const std::string& msg);
         ~Texture() override;
         void create_dummy();
         void upload(TextureOptions options = default_options);
@@ -180,14 +179,18 @@ namespace Eng3D {
         std::vector<TextureUploadRequest> unuploaded_textures; // Textures that needs to be uploaded
         std::mutex unuploaded_lock;
         std::shared_ptr<Eng3D::Texture> white;
+        /// @brief Stores the text textures
+        /// @todo Take in account colour and font for creating the key, since repeated text will be displayed incorrectly
+        std::unordered_map<std::string, std::shared_ptr<Eng3D::Texture>> text_textures;
         Eng3D::State& s;
     public:
         TextureManager() = delete;
         TextureManager(Eng3D::State& s);
         ~TextureManager() = default;
-        std::shared_ptr<Texture> load(const std::string& path, TextureOptions options = default_options);
-        std::shared_ptr<Texture> load(std::shared_ptr<Eng3D::IO::Asset::Base> asset, TextureOptions options = default_options);
-        std::shared_ptr<Texture> get_white();
+        std::shared_ptr<Eng3D::Texture> load(const std::string& path, TextureOptions options = default_options);
+        std::shared_ptr<Eng3D::Texture> load(std::shared_ptr<Eng3D::IO::Asset::Base> asset, TextureOptions options = default_options);
+        std::shared_ptr<Eng3D::Texture> gen_text(Eng3D::TrueType::Font& font, Eng3D::Color color, const std::string& msg);
+        std::shared_ptr<Eng3D::Texture> get_white();
         inline void upload() {
             if(!this->unuploaded_textures.empty()) {
                 const std::scoped_lock lock(this->unuploaded_lock);
