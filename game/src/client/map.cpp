@@ -233,7 +233,7 @@ void Map::create_labels() {
         glm::vec3 left(mid_point - x_step, 0.f);
         glm::vec3 right(mid_point + x_step, 0.f);
         float width = glm::length(left - right);
-        width *= 0.5f;
+        width *= 0.2f;
 
         glm::vec3 right_dir = glm::vec3(mid_point.x + 1.f, mid_point.y, 0.) - center;
         glm::vec3 top_dir = glm::vec3(mid_point.x, mid_point.y - 1.f, 0.) - center;

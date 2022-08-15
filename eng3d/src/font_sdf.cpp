@@ -165,6 +165,7 @@ std::unique_ptr<Eng3D::Label3D> Eng3D::FontSDF::gen_text(const std::string& text
     return std::make_unique<Eng3D::Label3D>(new Eng3D::TriangleList(positions, tex_coords), scale, center);
 }
 
+#include "eng3d/map.hpp"
 void Eng3D::FontSDF::draw(const std::vector<std::unique_ptr<Label3D>>& labels, const Eng3D::Camera& camera, bool sphere) {
     auto& shader = sphere ? *sphere_shader : *flat_shader;
     shader.use();
@@ -176,7 +177,7 @@ void Eng3D::FontSDF::draw(const std::vector<std::unique_ptr<Label3D>>& labels, c
     for(auto& label : labels) {
         if(label.get() == nullptr) continue;
         shader.set_uniform("center", label->center.x, label->center.y);
-        shader.set_uniform("radius", 100.f + 0.01f * label->size);
+        shader.set_uniform("radius", Eng3D::GLOBE_RADIUS + 0.01f * label->size);
         shader.set_uniform("px_range", label->size * 0.5f);
         label->draw();
     }

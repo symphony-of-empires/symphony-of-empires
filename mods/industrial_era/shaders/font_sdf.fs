@@ -24,6 +24,6 @@ void main() {
     vec3 msd = texture(atlas, uv).rgb;
     float sd = median(msd.r, msd.g, msd.b);
     float screen_px_distance = screen_px_range() * (sd - 0.5);
-    float opacity = clamp(screen_px_distance + 0.5, 0.0, 1.0);
+    float opacity = clamp(screen_px_distance + 0.5, 0.0, 0.8);
     f_color = vec4(0.0, 0.0, 0.0, opacity);
 }
