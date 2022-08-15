@@ -44,14 +44,11 @@
 #endif
 #include <vector>
 #include <map>
-#include "world.hpp"
 #include "eng3d/io.hpp"
 #include "eng3d/path.hpp"
 #include "eng3d/network.hpp"
 #include "eng3d/locale.hpp"
 #include "eng3d/log.hpp"
-#include "io_impl.hpp"
-#include "action.hpp"
 
 void start_client(int argc, char** argv);
 
@@ -89,17 +86,3 @@ extern "C" int main(int argc, char** argv) {
 #endif
     return 0;
 }
-
-#ifdef E3D_TARGET_WINDOWS
-#   include <cstring>
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument, int iShow) {
-    char* argv[1];
-    argv[0] = new char[2];
-    strcpy((char*)argv[0], "/");
-    
-    main(1, argv);
-    
-    free(argv[0]);
-    return 0;
-}
-#endif
