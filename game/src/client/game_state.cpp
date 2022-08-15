@@ -635,6 +635,10 @@ void start_client(int argc, char** argv) {
     gs.input = Input();
     gs.run = true;
     gs.paused = true;
+    gs.loaded_world = false;
+    gs.loaded_map = false;
+    gs.load_progress = 0.f;
+    std::thread load_world_th(&GameState::load_world_thread, &gs);
     std::thread music_th(&GameState::music_thread, &gs);
 
 #if 0
@@ -658,11 +662,6 @@ void start_client(int argc, char** argv) {
     }
 #endif
 
-    gs.loaded_world = false;
-    gs.loaded_map = false;
-    gs.load_progress = 0.f;
-    std::thread load_world_th(&GameState::load_world_thread, &gs);
-
     auto map_layer = new UI::Group(0, 0);
 
     auto *bg_img = new UI::Image(-(gs.width / 2.f), -(gs.height / 2.f), gs.width, gs.height);
@@ -672,12 +671,12 @@ void start_client(int argc, char** argv) {
         bg_img->current_texture = gs.tex_man.load(load_screen_entries[std::rand() % load_screen_entries.size()]->get_abs_path());
 
     auto* load_pbar = new UI::ProgressBar(0, -24, gs.width, 24, 0.f, 1.f);
+    load_pbar->text(_("Initializing game resources"));
     load_pbar->origin = UI::Origin::LOWER_LEFT_SCREEN;
     load_pbar->text_color = Eng3D::Color(1.f, 1.f, 1.f);
 
     auto mod_logo_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/mod_logo.png"));
     auto* mod_logo_img = new UI::Image(0, 0, mod_logo_tex->width, mod_logo_tex->height, mod_logo_tex);
-    
     while(!gs.loaded_map) {
         // Widgets here SHOULD NOT REQUEST UPON WORLD DATA
         // so no world lock is needed beforehand

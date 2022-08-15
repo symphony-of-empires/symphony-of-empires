@@ -328,7 +328,7 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
             files_buf += "loadfile(\"" + m_path + "\")()\n";
         }
     }
-    Eng3D::Log::debug("game", "files_buf: " + files_buf);
+    Eng3D::Log::debug("lua", "Buffer " + files_buf);
 
     if(luaL_loadstring(world.lua, files_buf.c_str()) != LUA_OK || lua_pcall(world.lua, 0, 0, 0) != LUA_OK)
         CXX_THROW(LuaAPI::Exception, lua_tostring(world.lua, -1));
@@ -361,11 +361,11 @@ void World::load_initial() {
         // Uncomment this and see a bit more below
         std::set<uint32_t> colors_found;
         std::set<uint32_t> colors_used;
-        Eng3D::Log::debug("game", _("Associate tiles with provinces"));
+        Eng3D::Log::debug("world", _("Associate tiles with provinces"));
 
         // Build a lookup table for super fast speed on finding provinces
         // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
-        Eng3D::Log::debug("game", _("Building the province lookup table"));
+        Eng3D::Log::debug("world", _("Building the province lookup table"));
         std::vector<Province::Id> province_color_table(0xffffff + 1, Province::invalid());
         for(auto& province : provinces)
             province_color_table[province.color & 0xffffff] = this->get_id(province);
@@ -417,12 +417,12 @@ void World::load_initial() {
 
         if(!provinces_ref_names.empty()) {
             std::string error = "Province " + provinces_ref_names + " is registered but missing on province.png, please add it!";
-            Eng3D::Log::error("game", error);
+            Eng3D::Log::error("world", error);
             CXX_THROW(std::runtime_error, error.c_str());
         }
 
         // Calculate the edges of the province (min and max x and y coordinates)
-        Eng3D::Log::debug("game", _("Calculate the edges of the province (min and max x and y coordinates)"));
+        Eng3D::Log::debug("world", _("Calculate the edges of the province (min and max x and y coordinates)"));
 
         // Init the province bounds
         for(auto& province : provinces) {
@@ -443,14 +443,14 @@ void World::load_initial() {
         }
 
         // Correct stuff from provinces
-        Eng3D::Log::debug("game", _("Correcting values for provinces"));
+        Eng3D::Log::debug("world", _("Correcting values for provinces"));
         for(auto& province : provinces) {
             province.box_area.right = std::min<float>(width, province.box_area.right);
             province.box_area.bottom = std::min<float>(height, province.box_area.bottom);
         }
 
         // Neighbours
-        Eng3D::Log::debug("game", _("Creating neighbours for provinces"));
+        Eng3D::Log::debug("world", _("Creating neighbours for provinces"));
         for(size_t i = 0; i < width * height; i++) {
             const auto tile = this->tiles[i];
             assert(Province::is_valid(tile.province_id));
@@ -484,7 +484,7 @@ void World::load_initial() {
         unit_manager.init(*this);
 
         // Create diplomatic relations between nations
-        Eng3D::Log::debug("game", _("Creating diplomatic relations"));
+        Eng3D::Log::debug("world", _("Creating diplomatic relations"));
         // Relations between nations start at 0 (and latter modified by lua scripts)
         // since we use cantor's pairing function we only have to make an n*2 array so yeah let's do that!
         size_t relations_len = this->nations.size() * this->nations.size();
@@ -496,7 +496,7 @@ void World::load_initial() {
         for(auto& nation : this->nations) {
             // Must exist and not have a capital
             if(!nation.exists() || Province::is_invalid(nation.capital_id)) continue;
-            Eng3D::Log::debug("game", _("Relocating capital of [" + nation.ref_name + "]"));
+            Eng3D::Log::debug("world", _("Relocating capital of [" + nation.ref_name + "]"));
             nation.auto_relocate_capital();
 
             nation.budget = 10000.f;
@@ -525,7 +525,7 @@ void World::load_initial() {
         ar.to_file("world.cache");
     }
 
-    Eng3D::Log::debug("game", _("World partially intiialized"));
+    Eng3D::Log::debug("world", _("World partially intiialized"));
 }
 
 void World::load_mod() {
