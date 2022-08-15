@@ -32,10 +32,6 @@
 
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
-#include <assimp/scene.h>
-extern "C" {
-#include <assimp/postprocess.h>
-}
 
 #include "eng3d/mesh.hpp"
 #include "eng3d/io.hpp"
@@ -47,6 +43,10 @@ namespace Eng3D {
         class Program;
     };
 };
+
+class aiMesh;
+class aiScene;
+class aiNode;
 
 namespace Eng3D {
     // A simple object - use these to store "simple" objects that MAY repeat
@@ -75,9 +75,11 @@ namespace Eng3D {
             for(auto& model : simple_models)
                 model.draw(shader);
         }
-
+        
+#ifdef E3D_FEATURE_ASSIMP
         Eng3D::SimpleModel process_simple_model(aiMesh& mesh, const aiScene& scene);
         void process_node(aiNode& node, const aiScene& scene);
+#endif
 
         std::vector<Eng3D::SimpleModel> simple_models;
     };

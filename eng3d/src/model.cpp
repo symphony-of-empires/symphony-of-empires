@@ -29,12 +29,14 @@
 #include <vector>
 #include <iterator>
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
+#ifdef E3D_FEATURE_ASSIMP
+#   include <assimp/Importer.hpp>
+#   include <assimp/scene.h>
 extern "C" {
-#include <assimp/postprocess.h>
-#include <assimp/material.h>
+#   include <assimp/postprocess.h>
+#   include <assimp/material.h>
 }
+#endif
 
 #include "eng3d/model.hpp"
 #include "eng3d/shader.hpp"
@@ -86,6 +88,7 @@ void Eng3D::SimpleModel::draw(const Eng3D::OpenGL::Program& shader, int instance
 //
 // Model
 //
+#ifdef E3D_FEATURE_ASSIMP
 static inline std::shared_ptr<Eng3D::Texture> get_material_texture(const aiMaterial& material, aiTextureType type) {
     auto& s = Eng3D::State::get_instance();
     for(size_t i = 0; i < material.GetTextureCount(type); i++) {
@@ -99,13 +102,12 @@ static inline std::shared_ptr<Eng3D::Texture> get_material_texture(const aiMater
 }
 
 Eng3D::SimpleModel Eng3D::Model::process_simple_model(aiMesh& mesh, const aiScene& scene) {
-    Eng3D::SimpleModel simple_model = Eng3D::SimpleModel(Eng3D::MeshMode::TRIANGLES);
+    Eng3D::SimpleModel simple_model(Eng3D::MeshMode::TRIANGLES);
     auto& s = Eng3D::State::get_instance();
     simple_model.buffer.resize(mesh.mNumVertices);
     glm::vec3 max_vert{};
-    for(size_t i = 0; i < mesh.mNumVertices; i++) {
+    for(size_t i = 0; i < mesh.mNumVertices; i++)
         max_vert = glm::vec3(std::max<float>(max_vert.x, mesh.mVertices[i].x), std::max<float>(max_vert.y, mesh.mVertices[i].y), std::max<float>(max_vert.z, mesh.mVertices[i].z));
-    }
 
     max_vert = glm::vec3(max_vert.x, std::max<float>(max_vert.y, max_vert.x), std::max<float>(max_vert.z, max_vert.x));
     max_vert = glm::vec3(std::max<float>(max_vert.x, max_vert.y), max_vert.y, std::max<float>(max_vert.z, max_vert.y));
@@ -162,6 +164,7 @@ void Eng3D::Model::process_node(aiNode& node, const aiScene& scene) {
     for(size_t i = 0; i < node.mNumChildren; i++)
         this->process_node(*node.mChildren[i], scene);
 }
+#endif
 
 //
 // ModelManager
@@ -180,18 +183,21 @@ std::shared_ptr<Eng3D::Model> Eng3D::ModelManager::load(const std::string& path)
     // Wavefront OBJ loader
     std::shared_ptr<Eng3D::Model> model;
     try {
+#ifdef E3D_FEATURE_ASSIMP
         /// @todo This is too horrible, we need a better solution
-        // model =
         Assimp::Importer importer;
         const auto* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
         if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || scene->mRootNode == nullptr)
             CXX_THROW(std::runtime_error, importer.GetErrorString());
+#endif
 
-        model = std::make_shared<Eng3D::Model>(Eng3D::Model());
+        model = std::make_shared<Eng3D::Model>();
+#ifdef E3D_FEATURE_ASSIMP
         model->process_node(*scene->mRootNode, *scene);
+#endif
     } catch(std::runtime_error& e) {
         // Make a dummy model
-        model = std::make_shared<Eng3D::Model>(Eng3D::Model());
+        model = std::make_shared<Eng3D::Model>();
     }
     models[path] = model;
     return model;

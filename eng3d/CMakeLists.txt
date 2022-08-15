@@ -184,9 +184,12 @@ IF(NOT E3D_VENDORED)
 	include_directories(${SDL2_INCLUDE_DIRS})
 	target_link_libraries(eng3d PRIVATE ${SDL2_LIBRARIES})
 
-	find_package(assimp REQUIRED)
+	find_package(assimp)
+	IF(assimp_FOUND)
+		add_definitions(-DE3D_FEATURE_ASSIMP=1)
 	include_directories(${ASSIMP_INCLUDE_DIRS})
 	target_link_libraries(eng3d PRIVATE ${ASSIMP_LIBRARIES})
+	ENDIF()
 
 	IF(E3D_BACKEND_OPENGL AND NOT MSVC)
 		find_package(GLEW REQUIRED)
