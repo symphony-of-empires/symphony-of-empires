@@ -48,8 +48,8 @@
 
 using namespace UI;
 
-// Calculate the positon of the triangle
-// and then uses its barycentric coordinates to check if the point p is inside it
+/// @brief Calculate the positon of the triangle
+/// and then uses its barycentric coordinates to check if the point p is inside it
 PieChart::PieChart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI::WidgetType::PIE_CHART),
     data{ std::vector<ChartData>() },
@@ -145,7 +145,7 @@ void PieChart::on_hover_default(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 widg
 
     float x_center = piechart.width / 2.f;
     float y_center = piechart.height / 2.f;
-    glm::ivec2 center = glm::ivec2(x_center, y_center);
+    glm::ivec2 center{ x_center, y_center };
     float radius = std::min<float>(piechart.width, piechart.height) * 0.5;
 
     glm::vec2 centered_pos = mouse_pos - center;

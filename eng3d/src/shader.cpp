@@ -34,8 +34,8 @@
 #include "eng3d/log.hpp"
 
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
-// Construct a shader by opening the provided path and creating a temporal ifstream, reading
-// from that stream in text mode and then compiling the shader
+/// @brief Construct a shader by opening the provided path and creating a temporal ifstream, reading
+/// from that stream in text mode and then compiling the shader
 Eng3D::OpenGL::Shader::Shader(const std::string& _buffer, GLuint type, bool use_transpiler, std::vector<Eng3D::OpenGL::GLSL_Define> defintions)
     : buffer(_buffer)
 {

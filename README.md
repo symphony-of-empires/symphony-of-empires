@@ -3,110 +3,77 @@
 
 Want to contribute or are interested in the development of the game? See our discord https://discord.gg/44QuvuDmCS
 
-This is an Opensource RTS game engine; created to be very mod-friendly.
+This is an open source RTS game engine; created to be very mod friendly and flexible for everyone's needs.
+
+Features:
+* Custom RTS game engine and framework
+* Flexible & customizable UI
+* Dynamic texture and audio management
+* Lua scripting for events
+* Support for multiple mods
+* Heavy usage of multithreaded code
+
+## Download
+
+If you're looking for the game you can find download links on: [https://symphony-of-empires.com/downloads.html].
+Make sure to download the latest version before reporting any bugs.
+
+## Building
 
 Required to build:
-
 * SDL2 and SDL2-ttf
-* lua 5.3 (or 5.4)
-* GL and GLU
-* libavcodec (on most package managers it's ffmpeg)
+* OpenGL (GL and GLU)
+* GLEW
+* libassimp
+* CMake
 
-## Installing pre-requisites
+If you lack any of the prerequsites below you can use `cmake -DE3D_VENDORED=1` for building them instead.
+Lua will **always** be built, since many package managers do not supply Lua 5.4 and backwards compatibility isn't a thing that should be dealt with.
 
-**If you simply want to play the game on linux:**
+**Windows**: For visual studio, use either vcpkg or nuget to do dependencies.
+On msys2, simply run the following after setting up the initial msys environment:
+```sh
+pacman -S mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-SDL2 mingw-w64-x86_64-glew mingw-w64-x86_64-glm mingw-w64-x86_64-zlib mingw-w64-x86_64-assimp mingw-w64-x86_64-intel-tbb
 ```
-./quick_build.sh
+Or if you have a 32-bit computer:
+```sh
+pacman -S mingw-w64-i686-SDL2_ttf mingw-w64-i686-SDL2 mingw-w64-i686-glew mingw-w64-i686-glm mingw-w64-i686-zlib mingw-w64-i686-assimp  mingw-w64-i686-intel-tbb
 ```
-
-### NetBSD
+**Debian-based**: ``sudo apt install -y libpng-dev libsdl2-dev libsdl2-ttf-dev libtbb-dev libglew-dev libglm-dev libassimp-dev``
+**Arch-based**: ``pacman -S libpng sdl2 sdl2_ttf glew glm tbb assimp``
+**NetBSD**:
 ```sh
 pkgin in SDL2 SDL2_ttf assimp lua54 glew MesaLib glu libatomic threadingbuildingblocks
+# The NetBSD libc already contains libdl within it, however libraries expect libdl to be a file
+# and they will fail linking if said file is missing, making it a symbolic link is just a workaround
+[ -e /usr/lib/libdl.a ] || ln -s /usr/lib/libc.a /usr/lib/libdl.a
+[ -e /usr/lib/libdl.so ] || ln -s /usr/lib/libc.so /usr/lib/libdl.so
 ```
 
-### Debian-based distros
-```sh
-sudo apt install -y libpng-dev libsdl2-dev libsdl2-ttf-dev liblua5.3-dev libtbb-dev libglew-dev libglm-dev libassimp-dev
-```
-
-### Windows
-Use either vcpkg or nuget to do dependencies.
+If you simply want to play the game on Debian run: ``./quick_build.sh``
 
 ## Building
 
 The build with these commands once all the dependencies are met:
 ```sh
+# In windows
+cmake -G "MinGW Makefiles" -DE3D_BACKEND_OPENGL=1 -DNO_COPY_MODS=1 .
+cmake --build .
+
+# In Linux, macOS, NetBSD, etc
 # Use this for a normal build
 cmake -DE3D_BACKEND_OPENGL=1 -DNO_COPY_MODS=1 .
 # Alternatively use this for a debug build
 cmake -DE3D_DEBUG=1 -DE3D_BACKEND_OPENGL=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo .
-make
-```
-
-### Workaround for Ubuntu
-Use this code to install Lua5.4
-```sh
-wget http://mirrors.kernel.org/ubuntu/pool/universe/l/lua5.4/liblua5.4-0_5.4.0-2_amd64.deb
-sudo dpkg -i liblua5.4-0_5.4.0-2_amd64.deb
-wget http://mirrors.kernel.org/ubuntu/pool/universe/l/lua5.4/liblua5.4-dev_5.4.0-2_amd64.deb
-sudo dpkg -i liblua5.4-dev_5.4.0-2_amd64.deb
-```
-Alternatively, you can call `cmake` with the flag `-Dlua54:BOOL=ON` to compile with Lua 5.4 - since 5.3 is used by default.
-
-The project can also be built using clang.
-
-### Arch-based distros
-
-```sh
-pacman -S libpng sdl2 sdl2_ttf glew lua53 glm tbb
-```
-
-## Build on Windows
-
-### MSYS2
-Once msys2 has been installed for the first time, you'll have to run the following commands to install essential development packages:
-```sh
-pacman -Syu
-pacman -Su
-```
-
-Simply run the following after setting up the initial msys environment:
-```sh
-pacman -S mingw-w64-x86_64-libpng mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-SDL2 mingw-w64-x86_64-glew mingw-w64-x86_64-lua mingw-w64-x86_64-glm mingw-w64-x86_64-zlib
-
-# If you have an intel cpu, you need to execute this.
-# This will overwrite the default tbb installation.
-pacman -S mingw-w64-x86_64-intel-tbb
-```
-
-On 32-bit systems the following is required:
-```sh
-pacman -S mingw-w64-i686-libpng mingw-w64-i686-SDL2_ttf mingw-w64-i686-SDL2 mingw-w64-i686-glew mingw-w64-i686-lua mingw-w64-i686-glm mingw-w64-i686-zlib
-
-# If you have an intel cpu, you need to execute this.
-# This will overwrite the default tbb installation.
-pacman -S mingw-w64-i686-intel-tbb
-```
-
-Finally; to build you only have to run:
-```sh
-cmake -G "MinGW Makefiles" -DE3D_BACKEND_OPENGL=1 -DNO_COPY_MODS=1 .
-make
+cmake --build .
 ```
 
 ### Visual Studio
 Builds can be built using Visual C compiler. The trick is to create a new solution and place everything there, add src and src\\client as include folders and use NuGet to obtain the required dependencies, then define the macro `windows`.
 
 ## Running
-In order to run the game you just need to run it via the command line or left-click the executable:
-```sh
-./SymphonyOfEmpires
-```
-
-If the server crashes and the port needs to be re-aquired do the following under *NIX systems:
-```sh
-fuser -k 1836/tcp
-```
+In order to run the game you just need to run it via the command line or left-click the executable: ``./SymphonyOfEmpires``
+If the server crashes and the port needs to be re-aquired do the following under *NIX systems: ``fuser -k 1836/tcp``
 
 # Coding style
 4-spaces are used, tabs should be replaced with 4-spaces too. All functions, members and variables follow a
@@ -156,16 +123,11 @@ public:
 Simply put:
 ```cpp
 while(a) {
-    if(b) {
-        // stuff...
-    } else if(c) {
-        // stuff...
-    }
+    if(b) // stuff...
+    else if(c) // stuff...
 
-    // no "single line" or brace-less ifs
-    if(d < 0) {
-        increment_d(&d);
-    }
+    // yes "single line" or brace-less ifs
+    if(d < 0) increment_d(&d);
 }
 ```
 
@@ -174,17 +136,17 @@ Classes, Structs, Types and Typenames are named in PascalCase, while variables, 
 
 ```cpp
 struct FooBar {
-    FooBar() {};
-    ~FooBar() {};
+    FooBar() = default;
+    ~FooBar() = default;
 
     int method() {
         return 0;
-    };
+    }
 
     template<typename T1 = int, typename T2 = int>
     int add(T1 a, T2 b) {
         return a + b;
-    };
+    }
 public:
     int member;
     int test_thing;
