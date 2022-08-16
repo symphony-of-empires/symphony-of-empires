@@ -181,13 +181,13 @@ void UI::Context::set_eval(UI::Widget& widget, bool eval) {
     if(eval) {
         // From no-eval to evaluable
         auto it = std::find_if(this->no_eval_widgets.begin(), this->no_eval_widgets.end(), [&widget](const auto& e) { return e.get() == &widget; });
-        this->widgets.push_back(std::unique_ptr<UI::Widget>());
-        std::iter_swap(it, this->widgets.end() - 1);
+        this->widgets.push_back(std::move(*it));
+        this->no_eval_widgets.erase(it);
     } else {
         // From evaluable to no-eval
-        auto it = std::find_if(widgets.begin(), widgets.end(), [&widget](const auto& e) { return e.get() == &widget; });
-        this->no_eval_widgets.push_back(std::unique_ptr<UI::Widget>());
-        std::iter_swap(it, this->no_eval_widgets.end() - 1);
+        auto it = std::find_if(this->widgets.begin(), this->widgets.end(), [&widget](const auto& e) { return e.get() == &widget; });
+        this->no_eval_widgets.push_back(std::move(*it));
+        this->widgets.erase(it);
     }
     widget.is_eval = eval;
 }

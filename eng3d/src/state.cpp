@@ -34,6 +34,9 @@
 #   endif
 #   include <windows.h>
 #endif
+#ifdef E3D_TARGET_UNIX
+#   include <unistd.h>
+#endif
 #ifdef E3D_TARGET_SWITCH
 #   include <switch.h>
 #endif
@@ -192,7 +195,11 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     s.height = 720;
 #endif
     Eng3D::Log::debug("sdl2", "New window " + std::to_string(s.width) + "x" + std::to_string(s.height));
+#ifdef E3D_TARGET_SWITCH
     s.window = SDL_CreateWindow("Symphony of Empires", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, s.width, s.height, SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_RESIZABLE);
+#else
+    s.window = SDL_CreateWindow("Symphony of Empires", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, s.width, s.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+#endif
     if(s.window == nullptr)
         CXX_THROW(std::runtime_error, std::string() + "Failed to init SDL window " + SDL_GetError());
 

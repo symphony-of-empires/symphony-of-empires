@@ -278,7 +278,9 @@ namespace UI {
         // the C++ callback part will be replaced by the lua driver, you can't mix C++ and Lua
         // callbacks on the same widget!
         int lua_on_update = 0, lua_on_click = 0, lua_on_click_outside = 0, lua_on_each_tick = 0;
-        int dpad_index = 0; // Index for `select_dpad_ui_widget`, 0 means index=Auto (first to last)
+
+        /// @brief Index for `select_dpad_ui_widget`, 0 means index=Auto (first to last)
+        int dpad_index = 0;
 
         friend class Context;
     protected:
@@ -299,16 +301,13 @@ namespace UI {
             }
         }
 
-        // Used internally for managing widgets outside of window bounds
+        /// @brief Used internally for managing widgets outside of window bounds
         bool need_recalc = false;
-        
-        /// @brief Used for determining if evaluable or not (do not modify)
+        /// @brief Used for determining if evaluable or not
         bool is_eval = true;
-
-        // The current text of the widget
+        /// @brief The current text of the widget
         std::string text_str;
-        
-        // Used internally for drawing hover effects on clickable child widgets
+        /// @brief Used internally for drawing hover effects on clickable child widgets
         bool is_clickable = false;
         bool dead = false;
         bool dead_child = false;
