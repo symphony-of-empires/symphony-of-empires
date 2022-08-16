@@ -164,9 +164,10 @@ Map::Map(const World& _world, UI::Group* _map_ui_layer, int screen_width, int sc
     // Create tooltip for hovering on the map
     this->tooltip = new UI::Tooltip();
     this->reload_shaders();
+
     this->unit_widgets.resize(world.provinces.size());
     this->battle_widgets.resize(world.provinces.size());
-    for(Unit::Id i = 0; i < world.provinces.size(); i++) {
+    for(Province::Id i = 0; i < world.provinces.size(); i++) {
         this->unit_widgets[i] = new Interface::UnitWidget(*this, reinterpret_cast<GameState&>(s), this->map_ui_layer);
         this->battle_widgets[i] = new Interface::BattleWidget(*this, this->map_ui_layer);
     }
@@ -554,10 +555,12 @@ void Map::draw(GameState& gs) {
         // Display units that aren't on battles
         Unit::Id unit_index = 0, battle_index = 0;
         for(auto& province : const_cast<World&>(world).provinces) {
-            const auto prov_pos = province.get_pos();
-
             this->unit_widgets[province.get_id()]->is_render = false;
             this->battle_widgets[province.get_id()]->is_render = false;
+            if((this->map_render->get_province_opt(province.get_id()) & 0x000000ff) != 0x000000ff)
+                continue;
+
+            const auto prov_pos = province.get_pos();
             if(this->view_mode == MapView::SPHERE_VIEW) {
                 const auto* orbit_camera = static_cast<const Eng3D::OrbitCamera*>(camera);
                 const auto cam_pos = camera->get_world_pos();
@@ -580,26 +583,22 @@ void Map::draw(GameState& gs) {
                 // Get first/topmost unit
                 auto& unit = gs.world->unit_manager.units[province_units[0]];
                 bool has_widget = false;
-                if((this->map_render->get_province_opt(province.get_id()) & 0x000000ff) == 0x000000ff) {
                     auto& camera = this->camera;
                     // Display unit only if not on a battle
                     if(!unit.on_battle) {
                         this->unit_widgets[province.get_id()]->set_unit(unit);
                         this->unit_widgets[province.get_id()]->set_size(total_stack_size);
                         this->unit_widgets[province.get_id()]->is_render = true;
-                    }
                 }
             }
 
             // Battles
-            if((this->map_render->get_province_opt(province.get_id()) & 0x000000ff) == 0x000000ff) {
-                const auto prov_pos = province.get_pos();
-                if(province.battles.empty()) {
+            if(!province.battles.empty()) {
                     this->battle_widgets[province.get_id()]->set_battle(province, 0);
                     this->battle_widgets[province.get_id()]->is_render = true;
-                }
-                
-                // Only display units of set so
+                /// @todo Display two opposing units
+            } else {
+                // Display a single standing unit
                 if(this->map_render->options.units.used && !province_units.empty()) {
                     const auto& unit = this->world.unit_manager.units[province_units[0]];
                     auto model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
