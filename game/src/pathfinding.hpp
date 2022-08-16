@@ -34,5 +34,5 @@
 
 // This is not used by the server due to architectural reasons, however it may be useful for AI clients
 namespace Pathfind {
-    std::vector<Province::Id> unit_path(const World& world, const Nation& nation, Province::Id start, Province::Id end);
+    
 };
