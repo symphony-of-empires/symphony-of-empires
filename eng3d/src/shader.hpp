@@ -84,7 +84,7 @@ namespace Eng3D {
             GLuint id;
             std::vector<int> line_numbers;
         public:
-            Shader(const std::string& _buffer, GLuint type, bool use_transpiler = true, std::vector<Eng3D::OpenGL::GLSL_Define> defintions = {});
+            Shader(const std::string& _buffer, GLuint type, bool use_transpiler = true, std::vector<Eng3D::GLSL::Define> defintions = {});
             
             /// @brief Destroy the Shader object, dditionaly we have to delete the
             /// shader from the OpenGL driver by calling glDeleteShader
@@ -106,7 +106,7 @@ namespace Eng3D {
 
         class FragmentShader: public Shader {
         public:
-            FragmentShader(const std::string& _buffer, bool use_transpiler = true, std::vector<Eng3D::OpenGL::GLSL_Define> defintions = {});
+            FragmentShader(const std::string& _buffer, bool use_transpiler = true, std::vector<Eng3D::GLSL::Define> defintions = {});
             ~FragmentShader() = default;
         };
 

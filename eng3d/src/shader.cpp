@@ -36,16 +36,16 @@
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
 /// @brief Construct a shader by opening the provided path and creating a temporal ifstream, reading
 /// from that stream in text mode and then compiling the shader
-Eng3D::OpenGL::Shader::Shader(const std::string& _buffer, GLuint type, bool use_transpiler, std::vector<Eng3D::OpenGL::GLSL_Define> defintions)
+Eng3D::OpenGL::Shader::Shader(const std::string& _buffer, GLuint type, bool use_transpiler, std::vector<Eng3D::GLSL::Define> defintions)
     : buffer(_buffer)
 {
     if(use_transpiler) {
-        Eng3D::OpenGL::GLSL_Context ctx(buffer);
+        Eng3D::GLSL::Context ctx(buffer);
         ctx.defines = defintions;
         ctx.lexer();
         try {
             ctx.parser();
-        } catch(Eng3D::OpenGL::GLSL_Exception& e) {
+        } catch(Eng3D::GLSL::Exception& e) {
             Eng3D::Log::error("shder", e.it->data + " -> " + e.what());
         }
         buffer = ctx.to_text();
@@ -125,7 +125,7 @@ void Eng3D::OpenGL::Shader::compile(GLuint type) {
 //
 // Fragment shader
 //
-Eng3D::OpenGL::FragmentShader::FragmentShader(const std::string& _buffer, bool use_transpiler, std::vector<Eng3D::OpenGL::GLSL_Define> defintions)
+Eng3D::OpenGL::FragmentShader::FragmentShader(const std::string& _buffer, bool use_transpiler, std::vector<Eng3D::GLSL::Define> defintions)
     : Shader(_buffer, GL_FRAGMENT_SHADER, use_transpiler, defintions)
 {
 

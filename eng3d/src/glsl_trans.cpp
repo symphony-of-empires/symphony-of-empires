@@ -17,7 +17,7 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      glsl_trans.cpp
+//      Eng3D::GLSL::trans.cpp
 //
 // Abstract:
 //      Does some important stuff.
@@ -29,7 +29,7 @@
 //
 // GLSL Context
 //
-std::string Eng3D::OpenGL::GLSL_Context::get_identifier(std::string::iterator& it) {
+std::string Eng3D::GLSL::Context::get_identifier(std::string::iterator& it) {
     const auto start_it = it;
 
     // Alphanumerics, _ and dots are allowed as identifiers
@@ -40,7 +40,7 @@ std::string Eng3D::OpenGL::GLSL_Context::get_identifier(std::string::iterator& i
     return str;
 }
 
-std::string Eng3D::OpenGL::GLSL_Context::get_literal(std::string::iterator& it) {
+std::string Eng3D::GLSL::Context::get_literal(std::string::iterator& it) {
     const auto start_it = it;
     // Literal
     while(it != buffer.end() && (isdigit(*it) || *it == '.'))
@@ -54,7 +54,7 @@ std::string Eng3D::OpenGL::GLSL_Context::get_literal(std::string::iterator& it) 
     return str;
 }
 
-void Eng3D::OpenGL::GLSL_Context::lexer() {
+void Eng3D::GLSL::Context::lexer() {
     // Output the final stuff
     for(auto it = buffer.begin(); it != buffer.end(); ) {
         while(it != buffer.end() && isspace(*it) && (*it == '\r'))
@@ -63,7 +63,7 @@ void Eng3D::OpenGL::GLSL_Context::lexer() {
         if(it == buffer.end()) break;
 
         if (*it == '\n') {
-            tokens.push_back(GLSL_Token(GLSL_TokenType::NEWLINE));
+            tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::NEWLINE));
             it++;
         } else if((*(it + 0) == '/' && *(it + 1) == '/')) {
             it += 2;
@@ -78,7 +78,7 @@ void Eng3D::OpenGL::GLSL_Context::lexer() {
                     it += 2;
                     break;
                 } else if (*it == '\n') {
-                    tokens.push_back(GLSL_Token(GLSL_TokenType::NEWLINE));
+                    tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::NEWLINE));
                 }
                 it++;
             }
@@ -88,110 +88,110 @@ void Eng3D::OpenGL::GLSL_Context::lexer() {
             while(it != buffer.end() && (*it != '\n'))
                 it++;
 
-            GLSL_Token tok = GLSL_Token(GLSL_TokenType::MACRO);
+            Eng3D::GLSL::Token tok = Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::MACRO);
             tok.data = buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
             tokens.push_back(tok);
         } else if(*it == ',') {
-            tokens.push_back(GLSL_Token(GLSL_TokenType::COMMA));
+            tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::COMMA));
             it++;
         } else if(*it == ';') {
-            tokens.push_back(GLSL_Token(GLSL_TokenType::SEMICOLON));
+            tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::SEMICOLON));
             it++;
         } else if(*it == '(') {
-            tokens.push_back(GLSL_Token(GLSL_TokenType::LPAREN));
+            tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::LPAREN));
             it++;
         } else if(*it == ')') {
-            tokens.push_back(GLSL_Token(GLSL_TokenType::RPAREN));
+            tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::RPAREN));
             it++;
         } else if(*it == '[') {
-            tokens.push_back(GLSL_Token(GLSL_TokenType::LBRACKET));
+            tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::LBRACKET));
             it++;
         } else if(*it == ']') {
-            tokens.push_back(GLSL_Token(GLSL_TokenType::RBRACKET));
+            tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::RBRACKET));
             it++;
         } else if(*it == '{') {
-            tokens.push_back(GLSL_Token(GLSL_TokenType::LBRACE));
+            tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::LBRACE));
             it++;
         } else if(*it == '}') {
-            tokens.push_back(GLSL_Token(GLSL_TokenType::RBRACE));
+            tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::RBRACE));
             it++;
         } else if(*it == '+') {
-            tokens.push_back(GLSL_Token(GLSL_TokenType::ADD));
+            tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::ADD));
             it++;
         } else if(*it == '-') {
-            tokens.push_back(GLSL_Token(GLSL_TokenType::SUB));
+            tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::SUB));
             it++;
         } else if(*it == '*') {
-            tokens.push_back(GLSL_Token(GLSL_TokenType::MUL));
+            tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::MUL));
             it++;
         } else if(*it == '/') {
-            tokens.push_back(GLSL_Token(GLSL_TokenType::DIV));
+            tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::DIV));
             it++;
         } else if(*it == '%') {
-            tokens.push_back(GLSL_Token(GLSL_TokenType::REM));
+            tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::REM));
             it++;
         } else if(*it == '^') {
-            tokens.push_back(GLSL_Token(GLSL_TokenType::XOR));
+            tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::XOR));
             it++;
         } else if(*it == '<') {
             it++;
             if(it != buffer.end() && *it == '=') {
-                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_LTEQ));
+                tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::CMP_LTEQ));
                 it++;
             } else {
-                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_LT));
+                tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::CMP_LT));
             }
         } else if(*it == '>') {
             it++;
             if(it != buffer.end() && *it == '=') {
-                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_GTEQ));
+                tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::CMP_GTEQ));
                 it++;
             } else {
-                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_GT));
+                tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::CMP_GT));
             }
         } else if(*it == '|') {
             it++;
             if(it != buffer.end() && *it == '|') {
-                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_OR));
+                tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::CMP_OR));
                 it++;
             } else {
-                tokens.push_back(GLSL_Token(GLSL_TokenType::OR));
+                tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::OR));
             }
         } else if(*it == '&') {
             it++;
             if(it != buffer.end() && *it == '&') {
-                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_AND));
+                tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::CMP_AND));
                 it++;
             } else {
-                tokens.push_back(GLSL_Token(GLSL_TokenType::AND));
+                tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::AND));
             }
         } else if(*it == '=') {
             it++;
             if(it != buffer.end() && *it == '=') {
-                tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_EQ));
+                tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::CMP_EQ));
                 it++;
             } else {
-                tokens.push_back(GLSL_Token(GLSL_TokenType::ASSIGN));
+                tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::ASSIGN));
             }
         } else if(*it == '?') {
-            tokens.push_back(GLSL_Token(GLSL_TokenType::TERNARY));
+            tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::TERNARY));
             it++;
         } else if(*it == ':') {
-            tokens.push_back(GLSL_Token(GLSL_TokenType::COLON));
+            tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::COLON));
             it++;
         } else if(*it == '.') {
-            tokens.push_back(GLSL_Token(GLSL_TokenType::DOT));
+            tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::DOT));
             it++;
         } else if(*it == '!' && (it+1) != buffer.end() && *(it+1) == '=') {
-            tokens.push_back(GLSL_Token(GLSL_TokenType::CMP_NEQ));
+            tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::CMP_NEQ));
             it+=2;
         } else {
             if(isdigit(*it) || *it == '.') {
-                GLSL_Token tok(GLSL_TokenType::LITERAL);
+                Eng3D::GLSL::Token tok(Eng3D::GLSL::Token::Type::LITERAL);
                 tok.data = get_literal(it);
                 tokens.push_back(tok);
             } else if(isalnum(*it) || *it == '_') {
-                GLSL_Token tok(GLSL_TokenType::IDENTIFIER);
+                Eng3D::GLSL::Token tok(Eng3D::GLSL::Token::Type::IDENTIFIER);
                 tok.data = get_identifier(it);
                 tokens.push_back(tok);
             } else {
@@ -201,17 +201,33 @@ void Eng3D::OpenGL::GLSL_Context::lexer() {
     }
 }
 
-void Eng3D::OpenGL::GLSL_Context::parser() {
-    GLSL_Function fn;
+/// @brief Parses the current context's tokens and optimizes them
+void Eng3D::GLSL::Context::parser() {
+    // Register the primitive types
+    this->types = {
+        { "int", Eng3D::GLSL::Type::PrimitiveType::INT },
+        { "float", Eng3D::GLSL::Type::PrimitiveType::FLOAT },
+        { "bool", Eng3D::GLSL::Type::PrimitiveType::BOOL },
+        { "vec2", Eng3D::GLSL::Type::PrimitiveType::VEC2 },
+        { "vec3", Eng3D::GLSL::Type::PrimitiveType::VEC3 },
+        { "vec4", Eng3D::GLSL::Type::PrimitiveType::VEC4 },
+        { "mat4", Eng3D::GLSL::Type::PrimitiveType::MAT4 },
+        { "sampler2D", Eng3D::GLSL::Type::PrimitiveType::SAMPLER2D },
+        { "sampler2DArray", Eng3D::GLSL::Type::PrimitiveType::SAMPLER2DARRAY },
+        { "sampler3D", Eng3D::GLSL::Type::PrimitiveType::SAMPLER3D },
+        { "sampler3DArray", Eng3D::GLSL::Type::PrimitiveType::SAMPLER3DARRAY },
+    };
 
-    fn = GLSL_Function();
+    Eng3D::GLSL::Function fn;
+
+    fn = Eng3D::GLSL::Function();
     fn.name = "vec2";
     fn.ret_type = "vec2";
     fn.args.push_back(std::make_pair("float", "x"));
     fn.args.push_back(std::make_pair("float", "y"));
     funcs.push_back(fn);
 
-    fn = GLSL_Function();
+    fn = Eng3D::GLSL::Function();
     fn.name = "vec3";
     fn.ret_type = "vec3";
     fn.args.push_back(std::make_pair("float", "x"));
@@ -219,7 +235,7 @@ void Eng3D::OpenGL::GLSL_Context::parser() {
     fn.args.push_back(std::make_pair("float", "z"));
     funcs.push_back(fn);
 
-    fn = GLSL_Function();
+    fn = Eng3D::GLSL::Function();
     fn.name = "vec4";
     fn.ret_type = "vec4";
     fn.args.push_back(std::make_pair("float", "x"));
@@ -234,7 +250,7 @@ void Eng3D::OpenGL::GLSL_Context::parser() {
 
     for(const auto& it1 : vec_and_sample_types) {
         for(const auto& it2 : vec_and_sample_types) {
-            fn = GLSL_Function();
+            fn = Eng3D::GLSL::Function();
             fn.name = "mix";
             fn.ret_type = "vec4";
             fn.args.push_back(std::make_pair(it1, "x"));
@@ -244,7 +260,7 @@ void Eng3D::OpenGL::GLSL_Context::parser() {
         }
     }
 
-    fn = GLSL_Function();
+    fn = Eng3D::GLSL::Function();
     fn.name = "clamp";
     for(const auto& it1 : vec_types) {
         fn.ret_type = it1;
@@ -254,7 +270,7 @@ void Eng3D::OpenGL::GLSL_Context::parser() {
     }
     funcs.push_back(fn);
 
-    fn = GLSL_Function();
+    fn = Eng3D::GLSL::Function();
     fn.name = "min";
     for(const auto& it1 : vec_types) {
         fn.ret_type = it1;
@@ -263,7 +279,7 @@ void Eng3D::OpenGL::GLSL_Context::parser() {
     }
     funcs.push_back(fn);
 
-    fn = GLSL_Function();
+    fn = Eng3D::GLSL::Function();
     fn.name = "max";
     for(const auto& it1 : vec_types) {
         fn.ret_type = it1;
@@ -273,22 +289,22 @@ void Eng3D::OpenGL::GLSL_Context::parser() {
     funcs.push_back(fn);
 
     for(const auto& tok : tokens) {
-        if(tok.type == GLSL_TokenType::ASSIGN) {
+        if(tok.type == Eng3D::GLSL::Token::Type::ASSIGN) {
 
         }
     }
 }
 
-std::string Eng3D::OpenGL::GLSL_Context::to_text() {
+std::string Eng3D::GLSL::Context::to_text() {
     auto it = tokens.begin();
     std::string end_buffer;
     int current_line = 1;
 
     // Go after the first instance of a preprocessor macro
-    if(it->type == GLSL_TokenType::MACRO) {
+    if(it->type == Eng3D::GLSL::Token::Type::MACRO) {
         end_buffer += "#" + it->data + "\r\n";
         line_numbers.push_back(current_line++);
-        it+=2; // Skip the NEWLINE also
+        it += 2; // Skip the NEWLINE also
         for(const auto& define : defines) {
             end_buffer += "#define " + define.name + " " + define.value + "\r\n";
             line_numbers.push_back(current_line);
@@ -297,106 +313,113 @@ std::string Eng3D::OpenGL::GLSL_Context::to_text() {
 
     for(; it != tokens.end(); it++) {
         switch(it->type) {
-        case GLSL_TokenType::MACRO:
+        case Eng3D::GLSL::Token::Type::MACRO:
             end_buffer += "#" + it->data;
             break;
-        case GLSL_TokenType::NEWLINE:
+        case Eng3D::GLSL::Token::Type::NEWLINE:
             line_numbers.push_back(current_line++);
             end_buffer += "\n";
+            while(it->type == Eng3D::GLSL::Token::Type::NEWLINE)
+                it++;
+            it--;
             break;
-        case GLSL_TokenType::SEMICOLON:
+        case Eng3D::GLSL::Token::Type::SEMICOLON:
             end_buffer += ";";
             break;
-        case GLSL_TokenType::COMMA:
+        case Eng3D::GLSL::Token::Type::COMMA:
             end_buffer += ",";
             break;
-        case GLSL_TokenType::LPAREN:
+        case Eng3D::GLSL::Token::Type::LPAREN:
             end_buffer += "(";
             break;
-        case GLSL_TokenType::RPAREN:
+        case Eng3D::GLSL::Token::Type::RPAREN:
             end_buffer += ")";
             break;
-        case GLSL_TokenType::LBRACKET:
+        case Eng3D::GLSL::Token::Type::LBRACKET:
             end_buffer += "[";
             break;
-        case GLSL_TokenType::RBRACKET:
+        case Eng3D::GLSL::Token::Type::RBRACKET:
             end_buffer += "]";
             break;
-        case GLSL_TokenType::LBRACE:
+        case Eng3D::GLSL::Token::Type::LBRACE:
             end_buffer += "{";
             break;
-        case GLSL_TokenType::RBRACE:
+        case Eng3D::GLSL::Token::Type::RBRACE:
             end_buffer += "}";
             break;
-        case GLSL_TokenType::ADD:
+        case Eng3D::GLSL::Token::Type::ADD:
             end_buffer += "+";
             break;
-        case GLSL_TokenType::SUB:
+        case Eng3D::GLSL::Token::Type::SUB:
             end_buffer += "-";
             break;
-        case GLSL_TokenType::MUL:
+        case Eng3D::GLSL::Token::Type::MUL:
             end_buffer += "*";
             break;
-        case GLSL_TokenType::DIV:
+        case Eng3D::GLSL::Token::Type::DIV:
             end_buffer += "/";
             break;
-        case GLSL_TokenType::REM:
+        case Eng3D::GLSL::Token::Type::REM:
             end_buffer += "%";
             break;
-        case GLSL_TokenType::XOR:
+        case Eng3D::GLSL::Token::Type::XOR:
             end_buffer += "^";
             break;
-        case GLSL_TokenType::CMP_AND:
+        case Eng3D::GLSL::Token::Type::CMP_AND:
             end_buffer += "&&";
             break;
-        case GLSL_TokenType::AND:
+        case Eng3D::GLSL::Token::Type::AND:
             end_buffer += "&";
             break;
-        case GLSL_TokenType::CMP_OR:
+        case Eng3D::GLSL::Token::Type::CMP_OR:
             end_buffer += "||";
             break;
-        case GLSL_TokenType::OR:
+        case Eng3D::GLSL::Token::Type::OR:
             end_buffer += "|";
             break;
-        case GLSL_TokenType::CMP_LT:
+        case Eng3D::GLSL::Token::Type::CMP_LT:
             end_buffer += "<";
             break;
-        case GLSL_TokenType::CMP_LTEQ:
+        case Eng3D::GLSL::Token::Type::CMP_LTEQ:
             end_buffer += "<=";
             break;
-        case GLSL_TokenType::CMP_GT:
+        case Eng3D::GLSL::Token::Type::CMP_GT:
             end_buffer += ">";
             break;
-        case GLSL_TokenType::CMP_GTEQ:
+        case Eng3D::GLSL::Token::Type::CMP_GTEQ:
             end_buffer += ">=";
             break;
-        case GLSL_TokenType::TERNARY:
+        case Eng3D::GLSL::Token::Type::TERNARY:
             end_buffer += "?";
             break;
-        case GLSL_TokenType::COLON:
+        case Eng3D::GLSL::Token::Type::COLON:
             end_buffer += ":";
             break;
-        case GLSL_TokenType::DOT:
+        case Eng3D::GLSL::Token::Type::DOT:
             end_buffer += ".";
             break;
-        case GLSL_TokenType::LITERAL:
+        case Eng3D::GLSL::Token::Type::LITERAL:
             end_buffer += it->data;
             break;
-        case GLSL_TokenType::IDENTIFIER:
+        case Eng3D::GLSL::Token::Type::IDENTIFIER:
             if(it->data == "layout")
                 end_buffer += it->data + " ";
             else if(it->data == "provided")
-                end_buffer += " uniform ";
+                end_buffer += "uniform ";
+            else if(it->data == "in")
+                end_buffer += "in ";
+            else if(it->data == "out")
+                end_buffer += "out ";
             else
-                end_buffer += " " + it->data + " ";
+                end_buffer += it->data + " ";
             break;
-        case GLSL_TokenType::ASSIGN:
+        case Eng3D::GLSL::Token::Type::ASSIGN:
             end_buffer += "=";
             break;
-        case GLSL_TokenType::CMP_EQ:
+        case Eng3D::GLSL::Token::Type::CMP_EQ:
             end_buffer += "==";
             break;
-        case GLSL_TokenType::CMP_NEQ:
+        case Eng3D::GLSL::Token::Type::CMP_NEQ:
             end_buffer += "!=";
             break;
         default:

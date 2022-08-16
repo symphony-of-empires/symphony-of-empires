@@ -152,10 +152,10 @@ void MapRender::update_options(MapOptions new_options) {
 
     map_shader = std::make_unique<Eng3D::OpenGL::Program>();
     {
-        std::vector<Eng3D::OpenGL::GLSL_Define> defined_options;
+        std::vector<Eng3D::GLSL::Define> defined_options;
         for(auto& option : options.get_options()) {
             if(option.used) {
-                Eng3D::OpenGL::GLSL_Define defined_option;
+                Eng3D::GLSL::Define defined_option;
                 defined_option.name = option.get_option();
                 defined_options.push_back(defined_option);
             }

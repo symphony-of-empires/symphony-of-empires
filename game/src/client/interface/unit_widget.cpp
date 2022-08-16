@@ -67,7 +67,9 @@ UnitWidget::UnitWidget(Map& _map, GameState& _gs, UI::Widget* parent)
     auto nation_flag = map.nation_flags[0];
     this->flag_img = new UI::Image(1, 1, 38, 28, nation_flag, this);
 
+#ifndef E3D_TARGET_SWITCH
     new UI::Image(1, 1, 38, 28, "gfx/drop_shadow.png", this);
+#endif
 
     this->size_label = new UI::Div(41, 1, 48, 28, this);
     this->size_label->text_align_x = UI::Align::END;

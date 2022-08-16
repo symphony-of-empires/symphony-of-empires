@@ -17,7 +17,7 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      glsl_trans.hpp
+//      Eng3D::GLSL::trans.hpp
 //
 // Abstract:
 //      Does some important stuff.
@@ -29,73 +29,91 @@
 #include <vector>
 #include <exception>
 
-namespace Eng3D::OpenGL {
-    enum class GLSL_TokenType {
-        NONE,
-        ASSIGN, TERNARY, LITERAL, IDENTIFIER,
-        ADD, SUB, MUL, DIV, REM, AND, OR, XOR,
-        SEMICOLON, COMMA, COLON, DOT,
-        CMP_EQ, CMP_NEQ, CMP_GT, CMP_LT, CMP_GTEQ, CMP_LTEQ, CMP_OR, CMP_AND,
-        LPAREN, RPAREN,
-        LBRACKET, RBRACKET,
-        LBRACE, RBRACE,
-        NEWLINE,
-        // Special "hacky" stuff
-        MACRO,
-    };
-
-    class GLSL_Token {
+namespace Eng3D::GLSL {
+    class Token {
     public:
-        GLSL_Token(GLSL_TokenType _type)
+        enum class Type {
+            NONE,
+            ASSIGN, TERNARY, LITERAL, IDENTIFIER,
+            ADD, SUB, MUL, DIV, REM, AND, OR, XOR,
+            SEMICOLON, COMMA, COLON, DOT,
+            CMP_EQ, CMP_NEQ, CMP_GT, CMP_LT, CMP_GTEQ, CMP_LTEQ, CMP_OR, CMP_AND,
+            LPAREN, RPAREN,
+            LBRACKET, RBRACKET,
+            LBRACE, RBRACE,
+            NEWLINE,
+            // Special "hacky" stuff
+            MACRO,
+        };
+
+        Token(Eng3D::GLSL::Token::Type _type)
             : type{ _type }
         {
 
         }
 
-        ~GLSL_Token() = default;
+        ~Token() = default;
 
-        enum GLSL_TokenType type = GLSL_TokenType::NONE;
+        enum Eng3D::GLSL::Token::Type type = Eng3D::GLSL::Token::Type::NONE;
         std::string data;
     };
 
-    enum class GLSL_VariableType {
+    enum class VariableType {
         LOCAL, PROVIDED, INPUT, OUTPUT,
     };
 
-    class GLSL_Variable {
+    class Variable {
     public:
-        GLSL_Variable() = default;
-        ~GLSL_Variable() = default;
+        Variable() = default;
+        ~Variable() = default;
         
-        enum GLSL_VariableType type;
+        enum Eng3D::GLSL::VariableType type;
         std::string type_name;
         std::string name;
         bool is_const;
         int layout_n;
     };
 
-    class GLSL_Function {
+    class Type {
+    public:
+        /// @brief Since GLSL doesn't allow complex structures we can rely
+        /// on a simple table of primitives
+        enum class PrimitiveType {
+            NONE,
+            // Primitives
+            INT, FLOAT, BOOL,
+            // Vectors
+            VEC2, VEC3, VEC4,
+            // Matrices
+            MAT4,
+            // Textures
+            SAMPLER2D, SAMPLER2DARRAY, SAMPLER3D, SAMPLER3DARRAY,
+        };
+        std::string name;
+        Eng3D::GLSL::Type::PrimitiveType primitive_type = Eng3D::GLSL::Type::PrimitiveType::NONE;
+    };
+
+    class Function {
     public:
         std::string name;
         std::vector<std::pair<std::string, std::string>> args;
         std::string ret_type;
     };
 
-    class GLSL_Define {
+    class Define {
     public:
         std::string name;
         std::string value;
     };
 
-    class GLSL_Context {
+    class Context {
     public:
-        GLSL_Context(const std::string& _buffer)
+        Context(const std::string& _buffer)
             : buffer{ _buffer }
         {
 
         }
-
-        ~GLSL_Context() = default;
+        ~Context() = default;
         std::string get_identifier(std::string::iterator& it);
         std::string get_literal(std::string::iterator& it);
         void lexer();
@@ -103,17 +121,18 @@ namespace Eng3D::OpenGL {
         std::string to_text();
 
         std::vector<int> line_numbers;
-        std::vector<GLSL_Variable> vars;
-        std::vector<GLSL_Function> funcs;
-        std::vector<GLSL_Token> tokens;
-        std::vector<GLSL_Define> defines;
+        std::vector<Eng3D::GLSL::Type> types;
+        std::vector<Eng3D::GLSL::Variable> vars;
+        std::vector<Eng3D::GLSL::Function> funcs;
+        std::vector<Eng3D::GLSL::Token> tokens;
+        std::vector<Eng3D::GLSL::Define> defines;
         std::string buffer;
     };
 
-    class GLSL_Exception: public std::exception {
+    class Exception: public std::exception {
         std::string buffer;
     public:
-        GLSL_Exception(std::vector<GLSL_Token>::iterator _it, const std::string& _buffer)
+        Exception(std::vector<Eng3D::GLSL::Token>::iterator _it, const std::string& _buffer)
             : buffer{ _buffer },
             it{ _it }
         {
@@ -124,6 +143,6 @@ namespace Eng3D::OpenGL {
             return buffer.c_str();
         }
 
-        std::vector<GLSL_Token>::iterator it;
+        std::vector<Eng3D::GLSL::Token>::iterator it;
     };
 };
