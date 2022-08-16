@@ -49,6 +49,7 @@ Window::Window(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     this->border = Border(g_ui_context->border_tex, size, texture_size, offset);
 
     this->set_on_drag([this](UI::Widget&, glm::ivec2 diff) {
+        if(!this->is_movable) return;
         this->move_by(diff);
     });
 }

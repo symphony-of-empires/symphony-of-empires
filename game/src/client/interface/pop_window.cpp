@@ -47,14 +47,14 @@ PopWindow::PopWindow(GameState& gs)
         this->kill();
     });
 
-    const Nation& nation = *gs.curr_nation;
+    const auto& nation = *gs.curr_nation;
 
     int size = 0;
     for(const auto province_id : nation.owned_provinces)
         size += gs.world->provinces[province_id].pops.size();
 
-    std::vector<int> sizes{ 75, 200, 100, 100, 120, 50, 50, 70, 70 };
-    std::vector<std::string> header{ "Size", "Province", "Type", "Culture", "Religion", "Militancy", "Lit", "Budget" };
+    std::vector<int> sizes{ 75, 200, 100, 100, 120, 80, 80, 50 };
+    std::vector<std::string> header{ "Size", "Province", "Type", "Culture", "Religion", "Militancy", "Literacy", "Budget" };
     auto table = new UI::Table<uint64_t>(5, 5, 800-10, 800-5, 35, sizes, header, this);
     this->width = table->width + 5 + this->padding.x;
     table->reserve(size);

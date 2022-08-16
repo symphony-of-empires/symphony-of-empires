@@ -144,7 +144,6 @@ FactoryWindow::FactoryWindow(GameState& gs)
 
     auto* table = new UI::Div(5, 40, 800 - 10, 700, this);
     table->is_scroll = true;
-    new UI::Scrollbar(700, 0, 20, 400, table);
 
     auto* flex_column = new UI::Div(0, 0, 800 - 10, size * 35, table);
     flex_column->flex = UI::Flex::COLUMN;

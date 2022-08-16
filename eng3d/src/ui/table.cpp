@@ -34,50 +34,48 @@
 #include "eng3d/rectangle.hpp"
 #include "eng3d/state.hpp"
 
-using namespace UI;
-
-TableElement::TableElement(TableRow* _parent, int _width, int _height)
-    : Widget(_parent, 0, 0, _width, _height, UI::WidgetType::TABLE_ELEMENT)
+UI::TableElement::TableElement(UI::TableRow* _parent, int _width, int _height)
+    : UI::Widget(_parent, 0, 0, _width, _height, UI::WidgetType::TABLE_ELEMENT)
 {
     this->text_align_x = UI::Align::END;
 }
 
-void TableElement::set_key(std::string key) {
-    key_type = KeyType::STRING;
+void UI::TableElement::set_key(const std::string& key) {
+    key_type = UI::TableElement::KeyType::STRING;
     key_string = key;
 }
 
-void TableElement::set_key(float key) {
-    key_type = KeyType::NUMBER;
+void UI::TableElement::set_key(float key) {
+    key_type = UI::TableElement::KeyType::NUMBER;
     key_number = key;
 }
 
-bool TableElement::operator< (const TableElement& right) const {
+bool UI::TableElement::operator< (const UI::TableElement& right) const {
     if(this->key_type != right.key_type)
         return this->key_type < right.key_type;
     
     switch(this->key_type) {
-        case KeyType::NUMBER: return this->key_number < right.key_number;
-        case KeyType::STRING: return this->key_string < right.key_string;
-        case KeyType::NONE: return false;
+        case UI::TableElement::KeyType::NUMBER: return this->key_number < right.key_number;
+        case UI::TableElement::KeyType::STRING: return this->key_string < right.key_string;
+        case UI::TableElement::KeyType::NONE: return false;
     }
-    CXX_THROW(std::runtime_error, std::string() + "TableElement KeyType not supported");
+    CXX_THROW(std::runtime_error, "TableElement KeyType not supported");
 }
 
-TableRow::TableRow(Widget* _parent, int _width, int _height, std::vector<int>& _columns_width)
-    : Widget(_parent, 0, 0, _width, _height, UI::WidgetType::TABLE_ROW),
+UI::TableRow::TableRow(UI::Widget* _parent, int _width, int _height, std::vector<int>& _columns_width)
+    : UI::Widget(_parent, 0, 0, _width, _height, UI::WidgetType::TABLE_ROW),
     columns_width{ _columns_width }
 {
     this->flex = UI::Flex::ROW;
     this->flex_justify = UI::FlexJustify::START;
     for(size_t i = 0; i < this->columns_width.size(); i++) {
         auto element_width = columns_width[i];
-        auto* element = new TableElement(this, element_width, this->height);
+        auto* element = new UI::TableElement(this, element_width, this->height);
         elements.push_back(element);
     }
-    this->on_update = [this](Widget&) {
+    this->on_update = ([this](UI::Widget&) {
         this->is_active = false;
-    };
+    });
 
     glm::ivec2 size(5, 5);
     glm::ivec2 texture_size(63, 63);
@@ -98,7 +96,7 @@ TableRow::TableRow(Widget* _parent, int _width, int _height, std::vector<int>& _
     };
 }
 
-TableElement* TableRow::get_element(size_t index) {
+UI::TableElement* UI::TableRow::get_element(size_t index) {
     if(index >= elements.size())
         CXX_THROW(std::runtime_error, "Table - Index out of bounds");
     return elements[index];

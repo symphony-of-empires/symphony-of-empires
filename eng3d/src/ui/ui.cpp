@@ -424,7 +424,8 @@ bool Context::check_hover(glm::ivec2 mouse_pos) {
         const glm::ivec2 drag = mouse_pos - glm::ivec2(this->drag_x, this->drag_y);
         const auto offset = this->get_pos(*dragged_widget, glm::ivec2(0));
         const glm::ivec2 diff = drag - offset;
-        if(dragged_widget->on_drag) dragged_widget->on_drag(*dragged_widget, diff);
+        assert(dragged_widget->on_drag != nullptr);
+        dragged_widget->on_drag(*dragged_widget, diff);
         return true;
     }
 
@@ -456,7 +457,7 @@ UI::ClickState Context::check_click_recursive(UI::Widget& w, glm::ivec2 mouse_po
         if(!r.in_bounds(mouse_pos)) {
             clickable = false;
         } else if(w.is_transparent) {
-            if (is_inside_transparent(w, mouse_pos, offset))
+            if(is_inside_transparent(w, mouse_pos, offset))
                 clickable = false;
         }
     }
@@ -519,28 +520,20 @@ bool Context::check_click(glm::ivec2 mouse_pos) {
 }
 
 bool UI::Context::check_drag_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset) {
-    // Pinned widgets are not movable
-    if(w.is_pinned) return false;
-
     offset = this->get_pos(w, offset);
-    const Eng3D::Rect r(offset.x, offset.y, w.width, w.y + 24);
+    const Eng3D::Rect r(offset.x, offset.y, w.width, w.height);
     if(r.in_bounds(mouse_pos)) {
-        if(w.type == UI::WidgetType::WINDOW) {
-            auto& wc = reinterpret_cast<UI::Window&>(w);
-            if(!wc.is_movable) return false;
+        for(auto& child : w.children) {
+            if(this->check_drag_recursive(*child.get(), mouse_pos, offset)) return true;
         }
-        
-        if(!this->is_drag) {
+
+        // Only take in account widgets with a callback and not pinned
+        if(!this->is_drag && w.on_drag && !w.is_pinned) {
             this->drag_x = mouse_pos.x - offset.x;
             this->drag_y = mouse_pos.y - offset.y;
             this->dragged_widget = &w;
             this->is_drag = true;
             return true;
-        }
-
-        for(auto& child : w.children) {
-            if(this->check_drag_recursive(*child.get(), mouse_pos, offset))
-                return true;
         }
     }
     return false;
@@ -549,8 +542,7 @@ bool UI::Context::check_drag_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm:
 void UI::Context::check_drag(glm::ivec2 mouse_pos) {
     for(int i = widgets.size() - 1; i >= 0; i--) {
         auto& widget = *widgets[i].get();
-        if(this->check_drag_recursive(widget, mouse_pos, glm::ivec2(0)))
-            return;
+        if(this->check_drag_recursive(widget, mouse_pos, glm::ivec2(0))) return;
     }
     return;
 }
