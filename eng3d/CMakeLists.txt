@@ -161,12 +161,12 @@ IF(E3D_VENDORED)
 			FetchContent_MakeAvailable(glfw)
 		ENDIF()
 	ENDIF()
-# ZLIB
-FetchContent_Declare(zlib GIT_REPOSITORY "https://github.com/madler/zlib" GIT_TAG 21767c654d31d2dccdde4330529775c6c5fd5389 GIT_PROGRESS TRUE)
-FetchContent_MakeAvailable(zlib)
-# GLM
-FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm" GIT_PROGRESS TRUE)
-FetchContent_MakeAvailable(glm)
+	# ZLIB
+	FetchContent_Declare(zlib GIT_REPOSITORY "https://github.com/madler/zlib" GIT_TAG 21767c654d31d2dccdde4330529775c6c5fd5389 GIT_PROGRESS TRUE)
+	FetchContent_MakeAvailable(zlib)
+	# GLM
+	FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm" GIT_PROGRESS TRUE)
+	FetchContent_MakeAvailable(glm)
 ENDIF()
 
 # LUA
@@ -211,6 +211,14 @@ IF(NOT E3D_VENDORED)
 		include_directories(${GLEW_INCLUDE_DIRS})
 		target_link_libraries(eng3d PRIVATE ${GLEW_LIBRARIES})
 	ENDIF()
+
+	IF(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
+		include_directories("${DEVKITPRO}/portlibs/switch/include/")
+	ELSE()
+		find_package(glm REQUIRED)
+		include_directories(${glm_INCLUDE_DIRS})
+		target_link_libraries(eng3d PRIVATE ${glmLIBRARIES})
+	ENDIF()
 ENDIF()
 
 #
@@ -229,7 +237,7 @@ IF(WIN32)
 		target_link_libraries(eng3d PRIVATE opengl32)
 	ENDIF()
 ELSEIF(UNIX OR ANDROID)
-	target_link_libraries(eng3d PRIVATE m stdc++ zlibstatic)
+	target_link_libraries(eng3d PRIVATE m stdc++ z)
 	IF(E3D_BACKEND_OPENGL)
 		target_link_libraries(eng3d PRIVATE GL)
 	ELSEIF(E3D_BACKEND_GLES)

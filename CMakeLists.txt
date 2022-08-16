@@ -1,9 +1,19 @@
 cmake_minimum_required(VERSION 3.15)
-project(SymphonyOfEmpires CXX C)
-include(FetchContent)
+
+set(DEVKITPRO $ENV{DEVKITPRO})
+IF(DEVKITPRO AND FALSE)
+	message(STATUS "Using DevKitPro")
+	list(APPEND CMAKE_MODULE_PATH "$ENV{DEVKITPRO}/cmake")
+	include(Switch)
+	include(Platform/NintendoSwitch)
+ENDIF()
+
 set(FETCHCONTENT_QUIET FALSE)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+
+project(SymphonyOfEmpires CXX C)
+include(FetchContent)
 
 option(BUILD_ENGINE "Enable building Eng3D" ON)
 option(BUILD_GAME "Enable building SymphonyOfEmpires" ON)
@@ -40,6 +50,9 @@ ENDIF()
 
 # Backend selection
 IF(E3D_BACKEND_OPENGL)
+	IF(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch" OR ANDROID)
+		message(FATAL_ERROR "OpenGL is not supported in ${CMAKE_SYSTEM_NAME} platform, try GLES instead")
+	ENDIF()
 	message("Using OpenGL backend")
 	IF(ANDROID)
 		message(FATAL_ERROR "Use E3D_BACKEND_GLES instead on Android")
@@ -48,6 +61,9 @@ IF(E3D_BACKEND_OPENGL)
 ELSEIF(E3D_BACKEND_GLES)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_BACKEND_GLES=1")
 ELSEIF(E3D_BACKEND_D3D9)
+	IF(NOT WIN32)
+		message(FATAL_ERROR "DirectX 9 is not supported in ${CMAKE_SYSTEM_NAME} platform")
+	ENDIF()
 	message("Using DirectX 9 SDK")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_BACKEND_D3D9=1")
 ELSE()
@@ -121,6 +137,9 @@ ELSE()
 	add_executable(SymphonyOfEmpires "${MAIN_SOURCES}")
 ENDIF()
 
+target_include_directories(SymphonyOfEmpires PRIVATE "/opt/devkitpro/portlibs/switch/include/")
+target_include_directories(SymphonyOfEmpires PRIVATE "/opt/devkitpro/portlibs/switch/include/SDL2")
+
 #
 # Linking
 #
@@ -132,10 +151,34 @@ IF(Threads_FOUND)
 	target_link_libraries(SymphonyOfEmpires PRIVATE Threads::Threads)
 ENDIF()
 
-find_package(TBB)
-IF(TBB_FOUND)
-	target_link_libraries(SymphonyOfEmpires PRIVATE TBB::TBB)
-	add_definitions(-DSOE_FEATURE_TBB)
+IF(E3D_VENDORED)
+	find_package(TBB REQUIRED)
+	IF(TBB_FOUND)
+		target_link_libraries(SymphonyOfEmpires PRIVATE TBB::TBB)
+	ENDIF()
+ELSE()
+	# TBB (and hwloc if needed)
+	IF(WIN32)
+		FetchContent_Declare(hwloc URL "https://download.open-mpi.org/release/hwloc/v2.7/hwloc-win64-build-2.7.1.zip")
+		FetchContent_MakeAvailable(hwloc)
+		set(CMAKE_HWLOC_2_5_DLL_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.dll")
+		set(CMAKE_HWLOC_2_5_LIBRARY_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.lib" )
+		set(CMAKE_HWLOC_2_5_INCLUDE_PATH "${hwloc_SOURCE_DIR}/include" )
+	ENDIF()
+	set(TBB_DISABLE_HWLOC_AUTOMATIC_SEARCH ON)
+	set(TBB_TEST OFF)
+	set(TBB_EXAMPLES OFF)
+	set(TBB_ENABLE_IPO OFF)
+	set(TBB_CPF OFF)
+	set(TBBMALLOC_BUILD OFF)
+	set(TBB4PY_BUILD OFF)
+	set(TBB_SIGNTOOL OFF)
+	IF(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
+		set(BUILD_SHARED_LIBS OFF)
+	ENDIF()
+	#FetchContent_Declare(opentbb GIT_REPOSITORY "https://github.com/oneapi-src/oneTBB" GIT_TAG 3df08fe234f23e732a122809b40eb129ae22733f GIT_PROGRESS TRUE)
+	#FetchContent_MakeAvailable(opentbb)
+	#include_directories("${opentbb_SOURCE_DIR}/include")
 ENDIF()
 
 # Platform-specific libraries
@@ -166,4 +209,15 @@ IF(ANDROID)
 	set(APP_SHARED_LIBRARIES ${LIBRARY_OUTPUT_PATH}/libtbb.so ${LIBRARY_OUTPUT_PATH}/libSDL2.so ${LIBRARY_OUTPUT_PATH}/liblua.so ${LIBRARY_OUTPUT_PATH}/libeng3d.so)
 	string(APPEND APP_SHARED_LIBRARIES ${LIBRARY_OUTPUT_PATH}/libassimp.so)
 ENDIF()
-)
+
+#IF(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
+	message(STATUS "Creating NRO file")
+	set(NROFLAGS "")
+	string(APPEND NROFLAGS " --romfsdir=/home/wxwisiasdf/src/symphony-of-empires/mods")
+	add_custom_command(
+		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/SymphonyOfEmpires.nro
+		COMMAND ${NX_ELF2NRO_EXE} $<TARGET_FILE:SymphonyOfEmpires> ${CMAKE_CURRENT_BINARY_DIR}/SymphonyOfEmpires.nro ${NROFLAGS}
+		DEPENDS SymphonyOfEmpires
+		VERBATIM
+	)
+#ENDIF()
