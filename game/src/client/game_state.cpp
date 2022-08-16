@@ -580,30 +580,17 @@ void GameState::world_thread() {
     }
 }
 
-void GameState::music_thread() {
-    struct MusicEntry {
-        bool has_played;
-        std::string path;
-    };
-    auto path_entries = this->package_man.get_multiple_prefix("sfx/music/ambience");
-    std::vector<MusicEntry> entries;
-    entries.reserve(path_entries.size());
-    for(const auto& path : path_entries)
-        entries.push_back(MusicEntry{ false, path->get_abs_path() });
-    path_entries.clear();
-
-    while(this->run) {
+void GameState::music_enqueue() {
         if(this->audio_man.music_queue.empty()) {
+        auto entries = this->package_man.get_multiple_prefix("sfx/music/ambience");
             this->audio_man.music_fade_value = 0.f;
             // Search through all the music in 'music/ambience' and picks a random
             if(!entries.empty()) {
                 const std::scoped_lock lock(this->audio_man.sound_lock);
                 const int music_index = std::rand() % entries.size();
-                auto audio = this->audio_man.load(entries[music_index].path);
+            auto audio = this->audio_man.load(entries[music_index]->get_abs_path());
                 this->audio_man.music_queue.push_back(audio);
-                Eng3D::Log::debug("music", "Now playing music file " + entries[music_index].path);
-                entries[music_index].has_played = true;
-            }
+            Eng3D::Log::debug("music", "Now playing music file " + entries[music_index]->get_abs_path());
         }
     }
 }
@@ -645,8 +632,6 @@ void start_client(int argc, char** argv) {
     gs.loaded_map = false;
     gs.load_progress = 0.f;
     std::thread load_world_th(&GameState::load_world_thread, &gs);
-    std::thread music_th(&GameState::music_thread, &gs);
-
 #if 0
     {
         std::unique_ptr<FILE, int (*)(FILE*)> fp(fopen(Path::get("locale/es/main.po").c_str(), "rt"), fclose);
@@ -683,11 +668,13 @@ void start_client(int argc, char** argv) {
 
     auto mod_logo_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/mod_logo.png"));
     auto* mod_logo_img = new UI::Image(0, 0, mod_logo_tex->width, mod_logo_tex->height, mod_logo_tex);
-    while(!gs.loaded_map) {
+    gs.do_run([&gs](){ return gs.loaded_map == false; },
+        ([&gs]() {
+            gs.music_enqueue();
         // Widgets here SHOULD NOT REQUEST UPON WORLD DATA
         // so no world lock is needed beforehand
         handle_event(gs.input, gs);
-
+        }), ([&gs, &map_layer, load_pbar]() {
         /// @todo first create the map and separately load all the assets
         std::scoped_lock lock(gs.render_lock);
         gs.clear();
@@ -704,7 +691,8 @@ void start_client(int argc, char** argv) {
         gs.ui_ctx.render_all(gs.input.mouse_pos);
         gs.swap();
         gs.world->profiler.render_done();
-    }
+        })
+    );
     bg_img->kill();
     load_pbar->kill();
     mod_logo_img->kill();
@@ -719,7 +707,9 @@ void start_client(int argc, char** argv) {
     auto current_frame_time = std::chrono::system_clock::now();
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);
-    while(gs.run) {
+    gs.do_run([&gs](){ return gs.run == true; },
+        ([&displayed_treaties, &gs]() {
+            gs.music_enqueue();
         // Locking is very expensive, so we condense everything into a big "if"
         if(gs.world->world_mutex.try_lock()) {
             // Required since events may request world data
@@ -742,7 +732,7 @@ void start_client(int argc, char** argv) {
                         for(auto& building_type : gs.world->building_types) {
                             for(const auto province_id : gs.curr_nation->controlled_provinces) {
                                 auto& province = gs.world->provinces[province_id];
-                                Building& building = province.get_buildings()[gs.world->get_id(building_type)];
+                                    auto& building = province.get_buildings()[gs.world->get_id(building_type)];
                                 // Must not be working on something else
                                 if(building.working_unit_type != nullptr) continue;
                                 is_built = true;
@@ -763,9 +753,8 @@ void start_client(int argc, char** argv) {
                 gs.map->camera->move(0.05f, 0.f, 0.f);
             gs.world->world_mutex.unlock();
         }
-
+        }), ([&current_frame_time, &gs]() {
         std::scoped_lock lock(gs.render_lock);
-
         double prev_num = std::chrono::duration<double>(current_frame_time.time_since_epoch()).count();
         double now_num = std::chrono::duration<double>(std::chrono::system_clock::now().time_since_epoch()).count();
         current_frame_time = std::chrono::system_clock::now();
@@ -781,9 +770,9 @@ void start_client(int argc, char** argv) {
             gs.ui_ctx.render_all(gs.input.mouse_pos);
         gs.swap();
         gs.world->profiler.render_done();
-    }
+        })
+    );
     world_th.join();
-    music_th.join();
 }
 
 GameState::~GameState() {

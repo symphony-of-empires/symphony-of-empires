@@ -187,19 +187,19 @@ namespace UI {
             }
         }
 
-        constexpr void above_of(const Widget& rhs) {
+        constexpr void above_of(const UI::Widget& rhs) {
             this->y = rhs.y - this->height;
         }
 
-        constexpr void below_of(const Widget& rhs) {
+        constexpr void below_of(const UI::Widget& rhs) {
             this->y = rhs.y + rhs.height;
         }
 
-        constexpr void left_side_of(const Widget& rhs) {
+        constexpr void left_side_of(const UI::Widget& rhs) {
             this->x = rhs.x - this->width;
         }
 
-        constexpr void right_side_of(const Widget& rhs) {
+        constexpr void right_side_of(const UI::Widget& rhs) {
             this->x = rhs.x + rhs.width;
         }
 
@@ -260,28 +260,28 @@ namespace UI {
         std::shared_ptr<Eng3D::Texture> current_texture;
         std::shared_ptr<Eng3D::Texture> text_texture;
         int text_offset_x = 4, text_offset_y = 4;
-        Align text_align_y = Align::START;
-        Align text_align_x = Align::START;
+        UI::Align text_align_y = UI::Align::START;
+        UI::Align text_align_x = UI::Align::START;
         Eng3D::Color text_color = Eng3D::Color(0.f, 0.f, 0.f);
         Eng3D::TrueType::Font* font = nullptr;
         Border border;
         Eng3D::Color background_color = Eng3D::Color(1.f, 1.f, 1.f, 0.f);
 
-        Flex flex = Flex::NONE;
-        FlexJustify flex_justify = FlexJustify::START;
-        Align flex_align = Align::START;
+        UI::Flex flex = UI::Flex::NONE;
+        UI::FlexJustify flex_justify = UI::FlexJustify::START;
+        UI::Align flex_align = UI::Align::START;
         size_t flex_gap = 0;
 
         UI::Tooltip* tooltip = nullptr;
 
         void* user_data = nullptr;
 
-        std::function<void(Widget&)> on_update;
-        std::function<void(Widget&)> on_click;
-        std::function<void(Widget&)> on_click_outside;
-        std::function<void(Widget&)> on_each_tick;
-        std::function<void(Widget&, int i)> on_pos_recalc;
-        std::function<void(Widget&, glm::ivec2 mouse_pos, glm::ivec2 widget_pos)> on_hover;
+        std::function<void(UI::Widget&)> on_update;
+        std::function<void(UI::Widget&)> on_click;
+        std::function<void(UI::Widget&)> on_click_outside;
+        std::function<void(UI::Widget&)> on_each_tick;
+        std::function<void(UI::Widget&, int i)> on_pos_recalc;
+        std::function<void(UI::Widget&, glm::ivec2 mouse_pos, glm::ivec2 widget_pos)> on_hover;
 
         // Used by lua to call closures upon one of these callbacks, note that
         // the C++ callback part will be replaced by the lua driver, you can't mix C++ and Lua

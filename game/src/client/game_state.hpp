@@ -117,7 +117,7 @@ public:
     void send_command(Archive& archive);
     void update_on_tick();
     void world_thread();
-    void music_thread();
+    void music_enqueue();
     void load_world_thread();
 
     Client* client = nullptr;

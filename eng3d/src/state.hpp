@@ -30,13 +30,7 @@
 #include <memory>
 #include <map>
 #include <string>
-
 #include <SDL.h>
-#include <SDL_events.h>
-#include <SDL_keycode.h>
-#include <SDL_mouse.h>
-#include <SDL_audio.h>
-#include <SDL_joystick.h>
 
 #include "eng3d/io.hpp"
 #include "eng3d/ui/ui.hpp"
@@ -68,9 +62,21 @@ namespace Eng3D {
         void swap();
         void set_multisamples(int samples) const;
         static State& get_instance();
+        
+        /// @brief Perform the main game loop
+        /// @tparam CondFn Condition that is evaluated and checked, if it is not true then stop execution
+        /// @tparam EventFn Function to handle events
+        /// @tparam RenderFn Function to handle the rendering of the game
+        template<typename CondFn, typename EventFn, typename RenderFn>
+        inline void do_run(CondFn cond, EventFn event, RenderFn render) {
+            while(cond()) {
+                event();
+                render();
+            }
+        }
 
         /// @brief Value to ignore x/y axis motion taps (useful ignoring stray joystick input)
-        static constexpr auto JOYSTICK_DEAD_ZONE = 6000;
+        static constexpr auto JOYSTICK_DEAD_ZONE = 3000;
 
         /// @brief Number of the axis assigned to map movement
         int map_movement_axis_num = 0;

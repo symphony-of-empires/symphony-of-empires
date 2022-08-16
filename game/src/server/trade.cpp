@@ -25,6 +25,7 @@
 
 #include "server/trade.hpp"
 #include "world.hpp"
+#include "eng3d/pathfind.hpp"
 #include <queue>
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_for.h>
@@ -34,26 +35,6 @@
 #include <glm/geometric.hpp>
 
 using namespace Economy;
-
-static inline void shortest_path_from_source(Province::Id source, const std::vector<std::vector<Trade::Vertex>>& neighbour_relations, std::vector<float>& costs) {
-    auto cmp = [](const Trade::Vertex& a, const Trade::Vertex& b) { return a.cost < b.cost; };
-    std::priority_queue<Trade::Vertex, std::vector<Trade::Vertex>, decltype(cmp)> heap;
-
-    heap.emplace(Trade::Vertex{ 0, source });
-
-    while(!heap.empty()) {
-        auto vertex = heap.top();
-        heap.pop();
-        if(vertex.cost < costs[vertex.province_id]) {
-            costs[vertex.province_id] = vertex.cost;
-            const auto& neighbours = neighbour_relations[vertex.province_id];
-            for(const auto& neighbour : neighbours) {
-                if(neighbour.cost < costs[neighbour.province_id])
-                    heap.emplace(neighbour.cost, neighbour.province_id);
-            }
-        }
-    }
-}
 
 void Trade::recalculate(const World& world) {
     if(trade_cost.empty())
@@ -70,7 +51,7 @@ void Trade::recalculate(const World& world) {
     // tbb::blocked_range<Province::Id> range(static_cast<Province::Id>(0), static_cast<Province::Id>(world.provinces.size()));
     tbb::parallel_for((Province::Id)0, (Province::Id)world.provinces.size(), [this, &world](Province::Id province_id) {
         if(world.provinces[province_id].is_coastal) return;
-        shortest_path_from_source(province_id, this->neighbours, this->trade_cost[province_id]);
+        Eng3D::Pathfind::from_source(province_id, this->neighbours, this->trade_cost[province_id]);
     }, tbb::auto_partitioner());
 }
 

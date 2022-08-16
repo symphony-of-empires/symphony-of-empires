@@ -327,21 +327,19 @@ void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport,
     viewport = local_viewport;
 
     local_viewport.offset(-offset);
-
-    /// @todo Don't set model unescesarily!
-    obj_shader->set_uniform("model", glm::translate(model, glm::vec3(offset, 0.f))); // Offset the widget start pos
-    piechart_shader->set_uniform("model", glm::translate(model, glm::vec3(offset, 0.f)));
-    if(local_viewport.width() > 0 && local_viewport.height() > 0)
+    if(local_viewport.width() > 0 && local_viewport.height() > 0) {
+        obj_shader->set_uniform("model", glm::translate(model, glm::vec3(offset, 0.f))); // Offset the widget start pos
+        piechart_shader->set_uniform("model", glm::translate(model, glm::vec3(offset, 0.f)));
         w.on_render(*this, local_viewport); // Render the widget, only render what's inside the viewport
+        if(w.on_update) w.on_update(w);
+        for(auto& child : w.children) {
+            child->is_clickable = (w.on_click || w.is_clickable) && w.is_hover;
+            if(viewport.size().x <= 0 || viewport.size().y <= 0) {
+                if(!child->is_float) continue;
+            }
 
-    if(w.on_update) w.on_update(w);
-    for(auto& child : w.children) {
-        child->is_clickable = (w.on_click || w.is_clickable) && w.is_hover;
-        if(viewport.size().x <= 0 || viewport.size().y <= 0) {
-            if(!child->is_float) continue;
+            this->render_recursive(*child, model, viewport, offset);
         }
-
-        this->render_recursive(*child, model, viewport, offset);
     }
 }
 
@@ -399,16 +397,15 @@ bool Context::check_hover_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::iv
 
     const Eng3D::Rect r(offset.x, offset.y, w.width, w.height);
     if(!r.in_bounds(mouse_pos)) {
-        w.is_hover = 0;
+        w.is_hover = false;
     } else if(w.is_transparent) {
         if(is_inside_transparent(w, mouse_pos, offset))
-            w.is_hover = 0;
+            w.is_hover = false;
     }
 
     bool consumed_hover = w.is_hover && w.type != UI::WidgetType::GROUP;
     if(w.is_hover) {
-        if(w.on_hover)
-            w.on_hover(w, mouse_pos, offset);
+        if(w.on_hover) w.on_hover(w, mouse_pos, offset);
 
         if(w.tooltip != nullptr) {
             this->tooltip_widget = w.tooltip;
@@ -610,7 +607,7 @@ bool Context::check_wheel_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::iv
     if(!r.in_bounds(mouse_pos)) {
         return false;
     } else if(w.is_transparent) {
-        if (is_inside_transparent(w, mouse_pos, offset))
+        if(is_inside_transparent(w, mouse_pos, offset))
             return false;
     }
 

@@ -52,6 +52,12 @@
 #   include <GLES3/gl3.h>
 #endif
 #include <SDL_ttf.h>
+#include <SDL.h>
+#include <SDL_events.h>
+#include <SDL_keycode.h>
+#include <SDL_mouse.h>
+#include <SDL_audio.h>
+#include <SDL_joystick.h>
 
 #include "eng3d/state.hpp"
 #include "eng3d/path.hpp"
