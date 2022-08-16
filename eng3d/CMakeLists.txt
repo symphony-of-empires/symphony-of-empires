@@ -74,6 +74,20 @@ include_directories("${PROJECT_SOURCE_DIR}")
 # Dependencies
 #
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+#
+# Source code files
+#
+file(GLOB MAIN_SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/ui/*.cpp")
+execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/eng3d")
+
+# Switch doesn't support shared libraries
+IF(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
+	add_library(eng3d STATIC ${MAIN_SOURCES})
+ELSE()
+	add_library(eng3d SHARED ${MAIN_SOURCES})
+ENDIF()
+
 IF(E3D_VENDORED)
 	# GLEW
 	IF(WIN32 AND E3D_BACKEND_OPENGL)
@@ -81,7 +95,7 @@ IF(E3D_VENDORED)
 		set(glew-cmake_BUILD_SHARED ON)
 		FetchContent_Declare(glew-cmake GIT_REPOSITORY "https://github.com/Perlmint/glew-cmake" GIT_PROGRESS TRUE)
 		FetchContent_MakeAvailable(glew-cmake)
-		include_directories("${glew-cmake_SOURCE_DIR}/include")
+		target_include_directories(eng3d PRIVATE "${glew-cmake_SOURCE_DIR}/include")
 	ENDIF()
 	# SDL2
 	set(SDL2_DISABLE_SDL2MAIN ON)
@@ -102,14 +116,14 @@ IF(E3D_VENDORED)
 	ENDIF()
 	FetchContent_Declare(sdl2 GIT_REPOSITORY "https://github.com/libsdl-org/SDL" GIT_TAG main GIT_PROGRESS TRUE)
 	FetchContent_MakeAvailable(sdl2)
-	include_directories("${sdl2_BINARY_DIR}/include-config-debug" "${sdl2_BINARY_DIR}/include-config-release" "${sdl2_BINARY_DIR}/include-config-relwithdebinfo" "${sdl2_BINARY_DIR}/include")
+	target_include_directories(eng3d PRIVATE "${sdl2_BINARY_DIR}/include-config-debug" "${sdl2_BINARY_DIR}/include-config-release" "${sdl2_BINARY_DIR}/include-config-relwithdebinfo" "${sdl2_BINARY_DIR}/include")
 	# SDL2_TTF
 	set(SDL2TTF_VENDORED ON)
 	set(SDL2TTF_INSTALL OFF)
 	set(SDL2TTF_SAMPLES OFF)
 	FetchContent_Declare(sdl2_ttf GIT_REPOSITORY "https://github.com/libsdl-org/SDL_ttf" GIT_TAG main GIT_PROGRESS TRUE)
 	FetchContent_MakeAvailable(sdl2_ttf)
-	include_directories("${sdl2_ttf_SOURCE_DIR}")
+	target_include_directories(eng3d PRIVATE "${sdl2_ttf_SOURCE_DIR}")
 	# ASSIMP
 	set(ASSIMP_INSTALL OFF)
 	set(ASSIMP_NO_EXPORT ON)
@@ -123,23 +137,7 @@ IF(E3D_VENDORED)
 	set(ENABLE_BOOST_WORKAROUND ON)
 	FetchContent_Declare(assimp GIT_REPOSITORY "https://github.com/assimp/assimp" GIT_TAG v5.2.4 GIT_PROGRESS TRUE)
 	FetchContent_MakeAvailable(assimp)
-	include_directories("${assimp_BINARY_DIR}/include" "${assimp_SOURCE_DIR}/include")
-	# TBB (and hwloc if needed)
-	IF(WIN32)
-		FetchContent_Declare(hwloc URL "https://download.open-mpi.org/release/hwloc/v2.7/hwloc-win64-build-2.7.1.zip")
-		FetchContent_MakeAvailable(hwloc)
-		set(CMAKE_HWLOC_2_5_DLL_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.dll")
-		set(CMAKE_HWLOC_2_5_LIBRARY_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.lib" )
-		set(CMAKE_HWLOC_2_5_INCLUDE_PATH "${hwloc_SOURCE_DIR}/include" )
-	ENDIF()
-	set(TBB_DISABLE_HWLOC_AUTOMATIC_SEARCH ON)
-	set(TBB_TEST OFF)
-	set(TBB_EXAMPLES OFF)
-	set(TBB_ENABLE_IPO OFF)
-	set(TBB_CPF OFF)
-	set(TBB_SIGNTOOL OFF)
-	FetchContent_Declare(opentbb GIT_REPOSITORY "https://github.com/oneapi-src/oneTBB" GIT_TAG 3df08fe234f23e732a122809b40eb129ae22733f GIT_PROGRESS TRUE)
-	FetchContent_MakeAvailable(opentbb)
+	target_include_directories(eng3d PRIVATE "${assimp_BINARY_DIR}/include" "${assimp_SOURCE_DIR}/include")
 	# GLFW
 	IF(NOT ANDROID)
 		IF(E3D_BACKEND_OPENGL)
@@ -169,20 +167,7 @@ ELSE()
 ENDIF()
 FetchContent_Declare(lua GIT_REPOSITORY "https://github.com/walterschell/Lua" GIT_PROGRESS TRUE)
 FetchContent_MakeAvailable(lua)
-include_directories("${lua_SOURCE_DIR}/lua-5.4.4/include")
-
-#
-# Source code files
-#
-file(GLOB MAIN_SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/ui/*.cpp")
-execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/eng3d")
-
-# Switch doesn't support shared libraries
-IF(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
-	add_library(eng3d STATIC ${MAIN_SOURCES})
-ELSE()
-	add_library(eng3d SHARED ${MAIN_SOURCES})
-ENDIF()
+target_include_directories(eng3d PRIVATE "${lua_SOURCE_DIR}/lua-5.4.4/include")
 
 IF(NOT E3D_VENDORED)
 	find_package(SDL2 REQUIRED)
@@ -212,6 +197,7 @@ IF(NOT E3D_VENDORED)
 		ELSE()
 			FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm" GIT_PROGRESS TRUE)
 			FetchContent_MakeAvailable(glm)
+			target_include_directories(eng3d PUBLIC "${glm_SOURCE_DIR}/include")
 		ENDIF()
 	ENDIF()
 ENDIF()
