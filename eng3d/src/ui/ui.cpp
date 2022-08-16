@@ -298,15 +298,16 @@ void Context::resize(int _width, int _height) {
 }
 
 void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport, glm::vec2 offset) {
+    // Only render widgets that are shown
+    if(!w.is_render) return;
+    // Only render widget that have a width and height
+    if(!w.width || !w.height) return;
+
     if(w.need_recalc) {
         w.recalc_child_pos();
         w.need_recalc = false;
     }
 
-    // Only render widget that are shown
-    if(!w.is_render) return;
-    // Only render widget that have a width and height
-    if(!w.width || !w.height) return;
     if(w.is_fullscreen) {
         w.width = width;
         w.height = height;
@@ -332,11 +333,9 @@ void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport,
 
     if(w.on_update) w.on_update(w);
     for(auto& child : w.children) {
-        child->is_render = true;
         child->is_clickable = (w.on_click || w.is_clickable) && w.is_hover;
         if(viewport.size().x <= 0 || viewport.size().y <= 0) {
-            if(!child->is_float)
-                child->is_render = false;
+            if(!child->is_float) continue;
         }
 
         this->render_recursive(*child, model, viewport, offset);

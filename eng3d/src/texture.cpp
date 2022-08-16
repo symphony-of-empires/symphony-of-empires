@@ -419,8 +419,6 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::gen_text(Eng3D::TrueType:
         Eng3D::Log::debug("ttf", "Sucessfully created text");
         tex->managed = true;
         tex->upload(surface);
-        const std::string error_msg = SDL_GetError();
-        if(!error_msg.empty()) Eng3D::Log::error("ttf", error_msg);
     } catch(const BinaryImageException&) {
         tex = std::make_shared<Eng3D::Texture>();
         tex->create_dummy();
