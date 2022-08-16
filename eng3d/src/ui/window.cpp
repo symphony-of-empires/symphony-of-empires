@@ -48,7 +48,9 @@ Window::Window(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     glm::ivec2 offset(0, 24);
     this->border = Border(g_ui_context->border_tex, size, texture_size, offset);
 
-    // set_have_close_btn(true);
+    this->set_on_drag([this](UI::Widget&, glm::ivec2 diff) {
+        this->move_by(diff);
+    });
 }
 
 // There are a number of improvement to be made here

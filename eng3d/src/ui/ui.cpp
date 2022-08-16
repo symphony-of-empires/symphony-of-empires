@@ -525,12 +525,15 @@ bool UI::Context::check_drag_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm:
     offset = this->get_pos(w, offset);
     const Eng3D::Rect r(offset.x, offset.y, w.width, w.y + 24);
     if(r.in_bounds(mouse_pos)) {
-        auto& wc = reinterpret_cast<UI::Window&>(w);
-        if(!wc.is_movable) return false;
+        if(w.type == UI::WidgetType::WINDOW) {
+            auto& wc = reinterpret_cast<UI::Window&>(w);
+            if(!wc.is_movable) return false;
+        }
+        
         if(!this->is_drag) {
             this->drag_x = mouse_pos.x - offset.x;
             this->drag_y = mouse_pos.y - offset.y;
-            this->dragged_widget = reinterpret_cast<decltype(this->dragged_widget)>(&wc);
+            this->dragged_widget = &w;
             this->is_drag = true;
             return true;
         }
