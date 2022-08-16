@@ -79,7 +79,6 @@ Context::Context(Eng3D::State& _s)
     if(g_ui_context != nullptr)
         CXX_THROW(std::runtime_error, "UI context already constructed");
     g_ui_context = this;
-    is_drag = false;
 
     // default_font = TTF_OpenFont(s.package_man.get_uniqu("gfx/fonts/FreeMono.ttf").c_str(), 16);
     default_font = TTF_OpenFont(s.package_man.get_unique("fonts/Poppins/Poppins-SemiBold.ttf")->get_abs_path().c_str(), 16);
@@ -425,23 +424,7 @@ bool Context::check_hover(glm::ivec2 mouse_pos) {
         const glm::ivec2 drag = mouse_pos - glm::ivec2(this->drag_x, this->drag_y);
         const auto offset = this->get_pos(*dragged_widget, glm::ivec2(0));
         const glm::ivec2 diff = drag - offset;
-
-        if(dragged_widget->type == UI::WidgetType::SCROLLBAR_THUMB) {
-            assert(dragged_widget->parent != nullptr);
-            const int btn_height = dragged_widget->parent->width;
-            const float track_height = static_cast<float>(dragged_widget->parent->height - btn_height * 2);
-            const auto y_bounds = dragged_widget->parent->parent->get_y_bounds();
-            // Drag force is basically the distance taken by the offset (of drag), divide by track length to get
-            // a 0 to 1 number then multiply it with the total parent height to determine the total distance to
-            // forcefully scroll with the size of the parent in account
-            int drag_force = ((diff.y - (dragged_widget->height / 2)) / track_height) * (y_bounds.y - y_bounds.x);
-            if(dragged_widget->parent->parent) {
-                dragged_widget->parent->parent->scroll(-drag_force);
-                reinterpret_cast<UI::Scrollbar*>(dragged_widget->parent)->update_thumb();
-            }
-        } else {
-            dragged_widget->move_by(diff);
-        }
+        if(dragged_widget->on_drag) dragged_widget->on_drag(*dragged_widget, diff);
         return true;
     }
 
@@ -536,8 +519,6 @@ bool Context::check_click(glm::ivec2 mouse_pos) {
 }
 
 bool UI::Context::check_drag_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset) {
-    // Only windows can be dragged around
-    if(w.type != UI::WidgetType::WINDOW && w.type != UI::WidgetType::SCROLLBAR_THUMB) return false;
     // Pinned widgets are not movable
     if(w.is_pinned) return false;
 

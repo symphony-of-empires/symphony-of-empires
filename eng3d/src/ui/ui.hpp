@@ -63,8 +63,8 @@ namespace UI {
     /// @brief The UI context that handles all the ui widgets
     class Context {
         int drag_x, drag_y;
-        bool is_drag;
-        Widget* dragged_widget;
+        bool is_drag = false;
+        UI::Widget* dragged_widget = nullptr;
         int width, height;
 
         glm::ivec2 get_pos(UI::Widget& w, glm::ivec2 offset);

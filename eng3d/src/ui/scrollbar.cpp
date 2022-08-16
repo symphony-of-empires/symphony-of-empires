@@ -36,6 +36,21 @@ UI::ScrollbarThumb::ScrollbarThumb(int _x, int _y, UI::Scrollbar* _parent)
 {
     auto& s = Eng3D::State::get_instance();
     this->is_pinned = true;
+    this->set_on_drag([this](UI::Widget&, glm::ivec2 diff) {
+        assert(this->parent != nullptr);
+        const int btn_height = this->parent->width;
+        const float track_height = static_cast<float>(this->parent->height - btn_height * 2);
+        const auto y_bounds = this->parent->parent->get_y_bounds();
+        // Drag force is basically the distance taken by the offset (of drag), divide by track length to get
+        // a 0 to 1 number then multiply it with the total parent height to determine the total distance to
+        // forcefully scroll with the size of the parent in account
+        int drag_force = ((diff.y - (this->height / 2)) / track_height) * (y_bounds.y - y_bounds.x);
+        if(this->parent->parent) {
+            this->parent->parent->scroll(-drag_force);
+            reinterpret_cast<UI::Scrollbar*>(this->parent)->update_thumb();
+        }
+    });
+    
     this->set_on_click([this](UI::Widget&) {
 
     });
