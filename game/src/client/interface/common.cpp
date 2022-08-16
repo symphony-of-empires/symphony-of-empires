@@ -56,7 +56,7 @@ UnitButton::UnitButton(GameState& _gs, int x, int y, Unit& _unit, UI::Widget* _p
     unit{ _unit }
 {
     this->set_on_each_tick([this](UI::Widget& w) {
-        w.text(std::to_string(this->unit.size) + " " + _(this->unit.type->name.get_string()));
+        w.text(Eng3D::string_format("%zu %s", this->unit.size, _(this->unit.type->name.get_string())));
     });
     this->on_each_tick(*this);
 }
@@ -83,8 +83,7 @@ ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province& _province
 {
     this->text(this->province.name.get_string());
     this->set_on_each_tick([this](UI::Widget& w) {
-        if(this->gs.world->time % this->gs.world->ticks_per_month)
-            return;
+        if(this->gs.world->time % this->gs.world->ticks_per_month) return;
         w.text(this->province.name.get_string());
     });
 }
@@ -99,8 +98,7 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation& _nation, UI::Wi
     this->flag_icon = new UI::Image(0, 0, 32, 24, this);
     this->flag_icon->current_texture = this->gs.get_nation_flag(this->nation);
     this->flag_icon->set_on_each_tick([this](UI::Widget& w) {
-        if(this->gs.world->time % this->gs.world->ticks_per_month)
-            return;
+        if(this->gs.world->time % this->gs.world->ticks_per_month) return;
         w.current_texture = this->gs.get_nation_flag(this->nation);
     });
 
@@ -134,8 +132,8 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, un
             auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/good/" + good->ref_name + ".png")), this);
             icon_ibtn->below_of(*name_btn);
             icon_ibtn->set_on_click([good](UI::Widget& w) {
-                auto& o = static_cast<BuildingInfo&>(*w.parent);
-                new GoodView(o.gs, *good);
+                auto& o = reinterpret_cast<Interface::BuildingInfo&>(*w.parent);
+                new Interface::GoodView(o.gs, *good);
             });
             icon_ibtn->set_tooltip(new UI::Tooltip(icon_ibtn, 512, 24));
             icon_ibtn->tooltip->text(good->name.get_string());

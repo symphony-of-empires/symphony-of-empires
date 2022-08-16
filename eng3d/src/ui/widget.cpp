@@ -261,9 +261,6 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
         draw_border(border, viewport);
 
     if(text_texture.get() != nullptr) {
-        if(!text_texture->gl_tex_num)
-            text_texture->upload();
-        
         int x_offset = text_offset_x;
         int y_offset = text_offset_y;
         if(text_align_x == UI::Align::CENTER) {
@@ -433,12 +430,10 @@ static inline unsigned int power_two_floor(const unsigned int val) {
 void Widget::text(const std::string& _text) {
     if(this->text_str == _text) return;
     // Copy _text to a local scope (SDL2 does not like references)
-    text_str = _text;
-    // Auto deletes gl_texture
-    text_texture.reset();
+    this->text_str = _text;
     if(_text.empty()) return;
     auto& text_font = font != nullptr ? *font : *g_ui_context->default_font;
-    text_texture = Eng3D::State::get_instance().tex_man.gen_text(text_font, text_color, _text);
+    text_texture = Eng3D::State::get_instance().tex_man.gen_text(text_font, text_color, this->text_str);
 }
 
 /// @brief Set the tooltip to be shown when this widget is hovered, overrides

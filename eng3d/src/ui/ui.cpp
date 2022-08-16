@@ -407,8 +407,8 @@ bool Context::check_hover_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::iv
             w.on_hover(w, mouse_pos, offset);
 
         if(w.tooltip != nullptr) {
-            tooltip_widget = w.tooltip;
-            tooltip_widget->set_pos(offset.x, offset.y, w.width, w.height, width, height);
+            this->tooltip_widget = w.tooltip;
+            this->tooltip_widget->set_pos(offset.x, offset.y, w.width, w.height, width, height);
         }
 
         for(auto& child : w.children)

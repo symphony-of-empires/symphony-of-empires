@@ -33,8 +33,8 @@
 
 using namespace UI;
 
-Tooltip::Tooltip()
-    : Widget()
+UI::Tooltip::Tooltip()
+    : UI::Widget()
 {
     this->type = UI::WidgetType::TOOLTIP;
     this->have_shadow = true;
@@ -42,13 +42,13 @@ Tooltip::Tooltip()
 
     this->current_texture = Eng3D::State::get_instance().ui_ctx.tooltip_tex;
 
-    const glm::ivec2 size = glm::ivec2{ 4, 4 };
-    const glm::ivec2 texture_size = glm::ivec2{ 10, 10 };
+    const glm::ivec2 size{ 4, 4 };
+    const glm::ivec2 texture_size{ 10, 10 };
     this->border = UI::Border(g_ui_context->border_tex, size, texture_size);
 }
 
-Tooltip::Tooltip(Widget* parent, unsigned w, unsigned h)
-    : Widget()
+UI::Tooltip::Tooltip(Widget* parent, unsigned w, unsigned h)
+    : UI::Widget()
 {
     this->parent = parent;
     this->parent->set_tooltip(this);
@@ -59,16 +59,16 @@ Tooltip::Tooltip(Widget* parent, unsigned w, unsigned h)
 
     this->current_texture = Eng3D::State::get_instance().ui_ctx.tooltip_tex;
 
-    const glm::ivec2 size = glm::ivec2{ 4, 4 };
-    const glm::ivec2 texture_size = glm::ivec2{ 10, 10 };
+    const glm::ivec2 size{ 4, 4 };
+    const glm::ivec2 texture_size{ 10, 10 };
     this->border = UI::Border(g_ui_context->border_tex, size, texture_size);
 }
 
-Tooltip::~Tooltip() {
+UI::Tooltip::~Tooltip() {
 
 }
 
-void Tooltip::set_pos(int _x, int _y, int, int _height, int screen_w, int screen_h) {
+void UI::Tooltip::set_pos(int _x, int _y, int, int _height, int screen_w, int screen_h) {
     int extra_above = _y;
     int extra_below = screen_h - _y - _height;
     if(extra_above > extra_below) {
@@ -80,7 +80,7 @@ void Tooltip::set_pos(int _x, int _y, int, int _height, int screen_w, int screen
 }
 
 // Note! Code duplication of Text::text 
-void Tooltip::text(const std::string& text) {
+void UI::Tooltip::text(const std::string& text) {
     this->kill_children();
     if(text.empty()) return;
 

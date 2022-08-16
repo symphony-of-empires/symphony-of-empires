@@ -84,7 +84,7 @@ void Eng3D::Texture::create_dummy() {
     // Fill in with a permutation pattern of pink and black
     // This should be autovectorized by gcc
     for(size_t i = 0; i < width * height; i++)
-        buffer.get()[i] = 0xff000000 | (i * 16);
+        buffer.get()[i] = ((i * 8) << 16) | (i * 16);
 }
 
 /// @brief Frontend for uploading (schedules or instantly uploads)
@@ -399,6 +399,8 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(std::shared_ptr<Eng3
 }
 
 std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::gen_text(Eng3D::TrueType::Font& font, Eng3D::Color color, const std::string& msg) {
+    if(msg.empty()) return this->get_white();
+    
     // Find texture when wanting to be loaded and load texture from cached texture list
     auto it = text_textures.find(msg);
     if(it != text_textures.end()) return (*it).second;
@@ -406,24 +408,21 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::gen_text(Eng3D::TrueType:
     Eng3D::Log::debug("texture", "Loaded and cached text texture for " + msg);
 
     // Otherwise texture is not in our control, so we create a new texture
-    std::shared_ptr<Eng3D::Texture> tex;
-    try {
-        tex = std::make_shared<Eng3D::Texture>();
-        // TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
-        Eng3D::Log::debug("ttf", "Creating text for \"" + msg + "\"");
-        auto* surface = TTF_RenderUTF8_Blended(&font, msg.c_str(), (const SDL_Color){
-            static_cast<Uint8>(color.r * 255.f), static_cast<Uint8>(color.g * 255.f),
-            static_cast<Uint8>(color.b * 255.f), 0 });
-        if(surface == nullptr)
-            CXX_THROW(std::runtime_error, std::string() + "Cannot create text surface: " + TTF_GetError());
-        Eng3D::Log::debug("ttf", "Sucessfully created text");
-        tex->managed = true;
-        tex->upload(surface);
-    } catch(const BinaryImageException&) {
-        tex = std::make_shared<Eng3D::Texture>();
-        tex->create_dummy();
-        tex->upload();
-    }
+    auto tex = std::make_shared<Eng3D::Texture>();
+    // TTF_SetFontStyle(g_ui_context->default_font, TTF_STYLE_BOLD);
+    Eng3D::Log::debug("ttf", "Creating text for \"" + msg + "\"");
+    auto* surface = TTF_RenderUTF8_Blended(&font, msg.c_str(), (const SDL_Color){
+        static_cast<Uint8>(color.r * 255.f), static_cast<Uint8>(color.g * 255.f),
+        static_cast<Uint8>(color.b * 255.f), 0 });
+    if(surface == nullptr)
+        CXX_THROW(std::runtime_error, std::string() + "Cannot create text surface: " + TTF_GetError());
+    Eng3D::Log::debug("ttf", "Sucessfully created text");
+    tex->managed = true;
+    // Required so UI widgets can resize properly!
+    tex->width = surface->w;
+    tex->height = surface->h;
+    tex->upload(surface);
+    
     text_textures[msg] = tex;
     return text_textures[msg];
 }

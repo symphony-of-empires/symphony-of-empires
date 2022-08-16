@@ -219,9 +219,10 @@ TimeControlView::TimeControlView(GameState& _gs)
     }
 
     auto font = Eng3D::TrueType::open_font(gs.package_man.get_unique("fonts/neon_euler/euler.ttf")->get_abs_path(), 20);
-    auto text_color = Eng3D::Color(1., 1., 1.);
-
+    
     auto* time_lab = new UI::Label(50, 30, " ", this);
+    time_lab->font = font;
+    time_lab->text_color = Eng3D::Color(1., 1., 1.);
     time_lab->set_on_each_tick([this](UI::Widget& w) {
         const std::string day_names[7] = {
             "Monday",
@@ -254,7 +255,5 @@ TimeControlView::TimeControlView(GameState& _gs)
         const int year = world->time / world->ticks_per_month / 12;
         w.text(Eng3D::Locale::translate(day_names[day % 7]) + ", " + Eng3D::Locale::translate(month_names[month]) + " " + std::to_string(day + 1) + ", " + std::to_string(year));
     });
-    time_lab->font = font;
-    time_lab->text_color = text_color;
     time_lab->on_each_tick(*time_lab);
 }
