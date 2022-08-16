@@ -28,11 +28,14 @@
 #include "eng3d/ui/widget.hpp"
 
 namespace UI {
+    class Button;
     /// @ingroup UI
     /// @brief Window widget
     class Scrollbar : public Widget {
+        UI::Button* thumb_btn;
     public:
-        Scrollbar(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
+        Scrollbar(int x, int y, unsigned w, unsigned h, UI::Widget* parent = nullptr);
         virtual ~Scrollbar() override {};
+        void update_thumb();
     };
 };

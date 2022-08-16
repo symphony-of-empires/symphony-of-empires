@@ -60,6 +60,7 @@
 #include "eng3d/ui/widget.hpp"
 #include "eng3d/ui/slider.hpp"
 #include "eng3d/ui/input.hpp"
+#include "eng3d/ui/scrollbar.hpp"
 #include "eng3d/texture.hpp"
 #include "eng3d/rectangle.hpp"
 #include "eng3d/state.hpp"
@@ -424,7 +425,23 @@ bool Context::check_hover(glm::ivec2 mouse_pos) {
         const glm::ivec2 drag = mouse_pos - glm::ivec2(this->drag_x, this->drag_y);
         const auto offset = this->get_pos(*dragged_widget, glm::ivec2(0));
         const glm::ivec2 diff = drag - offset;
-        dragged_widget->move_by(diff);
+
+        if(dragged_widget->type == UI::WidgetType::SCROLLBAR_THUMB) {
+            assert(dragged_widget->parent != nullptr);
+            const int btn_height = dragged_widget->parent->width;
+            const float track_height = static_cast<float>(dragged_widget->parent->height - btn_height * 2);
+            const auto y_bounds = dragged_widget->parent->parent->get_y_bounds();
+            // Drag force is basically the distance taken by the offset (of drag), divide by track length to get
+            // a 0 to 1 number then multiply it with the total parent height to determine the total distance to
+            // forcefully scroll with the size of the parent in account
+            int drag_force = ((diff.y - (dragged_widget->height / 2)) / track_height) * (y_bounds.y - y_bounds.x);
+            if(dragged_widget->parent->parent) {
+                dragged_widget->parent->parent->scroll(-drag_force);
+                reinterpret_cast<UI::Scrollbar*>(dragged_widget->parent)->update_thumb();
+            }
+        } else {
+            dragged_widget->move_by(diff);
+        }
         return true;
     }
 
@@ -476,7 +493,7 @@ UI::ClickState Context::check_click_recursive(Widget& w, glm::ivec2 mouse_pos, g
     // Call on_click if on_click hasnt been used and widget is hit by click
     if(w.on_click && clickable && !click_consumed) {
         if(w.type == UI::WidgetType::SLIDER) {
-            UI::Slider* wc = (UI::Slider*)&w;
+            auto* wc = reinterpret_cast<UI::Slider*>(&w);
             wc->set_value((static_cast<float>(std::abs(mouse_pos.x - offset.x)) / static_cast<float>(wc->width)) * wc->max);
         }
         w.on_click(w);
@@ -520,7 +537,7 @@ bool Context::check_click(glm::ivec2 mouse_pos) {
 
 bool UI::Context::check_drag_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset) {
     // Only windows can be dragged around
-    if(w.type != UI::WidgetType::WINDOW) return false;
+    if(w.type != UI::WidgetType::WINDOW && w.type != UI::WidgetType::SCROLLBAR_THUMB) return false;
     // Pinned widgets are not movable
     if(w.is_pinned) return false;
 
@@ -580,7 +597,7 @@ void Context::use_tooltip(UI::Tooltip* tooltip, glm::ivec2 pos) {
         this->tooltip_widget->set_pos(pos.x, pos.y, tooltip->width, tooltip->height, width, height);
 }
 
-bool Context::check_wheel_recursive(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, int y) {
+bool Context::check_wheel_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, int y) {
     offset = get_pos(w, offset);
 
     // Widget must be shown
@@ -601,14 +618,19 @@ bool Context::check_wheel_recursive(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 
     //
     // In short: If any of our children are scrolled by the mouse we will not receive
     // the scrolling instructions - only the front child will
+    UI::Scrollbar* scrollbar = nullptr;
     bool scrolled = false;
-    for(const auto& children : w.children) {
+    for(auto& children : w.children) {
+        if(children->type == UI::WidgetType::SCROLLBAR)
+            scrollbar = reinterpret_cast<UI::Scrollbar*>(children.get());
         scrolled = check_wheel_recursive(*children, mouse_pos, offset, y);
         if(scrolled) break;
     }
 
     if(w.is_scroll) {
         w.scroll(y);
+        if(scrollbar != nullptr)
+            scrollbar->update_thumb();
         scrolled = true;
     }
     return scrolled;

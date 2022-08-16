@@ -23,6 +23,7 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#include <cmath>
 #include "eng3d/ui/scrollbar.hpp"
 #include "eng3d/ui/ui.hpp"
 #include "eng3d/ui/button.hpp"
@@ -30,34 +31,55 @@
 #include "eng3d/path.hpp"
 #include "eng3d/texture.hpp"
 
-using namespace UI;
-
-Scrollbar::Scrollbar(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
-    : Widget(_parent, _x, _y, w, h, UI::WidgetType::SCROLLBAR)
+UI::Scrollbar::Scrollbar(int _x, int _y, unsigned w, unsigned h, UI::Widget* _parent)
+    : UI::Widget(_parent, _x, _y, w, h, UI::WidgetType::SCROLLBAR)
 {
-    this->current_texture = Eng3D::State::get_instance().tex_man.load(Eng3D::State::get_instance().package_man.get_unique("gfx/scrollbar.png"));
+    auto& s = Eng3D::State::get_instance();
+    this->current_texture = s.tex_man.load(s.package_man.get_unique("gfx/scrollbar.png"));
 
     this->is_pinned = true;
-    this->flex = Flex::COLUMN;
-    this->flex_justify = FlexJustify::SPACE_BETWEEN;
+    this->flex = UI::Flex::COLUMN;
+    this->flex_justify = UI::FlexJustify::SPACE_BETWEEN;
 
-    UI::Button* up_btn = new UI::Button(0, 0, w, w, this);
-    up_btn->set_on_click([this](Widget&) {
-        if(this->parent) this->parent->scroll(6);
+    auto* up_btn = new UI::Button(0, 0, this->width, this->width, this);
+    up_btn->set_on_click([this](UI::Widget& w) {
+        if(this->parent) {
+            const auto y_bounds = this->parent->get_y_bounds();
+            const float ratio = static_cast<float>(y_bounds.y - y_bounds.x) / static_cast<float>(this->height);
+            this->parent->scroll(8 * ratio);
+            this->update_thumb();
+        }
     });
 
-    up_btn->current_texture = Eng3D::State::get_instance().tex_man.load(Eng3D::State::get_instance().package_man.get_unique("gfx/scrollbar_up.png"));
+    up_btn->current_texture = s.tex_man.load(s.package_man.get_unique("gfx/scrollbar_up.png"));
 
-    UI::Button* down_btn = new UI::Button(0, 0, w, w, this);
-    down_btn->set_on_click([this](Widget&) {
-        if(this->parent) this->parent->scroll(-6);
+    auto* down_btn = new UI::Button(0, 0, this->width, this->width, this);
+    down_btn->set_on_click([this](UI::Widget& w) {
+        if(this->parent) {
+            const auto y_bounds = this->parent->get_y_bounds();
+            const float ratio = static_cast<float>(y_bounds.y - y_bounds.x) / static_cast<float>(this->height);
+            this->parent->scroll(-8 * ratio);
+            this->update_thumb();
+        }
     });
-    down_btn->current_texture = Eng3D::State::get_instance().tex_man.load(Eng3D::State::get_instance().package_man.get_unique("gfx/scrollbar_down.png"));
+    down_btn->current_texture = s.tex_man.load(s.package_man.get_unique("gfx/scrollbar_down.png"));
 
-    UI::Button* drag_btn = new UI::Button(0, 100, w, std::min<int>(h - 2 * w, 50), this);
-    drag_btn->is_pinned = true;
-    drag_btn->set_on_click([this](Widget&) {
+    this->thumb_btn = new UI::Button(0, 16, w, std::min<int>(this->height - 2 * this->width, 50), this);
+    this->thumb_btn->type = UI::WidgetType::SCROLLBAR_THUMB;
+    this->thumb_btn->is_pinned = true;
+    this->thumb_btn->set_on_click([this](UI::Widget&) {
 
     });
-    drag_btn->current_texture = Eng3D::State::get_instance().tex_man.load(Eng3D::State::get_instance().package_man.get_unique("gfx/scrollbar_drag.png"));
+    this->thumb_btn->current_texture = s.tex_man.load(s.package_man.get_unique("gfx/scrollbar_drag.png"));
+}
+
+/// @brief Updates the thumb position in respect to the current scroll positioning of the parent
+void UI::Scrollbar::update_thumb() {
+    const auto y_bounds = this->parent->get_y_bounds();
+    const int btn_height = this->width;
+    // The height of the track (scrollbar excluding buttons)
+    const float track_height = static_cast<float>(this->height - btn_height * 2);
+    // 0 to 1 of how much the parent was scrolled relative to it's max scrolling/height
+    const float scrolled = static_cast<float>(abs(this->parent->scrolled_y)) / static_cast<float>(y_bounds.y - y_bounds.x);
+    this->thumb_btn->set_y(btn_height + scrolled * track_height);
 }

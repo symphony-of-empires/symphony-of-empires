@@ -453,24 +453,27 @@ void Widget::set_tooltip(const std::string& text) {
     this->tooltip->text(text);
 }
 
-/// @brief Scrolls all the children of this widget by a factor of y
-/// @param y
-void Widget::scroll(int _y) {
-    int child_top = 0;
-    int child_bottom = height;
-    for(auto& child : children) {
+/// @brief Obtains the top and bottom y of a given widget
+glm::ivec2 UI::Widget::get_y_bounds() const {
+    int child_top = 0, child_bottom = this->height;
+    for(auto& child : this->children) {
         if(!child->is_pinned) {
-            child_top = std::min(child_top, child->y);
-            child_bottom = std::max(child_bottom, child->y + (int)child->height);
+            child_top = glm::min<int>(child_top, child->y);
+            child_bottom = glm::max<int>(child_bottom, child->y + static_cast<int>(child->height));
         }
     }
+    child_bottom -= this->height;
+    return glm::ivec2{ child_top, child_bottom };
+}
 
-    child_bottom -= height;
-    _y = std::min(-child_top, _y);
-    _y = std::max(-child_bottom, _y);
-
+/// @brief Scrolls all the children of this widget by a factor of y
+/// @param y Factor to scroll by
+void UI::Widget::scroll(int _y) {
+    const auto y_bounds = this->get_y_bounds();
+    _y = glm::clamp<int>(_y, -y_bounds.y, -y_bounds.x);
     for(auto& child : children) {
         if(!child->is_pinned)
             child->y += _y;
     }
+    this->scrolled_y += _y;
 }

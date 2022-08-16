@@ -68,8 +68,7 @@ PopWindow::PopWindow(GameState& gs)
                 size_t row_index = 0;
 
                 auto size = row->get_element(row_index++);
-                auto size_str = Eng3D::string_format("%.0f", pop.size);
-                size->text(size_str);
+                size->text(Eng3D::string_format("%.0f", pop.size));
                 size->set_key(pop.size);
 
                 auto prov_name = row->get_element(row_index++);
@@ -102,11 +101,9 @@ PopWindow::PopWindow(GameState& gs)
                 literacy->set_key(pop.literacy);
 
                 auto budget = row->get_element(row_index++);
-                auto budget_str = Eng3D::string_format("%.0f", pop.budget / pop.size);
-                budget->text(budget_str);
-                auto budget_tip = Eng3D::string_format(_("Total budget: %.2f"), pop.budget);
-                budget->set_tooltip(budget_tip);
+                budget->text(Eng3D::string_format("%.0f", pop.budget / pop.size));
                 budget->set_key(pop.budget / pop.size);
+                budget->set_tooltip(Eng3D::string_format(_("Total budget: %.2f"), pop.budget));
             }
         }
     });

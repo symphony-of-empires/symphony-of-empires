@@ -36,8 +36,8 @@
 
 using namespace Interface;
 
-void make_building_header(UI::Div* table) {
-    auto* row = new UI::Div(0, 0, 800, 35, table);
+static inline void make_building_header(UI::Div& table) {
+    auto* row = new UI::Div(0, 0, 800, 35, &table);
     row->flex = UI::Flex::ROW;
     row->flex_justify = UI::FlexJustify::START;
 
@@ -72,8 +72,8 @@ void make_building_header(UI::Div* table) {
     production_scale_lab->border = border;
 }
 
-void make_building_row(UI::Div* table, Building& building, const BuildingType* type, const Province& province) {
-    auto* row = new UI::Div(0, 0, 800, 35, table);
+static inline void make_building_row(UI::Div& table, const Building& building, const BuildingType& type, const Province& province) {
+    auto* row = new UI::Div(0, 0, 800, 35, &table);
     row->flex = UI::Flex::ROW;
     row->flex_justify = UI::FlexJustify::START;
 
@@ -84,7 +84,7 @@ void make_building_row(UI::Div* table, Building& building, const BuildingType* t
     auto border = UI::Border(border_tex, size, texture_size);
 
     auto name_lab = new UI::Div(0, 0, 150, 35, row);
-    name_lab->text(type->name.get_string());
+    name_lab->text(type.name.get_string());
     name_lab->border = border;
 
     auto workers_lab = new UI::Div(0, 0, 100, 35, row);
@@ -100,12 +100,12 @@ void make_building_row(UI::Div* table, Building& building, const BuildingType* t
     input_div->flex = UI::Flex::ROW;
     input_div->flex_justify = UI::FlexJustify::START;
 
-    for(auto good : type->inputs) {
+    for(auto good : type.inputs) {
         auto input_good_image = new UI::Image(0, 0, 35, 35, "gfx/good/" + good->ref_name + ".png", true, input_div);
         input_good_image->set_tooltip(good->name.get_string());
     }
 
-    auto output = type->output;
+    auto output = type.output;
     if(output != nullptr) {
         auto output_div = new UI::Div(0, 0, 35, 35, row);
         output_div->border = border;
@@ -130,10 +130,8 @@ FactoryWindow::FactoryWindow(GameState& gs)
         this->kill();
     });
 
-    Nation* nation = gs.curr_nation;
-
     int size = 0;
-    for(const auto province_id : nation->owned_provinces) {
+    for(const auto province_id : gs.curr_nation->owned_provinces) {
         const auto& province = gs.world->provinces[province_id];
         for(Building::Id i = 0; i < province.buildings.size(); i++) {
             auto& building = province.buildings[i];
@@ -142,23 +140,22 @@ FactoryWindow::FactoryWindow(GameState& gs)
     }
 
     auto* header_column = new UI::Div(5, 5, 800 - 10, 35, this);
-    make_building_header(header_column);
+    make_building_header(*header_column);
 
     auto* table = new UI::Div(5, 40, 800 - 10, 700, this);
     table->is_scroll = true;
-    new UI::Scrollbar(700, 0, 20, 700, table);
+    new UI::Scrollbar(700, 0, 20, 400, table);
 
     auto* flex_column = new UI::Div(0, 0, 800 - 10, size * 35, table);
     flex_column->flex = UI::Flex::COLUMN;
     flex_column->flex_justify = UI::FlexJustify::START;
-
-    for(const auto province_id : nation->owned_provinces) {
-        auto& province = gs.world->provinces[province_id];
+    for(const auto province_id : gs.curr_nation->owned_provinces) {
+        const auto& province = gs.world->provinces[province_id];
         for(Building::Id i = 0; i < province.buildings.size(); i++) {
-            auto& building = province.buildings[i];
-            auto* type = &gs.world->building_types[i];
-            if(!building.level == 0) continue;
-            make_building_row(flex_column, building, type, province);
+            const auto& building = province.buildings[i];
+            const auto& type = gs.world->building_types[i];
+            if(!building.level) continue;
+            make_building_row(*flex_column, building, type, province);
         }
     }
 }

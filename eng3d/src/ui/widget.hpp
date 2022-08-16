@@ -91,7 +91,8 @@ namespace UI {
         SCROLLBAR,
         TABLE,
         TABLE_ROW,
-        TABLE_ELEMENT
+        TABLE_ELEMENT,
+        SCROLLBAR_THUMB
     };
 
     /// @ingroup UI
@@ -176,7 +177,15 @@ namespace UI {
         virtual void text(const std::string& text);
         virtual void set_tooltip(UI::Tooltip* tooltip);
         virtual void set_tooltip(const std::string& text);
+        glm::ivec2 get_y_bounds() const;
         void scroll(int y);
+
+        constexpr void set_y(int _y) {
+            this->y = _y;
+            if(this->parent) {
+                this->y += this->parent->scrolled_y;
+            }
+        }
 
         constexpr void above_of(const Widget& rhs) {
             this->y = rhs.y - this->height;
@@ -281,6 +290,9 @@ namespace UI {
 
         /// @brief Index for `select_dpad_ui_widget`, 0 means index=Auto (first to last)
         int dpad_index = 0;
+
+        /// @brief Total amount of scroll
+        int scrolled_y = 0;
 
         friend class Context;
     protected:
