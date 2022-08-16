@@ -88,6 +88,7 @@
 #include "client/interface/army.hpp"
 #include "client/interface/building.hpp"
 #include "client/interface/minimap.hpp"
+#include "client/interface/map_debug.hpp"
 #include "client/interface/profiler_view.hpp"
 #include "client/map.hpp"
 #include "client/map_render.hpp"
@@ -702,6 +703,7 @@ void start_client(int argc, char** argv) {
 
     // Connect to server prompt
     new Interface::MainMenu(gs);
+    new Interface::MapDebugMenu(gs);
     std::vector<Treaty::Id> displayed_treaties;
     auto current_frame_time = std::chrono::system_clock::now();
     // Start the world thread

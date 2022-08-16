@@ -42,7 +42,7 @@ uniform sampler2DArray terrain_sheet;
 
 /// @brief RGB -> SRGB
 #define RGB(r, g, b) pow(vec3(r, g, b), vec3(2.2))
-#define PI 3.1416
+#define PI 3.1415926538
 
 const vec3 province_border_col = RGB(0.0, 0.0, 0.0);
 const vec3 country_border_col = RGB(0.2, 0.0, 0.0);
@@ -56,6 +56,7 @@ const vec3 river_col = RGB(0.0, 0.0, 0.3);
 
 vec3 get_water_normal(float time, sampler2D wave1, sampler2D wave2, vec2 tex_coords);
 vec4 no_tiling(sampler2D tex, vec2 uv, sampler2D noisy_tex);
+vec4 no_tiling(sampler2DArray tex, vec2 uv, float layer, sampler2D noisy_tex);
 vec3 rgb2hsv(vec3 c);
 vec3 hsv2rgb(vec3 c);
 
@@ -64,16 +65,22 @@ vec4 get_terrain(vec2 tex_coords, vec2 offset) {
 	const int size = 16;
 	float index = texture(terrain_map, tex_coords).a * size;
 	vec4 color = texture(terrain_sheet, vec3(offset.x, offset.y, index));
+
+#ifdef NOISE
+	vec4 snow_color = no_tiling(terrain_sheet, offset, snow_index, noise_texture);
+#else
 	vec4 snow_color = texture(terrain_sheet, vec3(offset.x, offset.y, snow_index));
-	// "Spike factor" making stuff near the equator less snowy
-	float spike_factor = abs(sin(tex_coords.y * PI));
-	// Phase spike, allowing winter to come and go by as time passes instead of
-	// abruptly resetting
-	float phase_spike_factor = abs(1.0 - sin((mod(ticks, 365) / 365) * PI));
-	// How clear of snow this tile is
-	// The sine wave will help us to make the center more clear
-	float clearness = abs(smoothstep(phase_spike_factor, 0.0, spike_factor));
-	return mix(color, snow_color, min(1.0, clearness * 5.0));
+#endif
+
+	// Latitute snow factor - making stuff near the equator less snowy
+	// Goes from 1 -> -1 as y goes from 0 -> 1
+	float latitute_snow_factor = cos(tex_coords.y * PI);
+	// Seasonal snow factor - allowing winter to come and go by as time passes
+	float year = mod(ticks, 365) / 365.0;
+	float seasonal_snow_factor = cos(year * 2 * PI);
+	// Amount of snow
+	float snow_amount = smoothstep(0.7, 0.9, seasonal_snow_factor * latitute_snow_factor);
+	return mix(color, snow_color, snow_amount);
 }
 
 vec4 get_terrain_mix(vec2 tex_coords) {

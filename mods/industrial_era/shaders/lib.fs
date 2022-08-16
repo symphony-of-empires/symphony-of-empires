@@ -38,6 +38,30 @@ vec4 no_tiling(sampler2D tex, vec2 uv, sampler2D noisy_tex) {
     return mix(cola, colb, smoothstep(0.2, 0.8, f - 0.1 * (diff.x + diff.y + diff.z)));
 }
 
+/// @brief Generate a vector 4 to avoid tilings
+/// https://iquilezles.org/www/articles/texturerepetition/texturerepetition.htm
+vec4 no_tiling(sampler2DArray tex, vec2 uv, float layer, sampler2D noisy_tex) {
+    float k = texture(noisy_tex, 0.005 * uv).x; // cheap (cache friendly) lookup
+    float v = 1.0;
+
+    vec2 duvdx = dFdx(uv);
+    vec2 duvdy = dFdx(uv);
+
+    float l = k * 8.0;
+    float f = fract(l);
+
+    float ia = floor(l); // my method
+    float ib = ia + 1.0;
+
+    vec2 offa = sin(vec2(3.0f, 7.0) * ia); // can replace with any other hash
+    vec2 offb = sin(vec2(3.0f, 7.0) * ib); // can replace with any other hash
+
+    vec4 cola = textureGrad(tex, vec3(uv + v * offa, layer), duvdx, duvdy);
+    vec4 colb = textureGrad(tex, vec3(uv + v * offb, layer), duvdx, duvdy);
+    vec4 diff = cola - colb;
+    return mix(cola, colb, smoothstep(0.2, 0.8, f - 0.1 * (diff.x + diff.y + diff.z)));
+}
+
 /// @brief Watercolor efffect
 /// Not used and probably wont. Keep for now though
 float water_aquarelle(sampler2D noise_tex, vec2 tex_coords) {
