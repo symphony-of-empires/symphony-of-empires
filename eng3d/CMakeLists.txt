@@ -164,9 +164,6 @@ IF(E3D_VENDORED)
 	# ZLIB
 	FetchContent_Declare(zlib GIT_REPOSITORY "https://github.com/madler/zlib" GIT_TAG 21767c654d31d2dccdde4330529775c6c5fd5389 GIT_PROGRESS TRUE)
 	FetchContent_MakeAvailable(zlib)
-	# GLM
-	FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm" GIT_PROGRESS TRUE)
-	FetchContent_MakeAvailable(glm)
 ENDIF()
 
 # LUA
@@ -176,8 +173,8 @@ IF(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
 	set(LUA_ENABLE_SHARED OFF)
 	set(LUA_SUPPORT_DL OFF)
 ELSE()
-set(LUA_ENABLE_SHARED ON)
-set(LUA_SUPPORT_DL ON)
+	set(LUA_ENABLE_SHARED ON)
+	set(LUA_SUPPORT_DL ON)
 ENDIF()
 FetchContent_Declare(lua GIT_REPOSITORY "https://github.com/walterschell/Lua" GIT_PROGRESS TRUE)
 FetchContent_MakeAvailable(lua)
@@ -188,10 +185,12 @@ include_directories("${lua_SOURCE_DIR}/lua-5.4.4/include")
 #
 file(GLOB MAIN_SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/ui/*.cpp")
 execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/eng3d")
+
+# Switch doesn't support shared libraries
 IF(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
 	add_library(eng3d STATIC ${MAIN_SOURCES})
 ELSE()
-add_library(eng3d SHARED ${MAIN_SOURCES})
+	add_library(eng3d SHARED ${MAIN_SOURCES})
 ENDIF()
 
 IF(NOT E3D_VENDORED)
@@ -215,9 +214,12 @@ IF(NOT E3D_VENDORED)
 	IF(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
 		include_directories("${DEVKITPRO}/portlibs/switch/include/")
 	ELSE()
-		find_package(glm REQUIRED)
-		include_directories(${glm_INCLUDE_DIRS})
-		target_link_libraries(eng3d PRIVATE ${glmLIBRARIES})
+		# GLM
+		FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm" GIT_PROGRESS TRUE)
+		FetchContent_MakeAvailable(glm)
+		#find_package(glm REQUIRED)
+		#include_directories(${glm_INCLUDE_DIRS})
+		#target_link_libraries(eng3d PRIVATE glm::glm)
 	ENDIF()
 ENDIF()
 
