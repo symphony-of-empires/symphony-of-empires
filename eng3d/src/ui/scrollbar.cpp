@@ -25,11 +25,22 @@
 
 #include <cmath>
 #include "eng3d/ui/scrollbar.hpp"
-#include "eng3d/ui/ui.hpp"
 #include "eng3d/ui/button.hpp"
+#include "eng3d/ui/ui.hpp"
 #include "eng3d/state.hpp"
 #include "eng3d/path.hpp"
 #include "eng3d/texture.hpp"
+
+UI::ScrollbarThumb::ScrollbarThumb(int _x, int _y, UI::Scrollbar* _parent)
+    : UI::Widget(_parent, _x, _y, _parent->width, std::min<int>(_parent->height - 2 * _parent->width, 50), UI::WidgetType::SCROLLBAR_THUMB)
+{
+    auto& s = Eng3D::State::get_instance();
+    this->is_pinned = true;
+    this->set_on_click([this](UI::Widget&) {
+
+    });
+    this->current_texture = s.tex_man.load(s.package_man.get_unique("gfx/scrollbar_drag.png"));
+}
 
 UI::Scrollbar::Scrollbar(int _x, int _y, unsigned w, unsigned h, UI::Widget* _parent)
     : UI::Widget(_parent, _x, _y, w, h, UI::WidgetType::SCROLLBAR)
@@ -64,13 +75,7 @@ UI::Scrollbar::Scrollbar(int _x, int _y, unsigned w, unsigned h, UI::Widget* _pa
     });
     down_btn->current_texture = s.tex_man.load(s.package_man.get_unique("gfx/scrollbar_down.png"));
 
-    this->thumb_btn = new UI::Button(0, 16, w, std::min<int>(this->height - 2 * this->width, 50), this);
-    this->thumb_btn->type = UI::WidgetType::SCROLLBAR_THUMB;
-    this->thumb_btn->is_pinned = true;
-    this->thumb_btn->set_on_click([this](UI::Widget&) {
-
-    });
-    this->thumb_btn->current_texture = s.tex_man.load(s.package_man.get_unique("gfx/scrollbar_drag.png"));
+    this->thumb_btn = new UI::ScrollbarThumb(0, 16, this);
 }
 
 /// @brief Updates the thumb position in respect to the current scroll positioning of the parent
