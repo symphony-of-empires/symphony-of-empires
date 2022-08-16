@@ -30,37 +30,6 @@
 #include <chrono>
 #include <thread>
 
-#ifdef E3D_TARGET_UNIX
-#    define _XOPEN_SOURCE_EXTENDED 1
-#    include <netdb.h>
-#    include <arpa/inet.h>
-#endif
-#include <sys/types.h>
-
-// Visual Studio does not know about UNISTD.H, Mingw does through
-#ifndef _MSC_VER
-#    include <unistd.h>
-#endif
-
-#ifdef E3D_TARGET_UNIX
-#	include <poll.h>
-#elif defined E3D_TARGET_WINDOWS
-// Allow us to use deprecated functions like inet_addr
-#   define _WINSOCK_DEPRECATED_NO_WARNINGS
-// MingW heavily dislikes ws2def.h and causes spurious errors
-//#   ifndef __MINGW32__
-//#       include <ws2def.h>
-//#   endif
-#   ifndef WINSOCK2_IMPORTED
-#       define WINSOCK2_IMPORTED
-#       include <winsock2.h>
-#   endif
-#   include <ws2tcpip.h>
-#   pragma comment(lib, "Ws2_32.lib")
-#   undef max
-#   undef min
-#endif
-
 #include "eng3d/log.hpp"
 
 #include "action.hpp"
@@ -106,12 +75,8 @@ void Client::net_loop() {
     has_snapshot = true;
     try {
         ActionType action;
-        
-#ifdef E3D_TARGET_UNIX
-        struct pollfd pfd;
-        pfd.fd = fd;
-        pfd.events = POLLIN;
-#endif
+
+        Eng3D::Networking::SocketStream stream(fd);
         while(this->run) {
 			// Update packets with pending list (acquiring the lock has priority to be lenient
 			// since the client takes most of it's time sending to the server anyways)
@@ -124,23 +89,11 @@ void Client::net_loop() {
 					pending_packets_mutex.unlock();
 				}
 			}
-			
-            // Check if we need to read packets
-#ifdef E3D_TARGET_UNIX
-            int has_pending = poll(&pfd, 1, 10);
-#elif defined E3D_TARGET_WINDOWS
-            u_long has_pending = 0;
-            ioctlsocket(fd, FIONREAD, &has_pending);
-#endif
 
             // Conditional of above statements
 			// When we are on host_mode we discard all potential packets sent by the server
 			// (because our data is already synchronized since WE ARE the server)
-#ifdef E3D_TARGET_UNIX
-            if(pfd.revents & POLLIN || has_pending) {
-#elif defined E3D_TARGET_WINDOWS
-            if(has_pending) {
-#endif
+            if(stream.has_pending()) {
                 Eng3D::Networking::Packet packet = Eng3D::Networking::Packet(fd);
                 Archive ar = Archive();
 
