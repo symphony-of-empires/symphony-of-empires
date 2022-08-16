@@ -35,24 +35,22 @@ class Manager {
 private:
     L elems;
 public:
-    // Global manager object
+    /// @brief Global manager object
     static Manager<T, I>* singleton;
 
-    // Singleton pattern ;)
+    /// @brief Return the singleton
     inline static Manager<T, I>& get_instance() {
         return *singleton;
     }
 
-    // Load an element, this is the function that must be defined by the inheritor
+    /// @brief Load an element, this is the function that must be defined by the inheritor
     virtual void load(const I& ident) {};
 
-    // Obtain an element or construct a new one from a provided
-    // construct which accepts ident
+    /// @brief Obtain an element or construct a new one from a provided
+    /// construct which accepts ident
     virtual const T& get(const I& ident) {
-        /// @todo How do we remove this duplicate code? :/
         for(const auto& o : elems) {
-            if(o.second == ident)
-                return *(o.first);
+            if(o.second == ident) return *(o.first);
         }
 
         load(ident);

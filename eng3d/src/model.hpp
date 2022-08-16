@@ -49,7 +49,7 @@ class aiScene;
 class aiNode;
 
 namespace Eng3D {
-    // A simple object - use these to store "simple" objects that MAY repeat
+    /// @brief A simple object - use these to store "simple" objects that MAY repeat
     /// @todo We should use instancing tricks on simple objects
     class SimpleModel : public Eng3D::Mesh<glm::vec3, glm::vec2> {
     public:
@@ -63,7 +63,7 @@ namespace Eng3D {
         std::shared_ptr<Eng3D::Material> material;
     };
 
-    // A complex object being composed by many simple objects
+    /// @brief A complex object being composed by many simple objects
     class Model {
     public:
         Model() = default;

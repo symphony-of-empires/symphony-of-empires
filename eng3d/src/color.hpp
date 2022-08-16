@@ -27,7 +27,6 @@
 
 #include <cstdint>
 
-/// @todo Maybe make it a template so it could be either float or uint8_t
 namespace Eng3D {
     /// @brief Primitive color type used through the engine
     class Color {

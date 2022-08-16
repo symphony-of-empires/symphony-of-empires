@@ -129,9 +129,11 @@ public:
     float workers = 0; // Amount of workers
     float production_scale = 1.f; // How much of the factory is being used. From 0-1
     UnitType* working_unit_type = nullptr; // Unit that is currently being built here (nullptr indicates no unit)
-    // Required goods for building the working unit
+    /// @brief Required goods for building the working unit
     /// @todo change this to a struct instead of a pair for readablity
     std::vector<std::pair<Good*, float>> req_goods_for_unit;
-    std::vector<std::pair<Good*, float>> req_goods; // Required goods for construction or for repairs
-    std::vector<float> stockpile; // Stockpile of inputs in the factory
+    /// @brief Required goods for construction or for repairs
+    std::vector<std::pair<Good*, float>> req_goods;
+    /// @brief Stockpile of inputs in the factory
+    std::vector<float> stockpile;
 };

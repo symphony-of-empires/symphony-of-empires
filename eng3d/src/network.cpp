@@ -78,6 +78,7 @@ void Eng3D::Networking::SocketStream::send(const void* data, size_t size) {
 void Eng3D::Networking::SocketStream::recv(void* data, size_t size) {
     auto* c_data = reinterpret_cast<char*>(data);
 
+    /// @todo This might hang
     constexpr auto max_tries = 10;
     auto tries = 0;
     for(size_t i = 0; i < size; ) {

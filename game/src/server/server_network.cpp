@@ -404,11 +404,6 @@ void Server::net_loop(int id) {
 
     player_count--;
 
-#ifdef E3D_TARGET_WINDOWS
-    Eng3D::Log::error("server", "WSA Code: " + std::to_string(WSAGetLastError()));
-    WSACleanup();
-#endif
-
     // Unlock mutexes so we don't end up with weird situations... like deadlocks
     cl.is_connected = false;
 
@@ -427,6 +422,10 @@ void Server::net_loop(int id) {
     }
     cl.is_active = false;
 
+#ifdef E3D_TARGET_WINDOWS
+    Eng3D::Log::error("server", "WSA Code: " + std::to_string(WSAGetLastError()));
+    WSACleanup();
+#endif
     Eng3D::Log::debug("server", "Client disconnected");
 #ifdef E3D_TARGET_WINDOWS
     shutdown(conn_fd, SD_BOTH);
