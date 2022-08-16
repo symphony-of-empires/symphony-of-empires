@@ -54,7 +54,7 @@ PopWindow::PopWindow(GameState& gs)
         size += gs.world->provinces[province_id].pops.size();
 
     std::vector<int> sizes{ 75, 200, 100, 100, 120, 50, 50, 70, 70 };
-    std::vector<std::string> header{ "Size", "Province", "Type", "Culture", "Religion", "Mil", "Con", "Lit", "Budget" };
+    std::vector<std::string> header{ "Size", "Province", "Type", "Culture", "Religion", "Militancy", "Lit", "Budget" };
     auto table = new UI::Table<uint64_t>(5, 5, 800-10, 800-5, 35, sizes, header, this);
     this->width = table->width + 5 + this->padding.x;
     table->reserve(size);
