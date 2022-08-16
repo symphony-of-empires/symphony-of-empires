@@ -70,7 +70,7 @@ namespace Eng3D {
         static State& get_instance();
 
         /// @brief Value to ignore x/y axis motion taps (useful ignoring stray joystick input)
-        static constexpr auto JOYSTICK_DEAD_ZONE = 6000;
+        static constexpr auto JOYSTICK_DEAD_ZONE = 3000;
 
         /// @brief Number of the axis assigned to map movement
         int map_movement_axis_num = 0;
