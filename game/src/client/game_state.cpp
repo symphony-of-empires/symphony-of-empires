@@ -288,10 +288,11 @@ void handle_event(Input& input, GameState& gs) {
             }
             break;
         case SDL_JOYAXISMOTION:
-            if(event.jaxis.which == gs.cursor_movement_axis_num) {
-                if(event.jaxis.axis == 0) {
+            Eng3D::Log::debug("joy", "axis=" + std::to_string(event.jaxis.which) + ",axis=" + std::to_string(event.jaxis.axis) + ",value=" + std::to_string(event.jaxis.value));
+            if(event.jaxis.which == gs.map_movement_axis_num) {
+                if(event.jaxis.axis == 2) {
                     gs.input.mouse_pos.x += event.jaxis.value / Eng3D::State::JOYSTICK_DEAD_ZONE;
-                } else if(event.jaxis.axis == 1) {
+                } else if(event.jaxis.axis == 3) {
                     gs.input.mouse_pos.y += event.jaxis.value / Eng3D::State::JOYSTICK_DEAD_ZONE;
                 }
 
@@ -580,15 +581,15 @@ void GameState::world_thread() {
 }
 
 void GameState::music_enqueue() {
-        if(this->audio_man.music_queue.empty()) {
+    if(this->audio_man.music_queue.empty()) {
         auto entries = this->package_man.get_multiple_prefix("sfx/music/ambience");
-            this->audio_man.music_fade_value = 0.f;
-            // Search through all the music in 'music/ambience' and picks a random
-            if(!entries.empty()) {
-                const std::scoped_lock lock(this->audio_man.sound_lock);
-                const int music_index = std::rand() % entries.size();
+        this->audio_man.music_fade_value = 0.f;
+        // Search through all the music in 'music/ambience' and picks a random
+        if(!entries.empty()) {
+            const std::scoped_lock lock(this->audio_man.sound_lock);
+            const int music_index = std::rand() % entries.size();
             auto audio = this->audio_man.load(entries[music_index]->get_abs_path());
-                this->audio_man.music_queue.push_back(audio);
+            this->audio_man.music_queue.push_back(audio);
             Eng3D::Log::debug("music", "Now playing music file " + entries[music_index]->get_abs_path());
         }
     }
@@ -670,26 +671,26 @@ void start_client(int argc, char** argv) {
     gs.do_run([&gs](){ return gs.loaded_map == false; },
         ([&gs]() {
             gs.music_enqueue();
-        // Widgets here SHOULD NOT REQUEST UPON WORLD DATA
-        // so no world lock is needed beforehand
-        handle_event(gs.input, gs);
+            // Widgets here SHOULD NOT REQUEST UPON WORLD DATA
+            // so no world lock is needed beforehand
+            handle_event(gs.input, gs);
         }), ([&gs, &map_layer, load_pbar]() {
-        /// @todo first create the map and separately load all the assets
-        std::scoped_lock lock(gs.render_lock);
-        gs.clear();
-        if(gs.loaded_world) {
-            gs.map = new Map(*gs.world, map_layer, gs.width, gs.height);
-            gs.current_mode = MapMode::DISPLAY_ONLY;
-            gs.map->set_view(MapView::SPHERE_VIEW);
-            gs.map->camera->move(0.f, 50.f, 10.f);
-            gs.loaded_map = true;
-            gs.load_progress = 1.f;
-        }
+            /// @todo first create the map and separately load all the assets
+            std::scoped_lock lock(gs.render_lock);
+            gs.clear();
+            if(gs.loaded_world) {
+                gs.map = new Map(*gs.world, map_layer, gs.width, gs.height);
+                gs.current_mode = MapMode::DISPLAY_ONLY;
+                gs.map->set_view(MapView::SPHERE_VIEW);
+                gs.map->camera->move(0.f, 50.f, 10.f);
+                gs.loaded_map = true;
+                gs.load_progress = 1.f;
+            }
 
-        load_pbar->set_value(gs.load_progress);
-        gs.ui_ctx.render_all(gs.input.mouse_pos);
-        gs.swap();
-        gs.world->profiler.render_done();
+            load_pbar->set_value(gs.load_progress);
+            gs.ui_ctx.render_all(gs.input.mouse_pos);
+            gs.swap();
+            gs.world->profiler.render_done();
         })
     );
     bg_img->kill();
@@ -708,66 +709,66 @@ void start_client(int argc, char** argv) {
     gs.do_run([&gs](){ return gs.run == true; },
         ([&displayed_treaties, &gs]() {
             gs.music_enqueue();
-        // Locking is very expensive, so we condense everything into a big "if"
-        if(gs.world->world_mutex.try_lock()) {
-            // Required since events may request world data
-            handle_event(gs.input, gs);
-            if(gs.current_mode == MapMode::NORMAL)
-                handle_popups(displayed_treaties, gs);
+            // Locking is very expensive, so we condense everything into a big "if"
+            if(gs.world->world_mutex.try_lock()) {
+                // Required since events may request world data
+                handle_event(gs.input, gs);
+                if(gs.current_mode == MapMode::NORMAL)
+                    handle_popups(displayed_treaties, gs);
 
-            if(gs.update_tick) {
-                gs.update_on_tick();
-                gs.map->map_render->update(gs);
-                gs.update_tick = false;
+                if(gs.update_tick) {
+                    gs.update_on_tick();
+                    gs.map->map_render->update(gs);
+                    gs.update_tick = false;
 
-                if(gs.current_mode == MapMode::NORMAL) {
-                    // Production queue
-                    for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
-                        const UnitType* unit_type = gs.production_queue[i];
+                    if(gs.current_mode == MapMode::NORMAL) {
+                        // Production queue
+                        for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
+                            const UnitType* unit_type = gs.production_queue[i];
 
-                        /// @todo Make a better queue AI
-                        bool is_built = false;
-                        for(auto& building_type : gs.world->building_types) {
-                            for(const auto province_id : gs.curr_nation->controlled_provinces) {
-                                auto& province = gs.world->provinces[province_id];
+                            /// @todo Make a better queue AI
+                            bool is_built = false;
+                            for(auto& building_type : gs.world->building_types) {
+                                for(const auto province_id : gs.curr_nation->controlled_provinces) {
+                                    auto& province = gs.world->provinces[province_id];
                                     auto& building = province.get_buildings()[gs.world->get_id(building_type)];
-                                // Must not be working on something else
-                                if(building.working_unit_type != nullptr) continue;
-                                is_built = true;
-                                gs.client->send(Action::BuildingStartProducingUnit::form_packet(province, building_type, *gs.curr_nation, *unit_type));
-                                break;
-                            }
+                                    // Must not be working on something else
+                                    if(building.working_unit_type != nullptr) continue;
+                                    is_built = true;
+                                    gs.client->send(Action::BuildingStartProducingUnit::form_packet(province, building_type, *gs.curr_nation, *unit_type));
+                                    break;
+                                }
 
+                                if(!is_built) break;
+                            }
                             if(!is_built) break;
+                            gs.production_queue.erase(gs.production_queue.begin() + i);
+                            i--;
                         }
-                        if(!is_built) break;
-                        gs.production_queue.erase(gs.production_queue.begin() + i);
-                        i--;
                     }
                 }
+
+                if(gs.current_mode == MapMode::DISPLAY_ONLY)
+                    gs.map->camera->move(0.05f, 0.f, 0.f);
+                gs.world->world_mutex.unlock();
             }
-
-            if(gs.current_mode == MapMode::DISPLAY_ONLY)
-                gs.map->camera->move(0.05f, 0.f, 0.f);
-            gs.world->world_mutex.unlock();
-        }
         }), ([&current_frame_time, &gs]() {
-        std::scoped_lock lock(gs.render_lock);
-        double prev_num = std::chrono::duration<double>(current_frame_time.time_since_epoch()).count();
-        double now_num = std::chrono::duration<double>(std::chrono::system_clock::now().time_since_epoch()).count();
-        current_frame_time = std::chrono::system_clock::now();
-        gs.delta_time = now_num - prev_num;
+            std::scoped_lock lock(gs.render_lock);
+            double prev_num = std::chrono::duration<double>(current_frame_time.time_since_epoch()).count();
+            double now_num = std::chrono::duration<double>(std::chrono::system_clock::now().time_since_epoch()).count();
+            current_frame_time = std::chrono::system_clock::now();
+            gs.delta_time = now_num - prev_num;
 
-        gs.clear();
-        if(gs.current_mode != MapMode::NO_MAP) {
-            const std::scoped_lock lock(gs.world->world_mutex);
-            gs.map->camera->update();
-            gs.map->draw(gs);
-        }
-        if(gs.show_ui)
-            gs.ui_ctx.render_all(gs.input.mouse_pos);
-        gs.swap();
-        gs.world->profiler.render_done();
+            gs.clear();
+            if(gs.current_mode != MapMode::NO_MAP) {
+                const std::scoped_lock lock(gs.world->world_mutex);
+                gs.map->camera->update();
+                gs.map->draw(gs);
+            }
+            if(gs.show_ui)
+                gs.ui_ctx.render_all(gs.input.mouse_pos);
+            gs.swap();
+            gs.world->profiler.render_done();
         })
     );
     world_th.join();
