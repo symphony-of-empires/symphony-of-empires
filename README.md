@@ -53,6 +53,8 @@ pkgin in SDL2 SDL2_ttf assimp lua54 glew MesaLib glu libatomic threadingbuilding
 [ -e /usr/lib/libdl.so ] || ln -s /usr/lib/libc.so /usr/lib/libdl.so
 ```
 
+**Yuzu/Ryujinx**: Install devkitpro for aarch64, then ``sudo dkp-pacman --sync switch-dev switch-mesa switch-glad switch-glm switch-sdl2 switch-sdl2_ttf``
+
 If you simply want to play the game on Debian run: ``./quick_build.sh``
 
 ## Building
