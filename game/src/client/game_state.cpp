@@ -166,8 +166,7 @@ void handle_event(Input& input, GameState& gs) {
                 click_on_ui = gs.ui_ctx.check_click(mouse_pos);
                 if(!click_on_ui && gs.current_mode != MapMode::NO_MAP)
                     gs.map->handle_click(gs, event);
-                }
-
+            }
             if(click_on_ui) {
                 const std::scoped_lock lock(gs.audio_man.sound_lock);
                 auto entries = gs.package_man.get_multiple_prefix("sfx/click");
@@ -227,8 +226,7 @@ void handle_event(Input& input, GameState& gs) {
                 }
                 break;
             case Eng3D::Keyboard::Key::F5:
-                if(gs.editor)
-                    break;
+                if(gs.editor) break;
 
                 if(gs.current_mode == MapMode::NORMAL) {
                     gs.paused = !gs.paused;
@@ -268,33 +266,40 @@ void handle_event(Input& input, GameState& gs) {
             }
             break;
         case SDL_JOYBUTTONUP:
-            if(gs.show_ui) {
-                click_on_ui = gs.ui_ctx.check_click(mouse_pos);
-                if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
-                    gs.map->handle_click(gs, event);
+            // Select currently hovered widget
+            if(event.jbutton.button == gs.select_button_num) {
+                if(gs.show_ui) {
+                    click_on_ui = gs.ui_ctx.check_click(mouse_pos);
+                    if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
+                        gs.map->handle_click(gs, event);
+                    }
                 }
-            }
 
-            if(click_on_ui) {
-                const std::scoped_lock lock(gs.audio_man.sound_lock);
-                auto entries = gs.package_man.get_multiple_prefix("sfx/click");
-                if(!entries.empty()) {
-                    auto audio = gs.audio_man.load(entries[std::rand() % entries.size()]->get_abs_path());
-                    gs.audio_man.sound_queue.push_back(audio);
+                if(click_on_ui) {
+                    const std::scoped_lock lock(gs.audio_man.sound_lock);
+                    auto entries = gs.package_man.get_multiple_prefix("sfx/click");
+                    if(!entries.empty()) {
+                        auto audio = gs.audio_man.load(entries[std::rand() % entries.size()]->get_abs_path());
+                        gs.audio_man.sound_queue.push_back(audio);
+                    }
                 }
+            } else if(event.jbutton.button == gs.up_button_num) {
+                
             }
             break;
         case SDL_JOYAXISMOTION:
-            if(event.jaxis.which == 0) {
+            if(event.jaxis.which == gs.cursor_movement_axis_num) {
                 if(event.jaxis.axis == 0) {
-                    gs.input.mouse_pos.x += event.jaxis.value / 1000;
+                    gs.input.mouse_pos.x += event.jaxis.value / Eng3D::State::JOYSTICK_DEAD_ZONE;
                 } else if(event.jaxis.axis == 1) {
-                    gs.input.mouse_pos.y += event.jaxis.value / 1000;
+                    gs.input.mouse_pos.y += event.jaxis.value / Eng3D::State::JOYSTICK_DEAD_ZONE;
                 }
+
+                // UI click doesn't affect passthrough of events in the case of hovering here
+                // since the joystick will always control the map movement
+                if(gs.show_ui)
+                    gs.ui_ctx.check_hover(gs.input.mouse_pos);
             }
-            
-            if(gs.show_ui)
-                click_on_ui = gs.ui_ctx.check_hover(gs.input.mouse_pos);
             break;
         case SDL_QUIT:
             gs.run = false;

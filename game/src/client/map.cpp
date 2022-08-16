@@ -504,22 +504,25 @@ void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, Game
             break;
         }
         break;
+    case SDL_JOYBUTTONUP:
+        is_drag = false;
+    case SDL_JOYBUTTONDOWN:
+        if(event.jbutton.button == gs.zoomin_button_num) {
+            camera->move(0.f, 0.f, -1.f * gs.delta_time * 120.f);
+        } else if(event.jbutton.button == gs.zoomout_button_num) {
+            camera->move(0.f, 0.f, 1.f * gs.delta_time * 120.f);
+        }
+        break;
     case SDL_JOYAXISMOTION: {
-        float x_force = event.jaxis.value / 2;
-        float y_force = event.jaxis.value / 2;
-        input.mouse_pos.x += x_force;
-        input.mouse_pos.y += y_force;
-        if(input.middle_mouse_down) {  // Drag the map with middlemouse
-            glm::ivec2 map_pos;
-            if(camera->get_cursor_map_pos(input.mouse_pos, map_pos)) {
-                glm::vec2 current_pos = glm::make_vec2(camera->get_map_pos());
-                const glm::vec2 pos = current_pos + last_camera_drag_pos - glm::vec2(map_pos);
-                camera->set_pos(pos.x, pos.y);
+        if(event.jaxis.which == gs.map_movement_axis_num) {
+            if(event.jaxis.axis == 0) {
+                const float x_force = event.jaxis.value / Eng3D::State::JOYSTICK_DEAD_ZONE;
+                camera->move(x_force, 0.f, 0.f);
+            } else if(event.jaxis.axis == 1) {
+                const float y_force = event.jaxis.value / Eng3D::State::JOYSTICK_DEAD_ZONE;
+                camera->move(0.f, y_force, 0.f);
             }
         }
-        glm::ivec2 map_pos;
-        if(camera->get_cursor_map_pos(input.mouse_pos, map_pos))
-            input.select_pos = map_pos;
     } break;
     }
 }
@@ -553,7 +556,6 @@ void Map::draw(GameState& gs) {
         // Properly display textures :)
         std::vector<float> province_units_y(world.provinces.size(), 0.f);
         // Display units that aren't on battles
-        Unit::Id unit_index = 0, battle_index = 0;
         for(auto& province : const_cast<World&>(world).provinces) {
             this->unit_widgets[province.get_id()]->is_render = false;
             this->battle_widgets[province.get_id()]->is_render = false;
@@ -583,19 +585,19 @@ void Map::draw(GameState& gs) {
                 // Get first/topmost unit
                 auto& unit = gs.world->unit_manager.units[province_units[0]];
                 bool has_widget = false;
-                    auto& camera = this->camera;
-                    // Display unit only if not on a battle
-                    if(!unit.on_battle) {
-                        this->unit_widgets[province.get_id()]->set_unit(unit);
-                        this->unit_widgets[province.get_id()]->set_size(total_stack_size);
-                        this->unit_widgets[province.get_id()]->is_render = true;
+                auto& camera = this->camera;
+                // Display unit only if not on a battle
+                if(!unit.on_battle) {
+                    this->unit_widgets[province.get_id()]->set_unit(unit);
+                    this->unit_widgets[province.get_id()]->set_size(total_stack_size);
+                    this->unit_widgets[province.get_id()]->is_render = true;
                 }
             }
 
             // Battles
             if(!province.battles.empty()) {
-                    this->battle_widgets[province.get_id()]->set_battle(province, 0);
-                    this->battle_widgets[province.get_id()]->is_render = true;
+                this->battle_widgets[province.get_id()]->set_battle(province, 0);
+                this->battle_widgets[province.get_id()]->is_render = true;
                 /// @todo Display two opposing units
             } else {
                 // Display a single standing unit
@@ -645,7 +647,7 @@ void Map::draw(GameState& gs) {
             const auto prov_pos = province.get_pos();
             this->unit_widgets[province.get_id()]->is_render = false;
             this->battle_widgets[province.get_id()]->is_render = false;
-    }
+        }
     }
 
     // Draw the "drag area" box

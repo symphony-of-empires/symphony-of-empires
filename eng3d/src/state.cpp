@@ -314,6 +314,7 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths)
 
     // Initialize joysticks if any
     SDL_JoystickOpen(0);
+    SDL_JoystickOpen(1);
 }
 
 Eng3D::State::~State() {

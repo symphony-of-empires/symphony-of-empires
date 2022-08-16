@@ -178,15 +178,17 @@ void Context::clear_dead() {
 /// not-evaluable, otherwise you risk destructing objects the UI manager thinks
 /// doesn't exist. Compare being non-evaluable with not existing.
 void UI::Context::set_eval(UI::Widget& widget, bool eval) {
-    if(widget.is_eval == eval) return;
+    if(eval == widget.is_eval) return;
     if(eval) {
         // From no-eval to evaluable
         auto it = std::find_if(this->no_eval_widgets.begin(), this->no_eval_widgets.end(), [&widget](const auto& e) { return e.get() == &widget; });
+        assert(it != this->no_eval_widgets.end());
         this->widgets.push_back(std::move(*it));
         this->no_eval_widgets.erase(it);
     } else {
         // From evaluable to no-eval
         auto it = std::find_if(this->widgets.begin(), this->widgets.end(), [&widget](const auto& e) { return e.get() == &widget; });
+        assert(it != this->widgets.end());
         this->no_eval_widgets.push_back(std::move(*it));
         this->widgets.erase(it);
     }
@@ -298,7 +300,7 @@ void Context::resize(int _width, int _height) {
     this->model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
 }
 
-void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport, glm::vec2 offset) {
+void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport, glm::ivec2 offset) {
     // Only render widgets that are shown
     if(!w.is_render) return;
     // Only render widget that have a width and height
@@ -317,7 +319,7 @@ void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport,
     glm::ivec2 size{ w.width, w.height };
     // Get the widget origin relative to the parent or screen 
     offset = this->get_pos(w, offset);
-    Eng3D::Rect local_viewport = Eng3D::Rect{ offset, size };
+    Eng3D::Rect local_viewport{ offset, size };
     // Set the viewport to the intersection of the parents and currents widgets viewport
     local_viewport = local_viewport.intersection(Eng3D::Rect(0, 0, width, height));
     if(!w.parent || w.parent->type != UI::WidgetType::GROUP)
@@ -343,7 +345,8 @@ void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport,
     }
 }
 
-void Context::render_all(glm::ivec2 mouse_pos) {
+/// @brief Render all widgets
+void UI::Context::render_all(glm::ivec2 mouse_pos) {
     this->model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
 
     glActiveTexture(GL_TEXTURE0);
@@ -454,7 +457,7 @@ bool Context::check_hover(glm::ivec2 mouse_pos) {
     return is_hover;
 }
 
-UI::ClickState Context::check_click_recursive(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, UI::ClickState click_state, bool clickable) {
+UI::ClickState Context::check_click_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, UI::ClickState click_state, bool clickable) {
     offset = this->get_pos(w, offset);
     if(click_state != UI::ClickState::NOT_CLICKED)
         clickable = true;

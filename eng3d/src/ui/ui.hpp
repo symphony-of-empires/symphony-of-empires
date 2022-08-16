@@ -67,19 +67,19 @@ namespace UI {
         Widget* dragged_widget;
         int width, height;
 
-        glm::ivec2 get_pos(Widget& w, glm::ivec2 offset);
-        void clear_hover_recursive(Widget& w);
-        bool check_hover_recursive(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset);
-        UI::ClickState check_click_recursive(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, UI::ClickState click_state, bool clickable);
+        glm::ivec2 get_pos(UI::Widget& w, glm::ivec2 offset);
+        void clear_hover_recursive(UI::Widget& w);
+        bool check_hover_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset);
+        UI::ClickState check_click_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, UI::ClickState click_state, bool clickable);
         bool check_drag_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset);
-        bool check_wheel_recursive(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, int y);
+        bool check_wheel_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, int y);
         // Render the widget and it's children
-        void render_recursive(Widget& widget, glm::mat4 model, Eng3D::Rect viewport, glm::vec2 offset);
-        int do_tick_recursive(Widget& w);
-        void clear_dead_recursive(Widget* w);
+        void render_recursive(UI::Widget& widget, glm::mat4 model, Eng3D::Rect viewport, glm::ivec2 offset);
+        int do_tick_recursive(UI::Widget& w);
+        void clear_dead_recursive(UI::Widget* w);
 
-        std::vector<std::unique_ptr<Widget>> widgets;
-        std::vector<std::unique_ptr<Widget>> no_eval_widgets;
+        std::vector<std::unique_ptr<UI::Widget>> widgets;
+        std::vector<std::unique_ptr<UI::Widget>> no_eval_widgets;
         UI::Tooltip* tooltip_widget = nullptr;
         Eng3D::State& s;
     public:
@@ -87,9 +87,8 @@ namespace UI {
         Context(Eng3D::State& s);
         ~Context();
         void load_textures();
-        void add_widget(Widget* widget);
-        void remove_widget(Widget* widget);
-        // Render all widgets
+        void add_widget(UI::Widget* widget);
+        void remove_widget(UI::Widget* widget);
         void render_all(glm::ivec2 mouse_pos);
         void resize(const int width, const int height);
 

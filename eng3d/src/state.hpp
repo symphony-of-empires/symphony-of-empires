@@ -70,11 +70,27 @@ namespace Eng3D {
         static State& get_instance();
 
         /// @brief Value to ignore x/y axis motion taps (useful ignoring stray joystick input)
-        static constexpr auto JOYSTICK_DEAD_ZONE = 8000;
+        static constexpr auto JOYSTICK_DEAD_ZONE = 6000;
+
+        /// @brief Number of the axis assigned to map movement
+        int map_movement_axis_num = 0;
+        /// @brief Number of the axis assigned to cursor movement
+        int cursor_movement_axis_num = 1;
+        /// @brief Button for zooming in
+        int zoomin_button_num = 10; // Plus
+        int zoomout_button_num = 11; // Minus
+        int left_button_num = 12; // Dpad left
+        int up_button_num = 13; // Dpad up
+        int right_button_num = 14; // Dpad right
+        int down_button_num = 15; // Dpad down
+        int select_button_num = 0; // A
+        int back_button_num = 1; // B
+        int map_select_button_num = 2; // X
+        int map_back_button_num = 3; // Y
 
         // These variables needs to be initialized before any installers
-#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         SDL_Window* window;
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         SDL_GLContext context;
         int width, height;
         // Builtin shaders
