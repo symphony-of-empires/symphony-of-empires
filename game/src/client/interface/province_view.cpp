@@ -231,9 +231,9 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province&
     gs{ _gs },
     province{ _province }
 {
-    std::vector<int> sizes{ 96, 64, 64, 64, 64 };
-    std::vector<std::string> header{ "Name", "Workers", "Inputs", "Output", "Scale" };
-    auto table = new UI::Table<uint32_t>(0, 0, 0, this->height, 32, sizes, header, this);
+    std::vector<int> sizes{ 96, 64, 64, 32, 48, 32 };
+    std::vector<std::string> header{ "Name", "Workers", "Inputs", "Output", "Scale", " " };
+    auto* table = new UI::Table<uint32_t>(0, 0, 0, this->height, 32, sizes, header, this);
     table->reserve(this->province.buildings.size());
     table->set_on_each_tick([this, table](UI::Widget&) {
         for(size_t i = 0; i < this->province.buildings.size(); i++) {
@@ -242,29 +242,46 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province&
             auto* row = table->get_row(i);
             size_t row_index = 0;
 
-            auto name = row->get_element(row_index++);
+            auto* name = row->get_element(row_index++);
             auto name_str = Eng3D::string_format("%s", type.name.get_string().c_str());
             name->text(name_str);
             name->set_key(name_str);
 
-            auto workers = row->get_element(row_index++);
+            auto* workers = row->get_element(row_index++);
             workers->text(Eng3D::string_format("%.0f", building.workers));
             workers->set_key(building.workers);
 
-            auto inputs = row->get_element(row_index++);
-            auto inputs_str = Eng3D::string_format("todo");
-            inputs->text(inputs_str);
-            inputs->set_key(inputs_str);
+            auto* inputs = row->get_element(row_index++);
+            inputs->set_key(type.inputs.size());
+            inputs->kill_children();
+            inputs->flex = UI::Flex::ROW;
+            for(auto good : type.inputs) {
+                auto* input_good_image = new UI::Image(0, 0, 32, 32, "gfx/good/" + good->ref_name + ".png", true, inputs);
+                input_good_image->set_tooltip(good->name.get_string());
+            }
 
-            auto outputs = row->get_element(row_index++);
-            auto outputs_str = Eng3D::string_format("todo");
-            outputs->text(outputs_str);
-            outputs->set_key(outputs_str);
+            auto* outputs = row->get_element(row_index++);
+            outputs->set_key(type.output != nullptr ? 1 : 0);
+            outputs->kill_children();
+            outputs->flex = UI::Flex::ROW;
+            if(type.output != nullptr) {
+                auto* output_good_image = new UI::Image(0, 0, 32, 32, "gfx/good/" + type.output->ref_name + ".png", true, outputs);
+                output_good_image->set_tooltip(type.output->name.get_string());
+            }
 
-            auto scale = row->get_element(row_index++);
-            auto scale_str = Eng3D::string_format("%.0f", building.production_scale);
+            auto* scale = row->get_element(row_index++);
+            auto scale_str = Eng3D::string_format("%.0f", building.production_scale * building.level);
             scale->text(scale_str);
-            scale->set_key(building.production_scale);
+            scale->set_key(building.production_scale * building.level);
+            scale->set_tooltip(Eng3D::string_format(_("Allowed production scale, (scale * level) = (%.0f * %.0f) = %.0f"), building.production_scale, building.level, building.production_scale * building.level));
+
+            auto* upgrade = row->get_element(row_index++);
+            upgrade->text("+");
+            upgrade->set_tooltip(_("Upgrade building"));
+            upgrade->set_key(0);
+            upgrade->set_on_click([this, type](UI::Widget&) {
+                this->gs.client->send(Action::BuildingAdd::form_packet(this->province, type));
+            });
         }
     });
     table->on_each_tick(*table);
