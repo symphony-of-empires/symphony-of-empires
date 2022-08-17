@@ -371,6 +371,9 @@ void Server::net_loop(int id) {
                 default:
                     break;
                 }
+
+                // Update the state of the UI with the editor
+                if(gs.editor) gs.update_tick = true;
             }
 
             ar.buffer.clear();
