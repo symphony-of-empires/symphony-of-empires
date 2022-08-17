@@ -610,16 +610,11 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
         } else if(e.type == Eng3D::Event::MouseButton::Type::RIGHT) {
             if(Nation::is_invalid(province_id)) return;
             auto& province = gs.world->provinces[province_id];
-            if(gs.editor) {
-                switch(gs.current_mode) {
-                case MapMode::NORMAL:
-                    gs.curr_nation->control_province(province);
-                    gs.curr_nation->give_province(province);
-                    province.nuclei.insert(gs.world->get_id(*gs.curr_nation));
-                    this->update_mapmode();
-                    break;
-                default: break;
-                }
+            if(gs.editor && gs.current_mode == MapMode::NORMAL) {
+                gs.curr_nation->control_province(province);
+                gs.curr_nation->give_province(province);
+                province.nuclei.insert(gs.world->get_id(*gs.curr_nation));
+                this->update_mapmode();
             }
 
             /// @todo Handle the case where an unit is deleted

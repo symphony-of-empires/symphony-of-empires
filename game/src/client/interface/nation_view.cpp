@@ -35,9 +35,7 @@
 #include "client/map_render.hpp"
 #include "io_impl.hpp"
 
-using namespace Interface;
-
-NationMarketView::NationMarketView(GameState& _gs, Nation& _nation)
+Interface::NationMarketView::NationMarketView(GameState& _gs, Nation& _nation)
     : UI::Window(0, 0, 700, 600),
     gs{ _gs },
     nation{ _nation }
@@ -52,13 +50,13 @@ NationMarketView::NationMarketView(GameState& _gs, Nation& _nation)
     for(const auto province_id : nation.controlled_provinces) {
         auto& province = gs.world->provinces[province_id];
         for(auto& good : gs.world->goods) {
-            new ProductInfo(gs, 0, (i * 24) + 128, province, good, this);
+            new Interface::ProductInfo(gs, 0, (i * 24) + 128, province, good, this);
             i++;
         }
     }
 }
 
-NationView::NationView(GameState& _gs, Nation& _nation)
+Interface::NationView::NationView(GameState& _gs, Nation& _nation)
     : UI::Window(0, 0, 256, 512),
     gs{ _gs },
     nation{ _nation }
@@ -111,7 +109,7 @@ NationView::NationView(GameState& _gs, Nation& _nation)
     auto* market_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
     market_btn->text(Eng3D::Locale::translate("Examine market"));
     market_btn->set_on_click([this](UI::Widget&) {
-        new NationMarketView(this->gs, this->nation);
+        new Interface::NationMarketView(this->gs, this->nation);
     });
     market_btn->set_tooltip(Eng3D::Locale::translate("View market information"));
 

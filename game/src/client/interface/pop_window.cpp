@@ -43,7 +43,7 @@ PopWindow::PopWindow(GameState& gs)
     this->text("Population");
     this->is_scroll = false;
 
-    this->set_close_btn_function([this](Widget&) {
+    this->set_close_btn_function([this](UI::Widget&) {
         this->kill();
     });
 
@@ -61,9 +61,8 @@ PopWindow::PopWindow(GameState& gs)
     table->set_on_each_tick([this, nation, table](UI::Widget&) {
         for(const auto province_id : nation.owned_provinces) {
             const auto& province = this->gs.world->provinces[province_id];
-            Province::Id prov_id = province.get_id();
-            for(auto& pop : province.pops) {
-                const auto id = pop.get_type_id() + ((uint64_t)prov_id << 32);
+            for(const auto& pop : province.pops) {
+                const auto id = pop.get_type_id() + (static_cast<uint64_t>(province.get_id()) << 32);
                 auto* row = table->get_row(id);
                 size_t row_index = 0;
 

@@ -148,13 +148,12 @@ void Context::clear_dead_recursive(Widget* w) {
             index--;
             changed = true;
         } else if(w->children[index]->dead_child) {
-            clear_dead_recursive(w->children[index].get());
+            this->clear_dead_recursive(w->children[index].get());
             w->children[index]->dead_child = false;
         }
     }
 
-    if(changed)
-        w->need_recalc = true;
+    if(changed) w->need_recalc = true;
 }
 
 /// @brief Removes all widgets that have been killed
@@ -164,7 +163,7 @@ void Context::clear_dead() {
             widgets.erase(widgets.begin() + index);
             index--;
         } else if(widgets[index]->dead_child) {
-            clear_dead_recursive(widgets[index].get());
+            this->clear_dead_recursive(widgets[index].get());
             widgets[index]->dead_child = false;
         }
     }
