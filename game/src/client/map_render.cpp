@@ -53,14 +53,12 @@
 #include "client/map_render.hpp"
 #include "client/map.hpp"
 
-MapRender::MapRender(const World& _world, Map& _map)
-    : Eng3D::BaseMap(Eng3D::State::get_instance(), glm::ivec2{ _world.width, _world.height }),
-    world{ _world },
+MapRender::MapRender(GameState& _gs, Map& _map)
+    : Eng3D::BaseMap(_gs, glm::ivec2{ _gs.world->width, _gs.world->height }),
+    gs{ _gs },
     map{ _map }
 {
-    auto& gs = (GameState&)Eng3D::State::get_instance();
-
-    if(world.width != this->terrain_map->width || world.height != this->terrain_map->height)
+    if(this->gs.world->width != this->terrain_map->width || this->gs.world->height != this->terrain_map->height)
         CXX_THROW(std::runtime_error, "Color map differs from province map!");
     
     // The terrain_map has 16 bits available for usage, so naturally we use them
@@ -69,14 +67,14 @@ MapRender::MapRender(const World& _world, Map& _map)
     // ------------------------------------------------------------
     Eng3D::Log::debug("game", "Creating tile map & tile sheet");
     for(size_t i = 0; i < this->terrain_map->width * this->terrain_map->height; i++)
-        this->terrain_map->buffer.get()[i] |= world.get_tile(i).province_id & 0xffff;
+        this->terrain_map->buffer.get()[i] |= this->gs.world->get_tile(i).province_id & 0xffff;
     Eng3D::TextureOptions terrain_map_options{};
     terrain_map_options.internal_format = GL_RGBA;
     terrain_map_options.editable = true;
     terrain_map_options.compressed = false;
     this->terrain_map->upload(terrain_map_options);
     // After this snippet of code we won't ever need tiles ever again
-    const_cast<World&>(world).tiles.reset();
+    this->gs.world->tiles.reset();
 
     // Texture holding each province color
     // The x & y coords are the province Red & Green color of the tile_map
@@ -111,8 +109,8 @@ MapRender::MapRender(const World& _world, Map& _map)
     }
 
     std::vector<Province::Id> province_ids;
-    province_ids.reserve(world.provinces.size());
-    for(auto const& province : world.provinces)
+    province_ids.reserve(this->gs.world->provinces.size());
+    for(auto const& province : this->gs.world->provinces)
         province_ids.push_back(province.get_id());
     this->update_nations(province_ids);
 }
@@ -213,7 +211,7 @@ void MapRender::update_options(MapOptions new_options) {
             Eng3D::Log::debug("game", "Creating border textures");
             std::unique_ptr<FILE, int(*)(FILE*)> fp(::fopen("sdf_cache.png", "rb"), ::fclose);
             if(fp.get() == nullptr) {
-                this->update_border_sdf(Eng3D::Rect(0, 0, this->world.width, this->world.height), glm::vec2(gs.width, gs.height));
+                this->update_border_sdf(Eng3D::Rect(0, 0, this->gs.world->width, this->gs.world->height), glm::vec2(gs.width, gs.height));
                 this->border_sdf->to_file("sdf_cache.png");
             } else {
                 Eng3D::TextureOptions sdf_options{};
@@ -227,7 +225,7 @@ void MapRender::update_options(MapOptions new_options) {
                 this->border_sdf->upload(sdf_options);
             }
             // We are already updating the whole map, don't do it twice
-            const_cast<World&>(this->world).province_manager.clear();
+            this->gs.world->province_manager.clear();
         }
     }
 }
@@ -242,8 +240,8 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
     glViewport(update_area.left, update_area.top, update_area.width(), update_area.height());
     glScissor(update_area.left, update_area.top, update_area.width(), update_area.height());
 
-    float width = world.width;
-    float height = world.height;
+    float width = this->gs.world->width;
+    float height = this->gs.world->height;
 
     Eng3D::TextureOptions border_tex_options{};
     border_tex_options.internal_format = GL_RGBA32F;
@@ -330,8 +328,8 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
 // Updates the province color texture with the changed provinces 
 void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
     // Water
-    for(Province::Id i = 0; i < world.provinces.size(); i++) {
-        if(world.terrain_types[world.provinces[i].terrain_type_id].is_water_body)
+    for(Province::Id i = 0; i < this->gs.world->provinces.size(); i++) {
+        if(this->gs.world->terrain_types[this->gs.world->provinces[i].terrain_type_id].is_water_body)
             province_colors[i] = ProvinceColor(i, Eng3D::Color::rgba32(0x00000000));
     }
     for(const auto province_color : province_colors)
@@ -346,7 +344,7 @@ void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
 void MapRender::update_nations(std::vector<Province::Id> province_ids) {
     std::unordered_set<Nation::Id> nation_ids;
     for(const auto id : province_ids) {
-        const auto& province = this->world.provinces[id]; 
+        const auto& province = this->gs.world->provinces[id]; 
         if(Nation::is_invalid(province.controller_id)) continue;
         this->tile_sheet_nation->buffer.get()[province.get_id()] = province.controller_id;
         nation_ids.insert(province.controller_id);
@@ -358,7 +356,7 @@ void MapRender::update_nations(std::vector<Province::Id> province_ids) {
 
     // Update labels of the nations
     for(const auto id : nation_ids)
-        this->map.update_nation_label(this->world.nations[id]);
+        this->map.update_nation_label(this->gs.world->nations[id]);
 }
 
 void MapRender::request_update_visibility()
@@ -453,15 +451,15 @@ void MapRender::draw(Eng3D::Camera* camera, MapView view_mode) {
     const auto projection = camera->get_projection();
     map_shader->set_uniform("projection", projection);
     const auto map_pos = camera->get_map_pos();
-    float distance_to_map = map_pos.z / world.width;
+    float distance_to_map = map_pos.z / this->gs.world->width;
     map_shader->set_uniform("dist_to_map", distance_to_map);
-    map_shader->set_uniform("map_size", static_cast<float>(world.width), static_cast<float>(world.height));
+    map_shader->set_uniform("map_size", static_cast<float>(this->gs.world->width), static_cast<float>(this->gs.world->height));
     // A time uniform to send to the shader
     const auto now = std::chrono::system_clock::now().time_since_epoch();
     const auto millisec_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
     const auto time = static_cast<float>(millisec_since_epoch % 1000000) / 1000.f;
     map_shader->set_uniform("time", time);
-    map_shader->set_uniform("ticks", this->world.time);
+    map_shader->set_uniform("ticks", this->gs.world->time);
     // Map should have no "model" matrix since it's always static
     map_shader->set_texture(0, "tile_sheet", *tile_sheet);
     map_shader->set_texture(1, "tile_sheet_nation", *tile_sheet_nation);

@@ -87,7 +87,6 @@ class World;
 class Nation;
 class Map;
 class UnitType;
-struct SDL_Window;
 namespace Interface {
     class LobbySelectView;
     class TopWindow;
@@ -168,6 +167,5 @@ public:
 };
 
 // Run world tick and pending commands
-void main_loop(GameState&, Client*, SDL_Window*);
 void start_client(int argc, char** argv);
 void save(GameState& gs);

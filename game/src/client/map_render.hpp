@@ -84,8 +84,27 @@ public:
 };
 
 class MapRender : public Eng3D::BaseMap {
+    void update_visibility(GameState& gs);
+
+    GameState& gs;
+    Map& map;
+
+    // Map textures
+    std::shared_ptr<Eng3D::Texture> river_tex;
+
+    std::unique_ptr<Eng3D::Texture> tile_sheet;
+    std::unique_ptr<Eng3D::Texture> tile_sheet_nation;
+    std::unique_ptr<Eng3D::Texture> province_opt;
+    std::unique_ptr<Eng3D::Texture> border_sdf;
+
+    std::unique_ptr<Eng3D::OpenGL::Program> map_shader;
+    std::unique_ptr<Eng3D::OpenGL::Program> sdf_shader;
+    std::unique_ptr<Eng3D::OpenGL::Program> border_gen_shader;
+    std::unique_ptr<Eng3D::OpenGL::Program> output_shader;
+
+    std::atomic<bool> req_update_vision = true;
 public:
-    MapRender(const World& world, Map& map);
+    MapRender(GameState& gs, Map& map);
     ~MapRender() = default;
     void update_mapmode(std::vector<ProvinceColor> province_colors);
     void update_nations(std::vector<Province::Id> nations);
@@ -104,23 +123,4 @@ public:
     inline Province::Id get_tile_province_id(size_t x, size_t y) {
         return static_cast<Province::Id>(this->terrain_map->buffer.get()[x + y * this->terrain_map->width] & 0xffff);
     }
-private:
-    const World& world;
-    Map& map;
-    void update_visibility(GameState& gs);
-
-    // Map textures
-    std::shared_ptr<Eng3D::Texture> river_tex;
-
-    std::unique_ptr<Eng3D::Texture> tile_sheet;
-    std::unique_ptr<Eng3D::Texture> tile_sheet_nation;
-    std::unique_ptr<Eng3D::Texture> province_opt;
-    std::unique_ptr<Eng3D::Texture> border_sdf;
-
-    std::unique_ptr<Eng3D::OpenGL::Program> map_shader;
-    std::unique_ptr<Eng3D::OpenGL::Program> sdf_shader;
-    std::unique_ptr<Eng3D::OpenGL::Program> border_gen_shader;
-    std::unique_ptr<Eng3D::OpenGL::Program> output_shader;
-
-    std::atomic<bool> req_update_vision = true;
 };
