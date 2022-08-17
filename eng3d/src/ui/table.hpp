@@ -152,9 +152,9 @@ namespace UI {
 
         void sort(size_t _column_index, bool ascending) {
             auto comp = [_column_index, ascending](const std::unique_ptr<Widget>& a, const std::unique_ptr<Widget>& b) {
-                auto* row_a = reinterpret_cast<UI::TableRow*>(a.get());
+                auto* row_a = static_cast<UI::TableRow*>(a.get());
                 auto& element_a = *(row_a->get_element(_column_index));
-                auto* row_b = reinterpret_cast<UI::TableRow*>(b.get());
+                auto* row_b = static_cast<UI::TableRow*>(b.get());
                 auto& element_b = *(row_b->get_element(_column_index));
                 return ascending ? (element_a < element_b) : !(element_a < element_b);
             };

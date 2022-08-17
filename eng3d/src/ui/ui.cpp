@@ -480,7 +480,7 @@ UI::ClickState Context::check_click_recursive(UI::Widget& w, glm::ivec2 mouse_po
     // Call on_click if on_click hasnt been used and widget is hit by click
     if(w.on_click && clickable && !click_consumed) {
         if(w.type == UI::WidgetType::SLIDER) {
-            auto* wc = reinterpret_cast<UI::Slider*>(&w);
+            auto* wc = static_cast<UI::Slider*>(&w);
             wc->set_value((static_cast<float>(std::abs(mouse_pos.x - offset.x)) / static_cast<float>(wc->width)) * wc->max);
         }
         w.on_click(w);
@@ -557,7 +557,7 @@ void UI::Context::check_drag(glm::ivec2 mouse_pos) {
 
 bool check_text_input_recursive(Widget& widget, const char* _input) {
     if(widget.type == UI::WidgetType::INPUT) {
-        auto& c_widget = reinterpret_cast<UI::Input&>(widget);
+        auto& c_widget = static_cast<UI::Input&>(widget);
         if(c_widget.is_selected) c_widget.on_textinput(c_widget, _input);
         return true;
     }
@@ -606,7 +606,7 @@ bool Context::check_wheel_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::iv
     bool scrolled = false;
     for(auto& children : w.children) {
         if(children->type == UI::WidgetType::SCROLLBAR)
-            scrollbar = reinterpret_cast<UI::Scrollbar*>(children.get());
+            scrollbar = static_cast<UI::Scrollbar*>(children.get());
         scrolled = check_wheel_recursive(*children, mouse_pos, offset, y);
         if(scrolled) break;
     }

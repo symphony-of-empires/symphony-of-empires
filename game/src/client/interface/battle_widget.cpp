@@ -92,7 +92,7 @@ void BattleWidget::set_battle(Province& _province, size_t _idx) {
     this->x = screen_pos.x - this->width / 2;
     this->y = screen_pos.y - this->height / 2;
 
-    auto& gs = reinterpret_cast<GameState&>(Eng3D::State::get_instance());
+    auto& gs = static_cast<GameState&>(Eng3D::State::get_instance());
     if(!battle.attackers_ids.empty()) {
         auto left_nation_flag = gs.get_nation_flag(gs.world->nations[gs.world->unit_manager.units[battle.attackers_ids[0]].owner_id]);
         this->left_flag_img->current_texture = left_nation_flag;

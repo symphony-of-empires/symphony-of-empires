@@ -54,7 +54,7 @@ BuildingBuildView::BuildingBuildView(GameState& _gs, int _tx, int _ty, bool _in_
     for(auto& building_type : gs.world->building_types) {
         auto* btn = new BuildingTypeButton(gs, 0, 0, building_type, flex_column);
         btn->set_on_click([this](UI::Widget& w) {
-            const auto& building_type = reinterpret_cast<BuildingTypeButton&>(w).building_type;
+            const auto& building_type = static_cast<BuildingTypeButton&>(w).building_type;
             const_cast<Province&>(this->province).add_building(building_type);
             this->gs.client->send(Action::BuildingAdd::form_packet(this->province, building_type));
         });

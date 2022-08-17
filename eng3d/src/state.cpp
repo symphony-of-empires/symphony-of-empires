@@ -207,7 +207,7 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
         CXX_THROW(std::runtime_error, std::string() + "Failed to init SDL window " + SDL_GetError());
 
     // OpenGL configurations
-    s.context = reinterpret_cast<void*>(SDL_GL_CreateContext(s.window));
+    s.context = static_cast<void*>(SDL_GL_CreateContext(s.window));
     if(s.context == nullptr)
         CXX_THROW(std::runtime_error, std::string() + "Failed to init SDL context " + SDL_GetError());
     SDL_GL_SetSwapInterval(1);

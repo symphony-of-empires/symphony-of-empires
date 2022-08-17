@@ -30,14 +30,14 @@
 #include "eng3d/utils.hpp"
 
 Eng3D::TrueType::Font::Font(std::shared_ptr<Eng3D::IO::Asset::Base> asset, int dpi) {
-    this->sdl_font = reinterpret_cast<void*>(asset->get_abs_path().c_str(), dpi);
+    this->sdl_font = static_cast<void*>(TTF_OpenFont(asset->get_abs_path().c_str(), dpi));
     if(this->sdl_font == nullptr)
         CXX_THROW(std::runtime_error, std::string() + "Failed to load font " + asset->get_abs_path());
 }
 
 Eng3D::TrueType::Font::~Font() {
     if(this->sdl_font != nullptr)
-        TTF_CloseFont(reinterpret_cast<TTF_Font*>(this->sdl_font));
+        TTF_CloseFont(static_cast<TTF_Font*>(this->sdl_font));
 }
 
 Eng3D::TrueType::Manager::Manager(Eng3D::State& _s)

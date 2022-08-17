@@ -42,7 +42,7 @@ UI::ScrollbarThumb::ScrollbarThumb(int _x, int _y, UI::Scrollbar* _parent)
         if(this->parent->parent != nullptr) {
             /// @todo Ratio is not taken in account!
             this->parent->parent->scroll(-diff.y / 2);
-            reinterpret_cast<UI::Scrollbar*>(this->parent)->update_thumb();
+            static_cast<UI::Scrollbar*>(this->parent)->update_thumb();
         }
     });
 

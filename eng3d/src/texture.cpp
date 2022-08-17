@@ -410,7 +410,7 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::gen_text(Eng3D::TrueType:
     // Otherwise texture is not in our control, so we create a new texture
     auto tex = std::make_shared<Eng3D::Texture>();
     Eng3D::Log::debug("ttf", "Creating text for \"" + msg + "\"");
-    auto* surface = TTF_RenderUTF8_Blended(reinterpret_cast<TTF_Font*>(&font.sdl_font), msg.c_str(), (const SDL_Color){
+    auto* surface = TTF_RenderUTF8_Blended(static_cast<TTF_Font*>(font.sdl_font), msg.c_str(), (const SDL_Color){
         static_cast<Uint8>(color.r * 255.f), static_cast<Uint8>(color.g * 255.f),
         static_cast<Uint8>(color.b * 255.f), 0 });
     if(surface == nullptr)

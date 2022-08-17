@@ -131,7 +131,7 @@ void handle_event(Input& input, GameState& gs) {
         switch(event.type) {
         case SDL_TEXTINPUT:
             if(gs.show_ui)
-                gs.ui_ctx.check_text_input(reinterpret_cast<const char*>(&event.text.text));
+                gs.ui_ctx.check_text_input(static_cast<const char*>(&event.text.text));
             break;
         case SDL_JOYBUTTONDOWN:
             if(gs.show_ui) {

@@ -132,7 +132,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, un
             auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/good/" + good->ref_name + ".png")), this);
             icon_ibtn->below_of(*name_btn);
             icon_ibtn->set_on_click([good](UI::Widget& w) {
-                auto& o = reinterpret_cast<Interface::BuildingInfo&>(*w.parent);
+                auto& o = static_cast<Interface::BuildingInfo&>(*w.parent);
                 new Interface::GoodView(o.gs, *good);
             });
             icon_ibtn->set_tooltip(new UI::Tooltip(icon_ibtn, 512, 24));
