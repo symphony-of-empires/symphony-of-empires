@@ -89,7 +89,7 @@ namespace Eng3D {
         Eng3D::State& s;
     public:
         ModelManager() = delete;
-        ModelManager(Eng3D::State& _s);
+        ModelManager(Eng3D::State& s);
         ~ModelManager() = default;
         std::shared_ptr<Eng3D::Model> load(const std::string& path);
         std::shared_ptr<Eng3D::Model> load(std::shared_ptr<Eng3D::IO::Asset::Base> asset);

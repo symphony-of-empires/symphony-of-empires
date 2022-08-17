@@ -218,7 +218,7 @@ TimeControlView::TimeControlView(GameState& _gs)
         speed3_btn->set_tooltip("Fire speed");
     }
 
-    auto font = Eng3D::TrueType::open_font(gs.package_man.get_unique("fonts/neon_euler/euler.ttf")->get_abs_path(), 20);
+    auto font = gs.ttf_man.load(gs.package_man.get_unique("fonts/neon_euler/euler.ttf"));
     
     auto* time_lab = new UI::Label(50, 30, " ", this);
     time_lab->font = font;

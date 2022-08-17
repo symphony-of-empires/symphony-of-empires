@@ -23,27 +23,8 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include <string>
-#include <chrono>
-#include <thread>
-#include <iostream>
-#include <fstream>
-#include <atomic>
-#include <future>
-#define _XOPEN_SOURCE 700
 #include <cstdio>
 #include <filesystem>
-#ifdef E3D_TARGET_WINDOWS
-#   ifndef WINSOCK2_IMPORTED
-#       define WINSOCK2_IMPORTED
-#       include <winsock2.h>
-#   endif
-#   include <windows.h>
-#   undef max
-#   undef min
-#endif
-#include <vector>
-#include <map>
 #include "eng3d/io.hpp"
 #include "eng3d/path.hpp"
 #include "eng3d/network.hpp"
@@ -56,19 +37,19 @@ extern "C" int main(int argc, char** argv) {
 #ifndef E3D_TARGET_SWITCH
     // Clean the log files
     if(1) {
-        FILE* fp = fopen("log.txt", "wt");
+        FILE* fp = ::fopen("log.txt", "wt");
         if(fp) {
-            fputs("=== LOG.TXT ===\n", fp);
-            fclose(fp);
+            ::fputs("=== LOG.TXT ===\n", fp);
+            ::fclose(fp);
         }
     }
 #endif
 #ifndef UNIT_TEST
     try {
-        start_client(argc, argv);
+        ::start_client(argc, argv);
     } catch(const std::exception& e) {
         Eng3D::Log::error("game", e.what());
-        exit(EXIT_FAILURE);
+        ::exit(EXIT_FAILURE);
     }
 #endif
     return 0;

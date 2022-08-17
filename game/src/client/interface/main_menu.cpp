@@ -102,25 +102,24 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     this->is_pinned = true;
     this->is_scroll = false;
     // this->text("Symphony of Empires");
-    auto& tex_man = gs.tex_man;
     Eng3D::TextureOptions mipmap_options;
     mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
     mipmap_options.mag_filter = GL_LINEAR;
     mipmap_options.wrap_s = GL_CLAMP_TO_EDGE;
     mipmap_options.wrap_t = GL_CLAMP_TO_EDGE;
 
-    auto font = Eng3D::TrueType::open_font(gs.package_man.get_unique("fonts/neon_euler/euler.ttf")->get_abs_path(), 20);
+    auto font = gs.ttf_man.load(gs.package_man.get_unique("fonts/neon_euler/euler.ttf"));
     auto text_color = Eng3D::Color(1.f, 1.f, 1.f);
 
-    this->current_texture = tex_man.load(gs.package_man.get_unique("gfx/ui/bg/main_menu.png"), mipmap_options);
-    auto main_menu_border = tex_man.load(gs.package_man.get_unique("gfx/ui/bg/main_menu_border.png"));
+    this->current_texture = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/bg/main_menu.png"), mipmap_options);
+    auto main_menu_border = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/bg/main_menu_border.png"));
     this->border = UI::Border(main_menu_border, glm::ivec2(16), glm::ivec2(16));
 
-    auto logo = tex_man.load(gs.package_man.get_unique("gfx/ui/image/logo.png"), mipmap_options);
+    auto logo = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/image/logo.png"), mipmap_options);
     new UI::Image(0, 0, 300, 120, logo, this);
 
-    auto button_image = tex_man.load(gs.package_man.get_unique("gfx/ui/button/button.png"), mipmap_options);
-    auto button_border_image = tex_man.load(gs.package_man.get_unique("gfx/ui/button/button_border.png"));
+    auto button_image = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/button/button.png"), mipmap_options);
+    auto button_border_image = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/button/button_border.png"));
     glm::ivec2 size(3, 3);
     glm::ivec2 texture_size(3, 3);
     auto button_border = UI::Border(button_border_image, size, texture_size);
