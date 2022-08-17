@@ -1,20 +1,23 @@
 cmake_minimum_required(VERSION 3.15)
-
 project(eng3d CXX C)
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-
-option(E3D_BUILD_ENGINE "Enable building the Eng3D library" ON)
 
 #
 # Defines - see README.1st
 #
+option(E3D_BUILD_ENGINE "Enable building the Eng3D library" ON)
 option(E3D_DEBUG, "Enable debug" ON)
 option(E3D_BACKEND_OPENGL, "Enable the OpenGL backend" OFF)
 option(E3D_BACKEND_GLES, "Enable the GLES backend" ON)
 option(E3D_BACKEND_RGX, "Enable dummy graphics" OFF)
 option(E3D_MANAGED_HEAP, "Allow Eng3D to manage heap (useful for debugging without instrumentation)" ON)
 option(E3D_VENDORED, "Build libraries instead of using the system ones" OFF)
+option(E3D_VENDORED_TBB, "Build oneTBB from source" "${E3D_VENDORED}")
+option(E3D_VENDORED_SDL2, "Build SDL2 from source" "${E3D_VENDORED}")
+option(E3D_VENDORED_SDL2_TTF, "Build SDL2_ttf from source" "${E3D_VENDORED}")
+option(E3D_VENDORED_ASSIMP, "Build assimp from source" "${E3D_VENDORED}")
+option(E3D_VENDORED_ASSIMP, "Build assimp from source" "${E3D_VENDORED}")
+option(E3D_PIE, "Build as a position-independent library" OFF)
+option(E3D_BUILD_STATIC, "Whetever to make a static library or not" ON)
 
 IF(E3D_DEBUG)
 	add_definitions(-DE3D_DEBUG=1)
@@ -68,12 +71,11 @@ ELSEIF(CMAKE_SYSTEM_NAME STREQUAL "NintendoWii")
 	include_directories("${DEVKITPRO}/libogc/include")
 	add_definitions(-DE3D_TARGET_RVL=1)
 ENDIF()
-include_directories("${PROJECT_SOURCE_DIR}")
 
 #
 # Dependencies
 #
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE "${E3D_PIE}")
 
 #
 # Source code files
@@ -82,10 +84,25 @@ file(GLOB MAIN_SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/
 execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/eng3d")
 
 # Switch doesn't support shared libraries
-IF(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
+IF(E3D_BUILD_STATIC)
+	message(STATUS "Building a static library")
 	add_library(eng3d STATIC ${MAIN_SOURCES})
 ELSE()
+	message(STATUS "Building a shared library")
 	add_library(eng3d SHARED ${MAIN_SOURCES})
+ENDIF()
+target_include_directories(eng3d PRIVATE "${PROJECT_SOURCE_DIR}")
+set_property(TARGET eng3d PROPERTY CMAKE_CXX_STANDARD 20)
+set_property(TARGET eng3d PROPERTY CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+
+# Enable LTO/IPO if supported by the compiler
+include(CheckIPOSupported)
+check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT IPO_ERROR)
+IF(IPO_SUPPORTED)
+	message(STATUS "Enabling IPO")
+	set_property(TARGET eng3d PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+ELSE()
+	message(STATUS "IPO not supported ${IPO_ERROR}")
 ENDIF()
 
 IF(E3D_VENDORED)
@@ -158,7 +175,7 @@ ENDIF()
 # LUA
 set(LUA_BUILD_BINARY OFF)
 set(LUA_BUILD_COMPILER OFF)
-IF(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
+IF(E3D_BUILD_STATIC OR CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
 	set(LUA_ENABLE_SHARED OFF)
 	set(LUA_SUPPORT_DL OFF)
 ELSE()
@@ -193,7 +210,7 @@ IF(NOT E3D_VENDORED)
 		find_package(glm)
 		IF(glm_FOUND)
 			target_include_directories(eng3d PUBLIC ${glm_INCLUDE_DIRS})
-			target_link_libraries(eng3d PRIVATE glm::glm)
+			target_link_libraries(eng3d PUBLIC glm::glm)
 		ELSE()
 			FetchContent_Declare(glm GIT_REPOSITORY "https://github.com/g-truc/glm" GIT_PROGRESS TRUE)
 			FetchContent_MakeAvailable(glm)
