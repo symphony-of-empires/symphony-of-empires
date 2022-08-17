@@ -53,7 +53,7 @@ TopWindow::TopWindow(GameState& _gs)
     this->is_scroll = false;
     this->is_pinned = true;
 
-    new TimeControlView(gs);
+    this->gs.time_win = static_cast<UI::Widget*>(new TimeControlView(gs));
 
     UI::Image::make_transparent(0, 0, 147, 499, "gfx/top_window.png", this);
     auto* flag_img = new UI::AspectImage(5, 4, 138, 88, this->gs.get_nation_flag(*this->gs.curr_nation), this);

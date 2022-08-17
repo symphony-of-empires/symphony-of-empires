@@ -33,10 +33,11 @@
 #include "eng3d/ui/label.hpp"
 #include "eng3d/ui/image.hpp"
 #include "eng3d/ui/scrollbar.hpp"
+#include "eng3d/locale.hpp"
 
 using namespace Interface;
 
-static inline void make_building_header(UI::Div& table) {
+void FactoryWindow::make_building_header(UI::Div& table) {
     auto* row = new UI::Div(0, 0, 800, 35, &table);
     row->flex = UI::Flex::ROW;
     row->flex_justify = UI::FlexJustify::START;
@@ -48,31 +49,31 @@ static inline void make_building_header(UI::Div& table) {
     auto border = UI::Border(border_tex, size, texture_size);
 
     auto name_lab = new UI::Div(0, 0, 150, 35, row);
-    name_lab->text("Name");
+    name_lab->text(_("Name"));
     name_lab->border = border;
 
     auto workers_lab = new UI::Div(0, 0, 100, 35, row);
-    workers_lab->text("Workers");
+    workers_lab->text(_("Workers"));
     workers_lab->border = border;
 
     auto province_lab = new UI::Div(0, 0, 200, 35, row);
-    province_lab->text("Province");
+    province_lab->text(_("Province"));
     province_lab->border = border;
 
     auto input_lab = new UI::Div(0, 0, 150, 35, row);
-    input_lab->text("Inputs");
+    input_lab->text(_("Inputs"));
     input_lab->border = border;
 
     auto output_lab = new UI::Div(0, 0, 35, 35, row);
-    output_lab->text("Output");
+    output_lab->text(_("Output"));
     output_lab->border = border;
 
     auto production_scale_lab = new UI::Div(0, 0, 50, 35, row);
-    production_scale_lab->text("Scale");
+    production_scale_lab->text(_("Scale"));
     production_scale_lab->border = border;
 }
 
-static inline void make_building_row(UI::Div& table, const Building& building, const BuildingType& type, const Province& province) {
+void FactoryWindow::make_building_row(UI::Div& table, const Building& building, const BuildingType& type, const Province& province) {
     auto* row = new UI::Div(0, 0, 800, 35, &table);
     row->flex = UI::Flex::ROW;
     row->flex_justify = UI::FlexJustify::START;
@@ -140,7 +141,7 @@ FactoryWindow::FactoryWindow(GameState& gs)
     }
 
     auto* header_column = new UI::Div(5, 5, 800 - 10, 35, this);
-    make_building_header(*header_column);
+    this->make_building_header(*header_column);
 
     auto* table = new UI::Div(5, 40, 800 - 10, 700, this);
     table->is_scroll = true;
@@ -154,7 +155,7 @@ FactoryWindow::FactoryWindow(GameState& gs)
             const auto& building = province.buildings[i];
             const auto& type = gs.world->building_types[i];
             if(!building.level) continue;
-            make_building_row(*flex_column, building, type, province);
+            this->make_building_row(*flex_column, building, type, province);
         }
     }
 }

@@ -429,6 +429,7 @@ static inline unsigned int power_two_floor(const unsigned int val) {
 /// @param _text
 void Widget::text(const std::string& _text) {
     if(this->text_str == _text) return;
+    text_texture.reset();
     // Copy _text to a local scope (SDL2 does not like references)
     this->text_str = _text;
     if(_text.empty()) return;

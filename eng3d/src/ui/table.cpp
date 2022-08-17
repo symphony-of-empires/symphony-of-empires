@@ -97,7 +97,6 @@ UI::TableRow::TableRow(UI::Widget* _parent, int _width, int _height, std::vector
 }
 
 UI::TableElement* UI::TableRow::get_element(size_t index) {
-    if(index >= elements.size())
-        CXX_THROW(std::runtime_error, "Table - Index out of bounds");
+    assert(index < elements.size());
     return elements[index];
 }

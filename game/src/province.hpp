@@ -74,6 +74,7 @@ public:
     void add_building(const BuildingType& building_type);
     void cancel_construction_project();
     bool is_neighbour(Province& province) const;
+    void remove_pop(size_t idx);
 
     inline glm::vec2 get_pos() const {
         return glm::vec2(box_area.left + ((box_area.right - box_area.left) / 2.f), box_area.top + ((box_area.bottom - box_area.top) / 2.f));

@@ -54,8 +54,9 @@ public:
     std::vector<float> luxury_needs_deminishing_factor; // Deminishing returns factor of the luxury good satisfaction
 };
 
+class Province;
 class Pop {
-    Pop & operator=(const Pop&) = default;
+    Pop& operator=(const Pop&) = default;
     friend class Province;
 public:
     using Id = uint8_t;

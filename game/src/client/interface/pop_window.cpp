@@ -79,14 +79,14 @@ PopWindow::PopWindow(GameState& gs)
                 type->set_key(this->gs.world->pop_types[pop.type_id].name.get_string());
 
                 auto culture = row->get_element(row_index++);
-                auto culture_str = Eng3D::Locale::translate(this->gs.world->cultures[pop.culture_id].name.get_string());
+                auto culture_str = _(this->gs.world->cultures[pop.culture_id].name.get_string());
                 culture->text(culture_str);
                 culture->set_key(culture_str);
 
                 auto religion = row->get_element(row_index++);
                 religion->flex = UI::Flex::ROW;
                 religion->flex_justify = UI::FlexJustify::END;
-                auto religion_str = Eng3D::Locale::translate(this->gs.world->religions[pop.religion_id].name.get_string());
+                auto religion_str = _(this->gs.world->religions[pop.religion_id].name.get_string());
                 new UI::Label(0, 0, religion_str, religion);
                 new UI::Image(0, 0, 35, 35, "gfx/religion/" + this->gs.world->religions[pop.religion_id].ref_name + ".png", true, religion);
                 religion->set_key(religion_str);
