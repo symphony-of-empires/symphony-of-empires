@@ -52,15 +52,10 @@ cotton_farm = IndustryType:new{ ref_name = "cotton_farm", name = _("Cotton farm"
 cotton_farm:register()
 cotton_farm:add_output(Good:get("cotton"))
 
--- Mines can new stuff from thin air, but don't worry because this is
--- not abuse-ble
+-- Mines
 coal_mine = IndustryType:new{ ref_name = "coal_mine", name = _("Coal mine") }
 coal_mine:register()
 coal_mine:add_output(Good:get("coal"))
-
-copper_mine = IndustryType:new{ ref_name = "copper_mine", name = _("Copper mine") }
-copper_mine:register()
-copper_mine:add_output(Good:get("copper"))
 
 iron_mine = IndustryType:new{ ref_name = "iron_mine", name = _("Iron mine") }
 iron_mine:register()
@@ -74,12 +69,17 @@ sulphur_mine = IndustryType:new{ ref_name = "sulphur_mine", name = _("Sulfur min
 sulphur_mine:register()
 sulphur_mine:add_output(Good:get("sulphur"))
 
--- Secondary sector industries (now the fun begins)
+-- Secondary sector industries
 arms_factory = IndustryType:new{ ref_name = "arms_factory", name = _("Arms factory") }
 arms_factory:register()
 arms_factory:add_input(Good:get("iron"))
 arms_factory:add_input(Good:get("sulphur"))
 arms_factory:add_output(Good:get("arms"))
+
+winery = IndustryType:new{ ref_name = "winery", name = _("Winery") }
+winery:register()
+winery:add_input(Good:get("grapes"))
+winery:add_output(Good:get("wine"))
 
 -- Food factories
 bakery = IndustryType:new{ ref_name = "bakery", name = _("Bakery") }
