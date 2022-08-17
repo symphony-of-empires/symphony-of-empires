@@ -75,6 +75,10 @@ ENDIF()
 #
 # Dependencies
 #
+IF(E3D_PIE AND CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
+	message(WARNING "Enabling PIE")
+	set(E3D_PIE ON)
+ENDIF()
 set(CMAKE_POSITION_INDEPENDENT_CODE "${E3D_PIE}")
 
 #
@@ -247,6 +251,9 @@ ELSEIF(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
 	target_link_libraries(eng3d PRIVATE drm_nouveau EGL GLESv2 glad glapi)
 	target_link_libraries(eng3d PRIVATE freetype bz2) # SDL2_ttf
 	target_link_libraries(eng3d PRIVATE SDL2main SDL2_test z png16 minizip)
+
+	target_include_directories(eng3d PRIVATE "${NX_ROOT}/include")
+	target_link_directories(eng3d PRIVATE "${NX_ROOT}/lib")
 ENDIF()
 
 # pthread
