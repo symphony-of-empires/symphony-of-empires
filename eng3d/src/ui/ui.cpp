@@ -43,7 +43,6 @@
 #elif defined E3D_BACKEND_GLES
 #   include <GLES3/gl3.h>
 #endif
-#include <SDL_ttf.h>
 #include <glm/vec2.hpp>
 
 #ifndef M_PI
@@ -79,11 +78,10 @@ Context::Context(Eng3D::State& _s)
     if(g_ui_context != nullptr)
         CXX_THROW(std::runtime_error, "UI context already constructed");
     g_ui_context = this;
-
-    // default_font = TTF_OpenFont(s.package_man.get_uniqu("gfx/fonts/FreeMono.ttf").c_str(), 16);
-    default_font = TTF_OpenFont(s.package_man.get_unique("fonts/Poppins/Poppins-SemiBold.ttf")->get_abs_path().c_str(), 16);
-    if(default_font == nullptr)
-        CXX_THROW(std::runtime_error, std::string() + "Font could not be loaded: " + TTF_GetError());
+    
+    default_font = s.ttf_man.load(s.package_man.get_unique("fonts/Poppins/Poppins-SemiBold.ttf"));
+    if(default_font.get() == nullptr)
+        CXX_THROW(std::runtime_error, "Can't open font");
     widgets.reserve(8192);
 
     foreground = s.tex_man.load(s.package_man.get_unique("gfx/button2.png"));
@@ -118,7 +116,7 @@ Context::Context(Eng3D::State& _s)
 }
 
 Context::~Context() {
-    TTF_CloseFont(default_font);
+    
 }
 
 void Context::add_widget(UI::Widget* widget) {

@@ -33,6 +33,7 @@
 #include <atomic>
 #include <functional>
 
+#include "eng3d/ttf.hpp"
 #include "eng3d/io.hpp"
 #include "eng3d/ui/ui.hpp"
 #include "eng3d/audio.hpp"
@@ -128,6 +129,7 @@ namespace Eng3D {
         Eng3D::TextureManager tex_man;
         Eng3D::MaterialManager material_man;
         Eng3D::ModelManager model_man;
+        Eng3D::TrueType::Manager ttf_man;
         UI::Context ui_ctx;
     };
 }

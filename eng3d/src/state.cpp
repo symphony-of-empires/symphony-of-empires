@@ -51,7 +51,6 @@
 #elif defined E3D_BACKEND_GLES
 #   include <GLES3/gl3.h>
 #endif
-#include <SDL_ttf.h>
 #include <SDL.h>
 #include <SDL_events.h>
 #include <SDL_keycode.h>
@@ -185,8 +184,6 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     // Startup-initialization of SDL
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
         CXX_THROW(std::runtime_error, std::string() + "Failed to init SDL " + SDL_GetError());
-    if(TTF_Init() < 0)
-        CXX_THROW(std::runtime_error, std::string() + "Failed to init TTF " + TTF_GetError());
     SDL_ShowCursor(SDL_DISABLE);
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES // Normal PC computer
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
@@ -270,7 +267,6 @@ Eng3D::Installer::~Installer()
     SDL_GL_DeleteContext(s.context);
 #endif
     SDL_DestroyWindow(s.window);
-    TTF_Quit();
     SDL_Quit();
 #ifdef E3D_TARGET_SWITCH
     // Make sure to gracefully unmount
@@ -289,6 +285,7 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths)
     tex_man(*this),
     material_man(*this),
     model_man(*this),
+    ttf_man(*this),
     ui_ctx(*this)
 {
     // Plugins system (still wip)

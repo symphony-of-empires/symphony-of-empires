@@ -266,8 +266,8 @@ namespace UI {
         UI::Align text_align_y = UI::Align::START;
         UI::Align text_align_x = UI::Align::START;
         Eng3D::Color text_color = Eng3D::Color(0.f, 0.f, 0.f);
-        Eng3D::TrueType::Font* font = nullptr;
-        Border border;
+        std::shared_ptr<Eng3D::TrueType::Font> font;
+        UI::Border border;
         Eng3D::Color background_color = Eng3D::Color(1.f, 1.f, 1.f, 0.f);
 
         UI::Flex flex = UI::Flex::NONE;
