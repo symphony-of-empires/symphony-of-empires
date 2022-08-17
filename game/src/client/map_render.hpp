@@ -56,7 +56,6 @@ class World;
 class Nation;
 class GameState;
 enum class MapView;
-union SDL_Event;
 class Input;
 class ProvinceColors;
 class Map;

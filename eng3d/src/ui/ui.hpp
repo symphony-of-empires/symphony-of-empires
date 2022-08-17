@@ -32,7 +32,6 @@
 #include <mutex>
 #include <string>
 
-#include <SDL_surface.h>
 #include <glm/vec2.hpp>
 #include <glm/mat4x4.hpp>
 
@@ -41,6 +40,7 @@
 #include "eng3d/rectangle.hpp"
 #include "eng3d/color.hpp"
 
+struct SDL_Surface;
 namespace Eng3D {
     class Texture;
     class State;

@@ -557,6 +557,10 @@ void Map::draw() {
     wind_osc += 0.1f;
 }
 
+void Map::handle_resize() {
+    this->camera->set_screen(this->gs.width, this->gs.height);
+}
+
 void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
     if(e.hold) {
         gs.input.mouse_pos = Eng3D::Event::get_mouse_pos();

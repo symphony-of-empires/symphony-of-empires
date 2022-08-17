@@ -54,10 +54,6 @@
 #   include <GLES3/gl3.h>
 #endif
 
-#include <SDL.h>
-#include <SDL_events.h>
-#include <SDL_mouse.h>
-
 #include "eng3d/ui/ui.hpp"
 #include "eng3d/ui/input.hpp"
 #include "eng3d/ui/image.hpp"
@@ -127,23 +123,10 @@ std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(const Nation& nation)
 }
 
 void handle_event(Input& input, GameState& gs) {
-    glm::ivec2& mouse_pos = input.mouse_pos;
-    int& width = gs.width;
-    int& height = gs.height;
-
-    // Check window size every update
-    //   - needed cause the window sometimes changes size without calling the change window size event
-    SDL_GetWindowSize(gs.window, &width, &height);
-    gs.ui_ctx.resize(width, height);
-    if(gs.map != nullptr)
-        gs.map->camera->set_screen(width, height);
-    
+    gs.do_event();
+#if 0
     SDL_Event event;
     bool click_on_ui = false;
-
-    gs.do_event();
-
-#if 0
     while(SDL_PollEvent(&event)) {
         switch(event.type) {
         case SDL_TEXTINPUT:
@@ -507,6 +490,11 @@ void start_client(int argc, char** argv) {
     }
 
     GameState gs(pkg_paths);
+
+    gs.resize_fn = [&gs]() {
+        if(gs.map != nullptr) gs.map->camera->set_screen(gs.width, gs.height);
+    };
+
     gs.mouse_btn_fn = [&gs](const Eng3D::Event::MouseButton& e) {
         if(e.hold) {
             if(gs.show_ui) {

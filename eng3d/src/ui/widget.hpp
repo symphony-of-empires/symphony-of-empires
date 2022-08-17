@@ -35,7 +35,6 @@
 #include <memory>
 #include <algorithm>
 
-#include <SDL_surface.h>
 #include <glm/vec2.hpp>
 
 #include "eng3d/ttf.hpp"

@@ -210,7 +210,7 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
         CXX_THROW(std::runtime_error, std::string() + "Failed to init SDL window " + SDL_GetError());
 
     // OpenGL configurations
-    s.context = SDL_GL_CreateContext(s.window);
+    s.context = reinterpret_cast<void*>(SDL_GL_CreateContext(s.window));
     if(s.context == nullptr)
         CXX_THROW(std::runtime_error, std::string() + "Failed to init SDL context " + SDL_GetError());
     SDL_GL_SetSwapInterval(1);
@@ -387,6 +387,12 @@ void Eng3D::State::swap() {
 }
 
 void Eng3D::State::do_event() {
+    // Check window size every update needed cause the window sometimes changes size
+    // without calling the change window size event
+    SDL_GetWindowSize(this->window, &this->width, &this->height);
+    this->ui_ctx.resize(this->width, this->height);
+    if(this->resize_fn) this->resize_fn();
+
     SDL_Event event;
     while(SDL_PollEvent(&event)) {
         switch(event.type) {

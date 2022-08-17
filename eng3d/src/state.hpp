@@ -32,7 +32,6 @@
 #include <string>
 #include <atomic>
 #include <functional>
-#include <SDL.h>
 
 #include "eng3d/io.hpp"
 #include "eng3d/ui/ui.hpp"
@@ -42,6 +41,7 @@
 #include "eng3d/texture.hpp"
 #include "eng3d/event.hpp"
 
+struct SDL_Window;
 namespace Eng3D {
     namespace OpenGL {
         class Shader;
@@ -82,6 +82,7 @@ namespace Eng3D {
         /// @brief Value to ignore x/y axis motion taps (useful ignoring stray joystick input)
         static constexpr auto JOYSTICK_DEAD_ZONE = 3000;
 
+        std::function<void(void)> resize_fn;
         std::function<void(const Eng3D::Event::MouseButton&)> mouse_btn_fn;
         std::function<void(const Eng3D::Event::MouseMotion&)> mouse_motion_fn;
         std::function<void(const Eng3D::Event::MouseWheel&)> mouse_wheel_fn;
@@ -110,7 +111,7 @@ namespace Eng3D {
         // These variables needs to be initialized before any installers
         SDL_Window* window;
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
-        SDL_GLContext context;
+        void* context;
         int width, height;
         // Builtin shaders
         std::map<std::string, std::unique_ptr<Eng3D::OpenGL::Shader>> builtin_shaders;

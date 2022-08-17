@@ -75,7 +75,6 @@ class World;
 class Nation;
 class MapRender;
 class GameState;
-union SDL_Event;
 class Input;
 class Rivers;
 class Borders;
@@ -114,6 +113,7 @@ public:
     void update_nation_label(const Nation& nation);
     void create_labels();
 
+    void handle_resize();
     void handle_mouse_button(const Eng3D::Event::MouseButton& e);
     void handle_mouse_motions(const Eng3D::Event::MouseMotion& e);
 
