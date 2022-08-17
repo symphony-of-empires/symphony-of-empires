@@ -138,7 +138,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     }
     auto* table = new UI::Table<uint32_t>(0, 256 + 96, 0, 500, 30, sizes, header, this);
     table->reserve(this->province.pops.size());
-    table->set_on_each_tick([this, pops, table](UI::Widget&) {
+    table->set_on_each_tick([this, table](UI::Widget&) {
         for(size_t i = 0; i < this->province.pops.size(); i++) {
             auto& pop = this->province.pops[i];
             uint32_t id = pop.get_type_id();
@@ -445,13 +445,6 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
             this->gs.map->update_mapmode();
         });
         fill_pops_btn->set_tooltip("Add POPs (will add " + std::to_string(gs.world->pop_types.size()) + "POPs)");
-
-        auto* clear_pops_btn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/money.png")), flex_row);
-        clear_pops_btn->set_on_click([this](UI::Widget&) {
-            const_cast<Province&>(this->province).pops.clear();
-            this->gs.map->update_mapmode();
-        });
-        clear_pops_btn->set_tooltip(_("Removes all POPs from this province"));
 
         this->edit_culture_tab = new ProvinceEditCultureTab(gs, 0, 32, province, this);
         this->edit_culture_tab->is_render = false;
