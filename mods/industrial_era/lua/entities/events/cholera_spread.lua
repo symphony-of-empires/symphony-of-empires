@@ -36,7 +36,7 @@ cholera_evhdl = Event:new{
     end,
     event_fn = function(ref_name)
         local prov_list = Nation:get(ref_name):get_owned_provinces()
-        local random_province = prov_list[math.random(0, table.size(prov_list))]
+        local random_province = prov_list[math.random(1, table.size(prov_list))]
         local disease_names = {
             "Disentery",
             "Cholera",
