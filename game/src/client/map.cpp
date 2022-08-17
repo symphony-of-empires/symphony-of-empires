@@ -579,6 +579,7 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
 
         const auto province_id = this->map_render->get_tile_province_id(gs.input.select_pos.x, gs.input.select_pos.y);
         if(e.type == Eng3D::Event::MouseButton::Type::LEFT) {
+            this->is_drag = false;
             switch(gs.current_mode) {
             case MapMode::COUNTRY_SELECT:
                 if(Province::is_valid(province_id)) {
