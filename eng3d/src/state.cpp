@@ -386,6 +386,53 @@ void Eng3D::State::swap() {
     tex_man.upload();
 }
 
+void Eng3D::State::do_event() {
+    SDL_Event event;
+    while(SDL_PollEvent(&event)) {
+        switch(event.type) {
+        case SDL_MOUSEBUTTONDOWN: {
+            Eng3D::Event::MouseButton e{};
+            e.type = e.from_sdl(event.button.button);
+            e.hold = true;
+            if(mouse_btn_fn) mouse_btn_fn(e);
+        } break;
+        case SDL_MOUSEBUTTONUP: {
+            Eng3D::Event::MouseButton e{};
+            e.type = e.from_sdl(event.button.button);
+            e.hold = false;
+            if(mouse_btn_fn) mouse_btn_fn(e);
+        } break;
+        case SDL_MOUSEMOTION: {
+            Eng3D::Event::MouseMotion e{};
+            e.pos = Eng3D::Event::get_mouse_pos();
+            if(mouse_motion_fn) mouse_motion_fn(e);
+        } break;
+        case SDL_MOUSEWHEEL: {
+            Eng3D::Event::MouseWheel e{};
+            e.wheel.x = event.wheel.x;
+            e.wheel.y = event.wheel.y;
+            if(mouse_wheel_fn) mouse_wheel_fn(e);
+        } break;
+        case SDL_KEYDOWN: {
+            Eng3D::Event::Key e{};
+            e.type = e.from_sdl(event.key.keysym.sym);
+            e.hold = true;
+            if(key_fn) key_fn(e);
+        } break;
+        case SDL_KEYUP: {
+            Eng3D::Event::Key e{};
+            e.type = e.from_sdl(event.key.keysym.sym);
+            e.hold = false;
+            if(key_fn) key_fn(e);
+        } break;
+        case SDL_QUIT:
+            this->run = false;
+            break;
+        default: break;
+        }
+    }
+}
+
 void Eng3D::State::set_multisamples(int samples) const {
 #ifdef E3D_BACKEND_OPENGL
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);

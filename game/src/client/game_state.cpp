@@ -137,128 +137,18 @@ void handle_event(Input& input, GameState& gs) {
     gs.ui_ctx.resize(width, height);
     if(gs.map != nullptr)
         gs.map->camera->set_screen(width, height);
-
+    
     SDL_Event event;
     bool click_on_ui = false;
+
+    gs.do_event();
+
+#if 0
     while(SDL_PollEvent(&event)) {
         switch(event.type) {
-        case SDL_CONTROLLERDEVICEADDED:
-            break;
-        case SDL_MOUSEBUTTONDOWN:
-            if(gs.show_ui) {
-                click_on_ui = gs.ui_ctx.check_hover(mouse_pos);
-                if(event.button.button == SDL_BUTTON_LEFT) {
-                    SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
-                    gs.ui_ctx.check_drag(mouse_pos);
-                }
-            }
-            
-            if(event.button.button == SDL_BUTTON_MIDDLE)
-                input.middle_mouse_down = true;
-            break;
-        case SDL_MOUSEBUTTONUP:
-            SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
-            if(event.button.button == SDL_BUTTON_MIDDLE) {
-                input.middle_mouse_down = false;
-                break;
-            }
-
-            if(gs.show_ui) {
-                click_on_ui = gs.ui_ctx.check_click(mouse_pos);
-                if(!click_on_ui && gs.current_mode != MapMode::NO_MAP)
-                    gs.map->handle_click(gs, event);
-            }
-            if(click_on_ui) {
-                const std::scoped_lock lock(gs.audio_man.sound_lock);
-                auto entries = gs.package_man.get_multiple_prefix("sfx/click");
-                if(!entries.empty()) {
-                    auto audio = gs.audio_man.load(entries[std::rand() % entries.size()]->get_abs_path());
-                    gs.audio_man.sound_queue.push_back(audio);
-                }
-            }
-            break;
-        case SDL_MOUSEMOTION:
-            SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
-            if(gs.show_ui)
-                click_on_ui = gs.ui_ctx.check_hover(mouse_pos);
-            break;
-        case SDL_MOUSEWHEEL:
-            SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
-            if(gs.show_ui) {
-                gs.ui_ctx.check_hover(mouse_pos);
-                click_on_ui = gs.ui_ctx.check_wheel(mouse_pos, event.wheel.y * 6);
-            }
-            break;
         case SDL_TEXTINPUT:
             if(gs.show_ui)
                 gs.ui_ctx.check_text_input(reinterpret_cast<const char*>(&event.text.text));
-            break;
-        case SDL_KEYDOWN:
-            switch(Eng3D::Keyboard::from_sdlk(event.key.keysym.sym)) {
-            case Eng3D::Keyboard::Key::F1:
-                gs.show_ui = !gs.show_ui;
-                break;
-            case Eng3D::Keyboard::Key::F2:
-                if(gs.current_mode == MapMode::NORMAL) {
-                    if(gs.profiler_view) {
-                        delete gs.profiler_view;
-                        gs.profiler_view = nullptr;
-                    } else {
-                        gs.profiler_view = new Interface::ProfilerView(gs);
-                    }
-                }
-                break;
-            case Eng3D::Keyboard::Key::F3:
-                if(gs.editor)
-                    break;
-
-                if(gs.current_mode == MapMode::NORMAL) {
-                    if(input.select_pos.x < gs.world->width || input.select_pos.y < gs.world->height) {
-                        const auto tile = gs.world->get_tile(input.select_pos.x, input.select_pos.y);
-                        if(tile.province_id >= gs.world->provinces.size())
-                            break;
-                        new Interface::BuildingBuildView(gs, input.select_pos.x, input.select_pos.y, true, gs.world->provinces[tile.province_id]);
-                    }
-                }
-                break;
-            case Eng3D::Keyboard::Key::F4:
-                if(!click_on_ui) {
-                    LuaAPI::invoke_registered_callback(gs.world->lua, "ai_settings_window_invoke");
-                }
-                break;
-            case Eng3D::Keyboard::Key::F5:
-                if(gs.editor) break;
-
-                if(gs.current_mode == MapMode::NORMAL) {
-                    gs.paused = !gs.paused;
-                    if(gs.paused) {
-                        gs.ui_ctx.prompt("Control", "Unpaused");
-                    } else {
-                        gs.ui_ctx.prompt("Control", "Paused");
-                    }
-                }
-                break;
-            case Eng3D::Keyboard::Key::F6: {
-                gs.reload_shaders();
-                // Shader used for drawing the models using custom model render
-                gs.map->obj_shader = std::make_unique<Eng3D::OpenGL::Program>();
-                {
-                    gs.map->obj_shader->attach_shader(*gs.builtin_shaders["vs_3d"].get());
-                    gs.map->obj_shader->attach_shader(*gs.builtin_shaders["fs_3d"].get());
-                    gs.map->obj_shader->link();
-                }
-
-                const std::scoped_lock lock(gs.audio_man.sound_lock);
-                gs.audio_man.music_queue.clear();
-
-                gs.ui_ctx.prompt("Debug", "Partial reload");
-            } break;
-            case Eng3D::Keyboard::Key::BACKSPACE:
-                gs.ui_ctx.check_text_input(nullptr);
-                break;
-            default:
-                break;
-            }
             break;
         case SDL_JOYBUTTONDOWN:
             if(gs.show_ui) {
@@ -271,9 +161,8 @@ void handle_event(Input& input, GameState& gs) {
             if(event.jbutton.button == gs.select_button_num) {
                 if(gs.show_ui) {
                     click_on_ui = gs.ui_ctx.check_click(mouse_pos);
-                    if(!click_on_ui && gs.current_mode != MapMode::NO_MAP) {
-                        gs.map->handle_click(gs, event);
-                    }
+                    // if(!click_on_ui && gs.current_mode != MapMode::NO_MAP)
+                    //     gs.map->handle_click(gs, event);
                 }
 
                 if(click_on_ui) {
@@ -303,16 +192,12 @@ void handle_event(Input& input, GameState& gs) {
                     gs.ui_ctx.check_hover(gs.input.mouse_pos);
             }
             break;
-        case SDL_QUIT:
-            gs.run = false;
-            break;
-        default:
-            break;
         }
 
-        if(gs.current_mode != MapMode::NO_MAP && !click_on_ui)
-            gs.map->update(event, input, &gs.ui_ctx, gs);
+        // if(gs.current_mode != MapMode::NO_MAP && !click_on_ui)
+        //     gs.map->update(event, input, &gs.ui_ctx, gs);
     }
+#endif
 
     const std::scoped_lock lock(gs.ui_ctx.prompt_queue_mutex);
     for(const auto& prompt : gs.ui_ctx.prompt_queue) {
@@ -622,6 +507,142 @@ void start_client(int argc, char** argv) {
     }
 
     GameState gs(pkg_paths);
+    gs.mouse_btn_fn = [&gs](const Eng3D::Event::MouseButton& e) {
+        if(e.hold) {
+            if(gs.show_ui) {
+                if(gs.ui_ctx.check_hover(gs.input.mouse_pos)) {
+                    if(e.type == Eng3D::Event::MouseButton::Type::LEFT) {
+                        gs.input.mouse_pos = Eng3D::Event::get_mouse_pos();
+                        gs.ui_ctx.check_drag(gs.input.mouse_pos);
+                    }
+                    return;
+                }
+            }
+
+            if(gs.current_mode != MapMode::NO_MAP)
+                gs.map->handle_mouse_button(e);
+            
+            if(e.type == Eng3D::Event::MouseButton::Type::MIDDLE)
+                gs.input.middle_mouse_down = true;
+        } else {
+            gs.input.mouse_pos = Eng3D::Event::get_mouse_pos();
+            if(e.type == Eng3D::Event::MouseButton::Type::LEFT || e.type == Eng3D::Event::MouseButton::Type::RIGHT) {
+                if(gs.show_ui) {
+                    if(gs.ui_ctx.check_click(gs.input.mouse_pos)) {
+                        const std::scoped_lock lock(gs.audio_man.sound_lock);
+                        auto entries = gs.package_man.get_multiple_prefix("sfx/click");
+                        if(!entries.empty()) {
+                            auto audio = gs.audio_man.load(entries[std::rand() % entries.size()]->get_abs_path());
+                            gs.audio_man.sound_queue.push_back(audio);
+                        }
+                        return;
+                    }
+                }
+
+                if(gs.current_mode != MapMode::NO_MAP) // Map
+                    gs.map->handle_mouse_button(e);
+            } else if(e.type == Eng3D::Event::MouseButton::Type::MIDDLE) {
+                gs.input.middle_mouse_down = false;
+            }
+        }
+    };
+    
+    gs.mouse_motion_fn = [&gs](const Eng3D::Event::MouseMotion& e) {
+        gs.input.mouse_pos = e.pos;
+        if(gs.show_ui) {
+            if(gs.ui_ctx.check_hover(gs.input.mouse_pos)) return;
+        }
+
+        if(gs.current_mode != MapMode::NO_MAP)
+            gs.map->handle_mouse_motions(e);
+    };
+
+    gs.mouse_wheel_fn = [&gs](const Eng3D::Event::MouseWheel& e) {
+        gs.input.mouse_pos = Eng3D::Event::get_mouse_pos();
+        if(gs.show_ui) {
+            gs.ui_ctx.check_hover(gs.input.mouse_pos);
+            if(gs.ui_ctx.check_wheel(gs.input.mouse_pos, e.wheel.y * 6)) return;
+        }
+
+        if(gs.current_mode != MapMode::NO_MAP)
+            gs.map->camera->move(0.f, 0.f, -e.wheel.y * gs.delta_time * 120.f);
+    };
+    
+    gs.key_fn = [&gs](const Eng3D::Event::Key& e) {
+        if(e.hold) {
+            switch(e.type) {
+            case Eng3D::Event::Key::Type::F1:
+                gs.show_ui = !gs.show_ui;
+                break;
+            case Eng3D::Event::Key::Type::F2:
+                if(gs.current_mode == MapMode::NORMAL) {
+                    if(gs.profiler_view) {
+                        gs.profiler_view->kill();
+                    } else {
+                        gs.profiler_view = new Interface::ProfilerView(gs);
+                    }
+                }
+                break;
+            case Eng3D::Event::Key::Type::F3:
+                if(gs.editor) break;
+
+                if(gs.current_mode == MapMode::NORMAL) {
+                    if(gs.input.select_pos.x < gs.world->width || gs.input.select_pos.y < gs.world->height) {
+                        const auto tile = gs.world->get_tile(gs.input.select_pos.x, gs.input.select_pos.y);
+                        if(tile.province_id >= gs.world->provinces.size()) break;
+                        new Interface::BuildingBuildView(gs, gs.input.select_pos.x, gs.input.select_pos.y, true, gs.world->provinces[tile.province_id]);
+                    }
+                }
+                break;
+            case Eng3D::Event::Key::Type::F4:
+                LuaAPI::invoke_registered_callback(gs.world->lua, "ai_settings_window_invoke");
+                break;
+            case Eng3D::Event::Key::Type::F5:
+                if(gs.editor) break;
+                if(gs.current_mode == MapMode::NORMAL) {
+                    gs.paused = !gs.paused;
+                    if(gs.paused) {
+                        gs.ui_ctx.prompt("Control", "Unpaused");
+                    } else {
+                        gs.ui_ctx.prompt("Control", "Paused");
+                    }
+                }
+                break;
+            case Eng3D::Event::Key::Type::F6: {
+                gs.reload_shaders();
+                // Shader used for drawing the models using custom model render
+                gs.map->obj_shader = std::make_unique<Eng3D::OpenGL::Program>();
+                {
+                    gs.map->obj_shader->attach_shader(*gs.builtin_shaders["vs_3d"].get());
+                    gs.map->obj_shader->attach_shader(*gs.builtin_shaders["fs_3d"].get());
+                    gs.map->obj_shader->link();
+                }
+
+                const std::scoped_lock lock(gs.audio_man.sound_lock);
+                gs.audio_man.music_queue.clear();
+
+                gs.ui_ctx.prompt("Debug", "Partial reload");
+            } break;
+            case Eng3D::Event::Key::Type::BACKSPACE:
+                gs.ui_ctx.check_text_input(nullptr);
+                break;
+            case Eng3D::Event::Key::Type::UP:
+                gs.map->camera->move(0.f, -1.f, 0.f);
+                break;
+            case Eng3D::Event::Key::Type::DOWN:
+                gs.map->camera->move(0.f, 1.f, 0.f);
+                break;
+            case Eng3D::Event::Key::Type::LEFT:
+                gs.map->camera->move(-1.f, 0.f, 0.f);
+                break;
+            case Eng3D::Event::Key::Type::RIGHT:
+                gs.map->camera->move(1.f, 0.f, 0.f);
+                break;
+            default: break;
+            }
+        }
+    };
+
     // After loading everything initialize the gamestate initial properties
     // Call update_on_tick on start of the gamestate
     gs.update_tick = true;
@@ -680,7 +701,7 @@ void start_client(int argc, char** argv) {
             std::scoped_lock lock(gs.render_lock);
             gs.clear();
             if(gs.loaded_world) {
-                gs.map = new Map(*gs.world, map_layer, gs.width, gs.height);
+                gs.map = new Map(gs, *gs.world, map_layer, gs.width, gs.height);
                 gs.current_mode = MapMode::DISPLAY_ONLY;
                 gs.map->set_view(MapView::SPHERE_VIEW);
                 gs.map->camera->move(0.f, 50.f, 10.f);
@@ -765,7 +786,7 @@ void start_client(int argc, char** argv) {
             if(gs.current_mode != MapMode::NO_MAP) {
                 const std::scoped_lock lock(gs.world->world_mutex);
                 gs.map->camera->update();
-                gs.map->draw(gs);
+                gs.map->draw();
             }
             if(gs.show_ui)
                 gs.ui_ctx.render_all(gs.input.mouse_pos);

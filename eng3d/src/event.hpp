@@ -25,21 +25,55 @@
 
 #pragma once
 
-namespace Eng3D::Keyboard {
-	enum class Key : unsigned char {
-		/// @todo What usecase this even has?
-		NONE,
-		// Alphabet
-		A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
-		// Numerals
-		NUM_0, NUM_1, NUM_2, NUM_3, NUM_4, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9,
-		// Function keys
-		F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
-		// Miscellaneous
-		SPACE,
-		BACKSPACE,
-		ESC,
-	};
+#include <functional>
+#include <glm/vec2.hpp>
 
-	Eng3D::Keyboard::Key from_sdlk(int sdlk);
-};
+namespace Eng3D::Event {
+    struct Key {
+        enum class Type : unsigned char {
+            /// @todo What usecase this even has?
+            NONE,
+            // Alphabet
+            A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
+            // Numerals
+            NUM_0, NUM_1, NUM_2, NUM_3, NUM_4, NUM_5, NUM_6, NUM_7, NUM_8, NUM_9,
+            // Function keys
+            F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
+            UP, DOWN, LEFT, RIGHT,
+            // Miscellaneous
+            SPACE,
+            BACKSPACE,
+            ESC,
+        };
+        Eng3D::Event::Key::Type type = Eng3D::Event::Key::Type::NONE;
+        /// @brief Whetever the key is being held
+        bool hold;
+        Eng3D::Event::Key::Type from_sdl(int sdl);
+    };
+
+    struct MouseButton {
+        enum class Type : unsigned char {
+            NONE,
+            LEFT, MIDDLE, RIGHT,
+        };
+        /// @brief Button that is checked
+        Eng3D::Event::MouseButton::Type type = Eng3D::Event::MouseButton::Type::NONE;
+        /// @brief Whetever the button is being held
+        bool hold;
+        Eng3D::Event::MouseButton::Type from_sdl(int sdl);
+    };
+
+    struct MouseMotion {
+        /// @brief Absolute position of the mouse
+        glm::ivec2 pos;
+    };
+
+    struct MouseWheel {
+        /// @brief Wheel relative movement
+        glm::ivec2 wheel;
+    };
+}
+
+namespace Eng3D::Event {
+    glm::ivec2 get_mouse_pos();
+}

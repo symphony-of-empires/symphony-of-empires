@@ -34,6 +34,7 @@
 #include "eng3d/primitive.hpp"
 #include "eng3d/shader.hpp"
 #include "eng3d/font_sdf.hpp"
+#include "eng3d/event.hpp"
 
 namespace Eng3D {
     class Texture;
@@ -99,20 +100,22 @@ class Map {
     /// @brief Called to get the provinces info to show in tooltip
     mapmode_tooltip mapmode_tooltip_func;
     selector_func selector = nullptr;
+    GameState& gs;
 public:
-    Map(const World& world, UI::Group* map_ui_layer,  int screen_width, int screen_height);
+    Map(GameState& gs, const World& world, UI::Group* map_ui_layer,  int screen_width, int screen_height);
     ~Map();
-    void update(const SDL_Event& event, Input& input, UI::Context* ui_ctx, GameState& gs);
     void update_mapmode();
     void draw_flag(const Eng3D::OpenGL::Program& shader, const Nation& nation);
-    void draw(GameState& gs);
-    void handle_click(GameState& gs, SDL_Event event);
+    void draw();
     void set_map_mode(mapmode_generator mapmode_func, mapmode_tooltip tooltip_func);
     void set_selected_province(bool selected, Province::Id id);
     void set_view(MapView view);
     void reload_shaders();
     void update_nation_label(const Nation& nation);
     void create_labels();
+
+    void handle_mouse_button(const Eng3D::Event::MouseButton& e);
+    void handle_mouse_motions(const Eng3D::Event::MouseMotion& e);
 
     bool province_selected = false;
     Province::Id selected_province_id = Province::invalid();
