@@ -42,6 +42,8 @@
 #include "nation.hpp"
 #include "world.hpp"
 #include "building.hpp"
+#include "action.hpp"
+#include "client/client_network.hpp"
 
 using namespace Interface;
 
@@ -219,21 +221,19 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province&
     this->text(province.name.get_string());
 
     // Initial product info
-    auto* build_btn = new UI::Button(0, 0, 128, 24, this);
-    build_btn->text("Build new");
-    build_btn->set_on_click([this](UI::Widget&) {
-        new BuildingBuildView(this->gs, 0, 0, false, this->province);
-    });
-
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
     flex_column->is_scroll = true;
-    flex_column->below_of(*build_btn);
     for(unsigned int i = 0; i < gs.world->building_types.size(); i++) {
-        if(province.buildings[i].level) {
-            auto* info = new BuildingInfo(this->gs, 0, 0, province, i, flex_column);
-            this->building_infos.push_back(info);
-        }
+        auto* building_row = new UI::Div(0, 0, this->width, 128, flex_column);
+        building_row->flex = UI::Flex::COLUMN;
+        new Interface::BuildingInfo(this->gs, 0, 0, province, i, building_row);
+        auto* btn = new UI::Button(0, 0, 128, 24, building_row);
+        btn->text("Upgrade");
+        btn->set_on_click([this, i](UI::Widget&) {
+            const auto& building_type = gs.world->building_types[i];
+            this->gs.client->send(Action::BuildingAdd::form_packet(this->province, building_type));
+        });
     }
 }
 

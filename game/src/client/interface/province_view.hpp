@@ -69,7 +69,6 @@ namespace Interface {
     };
 
     class ProvinceBuildingTab: public UI::Group {
-        std::vector<BuildingInfo*> building_infos;
     public:
         ProvinceBuildingTab(GameState& gs, int x, int y, Province& province, UI::Widget* _parent);
 
