@@ -26,11 +26,6 @@
 -- Industry types
 
 -- Primary sector industries (the most essential)
-glass_factory = IndustryType:new{ ref_name = "glass_factory", name = _("Glass factory") }
-glass_factory:register()
--- glass factories can new glass from thin air
-glass_factory:add_output(Good:get("glass"))
-
 oil_refinery = IndustryType:new{ ref_name = "oil_refinery", name = _("Oil refinery") }
 oil_refinery:register()
 -- thin air oil, i think the air needs some democracy!
@@ -80,31 +75,11 @@ sulphur_mine:register()
 sulphur_mine:add_output(Good:get("sulphur"))
 
 -- Secondary sector industries (now the fun begins)
-iron_smelter = IndustryType:new{ ref_name = "iron_smelter", name = _("Iron smelter") }
-iron_smelter:register()
-iron_smelter:add_input(Good:get("iron"))
-iron_smelter:add_input(Good:get("coal"))
-iron_smelter:add_output(Good:get("steel"))
-
-ammunition_factory = IndustryType:new{ ref_name = "ammunition_factory", name = _("Ammunition factory") }
-ammunition_factory:register()
-ammunition_factory:add_input(Good:get("sulphur"))
-ammunition_factory:add_input(Good:get("coal"))
-ammunition_factory:add_input(Good:get("steel"))
-ammunition_factory:add_output(Good:get("ammunition"))
-
 arms_factory = IndustryType:new{ ref_name = "arms_factory", name = _("Arms factory") }
 arms_factory:register()
-arms_factory:add_input(Good:get("timber"))
-arms_factory:add_input(Good:get("ammunition"))
+arms_factory:add_input(Good:get("iron"))
+arms_factory:add_input(Good:get("sulphur"))
 arms_factory:add_output(Good:get("arms"))
-
-sails_factory = IndustryType:new{ ref_name = "sails_factory", name = _("Sails factory") }
-sails_factory:register()
-sails_factory:add_input(Good:get("dye"))
-sails_factory:add_input(Good:get("timber"))
-sails_factory:add_input(Good:get("fabric"))
-sails_factory:add_output(Good:get("sail"))
 
 -- Food factories
 bakery = IndustryType:new{ ref_name = "bakery", name = _("Bakery") }
