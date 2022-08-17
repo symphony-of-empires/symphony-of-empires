@@ -420,6 +420,11 @@ bool Context::check_hover_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::iv
 bool Context::check_hover(glm::ivec2 mouse_pos) {
     hover_update++;
     if(is_drag) {
+        /// @todo Is this really better?
+#ifdef E3D_TARGET_WINDOWS
+        SetCapture(GetActiveWindow());
+#endif
+
         // Drag vector
         const glm::ivec2 drag = mouse_pos - glm::ivec2(this->drag_x, this->drag_y);
         const auto offset = this->get_pos(*dragged_widget, glm::ivec2(0));
@@ -491,6 +496,11 @@ UI::ClickState Context::check_click_recursive(UI::Widget& w, glm::ivec2 mouse_po
 
 bool Context::check_click(glm::ivec2 mouse_pos) {
     is_drag = false;
+#ifdef E3D_TARGET_WINDOWS
+    // Release the mouse once we no longer drag anything
+    ReleaseCapture(GetActiveWindow());
+#endif
+
     UI::ClickState click_state = UI::ClickState::NOT_CLICKED;
     int click_wind_index = -1;
 
