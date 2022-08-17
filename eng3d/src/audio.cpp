@@ -33,7 +33,9 @@
 #include "eng3d/utils.hpp"
 #include "eng3d/log.hpp"
 #include "eng3d/state.hpp"
+extern "C" {
 #include "stb_vorbis.c"
+}
 
 //
 // Audio
