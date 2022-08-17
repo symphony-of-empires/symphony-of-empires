@@ -416,6 +416,7 @@ void GameState::update_on_tick() {
 
 /// @todo Don't run this thread if not needed (i.e non-host-mode)
 void GameState::world_thread() {
+    this->paused = true;
     while(this->run) {
         // Gamestate thread hasn't acknowledged the updated tick just yet
         while(this->paused) {
@@ -637,7 +638,6 @@ void start_client(int argc, char** argv) {
     gs.in_game = false;
     gs.input = Input();
     gs.run = true;
-    gs.paused = true;
     gs.loaded_world = false;
     gs.loaded_map = false;
     gs.load_progress = 0.f;

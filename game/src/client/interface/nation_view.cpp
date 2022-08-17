@@ -106,14 +106,6 @@ NationView::NationView(GameState& _gs, Nation& _nation)
         });
         rel_lab->on_each_tick(*rel_lab);
         rel_lab->set_tooltip(Eng3D::Locale::translate("Our diplomatic relations with them"));
-
-        auto* interest_lab = new UI::Label(0, 0, "?", flex_actions_column);
-        interest_lab->set_on_each_tick([this](UI::Widget& w) {
-            const auto& relation = this->gs.world->get_relation(this->gs.world->get_id(*this->gs.curr_nation), this->gs.world->get_id(this->nation));
-            w.text(std::to_string(relation.interest));
-        });
-        interest_lab->on_each_tick(*interest_lab);
-        interest_lab->set_tooltip(Eng3D::Locale::translate("Interest/Tolerance towards them"));
     }
 
     auto* market_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
@@ -124,18 +116,6 @@ NationView::NationView(GameState& _gs, Nation& _nation)
     market_btn->set_tooltip(Eng3D::Locale::translate("View market information"));
 
     if(gs.curr_nation != &nation) {
-        auto* inc_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
-        inc_btn->text(Eng3D::Locale::translate("Increment relations"));
-        inc_btn->set_on_click([this](UI::Widget&) {
-            this->gs.client->send(Action::DiploIncRelations::form_packet(this->nation));
-        });
-
-        auto* dec_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
-        dec_btn->text(Eng3D::Locale::translate("Decrement relations"));
-        dec_btn->set_on_click([this](UI::Widget&) {
-            this->gs.client->send(Action::DiploDecRelations::form_packet(this->nation));
-        });
-
         auto* dow_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         dow_btn->set_on_each_tick([this](UI::Widget& w) {
             const auto& relation = this->gs.world->get_relation(this->gs.world->get_id(*this->gs.curr_nation), this->gs.world->get_id(this->nation));
@@ -154,15 +134,7 @@ NationView::NationView(GameState& _gs, Nation& _nation)
             }
         });
         dow_btn->on_each_tick(*dow_btn);
-
-        auto* ally_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
-        ally_btn->text(Eng3D::Locale::translate("Offer alliance"));
-        ally_btn->set_tooltip(Eng3D::Locale::translate("Agree to mutually defend our interests forcing them to enter war with us"));
-
-        auto* defensive_pact_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
-        defensive_pact_btn->text(Eng3D::Locale::translate("Defensive pact"));
-        defensive_pact_btn->set_tooltip(Eng3D::Locale::translate("Mutually defend our countries from any foreign attacks"));
-
+        
         auto* embargo_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         embargo_btn->text(Eng3D::Locale::translate("Embargo"));
         embargo_btn->set_tooltip(Eng3D::Locale::translate("Prevent imports/exports to this country"));

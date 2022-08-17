@@ -38,13 +38,10 @@ using namespace Economy;
 
 void Trade::recalculate(const World& world) {
     if(trade_cost.empty())
-        initialize(world);
+        this->initialize(world);
 
-    for(Province::Id i = 0; i < world.provinces.size(); i++) {
-        for(Province::Id j = 0; j < world.provinces.size(); j++) {
-            trade_cost[i][j] = std::numeric_limits<float>::max();
-        }
-    }
+    for(Province::Id i = 0; i < world.provinces.size(); i++)
+        std::fill(trade_cost[i].begin(), trade_cost[i].end(), std::numeric_limits<float>::max());
 
     glm::vec2 world_size{ world.width, world.height };
 
@@ -82,10 +79,8 @@ static inline float get_trade_cost(const Province& province1, const Province& pr
 
 void Trade::initialize(const World& world) {
     trade_cost.reserve(world.provinces.size());
-    for(Province::Id i = 0; i < world.provinces.size(); i++) {
-        std::vector<float> prov_trade_cost(world.provinces.size(), std::numeric_limits<float>::max());
-        trade_cost.push_back(prov_trade_cost);
-    }
+    for(Province::Id i = 0; i < world.provinces.size(); i++)
+        trade_cost[i] = std::vector<float>(world.provinces.size(), std::numeric_limits<float>::max());
 
     glm::vec2 world_size{ world.width, world.height };
     neighbours.reserve(world.provinces.size());

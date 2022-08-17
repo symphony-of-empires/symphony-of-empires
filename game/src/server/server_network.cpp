@@ -343,16 +343,6 @@ void Server::net_loop(int id) {
                     packet.data(ar.get_buffer(), ar.size());
                     broadcast(packet);
                 } break;
-                case ActionType::DIPLO_INC_RELATIONS: {
-                    Nation* target = nullptr;
-                    ::deserialize(ar, &target);
-                    selected_nation->increase_relation(*target);
-                } break;
-                case ActionType::DIPLO_DEC_RELATIONS: {
-                    Nation* target = nullptr;
-                    ::deserialize(ar, &target);
-                    selected_nation->decrease_relation(*target);
-                } break;
                 case ActionType::DIPLO_DECLARE_WAR: {
                     Nation* target = nullptr;
                     ::deserialize(ar, &target);

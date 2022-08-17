@@ -506,14 +506,13 @@ int LuaAPI::get_nation_relation(lua_State* L) {
     auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
     auto& relation = g_world.get_relation(g_world.get_id(nation), g_world.get_id(other_nation));
     lua_pushnumber(L, relation.relation);
-    lua_pushnumber(L, relation.interest);
     lua_pushboolean(L, relation.has_embargo);
     lua_pushboolean(L, relation.has_war);
     lua_pushboolean(L, relation.has_alliance);
     lua_pushboolean(L, relation.has_defensive_pact);
     lua_pushboolean(L, relation.has_military_access);
     lua_pushboolean(L, relation.has_market_access);
-    return 9;
+    return 7;
 }
 
 int LuaAPI::set_nation_relation(lua_State* L) {
@@ -521,12 +520,11 @@ int LuaAPI::set_nation_relation(lua_State* L) {
     auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
     auto& relation = g_world.get_relation(g_world.get_id(nation), g_world.get_id(other_nation));
     relation.relation = lua_tonumber(L, 3);
-    relation.interest = lua_tonumber(L, 4);
-    relation.has_embargo = lua_toboolean(L, 5);
-    relation.has_alliance = lua_toboolean(L, 6);
-    relation.has_defensive_pact = lua_toboolean(L, 7);
-    relation.has_military_access = lua_toboolean(L, 8);
-    relation.has_market_access = lua_toboolean(L, 9);
+    relation.has_embargo = lua_toboolean(L, 4);
+    relation.has_alliance = lua_toboolean(L, 5);
+    relation.has_defensive_pact = lua_toboolean(L, 6);
+    relation.has_military_access = lua_toboolean(L, 7);
+    relation.has_market_access = lua_toboolean(L, 8);
     return 0;
 }
 

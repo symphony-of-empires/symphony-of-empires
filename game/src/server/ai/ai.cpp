@@ -208,19 +208,17 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
 
     // Try to increase relations with our friend
     if(nation.is_ally(other) && !(std::rand() % 250)) {
-        nation.increase_relation(other);
-
         // Propose an alliance
         if(relation.relation > 1 && !relation.has_alliance) {
             relation.has_alliance = true;
-            relation.relation = 100;
+            relation.relation = 100.f;
             Eng3D::Log::debug("ai", nation.ref_name + " requested an alliance with " + other.ref_name);
         }
 
         // If they want an alliance we won't hesitate to join (they are our friends after all)
         if(!relation.has_alliance) {
             relation.has_alliance = true;
-            relation.relation = 100;
+            relation.relation = 100.f;
             Eng3D::Log::debug("ai", nation.ref_name + " did an alliance with " + other.ref_name);
         }
 
@@ -233,8 +231,6 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
 
     // Hate our enemies more
     if(nation.is_enemy(other) && !(std::rand() % 500)) {
-        nation.decrease_relation(other);
-
         // Embargo them
         if(relation.relation < -15) {
             relation.has_embargo = true;
@@ -246,13 +242,6 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
             /// @todo Do not war if it's beyond our capabilities (i.e Liechestein vs. France, Prussia and UK)
             nation.declare_war(other);
         }
-    }
-
-    // Randomness to spice stuff up
-    if(!(std::rand() % 50)) {
-        nation.increase_relation(other);
-    } else if(!(std::rand() % 500)) {
-        nation.decrease_relation(other);
     }
 
     // Check if we even border them
