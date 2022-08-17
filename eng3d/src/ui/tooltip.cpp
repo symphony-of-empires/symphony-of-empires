@@ -41,6 +41,7 @@ UI::Tooltip::Tooltip()
     this->width = 512;
 
     this->current_texture = Eng3D::State::get_instance().ui_ctx.tooltip_tex;
+    this->text_color = Eng3D::Color(1.f, 1.f, 1.f);
 
     const glm::ivec2 size{ 4, 4 };
     const glm::ivec2 texture_size{ 10, 10 };
@@ -58,6 +59,7 @@ UI::Tooltip::Tooltip(UI::Widget* parent, unsigned w, unsigned h)
     this->height = h;
 
     this->current_texture = Eng3D::State::get_instance().ui_ctx.tooltip_tex;
+    this->text_color = Eng3D::Color(1.f, 1.f, 1.f);
 
     const glm::ivec2 size{ 4, 4 };
     const glm::ivec2 texture_size{ 10, 10 };
@@ -79,7 +81,7 @@ void UI::Tooltip::set_pos(int _x, int _y, int, int _height, int screen_w, int sc
 void UI::Tooltip::text(const std::string& text) {
     this->kill_children();
     if(text.empty()) return;
-    this->width = 300;
+    this->width = Eng3D::State::get_instance().width - this->x;
     auto* text_txt = new UI::Text(0, 0, text, *this);
     this->width = text_txt->width;
     this->height = text_txt->height;

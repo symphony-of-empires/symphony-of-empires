@@ -31,7 +31,7 @@ using namespace UI;
 UI::Text::Text(int _x, int _y, unsigned w, unsigned h, UI::Widget* _parent)
     : UI::Widget(_parent, _x, _y, w, h, UI::WidgetType::GROUP)
 {
-
+    this->text_color = this->parent->text_color;
 }
 
 /// @brief Create a new text object from a text string
@@ -42,6 +42,7 @@ UI::Text::Text(int _x, int _y, unsigned w, unsigned h, UI::Widget* _parent)
 UI::Text::Text(int _x, int _y, const std::string& _text, UI::Widget& _parent)
     : UI::Widget(&_parent, _x, _y, 0, 0, UI::WidgetType::GROUP)
 {
+    this->text_color = this->parent->text_color;
     this->auto_adjust = true;
     this->width = this->parent->width;
     this->text(_text);
@@ -94,6 +95,6 @@ void UI::Text::text(const std::string& text) {
 
     if(this->auto_adjust) {
         this->width = max_width + 8;
-        this->height = y + 8;
+        this->height = y;
     }
 }
