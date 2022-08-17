@@ -25,7 +25,7 @@
 
 #include "eng3d/ui/tooltip.hpp"
 #include "eng3d/ui/widget.hpp"
-#include "eng3d/ui/label.hpp"
+#include "eng3d/ui/text.hpp"
 #include "eng3d/ui/ui.hpp"
 #include "eng3d/state.hpp"
 #include "eng3d/path.hpp"
@@ -47,7 +47,7 @@ UI::Tooltip::Tooltip()
     this->border = UI::Border(g_ui_context->border_tex, size, texture_size);
 }
 
-UI::Tooltip::Tooltip(Widget* parent, unsigned w, unsigned h)
+UI::Tooltip::Tooltip(UI::Widget* parent, unsigned w, unsigned h)
     : UI::Widget()
 {
     this->parent = parent;
@@ -62,10 +62,6 @@ UI::Tooltip::Tooltip(Widget* parent, unsigned w, unsigned h)
     const glm::ivec2 size{ 4, 4 };
     const glm::ivec2 texture_size{ 10, 10 };
     this->border = UI::Border(g_ui_context->border_tex, size, texture_size);
-}
-
-UI::Tooltip::~Tooltip() {
-
 }
 
 void UI::Tooltip::set_pos(int _x, int _y, int, int _height, int screen_w, int screen_h) {
@@ -83,42 +79,8 @@ void UI::Tooltip::set_pos(int _x, int _y, int, int _height, int screen_w, int sc
 void UI::Tooltip::text(const std::string& text) {
     this->kill_children();
     if(text.empty()) return;
-
-    // Separate the text in multiple labels and break on space
-    /// @todo only works for monospace fonts width width 12, fix it for all fonts
-    size_t pos = 0, y = 0;
-    size_t line_width = std::max<size_t>(1, this->width / 12);
-    while(pos < text.length()) {
-        size_t remaining_chars = text.length() - pos;
-        size_t end_pos = text.length();
-        if(remaining_chars > line_width) end_pos = pos + line_width;
-
-        bool break_line = false;
-        for(size_t i = pos; i <= end_pos; i++) {
-            if(text[i] == '\n') {
-                end_pos = i;
-                break_line = true;
-                break;
-            }
-        }
-
-        if(!break_line && remaining_chars > line_width) {
-            for(size_t i = end_pos; i > pos; i--) {
-                if(text[i] == ' ') {
-                    end_pos = i;
-                    break;
-                }
-            }
-        }
-
-        auto buf = text.substr(pos, end_pos - pos);
-        pos = end_pos;
-        if(break_line) pos++;
-        
-        auto *lab = new UI::Label(8, y, " ", this);
-        lab->text_color = Eng3D::Color(1.f, 1.f, 1.f);
-        lab->text(buf);
-        y += 24;
-    }
-    height = y;
+    this->width = 300;
+    auto* text_txt = new UI::Text(0, 0, text, *this);
+    this->width = text_txt->width;
+    this->height = text_txt->height;
 }

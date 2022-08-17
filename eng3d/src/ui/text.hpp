@@ -41,7 +41,8 @@ namespace UI {
     /// than the Label widget.
     class Text: public Widget {
     public:
-        Text(int x, int y, unsigned w, unsigned h, Widget* parent);
+        Text(int x, int y, unsigned w, unsigned h, UI::Widget* parent);
+        Text(int x, int y, const std::string& text, UI::Widget& parent);
         virtual ~Text() {};
         virtual void on_render(Context& ctx, Eng3D::Rect viewport);
         virtual void text(const std::string& text);
