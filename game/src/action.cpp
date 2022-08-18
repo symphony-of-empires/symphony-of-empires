@@ -55,28 +55,6 @@ Eng3D::Networking::Packet AiControl::form_packet(const Nation& nation) {
     return packet;
 }
 
-Eng3D::Networking::Packet DiploIncRelations::form_packet(const Nation& nation) {
-    auto packet = Eng3D::Networking::Packet();
-    Archive ar = Archive();
-    ActionType action = ActionType::DIPLO_INC_RELATIONS;
-    ::serialize(ar, &action);
-    const auto* _nation = &nation;
-    ::serialize(ar, &_nation);
-    packet.data(ar.get_buffer(), ar.size());
-    return packet;
-}
-
-Eng3D::Networking::Packet DiploDecRelations::form_packet(const Nation& nation) {
-    Eng3D::Networking::Packet packet{};
-    Archive ar{};
-    ActionType action = ActionType::DIPLO_DEC_RELATIONS;
-    ::serialize(ar, &action);
-    const auto* _nation = &nation;
-    ::serialize(ar, &_nation);
-    packet.data(ar.get_buffer(), ar.size());
-    return packet;
-}
-
 Eng3D::Networking::Packet DiploDeclareWar::form_packet(const Nation& nation) {
     Eng3D::Networking::Packet packet{};
     Archive ar{};

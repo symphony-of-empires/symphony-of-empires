@@ -144,3 +144,17 @@ void Province::clean_pops() {
         it++;
     }
 }
+
+void Province::remove_pop(size_t idx) {
+    // Remove pops with 0 size and ones that are redundant/duplicated
+    for(auto it = pops.begin(); it != pops.end(); it++) {
+        // Delete ill'formed or invalid pops
+        if(it == pops.begin() + idx) {
+            // Overwrite with last one and remove last one
+            *it = pops.back();
+            pops.pop_back();
+            it = pops.begin();
+            return;
+        }
+    }
+}

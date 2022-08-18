@@ -30,15 +30,19 @@
 #include <memory>
 #include <map>
 #include <string>
-#include <SDL.h>
+#include <atomic>
+#include <functional>
 
+#include "eng3d/ttf.hpp"
 #include "eng3d/io.hpp"
 #include "eng3d/ui/ui.hpp"
 #include "eng3d/audio.hpp"
 #include "eng3d/material.hpp"
 #include "eng3d/model.hpp"
 #include "eng3d/texture.hpp"
+#include "eng3d/event.hpp"
 
+struct SDL_Window;
 namespace Eng3D {
     namespace OpenGL {
         class Shader;
@@ -60,6 +64,7 @@ namespace Eng3D {
         void clear() const;
         void reload_shaders();
         void swap();
+        void do_event();
         void set_multisamples(int samples) const;
         static State& get_instance();
         
@@ -78,6 +83,12 @@ namespace Eng3D {
         /// @brief Value to ignore x/y axis motion taps (useful ignoring stray joystick input)
         static constexpr auto JOYSTICK_DEAD_ZONE = 3000;
 
+        std::function<void(void)> resize_fn;
+        std::function<void(const Eng3D::Event::MouseButton&)> mouse_btn_fn;
+        std::function<void(const Eng3D::Event::MouseMotion&)> mouse_motion_fn;
+        std::function<void(const Eng3D::Event::MouseWheel&)> mouse_wheel_fn;
+        std::function<void(const Eng3D::Event::Key&)> key_fn;
+
         /// @brief Number of the axis assigned to map movement
         int map_movement_axis_num = 0;
         /// @brief Number of the axis assigned to cursor movement
@@ -94,10 +105,14 @@ namespace Eng3D {
         int map_select_button_num = 2; // X
         int map_back_button_num = 3; // Y
 
+        /// @brief Variable telling if the game should quit, honored by most event loops
+        /// but should be used explicitly if possible
+        std::atomic<bool> run;
+
         // These variables needs to be initialized before any installers
         SDL_Window* window;
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
-        SDL_GLContext context;
+        void* context;
         int width, height;
         // Builtin shaders
         std::map<std::string, std::unique_ptr<Eng3D::OpenGL::Shader>> builtin_shaders;
@@ -114,6 +129,7 @@ namespace Eng3D {
         Eng3D::TextureManager tex_man;
         Eng3D::MaterialManager material_man;
         Eng3D::ModelManager model_man;
+        Eng3D::TrueType::Manager ttf_man;
         UI::Context ui_ctx;
     };
 }

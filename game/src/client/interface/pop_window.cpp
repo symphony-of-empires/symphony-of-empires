@@ -43,27 +43,26 @@ PopWindow::PopWindow(GameState& gs)
     this->text("Population");
     this->is_scroll = false;
 
-    this->set_close_btn_function([this](Widget&) {
+    this->set_close_btn_function([this](UI::Widget&) {
         this->kill();
     });
 
-    const Nation& nation = *gs.curr_nation;
+    const auto& nation = *gs.curr_nation;
 
     int size = 0;
     for(const auto province_id : nation.owned_provinces)
         size += gs.world->provinces[province_id].pops.size();
 
-    std::vector<int> sizes{ 75, 200, 100, 100, 120, 50, 50, 70, 70 };
-    std::vector<std::string> header{ "Size", "Province", "Type", "Culture", "Religion", "Mil", "Con", "Lit", "Budget" };
+    std::vector<int> sizes{ 75, 200, 100, 100, 120, 80, 80, 50 };
+    std::vector<std::string> header{ "Size", "Province", "Type", "Culture", "Religion", "Militancy", "Literacy", "Budget" };
     auto table = new UI::Table<uint64_t>(5, 5, 800-10, 800-5, 35, sizes, header, this);
     this->width = table->width + 5 + this->padding.x;
     table->reserve(size);
     table->set_on_each_tick([this, nation, table](UI::Widget&) {
         for(const auto province_id : nation.owned_provinces) {
             const auto& province = this->gs.world->provinces[province_id];
-            Province::Id prov_id = province.get_id();
-            for(auto& pop : province.pops) {
-                const auto id = pop.get_type_id() + ((uint64_t)prov_id << 32);
+            for(const auto& pop : province.pops) {
+                const auto id = pop.get_type_id() + (static_cast<uint64_t>(province.get_id()) << 32);
                 auto* row = table->get_row(id);
                 size_t row_index = 0;
 
@@ -80,14 +79,14 @@ PopWindow::PopWindow(GameState& gs)
                 type->set_key(this->gs.world->pop_types[pop.type_id].name.get_string());
 
                 auto culture = row->get_element(row_index++);
-                auto culture_str = Eng3D::Locale::translate(this->gs.world->cultures[pop.culture_id].name.get_string());
+                auto culture_str = _(this->gs.world->cultures[pop.culture_id].name.get_string());
                 culture->text(culture_str);
                 culture->set_key(culture_str);
 
                 auto religion = row->get_element(row_index++);
                 religion->flex = UI::Flex::ROW;
                 religion->flex_justify = UI::FlexJustify::END;
-                auto religion_str = Eng3D::Locale::translate(this->gs.world->religions[pop.religion_id].name.get_string());
+                auto religion_str = _(this->gs.world->religions[pop.religion_id].name.get_string());
                 new UI::Label(0, 0, religion_str, religion);
                 new UI::Image(0, 0, 35, 35, "gfx/religion/" + this->gs.world->religions[pop.religion_id].ref_name + ".png", true, religion);
                 religion->set_key(religion_str);

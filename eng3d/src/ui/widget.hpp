@@ -35,7 +35,6 @@
 #include <memory>
 #include <algorithm>
 
-#include <SDL_surface.h>
 #include <glm/vec2.hpp>
 
 #include "eng3d/ttf.hpp"
@@ -213,6 +212,10 @@ namespace UI {
             this->on_each_tick = _on_each_tick;
         }
 
+        virtual void set_on_drag(std::function<void(UI::Widget&, glm::ivec2)> _on_drag) {
+            this->on_drag = _on_drag;
+        }
+
         /// @brief Sort the children of this widget
         /// @param comp Comparison function
         inline void sort_children(std::function<bool(const std::unique_ptr<UI::Widget>& a, const std::unique_ptr<UI::Widget>& b)> comp) {
@@ -263,8 +266,8 @@ namespace UI {
         UI::Align text_align_y = UI::Align::START;
         UI::Align text_align_x = UI::Align::START;
         Eng3D::Color text_color = Eng3D::Color(0.f, 0.f, 0.f);
-        Eng3D::TrueType::Font* font = nullptr;
-        Border border;
+        std::shared_ptr<Eng3D::TrueType::Font> font;
+        UI::Border border;
         Eng3D::Color background_color = Eng3D::Color(1.f, 1.f, 1.f, 0.f);
 
         UI::Flex flex = UI::Flex::NONE;
@@ -276,6 +279,7 @@ namespace UI {
 
         void* user_data = nullptr;
 
+        std::function<void(UI::Widget&, glm::ivec2 drag)> on_drag;
         std::function<void(UI::Widget&)> on_update;
         std::function<void(UI::Widget&)> on_click;
         std::function<void(UI::Widget&)> on_click_outside;

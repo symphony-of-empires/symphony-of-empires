@@ -33,7 +33,9 @@
 #include "eng3d/utils.hpp"
 #include "eng3d/log.hpp"
 #include "eng3d/state.hpp"
+extern "C" {
 #include "stb_vorbis.c"
+}
 
 //
 // Audio
@@ -42,13 +44,13 @@ Eng3D::Audio::Audio(const std::string& path) {
     Eng3D::Log::debug("audio", "Decoding audio " + path);
 
     int err;
-    this->stream = reinterpret_cast<void *>(stb_vorbis_open_filename(path.c_str(), &err, nullptr));
+    this->stream = static_cast<void *>(stb_vorbis_open_filename(path.c_str(), &err, nullptr));
     if(this->stream == nullptr)
         CXX_THROW(Eng3D::AudioException, path, "error opening audio");
 }
 
 Eng3D::Audio::~Audio() {
-    stb_vorbis_close(reinterpret_cast<stb_vorbis*>(this->stream));
+    stb_vorbis_close(static_cast<stb_vorbis*>(this->stream));
 }
 
 //
@@ -75,7 +77,7 @@ Eng3D::AudioManager::~AudioManager() {
 }
 
 void Eng3D::AudioManager::mixaudio(void* userdata, uint8_t* stream, int len) {
-    auto& audio_man = *(reinterpret_cast<Eng3D::AudioManager*>(userdata));
+    auto& audio_man = *(static_cast<Eng3D::AudioManager*>(userdata));
     SDL_memset(stream, 0, len);
 
     auto audiobuf = std::unique_ptr<uint8_t[]>(new uint8_t[len]);
@@ -83,7 +85,7 @@ void Eng3D::AudioManager::mixaudio(void* userdata, uint8_t* stream, int len) {
     const std::scoped_lock lock(audio_man.sound_lock);
     if(!audio_man.sound_queue.empty()) {
         auto& audio = **audio_man.sound_queue.begin();
-        auto* audio_stream = reinterpret_cast<stb_vorbis*>(audio.stream);
+        auto* audio_stream = static_cast<stb_vorbis*>(audio.stream);
         stb_vorbis_info info = stb_vorbis_get_info(audio_stream);
         if(stb_vorbis_get_samples_short_interleaved(audio_stream, info.channels, (short*)audiobuf.get(), len / sizeof(short)) == 0) {
             // Take off queue
@@ -95,7 +97,7 @@ void Eng3D::AudioManager::mixaudio(void* userdata, uint8_t* stream, int len) {
     
     if(!audio_man.music_queue.empty()) {
         auto& audio = **audio_man.music_queue.begin();
-        auto* audio_stream = reinterpret_cast<stb_vorbis*>(audio.stream);
+        auto* audio_stream = static_cast<stb_vorbis*>(audio.stream);
         stb_vorbis_info info = stb_vorbis_get_info(audio_stream);
         if(stb_vorbis_get_samples_short_interleaved(audio_stream, info.channels, (short*)audiobuf.get(), len / sizeof(short)) == 0) {
             // Take off queue

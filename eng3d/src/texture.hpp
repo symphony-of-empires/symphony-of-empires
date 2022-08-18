@@ -45,12 +45,11 @@
 #   include <GLES3/gl3.h>
 #endif
 
-#include <SDL_surface.h>
-
 #include "eng3d/ttf.hpp"
 #include "eng3d/binary_image.hpp"
 #include "eng3d/color.hpp"
 
+struct SDL_Surface;
 namespace Eng3D::IO {
     namespace Asset {
         class Base;

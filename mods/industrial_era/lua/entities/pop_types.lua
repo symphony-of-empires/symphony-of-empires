@@ -24,14 +24,13 @@
 -- ----------------------------------------------------------------------------
 
 -- Pop types
-
 standard_basic_needs = {
-    { "wheat", 1.0 },
-    { "salt", 0.1 }
+    { "wheat", 1.0 }
 }
 
 standard_luxury_needs = {
-    { "bread", 0.5, 0.8 }
+    { "bread", 0.5, 0.8 },
+    { "wine", 0.5, 0.8 }
 }
 
 burgeoise = PopType:new{

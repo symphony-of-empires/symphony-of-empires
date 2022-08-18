@@ -343,16 +343,6 @@ void Server::net_loop(int id) {
                     packet.data(ar.get_buffer(), ar.size());
                     broadcast(packet);
                 } break;
-                case ActionType::DIPLO_INC_RELATIONS: {
-                    Nation* target = nullptr;
-                    ::deserialize(ar, &target);
-                    selected_nation->increase_relation(*target);
-                } break;
-                case ActionType::DIPLO_DEC_RELATIONS: {
-                    Nation* target = nullptr;
-                    ::deserialize(ar, &target);
-                    selected_nation->decrease_relation(*target);
-                } break;
                 case ActionType::DIPLO_DECLARE_WAR: {
                     Nation* target = nullptr;
                     ::deserialize(ar, &target);
@@ -381,6 +371,9 @@ void Server::net_loop(int id) {
                 default:
                     break;
                 }
+
+                // Update the state of the UI with the editor
+                if(gs.editor) gs.update_tick = true;
             }
 
             ar.buffer.clear();
@@ -404,11 +397,6 @@ void Server::net_loop(int id) {
 
     player_count--;
 
-#ifdef E3D_TARGET_WINDOWS
-    Eng3D::Log::error("server", "WSA Code: " + std::to_string(WSAGetLastError()));
-    WSACleanup();
-#endif
-
     // Unlock mutexes so we don't end up with weird situations... like deadlocks
     cl.is_connected = false;
 
@@ -427,6 +415,10 @@ void Server::net_loop(int id) {
     }
     cl.is_active = false;
 
+#ifdef E3D_TARGET_WINDOWS
+    Eng3D::Log::error("server", "WSA Code: " + std::to_string(WSAGetLastError()));
+    WSACleanup();
+#endif
     Eng3D::Log::debug("server", "Client disconnected");
 #ifdef E3D_TARGET_WINDOWS
     shutdown(conn_fd, SD_BOTH);

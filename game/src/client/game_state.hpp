@@ -87,7 +87,6 @@ class World;
 class Nation;
 class Map;
 class UnitType;
-struct SDL_Window;
 namespace Interface {
     class LobbySelectView;
     class TopWindow;
@@ -128,7 +127,6 @@ public:
     float load_progress = 0.f;
 
     std::atomic<bool> update_tick;
-    std::atomic<bool> run;
     std::atomic<bool> paused;
     std::atomic<int> ms_delay_speed;
     std::atomic<bool> quit;
@@ -146,9 +144,10 @@ public:
     MapMode current_mode = MapMode::NO_MAP;
 
     Interface::LobbySelectView* select_nation = nullptr;
-    Interface::TopWindow* top_win = nullptr;
-    Interface::Minimap* minimap = nullptr;
-    Interface::ProfilerView* profiler_view = nullptr;
+    UI::Widget* top_win = nullptr;
+    UI::Widget* time_win = nullptr;
+    UI::Widget* minimap = nullptr;
+    UI::Widget* profiler_view = nullptr;
 
     std::vector<std::shared_ptr<Eng3D::Texture>> nation_flags;
     std::shared_ptr<Eng3D::Texture> get_nation_flag(const Nation& nation);
@@ -169,6 +168,5 @@ public:
 };
 
 // Run world tick and pending commands
-void main_loop(GameState&, Client*, SDL_Window*);
 void start_client(int argc, char** argv);
 void save(GameState& gs);

@@ -43,7 +43,6 @@
 #elif defined E3D_BACKEND_GLES
 #   include <GLES3/gl3.h>
 #endif
-#include <SDL_ttf.h>
 #include <glm/vec2.hpp>
 
 #ifndef M_PI
@@ -79,12 +78,10 @@ Context::Context(Eng3D::State& _s)
     if(g_ui_context != nullptr)
         CXX_THROW(std::runtime_error, "UI context already constructed");
     g_ui_context = this;
-    is_drag = false;
-
-    // default_font = TTF_OpenFont(s.package_man.get_uniqu("gfx/fonts/FreeMono.ttf").c_str(), 16);
-    default_font = TTF_OpenFont(s.package_man.get_unique("fonts/Poppins/Poppins-SemiBold.ttf")->get_abs_path().c_str(), 16);
-    if(default_font == nullptr)
-        CXX_THROW(std::runtime_error, std::string() + "Font could not be loaded: " + TTF_GetError());
+    
+    default_font = s.ttf_man.load(s.package_man.get_unique("fonts/Poppins/Poppins-SemiBold.ttf"));
+    if(default_font.get() == nullptr)
+        CXX_THROW(std::runtime_error, "Can't open font");
     widgets.reserve(8192);
 
     foreground = s.tex_man.load(s.package_man.get_unique("gfx/button2.png"));
@@ -119,7 +116,7 @@ Context::Context(Eng3D::State& _s)
 }
 
 Context::~Context() {
-    TTF_CloseFont(default_font);
+    
 }
 
 void Context::add_widget(UI::Widget* widget) {
@@ -151,13 +148,12 @@ void Context::clear_dead_recursive(Widget* w) {
             index--;
             changed = true;
         } else if(w->children[index]->dead_child) {
-            clear_dead_recursive(w->children[index].get());
+            this->clear_dead_recursive(w->children[index].get());
             w->children[index]->dead_child = false;
         }
     }
 
-    if(changed)
-        w->need_recalc = true;
+    if(changed) w->need_recalc = true;
 }
 
 /// @brief Removes all widgets that have been killed
@@ -167,7 +163,7 @@ void Context::clear_dead() {
             widgets.erase(widgets.begin() + index);
             index--;
         } else if(widgets[index]->dead_child) {
-            clear_dead_recursive(widgets[index].get());
+            this->clear_dead_recursive(widgets[index].get());
             widgets[index]->dead_child = false;
         }
     }
@@ -421,27 +417,17 @@ bool Context::check_hover_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::iv
 bool Context::check_hover(glm::ivec2 mouse_pos) {
     hover_update++;
     if(is_drag) {
+        /// @todo Is this really better?
+#ifdef E3D_TARGET_WINDOWS
+        SetCapture(GetActiveWindow());
+#endif
+
         // Drag vector
         const glm::ivec2 drag = mouse_pos - glm::ivec2(this->drag_x, this->drag_y);
         const auto offset = this->get_pos(*dragged_widget, glm::ivec2(0));
         const glm::ivec2 diff = drag - offset;
-
-        if(dragged_widget->type == UI::WidgetType::SCROLLBAR_THUMB) {
-            assert(dragged_widget->parent != nullptr);
-            const int btn_height = dragged_widget->parent->width;
-            const float track_height = static_cast<float>(dragged_widget->parent->height - btn_height * 2);
-            const auto y_bounds = dragged_widget->parent->parent->get_y_bounds();
-            // Drag force is basically the distance taken by the offset (of drag), divide by track length to get
-            // a 0 to 1 number then multiply it with the total parent height to determine the total distance to
-            // forcefully scroll with the size of the parent in account
-            int drag_force = ((diff.y - (dragged_widget->height / 2)) / track_height) * (y_bounds.y - y_bounds.x);
-            if(dragged_widget->parent->parent) {
-                dragged_widget->parent->parent->scroll(-drag_force);
-                reinterpret_cast<UI::Scrollbar*>(dragged_widget->parent)->update_thumb();
-            }
-        } else {
-            dragged_widget->move_by(diff);
-        }
+        assert(dragged_widget->on_drag != nullptr);
+        dragged_widget->on_drag(*dragged_widget, diff);
         return true;
     }
 
@@ -473,7 +459,7 @@ UI::ClickState Context::check_click_recursive(UI::Widget& w, glm::ivec2 mouse_po
         if(!r.in_bounds(mouse_pos)) {
             clickable = false;
         } else if(w.is_transparent) {
-            if (is_inside_transparent(w, mouse_pos, offset))
+            if(is_inside_transparent(w, mouse_pos, offset))
                 clickable = false;
         }
     }
@@ -493,7 +479,7 @@ UI::ClickState Context::check_click_recursive(UI::Widget& w, glm::ivec2 mouse_po
     // Call on_click if on_click hasnt been used and widget is hit by click
     if(w.on_click && clickable && !click_consumed) {
         if(w.type == UI::WidgetType::SLIDER) {
-            auto* wc = reinterpret_cast<UI::Slider*>(&w);
+            auto* wc = static_cast<UI::Slider*>(&w);
             wc->set_value((static_cast<float>(std::abs(mouse_pos.x - offset.x)) / static_cast<float>(wc->width)) * wc->max);
         }
         w.on_click(w);
@@ -507,6 +493,11 @@ UI::ClickState Context::check_click_recursive(UI::Widget& w, glm::ivec2 mouse_po
 
 bool Context::check_click(glm::ivec2 mouse_pos) {
     is_drag = false;
+#ifdef E3D_TARGET_WINDOWS
+    // Release the mouse once we no longer drag anything
+    ReleaseCapture(GetActiveWindow());
+#endif
+
     UI::ClickState click_state = UI::ClickState::NOT_CLICKED;
     int click_wind_index = -1;
 
@@ -536,27 +527,20 @@ bool Context::check_click(glm::ivec2 mouse_pos) {
 }
 
 bool UI::Context::check_drag_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset) {
-    // Only windows can be dragged around
-    if(w.type != UI::WidgetType::WINDOW && w.type != UI::WidgetType::SCROLLBAR_THUMB) return false;
-    // Pinned widgets are not movable
-    if(w.is_pinned) return false;
-
     offset = this->get_pos(w, offset);
-    const Eng3D::Rect r(offset.x, offset.y, w.width, w.y + 24);
+    const Eng3D::Rect r(offset.x, offset.y, w.width, w.height);
     if(r.in_bounds(mouse_pos)) {
-        auto& wc = reinterpret_cast<UI::Window&>(w);
-        if(!wc.is_movable) return false;
-        if(!this->is_drag) {
-            this->drag_x = mouse_pos.x - offset.x;
-            this->drag_y = mouse_pos.y - offset.y;
-            this->dragged_widget = reinterpret_cast<decltype(this->dragged_widget)>(&wc);
-            this->is_drag = true;
-            return true;
+        for(auto& child : w.children) {
+            if(this->check_drag_recursive(*child.get(), mouse_pos, offset)) return true;
         }
 
-        for(auto& child : w.children) {
-            if(this->check_drag_recursive(*child.get(), mouse_pos, offset))
-                return true;
+        // Only take in account widgets with a callback and not pinned
+        if(!this->is_drag && w.on_drag && !w.is_pinned) {
+            this->drag_x = mouse_pos.x - offset.x;
+            this->drag_y = mouse_pos.y - offset.y;
+            this->dragged_widget = &w;
+            this->is_drag = true;
+            return true;
         }
     }
     return false;
@@ -565,15 +549,14 @@ bool UI::Context::check_drag_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm:
 void UI::Context::check_drag(glm::ivec2 mouse_pos) {
     for(int i = widgets.size() - 1; i >= 0; i--) {
         auto& widget = *widgets[i].get();
-        if(this->check_drag_recursive(widget, mouse_pos, glm::ivec2(0)))
-            return;
+        if(this->check_drag_recursive(widget, mouse_pos, glm::ivec2(0))) return;
     }
     return;
 }
 
 bool check_text_input_recursive(Widget& widget, const char* _input) {
     if(widget.type == UI::WidgetType::INPUT) {
-        auto& c_widget = reinterpret_cast<UI::Input&>(widget);
+        auto& c_widget = static_cast<UI::Input&>(widget);
         if(c_widget.is_selected) c_widget.on_textinput(c_widget, _input);
         return true;
     }
@@ -622,7 +605,7 @@ bool Context::check_wheel_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::iv
     bool scrolled = false;
     for(auto& children : w.children) {
         if(children->type == UI::WidgetType::SCROLLBAR)
-            scrollbar = reinterpret_cast<UI::Scrollbar*>(children.get());
+            scrollbar = static_cast<UI::Scrollbar*>(children.get());
         scrolled = check_wheel_recursive(*children, mouse_pos, offset, y);
         if(scrolled) break;
     }

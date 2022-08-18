@@ -27,8 +27,10 @@
 #include <stdexcept>
 #include <cstring>
 
+extern "C" {
 #define STB_IMAGE_IMPLEMENTATION 1
 #include "eng3d/stb_image.h"
+}
 
 #include "eng3d/binary_image.hpp"
 #include "eng3d/path.hpp"

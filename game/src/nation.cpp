@@ -95,7 +95,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
             relation.has_war = true; // Declare war
             relation.has_alliance = false;
             relation.has_defensive_pact = false;
-            relation.relation = -100;
+            relation.relation = -100.f;
         }
     }
 
@@ -139,22 +139,6 @@ inline void Nation::do_diplomacy() {
 
 inline bool Nation::can_do_diplomacy() const {
     return (diplomatic_timer == 0);
-}
-
-void Nation::increase_relation(Nation& target) {
-    auto& world = World::get_instance();
-    auto& relation = world.get_relation(world.get_id(*this), world.get_id(target));
-    relation.relation = std::min<float>(100.f, relation.relation + 5);
-    Eng3D::Log::debug("game", ref_name + " increases relations with " + target.ref_name);
-    this->do_diplomacy();
-}
-
-void Nation::decrease_relation(Nation& target) {
-    auto& world = World::get_instance();
-    auto& relation = world.get_relation(world.get_id(*this), world.get_id(target));
-    relation.relation = std::max<float>(-100.f, relation.relation + 5);
-    Eng3D::Log::debug("game", ref_name + " decreases relations with " + target.ref_name);
-    this->do_diplomacy();
 }
 
 /// @brief Automatically relocates the capital of a nation to another province

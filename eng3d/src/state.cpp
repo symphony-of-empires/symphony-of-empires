@@ -51,7 +51,6 @@
 #elif defined E3D_BACKEND_GLES
 #   include <GLES3/gl3.h>
 #endif
-#include <SDL_ttf.h>
 #include <SDL.h>
 #include <SDL_events.h>
 #include <SDL_keycode.h>
@@ -185,8 +184,6 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     // Startup-initialization of SDL
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
         CXX_THROW(std::runtime_error, std::string() + "Failed to init SDL " + SDL_GetError());
-    if(TTF_Init() < 0)
-        CXX_THROW(std::runtime_error, std::string() + "Failed to init TTF " + TTF_GetError());
     SDL_ShowCursor(SDL_DISABLE);
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES // Normal PC computer
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
@@ -210,7 +207,7 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
         CXX_THROW(std::runtime_error, std::string() + "Failed to init SDL window " + SDL_GetError());
 
     // OpenGL configurations
-    s.context = SDL_GL_CreateContext(s.window);
+    s.context = static_cast<void*>(SDL_GL_CreateContext(s.window));
     if(s.context == nullptr)
         CXX_THROW(std::runtime_error, std::string() + "Failed to init SDL context " + SDL_GetError());
     SDL_GL_SetSwapInterval(1);
@@ -270,7 +267,6 @@ Eng3D::Installer::~Installer()
     SDL_GL_DeleteContext(s.context);
 #endif
     SDL_DestroyWindow(s.window);
-    TTF_Quit();
     SDL_Quit();
 #ifdef E3D_TARGET_SWITCH
     // Make sure to gracefully unmount
@@ -289,6 +285,7 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths)
     tex_man(*this),
     material_man(*this),
     model_man(*this),
+    ttf_man(*this),
     ui_ctx(*this)
 {
     // Plugins system (still wip)
@@ -384,6 +381,59 @@ void Eng3D::State::swap() {
 
 #endif
     tex_man.upload();
+}
+
+void Eng3D::State::do_event() {
+    // Check window size every update needed cause the window sometimes changes size
+    // without calling the change window size event
+    SDL_GetWindowSize(this->window, &this->width, &this->height);
+    this->ui_ctx.resize(this->width, this->height);
+    if(this->resize_fn) this->resize_fn();
+
+    SDL_Event event;
+    while(SDL_PollEvent(&event)) {
+        switch(event.type) {
+        case SDL_MOUSEBUTTONDOWN: {
+            Eng3D::Event::MouseButton e{};
+            e.type = e.from_sdl(event.button.button);
+            e.hold = true;
+            if(mouse_btn_fn) mouse_btn_fn(e);
+        } break;
+        case SDL_MOUSEBUTTONUP: {
+            Eng3D::Event::MouseButton e{};
+            e.type = e.from_sdl(event.button.button);
+            e.hold = false;
+            if(mouse_btn_fn) mouse_btn_fn(e);
+        } break;
+        case SDL_MOUSEMOTION: {
+            Eng3D::Event::MouseMotion e{};
+            e.pos = Eng3D::Event::get_mouse_pos();
+            if(mouse_motion_fn) mouse_motion_fn(e);
+        } break;
+        case SDL_MOUSEWHEEL: {
+            Eng3D::Event::MouseWheel e{};
+            e.wheel.x = event.wheel.x;
+            e.wheel.y = event.wheel.y;
+            if(mouse_wheel_fn) mouse_wheel_fn(e);
+        } break;
+        case SDL_KEYDOWN: {
+            Eng3D::Event::Key e{};
+            e.type = e.from_sdl(event.key.keysym.sym);
+            e.hold = true;
+            if(key_fn) key_fn(e);
+        } break;
+        case SDL_KEYUP: {
+            Eng3D::Event::Key e{};
+            e.type = e.from_sdl(event.key.keysym.sym);
+            e.hold = false;
+            if(key_fn) key_fn(e);
+        } break;
+        case SDL_QUIT:
+            this->run = false;
+            break;
+        default: break;
+        }
+    }
 }
 
 void Eng3D::State::set_multisamples(int samples) const {

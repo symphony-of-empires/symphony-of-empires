@@ -45,14 +45,14 @@ namespace UI {
     /// @ingroup UI
     /// @brief An element on a table, operates on a k=v fashion where the key is
     /// used for sorting the table.
-    class TableElement : public Widget {
+    class TableElement : public UI::Widget {
     public:
         TableElement(TableRow* parent, int width, int height);
         virtual ~TableElement() override {};
 
-        void set_key(std::string key);
+        void set_key(const std::string& key);
         void set_key(float key);
-        bool operator< (const TableElement& right) const;
+        bool operator< (const UI::TableElement& right) const;
     private:
         enum class KeyType {
             NUMBER = 0,
@@ -61,21 +61,21 @@ namespace UI {
         };
         float key_number;
         std::string key_string;
-        KeyType key_type = KeyType::NONE;
+        UI::TableElement::KeyType key_type = UI::TableElement::KeyType::NONE;
     };
 
     /// @ingroup UI
     /// @brief A row of a table, contains table elements and specifies the width
     /// of the entire row.
-    class TableRow : public Widget {
+    class TableRow : public UI::Widget {
     public:
-        TableRow(Widget* _parent, int width, int height, std::vector<int>& columns_width);
+        TableRow(UI::Widget* _parent, int width, int height, std::vector<int>& columns_width);
         virtual ~TableRow() override {};
-        TableElement* get_element(size_t index);
+        UI::TableElement* get_element(size_t index);
 
         bool is_active = true;
     private:
-        std::vector<TableElement*> elements;
+        std::vector<UI::TableElement*> elements;
         std::vector<int>& columns_width;
     };
 
@@ -83,10 +83,10 @@ namespace UI {
     /// @brief A dynamic/smart table that can sort elements by ascending/descending order
     /// @tparam T Type of Id to use for row identification
     template <typename T>
-    class Table : public Widget {
+    class Table : public UI::Widget {
     public:
         Table(int _x, int _y, unsigned _w, unsigned _h, int _row_height, std::vector<int> _widths, std::vector<std::string> _header_labels, Widget* _parent = nullptr)
-            : Widget(_parent, _x, _y, _w, _h, UI::WidgetType::TABLE),
+            : UI::Widget(_parent, _x, _y, _w, _h, UI::WidgetType::TABLE),
             row_height{ _row_height }, columns_width{ _widths }
         {
             if(_widths.size() != _header_labels.size())
@@ -94,7 +94,7 @@ namespace UI {
             this->width = 35;
             for(size_t i = 0; i < _widths.size(); i++)
                 this->width += _widths[i];
-            auto* header = new TableRow(this, this->width - 35, _row_height, this->columns_width);
+            auto* header = new UI::TableRow(this, this->width - 35, _row_height, this->columns_width);
             for(size_t i = 0; i < _header_labels.size(); i++) {
                 auto& label = _header_labels[i];
                 auto* column = header->get_element(i);
@@ -114,7 +114,7 @@ namespace UI {
             this->column_wrapper = new UI::Div(0, 0, this->width - 25, 0, wrapper);
             this->column_wrapper->flex = UI::Flex::COLUMN;
             this->column_wrapper->flex_justify = UI::FlexJustify::START;
-            this->scrollbar = new UI::Scrollbar(this->width - 20, 0, 20, this->height - row_height, wrapper);
+            this->scrollbar = new UI::Scrollbar(this->width - 20, 0, this->height - 20, wrapper);
         }
         virtual ~Table() override {};
 
@@ -122,9 +122,9 @@ namespace UI {
             this->rows.reserve(_size);
         }
 
-        TableRow* get_row(T _row_id) {
+        UI::TableRow* get_row(T _row_id) {
             if(!this->rows.count(_row_id)) {
-                auto* row = new TableRow(this->column_wrapper, this->width - 25, this->row_height, this->columns_width);
+                auto* row = new UI::TableRow(this->column_wrapper, this->width - 25, this->row_height, this->columns_width);
                 this->rows.insert({ _row_id, row });
             }
             auto row = this->rows[_row_id];
@@ -152,20 +152,20 @@ namespace UI {
 
         void sort(size_t _column_index, bool ascending) {
             auto comp = [_column_index, ascending](const std::unique_ptr<Widget>& a, const std::unique_ptr<Widget>& b) {
-                TableRow* row_a = static_cast<TableRow*>(a.get());
-                TableElement& element_a = *(row_a->get_element(_column_index));
-                TableRow* row_b = static_cast<TableRow*>(b.get());
-                TableElement& element_b = *(row_b->get_element(_column_index));
+                auto* row_a = static_cast<UI::TableRow*>(a.get());
+                auto& element_a = *(row_a->get_element(_column_index));
+                auto* row_b = static_cast<UI::TableRow*>(b.get());
+                auto& element_b = *(row_b->get_element(_column_index));
                 return ascending ? (element_a < element_b) : !(element_a < element_b);
             };
             this->column_wrapper->sort_children(comp);
         }
     private:
-        std::unordered_map<T, TableRow*> rows;
+        std::unordered_map<T, UI::TableRow*> rows;
         int sorting_row = -1;
         bool sorting_ascending = true;
-        Widget* column_wrapper;
-        Scrollbar* scrollbar;
+        UI::Widget* column_wrapper;
+        UI::Scrollbar* scrollbar;
         int row_height;
         std::vector<int> columns_width;
     };

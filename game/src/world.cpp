@@ -551,6 +551,19 @@ static inline void unit_do_tick(World& world, Unit& unit)
         return;
     }
 
+    const auto& province = world.provinces[unit.province_id()];
+    const auto weight_factor = glm::max<float>(0.01f, unit.size / 50000.f);
+    // Analyze neighbours of where the unit is standing on
+    for(const auto neighbour_id : province.neighbour_ids) {
+        const auto& neighbour = world.provinces[neighbour_id];
+        if(Nation::is_valid(neighbour.controller_id)) {
+            // Decrease relations if we're militarizing our border
+            auto& relation = world.get_relation(neighbour.controller_id, unit.owner_id);
+            if(!relation.has_military_access)
+                relation.relation = glm::clamp<float>(relation.relation - weight_factor, -100.f, 100.f);
+        }
+    }
+
     // Replenish units
     if(unit.morale < 1.f)
         unit.morale += 0.1f;

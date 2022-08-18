@@ -72,8 +72,6 @@ enum class ActionType {
     DRAFT_TREATY,
     TREATY_ADD,
     // Diplomacy
-    DIPLO_INC_RELATIONS,
-    DIPLO_DEC_RELATIONS,
     DIPLO_EMBARGO,
     DIPLO_DECLARE_WAR,
     DIPLO_ALLOW_MIL_ACCESS,
@@ -96,16 +94,6 @@ class Technology;
 
 namespace Action {
     class AiControl {
-    public:
-        static Eng3D::Networking::Packet form_packet(const Nation& nation);
-    };
-
-    class DiploIncRelations {
-    public:
-        static Eng3D::Networking::Packet form_packet(const Nation& nation);
-    };
-
-    class DiploDecRelations {
     public:
         static Eng3D::Networking::Packet form_packet(const Nation& nation);
     };

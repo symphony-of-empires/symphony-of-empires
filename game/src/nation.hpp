@@ -58,8 +58,7 @@ public:
     constexpr NationRelation() = default;
     ~NationRelation() = default;
 
-    signed char relation = 0;
-    signed char interest = 0;
+    float relation = 0.f;
     bool has_embargo = false;
     bool has_war = false;
     bool has_alliance = false;
@@ -116,8 +115,6 @@ public:
     bool is_ally(const Nation& nation) const;
     bool is_enemy(const Nation& nation) const;
     bool exists() const;
-    void increase_relation(Nation& target);
-    void decrease_relation(Nation& target);
     void auto_relocate_capital();
     void set_policy(const Policies& policies);
     bool is_accepted_culture(const Pop& pop) const;

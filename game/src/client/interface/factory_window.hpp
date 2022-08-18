@@ -28,10 +28,16 @@
 #include "eng3d/ui/window.hpp"
 #include "client/game_state.hpp"
 
+namespace UI {
+    class Div;
+}
+
 namespace Interface {
 	class FactoryWindow: public UI::Window {
 		GameState& gs;
 	public:
 		FactoryWindow(GameState& gs);
+        static void make_building_header(UI::Div& table);
+        static void make_building_row(UI::Div& table, const Building& building, const BuildingType& type, const Province& province);
 	};
 }

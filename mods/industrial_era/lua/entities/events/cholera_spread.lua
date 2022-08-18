@@ -27,32 +27,36 @@ cholera_evhdl = Event:new{
     ref_name = "cholera_evhdl",
     conditions_fn = function()
         if math.random(0, 100) == 0 then
-            return EVENT_CONDITIONS_MET
+            local prov_list = Nation:get(ref_name):get_owned_provinces()
+            if table.size(prov_list) > 0 then
+                return EVENT_CONDITIONS_MET
+            end
         end
         return EVENT_CONDITIONS_UNMET
     end,
     event_fn = function(ref_name)
         local prov_list = Nation:get(ref_name):get_owned_provinces()
-        local random_province = prov_list[math.random(0, table.size(prov_list))]
+        local random_province = prov_list[math.random(1, table.size(prov_list))]
         local disease_names = {
             "Disentery",
             "Cholera",
             "Tuberculosis",
         }
         local disease_names_idx = math.random(1, table.size(disease_names))
+        local disease_name = disease_names[disease_names_idx]
         local texts = {
             {
-                title = "Large " .. disease_names[disease_names_idx] .. " Spread in " .. random_province.name,
-                text = "Due to largely failed attempts in " .. random_province.name .. " to control " .. disease_names[disease_names_idx] .. ", many people have simply been exposed to the disease, whether in the sewers"
+                title = "Large " .. disease_name .. " Spread in " .. random_province.name,
+                text = "Due to largely failed attempts in " .. random_province.name .. " to control " .. disease_name .. ", many people have simply been exposed to the disease, whether in the sewers"
             }, {
                 title = "Mass Spreading Event in " .. random_province.name,
-                text = "A large party in ".. random_province.name .. " is believed to be one of the causes of a major spread of " .. disease_names[disease_names_idx] .. ". The disease had a large semi-exposed sewer which could've helped spread the disease"
+                text = "A large party in ".. random_province.name .. " is believed to be one of the causes of a major spread of " .. disease_name .. ". The disease had a large semi-exposed sewer which could've helped spread the disease"
             }, {
-                title = disease_names[disease_names_idx] .. "Dominates in ".. random_province.name,
-                text = "A large " .. disease_names[disease_names_idx] .. " outbreak in " .. random_province.name .. " has occured. Many have been infected"
+                title = disease_name .. "Dominates in ".. random_province.name,
+                text = "A large " .. disease_name .. " outbreak in " .. random_province.name .. " has occured. Many have been infected"
             }, { 
-                title = disease_names[disease_names_idx] .. " Ravages ".. random_province.name,
-                text = "A strain of " .. disease_names[disease_names_idx] .. " is ravaging the small villages of " .. random_province.name .." . This is proving to be a disaster as government officials in that area prepare a rescue mission"
+                title = disease_name .. " Ravages ".. random_province.name,
+                text = "A strain of " .. disease_name .. " is ravaging the small villages of " .. random_province.name .." . This is proving to be a disaster as government officials in that area prepare a rescue mission"
             },
         }
         local texts_idx = math.random(1, table.size(texts))

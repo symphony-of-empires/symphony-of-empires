@@ -28,6 +28,7 @@
 #include "eng3d/ui/button.hpp"
 #include "eng3d/ui/chart.hpp"
 #include "eng3d/ui/label.hpp"
+#include "eng3d/ui/div.hpp"
 #include "eng3d/ui/checkbox.hpp"
 #include "eng3d/ui/tooltip.hpp"
 #include "eng3d/ui/progress_bar.hpp"
@@ -113,7 +114,7 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation& _nation, UI::Wi
 }
 
 BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, unsigned int _idx, UI::Widget* _parent)
-    : UI::Group(x, y, _parent->width, 24 * 2, _parent),
+    : UI::Group(x, y, _parent->width, 64, _parent),
     gs{ _gs },
     province{ _province },
     idx{ _idx }
@@ -123,53 +124,40 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, un
     const auto& building_type = gs.world->building_types[idx];
     auto* name_btn = new UI::Label(0, 0, building_type.name.get_string(), this);
 
-    unsigned int dx = 0;
+    auto* production_flex = new UI::Div(0, 24, this->width, 24);
+    production_flex->flex = UI::Flex::COLUMN;
+    auto* makes_lab = new UI::Label(0, 0, _("Produces:"), production_flex);
+    makes_lab->below_of(*name_btn);
     if(!building_type.inputs.empty()) {
-        auto* makes_lab = new UI::Label(dx, 0, _("Produces:"), this);
-        makes_lab->below_of(*name_btn);
-        dx += makes_lab->width;
         for(const auto& good : building_type.inputs) {
-            auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/good/" + good->ref_name + ".png")), this);
-            icon_ibtn->below_of(*name_btn);
-            icon_ibtn->set_on_click([good](UI::Widget& w) {
-                auto& o = reinterpret_cast<Interface::BuildingInfo&>(*w.parent);
-                new Interface::GoodView(o.gs, *good);
+            auto* icon_ibtn = new UI::Image(0, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/good/" + good->ref_name + ".png")), production_flex);
+            icon_ibtn->set_tooltip(good->name.get_string());
+            icon_ibtn->set_on_click([this, good](UI::Widget&) {
+                new Interface::GoodView(this->gs, *good);
             });
-            icon_ibtn->set_tooltip(new UI::Tooltip(icon_ibtn, 512, 24));
-            icon_ibtn->tooltip->text(good->name.get_string());
-            dx += icon_ibtn->width;
         }
     }
 
-    auto* arrow_lab = new UI::Label(dx, 0, "?", this);
-    if(building_type.inputs.empty()) {
-        arrow_lab->text(_("Produces"));
-    } else {
-        arrow_lab->text(_("into"));
-    }
-    arrow_lab->below_of(*name_btn);
-    dx += arrow_lab->width;
     if(building_type.output != nullptr) {
+        if(!building_type.inputs.empty()) {
+            auto* arrow_lab = new UI::Label(0, 0, "?", production_flex);
+            arrow_lab->text(_("into"));
+        }
         auto* good = building_type.output;
-
-        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/good/" + good->ref_name + ".png")), this);
-        icon_ibtn->below_of(*name_btn);
-        icon_ibtn->set_on_click([good](UI::Widget& w) {
-            auto& o = static_cast<BuildingInfo&>(*w.parent);
-            new GoodView(o.gs, *good);
+        auto* icon_ibtn = new UI::Image(0, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/good/" + good->ref_name + ".png")), production_flex);
+        icon_ibtn->set_tooltip(good->name.get_string());
+        icon_ibtn->set_on_click([this, good](UI::Widget&) {
+            new GoodView(this->gs, *good);
         });
-        icon_ibtn->set_tooltip(new UI::Tooltip(icon_ibtn, 512, 24));
-        icon_ibtn->tooltip->text(good->name.get_string());
-        dx += icon_ibtn->width;
     }
 
-    auto* money_lab = new UI::Label(dx, 0, "?", this);
-    money_lab->below_of(*name_btn);
-    money_lab->set_on_each_tick([](UI::Widget& w) {
-        auto& o = static_cast<BuildingInfo&>(*w.parent);
-        w.text(std::to_string(o.province.buildings[o.idx].budget));
+    auto* stats_lab = new UI::Label(0, 48, "?", this);
+    stats_lab->below_of(*name_btn);
+    stats_lab->set_on_each_tick([this](UI::Widget& w) {
+        const auto& building = this->province.buildings[this->idx];
+        w.text(Eng3D::string_format("Level %.0f, %.2f$", building.level, building.budget));
     });
-    money_lab->on_each_tick(*money_lab);
+    stats_lab->on_each_tick(*stats_lab);
 }
 
 BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, const BuildingType& _building_type, UI::Widget* _parent)

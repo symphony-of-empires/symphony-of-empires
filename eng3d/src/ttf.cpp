@@ -23,10 +23,42 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "eng3d/ttf.hpp"
+#include <cassert>
 #include <SDL_ttf.h>
+#include "eng3d/ttf.hpp"
+#include "eng3d/io.hpp"
+#include "eng3d/utils.hpp"
 
-Eng3D::TrueType::Font* Eng3D::TrueType::open_font(const std::string& name, int size)
-{
-    return reinterpret_cast<Eng3D::TrueType::Font*>(TTF_OpenFont(name.c_str(), size));
+Eng3D::TrueType::Font::Font(std::shared_ptr<Eng3D::IO::Asset::Base> asset, int dpi) {
+    this->sdl_font = static_cast<void*>(TTF_OpenFont(asset->get_abs_path().c_str(), dpi));
+    if(this->sdl_font == nullptr)
+        CXX_THROW(std::runtime_error, std::string() + "Failed to load font " + asset->get_abs_path());
 }
+
+Eng3D::TrueType::Font::~Font() {
+    if(this->sdl_font != nullptr)
+        TTF_CloseFont(static_cast<TTF_Font*>(this->sdl_font));
+}
+
+Eng3D::TrueType::Manager::Manager(Eng3D::State& _s)
+    : s{ _s }
+{
+    if(TTF_Init() < 0)
+        CXX_THROW(std::runtime_error, std::string() + "Failed to init TTF " + TTF_GetError());
+}
+
+Eng3D::TrueType::Manager::~Manager() {
+    TTF_Quit();
+}
+
+std::shared_ptr<Eng3D::TrueType::Font> Eng3D::TrueType::Manager::load(std::shared_ptr<Eng3D::IO::Asset::Base> asset) {
+    const std::string path = asset.get() != nullptr ? asset->get_abs_path() : "";
+    const auto it = this->fonts.find(path);
+    if(it != this->fonts.cend())
+        return it->second;
+    
+    auto font = std::make_shared<Eng3D::TrueType::Font>(asset, 16);
+    this->fonts[path] = font;
+    return this->fonts[path];
+}
+

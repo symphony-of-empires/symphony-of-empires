@@ -101,10 +101,10 @@ void Client::net_loop() {
                 while(1) {
                     try {
                         packet.recv();
+                        break;
                     } catch(Eng3D::Networking::SocketException& e) {
                         // Pass
                     }
-
                     if(!this->run) CXX_THROW(ClientException, "Server closed");
                 }
                 ar.set_buffer(packet.data(), packet.size());
@@ -250,11 +250,11 @@ void Client::net_loop() {
             }
 
             // Client will also flush it's queue to the server
-            std::scoped_lock lock(packets_mutex);
+            const std::scoped_lock lock(packets_mutex);
             for(auto& packet : packets) {
+                Eng3D::Log::debug("client", "Sending package of " + std::to_string(packet.size()));
                 packet.stream = Eng3D::Networking::SocketStream(fd);
                 packet.send();
-                Eng3D::Log::debug("client", "Sending package of " + std::to_string(packet.size()));
             }
             packets.clear();
         }

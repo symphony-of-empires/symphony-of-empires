@@ -53,7 +53,7 @@ TopWindow::TopWindow(GameState& _gs)
     this->is_scroll = false;
     this->is_pinned = true;
 
-    new TimeControlView(gs);
+    this->gs.time_win = static_cast<UI::Widget*>(new TimeControlView(gs));
 
     UI::Image::make_transparent(0, 0, 147, 499, "gfx/top_window.png", this);
     auto* flag_img = new UI::AspectImage(5, 4, 138, 88, this->gs.get_nation_flag(*this->gs.curr_nation), this);
@@ -218,7 +218,7 @@ TimeControlView::TimeControlView(GameState& _gs)
         speed3_btn->set_tooltip("Fire speed");
     }
 
-    auto font = Eng3D::TrueType::open_font(gs.package_man.get_unique("fonts/neon_euler/euler.ttf")->get_abs_path(), 20);
+    auto font = gs.ttf_man.load(gs.package_man.get_unique("fonts/neon_euler/euler.ttf"));
     
     auto* time_lab = new UI::Label(50, 30, " ", this);
     time_lab->font = font;

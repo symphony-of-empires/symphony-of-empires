@@ -148,7 +148,6 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->has_market_access);
         ::deser_dynamic<is_serialize>(ar, &obj->has_military_access);
         ::deser_dynamic<is_serialize>(ar, &obj->has_war);
-        ::deser_dynamic<is_serialize>(ar, &obj->interest);
         ::deser_dynamic<is_serialize>(ar, &obj->relation);
     }
 };

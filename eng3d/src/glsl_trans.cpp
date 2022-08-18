@@ -319,9 +319,6 @@ std::string Eng3D::GLSL::Context::to_text() {
         case Eng3D::GLSL::Token::Type::NEWLINE:
             line_numbers.push_back(current_line++);
             end_buffer += "\n";
-            while(it->type == Eng3D::GLSL::Token::Type::NEWLINE)
-                it++;
-            it--;
             break;
         case Eng3D::GLSL::Token::Type::SEMICOLON:
             end_buffer += ";";

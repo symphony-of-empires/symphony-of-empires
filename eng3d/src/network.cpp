@@ -78,16 +78,11 @@ void Eng3D::Networking::SocketStream::send(const void* data, size_t size) {
 void Eng3D::Networking::SocketStream::recv(void* data, size_t size) {
     auto* c_data = reinterpret_cast<char*>(data);
 
-    constexpr auto max_tries = 10;
-    auto tries = 0;
+    /// @todo This hangs
     for(size_t i = 0; i < size; ) {
-        int r = ::recv(fd, &c_data[i], std::min<std::size_t>(1024, size - i), MSG_DONTWAIT);
-        if(r < 0) {
-            if(tries > max_tries)
-                CXX_THROW(Eng3D::Networking::SocketException, "Can't receive data of packet");
-            tries++; // Give it a few tries
-        }
-        tries = 0;
+        int r = ::recv(fd, &c_data[i], std::min<std::size_t>(1024, size - i), MSG_WAITALL);
+        if(r < 0)
+            CXX_THROW(Eng3D::Networking::SocketException, "Can't receive data of packet");
         i += static_cast<std::size_t>(r);
     }
 }

@@ -25,7 +25,7 @@
 
 #include "eng3d/ui/tooltip.hpp"
 #include "eng3d/ui/widget.hpp"
-#include "eng3d/ui/label.hpp"
+#include "eng3d/ui/text.hpp"
 #include "eng3d/ui/ui.hpp"
 #include "eng3d/state.hpp"
 #include "eng3d/path.hpp"
@@ -41,13 +41,14 @@ UI::Tooltip::Tooltip()
     this->width = 512;
 
     this->current_texture = Eng3D::State::get_instance().ui_ctx.tooltip_tex;
+    this->text_color = Eng3D::Color(1.f, 1.f, 1.f);
 
     const glm::ivec2 size{ 4, 4 };
     const glm::ivec2 texture_size{ 10, 10 };
     this->border = UI::Border(g_ui_context->border_tex, size, texture_size);
 }
 
-UI::Tooltip::Tooltip(Widget* parent, unsigned w, unsigned h)
+UI::Tooltip::Tooltip(UI::Widget* parent, unsigned w, unsigned h)
     : UI::Widget()
 {
     this->parent = parent;
@@ -58,14 +59,11 @@ UI::Tooltip::Tooltip(Widget* parent, unsigned w, unsigned h)
     this->height = h;
 
     this->current_texture = Eng3D::State::get_instance().ui_ctx.tooltip_tex;
+    this->text_color = Eng3D::Color(1.f, 1.f, 1.f);
 
     const glm::ivec2 size{ 4, 4 };
     const glm::ivec2 texture_size{ 10, 10 };
     this->border = UI::Border(g_ui_context->border_tex, size, texture_size);
-}
-
-UI::Tooltip::~Tooltip() {
-
 }
 
 void UI::Tooltip::set_pos(int _x, int _y, int, int _height, int screen_w, int screen_h) {
@@ -77,48 +75,18 @@ void UI::Tooltip::set_pos(int _x, int _y, int, int _height, int screen_w, int sc
         y = _y + _height + 10;
     }
     x = _x;
+
+    // Make sure the tooltip is visable when it's too long and that it doesn't just disappear
+    if(this->x + this->width > screen_w)
+        this->x = screen_w - this->width;
 }
 
 // Note! Code duplication of Text::text 
 void UI::Tooltip::text(const std::string& text) {
     this->kill_children();
     if(text.empty()) return;
-
-    // Separate the text in multiple labels and break on space
-    /// @todo only works for monospace fonts width width 12, fix it for all fonts
-    size_t pos = 0, y = 0;
-    size_t line_width = std::max<size_t>(1, this->width / 12);
-    while(pos < text.length()) {
-        size_t remaining_chars = text.length() - pos;
-        size_t end_pos = text.length();
-        if(remaining_chars > line_width) end_pos = pos + line_width;
-
-        bool break_line = false;
-        for(size_t i = pos; i <= end_pos; i++) {
-            if(text[i] == '\n') {
-                end_pos = i;
-                break_line = true;
-                break;
-            }
-        }
-
-        if(!break_line && remaining_chars > line_width) {
-            for(size_t i = end_pos; i > pos; i--) {
-                if(text[i] == ' ') {
-                    end_pos = i;
-                    break;
-                }
-            }
-        }
-
-        auto buf = text.substr(pos, end_pos - pos);
-        pos = end_pos;
-        if(break_line) pos++;
-        
-        auto *lab = new UI::Label(8, y, " ", this);
-        lab->text_color = Eng3D::Color(1.f, 1.f, 1.f);
-        lab->text(buf);
-        y += 24;
-    }
-    height = y;
+    this->width = Eng3D::State::get_instance().width - this->x;
+    auto* text_txt = new UI::Text(0, 0, text, *this);
+    this->width = text_txt->width;
+    this->height = text_txt->height;
 }

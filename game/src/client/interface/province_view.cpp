@@ -42,6 +42,8 @@
 #include "nation.hpp"
 #include "world.hpp"
 #include "building.hpp"
+#include "action.hpp"
+#include "client/client_network.hpp"
 
 using namespace Interface;
 
@@ -98,16 +100,15 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     }
 
     // Display all the nuclei
-    int dx = 0;
+    auto* nuclei_flex_row = new UI::Div(0, this->landscape_img->height - 24, this->width, 24, this);
+    nuclei_flex_row->flex = UI::Flex::ROW;
     for(const auto& nucleus_id : province.nuclei) {
         auto& nucleus = g_world.nations[nucleus_id];
-        this->owner_flag = new UI::AspectImage(dx, this->landscape_img->height - 24, 32, 24, gs.get_nation_flag(nucleus), this);
+        this->owner_flag = new UI::AspectImage(0, 0, 32, 24, gs.get_nation_flag(nucleus), nuclei_flex_row);
         this->owner_flag->set_on_click([this, &nucleus](UI::Widget&) {
             new Interface::NationView(this->gs, nucleus);
         });
         this->owner_flag->set_tooltip(nucleus.name + " has nuclei on this province");
-        new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width, this->owner_flag->height, gs.tex_man.load(gs.package_man.get_unique("gfx/flag_rug.png")), this);
-        dx += this->owner_flag->width;
     }
 
     auto* cultures_lab = new UI::Label(0, 0, "Cultures", this);
@@ -129,48 +130,62 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     this->pop_types_pie->below_of(*pop_types_lab);
     this->pop_types_pie->right_side_of(*this->religions_pie);
 
-    std::vector<int> sizes{ 96, 128, 24, 128 };
+    std::vector<int> sizes{ 64, 96, 32, 96 };
     std::vector<std::string> header{ "Size", "Budget", "Religion", "Culture" };
-    auto table = new UI::Table<uint32_t>(0, 256 + 96, 0, 500, 30, sizes, header, this);
-    auto& pops = this->province.pops;
-    table->reserve(pops.size());
-    table->set_on_each_tick([this, pops, table](UI::Widget&) {
-        for(size_t i = 0; i < pops.size(); i++) {
-            auto& pop = pops[i];
+    if(gs.editor) {
+        sizes.push_back(32);
+        header.push_back(" ");
+    }
+    auto* table = new UI::Table<uint32_t>(0, 256 + 96, 0, 500, 30, sizes, header, this);
+    table->reserve(this->province.pops.size());
+    table->set_on_each_tick([this, table](UI::Widget&) {
+        for(size_t i = 0; i < this->province.pops.size(); i++) {
+            auto& pop = this->province.pops[i];
             uint32_t id = pop.get_type_id();
             auto* row = table->get_row(id);
             size_t row_index = 0;
 
-            auto size = row->get_element(row_index++);
+            auto* size = row->get_element(row_index++);
             auto size_str = Eng3D::string_format("%.0f", pop.size);
             size->text(size_str);
             size->set_key(pop.size);
 
-            auto budget = row->get_element(row_index++);
+            auto* budget = row->get_element(row_index++);
             auto budget_str = Eng3D::string_format("%.0f", pop.budget / pop.size);
             budget->text(budget_str);
             auto budget_tip = Eng3D::string_format(_("Total budget: %.2f"), pop.budget);
             budget->set_tooltip(budget_tip);
             budget->set_key(pop.budget / pop.size);
 
-            auto religion = row->get_element(row_index++);
+            auto* religion = row->get_element(row_index++);
             auto religion_icon = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/religion/" + this->gs.world->religions[pop.religion_id].ref_name + ".png"));
             religion->current_texture = religion_icon;
-            auto religion_tip = Eng3D::Locale::translate(this->gs.world->religions[pop.religion_id].name.get_string());
+            auto religion_tip = _(this->gs.world->religions[pop.religion_id].name.get_string());
             religion->set_tooltip(religion_tip);
             religion->set_key(religion_tip);
 
-            auto culture = row->get_element(row_index++);
-            auto culture_str = Eng3D::Locale::translate(this->gs.world->cultures[pop.culture_id].name.get_string());
+            auto* culture = row->get_element(row_index++);
+            auto culture_str = _(this->gs.world->cultures[pop.culture_id].name.get_string());
             culture->text(culture_str);
             culture->set_key(culture_str);
+
+            if(this->gs.editor) {
+                auto* remove_btn = row->get_element(row_index++);
+                auto remove_btn_str = "X";
+                remove_btn->text(remove_btn_str);
+                remove_btn->set_key(remove_btn_str);
+                remove_btn->set_on_click([this, i, id, table](UI::Widget&) {
+                    table->remove_row(id);
+                    const_cast<Province&>(this->province).remove_pop(i);
+                    table->on_each_tick(*table);
+                });
+            }
         }
     });
     table->on_each_tick(*table);
 
-    this->set_on_each_tick([](UI::Widget& w) {
-        auto& o = static_cast<ProvincePopulationTab&>(w);
-        o.update_piecharts();
+    this->set_on_each_tick([this](UI::Widget&) {
+        this->update_piecharts();
     });
     this->on_each_tick(*this);
 }
@@ -216,73 +231,93 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province&
     gs{ _gs },
     province{ _province }
 {
-    this->text(province.name.get_string());
+    std::vector<int> sizes{ 96, 64, 64, 32, 48, 32 };
+    std::vector<std::string> header{ "Name", "Workers", "Inputs", "Output", "Scale", " " };
+    auto* table = new UI::Table<uint32_t>(0, 0, 0, this->height, 32, sizes, header, this);
+    table->reserve(this->province.buildings.size());
+    table->set_on_each_tick([this, table](UI::Widget&) {
+        for(size_t i = 0; i < this->province.buildings.size(); i++) {
+            const auto& building = this->province.buildings[i];
+            const auto& type = this->gs.world->building_types[i];
+            auto* row = table->get_row(i);
+            size_t row_index = 0;
 
-    // Initial product info
-    auto* build_btn = new UI::Button(0, 0, 128, 24, this);
-    build_btn->text("Build new");
-    build_btn->set_on_click([this](UI::Widget&) {
-        new BuildingBuildView(this->gs, 0, 0, false, this->province);
-    });
+            auto* name = row->get_element(row_index++);
+            auto name_str = Eng3D::string_format("%s", type.name.get_string().c_str());
+            name->text(name_str);
+            name->set_key(name_str);
 
-    auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
-    flex_column->flex = UI::Flex::COLUMN;
-    flex_column->is_scroll = true;
-    flex_column->below_of(*build_btn);
-    for(unsigned int i = 0; i < gs.world->building_types.size(); i++) {
-        if(province.buildings[i].level) {
-            auto* info = new BuildingInfo(this->gs, 0, 0, province, i, flex_column);
-            this->building_infos.push_back(info);
+            auto* workers = row->get_element(row_index++);
+            workers->text(Eng3D::string_format("%.0f", building.workers));
+            workers->set_key(building.workers);
+
+            auto* inputs = row->get_element(row_index++);
+            inputs->set_key(type.inputs.size());
+            inputs->kill_children();
+            inputs->flex = UI::Flex::ROW;
+            for(auto good : type.inputs) {
+                auto* input_good_image = new UI::Image(0, 0, 32, 32, "gfx/good/" + good->ref_name + ".png", true, inputs);
+                input_good_image->set_tooltip(good->name.get_string());
+            }
+
+            auto* outputs = row->get_element(row_index++);
+            outputs->set_key(type.output != nullptr ? 1 : 0);
+            outputs->kill_children();
+            outputs->flex = UI::Flex::ROW;
+            if(type.output != nullptr) {
+                auto* output_good_image = new UI::Image(0, 0, 32, 32, "gfx/good/" + type.output->ref_name + ".png", true, outputs);
+                output_good_image->set_tooltip(type.output->name.get_string());
+            }
+
+            auto* scale = row->get_element(row_index++);
+            auto scale_str = Eng3D::string_format("%.0f", building.production_scale * building.level);
+            scale->text(scale_str);
+            scale->set_key(building.production_scale * building.level);
+            scale->set_tooltip(Eng3D::string_format(_("Allowed production scale, (scale * level) = (%.0f * %.0f) = %.0f"), building.production_scale, building.level, building.production_scale * building.level));
+
+            auto* upgrade = row->get_element(row_index++);
+            upgrade->text("+");
+            upgrade->set_tooltip(_("Upgrade building"));
+            upgrade->set_key(0);
+            upgrade->set_on_click([this, type](UI::Widget&) {
+                this->gs.client->send(Action::BuildingAdd::form_packet(this->province, type));
+            });
         }
-    }
+    });
+    table->on_each_tick(*table);
 }
 
 ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)
     : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
     gs{ _gs },
     province{ _province },
-    culture{ _gs.world->cultures[0] }
+    culture{ _gs.world->cultures[0] },
+    religion{ _gs.world->religions[0] }
 {
-    this->text(province.name.get_string());
-    this->is_scroll = true;
-
-    // Initial product info
-    auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
-    flex_column->flex = UI::Flex::COLUMN;
-    flex_column->is_scroll = true;
+    this->is_scroll = false;
+    auto* culture_flex_column = new UI::Div(0, 0, this->width / 2, this->height, this);
+    culture_flex_column->flex = UI::Flex::COLUMN;
+    culture_flex_column->is_scroll = true;
     for(auto& culture : gs.world->cultures) {
-        auto* btn = new UI::Button(0, 0, 128, 24, flex_column);
+        auto* btn = new UI::Button(0, 0, 128, 24, culture_flex_column);
         btn->text(culture.name.get_string());
         btn->set_on_click([this, &culture](UI::Widget&) {
-            for(auto& pop : const_cast<Province&>(this->province).pops) {
+            for(auto& pop : const_cast<Province&>(this->province).pops)
                 pop.culture_id = culture.get_id();
-            }
             this->gs.map->update_mapmode();
             this->gs.input.selected_culture = &culture;
         });
     }
-}
 
-ProvinceEditReligionTab::ProvinceEditReligionTab(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)
-    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
-    gs{ _gs },
-    province{ _province },
-    religion{ _gs.world->religions[0] }
-{
-    this->text(province.name.get_string());
-    this->is_scroll = true;
-
-    // Initial product info
-    auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
-    flex_column->flex = UI::Flex::COLUMN;
-    flex_column->is_scroll = true;
+    auto* religion_flex_column = new UI::Div(this->width / 2, 0, this->width - (this->width / 2), this->height, this);
+    religion_flex_column->flex = UI::Flex::COLUMN;
+    religion_flex_column->is_scroll = true;
     for(auto& religion : gs.world->religions) {
-        auto* btn = new UI::Button(0, 0, 128, 24, flex_column);
+        auto* btn = new UI::Button(0, 0, 128, 24, religion_flex_column);
         btn->text(religion.name.get_string());
         btn->set_on_click([this, &religion](UI::Widget&) {
-            for(auto& pop : const_cast<Province&>(this->province).pops) {
+            for(auto& pop : const_cast<Province&>(this->province).pops)
                 pop.religion_id = religion.get_id();
-            }
             this->gs.map->update_mapmode();
             this->gs.input.selected_religion = &religion;
         });
@@ -295,8 +330,6 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
     province{ _province },
     terrain_type{ _gs.world->terrain_types[0] }
 {
-    this->text(province.name.get_string());
-
     std::vector<int> sizes{ 96, 128 };
     std::vector<std::string> header{ "Landscape", "Name" };
     auto table = new UI::Table<uint32_t>(0, 0, 0, this->height, 30, sizes, header, this);
@@ -342,79 +375,67 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
     gs{ _gs },
     province{ _province }
 {
-    if(gs.right_side_panel != nullptr)
-        gs.right_side_panel->kill();
-    gs.right_side_panel = this;
-    gs.map->set_selected_province(true, _gs.world->get_id(_province));
-
+    if(this->gs.right_side_panel != nullptr)
+        this->gs.right_side_panel->kill();
+    this->gs.right_side_panel = this;
     this->set_close_btn_function([this](Widget&) {
         this->kill();
         this->gs.right_side_panel = nullptr;
-        gs.map->set_selected_province(false, 0);
+        this->gs.map->set_selected_province(false, 0);
     });
+    this->gs.map->set_selected_province(true, this->province.get_id());
 
     this->origin = UI::Origin::UPPER_RIGHT_SCREEN;
     this->is_scroll = false;
     this->text(province.name.get_string());
 
+    auto* flex_row = new UI::Div(0, 0, this->width, 32, this);
+    flex_row->flex = UI::Flex::ROW;
+
     this->pop_tab = new ProvincePopulationTab(gs, 0, 32, province, this);
     this->pop_tab->is_render = true;
-    auto* pop_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/pv_1.png")), this);
+    auto* pop_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/pv_1.png")), flex_row);
     pop_ibtn->set_on_click([this](UI::Widget&) {
         this->pop_tab->is_render = true;
         this->econ_tab->is_render = false;
         this->build_tab->is_render = false;
+        if(gs.editor) {
+            this->edit_culture_tab->is_render = false;
+            this->edit_terrain_tab->is_render = false;
+        }
     });
-    pop_ibtn->set_tooltip("Population");
+    pop_ibtn->set_tooltip(_("Population"));
 
     this->econ_tab = new ProvinceEconomyTab(gs, 0, 32, province, this);
     this->econ_tab->is_render = false;
-    auto* econ_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/money.png")), this);
-    econ_ibtn->right_side_of(*pop_ibtn);
+    auto* econ_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/money.png")), flex_row);
     econ_ibtn->set_on_click([this](UI::Widget&) {
         this->pop_tab->is_render = false;
         this->econ_tab->is_render = true;
         this->build_tab->is_render = false;
+        if(gs.editor) {
+            this->edit_culture_tab->is_render = false;
+            this->edit_terrain_tab->is_render = false;
+        }
     });
-    econ_ibtn->set_tooltip("Economy");
+    econ_ibtn->set_tooltip(_("Economy"));
 
     this->build_tab = new ProvinceBuildingTab(gs, 0, 32, province, this);
     this->build_tab->is_render = false;
-    auto* build_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/pv_0.png")), this);
-    build_ibtn->right_side_of(*econ_ibtn);
+    auto* build_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/pv_0.png")), flex_row);
     build_ibtn->set_on_click([this](UI::Widget&) {
         this->pop_tab->is_render = false;
         this->econ_tab->is_render = false;
         this->build_tab->is_render = true;
+        if(gs.editor) {
+            this->edit_culture_tab->is_render = false;
+            this->edit_terrain_tab->is_render = false;
+        }
     });
-    build_ibtn->set_tooltip("Buildings");
+    build_ibtn->set_tooltip(_("Buildings"));
 
     if(gs.editor) {
-        rename_inp = new UI::Input(0, this->height - (64 + 24), 128, 24, this);
-        rename_inp->set_buffer(province.name.get_string());
-
-        auto* xchg_name_btn = new UI::Button(0, this->height - (64 + 24), 32, 32, this);
-        xchg_name_btn->right_side_of(*rename_inp);
-        xchg_name_btn->set_on_click([this](UI::Widget&) {
-            const_cast<Province&>(this->province).name = this->rename_inp->get_buffer();
-            this->gs.map->create_labels();
-            this->gs.ui_ctx.prompt("Update", "Updated name of province to \"" + this->province.name + "\"!");
-        });
-        xchg_name_btn->set_tooltip("Rename province");
-
-        density_sld = new UI::Slider(0, this->height - (64 + 24), 128, 24, 0.1f, 2.f, this);
-        density_sld->right_side_of(*xchg_name_btn);
-        density_sld->set_value(0.f);
-        density_sld->set_on_click([this](UI::Widget& w) {
-            w.text(std::to_string(((UI::Slider&)w).get_value()));
-            const float den = this->density_sld->value;
-            for(auto& pop : const_cast<Province&>(this->province).pops)
-                pop.size *= den;
-            this->gs.map->update_mapmode();
-        });
-
-        auto* fill_pops_btn = new UI::Button(0, this->height - 64, 32, 32, this);
-        fill_pops_btn->below_of(*density_sld);
+        auto* fill_pops_btn = new UI::Button(0, this->height - 64, 32, 32, flex_row);
         fill_pops_btn->set_on_click([this](UI::Widget&) {
             // Get max sv
             auto max_sv = 1.f;
@@ -442,62 +463,48 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
         });
         fill_pops_btn->set_tooltip("Add POPs (will add " + std::to_string(gs.world->pop_types.size()) + "POPs)");
 
-        auto* clear_pops_btn = new UI::Button(0, this->height - 64, 32, 32, this);
-        clear_pops_btn->below_of(*density_sld);
-        clear_pops_btn->right_side_of(*fill_pops_btn);
-        clear_pops_btn->set_on_click([this](UI::Widget&) {
-            const_cast<Province&>(this->province).pops.clear();
-            this->gs.map->update_mapmode();
-        });
-        clear_pops_btn->set_tooltip("Removes all POPs from this province ;)");
-
         this->edit_culture_tab = new ProvinceEditCultureTab(gs, 0, 32, province, this);
         this->edit_culture_tab->is_render = false;
-
-        auto* edit_culture_btn = new UI::Button(0, this->height - 64, 32, 32, this);
-        edit_culture_btn->below_of(*density_sld);
-        edit_culture_btn->right_side_of(*clear_pops_btn);
+        auto* edit_culture_btn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/money.png")), flex_row);
         edit_culture_btn->set_on_click([this](UI::Widget&) {
             this->pop_tab->is_render = false;
             this->econ_tab->is_render = false;
             this->build_tab->is_render = false;
             this->edit_culture_tab->is_render = true;
-            this->edit_religion_tab->is_render = false;
             this->edit_terrain_tab->is_render = false;
         });
-        edit_culture_btn->set_tooltip("Edit culture");
-
-        this->edit_religion_tab = new ProvinceEditReligionTab(gs, 0, 32, province, this);
-        this->edit_religion_tab->is_render = false;
-
-        auto* edit_religion_btn = new UI::Button(0, this->height - 64, 32, 32, this);
-        edit_religion_btn->below_of(*density_sld);
-        edit_religion_btn->right_side_of(*edit_culture_btn);
-        edit_religion_btn->set_on_click([this](UI::Widget&) {
-            this->pop_tab->is_render = false;
-            this->econ_tab->is_render = false;
-            this->build_tab->is_render = false;
-            this->edit_culture_tab->is_render = false;
-            this->edit_religion_tab->is_render = true;
-            this->edit_terrain_tab->is_render = false;
-        });
-        edit_religion_btn->set_tooltip("Edit religion");
+        edit_culture_btn->set_tooltip(_("Edit primary culture and religion"));
 
         this->edit_terrain_tab = new ProvinceEditTerrainTab(gs, 0, 32, province, this);
         this->edit_terrain_tab->is_render = false;
-
-        auto* edit_terrain_btn = new UI::Button(0, this->height - 64, 32, 32, this);
-        edit_terrain_btn->below_of(*density_sld);
-        edit_terrain_btn->right_side_of(*edit_religion_btn);
+        auto* edit_terrain_btn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/money.png")), flex_row);
         edit_terrain_btn->set_on_click([this](UI::Widget&) {
             this->pop_tab->is_render = false;
             this->econ_tab->is_render = false;
             this->build_tab->is_render = false;
             this->edit_culture_tab->is_render = false;
-            this->edit_religion_tab->is_render = false;
             this->edit_terrain_tab->is_render = true;
         });
-        edit_terrain_btn->set_tooltip("Edit terrain");
+        edit_terrain_btn->set_tooltip(_("Edit terrain"));
+
+        rename_inp = new UI::Input(0, 0, 128, 24, flex_row);
+        rename_inp->set_buffer(province.name.get_string());
+        auto* xchg_name_btn = new UI::Button(0, 0, 32, 32, flex_row);
+        xchg_name_btn->set_on_click([this](UI::Widget&) {
+            const_cast<Province&>(this->province).name = this->rename_inp->get_buffer();
+            this->gs.map->create_labels();
+        });
+        xchg_name_btn->set_tooltip("Rename province");
+
+        density_sld = new UI::Slider(0, 0, 128, 24, 0.1f, 2.f, flex_row);
+        density_sld->set_value(0.f);
+        density_sld->set_on_click([this](UI::Widget& w) {
+            w.text(std::to_string(((UI::Slider&)w).get_value()));
+            const float den = this->density_sld->value;
+            for(auto& pop : const_cast<Province&>(this->province).pops)
+                pop.size *= den;
+            this->gs.map->update_mapmode();
+        });
     }
 }
 

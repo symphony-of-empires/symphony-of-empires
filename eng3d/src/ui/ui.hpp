@@ -32,18 +32,18 @@
 #include <mutex>
 #include <string>
 
-#include <SDL_surface.h>
 #include <glm/vec2.hpp>
 #include <glm/mat4x4.hpp>
 
-#include "eng3d/ttf.hpp"
 #include "eng3d/shader.hpp"
 #include "eng3d/rectangle.hpp"
 #include "eng3d/color.hpp"
 
+struct SDL_Surface;
 namespace Eng3D {
     class Texture;
     class State;
+    class Font;
 }
 
 /// @defgroup UI UI
@@ -57,14 +57,14 @@ namespace UI {
 
     class Widget;
     class Tooltip;
-    typedef void (*Callback)(Widget&);
+    typedef void (*Callback)(UI::Widget&);
 
     /// @ingroup UI
     /// @brief The UI context that handles all the ui widgets
     class Context {
         int drag_x, drag_y;
-        bool is_drag;
-        Widget* dragged_widget;
+        bool is_drag = false;
+        UI::Widget* dragged_widget = nullptr;
         int width, height;
 
         glm::ivec2 get_pos(UI::Widget& w, glm::ivec2 offset);
@@ -141,7 +141,7 @@ namespace UI {
         std::shared_ptr<Eng3D::Texture> button_border;
         std::shared_ptr<Eng3D::Texture> cursor_tex;
 
-        Eng3D::TrueType::Font* default_font = nullptr;
+        std::shared_ptr<Eng3D::TrueType::Font> default_font;
 
         std::unique_ptr<Eng3D::OpenGL::Program> obj_shader;
         std::unique_ptr<Eng3D::OpenGL::Program> piechart_shader;

@@ -30,66 +30,84 @@
 
 #include "eng3d/event.hpp"
 
-Eng3D::Keyboard::Key Eng3D::Keyboard::from_sdlk(int sdlk)
-{
+Eng3D::Event::Key::Type Eng3D::Event::Key::from_sdl(int sdl) {
     // Use a simple switch case jumptable
-    switch(sdlk) {
+    switch(sdl) {
     // Alphabet
-    case SDLK_a: return Eng3D::Keyboard::Key::A;
-    case SDLK_b: return Eng3D::Keyboard::Key::B;
-    case SDLK_c: return Eng3D::Keyboard::Key::C;
-    case SDLK_d: return Eng3D::Keyboard::Key::D;
-    case SDLK_e: return Eng3D::Keyboard::Key::E;
-    case SDLK_f: return Eng3D::Keyboard::Key::F;
-    case SDLK_g: return Eng3D::Keyboard::Key::G;
-    case SDLK_h: return Eng3D::Keyboard::Key::H;
-    case SDLK_i: return Eng3D::Keyboard::Key::I;
-    case SDLK_j: return Eng3D::Keyboard::Key::J;
-    case SDLK_k: return Eng3D::Keyboard::Key::K;
-    case SDLK_l: return Eng3D::Keyboard::Key::L;
-    case SDLK_m: return Eng3D::Keyboard::Key::M;
-    case SDLK_n: return Eng3D::Keyboard::Key::N;
-    case SDLK_o: return Eng3D::Keyboard::Key::O;
-    case SDLK_p: return Eng3D::Keyboard::Key::P;
-    case SDLK_q: return Eng3D::Keyboard::Key::Q;
-    case SDLK_r: return Eng3D::Keyboard::Key::R;
-    case SDLK_s: return Eng3D::Keyboard::Key::S;
-    case SDLK_t: return Eng3D::Keyboard::Key::T;
-    case SDLK_u: return Eng3D::Keyboard::Key::U;
-    case SDLK_v: return Eng3D::Keyboard::Key::V;
-    case SDLK_w: return Eng3D::Keyboard::Key::W;
-    case SDLK_x: return Eng3D::Keyboard::Key::X;
-    case SDLK_y: return Eng3D::Keyboard::Key::Y;
-    case SDLK_z: return Eng3D::Keyboard::Key::Z;
+    case SDLK_a: return Eng3D::Event::Key::Type::A;
+    case SDLK_b: return Eng3D::Event::Key::Type::B;
+    case SDLK_c: return Eng3D::Event::Key::Type::C;
+    case SDLK_d: return Eng3D::Event::Key::Type::D;
+    case SDLK_e: return Eng3D::Event::Key::Type::E;
+    case SDLK_f: return Eng3D::Event::Key::Type::F;
+    case SDLK_g: return Eng3D::Event::Key::Type::G;
+    case SDLK_h: return Eng3D::Event::Key::Type::H;
+    case SDLK_i: return Eng3D::Event::Key::Type::I;
+    case SDLK_j: return Eng3D::Event::Key::Type::J;
+    case SDLK_k: return Eng3D::Event::Key::Type::K;
+    case SDLK_l: return Eng3D::Event::Key::Type::L;
+    case SDLK_m: return Eng3D::Event::Key::Type::M;
+    case SDLK_n: return Eng3D::Event::Key::Type::N;
+    case SDLK_o: return Eng3D::Event::Key::Type::O;
+    case SDLK_p: return Eng3D::Event::Key::Type::P;
+    case SDLK_q: return Eng3D::Event::Key::Type::Q;
+    case SDLK_r: return Eng3D::Event::Key::Type::R;
+    case SDLK_s: return Eng3D::Event::Key::Type::S;
+    case SDLK_t: return Eng3D::Event::Key::Type::T;
+    case SDLK_u: return Eng3D::Event::Key::Type::U;
+    case SDLK_v: return Eng3D::Event::Key::Type::V;
+    case SDLK_w: return Eng3D::Event::Key::Type::W;
+    case SDLK_x: return Eng3D::Event::Key::Type::X;
+    case SDLK_y: return Eng3D::Event::Key::Type::Y;
+    case SDLK_z: return Eng3D::Event::Key::Type::Z;
     // Numericals
-    case SDLK_0: return Eng3D::Keyboard::Key::NUM_0;
-    case SDLK_1: return Eng3D::Keyboard::Key::NUM_1;
-    case SDLK_2: return Eng3D::Keyboard::Key::NUM_2;
-    case SDLK_3: return Eng3D::Keyboard::Key::NUM_3;
-    case SDLK_4: return Eng3D::Keyboard::Key::NUM_4;
-    case SDLK_5: return Eng3D::Keyboard::Key::NUM_5;
-    case SDLK_6: return Eng3D::Keyboard::Key::NUM_6;
-    case SDLK_7: return Eng3D::Keyboard::Key::NUM_7;
-    case SDLK_8: return Eng3D::Keyboard::Key::NUM_8;
-    case SDLK_9: return Eng3D::Keyboard::Key::NUM_9;
+    case SDLK_0: return Eng3D::Event::Key::Type::NUM_0;
+    case SDLK_1: return Eng3D::Event::Key::Type::NUM_1;
+    case SDLK_2: return Eng3D::Event::Key::Type::NUM_2;
+    case SDLK_3: return Eng3D::Event::Key::Type::NUM_3;
+    case SDLK_4: return Eng3D::Event::Key::Type::NUM_4;
+    case SDLK_5: return Eng3D::Event::Key::Type::NUM_5;
+    case SDLK_6: return Eng3D::Event::Key::Type::NUM_6;
+    case SDLK_7: return Eng3D::Event::Key::Type::NUM_7;
+    case SDLK_8: return Eng3D::Event::Key::Type::NUM_8;
+    case SDLK_9: return Eng3D::Event::Key::Type::NUM_9;
     // Function
-    case SDLK_F1: return Eng3D::Keyboard::Key::F1;
-    case SDLK_F2: return Eng3D::Keyboard::Key::F2;
-    case SDLK_F3: return Eng3D::Keyboard::Key::F3;
-    case SDLK_F4: return Eng3D::Keyboard::Key::F4;
-    case SDLK_F5: return Eng3D::Keyboard::Key::F5;
-    case SDLK_F6: return Eng3D::Keyboard::Key::F6;
-    case SDLK_F7: return Eng3D::Keyboard::Key::F7;
-    case SDLK_F8: return Eng3D::Keyboard::Key::F8;
-    case SDLK_F9: return Eng3D::Keyboard::Key::F9;
-    case SDLK_F10: return Eng3D::Keyboard::Key::F10;
-    case SDLK_F11: return Eng3D::Keyboard::Key::F11;
-    case SDLK_F12: return Eng3D::Keyboard::Key::F12;
+    case SDLK_F1: return Eng3D::Event::Key::Type::F1;
+    case SDLK_F2: return Eng3D::Event::Key::Type::F2;
+    case SDLK_F3: return Eng3D::Event::Key::Type::F3;
+    case SDLK_F4: return Eng3D::Event::Key::Type::F4;
+    case SDLK_F5: return Eng3D::Event::Key::Type::F5;
+    case SDLK_F6: return Eng3D::Event::Key::Type::F6;
+    case SDLK_F7: return Eng3D::Event::Key::Type::F7;
+    case SDLK_F8: return Eng3D::Event::Key::Type::F8;
+    case SDLK_F9: return Eng3D::Event::Key::Type::F9;
+    case SDLK_F10: return Eng3D::Event::Key::Type::F10;
+    case SDLK_F11: return Eng3D::Event::Key::Type::F11;
+    case SDLK_F12: return Eng3D::Event::Key::Type::F12;
+    // Arrow keys
+    case SDLK_UP: return Eng3D::Event::Key::Type::UP;
+    case SDLK_DOWN: return Eng3D::Event::Key::Type::DOWN;
+    case SDLK_LEFT: return Eng3D::Event::Key::Type::LEFT;
+    case SDLK_RIGHT: return Eng3D::Event::Key::Type::RIGHT;
     // Miscellaneous
-    case SDLK_SPACE: return Eng3D::Keyboard::Key::SPACE;
-    case SDLK_BACKSPACE: return Eng3D::Keyboard::Key::BACKSPACE;
-    case SDLK_ESCAPE: return Eng3D::Keyboard::Key::ESC;
-    // Other
-    default: return Eng3D::Keyboard::Key::NONE;
+    case SDLK_SPACE: return Eng3D::Event::Key::Type::SPACE;
+    case SDLK_BACKSPACE: return Eng3D::Event::Key::Type::BACKSPACE;
+    case SDLK_ESCAPE: return Eng3D::Event::Key::Type::ESC;
     }
+    return Eng3D::Event::Key::Type::NONE;
+}
+
+Eng3D::Event::MouseButton::Type Eng3D::Event::MouseButton::from_sdl(int sdl) {
+    switch(sdl) {
+    case SDL_BUTTON_LEFT: return Eng3D::Event::MouseButton::Type::LEFT;
+    case SDL_BUTTON_RIGHT: return Eng3D::Event::MouseButton::Type::RIGHT;
+    case SDL_BUTTON_MIDDLE: return Eng3D::Event::MouseButton::Type::MIDDLE;
+    }
+    return Eng3D::Event::MouseButton::Type::NONE;
+}
+
+glm::ivec2 Eng3D::Event::get_mouse_pos() {
+    int sdl_x, sdl_y;
+    SDL_GetMouseState(&sdl_x, &sdl_y);
+    return glm::ivec2{ sdl_x, sdl_y };
 }

@@ -38,27 +38,25 @@
 
 using namespace Interface;
 
-TechTreeTab::TechTreeTab(GameState& _gs, int x, int y, int type, UI::Widget* parent)
+Interface::TechTreeTab::TechTreeTab(GameState& _gs, int x, int y, int type, UI::Widget* parent)
     : UI::Group(x, y, parent->width - x, parent->height - y, parent),
     gs{ _gs }
 {
-    unsigned int i = 0;
+    this->flex = UI::Flex::COLUMN;
     for(auto& technology : gs.world->technologies) {
-        if(static_cast<int>(technology.type) & static_cast<int>(type)) {
-            auto* btn = new TechnologyInfo(gs, 0, 48 * i, technology, this);
-            btn->text(technology.ref_name.get_string());
-            i++;
-        }
+        if((static_cast<int>(technology.type) & static_cast<int>(type)) == 0) continue;
+        auto* btn = new Interface::TechnologyInfo(gs, 0, 0, technology, this);
+        btn->text(technology.ref_name.get_string());
     }
 }
 
-TechTreeView::TechTreeView(GameState& _gs)
+Interface::TechTreeView::TechTreeView(GameState& _gs)
     : UI::Window(-400, 0, 400, _gs.height),
     gs{ _gs }
 {
-    if(gs.right_side_panel != nullptr)
-        gs.right_side_panel->kill();
-    gs.right_side_panel = this;
+    if(this->gs.right_side_panel != nullptr)
+        this->gs.right_side_panel->kill();
+    this->gs.right_side_panel = this;
     this->set_close_btn_function([this](Widget&) {
         this->kill();
         this->gs.right_side_panel = nullptr;
