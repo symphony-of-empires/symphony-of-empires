@@ -93,6 +93,7 @@
 #include "client/map.hpp"
 #include "client/map_render.hpp"
 #include "server/server_network.hpp"
+#include "server/export_util.hpp"
 #include "client/interface/main_menu.hpp"
 
 void GameState::play_nation() {
@@ -702,7 +703,8 @@ void start_client(int argc, char** argv) {
 
     // Connect to server prompt
     new Interface::MainMenu(gs);
-    new Interface::MapDebugMenu(gs);
+    // new Interface::MapDebugMenu(gs);
+    Export::export_provinces(*gs.world);
     std::vector<Treaty::Id> displayed_treaties;
     auto current_frame_time = std::chrono::system_clock::now();
     // Start the world thread
