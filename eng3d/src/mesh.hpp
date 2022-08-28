@@ -257,7 +257,7 @@ namespace Eng3D {
             }
         }
 
-        virtual void draw(const Eng3D::OpenGL::Program&) const {
+        virtual void draw(const Eng3D::OpenGL::Program&, int) const {
             this->draw();
         }
 #else
