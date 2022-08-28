@@ -20,8 +20,8 @@ option(BUILD_GAME "Enable building SymphonyOfEmpires" ON)
 option(SOE_UBSAN "Enable UBSAN instrumentation" OFF)
 
 IF(SOE_UBSAN)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined,thread")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined,thread")
 ENDIF()
 
 IF(WIN32)
@@ -130,12 +130,12 @@ IF(ANDROID)
 ELSEIF(WIN32)
 	# Build as a windows application
 	add_executable(SymphonyOfEmpires WIN32 "${MAIN_SOURCES}")
+ELSEIF(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
+	target_include_directories(SymphonyOfEmpires PRIVATE "/opt/devkitpro/portlibs/switch/include/")
 ELSE()
 	# The rest is a normal application
 	add_executable(SymphonyOfEmpires "${MAIN_SOURCES}")
 ENDIF()
-
-target_include_directories(SymphonyOfEmpires PRIVATE "/opt/devkitpro/portlibs/switch/include/")
 
 #
 # Linking
@@ -151,7 +151,7 @@ ENDIF()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 IF(NOT E3D_VENDORED_TBB)
 	find_package(TBB REQUIRED)
-		target_link_libraries(SymphonyOfEmpires PRIVATE TBB::tbb)
+	target_link_libraries(SymphonyOfEmpires PRIVATE TBB::tbb)
 ELSE()
 	# TBB (and hwloc if needed)
 	IF(WIN32)
@@ -173,9 +173,9 @@ ELSE()
 	IF(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
 		set(BUILD_SHARED_LIBS OFF)
 	ENDIF()
-	FetchContent_Declare(opentbb GIT_REPOSITORY "https://github.com/oneapi-src/oneTBB" GIT_TAG "v2021.7.0-rc1" GIT_PROGRESS TRUE)
+	FetchContent_Declare(onetbb GIT_REPOSITORY "https://github.com/oneapi-src/oneTBB" GIT_TAG dce182a7b554becada120472659be1b25f89051c GIT_PROGRESS TRUE)
 	FetchContent_MakeAvailable(opentbb)
-	target_include_directories(SymphonyOfEmpires PRIVATE "${opentbb_SOURCE_DIR}/include")
+	target_include_directories(SymphonyOfEmpires PRIVATE "${tbb_SOURCE_DIR}/include")
 	target_link_libraries(SymphonyOfEmpires PRIVATE tbb)
 ENDIF()
 
