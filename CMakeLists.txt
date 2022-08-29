@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.20)
 
 set(DEVKITPRO $ENV{DEVKITPRO})
 IF(DEVKITPRO AND FALSE)
@@ -9,7 +9,7 @@ IF(DEVKITPRO AND FALSE)
 ENDIF()
 
 set(FETCHCONTENT_QUIET FALSE)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 
 project(SymphonyOfEmpires CXX C)
