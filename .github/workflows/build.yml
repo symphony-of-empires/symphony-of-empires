@@ -13,10 +13,8 @@ jobs:
       with:
         fetch-depth: 0
     - name: "Install"
-    - uses: awalsh128/cache-apt-pkgs-action@latest
-      with:
-        packages: cmake make libglu1-mesa-dev libglew-dev libsdl2-dev libsdl2-ttf-dev libtbb-dev libassimp-dev
-        version: 1.0
+      run: |
+        sudo apt install -y cmake make libglu1-mesa-dev libglew-dev libsdl2-dev libsdl2-ttf-dev libtbb-dev libassimp-dev
     - name: "CMake build"
       uses: actions/cache@v3
       with:
@@ -55,6 +53,7 @@ jobs:
     - name: Run CMake with vcpkg.json manifest
       uses: lukka/run-cmake@v10
       with:
+        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
         configurePreset: ninja-multi-vcpkg
         buildPreset: ninja-multi-vcpkg
     - uses: ilammy/msvc-dev-cmd@v1
