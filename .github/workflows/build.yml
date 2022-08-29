@@ -52,12 +52,6 @@ jobs:
         vcpkgGitCommitId: '5568f110b509a9fd90711978a7cb76bae75bb092'
         # The vcpkg.json file, which will be part of cache key computation.
         vcpkgJsonGlob: '**/cmakepresets/vcpkg.json'
-    - name: Run CMake with vcpkg.json manifest
-      uses: lukka/run-cmake@v10
-      with:
-        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        configurePreset: ninja-multi-vcpkg
-        buildPreset: ninja-multi-vcpkg
     - uses: ilammy/msvc-dev-cmd@v1
     - name: "Build"
       run: |
