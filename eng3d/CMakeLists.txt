@@ -157,7 +157,7 @@ IF(E3D_VENDORED)
 	set(ASSIMP_BUILD_ZLIB OFF)
 	set(BUILD_LIB_TYPE STATIC)
 	set(ENABLE_BOOST_WORKAROUND ON)
-	FetchContent_Declare(assimp GIT_REPOSITORY "https://github.com/assimp/assimp" GIT_TAG v5.2.4 GIT_PROGRESS TRUE)
+	FetchContent_Declare(assimp GIT_REPOSITORY "https://github.com/assimp/assimp" GIT_TAG 46e571e4974a8635561c9296d87f1a55575d0647 GIT_PROGRESS TRUE)
 	FetchContent_MakeAvailable(assimp)
 	target_include_directories(eng3d PRIVATE "${assimp_BINARY_DIR}/include" "${assimp_SOURCE_DIR}/include")
 	# GLFW
@@ -173,7 +173,7 @@ IF(E3D_VENDORED)
 		ENDIF()
 	ENDIF()
 	# ZLIB
-	FetchContent_Declare(zlib GIT_REPOSITORY "https://github.com/madler/zlib" GIT_TAG 21767c654d31d2dccdde4330529775c6c5fd5389 GIT_PROGRESS TRUE)
+	FetchContent_Declare(zlib GIT_REPOSITORY "https://github.com/madler/zlib" GIT_PROGRESS TRUE)
 	FetchContent_MakeAvailable(zlib)
 ENDIF()
 
