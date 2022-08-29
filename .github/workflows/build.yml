@@ -57,10 +57,10 @@ jobs:
       with:
         configurePreset: ninja-multi-vcpkg
         buildPreset: ninja-multi-vcpkg
-    - uses: ilammy/msvc-dev-cmd@latest
+    - uses: ilammy/msvc-dev-cmd@v1
     - name: "Build"
       run: |
-        cmake -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release -DE3D_BACKEND_OPENGL=1 -B build/ .
+        cmake -DCMAKE_BUILD_TYPE=Release -DE3D_BACKEND_OPENGL=1 -B build/ .
         mklink mods ../mods
         cd build
         cmake --build . -- -j$(nproc)
