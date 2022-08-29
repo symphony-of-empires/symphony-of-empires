@@ -13,8 +13,10 @@ jobs:
       with:
         fetch-depth: 0
     - name: "Install"
-      run: |
-        sudo apt install -y cmake make libglu1-mesa-dev libglew-dev libsdl2-dev libsdl2-ttf-dev libtbb-dev libassimp-dev
+    - uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: cmake make libglu1-mesa-dev libglew-dev libsdl2-dev libsdl2-ttf-dev libtbb-dev libassimp-dev
+        version: 1.0
     - name: "CMake build"
       uses: actions/cache@v3
       with:
