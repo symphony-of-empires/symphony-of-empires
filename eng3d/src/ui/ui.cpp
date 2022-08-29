@@ -167,6 +167,9 @@ void Context::clear_dead() {
             widgets[index]->dead_child = false;
         }
     }
+
+    if(tooltip_widget != nullptr)
+        this->clear_dead_recursive(tooltip_widget);
 }
 
 /// @brief Moves a widget from evaluable to non-evaluable making a widget
