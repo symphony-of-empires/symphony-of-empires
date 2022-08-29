@@ -28,3 +28,20 @@ jobs:
         cd build
         cmake --build . -- -j$(nproc)
         cd ..
+  build_windows:
+    runs-on: windows-latest
+    steps:
+      - uses: lukka/get-cmake@latest
+      - uses: lukka/run-vcpkg@v10
+      - uses: lukka/run-cmake@v10
+        with:
+          configurePreset: 'ninja-multi-vcpkg'
+          buildPreset: 'ninja-multi-vcpkg'
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: "Build"
+        run: |
+          cmake --preset ninja-multi-vcpkg -DCMAKE_BUILD_TYPE=Release -DE3D_BACKEND_OPENGL=1 -B build/ .
+          mklink mods ../mods
+          cd build
+          cmake --build . -- -j$(nproc)
+          cd ..
