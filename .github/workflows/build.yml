@@ -57,7 +57,10 @@ jobs:
     - uses: ilammy/msvc-dev-cmd@v1
     - name: "Make symbolic links"
       run: |
-        cd builds/ninja-multi-vcpkg
+        mkdir builds
+        cd builds
+        mkdir ninja-multi-vcpkg
+        cd ninja-multi-vcpkg
         mklink mods ../../mods
         cd ../../
     - name: Run CMake with vcpkg.json manifest
