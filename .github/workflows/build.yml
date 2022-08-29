@@ -31,17 +31,36 @@ jobs:
   build_windows:
     runs-on: windows-latest
     steps:
-      - uses: lukka/get-cmake@latest
-      - uses: lukka/run-vcpkg@v10
-      - uses: lukka/run-cmake@v10
-        with:
-          configurePreset: 'ninja-multi-vcpkg'
-          buildPreset: 'ninja-multi-vcpkg'
-      - uses: ilammy/msvc-dev-cmd@v1
-      - name: "Build"
-        run: |
-          cmake --preset ninja-multi-vcpkg -DCMAKE_BUILD_TYPE=Release -DE3D_BACKEND_OPENGL=1 -B build/ .
-          mklink mods ../mods
-          cd build
-          cmake --build . -- -j$(nproc)
-          cd ..
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - uses: lukka/get-cmake@latest
+    - name: Dump the content of $RUNNER_TEMP
+      run: find $RUNNER_TEMP
+      shell: bash
+    - name: Dump the content of $RUNNER_WORKSPACE
+      run: find $RUNNER_WORKSPACE
+      shell: bash
+    - uses: lukka/run-vcpkg@v10
+      id: runvcpkg
+      with:
+        # This specifies the location of vcpkg, where it is going to be restored from cache, or create from scratch.
+        vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
+        # The Git commit id of vcpkg to be checked out. This is only needed because we are not using a submodule.
+        vcpkgGitCommitId: '5568f110b509a9fd90711978a7cb76bae75bb092'
+        # The vcpkg.json file, which will be part of cache key computation.
+        vcpkgJsonGlob: '**/cmakepresets/vcpkg.json'
+    - name: Run CMake with vcpkg.json manifest
+      uses: lukka/run-cmake@v10
+      with:
+        cmakeListsTxtPath: '${{ github.workspace }}/cmakepresets/CMakeLists.txt'
+        configurePreset: ninja-multi-vcpkg
+        buildPreset: ninja-multi-vcpkg
+    - uses: ilammy/msvc-dev-cmd@v1
+    - name: "Build"
+      run: |
+        cmake --preset ninja-multi-vcpkg -DCMAKE_BUILD_TYPE=Release -DE3D_BACKEND_OPENGL=1 -B build/ .
+        mklink mods ../mods
+        cd build
+        cmake --build . -- -j$(nproc)
+        cd ..
