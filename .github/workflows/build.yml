@@ -61,7 +61,7 @@ jobs:
         cd builds
         mkdir ninja-multi-vcpkg
         cd ninja-multi-vcpkg
-        mklink mods ../../mods
+        cp -r ../../mods .
         cd ../../
     - name: Run CMake with vcpkg.json manifest
       uses: lukka/run-cmake@v10
