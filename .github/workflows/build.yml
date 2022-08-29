@@ -13,8 +13,12 @@ jobs:
       with:
         fetch-depth: 0
     - name: "Install"
-      run: |
-        sudo apt install -y cmake make libglu1-mesa-dev libglew-dev libsdl2-dev libsdl2-ttf-dev libtbb-dev libassimp-dev
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: cmake make libglu1-mesa-dev libglew-dev libsdl2-dev libsdl2-ttf-dev libtbb-dev libassimp-dev ccache
+        version: 1.0
+    - name: "Use ccache"
+      uses: hendrikmuhs/ccache-action@v1.2
     - name: "CMake build"
       uses: actions/cache@v3
       with:
@@ -23,7 +27,7 @@ jobs:
           build/_deps
     - name: "Build"
       run: |
-        cmake -DCMAKE_BUILD_TYPE=Release -DE3D_BACKEND_OPENGL=1 -B build/ .
+        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -B build/ .
         ln -s ../mods mods
         cd build
         cmake --build . -- -j$(nproc)
