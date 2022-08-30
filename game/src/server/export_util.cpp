@@ -34,14 +34,25 @@ void Export::export_provinces(World& world) {
     std::ofstream myfile;
     myfile.open("provinces.csv");
     myfile << world.provinces.size() << "\n";
-    for(const auto& province : world.provinces) {
-        myfile << province.get_pos().x << "," << province.get_pos().y << "\n";
+    for(auto& province : world.provinces) {
+        bool is_water = world.terrain_types[province.terrain_type_id].is_water_body;
+        myfile << province.get_pos().x << "," << province.get_pos().y
+            << "," << std::string(is_water ? "water" : "land") << "\n";
     }
+
+    auto world_size = glm::vec2(world.width, world.height);
     for(size_t prov_id = 0; prov_id < world.provinces.size(); prov_id++) {
         const auto& prov = world.provinces[prov_id];
-        for(const auto neighbour_id : prov.neighbour_ids) {
+        for(auto& neighbour_id : prov.neighbour_ids) {
+            const auto& neighbour = world.provinces[neighbour_id];
+            auto distance = prov.euclidean_distance(neighbour, world_size, 1.);
+            bool is_water = world.terrain_types[prov.terrain_type_id].is_water_body
+                || world.terrain_types[neighbour.terrain_type_id].is_water_body;
+            if(is_water)
+                distance *= 0.1;
+
             if(neighbour_id > prov_id)
-                myfile << prov_id << "," << neighbour_id << "\n";
+                myfile << prov_id << "," << neighbour_id << "," << distance << "\n";
         }
     }
     myfile.close();
