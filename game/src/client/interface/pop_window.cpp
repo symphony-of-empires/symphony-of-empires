@@ -53,8 +53,8 @@ PopWindow::PopWindow(GameState& gs)
     for(const auto province_id : nation.owned_provinces)
         size += gs.world->provinces[province_id].pops.size();
 
-    std::vector<int> sizes{ 75, 200, 100, 100, 120, 80, 80, 50 };
-    std::vector<std::string> header{ "Size", "Province", "Type", "Language", "Religion", "Militancy", "Literacy", "Budget" };
+    std::vector<int> sizes{ 75, 200, 100, 100, 80, 80, 50 };
+    std::vector<std::string> header{ "Size", "Province", "Type", "Language", "Militancy", "Literacy", "Budget" };
     auto table = new UI::Table<uint64_t>(5, 5, 800-10, 800-5, 35, sizes, header, this);
     this->width = table->width + 5 + this->padding.x;
     table->reserve(size);
@@ -82,14 +82,6 @@ PopWindow::PopWindow(GameState& gs)
                 auto language_str = _(this->gs.world->languages[pop.language_id].name.get_string());
                 language->text(language_str);
                 language->set_key(language_str);
-
-                auto religion = row->get_element(row_index++);
-                religion->flex = UI::Flex::ROW;
-                religion->flex_justify = UI::FlexJustify::END;
-                auto religion_str = _(this->gs.world->religions[pop.religion_id].name.get_string());
-                new UI::Label(0, 0, religion_str, religion);
-                new UI::Image(0, 0, 35, 35, "gfx/religion/" + this->gs.world->religions[pop.religion_id].ref_name + ".png", true, religion);
-                religion->set_key(religion_str);
 
                 auto militancy = row->get_element(row_index++);
                 militancy->text(Eng3D::string_format("%1.2f", pop.militancy));

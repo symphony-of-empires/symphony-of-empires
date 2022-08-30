@@ -49,8 +49,8 @@ void LUA_util::save(GameState& gs) {
             fprintf(fp.get(), "tt_%s=TerrainType:get(\"%s\")\n", terrain_type.ref_name.c_str(), terrain_type.ref_name.c_str());
         for(const auto& pop_type : gs.world->pop_types)
             fprintf(fp.get(), "pt_%s=PopType:get(\"%s\")\n", pop_type.ref_name.c_str(), pop_type.ref_name.c_str());
-        for(const auto& culture : gs.world->cultures)
-            fprintf(fp.get(), "c_%s=Culture:get(\"%s\")\n", culture.ref_name.c_str(), culture.ref_name.c_str());
+        for(const auto& language : gs.world->languages)
+            fprintf(fp.get(), "c_%s=Language:get(\"%s\")\n", language.ref_name.c_str(), language.ref_name.c_str());
         for(const auto& religion : gs.world->religions)
             fprintf(fp.get(), "r_%s=Religion:get(\"%s\")\n", religion.ref_name.c_str(), religion.ref_name.c_str());
         for(const auto& nation : gs.world->nations)
@@ -103,8 +103,11 @@ void LUA_util::save(GameState& gs) {
                 }
             }
             // POPs
+            for(const auto& religion : g_world.religions)
+                if(province.religions[religion.get_id()])
+                    fprintf(fp.get(), "province:add_pop(r_%s,%f)\n", religion.ref_name.c_str(), province.religions[religion.get_id()]);
             for(const auto& pop : province.pops)
-                fprintf(fp.get(), "province:add_pop(pt_%s,c_%s,r_%s,%f,%f)\n", gs.world->pop_types[pop.type_id].ref_name.c_str(), gs.world->cultures[pop.culture_id].ref_name.c_str(), gs.world->religions[pop.religion_id].ref_name.c_str(), pop.size, pop.literacy);
+                fprintf(fp.get(), "province:add_pop(pt_%s,c_%s,%f,%f)\n", gs.world->pop_types[pop.type_id].ref_name.c_str(), gs.world->languages[pop.language_id].ref_name.c_str(), pop.size, pop.literacy);
             // Nuclei of the provinces
             for(const auto& nucleus_id : province.nuclei)
                 fprintf(fp.get(), "province:add_nucleus(n_%s)\n", gs.world->nations[nucleus_id].ref_name.c_str());

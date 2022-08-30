@@ -44,6 +44,5 @@ Ideology& Pop::get_ideology() const {
 uint32_t Pop::get_type_id() const {
     uint32_t id = this->type_id;
     id |= this->language_id << 8;
-    id |= this->religion_id << 24;
     return id;
 }

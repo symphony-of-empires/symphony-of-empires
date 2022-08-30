@@ -633,6 +633,8 @@ int LuaAPI::add_province(lua_State* L) {
     }
     
     province.products.resize(g_world.goods.size());
+    province.languages.resize(g_world.languages.size());
+    province.religions.resize(g_world.religions.size());
     province.buildings.resize(g_world.building_types.size());
     for(const auto& building_type : g_world.building_types)
         province.buildings[g_world.get_id(building_type)].stockpile.resize(building_type.inputs.size(), 0);
@@ -817,10 +819,9 @@ int LuaAPI::get_province_pop(lua_State* L) {
     lua_pushnumber(L, pop.luxury_needs_met);
     lua_pushnumber(L, pop.type_id);
     lua_pushnumber(L, pop.language_id);
-    lua_pushnumber(L, pop.religion_id);
     lua_pushnumber(L, pop.get_ideology().get_id());
     lua_pushnumber(L, pop.militancy);
-    return 11;
+    return 10;
 }
 
 int LuaAPI::set_province_pop(lua_State* L) {
@@ -834,8 +835,7 @@ int LuaAPI::set_province_pop(lua_State* L) {
     pop.luxury_needs_met = lua_tonumber(L, 8);
     pop.type_id = lua_tonumber(L, 9);
     pop.language_id = lua_tonumber(L, 10);
-    pop.religion_id = lua_tonumber(L, 11);
-    pop.militancy = lua_tonumber(L, 12);
+    pop.militancy = lua_tonumber(L, 11);
     return 0;
 }
 
@@ -858,9 +858,8 @@ int LuaAPI::add_province_pop(lua_State* L) {
     auto pop = Pop();
     pop.type_id = lua_tonumber(L, 2);
     pop.language_id = lua_tonumber(L, 3);
-    pop.religion_id = lua_tonumber(L, 4);
-    pop.size = lua_tonumber(L, 5);
-    pop.literacy = lua_tonumber(L, 6);
+    pop.size = lua_tonumber(L, 4);
+    pop.literacy = lua_tonumber(L, 5);
     pop.budget = pop.size * 100.f * g_world.pop_types[pop.type_id].social_value;
 
     /// @todo Make ideology NOT be random

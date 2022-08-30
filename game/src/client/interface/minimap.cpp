@@ -501,24 +501,15 @@ std::vector<ProvinceColor> religion_map_mode(const World& world) {
     for(Province::Id i = 0; i < world.provinces.size(); i++) {
         const auto& province = world.provinces[i];
         std::unordered_map<Religion::Id, size_t> religion_amounts;
-        size_t total_amount = 0;
+        size_t total_amount = province.total_pops();
         size_t max_amount = 0;
         Religion::Id max_religion_id = 0;
-        for(Pop::Id j = 0; j < province.pops.size(); j++) {
-            const Pop& pop = province.pops[j];
-            total_amount += pop.size;
-
-            auto search = religion_amounts.find(pop.religion_id);
-            if(search == religion_amounts.end()) {
-                religion_amounts[pop.religion_id] = pop.size;
-            } else {
-                religion_amounts[pop.religion_id] += pop.size;
-            }
-
-            size_t amount = religion_amounts[pop.religion_id];
+        for(const auto& religion : world.religions) {
+            religion_amounts[religion.get_id()] = province.religions[religion.get_id()] * total_amount;
+            size_t amount = religion_amounts[religion.get_id()];
             if(amount > max_amount) {
                 max_amount = amount;
-                max_religion_id = pop.religion_id;
+                max_religion_id = religion.get_id();
             }
         }
         const auto max = Eng3D::Color::rgba32(world.religions[max_religion_id].color);
@@ -535,30 +526,6 @@ std::vector<ProvinceColor> religion_map_mode(const World& world) {
 
 std::string religion_tooltip(const World& world, const Province::Id id){
     const auto& province = world.provinces[id];
-    std::vector<std::pair<Religion::Id, size_t>> religions;
-    for(Pop::Id i = 0; i < province.pops.size(); i++) {
-        const auto& pop = province.pops[i];
-
-        bool found = false;
-        for(auto religion_amount : religions) {
-            if(religion_amount.first == pop.religion_id) {
-                religion_amount.second += pop.size;
-                found = true;
-            }
-        }
-
-        if(!found) {
-            religions.push_back(std::make_pair(pop.religion_id, pop.size));
-        }
-    }
-
-    std::sort(religions.begin(), religions.end(), [](const auto& a, const auto& b) {
-        return a.second > b.second;
-    });
-
-    std::string out;
-    for(auto religion_amount : religions) {
-        out += world.religions[religion_amount.first].name + std::to_string(religion_amount.second) + "\n";
-    }
-    return out;
+    const auto it = std::max_element(province.religions.begin(), province.religions.end());
+    return world.religions[std::distance(province.religions.begin(), it)].name.get_string();
 }

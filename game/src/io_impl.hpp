@@ -301,7 +301,6 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->luxury_needs_met);
         ::deser_dynamic<is_serialize>(ar, &obj->type_id);
         ::deser_dynamic<is_serialize>(ar, &obj->language_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->religion_id);
         ::deser_dynamic<is_serialize>(ar, &obj->ideology_approval);
     }
 };

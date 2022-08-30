@@ -228,7 +228,7 @@ bool Nation::is_accepted_language(const Language& language) const {
 
 /// @brief Checks if a POP is part of one of our accepted religion
 bool Nation::is_accepted_religion(const Pop& pop) const {
-    return is_accepted_religion(World::get_instance().religions[pop.religion_id]);
+    return true;
 }
 
 /// @brief Checks if a RELIGION is part of one of our accepted relgion

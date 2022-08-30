@@ -109,7 +109,10 @@ public:
     std::vector<Battle> battles;
     std::unordered_set<uint16_t> nuclei; // Nations who have a nuclei in this province
     std::unordered_set<Province::Id> neighbour_ids; // Neighbouring provinces
-
+    /// @brief Percentage of each languages from 0 to 1
+    std::vector<float> languages;
+    /// @brief Percentage of each religion prescence on the pops, from 0 to 1
+    std::vector<float> religions;
     void clean_pops();
 };
 
