@@ -53,7 +53,9 @@ jobs:
         # The Git commit id of vcpkg to be checked out. This is only needed because we are not using a submodule.
         vcpkgGitCommitId: '5568f110b509a9fd90711978a7cb76bae75bb092'
         # The vcpkg.json file, which will be part of cache key computation.
-        vcpkgJsonGlob: '**/cmakepresets/vcpkg.json'
+        runVcpkgInstall: true
+        vcpkgJsonGlob: '${{ github.workspace }}/vcpkg.json'
+        appendedCacheKey: vcpkginstall
     - uses: ilammy/msvc-dev-cmd@v1
     - name: "Make symbolic links"
       run: |
