@@ -142,7 +142,7 @@ namespace Eng3D {
             }
 
             ~Program() {
-
+                glDeleteProgram(id);
             }
 
             void link();
