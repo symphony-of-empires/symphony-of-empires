@@ -154,6 +154,8 @@ void World::init_lua() {
     lua_register(lua, "province_add_unit", LuaAPI::province_add_unit);
     lua_register(lua, "update_province_building", LuaAPI::update_province_building);
     lua_register(lua, "add_province_pop", LuaAPI::add_province_pop);
+    lua_register(lua, "set_province_language", LuaAPI::set_province_language);
+    lua_register(lua, "set_province_religion", LuaAPI::set_province_religion);
     lua_register(lua, "give_province_to", LuaAPI::give_province_to);
     lua_register(lua, "give_hard_province_to", LuaAPI::give_hard_province_to);
     lua_register(lua, "get_province_owner", LuaAPI::get_province_owner);

@@ -115,6 +115,8 @@ namespace LuaAPI {
     int set_province_pop_ideology_approval(lua_State* L);
 
     int add_province_pop(lua_State* L);
+    int set_province_language(lua_State* L);
+    int set_province_religion(lua_State* L);
     int rename_province(lua_State* L);
     int add_province_nucleus(lua_State* L);
     int add_province_owner(lua_State* L);

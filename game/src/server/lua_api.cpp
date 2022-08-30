@@ -858,9 +858,6 @@ int LuaAPI::add_province_pop(lua_State* L) {
     pop.size = lua_tonumber(L, 3);
     pop.literacy = lua_tonumber(L, 4);
 
-    province.languages[lua_tonumber(L, 5)] = 1.f;
-    province.religions[lua_tonumber(L, 6)] = 1.f;
-
     pop.budget = pop.size * 100.f * g_world.pop_types[pop.type_id].social_value;
 
     /// @todo Make ideology NOT be random
@@ -881,6 +878,18 @@ int LuaAPI::rename_province(lua_State* L) {
 
 int LuaAPI::add_province_nucleus(lua_State* L) {
     g_world.provinces.at(lua_tonumber(L, 1)).nuclei.insert(lua_tonumber(L, 2));
+    return 0;
+}
+
+int LuaAPI::set_province_language(lua_State* L) {
+    auto& province = g_world.provinces.at(lua_tonumber(L, 1));
+    province.languages.at(lua_tonumber(L, 2)) = lua_tonumber(L, 3);
+    return 0;
+}
+
+int LuaAPI::set_province_religion(lua_State* L) {
+    auto& province = g_world.provinces.at(lua_tonumber(L, 1));
+    province.religions.at(lua_tonumber(L, 2)) = lua_tonumber(L, 3);
     return 0;
 }
 

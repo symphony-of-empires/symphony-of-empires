@@ -148,8 +148,8 @@ end
 -- ============================================================================
 
 -- Adds a POP to the province
-function Province:add_pop(pop_type, language, religion, size, literacy)
-	add_province_pop(self.id, pop_type.id, size, literacy, language.id, religion.id)
+function Province:add_pop(pop_type, size, literacy)
+	add_province_pop(self.id, pop_type.id, size, literacy)
 end
 -- Rename a province
 function Province:rename(new_name)
@@ -158,4 +158,10 @@ end
 -- Adds a country to the nucleus list of a province
 function Province:add_nucleus(nation)
 	add_province_nucleus(self.id, nation.id)
+end
+function Province:set_language(language, pc)
+	set_province_language(self.id, language.id, pc)
+end
+function Province:set_religion(religion, pc)
+	set_province_religion(self.id, religion.id, pc)
 end
