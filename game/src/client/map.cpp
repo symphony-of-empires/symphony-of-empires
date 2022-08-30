@@ -122,14 +122,16 @@ Map::Map(GameState& _gs, const World& _world, UI::Group* _map_ui_layer, int scre
     {
         obj_shader->attach_shader(*gs.builtin_shaders["vs_3d"].get());
         obj_shader->attach_shader(*gs.builtin_shaders["fs_3d"].get());
+        obj_shader->attach_shader(*gs.builtin_shaders["fs_lib"].get());
         obj_shader->link();
     }
 
     tree_shder = std::make_unique<Eng3D::OpenGL::Program>();
     {
-        obj_shader->attach_shader(*gs.builtin_shaders["vs_tree"].get());
-        obj_shader->attach_shader(*gs.builtin_shaders["fs_tree"].get());
-        obj_shader->link();
+        tree_shder->attach_shader(*gs.builtin_shaders["vs_tree"].get());
+        tree_shder->attach_shader(*gs.builtin_shaders["fs_tree"].get());
+        tree_shder->attach_shader(*gs.builtin_shaders["fs_lib"].get());
+        tree_shder->link();
     }
 
     // Set the mapmode
@@ -618,6 +620,8 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
                 gs.curr_nation->give_province(province);
                 province.nuclei.insert(gs.world->get_id(*gs.curr_nation));
                 this->update_mapmode();
+                this->map_render->request_update_visibility();
+                this->map_render->update(this->gs);
             }
 
             /// @todo Handle the case where an unit is deleted
