@@ -40,6 +40,7 @@
 #include "eng3d/material.hpp"
 #include "eng3d/model.hpp"
 #include "eng3d/texture.hpp"
+#include "eng3d/string.hpp"
 #include "eng3d/event.hpp"
 
 struct SDL_Window;
@@ -123,6 +124,7 @@ namespace Eng3D {
         uint64_t application_id = 0x0000000000000000;
 #endif
         // Above variables might get modified by these so keep them in order as-is
+        Eng3D::StringManager string_man;
         Eng3D::Installer installer;
         Eng3D::IO::PackageManager package_man;
         Eng3D::AudioManager audio_man;

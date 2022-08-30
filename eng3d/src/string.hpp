@@ -91,12 +91,14 @@ namespace Eng3D {
         return lhs.get_string() + rhs;
     }
 
+    class State;
     /// @brief The string pool manager (singleton), used mainly for translation
     /// purpouses. But also helps to reduce the memory size of various objects.
     class StringManager {
         std::vector<std::string> strings;
+        Eng3D::State& s;
     public:
-        StringManager() = default;
+        StringManager(Eng3D::State& _s);
         ~StringManager() = default;
         
         inline Eng3D::StringRef insert(const std::string& str) {

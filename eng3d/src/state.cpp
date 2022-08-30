@@ -279,7 +279,8 @@ Eng3D::Installer::~Installer()
 // State
 //
 Eng3D::State::State(const std::vector<std::string>& pkg_paths)
-    : installer(*this),
+    : string_man(*this),
+    installer(*this),
     package_man(*this, pkg_paths), // Initialize the IO first, as other subsystems may require access to files (i.e the UI context)
     audio_man(*this),
     tex_man(*this),
