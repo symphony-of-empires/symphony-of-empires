@@ -25,7 +25,7 @@ Required to build:
 * OpenGL (GL and GLU)
 * GLEW
 * libassimp
-* CMake
+* CMake 3.20
 
 If you lack any of the prerequsites below you can use `cmake -DE3D_VENDORED=1` for building them instead.
 Lua will **always** be built, since many package managers do not supply Lua 5.4 and backwards compatibility isn't a thing that should be dealt with.

@@ -95,8 +95,6 @@ public:
     Eng3D::StringRef name;
     std::uint32_t color = 0; // Color of the province, used for mapping the province's shape from the map_div.png file
     bool is_coastal = false;
-    float supply_limit = 0.f; // The (military) supply limit of the province, the max number of supplies there can be per tick
-    float supply_rem = 0.f; // The number of remaining (military) supplies in the province
     float base_attractive = 0.f; // Attractiveness of province
     // Rectangle coordinates (x,y - x,y) for "area" scanning a province when needed
     // (for example, when changing owners)
@@ -115,10 +113,10 @@ public:
     void clean_pops();
 };
 
-class ProvinceOwnershipManager
+class ProvinceManager
 {
 public:
-    ProvinceOwnershipManager() = default;
+    ProvinceManager() = default;
 
     inline void mark_province_owner_changed(Province::Id province_id) {
         recently_changed_owner.push_back(province_id);
@@ -146,7 +144,7 @@ public:
     }
     
 private:
-    ProvinceOwnershipManager& operator=(const ProvinceOwnershipManager&) = default;
+    ProvinceManager& operator=(const ProvinceManager&) = default;
     std::vector<Province::Id> recently_changed_owner;
     std::vector<Province::Id> recently_changed_control;
     bool changed;

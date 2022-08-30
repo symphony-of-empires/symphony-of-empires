@@ -236,6 +236,10 @@ void save(GameState& gs) {
             fprintf(fp.get(), "n_%s=Nation:get(\"%s\")\n", nation.ref_name.c_str(), nation.ref_name.c_str());
         for(auto& province : gs.world->provinces) {
             if(province.neighbour_ids.empty()) continue;
+            if(province.box_area.right == 0 &&
+            province.box_area.bottom == 0 &&
+            province.box_area.left == gs.world->width &&
+            province.box_area.top == gs.world->height) continue;
 
             // Give the province a terrain
             if(gs.world->terrain_types[province.terrain_type_id].is_water_body && (Nation::is_valid(province.controller_id) || Nation::is_valid(province.owner_id))) {

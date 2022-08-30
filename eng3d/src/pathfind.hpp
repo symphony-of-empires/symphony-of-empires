@@ -97,16 +97,16 @@ namespace Eng3D::Pathfind {
     inline void from_source(T source, const std::vector<std::vector<V>>& neighbour_rels, std::vector<float>& costs) {
         auto cmp = [](const V& a, const V& b) { return a.cost < b.cost; };
         std::priority_queue<V, std::vector<V>, decltype(cmp)> heap;
-        heap.emplace(V{ 0, source });
+        heap.emplace(0, source);
         while(!heap.empty()) {
             auto vertex = heap.top();
             heap.pop();
-            if(vertex.cost < costs[vertex.province_id]) {
-                costs[vertex.province_id] = vertex.cost;
-                const auto& neighbours = neighbour_rels[vertex.province_id];
+            if(vertex.cost < costs[vertex.key]) {
+                costs[vertex.key] = vertex.cost;
+                const auto& neighbours = neighbour_rels[vertex.key];
                 for(const auto& neighbour : neighbours) {
-                    if(neighbour.cost < costs[neighbour.province_id])
-                        heap.emplace(neighbour.cost, neighbour.province_id);
+                    if(neighbour.cost < costs[neighbour.key])
+                        heap.emplace(neighbour.cost, neighbour.key);
                 }
             }
         }

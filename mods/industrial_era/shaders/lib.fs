@@ -1,3 +1,28 @@
+// Symphony of Empires
+// Copyright (C) 2021, Symphony of Empires contributors
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+// ----------------------------------------------------------------------------
+// Name:
+//      lib.fs
+//
+// Abstract:
+//      Library for fragment shaders.
+// ----------------------------------------------------------------------------
+
 #version 330 compatibility
 precision lowp float;
 
@@ -158,10 +183,26 @@ vec3 rgb2hsv(vec3 c)
     return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 }
 
-/// @brief All components are in the range [0…1], including hue.
+/// @brief Convert HSV to RGB, all components are in the range [0…1], including hue.
 vec3 hsv2rgb(vec3 c)
 {
     vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
     vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+/// @brief Fetch a pixel from a texture using texelfetch
+vec4 fetch_pixel(sampler2D tex, vec2 coords, vec2 size) {
+	int px = int(coords.x * size.x);  
+	int py = int(coords.y * size.y);
+	return texelFetch(tex, ivec2(px, py), 0);
+}
+
+/// @brief Get distance of two coordinates & scale them by a given factor scale
+/// @param v1_coord Point A
+/// @param v2_coord Point B
+/// @param scale Scaling factor
+float get_scaled_dist(vec2 v1_coord, vec2 v2_coord, vec2 scale) {
+	vec2 xy_diff = (v1_coord - v2_coord) * scale;
+	return dot(xy_diff, xy_diff);
 }

@@ -31,22 +31,28 @@
 class World;
 
 namespace Economy {
-    class Trade final {
-    public:
+    struct Trade final {
         Trade() = default;
-
+        ~Trade() = default;
         void recalculate(const World& world);
 
         struct Vertex {
-            constexpr Vertex(float _cost, Province::Id _province_id) : cost{_cost}, province_id{_province_id} {};
-            float cost;
-            Province::Id province_id;
+            constexpr Vertex(float _cost, Province::Id _key) : cost{_cost}, key{_key}
+            {
+
+            }
+            ~Vertex() = default;
+            float cost = 0.f;
+            Province::Id key = Province::invalid();
         };
 
+        /// @brief Cost-evaluatable provinces, we discard sea and ocean provinces
+        /// from this formula to save space and time since goods directly transport
+        /// to the land provinces
+        std::vector<Province::Id> cost_eval;
         std::vector<std::vector<float>> trade_cost;
     private:
         void initialize(const World& world);
-
         std::vector<std::vector<Vertex>> neighbours;
     };
 };

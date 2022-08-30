@@ -48,6 +48,9 @@ Eng3D::TrueType::Manager::Manager(Eng3D::State& _s)
 }
 
 Eng3D::TrueType::Manager::~Manager() {
+    // It's important to first destroy all fonts then quite the TTF subsystem
+    // otherwise we will encounter some nasty sigsegvs
+    this->fonts.clear();
     TTF_Quit();
 }
 

@@ -173,7 +173,7 @@ public:
     LIST_FOR_LOCAL_TYPE(Treaty, treaties, std::vector);
     LIST_FOR_LOCAL_TYPE(War, wars, std::vector);
     UnitManager unit_manager;
-    ProvinceOwnershipManager province_manager;
+    ProvinceManager province_manager;
 
     template<typename T>
     inline void insert(T& ptr) {
@@ -286,6 +286,8 @@ public:
 
     std::mutex world_mutex;
     std::mutex list_mutex;
+    /// @brief For avoiding data races on uprises
+    std::mutex rebel_mutex;
     std::mutex wcmap_mutex; // World map on clients require some data to be stable for read-only operations
     std::vector<std::pair<Decision, Nation*>> taken_decisions;
 };
