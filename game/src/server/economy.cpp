@@ -376,24 +376,26 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         economy_state.trade.recalculate(world);
     auto& trade = economy_state.trade;
 
-    std::vector<float> total_reciprocal_trade_costs(world.provinces.size(), 0.f);
-    tbb::parallel_for((Province::Id)0, (Province::Id)world.provinces.size(), [&trade, &total_reciprocal_trade_costs](Province::Id province_id) {
-        float total_reciprocal_trade_cost = 0;
-        for(Province::Id j = 0; j < total_reciprocal_trade_costs.size(); j++)
-            total_reciprocal_trade_cost += 1 / (trade.trade_cost[province_id][j] + epsilon);
-        total_reciprocal_trade_costs[province_id] = total_reciprocal_trade_cost;
+    std::vector<float> total_reciprocal_trade_costs(trade.cost_eval.size(), 0.f);
+    tbb::parallel_for(tbb::blocked_range(trade.cost_eval.begin(), trade.cost_eval.end()), [&trade, &total_reciprocal_trade_costs](const auto province_ids_range) {
+        for(const auto province_id : province_ids_range) {
+            float total_reciprocal_trade_cost = 0;
+            for(const auto other_province_id : trade.cost_eval)
+                total_reciprocal_trade_cost += 1 / (trade.trade_cost[province_id][other_province_id] + epsilon);
+            total_reciprocal_trade_costs[province_id] = total_reciprocal_trade_cost;
+        }
     });
 
     tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world, &trade, &total_reciprocal_trade_costs](const auto& markets_range) {
         for(auto& market : markets_range) {
-            for(Province::Id i = 0; i < world.provinces.size(); i++) {
-                float reciprocal_price = 1 / (market.prices[i] + epsilon);
+            for(const auto province_id : trade.cost_eval) {
+                float reciprocal_price = 1 / (market.prices[province_id] + epsilon);
                 float total_reciprocal_price = market.total_reciprocal_price;
-                for(Province::Id j = 0; j < world.provinces.size(); j++) {
-                    float reciprocal_trade_cost = 1 / (trade.trade_cost[i][j] + epsilon);
+                for(const auto other_province_id : trade.cost_eval) {
+                    float reciprocal_trade_cost = 1 / (trade.trade_cost[province_id][other_province_id] + epsilon);
                     float reciprocal_cost = reciprocal_price + reciprocal_trade_cost;
-                    float total_reciprocal_cost = total_reciprocal_price + total_reciprocal_trade_costs[j];
-                    market.global_demand[i] += market.demand[j] * (reciprocal_cost / total_reciprocal_cost);
+                    float total_reciprocal_cost = total_reciprocal_price + total_reciprocal_trade_costs[other_province_id];
+                    market.global_demand[province_id] += market.demand[other_province_id] * (reciprocal_cost / total_reciprocal_cost);
                 }
             }
         }

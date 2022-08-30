@@ -389,12 +389,12 @@ void Map::update_mapmode() {
 void Map::draw() {
     const auto projection = camera->get_projection();
     const auto view = camera->get_view();
-    glm::mat4 base_model = glm::mat4(1.f);
+    glm::mat4 base_model(1.f);
 
     map_render->draw(camera, view_mode);
     // rivers->draw(camera);
     // borders->draw(camera);
-
+    
     /// @todo We need to better this
     obj_shader->use();
     obj_shader->set_uniform("projection", projection);
@@ -581,13 +581,6 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
         if(e.type == Eng3D::Event::MouseButton::Type::LEFT) {
             this->is_drag = false;
             switch(gs.current_mode) {
-            case MapMode::COUNTRY_SELECT:
-                if(Province::is_valid(province_id)) {
-                    const auto& province = gs.world->provinces[province_id];
-                    if(Nation::is_valid(province.controller_id))
-                        gs.select_nation->change_nation(province.controller_id);
-                }
-                break;
             case MapMode::NORMAL:
                 if(this->selector) {
                     /// @todo Good selector function
@@ -599,10 +592,17 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
                 this->is_drag = false;
                 if(gs.input.get_selected_units().empty()) {
                     // Show province information when clicking on a province
-                    if(province_id < gs.world->provinces.size()) {
+                    if(Province::is_valid(province_id)) {
                         new Interface::ProvinceView(gs, gs.world->provinces[province_id]);
                         return;
                     }
+                }
+                break;
+            case MapMode::COUNTRY_SELECT:
+                if(Province::is_valid(province_id)) {
+                    const auto& province = gs.world->provinces[province_id];
+                    if(Nation::is_valid(province.controller_id))
+                        gs.select_nation->change_nation(province.controller_id);
                 }
                 break;
             default: break;
@@ -611,6 +611,9 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
             if(Nation::is_invalid(province_id)) return;
             auto& province = gs.world->provinces[province_id];
             if(gs.editor && gs.current_mode == MapMode::NORMAL) {
+                if(world.terrain_types[province.terrain_type_id].is_water_body) {
+                    province.terrain_type_id = (TerrainType::Id)1;
+                }
                 gs.curr_nation->control_province(province);
                 gs.curr_nation->give_province(province);
                 province.nuclei.insert(gs.world->get_id(*gs.curr_nation));

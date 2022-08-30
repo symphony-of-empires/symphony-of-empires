@@ -40,13 +40,13 @@ void Trade::recalculate(const World& world) {
     if(trade_cost.empty())
         this->initialize(world);
 
-    for(Province::Id i = 0; i < world.provinces.size(); i++)
+    for(Province::Id i = 0; i < cost_eval.size(); i++)
         std::fill(trade_cost[i].begin(), trade_cost[i].end(), std::numeric_limits<float>::max());
 
     glm::vec2 world_size{ world.width, world.height };
 
-    // tbb::blocked_range<Province::Id> range(static_cast<Province::Id>(0), static_cast<Province::Id>(world.provinces.size()));
-    tbb::parallel_for((Province::Id)0, (Province::Id)world.provinces.size(), [this, &world](Province::Id province_id) {
+    // tbb::blocked_range<Province::Id> range(static_cast<Province::Id>(0), static_cast<Province::Id>(cost_eval.size()));
+    tbb::parallel_for((Province::Id)0, (Province::Id)cost_eval.size(), [this, &world](Province::Id province_id) {
         if(world.provinces[province_id].is_coastal) return;
         Eng3D::Pathfind::from_source(province_id, this->neighbours, this->trade_cost[province_id]);
     }, tbb::auto_partitioner());
@@ -78,13 +78,27 @@ static inline float get_trade_cost(const Province& province1, const Province& pr
 }
 
 void Trade::initialize(const World& world) {
-    trade_cost.reserve(world.provinces.size());
-    for(Province::Id i = 0; i < world.provinces.size(); i++)
-        trade_cost[i] = std::vector<float>(world.provinces.size(), std::numeric_limits<float>::max());
+    // Construct a list of terrain types that are land
+    std::vector<bool> is_land(world.terrain_types.size(), false);
+    for(const auto& terrain_type : world.terrain_types)
+        is_land[terrain_type.get_id()] = terrain_type.is_water_body;
+    
+    // Then proceed to construct the cost list so we only evaluate provinces
+    // that will use the goods, this includes ignoring empty provinces from the
+    // trading spider network
+    cost_eval.reserve(world.provinces.size());
+    for(const auto& province : world.provinces)
+        if(is_land[province.terrain_type_id] && !province.pops.empty())
+            cost_eval.emplace_back();
+
+    trade_cost.reserve(cost_eval.size());
+    for(Province::Id i = 0; i < cost_eval.size(); i++)
+        trade_cost.emplace_back(std::vector<float>(cost_eval.size(), std::numeric_limits<float>::max()));
 
     glm::vec2 world_size{ world.width, world.height };
-    neighbours.reserve(world.provinces.size());
-    for(const auto& province : world.provinces) {
+    neighbours.reserve(cost_eval.size());
+    for(const auto province_id : cost_eval) {
+        const auto& province = world.provinces[province_id];
         std::vector<Trade::Vertex> province_neighbours;
         province_neighbours.reserve(province.neighbour_ids.size());
         for(const auto neighbour_id : province.neighbour_ids) {
