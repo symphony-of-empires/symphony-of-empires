@@ -456,12 +456,12 @@ void GameState::world_thread() {
 }
 
 void GameState::music_enqueue() {
+    const std::scoped_lock lock(this->audio_man.sound_lock);
     if(this->audio_man.music_queue.empty()) {
         auto entries = this->package_man.get_multiple_prefix("sfx/music/ambience");
         this->audio_man.music_fade_value = 0.f;
         // Search through all the music in 'music/ambience' and picks a random
         if(!entries.empty()) {
-            const std::scoped_lock lock(this->audio_man.sound_lock);
             const int music_index = std::rand() % entries.size();
             auto audio = this->audio_man.load(entries[music_index]->get_abs_path());
             this->audio_man.music_queue.push_back(audio);

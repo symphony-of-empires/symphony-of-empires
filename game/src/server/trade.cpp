@@ -52,7 +52,7 @@ void Trade::recalculate(const World& world) {
     }, tbb::auto_partitioner());
 }
 
-static inline glm::vec3 get_sphere_coord(const Province& province, glm::vec2 world_size) {
+inline glm::vec3 Trade::get_sphere_coord(const Province& province, glm::vec2 world_size) {
     const glm::vec2 normalized_pos = province.get_pos() / world_size;
     glm::vec2 radiance_pos;
     radiance_pos.x = normalized_pos.x * 2.f * glm::pi<float>();
@@ -65,7 +65,7 @@ static inline glm::vec3 get_sphere_coord(const Province& province, glm::vec2 wor
     return sphere_position;
 }
 
-static inline float get_trade_cost(const Province& province1, const Province& province2, glm::vec2 world_size) {
+inline float Trade::get_trade_cost(const Province& province1, const Province& province2, glm::vec2 world_size) {
     const auto sphere_coord1 = get_sphere_coord(province1, world_size);
     const auto sphere_coord2 = get_sphere_coord(province2, world_size);
 
@@ -77,7 +77,7 @@ static inline float get_trade_cost(const Province& province1, const Province& pr
     return distance * trade_cost;
 }
 
-void Trade::initialize(const World& world) {
+inline void Trade::initialize(const World& world) {
     // Construct a list of terrain types that are land
     std::vector<bool> is_land(world.terrain_types.size(), false);
     for(const auto& terrain_type : world.terrain_types)

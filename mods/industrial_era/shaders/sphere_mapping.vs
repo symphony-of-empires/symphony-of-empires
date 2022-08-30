@@ -24,7 +24,7 @@
 // ----------------------------------------------------------------------------
 
 #version 330 compatibility
-precision lowp float;
+//precision lowp float;
 
 layout (location = 0) in vec3 m_pos;
 layout (location = 1) in vec2 m_texcoord;
@@ -53,7 +53,6 @@ mat4 rotation_matrix(vec3 axis, float angle)
                 oc * axis.z * axis.x - axis.y * s, oc * axis.y * axis.z + axis.x * s, oc * axis.z * axis.z + c,          0.0,
                 0.0,                               0.0,                               0.0,                               1.0);
 }
-
 
 void main() {
     v_texcoord = m_texcoord;

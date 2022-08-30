@@ -327,7 +327,7 @@ int LuaAPI::get_all_nations(lua_State* L) {
     size_t i = 0;
     for(const auto& nation : g_world.nations) {
         assert(Nation::is_valid(nation.get_id()));
-        assert(nation.get_id() < g_world.nations.size());
+        assert(nation.get_id() == i);
         lua_pushnumber(L, nation.get_id());
         lua_rawseti(L, -2, i + 1);
         ++i;

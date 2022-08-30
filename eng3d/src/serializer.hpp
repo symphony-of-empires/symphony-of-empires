@@ -57,8 +57,8 @@ public:
 /// serialization/deserialization
 class Archive {
 public:
-    Archive() {};
-    ~Archive() {};
+    Archive() = default;
+    ~Archive() = default;
     void to_file(const std::string& path);
     void from_file(const std::string& path);
 
@@ -163,7 +163,29 @@ class Serializer<bool> : public SerializerMemcpy<bool> {};
 
 // A class more focused on numbers :)
 template<typename T>
-class SerializerNumber : public SerializerMemcpy<T> {};
+class SerializerNumber {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, T* obj) {
+        if constexpr(std::endian::native == std::endian::big) {
+            if constexpr(is_serialize) {
+                ar.expand(sizeof(T));
+                ar.copy_from(obj, sizeof(T));
+                *obj = std::byteswap<T>(*obj);
+            } else {
+                T tmp = std::byteswap<T>(*obj);
+                ar.copy_to(&tmp, sizeof(T));
+            }
+        } else {
+            if constexpr(is_serialize) {
+                ar.expand(sizeof(T));
+                ar.copy_from(obj, sizeof(T));
+            } else {
+                ar.copy_to(obj, sizeof(T));
+            }
+        }
+    }   
+};
 
 // Serializers for primitives only require memcpy
 template<>
@@ -188,12 +210,30 @@ class Serializer<unsigned long> : public SerializerNumber<unsigned long> {};
 template<>
 class Serializer<unsigned long long> : public SerializerNumber<unsigned long long> {};
 
+/// @brief Converts a float number into a fixed-point integer scaled by a factor of 1000
+template<typename T>
+class SerializerFloat {
+    static constexpr auto scaling = 1000.f;
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, T* obj) {
+        long int tmp;
+        if constexpr(is_serialize) {
+            tmp = *obj * scaling;
+            ::deser_dynamic<is_serialize>(ar, &tmp);
+        } else {
+            ::deser_dynamic<is_serialize>(ar, &tmp);
+            *obj = static_cast<T>(tmp) / scaling;
+        }
+    }   
+};
+
 template<>
-class Serializer<float> : public SerializerNumber<float> {};
+class Serializer<float> : public SerializerFloat<float> {};
 template<>
-class Serializer<double> : public SerializerNumber<double> {};
+class Serializer<double> : public SerializerFloat<double> {};
 template<>
-class Serializer<long double> : public SerializerNumber<long double> {};
+class Serializer<long double> : public SerializerFloat<long double> {};
 
 /// @brief A serializer specialized in strings
 /// The serializer stores the lenght of the string and the string itself

@@ -34,13 +34,13 @@ void Export::export_provinces(World& world) {
     std::ofstream myfile;
     myfile.open("provinces.csv");
     myfile << world.provinces.size() << "\n";
-    for (auto& province : world.provinces) {
+    for(const auto& province : world.provinces) {
         myfile << province.get_pos().x << "," << province.get_pos().y << "\n";
     }
-    for (size_t prov_id = 0; prov_id < world.provinces.size(); prov_id++) {
+    for(size_t prov_id = 0; prov_id < world.provinces.size(); prov_id++) {
         const auto& prov = world.provinces[prov_id];
-        for (auto& neighbour_id : prov.neighbour_ids) {
-            if (neighbour_id > prov_id)
+        for(const auto neighbour_id : prov.neighbour_ids) {
+            if(neighbour_id > prov_id)
                 myfile << prov_id << "," << neighbour_id << "\n";
         }
     }
