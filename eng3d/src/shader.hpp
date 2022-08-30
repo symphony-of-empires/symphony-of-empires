@@ -89,8 +89,7 @@ namespace Eng3D {
             /// @brief Destroy the Shader object, dditionaly we have to delete the
             /// shader from the OpenGL driver by calling glDeleteShader
             inline ~Shader() {
-                if(id)
-                    glDeleteShader(id);
+                glDeleteShader(id);
             }
 
             inline GLuint get_id() const {
