@@ -427,6 +427,9 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->pops);
         ::deser_dynamic<is_serialize>(ar, &obj->buildings);
         ::deser_dynamic<is_serialize>(ar, &obj->controller_id);
+        ::deser_dynamic<is_serialize>(ar, &obj->base_attractive);
+        ::deser_dynamic<is_serialize>(ar, &obj->languages);
+        ::deser_dynamic<is_serialize>(ar, &obj->religions);
         ::deser_dynamic<is_serialize>(ar, &obj->terrain_type_id);
     }
 };

@@ -49,25 +49,22 @@ using namespace Interface;
 
 void ProvincePopulationTab::update_piecharts() {
     // Obtain population information
-    std::vector<size_t> language_sizes(gs.world->languages.size(), 0);
-    std::vector<size_t> religion_sizes(gs.world->religions.size(), 0);
+    std::vector<UI::ChartData> languages_data, religions_data, pop_types_data;
+    for(const auto& language : gs.world->languages) {
+        const auto size = province.languages[language.get_id()] * province.total_pops();
+        languages_data.push_back(UI::ChartData(size, language.name.get_string(), Eng3D::Color::rgba32(language.color)));
+    }
+    languages_pie->set_data(languages_data);
+
+    for(const auto& religion : gs.world->religions) {
+        const auto size = province.religions[religion.get_id()] * province.total_pops();
+        religions_data.push_back(UI::ChartData(size, religion.name.get_string(), Eng3D::Color::rgba32(religion.color)));
+    }
+    religions_pie->set_data(religions_data);
+
     std::vector<size_t> pop_type_sizes(gs.world->pop_types.size(), 0);
     for(const auto& pop : province.pops)
         pop_type_sizes[pop.type_id] += pop.size;
-    for(const auto& language : gs.world->languages)
-        language_sizes[language.get_id()] = province.languages[language.get_id()];
-    for(const auto& religion : gs.world->religions)
-        religion_sizes[religion.get_id()] = province.religions[religion.get_id()];
-
-    std::vector<UI::ChartData> languages_data, religions_data, pop_types_data;
-    for(const auto& language : gs.world->languages)
-        languages_data.push_back(UI::ChartData(language_sizes[gs.world->get_id(language)], language.name.get_string(), Eng3D::Color::rgba32(language.color)));
-    languages_pie->set_data(languages_data);
-
-    for(const auto& religion : gs.world->religions)
-        religions_data.push_back(UI::ChartData(religion_sizes[gs.world->get_id(religion)], religion.name.get_string(), Eng3D::Color::rgba32(religion.color)));
-    religions_pie->set_data(religions_data);
-
     for(const auto& pop_type : gs.world->pop_types) {
         const auto color = Eng3D::Color(
             (uint8_t)((gs.world->get_id(pop_type) * 12) % 256),
