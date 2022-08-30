@@ -173,7 +173,7 @@ public:
     LIST_FOR_LOCAL_TYPE(Treaty, treaties, std::vector);
     LIST_FOR_LOCAL_TYPE(War, wars, std::vector);
     UnitManager unit_manager;
-    ProvinceOwnershipManager province_manager;
+    ProvinceManager province_manager;
 
     template<typename T>
     inline void insert(T& ptr) {

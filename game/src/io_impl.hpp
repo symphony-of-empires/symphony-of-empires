@@ -421,8 +421,6 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
         ::deser_dynamic<is_serialize>(ar, &obj->color);
         ::deser_dynamic<is_serialize>(ar, &obj->box_area);
-        ::deser_dynamic<is_serialize>(ar, &obj->supply_limit);
-        ::deser_dynamic<is_serialize>(ar, &obj->supply_rem);
         ::deser_dynamic<is_serialize>(ar, &obj->owner_id);
         ::deser_dynamic<is_serialize>(ar, &obj->nuclei);
         ::deser_dynamic<is_serialize>(ar, &obj->rgo_size);

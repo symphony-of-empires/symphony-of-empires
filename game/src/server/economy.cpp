@@ -385,7 +385,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             total_reciprocal_trade_costs[province_id] = total_reciprocal_trade_cost;
         }
     });
-
+    
     tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world, &trade, &total_reciprocal_trade_costs](const auto& markets_range) {
         for(auto& market : markets_range) {
             for(const auto province_id : trade.cost_eval) {

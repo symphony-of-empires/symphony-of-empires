@@ -80,7 +80,7 @@ template <class T>
 class Serializer;
 // Roughly a batallion, consisting of approximately 500 soldiers each
 class Unit : public IdEntity<uint16_t> {
-    Unit & operator=(const Unit&) = default;
+    Unit& operator=(const Unit&) = default;
     friend class Client;
     friend class UnitManager;
     friend class Serializer<Unit>;
@@ -89,8 +89,8 @@ class Unit : public IdEntity<uint16_t> {
     float days_left_until_move = 0;
     Province::Id target_province_id = Province::invalid();
 public:
-    Unit() {};
-    ~Unit() {};
+    Unit() = default;
+    ~Unit() = default;
     void attack(Unit& enemy);
     glm::vec2 get_pos() const;
     void set_target(const Province& province);
@@ -135,7 +135,8 @@ class UnitManager {
 private:
     UnitManager& operator=(const UnitManager&) = default;
 public:
-    UnitManager() {};
+    UnitManager() = default;
+    ~UnitManager() = default;
     void init(World& world);
 
     void add_unit(Unit unit, Province::Id unit_current_province);
@@ -158,12 +159,12 @@ public:
         return unit_province[unit_id];
     }
     
-    // The actual units
+    /// @brief The actual units
     std::vector<Unit> units;
-    // The unit slots that are free to use
+    /// @brief The unit slots that are free to use
     std::vector<Unit::Id> free_unit_slots;
-    // Vector for each unit
+    /// @brief Vector for each unit
     std::vector<Province::Id> unit_province;
-    // Vector for each province
+    /// @brief Vector for each province
     std::vector<std::vector<Unit::Id>> province_units;
 };
