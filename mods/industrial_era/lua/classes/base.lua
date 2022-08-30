@@ -112,10 +112,10 @@ Pop = {
     everday_needs_met = 0,
     luxury_needs_met = 0,
     type = {},
-    culture = {},
+    language = {},
     religion = {},
     ideology = {},
-    culture_id = 0,
+    language_id = 0,
     religion_id = 0,
     ideology_id = 0,
     militancy = 0,
@@ -170,7 +170,7 @@ function PopType:register()
     self.id = add_pop_type(self.ref_name, self.name, self.social_value, self.is_burgeoise, self.is_slave, self.is_farmer, self.is_laborer, self.basic_needs, self.luxury_needs)
 end
 
-Culture = {
+Language = {
     id = 0,
     ref_name = "",
     name = "",
@@ -179,26 +179,26 @@ Culture = {
     combo_form = "",
     color = 0x00000000
 }
-function Culture:new(o)
+function Language:new(o)
     local o = o or {}
     setmetatable(o, self)
     self.__index = self
     return o
 end
-function Culture:get(ref_name)
-    local o = Culture:new()
-    o.id, o.name, o.color, o.adjective, o.noun, o.combo_form = get_culture(ref_name)
+function Language:get(ref_name)
+    local o = Language:new()
+    o.id, o.name, o.color, o.adjective, o.noun, o.combo_form = get_language(ref_name)
     o.ref_name = ref_name
     return o
 end
-function Culture:get_by_id(id)
-    local o = Culture:new()
-    o.ref_name, o.name, o.color, o.adjective, o.noun, o.combo_form = get_culture_by_id(id)
+function Language:get_by_id(id)
+    local o = Language:new()
+    o.ref_name, o.name, o.color, o.adjective, o.noun, o.combo_form = get_language_by_id(id)
     o.id = id
     return o
 end
-function Culture:register()
-    self.id = add_culture(self.ref_name, self.name, self.color, self.adjective, self.noun, self.combo_form)
+function Language:register()
+    self.id = add_language(self.ref_name, self.name, self.color, self.adjective, self.noun, self.combo_form)
 end
 
 Religion = {

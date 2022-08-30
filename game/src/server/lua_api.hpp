@@ -79,9 +79,9 @@ namespace LuaAPI {
 
     int get_provinces_owned_by_nation(lua_State* L);
     int get_provinces_with_nucleus_by_nation(lua_State* L);
-    int set_nation_primary_culture(lua_State* L);
+    int set_nation_primary_language(lua_State* L);
     int set_nation_capital(lua_State* L);
-    int add_accepted_culture(lua_State* L);
+    int add_accepted_language(lua_State* L);
     int add_accepted_religion(lua_State* L);
     int add_nation_client_hint(lua_State* L);
     int get_nation_policies(lua_State* L);
@@ -130,9 +130,9 @@ namespace LuaAPI {
     int get_pop_type(lua_State* L);
     int get_pop_type_by_id(lua_State* L);
 
-    int add_culture(lua_State* L);
-    int get_culture(lua_State* L);
-    int get_culture_by_id(lua_State* L);
+    int add_language(lua_State* L);
+    int get_language(lua_State* L);
+    int get_language_by_id(lua_State* L);
 
     int add_religion(lua_State* L);
     int get_religion(lua_State* L);

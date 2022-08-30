@@ -289,7 +289,7 @@ int LuaAPI::add_nation(lua_State* L) {
     nation.name = luaL_checkstring(L, 2);
     nation.ideology = &g_world.ideologies.at(0);
     nation.religion_discrim.resize(g_world.religions.size(), 0.5f);
-    nation.culture_discrim.resize(g_world.cultures.size(), 0.5f);
+    nation.language_discrim.resize(g_world.languages.size(), 0.5f);
     nation.client_hints.resize(g_world.ideologies.size());
     nation.research.resize(g_world.technologies.size());
     for(const auto& technology : g_world.technologies)
@@ -389,7 +389,7 @@ int LuaAPI::get_provinces_with_nucleus_by_nation(lua_State* L) {
     return 1;
 }
 
-int LuaAPI::set_nation_primary_culture(lua_State*) {
+int LuaAPI::set_nation_primary_language(lua_State*) {
     return 0;
 }
 
@@ -399,9 +399,9 @@ int LuaAPI::set_nation_capital(lua_State* L) {
     return 0;
 }
 
-int LuaAPI::add_accepted_culture(lua_State* L) {
+int LuaAPI::add_accepted_language(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
-    nation.culture_discrim.at(lua_tonumber(L, 2)) = 1.f;
+    nation.language_discrim.at(lua_tonumber(L, 2)) = 1.f;
     return 0;
 }
 
@@ -816,7 +816,7 @@ int LuaAPI::get_province_pop(lua_State* L) {
     lua_pushnumber(L, pop.everyday_needs_met);
     lua_pushnumber(L, pop.luxury_needs_met);
     lua_pushnumber(L, pop.type_id);
-    lua_pushnumber(L, pop.culture_id);
+    lua_pushnumber(L, pop.language_id);
     lua_pushnumber(L, pop.religion_id);
     lua_pushnumber(L, pop.get_ideology().get_id());
     lua_pushnumber(L, pop.militancy);
@@ -833,7 +833,7 @@ int LuaAPI::set_province_pop(lua_State* L) {
     pop.everyday_needs_met = lua_tonumber(L, 7);
     pop.luxury_needs_met = lua_tonumber(L, 8);
     pop.type_id = lua_tonumber(L, 9);
-    pop.culture_id = lua_tonumber(L, 10);
+    pop.language_id = lua_tonumber(L, 10);
     pop.religion_id = lua_tonumber(L, 11);
     pop.militancy = lua_tonumber(L, 12);
     return 0;
@@ -857,7 +857,7 @@ int LuaAPI::add_province_pop(lua_State* L) {
     Province& province = g_world.provinces.at(lua_tonumber(L, 1));
     auto pop = Pop();
     pop.type_id = lua_tonumber(L, 2);
-    pop.culture_id = lua_tonumber(L, 3);
+    pop.language_id = lua_tonumber(L, 3);
     pop.religion_id = lua_tonumber(L, 4);
     pop.size = lua_tonumber(L, 5);
     pop.literacy = lua_tonumber(L, 6);
@@ -1089,42 +1089,42 @@ int LuaAPI::get_pop_type_by_id(lua_State* L) {
     return 9;
 }
 
-int LuaAPI::add_culture(lua_State* L) {
+int LuaAPI::add_language(lua_State* L) {
     if(g_world.needs_to_sync)
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
 
-    Culture culture{};
-    culture.ref_name = luaL_checkstring(L, 1);
-    culture.name = luaL_checkstring(L, 2);
-    culture.color = (std::byteswap<std::uint32_t>(static_cast<int>(lua_tonumber(L, 3))) >> 8) | 0xff000000;
-    culture.adjective = luaL_checkstring(L, 4);
-    culture.noun = luaL_checkstring(L, 5);
-    culture.combo_form = luaL_checkstring(L, 6);
-    g_world.insert(culture);
-    lua_pushnumber(L, g_world.cultures.size() - 1);
+    Language language{};
+    language.ref_name = luaL_checkstring(L, 1);
+    language.name = luaL_checkstring(L, 2);
+    language.color = (std::byteswap<std::uint32_t>(static_cast<int>(lua_tonumber(L, 3))) >> 8) | 0xff000000;
+    language.adjective = luaL_checkstring(L, 4);
+    language.noun = luaL_checkstring(L, 5);
+    language.combo_form = luaL_checkstring(L, 6);
+    g_world.insert(language);
+    lua_pushnumber(L, g_world.languages.size() - 1);
     return 1;
 }
 
-int LuaAPI::get_culture(lua_State* L) {
-    const auto& culture = find_or_throw_local<Culture>(luaL_checkstring(L, 1));
+int LuaAPI::get_language(lua_State* L) {
+    const auto& language = find_or_throw_local<Language>(luaL_checkstring(L, 1));
 
-    lua_pushnumber(L, g_world.get_id(culture));
-    lua_pushstring(L, culture.name.c_str());
-    lua_pushnumber(L, std::byteswap<std::uint32_t>((culture.color & 0x00ffffff) << 8));
-    lua_pushstring(L, culture.adjective.c_str());
-    lua_pushstring(L, culture.noun.c_str());
-    lua_pushstring(L, culture.combo_form.c_str());
+    lua_pushnumber(L, g_world.get_id(language));
+    lua_pushstring(L, language.name.c_str());
+    lua_pushnumber(L, std::byteswap<std::uint32_t>((language.color & 0x00ffffff) << 8));
+    lua_pushstring(L, language.adjective.c_str());
+    lua_pushstring(L, language.noun.c_str());
+    lua_pushstring(L, language.combo_form.c_str());
     return 6;
 }
 
-int LuaAPI::get_culture_by_id(lua_State* L) {
-    const auto& culture = g_world.cultures.at(lua_tonumber(L, 1));
-    lua_pushstring(L, culture.ref_name.c_str());
-    lua_pushstring(L, culture.name.c_str());
-    lua_pushnumber(L, std::byteswap<std::uint32_t>((culture.color & 0x00ffffff) << 8));
-    lua_pushstring(L, culture.adjective.c_str());
-    lua_pushstring(L, culture.noun.c_str());
-    lua_pushstring(L, culture.combo_form.c_str());
+int LuaAPI::get_language_by_id(lua_State* L) {
+    const auto& language = g_world.languages.at(lua_tonumber(L, 1));
+    lua_pushstring(L, language.ref_name.c_str());
+    lua_pushstring(L, language.name.c_str());
+    lua_pushnumber(L, std::byteswap<std::uint32_t>((language.color & 0x00ffffff) << 8));
+    lua_pushstring(L, language.adjective.c_str());
+    lua_pushstring(L, language.noun.c_str());
+    lua_pushstring(L, language.combo_form.c_str());
     return 6;
 }
 

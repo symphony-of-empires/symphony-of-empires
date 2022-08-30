@@ -31,7 +31,7 @@
 
 #include "religion.hpp"
 #include "ideology.hpp"
-#include "culture.hpp"
+#include "language.hpp"
 
 enum class PopGroup : int {
     OTHER = 0x01,
@@ -65,14 +65,14 @@ public:
     ~Pop() = default;
 
     constexpr bool operator==(const Pop& rhs) const {
-        return (this->culture_id == rhs.culture_id && this->religion_id == rhs.religion_id && this->type_id == rhs.type_id);
+        return (this->language_id == rhs.language_id && this->religion_id == rhs.religion_id && this->type_id == rhs.type_id);
     }
 
     Ideology& get_ideology() const;
     uint32_t get_type_id() const;
 
     PopType::Id type_id;
-    Culture::Id culture_id;
+    Language::Id language_id;
     Religion::Id religion_id;
 
     float size = 0.f;

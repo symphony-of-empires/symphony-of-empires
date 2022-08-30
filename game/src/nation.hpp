@@ -42,7 +42,7 @@ class Province;
 class Ideology;
 class Technology;
 class Pop;
-class Culture;
+class Language;
 class Religion;
 namespace TreatyClause {
     class BaseClause;
@@ -117,8 +117,8 @@ public:
     bool exists() const;
     void auto_relocate_capital();
     void set_policy(const Policies& policies);
-    bool is_accepted_culture(const Pop& pop) const;
-    bool is_accepted_culture(const Culture& culture) const;
+    bool is_accepted_language(const Pop& pop) const;
+    bool is_accepted_language(const Language& language) const;
     bool is_accepted_religion(const Pop& pop) const;
     bool is_accepted_religion(const Religion& relgion) const;
     float get_tax(const Pop& pop) const;
@@ -163,9 +163,9 @@ public:
     Policies current_policy; // Current policy of this nation
     uint16_t diplomatic_timer; // Time until a diplomacy can be done
     Technology* focus_tech = nullptr; // Current tech being researched
-    // Accepted cultures in this nation, the accepted cultures may have some bonuses on provinces *totally*
+    // Accepted languages in this nation, the accepted languages may have some bonuses on provinces *totally*
     // owned by this nation
-    std::vector<float> culture_discrim;
+    std::vector<float> language_discrim;
     std::vector<float> religion_discrim;
     // List of provinces which are owned by this nation (including partial ownership)
     /// @todo Add controlled provinces to serializer

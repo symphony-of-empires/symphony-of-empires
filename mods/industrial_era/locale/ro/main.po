@@ -30,7 +30,7 @@ msgstr "A Coruña"
 msgid "Abbyssina"
 msgstr "Abisinia"
 
-#: cultures.lua:201
+#: languages.lua:201
 msgid "Abyssinian"
 msgstr "Abisinian"
 
@@ -38,7 +38,7 @@ msgstr "Abisinian"
 msgid "Acre"
 msgstr "Acru"
 
-#: cultures.lua:134 nations/europe.lua:343
+#: languages.lua:134 nations/europe.lua:343
 msgid "Afghan"
 msgstr "Afgan"
 
@@ -50,7 +50,7 @@ msgstr "Afgani"
 msgid "Afghanistan"
 msgstr "Afganistan"
 
-#: cultures.lua:135
+#: languages.lua:135
 msgid "Afghano"
 msgstr "Afgan"
 
@@ -68,7 +68,7 @@ msgid "Aisne"
 msgstr "Aisne"
 
 #. African
-#: cultures.lua:198
+#: languages.lua:198
 msgid "Akan"
 msgstr "Akan"
 
@@ -132,12 +132,12 @@ msgid "Alta California"
 msgstr "Alta California"
 
 #. American
-#: cultures.lua:140 cultures.lua:141 nations/america.lua:80
+#: languages.lua:140 languages.lua:141 nations/america.lua:80
 #: nations/america.lua:81
 msgid "American"
 msgstr "American"
 
-#: cultures.lua:204
+#: languages.lua:204
 msgid "Amhara"
 msgstr "Amhara"
 
@@ -181,7 +181,7 @@ msgstr "Antofagasta"
 msgid "Apure"
 msgstr "Apure"
 
-#: cultures.lua:193
+#: languages.lua:193
 msgid "Arab"
 msgstr "Arab"
 
@@ -191,7 +191,7 @@ msgid "Arabia"
 msgstr "Arabia"
 
 #. Middle east
-#: cultures.lua:192
+#: languages.lua:192
 msgid "Arabic"
 msgstr "Arabic"
 
@@ -199,7 +199,7 @@ msgstr "Arabic"
 msgid "Aragon"
 msgstr "Aragon"
 
-#: cultures.lua:45
+#: languages.lua:45
 msgid "Aragonese"
 msgstr "Aragoneză"
 
@@ -228,7 +228,7 @@ msgstr "Arequipa"
 msgid "Argentina"
 msgstr "Argentina"
 
-#: cultures.lua:150
+#: languages.lua:150
 msgid "Argentinian"
 msgstr "Argentinian"
 
@@ -412,7 +412,7 @@ msgstr "Barăci"
 msgid "Bas-Rhin"
 msgstr "Bas-Rhin"
 
-#: cultures.lua:39 nations/europe.lua:118 nations/europe.lua:119
+#: languages.lua:39 nations/europe.lua:118 nations/europe.lua:119
 #: nations/europe.lua:121
 msgid "Basque"
 msgstr "Bască"
@@ -429,7 +429,7 @@ msgstr "Pat"
 msgid "Bed manufacturer"
 msgstr "Producător de paturi"
 
-#: cultures.lua:18 nations/europe.lua:23
+#: languages.lua:18 nations/europe.lua:23
 msgid "Belgian"
 msgstr "Belgian"
 
@@ -483,7 +483,7 @@ msgstr "Bohuslän"
 msgid "Bolivia"
 msgstr "Bolivia"
 
-#: cultures.lua:153 nations/america.lua:40
+#: languages.lua:153 nations/america.lua:40
 msgid "Bolivian"
 msgstr "Bolivian"
 
@@ -536,7 +536,7 @@ msgstr "Topitor de alamă"
 msgid "Brazil"
 msgstr "Brazilia"
 
-#: cultures.lua:177
+#: languages.lua:177
 msgid "Brazilian"
 msgstr "Brazilian"
 
@@ -550,7 +550,7 @@ msgstr "Pâine"
 msgid "Bremen"
 msgstr "Bremen"
 
-#: cultures.lua:12 nations/europe.lua:6
+#: languages.lua:12 nations/europe.lua:6
 msgid "British"
 msgstr "Britanic"
 
@@ -589,7 +589,7 @@ msgstr "Buenos Aires"
 msgid "Bulgaria"
 msgstr "Bulgaria"
 
-#: cultures.lua:107 nations/europe.lua:287
+#: languages.lua:107 nations/europe.lua:287
 msgid "Bulgarian"
 msgstr "Bulgar"
 
@@ -671,7 +671,7 @@ msgstr "Carvoal"
 msgid "Castellón"
 msgstr "Castellón"
 
-#: cultures.lua:48
+#: languages.lua:48
 msgid "Catalan"
 msgstr "Catalan"
 
@@ -758,7 +758,7 @@ msgstr "Charente"
 msgid "Charente-Maritime"
 msgstr "Charente-Maritime"
 
-#: cultures.lua:207
+#: languages.lua:207
 msgid "Chewa"
 msgstr "Chewa"
 
@@ -774,7 +774,7 @@ msgstr "Chihuahua"
 msgid "Chile"
 msgstr "Chile"
 
-#: cultures.lua:144 nations/america.lua:56
+#: languages.lua:144 nations/america.lua:56
 msgid "Chilean"
 msgstr "Chiliană"
 
@@ -810,7 +810,7 @@ msgstr "Chuquisaca"
 msgid "Cisplatina"
 msgstr "Cisplatina"
 
-#: cultures.lua:147
+#: languages.lua:147
 msgid "Cisplatinian"
 msgstr "Cisplatinian"
 
@@ -871,7 +871,7 @@ msgstr "Boabă de cafea"
 msgid "Colima"
 msgstr "Colima"
 
-#: cultures.lua:159
+#: languages.lua:159
 msgid "Colombian"
 msgstr "Columbian"
 
@@ -965,7 +965,7 @@ msgstr "Creuse"
 msgid "Croatia"
 msgstr "Croația"
 
-#: cultures.lua:58
+#: languages.lua:58
 msgid "Croatian"
 msgstr "Croat"
 
@@ -993,11 +993,11 @@ msgstr "Curicó"
 msgid "Cyclades"
 msgstr "Ciclade"
 
-#: cultures.lua:51
+#: languages.lua:51
 msgid "Czech"
 msgstr "Ceh"
 
-#: cultures.lua:52
+#: languages.lua:52
 msgid "Czecho"
 msgstr "Ceho"
 
@@ -1039,7 +1039,7 @@ msgstr "Dahomey"
 msgid "Dalarna"
 msgstr "Dalarna"
 
-#: cultures.lua:21 nations/europe.lua:153
+#: languages.lua:21 nations/europe.lua:153
 msgid "Danish"
 msgstr "Danez"
 
@@ -1135,7 +1135,7 @@ msgstr "Dupuy"
 msgid "Durango"
 msgstr "Durango"
 
-#: cultures.lua:15 nations/europe.lua:15
+#: languages.lua:15 nations/europe.lua:15
 msgid "Dutch"
 msgstr "Olandez"
 
@@ -1176,7 +1176,7 @@ msgstr "Texas de est"
 msgid "Ecuador"
 msgstr "Ecuador"
 
-#: cultures.lua:165
+#: languages.lua:165
 msgid "Ecuadorian"
 msgstr "Ecuadorian"
 
@@ -1233,7 +1233,7 @@ msgstr "Estonia"
 msgid "Estonia SFSR"
 msgstr "RSS Estonă"
 
-#: cultures.lua:101 nations/europe.lua:254
+#: languages.lua:101 nations/europe.lua:254
 msgid "Estonian"
 msgstr "Estonian"
 
@@ -1299,11 +1299,11 @@ msgstr "Finistère"
 msgid "Finland"
 msgstr "Finlanda"
 
-#: cultures.lua:75 nations/europe.lua:184
+#: languages.lua:75 nations/europe.lua:184
 msgid "Finnish"
 msgstr "Finlandez"
 
-#: cultures.lua:76 nations/europe.lua:185
+#: languages.lua:76 nations/europe.lua:185
 msgid "Finno"
 msgstr "Finno"
 
@@ -1335,7 +1335,7 @@ msgstr "Fort Resolution"
 msgid "France"
 msgstr "Franța"
 
-#: cultures.lua:9 nations/europe.lua:32
+#: languages.lua:9 nations/europe.lua:32
 msgid "Franco"
 msgstr "Franco"
 
@@ -1347,7 +1347,7 @@ msgstr "Frankfurt"
 msgid "Frederiksborg"
 msgstr "Frederiksborg"
 
-#: cultures.lua:8 nations/europe.lua:31
+#: languages.lua:8 nations/europe.lua:31
 msgid "French"
 msgstr "Francez"
 
@@ -1360,7 +1360,7 @@ msgstr "Combustibil"
 msgid "Fuerte Olimpo"
 msgstr "Fuerte Olimpo"
 
-#: cultures.lua:210
+#: languages.lua:210
 msgid "Fulani"
 msgstr "Fulani"
 
@@ -1372,7 +1372,7 @@ msgstr "Gabès"
 msgid "Galicia"
 msgstr "Galicia"
 
-#: cultures.lua:42 nations/europe.lua:126
+#: languages.lua:42 nations/europe.lua:126
 msgid "Galician"
 msgstr "Galician"
 
@@ -1403,9 +1403,9 @@ msgstr "Genoa"
 msgid "Georgia"
 msgstr "Georgia"
 
-#. Cultures
+#. Languages
 #. European
-#: cultures.lua:5 nations/europe.lua:581
+#: languages.lua:5 nations/europe.lua:581
 msgid "German"
 msgstr "German"
 
@@ -1497,7 +1497,7 @@ msgstr "Marea Hoardă"
 msgid "Greater Prussia"
 msgstr "Prusia Mare"
 
-#: cultures.lua:88 nations/europe.lua:692
+#: languages.lua:88 nations/europe.lua:692
 msgid "Greco"
 msgstr "Greco"
 
@@ -1505,7 +1505,7 @@ msgstr "Greco"
 msgid "Greece"
 msgstr "Grecia"
 
-#: cultures.lua:87 nations/europe.lua:691
+#: languages.lua:87 nations/europe.lua:691
 msgid "Greek"
 msgstr "Grec"
 
@@ -1567,7 +1567,7 @@ msgstr "Amestecător de praf de pușcă"
 msgid "Haiti"
 msgstr "Haiti"
 
-#: cultures.lua:174
+#: languages.lua:174
 msgid "Haitian"
 msgstr "Haitian"
 
@@ -1579,7 +1579,7 @@ msgstr "Hannover"
 msgid "Harju"
 msgstr "Harju"
 
-#: cultures.lua:213
+#: languages.lua:213
 msgid "Hausa"
 msgstr "Hausa"
 
@@ -1691,7 +1691,7 @@ msgstr "Huesca"
 msgid "Hunduism"
 msgstr "Hunduism"
 
-#: cultures.lua:64 nations/europe.lua:556
+#: languages.lua:64 nations/europe.lua:556
 msgid "Hungarian"
 msgstr "Ungar"
 
@@ -1700,7 +1700,7 @@ msgstr "Ungar"
 msgid "Hungary"
 msgstr "Ungaria"
 
-#: cultures.lua:216
+#: languages.lua:216
 msgid "Hutu"
 msgstr "Hutu"
 
@@ -1740,7 +1740,7 @@ msgstr "Ibiza"
 msgid "Iceland"
 msgstr "Islanda"
 
-#: cultures.lua:24 nations/europe.lua:206
+#: languages.lua:24 nations/europe.lua:206
 msgid "Icelandic"
 msgstr "Islandic"
 
@@ -1748,7 +1748,7 @@ msgstr "Islandic"
 msgid "Idaho"
 msgstr "Idaho"
 
-#: cultures.lua:219
+#: languages.lua:219
 msgid "Igbo"
 msgstr "Igbo"
 
@@ -1805,7 +1805,7 @@ msgstr "Iquique"
 msgid "Ireland"
 msgstr "Irlanda"
 
-#: cultures.lua:27 nations/europe.lua:566
+#: languages.lua:27 nations/europe.lua:566
 msgid "Irish"
 msgstr "Irlandez"
 
@@ -1837,11 +1837,11 @@ msgstr "Islas de La Bahía"
 msgid "Istmo"
 msgstr "Istmo"
 
-#: cultures.lua:91 nations/europe.lua:668
+#: languages.lua:91 nations/europe.lua:668
 msgid "Italian"
 msgstr "Italian"
 
-#: cultures.lua:92
+#: languages.lua:92
 msgid "Italo"
 msgstr "Italo"
 
@@ -1907,7 +1907,7 @@ msgstr "Kansas"
 msgid "Kansas Indian Territory"
 msgstr "Teritoriul Indian Kansas"
 
-#: cultures.lua:222
+#: languages.lua:222
 msgid "Kanuri"
 msgstr "Kanuri"
 
@@ -1920,7 +1920,7 @@ msgid "Kaua'i"
 msgstr "Kaua'i"
 
 #. Central Asia
-#: cultures.lua:122 nations/europe.lua:328
+#: languages.lua:122 nations/europe.lua:328
 msgid "Kazakh"
 msgstr "Kazah"
 
@@ -1944,7 +1944,7 @@ msgstr "Kenora"
 msgid "Kentucky"
 msgstr "Kentucky"
 
-#: cultures.lua:225
+#: languages.lua:225
 msgid "Kongo"
 msgstr "Kongo"
 
@@ -1978,7 +1978,7 @@ msgstr "Kuopio"
 msgid "Kymi"
 msgstr "Kymi"
 
-#: cultures.lua:131 nations/europe.lua:335
+#: languages.lua:131 nations/europe.lua:335
 msgid "Kyrgyz"
 msgstr "Kyrgyz"
 
@@ -2048,7 +2048,7 @@ msgstr "Latvia"
 msgid "Latvia SFSR"
 msgstr "RSS Latvia"
 
-#: cultures.lua:98 nations/europe.lua:262
+#: languages.lua:98 nations/europe.lua:262
 msgid "Latvian"
 msgstr "Leton"
 
@@ -2085,7 +2085,7 @@ msgstr "Lituania"
 msgid "Lithuania SFSR"
 msgstr "SSR Lituania"
 
-#: cultures.lua:95 nations/europe.lua:246
+#: languages.lua:95 nations/europe.lua:246
 msgid "Lithuanian"
 msgstr "Lituanian"
 
@@ -2139,7 +2139,7 @@ msgstr "Austria Inferioară"
 msgid "Lozère"
 msgstr "Lozère"
 
-#: cultures.lua:228
+#: languages.lua:228
 msgid "Luba"
 msgstr "Luba"
 
@@ -2181,7 +2181,7 @@ msgstr "Madrid"
 msgid "Magdalena"
 msgstr "Magdalena"
 
-#: cultures.lua:231
+#: languages.lua:231
 msgid "Maghrebis"
 msgstr "Maghrebis"
 
@@ -2211,7 +2211,7 @@ msgid "Manhattan"
 msgstr "Manhattan"
 
 #. Native american
-#: cultures.lua:182 nations/america.lua:96 nations/america.lua:100
+#: languages.lua:182 nations/america.lua:96 nations/america.lua:100
 #: religions.lua:48
 msgid "Mapuche"
 msgstr "Mapuche"
@@ -2281,7 +2281,7 @@ msgstr "Menorca"
 msgid "Meuse"
 msgstr "Meuse"
 
-#: cultures.lua:171 nations/america.lua:71
+#: languages.lua:171 nations/america.lua:71
 msgid "Mexican"
 msgstr "Mexican"
 
@@ -2356,7 +2356,7 @@ msgstr "Monarhie"
 msgid "Monastir"
 msgstr "Mănăstire"
 
-#: cultures.lua:234
+#: languages.lua:234
 msgid "Mongo"
 msgstr "Mongo"
 
@@ -2489,7 +2489,7 @@ msgstr "Nicarágua"
 msgid "Nicoya"
 msgstr "Nicoya"
 
-#: cultures.lua:237
+#: languages.lua:237
 msgid "Nilotes"
 msgstr "Nilotes"
 
@@ -2503,7 +2503,7 @@ msgid "Nièvre"
 msgstr "Nièvre"
 
 #. Eurasia and West Asia
-#: cultures.lua:117 nations/europe.lua:314
+#: languages.lua:117 nations/europe.lua:314
 msgid "Nogai"
 msgstr "Nogai"
 
@@ -2597,7 +2597,7 @@ msgstr "Colorado de nord-vest"
 msgid "Norway"
 msgstr "Norvegia"
 
-#: cultures.lua:79 nations/europe.lua:192
+#: languages.lua:79 nations/europe.lua:192
 msgid "Norwegian"
 msgstr "Norvegian"
 
@@ -2725,7 +2725,7 @@ msgstr "Orinoco"
 msgid "Orne"
 msgstr "Orne"
 
-#: cultures.lua:240
+#: languages.lua:240
 msgid "Oromo"
 msgstr "Oromo"
 
@@ -2798,7 +2798,7 @@ msgstr "Statele Panpal"
 msgid "Paraguay"
 msgstr "Paraguay"
 
-#: cultures.lua:156 nations/america.lua:48
+#: languages.lua:156 nations/america.lua:48
 msgid "Paraguayan"
 msgstr "Paraguaian"
 
@@ -2851,7 +2851,7 @@ msgstr "Pernambuco"
 msgid "Peru"
 msgstr "Peru"
 
-#: cultures.lua:168
+#: languages.lua:168
 msgid "Peruvian"
 msgstr "Peruvian"
 
@@ -2894,7 +2894,7 @@ msgstr "Plutoniu"
 msgid "Poland"
 msgstr "Polonia"
 
-#: cultures.lua:104 nations/europe.lua:237
+#: languages.lua:104 nations/europe.lua:237
 msgid "Polish"
 msgstr "Polonez"
 
@@ -2903,8 +2903,8 @@ msgstr "Polonez"
 msgid "Poluostrov Alyaska"
 msgstr "Poluostrov Alyaska"
 
-#. Oceanic cultures
-#: cultures.lua:187
+#. Oceanic languages
+#: languages.lua:187
 msgid "Polynesian"
 msgstr "Polinezian"
 
@@ -2933,7 +2933,7 @@ msgstr "Porto Alegre"
 msgid "Portugal"
 msgstr "Portugalia"
 
-#: cultures.lua:33 nations/europe.lua:49
+#: languages.lua:33 nations/europe.lua:49
 msgid "Portuguese"
 msgstr "Portughez"
 
@@ -3373,7 +3373,7 @@ msgstr "Imperiul Roman"
 msgid "Romania"
 msgstr "România"
 
-#: cultures.lua:30 nations/europe.lua:280
+#: languages.lua:30 nations/europe.lua:280
 msgid "Romanian"
 msgstr "Român"
 
@@ -3393,7 +3393,7 @@ msgstr "Rosario"
 msgid "Russia"
 msgstr "Rusia"
 
-#: cultures.lua:67 nations/europe.lua:217
+#: languages.lua:67 nations/europe.lua:217
 msgid "Russian"
 msgstr "Rus"
 
@@ -3401,7 +3401,7 @@ msgstr "Rus"
 msgid "Russian SFSR"
 msgstr "SSR Rusia"
 
-#: cultures.lua:68 nations/europe.lua:218
+#: languages.lua:68 nations/europe.lua:218
 msgid "Russo"
 msgstr "Russo"
 
@@ -3608,7 +3608,7 @@ msgstr "Seine Maritime"
 msgid "Selva Lancadona"
 msgstr "Selva Lancadona"
 
-#: cultures.lua:111
+#: languages.lua:111
 msgid "Serb"
 msgstr "Sârb"
 
@@ -3616,11 +3616,11 @@ msgstr "Sârb"
 msgid "Serbia"
 msgstr "Serbia"
 
-#: cultures.lua:110
+#: languages.lua:110
 msgid "Serbian"
 msgstr "Sârb"
 
-#: cultures.lua:112
+#: languages.lua:112
 msgid "Serbo"
 msgstr "Serbo"
 
@@ -3641,7 +3641,7 @@ msgstr "Seville"
 msgid "Sfax"
 msgstr "Sfax"
 
-#: cultures.lua:243
+#: languages.lua:243
 msgid "Shona"
 msgstr "Shona"
 
@@ -3693,11 +3693,11 @@ msgstr "Sclav"
 msgid "Sloop of war"
 msgstr "Om de război"
 
-#: cultures.lua:55
+#: languages.lua:55
 msgid "Slovakian"
 msgstr "Slovac"
 
-#: cultures.lua:61
+#: languages.lua:61
 msgid "Slovenian"
 msgstr "Sloven"
 
@@ -3725,7 +3725,7 @@ msgstr "Sokoto"
 msgid "Soldier"
 msgstr "Soldat"
 
-#: cultures.lua:246
+#: languages.lua:246
 msgid "Somali"
 msgstr "Somalia"
 
@@ -3813,7 +3813,7 @@ msgstr "Spania"
 msgid "Spainiard"
 msgstr "Spaniol"
 
-#: cultures.lua:36 nations/europe.lua:40
+#: languages.lua:36 nations/europe.lua:40
 msgid "Spanish"
 msgstr "Spaniol"
 
@@ -3861,7 +3861,7 @@ msgstr "Surinam"
 msgid "Suðurland"
 msgstr "Suðurland"
 
-#: cultures.lua:72 nations/europe.lua:162
+#: languages.lua:72 nations/europe.lua:162
 msgid "Swede"
 msgstr "Suedez"
 
@@ -3869,7 +3869,7 @@ msgstr "Suedez"
 msgid "Sweden"
 msgstr "Suedia"
 
-#: cultures.lua:71 nations/europe.lua:161
+#: languages.lua:71 nations/europe.lua:161
 msgid "Swedish"
 msgstr "Suedez"
 
@@ -3905,7 +3905,7 @@ msgstr "São Paulo"
 msgid "Taiga"
 msgstr "Taiga"
 
-#: cultures.lua:128
+#: languages.lua:128
 msgid "Tajik"
 msgstr "Tajik"
 
@@ -4104,7 +4104,7 @@ msgstr "Tunizian"
 msgid "Turco"
 msgstr "Turco"
 
-#: cultures.lua:83 nations/europe.lua:681
+#: languages.lua:83 nations/europe.lua:681
 msgid "Turk"
 msgstr "Turc"
 
@@ -4115,11 +4115,11 @@ msgstr "Turc"
 msgid "Turkey"
 msgstr "Turcia"
 
-#: cultures.lua:82 nations/europe.lua:680
+#: languages.lua:82 nations/europe.lua:680
 msgid "Turkish"
 msgstr "Turc"
 
-#: cultures.lua:84
+#: languages.lua:84
 msgid "Turko"
 msgstr "Turco"
 
@@ -4839,7 +4839,7 @@ msgstr "Utah"
 msgid "Uusimaa"
 msgstr "Uusimaa"
 
-#: cultures.lua:125 nations/europe.lua:321
+#: languages.lua:125 nations/europe.lua:321
 msgid "Uzbek"
 msgstr "Uzbek"
 
@@ -4893,7 +4893,7 @@ msgstr "Venețian"
 msgid "Venezuela"
 msgstr "Venezuela"
 
-#: cultures.lua:162
+#: languages.lua:162
 msgid "Venezuelan"
 msgstr "Venezuelesc"
 
@@ -5050,7 +5050,7 @@ msgstr "Wyoming de vest"
 #. The Atlantic-Pacific trade route
 #. Wanting to build the canal out of the blue :P
 #. Requirements
-#. TODO: Generate names dynamically based on culture (for multicultural states it's just random chance)
+#. TODO: Generate names dynamically based on language (for multicultural states it's just random chance)
 #. Engineer answers to our proposal
 #. ENGINEER APPROVES PANAMA CANAL PROPOSAL
 #. function eapcp_test()
@@ -5150,7 +5150,7 @@ msgstr "Yakutat"
 msgid "Yonne"
 msgstr "Yonne"
 
-#: cultures.lua:249
+#: languages.lua:249
 msgid "Yoruba"
 msgstr "Yoruba"
 
@@ -5214,7 +5214,7 @@ msgstr "Mină de zinc"
 msgid "Zulia"
 msgstr "Zulia"
 
-#: cultures.lua:252
+#: languages.lua:252
 msgid "Zulu"
 msgstr "Zulu"
 

@@ -56,8 +56,8 @@ end
 function Nation:set_capital(province)
 	set_nation_capital(self.id, province.id)
 end
-function Nation:add_accepted_culture(culture)
-	add_nation_accepted_culture(self.id, culture.id)
+function Nation:add_accepted_language(language)
+	add_nation_accepted_language(self.id, language.id)
 end
 function Nation:add_accepted_religion(religion)
 	add_nation_accepted_religion(self.id, religion.id)

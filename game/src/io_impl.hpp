@@ -56,7 +56,7 @@ class Serializer<Province*>: public SerializerReferenceLocal<World, Province> {}
 template<>
 class Serializer<Nation*>: public SerializerReferenceLocal<World, Nation> {};
 template<>
-class Serializer<Culture*>: public SerializerReferenceLocal<World, Culture> {};
+class Serializer<Language*>: public SerializerReferenceLocal<World, Language> {};
 template<>
 class Serializer<Good*>: public SerializerReferenceLocal<World, Good> {};
 template<>
@@ -90,7 +90,7 @@ class Serializer<const Province*>: public SerializerReferenceLocal<World, const 
 template<>
 class Serializer<const Nation*>: public SerializerReferenceLocal<World, const Nation> {};
 template<>
-class Serializer<const Culture*>: public SerializerReferenceLocal<World, const Culture> {};
+class Serializer<const Language*>: public SerializerReferenceLocal<World, const Language> {};
 template<>
 class Serializer<const Good*>: public SerializerReferenceLocal<World, const Good> {};
 template<>
@@ -219,10 +219,10 @@ public:
 };
 
 template<>
-class Serializer<Culture> {
+class Serializer<Language> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Culture* obj) {
+    static inline void deser_dynamic(Archive& ar, Language* obj) {
         ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
         ::deser_dynamic<is_serialize>(ar, &obj->name);
         ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
@@ -300,7 +300,7 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->everyday_needs_met);
         ::deser_dynamic<is_serialize>(ar, &obj->luxury_needs_met);
         ::deser_dynamic<is_serialize>(ar, &obj->type_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->culture_id);
+        ::deser_dynamic<is_serialize>(ar, &obj->language_id);
         ::deser_dynamic<is_serialize>(ar, &obj->religion_id);
         ::deser_dynamic<is_serialize>(ar, &obj->ideology_approval);
     }
@@ -372,7 +372,7 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->economy_score);
         ::deser_dynamic<is_serialize>(ar, &obj->budget);
         ::deser_dynamic<is_serialize>(ar, &obj->capital_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->culture_discrim);
+        ::deser_dynamic<is_serialize>(ar, &obj->language_discrim);
         ::deser_dynamic<is_serialize>(ar, &obj->religion_discrim);
         ::deser_dynamic<is_serialize>(ar, &obj->owned_provinces);
         ::deser_dynamic<is_serialize>(ar, &obj->controlled_provinces);
@@ -656,7 +656,7 @@ public:
         ::deser_dynamic<is_serialize>(ar, &obj->goods);
         ::deser_dynamic<is_serialize>(ar, &obj->unit_types);
         ::deser_dynamic<is_serialize>(ar, &obj->religions);
-        ::deser_dynamic<is_serialize>(ar, &obj->cultures);
+        ::deser_dynamic<is_serialize>(ar, &obj->languages);
         ::deser_dynamic<is_serialize>(ar, &obj->pop_types);
         ::deser_dynamic<is_serialize>(ar, &obj->terrain_types);
         ::deser_dynamic<is_serialize>(ar, &obj->building_types);

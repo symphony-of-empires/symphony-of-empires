@@ -29,7 +29,7 @@
 
 enum AllowancePolicy {
     ALLOW_NOBODY, // Nobody can enter the country
-    ALLOW_ACCEPTED_CULTURES, // Only accepted cultures can enter the country
+    ALLOW_ACCEPTED_LANGUAGES, // Only accepted languages can enter the country
     ALLOW_ALL_PAYMENT, // Everyone can enter, but at a cost
     ALLOW_ALL, // Everyone can exit freely
 };

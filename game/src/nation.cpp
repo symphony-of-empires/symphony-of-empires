@@ -217,13 +217,13 @@ void Nation::set_policy(const Policies& policies) {
     }
 }
 
-/// @brief Checks if a POP is part of one of our accepted cultures
-bool Nation::is_accepted_culture(const Pop& pop) const {
-    return is_accepted_culture(World::get_instance().cultures[pop.culture_id]);
+/// @brief Checks if a POP is part of one of our accepted languages
+bool Nation::is_accepted_language(const Pop& pop) const {
+    return is_accepted_language(World::get_instance().languages[pop.language_id]);
 }
-/// @brief Checks if a CULTURE is part of one of our accepted cultures
-bool Nation::is_accepted_culture(const Culture& culture) const {
-    return culture_discrim[World::get_instance().get_id(culture)] >= 0.5f;
+/// @brief Checks if a LANGUAGE is part of one of our accepted languages
+bool Nation::is_accepted_language(const Language& language) const {
+    return language_discrim[World::get_instance().get_id(language)] >= 0.5f;
 }
 
 /// @brief Checks if a POP is part of one of our accepted religion
@@ -241,7 +241,7 @@ bool Nation::is_accepted_religion(const Religion& religion) const {
 float Nation::get_tax(const Pop& pop) const {
     float base_tax = 1.f;
 
-    if(!is_accepted_culture(pop) && !is_accepted_religion(pop)) {
+    if(!is_accepted_language(pop) && !is_accepted_religion(pop)) {
         // Exterminate imposes a scale of 3(+1), which will be enough to drive off most POPs
         const int scale = 1 + current_policy.treatment;
         base_tax *= 2 * scale;

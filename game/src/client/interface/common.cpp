@@ -227,9 +227,9 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province& _province, std::size_t 
     this->religion_ibtn->right_side_of(*this->budget_btn);
     this->religion_ibtn->set_tooltip(new UI::Tooltip(this->religion_ibtn, 512, 24));
 
-    this->culture_ibtn = new UI::Image(0, 0, 24, 24, this);
-    this->culture_ibtn->right_side_of(*this->religion_ibtn);
-    this->culture_ibtn->set_tooltip(new UI::Tooltip(this->culture_ibtn, 512, 24));
+    this->language_ibtn = new UI::Image(0, 0, 24, 24, this);
+    this->language_ibtn->right_side_of(*this->religion_ibtn);
+    this->language_ibtn->set_tooltip(new UI::Tooltip(this->language_ibtn, 512, 24));
     
     this->set_on_each_tick([this](UI::Widget&) {
         if(this->gs.world->time % this->gs.world->ticks_per_month) return;
@@ -241,8 +241,8 @@ PopInfo::PopInfo(GameState& _gs, int x, int y, Province& _province, std::size_t 
         this->budget_btn->tooltip->text(Eng3D::Locale::translate("A total budget of") + " " + std::to_string(pop.budget));
         this->religion_ibtn->current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/religion/" + this->gs.world->religions[pop.religion_id].ref_name + ".png"));
         this->religion_ibtn->tooltip->text(Eng3D::Locale::translate(this->gs.world->religions[pop.religion_id].name.get_string()));
-        this->culture_ibtn->current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/noicon.png"));
-        this->culture_ibtn->tooltip->text(Eng3D::Locale::translate(this->gs.world->cultures[pop.culture_id].name.get_string()));
+        this->language_ibtn->current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/noicon.png"));
+        this->language_ibtn->tooltip->text(Eng3D::Locale::translate(this->gs.world->languages[pop.language_id].name.get_string()));
     });
     this->on_each_tick(*this);
 }

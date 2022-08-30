@@ -78,9 +78,9 @@ static inline void internal_migration(World&) {
 }
 
 // Basic
-static inline float nation_attraction(Nation& nation, Culture& culture) {
+static inline float nation_attraction(Nation& nation, Language& language) {
     float attraction = nation.get_immigration_attraction_mod();
-    if(nation.is_accepted_culture(culture)) {
+    if(nation.is_accepted_language(language)) {
         // Linearized version, instead of using if-else trees we just
         // multiply the attractive by the scale; EXTERMINATE = 3, so 3 - 3 is 0 which nullifies the attractivenes
         // and the more open the borders are the more lenient the "scale" becomes
@@ -115,7 +115,7 @@ static inline void external_migration(World& world) {
     }
 
     std::vector<DiscreteDistribution<Nation*>*> nation_distributions;
-    for(auto& culture : world.cultures) {
+    for(auto& language : world.languages) {
         std::vector<float> attractions;
         std::vector<Nation*> viable_nations;
         for(auto& nation : world.nations) {
@@ -123,11 +123,11 @@ static inline void external_migration(World& world) {
 
             if(nation.current_policy.migration == ALLOW_NOBODY) {
                 continue;
-            } else if(nation.current_policy.migration == ALLOW_ACCEPTED_CULTURES) {
-                if(!nation.is_accepted_culture(culture)) continue;
+            } else if(nation.current_policy.migration == ALLOW_ACCEPTED_LANGUAGES) {
+                if(!nation.is_accepted_language(language)) continue;
             }
 
-            float attraction = nation_attraction(nation, culture);
+            float attraction = nation_attraction(nation, language);
             if(attraction <= 0) continue;
 
             attractions.push_back(attraction);
@@ -168,7 +168,7 @@ static inline void external_migration(World& world) {
                     const int emigration_desire = std::max<int>(pop.militancy * -pop.life_needs_met, 1);
                     const size_t emigreers = std::min<size_t>((pop.size * emigration_desire) * std::fmod(fuzz + 1.f, 1.f), pop.size);
                     if(emigreers > 0) {
-                        auto nation_distribution = nation_distributions[pop.culture_id];
+                        auto nation_distribution = nation_distributions[pop.language_id];
                         if(nation_distribution == nullptr) continue;
 
                         auto nation = nation_distribution->get_item();
@@ -190,7 +190,7 @@ static inline void external_migration(World& world) {
     });
 
     // Now time to do the emigration - we will create a new POP on the province
-    // if a POP with similar culture, religion and type does not exist - and we
+    // if a POP with similar language, religion and type does not exist - and we
     // will also subtract the amount of emigrated from the original POP to not
     // create clones
     for(const auto& target : emigration) {

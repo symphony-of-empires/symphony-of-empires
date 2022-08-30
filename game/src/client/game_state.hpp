@@ -45,7 +45,7 @@ enum class MapMode : unsigned char {
 };
 
 class Building;
-class Culture;
+class Language;
 class Religion;
 
 class Input {
@@ -75,7 +75,7 @@ public:
         selected_units.clear();
     }
 
-    Culture* selected_culture = nullptr;
+    Language* selected_language = nullptr;
     Religion* selected_religion = nullptr;
 
     glm::ivec2 drag_coord;

@@ -43,7 +43,7 @@ aptr_evhdl = Event:new{
 	event_fn = function(ref_name)
 		local nation = Nation:get(ref_name)
 		local canal_prov = Province:get("colon")
-		-- TODO: Generate names dynamically based on culture (for multicultural states it's just random chance)
+		-- TODO: Generate names dynamically based on language (for multicultural states it's just random chance)
 		CANAL_CAMPAING_DATA[ref_name] = {
 			engineer = "Sr. ENGINEER_NAME",
 			ambition = 0.0,

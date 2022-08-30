@@ -49,20 +49,20 @@ using namespace Interface;
 
 void ProvincePopulationTab::update_piecharts() {
     // Obtain population information
-    std::vector<size_t> culture_sizes(gs.world->cultures.size(), 0);
+    std::vector<size_t> language_sizes(gs.world->languages.size(), 0);
     std::vector<size_t> religion_sizes(gs.world->religions.size(), 0);
     std::vector<size_t> pop_type_sizes(gs.world->pop_types.size(), 0);
     for(const auto& pop : province.pops) {
-        culture_sizes[pop.culture_id] += pop.size;
+        language_sizes[pop.language_id] += pop.size;
         religion_sizes[pop.religion_id] += pop.size;
         pop_type_sizes[pop.type_id] += pop.size;
     }
 
-    std::vector<UI::ChartData> cultures_data, religions_data, pop_types_data;
-    for(const auto& culture : gs.world->cultures) {
-        cultures_data.push_back(UI::ChartData(culture_sizes[gs.world->get_id(culture)], culture.name.get_string(), Eng3D::Color::rgba32(culture.color)));
+    std::vector<UI::ChartData> languages_data, religions_data, pop_types_data;
+    for(const auto& language : gs.world->languages) {
+        languages_data.push_back(UI::ChartData(language_sizes[gs.world->get_id(language)], language.name.get_string(), Eng3D::Color::rgba32(language.color)));
     }
-    cultures_pie->set_data(cultures_data);
+    languages_pie->set_data(languages_data);
 
     for(const auto& religion : gs.world->religions) {
         religions_data.push_back(UI::ChartData(religion_sizes[gs.world->get_id(religion)], religion.name.get_string(), Eng3D::Color::rgba32(religion.color)));
@@ -111,17 +111,17 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
         this->owner_flag->set_tooltip(nucleus.name + " has nuclei on this province");
     }
 
-    auto* cultures_lab = new UI::Label(0, 0, "Cultures", this);
-    cultures_lab->below_of(*this->landscape_img);
-    this->cultures_pie = new UI::PieChart(0, 0, 96, 96, this);
-    this->cultures_pie->below_of(*cultures_lab);
+    auto* languages_lab = new UI::Label(0, 0, "Languages", this);
+    languages_lab->below_of(*this->landscape_img);
+    this->languages_pie = new UI::PieChart(0, 0, 96, 96, this);
+    this->languages_pie->below_of(*languages_lab);
 
     auto* religions_lab = new UI::Label(0, 0, "Religions", this);
     religions_lab->below_of(*this->landscape_img);
-    religions_lab->right_side_of(*this->cultures_pie);
+    religions_lab->right_side_of(*this->languages_pie);
     this->religions_pie = new UI::PieChart(0, 0, 96, 96, this);
     this->religions_pie->below_of(*religions_lab);
-    this->religions_pie->right_side_of(*this->cultures_pie);
+    this->religions_pie->right_side_of(*this->languages_pie);
 
     auto* pop_types_lab = new UI::Label(0, 0, "Proffesions", this);
     pop_types_lab->below_of(*this->landscape_img);
@@ -131,7 +131,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     this->pop_types_pie->right_side_of(*this->religions_pie);
 
     std::vector<int> sizes{ 64, 96, 32, 96 };
-    std::vector<std::string> header{ "Size", "Budget", "Religion", "Culture" };
+    std::vector<std::string> header{ "Size", "Budget", "Religion", "Language" };
     if(gs.editor) {
         sizes.push_back(32);
         header.push_back(" ");
@@ -164,10 +164,10 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
             religion->set_tooltip(religion_tip);
             religion->set_key(religion_tip);
 
-            auto* culture = row->get_element(row_index++);
-            auto culture_str = _(this->gs.world->cultures[pop.culture_id].name.get_string());
-            culture->text(culture_str);
-            culture->set_key(culture_str);
+            auto* language = row->get_element(row_index++);
+            auto language_str = _(this->gs.world->languages[pop.language_id].name.get_string());
+            language->text(language_str);
+            language->set_key(language_str);
 
             if(this->gs.editor) {
                 auto* remove_btn = row->get_element(row_index++);
@@ -287,25 +287,25 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province&
     table->on_each_tick(*table);
 }
 
-ProvinceEditCultureTab::ProvinceEditCultureTab(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)
+ProvinceEditLanguageTab::ProvinceEditLanguageTab(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)
     : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
     gs{ _gs },
     province{ _province },
-    culture{ _gs.world->cultures[0] },
+    language{ _gs.world->languages[0] },
     religion{ _gs.world->religions[0] }
 {
     this->is_scroll = false;
-    auto* culture_flex_column = new UI::Div(0, 0, this->width / 2, this->height, this);
-    culture_flex_column->flex = UI::Flex::COLUMN;
-    culture_flex_column->is_scroll = true;
-    for(auto& culture : gs.world->cultures) {
-        auto* btn = new UI::Button(0, 0, 128, 24, culture_flex_column);
-        btn->text(culture.name.get_string());
-        btn->set_on_click([this, &culture](UI::Widget&) {
+    auto* language_flex_column = new UI::Div(0, 0, this->width / 2, this->height, this);
+    language_flex_column->flex = UI::Flex::COLUMN;
+    language_flex_column->is_scroll = true;
+    for(auto& language : gs.world->languages) {
+        auto* btn = new UI::Button(0, 0, 128, 24, language_flex_column);
+        btn->text(language.name.get_string());
+        btn->set_on_click([this, &language](UI::Widget&) {
             for(auto& pop : const_cast<Province&>(this->province).pops)
-                pop.culture_id = culture.get_id();
+                pop.language_id = language.get_id();
             this->gs.map->update_mapmode();
-            this->gs.input.selected_culture = &culture;
+            this->gs.input.selected_language = &language;
         });
     }
 
@@ -400,7 +400,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
         this->econ_tab->is_render = false;
         this->build_tab->is_render = false;
         if(gs.editor) {
-            this->edit_culture_tab->is_render = false;
+            this->edit_language_tab->is_render = false;
             this->edit_terrain_tab->is_render = false;
         }
     });
@@ -414,7 +414,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
         this->econ_tab->is_render = true;
         this->build_tab->is_render = false;
         if(gs.editor) {
-            this->edit_culture_tab->is_render = false;
+            this->edit_language_tab->is_render = false;
             this->edit_terrain_tab->is_render = false;
         }
     });
@@ -428,7 +428,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
         this->econ_tab->is_render = false;
         this->build_tab->is_render = true;
         if(gs.editor) {
-            this->edit_culture_tab->is_render = false;
+            this->edit_language_tab->is_render = false;
             this->edit_terrain_tab->is_render = false;
         }
     });
@@ -444,15 +444,15 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
                     max_sv = pop_type.social_value;
             }
 
-            if(this->gs.input.selected_culture == nullptr)
-                this->gs.input.selected_culture = &this->gs.world->cultures[0];
+            if(this->gs.input.selected_language == nullptr)
+                this->gs.input.selected_language = &this->gs.world->languages[0];
             if(this->gs.input.selected_religion == nullptr)
                 this->gs.input.selected_religion = &this->gs.world->religions[0];
 
             for(auto& pop_type : this->gs.world->pop_types) {
                 Pop pop;
                 pop.type_id = pop_type.get_id();
-                pop.culture_id = this->gs.input.selected_culture->get_id();
+                pop.language_id = this->gs.input.selected_language->get_id();
                 pop.religion_id = this->gs.input.selected_religion->get_id();
                 pop.size = 1000.f / std::max<float>(0.01f, pop_type.social_value);
                 pop.literacy = max_sv / std::max<float>(0.01f, pop_type.social_value);
@@ -463,17 +463,17 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
         });
         fill_pops_btn->set_tooltip("Add POPs (will add " + std::to_string(gs.world->pop_types.size()) + "POPs)");
 
-        this->edit_culture_tab = new ProvinceEditCultureTab(gs, 0, 32, province, this);
-        this->edit_culture_tab->is_render = false;
-        auto* edit_culture_btn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/money.png")), flex_row);
-        edit_culture_btn->set_on_click([this](UI::Widget&) {
+        this->edit_language_tab = new ProvinceEditLanguageTab(gs, 0, 32, province, this);
+        this->edit_language_tab->is_render = false;
+        auto* edit_language_btn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/money.png")), flex_row);
+        edit_language_btn->set_on_click([this](UI::Widget&) {
             this->pop_tab->is_render = false;
             this->econ_tab->is_render = false;
             this->build_tab->is_render = false;
-            this->edit_culture_tab->is_render = true;
+            this->edit_language_tab->is_render = true;
             this->edit_terrain_tab->is_render = false;
         });
-        edit_culture_btn->set_tooltip(_("Edit primary culture and religion"));
+        edit_language_btn->set_tooltip(_("Edit primary language and religion"));
 
         this->edit_terrain_tab = new ProvinceEditTerrainTab(gs, 0, 32, province, this);
         this->edit_terrain_tab->is_render = false;
@@ -482,7 +482,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
             this->pop_tab->is_render = false;
             this->econ_tab->is_render = false;
             this->build_tab->is_render = false;
-            this->edit_culture_tab->is_render = false;
+            this->edit_language_tab->is_render = false;
             this->edit_terrain_tab->is_render = true;
         });
         edit_terrain_btn->set_tooltip(_("Edit terrain"));

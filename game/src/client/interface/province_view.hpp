@@ -41,14 +41,14 @@ namespace UI {
 };
 
 namespace Interface {
-    // View information related to the population and diversity of cultures and religions
+    // View information related to the population and diversity of languages and religions
     // on the specified province
     class ProvincePopulationTab: public UI::Group {
         GameState& gs;
         const Province& province;
         UI::Image* owner_flag;
         UI::Image* landscape_img;
-        UI::PieChart* cultures_pie;
+        UI::PieChart* languages_pie;
         UI::PieChart* religions_pie;
         UI::PieChart* pop_types_pie;
     public:
@@ -76,13 +76,13 @@ namespace Interface {
         Province& province;
     };
 
-    class ProvinceEditCultureTab : public UI::Group {
+    class ProvinceEditLanguageTab : public UI::Group {
     public:
-        ProvinceEditCultureTab(GameState& gs, int x, int y, Province& province, UI::Widget* _parent);
+        ProvinceEditLanguageTab(GameState& gs, int x, int y, Province& province, UI::Widget* _parent);
 
         GameState& gs;
         Province& province;
-        Culture& culture;
+        Language& language;
         Religion& religion;
     };
 
@@ -103,7 +103,7 @@ namespace Interface {
         ProvincePopulationTab* pop_tab;
         ProvinceEconomyTab* econ_tab;
         ProvinceBuildingTab* build_tab;
-        ProvinceEditCultureTab* edit_culture_tab;
+        ProvinceEditLanguageTab* edit_language_tab;
         ProvinceEditTerrainTab* edit_terrain_tab;
     public:
         ProvinceView(GameState& gs, Province& province);
@@ -113,7 +113,7 @@ namespace Interface {
 
     // Brief
     class ProvinceBrief: public UI::Window {
-        UI::PieChart* cultures_pie;
+        UI::PieChart* languages_pie;
         UI::Chart* economy_chart;
     public:
         ProvinceBrief(GameState& gs, const Province& province);

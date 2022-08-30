@@ -49,8 +49,8 @@ mapmode_tooltip relations_tooltip(Nation::Id id);
 std::vector<ProvinceColor> terrain_color_map_mode(const World& world);
 std::string terrain_type_tooltip(const World& world, const Province::Id id);
 std::vector<ProvinceColor> population_map_mode(const World& world);
-std::vector<ProvinceColor> culture_map_mode(const World& world);
-std::string culture_tooltip(const World& world, const Province::Id id);
+std::vector<ProvinceColor> language_map_mode(const World& world);
+std::string language_tooltip(const World& world, const Province::Id id);
 std::vector<ProvinceColor> religion_map_mode(const World& world);
 std::string religion_tooltip(const World& world, const Province::Id id);
 // UNUSED
@@ -154,15 +154,15 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     });
     terrain_color_ibtn->set_tooltip("Simple terrain");
 
-    auto* culture_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
-    culture_ibtn->set_on_click([this](UI::Widget&) {
+    auto* language_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
+    language_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-        mapmode_generator map_mode = culture_map_mode;
-        mapmode_tooltip tooltip = culture_tooltip;
+        mapmode_generator map_mode = language_map_mode;
+        mapmode_tooltip tooltip = language_tooltip;
         this->gs.map->set_map_mode(map_mode, tooltip);
         set_mapmode_options(nullptr);
     });
-    culture_ibtn->set_tooltip("Culture diversity");
+    language_ibtn->set_tooltip("Language diversity");
 
     auto* religion_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
     religion_ibtn->set_on_click([this](UI::Widget&) {
@@ -427,33 +427,33 @@ std::vector<ProvinceColor> population_map_mode(const World& world) {
     return province_color;
 }
 
-std::vector<ProvinceColor> culture_map_mode(const World& world) {
+std::vector<ProvinceColor> language_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
     const auto min = Eng3D::Color::rgb8(255, 255, 255);
     for(Province::Id i = 0; i < world.provinces.size(); i++) {
         const auto& province = world.provinces[i];
-        std::unordered_map<Culture::Id, size_t> culture_amounts;
+        std::unordered_map<Language::Id, size_t> language_amounts;
         size_t total_amount = 0;
         size_t max_amount = 0;
-        Culture::Id max_culture_id = 0;
+        Language::Id max_language_id = 0;
         for(Pop::Id j = 0; j < province.pops.size(); j++) {
             const auto& pop = province.pops[j];
             total_amount += pop.size;
 
-            auto search = culture_amounts.find(pop.culture_id);
-            if(search == culture_amounts.end()) {
-                culture_amounts[pop.culture_id] = pop.size;
+            auto search = language_amounts.find(pop.language_id);
+            if(search == language_amounts.end()) {
+                language_amounts[pop.language_id] = pop.size;
             } else {
-                culture_amounts[pop.culture_id] += pop.size;
+                language_amounts[pop.language_id] += pop.size;
             }
 
-            const auto amount = culture_amounts[pop.culture_id];
+            const auto amount = language_amounts[pop.language_id];
             if(amount > max_amount) {
                 max_amount = amount;
-                max_culture_id = pop.culture_id;
+                max_language_id = pop.language_id;
             }
         }
-        const auto max = Eng3D::Color::rgba32(world.cultures[max_culture_id].color);
+        const auto max = Eng3D::Color::rgba32(world.languages[max_language_id].color);
         const auto color = Eng3D::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.push_back(ProvinceColor(i, color));
     }
@@ -465,32 +465,32 @@ std::vector<ProvinceColor> culture_map_mode(const World& world) {
     return province_color;
 }
 
-std::string culture_tooltip(const World& world, const Province::Id id){
+std::string language_tooltip(const World& world, const Province::Id id){
     const auto& province = world.provinces[id];
-    std::vector<std::pair<Culture::Id, size_t>> cultures;
+    std::vector<std::pair<Language::Id, size_t>> languages;
     for(Province::Id i = 0; i < province.pops.size(); i++) {
         const auto& pop = province.pops[i];
 
         bool found = false;
-        for(auto culture_amount : cultures) {
-            if(culture_amount.first == pop.culture_id) {
-                culture_amount.second += pop.size;
+        for(auto language_amount : languages) {
+            if(language_amount.first == pop.language_id) {
+                language_amount.second += pop.size;
                 found = true;
             }
         }
 
         if(!found) {
-            cultures.push_back(std::make_pair(pop.culture_id, pop.size));
+            languages.push_back(std::make_pair(pop.language_id, pop.size));
         }
     }
 
-    std::sort(cultures.begin(), cultures.end(), [](const auto& a, const auto& b) {
+    std::sort(languages.begin(), languages.end(), [](const auto& a, const auto& b) {
         return a.second > b.second;
     });
 
     std::string out;
-    for(auto culture_amount : cultures) {
-        out += world.cultures[culture_amount.first].name + std::to_string(culture_amount.second) + "\n";
+    for(auto language_amount : languages) {
+        out += world.languages[language_amount.first].name + std::to_string(language_amount.second) + "\n";
     }
     return out;
 }

@@ -31,7 +31,7 @@ tunis.name = _("Tunis")
 tunis.adjective = _("Tunisian")
 tunis:register()
 tunis:set_ideology(monarchy)
-tunis:add_accepted_culture(arabic)
+tunis:add_accepted_language(arabic)
 tunis:add_client_hint(monarchy, _("Tunis"), 0xAC433A)
 
 algiers = Nation:new{ ref_name = "algiers" }
@@ -39,7 +39,7 @@ algiers.name = _("Algiers")
 algiers.adjective = _("Algerian")
 algiers:register()
 algiers:set_ideology(monarchy)
-algiers:add_accepted_culture(arabic)
+algiers:add_accepted_language(arabic)
 algiers:add_client_hint(monarchy, _("Algiers"), 0x509095)
 
 abbyssina = Nation:new{ ref_name = "abbyssina" }
@@ -78,7 +78,7 @@ arabia.name = _("Arabia")
 arabia.adjective = "Arabic"
 arabia.noun = "Arab"
 arabia:register()
-arabia:add_accepted_culture(arabic)
+arabia:add_accepted_language(arabic)
 arabia:add_client_hint(monarchy, _("Arabia"), 0x388713)
 -----------------------------------------------------------------------
 
@@ -88,7 +88,7 @@ arabia:add_client_hint(monarchy, _("Arabia"), 0x388713)
 sokoto = Nation:new{ ref_name = "sokoto" }
 sokoto.name = _("Sokoto")
 sokoto:register()
-sokoto:add_accepted_culture(arabic)
+sokoto:add_accepted_language(arabic)
 sokoto:add_client_hint(monarchy, _("Sokoto"), 0x135910)
 sokoto:add_client_hint(fascism, _("Sokoto"), 0x135910)
 sokoto:add_client_hint(communism, _("Sokoto"), 0x135910)

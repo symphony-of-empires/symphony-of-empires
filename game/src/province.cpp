@@ -52,7 +52,7 @@ float Province::get_attractiveness(const Pop& pop) const {
     float attractive = this->base_attractive;
 
     const auto& owner = g_world.nations[this->owner_id];
-    if(!owner.is_accepted_culture(pop) && !owner.is_accepted_religion(pop)) {
+    if(!owner.is_accepted_language(pop) && !owner.is_accepted_religion(pop)) {
         // Linearized version, instead of using if-else trees we just
         // multiply the attractive by the scale; EXTERMINATE = 3, so 3 - 3 is 0 which nullifies the attractivenes
         // and the more open the borders are the more lenient the "scale" becomes

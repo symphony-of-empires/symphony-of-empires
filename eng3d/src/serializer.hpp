@@ -167,6 +167,7 @@ class SerializerNumber {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, T* obj) {
+        /// @todo fix big endian
         if constexpr(std::endian::native == std::endian::big) {
             if constexpr(is_serialize) {
                 ar.expand(sizeof(T));

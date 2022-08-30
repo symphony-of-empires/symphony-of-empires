@@ -98,7 +98,7 @@ function Province:get_pops()
 	local new_table = {}
 	for i = 0, n_pops do
 		local tb = Pop:new()
-		tb.size, tb.budget, tb.literacy, tb.life_needs_met, tb.everday_needs_met, tb.luxury_needs_met, tb.type_id, tb.culture_id, tb.religion_id, tb.ideology_id, tb.militancy = get_province_pop(self.id, i)
+		tb.size, tb.budget, tb.literacy, tb.life_needs_met, tb.everday_needs_met, tb.luxury_needs_met, tb.type_id, tb.language_id, tb.religion_id, tb.ideology_id, tb.militancy = get_province_pop(self.id, i)
 		tb.id = i
 		tb.province_id = self.id
 		new_table[i] = tb
@@ -106,7 +106,7 @@ function Province:get_pops()
 	return new_table
 end
 function Province:update_pop(pop)
-	set_province_pop(self.id, pop.id, pop.size, pop.budget, pop.literacy, pop.life_needs_met, pop.everday_needs_met, pop.luxury_needs_met, pop.type_id, pop.culture_id, pop.religion_id, pop.militancy)
+	set_province_pop(self.id, pop.id, pop.size, pop.budget, pop.literacy, pop.life_needs_met, pop.everday_needs_met, pop.luxury_needs_met, pop.type_id, pop.language_id, pop.religion_id, pop.militancy)
 end
 function Province:update_pops(pop)
 	-- TODO: Do important stuff
@@ -125,10 +125,10 @@ function Province:multiply_militancy(factor)
 	end
 	self:update_pops()
 end
-function Province:multiply_militancy_by_culture(culture, factor)
+function Province:multiply_militancy_by_language(language, factor)
 	local pops = self:get_pops()
 	for k, pop in pairs(pops) do
-		if pop.culture_id == culture.id then
+		if pop.language_id == language.id then
 			pop.militancy = pop.militancy * factor
 			self:update_pop(pop)
 		end
@@ -148,8 +148,8 @@ end
 -- ============================================================================
 
 -- Adds a POP to the province
-function Province:add_pop(pop_type, culture, religion, size, literacy)
-	add_province_pop(self.id, pop_type.id, culture.id, religion.id, size, literacy)
+function Province:add_pop(pop_type, language, religion, size, literacy)
+	add_province_pop(self.id, pop_type.id, language.id, religion.id, size, literacy)
 end
 -- Rename a province
 function Province:rename(new_name)

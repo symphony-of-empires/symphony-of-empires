@@ -57,7 +57,7 @@
 #include "technology.hpp"
 #include "event.hpp"
 #include "diplomacy.hpp"
-#include "culture.hpp"
+#include "language.hpp"
 #include "religion.hpp"
 #include "pop.hpp"
 
@@ -158,7 +158,7 @@ public:
     Eng3D::Profiler profiler;
 
     LIST_FOR_LOCAL_TYPE(Good, goods, std::vector);
-    LIST_FOR_LOCAL_TYPE(Culture, cultures, std::vector);
+    LIST_FOR_LOCAL_TYPE(Language, languages, std::vector);
     LIST_FOR_LOCAL_TYPE(PopType, pop_types, std::vector);
     LIST_FOR_LOCAL_TYPE(UnitType, unit_types, std::vector);
     LIST_FOR_LOCAL_TYPE(BuildingType, building_types, std::vector);

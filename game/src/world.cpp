@@ -131,9 +131,9 @@ void World::init_lua() {
 
     lua_register(lua, "get_provinces_owned_by_nation", LuaAPI::get_provinces_owned_by_nation);
     lua_register(lua, "get_provinces_with_nucleus_by_nation", LuaAPI::get_provinces_with_nucleus_by_nation);
-    lua_register(lua, "set_nation_primary_culture", LuaAPI::set_nation_primary_culture);
+    lua_register(lua, "set_nation_primary_language", LuaAPI::set_nation_primary_language);
     lua_register(lua, "set_nation_capital", LuaAPI::set_nation_capital);
-    lua_register(lua, "add_nation_accepted_culture", LuaAPI::add_accepted_culture);
+    lua_register(lua, "add_nation_accepted_language", LuaAPI::add_accepted_language);
     lua_register(lua, "add_nation_accepted_religion", LuaAPI::add_accepted_religion);
     lua_register(lua, "add_nation_client_hint", LuaAPI::add_nation_client_hint);
     lua_register(lua, "get_nation_policies", LuaAPI::get_nation_policies);
@@ -180,9 +180,9 @@ void World::init_lua() {
     lua_register(lua, "get_pop_type", LuaAPI::get_pop_type);
     lua_register(lua, "get_pop_type_by_id", LuaAPI::get_pop_type_by_id);
 
-    lua_register(lua, "add_culture", LuaAPI::add_culture);
-    lua_register(lua, "get_culture", LuaAPI::get_culture);
-    lua_register(lua, "get_culture_by_id", LuaAPI::get_culture_by_id);
+    lua_register(lua, "add_language", LuaAPI::add_language);
+    lua_register(lua, "get_language", LuaAPI::get_language);
+    lua_register(lua, "get_language_by_id", LuaAPI::get_language_by_id);
 
     lua_register(lua, "add_religion", LuaAPI::add_religion);
     lua_register(lua, "get_religion", LuaAPI::get_religion);
@@ -347,10 +347,10 @@ void World::load_initial() {
 
         // Execute all lua files
         lua_exec_all_of(*this, std::vector<std::string> {
-            "terrain_types", "good_types", "ideologies", "cultures",
-                "building_types", "technology", "religions", "pop_types",
-                "industry_types", "unit_types", "boat_types",
-                "nations", "provinces", "init"
+            "terrain_types", "good_types", "ideologies", "languages",
+            "building_types", "technology", "religions", "pop_types",
+            "industry_types", "unit_types", "boat_types",
+            "nations", "provinces", "init"
         }, "lua/entities");
 
         auto div = std::make_unique<Eng3D::BinaryImage>(Eng3D::State::get_instance().package_man.get_unique("map/provinces.png")->get_abs_path());

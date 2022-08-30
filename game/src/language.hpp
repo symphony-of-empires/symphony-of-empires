@@ -17,7 +17,7 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      culture.hpp
+//      language.hpp
 //
 // Abstract:
 //      Does some important stuff.
@@ -30,10 +30,10 @@
 #include "eng3d/entity.hpp"
 #include "eng3d/string.hpp"
 
-class Culture : public RefnameEntity<uint16_t> {
+class Language : public RefnameEntity<uint16_t> {
 public:
-    Culture() = default;
-    ~Culture() = default;
+    Language() = default;
+    ~Language() = default;
     
     std::uint32_t color;
     Eng3D::StringRef name;
