@@ -42,6 +42,7 @@
 #include "client/interface/technology.hpp"
 #include "client/interface/pop_window.hpp"
 #include "client/interface/factory_window.hpp"
+#include "client/lua_save_util.hpp"
 #include "io_impl.hpp"
 
 using namespace Interface;
@@ -131,7 +132,7 @@ TopWindow::TopWindow(GameState& _gs)
 
     auto* save_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/save.png", true, flex_column);
     save_ibtn->set_on_click([this](UI::Widget&) {
-        save(this->gs);
+        LUA_util::save(this->gs);
     });
     /// @todo Save the lua state
     save_ibtn->set_tooltip("Saves the current game");

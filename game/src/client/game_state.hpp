@@ -175,4 +175,3 @@ public:
 
 // Run world tick and pending commands
 void start_client(int argc, char** argv);
-void save(GameState& gs);
