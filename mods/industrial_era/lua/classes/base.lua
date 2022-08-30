@@ -276,48 +276,48 @@ function is_empty(s)
     return (s == nil or s == '')
 end
 
-Language = {}
+-- Language = {}
 
-function Language:is_vowel(c)
-    return (c == 'a' or c == 'e' or c == 'i' or c == 'o' or c == 'u')
-end
+-- function Language:is_vowel(c)
+--     return (c == 'a' or c == 'e' or c == 'i' or c == 'o' or c == 'u')
+-- end
 
-function Language:conjugate_related_and(...)
-    local args = table.pack(...)
+-- function Language:conjugate_related_and(...)
+--     local args = table.pack(...)
 
-    local str = ""
-    for i = 1, args.n do
-        -- CF not available, fallback to an adjective
-        if(is_empty(args[i].combo_form)) then
-            str = str .. args[i].adjective
-        -- Combining form available (only possible if it's first)
-        elseif i == 1 then
-            str = str .. args[i].combo_form
-        end
+--     local str = ""
+--     for i = 1, args.n do
+--         -- CF not available, fallback to an adjective
+--         if(is_empty(args[i].combo_form)) then
+--             str = str .. args[i].adjective
+--         -- Combining form available (only possible if it's first)
+--         elseif i == 1 then
+--             str = str .. args[i].combo_form
+--         end
 
-        -- Makes somewhat correct phrases like Franco-Prussian war, Russo-Chinesse-Roman war
-        if i < (args.n - 1) then
-            str = str .. "-"
-        end
-    end
-end
+--         -- Makes somewhat correct phrases like Franco-Prussian war, Russo-Chinesse-Roman war
+--         if i < (args.n - 1) then
+--             str = str .. "-"
+--         end
+--     end
+-- end
 
--- [determiner (a/an)] [adjective (or noun as fallback)]
-function Language:conjugate_indefinite_article(o)
-    local str = ""
+-- -- [determiner (a/an)] [adjective (or noun as fallback)]
+-- function Language:conjugate_indefinite_article(o)
+--     local str = ""
 
-    if(is_empty(o.adjective)) then
-        str = str .. o.noun
-    else
-        str = str .. o.adjective
-    end
+--     if(is_empty(o.adjective)) then
+--         str = str .. o.noun
+--     else
+--         str = str .. o.adjective
+--     end
 
-    if(Language:is_vowel(str[0])) then
-        str = "an" .. str
-    else
-        str = "a" .. str
-    end
-end
+--     if(Language:is_vowel(str[0])) then
+--         str = "an" .. str
+--     else
+--         str = "a" .. str
+--     end
+-- end
 
 function table.clone(org)
     return {table.unpack(org)}
