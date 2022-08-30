@@ -23,10 +23,13 @@
 //      Does important stuff.
 // ----------------------------------------------------------------------------
 
+#include <mutex>
 #include "eng3d/locale.hpp"
 
 std::map<std::string, std::string> trans_msg;
+static std::mutex trans_lock;
 std::string Eng3D::Locale::translate(const std::string& str) {
+    std::scoped_lock lock(trans_lock);
     if(trans_msg[str].empty())
         return str;
     return trans_msg[str];

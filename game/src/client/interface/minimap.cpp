@@ -284,7 +284,7 @@ mapmode_generator relations_map_mode(Nation::Id id) {
         for(size_t i = 0; i < world.provinces.size(); i++) {
             const auto& province = world.provinces[i];
             if(Nation::is_invalid(province.controller_id)) {
-                Eng3D::Color color = Eng3D::Color::rgba32(bswap32(0x808080ff));
+                Eng3D::Color color = Eng3D::Color::rgba32(std::byteswap<std::uint32_t>(0x808080ff));
                 provinces_color.push_back(ProvinceColor(i, color));
                 continue;
             }

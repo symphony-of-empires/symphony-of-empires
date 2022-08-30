@@ -367,7 +367,7 @@ void World::load_initial() {
         // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
         Eng3D::Log::debug("world", _("Building the province lookup table"));
         std::vector<Province::Id> province_color_table(0xffffff + 1, Province::invalid());
-        for(auto& province : provinces)
+        for(const auto& province : provinces)
             province_color_table[province.color & 0xffffff] = this->get_id(province);
 
         const uint32_t* raw_buffer = div->buffer.get();
@@ -385,7 +385,7 @@ void World::load_initial() {
             if(province_fp != nullptr) {
                 for(const auto& color_raw : colors_found) {
                     uint32_t color = color_raw << 8;
-                    fprintf(province_fp.get(), "province=Province:new{ref_name=\"province_%06x\",name=_(\"Unknown\"),color=0x%06x,terrain=tt_sea,rgo_size={}}\n", static_cast<unsigned int>(bswap32(color)), static_cast<unsigned int>(bswap32(color)));
+                    fprintf(province_fp.get(), "province=Province:new{ref_name=\"province_%06x\",name=_(\"Unknown\"),color=0x%06x,terrain=tt_sea,rgo_size={}}\n", static_cast<unsigned int>(std::byteswap<std::uint32_t>(color)), static_cast<unsigned int>(std::byteswap<std::uint32_t>(color)));
                     fprintf(province_fp.get(), "province:register()\n");
                 }
             }
@@ -395,7 +395,7 @@ void World::load_initial() {
                 for(size_t i = 0; i < province_color_table.size(); i++) {
                     if(i % 128 == 0 && Province::is_invalid(province_color_table[i])) {
                         const uint32_t color = i << 8;
-                        fprintf(color_fp.get(), "%06lx\n", static_cast<unsigned long int>(bswap32(color)));
+                        fprintf(color_fp.get(), "%06lx\n", static_cast<unsigned long int>(std::byteswap<std::uint32_t>(color)));
                     }
                 }
             }
@@ -585,12 +585,12 @@ static inline void unit_do_tick(World& world, Unit& unit) {
             if(unit_moved && can_take) {
                 // Moving to a province not owned by us!
                 if(unit.owner_id != unit_target.owner_id) {
-                // Relation between original owner and the conqueree
-                const auto& relation = world.get_relation(unit_target.owner_id, unit.owner_id);
+                    // Relation between original owner and the conqueree
+                    const auto& relation = world.get_relation(unit_target.owner_id, unit.owner_id);
                     if(relation.has_alliance) // Allies will liberate countries implicitly and give back to the original owner
-                    world.nations[unit_target.owner_id].control_province(unit_target);
-                else // Non allied means provinces aren't returned implicitly
-                    world.nations[unit.owner_id].control_province(unit_target);
+                        world.nations[unit_target.owner_id].control_province(unit_target);
+                    else // Non allied means provinces aren't returned implicitly
+                        world.nations[unit.owner_id].control_province(unit_target);
                 } else { // Liberating our own provinces
                     world.nations[unit.owner_id].control_province(unit_target);
                 }

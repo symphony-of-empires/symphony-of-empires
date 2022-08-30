@@ -27,26 +27,36 @@
 
 #include <cstdint>
 
-// NetBSD defines these as functions already
-#if !defined(E3D_TARGET_NETBSD)
-constexpr uint32_t bswap32(const uint32_t x) {
-    return
-        ((x << 24) & 0xff000000ULL) |
-        ((x << 8) & 0x00ff0000ULL) |
-        ((x >> 8) & 0x0000ff00ULL) |
-        ((x >> 24) & 0x000000ffULL);
+#if !defined(__cpp_lib_byteswap) || __cpp_lib_byteswap < 202110L
+#   include <bit>
+#   include <concepts>
+#   include <iomanip>
+#   include <ranges>
+#   include <algorithm>
+namespace std {
+    template<std::integral T>
+    constexpr T byteswap(T value) noexcept {
+        static_assert(std::has_unique_object_representations_v<T>, "T may not have padding bits");
+        auto value_representation = std::bit_cast<std::array<std::byte, sizeof(T)>>(value);
+        std::ranges::reverse(value_representation);
+        return std::bit_cast<T>(value_representation);
+    }
 }
+#endif
 
-constexpr uint64_t bswap64(const uint64_t x) {
-    return
-        ((x << 56) & 0xff00000000000000ULL) |
-        ((x << 40) & 0x00ff000000000000ULL) |
-        ((x << 24) & 0x0000ff0000000000ULL) |
-        ((x << 8) & 0x000000ff00000000ULL) |
-        ((x >> 8) & 0x00000000ff000000ULL) |
-        ((x >> 24) & 0x0000000000ff0000ULL) |
-        ((x >> 40) & 0x000000000000ff00ULL) |
-        ((x >> 56) & 0x00000000000000ffULL);
+#ifndef __cpp_lib_endian
+namespace std {
+    enum class endian {
+#   if defined E3D_TARGET_WINDOWS
+        little = 0,
+        big    = 1,
+        native = little
+#   else
+        little = __ORDER_LITTLE_ENDIAN__,
+        big    = __ORDER_BIG_ENDIAN__,
+        native = __BYTE_ORDER__
+#   endif
+    };
 }
 #endif
 

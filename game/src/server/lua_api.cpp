@@ -132,7 +132,7 @@ int LuaAPI::add_terrain_type(lua_State* L) {
     TerrainType terrain_type{};
     terrain_type.ref_name = luaL_checkstring(L, 1);
     terrain_type.name = luaL_checkstring(L, 2);
-    terrain_type.color = bswap32(static_cast<int>(lua_tonumber(L, 3))) >> 8;
+    terrain_type.color = std::byteswap<std::uint32_t>(static_cast<int>(lua_tonumber(L, 3))) >> 8;
     terrain_type.color |= 0xff000000;
     terrain_type.penalty = lua_tonumber(L, 4);
     terrain_type.is_water_body = lua_toboolean(L, 5);
@@ -146,7 +146,7 @@ int LuaAPI::get_terrain_type_by_id(lua_State* L) {
 
     lua_pushstring(L, terrain_type.ref_name.c_str());
     lua_pushstring(L, terrain_type.name.c_str());
-    lua_pushnumber(L, bswap32((terrain_type.color & 0x00ffffff) << 8));
+    lua_pushnumber(L, std::byteswap<std::uint32_t>((terrain_type.color & 0x00ffffff) << 8));
     lua_pushnumber(L, terrain_type.penalty);
     lua_pushboolean(L, terrain_type.is_water_body);
     return 5;
@@ -156,7 +156,7 @@ int LuaAPI::get_terrain_type(lua_State* L) {
     const auto& terrain_type = find_or_throw_local<TerrainType>(luaL_checkstring(L, 1));
     lua_pushnumber(L, g_world.get_id(terrain_type));
     lua_pushstring(L, terrain_type.name.c_str());
-    lua_pushnumber(L, bswap32((terrain_type.color & 0x00ffffff) << 8));
+    lua_pushnumber(L, std::byteswap<std::uint32_t>((terrain_type.color & 0x00ffffff) << 8));
     lua_pushnumber(L, terrain_type.penalty);
     lua_pushboolean(L, terrain_type.is_water_body);
     return 5;
@@ -327,6 +327,7 @@ int LuaAPI::get_all_nations(lua_State* L) {
     size_t i = 0;
     for(const auto& nation : g_world.nations) {
         assert(Nation::is_valid(nation.get_id()));
+        assert(nation.get_id() == i);
         lua_pushnumber(L, nation.get_id());
         lua_rawseti(L, -2, i + 1);
         ++i;
@@ -415,7 +416,7 @@ int LuaAPI::add_nation_client_hint(lua_State* L) {
     NationClientHint hint{};
     hint.ideology = &g_world.ideologies.at(lua_tonumber(L, 2));
     hint.alt_name = luaL_checkstring(L, 3);
-    hint.color = bswap32(static_cast<int>(lua_tonumber(L, 4))) >> 8;
+    hint.color = std::byteswap<std::uint32_t>(static_cast<int>(lua_tonumber(L, 4))) >> 8;
     hint.color |= 0xff000000;
     nation.client_hints[g_world.get_id(*hint.ideology)] = hint;
     return 0;
@@ -595,7 +596,7 @@ int LuaAPI::add_province(lua_State* L) {
 
     Province province{};
     province.ref_name = luaL_checkstring(L, 1);
-    province.color = (bswap32(static_cast<int>(lua_tonumber(L, 2))) >> 8) | 0xff000000;
+    province.color = (std::byteswap<std::uint32_t>(static_cast<int>(lua_tonumber(L, 2))) >> 8) | 0xff000000;
     province.name = luaL_checkstring(L, 3);
     province.terrain_type_id = lua_tonumber(L, 4);
 
@@ -646,7 +647,7 @@ int LuaAPI::add_province(lua_State* L) {
 int LuaAPI::update_province(lua_State* L) {
     Province& province = g_world.provinces.at(lua_tonumber(L, 1));
     province.ref_name = luaL_checkstring(L, 2);
-    province.color = (bswap32(static_cast<int>(lua_tonumber(L, 3))) >> 8) | 0xff000000;
+    province.color = (std::byteswap<std::uint32_t>(static_cast<int>(lua_tonumber(L, 3))) >> 8) | 0xff000000;
     province.name = luaL_checkstring(L, 4);
     province.terrain_type_id = lua_tonumber(L, 5);
     // Check for duplicates
@@ -664,7 +665,7 @@ int LuaAPI::get_province(lua_State* L) {
     const Province& province = find_or_throw_local<Province>(luaL_checkstring(L, 1));
     lua_pushnumber(L, g_world.get_id(province));
     lua_pushstring(L, province.name.c_str());
-    lua_pushnumber(L, bswap32((province.color & 0x00ffffff) << 8));
+    lua_pushnumber(L, std::byteswap<std::uint32_t>((province.color & 0x00ffffff) << 8));
     lua_pushnumber(L, province.terrain_type_id);
     lua_newtable(L);
     size_t index = 1;
@@ -684,7 +685,7 @@ int LuaAPI::get_province_by_id(lua_State* L) {
     const Province& province = g_world.provinces.at(lua_tonumber(L, 1));
     lua_pushstring(L, province.ref_name.c_str());
     lua_pushstring(L, province.name.c_str());
-    lua_pushnumber(L, bswap32((province.color & 0x00ffffff) << 8));
+    lua_pushnumber(L, std::byteswap<std::uint32_t>((province.color & 0x00ffffff) << 8));
     lua_pushnumber(L, province.terrain_type_id);
     lua_newtable(L);
     size_t index = 1;
@@ -1095,7 +1096,7 @@ int LuaAPI::add_culture(lua_State* L) {
     Culture culture{};
     culture.ref_name = luaL_checkstring(L, 1);
     culture.name = luaL_checkstring(L, 2);
-    culture.color = (bswap32(static_cast<int>(lua_tonumber(L, 3))) >> 8) | 0xff000000;
+    culture.color = (std::byteswap<std::uint32_t>(static_cast<int>(lua_tonumber(L, 3))) >> 8) | 0xff000000;
     culture.adjective = luaL_checkstring(L, 4);
     culture.noun = luaL_checkstring(L, 5);
     culture.combo_form = luaL_checkstring(L, 6);
@@ -1109,7 +1110,7 @@ int LuaAPI::get_culture(lua_State* L) {
 
     lua_pushnumber(L, g_world.get_id(culture));
     lua_pushstring(L, culture.name.c_str());
-    lua_pushnumber(L, bswap32((culture.color & 0x00ffffff) << 8));
+    lua_pushnumber(L, std::byteswap<std::uint32_t>((culture.color & 0x00ffffff) << 8));
     lua_pushstring(L, culture.adjective.c_str());
     lua_pushstring(L, culture.noun.c_str());
     lua_pushstring(L, culture.combo_form.c_str());
@@ -1120,7 +1121,7 @@ int LuaAPI::get_culture_by_id(lua_State* L) {
     const auto& culture = g_world.cultures.at(lua_tonumber(L, 1));
     lua_pushstring(L, culture.ref_name.c_str());
     lua_pushstring(L, culture.name.c_str());
-    lua_pushnumber(L, bswap32((culture.color & 0x00ffffff) << 8));
+    lua_pushnumber(L, std::byteswap<std::uint32_t>((culture.color & 0x00ffffff) << 8));
     lua_pushstring(L, culture.adjective.c_str());
     lua_pushstring(L, culture.noun.c_str());
     lua_pushstring(L, culture.combo_form.c_str());
@@ -1134,7 +1135,7 @@ int LuaAPI::add_religion(lua_State* L) {
     Religion religion{};
     religion.ref_name = luaL_checkstring(L, 1);
     religion.name = luaL_checkstring(L, 2);
-    religion.color = (bswap32(static_cast<int>(lua_tonumber(L, 3))) >> 8) | 0xff000000;
+    religion.color = (std::byteswap<std::uint32_t>(static_cast<int>(lua_tonumber(L, 3))) >> 8) | 0xff000000;
     g_world.insert(religion);
     lua_pushnumber(L, g_world.religions.size() - 1);
     return 1;
@@ -1144,7 +1145,7 @@ int LuaAPI::get_religion(lua_State* L) {
     const auto& religion = find_or_throw_local<Religion>(luaL_checkstring(L, 1));
     lua_pushnumber(L, g_world.get_id(religion));
     lua_pushstring(L, religion.name.c_str());
-    lua_pushnumber(L, bswap32((religion.color & 0x00ffffff) << 8));
+    lua_pushnumber(L, std::byteswap<std::uint32_t>((religion.color & 0x00ffffff) << 8));
     return 3;
 }
 
@@ -1152,7 +1153,7 @@ int LuaAPI::get_religion_by_id(lua_State* L) {
     const auto& religion = g_world.religions.at(lua_tonumber(L, 1));
     lua_pushstring(L, religion.ref_name.c_str());
     lua_pushstring(L, religion.name.c_str());
-    lua_pushnumber(L, bswap32((religion.color & 0x00ffffff) << 8));
+    lua_pushnumber(L, std::byteswap<std::uint32_t>((religion.color & 0x00ffffff) << 8));
     return 3;
 }
 
@@ -1203,7 +1204,7 @@ int LuaAPI::add_ideology(lua_State* L) {
     Ideology ideology{};
     ideology.ref_name = luaL_checkstring(L, 1);
     ideology.name = luaL_checkstring(L, 2);
-    ideology.color = (bswap32(static_cast<int>(lua_tonumber(L, 3))) >> 8) | 0xff000000;
+    ideology.color = (std::byteswap<std::uint32_t>(static_cast<int>(lua_tonumber(L, 3))) >> 8) | 0xff000000;
     g_world.insert(ideology);
     lua_pushnumber(L, g_world.ideologies.size() - 1);
     return 1;
@@ -1213,7 +1214,7 @@ int LuaAPI::get_ideology(lua_State* L) {
     const auto& ideology = find_or_throw_local<Ideology>(luaL_checkstring(L, 1));
     lua_pushnumber(L, g_world.get_id(ideology));
     lua_pushstring(L, ideology.name.c_str());
-    lua_pushnumber(L, bswap32((ideology.color & 0x00ffffff) << 8));
+    lua_pushnumber(L, std::byteswap<std::uint32_t>((ideology.color & 0x00ffffff) << 8));
     return 3;
 }
 
@@ -1221,7 +1222,7 @@ int LuaAPI::get_ideology_by_id(lua_State* L) {
     const auto& ideology = g_world.ideologies.at(lua_tonumber(L, 1));
     lua_pushstring(L, ideology.ref_name.c_str());
     lua_pushstring(L, ideology.name.c_str());
-    lua_pushnumber(L, bswap32((ideology.color & 0x00ffffff) << 8));
+    lua_pushnumber(L, std::byteswap<std::uint32_t>((ideology.color & 0x00ffffff) << 8));
     return 3;
 }
 

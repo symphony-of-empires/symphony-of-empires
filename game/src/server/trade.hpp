@@ -52,7 +52,9 @@ namespace Economy {
         std::vector<Province::Id> cost_eval;
         std::vector<std::vector<float>> trade_cost;
     private:
-        void initialize(const World& world);
+        inline glm::vec3 get_sphere_coord(const Province& province, glm::vec2 world_size);
+        inline float get_trade_cost(const Province& province1, const Province& province2, glm::vec2 world_size);
+        inline void initialize(const World& world);
         std::vector<std::vector<Vertex>> neighbours;
     };
 };

@@ -123,6 +123,7 @@ void MapRender::reload_shaders() {
         border_gen_shader->attach_shader(vs_shader);
         auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man.get_unique("shaders/border_gen.fs")->read_all());
         border_gen_shader->attach_shader(fs_shader);
+        border_gen_shader->attach_shader(*gs.builtin_shaders["fs_lib"].get());
         border_gen_shader->link();
     }
 
@@ -132,6 +133,7 @@ void MapRender::reload_shaders() {
         sdf_shader->attach_shader(vs_shader);
         auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man.get_unique("shaders/border_sdf.fs")->read_all());
         sdf_shader->attach_shader(fs_shader);
+        sdf_shader->attach_shader(*gs.builtin_shaders["fs_lib"].get());
         sdf_shader->link();
     }
 
@@ -140,6 +142,7 @@ void MapRender::reload_shaders() {
         output_shader->attach_shader(*gs.builtin_shaders["vs_2d"].get());
         auto fs_shader = Eng3D::OpenGL::FragmentShader(gs.package_man.get_unique("shaders/border_sdf_output.fs")->read_all());
         output_shader->attach_shader(fs_shader);
+        output_shader->attach_shader(*gs.builtin_shaders["fs_lib"].get());
         output_shader->link();
     }
     this->update_options(this->options);
@@ -147,7 +150,6 @@ void MapRender::reload_shaders() {
 
 void MapRender::update_options(MapOptions new_options) {
     auto& gs = static_cast<GameState&>(Eng3D::State::get_instance());
-
     map_shader = std::make_unique<Eng3D::OpenGL::Program>();
     {
         std::vector<Eng3D::GLSL::Define> defined_options;
