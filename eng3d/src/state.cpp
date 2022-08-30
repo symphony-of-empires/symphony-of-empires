@@ -389,7 +389,7 @@ void Eng3D::State::do_event() {
     // without calling the change window size event
     SDL_GetWindowSize(this->window, &this->width, &this->height);
     this->ui_ctx.resize(this->width, this->height);
-    if(this->resize_fn) this->resize_fn();
+    this->handle_resize();
 
     SDL_Event event;
     while(SDL_PollEvent(&event)) {
@@ -398,36 +398,36 @@ void Eng3D::State::do_event() {
             Eng3D::Event::MouseButton e{};
             e.type = e.from_sdl(event.button.button);
             e.hold = true;
-            if(mouse_btn_fn) mouse_btn_fn(e);
+            handle_mouse_btn(e);
         } break;
         case SDL_MOUSEBUTTONUP: {
             Eng3D::Event::MouseButton e{};
             e.type = e.from_sdl(event.button.button);
             e.hold = false;
-            if(mouse_btn_fn) mouse_btn_fn(e);
+            handle_mouse_btn(e);
         } break;
         case SDL_MOUSEMOTION: {
             Eng3D::Event::MouseMotion e{};
             e.pos = Eng3D::Event::get_mouse_pos();
-            if(mouse_motion_fn) mouse_motion_fn(e);
+            handle_mouse_motion(e);
         } break;
         case SDL_MOUSEWHEEL: {
             Eng3D::Event::MouseWheel e{};
             e.wheel.x = event.wheel.x;
             e.wheel.y = event.wheel.y;
-            if(mouse_wheel_fn) mouse_wheel_fn(e);
+            handle_mouse_wheel(e);
         } break;
         case SDL_KEYDOWN: {
             Eng3D::Event::Key e{};
             e.type = e.from_sdl(event.key.keysym.sym);
             e.hold = true;
-            if(key_fn) key_fn(e);
+            handle_key(e);
         } break;
         case SDL_KEYUP: {
             Eng3D::Event::Key e{};
             e.type = e.from_sdl(event.key.keysym.sym);
             e.hold = false;
-            if(key_fn) key_fn(e);
+            handle_key(e);
         } break;
         case SDL_QUIT:
             this->run = false;

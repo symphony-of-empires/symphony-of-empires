@@ -15,7 +15,7 @@ jobs:
     - name: "Install"
       uses: awalsh128/cache-apt-pkgs-action@latest
       with:
-        packages: cmake make libglu1-mesa-dev libglew-dev libsdl2-dev libsdl2-ttf-dev libtbb-dev libassimp-dev ccache
+        packages: cmake make libglu1-mesa-dev libglew-dev libsdl2-dev libsdl2-ttf-dev libtbb-dev libassimp-dev ccache gcc-11 g++-11
         version: 1.0
     - name: "Use ccache"
       uses: hendrikmuhs/ccache-action@v1.2
@@ -32,6 +32,9 @@ jobs:
         cd build
         cmake --build . -- -j$(nproc)
         cd ..
+      env:
+        CC:   gcc-11
+        CXX:  g++-11
   build_windows:
     runs-on: windows-latest
     steps:
