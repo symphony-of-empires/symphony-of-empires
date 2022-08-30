@@ -118,6 +118,7 @@ void militancy_update(World& world, Nation& nation) {
     /// @todo Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
     if(std::fmod(std::rand(), glm::max<float>(1.f, coup_chances - total_anger)) == 0) {
         /// @todo This might cause multithreading problems
+        std::scoped_lock lock(world.rebel_mutex);
 
         // Compile list of uprising provinces
         std::vector<Province*> uprising_provinces;
@@ -144,8 +145,10 @@ void militancy_update(World& world, Nation& nation) {
             rebel_nation.control_province(*province);
             for(const auto unit_id : world.unit_manager.get_province_units(province->get_id())) {
                 auto& unit = world.unit_manager.units[unit_id];
+                /// @todo Does battles affect ownership of provinces?
                 if(unit.on_battle) continue;
                 unit.owner_id = rebel_nation.get_id();
+                world.nations[0].control_province(world.provinces[world.unit_manager.get_unit_current_province(unit.get_id())]);
             }
 
             // Declare war seeking all provinces from the owner
@@ -191,7 +194,7 @@ constexpr float purchasing_change_rate = 1.f;
 void economy_single_good_tick(World& world, const Market& market) {
     auto good_id = market.good;
     // Determine new prices
-    for(size_t i = 0; i < world.provinces.size(); i++) {
+    for(Province::Id i = 0; i < world.provinces.size(); i++) {
         auto& province = world.provinces[i];
         auto& product = province.products[good_id];
         auto supply = market.supply[i] + epsilon;
@@ -265,7 +268,7 @@ void update_factory_production(World& world, Building& building, BuildingType* b
 // Update the factory employment
 void update_factories_employment(const World& world, Province& province, std::vector<float>& new_workers) {
     unsigned int unallocated_workers = 0;
-    for(size_t i = 0; i < province.pops.size(); i++) {
+    for(Pop::Id i = 0; i < province.pops.size(); i++) {
         auto& pop = province.pops[i];
         if(world.pop_types[pop.type_id].group == PopGroup::LABORER)
             unallocated_workers += pop.size;
@@ -275,7 +278,7 @@ void update_factories_employment(const World& world, Province& province, std::ve
     // Sort factories by production scale, which is suppose to represent how profitable the factory is
     // Might be better to calculate how profitable it really is and use that instead
     std::vector<std::pair<size_t, float>> factories_by_profitability(province.buildings.size());
-    for(size_t i = 0; i < province.buildings.size(); i++)
+    for(Building::Id i = 0; i < province.buildings.size(); i++)
         factories_by_profitability[i] = std::pair<size_t, float>(i, province.buildings[i].production_scale);
     std::sort(std::begin(factories_by_profitability), std::end(factories_by_profitability), [](const auto& a, const auto& b) { return a.second > b.second; });
 
@@ -283,7 +286,7 @@ void update_factories_employment(const World& world, Province& province, std::ve
     float is_operating = (province.controller_id == province.owner_id) ? 1.f : 0.f;
 
     // The most profitable factory gets to pick workers first
-    for(size_t i = 0; i < province.buildings.size(); i++) {
+    for(Building::Id i = 0; i < province.buildings.size(); i++) {
         auto factory_index = factories_by_profitability[i].first;
         auto& building = province.buildings[factory_index];
         const auto& type = world.building_types[factory_index];
@@ -385,7 +388,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             total_reciprocal_trade_costs[province_id] = total_reciprocal_trade_cost;
         }
     });
-    
+
     tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world, &trade, &total_reciprocal_trade_costs](const auto& markets_range) {
         for(auto& market : markets_range) {
             for(const auto province_id : trade.cost_eval) {
@@ -410,11 +413,11 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     world.profiler.stop("E-good");
 
     world.profiler.start("E-big");
-    std::vector<Province::Id> province_ids(world.provinces.size());
+    std::vector<Province::Id> province_ids(trade.cost_eval.size());
     Province::Id last_id = 0;
-    for(Province::Id id = 0; id < world.provinces.size(); id++) {
-        if(Nation::is_invalid(world.provinces[id].owner_id)) continue;
-        province_ids[last_id++] = id;
+    for(const auto province_id : trade.cost_eval) {
+        if(Nation::is_invalid(world.provinces[province_id].owner_id)) continue;
+        province_ids[last_id++] = province_id;
     }
     province_ids.resize(last_id);
 
@@ -475,7 +478,6 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                         (*it).size -= final_size;
                         if(final_size) {
                             nation.budget -= given_money;
-
                             Unit unit;
                             unit.type = building.working_unit_type;
                             unit.owner_id = province.owner_id;

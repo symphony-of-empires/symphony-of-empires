@@ -540,8 +540,7 @@ void World::load_mod() {
     ai_init(*this); // Initialize the AI
 }
 
-static inline void unit_do_tick(World& world, Unit& unit)
-{
+static inline void unit_do_tick(World& world, Unit& unit) {
     assert(Province::is_valid(unit.province_id()));
     assert(Nation::is_valid(unit.owner_id));
 

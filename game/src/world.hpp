@@ -286,6 +286,8 @@ public:
 
     std::mutex world_mutex;
     std::mutex list_mutex;
+    /// @brief For avoiding data races on uprises
+    std::mutex rebel_mutex;
     std::mutex wcmap_mutex; // World map on clients require some data to be stable for read-only operations
     std::vector<std::pair<Decision, Nation*>> taken_decisions;
 };
