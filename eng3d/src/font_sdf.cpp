@@ -177,7 +177,7 @@ void Eng3D::FontSDF::draw(const std::vector<std::unique_ptr<Label3D>>& labels, c
     for(auto& label : labels) {
         if(label.get() == nullptr) continue;
         shader.set_uniform("center", label->center.x, label->center.y);
-        shader.set_uniform("radius", (float)(Eng3D::GLOBE_RADIUS + 0.01f * label->size));
+        shader.set_uniform("radius", Eng3D::GLOBE_RADIUS + 0.01f * label->size);
         shader.set_uniform("px_range", label->size * 0.5f);
         label->draw();
     }

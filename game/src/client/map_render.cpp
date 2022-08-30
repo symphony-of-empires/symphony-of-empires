@@ -150,7 +150,6 @@ void MapRender::reload_shaders() {
 
 void MapRender::update_options(MapOptions new_options) {
     auto& gs = static_cast<GameState&>(Eng3D::State::get_instance());
-
     map_shader = std::make_unique<Eng3D::OpenGL::Program>();
     {
         std::vector<Eng3D::GLSL::Define> defined_options;

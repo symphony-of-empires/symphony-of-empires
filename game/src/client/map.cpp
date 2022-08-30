@@ -117,23 +117,6 @@ Map::Map(GameState& _gs, const World& _world, UI::Group* _map_ui_layer, int scre
         this->create_labels();
     map_render = new MapRender(this->gs, *this);
 
-    // Shader used for drawing the models using custom model render
-    obj_shader = std::make_unique<Eng3D::OpenGL::Program>();
-    {
-        obj_shader->attach_shader(*gs.builtin_shaders["vs_3d"].get());
-        obj_shader->attach_shader(*gs.builtin_shaders["fs_3d"].get());
-        obj_shader->attach_shader(*gs.builtin_shaders["fs_lib"].get());
-        obj_shader->link();
-    }
-
-    tree_shder = std::make_unique<Eng3D::OpenGL::Program>();
-    {
-        tree_shder->attach_shader(*gs.builtin_shaders["vs_tree"].get());
-        tree_shder->attach_shader(*gs.builtin_shaders["fs_tree"].get());
-        tree_shder->attach_shader(*gs.builtin_shaders["fs_lib"].get());
-        tree_shder->link();
-    }
-
     // Set the mapmode
     set_map_mode(political_map_mode, political_province_tooltip);
     Eng3D::Log::debug("game", "Preloading-important stuff");
@@ -302,6 +285,23 @@ std::string empty_province_tooltip(const World&, const Province::Id) {
 }
 
 void Map::reload_shaders() {
+    // Shader used for drawing the models using custom model render
+    obj_shader = std::make_unique<Eng3D::OpenGL::Program>();
+    {
+        obj_shader->attach_shader(*gs.builtin_shaders["vs_3d"].get());
+        obj_shader->attach_shader(*gs.builtin_shaders["fs_3d"].get());
+        obj_shader->attach_shader(*gs.builtin_shaders["fs_lib"].get());
+        obj_shader->link();
+    }
+
+    tree_shder = std::make_unique<Eng3D::OpenGL::Program>();
+    {
+        tree_shder->attach_shader(*gs.builtin_shaders["vs_tree"].get());
+        tree_shder->attach_shader(*gs.builtin_shaders["fs_tree"].get());
+        tree_shder->attach_shader(*gs.builtin_shaders["fs_lib"].get());
+        tree_shder->link();
+    }
+
     map_render->reload_shaders();
     if(this->map_render->options.trees.used) {
         for(const auto& terrain_type : world.terrain_types) {
