@@ -138,9 +138,9 @@ void Eng3D::OpenGL::Program::link() {
     glLinkProgram(id);
 
     // Check for errors of the shader
-    GLint r = 0;
+    GLint r;
     glGetProgramiv(id, GL_LINK_STATUS, &r);
-    if(!r) {
+    if(r != GL_TRUE) {
         GLint infoLen = 0;
         glGetProgramiv(id, GL_INFO_LOG_LENGTH, &infoLen);
         std::string shader_error_info;
