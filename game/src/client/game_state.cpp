@@ -257,7 +257,7 @@ void save(GameState& gs) {
             }
 
             // RGO
-            const uint32_t color = bswap32((province.color & 0x00ffffff) << 8);
+            const uint32_t color = std::byteswap<std::uint32_t>((province.color & 0x00ffffff) << 8);
             std::string rgo_size_out = "";
             for(Good::Id id = 0; id < province.rgo_size.size(); id++) {
                 const auto& good = gs.world->goods[id];
@@ -308,7 +308,7 @@ void save(GameState& gs) {
         fp = std::unique_ptr<FILE, int (*)(FILE*)>(fopen("editor/lua/entities/terrain_types.lua", "wt"), fclose);
         cnt = 0;
         for(const auto& terrain_type : gs.world->terrain_types) {
-            const uint32_t color = bswap32((terrain_type.color & 0x00ffffff) << 8);
+            const uint32_t color = std::byteswap<std::uint32_t>((terrain_type.color & 0x00ffffff) << 8);
             fprintf(fp.get(), "TerrainType:new{ref_name=\"%s\",name=_(\"%s\"),color=0x%x,is_water_body=%s}:register()\n", terrain_type.ref_name.c_str(), terrain_type.name.c_str(), (unsigned int)color, terrain_type.is_water_body ? "true" : "false");
             cnt++;
         }
@@ -320,7 +320,7 @@ void save(GameState& gs) {
         fp = std::unique_ptr<FILE, int (*)(FILE*)>(fopen("editor/lua/entities/religions.lua", "wt"), fclose);
         cnt = 0;
         for(const auto& religion : gs.world->religions) {
-            const uint32_t color = bswap32((religion.color & 0x00ffffff) << 8);
+            const uint32_t color = std::byteswap<std::uint32_t>((religion.color & 0x00ffffff) << 8);
             fprintf(fp.get(), "Religion:new{ref_name=\"%s\",name=_(\"%s\"),color=0x%x}:register()\n", religion.ref_name.c_str(), religion.name.c_str(), (unsigned int)color);
             cnt++;
         }

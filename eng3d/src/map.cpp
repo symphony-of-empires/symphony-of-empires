@@ -64,7 +64,7 @@ Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
     size_t terrain_map_size = this->terrain_map->width * this->terrain_map->height;
     for(size_t i = 0; i < terrain_map_size; i++) {
         auto* data = &(this->terrain_map->buffer.get()[i]);
-        const auto color = bswap32((*data) << 8);
+        const auto color = std::byteswap<std::uint32_t>((*data) << 8);
         uint8_t idx = 0;
         switch(color) {
         case 0x18200b:
