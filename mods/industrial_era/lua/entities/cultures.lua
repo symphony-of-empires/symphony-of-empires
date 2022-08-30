@@ -111,6 +111,9 @@ greek:register()
 italian = Culture:new{ ref_name = "italian", name = _("Italian"), color = 0x679e7b }
 italian.combo_form = _("Italo")
 italian:register()
+south_italian = Culture:new{ ref_name = "south_italian", name = _("South italian"), color = 0x87dedb }
+south_italian.combo_form = _("Italo")
+south_italian:register()
 lithuanian = Culture:new{ ref_name = "lithuanian", name = _("Lithuanian"), color = 0x598c42 }
 lithuanian:register()
 latvian = Culture:new{ ref_name = "latvian", name = _("Latvian"), color = 0x962820 }
