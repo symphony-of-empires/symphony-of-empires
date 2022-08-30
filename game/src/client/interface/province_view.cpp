@@ -52,24 +52,20 @@ void ProvincePopulationTab::update_piecharts() {
     std::vector<size_t> language_sizes(gs.world->languages.size(), 0);
     std::vector<size_t> religion_sizes(gs.world->religions.size(), 0);
     std::vector<size_t> pop_type_sizes(gs.world->pop_types.size(), 0);
-    for(const auto& pop : province.pops) {
-        language_sizes[pop.language_id] += pop.size;
+    for(const auto& pop : province.pops)
         pop_type_sizes[pop.type_id] += pop.size;
-    }
-
-    for(const auto& religion : gs.world->religions) {
+    for(const auto& language : gs.world->languages)
+        language_sizes[language.get_id()] = province.languages[language.get_id()];
+    for(const auto& religion : gs.world->religions)
         religion_sizes[religion.get_id()] = province.religions[religion.get_id()];
-    }
 
     std::vector<UI::ChartData> languages_data, religions_data, pop_types_data;
-    for(const auto& language : gs.world->languages) {
+    for(const auto& language : gs.world->languages)
         languages_data.push_back(UI::ChartData(language_sizes[gs.world->get_id(language)], language.name.get_string(), Eng3D::Color::rgba32(language.color)));
-    }
     languages_pie->set_data(languages_data);
 
-    for(const auto& religion : gs.world->religions) {
+    for(const auto& religion : gs.world->religions)
         religions_data.push_back(UI::ChartData(religion_sizes[gs.world->get_id(religion)], religion.name.get_string(), Eng3D::Color::rgba32(religion.color)));
-    }
     religions_pie->set_data(religions_data);
 
     for(const auto& pop_type : gs.world->pop_types) {
@@ -133,8 +129,8 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     this->pop_types_pie->below_of(*pop_types_lab);
     this->pop_types_pie->right_side_of(*this->religions_pie);
 
-    std::vector<int> sizes{ 64, 96, 96 };
-    std::vector<std::string> header{ "Size", "Budget", "Language" };
+    std::vector<int> sizes{ 64, 96 };
+    std::vector<std::string> header{ "Size", "Budget" };
     if(gs.editor) {
         sizes.push_back(32);
         header.push_back(" ");
@@ -159,11 +155,6 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
             auto budget_tip = Eng3D::string_format(_("Total budget: %.2f"), pop.budget);
             budget->set_tooltip(budget_tip);
             budget->set_key(pop.budget / pop.size);
-
-            auto* language = row->get_element(row_index++);
-            auto language_str = _(this->gs.world->languages[pop.language_id].name.get_string());
-            language->text(language_str);
-            language->set_key(language_str);
 
             if(this->gs.editor) {
                 auto* remove_btn = row->get_element(row_index++);
@@ -298,8 +289,7 @@ ProvinceEditLanguageTab::ProvinceEditLanguageTab(GameState& _gs, int x, int y, P
         auto* btn = new UI::Button(0, 0, 128, 24, language_flex_column);
         btn->text(language.name.get_string());
         btn->set_on_click([this, &language](UI::Widget&) {
-            for(auto& pop : const_cast<Province&>(this->province).pops)
-                pop.language_id = language.get_id();
+            const_cast<Province&>(this->province).languages[language.get_id()] = 1.f;
             this->gs.map->update_mapmode();
             this->gs.input.selected_language = &language;
         });
@@ -447,7 +437,6 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
             for(auto& pop_type : this->gs.world->pop_types) {
                 Pop pop;
                 pop.type_id = pop_type.get_id();
-                pop.language_id = this->gs.input.selected_language->get_id();
                 pop.size = 1000.f / std::max<float>(0.01f, pop_type.social_value);
                 pop.literacy = max_sv / std::max<float>(0.01f, pop_type.social_value);
                 pop.budget = pop.size * 100.f * max_sv;

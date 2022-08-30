@@ -103,11 +103,14 @@ void LUA_util::save(GameState& gs) {
                 }
             }
             // POPs
+            for(const auto& language : g_world.languages)
+                if(province.languages[language.get_id()])
+                    fprintf(fp.get(), "province:set_language(c_%s,%f)\n", language.ref_name.c_str(), province.languages[language.get_id()]);
             for(const auto& religion : g_world.religions)
                 if(province.religions[religion.get_id()])
-                    fprintf(fp.get(), "province:add_pop(r_%s,%f)\n", religion.ref_name.c_str(), province.religions[religion.get_id()]);
+                    fprintf(fp.get(), "province:set_religion(r_%s,%f)\n", religion.ref_name.c_str(), province.religions[religion.get_id()]);
             for(const auto& pop : province.pops)
-                fprintf(fp.get(), "province:add_pop(pt_%s,c_%s,%f,%f)\n", gs.world->pop_types[pop.type_id].ref_name.c_str(), gs.world->languages[pop.language_id].ref_name.c_str(), pop.size, pop.literacy);
+                fprintf(fp.get(), "province:add_pop(pt_%s,%f,%f)\n", gs.world->pop_types[pop.type_id].ref_name.c_str(), pop.size, pop.literacy);
             // Nuclei of the provinces
             for(const auto& nucleus_id : province.nuclei)
                 fprintf(fp.get(), "province:add_nucleus(n_%s)\n", gs.world->nations[nucleus_id].ref_name.c_str());

@@ -154,6 +154,8 @@ static inline void external_migration(World& world) {
             if(nation->current_policy.migration == ALLOW_NOBODY) return;
             for(const auto province_id : nation->controlled_provinces) {
                 auto& province = world.provinces[province_id];
+                const auto it = std::max_element(province.languages.begin(), province.languages.end());
+                const auto language_id = std::distance(province.languages.begin(), it);
                 // Guaranteed that province->controller != nullptr and that the province is not a water body
                 assert(Nation::is_valid(province.controller_id));
 
@@ -168,7 +170,7 @@ static inline void external_migration(World& world) {
                     const int emigration_desire = std::max<int>(pop.militancy * -pop.life_needs_met, 1);
                     const size_t emigreers = std::min<size_t>((pop.size * emigration_desire) * std::fmod(fuzz + 1.f, 1.f), pop.size);
                     if(emigreers > 0) {
-                        auto nation_distribution = nation_distributions[pop.language_id];
+                        auto nation_distribution = nation_distributions[language_id];
                         if(nation_distribution == nullptr) continue;
 
                         auto nation = nation_distribution->get_item();

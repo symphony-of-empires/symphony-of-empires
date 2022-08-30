@@ -65,14 +65,13 @@ public:
     ~Pop() = default;
 
     constexpr bool operator==(const Pop& rhs) const {
-        return (this->language_id == rhs.language_id && this->type_id == rhs.type_id);
+        return this->type_id == rhs.type_id;
     }
 
     Ideology& get_ideology() const;
     uint32_t get_type_id() const;
 
     PopType::Id type_id;
-    Language::Id language_id;
     float size = 0.f;
     float life_needs_met = 0.f;
     float everyday_needs_met = 0.f;

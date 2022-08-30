@@ -53,8 +53,8 @@ PopWindow::PopWindow(GameState& gs)
     for(const auto province_id : nation.owned_provinces)
         size += gs.world->provinces[province_id].pops.size();
 
-    std::vector<int> sizes{ 75, 200, 100, 100, 80, 80, 50 };
-    std::vector<std::string> header{ "Size", "Province", "Type", "Language", "Militancy", "Literacy", "Budget" };
+    std::vector<int> sizes{ 75, 200, 100, 80, 80, 50 };
+    std::vector<std::string> header{ "Size", "Province", "Type", "Militancy", "Literacy", "Budget" };
     auto table = new UI::Table<uint64_t>(5, 5, 800-10, 800-5, 35, sizes, header, this);
     this->width = table->width + 5 + this->padding.x;
     table->reserve(size);
@@ -77,11 +77,6 @@ PopWindow::PopWindow(GameState& gs)
                 auto type = row->get_element(row_index++);
                 type->text(this->gs.world->pop_types[pop.type_id].name.get_string());
                 type->set_key(this->gs.world->pop_types[pop.type_id].name.get_string());
-
-                auto language = row->get_element(row_index++);
-                auto language_str = _(this->gs.world->languages[pop.language_id].name.get_string());
-                language->text(language_str);
-                language->set_key(language_str);
 
                 auto militancy = row->get_element(row_index++);
                 militancy->text(Eng3D::string_format("%1.2f", pop.militancy));

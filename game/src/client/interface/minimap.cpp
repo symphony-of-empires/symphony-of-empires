@@ -433,24 +433,15 @@ std::vector<ProvinceColor> language_map_mode(const World& world) {
     for(Province::Id i = 0; i < world.provinces.size(); i++) {
         const auto& province = world.provinces[i];
         std::unordered_map<Language::Id, size_t> language_amounts;
-        size_t total_amount = 0;
+        size_t total_amount = province.total_pops();
         size_t max_amount = 0;
         Language::Id max_language_id = 0;
-        for(Pop::Id j = 0; j < province.pops.size(); j++) {
-            const auto& pop = province.pops[j];
-            total_amount += pop.size;
-
-            auto search = language_amounts.find(pop.language_id);
-            if(search == language_amounts.end()) {
-                language_amounts[pop.language_id] = pop.size;
-            } else {
-                language_amounts[pop.language_id] += pop.size;
-            }
-
-            const auto amount = language_amounts[pop.language_id];
+        for(const auto& language : world.languages) {
+            language_amounts[language.get_id()] = province.languages[language.get_id()] * total_amount;
+            size_t amount = language_amounts[language.get_id()];
             if(amount > max_amount) {
                 max_amount = amount;
-                max_language_id = pop.language_id;
+                max_language_id = language.get_id();
             }
         }
         const auto max = Eng3D::Color::rgba32(world.languages[max_language_id].color);
@@ -467,32 +458,8 @@ std::vector<ProvinceColor> language_map_mode(const World& world) {
 
 std::string language_tooltip(const World& world, const Province::Id id){
     const auto& province = world.provinces[id];
-    std::vector<std::pair<Language::Id, size_t>> languages;
-    for(Province::Id i = 0; i < province.pops.size(); i++) {
-        const auto& pop = province.pops[i];
-
-        bool found = false;
-        for(auto language_amount : languages) {
-            if(language_amount.first == pop.language_id) {
-                language_amount.second += pop.size;
-                found = true;
-            }
-        }
-
-        if(!found) {
-            languages.push_back(std::make_pair(pop.language_id, pop.size));
-        }
-    }
-
-    std::sort(languages.begin(), languages.end(), [](const auto& a, const auto& b) {
-        return a.second > b.second;
-    });
-
-    std::string out;
-    for(auto language_amount : languages) {
-        out += world.languages[language_amount.first].name + std::to_string(language_amount.second) + "\n";
-    }
-    return out;
+    const auto it = std::max_element(province.languages.begin(), province.languages.end());
+    return world.languages[std::distance(province.languages.begin(), it)].name.get_string();
 }
 
 std::vector<ProvinceColor> religion_map_mode(const World& world) {

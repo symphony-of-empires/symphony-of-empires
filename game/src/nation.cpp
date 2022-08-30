@@ -219,7 +219,7 @@ void Nation::set_policy(const Policies& policies) {
 
 /// @brief Checks if a POP is part of one of our accepted languages
 bool Nation::is_accepted_language(const Pop& pop) const {
-    return is_accepted_language(World::get_instance().languages[pop.language_id]);
+    return true;
 }
 /// @brief Checks if a LANGUAGE is part of one of our accepted languages
 bool Nation::is_accepted_language(const Language& language) const {
