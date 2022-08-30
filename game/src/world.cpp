@@ -556,7 +556,7 @@ static inline void unit_do_tick(World& world, Unit& unit)
     // Analyze neighbours of where the unit is standing on
     for(const auto neighbour_id : province.neighbour_ids) {
         const auto& neighbour = world.provinces[neighbour_id];
-        if(Nation::is_valid(neighbour.controller_id)) {
+        if(neighbour.controller_id != unit.owner_id && Nation::is_valid(neighbour.controller_id)) {
             // Decrease relations if we're militarizing our border
             auto& relation = world.get_relation(neighbour.controller_id, unit.owner_id);
             if(!relation.has_military_access)
@@ -584,12 +584,17 @@ static inline void unit_do_tick(World& world, Unit& unit)
         if(can_move) {
             bool unit_moved = unit.update_movement(world.unit_manager);
             if(unit_moved && can_take) {
+                // Moving to a province not owned by us!
+                if(unit.owner_id != unit_target.owner_id) {
                 // Relation between original owner and the conqueree
                 const auto& relation = world.get_relation(unit_target.owner_id, unit.owner_id);
-                if(relation.has_alliance) // Allies will liberate countries implicitly
+                    if(relation.has_alliance) // Allies will liberate countries implicitly and give back to the original owner
                     world.nations[unit_target.owner_id].control_province(unit_target);
                 else // Non allied means provinces aren't returned implicitly
                     world.nations[unit.owner_id].control_province(unit_target);
+                } else { // Liberating our own provinces
+                    world.nations[unit.owner_id].control_province(unit_target);
+                }
             }
         }
     }
