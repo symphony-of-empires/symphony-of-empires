@@ -59,13 +59,13 @@ jobs:
       run: |
         mkdir builds
         cd builds
-        mkdir ninja-multi-vcpkg
-        cd ninja-multi-vcpkg
+        mkdir msbuild-vcpkg
+        cd msbuild-vcpkg
         cp -r ../../mods .
         cd ../../
     - name: Run CMake with vcpkg.json manifest
       uses: lukka/run-cmake@v10
       with:
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        configurePreset: ninja-multi-vcpkg
-        buildPreset: ninja-multi-vcpkg
+        configurePreset: msbuild-vcpkg
+        buildPreset: msbuild-vcpkg
