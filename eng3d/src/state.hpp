@@ -84,11 +84,11 @@ namespace Eng3D {
         /// @brief Value to ignore x/y axis motion taps (useful ignoring stray joystick input)
         static constexpr auto JOYSTICK_DEAD_ZONE = 3000;
 
-        std::function<void(void)> resize_fn;
-        std::function<void(const Eng3D::Event::MouseButton&)> mouse_btn_fn;
-        std::function<void(const Eng3D::Event::MouseMotion&)> mouse_motion_fn;
-        std::function<void(const Eng3D::Event::MouseWheel&)> mouse_wheel_fn;
-        std::function<void(const Eng3D::Event::Key&)> key_fn;
+        virtual void handle_resize() {};
+        virtual void handle_mouse_btn(const Eng3D::Event::MouseButton&) {};
+        virtual void handle_mouse_motion(const Eng3D::Event::MouseMotion&) {};
+        virtual void handle_mouse_wheel(const Eng3D::Event::MouseWheel&) {};
+        virtual void handle_key(const Eng3D::Event::Key&) {};
 
         /// @brief Number of the axis assigned to map movement
         int map_movement_axis_num = 0;

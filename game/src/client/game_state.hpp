@@ -35,6 +35,7 @@
 #include "eng3d/serializer.hpp"
 #include "eng3d/audio.hpp"
 #include "eng3d/state.hpp"
+#include "eng3d/event.hpp"
 #include "unit.hpp"
 
 enum class MapMode : unsigned char {
@@ -118,6 +119,11 @@ public:
     void world_thread();
     void music_enqueue();
     void load_world_thread();
+    void handle_resize() override;
+    void handle_mouse_btn(const Eng3D::Event::MouseButton&) override;
+    void handle_mouse_motion(const Eng3D::Event::MouseMotion&) override;
+    void handle_mouse_wheel(const Eng3D::Event::MouseWheel&) override;
+    void handle_key(const Eng3D::Event::Key&) override;
 
     Client* client = nullptr;
     Server* server = nullptr;
