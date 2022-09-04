@@ -59,15 +59,6 @@
 #undef min
 #undef max
 
-#if (__cplusplus < 201703L)
-namespace std {
-    template<typename T>
-    constexpr inline T clamp(T n, T min, T max) {
-        return std::min<T>(max, std::max<T>(n, min));
-    }
-}
-#endif
-
 /// @brief List so we don't reconstruct a vector every time we query a tile
 /// fortunely the size is a constant of 4 possible neighbours so we're good
 static thread_local std::vector<Tile> tmp_tile_list = std::vector<Tile>();
@@ -412,10 +403,8 @@ void World::load_initial() {
 
         std::string provinces_ref_names = "";
         for(auto& province : provinces) {
-            if(!colors_used.contains(province.color & 0xffffff)) {
+            if(!colors_used.contains(province.color & 0xffffff))
                 provinces_ref_names += "'" + province.ref_name + "'";
-            }
-        }
 
         if(!provinces_ref_names.empty()) {
             std::string error = "Province " + provinces_ref_names + " is registered but missing on province.png, please add it!";
@@ -428,18 +417,17 @@ void World::load_initial() {
 
         // Init the province bounds
         for(auto& province : provinces) {
-            province.box_area.right = 0;
-            province.box_area.bottom = 0;
             province.box_area.left = width;
             province.box_area.top = height;
         }
+
         for(size_t j = 0; j < height; j++) {
             for(size_t i = 0; i < width; i++) {
                 const auto& tile = this->get_tile(i, j);
                 auto& province = provinces[tile.province_id];
+                province.box_area.left = std::min<float>(province.box_area.left, i);
                 province.box_area.right = std::max<float>(province.box_area.right, i);
                 province.box_area.bottom = std::max<float>(province.box_area.bottom, j);
-                province.box_area.left = std::min<float>(province.box_area.left, i);
                 province.box_area.top = std::min<float>(province.box_area.top, j);
             }
         }
@@ -500,23 +488,6 @@ void World::load_initial() {
             if(!nation.exists() || Province::is_invalid(nation.capital_id)) continue;
             Eng3D::Log::debug("world", _("Relocating capital of [" + nation.ref_name + "]"));
             nation.auto_relocate_capital();
-
-            nation.budget = 10000.f;
-            auto& policy = nation.current_policy; // Default init for policies
-            policy.import_tax = 0.1f;
-            policy.export_tax = 0.1f;
-            policy.domestic_export_tax = 0.1f;
-            policy.domestic_import_tax = 0.1f;
-            policy.med_flat_tax = 0.1f;
-            policy.poor_flat_tax = 0.1f;
-            policy.rich_flat_tax = 0.1f;
-            policy.private_property = true;
-            policy.immigration = ALLOW_ALL;
-            policy.migration = ALLOW_ALL;
-            policy.industry_tax = 0.1f;
-            policy.foreign_trade = true;
-            policy.min_wage = 1.f;
-            policy.min_sv_for_parliament = 2.f;
         }
 
         // Write the entire world to the cache file

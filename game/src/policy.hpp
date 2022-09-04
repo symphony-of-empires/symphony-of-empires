@@ -57,36 +57,36 @@ enum TreatmentPolicy {
 class Policies {
 public:
     TreatmentPolicy treatment;
-    AllowancePolicy migration;
-    AllowancePolicy immigration;
+    AllowancePolicy migration = ALLOW_ALL;
+    AllowancePolicy immigration = ALLOW_ALL;
     CensorshipPolicy censorship;
     AutoBuildPolicy build_infrastructure; // Are POPs able to build infrastructure
     AutoBuildPolicy build_factories; // Are POPs able to build factories
-    bool private_property;
-    bool companies_allowed;
-    bool public_education;
-    bool secular_education;
-    bool public_healthcare;
-    bool social_security; // Goverment pays bought food
-    bool slavery; // Is slavery allowed?
-    bool legislative_parliament; // Is there a parliament that is needed to approve laws?
-    bool executive_parliament; // Is there a parliament that is needed to do executive actions?
-    bool constitutional; // Is there a constitution to limit the power of the leader?
-    bool foreign_trade; // Do we allow foreign trade?
-    float import_tax; // Tax % for importing products
-    float export_tax; // Tax % for exporting products
-    float domestic_import_tax; // Tax % for domestic imports
-    float domestic_export_tax; // Tax % for domestic exports
-    float poor_flat_tax; // Flat tax rhs on the low-wage pops
-    float med_flat_tax; // Flat tax rhs on the medium-wage pops
-    float rich_flat_tax; // Flat tax rhs on the high-wage pops
-    float industry_tax; // The tax given to the industrial sector
-    float military_spending; // Spending done on military (% of budget)
+    bool private_property = true;
+    bool companies_allowed = true;
+    bool public_education = true;
+    bool secular_education = true;
+    bool public_healthcare = true;
+    bool social_security = true; // Goverment pays bought food
+    bool slavery = true; // Is slavery allowed?
+    bool legislative_parliament = true; // Is there a parliament that is needed to approve laws?
+    bool executive_parliament = true; // Is there a parliament that is needed to do executive actions?
+    bool constitutional = true; // Is there a constitution to limit the power of the leader?
+    bool foreign_trade = true; // Do we allow foreign trade?
+    float import_tax = 0.1f; // Tax % for importing products
+    float export_tax = 0.1f; // Tax % for exporting products
+    float domestic_import_tax = 0.1f; // Tax % for domestic imports
+    float domestic_export_tax = 0.1f; // Tax % for domestic exports
+    float poor_flat_tax = 0.1f; // Flat tax rhs on the low-wage pops
+    float med_flat_tax = 0.1f; // Flat tax rhs on the medium-wage pops
+    float rich_flat_tax = 0.1f; // Flat tax rhs on the high-wage pops
+    float industry_tax = 0.1f; // The tax given to the industrial sector
+    float military_spending = 0.1f; // Spending done on military (% of budget)
     // Units can grab anything they want from DOMESTIC provinces
     // Please notice the DOMESTIC part of this, for foreign "free grab"; check diplomatic relations!!
-    bool free_supplies;
-    float min_wage; // Minimum wage
-    float min_sv_for_parliament; // Minimum social value for people to be accounted on the parliament
+    bool free_supplies = true;
+    float min_wage = 1.f; // Minimum wage
+    float min_sv_for_parliament = 2.f; // Minimum social value for people to be accounted on the parliament
 
     inline int difference(const Policies& rhs) const {
         int diff = 0;

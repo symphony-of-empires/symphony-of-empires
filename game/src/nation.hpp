@@ -153,7 +153,7 @@ public:
     float military_score = 0.f, naval_score = 0.f, economy_score = 0.f;
     // Total budget of the nation (money in ark), this is not equal to GDP, the GDP is the total sum of the price
     // of all products in the nation, which are volatile unless they are sold
-    float budget = 0.f;
+    float budget = 10000.f;
     // Default and can be disabled by the player
     bool ai_controlled = true;
     bool ai_do_cmd_troops = true;

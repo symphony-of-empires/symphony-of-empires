@@ -98,7 +98,7 @@ public:
     float base_attractive = 0.f; // Attractiveness of province
     // Rectangle coordinates (x,y - x,y) for "area" scanning a province when needed
     // (for example, when changing owners)
-    Eng3D::Rect box_area;
+    Eng3D::Rect box_area = Eng3D::Rect(0.f, 0.f, 0.f, 0.f);
     uint16_t owner_id = (uint16_t)-1; // The owner of this province
     uint16_t controller_id = (uint16_t)-1;
     uint8_t terrain_type_id = (uint8_t)-1;
