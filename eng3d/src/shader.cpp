@@ -92,9 +92,8 @@ void Eng3D::OpenGL::Shader::compile(GLuint type) {
             sline >> slot >> ch;
             if(ch == ':') {
                 sline >> row >> ch;
-                if(ch == '(') {
+                if(ch == '(')
                     sline >> col;
-                }
             } else if(ch == '(') {
                 sline >> row >> ch;
             }
@@ -108,9 +107,8 @@ void Eng3D::OpenGL::Shader::compile(GLuint type) {
             }
 
             getline(sline, error);
-            if(row > 0 && row - 1 < line_numbers.size()) {
+            if(row > 0 && row - 1 < line_numbers.size())
                 row = line_numbers[row - 1];
-            }
 
             output_error << "(" << row << ")" << ":" << error_code;
             output_error << "\n^^^: " << error << "\n";
