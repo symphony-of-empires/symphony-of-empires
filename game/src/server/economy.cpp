@@ -73,7 +73,11 @@ struct NewUnit {
     Unit unit;
     Province::Id unit_province;
     NewUnit(Unit& _unit, Province::Id _unit_province) 
-        : unit{_unit}, unit_province{ _unit_province } {}
+        : unit{_unit},
+        unit_province{ _unit_province }
+    {
+
+    }
 };
 
 void militancy_update(World& world, Nation& nation) {
@@ -116,7 +120,7 @@ void militancy_update(World& world, Nation& nation) {
 
     // Rebellions!
     /// @todo Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
-    if(std::fmod(std::rand(), glm::max<float>(1.f, coup_chances - total_anger)) == 0) {
+    if(std::fmod(rand(), glm::max<float>(1.f, coup_chances - total_anger)) == 0) {
         /// @todo This might cause multithreading problems
         std::scoped_lock lock(world.rebel_mutex);
 
@@ -267,7 +271,7 @@ void update_factory_production(World& world, Building& building, BuildingType* b
 
 // Update the factory employment
 void update_factories_employment(const World& world, Province& province, std::vector<float>& new_workers) {
-    unsigned int unallocated_workers = 0;
+    unsigned unallocated_workers = 0;
     for(Pop::Id i = 0; i < province.pops.size(); i++) {
         auto& pop = province.pops[i];
         if(world.pop_types[pop.type_id].group == PopGroup::LABORER)
@@ -284,15 +288,14 @@ void update_factories_employment(const World& world, Province& province, std::ve
 
     // Cancel operations
     float is_operating = (province.controller_id == province.owner_id) ? 1.f : 0.f;
-
     // The most profitable factory gets to pick workers first
     for(Building::Id i = 0; i < province.buildings.size(); i++) {
         auto factory_index = factories_by_profitability[i].first;
         auto& building = province.buildings[factory_index];
         const auto& type = world.building_types[factory_index];
-        unsigned int factory_workers = building.level * type.num_req_workers * building.production_scale;
-        unsigned int amount_needed = factory_workers;
-        unsigned int allocated_workers = glm::min(amount_needed, unallocated_workers);
+        unsigned factory_workers = building.level * type.num_req_workers * building.production_scale;
+        unsigned amount_needed = factory_workers;
+        unsigned allocated_workers = glm::min(amount_needed, unallocated_workers);
 
         // Average with how much the factory had before
         // Makes is more stable so everyone don't change workplace immediately
@@ -438,6 +441,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                 auto& pop = province.pops[i];
                 new_needs[i].budget = pop.budget;
             }
+
             float laborers_amount = 0.f;
             for(Pop::Id i = 0; i < province.pops.size(); i++) {
                 auto& pop = province.pops[i];
@@ -478,13 +482,10 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                         (*it).size -= final_size;
                         if(final_size) {
                             nation.budget -= given_money;
-                            Unit unit;
+                            Unit unit{};
                             unit.type = building.working_unit_type;
                             unit.owner_id = province.owner_id;
                             unit.budget = given_money;
-                            unit.experience = 1.f;
-                            unit.morale = 1.f;
-                            unit.supply = 1.f;
                             unit.size = final_size;
                             unit.base = unit.type->max_health;
                             Province::Id province_id = province.get_id(); 
@@ -502,10 +503,9 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     world.profiler.start("E-mutex");
     // Collect list of nations that exist
     std::vector<Nation*> eval_nations;
-    for(auto& nation : world.nations) {
+    for(auto& nation : world.nations)
         if(nation.exists())
             eval_nations.push_back(&nation);
-    }
 
     // -------------------------- MUTEX PROTECTED WORLD CHANGES BELOW -------------------------------
     const std::scoped_lock lock(world.world_mutex);
@@ -542,10 +542,9 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     // Lock for world is already acquired since the economy runs inside the world's do_tick which
     // should be lock guarded by the callee
     province_new_units.combine_each([&world](auto& new_unit_list) {
-        for(auto& new_unit : new_unit_list) {
+        for(auto& new_unit : new_unit_list)
             // Now commit the transaction of the new units into the main world area
             world.unit_manager.add_unit(new_unit.unit, new_unit.unit_province);
-        }
     });
     world.profiler.stop("E-mutex");
     // do_emigration(world);

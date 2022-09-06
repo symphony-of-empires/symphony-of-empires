@@ -160,7 +160,7 @@ static inline void external_migration(World& world) {
                 assert(Nation::is_valid(province.controller_id));
 
                 // Randomness factor to emulate a pseudo-imperfect economy
-                const float fuzz = static_cast<float>(std::rand() + 1) / 1000.f;
+                const float fuzz = static_cast<float>(rand() + 1) / 1000.f;
                 for(Pop::Id i = 0; i < province.pops.size(); i++) {
                     Pop& pop = province.pops[i];
                     // Depending on how much not our life needs are being met is how many we

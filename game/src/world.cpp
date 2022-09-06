@@ -402,7 +402,7 @@ void World::load_initial() {
         }
 
         std::string provinces_ref_names = "";
-        for(auto& province : provinces) {
+        for(auto& province : provinces)
             if(!colors_used.contains(province.color & 0xffffff))
                 provinces_ref_names += "'" + province.ref_name + "'";
 

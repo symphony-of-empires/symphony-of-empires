@@ -333,9 +333,8 @@ void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport,
         if(w.on_update) w.on_update(w);
         for(auto& child : w.children) {
             child->is_clickable = (w.on_click || w.is_clickable) && w.is_hover;
-            if(viewport.size().x <= 0 || viewport.size().y <= 0) {
+            if(viewport.size().x <= 0 || viewport.size().y <= 0)
                 if(!child->is_float) continue;
-            }
 
             this->render_recursive(*child, model, viewport, offset);
         }
@@ -475,9 +474,8 @@ UI::ClickState Context::check_click_recursive(UI::Widget& w, glm::ivec2 mouse_po
         clickable = false;
 
     // Call on_click_outside if on_click has been used or widget isn't hit by click
-    if(w.on_click_outside) {
+    if(w.on_click_outside)
         if(!clickable || click_consumed) w.on_click_outside(w);
-    }
 
     // Call on_click if on_click hasnt been used and widget is hit by click
     if(w.on_click && clickable && !click_consumed) {
@@ -533,9 +531,8 @@ bool UI::Context::check_drag_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm:
     offset = this->get_pos(w, offset);
     const Eng3D::Rect r(offset.x, offset.y, w.width, w.height);
     if(r.in_bounds(mouse_pos)) {
-        for(auto& child : w.children) {
+        for(auto& child : w.children)
             if(this->check_drag_recursive(*child.get(), mouse_pos, offset)) return true;
-        }
 
         // Only take in account widgets with a callback and not pinned
         if(!this->is_drag && w.on_drag && !w.is_pinned) {

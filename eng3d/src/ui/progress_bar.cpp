@@ -48,22 +48,14 @@ Eng3D::Rect get_rect(Eng3D::Rect rect_pos, Eng3D::Rect viewport) {
     pos_size.x = pos_size.x > 0 ? pos_size.x : 1.f;
     pos_size.y = pos_size.y > 0 ? pos_size.y : 1.f;
 
-    if(rect_pos.left < viewport.left) {
-        //float x_ratio = (viewport.left - rect_pos.left) / pos_size.x;
+    if(rect_pos.left < viewport.left)
         rect_pos.left = viewport.left;
-    }
-    if(rect_pos.right > viewport.right) {
-        //float x_ratio = (rect_pos.right - viewport.right) / pos_size.x;
+    if(rect_pos.right > viewport.right)
         rect_pos.right = viewport.right;
-    }
-    if(rect_pos.top < viewport.top) {
-        //float y_ratio = (viewport.top - rect_pos.top) / pos_size.y;
+    if(rect_pos.top < viewport.top)
         rect_pos.top = viewport.top;
-    }
-    if(rect_pos.bottom > viewport.bottom) {
-        //float y_ratio = (rect_pos.bottom - viewport.bottom) / pos_size.y;
+    if(rect_pos.bottom > viewport.bottom)
         rect_pos.bottom = viewport.bottom;
-    }
     return rect_pos;
 }
 

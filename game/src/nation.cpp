@@ -26,6 +26,7 @@
 #include <cassert>
 
 #include "eng3d/log.hpp"
+#include "eng3d/rand.hpp"
 
 #include "nation.hpp"
 #include "technology.hpp"
@@ -160,6 +161,7 @@ void Nation::set_policy(const Policies& policies) {
         Eng3D::Log::debug("game", "Parliament-less policy passed!");
     }
 
+    auto rand = Eng3D::get_local_generator();
     unsigned int approvals = 0, disapprovals = 0;
     std::vector<Pop*> disapprovers, approvers;
     for(const auto province_id : owned_provinces) {
@@ -168,7 +170,7 @@ void Nation::set_policy(const Policies& policies) {
             const Policies& pop_policies = pop.get_ideology().policies;
             // To "cheese it up" we mix some ideologies of the people, randomly
             for(Ideology::Id i = 0; i < World::get_instance().ideologies.size(); i++) {
-                pop.ideology_approval[i] += std::fmod(std::rand() / 1000.f, current_policy.difference(pop_policies));
+                pop.ideology_approval[i] += std::fmod(rand() / 1000.f, current_policy.difference(pop_policies));
                 pop.ideology_approval[i] = glm::clamp<float>(pop.ideology_approval[i], -1.f, 1.f); // Clamp
             }
 

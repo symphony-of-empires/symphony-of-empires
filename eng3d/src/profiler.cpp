@@ -114,7 +114,6 @@ void Profiler::stop(const std::string& name) {
     auto it = tasks.find(name);
     if(it == tasks.end()) {
         Eng3D::Log::error("profiler", "Tried to stop task '" + name + "', but it hasn't been started yet");
-        return;
     } else {
         it->second.stop();
     }

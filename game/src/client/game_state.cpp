@@ -125,64 +125,6 @@ std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(const Nation& nation)
 
 void handle_event(Input& input, GameState& gs) {
     gs.do_event();
-#if 0
-    SDL_Event event;
-    bool click_on_ui = false;
-    while(SDL_PollEvent(&event)) {
-        switch(event.type) {
-        case SDL_TEXTINPUT:
-            if(gs.show_ui)
-                gs.ui_ctx.check_text_input(static_cast<const char*>(&event.text.text));
-            break;
-        case SDL_JOYBUTTONDOWN:
-            if(gs.show_ui) {
-                click_on_ui = gs.ui_ctx.check_hover(mouse_pos);
-                gs.ui_ctx.check_drag(mouse_pos);
-            }
-            break;
-        case SDL_JOYBUTTONUP:
-            // Select currently hovered widget
-            if(event.jbutton.button == gs.select_button_num) {
-                if(gs.show_ui) {
-                    click_on_ui = gs.ui_ctx.check_click(mouse_pos);
-                    // if(!click_on_ui && gs.current_mode != MapMode::NO_MAP)
-                    //     gs.map->handle_click(gs, event);
-                }
-
-                if(click_on_ui) {
-                    const std::scoped_lock lock(gs.audio_man.sound_lock);
-                    auto entries = gs.package_man.get_multiple_prefix("sfx/click");
-                    if(!entries.empty()) {
-                        auto audio = gs.audio_man.load(entries[std::rand() % entries.size()]->get_abs_path());
-                        gs.audio_man.sound_queue.push_back(audio);
-                    }
-                }
-            } else if(event.jbutton.button == gs.up_button_num) {
-                
-            }
-            break;
-        case SDL_JOYAXISMOTION:
-            Eng3D::Log::debug("joy", "axis=" + std::to_string(event.jaxis.which) + ",axis=" + std::to_string(event.jaxis.axis) + ",value=" + std::to_string(event.jaxis.value));
-            if(event.jaxis.which == gs.map_movement_axis_num) {
-                if(event.jaxis.axis == 2) {
-                    gs.input.mouse_pos.x += event.jaxis.value / Eng3D::State::JOYSTICK_DEAD_ZONE;
-                } else if(event.jaxis.axis == 3) {
-                    gs.input.mouse_pos.y += event.jaxis.value / Eng3D::State::JOYSTICK_DEAD_ZONE;
-                }
-
-                // UI click doesn't affect passthrough of events in the case of hovering here
-                // since the joystick will always control the map movement
-                if(gs.show_ui)
-                    gs.ui_ctx.check_hover(gs.input.mouse_pos);
-            }
-            break;
-        }
-
-        // if(gs.current_mode != MapMode::NO_MAP && !click_on_ui)
-        //     gs.map->update(event, input, &gs.ui_ctx, gs);
-    }
-#endif
-
     const std::scoped_lock lock(gs.ui_ctx.prompt_queue_mutex);
     for(const auto& prompt : gs.ui_ctx.prompt_queue) {
         auto* win = new UI::Window(0, 0, 512, 512);
@@ -213,10 +155,9 @@ void GameState::send_command(Archive& archive) {
 void handle_popups(std::vector<Treaty::Id>& displayed_treaties, GameState& gs) {
     // Put popups
     // Event + Decision popups
-    for(auto& msg : gs.curr_nation->inbox) {
+    for(auto& msg : gs.curr_nation->inbox)
         // Check that the event is not already displayed to the user
         new Interface::DecisionWindow(gs, msg);
-    }
     gs.curr_nation->inbox.clear(); // Clear the inbox
 
     for(auto& treaty : gs.world->treaties) {
@@ -286,7 +227,7 @@ void GameState::music_enqueue() {
         this->audio_man.music_fade_value = 0.f;
         // Search through all the music in 'music/ambience' and picks a random
         if(!entries.empty()) {
-            const int music_index = std::rand() % entries.size();
+            const int music_index = rand() % entries.size();
             auto audio = this->audio_man.load(entries[music_index]->get_abs_path());
             this->audio_man.music_queue.push_back(audio);
             Eng3D::Log::debug("music", "Now playing music file " + entries[music_index]->get_abs_path());
@@ -335,7 +276,7 @@ void GameState::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
                     const std::scoped_lock lock(audio_man.sound_lock);
                     auto entries = package_man.get_multiple_prefix("sfx/click");
                     if(!entries.empty()) {
-                        auto audio = audio_man.load(entries[std::rand() % entries.size()]->get_abs_path());
+                        auto audio = audio_man.load(entries[rand() % entries.size()]->get_abs_path());
                         audio_man.sound_queue.push_back(audio);
                     }
                     return;
@@ -379,11 +320,10 @@ void GameState::handle_key(const Eng3D::Event::Key& e) {
             break;
         case Eng3D::Event::Key::Type::F2:
             if(current_mode == MapMode::NORMAL) {
-                if(profiler_view) {
+                if(profiler_view)
                     profiler_view->kill();
-                } else {
+                else
                     profiler_view = new Interface::ProfilerView(*this);
-                }
             }
             break;
         case Eng3D::Event::Key::Type::F3:
@@ -404,22 +344,19 @@ void GameState::handle_key(const Eng3D::Event::Key& e) {
             if(editor) break;
             if(current_mode == MapMode::NORMAL) {
                 paused = !paused;
-                if(paused) {
+                if(paused)
                     ui_ctx.prompt("Control", "Unpaused");
-                } else {
+                else
                     ui_ctx.prompt("Control", "Paused");
-                }
             }
             break;
         case Eng3D::Event::Key::Type::F6: {
             reload_shaders();
             // Shader used for drawing the models using custom model render
             map->obj_shader = std::make_unique<Eng3D::OpenGL::Program>();
-            {
-                map->obj_shader->attach_shader(*builtin_shaders["vs_3d"].get());
-                map->obj_shader->attach_shader(*builtin_shaders["fs_3d"].get());
-                map->obj_shader->link();
-            }
+            map->obj_shader->attach_shader(*builtin_shaders["vs_3d"].get());
+            map->obj_shader->attach_shader(*builtin_shaders["fs_3d"].get());
+            map->obj_shader->link();
 
             const std::scoped_lock lock(audio_man.sound_lock);
             audio_man.music_queue.clear();
@@ -498,7 +435,7 @@ void start_client(int argc, char** argv) {
     bg_img->origin = UI::Origin::CENTER_SCREEN;
     auto load_screen_entries = gs.package_man.get_multiple_prefix("gfx/load_screen");
     if(!load_screen_entries.empty())
-        bg_img->current_texture = gs.tex_man.load(load_screen_entries[std::rand() % load_screen_entries.size()]->get_abs_path());
+        bg_img->current_texture = gs.tex_man.load(load_screen_entries[rand() % load_screen_entries.size()]->get_abs_path());
 
     auto* load_pbar = new UI::ProgressBar(0, -24, gs.width, 24, 0.f, 1.f);
     load_pbar->text(_("Initializing game resources"));

@@ -104,10 +104,9 @@ namespace Eng3D::Pathfind {
             if(vertex.cost < costs[vertex.key]) {
                 costs[vertex.key] = vertex.cost;
                 const auto& neighbours = neighbour_rels[vertex.key];
-                for(const auto& neighbour : neighbours) {
+                for(const auto& neighbour : neighbours)
                     if(neighbour.cost < costs[neighbour.key])
                         heap.emplace(neighbour.cost, neighbour.key);
-                }
             }
         }
     }

@@ -472,9 +472,8 @@ glm::ivec2 UI::Widget::get_y_bounds() const {
 void UI::Widget::scroll(int _y) {
     const auto y_bounds = this->get_y_bounds();
     _y = glm::clamp<int>(_y, -y_bounds.y, -y_bounds.x);
-    for(auto& child : children) {
+    for(auto& child : children)
         if(!child->is_pinned)
             child->y += _y;
-    }
     this->scrolled_y += _y;
 }
