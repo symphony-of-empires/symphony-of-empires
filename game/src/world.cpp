@@ -417,6 +417,8 @@ void World::load_initial() {
 
         // Init the province bounds
         for(auto& province : provinces) {
+            province.box_area.right = 0;
+            province.box_area.bottom = 0;
             province.box_area.left = width;
             province.box_area.top = height;
         }
