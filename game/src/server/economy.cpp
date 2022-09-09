@@ -293,9 +293,9 @@ void update_factories_employment(const World& world, Province& province, std::ve
         auto factory_index = factories_by_profitability[i].first;
         auto& building = province.buildings[factory_index];
         const auto& type = world.building_types[factory_index];
-        unsigned factory_workers = building.level * type.num_req_workers * building.production_scale;
-        unsigned amount_needed = factory_workers;
-        unsigned allocated_workers = glm::min(amount_needed, unallocated_workers);
+        unsigned int factory_workers = building.level * type.num_req_workers * building.production_scale;
+        unsigned int amount_needed = factory_workers;
+        unsigned int allocated_workers = glm::min(amount_needed, unallocated_workers);
 
         // Average with how much the factory had before
         // Makes is more stable so everyone don't change workplace immediately
