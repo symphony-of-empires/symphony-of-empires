@@ -726,11 +726,10 @@ int LuaAPI::update_province_building(lua_State* L) {
     if(g_world.needs_to_sync)
         luaL_error(L, "MP-Sync in this function is not supported");
     auto& province = g_world.provinces.at(lua_tonumber(L, 1));
-    if(Nation::is_valid(province.owner_id)) {
-        auto* building_type = &g_world.building_types.at(lua_tonumber(L, 2)); // Add up a level of upgrade
-        province.buildings[g_world.get_id(*building_type)].level = lua_tonumber(L, 3);
-        province.buildings[g_world.get_id(*building_type)].budget += 1000.f;
-    }
+
+    auto* building_type = &g_world.building_types.at(lua_tonumber(L, 2)); // Add up a level of upgrade
+    province.buildings[g_world.get_id(*building_type)].level = lua_tonumber(L, 3);
+    province.buildings[g_world.get_id(*building_type)].budget += 1000.f;
     return 0;
 }
 
