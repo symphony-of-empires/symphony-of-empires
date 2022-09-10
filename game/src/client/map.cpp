@@ -570,7 +570,7 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
         if(e.type == Eng3D::Event::MouseButton::Type::LEFT) {
             gs.input.drag_coord = gs.input.select_pos;
             this->is_drag = true;
-        } else if(e.type == Eng3D::Event::MouseButton::Type::RIGHT) {
+        } else if(e.type == Eng3D::Event::MouseButton::Type::MIDDLE) {
             glm::ivec2 map_pos;
             if(this->camera->get_cursor_map_pos(gs.input.mouse_pos, map_pos))
                 this->last_camera_drag_pos = map_pos;
@@ -583,31 +583,31 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
         if(e.type == Eng3D::Event::MouseButton::Type::LEFT) {
             this->is_drag = false;
             switch(gs.current_mode) {
-            case MapMode::NORMAL:
-                if(this->selector) {
-                    /// @todo Good selector function
-                    this->selector(*gs.world, *this, gs.world->provinces[province_id]);
-                    break;
-                }
-
-                // Check if we selected an unit
-                this->is_drag = false;
-                if(gs.input.get_selected_units().empty()) {
-                    // Show province information when clicking on a province
-                    if(Province::is_valid(province_id)) {
-                        new Interface::ProvinceView(gs, gs.world->provinces[province_id]);
-                        return;
+                case MapMode::NORMAL:
+                    if(this->selector) {
+                        /// @todo Good selector function
+                        this->selector(*gs.world, *this, gs.world->provinces[province_id]);
+                        break;
                     }
-                }
-                break;
-            case MapMode::COUNTRY_SELECT:
-                if(Province::is_valid(province_id)) {
-                    const auto& province = gs.world->provinces[province_id];
-                    if(Nation::is_valid(province.controller_id))
-                        gs.select_nation->change_nation(province.controller_id);
-                }
-                break;
-            default: break;
+
+                    // Check if we selected an unit
+                    this->is_drag = false;
+                    if(gs.input.get_selected_units().empty()) {
+                        // Show province information when clicking on a province
+                        if(Province::is_valid(province_id)) {
+                            new Interface::ProvinceView(gs, gs.world->provinces[province_id]);
+                            return;
+                        }
+                    }
+                    break;
+                case MapMode::COUNTRY_SELECT:
+                    if(Province::is_valid(province_id)) {
+                        const auto& province = gs.world->provinces[province_id];
+                        if(Nation::is_valid(province.controller_id))
+                            gs.select_nation->change_nation(province.controller_id);
+                    }
+                    break;
+                default: break;
             }
         } else if(e.type == Eng3D::Event::MouseButton::Type::RIGHT) {
             if(Nation::is_invalid(province_id)) return;
