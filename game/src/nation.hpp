@@ -174,7 +174,6 @@ public:
     std::vector<NationModifier*> modifiers;
     std::deque<Event> inbox; // Inbox of the nation; events that require our attention / should be processed
     std::vector<float> research; // Progress on technologies (1:1)
-
     std::vector<NationClientHint> client_hints; // Hints for the client on how to draw a nation on the client
     std::string client_username; // Used by clients to store usernames from nations - not saved
 };

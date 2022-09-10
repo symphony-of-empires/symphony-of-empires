@@ -151,7 +151,12 @@ void UnitManager::move_unit(Unit::Id unit_id, Province::Id target_province_id) {
     Eng3D::fast_erase(province_units[current_province_id], unit_id);
     unit_province[unit_id] = target_province_id;
     province_units[target_province_id].push_back(unit_id);
-
     if(g_server != nullptr)
         g_server->broadcast(Action::UnitMove::form_packet(units[unit_id], World::get_instance().provinces[target_province_id]));
+}
+
+void Unit::set_owner(const Nation& nation)
+{
+    assert(Nation::is_valid(nation.get_id()));
+    this->owner_id = nation.get_id();
 }

@@ -263,20 +263,25 @@ float Nation::get_tax(const Pop& pop) const {
 #include "client/game_state.hpp"
 #include "client/map.hpp"
 #include "client/map_render.hpp"
+
+std::mutex owned_provinces_mutex;
+std::mutex controlled_provinces_mutex;
+
 /// @brief Gives this nation a specified province (for example on a treaty)
 void Nation::give_province(Province& province) {
+    std::scoped_lock lock(owned_provinces_mutex);
     auto& world = World::get_instance();
     this->control_province(province);
     if(Nation::is_valid(province.owner_id))
         world.nations[province.owner_id].owned_provinces.erase(province.get_id());
     owned_provinces.insert(world.get_id(province));
     province.owner_id = this->get_id();
-
     // Update the province changed
     world.province_manager.mark_province_owner_changed(province.get_id());
 }
 
 void Nation::control_province(Province& province) {
+    std::scoped_lock lock(controlled_provinces_mutex);
     auto& world = World::get_instance();
     if(Province::is_valid(province.controller_id))
         world.nations[province.controller_id].controlled_provinces.erase(province.get_id());
@@ -288,10 +293,9 @@ void Nation::control_province(Province& province) {
 
     // Cancel the unit construction projects
     province.cancel_construction_project();
-    if(province.controller_id != province.owner_id) {
+    if(province.controller_id != province.owner_id)
         for(auto& pop : province.pops)
             pop.militancy += 0.1f;
-    }
 }
 
 const NationClientHint& Nation::get_client_hint() const {
@@ -316,9 +320,9 @@ bool Nation::can_research(const Technology& technology) const {
     //if(tech->type != TechnologyType::MILITARY && tech->type != TechnologyType::NAVY) return false;
 
     // All required technologies for this one must be researched
-    for(const auto& req_tech_id : technology.req_technologies) {
-        if(research[req_tech_id] > 0.f) return false;
-    }
+    for(const auto& req_tech_id : technology.req_technologies)
+        if(research[req_tech_id] > 0.f)
+            return false;
     return true;
 }
 

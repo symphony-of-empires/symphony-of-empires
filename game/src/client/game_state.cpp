@@ -123,7 +123,7 @@ std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(const Nation& nation)
     return this->tex_man.load(this->package_man.get_unique(path));
 }
 
-void handle_event(Input& input, GameState& gs) {
+void handle_event(GameState& gs) {
     gs.do_event();
     const std::scoped_lock lock(gs.ui_ctx.prompt_queue_mutex);
     for(const auto& prompt : gs.ui_ctx.prompt_queue) {
@@ -449,7 +449,7 @@ void start_client(int argc, char** argv) {
             gs.music_enqueue();
             // Widgets here SHOULD NOT REQUEST UPON WORLD DATA
             // so no world lock is needed beforehand
-            handle_event(gs.input, gs);
+            handle_event(gs);
         }), ([&gs, &map_layer, load_pbar]() {
             /// @todo first create the map and separately load all the assets
             std::scoped_lock lock(gs.render_lock);
@@ -490,7 +490,7 @@ void start_client(int argc, char** argv) {
             // Locking is very expensive, so we condense everything into a big "if"
             if(gs.world->world_mutex.try_lock()) {
                 // Required since events may request world data
-                handle_event(gs.input, gs);
+                handle_event(gs);
                 if(gs.current_mode == MapMode::NORMAL)
                     handle_popups(displayed_treaties, gs);
 

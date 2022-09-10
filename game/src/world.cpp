@@ -302,10 +302,6 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
     for(const auto& file : files) {
         auto paths = Eng3D::State::get_instance().package_man.get_multiple(dir + "/" + file + ".lua");
         for(const auto& path : paths) {
-            /*luaL_dofile(lua, path.c_str());
-            if(luaL_dofile(lua, path.c_str()) != LUA_OK) {
-                CXX_THROW(LuaAPI::Exception, lua_tostring(lua, -1));
-            }*/
 #ifdef E3D_TARGET_WINDOWS
             std::string m_path;
             for(auto& c : path->get_abs_path()) {
@@ -317,8 +313,7 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
 #else
             std::string m_path = path->get_abs_path();
 #endif
-            files_buf += "print(\"" + m_path + "\")\n";
-            files_buf += "loadfile(\"" + m_path + "\")()\n";
+            files_buf += "print(\"" + m_path + "\")\nloadfile(\"" + m_path + "\")()\n";
         }
     }
     Eng3D::Log::debug("lua", "Buffer " + files_buf);
@@ -444,8 +439,7 @@ void World::load_initial() {
         // Neighbours
         Eng3D::Log::debug("world", _("Creating neighbours for provinces"));
         for(size_t i = 0; i < width * height; i++) {
-            const auto tile = this->tiles[i];
-            assert(Province::is_valid(tile.province_id));
+            assert(Province::is_valid(this->tiles[i].province_id));
             auto& province = this->provinces[this->tiles[i].province_id];
             // Up
             if(i > this->width) {
@@ -482,7 +476,7 @@ void World::load_initial() {
         size_t relations_len = this->nations.size() * this->nations.size();
         this->relations = std::make_unique<NationRelation[]>(relations_len);
         for(size_t i = 0; i < relations_len; i++)
-            this->relations[i] = NationRelation();
+            this->relations[i] = NationRelation{};
         
         // Auto-relocate capitals for countries which do not have one
         for(auto& nation : this->nations) {
@@ -517,7 +511,7 @@ void World::load_mod() {
 
 static inline void unit_do_tick(World& world, Unit& unit) {
     assert(Province::is_valid(unit.province_id()));
-    assert(Nation::is_valid(unit.owner_id));
+    //assert(Nation::is_valid(unit.owner_id));
 
     // Do not evaluate if we have an ongoing battle
     if(unit.on_battle) {
@@ -807,7 +801,7 @@ void World::do_tick() {
                             auto& unit = units[unit_id];
                             this->nations[unit.owner_id].prestige += unit.base / 10000.f; // Prestige reward
                             unit.on_battle = false;
-                            assert(unit.size != 0);
+                            assert(unit.size);
                         }
                         Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": attackers win");
                     }
@@ -818,7 +812,7 @@ void World::do_tick() {
                             auto& unit = units[unit_id];
                             this->nations[unit.owner_id].prestige += unit.base / 10000.f; // Prestige reward
                             unit.on_battle = false;
-                            assert(unit.size != 0);
+                            assert(unit.size);
                         }
                         Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": defenders win");
                     }
@@ -844,15 +838,14 @@ void World::do_tick() {
     profiler.stop("Cleaning");
     wcmap_mutex.unlock();
 
-    profiler.start("Events");
-    LuaAPI::check_events(lua);
-    profiler.stop("Events");
+    //profiler.start("Events");
+    //LuaAPI::check_events(lua);
+    //profiler.stop("Events");
 
     // Remove empty pops and combine similar pops
     tbb::parallel_for(tbb::blocked_range(provinces.begin(), provinces.end()), [](auto& province_ranges) {
-        for(auto& province : province_ranges) {
+        for(auto& province : province_ranges)
             province.clean_pops();
-        }
     });
 
     profiler.start("Send packets");
@@ -865,8 +858,8 @@ void World::do_tick() {
     time++;
 
     // Tell clients that this tick has been done
-    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
-    Archive ar = Archive();
+    Eng3D::Networking::Packet packet{};
+    Archive ar{};
     ActionType action = ActionType::WORLD_TICK;
     ::serialize(ar, &action);
     packet.data(ar.get_buffer(), ar.size());

@@ -88,7 +88,7 @@ static inline Good* ai_get_potential_good(Nation& nation) {
         for(const auto province_id : nation.owned_provinces) {
             const auto& province = world.provinces[province_id];
             for(const auto& good : world.goods) {
-                const Product& product = province.products[world.get_id(good)];
+                const auto& product = province.products[world.get_id(good)];
                 avg_prob[world.get_id(good)] += product.demand / (product.supply + 1) * product.price;
             }
         }
@@ -98,12 +98,9 @@ static inline Good* ai_get_potential_good(Nation& nation) {
         // have a sucess probability equal or higher to the taked good
         // - Second, we preferably want the A.I to complete the supply chain of all industries so doing the method described
         // above should increase the priority for filling out higher level industries
-        for(const auto& building_type : world.building_types) {
-            // Take in account all buildings for this
-            for(const auto& input : building_type.inputs)
-                // Apply the higher-probability with outputs of this factory
+        for(const auto& building_type : world.building_types) // Take in account all buildings for this
+            for(const auto& input : building_type.inputs) // Apply the higher-probability with outputs of this factory
                 avg_prob[world.get_id(*building_type.output)] += avg_prob[world.get_id(*input)] + 1;
-        }
 
         Good* target_good = &world.goods.at(std::distance(avg_prob.begin(), std::max_element(avg_prob.begin(), avg_prob.end())));
 
@@ -149,8 +146,8 @@ static inline Good* ai_get_potential_good(Nation& nation) {
 // Reforms the policies of a nation taking in account several factors
 /// @todo Take in account several factors
 static inline void ai_reform(Nation& nation) {
-    World& world = World::get_instance();
-    Policies new_policy = nation.current_policy;
+    auto& world = World::get_instance();
+    auto new_policy = nation.current_policy;
 
     if(rand() % 100 > 50)
         new_policy.import_tax += 0.1f * (rand() % 10);
@@ -176,19 +173,16 @@ static inline void ai_reform(Nation& nation) {
         new_policy.industry_tax += 0.1f * (rand() % 10);
     else if(rand() % 100 > 50)
         new_policy.industry_tax -= 0.1f * (rand() % 10);
-
     new_policy.public_healthcare = (rand() % 100 > 50.f) ? true : false;
     new_policy.public_education = (rand() % 100 > 50.f) ? true : false;
     new_policy.private_property = (rand() % 100 > 50.f) ? true : false;
     new_policy.executive_parliament = (rand() % 100 > 50.f) ? true : false;
     new_policy.legislative_parliament = (rand() % 100 > 50.f) ? true : false;
     new_policy.foreign_trade = (rand() % 100 > 50.f) ? true : false;
-
     if(rand() % 100 > 50)
         new_policy.min_sv_for_parliament += 0.1f * (rand() % 10);
     else if(rand() % 100 > 50)
         new_policy.min_sv_for_parliament -= 0.1f * (rand() % 10);
-
     nation.set_policy(new_policy);
 }
 
@@ -308,7 +302,7 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
     if(relation.has_war) {
         // Offer treaties
         if(!(rand() % 100)) {
-            Treaty treaty = Treaty();
+            Treaty treaty{};
             {
                 auto* clause = new TreatyClause::AnnexProvince();
                 clause->sender = &nation;
@@ -321,7 +315,7 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
                 }
 
                 if(!clause->provinces.empty())
-                    treaty.clauses.emplace_back(clause);
+                    treaty.clauses.push_back(clause);
             }
 
             {
@@ -344,14 +338,14 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
                 }
 
                 if(clause->liberated != nullptr)
-                    treaty.clauses.emplace_back(clause);
+                    treaty.clauses.push_back(clause);
             }
 
             {
                 auto* clause = new TreatyClause::Ceasefire();
                 clause->sender = &nation;
                 clause->receiver = &other;
-                treaty.clauses.emplace_back(clause);
+                treaty.clauses.push_back(clause);
             }
 
             ((World&)world).insert(treaty);
@@ -362,9 +356,8 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
 static inline void ai_build_commercial(Nation& nation) {
     if(nation.owned_provinces.empty()) return;
 
-    World& world = World::get_instance();
-    Good* target_good;
-    target_good = ai_get_potential_good(nation);
+    auto& world = World::get_instance();
+    auto* target_good = ai_get_potential_good(nation);
     if(target_good == nullptr) return;
 
     // Find an industry type which outputs this good
@@ -379,14 +372,11 @@ static inline void ai_build_commercial(Nation& nation) {
     // Otherwise -- do not build anything since the highest valued good cannot be produced
     if(type == nullptr) return;
     Eng3D::Log::debug("ai", nation.ref_name + " Good " + target_good->ref_name + " seems to be on a high-trend - building industry " + type->ref_name + " which makes that good");
-
     auto it = std::begin(nation.owned_provinces);
     std::advance(it, rand() % nation.owned_provinces.size());
-
     auto& province = world.provinces[*it];
-    
     // Now build the building
-    const BuildingType& building_type = world.building_types.at(0);
+    const auto& building_type = world.building_types[0];
     province.add_building(building_type);
     // Broadcast the addition of the building to the clients
     g_server->broadcast(Action::BuildingAdd::form_packet(province, building_type));
@@ -425,16 +415,14 @@ void ai_do_tick(Nation& nation) {
             // because we can't afford to calculate this for EVERY FUCKING province
             const auto& relation = world.get_relation(nation.get_id(), other.get_id());
             // And add if they're allied with us or let us pass thru
-            if(relation.has_alliance || relation.has_military_access || relation.has_war) {
+            if(relation.has_alliance || relation.has_military_access || relation.has_war)
                 for(const auto province_id : other.controlled_provinces)
                     eval_provinces.push_back(province_id);
-            }
 
             constexpr auto relation_max = 100.f;
             constexpr auto relation_range = 200.f; // Range of relations, the max-min difference
             // Risk is augmentated when we border any non-ally nation
-            if(!relation.has_alliance)
-                // Makes sure so 200 relations results on 0.0 attraction, while 1 or 0 relations result on 3.9 and 4.0
+            if(!relation.has_alliance) // Makes sure so 200 relations results on 0.0 attraction, while 1 or 0 relations result on 3.9 and 4.0
                 ai_data.nations_risk_factor[other.get_id()] = ((relation_range - (relation.relation + relation_max)) / relation_max) * nation_weight;
             if(relation.has_war)
                 ai_data.nations_risk_factor[other.get_id()] = war_weight * nation_weight;
@@ -462,11 +450,9 @@ void ai_do_tick(Nation& nation) {
                     // draw in even more units
                     draw_in_force += unit_strength * (unit.on_battle ? unit_battle_weight : unit_exist_weight);
                 }
-                // Only if neighbour has a controller
-                if(Province::is_valid(neighbour.controller_id))
+                if(Province::is_valid(neighbour.controller_id)) // Only if neighbour has a controller
                     draw_in_force *= ai_data.nations_risk_factor[neighbour.controller_id];
-                // Spread out the heat
-                potential_risk[province_id] += draw_in_force;
+                potential_risk[province_id] += draw_in_force; // Spread out the heat
                 if(neighbour.is_coastal)
                     potential_risk[province_id] *= coastal_weight;
                 potential_risk[neighbour_id] += potential_risk[province_id] / province.neighbour_ids.size();

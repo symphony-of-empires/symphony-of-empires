@@ -99,7 +99,7 @@ public:
     // Returns true if unit moved
     bool update_movement(UnitManager& unit_manager);
     float get_speed() const;
-
+    void set_owner(const Nation& nation);
 
     /// @brief Checks if the unit can move (if it can set_province)
     /// @return true 

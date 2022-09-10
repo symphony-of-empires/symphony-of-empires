@@ -704,13 +704,13 @@ int LuaAPI::get_province_by_id(lua_State* L) {
 }
 
 int LuaAPI::province_add_unit(lua_State* L) {
-    Province& province = g_world.provinces.at(lua_tonumber(L, 1));
-    UnitType& unit_type = g_world.unit_types.at(lua_tonumber(L, 2));
+    auto& province = g_world.provinces.at(lua_tonumber(L, 1));
+    auto& unit_type = g_world.unit_types.at(lua_tonumber(L, 2));
     const size_t size = lua_tonumber(L, 3);
 
     Unit unit{};
+    unit.set_owner(g_world.nations.at(province.owner_id));
     unit.type = &unit_type;
-    unit.owner_id = province.owner_id;
     unit.budget = size * 10.f;
     unit.experience = 1.f;
     unit.morale = 1.f;
@@ -725,11 +725,12 @@ int LuaAPI::province_add_unit(lua_State* L) {
 int LuaAPI::update_province_building(lua_State* L) {
     if(g_world.needs_to_sync)
         luaL_error(L, "MP-Sync in this function is not supported");
-    Province& province = g_world.provinces.at(lua_tonumber(L, 1));
-    // Add up a level of upgrade
-    BuildingType* building_type = &g_world.building_types.at(lua_tonumber(L, 2));
-    province.buildings[g_world.get_id(*building_type)].level = lua_tonumber(L, 3);
-    province.buildings[g_world.get_id(*building_type)].budget += 1000.f;
+    auto& province = g_world.provinces.at(lua_tonumber(L, 1));
+    if(Nation::is_valid(province.owner_id)) {
+        auto* building_type = &g_world.building_types.at(lua_tonumber(L, 2)); // Add up a level of upgrade
+        province.buildings[g_world.get_id(*building_type)].level = lua_tonumber(L, 3);
+        province.buildings[g_world.get_id(*building_type)].budget += 1000.f;
+    }
     return 0;
 }
 
@@ -742,23 +743,20 @@ int LuaAPI::give_province_to(lua_State* L) {
 int LuaAPI::give_hard_province_to(lua_State* L) {
     auto& province = g_world.provinces.at(lua_tonumber(L, 1));
     auto& nation = g_world.nations.at(lua_tonumber(L, 2));
-    {
-        const auto& unit_ids = g_world.unit_manager.get_province_units(province.get_id());
-        for(const auto unit_id : unit_ids) {
-            auto& unit = g_world.unit_manager.units[unit_id];
-            if(unit.owner_id == province.controller_id)
-                unit.owner_id = nation.get_id();
-        }
+    const auto& unit_ids = g_world.unit_manager.get_province_units(province.get_id());
+    for(const auto unit_id : unit_ids) {
+        auto& unit = g_world.unit_manager.units[unit_id];
+        if(unit.owner_id == province.controller_id)
+            unit.set_owner(nation);
     }
     nation.control_province(province);
     nation.give_province(province);
 
-    // Take all the troops of the dead nation
+    // Take all the troops of the dead nation if this is the last province of 'em
     if(Nation::is_valid(province.controller_id) && !g_world.nations[province.controller_id].exists()) {
-        for(auto& unit : g_world.unit_manager.units) {
+        for(auto& unit : g_world.unit_manager.units)
             if(unit.owner_id == province.controller_id)
-                unit.owner_id = nation.get_id();
-        }
+                unit.set_owner(nation);
     }
     return 0;
 }

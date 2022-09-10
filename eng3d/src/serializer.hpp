@@ -110,10 +110,17 @@ public:
 template<typename T>
 class Serializer {
 public:
-    template<bool is_serialize>
-    static inline void deser_dynamic(Archive&, const T*) {
+#ifdef DEBUG_SERIALIZER
+    template<bool is_serialize = true>
+    static inline void deser_dynamic(Archive&, T*) {
         CXX_THROW(SerializerException, "Implement your serializer function!");
     }
+
+    template<bool is_serialize = false>
+    static inline void deser_dynamic(Archive&, const T*) {
+        CXX_THROW(SerializerException, "Implement your deserializer function!");
+    }
+#endif
 };
 
 /// @brief Template generic (de)-serializer

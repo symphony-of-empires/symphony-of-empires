@@ -30,6 +30,7 @@
 #include "eng3d/utils.hpp"
 #include "client/game_state.hpp"
 #include "world.hpp"
+#include "io_impl.hpp"
 
 void LUA_util::save(GameState& gs) {
     if(gs.editor) {
@@ -206,7 +207,7 @@ void LUA_util::save(GameState& gs) {
 
         gs.ui_ctx.prompt("Save", "Editor data saved! (check editor folder)");
     } else {
-        Archive ar = Archive();
+        Archive ar{};
         ::serialize(ar, gs.world);
         ar.to_file("default.sc4");
         gs.ui_ctx.prompt("Save", "Saved sucessfully!");
