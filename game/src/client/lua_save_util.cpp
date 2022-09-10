@@ -32,6 +32,82 @@
 #include "world.hpp"
 #include "io_impl.hpp"
 
+static void save_province(GameState& gs, FILE* fp, Province& province)
+{
+    if(province.neighbour_ids.empty()) return;
+    if(province.box_area.right == 0 &&
+        province.box_area.bottom == 0 &&
+        province.box_area.left == gs.world->width &&
+        province.box_area.top == gs.world->height) return;
+
+        // Give the province a terrain
+    if(gs.world->terrain_types[province.terrain_type_id].is_water_body && (Nation::is_valid(province.controller_id) || Nation::is_valid(province.owner_id))) {
+        for(auto& terrain : gs.world->terrain_types) {
+            if(terrain.is_water_body) continue;
+            province.terrain_type_id = terrain.get_id();
+            break;
+        }
+    }
+
+    // Sea provinces dont have pops or RGOs
+    if(gs.world->terrain_types[province.terrain_type_id].is_water_body)
+        province.rgo_size.clear();
+    
+    // RGO
+    const uint32_t color = std::byteswap<std::uint32_t>((province.color & 0x00ffffff) << 8);
+    std::string rgo_size_out = "";
+    for(Good::Id id = 0; id < province.rgo_size.size(); id++) {
+        const auto& good = gs.world->goods[id];
+        auto size = province.rgo_size[id];
+        if(size != 0) {
+            rgo_size_out += "{\"" + good.ref_name + "\",";
+            rgo_size_out += std::to_string(size) + "},";
+        }
+    }
+    fprintf(fp, "province=Province:new{ref_name=\"%s\",name=_(\"%s\"),color=0x%x,terrain=tt_%s,rgo_size={%s}}\n",
+        province.ref_name.c_str(),
+        province.name.c_str(),
+        (unsigned int)color,
+        gs.world->terrain_types[province.terrain_type_id].ref_name.c_str(),
+        rgo_size_out.c_str());
+    fprintf(fp, "province:register()\n");
+
+    if(gs.world->terrain_types[province.terrain_type_id].is_water_body)
+        return;
+    
+    //province.buildings[rand() % province.buildings.size()].level++;
+    //province.buildings[rand() % province.buildings.size()].level++;
+    for(const auto& building_type : gs.world->building_types) {
+        const auto& building = province.buildings[gs.world->get_id(building_type)];
+        if(building.level)
+            fprintf(fp, "province:update_building(bt_%s,%f)\n", building_type.ref_name.c_str(), building.level);
+    }
+
+    // POPs
+    for(const auto& language : g_world.languages)
+        if(province.languages[language.get_id()])
+            fprintf(fp, "province:set_language(c_%s,%f)\n", language.ref_name.c_str(), province.languages[language.get_id()]);
+    for(const auto& religion : g_world.religions)
+        if(province.religions[religion.get_id()])
+            fprintf(fp, "province:set_religion(r_%s,%f)\n", religion.ref_name.c_str(), province.religions[religion.get_id()]);
+    for(const auto& pop : province.pops)
+        fprintf(fp, "province:add_pop(pt_%s,%f,%f)\n", gs.world->pop_types[pop.type_id].ref_name.c_str(), pop.size, pop.literacy);
+    // Nuclei of the provinces
+    for(const auto& nucleus_id : province.nuclei)
+        fprintf(fp, "province:add_nucleus(n_%s)\n", gs.world->nations[nucleus_id].ref_name.c_str());
+    // Give province to owner
+    if(Nation::is_valid(province.owner_id)) {
+        fprintf(fp, "province:give_to(n_%s)\n", gs.world->nations[province.owner_id].ref_name.c_str());
+        if(gs.world->nations[province.owner_id].capital_id == gs.world->get_id(province))
+            fprintf(fp, "n_%s:set_capital(province)\n", gs.world->nations[province.owner_id].ref_name.c_str());
+    }
+    // Units
+    for(const auto unit_id : g_world.unit_manager.get_province_units(province.get_id())) {
+        auto& unit = g_world.unit_manager.units[unit_id];
+        fprintf(fp, "province:add_unit(ut_%s,%zu)\n", unit.type->ref_name.c_str(), (size_t)unit.size);
+    }
+}
+
 void LUA_util::save(GameState& gs) {
     if(gs.editor) {
         std::filesystem::create_directory("editor");
@@ -56,76 +132,16 @@ void LUA_util::save(GameState& gs) {
             fprintf(fp.get(), "r_%s=Religion:get(\"%s\")\n", religion.ref_name.c_str(), religion.ref_name.c_str());
         for(const auto& nation : gs.world->nations)
             fprintf(fp.get(), "n_%s=Nation:get(\"%s\")\n", nation.ref_name.c_str(), nation.ref_name.c_str());
+        
+        // First add provinces with pops, then the provinces **without** pops
         for(auto& province : gs.world->provinces) {
-            if(province.neighbour_ids.empty()) continue;
-            if(province.box_area.right == 0 &&
-            province.box_area.bottom == 0 &&
-            province.box_area.left == gs.world->width &&
-            province.box_area.top == gs.world->height) continue;
-
-            // Give the province a terrain
-            if(gs.world->terrain_types[province.terrain_type_id].is_water_body && (Nation::is_valid(province.controller_id) || Nation::is_valid(province.owner_id))) {
-                for(auto& terrain : gs.world->terrain_types) {
-                    if(terrain.is_water_body) continue;
-                    province.terrain_type_id = terrain.get_id();
-                    break;
-                }
-            }
-
-            // Sea provinces dont have pops or RGOs
-            if(gs.world->terrain_types[province.terrain_type_id].is_water_body) {
-                province.rgo_size.clear();
-                province.pops.clear();
-            }
-
-            // RGO
-            const uint32_t color = std::byteswap<std::uint32_t>((province.color & 0x00ffffff) << 8);
-            std::string rgo_size_out = "";
-            for(Good::Id id = 0; id < province.rgo_size.size(); id++) {
-                const auto& good = gs.world->goods[id];
-                auto size = province.rgo_size[id];
-                if(size != 0) {
-                    rgo_size_out += "{\"" + good.ref_name + "\",";
-                    rgo_size_out += std::to_string(size) + "},";
-                }
-            }
-            fprintf(fp.get(), "province=Province:new{ref_name=\"%s\",name=_(\"%s\"),color=0x%x,terrain=tt_%s,rgo_size={%s}}\n",
-                province.ref_name.c_str(),
-                province.name.c_str(),
-                (unsigned int)color,
-                gs.world->terrain_types[province.terrain_type_id].ref_name.c_str(),
-                rgo_size_out.c_str());
-            fprintf(fp.get(), "province:register()\n");
-            for(const auto& building_type : gs.world->building_types) {
-                Building& building = province.buildings[gs.world->get_id(building_type)];
-                if(building.level) {
-                    building.level = 1;
-                    fprintf(fp.get(), "province:update_building(bt_%s,%f)\n", building_type.ref_name.c_str(), building.level);
-                }
-            }
-            // POPs
-            for(const auto& language : g_world.languages)
-                if(province.languages[language.get_id()])
-                    fprintf(fp.get(), "province:set_language(c_%s,%f)\n", language.ref_name.c_str(), province.languages[language.get_id()]);
-            for(const auto& religion : g_world.religions)
-                if(province.religions[religion.get_id()])
-                    fprintf(fp.get(), "province:set_religion(r_%s,%f)\n", religion.ref_name.c_str(), province.religions[religion.get_id()]);
-            for(const auto& pop : province.pops)
-                fprintf(fp.get(), "province:add_pop(pt_%s,%f,%f)\n", gs.world->pop_types[pop.type_id].ref_name.c_str(), pop.size, pop.literacy);
-            // Nuclei of the provinces
-            for(const auto& nucleus_id : province.nuclei)
-                fprintf(fp.get(), "province:add_nucleus(n_%s)\n", gs.world->nations[nucleus_id].ref_name.c_str());
-            // Give province to owner
-            if(Nation::is_valid(province.owner_id)) {
-                fprintf(fp.get(), "province:give_to(n_%s)\n", gs.world->nations[province.owner_id].ref_name.c_str());
-                if(gs.world->nations[province.owner_id].capital_id == gs.world->get_id(province))
-                    fprintf(fp.get(), "n_%s:set_capital(province)\n", gs.world->nations[province.owner_id].ref_name.c_str());
-            }
-            // Units
-            for(const auto unit_id : g_world.unit_manager.get_province_units(province.get_id())) {
-                auto& unit = g_world.unit_manager.units[unit_id];
-                fprintf(fp.get(), "province:add_unit(ut_%s,%zu)\n", unit.type->ref_name.c_str(), (size_t)unit.size);
-            }
+            if(!province.pops.empty() || Nation::is_valid(province.owner_id))
+                save_province(gs, fp.get(), province);
+            cnt++;
+        }
+        for(auto& province : gs.world->provinces) {
+            if(province.pops.empty() && Nation::is_invalid(province.owner_id))
+                save_province(gs, fp.get(), province);
             cnt++;
         }
         if(!cnt)
