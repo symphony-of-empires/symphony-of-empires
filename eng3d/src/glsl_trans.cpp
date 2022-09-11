@@ -300,6 +300,9 @@ std::string Eng3D::GLSL::Context::to_text() {
     std::string end_buffer;
     int current_line = 1;
 
+    while(it != tokens.end() && it->type == Eng3D::GLSL::Token::Type::NEWLINE)
+        it++;
+    
     // Go after the first instance of a preprocessor macro
     if(it->type == Eng3D::GLSL::Token::Type::MACRO) {
         end_buffer += "#" + it->data + "\r\n";
