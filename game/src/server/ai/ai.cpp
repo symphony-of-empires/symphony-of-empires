@@ -396,6 +396,8 @@ void ai_do_tick(Nation& nation) {
         constexpr auto unit_exist_weight = 50.f; // Weight of an unit by just existing
         constexpr auto coastal_weight = 150.f; // Importance given to coastal provinces
         constexpr auto nation_weight = 100.f; // Nations weight
+        constexpr auto reconquer_weight = 400.f; // Weight to reconquer lost **home**land
+        constexpr auto homeland_weight = 100.f; // Homeland protection
 
         std::fill(ai_data.nations_risk_factor.begin(), ai_data.nations_risk_factor.end(), 1.f);
         std::vector<Province::Id> eval_provinces; // Provinces that can be evaluated for war
@@ -427,7 +429,7 @@ void ai_do_tick(Nation& nation) {
             if(relation.has_war)
                 ai_data.nations_risk_factor[other.get_id()] = war_weight * nation_weight;
         }
-        ai_data.nations_risk_factor[nation.get_id()] = -1.f * nation_weight;
+        ai_data.nations_risk_factor[nation.get_id()] = homeland_weight * nation_weight;
 
         std::vector<double> potential_risk(world.provinces.size(), 1.f);
         for(const auto province_id : eval_provinces) {
@@ -452,6 +454,9 @@ void ai_do_tick(Nation& nation) {
                 }
                 if(Province::is_valid(neighbour.controller_id)) // Only if neighbour has a controller
                     draw_in_force *= ai_data.nations_risk_factor[neighbour.controller_id];
+                // Try to recover our own lost provinces
+                if(neighbour.owner_id == nation.get_id() && neighbour.controller_id != nation.get_id())
+                    draw_in_force *= reconquer_weight;
                 potential_risk[province_id] += draw_in_force; // Spread out the heat
                 if(neighbour.is_coastal)
                     potential_risk[province_id] *= coastal_weight;
