@@ -264,25 +264,26 @@ float Nation::get_tax(const Pop& pop) const {
 #include "client/map.hpp"
 #include "client/map_render.hpp"
 
-std::mutex owned_provinces_mutex;
-std::mutex controlled_provinces_mutex;
-
 /// @brief Gives this nation a specified province (for example on a treaty)
 void Nation::give_province(Province& province) {
-    std::scoped_lock lock(owned_provinces_mutex);
     auto& world = World::get_instance();
-    this->control_province(province);
+    if(province.owner_id == this->get_id())
+        return;
+    
     if(Nation::is_valid(province.owner_id))
         world.nations[province.owner_id].owned_provinces.erase(province.get_id());
     owned_provinces.insert(world.get_id(province));
     province.owner_id = this->get_id();
+    this->control_province(province);
     // Update the province changed
     world.province_manager.mark_province_owner_changed(province.get_id());
 }
 
 void Nation::control_province(Province& province) {
-    std::scoped_lock lock(controlled_provinces_mutex);
     auto& world = World::get_instance();
+    if(province.controller_id == this->get_id())
+        return;
+    
     if(Province::is_valid(province.controller_id))
         world.nations[province.controller_id].controlled_provinces.erase(province.get_id());
     this->controlled_provinces.insert(province.get_id());

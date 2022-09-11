@@ -553,7 +553,7 @@ static inline void unit_do_tick(World& world, Unit& unit) {
             bool unit_moved = unit.update_movement(world.unit_manager);
             if(unit_moved && can_take) {
                 // Moving to a province not owned by us!
-                if(unit.owner_id != unit_target.owner_id) {
+                if(unit.owner_id != unit_target.owner_id && Nation::is_valid(unit_target.owner_id)) {
                     // Relation between original owner and the conqueree
                     const auto& relation = world.get_relation(unit_target.owner_id, unit.owner_id);
                     if(relation.has_alliance) // Allies will liberate countries implicitly and give back to the original owner
