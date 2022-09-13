@@ -70,6 +70,7 @@
 #include "eng3d/texture.hpp"
 #include "eng3d/log.hpp"
 #include "eng3d/camera.hpp"
+#include "eng3d/interface.hpp"
 
 #include "client/game_state.hpp"
 #include "good.hpp"
@@ -85,7 +86,6 @@
 #include "client/interface/building.hpp"
 #include "client/interface/minimap.hpp"
 #include "client/interface/map_debug.hpp"
-#include "client/interface/profiler_view.hpp"
 #include "client/map.hpp"
 #include "client/map_render.hpp"
 #include "server/server_network.hpp"
@@ -323,7 +323,7 @@ void GameState::handle_key(const Eng3D::Event::Key& e) {
                 if(profiler_view)
                     profiler_view->kill();
                 else
-                    profiler_view = new Interface::ProfilerView(*this);
+                    profiler_view = new Eng3D::Interface::ProfilerView(*this, this->world->profiler);
             }
             break;
         case Eng3D::Event::Key::Type::F3:
