@@ -29,9 +29,10 @@
 #include "eng3d/color.hpp"
 #include "eng3d/ui/widget.hpp"
 #include "eng3d/ui/components.hpp"
+#include "eng3d/state.hpp"
 
 Eng3D::Interface::ProfilerView::ProfilerView(Eng3D::State& _s, Eng3D::Profiler& _profiler)
-    : UI::Window(0, 0, 640, 200, nullptr),
+    : UI::Window(0, 0, 240, _s.width, nullptr),
     s{ _s },
     profiler{ _profiler }
 {
@@ -57,7 +58,7 @@ Eng3D::Interface::ProfilerView::ProfilerView(Eng3D::State& _s, Eng3D::Profiler& 
     for(auto& task : tasks)
         data.push_back(UI::ChartData(task->get_average_time_ms(), task->name, 0));
 
-    auto* task_chart = new UI::BarChart(20, 20, 200, 20, this);
+    auto* task_chart = new UI::BarChart(20, 20, this->width - 40, 20, this);
     task_chart->on_update = ([this](UI::Widget& w) {
         auto& chart = static_cast<UI::BarChart&>(w);
         std::vector<UI::ChartData> data;
