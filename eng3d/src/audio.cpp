@@ -115,7 +115,7 @@ const std::shared_ptr<Eng3D::Audio> Eng3D::AudioManager::load(const std::string&
         return (*it).second;
 
     // Otherwise Sound is not in our control, so we create a new one
-    sounds[path] = std::shared_ptr<Eng3D::Audio>(new Eng3D::Audio(path));
+    sounds[path] = std::make_shared<Eng3D::Audio>(path);
     Eng3D::Log::debug("audio", "Loaded and cached sound " + path);
     return sounds[path];
 }

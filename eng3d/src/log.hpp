@@ -26,42 +26,10 @@
 #pragma once
 
 #include <string>
-#include <memory>
-
-#ifdef E3D_TARGET_SWITCH
-struct PrintConsole;
-extern "C" void consoleUpdate(PrintConsole* console);
-#endif
 
 namespace Eng3D::Log {
-    /// @brief Logs data to a file or console
-    inline void log(const std::string& severity, const std::string& category, const std::string& msg) {
-#ifdef E3D_LOG_TO_FILE
-        std::unique_ptr<FILE, int(*)(FILE*)> fp(fopen("log.txt", "a+t"), fclose);
-        if(fp != nullptr)
-            fprintf(fp.get(), "<%s:%s> %s\n", severity.c_str(), category.c_str(), msg.c_str());
-#else
-#   ifndef E3D_TARGET_SWITCH
-        printf("<%s:%s> %s\n", severity.c_str(), category.c_str(), msg.c_str());
-#   else
-        char tmpbuf[256];
-        snprintf(tmpbuf, sizeof(tmpbuf), "<%s:%s> %s", severity.c_str(), category.c_str(), msg.c_str());
-        fprintf(stderr, tmpbuf);
-#   endif
-#endif
-    }
-
-    inline void debug(const std::string& category, const std::string& msg) {
-#if defined E3D_DEBUG || 1
-        Eng3D::Log::log("debug", category, msg);
-#endif
-    }
-
-    inline void warning(const std::string& category, const std::string& msg) {
-        Eng3D::Log::log("warning", category, msg);
-    }
-
-    inline void error(const std::string& category, const std::string& msg) {
-        Eng3D::Log::log("error", category, msg);
-    }
-};
+    void log(const std::string& severity, const std::string& category, const std::string& msg);
+    void debug(const std::string& category, const std::string& msg);
+    void warning(const std::string& category, const std::string& msg);
+    void error(const std::string& category, const std::string& msg);
+}

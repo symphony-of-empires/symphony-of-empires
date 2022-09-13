@@ -26,7 +26,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
-#include <cmath>
 #include <algorithm>
 #include <glm/vec2.hpp>
 #ifdef E3D_BACKEND_OPENGL

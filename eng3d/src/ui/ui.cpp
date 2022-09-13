@@ -26,7 +26,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
-#include <cmath>
 #include <algorithm>
 
 #ifdef E3D_TARGET_WINDOWS

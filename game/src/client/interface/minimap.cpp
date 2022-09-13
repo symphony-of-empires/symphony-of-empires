@@ -23,10 +23,9 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include <cmath>
 #include <unordered_map>
 #include "eng3d/path.hpp"
-#include "eng3d/string_format.hpp"
+#include "eng3d/string.hpp"
 #include "eng3d/texture.hpp"
 #include "eng3d/ui/button.hpp"
 #include "eng3d/ui/close_button.hpp"

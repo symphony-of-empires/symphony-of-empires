@@ -112,14 +112,10 @@ void Eng3D::Rivers::build_rivers() {
     int height = river_tex->height;
     int width = river_tex->width;
     auto pixels = river_tex->buffer.get();
-    for(int y = 0; y < height; y++) {
-        for(int x = 0; x < width; x++) {
-            int curr_index = x + y * river_tex->width;
-            uint32_t color = pixels[curr_index];
-            if(color == 0xFF0000FF)
+    for(size_t y = 0; y < height; y++)
+        for(size_t x = 0; x < width; x++)
+            if(pixels[x + y * river_tex->width] == 0xFF0000FF)
                 rivers_starts.push_back(x + y * width);
-        }
-    }
 
     // TODO FIX THIS NOT INFINITE LOOP
     for(size_t i = 0; i < rivers_starts.size(); i++) {

@@ -26,39 +26,35 @@
 #pragma once
 
 #include <stdexcept>
-#include <set>
+#include <unordered_set>
 
 // Generic manager for any resource type, the manager will call "load" if an element
 // with the same ident already exists
-template<typename T, typename I, typename L = std::set<std::pair<T*, I>>>
+template<typename K, typename V>
 class Manager {
 private:
-    L elems;
+    std::unordered_set<std::pair<K, std::shared_ptr<V>>> elems;
 public:
     /// @brief Global manager object
-    static Manager<T, I>* singleton;
+    static Manager<K, V>* singleton;
 
     /// @brief Return the singleton
-    inline static Manager<T, I>& get_instance() {
+    inline static Manager<K, V>& get_instance() {
         return *singleton;
     }
 
     /// @brief Load an element, this is the function that must be defined by the inheritor
-    virtual void load(const I& ident) {};
+    virtual std::shared_ptr<V> load(const K& key) {};
 
     /// @brief Obtain an element or construct a new one from a provided
-    /// construct which accepts ident
-    virtual const T& get(const I& ident) {
-        for(const auto& o : elems) {
-            if(o.second == ident) return *(o.first);
-        }
-
-        load(ident);
-
-        for(const auto& o : elems) {
-            if(o.second == ident)
-                return *(o.first);
-        }
-        CXX_THROW(std::runtime_error, "Can't load " + ident);
+    /// construct which accepts key
+    virtual const T& get(const K& key) {
+        auto it = elems.find(name);
+        if(it != elems.end())
+            return it->second;
+        
+        std::shared_ptr<V> new_elem;
+        new_elem = elems[key] = load(key);
+        return new_elem;
     };
 };

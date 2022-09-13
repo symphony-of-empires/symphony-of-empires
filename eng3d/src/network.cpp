@@ -133,22 +133,19 @@ void Eng3D::Networking::SocketStream::set_blocking(bool blocking) {
 //
 // Server client
 //
-int Eng3D::Networking::ServerClient::try_connect(int fd) {
+int Eng3D::Networking::ServerClient::try_connect(int fd) try {
     sockaddr_in client;
     socklen_t len = sizeof(client);
-    try {
-        conn_fd = accept(fd, reinterpret_cast<sockaddr*>(&client), &len);
-        if(conn_fd == INVALID_SOCKET)
-            CXX_THROW(Eng3D::Networking::SocketException, "Cannot accept client connection");
-        
-        // At this point the client's connection was accepted - so we only have to check
-        // Then we check if the server is running and we throw accordingly
-        is_connected = true;
-        Eng3D::Log::debug("server", "New client connection established");
-        return conn_fd;
-    } catch(Eng3D::Networking::SocketException& e) {
-        // Continue
-    }
+    conn_fd = accept(fd, reinterpret_cast<sockaddr*>(&client), &len);
+    if(conn_fd == INVALID_SOCKET)
+        CXX_THROW(Eng3D::Networking::SocketException, "Cannot accept client connection");
+    
+    // At this point the client's connection was accepted - so we only have to check
+    // Then we check if the server is running and we throw accordingly
+    is_connected = true;
+    Eng3D::Log::debug("server", "New client connection established");
+    return conn_fd;
+} catch(Eng3D::Networking::SocketException& e) {
     return 0;
 }
 

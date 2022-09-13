@@ -55,7 +55,7 @@ public:
 
         // Set the new price
         this->price = std::max<float>(0.01f, this->price + this->price_vel);
-        this->demand = 0;
+        //this->demand = 0;
     }
 
     /// @brief Price of the product

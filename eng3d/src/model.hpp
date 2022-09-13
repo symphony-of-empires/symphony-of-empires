@@ -80,7 +80,6 @@ namespace Eng3D {
         Eng3D::SimpleModel process_simple_model(aiMesh& mesh, const aiScene& scene);
         void process_node(aiNode& node, const aiScene& scene);
 #endif
-
         std::vector<Eng3D::SimpleModel> simple_models;
     };
 

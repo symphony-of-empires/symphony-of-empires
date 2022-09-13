@@ -26,7 +26,7 @@
 #include "eng3d/path.hpp"
 #include "eng3d/texture.hpp"
 #include "eng3d/locale.hpp"
-#include "eng3d/string_format.hpp"
+#include "eng3d/string.hpp"
 #include "eng3d/ui/piechart.hpp"
 #include "eng3d/ui/label.hpp"
 #include "eng3d/ui/image.hpp"

@@ -252,7 +252,7 @@ int LuaAPI::add_input_to_industry_type(lua_State* L) {
     auto& industry_type = g_world.building_types.at(lua_tonumber(L, 1));
     auto& good = g_world.goods.at(lua_tonumber(L, 2));
     industry_type.inputs.push_back(&good);
-    industry_type.num_req_workers += industry_type.inputs.size() * 100;
+    industry_type.num_req_workers += 100;
     return 0;
 }
 

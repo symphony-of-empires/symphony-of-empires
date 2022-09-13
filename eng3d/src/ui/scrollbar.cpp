@@ -23,7 +23,6 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include <cmath>
 #include "eng3d/ui/scrollbar.hpp"
 #include "eng3d/ui/button.hpp"
 #include "eng3d/ui/ui.hpp"

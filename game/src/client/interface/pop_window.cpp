@@ -22,7 +22,7 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "eng3d/string_format.hpp"
+#include "eng3d/string.hpp"
 #include "eng3d/locale.hpp"
 #include "eng3d/ui/table.hpp"
 #include "eng3d/ui/label.hpp"

@@ -26,7 +26,7 @@
 #include "eng3d/ui/image.hpp"
 #include "eng3d/ui/label.hpp"
 #include "eng3d/ui/progress_bar.hpp"
-#include "eng3d/string_format.hpp"
+#include "eng3d/string.hpp"
 #include "eng3d/camera.hpp"
 #include "eng3d/color.hpp"
 #include "eng3d/locale.hpp"

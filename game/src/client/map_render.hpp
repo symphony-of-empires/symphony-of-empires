@@ -65,7 +65,7 @@ class MapOptions {
 public:
     Option noise{ "NOISE", false }; // Randomization for more variety
     Option sdf{ "SDF", false }; // Pretty shadow borders
-    Option lighting{ "LIGHTING", false }; // Lights and reflections
+    Option lighting{ "LIGHTING", true }; // Lights and reflections
     Option parallax{ "PARALLAX", false }; // Parallax (3D) topography
     Option rivers{ "RIVERS", false }; // Overlaid rivers
     Option water{ "WATER", false }; // Textured water

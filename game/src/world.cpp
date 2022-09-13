@@ -27,7 +27,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cmath>
 #include <cassert>
 #include <set>
 #ifndef _MSC_VER

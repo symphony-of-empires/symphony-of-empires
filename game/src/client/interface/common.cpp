@@ -34,7 +34,7 @@
 #include "eng3d/ui/progress_bar.hpp"
 #include "eng3d/locale.hpp"
 #include "eng3d/path.hpp"
-#include "eng3d/string_format.hpp"
+#include "eng3d/string.hpp"
 
 #include "client/interface/common.hpp"
 #include "client/interface/good_view.hpp"

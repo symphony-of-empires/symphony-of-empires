@@ -28,7 +28,7 @@
 #include "eng3d/ui/components.hpp"
 #include "eng3d/locale.hpp"
 #include "eng3d/ttf.hpp"
-#include "eng3d/string_format.hpp"
+#include "eng3d/string.hpp"
 
 #include "client/interface/top_window.hpp"
 #include "client/interface/main_menu.hpp"

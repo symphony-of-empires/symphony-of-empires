@@ -25,13 +25,12 @@
 
 #include <string>
 #include <algorithm>
-#include <cmath>
 #include <cassert>
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
 #include "eng3d/log.hpp"
-#include "eng3d/common.hpp"
+#include "eng3d/utils.hpp"
 
 #include "server/server_network.hpp"
 #include "action.hpp"

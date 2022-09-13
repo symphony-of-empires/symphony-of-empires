@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include <cmath>
-
 enum AllowancePolicy {
     ALLOW_NOBODY, // Nobody can enter the country
     ALLOW_ACCEPTED_LANGUAGES, // Only accepted languages can enter the country

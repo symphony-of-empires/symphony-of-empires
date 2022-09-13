@@ -32,13 +32,12 @@
 #include "eng3d/log.hpp"
 
 void Archive::to_file(const std::string& path) {
-    if(!buffer.empty()) {
-        Eng3D::Log::debug("fs", "Writing archive " + path);
-        std::unique_ptr<FILE, int(*)(FILE*)> fp(::fopen(path.c_str(), "wb"), ::fclose);
-        ::fwrite((const void*)&buffer[0], 1, buffer.size(), fp.get());
-    } else {
+    if(buffer.empty())
         CXX_THROW(SerializerException, "Can't output an empty archive to file " + path);
-    }
+    
+    Eng3D::Log::debug("fs", "Writing archive " + path);
+    std::unique_ptr<FILE, int (*)(FILE *)> fp(::fopen(path.c_str(), "wb"), ::fclose);
+    ::fwrite((const void*)&buffer[0], 1, buffer.size(), fp.get());
 }
 
 void Archive::from_file(const std::string& path) {

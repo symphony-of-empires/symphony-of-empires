@@ -102,7 +102,7 @@ Eng3D::IO::PackageManager::PackageManager(Eng3D::State& _s, const std::vector<st
         // All folders inside mods/
         for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
             if(!entry.is_directory()) continue;
-            auto package = Eng3D::IO::Package();
+            Eng3D::IO::Package package{};
             package.name = entry.path().lexically_relative(asset_path).string(); // Relative (for nicer names)
             package.abs_path = entry.path().string(); // Absolute
             recursive_filesystem_walk(package, entry.path().string(), entry.path().string());
@@ -111,7 +111,7 @@ Eng3D::IO::PackageManager::PackageManager(Eng3D::State& _s, const std::vector<st
     } else {
         // Manually specified paths (can be outside mods/)
         for(const auto& entry : pkg_paths) {
-            auto package = Eng3D::IO::Package();
+            Eng3D::IO::Package package{};
             package.name = entry;
             package.abs_path = entry;
             recursive_filesystem_walk(package, entry, entry);
@@ -136,12 +136,10 @@ std::shared_ptr<Eng3D::IO::Asset::Base> Eng3D::IO::PackageManager::get_unique(co
 /// @return std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>>
 std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> Eng3D::IO::PackageManager::get_multiple(const Eng3D::IO::Path& path) {
     std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> list;
-    for(const auto& package : this->packages) {
-        for(const auto& asset : package.assets) {
+    for(const auto& package : this->packages)
+        for(const auto& asset : package.assets)
             if(asset->path == path.str)
                 list.push_back(asset);
-        }
-    }
     return list;
 }
 
@@ -150,12 +148,10 @@ std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> Eng3D::IO::PackageManager::
 /// @return std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>>
 std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> Eng3D::IO::PackageManager::get_multiple_prefix(const Eng3D::IO::Path& prefix) {
     std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> list;
-    for(const auto& package : this->packages) {
-        for(const auto& asset : package.assets) {
+    for(const auto& package : this->packages)
+        for(const auto& asset : package.assets)
             if(asset->path.substr(0, prefix.str.length()) == prefix.str)
                 list.push_back(asset);
-        }
-    }
     return list;
 }
 

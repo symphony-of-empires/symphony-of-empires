@@ -39,8 +39,6 @@
 #include "eng3d/state.hpp"
 #include "eng3d/camera.hpp"
 
-using namespace Eng3D;
-
 Eng3D::Glyph::Glyph(float _advance, Eng3D::Rectangle _atlas_bounds, Eng3D::Rectangle _plane_bounds)
     : advance{ _advance },
     atlas_bounds{ _atlas_bounds },

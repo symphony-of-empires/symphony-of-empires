@@ -29,7 +29,6 @@
 #include <tbb/concurrent_vector.h>
 #include <tbb/parallel_for.h>
 #include <tbb/combinable.h>
-#include <cmath>
 #include <glm/gtx/compatibility.hpp>
 
 #include "eng3d/log.hpp"
@@ -266,12 +265,12 @@ void update_factory_production(World& world, Building& building, BuildingType* b
 
     // Rescale production
     // This is used to set how much the of the maximum capicity the factory produce
-    building.production_scale = glm::clamp<float>(building.production_scale * scale_speed((float)output_value / (min_wage + inputs_cost)), 0.05f, 1.f);
+    building.production_scale = glm::clamp<float>(building.production_scale * scale_speed((float)output_value / (min_wage + inputs_cost)), 0.5f, 1.f);
 }
 
 // Update the factory employment
 void update_factories_employment(const World& world, Province& province, std::vector<float>& new_workers) {
-    unsigned unallocated_workers = 0;
+    float unallocated_workers = 0.f;
     for(auto& pop : province.pops)
         if(world.pop_types[pop.type_id].group == PopGroup::LABORER)
             unallocated_workers += pop.size;
@@ -292,9 +291,9 @@ void update_factories_employment(const World& world, Province& province, std::ve
     for(const auto& factory_index : factories_by_profitability) {
         auto& building = province.buildings[factory_index.first];
         const auto& type = world.building_types[factory_index.first];
-        unsigned int factory_workers = building.level * type.num_req_workers * building.production_scale;
-        unsigned int amount_needed = factory_workers;
-        unsigned int allocated_workers = glm::min(amount_needed, unallocated_workers);
+        float factory_workers = building.level * type.num_req_workers * building.production_scale;
+        float amount_needed = factory_workers;
+        float allocated_workers = glm::min(amount_needed, unallocated_workers);
         // Average with how much the factory had before
         // Makes is more stable so everyone don't change workplace immediately
         new_workers[factory_index.first] = ((allocated_workers) / 16.0f + (building.workers * 15.0f) / 16.0f) * is_operating;
@@ -305,7 +304,6 @@ void update_factories_employment(const World& world, Province& province, std::ve
 /// @brief Calculate the budget that we spend on each needs
 void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& pop_needs) {
     pop_needs.assign(province.pops.size(), PopNeed{});
-
     for(Pop::Id i = 0; i < province.pops.size(); i++) {
         auto& pop_need = pop_needs[i];
         auto& pop = province.pops[i];

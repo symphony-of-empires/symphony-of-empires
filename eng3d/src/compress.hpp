@@ -43,9 +43,8 @@ namespace Eng3D::Zlib {
         r = deflateInit(&info, Z_DEFAULT_COMPRESSION);
         if(r == Z_OK) {
             r = deflate(&info, Z_FINISH);
-            if(r == Z_STREAM_END) {
+            if(r == Z_STREAM_END)
                 return info.total_out;
-            }
         }
         deflateEnd(&info);
         return info.total_out;
@@ -62,9 +61,8 @@ namespace Eng3D::Zlib {
         r = inflateInit(&info);
         if(r == Z_OK) {
             r = inflate(&info, Z_FINISH);
-            if(r == Z_STREAM_END) {
+            if(r == Z_STREAM_END)
                 return info.total_out;
-            }
         }
         inflateEnd(&info);
         return info.total_out;

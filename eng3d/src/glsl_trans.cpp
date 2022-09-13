@@ -62,7 +62,7 @@ void Eng3D::GLSL::Context::lexer() {
 
         if(it == buffer.end()) break;
 
-        if (*it == '\n') {
+        if(*it == '\n') {
             tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::NEWLINE));
             it++;
         } else if((*(it + 0) == '/' && *(it + 1) == '/')) {
@@ -77,7 +77,7 @@ void Eng3D::GLSL::Context::lexer() {
                 if(*(it + 0) == '*' && *(it + 1) == '/') {
                     it += 2;
                     break;
-                } else if (*it == '\n') {
+                } else if(*it == '\n') {
                     tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::NEWLINE));
                 }
                 it++;
@@ -182,9 +182,9 @@ void Eng3D::GLSL::Context::lexer() {
         } else if(*it == '.') {
             tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::DOT));
             it++;
-        } else if(*it == '!' && (it+1) != buffer.end() && *(it+1) == '=') {
+        } else if(*it == '!' && (it + 1) != buffer.end() && *(it + 1) == '=') {
             tokens.push_back(Eng3D::GLSL::Token(Eng3D::GLSL::Token::Type::CMP_NEQ));
-            it+=2;
+            it += 2;
         } else {
             if(isdigit(*it) || *it == '.') {
                 Eng3D::GLSL::Token tok(Eng3D::GLSL::Token::Type::LITERAL);
@@ -302,7 +302,7 @@ std::string Eng3D::GLSL::Context::to_text() {
 
     while(it != tokens.end() && it->type == Eng3D::GLSL::Token::Type::NEWLINE)
         it++;
-    
+
     // Go after the first instance of a preprocessor macro
     if(it->type == Eng3D::GLSL::Token::Type::MACRO) {
         end_buffer += "#" + it->data + "\r\n";

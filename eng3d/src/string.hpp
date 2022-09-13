@@ -20,7 +20,7 @@
 //      string.hpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Provides automatic pooling of strings and string formatting utilities.
 // ----------------------------------------------------------------------------
 
 #pragma once
@@ -29,6 +29,9 @@
 #include <vector>
 #include <cstdint>
 #include <mutex>
+#include <memory>
+#include <stdexcept>
+#include "eng3d/utils.hpp"
 
 namespace Eng3D {
     /// @brief A reference to a string on the global string pool
@@ -48,7 +51,7 @@ namespace Eng3D {
         constexpr StringRef(Id _id)
             : id{ _id }
         {
-            
+
         }
 
         ~StringRef() {
@@ -70,16 +73,16 @@ namespace Eng3D {
             return this->get_string() == rhs;
         }
 
-        inline const char *c_str() const {
+        inline const char* c_str() const {
             return this->get_string().c_str();
         }
     };
 
-    inline std::string operator+(const char *lhs, const StringRef& rhs) {
+    inline std::string operator+(const char* lhs, const StringRef& rhs) {
         return std::string(lhs) + rhs.get_string();
     }
 
-    inline std::string operator+(const StringRef& lhs, const char *rhs) {
+    inline std::string operator+(const StringRef& lhs, const char* rhs) {
         return lhs.get_string() + rhs;
     }
 
@@ -100,11 +103,11 @@ namespace Eng3D {
     public:
         StringManager(Eng3D::State& _s);
         ~StringManager() = default;
-        
+
         inline Eng3D::StringRef insert(const std::string& str) {
             const std::scoped_lock lock(this->strings_mutex);
             this->strings.push_back(str);
-            this->strings[this->strings.size() - 1].shrink_to_fit();
+            this->strings.back().shrink_to_fit();
             return Eng3D::StringRef(this->strings.size() - 1);
         }
 
@@ -116,4 +119,20 @@ namespace Eng3D {
         static StringManager& get_instance();
         mutable std::mutex strings_mutex;
     };
+
+    /// @brief String formatter
+    /// @tparam Args Formatting argument type list
+    /// @param format C-formatting string
+    /// @param args Arguments for formatting
+    /// @return std::string The resulting formatted text
+    template<typename ... Args>
+    std::string string_format(const std::string& format, Args ... args) {
+        int size_s = std::snprintf(nullptr, 0, format.c_str(), args ...) + 1; // Extra space for '\0'
+        if(size_s <= 0)
+            CXX_THROW(std::runtime_error, "Error during formatting");
+        size_t size = static_cast<size_t>(size_s);
+        std::unique_ptr<char[]> buf = std::make_unique<char[]>(size);
+        std::snprintf(buf.get(), size, format.c_str(), args ...);
+        return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
+    }
 };

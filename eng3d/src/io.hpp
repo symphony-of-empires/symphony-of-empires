@@ -141,7 +141,7 @@ namespace Eng3D::IO {
             return buffer.c_str();
         }
     };
-    
+
     /// @brief A package containing a set of assets
     class Package {
     public:
@@ -164,7 +164,7 @@ namespace Eng3D::IO {
         std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> get_multiple(const Eng3D::IO::Path& path);
         std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> get_multiple_prefix(const Eng3D::IO::Path& path);
         std::vector<std::string> get_paths(void) const;
-        
+
         std::vector<Package> packages;
     };
 };

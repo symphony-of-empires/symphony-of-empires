@@ -33,43 +33,6 @@
 
 void start_client(int argc, char** argv);
 
-#ifdef E3D_TARGET_SWITCH
-/// @brief Switch doesn't define a pathconf function so this is a kludge
-/// while respecting newlib's stuff
-/// @param pathname Path to the file
-/// @param varcode Property to get value of
-/// @return Value of the queried property
-extern "C" long pathconf(const char *pathname, int varcode) {
-    if(pathname == NULL)
-        return 0;
-    switch(varcode) {
-    case _PC_LINK_MAX:
-        return 1;
-    case _PC_MAX_CANON:
-        return 512;
-    case _PC_MAX_INPUT:
-        return 512;
-    case _PC_NAME_MAX:
-        return 512;
-    case _PC_PATH_MAX:
-        return 512;
-    case _PC_PIPE_BUF:
-        return 512;
-    case _PC_CHOWN_RESTRICTED:
-        return 1;
-    case _PC_NO_TRUNC:
-        return 1;
-    case _PC_VDISABLE:
-        return 1;
-    }
-    return 0;
-}
-
-extern "C" long sysconf(int) {
-    return 0;
-}
-#endif
-
 extern "C" int main(int argc, char** argv) {
 #ifndef E3D_TARGET_SWITCH
     // Clean the log files

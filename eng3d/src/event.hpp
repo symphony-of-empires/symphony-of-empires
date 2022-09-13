@@ -72,8 +72,6 @@ namespace Eng3D::Event {
         /// @brief Wheel relative movement
         glm::ivec2 wheel;
     };
-}
-
-namespace Eng3D::Event {
+    
     glm::ivec2 get_mouse_pos();
 }

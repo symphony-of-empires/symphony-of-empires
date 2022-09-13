@@ -80,4 +80,8 @@ extern "C" long pathconf(const char *pathname, int varcode) {
     }
     return 0;
 }
+
+extern "C" long sysconf(int) {
+    return 0;
+}
 #endif

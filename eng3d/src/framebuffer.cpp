@@ -42,7 +42,6 @@ Eng3D::OpenGL::Framebuffer::~Framebuffer() {
 
 void Eng3D::OpenGL::Framebuffer::set_texture(int index, const Eng3D::Texture& texture) {
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, texture.gl_tex_num, 0);
-
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		Eng3D::Log::error("opengl", "Frame buffer error");
 }

@@ -139,14 +139,14 @@ namespace Eng3D {
     };
 
     template <class T>
-    void hash_combine(std::size_t& s, const T& v) {
+    inline void hash_combine(std::size_t& s, const T& v) {
         std::hash<T> h;
         s ^= h(v) + 0x9e3779b9 + (s << 6) + (s >> 2);
     }
 
     /// @brief Texture map has implementation
     struct TextureMapHash {
-        std::size_t operator()(const std::pair<std::string, TextureOptions>& key) const {
+        inline std::size_t operator()(const std::pair<std::string, TextureOptions>& key) const {
             std::size_t res = 0;
             hash_combine(res, key.first);
             TextureOptions s = key.second;
