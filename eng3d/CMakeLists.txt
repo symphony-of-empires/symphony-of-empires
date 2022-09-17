@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 project(eng3d CXX C)
 
-include_directories("${PROJECT_SOURCE_DIR}/cmake")
-include(FindSDL2TTF)
-
 #
 # Defines - see README.1st
 #
@@ -201,18 +198,20 @@ IF(NOT E3D_VENDORED)
 		target_link_libraries(eng3d PRIVATE ${SDL2_LIBRARY})
 	ENDIF()
 
-	find_package(SDL2_ttf)
-	IF(SDL2_ttf_FOUND)
-		target_include_directories(eng3d PRIVATE ${SDL2_ttf_INCLUDE_DIRS})
-		target_link_libraries(eng3d PRIVATE ${SDL2_ttf_LIBRARIES})
+	list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+	include(FindSDL2TTF)
+	find_package(SDL2TTF)
+	IF(SDL2TTF_FOUND)
+		target_include_directories(eng3d PRIVATE ${SDL2TTF_INCLUDE_DIRS})
+		target_link_libraries(eng3d PRIVATE ${SDL2TTF_LIBRARIES})
 	ELSE()
-		find_file(SDL2TTF_INCLUDE_DIR NAME SDL_ttf.h HINTS SDL2_ttf)
-		find_library(SDL2_ttf_LIBRARY NAME SDL2_ttf)
-		IF(NOT SDL2_ttf_LIBRARY OR SDL2_ttf_LIBRARY STREQUAL "")
-			message(FATAL_ERROR "SDL2_ttf not found")
+		find_file(SDL2TTF_INCLUDE_DIR NAME SDL_ttf.h HINTS SDL2TTF)
+		find_library(SDL2TTF_LIBRARY NAME SDL2TTF)
+		IF(NOT SDL2TTF_LIBRARY OR SDL2TTF_LIBRARY STREQUAL "")
+			message(FATAL_ERROR "SDL2TTF not found")
 		ENDIF()
-		target_include_directories(eng3d PRIVATE ${SDL2_ttf_INCLUDE_DIR})
-		target_link_libraries(eng3d PRIVATE ${SDL2_ttf_LIBRARY})
+		target_include_directories(eng3d PRIVATE ${SDL2TTF_INCLUDE_DIR})
+		target_link_libraries(eng3d PRIVATE ${SDL2TTF_LIBRARY})
 	ENDIF()
 
 	find_package(assimp)
