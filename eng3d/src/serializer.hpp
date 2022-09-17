@@ -225,7 +225,7 @@ class SerializerFloat {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, T& obj) {
-        long int tmp;
+        int32_t tmp;
         if constexpr(is_serialize) {
             tmp = obj * scaling;
             ::deser_dynamic<is_serialize>(ar, tmp);

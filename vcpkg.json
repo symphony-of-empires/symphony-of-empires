@@ -7,6 +7,7 @@
       "tbb",
       "assimp",
       "glew",
-      "glm"
+      "glm",
+      "zlib"
     ]
   }
