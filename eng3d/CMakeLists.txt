@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.15)
 project(eng3d CXX C)
 
+include_directories(cmake)
+include(FindSDL2TTF)
+
 #
 # Defines - see README.1st
 #
@@ -197,6 +200,8 @@ IF(NOT E3D_VENDORED)
 		target_include_directories(eng3d PRIVATE ${SDL2_INCLUDE_DIR})
 		target_link_libraries(eng3d PRIVATE ${SDL2_LIBRARY})
 	ENDIF()
+
+	find_package(SDL2TTF)
 
 	find_package(assimp)
 	IF(assimp_FOUND)
