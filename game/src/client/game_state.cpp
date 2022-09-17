@@ -152,8 +152,7 @@ void GameState::send_command(Archive& archive) {
 void handle_popups(std::vector<Treaty::Id>& displayed_treaties, GameState& gs) {
     // Put popups
     // Event + Decision popups
-    for(auto& msg : gs.curr_nation->inbox)
-        // Check that the event is not already displayed to the user
+    for(auto& msg : gs.curr_nation->inbox) // Check that the event is not already displayed to the user
         new Interface::DecisionWindow(gs, msg);
     gs.curr_nation->inbox.clear(); // Clear the inbox
 
@@ -161,9 +160,7 @@ void handle_popups(std::vector<Treaty::Id>& displayed_treaties, GameState& gs) {
         // Check that the treaty is not already displayed
         auto iter = std::find_if(displayed_treaties.begin(), displayed_treaties.end(), [&treaty](const auto& e) { return e == treaty.get_id(); });
         if(iter != displayed_treaties.end()) continue;
-        // Do not mess with treaties we don't partake in, hehe
-        if(!treaty.does_participate(*gs.curr_nation)) continue;
-        // Must participate in treaty
+        if(!treaty.does_participate(*gs.curr_nation)) continue; // Must participate in treaty
         new Interface::TreatyChooseWindow(gs, treaty.get_id());
         displayed_treaties.push_back(treaty.get_id());
     }

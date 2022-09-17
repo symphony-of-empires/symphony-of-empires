@@ -303,12 +303,8 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
         for(const auto& path : paths) {
 #ifdef E3D_TARGET_WINDOWS
             std::string m_path;
-            for(auto& c : path->get_abs_path()) {
-                if(c == '\\')
-                    m_path += "\\\\";
-                else
-                    m_path += c;
-            }
+            for(auto& c : path->get_abs_path())
+                m_path += c == '\\' ? "\\\\" : c;
 #else
             std::string m_path = path->get_abs_path();
 #endif
@@ -859,8 +855,7 @@ void World::do_tick() {
     // Tell clients that this tick has been done
     Eng3D::Networking::Packet packet{};
     Archive ar{};
-    ActionType action = ActionType::WORLD_TICK;
-    ::serialize(ar, action);
+    ::serialize<ActionType>(ar, ActionType::WORLD_TICK);
     packet.data(ar.get_buffer(), ar.size());
     g_server->broadcast(packet);
 }

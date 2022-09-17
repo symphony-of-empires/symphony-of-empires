@@ -29,56 +29,42 @@
 #include "eng3d/network.hpp"
 
 enum class ActionType {
-    // Errors
-    BAD,
-    // Tell client that a whole tick has been done
+    BAD, // Error
     WORLD_TICK,
-    // Self-explanaitory
     SELECT_NATION,
-    // Gaming chatting
-    CONNECT,
+    CONNECT, // Chat
     DISCONNECT,
     CHAT_MESSAGE,
     CHAT_NICKNAME,
-    // Testing
-    PING,
+    PING, // Testing
     PONG,
-    // Province
-    PROVINCE_UPDATE,
+    PROVINCE_UPDATE, // Province
     PROVINCE_ADD,
     PROVINCE_REMOVE,
     PROVINCE_COLONIZE,
-    // Nation
-    NATION_UPDATE,
+    NATION_UPDATE, // Nation
     NATION_ADD,
     NATION_REMOVE,
     NATION_ENACT_POLICY,
     NATION_TAKE_DECISION,
-    // Unit
-    UNIT_UPDATE,
+    UNIT_UPDATE, // Unit
     UNIT_ADD,
     UNIT_REMOVE,
     UNIT_CHANGE_TARGET,
     UNIT_MOVE,
-    // Building
-    BUILDING_UPDATE,
+    BUILDING_UPDATE, // Building
     BUILDING_ADD,
     BUILDING_REMOVE,
     BUILDING_START_BUILDING_UNIT,
-    // Tile
-    TILE_UPDATE,
-    // Treaty
-    CHANGE_TREATY_APPROVAL,
+    TILE_UPDATE, // Tile
+    CHANGE_TREATY_APPROVAL, // Treaty
     DRAFT_TREATY,
     TREATY_ADD,
-    // Diplomacy
-    DIPLO_EMBARGO,
+    DIPLO_EMBARGO, // Diplomacy
     DIPLO_DECLARE_WAR,
     DIPLO_ALLOW_MIL_ACCESS,
-    // Technology
-    FOCUS_TECH,
-    // Change AI status
-    AI_CONTROL,
+    FOCUS_TECH, // Technology
+    AI_CONTROL, // Change AI status
 };
 
 class Product;

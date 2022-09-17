@@ -62,8 +62,7 @@ Client::Client(GameState& _gs, std::string host, const unsigned port)
 void Client::net_loop() {
     {
         Archive ar{};
-        ActionType action = ActionType::CONNECT;
-        ::serialize(ar, action);
+        ::serialize<ActionType>(ar, ActionType::CONNECT);
         ::serialize(ar, username);
 
         Eng3D::Networking::Packet packet(fd, ar.get_buffer(), ar.size());
@@ -73,7 +72,6 @@ void Client::net_loop() {
     has_snapshot = true;
     try {
         ActionType action;
-
         Eng3D::Networking::SocketStream stream(fd);
         while(this->run) {
 			// Update packets with pending list (acquiring the lock has priority to be lenient

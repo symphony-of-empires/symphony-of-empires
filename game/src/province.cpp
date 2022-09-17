@@ -82,8 +82,7 @@ void Province::add_building(const BuildingType& building_type) {
 
 void Province::cancel_construction_project() {
     for(auto& building : buildings)
-        if(building.working_unit_type)
-            building.working_unit_type = nullptr;
+        building.working_unit_type = nullptr;
 }
 
 glm::vec3 Province::get_sphere_coord(glm::vec2 world_size, float radius) const {

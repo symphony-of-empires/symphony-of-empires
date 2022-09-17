@@ -140,8 +140,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation& _nation)
     draft_btn->set_on_click([this](UI::Widget&) {
         Eng3D::Networking::Packet packet{};
         Archive ar{};
-        ActionType action = ActionType::DRAFT_TREATY;
-        ::serialize(ar, action);
+        ::serialize<ActionType>(ar, ActionType::DRAFT_TREATY);
         ::serialize(ar, this->treaty.clauses);
         ::serialize(ar, this->treaty.name);
         ::serialize(ar, this->treaty.sender);
@@ -168,8 +167,7 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, const Treaty::Id _treaty_
     approve_btn->text("Approve");
     approve_btn->set_on_click([this](UI::Widget& w) {
         Archive ar{};
-        ActionType action = ActionType::CHANGE_TREATY_APPROVAL;
-        ::serialize(ar, action);
+        ::serialize<ActionType>(ar, ActionType::CHANGE_TREATY_APPROVAL);
         ::serialize(ar, this->treaty_id);
         ::serialize<TreatyApproval>(ar, TreatyApproval::ACCEPTED);
         this->gs.send_command(ar);
@@ -182,8 +180,7 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, const Treaty::Id _treaty_
     deny_btn->text("Deny");
     deny_btn->set_on_click([this](UI::Widget& w) {
         Archive ar{};
-        ActionType action = ActionType::CHANGE_TREATY_APPROVAL;
-        ::serialize(ar, action);
+        ::serialize<ActionType>(ar, ActionType::CHANGE_TREATY_APPROVAL);
         ::serialize(ar, this->treaty_id);
         ::serialize<TreatyApproval>(ar, TreatyApproval::DENIED);
         this->gs.send_command(ar);

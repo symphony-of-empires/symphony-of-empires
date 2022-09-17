@@ -48,7 +48,7 @@ public:
     ~UnitType() {};
 
     Eng3D::StringRef name;
-    
+
     float supply_consumption;
     float speed;
     float max_health;
@@ -58,7 +58,7 @@ public:
     float build_time; // Time needed to build
     bool is_ground; // Can go on ground?
     bool is_naval; // Can go on water?
-    std::vector<std::pair<Good *, float>> req_goods; // Required goods
+    std::vector<std::pair<Good*, float>> req_goods; // Required goods
 };
 
 // A trait for an unit; given randomly per each recruited unit
@@ -66,7 +66,7 @@ class UnitTrait : public RefnameEntity<uint8_t> {
 public:
     UnitTrait() {};
     ~UnitTrait() {};
-    
+
     float supply_consumption_mod;
     float speed_mod;
     float max_health_mod;
@@ -110,7 +110,7 @@ public:
     }
 
     inline const std::vector<Province::Id> get_path() const {
-        return path;        
+        return path;
     }
 
     inline Province::Id get_target_province_id() const {
@@ -145,12 +145,11 @@ public:
 
     template<typename T>
     inline void for_each_unit(T const& lambda) {
-        for(Unit::Id id = 0; id < units.size(); id++) {
-            if (units[id].is_valid())
+        for(Unit::Id id = 0; id < units.size(); id++)
+            if(units[id].is_valid())
                 lambda(units[id]);
-        }
     }
-    
+
     inline std::vector<Unit::Id> get_province_units(Province::Id province_id) const {
         return province_units[province_id];
     }
@@ -158,7 +157,7 @@ public:
     inline Province::Id get_unit_current_province(Unit::Id unit_id) const {
         return unit_province[unit_id];
     }
-    
+
     /// @brief The actual units
     std::vector<Unit> units;
     /// @brief The unit slots that are free to use

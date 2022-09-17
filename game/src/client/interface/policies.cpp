@@ -183,8 +183,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     enact_btn->set_on_click([this](UI::Widget&) {
         Eng3D::Networking::Packet packet{};
         Archive ar{};
-        ActionType action = ActionType::NATION_ENACT_POLICY;
-        ::serialize(ar, action);
+        ::serialize<ActionType>(ar, ActionType::NATION_ENACT_POLICY);
         ::serialize(ar, this->new_policy); // PoliciesObj
         packet.data(ar.get_buffer(), ar.size());
         this->gs.client->send(packet);

@@ -36,55 +36,27 @@ class UnitType;
 class Good;
 
 // Type for military outposts
-class BuildingType: public RefnameEntity<uint8_t> {
+class BuildingType : public RefnameEntity<uint8_t> {
 public:
     BuildingType() = default;
     ~BuildingType() = default;
 
-    inline bool can_plot_on_sea() const {
-        return flags[0];
-    }
-    
-    inline bool can_plot_on_land() const {
-        return flags[1];
-    }
-    
-    inline bool can_build_land_units() const {
-        return flags[2];
-    }
-    
-    inline bool can_build_naval_units() const {
-        return flags[3];
-    }
-    
-    inline bool can_build_air_units() const {
-        return flags[4];
-    }
+    inline bool can_plot_on_sea() const { return flags[0]; }
+    inline bool can_plot_on_land() const { return flags[1]; }
+    inline bool can_build_land_units() const { return flags[2]; }
+    inline bool can_build_naval_units() const { return flags[3]; }
+    inline bool can_build_air_units() const { return flags[4]; }
 
     /// @brief Can this building type build a military unit
     inline bool can_build_military() const {
         return can_build_land_units() | can_build_air_units() | can_build_naval_units();
     }
 
-    inline void can_plot_on_sea(bool b) {
-        flags[0] = b;
-    }
-
-    inline void can_plot_on_land(bool b) {
-        flags[1] = b;
-    }
-
-    inline void can_build_land_units(bool b) {
-        flags[2] = b;
-    }
-
-    inline void can_build_naval_units(bool b) {
-        flags[3] = b;
-    }
-
-    inline void can_build_air_units(bool b) {
-        flags[4] = b;
-    }
+    inline void can_plot_on_sea(bool b) { flags[0] = b; }
+    inline void can_plot_on_land(bool b) { flags[1] = b; }
+    inline void can_build_land_units(bool b) { flags[2] = b; }
+    inline void can_build_naval_units(bool b) { flags[3] = b; }
+    inline void can_build_air_units(bool b) { flags[4] = b; }
 
     Eng3D::StringRef name;
     std::bitset<4> flags;

@@ -123,7 +123,7 @@ void Server::net_loop(int id) {
                 if(this->clients[i].is_active && this->clients[i].is_connected) {
                     if(this->clients_extra_data[i] != nullptr) {
                         Archive ar{};
-                        ActionType action = ActionType::SELECT_NATION;
+                        ::serialize<ActionType>(ar, ActionType::SELECT_NATION);
                         ::serialize(ar, this->clients_extra_data[i]);
                         ::serialize(ar, this->clients[i].username);
                         packet.data(ar.get_buffer(), ar.size());
@@ -289,15 +289,13 @@ void Server::net_loop(int id) {
                         treaty.approval_status.push_back(std::make_pair(nation, TreatyApproval::UNDECIDED));
                         Eng3D::Log::debug("server", ">" + nation->ref_name);
                     }
-
                     // The sender automatically accepts the treaty (they are the ones who drafted it)
-                    for(auto& status : treaty.approval_status) {
-                        if(status.first == selected_nation) {
-                            status.second = TreatyApproval::ACCEPTED;
-                            break;
-                        }
-                    }
+                    auto it = std::find_if(treaty.approval_status.end(), treaty.approval_status.end(), [&selected_nation](const auto& e) {
+                        return e.first == selected_nation;
+                    });
+                    it->second = TreatyApproval::ACCEPTED;
                     g_world.insert(treaty);
+
                     // Rebroadcast to client
                     // We are going to add a treaty to the client
                     Archive tmp_ar{};
@@ -342,7 +340,7 @@ void Server::net_loop(int id) {
 
                     this->clients_extra_data[id] = nation;
                     Archive ar{};
-                    ActionType action = ActionType::SELECT_NATION;
+                    ::serialize<ActionType>(ar, ActionType::SELECT_NATION);
                     ::serialize(ar, nation);
                     ::serialize(ar, cl.username);
                     packet.data(ar.get_buffer(), ar.size());
