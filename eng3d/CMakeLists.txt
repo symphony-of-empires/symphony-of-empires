@@ -232,7 +232,7 @@ IF(NOT E3D_VENDORED)
 		target_link_libraries(eng3d PRIVATE ${ASSIMP_LIBRARIES})
 	ENDIF()
 
-	IF(E3D_BACKEND_OPENGL AND (UNIX OR ANDROID))
+	IF(E3D_BACKEND_OPENGL AND (UNIX OR ANDROID OR WIN32))
 		find_package(GLEW REQUIRED)
 		target_include_directories(eng3d PUBLIC ${GLEW_INCLUDE_DIRS})
 		target_link_libraries(eng3d PUBLIC ${GLEW_LIBRARIES})
