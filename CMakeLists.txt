@@ -182,6 +182,7 @@ ELSE()
 	target_link_libraries(SymphonyOfEmpires PRIVATE tbb)
 ENDIF()
 target_link_directories(SymphonyOfEmpires PRIVATE "${CMAKE_BINARY_DIR}" "${CMAKE_BINARY_DIR}/eng3d" "${CMAKE_BINARY_DIR}/eng3d/Debug" "${CMAKE_BINARY_DIR}/eng3d/Release")
+target_link_directories(SymphonyOfEmpires PRIVATE "${LIBRARY_OUTPUT_PATH}")
 target_link_libraries(SymphonyOfEmpires PRIVATE eng3d)
 
 IF(ANDROID)
