@@ -557,10 +557,9 @@ void ai_do_tick(Nation& nation) {
                 if(target != nullptr && Nation::is_invalid(target->owner_id)) {
                     Eng3D::Networking::Packet packet{};
                     Archive ar{};
-                    ActionType action = ActionType::PROVINCE_COLONIZE;
-                    ::serialize(ar, &action);
-                    ::serialize(ar, &target);
+                    ::serialize<ActionType>(ar, ActionType::PROVINCE_COLONIZE);
                     ::serialize(ar, target);
+                    ::serialize(ar, *target);
                     packet.data(ar.get_buffer(), ar.size());
                     g_server->broadcast(packet);
                     nation.give_province(*target);

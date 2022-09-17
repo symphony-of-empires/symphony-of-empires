@@ -128,7 +128,7 @@ LobbySelectView::LobbySelectView(GameState& _gs)
 
                 Archive ar = Archive();
                 ar.from_file(savefile_path);
-                ::deserialize(ar, this->gs.world);
+                ::deserialize(ar, *this->gs.world);
                 /// @todo Events aren't properly saved yet
                 this->gs.world->events.clear();
                 this->gs.world->taken_decisions.clear();

@@ -326,9 +326,9 @@ void World::load_initial() {
         Archive ar{};
         ar.from_file("world.cache");
         std::string creat_date;
-        ::deserialize(ar, &creat_date);
+        ::deserialize(ar, creat_date);
         if(creat_date != __DATE__) CXX_THROW(std::runtime_error, "Unmatching cache");
-        ::deserialize(ar, this);
+        ::deserialize(ar, *this);
     } catch(const std::exception& e) {
         Eng3D::Log::error("cache", e.what());
 
@@ -488,8 +488,8 @@ void World::load_initial() {
         // Write the entire world to the cache file
         Archive ar{};
         std::string creat_date = __DATE__;
-        ::serialize(ar, &creat_date);
-        ::serialize(ar, this);
+        ::serialize(ar, creat_date);
+        ::serialize(ar, *this);
         ar.to_file("world.cache");
     }
 
@@ -860,7 +860,7 @@ void World::do_tick() {
     Eng3D::Networking::Packet packet{};
     Archive ar{};
     ActionType action = ActionType::WORLD_TICK;
-    ::serialize(ar, &action);
+    ::serialize(ar, action);
     packet.data(ar.get_buffer(), ar.size());
     g_server->broadcast(packet);
 }

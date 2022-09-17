@@ -63,8 +63,8 @@ void Client::net_loop() {
     {
         Archive ar{};
         ActionType action = ActionType::CONNECT;
-        ::serialize(ar, &action);
-        ::serialize(ar, &username);
+        ::serialize(ar, action);
+        ::serialize(ar, username);
 
         Eng3D::Networking::Packet packet(fd, ar.get_buffer(), ar.size());
         packet.send();
@@ -107,7 +107,7 @@ void Client::net_loop() {
                 }
                 ar.set_buffer(packet.data(), packet.size());
                 ar.rewind();
-                ::deserialize(ar, &action);
+                ::deserialize(ar, action);
 
                 Eng3D::Log::debug("client", "Receiving package of " + std::to_string(packet.size()));
                 if(!gs.host_mode) {
@@ -128,42 +128,42 @@ void Client::net_loop() {
                     // desired is done.
                     case ActionType::NATION_UPDATE: {
                         Nation::Id size;
-                        ::deserialize(ar, &size);
+                        ::deserialize(ar, size);
                         for(Nation::Id i = 0; i < size; i++) {
                             Nation* nation;
-                            ::deserialize(ar, &nation);
+                            ::deserialize(ar, nation);
                             if(nation == nullptr)
                                 CXX_THROW(ClientException, "Unknown nation");
-                            ::deserialize(ar, nation);
+                            ::deserialize(ar, *nation);
                         }
                     } break;
                     case ActionType::NATION_ADD: {
                         Nation nation;
-                        ::deserialize(ar, &nation);
+                        ::deserialize(ar, nation);
                         gs.world->insert(nation);
                         Eng3D::Log::debug("client", "New nation " + nation.ref_name);
                     } break;
                     case ActionType::NATION_ENACT_POLICY: {
                         Nation* nation;
-                        ::deserialize(ar, &nation);
+                        ::deserialize(ar, nation);
                         if(nation == nullptr)
                             CXX_THROW(ClientException, "Unknown nation");
                         Policies policy;
-                        ::deserialize(ar, &policy);
+                        ::deserialize(ar, policy);
                         nation->current_policy = policy;
                     } break;
                     case ActionType::PROVINCE_UPDATE: {
                         Province::Id size;
-                        ::deserialize(ar, &size);
+                        ::deserialize(ar, size);
                         for(Product::Id i = 0; i < size; i++) {
                             Province* province;
-                            ::deserialize(ar, &province);
+                            ::deserialize(ar, province);
                             if(province == nullptr)
                                 CXX_THROW(ClientException, "Unknown province");
                             
                             auto old_owner_id = province->owner_id;
                             auto old_controller_id = province->controller_id;
-                            ::deserialize(ar, province);
+                            ::deserialize(ar, *province);
                             if(province->owner_id != old_owner_id)
                                 gs.world->province_manager.mark_province_owner_changed(province->get_id());
                             if(province->controller_id != old_controller_id)
@@ -172,51 +172,51 @@ void Client::net_loop() {
                     } break;
                     case ActionType::UNIT_UPDATE: {
                         Unit::Id size;
-                        ::deserialize(ar, &size);
+                        ::deserialize(ar, size);
                         for(Unit::Id i = 0; i < size; i++) {
                             Unit unit;
-                            ::deserialize(ar, &unit);
+                            ::deserialize(ar, unit);
                             assert(gs.world->unit_manager.units.size() > unit.get_id());
                             gs.world->unit_manager.units[unit.get_id()] = unit;
                         }
                     } break;
                     case ActionType::UNIT_ADD: {
                         Unit unit;
-                        ::deserialize(ar, &unit);
+                        ::deserialize(ar, unit);
                         Province::Id prov_id;
-                        ::deserialize(ar, &prov_id);
+                        ::deserialize(ar, prov_id);
                         gs.world->unit_manager.add_unit(unit, prov_id);
                         Eng3D::Log::debug("client", "New unit of " + g_world.nations[unit.owner_id].ref_name);
                     } break;
                     case ActionType::UNIT_REMOVE: {
                         Unit::Id unit_id;
-                        ::deserialize(ar, &unit_id);
+                        ::deserialize(ar, unit_id);
                         gs.world->unit_manager.remove_unit(unit_id);
                     } break;
                     case ActionType::UNIT_MOVE: {
                         Unit::Id unit_id;
-                        ::deserialize(ar, &unit_id);
+                        ::deserialize(ar, unit_id);
                         Province::Id province_id;
-                        ::deserialize(ar, &province_id);
+                        ::deserialize(ar, province_id);
                         gs.world->unit_manager.move_unit(unit_id, province_id);
                     } break;
                     case ActionType::BUILDING_ADD: {
                         Province* province;
-                        ::deserialize(ar, &province);
+                        ::deserialize(ar, province);
                         BuildingType* building_type;
-                        ::deserialize(ar, &building_type);
+                        ::deserialize(ar, building_type);
                         province->buildings[gs.world->get_id(*building_type)].level++;
                     } break;
                     case ActionType::BUILDING_REMOVE: {
                         Province* province;
-                        ::deserialize(ar, &province);
+                        ::deserialize(ar, province);
                         BuildingType* building_type;
-                        ::deserialize(ar, &building_type);
+                        ::deserialize(ar, building_type);
                         province->buildings[gs.world->get_id(*building_type)].level--;
                     } break;
                     case ActionType::TREATY_ADD: {
                         Treaty treaty;
-                        ::deserialize(ar, &treaty);
+                        ::deserialize(ar, treaty);
                         gs.world->insert(treaty);
                         Eng3D::Log::debug("client", "New treaty from " + treaty.sender->ref_name);
                         for(const auto& status : treaty.approval_status)
@@ -229,16 +229,16 @@ void Client::net_loop() {
                     } break;
                     case ActionType::PROVINCE_COLONIZE: {
                         Province* province;
-                        ::deserialize(ar, &province);
+                        ::deserialize(ar, province);
                         if(province == nullptr)
                             CXX_THROW(ClientException, "Unknown province");
-                        ::deserialize(ar, province);
+                        ::deserialize(ar, *province);
                     } break;
                     case ActionType::SELECT_NATION: {
                         Nation* nation;
-                        ::deserialize(ar, &nation);
+                        ::deserialize(ar, nation);
                         std::string username;
-                        ::deserialize(ar, &username);
+                        ::deserialize(ar, username);
                         nation->client_username = username;
                     } break;
                     default:

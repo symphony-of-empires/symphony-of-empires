@@ -120,20 +120,20 @@ template<>
 class Serializer<NationModifier> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, NationModifier* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->name);
-        ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
-        ::deser_dynamic<is_serialize>(ar, &obj->death_mod);
-        ::deser_dynamic<is_serialize>(ar, &obj->delivery_cost_mod);
-        ::deser_dynamic<is_serialize>(ar, &obj->everyday_needs_met_mod);
-        ::deser_dynamic<is_serialize>(ar, &obj->life_needs_met_mod);
-        ::deser_dynamic<is_serialize>(ar, &obj->literacy_learn_mod);
-        ::deser_dynamic<is_serialize>(ar, &obj->luxury_needs_met_mod);
-        ::deser_dynamic<is_serialize>(ar, &obj->militancy_mod);
-        ::deser_dynamic<is_serialize>(ar, &obj->reproduction_mod);
-        ::deser_dynamic<is_serialize>(ar, &obj->salary_paid_mod);
-        ::deser_dynamic<is_serialize>(ar, &obj->workers_needed_mod);
+    static inline void deser_dynamic(Archive& ar, NationModifier& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.death_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.delivery_cost_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.everyday_needs_met_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.life_needs_met_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.literacy_learn_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.luxury_needs_met_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.militancy_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.reproduction_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.salary_paid_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.workers_needed_mod);
     }
 };
 
@@ -141,14 +141,14 @@ template<>
 class Serializer<NationRelation> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, NationRelation* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->has_alliance);
-        ::deser_dynamic<is_serialize>(ar, &obj->has_defensive_pact);
-        ::deser_dynamic<is_serialize>(ar, &obj->has_embargo);
-        ::deser_dynamic<is_serialize>(ar, &obj->has_market_access);
-        ::deser_dynamic<is_serialize>(ar, &obj->has_military_access);
-        ::deser_dynamic<is_serialize>(ar, &obj->has_war);
-        ::deser_dynamic<is_serialize>(ar, &obj->relation);
+    static inline void deser_dynamic(Archive& ar, NationRelation& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.has_alliance);
+        ::deser_dynamic<is_serialize>(ar, obj.has_defensive_pact);
+        ::deser_dynamic<is_serialize>(ar, obj.has_embargo);
+        ::deser_dynamic<is_serialize>(ar, obj.has_market_access);
+        ::deser_dynamic<is_serialize>(ar, obj.has_military_access);
+        ::deser_dynamic<is_serialize>(ar, obj.has_war);
+        ::deser_dynamic<is_serialize>(ar, obj.relation);
     }
 };
 
@@ -165,26 +165,26 @@ template<>
 class Serializer<Policies> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Policies* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->free_supplies);
-        ::deser_dynamic<is_serialize>(ar, &obj->immigration);
-        ::deser_dynamic<is_serialize>(ar, &obj->import_tax);
-        ::deser_dynamic<is_serialize>(ar, &obj->industry_tax);
-        ::deser_dynamic<is_serialize>(ar, &obj->legislative_parliament);
-        ::deser_dynamic<is_serialize>(ar, &obj->med_flat_tax);
-        ::deser_dynamic<is_serialize>(ar, &obj->migration);
-        ::deser_dynamic<is_serialize>(ar, &obj->military_spending);
-        ::deser_dynamic<is_serialize>(ar, &obj->poor_flat_tax);
-        ::deser_dynamic<is_serialize>(ar, &obj->private_property);
-        ::deser_dynamic<is_serialize>(ar, &obj->public_education);
-        ::deser_dynamic<is_serialize>(ar, &obj->public_healthcare);
-        ::deser_dynamic<is_serialize>(ar, &obj->rich_flat_tax);
-        ::deser_dynamic<is_serialize>(ar, &obj->secular_education);
-        ::deser_dynamic<is_serialize>(ar, &obj->slavery);
-        ::deser_dynamic<is_serialize>(ar, &obj->social_security);
-        ::deser_dynamic<is_serialize>(ar, &obj->treatment);
-        ::deser_dynamic<is_serialize>(ar, &obj->min_wage);
-        ::deser_dynamic<is_serialize>(ar, &obj->min_sv_for_parliament);
+    static inline void deser_dynamic(Archive& ar, Policies& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.free_supplies);
+        ::deser_dynamic<is_serialize>(ar, obj.immigration);
+        ::deser_dynamic<is_serialize>(ar, obj.import_tax);
+        ::deser_dynamic<is_serialize>(ar, obj.industry_tax);
+        ::deser_dynamic<is_serialize>(ar, obj.legislative_parliament);
+        ::deser_dynamic<is_serialize>(ar, obj.med_flat_tax);
+        ::deser_dynamic<is_serialize>(ar, obj.migration);
+        ::deser_dynamic<is_serialize>(ar, obj.military_spending);
+        ::deser_dynamic<is_serialize>(ar, obj.poor_flat_tax);
+        ::deser_dynamic<is_serialize>(ar, obj.private_property);
+        ::deser_dynamic<is_serialize>(ar, obj.public_education);
+        ::deser_dynamic<is_serialize>(ar, obj.public_healthcare);
+        ::deser_dynamic<is_serialize>(ar, obj.rich_flat_tax);
+        ::deser_dynamic<is_serialize>(ar, obj.secular_education);
+        ::deser_dynamic<is_serialize>(ar, obj.slavery);
+        ::deser_dynamic<is_serialize>(ar, obj.social_security);
+        ::deser_dynamic<is_serialize>(ar, obj.treatment);
+        ::deser_dynamic<is_serialize>(ar, obj.min_wage);
+        ::deser_dynamic<is_serialize>(ar, obj.min_sv_for_parliament);
     }
 };
 
@@ -192,15 +192,15 @@ template<>
 class Serializer<PopType> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, PopType* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->name);
-        ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
-        ::deser_dynamic<is_serialize>(ar, &obj->social_value);
-        ::deser_dynamic<is_serialize>(ar, &obj->group);
-        ::deser_dynamic<is_serialize>(ar, &obj->basic_needs_amount);
-        ::deser_dynamic<is_serialize>(ar, &obj->luxury_needs_satisfaction);
-        ::deser_dynamic<is_serialize>(ar, &obj->luxury_needs_deminishing_factor);
+    static inline void deser_dynamic(Archive& ar, PopType& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.social_value);
+        ::deser_dynamic<is_serialize>(ar, obj.group);
+        ::deser_dynamic<is_serialize>(ar, obj.basic_needs_amount);
+        ::deser_dynamic<is_serialize>(ar, obj.luxury_needs_satisfaction);
+        ::deser_dynamic<is_serialize>(ar, obj.luxury_needs_deminishing_factor);
     }
 };
 
@@ -208,13 +208,13 @@ template<>
 class Serializer<TerrainType> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, TerrainType* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->name);
-        ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
-        ::deser_dynamic<is_serialize>(ar, &obj->color);
-        ::deser_dynamic<is_serialize>(ar, &obj->penalty);
-        ::deser_dynamic<is_serialize>(ar, &obj->is_water_body);
+    static inline void deser_dynamic(Archive& ar, TerrainType& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.color);
+        ::deser_dynamic<is_serialize>(ar, obj.penalty);
+        ::deser_dynamic<is_serialize>(ar, obj.is_water_body);
     }
 };
 
@@ -222,14 +222,14 @@ template<>
 class Serializer<Language> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Language* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->name);
-        ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
-        ::deser_dynamic<is_serialize>(ar, &obj->adjective);
-        ::deser_dynamic<is_serialize>(ar, &obj->noun);
-        ::deser_dynamic<is_serialize>(ar, &obj->combo_form);
-        ::deser_dynamic<is_serialize>(ar, &obj->color);
+    static inline void deser_dynamic(Archive& ar, Language& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.adjective);
+        ::deser_dynamic<is_serialize>(ar, obj.noun);
+        ::deser_dynamic<is_serialize>(ar, obj.combo_form);
+        ::deser_dynamic<is_serialize>(ar, obj.color);
     }
 };
 
@@ -237,11 +237,11 @@ template<>
 class Serializer<Religion> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Religion* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->name);
-        ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
-        ::deser_dynamic<is_serialize>(ar, &obj->color);
+    static inline void deser_dynamic(Archive& ar, Religion& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.color);
     }
 };
 
@@ -249,13 +249,13 @@ template<>
 class Serializer<UnitTrait> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, UnitTrait* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
-        ::deser_dynamic<is_serialize>(ar, &obj->defense_mod);
-        ::deser_dynamic<is_serialize>(ar, &obj->attack_mod);
-        ::deser_dynamic<is_serialize>(ar, &obj->supply_consumption_mod);
-        ::deser_dynamic<is_serialize>(ar, &obj->speed_mod);
+    static inline void deser_dynamic(Archive& ar, UnitTrait& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.defense_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.attack_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.supply_consumption_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.speed_mod);
     }
 };
 
@@ -263,15 +263,15 @@ template<>
 class Serializer<Unit> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Unit* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->type);
-        ::deser_dynamic<is_serialize>(ar, &obj->size);
-        ::deser_dynamic<is_serialize>(ar, &obj->target_province_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->owner_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->days_left_until_move);
-        ::deser_dynamic<is_serialize>(ar, &obj->path);
-        ::deser_dynamic<is_serialize>(ar, &obj->on_battle);
+    static inline void deser_dynamic(Archive& ar, Unit& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.type);
+        ::deser_dynamic<is_serialize>(ar, obj.size);
+        ::deser_dynamic<is_serialize>(ar, obj.target_province_id);
+        ::deser_dynamic<is_serialize>(ar, obj.owner_id);
+        ::deser_dynamic<is_serialize>(ar, obj.days_left_until_move);
+        ::deser_dynamic<is_serialize>(ar, obj.path);
+        ::deser_dynamic<is_serialize>(ar, obj.on_battle);
     }
 };
 
@@ -279,11 +279,11 @@ template<>
 class Serializer<UnitManager> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, UnitManager* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->units);
-        ::deser_dynamic<is_serialize>(ar, &obj->free_unit_slots);
-        ::deser_dynamic<is_serialize>(ar, &obj->unit_province);
-        ::deser_dynamic<is_serialize>(ar, &obj->province_units);
+    static inline void deser_dynamic(Archive& ar, UnitManager& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.units);
+        ::deser_dynamic<is_serialize>(ar, obj.free_unit_slots);
+        ::deser_dynamic<is_serialize>(ar, obj.unit_province);
+        ::deser_dynamic<is_serialize>(ar, obj.province_units);
     }
 };
 
@@ -291,16 +291,16 @@ template<>
 class Serializer<Pop> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Pop* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->size);
-        ::deser_dynamic<is_serialize>(ar, &obj->literacy);
-        ::deser_dynamic<is_serialize>(ar, &obj->militancy);
-        ::deser_dynamic<is_serialize>(ar, &obj->budget);
-        ::deser_dynamic<is_serialize>(ar, &obj->life_needs_met);
-        ::deser_dynamic<is_serialize>(ar, &obj->everyday_needs_met);
-        ::deser_dynamic<is_serialize>(ar, &obj->luxury_needs_met);
-        ::deser_dynamic<is_serialize>(ar, &obj->type_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->ideology_approval);
+    static inline void deser_dynamic(Archive& ar, Pop& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.size);
+        ::deser_dynamic<is_serialize>(ar, obj.literacy);
+        ::deser_dynamic<is_serialize>(ar, obj.militancy);
+        ::deser_dynamic<is_serialize>(ar, obj.budget);
+        ::deser_dynamic<is_serialize>(ar, obj.life_needs_met);
+        ::deser_dynamic<is_serialize>(ar, obj.everyday_needs_met);
+        ::deser_dynamic<is_serialize>(ar, obj.luxury_needs_met);
+        ::deser_dynamic<is_serialize>(ar, obj.type_id);
+        ::deser_dynamic<is_serialize>(ar, obj.ideology_approval);
     }
 };
 
@@ -308,12 +308,12 @@ template<>
 class Serializer<Decision> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Decision* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->name);
-        ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
-        ::deser_dynamic<is_serialize>(ar, &obj->do_decision_function);
-        ::deser_dynamic<is_serialize>(ar, &obj->effects);
+    static inline void deser_dynamic(Archive& ar, Decision& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.do_decision_function);
+        ::deser_dynamic<is_serialize>(ar, obj.effects);
     }
 };
 
@@ -321,15 +321,15 @@ template<>
 class Serializer<Event> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Event* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
-        ::deser_dynamic<is_serialize>(ar, &obj->conditions_function);
-        ::deser_dynamic<is_serialize>(ar, &obj->do_event_function);
-        ::deser_dynamic<is_serialize>(ar, &obj->receivers);
-        ::deser_dynamic<is_serialize>(ar, &obj->decisions);
-        ::deser_dynamic<is_serialize>(ar, &obj->title);
-        ::deser_dynamic<is_serialize>(ar, &obj->text);
+    static inline void deser_dynamic(Archive& ar, Event& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.conditions_function);
+        ::deser_dynamic<is_serialize>(ar, obj.do_event_function);
+        ::deser_dynamic<is_serialize>(ar, obj.receivers);
+        ::deser_dynamic<is_serialize>(ar, obj.decisions);
+        ::deser_dynamic<is_serialize>(ar, obj.title);
+        ::deser_dynamic<is_serialize>(ar, obj.text);
     }
 };
 
@@ -337,8 +337,8 @@ template<>
 class Serializer<Tile> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Tile* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->province_id);
+    static inline void deser_dynamic(Archive& ar, Tile& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.province_id);
     }
 };
 
@@ -346,10 +346,10 @@ template<>
 class Serializer<NationClientHint> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, NationClientHint* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->color);
-        ::deser_dynamic<is_serialize>(ar, &obj->alt_name);
-        ::deser_dynamic<is_serialize>(ar, &obj->ideology);
+    static inline void deser_dynamic(Archive& ar, NationClientHint& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.color);
+        ::deser_dynamic<is_serialize>(ar, obj.alt_name);
+        ::deser_dynamic<is_serialize>(ar, obj.ideology);
     }
 };
 
@@ -357,30 +357,30 @@ template<>
 class Serializer<Nation> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Nation* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->name);
-        ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
-        ::deser_dynamic<is_serialize>(ar, &obj->puppet_master);
-        ::deser_dynamic<is_serialize>(ar, &obj->diplomacy_points);
-        ::deser_dynamic<is_serialize>(ar, &obj->prestige);
-        ::deser_dynamic<is_serialize>(ar, &obj->infamy);
-        ::deser_dynamic<is_serialize>(ar, &obj->military_score);
-        ::deser_dynamic<is_serialize>(ar, &obj->naval_score);
-        ::deser_dynamic<is_serialize>(ar, &obj->economy_score);
-        ::deser_dynamic<is_serialize>(ar, &obj->budget);
-        ::deser_dynamic<is_serialize>(ar, &obj->capital_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->language_discrim);
-        ::deser_dynamic<is_serialize>(ar, &obj->religion_discrim);
-        ::deser_dynamic<is_serialize>(ar, &obj->owned_provinces);
-        ::deser_dynamic<is_serialize>(ar, &obj->controlled_provinces);
-        ::deser_dynamic<is_serialize>(ar, &obj->current_policy);
-        ::deser_dynamic<is_serialize>(ar, &obj->diplomatic_timer);
-        ::deser_dynamic<is_serialize>(ar, &obj->inbox);
-        ::deser_dynamic<is_serialize>(ar, &obj->client_hints);
-        ::deser_dynamic<is_serialize>(ar, &obj->ideology);
-        ::deser_dynamic<is_serialize>(ar, &obj->research);
-        ::deser_dynamic<is_serialize>(ar, &obj->focus_tech);
+    static inline void deser_dynamic(Archive& ar, Nation& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.puppet_master);
+        ::deser_dynamic<is_serialize>(ar, obj.diplomacy_points);
+        ::deser_dynamic<is_serialize>(ar, obj.prestige);
+        ::deser_dynamic<is_serialize>(ar, obj.infamy);
+        ::deser_dynamic<is_serialize>(ar, obj.military_score);
+        ::deser_dynamic<is_serialize>(ar, obj.naval_score);
+        ::deser_dynamic<is_serialize>(ar, obj.economy_score);
+        ::deser_dynamic<is_serialize>(ar, obj.budget);
+        ::deser_dynamic<is_serialize>(ar, obj.capital_id);
+        ::deser_dynamic<is_serialize>(ar, obj.language_discrim);
+        ::deser_dynamic<is_serialize>(ar, obj.religion_discrim);
+        ::deser_dynamic<is_serialize>(ar, obj.owned_provinces);
+        ::deser_dynamic<is_serialize>(ar, obj.controlled_provinces);
+        ::deser_dynamic<is_serialize>(ar, obj.current_policy);
+        ::deser_dynamic<is_serialize>(ar, obj.diplomatic_timer);
+        ::deser_dynamic<is_serialize>(ar, obj.inbox);
+        ::deser_dynamic<is_serialize>(ar, obj.client_hints);
+        ::deser_dynamic<is_serialize>(ar, obj.ideology);
+        ::deser_dynamic<is_serialize>(ar, obj.research);
+        ::deser_dynamic<is_serialize>(ar, obj.focus_tech);
     }
 };
 
@@ -394,18 +394,18 @@ template<>
 class Serializer<UnitType> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, UnitType* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->name);
-        ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
-        ::deser_dynamic<is_serialize>(ar, &obj->supply_consumption);
-        ::deser_dynamic<is_serialize>(ar, &obj->speed);
-        ::deser_dynamic<is_serialize>(ar, &obj->max_health);
-        ::deser_dynamic<is_serialize>(ar, &obj->defense);
-        ::deser_dynamic<is_serialize>(ar, &obj->attack);
-        ::deser_dynamic<is_serialize>(ar, &obj->build_time);
-        ::deser_dynamic<is_serialize>(ar, &obj->is_ground);
-        ::deser_dynamic<is_serialize>(ar, &obj->is_naval);
+    static inline void deser_dynamic(Archive& ar, UnitType& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.supply_consumption);
+        ::deser_dynamic<is_serialize>(ar, obj.speed);
+        ::deser_dynamic<is_serialize>(ar, obj.max_health);
+        ::deser_dynamic<is_serialize>(ar, obj.defense);
+        ::deser_dynamic<is_serialize>(ar, obj.attack);
+        ::deser_dynamic<is_serialize>(ar, obj.build_time);
+        ::deser_dynamic<is_serialize>(ar, obj.is_ground);
+        ::deser_dynamic<is_serialize>(ar, obj.is_naval);
     }
 };
 
@@ -413,24 +413,24 @@ template<>
 class Serializer<Province> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Province* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->name);
-        ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
-        ::deser_dynamic<is_serialize>(ar, &obj->color);
-        ::deser_dynamic<is_serialize>(ar, &obj->box_area);
-        ::deser_dynamic<is_serialize>(ar, &obj->owner_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->nuclei);
-        ::deser_dynamic<is_serialize>(ar, &obj->rgo_size);
-        ::deser_dynamic<is_serialize>(ar, &obj->neighbour_ids);
-        ::deser_dynamic<is_serialize>(ar, &obj->products);
-        ::deser_dynamic<is_serialize>(ar, &obj->pops);
-        ::deser_dynamic<is_serialize>(ar, &obj->buildings);
-        ::deser_dynamic<is_serialize>(ar, &obj->controller_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->base_attractive);
-        ::deser_dynamic<is_serialize>(ar, &obj->languages);
-        ::deser_dynamic<is_serialize>(ar, &obj->religions);
-        ::deser_dynamic<is_serialize>(ar, &obj->terrain_type_id);
+    static inline void deser_dynamic(Archive& ar, Province& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.color);
+        ::deser_dynamic<is_serialize>(ar, obj.box_area);
+        ::deser_dynamic<is_serialize>(ar, obj.owner_id);
+        ::deser_dynamic<is_serialize>(ar, obj.nuclei);
+        ::deser_dynamic<is_serialize>(ar, obj.rgo_size);
+        ::deser_dynamic<is_serialize>(ar, obj.neighbour_ids);
+        ::deser_dynamic<is_serialize>(ar, obj.products);
+        ::deser_dynamic<is_serialize>(ar, obj.pops);
+        ::deser_dynamic<is_serialize>(ar, obj.buildings);
+        ::deser_dynamic<is_serialize>(ar, obj.controller_id);
+        ::deser_dynamic<is_serialize>(ar, obj.base_attractive);
+        ::deser_dynamic<is_serialize>(ar, obj.languages);
+        ::deser_dynamic<is_serialize>(ar, obj.religions);
+        ::deser_dynamic<is_serialize>(ar, obj.terrain_type_id);
     }
 };
 
@@ -438,16 +438,16 @@ template<>
 class Serializer<BuildingType> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, BuildingType* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
-        ::deser_dynamic<is_serialize>(ar, &obj->name);
-        ::deser_dynamic<is_serialize>(ar, &obj->flags);
-        ::deser_dynamic<is_serialize>(ar, &obj->inputs);
-        ::deser_dynamic<is_serialize>(ar, &obj->output);
-        ::deser_dynamic<is_serialize>(ar, &obj->req_goods);
-        ::deser_dynamic<is_serialize>(ar, &obj->req_technologies);
-        ::deser_dynamic<is_serialize>(ar, &obj->num_req_workers);
+    static inline void deser_dynamic(Archive& ar, BuildingType& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.flags);
+        ::deser_dynamic<is_serialize>(ar, obj.inputs);
+        ::deser_dynamic<is_serialize>(ar, obj.output);
+        ::deser_dynamic<is_serialize>(ar, obj.req_goods);
+        ::deser_dynamic<is_serialize>(ar, obj.req_technologies);
+        ::deser_dynamic<is_serialize>(ar, obj.num_req_workers);
     }
 };
 
@@ -455,13 +455,13 @@ template<>
 class Serializer<Building> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Building* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->working_unit_type);
-        ::deser_dynamic<is_serialize>(ar, &obj->build_time);
-        ::deser_dynamic<is_serialize>(ar, &obj->budget);
-        ::deser_dynamic<is_serialize>(ar, &obj->days_unoperational);
-        ::deser_dynamic<is_serialize>(ar, &obj->stockpile);
-        ::deser_dynamic<is_serialize>(ar, &obj->req_goods);
+    static inline void deser_dynamic(Archive& ar, Building& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.working_unit_type);
+        ::deser_dynamic<is_serialize>(ar, obj.build_time);
+        ::deser_dynamic<is_serialize>(ar, obj.budget);
+        ::deser_dynamic<is_serialize>(ar, obj.days_unoperational);
+        ::deser_dynamic<is_serialize>(ar, obj.stockpile);
+        ::deser_dynamic<is_serialize>(ar, obj.req_goods);
     }
 };
 
@@ -469,12 +469,12 @@ template<>
 class Serializer<Product> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Product* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->price);
-        ::deser_dynamic<is_serialize>(ar, &obj->price_vel);
-        ::deser_dynamic<is_serialize>(ar, &obj->supply);
-        ::deser_dynamic<is_serialize>(ar, &obj->demand);
+    static inline void deser_dynamic(Archive& ar, Product& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.price);
+        ::deser_dynamic<is_serialize>(ar, obj.price_vel);
+        ::deser_dynamic<is_serialize>(ar, obj.supply);
+        ::deser_dynamic<is_serialize>(ar, obj.demand);
     }
 };
 
@@ -482,14 +482,14 @@ template<>
 class Serializer<Technology> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Technology* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->name);
-        ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
-        ::deser_dynamic<is_serialize>(ar, &obj->description);
-        ::deser_dynamic<is_serialize>(ar, &obj->cost);
-        ::deser_dynamic<is_serialize>(ar, &obj->req_technologies);
-        ::deser_dynamic<is_serialize>(ar, &obj->modifiers);
+    static inline void deser_dynamic(Archive& ar, Technology& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.description);
+        ::deser_dynamic<is_serialize>(ar, obj.cost);
+        ::deser_dynamic<is_serialize>(ar, obj.req_technologies);
+        ::deser_dynamic<is_serialize>(ar, obj.modifiers);
     }
 };
 
@@ -497,10 +497,10 @@ template<>
 class Serializer<Good> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Good* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->name);
-        ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
+    static inline void deser_dynamic(Archive& ar, Good& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
     }
 };
 
@@ -508,90 +508,80 @@ template<>
 class Serializer<TreatyClause::BaseClause*> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, TreatyClause::BaseClause** obj) {
+    static inline void deser_dynamic(Archive& ar, TreatyClause::BaseClause*& obj) {
         if constexpr(is_serialize) {
-            ::deser_dynamic<is_serialize>(ar, &(*obj)->type);
-            switch((*obj)->type) {
+            ::deser_dynamic<is_serialize>(ar, obj->type);
+            switch(obj->type) {
             case TreatyClauseType::ANNEX_PROVINCES: {
-                const auto dyn_clause = static_cast<const TreatyClause::AnnexProvince*>(*obj);
-                if(dyn_clause == nullptr)
-                    CXX_THROW(SerializerException, "Dynamic cast failed for TreatyClause::AnnexProvince");
-                ::deser_dynamic<is_serialize>(ar, &dyn_clause->provinces);
+                const auto& dyn_clause = (TreatyClause::AnnexProvince&)*obj;
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.provinces);
             } break;
             case TreatyClauseType::LIBERATE_NATION: {
-                const auto dyn_clause = static_cast<const TreatyClause::LiberateNation*>(*obj);
-                if(dyn_clause == nullptr)
-                    CXX_THROW(SerializerException, "Dynamic cast failed for TreatyClause::LiberateNation");
-                ::deser_dynamic<is_serialize>(ar, &dyn_clause->provinces);
-                ::deser_dynamic<is_serialize>(ar, &dyn_clause->liberated);
+                const auto& dyn_clause = (TreatyClause::LiberateNation&)*obj;
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.provinces);
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.liberated);
             } break;
             case TreatyClauseType::IMPOSE_POLICIES: {
-                const auto dyn_clause = static_cast<const TreatyClause::ImposePolicies*>(*obj);
-                if(dyn_clause == nullptr)
-                    CXX_THROW(SerializerException, "Dynamic cast failed for TreatyClause::ImposePolicies");
-                ::deser_dynamic<is_serialize>(ar, &dyn_clause->imposed);
+                const auto& dyn_clause = (TreatyClause::ImposePolicies&)*obj;
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.imposed);
             } break;
             case TreatyClauseType::MONEY: {
-                const auto dyn_clause = static_cast<const TreatyClause::WarReparations*>(*obj);
-                if(dyn_clause == nullptr)
-                    CXX_THROW(SerializerException, "Dynamic cast failed for TreatyClause::WarReparations");
-                ::deser_dynamic<is_serialize>(ar, &dyn_clause->amount);
+                const auto& dyn_clause = (TreatyClause::WarReparations&)*obj;
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.amount);
             } break;
             case TreatyClauseType::HUMILIATE: {
-                const auto dyn_clause = static_cast<const TreatyClause::Humiliate*>(*obj);
-                if(dyn_clause == nullptr)
-                    CXX_THROW(SerializerException, "Dynamic cast failed for TreatyClause::Humiliate");
-                ::deser_dynamic<is_serialize>(ar, &dyn_clause->amount);
+                const auto& dyn_clause = (TreatyClause::Humiliate&)*obj;
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.amount);
             } break;
             default:
                 break;
             }
         } else {
             TreatyClauseType type;
-            ::deser_dynamic<is_serialize>(ar, &type);
+            ::deser_dynamic<is_serialize>(ar, type);
             switch(type) {
             case TreatyClauseType::ANNEX_PROVINCES: {
-                *obj = new TreatyClause::AnnexProvince();
-                auto dyn_clause = (TreatyClause::AnnexProvince*)*obj;
-                ::deser_dynamic<is_serialize>(ar, &dyn_clause->provinces);
+                obj = new TreatyClause::AnnexProvince();
+                auto dyn_clause = (TreatyClause::AnnexProvince&)*obj;
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.provinces);
             } break;
             case TreatyClauseType::LIBERATE_NATION: {
-                *obj = new TreatyClause::LiberateNation();
-                auto dyn_clause = (TreatyClause::LiberateNation*)*obj;
-                ::deser_dynamic<is_serialize>(ar, &dyn_clause->provinces);
-                ::deser_dynamic<is_serialize>(ar, &dyn_clause->liberated);
+                obj = new TreatyClause::LiberateNation();
+                auto dyn_clause = (TreatyClause::LiberateNation&)*obj;
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.provinces);
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.liberated);
             } break;
             case TreatyClauseType::IMPOSE_POLICIES: {
-                *obj = new TreatyClause::ImposePolicies();
-                auto dyn_clause = (TreatyClause::ImposePolicies*)*obj;
-                ::deser_dynamic<is_serialize>(ar, &dyn_clause->imposed);
+                obj = new TreatyClause::ImposePolicies();
+                auto dyn_clause = (TreatyClause::ImposePolicies&)*obj;
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.imposed);
             } break;
             case TreatyClauseType::MONEY: {
-                *obj = new TreatyClause::WarReparations();
-                auto dyn_clause = (TreatyClause::WarReparations*)*obj;
-                ::deser_dynamic<is_serialize>(ar, &dyn_clause->amount);
+                obj = new TreatyClause::WarReparations();
+                auto dyn_clause = (TreatyClause::WarReparations&)*obj;
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.amount);
             } break;
             case TreatyClauseType::HUMILIATE: {
-                *obj = new TreatyClause::Humiliate();
-                auto dyn_clause = (TreatyClause::Humiliate*)*obj;
-                ::deser_dynamic<is_serialize>(ar, &dyn_clause->amount);
+                obj = new TreatyClause::Humiliate();
+                auto dyn_clause = (TreatyClause::Humiliate&)*obj;
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.amount);
             } break;
             case TreatyClauseType::CEASEFIRE: {
-                *obj = new TreatyClause::Ceasefire();
+                obj = new TreatyClause::Ceasefire();
                 //auto dyn_clause = (TreatyClause::Ceasefire*)*obj;
             } break;
             case TreatyClauseType::PUPPET: {
-                *obj = new TreatyClause::Puppet();
+                obj = new TreatyClause::Puppet();
                 //auto dyn_clause = (TreatyClause::Puppet*)*obj;
             } break;
             default:
                 break;
             }
         }
-        ::deser_dynamic<is_serialize>(ar, &(*obj)->sender);
-        ::deser_dynamic<is_serialize>(ar, &(*obj)->receiver);
-        ::deser_dynamic<is_serialize>(ar, &(*obj)->days_duration);
-        ::deser_dynamic<is_serialize>(ar, &(*obj)->done);
+        ::deser_dynamic<is_serialize>(ar, obj->sender);
+        ::deser_dynamic<is_serialize>(ar, obj->receiver);
+        ::deser_dynamic<is_serialize>(ar, obj->days_duration);
+        ::deser_dynamic<is_serialize>(ar, obj->done);
     }
 };
 
@@ -599,13 +589,13 @@ template<>
 class Serializer<Treaty> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Treaty* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->name);
-        ::deser_dynamic<is_serialize>(ar, &obj->receiver);
-        ::deser_dynamic<is_serialize>(ar, &obj->sender);
-        ::deser_dynamic<is_serialize>(ar, &obj->approval_status);
-        ::deser_dynamic<is_serialize>(ar, &obj->clauses);
+    static inline void deser_dynamic(Archive& ar, Treaty& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.receiver);
+        ::deser_dynamic<is_serialize>(ar, obj.sender);
+        ::deser_dynamic<is_serialize>(ar, obj.approval_status);
+        ::deser_dynamic<is_serialize>(ar, obj.clauses);
     }
 };
 
@@ -613,12 +603,12 @@ template<>
 class Serializer<War> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, War* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->name);
-        ::deser_dynamic<is_serialize>(ar, &obj->attackers);
-        ::deser_dynamic<is_serialize>(ar, &obj->defenders);
-        ::deser_dynamic<is_serialize>(ar, &obj->wargoals);
+    static inline void deser_dynamic(Archive& ar, War& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.attackers);
+        ::deser_dynamic<is_serialize>(ar, obj.defenders);
+        ::deser_dynamic<is_serialize>(ar, obj.wargoals);
     }
 };
 
@@ -626,12 +616,12 @@ template<>
 class Serializer<Ideology> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Ideology* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->cached_id);
-        ::deser_dynamic<is_serialize>(ar, &obj->ref_name);
-        ::deser_dynamic<is_serialize>(ar, &obj->name);
-        ::deser_dynamic<is_serialize>(ar, &obj->color);
-        ::deser_dynamic<is_serialize>(ar, &obj->check_policies_fn);
+    static inline void deser_dynamic(Archive& ar, Ideology& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.color);
+        ::deser_dynamic<is_serialize>(ar, obj.check_policies_fn);
     }
 };
 
@@ -639,41 +629,41 @@ template<>
 class Serializer<World> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, World* obj) {
-        ::deser_dynamic<is_serialize>(ar, &obj->width);
-        ::deser_dynamic<is_serialize>(ar, &obj->height);
-        ::deser_dynamic<is_serialize>(ar, &obj->time);
-        ::deser_dynamic<is_serialize>(ar, &obj->goods);
-        ::deser_dynamic<is_serialize>(ar, &obj->unit_types);
-        ::deser_dynamic<is_serialize>(ar, &obj->religions);
-        ::deser_dynamic<is_serialize>(ar, &obj->languages);
-        ::deser_dynamic<is_serialize>(ar, &obj->pop_types);
-        ::deser_dynamic<is_serialize>(ar, &obj->terrain_types);
-        ::deser_dynamic<is_serialize>(ar, &obj->building_types);
-        ::deser_dynamic<is_serialize>(ar, &obj->ideologies);
-        ::deser_dynamic<is_serialize>(ar, &obj->technologies);
-        ::deser_dynamic<is_serialize>(ar, &obj->nation_modifiers);
-        ::deser_dynamic<is_serialize>(ar, &obj->nations);
-        ::deser_dynamic<is_serialize>(ar, &obj->provinces);
-        ::deser_dynamic<is_serialize>(ar, &obj->events);
-        ::deser_dynamic<is_serialize>(ar, &obj->wars);
-        ::deser_dynamic<is_serialize>(ar, &obj->treaties);
-        ::deser_dynamic<is_serialize>(ar, &obj->unit_manager);
-        const size_t n_relations = obj->nations.size() * obj->nations.size();
+    static inline void deser_dynamic(Archive& ar, World& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.width);
+        ::deser_dynamic<is_serialize>(ar, obj.height);
+        ::deser_dynamic<is_serialize>(ar, obj.time);
+        ::deser_dynamic<is_serialize>(ar, obj.goods);
+        ::deser_dynamic<is_serialize>(ar, obj.unit_types);
+        ::deser_dynamic<is_serialize>(ar, obj.religions);
+        ::deser_dynamic<is_serialize>(ar, obj.languages);
+        ::deser_dynamic<is_serialize>(ar, obj.pop_types);
+        ::deser_dynamic<is_serialize>(ar, obj.terrain_types);
+        ::deser_dynamic<is_serialize>(ar, obj.building_types);
+        ::deser_dynamic<is_serialize>(ar, obj.ideologies);
+        ::deser_dynamic<is_serialize>(ar, obj.technologies);
+        ::deser_dynamic<is_serialize>(ar, obj.nation_modifiers);
+        ::deser_dynamic<is_serialize>(ar, obj.nations);
+        ::deser_dynamic<is_serialize>(ar, obj.provinces);
+        ::deser_dynamic<is_serialize>(ar, obj.events);
+        ::deser_dynamic<is_serialize>(ar, obj.wars);
+        ::deser_dynamic<is_serialize>(ar, obj.treaties);
+        ::deser_dynamic<is_serialize>(ar, obj.unit_manager);
+        const size_t n_relations = obj.nations.size() * obj.nations.size();
         if constexpr(is_serialize) {
             for(size_t i = 0; i < n_relations; i++)
-                ::deser_dynamic<is_serialize>(ar, &obj->relations[i]);
+                ::deser_dynamic<is_serialize>(ar, obj.relations[i]);
         } else {
             // In order to avoid post-deserialization relational patcher, we will simply allocate everything with "empty" objects,
             // then we will fill those spots as we deserialize
-            obj->relations.reset(new NationRelation[obj->nations.size() * obj->nations.size()]);
+            obj.relations.reset(new NationRelation[obj.nations.size() * obj.nations.size()]);
             for(size_t i = 0; i < n_relations; i++)
-                ::deser_dynamic<is_serialize>(ar, &obj->relations[i]);
-            obj->tiles.reset(new Tile[obj->width * obj->height]);
+                ::deser_dynamic<is_serialize>(ar, obj.relations[i]);
+            obj.tiles.reset(new Tile[obj.width * obj.height]);
         }
 
         // (De-)serialize all the tiles, for the deserialization path, see above
-        for(size_t i = 0; i < obj->width * obj->height; i++)
-            ::deser_dynamic<is_serialize>(ar, &obj->tiles[i]);
+        for(size_t i = 0; i < obj.width * obj.height; i++)
+            ::deser_dynamic<is_serialize>(ar, obj.tiles[i]);
     }
 };

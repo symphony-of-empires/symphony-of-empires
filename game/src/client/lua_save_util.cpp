@@ -211,7 +211,7 @@ void LUA_util::save(GameState& gs) {
         gs.ui_ctx.prompt("Save", "Editor data saved! (check editor folder)");
     } else {
         Archive ar{};
-        ::serialize(ar, gs.world);
+        ::serialize(ar, *gs.world);
         ar.to_file("default.sc4");
         gs.ui_ctx.prompt("Save", "Saved sucessfully!");
     }

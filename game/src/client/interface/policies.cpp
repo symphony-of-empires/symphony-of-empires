@@ -184,8 +184,8 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
         Eng3D::Networking::Packet packet{};
         Archive ar{};
         ActionType action = ActionType::NATION_ENACT_POLICY;
-        ::serialize(ar, &action);
-        ::serialize(ar, &this->new_policy); // PoliciesObj
+        ::serialize(ar, action);
+        ::serialize(ar, this->new_policy); // PoliciesObj
         packet.data(ar.get_buffer(), ar.size());
         this->gs.client->send(packet);
         this->gs.ui_ctx.prompt("Policy", "New policy enacted!");

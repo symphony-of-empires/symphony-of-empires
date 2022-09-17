@@ -141,10 +141,10 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation& _nation)
         Eng3D::Networking::Packet packet{};
         Archive ar{};
         ActionType action = ActionType::DRAFT_TREATY;
-        ::serialize(ar, &action);
-        ::serialize(ar, &this->treaty.clauses);
-        ::serialize(ar, &this->treaty.name);
-        ::serialize(ar, &this->treaty.sender);
+        ::serialize(ar, action);
+        ::serialize(ar, this->treaty.clauses);
+        ::serialize(ar, this->treaty.name);
+        ::serialize(ar, this->treaty.sender);
         packet.data(ar.get_buffer(), ar.size());
         this->gs.client->send(packet);
         this->gs.ui_ctx.prompt("Treaty", "Treaty drafted: " + treaty_to_text(this->treaty));
@@ -167,12 +167,11 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, const Treaty::Id _treaty_
     approve_btn->below_of(*this->body_txt);
     approve_btn->text("Approve");
     approve_btn->set_on_click([this](UI::Widget& w) {
-        Archive ar = Archive();
+        Archive ar{};
         ActionType action = ActionType::CHANGE_TREATY_APPROVAL;
-        ::serialize(ar, &action);
-        ::serialize(ar, &this->treaty_id);
-        TreatyApproval approval = TreatyApproval::ACCEPTED;
-        ::serialize(ar, &approval);
+        ::serialize(ar, action);
+        ::serialize(ar, this->treaty_id);
+        ::serialize<TreatyApproval>(ar, TreatyApproval::ACCEPTED);
         this->gs.send_command(ar);
         w.parent->kill();
     });
@@ -182,12 +181,11 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, const Treaty::Id _treaty_
     deny_btn->right_side_of(*approve_btn);
     deny_btn->text("Deny");
     deny_btn->set_on_click([this](UI::Widget& w) {
-        Archive ar = Archive();
+        Archive ar{};
         ActionType action = ActionType::CHANGE_TREATY_APPROVAL;
-        ::serialize(ar, &action);
-        ::serialize(ar, &this->treaty_id);
-        TreatyApproval approval = TreatyApproval::DENIED;
-        ::serialize(ar, &approval);
+        ::serialize(ar, action);
+        ::serialize(ar, this->treaty_id);
+        ::serialize<TreatyApproval>(ar, TreatyApproval::DENIED);
         this->gs.send_command(ar);
         w.parent->kill();
     });

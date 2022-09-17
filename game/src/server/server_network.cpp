@@ -107,15 +107,14 @@ void Server::net_loop(int id) {
             ar.set_buffer(packet.data(), packet.size());
 
             ActionType action;
-            ::deserialize(ar, &action);
-            ::deserialize(ar, &cl.username);
+            ::deserialize(ar, action);
+            ::deserialize(ar, cl.username);
         }
 
         // Tell all other clients about the connection of this new client
         {
             Archive ar{};
-            ActionType action = ActionType::CONNECT;
-            ::serialize(ar, &action);
+            ::serialize<ActionType>(ar, ActionType::CONNECT);
             packet.data(ar.get_buffer(), ar.size());
             broadcast(packet);
 
@@ -123,11 +122,10 @@ void Server::net_loop(int id) {
             for(size_t i = 0; i < this->n_clients; i++) {
                 if(this->clients[i].is_active && this->clients[i].is_connected) {
                     if(this->clients_extra_data[i] != nullptr) {
-                        auto* nation = this->clients_extra_data[i];
                         Archive ar{};
                         ActionType action = ActionType::SELECT_NATION;
-                        ::serialize(ar, &nation);
-                        ::serialize(ar, &this->clients[i].username);
+                        ::serialize(ar, this->clients_extra_data[i]);
+                        ::serialize(ar, this->clients[i].username);
                         packet.data(ar.get_buffer(), ar.size());
                         broadcast(packet);
                     }
@@ -147,7 +145,7 @@ void Server::net_loop(int id) {
                 packet.recv();
                 ar.set_buffer(packet.data(), packet.size());
                 ar.rewind();
-                ::deserialize(ar, &action);
+                ::deserialize(ar, action);
 
                 Eng3D::Log::debug("server", "Receiving " + std::to_string(packet.size()) + " from #" + std::to_string(id));
                 if(selected_nation == nullptr && (action != ActionType::PONG && action != ActionType::CHAT_MESSAGE && action != ActionType::SELECT_NATION))
@@ -164,7 +162,7 @@ void Server::net_loop(int id) {
                 // - Client tells server to enact a new policy for it's nation
                 case ActionType::NATION_ENACT_POLICY: {
                     Policies policies;
-                    ::deserialize(ar, &policies);
+                    ::deserialize(ar, policies);
 
                     /// @todo Do parliament checks and stuff
                     selected_nation->set_policy(policies);
@@ -172,7 +170,7 @@ void Server::net_loop(int id) {
                 // - Client tells server to change target of unit
                 case ActionType::UNIT_CHANGE_TARGET: {
                     Unit::Id unit_id;
-                    ::deserialize(ar, &unit_id);
+                    ::deserialize(ar, unit_id);
                     if(Unit::is_invalid(unit_id))
                         throw ServerException("Unknown unit");
                     // Must control unit
@@ -180,8 +178,8 @@ void Server::net_loop(int id) {
                     if(selected_nation == nullptr || selected_nation->get_id() != unit.owner_id)
                         throw ServerException("Nation does not control unit");
 
-                    Province* province = nullptr;
-                    ::deserialize(ar, &province);
+                    Province* province;
+                    ::deserialize(ar, province);
                     if(province == nullptr)
                         throw ServerException("Unknown province");
                     
@@ -194,20 +192,20 @@ void Server::net_loop(int id) {
                 // only make the building submit "construction tickets" to obtain materials to build
                 // the unit can only be created by the server, not by the clients
                 case ActionType::BUILDING_START_BUILDING_UNIT: {
-                    Province* province = nullptr;
-                    ::deserialize(ar, &province);
+                    Province* province;
+                    ::deserialize(ar, province);
                     if(province == nullptr)
                         throw ServerException("Unknown province");
                     BuildingType* building_type;
-                    ::deserialize(ar, &building_type);
+                    ::deserialize(ar, building_type);
                     if(building_type == nullptr)
                         throw ServerException("Unknown building");
-                    Nation* nation = nullptr;
-                    ::deserialize(ar, &nation);
+                    Nation* nation;
+                    ::deserialize(ar, nation);
                     if(nation == nullptr)
                         throw ServerException("Unknown nation");
-                    UnitType* unit_type = nullptr;
-                    ::deserialize(ar, &unit_type);
+                    UnitType* unit_type;
+                    ::deserialize(ar, unit_type);
                     if(unit_type == nullptr)
                         throw ServerException("Unknown unit type");
                     /// @todo Find building
@@ -221,10 +219,10 @@ void Server::net_loop(int id) {
                 // Client tells server to build new outpost, the location (& type) is provided by
                 // the client and the rest of the fields are filled by the server
                 case ActionType::BUILDING_ADD: {
-                    Province* province = nullptr;
-                    ::deserialize(ar, &province);
-                    BuildingType* building_type = nullptr;
-                    ::deserialize(ar, &building_type);
+                    Province* province;
+                    ::deserialize(ar, province);
+                    BuildingType* building_type;
+                    ::deserialize(ar, building_type);
                     province->buildings[g_world.get_id(*building_type)].level += 1;
                     // Rebroadcast
                     broadcast(Action::BuildingAdd::form_packet(*province, *building_type));
@@ -232,8 +230,8 @@ void Server::net_loop(int id) {
                 // Client tells server that it wants to colonize a province, this can be rejected
                 // or accepted, client should check via the next PROVINCE_UPDATE action
                 case ActionType::PROVINCE_COLONIZE: {
-                    Province* province = nullptr;
-                    ::deserialize(ar, &province);
+                    Province* province;
+                    ::deserialize(ar, province);
                     if(province == nullptr)
                         throw ServerException("Unknown province");
                     // Must not be already owned
@@ -248,7 +246,7 @@ void Server::net_loop(int id) {
                 // Simple IRC-like chat messaging system
                 case ActionType::CHAT_MESSAGE: {
                     std::string msg;
-                    ::deserialize(ar, &msg);
+                    ::deserialize(ar, msg);
                     Eng3D::Log::debug("server", "Message: " + msg);
                     // Rebroadcast
                     broadcast(packet);
@@ -256,9 +254,9 @@ void Server::net_loop(int id) {
                 // Client changes it's approval on certain treaty
                 case ActionType::CHANGE_TREATY_APPROVAL: {
                     Treaty* treaty;
-                    ::deserialize(ar, &treaty);
+                    ::deserialize(ar, treaty);
                     TreatyApproval approval;
-                    ::deserialize(ar, &approval);
+                    ::deserialize(ar, approval);
                     Eng3D::Log::debug("server", selected_nation->ref_name + " approves treaty " + treaty->name + " A=" + (approval == TreatyApproval::ACCEPTED ? "YES" : "NO"));
                     if(!treaty->does_participate(*selected_nation))
                         throw ServerException("Nation does not participate in treaty");
@@ -268,9 +266,9 @@ void Server::net_loop(int id) {
                 // Client sends a treaty to someone
                 case ActionType::DRAFT_TREATY: {
                     Treaty treaty;
-                    ::deserialize(ar, &treaty.clauses);
-                    ::deserialize(ar, &treaty.name);
-                    ::deserialize(ar, &treaty.sender);
+                    ::deserialize(ar, treaty.clauses);
+                    ::deserialize(ar, treaty.name);
+                    ::deserialize(ar, treaty.sender);
                     // Validate data
                     if(treaty.clauses.empty())
                         throw ServerException("Clause-less treaty");
@@ -304,8 +302,8 @@ void Server::net_loop(int id) {
                     // We are going to add a treaty to the client
                     Archive tmp_ar{};
                     action = ActionType::TREATY_ADD;
-                    ::serialize(tmp_ar, &action);
-                    ::serialize(tmp_ar, &treaty);
+                    ::serialize(tmp_ar, action);
+                    ::serialize(tmp_ar, treaty);
                     packet.data(tmp_ar.get_buffer(), tmp_ar.size());
                     broadcast(packet);
                 } break;
@@ -313,10 +311,10 @@ void Server::net_loop(int id) {
                 case ActionType::NATION_TAKE_DECISION: {
                     // Find event by reference name
                     Event local_event;
-                    ::deserialize(ar, &local_event);
+                    ::deserialize(ar, local_event);
                     // Find decision by reference name
                     std::string decision_ref_name;
-                    ::deserialize(ar, &decision_ref_name);
+                    ::deserialize(ar, decision_ref_name);
                     auto decision = std::find_if(local_event.decisions.begin(), local_event.decisions.end(), [&decision_ref_name](const Decision& d) {
                         return d.ref_name == decision_ref_name;
                     });
@@ -328,7 +326,7 @@ void Server::net_loop(int id) {
                 // The client selects a nation
                 case ActionType::SELECT_NATION: {
                     Nation* nation;
-                    ::deserialize(ar, &nation);
+                    ::deserialize(ar, nation);
                     if(nation == nullptr)
                         throw ServerException("Unknown nation");
                     nation->ai_controlled = false;
@@ -345,19 +343,19 @@ void Server::net_loop(int id) {
                     this->clients_extra_data[id] = nation;
                     Archive ar{};
                     ActionType action = ActionType::SELECT_NATION;
-                    ::serialize(ar, &nation);
-                    ::serialize(ar, &cl.username);
+                    ::serialize(ar, nation);
+                    ::serialize(ar, cl.username);
                     packet.data(ar.get_buffer(), ar.size());
                     broadcast(packet);
                 } break;
                 case ActionType::DIPLO_DECLARE_WAR: {
-                    Nation* target = nullptr;
-                    ::deserialize(ar, &target);
+                    Nation* target;
+                    ::deserialize(ar, target);
                     selected_nation->declare_war(*target);
                 } break;
                 case ActionType::FOCUS_TECH: {
-                    Technology* technology = nullptr;
-                    ::deserialize(ar, &technology);
+                    Technology* technology;
+                    ::deserialize(ar, technology);
                     if(technology == nullptr)
                         throw ServerException("Unknown technology");
                     if(!selected_nation->can_research(*technology))
@@ -365,14 +363,14 @@ void Server::net_loop(int id) {
                     selected_nation->focus_tech = technology;
                 } break;
                 case ActionType::AI_CONTROL: {
-                    ::deserialize(ar, &selected_nation->ai_controlled);
-                    ::deserialize(ar, &selected_nation->ai_do_cmd_troops);
-                    ::deserialize(ar, &selected_nation->ai_controlled);
-                    ::deserialize(ar, &selected_nation->ai_controlled);
-                    ::deserialize(ar, &selected_nation->ai_controlled);
-                    ::deserialize(ar, &selected_nation->ai_controlled);
-                    ::deserialize(ar, &selected_nation->ai_controlled);
-                    ::deserialize(ar, &selected_nation->ai_controlled);
+                    ::deserialize(ar, selected_nation->ai_controlled);
+                    ::deserialize(ar, selected_nation->ai_do_cmd_troops);
+                    ::deserialize(ar, selected_nation->ai_controlled);
+                    ::deserialize(ar, selected_nation->ai_controlled);
+                    ::deserialize(ar, selected_nation->ai_controlled);
+                    ::deserialize(ar, selected_nation->ai_controlled);
+                    ::deserialize(ar, selected_nation->ai_controlled);
+                    ::deserialize(ar, selected_nation->ai_controlled);
                 } break;
                 // Nation and province addition and removals are not allowed to be done by clients
                 default:
@@ -415,8 +413,7 @@ void Server::net_loop(int id) {
     {
         Eng3D::Networking::Packet packet{};
         Archive ar{};
-        ActionType action = ActionType::DISCONNECT;
-        ::serialize(ar, &action);
+        ::serialize<ActionType>(ar, ActionType::DISCONNECT);
         packet.data(ar.get_buffer(), ar.size());
         broadcast(packet);
     }

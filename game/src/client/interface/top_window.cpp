@@ -144,7 +144,7 @@ TopWindow::TopWindow(GameState& _gs)
 
         Archive ar{};
         ar.from_file("default.sc4");
-        ::deserialize(ar, this->gs.world);
+        ::deserialize(ar, *this->gs.world);
         /// @todo Events aren't properly saved yet
         this->gs.world->events.clear();
         this->gs.world->taken_decisions.clear();

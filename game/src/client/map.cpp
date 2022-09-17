@@ -640,10 +640,9 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
                 Eng3D::Networking::Packet packet{};
                 Archive ar{};
                 ActionType action = ActionType::UNIT_CHANGE_TARGET;
-                ::serialize(ar, &action);
-                ::serialize(ar, &unit_id);
-                Province* tmp_province_ref = &province;
-                ::serialize(ar, &tmp_province_ref);
+                ::serialize(ar, action);
+                ::serialize(ar, unit_id);
+                ::serialize(ar, &province);
                 packet.data(ar.get_buffer(), ar.size());
                 gs.client->send(packet);
 
