@@ -46,9 +46,7 @@
 #       define WINSOCK2_IMPORTED
 #       include <winsock2.h>
 #   endif
-#endif
-
-#ifdef E3D_TARGET_UNIX
+#elif defined E3D_TARGET_UNIX
 #    define _XOPEN_SOURCE_EXTENDED 1
 #    include <netdb.h>
 #    include <arpa/inet.h>

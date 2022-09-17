@@ -24,7 +24,6 @@
 // ----------------------------------------------------------------------------
 
 #include <cstring>
-#include <unistd.h>
 
 extern "C" int main(int argc, char** argv);
 
@@ -38,6 +37,7 @@ void android_main(struct android_app* state)
 }
 #endif
 #ifdef E3D_TARGET_WINDOWS
+#	include <windows.h>
 /// @brief Stub to transform the WinMain into a proper call for main so the game doesn't
 /// even notice we're on windows!
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument, int iShow) {

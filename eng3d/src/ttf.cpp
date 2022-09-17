@@ -24,6 +24,7 @@
 // ----------------------------------------------------------------------------
 
 #include <cassert>
+#include <stdexcept>
 #include <SDL_ttf.h>
 #include "eng3d/ttf.hpp"
 #include "eng3d/io.hpp"

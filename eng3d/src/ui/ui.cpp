@@ -495,7 +495,7 @@ bool Context::check_click(glm::ivec2 mouse_pos) {
     is_drag = false;
 #ifdef E3D_TARGET_WINDOWS
     // Release the mouse once we no longer drag anything
-    ReleaseCapture(GetActiveWindow());
+    ReleaseCapture();
 #endif
 
     UI::ClickState click_state = UI::ClickState::NOT_CLICKED;
