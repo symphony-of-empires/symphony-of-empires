@@ -249,7 +249,7 @@ ENDIF()
 # Linking
 #
 target_link_libraries(eng3d PUBLIC lua_static)
-target_link_libraries(eng3d PRIVATE SDL2)
+target_link_libraries(eng3d PRIVATE SDL2::SDL2)
 IF(WIN32)
 	target_link_libraries(eng3d PRIVATE ws2_32 wsock32)
 	IF(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR MSVC)
