@@ -24,8 +24,9 @@
 // ----------------------------------------------------------------------------
 
 #include <cstring>
-
+#ifndef E3D_TARGET_WINDOWS
 extern "C" int main(int argc, char** argv);
+#endif
 
 #ifdef E3D_TARGET_ANDROID
 #   include <android_native_app_glue.h>
@@ -37,8 +38,10 @@ void android_main(struct android_app* state)
 }
 #endif
 #ifdef E3D_TARGET_WINDOWS
-#	include <windows.h>
+#if 0
+#   include <windows.h>
 #   include <cstdlib>
+typedef int (*MainProc)(int argc, char** argv);
 /// @brief Stub to transform the WinMain into a proper call for main so the game doesn't
 /// even notice we're on windows!
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument, int iShow) {
@@ -49,6 +52,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument,
     free(argv[0]);
     return 0;
 }
+#endif
 #endif
 #ifdef E3D_TARGET_SWITCH
 /// @brief Switch doesn't define a pathconf function so this is a kludge
