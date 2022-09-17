@@ -190,6 +190,7 @@ target_include_directories(eng3d PRIVATE "${lua_SOURCE_DIR}/lua-5.4.4/include")
 IF(NOT E3D_VENDORED)
 	list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
+	set(SDL_BUILDING_LIBRARY ON) # Disable SDLmain
 	find_package(SDL2)
 	IF(SDL2_FOUND)
 		target_include_directories(eng3d PRIVATE ${SDL2_INCLUDE_DIRS})
