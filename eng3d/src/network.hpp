@@ -101,6 +101,10 @@ namespace Eng3D::Networking {
         Packet(int _fd) {
             stream = Eng3D::Networking::SocketStream(_fd);
         }
+        Packet(int _fd, const void* buf, size_t size) {
+            stream = Eng3D::Networking::SocketStream(_fd);
+            this->data(buf, size);
+        }
         ~Packet() = default;
 
         inline void* data() {

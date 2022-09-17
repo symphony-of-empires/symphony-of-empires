@@ -555,8 +555,8 @@ void ai_do_tick(Nation& nation) {
             if(!colonial_value.empty()) {
                 Province* target = (*std::max_element(colonial_value.begin(), colonial_value.end())).first;
                 if(target != nullptr && Nation::is_invalid(target->owner_id)) {
-                    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
-                    Archive ar = Archive();
+                    Eng3D::Networking::Packet packet{};
+                    Archive ar{};
                     ActionType action = ActionType::PROVINCE_COLONIZE;
                     ::serialize(ar, &action);
                     ::serialize(ar, &target);

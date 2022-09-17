@@ -62,13 +62,11 @@ Client::Client(GameState& _gs, std::string host, const unsigned port)
 void Client::net_loop() {
     {
         Archive ar{};
-
         ActionType action = ActionType::CONNECT;
         ::serialize(ar, &action);
         ::serialize(ar, &username);
 
-        Eng3D::Networking::Packet packet = Eng3D::Networking::Packet(fd);
-        packet.data(ar.get_buffer(), ar.size());
+        Eng3D::Networking::Packet packet(fd, ar.get_buffer(), ar.size());
         packet.send();
     }
     
@@ -94,8 +92,8 @@ void Client::net_loop() {
 			// When we are on host_mode we discard all potential packets sent by the server
 			// (because our data is already synchronized since WE ARE the server)
             if(stream.has_pending()) {
-                Eng3D::Networking::Packet packet = Eng3D::Networking::Packet(fd);
-                Archive ar = Archive();
+                Eng3D::Networking::Packet packet(fd);
+                Archive ar{};
 
                 // Obtain the action from the server
                 while(1) {

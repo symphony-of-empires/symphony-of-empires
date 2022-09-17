@@ -25,13 +25,13 @@
 
 #pragma once
 
-#ifdef E3D_MANAGED_HEAP
 #include <cstddef>
 #include <new>
 
+/*
 [[nodiscard]] void* operator new(std::size_t size);
 [[nodiscard]] void operator delete(void* ptr) noexcept;
 
 [[nodiscard]] void* operator new[](std::size_t size);
 [[nodiscard]] void operator delete[](void* ptr) noexcept;
-#endif
+*/

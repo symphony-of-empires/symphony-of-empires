@@ -138,8 +138,8 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation& _nation)
     draft_btn->below_of(*annexx_btn);
     draft_btn->text("Draft");
     draft_btn->set_on_click([this](UI::Widget&) {
-        Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
-        Archive ar = Archive();
+        Eng3D::Networking::Packet packet{};
+        Archive ar{};
         ActionType action = ActionType::DRAFT_TREATY;
         ::serialize(ar, &action);
         ::serialize(ar, &this->treaty.clauses);

@@ -181,8 +181,8 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     enact_btn->below_of(*reform_grp);
     enact_btn->text("Enact policy");
     enact_btn->set_on_click([this](UI::Widget&) {
-        Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
-        Archive ar = Archive();
+        Eng3D::Networking::Packet packet{};
+        Archive ar{};
         ActionType action = ActionType::NATION_ENACT_POLICY;
         ::serialize(ar, &action);
         ::serialize(ar, &this->new_policy); // PoliciesObj

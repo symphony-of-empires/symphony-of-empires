@@ -30,6 +30,13 @@
 #include <chrono>
 #include <thread>
 
+#ifdef E3D_TARGET_WINDOWS
+#   ifndef WINSOCK2_IMPORTED
+#       define WINSOCK2_IMPORTED
+#       include <winsock2.h>
+#   endif
+#endif
+
 #include "eng3d/log.hpp"
 
 #include "action.hpp"
@@ -295,7 +302,7 @@ void Server::net_loop(int id) {
                     g_world.insert(treaty);
                     // Rebroadcast to client
                     // We are going to add a treaty to the client
-                    Archive tmp_ar = Archive();
+                    Archive tmp_ar{};
                     action = ActionType::TREATY_ADD;
                     ::serialize(tmp_ar, &action);
                     ::serialize(tmp_ar, &treaty);
@@ -406,8 +413,8 @@ void Server::net_loop(int id) {
 
     // Tell the remaining clients about the disconnection
     {
-        Eng3D::Networking::Packet packet;
-        Archive ar = Archive();
+        Eng3D::Networking::Packet packet{};
+        Archive ar{};
         ActionType action = ActionType::DISCONNECT;
         ::serialize(ar, &action);
         packet.data(ar.get_buffer(), ar.size());

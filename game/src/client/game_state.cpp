@@ -145,12 +145,9 @@ void handle_event(GameState& gs) {
 
 void GameState::send_command(Archive& archive) {
     std::scoped_lock lock(client->pending_packets_mutex);
-
-    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet(this->client->get_fd());
-    packet.data(archive.get_buffer(), archive.size());
+    Eng3D::Networking::Packet packet(this->client->get_fd(), archive.get_buffer(), archive.size());
     client->pending_packets.push_back(packet);
 }
-
 
 void handle_popups(std::vector<Treaty::Id>& displayed_treaties, GameState& gs) {
     // Put popups
@@ -293,9 +290,9 @@ void GameState::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
 
 void GameState::handle_mouse_motion(const Eng3D::Event::MouseMotion& e) {
     input.mouse_pos = e.pos;
-    if(show_ui) {
-        if(ui_ctx.check_hover(input.mouse_pos)) return;
-    }
+    if(show_ui)
+        if(ui_ctx.check_hover(input.mouse_pos))
+            return;
 
     if(current_mode != MapMode::NO_MAP)
         map->handle_mouse_motions(e);

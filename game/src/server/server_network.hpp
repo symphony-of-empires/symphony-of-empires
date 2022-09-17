@@ -31,13 +31,6 @@
 #include <vector>
 #include <thread>
 
-#ifdef E3D_TARGET_WINDOWS
-#ifndef WINSOCK2_IMPORTED
-#   define WINSOCK2_IMPORTED
-#   include <winsock2.h>
-#endif
-#endif
-
 #include "eng3d/network.hpp"
 
 class ServerException : public std::exception {

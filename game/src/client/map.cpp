@@ -637,8 +637,8 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
                     if(!(relation.has_war || relation.has_alliance || relation.has_military_access)) continue;
                 }
 
-                Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
-                Archive ar = Archive();
+                Eng3D::Networking::Packet packet{};
+                Archive ar{};
                 ActionType action = ActionType::UNIT_CHANGE_TARGET;
                 ::serialize(ar, &action);
                 ::serialize(ar, &unit_id);

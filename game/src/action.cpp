@@ -39,8 +39,8 @@
 using namespace Action;
 
 Eng3D::Networking::Packet AiControl::form_packet(const Nation& nation) {
-    Eng3D::Networking::Packet packet = Eng3D::Networking::Packet();
-    Archive ar = Archive();
+    Eng3D::Networking::Packet packet{};
+    Archive ar{};
     ActionType action = ActionType::AI_CONTROL;
     ::serialize(ar, &action);
     ::serialize(ar, &nation.ai_controlled);
