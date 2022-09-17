@@ -200,8 +200,8 @@ void Map::update_nation_label(const Nation& nation) {
     glm::vec3 normal = glm::cross(top_dir, right_dir);
     normal = glm::normalize(normal);
     float angle = glm::atan(lab_max.y - lab_min.y, lab_max.x - lab_min.x);
-    if(angle > (M_PI / 2.0f)) angle -= M_PI;
-    else if(angle < -(M_PI / 2.0f)) angle += M_PI;
+    if(angle > (glm::pi<float>() / 2.0f)) angle -= glm::pi<float>();
+    else if(angle < -(glm::pi<float>() / 2.0f)) angle += glm::pi<float>();
     glm::mat4 rot = glm::rotate(glm::mat4(1.), angle, normal);
     top_dir = rot * glm::vec4(top_dir, 1.);
     right_dir = rot * glm::vec4(right_dir, 1.);

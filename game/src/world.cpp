@@ -304,7 +304,8 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
 #ifdef E3D_TARGET_WINDOWS
             std::string m_path;
             for(auto& c : path->get_abs_path())
-                m_path += c == '\\' ? "\\\\" : c;
+                if(c == '\\') m_path += "\\\\";
+                else m_path += c;
 #else
             std::string m_path = path->get_abs_path();
 #endif

@@ -46,15 +46,15 @@ namespace Eng3D {
         OrbitCamera(glm::vec2 screen_size, glm::vec2 map_size, float _radius)
             : Camera(screen_size, map_size), radius{ _radius }
         {
-            circumference = _radius * 2 * M_PI;
-            map_position = glm::vec3(M_PI, M_PI * 0.5f, radius * 1.5f);
+            circumference = _radius * 2 * glm::pi<float>();
+            map_position = glm::vec3(glm::pi<float>(), glm::pi<float>() * 0.5f, radius * 1.5f);
             target = map_position;
         }
 
         OrbitCamera(const Camera& camera, float _radius)
             : Camera(camera), radius{ _radius }
         {
-            circumference = _radius * 2 * M_PI;
+            circumference = _radius * 2 * glm::pi<float>();
             world_position = map_position;
             target = map_position;
         }
