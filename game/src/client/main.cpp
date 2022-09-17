@@ -33,40 +33,24 @@
 
 void start_client(int argc, char** argv);
 
-extern "C" int main(int argc, char** argv) {
-#ifndef E3D_TARGET_SWITCH
-    // Clean the log files
-    if(1) {
-        FILE* fp = ::fopen("log.txt", "wt");
-        if(fp) {
-            ::fputs("=== LOG.TXT ===\n", fp);
-            ::fclose(fp);
-        }
-    }
-#endif
-#ifndef UNIT_TEST
-    try {
-        ::start_client(argc, argv);
-    } catch(const std::exception& e) {
-        Eng3D::Log::error("game", e.what());
-        ::exit(EXIT_FAILURE);
-    }
-#endif
-    return 0;
-}
-
-#ifdef E3D_TARGET_WINDOWS
-#   include <windows.h>
-#   include <cstdlib>
-typedef int (*MainProc)(int argc, char** argv);
 /// @brief Stub to transform the WinMain into a proper call for main so the game doesn't
 /// even notice we're on windows!
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument, int iShow) {
-    char* argv[1];
-    argv[0] = new char[2];
-    strcpy((char*)argv[0], "/");
-    main(1, argv);
-    free(argv[0]);
+#ifdef E3D_TARGET_WINDOWS
+#   include <windows.h>
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
+#else
+extern "C" int main(int argc, char** argv)
+#endif
+{
+    try {
+#ifdef E3D_TARGET_WINDOWS
+        start_client(__argc, __argv);
+#else
+        start_client(argc, argv);
+#endif
+    } catch(const std::exception& e) {
+        Eng3D::Log::error("game", e.what());
+        exit(EXIT_FAILURE);
+    }
     return 0;
 }
-#endif
