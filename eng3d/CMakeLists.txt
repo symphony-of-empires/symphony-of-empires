@@ -16,8 +16,8 @@ option(E3D_VENDORED_SDL2, "Build SDL2 from source" "${E3D_VENDORED}")
 option(E3D_VENDORED_SDL2_TTF, "Build SDL2_ttf from source" "${E3D_VENDORED}")
 option(E3D_VENDORED_ASSIMP, "Build assimp from source" "${E3D_VENDORED}")
 option(E3D_VENDORED_ASSIMP, "Build assimp from source" "${E3D_VENDORED}")
-option(E3D_PIE, "Build as a position-independent library" OFF)
-option(E3D_BUILD_STATIC, "Whetever to make a static library or not" ON)
+option(E3D_PIE, "Build as a position-independent library" ON)
+option(E3D_BUILD_STATIC, "Whetever to make a static library or not" OFF)
 option(E3D_ENABLE_IPO "Enables IPO if supported" OFF)
 
 IF(E3D_DEBUG)
@@ -65,8 +65,6 @@ ELSEIF(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
 	include_directories("${DEVKITPRO}/portlibs/switch/include/")
 	add_definitions(-DE3D_TARGET_UNIX=1 -DE3D_TARGET_SWITCH=1)
 	add_definitions(-DE3D_HANDHELD=1)
-	# Compiler is for 32bits and doesn't support long long
-	add_definitions(-DLUA_32BITS=1)
 ELSEIF(CMAKE_SYSTEM_NAME STREQUAL "NintendoWii")
 	link_directories("${DEVKITPRO}/libogc/lib")
 	include_directories("${DEVKITPRO}/libogc/include")
@@ -173,20 +171,6 @@ IF(E3D_VENDORED)
 	target_link_libraries(eng3d PRIVATE zlib)
 ENDIF()
 
-# LUA
-set(LUA_BUILD_BINARY OFF)
-set(LUA_BUILD_COMPILER OFF)
-IF(E3D_BUILD_STATIC OR CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
-	set(LUA_ENABLE_SHARED OFF)
-	set(LUA_SUPPORT_DL OFF)
-ELSE()
-	set(LUA_ENABLE_SHARED ON)
-	set(LUA_SUPPORT_DL ON)
-ENDIF()
-FetchContent_Declare(lua GIT_REPOSITORY "https://github.com/walterschell/Lua" GIT_PROGRESS TRUE)
-FetchContent_MakeAvailable(lua)
-target_include_directories(eng3d PRIVATE "${lua_SOURCE_DIR}/lua-5.4.4/include")
-
 IF(NOT E3D_VENDORED)
 	list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
@@ -261,7 +245,6 @@ ENDIF()
 #
 # Linking
 #
-target_link_libraries(eng3d PUBLIC lua_static)
 IF(WIN32)
 	target_link_libraries(eng3d PRIVATE ws2_32 wsock32)
 	IF(NOT (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR MSVC))
