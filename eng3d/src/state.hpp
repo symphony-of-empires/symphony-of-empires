@@ -117,7 +117,7 @@ namespace Eng3D {
         /// @brief Variable telling if the game should quit, honored by most event loops
         /// but should be used explicitly if possible
         std::atomic<bool> run;
-        std::chrono::_V2::system_clock::time_point current_frame_time;
+        std::chrono::system_clock::time_point current_frame_time;
         float delta_time;
 
         // These variables needs to be initialized before any installers
