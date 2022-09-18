@@ -17,7 +17,7 @@ option(E3D_VENDORED_SDL2_TTF, "Build SDL2_ttf from source" "${E3D_VENDORED}")
 option(E3D_VENDORED_ASSIMP, "Build assimp from source" "${E3D_VENDORED}")
 option(E3D_VENDORED_ASSIMP, "Build assimp from source" "${E3D_VENDORED}")
 option(E3D_PIE, "Build as a position-independent library" OFF)
-option(E3D_BUILD_STATIC, "Whetever to make a static library or not" ON)
+option(E3D_BUILD_STATIC, "Whetever to make a static library or not" OFF)
 option(E3D_ENABLE_IPO "Enables IPO if supported" OFF)
 
 IF(E3D_DEBUG)
