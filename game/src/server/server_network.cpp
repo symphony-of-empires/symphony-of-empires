@@ -89,6 +89,9 @@ void Server::net_loop(int id) {
 
         Nation* selected_nation = nullptr;
         Eng3D::Networking::Packet packet(conn_fd);
+        packet.pred = [this]() -> bool {
+            return this->run;
+        };
 
         player_count++;
         // Wake up another thread
@@ -143,6 +146,7 @@ void Server::net_loop(int id) {
             // Check if we need to read packets
             if(cl.has_pending()) {
                 packet.recv();
+                if(!run) break;
                 ar.set_buffer(packet.data(), packet.size());
                 ar.rewind();
                 ::deserialize(ar, action);
@@ -428,5 +432,4 @@ void Server::net_loop(int id) {
     // Switch doesn't support shutting down sockets
     shutdown(conn_fd, SHUT_RDWR);
 #endif
-    /// @todo Shutdown sockets for switch
 }

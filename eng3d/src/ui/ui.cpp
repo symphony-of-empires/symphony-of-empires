@@ -130,7 +130,7 @@ void Context::remove_widget(UI::Widget* widget) {
 void Context::clear() {
     // Remove all widgets
     for(auto& widget : widgets) {
-        if(widget.get() == this->tooltip_widget) continue;
+        if(widget.get() == this->tooltip_widget || !widget->managed) continue;
         widget->kill();
     }
 }

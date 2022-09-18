@@ -246,6 +246,7 @@ namespace UI {
         bool is_float = false;
         bool is_fullscreen = false;
         bool is_transparent = false;
+        bool managed = true; // Can be destroyed by the UI manager, if false it has to be manually deleted
 
         UI::Widget* parent = nullptr;
         std::vector<std::unique_ptr<UI::Widget>> children;

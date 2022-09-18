@@ -75,14 +75,19 @@ void Eng3D::Networking::SocketStream::send(const void* data, size_t size) {
     }
 }
 
-void Eng3D::Networking::SocketStream::recv(void* data, size_t size) {
+void Eng3D::Networking::SocketStream::recv(void* data, size_t size, std::function<bool()> pred) {
     auto* c_data = reinterpret_cast<char*>(data);
-
-    /// @todo This hangs
+    int times = 1000;
     for(size_t i = 0; i < size; ) {
-        int r = ::recv(fd, &c_data[i], std::min<std::size_t>(1024, size - i), MSG_WAITALL);
-        if(r < 0)
-            CXX_THROW(Eng3D::Networking::SocketException, "Can't receive data of packet");
+        if(pred && !pred()) // If (any) predicate fails then return immediately
+            return;
+        int r = ::recv(fd, &c_data[i], std::min<std::size_t>(1024, size - i), MSG_DONTWAIT);
+        if(r < 0) {
+            if(!times)
+                CXX_THROW(Eng3D::Networking::SocketException, "Packet receive interrupted");
+            times--;
+            continue;
+        }
         i += static_cast<std::size_t>(r);
     }
 }

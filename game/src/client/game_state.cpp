@@ -414,6 +414,7 @@ extern "C" void game_main(int argc, char** argv) {
 #endif
 
     auto map_layer = new UI::Group(0, 0);
+    map_layer->managed = false;
 
     auto *bg_img = new UI::Image(-(gs.width / 2.f), -(gs.height / 2.f), gs.width, gs.height);
     bg_img->origin = UI::Origin::CENTER_SCREEN;

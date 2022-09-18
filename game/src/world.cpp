@@ -852,7 +852,7 @@ void World::do_tick() {
         Eng3D::Log::debug("game", std::to_string(time / 12 / ticks_per_month) + "/" + std::to_string((time / ticks_per_month % 12) + 1) + +"/" + std::to_string((time % ticks_per_month) + 1));
     Eng3D::Log::debug("game", "Tick " + std::to_string(time) + " done");
     time++;
-
+    
     // Tell clients that this tick has been done
     Eng3D::Networking::Packet packet{};
     Archive ar{};

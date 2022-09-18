@@ -34,6 +34,7 @@
 #include <mutex>
 #include <deque>
 #include <stdexcept>
+#include <functional>
 
 #ifdef E3D_TARGET_WINDOWS
 // Allow us to use deprecated functions like inet_addr
@@ -78,7 +79,7 @@ namespace Eng3D::Networking {
         SocketStream(int _fd) : fd(_fd) {};
         ~SocketStream() = default;
         void send(const void* data, size_t size);
-        void recv(void* data, size_t size);
+        void recv(void* data, size_t size, std::function<bool()> pred = 0);
         void set_timeout(int seconds);
         bool has_pending();
         void set_blocking(bool value);
@@ -133,10 +134,10 @@ namespace Eng3D::Networking {
                 std::memcpy(&buffer[0], buf, n_data);
             }
 
-            const uint32_t net_code = htonl(static_cast<uint32_t>(code));
+            const uint16_t net_code = htons(static_cast<uint16_t>(code));
             stream.send(&net_code, sizeof(net_code));
 
-            const uint32_t net_size = htonl(n_data);
+            const uint16_t net_size = htons(n_data);
             stream.send(&net_size, sizeof(net_size));
 
             //uint8_t* new_buf = new uint8_t[size];
@@ -155,18 +156,18 @@ namespace Eng3D::Networking {
 
         template<typename T>
         inline void recv(T* buf = nullptr) {
-            uint32_t net_code;
-            stream.recv(&net_code, sizeof(net_code));
-            net_code  = ntohl(net_code);
+            uint16_t net_code;
+            stream.recv(&net_code, sizeof(net_code), pred);
+            net_code  = ntohs(net_code);
             code = static_cast<PacketCode>(net_code);
 
-            uint32_t net_size;
-            stream.recv(&net_size, sizeof(net_size));
-            n_data = (size_t)ntohl(net_size);
+            uint16_t net_size;
+            stream.recv(&net_size, sizeof(net_size), pred);
+            n_data = (size_t)ntohs(net_size);
             buffer.resize(n_data + 1);
 
             // Reads can only be done 1024 bytes at a time
-            stream.recv(&buffer[0], n_data);
+            stream.recv(&buffer[0], n_data, pred);
             if(buf != nullptr) {
                 //size_t new_size = get_compressed_len(n_data);
                 //char* new_buf = new char[new_size];
@@ -177,7 +178,7 @@ namespace Eng3D::Networking {
             }
 
             uint16_t eof_marker;
-            stream.recv(&eof_marker, sizeof(eof_marker));
+            stream.recv(&eof_marker, sizeof(eof_marker), pred);
             if(ntohs(eof_marker) != 0xE0F)
                 CXX_THROW(Eng3D::Networking::SocketException, "Packet with invalid EOF");
         }
@@ -188,6 +189,7 @@ namespace Eng3D::Networking {
 
         std::vector<uint8_t> buffer;
         SocketStream stream;
+        std::function<bool()> pred;
     };
 
     class ServerClient {

@@ -91,6 +91,9 @@ void Client::net_loop() {
 			// (because our data is already synchronized since WE ARE the server)
             if(stream.has_pending()) {
                 Eng3D::Networking::Packet packet(fd);
+                packet.pred = [this]() -> bool {
+                    return this->run == true;
+                };
                 Archive ar{};
 
                 // Obtain the action from the server
