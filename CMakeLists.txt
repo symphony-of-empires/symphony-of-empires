@@ -181,7 +181,7 @@ ELSE()
 	target_include_directories(SymphonyOfEmpires PRIVATE "${tbb_SOURCE_DIR}/include")
 	target_link_libraries(SymphonyOfEmpires PRIVATE tbb)
 ENDIF()
-target_link_directories(SymphonyOfEmpires PRIVATE "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
+target_link_directories(SymphonyOfEmpires PRIVATE "D:/a/symphony-of-empires/symphony-of-empires/builds/msbuild-vcpkg/")
 target_link_libraries(SymphonyOfEmpires PRIVATE eng3d)
 
 IF(ANDROID)
