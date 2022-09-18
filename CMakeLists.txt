@@ -75,6 +75,7 @@ ENDIF()
 # Build stuff
 IF(BUILD_ENGINE)
     add_subdirectory(${CMAKE_SOURCE_DIR}/eng3d ${CMAKE_BINARY_DIR}/eng3d)
+	add_dependencies(SymphonyOfEmpires eng3d)
 ENDIF()
 
 #

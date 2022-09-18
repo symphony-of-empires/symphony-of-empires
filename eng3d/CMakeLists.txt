@@ -26,6 +26,8 @@ ENDIF()
 
 IF(E3D_BACKEND_OPENGL)
 	add_definitions(-DE3D_BACKEND_OPENGL=1)
+ELSEIF(E3D_BACKEND_D3D9)
+	add_definitions(-DE3D_BACKEND_D3D9=1)
 ELSEIF(E3D_BACKEND_GLES)
 	add_definitions(-DE3D_BACKEND_GLES=1)
 ELSEIF(E3D_BACKEND_RGX)
@@ -83,16 +85,16 @@ set(CMAKE_POSITION_INDEPENDENT_CODE "${E3D_PIE}")
 #
 # Source code files
 #
-file(GLOB MAIN_SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/ui/*.cpp")
+file(GLOB ENG3D_SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/ui/*.cpp")
 execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/eng3d")
 
 # Switch doesn't support shared libraries
 IF(E3D_BUILD_STATIC)
 	message(STATUS "Building a static library")
-	add_library(eng3d STATIC ${MAIN_SOURCES})
+	add_library(eng3d STATIC ${ENG3D_SOURCES})
 ELSE()
 	message(STATUS "Building a shared library")
-	add_library(eng3d SHARED ${MAIN_SOURCES})
+	add_library(eng3d SHARED ${ENG3D_SOURCES})
 ENDIF()
 target_include_directories(eng3d PRIVATE "${PROJECT_SOURCE_DIR}")
 set_property(TARGET eng3d PROPERTY CMAKE_CXX_STANDARD 20)
@@ -276,3 +278,7 @@ IF(Threads_FOUND)
 	set(THREADS_PREFER_PTHREAD_FLAG ON)
 	target_link_libraries(eng3d PUBLIC Threads::Threads)
 ENDIF()
+
+#file(GLOB ENG3D_INCLUDES "${PROJECT_SOURCE_DIR}/src/*.hpp" "${PROJECT_SOURCE_DIR}/src/ui/*.hpp")
+#install(TARGETS eng3d DESTINATION lib)
+#install(FILES "${ENG3D_INCLUDES}" DESTINATION include)
