@@ -223,7 +223,7 @@ void MapRender::update_options(MapOptions new_options) {
                 sdf_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
                 sdf_options.mag_filter = GL_LINEAR;
                 sdf_options.compressed = this->options.compress.used;
-                this->border_sdf = std::make_unique<Eng3D::Texture>(Eng3D::Texture("sdf_cache.png"));
+                this->border_sdf = std::make_unique<Eng3D::Texture>("sdf_cache.png");
                 this->border_sdf->upload(sdf_options);
             }
             // We are already updating the whole map, don't do it twice

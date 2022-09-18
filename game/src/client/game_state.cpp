@@ -318,9 +318,14 @@ void GameState::handle_key(const Eng3D::Event::Key& e) {
                     profiler_view = new Eng3D::Interface::ProfilerView(*this, this->world->profiler);
             }
             break;
-        case Eng3D::Event::Key::Type::F3:
+        case Eng3D::Event::Key::Type::F3: {
+            this->reload_shaders();
+            this->map->reload_shaders();
+            const std::scoped_lock lock(audio_man.sound_lock);
+            audio_man.music_queue.clear();
+        } break;
+        case Eng3D::Event::Key::Type::F4:
             if(editor) break;
-
             if(current_mode == MapMode::NORMAL) {
                 if(input.select_pos.x < world->width || input.select_pos.y < world->height) {
                     const auto tile = world->get_tile(input.select_pos.x, input.select_pos.y);
@@ -329,10 +334,10 @@ void GameState::handle_key(const Eng3D::Event::Key& e) {
                 }
             }
             break;
-        case Eng3D::Event::Key::Type::F4:
+        case Eng3D::Event::Key::Type::F5:
             LuaAPI::invoke_registered_callback(world->lua, "ai_settings_window_invoke");
             break;
-        case Eng3D::Event::Key::Type::F5:
+        case Eng3D::Event::Key::Type::F6:
             if(editor) break;
             if(current_mode == MapMode::NORMAL) {
                 paused = !paused;
@@ -342,19 +347,6 @@ void GameState::handle_key(const Eng3D::Event::Key& e) {
                     ui_ctx.prompt("Control", "Paused");
             }
             break;
-        case Eng3D::Event::Key::Type::F6: {
-            reload_shaders();
-            // Shader used for drawing the models using custom model render
-            map->obj_shader = std::make_unique<Eng3D::OpenGL::Program>();
-            map->obj_shader->attach_shader(*builtin_shaders["vs_3d"].get());
-            map->obj_shader->attach_shader(*builtin_shaders["fs_3d"].get());
-            map->obj_shader->link();
-
-            const std::scoped_lock lock(audio_man.sound_lock);
-            audio_man.music_queue.clear();
-
-            ui_ctx.prompt("Debug", "Partial reload");
-        } break;
         case Eng3D::Event::Key::Type::BACKSPACE:
             ui_ctx.check_text_input(nullptr);
             break;
