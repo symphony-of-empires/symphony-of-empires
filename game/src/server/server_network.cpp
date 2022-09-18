@@ -195,21 +195,21 @@ void Server::net_loop(int id) {
                     Province* province;
                     ::deserialize(ar, province);
                     if(province == nullptr)
-                        throw ServerException("Unknown province");
+                        CXX_THROW(ServerException, "Unknown province");
                     BuildingType* building_type;
                     ::deserialize(ar, building_type);
                     if(building_type == nullptr)
-                        throw ServerException("Unknown building");
+                        CXX_THROW(ServerException, "Unknown building");
                     Nation* nation;
                     ::deserialize(ar, nation);
                     if(nation == nullptr)
-                        throw ServerException("Unknown nation");
+                        CXX_THROW(ServerException, "Unknown nation");
                     UnitType* unit_type;
                     ::deserialize(ar, unit_type);
                     if(unit_type == nullptr)
-                        throw ServerException("Unknown unit type");
+                        CXX_THROW(ServerException, "Unknown unit type");
                     /// @todo Find building
-                    Building& building = province->get_buildings()[g_world.get_id(*building_type)];
+                    auto& building = province->get_buildings()[g_world.get_id(*building_type)];
                     /// @todo Check nation can build this unit
                     // Tell the building to build this specific unit type
                     building.working_unit_type = unit_type;
@@ -317,7 +317,7 @@ void Server::net_loop(int id) {
                         return d.ref_name == decision_ref_name;
                     });
                     if(decision == local_event.decisions.end())
-                        throw ServerException("Decision " + decision_ref_name + " not found");
+                        CXX_THROW(ServerException, std::string() + "Decision " + decision_ref_name + " not found");
                     local_event.take_decision(*selected_nation, *decision);
                     Eng3D::Log::debug("server", "Event " + local_event.ref_name.get_string() + " takes descision " + decision_ref_name + " by nation " + selected_nation->ref_name);
                 } break;
@@ -326,7 +326,7 @@ void Server::net_loop(int id) {
                     Nation* nation;
                     ::deserialize(ar, nation);
                     if(nation == nullptr)
-                        throw ServerException("Unknown nation");
+                        CXX_THROW(ServerException, "Unknown nation");
                     nation->ai_controlled = false;
                     nation->ai_controlled = false;
                     nation->ai_controlled = false;

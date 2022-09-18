@@ -24,8 +24,12 @@
 // ----------------------------------------------------------------------------
 
 #include <cstring>
+#include "eng3d/log.hpp"
+
 #ifndef E3D_TARGET_WINDOWS
-extern "C" int main(int argc, char** argv);
+// Windows uses runtime DLL imports
+typedef void (MainFn)(int argc, char** argv);
+extern "C" void game_main(int argc, char** argv);
 #endif
 
 #ifdef E3D_TARGET_ANDROID
@@ -33,28 +37,10 @@ extern "C" int main(int argc, char** argv);
 #   define APPNAME "baseapp"
 void android_main(struct android_app* state)
 {
-    main(0, { NULL });
+    game_main(0, { NULL });
     ANativeActivity_finish(state->activity);
 }
-#endif
-#ifdef E3D_TARGET_WINDOWS
-#if 0
-#   include <windows.h>
-#   include <cstdlib>
-typedef int (*MainProc)(int argc, char** argv);
-/// @brief Stub to transform the WinMain into a proper call for main so the game doesn't
-/// even notice we're on windows!
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpszArgument, int iShow) {
-    char* argv[1];
-    argv[0] = new char[2];
-    strcpy((char*)argv[0], "/");
-    main(1, argv);
-    free(argv[0]);
-    return 0;
-}
-#endif
-#endif
-#ifdef E3D_TARGET_SWITCH
+#elif defined E3D_TARGET_SWITCH
 /// @brief Switch doesn't define a pathconf function so this is a kludge
 /// while respecting newlib's stuff
 /// @param pathname Path to the file
@@ -87,6 +73,32 @@ extern "C" long pathconf(const char *pathname, int varcode) {
 }
 
 extern "C" long sysconf(int) {
+    return 0;
+}
+#else
+/// @brief Stub to transform the WinMain into a proper call for main so the game doesn't
+/// even notice we're on windows!
+#ifdef E3D_TARGET_WINDOWS
+#   include <windows.h>
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
+#else
+// While Linux supports externs, windows doesn't
+int main(int argc, char** argv)
+#endif
+{
+    try {
+#ifdef E3D_TARGET_WINDOWS
+        auto game_main = (MainFn)GetProcAddress(GetModuleHandle(NULL), "game_main");
+        if(game_main == nullptr)
+            CXX_THROW(std::runtime_error, "No game_main found!");
+        game_main(__argc, __argv);
+#else
+        game_main(argc, argv);
+#endif
+    } catch(const std::exception& e) {
+        Eng3D::Log::error("game", e.what());
+        exit(EXIT_FAILURE);
+    }
     return 0;
 }
 #endif

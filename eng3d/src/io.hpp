@@ -151,6 +151,8 @@ namespace Eng3D::IO {
         std::string name;
         std::string abs_path; // Absolute path of this package root
         std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> assets;
+        std::string user_abs_path; // Absolute path for the user files
+        std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> user_assets;
     };
 
     class PackageManager {
@@ -160,7 +162,7 @@ namespace Eng3D::IO {
         PackageManager(Eng3D::State& s, const std::vector<std::string>& pkg_paths);
         ~PackageManager() = default;
         void recursive_filesystem_walk(Eng3D::IO::Package& package, const std::string& root, const std::string& current);
-        std::shared_ptr<Eng3D::IO::Asset::Base> get_unique(const IO::Path& path);
+        std::shared_ptr<Eng3D::IO::Asset::Base> get_unique(const Eng3D::IO::Path& path);
         std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> get_multiple(const Eng3D::IO::Path& path);
         std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> get_multiple_prefix(const Eng3D::IO::Path& path);
         std::vector<std::string> get_paths(void) const;

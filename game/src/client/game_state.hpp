@@ -172,4 +172,4 @@ public:
 };
 
 // Run world tick and pending commands
-void start_client(int argc, char** argv);
+extern "C" void game_main(int argc, char** argv);

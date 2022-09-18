@@ -375,7 +375,7 @@ void GameState::handle_key(const Eng3D::Event::Key& e) {
     }
 }
 
-void start_client(int argc, char** argv) {
+extern "C" void game_main(int argc, char** argv) {
     std::vector<std::string> pkg_paths;
     for(int i = 1; i < argc; i++) {
         std::string arg = std::string(argv[i]);

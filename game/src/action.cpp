@@ -94,7 +94,7 @@ Eng3D::Networking::Packet SelectNation::form_packet(const Nation& nation) {
 }
 
 Eng3D::Networking::Packet BuildingStartProducingUnit::form_packet(const Province& province, const BuildingType& building_type, const Nation& nation, const UnitType& unit_type) {
-    return ActionHandlerSR<ActionType::SELECT_NATION>([&](auto& ar) {
+    return ActionHandlerSR<ActionType::BUILDING_START_BUILDING_UNIT>([&](auto& ar) {
         ::serialize(ar, &province);
         ::serialize(ar, &building_type);
         ::serialize(ar, &nation);
