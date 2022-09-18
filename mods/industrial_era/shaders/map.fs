@@ -95,21 +95,19 @@ vec4 get_terrain(vec2 tex_coords, vec2 offset) {
 	const int size = 16;
 	float index = texture(terrain_map, tex_coords).a * size;
 	vec4 color = texture(terrain_sheet, vec3(offset.x, offset.y, index));
-
 #ifdef NOISE
 	vec4 snow_color = no_tiling(terrain_sheet, offset, snow_index, noise_texture);
 #else
 	vec4 snow_color = texture(terrain_sheet, vec3(offset.x, offset.y, snow_index));
 #endif
-
 	// Latitute snow factor - making stuff near the equator less snowy
 	// Goes from 1 -> -1 as y goes from 0 -> 1
-	float latitute_snow_factor = cos(tex_coords.y * PI);
+	float latitute_snow_factor = sin(tex_coords.y * PI);
 	// Seasonal snow factor - allowing winter to come and go by as time passes
 	float year = mod(ticks, 365) / 365.0;
 	float seasonal_snow_factor = cos(year * 2 * PI);
 	// Amount of snow
-	float snow_amount = smoothstep(0.7, 0.9, seasonal_snow_factor * latitute_snow_factor);
+	float snow_amount = 1.0 - smoothstep(0.5, 1.0, seasonal_snow_factor * latitute_snow_factor);
 	return mix(color, snow_color, snow_amount);
 }
 
