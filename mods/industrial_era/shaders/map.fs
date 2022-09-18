@@ -72,12 +72,17 @@ uniform sampler2DArray terrain_sheet;
 const vec3 province_border_col = RGB(0.0, 0.0, 0.0);
 const vec3 country_border_col = RGB(0.2, 0.0, 0.0);
 #ifdef WATER
+#ifdef SDF
 const vec3 water_col = RGB(0.16, 0.35, 0.75);
+#else
+const vec3 water_col = RGB(0.0, 0.0, 0.25);
+#endif
 #else
 const vec3 water_col = RGB(0.0, 0.0, 1.0);
 #endif
 const vec3 paper_col = RGB(0.95294, 0.92157, 0.81569);
 const vec3 river_col = RGB(0.0, 0.0, 0.3);
+const vec3 sky_col = RGB(0.2, 0.2, 1.0);
 
 vec3 get_water_normal(float time, sampler2D wave1, sampler2D wave2, vec2 tex_coords);
 vec4 no_tiling(sampler2D tex, vec2 uv, sampler2D noisy_tex);
@@ -225,6 +230,9 @@ float get_province_shadow(vec2 tex_coords, float is_diag) {
 	float prov_shadow = texture(province_opt, prov_color_coord).r;
 	// Ugly solution, but will do for now
 	prov_shadow += texture(province_opt, prov_color_coord).a;
+	if(smoothstep(45.0, 65.0, dist_to_map * 1000.0) == 1.0) {
+		prov_shadow = 1.0;
+	}
 	return prov_shadow;
 }
 
@@ -285,9 +293,9 @@ float get_lighting(vec2 tex_coords, float beach) {
 	// The non directional lighting
 	const float ambient = 0.1;
 
-	float far_from_map = smoothstep(45.0, 65.0, dist_to_map * 1000.0);
+	float far_from_map = smoothstep(65.0, 75.0, dist_to_map * 1000.0);
 	vec3 view_dir = normalize(view_pos - v_frag_pos);
-	vec3 light_dir = normalize(vec3(-2, -1, -4));
+	vec3 light_dir = normalize(vec3(0, 0, -1));
 
 	// Get the normal
 	vec3 normal = texture(normal, tex_coords).xyz;
@@ -362,9 +370,11 @@ void distance_effect(inout vec3 out_color, inout vec3 water, vec3 prov_color, ve
 	out_color = mix(out_color, paper_border0, sdf_mix);
 
 	sdf_mix = smoothstep(0.93, 1.0, b_sdf);
+#ifdef SDF
 	vec3 water_effect_col = mix(water_col, water, 0.75);
 	vec3 paper_water = mix(water, water_effect_col, 1.0);
 	water = mix(water, paper_water, sdf_mix);
+#endif
 }
 
 /// @brief Paper effect for the water
@@ -397,7 +407,7 @@ void main() {
 	// Change the beach to the right format and apply noise
 	float noise = texture(noise_texture, 20.0 * tex_coords).x;
 #else
-	float noise = 1.f;
+	float noise = 1.0;
 #endif
 	beach += noise * 0.3 - 0.15;
 	beach = smoothstep(0.2, 0.3, beach);
@@ -429,8 +439,8 @@ void main() {
 
 	// The bathymetric effect
 	// TODO fix the scaling of the texture, now it goes from 0.5 - 0.7
-	float bathy = texture(bathymethry, tex_coords).x;
-	bathy = (bathy - 0.50) * 5; // (0.70 - 0.50) = 0.20, so 5
+	float bathy = 1.f; //texture(bathymethry, tex_coords).r;
+	bathy = (bathy - 0.5) * 5; // (0.70 - 0.50) = 0.20, so 5
 	water = water * mix(0.8, 1.0, bathy);
 
 	vec4 borders_diag = get_border(tex_coords);
@@ -444,11 +454,13 @@ void main() {
 	prov_color_hsv.z *= 0.8; // Brightness
 	prov_color = vec4(hsv2rgb(prov_color_hsv).rgb, 1.0);
 
+#ifdef SDF
 	vec3 water_hsv = rgb2hsv(water);
 	// Use saturation *= 0.3 for paper map look
 	water_hsv.y *= 1.3; // Saturation
 	water_hsv.z *= 0.7; // Brightness
 	water = mix(water, hsv2rgb(water_hsv), far_from_map);
+#endif
 
 #ifdef SDF
 	// Obtain the intensity of the border SDF to apply
@@ -495,11 +507,6 @@ void main() {
 	// The fog of war effect
 	float prov_shadow = get_province_shadow(tex_coords, is_diag);
 	out_color = out_color * prov_shadow;
-
-	// Fog, dissolve the further we zoom out, also we have to take the reciprocal to amoritze
-	// the density
-	//float d = (smoothstep(1., 0., 100. / distance(view_pos, v_frag_pos))) * (1. - max(far_from_map - 1., 0.));
-	//out_color = mix(out_color, vec3(0.7, 0.7, 0.7), d);
 
 	float light = 1.0;
 #ifdef LIGHTING
