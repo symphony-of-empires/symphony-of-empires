@@ -138,8 +138,6 @@ public:
     std::atomic<bool> quit;
     bool host_mode = false;
 
-    float delta_time;
-
     // The ui will mostly need to read the world state
     World* world = nullptr;
     // Nation::Id curr_nation

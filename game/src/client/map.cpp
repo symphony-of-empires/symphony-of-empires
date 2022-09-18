@@ -117,7 +117,8 @@ Map::Map(GameState& _gs, const World& _world, UI::Group* _map_ui_layer, int scre
     map_render = new MapRender(this->gs, *this);
 
     // Set the mapmode
-    set_map_mode(political_map_mode, political_province_tooltip);
+    extern std::vector<ProvinceColor> terrain_map_mode(const World& world);
+    this->set_map_mode(terrain_map_mode, empty_province_tooltip);
     Eng3D::Log::debug("game", "Preloading-important stuff");
 
     Eng3D::TextureOptions mipmap_options{};
@@ -131,9 +132,7 @@ Map::Map(GameState& _gs, const World& _world, UI::Group* _map_ui_layer, int scre
     skybox_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/space.png"), mipmap_options);
 
     // Query the initial nation flags
-    for(size_t i = 0; i < this->gs.world->nations.size(); i++) {
-        nation_flags.push_back(gs.tex_man.get_white());
-    }
+    nation_flags.resize(this->gs.world->nations.size(), gs.tex_man.get_white());
     for(const auto& building_type : this->gs.world->building_types) {
         const std::string path = "models/building_types/" + building_type.ref_name + ".obj";
         building_type_models.push_back(gs.model_man.load(gs.package_man.get_unique(path)));
@@ -234,9 +233,7 @@ void Map::create_labels() {
         this->province_labels.push_back(std::move(label));
     }
 #endif
-
-    // Nations
-    this->nation_labels.resize(this->gs.world->nations.size());
+    this->nation_labels.resize(this->gs.world->nations.size()); // Nations
     for(const auto& nation : this->gs.world->nations)
         this->update_nation_label(nation);
 }
@@ -244,11 +241,9 @@ void Map::create_labels() {
 void Map::set_view(MapView view) {
     view_mode = view;
 
-    Eng3D::Camera* old_camera = camera;
-    if(view == MapView::PLANE_VIEW)
-        camera = new Eng3D::FlatCamera(*old_camera);
-    else if(view == MapView::SPHERE_VIEW)
-        camera = new Eng3D::OrbitCamera(*old_camera, Eng3D::GLOBE_RADIUS);
+    auto* old_camera = camera;
+    if(view == MapView::PLANE_VIEW) camera = new Eng3D::FlatCamera(*old_camera);
+    else if(view == MapView::SPHERE_VIEW) camera = new Eng3D::OrbitCamera(*old_camera, Eng3D::GLOBE_RADIUS);
     delete old_camera;
     // create_labels();
 }
@@ -265,17 +260,13 @@ std::string political_province_tooltip(const World& world, const Province::Id id
 // The standard map mode with each province color = country color
 std::vector<ProvinceColor> political_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
-    for(Province::Id i = 0; i < world.provinces.size(); i++) {
-        if(Province::is_invalid(world.provinces[i].controller_id))
-            province_color.push_back(ProvinceColor(i, Eng3D::Color::rgba32(0xffdddddd)));
-        else {
-            const auto& province_controller = world.nations[world.provinces[i].controller_id];
-            province_color.push_back(ProvinceColor(i, Eng3D::Color::rgba32(province_controller.get_client_hint().color)));
-        }
+    for(const auto& province : world.provinces) {
+        if(Province::is_invalid(province.controller_id))
+            province_color.push_back(ProvinceColor(province.get_id(), Eng3D::Color::rgba32(0xffdddddd)));
+        else
+            province_color.push_back(ProvinceColor(province.get_id(), Eng3D::Color::rgba32(world.nations[province.controller_id].get_client_hint().color)));
     }
-
-    // Land
-    province_color.push_back(ProvinceColor(Province::invalid(), Eng3D::Color::rgba32(0xffdddddd)));
+    province_color.push_back(ProvinceColor(Province::invalid(), Eng3D::Color::rgba32(0xffdddddd))); // Land
     return province_color;
 }
 
@@ -527,19 +518,6 @@ void Map::draw() {
 #endif
     }
 
-    if(view_mode == MapView::SPHERE_VIEW) {
-        // Universe skybox
-        const auto model = base_model;
-        obj_shader->set_uniform("model", model);
-        obj_shader->set_texture(0, "diffuse_map", *skybox_tex);
-        obj_shader->set_texture(1, "ambient_map", *gs.tex_man.get_white());
-        obj_shader->set_texture(2, "occlussion_map", *gs.tex_man.get_white());
-        obj_shader->set_texture(3, "height_map", *gs.tex_man.get_white());
-        obj_shader->set_texture(4, "specular_map", *gs.tex_man.get_white());
-        obj_shader->set_texture(5, "normal_map", *gs.tex_man.get_white());
-        skybox.draw();
-    }
-
     if(this->map_render->options.trees.used) {
         // Drawing trees
         tree_shder->use();
@@ -553,6 +531,20 @@ void Map::draw() {
             for(const auto& simple_model : tree_type_models[tree.second]->simple_models)
                 simple_model.draw(*tree_shder, 10);
         }
+    }
+
+    if(view_mode == MapView::SPHERE_VIEW) {
+        // Universe skybox
+        const auto model = base_model;
+        obj_shader->use();
+        obj_shader->set_uniform("model", model);
+        obj_shader->set_texture(0, "diffuse_map", *skybox_tex);
+        obj_shader->set_texture(1, "ambient_map", *gs.tex_man.get_white());
+        obj_shader->set_texture(2, "occlussion_map", *gs.tex_man.get_white());
+        obj_shader->set_texture(3, "height_map", *gs.tex_man.get_white());
+        obj_shader->set_texture(4, "specular_map", *gs.tex_man.get_white());
+        obj_shader->set_texture(5, "normal_map", *gs.tex_man.get_white());
+        skybox.draw();
     }
 
     wind_osc += 0.1f;

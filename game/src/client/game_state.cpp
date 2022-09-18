@@ -172,10 +172,8 @@ void GameState::update_on_tick() {
     world->profiler.stop("UI_TICK");
 
     /// @todo This is inefficient and we should only update **when** needed
-    if(current_mode != MapMode::NO_MAP) {
+    if(current_mode != MapMode::NO_MAP)
         map->update_mapmode();
-        //map->create_labels();
-    }
 }
 
 /// @todo Don't run this thread if not needed (i.e non-host-mode)
@@ -459,7 +457,6 @@ void start_client(int argc, char** argv) {
 
             load_pbar->set_value(gs.load_progress);
             gs.ui_ctx.render_all(gs.input.mouse_pos);
-            gs.swap();
             gs.world->profiler.render_done();
         })
     );
@@ -475,7 +472,6 @@ void start_client(int argc, char** argv) {
     // new Interface::MapDebugMenu(gs);
     Export::export_provinces(*gs.world);
     std::vector<Treaty::Id> displayed_treaties;
-    auto current_frame_time = std::chrono::system_clock::now();
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);
     gs.do_run([&gs](){ return gs.run == true; },
@@ -495,8 +491,8 @@ void start_client(int argc, char** argv) {
 
                     if(gs.current_mode == MapMode::NORMAL) {
                         // Production queue
-                        for(unsigned int i = 0; i < gs.production_queue.size(); i++) {
-                            const UnitType* unit_type = gs.production_queue[i];
+                        for(size_t i = 0; i < gs.production_queue.size(); i++) {
+                            const auto* unit_type = gs.production_queue[i];
 
                             /// @todo Make a better queue AI
                             bool is_built = false;
@@ -524,14 +520,8 @@ void start_client(int argc, char** argv) {
                     gs.map->camera->move(0.05f, 0.f, 0.f);
                 gs.world->world_mutex.unlock();
             }
-        }), ([&current_frame_time, &gs]() {
+        }), ([&gs]() {
             std::scoped_lock lock(gs.render_lock);
-            double prev_num = std::chrono::duration<double>(current_frame_time.time_since_epoch()).count();
-            double now_num = std::chrono::duration<double>(std::chrono::system_clock::now().time_since_epoch()).count();
-            current_frame_time = std::chrono::system_clock::now();
-            gs.delta_time = now_num - prev_num;
-
-            gs.clear();
             if(gs.current_mode != MapMode::NO_MAP) {
                 const std::scoped_lock lock(gs.world->world_mutex);
                 gs.map->camera->update();
@@ -539,7 +529,6 @@ void start_client(int argc, char** argv) {
             }
             if(gs.show_ui)
                 gs.ui_ctx.render_all(gs.input.mouse_pos);
-            gs.swap();
             gs.world->profiler.render_done();
         })
     );

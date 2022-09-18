@@ -52,7 +52,6 @@ std::vector<ProvinceColor> language_map_mode(const World& world);
 std::string language_tooltip(const World& world, const Province::Id id);
 std::vector<ProvinceColor> religion_map_mode(const World& world);
 std::string religion_tooltip(const World& world, const Province::Id id);
-// UNUSED
 std::vector<ProvinceColor> terrain_map_mode(const World& world);
 
 Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
@@ -176,7 +175,6 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     auto* good_price_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
     good_price_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-
         set_mapmode_options(new MapmodeGoodOptions(this->gs));
     });
     good_price_ibtn->set_tooltip("Prices");

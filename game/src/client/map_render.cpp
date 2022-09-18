@@ -258,7 +258,7 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
     tex_coord_scale.scale(1.f / glm::vec2(width, height));
 
     Eng3D::Log::debug("game", "Creating border framebuffer");
-    auto border_fbuffer = Eng3D::OpenGL::Framebuffer();
+    Eng3D::OpenGL::Framebuffer border_fbuffer{};
     border_fbuffer.use();
     border_fbuffer.set_texture(0, border_tex);
 
@@ -292,7 +292,7 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
     auto swap_tex = std::make_unique<Eng3D::Texture>(width, height);
     swap_tex->upload(fbo_mipmap_options);
 
-    auto fbo = Eng3D::OpenGL::Framebuffer();
+    Eng3D::OpenGL::Framebuffer fbo{};
     fbo.use();
 
     // Jump flooding iterations, each step give a distance field 2^steps pixels away from the border
@@ -307,7 +307,7 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
         border_sdf->gen_mipmaps();
         swap_tex->gen_mipmaps();
         sdf_shader->set_uniform("jump", (float)step);
-
+        
         fbo.set_texture(0, draw_on_tex0 ? *border_sdf : *swap_tex);
         if(step == max_dist) sdf_shader->set_texture(0, "tex", border_tex);
         else sdf_shader->set_texture(0, "tex", draw_on_tex0 ? *swap_tex : *border_sdf);
@@ -330,10 +330,10 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
 // Updates the province color texture with the changed provinces 
 void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
     // Water
-    for(Province::Id i = 0; i < this->gs.world->provinces.size(); i++) {
+    for(Province::Id i = 0; i < this->gs.world->provinces.size(); i++)
         if(this->gs.world->terrain_types[this->gs.world->provinces[i].terrain_type_id].is_water_body)
             province_colors[i] = ProvinceColor(i, Eng3D::Color::rgba32(0x00000000));
-    }
+    
     for(const auto province_color : province_colors)
         tile_sheet->buffer.get()[province_color.id] = province_color.color.get_value();
     Eng3D::TextureOptions no_drop_options{};
@@ -390,15 +390,9 @@ void MapRender::update_visibility(GameState& gs)
     }
 
     gs.world->unit_manager.for_each_unit([this, &gs](Unit& unit) {
-        // Unit must be ours
-        if(unit.owner_id != gs.curr_nation->get_id()) {
-            // Or be owned by our ally
-            if(gs.world->get_relation(unit.owner_id, gs.curr_nation->get_id()).has_alliance) {
-                // ...
-            } else {
-                return;
-            }
-        }
+        // Unit must be ours or be owned by our ally
+        if(unit.owner_id != gs.curr_nation->get_id() && !gs.world->get_relation(unit.owner_id, gs.curr_nation->get_id()).has_alliance)
+            return;
         auto prov_id = gs.world->unit_manager.get_unit_current_province(unit.cached_id);
         this->province_opt->buffer[prov_id] = 0x000000ff;
         for(const auto neighbour_id : gs.world->provinces[prov_id].neighbour_ids)
@@ -437,9 +431,8 @@ void MapRender::update(GameState& gs) {
         for(const auto province_id : update_provinces_vec) {
             auto& province = gs.world->provinces[province_id];
             update_area = update_area.join(province.box_area);
-            if(this->options.sdf.used) {
+            if(this->options.sdf.used)
                 this->update_border_sdf(province.box_area, glm::ivec2(gs.width, gs.height));
-            }
         }
     }
 }

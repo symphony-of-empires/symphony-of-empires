@@ -31,6 +31,7 @@
 #include <map>
 #include <string>
 #include <atomic>
+#include <chrono>
 #include <functional>
 
 #include "eng3d/ttf.hpp"
@@ -75,9 +76,16 @@ namespace Eng3D {
         /// @tparam RenderFn Function to handle the rendering of the game
         template<typename CondFn, typename EventFn, typename RenderFn>
         inline void do_run(CondFn cond, EventFn event, RenderFn render) {
+            this->current_frame_time = std::chrono::system_clock::now();
             while(cond()) {
+                auto prev_num = std::chrono::duration<double>(this->current_frame_time.time_since_epoch()).count();
+                auto now_num = std::chrono::duration<double>(std::chrono::system_clock::now().time_since_epoch()).count();
+                this->current_frame_time = std::chrono::system_clock::now();
+                this->delta_time = now_num - prev_num;
                 event();
+                this->clear();
                 render();
+                this->swap();
             }
         }
 
@@ -109,6 +117,8 @@ namespace Eng3D {
         /// @brief Variable telling if the game should quit, honored by most event loops
         /// but should be used explicitly if possible
         std::atomic<bool> run;
+        std::chrono::_V2::system_clock::time_point current_frame_time;
+        float delta_time;
 
         // These variables needs to be initialized before any installers
         SDL_Window* window;
