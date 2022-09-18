@@ -72,12 +72,6 @@ ELSE()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DE3D_BACKEND_OPENGL=1")
 ENDIF()
 
-# Build stuff
-IF(BUILD_ENGINE)
-    add_subdirectory(${CMAKE_SOURCE_DIR}/eng3d ${CMAKE_BINARY_DIR}/eng3d)
-	add_dependencies(SymphonyOfEmpires eng3d)
-ENDIF()
-
 #
 # Dependencies
 #
@@ -208,6 +202,12 @@ ENDIF()
 IF(ANDROID)
 	set(APP_SHARED_LIBRARIES ${LIBRARY_OUTPUT_PATH}/libtbb.so ${LIBRARY_OUTPUT_PATH}/libSDL2.so ${LIBRARY_OUTPUT_PATH}/liblua.so ${LIBRARY_OUTPUT_PATH}/libeng3d.so)
 	string(APPEND APP_SHARED_LIBRARIES ${LIBRARY_OUTPUT_PATH}/libassimp.so)
+ENDIF()
+
+# Build stuff
+IF(BUILD_ENGINE)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/eng3d ${CMAKE_BINARY_DIR}/eng3d)
+	add_dependencies(SymphonyOfEmpires eng3d)
 ENDIF()
 
 #IF(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
