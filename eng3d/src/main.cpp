@@ -26,7 +26,7 @@
 #include <cstring>
 #include "eng3d/log.hpp"
 
-typedef void (MainFn)(int argc, char** argv);
+typedef void (*MainFn)(int argc, char** argv);
 #ifndef E3D_TARGET_WINDOWS
 // Windows uses runtime DLL imports
 extern "C" void game_main(int argc, char** argv);
