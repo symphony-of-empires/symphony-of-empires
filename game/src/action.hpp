@@ -1,9 +1,9 @@
 // Symphony of Empires
 // Copyright (C) 2021, Symphony of Empires contributors
 //
-// This program is free software; you can redistribute it and/or modify
+// This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
+// the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
@@ -11,43 +11,8 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License along
-// with this program; if not, write to the Free Software Foundation, Inc.,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
-// ----------------------------------------------------------------------------
-// Name:
-//      action.hpp
-//
-// Abstract:
-//      Does some important stuff.
-// ----------------------------------------------------------------------------
-
-#pragma once
-
-#include <vector>
-#include "eng3d/network.hpp"
-
-enum class ActionType {
-    BAD, // Error
-    WORLD_TICK,
-    SELECT_NATION,
-    CONNECT, // Chat
-    DISCONNECT,
-    CHAT_MESSAGE,
-    CHAT_NICKNAME,
-    PING, // Testing
-    PONG,
-    PROVINCE_UPDATE, // Province
-    PROVINCE_ADD,
-    PROVINCE_REMOVE,
-    PROVINCE_COLONIZE,
-    NATION_UPDATE, // Nation
-    NATION_ADD,
-    NATION_REMOVE,
-    NATION_ENACT_POLICY,
-    NATION_TAKE_DECISION,
-    UNIT_UPDATE, // Unit
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
     UNIT_ADD,
     UNIT_REMOVE,
     UNIT_CHANGE_TARGET,
