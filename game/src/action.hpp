@@ -13,6 +13,40 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+// ----------------------------------------------------------------------------
+// Name:
+//      action.hpp
+//
+// Abstract:
+//      Does some important stuff.
+// ----------------------------------------------------------------------------
+
+#pragma once
+
+#include <vector>
+#include "eng3d/network.hpp"
+
+enum class ActionType {
+    BAD, // Error
+    WORLD_TICK,
+    SELECT_NATION,
+    CONNECT, // Chat
+    DISCONNECT,
+    CHAT_MESSAGE,
+    CHAT_NICKNAME,
+    PING, // Testing
+    PONG,
+    PROVINCE_UPDATE, // Province
+    PROVINCE_ADD,
+    PROVINCE_REMOVE,
+    PROVINCE_COLONIZE,
+    NATION_UPDATE, // Nation
+    NATION_ADD,
+    NATION_REMOVE,
+    NATION_ENACT_POLICY,
+    NATION_TAKE_DECISION,
+    UNIT_UPDATE, // Unit
     UNIT_ADD,
     UNIT_REMOVE,
     UNIT_CHANGE_TARGET,
