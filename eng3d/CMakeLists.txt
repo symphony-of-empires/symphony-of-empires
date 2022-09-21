@@ -282,3 +282,6 @@ ENDIF()
 #file(GLOB ENG3D_INCLUDES "${PROJECT_SOURCE_DIR}/src/*.hpp" "${PROJECT_SOURCE_DIR}/src/ui/*.hpp")
 #install(TARGETS eng3d DESTINATION lib)
 #install(FILES "${ENG3D_INCLUDES}" DESTINATION include)
+
+add_executable(triangle ${PROJECT_SOURCE_DIR}/tests/triangle.cpp)
+target_link_libraries(triangle PUBLIC eng3d)
