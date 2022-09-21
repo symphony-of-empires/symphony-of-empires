@@ -33,24 +33,22 @@
 #include <glm/vec2.hpp>
 #include <glm/mat4x4.hpp>
 
-using namespace Eng3D;
-
-Curve::Curve(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width)
+Eng3D::Curve::Curve(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width)
 {
     this->create_line(points, normals, width);
 };
 
-void Curve::add_line(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width)
+void Eng3D::Curve::add_line(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width)
 {
     this->create_line(points, normals, width);
 }
 
-void Curve::upload()
+void Eng3D::Curve::upload()
 {
     this->quads = std::make_unique<Eng3D::TriangleList>(positions, tex_coords);
 }
 
-void Curve::add_quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4) {
+void Eng3D::Curve::add_quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4) {
     positions.reserve(positions.size() + 6);
     tex_coords.reserve(tex_coords.size() + 6);
     positions.push_back(c1);
@@ -67,7 +65,7 @@ void Curve::add_quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4) {
     tex_coords.push_back(glm::vec2(0.f, 0.f));
 }
 
-void Curve::create_line(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width) {
+void Eng3D::Curve::create_line(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width) {
     glm::vec3 prev_c1;
     glm::vec3 prev_c2;
     glm::vec3 prev_c3;
@@ -104,13 +102,13 @@ void Curve::create_line(std::vector<glm::vec3> points, std::vector<glm::vec3> no
 }
 
 #ifdef E3D_BACKEND_OPENGL
-void Curve::draw() {
+void Eng3D::Curve::draw() {
     if(this->quads.get() == nullptr)
         this->upload();
     this->quads->draw();
 }
 #elif defined E3D_BACKEND_RGX
-void Curve::draw() {
+void Eng3D::Curve::draw() {
 
 }
 #endif

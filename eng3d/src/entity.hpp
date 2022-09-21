@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <string>
 #include "eng3d/string.hpp"
 
 /// @brief An entity which can only be referenced by an (presumably) unique Id

@@ -257,9 +257,7 @@ public:
             // Truncate lenght
             uint16_t len = static_cast<uint16_t>(std::min<size_t>(std::numeric_limits<uint16_t>::max(), obj.length()));
             ::serialize(ar, len); // Put length for later deserialization (since UTF-8/UTF-16 exists)
-
-            // Copy the string into the output
-            if(len) {
+            if(len) { // Copy the string into the output
                 ar.expand(len);
                 ar.copy_from(obj.c_str(), len);
             }
@@ -268,9 +266,7 @@ public:
             ::deserialize(ar, len);
             if(len >= sizeof(tmpstr_buf))
                 CXX_THROW(SerializerException, "String is too lenghty");
-
-            // Obtain the string itself
-            if(len)
+            if(len) // Obtain the string itself
                 ar.copy_to(tmpstr_buf, len);
             tmpstr_buf[len] = '\0';
             obj = tmpstr_buf;
@@ -285,15 +281,14 @@ class SerializerContainer {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, C& obj_group) {
+        uint32_t len = obj_group.size();
+        ::deser_dynamic<is_serialize>(ar, len);
         if constexpr(is_serialize) {
-            ::deser_dynamic<is_serialize, uint32_t>(ar, obj_group.size());
             for(auto& obj : obj_group)
                 ::deser_dynamic<is_serialize>(ar, obj);
         } else {
-            uint32_t len = 0;
-            ::deser_dynamic<is_serialize>(ar, len);
             obj_group.clear();
-            for(size_t i = 0; i < len; i++) {
+            for(decltype(len) i = 0; i < len; i++) {
                 T obj;
                 ::deser_dynamic<is_serialize>(ar, obj);
                 obj_group.insert(obj);
@@ -335,14 +330,13 @@ template<typename T, typename A>
 class Serializer<std::vector<T, A>> : public SerializerContainer<T, std::vector<T, A>> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, std::vector<T>& obj_group) {
+    static inline void deser_dynamic(Archive& ar, std::vector<T, A>& obj_group) {
+        uint32_t len = obj_group.size();
+        ::deser_dynamic<is_serialize>(ar, len);
         if constexpr(is_serialize) {
-            ::deser_dynamic<is_serialize, uint32_t>(ar, obj_group.size());
             for(auto& obj : obj_group)
                 ::deser_dynamic<is_serialize>(ar, obj);
         } else {
-            uint32_t len = 0;
-            ::deser_dynamic<is_serialize>(ar, len);
             obj_group.resize(len);
             for(decltype(len) i = 0; i < len; i++)
                 ::deser_dynamic<is_serialize, T>(ar, obj_group[i]);
@@ -355,14 +349,13 @@ template<typename T, typename A>
 class Serializer<std::deque<T, A>> : public SerializerContainer<T, std::deque<T, A>> {
 public:
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, std::deque<T>& obj_group) {
+    static inline void deser_dynamic(Archive& ar, std::deque<T, A>& obj_group) {
+        uint32_t len = obj_group.size();
+        ::deser_dynamic<is_serialize>(ar, len);
         if constexpr(is_serialize) {
-            ::deser_dynamic<is_serialize, uint32_t>(ar, obj_group.size());
             for(auto& obj : obj_group)
                 ::deser_dynamic<is_serialize>(ar, obj);
         } else {
-            uint32_t len = 0;
-            ::deser_dynamic<is_serialize>(ar, len);
             obj_group.resize(len);
             for(decltype(len) i = 0; i < len; i++)
                 ::deser_dynamic<is_serialize, T>(ar, obj_group[i]);
@@ -388,11 +381,10 @@ class SerializerBitset {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, T& obj_group) {
+        unsigned long num = obj_group.to_ulong();
         if constexpr(is_serialize) {
-            unsigned long num = obj_group.to_ulong();
             ::deser_dynamic<is_serialize>(ar, num);
         } else {
-            unsigned long num;
             ::deser_dynamic<is_serialize>(ar, num);
             obj_group = T(num);
         }
@@ -409,12 +401,9 @@ class SerializerReference {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, T*& obj) {
-        if constexpr(is_serialize) {
-            typename T::Id id = obj == nullptr ? T::invalid() : W::get_instance().get_id(*obj);
-            ::deser_dynamic<is_serialize>(ar, id);
-        } else {
-            typename T::Id id;
-            ::deser_dynamic<is_serialize>(ar, id);
+        typename T::Id id = obj == nullptr ? T::invalid() : W::get_instance().get_id(*obj);
+        ::deser_dynamic<is_serialize>(ar, id);
+        if constexpr(!is_serialize) {
             if(id >= W::get_instance().get_list((T*)nullptr).size()) {
                 obj = nullptr;
             } else {
@@ -430,12 +419,9 @@ class SerializerReferenceLocal {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, T*& obj) {
-        if constexpr(is_serialize) {
-            typename T::Id id = obj == nullptr ? T::invalid() : W::get_instance().get_id(*obj);
-            ::deser_dynamic<is_serialize>(ar, id);
-        } else {
-            typename T::Id id;
-            ::deser_dynamic<is_serialize>(ar, id);
+        typename T::Id id = obj == nullptr ? T::invalid() : W::get_instance().get_id(*obj);
+        ::deser_dynamic<is_serialize>(ar, id);
+        if constexpr(!is_serialize) {
             if(id >= W::get_instance().get_list((T*)nullptr).size()) {
                 obj = nullptr;
             } else {

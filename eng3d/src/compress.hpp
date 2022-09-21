@@ -39,13 +39,10 @@ namespace Eng3D::Zlib {
         info.next_in = (Bytef*)src;
         info.next_out = (Bytef*)dest;
 
-        int r;
-        r = deflateInit(&info, Z_DEFAULT_COMPRESSION);
-        if(r == Z_OK) {
-            r = deflate(&info, Z_FINISH);
-            if(r == Z_STREAM_END)
+        int r = deflateInit(&info, Z_DEFAULT_COMPRESSION);
+        if(r == Z_OK)
+            if((r = deflate(&info, Z_FINISH)) == Z_STREAM_END)
                 return info.total_out;
-        }
         deflateEnd(&info);
         return info.total_out;
     }
@@ -57,13 +54,10 @@ namespace Eng3D::Zlib {
         info.next_in = (Bytef*)src;
         info.next_out = (Bytef*)dest;
 
-        int r;
-        r = inflateInit(&info);
-        if(r == Z_OK) {
-            r = inflate(&info, Z_FINISH);
-            if(r == Z_STREAM_END)
+        int r = inflateInit(&info);
+        if(r == Z_OK)
+            if((r = inflate(&info, Z_FINISH)) == Z_STREAM_END)
                 return info.total_out;
-        }
         inflateEnd(&info);
         return info.total_out;
     }

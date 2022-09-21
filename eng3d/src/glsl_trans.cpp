@@ -17,7 +17,7 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      Eng3D::GLSL::trans.cpp
+//      glsl_trans.cpp
 //
 // Abstract:
 //      Does some important stuff.

@@ -447,3 +447,21 @@ void Eng3D::State::set_multisamples(int samples) const {
 Eng3D::State& Eng3D::State::get_instance() {
     return *g_state;
 }
+
+/// @brief Perform the main game loop
+/// @param CondFn Condition that is evaluated and checked, if it is not true then stop execution
+/// @param EventFn Function to handle events
+/// @param RenderFn Function to handle the rendering of the game
+void Eng3D::State::do_run(std::function<bool(void)> cond, std::function<void(void)> event, std::function<void(void)> render) {
+    this->current_frame_time = std::chrono::system_clock::now();
+    while(cond()) {
+        auto prev_num = std::chrono::duration<double>(this->current_frame_time.time_since_epoch()).count();
+        auto now_num = std::chrono::duration<double>(std::chrono::system_clock::now().time_since_epoch()).count();
+        this->current_frame_time = std::chrono::system_clock::now();
+        this->delta_time = now_num - prev_num;
+        event();
+        this->clear();
+        render();
+        this->swap();
+    }
+}

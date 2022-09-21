@@ -20,7 +20,7 @@
 //      heap_ext.cpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Overrides default new/delete operators.
 // ----------------------------------------------------------------------------
 
 #ifdef E3D_MANAGED_HEAP

@@ -69,25 +69,7 @@ namespace Eng3D {
         void do_event();
         void set_multisamples(int samples) const;
         static State& get_instance();
-        
-        /// @brief Perform the main game loop
-        /// @tparam CondFn Condition that is evaluated and checked, if it is not true then stop execution
-        /// @tparam EventFn Function to handle events
-        /// @tparam RenderFn Function to handle the rendering of the game
-        template<typename CondFn, typename EventFn, typename RenderFn>
-        inline void do_run(CondFn cond, EventFn event, RenderFn render) {
-            this->current_frame_time = std::chrono::system_clock::now();
-            while(cond()) {
-                auto prev_num = std::chrono::duration<double>(this->current_frame_time.time_since_epoch()).count();
-                auto now_num = std::chrono::duration<double>(std::chrono::system_clock::now().time_since_epoch()).count();
-                this->current_frame_time = std::chrono::system_clock::now();
-                this->delta_time = now_num - prev_num;
-                event();
-                this->clear();
-                render();
-                this->swap();
-            }
-        }
+        void do_run(std::function<bool(void)> cond, std::function<void(void)> event, std::function<void(void)> render);
 
         /// @brief Value to ignore x/y axis motion taps (useful ignoring stray joystick input)
         static constexpr auto JOYSTICK_DEAD_ZONE = 3000;
