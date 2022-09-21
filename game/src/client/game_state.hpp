@@ -53,8 +53,8 @@ class Input {
     std::set<Unit::Id> selected_units;
 public:
     glm::vec2 select_pos;
+    glm::ivec2 drag_coord;
     bool middle_mouse_down = false;
-    glm::ivec2 mouse_pos;
 
     inline const std::set<Unit::Id> get_selected_units() const {
         return selected_units;
@@ -78,8 +78,6 @@ public:
 
     Language* selected_language = nullptr;
     Religion* selected_religion = nullptr;
-
-    glm::ivec2 drag_coord;
 };
 
 class Client;
@@ -168,7 +166,6 @@ public:
     bool in_game = false;
     bool motion_blur = true; // Settings
     bool editor = true; // Editor options
-    bool show_ui = true;
 };
 
 // Run world tick and pending commands

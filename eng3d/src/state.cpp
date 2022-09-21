@@ -384,6 +384,10 @@ void Eng3D::State::swap() {
     tex_man.upload();
 }
 
+#include "eng3d/ui/ui.hpp"
+#include "eng3d/ui/widget.hpp"
+#include "eng3d/ui/window.hpp"
+#include "eng3d/ui/text.hpp"
 void Eng3D::State::do_event() {
     // Check window size every update needed cause the window sometimes changes size
     // without calling the change window size event
@@ -435,6 +439,25 @@ void Eng3D::State::do_event() {
         default: break;
         }
     }
+
+    const std::scoped_lock lock(this->ui_ctx.prompt_queue_mutex);
+    for(const auto& prompt : this->ui_ctx.prompt_queue) {
+        auto* win = new UI::Window(-256, 0, 512, 512);
+        win->origin = UI::Origin::CENTER_SCREEN;
+        win->text(prompt.first);
+        win->is_scroll = true;
+        win->set_close_btn_function([win](UI::Widget&) {
+            win->kill();
+        });
+        auto* txt = new UI::Text(0, 0, win->width, win->height, win);
+        txt->text_color = Eng3D::Color::rgba32(0x00000000);
+        txt->text(prompt.second);
+        txt->is_scroll = true;
+        win->height = txt->y + txt->height;
+        win->y -= win->height / 2;
+    }
+    this->ui_ctx.prompt_queue.clear();
+    this->ui_ctx.clear_dead();
 }
 
 void Eng3D::State::set_multisamples(int samples) const {
@@ -463,5 +486,63 @@ void Eng3D::State::do_run(std::function<bool(void)> cond, std::function<void(voi
         this->clear();
         render();
         this->swap();
+    }
+}
+
+void Eng3D::State::handle_resize() {
+
+}
+
+void Eng3D::State::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
+    if(!this->show_ui)
+        return;
+    
+    if(e.hold) {
+        if(this->ui_ctx.check_hover(this->mouse_pos) && e.type == Eng3D::Event::MouseButton::Type::LEFT) {
+            this->mouse_pos = Eng3D::Event::get_mouse_pos();
+            this->ui_ctx.check_drag(this->mouse_pos);
+        }
+    } else {
+        this->mouse_pos = Eng3D::Event::get_mouse_pos();
+        if(e.type == Eng3D::Event::MouseButton::Type::LEFT || e.type == Eng3D::Event::MouseButton::Type::RIGHT) {
+            if(this->ui_ctx.check_click(this->mouse_pos)) {
+                const std::scoped_lock lock(this->audio_man.sound_lock);
+                auto entries = package_man.get_multiple_prefix("sfx/click");
+                if(!entries.empty()) {
+                    auto audio = this->audio_man.load(entries[rand() % entries.size()]->get_abs_path());
+                    this->audio_man.sound_queue.push_back(audio);
+                }
+                return;
+            }
+        }
+    }
+}
+
+void Eng3D::State::handle_mouse_motion(const Eng3D::Event::MouseMotion& e) {
+    this->mouse_pos = e.pos;
+    if(this->show_ui && this->ui_ctx.check_hover(this->mouse_pos))
+        return;
+}
+
+void Eng3D::State::handle_mouse_wheel(const Eng3D::Event::MouseWheel& e) {
+    if(this->show_ui) {
+        this->mouse_pos = Eng3D::Event::get_mouse_pos();
+        this->ui_ctx.check_hover(this->mouse_pos);
+        if(this->ui_ctx.check_wheel(this->mouse_pos, e.wheel.y * 6))
+            return;
+    }
+}
+
+void Eng3D::State::handle_key(const Eng3D::Event::Key& e) {
+    if(e.hold) {
+        switch(e.type) {
+        case Eng3D::Event::Key::Type::ESC:
+            this->run = !this->run;
+            break;
+        case Eng3D::Event::Key::Type::F2:
+            break;
+        default:
+            break;
+        }
     }
 }

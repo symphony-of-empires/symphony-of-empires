@@ -556,14 +556,14 @@ void Map::handle_resize() {
 
 void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
     if(e.hold) {
-        gs.input.mouse_pos = Eng3D::Event::get_mouse_pos();
+        gs.mouse_pos = Eng3D::Event::get_mouse_pos();
         this->is_drag = false;
         if(e.type == Eng3D::Event::MouseButton::Type::LEFT) {
             gs.input.drag_coord = gs.input.select_pos;
             this->is_drag = true;
         } else if(e.type == Eng3D::Event::MouseButton::Type::MIDDLE) {
             glm::ivec2 map_pos;
-            if(this->camera->get_cursor_map_pos(gs.input.mouse_pos, map_pos))
+            if(this->camera->get_cursor_map_pos(gs.mouse_pos, map_pos))
                 this->last_camera_drag_pos = map_pos;
         }
     } else {
@@ -652,21 +652,21 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
 void Map::handle_mouse_motions(const Eng3D::Event::MouseMotion& e) {
     glm::ivec2 map_pos;
     if(gs.input.middle_mouse_down) {  // Drag the map with middlemouse
-        if(gs.map->camera->get_cursor_map_pos(gs.input.mouse_pos, map_pos)) {
+        if(gs.map->camera->get_cursor_map_pos(gs.mouse_pos, map_pos)) {
             glm::vec2 current_pos = glm::make_vec2(gs.map->camera->get_map_pos());
             const glm::vec2 pos = current_pos + last_camera_drag_pos - glm::vec2(map_pos);
             gs.map->camera->set_pos(pos.x, pos.y);
         }
     }
 
-    if(gs.map->camera->get_cursor_map_pos(gs.input.mouse_pos, map_pos)) {
+    if(gs.map->camera->get_cursor_map_pos(gs.mouse_pos, map_pos)) {
         if(map_pos.x < 0 || map_pos.x >(int)gs.world->width || map_pos.y < 0 || map_pos.y >(int)gs.world->height) return;
         gs.input.select_pos = map_pos;
         auto prov_id = map_render->get_tile_province_id(map_pos.x, map_pos.y);
         const std::string text = mapmode_tooltip_func != nullptr ? mapmode_tooltip_func(*gs.world, prov_id) : "";
         if(!text.empty()) {
             gs.map->tooltip->text(text);
-            gs.ui_ctx.use_tooltip(gs.map->tooltip, gs.input.mouse_pos);
+            gs.ui_ctx.use_tooltip(gs.map->tooltip, gs.mouse_pos);
         }
     }
 }

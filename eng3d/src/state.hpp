@@ -74,11 +74,11 @@ namespace Eng3D {
         /// @brief Value to ignore x/y axis motion taps (useful ignoring stray joystick input)
         static constexpr auto JOYSTICK_DEAD_ZONE = 3000;
 
-        virtual void handle_resize() {};
-        virtual void handle_mouse_btn(const Eng3D::Event::MouseButton&) {};
-        virtual void handle_mouse_motion(const Eng3D::Event::MouseMotion&) {};
-        virtual void handle_mouse_wheel(const Eng3D::Event::MouseWheel&) {};
-        virtual void handle_key(const Eng3D::Event::Key&) {};
+        virtual void handle_resize();
+        virtual void handle_mouse_btn(const Eng3D::Event::MouseButton& e);
+        virtual void handle_mouse_motion(const Eng3D::Event::MouseMotion& e);
+        virtual void handle_mouse_wheel(const Eng3D::Event::MouseWheel& e);
+        virtual void handle_key(const Eng3D::Event::Key& e);
 
         /// @brief Number of the axis assigned to map movement
         int map_movement_axis_num = 0;
@@ -95,10 +95,12 @@ namespace Eng3D {
         int back_button_num = 1; // B
         int map_select_button_num = 2; // X
         int map_back_button_num = 3; // Y
+        glm::ivec2 mouse_pos; // Mouse position
 
         /// @brief Variable telling if the game should quit, honored by most event loops
         /// but should be used explicitly if possible
         std::atomic<bool> run;
+        bool show_ui = true;
         std::chrono::system_clock::time_point current_frame_time;
         float delta_time;
 

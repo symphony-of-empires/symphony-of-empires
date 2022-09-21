@@ -123,26 +123,6 @@ std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(const Nation& nation)
     return this->tex_man.load(this->package_man.get_unique(path));
 }
 
-void handle_event(GameState& gs) {
-    gs.do_event();
-    const std::scoped_lock lock(gs.ui_ctx.prompt_queue_mutex);
-    for(const auto& prompt : gs.ui_ctx.prompt_queue) {
-        auto* win = new UI::Window(0, 0, 512, 512);
-        win->origin = UI::Origin::CENTER_SCREEN;
-        win->text(prompt.first);
-        win->is_scroll = true;
-        win->set_close_btn_function([win](UI::Widget&) {
-            win->kill();
-        });
-        auto* txt = new UI::Text(0, 0, win->width, win->height, win);
-        txt->text(prompt.second);
-        txt->is_scroll = true;
-        win->height = txt->y + txt->height;
-    }
-    gs.ui_ctx.prompt_queue.clear();
-    gs.ui_ctx.clear_dead();
-}
-
 void GameState::send_command(Archive& archive) {
     std::scoped_lock lock(client->pending_packets_mutex);
     Eng3D::Networking::Packet packet(this->client->get_fd(), archive.get_buffer(), archive.size());
@@ -246,10 +226,10 @@ void GameState::handle_resize() {
 void GameState::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
     if(e.hold) {
         if(show_ui) {
-            if(ui_ctx.check_hover(input.mouse_pos)) {
+            if(ui_ctx.check_hover(this->mouse_pos)) {
                 if(e.type == Eng3D::Event::MouseButton::Type::LEFT) {
-                    input.mouse_pos = Eng3D::Event::get_mouse_pos();
-                    ui_ctx.check_drag(input.mouse_pos);
+                    this->mouse_pos = Eng3D::Event::get_mouse_pos();
+                    ui_ctx.check_drag(this->mouse_pos);
                 }
                 return;
             }
@@ -261,10 +241,10 @@ void GameState::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
         if(e.type == Eng3D::Event::MouseButton::Type::MIDDLE)
             input.middle_mouse_down = true;
     } else {
-        input.mouse_pos = Eng3D::Event::get_mouse_pos();
+        this->mouse_pos = Eng3D::Event::get_mouse_pos();
         if(e.type == Eng3D::Event::MouseButton::Type::LEFT || e.type == Eng3D::Event::MouseButton::Type::RIGHT) {
             if(show_ui) {
-                if(ui_ctx.check_click(input.mouse_pos)) {
+                if(ui_ctx.check_click(this->mouse_pos)) {
                     const std::scoped_lock lock(audio_man.sound_lock);
                     auto entries = package_man.get_multiple_prefix("sfx/click");
                     if(!entries.empty()) {
@@ -284,20 +264,19 @@ void GameState::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
 }
 
 void GameState::handle_mouse_motion(const Eng3D::Event::MouseMotion& e) {
-    input.mouse_pos = e.pos;
-    if(show_ui)
-        if(ui_ctx.check_hover(input.mouse_pos))
-            return;
+    this->mouse_pos = e.pos;
+    if(this->show_ui && this->ui_ctx.check_hover(this->mouse_pos))
+        return;
 
     if(current_mode != MapMode::NO_MAP)
         map->handle_mouse_motions(e);
 }
 
 void GameState::handle_mouse_wheel(const Eng3D::Event::MouseWheel& e) {
-    input.mouse_pos = Eng3D::Event::get_mouse_pos();
+    this->mouse_pos = Eng3D::Event::get_mouse_pos();
     if(show_ui) {
-        ui_ctx.check_hover(input.mouse_pos);
-        if(ui_ctx.check_wheel(input.mouse_pos, e.wheel.y * 6)) return;
+        ui_ctx.check_hover(this->mouse_pos);
+        if(ui_ctx.check_wheel(this->mouse_pos, e.wheel.y * 6)) return;
     }
 
     if(current_mode != MapMode::NO_MAP)
@@ -312,10 +291,11 @@ void GameState::handle_key(const Eng3D::Event::Key& e) {
             break;
         case Eng3D::Event::Key::Type::F2:
             if(current_mode == MapMode::NORMAL) {
-                if(profiler_view)
+                if(profiler_view) {
                     profiler_view->kill();
-                else
-                    profiler_view = new Eng3D::Interface::ProfilerView(*this, this->world->profiler);
+                    profiler_view = nullptr;
+                }
+                else profiler_view = new Eng3D::Interface::ProfilerView(*this, this->world->profiler);
             }
             break;
         case Eng3D::Event::Key::Type::F3: {
@@ -434,7 +414,7 @@ extern "C" void game_main(int argc, char** argv) {
             gs.music_enqueue();
             // Widgets here SHOULD NOT REQUEST UPON WORLD DATA
             // so no world lock is needed beforehand
-            handle_event(gs);
+            gs.do_event();
         }), ([&gs, &map_layer, load_pbar]() {
             /// @todo first create the map and separately load all the assets
             std::scoped_lock lock(gs.render_lock);
@@ -449,7 +429,7 @@ extern "C" void game_main(int argc, char** argv) {
             }
 
             load_pbar->set_value(gs.load_progress);
-            gs.ui_ctx.render_all(gs.input.mouse_pos);
+            gs.ui_ctx.render_all(gs.mouse_pos);
             gs.world->profiler.render_done();
         })
     );
@@ -473,7 +453,7 @@ extern "C" void game_main(int argc, char** argv) {
             // Locking is very expensive, so we condense everything into a big "if"
             if(gs.world->world_mutex.try_lock()) {
                 // Required since events may request world data
-                handle_event(gs);
+                gs.do_event();
                 if(gs.current_mode == MapMode::NORMAL)
                     handle_popups(displayed_treaties, gs);
 
@@ -521,7 +501,7 @@ extern "C" void game_main(int argc, char** argv) {
                 gs.map->draw();
             }
             if(gs.show_ui)
-                gs.ui_ctx.render_all(gs.input.mouse_pos);
+                gs.ui_ctx.render_all(gs.mouse_pos);
             gs.world->profiler.render_done();
         })
     );
