@@ -135,8 +135,8 @@ void Province::clean_pops() {
             continue;
         }
 
-        it->size = std::min<float>(it->size, 10000000.f); // Limit pop size
-        it->literacy = std::min<float>(it->literacy, 1.f); // Limit literacy
+        it->size = glm::min<float>(it->size, 10000000.f); // Limit pop size
+        it->literacy = glm::min<float>(it->literacy, 1.f); // Limit literacy
         it++;
     }
 }

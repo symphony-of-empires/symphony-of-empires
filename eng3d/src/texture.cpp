@@ -333,11 +333,9 @@ void Eng3D::TextureArray::upload() {
     glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
     glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, height);
 
-    for(size_t x = 0; x < tiles_x; x++) {
-        for(size_t y = 0; y < tiles_y; y++) {
+    for(size_t x = 0; x < tiles_x; x++)
+        for(size_t y = 0; y < tiles_y; y++)
             glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, x * tiles_x + y, p_dx, p_dy, 1, GL_RGBA, GL_UNSIGNED_BYTE, buffer.get() + (x * p_dy * width + y * p_dx));
-        }
-    }
     //glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 
     // unbind texture handle

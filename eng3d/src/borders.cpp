@@ -96,7 +96,7 @@ class BorderGenerator {
         if(check_neighbor(new_x, new_y)) {
             int old_index = prev_x + prev_y * width;
             int new_index = new_x + new_y * width;
-            int index = 2 * std::min(old_index, new_index) + std::abs(prev_x - new_x);
+            int index = 2 * glm::min<int>(old_index, new_index) + std::abs(prev_x - new_x);
             if(walked_paths.count(index)) return;
             walked_positions.insert(new_index);
             if(connections++ > 1) {

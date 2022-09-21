@@ -219,10 +219,9 @@ Eng3D::Networking::Server::~Server() {
     WSACleanup();
 #endif
     // Join all threads before deletion
-    for(size_t i = 0; i < this->n_clients; i++) {
+    for(size_t i = 0; i < this->n_clients; i++)
         if(this->clients[i].thread.joinable())
             this->clients[i].thread.join();
-    }
     delete[] this->clients;
 }
 

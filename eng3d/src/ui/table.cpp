@@ -67,11 +67,12 @@ UI::TableRow::TableRow(UI::Widget* _parent, int _width, int _height, std::vector
 {
     this->flex = UI::Flex::ROW;
     this->flex_justify = UI::FlexJustify::START;
-    for(size_t i = 0; i < this->columns_width.size(); i++) {
-        auto element_width = columns_width[i];
-        auto* element = new UI::TableElement(this, element_width, this->height);
-        elements.push_back(element);
-    }
+
+    elements.resize(this->columns_width.size());
+    std::transform(this->columns_width.cbegin(), this->columns_width.cend(), elements.begin(), [this](const auto e) {
+        return new UI::TableElement(this, e, this->height);
+    });
+
     this->on_update = ([this](UI::Widget&) {
         this->is_active = false;
     });

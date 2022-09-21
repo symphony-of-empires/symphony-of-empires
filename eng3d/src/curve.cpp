@@ -64,15 +64,12 @@ void Eng3D::Curve::add_quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 
     tex_coords.push_back(glm::vec2(0.f, 0.f));
 }
 
-void Eng3D::Curve::create_line(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width) {
-    glm::vec3 prev_c1;
-    glm::vec3 prev_c2;
-    glm::vec3 prev_c3;
-    glm::vec3 prev_c4;
+void Eng3D::Curve::create_line(const std::vector<glm::vec3>& points, const std::vector<glm::vec3>& normals, float width) {
+    glm::vec3 prev_c1, prev_c2, prev_c3, prev_c4;
     for(size_t i = 0; i < points.size() - 1; i++) {
-        glm::vec3 p1 = points[i];
-        glm::vec3 p2 = points[i + 1];
-        glm::vec3 normal = normals[i];
+        auto p1 = points[i];
+        auto p2 = points[i + 1];
+        auto normal = normals[i];
 
         // Vec from p1 to p2
         glm::vec3 p1t2 = p2 - p1;

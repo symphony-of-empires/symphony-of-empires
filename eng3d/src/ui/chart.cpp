@@ -46,13 +46,13 @@
 
 using namespace UI;
 
-Chart::Chart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
+UI::Chart::Chart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI::WidgetType::LABEL)
 {
 
 }
 
-void Chart::on_render(Context&, Eng3D::Rect viewport) {
+void UI::Chart::on_render(Context&, Eng3D::Rect viewport) {
     g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
     if(current_texture != nullptr)
         draw_rectangle(0, 0, width, height, viewport, current_texture.get());

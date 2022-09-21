@@ -49,7 +49,7 @@ namespace Eng3D {
 #   error not implemented
 #endif
     private:
-        void create_line(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width);
+        void create_line(const std::vector<glm::vec3>& points, const std::vector<glm::vec3>& normals, float width);
         void add_quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4);
         std::vector<glm::vec3> positions;
         std::vector<glm::vec2> tex_coords;

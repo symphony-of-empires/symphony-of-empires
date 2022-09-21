@@ -417,18 +417,18 @@ void World::load_initial() {
             for(size_t i = 0; i < width; i++) {
                 const auto& tile = this->get_tile(i, j);
                 auto& province = provinces[tile.province_id];
-                province.box_area.left = std::min<float>(province.box_area.left, i);
-                province.box_area.right = std::max<float>(province.box_area.right, i);
-                province.box_area.bottom = std::max<float>(province.box_area.bottom, j);
-                province.box_area.top = std::min<float>(province.box_area.top, j);
+                province.box_area.left = glm::min<float>(province.box_area.left, i);
+                province.box_area.right = glm::max<float>(province.box_area.right, i);
+                province.box_area.bottom = glm::max<float>(province.box_area.bottom, j);
+                province.box_area.top = glm::min<float>(province.box_area.top, j);
             }
         }
 
         // Correct stuff from provinces
         Eng3D::Log::debug("world", _("Correcting values for provinces"));
         for(auto& province : provinces) {
-            province.box_area.right = std::min<float>(width, province.box_area.right);
-            province.box_area.bottom = std::min<float>(height, province.box_area.bottom);
+            province.box_area.right = glm::min<float>(width, province.box_area.right);
+            province.box_area.bottom = glm::min<float>(height, province.box_area.bottom);
         }
 
         // Neighbours
@@ -531,7 +531,7 @@ static inline void unit_do_tick(World& world, Unit& unit) {
     if(unit.morale < 1.f)
         unit.morale += 0.1f;
     if(unit.size < unit.base)
-        unit.size = std::min<float>(unit.base, unit.size + unit.morale * 10.f);
+        unit.size = glm::min<float>(unit.base, unit.size + unit.morale * 10.f);
 
     if(Province::is_valid(unit.get_target_province_id())) {
         assert(unit.get_target_province_id() != unit.province_id());

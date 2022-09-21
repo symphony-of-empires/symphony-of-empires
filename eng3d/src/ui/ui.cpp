@@ -411,7 +411,6 @@ bool UI::Context::check_hover(glm::ivec2 mouse_pos) {
 #ifdef E3D_TARGET_WINDOWS
         SetCapture(GetActiveWindow());
 #endif
-
         // Drag vector
         const glm::ivec2 drag = mouse_pos - glm::ivec2(this->drag_x, this->drag_y);
         const auto offset = this->get_pos(*dragged_widget, glm::ivec2(0));
@@ -549,15 +548,15 @@ bool check_text_input_recursive(UI::Widget& widget, const char* _input) {
     }
 
     for(const auto& children : widget.children)
-        if(check_text_input_recursive(*children, _input)) return true;
+        if(check_text_input_recursive(*children, _input))
+            return true;
     return false;
 }
 
 bool UI::Context::check_text_input(const char* _input) {
-    for(const auto& widget : widgets) {
-        bool r = check_text_input_recursive(*widget.get(), _input);
-        if(r) return true;
-    }
+    for(const auto& widget : widgets)
+        if(check_text_input_recursive(*widget.get(), _input))
+            return true;
     return false;
 }
 
@@ -607,10 +606,9 @@ bool UI::Context::check_wheel_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm
 }
 
 bool UI::Context::check_wheel(glm::ivec2 mouse_pos, int y) {
-    for(int i = widgets.size() - 1; i >= 0; i--) {
-        bool scrolled = check_wheel_recursive(*widgets[i].get(), mouse_pos, glm::ivec2(0), y);
-        if(scrolled) return true;
-    }
+    for(int i = widgets.size() - 1; i >= 0; i--)
+        if(check_wheel_recursive(*widgets[i].get(), mouse_pos, glm::ivec2(0), y))
+            return true;
     return false;
 }
 

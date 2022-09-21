@@ -48,7 +48,7 @@ void Unit::attack(Unit& enemy) {
     // It's important that a size of zero nullifies the attack, this prevents the edge case
     // of 1 v 1 units that kill each other
     const float damage = (type->attack * static_cast<float>(this->size)) * this->morale * 0.08f;
-    enemy.size -= std::min<size_t>(enemy.size, damage);
+    enemy.size -= glm::min<size_t>(enemy.size, damage);
 }
 
 glm::vec2 Unit::get_pos() const {

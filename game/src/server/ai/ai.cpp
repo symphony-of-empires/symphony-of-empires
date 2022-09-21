@@ -616,7 +616,7 @@ void ai_do_tick(Nation& nation) {
             const auto& relation = world.get_relation(world.get_id(other), world.get_id(nation));
             if(relation.has_war) defense_factor++;
         }
-        defense_factor = std::min<float>(defense_factor, 100);
+        defense_factor = glm::min<float>(defense_factor, 100);
 
         const int base_reluctance = 100;
         

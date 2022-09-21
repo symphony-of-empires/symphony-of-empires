@@ -22,6 +22,7 @@
 //      Allows profiling of various systems of the game.
 // ----------------------------------------------------------------------------
 
+#include <algorithm>
 #include "eng3d/profiler.hpp"
 #include "eng3d/log.hpp"
 
@@ -43,12 +44,12 @@ static const uint32_t colors[] = {
     0xFFA5FFD2, 0xFFFFB167, 0xFF009BFF, 0xFFE85EBE
 };
 
-void BenchmarkTask::start() {
+void Eng3D::BenchmarkTask::start() {
     start_time = std::chrono::system_clock::now();
     running = true;
 }
 
-void BenchmarkTask::stop() {
+void Eng3D::BenchmarkTask::stop() {
     if(!running) {
         Eng3D::Log::error("benchmark", "Tried to stop task '" + name + "', but it hasn't been started yet");
         return;
@@ -60,25 +61,23 @@ void BenchmarkTask::stop() {
     start_times.push_back(start_time);
 }
 
-float BenchmarkTask::get_average_time_ms() {
-    clear_old();
-    if(times.empty()) return 0;
+float Eng3D::BenchmarkTask::get_average_time_ms() {
+    this->clear_old();
     float total_time = 0;
     for(auto const& time : times)
         total_time += time;
     return total_time / (MS_TO_KEEP_DATA / 1e3);
 }
 
-float BenchmarkTask::get_largest_time_ms() {
-    clear_old();
-    if(times.empty()) return 0;
+float Eng3D::BenchmarkTask::get_largest_time_ms() {
+    this->clear_old();
     float max_time = 0;
     for(const auto& time : times)
         max_time = std::max<float>(max_time, time);
     return max_time;
 }
 
-void BenchmarkTask::clear_old() {
+void Eng3D::BenchmarkTask::clear_old() {
     // Clear old times
     auto now = std::chrono::system_clock::now();
     auto times_it = times.begin();
@@ -96,12 +95,12 @@ void BenchmarkTask::clear_old() {
     }
 }
 
-void Profiler::start(const std::string& name) {
+void Eng3D::Profiler::start(const std::string& name) {
     auto it = tasks.find(name);
     if(it == tasks.end()) {
         size_t amounts = tasks.size();
         uint32_t color = colors[amounts % 64];
-        BenchmarkTask task(name, color);
+        Eng3D::BenchmarkTask task(name, color);
         task.start();
         tasks.insert({ name, task });
     } else {
@@ -109,7 +108,7 @@ void Profiler::start(const std::string& name) {
     }
 }
 
-void Profiler::stop(const std::string& name) {
+void Eng3D::Profiler::stop(const std::string& name) {
     auto it = tasks.find(name);
     if(it == tasks.end()) {
         Eng3D::Log::error("profiler", "Tried to stop task '" + name + "', but it hasn't been started yet");
@@ -118,15 +117,15 @@ void Profiler::stop(const std::string& name) {
     }
 }
 
-void Profiler::tick_done() {
+void Eng3D::Profiler::tick_done() {
 
 }
 
-float Profiler::get_fps() {
+float Eng3D::Profiler::get_fps() {
     return fps;
 }
 
-void Profiler::render_done() {
+void Eng3D::Profiler::render_done() {
     auto now = std::chrono::system_clock::now();
     if(!render_started) {
         fps_clock = now;
@@ -142,9 +141,10 @@ void Profiler::render_done() {
     }
 }
 
-const std::vector<BenchmarkTask*> Profiler::get_tasks() {
-    std::vector<BenchmarkTask*> out_tasks;
-    for(auto& task : tasks)
-        out_tasks.push_back(&task.second);
-    return out_tasks;
+const std::vector<Eng3D::BenchmarkTask*> Eng3D::Profiler::get_tasks() {
+    std::vector<Eng3D::BenchmarkTask*> list(tasks.size());
+    std::transform(tasks.begin(), tasks.end(), list.begin(), [](auto& e) {
+        return &e.second;
+    });
+    return list;
 }

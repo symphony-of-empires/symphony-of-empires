@@ -144,7 +144,7 @@ void PieChart::on_hover_default(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 widg
     float x_center = piechart.width / 2.f;
     float y_center = piechart.height / 2.f;
     glm::ivec2 center{ x_center, y_center };
-    float radius = std::min<float>(piechart.width, piechart.height) * 0.5;
+    float radius = glm::min<float>(piechart.width, piechart.height) * 0.5;
 
     glm::vec2 centered_pos = mouse_pos - center;
     if(glm::length(centered_pos) > radius) return;

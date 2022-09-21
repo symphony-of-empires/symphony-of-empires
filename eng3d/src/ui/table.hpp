@@ -30,6 +30,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <numeric>
 #include <stdexcept>
 #include "eng3d/ui/widget.hpp"
 #include "eng3d/ui/div.hpp"
@@ -88,11 +89,9 @@ namespace UI {
             : UI::Widget(_parent, _x, _y, _w, _h, UI::WidgetType::TABLE),
             row_height{ _row_height }, columns_width{ _widths }
         {
-            if(_widths.size() != _header_labels.size())
-                CXX_THROW(std::runtime_error, "Table width & header mismatched!");
+            assert(_widths.size() == _header_labels.size());
             this->width = 35;
-            for(size_t i = 0; i < _widths.size(); i++)
-                this->width += _widths[i];
+            this->width = std::accumulate(_widths.begin(), _widths.end(), 35);
             auto* header = new UI::TableRow(this, this->width - 35, _row_height, this->columns_width);
             for(size_t i = 0; i < _header_labels.size(); i++) {
                 auto& label = _header_labels[i];

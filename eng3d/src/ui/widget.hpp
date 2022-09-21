@@ -180,9 +180,8 @@ namespace UI {
 
         constexpr void set_y(int _y) {
             this->y = _y;
-            if(this->parent) {
+            if(this->parent)
                 this->y += this->parent->scrolled_y;
-            }
         }
 
         constexpr void above_of(const UI::Widget& rhs) {
@@ -218,7 +217,7 @@ namespace UI {
         /// @brief Sort the children of this widget
         /// @param comp Comparison function
         inline void sort_children(std::function<bool(const std::unique_ptr<UI::Widget>& a, const std::unique_ptr<UI::Widget>& b)> comp) {
-            std::sort(begin(this->children), end(this->children), comp);
+            std::sort(this->children.begin(), this->children.end(), comp);
             this->need_recalc = true;
         }
 

@@ -42,22 +42,6 @@ ProgressBar::ProgressBar(int _x, int _y, unsigned w, unsigned h, const float _mi
 
 }
 
-Eng3D::Rect get_rect(Eng3D::Rect rect_pos, Eng3D::Rect viewport) {
-    glm::vec2 pos_size = rect_pos.size();
-    pos_size.x = pos_size.x > 0 ? pos_size.x : 1.f;
-    pos_size.y = pos_size.y > 0 ? pos_size.y : 1.f;
-
-    if(rect_pos.left < viewport.left)
-        rect_pos.left = viewport.left;
-    if(rect_pos.right > viewport.right)
-        rect_pos.right = viewport.right;
-    if(rect_pos.top < viewport.top)
-        rect_pos.top = viewport.top;
-    if(rect_pos.bottom > viewport.bottom)
-        rect_pos.bottom = viewport.bottom;
-    return rect_pos;
-}
-
 void ProgressBar::on_render(Context&, Eng3D::Rect viewport) {
     /// @todo Fix broken progress bar. Is it still broken, hmm ?
     g_ui_context->obj_shader->set_texture(0, "diffuse_map", *g_ui_context->button);

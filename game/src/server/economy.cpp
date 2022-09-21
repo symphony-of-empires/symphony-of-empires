@@ -85,7 +85,7 @@ void militancy_update(World& world, Nation& nation) {
             // More literacy means more educated persons with less children
             float growth = pop.size / (pop.literacy + 1.f);
             growth *= pop.life_needs_met;
-            growth = std::min<float>(std::fmod(rand(), 10.f), growth);
+            growth = glm::min<float>(std::fmod(rand(), 10.f), growth);
             //growth *= (growth > 0.f) ? nation->get_reproduction_mod() : nation->get_death_mod();
             pop.size += static_cast<float>((int)growth);
             // Met life needs means less militancy
@@ -168,7 +168,7 @@ void militancy_update(World& world, Nation& nation) {
     // Roll a dice! (more probability with more anger!)
     if(!std::fmod(rand(), glm::max(coup_chances, coup_chances - total_anger))) {
         // Choose the ideology with most "anger" (the one more probable to coup d'
-        // etat) - amgry radicals will surely throw off the current administration
+        // etat) - angry radicals will surely throw off the current administration
         // while peaceful people wonq't
         const int idx = std::distance(ideology_anger.begin(), std::max_element(ideology_anger.begin(), ideology_anger.end()));
         // Ideology_anger and ideologies are mapped 1:1 - so we just pick up the associated ideology
@@ -461,7 +461,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
 
                     if(it != province.pops.end()) {
                         auto& nation = world.nations[province.owner_id];
-                        const auto final_size = std::min<float>((*it).size, army_size);
+                        const auto final_size = glm::min<float>((*it).size, army_size);
                         const auto given_money = final_size;
                         // Nation must have money to pay the units
                         if(given_money >= nation.budget) continue;

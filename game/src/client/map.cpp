@@ -218,7 +218,7 @@ void Map::create_labels() {
         glm::vec2 min_point(province.box_area.left, province.box_area.top);
         glm::vec2 max_point(province.box_area.right, province.box_area.bottom);
         glm::vec2 mid_point = 0.5f * (min_point + max_point);
-        glm::vec2 x_step(std::min(max_point.x - mid_point.x, 250.f), 0);
+        glm::vec2 x_step(glm::min<float>(max_point.x - mid_point.x, 250.f), 0);
         glm::vec3 center(mid_point, 0.f);
         glm::vec3 left(mid_point - x_step, 0.f);
         glm::vec3 right(mid_point + x_step, 0.f);

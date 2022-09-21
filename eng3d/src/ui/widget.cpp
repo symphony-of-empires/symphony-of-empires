@@ -289,9 +289,9 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
 /// @brief Recalculates the position of each children inside the widget
 /// this is only used when Flex is used on a widget and it will automatically
 /// align the widget's children depending on the other Flex properties
-void Widget::recalc_child_pos() {
-    if(flex == Flex::NONE) return;
-    bool is_row = flex == Flex::ROW;
+void UI::Widget::recalc_child_pos() {
+    if(flex == UI::Flex::NONE) return;
+    bool is_row = flex == UI::Flex::ROW;
     size_t lenght = 0;
     int movable_children = 0;
     for(auto& child : children) {
@@ -363,38 +363,26 @@ void Widget::recalc_child_pos() {
         break;
     }
 
-    switch(flex_align) {
-    case Align::START:
-        for(auto& child : children) {
-            if(child->is_pinned) continue;
-            if(is_row) {
-                child->y = 0;
-            } else {
-                child->x = 0;
-            }
+    for(auto& child : children) {
+        if(child->is_pinned) continue;
+        switch(flex_align) {
+        case UI::Align::START:
+            if(is_row) child->y = 0;
+            else child->x = 0;
+            break;
+        case UI::Align::END:
+            if(is_row) child->y = glm::max<int>(0, height - child->height);
+            else child->x = glm::max<int>(0, width - child->width);
+            break;
+        case UI::Align::CENTER:
+            if(is_row) child->y = glm::max<int>(0, height - child->height) / 2;
+            else child->x = glm::max<int>(0, width - child->width) / 2;
+            break;
+        default:
+            break;
         }
-        break;
-    case Align::END:
-        for(auto& child : children) {
-            if(child->is_pinned) continue;
-            if(is_row) {
-                child->y = std::max<int>(0, height - child->height);
-            } else {
-                child->x = std::max<int>(0, width - child->width);
-            }
-        }
-        break;
-    case Align::CENTER:
-        for(auto& child : children) {
-            if(child->is_pinned) continue;
-            if(is_row) {
-                child->y = std::max<int>(0, height - child->height) / 2;
-            } else {
-                child->x = std::max<int>(0, width - child->width) / 2;
-            }
-        }
-        break;
     }
+
     int child_index = 0;
     for(auto& child : children) {
         if(!child->is_pinned) {
