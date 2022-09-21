@@ -75,7 +75,7 @@ namespace UI {
         // Render the widget and it's children
         void render_recursive(UI::Widget& widget, glm::mat4 model, Eng3D::Rect viewport, glm::ivec2 offset);
         int do_tick_recursive(UI::Widget& w);
-        void clear_dead_recursive(UI::Widget* w);
+        void clear_dead_recursive(UI::Widget& w);
 
         std::vector<std::unique_ptr<UI::Widget>> widgets;
         std::vector<std::unique_ptr<UI::Widget>> no_eval_widgets;

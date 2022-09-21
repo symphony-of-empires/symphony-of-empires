@@ -61,10 +61,8 @@
 #include "eng3d/primitive.hpp"
 #include "eng3d/log.hpp"
 
-using namespace UI;
-
-Context* UI::g_ui_context = nullptr;
-Context::Context(Eng3D::State& _s)
+UI::Context* UI::g_ui_context = nullptr;
+UI::Context::Context(Eng3D::State& _s)
     : s{ _s }
 {
     s.reload_shaders();
@@ -109,24 +107,24 @@ Context::Context(Eng3D::State& _s)
     }
 }
 
-Context::~Context() {
+UI::Context::~Context() {
     
 }
 
-void Context::add_widget(UI::Widget* widget) {
+void UI::Context::add_widget(UI::Widget* widget) {
     // Not already here
     if(std::find_if(widgets.cbegin(), widgets.cend(), [widget](const auto& e) { return e.get() == widget; }) != widgets.cend())
         return;
     widgets.push_back(std::unique_ptr<UI::Widget>(widget));
 }
 
-void Context::remove_widget(UI::Widget* widget) {
+void UI::Context::remove_widget(UI::Widget* widget) {
     auto it = std::find_if(widgets.begin(), widgets.end(), [widget](const auto& e) { return e.get() == widget; });
     widgets.erase(it);
 }
 
 /// @brief Removes all widgets
-void Context::clear() {
+void UI::Context::clear() {
     // Remove all widgets
     for(auto& widget : widgets) {
         if(widget.get() == this->tooltip_widget || !widget->managed) continue;
@@ -134,36 +132,34 @@ void Context::clear() {
     }
 }
 
-void Context::clear_dead_recursive(Widget* w) {
+void UI::Context::clear_dead_recursive(UI::Widget& w) {
     bool changed = false;
-    for(size_t index = 0; index < w->children.size(); index++) {
-        if(w->children[index]->dead) {
-            w->children.erase(w->children.begin() + index);
+    for(size_t index = 0; index < w.children.size(); index++) {
+        if(w.children[index]->dead) {
+            w.children.erase(w.children.begin() + index);
             index--;
             changed = true;
-        } else if(w->children[index]->dead_child) {
-            this->clear_dead_recursive(w->children[index].get());
-            w->children[index]->dead_child = false;
+        } else if(w.children[index]->dead_child) {
+            this->clear_dead_recursive(*w.children[index].get());
+            w.children[index]->dead_child = false;
         }
     }
 
-    if(changed) w->need_recalc = true;
+    if(changed) w.need_recalc = true;
 }
 
 /// @brief Removes all widgets that have been killed
-void Context::clear_dead() {
+void UI::Context::clear_dead() {
     for(size_t index = 0; index < widgets.size(); index++) {
         if(widgets[index]->dead) {
             widgets.erase(widgets.begin() + index);
             index--;
         } else if(widgets[index]->dead_child) {
-            this->clear_dead_recursive(widgets[index].get());
+            this->clear_dead_recursive(*widgets[index].get());
             widgets[index]->dead_child = false;
         }
     }
-
-    if(tooltip_widget != nullptr)
-        this->clear_dead_recursive(tooltip_widget);
+    if(tooltip_widget != nullptr) this->clear_dead_recursive(*tooltip_widget);
 }
 
 /// @brief Moves a widget from evaluable to non-evaluable making a widget
@@ -188,7 +184,7 @@ void UI::Context::set_eval(UI::Widget& widget, bool eval) {
     widget.is_eval = eval;
 }
 
-void Context::prompt(const std::string& title, const std::string& text) {
+void UI::Context::prompt(const std::string& title, const std::string& text) {
     std::scoped_lock lock(prompt_queue_mutex);
     this->prompt_queue.push_back(std::make_pair(title, text));
 }
@@ -206,7 +202,7 @@ void Context::prompt(const std::string& title, const std::string& text) {
 //     }
 // }
 
-glm::ivec2 Context::get_pos(Widget& w, glm::ivec2 offset) {
+glm::ivec2 UI::Context::get_pos(Widget& w, glm::ivec2 offset) {
     glm::ivec2 pos{ w.x, w.y };
     glm::ivec2 screen_size{ width, height };
     glm::ivec2 parent_size{ 0, 0 };
@@ -283,7 +279,7 @@ glm::ivec2 Context::get_pos(Widget& w, glm::ivec2 offset) {
     return pos;
 }
 
-void Context::resize(int _width, int _height) {
+void UI::Context::resize(int _width, int _height) {
     this->width = _width;
     this->height = _height;
     glViewport(0, 0, this->width, this->height);
@@ -293,11 +289,9 @@ void Context::resize(int _width, int _height) {
     this->model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
 }
 
-void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport, glm::ivec2 offset) {
-    // Only render widgets that are shown
-    if(!w.is_render) return;
-    // Only render widget that have a width and height
-    if(!w.width || !w.height) return;
+void UI::Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport, glm::ivec2 offset) {
+    // Only render widgets that are shown and only render widget that have a width and height
+    if(!w.is_render || !w.width || !w.height) return;
 
     if(w.need_recalc) {
         w.recalc_child_pos();
@@ -327,8 +321,8 @@ void Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport,
         if(w.on_update) w.on_update(w);
         for(auto& child : w.children) {
             child->is_clickable = (w.on_click || w.is_clickable) && w.is_hover;
-            if(viewport.size().x <= 0 || viewport.size().y <= 0)
-                if(!child->is_float) continue;
+            if((viewport.size().x <= 0 || viewport.size().y <= 0) && !child->is_float)
+                continue;
 
             this->render_recursive(*child, model, viewport, offset);
         }
@@ -361,7 +355,7 @@ void UI::Context::render_all(glm::ivec2 mouse_pos) {
 }
 
 // Too expensive
-void Context::clear_hover_recursive(Widget& w) {
+void UI::Context::clear_hover_recursive(Widget& w) {
     w.is_hover = false;
     for(auto& child : w.children)
         clear_hover_recursive(*child);
@@ -380,7 +374,7 @@ static inline bool is_inside_transparent(const UI::Widget& w, glm::ivec2 mouse_p
     return false;
 }
 
-bool Context::check_hover_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset) {
+bool UI::Context::check_hover_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset) {
     offset = this->get_pos(w, offset);
 
     w.is_hover = hover_update;
@@ -410,7 +404,7 @@ bool Context::check_hover_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::iv
     return consumed_hover;
 }
 
-bool Context::check_hover(glm::ivec2 mouse_pos) {
+bool UI::Context::check_hover(glm::ivec2 mouse_pos) {
     hover_update++;
     if(is_drag) {
         /// @todo Is this really better?
@@ -436,7 +430,7 @@ bool Context::check_hover(glm::ivec2 mouse_pos) {
     return is_hover;
 }
 
-UI::ClickState Context::check_click_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, UI::ClickState click_state, bool clickable) {
+UI::ClickState UI::Context::check_click_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, UI::ClickState click_state, bool clickable) {
     offset = this->get_pos(w, offset);
     if(click_state != UI::ClickState::NOT_CLICKED)
         clickable = true;
@@ -448,7 +442,6 @@ UI::ClickState Context::check_click_recursive(UI::Widget& w, glm::ivec2 mouse_po
     }
 
     bool click_consumed = click_state == UI::ClickState::HANDLED;
-
     // Click must be within the widget's box if it's not a group
     if(w.type != UI::WidgetType::GROUP) {
         const Eng3D::Rect r(offset.x, offset.y, w.width, w.height);
@@ -468,8 +461,8 @@ UI::ClickState Context::check_click_recursive(UI::Widget& w, glm::ivec2 mouse_po
         clickable = false;
 
     // Call on_click_outside if on_click has been used or widget isn't hit by click
-    if(w.on_click_outside)
-        if(!clickable || click_consumed) w.on_click_outside(w);
+    if(w.on_click_outside && (!clickable || click_consumed))
+        w.on_click_outside(w);
 
     // Call on_click if on_click hasnt been used and widget is hit by click
     if(w.on_click && clickable && !click_consumed) {
@@ -486,14 +479,14 @@ UI::ClickState Context::check_click_recursive(UI::Widget& w, glm::ivec2 mouse_po
     return click_state;
 }
 
-bool Context::check_click(glm::ivec2 mouse_pos) {
+bool UI::Context::check_click(glm::ivec2 mouse_pos) {
     is_drag = false;
 #ifdef E3D_TARGET_WINDOWS
     // Release the mouse once we no longer drag anything
     ReleaseCapture();
 #endif
 
-    UI::ClickState click_state = UI::ClickState::NOT_CLICKED;
+    auto click_state = UI::ClickState::NOT_CLICKED;
     int click_wind_index = -1;
 
     bool is_click = false;
@@ -548,7 +541,7 @@ void UI::Context::check_drag(glm::ivec2 mouse_pos) {
     return;
 }
 
-bool check_text_input_recursive(Widget& widget, const char* _input) {
+bool check_text_input_recursive(UI::Widget& widget, const char* _input) {
     if(widget.type == UI::WidgetType::INPUT) {
         auto& c_widget = static_cast<UI::Input&>(widget);
         if(c_widget.is_selected) c_widget.on_textinput(c_widget, _input);
@@ -560,7 +553,7 @@ bool check_text_input_recursive(Widget& widget, const char* _input) {
     return false;
 }
 
-bool Context::check_text_input(const char* _input) {
+bool UI::Context::check_text_input(const char* _input) {
     for(const auto& widget : widgets) {
         bool r = check_text_input_recursive(*widget.get(), _input);
         if(r) return true;
@@ -568,13 +561,13 @@ bool Context::check_text_input(const char* _input) {
     return false;
 }
 
-void Context::use_tooltip(UI::Tooltip* tooltip, glm::ivec2 pos) {
+void UI::Context::use_tooltip(UI::Tooltip* tooltip, glm::ivec2 pos) {
     this->tooltip_widget = tooltip;
     if(this->tooltip_widget != nullptr)
         this->tooltip_widget->set_pos(pos.x, pos.y, tooltip->width, tooltip->height, width, height);
 }
 
-bool Context::check_wheel_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, int y) {
+bool UI::Context::check_wheel_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, int y) {
     offset = get_pos(w, offset);
 
     // Widget must be shown
@@ -613,7 +606,7 @@ bool Context::check_wheel_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::iv
     return scrolled;
 }
 
-bool Context::check_wheel(glm::ivec2 mouse_pos, int y) {
+bool UI::Context::check_wheel(glm::ivec2 mouse_pos, int y) {
     for(int i = widgets.size() - 1; i >= 0; i--) {
         bool scrolled = check_wheel_recursive(*widgets[i].get(), mouse_pos, glm::ivec2(0), y);
         if(scrolled) return true;
@@ -624,13 +617,13 @@ bool Context::check_wheel(glm::ivec2 mouse_pos, int y) {
 /// @brief These functions are called on each world tick - this is to allow to update widgets on
 /// each world tick, and are also framerate independent and thus more reliable than doing
 /// the usual `if (tick % ticks_per_month == 24) {}`, which can cause issues on slow PCs or very fast hosts
-void Context::do_tick() {
+void UI::Context::do_tick() {
     for(int i = widgets.size() - 1; i >= 0; i--)
         do_tick_recursive(*widgets[i].get());
     return;
 }
 
-int Context::do_tick_recursive(Widget& w) {
+int UI::Context::do_tick_recursive(Widget& w) {
     if(w.on_each_tick) w.on_each_tick(w);
     for(auto& child : w.children)
         do_tick_recursive(*child);

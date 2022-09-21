@@ -321,7 +321,7 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths)
 }
 
 Eng3D::State::~State() {
-    
+    this->run = false;
 }
 
 void Eng3D::State::reload_shaders() {
@@ -484,6 +484,7 @@ void Eng3D::State::do_run(std::function<bool(void)> cond, std::function<void(voi
         event();
         this->clear();
         render();
+        if(this->show_ui) this->ui_ctx.render_all(this->mouse_pos);
         this->swap();
     }
 }
@@ -493,8 +494,7 @@ void Eng3D::State::handle_resize() {
 }
 
 void Eng3D::State::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
-    if(!this->show_ui)
-        return;
+    if(!this->show_ui) return;
     
     if(e.hold) {
         if(this->ui_ctx.check_hover(this->mouse_pos) && e.type == Eng3D::Event::MouseButton::Type::LEFT) {
@@ -524,12 +524,11 @@ void Eng3D::State::handle_mouse_motion(const Eng3D::Event::MouseMotion& e) {
 }
 
 void Eng3D::State::handle_mouse_wheel(const Eng3D::Event::MouseWheel& e) {
-    if(this->show_ui) {
-        this->mouse_pos = Eng3D::Event::get_mouse_pos();
-        this->ui_ctx.check_hover(this->mouse_pos);
-        if(this->ui_ctx.check_wheel(this->mouse_pos, e.wheel.y * 6))
-            return;
-    }
+    if(!this->show_ui) return;
+    this->mouse_pos = Eng3D::Event::get_mouse_pos();
+    this->ui_ctx.check_hover(this->mouse_pos);
+    if(this->ui_ctx.check_wheel(this->mouse_pos, e.wheel.y * 6))
+        return;
 }
 
 void Eng3D::State::handle_key(const Eng3D::Event::Key& e) {

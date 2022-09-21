@@ -91,11 +91,6 @@ extern "C" void game_main(int argc, char** argv) {
             gs.profiler.start("Clearing");
             gs.clear();
             gs.profiler.stop("Clearing");
-            if(gs.show_ui) {
-                gs.profiler.start("UI Rendering");
-                gs.ui_ctx.render_all(gs.mouse_pos);
-                gs.profiler.stop("UI Rendering");
-            }
             gs.profiler.render_done();
         })
     );

@@ -30,6 +30,19 @@
 #include "eng3d/state.hpp"
 #include "eng3d/utils.hpp"
 
+/// @brief Get the abs path object in a safe manner, such as that the access does not
+/// occur on null pointers. Use this function because it also converts slashes
+/// between paths
+/// @param asset 
+/// @return std::string 
+std::string Eng3D::IO::Asset::Base::get_abs_path() const {
+    std::string path = this->abs_path;
+#ifdef E3D_TARGET_WINDOWS
+    std::replace(path.begin(), path.end(), '/', '\\');
+#endif
+    return path;
+}
+
 //
 // Asset::File
 //

@@ -79,6 +79,7 @@ namespace Eng3D::IO {
         public:
             Base() = default;
             ~Base() = default;
+            std::string get_abs_path() const;
             virtual void open() {};
             virtual void close() {};
             virtual void read(void*, size_t) {};
@@ -100,19 +101,6 @@ namespace Eng3D::IO {
                 str[size] = '\0';
                 this->close();
                 return str;
-            }
-
-            /// @brief Get the abs path object in a safe manner, such as that the access does not
-            /// occur on null pointers. Use this function because it also converts slashes
-            /// between paths
-            /// @param asset 
-            /// @return std::string 
-            inline std::string get_abs_path(void) const {
-                std::string path = this->abs_path;
-#ifdef E3D_TARGET_WINDOWS
-                std::replace(path.begin(), path.end(), '/', '\\');
-#endif
-                return path;
             }
         };
 

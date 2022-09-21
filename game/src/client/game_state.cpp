@@ -29,29 +29,6 @@
 #include <sys/types.h>
 #include <filesystem>
 
-#ifdef _MSC_VER
-// Required before GL/gl.h
-#   ifndef _WINDOWS_
-#   ifndef WINSOCK2_IMPORTED
-#       define WINSOCK2_IMPORTED
-#       include <winsock2.h>
-#   endif
-#       include <windows.h>
-#   endif
-#endif
-
-#ifdef E3D_BACKEND_OPENGL
-#   include <GL/glew.h>
-// MSVC does not know about glext, mingw does so we just use this ifdef
-#   ifndef _MSC_VER
-#       include <GL/glext.h>
-#   endif
-#   include <GL/gl.h>
-#elif defined E3D_BACKEND_GLES
-#   include <GLES3/gl3ext.h>
-#   include <GLES3/gl3.h>
-#endif
-
 #include "eng3d/ui/ui.hpp"
 #include "eng3d/ui/input.hpp"
 #include "eng3d/ui/image.hpp"
@@ -498,8 +475,6 @@ extern "C" void game_main(int argc, char** argv) {
                 gs.map->camera->update();
                 gs.map->draw();
             }
-            if(gs.show_ui)
-                gs.ui_ctx.render_all(gs.mouse_pos);
             gs.world->profiler.render_done();
         })
     );
@@ -513,5 +488,4 @@ GameState::~GameState() {
         delete this->server;
     if(this->map != nullptr)
         delete this->map;
-    this->run = false;
 }
