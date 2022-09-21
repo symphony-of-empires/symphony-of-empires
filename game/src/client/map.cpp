@@ -618,7 +618,7 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
             for(const auto unit_id : gs.input.get_selected_units()) {
                 auto& unit = gs.world->unit_manager.units[unit_id];
                 auto province_id = gs.world->unit_manager.unit_province[unit_id];
-                if(!gs.world->provinces[province_id].is_neighbour(province) || !unit.can_move()) continue;
+                if(!unit.can_move()) continue;
                 // Don't change target if ID is the same...
                 if(province_id == gs.world->get_id(province) || unit.get_target_province_id() == gs.world->get_id(province))
                     continue;

@@ -562,7 +562,7 @@ static inline void unit_do_tick(World& world, Unit& unit) {
         }
     }
     
-    auto prov_id = world.unit_manager.get_unit_current_province(unit.cached_id);
+    auto prov_id = world.unit_manager.get_unit_current_province(unit.get_id());
     auto& unit_province = world.provinces[prov_id];
     // Handle battles
     if(!unit.on_battle) {

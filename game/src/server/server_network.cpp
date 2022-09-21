@@ -188,7 +188,7 @@ void Server::net_loop(int id) {
                     
                     if(unit.can_move()) {
                         Eng3D::Log::debug("server", "Unit changes targets to " + province->ref_name.get_string());
-                        unit.set_target(*province);
+                        unit.set_path(*province);
                     }
                 } break;
                 // Client tells the server about the construction of a new unit, note that this will

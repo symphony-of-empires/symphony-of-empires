@@ -99,22 +99,10 @@ public:
     bool update_movement(UnitManager& unit_manager);
     float get_speed() const;
     void set_owner(const Nation& nation);
-
-    /// @brief Checks if the unit can move (if it can set_province)
-    /// @return true 
-    /// @return false 
-    inline bool can_move() const {
-        // Unit must not be on a battle
-        return !(this->on_battle);
-    }
-
-    inline const std::vector<Province::Id> get_path() const {
-        return path;
-    }
-
-    inline Province::Id get_target_province_id() const {
-        return target_province_id;
-    }
+    bool can_move() const;
+    const std::vector<Province::Id> get_path() const;
+    void set_path(const Province& target);
+    Province::Id get_target_province_id() const;
 
     UnitType* type = nullptr; // Type of unit
     uint16_t owner_id = (uint16_t)-1; // Who owns this unit

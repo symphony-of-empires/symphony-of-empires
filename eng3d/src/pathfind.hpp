@@ -28,14 +28,15 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <algorithm>
+#include <functional>
 
 namespace Eng3D::Pathfind {
-    /// @brief Implements the A* algorithm with euclidean distance as heuristic.
-    /// @tparam GenFn The predicate generator returning a iterable container with the neioghbour of the given arguments
-    /// @tparam CostFn Cost calculator function
-    /// @tparam HeurFn Heuristic function (cost + HeurFn())
-    template<typename T, typename GenFn, typename HeurFn, typename... Targs>
-    inline std::vector<T> get_path(T start, T end, GenFn g, HeurFn h, Targs... args) {
+    /// @brief Implements the A* algorithm with euclidean distance as heuristic. Returns a vector where the starting
+    /// point is at the back and the end point at the front
+    /// @param g The predicate generator returning a iterable container with the neioghbour of the given arguments
+    /// @param h Heuristic function (cost + HeurFn())
+    template<typename T>
+    inline std::vector<T> get_path(T start, T end, std::function<std::vector<T>(T)> g, std::function<float(T, T)> h) {
         /// @brief Keeps track of the costs so far
         std::unordered_map<T, float> cost_map;
         /// @brief Keeps track of the previous tile for each tile
@@ -64,14 +65,14 @@ namespace Eng3D::Pathfind {
             if(current == end) break;
 
             // Generate neighbours
-            for(const auto neighbor : g(current, args...)) {
+            for(const auto neighbor : g(current)) {
                 // If the neighbor is visited, we already have the optimal path to it
                 if(visited.count(neighbor)) continue;
-                const float cost = cost_map[current] + h(current, neighbor, args...);
+                const float cost = cost_map[current] + h(current, neighbor);
                 // If we found a new tile or a shorter path to a previously found tile
                 if(!cost_map.count(neighbor) || cost < cost_map[neighbor]) {
                     cost_map[neighbor] = cost;
-                    const float priority = cost + h(neighbor, end, args...);
+                    const float priority = cost + h(neighbor, end);
                     queue.push({ priority, neighbor });
                     prev_map[neighbor] = current;
                 }
@@ -87,7 +88,6 @@ namespace Eng3D::Pathfind {
             current = prev_map[current];
         }
         path.push_back(start);
-        std::reverse(path.begin(), path.end());
         return path;
     }
 

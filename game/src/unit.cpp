@@ -92,13 +92,19 @@ float Unit::days_to_move_to(const Province& _province) const {
 }
 
 bool Unit::update_movement(UnitManager& unit_manager) {
-    if(Province::is_invalid(target_province_id)) return false;
+    if(Province::is_invalid(this->target_province_id)) return false;
 
-    days_left_until_move--;
-    if(days_left_until_move <= 0) {
-        days_left_until_move = 0;
-        unit_manager.move_unit(this->get_id(), target_province_id);
-        target_province_id = Province::invalid();
+    this->days_left_until_move--;
+    if(this->days_left_until_move <= 0) {
+        this->days_left_until_move = 0;
+        unit_manager.move_unit(this->get_id(), this->target_province_id);
+        this->target_province_id = Province::invalid();
+
+        // Follow the path
+        if(!this->path.empty()) {
+            this->set_target(World::get_instance().provinces[this->path.back()]);
+            this->path.pop_back();
+        }
         return true;
     }
     return false;
@@ -157,4 +163,76 @@ void Unit::set_owner(const Nation& nation)
 {
     assert(Nation::is_valid(nation.get_id()));
     this->owner_id = nation.get_id();
+}
+
+/// @brief Checks if the unit can move (if it can set_province)
+/// @return true 
+/// @return false 
+bool Unit::can_move() const {
+    // Unit must not be on a battle
+    return !(this->on_battle);
+}
+
+const std::vector<Province::Id> Unit::get_path() const {
+    return path;
+}
+
+#include <queue>
+#include <unordered_map>
+#include <unordered_set>
+#include <algorithm>
+#include <glm/vec3.hpp>
+#include <glm/gtc/constants.hpp>
+#include <glm/trigonometric.hpp>
+#include <glm/geometric.hpp>
+
+#include "eng3d/pathfind.hpp"
+#include "province.hpp"
+void Unit::set_path(const Province& target) {
+    auto& world = World::get_instance();
+    auto& nation = world.nations[this->owner_id];
+    auto start_id = world.unit_manager.get_unit_current_province(this->get_id());
+        this->path = Eng3D::Pathfind::get_path<Province::Id>(start_id, target.get_id(),
+        /// @brief Calculates the neighbors for a given Tile. The neighbors are the 8 tiles around
+        /// it, while taking into account the map bounds.
+        [&world](Province::Id province_id) -> std::vector<Province::Id> {
+            const auto& province = world.provinces[province_id];
+            std::vector<Province::Id> result;
+            result.resize(province.neighbour_ids.size(), 0);
+            std::transform(province.neighbour_ids.cbegin(), province.neighbour_ids.cend(), result.begin(), [](const auto e) {
+                return e;
+            });
+            return result;
+        },
+        /// @brief Euclidean distance calculation
+        [&world](Province::Id province1_id, Province::Id province2_id) -> float {
+            const auto& province1 = world.provinces[province1_id];
+            const auto& province2 = world.provinces[province2_id];
+            const glm::vec2 world_size{ world.width, world.height };
+            auto get_sphere_coord = ([](const Province& province, glm::vec2 world_size) -> glm::vec3 {
+                const glm::vec2 normalized_pos = province.get_pos() / world_size;
+                glm::vec2 radiance_pos;
+                radiance_pos.x = normalized_pos.x * 2.f * glm::pi<float>();
+                radiance_pos.y = normalized_pos.y * glm::pi<float>();
+
+                glm::vec3 sphere_position;
+                sphere_position.x = glm::cos(radiance_pos.x) * glm::sin(radiance_pos.y);
+                sphere_position.y = glm::sin(radiance_pos.x) * glm::sin(radiance_pos.y);
+                sphere_position.z = glm::cos(radiance_pos.y);
+                return sphere_position;
+            });
+            const auto sphere_coord1 = get_sphere_coord(province1, world_size);
+            const auto sphere_coord2 = get_sphere_coord(province2, world_size);
+            float cos_angle = glm::dot(sphere_coord1, sphere_coord2);
+            float angle = glm::acos(cos_angle);
+            float distance = angle / (2 * glm::pi<float>());
+            return distance;
+        });
+    
+    if(!this->path.empty() && this->path.back() == start_id)
+        this->path.pop_back(); // Pop the start point
+}
+
+Province::Id Unit::get_target_province_id() const {
+    return target_province_id;
 }
