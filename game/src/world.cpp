@@ -61,7 +61,7 @@
 /// fortunely the size is a constant of 4 possible neighbours so we're good
 static thread_local std::vector<Tile> tmp_tile_list = std::vector<Tile>();
 const std::vector<Tile>& Tile::get_neighbours(const World& world) const {
-    const auto idx = (size_t)world.get_id(*this);
+    const auto idx = world.get_id(*this);
     // Up
     if(idx > world.width)
         tmp_tile_list.push_back(world.tiles[idx - world.width]);
@@ -323,7 +323,7 @@ void World::load_initial() {
         ar.from_file("world.cache");
         std::string creat_date;
         ::deserialize(ar, creat_date);
-        if(creat_date != __DATE__) CXX_THROW(std::runtime_error, "Unmatching cache");
+        if(creat_date != __DATE__) CXX_THROW(std::runtime_error, "Unmatching cache \"" + creat_date + "\"(" + std::to_string(creat_date.size()) + ") != \"" + __DATE__ + "\"");
         ::deserialize(ar, *this);
     } catch(const std::exception& e) {
         Eng3D::Log::error("cache", e.what());
@@ -342,8 +342,10 @@ void World::load_initial() {
         tiles = std::make_unique<Tile[]>(width * height);
 
         // Uncomment this and see a bit more below
+#if 0
         std::set<uint32_t> colors_found;
         std::set<uint32_t> colors_used;
+#endif
         Eng3D::Log::debug("world", _("Associate tiles with provinces"));
 
         // Build a lookup table for super fast speed on finding provinces
@@ -353,16 +355,19 @@ void World::load_initial() {
         for(const auto& province : provinces)
             province_color_table[province.color & 0xffffff] = this->get_id(province);
 
-        const uint32_t* raw_buffer = div->buffer.get();
+        const auto* raw_buffer = div->buffer.get();
         for(size_t i = 0; i < width * height; i++) {
             const Province::Id province_id = province_color_table[raw_buffer[i] & 0xffffff];
+#if 0
             if(province_id == (Province::Id)-1)
                 colors_found.insert(raw_buffer[i]);
             colors_used.insert(raw_buffer[i] & 0xffffff);
+#endif
             tiles[i].province_id = province_id;
         }
         div.reset();
 
+#if 0
         if(!colors_found.empty()) {
             std::unique_ptr<FILE, int(*)(FILE*)> province_fp(fopen("uprovinces.lua", "w+t"), fclose);
             if(province_fp != nullptr) {
@@ -401,6 +406,7 @@ void World::load_initial() {
             Eng3D::Log::error("world", error);
             CXX_THROW(std::runtime_error, error.c_str());
         }
+#endif
 
         // Calculate the edges of the province (min and max x and y coordinates)
         Eng3D::Log::debug("world", _("Calculate the edges of the province (min and max x and y coordinates)"));
@@ -413,22 +419,22 @@ void World::load_initial() {
             province.box_area.top = height;
         }
 
-        for(size_t j = 0; j < height; j++) {
+        tbb::parallel_for(0zu, height, [this](const auto j) {
             for(size_t i = 0; i < width; i++) {
                 const auto& tile = this->get_tile(i, j);
                 auto& province = provinces[tile.province_id];
-                province.box_area.left = glm::min<float>(province.box_area.left, i);
-                province.box_area.right = glm::max<float>(province.box_area.right, i);
-                province.box_area.bottom = glm::max<float>(province.box_area.bottom, j);
-                province.box_area.top = glm::min<float>(province.box_area.top, j);
+                province.box_area.left = glm::min(province.box_area.left, static_cast<float>(i));
+                province.box_area.right = glm::max(province.box_area.right, static_cast<float>(i));
+                province.box_area.bottom = glm::max(province.box_area.bottom, static_cast<float>(j));
+                province.box_area.top = glm::min(province.box_area.top, static_cast<float>(j));
             }
-        }
+        });
 
         // Correct stuff from provinces
         Eng3D::Log::debug("world", _("Correcting values for provinces"));
         for(auto& province : provinces) {
-            province.box_area.right = glm::min<float>(width, province.box_area.right);
-            province.box_area.bottom = glm::min<float>(height, province.box_area.bottom);
+            province.box_area.right = glm::min(width, static_cast<size_t>(province.box_area.right));
+            province.box_area.bottom = glm::min(height, static_cast<size_t>(province.box_area.bottom));
         }
 
         // Neighbours
@@ -515,7 +521,7 @@ static inline void unit_do_tick(World& world, Unit& unit) {
     }
 
     const auto& province = world.provinces[unit.province_id()];
-    const auto weight_factor = glm::max<float>(0.01f, unit.size / 50000.f);
+    const auto weight_factor = glm::max(0.01f, unit.size / 50000.f);
     // Analyze neighbours of where the unit is standing on
     for(const auto neighbour_id : province.neighbour_ids) {
         const auto& neighbour = world.provinces[neighbour_id];

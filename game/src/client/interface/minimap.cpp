@@ -249,11 +249,11 @@ mapmode_tooltip good_tooltip(Good::Id good_id) {
 mapmode_generator good_map_mode(Good::Id id) {
     return [id](const World& world) {
         std::vector<std::pair<Province::Id, float>> province_amounts;
-        float max_price = 0.0001f;
+        auto max_price = 0.0001f;
         for(auto const& province : world.provinces) {
-            const Product& product = province.products[id];
-            float price = log2(product.price + 1.f);
-            max_price = glm::max<float>(price, max_price);
+            const auto& product = province.products[id];
+            auto price = (float)log2(product.price + 1.f);
+            max_price = glm::max(price, max_price);
             province_amounts.push_back(std::make_pair(world.get_id(province), price));
         }
 
@@ -262,9 +262,9 @@ mapmode_generator good_map_mode(Good::Id id) {
         Eng3D::Color max = Eng3D::Color::rgb8(220, 46, 35);
         std::vector<ProvinceColor> province_color;
         for(auto const& prov_amount : province_amounts) {
-            Province::Id prov_id = prov_amount.first;
-            uint32_t price = prov_amount.second;
-            float ratio = price / max_price;
+            auto prov_id = prov_amount.first;
+            auto price = prov_amount.second;
+            auto ratio = price / max_price;
             Eng3D::Color color = Eng3D::Color::lerp(min, max, ratio);
             province_color.push_back(ProvinceColor(prov_id, color));
         }
@@ -401,11 +401,11 @@ std::vector<ProvinceColor> population_map_mode(const World& world) {
     std::vector<std::pair<Province::Id, float>> province_amounts;
     float max_amount = 1.f;
     for(auto const& province : world.provinces) {
-        float amount = 0.f;
-        for(auto const& pop : province.pops)
-            amount += pop.size;
+        float amount = std::accumulate(province.pops.cbegin(), province.pops.cend(), 0, [](const float a, const auto& e) {
+            return a + e.size;
+        });
         //amount = log2(amount + 1.f);
-        max_amount = glm::max<float>(amount, max_amount);
+        max_amount = glm::max(amount, max_amount);
         province_amounts.push_back(std::make_pair(world.get_id(province), amount));
     }
 

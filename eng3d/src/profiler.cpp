@@ -72,10 +72,8 @@ float Eng3D::BenchmarkTask::get_average_time_ms() {
 
 float Eng3D::BenchmarkTask::get_largest_time_ms() {
     this->clear_old();
-    float max_time = 0;
-    for(const auto& time : times)
-        max_time = glm::max<float>(max_time, time);
-    return max_time;
+    if(times.empty()) return 0.f;
+    return *std::max_element(times.cbegin(), times.cend());
 }
 
 void Eng3D::BenchmarkTask::clear_old() {
@@ -99,9 +97,7 @@ void Eng3D::BenchmarkTask::clear_old() {
 void Eng3D::Profiler::start(const std::string& name) {
     auto it = tasks.find(name);
     if(it == tasks.end()) {
-        size_t amounts = tasks.size();
-        uint32_t color = colors[amounts % 64];
-        Eng3D::BenchmarkTask task(name, color);
+        Eng3D::BenchmarkTask task(name, colors[tasks.size() % 64]);
         task.start();
         tasks.insert({ name, task });
     } else {

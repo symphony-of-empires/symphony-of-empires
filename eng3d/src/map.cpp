@@ -22,6 +22,10 @@
 //      Does important stuff.
 // ----------------------------------------------------------------------------
 
+#include <tbb/blocked_range.h>
+#include <tbb/concurrent_vector.h>
+#include <tbb/parallel_for.h>
+#include <tbb/combinable.h>
 #include "eng3d/map.hpp"
 #include "eng3d/state.hpp"
 #include "eng3d/primitive.hpp"
@@ -60,8 +64,7 @@ Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
     this->stripes_tex = this->s.tex_man.load(this->s.package_man.get_unique("gfx/stripes.png"), mipmap_options);
 
     this->terrain_map = std::make_unique<Eng3D::Texture>(this->s.package_man.get_unique("map/color.png")->get_abs_path());
-    size_t terrain_map_size = this->terrain_map->width * this->terrain_map->height;
-    for(size_t i = 0; i < terrain_map_size; i++) {
+    tbb::parallel_for(0zu, this->terrain_map->width * this->terrain_map->height, [this](const auto i) {
         auto* data = &(this->terrain_map->buffer.get()[i]);
         const auto color = std::byteswap<std::uint32_t>((*data) << 8);
         uint8_t idx = 0;
@@ -97,7 +100,7 @@ Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
         }
         *data = idx << 24;
         *data |= (color == 0x243089 ? 0x00 : 0x02) << 16; // Ocean, or ocean
-    }
+    });
 
     // Terrain textures to sample from
     this->terrain_sheet = std::make_unique<Eng3D::TextureArray>(this->s.package_man.get_unique("gfx/terrain_sheet.png")->get_abs_path(), 4, 4);

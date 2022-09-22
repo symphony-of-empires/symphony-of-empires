@@ -106,11 +106,11 @@ Eng3D::SimpleModel Eng3D::Model::process_simple_model(aiMesh& mesh, const aiScen
     simple_model.buffer.resize(mesh.mNumVertices);
     glm::vec3 max_vert{};
     for(size_t i = 0; i < mesh.mNumVertices; i++)
-        max_vert = glm::vec3(glm::max<float>(max_vert.x, mesh.mVertices[i].x), glm::max<float>(max_vert.y, mesh.mVertices[i].y), glm::max<float>(max_vert.z, mesh.mVertices[i].z));
+        max_vert = glm::vec3(glm::max(max_vert.x, mesh.mVertices[i].x), glm::max(max_vert.y, mesh.mVertices[i].y), glm::max(max_vert.z, mesh.mVertices[i].z));
 
-    max_vert = glm::vec3(max_vert.x, glm::max<float>(max_vert.y, max_vert.x), glm::max<float>(max_vert.z, max_vert.x));
-    max_vert = glm::vec3(glm::max<float>(max_vert.x, max_vert.y), max_vert.y, glm::max<float>(max_vert.z, max_vert.y));
-    max_vert = glm::vec3(glm::max<float>(max_vert.x, max_vert.z), glm::max<float>(max_vert.y, max_vert.z), max_vert.z);
+    max_vert = glm::vec3(max_vert.x, glm::max(max_vert.y, max_vert.x), glm::max(max_vert.z, max_vert.x));
+    max_vert = glm::vec3(glm::max(max_vert.x, max_vert.y), max_vert.y, glm::max(max_vert.z, max_vert.y));
+    max_vert = glm::vec3(glm::max(max_vert.x, max_vert.z), glm::max(max_vert.y, max_vert.z), max_vert.z);
 
     for(size_t i = 0; i < mesh.mNumVertices; i++) {
         auto vertice = glm::vec3(mesh.mVertices[i].x, mesh.mVertices[i].y, mesh.mVertices[i].z) / max_vert;

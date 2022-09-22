@@ -109,7 +109,7 @@ void militancy_update(World& world, Nation& nation) {
             /// @todo Ok, look, the justification is that educated people
             // almost never do coups - in comparasion to uneducated
             // peseants, rich people don't need to protest!
-            const float anger = glm::max<float>(pop.militancy, 0.001f);
+            const float anger = glm::max(pop.militancy, 0.001f);
             total_anger += anger;
             for(const auto& ideology : world.ideologies)
                 ideology_anger[world.get_id(ideology)] += (pop.ideology_approval[world.get_id(ideology)] * anger) * (pop.size / 1000);
@@ -118,7 +118,7 @@ void militancy_update(World& world, Nation& nation) {
 
     // Rebellions!
     /// @todo Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
-    if(std::fmod(rand(), glm::max<float>(1.f, coup_chances - total_anger)) == 0) {
+    if(std::fmod(rand(), glm::max(1.f, coup_chances - total_anger)) == 0) {
         /// @todo This might cause multithreading problems
         std::scoped_lock lock(world.rebel_mutex);
 

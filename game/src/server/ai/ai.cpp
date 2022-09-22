@@ -103,7 +103,7 @@ static inline Good* ai_get_potential_good(Nation& nation) {
         Good* target_good = &world.goods.at(std::distance(avg_prob.begin(), std::max_element(avg_prob.begin(), avg_prob.end())));
 
         // The more buildings there are in the world the less we are wiling to construct one
-        //float saturation = glm::max<size_t>(1, world.buildings.size()) / 100;
+        //float saturation = glm::max(1, world.buildings.size()) / 100;
         float saturation = 1.f;
         if(std::fmod(rand(), saturation)) {
             Eng3D::Log::debug("ai", "Too much market saturation");
@@ -119,7 +119,7 @@ static inline Good* ai_get_potential_good(Nation& nation) {
 
         // The more buildings there are in the world the less we are wiling to construct one
         // (more intense with primary sector due to primary-industry spam)
-        //float saturation = glm::max<size_t>(1, world.buildings.size()) / 50;
+        //float saturation = glm::max(1, world.buildings.size()) / 50;
         float saturation = 1.f;
         if(fmod(rand(), saturation)) {
             Eng3D::Log::debug("ai", "Too much market saturation");
@@ -271,8 +271,8 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
     // If the relation is negative then we divide by the positive sum of it
     if(relation.relation < -1) {
         const float force_dist = 10.f * ((1.f + other_power) / (1.f + our_power));
-        const int chance = glm::max<float>(0, force_dist - -relation.relation);
-        if(rand() % (100 + (chance * 10)) == 0) {
+        const auto chance = glm::max((int)(force_dist - -relation.relation), 0);
+        if(rand(), (100 + (chance * 10)) == 0) {
             if(!relation.has_war) {
                 // Check we border said nation
                 bool has_border = false;

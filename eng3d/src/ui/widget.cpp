@@ -334,7 +334,7 @@ void UI::Widget::recalc_child_pos() {
     case FlexJustify::SPACE_BETWEEN:
         current_lenght = 0;
         size = is_row ? width : height;
-        difference = (size - lenght) / (glm::max(1, movable_children - 1));
+        difference = (size - lenght) / (glm::max(movable_children - 1, 1));
         for(auto& child : children) {
             if(child->is_pinned) continue;
             if(is_row) {
@@ -349,7 +349,7 @@ void UI::Widget::recalc_child_pos() {
     case FlexJustify::SPACE_AROUND:
         size = is_row ? width : height;
         difference = (size - lenght) / movable_children;
-        current_lenght = glm::max<int>(0, difference / 2);
+        current_lenght = glm::max(difference / 2, 0);
         for(auto& child : children) {
             if(child->is_pinned) continue;
             if(is_row) {
@@ -371,12 +371,12 @@ void UI::Widget::recalc_child_pos() {
             else child->x = 0;
             break;
         case UI::Align::END:
-            if(is_row) child->y = glm::max<int>(0, height - child->height);
-            else child->x = glm::max<int>(0, width - child->width);
+            if(is_row) child->y = glm::max((int)height - (int)child->height, 0);
+            else child->x = glm::max((int)width - (int)child->width, 0);
             break;
         case UI::Align::CENTER:
-            if(is_row) child->y = glm::max<int>(0, height - child->height) / 2;
-            else child->x = glm::max<int>(0, width - child->width) / 2;
+            if(is_row) child->y = glm::max((int)height - (int)child->height, 0) / 2;
+            else child->x = glm::max((int)width - (int)child->width, 0) / 2;
             break;
         default:
             break;
@@ -445,8 +445,8 @@ glm::ivec2 UI::Widget::get_y_bounds() const {
     int child_top = 0, child_bottom = this->height;
     for(auto& child : this->children) {
         if(!child->is_pinned) {
-            child_top = glm::min<int>(child_top, child->y);
-            child_bottom = glm::max<int>(child_bottom, child->y + static_cast<int>(child->height));
+            child_top = glm::min(child_top, child->y);
+            child_bottom = glm::max(child_bottom, child->y + static_cast<int>(child->height));
         }
     }
     child_bottom -= this->height;

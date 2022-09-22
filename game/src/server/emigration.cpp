@@ -166,8 +166,8 @@ static inline void external_migration(World& world) {
                     // want to get out of here
                     // And literacy determines "best" spot, for example a low literacy will
                     // choose a slightly less desirable location
-                    const int emigration_desire = glm::max<int>(pop.militancy * -pop.life_needs_met, 1);
-                    const size_t emigreers = glm::min<size_t>((pop.size * emigration_desire) * std::fmod(fuzz + 1.f, 1.f), pop.size);
+                    const auto emigration_desire = glm::max(pop.militancy * -pop.life_needs_met, 1.f);
+                    const auto emigreers = glm::min(pop.size * emigration_desire * std::fmod(fuzz + 1.f, 1.f), pop.size);
                     if(emigreers > 0) {
                         auto nation_distribution = nation_distributions[language_id];
                         if(nation_distribution == nullptr) continue;

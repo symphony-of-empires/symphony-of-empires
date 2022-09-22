@@ -54,7 +54,7 @@ public:
         }
 
         // Set the new price
-        this->price = glm::max<float>(0.01f, this->price + this->price_vel);
+        this->price = glm::max(0.01f, this->price + this->price_vel);
         //this->demand = 0;
     }
 

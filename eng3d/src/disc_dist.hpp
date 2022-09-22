@@ -100,8 +100,8 @@ public:
 
     // Get a random item with a certian probabilty
     T get_item() {
-        size_t index = _rand() % _items.size();
-        float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        auto index = _rand() % _items.size();
+        auto r = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
         if(prob[index] < r) index = alias[index];
         return _items[index];
     }
