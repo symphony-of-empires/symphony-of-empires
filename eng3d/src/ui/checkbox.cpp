@@ -49,7 +49,7 @@ Checkbox::Checkbox(int size, Widget* _parent)
 Checkbox::Checkbox(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI::WidgetType::CHECKBOX)
 {
-    int min_size = std::min(w, h);
+    auto min_size = glm::min<int>(w, h);
     init_checkbox(min_size);
 }
 
@@ -91,5 +91,5 @@ void Checkbox::set_on_click(std::function<void(Widget&)> _on_click) {
 void Checkbox::text(const std::string& _text) {
     UI::Widget::text(_text);
     this->width = this->text_texture->width + this->text_offset_x;
-    this->height = std::max<size_t>(this->text_texture->height, this->box->height);
+    this->height = glm::max<size_t>(this->text_texture->height, this->box->height);
 }

@@ -133,7 +133,7 @@ bool Nation::exists() const {
 
 inline void Nation::do_diplomacy() {
     /// @todo Fix this formula which is currently broken
-    //diplomatic_timer = std::max((60 * 48) - std::min(10.f * 48.f, prestige / 100.f), 4.f);
+    //diplomatic_timer = glm::max((60 * 48) - glm::min(10.f * 48.f, prestige / 100.f), 4.f);
     diplomatic_timer = 48;
 }
 

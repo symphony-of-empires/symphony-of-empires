@@ -27,6 +27,7 @@
 #include <string>
 #include <deque>
 #include <limits>
+#include <glm/glm.hpp>
 
 /// @brief A product (based off a Good) which can be bought by POPs, converted by factories and transported
 class Product : public IdEntity<uint16_t> {
@@ -53,7 +54,7 @@ public:
         }
 
         // Set the new price
-        this->price = std::max<float>(0.01f, this->price + this->price_vel);
+        this->price = glm::max<float>(0.01f, this->price + this->price_vel);
         //this->demand = 0;
     }
 

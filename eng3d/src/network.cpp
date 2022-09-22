@@ -28,7 +28,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <mutex>
+#include <numeric>
 
+#include <glm/glm.hpp>
 // Visual Studio does not know about UNISTD.H, Mingw does through
 #ifndef _MSC_VER
 #	include <unistd.h>
@@ -54,7 +56,6 @@
 #   endif
 #	include <windows.h>
 #endif
-
 #include <sys/types.h>
 
 #include "eng3d/network.hpp"
@@ -67,7 +68,7 @@
 void Eng3D::Networking::SocketStream::send(const void* data, size_t size) {
     const auto* c_data = reinterpret_cast<const char*>(data);
     for(size_t i = 0; i < size; ) {
-        int r = ::send(fd, &c_data[i], std::min<std::size_t>(1024, size - i), 0);
+        int r = ::send(fd, &c_data[i], glm::min<std::size_t>(1024, size - i), 0);
         if(r < 0)
             CXX_THROW(Eng3D::Networking::SocketException, "Can't send data of packet");
         i += static_cast<size_t>(r);
@@ -80,7 +81,7 @@ void Eng3D::Networking::SocketStream::recv(void* data, size_t size, std::functio
     for(size_t i = 0; i < size; ) {
         if(pred && !pred()) // If (any) predicate fails then return immediately
             return;
-        int r = ::recv(fd, &c_data[i], std::min<std::size_t>(1024, size - i), MSG_DONTWAIT);
+        int r = ::recv(fd, &c_data[i], glm::min<std::size_t>(1024, size - i), MSG_DONTWAIT);
         if(r < 0) {
             if(!times)
                 CXX_THROW(Eng3D::Networking::SocketException, "Packet receive interrupted");
@@ -242,10 +243,10 @@ void Eng3D::Networking::Server::broadcast(const Eng3D::Networking::Packet& packe
 
             // Disconnect the client when more than 200 MB is used
             // we can't save your packets buddy - other clients need their stuff too!
-            size_t total_size = 0;
-            for(auto packet_q = clients[i].pending_packets.cbegin(); packet_q != clients[i].pending_packets.cend(); packet_q++)
-                total_size += (*packet_q).buffer.size();
-            
+            size_t total_size = std::accumulate(clients[i].pending_packets.begin(), clients[i].pending_packets.end(), 0, [](const auto a, const auto& b) {
+                return a + b.buffer.size();
+            });
+
             if(total_size >= 200 * 1000000) {
                 clients[i].is_connected = false;
                 Eng3D::Log::debug("server", "Client#" + std::to_string(i) + " has exceeded max quota! - It has used " + std::to_string(total_size) + "B!");

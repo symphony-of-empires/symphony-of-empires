@@ -59,7 +59,7 @@ void UI::Text::text(const std::string& text) {
     /// @todo only works for monospace fonts width width 12, fix it for all fonts
     size_t pos = 0, y = 0;
     size_t max_width = 0;
-    size_t line_width = std::max<size_t>(1, this->width / 12);
+    size_t line_width = glm::max<size_t>(1, this->width / 12);
     while(pos < text.length()) {
         size_t remaining_chars = text.length() - pos;
         size_t end_pos = text.length();

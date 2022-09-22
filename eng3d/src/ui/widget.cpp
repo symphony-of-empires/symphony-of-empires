@@ -334,7 +334,7 @@ void UI::Widget::recalc_child_pos() {
     case FlexJustify::SPACE_BETWEEN:
         current_lenght = 0;
         size = is_row ? width : height;
-        difference = (size - lenght) / (std::max(1, movable_children - 1));
+        difference = (size - lenght) / (glm::max(1, movable_children - 1));
         for(auto& child : children) {
             if(child->is_pinned) continue;
             if(is_row) {
@@ -349,7 +349,7 @@ void UI::Widget::recalc_child_pos() {
     case FlexJustify::SPACE_AROUND:
         size = is_row ? width : height;
         difference = (size - lenght) / movable_children;
-        current_lenght = std::max<int>(0, difference / 2);
+        current_lenght = glm::max<int>(0, difference / 2);
         for(auto& child : children) {
             if(child->is_pinned) continue;
             if(is_row) {
@@ -436,7 +436,7 @@ void Widget::set_tooltip(UI::Tooltip* _tooltip) {
 /// @param text Text for the new tooltip
 void Widget::set_tooltip(const std::string& text) {
     if(text.empty()) return;
-    this->set_tooltip(new UI::Tooltip(this, std::min<unsigned int>(text.size() * 12, 512), ((text.size() * 12) / 512) * 24 + 24));
+    this->set_tooltip(new UI::Tooltip(this, glm::min<unsigned int>(text.size() * 12, 512), ((text.size() * 12) / 512) * 24 + 24));
     this->tooltip->text(text);
 }
 

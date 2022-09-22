@@ -193,7 +193,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province& _
         for(const auto& good : o.gs.world->goods) {
             const auto good_col = Eng3D::Color::rgb8((uint8_t)(i * 12), (uint8_t)(i * 31), (uint8_t)(i * 97));
             const auto& product = o.province.products[o.gs.world->get_id(good)];
-            goods_data.push_back(UI::ChartData(std::max<float>(product.demand, 0.1f), good.name.get_string(), good_col));
+            goods_data.push_back(UI::ChartData(glm::max<float>(product.demand, 0.1f), good.name.get_string(), good_col));
             i++;
         }
         o.products_pie->set_data(goods_data);
@@ -433,8 +433,8 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
             for(auto& pop_type : this->gs.world->pop_types) {
                 Pop pop;
                 pop.type_id = pop_type.get_id();
-                pop.size = 1000.f / std::max<float>(0.01f, pop_type.social_value);
-                pop.literacy = max_sv / std::max<float>(0.01f, pop_type.social_value);
+                pop.size = 1000.f / glm::max<float>(0.01f, pop_type.social_value);
+                pop.literacy = max_sv / glm::max<float>(0.01f, pop_type.social_value);
                 pop.budget = pop.size * 100.f * max_sv;
                 const_cast<Province&>(this->province).pops.push_back(pop);
             }

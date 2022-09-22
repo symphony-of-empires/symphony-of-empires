@@ -35,6 +35,7 @@
 #include <cstdio>
 #include <type_traits>
 #include <limits>
+#include <glm/glm.hpp>
 #include "eng3d/utils.hpp"
 
 /// @brief The purpouse of the serializer is to serialize objects onto a byte stream
@@ -254,7 +255,7 @@ public:
         char tmpstr_buf[1024];
         if constexpr(is_serialize) {
             // Truncate lenght
-            uint16_t len = static_cast<uint16_t>(std::min<size_t>(std::numeric_limits<uint16_t>::max(), obj.length()));
+            uint16_t len = static_cast<uint16_t>(glm::min<size_t>(std::numeric_limits<uint16_t>::max(), obj.length()));
             ::serialize(ar, len); // Put length for later deserialization (since UTF-8/UTF-16 exists)
             if(len) { // Copy the string into the output
                 ar.expand(len);

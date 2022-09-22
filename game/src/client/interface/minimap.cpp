@@ -253,7 +253,7 @@ mapmode_generator good_map_mode(Good::Id id) {
         for(auto const& province : world.provinces) {
             const Product& product = province.products[id];
             float price = log2(product.price + 1.f);
-            max_price = std::max<float>(price, max_price);
+            max_price = glm::max<float>(price, max_price);
             province_amounts.push_back(std::make_pair(world.get_id(province), price));
         }
 
@@ -405,7 +405,7 @@ std::vector<ProvinceColor> population_map_mode(const World& world) {
         for(auto const& pop : province.pops)
             amount += pop.size;
         //amount = log2(amount + 1.f);
-        max_amount = std::max<float>(amount, max_amount);
+        max_amount = glm::max<float>(amount, max_amount);
         province_amounts.push_back(std::make_pair(world.get_id(province), amount));
     }
 

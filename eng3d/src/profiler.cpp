@@ -23,6 +23,7 @@
 // ----------------------------------------------------------------------------
 
 #include <algorithm>
+#include <glm/glm.hpp>
 #include "eng3d/profiler.hpp"
 #include "eng3d/log.hpp"
 
@@ -73,7 +74,7 @@ float Eng3D::BenchmarkTask::get_largest_time_ms() {
     this->clear_old();
     float max_time = 0;
     for(const auto& time : times)
-        max_time = std::max<float>(max_time, time);
+        max_time = glm::max<float>(max_time, time);
     return max_time;
 }
 
