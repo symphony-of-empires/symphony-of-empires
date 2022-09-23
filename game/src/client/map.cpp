@@ -297,9 +297,19 @@ void Map::reload_shaders() {
             std::string path = "models/trees/" + terrain_type.ref_name + ".fbx";
             tree_type_models.push_back(gs.model_man.load(gs.package_man.get_unique(path)));
         }
-        tree_spawn_pos.resize(world.provinces.size());
-        for(const auto& province : world.provinces)
-            tree_spawn_pos[province.get_id()] = std::make_pair(province.get_pos(), province.terrain_type_id);
+
+        size_t n_provinces = 0;
+        tree_spawn_pos.reserve(world.provinces.size());
+        for(const auto& province : world.provinces) {
+            if(!world.terrain_types[province.terrain_type_id].is_water_body) {
+                tree_spawn_pos.push_back(province.get_pos());
+                n_provinces++;
+            }
+        }
+
+        for(auto& tree_type_model : tree_type_models)
+            for(auto& simple_model : tree_type_model->simple_models)
+                simple_model.instancing(*tree_spawn_pos.data(), n_provinces);
     }
 }
 
@@ -479,7 +489,7 @@ void Map::draw() {
                 for(const auto& building_type : this->gs.world->building_types) {
                     if(!province.buildings[building_type.get_id()].level) continue;
                     glm::mat4 model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
-                    model = glm::rotate(model, -90.f, glm::vec3(1.f, 0.f, 0.f));
+                    model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
                     obj_shader->set_uniform("model", model);
                     building_type_models[building_type.get_id()]->draw(*obj_shader);
                     break;
@@ -522,14 +532,8 @@ void Map::draw() {
         tree_shder->use();
         tree_shder->set_uniform("projection", projection);
         tree_shder->set_uniform("view", view);
-        for(auto& province : this->gs.world->provinces) {
-            const auto& tree = tree_spawn_pos[province.get_id()];
-            glm::mat4 model = glm::translate(base_model, glm::vec3(tree.first, 0.f));
-            model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
-            tree_shder->set_uniform("model", model);
-            for(const auto& simple_model : tree_type_models[tree.second]->simple_models)
-                simple_model.draw(*tree_shder, 10);
-        }
+        tree_shder->set_uniform("model", base_model);
+        tree_type_models[1]->draw(*tree_shder, tree_spawn_pos.size());
     }
 
     if(view_mode == MapView::SPHERE_VIEW) {

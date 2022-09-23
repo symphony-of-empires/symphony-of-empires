@@ -70,9 +70,9 @@ namespace Eng3D {
         Model(const Model&) = delete;
         Model(Model&&) noexcept = default;
         Model& operator=(const Model&) = delete;
-        virtual void draw(const Eng3D::OpenGL::Program& shader) const {
+        virtual void draw(const Eng3D::OpenGL::Program& shader, int instances = 0) const {
             for(auto& model : simple_models)
-                model.draw(shader);
+                model.draw(shader, instances);
         }
         
 #ifdef E3D_FEATURE_ASSIMP

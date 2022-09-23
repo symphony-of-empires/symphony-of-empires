@@ -70,10 +70,9 @@ void Eng3D::BinaryImage::from_file(const Eng3D::IO::Path& path) {
     int i_width, i_height, i_channels;
 
     // stbi can do the conversion to RGBA for us ;)
-    stbi_uc* c_buffer = stbi_load(path.str.c_str(), &i_width, &i_height, &i_channels, 4);
+    auto* c_buffer = stbi_load(path.str.c_str(), &i_width, &i_height, &i_channels, 4);
     if(c_buffer == nullptr)
         CXX_THROW(BinaryImageException, path.str, stbi_failure_reason());
-
     width = static_cast<size_t>(i_width);
     height = static_cast<size_t>(i_height);
 

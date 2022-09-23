@@ -125,7 +125,7 @@ public:
     std::vector<std::shared_ptr<Eng3D::Model>> building_type_models;
     std::vector<std::shared_ptr<Eng3D::Model>> unit_type_models;
     std::vector<std::shared_ptr<Eng3D::Model>> tree_type_models;
-    std::vector<std::pair<glm::vec2, TerrainType::Id>> tree_spawn_pos; // Location of where to place trees
+    std::vector<glm::vec2> tree_spawn_pos; // Location of where to place trees
     std::vector<std::shared_ptr<Eng3D::Texture>> building_type_icons;
     std::vector<std::shared_ptr<Eng3D::Texture>> unit_type_icons;
     std::vector<std::shared_ptr<Eng3D::Texture>> nation_flags;

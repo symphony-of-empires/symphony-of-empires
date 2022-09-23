@@ -27,6 +27,7 @@
 #include <cstdint>
 #include <vector>
 #include <string>
+#include <memory>
 
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
@@ -237,7 +238,8 @@ namespace Eng3D {
             : mode(_mode),
             vao(),
             vbo(),
-            ebo()
+            ebo(),
+            i_vbo()
         {
 
         }
@@ -247,17 +249,25 @@ namespace Eng3D {
         Mesh& operator=(const Mesh&) = delete;
 
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
-        virtual void draw() const {
+        virtual void draw(int instances = 0) const {
             vao.bind();
-            if(!indices.empty()) {
-                glDrawElements(static_cast<GLenum>(mode), indices.size(), GL_UNSIGNED_INT, 0);
-            } else if(!buffer.empty()) {
-                glDrawArrays(static_cast<GLenum>(mode), 0, buffer.size());
+            if(instances) {
+                // Instanced
+                if(!indices.empty())
+                    glDrawElementsInstanced(static_cast<GLenum>(mode), indices.size(), GL_UNSIGNED_INT, nullptr, instances);
+                else if(!buffer.empty())
+                    glDrawArraysInstanced(static_cast<GLenum>(mode), 0, buffer.size(), instances);
+            } else {
+                // Single-draw
+                if(!indices.empty())
+                    glDrawElements(static_cast<GLenum>(mode), indices.size(), GL_UNSIGNED_INT, nullptr);
+                else if(!buffer.empty())
+                    glDrawArrays(static_cast<GLenum>(mode), 0, buffer.size());
             }
         }
 
-        virtual void draw(const Eng3D::OpenGL::Program&, int) const {
-            this->draw();
+        virtual void draw(const Eng3D::OpenGL::Program&, int instances = 0) const {
+            this->draw(instances);
         }
 #else
 #   error not implemented
@@ -291,6 +301,24 @@ namespace Eng3D {
 #endif
         }
 
+        /// @brief Enables instances on this simple mesh
+        /// @param instances Number of instances to configure for
+        template<typename I = glm::vec2>
+        void instancing(I& buffer, int instances = 0) {
+            if(!instances) return;
+
+            vao.bind();
+            i_vbo.bind();
+            glBufferData(GL_ARRAY_BUFFER, sizeof(I) * instances, &buffer, GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0); 
+
+            glEnableVertexAttribArray(2);
+            i_vbo.bind();
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(I), (void*)0);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);	
+            glVertexAttribDivisor(2, 1);  
+        }
+
         std::vector<DataType> buffer;
         std::vector<unsigned int> indices;
         enum Eng3D::MeshMode mode;
@@ -301,6 +329,7 @@ namespace Eng3D {
         Eng3D::OpenGL::VAO vao;
         Eng3D::OpenGL::VBO vbo;
         Eng3D::OpenGL::EBO ebo;
+        Eng3D::OpenGL::VBO i_vbo; // Instanced VBO, optional
 #else
 #   error not implemented
 #endif

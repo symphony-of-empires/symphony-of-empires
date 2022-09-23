@@ -65,23 +65,8 @@ void Eng3D::SimpleModel::draw(const Eng3D::OpenGL::Program& shader, int instance
     shader.set_uniform("specular_color", material->specular_color);
 
     shader.set_texture(5, "normal_map", *material->normal_map);
-
-    vao.bind();
-    if(!instances) {
-        // Single-draw
-        if(!indices.empty()) {
-            glDrawElements(static_cast<GLenum>(mode), indices.size(), GL_UNSIGNED_INT, nullptr);
-        } else if(!buffer.empty()) {
-            glDrawArrays(static_cast<GLenum>(mode), 0, buffer.size());
-        }
-    } else {
-        // Instanced
-        if(!indices.empty()) {
-            glDrawElementsInstanced(static_cast<GLenum>(mode), indices.size(), GL_UNSIGNED_INT, nullptr, instances);
-        } else if(!buffer.empty()) {
-            glDrawArraysInstanced(static_cast<GLenum>(mode), 0, buffer.size(), instances);
-        }
-    }
+    
+    ((Eng3D::Mesh<glm::vec3, glm::vec2>*)this)->draw();
 }
 
 //
