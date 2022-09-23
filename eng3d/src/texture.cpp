@@ -49,8 +49,8 @@ Eng3D::Texture::Texture(const Eng3D::IO::Asset::Base* asset)
 
 }
 
-Eng3D::Texture::Texture(size_t _width, size_t _height)
-    : Eng3D::BinaryImage(_width, _height)
+Eng3D::Texture::Texture(size_t _width, size_t _height, size_t _bpp)
+    : Eng3D::BinaryImage(_width, _height, _bpp)
 {
 
 }
@@ -279,6 +279,7 @@ void Eng3D::Texture::delete_gputex() {
 #endif
 }
 
+#define STB_IMAGE_WRITE_STATIC 1
 #define STB_IMAGE_WRITE_IMPLEMENTATION 1
 extern "C" {
 #include "eng3d/stb_image_write.h"

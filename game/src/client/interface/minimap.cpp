@@ -252,7 +252,7 @@ mapmode_generator good_map_mode(Good::Id id) {
         auto max_price = 0.0001f;
         for(auto const& province : world.provinces) {
             const auto& product = province.products[id];
-            auto price = (float)log2(product.price + 1.f);
+            auto price = std::log2f(product.price + 1.f);
             max_price = glm::max(price, max_price);
             province_amounts.push_back(std::make_pair(world.get_id(province), price));
         }

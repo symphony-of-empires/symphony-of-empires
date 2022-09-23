@@ -192,15 +192,15 @@ void Map::update_nation_label(const Nation& nation) {
     glm::vec2 x_step(lab_max.x - mid_point.x, 0.f);
     glm::vec3 left(mid_point - x_step, 0.f);
     glm::vec3 right(mid_point + x_step, 0.f);
-    float width = glm::length(left - right) * 1.2f;
-    glm::vec3 right_dir = glm::vec3(mid_point.x + 1.f, mid_point.y, 0.f) - center;
-    glm::vec3 top_dir = glm::vec3(mid_point.x, mid_point.y - 1.f, 0.f) - center;
+    auto width = glm::length(left - right) * 1.2f;
+    auto right_dir = glm::vec3(mid_point.x + 1.f, mid_point.y, 0.f) - center;
+    auto top_dir = glm::vec3(mid_point.x, mid_point.y - 1.f, 0.f) - center;
     glm::vec3 normal = glm::cross(top_dir, right_dir);
     normal = glm::normalize(normal);
-    float angle = glm::atan(lab_max.y - lab_min.y, lab_max.x - lab_min.x);
+    auto angle = glm::atan(lab_max.y - lab_min.y, lab_max.x - lab_min.x);
     if(angle > (glm::pi<float>() / 2.0f)) angle -= glm::pi<float>();
     else if(angle < -(glm::pi<float>() / 2.0f)) angle += glm::pi<float>();
-    glm::mat4 rot = glm::rotate(glm::mat4(1.), angle, normal);
+    auto rot = glm::rotate(glm::mat4(1.), angle, normal);
     top_dir = rot * glm::vec4(top_dir, 1.);
     right_dir = rot * glm::vec4(right_dir, 1.);
     
@@ -225,8 +225,8 @@ void Map::create_labels() {
         float width = glm::length(left - right);
         width *= 0.2f;
 
-        glm::vec3 right_dir = glm::vec3(mid_point.x + 1.f, mid_point.y, 0.) - center;
-        glm::vec3 top_dir = glm::vec3(mid_point.x, mid_point.y - 1.f, 0.) - center;
+        auto right_dir = glm::vec3(mid_point.x + 1.f, mid_point.y, 0.) - center;
+        auto top_dir = glm::vec3(mid_point.x, mid_point.y - 1.f, 0.) - center;
         center.z -= 0.1f;
         auto label = this->map_font->gen_text(_(province.name.get_string()), top_dir, right_dir, width, center);
         this->province_labels.push_back(std::move(label));

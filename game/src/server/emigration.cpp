@@ -167,8 +167,8 @@ static inline void external_migration(World& world) {
                     // And literacy determines "best" spot, for example a low literacy will
                     // choose a slightly less desirable location
                     const auto emigration_desire = glm::max(pop.militancy * -pop.life_needs_met, 1.f);
-                    const auto emigreers = glm::min(pop.size * emigration_desire * std::fmod(fuzz + 1.f, 1.f), pop.size);
-                    if(emigreers > 0) {
+                    const auto emigrants = glm::min(pop.size * emigration_desire * std::fmod(fuzz + 1.f, 1.f), pop.size);
+                    if(emigrants > 0) {
                         auto nation_distribution = nation_distributions[language_id];
                         if(nation_distribution == nullptr) continue;
 
@@ -179,11 +179,11 @@ static inline void external_migration(World& world) {
                         auto choosen_province = province_distribution->get_item();
                         Emigrated emigrated = Emigrated(province.pops[i]);
                         emigrated.target = choosen_province;
-                        emigrated.size = emigreers;
+                        emigrated.size = emigrants;
                         emigrated.origin = &province;
 
                         emigration.push_back(emigrated);
-                        pop.size -= emigreers;
+                        pop.size -= emigrants;
                     }
                 }
             }

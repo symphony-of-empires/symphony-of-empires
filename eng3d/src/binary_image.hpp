@@ -29,6 +29,7 @@
 #include <exception>
 #include <memory>
 #include <string>
+#include <variant>
 
 #include "eng3d/io.hpp"
 #include "eng3d/color.hpp"
@@ -53,11 +54,12 @@ namespace Eng3D {
     public:
         BinaryImage() = default;
         BinaryImage(const Eng3D::IO::Path& path);
-        BinaryImage(size_t _width, size_t _height);
+        BinaryImage(size_t _width, size_t _height, size_t bpp = 32);
         BinaryImage(const BinaryImage& tex);
         BinaryImage& operator=(const BinaryImage&) = delete;
         virtual ~BinaryImage() = default;
         virtual void from_file(const Eng3D::IO::Path& path);
+        virtual void to_file(const std::string& filename);
 
         /// @brief Obtains a pixel from the binary image
         /// @param x X coordinate
@@ -67,7 +69,12 @@ namespace Eng3D {
             return Eng3D::Color::rgba32(buffer[x + y * width]);
         }
 
+        /*std::variant<
+            std::unique_ptr<uint8_t[]>,
+            std::unique_ptr<uint16_t[]>,
+            std::unique_ptr<uint32_t[]>> buffer;*/
         std::unique_ptr<uint32_t[]> buffer;
         size_t width, height;
+        size_t bpp;
     };
 }

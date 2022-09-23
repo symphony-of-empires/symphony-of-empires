@@ -68,7 +68,7 @@ MapRender::MapRender(GameState& _gs, Map& _map)
     // ------------------------------------------------------------
     // | 16 bit Province id | 8 bit terrain index | 8 bit "flags" |
     // ------------------------------------------------------------
-    Eng3D::Log::debug("game", "Creating tile map & tile sheet");
+    Eng3D::Log::debug("game", "Creating tile map & tile sheet");    
     tbb::parallel_for(0zu, this->terrain_map->width * this->terrain_map->height, [this](const auto i) {
         this->terrain_map->buffer.get()[i] |= this->gs.world->get_tile(i).province_id & 0xffff;
     });
@@ -84,9 +84,9 @@ MapRender::MapRender(GameState& _gs, Map& _map)
     // Texture holding each province color
     // The x & y coords are the province Red & Green color of the tile_map
     tile_sheet = std::make_unique<Eng3D::Texture>(256, 256);
-    std::fill(tile_sheet->buffer.get(), tile_sheet->buffer.get() + 256 * 256, 0xffdddddd);
+    std::fill_n(tile_sheet->buffer.get(), 256 * 256, 0xffdddddd);
     tile_sheet_nation = std::make_unique<Eng3D::Texture>(256, 256);
-    std::fill(tile_sheet_nation->buffer.get(), tile_sheet_nation->buffer.get() + 256 * 256, 0xffdddddd);
+    std::fill_n(tile_sheet_nation->buffer.get(), 256 * 256, 0xffdddddd);
 
     // By default textures will be dropped from the CPU in order to save memory, however we're trying
     // to make a buffer-texture so we have to keep it or we will have trouble

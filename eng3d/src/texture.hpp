@@ -107,7 +107,7 @@ namespace Eng3D {
         Texture() = default;
         Texture(const std::string& path);
         Texture(const Eng3D::IO::Asset::Base* asset);
-        Texture(size_t _width, size_t _height);
+        Texture(size_t width, size_t height, size_t bpp = 32);
         ~Texture() override;
         void create_dummy();
         void upload(TextureOptions options = default_options);
