@@ -100,7 +100,7 @@ static inline Good* ai_get_potential_good(Nation& nation) {
             for(const auto& input : building_type.inputs) // Apply the higher-probability with outputs of this factory
                 avg_prob[building_type.output->get_id()] += avg_prob[input->get_id()] + 1;
 
-        auto* target_good = &world.goods.at(std::distance(avg_prob.begin(), std::max_element(avg_prob.begin(), avg_prob.end())));
+        auto* target_good = &world.goods[std::distance(avg_prob.begin(), std::max_element(avg_prob.begin(), avg_prob.end()))];
 
         // The more buildings there are in the world the less we are wiling to construct one
         //float saturation = glm::max(1, world.buildings.size()) / 100;

@@ -96,7 +96,8 @@ static inline float province_attraction(const Province& province) {
 }
 
 static inline void external_migration(World& world) {
-    std::vector<std::unique_ptr<DiscreteDistribution<Province*>>> province_distributions;
+    std::vector<DiscreteDistribution<Province*>> province_distributions;
+    province_distributions.reserve(world.provinces.size());
     for(auto& nation : world.nations) {
         std::vector<float> attractions;
         std::vector<Province*> viable_provinces;
@@ -107,14 +108,15 @@ static inline void external_migration(World& world) {
             attractions.push_back(attraction);
             viable_provinces.push_back(&province);
         }
-
-        std::unique_ptr<DiscreteDistribution<Province*>> distribution = nullptr;
-        if(!viable_provinces.empty())
-            distribution = std::make_unique<DiscreteDistribution<Province*>>(viable_provinces, attractions);
-        province_distributions.push_back(std::move(distribution));
+        if(!viable_provinces.empty()) {
+            attractions.push_back(1.f);
+            viable_provinces.push_back(nullptr);
+        }
+        province_distributions.emplace_back(viable_provinces, attractions);
     }
 
-    std::vector<std::unique_ptr<DiscreteDistribution<Nation*>>> nation_distributions;
+    std::vector<DiscreteDistribution<Nation*>> nation_distributions;
+    nation_distributions.reserve(world.nations.size());
     for(auto& language : world.languages) {
         std::vector<float> attractions;
         std::vector<Nation*> viable_nations;
@@ -126,11 +128,11 @@ static inline void external_migration(World& world) {
             attractions.push_back(attraction);
             viable_nations.push_back(&nation);
         }
-
-        std::unique_ptr<DiscreteDistribution<Nation*>> distribution;
-        if(!viable_nations.empty())
-            distribution = std::make_unique<DiscreteDistribution<Nation*>>(viable_nations, attractions);
-        nation_distributions.push_back(std::move(distribution));
+        if(!viable_nations.empty()) {
+            attractions.push_back(1.f);
+            viable_nations.push_back(nullptr);
+        }
+        nation_distributions.emplace_back(viable_nations, attractions);
     }
 
     // Collect list of nations that exist
@@ -154,7 +156,7 @@ static inline void external_migration(World& world) {
         }
     }
 
-    tbb::concurrent_vector<Emigrated> emigration;
+    tbb::combinable<tbb::concurrent_vector<Emigrated>> emigration;
     tbb::parallel_for(tbb::blocked_range(eval_nations.begin(), eval_nations.end()), [&emigration, &nation_distributions, &province_distributions, &world](const auto& nations_range) {
         for(const auto& nation : nations_range) {
             // Check that laws on the province we are in allows for emigration
@@ -173,19 +175,19 @@ static inline void external_migration(World& world) {
                     const auto emigration_desire = glm::max(pop.militancy * -pop.life_needs_met, 1.f);
                     const auto emigrants = glm::min(pop.size * emigration_desire * rng_multipliers.get_item(), pop.size);
                     if(emigrants > 0) {
-                        const auto& nation_distribution = nation_distributions[language_id];
-                        if(nation_distribution == nullptr) continue;
+                        auto& nation_distribution = nation_distributions[language_id];
+                        const auto* nation = nation_distribution.get_item();
+                        if(nation == nullptr) continue;
 
-                        const auto* nation = nation_distribution->get_item();
                         auto& province_distribution = province_distributions[nation->get_id()];
-                        if(province_distribution == nullptr) continue;
+                        auto* choosen_province = province_distribution.get_item();
+                        if(choosen_province == nullptr) continue;
 
-                        auto* choosen_province = province_distribution->get_item();
                         Emigrated emigrated(pop);
                         emigrated.target = choosen_province;
                         emigrated.size = emigrants;
                         emigrated.origin = &province;
-                        emigration.push_back(emigrated);
+                        emigration.local().push_back(emigrated);
                         pop.size -= emigrants;
                     }
                 }
@@ -197,19 +199,21 @@ static inline void external_migration(World& world) {
     // if a POP with similar type does not exist - and we will also subtract the
     // amount of emigrated from the original POP to not
     // create clones
-    for(const auto& target : emigration) {
-        auto new_pop = std::find(target.target->pops.begin(), target.target->pops.end(), target.emigred);
-        if(new_pop == target.target->pops.end()) continue;
+    emigration.combine_each([&world](auto& target_list) {
+        for(auto& target : target_list) {
+            auto new_pop = std::find(target.target->pops.begin(), target.target->pops.end(), target.emigred);
+            if(new_pop == target.target->pops.end()) continue;
 
-        const auto ratio = target.emigred.size / target.size;
-        assert(target.target->languages.size() == target.origin->languages.size());
-        for(size_t i = 0; i < target.target->languages.size(); i++)
-            target.target->languages[i] += glm::clamp(target.origin->languages[i] * ratio, 0.f, 1.f);
-        assert(target.target->religions.size() == target.origin->religions.size());
-        for(size_t i = 0; i < target.target->religions.size(); i++)
-            target.target->religions[i] += glm::clamp(target.origin->religions[i] * ratio, 0.f, 1.f);
-        
-        new_pop->size += target.size;
-        new_pop->budget += target.emigred.budget;
-    }
+            const auto ratio = target.emigred.size / target.size;
+            assert(target.target->languages.size() == target.origin->languages.size());
+            for(size_t i = 0; i < target.target->languages.size(); i++)
+                target.target->languages[i] += glm::clamp(target.origin->languages[i] * ratio, 0.f, 1.f);
+            assert(target.target->religions.size() == target.origin->religions.size());
+            for(size_t i = 0; i < target.target->religions.size(); i++)
+                target.target->religions[i] += glm::clamp(target.origin->religions[i] * ratio, 0.f, 1.f);
+            
+            new_pop->size += target.size;
+            new_pop->budget += target.emigred.budget;
+        }
+    });
 }
