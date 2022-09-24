@@ -65,13 +65,20 @@
 //
 // Socket stream
 //
-void Eng3D::Networking::SocketStream::send(const void* data, size_t size) {
+void Eng3D::Networking::SocketStream::send(const void* data, size_t size, std::function<bool()> pred) {
     const auto* c_data = reinterpret_cast<const char*>(data);
+    int times = 1000;
     for(size_t i = 0; i < size; ) {
-        int r = ::send(fd, &c_data[i], glm::min<std::size_t>(1024, size - i), 0);
-        if(r < 0)
-            CXX_THROW(Eng3D::Networking::SocketException, "Can't send data of packet");
-        i += static_cast<size_t>(r);
+        if(pred && !pred()) // If (any) predicate fails then return immediately
+            return;
+        int r = ::send(fd, &c_data[i], glm::min<std::size_t>(1024, size - i), MSG_DONTWAIT);
+        if(r < 0) {
+            if(!times)
+                CXX_THROW(Eng3D::Networking::SocketException, "Packet send interrupted");
+            times--;
+            continue;
+        }
+        i += static_cast<std::size_t>(r);
     }
 }
 

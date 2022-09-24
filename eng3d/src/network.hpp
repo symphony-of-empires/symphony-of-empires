@@ -77,7 +77,7 @@ namespace Eng3D::Networking {
         SocketStream() = default;
         SocketStream(int _fd) : fd(_fd) {};
         ~SocketStream() = default;
-        void send(const void* data, size_t size);
+        void send(const void* data, size_t size, std::function<bool()> pred);
         void recv(void* data, size_t size, std::function<bool()> pred = 0);
         void set_timeout(int seconds);
         bool has_pending();
@@ -134,19 +134,19 @@ namespace Eng3D::Networking {
             }
 
             const uint16_t net_code = htons(static_cast<uint16_t>(code));
-            stream.send(&net_code, sizeof(net_code));
+            stream.send(&net_code, sizeof(net_code), pred);
 
             const uint16_t net_size = htons(n_data);
-            stream.send(&net_size, sizeof(net_size));
+            stream.send(&net_size, sizeof(net_size), pred);
 
             //uint8_t* new_buf = new uint8_t[size];
             //size_t new_size = compress(buf, size, new_buf, size);
             //stream.send(&new_buf[0], new_size);
-            stream.send(&buffer[0], n_data);
+            stream.send(&buffer[0], n_data, pred);
             //delete[] new_buf;
 
             const uint16_t eof_marker = htons(0xE0F);
-            stream.send(&eof_marker, sizeof(eof_marker));
+            stream.send(&eof_marker, sizeof(eof_marker), pred);
         }
 
         inline void send() {
