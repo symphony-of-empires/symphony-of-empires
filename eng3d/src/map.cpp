@@ -102,7 +102,7 @@ Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
         *data = idx << 24;
         *data |= (color == 0x243089 ? 0x00 : 0x02) << 16; // Ocean, or ocean
     });
-    this->terrain_map->to_file("new_terrain.png");
+    //this->terrain_map->to_file("new_terrain.png");
 
     // Terrain textures to sample from
     this->terrain_sheet = std::make_unique<Eng3D::TextureArray>(this->s.package_man.get_unique("gfx/terrain_sheet.png")->get_abs_path(), 4, 4);

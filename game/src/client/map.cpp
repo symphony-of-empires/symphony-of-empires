@@ -629,7 +629,7 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
                 if(province.controller_id != gs.curr_nation->get_id()) {
                     // Must either be our ally, have military access with them or be at war
                     const auto& relation = gs.world->get_relation(gs.world->get_id(*gs.curr_nation), province.controller_id);
-                    if(!(relation.has_war || relation.has_alliance || relation.has_military_access)) continue;
+                    if(!relation.has_landpass()) continue;
                 }
 
                 Eng3D::Networking::Packet packet{};

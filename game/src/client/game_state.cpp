@@ -306,16 +306,20 @@ void GameState::handle_key(const Eng3D::Event::Key& e) {
             ui_ctx.check_text_input(nullptr);
             break;
         case Eng3D::Event::Key::Type::UP:
-            map->camera->move(0.f, -1.f, 0.f);
+            if(map && map->camera)
+                map->camera->move(0.f, -1.f, 0.f);
             break;
         case Eng3D::Event::Key::Type::DOWN:
-            map->camera->move(0.f, 1.f, 0.f);
+            if(map && map->camera)
+                map->camera->move(0.f, 1.f, 0.f);
             break;
         case Eng3D::Event::Key::Type::LEFT:
-            map->camera->move(-1.f, 0.f, 0.f);
+            if(map && map->camera)
+                map->camera->move(-1.f, 0.f, 0.f);
             break;
         case Eng3D::Event::Key::Type::RIGHT:
-            map->camera->move(1.f, 0.f, 0.f);
+            if(map && map->camera)
+                map->camera->move(1.f, 0.f, 0.f);
             break;
         default: break;
         }

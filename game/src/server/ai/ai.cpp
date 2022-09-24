@@ -191,35 +191,13 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
 
     // Try to increase relations with our friend
     if(nation.is_ally(other) && !(rand() % 250)) {
-        // Propose an alliance
-        if(relation.relation > 1 && !relation.has_alliance) {
-            relation.has_alliance = true;
-            relation.relation = 100.f;
-            Eng3D::Log::debug("ai", nation.ref_name + " requested an alliance with " + other.ref_name);
-        }
-
-        // If they want an alliance we won't hesitate to join (they are our friends after all)
-        if(!relation.has_alliance) {
-            relation.has_alliance = true;
-            relation.relation = 100.f;
-            Eng3D::Log::debug("ai", nation.ref_name + " did an alliance with " + other.ref_name);
-        }
-
-        // Same with the defensive pact
-        if(!relation.has_defensive_pact) {
-            relation.has_defensive_pact = true;
-            Eng3D::Log::debug("ai", nation.ref_name + " defensive pact with " + other.ref_name);
-        }
+        // After 50 relations we make steps towards doing alliances
+        if(relation.relation > 0.5f)
+            relation.alliance = std::min(relation.alliance + 0.01f, 1.f);
     }
 
     // Hate our enemies more
     if(nation.is_enemy(other) && !(rand() % 500)) {
-        // Embargo them
-        if(relation.relation < -15) {
-            relation.has_embargo = true;
-            Eng3D::Log::debug("ai", nation.ref_name + " has placed an embargo on " + other.ref_name);
-        }
-
         // We really hate our enemies, don't we?
         if(relation.relation < -90 && !relation.has_war) {
             /// @todo Do not war if it's beyond our capabilities (i.e Liechestein vs. France, Prussia and UK)
@@ -415,14 +393,14 @@ void ai_do_tick(Nation& nation) {
             // because we can't afford to calculate this for EVERY FUCKING province
             const auto& relation = world.get_relation(nation.get_id(), other.get_id());
             // And add if they're allied with us or let us pass thru
-            if(relation.has_alliance || relation.has_military_access || relation.has_war)
+            if(relation.has_landpass())
                 for(const auto province_id : other.controlled_provinces)
                     eval_provinces.push_back(province_id);
 
             constexpr auto relation_max = 100.f;
             constexpr auto relation_range = 200.f; // Range of relations, the max-min difference
             // Risk is augmentated when we border any non-ally nation
-            if(!relation.has_alliance) // Makes sure so 200 relations results on 0.0 attraction, while 1 or 0 relations result on 3.9 and 4.0
+            if(!relation.is_allied()) // Makes sure so 200 relations results on 0.0 attraction, while 1 or 0 relations result on 3.9 and 4.0
                 ai_data.nations_risk_factor[other.get_id()] = ((relation_range - (relation.relation + relation_max)) / relation_max) * nation_weight;
             if(relation.has_war)
                 ai_data.nations_risk_factor[other.get_id()] = war_weight * nation_weight;
@@ -487,7 +465,7 @@ void ai_do_tick(Nation& nation) {
                     if(potential_risk[neighbour_id] > potential_risk[highest_risk->get_id()]) {
                         if(Nation::is_valid(neighbour.controller_id) && neighbour.controller_id != unit.owner_id) {
                             const auto& relation = world.get_relation(neighbour.controller_id, unit.owner_id);
-                            if(relation.has_war || relation.has_alliance || relation.has_military_access)
+                            if(relation.has_landpass())
                                 highest_risk = &neighbour;
                         } else
                             highest_risk = &neighbour;
@@ -502,7 +480,7 @@ void ai_do_tick(Nation& nation) {
                     if(Nation::is_invalid(highest_risk->controller_id) && !g_world.terrain_types[highest_risk->terrain_type_id].is_water_body) continue;
                     if(Nation::is_valid(highest_risk->controller_id) && highest_risk->controller_id != unit.owner_id) {
                         const auto& relation = world.get_relation(highest_risk->controller_id, unit.owner_id);
-                        if(!(relation.has_war || relation.has_alliance || relation.has_military_access)) continue;
+                        if(!relation.has_landpass()) continue;
                     }
                     if(highest_risk == &unit_province) continue;
                 }

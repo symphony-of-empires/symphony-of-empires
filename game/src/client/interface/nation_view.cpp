@@ -131,10 +131,6 @@ Interface::NationView::NationView(GameState& _gs, Nation& _nation)
             }
         });
         dow_btn->on_each_tick(*dow_btn);
-        
-        auto* embargo_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
-        embargo_btn->text(Eng3D::Locale::translate("Embargo"));
-        embargo_btn->set_tooltip(Eng3D::Locale::translate("Prevent imports/exports to this country"));
 
         auto* allow_market_access_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         allow_market_access_btn->text(Eng3D::Locale::translate("Allow market access"));

@@ -141,11 +141,7 @@ class Serializer<NationRelation> {
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, NationRelation& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.has_alliance);
-        ::deser_dynamic<is_serialize>(ar, obj.has_defensive_pact);
-        ::deser_dynamic<is_serialize>(ar, obj.has_embargo);
-        ::deser_dynamic<is_serialize>(ar, obj.has_market_access);
-        ::deser_dynamic<is_serialize>(ar, obj.has_military_access);
+        ::deser_dynamic<is_serialize>(ar, obj.alliance);
         ::deser_dynamic<is_serialize>(ar, obj.has_war);
         ::deser_dynamic<is_serialize>(ar, obj.relation);
     }

@@ -291,10 +291,10 @@ mapmode_generator relations_map_mode(Nation::Id id) {
                 continue;
             }
 
-            const auto& rel = g_world.get_relation(province.controller_id, id);
-            const uint8_t r = (rel.relation < 0) ? -rel.relation : 0;
-            const uint8_t g = (rel.relation > 0) ? rel.relation : 0;
-            const uint8_t b = rel.has_alliance ? 0x80 : 0;
+            const auto& relation = g_world.get_relation(province.controller_id, id);
+            const uint8_t r = (relation.relation < 0) ? -relation.relation : 0;
+            const uint8_t g = (relation.relation > 0) ? relation.relation : 0;
+            const uint8_t b = relation.is_allied() ? 0x80 : 0;
             auto color = Eng3D::Color::rgb8(r, g, b);
             provinces_color.push_back(ProvinceColor(i, color));
         }
@@ -327,10 +327,10 @@ mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
         }
 
         if(province.controller_id != nation_id) {
-            const NationRelation& rel = world.get_relation(province.controller_id, nation_id);
-            if(rel.has_alliance) {
+            const auto& relation = world.get_relation(province.controller_id, nation_id);
+            if(relation.is_allied()) {
                 str += "allied with " + world.nations[nation_id].get_client_hint().alt_name;
-            } else if(rel.has_war) {
+            } else if(relation.has_war) {
                 str += "at war with " + world.nations[nation_id].get_client_hint().alt_name;
             }
 
@@ -344,15 +344,15 @@ mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
                 "friendly"
             };
 
-            int idx = ((static_cast<float>(rel.relation) + 100.f) / 200.f) * rel_lvls.size();
-            str += std::to_string(rel.relation) + "(" + rel_lvls[idx % rel_lvls.size()] + ")";
+            int idx = ((static_cast<float>(relation.relation) + 100.f) / 200.f) * rel_lvls.size();
+            str += std::to_string(relation.relation) + "(" + rel_lvls[idx % rel_lvls.size()] + ")";
 
             int ally_cnt = 0;
             str += Eng3D::Locale::translate("Allied with") + " ";
             for(const auto& nation : world.nations) {
                 if(province.controller_id == nation.get_id()) continue;
-                const NationRelation& rel = world.get_relation(province.controller_id, world.get_id(nation));
-                if(rel.has_alliance) {
+                const auto& relation = world.get_relation(province.controller_id, world.get_id(nation));
+                if(relation.is_allied()) {
                     str += Eng3D::Locale::translate(nation.get_client_hint().alt_name.get_string());
                     str += ", ";
                     ally_cnt++;

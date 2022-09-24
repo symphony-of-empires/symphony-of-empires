@@ -53,7 +53,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     for(Nation::Id i = 0; i < world.nations.size(); i++) {
         if(&world.nations[i] == this || &world.nations[i] == &nation) continue;
         const auto& relation = world.get_relation(i, world.get_id(*this));
-        if(relation.has_alliance || world.nations[i].puppet_master == this)
+        if(relation.is_allied() || world.nations[i].puppet_master == this)
             war->attackers.push_back(&world.nations[i]);
     }
     war->attackers.push_back(this);
@@ -66,7 +66,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
         if(&world.nations[i] == this || &world.nations[i] == &nation) continue;
         if(std::find(war->attackers.begin(), war->attackers.end(), &world.nations[i]) != war->attackers.end()) continue;
         const auto& relation = world.get_relation(i, world.get_id(nation));
-        if(relation.has_alliance || relation.has_defensive_pact || world.nations[i].puppet_master == &nation)
+        if(relation.is_allied() || world.nations[i].puppet_master == &nation)
             war->defenders.push_back(&world.nations[i]);
     }
     war->defenders.push_back(&nation);
@@ -93,8 +93,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
             
             auto& relation = world.get_relation(world.get_id(*defender), world.get_id(*attacker));
             relation.has_war = true; // Declare war
-            relation.has_alliance = false;
-            relation.has_defensive_pact = false;
+            relation.alliance = 0.f;
             relation.relation = -100.f;
         }
     }
@@ -341,7 +340,7 @@ std::vector<Nation*> Nation::get_allies() {
     for(auto& nation : world.nations) {
         if(&nation == this) continue;
         const auto& relation = g_world.get_relation(world.get_id(*this), world.get_id(nation));
-        if(relation.has_alliance)
+        if(relation.is_allied())
             list.push_back(&nation);
     }
     return list;

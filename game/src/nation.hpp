@@ -57,13 +57,20 @@ public:
     constexpr NationRelation() = default;
     ~NationRelation() = default;
 
+    bool is_allied() const {
+        return alliance > 0.f && !has_war;
+    }
+
+    bool has_landpass() const {
+        return relation > 0.5f || alliance > 0.f || has_war;
+    }
+
     float relation = 0.f;
-    bool has_embargo = false;
     bool has_war = false;
-    bool has_alliance = false;
-    bool has_defensive_pact = false;
-    bool has_military_access = false;
-    bool has_market_access = false;
+    float alliance = 0.f; // From 0 to 1
+                          // 0 = diplomatic alliance, tariiff excemption
+                          // 1 = political alliance, after this they can
+                          //     form a single country
 };
 
 // Hints for the client on how to display the nation

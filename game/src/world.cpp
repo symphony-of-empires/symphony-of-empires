@@ -528,7 +528,7 @@ static inline void unit_do_tick(World& world, Unit& unit) {
         if(neighbour.controller_id != unit.owner_id && Nation::is_valid(neighbour.controller_id)) {
             // Decrease relations if we're militarizing our border
             auto& relation = world.get_relation(neighbour.controller_id, unit.owner_id);
-            if(!relation.has_military_access)
+            if(!relation.has_landpass())
                 relation.relation = glm::clamp<float>(relation.relation - weight_factor, -100.f, 100.f);
         }
     }
@@ -546,7 +546,7 @@ static inline void unit_do_tick(World& world, Unit& unit) {
         bool can_move = true, can_take = false;
         if(Nation::is_valid(unit_target.controller_id) && unit_target.controller_id != unit.owner_id) {
             const auto& relation = world.get_relation(unit_target.controller_id, unit.owner_id);
-            can_move = (relation.has_alliance || relation.has_defensive_pact || relation.has_war);
+            can_move = relation.has_landpass();
             can_take = relation.has_war;
         }
 
@@ -557,7 +557,7 @@ static inline void unit_do_tick(World& world, Unit& unit) {
                 if(unit.owner_id != unit_target.owner_id && Nation::is_valid(unit_target.owner_id)) {
                     // Relation between original owner and the conqueree
                     const auto& relation = world.get_relation(unit_target.owner_id, unit.owner_id);
-                    if(relation.has_alliance) // Allies will liberate countries implicitly and give back to the original owner
+                    if(relation.is_allied()) // Allies will liberate countries implicitly and give back to the original owner
                         world.nations[unit_target.owner_id].control_province(unit_target);
                     else // Non allied means provinces aren't returned implicitly
                         world.nations[unit.owner_id].control_province(unit_target);

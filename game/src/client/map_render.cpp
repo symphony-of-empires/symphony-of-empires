@@ -381,7 +381,7 @@ void MapRender::update_visibility(GameState& gs)
     for(const auto& nation : gs.world->nations) {
         const auto nation_id = nation.get_id();
         // If it's our own nation or an ally of ours we can see them
-        if(nation_id == gs.curr_nation->get_id() || gs.world->get_relation(nation_id, gs.curr_nation->get_id()).has_alliance) {
+        if(nation_id == gs.curr_nation->get_id() || gs.world->get_relation(nation_id, gs.curr_nation->get_id()).is_allied()) {
             for(const auto province_id : gs.world->nations[nation_id].controlled_provinces) {
                 const auto& province = gs.world->provinces[province_id];
                 this->province_opt->buffer[province_id] = 0x000000ff;
@@ -393,7 +393,8 @@ void MapRender::update_visibility(GameState& gs)
 
     gs.world->unit_manager.for_each_unit([this, &gs](Unit& unit) {
         // Unit must be ours or be owned by our ally
-        if(unit.owner_id != gs.curr_nation->get_id() && !gs.world->get_relation(unit.owner_id, gs.curr_nation->get_id()).has_alliance)
+        const auto& relation = gs.world->get_relation(unit.owner_id, gs.curr_nation->get_id());
+        if(unit.owner_id != gs.curr_nation->get_id() && !relation.is_allied())
             return;
         auto prov_id = gs.world->unit_manager.get_unit_current_province(unit.cached_id);
         this->province_opt->buffer[prov_id] = 0x000000ff;
