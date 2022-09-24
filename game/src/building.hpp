@@ -92,12 +92,11 @@ public:
             if(req.second) return false;
         return true;
     }
-
-    float build_time; // Remaining ticks until the unit is built
-    float budget = 0; // Total money that the factory has
-    float days_unoperational = 0; // Days that the factory has not been operational
-    float level = 0; // Level/Capacity scale of the building
-    float workers = 0; // Amount of workers
+    
+    float budget = 0.f; // Total money that the factory has
+    float days_unoperational = 0.f; // Days that the factory has not been operational
+    float level = 0.f; // Level/Capacity scale of the building
+    float workers = 0.f; // Amount of workers
     float production_scale = 1.f; // How much of the factory is being used. From 0-1
     UnitType* working_unit_type = nullptr; // Unit that is currently being built here (nullptr indicates no unit)
     /// @brief Required goods for building the working unit

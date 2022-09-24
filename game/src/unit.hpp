@@ -54,7 +54,6 @@ public:
     float defense;
     float attack;
     float capacity; // Capacity of units that can be carried (transport units)
-    float build_time; // Time needed to build
     bool is_ground; // Can go on ground?
     bool is_naval; // Can go on water?
     std::vector<std::pair<Good*, float>> req_goods; // Required goods
