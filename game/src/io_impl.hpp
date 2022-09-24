@@ -561,10 +561,6 @@ public:
                 auto dyn_clause = (TreatyClause::Humiliate&)*obj;
                 ::deser_dynamic<is_serialize>(ar, dyn_clause.amount);
             } break;
-            case TreatyClauseType::CEASEFIRE: {
-                obj = new TreatyClause::Ceasefire();
-                //auto dyn_clause = (TreatyClause::Ceasefire*)*obj;
-            } break;
             case TreatyClauseType::PUPPET: {
                 obj = new TreatyClause::Puppet();
                 //auto dyn_clause = (TreatyClause::Puppet*)*obj;

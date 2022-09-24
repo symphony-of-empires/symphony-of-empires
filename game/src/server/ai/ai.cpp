@@ -279,6 +279,8 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
         // Offer treaties
         if(!(rand() % 100)) {
             Treaty treaty{};
+            treaty.sender = &nation;
+            treaty.receiver = &other;
             {
                 auto* clause = new TreatyClause::AnnexProvince();
                 clause->sender = &nation;
@@ -315,13 +317,6 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
 
                 if(clause->liberated != nullptr)
                     treaty.clauses.push_back(clause);
-            }
-
-            {
-                auto* clause = new TreatyClause::Ceasefire();
-                clause->sender = &nation;
-                clause->receiver = &other;
-                treaty.clauses.push_back(clause);
             }
 
             ((World&)world).insert(treaty);
@@ -361,7 +356,19 @@ static inline void ai_build_commercial(Nation& nation) {
 
 void ai_do_tick(Nation& nation) {
     auto& world = World::get_instance();
-    if(!nation.exists()) return;
+    if(!nation.exists()) {
+        // Automatically unconditionally surrender once we stop existing
+        if(!(world.time % world.ticks_per_month) && nation.ai_controlled) {
+            for(auto& treaty : world.treaties) {
+                for(auto& part : treaty.approval_status) {
+                    if(part.first != &nation) continue;
+                    Eng3D::Log::debug("ai", "We, [" + nation.ref_name + "], (uncodintionally) accept the treaty of [" + treaty.name + "]");
+                    part.second = TreatyApproval::ACCEPTED;
+                }
+            }
+        }
+        return;
+    }
     auto& ai_data = g_ai_data[world.get_id(nation)];
 
     /// @todo make a better algorithm
@@ -489,7 +496,7 @@ void ai_do_tick(Nation& nation) {
             }
         }
     }
-
+    
     // Once we hit a economical tick & we are controlled by AI
     if(!(world.time % world.ticks_per_month) && nation.ai_controlled) {
         // Do a policy reform every 6 months
@@ -554,29 +561,6 @@ void ai_do_tick(Nation& nation) {
             nation.change_research_focus(technology);
             Eng3D::Log::debug("ai", "[" + nation.ref_name + "] now researching [" + technology.ref_name + "] - " + std::to_string(nation.research[world.get_id(technology)]) + " research points (" + std::to_string(nation.get_research_points()) + ")");
             break;
-        }
-
-        // Accepting/rejecting treaties
-        for(auto& treaty : world.treaties) {
-            for(auto& part : treaty.approval_status) {
-                if(part.first == &nation) {
-                    if(part.second == TreatyApproval::ACCEPTED || part.second == TreatyApproval::DENIED) break;
-                    // We can only deny treaties if NOT ALL of our country is sieged
-                    // also we can surrender if our capital is taken, but only if it's the sender of the treaty itself
-                    if(nation.controlled_provinces.empty() || world.provinces[nation.capital_id].controller_id == treaty.sender->get_id()) {
-                        Eng3D::Log::debug("ai", "We, [" + nation.ref_name + "], surrender & accept the treaty of [" + treaty.name + "]");
-                        part.second = TreatyApproval::ACCEPTED;
-                    } else {
-                        if(rand() % 10) {
-                            Eng3D::Log::debug("ai", "We, [" + nation.ref_name + "], deny the treaty of [" + treaty.name + "]");
-                            part.second = TreatyApproval::DENIED;
-                        } else {
-                            Eng3D::Log::debug("ai", "We, [" + nation.ref_name + "], accept the treaty of [" + treaty.name + "]");
-                            part.second = TreatyApproval::ACCEPTED;
-                        }
-                    }
-                }
-            }
         }
 
         // Taking events

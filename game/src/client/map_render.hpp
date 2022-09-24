@@ -71,7 +71,7 @@ public:
     Option grid{ "GRID", false }; // Square grid for the map
     Option units{ "UNITS", false }; // 3D units
     Option buildings{ "BUILDINGS", false }; // 3D buildings
-    Option trees{ "TREES", true }; // 3D hyper realistic trees
+    Option trees{ "TREES", false }; // 3D hyper realistic trees
     Option compress{ "COMPRESS", false }; // Use compression on textures
 
     std::vector<Option> get_options() {

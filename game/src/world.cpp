@@ -694,7 +694,7 @@ void World::do_tick() {
     // Do the treaties clauses
     for(const auto& treaty : treaties) {
         // Check that the treaty is agreed by all parties before enforcing it
-        bool on_effect = !(std::find_if(treaty.approval_status.begin(), treaty.approval_status.end(), [](auto& status) { return (status.second != TreatyApproval::ACCEPTED); }) != treaty.approval_status.end());
+        bool on_effect = std::find_if(treaty.approval_status.begin(), treaty.approval_status.end(), [](auto& status) { return (status.second != TreatyApproval::ACCEPTED); }) == treaty.approval_status.end();
         if(!on_effect) continue;
         // Check with treaty
         if(!treaty.in_effect()) continue;
@@ -723,15 +723,43 @@ void World::do_tick() {
                 auto dyn_clause = static_cast<TreatyClause::ImposePolicies*>(clause);
                 if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
-            } else if(clause->type == TreatyClauseType::CEASEFIRE) {
-                auto dyn_clause = static_cast<TreatyClause::Ceasefire*>(clause);
-                if(!dyn_clause->in_effect()) continue;
-                dyn_clause->enforce();
             } else if(clause->type == TreatyClauseType::PUPPET) {
                 auto dyn_clause = static_cast<TreatyClause::Puppet*>(clause);
                 if(!dyn_clause->in_effect()) continue;
                 dyn_clause->enforce();
             }
+        }
+
+        auto& relation = g_world.get_relation(treaty.sender->get_id(), treaty.receiver->get_id());
+        if(relation.has_war) {
+            // Remove the receiver from the wars
+            for(War::Id i = 0; i < g_world.wars.size(); i++) {
+                auto& war = g_world.wars[i];
+
+                // All people participating stop war with each other
+                for(const auto& ap1 : treaty.approval_status) {
+                    auto it = std::find(war.attackers.begin(), war.attackers.end(), ap1.first);
+                    if(it != war.attackers.end()) {
+                        war.attackers.erase(it);
+                    } else { // Otherwise they might be a defender so remove them aswell
+                        it = std::find(war.defenders.begin(), war.defenders.end(), ap1.first);
+                        if(it != war.defenders.end())
+                            war.defenders.erase(it);
+                    }
+                    
+                    // Stop the war between the nations ^-^
+                    for(const auto& ap2 : treaty.approval_status)
+                        if(ap1.first != ap2.first)
+                            g_world.get_relation(treaty.sender->get_id(), treaty.receiver->get_id()).has_war = false;
+                }
+
+                if(war.attackers.empty() || war.defenders.empty()) { // Once nobody is in a war remove it from the world
+                    Eng3D::Log::debug("war", "War of " + war.name + " finished!");
+                    g_world.wars.erase(g_world.wars.begin() + i);
+                    break;
+                }
+            }
+            relation.has_war = false;
         }
     }
     profiler.stop("Treaties");

@@ -56,9 +56,6 @@ std::string treaty_to_text(const Treaty& treaty) {
         } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
             const auto* dyn_clause = static_cast<const TreatyClause::ImposePolicies*>(clause);
             text += dyn_clause->sender->name + " imposes policies on " + dyn_clause->receiver->name;
-        } else if(clause->type == TreatyClauseType::CEASEFIRE) {
-            const auto* dyn_clause = static_cast<const TreatyClause::Ceasefire*>(clause);
-            text += dyn_clause->sender->name + " proposes ceasefire to " + dyn_clause->receiver->name;
         } else if(clause->type == TreatyClauseType::PUPPET) {
             const auto* dyn_clause = static_cast<const TreatyClause::Puppet*>(clause);
             text += dyn_clause->sender->name + " vassalizes " + dyn_clause->receiver->name;
@@ -79,24 +76,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation& _nation)
     this->treaty.sender = gs.curr_nation;
     this->treaty.receiver = &this->nation;
 
-    auto* ceasefire_btn = new UI::Checkbox(0, 0, 128, 24, this);
-    ceasefire_btn->text("Ceasefire");
-    ceasefire_btn->set_on_click([this](UI::Widget& w) {
-        if(((UI::Checkbox&)w).get_value()) {
-            auto* clause = new TreatyClause::Ceasefire();
-            clause->sender = this->gs.curr_nation;
-            clause->receiver = &(const_cast<Nation&>(this->nation));
-            clause->days_duration = 360;
-            this->treaty.clauses.push_back(clause);
-        } else {
-            std::erase_if(this->treaty.clauses, [](const auto& e) {
-                return e->type == TreatyClauseType::CEASEFIRE;
-            });
-        }
-    });
-
     auto* take_all_btn = new UI::Checkbox(0, 0, 128, 24, this);
-    take_all_btn->below_of(*ceasefire_btn);
     take_all_btn->text("Take all controlled land");
     take_all_btn->set_on_click([this](UI::Widget& w) {
         if(((UI::Checkbox&)w).get_value()) {

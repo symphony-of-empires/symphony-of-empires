@@ -393,8 +393,7 @@ void MapRender::update_visibility(GameState& gs)
 
     gs.world->unit_manager.for_each_unit([this, &gs](Unit& unit) {
         // Unit must be ours or be owned by our ally
-        const auto& relation = gs.world->get_relation(unit.owner_id, gs.curr_nation->get_id());
-        if(unit.owner_id != gs.curr_nation->get_id() && !relation.is_allied())
+        if(unit.owner_id != gs.curr_nation->get_id() && !gs.world->get_relation(unit.owner_id, gs.curr_nation->get_id()).is_allied())
             return;
         auto prov_id = gs.world->unit_manager.get_unit_current_province(unit.cached_id);
         this->province_opt->buffer[prov_id] = 0x000000ff;

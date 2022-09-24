@@ -162,19 +162,6 @@ namespace TreatyClause {
         std::vector<Province*> provinces;
     };
 
-    // Calls for a ceasefire
-    class Ceasefire: public BaseClause {
-    public:
-        Ceasefire()
-            : BaseClause()
-        {
-            type = TreatyClauseType::CEASEFIRE;
-        }
-        unsigned cost();
-        void enforce();
-        bool in_effect() const;
-    };
-
     // Makes the receiver the puppet of the sender
     class Puppet: public BaseClause {
     public:
