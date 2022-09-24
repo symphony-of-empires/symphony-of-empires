@@ -108,7 +108,7 @@ static inline void external_migration(World& world) {
             attractions.push_back(attraction);
             viable_provinces.push_back(&province);
         }
-        if(!viable_provinces.empty()) {
+        if(viable_provinces.empty()) {
             attractions.push_back(1.f);
             viable_provinces.push_back(nullptr);
         }
@@ -128,7 +128,7 @@ static inline void external_migration(World& world) {
             attractions.push_back(attraction);
             viable_nations.push_back(&nation);
         }
-        if(!viable_nations.empty()) {
+        if(viable_nations.empty()) {
             attractions.push_back(1.f);
             viable_nations.push_back(nullptr);
         }
@@ -142,6 +142,13 @@ static inline void external_migration(World& world) {
             eval_nations.push_back(&nation);
 
     for(auto& province : world.provinces) {
+        for(const auto& good : world.goods) { // Distrobute products accorss
+            for(const auto neighbour_id : province.neighbour_ids) {
+                world.provinces[neighbour_id].products[good.get_id()].supply += province.products[good.get_id()].supply * 0.5f;
+                province.products[good.get_id()].supply *= 0.5f;
+            }
+        }
+
         if(province.pops.empty() && world.unit_manager.get_province_units(province.get_id()).empty()) {
             if(Nation::is_valid(province.owner_id)) // Remove owner
                 world.nations[province.owner_id].owned_provinces.erase(province.get_id());
@@ -156,7 +163,7 @@ static inline void external_migration(World& world) {
         }
     }
 
-    tbb::combinable<tbb::concurrent_vector<Emigrated>> emigration;
+    tbb::combinable<std::vector<Emigrated>> emigration;
     tbb::parallel_for(tbb::blocked_range(eval_nations.begin(), eval_nations.end()), [&emigration, &nation_distributions, &province_distributions, &world](const auto& nations_range) {
         for(const auto& nation : nations_range) {
             // Check that laws on the province we are in allows for emigration

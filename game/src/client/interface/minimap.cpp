@@ -254,12 +254,12 @@ mapmode_generator good_map_mode(Good::Id id) {
             const auto& product = province.products[id];
             auto price = std::log2f(product.price + 1.f);
             max_price = glm::max(price, max_price);
-            province_amounts.push_back(std::make_pair(world.get_id(province), price));
+            province_amounts.push_back(std::make_pair(province.get_id(), price));
         }
 
         // Mix each color depending of how many live there compared to max_amount
-        Eng3D::Color min = Eng3D::Color::rgb8(255, 229, 217);
-        Eng3D::Color max = Eng3D::Color::rgb8(220, 46, 35);
+        Eng3D::Color min = Eng3D::Color::rgb8(220, 46, 35);
+        Eng3D::Color max = Eng3D::Color::rgb8(255, 229, 217);
         std::vector<ProvinceColor> province_color;
         for(auto const& prov_amount : province_amounts) {
             auto prov_id = prov_amount.first;

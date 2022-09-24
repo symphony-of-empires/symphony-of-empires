@@ -775,7 +775,7 @@ void World::do_tick() {
 
     // Perform all battles of the active wars
     profiler.start("Battles");
-    tbb::combinable<tbb::concurrent_vector<Unit::Id>> clear_units;
+    tbb::combinable<std::vector<Unit::Id>> clear_units;
     tbb::parallel_for(tbb::blocked_range(provinces.begin(), provinces.end()), [this, &clear_units](auto& provinces_range) {
         for(auto& province : provinces_range) {
             for(Battle::Id j = 0; j < province.battles.size(); j++) {

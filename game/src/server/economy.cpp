@@ -82,7 +82,7 @@ void militancy_update(World& world, Nation& nation) {
     for(const auto province_id : nation.controlled_provinces) {
         auto& province = world.provinces[province_id];
         for(auto& pop : province.pops) {
-            float growth = pop.size * pop.life_needs_met * 0.1f;
+            float growth = pop.size * pop.life_needs_met * 0.001f;
             pop.size += static_cast<float>((int)growth);
             pop.militancy += 0.01f * -pop.life_needs_met;
             pop.ideology_approval[world.get_id(*world.nations[province.owner_id].ideology)] += pop.life_needs_met * 0.25f;
@@ -207,7 +207,7 @@ constexpr float scale_speed(float v) {
 }
 
 // Updates supply, demand, and set wages for workers
-static void update_factory_production(World& world, Building& building, BuildingType& building_type, Province& province, float& pop_payment)
+static void update_factory_production(World& world, Building& building, const BuildingType& building_type, Province& province, float& pop_payment)
 {
     if(building_type.output == nullptr || building.level == 0.f) return;
 
@@ -215,7 +215,7 @@ static void update_factory_production(World& world, Building& building, Building
     // Calculate outputs
     auto* output = building_type.output;
     auto& output_product = province.products[output->get_id()];
-    auto output_amount = 1.f * building.production_scale;
+    auto output_amount = 1.f * building.production_scale * 10.f;
 
     // TODO set min wages
     float min_wage = 1.f;
@@ -231,10 +231,7 @@ static void update_factory_production(World& world, Building& building, Building
     inputs_cost *= building.production_scale;
     auto output_value = output_amount * output_product.price;
     auto profit = output_value - min_wage - inputs_cost;
-
-    for(const auto& neighbour_id : province.neighbour_ids)
-        world.provinces[neighbour_id].products[building_type.output->get_id()].supply += output_amount * 0.1f;
-    output_product.supply += output_amount * 0.5f; // Increment supply of output
+    output_product.supply += output_amount; // Increment supply of output
 
     for(const auto& input : building_type.req_goods) // Increase demand of inputs
         province.products[input.first->get_id()].demand += input.second; // * price ?
@@ -323,6 +320,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
             pop_need.everyday_needs_met += buying_factor;
             pop_need.budget -= total_price;
         }
+        pop_need.budget += pop.size * 0.01f;
     }
 }
 
@@ -388,7 +386,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     world.profiler.stop("E-good");
 
     world.profiler.start("E-big");
-    tbb::combinable<tbb::concurrent_vector<NewUnit>> province_new_units;
+    tbb::combinable<std::vector<NewUnit>> province_new_units;
     std::vector<std::vector<float>> buildings_new_worker(world.provinces.size());
     std::vector<std::vector<PopNeed>> pops_new_needs(world.provinces.size());
     tbb::parallel_for((Province::Id)0, (Province::Id)world.provinces.size(), [&world, &buildings_new_worker, &province_new_units, &pops_new_needs](const auto province_id) {
