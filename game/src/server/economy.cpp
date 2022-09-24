@@ -233,7 +233,10 @@ static void update_factory_production(World& world, Building& building, Building
     auto output_value = output_amount * output_product.price;
     auto profit = output_value - min_wage - inputs_cost;
 
-    output_product.supply += output_amount; // Increment supply of output
+    for(const auto& neighbour_id : province.neighbour_ids)
+        world.provinces[neighbour_id].products[building_type.output->get_id()].supply += output_amount * 0.1f;
+    output_product.supply += output_amount * 0.5f; // Increment supply of output
+
     for(const auto& input : building_type.req_goods) // Increase demand of inputs
         province.products[input.first->get_id()].demand += input.second; // * price ?
     
@@ -289,36 +292,34 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         auto& pop = province.pops[i];
         const auto& type = world.pop_types[pop.type_id];
         
-        //pop_need.life_needs_met = -0.25f;
+        pop_need.life_needs_met = -0.25f;
         // Do basic needs
         {
-            float total_price = 0;
+            auto total_price = 0.f;
+            for(Good::Id j = 0; j < world.goods.size(); j++)
+                total_price += type.basic_needs_amount[j] * province.products[j].price;
+            auto buying_factor = glm::clamp(pop_need.budget / total_price, 0.1f, 1.f);
             for(Good::Id j = 0; j < world.goods.size(); j++) {
-                auto price = province.products[j].price;
-                total_price += type.basic_needs_amount[j] * price;
-            }
-            float buying_factor = glm::min(1.f, (float)pop_need.budget / total_price);
-            for(Good::Id j = 0; j < world.goods.size(); j++) {
-                auto& product = province.products[j];
-                product.demand += type.basic_needs_amount[j] * buying_factor;
+                const auto amount = glm::clamp(type.basic_needs_amount[j] * buying_factor, 0.f, province.products[j].supply);
+                province.products[j].demand += amount;
+                province.products[j].supply -= amount;
             }
             pop_need.life_needs_met += buying_factor;
             pop_need.budget -= total_price;
         }
 
-        //pop_need.everyday_needs_met = -0.25f;
+        pop_need.everyday_needs_met = -0.25f;
         // Do luxury needs
         // TODO proper calulcation with pops trying to optimize satifcation
         {
-            float total_price = 0;
+            auto total_price = 0.f;
+            for(Good::Id j = 0; j < world.goods.size(); j++)
+                total_price += type.luxury_needs_satisfaction[j] * province.products[j].price;
+            auto buying_factor = glm::clamp(pop_need.budget / total_price, 0.1f, 1.f);
             for(Good::Id j = 0; j < world.goods.size(); j++) {
-                auto price = province.products[j].price;
-                total_price += type.luxury_needs_satisfaction[j] * price;
-            }
-            float buying_factor = glm::min(1.f, (float)pop_need.budget / total_price);
-            for(Good::Id j = 0; j < world.goods.size(); j++) {
-                auto& product = province.products[j];
-                product.demand += type.luxury_needs_satisfaction[j] * buying_factor;
+                const auto amount = glm::clamp(type.luxury_needs_satisfaction[j] * buying_factor, 0.f, province.products[j].supply);
+                province.products[j].demand += amount;
+                province.products[j].supply -= amount;
             }
             pop_need.everyday_needs_met += buying_factor;
             pop_need.budget -= total_price;
@@ -482,12 +483,11 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             pop.budget = new_needs[i].budget;
             pop.life_needs_met = new_needs[i].life_needs_met;
             pop.everyday_needs_met = new_needs[i].everyday_needs_met;
+            pop.budget += 0.25f;
         }
         const auto& new_workers = buildings_new_worker[province_id];
-        for(Building::Id i = 0; i < province.buildings.size(); i++) {
-            auto& building = province.buildings[i];
-            building.workers = new_workers[i];
-        }
+        for(Building::Id i = 0; i < province.buildings.size(); i++)
+            province.buildings[i].workers = new_workers[i];
     });
 
     tbb::parallel_for(tbb::blocked_range(eval_nations.begin(), eval_nations.end()), [&world](const auto& nations_range) {

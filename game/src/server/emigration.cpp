@@ -81,14 +81,18 @@ static inline void internal_migration(World&) {
 
 // Basic
 static inline float nation_attraction(Nation& nation, Language& language) {
+    if(!nation.exists())
+        return -1.f;
     float attraction = nation.get_immigration_attraction_mod();
     return attraction + rng_multipliers.get_item();
 }
 
 static inline float province_attraction(const Province& province) {
-    if(Nation::is_valid(province.controller_id))
-        return province.base_attractive + rng_multipliers.get_item();
-    return 0.f;
+    if(Nation::is_invalid(province.controller_id) && Nation::is_invalid(province.owner_id))
+        return -1.f;
+    if(province.pops.empty())
+        return -1.f;
+    return province.base_attractive + rng_multipliers.get_item();
 }
 
 static inline void external_migration(World& world) {
@@ -99,7 +103,7 @@ static inline void external_migration(World& world) {
         for(const auto province_id : nation.owned_provinces) {
             auto& province = world.provinces[province_id];
             auto attraction = province_attraction(province);
-            if(attraction <= 0) continue;
+            if(attraction <= 0.f) continue;
             attractions.push_back(attraction);
             viable_provinces.push_back(&province);
         }
@@ -118,7 +122,7 @@ static inline void external_migration(World& world) {
             if(!nation.exists()) continue;
             //if(nation.current_policy.migration == ALLOW_NOBODY) continue;
             auto attraction = nation_attraction(nation, language);
-            if(attraction <= 0) continue;
+            if(attraction <= 0.f) continue;
             attractions.push_back(attraction);
             viable_nations.push_back(&nation);
         }
@@ -145,7 +149,6 @@ static inline void external_migration(World& world) {
                 const auto language_id = std::distance(province.languages.begin(), std::max_element(province.languages.begin(), province.languages.end()));
                 // Guaranteed that province->controller != nullptr and that the province is not a water body
                 assert(Nation::is_valid(province.controller_id));
-
                 // Randomness factor to emulate a pseudo-imperfect economy
                 for(auto& pop : province.pops) {
                     // Depending on how much not our life needs are being met is how many we
