@@ -398,7 +398,6 @@ public:
         ::deser_dynamic<is_serialize>(ar, obj.max_health);
         ::deser_dynamic<is_serialize>(ar, obj.defense);
         ::deser_dynamic<is_serialize>(ar, obj.attack);
-        ::deser_dynamic<is_serialize>(ar, obj.build_time);
         ::deser_dynamic<is_serialize>(ar, obj.is_ground);
         ::deser_dynamic<is_serialize>(ar, obj.is_naval);
     }
@@ -452,11 +451,14 @@ public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Building& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.working_unit_type);
-        ::deser_dynamic<is_serialize>(ar, obj.build_time);
         ::deser_dynamic<is_serialize>(ar, obj.budget);
+        ::deser_dynamic<is_serialize>(ar, obj.level);
+        ::deser_dynamic<is_serialize>(ar, obj.production_scale);
+        ::deser_dynamic<is_serialize>(ar, obj.workers);
         ::deser_dynamic<is_serialize>(ar, obj.days_unoperational);
         ::deser_dynamic<is_serialize>(ar, obj.stockpile);
         ::deser_dynamic<is_serialize>(ar, obj.req_goods);
+        ::deser_dynamic<is_serialize>(ar, obj.req_goods_for_unit);
     }
 };
 

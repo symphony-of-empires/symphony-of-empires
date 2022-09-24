@@ -94,7 +94,7 @@ public:
     }
     ~DiscreteDistribution() = default;
 
-    /// @brief Get a random item with a certian probabilty
+    /// @brief Get a random item with a certian probabilty, thread safe
     T get_item() {
         auto index = _rand() % _items.size();
         auto r = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);

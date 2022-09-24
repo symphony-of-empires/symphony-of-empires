@@ -94,7 +94,7 @@ public:
     
     inline void set_buffer(const void* buf, size_t size) {
         buffer.resize(size);
-        std::memcpy(&buffer[0], buf, size);
+        std::memcpy(buffer.data(), buf, size);
     }
 
     inline size_t size() {
@@ -297,6 +297,42 @@ public:
     }
 };
 
+/// @brief For containers that have the same memory layout as arrays
+template<typename T, typename C>
+class SerializerArrayContainer {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, C& obj_group) {
+        uint32_t len = obj_group.size();
+        ::deser_dynamic<is_serialize>(ar, len);
+#if 0
+        if constexpr(is_serialize) {
+            if constexpr(std::is_trivially_copyable<T>::value) { // trivial
+                ar.expand(len * sizeof(T));
+                ar.copy_from(obj_group.data(), len * sizeof(T));
+            } else // non-trivial
+                for(auto& obj : obj_group)
+                    ::deser_dynamic<is_serialize>(ar, obj);
+        } else {
+            obj_group.resize(len);
+            if constexpr(std::is_trivially_copyable<T>::value) // trivial
+                ar.copy_to(obj_group.data(), len * sizeof(T));
+            else // non-len
+                for(decltype(len) i = 0; i < len; i++)
+                    ::deser_dynamic<is_serialize, T>(ar, obj_group[i]);
+        }
+#endif
+        if constexpr(is_serialize) {
+            for(auto& obj : obj_group)
+                ::deser_dynamic<is_serialize>(ar, obj);
+        } else {
+            obj_group.resize(len);
+            for(decltype(len) i = 0; i < len; i++)
+                ::deser_dynamic<is_serialize, T>(ar, obj_group[i]);
+        }
+    }
+};
+
 /// @brief Pair serializers
 template<typename T, typename U>
 class Serializer<std::pair<T, U>> {
@@ -327,41 +363,11 @@ public:
 /// @brief Contigous container serializers implementations
 #include <vector>
 template<typename T, typename A>
-class Serializer<std::vector<T, A>> : public SerializerContainer<T, std::vector<T, A>> {
-public:
-    template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, std::vector<T, A>& obj_group) {
-        uint32_t len = obj_group.size();
-        ::deser_dynamic<is_serialize>(ar, len);
-        if constexpr(is_serialize) {
-            for(auto& obj : obj_group)
-                ::deser_dynamic<is_serialize>(ar, obj);
-        } else {
-            obj_group.resize(len);
-            for(decltype(len) i = 0; i < len; i++)
-                ::deser_dynamic<is_serialize, T>(ar, obj_group[i]);
-        }
-    }
-};
+class Serializer<std::vector<T, A>> : public SerializerArrayContainer<T, std::vector<T, A>> {};
 
 #include <deque>
 template<typename T, typename A>
-class Serializer<std::deque<T, A>> : public SerializerContainer<T, std::deque<T, A>> {
-public:
-    template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, std::deque<T, A>& obj_group) {
-        uint32_t len = obj_group.size();
-        ::deser_dynamic<is_serialize>(ar, len);
-        if constexpr(is_serialize) {
-            for(auto& obj : obj_group)
-                ::deser_dynamic<is_serialize>(ar, obj);
-        } else {
-            obj_group.resize(len);
-            for(decltype(len) i = 0; i < len; i++)
-                ::deser_dynamic<is_serialize, T>(ar, obj_group[i]);
-        }
-    }
-};
+class Serializer<std::deque<T, A>> : public SerializerArrayContainer<T, std::deque<T, A>> {};
 
 #include <queue>
 template<typename T, typename S>
