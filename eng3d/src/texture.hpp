@@ -189,19 +189,7 @@ namespace Eng3D {
         std::shared_ptr<Eng3D::Texture> load(std::shared_ptr<Eng3D::IO::Asset::Base> asset, TextureOptions options = default_options);
         std::shared_ptr<Eng3D::Texture> gen_text(Eng3D::TrueType::Font& font, Eng3D::Color color, const std::string& msg);
         std::shared_ptr<Eng3D::Texture> get_white();
-        inline void upload() {
-            if(!this->unuploaded_textures.empty()) {
-                const std::scoped_lock lock(this->unuploaded_lock);
-                auto it = this->unuploaded_textures.end() - 1;
-                auto request = *it;
-                if(request.surface != nullptr) {
-                    request.texture->_upload(request.surface);
-                } else {
-                    request.texture->_upload(request.options);
-                }
-                this->unuploaded_textures.erase(it);
-            }
-        }
+        void upload();
 
         friend class Eng3D::Texture;
     };

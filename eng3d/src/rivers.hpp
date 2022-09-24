@@ -44,6 +44,7 @@ namespace Eng3D {
 
         void draw(const Eng3D::Camera& camera);
     private:
+        void get_river(std::vector<glm::vec3>& river, int current_index, int prev_index, uint32_t* pixels, int width, int height);
         void build_rivers();
         std::vector<std::unique_ptr<Eng3D::Curve>> curves;
         std::unique_ptr<Eng3D::OpenGL::Program> line_shader;

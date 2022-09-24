@@ -424,3 +424,17 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::gen_text(Eng3D::TrueType:
     text_textures[msg] = tex;
     return text_textures[msg];
 }
+
+void Eng3D::TextureManager::upload() {
+    if(!this->unuploaded_textures.empty()) {
+        const std::scoped_lock lock(this->unuploaded_lock);
+        auto it = this->unuploaded_textures.end() - 1;
+        auto request = *it;
+        if(request.surface != nullptr) {
+            request.texture->_upload(request.surface);
+        } else {
+            request.texture->_upload(request.options);
+        }
+        this->unuploaded_textures.erase(it);
+    }
+}

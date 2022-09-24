@@ -79,7 +79,7 @@ static inline std::shared_ptr<Eng3D::Texture> get_material_texture(const aiMater
         aiString str;
         material.GetTexture(type, i, &str);
         Eng3D::Log::debug("assimp", std::string() + "Loading texture for material " + str.C_Str());
-        std::string path = std::string("gfx/") + str.C_Str();
+        auto path = std::string("gfx/") + str.C_Str();
         return s.tex_man.load(s.package_man.get_unique(path));
     }
     return s.tex_man.get_white();
@@ -174,7 +174,6 @@ std::shared_ptr<Eng3D::Model> Eng3D::ModelManager::load(const std::string& path)
         if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || scene->mRootNode == nullptr)
             CXX_THROW(std::runtime_error, importer.GetErrorString());
 #endif
-
         model = std::make_shared<Eng3D::Model>();
 #ifdef E3D_FEATURE_ASSIMP
         model->process_node(*scene->mRootNode, *scene);

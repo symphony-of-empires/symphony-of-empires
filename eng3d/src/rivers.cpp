@@ -78,12 +78,12 @@ public:
     ~ConnectedNode() = default;
 };
 
-void get_river(std::vector<glm::vec3>& river, int current_index, int prev_index, uint32_t* pixels, int width, int height) {
+void Eng3D::Rivers::get_river(std::vector<glm::vec3>& river, int current_index, int prev_index, uint32_t* pixels, int width, int height) {
     int x = current_index % width;
     int y = current_index / width;
     river.push_back(glm::vec3(x, y, -0.05));
 
-    const auto check_neighbor = [current_index, prev_index, pixels, width, height](std::vector<glm::vec3>& river, int new_x, int new_y) {
+    const auto check_neighbor = [this, current_index, prev_index, pixels, width, height](std::vector<glm::vec3>& river, int new_x, int new_y) {
         if(new_x < 0 || new_y < 0 || new_x >= width || new_y >= height)
             return;
         int new_index = new_x + new_y * width;
@@ -91,7 +91,7 @@ void get_river(std::vector<glm::vec3>& river, int current_index, int prev_index,
 
         uint32_t neighbor_color = pixels[new_index];
         if(neighbor_color == 0xFFFF0000) {
-            get_river(river, new_index, current_index, pixels, width, height);
+            this->get_river(river, new_index, current_index, pixels, width, height);
             return;
         }
     };
@@ -119,7 +119,7 @@ void Eng3D::Rivers::build_rivers() {
     // TODO FIX THIS NOT INFINITE LOOP
     for(size_t i = 0; i < rivers_starts.size(); i++) {
         std::vector<glm::vec3> river;
-        get_river(river, rivers_starts[i], -1, pixels, width, height);
+        this->get_river(river, rivers_starts[i], -1, pixels, width, height);
 
         const size_t length = river.size();
         if(length < 2) continue;
