@@ -80,71 +80,71 @@ class Technology;
 namespace Action {
     class AiControl {
     public:
-        static Eng3D::Networking::Packet form_packet(const Nation& nation);
+        static Eng3D::Networking::Packet& form_packet(const Nation& nation);
     };
 
     class DiploDeclareWar {
     public:
-        static Eng3D::Networking::Packet form_packet(const Nation& nation);
+        static Eng3D::Networking::Packet& form_packet(const Nation& nation);
     };
 
     class ProvinceUpdate {
     public:
-        static Eng3D::Networking::Packet form_packet(const std::vector<Province>& list);
+        static Eng3D::Networking::Packet& form_packet(const std::vector<Province>& list);
     };
 
     class NationUpdate {
     public:
-        static Eng3D::Networking::Packet form_packet(const std::vector<Nation>& list);
+        static Eng3D::Networking::Packet& form_packet(const std::vector<Nation>& list);
     };
 
     class SelectNation {
     public:
-        static Eng3D::Networking::Packet form_packet(const Nation& nation);
+        static Eng3D::Networking::Packet& form_packet(const Nation& nation);
     };
 
     class BuildingStartProducingUnit {
     public:
-        static Eng3D::Networking::Packet form_packet(const Province& province, const BuildingType& building_type, const Nation& nation, const UnitType& unit_type);
+        static Eng3D::Networking::Packet& form_packet(const Province& province, const BuildingType& building_type, const Nation& nation, const UnitType& unit_type);
     };
 	
 	class BuildingAdd {
 	public:
-        static Eng3D::Networking::Packet form_packet(const Province& province, const BuildingType& building_type);
+        static Eng3D::Networking::Packet& form_packet(const Province& province, const BuildingType& building_type);
 	};
 
     class FocusTech {
     public:
-		static Eng3D::Networking::Packet form_packet(const Technology& technology);
+		static Eng3D::Networking::Packet& form_packet(const Technology& technology);
     };
 
     class NationAdd {
     public:
-        static Eng3D::Networking::Packet form_packet(const Nation& nation);
+        static Eng3D::Networking::Packet& form_packet(const Nation& nation);
     };
 
     class NationTakeDecision {
     public:
-        static Eng3D::Networking::Packet form_packet(const Event& event, const Decision& decision);
+        static Eng3D::Networking::Packet& form_packet(const Event& event, const Decision& decision);
     };
 
     class UnitAdd {
     public:
-        static Eng3D::Networking::Packet form_packet(const Unit& unit);
+        static Eng3D::Networking::Packet& form_packet(const Unit& unit);
     };
 
     class UnitUpdate {
     public:
-        static Eng3D::Networking::Packet form_packet(const std::vector<Unit>& units);
+        static Eng3D::Networking::Packet& form_packet(const std::vector<Unit>& units);
     };
 
     class UnitRemove {
     public:
-        static Eng3D::Networking::Packet form_packet(const Unit& unit);
+        static Eng3D::Networking::Packet& form_packet(const Unit& unit);
     };
 
     class UnitMove {
     public:
-        static Eng3D::Networking::Packet form_packet(const Unit& unit, const Province& province);
+        static Eng3D::Networking::Packet& form_packet(const Unit& unit, const Province& province);
     };
 };
