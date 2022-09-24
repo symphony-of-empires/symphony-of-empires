@@ -244,17 +244,17 @@ void Eng3D::Networking::Server::broadcast(const Eng3D::Networking::Packet& packe
                 clients[i].packets.push_back(packet);
                 clients[i].packets_mutex.unlock();
             } else {
-                std::scoped_lock lock(clients[i].pending_packets_mutex);
+                const std::scoped_lock lock(clients[i].pending_packets_mutex);
                 clients[i].pending_packets.push_back(packet);
             }
 
             // Disconnect the client when more than 200 MB is used
             // we can't save your packets buddy - other clients need their stuff too!
-            size_t total_size = std::accumulate(clients[i].pending_packets.begin(), clients[i].pending_packets.end(), 0, [](const auto a, const auto& b) {
+            const auto total_size = std::accumulate(clients[i].pending_packets.begin(), clients[i].pending_packets.end(), 0, [](const auto a, const auto& b) {
                 return a + b.buffer.size();
             });
 
-            if(total_size >= 200 * 1000000) {
+            if(total_size >= 200 * 1000) {
                 clients[i].is_connected = false;
                 Eng3D::Log::debug("server", "Client#" + std::to_string(i) + " has exceeded max quota! - It has used " + std::to_string(total_size) + "B!");
             }

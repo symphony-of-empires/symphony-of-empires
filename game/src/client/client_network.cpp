@@ -72,27 +72,23 @@ void Client::net_loop() {
     try {
         ActionType action;
         Eng3D::Networking::SocketStream stream(fd);
+        Eng3D::Networking::Packet packet(fd);
+        packet.pred = [this]() -> bool {
+            return this->run == true;
+        };
         while(this->run) {
 			// Update packets with pending list (acquiring the lock has priority to be lenient
 			// since the client takes most of it's time sending to the server anyways)
 			if(!pending_packets.empty()) {
-				if(pending_packets_mutex.try_lock()) {
-                    std::scoped_lock lock(packets_mutex);
-                    for(const auto& packet : pending_packets)
-                        packets.push_back(packet);
-					pending_packets.clear();
-					pending_packets_mutex.unlock();
-				}
+                const std::scoped_lock lock(packets_mutex, pending_packets_mutex);
+                packets.insert(packets.end(), pending_packets.begin(), pending_packets.end());
+                pending_packets.clear();
 			}
 
             // Conditional of above statements
 			// When we are on host_mode we discard all potential packets sent by the server
 			// (because our data is already synchronized since WE ARE the server)
             if(stream.has_pending()) {
-                Eng3D::Networking::Packet packet(fd);
-                packet.pred = [this]() -> bool {
-                    return this->run == true;
-                };
                 Archive ar{};
 
                 // Obtain the action from the server
@@ -248,13 +244,17 @@ void Client::net_loop() {
             }
 
             // Client will also flush it's queue to the server
-            const std::scoped_lock lock(packets_mutex);
-            for(auto& packet : packets) {
+            while(!packets.empty()) {
+                Eng3D::Networking::Packet packet{};
+                { // Make clear the lifetime of the lock since send is an expensive operation
+                    const std::scoped_lock lock(packets_mutex);
+                    packet = packets.back();
+                    packet.stream = Eng3D::Networking::SocketStream(fd);
+                    packets.pop_back();
+                }
                 Eng3D::Log::debug("client", "Sending package of " + std::to_string(packet.size()));
-                packet.stream = Eng3D::Networking::SocketStream(fd);
                 packet.send();
             }
-            packets.clear();
         }
     } catch(ClientException& e) {
         Eng3D::Log::error("client", std::string() + "Except: " + e.what());
