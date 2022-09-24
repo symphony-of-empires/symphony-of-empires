@@ -79,7 +79,7 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
     for(const auto& building_type : gs.world->building_types) {
         const auto& building = province.buildings[gs.world->get_id(building_type)];
         if(building.level)
-            fprintf(fp, "province:update_building(bt_%s,%f)\n", building_type.ref_name.c_str(), building.level);
+            fprintf(fp, "province:update_building(bt_%s,%zu)\n", building_type.ref_name.c_str(), building.level);
     }
 
     // POPs
