@@ -71,7 +71,7 @@ void UI::Tooltip::set_pos(int _x, int _y, int, int _height, int screen_w, int sc
     if(extra_above > extra_below) {
         y = _y - height - 10;
     } else {
-        y = _y + _height + 10;
+        y = _y + 24 + 10;
     }
     x = _x;
 
