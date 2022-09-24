@@ -92,13 +92,9 @@ public:
             small.pop_back();
         }
     }
+    ~DiscreteDistribution() = default;
 
-    ~DiscreteDistribution()
-    {
-
-    };
-
-    // Get a random item with a certian probabilty
+    /// @brief Get a random item with a certian probabilty
     T get_item() {
         auto index = _rand() % _items.size();
         auto r = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);

@@ -86,8 +86,8 @@ static inline Good* ai_get_potential_good(Nation& nation) {
         for(const auto province_id : nation.owned_provinces) {
             const auto& province = world.provinces[province_id];
             for(const auto& good : world.goods) {
-                const auto& product = province.products[world.get_id(good)];
-                avg_prob[world.get_id(good)] += product.demand / (product.supply + 1) * product.price;
+                const auto& product = province.products[good.get_id()];
+                avg_prob[good.get_id()] += product.demand / (product.supply + 1) * product.price;
             }
         }
 
@@ -98,9 +98,9 @@ static inline Good* ai_get_potential_good(Nation& nation) {
         // above should increase the priority for filling out higher level industries
         for(const auto& building_type : world.building_types) // Take in account all buildings for this
             for(const auto& input : building_type.inputs) // Apply the higher-probability with outputs of this factory
-                avg_prob[world.get_id(*building_type.output)] += avg_prob[world.get_id(*input)] + 1;
+                avg_prob[building_type.output->get_id()] += avg_prob[input->get_id()] + 1;
 
-        Good* target_good = &world.goods.at(std::distance(avg_prob.begin(), std::max_element(avg_prob.begin(), avg_prob.end())));
+        auto* target_good = &world.goods.at(std::distance(avg_prob.begin(), std::max_element(avg_prob.begin(), avg_prob.end())));
 
         // The more buildings there are in the world the less we are wiling to construct one
         //float saturation = glm::max(1, world.buildings.size()) / 100;
@@ -187,7 +187,7 @@ static inline void ai_reform(Nation& nation) {
 // Update relations with another nation
 static inline void ai_update_relations(Nation& nation, Nation& other) {
     auto& world = World::get_instance();
-    auto& relation = world.get_relation(world.get_id(nation), world.get_id(other));
+    auto& relation = world.get_relation(nation.get_id(), other.get_id());
 
     // Try to increase relations with our friend
     if(nation.is_ally(other) && !(rand() % 250)) {
@@ -369,7 +369,7 @@ void ai_do_tick(Nation& nation) {
         }
         return;
     }
-    auto& ai_data = g_ai_data[world.get_id(nation)];
+    auto& ai_data = g_ai_data[nation.get_id()];
 
     /// @todo make a better algorithm
     if(nation.ai_do_cmd_troops) {
