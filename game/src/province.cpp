@@ -49,16 +49,7 @@ float Province::total_pops() const {
 
 float Province::get_attractiveness(const Pop& pop) const {
     float attractive = this->base_attractive;
-
     const auto& owner = g_world.nations[this->owner_id];
-    if(!owner.is_accepted_language(pop) && !owner.is_accepted_religion(pop)) {
-        // Linearized version, instead of using if-else trees we just
-        // multiply the attractive by the scale; EXTERMINATE = 3, so 3 - 3 is 0 which nullifies the attractivenes
-        // and the more open the borders are the more lenient the "scale" becomes
-        const float scale = 3 - owner.current_policy.treatment;
-        attractive *= scale;
-    }
-
     // A social value between 0 and 1 is for poor people, the value for medium class
     // is between 1 and 2, for the rich is above 2
     if(World::get_instance().pop_types[pop.type_id].social_value >= 0.f && World::get_instance().pop_types[pop.type_id].social_value <= 1.f)

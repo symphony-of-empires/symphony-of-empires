@@ -82,18 +82,11 @@ void militancy_update(World& world, Nation& nation) {
     for(const auto province_id : nation.controlled_provinces) {
         auto& province = world.provinces[province_id];
         for(auto& pop : province.pops) {
-            // More literacy means more educated persons with less children
-            float growth = pop.size / (pop.literacy + 1.f);
-            growth *= pop.life_needs_met;
-            growth = glm::min<float>(std::fmod(rand(), 10.f), growth);
-            //growth *= (growth > 0.f) ? nation->get_reproduction_mod() : nation->get_death_mod();
+            float growth = pop.size * pop.life_needs_met;
+            growth = glm::min<float>(std::fmod(rand(), 100.f), growth);
             pop.size += static_cast<float>((int)growth);
-            // Met life needs means less militancy
-            // For example, having 1.0 life needs means that we obtain -0.01 militancy per ecotick
-            // and the opposite happens with negative life needs
-            pop.militancy += 0.01f * (-pop.life_needs_met) * world.nations[province.owner_id].get_militancy_mod();
-            // Current liking of the party is influenced by the life_needs_met
-            pop.ideology_approval[world.get_id(*world.nations[province.owner_id].ideology)] += (pop.life_needs_met + 1.f) / 10.f;
+            pop.militancy += 0.01f * -pop.life_needs_met;
+            pop.ideology_approval[world.get_id(*world.nations[province.owner_id].ideology)] += pop.life_needs_met * 0.25f;
         }
     }
 
@@ -308,7 +301,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         auto& pop = province.pops[i];
         const auto& type = world.pop_types[pop.type_id];
         
-        pop_need.life_needs_met = 0.f;
+        pop_need.life_needs_met = -0.25f;
         // Do basic needs
         {
             float total_price = 0;
@@ -321,11 +314,11 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
                 auto& product = province.products[j];
                 product.demand += type.basic_needs_amount[j] * buying_factor;
             }
-            pop_need.life_needs_met = buying_factor;
-            pop_need.budget = (float)pop_need.budget - total_price;
+            pop_need.life_needs_met += buying_factor;
+            pop_need.budget -= total_price;
         }
 
-        pop_need.everyday_needs_met = 0.f;
+        pop_need.everyday_needs_met = -0.25f;
         // Do luxury needs
         // TODO proper calulcation with pops trying to optimize satifcation
         {
@@ -339,8 +332,8 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
                 auto& product = province.products[j];
                 product.demand += type.luxury_needs_satisfaction[j] * buying_factor;
             }
-            pop_need.everyday_needs_met = buying_factor;
-            pop_need.budget = (float)pop_need.budget - total_price;
+            pop_need.everyday_needs_met += buying_factor;
+            pop_need.budget -= total_price;
         }
     }
 }
@@ -438,11 +431,9 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                 if(world.pop_types[pop.type_id].group == PopGroup::LABORER)
                     laborers_amount += pop.size;
             for(Pop::Id i = 0; i < province.pops.size(); i++) {
-                auto& pop = province.pops[i];
-                if(world.pop_types[pop.type_id].group == PopGroup::LABORER) {
-                    float ratio = pop.size / laborers_amount;
-                    new_needs[i].budget += laborers_payment * ratio;
-                }
+                const auto& pop = province.pops[i];
+                if(world.pop_types[pop.type_id].group == PopGroup::LABORER)
+                    new_needs[i].budget += (pop.size / laborers_amount) * laborers_payment;
             }
 
             std::vector<float>& new_workers = buildings_new_worker[province_id];
@@ -534,6 +525,9 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             // Now commit the transaction of the new units into the main world area
             world.unit_manager.add_unit(new_unit.unit, new_unit.unit_province);
     });
+
+    world.profiler.start("Emigration");
+    do_emigration(world);
+    world.profiler.stop("Emigration");
     world.profiler.stop("E-mutex");
-    // do_emigration(world);
 }

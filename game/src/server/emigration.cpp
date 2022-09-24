@@ -79,13 +79,6 @@ static inline void internal_migration(World&) {
 // Basic
 static inline float nation_attraction(Nation& nation, Language& language) {
     float attraction = nation.get_immigration_attraction_mod();
-    if(nation.is_accepted_language(language)) {
-        // Linearized version, instead of using if-else trees we just
-        // multiply the attractive by the scale; EXTERMINATE = 3, so 3 - 3 is 0 which nullifies the attractivenes
-        // and the more open the borders are the more lenient the "scale" becomes
-        const int scale = 3 - nation.current_policy.treatment;
-        attraction *= scale;
-    }
     return attraction;
 }
 
@@ -119,12 +112,7 @@ static inline void external_migration(World& world) {
         std::vector<Nation*> viable_nations;
         for(auto& nation : world.nations) {
             if(!nation.exists()) continue;
-
-            if(nation.current_policy.migration == ALLOW_NOBODY) {
-                continue;
-            } else if(nation.current_policy.migration == ALLOW_ACCEPTED_LANGUAGES) {
-                if(!nation.is_accepted_language(language)) continue;
-            }
+            if(nation.current_policy.migration == ALLOW_NOBODY) continue;
 
             float attraction = nation_attraction(nation, language);
             if(attraction <= 0) continue;
@@ -191,19 +179,22 @@ static inline void external_migration(World& world) {
     });
 
     // Now time to do the emigration - we will create a new POP on the province
-    // if a POP with similar language, religion and type does not exist - and we
-    // will also subtract the amount of emigrated from the original POP to not
+    // if a POP with similar type does not exist - and we will also subtract the
+    // amount of emigrated from the original POP to not
     // create clones
     for(const auto& target : emigration) {
         auto new_pop = std::find(target.target->pops.begin(), target.target->pops.end(), target.emigred);
-        if(new_pop == target.target->pops.end()) {
-            Pop i_pop(target.emigred);
-            i_pop.size = target.size;
-            target.target->pops.push_back(i_pop);
-        } else {
-            new_pop->size += target.size;
-            new_pop->budget += target.emigred.budget;
-        }
+        assert(new_pop != target.target->pops.end());
+
+        assert(target.target->languages.size() == target.origin->languages.size());
+        for(size_t i = 0; i < target.target->languages.size(); i++)
+            target.target->languages[i] += glm::clamp(target.origin->languages[i] * (target.emigred.size / target.size), 0.f, 1.f);
+        assert(target.target->religions.size() == target.origin->religions.size());
+        for(size_t i = 0; i < target.target->religions.size(); i++)
+            target.target->religions[i] += glm::clamp(target.origin->religions[i] * (target.emigred.size / target.size), 0.f, 1.f);
+        
+        new_pop->size += target.size;
+        new_pop->budget += target.emigred.budget;
     }
     emigration.clear();
 }

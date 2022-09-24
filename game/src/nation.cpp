@@ -240,13 +240,6 @@ bool Nation::is_accepted_religion(const Religion& religion) const {
 /// (not exactly like that, more like by their type/status)
 float Nation::get_tax(const Pop& pop) const {
     float base_tax = 1.f;
-
-    if(!is_accepted_language(pop) && !is_accepted_religion(pop)) {
-        // Exterminate imposes a scale of 3(+1), which will be enough to drive off most POPs
-        const int scale = 1 + current_policy.treatment;
-        base_tax *= 2 * scale;
-    }
-
     if(World::get_instance().pop_types[pop.type_id].social_value <= 1.f)
         return current_policy.poor_flat_tax * base_tax;
     // For the medium class

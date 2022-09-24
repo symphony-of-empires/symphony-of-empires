@@ -656,11 +656,12 @@ void World::do_tick() {
     profiler.start("Economy");
     // Every ticks_per_month ticks do an economical tick
     Economy::do_tick(*this, economyState);
+    profiler.stop("Economy");
+
     profiler.start("E-packages");
     g_server->broadcast(Action::NationUpdate::form_packet(nations));
     g_server->broadcast(Action::ProvinceUpdate::form_packet(provinces));
     profiler.stop("E-packages");
-    profiler.stop("Economy");
 
     profiler.start("Research");
     std::vector<float> mil_research_pts(nations.size(), 0.f);
