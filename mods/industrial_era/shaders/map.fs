@@ -101,13 +101,13 @@ vec4 get_terrain(vec2 tex_coords, vec2 offset) {
 #endif
 	// Latitute snow factor - making stuff near the equator less snowy
 	// Goes from 1 -> -1 as y goes from 0 -> 1
-	float latitute_snow_factor = abs(sin(tex_coords.y * PI));
+	float latitute_snow_factor = abs(1. - sin(tex_coords.y * PI));
 	// Seasonal snow factor - allowing winter to come and go by as time passes
-	float year = mod(ticks, 365) / 365.0;
-	float seasonal_snow_factor = abs(1.0 - sin(year * 2 * PI));
+	float year = mod(ticks, 365.) / 365.;
+	float seasonal_snow_factor = abs(1. - sin(year * PI));
 	// Amount of snow
-	float snow_amount = abs(smoothstep(0.5, 1.0, seasonal_snow_factor * latitute_snow_factor));
-	return mix(color, snow_color, 1.0 - snow_amount);
+	float snow_amount = smoothstep(0.5, 0.65, seasonal_snow_factor * latitute_snow_factor);
+	return mix(snow_color, color, 1. - snow_amount);
 }
 
 vec4 get_terrain_mix(vec2 tex_coords) {
