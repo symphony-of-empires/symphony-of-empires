@@ -138,7 +138,22 @@ static inline void external_migration(World& world) {
     for(auto& nation : world.nations)
         if(nation.exists())
             eval_nations.push_back(&nation);
-    
+
+    for(auto& province : world.provinces) {
+        if(province.pops.empty() && world.unit_manager.get_province_units(province.get_id()).empty()) {
+            if(Nation::is_valid(province.owner_id)) // Remove owner
+                world.nations[province.owner_id].owned_provinces.erase(province.get_id());
+            province.owner_id = (Nation::Id)-1;
+            if(Province::is_valid(province.controller_id)) // Remove controller
+                world.nations[province.controller_id].controlled_provinces.erase(province.get_id());
+            province.controller_id = (Nation::Id)-1;
+            province.cancel_construction_project(); // Cancel the unit construction projects
+            world.province_manager.mark_province_control_changed(province.get_id()); // Update the province changed
+            world.province_manager.mark_province_owner_changed(province.get_id()); // Update the province changed
+            continue;
+        }
+    }
+
     tbb::concurrent_vector<Emigrated> emigration;
     tbb::parallel_for(tbb::blocked_range(eval_nations.begin(), eval_nations.end()), [&emigration, &nation_distributions, &province_distributions, &world](const auto& nations_range) {
         for(const auto& nation : nations_range) {

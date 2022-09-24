@@ -82,8 +82,7 @@ void militancy_update(World& world, Nation& nation) {
     for(const auto province_id : nation.controlled_provinces) {
         auto& province = world.provinces[province_id];
         for(auto& pop : province.pops) {
-            float growth = pop.size * pop.life_needs_met;
-            growth = glm::min<float>(std::fmod(rand(), 100.f), growth);
+            float growth = pop.size * pop.life_needs_met * 0.1f;
             pop.size += static_cast<float>((int)growth);
             pop.militancy += 0.01f * -pop.life_needs_met;
             pop.ideology_approval[world.get_id(*world.nations[province.owner_id].ideology)] += pop.life_needs_met * 0.25f;
@@ -292,7 +291,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         auto& pop = province.pops[i];
         const auto& type = world.pop_types[pop.type_id];
         
-        pop_need.life_needs_met = -0.25f;
+        pop_need.life_needs_met = -0.01f;
         // Do basic needs
         {
             auto total_price = 0.f;
@@ -308,7 +307,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
             pop_need.budget -= total_price;
         }
 
-        pop_need.everyday_needs_met = -0.25f;
+        pop_need.everyday_needs_met = -0.01f;
         // Do luxury needs
         // TODO proper calulcation with pops trying to optimize satifcation
         {
