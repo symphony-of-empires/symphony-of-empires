@@ -791,7 +791,7 @@ void World::do_tick() {
                         const auto prev_size = unit.size;
                         attacker.attack(unit);
                         battle.defender_casualties += prev_size - unit.size;
-                        if(!unit.size) {
+                        if(unit.size < 1.f) {
                             Eng3D::Log::debug("game", "Removing attacker \"" + unit.type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                             battle.defenders_ids.erase(battle.defenders_ids.begin() + i);
                             clear_units.local().push_back(unit.get_id());
@@ -811,7 +811,7 @@ void World::do_tick() {
                         const auto prev_size = unit.size;
                         defender.attack(unit);
                         battle.attacker_casualties += prev_size - unit.size;
-                        if(!unit.size) {
+                        if(unit.size < 1.f) {
                             Eng3D::Log::debug("game", "Removing defender \"" + unit.type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                             battle.attackers_ids.erase(battle.attackers_ids.begin() + i);
                             clear_units.local().push_back(unit.get_id());

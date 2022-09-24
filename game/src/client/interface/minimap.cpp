@@ -207,22 +207,18 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
     auto* flex_column = new UI::Div(4, 4, 192, goods.size() * 35, this);
     flex_column->flex = UI::Flex::COLUMN;
     flex_column->flex_justify = UI::FlexJustify::START;
-
-    for(size_t i = 0; i < goods.size(); i++) {
-        Good* good = &goods[i];
+    for(const auto& good : goods) {
         Eng3D::TextureOptions options;
         options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
         options.mag_filter = GL_LINEAR;
-        auto good_tex = tex_man.load(gs.package_man.get_unique("gfx/good/" + good->ref_name + ".png"), options);
-
+        auto good_tex = tex_man.load(gs.package_man.get_unique("gfx/good/" + good.ref_name + ".png"), options);
         auto* good_div = new UI::Div(0, 0, 200, 35, flex_column);
         new UI::Image(0, 0, 35, 35, good_tex, good_div);
-        new UI::Label(35, 0, good->name.get_string(), good_div);
-        good_div->set_on_click([this, i](UI::Widget&) {
+        new UI::Label(35, 0, good.name.get_string(), good_div);
+        good_div->set_on_click([this, &good](UI::Widget&) {
             this->gs.current_mode = MapMode::NORMAL;
-
-            mapmode_generator map_mode = good_map_mode((Good::Id)i);
-            mapmode_tooltip tooltip = good_tooltip((Good::Id)i);
+            mapmode_generator map_mode = good_map_mode(good.get_id());
+            mapmode_tooltip tooltip = good_tooltip(good.get_id());
             this->gs.map->set_map_mode(map_mode, tooltip);
         });
     }
