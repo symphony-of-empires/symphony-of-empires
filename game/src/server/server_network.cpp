@@ -61,8 +61,7 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
     clients_extra_data.resize(n_clients, nullptr);
 
     // "Starting" thread, this one will wake up all the other ones
-    clients[0].thread = std::thread(&Server::net_loop, this, 0);
-    clients[0].is_active = true;
+    clients[0].thread = std::make_unique<std::thread>(&Server::net_loop, this, 0);
 }
 
 /// @brief This is the handling thread-function for handling a connection to a single client
@@ -95,11 +94,8 @@ void Server::net_loop(int id) {
         player_count++;
         // Wake up another thread
         for(size_t i = 0; i < n_clients; i++) {
-            if(clients[i].is_active == false) {
-                clients[i].thread = std::thread(&Server::net_loop, this, i);
-                clients[i].is_active = true;
-                break;
-            }
+            if(clients[i].thread == nullptr)
+                clients[i].thread = std::make_unique<std::thread>(&Server::net_loop, this, i);
         }
 
         // Read the data from client
@@ -122,7 +118,7 @@ void Server::net_loop(int id) {
 
             // And update all the clients on the username of everyone
             for(size_t i = 0; i < this->n_clients; i++) {
-                if(this->clients[i].is_active && this->clients[i].is_connected) {
+                if(this->clients[i].thread == nullptr && this->clients[i].is_connected) {
                     if(this->clients_extra_data[i] != nullptr) {
                         Archive ar{};
                         ::serialize<ActionType>(ar, ActionType::SELECT_NATION);
@@ -135,7 +131,7 @@ void Server::net_loop(int id) {
             }
         }
 
-        ActionType action = ActionType::PING;
+        ActionType action = ActionType::PONG;
         packet.send(&action);
         
         Archive ar{};
@@ -151,14 +147,14 @@ void Server::net_loop(int id) {
                 ::deserialize(ar, action);
 
                 Eng3D::Log::debug("server", "Receiving " + std::to_string(packet.size()) + " from #" + std::to_string(id));
-                if(selected_nation == nullptr && (action != ActionType::PONG && action != ActionType::CHAT_MESSAGE && action != ActionType::SELECT_NATION))
-                    throw ServerException("Unallowed operation without selected nation");
+                if(selected_nation == nullptr && !(action == ActionType::PONG || action == ActionType::CHAT_MESSAGE || action == ActionType::SELECT_NATION))
+                    CXX_THROW(ServerException, "Unallowed operation " + std::to_string(static_cast<int>(action)) + " without selected nation");
                 
                 const std::scoped_lock lock(g_world.world_mutex);
                 switch(action) {
                 // - Used to test connections between server and client
                 case ActionType::PONG:
-                    action = ActionType::PING;
+                    action = ActionType::PONG;
                     packet.send(&action);
                     Eng3D::Log::debug("server", "Received pong, responding with ping!");
                     break;
@@ -166,7 +162,6 @@ void Server::net_loop(int id) {
                 case ActionType::NATION_ENACT_POLICY: {
                     Policies policies;
                     ::deserialize(ar, policies);
-
                     /// @todo Do parliament checks and stuff
                     selected_nation->set_policy(policies);
                 } break;
@@ -330,15 +325,11 @@ void Server::net_loop(int id) {
                     ::deserialize(ar, nation);
                     if(nation == nullptr)
                         CXX_THROW(ServerException, "Unknown nation");
-                    nation->ai_controlled = false;
-                    nation->ai_controlled = false;
-                    nation->ai_controlled = false;
                     nation->ai_do_cmd_troops = false;
                     nation->ai_controlled = false;
-                    nation->ai_controlled = false;
-                    nation->ai_controlled = false;
-                    nation->ai_controlled = false;
                     selected_nation = nation;
+                    ::deserialize(ar, nation->ai_do_cmd_troops);
+                    ::deserialize(ar, nation->ai_controlled);
                     Eng3D::Log::debug("server", "Nation " + selected_nation->ref_name + " selected by client " + cl.username + "," + std::to_string(id));
 
                     this->clients_extra_data[id] = nation;
@@ -362,16 +353,6 @@ void Server::net_loop(int id) {
                     if(!selected_nation->can_research(*technology))
                         throw ServerException("Can't research tech at the moment");
                     selected_nation->focus_tech = technology;
-                } break;
-                case ActionType::AI_CONTROL: {
-                    ::deserialize(ar, selected_nation->ai_controlled);
-                    ::deserialize(ar, selected_nation->ai_do_cmd_troops);
-                    ::deserialize(ar, selected_nation->ai_controlled);
-                    ::deserialize(ar, selected_nation->ai_controlled);
-                    ::deserialize(ar, selected_nation->ai_controlled);
-                    ::deserialize(ar, selected_nation->ai_controlled);
-                    ::deserialize(ar, selected_nation->ai_controlled);
-                    ::deserialize(ar, selected_nation->ai_controlled);
                 } break;
                 // Nation and province addition and removals are not allowed to be done by clients
                 default:
@@ -418,7 +399,6 @@ void Server::net_loop(int id) {
         packet.data(ar.get_buffer(), ar.size());
         broadcast(packet);
     }
-    cl.is_active = false;
 
 #ifdef E3D_TARGET_WINDOWS
     Eng3D::Log::error("server", "WSA Code: " + std::to_string(WSAGetLastError()));

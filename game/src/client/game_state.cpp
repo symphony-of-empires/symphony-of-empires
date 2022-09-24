@@ -80,17 +80,6 @@ void GameState::play_nation() {
     minimap = static_cast<UI::Widget*>(new Interface::Minimap(*this, -400, -200, UI::Origin::LOWER_RIGHT_SCREEN));
     Eng3D::Log::debug("game", "Selecting nation " + this->curr_nation->ref_name);
     this->client->send(Action::SelectNation::form_packet(*this->curr_nation));
-
-    // Set AI to all off
-    this->curr_nation->ai_controlled = false;
-    this->curr_nation->ai_do_cmd_troops = false;
-    this->curr_nation->ai_controlled = false;
-    this->curr_nation->ai_controlled = false;
-    this->curr_nation->ai_controlled = false;
-    this->curr_nation->ai_controlled = false;
-    this->curr_nation->ai_controlled = false;
-    this->curr_nation->ai_controlled = false;
-    this->client->send(Action::AiControl::form_packet(*this->curr_nation));
 }
 
 std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(const Nation& nation) {

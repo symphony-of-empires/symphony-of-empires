@@ -45,16 +45,13 @@ public:
         } else {
             // Gravitate towards absolute zero due to volatility decay
             // (i.e, product price becomes stable without market activity)
-            if(this->price_vel > 0.1f)
-                this->price_vel -= 0.01f;
-            else if(this->price_vel < -0.1f)
-                this->price_vel += 0.01f;
-            else
-                this->price_vel = -0.01f;
+            if(this->price_vel > 0.1f) this->price_vel -= 0.01f;
+            else if(this->price_vel < -0.1f) this->price_vel += 0.01f;
+            else this->price_vel = -0.01f;
         }
 
         // Set the new price
-        this->price = glm::max(0.01f, this->price + this->price_vel);
+        this->price = glm::clamp(this->price + this->price_vel, 0.01f, 100'000.f);
         //this->demand = 0;
     }
 

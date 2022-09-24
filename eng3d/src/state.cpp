@@ -26,6 +26,7 @@
 
 // Required before GL/gl.h
 #include <cstring>
+#include <signal.h>
 #ifdef E3D_TARGET_WINDOWS
 #   ifndef WINSOCK2_IMPORTED
 #       define WINSOCK2_IMPORTED
@@ -179,6 +180,12 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     const int seed = (int)((uint32_t)time(NULL) * (uint32_t)getpid());
     Eng3D::Log::debug("engine", "Using random seed of " + std::to_string(seed));
     std::srand(seed);
+
+    // Handle SIGPIPE for networking code
+    struct sigaction sa = (struct sigaction){ [](int) {
+        Eng3D::Log::debug("sigpipe", "Caught sigpipe");
+    } };
+    sigaction(SIGPIPE, &sa, NULL);
 
     // Startup-initialization of SDL
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0)

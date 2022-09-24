@@ -163,7 +163,7 @@ static inline void external_migration(World& world) {
                 world.province_manager.mark_province_owner_changed(province.get_id()); // Update the province changed
             } else {
                 for(const auto unit_id : unit_ids) // Perform costly attrition
-                    world.unit_manager.units[unit_id].size *= 0.98f;
+                    world.unit_manager.units[unit_id].size *= 0.74f;
             }
         }
     }

@@ -967,9 +967,9 @@ int LuaAPI::add_pop_type(lua_State* L) {
     else if(is_laborer) pop_type.group = PopGroup::LABORER;
     else pop_type.group = PopGroup::OTHER;
 
-    pop_type.basic_needs_amount.resize(g_world.goods.size(), 0);
-    pop_type.luxury_needs_satisfaction.resize(g_world.goods.size(), 0);
-    pop_type.luxury_needs_deminishing_factor.resize(g_world.goods.size(), 0);
+    pop_type.basic_needs_amount.resize(g_world.goods.size(), 0.f);
+    pop_type.luxury_needs_satisfaction.resize(g_world.goods.size(), 0.f);
+    pop_type.luxury_needs_deminishing_factor.resize(g_world.goods.size(), 0.f);
 
     // Lua next = pops top and then pushes key & value in table
     lua_pushvalue(L, 8);
@@ -981,7 +981,7 @@ int LuaAPI::add_pop_type(lua_State* L) {
         lua_next(L, -2);
         const float amount = pop_number(L);
         lua_pop(L, 2);
-        pop_type.basic_needs_amount[g_world.get_id(good)] = amount;
+        pop_type.basic_needs_amount[good.get_id()] = amount;
     }
     lua_pop(L, 1);
 
@@ -1627,7 +1627,7 @@ int LuaAPI::ui_call_builtin(lua_State* L) {
     auto& gs = static_cast<GameState&>(Eng3D::State::get_instance());
 
     if(builtin_fn == "gs.ai_control.form_packet") {
-        gs.client->send(Action::AiControl::form_packet(*gs.curr_nation));
+        //gs.client->send(Action::AiControl::form_packet(*gs.curr_nation));
         return 0;
     } else if(builtin_fn == "gs.ai_do_cmd_troops.get") {
         if(gs.curr_nation == nullptr)

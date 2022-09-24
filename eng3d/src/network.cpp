@@ -145,6 +145,11 @@ void Eng3D::Networking::SocketStream::set_blocking(bool blocking) {
 //
 // Server client
 //
+Eng3D::Networking::ServerClient::~ServerClient() {
+    if(this->thread && this->thread->joinable())
+        this->thread->join();
+}
+
 int Eng3D::Networking::ServerClient::try_connect(int fd) try {
     sockaddr_in client;
     socklen_t len = sizeof(client);
@@ -228,8 +233,8 @@ Eng3D::Networking::Server::~Server() {
 #endif
     // Join all threads before deletion
     for(size_t i = 0; i < this->n_clients; i++)
-        if(this->clients[i].thread.joinable())
-            this->clients[i].thread.join();
+        if(this->clients[i].thread && this->clients[i].thread->joinable())
+            this->clients[i].thread->join();
     delete[] this->clients;
 }
 

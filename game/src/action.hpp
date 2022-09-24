@@ -63,7 +63,6 @@ enum class ActionType {
     DIPLO_DECLARE_WAR,
     DIPLO_ALLOW_MIL_ACCESS,
     FOCUS_TECH, // Technology
-    AI_CONTROL, // Change AI status
 };
 
 class Product;
@@ -78,11 +77,6 @@ class Event;
 class Technology;
 
 namespace Action {
-    class AiControl {
-    public:
-        static Eng3D::Networking::Packet form_packet(const Nation& nation);
-    };
-
     class DiploDeclareWar {
     public:
         static Eng3D::Networking::Packet form_packet(const Nation& nation);

@@ -179,9 +179,9 @@ void Client::net_loop() {
                     case ActionType::UNIT_ADD: {
                         Unit unit;
                         ::deserialize(ar, unit);
-                        Province::Id prov_id;
-                        ::deserialize(ar, prov_id);
-                        gs.world->unit_manager.add_unit(unit, prov_id);
+                        Province::Id province_id;
+                        ::deserialize(ar, province_id);
+                        gs.world->unit_manager.add_unit(unit, province_id);
                         Eng3D::Log::debug("client", "New unit of " + g_world.nations[unit.owner_id].ref_name);
                     } break;
                     case ActionType::UNIT_REMOVE: {
@@ -233,9 +233,7 @@ void Client::net_loop() {
                     case ActionType::SELECT_NATION: {
                         Nation* nation;
                         ::deserialize(ar, nation);
-                        std::string username;
-                        ::deserialize(ar, username);
-                        nation->client_username = username;
+                        ::deserialize(ar, nation->client_username);
                     } break;
                     default:
                         break;

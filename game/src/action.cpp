@@ -47,19 +47,6 @@ Eng3D::Networking::Packet action_handler_sr(Pred p) {
     return packet;
 }
 
-Eng3D::Networking::Packet AiControl::form_packet(const Nation& nation) {
-    return action_handler_sr<ActionType::AI_CONTROL>([&nation](auto& ar) {
-        ::serialize(ar, nation.ai_controlled);
-        ::serialize(ar, nation.ai_do_cmd_troops);
-        ::serialize(ar, nation.ai_controlled);
-        ::serialize(ar, nation.ai_controlled);
-        ::serialize(ar, nation.ai_controlled);
-        ::serialize(ar, nation.ai_controlled);
-        ::serialize(ar, nation.ai_controlled);
-        ::serialize(ar, nation.ai_controlled);
-    });
-}
-
 Eng3D::Networking::Packet DiploDeclareWar::form_packet(const Nation& nation) {
     return action_handler_sr<ActionType::DIPLO_DECLARE_WAR>([&nation](auto& ar) {
         ::serialize(ar, &nation);
@@ -89,6 +76,8 @@ Eng3D::Networking::Packet NationUpdate::form_packet(const std::vector<Nation>& l
 Eng3D::Networking::Packet SelectNation::form_packet(const Nation& nation) {
     return action_handler_sr<ActionType::SELECT_NATION>([&nation](auto& ar) {
         ::serialize(ar, &nation);
+        ::serialize(ar, nation.ai_do_cmd_troops);
+        ::serialize(ar, nation.ai_controlled);
     });
 }
 
@@ -135,7 +124,7 @@ Eng3D::Networking::Packet UnitAdd::form_packet(const Unit& unit) {
 }
 
 Eng3D::Networking::Packet UnitUpdate::form_packet(const std::vector<Unit>& units) {
-    return action_handler_sr<ActionType::UNIT_ADD>([&](auto& ar) {
+    return action_handler_sr<ActionType::UNIT_UPDATE>([&](auto& ar) {
         ::serialize<Unit::Id>(ar, units.size());
         for(const auto& unit : units)
             ::serialize(ar, unit);
@@ -143,13 +132,13 @@ Eng3D::Networking::Packet UnitUpdate::form_packet(const std::vector<Unit>& units
 }
 
 Eng3D::Networking::Packet UnitRemove::form_packet(const Unit& unit) {
-    return action_handler_sr<ActionType::UNIT_ADD>([&](auto& ar) {
+    return action_handler_sr<ActionType::UNIT_REMOVE>([&](auto& ar) {
         ::serialize<Unit::Id>(ar, unit.get_id());
     });
 }
 
 Eng3D::Networking::Packet UnitMove::form_packet(const Unit& unit, const Province& province) {
-    return action_handler_sr<ActionType::UNIT_ADD>([&](auto& ar) {
+    return action_handler_sr<ActionType::UNIT_CHANGE_TARGET>([&](auto& ar) {
         ::serialize<Unit::Id>(ar, unit.get_id());
         ::serialize<Province::Id>(ar, province.get_id());
     });

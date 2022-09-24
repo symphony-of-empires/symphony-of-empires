@@ -73,10 +73,16 @@ Interface::MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
         this->gs.host_mode = false;
         this->gs.editor = false;
         try {
+            this->gs.ui_ctx.clear();
+            this->gs.ui_ctx.use_tooltip(nullptr, { 0, 0 });
+
+            this->gs.current_mode = MapMode::COUNTRY_SELECT;
+            this->gs.select_nation = new Interface::LobbySelectView(gs);
+            this->gs.host_mode = false;
+            this->gs.editor = false;
             this->gs.client = new Client(this->gs, this->ip_addr_inp->get_buffer(), 1836);
             this->gs.client->username = this->username_inp->get_buffer();
             this->gs.client->wait_for_snapshot();
-            this->gs.select_nation = new Interface::LobbySelectView(gs);
             return;
         } catch(Eng3D::Networking::SocketException& e) {
             this->gs.ui_ctx.prompt("Network layer error", e.what());
@@ -85,7 +91,6 @@ Interface::MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
         } catch(ServerException& e) {
             this->gs.ui_ctx.prompt("Server error", e.what());
         }
-        
         delete this->gs.client;
     });
 }

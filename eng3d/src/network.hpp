@@ -194,24 +194,20 @@ namespace Eng3D::Networking {
     class ServerClient {
         int conn_fd = 0;
     public:
-        inline ServerClient() = default;
-        inline ~ServerClient() {
-            if(this->thread.joinable())
-                this->thread.join();
-        }
+        ServerClient() = default;
+        ~ServerClient();
         
         int try_connect(int fd);
         void flush_packets();
         bool has_pending();
-
-        bool is_active = false; // Is our thread currently polling/serving?
+        
         std::atomic<bool> is_connected;
         std::deque<Eng3D::Networking::Packet> pending_packets;
         std::mutex pending_packets_mutex;
         std::deque<Eng3D::Networking::Packet> packets;
         std::mutex packets_mutex;
         std::string username;
-        std::thread thread;
+        std::unique_ptr<std::thread> thread;
     };
 
     class Server {
