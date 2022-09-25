@@ -40,12 +40,12 @@ extern "C" {
 // Audio
 //
 Eng3D::Audio::Audio(const std::string& path) {
-    Eng3D::Log::debug("audio", "Decoding audio " + path);
-
+    Eng3D::Log::debug("audio", Eng3D::string_format(_("Decoding audio %s"), path.c_str()));
+    
     int err;
     this->stream = static_cast<void *>(stb_vorbis_open_filename(path.c_str(), &err, nullptr));
     if(this->stream == nullptr)
-        CXX_THROW(Eng3D::AudioException, path, "error opening audio");
+        CXX_THROW(Eng3D::AudioException, path, _("Error opening audio"));
 }
 
 Eng3D::Audio::~Audio() {
@@ -67,7 +67,7 @@ Eng3D::AudioManager::AudioManager(Eng3D::State& _s)
     fmt.callback = &Eng3D::AudioManager::mixaudio;
     fmt.userdata = this;
     if(SDL_OpenAudio(&fmt, NULL) < 0)
-        CXX_THROW(std::runtime_error, "Unable to open audio: " + std::string(SDL_GetError()));
+        CXX_THROW(std::runtime_error, Eng3D::string_format(_("Unable to open audio: %s"), SDL_GetError()));
     SDL_PauseAudio(0);
 }
 
@@ -115,6 +115,6 @@ const std::shared_ptr<Eng3D::Audio> Eng3D::AudioManager::load(const std::string&
 
     // Otherwise Sound is not in our control, so we create a new one
     sounds[path] = std::make_shared<Eng3D::Audio>(path);
-    Eng3D::Log::debug("audio", "Loaded and cached sound " + path);
+    Eng3D::Log::debug("audio", Eng3D::string_format(_("Loaded and cached sound %s"), path.c_str()));
     return sounds[path];
 }

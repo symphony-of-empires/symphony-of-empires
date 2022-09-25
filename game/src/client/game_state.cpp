@@ -58,7 +58,6 @@
 #include "client/interface/top_window.hpp"
 #include "client/interface/treaty.hpp"
 #include "client/interface/army.hpp"
-#include "client/interface/building.hpp"
 #include "client/interface/minimap.hpp"
 #include "client/interface/map_debug.hpp"
 #include "client/map.hpp"
@@ -85,12 +84,6 @@ void GameState::play_nation() {
 std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(const Nation& nation) {
     std::string path = "gfx/flags/" + nation.ref_name + "_" + (nation.ideology == nullptr ? "none" : nation.ideology->ref_name.get_string()) + ".png";
     return this->tex_man.load(this->package_man.get_unique(path));
-}
-
-void GameState::send_command(Archive& archive) {
-    std::scoped_lock lock(client->pending_packets_mutex);
-    Eng3D::Networking::Packet packet(this->client->get_fd(), archive.get_buffer(), archive.size());
-    client->pending_packets.push_back(packet);
 }
 
 void handle_popups(std::vector<Treaty::Id>& displayed_treaties, GameState& gs) {
@@ -269,19 +262,9 @@ void GameState::handle_key(const Eng3D::Event::Key& e) {
             audio_man.music_queue.clear();
         } break;
         case Eng3D::Event::Key::Type::F4:
-            if(editor) break;
-            if(current_mode == MapMode::NORMAL) {
-                if(input.select_pos.x < world->width || input.select_pos.y < world->height) {
-                    const auto tile = world->get_tile(input.select_pos.x, input.select_pos.y);
-                    if(tile.province_id >= world->provinces.size()) break;
-                    new Interface::BuildingBuildView(*this, input.select_pos.x, input.select_pos.y, true, world->provinces[tile.province_id]);
-                }
-            }
-            break;
-        case Eng3D::Event::Key::Type::F5:
             LuaAPI::invoke_registered_callback(world->lua, "ai_settings_window_invoke");
             break;
-        case Eng3D::Event::Key::Type::F6:
+        case Eng3D::Event::Key::Type::F5:
             if(editor) break;
             if(current_mode == MapMode::NORMAL) {
                 paused = !paused;

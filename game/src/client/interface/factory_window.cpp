@@ -123,7 +123,7 @@ FactoryWindow::FactoryWindow(GameState& gs)
     gs{ gs }
 {
     this->origin = UI::Origin::CENTER_SCREEN;
-    this->text("Factories");
+    this->text(_("Factories"));
     this->is_scroll = false;
 
     this->set_close_btn_function([this](Widget&) {

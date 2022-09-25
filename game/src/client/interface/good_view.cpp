@@ -157,8 +157,7 @@ GoodView::GoodView(GameState& _gs, Good& _good)
         if(!is_present) continue;
         auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/production.png")), this);
         icon_ibtn->below_of(*avg_price_chart);
-        icon_ibtn->set_tooltip(new UI::Tooltip(icon_ibtn, 512, 24));
-        icon_ibtn->tooltip->text(building_type.name.get_string());
+        icon_ibtn->set_tooltip(building_type.name.get_string());
         dx += icon_ibtn->width;
     }
 
@@ -171,8 +170,7 @@ GoodView::GoodView(GameState& _gs, Good& _good)
         if(!is_present) continue;
         auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/production.png")), this);
         icon_ibtn->below_of(*avg_price_chart);
-        icon_ibtn->set_tooltip(new UI::Tooltip(icon_ibtn, 512, 24));
-        icon_ibtn->tooltip->text(building_type.name.get_string());
+        icon_ibtn->set_tooltip(building_type.name.get_string());
         dx += icon_ibtn->width;
     }
 }

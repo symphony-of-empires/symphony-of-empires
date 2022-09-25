@@ -208,32 +208,6 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology& _techno
     });
 }
 
-PopInfo::PopInfo(GameState& _gs, int x, int y, Province& _province, std::size_t _index, UI::Widget* parent)
-    : UI::Group(x, y, parent->width, 24, parent),
-    gs{ _gs },
-    province{ _province },
-    index{ _index }
-{
-    this->is_scroll = false;
-
-    this->size_btn = new UI::Button(0, 0, 96, 24, this);
-
-    this->budget_btn = new UI::Button(0, 0, 128, 24, this);
-    this->budget_btn->right_side_of(*this->size_btn);
-    this->budget_btn->set_tooltip(new UI::Tooltip(this->budget_btn, 512, 24));
-    
-    this->set_on_each_tick([this](UI::Widget&) {
-        if(this->gs.world->time % this->gs.world->ticks_per_month) return;
-        if(this->index >= this->province.pops.size()) return;
-
-        const auto& pop = this->province.pops[this->index];
-        this->size_btn->text(std::to_string(pop.size));
-        this->budget_btn->text(std::to_string(pop.budget / pop.size));
-        this->budget_btn->tooltip->text(Eng3D::Locale::translate("A total budget of") + " " + std::to_string(pop.budget));
-    });
-    this->on_each_tick(*this);
-}
-
 ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province& _province, Good& _good, UI::Widget* parent)
     : UI::Group(x, y, parent->width, 24, parent),
     gs{ _gs },

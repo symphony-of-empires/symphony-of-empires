@@ -149,7 +149,9 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, const Treaty::Id _treaty_
         ::serialize<ActionType>(ar, ActionType::CHANGE_TREATY_APPROVAL);
         ::serialize(ar, this->treaty_id);
         ::serialize<TreatyApproval>(ar, TreatyApproval::ACCEPTED);
-        this->gs.send_command(ar);
+        Eng3D::Networking::Packet packet{};
+        packet.data(ar.get_buffer(), ar.size());
+        this->gs.client->send(packet);
         w.parent->kill();
     });
 
@@ -162,7 +164,9 @@ TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, const Treaty::Id _treaty_
         ::serialize<ActionType>(ar, ActionType::CHANGE_TREATY_APPROVAL);
         ::serialize(ar, this->treaty_id);
         ::serialize<TreatyApproval>(ar, TreatyApproval::DENIED);
-        this->gs.send_command(ar);
+        Eng3D::Networking::Packet packet{};
+        packet.data(ar.get_buffer(), ar.size());
+        this->gs.client->send(packet);
         w.parent->kill();
     });
 }

@@ -131,8 +131,13 @@ void Server::net_loop(int id) {
             }
         }
 
-        ActionType action = ActionType::PONG;
-        packet.send(&action);
+        {
+            Archive ar{};
+            ::serialize<ActionType>(ar, ActionType::CHAT_MESSAGE);
+            ::serialize<std::string>(ar, "[" + cl.username + "] has connected");
+            packet.data(ar.get_buffer(), ar.size());
+            broadcast(packet);
+        }
         
         Archive ar{};
         while(run && cl.is_connected == true) {
@@ -144,20 +149,15 @@ void Server::net_loop(int id) {
                 if(!run) break;
                 ar.set_buffer(packet.data(), packet.size());
                 ar.rewind();
-                ::deserialize(ar, action);
 
+                ActionType action;
+                ::deserialize(ar, action);
                 Eng3D::Log::debug("server", "Receiving " + std::to_string(packet.size()) + " from #" + std::to_string(id));
-                if(selected_nation == nullptr && !(action == ActionType::PONG || action == ActionType::CHAT_MESSAGE || action == ActionType::SELECT_NATION))
+                if(selected_nation == nullptr && !(action == ActionType::CHAT_MESSAGE || action == ActionType::SELECT_NATION))
                     CXX_THROW(ServerException, "Unallowed operation " + std::to_string(static_cast<int>(action)) + " without selected nation");
                 
                 const std::scoped_lock lock(g_world.world_mutex);
                 switch(action) {
-                // - Used to test connections between server and client
-                case ActionType::PONG:
-                    action = ActionType::PONG;
-                    packet.send(&action);
-                    Eng3D::Log::debug("server", "Received pong, responding with ping!");
-                    break;
                 // - Client tells server to enact a new policy for it's nation
                 case ActionType::NATION_ENACT_POLICY: {
                     Policies policies;
@@ -387,7 +387,7 @@ void Server::net_loop(int id) {
     // Unlock mutexes so we don't end up with weird situations... like deadlocks
     cl.is_connected = false;
 
-    std::scoped_lock lock(cl.packets_mutex, cl.pending_packets_mutex);
+    const std::scoped_lock lock(cl.packets_mutex, cl.pending_packets_mutex);
     cl.packets.clear();
     cl.pending_packets.clear();
 

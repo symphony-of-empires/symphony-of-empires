@@ -78,7 +78,7 @@ static inline std::shared_ptr<Eng3D::Texture> get_material_texture(const aiMater
     for(size_t i = 0; i < material.GetTextureCount(type); i++) {
         aiString str;
         material.GetTexture(type, i, &str);
-        Eng3D::Log::debug("assimp", std::string() + "Loading texture for material " + str.C_Str());
+        Eng3D::Log::debug("assimp", Eng3D::string_format(_("Loading texture for material %s"), str.C_Str()));
         auto path = std::string("gfx/") + str.C_Str();
         return s.tex_man.load(s.package_man.get_unique(path));
     }

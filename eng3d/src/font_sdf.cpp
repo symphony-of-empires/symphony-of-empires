@@ -37,6 +37,7 @@
 #include "eng3d/shader.hpp"
 #include "eng3d/state.hpp"
 #include "eng3d/camera.hpp"
+#include "eng3d/log.hpp"
 
 Eng3D::Glyph::Glyph(float _advance, Eng3D::Rectangle _atlas_bounds, Eng3D::Rectangle _plane_bounds)
     : advance{ _advance },
@@ -108,9 +109,7 @@ std::unique_ptr<Eng3D::Label3D> Eng3D::FontSDF::gen_text(const std::string& text
         const auto& glyph = unicode_map[character];
         text_width += glyph.advance;
     }
-
-    if(text_width == 0.f)
-        CXX_THROW(std::runtime_error, "Empty text label");
+    if(text_width == 0.f) CXX_THROW(std::runtime_error, _("Empty text label"));
 
     float scale = width / text_width;
     top = glm::normalize(top);

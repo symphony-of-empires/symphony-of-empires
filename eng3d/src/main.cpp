@@ -92,7 +92,7 @@ int main(int argc, char** argv)
 #ifdef E3D_TARGET_WINDOWS
         auto game_main = (MainFn)GetProcAddress(GetModuleHandle(nullptr), "game_main");
         if(game_main == nullptr)
-            CXX_THROW(std::runtime_error, "No game_main found!");
+            CXX_THROW(std::runtime_error, _("No game_main found!"));
         game_main(__argc, __argv);
 #else
         game_main(argc, argv);

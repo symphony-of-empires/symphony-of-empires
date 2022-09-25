@@ -29,6 +29,7 @@
 #include "eng3d/ui/widget.hpp"
 #include "eng3d/ui/components.hpp"
 #include "eng3d/state.hpp"
+#include "eng3d/locale.hpp"
 
 Eng3D::Interface::ProfilerView::ProfilerView(Eng3D::State& _s, Eng3D::Profiler& _profiler)
     : UI::Window(0, 0, 240, _s.width, nullptr),
@@ -37,7 +38,7 @@ Eng3D::Interface::ProfilerView::ProfilerView(Eng3D::State& _s, Eng3D::Profiler& 
 {
     this->padding.x = 0;
     this->padding.y = 48;
-    this->text("Eng3D Profiler");
+    this->text(_("Performance profiler"));
     this->is_scroll = false;
     this->current_texture.reset();
 
@@ -97,5 +98,5 @@ void Eng3D::Interface::ProfilerTaskView::set_task(Eng3D::BenchmarkTask& profiler
     float time = profiler_view.get_average_time_ms();
     auto format_time = std::to_string((int)time);
     format_time = std::string(3 - glm::min<size_t>(3, format_time.length()), '0') + format_time;
-    this->label->text(format_time + " MS " + profiler_view.name);
+    this->label->text(format_time + " ms " + profiler_view.name);
 }

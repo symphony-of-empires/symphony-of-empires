@@ -32,3 +32,6 @@ namespace Eng3D::Log {
     void warning(const std::string& category, const std::string& msg);
     void error(const std::string& category, const std::string& msg);
 }
+
+#include "eng3d/string.hpp"
+#include "eng3d/locale.hpp"

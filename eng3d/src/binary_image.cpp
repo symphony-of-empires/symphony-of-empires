@@ -62,7 +62,7 @@ Eng3D::BinaryImage::BinaryImage(const Eng3D::BinaryImage& tex)
     : Eng3D::BinaryImage(tex.width, tex.height, tex.bpp)
 {
     if(tex.bpp != this->bpp && this->bpp != 32)
-        CXX_THROW(BinaryImageException, "new", "Can't do 16-bit/8-bit copies");
+        CXX_THROW(BinaryImageException, "internal", "Can't do 16-bit/8-bit copies");
     std::memcpy(buffer.get(), tex.buffer.get(), sizeof(uint32_t) * (width * height));
 }
 

@@ -110,10 +110,6 @@ void Client::net_loop() {
                     const std::scoped_lock lock(gs.world->world_mutex);
                     // Ping from server, we should answer with a pong!
                     switch(action) {
-                    case ActionType::PONG: {
-                        packet.send(&action);
-                        Eng3D::Log::debug("client", "Received ping, responding with pong!");
-                    } break;
                     // Update/Remove/Add Actions
                     // These actions all follow the same format they give a specialized ID for the index
                     // where the operated object is or should be; this allows for extreme-level fuckery

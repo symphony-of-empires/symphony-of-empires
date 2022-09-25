@@ -35,8 +35,6 @@ enum class ActionType {
     DISCONNECT,
     CHAT_MESSAGE,
     CHAT_NICKNAME,
-    PING, // Testing
-    PONG,
     PROVINCE_UPDATE, // Province
     PROVINCE_ADD,
     PROVINCE_REMOVE,

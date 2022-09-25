@@ -125,66 +125,8 @@ namespace Eng3D::Networking {
             return (code == PacketCode::OK);
         }
 
-        template<typename T>
-        inline void send(const T* buf = nullptr, size_t size = sizeof(T)) {
-            if(buf != nullptr) {
-                n_data = size;
-                buffer.resize(n_data);
-                std::memcpy(&buffer[0], buf, n_data);
-            }
-
-            const uint16_t net_code = htons(static_cast<uint16_t>(code));
-            stream.send(&net_code, sizeof(net_code), pred);
-
-            const uint16_t net_size = htons(n_data);
-            stream.send(&net_size, sizeof(net_size), pred);
-
-            //uint8_t* new_buf = new uint8_t[size];
-            //size_t new_size = compress(buf, size, new_buf, size);
-            //stream.send(&new_buf[0], new_size);
-            stream.send(&buffer[0], n_data, pred);
-            //delete[] new_buf;
-
-            const uint16_t eof_marker = htons(0xE0F);
-            stream.send(&eof_marker, sizeof(eof_marker), pred);
-        }
-
-        inline void send() {
-            send<void>(nullptr, 0);
-        }
-
-        template<typename T>
-        inline void recv(T* buf = nullptr) {
-            uint16_t net_code;
-            stream.recv(&net_code, sizeof(net_code), pred);
-            net_code  = ntohs(net_code);
-            code = static_cast<PacketCode>(net_code);
-
-            uint16_t net_size;
-            stream.recv(&net_size, sizeof(net_size), pred);
-            n_data = (size_t)ntohs(net_size);
-            buffer.resize(n_data + 1);
-
-            // Reads can only be done 1024 bytes at a time
-            stream.recv(&buffer[0], n_data, pred);
-            if(buf != nullptr) {
-                //size_t new_size = get_compressed_len(n_data);
-                //char* new_buf = new char[new_size];
-                //size_t decomp_size = decompress(buf, n_data, new_buf, new_size);
-                //std::memcpy(buf, &new_buf[0], decomp_size);
-                //delete[] new_buf;
-                std::memcpy(buf, &buffer[0], n_data);
-            }
-
-            uint16_t eof_marker;
-            stream.recv(&eof_marker, sizeof(eof_marker), pred);
-            if(ntohs(eof_marker) != 0xE0F)
-                CXX_THROW(Eng3D::Networking::SocketException, "Packet with invalid EOF");
-        }
-
-        inline void recv() {
-            this->recv<void>(nullptr);
-        }
+        void send();
+        void recv();
 
         std::vector<uint8_t> buffer;
         SocketStream stream;
@@ -238,7 +180,7 @@ namespace Eng3D::Networking {
                 packets.push_back(packet);
                 packets_mutex.unlock();
             } else {
-                std::scoped_lock lock(pending_packets_mutex);
+                const std::scoped_lock lock(pending_packets_mutex);
                 pending_packets.push_back(packet);
             }
         }

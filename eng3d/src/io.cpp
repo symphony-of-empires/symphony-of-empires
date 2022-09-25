@@ -29,6 +29,7 @@
 #include "eng3d/io.hpp"
 #include "eng3d/state.hpp"
 #include "eng3d/utils.hpp"
+#include "eng3d/log.hpp"
 
 /// @brief Get the abs path object in a safe manner, such as that the access does not
 /// occur on null pointers. Use this function because it also converts slashes
@@ -49,7 +50,7 @@ std::string Eng3D::IO::Asset::Base::get_abs_path() const {
 void Eng3D::IO::Asset::File::open() {
     this->fp = ::fopen(abs_path.c_str(), "rb");
     if(fp == nullptr)
-        CXX_THROW(std::runtime_error, "Can't open file " + path);
+        CXX_THROW(std::runtime_error, Eng3D::string_format(_("Can't open file %s"), path.c_str()));
 }
 
 void Eng3D::IO::Asset::File::close() {

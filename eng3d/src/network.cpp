@@ -62,40 +62,47 @@
 #include "eng3d/log.hpp"
 #include "eng3d/utils.hpp"
 
+static constexpr int max_tries = 10; // 10 * 100ms = 10 seconds
+static constexpr int tries_ms = 100;
+
 //
 // Socket stream
 //
 void Eng3D::Networking::SocketStream::send(const void* data, size_t size, std::function<bool()> pred) {
     const auto* c_data = reinterpret_cast<const char*>(data);
-    int times = 1000;
+    auto tries = max_tries;
     for(size_t i = 0; i < size; ) {
         if(pred && !pred()) // If (any) predicate fails then return immediately
             return;
         int r = ::send(fd, &c_data[i], glm::min<std::size_t>(1024, size - i), MSG_DONTWAIT);
-        if(r < 0) {
-            if(!times)
+        if(r <= 0) {
+            if(!tries)
                 CXX_THROW(Eng3D::Networking::SocketException, "Packet send interrupted");
-            times--;
+            tries--;
+            std::this_thread::sleep_for(std::chrono::milliseconds(tries_ms));
             continue;
         }
         i += static_cast<std::size_t>(r);
+        tries = max_tries;
     }
 }
 
 void Eng3D::Networking::SocketStream::recv(void* data, size_t size, std::function<bool()> pred) {
     auto* c_data = reinterpret_cast<char*>(data);
-    int times = 1000;
+    auto tries = max_tries;
     for(size_t i = 0; i < size; ) {
         if(pred && !pred()) // If (any) predicate fails then return immediately
             return;
         int r = ::recv(fd, &c_data[i], glm::min<std::size_t>(1024, size - i), MSG_DONTWAIT);
-        if(r < 0) {
-            if(!times)
+        if(r <= 0) {
+            if(!tries)
                 CXX_THROW(Eng3D::Networking::SocketException, "Packet receive interrupted");
-            times--;
+            tries--;
+            std::this_thread::sleep_for(std::chrono::milliseconds(tries_ms));
             continue;
         }
         i += static_cast<std::size_t>(r);
+        tries = max_tries;
     }
 }
 
@@ -131,7 +138,7 @@ void Eng3D::Networking::SocketStream::set_blocking(bool blocking) {
 #ifdef E3D_TARGET_UNIX
     int flags = fcntl(fd, F_GETFL, 0);
     if(flags == -1) {
-        Eng3D::Log::debug("socket_stream", "Can't set socket as non_blocking");
+        Eng3D::Log::debug("socket_stream", _("Can't set socket as non_blocking"));
         return;
     }
     flags = blocking ? (flags & (~O_NONBLOCK)) : (flags | O_NONBLOCK);
@@ -140,6 +147,35 @@ void Eng3D::Networking::SocketStream::set_blocking(bool blocking) {
     u_long mode = blocking ? 0 : 1;
     ioctlsocket(fd, FIONBIO, &mode);
 #endif
+}
+
+//
+// Packet
+//
+void Eng3D::Networking::Packet::send() {
+    const uint16_t net_code = htons(static_cast<uint16_t>(code));
+    stream.send(&net_code, sizeof(net_code), pred);
+    const uint16_t net_size = htons(n_data);
+    stream.send(&net_size, sizeof(net_size), pred);
+    stream.send(buffer.data(), n_data, pred);
+    const uint16_t eof_marker = htons(0xE0F);
+    stream.send(&eof_marker, sizeof(eof_marker), pred);
+}
+
+void Eng3D::Networking::Packet::recv() {
+    uint16_t net_code;
+    stream.recv(&net_code, sizeof(net_code), pred);
+    net_code  = ntohs(net_code);
+    code = static_cast<PacketCode>(net_code);
+    uint16_t net_size;
+    stream.recv(&net_size, sizeof(net_size), pred);
+    n_data = (size_t)ntohs(net_size);
+    buffer.resize(n_data + 1);
+    stream.recv(buffer.data(), n_data, pred);
+    uint16_t eof_marker;
+    stream.recv(&eof_marker, sizeof(eof_marker), pred);
+    if(ntohs(eof_marker) != 0xE0F)
+        CXX_THROW(Eng3D::Networking::SocketException, _("Packet with invalid end marker"));
 }
 
 //
@@ -155,12 +191,12 @@ int Eng3D::Networking::ServerClient::try_connect(int fd) try {
     socklen_t len = sizeof(client);
     conn_fd = accept(fd, reinterpret_cast<sockaddr*>(&client), &len);
     if(conn_fd == INVALID_SOCKET)
-        CXX_THROW(Eng3D::Networking::SocketException, "Cannot accept client connection");
+        CXX_THROW(Eng3D::Networking::SocketException, _("Cannot accept client connection"));
     
     // At this point the client's connection was accepted - so we only have to check
     // Then we check if the server is running and we throw accordingly
     is_connected = true;
-    Eng3D::Log::debug("server", "New client connection established");
+    Eng3D::Log::debug("server", _("New client connection established"));
     return conn_fd;
 } catch(Eng3D::Networking::SocketException& e) {
     return 0;
@@ -203,16 +239,16 @@ Eng3D::Networking::Server::Server(const unsigned port, const unsigned max_conn)
 
     fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(fd == INVALID_SOCKET)
-        CXX_THROW(Eng3D::Networking::SocketException, "Cannot create server socket");
+        CXX_THROW(Eng3D::Networking::SocketException, _("Cannot create server socket"));
 #ifdef E3D_TARGET_UNIX
     int enable = 1;
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
     setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(int));
 #endif
     if(bind(fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) != 0)
-        CXX_THROW(Eng3D::Networking::SocketException, "Cannot bind server");
+        CXX_THROW(Eng3D::Networking::SocketException, _("Cannot bind server"));
     if(listen(fd, max_conn) != 0)
-        CXX_THROW(Eng3D::Networking::SocketException, "Cannot listen in specified number of concurrent connections");
+        CXX_THROW(Eng3D::Networking::SocketException, _("Cannot listen in specified number of concurrent connections"));
 #ifdef E3D_TARGET_UNIX
     // Allow non-blocking operations on this socket (we don't want to block on multi-listener servers)
     fcntl(fd, F_SETFL, fcntl(fd, F_GETFD, 0) | O_NONBLOCK);
@@ -220,7 +256,7 @@ Eng3D::Networking::Server::Server(const unsigned port, const unsigned max_conn)
     signal(SIGPIPE, SIG_IGN);
 #endif
     this->run = true;
-    Eng3D::Log::debug("serber", "Server created sucessfully and listening to " + std::to_string(port) + "; now invite people!");
+    Eng3D::Log::debug("server", Eng3D::string_format(_("Server listening on IP port :%u"), port));
 }
 
 Eng3D::Networking::Server::~Server() {
@@ -261,7 +297,7 @@ void Eng3D::Networking::Server::broadcast(const Eng3D::Networking::Packet& packe
 
             if(total_size >= 200 * 1000) {
                 clients[i].is_connected = false;
-                Eng3D::Log::debug("server", "Client#" + std::to_string(i) + " has exceeded max quota! - It has used " + std::to_string(total_size) + "B!");
+                Eng3D::Log::debug("server", Eng3D::string_format(_("Client#%zu has exceeded max quota (%zu bytes)"), i, total_size));
             }
         }
     }
@@ -275,7 +311,7 @@ Eng3D::Networking::Client::Client(std::string host, const unsigned port) {
 #ifdef E3D_TARGET_WINDOWS
     WSADATA data;
     if(WSAStartup(MAKEWORD(2, 2), &data) != 0) {
-        Eng3D::Log::error("network", "WSA code " + std::to_string(WSAGetLastError()));
+        Eng3D::Log::error("network", Eng3D::string_format(_("WSA code %s"), WSAGetLastError()));
         CXX_THROW(Eng3D::Networking::SocketException, "Can't start WSA subsystem");
     }
 #endif
@@ -288,7 +324,7 @@ Eng3D::Networking::Client::Client(std::string host, const unsigned port) {
     fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(fd == INVALID_SOCKET) {
 #ifdef E3D_TARGET_WINDOWS
-        Eng3D::Log::error("network", "WSA Code " + std::to_string(WSAGetLastError()));
+        Eng3D::Log::error("network", Eng3D::string_format(_("WSA code %s"), WSAGetLastError()));
         WSACleanup();
 #endif
         CXX_THROW(Eng3D::Networking::SocketException, "Can't create client socket");
@@ -298,7 +334,7 @@ Eng3D::Networking::Client::Client(std::string host, const unsigned port) {
 #ifdef E3D_TARGET_UNIX
         close(fd);
 #elif defined E3D_TARGET_WINDOWS
-        Eng3D::Log::error("network", "WSA Code " + std::to_string(WSAGetLastError()));
+        Eng3D::Log::error("network", Eng3D::string_format(_("WSA code %s"), WSAGetLastError()));
         closesocket(fd);
 #endif
         CXX_THROW(Eng3D::Networking::SocketException, "Can't connect to server");

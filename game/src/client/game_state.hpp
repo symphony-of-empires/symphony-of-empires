@@ -111,7 +111,6 @@ public:
     ~GameState();
 
     void play_nation();
-    void send_command(Archive& archive);
     void update_on_tick();
     void world_thread();
     void music_enqueue();

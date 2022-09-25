@@ -55,14 +55,14 @@ void Eng3D::Log::log(const std::string& severity, const std::string& category, c
 
 void Eng3D::Log::debug(const std::string& category, const std::string& msg) {
 #if defined E3D_DEBUG || 1
-    Eng3D::Log::log("debug", category, msg);
+    Eng3D::Log::log("DEBUG", category, msg);
 #endif
 }
 
 void Eng3D::Log::warning(const std::string& category, const std::string& msg) {
-    Eng3D::Log::log("warning", category, msg);
+    Eng3D::Log::log("WARN", category, msg);
 }
 
 void Eng3D::Log::error(const std::string& category, const std::string& msg) {
-    Eng3D::Log::log("error", category, msg);
+    Eng3D::Log::log("ERROR", category, msg);
 }
