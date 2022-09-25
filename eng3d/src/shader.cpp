@@ -26,6 +26,14 @@
 #include <iostream>
 #include <sstream>
 #include <cassert>
+
+#ifdef E3D_BACKEND_OPENGL
+#   include <GL/glew.h>
+#   include <GL/gl.h>
+#elif defined E3D_BACKEND_GLES
+#   include <GLES3/gl3.h>
+#endif
+
 #include "eng3d/shader.hpp"
 #include "eng3d/glsl_trans.hpp"
 #include "eng3d/utils.hpp"
@@ -118,13 +126,76 @@ void Eng3D::OpenGL::Shader::compile(GLuint type) {
     Eng3D::Log::debug("shader", "Status: Sucess");
 }
 
+/// @brief Destroy the Shader object, dditionaly we have to delete the
+/// shader from the OpenGL driver by calling glDeleteShader
+Eng3D::OpenGL::Shader::~Shader() {
+    glDeleteShader(this->get_id());
+}
+
+unsigned int Eng3D::OpenGL::Shader::get_id() const {
+    return this->id;
+}
+
+//
+// Vertex shader
+//
+Eng3D::OpenGL::VertexShader::VertexShader(const std::string& _buffer)
+    : Eng3D::OpenGL::Shader(_buffer, GL_VERTEX_SHADER)
+{
+
+}
+
 //
 // Fragment shader
 //
 Eng3D::OpenGL::FragmentShader::FragmentShader(const std::string& _buffer, bool use_transpiler, std::vector<Eng3D::GLSL::Define> defintions)
-    : Shader(_buffer, GL_FRAGMENT_SHADER, use_transpiler, defintions)
+    : Eng3D::OpenGL::Shader(_buffer, GL_FRAGMENT_SHADER, use_transpiler, defintions)
 {
 
+}
+
+#if !defined E3D_BACKEND_GLES
+//
+// Geometry shader
+//
+Eng3D::OpenGL::GeometryShader::GeometryShader(const std::string& _buffer)
+    : Eng3D::OpenGL::Shader(_buffer, GL_GEOMETRY_SHADER)
+{
+
+}
+
+//
+// Tesseleation control shader
+//
+Eng3D::OpenGL::TessControlShader::TessControlShader(const std::string& _buffer)
+    : Eng3D::OpenGL::Shader(_buffer, GL_TESS_CONTROL_SHADER)
+{
+
+}
+
+//
+// Tesselation evaluation shader
+//
+Eng3D::OpenGL::TessEvalShader::TessEvalShader(const std::string& _buffer)
+    : Eng3D::OpenGL::Shader(_buffer, GL_TESS_EVALUATION_SHADER)
+{
+
+}
+#endif
+
+//
+// Program shader
+//
+Eng3D::OpenGL::Program::Program() {
+    id = glCreateProgram();
+    if(!id)
+        CXX_THROW(Eng3D::ShaderException, "Can't create new shader program");
+    glBindAttribLocation(id, 0, "m_pos");
+    glBindAttribLocation(id, 1, "m_texcoord");
+}
+
+Eng3D::OpenGL::Program::~Program() {
+    glDeleteProgram(id);
 }
 
 /// @brief Links the whole program into itself, all attached shaders that were
@@ -144,5 +215,71 @@ void Eng3D::OpenGL::Program::link() {
         glGetShaderInfoLog(id, infoLen, NULL, &shader_error_info[0]);
         Eng3D::Log::error("shader", Eng3D::translate_format("Shader program error %s", shader_error_info));
     }
+}
+
+/// @brief Attaches a shader to the program - this will make it so when the program
+/// is compiled the shader will then be linked onto it and usable for the GPU.
+/// @param shader Shader to attach
+void Eng3D::OpenGL::Program::attach_shader(const Eng3D::OpenGL::Shader& shader) {
+    glAttachShader(id, shader.get_id());
+}
+
+void Eng3D::OpenGL::Program::use() const {
+    glUseProgram(id);
+}
+
+// Uniform overloads
+// It allows the game engine to call these functions without worrying about type specifications
+void Eng3D::OpenGL::Program::set_uniform(const std::string& name, glm::mat4 uniform) const {
+    glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, glm::value_ptr(uniform));
+}
+
+void Eng3D::OpenGL::Program::set_uniform(const std::string& name, float value1, float value2) const {
+    glUniform2f(glGetUniformLocation(id, name.c_str()), value1, value2);
+}
+
+void Eng3D::OpenGL::Program::set_uniform(const std::string& name, float value1, float value2, float value3) const {
+    glUniform3f(glGetUniformLocation(id, name.c_str()), value1, value2, value3);
+}
+
+void Eng3D::OpenGL::Program::set_uniform(const std::string& name, glm::vec2 uniform) const {
+    set_uniform(name, uniform.x, uniform.y);
+}
+
+void Eng3D::OpenGL::Program::set_uniform(const std::string& name, glm::vec3 uniform) const {
+    set_uniform(name, uniform.x, uniform.y, uniform.z);
+}
+
+void Eng3D::OpenGL::Program::set_uniform(const std::string& name, glm::vec4 uniform) const {
+    set_uniform(name, uniform.x, uniform.y, uniform.z, uniform.w);
+}
+
+void Eng3D::OpenGL::Program::set_uniform(const std::string& name, float value1, float value2, float value3, float value4) const {
+    glUniform4f(glGetUniformLocation(id, name.c_str()), value1, value2, value3, value4);
+}
+
+void Eng3D::OpenGL::Program::set_uniform(const std::string& name, float value) const {
+    glUniform1f(glGetUniformLocation(id, name.c_str()), value);
+}
+
+void Eng3D::OpenGL::Program::set_uniform(const std::string& name, int value) const {
+    glUniform1i(glGetUniformLocation(id, name.c_str()), value);
+}
+
+/// @brief Sets the texture (sampler2D) into the shader
+void Eng3D::OpenGL::Program::set_texture(int value, const std::string& name, const Eng3D::Texture& texture) const {
+    glActiveTexture(GL_TEXTURE0 + value);
+    set_uniform(name, value);
+    glBindTexture(GL_TEXTURE_2D, texture.gl_tex_num);
+}
+
+void Eng3D::OpenGL::Program::set_texture(int value, const std::string& name, const Eng3D::TextureArray& texture) const {
+    glActiveTexture(GL_TEXTURE0 + value);
+    set_uniform(name, value);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, texture.gl_tex_num);
+}
+
+unsigned int Eng3D::OpenGL::Program::get_id() const {
+    return this->id;
 }
 #endif

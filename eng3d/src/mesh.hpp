@@ -32,153 +32,61 @@
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 
-#ifdef E3D_BACKEND_OPENGL
-#   include <GL/glew.h>
-#   include <GL/gl.h>
-#elif defined E3D_BACKEND_GLES
-#   include <GLES3/gl3.h>
-#elif defined E3D_BACKEND_RGX
-#   include <gccore.h>
-#endif
-
 /// @todo We aren't deleting the OpenGL objects!!!!
-#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
 namespace Eng3D::OpenGL {
     class VAO {
-        GLuint id;
+        unsigned int id;
     public:
-        VAO(GLuint _id)
-            : id{ _id }
-        {
-
-        }
-
-        VAO() {
-            glGenVertexArrays(1, &id);
-        }
-
-        ~VAO() {
-            glDeleteVertexArrays(1, &id);
-        }
-
+        VAO(unsigned int _id);
+        VAO();
+        ~VAO();
         VAO(const VAO&) = delete;
-
-        VAO(VAO&& rhs) noexcept {
-            this->id = rhs.id;
-            rhs.id = 0;
-        }
-
-        VAO& operator=(VAO& rhs) {
-            this->id = rhs.id;
-            rhs.id = 0;
-            return *this;
-        }
-
-        inline void bind() const {
-            glBindVertexArray(id);
-        }
-
-        inline GLuint get_id() const {
-            return id;
-        }
+        VAO(VAO&& rhs) noexcept;
+        VAO& operator=(VAO& rhs);
+        void bind() const;
+        unsigned int get_id() const;
     };
 
     class VBO {
-        GLuint id;
+        unsigned int id;
     public:
-        VBO(GLuint _id)
-            : id{ _id }
-        {
-
-        }
-
-        VBO() {
-            glGenBuffers(1, &id);
-        }
-
-        ~VBO() {
-            glDeleteBuffers(1, &id);
-        }
-
+        VBO(unsigned int _id);
+        VBO();
+        ~VBO();
         VBO(const VBO&) = delete;
-
-        VBO(VBO&& rhs) noexcept {
-            this->id = rhs.id;
-            rhs.id = 0;
-        }
-
-        VBO& operator=(VBO& rhs) {
-            this->id = rhs.id;
-            rhs.id = 0;
-            return *this;
-        }
-
-        inline void bind() const {
-            glBindBuffer(GL_ARRAY_BUFFER, id);
-        }
-
-        inline GLuint get_id() const {
-            return id;
-        }
+        VBO(VBO&& rhs) noexcept;
+        VBO& operator=(VBO& rhs);
+        void bind() const;
+        unsigned int get_id() const;
     };
 
     class EBO {
-        GLuint id;
+        unsigned int id;
     public:
-        EBO(GLuint _id)
-            : id{ _id }
-        {
-
-        }
-
-        EBO() {
-            glGenBuffers(1, &id);
-        }
-
-        ~EBO() {
-            glDeleteBuffers(1, &id);
-        }
-
+        EBO(unsigned int _id);
+        EBO();
+        ~EBO();
         EBO(const EBO&) = delete;
-
-        EBO(EBO&& rhs) noexcept {
-            this->id = rhs.id;
-            rhs.id = 0;
-        }
-
-        EBO& operator=(EBO& rhs) {
-            this->id = rhs.id;
-            rhs.id = 0;
-            return *this;
-        }
-
-        inline void bind() const {
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
-        }
-
-        inline GLuint get_id() const {
-            return id;
-        }
+        EBO(EBO&& rhs) noexcept;
+        EBO& operator=(EBO& rhs);
+        void bind() const;
+        unsigned int get_id() const;
     };
 
     class Program;
 };
-#endif
 
 namespace Eng3D {
     enum class MeshMode {
-#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
-        TRIANGLE_FAN = GL_TRIANGLE_FAN,
-        TRIANGLE_STRIP = GL_TRIANGLE_STRIP,
-        TRIANGLES = GL_TRIANGLES,
-        LINES = GL_LINES,
-#elif defined E3D_BACKEND_RGX
-        TRIANGLE_FAN = 1,
-        TRIANGLE_STRIP = 2,
-        TRIANGLES = 3,
-        LINES = 4,
-#endif
+        TRIANGLE_FAN,
+        TRIANGLE_STRIP,
+        TRIANGLES,
+        LINES,
     };
+
+    void draw(const Eng3D::OpenGL::VAO& vao, MeshMode mode, const void* indices, size_t n_indices, const void* buffer, size_t n_buffer, int instances);
+    void upload(const Eng3D::OpenGL::VAO& vao, const Eng3D::OpenGL::VBO& vbo, const Eng3D::OpenGL::EBO& ebo, const void *buffer, size_t n_buffer, size_t sz_buffer, size_t sz_buffer_vert, size_t sz_buffer_tex, size_t v_len, size_t t_len, size_t c_len, const void *indices, size_t n_indices, size_t sz_indices, bool has_color);
+    void instancing(const Eng3D::OpenGL::VAO& vao, const Eng3D::OpenGL::VBO& i_vbo, const void* buffer, size_t index_size, int instances);
 
     template<typename V = glm::vec3, typename T = glm::vec2, typename C = void>
     struct MeshData {
@@ -191,6 +99,7 @@ namespace Eng3D {
         {
 
         }
+
         constexpr MeshData(V _vert, T _tex, C _color)
             : vert{ _vert },
             tex{ _tex },
@@ -235,7 +144,7 @@ namespace Eng3D {
         using DataType = Eng3D::MeshData<V, T, C>;
 
         Mesh(enum Eng3D::MeshMode _mode)
-            : mode(_mode),
+            : mode{ _mode },
             vao(),
             vbo(),
             ebo(),
@@ -248,75 +157,22 @@ namespace Eng3D {
         Mesh(Mesh&&) noexcept = default;
         Mesh& operator=(const Mesh&) = delete;
 
-#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         virtual void draw(int instances = 0) const {
-            vao.bind();
-            if(instances) {
-                // Instanced
-                if(!indices.empty())
-                    glDrawElementsInstanced(static_cast<GLenum>(mode), indices.size(), GL_UNSIGNED_INT, nullptr, instances);
-                else if(!buffer.empty())
-                    glDrawArraysInstanced(static_cast<GLenum>(mode), 0, buffer.size(), instances);
-            } else {
-                // Single-draw
-                if(!indices.empty())
-                    glDrawElements(static_cast<GLenum>(mode), indices.size(), GL_UNSIGNED_INT, nullptr);
-                else if(!buffer.empty())
-                    glDrawArrays(static_cast<GLenum>(mode), 0, buffer.size());
-            }
+            Eng3D::draw(vao, mode, indices.data(), indices.size(), buffer.data(), buffer.size(), instances);
         }
-
-        virtual void draw(const Eng3D::OpenGL::Program&, int instances = 0) const {
-            this->draw(instances);
-        }
-#else
-#   error not implemented
-#endif
 
         virtual void upload() const {
-#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
-            vao.bind();
-            vbo.bind();
-            glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(buffer[0]), &buffer[0], GL_STATIC_DRAW);
-            ebo.bind();
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices[0]), &indices[0], GL_STATIC_DRAW);
-
-            // Vertices
-            glVertexAttribPointer(0, V::length(), GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)0);
-            glEnableVertexAttribArray(0);
-
-            // Texcoords
-            constexpr int tex_stride = sizeof(buffer[0].vert);
-            glVertexAttribPointer(1, T::length(), GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)((uintptr_t)tex_stride));
-            glEnableVertexAttribArray(1);
-
-            if constexpr(DataType::has_color) {
-                // Color
-                constexpr int color_stride = tex_stride + sizeof(buffer[0].tex);
-                glVertexAttribPointer(2, C::length(), GL_FLOAT, GL_FALSE, sizeof(buffer[0]), (void*)((uintptr_t)color_stride));
-                glEnableVertexAttribArray(2);
-            }
-#else
-#   error not implemented
-#endif
+            size_t c_len = 0;
+            if constexpr(DataType::has_color) c_len += C::length();
+            Eng3D::upload(vao, vbo, ebo, buffer.data(), buffer.size(), sizeof(buffer[0]), sizeof(buffer[0].vert), sizeof(buffer[0].tex), V::length(), T::length(), c_len, indices.data(), indices.size(), sizeof(indices), DataType::has_color);
         }
 
         /// @brief Enables instances on this simple mesh
+        /// @param instances_buffer Contigous buffer with instances data
         /// @param instances Number of instances to configure for
         template<typename I = glm::vec2>
-        void instancing(I& buffer, int instances = 0) {
-            if(!instances) return;
-
-            vao.bind();
-            i_vbo.bind();
-            glBufferData(GL_ARRAY_BUFFER, sizeof(I) * instances, &buffer, GL_STATIC_DRAW);
-            glBindBuffer(GL_ARRAY_BUFFER, 0); 
-
-            glEnableVertexAttribArray(2);
-            i_vbo.bind();
-            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(I), (void*)0);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);	
-            glVertexAttribDivisor(2, 1);  
+        void instancing(I& instances_buffer, int instances = 0) {
+            Eng3D::instancing(vao, i_vbo, &instances_buffer, sizeof(I), instances);
         }
 
         std::vector<DataType> buffer;
