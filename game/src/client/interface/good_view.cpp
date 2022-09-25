@@ -102,7 +102,7 @@ GoodView::GoodView(GameState& _gs, Good& _good)
     good{ _good }
 {
     this->is_scroll = false;
-    this->text(_(good.name.get_string()));
+    this->text(good.name.get_string());
 
     this->set_close_btn_function([this](Widget&) {
         this->kill();

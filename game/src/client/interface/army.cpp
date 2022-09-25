@@ -146,7 +146,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, con
     this->province_lab = new UI::Label(0, 0, "?", this);
     this->province_lab->right_side_of(*this->unit_icon);
     this->province_lab->set_on_each_tick([this](UI::Widget& w) {
-        w.text(_(this->province.name.get_string()));
+        w.text(this->province.name.get_string());
     });
     this->province_lab->on_each_tick(*this->province_lab);
 
@@ -154,7 +154,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, con
     this->name_lab->right_side_of(*this->province_lab);
     this->name_lab->set_on_each_tick([this](UI::Widget& w) {
         auto& building = this->province.get_buildings()[this->idx];
-        w.text((building.working_unit_type != nullptr) ? _(building.working_unit_type->name.get_string()) : _("No unit"));
+        w.text((building.working_unit_type != nullptr) ? building.working_unit_type->name.get_string() : _("No unit"));
     });
     this->name_lab->on_each_tick(*this->name_lab);
 
@@ -171,7 +171,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, con
             full_req.second -= need_req.second;
             full += full_req.second;
             needed += need_req.second;
-            text += std::to_string(need_req.second) + " of " + _(need_req.first->name.get_string()) + " (has " + std::to_string(full_req.second) + "), ";
+            text += std::to_string(need_req.second) + " of " + need_req.first->name.get_string() + " (has " + std::to_string(full_req.second) + "), ";
         }
 
         ((UI::ProgressBar&)w).set_value((float)full / (float)needed);

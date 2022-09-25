@@ -322,12 +322,12 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
             auto landscape = row->get_element(row_index++);
             auto landscape_icon = this->gs.tex_man.load(gs.package_man.get_unique("gfx/terraintype/" + terrain_type.ref_name + ".png"));
             landscape->current_texture = landscape_icon;
-            auto landscape_tip = _(terrain_type.name.get_string());
+            auto landscape_tip = terrain_type.name.get_string();
             landscape->set_tooltip(landscape_tip);
             landscape->set_key(landscape_tip);
 
             auto name = row->get_element(row_index++);
-            auto name_str = _(terrain_type.name.get_string());
+            auto name_str = terrain_type.name.get_string();
             name->text(name_str);
             name->set_tooltip(name_str);
             name->set_key(name_str);

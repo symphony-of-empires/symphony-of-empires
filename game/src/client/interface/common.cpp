@@ -55,7 +55,7 @@ UnitButton::UnitButton(GameState& _gs, int x, int y, Unit& _unit, UI::Widget* _p
     unit{ _unit }
 {
     this->set_on_each_tick([this](UI::Widget& w) {
-        w.text(Eng3D::string_format("%zu %s", this->unit.size, _(this->unit.type->name.get_string())));
+        w.text(Eng3D::string_format("%zu %s", this->unit.size, this->unit.type->name.get_string()));
     });
     this->on_each_tick(*this);
 }
@@ -107,7 +107,7 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation& _nation, UI::Wi
     this->name_btn->set_on_each_tick([](UI::Widget& w) {
         auto& o = static_cast<NationButton&>(*w.parent);
         if(o.gs.world->time % o.gs.world->ticks_per_month) return;
-        w.text(_(o.nation.get_client_hint().alt_name.get_string()));
+        w.text(o.nation.get_client_hint().alt_name.get_string());
     });
 }
 
@@ -190,7 +190,7 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology& _techno
             std::string text = _("We can't research this because we don't have ");
             for(const auto& req_tech_id : this->technology.req_technologies) {
                 if(this->gs.curr_nation->research[req_tech_id] > 0.f)
-                    text += _(this->gs.world->technologies[req_tech_id].name.get_string()) + ", ";
+                    text += this->gs.world->technologies[req_tech_id].name.get_string() + ", ";
             }
             w.set_tooltip(text);
         }
@@ -221,7 +221,7 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province& _province, Good
         new GoodView(o.gs, o.good);
     });
     this->good_ibtn->set_tooltip(new UI::Tooltip(this->good_ibtn, 512, 24));
-    this->good_ibtn->tooltip->text(_(good.name.get_string()));
+    this->good_ibtn->tooltip->text(good.name.get_string());
 
     this->price_rate_btn = new UI::Button(0, 0, 96, 24, this);
     this->price_rate_btn->right_side_of(*this->good_ibtn);

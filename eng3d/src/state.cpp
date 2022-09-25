@@ -188,9 +188,11 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
 
     // Handle SIGPIPE for networking code
     struct sigaction sa = (struct sigaction){ [](int) {
-        Eng3D::Log::debug("sigpipe", "Caught sigpipe");
+        Eng3D::Log::debug("sigpipe", _("Caught a pipe signal"));
     } };
     sigaction(SIGPIPE, &sa, NULL);
+
+    std::string canonical_name = _("Symphony of Empires");
 
     // Startup-initialization of SDL
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
@@ -210,9 +212,9 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
 #endif
     Eng3D::Log::debug("sdl2", "New window " + std::to_string(s.width) + "x" + std::to_string(s.height));
 #ifdef E3D_TARGET_SWITCH
-    s.window = SDL_CreateWindow("Symphony of Empires", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, s.width, s.height, SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_RESIZABLE);
+    s.window = SDL_CreateWindow(canonical_name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, s.width, s.height, SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_RESIZABLE);
 #else
-    s.window = SDL_CreateWindow("Symphony of Empires", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, s.width, s.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    s.window = SDL_CreateWindow(canonical_name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, s.width, s.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 #endif
     if(s.window == nullptr)
         CXX_THROW(std::runtime_error, std::string() + "Failed to init SDL window " + SDL_GetError());
@@ -223,11 +225,11 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
         CXX_THROW(std::runtime_error, std::string() + "Failed to init SDL context " + SDL_GetError());
     SDL_GL_SetSwapInterval(1);
 
-    Eng3D::Log::debug("opengl", std::string() + "OpenGL Version: " + (const char*)glGetString(GL_VERSION));
+    Eng3D::Log::debug("opengl", Eng3D::string_format(_("OpenGL Version: %s"), (const char*)glGetString(GL_VERSION)));
 #   ifdef E3D_BACKEND_OPENGL
     glewExperimental = GL_TRUE;
     if(glewInit() != GLEW_OK)
-        CXX_THROW(std::runtime_error, "Failed to init GLEW");
+        CXX_THROW(std::runtime_error, _("Failed to init GLEW"));
 #   endif
 
     GLint size;

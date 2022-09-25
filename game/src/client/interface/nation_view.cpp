@@ -91,7 +91,7 @@ Interface::NationView::NationView(GameState& _gs, Nation& _nation)
     auto* ideology_img = new UI::Image(0, 0, 24, 24, this);
     ideology_img->set_on_each_tick([this](UI::Widget& w) {
         ((UI::Image&)w).current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/ideology/" + this->nation.get_client_hint().ideology->ref_name.get_string() + ".png"));
-        w.set_tooltip(_(this->nation.get_client_hint().ideology->ref_name.get_string()));
+        w.set_tooltip(this->nation.get_client_hint().ideology->ref_name.get_string());
     });
     ideology_img->on_each_tick(*ideology_img);
     
