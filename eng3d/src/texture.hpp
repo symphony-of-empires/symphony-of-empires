@@ -184,7 +184,7 @@ namespace Eng3D {
     public:
         TextureManager() = delete;
         TextureManager(Eng3D::State& s);
-        ~TextureManager() = default;
+        ~TextureManager();
         std::shared_ptr<Eng3D::Texture> load(const std::string& path, TextureOptions options = default_options);
         std::shared_ptr<Eng3D::Texture> load(std::shared_ptr<Eng3D::IO::Asset::Base> asset, TextureOptions options = default_options);
         std::shared_ptr<Eng3D::Texture> gen_text(Eng3D::TrueType::Font& font, Eng3D::Color color, const std::string& msg);

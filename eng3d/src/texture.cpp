@@ -253,7 +253,6 @@ void Eng3D::Texture::_upload(SDL_Surface* surface) {
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 #endif
     this->gen_mipmaps();
-
     SDL_FreeSurface(surface);
 }
 
@@ -354,6 +353,18 @@ Eng3D::TextureManager::TextureManager(Eng3D::State& _s)
 
 }
 
+Eng3D::TextureManager::~TextureManager()
+{
+    const std::scoped_lock lock(this->unuploaded_lock);
+    // Surfaces have to be properly deallocated before calling SDL_Quit()
+    for(auto& request : this->unuploaded_textures) {
+        if(request.surface != nullptr) {
+            SDL_FreeSurface(request.surface);
+            request.surface = nullptr;
+        }
+    }
+}
+
 std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::get_white() {
     if(white.get() == nullptr) {
         white = std::make_shared<Eng3D::Texture>(1, 1);
@@ -400,7 +411,7 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::gen_text(Eng3D::TrueType:
 
     // Find texture when wanting to be loaded and load texture from cached texture list
     auto it = text_textures.find(msg);
-    if(it != text_textures.end()) return (*it).second;
+    if(it != text_textures.end()) return it->second;
 
     Eng3D::Log::debug("texture", "Loaded and cached text texture for " + msg);
 
@@ -431,6 +442,7 @@ void Eng3D::TextureManager::upload() {
         auto request = *it;
         if(request.surface != nullptr) {
             request.texture->_upload(request.surface);
+            request.surface = nullptr;
         } else {
             request.texture->_upload(request.options);
         }
