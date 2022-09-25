@@ -24,7 +24,6 @@
 
 #include "eng3d/texture.hpp"
 #include "eng3d/ui/components.hpp"
-#include "eng3d/locale.hpp"
 #include "eng3d/ttf.hpp"
 #include "eng3d/string.hpp"
 
@@ -63,25 +62,25 @@ TopWindow::TopWindow(GameState& _gs)
     score_flex_column->flex = UI::Flex::COLUMN;
     auto* money_lab = new UI::Label(0, 0, " ", score_flex_column);
     money_lab->set_on_each_tick([this](UI::Widget& w) {
-        w.text(string_format(translate("Money: %8.2f"), this->gs.curr_nation->budget));
+        w.text(Eng3D::translate_format("Money: %8.2f", this->gs.curr_nation->budget));
     });
     money_lab->on_each_tick(*money_lab);
 
     auto* military_score_lab = new UI::Label(0, 0, " ", score_flex_column);
     military_score_lab->set_on_each_tick([this](UI::Widget& w) {
-        w.text(string_format(translate("Military: %8.2f"), this->gs.curr_nation->military_score));
+        w.text(Eng3D::translate_format("Military: %8.2f", this->gs.curr_nation->military_score));
     });
     military_score_lab->on_each_tick(*military_score_lab);
 
     auto* industrial_score_lab = new UI::Label(0, 0, " ", score_flex_column);
     industrial_score_lab->set_on_each_tick([this](UI::Widget& w) {
-        w.text(string_format(translate("Industrial: %8.2f"), this->gs.curr_nation->economy_score));
+        w.text(Eng3D::translate_format("Industrial: %8.2f", this->gs.curr_nation->economy_score));
     });
     industrial_score_lab->on_each_tick(*industrial_score_lab);
 
     auto* prestige_score_lab = new UI::Label(0, 0, " ", score_flex_column);
     prestige_score_lab->set_on_each_tick([this](UI::Widget& w) {
-        w.text(string_format(translate("Prestige: %8.2f"), this->gs.curr_nation->prestige));
+        w.text(Eng3D::translate_format("Prestige: %8.2f", this->gs.curr_nation->prestige));
     });
     prestige_score_lab->on_each_tick(*prestige_score_lab);
 

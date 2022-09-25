@@ -31,7 +31,7 @@
 #include "eng3d/ui/checkbox.hpp"
 #include "eng3d/ui/tooltip.hpp"
 #include "eng3d/ui/progress_bar.hpp"
-#include "eng3d/locale.hpp"
+#include "eng3d/string.hpp"
 #include "eng3d/string.hpp"
 
 #include "client/interface/common.hpp"

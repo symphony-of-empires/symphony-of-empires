@@ -29,7 +29,7 @@
 #include "eng3d/ui/widget.hpp"
 #include "eng3d/ui/components.hpp"
 #include "eng3d/state.hpp"
-#include "eng3d/locale.hpp"
+#include "eng3d/string.hpp"
 
 Eng3D::Interface::ProfilerView::ProfilerView(Eng3D::State& _s, Eng3D::Profiler& _profiler)
     : UI::Window(0, 0, 240, _s.width, nullptr),

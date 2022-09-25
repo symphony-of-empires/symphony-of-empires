@@ -49,7 +49,7 @@ std::string Eng3D::IO::Asset::Base::get_abs_path() const {
 void Eng3D::IO::Asset::File::open() {
     this->fp = ::fopen(abs_path.c_str(), "rb");
     if(fp == nullptr)
-        CXX_THROW(std::runtime_error, string_format(translate("Can't open file %s"), path.c_str()));
+        CXX_THROW(std::runtime_error, Eng3D::translate_format("Can't open file %s", path.c_str()));
 }
 
 void Eng3D::IO::Asset::File::close() {

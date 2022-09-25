@@ -142,7 +142,7 @@ void Eng3D::OpenGL::Program::link() {
         std::string shader_error_info;
         shader_error_info.resize(infoLen);
         glGetShaderInfoLog(id, infoLen, NULL, &shader_error_info[0]);
-        Eng3D::Log::error("shader", std::string() + "Program error " + shader_error_info);
+        Eng3D::Log::error("shader", Eng3D::translate_format("Shader program error %s", shader_error_info));
     }
 }
 #endif

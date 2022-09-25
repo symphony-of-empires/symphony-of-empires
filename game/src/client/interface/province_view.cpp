@@ -23,7 +23,6 @@
 // ----------------------------------------------------------------------------
 
 #include "eng3d/texture.hpp"
-#include "eng3d/locale.hpp"
 #include "eng3d/string.hpp"
 #include "eng3d/ui/piechart.hpp"
 #include "eng3d/ui/label.hpp"
@@ -147,7 +146,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
             auto* budget = row->get_element(row_index++);
             auto budget_str = string_format("%.0f", pop.budget / pop.size);
             budget->text(budget_str);
-            auto budget_tip = string_format(translate("Total budget: %.2f"), pop.budget);
+            auto budget_tip = Eng3D::translate_format("Total budget: %.2f", pop.budget);
             budget->set_tooltip(budget_tip);
             budget->set_key(pop.budget / pop.size);
 
@@ -255,7 +254,7 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province&
             auto scale_str = string_format("%.0f", building.production_scale * building.level);
             scale->text(scale_str);
             scale->set_key(building.production_scale * building.level);
-            scale->set_tooltip(string_format(translate("Allowed production scale, (scale * level) = (%.0f * %.0f) = %.0f"), building.production_scale, building.level, building.production_scale * building.level));
+            scale->set_tooltip(Eng3D::translate_format("Allowed production scale, (scale * level) = (%.0f * %.0f) = %.0f", building.production_scale, building.level, building.production_scale * building.level));
 
             auto* upgrade = row->get_element(row_index++);
             upgrade->text("+");

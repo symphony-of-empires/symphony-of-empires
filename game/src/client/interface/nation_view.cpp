@@ -23,7 +23,7 @@
 // ----------------------------------------------------------------------------
 
 #include "eng3d/ui/components.hpp"
-#include "eng3d/locale.hpp"
+#include "eng3d/string.hpp"
 
 #include "client/interface/nation_view.hpp"
 #include "client/client_network.hpp"

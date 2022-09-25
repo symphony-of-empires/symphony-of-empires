@@ -136,3 +136,22 @@ namespace Eng3D {
     }
 };
 using Eng3D::string_format;
+
+namespace Eng3D::Locale {
+    void from_file(const std::string& filename);
+    std::string translate(const std::string& str);
+}
+using Eng3D::Locale::translate;
+
+namespace Eng3D {
+    /// @brief String formatter, with translation
+    /// @tparam Args Formatting argument type list
+    /// @param format C-formatting string
+    /// @param args Arguments for formatting
+    /// @return std::string The resulting formatted text
+    template<typename ... Args>
+    std::string translate_format(const std::string& format, Args ... args) {
+        return Eng3D::string_format(Eng3D::Locale::translate(format), args ...);
+    }
+};
+using Eng3D::translate_format;

@@ -256,7 +256,7 @@ Eng3D::Networking::Server::Server(const unsigned port, const unsigned max_conn)
     signal(SIGPIPE, SIG_IGN);
 #endif
     this->run = true;
-    Eng3D::Log::debug("server", string_format(translate("Server listening on IP port :%u"), port));
+    Eng3D::Log::debug("server", Eng3D::translate_format("Server listening on IP port *::%u", port));
 }
 
 Eng3D::Networking::Server::~Server() {
@@ -297,7 +297,7 @@ void Eng3D::Networking::Server::broadcast(const Eng3D::Networking::Packet& packe
 
             if(total_size >= 200 * 1000) {
                 clients[i].is_connected = false;
-                Eng3D::Log::debug("server", string_format(translate("Client#%zu has exceeded max quota (%zu bytes)"), i, total_size));
+                Eng3D::Log::debug("server", Eng3D::translate_format("Client#%zu has exceeded max quota (%zu bytes)", i, total_size));
             }
         }
     }
@@ -311,7 +311,7 @@ Eng3D::Networking::Client::Client(std::string host, const unsigned port) {
 #ifdef E3D_TARGET_WINDOWS
     WSADATA data;
     if(WSAStartup(MAKEWORD(2, 2), &data) != 0) {
-        Eng3D::Log::error("network", string_format(translate("WSA code %s"), WSAGetLastError()));
+        Eng3D::Log::error("network", Eng3D::translate_format("WSA code %s", WSAGetLastError()));
         CXX_THROW(Eng3D::Networking::SocketException, "Can't start WSA subsystem");
     }
 #endif
@@ -324,7 +324,7 @@ Eng3D::Networking::Client::Client(std::string host, const unsigned port) {
     fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(fd == INVALID_SOCKET) {
 #ifdef E3D_TARGET_WINDOWS
-        Eng3D::Log::error("network", string_format(translate("WSA code %s"), WSAGetLastError()));
+        Eng3D::Log::error("network", Eng3D::translate_format("WSA code %s", WSAGetLastError()));
         WSACleanup();
 #endif
         CXX_THROW(Eng3D::Networking::SocketException, "Can't create client socket");
@@ -334,7 +334,7 @@ Eng3D::Networking::Client::Client(std::string host, const unsigned port) {
 #ifdef E3D_TARGET_UNIX
         close(fd);
 #elif defined E3D_TARGET_WINDOWS
-        Eng3D::Log::error("network", string_format(translate("WSA code %s"), WSAGetLastError()));
+        Eng3D::Log::error("network", Eng3D::translate_format("WSA code %s", WSAGetLastError()));
         closesocket(fd);
 #endif
         CXX_THROW(Eng3D::Networking::SocketException, "Can't connect to server");

@@ -22,7 +22,6 @@
 // ----------------------------------------------------------------------------
 
 #include "eng3d/string.hpp"
-#include "eng3d/locale.hpp"
 #include "eng3d/ui/table.hpp"
 #include "eng3d/ui/label.hpp"
 #include "eng3d/ui/image.hpp"
@@ -88,7 +87,7 @@ PopWindow::PopWindow(GameState& gs)
                 auto budget = row->get_element(row_index++);
                 budget->text(string_format("%.0f", pop.budget / pop.size));
                 budget->set_key(pop.budget / pop.size);
-                budget->set_tooltip(string_format(translate("Total budget: %.2f"), pop.budget));
+                budget->set_tooltip(Eng3D::translate_format("Total budget: %.2f", pop.budget));
             }
         }
     });

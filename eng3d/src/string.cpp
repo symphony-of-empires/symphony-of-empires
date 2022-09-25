@@ -22,7 +22,10 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#include <unordered_map>
+#include <cstring>
 #include <mutex>
+#include <memory>
 #include "eng3d/string.hpp"
 
 //
@@ -53,4 +56,30 @@ Eng3D::StringManager::StringManager(Eng3D::State& _s)
 Eng3D::StringManager& Eng3D::StringManager::get_instance()
 {
     return *g_string_man;
+}
+
+static std::unordered_map<std::string, std::string> trans_msg;
+static std::mutex trans_lock;
+void Eng3D::Locale::from_file(const std::string& filename) {
+    std::unique_ptr<FILE, decltype(&fclose)> fp(fopen(filename.c_str(), "rt"), fclose);
+    char tmp[100];
+    while(fgets(tmp, 1000, fp.get()) != nullptr) {
+        if(!strncmp(tmp, "msgid", 5)) {
+            char msgid[100];
+            sscanf(tmp + 5, " %*c%[^\"]s%*c ", msgid);
+            fgets(tmp, 1000, fp.get());
+            if(!strncmp(tmp, "msgstr", 6)) {
+                char msgstr[100];
+                sscanf(tmp + 6, " %*c%[^\"]s%*c ", msgstr);
+                trans_msg[msgid] = msgstr;
+            }
+        }
+    }
+}
+
+std::string Eng3D::Locale::translate(const std::string& str) {
+    std::scoped_lock lock(trans_lock);
+    if(trans_msg[str].empty())
+        return str;
+    return trans_msg[str];
 }

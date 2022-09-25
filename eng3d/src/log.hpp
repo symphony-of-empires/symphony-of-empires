@@ -34,4 +34,3 @@ namespace Eng3D::Log {
 }
 
 #include "eng3d/string.hpp"
-#include "eng3d/locale.hpp"

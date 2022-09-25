@@ -32,7 +32,7 @@
 #include "eng3d/ui/label.hpp"
 #include "eng3d/ui/image.hpp"
 #include "eng3d/ui/scrollbar.hpp"
-#include "eng3d/locale.hpp"
+#include "eng3d/string.hpp"
 
 using namespace Interface;
 

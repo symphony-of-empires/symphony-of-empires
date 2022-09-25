@@ -25,7 +25,7 @@
 #include <iostream>
 
 #include "eng3d/state.hpp"
-#include "eng3d/locale.hpp"
+#include "eng3d/string.hpp"
 #include "eng3d/event.hpp"
 #include "eng3d/profiler.hpp"
 #include "eng3d/interface.hpp"

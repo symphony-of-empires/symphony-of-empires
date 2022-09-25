@@ -23,7 +23,7 @@
 // ----------------------------------------------------------------------------
 
 #include "eng3d/texture.hpp"
-#include "eng3d/locale.hpp"
+#include "eng3d/string.hpp"
 #include "eng3d/ui/piechart.hpp"
 #include "eng3d/ui/image.hpp"
 #include "eng3d/ui/label.hpp"

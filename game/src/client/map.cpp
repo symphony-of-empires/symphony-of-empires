@@ -48,7 +48,7 @@
 #include "eng3d/framebuffer.hpp"
 #include "eng3d/model.hpp"
 #include "eng3d/serializer.hpp"
-#include "eng3d/locale.hpp"
+#include "eng3d/string.hpp"
 #include "eng3d/log.hpp"
 #include "eng3d/orbit_camera.hpp"
 #include "eng3d/flat_camera.hpp"

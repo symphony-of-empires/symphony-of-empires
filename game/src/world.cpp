@@ -41,7 +41,7 @@
 #include "eng3d/serializer.hpp"
 #include "eng3d/state.hpp"
 #include "eng3d/utils.hpp"
-#include "eng3d/locale.hpp"
+#include "eng3d/string.hpp"
 
 #include "io_impl.hpp"
 #include "province.hpp"

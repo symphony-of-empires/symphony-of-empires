@@ -36,7 +36,7 @@
 #include "eng3d/ui/text.hpp"
 #include "eng3d/ui/progress_bar.hpp"
 #include "eng3d/audio.hpp"
-#include "eng3d/locale.hpp"
+#include "eng3d/string.hpp"
 #include "eng3d/event.hpp"
 #include "eng3d/serializer.hpp"
 #include "eng3d/material.hpp"
@@ -322,26 +322,6 @@ extern "C" void game_main(int argc, char** argv) {
     gs.loaded_map = false;
     gs.load_progress = 0.f;
     std::thread load_world_th(&GameState::load_world_thread, &gs);
-#if 0
-    {
-        std::unique_ptr<FILE, int (*)(FILE*)> fp(fopen(Path::get("locale/es/main.po").c_str(), "rt"), fclose);
-        std::unique_ptr<char[]> tmp(new char[1000]);
-        while(fgets(tmp.get(), 1000, fp.get()) != nullptr) {
-            if(!strncmp(tmp.get(), "msgid", 5)) {
-                std::unique_ptr<char[]> msgid(new char[100]);
-                sscanf(tmp.get() + 5, " %*c%[^\"]s%*c ", msgid.get());
-                fgets(tmp.get(), 1000, fp.get());
-                if(!strncmp(tmp.get(), "msgstr", 6)) {
-                    std::unique_ptr<char[]> msgstr(new char[100]);
-                    sscanf(tmp.get() + 6, " %*c%[^\"]s%*c ", msgstr.get());
-                    trans_msg[msgid.get()] = msgstr.get();
-                }
-            }
-        }
-        for(const auto& [key, value] : trans_msg)
-            Eng3D::Log::debug("trans", key + "=" + value);
-    }
-#endif
 
     auto map_layer = new UI::Group(0, 0);
     map_layer->managed = false;

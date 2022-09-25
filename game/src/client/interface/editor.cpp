@@ -50,5 +50,5 @@ EventEditorWindow::EventEditorWindow(GameState& _gs, Event* _event)
     gs{ _gs },
     event{ _event }
 {
-    this->text(string_format(translate("Editing event %s"), this->event->title));
+    this->text(Eng3D::translate_format("Editing event %s", this->event->title));
 }

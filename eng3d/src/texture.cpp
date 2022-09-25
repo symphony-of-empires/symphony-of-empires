@@ -423,7 +423,7 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::gen_text(Eng3D::TrueType:
         static_cast<Uint8>(color.b * 255.f), 0 };
     auto* surface = TTF_RenderUTF8_Blended(static_cast<TTF_Font*>(font.sdl_font), msg.c_str(), white_color);
     if(surface == nullptr)
-        CXX_THROW(std::runtime_error, std::string() + "Cannot create text surface: " + TTF_GetError());
+        CXX_THROW(std::runtime_error, Eng3D::translate_format("Cannot create text surface: %s", TTF_GetError()));
     Eng3D::Log::debug("ttf", "Sucessfully created text");
     tex->managed = true;
     // Required so UI widgets can resize properly!

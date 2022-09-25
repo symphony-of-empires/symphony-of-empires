@@ -31,7 +31,6 @@
 #include "eng3d/ui/tooltip.hpp"
 #include "eng3d/ui/div.hpp"
 #include "eng3d/ui/label.hpp"
-#include "eng3d/locale.hpp"
 
 #include "client/interface/minimap.hpp"
 #include "client/map.hpp"
@@ -234,9 +233,9 @@ mapmode_tooltip good_tooltip(Good::Id good_id) {
             return "";
         const auto& product = province.products[good_id]; 
         std::string str;
-        str += string_format(translate("Price: %.2f\n"), product.price);
-        str += string_format(translate("Demand: %.2f\n"), product.demand);
-        str += string_format(translate("Supply: %.2f\n"), product.supply);
+        str += Eng3D::translate_format("Price: %.2f\n", product.price);
+        str += Eng3D::translate_format("Demand: %.2f\n", product.demand);
+        str += Eng3D::translate_format("Supply: %.2f\n", product.supply);
         return str;
     };
 }
