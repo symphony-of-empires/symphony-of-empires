@@ -307,12 +307,12 @@ mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
             return "";
         
         if(Nation::is_valid(province.controller_id) && province.controller_id == province.owner_id) {
-            str += Eng3D::Locale::translate(province_controller.get_client_hint().alt_name.get_string());
+            str += _(province_controller.get_client_hint().alt_name.get_string());
         } else if(Nation::is_valid(province.owner_id)) {
-            str += Eng3D::Locale::translate("Owned by") + " ";
-            str += Eng3D::Locale::translate(world.nations[province.owner_id].get_client_hint().alt_name.get_string());
-            str += " " + Eng3D::Locale::translate("controlled by") + " ";
-            str += Eng3D::Locale::translate(province_controller.get_client_hint().alt_name.get_string());
+            str += _("Owned by") + " ";
+            str += _(world.nations[province.owner_id].get_client_hint().alt_name.get_string());
+            str += " " + _("controlled by") + " ";
+            str += _(province_controller.get_client_hint().alt_name.get_string());
         }
         str += " ";
 
@@ -343,18 +343,18 @@ mapmode_tooltip relations_tooltip(Nation::Id nation_id) {
             str += std::to_string(relation.relation) + "(" + rel_lvls[idx % rel_lvls.size()] + ")";
 
             int ally_cnt = 0;
-            str += Eng3D::Locale::translate("Allied with") + " ";
+            str += _("Allied with") + " ";
             for(const auto& nation : world.nations) {
                 if(province.controller_id == nation.get_id()) continue;
                 const auto& relation = world.get_relation(province.controller_id, world.get_id(nation));
                 if(relation.is_allied()) {
-                    str += Eng3D::Locale::translate(nation.get_client_hint().alt_name.get_string());
+                    str += _(nation.get_client_hint().alt_name.get_string());
                     str += ", ";
                     ally_cnt++;
                 }
             }
             if(ally_cnt == 0) {
-                str += Eng3D::Locale::translate("nobody");
+                str += _("nobody");
             }
         }
         return str;

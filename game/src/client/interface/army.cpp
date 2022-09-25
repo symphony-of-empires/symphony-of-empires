@@ -162,19 +162,16 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, con
     progress_pgbar->below_of(*this->name_lab);
     progress_pgbar->set_on_each_tick([this](UI::Widget& w) {
         auto& building = this->province.get_buildings()[this->idx];
-        if(!building.working_unit_type)
-            return;
-        
-        std::string text = "";
-        size_t full = 0, needed = 0;
-        text = "Needs ";
+        if(!building.working_unit_type) return;
+        auto full = 0.f, needed = 0.f;
+        std::string text = "Needs ";
         for(Good::Id i = 0; i < building.req_goods_for_unit.size(); i++) {
             auto need_req = building.req_goods_for_unit[i];
             auto full_req = building.working_unit_type->req_goods[i];
             full_req.second -= need_req.second;
             full += full_req.second;
             needed += need_req.second;
-            text += std::to_string(need_req.second) + " of " + Eng3D::Locale::translate(need_req.first->name.get_string()) + " (has " + std::to_string(full_req.second) + "), ";
+            text += std::to_string(need_req.second) + " of " + _(need_req.first->name.get_string()) + " (has " + std::to_string(full_req.second) + "), ";
         }
 
         ((UI::ProgressBar&)w).set_value((float)full / (float)needed);
