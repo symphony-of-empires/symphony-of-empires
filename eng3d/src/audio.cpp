@@ -72,7 +72,9 @@ Eng3D::AudioManager::AudioManager(Eng3D::State& _s)
 }
 
 Eng3D::AudioManager::~AudioManager() {
+    SDL_PauseAudio(1);
     SDL_CloseAudio();
+    SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
 void Eng3D::AudioManager::mixaudio(void* userdata, uint8_t* stream, int len) {

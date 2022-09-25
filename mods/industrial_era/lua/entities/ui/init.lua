@@ -30,7 +30,7 @@ function unit_type_button(x, y, unit_type_ref_name, parent_id)
     icon_img:set_image("gfx/unittype/" .. unit_type.ref_name .. ".png")
 
     local name_btn = UI_Button:new(32, 0, width - 32, 24)
-    name_btn:text(_(unit_type.name))
+    name_btn:text(unit_type.name)
 
     -- Save on global table
     ui_unit_types[unit_type_btn.id] = unit_type
@@ -44,7 +44,7 @@ function province_button(x, y, province_ref_name, parent_id)
     local width = UI_Widget:get(parent_id).width
 
     local province_btn = UI_Button:new(x, y, width, 24, parent_id)
-    province_btn:text(_(province.name))
+    province_btn:text(province.name)
 
     -- Save on global table
     ui_provinces[province_btn.id] = province

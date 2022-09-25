@@ -304,7 +304,7 @@ extern "C" void game_main(int argc, char** argv) {
         if(arg == "--mod") {
             i++;
             if(i >= argc)
-                CXX_THROW(std::runtime_error, "Expected an absolute path after --mod");
+                CXX_THROW(std::runtime_error, _("Expected an absolute path after --mod"));
             arg = std::string(argv[i]);
             pkg_paths.push_back(arg);
         }

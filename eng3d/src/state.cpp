@@ -281,6 +281,7 @@ Eng3D::Installer::~Installer()
     SDL_GL_DeleteContext(s.context);
 #endif
     SDL_DestroyWindow(s.window);
+    SDL_QuitSubSystem(SDL_INIT_VIDEO);
     SDL_Quit();
 #ifdef E3D_TARGET_SWITCH
     // Make sure to gracefully unmount
