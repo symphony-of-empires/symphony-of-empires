@@ -228,8 +228,9 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     Eng3D::Log::debug("opengl", Eng3D::string_format(_("OpenGL Version: %s"), (const char*)glGetString(GL_VERSION)));
 #   ifdef E3D_BACKEND_OPENGL
     glewExperimental = GL_TRUE;
-    if(glewInit() != GLEW_OK)
-        CXX_THROW(std::runtime_error, _("Failed to init GLEW"));
+    int r = glewInit();
+    if(r != GLEW_OK)
+        CXX_THROW(std::runtime_error, Eng3D::string_format(_("Failed to init GLEW %s"), glewGetErrorString(r)));
 #   endif
 
     GLint size;
