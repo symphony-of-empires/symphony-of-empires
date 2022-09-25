@@ -38,7 +38,6 @@
 #include "eng3d/audio.hpp"
 #include "eng3d/locale.hpp"
 #include "eng3d/event.hpp"
-#include "eng3d/path.hpp"
 #include "eng3d/serializer.hpp"
 #include "eng3d/material.hpp"
 #include "eng3d/model.hpp"

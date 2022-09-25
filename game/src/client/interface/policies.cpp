@@ -22,14 +22,12 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#include "eng3d/serializer.hpp"
+#include "eng3d/ui/components.hpp"
+#include "eng3d/texture.hpp"
 #include "client/interface/policies.hpp"
 #include "client/client_network.hpp"
-#include "eng3d/serializer.hpp"
 #include "io_impl.hpp"
-#include "eng3d/ui/components.hpp"
-
-#include "eng3d/texture.hpp"
-#include "eng3d/path.hpp"
 
 using namespace Interface;
 

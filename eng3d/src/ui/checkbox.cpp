@@ -24,8 +24,6 @@
 
 #include "eng3d/ui/checkbox.hpp"
 #include "eng3d/ui/div.hpp"
-
-#include "eng3d/path.hpp"
 #include "eng3d/texture.hpp"
 #include "eng3d/state.hpp"
 

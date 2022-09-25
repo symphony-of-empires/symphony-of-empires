@@ -23,7 +23,6 @@
 // ----------------------------------------------------------------------------
 
 #include <unordered_map>
-#include "eng3d/path.hpp"
 #include "eng3d/string.hpp"
 #include "eng3d/texture.hpp"
 #include "eng3d/ui/button.hpp"

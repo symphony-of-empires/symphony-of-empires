@@ -59,7 +59,6 @@
 #include <SDL_joystick.h>
 
 #include "eng3d/state.hpp"
-#include "eng3d/path.hpp"
 #include "eng3d/io.hpp"
 #include "eng3d/audio.hpp"
 #include "eng3d/texture.hpp"

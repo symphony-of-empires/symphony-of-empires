@@ -41,7 +41,6 @@
 #include "eng3d/primitive.hpp"
 #include "eng3d/shader.hpp"
 #include "eng3d/framebuffer.hpp"
-#include "eng3d/path.hpp"
 #include "eng3d/state.hpp"
 #include "eng3d/utils.hpp"
 #include "eng3d/log.hpp"

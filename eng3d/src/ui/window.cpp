@@ -27,7 +27,6 @@
 #include "eng3d/ui/div.hpp"
 #include "eng3d/ui/ui.hpp"
 #include "eng3d/state.hpp"
-#include "eng3d/path.hpp"
 #include "eng3d/texture.hpp"
 
 using namespace UI;

@@ -25,7 +25,6 @@
 // ----------------------------------------------------------------------------
 
 #include <filesystem>
-#include "eng3d/path.hpp"
 #include "eng3d/io.hpp"
 #include "eng3d/state.hpp"
 #include "eng3d/utils.hpp"
@@ -104,6 +103,18 @@ void Eng3D::IO::PackageManager::recursive_filesystem_walk(Eng3D::IO::Package& pa
     }
 }
 
+static inline std::string get_full_path() {
+#ifndef E3D_TARGET_SWITCH
+#   ifdef NO_COPY_MODS
+    return "../mods/";
+#   else
+    return "./mods/";
+#   endif
+#else
+    return "romfs:/";
+#endif
+}
+
 //
 // PackageManager
 //
@@ -111,7 +122,7 @@ Eng3D::IO::PackageManager::PackageManager(Eng3D::State& _s, const std::vector<st
     : s{ _s }
 {
     if(pkg_paths.empty()) {
-        const std::string asset_path = ::Path::get_full();
+        const std::string asset_path = get_full_path();
         // All folders inside mods/
         for(const auto& entry : std::filesystem::directory_iterator(asset_path)) {
             if(!entry.is_directory()) continue;

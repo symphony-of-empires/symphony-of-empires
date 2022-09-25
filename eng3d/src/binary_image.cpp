@@ -35,7 +35,6 @@ extern "C" {
 }
 
 #include "eng3d/binary_image.hpp"
-#include "eng3d/path.hpp"
 #include "eng3d/utils.hpp"
 #include "eng3d/io.hpp"
 #include "eng3d/state.hpp"

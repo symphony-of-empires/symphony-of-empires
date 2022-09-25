@@ -38,7 +38,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/mat4x4.hpp>
 
-#include "eng3d/path.hpp"
 #include "eng3d/texture.hpp"
 #include "eng3d/glsl_trans.hpp"
 #include "eng3d/utils.hpp"

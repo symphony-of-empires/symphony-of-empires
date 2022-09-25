@@ -25,7 +25,6 @@
 #include <glm/mat4x4.hpp>
 
 #include "eng3d/rivers.hpp"
-#include "eng3d/path.hpp"
 #include "eng3d/texture.hpp"
 #include "eng3d/state.hpp"
 #include "eng3d/curve.hpp"

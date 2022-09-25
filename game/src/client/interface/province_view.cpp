@@ -22,7 +22,6 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "eng3d/path.hpp"
 #include "eng3d/texture.hpp"
 #include "eng3d/locale.hpp"
 #include "eng3d/string.hpp"

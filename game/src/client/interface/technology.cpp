@@ -22,7 +22,6 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "eng3d/path.hpp"
 #include "eng3d/texture.hpp"
 #include "eng3d/ui/image.hpp"
 #include "eng3d/ui/close_button.hpp"

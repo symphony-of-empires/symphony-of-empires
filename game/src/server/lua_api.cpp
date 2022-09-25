@@ -30,7 +30,6 @@
 #include <cstdlib>
 #include <cassert>
 
-#include "eng3d/path.hpp"
 #include "eng3d/utils.hpp"
 #include "eng3d/log.hpp"
 

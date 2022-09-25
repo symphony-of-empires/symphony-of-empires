@@ -28,7 +28,6 @@
 #include <SDL_ttf.h>
 
 #include "eng3d/texture.hpp"
-#include "eng3d/path.hpp"
 #include "eng3d/framebuffer.hpp"
 #include "eng3d/utils.hpp"
 #include "eng3d/state.hpp"

@@ -28,7 +28,6 @@
 #include <set>
 
 #include "eng3d/binary_image.hpp"
-#include "eng3d/path.hpp"
 #include "eng3d/serializer.hpp"
 #include "eng3d/log.hpp"
 #include "eng3d/rand.hpp"

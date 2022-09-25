@@ -32,7 +32,6 @@
 #include "eng3d/font_sdf.hpp"
 #include "eng3d/state.hpp"
 #include "eng3d/texture.hpp"
-#include "eng3d/path.hpp"
 #include "eng3d/primitive.hpp"
 #include "eng3d/shader.hpp"
 #include "eng3d/state.hpp"
