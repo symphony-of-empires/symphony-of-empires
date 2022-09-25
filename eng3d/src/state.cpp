@@ -180,6 +180,12 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     Eng3D::Log::debug("engine", "Using random seed of " + std::to_string(seed));
     std::srand(seed);
 
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
+    // Override (if not set already) MESA variables so it can work on old systems
+    setenv("MESA_GL_VERSION_OVERRIDE", "4.6", 0);
+    setenv("MESA_GLSL_VERSION_OVERRIDE", "440", 0);
+#endif
+
     // Handle SIGPIPE for networking code
     struct sigaction sa = (struct sigaction){ [](int) {
         Eng3D::Log::debug("sigpipe", "Caught sigpipe");
