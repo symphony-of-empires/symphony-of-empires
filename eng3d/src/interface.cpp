@@ -38,7 +38,7 @@ Eng3D::Interface::ProfilerView::ProfilerView(Eng3D::State& _s, Eng3D::Profiler& 
 {
     this->padding.x = 0;
     this->padding.y = 48;
-    this->text(_("Performance profiler"));
+    this->text(translate("Performance profiler"));
     this->is_scroll = false;
     this->current_texture.reset();
 

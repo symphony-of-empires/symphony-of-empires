@@ -69,9 +69,9 @@ Province::Id Unit::province_id() const {
 void Unit::set_target(const Province& province) {
     assert(this->is_valid());
     assert(this->target_province_id != this->province_id());
-    assert(province.get_id() != this->province_id());
+    assert(province != this->province_id());
     assert(this->can_move());
-    this->target_province_id = province.get_id();
+    this->target_province_id = province;
     this->days_left_until_move = this->days_to_move_to(province);
 }
 
@@ -161,8 +161,8 @@ void UnitManager::move_unit(Unit::Id unit_id, Province::Id target_province_id) {
 
 void Unit::set_owner(const Nation& nation)
 {
-    assert(Nation::is_valid(nation.get_id()));
-    this->owner_id = nation.get_id();
+    assert(Nation::is_valid(nation));
+    this->owner_id = nation;
 }
 
 /// @brief Checks if the unit can move (if it can set_province)
@@ -192,7 +192,7 @@ void Unit::set_path(const Province& target) {
     auto& world = World::get_instance();
     auto& nation = world.nations[this->owner_id];
     auto start_id = world.unit_manager.get_unit_current_province(this->get_id());
-        this->path = Eng3D::Pathfind::get_path<Province::Id>(start_id, target.get_id(),
+        this->path = Eng3D::Pathfind::get_path<Province::Id>(start_id, target,
         /// @brief Calculates the neighbors for a given Tile. The neighbors are the 8 tiles around
         /// it, while taking into account the map bounds.
         [&world](Province::Id province_id) -> std::vector<Province::Id> {

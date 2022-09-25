@@ -188,15 +188,15 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
 
     // Handle SIGPIPE for networking code
     struct sigaction sa = (struct sigaction){ [](int) {
-        Eng3D::Log::debug("sigpipe", _("Caught a pipe signal"));
+        Eng3D::Log::debug("sigpipe", translate("Caught a pipe signal"));
     } };
     sigaction(SIGPIPE, &sa, NULL);
 
-    std::string canonical_name = _("Symphony of Empires");
+    std::string canonical_name = translate("Symphony of Empires");
 
     // Startup-initialization of SDL
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
-        CXX_THROW(std::runtime_error, std::string() + "Failed to init SDL " + SDL_GetError());
+        CXX_THROW(std::runtime_error, std::string() + "Failed to initialize SDL " + SDL_GetError());
     SDL_ShowCursor(SDL_DISABLE);
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES // Normal PC computer
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
@@ -217,20 +217,20 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     s.window = SDL_CreateWindow(canonical_name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, s.width, s.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 #endif
     if(s.window == nullptr)
-        CXX_THROW(std::runtime_error, std::string() + "Failed to init SDL window " + SDL_GetError());
+        CXX_THROW(std::runtime_error, std::string() + "Failed to initialize SDL window " + SDL_GetError());
 
     // OpenGL configurations
     s.context = static_cast<void*>(SDL_GL_CreateContext(s.window));
     if(s.context == nullptr)
-        CXX_THROW(std::runtime_error, std::string() + "Failed to init SDL context " + SDL_GetError());
+        CXX_THROW(std::runtime_error, std::string() + "Failed to initialize SDL context " + SDL_GetError());
     SDL_GL_SetSwapInterval(1);
 
-    Eng3D::Log::debug("opengl", Eng3D::string_format(_("OpenGL Version: %s"), (const char*)glGetString(GL_VERSION)));
+    Eng3D::Log::debug("opengl", string_format(translate("OpenGL Version: %s"), (const char*)glGetString(GL_VERSION)));
 #   ifdef E3D_BACKEND_OPENGL
     glewExperimental = GL_TRUE;
     int r = glewInit();
     if(r != GLEW_OK)
-        CXX_THROW(std::runtime_error, Eng3D::string_format(_("Failed to init GLEW %s"), glewGetErrorString(r)));
+        CXX_THROW(std::runtime_error, string_format(translate("Failed to ininitializeit GLEW %s"), glewGetErrorString(r)));
 #   endif
 
     GLint size;

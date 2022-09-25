@@ -94,11 +94,11 @@ void handle_popups(std::vector<Treaty::Id>& displayed_treaties, GameState& gs) {
 
     for(auto& treaty : gs.world->treaties) {
         // Check that the treaty is not already displayed
-        auto iter = std::find_if(displayed_treaties.begin(), displayed_treaties.end(), [&treaty](const auto& e) { return e == treaty.get_id(); });
+        auto iter = std::find_if(displayed_treaties.begin(), displayed_treaties.end(), [&treaty](const auto& e) { return e == treaty; });
         if(iter != displayed_treaties.end()) continue;
         if(!treaty.does_participate(*gs.curr_nation)) continue; // Must participate in treaty
-        new Interface::TreatyChooseWindow(gs, treaty.get_id());
-        displayed_treaties.push_back(treaty.get_id());
+        new Interface::TreatyChooseWindow(gs, treaty);
+        displayed_treaties.push_back(treaty);
     }
 }
 
@@ -304,7 +304,7 @@ extern "C" void game_main(int argc, char** argv) {
         if(arg == "--mod") {
             i++;
             if(i >= argc)
-                CXX_THROW(std::runtime_error, _("Expected an absolute path after --mod"));
+                CXX_THROW(std::runtime_error, translate("Expected an absolute path after --mod"));
             arg = std::string(argv[i]);
             pkg_paths.push_back(arg);
         }
@@ -353,7 +353,7 @@ extern "C" void game_main(int argc, char** argv) {
         bg_img->current_texture = gs.tex_man.load(load_screen_entries[rand() % load_screen_entries.size()]->get_abs_path());
 
     auto* load_pbar = new UI::ProgressBar(0, -24, gs.width, 24, 0.f, 1.f);
-    load_pbar->text(_("Initializing game resources"));
+    load_pbar->text(translate("Initializing game resources"));
     load_pbar->origin = UI::Origin::LOWER_LEFT_SCREEN;
     load_pbar->text_color = Eng3D::Color(1.f, 1.f, 1.f);
 

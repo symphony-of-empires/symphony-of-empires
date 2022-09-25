@@ -79,7 +79,7 @@ UnitWidget::UnitWidget(Map& _map, GameState& _gs, UI::Widget* parent)
 
 // This is expected to be called every framed
 void UnitWidget::set_unit(Unit& _unit) {
-    this->unit_id = _unit.get_id();
+    this->unit_id = _unit;
 
     const auto& camera = *map.camera;
     auto unit_pos = _unit.get_pos();
@@ -121,7 +121,7 @@ void UnitWidget::set_size(size_t size) {
 UnitView::UnitView(GameState& _gs, Unit& _unit)
     : UI::Window(0, -200, 400, 200),
     gs{ _gs },
-    unit_id{ _unit.get_id() }
+    unit_id{ _unit }
 {
     if(this->gs.lower_left_panel != nullptr)
         this->gs.lower_left_panel->kill();
@@ -135,7 +135,7 @@ UnitView::UnitView(GameState& _gs, Unit& _unit)
     this->is_scroll = false;
 
     auto& unit = this->gs.world->unit_manager.units[this->unit_id];
-    this->text(Eng3D::string_format(_("Unit %s from %s"), unit.type->name.get_string(), this->gs.world->nations[unit.owner_id].name.get_string()));
+    this->text(string_format(translate("Unit %s from %s"), unit.type->name.get_string(), this->gs.world->nations[unit.owner_id].name.get_string()));
 
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
@@ -143,21 +143,21 @@ UnitView::UnitView(GameState& _gs, Unit& _unit)
     auto* size_lab = new UI::Label(0, 0, " ", flex_column);
     size_lab->set_on_each_tick([this](UI::Widget& w) {
         auto& unit = this->gs.world->unit_manager.units[this->unit_id];
-        w.text(Eng3D::string_format(_("Size: %.0f"), unit.size));
+        w.text(string_format(translate("Size: %.0f"), unit.size));
     });
     size_lab->on_each_tick(*size_lab);
 
     auto* morale_lab = new UI::Label(0, 0, " ", flex_column);
     morale_lab->set_on_each_tick([this](UI::Widget& w) {
         auto& unit = this->gs.world->unit_manager.units[this->unit_id];
-        w.text(Eng3D::string_format(_("Morale: %.2f"), unit.morale));
+        w.text(string_format(translate("Morale: %.2f"), unit.morale));
     });
     morale_lab->on_each_tick(*morale_lab);
 
     auto* attdef_lab = new UI::Label(0, 0, " ", flex_column);
     attdef_lab->set_on_each_tick([this](UI::Widget& w) {
         auto& unit = this->gs.world->unit_manager.units[this->unit_id];
-        w.text(Eng3D::string_format(_("Attack/Defense: %.2f/%.2f"), unit.type->attack, unit.type->defense));
+        w.text(string_format(translate("Attack/Defense: %.2f/%.2f"), unit.type->attack, unit.type->defense));
     });
     attdef_lab->on_each_tick(*attdef_lab);
 }

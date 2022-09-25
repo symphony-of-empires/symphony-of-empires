@@ -84,6 +84,10 @@ public:
         return !is_invalid();
     }
 
+    constexpr operator Id() const {
+        return cached_id;
+    }
+
     constexpr Id get_id() const {
         return cached_id;
     }

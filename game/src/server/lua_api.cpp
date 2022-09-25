@@ -291,11 +291,11 @@ int LuaAPI::add_nation(lua_State* L) {
     nation.client_hints.resize(g_world.ideologies.size());
     nation.research.resize(g_world.technologies.size());
     for(const auto& technology : g_world.technologies)
-        nation.research[technology.get_id()] = technology.cost;
+        nation.research[technology] = technology.cost;
 
     // Check for duplicates
     for(const auto& other_nation : g_world.nations) {
-        if(Nation::is_invalid(other_nation.get_id()))
+        if(Nation::is_invalid(other_nation))
             luaL_error(L, "Nation with invalid Id!");
         if(nation.ref_name == other_nation.ref_name)
             luaL_error(L, ("Duplicate ref_name " + nation.ref_name).c_str());
@@ -324,9 +324,9 @@ int LuaAPI::get_all_nations(lua_State* L) {
 
     size_t i = 0;
     for(const auto& nation : g_world.nations) {
-        assert(Nation::is_valid(nation.get_id()));
-        assert(nation.get_id() == i);
-        lua_pushnumber(L, nation.get_id());
+        assert(Nation::is_valid(nation));
+        assert(nation == i);
+        lua_pushnumber(L, nation);
         lua_rawseti(L, -2, i + 1);
         ++i;
     }
@@ -716,8 +716,8 @@ int LuaAPI::update_province_building(lua_State* L) {
         luaL_error(L, "MP-Sync in this function is not supported");
     auto& province = g_world.provinces.at(lua_tonumber(L, 1));
     const auto& building_type = g_world.building_types.at(lua_tonumber(L, 2)); // Add up a level of upgrade
-    province.buildings[building_type.get_id()].level = lua_tonumber(L, 3);
-    province.buildings[building_type.get_id()].budget += 1000.f;
+    province.buildings[building_type].level = lua_tonumber(L, 3);
+    province.buildings[building_type].budget += 1000.f;
     return 0;
 }
 
@@ -730,7 +730,7 @@ int LuaAPI::give_province_to(lua_State* L) {
 int LuaAPI::give_hard_province_to(lua_State* L) {
     auto& province = g_world.provinces.at(lua_tonumber(L, 1));
     auto& nation = g_world.nations.at(lua_tonumber(L, 2));
-    const auto& unit_ids = g_world.unit_manager.get_province_units(province.get_id());
+    const auto& unit_ids = g_world.unit_manager.get_province_units(province);
     for(const auto unit_id : unit_ids) {
         auto& unit = g_world.unit_manager.units[unit_id];
         if(unit.owner_id == province.controller_id)
@@ -803,7 +803,7 @@ int LuaAPI::get_province_pop(lua_State* L) {
     lua_pushnumber(L, pop.everyday_needs_met);
     lua_pushnumber(L, pop.luxury_needs_met);
     lua_pushnumber(L, pop.type_id);
-    lua_pushnumber(L, pop.get_ideology().get_id());
+    lua_pushnumber(L, pop.get_ideology());
     lua_pushnumber(L, pop.militancy);
     return 9;
 }
@@ -980,7 +980,7 @@ int LuaAPI::add_pop_type(lua_State* L) {
         lua_next(L, -2);
         const float amount = pop_number(L);
         lua_pop(L, 2);
-        pop_type.basic_needs_amount[good.get_id()] = amount;
+        pop_type.basic_needs_amount[good] = amount;
     }
     lua_pop(L, 1);
 

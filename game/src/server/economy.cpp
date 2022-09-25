@@ -142,7 +142,7 @@ void militancy_update(World& world, Nation& nation) {
                 /// @todo Does battles affect ownership of provinces?
                 if(unit.on_battle) continue;
                 unit.set_owner(rebel_nation);
-                rebel_nation.control_province(world.provinces[world.unit_manager.get_unit_current_province(unit.get_id())]);
+                rebel_nation.control_province(world.provinces[world.unit_manager.get_unit_current_province(unit)]);
             }
 
             // Declare war seeking all provinces from the owner
@@ -340,9 +340,9 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             market.total_reciprocal_price = 0;
             for(const auto& province : world.provinces) {
                 auto& product = province.products[market.good];
-                market.demand[province.get_id()] = 0.f;
-                market.prices[province.get_id()] = product.price;
-                market.supply[province.get_id()] = product.supply;
+                market.demand[province] = 0.f;
+                market.prices[province] = product.price;
+                market.supply[province] = product.supply;
                 market.total_reciprocal_price += 1 / (product.price + epsilon);
             }
         }
@@ -396,7 +396,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
 
         float laborers_payment = 1.f;
         for(auto& building_type : world.building_types) {
-            auto& building = province.buildings[building_type.get_id()];
+            auto& building = province.buildings[building_type];
             update_factory_production(world, building, building_type, province, laborers_payment);
         }
 
@@ -448,8 +448,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                         unit.budget = given_money;
                         unit.size = final_size;
                         unit.base = unit.type->max_health;
-                        Province::Id province_id = province.get_id(); 
-                        province_new_units.local().emplace_back(unit, province_id);
+                        province_new_units.local().emplace_back(unit, province);
                         building.working_unit_type = nullptr;
                         Eng3D::Log::debug("economy", "[" + province.ref_name + "]: Has built an unit of [" + unit.type->ref_name + "]");
                     }

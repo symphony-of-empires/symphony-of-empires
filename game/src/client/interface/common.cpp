@@ -55,7 +55,7 @@ UnitButton::UnitButton(GameState& _gs, int x, int y, Unit& _unit, UI::Widget* _p
     unit{ _unit }
 {
     this->set_on_each_tick([this](UI::Widget& w) {
-        w.text(Eng3D::string_format("%zu %s", this->unit.size, this->unit.type->name.get_string()));
+        w.text(string_format("%zu %s", this->unit.size, this->unit.type->name.get_string()));
     });
     this->on_each_tick(*this);
 }
@@ -124,7 +124,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, un
 
     auto* production_flex = new UI::Div(0, 24, this->width, 24);
     production_flex->flex = UI::Flex::COLUMN;
-    auto* makes_lab = new UI::Label(0, 0, _("Produces:"), production_flex);
+    auto* makes_lab = new UI::Label(0, 0, translate("Produces:"), production_flex);
     makes_lab->below_of(*name_btn);
     if(!building_type.inputs.empty()) {
         for(const auto& good : building_type.inputs) {
@@ -139,7 +139,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, un
     if(building_type.output != nullptr) {
         if(!building_type.inputs.empty()) {
             auto* arrow_lab = new UI::Label(0, 0, "?", production_flex);
-            arrow_lab->text(_("into"));
+            arrow_lab->text(translate("into"));
         }
         auto* good = building_type.output;
         auto* icon_ibtn = new UI::Image(0, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/good/" + good->ref_name + ".png")), production_flex);
@@ -153,7 +153,7 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, un
     stats_lab->below_of(*name_btn);
     stats_lab->set_on_each_tick([this](UI::Widget& w) {
         const auto& building = this->province.buildings[this->idx];
-        w.text(Eng3D::string_format("Level %.0f, %.2f$", building.level, building.budget));
+        w.text(string_format("Level %.0f, %.2f$", building.level, building.budget));
     });
     stats_lab->on_each_tick(*stats_lab);
 }
@@ -185,9 +185,9 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology& _techno
         }
 
         if(this->gs.curr_nation->can_research(this->technology)) {
-            w.set_tooltip(_("We can research this"));
+            w.set_tooltip(translate("We can research this"));
         } else {
-            std::string text = _("We can't research this because we don't have ");
+            std::string text = translate("We can't research this because we don't have ");
             for(const auto& req_tech_id : this->technology.req_technologies) {
                 if(this->gs.curr_nation->research[req_tech_id] > 0.f)
                     text += this->gs.world->technologies[req_tech_id].name.get_string() + ", ";
@@ -257,21 +257,21 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province& _province, Good
             this->price_chart->data.push_back(data);
         this->price_history.push_back(product.price);
         if(!this->price_history.empty())
-            this->price_chart->set_tooltip(Eng3D::string_format("%.4f", this->price_history.back()));
+            this->price_chart->set_tooltip(string_format("%.4f", this->price_history.back()));
 
         this->supply_chart->data.clear();
         for(const auto& data : this->supply_history)
             this->supply_chart->data.push_back(data);
         this->supply_history.push_back(product.supply);
         if(!this->supply_history.empty())
-            this->supply_chart->set_tooltip(Eng3D::string_format("%.4f", this->supply_history.back()));
+            this->supply_chart->set_tooltip(string_format("%.4f", this->supply_history.back()));
 
         this->demand_chart->data.clear();
         for(const auto& data : this->demand_history)
             this->demand_chart->data.push_back(data);
         this->demand_history.push_back(product.demand);
         if(!this->demand_history.empty())
-            this->demand_chart->set_tooltip(Eng3D::string_format("%.4f", this->demand_history.back()));
+            this->demand_chart->set_tooltip(string_format("%.4f", this->demand_history.back()));
 
         this->price_rate_btn->text(std::to_string(product.price_vel));
         if(product.price_vel >= 0.f)

@@ -62,7 +62,7 @@ void ai_init(World& world) {
     g_water_provinces.reserve(world.provinces.size());
     for(const auto& province : world.provinces)
         if(world.terrain_types[province.terrain_type_id].is_water_body)
-            g_water_provinces.push_back(province.get_id());
+            g_water_provinces.push_back(province);
 }
 
 // Obtain best potential good
@@ -85,8 +85,8 @@ static inline Good* ai_get_potential_good(Nation& nation) {
         for(const auto province_id : nation.owned_provinces) {
             const auto& province = world.provinces[province_id];
             for(const auto& good : world.goods) {
-                const auto& product = province.products[good.get_id()];
-                avg_prob[good.get_id()] += product.demand / (product.supply + 1) * product.price;
+                const auto& product = province.products[good];
+                avg_prob[good] += product.demand / (product.supply + 1) * product.price;
             }
         }
 
@@ -186,7 +186,7 @@ static inline void ai_reform(Nation& nation) {
 // Update relations with another nation
 static inline void ai_update_relations(Nation& nation, Nation& other) {
     auto& world = World::get_instance();
-    auto& relation = world.get_relation(nation.get_id(), other.get_id());
+    auto& relation = world.get_relation(nation, other);
 
     // Try to increase relations with our friend
     if(nation.is_ally(other) && !(rand() % 250)) {
@@ -210,7 +210,7 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
         const auto& province = world.provinces[province_id];
         for(const auto neighbour_id : province.neighbour_ids) {
             auto& neighbour = g_world.provinces[neighbour_id];
-            if(neighbour.controller_id == other.get_id()) {
+            if(neighbour.controller_id == other) {
                 is_border = true;
                 break;
             }
@@ -259,7 +259,7 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
                     // Check for borders
                     for(const auto neighbour_id : province.neighbour_ids) {
                         auto& neighbour = g_world.provinces[neighbour_id];
-                        if(neighbour.controller_id == other.get_id()) {
+                        if(neighbour.controller_id == other) {
                             has_border = true;
                             break;
                         }
@@ -286,7 +286,7 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
                 clause->receiver = &other;
                 for(const auto province_id : other.owned_provinces) {
                     auto& province = world.provinces[province_id];
-                    if(province.controller_id == nation.get_id())
+                    if(province.controller_id == nation)
                         if(!(rand() % 10))
                             clause->provinces.push_back(&province);
                 }
@@ -368,7 +368,7 @@ void ai_do_tick(Nation& nation) {
         }
         return;
     }
-    auto& ai_data = g_ai_data[nation.get_id()];
+    auto& ai_data = g_ai_data[nation];
 
     /// @todo make a better algorithm
     if(nation.ai_do_cmd_troops) {
@@ -397,7 +397,7 @@ void ai_do_tick(Nation& nation) {
             }
             // Here we calculate the risk factor of each nation and then we put it on a lookup table
             // because we can't afford to calculate this for EVERY FUCKING province
-            const auto& relation = world.get_relation(nation.get_id(), other.get_id());
+            const auto& relation = world.get_relation(nation, other);
             // And add if they're allied with us or let us pass thru
             if(relation.has_landpass())
                 for(const auto province_id : other.controlled_provinces)
@@ -407,11 +407,11 @@ void ai_do_tick(Nation& nation) {
             constexpr auto relation_range = 200.f; // Range of relations, the max-min difference
             // Risk is augmentated when we border any non-ally nation
             if(!relation.is_allied()) // Makes sure so 200 relations results on 0.0 attraction, while 1 or 0 relations result on 3.9 and 4.0
-                ai_data.nations_risk_factor[other.get_id()] = ((relation_range - (relation.relation + relation_max)) / relation_max) * nation_weight;
+                ai_data.nations_risk_factor[other] = ((relation_range - (relation.relation + relation_max)) / relation_max) * nation_weight;
             if(relation.has_war)
-                ai_data.nations_risk_factor[other.get_id()] = war_weight * nation_weight;
+                ai_data.nations_risk_factor[other] = war_weight * nation_weight;
         }
-        ai_data.nations_risk_factor[nation.get_id()] = homeland_weight * nation_weight;
+        ai_data.nations_risk_factor[nation] = homeland_weight * nation_weight;
 
         std::vector<double> potential_risk(world.provinces.size(), 1.f);
         for(const auto province_id : eval_provinces) {
@@ -437,7 +437,7 @@ void ai_do_tick(Nation& nation) {
                 if(Province::is_valid(neighbour.controller_id)) // Only if neighbour has a controller
                     draw_in_force *= ai_data.nations_risk_factor[neighbour.controller_id];
                 // Try to recover our own lost provinces
-                if(neighbour.owner_id == nation.get_id() && neighbour.controller_id != nation.get_id())
+                if(neighbour.owner_id == nation && neighbour.controller_id != nation)
                     draw_in_force *= reconquer_weight;
                 potential_risk[province_id] += draw_in_force; // Spread out the heat
                 if(neighbour.is_coastal)
@@ -451,7 +451,7 @@ void ai_do_tick(Nation& nation) {
             const auto& unit_ids = world.unit_manager.get_province_units(province_id);
             for(const auto unit_id : unit_ids) {
                 auto& unit = g_world.unit_manager.units[unit_id];
-                if(unit.owner_id != nation.get_id() || !unit.can_move()) continue;
+                if(unit.owner_id != nation || !unit.can_move()) continue;
                 // Do not change targets
                 /// @todo Change targets when urgent
                 if(Province::is_valid(unit.get_target_province_id())) continue;
@@ -525,7 +525,7 @@ void ai_do_tick(Nation& nation) {
                 // Bordering a province of ours means we are **to** colonize it
                 for(const auto neighbour_id : province.first->neighbour_ids) {
                     auto& neighbour = g_world.provinces[neighbour_id];
-                    if(neighbour.controller_id == nation.get_id())
+                    if(neighbour.controller_id == nation)
                         province.second *= 100.f;
                 }
                 // If it's a nucleus province it also gets a x100 multiplier to maximize priority

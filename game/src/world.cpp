@@ -345,11 +345,11 @@ void World::load_initial() {
         std::set<uint32_t> colors_found;
         std::set<uint32_t> colors_used;
 #endif
-        Eng3D::Log::debug("world", _("Associate tiles with provinces"));
+        Eng3D::Log::debug("world", translate("Associate tiles with provinces"));
 
         // Build a lookup table for super fast speed on finding provinces
         // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
-        Eng3D::Log::debug("world", _("Building the province lookup table"));
+        Eng3D::Log::debug("world", translate("Building the province lookup table"));
         std::vector<Province::Id> province_color_table(0xffffff + 1, Province::invalid());
         for(const auto& province : provinces)
             province_color_table[province.color & 0xffffff] = this->get_id(province);
@@ -372,7 +372,7 @@ void World::load_initial() {
             if(province_fp != nullptr) {
                 for(const auto& color_raw : colors_found) {
                     uint32_t color = color_raw << 8;
-                    fprintf(province_fp.get(), "province=Province:new{ref_name=\"province_%06x\",name=_(\"Unknown\"),color=0x%06x,terrain=tt_sea,rgo_size={}}\n", static_cast<unsigned int>(std::byteswap<std::uint32_t>(color)), static_cast<unsigned int>(std::byteswap<std::uint32_t>(color)));
+                    fprintf(province_fp.get(), "province=Province:new{ref_name=\"province_%06x\",name=translate(\"Unknown\"),color=0x%06x,terrain=tt_sea,rgo_size={}}\n", static_cast<unsigned int>(std::byteswap<std::uint32_t>(color)), static_cast<unsigned int>(std::byteswap<std::uint32_t>(color)));
                     fprintf(province_fp.get(), "province:register()\n");
                 }
             }
@@ -408,7 +408,7 @@ void World::load_initial() {
 #endif
 
         // Calculate the edges of the province (min and max x and y coordinates)
-        Eng3D::Log::debug("world", _("Calculate the edges of the province (min and max x and y coordinates)"));
+        Eng3D::Log::debug("world", translate("Calculate the edges of the province (min and max x and y coordinates)"));
 
         // Init the province bounds
         for(auto& province : provinces) {
@@ -430,14 +430,14 @@ void World::load_initial() {
         });
 
         // Correct stuff from provinces
-        Eng3D::Log::debug("world", _("Correcting values for provinces"));
+        Eng3D::Log::debug("world", translate("Correcting values for provinces"));
         for(auto& province : provinces) {
             province.box_area.right = glm::min(width, static_cast<size_t>(province.box_area.right));
             province.box_area.bottom = glm::min(height, static_cast<size_t>(province.box_area.bottom));
         }
 
         // Neighbours
-        Eng3D::Log::debug("world", _("Creating neighbours for provinces"));
+        Eng3D::Log::debug("world", translate("Creating neighbours for provinces"));
         for(size_t i = 0; i < width * height; i++) {
             assert(Province::is_valid(this->tiles[i].province_id));
             auto& province = this->provinces[this->tiles[i].province_id];
@@ -470,7 +470,7 @@ void World::load_initial() {
         unit_manager.init(*this);
 
         // Create diplomatic relations between nations
-        Eng3D::Log::debug("world", _("Creating diplomatic relations"));
+        Eng3D::Log::debug("world", translate("Creating diplomatic relations"));
         // Relations between nations start at 0 (and latter modified by lua scripts)
         // since we use cantor's pairing function we only have to make an n*2 array so yeah let's do that!
         size_t relations_len = this->nations.size() * this->nations.size();
@@ -482,7 +482,7 @@ void World::load_initial() {
         for(auto& nation : this->nations) {
             // Must exist and not have a capital
             if(!nation.exists() || Province::is_invalid(nation.capital_id)) continue;
-            Eng3D::Log::debug("world", _("Relocating capital of [" + nation.ref_name + "]"));
+            Eng3D::Log::debug("world", translate("Relocating capital of [" + nation.ref_name + "]"));
             nation.auto_relocate_capital();
         }
 
@@ -494,7 +494,7 @@ void World::load_initial() {
         ar.to_file("world.cache");
     }
 
-    Eng3D::Log::debug("world", _("World partially intiialized"));
+    Eng3D::Log::debug("world", translate("World partially intiialized"));
 }
 
 void World::load_mod() {
@@ -505,7 +505,7 @@ void World::load_mod() {
 
     // Server needs now to sync changes to clients (changing state is not enough)
     this->needs_to_sync = true;
-    Eng3D::Log::debug("game", _("World fully intiialized"));
+    Eng3D::Log::debug("game", translate("World fully intiialized"));
     ai_init(*this); // Initialize the AI
 }
 
@@ -567,7 +567,7 @@ static inline void unit_do_tick(World& world, Unit& unit) {
         }
     }
     
-    auto prov_id = world.unit_manager.get_unit_current_province(unit.get_id());
+    auto prov_id = world.unit_manager.get_unit_current_province(unit);
     auto& unit_province = world.provinces[prov_id];
     // Handle battles
     if(!unit.on_battle) {
@@ -585,14 +585,14 @@ static inline void unit_do_tick(World& world, Unit& unit) {
 
             // Add the unit to one side depending on who are we attacking however unit must not be already involved
             /// @todo Make it be instead depending on who attacked first in this battle
-            assert(std::find(battle.attackers_ids.begin(), battle.attackers_ids.end(), unit.get_id()) == battle.attackers_ids.end());
-            assert(std::find(battle.defenders_ids.begin(), battle.defenders_ids.end(), unit.get_id()) == battle.defenders_ids.end());
+            assert(std::find(battle.attackers_ids.begin(), battle.attackers_ids.end(), unit) == battle.attackers_ids.end());
+            assert(std::find(battle.defenders_ids.begin(), battle.defenders_ids.end(), unit) == battle.defenders_ids.end());
             if(war.is_attacker(unit_nation)) {
-                battle.attackers_ids.push_back(unit.get_id());
+                battle.attackers_ids.push_back(unit);
                 Eng3D::Log::debug("game", "Adding unit <attacker> to battle of \"" + battle.name + "\"");
             } else {
                 assert(war.is_defender(unit_nation));
-                battle.defenders_ids.push_back(unit.get_id());
+                battle.defenders_ids.push_back(unit);
                 Eng3D::Log::debug("game", "Adding unit <defender> to battle of \"" + battle.name + "\"");
             }
         } else {
@@ -793,7 +793,7 @@ void World::do_tick() {
                         if(unit.size <= 1.f) {
                             Eng3D::Log::debug("game", "Removing attacker \"" + unit.type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                             battle.defenders_ids.erase(battle.defenders_ids.begin() + i);
-                            clear_units.local().push_back(unit.get_id());
+                            clear_units.local().push_back(unit);
                             continue;
                         }
                         i++;
@@ -813,7 +813,7 @@ void World::do_tick() {
                         if(unit.size <= 1.f) {
                             Eng3D::Log::debug("game", "Removing defender \"" + unit.type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
                             battle.attackers_ids.erase(battle.attackers_ids.begin() + i);
-                            clear_units.local().push_back(unit.get_id());
+                            clear_units.local().push_back(unit);
                             continue;
                         }
                         i++;

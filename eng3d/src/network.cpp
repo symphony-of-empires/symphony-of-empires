@@ -138,7 +138,7 @@ void Eng3D::Networking::SocketStream::set_blocking(bool blocking) {
 #ifdef E3D_TARGET_UNIX
     int flags = fcntl(fd, F_GETFL, 0);
     if(flags == -1) {
-        Eng3D::Log::debug("socket_stream", _("Can't set socket as non_blocking"));
+        Eng3D::Log::debug("socket_stream", translate("Can't set socket as non_blocking"));
         return;
     }
     flags = blocking ? (flags & (~O_NONBLOCK)) : (flags | O_NONBLOCK);
@@ -175,7 +175,7 @@ void Eng3D::Networking::Packet::recv() {
     uint16_t eof_marker;
     stream.recv(&eof_marker, sizeof(eof_marker), pred);
     if(ntohs(eof_marker) != 0xE0F)
-        CXX_THROW(Eng3D::Networking::SocketException, _("Packet with invalid end marker"));
+        CXX_THROW(Eng3D::Networking::SocketException, translate("Packet with invalid end marker"));
 }
 
 //
@@ -191,12 +191,12 @@ int Eng3D::Networking::ServerClient::try_connect(int fd) try {
     socklen_t len = sizeof(client);
     conn_fd = accept(fd, reinterpret_cast<sockaddr*>(&client), &len);
     if(conn_fd == INVALID_SOCKET)
-        CXX_THROW(Eng3D::Networking::SocketException, _("Cannot accept client connection"));
+        CXX_THROW(Eng3D::Networking::SocketException, translate("Cannot accept client connection"));
     
     // At this point the client's connection was accepted - so we only have to check
     // Then we check if the server is running and we throw accordingly
     is_connected = true;
-    Eng3D::Log::debug("server", _("New client connection established"));
+    Eng3D::Log::debug("server", translate("New client connection established"));
     return conn_fd;
 } catch(Eng3D::Networking::SocketException& e) {
     return 0;
@@ -239,16 +239,16 @@ Eng3D::Networking::Server::Server(const unsigned port, const unsigned max_conn)
 
     fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(fd == INVALID_SOCKET)
-        CXX_THROW(Eng3D::Networking::SocketException, _("Cannot create server socket"));
+        CXX_THROW(Eng3D::Networking::SocketException, translate("Cannot create server socket"));
 #ifdef E3D_TARGET_UNIX
     int enable = 1;
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
     setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(int));
 #endif
     if(bind(fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) != 0)
-        CXX_THROW(Eng3D::Networking::SocketException, _("Cannot bind server"));
+        CXX_THROW(Eng3D::Networking::SocketException, translate("Cannot bind server"));
     if(listen(fd, max_conn) != 0)
-        CXX_THROW(Eng3D::Networking::SocketException, _("Cannot listen in specified number of concurrent connections"));
+        CXX_THROW(Eng3D::Networking::SocketException, translate("Cannot listen in specified number of concurrent connections"));
 #ifdef E3D_TARGET_UNIX
     // Allow non-blocking operations on this socket (we don't want to block on multi-listener servers)
     fcntl(fd, F_SETFL, fcntl(fd, F_GETFD, 0) | O_NONBLOCK);
@@ -256,7 +256,7 @@ Eng3D::Networking::Server::Server(const unsigned port, const unsigned max_conn)
     signal(SIGPIPE, SIG_IGN);
 #endif
     this->run = true;
-    Eng3D::Log::debug("server", Eng3D::string_format(_("Server listening on IP port :%u"), port));
+    Eng3D::Log::debug("server", string_format(translate("Server listening on IP port :%u"), port));
 }
 
 Eng3D::Networking::Server::~Server() {
@@ -297,7 +297,7 @@ void Eng3D::Networking::Server::broadcast(const Eng3D::Networking::Packet& packe
 
             if(total_size >= 200 * 1000) {
                 clients[i].is_connected = false;
-                Eng3D::Log::debug("server", Eng3D::string_format(_("Client#%zu has exceeded max quota (%zu bytes)"), i, total_size));
+                Eng3D::Log::debug("server", string_format(translate("Client#%zu has exceeded max quota (%zu bytes)"), i, total_size));
             }
         }
     }
@@ -311,7 +311,7 @@ Eng3D::Networking::Client::Client(std::string host, const unsigned port) {
 #ifdef E3D_TARGET_WINDOWS
     WSADATA data;
     if(WSAStartup(MAKEWORD(2, 2), &data) != 0) {
-        Eng3D::Log::error("network", Eng3D::string_format(_("WSA code %s"), WSAGetLastError()));
+        Eng3D::Log::error("network", string_format(translate("WSA code %s"), WSAGetLastError()));
         CXX_THROW(Eng3D::Networking::SocketException, "Can't start WSA subsystem");
     }
 #endif
@@ -324,7 +324,7 @@ Eng3D::Networking::Client::Client(std::string host, const unsigned port) {
     fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(fd == INVALID_SOCKET) {
 #ifdef E3D_TARGET_WINDOWS
-        Eng3D::Log::error("network", Eng3D::string_format(_("WSA code %s"), WSAGetLastError()));
+        Eng3D::Log::error("network", string_format(translate("WSA code %s"), WSAGetLastError()));
         WSACleanup();
 #endif
         CXX_THROW(Eng3D::Networking::SocketException, "Can't create client socket");
@@ -334,7 +334,7 @@ Eng3D::Networking::Client::Client(std::string host, const unsigned port) {
 #ifdef E3D_TARGET_UNIX
         close(fd);
 #elif defined E3D_TARGET_WINDOWS
-        Eng3D::Log::error("network", Eng3D::string_format(_("WSA code %s"), WSAGetLastError()));
+        Eng3D::Log::error("network", string_format(translate("WSA code %s"), WSAGetLastError()));
         closesocket(fd);
 #endif
         CXX_THROW(Eng3D::Networking::SocketException, "Can't connect to server");

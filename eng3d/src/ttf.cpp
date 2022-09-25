@@ -44,7 +44,7 @@ Eng3D::TrueType::Manager::Manager(Eng3D::State& _s)
     : s{ _s }
 {
     if(TTF_Init() < 0)
-        CXX_THROW(std::runtime_error, std::string() + "Failed to init TTF " + TTF_GetError());
+        CXX_THROW(std::runtime_error, std::string() + "Failed to initialize TTF " + TTF_GetError());
 }
 
 Eng3D::TrueType::Manager::~Manager() {

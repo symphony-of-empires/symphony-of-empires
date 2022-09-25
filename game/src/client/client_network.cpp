@@ -168,8 +168,8 @@ void Client::net_loop() {
                         for(Unit::Id i = 0; i < size; i++) {
                             Unit unit;
                             ::deserialize(ar, unit);
-                            assert(gs.world->unit_manager.units.size() > unit.get_id());
-                            gs.world->unit_manager.units[unit.get_id()] = unit;
+                            assert(gs.world->unit_manager.units.size() > unit);
+                            gs.world->unit_manager.units[unit] = unit;
                         }
                     } break;
                     case ActionType::UNIT_ADD: {

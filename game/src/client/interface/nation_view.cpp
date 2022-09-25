@@ -40,7 +40,7 @@ Interface::NationMarketView::NationMarketView(GameState& _gs, Nation& _nation)
     nation{ _nation }
 {
     this->is_scroll = true;
-    this->text(_("Market information"));
+    this->text(translate("Market information"));
     this->set_close_btn_function([this](UI::Widget&) {
         this->kill();
     });
@@ -74,7 +74,7 @@ Interface::NationView::NationView(GameState& _gs, Nation& _nation)
         w.current_texture = this->gs.get_nation_flag(this->nation);
     });
     flag_img->on_each_tick(*flag_img);
-    flag_img->set_tooltip(_("The flag which represents the country"));
+    flag_img->set_tooltip(translate("The flag which represents the country"));
     new UI::Image(0, 0, flag_img->width, flag_img->height, gs.tex_man.load(gs.package_man.get_unique("gfx/flag_rug.png")), this);
 
     auto* flex_actions_column = new UI::Div(0, 0, 512, 512, this);
@@ -86,7 +86,7 @@ Interface::NationView::NationView(GameState& _gs, Nation& _nation)
         w.text(this->nation.get_client_hint().alt_name.get_string());
     });
     name_lab->on_each_tick(*name_lab);
-    name_lab->set_tooltip(_("The official name"));
+    name_lab->set_tooltip(translate("The official name"));
 
     auto* ideology_img = new UI::Image(0, 0, 24, 24, this);
     ideology_img->set_on_each_tick([this](UI::Widget& w) {
@@ -102,48 +102,48 @@ Interface::NationView::NationView(GameState& _gs, Nation& _nation)
             w.text(std::to_string(relation.relation));
         });
         rel_lab->on_each_tick(*rel_lab);
-        rel_lab->set_tooltip(_("Our diplomatic relations with them"));
+        rel_lab->set_tooltip(translate("Our diplomatic relations with them"));
     }
 
     auto* market_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
-    market_btn->text(_("Examine market"));
+    market_btn->text(translate("Examine market"));
     market_btn->set_on_click([this](UI::Widget&) {
         new Interface::NationMarketView(this->gs, this->nation);
     });
-    market_btn->set_tooltip(_("View market information"));
+    market_btn->set_tooltip(translate("View market information"));
 
     if(gs.curr_nation != &nation) {
         auto* dow_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         dow_btn->set_on_each_tick([this](UI::Widget& w) {
             const auto& relation = this->gs.world->get_relation(this->gs.world->get_id(*this->gs.curr_nation), this->gs.world->get_id(this->nation));
             if(relation.has_war) {
-                w.text(_("Propose treaty"));
+                w.text(translate("Propose treaty"));
                 w.set_on_click([this](UI::Widget&) {
                     new Interface::TreatyDraftView(this->gs, this->nation);
                 });
-                w.set_tooltip(_("End the war against this country and propose a peace deal"));
+                w.set_tooltip(translate("End the war against this country and propose a peace deal"));
             } else {
-                w.text(_("Declare war"));
+                w.text(translate("Declare war"));
                 w.set_on_click([this](UI::Widget&) {
                     new Interface::WarDeclarePrompt(this->gs, this->nation);
                 });
-                w.set_tooltip(_("Declaring war on this nation will bring all their allies to their side"));
+                w.set_tooltip(translate("Declaring war on this nation will bring all their allies to their side"));
             }
         });
         dow_btn->on_each_tick(*dow_btn);
 
         auto* allow_market_access_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
-        allow_market_access_btn->text(_("Allow market access"));
+        allow_market_access_btn->text(translate("Allow market access"));
 
         auto* allow_military_access_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
-        allow_military_access_btn->text(_("Allow military access"));
-        allow_military_access_btn->set_tooltip(_("Allow this nation to cross our land with their units"));
+        allow_military_access_btn->text(translate("Allow military access"));
+        allow_military_access_btn->set_tooltip(translate("Allow this nation to cross our land with their units"));
     }
 
     if(gs.editor && gs.curr_nation != &nation) {
         auto* switch_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
-        switch_btn->text(_("Switch to this nation"));
-        switch_btn->set_tooltip(_("Switches to this nation (multiplayer disallow rule)"));
+        switch_btn->text(translate("Switch to this nation"));
+        switch_btn->set_tooltip(translate("Switches to this nation (multiplayer disallow rule)"));
         switch_btn->set_on_click([this](UI::Widget&) {
             this->gs.curr_nation = &this->nation;
             this->gs.map->map_render->request_update_visibility();

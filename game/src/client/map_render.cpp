@@ -112,7 +112,7 @@ MapRender::MapRender(GameState& _gs, Map& _map)
     std::vector<Province::Id> province_ids;
     province_ids.reserve(this->gs.world->provinces.size());
     for(auto const& province : this->gs.world->provinces)
-        province_ids.push_back(province.get_id());
+        province_ids.push_back(province);
     this->update_nations(province_ids);
 }
 
@@ -349,7 +349,7 @@ void MapRender::update_nations(std::vector<Province::Id> province_ids) {
     for(const auto id : province_ids) {
         const auto& province = this->gs.world->provinces[id]; 
         if(Nation::is_invalid(province.controller_id)) continue;
-        this->tile_sheet_nation->buffer.get()[province.get_id()] = province.controller_id;
+        this->tile_sheet_nation->buffer.get()[province] = province.controller_id;
         nation_ids.insert(province.controller_id);
     }
 
@@ -378,7 +378,7 @@ void MapRender::update_visibility(GameState& gs)
         province_opt->buffer[i] = 0x00000080;
     
     for(const auto& nation : gs.world->nations) {
-        const auto nation_id = nation.get_id();
+        const auto nation_id = nation;
         // If it's our own nation or an ally of ours we can see them
         if(nation_id == gs.curr_nation->get_id() || gs.world->get_relation(nation_id, gs.curr_nation->get_id()).is_allied()) {
             for(const auto province_id : gs.world->nations[nation_id].controlled_provinces) {

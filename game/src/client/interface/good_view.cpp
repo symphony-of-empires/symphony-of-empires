@@ -44,7 +44,7 @@ ProductView::ProductView(GameState& _gs, Product& _product)
     product{ _product }
 {
     this->is_scroll = false;
-    this->text(_("ProductName"));
+    this->text(translate("ProductName"));
 
     this->set_close_btn_function([this](Widget&) {
         this->kill();
@@ -148,7 +148,7 @@ GoodView::GoodView(GameState& _gs, Good& _good)
     unsigned int dx = 0;
 
     // Outputs
-    auto* output_lab = new UI::Label(dx, 0, _("Producers"), this);
+    auto* output_lab = new UI::Label(dx, 0, translate("Producers"), this);
     output_lab->below_of(*avg_price_chart);
     dx += output_lab->width;
     for(const auto& building_type : this->gs.world->building_types) {
@@ -161,7 +161,7 @@ GoodView::GoodView(GameState& _gs, Good& _good)
     }
 
     // Inputs
-    auto* input_lab = new UI::Label(dx, 0, _("Consumers"), this);
+    auto* input_lab = new UI::Label(dx, 0, translate("Consumers"), this);
     input_lab->below_of(*avg_price_chart);
     dx += input_lab->width;
     for(const auto& building_type : this->gs.world->building_types) {

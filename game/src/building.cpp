@@ -33,5 +33,5 @@
 //
 /// @brief Adds a good by id to a building stockpile
 void Building::add_to_stock(const Good& good, const size_t add) {
-    stockpile[good.get_id()] += add;
+    stockpile[good] += add;
 }

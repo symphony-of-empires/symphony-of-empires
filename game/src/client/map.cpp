@@ -76,7 +76,7 @@ static inline void get_blob_bounds(std::unordered_set<Province*>& visited_provin
         // Do not visit again
         if(visited_provinces.find(&neighbour) != visited_provinces.end()) continue;
         // Must control the province
-        if(neighbour.controller_id != nation.get_id()) continue;
+        if(neighbour.controller_id != nation) continue;
         // Big provinces not taken in account
         if(abs(neighbour.box_area.left - neighbour.box_area.right) >= g_world.width / 3.f) continue;
         if(abs(neighbour.box_area.top - neighbour.box_area.bottom) >= g_world.height / 3.f) continue;
@@ -204,9 +204,9 @@ void Map::update_nation_label(const Nation& nation) {
     right_dir = rot * glm::vec4(right_dir, 1.);
     
     // Replace old label
-    assert(this->nation_labels.size() > nation.get_id());
+    assert(this->nation_labels.size() > nation);
     auto label = this->map_font->gen_text(nation.get_client_hint().alt_name.get_string(), top_dir, right_dir, width, center);
-    this->nation_labels[nation.get_id()] = std::move(label);
+    this->nation_labels[nation] = std::move(label);
 }
 
 void Map::create_labels() {
@@ -260,9 +260,9 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
     for(const auto& province : world.provinces) {
         if(Province::is_invalid(province.controller_id))
-            province_color.push_back(ProvinceColor(province.get_id(), Eng3D::Color::rgba32(0xffdddddd)));
+            province_color.push_back(ProvinceColor(province, Eng3D::Color::rgba32(0xffdddddd)));
         else
-            province_color.push_back(ProvinceColor(province.get_id(), Eng3D::Color::rgba32(world.nations[province.controller_id].get_client_hint().color)));
+            province_color.push_back(ProvinceColor(province, Eng3D::Color::rgba32(world.nations[province.controller_id].get_client_hint().color)));
     }
     province_color.push_back(ProvinceColor(Province::invalid(), Eng3D::Color::rgba32(0xffdddddd))); // Land
     return province_color;
@@ -410,9 +410,9 @@ void Map::draw() {
         std::vector<float> province_units_y(this->gs.world->provinces.size(), 0.f);
         // Display units that aren't on battles
         for(auto& province : this->gs.world->provinces) {
-            this->unit_widgets[province.get_id()]->is_render = false;
-            this->battle_widgets[province.get_id()]->is_render = false;
-            if((this->map_render->get_province_opt(province.get_id()) & 0x000000ff) != 0x000000ff)
+            this->unit_widgets[province]->is_render = false;
+            this->battle_widgets[province]->is_render = false;
+            if((this->map_render->get_province_opt(province) & 0x000000ff) != 0x000000ff)
                 continue;
 
             const auto prov_pos = province.get_pos();
@@ -427,7 +427,7 @@ void Map::draw() {
             }
 
             // Units
-            const auto& province_units = this->gs.world->unit_manager.get_province_units(province.get_id());
+            const auto& province_units = this->gs.world->unit_manager.get_province_units(province);
             if(!province_units.empty()) {
                 size_t total_stack_size = 0; // Calculate the total size of our stack
                 for(const auto unit_id : province_units) {
@@ -441,16 +441,16 @@ void Map::draw() {
                 auto& camera = this->camera;
                 // Display unit only if not on a battle
                 if(!unit.on_battle) {
-                    this->unit_widgets[province.get_id()]->set_unit(unit);
-                    this->unit_widgets[province.get_id()]->set_size(total_stack_size);
-                    this->unit_widgets[province.get_id()]->is_render = true;
+                    this->unit_widgets[province]->set_unit(unit);
+                    this->unit_widgets[province]->set_size(total_stack_size);
+                    this->unit_widgets[province]->is_render = true;
                 }
             }
 
             // Battles
             if(!province.battles.empty()) {
-                this->battle_widgets[province.get_id()]->set_battle(province, 0);
-                this->battle_widgets[province.get_id()]->is_render = true;
+                this->battle_widgets[province]->set_battle(province, 0);
+                this->battle_widgets[province]->is_render = true;
                 /// @todo Display two opposing units
             } else {
                 // Display a single standing unit
@@ -486,11 +486,11 @@ void Map::draw() {
                 province_units_y[this->gs.world->get_id(province)] += 2.5f;
                 const auto prov_pos = province.get_pos();
                 for(const auto& building_type : this->gs.world->building_types) {
-                    if(!province.buildings[building_type.get_id()].level) continue;
+                    if(!province.buildings[building_type].level) continue;
                     glm::mat4 model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
                     model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
                     obj_shader->set_uniform("model", model);
-                    building_type_models[building_type.get_id()]->draw(*obj_shader);
+                    building_type_models[building_type]->draw(*obj_shader);
                     break;
                 }
             }
@@ -498,8 +498,8 @@ void Map::draw() {
     } else {
         for(auto& province : this->gs.world->provinces) {
             const auto prov_pos = province.get_pos();
-            this->unit_widgets[province.get_id()]->is_render = false;
-            this->battle_widgets[province.get_id()]->is_render = false;
+            this->unit_widgets[province]->is_render = false;
+            this->battle_widgets[province]->is_render = false;
         }
     }
 

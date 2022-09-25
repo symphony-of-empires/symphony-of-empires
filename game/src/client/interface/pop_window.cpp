@@ -61,12 +61,12 @@ PopWindow::PopWindow(GameState& gs)
         for(const auto province_id : nation.owned_provinces) {
             const auto& province = this->gs.world->provinces[province_id];
             for(const auto& pop : province.pops) {
-                const auto id = pop.get_type_id() + (static_cast<uint64_t>(province.get_id()) << 32);
+                const auto id = pop.get_type_id() + (static_cast<uint64_t>(province) << 32);
                 auto* row = table->get_row(id);
                 size_t row_index = 0;
 
                 auto size = row->get_element(row_index++);
-                size->text(Eng3D::string_format("%.0f", pop.size));
+                size->text(string_format("%.0f", pop.size));
                 size->set_key(pop.size);
 
                 auto prov_name = row->get_element(row_index++);
@@ -78,17 +78,17 @@ PopWindow::PopWindow(GameState& gs)
                 type->set_key(this->gs.world->pop_types[pop.type_id].name.get_string());
 
                 auto militancy = row->get_element(row_index++);
-                militancy->text(Eng3D::string_format("%1.2f", pop.militancy));
+                militancy->text(string_format("%1.2f", pop.militancy));
                 militancy->set_key(pop.militancy);
 
                 auto literacy = row->get_element(row_index++);
-                literacy->text(Eng3D::string_format("%2.0f%%", pop.literacy * 100));
+                literacy->text(string_format("%2.0f%%", pop.literacy * 100));
                 literacy->set_key(pop.literacy);
 
                 auto budget = row->get_element(row_index++);
-                budget->text(Eng3D::string_format("%.0f", pop.budget / pop.size));
+                budget->text(string_format("%.0f", pop.budget / pop.size));
                 budget->set_key(pop.budget / pop.size);
-                budget->set_tooltip(Eng3D::string_format(_("Total budget: %.2f"), pop.budget));
+                budget->set_tooltip(string_format(translate("Total budget: %.2f"), pop.budget));
             }
         }
     });

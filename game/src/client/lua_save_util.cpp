@@ -43,7 +43,7 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
     if(gs.world->terrain_types[province.terrain_type_id].is_water_body && (Nation::is_valid(province.controller_id) || Nation::is_valid(province.owner_id))) {
         for(auto& terrain : gs.world->terrain_types) {
             if(terrain.is_water_body) continue;
-            province.terrain_type_id = terrain.get_id();
+            province.terrain_type_id = terrain;
             break;
         }
     }
@@ -63,7 +63,7 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
             rgo_size_out += std::to_string(size) + "},";
         }
     }
-    fprintf(fp, "province=Province:new{ref_name=\"%s\",name=_(\"%s\"),color=0x%x,terrain=tt_%s,rgo_size={%s}}\n",
+    fprintf(fp, "province=Province:new{ref_name=\"%s\",name=translate(\"%s\"),color=0x%x,terrain=tt_%s,rgo_size={%s}}\n",
         province.ref_name.c_str(),
         province.name.c_str(),
         (unsigned int)color,
@@ -84,11 +84,11 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
 
     // POPs
     for(const auto& language : g_world.languages)
-        if(province.languages[language.get_id()])
-            fprintf(fp, "province:set_language(c_%s,%f)\n", language.ref_name.c_str(), province.languages[language.get_id()]);
+        if(province.languages[language])
+            fprintf(fp, "province:set_language(c_%s,%f)\n", language.ref_name.c_str(), province.languages[language]);
     for(const auto& religion : g_world.religions)
-        if(province.religions[religion.get_id()])
-            fprintf(fp, "province:set_religion(r_%s,%f)\n", religion.ref_name.c_str(), province.religions[religion.get_id()]);
+        if(province.religions[religion])
+            fprintf(fp, "province:set_religion(r_%s,%f)\n", religion.ref_name.c_str(), province.religions[religion]);
     for(const auto& pop : province.pops)
         fprintf(fp, "province:add_pop(pt_%s,%f,%f)\n", gs.world->pop_types[pop.type_id].ref_name.c_str(), pop.size, pop.literacy);
     // Nuclei of the provinces
@@ -101,7 +101,7 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
             fprintf(fp, "n_%s:set_capital(province)\n", gs.world->nations[province.owner_id].ref_name.c_str());
     }
     // Units
-    for(const auto unit_id : g_world.unit_manager.get_province_units(province.get_id())) {
+    for(const auto unit_id : g_world.unit_manager.get_province_units(province)) {
         auto& unit = g_world.unit_manager.units[unit_id];
         fprintf(fp, "province:add_unit(ut_%s,%zu)\n", unit.type->ref_name.c_str(), (size_t)unit.size);
     }
@@ -149,7 +149,7 @@ void LUA_util::save(GameState& gs) {
         cnt = 0;
         for(const auto& terrain_type : gs.world->terrain_types) {
             const uint32_t color = std::byteswap<std::uint32_t>((terrain_type.color & 0x00ffffff) << 8);
-            fprintf(fp.get(), "TerrainType:new{ref_name=\"%s\",name=_(\"%s\"),color=0x%x,is_water_body=%s}:register()\n", terrain_type.ref_name.c_str(), terrain_type.name.c_str(), (unsigned int)color, terrain_type.is_water_body ? "true" : "false");
+            fprintf(fp.get(), "TerrainType:new{ref_name=\"%s\",name=translate(\"%s\"),color=0x%x,is_water_body=%s}:register()\n", terrain_type.ref_name.c_str(), terrain_type.name.c_str(), (unsigned int)color, terrain_type.is_water_body ? "true" : "false");
             cnt++;
         }
         fp.reset();
@@ -159,7 +159,7 @@ void LUA_util::save(GameState& gs) {
         cnt = 0;
         for(const auto& religion : gs.world->religions) {
             const uint32_t color = std::byteswap<std::uint32_t>((religion.color & 0x00ffffff) << 8);
-            fprintf(fp.get(), "Religion:new{ref_name=\"%s\",name=_(\"%s\"),color=0x%x}:register()\n", religion.ref_name.c_str(), religion.name.c_str(), (unsigned int)color);
+            fprintf(fp.get(), "Religion:new{ref_name=\"%s\",name=translate(\"%s\"),color=0x%x}:register()\n", religion.ref_name.c_str(), religion.name.c_str(), (unsigned int)color);
             cnt++;
         }
         fp.reset();
@@ -176,7 +176,7 @@ void LUA_util::save(GameState& gs) {
             case PopGroup::SLAVE: extra_arg = ",is_slave=true"; break;
             default: break;
             }
-            fprintf(fp.get(), "PopType:new{ ref_name=\"%s\",name=_(\"%s\"),social_value=%f%s}\n", pop_type.ref_name.c_str(), pop_type.name.c_str(), pop_type.social_value, extra_arg.c_str());
+            fprintf(fp.get(), "PopType:new{ ref_name=\"%s\",name=translate(\"%s\"),social_value=%f%s}\n", pop_type.ref_name.c_str(), pop_type.name.c_str(), pop_type.social_value, extra_arg.c_str());
             cnt++;
         }
         fp.reset();
@@ -187,11 +187,11 @@ void LUA_util::save(GameState& gs) {
         fprintf(fp.get(), "local v = {}\n");
         for(const auto& unit_type : gs.world->unit_types) {
             if(unit_type.is_ground == true && unit_type.is_naval == false) {
-                fprintf(fp.get(), "v=UnitType:new{ref_name=\"%s\",name=_(\"%s\"),defense=%f,attack=%f,health=%f,speed=%f}\n", unit_type.ref_name.c_str(), unit_type.name.c_str(), unit_type.defense, unit_type.attack, unit_type.max_health, unit_type.speed);
+                fprintf(fp.get(), "v=UnitType:new{ref_name=\"%s\",name=translate(\"%s\"),defense=%f,attack=%f,health=%f,speed=%f}\n", unit_type.ref_name.c_str(), unit_type.name.c_str(), unit_type.defense, unit_type.attack, unit_type.max_health, unit_type.speed);
             } else if(unit_type.is_ground == false && unit_type.is_naval == true) {
-                fprintf(fp.get(), "v=BoatType:new{ref_name=\"%s\",name=_(\"%s\"),defense=%f,attack=%f,health=%f,speed=%f}\n", unit_type.ref_name.c_str(), unit_type.name.c_str(), unit_type.defense, unit_type.attack, unit_type.max_health, unit_type.speed);
+                fprintf(fp.get(), "v=BoatType:new{ref_name=\"%s\",name=translate(\"%s\"),defense=%f,attack=%f,health=%f,speed=%f}\n", unit_type.ref_name.c_str(), unit_type.name.c_str(), unit_type.defense, unit_type.attack, unit_type.max_health, unit_type.speed);
             } else if(unit_type.is_ground == true && unit_type.is_naval == true) {
-                fprintf(fp.get(), "v=AirplaneType:new{ref_name=\"%s\",name=_(\"%s\"),defense=%f,attack=%f,health=%f,speed=%f}\n", unit_type.ref_name.c_str(), unit_type.name.c_str(), unit_type.defense, unit_type.attack, unit_type.max_health, unit_type.speed);
+                fprintf(fp.get(), "v=AirplaneType:new{ref_name=\"%s\",name=translate(\"%s\"),defense=%f,attack=%f,health=%f,speed=%f}\n", unit_type.ref_name.c_str(), unit_type.name.c_str(), unit_type.defense, unit_type.attack, unit_type.max_health, unit_type.speed);
             }
             fprintf(fp.get(), "v:register()\n");
             for(const auto& good : unit_type.req_goods)
@@ -204,7 +204,7 @@ void LUA_util::save(GameState& gs) {
         fp = std::unique_ptr<FILE, int (*)(FILE*)>(fopen("editor/lua/entities/good_types.lua", "wt"), fclose);
         fprintf(fp.get(), "-- Generated by editor :)\n");
         for(const auto& good_type : gs.world->goods)
-            fprintf(fp.get(), "Good:new{ref_name=\"%s\",name=_(\"%s\")}:register()\n", good_type.ref_name.c_str(), good_type.name.c_str());
+            fprintf(fp.get(), "Good:new{ref_name=\"%s\",name=translate(\"%s\")}:register()\n", good_type.ref_name.c_str(), good_type.name.c_str());
         fp.reset();
 
         gs.ui_ctx.prompt("Save", "Editor data saved! (check editor folder)");

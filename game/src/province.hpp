@@ -46,7 +46,7 @@ class TerrainType;
 class Battle : public IdEntity<uint16_t> {
 public:
     Battle(War& war)
-        : war_id{ war.get_id() }
+        : war_id{ war }
     {
 
     }

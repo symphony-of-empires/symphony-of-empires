@@ -108,7 +108,7 @@ std::unique_ptr<Eng3D::Label3D> Eng3D::FontSDF::gen_text(const std::string& text
         const auto& glyph = unicode_map[character];
         text_width += glyph.advance;
     }
-    if(text_width == 0.f) CXX_THROW(std::runtime_error, _("Empty text label"));
+    if(text_width == 0.f) CXX_THROW(std::runtime_error, translate("Empty text label"));
 
     float scale = width / text_width;
     top = glm::normalize(top);

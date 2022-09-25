@@ -48,27 +48,27 @@ void FactoryWindow::make_building_header(UI::Div& table) {
     auto border = UI::Border(border_tex, size, texture_size);
 
     auto name_lab = new UI::Div(0, 0, 150, 35, row);
-    name_lab->text(_("Name"));
+    name_lab->text(translate("Name"));
     name_lab->border = border;
 
     auto workers_lab = new UI::Div(0, 0, 100, 35, row);
-    workers_lab->text(_("Workers"));
+    workers_lab->text(translate("Workers"));
     workers_lab->border = border;
 
     auto province_lab = new UI::Div(0, 0, 200, 35, row);
-    province_lab->text(_("Province"));
+    province_lab->text(translate("Province"));
     province_lab->border = border;
 
     auto input_lab = new UI::Div(0, 0, 150, 35, row);
-    input_lab->text(_("Inputs"));
+    input_lab->text(translate("Inputs"));
     input_lab->border = border;
 
     auto output_lab = new UI::Div(0, 0, 35, 35, row);
-    output_lab->text(_("Output"));
+    output_lab->text(translate("Output"));
     output_lab->border = border;
 
     auto production_scale_lab = new UI::Div(0, 0, 50, 35, row);
-    production_scale_lab->text(_("Scale"));
+    production_scale_lab->text(translate("Scale"));
     production_scale_lab->border = border;
 }
 
@@ -88,7 +88,7 @@ void FactoryWindow::make_building_row(UI::Div& table, const Building& building, 
     name_lab->border = border;
 
     auto workers_lab = new UI::Div(0, 0, 100, 35, row);
-    workers_lab->text(Eng3D::string_format("%d", building.workers));
+    workers_lab->text(string_format("%d", building.workers));
     workers_lab->border = border;
 
     auto province_lab = new UI::Div(0, 0, 200, 35, row);
@@ -114,7 +114,7 @@ void FactoryWindow::make_building_row(UI::Div& table, const Building& building, 
     }
 
     auto production_scale_lab = new UI::Div(0, 0, 50, 35, row);
-    production_scale_lab->text(Eng3D::string_format("%1.2f", building.production_scale));
+    production_scale_lab->text(string_format("%1.2f", building.production_scale));
     production_scale_lab->border = border;
 }
 
@@ -123,7 +123,7 @@ FactoryWindow::FactoryWindow(GameState& gs)
     gs{ gs }
 {
     this->origin = UI::Origin::CENTER_SCREEN;
-    this->text(_("Factories"));
+    this->text(translate("Factories"));
     this->is_scroll = false;
 
     this->set_close_btn_function([this](Widget&) {

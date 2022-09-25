@@ -154,7 +154,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, con
     this->name_lab->right_side_of(*this->province_lab);
     this->name_lab->set_on_each_tick([this](UI::Widget& w) {
         auto& building = this->province.get_buildings()[this->idx];
-        w.text((building.working_unit_type != nullptr) ? building.working_unit_type->name.get_string() : _("No unit"));
+        w.text((building.working_unit_type != nullptr) ? building.working_unit_type->name.get_string() : translate("No unit"));
     });
     this->name_lab->on_each_tick(*this->name_lab);
 
@@ -171,7 +171,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, con
             full_req.second -= need_req.second;
             full += full_req.second;
             needed += need_req.second;
-            text += std::to_string(need_req.second) + " of " + need_req.first->name.get_string() + " (has " + std::to_string(full_req.second) + "), ";
+            text += string_format("%.2f of %s (has %.2f)", need_req.second, need_req.first->name.get_string().c_str(), full_req.second);
         }
 
         ((UI::ProgressBar&)w).set_value((float)full / (float)needed);
@@ -208,7 +208,7 @@ ArmyView::ArmyView(GameState& _gs)
 
     this->origin = UI::Origin::UPPER_RIGHT_SCREEN;
     this->is_scroll = false;
-    this->text(_("Army management"));
+    this->text(translate("Army management"));
 
     this->army_tab = new ArmyArmyTab(gs, 0, 32, this);
     this->army_tab->is_render = true;
@@ -220,7 +220,7 @@ ArmyView::ArmyView(GameState& _gs)
         this->production_tab->is_render = false;
         this->new_unit_tab->is_render = false;
     });
-    army_ibtn->set_tooltip(_("Land army"));
+    army_ibtn->set_tooltip(translate("Land army"));
 
     this->airforce_tab = new ArmyAirforceTab(gs, 0, 32, this);
     this->airforce_tab->is_render = false;
@@ -233,7 +233,7 @@ ArmyView::ArmyView(GameState& _gs)
         this->production_tab->is_render = false;
         this->new_unit_tab->is_render = false;
     });
-    airforce_ibtn->set_tooltip(_("Airforce"));
+    airforce_ibtn->set_tooltip(translate("Airforce"));
 
     this->navy_tab = new ArmyNavyTab(gs, 0, 32, this);
     this->navy_tab->is_render = false;
@@ -246,7 +246,7 @@ ArmyView::ArmyView(GameState& _gs)
         this->production_tab->is_render = false;
         this->new_unit_tab->is_render = false;
     });
-    navy_ibtn->set_tooltip(_("Navy"));
+    navy_ibtn->set_tooltip(translate("Navy"));
 
     this->production_tab = new ArmyProductionTab(gs, 0, 32, this);
     this->production_tab->is_render = false;
@@ -259,7 +259,7 @@ ArmyView::ArmyView(GameState& _gs)
         this->production_tab->is_render = true;
         this->new_unit_tab->is_render = false;
     });
-    production_ibtn->set_tooltip(_("Militar production"));
+    production_ibtn->set_tooltip(translate("Militar production"));
 
     this->new_unit_tab = new ArmyNewUnitTab(gs, 0, 32, this);
     this->new_unit_tab->is_render = false;
@@ -272,5 +272,5 @@ ArmyView::ArmyView(GameState& _gs)
         this->production_tab->is_render = false;
         this->new_unit_tab->is_render = true;
     });
-    new_unit_ibtn->set_tooltip(_("TODO: Megre this with production"));
+    new_unit_ibtn->set_tooltip(translate("TODO: Megre this with production"));
 }
