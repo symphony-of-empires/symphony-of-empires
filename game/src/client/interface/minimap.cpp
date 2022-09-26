@@ -62,11 +62,9 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
 
     auto* flex_column1 = new UI::Div(5, 5, 24, 190, this);
     flex_column1->flex = UI::Flex::COLUMN;
-    //flex_column1->flex_justify = UI::FlexJustify::SPACE_BETWEEN;
     flex_column1->flex_align = UI::Align::CENTER;
     auto* flex_column2 = new UI::Div(35, 5, 24, 190, this);
     flex_column2->flex = UI::Flex::COLUMN;
-    //flex_column2->flex_justify = UI::FlexJustify::SPACE_BETWEEN;
     flex_column2->flex_align = UI::Align::CENTER;
 
     auto* flat_btn = new UI::Image(0, 0, 24, 24, "gfx/flat_icon.png", flex_column1);
@@ -206,10 +204,7 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
     flex_column->flex = UI::Flex::COLUMN;
     flex_column->flex_justify = UI::FlexJustify::START;
     for(const auto& good : goods) {
-        Eng3D::TextureOptions options;
-        options.min_filter = Eng3D::TextureOptions::Filter::LINEAR_MIPMAP;
-        options.mag_filter = Eng3D::TextureOptions::Filter::LINEAR;
-        auto good_tex = tex_man.load(gs.package_man.get_unique("gfx/good/" + good.ref_name + ".png"), options);
+        auto good_tex = tex_man.load(gs.package_man.get_unique("gfx/good/" + good.ref_name + ".png"));
         auto* good_div = new UI::Div(0, 0, 200, 35, flex_column);
         new UI::Image(0, 0, 35, 35, good_tex, good_div);
         new UI::Label(35, 0, good.name.get_string(), good_div);

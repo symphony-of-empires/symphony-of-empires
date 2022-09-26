@@ -134,15 +134,8 @@ Map::Map(GameState& _gs, const World& _world, UI::Group* _map_ui_layer, int scre
     this->set_map_mode(terrain_map_mode, empty_province_tooltip);
     Eng3D::Log::debug("game", "Preloading-important stuff");
 
-    Eng3D::TextureOptions mipmap_options{};
-    mipmap_options.wrap_s = Eng3D::TextureOptions::Wrap::REPEAT;
-    mipmap_options.wrap_t = Eng3D::TextureOptions::Wrap::REPEAT;
-    mipmap_options.min_filter = Eng3D::TextureOptions::Filter::LINEAR_MIPMAP;
-    mipmap_options.mag_filter = Eng3D::TextureOptions::Filter::LINEAR;
-    mipmap_options.compressed = false;
-
-    line_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/line_target.png"), mipmap_options);
-    skybox_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/space.png"), mipmap_options);
+    line_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/line_target.png"));
+    skybox_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/space.png"));
 
     // Query the initial nation flags
     nation_flags.resize(this->gs.world->nations.size(), gs.tex_man.get_white());

@@ -57,7 +57,6 @@ Image::Image(int _x, int _y, unsigned w, unsigned h, const std::string& texture_
         options.wrap_s = Eng3D::TextureOptions::Wrap::CLAMP_TO_EDGE;
         options.wrap_t = Eng3D::TextureOptions::Wrap::CLAMP_TO_EDGE;
     }
-
     auto& s = Eng3D::State::get_instance();
     current_texture = s.tex_man.load(s.package_man.get_unique(texture_path), options);
 }
