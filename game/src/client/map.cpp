@@ -85,6 +85,7 @@ struct std::equal_to<ProvinceId> {
 };
 
 static inline void get_blob_bounds(std::unordered_set<ProvinceId>& visited_provinces, const Nation& nation, const Province& province, glm::vec2* min_x, glm::vec2* min_y, glm::vec2* max_x, glm::vec2* max_y) {
+    visited_provinces.insert(province);
     // Iterate over all neighbours
     for(const auto neighbour_id : province.neighbour_ids) {
         auto& neighbour = g_world.provinces[neighbour_id];
@@ -449,6 +450,7 @@ void Map::draw() {
                     this->unit_widgets[province]->set_unit(unit);
                     this->unit_widgets[province]->set_size(total_stack_size);
                     this->unit_widgets[province]->is_render = true;
+
                 }
             }
 

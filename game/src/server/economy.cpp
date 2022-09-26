@@ -231,7 +231,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
             pop_need.everyday_needs_met += buying_factor;
             pop_need.budget -= total_price;
         }
-        pop_need.budget += pop.size * 0.01f;
+        pop_need.budget += pop.size * 1.1f;
     }
 }
 
