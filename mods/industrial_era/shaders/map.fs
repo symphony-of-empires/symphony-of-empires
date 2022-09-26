@@ -82,6 +82,7 @@ const vec3 water_col = RGB(0.0, 0.0, 1.0);
 const vec3 paper_col = RGB(0.95294, 0.92157, 0.81569);
 const vec3 river_col = RGB(0.0, 0.0, 0.3);
 const vec3 sky_col = RGB(0.2, 0.2, 1.0);
+const vec3 city_light_col = RGB(1., 1., 0.);
 
 vec3 get_water_normal(float time, sampler2D wave1, sampler2D wave2, vec2 tex_coords);
 vec4 no_tiling(sampler2D tex, vec2 uv, sampler2D noisy_tex);
@@ -404,7 +405,7 @@ void main() {
 	// Change the beach to the right format and apply noise
 	float noise = texture(noise_texture, 20.0 * tex_coords).x;
 #else
-	float noise = 1.0;
+	float noise = 1.;
 #endif
 	beach += noise * 0.3 - 0.15;
 	beach = smoothstep(0.2, 0.3, beach);
@@ -504,11 +505,19 @@ void main() {
 	// The fog of war effect
 	float prov_shadow = get_province_shadow(tex_coords, is_diag);
 	out_color = out_color * prov_shadow;
-
 	float light = 1.0;
 #ifdef LIGHTING
 	light = get_lighting(tex_coords, beach) * 1.0;
+	out_color = light * out_color;
 #endif
-	f_frag_color.rgb = pow(light * out_color, vec3(1.0 / 2.2)); // SRGB -> RGB
+
+#ifdef CITY_LIGHTS
+	float x_dn_step = smoothstep(0., 0.74, 1. - abs(sin((tex_coords.x - time * 0.05) * PI)));
+	out_color = mix(out_color, vec3(0., 0., 0.005), min(0.8, x_dn_step)).rgb;
+	float city_light = (1. - smoothstep(0., x_dn_step, noise * 25.)) * (1. - beach);
+	out_color = mix(out_color, city_light_col, city_light);
+#endif
+
+	f_frag_color.rgb = pow(out_color, vec3(1.0 / 2.2)); // SRGB -> RGB
 	f_frag_color.a = 1.0;
 }

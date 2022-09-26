@@ -1601,6 +1601,8 @@ int LuaAPI::ui_call_builtin(lua_State* L) {
                     gs.map->map_render->options.sdf.used = is_used;
                 } else if(optname == "LIGHTING") {
                     gs.map->map_render->options.lighting.used = is_used;
+                } else if(optname == "CITY_LIGHTS") {
+                    gs.map->map_render->options.city_lights.used = is_used;
                 } else if(optname == "PARALLAX") {
                     gs.map->map_render->options.parallax.used = is_used;
                 } else if(optname == "RIVERS") {
@@ -1633,6 +1635,8 @@ int LuaAPI::ui_call_builtin(lua_State* L) {
                     is_used = gs.map->map_render->options.sdf.used;
                 } else if(optname == "LIGHTING") {
                     is_used = gs.map->map_render->options.lighting.used;
+                } else if(optname == "CITY_LIGHTS") {
+                    is_used = gs.map->map_render->options.city_lights.used;
                 } else if(optname == "PARALLAX") {
                     is_used = gs.map->map_render->options.parallax.used;
                 } else if(optname == "RIVERS") {

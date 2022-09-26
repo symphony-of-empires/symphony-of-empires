@@ -62,13 +62,14 @@ class Map;
 typedef Eng3D::OpenGL::Option Option;
 class MapOptions {
 public:
-    Option noise{ "NOISE", false }; // Randomization for more variety
+    Option noise{ "NOISE", true }; // Randomization for more variety
     Option sdf{ "SDF", false }; // Pretty shadow borders
     Option lighting{ "LIGHTING", true }; // Lights and reflections
+    Option city_lights{ "CITY_LIGHTS", false }; // Lights and reflections
     Option parallax{ "PARALLAX", false }; // Parallax (3D) topography
-    Option rivers{ "RIVERS", false }; // Overlaid rivers
-    Option water{ "WATER", false }; // Textured water
-    Option grid{ "GRID", false }; // Square grid for the map
+    Option rivers{ "RIVERS", true }; // Overlaid rivers
+    Option water{ "WATER", true }; // Textured water
+    Option grid{ "GRID", true }; // Square grid for the map
     Option units{ "UNITS", false }; // 3D units
     Option buildings{ "BUILDINGS", false }; // 3D buildings
     Option trees{ "TREES", false }; // 3D hyper realistic trees
@@ -76,7 +77,7 @@ public:
 
     std::vector<Option> get_options() {
         return std::vector<Option>{
-            noise, sdf, lighting, parallax, rivers, water, grid, units, trees, compress
+            noise, sdf, lighting, city_lights, parallax, rivers, water, grid, units, trees, compress
         };
     }
 };

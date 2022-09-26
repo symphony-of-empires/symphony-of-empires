@@ -96,6 +96,13 @@ UI_RegisterCallback("settings_window_invoke", function()
         UI_CallBuiltin("gs.shader_opt.set", "LIGHTING", UI_ReinterpretAs(UI_Checkbox, widget):get_value())
     end)
 
+    local lighting_chk = UI_Checkbox:new(0, 0, 256, 24, graphics_flex.id)
+    lighting_chk:text(_("City lights"))
+    lighting_chk:set_value(UI_CallBuiltin("gs.shader_opt.get", "CITY_LIGHTS"))
+    lighting_chk:set_on_click(function(widget)
+        UI_CallBuiltin("gs.shader_opt.set", "CITY_LIGHTS", UI_ReinterpretAs(UI_Checkbox, widget):get_value())
+    end)
+
     local parallax_chk = UI_Checkbox:new(0, 0, 256, 24, graphics_flex.id)
     parallax_chk:text(_("3D Parallax"))
     parallax_chk:set_value(UI_CallBuiltin("gs.shader_opt.get", "PARALLAX"))
