@@ -44,7 +44,7 @@ namespace Interface {
         std::shared_ptr<Eng3D::Texture> select_border_texture;
         UI::Image* flag_img;
         UI::Div* size_label;
-        UI::ProgressBar* morale_bar;
+        UI::ProgressBar* experience_bar;
     public:
         UnitWidget(Map& map, GameState& gamestate, UI::Widget* parent);
         void set_unit(Unit& _unit);

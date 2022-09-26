@@ -136,8 +136,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     table->set_on_each_tick([this, table](UI::Widget&) {
         for(size_t i = 0; i < this->province.pops.size(); i++) {
             auto& pop = this->province.pops[i];
-            uint32_t id = pop.get_type_id();
-            auto* row = table->get_row(id);
+            auto* row = table->get_row(i);
             size_t row_index = 0;
 
             auto* size = row->get_element(row_index++);
@@ -157,8 +156,8 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
                 auto remove_btn_str = "X";
                 remove_btn->text(remove_btn_str);
                 remove_btn->set_key(remove_btn_str);
-                remove_btn->set_on_click([this, i, id, table](UI::Widget&) {
-                    table->remove_row(id);
+                remove_btn->set_on_click([this, i, table](UI::Widget&) {
+                    table->remove_row(i);
                     const_cast<Province&>(this->province).remove_pop(i);
                     table->on_each_tick(*table);
                 });

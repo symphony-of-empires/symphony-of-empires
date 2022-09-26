@@ -433,8 +433,8 @@ int LuaAPI::get_nation_policies(lua_State* L) {
     lua_pushboolean(L, policy.foreign_trade);
     lua_pushnumber(L, (policy.import_tax));
     lua_pushnumber(L, (policy.export_tax));
-    lua_pushnumber(L, (policy.domestic_import_tax));
-    lua_pushnumber(L, (policy.domestic_export_tax));
+    lua_pushnumber(L, 1.f);
+    lua_pushnumber(L, 1.f);
     lua_pushnumber(L, (policy.poor_flat_tax));
     lua_pushnumber(L, (policy.med_flat_tax));
     lua_pushnumber(L, (policy.rich_flat_tax));
@@ -470,8 +470,8 @@ int LuaAPI::set_nation_policies(lua_State* L) {
     policy.foreign_trade = lua_toboolean(L, 17);
     policy.import_tax = (lua_tonumber(L, 18));
     policy.export_tax = (lua_tonumber(L, 19));
-    policy.domestic_import_tax = (lua_tonumber(L, 20));
-    policy.domestic_export_tax = (lua_tonumber(L, 21));
+    //(lua_tonumber(L, 20));
+    //(lua_tonumber(L, 21));
     policy.poor_flat_tax = (lua_tonumber(L, 22));
     policy.med_flat_tax = (lua_tonumber(L, 23));
     policy.rich_flat_tax = (lua_tonumber(L, 24));
@@ -645,12 +645,8 @@ int LuaAPI::province_add_unit(lua_State* L) {
     Unit unit{};
     unit.set_owner(g_world.nations.at(province.owner_id));
     unit.type_id = unit_type;
-    unit.budget = size * 10.f;
     unit.experience = 1.f;
-    unit.morale = 1.f;
-    unit.supply = 1.f;
     unit.size = size;
-    unit.budget = unit.size * 10.f;
     unit.base = unit_type.max_health;
     g_world.unit_manager.add_unit(unit, province);
     return 0;
@@ -744,8 +740,8 @@ int LuaAPI::get_province_pop(lua_State* L) {
     lua_pushnumber(L, pop.budget);
     lua_pushnumber(L, pop.literacy);
     lua_pushnumber(L, pop.life_needs_met);
-    lua_pushnumber(L, pop.everyday_needs_met);
-    lua_pushnumber(L, pop.luxury_needs_met);
+    lua_pushnumber(L, 1.f);
+    lua_pushnumber(L, 1.f);
     lua_pushnumber(L, (size_t)pop.type_id);
     lua_pushnumber(L, pop.get_ideology());
     lua_pushnumber(L, pop.militancy);
@@ -759,8 +755,8 @@ int LuaAPI::set_province_pop(lua_State* L) {
     pop.budget = lua_tonumber(L, 4);
     pop.literacy = lua_tonumber(L, 5);
     pop.life_needs_met = lua_tonumber(L, 6);
-    pop.everyday_needs_met = lua_tonumber(L, 7);
-    pop.luxury_needs_met = lua_tonumber(L, 8);
+    //lua_tonumber(L, 7);
+    //lua_tonumber(L, 8);
     pop.type_id = PopTypeId(lua_tonumber(L, 9));
     pop.militancy = lua_tonumber(L, 10);
     return 0;

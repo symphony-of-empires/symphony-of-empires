@@ -155,16 +155,6 @@ static inline void ai_reform(Nation& nation) {
         new_policy.export_tax -= 0.1f * (rand() % 10);
 
     if(rand() % 100 > 50)
-        new_policy.domestic_export_tax += 0.1f * (rand() % 10);
-    else if(rand() % 100 > 50)
-        new_policy.domestic_export_tax -= 0.1f * (rand() % 10);
-
-    if(rand() % 100 > 50)
-        new_policy.domestic_import_tax += 0.1f * (rand() % 10);
-    else if(rand() % 100 > 50)
-        new_policy.domestic_import_tax -= 0.1f * (rand() % 10);
-
-    if(rand() % 100 > 50)
         new_policy.industry_tax += 0.1f * (rand() % 10);
     else if(rand() % 100 > 50)
         new_policy.industry_tax -= 0.1f * (rand() % 10);

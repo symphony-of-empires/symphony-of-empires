@@ -106,12 +106,9 @@ public:
     NationId owner_id; // Who owns this unit
     ProvinceId province_id() const;
 
-    float size; // Size of the unit (soldiers in unit)
-    float base; // Base size of the unit (max size due to anti-attrition)
-    float morale = 1.f;
-    float experience = 1.f; // For perspective, 0.5 is the normal unit (i.e a soldier POP)
-    float supply = 1.f; // Available supplies, 1.0 is all supplies fullfilled, lower than that and the unit starts shrinking
-    float budget; // Money that the unit has
+    float size = 0.f;
+    float base = 0.f;
+    float experience = 1.f;
     bool on_battle = false;
 };
 template<>
@@ -121,6 +118,8 @@ struct Serializer<Unit> {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.type_id);
         ::deser_dynamic<is_serialize>(ar, obj.size);
+        ::deser_dynamic<is_serialize>(ar, obj.base);
+        ::deser_dynamic<is_serialize>(ar, obj.experience);
         ::deser_dynamic<is_serialize>(ar, obj.target_province_id);
         ::deser_dynamic<is_serialize>(ar, obj.owner_id);
         ::deser_dynamic<is_serialize>(ar, obj.days_left_until_move);

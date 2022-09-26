@@ -272,8 +272,8 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province& _province, Good
         if(!this->demand_history.empty())
             this->demand_chart->set_tooltip(string_format("%.4f", this->demand_history.back()));
 
-        this->price_rate_btn->text(std::to_string(product.price_vel));
-        if(product.price_vel >= 0.f)
+        this->price_rate_btn->text(std::to_string(product.price_delta));
+        if(product.price_delta >= 0.f)
             this->price_rate_btn->text_color = Eng3D::Color(0, 255, 0);
         else
             this->price_rate_btn->text_color = Eng3D::Color(255, 0, 0);

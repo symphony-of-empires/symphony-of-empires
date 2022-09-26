@@ -121,13 +121,10 @@ public:
     }
 
     Ideology& get_ideology() const;
-    uint32_t get_type_id() const;
 
     PopTypeId type_id;
     float size = 0.f;
     float life_needs_met = 0.f;
-    float everyday_needs_met = 0.f;
-    float luxury_needs_met = 0.f;
     float literacy = 0.f;
     float militancy = 0.f;
     float budget = 0.f;
@@ -142,8 +139,6 @@ struct Serializer<Pop> {
         ::deser_dynamic<is_serialize>(ar, obj.militancy);
         ::deser_dynamic<is_serialize>(ar, obj.budget);
         ::deser_dynamic<is_serialize>(ar, obj.life_needs_met);
-        ::deser_dynamic<is_serialize>(ar, obj.everyday_needs_met);
-        ::deser_dynamic<is_serialize>(ar, obj.luxury_needs_met);
         ::deser_dynamic<is_serialize>(ar, obj.type_id);
         ::deser_dynamic<is_serialize>(ar, obj.ideology_approval);
     }

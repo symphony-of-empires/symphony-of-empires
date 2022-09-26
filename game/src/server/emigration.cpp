@@ -142,12 +142,9 @@ static inline void external_migration(World& world) {
             eval_nations.push_back(&nation);
 
     for(auto& province : world.provinces) {
-        for(const auto& good : world.goods) { // Distrobute products accorss
-            for(const auto neighbour_id : province.neighbour_ids) {
-                world.provinces[neighbour_id].products[good].supply += province.products[good].supply * 0.5f;
-                province.products[good].supply *= 0.5f;
-            }
-        }
+        for(const auto& good : world.goods) // Distrobute products accorss
+            for(const auto neighbour_id : province.neighbour_ids)
+                world.provinces[neighbour_id].products[good].supply += province.products[good].supply * 0.01f;
 
         const auto& unit_ids = world.unit_manager.get_province_units(province);
         if(province.pops.empty()) {

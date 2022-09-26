@@ -110,7 +110,7 @@ struct Building : public Entity<BuildingId> {
     float budget = 0.f; // Total money that the factory has
     float days_unoperational = 0.f; // Days that the factory has not been operational
     float level = 0.f; // Level/Capacity scale of the building
-    float workers = 0.f; // Amount of workers
+    float workers = 1.f; // Amount of workers
     float production_scale = 1.f; // How much of the factory is being used. From 0-1
     UnitTypeId working_unit_type_id; // Unit that is currently being built here (nullptr indicates no unit)
     // Required goods for building the working unit

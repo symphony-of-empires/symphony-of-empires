@@ -72,8 +72,8 @@ UnitWidget::UnitWidget(Map& _map, GameState& _gs, UI::Widget* parent)
     this->size_label = new UI::Div(41, 1, 48, 28, this);
     this->size_label->text_align_x = UI::Align::END;
 
-    this->morale_bar = new UI::ProgressBar(91, 1, 8, 28, 0, 1, this);
-    this->morale_bar->direction = UI::Direction::BOTTOM_TO_TOP;
+    this->experience_bar = new UI::ProgressBar(91, 1, 8, 28, 0, 1, this);
+    this->experience_bar->direction = UI::Direction::BOTTOM_TO_TOP;
 }
 
 // This is expected to be called every framed
@@ -110,7 +110,7 @@ void UnitWidget::set_unit(Unit& _unit) {
     
     this->flag_img->current_texture = this->gs.get_nation_flag(this->gs.world->nations[_unit.owner_id]);
     this->set_size(static_cast<size_t>(_unit.size));
-    this->morale_bar->set_value(_unit.morale);
+    this->experience_bar->set_value(_unit.experience);
 }
 
 void UnitWidget::set_size(size_t size) {
@@ -147,12 +147,12 @@ UnitView::UnitView(GameState& _gs, Unit& _unit)
     });
     size_lab->on_each_tick(*size_lab);
 
-    auto* morale_lab = new UI::Label(0, 0, " ", flex_column);
-    morale_lab->set_on_each_tick([this](UI::Widget& w) {
+    auto* experience_lab = new UI::Label(0, 0, " ", flex_column);
+    experience_lab->set_on_each_tick([this](UI::Widget& w) {
         auto& unit = this->gs.world->unit_manager.units[this->unit_id];
-        w.text(Eng3D::translate_format("Morale: %.2f", unit.morale));
+        w.text(Eng3D::translate_format("Experience: %.2f", unit.experience));
     });
-    morale_lab->on_each_tick(*morale_lab);
+    experience_lab->on_each_tick(*experience_lab);
 
     auto* attdef_lab = new UI::Label(0, 0, " ", flex_column);
     attdef_lab->set_on_each_tick([this](UI::Widget& w) {

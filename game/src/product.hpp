@@ -51,30 +51,47 @@ struct Serializer<Good> {
 
 /// @brief A product (based off a Good) which can be bought by POPs, converted by factories and transported
 struct Product : public Entity<ProductId> {
-    inline void close_market() {
+    void close_market() {
         if(this->demand > this->supply) {
             // Increase price with more demand
-            this->price_vel += 0.001f * (this->demand - this->supply);
+            this->price_delta += 0.001f * (this->demand - this->supply);
         } else if(this->demand < this->supply) {
             // Increase supply with more demand
-            this->price_vel -= 0.001f * (this->supply - this->demand);
+            this->price_delta -= 0.001f * (this->supply - this->demand);
         } else {
             // Gravitate towards absolute zero due to volatility decay
             // (i.e, product price becomes stable without market activity)
-            if(this->price_vel > 0.1f) this->price_vel -= 0.01f;
-            else if(this->price_vel < -0.1f) this->price_vel += 0.01f;
-            else this->price_vel = -0.01f;
+            if(this->price_delta > 0.1f) this->price_delta -= 0.01f;
+            else if(this->price_delta < -0.1f) this->price_delta += 0.01f;
+            else this->price_delta = -0.01f;
         }
 
         // Set the new price
-        this->price = glm::clamp(this->price + this->price_vel, 0.01f, 100'000.f);
+        this->price = glm::clamp(this->price + this->price_delta, 0.01f, 100'000.f);
         //this->demand = 0;
     }
+    
+    /// @brief Buy a portion of the item
+    /// @param amount Amount to buy
+    /// @return float Total cost of purchase
+    float buy(float amount) {
+        this->demand += amount;
+        this->supply -= glm::min(amount, this->supply);
+        return this->price * amount;
+    }
 
-    float price = 1.f; // Price of the product
-    float price_vel = 0.f; // Velocity of change of price of the product
-    float supply = 0.f; // Total supply of the product
-    float demand = 0.f; // Total demand of the product
+    /// @brief Produce the product
+    /// @param amount Amount to produce
+    /// @return float Total gains from production
+    float produce(float amount) {
+        this->supply += amount;
+        return this->price * amount;
+    }
+
+    float price = 1.f;
+    float price_delta = 0.f;
+    float supply = 1.f;
+    float demand = 1.f;
 };
 template<>
 struct Serializer<Product> {
@@ -82,7 +99,7 @@ struct Serializer<Product> {
     static inline void deser_dynamic(Archive& ar, Product& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.price);
-        ::deser_dynamic<is_serialize>(ar, obj.price_vel);
+        ::deser_dynamic<is_serialize>(ar, obj.price_delta);
         ::deser_dynamic<is_serialize>(ar, obj.supply);
         ::deser_dynamic<is_serialize>(ar, obj.demand);
     }

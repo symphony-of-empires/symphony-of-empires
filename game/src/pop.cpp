@@ -28,13 +28,8 @@
 
 Ideology& Pop::get_ideology() const {
     // Obtain ideology with highest approval
-    auto* v = &g_world.ideologies[std::distance(
-        this->ideology_approval.begin(),
+    auto* v = &g_world.ideologies[std::distance(this->ideology_approval.begin(),
         std::max_element(this->ideology_approval.begin(), this->ideology_approval.end())
     )];
     return *v;
-}
-
-uint32_t Pop::get_type_id() const {
-    return static_cast<uint32_t>(static_cast<size_t>(this->type_id));
 }

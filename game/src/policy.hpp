@@ -81,8 +81,6 @@ struct Policies {
     bool foreign_trade = true; // Do we allow foreign trade?
     float import_tax = 0.1f; // Tax % for importing products
     float export_tax = 0.1f; // Tax % for exporting products
-    float domestic_import_tax = 0.1f; // Tax % for domestic imports
-    float domestic_export_tax = 0.1f; // Tax % for domestic exports
     float poor_flat_tax = 0.1f; // Flat tax rhs on the low-wage pops
     float med_flat_tax = 0.1f; // Flat tax rhs on the medium-wage pops
     float rich_flat_tax = 0.1f; // Flat tax rhs on the high-wage pops

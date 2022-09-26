@@ -61,7 +61,7 @@ void Unit::attack(Unit& enemy) {
 
     // It's important that a size of zero nullifies the attack, this prevents the edge case
     // of 1 v 1 units that kill each other
-    const float damage = (g_world.unit_types[type_id].attack * static_cast<float>(this->size)) * this->morale * 0.08f;
+    const float damage = (g_world.unit_types[type_id].attack * static_cast<float>(this->size)) * this->experience * 0.08f;
     enemy.size -= glm::min(enemy.size, damage);
 }
 

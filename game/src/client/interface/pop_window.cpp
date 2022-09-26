@@ -58,7 +58,7 @@ Interface::PopWindow::PopWindow(GameState& gs)
         for(const auto province_id : nation.owned_provinces) {
             const auto& province = this->gs.world->provinces[province_id];
             for(const auto& pop : province.pops) {
-                const auto id = pop.get_type_id() + (static_cast<uint64_t>(province) << 32);
+                const auto id = static_cast<size_t>(pop.type_id) + (static_cast<uint64_t>(province) << 32);
                 auto* row = table->get_row(id);
                 size_t row_index = 0;
 
