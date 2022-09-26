@@ -41,9 +41,6 @@ class World;
 /// this is moddable via a lua script and new unit types can be added
 class UnitType : public RefnameEntity<UnitTypeId> {
 public:
-    UnitType() {};
-    ~UnitType() {};
-
     Eng3D::StringRef name;
 
     float supply_consumption;
@@ -54,7 +51,28 @@ public:
     float capacity; // Capacity of units that can be carried (transport units)
     bool is_ground; // Can go on ground?
     bool is_naval; // Can go on water?
-    std::vector<std::pair<Good*, float>> req_goods; // Required goods
+    std::vector<std::pair<GoodId, float>> req_goods; // Required goods
+};
+template<>
+class Serializer<UnitType*>: public SerializerReferenceLocal<World, UnitType> {};
+template<>
+class Serializer<const UnitType*>: public SerializerReferenceLocal<World, const UnitType> {};
+template<>
+class Serializer<UnitType> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, UnitType& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.supply_consumption);
+        ::deser_dynamic<is_serialize>(ar, obj.speed);
+        ::deser_dynamic<is_serialize>(ar, obj.max_health);
+        ::deser_dynamic<is_serialize>(ar, obj.defense);
+        ::deser_dynamic<is_serialize>(ar, obj.attack);
+        ::deser_dynamic<is_serialize>(ar, obj.is_ground);
+        ::deser_dynamic<is_serialize>(ar, obj.is_naval);
+    }
 };
 
 class UnitManager;
@@ -71,8 +89,6 @@ class Unit : public Entity<UnitId> {
     float days_left_until_move = 0;
     ProvinceId target_province_id;
 public:
-    Unit() = default;
-    ~Unit() = default;
     void attack(Unit& enemy);
     glm::vec2 get_pos() const;
     void set_target(const Province& province);
@@ -87,7 +103,7 @@ public:
     void set_path(const Province& target);
     ProvinceId get_target_province_id() const;
 
-    UnitType* type = nullptr; // Type of unit
+    UnitTypeId type_id; // Type of unit
     NationId owner_id; // Who owns this unit
     ProvinceId province_id() const;
 
@@ -99,15 +115,27 @@ public:
     float budget; // Money that the unit has
     bool on_battle = false;
 };
+template<>
+class Serializer<Unit> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, Unit& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.type_id);
+        ::deser_dynamic<is_serialize>(ar, obj.size);
+        ::deser_dynamic<is_serialize>(ar, obj.target_province_id);
+        ::deser_dynamic<is_serialize>(ar, obj.owner_id);
+        ::deser_dynamic<is_serialize>(ar, obj.days_left_until_move);
+        ::deser_dynamic<is_serialize>(ar, obj.path);
+        ::deser_dynamic<is_serialize>(ar, obj.on_battle);
+    }
+};
 
 class UnitManager {
 private:
     UnitManager& operator=(const UnitManager&) = default;
 public:
-    UnitManager() = default;
-    ~UnitManager() = default;
     void init(World& world);
-
     void add_unit(Unit unit, ProvinceId unit_current_province);
     void remove_unit(UnitId unit);
     void move_unit(UnitId unit, ProvinceId target_province);
@@ -127,12 +155,19 @@ public:
         return unit_province[unit_id];
     }
 
-    /// @brief The actual units
     std::vector<Unit> units;
-    /// @brief The unit slots that are free to use
     std::vector<UnitId> free_unit_slots;
-    /// @brief Vector for each unit
     std::vector<ProvinceId> unit_province;
-    /// @brief Vector for each province
     std::vector<std::vector<UnitId>> province_units;
+};
+template<>
+class Serializer<UnitManager> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, UnitManager& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.units);
+        ::deser_dynamic<is_serialize>(ar, obj.free_unit_slots);
+        ::deser_dynamic<is_serialize>(ar, obj.unit_province);
+        ::deser_dynamic<is_serialize>(ar, obj.province_units);
+    }
 };

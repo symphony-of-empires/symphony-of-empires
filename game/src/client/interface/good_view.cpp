@@ -34,7 +34,6 @@
 #include "eng3d/ui/tooltip.hpp"
 
 #include "client/interface/good_view.hpp"
-#include "io_impl.hpp"
 
 using namespace Interface;
 
@@ -152,7 +151,7 @@ GoodView::GoodView(GameState& _gs, Good& _good)
     output_lab->below_of(*avg_price_chart);
     dx += output_lab->width;
     for(const auto& building_type : this->gs.world->building_types) {
-        bool is_present = (building_type.output == &this->good);
+        bool is_present = building_type.output_id == this->good;
         if(!is_present) continue;
         auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/production.png")), this);
         icon_ibtn->below_of(*avg_price_chart);
@@ -165,7 +164,7 @@ GoodView::GoodView(GameState& _gs, Good& _good)
     input_lab->below_of(*avg_price_chart);
     dx += input_lab->width;
     for(const auto& building_type : this->gs.world->building_types) {
-        bool is_present = std::find(building_type.inputs.begin(), building_type.inputs.end(), &this->good) != building_type.inputs.end();
+        bool is_present = std::find(building_type.input_ids.begin(), building_type.input_ids.end(), this->good) != building_type.input_ids.end();
         if(!is_present) continue;
         auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/production.png")), this);
         icon_ibtn->below_of(*avg_price_chart);

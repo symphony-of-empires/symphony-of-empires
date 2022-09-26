@@ -40,13 +40,26 @@ enum TechnologyType {
 class NationModifier;
 class Technology : public RefnameEntity<TechnologyId> {
 public:
-    Technology() = default;
-    ~Technology() = default;
-    
     Eng3D::StringRef name;
     Eng3D::StringRef description;
     float cost;
     enum TechnologyType type;
     std::vector<TechnologyId> req_technologies;
-    std::vector<NationModifier*> modifiers;
+};
+template<>
+class Serializer<Technology*>: public SerializerReferenceLocal<World, Technology> {};
+template<>
+class Serializer<const Technology*>: public SerializerReferenceLocal<World, const Technology> {};
+template<>
+class Serializer<Technology> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, Technology& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.description);
+        ::deser_dynamic<is_serialize>(ar, obj.cost);
+        ::deser_dynamic<is_serialize>(ar, obj.req_technologies);
+    }
 };

@@ -24,9 +24,9 @@
 
 #include <algorithm>
 #include "eng3d/ui/components.hpp"
+#include "action.hpp"
 
 #include "client/interface/treaty.hpp"
-#include "io_impl.hpp"
 #include "client/client_network.hpp"
 
 using namespace Interface;
@@ -36,29 +36,28 @@ std::string treaty_to_text(const Treaty& treaty) {
     for(const auto& clause : treaty.clauses) {
         if(clause->type == TreatyClauseType::MONEY) {
             const auto* dyn_clause = static_cast<const TreatyClause::WarReparations*>(clause);
-            text += dyn_clause->sender->name + " demands $" + std::to_string(dyn_clause->amount) + " from " + dyn_clause->receiver->name;
+            text += g_world.nations[dyn_clause->sender_id].name + " demands $" + std::to_string(dyn_clause->amount) + " from " + g_world.nations[dyn_clause->receiver_id].name;
         } else if(clause->type == TreatyClauseType::ANNEX_PROVINCES) {
             const auto* dyn_clause = static_cast<const TreatyClause::AnnexProvince*>(clause);
-            text += dyn_clause->sender->name + " obtains ";
+            text += g_world.nations[dyn_clause->sender_id].name + " obtains ";
             for(const auto& province : dyn_clause->provinces) {
                 text += province->name + ", ";
             }
-            text += " from " + dyn_clause->receiver->name;
+            text += " from " + g_world.nations[dyn_clause->receiver_id].name;
         } else if(clause->type == TreatyClauseType::LIBERATE_NATION) {
             const auto* dyn_clause = static_cast<const TreatyClause::LiberateNation*>(clause);
-            text += dyn_clause->sender->name + " liberates " + dyn_clause->liberated->name + " and gives them ";
-            for(const auto& province : dyn_clause->provinces) {
-                text += province->name + " from " + dyn_clause->receiver->name + ", ";
-            }
+            text += g_world.nations[dyn_clause->sender_id].name + " liberates " + dyn_clause->liberated->name + " and gives them ";
+            for(const auto& province : dyn_clause->provinces)
+                text += province->name + " from " + g_world.nations[dyn_clause->receiver_id].name + ", ";
         } else if(clause->type == TreatyClauseType::HUMILIATE) {
             const auto* dyn_clause = static_cast<const TreatyClause::Humiliate*>(clause);
-            text += dyn_clause->sender->name + " humiliates " + dyn_clause->receiver->name;
+            text += g_world.nations[dyn_clause->sender_id].name + " humiliates " + g_world.nations[dyn_clause->receiver_id].name;
         } else if(clause->type == TreatyClauseType::IMPOSE_POLICIES) {
             const auto* dyn_clause = static_cast<const TreatyClause::ImposePolicies*>(clause);
-            text += dyn_clause->sender->name + " imposes policies on " + dyn_clause->receiver->name;
+            text += g_world.nations[dyn_clause->sender_id].name + " imposes policies on " + g_world.nations[dyn_clause->receiver_id].name;
         } else if(clause->type == TreatyClauseType::PUPPET) {
             const auto* dyn_clause = static_cast<const TreatyClause::Puppet*>(clause);
-            text += dyn_clause->sender->name + " vassalizes " + dyn_clause->receiver->name;
+            text += g_world.nations[dyn_clause->sender_id].name + " vassalizes " + g_world.nations[dyn_clause->receiver_id].name;
         }
         text += ", ";
     }
@@ -73,16 +72,16 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation& _nation)
     this->is_scroll = false;
     this->text("Draft treaty");
 
-    this->treaty.sender = gs.curr_nation;
-    this->treaty.receiver = &this->nation;
+    this->treaty.sender_id = *gs.curr_nation;
+    this->treaty.receiver_id = this->nation;
 
     auto* take_all_btn = new UI::Checkbox(0, 0, 128, 24, this);
     take_all_btn->text("Take all controlled land");
     take_all_btn->set_on_click([this](UI::Widget& w) {
         if(((UI::Checkbox&)w).get_value()) {
             auto* clause = new TreatyClause::AnnexProvince();
-            clause->sender = this->gs.curr_nation;
-            clause->receiver = &(const_cast<Nation&>(this->nation));
+            clause->sender_id = *this->gs.curr_nation;
+            clause->receiver_id = this->nation;
             clause->days_duration = 0;
             for(const auto province_id : this->nation.controlled_provinces)
                 clause->provinces.push_back(&this->gs.world->provinces[province_id]);
@@ -100,8 +99,8 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation& _nation)
     annexx_btn->set_on_click([this](UI::Widget& w) {
         if(((UI::Checkbox&)w).get_value()) {
             auto* clause = new TreatyClause::AnnexProvince();
-            clause->sender = this->gs.curr_nation;
-            clause->receiver = &(const_cast<Nation&>(this->nation));
+            clause->sender_id = *this->gs.curr_nation;
+            clause->receiver_id = this->nation;
             clause->days_duration = 0;
             for(const auto province_id : this->nation.owned_provinces)
                 clause->provinces.push_back(&this->gs.world->provinces[province_id]);
@@ -122,7 +121,8 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation& _nation)
         ::serialize<ActionType>(ar, ActionType::DRAFT_TREATY);
         ::serialize(ar, this->treaty.clauses);
         ::serialize(ar, this->treaty.name);
-        ::serialize(ar, this->treaty.sender);
+        ::serialize(ar, this->treaty.sender_id);
+        ::serialize(ar, this->treaty.receiver_id);
         packet.data(ar.get_buffer(), ar.size());
         this->gs.client->send(packet);
         this->gs.ui_ctx.prompt("Treaty", "Treaty drafted: " + treaty_to_text(this->treaty));

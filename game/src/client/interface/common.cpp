@@ -45,7 +45,6 @@
 #include "building.hpp"
 #include "client/client_network.hpp"
 #include "action.hpp"
-#include "io_impl.hpp"
 
 using namespace Interface;
 
@@ -55,7 +54,8 @@ UnitButton::UnitButton(GameState& _gs, int x, int y, Unit& _unit, UI::Widget* _p
     unit{ _unit }
 {
     this->set_on_each_tick([this](UI::Widget& w) {
-        w.text(string_format("%zu %s", this->unit.size, this->unit.type->name.get_string()));
+        auto& type = this->gs.world->unit_types[this->unit.type_id];
+        w.text(string_format("%zu %s", this->unit.size, type.name.get_string()));
     });
     this->on_each_tick(*this);
 }
@@ -126,26 +126,27 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, un
     production_flex->flex = UI::Flex::COLUMN;
     auto* makes_lab = new UI::Label(0, 0, translate("Produces:"), production_flex);
     makes_lab->below_of(*name_btn);
-    if(!building_type.inputs.empty()) {
-        for(const auto& good : building_type.inputs) {
-            auto* icon_ibtn = new UI::Image(0, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/good/" + good->ref_name + ".png")), production_flex);
-            icon_ibtn->set_tooltip(good->name.get_string());
-            icon_ibtn->set_on_click([this, good](UI::Widget&) {
-                new Interface::GoodView(this->gs, *good);
+    if(!building_type.input_ids.empty()) {
+        for(const auto& good_id : building_type.input_ids) {
+            auto& good = this->gs.world->goods[good_id];
+            auto* icon_ibtn = new UI::Image(0, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/good/" + good.ref_name + ".png")), production_flex);
+            icon_ibtn->set_tooltip(good.name.get_string());
+            icon_ibtn->set_on_click([this, &good](UI::Widget&) {
+                new Interface::GoodView(this->gs, good);
             });
         }
     }
 
-    if(building_type.output != nullptr) {
-        if(!building_type.inputs.empty()) {
+    if(Good::is_valid(building_type.output_id)) {
+        if(!building_type.input_ids.empty()) {
             auto* arrow_lab = new UI::Label(0, 0, "?", production_flex);
             arrow_lab->text(translate("into"));
         }
-        auto* good = building_type.output;
-        auto* icon_ibtn = new UI::Image(0, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/good/" + good->ref_name + ".png")), production_flex);
-        icon_ibtn->set_tooltip(good->name.get_string());
-        icon_ibtn->set_on_click([this, good](UI::Widget&) {
-            new GoodView(this->gs, *good);
+        auto& good = this->gs.world->goods[building_type.output_id];
+        auto* icon_ibtn = new UI::Image(0, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/good/" + good.ref_name + ".png")), production_flex);
+        icon_ibtn->set_tooltip(good.name.get_string());
+        icon_ibtn->set_on_click([this, &good](UI::Widget&) {
+            new GoodView(this->gs, good);
         });
     }
 
@@ -178,7 +179,7 @@ TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology& _techno
     auto* chk = new UI::Checkbox(0, 0, 128, 24, this);
     chk->text(technology.name.get_string());
     chk->set_on_each_tick([this](UI::Widget& w) {
-        if(&this->technology == this->gs.curr_nation->focus_tech || !this->gs.curr_nation->research[this->gs.world->get_id(this->technology)]) {
+        if(this->gs.curr_nation->focus_tech_id == this->technology || !this->gs.curr_nation->research[this->gs.world->get_id(this->technology)]) {
             ((UI::Checkbox&)w).set_value(true);
         } else {
             ((UI::Checkbox&)w).set_value(false);

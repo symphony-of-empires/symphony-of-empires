@@ -134,7 +134,8 @@ UnitView::UnitView(GameState& _gs, Unit& _unit)
     this->is_scroll = false;
 
     auto& unit = this->gs.world->unit_manager.units[this->unit_id];
-    this->text(Eng3D::translate_format("Unit %s from %s", unit.type->name.get_string(), this->gs.world->nations[unit.owner_id].name.get_string()));
+    auto& type = this->gs.world->unit_types[unit.type_id];
+    this->text(Eng3D::translate_format("Unit %s from %s", type.name.get_string(), this->gs.world->nations[unit.owner_id].name.get_string()));
 
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
@@ -156,7 +157,8 @@ UnitView::UnitView(GameState& _gs, Unit& _unit)
     auto* attdef_lab = new UI::Label(0, 0, " ", flex_column);
     attdef_lab->set_on_each_tick([this](UI::Widget& w) {
         auto& unit = this->gs.world->unit_manager.units[this->unit_id];
-        w.text(Eng3D::translate_format("Attack/Defense: %.2f/%.2f", unit.type->attack, unit.type->defense));
+        auto& type = this->gs.world->unit_types[unit.type_id];
+        w.text(Eng3D::translate_format("Attack/Defense: %.2f/%.2f", type.attack, type.defense));
     });
     attdef_lab->on_each_tick(*attdef_lab);
 }

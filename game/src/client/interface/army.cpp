@@ -48,8 +48,9 @@ ArmyArmyTab::ArmyArmyTab(GameState& _gs, int x, int y, UI::Widget* parent)
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
     gs.world->unit_manager.for_each_unit([this, flex_column](Unit& unit) {
-        if(unit.owner_id != this->gs.curr_nation->get_id()) return;
-        else if(!(unit.type->is_ground == true && unit.type->is_naval == false)) return;
+        auto& type = this->gs.world->unit_types[unit.type_id];
+        if(unit.owner_id != *this->gs.curr_nation) return;
+        else if(!type.is_ground && type.is_naval) return;
 
         auto* btn = new UnitButton(this->gs, 0, 0, unit, flex_column);
         btn->set_on_click([](UI::Widget&) {
@@ -65,8 +66,9 @@ ArmyAirforceTab::ArmyAirforceTab(GameState& _gs, int x, int y, UI::Widget* paren
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
     gs.world->unit_manager.for_each_unit([this, flex_column](Unit& unit) {
-        if(unit.owner_id != this->gs.curr_nation->get_id()) return;
-        else if(!(unit.type->is_ground == true && unit.type->is_naval == true)) return;
+        auto& type = this->gs.world->unit_types[unit.type_id];
+        if(unit.owner_id != *this->gs.curr_nation) return;
+        else if(!type.is_ground && !type.is_naval) return;
 
         auto* btn = new UnitButton(this->gs, 0, 0, unit, flex_column);
         btn->set_on_click([](UI::Widget&) {
@@ -82,8 +84,9 @@ ArmyNavyTab::ArmyNavyTab(GameState& _gs, int x, int y, UI::Widget* parent)
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
     gs.world->unit_manager.for_each_unit([this, flex_column](Unit& unit) {
-        if(unit.owner_id != this->gs.curr_nation->get_id()) return;
-        else if(!(unit.type->is_ground == false && unit.type->is_naval == true)) return;
+        auto& type = this->gs.world->unit_types[unit.type_id];
+        if(unit.owner_id != *this->gs.curr_nation) return;
+        else if(type.is_ground && !type.is_naval) return;
 
         auto* btn = new UnitButton(this->gs, 0, 0, unit, flex_column);
         btn->set_on_click([](UI::Widget&) {
@@ -140,8 +143,8 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, con
     this->is_scroll = false;
 
     this->unit_icon = new UI::Image(0, 0, 24, 24, this);
-    if(building.working_unit_type != nullptr)
-        this->unit_icon->current_texture = gs.tex_man.load(gs.package_man.get_unique("gfx/" + building.working_unit_type->ref_name + ".png"));
+    if(UnitType::is_valid(building.working_unit_type_id))
+        this->unit_icon->current_texture = gs.tex_man.load(gs.package_man.get_unique("gfx/" + this->gs.world->unit_types[building.working_unit_type_id].ref_name + ".png"));
 
     this->province_lab = new UI::Label(0, 0, "?", this);
     this->province_lab->right_side_of(*this->unit_icon);
@@ -154,7 +157,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, con
     this->name_lab->right_side_of(*this->province_lab);
     this->name_lab->set_on_each_tick([this](UI::Widget& w) {
         auto& building = this->province.get_buildings()[this->idx];
-        w.text((building.working_unit_type != nullptr) ? building.working_unit_type->name.get_string() : translate("No unit"));
+        w.text(UnitType::is_valid(building.working_unit_type_id) ? this->gs.world->unit_types[building.working_unit_type_id].name.get_string() : translate("No unit"));
     });
     this->name_lab->on_each_tick(*this->name_lab);
 
@@ -162,16 +165,16 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, con
     progress_pgbar->below_of(*this->name_lab);
     progress_pgbar->set_on_each_tick([this](UI::Widget& w) {
         auto& building = this->province.get_buildings()[this->idx];
-        if(!building.working_unit_type) return;
+        if(UnitType::is_invalid(building.working_unit_type_id)) return;
         auto full = 0.f, needed = 0.f;
         std::string text = "Needs ";
         for(size_t i = 0; i < building.req_goods_for_unit.size(); i++) {
             auto need_req = building.req_goods_for_unit[i];
-            auto full_req = building.working_unit_type->req_goods[i];
+            auto full_req = this->gs.world->unit_types[building.working_unit_type_id].req_goods[i];
             full_req.second -= need_req.second;
             full += full_req.second;
             needed += need_req.second;
-            text += string_format("%.2f of %s (has %.2f)", need_req.second, need_req.first->name.get_string().c_str(), full_req.second);
+            text += translate_format("%.2f of %s (has %.2f)", need_req.second, this->gs.world->goods[need_req.first].name.get_string().c_str(), full_req.second);
         }
 
         ((UI::ProgressBar&)w).set_value((float)full / (float)needed);

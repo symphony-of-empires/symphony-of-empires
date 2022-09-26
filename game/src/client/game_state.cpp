@@ -47,10 +47,9 @@
 #include "eng3d/interface.hpp"
 
 #include "client/game_state.hpp"
-#include "good.hpp"
-#include "io_impl.hpp"
 #include "product.hpp"
 #include "world.hpp"
+#include "action.hpp"
 #include "client/client_network.hpp"
 #include "client/interface/decision.hpp"
 #include "client/interface/lobby.hpp"
@@ -81,7 +80,8 @@ void GameState::play_nation() {
 }
 
 std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(const Nation& nation) {
-    std::string path = "gfx/flags/" + nation.ref_name + "_" + (nation.ideology == nullptr ? "none" : nation.ideology->ref_name.get_string()) + ".png";
+    auto& ideology = this->world->ideologies[nation.ideology_id];
+    std::string path = "gfx/flags/" + nation.ref_name + "_" + (Ideology::is_valid(nation.ideology_id) ? ideology.ref_name.get_string() : "none") + ".png";
     return this->tex_man.load(this->package_man.get_unique(path));
 }
 
@@ -404,10 +404,11 @@ extern "C" void game_main(int argc, char** argv) {
                                     auto& province = gs.world->provinces[province_id];
                                     auto& building = province.get_buildings()[building_type];
                                     // Must not be working on something else
-                                    if(building.working_unit_type != nullptr) continue;
-                                    is_built = true;
-                                    gs.client->send(Action::BuildingStartProducingUnit::form_packet(province, building_type, *gs.curr_nation, *unit_type));
-                                    break;
+                                    if(UnitType::is_invalid(building.working_unit_type_id)) {
+                                        is_built = true;
+                                        gs.client->send(Action::BuildingStartProducingUnit::form_packet(province, building_type, *gs.curr_nation, *unit_type));
+                                        break;
+                                    }
                                 }
 
                                 if(!is_built) break;

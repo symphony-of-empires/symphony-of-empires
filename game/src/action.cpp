@@ -26,7 +26,6 @@
 #include "eng3d/network.hpp"
 
 #include "action.hpp"
-#include "io_impl.hpp"
 #include "client/client_network.hpp"
 #include "server/server_network.hpp"
 #include "product.hpp"
@@ -34,6 +33,7 @@
 #include "unit.hpp"
 #include "nation.hpp"
 #include "province.hpp"
+#include "world.hpp"
 
 using namespace Action;
 

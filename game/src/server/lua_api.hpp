@@ -51,8 +51,6 @@ namespace LuaAPI {
     int add_terrain_type(lua_State* L);
     int get_terrain_type(lua_State* L);
     int get_terrain_type_by_id(lua_State* L);
-    
-    int set_nation_mod_to_invention(lua_State* L);
 
     int add_technology(lua_State* L);
     int get_technology(lua_State* L);

@@ -44,7 +44,6 @@
 
 #include "nation.hpp"
 #include "product.hpp"
-#include "good.hpp"
 #include "technology.hpp"
 #include "building.hpp"
 #include "ideology.hpp"
@@ -65,6 +64,14 @@ public:
     const std::vector<Tile>& get_neighbours(const World& world) const;
     // ID of the province where this tile belongs to
     ProvinceId province_id;
+};
+template<>
+class Serializer<Tile> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, Tile& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.province_id);
+    }
 };
 
 /// @todo Make bookmark.hpp?
@@ -133,7 +140,6 @@ public:
 class World {
 private:
     Economy::EconomyState economyState;
-
 public:
     static constexpr unsigned int ticks_per_month = 30;
 
@@ -282,6 +288,48 @@ public:
     std::mutex rebel_mutex;
     std::mutex wcmap_mutex; // World map on clients require some data to be stable for read-only operations
     std::vector<std::pair<Decision, Nation*>> taken_decisions;
+};
+template<>
+class Serializer<World> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, World& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.width);
+        ::deser_dynamic<is_serialize>(ar, obj.height);
+        ::deser_dynamic<is_serialize>(ar, obj.time);
+        ::deser_dynamic<is_serialize>(ar, obj.goods);
+        ::deser_dynamic<is_serialize>(ar, obj.unit_types);
+        ::deser_dynamic<is_serialize>(ar, obj.religions);
+        ::deser_dynamic<is_serialize>(ar, obj.languages);
+        ::deser_dynamic<is_serialize>(ar, obj.pop_types);
+        ::deser_dynamic<is_serialize>(ar, obj.terrain_types);
+        ::deser_dynamic<is_serialize>(ar, obj.building_types);
+        ::deser_dynamic<is_serialize>(ar, obj.ideologies);
+        ::deser_dynamic<is_serialize>(ar, obj.technologies);
+        ::deser_dynamic<is_serialize>(ar, obj.nation_modifiers);
+        ::deser_dynamic<is_serialize>(ar, obj.nations);
+        ::deser_dynamic<is_serialize>(ar, obj.provinces);
+        ::deser_dynamic<is_serialize>(ar, obj.events);
+        ::deser_dynamic<is_serialize>(ar, obj.wars);
+        ::deser_dynamic<is_serialize>(ar, obj.treaties);
+        ::deser_dynamic<is_serialize>(ar, obj.unit_manager);
+        const size_t n_relations = obj.nations.size() * obj.nations.size();
+        if constexpr(is_serialize) {
+            for(size_t i = 0; i < n_relations; i++)
+                ::deser_dynamic<is_serialize>(ar, obj.relations[i]);
+        } else {
+            // In order to avoid post-deserialization relational patcher, we will simply allocate everything with "empty" objects,
+            // then we will fill those spots as we deserialize
+            obj.relations.reset(new NationRelation[obj.nations.size() * obj.nations.size()]);
+            for(size_t i = 0; i < n_relations; i++)
+                ::deser_dynamic<is_serialize>(ar, obj.relations[i]);
+            obj.tiles.reset(new Tile[obj.width * obj.height]);
+        }
+
+        // (De-)serialize all the tiles, for the deserialization path, see above
+        for(size_t i = 0; i < obj.width * obj.height; i++)
+            ::deser_dynamic<is_serialize>(ar, obj.tiles[i]);
+    }
 };
 
 extern World g_world;

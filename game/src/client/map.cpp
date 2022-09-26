@@ -66,7 +66,6 @@
 #include "world.hpp"
 #include "province.hpp"
 #include "client/client_network.hpp"
-#include "io_impl.hpp"
 #include "action.hpp"
 
 template<>
@@ -484,7 +483,7 @@ void Map::draw() {
                     }
                     model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
                     obj_shader->set_uniform("model", model);
-                    unit_type_models[this->gs.world->get_id(*unit.type)]->draw(*obj_shader);
+                    unit_type_models[unit.type_id]->draw(*obj_shader);
                 }
             }
         }

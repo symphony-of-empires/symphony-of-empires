@@ -38,3 +38,19 @@ public:
     // with our ideology (so we set eyecandy and stuff)
     Eng3D::StringRef check_policies_fn;
 };
+template<>
+class Serializer<Ideology*>: public SerializerReferenceLocal<World, Ideology> {};
+template<>
+class Serializer<const Ideology*>: public SerializerReferenceLocal<World, const Ideology> {};
+template<>
+class Serializer<Ideology> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, Ideology& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.color);
+        ::deser_dynamic<is_serialize>(ar, obj.check_policies_fn);
+    }
+};

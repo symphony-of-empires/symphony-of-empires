@@ -27,7 +27,6 @@
 #include "world.hpp"
 #include "client/game_state.hpp"
 #include "client/client_network.hpp"
-#include "io_impl.hpp"
 #include "action.hpp"
 #include "eng3d/ui/components.hpp"
 

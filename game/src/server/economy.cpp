@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <map>
 #include <tbb/blocked_range.h>
 #include <tbb/concurrent_vector.h>
 #include <tbb/parallel_for.h>
@@ -38,10 +39,8 @@
 #include "action.hpp"
 #include "server/economy.hpp"
 #include "world.hpp"
-#include "io_impl.hpp"
 #include "server/server_network.hpp"
 #include "product.hpp"
-#include "good.hpp"
 #include "emigration.hpp"
 
 #undef min
@@ -85,96 +84,8 @@ void militancy_update(World& world, Nation& nation) {
             float growth = pop.size * pop.life_needs_met * 0.001f;
             pop.size += static_cast<float>((int)growth);
             pop.militancy += 0.01f * -pop.life_needs_met;
-            pop.ideology_approval[world.get_id(*world.nations[province.owner_id].ideology)] += pop.life_needs_met * 0.25f;
+            pop.ideology_approval[world.nations[province.owner_id].ideology_id] += pop.life_needs_met * 0.25f;
         }
-    }
-
-    // Total anger in population (global)
-    float total_anger = 0.f;
-    // Anger per ideology (how much we hate the current ideology)
-    std::vector<float> ideology_anger(world.ideologies.size(), 0.f);
-    const float coup_chances = nation.controlled_provinces.size() * 1000.f;
-    auto rand = Eng3D::get_local_generator();
-    for(const auto province_id : nation.controlled_provinces) {
-        const auto& province = world.provinces[province_id];
-        for(const auto& pop : province.pops) {
-            /// @todo Ok, look, the justification is that educated people
-            // almost never do coups - in comparasion to uneducated
-            // peseants, rich people don't need to protest!
-            const float anger = glm::max(pop.militancy, 0.001f);
-            total_anger += anger;
-            for(const auto& ideology : world.ideologies)
-                ideology_anger[world.get_id(ideology)] += (pop.ideology_approval[world.get_id(ideology)] * anger) * (pop.size / 1000);
-        }
-    }
-
-    // Rebellions!
-    /// @todo Broadcast this event to other people, maybe a REBEL_UPRISE action with a list of uprising provinces?
-    if(std::fmod(rand(), glm::max(1.f, coup_chances - total_anger)) == 0) {
-        /// @todo This might cause multithreading problems
-        std::scoped_lock lock(world.rebel_mutex);
-
-        // Compile list of uprising provinces
-        std::vector<Province*> uprising_provinces;
-        for(const auto province_id : nation.owned_provinces) {
-            auto& province = world.provinces[province_id];
-            float province_anger = 0.f;
-            float province_threshold = 0.f;
-            for(const auto& pop : province.pops) {
-                province_anger += pop.militancy;
-                province_threshold += pop.literacy * pop.life_needs_met;
-            }
-
-            if(province_anger > province_threshold)
-                uprising_provinces.push_back(&province);
-        }
-
-        // Nation 0 is always the rebel nation
-        auto& rebel_nation = world.nations[0];
-        // Make the most angry provinces revolt!
-        std::vector<TreatyClause::BaseClause*> clauses;
-        for(auto& province : uprising_provinces) {
-            /// @todo We should make a copy of the `rebel` nation for every rebellion!!!
-            /// @todo We should also give them an unique ideology!!!
-            rebel_nation.control_province(*province);
-            for(const auto unit_id : world.unit_manager.get_province_units(province->get_id())) {
-                auto& unit = world.unit_manager.units[unit_id];
-                /// @todo Does battles affect ownership of provinces?
-                if(unit.on_battle) continue;
-                unit.set_owner(rebel_nation);
-                rebel_nation.control_province(world.provinces[world.unit_manager.get_unit_current_province(unit)]);
-            }
-
-            // Declare war seeking all provinces from the owner
-            auto* cl = new TreatyClause::AnnexProvince();
-            cl->provinces = uprising_provinces;
-            cl->sender = &rebel_nation;
-            cl->receiver = &nation;
-            cl->type = TreatyClauseType::ANNEX_PROVINCES;
-            clauses.push_back(cl);
-            Eng3D::Log::debug("game", "Revolt on " + province->ref_name + " by " + rebel_nation.ideology->ref_name);
-        }
-        rebel_nation.declare_war(nation, clauses);
-    }
-
-    // Roll a dice! (more probability with more anger!)
-    if(!std::fmod(rand(), glm::max(coup_chances, coup_chances - total_anger))) {
-        // Choose the ideology with most "anger" (the one more probable to coup d'
-        // etat) - angry radicals will surely throw off the current administration
-        // while peaceful people wonq't
-        const int idx = std::distance(ideology_anger.begin(), std::max_element(ideology_anger.begin(), ideology_anger.end()));
-        // Ideology_anger and ideologies are mapped 1:1 - so we just pick up the associated ideology
-        // Apply the policies of the ideology
-        nation.current_policy = world.ideologies[idx].policies;
-        // Switch ideologies of nation
-        nation.ideology = &world.ideologies[idx];
-        // People who are aligned to the ideology are VERY happy now
-        for(const auto province_id : nation.owned_provinces) {
-            auto& province = world.provinces[province_id];
-            for(auto& pop : province.pops)
-                pop.militancy = -50.f;
-        }
-        Eng3D::Log::debug("game", "Coup d' etat on " + nation.ref_name + " by " + nation.ideology->ref_name);
     }
 }
 
@@ -209,12 +120,12 @@ constexpr float scale_speed(float v) {
 // Updates supply, demand, and set wages for workers
 static void update_factory_production(World& world, Building& building, const BuildingType& building_type, Province& province, float& pop_payment)
 {
-    if(building_type.output == nullptr || building.level == 0.f) return;
+    if(Good::is_invalid(building_type.output_id) || building.can_do_output()) return;
 
     // TODO add output modifier
     // Calculate outputs
-    auto* output = building_type.output;
-    auto& output_product = province.products[output->get_id()];
+    auto& output = world.goods[building_type.output_id];
+    auto& output_product = province.products[output];
     auto output_amount = 1.f * building.production_scale * 10.f;
 
     // TODO set min wages
@@ -227,14 +138,14 @@ static void update_factory_production(World& world, Building& building, const Bu
     // TODO add input modifier
     auto inputs_cost = 0.f;
     for(const auto& input : building_type.req_goods)
-        inputs_cost += province.products[input.first->get_id()].price * input.second;
+        inputs_cost += province.products[input.first].price * input.second;
     inputs_cost *= building.production_scale;
     auto output_value = output_amount * output_product.price;
     auto profit = output_value - min_wage - inputs_cost;
     output_product.supply += output_amount; // Increment supply of output
 
     for(const auto& input : building_type.req_goods) // Increase demand of inputs
-        province.products[input.first->get_id()].demand += input.second; // * price ?
+        province.products[input.first].demand += input.second; // * price ?
     
     if(profit <= 0) {
         if(output_value - inputs_cost > 0)
@@ -260,10 +171,10 @@ static void update_factories_employment(const World& world, Province& province, 
 
     // Sort factories by production scale, which is suppose to represent how profitable the factory is
     // Might be better to calculate how profitable it really is and use that instead
-    std::vector<std::pair<size_t, float>> factories_by_profitability(province.buildings.size());
+    std::map<size_t, float> factories_by_profitability;
     for(size_t i = 0; i < province.buildings.size(); i++)
-        factories_by_profitability[i] = std::pair<size_t, float>(i, province.buildings[i].production_scale);
-    std::sort(std::begin(factories_by_profitability), std::end(factories_by_profitability), [](const auto& a, const auto& b) { return a.second > b.second; });
+        factories_by_profitability[i] = province.buildings[i].production_scale;
+    std::sort(factories_by_profitability.begin(), factories_by_profitability.end(), [](const auto& a, const auto& b) { return a.second > b.second; });
 
     // Cancel operations
     float is_operating = (province.controller_id == province.owner_id) ? 1.f : 0.f;
@@ -421,7 +332,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         update_pop_needs(world, province, new_needs);
         for(auto& building : province.buildings) {
             // There must not be conflict ongoing otherwise they wont be able to build shit
-            if(province.controller_id == province.owner_id && building.working_unit_type != nullptr && building.can_build_unit()) {
+            if(province.controller_id == province.owner_id && UnitType::is_valid(building.working_unit_type_id) && building.can_build_unit()) {
                 // Ratio of health:person is 25, thus making units very expensive
                 const float army_size = 100;
                 /// @todo Consume special soldier pops instead of farmers!!!
@@ -441,14 +352,14 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                     if(final_size) {
                         nation.budget -= given_money;
                         Unit unit{};
-                        unit.type = building.working_unit_type;
+                        unit.type_id = building.working_unit_type_id;
                         unit.set_owner(nation);
                         unit.budget = given_money;
                         unit.size = final_size;
-                        unit.base = unit.type->max_health;
+                        unit.base = world.unit_types[unit.type_id].max_health;
                         province_new_units.local().emplace_back(unit, province);
-                        building.working_unit_type = nullptr;
-                        Eng3D::Log::debug("economy", "[" + province.ref_name + "]: Has built an unit of [" + unit.type->ref_name + "]");
+                        building.working_unit_type_id = UnitTypeId(-1);
+                        Eng3D::Log::debug("economy", "[" + province.ref_name + "]: Has built an unit of [" + world.unit_types[unit.type_id].ref_name + "]");
                     }
                 }
             }
@@ -487,9 +398,9 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     tbb::parallel_for(tbb::blocked_range(eval_nations.begin(), eval_nations.end()), [&world](const auto& nations_range) {
         for(const auto nation : nations_range) {
             // Do research on focused research
-            if(nation->focus_tech != nullptr) {
-                const float research = nation->get_research_points() / nation->focus_tech->cost;
-                nation->research[world.get_id(*nation->focus_tech)] += research;
+            if(Technology::is_valid(nation->focus_tech_id)) {
+                const float research = nation->get_research_points() / world.technologies[nation->focus_tech_id].cost;
+                nation->research[nation->focus_tech_id] += research;
             }
             militancy_update(world, *nation);
         }

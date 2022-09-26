@@ -33,10 +33,6 @@
 // Event
 //
 void Event::take_decision(Nation& sender, Decision& dec) {
-    /// @todo Why was this check put in the first place?
-    //auto receiver = std::find(receivers.begin(), receivers.end(), &sender);
-    // Confirm that the sender is in receiver's list
-    //assert(receiver != receivers.end());
     g_world.taken_decisions.push_back(std::make_pair(dec, &sender)); // Tell the world that we took a decision
     std::erase_if(sender.inbox, [this](const auto& e) { // Remove from inbox too
         return this->ref_name == e.ref_name;

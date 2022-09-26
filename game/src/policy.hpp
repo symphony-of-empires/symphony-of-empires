@@ -24,12 +24,16 @@
 
 #pragma once
 
+#include "objects.hpp"
+
 enum AllowancePolicy {
     ALLOW_NOBODY, // Nobody can enter the country
     ALLOW_ACCEPTED_LANGUAGES, // Only accepted languages can enter the country
     ALLOW_ALL_PAYMENT, // Everyone can enter, but at a cost
     ALLOW_ALL, // Everyone can exit freely
 };
+template<>
+class Serializer<enum AllowancePolicy>: public SerializerMemcpy<enum AllowancePolicy> {};
 
 enum CensorshipPolicy {
     CENSORSHIP_ALL_CENSORED, // All media censored
@@ -37,12 +41,16 @@ enum CensorshipPolicy {
     CENSORSHIP_ONLY_APPROVED, // Only "approved" media is allowed
     CENSORSHIP_ALL_ALLOWED, // All media allowed
 };
+template<>
+class Serializer<enum CensorshipPolicy>: public SerializerMemcpy<enum CensorshipPolicy> {};
 
 enum AutoBuildPolicy {
     AUTO_BUILD_NONE, // POPs cannot auto build stuff
     AUTO_BUILD_ONLY_APPROVED, // POPs can only build with approval
     AUTO_BUILD_ALLOWED, // All POPs can build freely
 };
+template<>
+class Serializer<enum AutoBuildPolicy>: public SerializerMemcpy<enum AutoBuildPolicy> {};
 
 enum TreatmentPolicy {
     TREATMENT_EVERYONE_EQUAL, // Everyone is equal
@@ -50,6 +58,8 @@ enum TreatmentPolicy {
     TREATMENT_ENSLAVED, // Non-accepted are enslaved
     TREATMENT_EXTERMINATE, // Exterminate
 };
+template<>
+class Serializer<enum TreatmentPolicy>: public SerializerMemcpy<enum TreatmentPolicy> {};
 
 class Policies {
 public:
@@ -110,4 +120,30 @@ public:
         diff += std::abs(rhs.min_sv_for_parliament - this->min_sv_for_parliament);
         return diff;
     };
+};
+template<>
+class Serializer<Policies> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, Policies& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.free_supplies);
+        ::deser_dynamic<is_serialize>(ar, obj.immigration);
+        ::deser_dynamic<is_serialize>(ar, obj.import_tax);
+        ::deser_dynamic<is_serialize>(ar, obj.industry_tax);
+        ::deser_dynamic<is_serialize>(ar, obj.legislative_parliament);
+        ::deser_dynamic<is_serialize>(ar, obj.med_flat_tax);
+        ::deser_dynamic<is_serialize>(ar, obj.migration);
+        ::deser_dynamic<is_serialize>(ar, obj.military_spending);
+        ::deser_dynamic<is_serialize>(ar, obj.poor_flat_tax);
+        ::deser_dynamic<is_serialize>(ar, obj.private_property);
+        ::deser_dynamic<is_serialize>(ar, obj.public_education);
+        ::deser_dynamic<is_serialize>(ar, obj.public_healthcare);
+        ::deser_dynamic<is_serialize>(ar, obj.rich_flat_tax);
+        ::deser_dynamic<is_serialize>(ar, obj.secular_education);
+        ::deser_dynamic<is_serialize>(ar, obj.slavery);
+        ::deser_dynamic<is_serialize>(ar, obj.social_security);
+        ::deser_dynamic<is_serialize>(ar, obj.treatment);
+        ::deser_dynamic<is_serialize>(ar, obj.min_wage);
+        ::deser_dynamic<is_serialize>(ar, obj.min_sv_for_parliament);
+    }
 };

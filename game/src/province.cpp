@@ -25,7 +25,6 @@
 #include "province.hpp"
 #include "world.hpp"
 #include "product.hpp"
-#include "good.hpp"
 #include "unit.hpp"
 #include "building.hpp"
 #include "pop.hpp"
@@ -72,7 +71,7 @@ void Province::add_building(const BuildingType& building_type) {
 
 void Province::cancel_construction_project() {
     for(auto& building : buildings)
-        building.working_unit_type = nullptr;
+        building.working_unit_type_id = UnitTypeId(-1);
 }
 
 glm::vec3 Province::get_sphere_coord(glm::vec2 world_size, float radius) const {

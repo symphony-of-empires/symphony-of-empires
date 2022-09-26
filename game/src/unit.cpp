@@ -70,15 +70,14 @@ void Unit::attack(Unit& enemy) {
 
     // It's important that a size of zero nullifies the attack, this prevents the edge case
     // of 1 v 1 units that kill each other
-    const float damage = (type->attack * static_cast<float>(this->size)) * this->morale * 0.08f;
+    const float damage = (g_world.unit_types[type_id].attack * static_cast<float>(this->size)) * this->morale * 0.08f;
     enemy.size -= glm::min(enemy.size, damage);
 }
 
 glm::vec2 Unit::get_pos() const {
     assert(this->is_valid());
     const auto& world = World::get_instance();
-    auto prov_id = this->province_id();
-    auto& province = world.provinces[prov_id];
+    auto& province = world.provinces[this->province_id()];
     return province.get_pos();
 }
 

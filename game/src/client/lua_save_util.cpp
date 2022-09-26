@@ -29,7 +29,6 @@
 #include "eng3d/utils.hpp"
 #include "client/game_state.hpp"
 #include "world.hpp"
-#include "io_impl.hpp"
 
 static void save_province(GameState& gs, FILE* fp, Province& province)
 {
@@ -85,10 +84,10 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
     }
 
     // POPs
-    for(const auto& language : g_world.languages)
+    for(const auto& language : gs.world->languages)
         if(province.languages[language])
             fprintf(fp, "province:set_language(c_%s,%f)\n", language.ref_name.c_str(), province.languages[language]);
-    for(const auto& religion : g_world.religions)
+    for(const auto& religion : gs.world->religions)
         if(province.religions[religion])
             fprintf(fp, "province:set_religion(r_%s,%f)\n", religion.ref_name.c_str(), province.religions[religion]);
     for(const auto& pop : province.pops)
@@ -103,9 +102,9 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
             fprintf(fp, "n_%s:set_capital(province)\n", gs.world->nations[province.owner_id].ref_name.c_str());
     }
     // Units
-    for(const auto unit_id : g_world.unit_manager.get_province_units(province)) {
-        auto& unit = g_world.unit_manager.units[unit_id];
-        fprintf(fp, "province:add_unit(ut_%s,%zu)\n", unit.type->ref_name.c_str(), (size_t)unit.size);
+    for(const auto unit_id : gs.world->unit_manager.get_province_units(province)) {
+        auto& unit = gs.world->unit_manager.units[unit_id];
+        fprintf(fp, "province:add_unit(ut_%s,%zu)\n", gs.world->unit_types[unit.type_id].ref_name.c_str(), (size_t)unit.size);
     }
 }
 
@@ -197,7 +196,7 @@ void LUA_util::save(GameState& gs) {
             }
             fprintf(fp.get(), "v:register()\n");
             for(const auto& good : unit_type.req_goods)
-                fprintf(fp.get(), "v:requires_good(Good:get(\"%s\"), %f)\n", good.first->ref_name.c_str(), good.second);
+                fprintf(fp.get(), "v:requires_good(Good:get(\"%s\"), %f)\n", gs.world->goods[good.first].ref_name.c_str(), good.second);
             cnt++;
         }
         fp.reset();

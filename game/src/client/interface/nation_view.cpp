@@ -32,7 +32,6 @@
 #include "client/interface/war.hpp"
 #include "client/map.hpp"
 #include "client/map_render.hpp"
-#include "io_impl.hpp"
 
 Interface::NationMarketView::NationMarketView(GameState& _gs, Nation& _nation)
     : UI::Window(0, 0, 700, 600),
@@ -90,15 +89,16 @@ Interface::NationView::NationView(GameState& _gs, Nation& _nation)
 
     auto* ideology_img = new UI::Image(0, 0, 24, 24, this);
     ideology_img->set_on_each_tick([this](UI::Widget& w) {
-        ((UI::Image&)w).current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/ideology/" + this->nation.get_client_hint().ideology->ref_name.get_string() + ".png"));
-        w.set_tooltip(this->nation.get_client_hint().ideology->ref_name.get_string());
+        const auto& ideology = this->gs.world->ideologies[this->nation.get_client_hint().ideology_id];
+        ((UI::Image&)w).current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/ideology/" + ideology.ref_name.get_string() + ".png"));
+        w.set_tooltip(ideology.ref_name.get_string());
     });
     ideology_img->on_each_tick(*ideology_img);
     
     if(gs.curr_nation != &nation) {
         auto* rel_lab = new UI::Label(0, 0, "?", flex_actions_column);
         rel_lab->set_on_each_tick([this](UI::Widget& w) {
-            const auto& relation = this->gs.world->get_relation(this->gs.world->get_id(*this->gs.curr_nation), this->gs.world->get_id(this->nation));
+            const auto& relation = this->gs.world->get_relation(*this->gs.curr_nation, this->nation);
             w.text(std::to_string(relation.relation));
         });
         rel_lab->on_each_tick(*rel_lab);

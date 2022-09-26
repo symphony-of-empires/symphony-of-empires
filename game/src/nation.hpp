@@ -34,8 +34,8 @@
 #include "eng3d/string.hpp"
 
 #include "objects.hpp"
-#include "policy.hpp"
 #include "event.hpp"
+#include "policy.hpp"
 
 class Province;
 class Ideology;
@@ -47,16 +47,10 @@ namespace TreatyClause {
     class BaseClause;
 }
 
-// Included due to ids
-#include "province.hpp"
-
 // Defines a one side relation between a country
 // This allows for cases where a country A hates country B, but country B loves country A
 class NationRelation {
 public:
-    constexpr NationRelation() = default;
-    ~NationRelation() = default;
-
     bool is_allied() const {
         return alliance > 0.f && !has_war;
     }
@@ -67,28 +61,41 @@ public:
 
     float relation = 0.f;
     bool has_war = false;
-    float alliance = 0.f; // From 0 to 1
-                          // 0 = diplomatic alliance, tariiff excemption
-                          // 1 = political alliance, after this they can
-                          //     form a single country
+    float alliance = 0.f; // From 0 to 1; 0 = diplomatic alliance, tariiff excemption
+                          // 1 = political alliance, after this they can form a single country
+};
+template<>
+class Serializer<NationRelation> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, NationRelation& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.alliance);
+        ::deser_dynamic<is_serialize>(ar, obj.has_war);
+        ::deser_dynamic<is_serialize>(ar, obj.relation);
+    }
 };
 
-// Hints for the client on how to display the nation
+class Ideology;
+/// @brief Hints for the client on how to display the nation
 class NationClientHint {
 public:
-    NationClientHint() = default;
-    ~NationClientHint() = default;
-
     uint32_t color;
     Eng3D::StringRef alt_name; // Alternate name, for example communist Russia would be called USSR
-    Ideology* ideology = nullptr; // Ideology to which this hint applies to (nullptr = default fallback)
+    IdeologyId ideology_id; // Ideology to which this hint applies to (nullptr = default fallback)
+};
+template<>
+class Serializer<NationClientHint> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, NationClientHint& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.color);
+        ::deser_dynamic<is_serialize>(ar, obj.alt_name);
+        ::deser_dynamic<is_serialize>(ar, obj.ideology_id);
+    }
 };
 
 class NationModifier : public RefnameEntity<NationModifierId> {
 public:
-    NationModifier() = default;
-    ~NationModifier() = default;
-
     Eng3D::StringRef name;
     // Modifiers for a nation, which increases/decreases certain stuff
     // They should never be 0, a modifier of 1.0 is equal to no modifer at
@@ -108,15 +115,38 @@ public:
     float luxury_needs_met_mod = 1.f;
     float immigration_attraction = 1.f;
 };
+template<>
+class Serializer<NationModifier*>: public SerializerReferenceLocal<World, NationModifier> {};
+template<>
+class Serializer<const NationModifier*>: public SerializerReferenceLocal<World, const NationModifier> {};
+template<>
+class Serializer<NationModifier> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, NationModifier& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.death_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.delivery_cost_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.everyday_needs_met_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.life_needs_met_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.literacy_learn_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.luxury_needs_met_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.militancy_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.reproduction_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.salary_paid_mod);
+        ::deser_dynamic<is_serialize>(ar, obj.workers_needed_mod);
+    }
+};
 
+class Technology;
 class Nation : public RefnameEntity<NationId> {
     inline void do_diplomacy();
     inline bool can_do_diplomacy() const;
 
-    Nation & operator=(const Nation&) = default;
+    Nation& operator=(const Nation&) = default;
 public:
-    Nation() = default;
-    ~Nation() = default;
     void declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> clauses = std::vector<TreatyClause::BaseClause*>());
     bool is_ally(const Nation& nation) const;
     bool is_enemy(const Nation& nation) const;
@@ -150,7 +180,6 @@ public:
     float get_immigration_attraction_mod();
 
     Eng3D::StringRef name;
-    Nation* puppet_master = nullptr; // Pupeeter of this nation (if any)
     float diplomacy_points; // Amount of diplomacy points available
     float prestige = 0.1f; // Amount of prestige
     float infamy = 0; // Level of infamy
@@ -164,11 +193,12 @@ public:
     bool ai_controlled = true;
     bool ai_do_cmd_troops = true;
 
+    NationId puppet_master_id; // Pupeeter of this nation (if any)
     ProvinceId capital_id; // The capital of this nation (can be invalid id)
-    Ideology* ideology = nullptr; // Current ideology of the nation
+    IdeologyId ideology_id; // Current ideology of the nation
+    TechnologyId focus_tech_id; // Current tech being researched
     Policies current_policy; // Current policy of this nation
     uint16_t diplomatic_timer; // Time until a diplomacy can be done
-    Technology* focus_tech = nullptr; // Current tech being researched
     // Accepted languages in this nation, the accepted languages may have some bonuses on provinces *totally*
     // owned by this nation
     std::vector<float> language_discrim;
@@ -182,4 +212,38 @@ public:
     std::vector<float> research; // Progress on technologies (1:1)
     std::vector<NationClientHint> client_hints; // Hints for the client on how to draw a nation on the client
     std::string client_username; // Used by clients to store usernames from nations - not saved
+};
+template<>
+class Serializer<Nation*>: public SerializerReferenceLocal<World, Nation> {};
+template<>
+class Serializer<const Nation*>: public SerializerReferenceLocal<World, const Nation> {};
+template<>
+class Serializer<Nation> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, Nation& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.puppet_master_id);
+        ::deser_dynamic<is_serialize>(ar, obj.diplomacy_points);
+        ::deser_dynamic<is_serialize>(ar, obj.prestige);
+        ::deser_dynamic<is_serialize>(ar, obj.infamy);
+        ::deser_dynamic<is_serialize>(ar, obj.military_score);
+        ::deser_dynamic<is_serialize>(ar, obj.naval_score);
+        ::deser_dynamic<is_serialize>(ar, obj.economy_score);
+        ::deser_dynamic<is_serialize>(ar, obj.budget);
+        ::deser_dynamic<is_serialize>(ar, obj.capital_id);
+        ::deser_dynamic<is_serialize>(ar, obj.language_discrim);
+        ::deser_dynamic<is_serialize>(ar, obj.religion_discrim);
+        ::deser_dynamic<is_serialize>(ar, obj.owned_provinces);
+        ::deser_dynamic<is_serialize>(ar, obj.controlled_provinces);
+        ::deser_dynamic<is_serialize>(ar, obj.current_policy);
+        ::deser_dynamic<is_serialize>(ar, obj.diplomatic_timer);
+        ::deser_dynamic<is_serialize>(ar, obj.inbox);
+        ::deser_dynamic<is_serialize>(ar, obj.client_hints);
+        ::deser_dynamic<is_serialize>(ar, obj.ideology_id);
+        ::deser_dynamic<is_serialize>(ar, obj.research);
+        ::deser_dynamic<is_serialize>(ar, obj.focus_tech_id);
+    }
 };

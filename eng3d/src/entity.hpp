@@ -38,54 +38,39 @@ struct EntityId {
     {
 
     }
+    constexpr EntityId<T>(EntityId<T>&&) noexcept = default;
     constexpr EntityId<T>(const EntityId<T>&) noexcept = default;
     constexpr EntityId<T>& operator=(const EntityId<T>&) noexcept = default;
-    ~EntityId() noexcept = default;
+    constexpr ~EntityId() noexcept = default;
 
     constexpr operator size_t() const noexcept {
         return static_cast<size_t>(id);
     }
 
-    constexpr operator int() const noexcept {
-        return static_cast<int>(id);
-    }
-
-    constexpr bool operator==(const EntityId<T>& o) const noexcept {
-        return this->id == o.id;
-    }
-
-    constexpr bool operator!=(const EntityId<T>& o) const noexcept {
-        return this->id != o.id;
-    }
-
-    constexpr bool operator<(const EntityId<T>& o) const noexcept {
-        return this->id < o.id;
-    }
-
-    constexpr bool operator>(const EntityId<T>& o) const noexcept {
-        return this->id > o.id;
-    }
-
+    constexpr bool operator==(const EntityId<T>& o) const noexcept = default;
+    constexpr bool operator!=(const EntityId<T>& o) const noexcept = default;
+    constexpr bool operator<(const EntityId<T>& o) const noexcept = default;
+    constexpr bool operator>(const EntityId<T>& o) const noexcept = default;
     constexpr bool operator<=(const EntityId<T>& o) const noexcept = default;
     constexpr bool operator>=(const EntityId<T>& o) const noexcept = default;
     constexpr bool operator<=>(const EntityId<T>& o) const noexcept = default;
 
- 	EntityId<T>& operator++() noexcept {
+ 	constexpr EntityId<T>& operator++() noexcept {
         this->id++;
         return *this;
     }
 
-    EntityId<T>& operator--() noexcept {
+    constexpr EntityId<T>& operator--() noexcept {
         this->id--;
         return *this;
     }
 
-    EntityId<T> operator++(int) noexcept {
+    constexpr EntityId<T> operator++(int) noexcept {
         this->id++;
         return *this;
     }
 
-    EntityId<T> operator--(int) noexcept {
+    constexpr EntityId<T> operator--(int) noexcept {
         this->id--;
         return *this;
     }
@@ -94,18 +79,23 @@ struct EntityId {
 template<std::unsigned_integral T>
 struct std::hash<EntityId<T>> {
     std::size_t operator()(const EntityId<T>& id) const noexcept {
-        std::size_t h1 = std::hash<int>{}(static_cast<size_t>(id));
-        std::size_t h2 = std::hash<int>{}(static_cast<size_t>(id));
-        return h1 ^ (h2 << 1);
+        return std::hash<size_t>{}(static_cast<size_t>(id));
+    }
+};
+
+template<std::unsigned_integral T>
+struct std::equal_to<EntityId<T>> {
+    constexpr bool operator()(const EntityId<T>& a, const EntityId<T>& b) const {
+        return a == b;
     }
 };
 
 /// @brief An entity which can only be referenced by an (presumably) unique Id
 /// this is the base class for the other entity types.
-/// @tparam IdType The type used for the Id
-template<typename IdType>
+/// @tparam T The type used for the Id
+template<typename T>
 struct Entity {
-    using Id = IdType;
+    using Id = T;
 
     constexpr Entity() noexcept = default;
     constexpr Entity(Entity&&) noexcept = default;
@@ -116,7 +106,7 @@ struct Entity {
     /// @brief Id used to speed up Id lookups on any context
     /// @note This depends that the container is sequential (as if it was
     /// a contigous array) - Otherwise this optimization **will** break
-    Id cached_id = Id{ -1 };
+    Id cached_id = Id{ static_cast<T>(-1) };
 
     /// @brief Returns an invalid id
     /// @return constexpr Id The invalid id
@@ -168,8 +158,8 @@ struct Entity {
 };
 
 /// @brief An entity which can be referenced via a ref_name and also via id
-/// @tparam IdType The type used for the Id
-template<typename IdType>
-struct RefnameEntity : public Entity<IdType> {
+/// @tparam T The type used for the Id
+template<typename T>
+struct RefnameEntity : public Entity<T> {
     Eng3D::StringRef ref_name;
 };

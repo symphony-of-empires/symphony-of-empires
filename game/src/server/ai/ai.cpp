@@ -37,8 +37,8 @@
 #include "province.hpp"
 #include "server/economy.hpp"
 #include "world.hpp"
+#include "action.hpp"
 #include "server/lua_api.hpp"
-#include "io_impl.hpp"
 #include "server/server_network.hpp"
 
 enum AiMode {
@@ -96,8 +96,8 @@ static inline Good* ai_get_potential_good(Nation& nation) {
         // - Second, we preferably want the A.I to complete the supply chain of all industries so doing the method described
         // above should increase the priority for filling out higher level industries
         for(const auto& building_type : world.building_types) // Take in account all buildings for this
-            for(const auto& input : building_type.inputs) // Apply the higher-probability with outputs of this factory
-                avg_prob[building_type.output->get_id()] += avg_prob[input->get_id()] + 1;
+            for(const auto& input_id : building_type.input_ids) // Apply the higher-probability with outputs of this factory
+                avg_prob[building_type.output_id] += avg_prob[input_id] + 1;
 
         auto* target_good = &world.goods[std::distance(avg_prob.begin(), std::max_element(avg_prob.begin(), avg_prob.end()))];
 
@@ -127,12 +127,10 @@ static inline Good* ai_get_potential_good(Nation& nation) {
 
         for(const auto& building_type : world.building_types) {
             // Only take in account RGOs (and buildings that have an output)
-            if(!building_type.inputs.empty() || building_type.output == nullptr)
-                continue;
-
+            if(!building_type.input_ids.empty() || Good::is_invalid(building_type.output_id)) continue;
             // Randomness
             if(rand() % 5) continue;
-            return building_type.output;
+            return &world.goods[building_type.output_id];
         }
     }
 
@@ -204,86 +202,16 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
         }
     }
 
-    // Check if we even border them
-    bool is_border = false;
-    for(const auto province_id : nation.controlled_provinces) {
-        const auto& province = world.provinces[province_id];
-        for(const auto neighbour_id : province.neighbour_ids) {
-            auto& neighbour = g_world.provinces[neighbour_id];
-            if(neighbour.controller_id == other) {
-                is_border = true;
-                break;
-            }
-        }
-    }
-
-    // Our strength as attackers
-    float our_power = 1.f;
-    for(const auto& ally_nation : nation.get_allies()) {
-        for(const auto province_id : ally_nation->owned_provinces) {
-            const auto& unit_ids = world.unit_manager.get_province_units(province_id);
-            for(const auto unit_id : unit_ids) {
-                auto& unit = g_world.unit_manager.units[unit_id];
-                our_power += unit.type->attack * unit.size;
-                our_power += unit.type->defense * unit.size;
-            }
-        }
-    }
-
-    // The strength of the defenders
-    float other_power = 1.f;
-    for(const auto& ally_nation : other.get_allies()) {
-        for(const auto province_id : ally_nation->owned_provinces) {
-            const auto& unit_ids = world.unit_manager.get_province_units(province_id);
-            for(const auto unit_id : unit_ids) {
-                auto& unit = g_world.unit_manager.units[unit_id];
-                other_power += unit.type->attack * unit.size;
-                other_power += unit.type->defense * unit.size;
-            }
-        }
-    }
-
-    // Hating a nation a lot will make us reconsider logic military actions and go "purely by instinct"
-    // Calculate the times the other nation has our power, multiply that by a factor of 1,000,000
-    // If the relation is negative then we divide by the positive sum of it
-    if(relation.relation < -1) {
-        const float force_dist = 10.f * ((1.f + other_power) / (1.f + our_power));
-        const auto chance = glm::max((int)(force_dist - -relation.relation), 0);
-        if(rand(), (100 + (chance * 10)) == 0) {
-            if(!relation.has_war) {
-                // Check we border said nation
-                bool has_border = false;
-                bool has_units = false;
-                for(const auto province_id : nation.controlled_provinces) {
-                    const auto& province = world.provinces[province_id];
-                    // Check for borders
-                    for(const auto neighbour_id : province.neighbour_ids) {
-                        auto& neighbour = g_world.provinces[neighbour_id];
-                        if(neighbour.controller_id == other) {
-                            has_border = true;
-                            break;
-                        }
-                    }
-
-                    // Check for units
-                    has_units = !g_world.unit_manager.get_province_units(province_id).empty();
-                    if(has_border && has_units) break;
-                }
-                if(has_border) nation.declare_war(other);
-            }
-        }
-    }
-
     if(relation.has_war) {
         // Offer treaties
         if(!(rand() % 100)) {
             Treaty treaty{};
-            treaty.sender = &nation;
-            treaty.receiver = &other;
+            treaty.sender_id = nation;
+            treaty.receiver_id = other;
             {
                 auto* clause = new TreatyClause::AnnexProvince();
-                clause->sender = &nation;
-                clause->receiver = &other;
+                clause->sender_id = nation;
+                clause->receiver_id = other;
                 for(const auto province_id : other.owned_provinces) {
                     auto& province = world.provinces[province_id];
                     if(province.controller_id == nation)
@@ -297,28 +225,24 @@ static inline void ai_update_relations(Nation& nation, Nation& other) {
 
             {
                 auto* clause = new TreatyClause::LiberateNation();
-                clause->sender = &nation;
-                clause->receiver = &other;
-
+                clause->sender_id = nation;
+                clause->receiver_id = other;
                 clause->liberated = nullptr;
                 for(const auto province_id : other.owned_provinces) {
                     const auto& province = world.provinces[province_id];
                     for(const auto& nucleus_id : province.nuclei) {
                         auto& nucleus = g_world.nations[nucleus_id];
-                        if(&nucleus != &other) {
+                        if(nucleus_id != other) {
                             clause->liberated = &nucleus;
                             break;
                         }
                     }
-
                     if(clause->liberated != nullptr) break;
                 }
-
                 if(clause->liberated != nullptr)
                     treaty.clauses.push_back(clause);
             }
-
-            ((World&)world).insert(treaty);
+            world.insert(treaty);
         }
     }
 }
@@ -333,7 +257,7 @@ static inline void ai_build_commercial(Nation& nation) {
     // Find an industry type which outputs this good
     BuildingType* type = nullptr;
     for(auto& building_type : world.building_types) {
-        if(building_type.output == target_good) {
+        if(building_type.output_id == *target_good) {
             type = &building_type;
             break;
         }
@@ -360,7 +284,7 @@ void ai_do_tick(Nation& nation) {
         if(!(world.time % world.ticks_per_month) && nation.ai_controlled) {
             for(auto& treaty : world.treaties) {
                 for(auto& part : treaty.approval_status) {
-                    if(part.first != &nation) continue;
+                    if(part.first != nation) continue;
                     Eng3D::Log::debug("ai", "We, [" + nation.ref_name + "], (uncodintionally) accept the treaty of [" + treaty.name + "]");
                     part.second = TreatyApproval::ACCEPTED;
                 }
@@ -427,7 +351,7 @@ void ai_do_tick(Nation& nation) {
                     auto& unit = g_world.unit_manager.units[unit_id];
                     // Only account this for units that are of our nation
                     // because enemy units will require us to give more importance to it
-                    double unit_strength = (unit.type->attack * unit.type->defense * unit.size) / 100.f;
+                    double unit_strength = (g_world.unit_types[unit.type_id].attack * g_world.unit_types[unit.type_id].defense * unit.size) / 100.f;
                     unit_strength = unit.on_battle ? std::abs(unit_strength) : unit_strength; // Allow stacking on battles
                     // This works because nations which are threatening to us have positive values, so they
                     // basically make the draw_in_force negative, which in turns does not draw away but rather
@@ -461,7 +385,7 @@ void ai_do_tick(Nation& nation) {
                 const auto* highest_risk = &unit_province;
                 for(const auto neighbour_id : unit_province.neighbour_ids) {
                     const auto& neighbour = g_world.provinces[neighbour_id];
-                    if(!unit.type->is_naval && world.terrain_types[neighbour.terrain_type_id].is_water_body) continue;
+                    if(!world.unit_types[unit.type_id].is_naval && world.terrain_types[neighbour.terrain_type_id].is_water_body) continue;
                     if(rand() % 2 == 0) continue;
 
                     // Uncolonized land is unsteppable
@@ -607,13 +531,13 @@ void ai_do_tick(Nation& nation) {
                     }
 
                     auto& building = province.buildings[i];
-                    if(building.level == 0 || building.working_unit_type != nullptr || !building.can_do_output())
+                    if(UnitType::is_valid(building.working_unit_type_id) || !building.can_do_output())
                         continue;
                     /// @todo Actually produce something appropriate
-                    auto* unit_type = &world.unit_types[rand() % world.unit_types.size()];
-                    building.working_unit_type = unit_type;
-                    building.req_goods_for_unit = unit_type->req_goods;
-                    Eng3D::Log::debug("ai", "Building of unit " + unit_type->name + " from " + nation.name + " built on " + province.name);
+                    auto& unit_type = world.unit_types[rand() % world.unit_types.size()];
+                    building.working_unit_type_id = unit_type;
+                    building.req_goods_for_unit = unit_type.req_goods;
+                    Eng3D::Log::debug("ai", "Building of unit " + unit_type.name + " from " + nation.name + " built on " + province.name);
                 }
             }
         }

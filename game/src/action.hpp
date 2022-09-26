@@ -26,6 +26,7 @@
 
 #include <vector>
 #include "eng3d/network.hpp"
+#include "objects.hpp"
 
 enum class ActionType {
     BAD, // Error
@@ -62,6 +63,8 @@ enum class ActionType {
     DIPLO_ALLOW_MIL_ACCESS,
     FOCUS_TECH, // Technology
 };
+template<>
+class Serializer<ActionType>: public SerializerMemcpy<ActionType> {};
 
 class Product;
 class Nation;

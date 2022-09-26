@@ -40,10 +40,8 @@
 
 #include "action.hpp"
 #include "world.hpp"
-#include "io_impl.hpp"
 #include "server/server_network.hpp"
 #include "action.hpp"
-#include "io_impl.hpp"
 #include "client/game_state.hpp"
 
 Server* g_server = nullptr;
@@ -210,7 +208,7 @@ void Server::net_loop(int id) {
                     auto& building = province->get_buildings()[g_world.get_id(*building_type)];
                     /// @todo Check nation can build this unit
                     // Tell the building to build this specific unit type
-                    building.working_unit_type = unit_type;
+                    building.working_unit_type_id = *unit_type;
                     building.req_goods_for_unit = unit_type->req_goods;
                     Eng3D::Log::debug("server", "New order for building; build unit " + unit_type->ref_name);
                 } break;
@@ -266,30 +264,31 @@ void Server::net_loop(int id) {
                     Treaty treaty;
                     ::deserialize(ar, treaty.clauses);
                     ::deserialize(ar, treaty.name);
-                    ::deserialize(ar, treaty.sender);
+                    ::deserialize(ar, treaty.sender_id);
+                    ::deserialize(ar, treaty.receiver_id);
                     // Validate data
                     if(treaty.clauses.empty())
                         throw ServerException("Clause-less treaty");
-                    if(treaty.sender == nullptr)
-                        throw ServerException("Treaty has invalid ends");
+                    if(Nation::is_invalid(treaty.sender_id))
+                        throw ServerException("Treaty has invalid sender");
                     // Obtain participants of the treaty
-                    std::set<Nation*> approver_nations = std::set<Nation*>();
+                    std::set<NationId> approver_nations;
                     for(auto& clause : treaty.clauses) {
-                        if(clause->receiver == nullptr || clause->sender == nullptr)
+                        if(Nation::is_invalid(clause->receiver_id) || Nation::is_invalid(clause->sender_id))
                             throw ServerException("Invalid clause receiver/sender");
-                        approver_nations.insert(clause->receiver);
-                        approver_nations.insert(clause->sender);
+                        approver_nations.insert(clause->receiver_id);
+                        approver_nations.insert(clause->sender_id);
                     }
 
                     Eng3D::Log::debug("server", "Participants of treaty " + treaty.name);
                     // Then fill as undecided (and ask nations to sign this treaty)
-                    for(auto& nation : approver_nations) {
-                        treaty.approval_status.push_back(std::make_pair(nation, TreatyApproval::UNDECIDED));
-                        Eng3D::Log::debug("server", ">" + nation->ref_name);
+                    for(auto& nation_id : approver_nations) {
+                        treaty.approval_status.emplace_back(nation_id, TreatyApproval::UNDECIDED);
+                        Eng3D::Log::debug("server", ">" + g_world.nations[nation_id].ref_name);
                     }
                     // The sender automatically accepts the treaty (they are the ones who drafted it)
                     auto it = std::find_if(treaty.approval_status.end(), treaty.approval_status.end(), [&selected_nation](const auto& e) {
-                        return e.first == selected_nation;
+                        return e.first == *selected_nation;
                     });
                     it->second = TreatyApproval::ACCEPTED;
                     g_world.insert(treaty);
@@ -349,10 +348,10 @@ void Server::net_loop(int id) {
                     Technology* technology;
                     ::deserialize(ar, technology);
                     if(technology == nullptr)
-                        throw ServerException("Unknown technology");
+                        CXX_THROW(ServerException, "Unknown technology");
                     if(!selected_nation->can_research(*technology))
-                        throw ServerException("Can't research tech at the moment");
-                    selected_nation->focus_tech = technology;
+                        CXX_THROW(ServerException, "Can't research tech at the moment");
+                    selected_nation->focus_tech_id = *technology;
                 } break;
                 // Nation and province addition and removals are not allowed to be done by clients
                 default:

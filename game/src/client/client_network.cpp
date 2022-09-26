@@ -35,7 +35,6 @@
 #include "unit.hpp"
 #include "diplomacy.hpp"
 #include "world.hpp"
-#include "io_impl.hpp"
 #include "client/client_network.hpp"
 
 #include "client/game_state.hpp"
@@ -210,9 +209,9 @@ void Client::net_loop() {
                         Treaty treaty;
                         ::deserialize(ar, treaty);
                         gs.world->insert(treaty);
-                        Eng3D::Log::debug("client", "New treaty from " + treaty.sender->ref_name);
+                        Eng3D::Log::debug("client", "New treaty from " + gs.world->nations[treaty.sender_id].ref_name);
                         for(const auto& status : treaty.approval_status)
-                            Eng3D::Log::debug("client", ">" + status.first->ref_name);
+                            Eng3D::Log::debug("client", ">" + gs.world->nations[status.first].ref_name);
                     } break;
                     case ActionType::WORLD_TICK: {
                         // Give up the world mutex for now

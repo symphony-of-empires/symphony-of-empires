@@ -26,7 +26,7 @@
 
 #include "eng3d/ui/window.hpp"
 
-#include "good.hpp"
+#include "product.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
 

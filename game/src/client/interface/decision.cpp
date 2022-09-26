@@ -33,7 +33,6 @@
 #include "client/interface/decision.hpp"
 #include "event.hpp"
 #include "action.hpp"
-#include "io_impl.hpp"
 #include "client/game_state.hpp"
 
 using namespace Interface;

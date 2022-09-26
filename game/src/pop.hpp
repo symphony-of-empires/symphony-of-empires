@@ -30,23 +30,50 @@
 
 class Language : public RefnameEntity<LanguageId> {
 public:
-    Language() = default;
-    ~Language() = default;
-    
     std::uint32_t color;
     Eng3D::StringRef name;
     Eng3D::StringRef adjective;
     Eng3D::StringRef noun;
     Eng3D::StringRef combo_form;
 };
+template<>
+class Serializer<Language*>: public SerializerReferenceLocal<World, Language> {};
+template<>
+class Serializer<const Language*>: public SerializerReferenceLocal<World, const Language> {};
+template<>
+class Serializer<Language> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, Language& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.adjective);
+        ::deser_dynamic<is_serialize>(ar, obj.noun);
+        ::deser_dynamic<is_serialize>(ar, obj.combo_form);
+        ::deser_dynamic<is_serialize>(ar, obj.color);
+    }
+};
 
 class Religion : public RefnameEntity<ReligionId> {
 public:
-    Religion() = default;
-    ~Religion() = default;
-
     Eng3D::StringRef name;
     std::uint32_t color;
+};
+template<>
+class Serializer<Religion*>: public SerializerReferenceLocal<World, Religion> {};
+template<>
+class Serializer<const Religion*>: public SerializerReferenceLocal<World, const Religion> {};
+template<>
+class Serializer<Religion> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, Religion& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.color);
+    }
 };
 
 enum class PopGroup : int {
@@ -56,12 +83,11 @@ enum class PopGroup : int {
     FARMER = 0x08,
     LABORER = 0x10,
 };
+template<>
+class Serializer<PopGroup>: public SerializerMemcpy<PopGroup> {};
 
 class PopType : public RefnameEntity<PopTypeId> {
 public:
-    PopType() = default;
-    ~PopType() = default;
-
     Eng3D::StringRef name;
     float social_value;
     enum PopGroup group;
@@ -69,18 +95,32 @@ public:
     std::vector<float> luxury_needs_satisfaction; // Amount of satisfaction each luxury good gives
     std::vector<float> luxury_needs_deminishing_factor; // Deminishing returns factor of the luxury good satisfaction
 };
+template<>
+class Serializer<PopType*>: public SerializerReferenceLocal<World, PopType> {};
+template<>
+class Serializer<const PopType*>: public SerializerReferenceLocal<World, const PopType> {};
+template<>
+class Serializer<PopType> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, PopType& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.social_value);
+        ::deser_dynamic<is_serialize>(ar, obj.group);
+        ::deser_dynamic<is_serialize>(ar, obj.basic_needs_amount);
+        ::deser_dynamic<is_serialize>(ar, obj.luxury_needs_satisfaction);
+        ::deser_dynamic<is_serialize>(ar, obj.luxury_needs_deminishing_factor);
+    }
+};
 
 class Province;
 class Ideology;
-class Pop {
+class Pop : public Entity<uint8_t> {
     Pop& operator=(const Pop&) = default;
     friend class Province;
 public:
-    using Id = uint8_t;
-
-    Pop() = default;
-    ~Pop() = default;
-
     constexpr bool operator==(const Pop& rhs) const {
         return this->type_id == rhs.type_id;
     }
@@ -97,4 +137,20 @@ public:
     float militancy = 0.f;
     float budget = 0.f;
     std::vector<float> ideology_approval; // Approval % of all the ideologies (1:1)
+};
+template<>
+class Serializer<Pop> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, Pop& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.size);
+        ::deser_dynamic<is_serialize>(ar, obj.literacy);
+        ::deser_dynamic<is_serialize>(ar, obj.militancy);
+        ::deser_dynamic<is_serialize>(ar, obj.budget);
+        ::deser_dynamic<is_serialize>(ar, obj.life_needs_met);
+        ::deser_dynamic<is_serialize>(ar, obj.everyday_needs_met);
+        ::deser_dynamic<is_serialize>(ar, obj.luxury_needs_met);
+        ::deser_dynamic<is_serialize>(ar, obj.type_id);
+        ::deser_dynamic<is_serialize>(ar, obj.ideology_approval);
+    }
 };

@@ -43,7 +43,6 @@
 #include "eng3d/utils.hpp"
 #include "eng3d/string.hpp"
 
-#include "io_impl.hpp"
 #include "province.hpp"
 #include "world.hpp"
 #include "diplomacy.hpp"
@@ -96,8 +95,6 @@ void World::init_lua() {
     lua_register(lua, "add_technology", LuaAPI::add_technology);
     lua_register(lua, "get_technology", LuaAPI::get_technology);
     lua_register(lua, "add_req_tech_to_tech", LuaAPI::add_req_tech_to_tech);
-
-    lua_register(lua, "set_nation_mod_to_invention", LuaAPI::set_nation_mod_to_invention);
 
     lua_register(lua, "add_building_type", LuaAPI::add_building_type);
     lua_register(lua, "get_building_type", LuaAPI::get_building_type);
@@ -736,30 +733,27 @@ void World::do_tick() {
             }
         }
 
-        auto& relation = g_world.get_relation(treaty.sender->get_id(), treaty.receiver->get_id());
+        auto& relation = g_world.get_relation(treaty.sender_id, treaty.receiver_id);
         if(relation.has_war) {
             // Remove the receiver from the wars
             for(size_t i = 0; i < g_world.wars.size(); i++) {
                 auto& war = g_world.wars[i];
-
                 // All people participating stop war with each other
                 for(const auto& ap1 : treaty.approval_status) {
-                    auto it = std::find(war.attackers.begin(), war.attackers.end(), ap1.first);
-                    if(it != war.attackers.end()) {
-                        war.attackers.erase(it);
+                    auto it = std::find(war.attacker_ids.begin(), war.attacker_ids.end(), ap1.first);
+                    if(it != war.attacker_ids.end()) {
+                        war.attacker_ids.erase(it);
                     } else { // Otherwise they might be a defender so remove them aswell
-                        it = std::find(war.defenders.begin(), war.defenders.end(), ap1.first);
-                        if(it != war.defenders.end())
-                            war.defenders.erase(it);
+                        std::erase(war.defender_ids, ap1.first);
                     }
                     
                     // Stop the war between the nations ^-^
                     for(const auto& ap2 : treaty.approval_status)
                         if(ap1.first != ap2.first)
-                            g_world.get_relation(treaty.sender->get_id(), treaty.receiver->get_id()).has_war = false;
+                            g_world.get_relation(treaty.sender_id, treaty.receiver_id).has_war = false;
                 }
 
-                if(war.attackers.empty() || war.defenders.empty()) { // Once nobody is in a war remove it from the world
+                if(war.attacker_ids.empty() || war.defender_ids.empty()) { // Once nobody is in a war remove it from the world
                     Eng3D::Log::debug("war", "War of " + war.name + " finished!");
                     g_world.wars.erase(g_world.wars.begin() + i);
                     break;
@@ -797,7 +791,7 @@ void World::do_tick() {
                         attacker.attack(unit);
                         battle.defender_casualties += prev_size - unit.size;
                         if(unit.size <= 1.f) {
-                            Eng3D::Log::debug("game", "Removing attacker \"" + unit.type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
+                            Eng3D::Log::debug("game", "Removing attacker \"" + this->unit_types[unit.type_id].ref_name + "\" unit to battle of \"" + battle.name + "\"");
                             battle.defenders_ids.erase(battle.defenders_ids.begin() + i);
                             clear_units.local().push_back(unit);
                             continue;
@@ -806,7 +800,7 @@ void World::do_tick() {
                     }
                 }
 
-                // Defenders attack attackers
+                // Defenders attack attacker_ids
                 for(auto defender_id : battle.defenders_ids) {
                     auto& defender = units[defender_id];
                     assert(defender.is_valid());
@@ -817,7 +811,7 @@ void World::do_tick() {
                         defender.attack(unit);
                         battle.attacker_casualties += prev_size - unit.size;
                         if(unit.size <= 1.f) {
-                            Eng3D::Log::debug("game", "Removing defender \"" + unit.type->ref_name + "\" unit to battle of \"" + battle.name + "\"");
+                            Eng3D::Log::debug("game", "Removing defender \"" + this->unit_types[unit.type_id].ref_name + "\" unit to battle of \"" + battle.name + "\"");
                             battle.attackers_ids.erase(battle.attackers_ids.begin() + i);
                             clear_units.local().push_back(unit);
                             continue;
@@ -838,7 +832,7 @@ void World::do_tick() {
                             unit.on_battle = false;
                             assert(unit.size);
                         }
-                        Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": attackers win");
+                        Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": attacker_ids win");
                     }
                     // Defenders won
                     else {
@@ -849,7 +843,7 @@ void World::do_tick() {
                             unit.on_battle = false;
                             assert(unit.size);
                         }
-                        Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": defenders win");
+                        Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": defender_ids win");
                     }
 
                     // Erase the battle from the province

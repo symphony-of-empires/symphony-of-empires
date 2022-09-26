@@ -160,12 +160,6 @@ int LuaAPI::get_terrain_type(lua_State* L) {
     return 5;
 }
 
-int LuaAPI::set_nation_mod_to_invention(lua_State* L) {
-    Technology* technology = &g_world.technologies.at(lua_tonumber(L, 1));
-    technology->modifiers.push_back(&g_world.nation_modifiers.at(lua_tonumber(L, 2)));
-    return 0;
-}
-
 int LuaAPI::add_technology(lua_State* L) {
     if(g_world.needs_to_sync)
         throw LuaAPI::Exception("MP-Sync in this function is not supported");
@@ -247,7 +241,7 @@ int LuaAPI::get_good(lua_State* L) {
 int LuaAPI::add_input_to_industry_type(lua_State* L) {
     auto& industry_type = g_world.building_types.at(lua_tonumber(L, 1));
     auto& good = g_world.goods.at(lua_tonumber(L, 2));
-    industry_type.inputs.push_back(&good);
+    industry_type.input_ids.push_back(good);
     industry_type.num_req_workers += 100;
     return 0;
 }
@@ -255,9 +249,7 @@ int LuaAPI::add_input_to_industry_type(lua_State* L) {
 int LuaAPI::add_output_to_industry_type(lua_State* L) {
     auto& industry_type = g_world.building_types.at(lua_tonumber(L, 1));
     auto& good = g_world.goods.at(lua_tonumber(L, 2));
-    if(industry_type.output != nullptr)
-        throw LuaAPI::Exception("Already have an output for " + industry_type.ref_name);
-    industry_type.output = &good;
+    industry_type.output_id = good;
     industry_type.num_req_workers += 100;
     return 0;
 }
@@ -265,14 +257,14 @@ int LuaAPI::add_output_to_industry_type(lua_State* L) {
 int LuaAPI::add_req_good_to_industry_type(lua_State* L) {
     auto& industry_type = g_world.building_types.at(lua_tonumber(L, 1));
     auto& good = g_world.goods.at(lua_tonumber(L, 2));
-    industry_type.req_goods.push_back(std::make_pair(&good, lua_tonumber(L, 3)));
+    industry_type.req_goods.emplace_back(good, lua_tonumber(L, 3));
     return 0;
 }
 
 int LuaAPI::add_req_technology_to_industry_type(lua_State* L) {
     auto& industry_type = g_world.building_types.at(lua_tonumber(L, 1));
     auto& technology = g_world.technologies.at(lua_tonumber(L, 2));
-    industry_type.req_technologies.push_back(&technology);
+    industry_type.req_technologies.push_back(technology);
     return 0;
 }
 
@@ -283,7 +275,7 @@ int LuaAPI::add_nation(lua_State* L) {
     Nation nation{};
     nation.ref_name = luaL_checkstring(L, 1);
     nation.name = luaL_checkstring(L, 2);
-    nation.ideology = &g_world.ideologies.at(0);
+    nation.ideology_id = g_world.ideologies.at(0);
     nation.religion_discrim.resize(g_world.religions.size(), 0.5f);
     nation.language_discrim.resize(g_world.languages.size(), 0.5f);
     nation.client_hints.resize(g_world.ideologies.size());
@@ -409,11 +401,11 @@ int LuaAPI::add_accepted_religion(lua_State* L) {
 int LuaAPI::add_nation_client_hint(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     NationClientHint hint{};
-    hint.ideology = &g_world.ideologies.at(lua_tonumber(L, 2));
+    hint.ideology_id = g_world.ideologies.at(lua_tonumber(L, 2));
     hint.alt_name = luaL_checkstring(L, 3);
     hint.color = std::byteswap<std::uint32_t>(static_cast<int>(lua_tonumber(L, 4))) >> 8;
     hint.color |= 0xff000000;
-    nation.client_hints[g_world.get_id(*hint.ideology)] = hint;
+    nation.client_hints[hint.ideology_id] = hint;
     return 0;
 }
 
@@ -493,7 +485,7 @@ int LuaAPI::set_nation_policies(lua_State* L) {
 
 int LuaAPI::set_nation_ideology(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
-    nation.ideology = &g_world.ideologies.at(lua_tonumber(L, 2));
+    nation.ideology_id = g_world.ideologies.at(lua_tonumber(L, 2));
     return 0;
 }
 
@@ -517,7 +509,7 @@ int LuaAPI::set_nation_relation(lua_State* L) {
 int LuaAPI::nation_make_puppet(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
-    other_nation.puppet_master = &nation;
+    other_nation.puppet_master_id = nation;
     auto& relation = g_world.get_relation(nation, other_nation);
     relation.alliance = 1.f;
     relation.relation = 0.f;
@@ -623,7 +615,7 @@ int LuaAPI::add_province(lua_State* L) {
     province.religions.resize(g_world.religions.size(), 0.f);
     province.buildings.resize(g_world.building_types.size());
     for(const auto& building_type : g_world.building_types)
-        province.buildings[building_type].stockpile.resize(building_type.inputs.size(), 0);
+        province.buildings[building_type].stockpile.resize(building_type.input_ids.size(), 0);
     // Set bounding box of province to the whole world (will later be resized at the bitmap-processing step)
     province.box_area = Eng3D::Rect(0, 0, std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max());
     province.pops.reserve(100);
@@ -696,15 +688,15 @@ int LuaAPI::province_add_unit(lua_State* L) {
 
     Unit unit{};
     unit.set_owner(g_world.nations.at(province.owner_id));
-    unit.type = &unit_type;
+    unit.type_id = unit_type;
     unit.budget = size * 10.f;
     unit.experience = 1.f;
     unit.morale = 1.f;
     unit.supply = 1.f;
     unit.size = size;
     unit.budget = unit.size * 10.f;
-    unit.base = unit.type->max_health;
-    g_world.unit_manager.add_unit(unit, province.cached_id);
+    unit.base = unit_type.max_health;
+    g_world.unit_manager.add_unit(unit, province);
     return 0;
 }
 
@@ -1186,7 +1178,7 @@ int LuaAPI::add_req_good_unit_type(lua_State* L) {
     auto& unit_type = g_world.unit_types.at(lua_tonumber(L, 1));
     auto& good = g_world.goods.at(lua_tonumber(L, 2));
     size_t amount = lua_tonumber(L, 3);
-    unit_type.req_goods.push_back(std::make_pair(&good, amount));
+    unit_type.req_goods.emplace_back(good, amount);
     return 0;
 }
 

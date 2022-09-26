@@ -30,6 +30,11 @@
 
 using namespace Diplomacy;
 
+TreatyClause::BaseClause::BaseClause(const Nation& _sender, const Nation& _receiver) {
+    sender_id = _sender;
+    receiver_id = _receiver;
+}
+
 inline bool Diplomacy::is_friend(Nation& us, Nation& them) {
     const auto& relation = g_world.get_relation(g_world.get_id(us), g_world.get_id(them));
     // High enough relation with the threshold means it is friendly
@@ -44,36 +49,38 @@ inline bool Diplomacy::is_foe(Nation& us, Nation& them) {
 // WarReparations
 //
 unsigned TreatyClause::WarReparations::cost() {
-    return (receiver->economy_score * (amount * days_duration)) / 100;
+    // return (receiver->economy_score * (amount * days_duration)) / 100;
+    return 0;
 }
 
 void TreatyClause::WarReparations::enforce() {
-    sender->prestige += 0.0001f;
-    receiver->prestige -= 0.0001f;
-    sender->budget -= amount;
-    receiver->budget += amount;
-    days_duration--;
+    // sender->prestige += 0.0001f;
+    // receiver->prestige -= 0.0001f;
+    // sender->budget -= amount;
+    // receiver->budget += amount;
+    // days_duration--;
 }
 
 bool TreatyClause::WarReparations::in_effect() const {
-    return (days_duration != 0);
+    return days_duration != 0;
 }
 
 //
 // Humiliate
 //
 unsigned TreatyClause::Humiliate::cost() {
-    return (receiver->prestige * (amount * days_duration)) / 100;
+    // return (receiver->prestige * (amount * days_duration)) / 100;
+    return 0;
 }
 
 void TreatyClause::Humiliate::enforce() {
-    sender->prestige += amount;
-    receiver->prestige -= amount;
-    days_duration--;
+    // sender->prestige += amount;
+    // receiver->prestige -= amount;
+    // days_duration--;
 }
 
 bool TreatyClause::Humiliate::in_effect() const {
-    return (days_duration != 0);
+    return days_duration != 0;
 }
 
 //
@@ -84,14 +91,14 @@ unsigned TreatyClause::LiberateNation::cost() {
 }
 
 void TreatyClause::LiberateNation::enforce() {
-    // Reduce prestige due to lost lands
-    sender->prestige += cost() * 0.0000025f;
-    receiver->prestige -= cost() * 0.000005f;
-    // Give provinces to this liberated nation
-    for(auto& province : provinces)
-        province->owner_id = g_world.get_id(*liberated);
-    // One-time clause
-    done = true;
+    // // Reduce prestige due to lost lands
+    // sender->prestige += cost() * 0.0000025f;
+    // receiver->prestige -= cost() * 0.000005f;
+    // // Give provinces to this liberated nation
+    // for(auto& province : provinces)
+    //     province->owner_id = g_world.get_id(*liberated);
+    // // One-time clause
+    // done = true;
 }
 
 bool TreatyClause::LiberateNation::in_effect() const {
@@ -102,12 +109,13 @@ bool TreatyClause::LiberateNation::in_effect() const {
 // ImposePolicies
 //
 unsigned TreatyClause::ImposePolicies::cost() {
-    return imposed.difference(receiver->current_policy);
+    // return imposed.difference(receiver->current_policy);
+    return 0;
 }
 
 void TreatyClause::ImposePolicies::enforce() {
-    receiver->set_policy(imposed);
-    done = true;
+    // receiver->set_policy(imposed);
+    // done = true;
 }
 
 bool TreatyClause::ImposePolicies::in_effect() const {
@@ -122,16 +130,16 @@ unsigned TreatyClause::AnnexProvince::cost() {
 }
 
 void TreatyClause::AnnexProvince::enforce() {
-    sender->prestige += cost() * 0.0000025f;
-    receiver->prestige -= cost() * 0.000005f;
-    // Give provinces to the winner
-    for(auto& province : provinces) {
-        Eng3D::Log::debug("game", "Giving " + province->ref_name + " to " + sender->ref_name + " from " + receiver->ref_name);
-        // Change ownership of provinces
-        sender->give_province(*province);
-    }
-    // One-time clause
-    done = true;
+    // sender->prestige += cost() * 0.0000025f;
+    // receiver->prestige -= cost() * 0.000005f;
+    // // Give provinces to the winner
+    // for(auto& province : provinces) {
+    //     Eng3D::Log::debug("game", "Giving " + province->ref_name + " to " + sender->ref_name + " from " + receiver->ref_name);
+    //     // Change ownership of provinces
+    //     sender->give_province(*province);
+    // }
+    // // One-time clause
+    // done = true;
 }
 
 bool TreatyClause::AnnexProvince::in_effect() const {
@@ -146,8 +154,8 @@ unsigned TreatyClause::Puppet::cost() {
 }
 
 void TreatyClause::Puppet::enforce() {
-    receiver->puppet_master = sender;
-    done = true;
+    // receiver->puppet_master_id = *sender;
+    // done = true;
 }
 
 bool TreatyClause::Puppet::in_effect() const {
@@ -156,9 +164,9 @@ bool TreatyClause::Puppet::in_effect() const {
 
 // Checks if the specified nations participates in the treaty
 bool Treaty::does_participate(Nation& nation) {
-    for(auto& status : this->approval_status) {
-        if(status.first == &nation) return true;
-    }
+    for(auto& status : this->approval_status)
+        if(status.first == nation)
+            return true;
     return false;
 }
 
@@ -191,13 +199,13 @@ bool Treaty::in_effect() const {
 }
 
 bool War::is_involved(const Nation& nation) const {
-    return (is_attacker(nation) || is_defender(nation));
+    return is_attacker(nation) || is_defender(nation);
 }
 
 bool War::is_attacker(const Nation& nation) const {
-    return (std::find(attackers.begin(), attackers.end(), &nation) != attackers.end());
+    return std::find(attacker_ids.begin(), attacker_ids.end(), nation) != attacker_ids.end();
 }
 
 bool War::is_defender(const Nation& nation) const {
-    return (std::find(defenders.begin(), defenders.end(), &nation) != defenders.end());
+    return std::find(defender_ids.begin(), defender_ids.end(), nation) != defender_ids.end();
 }

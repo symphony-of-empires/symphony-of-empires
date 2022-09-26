@@ -279,7 +279,7 @@ mapmode_generator relations_map_mode(NationId id) {
                 continue;
             }
 
-            if(province.controller_id == nation || g_world.nations[province.controller_id].puppet_master == &nation) {
+            if(province.controller_id == nation || g_world.nations[province.controller_id].puppet_master_id == nation) {
                 auto color = Eng3D::Color::rgb8(0x00, 0x00, 0xff);
                 provinces_color.emplace_back(ProvinceId(i), color);
                 continue;
@@ -315,7 +315,7 @@ mapmode_tooltip relations_tooltip(NationId nation_id) {
         }
         str += " ";
 
-        if(province_controller.puppet_master == &world.nations[nation_id]) {
+        if(province_controller.puppet_master_id == nation_id) {
             str += "(puppet of " + world.nations[nation_id].get_client_hint().alt_name + ") ";
             return str;
         }

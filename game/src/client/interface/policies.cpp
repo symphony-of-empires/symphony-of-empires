@@ -27,7 +27,7 @@
 #include "eng3d/texture.hpp"
 #include "client/interface/policies.hpp"
 #include "client/client_network.hpp"
-#include "io_impl.hpp"
+#include "action.hpp"
 
 using namespace Interface;
 
@@ -62,11 +62,11 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
     auto* ideology_img = new UI::Image(6, 38, 32, 32, this);
     ideology_img->set_on_each_tick([this](UI::Widget& w) {
         if(this->gs.world->time % this->gs.world->ticks_per_month) return;
-
         /// @todo More dynamic names
-        if(this->gs.curr_nation->ideology != nullptr) {
-            w.text(this->gs.curr_nation->ideology->name.get_string());
-            w.current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/ideology/" + this->gs.curr_nation->ideology->ref_name.get_string() + ".png"));
+        if(Ideology::is_valid(this->gs.curr_nation->ideology_id)) {
+            auto& ideology = this->gs.world->ideologies[this->gs.curr_nation->ideology_id];
+            w.text(ideology.name.get_string());
+            w.current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/ideology/" + ideology.ref_name.get_string() + ".png"));
         }
     });
     ideology_img->on_each_tick(*ideology_img);

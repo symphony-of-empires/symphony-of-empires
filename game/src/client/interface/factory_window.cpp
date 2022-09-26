@@ -100,17 +100,18 @@ void FactoryWindow::make_building_row(UI::Div& table, const Building& building, 
     input_div->flex = UI::Flex::ROW;
     input_div->flex_justify = UI::FlexJustify::START;
 
-    for(auto good : type.inputs) {
-        auto input_good_image = new UI::Image(0, 0, 35, 35, "gfx/good/" + good->ref_name + ".png", true, input_div);
-        input_good_image->set_tooltip(good->name.get_string());
+    for(auto good_id : type.input_ids) {
+        auto& good = g_world.goods[good_id];
+        auto input_good_image = new UI::Image(0, 0, 35, 35, "gfx/good/" + good.ref_name + ".png", true, input_div);
+        input_good_image->set_tooltip(good.name.get_string());
     }
 
-    auto output = type.output;
-    if(output != nullptr) {
+    if(Good::is_valid(type.output_id)) {
+        auto& output = g_world.goods[type.output_id];
         auto output_div = new UI::Div(0, 0, 35, 35, row);
         output_div->border = border;
-        auto output_good_image = new UI::Image(0, 0, 35, 35, "gfx/good/" + output->ref_name + ".png", true, output_div);
-        output_good_image->set_tooltip(output->name.get_string());
+        auto output_good_image = new UI::Image(0, 0, 35, 35, "gfx/good/" + output.ref_name + ".png", true, output_div);
+        output_good_image->set_tooltip(output.name.get_string());
     }
 
     auto production_scale_lab = new UI::Div(0, 0, 50, 35, row);

@@ -102,3 +102,9 @@ class Serializer<UnitId>: public SerializerMemcpy<UnitId> {};
 class IdeologyId : public EntityId<uint8_t> {};
 template<>
 class Serializer<IdeologyId>: public SerializerMemcpy<IdeologyId> {};
+
+class BuildingId : public EntityId<uint8_t> {};
+template<>
+class Serializer<BuildingId>: public SerializerMemcpy<BuildingId> {};
+
+class World;

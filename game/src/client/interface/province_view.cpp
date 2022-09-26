@@ -234,21 +234,24 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province&
             workers->set_key(building.workers);
 
             auto* inputs = row->get_element(row_index++);
-            inputs->set_key(type.inputs.size());
+            inputs->set_key(type.input_ids.size());
             inputs->kill_children();
             inputs->flex = UI::Flex::ROW;
-            for(auto good : type.inputs) {
-                auto* input_good_image = new UI::Image(0, 0, 32, 32, "gfx/good/" + good->ref_name + ".png", true, inputs);
-                input_good_image->set_tooltip(good->name.get_string());
+            for(auto good_id : type.input_ids) {
+                auto& good = this->gs.world->goods[good_id];
+                auto* input_good_image = new UI::Image(0, 0, 32, 32, "gfx/good/" + good.ref_name + ".png", true, inputs);
+                input_good_image->set_tooltip(good.name.get_string());
             }
 
             auto* outputs = row->get_element(row_index++);
-            outputs->set_key(type.output != nullptr ? 1 : 0);
+            outputs->set_key(Good::is_valid(type.output_id) ? 1 : 0);
             outputs->kill_children();
             outputs->flex = UI::Flex::ROW;
-            if(type.output != nullptr) {
-                auto* output_good_image = new UI::Image(0, 0, 32, 32, "gfx/good/" + type.output->ref_name + ".png", true, outputs);
-                output_good_image->set_tooltip(type.output->name.get_string());
+
+            if(Good::is_valid(type.output_id)) {
+                auto* output = &this->gs.world->goods[type.output_id];
+                auto* output_good_image = new UI::Image(0, 0, 32, 32, "gfx/good/" + output->ref_name + ".png", true, outputs);
+                output_good_image->set_tooltip(output->name.get_string());
             }
 
             auto* scale = row->get_element(row_index++);

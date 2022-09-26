@@ -53,20 +53,19 @@ enum class TreatyClauseType {
     PUPPET,
     //TECHNOLOGY,
 };
+template<>
+class Serializer<TreatyClauseType>: public SerializerMemcpy<TreatyClauseType> {};
 
 namespace TreatyClause {
     class BaseClause {
     public:
         BaseClause() = default;
-        BaseClause(Nation& _sender, Nation& _receiver) {
-            sender = &_sender;
-            receiver = &_receiver;
-        };
+        BaseClause(const Nation& _sender, const Nation& _receiver);
         virtual ~BaseClause() = default;
 
         enum TreatyClauseType type;
-        Nation* sender = nullptr; // Who created this clause
-        Nation* receiver = nullptr; // Who should accept/reject this clause
+        NationId sender_id; // Who created this clause
+        NationId receiver_id; // Who should accept/reject this clause
         size_t days_duration = 0; // Days this clause lasts
         bool done = false; // Used for 1 time clauses
 
@@ -175,6 +174,82 @@ namespace TreatyClause {
         bool in_effect() const;
     };
 };
+template<>
+class Serializer<TreatyClause::BaseClause*> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, TreatyClause::BaseClause*& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj->sender_id);
+        ::deser_dynamic<is_serialize>(ar, obj->receiver_id);
+        ::deser_dynamic<is_serialize>(ar, obj->days_duration);
+        ::deser_dynamic<is_serialize>(ar, obj->done);
+        if constexpr(is_serialize) {
+            ::deser_dynamic<is_serialize>(ar, obj->type);
+            switch(obj->type) {
+            case TreatyClauseType::ANNEX_PROVINCES: {
+                const auto& dyn_clause = (TreatyClause::AnnexProvince&)*obj;
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.provinces);
+            } break;
+            case TreatyClauseType::LIBERATE_NATION: {
+                const auto& dyn_clause = (TreatyClause::LiberateNation&)*obj;
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.provinces);
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.liberated);
+            } break;
+            case TreatyClauseType::IMPOSE_POLICIES: {
+                const auto& dyn_clause = (TreatyClause::ImposePolicies&)*obj;
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.imposed);
+            } break;
+            case TreatyClauseType::MONEY: {
+                const auto& dyn_clause = (TreatyClause::WarReparations&)*obj;
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.amount);
+            } break;
+            case TreatyClauseType::HUMILIATE: {
+                const auto& dyn_clause = (TreatyClause::Humiliate&)*obj;
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.amount);
+            } break;
+            default:
+                break;
+            }
+        } else {
+            TreatyClauseType type;
+            ::deser_dynamic<is_serialize>(ar, type);
+            switch(type) {
+            case TreatyClauseType::ANNEX_PROVINCES: {
+                obj = new TreatyClause::AnnexProvince();
+                auto dyn_clause = (TreatyClause::AnnexProvince&)*obj;
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.provinces);
+            } break;
+            case TreatyClauseType::LIBERATE_NATION: {
+                obj = new TreatyClause::LiberateNation();
+                auto dyn_clause = (TreatyClause::LiberateNation&)*obj;
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.provinces);
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.liberated);
+            } break;
+            case TreatyClauseType::IMPOSE_POLICIES: {
+                obj = new TreatyClause::ImposePolicies();
+                auto dyn_clause = (TreatyClause::ImposePolicies&)*obj;
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.imposed);
+            } break;
+            case TreatyClauseType::MONEY: {
+                obj = new TreatyClause::WarReparations();
+                auto dyn_clause = (TreatyClause::WarReparations&)*obj;
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.amount);
+            } break;
+            case TreatyClauseType::HUMILIATE: {
+                obj = new TreatyClause::Humiliate();
+                auto dyn_clause = (TreatyClause::Humiliate&)*obj;
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.amount);
+            } break;
+            case TreatyClauseType::PUPPET: {
+                obj = new TreatyClause::Puppet();
+                //auto dyn_clause = (TreatyClause::Puppet*)*obj;
+            } break;
+            default:
+                break;
+            }
+        }
+    }
+};
 
 enum class TreatyApproval {
     UNDECIDED,
@@ -182,6 +257,8 @@ enum class TreatyApproval {
     DENIED,
     ABSENT,
 };
+template<>
+class Serializer<enum TreatyApproval>: public SerializerMemcpy<enum TreatyApproval> {};
 
 class Treaty : public Entity<TreatyId> {
 public:
@@ -189,23 +266,55 @@ public:
 	bool in_effect() const;
 
     Eng3D::StringRef name;
-    Nation* sender; // The one who sent the treaty
-    Nation* receiver; // The one who is going to receive this treaty
+    NationId sender_id; // The one who sent the treaty
+    NationId receiver_id; // The one who is going to receive this treaty
     // Clauses of this treaty;
     std::vector<TreatyClause::BaseClause*> clauses;
     // List of who are involved in the treaty
-    std::vector<std::pair<Nation*, TreatyApproval>> approval_status;
+    std::vector<std::pair<NationId, TreatyApproval>> approval_status;
+};
+template<>
+class Serializer<Treaty*>: public SerializerReferenceLocal<World, Treaty> {};
+template<>
+class Serializer<const Treaty*>: public SerializerReferenceLocal<World, const Treaty> {};
+template<>
+class Serializer<Treaty> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, Treaty& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.receiver_id);
+        ::deser_dynamic<is_serialize>(ar, obj.sender_id);
+        ::deser_dynamic<is_serialize>(ar, obj.approval_status);
+        ::deser_dynamic<is_serialize>(ar, obj.clauses);
+    }
 };
 
 class War : public Entity<WarId> {
 public:
-    War() = default;
-    ~War() = default;
     bool is_involved(const Nation& nation) const;
     bool is_attacker(const Nation& nation) const;
     bool is_defender(const Nation& nation) const;
 
     Eng3D::StringRef name;
-    std::vector<Nation*> attackers, defenders;
+    std::vector<NationId> attacker_ids;
+    std::vector<NationId> defender_ids;
     std::vector<TreatyClause::BaseClause*> wargoals;
+};
+template<>
+class Serializer<War*>: public SerializerReferenceLocal<World, War> {};
+template<>
+class Serializer<const War*>: public SerializerReferenceLocal<World, const War> {};
+template<>
+class Serializer<War> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, War& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.attacker_ids);
+        ::deser_dynamic<is_serialize>(ar, obj.defender_ids);
+        ::deser_dynamic<is_serialize>(ar, obj.wargoals);
+    }
 };

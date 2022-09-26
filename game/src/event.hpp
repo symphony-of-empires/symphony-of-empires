@@ -30,21 +30,28 @@
 
 class Decision : public RefnameEntity<DecisionId> {
 public:
-    Decision() = default;
-    ~Decision() = default;
-
     Eng3D::StringRef name;
     Eng3D::StringRef effects;
 
     /// @todo Reload these when serializing
     int do_decision_function = 0;
 };
+template<>
+class Serializer<Decision> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, Decision& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.do_decision_function);
+        ::deser_dynamic<is_serialize>(ar, obj.effects);
+    }
+};
 
 class Nation;
 class Event : public RefnameEntity<EventId> {
 public:
-    Event() = default;
-    ~Event() = default;
     void take_decision(Nation& sender, Decision& dec);
 
     Eng3D::StringRef name;
@@ -57,4 +64,23 @@ public:
     /// @todo Reload these when serializing
     int conditions_function = 0;
     int do_event_function = 0;
+};
+template<>
+class Serializer<Event*>: public SerializerReferenceLocal<World, Event> {};
+template<>
+class Serializer<const Event*>: public SerializerReferenceLocal<World, const Event> {};
+template<>
+class Serializer<Event> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, Event& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.conditions_function);
+        ::deser_dynamic<is_serialize>(ar, obj.do_event_function);
+        ::deser_dynamic<is_serialize>(ar, obj.receivers);
+        ::deser_dynamic<is_serialize>(ar, obj.decisions);
+        ::deser_dynamic<is_serialize>(ar, obj.title);
+        ::deser_dynamic<is_serialize>(ar, obj.text);
+    }
 };

@@ -40,7 +40,6 @@
 #include "client/interface/pop_window.hpp"
 #include "client/interface/factory_window.hpp"
 #include "client/lua_save_util.hpp"
-#include "io_impl.hpp"
 
 using namespace Interface;
 

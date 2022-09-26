@@ -65,8 +65,6 @@ class Province : public RefnameEntity<ProvinceId> {
 private:
     Province& operator=(const Province&) = default;
 public:
-    Province() = default;
-    ~Province() = default;
     float total_pops() const;
     float get_attractiveness(const Pop& pop) const;
     void add_building(const BuildingType& building_type);
@@ -113,9 +111,36 @@ public:
     std::vector<float> religions;
     void clean_pops();
 };
+template<>
+class Serializer<Province*>: public SerializerReferenceLocal<World, Province> {};
+template<>
+class Serializer<const Province*>: public SerializerReferenceLocal<World, const Province> {};
+template<>
+class Serializer<Province> {
+public:
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, Province& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        ::deser_dynamic<is_serialize>(ar, obj.color);
+        ::deser_dynamic<is_serialize>(ar, obj.box_area);
+        ::deser_dynamic<is_serialize>(ar, obj.owner_id);
+        ::deser_dynamic<is_serialize>(ar, obj.nuclei);
+        ::deser_dynamic<is_serialize>(ar, obj.rgo_size);
+        ::deser_dynamic<is_serialize>(ar, obj.neighbour_ids);
+        ::deser_dynamic<is_serialize>(ar, obj.products);
+        ::deser_dynamic<is_serialize>(ar, obj.pops);
+        ::deser_dynamic<is_serialize>(ar, obj.buildings);
+        ::deser_dynamic<is_serialize>(ar, obj.controller_id);
+        ::deser_dynamic<is_serialize>(ar, obj.base_attractive);
+        ::deser_dynamic<is_serialize>(ar, obj.languages);
+        ::deser_dynamic<is_serialize>(ar, obj.religions);
+        ::deser_dynamic<is_serialize>(ar, obj.terrain_type_id);
+    }
+};
 
-class ProvinceManager
-{
+class ProvinceManager {
 public:
     ProvinceManager() = default;
 
