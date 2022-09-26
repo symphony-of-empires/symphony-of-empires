@@ -466,9 +466,7 @@ void World::load_initial() {
         for(auto& province : this->provinces) {
             auto last = std::unique(province.neighbour_ids.begin(), province.neighbour_ids.end());
             province.neighbour_ids.erase(last, province.neighbour_ids.end());
-            auto it = std::find(province.neighbour_ids.begin(), province.neighbour_ids.end(), province);
-            if(it != province.neighbour_ids.end())
-                province.neighbour_ids.erase(it);
+            std::erase(province.neighbour_ids, province);
         }
         unit_manager.init(*this);
 
