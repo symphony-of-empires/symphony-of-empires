@@ -87,9 +87,9 @@ Interface::FactoryWindow::FactoryWindow(GameState& gs)
                 outputs->set_key(type.output_id);
                 outputs->flex_justify = UI::FlexJustify::START;
                 if(Good::is_valid(type.output_id)) {
-                    auto& output = g_world.goods[type.output_id];
-                    auto output_img = new UI::Image(0, 0, 35, 35, "gfx/good/" + output.ref_name + ".png", true, outputs);
-                    output_img->set_tooltip(output.name.get_string());
+                    auto& output = this->gs.world->goods[type.output_id];
+                    outputs->current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/good/" + output.ref_name + ".png"));
+                    outputs->set_tooltip(output.name.get_string());
                 }
 
                 auto scale = row->get_element(row_index++);

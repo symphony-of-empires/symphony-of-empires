@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <functional>
 #include "eng3d/ui/window.hpp"
 #include "eng3d/ui/group.hpp"
 #include "client/interface/common.hpp"
@@ -32,7 +33,7 @@ class World;
 class Nation;
 class GameState;
 class Building;
-
+class Unit;
 namespace UI {
     class Chart;
     class Image;
@@ -40,22 +41,10 @@ namespace UI {
 }
 
 namespace Interface {
-    class ArmyArmyTab : public UI::Group {
+    class ArmyUnitsTab : public UI::Group {
         GameState& gs;
     public:
-        ArmyArmyTab(GameState& gs, int x, int y, UI::Widget* parent);
-    };
-
-    class ArmyAirforceTab : public UI::Group {
-        GameState& gs;
-    public:
-        ArmyAirforceTab(GameState& gs, int x, int y, UI::Widget* parent);
-    };
-
-    class ArmyNavyTab : public UI::Group {
-        GameState& gs;
-    public:
-        ArmyNavyTab(GameState& gs, int x, int y, UI::Widget* parent);
+        ArmyUnitsTab(GameState& gs, int x, int y, std::function<bool(Unit& unit)> filter, UI::Widget* parent);
     };
 
     // Auto-Production manager
@@ -80,21 +69,12 @@ namespace Interface {
         ArmyProductionUnitInfo(GameState& _gs, int x, int y, const Province& _province, unsigned int _idx, UI::Widget* parent);
     };
 
-    class ArmyNewUnitTab : public UI::Group {
-        GameState& gs;
-    public:
-        ArmyNewUnitTab(GameState& gs, int x, int y, UI::Widget* parent);
-    };
-
     class ArmyView : public UI::Window {
         GameState& gs;
     public:
         ArmyView(GameState& gs);
 
-        ArmyArmyTab* army_tab;
-        ArmyAirforceTab* airforce_tab;
-        ArmyNavyTab* navy_tab;
+        ArmyUnitsTab* units_tab;
         ArmyProductionTab* production_tab;
-        ArmyNewUnitTab* new_unit_tab;
     };
 };

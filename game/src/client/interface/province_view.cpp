@@ -280,31 +280,41 @@ ProvinceEditLanguageTab::ProvinceEditLanguageTab(GameState& _gs, int x, int y, P
     religion{ _gs.world->religions[0] }
 {
     this->is_scroll = false;
-    auto* language_flex_column = new UI::Div(0, 0, this->width / 2, this->height, this);
-    language_flex_column->flex = UI::Flex::COLUMN;
-    language_flex_column->is_scroll = true;
-    for(auto& language : gs.world->languages) {
-        auto* btn = new UI::Button(0, 0, 128, 24, language_flex_column);
-        btn->text(language.name.get_string());
-        btn->set_on_click([this, &language](UI::Widget&) {
-            const_cast<Province&>(this->province).languages[language] = 1.f;
-            this->gs.map->update_mapmode();
-            this->gs.input.selected_language = &language;
-        });
-    }
 
-    auto* religion_flex_column = new UI::Div(this->width / 2, 0, this->width - (this->width / 2), this->height, this);
-    religion_flex_column->flex = UI::Flex::COLUMN;
-    religion_flex_column->is_scroll = true;
-    for(auto& religion : gs.world->religions) {
-        auto* btn = new UI::Button(0, 0, 128, 24, religion_flex_column);
-        btn->text(religion.name.get_string());
-        btn->set_on_click([this, &religion](UI::Widget&) {
-            const_cast<Province&>(this->province).religions[religion] = 1.f;
-            this->gs.map->update_mapmode();
-            this->gs.input.selected_religion = &religion;
-        });
-    }
+    std::vector<int> sizes{ 96, 128 };
+    std::vector<std::string> header{ "Language", "Religion" };
+    auto table = new UI::Table<uint32_t>(0, 0, 0, this->height, 30, sizes, header, this);
+    table->reserve(this->gs.world->languages.size());
+    table->set_on_each_tick([this, table](Widget&) {
+        for(size_t i = 0; i < this->gs.world->religions.size() || i < this->gs.world->languages.size(); i++) {
+            auto* row = table->get_row(i);
+            size_t row_index = 0;
+
+            auto& religion = i >= this->gs.world->religions.size() ? this->gs.world->religions[0] : this->gs.world->religions[i];
+            auto religion_icon = row->get_element(row_index++);
+            religion_icon->current_texture = this->gs.tex_man.load(gs.package_man.get_unique("gfx/religion/" + religion.ref_name + ".png"));
+            religion_icon->set_tooltip(religion.name.get_string());
+            religion_icon->set_key(religion.name.get_string());
+            religion_icon->set_on_click([this, religion_id = religion.get_id()](UI::Widget&) {
+                const_cast<Province&>(this->province).religions[religion_id] = 1.f;
+                this->gs.map->update_mapmode();
+                this->gs.input.selected_religion = &this->gs.world->religions[religion_id];
+            });
+
+            auto& language = i >= this->gs.world->languages.size() ? this->gs.world->languages[0] : this->gs.world->languages[i];
+            auto name = row->get_element(row_index++);
+            auto name_str = language.name.get_string();
+            name->text(name_str);
+            name->set_tooltip(name_str);
+            name->set_key(name_str);
+            name->set_on_click([this, language_id = language.get_id()](UI::Widget&) {
+                const_cast<Province&>(this->province).languages[language_id] = 1.f;
+                this->gs.map->update_mapmode();
+                this->gs.input.selected_language = &this->gs.world->languages[language_id];
+            });
+        }
+    });
+    table->on_each_tick(*table);
 }
 
 ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)
