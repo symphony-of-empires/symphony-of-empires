@@ -39,7 +39,7 @@
 using namespace Interface;
 
 mapmode_tooltip good_tooltip(GoodId id);
-mapmode_generator good_map_mode(GoodId id);
+mapmode_generator goods_map_mode(GoodId id);
 mapmode_generator relations_map_mode(NationId id);
 mapmode_tooltip relations_tooltip(NationId id);
 std::vector<ProvinceColor> terrain_color_map_mode(const World& world);
@@ -215,13 +215,13 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
         new UI::Label(35, 0, good.name.get_string(), good_div);
         good_div->set_on_click([this, &good](UI::Widget&) {
             this->gs.current_mode = MapMode::NORMAL;
-            mapmode_generator map_mode = good_map_mode(good);
+            mapmode_generator map_mode = goods_map_mode(good);
             mapmode_tooltip tooltip = good_tooltip(good);
             this->gs.map->set_map_mode(map_mode, tooltip);
         });
     }
 
-    mapmode_generator map_mode = good_map_mode(GoodId(0zu));
+    mapmode_generator map_mode = goods_map_mode(GoodId(0zu));
     mapmode_tooltip tooltip = good_tooltip(GoodId(0zu));
     this->gs.map->set_map_mode(map_mode, tooltip);
 }
@@ -240,7 +240,7 @@ mapmode_tooltip good_tooltip(GoodId good_id) {
     };
 }
 
-mapmode_generator good_map_mode(GoodId id) {
+mapmode_generator goods_map_mode(GoodId id) {
     return [id](const World& world) {
         std::vector<std::pair<ProvinceId, float>> province_amounts;
         auto max_price = 0.0001f;

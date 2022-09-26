@@ -31,9 +31,7 @@
 #include "pop.hpp"
 #include "world.hpp"
 
-using namespace Interface;
-
-PopWindow::PopWindow(GameState& gs)
+Interface::PopWindow::PopWindow(GameState& gs)
     : UI::Window(-400, -400, 0, 800),
     gs{ gs }
 {
@@ -56,7 +54,7 @@ PopWindow::PopWindow(GameState& gs)
     auto table = new UI::Table<uint64_t>(5, 5, 800-10, 800-5, 35, sizes, header, this);
     this->width = table->width + 5 + this->padding.x;
     table->reserve(size);
-    table->set_on_each_tick([this, nation, table](UI::Widget&) {
+    table->set_on_each_tick([this, &nation, table](UI::Widget&) {
         for(const auto province_id : nation.owned_provinces) {
             const auto& province = this->gs.world->provinces[province_id];
             for(const auto& pop : province.pops) {

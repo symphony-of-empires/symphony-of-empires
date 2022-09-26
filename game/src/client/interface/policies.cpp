@@ -81,14 +81,10 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
         for(const auto& ideology : this->gs.world->ideologies)
             ideology_data.push_back(UI::ChartData(1.f, ideology.name.get_string(), ideology.color));
         
-        for(const auto& province_id : this->gs.curr_nation->owned_provinces) {
-            for(const auto& pop : this->gs.world->provinces[province_id].pops) {
-                size_t i = 0;
-                for(const auto& ideology_approval : pop.ideology_approval)
-                    ideology_data[i++].num += ideology_approval * pop.size;
-            }
-        }
-
+        for(const auto province_id : this->gs.curr_nation->owned_provinces)
+            for(const auto& pop : this->gs.world->provinces[province_id].pops)
+                for(size_t i = 0; i < pop.ideology_approval.size(); i++)
+                    ideology_data[i++].num += pop.ideology_approval[i] * pop.size;
         ((UI::PieChart&)w).set_data(ideology_data);
     });
     ideology_pie->on_each_tick(*ideology_pie);
@@ -98,11 +94,9 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
         if(this->gs.world->time % this->gs.world->ticks_per_month) return;
 
         auto num = 0.f;
-        for(const auto province_id : this->gs.curr_nation->owned_provinces) {
-            const auto& province = this->gs.world->provinces[province_id];
-            for(const auto& pop : province.pops)
+        for(const auto province_id : this->gs.curr_nation->owned_provinces)
+            for(const auto& pop : this->gs.world->provinces[province_id].pops)
                 num += pop.militancy;
-        }
         num /= this->gs.curr_nation->owned_provinces.size();
         w.text("Militancy: " + std::to_string(num));
     });
