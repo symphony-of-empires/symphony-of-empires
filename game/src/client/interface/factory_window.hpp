@@ -26,6 +26,7 @@
 
 #include "eng3d/ui/window.hpp"
 #include "eng3d/ui/div.hpp"
+#include "eng3d/ui/table.hpp"
 #include "client/game_state.hpp"
 #include "building.hpp"
 #include "objects.hpp"
@@ -35,5 +36,6 @@ namespace Interface {
         GameState& gs;
     public:
         FactoryWindow(GameState& gs);
+        static UI::Table<uint32_t>* new_table(GameState& gs, int _x, int _y, int _w, int _h, std::vector<ProvinceId> provinces, UI::Widget* parent);
     };
 }

@@ -32,8 +32,9 @@
 #include "eng3d/ui/table.hpp"
 #include "eng3d/ui/close_button.hpp"
 
-#include "province_view.hpp"
-#include "nation_view.hpp"
+#include "client/interface/factory_window.hpp"
+#include "client/interface/province_view.hpp"
+#include "client/interface/nation_view.hpp"
 #include "client/game_state.hpp"
 #include "client/map.hpp"
 #include "nation.hpp"
@@ -213,63 +214,7 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province&
     gs{ _gs },
     province{ _province }
 {
-    std::vector<int> sizes{ 96, 64, 64, 32, 48, 32 };
-    std::vector<std::string> header{ "Name", "Workers", "Inputs", "Output", "Scale", " " };
-    auto* table = new UI::Table<uint32_t>(0, 0, 0, this->height, 32, sizes, header, this);
-    table->reserve(this->province.buildings.size());
-    table->set_on_each_tick([this, table](UI::Widget&) {
-        for(size_t i = 0; i < this->province.buildings.size(); i++) {
-            const auto& building = this->province.buildings[i];
-            const auto& type = this->gs.world->building_types[i];
-            auto* row = table->get_row(i);
-            size_t row_index = 0;
-
-            auto* name = row->get_element(row_index++);
-            auto name_str = string_format("%s", type.name.get_string().c_str());
-            name->text(name_str);
-            name->set_key(name_str);
-
-            auto* workers = row->get_element(row_index++);
-            workers->text(string_format("%.0f", building.workers));
-            workers->set_key(building.workers);
-
-            auto* inputs = row->get_element(row_index++);
-            inputs->set_key(type.input_ids.size());
-            inputs->kill_children();
-            inputs->flex = UI::Flex::ROW;
-            for(auto good_id : type.input_ids) {
-                auto& good = this->gs.world->goods[good_id];
-                auto* input_good_image = new UI::Image(0, 0, 32, 32, "gfx/good/" + good.ref_name + ".png", true, inputs);
-                input_good_image->set_tooltip(good.name.get_string());
-            }
-
-            auto* outputs = row->get_element(row_index++);
-            outputs->set_key(Good::is_valid(type.output_id) ? 1 : 0);
-            outputs->kill_children();
-            outputs->flex = UI::Flex::ROW;
-
-            if(Good::is_valid(type.output_id)) {
-                auto* output = &this->gs.world->goods[type.output_id];
-                auto* output_good_image = new UI::Image(0, 0, 32, 32, "gfx/good/" + output->ref_name + ".png", true, outputs);
-                output_good_image->set_tooltip(output->name.get_string());
-            }
-
-            auto* scale = row->get_element(row_index++);
-            auto scale_str = string_format("%.0f", building.production_scale * building.level);
-            scale->text(scale_str);
-            scale->set_key(building.production_scale * building.level);
-            scale->set_tooltip(Eng3D::translate_format("Allowed production scale, (scale * level) = (%.0f * %.0f) = %.0f", building.production_scale, building.level, building.production_scale * building.level));
-
-            auto* upgrade = row->get_element(row_index++);
-            upgrade->text("+");
-            upgrade->set_tooltip(translate("Upgrade building"));
-            upgrade->set_key(0);
-            upgrade->set_on_click([this, type](UI::Widget&) {
-                this->gs.client->send(Action::BuildingAdd::form_packet(this->province, type));
-            });
-        }
-    });
-    table->on_each_tick(*table);
+    auto table = Interface::FactoryWindow::new_table(gs, 0, 0, 0, this->height, { province.get_id() }, this);
 }
 
 ProvinceEditLanguageTab::ProvinceEditLanguageTab(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)

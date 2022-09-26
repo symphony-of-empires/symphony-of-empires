@@ -22,11 +22,6 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "client/interface/factory_window.hpp"
-#include "nation.hpp"
-#include "pop.hpp"
-#include "world.hpp"
-
 #include "eng3d/string.hpp"
 #include "eng3d/ui/div.hpp"
 #include "eng3d/ui/label.hpp"
@@ -35,36 +30,40 @@
 #include "eng3d/ui/table.hpp"
 #include "eng3d/string.hpp"
 
-Interface::FactoryWindow::FactoryWindow(GameState& gs)
-    : UI::Window(-400, -400, 800, 800),
-    gs{ gs }
-{
-    this->origin = UI::Origin::CENTER_SCREEN;
-    this->text(translate("Factories"));
-    this->is_scroll = false;
+#include "client/interface/factory_window.hpp"
+#include "client/client_network.hpp"
+#include "nation.hpp"
+#include "action.hpp"
+#include "pop.hpp"
+#include "world.hpp"
 
-    this->set_close_btn_function([this](UI::Widget&) {
-        this->kill();
-    });
+UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, int _y, int _w, int _h, std::vector<ProvinceId> provinces, UI::Widget* parent) {
+    std::vector<int> sizes;
+    if(provinces.size() > 1) sizes.push_back(75);
+    sizes.insert(sizes.end(), { 100, 50, 40, 32, 50, 32 });
 
-    std::vector<int> sizes{ 75, 100, 100, 180, 32, 50 };
-    std::vector<std::string> header{ "Province", "Type", "Workers", "Inputs", "Output", "Scale" };
-    auto table = new UI::Table<uint64_t>(5, 5, 800 - 10, 800 - 5, 35, sizes, header, this);
-    this->width = table->width + 5 + this->padding.x;
+    std::vector<std::string> header;
+    if(provinces.size() > 1) header.push_back("Province");
+    header.insert(header.end(), { "Type", "Workers", "Inputs", "Output", "Scale", "" });
+
+    auto table = new UI::Table<uint32_t>(_x, _y, _w, _h, 32, sizes, header, parent);
     table->reserve(1);
-    table->set_on_each_tick([this, table](UI::Widget&) {
+    table->set_on_each_tick([&gs, table, provinces](UI::Widget&) {
         size_t row_num = 0;
-        for(const auto province_id : this->gs.curr_nation->owned_provinces) {
-            const auto& province = this->gs.world->provinces[province_id];
+        for(const auto province_id : provinces) {
+            const auto& province = gs.world->provinces[province_id];
             for(size_t i = 0; i < province.buildings.size(); i++) {
-                const auto& type = this->gs.world->building_types[i];
+                const auto& type = gs.world->building_types[i];
                 const auto& building = province.buildings[i];
                 auto* row = table->get_row(row_num++);
 
                 size_t row_index = 0;
-                auto prov_name = row->get_element(row_index++);
-                prov_name->text(province.name.get_string());
-                prov_name->set_key(province.name.get_string());
+
+                if(provinces.size() > 1) {
+                    auto prov_name = row->get_element(row_index++);
+                    prov_name->text(province.name.get_string());
+                    prov_name->set_key(province.name.get_string());
+                }
 
                 auto name = row->get_element(row_index++);
                 name->text(type.name.get_string());
@@ -87,16 +86,39 @@ Interface::FactoryWindow::FactoryWindow(GameState& gs)
                 outputs->set_key(type.output_id);
                 outputs->flex_justify = UI::FlexJustify::START;
                 if(Good::is_valid(type.output_id)) {
-                    auto& output = this->gs.world->goods[type.output_id];
-                    outputs->current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/good/" + output.ref_name + ".png"));
+                    auto& output = gs.world->goods[type.output_id];
+                    outputs->current_texture = gs.tex_man.load(gs.package_man.get_unique("gfx/good/" + output.ref_name + ".png"));
                     outputs->set_tooltip(output.name.get_string());
                 }
 
                 auto scale = row->get_element(row_index++);
                 scale->text(string_format("%.0f", building.production_scale));
                 scale->set_key(building.production_scale);
+
+                auto upgrade = row->get_element(row_index++);
+                upgrade->text("+");
+                upgrade->set_tooltip(translate("Upgrade building"));
+                upgrade->set_key(0);
+                upgrade->set_on_click([&gs, province_id, type_id = type.get_id()](UI::Widget&) {
+                    gs.client->send(Action::BuildingAdd::form_packet(gs.world->provinces[province_id], gs.world->building_types[type_id]));
+                });
             }
         }
     });
     table->on_each_tick(*table);
+    return table;
+}
+
+Interface::FactoryWindow::FactoryWindow(GameState& gs)
+    : UI::Window(-400, -400, 800, 800),
+    gs{ gs }
+{
+    this->origin = UI::Origin::CENTER_SCREEN;
+    this->text(translate("Factories"));
+    this->is_scroll = false;
+    this->set_close_btn_function([this](UI::Widget&) {
+        this->kill();
+    });
+    auto table = this->new_table(gs, 5, 5, 800 - 10, 800 - 5, this->gs.curr_nation->owned_provinces, this);
+    this->width = table->width + 5 + this->padding.x;
 }
