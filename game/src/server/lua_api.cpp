@@ -162,7 +162,7 @@ int LuaAPI::get_terrain_type(lua_State* L) {
 
 int LuaAPI::add_technology(lua_State* L) {
     if(g_world.needs_to_sync)
-        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+        luaL_error(L, "MP-Sync in this function is not supported");
 
     Technology technology{};
     technology.ref_name = luaL_checkstring(L, 1);
@@ -193,7 +193,7 @@ int LuaAPI::add_req_tech_to_tech(lua_State* L) {
 
 int LuaAPI::add_building_type(lua_State* L) {
     if(g_world.needs_to_sync)
-        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+        luaL_error(L, "MP-Sync in this function is not supported");
 
     BuildingType building_type{};
     building_type.ref_name = luaL_checkstring(L, 1);
@@ -221,7 +221,7 @@ int LuaAPI::get_building_type(lua_State* L) {
 
 int LuaAPI::add_good(lua_State* L) {
     if(g_world.needs_to_sync)
-        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+        luaL_error(L, "MP-Sync in this function is not supported");
 
     Good good{};
     good.ref_name = luaL_checkstring(L, 1);
@@ -570,7 +570,7 @@ int LuaAPI::get_nation_mod(lua_State* L) {
 
 int LuaAPI::add_province(lua_State* L) {
     if(g_world.needs_to_sync)
-        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+        luaL_error(L, "MP-Sync in this function is not supported");
 
     Province province{};
     province.ref_name = luaL_checkstring(L, 1);
@@ -1076,7 +1076,7 @@ int LuaAPI::get_pop_type_by_id(lua_State* L) {
 
 int LuaAPI::add_language(lua_State* L) {
     if(g_world.needs_to_sync)
-        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+        luaL_error(L, "MP-Sync in this function is not supported");
 
     Language language{};
     language.ref_name = luaL_checkstring(L, 1);
@@ -1115,7 +1115,7 @@ int LuaAPI::get_language_by_id(lua_State* L) {
 
 int LuaAPI::add_religion(lua_State* L) {
     if(g_world.needs_to_sync)
-        throw LuaAPI::Exception("MP-Sync in this function is not supported");
+        luaL_error(L, "MP-Sync in this function is not supported");
 
     Religion religion{};
     religion.ref_name = luaL_checkstring(L, 1);
@@ -1532,7 +1532,7 @@ int LuaAPI::ui_set_on_click(lua_State* L) {
             const std::string err_msg = lua_tostring(L, -1);
             Eng3D::Log::error("lua", "lua_pcall failed: " + err_msg);
             lua_pop(L, 1);
-            throw LuaAPI::Exception("Failure on UI callback: " + err_msg);
+            luaL_error(L, "Failure on UI callback: " + err_msg);
         }
     });
     return 0;
@@ -1555,7 +1555,7 @@ int LuaAPI::ui_set_window_on_click_close_btn(lua_State* L) {
             const std::string err_msg = lua_tostring(L, -1);
             Eng3D::Log::error("lua", "lua_pcall failed: " + err_msg);
             lua_pop(L, 1);
-            throw LuaAPI::Exception("Failure on UI callback: " + err_msg);
+            luaL_error(L, "Failure on UI callback: " + err_msg);
         }
         o.kill(); // Implicitly kill object
     });
