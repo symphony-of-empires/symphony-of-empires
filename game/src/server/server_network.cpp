@@ -168,16 +168,16 @@ void Server::net_loop(int id) {
                     UnitId unit_id;
                     ::deserialize(ar, unit_id);
                     if(Unit::is_invalid(unit_id))
-                        throw ServerException("Unknown unit");
+                        CXX_THROW(ServerException, "Unknown unit");
                     // Must control unit
                     auto& unit = g_world.unit_manager.units[unit_id];
                     if(selected_nation == nullptr || selected_nation->get_id() != unit.owner_id)
-                        throw ServerException("Nation does not control unit");
+                        CXX_THROW(ServerException, "Nation does not control unit");
 
                     Province* province;
                     ::deserialize(ar, province);
                     if(province == nullptr)
-                        throw ServerException("Unknown province");
+                        CXX_THROW(ServerException, "Unknown province");
                     
                     if(unit.can_move()) {
                         Eng3D::Log::debug("server", "Unit changes targets to " + province->ref_name.get_string());
@@ -229,12 +229,12 @@ void Server::net_loop(int id) {
                     Province* province;
                     ::deserialize(ar, province);
                     if(province == nullptr)
-                        throw ServerException("Unknown province");
+                        CXX_THROW(ServerException, "Unknown province");
                     // Must not be already owned
                     if(Nation::is_valid(province->owner_id))
-                        throw ServerException("Province already has an owner");
+                        CXX_THROW(ServerException, "Province already has an owner");
                     if(selected_nation == nullptr)
-                        throw ServerException("You don't control a country");
+                        CXX_THROW(ServerException, "You don't control a country");
                     province->owner_id = selected_nation->get_id();
                     // Rebroadcast
                     broadcast(packet);
@@ -255,7 +255,7 @@ void Server::net_loop(int id) {
                     ::deserialize(ar, approval);
                     Eng3D::Log::debug("server", selected_nation->ref_name + " approves treaty " + treaty->name + " A=" + (approval == TreatyApproval::ACCEPTED ? "YES" : "NO"));
                     if(!treaty->does_participate(*selected_nation))
-                        throw ServerException("Nation does not participate in treaty");
+                        CXX_THROW(ServerException, "Nation does not participate in treaty");
                     // Rebroadcast
                     broadcast(packet);
                 } break;
@@ -268,14 +268,14 @@ void Server::net_loop(int id) {
                     ::deserialize(ar, treaty.receiver_id);
                     // Validate data
                     if(treaty.clauses.empty())
-                        throw ServerException("Clause-less treaty");
+                        CXX_THROW(ServerException, "Clause-less treaty");
                     if(Nation::is_invalid(treaty.sender_id))
-                        throw ServerException("Treaty has invalid sender");
+                        CXX_THROW(ServerException, "Treaty has invalid sender");
                     // Obtain participants of the treaty
                     std::vector<NationId> approver_nations;
                     for(auto& clause : treaty.clauses) {
                         if(Nation::is_invalid(clause->receiver_id) || Nation::is_invalid(clause->sender_id))
-                            throw ServerException("Invalid clause receiver/sender");
+                            CXX_THROW(ServerException, "Invalid clause receiver/sender");
                         approver_nations.push_back(clause->receiver_id);
                         approver_nations.push_back(clause->sender_id);
                     }
