@@ -112,7 +112,7 @@ static inline void get_blob_bounds(std::unordered_set<ProvinceId>& visited_provi
             max_y->x = neighbour.box_area.right;
             max_y->y = neighbour.box_area.bottom;
         }
-        visited_provinces.insert(neighbour);
+        visited_provinces.insert(neighbour_id);
         get_blob_bounds(visited_provinces, nation, neighbour, min_x, min_y, max_x, max_y);
     }
 }

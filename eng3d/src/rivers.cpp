@@ -107,18 +107,16 @@ void Eng3D::Rivers::build_rivers() {
     auto river_tex = s.tex_man.load(s.package_man.get_unique("map/river.png"), no_drop_options);
 
     std::vector<int> rivers_starts;
-    int height = river_tex->height;
-    int width = river_tex->width;
     auto pixels = river_tex->buffer.get();
-    for(size_t y = 0; y < height; y++)
-        for(size_t x = 0; x < width; x++)
-            if(pixels[x + y * river_tex->width] == 0xFF0000FF)
-                rivers_starts.push_back(x + y * width);
+    for(size_t y = 0; y < river_tex->height; y++)
+        for(size_t x = 0; x < river_tex->width; x++)
+            if(pixels[x + y * river_tex->width] == 0xff0000ff)
+                rivers_starts.push_back(x + y * river_tex->width);
 
     // TODO FIX THIS NOT INFINITE LOOP
     for(size_t i = 0; i < rivers_starts.size(); i++) {
         std::vector<glm::vec3> river;
-        this->get_river(river, rivers_starts[i], -1, pixels, width, height);
+        this->get_river(river, rivers_starts[i], -1, pixels, river_tex->width, river_tex->height);
 
         const size_t length = river.size();
         if(length < 2) continue;
