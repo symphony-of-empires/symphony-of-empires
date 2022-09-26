@@ -64,12 +64,9 @@ LobbySelectView::LobbySelectView(GameState& _gs)
             this->ctrl_window = nullptr;
 
             if(this->gs.host_mode) {
-                if(this->gs.server != nullptr)
-                    delete this->gs.server;
+                if(this->gs.server != nullptr) delete this->gs.server;
                 this->gs.server = new Server(gs, 1836);
-
-                if(this->gs.client != nullptr)
-                    delete this->gs.client;
+                if(this->gs.client != nullptr) delete this->gs.client;
                 this->gs.client = new Client(gs, "127.0.0.1", 1836);
             } else {
                 // Control of server and client creation is on the caller/invoker
@@ -118,9 +115,8 @@ LobbySelectView::LobbySelectView(GameState& _gs)
             auto* ldgame_btn = new UI::Button(0, 0, 128, 24, game_group);
             ldgame_btn->text(savefile_path);
             ldgame_btn->set_on_click([this, savefile_path](UI::Widget&) {
-                if(this->gs.curr_nation == nullptr) {
+                if(this->gs.curr_nation == nullptr)
                     this->change_nation(0);
-                }
                 const auto nation_id = this->gs.curr_nation->get_id();
                 this->gs.paused = true;
 

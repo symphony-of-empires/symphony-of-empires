@@ -222,25 +222,25 @@ void Eng3D::GLSL::Context::parser() {
     fn = Eng3D::GLSL::Function();
     fn.name = "vec2";
     fn.ret_type = "vec2";
-    fn.args.push_back(std::make_pair("float", "x"));
-    fn.args.push_back(std::make_pair("float", "y"));
+    fn.args.emplace_back("float", "x");
+    fn.args.emplace_back("float", "y");
     funcs.push_back(fn);
 
     fn = Eng3D::GLSL::Function();
     fn.name = "vec3";
     fn.ret_type = "vec3";
-    fn.args.push_back(std::make_pair("float", "x"));
-    fn.args.push_back(std::make_pair("float", "y"));
-    fn.args.push_back(std::make_pair("float", "z"));
+    fn.args.emplace_back("float", "x");
+    fn.args.emplace_back("float", "y");
+    fn.args.emplace_back("float", "z");
     funcs.push_back(fn);
 
     fn = Eng3D::GLSL::Function();
     fn.name = "vec4";
     fn.ret_type = "vec4";
-    fn.args.push_back(std::make_pair("float", "x"));
-    fn.args.push_back(std::make_pair("float", "y"));
-    fn.args.push_back(std::make_pair("float", "z"));
-    fn.args.push_back(std::make_pair("float", "w"));
+    fn.args.emplace_back("float", "x");
+    fn.args.emplace_back("float", "y");
+    fn.args.emplace_back("float", "z");
+    fn.args.emplace_back("float", "w");
     funcs.push_back(fn);
 
     // Register all the overloads for this function
@@ -252,9 +252,9 @@ void Eng3D::GLSL::Context::parser() {
             fn = Eng3D::GLSL::Function();
             fn.name = "mix";
             fn.ret_type = "vec4";
-            fn.args.push_back(std::make_pair(it1, "x"));
-            fn.args.push_back(std::make_pair(it2, "y"));
-            fn.args.push_back(std::make_pair("float", "weight"));
+            fn.args.emplace_back(it1, "x");
+            fn.args.emplace_back(it2, "y");
+            fn.args.emplace_back("float", "weight");
             funcs.push_back(fn);
         }
     }
@@ -263,9 +263,9 @@ void Eng3D::GLSL::Context::parser() {
     fn.name = "clamp";
     for(const auto& it1 : vec_types) {
         fn.ret_type = it1;
-        fn.args.push_back(std::make_pair(it1, "num"));
-        fn.args.push_back(std::make_pair(it1, "min"));
-        fn.args.push_back(std::make_pair(it1, "max"));
+        fn.args.emplace_back(it1, "num");
+        fn.args.emplace_back(it1, "min");
+        fn.args.emplace_back(it1, "max");
     }
     funcs.push_back(fn);
 
@@ -273,8 +273,8 @@ void Eng3D::GLSL::Context::parser() {
     fn.name = "min";
     for(const auto& it1 : vec_types) {
         fn.ret_type = it1;
-        fn.args.push_back(std::make_pair(it1, "x"));
-        fn.args.push_back(std::make_pair(it1, "y"));
+        fn.args.emplace_back(it1, "x");
+        fn.args.emplace_back(it1, "y");
     }
     funcs.push_back(fn);
 
@@ -282,8 +282,8 @@ void Eng3D::GLSL::Context::parser() {
     fn.name = "max";
     for(const auto& it1 : vec_types) {
         fn.ret_type = it1;
-        fn.args.push_back(std::make_pair(it1, "x"));
-        fn.args.push_back(std::make_pair(it1, "y"));
+        fn.args.emplace_back(it1, "x");
+        fn.args.emplace_back(it1, "y");
     }
     funcs.push_back(fn);
 

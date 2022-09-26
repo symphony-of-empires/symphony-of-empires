@@ -175,7 +175,7 @@ void UI::Context::set_eval(UI::Widget& widget, bool eval) {
 
 void UI::Context::prompt(const std::string& title, const std::string& text) {
     std::scoped_lock lock(prompt_queue_mutex);
-    this->prompt_queue.push_back(std::make_pair(title, text));
+    this->prompt_queue.emplace_back(title, text);
 }
 
 // void Context::clear_dead_recursive(Widget* w) {

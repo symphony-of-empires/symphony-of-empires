@@ -243,7 +243,7 @@ mapmode_generator goods_map_mode(GoodId id) {
             const auto& product = province.products[id];
             auto price = std::log2f(product.price + 1.f);
             max_price = glm::max(price, max_price);
-            province_amounts.push_back(std::make_pair(province, price));
+            province_amounts.emplace_back(province, price);
         }
 
         // Mix each color depending of how many live there compared to max_amount

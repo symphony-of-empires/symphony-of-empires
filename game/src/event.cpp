@@ -33,7 +33,7 @@
 // Event
 //
 void Event::take_decision(Nation& sender, Decision& dec) {
-    g_world.taken_decisions.push_back(std::make_pair(dec, &sender)); // Tell the world that we took a decision
+    g_world.taken_decisions.emplace_back(dec, &sender); // Tell the world that we took a decision
     std::erase_if(sender.inbox, [this](const auto& e) { // Remove from inbox too
         return this->ref_name == e.ref_name;
     });
