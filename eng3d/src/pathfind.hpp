@@ -43,11 +43,12 @@ namespace Eng3D::Pathfind {
         std::unordered_map<T, T> prev_map;
         /// @brief Keeps track of which tiles have been visited
         std::unordered_set<T> visited;
+
+        auto comp = [](const auto& a, const auto& b) { return a.first > b.first; };
         /// @brief Priority queue based on cost
-        std::priority_queue<
-            std::pair<float, T>,
+        std::priority_queue<std::pair<float, T>,
             std::vector<std::pair<float, T>>,
-            std::greater<std::pair<float, T>>
+            decltype(comp)
         > queue;
 
         cost_map[start] = 0.f;

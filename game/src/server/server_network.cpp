@@ -272,13 +272,15 @@ void Server::net_loop(int id) {
                     if(Nation::is_invalid(treaty.sender_id))
                         throw ServerException("Treaty has invalid sender");
                     // Obtain participants of the treaty
-                    std::set<NationId> approver_nations;
+                    std::vector<NationId> approver_nations;
                     for(auto& clause : treaty.clauses) {
                         if(Nation::is_invalid(clause->receiver_id) || Nation::is_invalid(clause->sender_id))
                             throw ServerException("Invalid clause receiver/sender");
-                        approver_nations.insert(clause->receiver_id);
-                        approver_nations.insert(clause->sender_id);
+                        approver_nations.push_back(clause->receiver_id);
+                        approver_nations.push_back(clause->sender_id);
                     }
+                    auto last = std::unique(approver_nations.begin(), approver_nations.end());
+                    approver_nations.erase(last, approver_nations.end());
 
                     Eng3D::Log::debug("server", "Participants of treaty " + treaty.name);
                     // Then fill as undecided (and ask nations to sign this treaty)

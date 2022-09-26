@@ -130,7 +130,7 @@ public:
         std::scoped_lock lock(list_mutex);\
         cached_id = list.size();\
         Eng3D::Log::debug("world_remove", "Removing object " #type " with ID=" + std::to_string(static_cast<size_t>(cached_id)));\
-        for(size_t i = static_cast<size_t>(cached_id) + 1; i < list.size(); i++)\
+        for(size_t i = cached_id + 1; i < list.size(); i++)\
             list[i].cached_id = type::Id(static_cast<size_t>(list[i].cached_id) - 1);\
         list.erase(list.begin() + cached_id);\
     };\
@@ -177,7 +177,6 @@ public:
     template<typename T>
     inline void insert(T& ptr) {
         auto& list = this->get_list((T*)nullptr);
-
         list_mutex.lock();
         ptr.cached_id = list.size();
         assert(ptr.cached_id < static_cast<T::Id>(-2));
@@ -187,17 +186,13 @@ public:
 
     template<typename T>
     inline void remove(T& ptr) {
-        // Decrease the cache_id counter for the elements after the removed element
-        // so we don't lose sync of ids
-        typename T::Id cached_id = this->get_id<T>(ptr);
+        size_t cached_id = static_cast<size_t>(this->get_id<T>(ptr));
         auto& list = this->get_list((T*)nullptr);
-
         list_mutex.lock();
         for(size_t i = cached_id + 1; i < list.size(); i++)
-            list[i]->cached_id--;
-
+            list[i].cached_id = T::Id(static_cast<size_t>(list[i].cached_id) - 1);
         // Remove the element itself
-        list.erase(list.begin() + static_cast<size_t>(cached_id));
+        list.erase(list.begin() + cached_id);
         list_mutex.unlock();
     }
 

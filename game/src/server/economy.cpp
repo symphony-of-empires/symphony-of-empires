@@ -171,9 +171,9 @@ static void update_factories_employment(const World& world, Province& province, 
 
     // Sort factories by production scale, which is suppose to represent how profitable the factory is
     // Might be better to calculate how profitable it really is and use that instead
-    std::map<size_t, float> factories_by_profitability;
+    std::vector<std::pair<size_t, float>> factories_by_profitability;
     for(size_t i = 0; i < province.buildings.size(); i++)
-        factories_by_profitability[i] = province.buildings[i].production_scale;
+        factories_by_profitability.emplace_back(i, province.buildings[i].production_scale);
     std::sort(factories_by_profitability.begin(), factories_by_profitability.end(), [](const auto& a, const auto& b) { return a.second > b.second; });
 
     // Cancel operations
