@@ -1314,7 +1314,7 @@ void LuaAPI::check_events(lua_State* L) {
             const std::string err_msg = lua_tostring(L, -1);
             Eng3D::Log::error("lua", "lua_pcall failed: " + err_msg);
             lua_pop(L, 1);
-            throw LuaAPI::Exception(std::to_string(dec.first.do_decision_function) + "(" + dec.second->ref_name + "): " + err_msg);
+            CXX_THROW(LuaAPI::Exception, std::to_string(dec.first.do_decision_function) + "(" + dec.second->ref_name + "): " + err_msg);
         }
     }
     g_world.taken_decisions.clear();
@@ -1532,7 +1532,7 @@ int LuaAPI::ui_set_on_click(lua_State* L) {
             const std::string err_msg = lua_tostring(L, -1);
             Eng3D::Log::error("lua", "lua_pcall failed: " + err_msg);
             lua_pop(L, 1);
-            luaL_error(L, "Failure on UI callback: " + err_msg);
+            CXX_THROW(LuaAPI::Exception, "Failure on UI callback: " + err_msg);
         }
     });
     return 0;
@@ -1555,7 +1555,7 @@ int LuaAPI::ui_set_window_on_click_close_btn(lua_State* L) {
             const std::string err_msg = lua_tostring(L, -1);
             Eng3D::Log::error("lua", "lua_pcall failed: " + err_msg);
             lua_pop(L, 1);
-            luaL_error(L, "Failure on UI callback: " + err_msg);
+            CXX_THROW(LuaAPI::Exception, "Failure on UI callback: " + err_msg);
         }
         o.kill(); // Implicitly kill object
     });
@@ -1734,6 +1734,6 @@ void LuaAPI::invoke_registered_callback(lua_State* L, const std::string& name) {
         const std::string err_msg = lua_tostring(L, -1);
         Eng3D::Log::error("lua", "lua_pcall failed: " + err_msg);
         lua_pop(L, 1);
-        luaL_error(L, ("Failure on UI callback: " + err_msg).c_str());
+        CXX_THROW(LuaAPI::Exception, "Failure on UI callback: " + err_msg);
     }
 }
