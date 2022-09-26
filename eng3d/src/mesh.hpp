@@ -157,7 +157,7 @@ namespace Eng3D {
         Mesh(Mesh&&) noexcept = default;
         Mesh& operator=(const Mesh&) = delete;
 
-        virtual void draw(int instances = 0) const {
+        void draw(int instances = 0) const {
             Eng3D::draw(vao, mode, indices.data(), indices.size(), buffer.data(), buffer.size(), instances);
         }
 
