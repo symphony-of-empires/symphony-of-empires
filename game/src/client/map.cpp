@@ -69,6 +69,22 @@
 #include "io_impl.hpp"
 #include "action.hpp"
 
+template<>
+struct std::hash<ProvinceId> {
+    std::size_t operator()(const ProvinceId& id) const noexcept {
+        std::size_t h1 = std::hash<int>{}(static_cast<size_t>(id));
+        std::size_t h2 = std::hash<int>{}(static_cast<size_t>(id));
+        return h1 ^ (h2 << 1);
+    }
+};
+
+template<>
+struct std::equal_to<ProvinceId> {
+    constexpr bool operator()(const ProvinceId& a, const ProvinceId& b) const {
+        return a == b;
+    }
+};
+
 static inline void get_blob_bounds(std::unordered_set<ProvinceId>& visited_provinces, const Nation& nation, const Province& province, glm::vec2* min_x, glm::vec2* min_y, glm::vec2* max_x, glm::vec2* max_y) {
     // Iterate over all neighbours
     for(const auto neighbour_id : province.neighbour_ids) {
@@ -181,7 +197,7 @@ void Map::update_nation_label(const Nation& nation) {
     max_point_y = province.box_area.position() + province.box_area.size();
     min_point_x = province.box_area.position();
     min_point_y = province.box_area.position();
-    std::unordered_set<Province*> visited_provinces;
+    std::unordered_set<ProvinceId> visited_provinces;
     get_blob_bounds(visited_provinces, nation, province, &min_point_x, &min_point_y, &max_point_x, &max_point_y);
     glm::vec2 lab_min = (max_point_x + max_point_y + min_point_y) / 3.f;
     glm::vec2 lab_max = (max_point_y + min_point_x + min_point_y) / 3.f;

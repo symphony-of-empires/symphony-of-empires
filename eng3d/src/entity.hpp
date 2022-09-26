@@ -42,11 +42,33 @@ struct EntityId {
     constexpr EntityId<T>& operator=(const EntityId<T>&) noexcept = default;
     ~EntityId() noexcept = default;
 
-    constexpr bool operator<=>(const EntityId<T>& o) const noexcept = default;
-
     constexpr operator size_t() const noexcept {
         return static_cast<size_t>(id);
     }
+
+    constexpr operator int() const noexcept {
+        return static_cast<int>(id);
+    }
+
+    constexpr bool operator==(const EntityId<T>& o) const noexcept {
+        return this->id == o.id;
+    }
+
+    constexpr bool operator!=(const EntityId<T>& o) const noexcept {
+        return this->id != o.id;
+    }
+
+    constexpr bool operator<(const EntityId<T>& o) const noexcept {
+        return this->id < o.id;
+    }
+
+    constexpr bool operator>(const EntityId<T>& o) const noexcept {
+        return this->id > o.id;
+    }
+
+    constexpr bool operator<=(const EntityId<T>& o) const noexcept = default;
+    constexpr bool operator>=(const EntityId<T>& o) const noexcept = default;
+    constexpr bool operator<=>(const EntityId<T>& o) const noexcept = default;
 
  	EntityId<T>& operator++() noexcept {
         this->id++;
