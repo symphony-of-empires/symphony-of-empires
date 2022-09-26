@@ -112,12 +112,11 @@ public:
     void clean_pops();
 };
 template<>
-class Serializer<Province*>: public SerializerReferenceLocal<World, Province> {};
+struct Serializer<Province*>: public SerializerReferenceLocal<World, Province> {};
 template<>
-class Serializer<const Province*>: public SerializerReferenceLocal<World, const Province> {};
+struct Serializer<const Province*>: public SerializerReferenceLocal<World, const Province> {};
 template<>
-class Serializer<Province> {
-public:
+struct Serializer<Province> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Province& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -141,6 +140,10 @@ public:
 };
 
 class ProvinceManager {
+    ProvinceManager& operator=(const ProvinceManager&) = default;
+    std::vector<ProvinceId> recently_changed_owner;
+    std::vector<ProvinceId> recently_changed_control;
+    bool changed;
 public:
     ProvinceManager() = default;
 
@@ -168,10 +171,4 @@ public:
     inline bool is_provinces_changed() const {
         return !recently_changed_owner.empty() || !recently_changed_control.empty();
     }
-    
-private:
-    ProvinceManager& operator=(const ProvinceManager&) = default;
-    std::vector<ProvinceId> recently_changed_owner;
-    std::vector<ProvinceId> recently_changed_control;
-    bool changed;
 };

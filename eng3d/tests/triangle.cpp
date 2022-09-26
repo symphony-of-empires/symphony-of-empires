@@ -32,8 +32,7 @@
 #include "eng3d/ui/ui.hpp"
 #include "eng3d/ui/components.hpp"
 
-class GameState: public Eng3D::State {
-public:
+struct GameState: public Eng3D::State {
     GameState(const std::vector<std::string>& pkg_paths)
         : Eng3D::State::State(pkg_paths)
     {

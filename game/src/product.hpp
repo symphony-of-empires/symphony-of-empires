@@ -36,12 +36,11 @@ public:
     Eng3D::StringRef name;
 };
 template<>
-class Serializer<Good*>: public SerializerReferenceLocal<World, Good> {};
+struct Serializer<Good*>: public SerializerReferenceLocal<World, Good> {};
 template<>
-class Serializer<const Good*>: public SerializerReferenceLocal<World, const Good> {};
+struct Serializer<const Good*>: public SerializerReferenceLocal<World, const Good> {};
 template<>
-class Serializer<Good> {
-public:
+struct Serializer<Good> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Good& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -51,8 +50,7 @@ public:
 };
 
 /// @brief A product (based off a Good) which can be bought by POPs, converted by factories and transported
-class Product : public Entity<ProductId> {
-public:
+struct Product : public Entity<ProductId> {
     inline void close_market() {
         if(this->demand > this->supply) {
             // Increase price with more demand
@@ -79,8 +77,7 @@ public:
     float demand = 0.f; // Total demand of the product
 };
 template<>
-class Serializer<Product> {
-public:
+struct Serializer<Product> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Product& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);

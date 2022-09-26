@@ -28,8 +28,7 @@
 #include "eng3d/string.hpp"
 #include "objects.hpp"
 
-class Decision : public RefnameEntity<DecisionId> {
-public:
+struct Decision : public RefnameEntity<DecisionId> {
     Eng3D::StringRef name;
     Eng3D::StringRef effects;
 
@@ -37,8 +36,7 @@ public:
     int do_decision_function = 0;
 };
 template<>
-class Serializer<Decision> {
-public:
+struct Serializer<Decision> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Decision& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -50,10 +48,8 @@ public:
 };
 
 class Nation;
-class Event : public RefnameEntity<EventId> {
-public:
+struct Event : public RefnameEntity<EventId> {
     void take_decision(Nation& sender, Decision& dec);
-
     Eng3D::StringRef name;
     std::vector<Nation *> receivers;
     std::vector<Decision> decisions;
@@ -66,12 +62,11 @@ public:
     int do_event_function = 0;
 };
 template<>
-class Serializer<Event*>: public SerializerReferenceLocal<World, Event> {};
+struct Serializer<Event*>: public SerializerReferenceLocal<World, Event> {};
 template<>
-class Serializer<const Event*>: public SerializerReferenceLocal<World, const Event> {};
+struct Serializer<const Event*>: public SerializerReferenceLocal<World, const Event> {};
 template<>
-class Serializer<Event> {
-public:
+struct Serializer<Event> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Event& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);

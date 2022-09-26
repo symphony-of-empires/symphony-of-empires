@@ -58,16 +58,14 @@
 #include "pop.hpp"
 
 // A single tile unit this is the smallest territorial unit in the game and it cannot be divided (and it shouldn't)
-class World;
-class Tile {
-public:
+struct World;
+struct Tile {
     const std::vector<Tile>& get_neighbours(const World& world) const;
     // ID of the province where this tile belongs to
     ProvinceId province_id;
 };
 template<>
-class Serializer<Tile> {
-public:
+struct Serializer<Tile> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Tile& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.province_id);
@@ -75,8 +73,7 @@ public:
 };
 
 /// @todo Make bookmark.hpp?
-class Bookmark {
-public:
+struct Bookmark {
     Eng3D::StringRef ref_name;
     Eng3D::StringRef name;
     uint64_t start_time;
@@ -138,7 +135,6 @@ public:
 
 // Contains the main world class object, containing all the data relevant for the simulation
 class World {
-private:
     Economy::EconomyState economyState;
 public:
     static constexpr unsigned int ticks_per_month = 30;
@@ -285,8 +281,7 @@ public:
     std::vector<std::pair<Decision, Nation*>> taken_decisions;
 };
 template<>
-class Serializer<World> {
-public:
+struct Serializer<World> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, World& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.width);

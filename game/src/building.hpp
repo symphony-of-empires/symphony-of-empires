@@ -35,8 +35,7 @@ class Unit;
 class UnitType;
 
 /// @brief Type for military outposts
-class BuildingType : public RefnameEntity<BuildingTypeId> {
-public:
+struct BuildingType : public RefnameEntity<BuildingTypeId> {
     bool can_plot_on_sea() const { return flags[0]; }
     bool can_plot_on_land() const { return flags[1]; }
     bool can_build_land_units() const { return flags[2]; }
@@ -67,12 +66,11 @@ public:
     std::vector<TechnologyId> req_technologies; // Required technologies to build
 };
 template<>
-class Serializer<BuildingType*>: public SerializerReferenceLocal<World, BuildingType> {};
+struct Serializer<BuildingType*>: public SerializerReferenceLocal<World, BuildingType> {};
 template<>
-class Serializer<const BuildingType*>: public SerializerReferenceLocal<World, const BuildingType> {};
+struct Serializer<const BuildingType*>: public SerializerReferenceLocal<World, const BuildingType> {};
 template<>
-class Serializer<BuildingType> {
-public:
+struct Serializer<BuildingType> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, BuildingType& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -89,8 +87,7 @@ public:
 
 /// @brief A military outpost, on land serves as a "spawn" place for units
 /// When adjacent to a water tile this serves as a shipyard for spawning naval units
-class Building : public Entity<BuildingId> {
-public:
+struct Building : public Entity<BuildingId> {
     /// @brief Adds a good by id to a building stockpile
     void add_to_stock(const Good& good, const size_t add) {
         stockpile[good] += add;
@@ -125,8 +122,7 @@ public:
     std::vector<float> stockpile;
 };
 template<>
-class Serializer<Building> {
-public:
+struct Serializer<Building> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Building& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.working_unit_type_id);

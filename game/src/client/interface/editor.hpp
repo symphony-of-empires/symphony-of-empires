@@ -35,66 +35,39 @@
 
 namespace EventEditor {
     /// @brief Base node all nodes inherit from
-    class BaseNode {
-    public:
-        BaseNode() {};
-        virtual ~BaseNode() {};
+    struct BaseNode {
     };
 
     /// @brief Conditional negation
-    class NodeCondNot : public BaseNode {
-    public:
-        NodeCondNot() {};
-        ~NodeCondNot() {};
-        
+    struct NodeCondNot : public BaseNode {
         std::unique_ptr<BaseNode> lhs;
     };
 
     /// @brief Conditional "IS EQUAL"
-    class NodeCondIsEqual : public BaseNode {
-    public:
-        NodeCondIsEqual() {};
-        ~NodeCondIsEqual() {};
-
+    struct NodeCondIsEqual : public BaseNode {
         std::unique_ptr<BaseNode> lhs;
         std::unique_ptr<BaseNode> rhs;
     };
 
     /// @brief Basic WHILE loop construct
-    class NodeWhileLoop : public BaseNode {
-    public:
-        NodeWhileLoop() {};
-        ~NodeWhileLoop() {};
-
+    struct NodeWhileLoop : public BaseNode {
         std::unique_ptr<BaseNode> condition;
         std::vector<std::unique_ptr<BaseNode>> body;
     };
 
     /// @brief An IF expression
-    class NodeIfExpr : public BaseNode {
-    public:
-        NodeIfExpr() {};
-        ~NodeIfExpr() {};
-
+    struct NodeIfExpr : public BaseNode {
         std::unique_ptr<BaseNode> condition;
         std::vector<std::unique_ptr<BaseNode>> body;
     };
 
     /// @brief Declares a new variable
-    class NodeVariable : public BaseNode {
-    public:
-        NodeVariable() {};
-        ~NodeVariable() {};
-
+    struct NodeVariable : public BaseNode {
         std::string name;
     };
 
     /// @brief References a variable
-    class NodeVarRef : public BaseNode {
-    public:
-        NodeVarRef() {};
-        ~NodeVarRef() {};
-
+    struct NodeVarRef : public BaseNode {
         std::shared_ptr<NodeVariable> var;
     };
 };

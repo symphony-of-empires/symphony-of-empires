@@ -49,8 +49,7 @@ namespace TreatyClause {
 
 // Defines a one side relation between a country
 // This allows for cases where a country A hates country B, but country B loves country A
-class NationRelation {
-public:
+struct NationRelation {
     bool is_allied() const {
         return alliance > 0.f && !has_war;
     }
@@ -65,8 +64,7 @@ public:
                           // 1 = political alliance, after this they can form a single country
 };
 template<>
-class Serializer<NationRelation> {
-public:
+struct Serializer<NationRelation> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, NationRelation& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.alliance);
@@ -75,17 +73,15 @@ public:
     }
 };
 
-class Ideology;
+struct Ideology;
 /// @brief Hints for the client on how to display the nation
-class NationClientHint {
-public:
+struct NationClientHint {
     uint32_t color;
     Eng3D::StringRef alt_name; // Alternate name, for example communist Russia would be called USSR
     IdeologyId ideology_id; // Ideology to which this hint applies to (nullptr = default fallback)
 };
 template<>
-class Serializer<NationClientHint> {
-public:
+struct Serializer<NationClientHint> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, NationClientHint& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.color);
@@ -94,8 +90,7 @@ public:
     }
 };
 
-class NationModifier : public RefnameEntity<NationModifierId> {
-public:
+struct NationModifier : public RefnameEntity<NationModifierId> {
     Eng3D::StringRef name;
     // Modifiers for a nation, which increases/decreases certain stuff
     // They should never be 0, a modifier of 1.0 is equal to no modifer at
@@ -116,12 +111,11 @@ public:
     float immigration_attraction = 1.f;
 };
 template<>
-class Serializer<NationModifier*>: public SerializerReferenceLocal<World, NationModifier> {};
+struct Serializer<NationModifier*>: public SerializerReferenceLocal<World, NationModifier> {};
 template<>
-class Serializer<const NationModifier*>: public SerializerReferenceLocal<World, const NationModifier> {};
+struct Serializer<const NationModifier*>: public SerializerReferenceLocal<World, const NationModifier> {};
 template<>
-class Serializer<NationModifier> {
-public:
+struct Serializer<NationModifier> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, NationModifier& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -212,12 +206,11 @@ public:
     std::string client_username; // Used by clients to store usernames from nations - not saved
 };
 template<>
-class Serializer<Nation*>: public SerializerReferenceLocal<World, Nation> {};
+struct Serializer<Nation*>: public SerializerReferenceLocal<World, Nation> {};
 template<>
-class Serializer<const Nation*>: public SerializerReferenceLocal<World, const Nation> {};
+struct Serializer<const Nation*>: public SerializerReferenceLocal<World, const Nation> {};
 template<>
-class Serializer<Nation> {
-public:
+struct Serializer<Nation> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Nation& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);

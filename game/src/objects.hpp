@@ -29,82 +29,82 @@
 
 class GoodId : public EntityId<uint8_t> {};
 template<>
-class Serializer<GoodId>: public SerializerMemcpy<GoodId> {};
+struct Serializer<GoodId>: public SerializerMemcpy<GoodId> {};
 
 class ProductId : public EntityId<uint8_t> {};
 template<>
-class Serializer<ProductId>: public SerializerMemcpy<ProductId> {};
+struct Serializer<ProductId>: public SerializerMemcpy<ProductId> {};
 
 class LanguageId : public EntityId<uint16_t> {};
 template<>
-class Serializer<LanguageId>: public SerializerMemcpy<LanguageId> {};
+struct Serializer<LanguageId>: public SerializerMemcpy<LanguageId> {};
 
 class ReligionId : public EntityId<uint8_t> {};
 template<>
-class Serializer<ReligionId>: public SerializerMemcpy<ReligionId> {};
+struct Serializer<ReligionId>: public SerializerMemcpy<ReligionId> {};
 
 class PopTypeId : public EntityId<uint8_t> {};
 template<>
-class Serializer<PopTypeId>: public SerializerMemcpy<PopTypeId> {};
+struct Serializer<PopTypeId>: public SerializerMemcpy<PopTypeId> {};
 
 class BuildingTypeId : public EntityId<uint8_t> {};
 template<>
-class Serializer<BuildingTypeId>: public SerializerMemcpy<BuildingTypeId> {};
+struct Serializer<BuildingTypeId>: public SerializerMemcpy<BuildingTypeId> {};
 
 class WarId : public EntityId<uint8_t> {};
 template<>
-class Serializer<WarId>: public SerializerMemcpy<WarId> {};
+struct Serializer<WarId>: public SerializerMemcpy<WarId> {};
 
 class DecisionId : public EntityId<uint8_t> {};
 template<>
-class Serializer<DecisionId>: public SerializerMemcpy<DecisionId> {};
+struct Serializer<DecisionId>: public SerializerMemcpy<DecisionId> {};
 
 class EventId : public EntityId<uint16_t> {};
 template<>
-class Serializer<EventId>: public SerializerMemcpy<EventId> {};
+struct Serializer<EventId>: public SerializerMemcpy<EventId> {};
 
 class NationModifierId : public EntityId<uint8_t> {};
 template<>
-class Serializer<NationModifierId>: public SerializerMemcpy<NationModifierId> {};
+struct Serializer<NationModifierId>: public SerializerMemcpy<NationModifierId> {};
 
 class NationId : public EntityId<uint16_t> {};
 template<>
-class Serializer<NationId>: public SerializerMemcpy<NationId> {};
+struct Serializer<NationId>: public SerializerMemcpy<NationId> {};
 
 class BattleId : public EntityId<uint16_t> {};
 template<>
-class Serializer<BattleId>: public SerializerMemcpy<BattleId> {};
+struct Serializer<BattleId>: public SerializerMemcpy<BattleId> {};
 
 class ProvinceId : public EntityId<uint16_t> {};
 template<>
-class Serializer<ProvinceId>: public SerializerMemcpy<ProvinceId> {};
+struct Serializer<ProvinceId>: public SerializerMemcpy<ProvinceId> {};
 
 class TechnologyId : public EntityId<uint8_t> {};
 template<>
-class Serializer<TechnologyId>: public SerializerMemcpy<TechnologyId> {};
+struct Serializer<TechnologyId>: public SerializerMemcpy<TechnologyId> {};
 
 class TerrainTypeId : public EntityId<uint8_t> {};
 template<>
-class Serializer<TerrainTypeId>: public SerializerMemcpy<TerrainTypeId> {};
+struct Serializer<TerrainTypeId>: public SerializerMemcpy<TerrainTypeId> {};
 
 class TreatyId : public EntityId<uint16_t> {};
 template<>
-class Serializer<TreatyId>: public SerializerMemcpy<TreatyId> {};
+struct Serializer<TreatyId>: public SerializerMemcpy<TreatyId> {};
 
 class UnitTypeId : public EntityId<uint8_t> {};
 template<>
-class Serializer<UnitTypeId>: public SerializerMemcpy<UnitTypeId> {};
+struct Serializer<UnitTypeId>: public SerializerMemcpy<UnitTypeId> {};
 
 class UnitId : public EntityId<uint16_t> {};
 template<>
-class Serializer<UnitId>: public SerializerMemcpy<UnitId> {};
+struct Serializer<UnitId>: public SerializerMemcpy<UnitId> {};
 
 class IdeologyId : public EntityId<uint8_t> {};
 template<>
-class Serializer<IdeologyId>: public SerializerMemcpy<IdeologyId> {};
+struct Serializer<IdeologyId>: public SerializerMemcpy<IdeologyId> {};
 
 class BuildingId : public EntityId<uint8_t> {};
 template<>
-class Serializer<BuildingId>: public SerializerMemcpy<BuildingId> {};
+struct Serializer<BuildingId>: public SerializerMemcpy<BuildingId> {};
 
 class World;

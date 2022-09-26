@@ -37,12 +37,11 @@ public:
     Eng3D::StringRef combo_form;
 };
 template<>
-class Serializer<Language*>: public SerializerReferenceLocal<World, Language> {};
+struct Serializer<Language*>: public SerializerReferenceLocal<World, Language> {};
 template<>
-class Serializer<const Language*>: public SerializerReferenceLocal<World, const Language> {};
+struct Serializer<const Language*>: public SerializerReferenceLocal<World, const Language> {};
 template<>
-class Serializer<Language> {
-public:
+struct Serializer<Language> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Language& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -55,18 +54,16 @@ public:
     }
 };
 
-class Religion : public RefnameEntity<ReligionId> {
-public:
+struct Religion : public RefnameEntity<ReligionId> {
     Eng3D::StringRef name;
     std::uint32_t color;
 };
 template<>
-class Serializer<Religion*>: public SerializerReferenceLocal<World, Religion> {};
+struct Serializer<Religion*>: public SerializerReferenceLocal<World, Religion> {};
 template<>
-class Serializer<const Religion*>: public SerializerReferenceLocal<World, const Religion> {};
+struct Serializer<const Religion*>: public SerializerReferenceLocal<World, const Religion> {};
 template<>
-class Serializer<Religion> {
-public:
+struct Serializer<Religion> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Religion& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -84,10 +81,9 @@ enum class PopGroup : int {
     LABORER = 0x10,
 };
 template<>
-class Serializer<PopGroup>: public SerializerMemcpy<PopGroup> {};
+struct Serializer<PopGroup>: public SerializerMemcpy<PopGroup> {};
 
-class PopType : public RefnameEntity<PopTypeId> {
-public:
+struct PopType : public RefnameEntity<PopTypeId> {
     Eng3D::StringRef name;
     float social_value;
     enum PopGroup group;
@@ -96,12 +92,11 @@ public:
     std::vector<float> luxury_needs_deminishing_factor; // Deminishing returns factor of the luxury good satisfaction
 };
 template<>
-class Serializer<PopType*>: public SerializerReferenceLocal<World, PopType> {};
+struct Serializer<PopType*>: public SerializerReferenceLocal<World, PopType> {};
 template<>
-class Serializer<const PopType*>: public SerializerReferenceLocal<World, const PopType> {};
+struct Serializer<const PopType*>: public SerializerReferenceLocal<World, const PopType> {};
 template<>
-class Serializer<PopType> {
-public:
+struct Serializer<PopType> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, PopType& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -139,8 +134,7 @@ public:
     std::vector<float> ideology_approval; // Approval % of all the ideologies (1:1)
 };
 template<>
-class Serializer<Pop> {
-public:
+struct Serializer<Pop> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Pop& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.size);

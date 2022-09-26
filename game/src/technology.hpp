@@ -37,9 +37,8 @@ enum TechnologyType {
     POLITICS = 0x20,
 };
 
-class NationModifier;
-class Technology : public RefnameEntity<TechnologyId> {
-public:
+struct NationModifier;
+struct Technology : public RefnameEntity<TechnologyId> {
     Eng3D::StringRef name;
     Eng3D::StringRef description;
     float cost;
@@ -47,12 +46,11 @@ public:
     std::vector<TechnologyId> req_technologies;
 };
 template<>
-class Serializer<Technology*>: public SerializerReferenceLocal<World, Technology> {};
+struct Serializer<Technology*>: public SerializerReferenceLocal<World, Technology> {};
 template<>
-class Serializer<const Technology*>: public SerializerReferenceLocal<World, const Technology> {};
+struct Serializer<const Technology*>: public SerializerReferenceLocal<World, const Technology> {};
 template<>
-class Serializer<Technology> {
-public:
+struct Serializer<Technology> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Technology& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);

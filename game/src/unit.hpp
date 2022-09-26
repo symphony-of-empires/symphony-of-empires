@@ -54,12 +54,11 @@ public:
     std::vector<std::pair<GoodId, float>> req_goods; // Required goods
 };
 template<>
-class Serializer<UnitType*>: public SerializerReferenceLocal<World, UnitType> {};
+struct Serializer<UnitType*>: public SerializerReferenceLocal<World, UnitType> {};
 template<>
-class Serializer<const UnitType*>: public SerializerReferenceLocal<World, const UnitType> {};
+struct Serializer<const UnitType*>: public SerializerReferenceLocal<World, const UnitType> {};
 template<>
-class Serializer<UnitType> {
-public:
+struct Serializer<UnitType> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, UnitType& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -76,14 +75,14 @@ public:
 };
 
 class UnitManager;
-template <class T>
-class Serializer;
+template<class T>
+struct Serializer;
 /// @brief Roughly a batallion, consisting of approximately 500 soldiers each
 class Unit : public Entity<UnitId> {
     Unit& operator=(const Unit&) = default;
     friend class Client;
-    friend class UnitManager;
-    friend class Serializer<Unit>;
+    friend struct UnitManager;
+    friend struct Serializer<Unit>;
 
     std::vector<ProvinceId> path;
     float days_left_until_move = 0;
@@ -116,8 +115,7 @@ public:
     bool on_battle = false;
 };
 template<>
-class Serializer<Unit> {
-public:
+struct Serializer<Unit> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Unit& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -132,7 +130,6 @@ public:
 };
 
 class UnitManager {
-private:
     UnitManager& operator=(const UnitManager&) = default;
 public:
     void init(World& world);
@@ -161,8 +158,7 @@ public:
     std::vector<std::vector<UnitId>> province_units;
 };
 template<>
-class Serializer<UnitManager> {
-public:
+struct Serializer<UnitManager> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, UnitManager& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.units);

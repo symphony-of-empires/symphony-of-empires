@@ -55,8 +55,7 @@ public:
 
 /// @brief Base class that serves as archiver, stores (in memory) the data required for
 /// serialization/deserialization
-class Archive {
-public:
+struct Archive {
     Archive() = default;
     ~Archive() = default;
     void to_file(const std::string& path);
@@ -108,8 +107,7 @@ public:
 /// @brief A serializer (base class) which can be used to serialize objects
 /// and create per-object optimized classes
 template<typename T>
-class Serializer {
-public:
+struct Serializer {
 #ifdef DEBUG_SERIALIZER
     template<bool is_serialize = true>
     static inline void deser_dynamic(Archive&, T*) {
@@ -150,8 +148,7 @@ inline void deserialize(Archive& ar, const T& obj) {
 /// use only when the object can be copied without modification (i.e a class full of ints)
 /// The elements must have a fixed size for this to work.
 template<typename T>
-class SerializerMemcpy {
-public:
+struct SerializerMemcpy {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, T& obj) {
         if constexpr(is_serialize) {
@@ -166,12 +163,11 @@ public:
 /// @todo On some compilers a boolean can be something not a uint8_t, we should
 // explicitly recast this boolean into a uint8_t to avoid problems
 template<>
-class Serializer<bool> : public SerializerMemcpy<bool> {};
+struct Serializer<bool> : public SerializerMemcpy<bool> {};
 
 // A class more focused on numbers :)
 template<typename T>
-class SerializerNumber {
-public:
+struct SerializerNumber {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, T& obj) {
         /// @todo fix big endian
@@ -197,26 +193,26 @@ public:
 
 // Serializers for primitives only require memcpy
 template<>
-class Serializer<signed char> : public SerializerNumber<signed char> {};
+struct Serializer<signed char> : public SerializerNumber<signed char> {};
 template<>
-class Serializer<signed short> : public SerializerNumber<signed short> {};
+struct Serializer<signed short> : public SerializerNumber<signed short> {};
 template<>
-class Serializer<signed int> : public SerializerNumber<signed int> {};
+struct Serializer<signed int> : public SerializerNumber<signed int> {};
 template<>
-class Serializer<signed long> : public SerializerNumber<signed long> {};
+struct Serializer<signed long> : public SerializerNumber<signed long> {};
 template<>
-class Serializer<signed long long> : public SerializerNumber<signed long long> {};
+struct Serializer<signed long long> : public SerializerNumber<signed long long> {};
 
 template<>
-class Serializer<unsigned char> : public SerializerNumber<unsigned char> {};
+struct Serializer<unsigned char> : public SerializerNumber<unsigned char> {};
 template<>
-class Serializer<unsigned short> : public SerializerNumber<unsigned short> {};
+struct Serializer<unsigned short> : public SerializerNumber<unsigned short> {};
 template<>
-class Serializer<unsigned int> : public SerializerNumber<unsigned int> {};
+struct Serializer<unsigned int> : public SerializerNumber<unsigned int> {};
 template<>
-class Serializer<unsigned long> : public SerializerNumber<unsigned long> {};
+struct Serializer<unsigned long> : public SerializerNumber<unsigned long> {};
 template<>
-class Serializer<unsigned long long> : public SerializerNumber<unsigned long long> {};
+struct Serializer<unsigned long long> : public SerializerNumber<unsigned long long> {};
 
 /// @brief Converts a float number into a fixed-point integer scaled by a factor of 1000
 template<typename T>
@@ -237,18 +233,17 @@ public:
 };
 
 template<>
-class Serializer<float> : public SerializerFloat<float> {};
+struct Serializer<float> : public SerializerFloat<float> {};
 template<>
-class Serializer<double> : public SerializerFloat<double> {};
+struct Serializer<double> : public SerializerFloat<double> {};
 template<>
-class Serializer<long double> : public SerializerFloat<long double> {};
+struct Serializer<long double> : public SerializerFloat<long double> {};
 
 /// @brief A serializer specialized in strings
 /// The serializer stores the lenght of the string and the string itself
 /// this is done so no errors can happen due to null stuff. (UTF-8 especially)
 template<>
-class Serializer<std::string> {
-public:
+struct Serializer<std::string> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, std::string& obj) {
         /// @brief Used to reduce number of uneeded allocations
@@ -277,8 +272,7 @@ public:
 /// @brief Non-contigous serializer for STL containers
 /// This serializer class works primarly with containers whose memory is contiguous
 template<typename T, typename C>
-class SerializerContainer {
-public:
+struct SerializerContainer {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, C& obj_group) {
         uint32_t len = obj_group.size();
@@ -299,8 +293,7 @@ public:
 
 /// @brief For containers that have the same memory layout as arrays
 template<typename T, typename C>
-class SerializerArrayContainer {
-public:
+struct SerializerArrayContainer {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, C& obj_group) {
         uint32_t len = obj_group.size();
@@ -335,8 +328,7 @@ public:
 
 /// @brief Pair serializers
 template<typename T, typename U>
-class Serializer<std::pair<T, U>> {
-public:
+struct Serializer<std::pair<T, U>> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, std::pair<T, U>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.first);
@@ -346,8 +338,7 @@ public:
 
 #include "eng3d/string.hpp"
 template<>
-class Serializer<Eng3D::StringRef> {
-public:
+struct Serializer<Eng3D::StringRef> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Eng3D::StringRef& obj) {
         if constexpr(is_serialize) {
@@ -363,28 +354,27 @@ public:
 /// @brief Contigous container serializers implementations
 #include <vector>
 template<typename T, typename A>
-class Serializer<std::vector<T, A>> : public SerializerArrayContainer<T, std::vector<T, A>> {};
+struct Serializer<std::vector<T, A>> : public SerializerArrayContainer<T, std::vector<T, A>> {};
 
 #include <deque>
 template<typename T, typename A>
-class Serializer<std::deque<T, A>> : public SerializerArrayContainer<T, std::deque<T, A>> {};
+struct Serializer<std::deque<T, A>> : public SerializerArrayContainer<T, std::deque<T, A>> {};
 
 #include <queue>
 template<typename T, typename S>
-class Serializer<std::queue<T, S>> : public SerializerContainer<T, std::queue<T, S>> {};
+struct Serializer<std::queue<T, S>> : public SerializerContainer<T, std::queue<T, S>> {};
 
 #include <set>
 template<typename K, typename C, typename A>
-class Serializer<std::set<K, C, A>> : public SerializerContainer<K, std::set<K, C, A>> {};
+struct Serializer<std::set<K, C, A>> : public SerializerContainer<K, std::set<K, C, A>> {};
 
 #include <unordered_set>
 template<typename V, typename H, typename P, typename A>
-class Serializer<std::unordered_set<V, H, P, A>> : public SerializerContainer<V, std::unordered_set<V, H, P, A>> {};
+struct Serializer<std::unordered_set<V, H, P, A>> : public SerializerContainer<V, std::unordered_set<V, H, P, A>> {};
 
 #include <bitset>
 template<typename T, int N>
-class SerializerBitset {
-public:
+struct SerializerBitset {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, T& obj_group) {
         unsigned long num = obj_group.to_ulong();
@@ -398,13 +388,12 @@ public:
 };
 
 template<size_t bits>
-class Serializer<std::bitset<bits>> : public SerializerBitset<std::bitset<bits>, bits> {};
+struct Serializer<std::bitset<bits>> : public SerializerBitset<std::bitset<bits>, bits> {};
 
 /// @brief Used as a template for serializable objects (pointers mostly) which should be
 /// treated as a reference instead of the object itself
 template<typename W, typename T>
-class SerializerReference {
-public:
+struct SerializerReference {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, T*& obj) {
         typename T::Id id = obj == nullptr ? T::invalid() : W::get_instance().get_id(*obj);
@@ -421,8 +410,7 @@ public:
 
 // Non-pointer
 template<typename W, typename T>
-class SerializerReferenceLocal {
-public:
+struct SerializerReferenceLocal {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, T*& obj) {
         typename T::Id id = obj == nullptr ? T::invalid() : W::get_instance().get_id(*obj);
@@ -439,8 +427,7 @@ public:
 
 #include "eng3d/rectangle.hpp"
 template<>
-class Serializer<Eng3D::Rectangle> {
-public:
+struct Serializer<Eng3D::Rectangle> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Eng3D::Rectangle& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.left);

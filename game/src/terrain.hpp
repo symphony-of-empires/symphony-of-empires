@@ -29,20 +29,18 @@
 #include "eng3d/color.hpp"
 #include "objects.hpp"
 
-class TerrainType : public RefnameEntity<TerrainTypeId>  {
-public:
+struct TerrainType : public RefnameEntity<TerrainTypeId>  {
     Eng3D::StringRef name;
     uint32_t color; /// @brief Associative color (with bitmap)
     bool is_water_body; /// @brief Should this terrain be treated as sea?
     float penalty = 1.f; /// @brief Penalty imposed to various contexts
 };
 template<>
-class Serializer<TerrainType*>: public SerializerReferenceLocal<World, TerrainType> {};
+struct Serializer<TerrainType*>: public SerializerReferenceLocal<World, TerrainType> {};
 template<>
-class Serializer<const TerrainType*>: public SerializerReferenceLocal<World, const TerrainType> {};
+struct Serializer<const TerrainType*>: public SerializerReferenceLocal<World, const TerrainType> {};
 template<>
-class Serializer<TerrainType> {
-public:
+struct Serializer<TerrainType> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, TerrainType& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);

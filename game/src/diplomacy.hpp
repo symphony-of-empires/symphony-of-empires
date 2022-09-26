@@ -54,7 +54,7 @@ enum class TreatyClauseType {
     //TECHNOLOGY,
 };
 template<>
-class Serializer<TreatyClauseType>: public SerializerMemcpy<TreatyClauseType> {};
+struct Serializer<TreatyClauseType>: public SerializerMemcpy<TreatyClauseType> {};
 
 namespace TreatyClause {
     class BaseClause {
@@ -175,8 +175,7 @@ namespace TreatyClause {
     };
 };
 template<>
-class Serializer<TreatyClause::BaseClause*> {
-public:
+struct Serializer<TreatyClause::BaseClause*> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, TreatyClause::BaseClause*& obj) {
         ::deser_dynamic<is_serialize>(ar, obj->sender_id);
@@ -258,7 +257,7 @@ enum class TreatyApproval {
     ABSENT,
 };
 template<>
-class Serializer<enum TreatyApproval>: public SerializerMemcpy<enum TreatyApproval> {};
+struct Serializer<enum TreatyApproval>: public SerializerMemcpy<enum TreatyApproval> {};
 
 class Treaty : public Entity<TreatyId> {
 public:
@@ -274,12 +273,11 @@ public:
     std::vector<std::pair<NationId, TreatyApproval>> approval_status;
 };
 template<>
-class Serializer<Treaty*>: public SerializerReferenceLocal<World, Treaty> {};
+struct Serializer<Treaty*>: public SerializerReferenceLocal<World, Treaty> {};
 template<>
-class Serializer<const Treaty*>: public SerializerReferenceLocal<World, const Treaty> {};
+struct Serializer<const Treaty*>: public SerializerReferenceLocal<World, const Treaty> {};
 template<>
-class Serializer<Treaty> {
-public:
+struct Serializer<Treaty> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Treaty& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -291,8 +289,7 @@ public:
     }
 };
 
-class War : public Entity<WarId> {
-public:
+struct War : public Entity<WarId> {
     bool is_involved(const Nation& nation) const;
     bool is_attacker(const Nation& nation) const;
     bool is_defender(const Nation& nation) const;
@@ -303,12 +300,11 @@ public:
     std::vector<TreatyClause::BaseClause*> wargoals;
 };
 template<>
-class Serializer<War*>: public SerializerReferenceLocal<World, War> {};
+struct Serializer<War*>: public SerializerReferenceLocal<World, War> {};
 template<>
-class Serializer<const War*>: public SerializerReferenceLocal<World, const War> {};
+struct Serializer<const War*>: public SerializerReferenceLocal<World, const War> {};
 template<>
-class Serializer<War> {
-public:
+struct Serializer<War> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, War& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);

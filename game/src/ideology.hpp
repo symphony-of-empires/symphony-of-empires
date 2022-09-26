@@ -29,8 +29,7 @@
 #include "objects.hpp"
 #include "policy.hpp"
 
-class Ideology : public RefnameEntity<IdeologyId> {
-public:
+struct Ideology : public RefnameEntity<IdeologyId> {
     std::uint32_t color;
     Eng3D::StringRef name;
     Policies policies;
@@ -39,12 +38,11 @@ public:
     Eng3D::StringRef check_policies_fn;
 };
 template<>
-class Serializer<Ideology*>: public SerializerReferenceLocal<World, Ideology> {};
+struct Serializer<Ideology*>: public SerializerReferenceLocal<World, Ideology> {};
 template<>
-class Serializer<const Ideology*>: public SerializerReferenceLocal<World, const Ideology> {};
+struct Serializer<const Ideology*>: public SerializerReferenceLocal<World, const Ideology> {};
 template<>
-class Serializer<Ideology> {
-public:
+struct Serializer<Ideology> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Ideology& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);

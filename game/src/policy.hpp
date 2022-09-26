@@ -33,7 +33,7 @@ enum AllowancePolicy {
     ALLOW_ALL, // Everyone can exit freely
 };
 template<>
-class Serializer<enum AllowancePolicy>: public SerializerMemcpy<enum AllowancePolicy> {};
+struct Serializer<enum AllowancePolicy>: public SerializerMemcpy<enum AllowancePolicy> {};
 
 enum CensorshipPolicy {
     CENSORSHIP_ALL_CENSORED, // All media censored
@@ -42,7 +42,7 @@ enum CensorshipPolicy {
     CENSORSHIP_ALL_ALLOWED, // All media allowed
 };
 template<>
-class Serializer<enum CensorshipPolicy>: public SerializerMemcpy<enum CensorshipPolicy> {};
+struct Serializer<enum CensorshipPolicy>: public SerializerMemcpy<enum CensorshipPolicy> {};
 
 enum AutoBuildPolicy {
     AUTO_BUILD_NONE, // POPs cannot auto build stuff
@@ -50,7 +50,7 @@ enum AutoBuildPolicy {
     AUTO_BUILD_ALLOWED, // All POPs can build freely
 };
 template<>
-class Serializer<enum AutoBuildPolicy>: public SerializerMemcpy<enum AutoBuildPolicy> {};
+struct Serializer<enum AutoBuildPolicy>: public SerializerMemcpy<enum AutoBuildPolicy> {};
 
 enum TreatmentPolicy {
     TREATMENT_EVERYONE_EQUAL, // Everyone is equal
@@ -59,10 +59,9 @@ enum TreatmentPolicy {
     TREATMENT_EXTERMINATE, // Exterminate
 };
 template<>
-class Serializer<enum TreatmentPolicy>: public SerializerMemcpy<enum TreatmentPolicy> {};
+struct Serializer<enum TreatmentPolicy>: public SerializerMemcpy<enum TreatmentPolicy> {};
 
-class Policies {
-public:
+struct Policies {
     TreatmentPolicy treatment;
     AllowancePolicy migration = ALLOW_ALL;
     AllowancePolicy immigration = ALLOW_ALL;
@@ -122,8 +121,7 @@ public:
     };
 };
 template<>
-class Serializer<Policies> {
-public:
+struct Serializer<Policies> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Policies& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.free_supplies);
