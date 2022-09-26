@@ -3956,10 +3956,6 @@ msgstr ""
 msgid "Teruel"
 msgstr ""
 
-#: nation_mod.lua:4
-msgid "Test"
-msgstr ""
-
 #: nations/america.lua:105
 msgid "Texan"
 msgstr ""

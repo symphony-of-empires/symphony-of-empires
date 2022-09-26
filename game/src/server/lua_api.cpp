@@ -524,50 +524,6 @@ int LuaAPI::nation_declare_unjustified_war(lua_State* L) {
     return 0;
 }
 
-int LuaAPI::add_nation_mod(lua_State* L) {
-    if(g_world.needs_to_sync)
-        luaL_error(L, "MP-Sync in this function is not supported");
-
-    NationModifier mod{};
-    mod.ref_name = luaL_checkstring(L, 1);
-    mod.name = luaL_checkstring(L, 2);
-    mod.industry_output_mod = (lua_tonumber(L, 3));
-    mod.industry_input_mod = (lua_tonumber(L, 4));
-    mod.workers_needed_mod = (lua_tonumber(L, 5));
-    mod.salary_paid_mod = (lua_tonumber(L, 6));
-    mod.delivery_cost_mod = (lua_tonumber(L, 7));
-    mod.literacy_learn_mod = (lua_tonumber(L, 8));
-    mod.reproduction_mod = (lua_tonumber(L, 9));
-    mod.death_mod = (lua_tonumber(L, 10));
-    mod.militancy_mod = (lua_tonumber(L, 11));
-    mod.life_needs_met_mod = (lua_tonumber(L, 13));
-    mod.everyday_needs_met_mod = (lua_tonumber(L, 14));
-    mod.luxury_needs_met_mod = (lua_tonumber(L, 15));
-    g_world.insert(mod);
-    lua_pushnumber(L, (size_t)g_world.get_id(mod));
-    return 1;
-}
-
-int LuaAPI::get_nation_mod(lua_State* L) {
-    const auto& mod = find_or_throw_local<NationModifier>(luaL_checkstring(L, 1));
-
-    lua_pushnumber(L, (size_t)g_world.get_id(mod));
-    lua_pushstring(L, mod.name.c_str());
-    lua_pushnumber(L, mod.industry_output_mod);
-    lua_pushnumber(L, mod.industry_input_mod);
-    lua_pushnumber(L, mod.workers_needed_mod);
-    lua_pushnumber(L, mod.salary_paid_mod);
-    lua_pushnumber(L, mod.delivery_cost_mod);
-    lua_pushnumber(L, mod.literacy_learn_mod);
-    lua_pushnumber(L, mod.reproduction_mod);
-    lua_pushnumber(L, mod.death_mod);
-    lua_pushnumber(L, mod.militancy_mod);
-    lua_pushnumber(L, mod.life_needs_met_mod);
-    lua_pushnumber(L, mod.everyday_needs_met_mod);
-    lua_pushnumber(L, mod.luxury_needs_met_mod);
-    return 14;
-}
-
 int LuaAPI::add_province(lua_State* L) {
     if(g_world.needs_to_sync)
         luaL_error(L, "MP-Sync in this function is not supported");

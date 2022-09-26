@@ -160,7 +160,6 @@ public:
     LIST_FOR_LOCAL_TYPE(Ideology, ideologies, std::vector);
     LIST_FOR_LOCAL_TYPE(Religion, religions, std::vector);
     LIST_FOR_LOCAL_TYPE(Technology, technologies, std::vector);
-    LIST_FOR_LOCAL_TYPE(NationModifier, nation_modifiers, std::vector);
     LIST_FOR_LOCAL_TYPE(TerrainType, terrain_types, std::vector);
     CONST_LIST_FOR_LOCAL_TYPE(Province, provinces, std::vector);
     CONST_LIST_FOR_LOCAL_TYPE(Nation, nations, std::vector);
@@ -296,7 +295,6 @@ struct Serializer<World> {
         ::deser_dynamic<is_serialize>(ar, obj.building_types);
         ::deser_dynamic<is_serialize>(ar, obj.ideologies);
         ::deser_dynamic<is_serialize>(ar, obj.technologies);
-        ::deser_dynamic<is_serialize>(ar, obj.nation_modifiers);
         ::deser_dynamic<is_serialize>(ar, obj.nations);
         ::deser_dynamic<is_serialize>(ar, obj.provinces);
         ::deser_dynamic<is_serialize>(ar, obj.events);

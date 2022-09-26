@@ -83,7 +83,7 @@ static inline void internal_migration(World&) {
 static inline float nation_attraction(Nation& nation, Language& language) {
     if(!nation.exists())
         return -1.f;
-    float attraction = nation.get_immigration_attraction_mod();
+    float attraction = 1.f;
     return attraction + rng_multipliers.get_item();
 }
 

@@ -76,7 +76,7 @@ aptr_evhdl = Event:new{
 				CANAL_CAMPAING_DATA[ref_name].ambition = CANAL_CAMPAING_DATA[ref_name].ambition + 10.0
 				print('Country ' .. ref_name .. ' rejected the canal proposal')
 			end,
-			effects = "Rejects the canal offer with no modifiers"
+			effects = "Rejects the canal offer"
 		}
 		aptr_evhdl:add_decision(decision)
 		return EVENT_DO_ONE_TIME

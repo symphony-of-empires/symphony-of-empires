@@ -49,6 +49,3 @@ end
 function Technology:requires_technology(o)
 	add_req_tech_to_tech(self.id, o.id)
 end
-function Technology:set_nation_modifier(self, mod)
-	set_nation_mod_to_invention(self.id, mod.id)
-end

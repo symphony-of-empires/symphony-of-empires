@@ -90,50 +90,6 @@ struct Serializer<NationClientHint> {
     }
 };
 
-struct NationModifier : public RefnameEntity<NationModifierId> {
-    Eng3D::StringRef name;
-    // Modifiers for a nation, which increases/decreases certain stuff
-    // They should never be 0, a modifier of 1.0 is equal to no modifer at
-    // all. And a modifier of 0.5 would cause a 1/2. Similar to a 2 which
-    // would make a x2
-    float industry_output_mod = 1.f;
-    float industry_input_mod = 1.f;
-    float workers_needed_mod = 1.f;
-    float salary_paid_mod = 1.f;
-    float delivery_cost_mod = 1.f;
-    float literacy_learn_mod = 1.f;
-    float reproduction_mod = 1.f;
-    float death_mod = 1.f;
-    float militancy_mod = 1.f;
-    float life_needs_met_mod = 1.f;
-    float everyday_needs_met_mod = 1.f;
-    float luxury_needs_met_mod = 1.f;
-    float immigration_attraction = 1.f;
-};
-template<>
-struct Serializer<NationModifier*>: public SerializerReferenceLocal<World, NationModifier> {};
-template<>
-struct Serializer<const NationModifier*>: public SerializerReferenceLocal<World, const NationModifier> {};
-template<>
-struct Serializer<NationModifier> {
-    template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, NationModifier& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        ::deser_dynamic<is_serialize>(ar, obj.name);
-        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
-        ::deser_dynamic<is_serialize>(ar, obj.death_mod);
-        ::deser_dynamic<is_serialize>(ar, obj.delivery_cost_mod);
-        ::deser_dynamic<is_serialize>(ar, obj.everyday_needs_met_mod);
-        ::deser_dynamic<is_serialize>(ar, obj.life_needs_met_mod);
-        ::deser_dynamic<is_serialize>(ar, obj.literacy_learn_mod);
-        ::deser_dynamic<is_serialize>(ar, obj.luxury_needs_met_mod);
-        ::deser_dynamic<is_serialize>(ar, obj.militancy_mod);
-        ::deser_dynamic<is_serialize>(ar, obj.reproduction_mod);
-        ::deser_dynamic<is_serialize>(ar, obj.salary_paid_mod);
-        ::deser_dynamic<is_serialize>(ar, obj.workers_needed_mod);
-    }
-};
-
 class Technology;
 class Nation : public RefnameEntity<NationId> {
     inline void do_diplomacy();
@@ -156,20 +112,6 @@ public:
     float get_research_points() const;
     bool can_research(const Technology& tech) const;
     void change_research_focus(const Technology& tech);
-    std::vector<Nation*> get_allies();
-    float get_industry_output_mod();
-    float get_industry_input_mod();
-    float get_workers_needed_mod();
-    float get_salary_paid_mod();
-    float get_delivery_cost_mod();
-    float get_literacy_learn_mod();
-    float get_reproduction_mod();
-    float get_death_mod();
-    float get_militancy_mod();
-    float get_life_needs_met_mod();
-    float get_everyday_needs_met_mod();
-    float get_luxury_needs_met_mod();
-    float get_immigration_attraction_mod();
 
     Eng3D::StringRef name;
     float diplomacy_points; // Amount of diplomacy points available
@@ -199,7 +141,6 @@ public:
     /// @todo Add controlled provinces to serializer
     std::vector<ProvinceId> owned_provinces;
     std::vector<ProvinceId> controlled_provinces;
-    std::vector<NationModifier*> modifiers;
     std::deque<Event> inbox; // Inbox of the nation; events that require our attention / should be processed
     std::vector<float> research; // Progress on technologies (1:1)
     std::vector<NationClientHint> client_hints; // Hints for the client on how to draw a nation on the client

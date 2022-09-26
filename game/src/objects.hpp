@@ -63,10 +63,6 @@ class EventId : public EntityId<uint16_t> {};
 template<>
 struct Serializer<EventId>: public SerializerMemcpy<EventId> {};
 
-class NationModifierId : public EntityId<uint8_t> {};
-template<>
-struct Serializer<NationModifierId>: public SerializerMemcpy<NationModifierId> {};
-
 class NationId : public EntityId<uint16_t> {};
 template<>
 struct Serializer<NationId>: public SerializerMemcpy<NationId> {};

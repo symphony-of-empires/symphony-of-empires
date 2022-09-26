@@ -128,10 +128,7 @@ void World::init_lua() {
     lua_register(lua, "set_nation_relation", LuaAPI::set_nation_relation);
     lua_register(lua, "nation_declare_unjustified_war", LuaAPI::nation_declare_unjustified_war);
     lua_register(lua, "nation_make_puppet", LuaAPI::nation_make_puppet);
-
-    lua_register(lua, "add_nation_mod", LuaAPI::add_nation_mod);
-    lua_register(lua, "get_nation_mod", LuaAPI::get_nation_mod);
-
+    
     lua_register(lua, "add_province", LuaAPI::add_province);
     lua_register(lua, "update_province", LuaAPI::update_province);
     lua_register(lua, "get_province", LuaAPI::get_province);

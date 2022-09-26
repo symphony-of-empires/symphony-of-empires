@@ -37,7 +37,6 @@ enum TechnologyType {
     POLITICS = 0x20,
 };
 
-struct NationModifier;
 struct Technology : public RefnameEntity<TechnologyId> {
     Eng3D::StringRef name;
     Eng3D::StringRef description;

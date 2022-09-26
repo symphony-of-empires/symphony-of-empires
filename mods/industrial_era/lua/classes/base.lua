@@ -23,40 +23,6 @@
 --      Does important stuff
 -- ----------------------------------------------------------------------------
 
-NationMod = {
-    id = 0,
-    ref_name = "",
-    name = "",
-    industry_output = 1.0,
-    industry_input = 1.0,
-    workers_needed = 1.0,
-    salary_paid = 1.0,
-    delivery_cost = 1.0,
-    literacy_learn = 1.0,
-    reproduction = 1.0,
-    death = 1.0,
-    militancy = 1.0,
-    militancy = 1.0,
-    life_needs_met = 1.0,
-    everyday_needs_met = 1.0,
-    luxury_needs_met = 1.0
-}
-function NationMod:new(o)
-    local o = o or {}
-    setmetatable(o, self)
-    self.__index = self
-    return o
-end
-function NationMod:register()
-    self.id = add_nation_mod(self.ref_name, self.name, self.industry_output, self.industry_input, self.workers_needed, self.salary_paid, self.delivery_cost, self.literacy_learn, self.reproduction, self.death, self.militancy, self.militancy, self.life_needs_met, self.everyday_needs_met, self.luxury_needs_met)
-end
-function NationMod:get(ref_name)
-    local o = NationMod:new()
-    o.id, o.name, o.industry_output, o.industry_input, o.workers_needed, o.salary_paid, o.delivery_cost, o.literacy_learn, o.reproduction, o.death, o.militancy, o.militancy, o.life_needs_met, o.everyday_needs_met, o.luxury_needs_met = get_nation_mod(ref_name)
-    o.ref_name = ref_name
-    return o
-end
-
 require('classes/technology')
 require('classes/ideology')
 
