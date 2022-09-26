@@ -198,9 +198,9 @@ public:
 
     /// @brief Get the id of a tile
     /// @param obj Tile to get id from
-    /// @return int The Id of the tile
-    inline int get_id(const Tile& obj) const {
-        return static_cast<int>(((ptrdiff_t)&obj - (ptrdiff_t)tiles.get()) / sizeof(Tile));
+    /// @return size_t The Id of the tile
+    inline size_t get_id(const Tile& obj) const {
+        return static_cast<size_t>(((ptrdiff_t)&obj - (ptrdiff_t)tiles.get()) / sizeof(Tile));
     }
 
     /// @brief Get the id of an object, this is a template for all types except

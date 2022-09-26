@@ -37,6 +37,13 @@
 #include <tbb/parallel_for.h>
 #include <tbb/combinable.h>
 
+#ifdef E3D_BACKEND_OPENGL
+#   include <GL/glew.h>
+#   include <GL/gl.h>
+#elif defined E3D_BACKEND_GLES
+#   include <GLES3/gl3.h>
+#endif
+
 #include "eng3d/texture.hpp"
 #include "eng3d/primitive.hpp"
 #include "eng3d/shader.hpp"
@@ -73,7 +80,7 @@ MapRender::MapRender(GameState& _gs, Map& _map)
     });
 
     Eng3D::TextureOptions terrain_map_options{};
-    terrain_map_options.internal_format = GL_RGBA;
+    terrain_map_options.internal_format = Eng3D::TextureOptions::Format::RGBA;
     terrain_map_options.editable = true;
     terrain_map_options.compressed = false;
     this->terrain_map->upload(terrain_map_options);
@@ -92,9 +99,9 @@ MapRender::MapRender(GameState& _gs, Map& _map)
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
 #ifdef E3D_BACKEND_OPENGL
-    no_drop_options.internal_format = GL_SRGB_ALPHA;
+    no_drop_options.internal_format = Eng3D::TextureOptions::Format::SRGB_ALPHA;
 #elif defined E3D_BACKEND_GLES
-    no_drop_options.internal_format = GL_RGBA;
+    no_drop_options.internal_format = Eng3D::TextureOptions::Format::RGBA;
 #endif
     no_drop_options.compressed = false;
     tile_sheet->upload(no_drop_options);
@@ -171,12 +178,12 @@ void MapRender::update_options(MapOptions new_options) {
 
     if(this->options.rivers.used) {
         Eng3D::TextureOptions mipmap_options{};
-        mipmap_options.wrap_s = GL_REPEAT;
-        mipmap_options.wrap_t = GL_REPEAT;
-        mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-        mipmap_options.mag_filter = GL_LINEAR;
+        mipmap_options.wrap_s = Eng3D::TextureOptions::Wrap::REPEAT;
+        mipmap_options.wrap_t = Eng3D::TextureOptions::Wrap::REPEAT;
+        mipmap_options.min_filter = Eng3D::TextureOptions::Filter::LINEAR_MIPMAP;
+        mipmap_options.mag_filter = Eng3D::TextureOptions::Filter::LINEAR;
         mipmap_options.compressed = this->options.compress.used;
-        mipmap_options.internal_format = GL_RED;
+        mipmap_options.internal_format = Eng3D::TextureOptions::Format::RED;
         if(this->bathymethry.get() == nullptr)
             this->bathymethry = gs.tex_man.load(gs.package_man.get_unique("map/bathymethry.png"), mipmap_options);
         
@@ -199,9 +206,9 @@ void MapRender::update_options(MapOptions new_options) {
                 this->normal_topo->buffer.get()[i] |= (topo_map->buffer.get()[i] & 0xFF) << 24;
             }
             Eng3D::TextureOptions mipmap_options{};
-            mipmap_options.internal_format = GL_RGBA;
-            mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-            mipmap_options.mag_filter = GL_LINEAR;
+            mipmap_options.internal_format = Eng3D::TextureOptions::Format::RGBA;
+            mipmap_options.min_filter = Eng3D::TextureOptions::Filter::LINEAR_MIPMAP;
+            mipmap_options.mag_filter = Eng3D::TextureOptions::Filter::LINEAR;
             mipmap_options.compressed = this->options.compress.used;
             this->normal_topo->upload(mipmap_options);
         }
@@ -218,11 +225,11 @@ void MapRender::update_options(MapOptions new_options) {
                 this->border_sdf->to_file("sdf_cache.png");
             } else {
                 Eng3D::TextureOptions sdf_options{};
-                sdf_options.wrap_s = GL_REPEAT;
-                sdf_options.wrap_t = GL_REPEAT;
-                sdf_options.internal_format = GL_RGB32F;
-                sdf_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-                sdf_options.mag_filter = GL_LINEAR;
+                sdf_options.wrap_s = Eng3D::TextureOptions::Wrap::REPEAT;
+                sdf_options.wrap_t = Eng3D::TextureOptions::Wrap::REPEAT;
+                sdf_options.internal_format = Eng3D::TextureOptions::Format::RGB32F;
+                sdf_options.min_filter = Eng3D::TextureOptions::Filter::LINEAR_MIPMAP;
+                sdf_options.mag_filter = Eng3D::TextureOptions::Filter::LINEAR;
                 sdf_options.compressed = this->options.compress.used;
                 this->border_sdf = std::make_unique<Eng3D::Texture>("sdf_cache.png");
                 this->border_sdf->upload(sdf_options);
@@ -247,9 +254,9 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
     float height = this->gs.world->height;
 
     Eng3D::TextureOptions border_tex_options{};
-    border_tex_options.internal_format = GL_RGBA32F;
-    border_tex_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-    border_tex_options.mag_filter = GL_LINEAR;
+    border_tex_options.internal_format = Eng3D::TextureOptions::Format::RGB32F;
+    border_tex_options.min_filter = Eng3D::TextureOptions::Filter::LINEAR_MIPMAP;
+    border_tex_options.mag_filter = Eng3D::TextureOptions::Filter::LINEAR;
     border_tex_options.editable = true;
     Eng3D::Texture border_tex(width, height);
     border_tex.upload(border_tex_options);
@@ -279,9 +286,9 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
     sdf_shader->set_uniform("tex_coord_scale", tex_coord_scale.left, tex_coord_scale.top, tex_coord_scale.right, tex_coord_scale.bottom);
     
     Eng3D::TextureOptions fbo_mipmap_options{};
-    fbo_mipmap_options.internal_format = GL_RGB32F;
-    fbo_mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-    fbo_mipmap_options.mag_filter = GL_LINEAR;
+    fbo_mipmap_options.internal_format = Eng3D::TextureOptions::Format::RGB32F;
+    fbo_mipmap_options.min_filter = Eng3D::TextureOptions::Filter::LINEAR_MIPMAP;
+    fbo_mipmap_options.mag_filter = Eng3D::TextureOptions::Filter::LINEAR;
     fbo_mipmap_options.editable = true;
     // The Red & Green color channels are the coords on the map
     // The Blue is the distance to a border
@@ -339,7 +346,7 @@ void MapRender::update_mapmode(std::vector<ProvinceColor>& province_colors) {
         tile_sheet->buffer.get()[static_cast<size_t>(province_color.id)] = province_color.color.get_value();
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
-    no_drop_options.internal_format = GL_SRGB;
+    no_drop_options.internal_format = Eng3D::TextureOptions::Format::SRGB;
     this->tile_sheet->upload(no_drop_options);
 }
 

@@ -37,13 +37,6 @@
 #include <memory>
 #include <mutex>
 
-#ifdef E3D_BACKEND_OPENGL
-#   include <GL/glew.h>
-#   include <GL/gl.h>
-#elif defined E3D_BACKEND_GLES
-#   include <GLES3/gl3.h>
-#endif
-
 #include "eng3d/ttf.hpp"
 #include "eng3d/binary_image.hpp"
 #include "eng3d/color.hpp"
@@ -71,25 +64,34 @@ namespace Eng3D {
     class TextureOptions {
     public:
         TextureOptions() = default;
-#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
-        GLenum target = GL_TEXTURE_2D;
-        GLuint wrap_s = GL_REPEAT;
-        GLuint wrap_t = GL_REPEAT;
-        GLuint min_filter = GL_NEAREST;
-        GLuint mag_filter = GL_NEAREST;
-        GLuint internal_format = GL_RGBA;
-        GLuint format = GL_RGBA;
-        GLuint type = GL_UNSIGNED_BYTE;
-#else
-        GLenum target;
-        GLuint wrap_s;
-        GLuint wrap_t;
-        GLuint min_filter;
-        GLuint mag_filter;
-        GLuint internal_format;
-        GLuint format;
-        GLuint type;
-#endif
+        enum Target {
+            TEXTURE_2D,
+        } target = Eng3D::TextureOptions::Target::TEXTURE_2D;
+        enum Wrap {
+            REPEAT,
+            CLAMP_TO_EDGE,
+        } wrap_s = Eng3D::TextureOptions::Wrap::REPEAT;
+        Wrap wrap_t = Eng3D::TextureOptions::Wrap::REPEAT;
+        enum Filter {
+            NEAREST,
+            LINEAR,
+            LINEAR_MIPMAP,
+            NEAREST_MIPMAP,
+            NEAREST_LINEAR_MIPMAP,
+            LINEAR_NEAREST_MIPMAP,
+        } min_filter = Eng3D::TextureOptions::Filter::NEAREST;
+        Filter mag_filter = Eng3D::TextureOptions::Filter::NEAREST;
+        enum Format {
+            RGBA,
+            RED,
+            RGB32F,
+            SRGB,
+            SRGB_ALPHA,
+        } format = Eng3D::TextureOptions::Format::RGBA;
+        Format internal_format = Eng3D::TextureOptions::Format::RGBA;
+        enum Type {
+            UNSIGNED_BYTE,
+        } type = Eng3D::TextureOptions::Type::UNSIGNED_BYTE;
         bool editable = false;
         bool compressed = true;
         bool instant_upload = false; // Has to be uploaded immediately and not async
@@ -117,11 +119,9 @@ namespace Eng3D {
         void delete_gputex();
         void guillotine(const Eng3D::Texture& map, int x, int y, int w, int h);
         void to_file(const std::string& filename);
-
-#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
-        GLuint gl_tex_num = 0;
+        
+        unsigned int id = 0;
         bool managed = false;
-#endif
         friend class Eng3D::TextureManager;
     };
 
@@ -132,9 +132,7 @@ namespace Eng3D {
         void upload();
         size_t layers;
         size_t tiles_x, tiles_y;
-#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
-        GLuint gl_tex_num = 0;
-#endif
+        unsigned int id = 0;
     };
 
     template <class T>

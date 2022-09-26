@@ -106,10 +106,10 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     this->is_scroll = false;
     // this->text("Symphony of Empires");
     Eng3D::TextureOptions mipmap_options;
-    mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-    mipmap_options.mag_filter = GL_LINEAR;
-    mipmap_options.wrap_s = GL_CLAMP_TO_EDGE;
-    mipmap_options.wrap_t = GL_CLAMP_TO_EDGE;
+    mipmap_options.min_filter = Eng3D::TextureOptions::Filter::LINEAR_MIPMAP;
+    mipmap_options.mag_filter = Eng3D::TextureOptions::Filter::LINEAR;
+    mipmap_options.wrap_s = Eng3D::TextureOptions::Wrap::CLAMP_TO_EDGE;
+    mipmap_options.wrap_t = Eng3D::TextureOptions::Wrap::CLAMP_TO_EDGE;
 
     auto font = gs.ttf_man.load(gs.package_man.get_unique("fonts/neon_euler/euler.ttf"));
     auto text_color = Eng3D::Color(1.f, 1.f, 1.f);

@@ -38,11 +38,11 @@ Eng3D::Rivers::Rivers(Eng3D::State& _s, bool lazy_init)
     : s{ _s }
 {
     Eng3D::TextureOptions mipmap_options{};
-    mipmap_options.wrap_s = GL_REPEAT;
-    mipmap_options.wrap_t = GL_REPEAT;
-    mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-    mipmap_options.mag_filter = GL_LINEAR;
-    mipmap_options.internal_format = GL_SRGB;
+    mipmap_options.wrap_s = Eng3D::TextureOptions::Wrap::REPEAT;
+    mipmap_options.wrap_t = Eng3D::TextureOptions::Wrap::REPEAT;
+    mipmap_options.min_filter = Eng3D::TextureOptions::Filter::LINEAR_MIPMAP;
+    mipmap_options.mag_filter = Eng3D::TextureOptions::Filter::LINEAR;
+    mipmap_options.internal_format = Eng3D::TextureOptions::Format::SRGB;
 
     water_tex = s.tex_man.load(s.package_man.get_unique("gfx/water_tex.png"), mipmap_options);
     line_shader = std::make_unique<Eng3D::OpenGL::Program>();

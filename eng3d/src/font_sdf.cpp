@@ -63,10 +63,10 @@ Eng3D::FontSDF::FontSDF(const std::string& filename) {
     }
 
     Eng3D::TextureOptions mipmap_options;
-    mipmap_options.min_filter = GL_LINEAR;
-    mipmap_options.mag_filter = GL_LINEAR;
-    mipmap_options.wrap_s = GL_CLAMP_TO_EDGE;
-    mipmap_options.wrap_t = GL_CLAMP_TO_EDGE;
+    mipmap_options.min_filter = Eng3D::TextureOptions::Filter::LINEAR;
+    mipmap_options.mag_filter = Eng3D::TextureOptions::Filter::LINEAR;
+    mipmap_options.wrap_s = Eng3D::TextureOptions::Wrap::CLAMP_TO_EDGE;
+    mipmap_options.wrap_t = Eng3D::TextureOptions::Wrap::CLAMP_TO_EDGE;
     mipmap_options.compressed = false;
 
     auto asset = s.package_man.get_unique(filename + ".png");

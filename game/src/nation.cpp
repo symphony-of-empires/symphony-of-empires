@@ -225,18 +225,9 @@ void Nation::set_policy(const Policies& policies) {
     }
 }
 
-/// @brief Checks if a POP is part of one of our accepted languages
-bool Nation::is_accepted_language(const Pop& pop) const {
-    return true;
-}
 /// @brief Checks if a LANGUAGE is part of one of our accepted languages
 bool Nation::is_accepted_language(const Language& language) const {
     return language_discrim[World::get_instance().get_id(language)] >= 0.5f;
-}
-
-/// @brief Checks if a POP is part of one of our accepted religion
-bool Nation::is_accepted_religion(const Pop& pop) const {
-    return true;
 }
 
 /// @brief Checks if a RELIGION is part of one of our accepted relgion

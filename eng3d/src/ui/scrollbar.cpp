@@ -59,7 +59,7 @@ UI::Scrollbar::Scrollbar(int _x, int _y, unsigned h, UI::Widget* _parent)
     this->flex_justify = UI::FlexJustify::SPACE_BETWEEN;
 
     auto* up_btn = new UI::Button(0, 0, 20, 20, this);
-    up_btn->set_on_click([this](UI::Widget& w) {
+    up_btn->set_on_click([this](UI::Widget&) {
         if(this->parent) {
             const auto y_bounds = this->parent->get_y_bounds();
             const float ratio = static_cast<float>(y_bounds.y - y_bounds.x) / static_cast<float>(this->height);
@@ -70,7 +70,7 @@ UI::Scrollbar::Scrollbar(int _x, int _y, unsigned h, UI::Widget* _parent)
     up_btn->current_texture = s.tex_man.load(s.package_man.get_unique("gfx/scrollbar_up.png"));
 
     auto* down_btn = new UI::Button(0, 0, 20, 20, this);
-    down_btn->set_on_click([this](UI::Widget& w) {
+    down_btn->set_on_click([this](UI::Widget&) {
         if(this->parent) {
             const auto y_bounds = this->parent->get_y_bounds();
             const float ratio = static_cast<float>(y_bounds.y - y_bounds.x) / static_cast<float>(this->height);

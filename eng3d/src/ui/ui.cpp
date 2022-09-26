@@ -28,13 +28,8 @@
 #include <algorithm>
 
 #ifdef E3D_TARGET_WINDOWS
-#   ifndef WINSOCK2_IMPORTED
-#       define WINSOCK2_IMPORTED
-#       include <winsock2.h>
-#   endif
 #   include <windows.h>
 #endif
-
 #ifdef E3D_BACKEND_OPENGL
 #   include <GL/glew.h>
 #   include <GL/gl.h>
@@ -84,10 +79,10 @@ UI::Context::Context(Eng3D::State& _s)
     border_tex = s.tex_man.load(s.package_man.get_unique("gfx/border2.png"));
     button_border = s.tex_man.load(s.package_man.get_unique("gfx/border_sharp2.png"));
     Eng3D::TextureOptions options;
-    options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-    options.mag_filter = GL_LINEAR;
-    options.wrap_s = GL_CLAMP_TO_EDGE;
-    options.wrap_t = GL_CLAMP_TO_EDGE;
+    options.min_filter = Eng3D::TextureOptions::Filter::LINEAR_MIPMAP;
+    options.mag_filter = Eng3D::TextureOptions::Filter::LINEAR;
+    options.wrap_s = Eng3D::TextureOptions::Wrap::CLAMP_TO_EDGE;
+    options.wrap_t = Eng3D::TextureOptions::Wrap::CLAMP_TO_EDGE;
     cursor_tex = s.tex_man.load(s.package_man.get_unique("gfx/cursor_b.png"), options);
 
     // Shader used for orthogonally drawing the objects on the 2D plane

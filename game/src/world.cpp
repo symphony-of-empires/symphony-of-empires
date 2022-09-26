@@ -59,19 +59,19 @@
 /// fortunely the size is a constant of 4 possible neighbours so we're good
 static thread_local std::vector<Tile> tmp_tile_list = std::vector<Tile>();
 const std::vector<Tile>& Tile::get_neighbours(const World& world) const {
-    const auto idx = world.get_id(*this);
+    const auto i = world.get_id(*this);
     // Up
-    if(idx > world.width)
-        tmp_tile_list.push_back(world.tiles[idx - world.width]);
+    if(i > world.width)
+        tmp_tile_list.push_back(world.tiles[i - world.width]);
     // Down
-    if(idx < (world.width * world.height) - world.width)
-        tmp_tile_list.push_back(world.tiles[idx + world.width]);
+    if(i < (world.width * world.height) - world.width)
+        tmp_tile_list.push_back(world.tiles[i + world.width]);
     // Left
-    if(idx > 1)
-        tmp_tile_list.push_back(world.tiles[idx - 1]);
+    if(i > 1)
+        tmp_tile_list.push_back(world.tiles[i - 1]);
     // Right
-    if(idx < (world.width * world.height) - 1)
-        tmp_tile_list.push_back(world.tiles[idx + 1]);
+    if(i < (world.width * world.height) - 1)
+        tmp_tile_list.push_back(world.tiles[i + 1]);
     return tmp_tile_list;
 }
 

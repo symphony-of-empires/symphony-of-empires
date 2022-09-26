@@ -135,10 +135,10 @@ Map::Map(GameState& _gs, const World& _world, UI::Group* _map_ui_layer, int scre
     Eng3D::Log::debug("game", "Preloading-important stuff");
 
     Eng3D::TextureOptions mipmap_options{};
-    mipmap_options.wrap_s = GL_REPEAT;
-    mipmap_options.wrap_t = GL_REPEAT;
-    mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-    mipmap_options.mag_filter = GL_LINEAR;
+    mipmap_options.wrap_s = Eng3D::TextureOptions::Wrap::REPEAT;
+    mipmap_options.wrap_t = Eng3D::TextureOptions::Wrap::REPEAT;
+    mipmap_options.min_filter = Eng3D::TextureOptions::Filter::LINEAR_MIPMAP;
+    mipmap_options.mag_filter = Eng3D::TextureOptions::Filter::LINEAR;
     mipmap_options.compressed = false;
 
     line_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/line_target.png"), mipmap_options);
@@ -451,8 +451,6 @@ void Map::draw() {
 
                 // Get first/topmost unit
                 auto& unit = gs.world->unit_manager.units[province_units[0]];
-                bool has_widget = false;
-                auto& camera = this->camera;
                 // Display unit only if not on a battle
                 if(!unit.on_battle) {
                     this->unit_widgets[province]->set_unit(unit);
@@ -511,7 +509,6 @@ void Map::draw() {
         }
     } else {
         for(auto& province : this->gs.world->provinces) {
-            const auto prov_pos = province.get_pos();
             this->unit_widgets[province]->is_render = false;
             this->battle_widgets[province]->is_render = false;
         }
@@ -670,21 +667,21 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
 void Map::handle_mouse_motions(const Eng3D::Event::MouseMotion& e) {
     glm::ivec2 map_pos;
     if(gs.input.middle_mouse_down) {  // Drag the map with middlemouse
-        if(gs.map->camera->get_cursor_map_pos(gs.mouse_pos, map_pos)) {
+        if(gs.map->camera->get_cursor_map_pos(e.pos, map_pos)) {
             glm::vec2 current_pos = glm::make_vec2(gs.map->camera->get_map_pos());
             const glm::vec2 pos = current_pos + last_camera_drag_pos - glm::vec2(map_pos);
             gs.map->camera->set_pos(pos.x, pos.y);
         }
     }
 
-    if(gs.map->camera->get_cursor_map_pos(gs.mouse_pos, map_pos)) {
+    if(gs.map->camera->get_cursor_map_pos(e.pos, map_pos)) {
         if(map_pos.x < 0 || map_pos.x >(int)gs.world->width || map_pos.y < 0 || map_pos.y >(int)gs.world->height) return;
         gs.input.select_pos = map_pos;
         auto prov_id = map_render->get_tile_province_id(map_pos.x, map_pos.y);
         const std::string text = mapmode_tooltip_func != nullptr ? mapmode_tooltip_func(*gs.world, prov_id) : "";
         if(!text.empty()) {
             gs.map->tooltip->text(text);
-            gs.ui_ctx.use_tooltip(gs.map->tooltip, gs.mouse_pos);
+            gs.ui_ctx.use_tooltip(gs.map->tooltip, e.pos);
         }
     }
 }

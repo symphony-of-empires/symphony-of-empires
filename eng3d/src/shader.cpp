@@ -270,13 +270,13 @@ void Eng3D::OpenGL::Program::set_uniform(const std::string& name, int value) con
 void Eng3D::OpenGL::Program::set_texture(int value, const std::string& name, const Eng3D::Texture& texture) const {
     glActiveTexture(GL_TEXTURE0 + value);
     set_uniform(name, value);
-    glBindTexture(GL_TEXTURE_2D, texture.gl_tex_num);
+    glBindTexture(GL_TEXTURE_2D, texture.id);
 }
 
 void Eng3D::OpenGL::Program::set_texture(int value, const std::string& name, const Eng3D::TextureArray& texture) const {
     glActiveTexture(GL_TEXTURE0 + value);
     set_uniform(name, value);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, texture.gl_tex_num);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, texture.id);
 }
 
 unsigned int Eng3D::OpenGL::Program::get_id() const {

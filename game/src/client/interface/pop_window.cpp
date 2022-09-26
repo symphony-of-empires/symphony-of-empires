@@ -51,7 +51,7 @@ Interface::PopWindow::PopWindow(GameState& gs)
 
     std::vector<int> sizes{ 75, 200, 100, 80, 80, 50 };
     std::vector<std::string> header{ "Size", "Province", "Type", "Militancy", "Literacy", "Budget" };
-    auto table = new UI::Table<uint64_t>(5, 5, 800-10, 800-5, 35, sizes, header, this);
+    auto table = new UI::Table<uint64_t>(5, 5, 800 - 10, 800 - 5, 35, sizes, header, this);
     this->width = table->width + 5 + this->padding.x;
     table->reserve(size);
     table->set_on_each_tick([this, &nation, table](UI::Widget&) {

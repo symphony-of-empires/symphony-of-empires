@@ -84,7 +84,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
         for(const auto province_id : this->gs.curr_nation->owned_provinces)
             for(const auto& pop : this->gs.world->provinces[province_id].pops)
                 for(size_t i = 0; i < pop.ideology_approval.size(); i++)
-                    ideology_data[i++].num += pop.ideology_approval[i] * pop.size;
+                    ideology_data[i].num += pop.ideology_approval[i] * pop.size;
         ((UI::PieChart&)w).set_data(ideology_data);
     });
     ideology_pie->on_each_tick(*ideology_pie);

@@ -48,17 +48,17 @@ Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
 
     // Mipmapped textures
     Eng3D::TextureOptions mipmap_options{};
-    mipmap_options.wrap_s = GL_REPEAT;
-    mipmap_options.wrap_t = GL_REPEAT;
-    mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-    mipmap_options.mag_filter = GL_LINEAR;
+    mipmap_options.wrap_s = Eng3D::TextureOptions::Wrap::REPEAT;
+    mipmap_options.wrap_t = Eng3D::TextureOptions::Wrap::REPEAT;
+    mipmap_options.min_filter = Eng3D::TextureOptions::Filter::LINEAR_MIPMAP;
+    mipmap_options.mag_filter = Eng3D::TextureOptions::Filter::LINEAR;
     mipmap_options.compressed = true;
 
     this->noise_tex = this->s.tex_man.load(this->s.package_man.get_unique("gfx/noise_tex.png"), mipmap_options);
     this->wave1 = this->s.tex_man.load(this->s.package_man.get_unique("gfx/wave1.png"), mipmap_options);
     this->wave2 = this->s.tex_man.load(this->s.package_man.get_unique("gfx/wave2.png"), mipmap_options);
 
-    mipmap_options.internal_format = GL_SRGB;
+    mipmap_options.internal_format = Eng3D::TextureOptions::Format::SRGB;
     this->water_tex = this->s.tex_man.load(this->s.package_man.get_unique("gfx/water_tex.png"), mipmap_options);
     this->paper_tex = this->s.tex_man.load(this->s.package_man.get_unique("gfx/paper.png"), mipmap_options);
     this->stripes_tex = this->s.tex_man.load(this->s.package_man.get_unique("gfx/stripes.png"), mipmap_options);

@@ -27,6 +27,13 @@
 #include <cassert>
 #include <SDL_ttf.h>
 
+#ifdef E3D_BACKEND_OPENGL
+#   include <GL/glew.h>
+#   include <GL/gl.h>
+#elif defined E3D_BACKEND_GLES
+#   include <GLES3/gl3.h>
+#endif
+
 #include "eng3d/texture.hpp"
 #include "eng3d/framebuffer.hpp"
 #include "eng3d/utils.hpp"
@@ -56,7 +63,7 @@ Eng3D::Texture::Texture(size_t _width, size_t _height, size_t _bpp)
 
 Eng3D::Texture::~Texture() {
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
-    if(gl_tex_num)
+    if(id)
         delete_gputex();
 #endif
     if(managed) {
@@ -125,45 +132,66 @@ void Eng3D::Texture::upload(SDL_Surface* surface) {
 
 void Eng3D::Texture::_upload(TextureOptions options) {
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
-    if(gl_tex_num) delete_gputex();
+    if(id) delete_gputex();
 
-    glGenTextures(1, &gl_tex_num);
-    glBindTexture(GL_TEXTURE_2D, gl_tex_num);
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D, id);
 
 #ifndef E3D_BACKEND_GLES
+    GLuint internal_format = 0;
+    switch(options.internal_format) {
+    case Eng3D::TextureOptions::Format::RGBA:
+        internal_format = GL_RGBA;
+        break;
+    case Eng3D::TextureOptions::Format::RED:
+        internal_format = GL_RED;
+        break;
+    case Eng3D::TextureOptions::Format::SRGB:
+        internal_format = GL_SRGB;
+        break;
+    case Eng3D::TextureOptions::Format::RGB32F:
+        internal_format = GL_RGB32F;
+        break;
+    case Eng3D::TextureOptions::Format::SRGB_ALPHA:
+        internal_format = GL_SRGB_ALPHA;
+        break;
+    default:
+        break;
+    }
+
     /// @todo This causes a lot of issues!
     // Compress the texture if it can't be edited, this is only available on normal OpenGL through
     if(!options.editable && options.compressed) {
-        switch(options.internal_format) {
+        switch(internal_format) {
         case GL_ALPHA:
-            options.internal_format = GL_COMPRESSED_ALPHA;
+            internal_format = GL_COMPRESSED_ALPHA;
             break;
         case GL_LUMINANCE:
-            options.internal_format = GL_COMPRESSED_LUMINANCE;
+            internal_format = GL_COMPRESSED_LUMINANCE;
             break;
         case GL_LUMINANCE_ALPHA:
-            options.internal_format = GL_COMPRESSED_LUMINANCE_ALPHA;
+            internal_format = GL_COMPRESSED_LUMINANCE_ALPHA;
             break;
         case GL_INTENSITY:
-            options.internal_format = GL_COMPRESSED_INTENSITY;
+            internal_format = GL_COMPRESSED_INTENSITY;
             break;
         case GL_RED:
-            options.internal_format = GL_COMPRESSED_RED;
+            internal_format = GL_COMPRESSED_RED;
             break;
         case GL_RGB:
-            options.internal_format = GL_COMPRESSED_RGB;
+            internal_format = GL_COMPRESSED_RGB;
             break;
         case GL_RGBA:
-            options.internal_format = GL_COMPRESSED_RGBA;
+            internal_format = GL_COMPRESSED_RGBA;
             break;
         case GL_SRGB:
-            options.internal_format = GL_COMPRESSED_SRGB;
+            internal_format = GL_COMPRESSED_SRGB;
             break;
         case GL_SRGB_ALPHA:
-            options.internal_format = GL_COMPRESSED_SRGB_ALPHA;
+            internal_format = GL_COMPRESSED_SRGB_ALPHA;
             break;
         case GL_RG:
-            options.internal_format = GL_COMPRESSED_RG;
+            internal_format = GL_COMPRESSED_RG;
             break;
         default:
             break;
@@ -171,11 +199,113 @@ void Eng3D::Texture::_upload(TextureOptions options) {
     }
 #endif
 
-    glTexImage2D(GL_TEXTURE_2D, 0, options.internal_format, width, height, 0, options.format, options.type, buffer.get());
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, options.wrap_s);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, options.wrap_t);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, options.min_filter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, options.mag_filter);
+    GLuint format = 0;
+    switch(options.format) {
+    case Eng3D::TextureOptions::Format::RGBA:
+        format = GL_RGBA;
+        break;
+    case Eng3D::TextureOptions::Format::RED:
+        format = GL_RED;
+        break;
+    case Eng3D::TextureOptions::Format::SRGB:
+        format = GL_SRGB;
+        break;
+    case Eng3D::TextureOptions::Format::RGB32F:
+        format = GL_RGB32F;
+        break;
+    case Eng3D::TextureOptions::Format::SRGB_ALPHA:
+        format = GL_SRGB_ALPHA;
+        break;
+    default:
+        break;
+    }
+
+    GLuint type = 0;
+    switch(options.type) {
+    case Eng3D::TextureOptions::Type::UNSIGNED_BYTE:
+        type = GL_UNSIGNED_BYTE;
+        break;
+    default:
+        break;
+    }
+
+    GLuint wrap_s = 0;
+    switch(options.wrap_s) {
+    case Eng3D::TextureOptions::Wrap::REPEAT:
+        wrap_s = GL_REPEAT;
+        break;
+    case Eng3D::TextureOptions::Wrap::CLAMP_TO_EDGE:
+        wrap_s = GL_CLAMP_TO_EDGE;
+        break;
+    default:
+        break;
+    }
+
+    GLuint wrap_t = 0;
+    switch(options.wrap_t) {
+    case Eng3D::TextureOptions::Wrap::REPEAT:
+        wrap_t = GL_REPEAT;
+        break;
+    case Eng3D::TextureOptions::Wrap::CLAMP_TO_EDGE:
+        wrap_t = GL_CLAMP_TO_EDGE;
+        break;
+    default:
+        break;
+    }
+
+    GLuint min_filter = 0;
+    switch(options.min_filter) {
+    case Eng3D::TextureOptions::Filter::NEAREST:
+        min_filter = GL_NEAREST;
+        break;
+    case Eng3D::TextureOptions::Filter::LINEAR:
+        min_filter = GL_LINEAR;
+        break;
+    case Eng3D::TextureOptions::Filter::LINEAR_MIPMAP:
+        min_filter = GL_LINEAR_MIPMAP_LINEAR;
+        break;
+    case Eng3D::TextureOptions::Filter::NEAREST_MIPMAP:
+        min_filter = GL_NEAREST_MIPMAP_NEAREST;
+        break;
+    case Eng3D::TextureOptions::Filter::NEAREST_LINEAR_MIPMAP:
+        min_filter = GL_NEAREST_MIPMAP_LINEAR;
+        break;
+    case Eng3D::TextureOptions::Filter::LINEAR_NEAREST_MIPMAP:
+        min_filter = GL_LINEAR_MIPMAP_NEAREST;
+        break;
+    default:
+        break;
+    }
+
+    GLuint mag_filter = 0;
+    switch(options.mag_filter) {
+    case Eng3D::TextureOptions::Filter::NEAREST:
+        mag_filter = GL_NEAREST;
+        break;
+    case Eng3D::TextureOptions::Filter::LINEAR:
+        mag_filter = GL_LINEAR;
+        break;
+    case Eng3D::TextureOptions::Filter::LINEAR_MIPMAP:
+        mag_filter = GL_LINEAR_MIPMAP_LINEAR;
+        break;
+    case Eng3D::TextureOptions::Filter::NEAREST_MIPMAP:
+        mag_filter = GL_NEAREST_MIPMAP_NEAREST;
+        break;
+    case Eng3D::TextureOptions::Filter::NEAREST_LINEAR_MIPMAP:
+        mag_filter = GL_NEAREST_MIPMAP_LINEAR;
+        break;
+    case Eng3D::TextureOptions::Filter::LINEAR_NEAREST_MIPMAP:
+        mag_filter = GL_LINEAR_MIPMAP_NEAREST;
+        break;
+    default:
+        break;
+    }
+
+    glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, format, type, buffer.get());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
 
     if(!options.editable) {
 #ifdef E3D_DEBUG
@@ -191,8 +321,16 @@ void Eng3D::Texture::_upload(TextureOptions options) {
         buffer.reset();
     }
 #endif
-    if(options.min_filter == GL_NEAREST_MIPMAP_NEAREST || options.min_filter == GL_NEAREST_MIPMAP_LINEAR || options.min_filter == GL_LINEAR_MIPMAP_NEAREST || options.min_filter == GL_LINEAR_MIPMAP_LINEAR)
+    switch(options.min_filter) {
+    case Eng3D::TextureOptions::Filter::LINEAR_MIPMAP:
+    case Eng3D::TextureOptions::Filter::NEAREST_MIPMAP:
+    case Eng3D::TextureOptions::Filter::NEAREST_LINEAR_MIPMAP:
+    case Eng3D::TextureOptions::Filter::LINEAR_NEAREST_MIPMAP:
         this->gen_mipmaps();
+        break;
+    default:
+        break;
+    }
 }
 
 /// @brief Converts the texture into a OpenGL texture, and assigns it a number
@@ -244,8 +382,8 @@ void Eng3D::Texture::_upload(SDL_Surface* surface) {
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     }
 
-    glGenTextures(1, &gl_tex_num);
-    glBindTexture(GL_TEXTURE_2D, gl_tex_num);
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D, id);
     glTexImage2D(GL_TEXTURE_2D, 0, colors, surface->w, surface->h, 0, texture_format, GL_UNSIGNED_BYTE, surface->pixels);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -258,7 +396,7 @@ void Eng3D::Texture::_upload(SDL_Surface* surface) {
 
 void Eng3D::Texture::gen_mipmaps() const {
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
-    glBindTexture(GL_TEXTURE_2D, gl_tex_num);
+    glBindTexture(GL_TEXTURE_2D, id);
     glGenerateMipmap(GL_TEXTURE_2D);
 #endif
 }
@@ -266,14 +404,14 @@ void Eng3D::Texture::gen_mipmaps() const {
 /// @brief Binds the texture to the current OpenGL context
 void Eng3D::Texture::bind() const {
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
-    glBindTexture(GL_TEXTURE_2D, gl_tex_num);
+    glBindTexture(GL_TEXTURE_2D, id);
 #endif
 }
 
 /// @brief Deletes the OpenGL representation of this texture
 void Eng3D::Texture::delete_gputex() {
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
-    glDeleteTextures(1, &gl_tex_num);
+    glDeleteTextures(1, &id);
 #endif
 }
 
@@ -289,7 +427,7 @@ void Eng3D::Texture::to_file(const std::string& filename) {
 
 #if defined E3D_BACKEND_OPENGL
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, gl_tex_num);
+    glBindTexture(GL_TEXTURE_2D, id);
 #endif
     uint8_t* data = (uint8_t*)malloc(data_size);
 #if defined E3D_BACKEND_OPENGL
@@ -314,8 +452,8 @@ Eng3D::TextureArray::TextureArray(const std::string& path, size_t _tiles_x, size
 /// @brief Uploads the TextureArray to the driver
 void Eng3D::TextureArray::upload() {
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
-    glGenTextures(1, &gl_tex_num);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, gl_tex_num);
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, id);
 
     // set up texture handle parameters
     // glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BASE_LEVEL, 0); // !single image!

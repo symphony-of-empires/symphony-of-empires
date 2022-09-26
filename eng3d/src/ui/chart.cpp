@@ -27,13 +27,6 @@
 #include <string>
 #include <algorithm>
 
-#ifdef E3D_BACKEND_OPENGL
-#   include <GL/glew.h>
-#   include <GL/gl.h>
-#elif defined E3D_BACKEND_GLES
-#   include <GLES3/gl3.h>
-#endif
-
 #include <glm/vec2.hpp>
 
 #include "eng3d/ui/widget.hpp"
@@ -56,53 +49,8 @@ void UI::Chart::on_render(Context&, Eng3D::Rect viewport) {
     if(current_texture != nullptr)
         draw_rectangle(0, 0, width, height, viewport, current_texture.get());
 
-#ifdef E3D_BACKEND_OPENGL
-    glBindTexture(GL_TEXTURE_2D, 0);
-    if(data.size() > 1) {
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glLineWidth(2.f);
-
-        // Obtain the highest and lowest values
-        double max = *std::max_element(data.begin(), data.end());
-        double min = 0.f;
-
-        if(max < min) {
-            min = *std::min_element(data.begin(), data.end());
-        }
-
-        // Works on zero-only graphs
-        if(max == min) {
-            max += 1.f;
-        }
-
-        // Do not allow graph lines to be on the "border" black thing
-        size_t real_height = height - 3;
-
-        size_t time = 0;
-        glBegin(GL_LINE_STRIP);
-        glColor3f(0.f, 0.f, 0.f);
-        time = 0;
-        for(const auto& node : data) {
-            glVertex2f(time * (width / (data.size() - 1)), (real_height - (((node - min) / (max - min)) * real_height)) + 2.f);
-            time++;
-        }
-        glEnd();
-
-        glBegin(GL_LINE_STRIP);
-        glColor3f(1.f, 0.f, 0.f);
-        time = 0;
-        for(const auto& node : data) {
-            glVertex2f(time * (width / (data.size() - 1)), real_height - (((node - min) / (max - min)) * real_height));
-            time++;
-        }
-        glEnd();
-    }
-#endif
-
     if(text_texture.get() != nullptr) {
         g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
         draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture.get());
     }
-
-    glBindTexture(GL_TEXTURE_2D, 0);
 }

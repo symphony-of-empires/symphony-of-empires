@@ -31,14 +31,6 @@
 #include "objects.hpp"
 
 namespace Interface {
-	class FactoryTable: public UI::Div {
-		GameState& gs;
-	public:
-		FactoryTable(GameState& gs, int _x, int _y, int _w, int _h, std::vector<ProvinceId>& provinces, UI::Widget* _parent);
-        void make_building_header(UI::Div& header, bool single);
-        void make_building_row(UI::Div& flex_row, const Building& building, const BuildingType& type, const Province& province, bool single);
-	};
-
     class FactoryWindow : public UI::Window {
         GameState& gs;
     public:

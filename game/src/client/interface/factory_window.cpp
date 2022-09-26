@@ -46,10 +46,10 @@ Interface::FactoryWindow::FactoryWindow(GameState& gs)
     this->set_close_btn_function([this](UI::Widget&) {
         this->kill();
     });
-    
+
     std::vector<int> sizes{ 75, 100, 100, 180, 80, 50 };
     std::vector<std::string> header{ "Province", "Type", "Workers", "Inputs", "Output", "Scale" };
-    auto table = new UI::Table<uint64_t>(5, 5, 800-10, 800-5, 35, sizes, header, this);
+    auto table = new UI::Table<uint64_t>(5, 5, 800 - 10, 800 - 5, 35, sizes, header, this);
     this->width = table->width + 5 + this->padding.x;
     table->reserve(1);
     table->set_on_each_tick([this, table](UI::Widget&) {

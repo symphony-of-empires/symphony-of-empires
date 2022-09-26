@@ -153,9 +153,7 @@ public:
     bool exists() const;
     void auto_relocate_capital();
     void set_policy(const Policies& policies);
-    bool is_accepted_language(const Pop& pop) const;
     bool is_accepted_language(const Language& language) const;
-    bool is_accepted_religion(const Pop& pop) const;
     bool is_accepted_religion(const Religion& relgion) const;
     float get_tax(const Pop& pop) const;
     void give_province(Province& province);

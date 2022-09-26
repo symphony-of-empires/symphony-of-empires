@@ -52,10 +52,10 @@ Image::Image(int _x, int _y, unsigned w, unsigned h, const std::string& texture_
 {
     Eng3D::TextureOptions options;
     if(mipmap) {
-        options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-        options.mag_filter = GL_LINEAR;
-        options.wrap_s = GL_CLAMP_TO_EDGE;
-        options.wrap_t = GL_CLAMP_TO_EDGE;
+        options.min_filter = Eng3D::TextureOptions::Filter::LINEAR_MIPMAP;
+        options.mag_filter = Eng3D::TextureOptions::Filter::LINEAR;
+        options.wrap_s = Eng3D::TextureOptions::Wrap::CLAMP_TO_EDGE;
+        options.wrap_t = Eng3D::TextureOptions::Wrap::CLAMP_TO_EDGE;
     }
 
     auto& s = Eng3D::State::get_instance();
@@ -70,8 +70,8 @@ Image* Image::make_transparent(int x, int y, unsigned w, unsigned h, const std::
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
     if(mipmap) {
-        no_drop_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-        no_drop_options.mag_filter = GL_LINEAR;
+        no_drop_options.min_filter = Eng3D::TextureOptions::Filter::LINEAR_MIPMAP;
+        no_drop_options.mag_filter = Eng3D::TextureOptions::Filter::LINEAR;
     }
     auto& s = Eng3D::State::get_instance();
     auto texture = s.tex_man.load(s.package_man.get_unique(texture_path), no_drop_options);

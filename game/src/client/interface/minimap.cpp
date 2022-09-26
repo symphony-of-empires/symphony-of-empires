@@ -207,8 +207,8 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
     flex_column->flex_justify = UI::FlexJustify::START;
     for(const auto& good : goods) {
         Eng3D::TextureOptions options;
-        options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-        options.mag_filter = GL_LINEAR;
+        options.min_filter = Eng3D::TextureOptions::Filter::LINEAR_MIPMAP;
+        options.mag_filter = Eng3D::TextureOptions::Filter::LINEAR;
         auto good_tex = tex_man.load(gs.package_man.get_unique("gfx/good/" + good.ref_name + ".png"), options);
         auto* good_div = new UI::Div(0, 0, 200, 35, flex_column);
         new UI::Image(0, 0, 35, 35, good_tex, good_div);

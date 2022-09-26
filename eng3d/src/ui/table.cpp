@@ -84,8 +84,8 @@ UI::TableRow::TableRow(UI::Widget* _parent, int _width, int _height, std::vector
         auto& s = Eng3D::State::get_instance();
         auto& tex_man = s.tex_man;
         Eng3D::TextureOptions tex_options{};
-        tex_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-        tex_options.mag_filter = GL_LINEAR;
+        tex_options.min_filter = Eng3D::TextureOptions::Filter::LINEAR_MIPMAP;
+        tex_options.mag_filter = Eng3D::TextureOptions::Filter::LINEAR;
         auto border_tex = tex_man.load(s.package_man.get_unique("gfx/test.png"), tex_options);
         if(index % 2 == 0) {
             this->border.texture = border_tex;

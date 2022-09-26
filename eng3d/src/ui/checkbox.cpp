@@ -53,8 +53,8 @@ Checkbox::Checkbox(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 
 void Checkbox::init_checkbox(int size) {
     Eng3D::TextureOptions mipmap_options{};
-    mipmap_options.min_filter = GL_LINEAR_MIPMAP_LINEAR;
-    mipmap_options.mag_filter = GL_LINEAR;
+    mipmap_options.min_filter = Eng3D::TextureOptions::Filter::LINEAR_MIPMAP;
+    mipmap_options.mag_filter = Eng3D::TextureOptions::Filter::LINEAR;
     this->unchecked_texture = Eng3D::State::get_instance().tex_man.load(Eng3D::State::get_instance().package_man.get_unique("gfx/checkbox_false.png"), mipmap_options);
     this->checked_texture = Eng3D::State::get_instance().tex_man.load(Eng3D::State::get_instance().package_man.get_unique("gfx/checkbox_true.png"), mipmap_options);
 

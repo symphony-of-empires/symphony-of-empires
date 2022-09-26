@@ -28,13 +28,6 @@
 #include <algorithm>
 #include <glm/vec2.hpp>
 
-#ifdef E3D_BACKEND_OPENGL
-#   include <GL/glew.h>
-#   include <GL/gl.h>
-#elif defined E3D_BACKEND_GLES
-#   include <GLES3/gl3.h>
-#endif
-
 #include "eng3d/ui/piechart.hpp"
 #include "eng3d/ui/widget.hpp"
 #include "eng3d/ui/ui.hpp"
