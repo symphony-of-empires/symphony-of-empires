@@ -32,94 +32,10 @@
 #include "eng3d/ui/label.hpp"
 #include "eng3d/ui/image.hpp"
 #include "eng3d/ui/scrollbar.hpp"
+#include "eng3d/ui/table.hpp"
 #include "eng3d/string.hpp"
 
-using namespace Interface;
-
-void FactoryWindow::make_building_header(UI::Div& table) {
-    auto* row = new UI::Div(0, 0, 800, 35, &table);
-    row->flex = UI::Flex::ROW;
-    row->flex_justify = UI::FlexJustify::START;
-
-    glm::ivec2 size(4, 4);
-    glm::ivec2 texture_size(10, 10);
-    auto& tex_man = Eng3D::State::get_instance().tex_man;
-    auto border_tex = tex_man.load(Eng3D::State::get_instance().package_man.get_unique("gfx/border2.png"));
-    auto border = UI::Border(border_tex, size, texture_size);
-
-    auto name_lab = new UI::Div(0, 0, 150, 35, row);
-    name_lab->text(translate("Name"));
-    name_lab->border = border;
-
-    auto workers_lab = new UI::Div(0, 0, 100, 35, row);
-    workers_lab->text(translate("Workers"));
-    workers_lab->border = border;
-
-    auto province_lab = new UI::Div(0, 0, 200, 35, row);
-    province_lab->text(translate("Province"));
-    province_lab->border = border;
-
-    auto input_lab = new UI::Div(0, 0, 150, 35, row);
-    input_lab->text(translate("Inputs"));
-    input_lab->border = border;
-
-    auto output_lab = new UI::Div(0, 0, 35, 35, row);
-    output_lab->text(translate("Output"));
-    output_lab->border = border;
-
-    auto production_scale_lab = new UI::Div(0, 0, 50, 35, row);
-    production_scale_lab->text(translate("Scale"));
-    production_scale_lab->border = border;
-}
-
-void FactoryWindow::make_building_row(UI::Div& table, const Building& building, const BuildingType& type, const Province& province) {
-    auto* row = new UI::Div(0, 0, 800, 35, &table);
-    row->flex = UI::Flex::ROW;
-    row->flex_justify = UI::FlexJustify::START;
-
-    glm::ivec2 size(4, 4);
-    glm::ivec2 texture_size(10, 10);
-    auto& tex_man = Eng3D::State::get_instance().tex_man;
-    auto border_tex = tex_man.load(Eng3D::State::get_instance().package_man.get_unique("gfx/border2.png"));
-    auto border = UI::Border(border_tex, size, texture_size);
-
-    auto name_lab = new UI::Div(0, 0, 150, 35, row);
-    name_lab->text(type.name.get_string());
-    name_lab->border = border;
-
-    auto workers_lab = new UI::Div(0, 0, 100, 35, row);
-    workers_lab->text(string_format("%d", building.workers));
-    workers_lab->border = border;
-
-    auto province_lab = new UI::Div(0, 0, 200, 35, row);
-    province_lab->text(province.name.get_string());
-    province_lab->border = border;
-
-    auto input_div = new UI::Div(0, 0, 150, 35, row);
-    input_div->border = border;
-    input_div->flex = UI::Flex::ROW;
-    input_div->flex_justify = UI::FlexJustify::START;
-
-    for(auto good_id : type.input_ids) {
-        auto& good = g_world.goods[good_id];
-        auto input_good_image = new UI::Image(0, 0, 35, 35, "gfx/good/" + good.ref_name + ".png", true, input_div);
-        input_good_image->set_tooltip(good.name.get_string());
-    }
-
-    if(Good::is_valid(type.output_id)) {
-        auto& output = g_world.goods[type.output_id];
-        auto output_div = new UI::Div(0, 0, 35, 35, row);
-        output_div->border = border;
-        auto output_good_image = new UI::Image(0, 0, 35, 35, "gfx/good/" + output.ref_name + ".png", true, output_div);
-        output_good_image->set_tooltip(output.name.get_string());
-    }
-
-    auto production_scale_lab = new UI::Div(0, 0, 50, 35, row);
-    production_scale_lab->text(string_format("%1.2f", building.production_scale));
-    production_scale_lab->border = border;
-}
-
-FactoryWindow::FactoryWindow(GameState& gs)
+Interface::FactoryWindow::FactoryWindow(GameState& gs)
     : UI::Window(-400, -400, 800, 800),
     gs{ gs }
 {
@@ -127,35 +43,60 @@ FactoryWindow::FactoryWindow(GameState& gs)
     this->text(translate("Factories"));
     this->is_scroll = false;
 
-    this->set_close_btn_function([this](Widget&) {
+    this->set_close_btn_function([this](UI::Widget&) {
         this->kill();
     });
+    
+    std::vector<int> sizes{ 75, 100, 100, 180, 80, 50 };
+    std::vector<std::string> header{ "Province", "Type", "Workers", "Inputs", "Output", "Scale" };
+    auto table = new UI::Table<uint64_t>(5, 5, 800-10, 800-5, 35, sizes, header, this);
+    this->width = table->width + 5 + this->padding.x;
+    table->reserve(1);
+    table->set_on_each_tick([this, table](UI::Widget&) {
+        size_t row_num = 0;
+        for(const auto province_id : this->gs.curr_nation->owned_provinces) {
+            const auto& province = this->gs.world->provinces[province_id];
+            for(size_t i = 0; i < province.buildings.size(); i++) {
+                const auto& type = this->gs.world->building_types[i];
+                const auto& building = province.buildings[i];
+                auto* row = table->get_row(row_num++);
 
-    int size = 0;
-    for(const auto province_id : gs.curr_nation->owned_provinces) {
-        const auto& province = gs.world->provinces[province_id];
-        for(size_t i = 0; i < province.buildings.size(); i++) {
-            auto& building = province.buildings[i];
-            if(building.level != 0) size++;
+                size_t row_index = 0;
+                auto prov_name = row->get_element(row_index++);
+                prov_name->text(province.name.get_string());
+                prov_name->set_key(province.name.get_string());
+
+                auto name = row->get_element(row_index++);
+                name->text(type.name.get_string());
+                name->set_key(type.name.get_string());
+
+                auto workers = row->get_element(row_index++);
+                workers->text(string_format("%.0f", building.workers));
+                workers->set_key(building.workers);
+
+                auto inputs = row->get_element(row_index++);
+                inputs->set_key(type.input_ids.size());
+                inputs->flex_justify = UI::FlexJustify::START;
+                for(auto good_id : type.input_ids) {
+                    auto& good = g_world.goods[good_id];
+                    auto input_img = new UI::Image(0, 0, 35, 35, "gfx/good/" + good.ref_name + ".png", true, inputs);
+                    input_img->set_tooltip(good.name.get_string());
+                }
+
+                auto outputs = row->get_element(row_index++);
+                outputs->set_key(type.output_id);
+                outputs->flex_justify = UI::FlexJustify::START;
+                if(Good::is_valid(type.output_id)) {
+                    auto& output = g_world.goods[type.output_id];
+                    auto output_img = new UI::Image(0, 0, 35, 35, "gfx/good/" + output.ref_name + ".png", true, outputs);
+                    output_img->set_tooltip(output.name.get_string());
+                }
+
+                auto scale = row->get_element(row_index++);
+                scale->text(string_format("%.0f", building.production_scale));
+                scale->set_key(building.production_scale);
+            }
         }
-    }
-
-    auto* header_column = new UI::Div(5, 5, 800 - 10, 35, this);
-    this->make_building_header(*header_column);
-
-    auto* table = new UI::Div(5, 40, 800 - 10, 700, this);
-    table->is_scroll = true;
-
-    auto* flex_column = new UI::Div(0, 0, 800 - 10, size * 35, table);
-    flex_column->flex = UI::Flex::COLUMN;
-    flex_column->flex_justify = UI::FlexJustify::START;
-    for(const auto province_id : gs.curr_nation->owned_provinces) {
-        const auto& province = gs.world->provinces[province_id];
-        for(size_t i = 0; i < province.buildings.size(); i++) {
-            const auto& building = province.buildings[i];
-            const auto& type = gs.world->building_types[i];
-            if(!building.level) continue;
-            this->make_building_row(*flex_column, building, type, province);
-        }
-    }
+    });
+    table->on_each_tick(*table);
 }

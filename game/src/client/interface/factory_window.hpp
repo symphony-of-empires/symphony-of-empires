@@ -25,19 +25,23 @@
 #pragma once
 
 #include "eng3d/ui/window.hpp"
+#include "eng3d/ui/div.hpp"
 #include "client/game_state.hpp"
 #include "building.hpp"
-
-namespace UI {
-    class Div;
-}
+#include "objects.hpp"
 
 namespace Interface {
-	class FactoryWindow: public UI::Window {
+	class FactoryTable: public UI::Div {
 		GameState& gs;
 	public:
-		FactoryWindow(GameState& gs);
-        static void make_building_header(UI::Div& table);
-        static void make_building_row(UI::Div& table, const Building& building, const BuildingType& type, const Province& province);
+		FactoryTable(GameState& gs, int _x, int _y, int _w, int _h, std::vector<ProvinceId>& provinces, UI::Widget* _parent);
+        void make_building_header(UI::Div& header, bool single);
+        void make_building_row(UI::Div& flex_row, const Building& building, const BuildingType& type, const Province& province, bool single);
 	};
+
+    class FactoryWindow : public UI::Window {
+        GameState& gs;
+    public:
+        FactoryWindow(GameState& gs);
+    };
 }
