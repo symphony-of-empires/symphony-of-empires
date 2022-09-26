@@ -130,7 +130,7 @@ TreatyDraftView::TreatyDraftView(GameState& _gs, Nation& _nation)
     });
 }
 
-TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, const Treaty::Id _treaty_id)
+TreatyChooseWindow::TreatyChooseWindow(GameState& _gs, const TreatyId _treaty_id)
     : UI::Window(0, 0, 512, 256),
     gs{ _gs },
     treaty_id{ _treaty_id }

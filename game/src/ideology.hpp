@@ -26,11 +26,10 @@
 
 #include <string>
 #include <cstdint>
-#include "eng3d/entity.hpp"
-
+#include "objects.hpp"
 #include "policy.hpp"
 
-class Ideology : public RefnameEntity<uint8_t> {
+class Ideology : public RefnameEntity<IdeologyId> {
 public:
     std::uint32_t color;
     Eng3D::StringRef name;

@@ -29,6 +29,7 @@
 
 #include "eng3d/serializer.hpp"
 
+#include "objects.hpp"
 #include "action.hpp"
 #include "world.hpp"
 #include "province.hpp"
@@ -61,8 +62,6 @@ class Serializer<Good*>: public SerializerReferenceLocal<World, Good> {};
 template<>
 class Serializer<UnitType*>: public SerializerReferenceLocal<World, UnitType> {};
 template<>
-class Serializer<UnitTrait*>: public SerializerReferenceLocal<World, UnitTrait> {};
-template<>
 class Serializer<BuildingType*>: public SerializerReferenceLocal<World, BuildingType> {};
 template<>
 class Serializer<Ideology*>: public SerializerReferenceLocal<World, Ideology> {};
@@ -94,8 +93,6 @@ template<>
 class Serializer<const Good*>: public SerializerReferenceLocal<World, const Good> {};
 template<>
 class Serializer<const UnitType*>: public SerializerReferenceLocal<World, const UnitType> {};
-template<>
-class Serializer<const UnitTrait*>: public SerializerReferenceLocal<World, const UnitTrait> {};
 template<>
 class Serializer<const BuildingType*>: public SerializerReferenceLocal<World, const BuildingType> {};
 template<>
@@ -237,20 +234,6 @@ public:
         ::deser_dynamic<is_serialize>(ar, obj.name);
         ::deser_dynamic<is_serialize>(ar, obj.ref_name);
         ::deser_dynamic<is_serialize>(ar, obj.color);
-    }
-};
-
-template<>
-class Serializer<UnitTrait> {
-public:
-    template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, UnitTrait& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
-        ::deser_dynamic<is_serialize>(ar, obj.defense_mod);
-        ::deser_dynamic<is_serialize>(ar, obj.attack_mod);
-        ::deser_dynamic<is_serialize>(ar, obj.supply_consumption_mod);
-        ::deser_dynamic<is_serialize>(ar, obj.speed_mod);
     }
 };
 

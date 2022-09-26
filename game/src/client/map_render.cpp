@@ -69,7 +69,7 @@ MapRender::MapRender(GameState& _gs, Map& _map)
     // ------------------------------------------------------------
     Eng3D::Log::debug("game", "Creating tile map & tile sheet");    
     tbb::parallel_for(0zu, this->terrain_map->width * this->terrain_map->height, [this](const auto i) {
-        this->terrain_map->buffer.get()[i] |= this->gs.world->get_tile(i).province_id & 0xffff;
+        this->terrain_map->buffer.get()[i] |= static_cast<size_t>(this->gs.world->get_tile(i).province_id) & 0xffff;
     });
 
     Eng3D::TextureOptions terrain_map_options{};
@@ -109,7 +109,7 @@ MapRender::MapRender(GameState& _gs, Map& _map)
         province_opt->upload(no_drop_options);
     }
 
-    std::vector<Province::Id> province_ids;
+    std::vector<ProvinceId> province_ids;
     province_ids.reserve(this->gs.world->provinces.size());
     for(auto const& province : this->gs.world->provinces)
         province_ids.push_back(province);
@@ -329,14 +329,14 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
 }
 
 // Updates the province color texture with the changed provinces 
-void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
+void MapRender::update_mapmode(std::vector<ProvinceColor>& province_colors) {
     // Water
-    for(Province::Id i = 0; i < this->gs.world->provinces.size(); i++)
+    for(size_t i = 0; i < this->gs.world->provinces.size(); i++)
         if(this->gs.world->terrain_types[this->gs.world->provinces[i].terrain_type_id].is_water_body)
-            province_colors[i] = ProvinceColor(i, Eng3D::Color::rgba32(0x00000000));
+            province_colors[i] = ProvinceColor(ProvinceId(i), Eng3D::Color::rgba32(0x00000000));
     
     for(const auto province_color : province_colors)
-        tile_sheet->buffer.get()[province_color.id] = province_color.color.get_value();
+        tile_sheet->buffer.get()[static_cast<size_t>(province_color.id)] = province_color.color.get_value();
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
     no_drop_options.internal_format = GL_SRGB;
@@ -344,13 +344,13 @@ void MapRender::update_mapmode(std::vector<ProvinceColor> province_colors) {
 }
 
 // Updates nations
-void MapRender::update_nations(std::vector<Province::Id> province_ids) {
-    std::unordered_set<Nation::Id> nation_ids;
+void MapRender::update_nations(std::vector<ProvinceId>& province_ids) {
+    std::vector<NationId> nation_ids;
     for(const auto id : province_ids) {
         const auto& province = this->gs.world->provinces[id]; 
         if(Nation::is_invalid(province.controller_id)) continue;
-        this->tile_sheet_nation->buffer.get()[province] = province.controller_id;
-        nation_ids.insert(province.controller_id);
+        this->tile_sheet_nation->buffer.get()[province] = static_cast<size_t>(province.controller_id);
+        nation_ids.push_back(province.controller_id);
     }
 
     Eng3D::TextureOptions no_drop_options{};
@@ -374,8 +374,7 @@ void MapRender::update_visibility(GameState& gs)
     /// @todo Check that unit is allied with us/province owned by an ally
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
-    for(Province::Id i = 0; i < 0xffff; i++)
-        province_opt->buffer[i] = 0x00000080;
+    std::fill_n(province_opt->buffer.get(), 0xffff, 0x00000080);
     
     for(const auto& nation : gs.world->nations) {
         const auto nation_id = nation;
@@ -400,7 +399,7 @@ void MapRender::update_visibility(GameState& gs)
             this->province_opt->buffer[neighbour_id] = 0x000000ff;
     });
     if(gs.map->province_selected)
-        this->province_opt->buffer.get()[gs.map->selected_province_id] = 0x400000ff;
+        this->province_opt->buffer.get()[static_cast<size_t>(gs.map->selected_province_id)] = 0x400000ff;
     this->province_opt->upload(no_drop_options);
 }
 
@@ -415,21 +414,17 @@ void MapRender::update(GameState& gs) {
 
     Eng3D::Rect update_area{ 0, 0, 0, 0 };
 
-    std::unordered_set<Province::Id> update_provinces;
+    std::vector<ProvinceId> update_provinces;
     auto& changed_owner_provinces = gs.world->province_manager.get_changed_owner_provinces();
-    for(const auto province_id : changed_owner_provinces)
-        update_provinces.insert(province_id);
+    update_provinces.insert(update_provinces.end(), changed_owner_provinces.cbegin(), changed_owner_provinces.cend());
     auto& changed_control_provinces = gs.world->province_manager.get_changed_control_provinces();
-    for(const auto province_id : changed_control_provinces)
-        update_provinces.insert(province_id);
+    update_provinces.insert(update_provinces.end(), changed_control_provinces.cbegin(), changed_control_provinces.cend());
+    auto last = std::unique(update_provinces.begin(), update_provinces.end());
+    update_provinces.erase(last, update_provinces.end());
 
     if(!update_provinces.empty()) {
-        std::vector<Province::Id> update_provinces_vec;
-        for(const auto province_id : update_provinces)
-            update_provinces_vec.push_back(province_id);
-        this->update_nations(update_provinces_vec);
-
-        for(const auto province_id : update_provinces_vec) {
+        this->update_nations(update_provinces);
+        for(const auto province_id : update_provinces) {
             auto& province = gs.world->provinces[province_id];
             update_area = update_area.join(province.box_area);
             if(this->options.sdf.used)

@@ -85,7 +85,7 @@ std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(const Nation& nation)
     return this->tex_man.load(this->package_man.get_unique(path));
 }
 
-void handle_popups(std::vector<Treaty::Id>& displayed_treaties, GameState& gs) {
+void handle_popups(std::vector<TreatyId>& displayed_treaties, GameState& gs) {
     // Put popups
     // Event + Decision popups
     for(auto& msg : gs.curr_nation->inbox) // Check that the event is not already displayed to the user
@@ -94,11 +94,11 @@ void handle_popups(std::vector<Treaty::Id>& displayed_treaties, GameState& gs) {
 
     for(auto& treaty : gs.world->treaties) {
         // Check that the treaty is not already displayed
-        auto iter = std::find_if(displayed_treaties.begin(), displayed_treaties.end(), [&treaty](const auto& e) { return e == treaty; });
+        auto iter = std::find(displayed_treaties.begin(), displayed_treaties.end(), treaty.get_id());
         if(iter != displayed_treaties.end()) continue;
         if(!treaty.does_participate(*gs.curr_nation)) continue; // Must participate in treaty
-        new Interface::TreatyChooseWindow(gs, treaty);
-        displayed_treaties.push_back(treaty);
+        new Interface::TreatyChooseWindow(gs, treaty.get_id());
+        displayed_treaties.push_back(treaty.get_id());
     }
 }
 
@@ -374,7 +374,7 @@ extern "C" void game_main(int argc, char** argv) {
     new Interface::MainMenu(gs);
     // new Interface::MapDebugMenu(gs);
     Export::export_provinces(*gs.world);
-    std::vector<Treaty::Id> displayed_treaties;
+    std::vector<TreatyId> displayed_treaties;
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);
     gs.do_run([&gs](){ return gs.run == true; },
@@ -402,7 +402,7 @@ extern "C" void game_main(int argc, char** argv) {
                             for(auto& building_type : gs.world->building_types) {
                                 for(const auto province_id : gs.curr_nation->controlled_provinces) {
                                     auto& province = gs.world->provinces[province_id];
-                                    auto& building = province.get_buildings()[gs.world->get_id(building_type)];
+                                    auto& building = province.get_buildings()[building_type];
                                     // Must not be working on something else
                                     if(building.working_unit_type != nullptr) continue;
                                     is_built = true;

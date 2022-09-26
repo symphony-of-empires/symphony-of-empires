@@ -69,17 +69,17 @@
 #include "io_impl.hpp"
 #include "action.hpp"
 
-static inline void get_blob_bounds(std::unordered_set<Province*>& visited_provinces, const Nation& nation, const Province& province, glm::vec2* min_x, glm::vec2* min_y, glm::vec2* max_x, glm::vec2* max_y) {
+static inline void get_blob_bounds(std::unordered_set<ProvinceId>& visited_provinces, const Nation& nation, const Province& province, glm::vec2* min_x, glm::vec2* min_y, glm::vec2* max_x, glm::vec2* max_y) {
     // Iterate over all neighbours
     for(const auto neighbour_id : province.neighbour_ids) {
         auto& neighbour = g_world.provinces[neighbour_id];
         // Do not visit again
-        if(visited_provinces.find(&neighbour) != visited_provinces.end()) continue;
+        if(visited_provinces.find(neighbour_id) != visited_provinces.end()) continue;
         // Must control the province
         if(neighbour.controller_id != nation) continue;
         // Big provinces not taken in account
-        if(abs(neighbour.box_area.left - neighbour.box_area.right) >= g_world.width / 3.f) continue;
-        if(abs(neighbour.box_area.top - neighbour.box_area.bottom) >= g_world.height / 3.f) continue;
+        if(glm::abs(neighbour.box_area.left - neighbour.box_area.right) >= g_world.width / 3.f) continue;
+        if(glm::abs(neighbour.box_area.top - neighbour.box_area.bottom) >= g_world.height / 3.f) continue;
 
         if(neighbour.box_area.left < min_x->x) {
             min_x->x = neighbour.box_area.left;
@@ -97,7 +97,7 @@ static inline void get_blob_bounds(std::unordered_set<Province*>& visited_provin
             max_y->x = neighbour.box_area.right;
             max_y->y = neighbour.box_area.bottom;
         }
-        visited_provinces.insert(&neighbour);
+        visited_provinces.insert(neighbour);
         get_blob_bounds(visited_provinces, nation, neighbour, min_x, min_y, max_x, max_y);
     }
 }
@@ -148,7 +148,7 @@ Map::Map(GameState& _gs, const World& _world, UI::Group* _map_ui_layer, int scre
 
     this->unit_widgets.resize(this->gs.world->provinces.size());
     this->battle_widgets.resize(this->gs.world->provinces.size());
-    for(Province::Id i = 0; i < this->gs.world->provinces.size(); i++) {
+    for(size_t i = 0; i < this->gs.world->provinces.size(); i++) {
         this->unit_widgets[i] = new Interface::UnitWidget(*this, this->gs, this->map_ui_layer);
         this->battle_widgets[i] = new Interface::BattleWidget(*this, this->map_ui_layer);
     }
@@ -168,12 +168,11 @@ Map::~Map() {
 void Map::update_nation_label(const Nation& nation) {
     // No need to update if no labels are displayed!
     if(!this->gen_labels) return;
-    if(!nation.exists()) return;
 
     glm::vec2 min_point_x(this->gs.world->width - 1.f, this->gs.world->height - 1.f), min_point_y(this->gs.world->width - 1.f, this->gs.world->height - 1.f);
     glm::vec2 max_point_x(0.f, 0.f), max_point_y(0.f, 0.f);
     if(nation.owned_provinces.empty()) return;
-    Province::Id province_id = *nation.owned_provinces.begin();
+    auto province_id = *nation.owned_provinces.begin();
     if(Province::is_valid(nation.capital_id))
         province_id = nation.capital_id;
 
@@ -246,7 +245,7 @@ void Map::set_view(MapView view) {
     // create_labels();
 }
 
-std::string political_province_tooltip(const World& world, const Province::Id id) {
+std::string political_province_tooltip(const World& world, const ProvinceId id) {
     std::string end_str;
     if(Nation::is_valid(world.provinces[id].controller_id))
         end_str += world.nations[world.provinces[id].controller_id].client_username;
@@ -259,7 +258,7 @@ std::string political_province_tooltip(const World& world, const Province::Id id
 std::vector<ProvinceColor> political_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
     for(const auto& province : world.provinces) {
-        if(Province::is_invalid(province.controller_id))
+        if(Nation::is_invalid(province.controller_id))
             province_color.push_back(ProvinceColor(province, Eng3D::Color::rgba32(0xffdddddd)));
         else
             province_color.push_back(ProvinceColor(province, Eng3D::Color::rgba32(world.nations[province.controller_id].get_client_hint().color)));
@@ -268,7 +267,7 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
     return province_color;
 }
 
-std::string empty_province_tooltip(const World&, const Province::Id) {
+std::string empty_province_tooltip(const World&, const ProvinceId) {
     return "";
 }
 
@@ -322,7 +321,7 @@ void Map::set_map_mode(mapmode_generator mapmode_generator, mapmode_tooltip tool
     update_mapmode();
 }
 
-void Map::set_selected_province(bool selected, Province::Id id) {
+void Map::set_selected_province(bool selected, ProvinceId id) {
     this->province_selected = selected;
     this->selected_province_id = id;
     map_render->request_update_visibility();
@@ -603,15 +602,17 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
                 default: break;
             }
         } else if(e.type == Eng3D::Event::MouseButton::Type::RIGHT) {
-            if(Nation::is_invalid(province_id)) return;
+            if(Province::is_invalid(province_id)) return;
             auto& province = gs.world->provinces[province_id];
             if(gs.editor && gs.current_mode == MapMode::NORMAL) {
                 if(world.terrain_types[province.terrain_type_id].is_water_body) {
-                    province.terrain_type_id = (TerrainType::Id)1;
+                    province.terrain_type_id = (TerrainTypeId)1;
                 }
                 gs.curr_nation->control_province(province);
                 gs.curr_nation->give_province(province);
-                province.nuclei.insert(gs.world->get_id(*gs.curr_nation));
+                province.nuclei.push_back(gs.world->get_id(*gs.curr_nation));
+                auto last = std::unique(province.nuclei.begin(), province.nuclei.end());
+                province.nuclei.erase(last, province.nuclei.end());
                 this->update_mapmode();
                 this->map_render->request_update_visibility();
                 this->map_render->update(this->gs);

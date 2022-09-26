@@ -26,7 +26,7 @@
 
 #include <string>
 #include <vector>
-#include "eng3d/entity.hpp"
+#include "objects.hpp"
 
 enum TechnologyType {
     STRATEGIC = 0x01,
@@ -38,7 +38,7 @@ enum TechnologyType {
 };
 
 class NationModifier;
-class Technology : public RefnameEntity<uint16_t> {
+class Technology : public RefnameEntity<TechnologyId> {
 public:
     Technology() = default;
     ~Technology() = default;
@@ -47,6 +47,6 @@ public:
     Eng3D::StringRef description;
     float cost;
     enum TechnologyType type;
-    std::vector<Technology::Id> req_technologies;
+    std::vector<TechnologyId> req_technologies;
     std::vector<NationModifier*> modifiers;
 };

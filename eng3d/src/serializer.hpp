@@ -410,7 +410,7 @@ public:
         typename T::Id id = obj == nullptr ? T::invalid() : W::get_instance().get_id(*obj);
         ::deser_dynamic<is_serialize>(ar, id);
         if constexpr(!is_serialize) {
-            if(id >= W::get_instance().get_list((T*)nullptr).size()) {
+            if(static_cast<size_t>(id) >= W::get_instance().get_list((T*)nullptr).size()) {
                 obj = nullptr;
             } else {
                 obj = id != T::invalid() ? W::get_instance().get_list((T*)nullptr)[id] : nullptr;
@@ -428,7 +428,7 @@ public:
         typename T::Id id = obj == nullptr ? T::invalid() : W::get_instance().get_id(*obj);
         ::deser_dynamic<is_serialize>(ar, id);
         if constexpr(!is_serialize) {
-            if(id >= W::get_instance().get_list((T*)nullptr).size()) {
+            if(static_cast<size_t>(id) >= W::get_instance().get_list((T*)nullptr).size()) {
                 obj = nullptr;
             } else {
                 obj = id != T::invalid() ? &(W::get_instance().get_list((T*)nullptr)[id]) : nullptr;

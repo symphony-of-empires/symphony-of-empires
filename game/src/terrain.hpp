@@ -27,9 +27,9 @@
 #include <string>
 #include "eng3d/string.hpp"
 #include "eng3d/color.hpp"
-#include "eng3d/entity.hpp"
+#include "objects.hpp"
 
-class TerrainType : public RefnameEntity<uint8_t>  {
+class TerrainType : public RefnameEntity<TerrainTypeId>  {
 public:
     Eng3D::StringRef name;
     uint32_t color; /// @brief Associative color (with bitmap)

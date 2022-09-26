@@ -26,6 +26,7 @@
 
 #include "eng3d/ui/window.hpp"
 #include "client/game_state.hpp"
+#include "building.hpp"
 
 namespace UI {
     class Div;

@@ -133,7 +133,7 @@ FactoryWindow::FactoryWindow(GameState& gs)
     int size = 0;
     for(const auto province_id : gs.curr_nation->owned_provinces) {
         const auto& province = gs.world->provinces[province_id];
-        for(Building::Id i = 0; i < province.buildings.size(); i++) {
+        for(size_t i = 0; i < province.buildings.size(); i++) {
             auto& building = province.buildings[i];
             if(building.level != 0) size++;
         }
@@ -150,7 +150,7 @@ FactoryWindow::FactoryWindow(GameState& gs)
     flex_column->flex_justify = UI::FlexJustify::START;
     for(const auto province_id : gs.curr_nation->owned_provinces) {
         const auto& province = gs.world->provinces[province_id];
-        for(Building::Id i = 0; i < province.buildings.size(); i++) {
+        for(size_t i = 0; i < province.buildings.size(); i++) {
             const auto& building = province.buildings[i];
             const auto& type = gs.world->building_types[i];
             if(!building.level) continue;

@@ -24,8 +24,6 @@
 
 #include "pop.hpp"
 #include "ideology.hpp"
-#include "language.hpp"
-#include "religion.hpp"
 #include "world.hpp"
 
 Ideology& Pop::get_ideology() const {
@@ -38,6 +36,5 @@ Ideology& Pop::get_ideology() const {
 }
 
 uint32_t Pop::get_type_id() const {
-    uint32_t id = this->type_id;
-    return id;
+    return static_cast<uint32_t>(static_cast<size_t>(this->type_id));
 }

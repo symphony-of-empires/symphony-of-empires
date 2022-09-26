@@ -167,7 +167,7 @@ void Server::net_loop(int id) {
                 } break;
                 // - Client tells server to change target of unit
                 case ActionType::UNIT_CHANGE_TARGET: {
-                    Unit::Id unit_id;
+                    UnitId unit_id;
                     ::deserialize(ar, unit_id);
                     if(Unit::is_invalid(unit_id))
                         throw ServerException("Unknown unit");

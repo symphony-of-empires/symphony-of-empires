@@ -81,7 +81,7 @@ namespace Eng3D::Pathfind {
 
         // Unwind path and reverse
         std::vector<T> path;
-        path.reserve(abs(start - end));
+        path.reserve(abs(static_cast<size_t>(start) - static_cast<size_t>(end)));
         auto current = end;
         while(current != start) {
             path.push_back(current);
@@ -95,7 +95,7 @@ namespace Eng3D::Pathfind {
     inline void from_source(T source, const std::vector<std::vector<V>>& neighbour_rels, std::vector<float>& costs) {
         auto cmp = [](const V& a, const V& b) { return a.cost < b.cost; };
         std::priority_queue<V, std::vector<V>, decltype(cmp)> heap;
-        heap.emplace(0, source);
+        heap.emplace(0.f, source);
         while(!heap.empty()) {
             auto vertex = heap.top();
             heap.pop();

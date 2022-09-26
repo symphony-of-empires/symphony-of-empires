@@ -78,7 +78,7 @@ UnitWidget::UnitWidget(Map& _map, GameState& _gs, UI::Widget* parent)
 
 // This is expected to be called every framed
 void UnitWidget::set_unit(Unit& _unit) {
-    this->unit_id = _unit;
+    this->unit_id = _unit.get_id();
 
     const auto& camera = *map.camera;
     auto unit_pos = _unit.get_pos();
@@ -120,7 +120,7 @@ void UnitWidget::set_size(size_t size) {
 UnitView::UnitView(GameState& _gs, Unit& _unit)
     : UI::Window(0, -200, 400, 200),
     gs{ _gs },
-    unit_id{ _unit }
+    unit_id{ _unit.get_id() }
 {
     if(this->gs.lower_left_panel != nullptr)
         this->gs.lower_left_panel->kill();

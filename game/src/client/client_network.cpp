@@ -119,9 +119,9 @@ void Client::net_loop() {
                     // deserializer will deserialize onto the final object; after this the operation
                     // desired is done.
                     case ActionType::NATION_UPDATE: {
-                        Nation::Id size;
+                        NationId size;
                         ::deserialize(ar, size);
-                        for(Nation::Id i = 0; i < size; i++) {
+                        for(size_t i = 0; i < static_cast<size_t>(size); i++) {
                             Nation* nation;
                             ::deserialize(ar, nation);
                             if(nation == nullptr)
@@ -145,9 +145,9 @@ void Client::net_loop() {
                         nation->current_policy = policy;
                     } break;
                     case ActionType::PROVINCE_UPDATE: {
-                        Province::Id size;
+                        ProvinceId size;
                         ::deserialize(ar, size);
-                        for(Product::Id i = 0; i < size; i++) {
+                        for(size_t i = 0; i < static_cast<size_t>(size); i++) {
                             Province* province;
                             ::deserialize(ar, province);
                             if(province == nullptr)
@@ -163,9 +163,9 @@ void Client::net_loop() {
                         }
                     } break;
                     case ActionType::UNIT_UPDATE: {
-                        Unit::Id size;
+                        UnitId size;
                         ::deserialize(ar, size);
-                        for(Unit::Id i = 0; i < size; i++) {
+                        for(size_t i = 0; i < static_cast<size_t>(size); i++) {
                             Unit unit;
                             ::deserialize(ar, unit);
                             assert(gs.world->unit_manager.units.size() > unit);
@@ -175,20 +175,20 @@ void Client::net_loop() {
                     case ActionType::UNIT_ADD: {
                         Unit unit;
                         ::deserialize(ar, unit);
-                        Province::Id province_id;
+                        ProvinceId province_id;
                         ::deserialize(ar, province_id);
                         gs.world->unit_manager.add_unit(unit, province_id);
                         Eng3D::Log::debug("client", "New unit of " + g_world.nations[unit.owner_id].ref_name);
                     } break;
                     case ActionType::UNIT_REMOVE: {
-                        Unit::Id unit_id;
+                        UnitId unit_id;
                         ::deserialize(ar, unit_id);
                         gs.world->unit_manager.remove_unit(unit_id);
                     } break;
                     case ActionType::UNIT_MOVE: {
-                        Unit::Id unit_id;
+                        UnitId unit_id;
                         ::deserialize(ar, unit_id);
-                        Province::Id province_id;
+                        ProvinceId province_id;
                         ::deserialize(ar, province_id);
                         gs.world->unit_manager.move_unit(unit_id, province_id);
                     } break;

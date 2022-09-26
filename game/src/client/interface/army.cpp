@@ -125,7 +125,7 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
         for(const auto& building_type : gs.world->building_types) {
             if(!building_type.can_build_land_units())
                 continue;
-            new ArmyProductionUnitInfo(gs, 0, 0, province, gs.world->get_id(building_type), flex_column);
+            new ArmyProductionUnitInfo(gs, 0, 0, province, building_type, flex_column);
         }
     }
 }
@@ -165,7 +165,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, con
         if(!building.working_unit_type) return;
         auto full = 0.f, needed = 0.f;
         std::string text = "Needs ";
-        for(Good::Id i = 0; i < building.req_goods_for_unit.size(); i++) {
+        for(size_t i = 0; i < building.req_goods_for_unit.size(); i++) {
             auto need_req = building.req_goods_for_unit[i];
             auto full_req = building.working_unit_type->req_goods[i];
             full_req.second -= need_req.second;

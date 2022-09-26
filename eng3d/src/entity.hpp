@@ -24,29 +24,82 @@
 
 #pragma once
 
+#include <concepts>
 #include "eng3d/string.hpp"
+
+template<std::unsigned_integral T>
+struct EntityId {
+    static constexpr T invalid_id = static_cast<T>(-1);
+    T id = invalid_id;
+
+    constexpr EntityId<T>() noexcept = default;
+    constexpr EntityId<T>(T _id) noexcept
+        : id{ _id }
+    {
+
+    }
+    constexpr EntityId<T>(const EntityId<T>&) noexcept = default;
+    constexpr EntityId<T>& operator=(const EntityId<T>&) noexcept = default;
+    ~EntityId() noexcept = default;
+
+    constexpr bool operator<=>(const EntityId<T>& o) const noexcept = default;
+
+    constexpr operator size_t() const noexcept {
+        return static_cast<size_t>(id);
+    }
+
+ 	EntityId<T>& operator++() noexcept {
+        this->id++;
+        return *this;
+    }
+
+    EntityId<T>& operator--() noexcept {
+        this->id--;
+        return *this;
+    }
+
+    EntityId<T> operator++(int) noexcept {
+        this->id++;
+        return *this;
+    }
+
+    EntityId<T> operator--(int) noexcept {
+        this->id--;
+        return *this;
+    }
+};
+
+template<std::unsigned_integral T>
+struct std::hash<EntityId<T>> {
+    std::size_t operator()(const EntityId<T>& id) const noexcept {
+        std::size_t h1 = std::hash<int>{}(static_cast<size_t>(id));
+        std::size_t h2 = std::hash<int>{}(static_cast<size_t>(id));
+        return h1 ^ (h2 << 1);
+    }
+};
 
 /// @brief An entity which can only be referenced by an (presumably) unique Id
 /// this is the base class for the other entity types.
-/// @tparam IdType The type to use for the Id
-template<typename IdType>
-class Entity {
-public:
-    using Id = IdType;
-
-};
-
-/// @brief Alias for Entity that uses a cached_id for faster lookups
 /// @tparam IdType The type used for the Id
 template<typename IdType>
-class IdEntity : public Entity<IdType> {
-public:
+struct Entity {
     using Id = IdType;
+
+    constexpr Entity() noexcept = default;
+    constexpr Entity(Entity&&) noexcept = default;
+    constexpr Entity(const Entity&) noexcept = default;
+    constexpr Entity& operator=(const Entity&) noexcept = default;
+    ~Entity() noexcept = default;
+
+    /// @brief Id used to speed up Id lookups on any context
+    /// @note This depends that the container is sequential (as if it was
+    /// a contigous array) - Otherwise this optimization **will** break
+    Id cached_id = Id{ -1 };
 
     /// @brief Returns an invalid id
     /// @return constexpr Id The invalid id
     constexpr static Id invalid() {
-        return (Id)-1;
+        return Id{ -1 };
     }
 
     /// @brief Checks if the id is not valid
@@ -65,11 +118,6 @@ public:
         return id != invalid();
     }
 
-    /// @brief Id used to speed up Id lookups on any context
-    /// @note This depends that the container is sequential (as if it was
-    /// a contigous array) - Otherwise this optimization **will** break
-    Id cached_id = (Id)-1;
-
     /// @brief Checks if the current id is invalid
     /// @return true 
     /// @return false 
@@ -84,8 +132,12 @@ public:
         return !is_invalid();
     }
 
-    constexpr operator Id() const {
+    constexpr operator Id() const noexcept {
         return cached_id;
+    }
+
+    constexpr operator size_t() const noexcept {
+        return static_cast<size_t>(cached_id);
     }
 
     constexpr Id get_id() const {
@@ -96,7 +148,6 @@ public:
 /// @brief An entity which can be referenced via a ref_name and also via id
 /// @tparam IdType The type used for the Id
 template<typename IdType>
-class RefnameEntity : public IdEntity<IdType> {
-public:
+struct RefnameEntity : public Entity<IdType> {
     Eng3D::StringRef ref_name;
 };

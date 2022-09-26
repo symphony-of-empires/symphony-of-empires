@@ -80,17 +80,17 @@ class Borders;
 
 class ProvinceColor {
 public:
-    Province::Id id;
+    ProvinceId id;
     Eng3D::Color color;
-    ProvinceColor(Province::Id _id, Eng3D::Color _color): id{ _id }, color{ _color } {}
+    ProvinceColor(ProvinceId _id, Eng3D::Color _color): id{ _id }, color{ _color } {}
 };
-typedef std::function<std::string(const World& world, const Province::Id id)> mapmode_tooltip;
+typedef std::function<std::string(const World& world, const ProvinceId id)> mapmode_tooltip;
 typedef std::function<std::vector<ProvinceColor>(const World& world)> mapmode_generator;
 class Map;
 typedef std::function<void(const World& world, Map& map, const Province& province)> selector_func;
 std::vector<ProvinceColor> political_map_mode(const World& world);
-std::string political_province_tooltip(const World& world, const Province::Id id);
-std::string empty_province_tooltip(const World& world, const Province::Id id);
+std::string political_province_tooltip(const World& world, const ProvinceId id);
+std::string empty_province_tooltip(const World& world, const ProvinceId id);
 
 class Map {
     /// @brief Called to get mapmode
@@ -106,7 +106,7 @@ public:
     void draw_flag(const Eng3D::OpenGL::Program& shader, const Nation& nation);
     void draw();
     void set_map_mode(mapmode_generator mapmode_func, mapmode_tooltip tooltip_func);
-    void set_selected_province(bool selected, Province::Id id);
+    void set_selected_province(bool selected, ProvinceId id);
     void set_view(MapView view);
     void reload_shaders();
     void update_nation_label(const Nation& nation);
@@ -117,7 +117,7 @@ public:
     void handle_mouse_motions(const Eng3D::Event::MouseMotion& e);
 
     bool province_selected = false;
-    Province::Id selected_province_id = Province::invalid();
+    ProvinceId selected_province_id;
     
     MapRender* map_render;
     MapView view_mode = MapView::PLANE_VIEW;

@@ -104,8 +104,8 @@ class MapRender : public Eng3D::BaseMap {
 public:
     MapRender(GameState& gs, Map& map);
     ~MapRender() = default;
-    void update_mapmode(std::vector<ProvinceColor> province_colors);
-    void update_nations(std::vector<Province::Id> nations);
+    void update_mapmode(std::vector<ProvinceColor>& province_colors);
+    void update_nations(std::vector<ProvinceId>& nations);
     void request_update_visibility();
     void draw(Eng3D::Camera* camera, MapView view_mode);
     void reload_shaders();
@@ -114,11 +114,11 @@ public:
 
     MapOptions options;
     void update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_size);
-    inline uint32_t get_province_opt(const Province::Id id) {
+    inline uint32_t get_province_opt(const ProvinceId id) {
         return this->province_opt->buffer[id];
     }
 
-    inline Province::Id get_tile_province_id(size_t x, size_t y) {
-        return static_cast<Province::Id>(this->terrain_map->buffer.get()[x + y * this->terrain_map->width] & 0xffff);
+    inline ProvinceId get_tile_province_id(size_t x, size_t y) {
+        return ProvinceId(this->terrain_map->buffer.get()[x + y * this->terrain_map->width] & 0xffff);
     }
 };

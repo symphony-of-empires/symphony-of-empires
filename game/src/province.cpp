@@ -66,8 +66,8 @@ float Province::get_attractiveness(const Pop& pop) const {
 
 void Province::add_building(const BuildingType& building_type) {
     // Now build the building
-    this->buildings[g_world.get_id(building_type)].level += 1;
-    this->buildings[g_world.get_id(building_type)].req_goods = building_type.req_goods;
+    this->buildings[building_type.get_id()].level += 1;
+    this->buildings[building_type.get_id()].req_goods = building_type.req_goods;
 }
 
 void Province::cancel_construction_project() {
@@ -99,7 +99,7 @@ float Province::euclidean_distance(const Province& other_province, glm::vec2 wor
 }
 
 bool Province::is_neighbour(Province& province) const {
-    return std::find(this->neighbour_ids.begin(), this->neighbour_ids.end(), g_world.get_id(province)) != this->neighbour_ids.end();
+    return std::find(this->neighbour_ids.begin(), this->neighbour_ids.end(), province) != this->neighbour_ids.end();
 }
 
 void Province::clean_pops() {

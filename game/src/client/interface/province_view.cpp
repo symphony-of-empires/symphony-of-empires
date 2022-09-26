@@ -63,10 +63,11 @@ void ProvincePopulationTab::update_piecharts() {
     for(const auto& pop : province.pops)
         pop_type_sizes[pop.type_id] += pop.size;
     for(const auto& pop_type : gs.world->pop_types) {
+        const auto i = static_cast<size_t>(pop_type.get_id());
         const auto color = Eng3D::Color(
-            (uint8_t)((gs.world->get_id(pop_type) * 12) % 256),
-            (uint8_t)((gs.world->get_id(pop_type) * 31) % 256),
-            (uint8_t)((gs.world->get_id(pop_type) * 97) % 256)
+            static_cast<uint8_t>((i * 3) % 256),
+            static_cast<uint8_t>((i * 7) % 256),
+            static_cast<uint8_t>((i * 15) % 256)
         );
         pop_types_data.push_back(UI::ChartData(pop_type_sizes[gs.world->get_id(pop_type)], pop_type.name.get_string(), color));
     }
@@ -360,9 +361,9 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
     this->set_close_btn_function([this](Widget&) {
         this->kill();
         this->gs.right_side_panel = nullptr;
-        this->gs.map->set_selected_province(false, 0);
+        this->gs.map->set_selected_province(false, ProvinceId(0zu));
     });
-    this->gs.map->set_selected_province(true, this->province);
+    this->gs.map->set_selected_province(true, this->province.get_id());
 
     this->origin = UI::Origin::UPPER_RIGHT_SCREEN;
     this->is_scroll = false;
@@ -429,8 +430,8 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
                 this->gs.input.selected_religion = &this->gs.world->religions[0];
 
             for(auto& pop_type : this->gs.world->pop_types) {
-                Pop pop;
-                pop.type_id = pop_type;
+                Pop pop{};
+                pop.type_id = pop_type.get_id();
                 pop.size = 1000.f / glm::max(0.01f, pop_type.social_value);
                 pop.literacy = max_sv / glm::max(0.01f, pop_type.social_value);
                 pop.budget = pop.size * 100.f * max_sv;
@@ -486,5 +487,5 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
 }
 
 ProvinceView::~ProvinceView() {
-    gs.map->set_selected_province(true, 0);
+    gs.map->set_selected_province(true, ProvinceId(0zu));
 }

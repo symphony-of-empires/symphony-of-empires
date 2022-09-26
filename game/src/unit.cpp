@@ -23,11 +23,18 @@
 // ----------------------------------------------------------------------------
 
 #include <string>
-#include <algorithm>
 #include <cassert>
+#include <queue>
+#include <unordered_map>
+#include <unordered_set>
+#include <algorithm>
 #include <glm/glm.hpp>
+#include <glm/vec3.hpp>
 #include <glm/gtc/constants.hpp>
+#include <glm/trigonometric.hpp>
+#include <glm/geometric.hpp>
 
+#include "eng3d/pathfind.hpp"
 #include "eng3d/log.hpp"
 #include "eng3d/utils.hpp"
 
@@ -36,6 +43,22 @@
 #include "unit.hpp"
 #include "province.hpp"
 #include "world.hpp"
+
+template<>
+struct std::hash<ProvinceId> {
+    std::size_t operator()(const ProvinceId& id) const noexcept {
+        std::size_t h1 = std::hash<int>{}(static_cast<size_t>(id));
+        std::size_t h2 = std::hash<int>{}(static_cast<size_t>(id));
+        return h1 ^ (h2 << 1);
+    }
+};
+
+template<>
+struct std::equal_to<ProvinceId> {
+    constexpr bool operator()(const ProvinceId& a, const ProvinceId& b) const {
+        return a == b;
+    }
+};
 
 //
 // Unit
@@ -59,7 +82,7 @@ glm::vec2 Unit::get_pos() const {
     return province.get_pos();
 }
 
-Province::Id Unit::province_id() const {
+ProvinceId Unit::province_id() const {
     assert(this->is_valid());
     // Don't know if this is cleaner than getting it from unit manager :thinking:
     const auto& world = World::get_instance();
@@ -99,7 +122,6 @@ bool Unit::update_movement(UnitManager& unit_manager) {
         this->days_left_until_move = 0;
         unit_manager.move_unit(this->get_id(), this->target_province_id);
         this->target_province_id = Province::invalid();
-
         // Follow the path
         if(!this->path.empty()) {
             this->set_target(World::get_instance().provinces[this->path.back()]);
@@ -115,10 +137,10 @@ void UnitManager::init(World& world) {
     province_units.resize(world.provinces.size());
 }
 
-void UnitManager::add_unit(Unit unit, Province::Id unit_current_province) {
-    Unit::Id id;
+void UnitManager::add_unit(Unit unit, ProvinceId unit_current_province) {
+    UnitId id;
     if(free_unit_slots.empty()) {
-        id = units.size();
+        id = UnitId(units.size());
         units.emplace_back(unit);
         unit_province.push_back(unit_current_province);
     } else {
@@ -128,8 +150,8 @@ void UnitManager::add_unit(Unit unit, Province::Id unit_current_province) {
         unit_province[id] = unit_current_province;
     }
     units[id].cached_id = id;
-    if(unit_current_province >= province_units.size())
-        province_units.resize(unit_current_province + 1);
+    if(static_cast<size_t>(unit_current_province) >= province_units.size())
+        province_units.resize(static_cast<size_t>(unit_current_province) + 1);
     province_units[unit_current_province].push_back(id);
 
     if(g_server != nullptr)
@@ -137,7 +159,7 @@ void UnitManager::add_unit(Unit unit, Province::Id unit_current_province) {
         g_server->broadcast(Action::UnitAdd::form_packet(units[id]));
 }
 
-void UnitManager::remove_unit(Unit::Id unit_id) {
+void UnitManager::remove_unit(UnitId unit_id) {
     if(g_server != nullptr)
         g_server->broadcast(Action::UnitRemove::form_packet(units[unit_id]));
 
@@ -147,7 +169,7 @@ void UnitManager::remove_unit(Unit::Id unit_id) {
     free_unit_slots.push_back(unit_id);
 }
 
-void UnitManager::move_unit(Unit::Id unit_id, Province::Id target_province_id) {
+void UnitManager::move_unit(UnitId unit_id, ProvinceId target_province_id) {
     assert(units[unit_id].can_move()); // Must be able to move to perform this...
     assert(unit_province[unit_id] != target_province_id); // Not setting to same province
 
@@ -173,39 +195,24 @@ bool Unit::can_move() const {
     return !(this->on_battle);
 }
 
-const std::vector<Province::Id> Unit::get_path() const {
+const std::vector<ProvinceId> Unit::get_path() const {
     return path;
 }
 
-#include <queue>
-#include <unordered_map>
-#include <unordered_set>
-#include <algorithm>
-#include <glm/vec3.hpp>
-#include <glm/gtc/constants.hpp>
-#include <glm/trigonometric.hpp>
-#include <glm/geometric.hpp>
-
-#include "eng3d/pathfind.hpp"
-#include "province.hpp"
 void Unit::set_path(const Province& target) {
     auto& world = World::get_instance();
     auto& nation = world.nations[this->owner_id];
     auto start_id = world.unit_manager.get_unit_current_province(this->get_id());
-        this->path = Eng3D::Pathfind::get_path<Province::Id>(start_id, target,
+    this->path = Eng3D::Pathfind::get_path<ProvinceId>(start_id, target,
         /// @brief Calculates the neighbors for a given Tile. The neighbors are the 8 tiles around
         /// it, while taking into account the map bounds.
-        [&world](Province::Id province_id) -> std::vector<Province::Id> {
+        [&world](ProvinceId province_id) -> std::vector<ProvinceId> {
             const auto& province = world.provinces[province_id];
-            std::vector<Province::Id> result;
-            result.resize(province.neighbour_ids.size(), 0);
-            std::transform(province.neighbour_ids.cbegin(), province.neighbour_ids.cend(), result.begin(), [](const auto e) {
-                return e;
-            });
+            std::vector<ProvinceId> result = province.neighbour_ids;
             return result;
         },
         /// @brief Euclidean distance calculation
-        [&world](Province::Id province1_id, Province::Id province2_id) -> float {
+        [&world](ProvinceId province1_id, ProvinceId province2_id) -> float {
             const auto& province1 = world.provinces[province1_id];
             const auto& province2 = world.provinces[province2_id];
             const glm::vec2 world_size{ world.width, world.height };
@@ -233,6 +240,6 @@ void Unit::set_path(const Province& target) {
         this->path.pop_back(); // Pop the start point
 }
 
-Province::Id Unit::get_target_province_id() const {
+ProvinceId Unit::get_target_province_id() const {
     return target_province_id;
 }

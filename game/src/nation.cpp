@@ -50,7 +50,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
 
     // Recollect offenders
     // - Those who are allied to us
-    for(Nation::Id i = 0; i < world.nations.size(); i++) {
+    for(size_t i = 0; i < world.nations.size(); i++) {
         if(&world.nations[i] == this || &world.nations[i] == &nation) continue;
         const auto& relation = world.get_relation(i, world.get_id(*this));
         if(relation.is_allied() || world.nations[i].puppet_master == this)
@@ -62,7 +62,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     // - Those who are on a defensive pact with the target
     // - Those who are allied with the target
     // - And those who aren't already attacking
-    for(Nation::Id i = 0; i < world.nations.size(); i++) {
+    for(size_t i = 0; i < world.nations.size(); i++) {
         if(&world.nations[i] == this || &world.nations[i] == &nation) continue;
         if(std::find(war->attackers.begin(), war->attackers.end(), &world.nations[i]) != war->attackers.end()) continue;
         const auto& relation = world.get_relation(i, world.get_id(nation));
@@ -144,7 +144,7 @@ inline bool Nation::can_do_diplomacy() const {
 /// Use this when a treaty makes a nation lose it's capital
 void Nation::auto_relocate_capital() {
     const auto& world = World::get_instance();
-    auto best_candidate = std::max_element(owned_provinces.begin(), owned_provinces.end(), [&world](const auto& lhs, const auto& rhs) {
+    auto best_candidate = std::max_element(owned_provinces.cbegin(), owned_provinces.cend(), [&world](const auto& lhs, const auto& rhs) {
         return world.provinces[lhs].total_pops() < world.provinces[rhs].total_pops();
     });
     capital_id = *best_candidate;
@@ -167,7 +167,7 @@ void Nation::set_policy(const Policies& policies) {
         for(auto& pop : province.pops) {
             const Policies& pop_policies = pop.get_ideology().policies;
             // To "cheese it up" we mix some ideologies of the people, randomly
-            for(Ideology::Id i = 0; i < World::get_instance().ideologies.size(); i++) {
+            for(size_t i = 0; i < World::get_instance().ideologies.size(); i++) {
                 pop.ideology_approval[i] += std::fmod(rand() / 1000.f, current_policy.difference(pop_policies));
                 pop.ideology_approval[i] = glm::clamp<float>(pop.ideology_approval[i], -1.f, 1.f); // Clamp
             }
@@ -258,12 +258,12 @@ float Nation::get_tax(const Pop& pop) const {
 /// @brief Gives this nation a specified province (for example on a treaty)
 void Nation::give_province(Province& province) {
     auto& world = World::get_instance();
-    if(province.owner_id == this->get_id())
-        return;
-    
-    if(Nation::is_valid(province.owner_id))
-        world.nations[province.owner_id].owned_provinces.erase(province);
-    owned_provinces.insert(world.get_id(province));
+    if(province.owner_id == this->get_id()) return;
+    if(Nation::is_valid(province.owner_id)) {
+        auto& provinces = world.nations[province.owner_id].owned_provinces;
+        std::erase(provinces, province);
+    }
+    this->owned_provinces.push_back(province);
     province.owner_id = this->get_id();
     this->control_province(province);
     // Update the province changed
@@ -272,12 +272,12 @@ void Nation::give_province(Province& province) {
 
 void Nation::control_province(Province& province) {
     auto& world = World::get_instance();
-    if(province.controller_id == this->get_id())
-        return;
-    
-    if(Province::is_valid(province.controller_id))
-        world.nations[province.controller_id].controlled_provinces.erase(province);
-    this->controlled_provinces.insert(province);
+    if(province.controller_id == this->get_id()) return;
+    if(Nation::is_valid(province.controller_id)) {
+        auto& provinces = world.nations[province.controller_id].controlled_provinces;
+        std::erase(provinces, province);
+    }
+    this->controlled_provinces.push_back(province);
     province.controller_id = this->get_id();
 
     // Update the province changed

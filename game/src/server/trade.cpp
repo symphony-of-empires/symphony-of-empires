@@ -35,6 +35,22 @@
 
 using namespace Economy;
 
+template<>
+struct std::hash<ProvinceId> {
+    std::size_t operator()(const ProvinceId& id) const noexcept {
+        std::size_t h1 = std::hash<int>{}(static_cast<size_t>(id));
+        std::size_t h2 = std::hash<int>{}(static_cast<size_t>(id));
+        return h1 ^ (h2 << 1);
+    }
+};
+
+template<>
+struct std::equal_to<ProvinceId> {
+    constexpr bool operator()(const ProvinceId& a, const ProvinceId& b) const {
+        return a == b;
+    }
+};
+
 void Trade::recalculate(const World& world) {
     if(trade_costs.empty())
         this->initialize(world);
@@ -43,9 +59,9 @@ void Trade::recalculate(const World& world) {
         std::fill(trade_cost.begin(), trade_cost.end(), std::numeric_limits<float>::max());
 
     glm::vec2 world_size{ world.width, world.height };
-    tbb::parallel_for((Province::Id)0, (Province::Id)cost_eval.size(), [this, &world](Province::Id province_id) {
+    tbb::parallel_for(0zu, cost_eval.size(), [this, &world](const auto province_id) {
         if(world.provinces[province_id].is_coastal) return;
-        Eng3D::Pathfind::from_source(province_id, this->neighbours, this->trade_costs[province_id]);
+        Eng3D::Pathfind::from_source<ProvinceId>(ProvinceId(province_id), this->neighbours, this->trade_costs[province_id]);
     }, tbb::auto_partitioner());
 }
 

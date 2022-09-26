@@ -83,10 +83,9 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
         
         for(const auto& province_id : this->gs.curr_nation->owned_provinces) {
             for(const auto& pop : this->gs.world->provinces[province_id].pops) {
-                Ideology::Id id = 0;
-                for(const auto& ideology_approval : pop.ideology_approval) {
-                    ideology_data[id++].num += ideology_approval * pop.size;
-                }
+                size_t i = 0;
+                for(const auto& ideology_approval : pop.ideology_approval)
+                    ideology_data[i++].num += ideology_approval * pop.size;
             }
         }
 

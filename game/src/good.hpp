@@ -24,11 +24,11 @@
 
 #pragma once
 
-#include "eng3d/entity.hpp"
 #include <string>
+#include "objects.hpp"
 
-// A good, mostly serves as a "product type"
-class Good : public RefnameEntity<uint16_t> {
+/// @brief A good, mostly serves as a "product type"
+class Good : public RefnameEntity<GoodId> {
 public:
     Good() = default;
     ~Good() = default;

@@ -25,10 +25,10 @@
 #include <string>
 #include <vector>
 
-#include "eng3d/entity.hpp"
 #include "eng3d/string.hpp"
+#include "objects.hpp"
 
-class Decision : public RefnameEntity<uint8_t> {
+class Decision : public RefnameEntity<DecisionId> {
 public:
     Decision() = default;
     ~Decision() = default;
@@ -41,7 +41,7 @@ public:
 };
 
 class Nation;
-class Event : public RefnameEntity<uint16_t> {
+class Event : public RefnameEntity<EventId> {
 public:
     Event() = default;
     ~Event() = default;

@@ -36,19 +36,19 @@ namespace Economy {
         void recalculate(const World& world);
 
         struct Vertex {
-            constexpr Vertex(float _cost, Province::Id _key) : cost{_cost}, key{_key}
+            constexpr Vertex(float _cost, ProvinceId _key) : cost{_cost}, key{_key}
             {
 
             }
             ~Vertex() = default;
             float cost = 0.f;
-            Province::Id key = Province::invalid();
+            ProvinceId key;
         };
 
         /// @brief Cost-evaluatable provinces, we discard sea and ocean provinces
         /// from this formula to save space and time since goods directly transport
         /// to the land provinces
-        std::vector<Province::Id> cost_eval;
+        std::vector<ProvinceId> cost_eval;
         std::vector<std::vector<float>> trade_costs;
     private:
         inline glm::vec3 get_sphere_coord(const Province& province, glm::vec2 world_size);

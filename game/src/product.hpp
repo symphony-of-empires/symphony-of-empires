@@ -30,7 +30,7 @@
 #include <glm/glm.hpp>
 
 /// @brief A product (based off a Good) which can be bought by POPs, converted by factories and transported
-class Product : public IdEntity<uint16_t> {
+class Product : public Entity<ProductId> {
 public:
     Product() = default;
     ~Product() = default;

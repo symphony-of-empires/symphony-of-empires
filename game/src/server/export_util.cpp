@@ -40,18 +40,16 @@ void Export::export_provinces(World& world) {
     }
 
     auto world_size = glm::vec2(world.width, world.height);
-    for(size_t prov_id = 0; prov_id < world.provinces.size(); prov_id++) {
-        const auto& prov = world.provinces[prov_id];
+    for(size_t i = 0; i < world.provinces.size(); i++) {
+        const auto& prov = world.provinces[i];
         for(auto& neighbour_id : prov.neighbour_ids) {
             const auto& neighbour = world.provinces[neighbour_id];
             auto distance = prov.euclidean_distance(neighbour, world_size, 1.);
             bool is_water = world.terrain_types[prov.terrain_type_id].is_water_body
                 || world.terrain_types[neighbour.terrain_type_id].is_water_body;
-            if(is_water)
-                distance *= 0.1;
-
-            if(neighbour_id > prov_id)
-                myfile << prov_id << "," << neighbour_id << "," << distance << "\n";
+            if(is_water) distance *= 0.1;
+            if(static_cast<size_t>(neighbour_id) > i)
+                myfile << i << "," << static_cast<size_t>(neighbour_id) << "," << distance << "\n";
         }
     }
     myfile.close();

@@ -27,15 +27,15 @@
 #include <vector>
 #include <bitset>
 #include <unordered_set>
-#include "eng3d/entity.hpp"
+#include "objects.hpp"
 
 class Technology;
 class Unit;
 class UnitType;
 class Good;
 
-// Type for military outposts
-class BuildingType : public RefnameEntity<uint8_t> {
+/// @brief Type for military outposts
+class BuildingType : public RefnameEntity<BuildingTypeId> {
 public:
     BuildingType() = default;
     ~BuildingType() = default;
@@ -74,7 +74,7 @@ public:
 // When adjacent to a water tile this serves as a shipyard for spawning naval units
 class Building {
 public:
-    using Id = BuildingType::Id;
+    using Id = BuildingTypeId;
     Building() = default;
     ~Building() = default;
     void add_to_stock(const Good& good, size_t add);

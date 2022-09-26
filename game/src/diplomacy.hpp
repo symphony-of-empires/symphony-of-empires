@@ -27,9 +27,9 @@
 #include <cstdint>
 #include <cstddef>
 #include <vector>
-#include "eng3d/entity.hpp"
 #include "eng3d/string.hpp"
 
+#include "objects.hpp"
 #include "policy.hpp"
 
 class Nation;
@@ -183,7 +183,7 @@ enum class TreatyApproval {
     ABSENT,
 };
 
-class Treaty : public IdEntity<uint16_t> {
+class Treaty : public Entity<TreatyId> {
 public:
     bool does_participate(Nation& nation);
 	bool in_effect() const;
@@ -197,7 +197,7 @@ public:
     std::vector<std::pair<Nation*, TreatyApproval>> approval_status;
 };
 
-class War : public IdEntity<uint16_t> {
+class War : public Entity<WarId> {
 public:
     War() = default;
     ~War() = default;

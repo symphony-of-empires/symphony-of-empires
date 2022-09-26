@@ -38,7 +38,7 @@ namespace UI {
 
 namespace Interface {
     class UnitWidget: public UI::Div {
-        Unit::Id unit_id;
+        UnitId unit_id;
         Map& map;
         GameState& gs;
         std::shared_ptr<Eng3D::Texture> select_border_texture;
@@ -54,7 +54,7 @@ namespace Interface {
 
     class UnitView: public UI::Window {
         GameState& gs;
-        Unit::Id unit_id;
+        UnitId unit_id;
     public:
         UnitView(GameState& _gs, Unit& unit);
         virtual ~UnitView() = default;

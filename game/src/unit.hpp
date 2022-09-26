@@ -29,19 +29,17 @@
 #include <cstdint>
 #include <cstddef>
 #include <type_traits>
-
-#include "eng3d/entity.hpp"
+#include <glm/vec2.hpp>
+#include "objects.hpp"
 
 class Nation;
 class Good;
 class Province;
+class World;
 
-// Included due to ids
-#include "province.hpp"
-
-// Defines a type of unit, it can be a tank, garrison, infantry, etc
-// this is moddable via a lua script and new unit types can be added
-class UnitType : public RefnameEntity<uint8_t> {
+/// @brief Defines a type of unit, it can be a tank, garrison, infantry, etc
+/// this is moddable via a lua script and new unit types can be added
+class UnitType : public RefnameEntity<UnitTypeId> {
 public:
     UnitType() {};
     ~UnitType() {};
@@ -59,33 +57,19 @@ public:
     std::vector<std::pair<Good*, float>> req_goods; // Required goods
 };
 
-// A trait for an unit; given randomly per each recruited unit
-class UnitTrait : public RefnameEntity<uint8_t> {
-public:
-    UnitTrait() {};
-    ~UnitTrait() {};
-
-    float supply_consumption_mod;
-    float speed_mod;
-    float max_health_mod;
-    float defense_mod;
-    float attack_mod;
-    float morale_mod;
-};
-
 class UnitManager;
 template <class T>
 class Serializer;
-// Roughly a batallion, consisting of approximately 500 soldiers each
-class Unit : public IdEntity<uint16_t> {
+/// @brief Roughly a batallion, consisting of approximately 500 soldiers each
+class Unit : public Entity<UnitId> {
     Unit& operator=(const Unit&) = default;
     friend class Client;
     friend class UnitManager;
     friend class Serializer<Unit>;
 
-    std::vector<Province::Id> path;
+    std::vector<ProvinceId> path;
     float days_left_until_move = 0;
-    Province::Id target_province_id = Province::invalid();
+    ProvinceId target_province_id;
 public:
     Unit() = default;
     ~Unit() = default;
@@ -99,14 +83,13 @@ public:
     float get_speed() const;
     void set_owner(const Nation& nation);
     bool can_move() const;
-    const std::vector<Province::Id> get_path() const;
+    const std::vector<ProvinceId> get_path() const;
     void set_path(const Province& target);
-    Province::Id get_target_province_id() const;
+    ProvinceId get_target_province_id() const;
 
     UnitType* type = nullptr; // Type of unit
-    uint16_t owner_id = (uint16_t)-1; // Who owns this unit
-    // Province::Id province_id = Province::invalid();
-    Province::Id province_id() const;
+    NationId owner_id; // Who owns this unit
+    ProvinceId province_id() const;
 
     float size; // Size of the unit (soldiers in unit)
     float base; // Base size of the unit (max size due to anti-attrition)
@@ -125,31 +108,31 @@ public:
     ~UnitManager() = default;
     void init(World& world);
 
-    void add_unit(Unit unit, Province::Id unit_current_province);
-    void remove_unit(Unit::Id unit);
-    void move_unit(Unit::Id unit, Province::Id target_province);
+    void add_unit(Unit unit, ProvinceId unit_current_province);
+    void remove_unit(UnitId unit);
+    void move_unit(UnitId unit, ProvinceId target_province);
 
     template<typename T>
-    inline void for_each_unit(T const& lambda) {
-        for(Unit::Id id = 0; id < units.size(); id++)
-            if(units[id].is_valid())
-                lambda(units[id]);
+    inline void for_each_unit(const T& lambda) {
+        for(size_t i = 0; i < units.size(); i++)
+            if(units[i].is_valid())
+                lambda(units[i]);
     }
 
-    inline std::vector<Unit::Id> get_province_units(Province::Id province_id) const {
+    inline std::vector<UnitId> get_province_units(ProvinceId province_id) const {
         return province_units[province_id];
     }
 
-    inline Province::Id get_unit_current_province(Unit::Id unit_id) const {
+    inline ProvinceId get_unit_current_province(UnitId unit_id) const {
         return unit_province[unit_id];
     }
 
     /// @brief The actual units
     std::vector<Unit> units;
     /// @brief The unit slots that are free to use
-    std::vector<Unit::Id> free_unit_slots;
+    std::vector<UnitId> free_unit_slots;
     /// @brief Vector for each unit
-    std::vector<Province::Id> unit_province;
+    std::vector<ProvinceId> unit_province;
     /// @brief Vector for each province
-    std::vector<std::vector<Unit::Id>> province_units;
+    std::vector<std::vector<UnitId>> province_units;
 };

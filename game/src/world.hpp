@@ -56,8 +56,6 @@
 #include "technology.hpp"
 #include "event.hpp"
 #include "diplomacy.hpp"
-#include "language.hpp"
-#include "religion.hpp"
 #include "pop.hpp"
 
 // A single tile unit this is the smallest territorial unit in the game and it cannot be divided (and it shouldn't)
@@ -66,7 +64,7 @@ class Tile {
 public:
     const std::vector<Tile>& get_neighbours(const World& world) const;
     // ID of the province where this tile belongs to
-    Province::Id province_id;
+    ProvinceId province_id;
 };
 
 /// @todo Make bookmark.hpp?
@@ -98,11 +96,10 @@ public:
     };\
     inline void insert(type& ptr) {\
         auto& list = this->get_list((type*)nullptr);\
-        list_mutex.lock();\
-        ptr.cached_id = list.size();\
-        Eng3D::Log::debug("world_insert", "Inserting object " #type " with ID=" + std::to_string(ptr.cached_id));\
+        std::scoped_lock lock(list_mutex);\
+        ptr.cached_id = type::Id(list.size());\
+        Eng3D::Log::debug("world_insert", "Inserting object " #type " with ID=" + std::to_string(static_cast<size_t>(ptr.cached_id)));\
         list.push_back(ptr);\
-        list_mutex.unlock();\
     };\
     list_type<type> list;
 
@@ -115,23 +112,20 @@ public:
     };\
     inline void insert(type& ptr) {\
         auto& list = this->get_list((type*)nullptr);\
-        list_mutex.lock();\
-        ptr.cached_id = list.size();\
-        Eng3D::Log::debug("world_insert", "Inserting object " #type " with ID=" + std::to_string(ptr.cached_id));\
+        std::scoped_lock lock(list_mutex);\
+        ptr.cached_id = type::Id(list.size());\
+        Eng3D::Log::debug("world_insert", "Inserting object " #type " with ID=" + std::to_string(static_cast<size_t>(ptr.cached_id)));\
         list.push_back(ptr);\
-        list_mutex.unlock();\
     };\
     inline void remove(type& ptr) {\
-        type::Id cached_id = this->get_id<type>(ptr);\
+        size_t cached_id = static_cast<size_t>(this->get_id<type>(ptr));\
         auto& list = this->get_list((type*)nullptr);\
-        list_mutex.lock();\
+        std::scoped_lock lock(list_mutex);\
         cached_id = list.size();\
-        Eng3D::Log::debug("world_remove", "Removing object " #type " with ID=" + std::to_string(cached_id));\
-        for(type::Id i = cached_id + 1; i < list.size(); i++) {\
-            list[i].cached_id--;\
-        }\
+        Eng3D::Log::debug("world_remove", "Removing object " #type " with ID=" + std::to_string(static_cast<size_t>(cached_id)));\
+        for(size_t i = static_cast<size_t>(cached_id) + 1; i < list.size(); i++)\
+            list[i].cached_id = type::Id(static_cast<size_t>(list[i].cached_id) - 1);\
         list.erase(list.begin() + cached_id);\
-        list_mutex.unlock();\
     };\
     list_type<type> list;
 
@@ -180,7 +174,7 @@ public:
 
         list_mutex.lock();
         ptr.cached_id = list.size();
-        assert(ptr.cached_id < (typename T::Id)-2);
+        assert(ptr.cached_id < static_cast<T::Id>(-2));
         list.push_back((T*)&ptr);
         list_mutex.unlock();
     };
@@ -193,12 +187,11 @@ public:
         auto& list = this->get_list((T*)nullptr);
 
         list_mutex.lock();
-        for(typename T::Id i = cached_id + 1; i < list.size(); i++) {
+        for(size_t i = cached_id + 1; i < list.size(); i++)
             list[i]->cached_id--;
-        }
 
         // Remove the element itself
-        list.erase(list.begin() + cached_id);
+        list.erase(list.begin() + static_cast<size_t>(cached_id));
         list_mutex.unlock();
     }
 
@@ -215,7 +208,7 @@ public:
     /// function on a local variable because said variable could potentially get invalidated!
     /// @tparam T Type of object
     /// @param obj Reference to the object
-    /// @return T::Id Id of the object
+    /// @return TId Id of the object
     template<typename T>
     inline typename T::Id get_id(const T& obj) const {
         return obj.cached_id;

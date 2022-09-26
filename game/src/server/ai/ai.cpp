@@ -52,7 +52,7 @@ public:
     std::vector<double> nations_risk_factor;
 };
 static std::vector<AiData> g_ai_data;
-static std::vector<Province::Id> g_water_provinces;
+static std::vector<ProvinceId> g_water_provinces;
 
 void ai_init(World& world) {
     g_ai_data.resize(world.nations.size());
@@ -382,7 +382,7 @@ void ai_do_tick(Nation& nation) {
         constexpr auto homeland_weight = 100.f; // Homeland protection
 
         std::fill(ai_data.nations_risk_factor.begin(), ai_data.nations_risk_factor.end(), 1.f);
-        std::vector<Province::Id> eval_provinces; // Provinces that can be evaluated for war
+        std::vector<ProvinceId> eval_provinces; // Provinces that can be evaluated for war
         eval_provinces.reserve(world.provinces.size());
 
         for(const auto province_id : g_water_provinces)
@@ -434,7 +434,7 @@ void ai_do_tick(Nation& nation) {
                     // draw in even more units
                     draw_in_force += unit_strength * (unit.on_battle ? unit_battle_weight : unit_exist_weight);
                 }
-                if(Province::is_valid(neighbour.controller_id)) // Only if neighbour has a controller
+                if(Nation::is_valid(neighbour.controller_id)) // Only if neighbour has a controller
                     draw_in_force *= ai_data.nations_risk_factor[neighbour.controller_id];
                 // Try to recover our own lost provinces
                 if(neighbour.owner_id == nation && neighbour.controller_id != nation)
@@ -515,8 +515,8 @@ void ai_do_tick(Nation& nation) {
             // Pair denoting the weight a province has, the more the better
             std::vector<std::pair<Province*, float>> colonial_value;
             for(auto& province : world.provinces) {
-                if(g_world.terrain_types[province.terrain_type_id].is_water_body || Province::is_valid(province.owner_id)) continue;
-                colonial_value.push_back(std::make_pair(&province, 0.f));
+                if(g_world.terrain_types[province.terrain_type_id].is_water_body || Nation::is_valid(province.owner_id)) continue;
+                colonial_value.emplace_back(&province, 0.f);
             }
 
             for(auto& province : colonial_value) {
@@ -530,7 +530,7 @@ void ai_do_tick(Nation& nation) {
                 }
                 // If it's a nucleus province it also gets a x100 multiplier to maximize priority
                 // on the nuclei provinces
-                if(province.first->nuclei.find(world.get_id(nation)) != province.first->nuclei.end())
+                if(std::find(province.first->nuclei.begin(), province.first->nuclei.end(), nation.get_id()) != province.first->nuclei.end())
                     province.second *= 100.f;
             }
 
@@ -585,9 +585,9 @@ void ai_do_tick(Nation& nation) {
         if(rand() % (base_reluctance / defense_factor) == 0 && !nation.owned_provinces.empty()) {
             auto it = std::begin(nation.owned_provinces);
             std::advance(it, rand() % nation.owned_provinces.size());
-            Province& province = world.provinces[*it];
+            auto& province = world.provinces[*it];
             
-            const BuildingType& building_type = world.building_types[0];
+            const auto& building_type = world.building_types[0];
             province.add_building(building_type);
             // Broadcast the addition of the building to the clients
             g_server->broadcast(Action::BuildingAdd::form_packet(province, building_type));

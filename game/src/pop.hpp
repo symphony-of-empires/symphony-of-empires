@@ -26,11 +26,28 @@
 
 #include <vector>
 #include <string>
-#include "eng3d/entity.hpp"
+#include "objects.hpp"
 
-#include "religion.hpp"
-#include "ideology.hpp"
-#include "language.hpp"
+class Language : public RefnameEntity<LanguageId> {
+public:
+    Language() = default;
+    ~Language() = default;
+    
+    std::uint32_t color;
+    Eng3D::StringRef name;
+    Eng3D::StringRef adjective;
+    Eng3D::StringRef noun;
+    Eng3D::StringRef combo_form;
+};
+
+class Religion : public RefnameEntity<ReligionId> {
+public:
+    Religion() = default;
+    ~Religion() = default;
+
+    Eng3D::StringRef name;
+    std::uint32_t color;
+};
 
 enum class PopGroup : int {
     OTHER = 0x01,
@@ -40,7 +57,7 @@ enum class PopGroup : int {
     LABORER = 0x10,
 };
 
-class PopType : public RefnameEntity<uint8_t> {
+class PopType : public RefnameEntity<PopTypeId> {
 public:
     PopType() = default;
     ~PopType() = default;
@@ -54,6 +71,7 @@ public:
 };
 
 class Province;
+class Ideology;
 class Pop {
     Pop& operator=(const Pop&) = default;
     friend class Province;
@@ -70,7 +88,7 @@ public:
     Ideology& get_ideology() const;
     uint32_t get_type_id() const;
 
-    PopType::Id type_id;
+    PopTypeId type_id;
     float size = 0.f;
     float life_needs_met = 0.f;
     float everyday_needs_met = 0.f;

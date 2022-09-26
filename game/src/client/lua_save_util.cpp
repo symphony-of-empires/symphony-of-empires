@@ -55,9 +55,9 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
     // RGO
     const uint32_t color = std::byteswap<std::uint32_t>((province.color & 0x00ffffff) << 8);
     std::string rgo_size_out = "";
-    for(Good::Id id = 0; id < province.rgo_size.size(); id++) {
-        const auto& good = gs.world->goods[id];
-        auto size = province.rgo_size[id];
+    for(size_t i = 0; i < province.rgo_size.size(); i++) {
+        const auto& good = gs.world->goods[i];
+        auto size = province.rgo_size[i];
         if(size != 0) {
             rgo_size_out += "{\"" + good.ref_name + "\",";
             rgo_size_out += std::to_string(size) + "},";
@@ -76,8 +76,10 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
 
     province.buildings[rand() % province.buildings.size()].level++;
     province.buildings[rand() % province.buildings.size()].level++;
+    province.buildings[rand() % province.buildings.size()].level++;
+    province.buildings[rand() % province.buildings.size()].level++;
     for(const auto& building_type : gs.world->building_types) {
-        const auto& building = province.buildings[gs.world->get_id(building_type)];
+        const auto& building = province.buildings[building_type];
         if(building.level)
             fprintf(fp, "province:update_building(bt_%s,%zu)\n", building_type.ref_name.c_str(), building.level);
     }

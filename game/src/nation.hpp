@@ -31,9 +31,9 @@
 #include <unordered_set>
 #include <string>
 #include <vector>
-#include "eng3d/entity.hpp"
 #include "eng3d/string.hpp"
 
+#include "objects.hpp"
 #include "policy.hpp"
 #include "event.hpp"
 
@@ -84,7 +84,7 @@ public:
     Ideology* ideology = nullptr; // Ideology to which this hint applies to (nullptr = default fallback)
 };
 
-class NationModifier : public RefnameEntity<uint16_t> {
+class NationModifier : public RefnameEntity<NationModifierId> {
 public:
     NationModifier() = default;
     ~NationModifier() = default;
@@ -109,7 +109,7 @@ public:
     float immigration_attraction = 1.f;
 };
 
-class Nation : public RefnameEntity<uint16_t> {
+class Nation : public RefnameEntity<NationId> {
     inline void do_diplomacy();
     inline bool can_do_diplomacy() const;
 
@@ -164,7 +164,7 @@ public:
     bool ai_controlled = true;
     bool ai_do_cmd_troops = true;
 
-    Province::Id capital_id = Province::invalid(); // The capital of this nation (can be invalid id)
+    ProvinceId capital_id; // The capital of this nation (can be invalid id)
     Ideology* ideology = nullptr; // Current ideology of the nation
     Policies current_policy; // Current policy of this nation
     uint16_t diplomatic_timer; // Time until a diplomacy can be done
@@ -175,8 +175,8 @@ public:
     std::vector<float> religion_discrim;
     // List of provinces which are owned by this nation (including partial ownership)
     /// @todo Add controlled provinces to serializer
-    std::set<uint16_t> owned_provinces;
-    std::set<uint16_t> controlled_provinces;
+    std::vector<ProvinceId> owned_provinces;
+    std::vector<ProvinceId> controlled_provinces;
     std::vector<NationModifier*> modifiers;
     std::deque<Event> inbox; // Inbox of the nation; events that require our attention / should be processed
     std::vector<float> research; // Progress on technologies (1:1)

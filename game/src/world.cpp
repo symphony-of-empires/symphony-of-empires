@@ -350,15 +350,15 @@ void World::load_initial() {
         // Build a lookup table for super fast speed on finding provinces
         // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
         Eng3D::Log::debug("world", translate("Building the province lookup table"));
-        std::vector<Province::Id> province_color_table(0xffffff + 1, Province::invalid());
+        std::vector<ProvinceId> province_color_table(0xffffff + 1, ProvinceId(-1));
         for(const auto& province : provinces)
             province_color_table[province.color & 0xffffff] = this->get_id(province);
 
         const auto* raw_buffer = div->buffer.get();
         for(size_t i = 0; i < width * height; i++) {
-            const Province::Id province_id = province_color_table[raw_buffer[i] & 0xffffff];
+            const ProvinceId province_id = province_color_table[raw_buffer[i] & 0xffffff];
 #if 0
-            if(province_id == (Province::Id)-1)
+            if(province_id == (ProvinceId)-1)
                 colors_found.insert(raw_buffer[i]);
             colors_used.insert(raw_buffer[i] & 0xffffff);
 #endif
@@ -445,28 +445,34 @@ void World::load_initial() {
             if(i > this->width) {
                 auto other_tile = this->tiles[i - this->width];
                 if(Province::is_valid(other_tile.province_id))
-                    province.neighbour_ids.insert(other_tile.province_id);
+                    province.neighbour_ids.push_back(other_tile.province_id);
             }
             // Down
             if(i < (this->width * this->height) - this->width) {
                 auto other_tile = this->tiles[i + this->width];
                 if(Province::is_valid(other_tile.province_id))
-                    province.neighbour_ids.insert(other_tile.province_id);
+                    province.neighbour_ids.push_back(other_tile.province_id);
             }
             // Left
             if(i > 1) {
                 auto other_tile = this->tiles[i - 1];
                 if(Province::is_valid(other_tile.province_id))
-                    province.neighbour_ids.insert(other_tile.province_id);
+                    province.neighbour_ids.push_back(other_tile.province_id);
             }
             // Right
             if(i < (this->width * this->height) - 1) {
                 auto other_tile = this->tiles[i + 1];
                 if(Province::is_valid(other_tile.province_id))
-                    province.neighbour_ids.insert(other_tile.province_id);
+                    province.neighbour_ids.push_back(other_tile.province_id);
             }
         }
-
+        for(auto& province : this->provinces) {
+            auto last = std::unique(province.neighbour_ids.begin(), province.neighbour_ids.end());
+            province.neighbour_ids.erase(last, province.neighbour_ids.end());
+            auto it = std::find(province.neighbour_ids.begin(), province.neighbour_ids.end(), province);
+            if(it != province.neighbour_ids.end())
+                province.neighbour_ids.erase(it);
+        }
         unit_manager.init(*this);
 
         // Create diplomatic relations between nations
@@ -624,11 +630,11 @@ static inline void unit_do_tick(World& world, Unit& unit) {
                     Battle battle(war);
                     battle.name = "Battle of " + unit_province.name;
                     if(war.is_attacker(world.nations[unit.owner_id])) {
-                        battle.attackers_ids.push_back(world.get_id(unit));
-                        battle.defenders_ids.push_back(world.get_id(other_unit));
+                        battle.attackers_ids.emplace_back(unit);
+                        battle.defenders_ids.emplace_back(other_unit);
                     } else {
-                        battle.attackers_ids.push_back(world.get_id(other_unit));
-                        battle.defenders_ids.push_back(world.get_id(unit));
+                        battle.attackers_ids.emplace_back(other_unit);
+                        battle.defenders_ids.emplace_back(unit);
                     }
                     unit_province.battles.push_back(battle);
                     Eng3D::Log::debug("game", "New battle of \"" + battle.name + "\"");
@@ -733,7 +739,7 @@ void World::do_tick() {
         auto& relation = g_world.get_relation(treaty.sender->get_id(), treaty.receiver->get_id());
         if(relation.has_war) {
             // Remove the receiver from the wars
-            for(War::Id i = 0; i < g_world.wars.size(); i++) {
+            for(size_t i = 0; i < g_world.wars.size(); i++) {
                 auto& war = g_world.wars[i];
 
                 // All people participating stop war with each other
@@ -774,17 +780,17 @@ void World::do_tick() {
 
     // Perform all battles of the active wars
     profiler.start("Battles");
-    tbb::combinable<std::vector<Unit::Id>> clear_units;
+    tbb::combinable<std::vector<UnitId>> clear_units;
     tbb::parallel_for(tbb::blocked_range(provinces.begin(), provinces.end()), [this, &clear_units](auto& provinces_range) {
         for(auto& province : provinces_range) {
-            for(Battle::Id j = 0; j < province.battles.size(); j++) {
+            for(size_t j = 0; j < province.battles.size(); j++) {
                 auto& battle = province.battles[j];
                 // Attackers attack Defenders
                 auto& units = this->unit_manager.units;
                 for(auto attacker_id : battle.attackers_ids) {
                     auto& attacker = units[attacker_id];
                     assert(attacker.is_valid());
-                    for(Unit::Id i = 0; i < battle.defenders_ids.size(); ) {
+                    for(size_t i = 0; i < battle.defenders_ids.size(); ) {
                         auto& unit = units[battle.defenders_ids[i]];
                         assert(unit.is_valid());
                         const auto prev_size = unit.size;
@@ -804,7 +810,7 @@ void World::do_tick() {
                 for(auto defender_id : battle.defenders_ids) {
                     auto& defender = units[defender_id];
                     assert(defender.is_valid());
-                    for(Unit::Id i = 0; i < battle.attackers_ids.size(); ) {
+                    for(size_t i = 0; i < battle.attackers_ids.size(); ) {
                         auto& unit = units[battle.attackers_ids[i]];
                         assert(unit.is_valid());
                         const auto prev_size = unit.size;

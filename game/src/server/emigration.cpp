@@ -152,12 +152,16 @@ static inline void external_migration(World& world) {
         const auto& unit_ids = world.unit_manager.get_province_units(province);
         if(province.pops.empty()) {
             if(unit_ids.empty()) {
-                if(Nation::is_valid(province.owner_id)) // Remove owner
-                    world.nations[province.owner_id].owned_provinces.erase(province);
-                province.owner_id = (Nation::Id)-1;
-                if(Province::is_valid(province.controller_id)) // Remove controller
-                    world.nations[province.controller_id].controlled_provinces.erase(province);
-                province.controller_id = (Nation::Id)-1;
+                if(Nation::is_valid(province.owner_id)) { // Remove owner
+                    auto& provinces = world.nations[province.owner_id].owned_provinces;
+                    std::erase(provinces, province);
+                }
+                province.owner_id = (NationId)-1;
+                if(Nation::is_valid(province.controller_id)) { // Remove controller
+                    auto& provinces = world.nations[province.controller_id].controlled_provinces;
+                    std::erase(provinces, province);
+                }
+                province.controller_id = (NationId)-1;
                 province.cancel_construction_project(); // Cancel the unit construction projects
                 world.province_manager.mark_province_control_changed(province); // Update the province changed
                 world.province_manager.mark_province_owner_changed(province); // Update the province changed

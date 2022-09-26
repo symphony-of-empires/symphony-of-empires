@@ -31,9 +31,9 @@
 #include <memory>
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
-#include "eng3d/entity.hpp"
 #include "eng3d/rectangle.hpp"
 
+#include "objects.hpp"
 #include "pop.hpp"
 #include "product.hpp"
 #include "building.hpp"
@@ -42,18 +42,17 @@
 class World;
 class Nation;
 class TerrainType;
-
-class Battle : public IdEntity<uint16_t> {
+class Battle : public Entity<BattleId> {
 public:
     Battle(War& war)
-        : war_id{ war }
+        : war_id{ war.get_id() }
     {
 
     }
     ~Battle() {};
 
     Eng3D::StringRef name;
-    War::Id war_id = (War::Id)-1;
+    WarId war_id = (WarId)-1;
     float attacker_casualties = 0;
     float defender_casualties = 0;
     std::vector<uint16_t> attackers_ids;
@@ -62,7 +61,7 @@ public:
 
 /// @brief A single province, which is used to simulate economy in a "bulk-tiles" way
 /// instead of doing economical operations on every single tile
-class Province : public RefnameEntity<uint16_t> {
+class Province : public RefnameEntity<ProvinceId> {
 private:
     Province& operator=(const Province&) = default;
 public:
@@ -98,16 +97,16 @@ public:
     // Rectangle coordinates (x,y - x,y) for "area" scanning a province when needed
     // (for example, when changing owners)
     Eng3D::Rect box_area = Eng3D::Rect(0.f, 0.f, 0.f, 0.f);
-    uint16_t owner_id = (uint16_t)-1; // The owner of this province
-    uint16_t controller_id = (uint16_t)-1;
-    uint8_t terrain_type_id = (uint8_t)-1;
+    NationId owner_id; // The owner of this province
+    NationId controller_id;
+    TerrainTypeId terrain_type_id;
     std::vector<uint32_t> rgo_size; // How much of each rgo that can be extracted
     std::vector<Pop> pops; // List of pops in this province
     std::vector<Product> products;
     std::vector<Building> buildings;
     std::vector<Battle> battles;
-    std::unordered_set<uint16_t> nuclei; // Nations who have a nuclei in this province
-    std::unordered_set<Province::Id> neighbour_ids; // Neighbouring provinces
+    std::vector<NationId> nuclei; // Nations who have a nuclei in this province
+    std::vector<ProvinceId> neighbour_ids; // Neighbouring provinces
     /// @brief Percentage of each languages from 0 to 1
     std::vector<float> languages;
     /// @brief Percentage of each religion prescence on the pops, from 0 to 1
@@ -120,11 +119,11 @@ class ProvinceManager
 public:
     ProvinceManager() = default;
 
-    inline void mark_province_owner_changed(Province::Id province_id) {
+    inline void mark_province_owner_changed(ProvinceId province_id) {
         recently_changed_owner.push_back(province_id);
     }
 
-    inline void mark_province_control_changed(Province::Id province_id) {
+    inline void mark_province_control_changed(ProvinceId province_id) {
         recently_changed_control.push_back(province_id);
     }
 
@@ -133,11 +132,11 @@ public:
         recently_changed_control.clear();
     }
 
-    inline const std::vector<Province::Id>& get_changed_owner_provinces() const {
+    inline const std::vector<ProvinceId>& get_changed_owner_provinces() const {
         return recently_changed_owner;
     }
 
-    inline const std::vector<Province::Id>& get_changed_control_provinces() const {
+    inline const std::vector<ProvinceId>& get_changed_control_provinces() const {
         return recently_changed_control;
     }
 
@@ -147,7 +146,7 @@ public:
     
 private:
     ProvinceManager& operator=(const ProvinceManager&) = default;
-    std::vector<Province::Id> recently_changed_owner;
-    std::vector<Province::Id> recently_changed_control;
+    std::vector<ProvinceId> recently_changed_owner;
+    std::vector<ProvinceId> recently_changed_control;
     bool changed;
 };
