@@ -137,7 +137,6 @@ TopWindow::TopWindow(GameState& _gs)
     load_ibtn->set_on_click([this](UI::Widget&) {
         const auto nation_id = this->gs.curr_nation->get_id();
         this->gs.paused = true;
-
         Archive ar{};
         ar.from_file("default.sc4");
         ::deserialize(ar, *this->gs.world);
@@ -147,7 +146,6 @@ TopWindow::TopWindow(GameState& _gs)
         for(auto& nation : this->gs.world->nations)
             nation.inbox.clear();
         this->gs.world->load_mod();
-
         this->gs.curr_nation = &this->gs.world->nations[nation_id];
         this->gs.ui_ctx.prompt("Loaded", "Loaded savefile");
     });
@@ -157,7 +155,6 @@ TopWindow::TopWindow(GameState& _gs)
     exit_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.ui_ctx.clear();
         this->gs.ui_ctx.use_tooltip(nullptr, { 0, 0 });
-        
         this->gs.paused = true;
         if(this->gs.client)
             delete this->gs.client;
@@ -165,7 +162,6 @@ TopWindow::TopWindow(GameState& _gs)
         if(this->gs.server)
             delete this->gs.server;
         this->gs.server = nullptr;
-
         new Interface::MainMenu(this->gs);
     });
     exit_ibtn->set_tooltip("Back to the main menu");
@@ -189,28 +185,28 @@ TimeControlView::TimeControlView(GameState& _gs)
         speed0_btn->set_on_click([this](UI::Widget&) {
             this->gs.paused = true;
         });
-        speed0_btn->set_tooltip("Pause");
+        speed0_btn->set_tooltip(translate("Pause"));
 
         auto* speed1_btn = new UI::Image(45, 0, btn_size, btn_size, "gfx/ui/button/time_control_1.png", true, btn_group);
         speed1_btn->set_on_click([this](UI::Widget&) {
             this->gs.paused = false;
             this->gs.ms_delay_speed = 1000;
         });
-        speed1_btn->set_tooltip("Turtle speed");
+        speed1_btn->set_tooltip(translate("Turtle speed"));
 
         auto* speed2_btn = new UI::Image(80, 0, btn_size, btn_size, "gfx/ui/button/time_control_2.png", true, btn_group);
         speed2_btn->set_on_click([this](UI::Widget&) {
             this->gs.paused = false;
             this->gs.ms_delay_speed = 500;
         });
-        speed2_btn->set_tooltip("Horse speed");
+        speed2_btn->set_tooltip(translate("Horse speed"));
 
         auto* speed3_btn = new UI::Image(115, 0, btn_size, btn_size, "gfx/ui/button/time_control_3.png", true, btn_group);
         speed3_btn->set_on_click([this](UI::Widget&) {
             this->gs.paused = false;
             this->gs.ms_delay_speed = 100;
         });
-        speed3_btn->set_tooltip("Fire speed");
+        speed3_btn->set_tooltip(translate("Fire speed"));
     }
 
     auto font = gs.ttf_man.load(gs.package_man.get_unique("fonts/neon_euler/euler.ttf"));
@@ -219,7 +215,7 @@ TimeControlView::TimeControlView(GameState& _gs)
     time_lab->font = font;
     time_lab->text_color = Eng3D::Color(1., 1., 1.);
     time_lab->set_on_each_tick([this](UI::Widget& w) {
-        const std::string day_names[7] = {
+        const std::string_view day_names[7] = {
             "Monday",
             "Tuesday",
             "Wednesday",
@@ -228,8 +224,7 @@ TimeControlView::TimeControlView(GameState& _gs)
             "Saturday",
             "Sunday"
         };
-
-        const std::string month_names[12] = {
+        const std::string_view month_names[12] = {
             "January",
             "Febraury",
             "March",
@@ -243,12 +238,10 @@ TimeControlView::TimeControlView(GameState& _gs)
             "November",
             "December"
         };
-
-        const World* world = this->gs.world;
-        const int day = world->time % world->ticks_per_month;
-        const int month = (world->time / world->ticks_per_month) % 12;
-        const int year = world->time / world->ticks_per_month / 12;
-        w.text(day_names[day % 7] + ", " + month_names[month] + " " + std::to_string(day + 1) + ", " + std::to_string(year));
+        const size_t day = this->gs.world->time % this->gs.world->ticks_per_month;
+        const size_t month = (this->gs.world->time / this->gs.world->ticks_per_month) % 12;
+        const size_t year = this->gs.world->time / this->gs.world->ticks_per_month / 12;
+        w.text(translate_format("%s, %s %zu, %zu", day_names[day % 7], month_names[month], day + 1, year));
     });
     time_lab->on_each_tick(*time_lab);
 }
