@@ -280,7 +280,10 @@ void UI::Context::resize(int _width, int _height) {
 
 void UI::Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport, glm::ivec2 offset) {
     // Only render widgets that are shown and only render widget that have a width and height
-    if(!w.is_render || !w.width || !w.height) return;
+    if(!w.is_render || !w.width || !w.height) {
+        w.is_hover = false;
+        return;
+    }
 
     if(w.need_recalc) {
         w.recalc_child_pos();
