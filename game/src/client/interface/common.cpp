@@ -126,15 +126,13 @@ BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, un
     production_flex->flex = UI::Flex::COLUMN;
     auto* makes_lab = new UI::Label(0, 0, translate("Produces:"), production_flex);
     makes_lab->below_of(*name_btn);
-    if(!building_type.input_ids.empty()) {
-        for(const auto& good_id : building_type.input_ids) {
-            auto& good = this->gs.world->goods[good_id];
-            auto* icon_ibtn = new UI::Image(0, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/good/" + good.ref_name + ".png")), production_flex);
-            icon_ibtn->set_tooltip(good.name.get_string());
-            icon_ibtn->set_on_click([this, &good](UI::Widget&) {
-                new Interface::GoodView(this->gs, good);
-            });
-        }
+    for(const auto& good_id : building_type.input_ids) {
+        auto& good = this->gs.world->goods[good_id];
+        auto* icon_ibtn = new UI::Image(0, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/good/" + good.ref_name + ".png")), production_flex);
+        icon_ibtn->set_tooltip(good.name.get_string());
+        icon_ibtn->set_on_click([this, &good](UI::Widget&) {
+            new Interface::GoodView(this->gs, good);
+        });
     }
 
     if(Good::is_valid(building_type.output_id)) {

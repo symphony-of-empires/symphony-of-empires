@@ -101,13 +101,13 @@ public:
         // Check that we have enough stockpile
         for(const auto& stock : this->stockpile)
             if(!stock) return false;
-        return true && this->level > 0;
+        return this->level > 0;
     }
 
     inline bool can_build_unit() const {
         for(const auto& req : req_goods_for_unit)
             if(req.second) return false;
-        return true;
+        return this->level > 0;
     }
     
     float budget = 0.f; // Total money that the factory has

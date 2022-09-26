@@ -55,22 +55,22 @@ struct EntityId {
     constexpr bool operator>=(const EntityId<T>& o) const noexcept = default;
     constexpr bool operator<=>(const EntityId<T>& o) const noexcept = default;
 
- 	constexpr EntityId<T>& operator++() noexcept {
+ 	EntityId<T>& operator++() noexcept {
         this->id++;
         return *this;
     }
 
-    constexpr EntityId<T>& operator--() noexcept {
+    EntityId<T>& operator--() noexcept {
         this->id--;
         return *this;
     }
 
-    constexpr EntityId<T> operator++(int) noexcept {
+    EntityId<T> operator++(int) noexcept {
         this->id++;
         return *this;
     }
 
-    constexpr EntityId<T> operator--(int) noexcept {
+    EntityId<T> operator--(int) noexcept {
         this->id--;
         return *this;
     }
@@ -79,7 +79,7 @@ struct EntityId {
 template<std::unsigned_integral T>
 struct std::hash<EntityId<T>> {
     std::size_t operator()(const EntityId<T>& id) const noexcept {
-        return std::hash<size_t>{}(static_cast<size_t>(id));
+        return std::hash(id.id);
     }
 };
 
