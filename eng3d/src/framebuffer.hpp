@@ -24,29 +24,18 @@
 
 #pragma once
 
-#ifdef E3D_BACKEND_OPENGL
-#   include <GL/glew.h>
-#   include <GL/gl.h>
-#elif defined E3D_BACKEND_RGX
-#   include <gccore.h>
-#endif
-
 #include "eng3d/texture.hpp"
 
 namespace Eng3D {
     namespace OpenGL {
         class Framebuffer {
+            unsigned int id = 0;
         public:
             Framebuffer();
             ~Framebuffer();
             void set_texture(int index, const Eng3D::Texture& texture);
             void use();
         private:
-#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
-            GLuint id = 0;
-#elif defined E3D_BACKEND_RGX
-            // No
-#endif
         };
     }
     using Framebuffer = OpenGL::Framebuffer;
