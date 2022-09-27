@@ -81,7 +81,7 @@ static void update_factory_production(World& world, Building& building, const Bu
     // Calculate outputs
     auto& output = world.goods[building_type.output_id];
     auto& output_product = province.products[output];
-    auto output_amount = building.level * building.production_scale * 10.f;
+    auto output_amount = building.level * building.production_scale * 500.f;
 
     // TODO set min wages
     float min_wage = glm::max(1.f, 0.0001f);
@@ -141,7 +141,6 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         auto& pop_need = pop_needs[i];
         auto& pop = province.pops[i];
         const auto& type = world.pop_types[pop.type_id];
-        pop_need.life_needs_met = -0.01f;
         // Do basic needs
         {
             auto total_price = 0.f;
@@ -150,7 +149,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
             auto buying_factor = glm::clamp(total_price / pop_need.budget, 0.1f, 1.f);
             for(size_t j = 0; j < world.goods.size(); j++)
                 pop_need.budget -= province.products[j].buy(pop.size * type.basic_needs_amount[j] * buying_factor);
-            pop_need.life_needs_met += buying_factor;
+            pop_need.life_needs_met = glm::clamp(pop_need.life_needs_met + buying_factor, -1.f, 1.f);
         }
         pop_need.budget = glm::max(pop_need.budget, 0.f);
         pop_need.budget += pop.size * 1.5f;
@@ -176,8 +175,11 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
 
         auto& new_needs = pops_new_needs[province_id];
         new_needs.assign(province.pops.size(), PopNeed{});
-        for(size_t i = 0; i < province.pops.size(); i++)
-            new_needs[i].budget = province.pops[i].budget;
+        for(size_t i = 0; i < province.pops.size(); i++) {
+            const auto& pop = province.pops[i];
+            new_needs[i].budget = pop.budget;
+            new_needs[i].life_needs_met = pop.life_needs_met - 0.25f;
+        }
 
         float laborers_amount = 0.f;
         for(auto& pop : province.pops)
@@ -255,7 +257,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             pop.budget = new_needs[i].budget;
             pop.life_needs_met = new_needs[i].life_needs_met;
 
-            float growth = pop.size * pop.life_needs_met * 0.01f;
+            float growth = glm::min(pop.size * pop.life_needs_met * 0.1f, 100.f);
             pop.size += growth;
             pop.militancy += 0.01f * -pop.life_needs_met;
             pop.ideology_approval[world.nations[province.owner_id].ideology_id] += pop.life_needs_met * 0.25f;
