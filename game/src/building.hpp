@@ -108,7 +108,6 @@ struct Building : public Entity<BuildingId> {
     }
     
     float budget = 0.f; // Total money that the factory has
-    float days_unoperational = 0.f; // Days that the factory has not been operational
     float level = 0.f; // Level/Capacity scale of the building
     float workers = 1.f; // Amount of workers
     float production_scale = 1.f; // How much of the factory is being used. From 0-1
@@ -130,7 +129,6 @@ struct Serializer<Building> {
         ::deser_dynamic<is_serialize>(ar, obj.level);
         ::deser_dynamic<is_serialize>(ar, obj.production_scale);
         ::deser_dynamic<is_serialize>(ar, obj.workers);
-        ::deser_dynamic<is_serialize>(ar, obj.days_unoperational);
         ::deser_dynamic<is_serialize>(ar, obj.stockpile);
         ::deser_dynamic<is_serialize>(ar, obj.req_goods);
         ::deser_dynamic<is_serialize>(ar, obj.req_goods_for_unit);

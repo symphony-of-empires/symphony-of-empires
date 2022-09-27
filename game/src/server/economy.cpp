@@ -81,7 +81,7 @@ static void update_factory_production(World& world, Building& building, const Bu
     // Calculate outputs
     auto& output = world.goods[building_type.output_id];
     auto& output_product = province.products[output];
-    auto output_amount = building.level * 1000.f * (float)(rand() & 0xff);
+    auto output_amount = building.level * 1000.f * building.production_scale;
 
     // TODO set min wages
     float min_wage = glm::max(1.f, 0.0001f);
@@ -90,30 +90,22 @@ static void update_factory_production(World& world, Building& building, const Bu
     float total_worker_pop = building.workers;
 
     // TODO add input modifier
-    auto inputs_cost = 0.f;
+    auto inputs_cost = 0.f; // Buy the inputs for te factory
     for(const auto& input : building_type.req_goods)
-        inputs_cost += province.products[input.first].price * input.second;
-    inputs_cost *= building.production_scale;
+        inputs_cost += province.products[input.first].buy(input.second * building.production_scale);
     auto output_value = output_product.produce(output_amount);
     auto profit = output_value - min_wage - inputs_cost;
-    for(const auto& input : building_type.req_goods) // Increase demand of inputs
-        province.products[input.first].demand += input.second; // * price ?
     
-    if(profit <= 0) {
-        if(output_value - inputs_cost > 0)
-            pop_payment += (output_value - inputs_cost);
+    if(profit <= 0.f) {
+        if(output_value - inputs_cost > 0.f)
+            pop_payment += output_value - inputs_cost;
     } else {
         pop_payment += min_wage + profit * 0.2f * building.workers;
-        building.budget += profit;
-        if(building.budget >= 1000.f) { // TODO: Do not hardcode auto-upgrades
-            building.level += 0.1f;
-            building.budget -= 1000.f;
-        }
     }
 
     // Rescale production
     // This is used to set how much the of the maximum capicity the factory produce
-    building.production_scale = glm::clamp(building.production_scale * scale_speed(output_value / (min_wage + inputs_cost)), 1.f, 5.f);
+    building.production_scale = glm::clamp(building.production_scale * scale_speed(output_value / (min_wage + inputs_cost)), 0.5f, 2.f);
 }
 
 // Update the factory employment
@@ -154,9 +146,8 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         // Do basic needs
         {
             auto total_price = 0.f;
-            for(size_t j = 0; j < world.goods.size(); j++) {
+            for(size_t j = 0; j < world.goods.size(); j++)
                 total_price += glm::min(type.basic_needs_amount[j], province.products[j].supply) * province.products[j].price;
-            }
             auto buying_factor = glm::clamp(total_price / pop_need.budget, 0.1f, 1.f);
             for(size_t j = 0; j < world.goods.size(); j++)
                 pop_need.budget -= province.products[j].buy(pop.size * type.basic_needs_amount[j] * buying_factor);
@@ -221,7 +212,6 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                     const auto given_money = final_size;
                     // Nation must have money to pay the units
                     if(given_money >= nation.budget) continue;
-
                     /// @todo Maybe delete if size becomes 0?
                     (*it).size -= final_size;
                     if(final_size) {

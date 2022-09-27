@@ -89,10 +89,10 @@ static inline void get_blob_bounds(std::unordered_set<ProvinceId>& visited_provi
     // Iterate over all neighbours
     for(const auto neighbour_id : province.neighbour_ids) {
         auto& neighbour = g_world.provinces[neighbour_id];
-        // Do not visit again
         if(visited_provinces.find(neighbour_id) != visited_provinces.end()) continue;
-        // Must control the province
+        visited_provinces.insert(neighbour_id);
         if(neighbour.controller_id != nation) continue;
+        
         // Big provinces not taken in account
         if(glm::abs(neighbour.box_area.left - neighbour.box_area.right) >= g_world.width / 3.f) continue;
         if(glm::abs(neighbour.box_area.top - neighbour.box_area.bottom) >= g_world.height / 3.f) continue;
@@ -113,7 +113,6 @@ static inline void get_blob_bounds(std::unordered_set<ProvinceId>& visited_provi
             max_y->x = neighbour.box_area.right;
             max_y->y = neighbour.box_area.bottom;
         }
-        visited_provinces.insert(neighbour_id);
         get_blob_bounds(visited_provinces, nation, neighbour, min_x, min_y, max_x, max_y);
     }
 }

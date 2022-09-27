@@ -185,15 +185,11 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province& _
 
     this->set_on_each_tick([](UI::Widget& w) {
         auto& o = static_cast<ProvinceEconomyTab&>(w);
-
-        // Obtain demand, supply and other information about the goods
         std::vector<UI::ChartData> goods_data;
-        int i = 0;
         for(const auto& good : o.gs.world->goods) {
-            const auto good_col = Eng3D::Color::rgb8((uint8_t)(i * 12), (uint8_t)(i * 31), (uint8_t)(i * 97));
-            const auto& product = o.province.products[o.gs.world->get_id(good)];
+            const auto good_col = Eng3D::Color::rgba32((size_t)good.get_id() * 0xFF52815);
+            const auto& product = o.province.products[good];
             goods_data.push_back(UI::ChartData(glm::max(product.demand, 0.1f), good.name.get_string(), good_col));
-            i++;
         }
         o.products_pie->set_data(goods_data);
     });

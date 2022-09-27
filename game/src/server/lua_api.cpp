@@ -566,7 +566,7 @@ int LuaAPI::add_province(lua_State* L) {
         }
     }
     
-    province.products.resize(g_world.goods.size());
+    province.products.resize(g_world.goods.size(), Product{});
     province.languages.resize(g_world.languages.size(), 0.f);
     province.religions.resize(g_world.religions.size(), 0.f);
     province.buildings.resize(g_world.building_types.size());
