@@ -28,6 +28,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <array>
 
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
@@ -137,18 +138,13 @@ namespace Eng3D {
         T tex;
     };
 
-    // Packed model - packs both vertices and texcoords into the same buffer
+    /// @brief Packed model - packs both vertices and texcoords into the same buffer
     template<typename V = glm::vec3, typename T = glm::vec2, typename C = void>
-    class Mesh {
-    public:
+    struct Mesh {
         using DataType = Eng3D::MeshData<V, T, C>;
 
         Mesh(enum Eng3D::MeshMode _mode)
-            : mode{ _mode },
-            vao(),
-            vbo(),
-            ebo(),
-            i_vbo()
+            : mode{ _mode }
         {
 
         }
@@ -178,7 +174,54 @@ namespace Eng3D {
         std::vector<DataType> buffer;
         std::vector<unsigned int> indices;
         enum Eng3D::MeshMode mode;
+#if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
+        // The initialization should be done in this order, first the VAO
+        // then initialize the VBO!
+        Eng3D::OpenGL::VAO vao;
+        Eng3D::OpenGL::VBO vbo;
+        Eng3D::OpenGL::EBO ebo;
+        Eng3D::OpenGL::VBO i_vbo; // Instanced VBO, optional
+#else
+#   error not implemented
+#endif
+    };
 
+    /// @brief A static mesh with fixed number of elements
+    template<std::size_t vtc_size = 0, std::size_t i_size = 0, typename V = glm::vec3, typename T = glm::vec2, typename C = void>
+    struct MeshStatic {
+        using DataType = Eng3D::MeshData<V, T, C>;
+
+        MeshStatic(enum Eng3D::MeshMode _mode)
+            : mode{ _mode }
+        {
+
+        }
+        virtual ~MeshStatic() = default;
+        MeshStatic(const MeshStatic&) = delete;
+        MeshStatic(MeshStatic&&) noexcept = default;
+        MeshStatic& operator=(const MeshStatic&) = delete;
+
+        void draw(int instances = 0) const {
+            Eng3D::draw(vao, mode, indices.data(), indices.size(), buffer.data(), buffer.size(), instances);
+        }
+
+        virtual void upload() const {
+            size_t c_len = 0;
+            if constexpr(DataType::has_color) c_len += C::length();
+            Eng3D::upload(vao, vbo, ebo, buffer.data(), buffer.size(), sizeof(buffer[0]), sizeof(buffer[0].vert), sizeof(buffer[0].tex), V::length(), T::length(), c_len, indices.data(), indices.size(), sizeof(indices), DataType::has_color);
+        }
+
+        /// @brief Enables instances on this simple mesh
+        /// @param instances_buffer Contigous buffer with instances data
+        /// @param instances Number of instances to configure for
+        template<typename I = glm::vec2>
+        void instancing(I& instances_buffer, int instances = 0) {
+            Eng3D::instancing(vao, i_vbo, &instances_buffer, sizeof(I), instances);
+        }
+
+        std::array<DataType, vtc_size> buffer;
+        std::array<unsigned int, i_size> indices;
+        enum Eng3D::MeshMode mode;
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         // The initialization should be done in this order, first the VAO
         // then initialize the VBO!

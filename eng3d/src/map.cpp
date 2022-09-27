@@ -36,13 +36,8 @@ Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
     rivers(_s),
     borders(_s)
 {
-    // Flat surface for drawing flat map 
-    for(int x = -1; x <= 1; x++)
-        map_quads.push_back(new Eng3D::Square(size.x * x, 0.f, size.x * (x + 1), size.y));
-
     // Sphere surface for drawing globe map
     map_sphere = new Eng3D::Sphere(0.f, 0.f, 0.f, Eng3D::GLOBE_RADIUS, 100);
-
     // Simple 2D quad that fills viewport, used for making the border_sdf
     map_2d_quad = new Eng3D::Quad2D();
 
@@ -112,7 +107,4 @@ Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
 Eng3D::BaseMap::~BaseMap() {
     delete map_sphere;
     delete map_2d_quad;
-    for(auto quad : map_quads)
-        delete quad;
-    map_quads.clear();
 }

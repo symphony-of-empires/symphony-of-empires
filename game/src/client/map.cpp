@@ -84,13 +84,13 @@ struct std::equal_to<ProvinceId> {
     }
 };
 
-static inline void get_blob_bounds(std::unordered_set<ProvinceId>& visited_provinces, const Nation& nation, const Province& province, glm::vec2* min_x, glm::vec2* min_y, glm::vec2* max_x, glm::vec2* max_y) {
-    visited_provinces.insert(province);
+static inline void get_blob_bounds(std::vector<bool>& visited_provinces, const Nation& nation, const Province& province, glm::vec2* min_x, glm::vec2* min_y, glm::vec2* max_x, glm::vec2* max_y) {
+    visited_provinces[province] = true;
     // Iterate over all neighbours
     for(const auto neighbour_id : province.neighbour_ids) {
         auto& neighbour = g_world.provinces[neighbour_id];
-        if(visited_provinces.find(neighbour_id) != visited_provinces.end()) continue;
-        visited_provinces.insert(neighbour_id);
+        if(visited_provinces[neighbour_id]) continue;
+        visited_provinces[neighbour_id] = true;
         if(neighbour.controller_id != nation) continue;
         
         // Big provinces not taken in account
@@ -189,7 +189,7 @@ void Map::update_nation_label(const Nation& nation) {
     max_point_y = province.box_area.position() + province.box_area.size();
     min_point_x = province.box_area.position();
     min_point_y = province.box_area.position();
-    std::unordered_set<ProvinceId> visited_provinces;
+    std::vector<bool> visited_provinces(this->world.provinces.size(), false);
     get_blob_bounds(visited_provinces, nation, province, &min_point_x, &min_point_y, &max_point_x, &max_point_y);
     glm::vec2 lab_min = (max_point_x + max_point_y + min_point_y) / 3.f;
     glm::vec2 lab_max = (max_point_y + min_point_x + min_point_y) / 3.f;
@@ -407,8 +407,6 @@ void Map::draw() {
     obj_shader->set_uniform("projection", projection);
     obj_shader->set_uniform("view", view);
 
-    auto preproc_quad = Eng3D::Quad2D(); // Reused a bunch of times
-
     const auto map_pos = camera->get_map_pos();
     const auto distance_to_map = map_pos.z / this->gs.world->width;
     constexpr auto small_zoom_factor = 0.07f;
@@ -467,11 +465,10 @@ void Map::draw() {
                         const auto& unit_target = this->gs.world->provinces[unit.get_target_province_id()];
                         const auto target_pos = unit_target.get_pos();
                         const auto dist = glm::sqrt(glm::pow(glm::abs(prov_pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(prov_pos.y - target_pos.y), 2.f));
-                        auto line_square = Eng3D::Square(0.f, 0.f, dist, 0.5f);
                         const auto line_model = glm::rotate(model, glm::atan(target_pos.y - prov_pos.y, target_pos.x - prov_pos.x), glm::vec3(0.f, 0.f, 1.f));
                         obj_shader->set_texture(0, "diffuse_map", *line_tex);
                         obj_shader->set_uniform("model", line_model);
-                        line_square.draw();
+                        Eng3D::Square(0.f, 0.f, dist, 0.5f).draw();
                     }
                     model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
                     obj_shader->set_uniform("model", model);

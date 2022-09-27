@@ -22,45 +22,92 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#include <memory>
+#include <type_traits>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/intersect.hpp>
 
 #include "eng3d/primitive.hpp"
 #include "eng3d/rectangle.hpp"
+#include "eng3d/utils.hpp"
 
-Eng3D::Line::Line(float start_x, float start_y, float end_x, float end_y)
-    : Eng3D::Mesh<glm::vec2, glm::vec2>(Eng3D::MeshMode::LINES)
-{
-    buffer.resize(2);
-    buffer[0] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(start_x, start_y), glm::vec2(0.f, 0.f));
-    buffer[1] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(end_x, end_y), glm::vec2(1.f, 1.f));
-    this->upload();
+// Eng3D expects OpenGL to run on a single thread
+
+static std::unique_ptr<Eng3D::MeshStatic<2, 0, glm::vec2, glm::vec2>> g_line;
+Eng3D::Line::Line(float start_x, float start_y, float end_x, float end_y) {
+    if(g_line == nullptr)
+        g_line = std::make_unique<std::remove_reference<decltype(*g_line)>::type>(Eng3D::MeshMode::LINES);
+    g_line->buffer[0] = Eng3D::MeshData(glm::vec2(start_x, start_y), glm::vec2(0.f, 0.f));
+    g_line->buffer[1] = Eng3D::MeshData(glm::vec2(end_x, end_y), glm::vec2(1.f, 1.f));
+    g_line->upload();
 }
 
-Eng3D::Square::Square(float start_x, float start_y, float end_x, float end_y)
-    : Eng3D::Mesh<glm::vec2, glm::vec2>(Eng3D::MeshMode::TRIANGLES)
-{
-    buffer.resize(6);
-    buffer[0] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(start_x, start_y), glm::vec2(0.f, 0.f));
-    buffer[1] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(end_x, start_y), glm::vec2(1.f, 0.f));
-    buffer[2] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(start_x, end_y), glm::vec2(0.f, 1.f));
-    buffer[3] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(start_x, end_y), glm::vec2(0.f, 1.f));
-    buffer[4] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(end_x, start_y), glm::vec2(1.f, 0.f));
-    buffer[5] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(end_x, end_y), glm::vec2(1.f, 1.f));
-    this->upload();
+void Eng3D::Line::draw() {
+    g_line->draw();
 }
 
-Eng3D::Square::Square(const Eng3D::Rectangle& pos, const Eng3D::Rectangle& texcoord)
-    : Eng3D::Mesh<glm::vec2, glm::vec2>(Eng3D::MeshMode::TRIANGLES)
-{
-    buffer.resize(6);
-    buffer[0] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(pos.left, pos.top), glm::vec2(texcoord.left, texcoord.top));
-    buffer[1] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(pos.right, pos.top), glm::vec2(texcoord.right, texcoord.top));
-    buffer[2] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(pos.left, pos.bottom), glm::vec2(texcoord.left, texcoord.bottom));
-    buffer[3] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(pos.left, pos.bottom), glm::vec2(texcoord.left, texcoord.bottom));
-    buffer[4] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(pos.right, pos.top), glm::vec2(texcoord.right, texcoord.top));
-    buffer[5] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(pos.right, pos.bottom), glm::vec2(texcoord.right, texcoord.bottom));
-    this->upload();
+static std::unique_ptr<Eng3D::MeshStatic<6, 0, glm::vec2, glm::vec2>> g_square;
+Eng3D::Square::Square(float start_x, float start_y, float end_x, float end_y) {
+    if(g_square == nullptr)
+        g_square = std::make_unique<std::remove_reference<decltype(*g_square)>::type>(Eng3D::MeshMode::TRIANGLES);
+    g_square->buffer[0] = Eng3D::MeshData(glm::vec2(start_x, start_y), glm::vec2(0.f, 0.f));
+    g_square->buffer[1] = Eng3D::MeshData(glm::vec2(end_x, start_y), glm::vec2(1.f, 0.f));
+    g_square->buffer[2] = Eng3D::MeshData(glm::vec2(start_x, end_y), glm::vec2(0.f, 1.f));
+    g_square->buffer[3] = Eng3D::MeshData(glm::vec2(start_x, end_y), glm::vec2(0.f, 1.f));
+    g_square->buffer[4] = Eng3D::MeshData(glm::vec2(end_x, start_y), glm::vec2(1.f, 0.f));
+    g_square->buffer[5] = Eng3D::MeshData(glm::vec2(end_x, end_y), glm::vec2(1.f, 1.f));
+    g_square->upload();
+}
+
+Eng3D::Square::Square(const Eng3D::Rectangle& pos, const Eng3D::Rectangle& texcoord) {
+    if(g_square == nullptr)
+        g_square = std::make_unique<std::remove_reference<decltype(*g_square)>::type>(Eng3D::MeshMode::TRIANGLES);
+    g_square->buffer[0] = Eng3D::MeshData(glm::vec2(pos.left, pos.top), glm::vec2(texcoord.left, texcoord.top));
+    g_square->buffer[1] = Eng3D::MeshData(glm::vec2(pos.right, pos.top), glm::vec2(texcoord.right, texcoord.top));
+    g_square->buffer[2] = Eng3D::MeshData(glm::vec2(pos.left, pos.bottom), glm::vec2(texcoord.left, texcoord.bottom));
+    g_square->buffer[3] = Eng3D::MeshData(glm::vec2(pos.left, pos.bottom), glm::vec2(texcoord.left, texcoord.bottom));
+    g_square->buffer[4] = Eng3D::MeshData(glm::vec2(pos.right, pos.top), glm::vec2(texcoord.right, texcoord.top));
+    g_square->buffer[5] = Eng3D::MeshData(glm::vec2(pos.right, pos.bottom), glm::vec2(texcoord.right, texcoord.bottom));
+    g_square->upload();
+}
+
+void Eng3D::Square::draw() {
+    g_square->draw();
+}
+
+static std::unique_ptr<Eng3D::MeshStatic<6, 0, glm::vec3, glm::vec2>> g_quad;
+Eng3D::Quad::Quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4){
+    if(g_quad == nullptr)
+        g_quad = std::make_unique<std::remove_reference<decltype(*g_quad)>::type>(Eng3D::MeshMode::TRIANGLES);
+    g_quad->buffer[0] = Eng3D::MeshData(c1, glm::vec2(0.f, 0.f));
+    g_quad->buffer[1] = Eng3D::MeshData(c2, glm::vec2(0.f, 1.f));
+    g_quad->buffer[2] = Eng3D::MeshData(c3, glm::vec2(1.f, 1.f));
+    g_quad->buffer[3] = Eng3D::MeshData(c3, glm::vec2(1.f, 1.f));
+    g_quad->buffer[4] = Eng3D::MeshData(c4, glm::vec2(1.f, 0.f));
+    g_quad->buffer[5] = Eng3D::MeshData(c1, glm::vec2(0.f, 0.f));
+    g_quad->upload();
+}
+
+void Eng3D::Quad::draw() {
+    g_quad->draw();
+}
+
+static std::unique_ptr<Eng3D::MeshStatic<6, 0, glm::vec2, glm::vec2>> g_quad2d;
+Eng3D::Quad2D::Quad2D() {
+    if(g_quad2d == nullptr) {
+        g_quad2d = std::make_unique<std::remove_reference<decltype(*g_quad2d)>::type>(Eng3D::MeshMode::TRIANGLES);
+        g_quad2d->buffer[0] = Eng3D::MeshData(glm::vec2(-1.f, -1.f), glm::vec2(0.f, 0.f));
+        g_quad2d->buffer[1] = Eng3D::MeshData(glm::vec2(-1.f, 1.f), glm::vec2(0.f, 1.f));
+        g_quad2d->buffer[2] = Eng3D::MeshData(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f));
+        g_quad2d->buffer[3] = Eng3D::MeshData(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f));
+        g_quad2d->buffer[4] = Eng3D::MeshData(glm::vec2(-1.f, 1.f), glm::vec2(0.f, 1.f));
+        g_quad2d->buffer[5] = Eng3D::MeshData(glm::vec2(1.f, 1.f), glm::vec2(1.f, 1.f));
+        g_quad2d->upload();
+    }
+}
+
+void Eng3D::Quad2D::draw() {
+    g_quad2d->draw();
 }
 
 Eng3D::TriangleList::TriangleList(std::vector<glm::vec3>& positions, std::vector<glm::vec2>& tex_coords)
@@ -72,36 +119,10 @@ Eng3D::TriangleList::TriangleList(std::vector<glm::vec3>& positions, std::vector
     this->upload();
 }
 
-Eng3D::Quad::Quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4)
-    : Eng3D::Mesh<glm::vec3, glm::vec2>(Eng3D::MeshMode::TRIANGLES)
-{
-    buffer.resize(6);
-    buffer[0] = Eng3D::MeshData<glm::vec3, glm::vec2>(c1, glm::vec2(0.f, 0.f));
-    buffer[1] = Eng3D::MeshData<glm::vec3, glm::vec2>(c2, glm::vec2(0.f, 1.f));
-    buffer[2] = Eng3D::MeshData<glm::vec3, glm::vec2>(c3, glm::vec2(1.f, 1.f));
-    buffer[3] = Eng3D::MeshData<glm::vec3, glm::vec2>(c3, glm::vec2(1.f, 1.f));
-    buffer[4] = Eng3D::MeshData<glm::vec3, glm::vec2>(c4, glm::vec2(1.f, 0.f));
-    buffer[5] = Eng3D::MeshData<glm::vec3, glm::vec2>(c1, glm::vec2(0.f, 0.f));
-    this->upload();
-}
-
-Eng3D::Quad2D::Quad2D()
-    : Eng3D::Mesh<glm::vec2, glm::vec2>(Eng3D::MeshMode::TRIANGLES)
-{
-    buffer.resize(6);
-    buffer[0] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(-1.f, -1.f), glm::vec2(0.f, 0.f));
-    buffer[1] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(-1.f, 1.f), glm::vec2(0.f, 1.f));
-    buffer[2] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f));
-    buffer[3] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f));
-    buffer[4] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(-1.f, 1.f), glm::vec2(0.f, 1.f));
-    buffer[5] = Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(1.f, 1.f), glm::vec2(1.f, 1.f));
-    this->upload();
-}
-
 Eng3D::Sphere::Sphere(float center_x, float center_y, float center_z, float _radius, int _resolution, bool cw_winding)
     : Eng3D::Mesh<glm::vec3, glm::vec2>(Eng3D::MeshMode::TRIANGLES),
-    radius{ _radius },
-    resolution{ _resolution }
+    resolution{ _resolution },
+    radius{ _radius }
 {
     buffer.resize(6 * resolution * resolution);
     glm::vec3 center_pos(center_x, center_y, center_z);

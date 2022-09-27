@@ -40,7 +40,6 @@ namespace Eng3D {
     class Model;
     class TextureArray;
     class Model;
-    class Quad;
     class Camera;
 
     namespace OpenGL {

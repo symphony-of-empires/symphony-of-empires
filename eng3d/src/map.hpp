@@ -56,8 +56,6 @@ namespace Eng3D {
         std::shared_ptr<Eng3D::Texture> noise_tex;
         std::shared_ptr<Eng3D::Texture> paper_tex;
         std::shared_ptr<Eng3D::Texture> stripes_tex;
-
-        std::vector<Eng3D::Square*> map_quads;
         Eng3D::Sphere* map_sphere;
         Eng3D::Quad2D* map_2d_quad;
         Eng3D::Rivers rivers;

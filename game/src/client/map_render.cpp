@@ -485,8 +485,9 @@ void MapRender::draw(Eng3D::Camera* camera, MapView view_mode) {
     map_shader->set_texture(14, "terrain_sheet", *terrain_sheet);
 
     if(view_mode == MapView::PLANE_VIEW) {
-        for(const auto& map_quad : map_quads)
-            map_quad->draw();
+        glm::ivec2 size = { this->gs.world->width, this->gs.world->height };
+        for(int x = -1; x <= 1; x++) // Flat surface for drawing flat map 
+            Eng3D::Square(size.x * x, 0.f, size.x * (x + 1), size.y).draw();
     } else if(view_mode == MapView::SPHERE_VIEW) {
         map_sphere->draw();
     }
