@@ -431,7 +431,7 @@ void World::load_initial() {
         }
 
         // Neighbours
-        Eng3D::Log::debug("world", translate("Creating neighbours for provinces"));
+        Eng3D::Log::debug("world", translate("Calculating neighbours for provinces"));
         for(size_t i = 0; i < width * height; i++) {
             assert(Province::is_valid(this->tiles[i].province_id));
             auto& province = this->provinces[this->tiles[i].province_id];
