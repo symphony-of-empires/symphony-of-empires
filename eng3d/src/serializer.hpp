@@ -296,32 +296,27 @@ template<typename T, typename C>
 struct SerializerArrayContainer {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, C& obj_group) {
-        uint32_t len = obj_group.size();
+        uint16_t len = obj_group.size();
         ::deser_dynamic<is_serialize>(ar, len);
-#if 0
         if constexpr(is_serialize) {
             if constexpr(std::is_trivially_copyable<T>::value) { // trivial
-                ar.expand(len * sizeof(T));
-                ar.copy_from(obj_group.data(), len * sizeof(T));
-            } else // non-trivial
+                if(len) {
+                    ar.expand(len * sizeof(T));
+                    ar.copy_from(obj_group.data(), len * sizeof(T));
+                }
+            } else { // non-trivial
                 for(auto& obj : obj_group)
                     ::deser_dynamic<is_serialize>(ar, obj);
+            }
         } else {
             obj_group.resize(len);
-            if constexpr(std::is_trivially_copyable<T>::value) // trivial
-                ar.copy_to(obj_group.data(), len * sizeof(T));
-            else // non-len
+            if constexpr(std::is_trivially_copyable<T>::value) { // trivial
+                if(len)
+                    ar.copy_to(obj_group.data(), len * sizeof(T));
+            } else { // non-len
                 for(decltype(len) i = 0; i < len; i++)
                     ::deser_dynamic<is_serialize, T>(ar, obj_group[i]);
-        }
-#endif
-        if constexpr(is_serialize) {
-            for(auto& obj : obj_group)
-                ::deser_dynamic<is_serialize>(ar, obj);
-        } else {
-            obj_group.resize(len);
-            for(decltype(len) i = 0; i < len; i++)
-                ::deser_dynamic<is_serialize, T>(ar, obj_group[i]);
+            }
         }
     }
 };

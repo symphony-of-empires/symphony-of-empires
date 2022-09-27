@@ -135,12 +135,16 @@ namespace Eng3D {
         /// @return true Rectangle not in bounds
         /// @return false Rectangle is in bounds
         constexpr bool in_bounds(glm::vec2 pos) const {
-            return (pos.x >= left && pos.x <= right && pos.y >= top && pos.y <= bottom);
+            return pos.x >= left && pos.x <= right && pos.y >= top && pos.y <= bottom;
         }
 
         template<typename T>
         constexpr bool in_bounds(T x, T y) const {
             return in_bounds(glm::vec2(x, y));
+        }
+
+        constexpr bool in_bounds(const Rectangle& rect) const {
+            return in_bounds(rect.left, rect.top) || in_bounds(rect.left, rect.bottom) || in_bounds(rect.right, rect.top) || in_bounds(rect.right, rect.bottom);
         }
 
         /// @brief Obtains the intersection rectangle from two other rectangles R1 and R2
