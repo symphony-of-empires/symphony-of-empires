@@ -116,8 +116,7 @@ void Widget::draw_rect(const Eng3D::Texture* tex, Eng3D::Rect rect_pos, Eng3D::R
     } else {
         g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man.get_white());
     }
-    auto square = Eng3D::Square(rect_pos, rect_tex);
-    square.draw();
+    Eng3D::Square(rect_pos, rect_tex).draw();
 }
 
 void Widget::draw_border(Border& border, Eng3D::Rect viewport) {
@@ -230,8 +229,8 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
 
     // Shadow
     if(have_shadow) {
-        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.f, 0.f, 0.8f, 1.f));
-        auto square = Eng3D::Square(16.f, 16.f, width + 16.f, height + 16.f);
+        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.f, 0.f, 0.8f, 0.5f));
+        draw_rectangle(-2, -2, width + 8, height + 8, viewport, nullptr);
     }
     g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
     if(type == UI::WidgetType::INPUT)

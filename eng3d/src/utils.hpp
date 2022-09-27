@@ -89,4 +89,17 @@ namespace Eng3D {
             }
         }
     }
+
+    template<typename T>
+    class LazyGlobalWrapper {
+        char data[sizeof(T)];
+    public:
+        const T* get() const {
+            return reinterpret_cast<const T*>(data);
+        }
+
+        T* get() {
+            return reinterpret_cast<T*>(data);
+        }
+    };
 }

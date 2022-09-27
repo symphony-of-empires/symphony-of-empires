@@ -32,6 +32,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <new>
 #include <algorithm>
 
 #include <glm/vec2.hpp>
@@ -149,17 +150,39 @@ namespace UI {
     /// @brief The master widget all the other widgets inherit from, do not use directly
     /// instead use one of the many derivated widgets - unless you're making a new widget type.
     class Widget {
+        void recalc_child_pos();
+        void draw_border(Border& border, Eng3D::Rect viewport);
+
+        /// @brief Recursively notify parents of the dead widgets, since the UI context
+        /// will only clear widgets which have a dead child.
+        inline void notice_death() {
+            if(!this->dead_child) {
+                this->dead_child = true;
+                if(this->parent)
+                    this->parent->notice_death();
+            }
+        }
+
+        bool need_recalc = false; // Managing widgets outside of window bounds
+        bool is_eval = true; // Determining if evaluable or not
+        std::string text_str;
+        bool is_clickable = false; // Drawing hover effects on clickable child widgets
+        bool dead = false;
+        bool dead_child = false;
+    protected:
+        void draw_rectangle(int x, int y, unsigned w, unsigned h, Eng3D::Rect viewport, const Eng3D::Texture* tex);
+        void draw_rect(const Eng3D::Texture* tex, Eng3D::Rect rect_pos, Eng3D::Rect rect_tex, Eng3D::Rect viewport);
+        bool clickable_effect = true;
     public:
         Widget() = default;
         Widget(Widget* parent, int x, int y, unsigned w, unsigned h, WidgetType type);
         Widget(Widget* parent, int x, int y, unsigned w, unsigned h, WidgetType type, std::shared_ptr<Eng3D::Texture> tex);
         Widget(const Widget&) = default;
         Widget(Widget&&) noexcept = default;
-        Widget& operator=(const Widget&) = default;
-        /* MSVSC hates multiple definitions for movables */
-#ifndef _MSC_VER
+#ifndef _MSC_VER // MSVSC hates multiple definitions for movables
         Widget& operator=(Widget&) noexcept = default;
 #endif
+        Widget& operator=(const Widget&) = default;
         virtual ~Widget();
 
         /// @brief Moves a widget by x and y
@@ -298,33 +321,5 @@ namespace UI {
         int scrolled_y = 0;
 
         friend class Context;
-    protected:
-        void draw_rectangle(int x, int y, unsigned w, unsigned h, Eng3D::Rect viewport, const Eng3D::Texture* tex);
-        void draw_rect(const Eng3D::Texture* tex, Eng3D::Rect rect_pos, Eng3D::Rect rect_tex, Eng3D::Rect viewport);
-        bool clickable_effect = true;
-    private:
-        void recalc_child_pos();
-        void draw_border(Border& border, Eng3D::Rect viewport);
-
-        /// @brief Recursively notify parents of the dead widgets, since the UI context
-        /// will only clear widgets which have a dead child.
-        inline void notice_death() {
-            if(!this->dead_child) {
-                this->dead_child = true;
-                if(this->parent)
-                    this->parent->notice_death();
-            }
-        }
-
-        /// @brief Used internally for managing widgets outside of window bounds
-        bool need_recalc = false;
-        /// @brief Used for determining if evaluable or not
-        bool is_eval = true;
-        /// @brief The current text of the widget
-        std::string text_str;
-        /// @brief Used internally for drawing hover effects on clickable child widgets
-        bool is_clickable = false;
-        bool dead = false;
-        bool dead_child = false;
     };
 };
