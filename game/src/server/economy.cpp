@@ -52,8 +52,8 @@ typedef signed int ssize_t;
 #endif
 
 struct PopNeed {
-    float life_needs_met;
-    float budget;
+    float life_needs_met = 0.f;
+    float budget = 0.f;
 };
 
 struct NewUnit {
@@ -81,7 +81,7 @@ static void update_factory_production(World& world, Building& building, const Bu
     // Calculate outputs
     auto& output = world.goods[building_type.output_id];
     auto& output_product = province.products[output];
-    auto output_amount = building.level * 1000.f * building.production_scale;
+    auto output_amount = building.level * building.production_scale * 10.f;
 
     // TODO set min wages
     float min_wage = glm::max(1.f, 0.0001f);
@@ -105,7 +105,7 @@ static void update_factory_production(World& world, Building& building, const Bu
 
     // Rescale production
     // This is used to set how much the of the maximum capicity the factory produce
-    building.production_scale = glm::clamp(building.production_scale * scale_speed(output_value / (min_wage + inputs_cost)), 0.5f, 2.f);
+    building.production_scale = glm::clamp(building.production_scale * scale_speed(output_value / (min_wage + inputs_cost)), 0.5f, 5.f);
 }
 
 // Update the factory employment
@@ -137,7 +137,6 @@ static void update_factories_employment(const World& world, Province& province, 
 
 /// @brief Calculate the budget that we spend on each needs
 void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& pop_needs) {
-    pop_needs.assign(province.pops.size(), PopNeed{});
     for(size_t i = 0; i < province.pops.size(); i++) {
         auto& pop_need = pop_needs[i];
         auto& pop = province.pops[i];
@@ -153,8 +152,8 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
                 pop_need.budget -= province.products[j].buy(pop.size * type.basic_needs_amount[j] * buying_factor);
             pop_need.life_needs_met += buying_factor;
         }
-        pop_need.budget = pop_need.budget < 0.f ? 0.f : pop_need.budget;
-        pop_need.budget += pop.size * 1.1f;
+        pop_need.budget = glm::max(pop_need.budget, 0.f);
+        pop_need.budget += pop.size * 1.5f;
     }
 }
 
@@ -177,10 +176,8 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
 
         auto& new_needs = pops_new_needs[province_id];
         new_needs.assign(province.pops.size(), PopNeed{});
-        for(size_t i = 0; i < province.pops.size(); i++) {
-            auto& pop = province.pops[i];
-            new_needs[i].budget = pop.budget;
-        }
+        for(size_t i = 0; i < province.pops.size(); i++)
+            new_needs[i].budget = province.pops[i].budget;
 
         float laborers_amount = 0.f;
         for(auto& pop : province.pops)
@@ -203,7 +200,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                 const float army_size = 100;
                 /// @todo Consume special soldier pops instead of farmers!!!
                 auto it = std::find_if(province.pops.begin(), province.pops.end(), [&world, building, army_size](const auto& e) {
-                    return (e.size >= army_size && world.pop_types[e.type_id].group == PopGroup::FARMER);
+                    return e.size >= army_size && world.pop_types[e.type_id].group == PopGroup::FARMER;
                 });
 
                 if(it != province.pops.end()) {
@@ -231,6 +228,14 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     });
     world.profiler.stop("E-big");
 
+    // Distrobute products accross
+    world.profiler.start("E-Distrobute");
+    for(const auto& province : world.provinces)
+        for(const auto& good : world.goods)
+            for(const auto neighbour_id : province.neighbour_ids)
+                world.provinces[neighbour_id].products[good].supply += glm::min(0.1f, province.products[good].supply * 0.1f);
+    world.profiler.stop("E-Distrobute");
+
     world.profiler.start("E-mutex");
     // Collect list of nations that exist
     std::vector<Nation*> eval_nations;
@@ -250,8 +255,8 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             pop.budget = new_needs[i].budget;
             pop.life_needs_met = new_needs[i].life_needs_met;
 
-            float growth = pop.size * pop.life_needs_met * 0.001f;
-            pop.size += static_cast<float>((int)growth);
+            float growth = pop.size * pop.life_needs_met * 0.01f;
+            pop.size += growth;
             pop.militancy += 0.01f * -pop.life_needs_met;
             pop.ideology_approval[world.nations[province.owner_id].ideology_id] += pop.life_needs_met * 0.25f;
         }
