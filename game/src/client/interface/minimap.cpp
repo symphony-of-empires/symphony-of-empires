@@ -442,9 +442,9 @@ std::vector<ProvinceColor> language_map_mode(const World& world) {
 }
 
 std::string language_tooltip(const World& world, const ProvinceId id) {
+    const auto& province = world.provinces[id];
     if(province.pops.empty())
         return "";
-    const auto& province = world.provinces[id];
     const auto it = std::max_element(province.languages.begin(), province.languages.end());
     return world.languages[std::distance(province.languages.begin(), it)].name.get_string();
 }
