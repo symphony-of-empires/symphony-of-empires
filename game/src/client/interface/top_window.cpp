@@ -241,7 +241,7 @@ TimeControlView::TimeControlView(GameState& _gs)
         const size_t day = this->gs.world->time % this->gs.world->ticks_per_month;
         const size_t month = (this->gs.world->time / this->gs.world->ticks_per_month) % 12;
         const size_t year = this->gs.world->time / this->gs.world->ticks_per_month / 12;
-        w.text(translate_format("%s, %s %zu, %zu", day_names[day % 7], month_names[month], day + 1, year));
+        w.text(translate_format("%s, %s %zu, %zu", day_names[day % 7].data(), month_names[month % 12].data(), day + 1, year));
     });
     time_lab->on_each_tick(*time_lab);
 }
