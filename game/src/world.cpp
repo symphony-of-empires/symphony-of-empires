@@ -433,37 +433,30 @@ void World::load_initial() {
         // Neighbours
         Eng3D::Log::debug("world", translate("Calculating neighbours for provinces"));
         for(size_t i = 0; i < width * height; i++) {
-            assert(Province::is_valid(this->tiles[i].province_id));
             auto& province = this->provinces[this->tiles[i].province_id];
-            // Up
-            if(i > this->width) {
+            if(i > this->width) { // Up
                 auto other_tile = this->tiles[i - this->width];
-                if(Province::is_valid(other_tile.province_id))
-                    province.neighbour_ids.push_back(other_tile.province_id);
+                province.neighbour_ids.push_back(other_tile.province_id);
             }
-            // Down
-            if(i < (this->width * this->height) - this->width) {
+            if(i < (this->width * this->height) - this->width) { // Down
                 auto other_tile = this->tiles[i + this->width];
-                if(Province::is_valid(other_tile.province_id))
-                    province.neighbour_ids.push_back(other_tile.province_id);
+                province.neighbour_ids.push_back(other_tile.province_id);
             }
-            // Left
-            if(i > 1) {
+            if(i > 1) { // Left
                 auto other_tile = this->tiles[i - 1];
-                if(Province::is_valid(other_tile.province_id))
-                    province.neighbour_ids.push_back(other_tile.province_id);
+                province.neighbour_ids.push_back(other_tile.province_id);
             }
-            // Right
-            if(i < (this->width * this->height) - 1) {
+            if(i < (this->width * this->height) - 1) { // Right
                 auto other_tile = this->tiles[i + 1];
-                if(Province::is_valid(other_tile.province_id))
-                    province.neighbour_ids.push_back(other_tile.province_id);
+                province.neighbour_ids.push_back(other_tile.province_id);
             }
         }
         for(auto& province : this->provinces) {
+            // Remove duplicates
             auto last = std::unique(province.neighbour_ids.begin(), province.neighbour_ids.end());
             province.neighbour_ids.erase(last, province.neighbour_ids.end());
-            std::erase(province.neighbour_ids, province);
+            std::erase(province.neighbour_ids, province); // Erase self
+
         }
         unit_manager.init(*this);
 
@@ -478,7 +471,6 @@ void World::load_initial() {
         
         // Auto-relocate capitals for countries which do not have one
         for(auto& nation : this->nations) {
-            // Must exist and not have a capital
             if(!nation.exists() || Province::is_invalid(nation.capital_id)) continue;
             Eng3D::Log::debug("world", translate("Relocating capital of [" + nation.ref_name + "]"));
             nation.auto_relocate_capital();
