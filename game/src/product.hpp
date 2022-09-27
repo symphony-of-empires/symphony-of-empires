@@ -68,7 +68,7 @@ struct Product : public Entity<ProductId> {
 
         // Set the new price
         this->price = glm::clamp(this->price + this->price_delta, 0.01f, 100'000.f);
-        //this->demand = 0;
+        this->demand = 0.f;
     }
     
     /// @brief Buy a portion of the item
