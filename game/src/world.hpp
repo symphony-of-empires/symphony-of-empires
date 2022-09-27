@@ -305,6 +305,9 @@ struct Serializer<World> {
         if constexpr(is_serialize) {
             for(size_t i = 0; i < n_relations; i++)
                 ::deser_dynamic<is_serialize>(ar, obj.relations[i]);
+            // Serialize all tiles
+            ar.expand(obj.width * obj.height * sizeof(Tile));
+            ar.copy_from(obj.tiles.get(), obj.width * obj.height * sizeof(Tile));
         } else {
             // In order to avoid post-deserialization relational patcher, we will simply allocate everything with "empty" objects,
             // then we will fill those spots as we deserialize
@@ -312,11 +315,9 @@ struct Serializer<World> {
             for(size_t i = 0; i < n_relations; i++)
                 ::deser_dynamic<is_serialize>(ar, obj.relations[i]);
             obj.tiles.reset(new Tile[obj.width * obj.height]);
+            // Deserialize all tiles
+            ar.copy_to(obj.tiles.get(), obj.width * obj.height * sizeof(Tile));
         }
-
-        // (De-)serialize all the tiles, for the deserialization path, see above
-        for(size_t i = 0; i < obj.width * obj.height; i++)
-            ::deser_dynamic<is_serialize>(ar, obj.tiles[i]);
     }
 };
 
