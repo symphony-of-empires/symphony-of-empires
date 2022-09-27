@@ -39,7 +39,7 @@ catholic_relief_act_of_1829 = Event:new{
 			ref_name = "catholic_relief_act_of_1829_decision_0",
 			name = "Yes, allow catholics on the parliament",
 			decision_fn = function(ref_name)
-				united_kingdom:add_accepted_religion(Religion:get("christian"))
+				united_kingdom:add_accepted_religion(Religion:get("christianity"))
 			end,
 			effects = "None"
 		}
@@ -51,7 +51,7 @@ catholic_relief_act_of_1829 = Event:new{
 				local prov = Nation:get_owned_provinces()
 				for k, province in pairs(prov) do
 					local pops = province:get_pops()
-					province:multiply_militancy_by_religion(Religion:get("christian"), 1.5)
+					province:multiply_militancy_by_religion(Religion:get("christianity"), 1.5)
 					province:update_pops()
 				end
 			end,

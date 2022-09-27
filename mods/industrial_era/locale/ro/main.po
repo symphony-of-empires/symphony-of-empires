@@ -290,7 +290,7 @@ msgid "Athabasca"
 msgstr "Athabasca"
 
 #: religions.lua:43
-msgid "Atheist"
+msgid "Atheism"
 msgstr "Ateu"
 
 #. ------------------------------------------------------------
@@ -569,7 +569,7 @@ msgid "Brunswick"
 msgstr "Brunswick"
 
 #: religions.lua:28
-msgid "Buddhist"
+msgid "Buddhism"
 msgstr "Budist"
 
 #. ------------------------------------------------------------
@@ -787,7 +787,7 @@ msgid "Chiloé"
 msgstr "Chiloé"
 
 #: religions.lua:13
-msgid "Christian"
+msgid "Christianity"
 msgstr "Creștin"
 
 #: good_types.lua:142
@@ -1826,8 +1826,8 @@ msgid "Isla de Margerita"
 msgstr "Isla de Margerita"
 
 #: religions.lua:23
-msgid "Islamic"
-msgstr "Islamic"
+msgid "Islam"
+msgstr "Islam"
 
 #: provinces/americas/central_america.lua:340
 msgid "Islas de La Bahía"
@@ -2730,7 +2730,7 @@ msgid "Oromo"
 msgstr "Oromo"
 
 #: religions.lua:18
-msgid "Orthodox"
+msgid "Orthodoxy"
 msgstr "Ortodox"
 
 #: provinces/americas/brazil_and_pantanal.lua:98
@@ -2960,8 +2960,8 @@ msgstr "Progresism"
 #. Provinces
 #. Religion
 #: religions.lua:3
-msgid "Protestant"
-msgstr "Protestant"
+msgid "Protestantism"
+msgstr "Protestantism"
 
 #: provinces/europe/balkans.lua:91
 msgid "Province_233023"
