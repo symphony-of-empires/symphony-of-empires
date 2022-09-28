@@ -40,10 +40,10 @@ namespace Eng3D {
         int _dummy = 0;
     };
 
-    struct Square {
-        Square(float start_x, float start_y, float end_x, float end_y);
-        Square(const Eng3D::Rectangle& pos, const Eng3D::Rectangle& texcoord);
-        ~Square() = default;
+    struct StaticSquare {
+        StaticSquare(float start_x, float start_y, float end_x, float end_y);
+        StaticSquare(const Eng3D::Rectangle& pos, const Eng3D::Rectangle& texcoord);
+        ~StaticSquare() = default;
         void draw();
         int _dummy = 0;
     };
@@ -60,6 +60,12 @@ namespace Eng3D {
         ~Quad2D() = default;
         void draw();
         int _dummy = 0;
+    };
+
+    struct Square: public Eng3D::Mesh<glm::vec2, glm::vec2> {
+        Square(float start_x, float start_y, float end_x, float end_y);
+        Square(const Eng3D::Rectangle& pos, const Eng3D::Rectangle& texcoord);
+        ~Square() = default;
     };
 
     struct TriangleList: public Eng3D::Mesh<glm::vec3, glm::vec2> {

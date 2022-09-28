@@ -279,7 +279,7 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
     border_gen_shader->set_uniform("tex_coord_scale", tex_coord_scale.left, tex_coord_scale.top, tex_coord_scale.right, tex_coord_scale.bottom);
     border_gen_shader->set_texture(0, "terrain_map", *terrain_map);
     border_gen_shader->set_texture(1, "tile_sheet_nation", *tile_sheet_nation);
-    map_2d_quad->draw();
+    map_2d_quad.draw();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     border_tex.gen_mipmaps();
@@ -323,7 +323,7 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
         if(step == max_dist) sdf_shader->set_texture(0, "tex", border_tex);
         else sdf_shader->set_texture(0, "tex", draw_on_tex0 ? *swap_tex : *border_sdf);
         // Draw a plane over the entire screen to invoke shaders
-        map_2d_quad->draw();
+        map_2d_quad.draw();
     }
 
     // Delete the textures no used from memory
@@ -372,20 +372,25 @@ void MapRender::update_nations(std::vector<ProvinceId>& province_ids) {
         this->map.update_nation_label(this->gs.world->nations[id]);
 }
 
-void MapRender::request_update_visibility()
-{
+void MapRender::update_city_lights() {
+    // Fill out density information
+    for(const auto& province : gs.world->provinces) {
+        float total = 0.f;
+        for(const auto& pop : province.pops)
+            total += pop.size;
+        total = glm::max(total, 0.1f);
+        this->province_opt->buffer[province] |= static_cast<uint8_t>(glm::clamp(total / 100'000.f, 0.f, 1.f) * 255.f) << 8;
+    }
+}
+
+void MapRender::request_update_visibility() {
     this->req_update_vision = true;
 }
 
-void MapRender::update_visibility(GameState& gs)
-{
+void MapRender::update_visibility(GameState& gs) {
     if(gs.curr_nation == nullptr) return;
 
     /// @todo Check that unit is allied with us/province owned by an ally
-    Eng3D::TextureOptions no_drop_options{};
-    no_drop_options.editable = true;
-    std::fill_n(province_opt->buffer.get(), 0xffff, 0x00000080);
-    
     for(const auto& nation : gs.world->nations) {
         const auto nation_id = nation;
         // If it's our own nation or an ally of ours we can see them
@@ -410,25 +415,21 @@ void MapRender::update_visibility(GameState& gs)
     });
     if(gs.map->province_selected)
         this->province_opt->buffer.get()[static_cast<size_t>(gs.map->selected_province_id)] = 0x400000ff;
-    
-    // Fill out density information
-    for(const auto& province : gs.world->provinces) {
-        float total = 0.f;
-        for(const auto& pop : province.pops)
-            total += pop.size;
-        this->province_opt->buffer[province] |= static_cast<uint8_t>(glm::clamp(total * 0.0005f, 0.f, 1.f) * 255.f) << 8;
-    }
-    this->province_opt->upload(no_drop_options);
 }
 
 void MapRender::update(GameState& gs) {
     if(gs.world->province_manager.is_provinces_changed())
         this->req_update_vision = true;
     
+    std::fill_n(province_opt->buffer.get(), 0xffff, 0x00000080);
     if(this->req_update_vision) {
         this->update_visibility(gs);
         this->req_update_vision = false;
     }
+    this->update_city_lights();
+    Eng3D::TextureOptions no_drop_options{};
+    no_drop_options.editable = true;
+    this->province_opt->upload(no_drop_options);
 
     Eng3D::Rect update_area{ 0, 0, 0, 0 };
 
@@ -493,10 +494,9 @@ void MapRender::draw(Eng3D::Camera* camera, MapView view_mode) {
     map_shader->set_texture(14, "terrain_sheet", *terrain_sheet);
 
     if(view_mode == MapView::PLANE_VIEW) {
-        glm::ivec2 size = { this->gs.world->width, this->gs.world->height };
-        for(int x = -1; x <= 1; x++) // Flat surface for drawing flat map 
-            Eng3D::Square(size.x * x, 0.f, size.x * (x + 1), size.y).draw();
+        for(const auto& quad : this->map_quads)
+            quad->draw();
     } else if(view_mode == MapView::SPHERE_VIEW) {
-        map_sphere->draw();
+        map_sphere.draw();
     }
 }

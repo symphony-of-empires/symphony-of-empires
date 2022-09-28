@@ -30,16 +30,15 @@
 
 #include "eng3d/borders.hpp"
 #include "eng3d/rivers.hpp"
+#include "eng3d/primitive.hpp"
 
 class MapRender;
 namespace Eng3D {
     static constexpr auto GLOBE_RADIUS = 100.f;
 
-    class Sphere;
-    class Quad2D;
     class Texture;
     class TextureArray;
-    class Square;
+    class StaticSquare;
     class State;
 
     class BaseMap {
@@ -56,14 +55,14 @@ namespace Eng3D {
         std::shared_ptr<Eng3D::Texture> noise_tex;
         std::shared_ptr<Eng3D::Texture> paper_tex;
         std::shared_ptr<Eng3D::Texture> stripes_tex;
-        Eng3D::Sphere* map_sphere;
-        Eng3D::Quad2D* map_2d_quad;
+        Eng3D::Sphere map_sphere;
+        Eng3D::Quad2D map_2d_quad; // Simple 2D quad that fills viewport, used for making the border_sdf
+        std::vector<std::unique_ptr<Eng3D::Square>> map_quads;
         Eng3D::Rivers rivers;
         Eng3D::Borders borders;
     public:
         BaseMap(Eng3D::State& s, glm::ivec2 size);
         ~BaseMap();
-
         friend MapRender;
     };
 }

@@ -34,12 +34,14 @@
 Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
     : s{ _s },
     rivers(_s),
-    borders(_s)
+    borders(_s),
+    map_sphere(0.f, 0.f, 0.f, Eng3D::GLOBE_RADIUS, 100),
+    map_2d_quad()
 {
-    // Sphere surface for drawing globe map
-    map_sphere = new Eng3D::Sphere(0.f, 0.f, 0.f, Eng3D::GLOBE_RADIUS, 100);
-    // Simple 2D quad that fills viewport, used for making the border_sdf
-    map_2d_quad = new Eng3D::Quad2D();
+    for(int x = -1; x <= 1; x++) { // Flat surface for drawing flat map 
+        auto square = std::make_unique<Eng3D::Square>(size.x * x, 0.f, size.x * (x + 1), size.y);
+        map_quads.push_back(std::move(square));
+    }
 
     // Mipmapped textures
     Eng3D::TextureOptions mipmap_options{};
@@ -105,6 +107,5 @@ Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
 }
 
 Eng3D::BaseMap::~BaseMap() {
-    delete map_sphere;
-    delete map_2d_quad;
+
 }

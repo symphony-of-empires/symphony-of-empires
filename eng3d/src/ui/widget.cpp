@@ -116,7 +116,7 @@ void Widget::draw_rect(const Eng3D::Texture* tex, Eng3D::Rect rect_pos, Eng3D::R
     } else {
         g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man.get_white());
     }
-    Eng3D::Square(rect_pos, rect_tex).draw();
+    Eng3D::StaticSquare(rect_pos, rect_tex).draw();
 }
 
 void Widget::draw_border(Border& border, Eng3D::Rect viewport) {

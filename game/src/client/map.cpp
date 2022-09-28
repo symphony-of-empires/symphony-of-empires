@@ -468,7 +468,7 @@ void Map::draw() {
                         const auto line_model = glm::rotate(model, glm::atan(target_pos.y - prov_pos.y, target_pos.x - prov_pos.x), glm::vec3(0.f, 0.f, 1.f));
                         obj_shader->set_texture(0, "diffuse_map", *line_tex);
                         obj_shader->set_uniform("model", line_model);
-                        Eng3D::Square(0.f, 0.f, dist, 0.5f).draw();
+                        Eng3D::StaticSquare(0.f, 0.f, dist, 0.5f).draw();
                     }
                     model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
                     obj_shader->set_uniform("model", model);
@@ -515,7 +515,7 @@ void Map::draw() {
         obj_shader->set_texture(3, "height_map", *gs.tex_man.get_white());
         obj_shader->set_texture(4, "specular_map", *gs.tex_man.get_white());
         obj_shader->set_texture(5, "normal_map", *gs.tex_man.get_white());
-        auto dragbox_square = Eng3D::Square(gs.input.drag_coord.x, gs.input.drag_coord.y, gs.input.select_pos.x, gs.input.select_pos.y);
+        auto dragbox_square = Eng3D::StaticSquare(gs.input.drag_coord.x, gs.input.drag_coord.y, gs.input.select_pos.x, gs.input.select_pos.y);
         dragbox_square.draw();
     }
 

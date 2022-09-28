@@ -84,6 +84,7 @@ public:
 
 class MapRender : public Eng3D::BaseMap {
     void update_visibility(GameState& gs);
+    void update_city_lights();
 
     GameState& gs;
     Map& map;
