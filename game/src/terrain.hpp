@@ -31,9 +31,12 @@
 
 struct TerrainType : RefnameEntity<TerrainTypeId> {
     Eng3D::StringRef name;
-    uint32_t color; /// @brief Associative color (with bitmap)
-    bool is_water_body; /// @brief Should this terrain be treated as sea?
-    float penalty = 1.f; /// @brief Penalty imposed to various contexts
+    uint32_t color; // Associative color (with bitmap)
+    bool is_water_body; // Should this terrain be treated as sea?
+    float penalty = 1.f; // Penalty imposed to various contexts
+    std::string get_icon_path() const {
+        return string_format("gfx/terraintype/%s.png", ref_name.c_str());
+    }
 };
 template<>
 struct Serializer<TerrainType*> : SerializerReference<World, TerrainType> {};

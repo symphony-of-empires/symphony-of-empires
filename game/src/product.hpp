@@ -33,6 +33,9 @@
 /// @brief A good, mostly serves as a "product type"
 struct Good : RefnameEntity<GoodId> {
     Eng3D::StringRef name;
+    std::string get_icon_path() const {
+        return string_format("gfx/good/%s.png", ref_name.c_str());
+    }
 };
 template<>
 struct Serializer<Good*> : SerializerReference<World, Good> {};

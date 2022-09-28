@@ -189,7 +189,6 @@ void MapRender::update_options(MapOptions new_options) {
         mipmap_options.internal_format = Eng3D::TextureOptions::Format::RED;
         if(this->bathymethry.get() == nullptr)
             this->bathymethry = gs.tex_man.load(gs.package_man.get_unique("map/bathymethry.png"), mipmap_options);
-        
         if(this->river_tex.get() == nullptr)
             this->river_tex = gs.tex_man.load(gs.package_man.get_unique("map/river_smooth.png"), mipmap_options);
     } else {

@@ -222,7 +222,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                         unit.base = world.unit_types[unit.type_id].max_health;
                         province_new_units.local().emplace_back(unit, province);
                         building.working_unit_type_id = UnitTypeId(-1);
-                        Eng3D::Log::debug("economy", "[" + province.ref_name + "]: Has built an unit of [" + world.unit_types[unit.type_id].ref_name + "]");
+                        Eng3D::Log::debug("economy", string_format("%s has built an unit %s", province.ref_name.c_str(), world.unit_types[unit.type_id].ref_name.c_str()));
                     }
                 }
             }

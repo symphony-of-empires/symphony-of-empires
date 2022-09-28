@@ -53,7 +53,7 @@ ProductView::ProductView(GameState& _gs, Product& _product)
     this->supply_pie->set_on_each_tick([this](UI::Widget&) {
         std::vector<UI::ChartData> nations_data;
         for(const auto& nation : this->gs.world->nations)
-            nations_data.push_back(UI::ChartData(0.f, nation.get_client_hint().alt_name.get_string(), nation.get_client_hint().color));
+            nations_data.push_back(UI::ChartData(0.f, nation.get_client_hint().alt_name, nation.get_client_hint().color));
 
         /// @todo Account for products that are based on this good on every province
         this->supply_pie->set_data(nations_data);
@@ -101,13 +101,13 @@ GoodView::GoodView(GameState& _gs, Good& _good)
     good{ _good }
 {
     this->is_scroll = false;
-    this->text(good.name.get_string());
+    this->text(good.name);
 
     this->set_close_btn_function([this](Widget&) {
         this->kill();
     });
 
-    this->icon_img = new UI::Image(0, 0, 128, 96, this->gs.tex_man.load(gs.package_man.get_unique("gfx/good/" + good.ref_name + ".png")), this);
+    this->icon_img = new UI::Image(0, 0, 128, 96, good.get_icon_path(), this);
 
     // Piechart denoting countries which have more supply of this good
     this->sellers_pie = new UI::PieChart(0, 0, 128, 128, this);
@@ -116,8 +116,7 @@ GoodView::GoodView(GameState& _gs, Good& _good)
         if(this->gs.world->time % this->gs.world->ticks_per_month) return;
         std::vector<UI::ChartData> nations_data;
         for(const auto& nation : this->gs.world->nations)
-            nations_data.push_back(UI::ChartData(0.f, nation.get_client_hint().alt_name.get_string(), nation.get_client_hint().color));
-
+            nations_data.push_back(UI::ChartData(0.f, nation.get_client_hint().alt_name, nation.get_client_hint().color));
         /// @todo Account for products that are based on this good
         this->sellers_pie->set_data(nations_data);
     });
@@ -153,9 +152,9 @@ GoodView::GoodView(GameState& _gs, Good& _good)
     for(const auto& building_type : this->gs.world->building_types) {
         bool is_present = building_type.output_id == this->good;
         if(!is_present) continue;
-        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/production.png")), this);
+        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, "gfx/production.png", this);
         icon_ibtn->below_of(*avg_price_chart);
-        icon_ibtn->set_tooltip(building_type.name.get_string());
+        icon_ibtn->set_tooltip(building_type.name);
         dx += icon_ibtn->width;
     }
 
@@ -166,9 +165,9 @@ GoodView::GoodView(GameState& _gs, Good& _good)
     for(const auto& building_type : this->gs.world->building_types) {
         bool is_present = std::find(building_type.input_ids.begin(), building_type.input_ids.end(), this->good) != building_type.input_ids.end();
         if(!is_present) continue;
-        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/production.png")), this);
+        auto* icon_ibtn = new UI::Image(dx, 0, 24, 24, "gfx/production.png", this);
         icon_ibtn->below_of(*avg_price_chart);
-        icon_ibtn->set_tooltip(building_type.name.get_string());
+        icon_ibtn->set_tooltip(building_type.name);
         dx += icon_ibtn->width;
     }
 }

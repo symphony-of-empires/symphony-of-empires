@@ -55,7 +55,7 @@ UnitButton::UnitButton(GameState& _gs, int x, int y, Unit& _unit, UI::Widget* _p
 {
     this->set_on_each_tick([this](UI::Widget& w) {
         auto& type = this->gs.world->unit_types[this->unit.type_id];
-        w.text(string_format("%zu %s", this->unit.size, type.name.get_string()));
+        w.text(string_format("%zu %s", this->unit.size, type.name.c_str()));
     });
     this->on_each_tick(*this);
 }
@@ -68,11 +68,11 @@ UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType& _unit_typ
     this->is_scroll = false;
 
     this->icon_img = new UI::Image(0, 0, 32, 24, this);
-    this->icon_img->current_texture = this->gs.tex_man.load(gs.package_man.get_unique("gfx/unittype/" + this->unit_type.ref_name + ".png"));
+    this->icon_img->current_texture = this->gs.tex_man.load(gs.package_man.get_unique(unit_type.get_icon_path()));
 
     this->name_btn = new UI::Button(0, 0, this->width - 32, 24, this);
     this->name_btn->right_side_of(*this->icon_img);
-    this->name_btn->text(this->unit_type.name.get_string());
+    this->name_btn->text(this->unit_type.name);
 }
 
 NationButton::NationButton(GameState& _gs, int x, int y, Nation& _nation, UI::Widget* _parent)
@@ -91,11 +91,11 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation& _nation, UI::Wi
 
     this->name_btn = new UI::Button(0, 0, this->width - 32, 24, this);
     this->name_btn->right_side_of(*this->flag_icon);
-    this->name_btn->text(nation.get_client_hint().alt_name.get_string());
+    this->name_btn->text(nation.get_client_hint().alt_name);
     this->name_btn->set_on_each_tick([](UI::Widget& w) {
         auto& o = static_cast<NationButton&>(*w.parent);
         if(o.gs.world->time % o.gs.world->ticks_per_month) return;
-        w.text(o.nation.get_client_hint().alt_name.get_string());
+        w.text(o.nation.get_client_hint().alt_name);
     });
 }
 
@@ -107,13 +107,13 @@ ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province& _province, Good
 {
     this->is_scroll = false;
 
-    this->good_ibtn = new UI::Image(0, 0, 24, 24, this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/good/" + good.ref_name + ".png")), this);
+    this->good_ibtn = new UI::Image(0, 0, 24, 24, good.get_icon_path(), this);
     this->good_ibtn->set_on_click([](UI::Widget& w) {
         auto& o = static_cast<ProductInfo&>(*w.parent);
         new GoodView(o.gs, o.good);
     });
     this->good_ibtn->set_tooltip(new UI::Tooltip(this->good_ibtn, 512, 24));
-    this->good_ibtn->tooltip->text(good.name.get_string());
+    this->good_ibtn->tooltip->text(good.name);
 
     this->price_rate_btn = new UI::Button(0, 0, 96, 24, this);
     this->price_rate_btn->right_side_of(*this->good_ibtn);

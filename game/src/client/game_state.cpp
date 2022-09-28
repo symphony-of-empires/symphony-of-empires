@@ -74,13 +74,13 @@ void GameState::play_nation() {
     // Make topwindow
     top_win = static_cast<UI::Widget*>(new Interface::TopWindow(*this));
     minimap = static_cast<UI::Widget*>(new Interface::Minimap(*this, -400, -200, UI::Origin::LOWER_RIGHT_SCREEN));
-    Eng3D::Log::debug("game", "Selecting nation " + this->curr_nation->ref_name);
+    Eng3D::Log::debug("game", translate_format("Playing as nation %s", this->curr_nation->ref_name.c_str()));
     this->client->send(Action::SelectNation::form_packet(*this->curr_nation));
 }
 
 std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(const Nation& nation) {
     auto& ideology = this->world->ideologies[nation.ideology_id];
-    std::string path = "gfx/flags/" + nation.ref_name + "_" + (Ideology::is_valid(nation.ideology_id) ? ideology.ref_name.get_string() : "none") + ".png";
+    std::string path = string_format("gfx/flags/%s_%s.png", nation.ref_name.c_str(), Ideology::is_valid(nation.ideology_id) ? ideology.ref_name.c_str() : "default");
     return this->tex_man.load(this->package_man.get_unique(path));
 }
 

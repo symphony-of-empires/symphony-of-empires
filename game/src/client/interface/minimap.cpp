@@ -101,7 +101,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
 
     auto* relations_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
     relations_ibtn->set_on_click([this](UI::Widget&) {
-        this->gs.map->set_selection([](const World& , Map& map, const Province& province) {
+        this->gs.map->set_selection([](const World&, Map& map, const Province& province) {
             if(Nation::is_invalid(province.controller_id)) return;
             NationId nation_id = province.owner_id;
             mapmode_generator map_mode = relations_map_mode(nation_id);
@@ -120,17 +120,13 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     population_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
         mapmode_generator map_mode = population_map_mode;
-        mapmode_tooltip tooltip = [](const World& world, const ProvinceId id) -> std::string{
+        mapmode_tooltip tooltip = [](const World& world, const ProvinceId id) -> std::string {
             const auto& province = world.provinces[id];
-            if(province.pops.empty())
-                return "";
+            if(province.pops.empty()) return "";
             size_t amount = 0;
             for(auto const& pop : province.pops)
                 amount += pop.size;
-            std::string out;
-            out += province.name + "\n";
-            out += "Population: " + std::to_string(amount);
-            return out;
+            return string_format("\nPopulation: %zu", province.name.c_str(), amount);
         };
         this->gs.map->set_map_mode(map_mode, tooltip);
         set_mapmode_options(nullptr);
@@ -204,10 +200,10 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
     flex_column->flex = UI::Flex::COLUMN;
     flex_column->flex_justify = UI::FlexJustify::START;
     for(const auto& good : goods) {
-        auto good_tex = tex_man.load(gs.package_man.get_unique("gfx/good/" + good.ref_name + ".png"));
+        auto good_tex = tex_man.load(gs.package_man.get_unique(good.get_icon_path()));
         auto* good_div = new UI::Div(0, 0, 200, 35, flex_column);
         new UI::Image(0, 0, 35, 35, good_tex, good_div);
-        new UI::Label(35, 0, good.name.get_string(), good_div);
+        new UI::Label(35, 0, good.name, good_div);
         good_div->set_on_click([this, &good](UI::Widget&) {
             this->gs.current_mode = MapMode::NORMAL;
             mapmode_generator map_mode = goods_map_mode(good);
@@ -226,7 +222,7 @@ mapmode_tooltip good_tooltip(GoodId good_id) {
         const auto& province = world.provinces[id];
         if(Nation::is_invalid(province.controller_id))
             return "";
-        const auto& product = province.products[good_id]; 
+        const auto& product = province.products[good_id];
         std::string str;
         str += Eng3D::translate_format("Price: %.2f\n", product.price);
         str += Eng3D::translate_format("Demand: %.2f\n", product.demand);
@@ -297,31 +293,27 @@ mapmode_tooltip relations_tooltip(NationId nation_id) {
 
         if(Nation::is_invalid(province.controller_id))
             return "";
-        
+
         if(Nation::is_valid(province.controller_id) && province.controller_id == province.owner_id) {
-            str += province_controller.get_client_hint().alt_name.get_string();
+            str += province_controller.get_client_hint().alt_name;
         } else if(Nation::is_valid(province.owner_id)) {
-            str += translate("Owned by") + " ";
-            str += world.nations[province.owner_id].get_client_hint().alt_name.get_string();
-            str += " " + translate("controlled by") + " ";
-            str += province_controller.get_client_hint().alt_name.get_string();
+            str += translate_format("Owned by %s and controlled by %s", world.nations[province.owner_id].get_client_hint().alt_name.c_str(), province_controller.get_client_hint().alt_name.c_str());
         }
-        str += " ";
 
         if(province_controller.puppet_master_id == nation_id) {
-            str += "(puppet of " + world.nations[nation_id].get_client_hint().alt_name + ") ";
+            str += string_format(" (puppet of %s)", world.nations[nation_id].get_client_hint().alt_name.c_str());
             return str;
         }
 
         if(province.controller_id != nation_id) {
             const auto& relation = world.get_relation(province.controller_id, nation_id);
             if(relation.is_allied()) {
-                str += "allied with " + world.nations[nation_id].get_client_hint().alt_name;
+                str += string_format(" allied with %s", world.nations[nation_id].get_client_hint().alt_name.c_str());
             } else if(relation.has_war) {
-                str += "at war with " + world.nations[nation_id].get_client_hint().alt_name;
+                str += string_format(" at war with %s", world.nations[nation_id].get_client_hint().alt_name.c_str());
             }
 
-            const std::vector<std::string> rel_lvls = {
+            static std::array<std::string, 7> rel_lvls = {
                 "nemesis",
                 "enemy",
                 "disrespectful",
@@ -335,19 +327,16 @@ mapmode_tooltip relations_tooltip(NationId nation_id) {
             str += std::to_string(relation.relation) + "(" + rel_lvls[idx % rel_lvls.size()] + ")";
 
             int ally_cnt = 0;
-            str += translate("Allied with") + " ";
+            str += " allied with ";
             for(const auto& nation : world.nations) {
                 if(province.controller_id == nation) continue;
                 const auto& relation = world.get_relation(province.controller_id, world.get_id(nation));
                 if(relation.is_allied()) {
-                    str += nation.get_client_hint().alt_name.get_string();
-                    str += ", ";
+                    str += string_format("%s,", nation.get_client_hint().alt_name.c_str());
                     ally_cnt++;
                 }
             }
-            if(ally_cnt == 0) {
-                str += translate("nobody");
-            }
+            if(ally_cnt == 0) str += "nobody";
         }
         return str;
     };
@@ -380,7 +369,7 @@ std::vector<ProvinceColor> terrain_color_map_mode(const World& world) {
 }
 
 std::string terrain_type_tooltip(const World& world, const ProvinceId id) {
-    return world.terrain_types[world.provinces[id].terrain_type_id].name.get_string();
+    return world.terrain_types[world.provinces[id].terrain_type_id].name;
 }
 
 std::vector<ProvinceColor> population_map_mode(const World& world) {
@@ -444,7 +433,7 @@ std::string language_tooltip(const World& world, const ProvinceId id) {
     if(province.pops.empty())
         return "";
     const auto it = std::max_element(province.languages.begin(), province.languages.end());
-    return world.languages[std::distance(province.languages.begin(), it)].name.get_string();
+    return world.languages[std::distance(province.languages.begin(), it)].name;
 }
 
 std::vector<ProvinceColor> religion_map_mode(const World& world) {
@@ -476,8 +465,8 @@ std::vector<ProvinceColor> religion_map_mode(const World& world) {
     return province_color;
 }
 
-std::string religion_tooltip(const World& world, const ProvinceId id){
+std::string religion_tooltip(const World& world, const ProvinceId id) {
     const auto& province = world.provinces[id];
     const auto it = std::max_element(province.religions.begin(), province.religions.end());
-    return world.religions[std::distance(province.religions.begin(), it)].name.get_string();
+    return world.religions[std::distance(province.religions.begin(), it)].name;
 }

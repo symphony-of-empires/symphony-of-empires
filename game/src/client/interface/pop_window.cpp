@@ -67,12 +67,12 @@ Interface::PopWindow::PopWindow(GameState& gs)
                 size->set_key(pop.size);
 
                 auto prov_name = row->get_element(row_index++);
-                prov_name->text(province.name.get_string());
-                prov_name->set_key(province.name.get_string());
+                prov_name->text(province.name);
+                prov_name->set_key(province.name);
 
                 auto type = row->get_element(row_index++);
-                type->text(this->gs.world->pop_types[pop.type_id].name.get_string());
-                type->set_key(this->gs.world->pop_types[pop.type_id].name.get_string());
+                type->text(this->gs.world->pop_types[pop.type_id].name);
+                type->set_key(this->gs.world->pop_types[pop.type_id].name);
 
                 auto militancy = row->get_element(row_index++);
                 militancy->text(string_format("%1.2f", pop.militancy));

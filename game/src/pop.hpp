@@ -56,6 +56,9 @@ struct Serializer<Language> {
 struct Religion : RefnameEntity<ReligionId> {
     Eng3D::StringRef name;
     std::uint32_t color;
+    std::string get_icon_path() const {
+        return string_format("gfx/religion/%s.png", ref_name.c_str());
+    }
 };
 template<>
 struct Serializer<Religion*> : SerializerReference<World, Religion> {};

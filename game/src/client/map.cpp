@@ -123,11 +123,11 @@ Map::Map(GameState& _gs, const World& _world, UI::Group* _map_ui_layer, int scre
     map_ui_layer{ _map_ui_layer },
     skybox(0.f, 0.f, 0.f, 255.f * 10.f, 40, false),
     camera{ std::make_unique<Eng3D::FlatCamera>(glm::vec2(screen_width, screen_height), glm::vec2(this->gs.world->width, this->gs.world->height)) },
-    map_font{ std::make_unique<Eng3D::FontSDF>("fonts/cinzel_sdf/cinzel") },
-    map_render{ std::make_unique<MapRender>(this->gs, *this) }
+    map_font{ std::make_unique<Eng3D::FontSDF>("fonts/cinzel_sdf/cinzel") }
 {
     if(this->gen_labels)
         this->create_labels();
+    map_render = std::make_unique<MapRender>(this->gs, *this);
 
     // Set the mapmode
     extern std::vector<ProvinceColor> terrain_map_mode(const World& world);
@@ -140,12 +140,12 @@ Map::Map(GameState& _gs, const World& _world, UI::Group* _map_ui_layer, int scre
     // Query the initial nation flags
     nation_flags.resize(this->gs.world->nations.size(), gs.tex_man.get_white());
     for(const auto& building_type : this->gs.world->building_types) {
-        const std::string path = "models/building_types/" + building_type.ref_name + ".obj";
+        const auto path = string_format("models/building_types/%s.obj", building_type.ref_name.c_str());
         building_type_models.push_back(gs.model_man.load(gs.package_man.get_unique(path)));
         building_type_icons.push_back(gs.tex_man.get_white());
     }
     for(const auto& unit_type : this->gs.world->unit_types) {
-        const std::string path = "models/unit_types/" + unit_type.ref_name + ".obj";
+        const auto path = string_format("models/unit_types/%s.obj", unit_type.ref_name.c_str());
         unit_type_models.push_back(gs.model_man.load(gs.package_man.get_unique(path)));
         unit_type_icons.push_back(gs.tex_man.get_white());
     }
@@ -206,7 +206,7 @@ void Map::update_nation_label(const Nation& nation) {
     
     // Replace old label
     assert(this->nation_labels.size() > nation);
-    auto label = this->map_font->gen_text(nation.get_client_hint().alt_name.get_string(), top_dir, right_dir, width, center);
+    auto label = this->map_font->gen_text(nation.get_client_hint().alt_name, top_dir, right_dir, width, center);
     this->nation_labels[nation] = std::move(label);
 }
 
@@ -228,7 +228,7 @@ void Map::create_labels() {
         auto right_dir = glm::vec3(mid_point.x + 1.f, mid_point.y, 0.) - center;
         auto top_dir = glm::vec3(mid_point.x, mid_point.y - 1.f, 0.) - center;
         center.z -= 0.1f;
-        auto label = this->map_font->gen_text(province.name.get_string(), top_dir, right_dir, width, center);
+        auto label = this->map_font->gen_text(province.name, top_dir, right_dir, width, center);
         this->province_labels.push_back(std::move(label));
     }
 #endif
@@ -250,7 +250,7 @@ std::string political_province_tooltip(const World& world, const ProvinceId id) 
     if(Nation::is_valid(world.provinces[id].controller_id))
         end_str += world.nations[world.provinces[id].controller_id].client_username;
     if(((GameState&)Eng3D::State::get_instance()).editor)
-        end_str += "(" + world.provinces[id].ref_name.get_string() + ")";
+        end_str += string_format("(%s)", world.provinces[id].ref_name.c_str());
     return end_str;
 }
 
@@ -292,7 +292,7 @@ void Map::reload_shaders() {
     map_render->reload_shaders();
     if(this->map_render->options.trees.used) {
         for(const auto& terrain_type : world.terrain_types) {
-            std::string path = "models/trees/" + terrain_type.ref_name + ".fbx";
+            const auto path = string_format("models/trees/%s.fbx", terrain_type.ref_name.c_str());
             tree_type_models.push_back(gs.model_man.load(gs.package_man.get_unique(path)));
         }
 

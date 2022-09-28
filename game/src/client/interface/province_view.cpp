@@ -51,13 +51,13 @@ void ProvincePopulationTab::update_piecharts() {
     std::vector<UI::ChartData> languages_data, religions_data, pop_types_data;
     for(const auto& language : gs.world->languages) {
         const auto size = province.languages[language] * province.total_pops();
-        languages_data.push_back(UI::ChartData(size, language.name.get_string(), Eng3D::Color::rgba32(language.color)));
+        languages_data.push_back(UI::ChartData(size, language.name, Eng3D::Color::rgba32(language.color)));
     }
     languages_pie->set_data(languages_data);
 
     for(const auto& religion : gs.world->religions) {
         const auto size = province.religions[religion] * province.total_pops();
-        religions_data.push_back(UI::ChartData(size, religion.name.get_string(), Eng3D::Color::rgba32(religion.color)));
+        religions_data.push_back(UI::ChartData(size, religion.name, Eng3D::Color::rgba32(religion.color)));
     }
     religions_pie->set_data(religions_data);
 
@@ -71,7 +71,7 @@ void ProvincePopulationTab::update_piecharts() {
             static_cast<uint8_t>((i * 7) % 256),
             static_cast<uint8_t>((i * 15) % 256)
         );
-        pop_types_data.push_back(UI::ChartData(pop_type_sizes[gs.world->get_id(pop_type)], pop_type.name.get_string(), color));
+        pop_types_data.push_back(UI::ChartData(pop_type_sizes[gs.world->get_id(pop_type)], pop_type.name, color));
     }
     pop_types_pie->set_data(pop_types_data);
 }
@@ -82,17 +82,17 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     province{ _province }
 {
     this->is_scroll = true;
-    this->text(province.name.get_string());
+    this->text(province.name);
 
-    this->landscape_img = new UI::Image(0, 0, this->width, 128 + 64 + 16, gs.tex_man.load(gs.package_man.get_unique("gfx/terraintype/" + gs.world->terrain_types[province.terrain_type_id].ref_name + ".png")), this);
+    this->landscape_img = new UI::Image(0, 0, this->width, 128 + 64 + 16, gs.world->terrain_types[province.terrain_type_id].get_icon_path(), this);
 
     if(Nation::is_valid(province.owner_id)) {
         this->owner_flag = new UI::AspectImage(0, 0, 96, 48, gs.get_nation_flag(gs.world->nations[this->province.owner_id]), this);
         this->owner_flag->set_on_click([this](UI::Widget&) {
             new Interface::NationView(this->gs, gs.world->nations[this->province.owner_id]);
         });
-        this->owner_flag->set_tooltip(gs.world->nations[this->province.owner_id].name + " owns this province");
-        new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width, this->owner_flag->height, gs.tex_man.load(gs.package_man.get_unique("gfx/flag_rug.png")), this);
+        this->owner_flag->set_tooltip(translate_format("%s owns this province", gs.world->nations[this->province.owner_id].name.c_str()));
+        new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width, this->owner_flag->height, "gfx/flag_rug.png", this);
     }
 
     // Display all the nuclei
@@ -104,7 +104,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
         this->owner_flag->set_on_click([this, &nucleus](UI::Widget&) {
             new Interface::NationView(this->gs, nucleus);
         });
-        this->owner_flag->set_tooltip(nucleus.name + " has nuclei on this province");
+        this->owner_flag->set_tooltip(translate_format("%s has claims on this province", nucleus.name));
     }
 
     auto* languages_lab = new UI::Label(0, 0, "Languages", this);
@@ -178,7 +178,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province& _
     gs{ _gs },
     province{ _province }
 {
-    this->text(province.name.get_string());
+    this->text(province.name);
     this->is_scroll = true;
 
     this->products_pie = new UI::PieChart(0, 0, 128, 128, this);
@@ -190,7 +190,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province& _
         for(const auto& good : o.gs.world->goods) {
             const auto good_col = Eng3D::Color::rgba32((size_t)good.get_id() * 0xFF52815);
             const auto& product = o.province.products[good];
-            goods_data.push_back(UI::ChartData(glm::max(product.demand, 0.1f), good.name.get_string(), good_col));
+            goods_data.push_back(UI::ChartData(glm::max(product.demand, 0.1f), good.name, good_col));
         }
         o.products_pie->set_data(goods_data);
     });
@@ -233,9 +233,9 @@ ProvinceEditLanguageTab::ProvinceEditLanguageTab(GameState& _gs, int x, int y, P
 
             auto& religion = i >= this->gs.world->religions.size() ? this->gs.world->religions[0] : this->gs.world->religions[i];
             auto religion_icon = row->get_element(row_index++);
-            religion_icon->current_texture = this->gs.tex_man.load(gs.package_man.get_unique("gfx/religion/" + religion.ref_name + ".png"));
-            religion_icon->set_tooltip(religion.name.get_string());
-            religion_icon->set_key(religion.name.get_string());
+            religion_icon->current_texture = this->gs.tex_man.load(gs.package_man.get_unique(religion.get_icon_path()));
+            religion_icon->set_tooltip(religion.name);
+            religion_icon->set_key(religion.name);
             religion_icon->set_on_click([this, religion_id = religion.get_id()](UI::Widget&) {
                 const_cast<Province&>(this->province).religions[religion_id] = 1.f;
                 this->gs.map->update_mapmode();
@@ -244,10 +244,9 @@ ProvinceEditLanguageTab::ProvinceEditLanguageTab(GameState& _gs, int x, int y, P
 
             auto& language = i >= this->gs.world->languages.size() ? this->gs.world->languages[0] : this->gs.world->languages[i];
             auto name = row->get_element(row_index++);
-            auto name_str = language.name.get_string();
-            name->text(name_str);
-            name->set_tooltip(name_str);
-            name->set_key(name_str);
+            name->text(language.name);
+            name->set_tooltip(language.name);
+            name->set_key(language.name);
             name->set_on_click([this, language_id = language.get_id()](UI::Widget&) {
                 const_cast<Province&>(this->province).languages[language_id] = 1.f;
                 this->gs.map->update_mapmode();
@@ -274,17 +273,15 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
             size_t row_index = 0;
 
             auto landscape = row->get_element(row_index++);
-            auto landscape_icon = this->gs.tex_man.load(gs.package_man.get_unique("gfx/terraintype/" + terrain_type.ref_name + ".png"));
+            auto landscape_icon = gs.tex_man.load(gs.package_man.get_unique(terrain_type.get_icon_path()));
             landscape->current_texture = landscape_icon;
-            auto landscape_tip = terrain_type.name.get_string();
-            landscape->set_tooltip(landscape_tip);
-            landscape->set_key(landscape_tip);
+            landscape->set_tooltip(terrain_type.name);
+            landscape->set_key(terrain_type.name);
 
             auto name = row->get_element(row_index++);
-            auto name_str = terrain_type.name.get_string();
-            name->text(name_str);
-            name->set_tooltip(name_str);
-            name->set_key(name_str);
+            name->text(terrain_type.name);
+            name->set_tooltip(terrain_type.name);
+            name->set_key(terrain_type.name);
             name->set_on_click([this, &terrain_type](UI::Widget&) {
                 auto& nc_province = const_cast<Province&>(this->province);
                 nc_province.terrain_type_id = terrain_type;
@@ -321,7 +318,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
 
     this->origin = UI::Origin::UPPER_RIGHT_SCREEN;
     this->is_scroll = false;
-    this->text(province.name.get_string());
+    this->text(province.name);
 
     auto* flex_row = new UI::Div(0, 0, this->width, 32, this);
     flex_row->flex = UI::Flex::ROW;
@@ -331,7 +328,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
 
     this->pop_tab = new ProvincePopulationTab(gs, 0, flex_row->height, province, this);
     this->pop_tab->is_render = true;
-    auto* pop_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/pv_1.png")), flex_row);
+    auto* pop_ibtn = new UI::Image(0, 0, 32, 32, "gfx/pv_1.png", flex_row);
     pop_ibtn->set_on_click([this](UI::Widget&) {
         this->pop_tab->is_render = true;
         this->econ_tab->is_render = false;
@@ -345,7 +342,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
 
     this->econ_tab = new ProvinceEconomyTab(gs, 0, flex_row->height, province, this);
     this->econ_tab->is_render = false;
-    auto* econ_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/money.png")), flex_row);
+    auto* econ_ibtn = new UI::Image(0, 0, 32, 32, "gfx/money.png", flex_row);
     econ_ibtn->set_on_click([this](UI::Widget&) {
         this->pop_tab->is_render = false;
         this->econ_tab->is_render = true;
@@ -359,7 +356,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
 
     this->build_tab = new ProvinceBuildingTab(gs, 0, flex_row->height, province, this);
     this->build_tab->is_render = false;
-    auto* build_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/pv_0.png")), flex_row);
+    auto* build_ibtn = new UI::Image(0, 0, 32, 32, "gfx/pv_0.png", flex_row);
     build_ibtn->set_on_click([this](UI::Widget&) {
         this->pop_tab->is_render = false;
         this->econ_tab->is_render = false;
@@ -400,7 +397,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
 
         this->edit_language_tab = new ProvinceEditLanguageTab(gs, 0, 32, province, this);
         this->edit_language_tab->is_render = false;
-        auto* edit_language_btn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/money.png")), flex_row);
+        auto* edit_language_btn = new UI::Image(0, 0, 32, 32, "gfx/money.png", flex_row);
         edit_language_btn->set_on_click([this](UI::Widget&) {
             this->pop_tab->is_render = false;
             this->econ_tab->is_render = false;
@@ -412,7 +409,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
 
         this->edit_terrain_tab = new ProvinceEditTerrainTab(gs, 0, 32, province, this);
         this->edit_terrain_tab->is_render = false;
-        auto* edit_terrain_btn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/money.png")), flex_row);
+        auto* edit_terrain_btn = new UI::Image(0, 0, 32, 32, "gfx/money.png", flex_row);
         edit_terrain_btn->set_on_click([this](UI::Widget&) {
             this->pop_tab->is_render = false;
             this->econ_tab->is_render = false;
@@ -436,7 +433,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
         density_sld->set_tooltip(translate("Density slider"));
 
         rename_inp = new UI::Input(128, 32, 128, 24, this);
-        rename_inp->set_buffer(province.name.get_string());
+        rename_inp->set_buffer(province.name);
         auto* xchg_name_btn = new UI::Button(128 + 128, 32, 32, 32, this);
         xchg_name_btn->set_on_click([this](UI::Widget&) {
             const_cast<Province&>(this->province).name = Eng3D::StringRef{this->rename_inp->get_buffer()};

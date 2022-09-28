@@ -35,7 +35,7 @@ extern "C" void consoleUpdate(PrintConsole* console);
 #endif
 
 /// @brief Logs data to a file or console
-void Eng3D::Log::log(const std::string& severity, const std::string& category, const std::string& msg) {
+void Eng3D::Log::log(const std::string_view severity, const std::string_view category, const std::string_view msg) {
 #ifdef E3D_LOG_TO_FILE
     if(log_fp == nullptr)
         log_fp = std::unique_ptr<FILE, int (*)(FILE *)>(fopen("log.txt", "a+t"), fclose);
@@ -44,7 +44,7 @@ void Eng3D::Log::log(const std::string& severity, const std::string& category, c
         fprintf(log_fp.get(), "<%s:%s> %s\n", severity.c_str(), category.c_str(), msg.c_str());
 #else
 #   ifndef E3D_TARGET_SWITCH
-    printf("<%s:%s> %s\n", severity.c_str(), category.c_str(), msg.c_str());
+    printf("<%s:%s> %s\n", severity.data(), category.data(), msg.data());
 #   else
     char tmpbuf[256];
     snprintf(tmpbuf, sizeof(tmpbuf), "<%s:%s> %s", severity.c_str(), category.c_str(), msg.c_str());
@@ -53,16 +53,16 @@ void Eng3D::Log::log(const std::string& severity, const std::string& category, c
 #endif
 }
 
-void Eng3D::Log::debug(const std::string& category, const std::string& msg) {
+void Eng3D::Log::debug(const std::string_view category, const std::string_view msg) {
 #if defined E3D_DEBUG || 1
     Eng3D::Log::log("DEBUG", category, msg);
 #endif
 }
 
-void Eng3D::Log::warning(const std::string& category, const std::string& msg) {
+void Eng3D::Log::warning(const std::string_view category, const std::string_view msg) {
     Eng3D::Log::log("WARN", category, msg);
 }
 
-void Eng3D::Log::error(const std::string& category, const std::string& msg) {
+void Eng3D::Log::error(const std::string_view category, const std::string_view msg) {
     Eng3D::Log::log("ERROR", category, msg);
 }

@@ -61,13 +61,13 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
 
                 if(provinces.size() > 1) {
                     auto prov_name = row->get_element(row_index++);
-                    prov_name->text(province.name.get_string());
-                    prov_name->set_key(province.name.get_string());
+                    prov_name->text(province.name);
+                    prov_name->set_key(province.name);
                 }
 
                 auto name = row->get_element(row_index++);
-                name->text(type.name.get_string());
-                name->set_key(type.name.get_string());
+                name->text(type.name);
+                name->set_key(type.name);
 
                 auto workers = row->get_element(row_index++);
                 workers->text(string_format("%.0f", building.workers));
@@ -78,8 +78,8 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
                 inputs->flex_justify = UI::FlexJustify::START;
                 for(auto good_id : type.input_ids) {
                     auto& good = g_world.goods[good_id];
-                    auto input_img = new UI::Image(0, 0, 35, 35, "gfx/good/" + good.ref_name + ".png", true, inputs);
-                    input_img->set_tooltip(good.name.get_string());
+                    auto input_img = new UI::Image(0, 0, 35, 35, good.get_icon_path(), true, inputs);
+                    input_img->set_tooltip(good.name);
                 }
 
                 auto outputs = row->get_element(row_index++);
@@ -87,8 +87,8 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
                 outputs->flex_justify = UI::FlexJustify::START;
                 if(Good::is_valid(type.output_id)) {
                     auto& output = gs.world->goods[type.output_id];
-                    outputs->current_texture = gs.tex_man.load(gs.package_man.get_unique("gfx/good/" + output.ref_name + ".png"));
-                    outputs->set_tooltip(output.name.get_string());
+                    outputs->current_texture = gs.tex_man.load(output.get_icon_path());
+                    outputs->set_tooltip(output.name);
                 }
 
                 auto scale = row->get_element(row_index++);

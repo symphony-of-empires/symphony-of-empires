@@ -133,7 +133,7 @@ UnitView::UnitView(GameState& _gs, Unit& _unit)
 
     auto& unit = this->gs.world->unit_manager.units[this->unit_id];
     auto& type = this->gs.world->unit_types[unit.type_id];
-    this->text(Eng3D::translate_format("Unit %s from %s", type.name.get_string(), this->gs.world->nations[unit.owner_id].name.get_string()));
+    this->text(Eng3D::translate_format("Unit %s from %s", type.name.c_str(), this->gs.world->nations[unit.owner_id].name.c_str()));
 
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;

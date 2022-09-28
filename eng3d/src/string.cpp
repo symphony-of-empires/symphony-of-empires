@@ -35,9 +35,8 @@ Eng3D::StringRef::StringRef(const std::string_view str) {
     *this = Eng3D::StringManager::get_instance().insert(std::string{str});
 }
 
-const std::string& Eng3D::StringRef::get_string() const {
-    if(this->id == static_cast<size_t>(-1))
-        return "";
+const std::string_view Eng3D::StringRef::get_string() const {
+    if(this->id == static_cast<size_t>(-1)) return "";
     return Eng3D::StringManager::get_instance().get_by_id(this->id);
 }
 
@@ -75,9 +74,9 @@ void Eng3D::Locale::from_file(const std::string& filename) {
     }
 }
 
-std::string Eng3D::Locale::translate(const std::string& str) {
+std::string Eng3D::Locale::translate(const std::string_view str) {
     std::scoped_lock lock(trans_lock);
-    if(trans_msg[str].empty())
-        return str;
-    return trans_msg[str];
+    if(trans_msg[str.data()].empty())
+        return std::string(str);
+    return trans_msg[str.data()];
 }

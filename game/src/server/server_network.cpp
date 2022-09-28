@@ -180,7 +180,7 @@ void Server::net_loop(int id) {
                         CXX_THROW(ServerException, "Unknown province");
                     
                     if(unit.can_move()) {
-                        Eng3D::Log::debug("server", "Unit changes targets to " + province->ref_name.get_string());
+                        Eng3D::Log::debug("server", string_format("Unit changes targets to %s", province->ref_name).c_str());
                         unit.set_path(*province);
                     }
                 } break;
@@ -210,7 +210,7 @@ void Server::net_loop(int id) {
                     // Tell the building to build this specific unit type
                     building.working_unit_type_id = *unit_type;
                     building.req_goods_for_unit = unit_type->req_goods;
-                    Eng3D::Log::debug("server", "New order for building; build unit " + unit_type->ref_name);
+                    Eng3D::Log::debug("server", string_format("Building unit %s", unit_type->ref_name.c_str()));
                 } break;
                 // Client tells server to build new outpost, the location (& type) is provided by
                 // the client and the rest of the fields are filled by the server
@@ -253,7 +253,7 @@ void Server::net_loop(int id) {
                     ::deserialize(ar, treaty);
                     TreatyApproval approval;
                     ::deserialize(ar, approval);
-                    Eng3D::Log::debug("server", selected_nation->ref_name + " approves treaty " + treaty->name + " A=" + (approval == TreatyApproval::ACCEPTED ? "YES" : "NO"));
+                    //Eng3D::Log::debug("server", selected_nation->ref_name + " approves treaty " + treaty->name + " A=" + (approval == TreatyApproval::ACCEPTED ? "YES" : "NO"));
                     if(!treaty->does_participate(*selected_nation))
                         CXX_THROW(ServerException, "Nation does not participate in treaty");
                     // Rebroadcast
@@ -282,11 +282,11 @@ void Server::net_loop(int id) {
                     auto last = std::unique(approver_nations.begin(), approver_nations.end());
                     approver_nations.erase(last, approver_nations.end());
 
-                    Eng3D::Log::debug("server", "Participants of treaty " + treaty.name);
+                    Eng3D::Log::debug("server", string_format("Participants of treaty %s", treaty.name.c_str()));
                     // Then fill as undecided (and ask nations to sign this treaty)
                     for(auto& nation_id : approver_nations) {
                         treaty.approval_status.emplace_back(nation_id, TreatyApproval::UNDECIDED);
-                        Eng3D::Log::debug("server", ">" + g_world.nations[nation_id].ref_name);
+                        Eng3D::Log::debug("server", g_world.nations[nation_id].ref_name.c_str());
                     }
                     // The sender automatically accepts the treaty (they are the ones who drafted it)
                     auto it = std::find_if(treaty.approval_status.end(), treaty.approval_status.end(), [&selected_nation](const auto& e) {
@@ -310,15 +310,15 @@ void Server::net_loop(int id) {
                     Event local_event;
                     ::deserialize(ar, local_event);
                     // Find decision by reference name
-                    std::string decision_ref_name;
-                    ::deserialize(ar, decision_ref_name);
-                    auto decision = std::find_if(local_event.decisions.begin(), local_event.decisions.end(), [&decision_ref_name](const Decision& d) {
-                        return d.ref_name == decision_ref_name;
+                    std::string ref_name;
+                    ::deserialize(ar, ref_name);
+                    auto decision = std::find_if(local_event.decisions.begin(), local_event.decisions.end(), [&ref_name](const auto& o) {
+                        return !strcmp(o.ref_name.c_str(), ref_name.c_str());
                     });
                     if(decision == local_event.decisions.end())
-                        CXX_THROW(ServerException, translate_format("Decision %s not found", decision_ref_name.c_str()));
+                        CXX_THROW(ServerException, translate_format("Decision %s not found", ref_name.c_str()));
                     local_event.take_decision(*selected_nation, *decision);
-                    Eng3D::Log::debug("server", "Event " + local_event.ref_name.get_string() + " takes descision " + decision_ref_name + " by nation " + selected_nation->ref_name);
+                    //Eng3D::Log::debug("server", "Event " + local_event.ref_name + " takes descision " + ref_name + " by nation " + selected_nation->ref_name);
                 } break;
                 // The client selects a nation
                 case ActionType::SELECT_NATION: {
@@ -331,7 +331,7 @@ void Server::net_loop(int id) {
                     selected_nation = nation;
                     ::deserialize(ar, nation->ai_do_cmd_troops);
                     ::deserialize(ar, nation->ai_controlled);
-                    Eng3D::Log::debug("server", "Nation " + selected_nation->ref_name + " selected by client " + cl.username + "," + std::to_string(id));
+                    //Eng3D::Log::debug("server", "Nation " + selected_nation->ref_name + " selected by client " + cl.username + "," + std::to_string(id));
 
                     this->clients_extra_data[id] = nation;
                     Archive ar{};

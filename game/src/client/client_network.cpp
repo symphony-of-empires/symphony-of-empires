@@ -128,12 +128,6 @@ void Client::net_loop() {
                             ::deserialize(ar, *nation);
                         }
                     } break;
-                    case ActionType::NATION_ADD: {
-                        Nation nation;
-                        ::deserialize(ar, nation);
-                        gs.world->insert(nation);
-                        Eng3D::Log::debug("client", "New nation " + nation.ref_name);
-                    } break;
                     case ActionType::NATION_ENACT_POLICY: {
                         Nation* nation;
                         ::deserialize(ar, nation);
@@ -177,7 +171,7 @@ void Client::net_loop() {
                         ProvinceId province_id;
                         ::deserialize(ar, province_id);
                         gs.world->unit_manager.add_unit(unit, province_id);
-                        Eng3D::Log::debug("client", "New unit of " + g_world.nations[unit.owner_id].ref_name);
+                        Eng3D::Log::debug("client", translate_format("Adding new unit from nation %s", g_world.nations[unit.owner_id].ref_name.c_str()));
                     } break;
                     case ActionType::UNIT_REMOVE: {
                         UnitId unit_id;
@@ -209,9 +203,9 @@ void Client::net_loop() {
                         Treaty treaty;
                         ::deserialize(ar, treaty);
                         gs.world->insert(treaty);
-                        Eng3D::Log::debug("client", "New treaty from " + gs.world->nations[treaty.sender_id].ref_name);
-                        for(const auto& status : treaty.approval_status)
-                            Eng3D::Log::debug("client", ">" + gs.world->nations[status.first].ref_name);
+                        Eng3D::Log::debug("client", translate_format("Adding new treaty sent by %s", gs.world->nations[treaty.sender_id].ref_name.c_str()));
+                        for(const auto& [nation_id, _] : treaty.approval_status)
+                            Eng3D::Log::debug("client", gs.world->nations[nation_id].ref_name.c_str());
                     } break;
                     case ActionType::WORLD_TICK: {
                         // Give up the world mutex for now

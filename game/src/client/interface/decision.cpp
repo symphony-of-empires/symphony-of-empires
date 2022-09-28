@@ -43,7 +43,7 @@ DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
     event{ _event }
 {
     // Title of the event
-    this->text(this->event.title.get_string());
+    this->text(this->event.title);
 
     // Body of the event tex
     auto* flex_column = new UI::Div(0, 0, this->width, (this->event.decisions.size() * 24) + (24 * 8), this);
@@ -51,14 +51,14 @@ DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
     this->height = flex_column->height;
 
     auto* txt = new UI::Text(0, 0, this->width, 24, flex_column);
-    txt->text(this->event.text.get_string());
+    txt->text(this->event.text);
     txt->is_scroll = true;
 
     // Buttons for decisions for the event
     for(const auto& decision : this->event.decisions) {
         auto* decide_btn = new UI::Button(0, 0, this->width, 24, flex_column);
-        decide_btn->text(decision.name.get_string());
-        decide_btn->set_tooltip(decision.effects.get_string());
+        decide_btn->text(decision.name);
+        decide_btn->set_tooltip(decision.effects);
         decide_btn->set_on_click([this, &decision](UI::Widget&) {
             this->gs.client->send(Action::NationTakeDecision::form_packet(this->event, decision));
             this->kill();

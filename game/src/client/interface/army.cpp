@@ -113,12 +113,12 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, con
 
     this->unit_icon = new UI::Image(0, 0, 24, 24, this);
     if(UnitType::is_valid(building.working_unit_type_id))
-        this->unit_icon->current_texture = gs.tex_man.load(gs.package_man.get_unique("gfx/" + this->gs.world->unit_types[building.working_unit_type_id].ref_name + ".png"));
+        this->unit_icon->current_texture = gs.tex_man.load(gs.package_man.get_unique(gs.world->unit_types[building.working_unit_type_id].get_icon_path()));
 
     this->province_lab = new UI::Label(0, 0, "?", this);
     this->province_lab->right_side_of(*this->unit_icon);
     this->province_lab->set_on_each_tick([this](UI::Widget& w) {
-        w.text(this->province.name.get_string());
+        w.text(this->province.name);
     });
     this->province_lab->on_each_tick(*this->province_lab);
 
@@ -126,7 +126,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, con
     this->name_lab->right_side_of(*this->province_lab);
     this->name_lab->set_on_each_tick([this](UI::Widget& w) {
         auto& building = this->province.get_buildings()[this->idx];
-        w.text(UnitType::is_valid(building.working_unit_type_id) ? this->gs.world->unit_types[building.working_unit_type_id].name.get_string() : translate("No unit"));
+        w.text(UnitType::is_valid(building.working_unit_type_id) ? this->gs.world->unit_types[building.working_unit_type_id].name : translate("No unit"));
     });
     this->name_lab->on_each_tick(*this->name_lab);
 

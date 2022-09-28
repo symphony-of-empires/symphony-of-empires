@@ -103,12 +103,6 @@ Eng3D::Networking::Packet FocusTech::form_packet(const Technology& technology) {
     });
 }
 
-Eng3D::Networking::Packet NationAdd::form_packet(const Nation& nation) {
-    return action_handler_sr<ActionType::NATION_ADD>([&](auto& ar) {
-        ::serialize(ar, nation);
-    });
-}
-
 Eng3D::Networking::Packet NationTakeDecision::form_packet(const Event& event, const Decision& decision) {
     return action_handler_sr<ActionType::NATION_TAKE_DECISION>([&](auto& ar) {
         ::serialize(ar, event);

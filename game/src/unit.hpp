@@ -50,6 +50,9 @@ struct UnitType : RefnameEntity<UnitTypeId> {
     bool is_ground; // Can go on ground?
     bool is_naval; // Can go on water?
     std::vector<std::pair<GoodId, float>> req_goods; // Required goods
+    std::string get_icon_path() const {
+        return string_format("gfx/unittype/%s.png", ref_name.c_str());
+    }
 };
 template<>
 struct Serializer<UnitType*> : SerializerReference<World, UnitType> {};

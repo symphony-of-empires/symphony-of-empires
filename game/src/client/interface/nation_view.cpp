@@ -60,7 +60,7 @@ Interface::NationView::NationView(GameState& _gs, Nation& _nation)
 {
     this->is_scroll = false;
     this->set_on_each_tick([this](UI::Widget& w) {
-        w.text(this->nation.get_client_hint().alt_name.get_string());
+        w.text(this->nation.get_client_hint().alt_name);
     });
     this->on_each_tick(*this);
     this->set_close_btn_function([this](Widget&) {
@@ -73,7 +73,7 @@ Interface::NationView::NationView(GameState& _gs, Nation& _nation)
     });
     flag_img->on_each_tick(*flag_img);
     flag_img->set_tooltip(translate("The flag which represents the country"));
-    new UI::Image(0, 0, flag_img->width, flag_img->height, gs.tex_man.load(gs.package_man.get_unique("gfx/flag_rug.png")), this);
+    //new UI::Image(0, 0, flag_img->width, flag_img->height, "gfx/flag_rug.png"), this);
 
     auto* flex_actions_column = new UI::Div(0, 0, 512, 512, this);
     flex_actions_column->below_of(*flag_img);
@@ -81,7 +81,7 @@ Interface::NationView::NationView(GameState& _gs, Nation& _nation)
 
     auto* name_lab = new UI::Label(0, 0, "?", flex_actions_column);
     name_lab->set_on_each_tick([this](UI::Widget& w) {
-        w.text(this->nation.get_client_hint().alt_name.get_string());
+        w.text(this->nation.get_client_hint().alt_name);
     });
     name_lab->on_each_tick(*name_lab);
     name_lab->set_tooltip(translate("The official name"));
@@ -89,8 +89,8 @@ Interface::NationView::NationView(GameState& _gs, Nation& _nation)
     auto* ideology_img = new UI::Image(0, 0, 24, 24, this);
     ideology_img->set_on_each_tick([this](UI::Widget& w) {
         const auto& ideology = this->gs.world->ideologies[this->nation.get_client_hint().ideology_id];
-        ((UI::Image&)w).current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/ideology/" + ideology.ref_name.get_string() + ".png"));
-        w.set_tooltip(ideology.ref_name.get_string());
+        ((UI::Image&)w).current_texture = this->gs.tex_man.load(gs.package_man.get_unique(ideology.get_icon_path()));
+        w.set_tooltip(ideology.ref_name);
     });
     ideology_img->on_each_tick(*ideology_img);
     

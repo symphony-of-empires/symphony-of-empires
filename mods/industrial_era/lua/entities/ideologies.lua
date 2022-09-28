@@ -25,24 +25,17 @@
 
 monarchy = Ideology:new{ ref_name = "monarchy", name = _("Monarchy"), color = 0xf2de24 }
 monarchy:register()
-
 republic = Ideology:new{ ref_name = "republic", name = _("Republic"), color = 0x4245f5 }
 republic:register()
-
 communism = Ideology:new{ ref_name = "communism", name = _("Communism"), color = 0x800e04 }
 communism:register()
-
 democracy = Ideology:new{ ref_name = "democracy", name = _("Democracy"), color = 0x4366a1 }
 democracy:register()
-
 fascism = Ideology:new{ ref_name = "fascism", name = _("Fascism"), color = 0xcc1f6d }
 fascism:register()
-
 socialism = Ideology:new{ ref_name = "socialism", name = _("Socialism"), color = 0xff1500 }
 socialism:register()
-
-tribal = Ideology:new{ ref_name = "tribal", name = _("Tribal"), check_policies_fn = "?" }
+tribal = Ideology:new{ ref_name = "tribal", name = _("Tribal"), color = 0x684242 }
 tribal:register()
-
 anarchy = Ideology:new{ ref_name = "anarchy", name = _("Anarchy"), color = 0x363533 }
 anarchy:register()

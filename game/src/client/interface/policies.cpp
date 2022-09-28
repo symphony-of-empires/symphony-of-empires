@@ -65,8 +65,8 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
         /// @todo More dynamic names
         if(Ideology::is_valid(this->gs.curr_nation->ideology_id)) {
             auto& ideology = this->gs.world->ideologies[this->gs.curr_nation->ideology_id];
-            w.text(ideology.name.get_string());
-            w.current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/ideology/" + ideology.ref_name.get_string() + ".png"));
+            w.text(ideology.name);
+            w.current_texture = gs.tex_man.load(gs.package_man.get_unique(ideology.get_icon_path()));
         }
     });
     ideology_img->on_each_tick(*ideology_img);
@@ -79,7 +79,7 @@ PoliciesScreen::PoliciesScreen(GameState& _gs)
 
         std::vector<UI::ChartData> ideology_data;
         for(const auto& ideology : this->gs.world->ideologies)
-            ideology_data.push_back(UI::ChartData(1.f, ideology.name.get_string(), ideology.color));
+            ideology_data.push_back(UI::ChartData(1.f, ideology.name, ideology.color));
         
         for(const auto province_id : this->gs.curr_nation->owned_provinces)
             for(const auto& pop : this->gs.world->provinces[province_id].pops)

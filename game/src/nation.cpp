@@ -44,8 +44,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     auto& world = World::get_instance();
     auto* war = new War();
 
-    Eng3D::Log::debug("game", ref_name + " has declared war on " + nation.ref_name);
-
+    //Eng3D::Log::debug("game", ref_name + " has declared war on " + nation.ref_name);
     war->wargoals = clauses;
 
     // Recollect offenders
@@ -105,12 +104,12 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     Eng3D::Log::debug("game", "Attackers");
     for(const auto& attacker_id : war->attacker_ids) {
         auto& attacker = world.nations[attacker_id];
-        Eng3D::Log::debug("game", "\t" + attacker.ref_name.get_string());
+        Eng3D::Log::debug("game", attacker.ref_name.get_string());
     }
     Eng3D::Log::debug("game", "Defenders");
     for(const auto& defender_id : war->defender_ids) {
         auto& defender = world.nations[defender_id];
-        Eng3D::Log::debug("game", "\t" + defender.ref_name.get_string());
+        Eng3D::Log::debug("game", defender.ref_name.get_string());
     }
     war->name = translate_format("War of %s against %s", this->name.c_str(), nation.name.c_str());
     Eng3D::Log::debug("game", war->name.get_string());

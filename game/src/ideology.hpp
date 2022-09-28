@@ -33,6 +33,9 @@ struct Ideology : RefnameEntity<IdeologyId> {
     std::uint32_t color;
     Eng3D::StringRef name;
     Policies policies;
+    std::string get_icon_path() const {
+        return string_format("gfx/ideology/%s.png", ref_name.c_str());
+    }
 };
 template<>
 struct Serializer<Ideology*> : SerializerReference<World, Ideology> {};

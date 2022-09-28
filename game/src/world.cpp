@@ -471,7 +471,7 @@ void World::load_initial() {
         // Auto-relocate capitals for countries which do not have one
         for(auto& nation : this->nations) {
             if(!nation.exists() || Province::is_invalid(nation.capital_id)) continue;
-            Eng3D::Log::debug("world", translate("Relocating capital of [" + nation.ref_name + "]"));
+            //Eng3D::Log::debug("world", translate("Relocating capital of [" + nation.ref_name + "]"));
             nation.auto_relocate_capital();
         }
 
@@ -576,11 +576,11 @@ static inline void unit_do_tick(World& world, Unit& unit) {
             assert(std::find(battle.defenders_ids.begin(), battle.defenders_ids.end(), unit) == battle.defenders_ids.end());
             if(war.is_attacker(unit_nation)) {
                 battle.attackers_ids.push_back(unit);
-                Eng3D::Log::debug("game", "Adding unit <attacker> to battle of \"" + battle.name + "\"");
+                //Eng3D::Log::debug("game", "Adding unit <attacker> to battle of \"" + battle.name + "\"");
             } else {
                 assert(war.is_defender(unit_nation));
                 battle.defenders_ids.push_back(unit);
-                Eng3D::Log::debug("game", "Adding unit <defender> to battle of \"" + battle.name + "\"");
+                //Eng3D::Log::debug("game", "Adding unit <defender> to battle of \"" + battle.name + "\"");
             }
         } else {
             // No battle on the current province, create a new one so check if we can start a new battle
@@ -609,7 +609,7 @@ static inline void unit_do_tick(World& world, Unit& unit) {
                     other_unit.stop_movement();
                     // Create a new battle
                     Battle battle(war);
-                    battle.name = "Battle of " + unit_province.name;
+                    battle.name = "battleName";
                     if(war.is_attacker(world.nations[unit.owner_id])) {
                         battle.attackers_ids.emplace_back(unit);
                         battle.defenders_ids.emplace_back(other_unit);
@@ -618,7 +618,7 @@ static inline void unit_do_tick(World& world, Unit& unit) {
                         battle.defenders_ids.emplace_back(unit);
                     }
                     unit_province.battles.push_back(battle);
-                    Eng3D::Log::debug("game", "New battle of \"" + battle.name + "\"");
+                    Eng3D::Log::debug("game", string_format("New battle of \"%s\"", battle.name.c_str()));
                     break;
                 }
             }
@@ -687,7 +687,7 @@ void World::do_tick() {
         if(!treaty.in_effect()) continue;
 
         // Treaties clauses now will be enforced
-        Eng3D::Log::debug("game", "Enforcing treaty " + treaty.name);
+        Eng3D::Log::debug("game", string_format("Enforcing treaty %s", treaty.name));
         for(auto& clause : treaty.clauses) {
             assert(clause != nullptr);
             if(clause->type == TreatyClauseType::MONEY) {
@@ -738,7 +738,7 @@ void World::do_tick() {
                 }
 
                 if(war.attacker_ids.empty() || war.defender_ids.empty()) { // Once nobody is in a war remove it from the world
-                    Eng3D::Log::debug("war", "War of " + war.name + " finished!");
+                    Eng3D::Log::debug("war", translate_format("War %s finished", war.name));
                     g_world.wars.erase(g_world.wars.begin() + i);
                     break;
                 }
@@ -775,7 +775,7 @@ void World::do_tick() {
                         attacker.attack(unit);
                         battle.defender_casualties += prev_size - unit.size;
                         if(unit.size <= 1.f) {
-                            Eng3D::Log::debug("game", "Removing attacker \"" + this->unit_types[unit.type_id].ref_name + "\" unit to battle of \"" + battle.name + "\"");
+                            //Eng3D::Log::debug("game", "Removing attacker \"" + this->unit_types[unit.type_id].ref_name + "\" unit to battle of \"" + battle.name + "\"");
                             battle.defenders_ids.erase(battle.defenders_ids.begin() + i);
                             clear_units.local().push_back(unit);
                             continue;
@@ -795,7 +795,7 @@ void World::do_tick() {
                         defender.attack(unit);
                         battle.attacker_casualties += prev_size - unit.size;
                         if(unit.size <= 1.f) {
-                            Eng3D::Log::debug("game", "Removing defender \"" + this->unit_types[unit.type_id].ref_name + "\" unit to battle of \"" + battle.name + "\"");
+                            //Eng3D::Log::debug("game", "Removing defender \"" + this->unit_types[unit.type_id].ref_name + "\" unit to battle of \"" + battle.name + "\"");
                             battle.attackers_ids.erase(battle.attackers_ids.begin() + i);
                             clear_units.local().push_back(unit);
                             continue;
@@ -816,7 +816,7 @@ void World::do_tick() {
                             unit.on_battle = false;
                             assert(unit.size);
                         }
-                        Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": attacker_ids win");
+                        //Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": attacker_ids win");
                     }
                     // Defenders won
                     else {
@@ -827,9 +827,8 @@ void World::do_tick() {
                             unit.on_battle = false;
                             assert(unit.size);
                         }
-                        Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": defender_ids win");
+                        //Eng3D::Log::debug("game", "Battle \"" + battle.name + "\": defender_ids win");
                     }
-
                     // Erase the battle from the province
                     province.battles.erase(province.battles.begin() + j);
                     j--;

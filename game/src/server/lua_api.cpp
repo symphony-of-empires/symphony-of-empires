@@ -66,26 +66,14 @@ int LuaAPI::register_new_table(lua_State* L, const std::string& name, const std:
 // after each economical tick
 // HOWEVER, adding new elements or changing other states REQUIRES a explicit synchronization!!
 template<typename T>
-const T* find_or_throw(const std::string& ref_name) {
+static const T& find_or_throw(const std::string_view ref_name) {
     const auto& list = World::get_instance().get_list((T*)nullptr);
-    const auto result = std::find_if(list.begin(), list.end(), [&ref_name](const auto& o) {
-        return (o->ref_name == ref_name);
+    const auto result = std::find_if(list.begin(), list.end(), [ref_name](const auto& o) {
+        return !strcmp(o.ref_name.c_str(), ref_name.data());
     });
 
     if(result == list.end())
-        CXX_THROW(LuaAPI::Exception, translate_format("Object<%s> not found", typeid(T).name()));
-    return (*result);
-}
-
-template<typename T>
-const T& find_or_throw_local(const std::string& ref_name) {
-    const auto& list = World::get_instance().get_list((T*)nullptr);
-    const auto result = std::find_if(list.begin(), list.end(), [&ref_name](const auto& o) {
-        return (o.ref_name == ref_name);
-    });
-
-    if(result == list.end())
-        CXX_THROW(LuaAPI::Exception, translate_format("Object<%s> not found", typeid(T).name()));
+        CXX_THROW(LuaAPI::Exception, translate_format("Object<%s> not found", typeid(T).name()).c_str());
     return *result;
 }
 
@@ -151,7 +139,7 @@ int LuaAPI::get_terrain_type_by_id(lua_State* L) {
 }
 
 int LuaAPI::get_terrain_type(lua_State* L) {
-    const auto& terrain_type = find_or_throw_local<TerrainType>(luaL_checkstring(L, 1));
+    const auto& terrain_type = find_or_throw<TerrainType>(luaL_checkstring(L, 1));
     lua_pushnumber(L, (size_t)g_world.get_id(terrain_type));
     lua_pushstring(L, terrain_type.name.c_str());
     lua_pushnumber(L, std::byteswap<std::uint32_t>((terrain_type.color & 0x00ffffff) << 8));
@@ -176,7 +164,7 @@ int LuaAPI::add_technology(lua_State* L) {
 }
 
 int LuaAPI::get_technology(lua_State* L) {
-    const auto& technology = find_or_throw_local<Technology>(luaL_checkstring(L, 1));
+    const auto& technology = find_or_throw<Technology>(luaL_checkstring(L, 1));
     lua_pushnumber(L, (size_t)g_world.get_id(technology));
     lua_pushstring(L, technology.name.c_str());
     lua_pushstring(L, technology.description.c_str());
@@ -207,7 +195,7 @@ int LuaAPI::add_building_type(lua_State* L) {
 }
 
 int LuaAPI::get_building_type(lua_State* L) {
-    const auto& building_type = find_or_throw_local<BuildingType>(luaL_checkstring(L, 1));
+    const auto& building_type = find_or_throw<BuildingType>(luaL_checkstring(L, 1));
 
     lua_pushnumber(L, (size_t)building_type.get_id());
     lua_pushstring(L, building_type.ref_name.c_str());
@@ -232,7 +220,7 @@ int LuaAPI::add_good(lua_State* L) {
 }
 
 int LuaAPI::get_good(lua_State* L) {
-    const auto& good = find_or_throw_local<Good>(luaL_checkstring(L, 1));
+    const auto& good = find_or_throw<Good>(luaL_checkstring(L, 1));
     lua_pushnumber(L, (size_t)g_world.get_id(good));
     lua_pushstring(L, good.name.c_str());
     return 2;
@@ -288,7 +276,7 @@ int LuaAPI::add_nation(lua_State* L) {
         if(Nation::is_invalid(other_nation))
             luaL_error(L, "Nation with invalid Id!");
         if(nation.ref_name == other_nation.ref_name)
-            luaL_error(L, ("Duplicate ref_name " + nation.ref_name).c_str());
+            luaL_error(L, string_format("Duplicate ref_name %s", nation.ref_name.c_str()).c_str());
     }
     g_world.insert(nation);
     lua_pushnumber(L, g_world.nations.size() - 1);
@@ -296,7 +284,7 @@ int LuaAPI::add_nation(lua_State* L) {
 }
 
 int LuaAPI::get_nation(lua_State* L) {
-    const auto& nation = find_or_throw_local<Nation>(luaL_checkstring(L, 1));
+    const auto& nation = find_or_throw<Nation>(luaL_checkstring(L, 1));
     lua_pushnumber(L, (size_t)g_world.get_id(nation));
     lua_pushstring(L, nation.name.c_str());
     return 2;
@@ -326,8 +314,7 @@ int LuaAPI::switch_nation_soul(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     auto& target = g_world.nations.at(lua_tonumber(L, 2));
     if(&nation == &target)
-        luaL_error(L, (nation.ref_name + " can't switch to itself").c_str());
-    
+        luaL_error(L, string_format("%s can't switch to itself", nation.ref_name.c_str()).c_str());
     /// @todo Broadcast this to all clients?
     return 0;
 }
@@ -336,7 +323,7 @@ int LuaAPI::nation_declare_war_no_cb(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
     if(&nation == &other_nation)
-        luaL_error(L, (nation.ref_name + " can't declare war with itself").c_str());
+        luaL_error(L, string_format("%s can't declare war with itself", nation.ref_name.c_str()).c_str());
     nation.declare_war(other_nation);
     return 0;
 }
@@ -545,7 +532,7 @@ int LuaAPI::add_province(lua_State* L) {
         
         {
             lua_rawgeti(L, -1, 1);
-            const Good& good = find_or_throw_local<Good>(luaL_checkstring(L, -1));
+            const Good& good = find_or_throw<Good>(luaL_checkstring(L, -1));
             lua_pop(L, 1);
 
             lua_rawgeti(L, -1, 2);
@@ -560,9 +547,9 @@ int LuaAPI::add_province(lua_State* L) {
     // Check for duplicates
     for(size_t i = 0; i < g_world.provinces.size(); i++) {
         if(province.color == g_world.provinces[i].color) {
-            luaL_error(L, (province.ref_name + " province has same color as " + g_world.provinces[i].ref_name).c_str());
+            luaL_error(L, string_format("%s province has same color as %s", province.ref_name.c_str(), g_world.provinces[i].ref_name.c_str()).c_str());
         } else if(province.ref_name == g_world.provinces[i].ref_name) {
-            luaL_error(L, ("Duplicate ref_name " + province.ref_name).c_str());
+            luaL_error(L, string_format("Duplicate ref_name %s", province.ref_name.c_str()).c_str());
         }
     }
     
@@ -589,16 +576,16 @@ int LuaAPI::update_province(lua_State* L) {
     // Check for duplicates
     for(size_t i = 0; i < g_world.provinces.size(); i++) {
         if(province.color == g_world.provinces[i].color) {
-            luaL_error(L, (province.ref_name + " province has same color as " + g_world.provinces[i].ref_name).c_str());
+            luaL_error(L, string_format("%s province has same color as %s", province.ref_name.c_str(), g_world.provinces[i].ref_name.c_str()).c_str());
         } else if(province.ref_name == g_world.provinces[i].ref_name) {
-            luaL_error(L, ("Duplicate ref_name " + province.ref_name).c_str());
+            luaL_error(L, string_format("Duplicate ref_name %s", province.ref_name.c_str()).c_str());
         }
     }
     return 0;
 }
 
 int LuaAPI::get_province(lua_State* L) {
-    const Province& province = find_or_throw_local<Province>(luaL_checkstring(L, 1));
+    const Province& province = find_or_throw<Province>(luaL_checkstring(L, 1));
     lua_pushnumber(L, (size_t)g_world.get_id(province));
     lua_pushstring(L, province.name.c_str());
     lua_pushnumber(L, std::byteswap<std::uint32_t>((province.color & 0x00ffffff) << 8));
@@ -860,7 +847,7 @@ int LuaAPI::update_event(lua_State* L) {
 }
 
 int LuaAPI::get_event(lua_State* L) {
-    const auto& event = find_or_throw_local<Event>(luaL_checkstring(L, 1));
+    const auto& event = find_or_throw<Event>(luaL_checkstring(L, 1));
     lua_pushnumber(L, (size_t)g_world.get_id(event));
     /// @todo A better way to get closures
     lua_pushinteger(L, event.conditions_function);
@@ -919,7 +906,7 @@ int LuaAPI::add_pop_type(lua_State* L) {
     while(lua_next(L, -2)) {
         lua_pushnil(L);
         lua_next(L, -2);
-        const Good& good = find_or_throw_local<Good>(pop_string(L));
+        const Good& good = find_or_throw<Good>(pop_string(L));
         lua_next(L, -2);
         const float amount = pop_number(L);
         lua_pop(L, 2);
@@ -932,7 +919,7 @@ int LuaAPI::add_pop_type(lua_State* L) {
     while(lua_next(L, -2)) {
         lua_pushnil(L);
         lua_next(L, -2);
-        const Good& good = find_or_throw_local<Good>(pop_string(L));
+        const Good& good = find_or_throw<Good>(pop_string(L));
         lua_next(L, -2);
         const float satisfaction = pop_number(L);
         lua_next(L, -2);
@@ -949,7 +936,7 @@ int LuaAPI::add_pop_type(lua_State* L) {
 }
 
 int LuaAPI::get_pop_type(lua_State* L) {
-    const auto& pop_type = find_or_throw_local<PopType>(luaL_checkstring(L, 1));
+    const auto& pop_type = find_or_throw<PopType>(luaL_checkstring(L, 1));
 
     lua_pushnumber(L, (size_t)g_world.get_id(pop_type));
     lua_pushstring(L, pop_type.name.c_str());
@@ -1043,7 +1030,7 @@ int LuaAPI::add_language(lua_State* L) {
 }
 
 int LuaAPI::get_language(lua_State* L) {
-    const auto& language = find_or_throw_local<Language>(luaL_checkstring(L, 1));
+    const auto& language = find_or_throw<Language>(luaL_checkstring(L, 1));
 
     lua_pushnumber(L, (size_t)g_world.get_id(language));
     lua_pushstring(L, language.name.c_str());
@@ -1079,7 +1066,7 @@ int LuaAPI::add_religion(lua_State* L) {
 }
 
 int LuaAPI::get_religion(lua_State* L) {
-    const auto& religion = find_or_throw_local<Religion>(luaL_checkstring(L, 1));
+    const auto& religion = find_or_throw<Religion>(luaL_checkstring(L, 1));
     lua_pushnumber(L, (size_t)g_world.get_id(religion));
     lua_pushstring(L, religion.name.c_str());
     lua_pushnumber(L, std::byteswap<std::uint32_t>((religion.color & 0x00ffffff) << 8));
@@ -1113,7 +1100,7 @@ int LuaAPI::add_unit_type(lua_State* L) {
 }
 
 int LuaAPI::get_unit_type(lua_State* L) {
-    const auto unit_type = find_or_throw_local<UnitType>(luaL_checkstring(L, 1));
+    const auto unit_type = find_or_throw<UnitType>(luaL_checkstring(L, 1));
 
     lua_pushnumber(L, (size_t)g_world.get_id(unit_type));
     lua_pushstring(L, unit_type.name.c_str());
@@ -1148,7 +1135,7 @@ int LuaAPI::add_ideology(lua_State* L) {
 }
 
 int LuaAPI::get_ideology(lua_State* L) {
-    const auto& ideology = find_or_throw_local<Ideology>(luaL_checkstring(L, 1));
+    const auto& ideology = find_or_throw<Ideology>(luaL_checkstring(L, 1));
     lua_pushnumber(L, (size_t)g_world.get_id(ideology));
     lua_pushstring(L, ideology.name.c_str());
     lua_pushnumber(L, std::byteswap<std::uint32_t>((ideology.color & 0x00ffffff) << 8));
@@ -1211,7 +1198,7 @@ void LuaAPI::check_events(lua_State* L) {
                 auto orig_event = Event(event);
 
                 // Call the "do event" function
-                Eng3D::Log::debug("event", "Event " + event.ref_name + " using " + std::to_string(event.do_event_function) + " function");
+                //Eng3D::Log::debug("event", "Event " + event.ref_name + " using " + std::to_string(event.do_event_function) + " function");
                 lua_rawgeti(L, LUA_REGISTRYINDEX, event.do_event_function);
                 lua_pushstring(L, nation->ref_name.c_str());
                 if(call_func(L, 1, 1)) {
@@ -1226,26 +1213,25 @@ void LuaAPI::check_events(lua_State* L) {
                     // The changes done to the event "locally" are then created into a new local event
                     auto local_event = Event(event);
                     local_event.cached_id = Event::invalid();
-                    local_event.ref_name = Eng3D::StringRef(local_event.ref_name + "_local_" + nation->ref_name);
+                    local_event.ref_name = Eng3D::StringRef(string_format("%s:%s", local_event.ref_name.c_str(), nation->ref_name.c_str()).c_str());
                     // Do not relaunch a local event
                     local_event.checked = true;
                     if(local_event.decisions.empty()) {
-                        Eng3D::Log::error("event", "Event " + local_event.ref_name + " has no decisions (ref_name = " + nation->ref_name + ")");
+                        //Eng3D::Log::error("event", "Event " + local_event.ref_name + " has no decisions (ref_name = " + nation->ref_name + ")");
                     } else {
                         // Check that descisions have functions
                         for(const auto& descision : local_event.decisions) {
                             if(descision.do_decision_function == 0) {
-                                Eng3D::Log::error("lua", "Lua event " + orig_event.ref_name + " on descision " + descision.ref_name + " failed");
+                                //Eng3D::Log::error("lua", "Lua event " + orig_event.ref_name + " on descision " + descision.ref_name + " failed");
                                 goto restore_original;
                             }
                         }
                         nation->inbox.push_back(local_event);
-                        Eng3D::Log::debug("event", "Event triggered! " + local_event.ref_name + " (with " + std::to_string(local_event.decisions.size()) + " decisions)");
+                        //Eng3D::Log::debug("event", "Event triggered! " + local_event.ref_name + " (with " + std::to_string(local_event.decisions.size()) + " decisions)");
                     }
                 }
 
-            restore_original:
-                // Original event then gets restored
+            restore_original: // Original event then gets restored
                 event = orig_event;
             }
         }
@@ -1258,15 +1244,13 @@ void LuaAPI::check_events(lua_State* L) {
     // Do decisions taken effects in the queue, then clear it awaiting
     // other taken decisions :)
     for(auto& dec : g_world.taken_decisions) {
-        Eng3D::Log::debug("event", dec.second->ref_name + " took the decision " + std::to_string(dec.first.do_decision_function));
-
+        Eng3D::Log::debug("event", string_format("%s took the descision %i", dec.second->ref_name.c_str(), dec.first.do_decision_function));
         lua_rawgeti(L, LUA_REGISTRYINDEX, dec.first.do_decision_function);
         lua_pushstring(L, dec.second->ref_name.c_str());
         if(call_func(L, 1, 0)) {
-            const std::string err_msg = lua_tostring(L, -1);
-            Eng3D::Log::error("lua", "lua_pcall failed: " + err_msg);
+            const std::string_view err_msg = lua_tostring(L, -1);
             lua_pop(L, 1);
-            CXX_THROW(LuaAPI::Exception, std::to_string(dec.first.do_decision_function) + "(" + dec.second->ref_name + "): " + err_msg);
+            CXX_THROW(LuaAPI::Exception, string_format("%i(%s): %s", dec.first.do_decision_function, dec.second->ref_name.c_str(), err_msg).c_str());
         }
     }
     g_world.taken_decisions.clear();

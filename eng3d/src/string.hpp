@@ -48,38 +48,21 @@ namespace Eng3D {
             *this = StringRef(rhs);
             return *this;
         }
-        const std::string& get_string() const;
-        bool operator==(const std::string& rhs) const {
-            return this->get_string() == rhs;
-        }
+        const std::string_view get_string() const;
         constexpr bool operator==(const StringRef&) const noexcept = default;
         constexpr bool operator<=>(const StringRef&) const noexcept = default;
 
         const char* c_str() const {
             return this->get_string().data();
         }
-
-        size_t get_id() const {
-            return id;
+        
+        operator std::string() const {
+            return std::string(this->get_string());
         }
+
+        size_t get_id() const { return id; }
     };
-
-    inline std::string operator+(const char* lhs, const StringRef& rhs) {
-        return lhs + rhs.get_string();
-    }
-
-    inline std::string operator+(const StringRef& lhs, const char* rhs) {
-        return lhs.get_string() + rhs;
-    }
-
-    inline std::string operator+(const std::string_view lhs, const StringRef& rhs) {
-        return lhs.data() + rhs.get_string();
-    }
-
-    inline std::string operator+(const StringRef& lhs, const std::string_view rhs) {
-        return lhs.get_string() + rhs.data();
-    }
-
+    
     class State;
     /// @brief The string pool manager (singleton), used mainly for translation
     /// purpouses. But also helps to reduce the memory size of various objects.
@@ -94,10 +77,11 @@ namespace Eng3D {
             const std::scoped_lock lock(strings_mutex);
             const auto id = strings.size();
             std::copy(str.begin(), str.end(), std::back_inserter(strings));
+            strings.push_back('\0');
             return Eng3D::StringRef(id);
         }
 
-        const std::string get_by_id(const Eng3D::StringRef ref) const {
+        const std::string_view get_by_id(const Eng3D::StringRef ref) const {
             const std::scoped_lock lock(strings_mutex);
             return &strings[ref.get_id()];
         }
@@ -112,13 +96,13 @@ namespace Eng3D {
     /// @param args Arguments for formatting
     /// @return std::string The resulting formatted text
     template<typename ... Args>
-    std::string string_format(const std::string& format, Args&& ... args) {
-        int size_s = std::snprintf(nullptr, 0, format.c_str(), std::forward<decltype(args)>(args)...) + 1; // Extra space for '\0'
+    std::string string_format(const std::string_view format, Args&& ... args) {
+        int size_s = std::snprintf(nullptr, 0, format.data(), std::forward<decltype(args)>(args)...) + 1; // Extra space for '\0'
         if(size_s <= 0)
             CXX_THROW(std::runtime_error, "Error during formatting");
         size_t size = static_cast<size_t>(size_s);
         std::unique_ptr<char[]> buf = std::make_unique<char[]>(size);
-        std::snprintf(buf.get(), size, format.c_str(), args ...);
+        std::snprintf(buf.get(), size, format.data(), args ...);
         return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
     }
 };
@@ -126,7 +110,7 @@ using Eng3D::string_format;
 
 namespace Eng3D::Locale {
     void from_file(const std::string& filename);
-    std::string translate(const std::string& str);
+    std::string translate(const std::string_view str);
 }
 using Eng3D::Locale::translate;
 
@@ -137,7 +121,7 @@ namespace Eng3D {
     /// @param args Arguments for formatting
     /// @return std::string The resulting formatted text
     template<typename ... Args>
-    std::string translate_format(const std::string& format, Args&& ... args) {
+    std::string translate_format(const std::string_view format, Args&& ... args) {
         return Eng3D::string_format(Eng3D::Locale::translate(format), std::forward<decltype(args)>(args)...);
     }
 };

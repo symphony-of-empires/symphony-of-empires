@@ -255,7 +255,6 @@ static inline void ai_build_commercial(Nation& nation) {
 
     // Otherwise -- do not build anything since the highest valued good cannot be produced
     if(type == nullptr) return;
-    Eng3D::Log::debug("ai", nation.ref_name + " Good " + target_good->ref_name + " seems to be on a high-trend - building industry " + type->ref_name + " which makes that good");
     auto it = std::begin(nation.owned_provinces);
     std::advance(it, rand() % nation.owned_provinces.size());
     auto& province = world.provinces[*it];
@@ -264,22 +263,17 @@ static inline void ai_build_commercial(Nation& nation) {
     province.add_building(building_type);
     // Broadcast the addition of the building to the clients
     g_server->broadcast(Action::BuildingAdd::form_packet(province, building_type));
-    Eng3D::Log::debug("ai", "Building of " + building_type.ref_name + ", from " + nation.ref_name + " built on " + province.ref_name);
 }
 
 void ai_do_tick(Nation& nation) {
     auto& world = World::get_instance();
     if(!nation.exists()) {
         // Automatically unconditionally surrender once we stop existing
-        if(!(world.time % world.ticks_per_month) && nation.ai_controlled) {
-            for(auto& treaty : world.treaties) {
-                for(auto& part : treaty.approval_status) {
-                    if(part.first != nation) continue;
-                    Eng3D::Log::debug("ai", "We, [" + nation.ref_name + "], (uncodintionally) accept the treaty of [" + treaty.name + "]");
-                    part.second = TreatyApproval::ACCEPTED;
-                }
-            }
-        }
+        if(!(world.time % world.ticks_per_month) && nation.ai_controlled)
+            for(auto& treaty : world.treaties)
+                for(auto& [other_nation, approval] : treaty.approval_status)
+                    if(other_nation == nation)
+                        approval = TreatyApproval::ACCEPTED;
         return;
     }
     auto& ai_data = g_ai_data[nation];
@@ -460,26 +454,13 @@ void ai_do_tick(Nation& nation) {
                     packet.data(ar.get_buffer(), ar.size());
                     g_server->broadcast(packet);
                     nation.give_province(*target);
-                    Eng3D::Log::debug("ai", "Conquering " + target->ref_name + " for " + nation.ref_name);
                 }
             }
         }
 
-        // Research technologies
-        for(auto& technology : world.technologies) {
-            // Do not research if already been completed and be able to research it
-            if(!nation.research[world.get_id(technology)] || !nation.can_research(technology))
-                continue;
-
-            nation.change_research_focus(technology);
-            Eng3D::Log::debug("ai", "[" + nation.ref_name + "] now researching [" + technology.ref_name + "] - " + std::to_string(nation.research[world.get_id(technology)]) + " research points (" + std::to_string(nation.get_research_points()) + ")");
-            break;
-        }
-
         // Taking events
-        for(auto& event : nation.inbox) {
+        for(auto& event : nation.inbox)
             event.take_decision(nation, event.decisions[rand() % event.decisions.size()]);
-        }
 
         // Build a factory/non-militar building
         ai_build_commercial(nation);
@@ -505,7 +486,6 @@ void ai_do_tick(Nation& nation) {
             province.add_building(building_type);
             // Broadcast the addition of the building to the clients
             g_server->broadcast(Action::BuildingAdd::form_packet(province, building_type));
-            Eng3D::Log::debug("ai", "Construction of building " + building_type.name + " from " + nation.name + " built on " + province.name);
         }
 
         if(rand() % (base_reluctance / defense_factor) == 0) {
@@ -527,7 +507,6 @@ void ai_do_tick(Nation& nation) {
                     auto& unit_type = world.unit_types[rand() % world.unit_types.size()];
                     building.working_unit_type_id = unit_type;
                     building.req_goods_for_unit = unit_type.req_goods;
-                    Eng3D::Log::debug("ai", "Building of unit " + unit_type.name + " from " + nation.name + " built on " + province.name);
                 }
             }
         }

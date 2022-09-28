@@ -57,10 +57,8 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
     for(size_t i = 0; i < province.rgo_size.size(); i++) {
         const auto& good = gs.world->goods[i];
         auto size = province.rgo_size[i];
-        if(size != 0) {
-            rgo_size_out += "{\"" + good.ref_name + "\",";
-            rgo_size_out += std::to_string(size) + "},";
-        }
+        if(size)
+            rgo_size_out += string_format("{\"%s\",%zu}", good.ref_name.c_str(), size);
     }
     fprintf(fp, "province=Province:new{ref_name=\"%s\",name=translate(\"%s\"),color=0x%x,terrain=tt_%s,rgo_size={%s}}\n",
         province.ref_name.c_str(),

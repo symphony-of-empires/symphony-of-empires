@@ -111,9 +111,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     this->current_texture = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/bg/main_menu.png"));
     auto main_menu_border = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/bg/main_menu_border.png"));
     this->border = UI::Border(main_menu_border, glm::ivec2(16), glm::ivec2(16));
-
-    auto logo = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/image/logo.png"));
-    new UI::Image(0, 0, 300, 120, logo, this);
+    new UI::Image(0, 0, 300, 120, "gfx/ui/image/logo.png", this);
 
     auto button_image = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/button/button.png"));
     auto button_border_image = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/button/button_border.png"));
