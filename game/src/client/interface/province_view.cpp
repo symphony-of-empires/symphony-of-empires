@@ -37,6 +37,7 @@
 #include "client/interface/nation_view.hpp"
 #include "client/game_state.hpp"
 #include "client/map.hpp"
+#include "client/map_render.hpp"
 #include "nation.hpp"
 #include "world.hpp"
 #include "building.hpp"
@@ -324,8 +325,11 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
 
     auto* flex_row = new UI::Div(0, 0, this->width, 32, this);
     flex_row->flex = UI::Flex::ROW;
+    if(gs.editor) {
+        flex_row->height += 32;
+    }
 
-    this->pop_tab = new ProvincePopulationTab(gs, 0, 32, province, this);
+    this->pop_tab = new ProvincePopulationTab(gs, 0, flex_row->height, province, this);
     this->pop_tab->is_render = true;
     auto* pop_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/pv_1.png")), flex_row);
     pop_ibtn->set_on_click([this](UI::Widget&) {
@@ -339,7 +343,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
     });
     pop_ibtn->set_tooltip(translate("Population"));
 
-    this->econ_tab = new ProvinceEconomyTab(gs, 0, 32, province, this);
+    this->econ_tab = new ProvinceEconomyTab(gs, 0, flex_row->height, province, this);
     this->econ_tab->is_render = false;
     auto* econ_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/money.png")), flex_row);
     econ_ibtn->set_on_click([this](UI::Widget&) {
@@ -353,7 +357,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
     });
     econ_ibtn->set_tooltip(translate("Economy"));
 
-    this->build_tab = new ProvinceBuildingTab(gs, 0, 32, province, this);
+    this->build_tab = new ProvinceBuildingTab(gs, 0, flex_row->height, province, this);
     this->build_tab->is_render = false;
     auto* build_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/pv_0.png")), flex_row);
     build_ibtn->set_on_click([this](UI::Widget&) {
@@ -372,10 +376,9 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
         fill_pops_btn->set_on_click([this](UI::Widget&) {
             // Get max sv
             auto max_sv = 1.f;
-            for(const auto& pop_type : this->gs.world->pop_types) {
+            for(const auto& pop_type : this->gs.world->pop_types)
                 if(pop_type.social_value > max_sv)
                     max_sv = pop_type.social_value;
-            }
 
             if(this->gs.input.selected_language == nullptr)
                 this->gs.input.selected_language = &this->gs.world->languages[0];
@@ -391,6 +394,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
                 const_cast<Province&>(this->province).pops.push_back(pop);
             }
             this->gs.map->update_mapmode();
+            this->gs.update_tick = true;
         });
         fill_pops_btn->set_tooltip("Add POPs (will add " + std::to_string(gs.world->pop_types.size()) + "POPs)");
 
@@ -418,24 +422,28 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
         });
         edit_terrain_btn->set_tooltip(translate("Edit terrain"));
 
-        rename_inp = new UI::Input(0, 0, 128, 24, flex_row);
-        rename_inp->set_buffer(province.name.get_string());
-        auto* xchg_name_btn = new UI::Button(0, 0, 32, 32, flex_row);
-        xchg_name_btn->set_on_click([this](UI::Widget&) {
-            const_cast<Province&>(this->province).name = this->rename_inp->get_buffer();
-            this->gs.map->create_labels();
-        });
-        xchg_name_btn->set_tooltip("Rename province");
-
-        density_sld = new UI::Slider(0, 0, 128, 24, 0.1f, 2.f, flex_row);
+        density_sld = new UI::Slider(0, 32, 128, 24, 0.1f, 2.f, this);
         density_sld->set_value(0.f);
         density_sld->set_on_click([this](UI::Widget& w) {
-            w.text(std::to_string(((UI::Slider&)w).get_value()));
-            const float den = this->density_sld->value;
+            w.text(std::to_string(this->density_sld->get_value()));
+            const auto den = this->density_sld->get_value();
             for(auto& pop : const_cast<Province&>(this->province).pops)
                 pop.size *= den;
             this->gs.map->update_mapmode();
+            this->gs.map->map_render->request_update_visibility();
+            this->gs.update_tick = true;
         });
+        density_sld->set_tooltip(translate("Density slider"));
+
+        rename_inp = new UI::Input(128, 32, 128, 24, this);
+        rename_inp->set_buffer(province.name.get_string());
+        auto* xchg_name_btn = new UI::Button(128 + 128, 32, 32, 32, this);
+        xchg_name_btn->set_on_click([this](UI::Widget&) {
+            const_cast<Province&>(this->province).name = this->rename_inp->get_buffer();
+            this->gs.map->create_labels();
+            this->gs.update_tick = true;
+        });
+        xchg_name_btn->set_tooltip("Rename province");
     }
 }
 

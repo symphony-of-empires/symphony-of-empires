@@ -448,6 +448,9 @@ void Eng3D::State::do_event() {
             e.hold = false;
             handle_key(e);
         } break;
+        case SDL_TEXTINPUT: {
+            this->ui_ctx.check_text_input(event.text.text);
+        } break;
         case SDL_QUIT:
             this->run = false;
             break;
