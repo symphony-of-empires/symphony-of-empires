@@ -386,10 +386,6 @@ vec3 get_paper_water(vec3 water, float far_from_map, vec2 tex_coords) {
 	return water;
 }
 
-float get_sun_shadow(vec2 tex_coords) {
-	return smoothstep(0.6, 0.65, 1. - abs(sin(tex_coords.y * PI) * cos((tex_coords.x - time * 0.05) * PI)));
-}
-
 float get_noise(vec2 tex_coords) {
 #ifdef NOISE
 	return texture(noise_texture, 25.0 * tex_coords).r;
@@ -398,19 +394,25 @@ float get_noise(vec2 tex_coords) {
 #endif
 }
 
+#ifdef CITY_LIGHTS
+float get_sun_shadow(vec2 tex_coords) {
+	return smoothstep(0.15, 0.5, 1. - abs(cos((tex_coords.x - time * 0.1) * PI)));
+}
+
 float get_city_light(vec2 tex_coords, float sunshadow, float is_diag, float is_water) {
 	vec2 diag_coords = get_diag_coords(tex_coords, is_diag);
 	vec2 coord = texture(terrain_map, diag_coords).xy;
 	vec2 prov_color_coord = coord * vec2(255.0 / 256.0);
 	// Province density for determining density of cities
-	float prov_density = texture(province_opt, prov_color_coord).g;
+	float prov_density = smoothstep(0.1, 1., texture(province_opt, prov_color_coord).g);
 	// Multiplying noise by itself allows for intensifying certain spots
-	float noise = pow(get_noise(tex_coords), 15);
+	float noise = pow(get_noise(tex_coords), 10.) * 10.;
 	// Prevent displaying cities on mountains
 	float normal = step(0.25, texture(normal, tex_coords).r * texture(normal, tex_coords).g);
-	float city_light = (sunshadow * normal * noise * prov_density) * abs(1. - is_water);
+	float city_light = sunshadow * normal * noise * prov_density * abs(1. - is_water);
 	return city_light;
 }
+#endif
 
 void main() {
 	vec2 pix = vec2(1.0) / map_size;
