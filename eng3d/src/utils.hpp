@@ -92,14 +92,20 @@ namespace Eng3D {
 
     template<typename T>
     class LazyGlobalWrapper {
-        char data[sizeof(T)];
+        alignas(T) char data[sizeof(T)];
     public:
+        template<typename ...Args>
+        T* construct(Args&& ...args) {
+           new (data) T(args...);
+           return std::launder(reinterpret_cast<T*>(data)); 
+        }
+
         const T* get() const {
-            return reinterpret_cast<const T*>(data);
+            return std::launder(reinterpret_cast<const T*>(data));
         }
 
         T* get() {
-            return reinterpret_cast<T*>(data);
+            return std::launder(reinterpret_cast<T*>(data));
         }
     };
 }
