@@ -250,9 +250,7 @@ mapmode_generator goods_map_mode(GoodId id) {
         Eng3D::Color min = Eng3D::Color::rgb8(220, 46, 35);
         Eng3D::Color max = Eng3D::Color::rgb8(255, 229, 217);
         std::vector<ProvinceColor> province_color;
-        for(auto const& prov_amount : province_amounts) {
-            auto prov_id = prov_amount.first;
-            auto price = prov_amount.second;
+        for(auto const& [prov_id, price] : province_amounts) {
             auto ratio = price / max_price;
             Eng3D::Color color = Eng3D::Color::lerp(min, max, ratio);
             province_color.push_back(ProvinceColor(prov_id, color));

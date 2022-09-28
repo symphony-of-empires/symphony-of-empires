@@ -33,13 +33,9 @@
 namespace Eng3D {
     class Camera {
     protected:
-        /// @brief The cameras position on the map, where the Z-axis is the zoom
-        glm::vec3 map_position;
-        /// @brief The cameras world position
+        glm::vec3 map_position; // Z-axis is the zoom
         glm::vec3 world_position;
-        /// @brief The size of the screen
         glm::vec2 screen_size;
-        /// @brief The size of the map
         glm::vec2 map_size;
     public:
         float fov = 45.0f, near_plane = 1.0f, far_plane = 20000.0f;

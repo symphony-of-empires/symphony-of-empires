@@ -33,85 +33,40 @@
 
 // Eng3D expects OpenGL to run on a single thread
 
-static std::unique_ptr<Eng3D::MeshStatic<2, 0, glm::vec2, glm::vec2>> g_line;
-Eng3D::Line::Line(float start_x, float start_y, float end_x, float end_y) {
-    if(g_line == nullptr)
-        g_line = std::make_unique<std::remove_reference<decltype(*g_line)>::type>(Eng3D::MeshMode::LINES);
-    g_line->buffer[0] = Eng3D::MeshData(glm::vec2(start_x, start_y), glm::vec2(0.f, 0.f));
-    g_line->buffer[1] = Eng3D::MeshData(glm::vec2(end_x, end_y), glm::vec2(1.f, 1.f));
-    g_line->upload();
+Eng3D::Line::Line(float start_x, float start_y, float end_x, float end_y)
+    : Eng3D::MeshStatic<2, 0, glm::vec2, glm::vec2>(Eng3D::MeshMode::LINES)
+{
+    buffer[0] = Eng3D::MeshData(glm::vec2(start_x, start_y), glm::vec2(0.f, 0.f));
+    buffer[1] = Eng3D::MeshData(glm::vec2(end_x, end_y), glm::vec2(1.f, 1.f));
+    upload();
 }
 
-void Eng3D::Line::draw() {
-    g_line->draw();
+Eng3D::Quad::Quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4)
+    : Eng3D::MeshStatic<6, 0, glm::vec3, glm::vec2>(Eng3D::MeshMode::TRIANGLES)
+{
+    buffer[0] = Eng3D::MeshData(c1, glm::vec2(0.f, 0.f));
+    buffer[1] = Eng3D::MeshData(c2, glm::vec2(0.f, 1.f));
+    buffer[2] = Eng3D::MeshData(c3, glm::vec2(1.f, 1.f));
+    buffer[3] = Eng3D::MeshData(c3, glm::vec2(1.f, 1.f));
+    buffer[4] = Eng3D::MeshData(c4, glm::vec2(1.f, 0.f));
+    buffer[5] = Eng3D::MeshData(c1, glm::vec2(0.f, 0.f));
+    upload();
 }
 
-static std::unique_ptr<Eng3D::MeshStatic<6, 0, glm::vec2, glm::vec2>> g_square;
-Eng3D::StaticSquare::StaticSquare(float start_x, float start_y, float end_x, float end_y) {
-    if(g_square == nullptr)
-        g_square = std::make_unique<std::remove_reference<decltype(*g_square)>::type>(Eng3D::MeshMode::TRIANGLES);
-    g_square->buffer[0] = Eng3D::MeshData(glm::vec2(start_x, start_y), glm::vec2(0.f, 0.f));
-    g_square->buffer[1] = Eng3D::MeshData(glm::vec2(end_x, start_y), glm::vec2(1.f, 0.f));
-    g_square->buffer[2] = Eng3D::MeshData(glm::vec2(start_x, end_y), glm::vec2(0.f, 1.f));
-    g_square->buffer[3] = Eng3D::MeshData(glm::vec2(start_x, end_y), glm::vec2(0.f, 1.f));
-    g_square->buffer[4] = Eng3D::MeshData(glm::vec2(end_x, start_y), glm::vec2(1.f, 0.f));
-    g_square->buffer[5] = Eng3D::MeshData(glm::vec2(end_x, end_y), glm::vec2(1.f, 1.f));
-    g_square->upload();
-}
-
-Eng3D::StaticSquare::StaticSquare(const Eng3D::Rectangle& pos, const Eng3D::Rectangle& texcoord) {
-    if(g_square == nullptr)
-        g_square = std::make_unique<std::remove_reference<decltype(*g_square)>::type>(Eng3D::MeshMode::TRIANGLES);
-    g_square->buffer[0] = Eng3D::MeshData(glm::vec2(pos.left, pos.top), glm::vec2(texcoord.left, texcoord.top));
-    g_square->buffer[1] = Eng3D::MeshData(glm::vec2(pos.right, pos.top), glm::vec2(texcoord.right, texcoord.top));
-    g_square->buffer[2] = Eng3D::MeshData(glm::vec2(pos.left, pos.bottom), glm::vec2(texcoord.left, texcoord.bottom));
-    g_square->buffer[3] = Eng3D::MeshData(glm::vec2(pos.left, pos.bottom), glm::vec2(texcoord.left, texcoord.bottom));
-    g_square->buffer[4] = Eng3D::MeshData(glm::vec2(pos.right, pos.top), glm::vec2(texcoord.right, texcoord.top));
-    g_square->buffer[5] = Eng3D::MeshData(glm::vec2(pos.right, pos.bottom), glm::vec2(texcoord.right, texcoord.bottom));
-    g_square->upload();
-}
-
-void Eng3D::StaticSquare::draw() {
-    g_square->draw();
-}
-
-static std::unique_ptr<Eng3D::MeshStatic<6, 0, glm::vec3, glm::vec2>> g_quad;
-Eng3D::Quad::Quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4){
-    if(g_quad == nullptr)
-        g_quad = std::make_unique<std::remove_reference<decltype(*g_quad)>::type>(Eng3D::MeshMode::TRIANGLES);
-    g_quad->buffer[0] = Eng3D::MeshData(c1, glm::vec2(0.f, 0.f));
-    g_quad->buffer[1] = Eng3D::MeshData(c2, glm::vec2(0.f, 1.f));
-    g_quad->buffer[2] = Eng3D::MeshData(c3, glm::vec2(1.f, 1.f));
-    g_quad->buffer[3] = Eng3D::MeshData(c3, glm::vec2(1.f, 1.f));
-    g_quad->buffer[4] = Eng3D::MeshData(c4, glm::vec2(1.f, 0.f));
-    g_quad->buffer[5] = Eng3D::MeshData(c1, glm::vec2(0.f, 0.f));
-    g_quad->upload();
-}
-
-void Eng3D::Quad::draw() {
-    g_quad->draw();
-}
-
-static std::unique_ptr<Eng3D::MeshStatic<6, 0, glm::vec2, glm::vec2>> g_quad2d;
-Eng3D::Quad2D::Quad2D() {
-    if(g_quad2d == nullptr) {
-        g_quad2d = std::make_unique<std::remove_reference<decltype(*g_quad2d)>::type>(Eng3D::MeshMode::TRIANGLES);
-        g_quad2d->buffer[0] = Eng3D::MeshData(glm::vec2(-1.f, -1.f), glm::vec2(0.f, 0.f));
-        g_quad2d->buffer[1] = Eng3D::MeshData(glm::vec2(-1.f, 1.f), glm::vec2(0.f, 1.f));
-        g_quad2d->buffer[2] = Eng3D::MeshData(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f));
-        g_quad2d->buffer[3] = Eng3D::MeshData(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f));
-        g_quad2d->buffer[4] = Eng3D::MeshData(glm::vec2(-1.f, 1.f), glm::vec2(0.f, 1.f));
-        g_quad2d->buffer[5] = Eng3D::MeshData(glm::vec2(1.f, 1.f), glm::vec2(1.f, 1.f));
-        g_quad2d->upload();
-    }
-}
-
-void Eng3D::Quad2D::draw() {
-    g_quad2d->draw();
+Eng3D::Quad2D::Quad2D()
+    : Eng3D::MeshStatic<6, 0, glm::vec2, glm::vec2>(Eng3D::MeshMode::TRIANGLES)
+{
+    buffer[0] = Eng3D::MeshData(glm::vec2(-1.f, -1.f), glm::vec2(0.f, 0.f));
+    buffer[1] = Eng3D::MeshData(glm::vec2(-1.f, 1.f), glm::vec2(0.f, 1.f));
+    buffer[2] = Eng3D::MeshData(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f));
+    buffer[3] = Eng3D::MeshData(glm::vec2(1.f, -1.f), glm::vec2(1.f, 0.f));
+    buffer[4] = Eng3D::MeshData(glm::vec2(-1.f, 1.f), glm::vec2(0.f, 1.f));
+    buffer[5] = Eng3D::MeshData(glm::vec2(1.f, 1.f), glm::vec2(1.f, 1.f));
+    upload();
 }
 
 Eng3D::Square::Square(float start_x, float start_y, float end_x, float end_y)
-    : Eng3D::Mesh<glm::vec2, glm::vec2>(Eng3D::MeshMode::TRIANGLES)
+    : Eng3D::MeshStatic<6, 0, glm::vec2, glm::vec2>(Eng3D::MeshMode::TRIANGLES)
 {
     this->buffer[0] = Eng3D::MeshData(glm::vec2(start_x, start_y), glm::vec2(0.f, 0.f));
     this->buffer[1] = Eng3D::MeshData(glm::vec2(end_x, start_y), glm::vec2(1.f, 0.f));
@@ -123,7 +78,7 @@ Eng3D::Square::Square(float start_x, float start_y, float end_x, float end_y)
 }
 
 Eng3D::Square::Square(const Eng3D::Rectangle& pos, const Eng3D::Rectangle& texcoord)
-    : Eng3D::Mesh<glm::vec2, glm::vec2>(Eng3D::MeshMode::TRIANGLES)
+    : Eng3D::MeshStatic<6, 0, glm::vec2, glm::vec2>(Eng3D::MeshMode::TRIANGLES)
 {
     this->buffer[0] = Eng3D::MeshData(glm::vec2(pos.left, pos.top), glm::vec2(texcoord.left, texcoord.top));
     this->buffer[1] = Eng3D::MeshData(glm::vec2(pos.right, pos.top), glm::vec2(texcoord.right, texcoord.top));

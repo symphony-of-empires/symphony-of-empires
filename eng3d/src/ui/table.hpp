@@ -138,7 +138,7 @@ namespace UI {
         }
 
         void clear_unactive_rows() {
-            for(auto it = begin(rows); it != end(rows); ) {
+            for(auto it = rows.begin(); it != rows.end(); ) {
                 if(!it->second->is_active) {
                     it->second->kill();
                     it = rows.erase(it);

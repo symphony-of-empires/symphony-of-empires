@@ -342,7 +342,7 @@ void UI::Context::render_all(glm::ivec2 mouse_pos) {
     obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
     obj_shader->set_texture(0, "diffuse_map", *cursor_tex);
     obj_shader->set_uniform("model", glm::translate(glm::mat4(1.f), glm::vec3(mouse_pos, 0.f)));
-    auto cursor_quad = Eng3D::StaticSquare(0.f, 0.f, 32.f, 32.f);
+    auto cursor_quad = Eng3D::Square(0.f, 0.f, 32.f, 32.f);
     cursor_quad.draw();
 }
 

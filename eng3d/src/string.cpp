@@ -63,11 +63,11 @@ static std::mutex trans_lock;
 void Eng3D::Locale::from_file(const std::string& filename) {
     std::unique_ptr<FILE, decltype(&fclose)> fp(fopen(filename.c_str(), "rt"), fclose);
     char tmp[100];
-    while(fgets(tmp, 1000, fp.get()) != nullptr) {
+    while(fgets(tmp, sizeof tmp, fp.get()) != nullptr) {
         if(!strncmp(tmp, "msgid", 5)) {
             char msgid[100];
             sscanf(tmp + 5, " %*c%[^\"]s%*c ", msgid);
-            fgets(tmp, 1000, fp.get());
+            fgets(tmp, sizeof tmp, fp.get());
             if(!strncmp(tmp, "msgstr", 6)) {
                 char msgstr[100];
                 sscanf(tmp + 6, " %*c%[^\"]s%*c ", msgstr);

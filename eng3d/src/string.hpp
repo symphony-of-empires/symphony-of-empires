@@ -86,7 +86,7 @@ namespace Eng3D {
     }
 
     inline std::string operator+(const std::string& lhs, const StringRef& rhs) {
-        return std::string(lhs) + rhs.get_string();
+        return lhs + rhs.get_string();
     }
 
     inline std::string operator+(const StringRef& lhs, const std::string& rhs) {
@@ -103,14 +103,14 @@ namespace Eng3D {
         StringManager(Eng3D::State& _s);
         ~StringManager() = default;
 
-        inline Eng3D::StringRef insert(const std::string& str) {
+        Eng3D::StringRef insert(const std::string& str) {
             const std::scoped_lock lock(this->strings_mutex);
             this->strings.push_back(str);
             this->strings.back().shrink_to_fit();
             return Eng3D::StringRef(this->strings.size() - 1);
         }
 
-        inline const std::string& get_by_id(const Eng3D::StringRef ref) const {
+        const std::string& get_by_id(const Eng3D::StringRef ref) const {
             const std::scoped_lock lock(this->strings_mutex);
             return this->strings[ref.id];
         }
@@ -125,8 +125,8 @@ namespace Eng3D {
     /// @param args Arguments for formatting
     /// @return std::string The resulting formatted text
     template<typename ... Args>
-    std::string string_format(const std::string& format, Args ... args) {
-        int size_s = std::snprintf(nullptr, 0, format.c_str(), args ...) + 1; // Extra space for '\0'
+    std::string string_format(const std::string& format, Args&& ... args) {
+        int size_s = std::snprintf(nullptr, 0, format.c_str(), std::forward<decltype(args)>(args)...) + 1; // Extra space for '\0'
         if(size_s <= 0)
             CXX_THROW(std::runtime_error, "Error during formatting");
         size_t size = static_cast<size_t>(size_s);
@@ -150,8 +150,8 @@ namespace Eng3D {
     /// @param args Arguments for formatting
     /// @return std::string The resulting formatted text
     template<typename ... Args>
-    std::string translate_format(const std::string& format, Args ... args) {
-        return Eng3D::string_format(Eng3D::Locale::translate(format), args ...);
+    std::string translate_format(const std::string& format, Args&& ... args) {
+        return Eng3D::string_format(Eng3D::Locale::translate(format), std::forward<decltype(args)>(args)...);
     }
 };
 using Eng3D::translate_format;

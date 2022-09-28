@@ -120,9 +120,7 @@ void Eng3D::AudioManager::mixaudio(void* userdata, uint8_t* stream, int len) {
 const std::shared_ptr<Eng3D::Audio> Eng3D::AudioManager::load(const std::string& path) {
     // Find Sound when wanting to be loaded
     auto it = sounds.find(path);
-    if(it != sounds.cend())
-        return (*it).second;
-
+    if(it != sounds.cend()) return (*it).second;
     // Otherwise Sound is not in our control, so we create a new one
     sounds[path] = std::make_shared<Eng3D::Audio>(path);
     Eng3D::Log::debug("audio", Eng3D::translate_format("Loaded and cached sound %s", path.c_str()));

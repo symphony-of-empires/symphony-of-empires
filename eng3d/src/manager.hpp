@@ -49,9 +49,7 @@ public:
     /// construct which accepts key
     virtual const T& get(const K& key) {
         auto it = elems.find(name);
-        if(it != elems.end())
-            return it->second;
-        
+        if(it != elems.end()) return it->second;
         std::shared_ptr<V> new_elem;
         new_elem = elems[key] = load(key);
         return new_elem;

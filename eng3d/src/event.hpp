@@ -63,13 +63,11 @@ namespace Eng3D::Event {
     };
 
     struct MouseMotion {
-        /// @brief Absolute position of the mouse
-        glm::ivec2 pos;
+        glm::ivec2 pos; // Absolute position of the mouse
     };
 
     struct MouseWheel {
-        /// @brief Wheel relative movement
-        glm::ivec2 wheel;
+        glm::ivec2 wheel; // Wheel relative movement
     };
     
     glm::ivec2 get_mouse_pos();

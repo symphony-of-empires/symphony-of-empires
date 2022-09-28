@@ -33,16 +33,19 @@
 void Archive::to_file(const std::string& path) {
     if(buffer.empty())
         CXX_THROW(SerializerException, "Can't output an empty archive to file " + path);
-    
     Eng3D::Log::debug("fs", "Writing archive " + path);
-    std::unique_ptr<FILE, int (*)(FILE *)> fp(::fopen(path.c_str(), "wb"), ::fclose);
-    ::fwrite((const void*)&buffer[0], 1, buffer.size(), fp.get());
+    std::unique_ptr<FILE, decltype(&std::fclose)> fp(::fopen(path.c_str(), "wb"), ::fclose);
+    std::fwrite(buffer.data(), 1, buffer.size(), fp.get());
 }
 
 void Archive::from_file(const std::string& path) {
     Eng3D::Log::debug("fs", "Reading archive " + path);
-    std::ifstream ifs(path, std::ios::binary);
-    std::vector<uint8_t> tmpbuf(std::istreambuf_iterator<char>(ifs), {});
-    buffer = tmpbuf;
+    std::unique_ptr<FILE, decltype(&std::fclose)> fp(::fopen(path.c_str(), "rb"), ::fclose);
+    if(fp == nullptr)
+        CXX_THROW(std::runtime_error, "Can't read an empty archive " + path);
+    std::fseek(fp.get(), 0, SEEK_END);
+    buffer.resize(std::ftell(fp.get()));
+    std::rewind(fp.get());
+    std::fread(buffer.data(), 1, buffer.size(), fp.get());
     buffer.shrink_to_fit();
 }

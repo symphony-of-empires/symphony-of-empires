@@ -45,7 +45,7 @@ void ProgressBar::on_render(Context&, Eng3D::Rect viewport) {
     /// @todo Fix broken progress bar. Is it still broken, hmm ?
     g_ui_context->obj_shader->set_texture(0, "diffuse_map", *g_ui_context->button);
     g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f, 1.f, 1.f, 1.f));
-    Eng3D::StaticSquare(0, 0, width, height).draw();
+    Eng3D::Square(0, 0, width, height).draw();
     float ratio = value / max;
     Eng3D::Rect pos_rect(0, 0, width, height);
     switch(direction) {
@@ -65,7 +65,7 @@ void ProgressBar::on_render(Context&, Eng3D::Rect viewport) {
 
     g_ui_context->obj_shader->set_texture(0, "diffuse_map", *g_ui_context->window_top);
     g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f, 1.f, 1.f, 1.f));
-    Eng3D::StaticSquare(pos_rect.left, pos_rect.top, pos_rect.right, pos_rect.bottom).draw();
+    Eng3D::Square(pos_rect.left, pos_rect.top, pos_rect.right, pos_rect.bottom).draw();
 
     if(text_texture.get() != nullptr) {
         g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, text_color.a));

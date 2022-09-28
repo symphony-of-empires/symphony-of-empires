@@ -91,8 +91,8 @@ static void update_factory_production(World& world, Building& building, const Bu
 
     // TODO add input modifier
     auto inputs_cost = 0.f; // Buy the inputs for te factory
-    for(const auto& input : building_type.req_goods)
-        inputs_cost += province.products[input.first].buy(input.second * building.production_scale);
+    for(const auto& [product_id, amount] : building_type.req_goods)
+        inputs_cost += province.products[product_id].buy(amount * building.production_scale);
     auto output_value = output_product.produce(output_amount);
     auto profit = output_value - min_wage - inputs_cost;
     

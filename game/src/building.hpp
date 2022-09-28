@@ -102,8 +102,8 @@ struct Building : public Entity<BuildingId> {
     }
 
     inline bool can_build_unit() const {
-        for(const auto& req : req_goods_for_unit)
-            if(req.second) return false;
+        for(const auto& [k, v] : req_goods_for_unit)
+            if(v) return false;
         return this->level > 0;
     }
     

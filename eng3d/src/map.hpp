@@ -38,7 +38,7 @@ namespace Eng3D {
 
     class Texture;
     class TextureArray;
-    class StaticSquare;
+    class Square;
     class State;
 
     class BaseMap {

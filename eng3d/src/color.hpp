@@ -76,20 +76,20 @@ namespace Eng3D {
         /// @param argb The ARGB32 color
         /// @return Color Resulting color
         constexpr static Color rgba32(uint32_t argb) {
-            float a = ((argb >> 24) & 0xff) / 256.f;
-            float b = ((argb >> 16) & 0xff) / 256.f;
-            float g = ((argb >> 8) & 0xff) / 256.f;
-            float r = (argb & 0xff) / 256.f;
+            const auto a = ((argb >> 24) & 0xff) / 256.f;
+            const auto b = ((argb >> 16) & 0xff) / 256.f;
+            const auto g = ((argb >> 8) & 0xff) / 256.f;
+            const auto r = (argb & 0xff) / 256.f;
             return Color(r, g, b, a);
         }
 
         /// @brief Get the raw value of the color
         /// @return uint32_t The raw value
         constexpr uint32_t get_value() const {
-            uint8_t alpha = static_cast<uint8_t>(a * 256);
-            uint8_t red = static_cast<uint8_t>(r * 256);
-            uint8_t green = static_cast<uint8_t>(g * 256);
-            uint8_t blue = static_cast<uint8_t>(b * 256);
+            const auto alpha = static_cast<uint8_t>(a * 256);
+            const auto red = static_cast<uint8_t>(r * 256);
+            const auto green = static_cast<uint8_t>(g * 256);
+            const auto blue = static_cast<uint8_t>(b * 256);
             uint32_t color = (alpha << 24) | (blue << 16) | (green << 8) | (red);
             return color;
         }
@@ -100,9 +100,9 @@ namespace Eng3D {
         /// @param lamda Intensity of merge in respect to Color 2
         /// @return Color Resulting color
         constexpr static Color lerp(Color color1, Color color2, float lamda) {
-            const float r = color1.r * (1 - lamda) + color2.r * lamda;
-            const float g = color1.g * (1 - lamda) + color2.g * lamda;
-            const float b = color1.b * (1 - lamda) + color2.b * lamda;
+            const auto r = color1.r * (1 - lamda) + color2.r * lamda;
+            const auto g = color1.g * (1 - lamda) + color2.g * lamda;
+            const auto b = color1.b * (1 - lamda) + color2.b * lamda;
             return Color(r, g, b);
         }
     };

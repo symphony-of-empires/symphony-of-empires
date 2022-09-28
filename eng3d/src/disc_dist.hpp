@@ -47,8 +47,8 @@ public:
         _rand{ 0 }
     {
         // Scale each probabilty
-        float total = std::accumulate(probabilities.begin(), probabilities.end(), 0);
-        float scale = probabilities.size() / total;
+        auto total = std::accumulate(probabilities.begin(), probabilities.end(), 0.f);
+        auto scale = probabilities.size() / total;
         for(auto& p : probabilities) p *= scale;
 
         // Fill two work tables with probabilities larger/smaller than 1
@@ -57,38 +57,34 @@ public:
         std::vector<std::pair<float, size_t>> big;
         big.reserve(probabilities.size());
         for(size_t i = 0; i < probabilities.size(); i++) {
-            if(probabilities[i] < 1.0f)
-                small.emplace_back(std::make_pair(probabilities[i], i));
-            else
-                big.emplace_back(std::make_pair(probabilities[i], i));
+            if(probabilities[i] < 1.0f) small.emplace_back(probabilities[i], i);
+            else big.emplace_back(probabilities[i], i);
         }
 
         // Remove from the bigger one and place on the smaller ones
         alias.resize(probabilities.size(), 0);
         prob.resize(probabilities.size(), 0);
         while(!small.empty() && !big.empty()) {
-            const auto& less = small.back();
-            auto greater = big.back();
+            const auto& [less_prob, less_index] = small.back();
+            const auto& [greater_prob, greater_index] = big.back();
             big.pop_back();
-            prob[less.second] = less.first;
-            alias[less.second] = greater.second;
+            prob[less_index] = less_prob;
+            alias[less_index] = greater_index;
             small.pop_back();
-            greater.first = (greater.first + less.first) - 1;
-            if(greater.first < 1.f)
-                small.emplace_back(greater);
-            else
-                big.emplace_back(greater);
+            auto final_prob = (greater_prob + less_prob) - 1;
+            if(final_prob < 1.f) small.emplace_back(greater_prob, greater_index);
+            else big.emplace_back(greater_prob, greater_index);
         }
 
         while(!big.empty()) {
-            const auto& greater = big.back();
-            prob[greater.second] = 1.f;
+            const auto& [_, index] = big.back();
+            prob[index] = 1.f;
             big.pop_back();
         }
 
         while(!small.empty()) {
-            const auto& less = small.back();
-            prob[less.second] = 1.f;
+            const auto& [_, index] = small.back();
+            prob[index] = 1.f;
             small.pop_back();
         }
     }

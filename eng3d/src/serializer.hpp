@@ -69,6 +69,7 @@ struct Archive {
     }
 
     inline void copy_from(const void* ptr, size_t size) {
+        this->expand(size);
         if(size > buffer.size() - this->ptr)
             CXX_THROW(SerializerException, "Buffer too small for read");
         std::memcpy(&buffer[this->ptr], ptr, size);
@@ -151,12 +152,8 @@ template<typename T>
 struct SerializerMemcpy {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, T& obj) {
-        if constexpr(is_serialize) {
-            ar.expand(sizeof(T));
-            ar.copy_from(&obj, sizeof(T));
-        } else {
-            ar.copy_to(&obj, sizeof(T));
-        }
+        if constexpr(is_serialize) ar.copy_from(&obj, sizeof(T));
+        else ar.copy_to(&obj, sizeof(T));
     }
 };
 
@@ -167,28 +164,26 @@ struct Serializer<bool> : public SerializerMemcpy<bool> {};
 
 // A class more focused on numbers :)
 template<typename T>
-struct SerializerNumber {
+class SerializerNumber {
+    static constexpr auto scaling = 1000.f;
+public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, T& obj) {
-        /// @todo fix big endian
-        if constexpr(std::endian::native == std::endian::big) {
-            if constexpr(is_serialize) {
-                ar.expand(sizeof(T));
-                ar.copy_from(&obj, sizeof(T));
-                obj = std::byteswap<T>(obj);
-            } else {
-                T tmp = std::byteswap<T>(obj);
-                ar.copy_to(&tmp, sizeof(T));
-            }
+        if constexpr(std::is_floating_point_v<T>) {
+            int32_t tmp;
+            if constexpr(is_serialize) // Scale when serializing
+                tmp = obj * scaling;
+            ::deser_dynamic<is_serialize, decltype(tmp)>(ar, tmp);
+            if constexpr(!is_serialize) // Unscale when deserializing
+                obj = static_cast<T>(tmp) / scaling;
         } else {
-            if constexpr(is_serialize) {
-                ar.expand(sizeof(T));
-                ar.copy_from(&obj, sizeof(T));
-            } else {
-                ar.copy_to(&obj, sizeof(T));
-            }
+            if constexpr(is_serialize && std::endian::native == std::endian::big)
+                obj = std::byteswap<T>(obj);
+            SerializerMemcpy<T>::template deser_dynamic<is_serialize>(ar, obj);
+            if constexpr(!is_serialize && std::endian::native == std::endian::big)
+                obj = std::byteswap<T>(obj);
         }
-    }   
+    }
 };
 
 // Serializers for primitives only require memcpy
@@ -202,7 +197,6 @@ template<>
 struct Serializer<signed long> : public SerializerNumber<signed long> {};
 template<>
 struct Serializer<signed long long> : public SerializerNumber<signed long long> {};
-
 template<>
 struct Serializer<unsigned char> : public SerializerNumber<unsigned char> {};
 template<>
@@ -213,31 +207,12 @@ template<>
 struct Serializer<unsigned long> : public SerializerNumber<unsigned long> {};
 template<>
 struct Serializer<unsigned long long> : public SerializerNumber<unsigned long long> {};
-
-/// @brief Converts a float number into a fixed-point integer scaled by a factor of 1000
-template<typename T>
-class SerializerFloat {
-    static constexpr auto scaling = 1000.f;
-public:
-    template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, T& obj) {
-        int32_t tmp;
-        if constexpr(is_serialize) {
-            tmp = obj * scaling;
-            ::deser_dynamic<is_serialize>(ar, tmp);
-        } else {
-            ::deser_dynamic<is_serialize>(ar, tmp);
-            obj = static_cast<T>(tmp) / scaling;
-        }
-    }   
-};
-
 template<>
-struct Serializer<float> : public SerializerFloat<float> {};
+struct Serializer<float> : public SerializerNumber<float> {};
 template<>
-struct Serializer<double> : public SerializerFloat<double> {};
+struct Serializer<double> : public SerializerNumber<double> {};
 template<>
-struct Serializer<long double> : public SerializerFloat<long double> {};
+struct Serializer<long double> : public SerializerNumber<long double> {};
 
 /// @brief A serializer specialized in strings
 /// The serializer stores the lenght of the string and the string itself
@@ -252,10 +227,8 @@ struct Serializer<std::string> {
             // Truncate lenght
             uint16_t len = static_cast<uint16_t>(glm::min<size_t>(std::numeric_limits<uint16_t>::max(), obj.length()));
             ::serialize(ar, len); // Put length for later deserialization (since UTF-8/UTF-16 exists)
-            if(len) { // Copy the string into the output
-                ar.expand(len);
+            if(len) // Copy the string into the output
                 ar.copy_from(obj.c_str(), len);
-            }
         } else {
             uint16_t len = 0; // Obtain the lenght of the string to be read
             ::deserialize(ar, len);
@@ -273,43 +246,31 @@ struct Serializer<std::string> {
 /// This serializer class works primarly with containers whose memory is contiguous
 template<typename T, typename C>
 struct SerializerContainer {
+    template<typename U>
+    struct HasResize {
+        template<typename V>
+        static consteval bool t(typename V::resize*) { return true; }
+        template<typename V>
+        static consteval bool t(...) { return false; }
+        static constexpr bool value = t<U>();
+    };
+
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, C& obj_group) {
         uint32_t len = obj_group.size();
         ::deser_dynamic<is_serialize>(ar, len);
         if constexpr(is_serialize) {
-            for(auto& obj : obj_group)
-                ::deser_dynamic<is_serialize>(ar, obj);
-        } else {
-            obj_group.clear();
-            for(decltype(len) i = 0; i < len; i++) {
-                T obj;
-                ::deser_dynamic<is_serialize>(ar, obj);
-                obj_group.insert(obj);
-            }
-        }
-    }
-};
-
-/// @brief For containers that have the same memory layout as arrays
-template<typename T, typename C>
-struct SerializerArrayContainer {
-    template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, C& obj_group) {
-        uint16_t len = obj_group.size();
-        ::deser_dynamic<is_serialize>(ar, len);
-        if constexpr(is_serialize) {
             if constexpr(std::is_trivially_copyable<T>::value) { // trivial
-                if(len) {
-                    ar.expand(len * sizeof(T));
+                if(len)
                     ar.copy_from(obj_group.data(), len * sizeof(T));
-                }
             } else { // non-trivial
                 for(auto& obj : obj_group)
                     ::deser_dynamic<is_serialize>(ar, obj);
             }
         } else {
-            obj_group.resize(len);
+            if constexpr(HasResize<C>::value)
+                obj_group.resize(len);
+            
             if constexpr(std::is_trivially_copyable<T>::value) { // trivial
                 if(len)
                     ar.copy_to(obj_group.data(), len * sizeof(T));
@@ -349,11 +310,11 @@ struct Serializer<Eng3D::StringRef> {
 /// @brief Contigous container serializers implementations
 #include <vector>
 template<typename T, typename A>
-struct Serializer<std::vector<T, A>> : public SerializerArrayContainer<T, std::vector<T, A>> {};
+struct Serializer<std::vector<T, A>> : public SerializerContainer<T, std::vector<T, A>> {};
 
 #include <deque>
 template<typename T, typename A>
-struct Serializer<std::deque<T, A>> : public SerializerArrayContainer<T, std::deque<T, A>> {};
+struct Serializer<std::deque<T, A>> : public SerializerContainer<T, std::deque<T, A>> {};
 
 #include <queue>
 template<typename T, typename S>
