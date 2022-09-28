@@ -72,14 +72,6 @@ struct Serializer<Tile> {
     }
 };
 
-/// @todo Make bookmark.hpp?
-struct Bookmark {
-    Eng3D::StringRef ref_name;
-    Eng3D::StringRef name;
-    uint64_t start_time;
-    std::vector<Nation*> interest_picks;
-};
-
 // Create a new list from a type, with helper functions
 #define LIST_FOR_TYPE(type, list, list_type)\
     inline const list_type<type*>& get_list(const type* = nullptr) const {\

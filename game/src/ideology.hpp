@@ -33,9 +33,6 @@ struct Ideology : RefnameEntity<IdeologyId> {
     std::uint32_t color;
     Eng3D::StringRef name;
     Policies policies;
-    // Checks that the policies of a given nation are "matching"
-    // with our ideology (so we set eyecandy and stuff)
-    Eng3D::StringRef check_policies_fn;
 };
 template<>
 struct Serializer<Ideology*> : SerializerReference<World, Ideology> {};
@@ -49,6 +46,5 @@ struct Serializer<Ideology> {
         ::deser_dynamic<is_serialize>(ar, obj.ref_name);
         ::deser_dynamic<is_serialize>(ar, obj.name);
         ::deser_dynamic<is_serialize>(ar, obj.color);
-        ::deser_dynamic<is_serialize>(ar, obj.check_policies_fn);
     }
 };

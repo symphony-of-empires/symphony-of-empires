@@ -305,7 +305,6 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
         }
     }
     Eng3D::Log::debug("lua", "Buffer " + files_buf);
-
     if(luaL_loadstring(world.lua, files_buf.c_str()) != LUA_OK || lua_pcall(world.lua, 0, 0, 0) != LUA_OK)
         CXX_THROW(LuaAPI::Exception, lua_tostring(world.lua, -1));
 }
