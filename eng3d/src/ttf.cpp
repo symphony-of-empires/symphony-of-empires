@@ -27,12 +27,13 @@
 #include <SDL_ttf.h>
 #include "eng3d/ttf.hpp"
 #include "eng3d/io.hpp"
+#include "eng3d/string.hpp"
 #include "eng3d/utils.hpp"
 
 Eng3D::TrueType::Font::Font(std::shared_ptr<Eng3D::IO::Asset::Base> asset, int dpi) {
     this->sdl_font = static_cast<void*>(TTF_OpenFont(asset->get_abs_path().c_str(), dpi));
     if(this->sdl_font == nullptr)
-        CXX_THROW(std::runtime_error, std::string() + "Failed to load font " + asset->get_abs_path());
+        CXX_THROW(std::runtime_error, translate_format("Failed to load font %s", asset->get_abs_path().c_str()));
 }
 
 Eng3D::TrueType::Font::~Font() {
@@ -44,7 +45,7 @@ Eng3D::TrueType::Manager::Manager(Eng3D::State& _s)
     : s{ _s }
 {
     if(TTF_Init() < 0)
-        CXX_THROW(std::runtime_error, std::string() + "Failed to initialize TTF " + TTF_GetError());
+        CXX_THROW(std::runtime_error, translate_format("Failed to initialize TTF %s", TTF_GetError()));
 }
 
 Eng3D::TrueType::Manager::~Manager() {

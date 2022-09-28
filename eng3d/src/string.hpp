@@ -35,40 +35,32 @@
 namespace Eng3D {
     /// @brief A reference to a string on the global string pool
     class StringRef {
+        size_t id = 0;
     public:
-        using Id = uint16_t;
-        Id id;
-
-        constexpr StringRef()
-            : id{ static_cast<Eng3D::StringRef::Id>(-1) }
-        {
-
-        }
-        StringRef(const std::string& str);
-        constexpr StringRef(Id _id)
+        constexpr StringRef() = default;
+        StringRef(const std::string_view str);
+        constexpr StringRef(size_t _id)
             : id{ _id }
         {
 
         }
-        ~StringRef() = default;
-
-        const std::string& get_string() const;
-
-        inline StringRef& operator=(const std::string& rhs) {
+        StringRef& operator=(const std::string& rhs) {
             *this = StringRef(rhs);
             return *this;
         }
-
-        inline bool operator==(const StringRef& rhs) const {
-            return this->get_string() == rhs.get_string();
-        }
-
-        inline bool operator==(const std::string& rhs) const {
+        const std::string& get_string() const;
+        bool operator==(const std::string& rhs) const {
             return this->get_string() == rhs;
         }
+        constexpr bool operator==(const StringRef&) const noexcept = default;
+        constexpr bool operator<=>(const StringRef&) const noexcept = default;
 
-        inline const char* c_str() const {
-            return this->get_string().c_str();
+        const char* c_str() const {
+            return this->get_string().data();
+        }
+
+        size_t get_id() const {
+            return id;
         }
     };
 
@@ -92,22 +84,22 @@ namespace Eng3D {
     /// @brief The string pool manager (singleton), used mainly for translation
     /// purpouses. But also helps to reduce the memory size of various objects.
     class StringManager {
-        std::vector<std::string> strings;
+        std::vector<char> strings;
         Eng3D::State& s;
     public:
         StringManager(Eng3D::State& _s);
         ~StringManager() = default;
 
         Eng3D::StringRef insert(const std::string& str) {
-            const std::scoped_lock lock(this->strings_mutex);
-            this->strings.push_back(str);
-            this->strings.back().shrink_to_fit();
-            return Eng3D::StringRef(this->strings.size() - 1);
+            const std::scoped_lock lock(strings_mutex);
+            const auto id = strings.size();
+            std::copy(str.begin(), str.end(), std::back_inserter(strings));
+            return Eng3D::StringRef(id);
         }
 
-        const std::string& get_by_id(const Eng3D::StringRef ref) const {
-            const std::scoped_lock lock(this->strings_mutex);
-            return this->strings[ref.id];
+        const std::string get_by_id(const Eng3D::StringRef ref) const {
+            const std::scoped_lock lock(strings_mutex);
+            return &strings[ref.get_id()];
         }
 
         static StringManager& get_instance();

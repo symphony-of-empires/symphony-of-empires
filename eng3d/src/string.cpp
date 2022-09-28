@@ -31,15 +31,13 @@
 //
 // StringRef
 //
-Eng3D::StringRef::StringRef(const std::string& str) {
-    *this = Eng3D::StringManager::get_instance().insert(str);
+Eng3D::StringRef::StringRef(const std::string_view str) {
+    *this = Eng3D::StringManager::get_instance().insert(std::string{str});
 }
 
-static std::string g_empty_str = " ";
-const std::string& Eng3D::StringRef::get_string() const
-{
-    if(this->id == (Eng3D::StringRef::Id)-1)
-        return g_empty_str;
+const std::string& Eng3D::StringRef::get_string() const {
+    if(this->id == static_cast<size_t>(-1))
+        return "";
     return Eng3D::StringManager::get_instance().get_by_id(this->id);
 }
 

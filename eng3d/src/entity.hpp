@@ -46,7 +46,7 @@ struct EntityId {
     constexpr operator size_t() const noexcept {
         return static_cast<size_t>(id);
     }
-    constexpr bool operator<=>(const EntityId<T>& o) const noexcept = default;
+    constexpr auto operator<=>(const EntityId<T>& o) const noexcept = default;
 
  	EntityId<T>& operator++() noexcept {
         this->id++;
