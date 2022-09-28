@@ -438,10 +438,6 @@ extern "C" void game_main(int argc, char** argv) {
 }
 
 GameState::~GameState() {
-    if(this->client != nullptr)
-        delete this->client;
-    if(this->server != nullptr)
-        delete this->server;
     if(this->map != nullptr)
         delete this->map;
 }

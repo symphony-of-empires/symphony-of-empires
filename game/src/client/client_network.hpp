@@ -43,6 +43,7 @@ public:
     }
 };
 
+class GameState;
 class Client : public Eng3D::Networking::Client {
     std::thread net_thread;
     std::atomic<bool> has_snapshot;

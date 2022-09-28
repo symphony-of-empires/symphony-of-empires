@@ -44,18 +44,13 @@ namespace Eng3D {
         {
 
         }
-
         StringRef(const std::string& str);
-
         constexpr StringRef(Id _id)
             : id{ _id }
         {
 
         }
-
-        ~StringRef() {
-
-        }
+        ~StringRef() = default;
 
         const std::string& get_string() const;
 
@@ -78,19 +73,19 @@ namespace Eng3D {
     };
 
     inline std::string operator+(const char* lhs, const StringRef& rhs) {
-        return std::string(lhs) + rhs.get_string();
+        return lhs + rhs.get_string();
     }
 
     inline std::string operator+(const StringRef& lhs, const char* rhs) {
         return lhs.get_string() + rhs;
     }
 
-    inline std::string operator+(const std::string& lhs, const StringRef& rhs) {
-        return lhs + rhs.get_string();
+    inline std::string operator+(const std::string_view lhs, const StringRef& rhs) {
+        return lhs.data() + rhs.get_string();
     }
 
-    inline std::string operator+(const StringRef& lhs, const std::string& rhs) {
-        return lhs.get_string() + rhs;
+    inline std::string operator+(const StringRef& lhs, const std::string_view rhs) {
+        return lhs.get_string() + rhs.data();
     }
 
     class State;

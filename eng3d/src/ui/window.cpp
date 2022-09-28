@@ -75,7 +75,6 @@ void Window::set_close_btn_function(std::function<void(Widget&)> _on_click) {
     } else {
         if(this->close_btn) {
             this->close_btn->kill();
-            delete this->close_btn;
             this->close_btn = nullptr;
         }
     }

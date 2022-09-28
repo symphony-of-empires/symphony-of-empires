@@ -452,15 +452,15 @@ void MapRender::update(GameState& gs) {
     }
 }
 
-void MapRender::draw(Eng3D::Camera* camera, MapView view_mode) {
+void MapRender::draw(const Eng3D::Camera& camera, MapView view_mode) {
     map_shader->use();
-    const auto view = camera->get_view();
+    const auto view = camera.get_view();
     map_shader->set_uniform("view", view);
-    const auto cam_pos = camera->get_world_pos();
+    const auto cam_pos = camera.get_world_pos();
     map_shader->set_uniform("view_pos", cam_pos.x, cam_pos.y, cam_pos.z);
-    const auto projection = camera->get_projection();
+    const auto projection = camera.get_projection();
     map_shader->set_uniform("projection", projection);
-    const auto map_pos = camera->get_map_pos();
+    const auto map_pos = camera.get_map_pos();
     float distance_to_map = map_pos.z / this->gs.world->width;
     map_shader->set_uniform("dist_to_map", distance_to_map);
     map_shader->set_uniform("map_size", static_cast<float>(this->gs.world->width), static_cast<float>(this->gs.world->height));

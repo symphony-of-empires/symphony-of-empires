@@ -45,9 +45,9 @@ struct Technology : public RefnameEntity<TechnologyId> {
     std::vector<TechnologyId> req_technologies;
 };
 template<>
-struct Serializer<Technology*>: public SerializerReferenceLocal<World, Technology> {};
+struct Serializer<Technology*>: public SerializerReference<World, Technology> {};
 template<>
-struct Serializer<const Technology*>: public SerializerReferenceLocal<World, const Technology> {};
+struct Serializer<const Technology*>: public SerializerReference<World, const Technology> {};
 template<>
 struct Serializer<Technology> {
     template<bool is_serialize>

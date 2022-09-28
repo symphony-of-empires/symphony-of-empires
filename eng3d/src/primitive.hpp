@@ -33,33 +33,33 @@
 namespace Eng3D {
     class Rectangle;
 
-    struct Line: public Eng3D::MeshStatic<2, 0, glm::vec2, glm::vec2> {
+    struct Line : Eng3D::MeshStatic<2, 0, glm::vec2, glm::vec2> {
         Line(float start_x, float start_y, float end_x, float end_y);
         ~Line() = default;
     };
 
-    struct Quad: public Eng3D::MeshStatic<6, 0, glm::vec3, glm::vec2> {
+    struct Quad : Eng3D::MeshStatic<6, 0, glm::vec3, glm::vec2> {
         Quad(glm::vec3 c1, glm::vec3 c2, glm::vec3 c3, glm::vec3 c4);
         ~Quad() = default;
     };
 
-    struct Quad2D: public Eng3D::MeshStatic<6, 0, glm::vec2, glm::vec2> {
+    struct Quad2D : Eng3D::MeshStatic<6, 0, glm::vec2, glm::vec2> {
         Quad2D();
         ~Quad2D() = default;
     };
 
-    struct Square: public Eng3D::MeshStatic<6, 0, glm::vec2, glm::vec2> {
+    struct Square : Eng3D::MeshStatic<6, 0, glm::vec2, glm::vec2> {
         Square(float start_x, float start_y, float end_x, float end_y);
         Square(const Eng3D::Rectangle& pos, const Eng3D::Rectangle& texcoord);
         ~Square() = default;
     };
 
-    struct TriangleList: public Eng3D::Mesh<glm::vec3, glm::vec2> {
+    struct TriangleList : Eng3D::Mesh<glm::vec3, glm::vec2> {
         TriangleList(std::vector<glm::vec3>& positions, std::vector<glm::vec2>& tex_coords);
         ~TriangleList() = default;
     };
-    
-    class Sphere: public Eng3D::Mesh<glm::vec3, glm::vec2> {
+
+    class Sphere : public Eng3D::Mesh<glm::vec3, glm::vec2> {
         Eng3D::MeshData<glm::vec3, glm::vec2> calc_pos(glm::vec3 center_pos, float longitude, float latitude);
         int resolution;
     public:

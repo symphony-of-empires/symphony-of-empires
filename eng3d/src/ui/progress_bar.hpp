@@ -48,16 +48,16 @@ namespace UI {
     public:
         ProgressBar(int x, int y, unsigned w, unsigned h, float min, float max, Widget* _parent = nullptr);
         virtual ~ProgressBar() override {};
-        virtual void on_render(Context& ctx, Eng3D::Rect viewport);
+        virtual void on_render(UI::Context& ctx, Eng3D::Rect viewport);
         inline void set_value(const float _value) {
-            value = std::clamp(_value, min, max);
+            value = glm::clamp(_value, min, max);
         }
 
         inline float get_value() const {
             return value;
         }
 
-        float max, min;
-        Direction direction = Direction::LEFT_TO_RIGHT;
+        float min = 0.f, max = 1.f;
+        UI::Direction direction = UI::Direction::LEFT_TO_RIGHT;
     };
 };

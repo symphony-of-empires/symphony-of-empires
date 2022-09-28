@@ -79,7 +79,7 @@ Interface::MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
             this->gs.select_nation = new Interface::LobbySelectView(gs);
             this->gs.host_mode = false;
             this->gs.editor = false;
-            this->gs.client = new Client(this->gs, this->ip_addr_inp->get_buffer(), 1836);
+            this->gs.client.reset(new Client(this->gs, this->ip_addr_inp->get_buffer(), 1836));
             this->gs.client->username = this->username_inp->get_buffer();
             this->gs.client->wait_for_snapshot();
             return;
@@ -90,7 +90,7 @@ Interface::MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
         } catch(ServerException& e) {
             this->gs.ui_ctx.prompt("Server error", e.what());
         }
-        delete this->gs.client;
+        this->gs.client.reset();
     });
 }
 
@@ -185,8 +185,8 @@ Interface::MainMenu::MainMenu(GameState& _gs)
         // Create a local server in editor mode
         this->gs.host_mode = true;
         this->gs.editor = true;
-        this->gs.server = new Server(gs, 1836);
-        this->gs.client = new Client(gs, "127.0.0.1", 1836);
+        this->gs.server.reset(new Server(gs, 1836));
+        this->gs.client.reset(new Client(gs, "127.0.0.1", 1836));
         this->kill();
 
         this->gs.curr_nation = &gs.world->nations[0];

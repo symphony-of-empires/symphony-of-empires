@@ -156,12 +156,8 @@ TopWindow::TopWindow(GameState& _gs)
         this->gs.ui_ctx.clear();
         this->gs.ui_ctx.use_tooltip(nullptr, { 0, 0 });
         this->gs.paused = true;
-        if(this->gs.client)
-            delete this->gs.client;
-        this->gs.client = nullptr;
-        if(this->gs.server)
-            delete this->gs.server;
-        this->gs.server = nullptr;
+        this->gs.client.reset();
+        this->gs.server.reset();
         new Interface::MainMenu(this->gs);
     });
     exit_ibtn->set_tooltip("Back to the main menu");

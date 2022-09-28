@@ -39,35 +39,35 @@ namespace EventEditor {
     };
 
     /// @brief Conditional negation
-    struct NodeCondNot : public BaseNode {
+    struct NodeCondNot : BaseNode {
         std::unique_ptr<BaseNode> lhs;
     };
 
     /// @brief Conditional "IS EQUAL"
-    struct NodeCondIsEqual : public BaseNode {
+    struct NodeCondIsEqual : BaseNode {
         std::unique_ptr<BaseNode> lhs;
         std::unique_ptr<BaseNode> rhs;
     };
 
     /// @brief Basic WHILE loop construct
-    struct NodeWhileLoop : public BaseNode {
+    struct NodeWhileLoop : BaseNode {
         std::unique_ptr<BaseNode> condition;
         std::vector<std::unique_ptr<BaseNode>> body;
     };
 
     /// @brief An IF expression
-    struct NodeIfExpr : public BaseNode {
+    struct NodeIfExpr : BaseNode {
         std::unique_ptr<BaseNode> condition;
         std::vector<std::unique_ptr<BaseNode>> body;
     };
 
     /// @brief Declares a new variable
-    struct NodeVariable : public BaseNode {
+    struct NodeVariable : BaseNode {
         std::string name;
     };
 
     /// @brief References a variable
-    struct NodeVarRef : public BaseNode {
+    struct NodeVarRef : BaseNode {
         std::shared_ptr<NodeVariable> var;
     };
 };

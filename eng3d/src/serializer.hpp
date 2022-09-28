@@ -111,12 +111,12 @@ template<typename T>
 struct Serializer {
 #ifdef DEBUG_SERIALIZER
     template<bool is_serialize = true>
-    static inline void deser_dynamic(Archive&, T*) {
+    static inline void deser_dynamic(Archive&, T&) {
         CXX_THROW(SerializerException, "Implement your serializer function!");
     }
 
     template<bool is_serialize = false>
-    static inline void deser_dynamic(Archive&, const T*) {
+    static inline void deser_dynamic(Archive&, const T&) {
         CXX_THROW(SerializerException, "Implement your deserializer function!");
     }
 #endif
@@ -127,11 +127,6 @@ struct Serializer {
 /// @tparam T the type to (de)-serialize
 template<bool is_serialize, typename T>
 inline void deser_dynamic(Archive& ar, T& obj) {
-    Serializer<T>::template deser_dynamic<is_serialize>(ar, obj);
-}
-
-template<bool is_serialize, typename T>
-inline void deser_dynamic(Archive& ar, const T& obj) {
     Serializer<T>::template deser_dynamic<is_serialize>(ar, const_cast<T&>(obj));
 }
 
@@ -141,8 +136,8 @@ inline void serialize(Archive& ar, const T& obj) {
 }
 
 template<typename T>
-inline void deserialize(Archive& ar, const T& obj) {
-    Serializer<T>::template deser_dynamic<false>(ar, const_cast<T&>(obj));
+inline void deserialize(Archive& ar, T& obj) {
+    Serializer<T>::template deser_dynamic<false>(ar, obj);
 }
 
 /// @brief A serializer optimized to memcpy directly the element into the byte stream
@@ -157,25 +152,19 @@ struct SerializerMemcpy {
     }
 };
 
-/// @todo On some compilers a boolean can be something not a uint8_t, we should
-// explicitly recast this boolean into a uint8_t to avoid problems
-template<>
-struct Serializer<bool> : public SerializerMemcpy<bool> {};
-
-// A class more focused on numbers :)
 template<typename T>
-class SerializerNumber {
+concept SerializerScalar = std::is_integral_v<T> || std::is_floating_point_v<T>;
+template<SerializerScalar T>
+class Serializer<T> {
     static constexpr auto scaling = 1000.f;
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, T& obj) {
         if constexpr(std::is_floating_point_v<T>) {
-            int32_t tmp;
-            if constexpr(is_serialize) // Scale when serializing
-                tmp = obj * scaling;
-            ::deser_dynamic<is_serialize, decltype(tmp)>(ar, tmp);
-            if constexpr(!is_serialize) // Unscale when deserializing
-                obj = static_cast<T>(tmp) / scaling;
+            auto tmp = static_cast<int32_t>(obj * scaling);
+            ::deser_dynamic<is_serialize>(ar, tmp);
+            if constexpr(!is_serialize)
+                obj = static_cast<T>(tmp) * (1.f / scaling);
         } else {
             if constexpr(is_serialize && std::endian::native == std::endian::big)
                 obj = std::byteswap<T>(obj);
@@ -186,101 +175,51 @@ public:
     }
 };
 
-// Serializers for primitives only require memcpy
-template<>
-struct Serializer<signed char> : public SerializerNumber<signed char> {};
-template<>
-struct Serializer<signed short> : public SerializerNumber<signed short> {};
-template<>
-struct Serializer<signed int> : public SerializerNumber<signed int> {};
-template<>
-struct Serializer<signed long> : public SerializerNumber<signed long> {};
-template<>
-struct Serializer<signed long long> : public SerializerNumber<signed long long> {};
-template<>
-struct Serializer<unsigned char> : public SerializerNumber<unsigned char> {};
-template<>
-struct Serializer<unsigned short> : public SerializerNumber<unsigned short> {};
-template<>
-struct Serializer<unsigned int> : public SerializerNumber<unsigned int> {};
-template<>
-struct Serializer<unsigned long> : public SerializerNumber<unsigned long> {};
-template<>
-struct Serializer<unsigned long long> : public SerializerNumber<unsigned long long> {};
-template<>
-struct Serializer<float> : public SerializerNumber<float> {};
-template<>
-struct Serializer<double> : public SerializerNumber<double> {};
-template<>
-struct Serializer<long double> : public SerializerNumber<long double> {};
-
-/// @brief A serializer specialized in strings
-/// The serializer stores the lenght of the string and the string itself
-/// this is done so no errors can happen due to null stuff. (UTF-8 especially)
-template<>
-struct Serializer<std::string> {
-    template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, std::string& obj) {
-        /// @brief Used to reduce number of uneeded allocations
-        char tmpstr_buf[1024];
-        if constexpr(is_serialize) {
-            // Truncate lenght
-            uint16_t len = static_cast<uint16_t>(glm::min<size_t>(std::numeric_limits<uint16_t>::max(), obj.length()));
-            ::serialize(ar, len); // Put length for later deserialization (since UTF-8/UTF-16 exists)
-            if(len) // Copy the string into the output
-                ar.copy_from(obj.c_str(), len);
-        } else {
-            uint16_t len = 0; // Obtain the lenght of the string to be read
-            ::deserialize(ar, len);
-            if(len >= sizeof(tmpstr_buf))
-                CXX_THROW(SerializerException, "String is too lenghty");
-            if(len) // Obtain the string itself
-                ar.copy_to(tmpstr_buf, len);
-            tmpstr_buf[len] = '\0';
-            obj = tmpstr_buf;
-        }
-    }
+template<typename T>
+concept SerializerContainer = requires(T a, T b) {
+    requires std::destructible<typename T::value_type>;
+    requires std::forward_iterator<typename T::iterator>;
+    { a.begin() } -> std::same_as<typename T::iterator>;
+    { a.end() } -> std::same_as<typename T::iterator>;
 };
-
 /// @brief Non-contigous serializer for STL containers
 /// This serializer class works primarly with containers whose memory is contiguous
-template<typename T, typename C>
-struct SerializerContainer {
-    template<typename U>
-    struct HasResize {
-        template<typename V>
-        static consteval bool t(typename V::resize*) { return true; }
-        template<typename V>
-        static consteval bool t(...) { return false; }
-        static constexpr bool value = t<U>();
-    };
-
+template<SerializerContainer T>
+struct Serializer<T> {
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, C& obj_group) {
+    static inline void deser_dynamic(Archive& ar, T& obj_group) {
+        constexpr bool has_data = requires(T& a) { a.data(); };
         uint32_t len = obj_group.size();
         ::deser_dynamic<is_serialize>(ar, len);
         if constexpr(is_serialize) {
-            if constexpr(std::is_trivially_copyable<T>::value) { // trivial
-                if(len)
-                    ar.copy_from(obj_group.data(), len * sizeof(T));
+            if constexpr(has_data && std::is_trivially_copyable<typename T::value_type>::value) {
+                ar.copy_from(obj_group.data(), len * sizeof(typename T::value_type));
             } else { // non-trivial
                 for(auto& obj : obj_group)
                     ::deser_dynamic<is_serialize>(ar, obj);
             }
         } else {
-            if constexpr(HasResize<C>::value)
+            constexpr bool has_resize = requires(T& a) { a.resize(); };
+            if constexpr(has_resize) {
                 obj_group.resize(len);
-            
-            if constexpr(std::is_trivially_copyable<T>::value) { // trivial
-                if(len)
-                    ar.copy_to(obj_group.data(), len * sizeof(T));
-            } else { // non-len
+                if constexpr(has_data && std::is_trivially_copyable<typename T::value_type>::value) {
+                    ar.copy_to(obj_group.data(), len * sizeof(typename T::value_type));
+                } else { // non-len
+                    for(decltype(len) i = 0; i < len; i++)
+                        ::deser_dynamic<is_serialize>(ar, obj_group[i]);
+                }
+            } else { // non-len, no resize
                 for(decltype(len) i = 0; i < len; i++)
-                    ::deser_dynamic<is_serialize, T>(ar, obj_group[i]);
+                    ::deser_dynamic<is_serialize>(ar, obj_group[i]);
             }
         }
     }
 };
+
+/// @todo On some compilers a boolean can be something not a uint8_t, we should
+// explicitly recast this boolean into a uint8_t to avoid problems
+template<>
+struct Serializer<bool> : SerializerMemcpy<bool> {};
 
 /// @brief Pair serializers
 template<typename T, typename U>
@@ -291,42 +230,6 @@ struct Serializer<std::pair<T, U>> {
         ::deser_dynamic<is_serialize>(ar, obj.second);
     }
 };
-
-#include "eng3d/string.hpp"
-template<>
-struct Serializer<Eng3D::StringRef> {
-    template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Eng3D::StringRef& obj) {
-        if constexpr(is_serialize) {
-            ::deser_dynamic<is_serialize>(ar, obj.get_string());
-        } else {
-            std::string deserialized_string;
-            ::deser_dynamic<is_serialize>(ar, deserialized_string);
-            obj = Eng3D::StringRef(deserialized_string);
-        }
-    }
-};
-
-/// @brief Contigous container serializers implementations
-#include <vector>
-template<typename T, typename A>
-struct Serializer<std::vector<T, A>> : public SerializerContainer<T, std::vector<T, A>> {};
-
-#include <deque>
-template<typename T, typename A>
-struct Serializer<std::deque<T, A>> : public SerializerContainer<T, std::deque<T, A>> {};
-
-#include <queue>
-template<typename T, typename S>
-struct Serializer<std::queue<T, S>> : public SerializerContainer<T, std::queue<T, S>> {};
-
-#include <set>
-template<typename K, typename C, typename A>
-struct Serializer<std::set<K, C, A>> : public SerializerContainer<K, std::set<K, C, A>> {};
-
-#include <unordered_set>
-template<typename V, typename H, typename P, typename A>
-struct Serializer<std::unordered_set<V, H, P, A>> : public SerializerContainer<V, std::unordered_set<V, H, P, A>> {};
 
 #include <bitset>
 template<typename T, int N>
@@ -342,41 +245,20 @@ struct SerializerBitset {
         }
     }
 };
-
 template<size_t bits>
-struct Serializer<std::bitset<bits>> : public SerializerBitset<std::bitset<bits>, bits> {};
+struct Serializer<std::bitset<bits>> : SerializerBitset<std::bitset<bits>, bits> {};
 
-/// @brief Used as a template for serializable objects (pointers mostly) which should be
-/// treated as a reference instead of the object itself
-template<typename W, typename T>
-struct SerializerReference {
+#include "eng3d/string.hpp"
+template<>
+struct Serializer<Eng3D::StringRef> {
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, T*& obj) {
-        typename T::Id id = obj == nullptr ? T::invalid() : W::get_instance().get_id(*obj);
-        ::deser_dynamic<is_serialize>(ar, id);
-        if constexpr(!is_serialize) {
-            if(static_cast<size_t>(id) >= W::get_instance().get_list((T*)nullptr).size()) {
-                obj = nullptr;
-            } else {
-                obj = id != T::invalid() ? W::get_instance().get_list((T*)nullptr)[id] : nullptr;
-            }
-        }
-    }
-};
-
-// Non-pointer
-template<typename W, typename T>
-struct SerializerReferenceLocal {
-    template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, T*& obj) {
-        typename T::Id id = obj == nullptr ? T::invalid() : W::get_instance().get_id(*obj);
-        ::deser_dynamic<is_serialize>(ar, id);
-        if constexpr(!is_serialize) {
-            if(static_cast<size_t>(id) >= W::get_instance().get_list((T*)nullptr).size()) {
-                obj = nullptr;
-            } else {
-                obj = id != T::invalid() ? &(W::get_instance().get_list((T*)nullptr)[id]) : nullptr;
-            }
+    static inline void deser_dynamic(Archive& ar, Eng3D::StringRef& obj) {
+        std::string str = obj.get_string();
+        if constexpr(is_serialize) {
+            ::deser_dynamic<is_serialize>(ar, str);
+        } else {
+            ::deser_dynamic<is_serialize>(ar, str);
+            obj = Eng3D::StringRef(str);
         }
     }
 };
@@ -390,6 +272,23 @@ struct Serializer<Eng3D::Rectangle> {
         ::deser_dynamic<is_serialize>(ar, obj.right);
         ::deser_dynamic<is_serialize>(ar, obj.top);
         ::deser_dynamic<is_serialize>(ar, obj.bottom);
+    }
+};
+
+/// @brief Used as a template for serializable objects on the global world context
+template<typename W, typename T>
+struct SerializerReference {
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, T*& obj) {
+        typename T::Id id = obj == nullptr ? T::invalid() : W::get_instance().get_id(*obj);
+        ::deser_dynamic<is_serialize>(ar, id);
+        if constexpr(!is_serialize) {
+            if(static_cast<size_t>(id) >= W::get_instance().get_list((T*)nullptr).size()) {
+                obj = nullptr;
+            } else {
+                obj = id != T::invalid() ? &(W::get_instance().get_list((T*)nullptr)[id]) : nullptr;
+            }
+        }
     }
 };
 

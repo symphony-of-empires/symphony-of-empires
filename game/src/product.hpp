@@ -31,14 +31,13 @@
 #include "objects.hpp"
 
 /// @brief A good, mostly serves as a "product type"
-class Good : public RefnameEntity<GoodId> {
-public:
+struct Good : RefnameEntity<GoodId> {
     Eng3D::StringRef name;
 };
 template<>
-struct Serializer<Good*>: public SerializerReferenceLocal<World, Good> {};
+struct Serializer<Good*> : SerializerReference<World, Good> {};
 template<>
-struct Serializer<const Good*>: public SerializerReferenceLocal<World, const Good> {};
+struct Serializer<const Good*> : SerializerReference<World, const Good> {};
 template<>
 struct Serializer<Good> {
     template<bool is_serialize>
@@ -50,7 +49,7 @@ struct Serializer<Good> {
 };
 
 /// @brief A product (based off a Good) which can be bought by POPs, converted by factories and transported
-struct Product : public Entity<ProductId> {
+struct Product : Entity<ProductId> {
     void close_market() {
         if(this->demand > this->supply) {
             // Increase price with more demand
@@ -70,7 +69,7 @@ struct Product : public Entity<ProductId> {
         this->price = glm::clamp(this->price + this->price_delta, 0.01f, 100'000.f);
         this->demand = 0.f;
     }
-    
+
     /// @brief Buy a portion of the item
     /// @param amount Amount to buy
     /// @return float Total cost of purchase

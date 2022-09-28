@@ -27,80 +27,80 @@
 #include "eng3d/entity.hpp"
 #include "eng3d/serializer.hpp"
 
-class GoodId : public EntityId<uint8_t> {};
+struct GoodId : EntityId<uint8_t> {};
 template<>
-struct Serializer<GoodId>: public SerializerMemcpy<GoodId> {};
+struct Serializer<GoodId> : SerializerMemcpy<GoodId> {};
 
-class ProductId : public EntityId<uint8_t> {};
+struct ProductId : EntityId<uint8_t> {};
 template<>
-struct Serializer<ProductId>: public SerializerMemcpy<ProductId> {};
+struct Serializer<ProductId> : SerializerMemcpy<ProductId> {};
 
-class LanguageId : public EntityId<uint16_t> {};
+struct LanguageId : EntityId<uint16_t> {};
 template<>
-struct Serializer<LanguageId>: public SerializerMemcpy<LanguageId> {};
+struct Serializer<LanguageId> : SerializerMemcpy<LanguageId> {};
 
-class ReligionId : public EntityId<uint8_t> {};
+struct ReligionId : EntityId<uint8_t> {};
 template<>
-struct Serializer<ReligionId>: public SerializerMemcpy<ReligionId> {};
+struct Serializer<ReligionId> : SerializerMemcpy<ReligionId> {};
 
-class PopTypeId : public EntityId<uint8_t> {};
+struct PopTypeId : EntityId<uint8_t> {};
 template<>
-struct Serializer<PopTypeId>: public SerializerMemcpy<PopTypeId> {};
+struct Serializer<PopTypeId> : SerializerMemcpy<PopTypeId> {};
 
-class BuildingTypeId : public EntityId<uint8_t> {};
+struct BuildingTypeId : EntityId<uint8_t> {};
 template<>
-struct Serializer<BuildingTypeId>: public SerializerMemcpy<BuildingTypeId> {};
+struct Serializer<BuildingTypeId> : SerializerMemcpy<BuildingTypeId> {};
 
-class WarId : public EntityId<uint8_t> {};
+struct WarId : EntityId<uint8_t> {};
 template<>
-struct Serializer<WarId>: public SerializerMemcpy<WarId> {};
+struct Serializer<WarId> : SerializerMemcpy<WarId> {};
 
-class DecisionId : public EntityId<uint8_t> {};
+struct DecisionId : EntityId<uint8_t> {};
 template<>
-struct Serializer<DecisionId>: public SerializerMemcpy<DecisionId> {};
+struct Serializer<DecisionId> : SerializerMemcpy<DecisionId> {};
 
-class EventId : public EntityId<uint16_t> {};
+struct EventId : EntityId<uint16_t> {};
 template<>
-struct Serializer<EventId>: public SerializerMemcpy<EventId> {};
+struct Serializer<EventId> : SerializerMemcpy<EventId> {};
 
-class NationId : public EntityId<uint16_t> {};
+struct NationId : EntityId<uint16_t> {};
 template<>
-struct Serializer<NationId>: public SerializerMemcpy<NationId> {};
+struct Serializer<NationId> : SerializerMemcpy<NationId> {};
 
-class BattleId : public EntityId<uint16_t> {};
+struct BattleId : EntityId<uint16_t> {};
 template<>
-struct Serializer<BattleId>: public SerializerMemcpy<BattleId> {};
+struct Serializer<BattleId> : SerializerMemcpy<BattleId> {};
 
-class ProvinceId : public EntityId<uint16_t> {};
+struct ProvinceId : EntityId<uint16_t> {};
 template<>
-struct Serializer<ProvinceId>: public SerializerMemcpy<ProvinceId> {};
+struct Serializer<ProvinceId> : SerializerMemcpy<ProvinceId> {};
 
-class TechnologyId : public EntityId<uint8_t> {};
+struct TechnologyId : EntityId<uint8_t> {};
 template<>
-struct Serializer<TechnologyId>: public SerializerMemcpy<TechnologyId> {};
+struct Serializer<TechnologyId> : SerializerMemcpy<TechnologyId> {};
 
-class TerrainTypeId : public EntityId<uint8_t> {};
+struct TerrainTypeId : EntityId<uint8_t> {};
 template<>
-struct Serializer<TerrainTypeId>: public SerializerMemcpy<TerrainTypeId> {};
+struct Serializer<TerrainTypeId> : SerializerMemcpy<TerrainTypeId> {};
 
-class TreatyId : public EntityId<uint16_t> {};
+struct TreatyId : EntityId<uint16_t> {};
 template<>
-struct Serializer<TreatyId>: public SerializerMemcpy<TreatyId> {};
+struct Serializer<TreatyId> : SerializerMemcpy<TreatyId> {};
 
-class UnitTypeId : public EntityId<uint8_t> {};
+struct UnitTypeId : EntityId<uint8_t> {};
 template<>
-struct Serializer<UnitTypeId>: public SerializerMemcpy<UnitTypeId> {};
+struct Serializer<UnitTypeId> : SerializerMemcpy<UnitTypeId> {};
 
-class UnitId : public EntityId<uint16_t> {};
+struct UnitId : EntityId<uint16_t> {};
 template<>
-struct Serializer<UnitId>: public SerializerMemcpy<UnitId> {};
+struct Serializer<UnitId> : SerializerMemcpy<UnitId> {};
 
-class IdeologyId : public EntityId<uint8_t> {};
+struct IdeologyId : EntityId<uint8_t> {};
 template<>
-struct Serializer<IdeologyId>: public SerializerMemcpy<IdeologyId> {};
+struct Serializer<IdeologyId> : SerializerMemcpy<IdeologyId> {};
 
-class BuildingId : public EntityId<uint8_t> {};
+struct BuildingId : EntityId<uint8_t> {};
 template<>
-struct Serializer<BuildingId>: public SerializerMemcpy<BuildingId> {};
+struct Serializer<BuildingId> : SerializerMemcpy<BuildingId> {};
 
 class World;

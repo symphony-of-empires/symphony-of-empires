@@ -37,6 +37,8 @@
 #include "eng3d/event.hpp"
 #include "objects.hpp"
 #include "unit.hpp"
+#include "client/client_network.hpp"
+#include "server/server_network.hpp"
 
 enum class MapMode : unsigned char {
     COUNTRY_SELECT,
@@ -124,8 +126,8 @@ public:
     void handle_mouse_wheel(const Eng3D::Event::MouseWheel&) override;
     void handle_key(const Eng3D::Event::Key&) override;
 
-    Client* client = nullptr;
-    Server* server = nullptr;
+    std::unique_ptr<Client> client;
+    std::unique_ptr<Server> server;
 
     std::atomic<bool> loaded_world;
     std::atomic<bool> loaded_map;

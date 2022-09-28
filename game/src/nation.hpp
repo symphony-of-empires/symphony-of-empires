@@ -92,15 +92,20 @@ struct Serializer<NationClientHint> {
 
 class Technology;
 class Nation : public RefnameEntity<NationId> {
-    inline void do_diplomacy();
-    inline bool can_do_diplomacy() const;
+    void do_diplomacy() {
+        /// @todo Fix this formula which is currently broken
+        //diplomatic_timer = glm::max((60 * 48) - glm::min(10.f * 48.f, prestige / 100.f), 4.f);
+        diplomatic_timer = 48;
+    }
 
+    bool can_do_diplomacy() const {
+        return diplomatic_timer == 0;
+    }
     Nation& operator=(const Nation&) = default;
 public:
     void declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> clauses = std::vector<TreatyClause::BaseClause*>());
     bool is_ally(const Nation& nation) const;
     bool is_enemy(const Nation& nation) const;
-    bool exists() const;
     void auto_relocate_capital();
     void set_policy(const Policies& policies);
     bool is_accepted_language(const Language& language) const;
@@ -112,6 +117,13 @@ public:
     float get_research_points() const;
     bool can_research(const Technology& tech) const;
     void change_research_focus(const Technology& tech);
+
+    /// @brief Whetever the nation exists at all - we cannot add nations in-game so we just check
+    /// if the nation "exists" at all, this means that it has a presence and a goverment
+    /// must own atleast 1 province
+    bool exists() const {
+        return !(controlled_provinces.empty());
+    }
 
     Eng3D::StringRef name;
     float diplomacy_points; // Amount of diplomacy points available
@@ -147,9 +159,9 @@ public:
     std::string client_username; // Used by clients to store usernames from nations - not saved
 };
 template<>
-struct Serializer<Nation*>: public SerializerReferenceLocal<World, Nation> {};
+struct Serializer<Nation*> : SerializerReference<World, Nation> {};
 template<>
-struct Serializer<const Nation*>: public SerializerReferenceLocal<World, const Nation> {};
+struct Serializer<const Nation*> : SerializerReference<World, const Nation> {};
 template<>
 struct Serializer<Nation> {
     template<bool is_serialize>

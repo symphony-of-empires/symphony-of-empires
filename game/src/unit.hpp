@@ -39,10 +39,8 @@ class World;
 
 /// @brief Defines a type of unit, it can be a tank, garrison, infantry, etc
 /// this is moddable via a lua script and new unit types can be added
-class UnitType : public RefnameEntity<UnitTypeId> {
-public:
+struct UnitType : RefnameEntity<UnitTypeId> {
     Eng3D::StringRef name;
-
     float supply_consumption;
     float speed;
     float max_health;
@@ -54,9 +52,9 @@ public:
     std::vector<std::pair<GoodId, float>> req_goods; // Required goods
 };
 template<>
-struct Serializer<UnitType*>: public SerializerReferenceLocal<World, UnitType> {};
+struct Serializer<UnitType*> : SerializerReference<World, UnitType> {};
 template<>
-struct Serializer<const UnitType*>: public SerializerReferenceLocal<World, const UnitType> {};
+struct Serializer<const UnitType*> : SerializerReference<World, const UnitType> {};
 template<>
 struct Serializer<UnitType> {
     template<bool is_serialize>

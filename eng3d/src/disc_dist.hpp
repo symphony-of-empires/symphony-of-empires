@@ -27,6 +27,7 @@
 #include <numeric>
 #include <algorithm>
 #include <cstddef>
+#include <cassert>
 #include <vector>
 #include "eng3d/rand.hpp"
 
@@ -46,8 +47,10 @@ public:
         : _items{ items },
         _rand{ 0 }
     {
+        assert(!items.empty() && !probabilities.empty());
         // Scale each probabilty
         auto total = std::accumulate(probabilities.begin(), probabilities.end(), 0.f);
+        assert(total != 0.f);
         auto scale = probabilities.size() / total;
         for(auto& p : probabilities) p *= scale;
 

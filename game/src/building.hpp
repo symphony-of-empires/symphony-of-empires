@@ -35,7 +35,7 @@ class Unit;
 class UnitType;
 
 /// @brief Type for military outposts
-struct BuildingType : public RefnameEntity<BuildingTypeId> {
+struct BuildingType : RefnameEntity<BuildingTypeId> {
     bool can_plot_on_sea() const { return flags[0]; }
     bool can_plot_on_land() const { return flags[1]; }
     bool can_build_land_units() const { return flags[2]; }
@@ -66,9 +66,9 @@ struct BuildingType : public RefnameEntity<BuildingTypeId> {
     std::vector<TechnologyId> req_technologies; // Required technologies to build
 };
 template<>
-struct Serializer<BuildingType*>: public SerializerReferenceLocal<World, BuildingType> {};
+struct Serializer<BuildingType*> : SerializerReference<World, BuildingType> {};
 template<>
-struct Serializer<const BuildingType*>: public SerializerReferenceLocal<World, const BuildingType> {};
+struct Serializer<const BuildingType*> : SerializerReference<World, const BuildingType> {};
 template<>
 struct Serializer<BuildingType> {
     template<bool is_serialize>
@@ -87,7 +87,7 @@ struct Serializer<BuildingType> {
 
 /// @brief A military outpost, on land serves as a "spawn" place for units
 /// When adjacent to a water tile this serves as a shipyard for spawning naval units
-struct Building : public Entity<BuildingId> {
+struct Building : Entity<BuildingId> {
     /// @brief Adds a good by id to a building stockpile
     void add_to_stock(const Good& good, const size_t add) {
         stockpile[good] += add;
@@ -106,7 +106,7 @@ struct Building : public Entity<BuildingId> {
             if(v) return false;
         return this->level > 0;
     }
-    
+
     float budget = 0.f; // Total money that the factory has
     float level = 0.f; // Level/Capacity scale of the building
     float workers = 1.f; // Amount of workers

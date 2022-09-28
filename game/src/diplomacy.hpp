@@ -38,7 +38,7 @@ class Province;
 namespace Diplomacy {
     // Determines if the other nation is a friendly potential ally
     inline bool is_friend(Nation& us, Nation& them);
-    
+
     // Determines if the other nation is an enemy and potential rival
     inline bool is_foe(Nation& us, Nation& them);
 };
@@ -54,7 +54,7 @@ enum class TreatyClauseType {
     //TECHNOLOGY,
 };
 template<>
-struct Serializer<TreatyClauseType>: public SerializerMemcpy<TreatyClauseType> {};
+struct Serializer<TreatyClauseType> : SerializerMemcpy<TreatyClauseType> {};
 
 namespace TreatyClause {
     class BaseClause {
@@ -86,7 +86,7 @@ namespace TreatyClause {
     };
 
     // Makes loser to pay war reparations to the winner
-    class WarReparations: public BaseClause {
+    class WarReparations : public BaseClause {
     public:
         WarReparations()
             : BaseClause()
@@ -101,7 +101,7 @@ namespace TreatyClause {
     };
 
     // Reduces prestige of loser and increments prestige from winner
-    class Humiliate: public BaseClause {
+    class Humiliate : public BaseClause {
     public:
         Humiliate()
             : BaseClause()
@@ -116,7 +116,7 @@ namespace TreatyClause {
     };
 
     // Liberates a nation from another
-    class LiberateNation: public BaseClause {
+    class LiberateNation : public BaseClause {
     public:
         LiberateNation()
             : BaseClause()
@@ -132,7 +132,7 @@ namespace TreatyClause {
     };
 
     // Imposes a policy to be put in action on a nation
-    class ImposePolicies: public BaseClause {
+    class ImposePolicies : public BaseClause {
     public:
         ImposePolicies()
             : BaseClause()
@@ -147,7 +147,7 @@ namespace TreatyClause {
     };
 
     // Annexes territory from the loser
-    class AnnexProvince: public BaseClause {
+    class AnnexProvince : public BaseClause {
     public:
         AnnexProvince()
             : BaseClause()
@@ -162,7 +162,7 @@ namespace TreatyClause {
     };
 
     // Makes the receiver the puppet of the sender
-    class Puppet: public BaseClause {
+    class Puppet : public BaseClause {
     public:
         Puppet()
             : BaseClause()
@@ -257,12 +257,11 @@ enum class TreatyApproval {
     ABSENT,
 };
 template<>
-struct Serializer<enum TreatyApproval>: public SerializerMemcpy<enum TreatyApproval> {};
+struct Serializer<enum TreatyApproval> : SerializerMemcpy<enum TreatyApproval> {};
 
-class Treaty : public Entity<TreatyId> {
-public:
+struct Treaty : Entity<TreatyId> {
     bool does_participate(Nation& nation);
-	bool in_effect() const;
+    bool in_effect() const;
 
     Eng3D::StringRef name;
     NationId sender_id; // The one who sent the treaty
@@ -273,9 +272,9 @@ public:
     std::vector<std::pair<NationId, TreatyApproval>> approval_status;
 };
 template<>
-struct Serializer<Treaty*>: public SerializerReferenceLocal<World, Treaty> {};
+struct Serializer<Treaty*> : SerializerReference<World, Treaty> {};
 template<>
-struct Serializer<const Treaty*>: public SerializerReferenceLocal<World, const Treaty> {};
+struct Serializer<const Treaty*> : SerializerReference<World, const Treaty> {};
 template<>
 struct Serializer<Treaty> {
     template<bool is_serialize>
@@ -289,7 +288,7 @@ struct Serializer<Treaty> {
     }
 };
 
-struct War : public Entity<WarId> {
+struct War : Entity<WarId> {
     bool is_involved(const Nation& nation) const;
     bool is_attacker(const Nation& nation) const;
     bool is_defender(const Nation& nation) const;
@@ -300,9 +299,9 @@ struct War : public Entity<WarId> {
     std::vector<TreatyClause::BaseClause*> wargoals;
 };
 template<>
-struct Serializer<War*>: public SerializerReferenceLocal<World, War> {};
+struct Serializer<War*> : SerializerReference<World, War> {};
 template<>
-struct Serializer<const War*>: public SerializerReferenceLocal<World, const War> {};
+struct Serializer<const War*> : SerializerReference<World, const War> {};
 template<>
 struct Serializer<War> {
     template<bool is_serialize>

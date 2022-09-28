@@ -33,7 +33,7 @@ enum AllowancePolicy {
     ALLOW_ALL, // Everyone can exit freely
 };
 template<>
-struct Serializer<enum AllowancePolicy>: public SerializerMemcpy<enum AllowancePolicy> {};
+struct Serializer<enum AllowancePolicy> : SerializerMemcpy<enum AllowancePolicy> {};
 
 enum CensorshipPolicy {
     CENSORSHIP_ALL_CENSORED, // All media censored
@@ -42,7 +42,7 @@ enum CensorshipPolicy {
     CENSORSHIP_ALL_ALLOWED, // All media allowed
 };
 template<>
-struct Serializer<enum CensorshipPolicy>: public SerializerMemcpy<enum CensorshipPolicy> {};
+struct Serializer<enum CensorshipPolicy> : SerializerMemcpy<enum CensorshipPolicy> {};
 
 enum AutoBuildPolicy {
     AUTO_BUILD_NONE, // POPs cannot auto build stuff
@@ -50,7 +50,7 @@ enum AutoBuildPolicy {
     AUTO_BUILD_ALLOWED, // All POPs can build freely
 };
 template<>
-struct Serializer<enum AutoBuildPolicy>: public SerializerMemcpy<enum AutoBuildPolicy> {};
+struct Serializer<enum AutoBuildPolicy> : SerializerMemcpy<enum AutoBuildPolicy> {};
 
 enum TreatmentPolicy {
     TREATMENT_EVERYONE_EQUAL, // Everyone is equal
@@ -59,7 +59,7 @@ enum TreatmentPolicy {
     TREATMENT_EXTERMINATE, // Exterminate
 };
 template<>
-struct Serializer<enum TreatmentPolicy>: public SerializerMemcpy<enum TreatmentPolicy> {};
+struct Serializer<enum TreatmentPolicy> : SerializerMemcpy<enum TreatmentPolicy> {};
 
 struct Policies {
     TreatmentPolicy treatment;

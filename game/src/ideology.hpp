@@ -29,7 +29,7 @@
 #include "objects.hpp"
 #include "policy.hpp"
 
-struct Ideology : public RefnameEntity<IdeologyId> {
+struct Ideology : RefnameEntity<IdeologyId> {
     std::uint32_t color;
     Eng3D::StringRef name;
     Policies policies;
@@ -38,9 +38,9 @@ struct Ideology : public RefnameEntity<IdeologyId> {
     Eng3D::StringRef check_policies_fn;
 };
 template<>
-struct Serializer<Ideology*>: public SerializerReferenceLocal<World, Ideology> {};
+struct Serializer<Ideology*> : SerializerReference<World, Ideology> {};
 template<>
-struct Serializer<const Ideology*>: public SerializerReferenceLocal<World, const Ideology> {};
+struct Serializer<const Ideology*> : SerializerReference<World, const Ideology> {};
 template<>
 struct Serializer<Ideology> {
     template<bool is_serialize>

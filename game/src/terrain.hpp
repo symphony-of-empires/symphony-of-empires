@@ -29,16 +29,16 @@
 #include "eng3d/color.hpp"
 #include "objects.hpp"
 
-struct TerrainType : public RefnameEntity<TerrainTypeId>  {
+struct TerrainType : RefnameEntity<TerrainTypeId> {
     Eng3D::StringRef name;
     uint32_t color; /// @brief Associative color (with bitmap)
     bool is_water_body; /// @brief Should this terrain be treated as sea?
     float penalty = 1.f; /// @brief Penalty imposed to various contexts
 };
 template<>
-struct Serializer<TerrainType*>: public SerializerReferenceLocal<World, TerrainType> {};
+struct Serializer<TerrainType*> : SerializerReference<World, TerrainType> {};
 template<>
-struct Serializer<const TerrainType*>: public SerializerReferenceLocal<World, const TerrainType> {};
+struct Serializer<const TerrainType*> : SerializerReference<World, const TerrainType> {};
 template<>
 struct Serializer<TerrainType> {
     template<bool is_serialize>

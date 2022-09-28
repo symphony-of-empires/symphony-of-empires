@@ -92,10 +92,8 @@ std::string political_province_tooltip(const World& world, const ProvinceId id);
 std::string empty_province_tooltip(const World& world, const ProvinceId id);
 
 class Map {
-    /// @brief Called to get mapmode
-    mapmode_generator mapmode_func;
-    /// @brief Called to get the provinces info to show in tooltip
-    mapmode_tooltip mapmode_tooltip_func;
+    mapmode_generator mapmode_func = nullptr;
+    mapmode_tooltip mapmode_tooltip_func = nullptr;
     selector_func selector = nullptr;
     GameState& gs;
 public:
@@ -117,8 +115,6 @@ public:
 
     bool province_selected = false;
     ProvinceId selected_province_id;
-    
-    MapRender* map_render;
     MapView view_mode = MapView::PLANE_VIEW;
 
     std::vector<std::shared_ptr<Eng3D::Model>> building_type_models;
@@ -133,7 +129,6 @@ public:
     std::vector<std::unique_ptr<Eng3D::Label3D>> province_labels;
 #endif
     std::vector<std::unique_ptr<Eng3D::Label3D>> nation_labels;
-    Eng3D::FontSDF* map_font = nullptr;
     bool gen_labels = true;
 
     /// @brief Wind oscillator (for flags)
@@ -145,19 +140,23 @@ public:
     void set_selection(selector_func selector);
 
     const World& world;
-    Eng3D::Camera* camera = nullptr;
-
     UI::Tooltip* tooltip = nullptr;
     UI::Group* map_ui_layer = nullptr;
-    std::vector<Interface::UnitWidget*> unit_widgets;
-    std::vector<Interface::BattleWidget*> battle_widgets;
-
-    std::shared_ptr<Eng3D::Texture> id_map;
-    std::shared_ptr<Eng3D::Texture> province_color_tex;
+private:
+    Eng3D::Sphere skybox;
+public:
+    std::unique_ptr<Eng3D::Camera> camera;
+private:
+    std::unique_ptr<Eng3D::FontSDF> map_font;
+public:
+    std::unique_ptr<MapRender> map_render;
+private:
     std::shared_ptr<Eng3D::Texture> line_tex;
     std::shared_ptr<Eng3D::Texture> skybox_tex;
-    Eng3D::Sphere skybox;
-    std::unique_ptr<Eng3D::OpenGL::Program> obj_shader;
     std::unique_ptr<Eng3D::OpenGL::Program> tree_shder;
+public:
+    std::vector<Interface::UnitWidget*> unit_widgets;
+    std::vector<Interface::BattleWidget*> battle_widgets;
+    std::unique_ptr<Eng3D::OpenGL::Program> obj_shader;
 };
 

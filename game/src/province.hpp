@@ -112,9 +112,9 @@ public:
     void clean_pops();
 };
 template<>
-struct Serializer<Province*>: public SerializerReferenceLocal<World, Province> {};
+struct Serializer<Province*> : SerializerReference<World, Province> {};
 template<>
-struct Serializer<const Province*>: public SerializerReferenceLocal<World, const Province> {};
+struct Serializer<const Province*> : SerializerReference<World, const Province> {};
 template<>
 struct Serializer<Province> {
     template<bool is_serialize>

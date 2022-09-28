@@ -28,7 +28,7 @@
 #include "eng3d/string.hpp"
 #include "objects.hpp"
 
-struct Decision : public RefnameEntity<DecisionId> {
+struct Decision : RefnameEntity<DecisionId> {
     Eng3D::StringRef name;
     Eng3D::StringRef effects;
 
@@ -48,10 +48,10 @@ struct Serializer<Decision> {
 };
 
 class Nation;
-struct Event : public RefnameEntity<EventId> {
+struct Event : RefnameEntity<EventId> {
     void take_decision(Nation& sender, Decision& dec);
     Eng3D::StringRef name;
-    std::vector<Nation *> receivers;
+    std::vector<Nation*> receivers;
     std::vector<Decision> decisions;
     Eng3D::StringRef text;
     Eng3D::StringRef title;
@@ -62,9 +62,9 @@ struct Event : public RefnameEntity<EventId> {
     int do_event_function = 0;
 };
 template<>
-struct Serializer<Event*>: public SerializerReferenceLocal<World, Event> {};
+struct Serializer<Event*> : SerializerReference<World, Event> {};
 template<>
-struct Serializer<const Event*>: public SerializerReferenceLocal<World, const Event> {};
+struct Serializer<const Event*> : SerializerReference<World, const Event> {};
 template<>
 struct Serializer<Event> {
     template<bool is_serialize>

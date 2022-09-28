@@ -41,8 +41,7 @@ extern "C" {
 //
 Eng3D::Audio::Audio(const std::string& path) {
     Eng3D::Log::debug("audio", Eng3D::translate_format("Decoding audio %s", path.c_str()));
-    
-    int err;
+    int err = 0;
     this->stream = static_cast<void *>(stb_vorbis_open_filename(path.c_str(), &err, nullptr));
     if(this->stream == nullptr)
         CXX_THROW(Eng3D::AudioException, path, translate("Error opening audio"));

@@ -121,13 +121,13 @@ Map::Map(GameState& _gs, const World& _world, UI::Group* _map_ui_layer, int scre
     : gs{ _gs },
     world{ _world },
     map_ui_layer{ _map_ui_layer },
-    skybox(0.f, 0.f, 0.f, 255.f * 10.f, 40, false)
+    skybox(0.f, 0.f, 0.f, 255.f * 10.f, 40, false),
+    camera{ std::make_unique<Eng3D::FlatCamera>(glm::vec2(screen_width, screen_height), glm::vec2(this->gs.world->width, this->gs.world->height)) },
+    map_font{ std::make_unique<Eng3D::FontSDF>("fonts/cinzel_sdf/cinzel") },
+    map_render{ std::make_unique<MapRender>(this->gs, *this) }
 {
-    camera = new Eng3D::FlatCamera(glm::vec2(screen_width, screen_height), glm::vec2(this->gs.world->width, this->gs.world->height));
-    map_font = new Eng3D::FontSDF("fonts/cinzel_sdf/cinzel");
     if(this->gen_labels)
         this->create_labels();
-    map_render = new MapRender(this->gs, *this);
 
     // Set the mapmode
     extern std::vector<ProvinceColor> terrain_map_mode(const World& world);
@@ -163,12 +163,6 @@ Map::Map(GameState& _gs, const World& _world, UI::Group* _map_ui_layer, int scre
 }
 
 Map::~Map() {
-    if(this->map_render != nullptr)
-        delete this->map_render;
-    if(this->map_font != nullptr)
-        delete this->map_font;
-    if(this->camera != nullptr)
-        delete this->camera;
     if(this->tooltip != nullptr)
         delete this->tooltip;
 }
@@ -245,12 +239,10 @@ void Map::create_labels() {
 
 void Map::set_view(MapView view) {
     view_mode = view;
-
-    auto* old_camera = camera;
-    if(view == MapView::PLANE_VIEW) camera = new Eng3D::FlatCamera(*old_camera);
-    else if(view == MapView::SPHERE_VIEW) camera = new Eng3D::OrbitCamera(*old_camera, Eng3D::GLOBE_RADIUS);
-    delete old_camera;
-    // create_labels();
+    if(view == MapView::PLANE_VIEW)
+        camera.reset(new Eng3D::FlatCamera(*camera));
+    else if(view == MapView::SPHERE_VIEW)
+        camera.reset(new Eng3D::OrbitCamera(*camera, Eng3D::GLOBE_RADIUS));
 }
 
 std::string political_province_tooltip(const World& world, const ProvinceId id) {
@@ -398,9 +390,9 @@ void Map::draw() {
     const auto view = camera->get_view();
     glm::mat4 base_model(1.f);
 
-    map_render->draw(camera, view_mode);
-    // rivers->draw(camera);
-    // borders->draw(camera);
+    map_render->draw(*camera, view_mode);
+    // rivers->draw(*camera);
+    // borders->draw(*camera);
     
     /// @todo We need to better this
     obj_shader->use();
@@ -422,12 +414,12 @@ void Map::draw() {
 
             const auto prov_pos = province.get_pos();
             if(this->view_mode == MapView::SPHERE_VIEW) {
-                const auto* orbit_camera = static_cast<const Eng3D::OrbitCamera*>(camera);
+                const auto& orbit_camera = static_cast<const Eng3D::OrbitCamera&>(*camera);
                 const auto cam_pos = camera->get_world_pos();
                 const auto world_pos = camera->get_tile_world_pos(prov_pos);
-                const auto world_to_camera = glm::normalize(cam_pos - world_pos) * orbit_camera->radius * 0.001f;
+                const auto world_to_camera = glm::normalize(cam_pos - world_pos) * orbit_camera.radius * 0.001f;
                 // If outside our range of view we just don't evaluate this province
-                if(glm::length(world_pos + world_to_camera) < orbit_camera->radius)
+                if(glm::length(world_pos + world_to_camera) < orbit_camera.radius)
                     continue;
             }
 

@@ -31,8 +31,6 @@ class World;
 
 namespace Economy {
     struct Trade final {
-        Trade() = default;
-        ~Trade() = default;
         void recalculate(const World& world);
 
         struct Vertex {

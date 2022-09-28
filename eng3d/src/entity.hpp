@@ -46,13 +46,6 @@ struct EntityId {
     constexpr operator size_t() const noexcept {
         return static_cast<size_t>(id);
     }
-
-    constexpr bool operator==(const EntityId<T>& o) const noexcept = default;
-    constexpr bool operator!=(const EntityId<T>& o) const noexcept = default;
-    constexpr bool operator<(const EntityId<T>& o) const noexcept = default;
-    constexpr bool operator>(const EntityId<T>& o) const noexcept = default;
-    constexpr bool operator<=(const EntityId<T>& o) const noexcept = default;
-    constexpr bool operator>=(const EntityId<T>& o) const noexcept = default;
     constexpr bool operator<=>(const EntityId<T>& o) const noexcept = default;
 
  	EntityId<T>& operator++() noexcept {
@@ -160,6 +153,6 @@ struct Entity {
 /// @brief An entity which can be referenced via a ref_name and also via id
 /// @tparam T The type used for the Id
 template<typename T>
-struct RefnameEntity : public Entity<T> {
+struct RefnameEntity : Entity<T> {
     Eng3D::StringRef ref_name;
 };

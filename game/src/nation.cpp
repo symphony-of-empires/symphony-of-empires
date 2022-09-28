@@ -131,23 +131,6 @@ bool Nation::is_enemy(const Nation& nation) const {
     return false;
 }
 
-/// @brief Whetever the nation exists at all - we cannot add nations in-game so we just check
-/// if the nation "exists" at all, this means that it has a presence and a goverment
-/// must own atleast 1 province
-bool Nation::exists() const {
-    return !(controlled_provinces.empty());
-}
-
-inline void Nation::do_diplomacy() {
-    /// @todo Fix this formula which is currently broken
-    //diplomatic_timer = glm::max((60 * 48) - glm::min(10.f * 48.f, prestige / 100.f), 4.f);
-    diplomatic_timer = 48;
-}
-
-inline bool Nation::can_do_diplomacy() const {
-    return (diplomatic_timer == 0);
-}
-
 /// @brief Automatically relocates the capital of a nation to another province
 /// Use this when a treaty makes a nation lose it's capital
 void Nation::auto_relocate_capital() {
