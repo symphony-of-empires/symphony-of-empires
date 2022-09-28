@@ -410,6 +410,14 @@ void MapRender::update_visibility(GameState& gs)
     });
     if(gs.map->province_selected)
         this->province_opt->buffer.get()[static_cast<size_t>(gs.map->selected_province_id)] = 0x400000ff;
+    
+    // Fill out density information
+    for(const auto& province : gs.world->provinces) {
+        float total = 0.f;
+        for(const auto& pop : province.pops)
+            total += pop.size;
+        this->province_opt->buffer[province] |= static_cast<uint8_t>(glm::clamp(total * 0.0005f, 0.f, 1.f) * 255.f) << 8;
+    }
     this->province_opt->upload(no_drop_options);
 }
 

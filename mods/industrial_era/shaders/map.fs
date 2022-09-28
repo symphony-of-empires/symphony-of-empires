@@ -82,7 +82,7 @@ const vec3 water_col = RGB(0.0, 0.0, 1.0);
 const vec3 paper_col = RGB(0.95294, 0.92157, 0.81569);
 const vec3 river_col = RGB(0.0, 0.0, 0.3);
 const vec3 sky_col = RGB(0.2, 0.2, 1.0);
-const vec3 city_light_col = RGB(1., 1., 0.);
+const vec3 city_light_col = RGB(1., 1., 0.5);
 
 vec3 get_water_normal(float time, sampler2D wave1, sampler2D wave2, vec2 tex_coords);
 vec4 no_tiling(sampler2D tex, vec2 uv, sampler2D noisy_tex);
@@ -223,12 +223,11 @@ vec4 get_province_color(vec2 tex_coords, float is_diag) {
 float get_province_shadow(vec2 tex_coords, float is_diag) {
 	vec2 diag_coords = get_diag_coords(tex_coords, is_diag);
 	vec2 coord = texture(terrain_map, diag_coords).xy;
-
 	vec2 prov_color_coord = coord * vec2(255.0 / 256.0);
 	float prov_shadow = texture(province_opt, prov_color_coord).r;
 	// Ugly solution, but will do for now
 	prov_shadow += texture(province_opt, prov_color_coord).a;
-	if(smoothstep(45.0, 65.0, dist_to_map * 1000.0) == 1.0) {
+	if(smoothstep(65.0, 75.0, dist_to_map * 1000.0) == 1.0) {
 		prov_shadow = 1.0;
 	}
 	return prov_shadow;
@@ -387,6 +386,32 @@ vec3 get_paper_water(vec3 water, float far_from_map, vec2 tex_coords) {
 	return water;
 }
 
+float get_sun_shadow(vec2 tex_coords) {
+	return smoothstep(0.6, 0.65, 1. - abs(sin(tex_coords.y * PI) * cos((tex_coords.x - time * 0.05) * PI)));
+}
+
+float get_noise(vec2 tex_coords) {
+#ifdef NOISE
+	return texture(noise_texture, 25.0 * tex_coords).r;
+#else
+	return 1.;
+#endif
+}
+
+float get_city_light(vec2 tex_coords, float sunshadow, float is_diag, float is_water) {
+	vec2 diag_coords = get_diag_coords(tex_coords, is_diag);
+	vec2 coord = texture(terrain_map, diag_coords).xy;
+	vec2 prov_color_coord = coord * vec2(255.0 / 256.0);
+	// Province density for determining density of cities
+	float prov_density = texture(province_opt, prov_color_coord).g;
+	// Multiplying noise by itself allows for intensifying certain spots
+	float noise = pow(get_noise(tex_coords), 15);
+	// Prevent displaying cities on mountains
+	float normal = step(0.25, texture(normal, tex_coords).r * texture(normal, tex_coords).g);
+	float city_light = (sunshadow * normal * noise * prov_density) * abs(1. - is_water);
+	return city_light;
+}
+
 void main() {
 	vec2 pix = vec2(1.0) / map_size;
 	vec2 tex_coords = v_texcoord;
@@ -401,12 +426,8 @@ void main() {
 	float beach_ocean = beach_water_ocean.y;
 	beach = mix(beach, beach_ocean, far_from_map);
 
-#ifdef NOISE
 	// Change the beach to the right format and apply noise
-	float noise = texture(noise_texture, 20.0 * tex_coords).x;
-#else
-	float noise = 1.;
-#endif
+	float noise = get_noise(tex_coords);
 	beach += noise * 0.3 - 0.15;
 	beach = smoothstep(0.2, 0.3, beach);
 	beach_ocean = smoothstep(0.1, 0.0, abs(beach_ocean - 0.3) - 0.15);
@@ -512,9 +533,9 @@ void main() {
 #endif
 
 #ifdef CITY_LIGHTS
-	float x_dn_step = smoothstep(0., 0.74, 1. - abs(sin((tex_coords.x - time * 0.05) * PI)));
-	out_color = mix(out_color, vec3(0., 0., 0.005), min(0.8, x_dn_step)).rgb;
-	float city_light = (1. - smoothstep(0., x_dn_step, noise * 25.)) * (1. - beach);
+	float x_dn_step = get_sun_shadow(tex_coords);
+	out_color = mix(out_color, vec3(0., 0., 0.), x_dn_step);
+	float city_light = get_city_light(tex_coords, x_dn_step, is_diag, beach);
 	out_color = mix(out_color, city_light_col, city_light);
 #endif
 
