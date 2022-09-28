@@ -66,14 +66,16 @@ Eng3D::AudioManager::AudioManager(Eng3D::State& _s)
     fmt.samples = 16;
     fmt.callback = &Eng3D::AudioManager::mixaudio;
     fmt.userdata = this;
-    if(SDL_OpenAudio(&fmt, NULL) < 0)
+    SDL_AudioSpec new_fmt{};
+    this->audio_dev_id = SDL_OpenAudioDevice(NULL, 0, &fmt, &new_fmt, 0);
+    if(this->audio_dev_id < 0)
         CXX_THROW(std::runtime_error, Eng3D::translate_format("Unable to open audio: %s", SDL_GetError()));
-    SDL_PauseAudio(0);
+    SDL_PauseAudioDevice(this->audio_dev_id, 0);
 }
 
 Eng3D::AudioManager::~AudioManager() {
-    SDL_PauseAudio(1);
-    SDL_CloseAudio();
+    SDL_PauseAudioDevice(this->audio_dev_id, 1);
+    SDL_CloseAudioDevice(this->audio_dev_id);
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
@@ -93,7 +95,10 @@ void Eng3D::AudioManager::mixaudio(void* userdata, uint8_t* stream, int len) {
             stb_vorbis_seek_start(audio_stream); // Rewind
             audio_man.sound_queue.erase(audio_man.sound_queue.begin());
         }
-        SDL_MixAudio(stream, audiobuf.get(), len, SDL_MIX_MAXVOLUME * audio_man.sound_volume);
+        for(size_t i = 0; i < len / sizeof(int16_t); i++) {
+            auto sample = static_cast<float>(((int16_t *)audiobuf.get())[i]);
+            ((int16_t *)stream)[i] += (int16_t)(sample * audio_man.sound_volume);
+        }
     }
     
     if(!audio_man.music_queue.empty()) {
@@ -105,7 +110,10 @@ void Eng3D::AudioManager::mixaudio(void* userdata, uint8_t* stream, int len) {
             stb_vorbis_seek_start(audio_stream); // Rewind
             audio_man.music_queue.erase(audio_man.music_queue.begin());
         }
-        SDL_MixAudio(stream, audiobuf.get(), len, SDL_MIX_MAXVOLUME * audio_man.music_volume);
+        for(size_t i = 0; i < len / sizeof(int16_t); i++) {
+            auto sample = static_cast<float>(((int16_t *)audiobuf.get())[i]);
+            ((int16_t *)stream)[i] += (int16_t)(sample * audio_man.music_volume);
+        }
     }
 }
 

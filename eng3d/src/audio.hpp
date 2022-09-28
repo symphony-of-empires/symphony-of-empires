@@ -32,6 +32,7 @@
 #include <vector>
 #include <memory>
 
+struct pa_simple;
 namespace Eng3D {
     class State;
 
@@ -59,6 +60,7 @@ namespace Eng3D {
         static void mixaudio(void* userdata, uint8_t* stream, int len);
         std::map<std::string, std::shared_ptr<Eng3D::Audio>> sounds;
         Eng3D::State& s;
+        int audio_dev_id = 0;
     public:
         AudioManager() = delete;
         AudioManager(Eng3D::State& s);
