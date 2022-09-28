@@ -439,7 +439,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
         rename_inp->set_buffer(province.name.get_string());
         auto* xchg_name_btn = new UI::Button(128 + 128, 32, 32, 32, this);
         xchg_name_btn->set_on_click([this](UI::Widget&) {
-            const_cast<Province&>(this->province).name = this->rename_inp->get_buffer();
+            const_cast<Province&>(this->province).name = Eng3D::StringRef{this->rename_inp->get_buffer()};
             this->gs.map->create_labels();
             this->gs.update_tick = true;
         });

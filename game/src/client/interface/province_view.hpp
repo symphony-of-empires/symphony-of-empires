@@ -42,7 +42,7 @@ namespace UI {
 namespace Interface {
     // View information related to the population and diversity of languages and religions
     // on the specified province
-    class ProvincePopulationTab: public UI::Group {
+    class ProvincePopulationTab : public UI::Group {
         GameState& gs;
         const Province& province;
         UI::Image* owner_flag;
@@ -56,29 +56,24 @@ namespace Interface {
     };
 
     // View information related to the economic activity of the province
-    class ProvinceEconomyTab: public UI::Group {
+    class ProvinceEconomyTab : public UI::Group {
         UI::PieChart* products_pie;
         UI::PieChart* goods_pie;
         std::vector<ProductInfo*> product_infos;
     public:
         ProvinceEconomyTab(GameState& gs, int x, int y, Province& province, UI::Widget* _parent);
-
         GameState& gs;
         Province& province;
     };
 
-    class ProvinceBuildingTab: public UI::Group {
-    public:
+    struct ProvinceBuildingTab : UI::Group {
         ProvinceBuildingTab(GameState& gs, int x, int y, Province& province, UI::Widget* _parent);
-
         GameState& gs;
         Province& province;
     };
 
-    class ProvinceEditLanguageTab : public UI::Group {
-    public:
+    struct ProvinceEditLanguageTab : UI::Group {
         ProvinceEditLanguageTab(GameState& gs, int x, int y, Province& province, UI::Widget* _parent);
-
         GameState& gs;
         Province& province;
         Language& language;
@@ -88,13 +83,12 @@ namespace Interface {
     class ProvinceEditTerrainTab : public UI::Group {
     public:
         ProvinceEditTerrainTab(GameState& gs, int x, int y, Province& province, UI::Widget* _parent);
-
         GameState& gs;
         Province& province;
         TerrainType& terrain_type;
     };
 
-    class ProvinceView: public UI::Window {
+    class ProvinceView : public UI::Window {
         GameState& gs;
         Province& province;
         UI::Input* rename_inp;
@@ -111,7 +105,7 @@ namespace Interface {
     };
 
     // Brief
-    class ProvinceBrief: public UI::Window {
+    class ProvinceBrief : public UI::Window {
         UI::PieChart* languages_pie;
         UI::Chart* economy_chart;
     public:

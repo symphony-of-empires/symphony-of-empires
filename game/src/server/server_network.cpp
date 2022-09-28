@@ -316,7 +316,7 @@ void Server::net_loop(int id) {
                         return d.ref_name == decision_ref_name;
                     });
                     if(decision == local_event.decisions.end())
-                        CXX_THROW(ServerException, std::string() + "Decision " + decision_ref_name + " not found");
+                        CXX_THROW(ServerException, translate_format("Decision %s not found", decision_ref_name.c_str()));
                     local_event.take_decision(*selected_nation, *decision);
                     Eng3D::Log::debug("server", "Event " + local_event.ref_name.get_string() + " takes descision " + decision_ref_name + " by nation " + selected_nation->ref_name);
                 } break;

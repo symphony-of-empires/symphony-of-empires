@@ -73,7 +73,7 @@ const T* find_or_throw(const std::string& ref_name) {
     });
 
     if(result == list.end())
-        CXX_THROW(LuaAPI::Exception, std::string() + "Object<" + typeid(T).name() + "> " + ref_name + " not found");
+        CXX_THROW(LuaAPI::Exception, translate_format("Object<%s> not found", typeid(T).name()));
     return (*result);
 }
 
@@ -85,7 +85,7 @@ const T& find_or_throw_local(const std::string& ref_name) {
     });
 
     if(result == list.end())
-        CXX_THROW(LuaAPI::Exception, std::string() + "Object<" + typeid(T).name() + "> " + ref_name + " not found");
+        CXX_THROW(LuaAPI::Exception, translate_format("Object<%s> not found", typeid(T).name()));
     return *result;
 }
 
@@ -1215,7 +1215,7 @@ void LuaAPI::check_events(lua_State* L) {
                 lua_rawgeti(L, LUA_REGISTRYINDEX, event.do_event_function);
                 lua_pushstring(L, nation->ref_name.c_str());
                 if(call_func(L, 1, 1)) {
-                    Eng3D::Log::error("lua", std::string() + "lua_pcall failed: " + lua_tostring(L, -1));
+                    Eng3D::Log::error("lua", translate_format("lua_pcall failed: %s", lua_tostring(L, -1)));
                     lua_pop(L, 1);
                     goto restore_original;
                 }

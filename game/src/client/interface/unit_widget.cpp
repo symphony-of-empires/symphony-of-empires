@@ -88,11 +88,9 @@ void UnitWidget::set_unit(Unit& _unit) {
     this->y = screen_pos.y - this->height / 2;
 
     // If the unit is not selected set give it a border
-    if(!gs.input.is_selected_unit(this->unit_id)) {
+    this->border.texture = nullptr;
+    if(!gs.input.is_selected_unit(this->unit_id))
         this->border.texture = this->select_border_texture;
-    } else {
-        this->border.texture = nullptr;
-    }
 
     // Paint according to relations
     if(gs.curr_nation != nullptr && _unit.owner_id != gs.curr_nation->get_id()) {

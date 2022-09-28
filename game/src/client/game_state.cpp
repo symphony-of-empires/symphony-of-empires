@@ -54,7 +54,6 @@
 #include "client/interface/decision.hpp"
 #include "client/interface/lobby.hpp"
 #include "client/interface/top_window.hpp"
-#include "client/interface/treaty.hpp"
 #include "client/interface/army.hpp"
 #include "client/interface/minimap.hpp"
 #include "client/interface/map_debug.hpp"
@@ -97,7 +96,7 @@ void handle_popups(std::vector<TreatyId>& displayed_treaties, GameState& gs) {
         auto iter = std::find(displayed_treaties.begin(), displayed_treaties.end(), treaty.get_id());
         if(iter != displayed_treaties.end()) continue;
         if(!treaty.does_participate(*gs.curr_nation)) continue; // Must participate in treaty
-        new Interface::TreatyChooseWindow(gs, treaty.get_id());
+        //new Interface::TreatyChooseWindow(gs, treaty.get_id());
         displayed_treaties.push_back(treaty.get_id());
     }
 }

@@ -250,7 +250,7 @@ void Client::net_loop() {
             }
         }
     } catch(ClientException& e) {
-        Eng3D::Log::error("client", std::string() + "Except: " + e.what());
+        Eng3D::Log::error("client", translate_format("Exception: %s", e.what()));
     }
 }
 

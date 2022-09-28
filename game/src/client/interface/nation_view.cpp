@@ -28,7 +28,6 @@
 #include "client/interface/nation_view.hpp"
 #include "client/client_network.hpp"
 #include "client/interface/common.hpp"
-#include "client/interface/treaty.hpp"
 #include "client/interface/war.hpp"
 #include "client/map.hpp"
 #include "client/map_render.hpp"
@@ -119,7 +118,7 @@ Interface::NationView::NationView(GameState& _gs, Nation& _nation)
             if(relation.has_war) {
                 w.text(translate("Propose treaty"));
                 w.set_on_click([this](UI::Widget&) {
-                    new Interface::TreatyDraftView(this->gs, this->nation);
+                    //new Interface::TreatyDraftView(this->gs, this->nation);
                 });
                 w.set_tooltip(translate("End the war against this country and propose a peace deal"));
             } else {

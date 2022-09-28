@@ -36,7 +36,6 @@
 #include "world.hpp"
 #include "client/interface/policies.hpp"
 #include "client/interface/army.hpp"
-#include "client/interface/technology.hpp"
 #include "client/interface/pop_window.hpp"
 #include "client/interface/factory_window.hpp"
 #include "client/lua_save_util.hpp"
@@ -122,7 +121,7 @@ TopWindow::TopWindow(GameState& _gs)
 
     auto* research_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/tech.png", true, flex_column);
     research_ibtn->set_on_click([this](UI::Widget&) {
-        new Interface::TechTreeView(this->gs);
+        
     });
     research_ibtn->set_tooltip("Research");
 

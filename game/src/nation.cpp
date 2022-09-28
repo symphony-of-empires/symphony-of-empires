@@ -112,7 +112,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
         auto& defender = world.nations[defender_id];
         Eng3D::Log::debug("game", "\t" + defender.ref_name.get_string());
     }
-    war->name = "War of " + this->name + " against " + nation.name;
+    war->name = translate_format("War of %s against %s", this->name.c_str(), nation.name.c_str());
     Eng3D::Log::debug("game", war->name.get_string());
     world.insert(*war);
 }
