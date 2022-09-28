@@ -60,13 +60,6 @@ namespace Interface {
         UnitTypeButton(GameState& gs, int x, int y, UnitType& unit_type, UI::Widget* parent);
     };
 
-    class ProvinceButton : public UI::Button {
-        GameState& gs;
-    public:
-        Province& province;
-        ProvinceButton(GameState& gs, int x, int y, Province& province, UI::Widget* parent);
-    };
-
     class NationButton : public UI::Group {
         GameState& gs;
         UI::Image* flag_icon;
@@ -75,29 +68,7 @@ namespace Interface {
         Nation& nation;
         NationButton(GameState& gs, int x, int y, Nation& nation, UI::Widget* parent);
     };
-
-    class BuildingInfo : public UI::Group {
-        GameState& gs;
-    public:
-        Province& province;
-        unsigned int idx;
-        BuildingInfo(GameState& gs, int x, int y, Province& province, unsigned int idx, UI::Widget* parent);
-    };
-
-    class BuildingTypeButton : public UI::Button {
-        GameState& gs;
-    public:
-        const BuildingType& building_type;
-        BuildingTypeButton(GameState& gs, int x, int y, const BuildingType& building_type, UI::Widget* parent);
-    };
-
-    class TechnologyInfo : public UI::Group {
-        GameState& gs;
-        Technology& technology;
-    public:
-        TechnologyInfo(GameState& gs, int x, int y, Technology& technology, UI::Widget* parent);
-    };
-
+    
     class ProductInfo : public UI::Group {
         GameState& gs;
         Province& province;

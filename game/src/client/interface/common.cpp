@@ -75,18 +75,6 @@ UnitTypeButton::UnitTypeButton(GameState& _gs, int x, int y, UnitType& _unit_typ
     this->name_btn->text(this->unit_type.name.get_string());
 }
 
-ProvinceButton::ProvinceButton(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)
-    : UI::Button(x, y, _parent->width, 24, _parent),
-    gs{ _gs },
-    province{ _province }
-{
-    this->text(this->province.name.get_string());
-    this->set_on_each_tick([this](UI::Widget& w) {
-        if(this->gs.world->time % this->gs.world->ticks_per_month) return;
-        w.text(this->province.name.get_string());
-    });
-}
-
 NationButton::NationButton(GameState& _gs, int x, int y, Nation& _nation, UI::Widget* _parent)
     : UI::Group(x, y, _parent->width, 24, _parent),
     gs{ _gs },
@@ -108,101 +96,6 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation& _nation, UI::Wi
         auto& o = static_cast<NationButton&>(*w.parent);
         if(o.gs.world->time % o.gs.world->ticks_per_month) return;
         w.text(o.nation.get_client_hint().alt_name.get_string());
-    });
-}
-
-BuildingInfo::BuildingInfo(GameState& _gs, int x, int y, Province& _province, unsigned int _idx, UI::Widget* _parent)
-    : UI::Group(x, y, _parent->width, 64, _parent),
-    gs{ _gs },
-    province{ _province },
-    idx{ _idx }
-{
-    this->is_scroll = false;
-
-    const auto& building_type = gs.world->building_types[idx];
-    auto* name_btn = new UI::Label(0, 0, building_type.name.get_string(), this);
-
-    auto* production_flex = new UI::Div(0, 24, this->width, 24);
-    production_flex->flex = UI::Flex::COLUMN;
-    auto* makes_lab = new UI::Label(0, 0, translate("Produces:"), production_flex);
-    makes_lab->below_of(*name_btn);
-    for(const auto& good_id : building_type.input_ids) {
-        auto& good = this->gs.world->goods[good_id];
-        auto* icon_ibtn = new UI::Image(0, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/good/" + good.ref_name + ".png")), production_flex);
-        icon_ibtn->set_tooltip(good.name.get_string());
-        icon_ibtn->set_on_click([this, &good](UI::Widget&) {
-            new Interface::GoodView(this->gs, good);
-        });
-    }
-
-    if(Good::is_valid(building_type.output_id)) {
-        if(!building_type.input_ids.empty()) {
-            auto* arrow_lab = new UI::Label(0, 0, "?", production_flex);
-            arrow_lab->text(translate("into"));
-        }
-        auto& good = this->gs.world->goods[building_type.output_id];
-        auto* icon_ibtn = new UI::Image(0, 0, 24, 24, this->gs.tex_man.load(gs.package_man.get_unique("gfx/good/" + good.ref_name + ".png")), production_flex);
-        icon_ibtn->set_tooltip(good.name.get_string());
-        icon_ibtn->set_on_click([this, &good](UI::Widget&) {
-            new GoodView(this->gs, good);
-        });
-    }
-
-    auto* stats_lab = new UI::Label(0, 48, "?", this);
-    stats_lab->below_of(*name_btn);
-    stats_lab->set_on_each_tick([this](UI::Widget& w) {
-        const auto& building = this->province.buildings[this->idx];
-        w.text(string_format("Level %.0f, %.2f$", building.level, building.budget));
-    });
-    stats_lab->on_each_tick(*stats_lab);
-}
-
-BuildingTypeButton::BuildingTypeButton(GameState& _gs, int x, int y, const BuildingType& _building_type, UI::Widget* _parent)
-    : UI::Button(x, y, _parent->width - x, 24, _parent),
-    gs{ _gs },
-    building_type{ _building_type }
-{
-    this->text(this->building_type.name.get_string());
-    if(this->gs.editor)
-        this->text(this->building_type.name.get_string() + "(" + this->building_type.ref_name.get_string() + ")");
-}
-
-TechnologyInfo::TechnologyInfo(GameState& _gs, int x, int y, Technology& _technology, UI::Widget* _parent)
-    : UI::Group(x, y, _parent->width, 48, _parent),
-    gs{ _gs },
-    technology{ _technology }
-{
-    this->is_scroll = false;
-
-    auto* chk = new UI::Checkbox(0, 0, 128, 24, this);
-    chk->text(technology.name.get_string());
-    chk->set_on_each_tick([this](UI::Widget& w) {
-        if(this->gs.curr_nation->focus_tech_id == this->technology || !this->gs.curr_nation->research[this->gs.world->get_id(this->technology)]) {
-            ((UI::Checkbox&)w).set_value(true);
-        } else {
-            ((UI::Checkbox&)w).set_value(false);
-        }
-
-        if(this->gs.curr_nation->can_research(this->technology)) {
-            w.set_tooltip(translate("We can research this"));
-        } else {
-            std::string text = translate("We can't research this because we don't have ");
-            for(const auto& req_tech_id : this->technology.req_technologies) {
-                if(this->gs.curr_nation->research[req_tech_id] > 0.f)
-                    text += this->gs.world->technologies[req_tech_id].name.get_string() + ", ";
-            }
-            w.set_tooltip(text);
-        }
-    });
-    chk->set_on_click([this](UI::Widget&) {
-        if(this->gs.curr_nation->can_research(this->technology))
-            this->gs.client->send(Action::FocusTech::form_packet(this->technology));
-    });
-    chk->on_each_tick(*chk);
-
-    auto* pgbar = new UI::ProgressBar(0, 24, 128, 24, 0.f, technology.cost, this);
-    pgbar->set_on_each_tick([this](UI::Widget& w) {
-        ((UI::ProgressBar&)w).set_value(std::fabs(this->gs.curr_nation->research[this->gs.world->get_id(this->technology)] - this->technology.cost));
     });
 }
 
