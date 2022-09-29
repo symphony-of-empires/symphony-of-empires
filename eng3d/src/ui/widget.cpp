@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <ranges>
 #include <algorithm>
 #include <glm/vec2.hpp>
 #include <SDL_ttf.h>
@@ -311,15 +312,15 @@ void UI::Widget::recalc_child_pos() {
         break;
     case FlexJustify::END:
         current_lenght = is_row ? width : height;
-        for(int i = children.size() - 1; i >= 0; i--) {
-            auto& child = children[i];
-            if(child->is_pinned) continue;
-            if(is_row) {
-                child->x = current_lenght - child->width - flex_gap;
-                current_lenght -= child->width;
-            } else {
-                child->y = current_lenght - child->height - flex_gap;
-                current_lenght -= child->height;
+        for(const auto& child : children | std::views::reverse) {
+            if(!child->is_pinned) {
+                if(is_row) {
+                    child->x = current_lenght - child->width - flex_gap;
+                    current_lenght -= child->width;
+                } else {
+                    child->y = current_lenght - child->height - flex_gap;
+                    current_lenght -= child->height;
+                }
             }
         }
         break;

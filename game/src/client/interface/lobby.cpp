@@ -43,49 +43,44 @@ using namespace Interface;
 
 // Start screen
 LobbySelectView::LobbySelectView(GameState& _gs)
-    : gs{ _gs },
+    : UI::Window(-576, 0, 576, 128),
+    gs{ _gs },
     curr_selected_nation{ 0 }
 {
-    this->ctrl_window = new UI::Window(-576, 0, 576, 128);
-    this->ctrl_window->origin = UI::Origin::UPPER_RIGHT_SCREEN;
+    this->origin = UI::Origin::UPPER_RIGHT_SCREEN;
 
     // Flag with shadow
-    this->curr_country_flag_img = new UI::Image(0, 0, 38, 28, gs.tex_man.get_white(), ctrl_window);
-    new UI::Image(0, 0, 38, 28, "gfx/drop_shadow.png", ctrl_window);
+    this->curr_country_flag_img = new UI::Image(0, 0, 38, 28, gs.tex_man.get_white(), this);
+    new UI::Image(0, 0, 38, 28, "gfx/drop_shadow.png", this);
 
     // Country button for selection
-    this->curr_country_btn = new UI::Button(0, 0, 320, 28, ctrl_window);
+    this->curr_country_btn = new UI::Button(0, 0, 320, 28, this);
     curr_country_btn->right_side_of(*this->curr_country_flag_img);
     curr_country_btn->text("Select a country");
     curr_country_btn->set_on_click([this](UI::Widget&) {
         if(this->gs.curr_nation != nullptr) {
-            // Didn't seem to be able to delete them in a callback so this will do
-            this->ctrl_window->kill();
-            this->ctrl_window = nullptr;
-
+            this->gs.ui_ctx.clear();
             if(this->gs.host_mode) {
-                this->gs.server.reset(new Server(gs, 1836));
-                this->gs.client.reset(new Client(gs, "127.0.0.1", 1836));
-            } else {
-                // Control of server and client creation is on the caller/invoker
+                this->gs.server = std::make_unique<Server>(gs, 1836);
+                this->gs.client = std::make_unique<Client>(gs, "127.0.0.1", 1836);
+                this->gs.client->username = this->gs.editor ? "Editor" : "Guest";
+                this->gs.client->username += "-";
+                this->gs.client->username += this->gs.host_mode ? "Host" : "Player";
             }
-            this->gs.client->username = this->gs.editor ? "Editor" : "Guest";
-            this->gs.client->username += "-";
-            this->gs.client->username += this->gs.host_mode ? "Host" : "Player";
             this->gs.in_game = true;
             this->gs.play_nation();
         }
     });
 
-    auto* back_btn = new UI::Button(0, 0, 128, 24, ctrl_window);
+    auto* back_btn = new UI::Button(0, 0, 128, 24, this);
     back_btn->text("Back");
     back_btn->below_of(*curr_country_btn);
     back_btn->set_on_click([this](UI::Widget&) {
-        this->ctrl_window->kill();
+        this->kill();
         new Interface::MainMenu(gs);
     });
 
-    auto* next_country_btn = new UI::Button(0, 0, 128, 24, ctrl_window);
+    auto* next_country_btn = new UI::Button(0, 0, 128, 24, this);
     next_country_btn->text("Next");
     next_country_btn->below_of(*curr_country_btn);
     next_country_btn->right_side_of(*back_btn);
@@ -93,7 +88,7 @@ LobbySelectView::LobbySelectView(GameState& _gs)
         this->change_nation(this->curr_selected_nation + 1);
     });
 
-    auto* prev_country_btn = new UI::Button(0, 0, 128, 24, ctrl_window);
+    auto* prev_country_btn = new UI::Button(0, 0, 128, 24, this);
     prev_country_btn->text("Previous");
     prev_country_btn->below_of(*curr_country_btn);
     prev_country_btn->right_side_of(*next_country_btn);
@@ -101,8 +96,8 @@ LobbySelectView::LobbySelectView(GameState& _gs)
         this->change_nation(this->curr_selected_nation - 1);
     });
 
-    const std::string path = std::filesystem::current_path().string();
-    auto* game_group = new UI::Group(0, 0, 128, gs.height, ctrl_window);
+    const auto path = std::filesystem::current_path().string();
+    auto* game_group = new UI::Group(0, 0, 128, gs.height, this);
     game_group->below_of(*prev_country_btn);
     game_group->flex = UI::Flex::COLUMN;
     game_group->is_scroll = true;
@@ -163,8 +158,7 @@ void LobbySelectView::change_nation(size_t id) {
 
     curr_selected_nation = id;
     this->curr_country_flag_img->current_texture = this->gs.get_nation_flag(*this->gs.curr_nation);
-
     this->curr_country_btn->text(gs.curr_nation->name.c_str());
-    const Province& capital = gs.world->provinces[gs.curr_nation->capital_id];
+    const auto& capital = gs.world->provinces[gs.curr_nation->capital_id];
     gs.map->camera->set_pos(capital.box_area.right, capital.box_area.bottom);
 }

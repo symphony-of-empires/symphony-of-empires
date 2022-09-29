@@ -137,7 +137,6 @@ public:
     std::atomic<bool> paused;
     std::atomic<int> ms_delay_speed;
     std::atomic<bool> quit;
-    bool host_mode = false;
 
     // The ui will mostly need to read the world state
     World* world = nullptr;
@@ -166,9 +165,11 @@ public:
     UI::Widget* right_side_panel = nullptr;
     UI::Widget* lower_left_panel = nullptr;
 
+    std::string ip_address = "127.0.0.1";
     bool in_game = false;
-    bool motion_blur = true; // Settings
-    bool editor = true; // Editor options
+    bool motion_blur = true;
+    bool host_mode = false;
+    bool editor = false;
 };
 
 // Run world tick and pending commands

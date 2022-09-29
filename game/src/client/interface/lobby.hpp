@@ -36,20 +36,12 @@ namespace UI {
 }
 
 namespace Interface {
-    /*class LobbyPlayerView : public UI::Window {
-        GameState& gs;
-    public:
-        LobbyPlayerView(GameState& gs) {};
-        ~LobbyPlayerView() {};
-    };*/
-
-    class LoadGameBtnData {
-    public:
+    struct LoadGameBtnData {
         GameState& gs;
         std::string file;
     };
 
-    class LobbySelectView {
+    class LobbySelectView : public UI::Window {
         GameState& gs;
         UI::Window* ctrl_window;
         UI::Image* curr_country_flag_img;
@@ -57,8 +49,6 @@ namespace Interface {
         std::vector<class LoadGameBtnData> ldgame_data;
     public:
         LobbySelectView(GameState& gs);
-        ~LobbySelectView() {};
-
         void change_nation(size_t id);
         size_t curr_selected_nation;
     };

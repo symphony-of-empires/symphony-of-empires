@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <ranges>
 #include <algorithm>
 
 #ifdef E3D_TARGET_WINDOWS
@@ -37,6 +38,11 @@
 #   include <GLES3/gl3.h>
 #endif
 #include <glm/vec2.hpp>
+
+#include <tbb/blocked_range.h>
+#include <tbb/concurrent_vector.h>
+#include <tbb/parallel_for.h>
+#include <tbb/combinable.h>
 
 #include "eng3d/ui/ui.hpp"
 #include "eng3d/ui/label.hpp"
@@ -119,6 +125,7 @@ void UI::Context::clear() {
         if(widget.get() == this->tooltip_widget || !widget->managed) continue;
         widget->kill();
     }
+    this->use_tooltip(nullptr, { 0, 0 });
 }
 
 void UI::Context::clear_dead_recursive(UI::Widget& w) {
@@ -414,8 +421,8 @@ bool UI::Context::check_hover(glm::ivec2 mouse_pos) {
 
     bool is_hover = false;
     tooltip_widget = nullptr;
-    for(int i = widgets.size() - 1; i >= 0; i--) {
-        is_hover |= check_hover_recursive(*widgets[i].get(), mouse_pos, glm::ivec2(0));
+    for(const auto& widget : widgets | std::views::reverse) {
+        is_hover |= check_hover_recursive(*widget, mouse_pos, glm::ivec2(0));
         if(is_hover) return is_hover;
     }
     return is_hover;
@@ -525,11 +532,9 @@ bool UI::Context::check_drag_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm:
 }
 
 void UI::Context::check_drag(glm::ivec2 mouse_pos) {
-    for(int i = widgets.size() - 1; i >= 0; i--) {
-        auto& widget = *widgets[i].get();
-        if(this->check_drag_recursive(widget, mouse_pos, glm::ivec2(0))) return;
-    }
-    return;
+    for(const auto& widget : widgets | std::views::reverse)
+        if(this->check_drag_recursive(*widget, mouse_pos, glm::ivec2(0)))
+            return;
 }
 
 bool check_text_input_recursive(UI::Widget& widget, const char* _input) {
@@ -598,8 +603,8 @@ bool UI::Context::check_wheel_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm
 }
 
 bool UI::Context::check_wheel(glm::ivec2 mouse_pos, int y) {
-    for(int i = widgets.size() - 1; i >= 0; i--)
-        if(check_wheel_recursive(*widgets[i].get(), mouse_pos, glm::ivec2(0), y))
+    for(auto& widget : widgets | std::views::reverse)
+        if(check_wheel_recursive(*widget, mouse_pos, glm::ivec2(0), y))
             return true;
     return false;
 }
@@ -608,9 +613,8 @@ bool UI::Context::check_wheel(glm::ivec2 mouse_pos, int y) {
 /// each world tick, and are also framerate independent and thus more reliable than doing
 /// the usual `if (tick % ticks_per_month == 24) {}`, which can cause issues on slow PCs or very fast hosts
 void UI::Context::do_tick() {
-    for(int i = widgets.size() - 1; i >= 0; i--)
-        do_tick_recursive(*widgets[i].get());
-    return;
+    for(auto& widget : widgets | std::views::reverse)
+        do_tick_recursive(*widget);
 }
 
 int UI::Context::do_tick_recursive(Widget& w) {

@@ -69,14 +69,14 @@ MapRender::MapRender(GameState& _gs, Map& _map)
 {
     if(this->gs.world->width != this->terrain_map->width || this->gs.world->height != this->terrain_map->height)
         CXX_THROW(std::runtime_error, "Color map differs from province map!");
-    
+
     // The terrain_map has 16 bits available for usage, so naturally we use them
     // ------------------------------------------------------------
     // | 16 bit Province id | 8 bit terrain index | 8 bit "flags" |
     // ------------------------------------------------------------
     Eng3D::Log::debug("game", "Creating tile map & tile sheet");
-    assert((this->terrain_map->width * this->terrain_map->height) % 5400 == 0);
-    tbb::parallel_for(0zu, (this->terrain_map->width * this->terrain_map->height) / 5400, [this](const auto y) {
+    assert((this->terrain_map->width* this->terrain_map->height) % 5400 == 0);
+    tbb::parallel_for(0zu, (this->terrain_map->width* this->terrain_map->height) / 5400, [this](const auto y) {
         const auto i = y * 5400;
         for(size_t x = 0; x < 5400; x++)
             this->terrain_map->buffer.get()[i + x] |= static_cast<size_t>(this->gs.world->get_tile(i + x).province_id) & 0xffff;
@@ -195,7 +195,7 @@ void MapRender::update_options(MapOptions new_options) {
         this->bathymethry.reset(new Eng3D::Texture(1, 1));
         this->river_tex.reset(new Eng3D::Texture(1, 1));
     }
-    
+
     // Load normal and topographic maps only w lighting
     if(this->options.lighting.used) {
         // If reload is required
@@ -215,7 +215,7 @@ void MapRender::update_options(MapOptions new_options) {
             this->normal_topo->upload(mipmap_options);
         }
     }
-    
+
     // Only perform the updates/generation on the SDF map when SDF is actually used
     if(this->options.sdf.used) {
         // If reload is required
@@ -286,7 +286,7 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
     sdf_shader->use();
     sdf_shader->set_uniform("map_size", width, height);
     sdf_shader->set_uniform("tex_coord_scale", tex_coord_scale.left, tex_coord_scale.top, tex_coord_scale.right, tex_coord_scale.bottom);
-    
+
     Eng3D::TextureOptions fbo_mipmap_options{};
     fbo_mipmap_options.internal_format = Eng3D::TextureOptions::Format::RGB32F;
     fbo_mipmap_options.min_filter = Eng3D::TextureOptions::Filter::LINEAR_MIPMAP;
@@ -317,7 +317,7 @@ void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_siz
         border_sdf->gen_mipmaps();
         swap_tex->gen_mipmaps();
         sdf_shader->set_uniform("jump", (float)step);
-        
+
         fbo.set_texture(0, draw_on_tex0 ? *border_sdf : *swap_tex);
         if(step == max_dist) sdf_shader->set_texture(0, "tex", border_tex);
         else sdf_shader->set_texture(0, "tex", draw_on_tex0 ? *swap_tex : *border_sdf);
@@ -343,7 +343,7 @@ void MapRender::update_mapmode(std::vector<ProvinceColor>& province_colors) {
     for(size_t i = 0; i < this->gs.world->provinces.size(); i++)
         if(this->gs.world->terrain_types[this->gs.world->provinces[i].terrain_type_id].is_water_body)
             province_colors[i] = ProvinceColor(ProvinceId(i), Eng3D::Color::rgba32(0x00000000));
-    
+
     for(const auto province_color : province_colors)
         tile_sheet->buffer.get()[static_cast<size_t>(province_color.id)] = province_color.color.get_value();
     Eng3D::TextureOptions no_drop_options{};
@@ -355,20 +355,22 @@ void MapRender::update_mapmode(std::vector<ProvinceColor>& province_colors) {
 // Updates nations
 void MapRender::update_nations(std::vector<ProvinceId>& province_ids) {
     std::vector<NationId> nation_ids;
-    for(const auto id : province_ids) {
-        const auto& province = this->gs.world->provinces[id]; 
+    for(const auto province_id : province_ids) {
+        const auto& province = this->gs.world->provinces[province_id];
         if(Nation::is_invalid(province.controller_id)) continue;
         this->tile_sheet_nation->buffer.get()[province] = static_cast<size_t>(province.controller_id);
         nation_ids.push_back(province.controller_id);
     }
+    auto last = std::unique(nation_ids.begin(), nation_ids.end());
+    nation_ids.erase(last, nation_ids.end());
 
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
     this->tile_sheet_nation->upload(no_drop_options);
 
     // Update labels of the nations
-    for(const auto id : nation_ids)
-        this->map.update_nation_label(this->gs.world->nations[id]);
+    for(const auto nation_id : nation_ids)
+        this->map.update_nation_label(this->gs.world->nations[nation_id]);
 }
 
 void MapRender::update_city_lights() {
@@ -419,7 +421,7 @@ void MapRender::update_visibility(GameState& gs) {
 void MapRender::update(GameState& gs) {
     if(gs.world->province_manager.is_provinces_changed())
         this->req_update_vision = true;
-    
+
     std::fill_n(province_opt->buffer.get(), 0xffff, 0x00000080);
     if(this->req_update_vision) {
         this->update_visibility(gs);

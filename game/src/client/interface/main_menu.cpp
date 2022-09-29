@@ -58,7 +58,9 @@ Interface::MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
 
     ip_addr_inp = new UI::Input(0, 0, 128, 24, this);
     ip_addr_inp->set_buffer("127.0.0.1");
-    ip_addr_inp->set_tooltip("IP Address of the server");
+    ip_addr_inp->set_tooltip("IP Address of the server\n"
+                             "127.x.x.x is the localhost\n"
+                             "192.x.x.x is the local LAN IP range");
 
     username_inp = new UI::Input(0, 24, 512, 24, this);
     username_inp->set_buffer("Player");
@@ -67,19 +69,15 @@ Interface::MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     conn_btn = new UI::Button(0, 48, 128, 24, this);
     conn_btn->text("Connect");
     conn_btn->set_on_click([this](UI::Widget&) {
-        Eng3D::Log::debug("ui", "Okey, connecting to [" + this->ip_addr_inp->get_buffer() + "]");
+        Eng3D::Log::debug("ui", translate_format("Connecting to server on IP %s", this->ip_addr_inp->get_buffer()));
         /// @todo Handle when mods differ (i.e checksum not equal to host)
         this->gs.host_mode = false;
         this->gs.editor = false;
         try {
             this->gs.ui_ctx.clear();
-            this->gs.ui_ctx.use_tooltip(nullptr, { 0, 0 });
-
             this->gs.current_mode = MapMode::COUNTRY_SELECT;
             this->gs.select_nation = new Interface::LobbySelectView(gs);
-            this->gs.host_mode = false;
-            this->gs.editor = false;
-            this->gs.client.reset(new Client(this->gs, this->ip_addr_inp->get_buffer(), 1836));
+            this->gs.client = std::make_unique<Client>(this->gs, this->ip_addr_inp->get_buffer(), 1836);
             this->gs.client->username = this->username_inp->get_buffer();
             this->gs.client->wait_for_snapshot();
             return;
@@ -135,11 +133,11 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     single_btn->text_align_y = UI::Align::CENTER;
     single_btn->text("Singleplayer");
     single_btn->set_on_click([this](UI::Widget&) {
+        this->gs.ui_ctx.clear();
         gs.current_mode = MapMode::COUNTRY_SELECT;
         gs.select_nation = new Interface::LobbySelectView(gs);
         gs.host_mode = true;
         gs.editor = false;
-        this->kill();
     });
 
     auto* mp_btn = new UI::Button(0, 0, b_width, b_height, button_list);
@@ -149,7 +147,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     mp_btn->text_color = text_color;
     mp_btn->text_align_x = UI::Align::CENTER;
     mp_btn->text_align_y = UI::Align::CENTER;
-    mp_btn->text("Join LAN");
+    mp_btn->text("Multiplayer");
     mp_btn->set_on_click([this](UI::Widget&) {
         this->connect_window = new Interface::MainMenuConnectServer(this->gs);
     });
@@ -163,11 +161,11 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     host_btn->text_align_y = UI::Align::CENTER;
     host_btn->text("Host");
     host_btn->set_on_click([this](UI::Widget&) {
+        this->gs.ui_ctx.clear();
         this->gs.current_mode = MapMode::COUNTRY_SELECT;
         this->gs.select_nation = new Interface::LobbySelectView(this->gs);
         this->gs.host_mode = true;
         this->gs.editor = false;
-        this->kill();
     });
 
     auto* edit_btn = new UI::Button(0, 0, b_width, b_height, button_list);
@@ -185,7 +183,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
         this->gs.editor = true;
         this->gs.server.reset(new Server(gs, 1836));
         this->gs.client.reset(new Client(gs, "127.0.0.1", 1836));
-        this->kill();
+        this->gs.ui_ctx.clear();
 
         this->gs.curr_nation = &gs.world->nations[0];
         this->gs.play_nation();

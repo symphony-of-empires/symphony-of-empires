@@ -104,7 +104,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
         this->owner_flag->set_on_click([this, &nucleus](UI::Widget&) {
             new Interface::NationView(this->gs, nucleus);
         });
-        this->owner_flag->set_tooltip(translate_format("%s has claims on this province", nucleus.name));
+        this->owner_flag->set_tooltip(translate_format("%s has claims on this province", nucleus.name.c_str()));
     }
 
     auto* languages_lab = new UI::Label(0, 0, "Languages", this);

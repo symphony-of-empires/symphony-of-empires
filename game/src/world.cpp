@@ -77,8 +77,10 @@ const std::vector<Tile>& Tile::get_neighbours(const World& world) const {
 
 World g_world;
 
-void ai_init(World& world);
-void ai_do_tick(Nation& nation);
+namespace AI {
+    void init(World& world);
+    void do_tick(World& world);
+}
 
 // Creates a new world
 void World::init_lua() {
@@ -455,7 +457,6 @@ void World::load_initial() {
             auto last = std::unique(province.neighbour_ids.begin(), province.neighbour_ids.end());
             province.neighbour_ids.erase(last, province.neighbour_ids.end());
             std::erase(province.neighbour_ids, province); // Erase self
-
         }
         unit_manager.init(*this);
 
@@ -495,7 +496,7 @@ void World::load_mod() {
     // Server needs now to sync changes to clients (changing state is not enough)
     this->needs_to_sync = true;
     Eng3D::Log::debug("game", translate("World fully intiialized"));
-    ai_init(*this); // Initialize the AI
+    AI::init(*this); // Initialize the AI
 }
 
 static inline void unit_do_tick(World& world, Unit& unit) {
@@ -630,13 +631,7 @@ void World::do_tick() {
     province_manager.clear();
 
     profiler.start("AI");
-    // Do the AI turns in parallel
-    tbb::parallel_for(tbb::blocked_range(nations.begin(), nations.end()), [this](auto& nations_range) {
-        for(auto& nation : nations_range) {
-            if(!nation.exists()) return;
-            ai_do_tick(nation);
-        }
-    });
+    AI::do_tick(*this);
     profiler.stop("AI");
 
     profiler.start("Economy");
