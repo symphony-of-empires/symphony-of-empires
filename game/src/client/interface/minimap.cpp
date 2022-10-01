@@ -389,12 +389,10 @@ std::vector<ProvinceColor> population_map_mode(const World& world) {
     Eng3D::Color min = Eng3D::Color::rgb8(255, 255, 255);
     Eng3D::Color max = Eng3D::Color::rgb8(180, 24, 24);
     std::vector<ProvinceColor> province_color;
-    for(auto const& prov_amount : province_amounts) {
-        auto prov_id = prov_amount.first;
-        auto amount = prov_amount.second;
+    for(auto const& [province_id, amount] : province_amounts) {
         float ratio = amount / max_amount;
         Eng3D::Color color = Eng3D::Color::lerp(min, max, ratio);
-        province_color.emplace_back(prov_id, color);
+        province_color.emplace_back(province_id, color);
     }
     return province_color;
 }

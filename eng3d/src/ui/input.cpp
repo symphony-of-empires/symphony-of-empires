@@ -67,21 +67,20 @@ std::string UI::Input::get_buffer() const {
 }
 
 void UI::Input::on_click_default(UI::Widget& w) {
-    UI::Input& input = static_cast<UI::Input&>(w);
+    auto& input = static_cast<UI::Input&>(w);
     input.is_selected = true;
 }
 
 void UI::Input::on_click_outside_default(UI::Widget& w) {
-    UI::Input& input = static_cast<UI::Input&>(w);
+    auto& input = static_cast<UI::Input&>(w);
     if(input.is_selected)
         input.text(input.buffer);
     input.is_selected = false;
 }
 
 void UI::Input::on_update_default(UI::Widget& w) {
-    UI::Input& input = static_cast<UI::Input&>(w);
+    auto& input = static_cast<UI::Input&>(w);
     input.timer = (input.timer + 1) % 60;
-
     const std::string cursor = input.timer >= 30 ? "_" : "";
     if(input.is_selected && input.timer % 30 == 0) {
         if(!input.buffer.empty()) {

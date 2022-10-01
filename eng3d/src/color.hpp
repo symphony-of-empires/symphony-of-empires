@@ -78,8 +78,8 @@ namespace Eng3D {
         constexpr static Color rgba32(uint32_t argb) {
             const auto a = ((argb >> 24) % 255) / 255.f;
             const auto b = ((argb >> 16) % 255) / 255.f;
-            const auto g = ((argb >> 8) % 255) / 255.f;
-            const auto r = (argb % 255) / 255.f;
+            const auto r = ((argb >> 8) % 255) / 255.f;
+            const auto g = (argb % 255) / 255.f;
             return Color(r, g, b, a);
         }
 
@@ -104,6 +104,23 @@ namespace Eng3D {
             const auto g = color1.g * (1 - lamda) + color2.g * lamda;
             const auto b = color1.b * (1 - lamda) + color2.b * lamda;
             return Color(r, g, b);
+        }
+
+        constexpr static Color get_random(size_t mod) {
+            const uint32_t colors[] = {
+                0xFF000000, 0xFF00FF00, 0xFF0000FF, 0xFFFF0000, 0xFF01FFFE, 0xFFFFA6FE,
+                0xFFFFDB66, 0xFF006401, 0xFF010067, 0xFF95003A, 0xFF007DB5, 0xFFFF00F6,
+                0xFFFFEEE8, 0xFF774D00, 0xFF90FB92, 0xFF0076FF, 0xFFD5FF00, 0xFFFF937E,
+                0xFF6A826C, 0xFFFF029D, 0xFFFE8900, 0xFF7A4782, 0xFF7E2DD2, 0xFF85A900,
+                0xFFFF0056, 0xFFA42400, 0xFF00AE7E, 0xFF683D3B, 0xFFBDC6FF, 0xFF263400,
+                0xFFBDD393, 0xFF00B917, 0xFF9E008E, 0xFF001544, 0xFFC28C9F, 0xFFFF74A3,
+                0xFF01D0FF, 0xFF004754, 0xFFE56FFE, 0xFF788231, 0xFF0E4CA1, 0xFF91D0CB,
+                0xFFBE9970, 0xFF968AE8, 0xFFBB8800, 0xFF43002C, 0xFFDEFF74, 0xFF00FFC6,
+                0xFFFFE502, 0xFF620E00, 0xFF008F9C, 0xFF98FF52, 0xFF7544B1, 0xFFB500FF,
+                0xFF00FF78, 0xFFFF6E41, 0xFF005F39, 0xFF6B6882, 0xFF5FAD4E, 0xFFA75740,
+                0xFFA5FFD2, 0xFFFFB167, 0xFF009BFF, 0xFFE85EBE
+            };
+            return Eng3D::Color::rgba32(colors[mod % 64]);
         }
     };
 };

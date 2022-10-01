@@ -123,14 +123,14 @@ static void update_factories_employment(const World& world, Province& province, 
     std::sort(factories_by_profitability.begin(), factories_by_profitability.end(), [](const auto& a, const auto& b) { return a.second > b.second; });
 
     float is_operating = province.controller_id == province.owner_id ? 1.f : 0.f;
-    for(const auto& factory_index : factories_by_profitability) {
-        auto& building = province.buildings[factory_index.first];
-        const auto& type = world.building_types[factory_index.first];
+    for(const auto& [factory_index, _] : factories_by_profitability) {
+        auto& building = province.buildings[factory_index];
+        const auto& type = world.building_types[factory_index];
         auto factory_workers = building.level * type.num_req_workers * building.production_scale;
         auto allocated_workers = glm::min(factory_workers, unallocated_workers);
         // Average with how much the factory had before
         // Makes is more stable so everyone don't change workplace immediately
-        new_workers[factory_index.first] = ((allocated_workers) / 16.0f + (building.workers * 15.0f) / 16.0f) * is_operating;
+        new_workers[factory_index] = (allocated_workers / 16.0f + (building.workers * 15.0f) / 16.0f) * is_operating;
         unallocated_workers -= building.workers * is_operating;
     }
 }
@@ -207,12 +207,12 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
 
                 if(it != province.pops.end()) {
                     auto& nation = world.nations[province.owner_id];
-                    const auto final_size = glm::min<float>((*it).size, army_size);
+                    const auto final_size = glm::min<float>(it->size, army_size);
                     const auto given_money = final_size;
                     // Nation must have money to pay the units
                     if(given_money >= nation.budget) continue;
                     /// @todo Maybe delete if size becomes 0?
-                    (*it).size -= final_size;
+                    it->size -= final_size;
                     if(final_size) {
                         nation.budget -= given_money;
                         Unit unit{};

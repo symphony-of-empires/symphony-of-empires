@@ -1243,14 +1243,14 @@ void LuaAPI::check_events(lua_State* L) {
 
     // Do decisions taken effects in the queue, then clear it awaiting
     // other taken decisions :)
-    for(auto& dec : g_world.taken_decisions) {
-        Eng3D::Log::debug("event", string_format("%s took the descision %i", dec.second->ref_name.c_str(), dec.first.do_decision_function));
-        lua_rawgeti(L, LUA_REGISTRYINDEX, dec.first.do_decision_function);
-        lua_pushstring(L, dec.second->ref_name.c_str());
+    for(auto& [dec, nation] : g_world.taken_decisions) {
+        Eng3D::Log::debug("event", string_format("%s took the descision %i", nation->ref_name.c_str(), dec.do_decision_function));
+        lua_rawgeti(L, LUA_REGISTRYINDEX, dec.do_decision_function);
+        lua_pushstring(L, nation->ref_name.c_str());
         if(call_func(L, 1, 0)) {
             const std::string_view err_msg = lua_tostring(L, -1);
             lua_pop(L, 1);
-            CXX_THROW(LuaAPI::Exception, string_format("%i(%s): %s", dec.first.do_decision_function, dec.second->ref_name.c_str(), err_msg).c_str());
+            CXX_THROW(LuaAPI::Exception, string_format("%i(%s): %s", dec.do_decision_function, nation->ref_name.c_str(), err_msg).c_str());
         }
     }
     g_world.taken_decisions.clear();

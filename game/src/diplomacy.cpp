@@ -164,8 +164,8 @@ bool TreatyClause::Puppet::in_effect() const {
 
 // Checks if the specified nations participates in the treaty
 bool Treaty::does_participate(Nation& nation) {
-    for(auto& status : this->approval_status)
-        if(status.first == nation)
+    for(auto& [other_nation, _] : this->approval_status)
+        if(other_nation == nation)
             return true;
     return false;
 }

@@ -51,7 +51,7 @@ namespace Eng3D {
         float get_largest_time_ms();
 
         const std::string name;
-        const uint32_t color;
+        const size_t color;
     private:
         std::list<float> times;
         std::list<std::chrono::system_clock::time_point> start_times;

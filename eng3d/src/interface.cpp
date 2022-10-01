@@ -65,7 +65,7 @@ Eng3D::Interface::ProfilerView::ProfilerView(Eng3D::State& _s, Eng3D::Profiler& 
         auto tasks = this->profiler.get_tasks();
         for(auto& task : tasks) {
             float time = task->get_average_time_ms();
-            data.push_back(UI::ChartData(time, task->name, task->color));
+            data.push_back(UI::ChartData(time, task->name, Eng3D::Color::get_random(task->color).get_value()));
         }
         chart.set_data(data);
     });

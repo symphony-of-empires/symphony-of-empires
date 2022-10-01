@@ -29,7 +29,7 @@
 
 template<std::unsigned_integral T>
 struct EntityId {
-    static constexpr T invalid_id = static_cast<T>(-1);
+    constexpr static T invalid_id = static_cast<T>(-1);
     T id = invalid_id;
 
     constexpr EntityId<T>() noexcept = default;

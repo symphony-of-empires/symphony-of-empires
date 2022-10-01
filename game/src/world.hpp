@@ -129,7 +129,7 @@ struct Serializer<Tile> {
 class World {
     Economy::EconomyState economyState;
 public:
-    static constexpr unsigned int ticks_per_month = 30;
+    constexpr static unsigned int ticks_per_month = 30;
 
     World() = default;
     World& operator=(const World&) = delete;

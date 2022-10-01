@@ -718,17 +718,13 @@ void World::do_tick() {
             for(size_t i = 0; i < g_world.wars.size(); i++) {
                 auto& war = g_world.wars[i];
                 // All people participating stop war with each other
-                for(const auto& ap1 : treaty.approval_status) {
-                    auto it = std::find(war.attacker_ids.begin(), war.attacker_ids.end(), ap1.first);
-                    if(it != war.attacker_ids.end()) {
-                        war.attacker_ids.erase(it);
-                    } else { // Otherwise they might be a defender so remove them aswell
-                        std::erase(war.defender_ids, ap1.first);
-                    }
-                    
-                    // Stop the war between the nations ^-^
-                    for(const auto& ap2 : treaty.approval_status)
-                        if(ap1.first != ap2.first)
+                for(const auto& [nation, _] : treaty.approval_status) {
+                    auto it = std::find(war.attacker_ids.begin(), war.attacker_ids.end(), nation);
+                    if(it != war.attacker_ids.end()) war.attacker_ids.erase(it);
+                    else std::erase(war.defender_ids, nation);
+                    // Stop the war between the nations
+                    for(const auto& [other_nation, _] : treaty.approval_status)
+                        if(nation != other_nation)
                             g_world.get_relation(treaty.sender_id, treaty.receiver_id).has_war = false;
                 }
 

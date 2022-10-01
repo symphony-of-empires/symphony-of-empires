@@ -80,23 +80,19 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
         for(const auto province_id : this->gs.curr_nation->owned_provinces) {
             const auto& province = gs.world->provinces[province_id];
             for(const auto& building : province.get_buildings()) {
-                for(const auto& req : building.req_goods_for_unit)
-                    reqtotal += req.second;
-                for(const auto& req : building.req_goods)
-                    reqtotal += req.second;
+                for(const auto& [_, amount] : building.req_goods_for_unit)
+                    reqtotal += amount;
+                for(const auto& [_, amount] : building.req_goods)
+                    reqtotal += amount;
             }
         }
-
         this->reqmat_chart->data.push_back(reqtotal);
-        if(this->reqmat_chart->data.size() >= 30)
-            this->reqmat_chart->data.pop_back();
     });
 
     for(const auto province_id : gs.curr_nation->owned_provinces) {
         const auto& province = gs.world->provinces[province_id];
         for(const auto& building_type : gs.world->building_types) {
-            if(!building_type.can_build_land_units())
-                continue;
+            if(!building_type.can_build_land_units()) continue;
             new ArmyProductionUnitInfo(gs, 0, 0, province, building_type, flex_column);
         }
     }
@@ -175,11 +171,7 @@ ArmyView::ArmyView(GameState& _gs)
         this->units_tab->kill();
         this->units_tab = new ArmyUnitsTab(gs, 0, 32, [this](Unit& unit) {
             auto& type = this->gs.world->unit_types[unit.type_id];
-            if(unit.owner_id != *this->gs.curr_nation)
-                return false;
-            else if(type.is_ground && !type.is_naval)
-                return true;
-            return false;
+            return unit.owner_id == *this->gs.curr_nation && type.is_ground && !type.is_naval;
         }, this);
         this->production_tab->is_render = false;
     });
@@ -192,11 +184,7 @@ ArmyView::ArmyView(GameState& _gs)
         this->units_tab->kill();
         this->units_tab = new ArmyUnitsTab(gs, 0, 32, [this](Unit& unit) {
             auto& type = this->gs.world->unit_types[unit.type_id];
-            if(unit.owner_id != *this->gs.curr_nation)
-                return false;
-            else if(!type.is_ground && !type.is_naval)
-                return true;
-            return false;
+            return unit.owner_id == *this->gs.curr_nation && !type.is_ground && !type.is_naval;
         }, this);
         this->production_tab->is_render = false;
     });
@@ -209,11 +197,7 @@ ArmyView::ArmyView(GameState& _gs)
         this->units_tab->kill();
         this->units_tab = new ArmyUnitsTab(gs, 0, 32, [this](Unit& unit) {
             auto& type = this->gs.world->unit_types[unit.type_id];
-            if(unit.owner_id != *this->gs.curr_nation)
-                return false;
-            else if(!type.is_ground && type.is_naval)
-                return true;
-            return false;
+            return unit.owner_id == *this->gs.curr_nation && !type.is_ground && type.is_naval;
         }, this);
         this->production_tab->is_render = false;
     });

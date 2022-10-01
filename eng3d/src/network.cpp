@@ -62,8 +62,8 @@
 #include "eng3d/log.hpp"
 #include "eng3d/utils.hpp"
 
-static constexpr int max_tries = 10; // 10 * 100ms = 10 seconds
-static constexpr int tries_ms = 100;
+constexpr static int max_tries = 10; // 10 * 100ms = 10 seconds
+constexpr static int tries_ms = 100;
 
 //
 // Socket stream

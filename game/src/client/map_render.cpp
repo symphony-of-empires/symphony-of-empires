@@ -376,10 +376,7 @@ void MapRender::update_nations(std::vector<ProvinceId>& province_ids) {
 void MapRender::update_city_lights() {
     // Fill out density information
     for(const auto& province : gs.world->provinces) {
-        float total = 0.f;
-        for(const auto& pop : province.pops)
-            total += pop.size;
-        total = glm::max(total, 0.1f);
+        auto total = glm::max(province.total_pops(), 0.1f);
         this->province_opt->buffer[province] |= static_cast<uint8_t>(glm::clamp(total / 100'000.f, 0.f, 1.f) * 255.f) << 8;
     }
 }
@@ -390,8 +387,7 @@ void MapRender::request_update_visibility() {
 
 void MapRender::update_visibility(GameState& gs) {
     if(gs.curr_nation == nullptr) return;
-
-    /// @todo Check that unit is allied with us/province owned by an ally
+    
     for(const auto& nation : gs.world->nations) {
         const auto nation_id = nation;
         // If it's our own nation or an ally of ours we can see them
