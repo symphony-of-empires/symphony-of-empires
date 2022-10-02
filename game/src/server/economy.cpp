@@ -161,7 +161,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     tbb::combinable<std::vector<NewUnit>> province_new_units;
     std::vector<std::vector<float>> buildings_new_worker(world.provinces.size());
     std::vector<std::vector<PopNeed>> pops_new_needs(world.provinces.size());
-    tbb::parallel_for(0zu, world.provinces.size(), [&world, &buildings_new_worker, &province_new_units, &pops_new_needs](const auto province_id) {
+    tbb::parallel_for((unsigned long long) 0, world.provinces.size(), [&world, &buildings_new_worker, &province_new_units, &pops_new_needs](const auto province_id) {
         auto& province = world.provinces[province_id];
         if(Nation::is_invalid(province.controller_id)) return;
         for(auto& product : province.products)
@@ -248,7 +248,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     // -------------------------- MUTEX PROTECTED WORLD CHANGES BELOW -------------------------------
     const std::scoped_lock lock(world.world_mutex);
 
-    tbb::parallel_for(0zu, world.provinces.size(), [&world, &pops_new_needs, &buildings_new_worker](const auto province_id) {
+    tbb::parallel_for((unsigned long long) 0, world.provinces.size(), [&world, &pops_new_needs, &buildings_new_worker](const auto province_id) {
         auto& province = world.provinces[province_id];
         if(Nation::is_invalid(province.controller_id)) return;
         const auto& new_needs = pops_new_needs[province_id];
