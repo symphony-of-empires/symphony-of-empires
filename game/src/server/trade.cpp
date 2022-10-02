@@ -43,7 +43,7 @@ void Trade::recalculate(const World& world) {
         std::fill(trade_cost.begin(), trade_cost.end(), std::numeric_limits<float>::max());
 
     glm::vec2 world_size{ world.width, world.height };
-    tbb::parallel_for(0zu, cost_eval.size(), [this, &world](const auto province_id) {
+    tbb::parallel_for((unsigned long long) 0, cost_eval.size(), [this, &world](const auto province_id) {
         if(world.provinces[province_id].is_coastal) return;
         Eng3D::Pathfind::from_source<ProvinceId>(ProvinceId(province_id), this->neighbours, this->trade_costs[province_id]);
     }, tbb::auto_partitioner());

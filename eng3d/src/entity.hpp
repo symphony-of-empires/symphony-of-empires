@@ -107,7 +107,7 @@ struct Entity {
     /// @brief Returns an invalid id
     /// @return constexpr Id The invalid id
     constexpr static Id invalid() {
-        return Id{ -1 };
+        return Id{ static_cast<T>(-1) };
     }
 
     /// @brief Checks if the id is not valid

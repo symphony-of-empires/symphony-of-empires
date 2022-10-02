@@ -96,3 +96,5 @@ Makefile
 *.dll*
 
 unused.txt
+
+/vcpkg/

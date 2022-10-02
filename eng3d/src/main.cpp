@@ -26,10 +26,8 @@
 #include "eng3d/log.hpp"
 
 typedef void (*MainFn)(int argc, char** argv);
-#ifndef E3D_TARGET_WINDOWS
-// Windows uses runtime DLL imports
+
 extern "C" void game_main(int argc, char** argv);
-#endif
 
 #ifdef E3D_TARGET_ANDROID
 #   include <android_native_app_glue.h>
@@ -78,25 +76,12 @@ extern "C" long sysconf(int) {
 #include <stdexcept>
 #include "eng3d/log.hpp"
 #include "eng3d/utils.hpp"
-#ifdef E3D_TARGET_WINDOWS
-#   include <windows.h>
-/// @brief Stub to transform the WinMain into a proper call for main so the game doesn't
-/// even notice we're on windows!
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
-#else
+
 // While Linux supports externs, windows doesn't
 int main(int argc, char** argv)
-#endif
 {
     try {
-#ifdef E3D_TARGET_WINDOWS
-        auto game_main = (MainFn)GetProcAddress(GetModuleHandle(nullptr), "game_main");
-        if(game_main == nullptr)
-            CXX_THROW(std::runtime_error, translate("No game_main found!"));
-        game_main(__argc, __argv);
-#else
         game_main(argc, argv);
-#endif
     } catch(const std::exception& e) {
         Eng3D::Log::error("game", e.what());
         exit(EXIT_FAILURE);

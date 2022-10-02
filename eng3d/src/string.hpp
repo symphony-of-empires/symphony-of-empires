@@ -29,6 +29,7 @@
 #include <cstdint>
 #include <mutex>
 #include <memory>
+#include <iterator>
 #include <stdexcept>
 #include "eng3d/utils.hpp"
 
@@ -50,7 +51,7 @@ namespace Eng3D {
         }
         const std::string_view get_string() const;
         constexpr bool operator==(const StringRef&) const noexcept = default;
-        constexpr bool operator<=>(const StringRef&) const noexcept = default;
+        constexpr auto operator<=>(const StringRef&) const noexcept = default;
 
         const char* c_str() const {
             return this->get_string().data();

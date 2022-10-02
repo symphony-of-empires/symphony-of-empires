@@ -212,8 +212,8 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
         });
     }
 
-    mapmode_generator map_mode = goods_map_mode(GoodId(0zu));
-    mapmode_tooltip tooltip = good_tooltip(GoodId(0zu));
+    mapmode_generator map_mode = goods_map_mode(GoodId(0));
+    mapmode_tooltip tooltip = good_tooltip(GoodId(0));
     this->gs.map->set_map_mode(map_mode, tooltip);
 }
 

@@ -47,6 +47,7 @@
 #	include <poll.h>
 #   include <signal.h>
 #   include <fcntl.h>
+#define NETWORK_FLAG MSG_DONTWAIT
 #elif defined E3D_TARGET_WINDOWS
 #	define _WINSOCK_DEPRECATED_NO_WARNINGS 1
 #   ifndef WINSOCK2_IMPORTED
@@ -55,6 +56,8 @@
 #       include <ws2tcpip.h>
 #   endif
 #	include <windows.h>
+#define NETWORK_FLAG MSG_DONTROUTE
+
 #endif
 #include <sys/types.h>
 
@@ -74,7 +77,7 @@ void Eng3D::Networking::SocketStream::send(const void* data, size_t size, std::f
     for(size_t i = 0; i < size; ) {
         if(pred && !pred()) // If (any) predicate fails then return immediately
             return;
-        int r = ::send(fd, &c_data[i], glm::min<std::size_t>(1024, size - i), MSG_DONTWAIT);
+        int r = ::send(fd, &c_data[i], glm::min<std::size_t>(1024, size - i), NETWORK_FLAG);
         if(r <= 0) {
             if(!tries)
                 CXX_THROW(Eng3D::Networking::SocketException, "Packet send interrupted");
@@ -93,7 +96,7 @@ void Eng3D::Networking::SocketStream::recv(void* data, size_t size, std::functio
     for(size_t i = 0; i < size; ) {
         if(pred && !pred()) // If (any) predicate fails then return immediately
             return;
-        int r = ::recv(fd, &c_data[i], glm::min<std::size_t>(1024, size - i), MSG_DONTWAIT);
+        int r = ::recv(fd, &c_data[i], glm::min<std::size_t>(1024, size - i), NETWORK_FLAG);
         if(r <= 0) {
             if(!tries)
                 CXX_THROW(Eng3D::Networking::SocketException, "Packet receive interrupted");

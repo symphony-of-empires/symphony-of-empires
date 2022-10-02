@@ -76,7 +76,8 @@ MapRender::MapRender(GameState& _gs, Map& _map)
     // ------------------------------------------------------------
     Eng3D::Log::debug("game", "Creating tile map & tile sheet");
     assert((this->terrain_map->width* this->terrain_map->height) % 5400 == 0);
-    tbb::parallel_for(0zu, (this->terrain_map->width* this->terrain_map->height) / 5400, [this](const auto y) {
+
+    tbb::parallel_for((unsigned long long) 0, (this->terrain_map->width* this->terrain_map->height) / 5400, [this](const auto y) {
         const auto i = y * 5400;
         for(size_t x = 0; x < 5400; x++)
             this->terrain_map->buffer.get()[i + x] |= static_cast<size_t>(this->gs.world->get_tile(i + x).province_id) & 0xffff;
