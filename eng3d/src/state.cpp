@@ -71,6 +71,19 @@
 // Used for the singleton
 static Eng3D::State* g_state = nullptr;
 
+#if defined _WIN32
+// Need to define setenv
+int setenv(const char* name, const char* value, int overwrite)
+{
+    int errcode = 0;
+    if(!overwrite) {
+        size_t envsize = 0;
+        errcode = getenv_s(&envsize, NULL, 0, name);
+        if(errcode || envsize) return errcode;
+    }
+    return _putenv_s(name, value);
+}
+#endif
 #if defined E3D_BACKEND_OPENGL
 // Callback function for printing debug statements
 static void GLAPIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* msg, const void* data) {
@@ -187,11 +200,12 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
 #endif
 
     // Handle SIGPIPE for networking code
+#ifndef _WIN32
     struct sigaction sa = (struct sigaction){ [](int) {
         Eng3D::Log::debug("sigpipe", translate("Caught a pipe signal"));
     } };
     sigaction(SIGPIPE, &sa, NULL);
-
+#endif
     std::string canonical_name = translate("Symphony of Empires");
 
     // Startup-initialization of SDL

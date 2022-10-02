@@ -1,0 +1,1 @@
+cmake -B build -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -DE3D_BACKEND_OPENGL=1 -DNO_COPY_MODS=1 -DE3D_BUILD_STATIC=1
