@@ -65,7 +65,13 @@ class Province : public RefnameEntity<ProvinceId> {
 private:
     Province& operator=(const Province&) = default;
 public:
-    float total_pops() const;
+    float total_pops() const {
+        auto total = 0.f;
+        for(const auto& pop : pops)
+            total += pop.size;
+        return total;
+    }
+
     float get_attractiveness(const Pop& pop) const;
     void add_building(const BuildingType& building_type);
     void cancel_construction_project();

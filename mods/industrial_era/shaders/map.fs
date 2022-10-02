@@ -309,14 +309,13 @@ float get_lighting(vec2 tex_coords, float beach) {
 
 	// The bump mapping
 	float diffuse = max(dot(light_dir, normal), 0.0);
-	diffuse *= mix(0.6, 1.0, far_from_map);
+	diffuse *= mix(0.5, 1., far_from_map);
 
 	// The shiny directional light
-	float water_shine = mix(256, 64, far_from_map);
-	float shininess = is_water == 1. ? water_shine : 8;
-	float specularStrength = is_water == 1. ? 0.6 : 0.2;
-	specularStrength *= mix(3., 1., far_from_map);
-	vec3 reflectDir = reflect(-light_dir, normal);  
+	float water_shine = mix(256., 64., far_from_map);
+	float shininess = is_water == 1. ? water_shine : 8.;
+	float specularStrength = (is_water == 1. ? 1. : 1.) * 5.;
+	vec3 reflectDir = reflect(-light_dir, normal);
 	float spec = pow(max(dot(view_dir, reflectDir), 0.0), shininess);
 	float specular = specularStrength * spec;
 
@@ -396,7 +395,10 @@ float get_noise(vec2 tex_coords) {
 
 #ifdef CITY_LIGHTS
 float get_sun_shadow(vec2 tex_coords) {
-	return smoothstep(0.15, 0.5, 1. - abs(cos((tex_coords.x - time * 0.1) * PI)));
+	vec3 light_dir = normalize(-vec3(0., 0., 1));
+	vec3 normal = normalize(texture(normal, tex_coords).rgb);
+	float light = max(dot(normal * normalize(v_frag_pos), light_dir), 0.);
+	return light;
 }
 
 float get_city_light(vec2 tex_coords, float sunshadow, float is_diag, float is_water) {
@@ -535,10 +537,10 @@ void main() {
 #endif
 
 #ifdef CITY_LIGHTS
-	float x_dn_step = get_sun_shadow(tex_coords);
-	out_color = mix(out_color, vec3(0., 0., 0.), x_dn_step);
-	float city_light = get_city_light(tex_coords, x_dn_step, is_diag, beach);
-	out_color = mix(out_color, city_light_col, city_light);
+	//float x_dn_step = get_sun_shadow(tex_coords);
+	//out_color = mix(out_color, vec3(0., 0., 0.), x_dn_step);
+	//float city_light = get_city_light(tex_coords, x_dn_step, is_diag, beach);
+	//out_color = mix(out_color, city_light_col, city_light);
 #endif
 
 	f_frag_color.rgb = pow(out_color, vec3(1.0 / 2.2)); // SRGB -> RGB

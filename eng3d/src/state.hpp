@@ -71,7 +71,7 @@ namespace Eng3D {
         void do_run(std::function<bool(void)> cond, std::function<void(void)> event, std::function<void(void)> render);
 
         /// @brief Value to ignore x/y axis motion taps (useful ignoring stray joystick input)
-        static constexpr auto JOYSTICK_DEAD_ZONE = 3000;
+        constexpr static auto JOYSTICK_DEAD_ZONE = 3000;
 
         virtual void handle_resize();
         virtual void handle_mouse_btn(const Eng3D::Event::MouseButton& e);

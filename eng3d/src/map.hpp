@@ -34,7 +34,7 @@
 
 class MapRender;
 namespace Eng3D {
-    static constexpr auto GLOBE_RADIUS = 100.f;
+    constexpr static auto GLOBE_RADIUS = 100.f;
 
     class Texture;
     class TextureArray;

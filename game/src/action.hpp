@@ -62,16 +62,16 @@ enum class ActionType {
 template<>
 struct Serializer<ActionType>: public SerializerMemcpy<ActionType> {};
 
-class Product;
+struct Product;
 class Nation;
 class Province;
-class Building;
-class BuildingType;
+struct Building;
+struct BuildingType;
 class Unit;
-class UnitType;
-class Decision;
-class Event;
-class Technology;
+struct UnitType;
+struct Decision;
+struct Event;
+struct Technology;
 
 namespace Action {
     class DiploDeclareWar {

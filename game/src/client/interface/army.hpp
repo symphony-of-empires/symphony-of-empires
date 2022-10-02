@@ -32,7 +32,7 @@
 class World;
 class Nation;
 class GameState;
-class Building;
+struct Building;
 class Unit;
 namespace UI {
     class Chart;

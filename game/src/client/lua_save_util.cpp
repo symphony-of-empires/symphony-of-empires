@@ -193,8 +193,8 @@ void LUA_util::save(GameState& gs) {
                 fprintf(fp.get(), "v=AirplaneType:new{ref_name=\"%s\",name=translate(\"%s\"),defense=%f,attack=%f,health=%f,speed=%f}\n", unit_type.ref_name.c_str(), unit_type.name.c_str(), unit_type.defense, unit_type.attack, unit_type.max_health, unit_type.speed);
             }
             fprintf(fp.get(), "v:register()\n");
-            for(const auto& good : unit_type.req_goods)
-                fprintf(fp.get(), "v:requires_good(Good:get(\"%s\"), %f)\n", gs.world->goods[good.first].ref_name.c_str(), good.second);
+            for(const auto& [good_id, amount] : unit_type.req_goods)
+                fprintf(fp.get(), "v:requires_good(Good:get(\"%s\"), %f)\n", gs.world->goods[good_id].ref_name.c_str(), amount);
             cnt++;
         }
         fp.reset();

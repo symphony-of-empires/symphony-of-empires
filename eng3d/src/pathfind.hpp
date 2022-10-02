@@ -82,7 +82,7 @@ namespace Eng3D::Pathfind {
 
         // Unwind path and reverse
         std::vector<T> path;
-        path.reserve(abs(static_cast<size_t>(start) - static_cast<size_t>(end)));
+        path.reserve(abs(double(static_cast<size_t>(start) - static_cast<size_t>(end))));
         auto current = end;
         while(current != start) {
             path.push_back(current);

@@ -52,9 +52,9 @@ UI::Input::Input(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
             }
         }
     });
-    this->set_on_click(&UI::Input::on_click_default);
-    this->on_click_outside = &UI::Input::on_click_outside_default;
-    this->on_update = &UI::Input::on_update_default;
+    this->set_on_click((UI::Callback)&UI::Input::on_click_default);
+    this->on_click_outside = (UI::Callback)&UI::Input::on_click_outside_default;
+    this->on_update = (UI::Callback)&UI::Input::on_update_default;
 }
 
 void UI::Input::set_buffer(const std::string& _buffer) {
@@ -66,28 +66,24 @@ std::string UI::Input::get_buffer() const {
     return buffer;
 }
 
-void UI::Input::on_click_default(UI::Widget& w) {
-    UI::Input& input = static_cast<UI::Input&>(w);
-    input.is_selected = true;
+void UI::Input::on_click_default(UI::Input& w) {
+    w.is_selected = true;
 }
 
-void UI::Input::on_click_outside_default(UI::Widget& w) {
-    UI::Input& input = static_cast<UI::Input&>(w);
-    if(input.is_selected)
-        input.text(input.buffer);
-    input.is_selected = false;
+void UI::Input::on_click_outside_default(UI::Input& w) {
+    if(w.is_selected)
+        w.text(w.buffer);
+    w.is_selected = false;
 }
 
-void UI::Input::on_update_default(UI::Widget& w) {
-    UI::Input& input = static_cast<UI::Input&>(w);
-    input.timer = (input.timer + 1) % 60;
-
-    const std::string cursor = input.timer >= 30 ? "_" : "";
-    if(input.is_selected && input.timer % 30 == 0) {
-        if(!input.buffer.empty()) {
-            input.text(input.buffer + cursor);
+void UI::Input::on_update_default(UI::Input& w) {
+    w.timer = (w.timer + 1) % 60;
+    const std::string cursor = w.timer >= 30 ? "_" : "";
+    if(w.is_selected && w.timer % 30 == 0) {
+        if(!w.buffer.empty()) {
+            w.text(w.buffer + cursor);
         } else if(!cursor.empty()) {
-            input.text(cursor);
+            w.text(cursor);
         }
     }
 }

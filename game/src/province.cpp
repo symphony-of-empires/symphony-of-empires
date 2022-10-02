@@ -39,13 +39,6 @@
 // Province
 //
 // Calculates the total number of POPs in this province (total population)
-float Province::total_pops() const {
-    float total = 0;
-    for(const auto& pop : pops)
-        total += pop.size;
-    return total;
-}
-
 float Province::get_attractiveness(const Pop& pop) const {
     float attractive = this->base_attractive;
     const auto& owner = g_world.nations[this->owner_id];

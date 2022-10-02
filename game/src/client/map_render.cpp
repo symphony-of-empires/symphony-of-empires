@@ -76,7 +76,8 @@ MapRender::MapRender(GameState& _gs, Map& _map)
     // ------------------------------------------------------------
     Eng3D::Log::debug("game", "Creating tile map & tile sheet");
     assert((this->terrain_map->width* this->terrain_map->height) % 5400 == 0);
-    tbb::parallel_for(0zu, (this->terrain_map->width* this->terrain_map->height) / 5400, [this](const auto y) {
+
+    tbb::parallel_for(static_cast<size_t>(0), (this->terrain_map->width* this->terrain_map->height) / 5400, [this](const auto y) {
         const auto i = y * 5400;
         for(size_t x = 0; x < 5400; x++)
             this->terrain_map->buffer.get()[i + x] |= static_cast<size_t>(this->gs.world->get_tile(i + x).province_id) & 0xffff;
@@ -342,7 +343,7 @@ void MapRender::update_mapmode(std::vector<ProvinceColor>& province_colors) {
     // Water
     for(size_t i = 0; i < this->gs.world->provinces.size(); i++)
         if(this->gs.world->terrain_types[this->gs.world->provinces[i].terrain_type_id].is_water_body)
-            province_colors[i] = ProvinceColor(ProvinceId(i), Eng3D::Color::rgba32(0x00000000));
+            province_colors[i] = ProvinceColor(ProvinceId(i), Eng3D::Color{});
 
     for(const auto province_color : province_colors)
         tile_sheet->buffer.get()[static_cast<size_t>(province_color.id)] = province_color.color.get_value();
@@ -376,10 +377,7 @@ void MapRender::update_nations(std::vector<ProvinceId>& province_ids) {
 void MapRender::update_city_lights() {
     // Fill out density information
     for(const auto& province : gs.world->provinces) {
-        float total = 0.f;
-        for(const auto& pop : province.pops)
-            total += pop.size;
-        total = glm::max(total, 0.1f);
+        auto total = glm::max(province.total_pops(), 0.1f);
         this->province_opt->buffer[province] |= static_cast<uint8_t>(glm::clamp(total / 100'000.f, 0.f, 1.f) * 255.f) << 8;
     }
 }
@@ -390,8 +388,7 @@ void MapRender::request_update_visibility() {
 
 void MapRender::update_visibility(GameState& gs) {
     if(gs.curr_nation == nullptr) return;
-
-    /// @todo Check that unit is allied with us/province owned by an ally
+    
     for(const auto& nation : gs.world->nations) {
         const auto nation_id = nation;
         // If it's our own nation or an ally of ours we can see them

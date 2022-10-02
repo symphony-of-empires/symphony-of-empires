@@ -85,10 +85,8 @@ void AI::do_tick(World& world) {
                 std::vector<double> nations_risk_factor(world.nations.size(), 1.f);
                 // Provinces that can be evaluated for war
                 std::vector<ProvinceId> eval_provinces = g_water_provinces;
-
-                // Add our own nation's province ids
-                for(const auto province_id : nation.controlled_provinces)
-                    eval_provinces.push_back(province_id);
+                eval_provinces.reserve(g_world.provinces.size());
+                eval_provinces.insert(eval_provinces.end(), nation.controlled_provinces.begin(), nation.controlled_provinces.end()); // Add our own nation's province ids
 
                 for(const auto& other : world.nations) {
                     if(&other == &nation) continue;
@@ -97,8 +95,7 @@ void AI::do_tick(World& world) {
                     const auto& relation = world.get_relation(nation, other);
                     // And add if they're allied with us or let us pass thru
                     if(relation.has_landpass())
-                        for(const auto province_id : other.controlled_provinces)
-                            eval_provinces.push_back(province_id);
+                        eval_provinces.insert(eval_provinces.end(), other.controlled_provinces.begin(), other.controlled_provinces.end());
 
                     constexpr auto relation_max = 100.f;
                     constexpr auto relation_range = 200.f; // Range of relations, the max-min difference
@@ -194,7 +191,7 @@ void AI::do_tick(World& world) {
             for(const auto province_id : nation.controlled_provinces) {
                 auto& province = world.provinces[province_id];
                 for(const auto& building_type : world.building_types) {
-                    //if(!building_type->can_build_military()) continue;
+                    if(!building_type.can_build_military()) continue;
                     auto& building = province.buildings[static_cast<size_t>(building_type.get_id())];
                     if(UnitType::is_valid(building.working_unit_type_id) || !building.can_do_output()) continue;
                     /// @todo Actually produce something appropriate

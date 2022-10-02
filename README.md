@@ -30,7 +30,7 @@ Required to build:
 If you lack any of the prerequsites below you can use `cmake -DE3D_VENDORED=1` for building them instead.
 Lua will **always** be built, since many package managers do not supply Lua 5.4 and backwards compatibility isn't a thing that should be dealt with.
 
-**Windows**: For visual studio, use either vcpkg or nuget to do dependencies.
+**Windows**: 
 On msys2, simply run the following after setting up the initial msys environment:
 ```sh
 pacman -S mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-SDL2 mingw-w64-x86_64-glew mingw-w64-x86_64-glm mingw-w64-x86_64-zlib mingw-w64-x86_64-assimp mingw-w64-x86_64-intel-tbb
@@ -38,6 +38,11 @@ pacman -S mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-SDL2 mingw-w64-x86_64-glew 
 Or if you have a 32-bit computer:
 ```sh
 pacman -S mingw-w64-i686-SDL2_ttf mingw-w64-i686-SDL2 mingw-w64-i686-glew mingw-w64-i686-glm mingw-w64-i686-zlib mingw-w64-i686-assimp  mingw-w64-i686-intel-tbb
+```
+For Visual Studio, you have to first get `vcpkg`, and install it
+```batch
+git clone https://github.com/Microsoft/vcpkg
+.\vcpkg\bootstrap-vcpkg.bat  -disableMetrics
 ```
 
 **Debian-based**: ``sudo apt install -y libsdl2-dev libsdl2-ttf-dev libtbb-dev libglew-dev libglm-dev libassimp-dev``
@@ -61,16 +66,18 @@ If you simply want to play the game on Debian run: ``./quick_build.sh``
 
 The build with these commands once all the dependencies are met:
 ```sh
-# In windows
-cmake -G "MinGW Makefiles" -DE3D_BACKEND_OPENGL=1 -DNO_COPY_MODS=1 .
-cmake --build .
-
 # In Linux, macOS, NetBSD, etc
 # Use this for a normal build
 cmake -DE3D_BACKEND_OPENGL=1 -DNO_COPY_MODS=1 .
 # Alternatively use this for a debug build
 cmake -DE3D_DEBUG=1 -DE3D_BACKEND_OPENGL=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo .
 cmake --build .
+```
+
+For windows, you need to launch command prompt as administrator
+```batch
+windows_build
+cmake --build build
 ```
 
 ### Visual Studio

@@ -34,13 +34,13 @@ class World;
 class Nation;
 class GameState;
 class Unit;
-class UnitType;
+struct UnitType;
 class Province;
 class Product;
-class Technology;
+struct Technology;
 class Good;
-class Building;
-class BuildingType;
+struct Building;
+struct BuildingType;
 
 namespace Interface {
     // Pretty brief summaries (for example to click oon a button from a list)

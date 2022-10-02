@@ -61,8 +61,8 @@ Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
     this->stripes_tex = this->s.tex_man.load(this->s.package_man.get_unique("gfx/stripes.png"), mipmap_options);
 
     this->terrain_map = std::make_unique<Eng3D::Texture>(this->s.package_man.get_unique("map/color.png")->get_abs_path());
-    
-    tbb::parallel_for(0zu, this->terrain_map->width * this->terrain_map->height, [this](const auto i) {
+
+    tbb::parallel_for(static_cast<size_t>(0), this->terrain_map->width * this->terrain_map->height, [this](const auto i) {
         auto* data = &(this->terrain_map->buffer.get()[i]);
         const auto color = std::byteswap<std::uint32_t>((*data) << 8);
         uint8_t idx = 0;

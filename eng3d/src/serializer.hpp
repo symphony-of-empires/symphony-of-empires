@@ -156,7 +156,7 @@ template<typename T>
 concept SerializerScalar = std::is_integral_v<T> || std::is_floating_point_v<T>;
 template<SerializerScalar T>
 class Serializer<T> {
-    static constexpr auto scaling = 1000.f;
+    constexpr static auto scaling = 1000.f;
 public:
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, T& obj) {

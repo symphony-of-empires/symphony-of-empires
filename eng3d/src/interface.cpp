@@ -65,7 +65,7 @@ Eng3D::Interface::ProfilerView::ProfilerView(Eng3D::State& _s, Eng3D::Profiler& 
         auto tasks = this->profiler.get_tasks();
         for(auto& task : tasks) {
             float time = task->get_average_time_ms();
-            data.push_back(UI::ChartData(time, task->name, task->color));
+            data.push_back(UI::ChartData(time, task->name, Eng3D::Color::get_random(task->color).get_value()));
         }
         chart.set_data(data);
     });
@@ -94,7 +94,7 @@ Eng3D::Interface::ProfilerTaskView::ProfilerTaskView(ProfilerView* profiler_view
 }
 
 void Eng3D::Interface::ProfilerTaskView::set_task(Eng3D::BenchmarkTask& profiler_view) {
-    this->color_box->background_color = Eng3D::Color::rgba32(profiler_view.color);
+    this->color_box->background_color = Eng3D::Color::rgb32(profiler_view.color);
     float time = profiler_view.get_average_time_ms();
     auto format_time = std::to_string((int)time);
     format_time = std::string(3 - glm::min<size_t>(3, format_time.length()), '0') + format_time;

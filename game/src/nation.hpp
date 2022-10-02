@@ -39,7 +39,7 @@
 
 class Province;
 class Ideology;
-class Technology;
+struct Technology;
 class Pop;
 class Language;
 class Religion;
@@ -90,7 +90,7 @@ struct Serializer<NationClientHint> {
     }
 };
 
-class Technology;
+struct Technology;
 class Nation : public RefnameEntity<NationId> {
     void do_diplomacy() {
         /// @todo Fix this formula which is currently broken
@@ -150,7 +150,6 @@ public:
     std::vector<float> language_discrim;
     std::vector<float> religion_discrim;
     // List of provinces which are owned by this nation (including partial ownership)
-    /// @todo Add controlled provinces to serializer
     std::vector<ProvinceId> owned_provinces;
     std::vector<ProvinceId> controlled_provinces;
     std::deque<Event> inbox; // Inbox of the nation; events that require our attention / should be processed

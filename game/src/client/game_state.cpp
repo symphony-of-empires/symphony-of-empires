@@ -56,7 +56,6 @@
 #include "client/interface/top_window.hpp"
 #include "client/interface/army.hpp"
 #include "client/interface/minimap.hpp"
-#include "client/interface/map_debug.hpp"
 #include "client/map.hpp"
 #include "client/map_render.hpp"
 #include "server/server_network.hpp"
@@ -345,7 +344,6 @@ extern "C" void game_main(int argc, char** argv) {
             // so no world lock is needed beforehand
             gs.do_event();
         }), ([&gs, &map_layer, load_pbar]() {
-            /// @todo first create the map and separately load all the assets
             std::scoped_lock lock(gs.render_lock);
             gs.clear();
             if(gs.loaded_world) {

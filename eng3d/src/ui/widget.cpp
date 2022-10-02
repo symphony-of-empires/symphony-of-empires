@@ -429,7 +429,7 @@ void Widget::set_tooltip(UI::Tooltip* _tooltip) {
 /// @param text Text for the new tooltip
 void Widget::set_tooltip(const std::string& text) {
     if(text.empty()) return;
-    this->set_tooltip(new UI::Tooltip(this, glm::min(text.size() * 12, 512zu), ((text.size() * 12) / 512) * 24 + 24));
+    this->set_tooltip(new UI::Tooltip(this, glm::min(text.size() * 12, static_cast<size_t>(512)), ((text.size() * 12) / 512) * 24 + 24));
     this->tooltip->text(text);
 }
 

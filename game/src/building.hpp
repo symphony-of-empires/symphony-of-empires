@@ -30,9 +30,9 @@
 #include "objects.hpp"
 #include "product.hpp"
 
-class Technology;
+struct Technology;
 class Unit;
-class UnitType;
+struct UnitType;
 
 /// @brief Type for military outposts
 struct BuildingType : RefnameEntity<BuildingTypeId> {

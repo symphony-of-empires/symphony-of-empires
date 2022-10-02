@@ -36,21 +36,23 @@
 #include "eng3d/rectangle.hpp"
 #include "eng3d/state.hpp"
 
-using namespace UI;
-
-UI::Chart::Chart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
-    : Widget(_parent, _x, _y, w, h, UI::WidgetType::LABEL)
+UI::Chart::Chart(int _x, int _y, unsigned w, unsigned h, UI::Widget* _parent)
+    : UI::Widget(_parent, _x, _y, w, h, UI::WidgetType::LABEL)
 {
 
 }
 
-void UI::Chart::on_render(Context&, Eng3D::Rect viewport) {
-    g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
+void UI::Chart::on_render(UI::Context& ui_ctx, Eng3D::Rect viewport) {
+    ui_ctx.obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
     if(current_texture != nullptr)
         draw_rectangle(0, 0, width, height, viewport, current_texture.get());
 
     if(text_texture.get() != nullptr) {
-        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
+        ui_ctx.obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
         draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture.get());
     }
+
+    /// @todo Data pops shouldn't be done here
+    if(data.size() >= 30)
+        data.pop_back();
 }

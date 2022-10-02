@@ -38,9 +38,9 @@ namespace UI {
 		void set_buffer(const std::string& _buffer);
 		std::string get_buffer() const;
 
-		static void on_click_default(Widget& w);
-		static void on_click_outside_default(Widget& w);
-		static void on_update_default(Widget& w);
+		static void on_click_default(UI::Input& w);
+		static void on_click_outside_default(UI::Input& w);
+		static void on_update_default(UI::Input& w);
 
 		std::function<void(UI::Input&, const char*)> on_textinput;
 		bool is_selected = false;

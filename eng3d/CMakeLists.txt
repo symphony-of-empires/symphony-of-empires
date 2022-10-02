@@ -154,5 +154,14 @@ target_link_libraries(eng3d PUBLIC
 #install(TARGETS eng3d DESTINATION lib)
 #install(FILES "${ENG3D_INCLUDES}" DESTINATION include)
 
-add_executable(triangle ${PROJECT_SOURCE_DIR}/tests/triangle.cpp)
+if(WIN32)
+	if(MSVC)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:MSVCRT")
+	set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+	endif()
+	add_executable(triangle ${PROJECT_SOURCE_DIR}/tests/triangle.cpp)
+else()
+	add_executable(triangle ${PROJECT_SOURCE_DIR}/tests/triangle.cpp)
+endif()
+
 target_link_libraries(triangle PUBLIC eng3d)

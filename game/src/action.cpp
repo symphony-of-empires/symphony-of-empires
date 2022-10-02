@@ -35,8 +35,7 @@
 #include "province.hpp"
 #include "world.hpp"
 
-using namespace Action;
-
+namespace Action {
 template<ActionType type, typename Pred, typename ...Targs>
 Eng3D::Networking::Packet action_handler_sr(Pred p) {
     Eng3D::Networking::Packet packet{};
@@ -137,3 +136,8 @@ Eng3D::Networking::Packet UnitMove::form_packet(const Unit& unit, const Province
         ::serialize<ProvinceId>(ar, province.get_id());
     });
 }
+Eng3D::Networking::Packet NationAdd::form_packet(const Nation& nation)
+{
+    return Eng3D::Networking::Packet();
+}
+}  // namespace Action

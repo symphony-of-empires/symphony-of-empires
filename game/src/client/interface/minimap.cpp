@@ -212,8 +212,8 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
         });
     }
 
-    mapmode_generator map_mode = goods_map_mode(GoodId(0zu));
-    mapmode_tooltip tooltip = good_tooltip(GoodId(0zu));
+    mapmode_generator map_mode = goods_map_mode(GoodId(0));
+    mapmode_tooltip tooltip = good_tooltip(GoodId(0));
     this->gs.map->set_map_mode(map_mode, tooltip);
 }
 
@@ -263,7 +263,7 @@ mapmode_generator relations_map_mode(NationId id) {
         for(size_t i = 0; i < world.provinces.size(); i++) {
             const auto& province = world.provinces[i];
             if(Nation::is_invalid(province.controller_id)) {
-                Eng3D::Color color = Eng3D::Color::rgba32(std::byteswap<std::uint32_t>(0x808080ff));
+                Eng3D::Color color = Eng3D::Color::rgb32(0x808080ff);
                 provinces_color.emplace_back(ProvinceId(i), color);
                 continue;
             }
@@ -345,12 +345,12 @@ mapmode_tooltip relations_tooltip(NationId nation_id) {
 std::vector<ProvinceColor> terrain_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
-        province_color.emplace_back(ProvinceId(i), Eng3D::Color::rgba32(0x00000000));
+        province_color.emplace_back(ProvinceId(i), Eng3D::Color{});
     }
     // Water
-    province_color.emplace_back(ProvinceId(-2), Eng3D::Color::rgba32(0x00000000));
+    province_color.emplace_back(ProvinceId(-2), Eng3D::Color{});
     // Land
-    province_color.emplace_back(ProvinceId(-1), Eng3D::Color::rgba32(0x00000000));
+    province_color.emplace_back(ProvinceId(-1), Eng3D::Color{});
     return province_color;
 }
 
@@ -358,13 +358,13 @@ std::vector<ProvinceColor> terrain_color_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
         const auto& province = world.provinces[i];
-        Eng3D::Color color = Eng3D::Color::rgba32(world.terrain_types[province.terrain_type_id].color);
+        Eng3D::Color color = Eng3D::Color::bgr32(world.terrain_types[province.terrain_type_id].color);
         province_color.emplace_back(ProvinceId(i), color);
     }
     // Water
-    province_color.emplace_back(ProvinceId(-2), Eng3D::Color::rgba32(0x00000000));
+    province_color.emplace_back(ProvinceId(-2), Eng3D::Color{});
     // Land
-    province_color.emplace_back(ProvinceId(-1), Eng3D::Color::rgba32(0x00000000));
+    province_color.emplace_back(ProvinceId(-1), Eng3D::Color{});
     return province_color;
 }
 
@@ -389,12 +389,10 @@ std::vector<ProvinceColor> population_map_mode(const World& world) {
     Eng3D::Color min = Eng3D::Color::rgb8(255, 255, 255);
     Eng3D::Color max = Eng3D::Color::rgb8(180, 24, 24);
     std::vector<ProvinceColor> province_color;
-    for(auto const& prov_amount : province_amounts) {
-        auto prov_id = prov_amount.first;
-        auto amount = prov_amount.second;
+    for(auto const& [province_id, amount] : province_amounts) {
         float ratio = amount / max_amount;
         Eng3D::Color color = Eng3D::Color::lerp(min, max, ratio);
-        province_color.emplace_back(prov_id, color);
+        province_color.emplace_back(province_id, color);
     }
     return province_color;
 }
@@ -416,15 +414,15 @@ std::vector<ProvinceColor> language_map_mode(const World& world) {
                 max_language_id = language;
             }
         }
-        const auto max = Eng3D::Color::rgba32(world.languages[max_language_id].color);
+        const auto max = Eng3D::Color::bgr32(world.languages[max_language_id].color);
         const auto color = Eng3D::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.emplace_back(ProvinceId(i), color);
     }
 
     // Water
-    province_color.emplace_back((ProvinceId)-2, Eng3D::Color::rgba32(0x00000000));
+    province_color.emplace_back((ProvinceId)-2, Eng3D::Color{});
     // Land
-    province_color.emplace_back((ProvinceId)-1, Eng3D::Color::rgba32(0xffdddddd));
+    province_color.emplace_back((ProvinceId)-1, Eng3D::Color(0.8f, 0.8f, 0.8f));
     return province_color;
 }
 
@@ -453,15 +451,15 @@ std::vector<ProvinceColor> religion_map_mode(const World& world) {
                 max_religion_id = religion;
             }
         }
-        const auto max = Eng3D::Color::rgba32(world.religions[max_religion_id].color);
+        const auto max = Eng3D::Color::bgr32(world.religions[max_religion_id].color);
         const auto color = Eng3D::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.emplace_back(ProvinceId(i), color);
     }
 
     // Water
-    province_color.emplace_back((ProvinceId)-2, Eng3D::Color::rgba32(0x00000000));
+    province_color.emplace_back((ProvinceId)-2, Eng3D::Color(0.f, 0.f, 0.f));
     // Land
-    province_color.emplace_back((ProvinceId)-1, Eng3D::Color::rgba32(0xffdddddd));
+    province_color.emplace_back((ProvinceId)-1, Eng3D::Color(0.8f, 0.8f, 0.8f));
     return province_color;
 }
 
