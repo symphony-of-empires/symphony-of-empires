@@ -9,7 +9,7 @@ IF(DEVKITPRO AND FALSE)
 ENDIF()
 
 set(FETCHCONTENT_QUIET FALSE)
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 
 project(SymphonyOfEmpires CXX C)
@@ -76,6 +76,7 @@ ENDIF()
 # Dependencies
 #
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+add_subdirectory(dependencies)
 
 #
 # Compilation flags
@@ -90,10 +91,6 @@ IF(WIN32)
 	add_definitions(-DE3D_TARGET_WINDOWS=1)
 ELSEIF(UNIX)
 	add_definitions(-DE3D_TARGET_UNIX=1)
-	IF(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-		# Workaround for clang (see https://bugs.launchpad.net/ubuntu/+source/libsdl2-ttf/+bug/1872023)
-		link_directories(/usr/local/lib)
-	ENDIF()
 ELSEIF(ANDROID)
 	add_definitions(-DE3D_TARGET_UNIX=1 -DE3D_TARGET_ANDROID=1)
 	add_definitions(-DE3D_HANDHELD=1)
@@ -134,24 +131,10 @@ ELSE()
 	add_executable(SymphonyOfEmpires "${MAIN_SOURCES}")
 ENDIF()
 
-# LUA
-set(LUA_BUILD_BINARY OFF)
-set(LUA_BUILD_COMPILER OFF)
-IF(E3D_BUILD_STATIC OR CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
-	set(LUA_ENABLE_SHARED OFF)
-	set(LUA_SUPPORT_DL OFF)
-ELSE()
-	set(LUA_ENABLE_SHARED ON)
-	set(LUA_SUPPORT_DL ON)
-ENDIF()
-FetchContent_Declare(lua GIT_REPOSITORY "https://github.com/walterschell/Lua" GIT_PROGRESS TRUE)
-FetchContent_MakeAvailable(lua)
-target_include_directories(SymphonyOfEmpires PRIVATE "${lua_SOURCE_DIR}/lua-5.4.4/include")
-target_link_libraries(SymphonyOfEmpires PUBLIC lua_static)
-
 #
 # Linking
 #
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Pthread
 find_package(Threads)
@@ -160,37 +143,10 @@ IF(Threads_FOUND)
 	target_link_libraries(SymphonyOfEmpires PRIVATE Threads::Threads)
 ENDIF()
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-IF(NOT E3D_VENDORED_TBB)
-	find_package(TBB REQUIRED)
-	target_link_libraries(SymphonyOfEmpires PRIVATE TBB::tbb)
-ELSE()
-	message(STATUS "Using vendored TBB")
-	# TBB (and hwloc if needed)
-	IF(WIN32)
-		FetchContent_Declare(hwloc URL "https://download.open-mpi.org/release/hwloc/v2.7/hwloc-win64-build-2.7.1.zip")
-		FetchContent_MakeAvailable(hwloc)
-		set(CMAKE_HWLOC_2_5_DLL_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.dll")
-		set(CMAKE_HWLOC_2_5_LIBRARY_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.lib" )
-		set(CMAKE_HWLOC_2_5_INCLUDE_PATH "${hwloc_SOURCE_DIR}/include" )
-	ENDIF()
-	set(TBB_DISABLE_HWLOC_AUTOMATIC_SEARCH ON)
-	set(TBB_TEST OFF)
-	set(TBB_EXAMPLES OFF)
-	set(TBB_ENABLE_IPO OFF)
-	set(TBB_CPF OFF)
-	set(TBBMALLOC_BUILD ON)
-	set(TBBMALLOC_PROXY_BUILD ON)
-	set(TBB4PY_BUILD OFF)
-	set(TBB_SIGNTOOL OFF)
-	IF(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
-		set(BUILD_SHARED_LIBS OFF)
-	ENDIF()
-	FetchContent_Declare(tbb GIT_REPOSITORY "https://github.com/oneapi-src/oneTBB" GIT_TAG dce182a7b554becada120472659be1b25f89051c GIT_PROGRESS TRUE)
-	FetchContent_MakeAvailable(tbb)
-	target_include_directories(SymphonyOfEmpires PRIVATE "${tbb_SOURCE_DIR}/include")
-	target_link_libraries(SymphonyOfEmpires PRIVATE tbb)
-ENDIF()
+target_link_libraries(SymphonyOfEmpires PRIVATE
+	dependency_tbb
+	dependency_lua
+)
 
 # Build stuff
 IF(BUILD_ENGINE)

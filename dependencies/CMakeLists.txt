@@ -1,0 +1,10 @@
+include(FetchContent)
+
+add_subdirectory(OpenGL)
+add_subdirectory(GLEW)
+add_subdirectory(SDL2)
+add_subdirectory(SDL2_ttf)
+add_subdirectory(glm)
+add_subdirectory(LUA)
+add_subdirectory(tbb)
+add_subdirectory(assimp)
