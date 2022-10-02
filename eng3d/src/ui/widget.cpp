@@ -25,7 +25,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
-#include <ranges>
 #include <algorithm>
 #include <glm/vec2.hpp>
 #include <SDL_ttf.h>
@@ -38,6 +37,7 @@
 #include "eng3d/state.hpp"
 #include "eng3d/ui/tooltip.hpp"
 #include "eng3d/primitive.hpp"
+#include "eng3d/utils.hpp"
 
 using namespace UI;
 
@@ -312,7 +312,7 @@ void UI::Widget::recalc_child_pos() {
         break;
     case FlexJustify::END:
         current_lenght = is_row ? width : height;
-        for(const auto& child : children | std::views::reverse) {
+        for(const auto& child : reverse(children)) {
             if(!child->is_pinned) {
                 if(is_row) {
                     child->x = current_lenght - child->width - flex_gap;

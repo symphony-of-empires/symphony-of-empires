@@ -166,7 +166,8 @@ public:
         auto& list = this->get_list((T*)nullptr);
         list_mutex.lock();
         ptr.cached_id = list.size();
-        assert(ptr.cached_id < static_cast<T::Id>(-2));
+        typedef typename T::Id Id;
+        assert(ptr.cached_id < static_cast<Id>(-2));
         list.push_back((T*)&ptr);
         list_mutex.unlock();
     };

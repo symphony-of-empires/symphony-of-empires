@@ -40,6 +40,7 @@
 #include "eng3d/ttf.hpp"
 #include "eng3d/rectangle.hpp"
 #include "eng3d/color.hpp"
+#include "eng3d/utils.hpp"
 
 namespace Eng3D {
     class Texture;

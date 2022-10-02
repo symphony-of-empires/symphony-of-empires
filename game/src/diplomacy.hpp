@@ -59,13 +59,13 @@ struct Serializer<TreatyClauseType> : SerializerMemcpy<TreatyClauseType> {};
 namespace TreatyClause {
     class BaseClause {
     public:
-        BaseClause() = default;
+        BaseClause() {};
         BaseClause(const Nation& _sender, const Nation& _receiver);
         virtual ~BaseClause() = default;
 
         enum TreatyClauseType type;
-        NationId sender_id; // Who created this clause
-        NationId receiver_id; // Who should accept/reject this clause
+        NationId sender_id = 0; // Who created this clause
+        NationId receiver_id = 0; // Who should accept/reject this clause
         size_t days_duration = 0; // Days this clause lasts
         bool done = false; // Used for 1 time clauses
 

@@ -35,9 +35,10 @@ struct EntityId {
     constexpr EntityId<T>() noexcept = default;
     constexpr EntityId<T>(T _id) noexcept
         : id{ _id }
-    {
-
-    }
+    { }
+    constexpr EntityId<T>(size_t _id) noexcept 
+        : id{ static_cast<T>(_id)}
+    { }
     constexpr EntityId<T>(EntityId<T>&&) noexcept = default;
     constexpr EntityId<T>(const EntityId<T>&) noexcept = default;
     constexpr EntityId<T>& operator=(const EntityId<T>&) noexcept = default;
@@ -107,7 +108,7 @@ struct Entity {
     /// @brief Returns an invalid id
     /// @return constexpr Id The invalid id
     constexpr static Id invalid() {
-        return Id{ -1 };
+        return Id{ static_cast<T>(-1) };
     }
 
     /// @brief Checks if the id is not valid

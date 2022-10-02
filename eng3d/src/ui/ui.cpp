@@ -25,7 +25,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
-#include <ranges>
 #include <algorithm>
 
 #ifdef E3D_TARGET_WINDOWS
@@ -421,7 +420,7 @@ bool UI::Context::check_hover(glm::ivec2 mouse_pos) {
 
     bool is_hover = false;
     tooltip_widget = nullptr;
-    for(const auto& widget : widgets | std::views::reverse) {
+    for(const auto& widget : reverse(widgets)) {
         is_hover |= check_hover_recursive(*widget, mouse_pos, glm::ivec2(0));
         if(is_hover) return is_hover;
     }
@@ -532,7 +531,7 @@ bool UI::Context::check_drag_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm:
 }
 
 void UI::Context::check_drag(glm::ivec2 mouse_pos) {
-    for(const auto& widget : widgets | std::views::reverse)
+    for(const auto& widget : reverse(widgets))
         if(this->check_drag_recursive(*widget, mouse_pos, glm::ivec2(0)))
             return;
 }
@@ -603,7 +602,7 @@ bool UI::Context::check_wheel_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm
 }
 
 bool UI::Context::check_wheel(glm::ivec2 mouse_pos, int y) {
-    for(auto& widget : widgets | std::views::reverse)
+    for(auto& widget : reverse(widgets))
         if(check_wheel_recursive(*widget, mouse_pos, glm::ivec2(0), y))
             return true;
     return false;
@@ -613,7 +612,7 @@ bool UI::Context::check_wheel(glm::ivec2 mouse_pos, int y) {
 /// each world tick, and are also framerate independent and thus more reliable than doing
 /// the usual `if (tick % ticks_per_month == 24) {}`, which can cause issues on slow PCs or very fast hosts
 void UI::Context::do_tick() {
-    for(auto& widget : widgets | std::views::reverse)
+    for(auto& widget : reverse(widgets))
         do_tick_recursive(*widget);
 }
 

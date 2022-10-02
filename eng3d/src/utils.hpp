@@ -30,10 +30,9 @@
 #   include <bit>
 #   include <concepts>
 #   include <iomanip>
-#   include <ranges>
 #   include <algorithm>
 namespace std {
-    template<std::integral T>
+    template<typename T>
     constexpr T byteswap(T value) noexcept {
         static_assert(std::has_unique_object_representations_v<T>, "T may not have padding bits");
         auto value_representation = std::bit_cast<std::array<std::byte, sizeof(T)>>(value);
@@ -65,6 +64,21 @@ namespace std {
 #include <cstdio>
 #   define CXX_THROW(class, ...) { fprintf(stderr, class(__VA_ARGS__).what()); abort(); }
 #endif
+
+template<typename It>
+class Range
+{
+    It b, e;
+public:
+    Range(It b, It e) : b(b), e(e) {}
+    It begin() const { return b; }
+    It end() const { return e; }
+};
+
+template<typename ORange, typename OIt = decltype(std::begin(std::declval<ORange>())), typename It = std::reverse_iterator<OIt>>
+Range<It> reverse(ORange && originalRange) {
+    return Range<It>(It(std::end(originalRange)), It(std::begin(originalRange)));
+}
 
 namespace Eng3D {
     // Does the same as std::erase but doesn't keep the order
