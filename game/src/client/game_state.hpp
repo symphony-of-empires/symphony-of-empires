@@ -47,7 +47,7 @@ enum class MapMode : unsigned char {
     DISPLAY_ONLY,
 };
 
-class Building;
+struct Building;
 class Language;
 class Religion;
 
@@ -89,7 +89,7 @@ class Server;
 class World;
 class Nation;
 class Map;
-class UnitType;
+struct UnitType;
 namespace Interface {
     class LobbySelectView;
     class TopWindow;

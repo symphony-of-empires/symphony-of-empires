@@ -39,7 +39,7 @@
 
 class Province;
 class Ideology;
-class Technology;
+struct Technology;
 class Pop;
 class Language;
 class Religion;
@@ -90,7 +90,7 @@ struct Serializer<NationClientHint> {
     }
 };
 
-class Technology;
+struct Technology;
 class Nation : public RefnameEntity<NationId> {
     void do_diplomacy() {
         /// @todo Fix this formula which is currently broken
