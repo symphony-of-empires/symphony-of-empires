@@ -51,13 +51,13 @@ void ProvincePopulationTab::update_piecharts() {
     std::vector<UI::ChartData> languages_data, religions_data, pop_types_data;
     for(const auto& language : gs.world->languages) {
         const auto size = province.languages[language] * province.total_pops();
-        languages_data.push_back(UI::ChartData(size, language.name, Eng3D::Color::rgba32(language.color)));
+        languages_data.emplace_back(size, language.name, Eng3D::Color::bgr32(language.color));
     }
     languages_pie->set_data(languages_data);
 
     for(const auto& religion : gs.world->religions) {
         const auto size = province.religions[religion] * province.total_pops();
-        religions_data.push_back(UI::ChartData(size, religion.name, Eng3D::Color::rgba32(religion.color)));
+        religions_data.emplace_back(size, religion.name, Eng3D::Color::bgr32(religion.color));
     }
     religions_pie->set_data(religions_data);
 
@@ -188,7 +188,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province& _
         auto& o = static_cast<ProvinceEconomyTab&>(w);
         std::vector<UI::ChartData> goods_data;
         for(const auto& good : o.gs.world->goods) {
-            const auto good_col = Eng3D::Color::rgba32((size_t)good.get_id() * 0xFF52815);
+            const auto good_col = Eng3D::Color::get_random((size_t)good.get_id());
             const auto& product = o.province.products[good];
             goods_data.push_back(UI::ChartData(glm::max(product.demand, 0.1f), good.name, good_col));
         }

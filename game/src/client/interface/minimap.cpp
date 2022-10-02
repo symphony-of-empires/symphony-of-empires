@@ -263,7 +263,7 @@ mapmode_generator relations_map_mode(NationId id) {
         for(size_t i = 0; i < world.provinces.size(); i++) {
             const auto& province = world.provinces[i];
             if(Nation::is_invalid(province.controller_id)) {
-                Eng3D::Color color = Eng3D::Color::rgba32(std::byteswap<std::uint32_t>(0x808080ff));
+                Eng3D::Color color = Eng3D::Color::rgb32(0x808080ff);
                 provinces_color.emplace_back(ProvinceId(i), color);
                 continue;
             }
@@ -358,7 +358,7 @@ std::vector<ProvinceColor> terrain_color_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
         const auto& province = world.provinces[i];
-        Eng3D::Color color = Eng3D::Color::rgba32(world.terrain_types[province.terrain_type_id].color);
+        Eng3D::Color color = Eng3D::Color::bgr32(world.terrain_types[province.terrain_type_id].color);
         province_color.emplace_back(ProvinceId(i), color);
     }
     // Water
@@ -414,7 +414,7 @@ std::vector<ProvinceColor> language_map_mode(const World& world) {
                 max_language_id = language;
             }
         }
-        const auto max = Eng3D::Color::rgba32(world.languages[max_language_id].color);
+        const auto max = Eng3D::Color::bgr32(world.languages[max_language_id].color);
         const auto color = Eng3D::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.emplace_back(ProvinceId(i), color);
     }
@@ -451,7 +451,7 @@ std::vector<ProvinceColor> religion_map_mode(const World& world) {
                 max_religion_id = religion;
             }
         }
-        const auto max = Eng3D::Color::rgba32(world.religions[max_religion_id].color);
+        const auto max = Eng3D::Color::bgr32(world.religions[max_religion_id].color);
         const auto color = Eng3D::Color::lerp(min, max, ((float)max_amount) / total_amount);
         province_color.emplace_back(ProvinceId(i), color);
     }

@@ -92,7 +92,7 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
     for(const auto province_id : gs.curr_nation->owned_provinces) {
         const auto& province = gs.world->provinces[province_id];
         for(const auto& building_type : gs.world->building_types)
-            if(building_type.can_build_land_units());
+            if(building_type.can_build_land_units())
                 new ArmyProductionUnitInfo(gs, 0, 0, province, building_type, flex_column);
     }
 }

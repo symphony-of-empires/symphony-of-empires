@@ -482,7 +482,7 @@ void Eng3D::State::do_event() {
             win->kill();
         });
         auto* txt = new UI::Text(0, 0, win->width, win->height, win);
-        txt->text_color = Eng3D::Color::rgba32(0x00000000);
+        txt->text_color = Eng3D::Color{};
         txt->text(prompt.second);
         txt->is_scroll = true;
         win->height = txt->y + txt->height;

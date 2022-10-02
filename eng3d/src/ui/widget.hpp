@@ -122,9 +122,21 @@ namespace UI {
     /// not specific to any widget
     class ChartData {
     public:
-        ChartData(float _num, std::string _info, Eng3D::Color _color): num{ _num }, info{ _info }, color{ _color } {}
-        ChartData(float _num, std::string _info, uint32_t rgba): num{ _num }, info{ _info }, color{ Eng3D::Color::rgba32(rgba) } {}
-        ~ChartData() {};
+        ChartData(float _num, std::string _info, Eng3D::Color _color)
+            : num{ _num },
+            info{ _info },
+            color{ _color }
+        {
+
+        }
+        ChartData(float _num, std::string _info, uint32_t rgb)
+            : num{ _num },
+            info{ _info },
+            color{ Eng3D::Color::rgb32(rgb) }
+        {
+
+        }
+        ~ChartData() = default;
         float num;
         std::string info; // Used for tooltips
         Eng3D::Color color;
@@ -139,9 +151,15 @@ namespace UI {
         glm::ivec2 texture_size;
         glm::ivec2 offset = glm::ivec2(0, 0);
 
-        Border() {};
+        Border() = default;
         Border(std::shared_ptr<Eng3D::Texture> _texture, glm::ivec2 _size, glm::ivec2 _texture_size, glm::ivec2 _offset = glm::ivec2(0))
-            : texture{ _texture }, size{ _size }, texture_size{ _texture_size }, offset{ _offset } {};
+            : texture{ _texture },
+            size{ _size },
+            texture_size{ _texture_size },
+            offset{ _offset }
+        {
+            
+        };
     };
 
     class Context;
@@ -191,7 +209,7 @@ namespace UI {
             this->x += offset.x;
             this->y += offset.y;
         }
-        
+
         void add_child(UI::Widget& child);
 
         virtual void on_render(Context&, Eng3D::Rect viewport);

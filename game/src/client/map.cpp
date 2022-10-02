@@ -257,9 +257,9 @@ std::vector<ProvinceColor> political_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
     for(const auto& province : world.provinces) {
         if(Nation::is_invalid(province.controller_id))
-            province_color.emplace_back(province, Eng3D::Color::Color(0.8f, 0.8f, 0.8f));
+            province_color.emplace_back(province, Eng3D::Color(0.8f, 0.8f, 0.8f));
         else
-            province_color.emplace_back(province, Eng3D::Color::rgba32(world.nations[province.controller_id].get_client_hint().color));
+            province_color.emplace_back(province, Eng3D::Color::bgr32(world.nations[province.controller_id].get_client_hint().color));
     }
     return province_color;
 }

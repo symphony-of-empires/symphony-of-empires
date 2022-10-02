@@ -413,7 +413,7 @@ void World::load_initial() {
             province.box_area.top = height;
         }
 
-        tbb::parallel_for((unsigned long long) 0, height, [this](const auto j) {
+        tbb::parallel_for(static_cast<size_t>(0), height, [this](const auto j) {
             for(size_t i = 0; i < width; i++) {
                 const auto& tile = this->get_tile(i, j);
                 auto& province = provinces[tile.province_id];

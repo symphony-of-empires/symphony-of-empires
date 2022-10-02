@@ -25,6 +25,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstddef>
 
 namespace Eng3D {
     /// @brief Primitive color type used through the engine
@@ -75,12 +76,31 @@ namespace Eng3D {
         /// @brief Create a color from RGBA32 components
         /// @param argb The ARGB32 color
         /// @return Color Resulting color
-        constexpr static Color rgba32(uint32_t argb) {
+        constexpr static Color argb32(uint32_t argb) {
             const auto a = ((argb >> 24) & 0xFF) / 255.f;
-            const auto b = ((argb >> 16) & 0xFF) / 255.f;
-            const auto r = ((argb >> 8) & 0xFF) / 255.f;
-            const auto g = (argb & 0xFF) / 255.f;
+            const auto r = ((argb >> 16) & 0xFF) / 255.f;
+            const auto g = ((argb >> 8) & 0xFF) / 255.f;
+            const auto b = (argb & 0xFF) / 255.f;
             return Color(r, g, b, a);
+        }
+
+        /// @brief Create a color from RGB32 components
+        /// @param argb The ARGB32 color
+        /// @return Color Resulting color
+        constexpr static Color rgb32(uint32_t argb) {
+            return Color::argb32(argb | (0xff << 24));
+        }
+
+        constexpr static Color abgr32(uint32_t abgr) {
+            const auto a = ((abgr >> 24) & 0xFF) / 255.f;
+            const auto b = ((abgr >> 16) & 0xFF) / 255.f;
+            const auto g = ((abgr >> 8) & 0xFF) / 255.f;
+            const auto r = (abgr & 0xFF) / 255.f;
+            return Color(r, g, b, a);
+        }
+
+        constexpr static Color bgr32(uint32_t abgr) {
+            return Color::abgr32(abgr | (0xff << 24));
         }
 
         /// @brief Get the raw value of the color
@@ -120,7 +140,7 @@ namespace Eng3D {
                 0xFF00FF78, 0xFFFF6E41, 0xFF005F39, 0xFF6B6882, 0xFF5FAD4E, 0xFFA75740,
                 0xFFA5FFD2, 0xFFFFB167, 0xFF009BFF, 0xFFE85EBE
             };
-            return Eng3D::Color::rgba32(colors[mod % 64]);
+            return Eng3D::Color::rgb32(colors[mod % 64]);
         }
     };
 };
