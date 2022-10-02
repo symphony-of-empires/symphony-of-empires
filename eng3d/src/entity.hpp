@@ -25,11 +25,12 @@
 #pragma once
 
 #include <concepts>
+#include <limits>
 #include "eng3d/string.hpp"
 
 template<std::unsigned_integral T>
 struct EntityId {
-    constexpr static T invalid_id = static_cast<T>(-1);
+    constexpr static T invalid_id = std::numeric_limits<T>::max();
     T id = invalid_id;
 
     constexpr EntityId<T>() noexcept = default;

@@ -345,12 +345,12 @@ mapmode_tooltip relations_tooltip(NationId nation_id) {
 std::vector<ProvinceColor> terrain_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
     for(unsigned int i = 0; i < world.provinces.size(); i++) {
-        province_color.emplace_back(ProvinceId(i), Eng3D::Color::rgba32(0x00000000));
+        province_color.emplace_back(ProvinceId(i), Eng3D::Color{});
     }
     // Water
-    province_color.emplace_back(ProvinceId(-2), Eng3D::Color::rgba32(0x00000000));
+    province_color.emplace_back(ProvinceId(-2), Eng3D::Color{});
     // Land
-    province_color.emplace_back(ProvinceId(-1), Eng3D::Color::rgba32(0x00000000));
+    province_color.emplace_back(ProvinceId(-1), Eng3D::Color{});
     return province_color;
 }
 
@@ -362,9 +362,9 @@ std::vector<ProvinceColor> terrain_color_map_mode(const World& world) {
         province_color.emplace_back(ProvinceId(i), color);
     }
     // Water
-    province_color.emplace_back(ProvinceId(-2), Eng3D::Color::rgba32(0x00000000));
+    province_color.emplace_back(ProvinceId(-2), Eng3D::Color{});
     // Land
-    province_color.emplace_back(ProvinceId(-1), Eng3D::Color::rgba32(0x00000000));
+    province_color.emplace_back(ProvinceId(-1), Eng3D::Color{});
     return province_color;
 }
 
@@ -420,9 +420,9 @@ std::vector<ProvinceColor> language_map_mode(const World& world) {
     }
 
     // Water
-    province_color.emplace_back((ProvinceId)-2, Eng3D::Color::rgba32(0x00000000));
+    province_color.emplace_back((ProvinceId)-2, Eng3D::Color{});
     // Land
-    province_color.emplace_back((ProvinceId)-1, Eng3D::Color::rgba32(0xffdddddd));
+    province_color.emplace_back((ProvinceId)-1, Eng3D::Color(0.8f, 0.8f, 0.8f));
     return province_color;
 }
 
@@ -457,9 +457,9 @@ std::vector<ProvinceColor> religion_map_mode(const World& world) {
     }
 
     // Water
-    province_color.emplace_back((ProvinceId)-2, Eng3D::Color::rgba32(0x00000000));
+    province_color.emplace_back((ProvinceId)-2, Eng3D::Color(0.f, 0.f, 0.f));
     // Land
-    province_color.emplace_back((ProvinceId)-1, Eng3D::Color::rgba32(0xffdddddd));
+    province_color.emplace_back((ProvinceId)-1, Eng3D::Color(0.8f, 0.8f, 0.8f));
     return province_color;
 }
 

@@ -76,10 +76,10 @@ namespace Eng3D {
         /// @param argb The ARGB32 color
         /// @return Color Resulting color
         constexpr static Color rgba32(uint32_t argb) {
-            const auto a = ((argb >> 24) % 255) / 255.f;
-            const auto b = ((argb >> 16) % 255) / 255.f;
-            const auto r = ((argb >> 8) % 255) / 255.f;
-            const auto g = (argb % 255) / 255.f;
+            const auto a = ((argb >> 24) & 0xFF) / 255.f;
+            const auto b = ((argb >> 16) & 0xFF) / 255.f;
+            const auto r = ((argb >> 8) & 0xFF) / 255.f;
+            const auto g = (argb & 0xFF) / 255.f;
             return Color(r, g, b, a);
         }
 
