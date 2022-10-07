@@ -279,6 +279,7 @@ void Server::net_loop(int id) {
                         approver_nations.push_back(clause->receiver_id);
                         approver_nations.push_back(clause->sender_id);
                     }
+                    std::sort(approver_nations.begin(), approver_nations.end());
                     auto last = std::unique(approver_nations.begin(), approver_nations.end());
                     approver_nations.erase(last, approver_nations.end());
 

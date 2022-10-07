@@ -791,6 +791,7 @@ int LuaAPI::rename_province(lua_State* L) {
 int LuaAPI::add_province_nucleus(lua_State* L) {
     auto& province = g_world.provinces.at(lua_tonumber(L, 1));
     province.nuclei.emplace_back(static_cast<size_t>(lua_tonumber(L, 2)));
+    std::sort(province.nuclei.begin(), province.nuclei.end());
     auto last = std::unique(province.nuclei.begin(), province.nuclei.end());
     province.nuclei.erase(last, province.nuclei.end());
     return 0;

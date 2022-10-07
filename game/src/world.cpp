@@ -454,6 +454,7 @@ void World::load_initial() {
         }
         for(auto& province : this->provinces) {
             // Remove duplicates
+            std::sort(province.neighbour_ids.begin(), province.neighbour_ids.end());
             auto last = std::unique(province.neighbour_ids.begin(), province.neighbour_ids.end());
             province.neighbour_ids.erase(last, province.neighbour_ids.end());
             std::erase(province.neighbour_ids, province); // Erase self

@@ -603,6 +603,7 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
                 gs.curr_nation->control_province(province);
                 gs.curr_nation->give_province(province);
                 province.nuclei.push_back(gs.world->get_id(*gs.curr_nation));
+                std::sort(province.nuclei.begin(), province.nuclei.end());
                 auto last = std::unique(province.nuclei.begin(), province.nuclei.end());
                 province.nuclei.erase(last, province.nuclei.end());
                 this->update_mapmode();

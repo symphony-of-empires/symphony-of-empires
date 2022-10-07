@@ -362,6 +362,7 @@ void MapRender::update_nations(std::vector<ProvinceId>& province_ids) {
         this->tile_sheet_nation->buffer.get()[province] = static_cast<size_t>(province.controller_id);
         nation_ids.push_back(province.controller_id);
     }
+    std::sort(nation_ids.begin(), nation_ids.end());
     auto last = std::unique(nation_ids.begin(), nation_ids.end());
     nation_ids.erase(last, nation_ids.end());
 
@@ -434,19 +435,22 @@ void MapRender::update(GameState& gs) {
     std::vector<ProvinceId> update_provinces;
     auto& changed_owner_provinces = gs.world->province_manager.get_changed_owner_provinces();
     update_provinces.insert(update_provinces.end(), changed_owner_provinces.cbegin(), changed_owner_provinces.cend());
+    
     auto& changed_control_provinces = gs.world->province_manager.get_changed_control_provinces();
     update_provinces.insert(update_provinces.end(), changed_control_provinces.cbegin(), changed_control_provinces.cend());
+    
+    std::sort(update_provinces.begin(), update_provinces.end());
     auto last = std::unique(update_provinces.begin(), update_provinces.end());
     update_provinces.erase(last, update_provinces.end());
 
     if(!update_provinces.empty()) {
-        this->update_nations(update_provinces);
         for(const auto province_id : update_provinces) {
             auto& province = gs.world->provinces[province_id];
             update_area = update_area.join(province.box_area);
             if(this->options.sdf.used)
                 this->update_border_sdf(province.box_area, glm::ivec2(gs.width, gs.height));
         }
+        this->update_nations(update_provinces);
     }
 }
 

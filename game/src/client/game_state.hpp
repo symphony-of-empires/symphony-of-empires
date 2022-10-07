@@ -68,6 +68,7 @@ public:
 
     inline void select_unit(UnitId id) {
         selected_units.push_back(id);
+        std::sort(selected_units.begin(), selected_units.end());
         auto last = std::unique(selected_units.begin(), selected_units.end());
         selected_units.erase(last, selected_units.end());
     }
