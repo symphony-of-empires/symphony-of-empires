@@ -312,7 +312,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
     this->set_close_btn_function([this](Widget&) {
         this->kill();
         this->gs.right_side_panel = nullptr;
-        this->gs.map->set_selected_province(false, ProvinceId(0));
+        this->gs.map->set_selected_province(false, ProvinceId(-1));
     });
     this->gs.map->set_selected_province(true, this->province.get_id());
 
@@ -322,9 +322,8 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
 
     auto* flex_row = new UI::Div(0, 0, this->width, 32, this);
     flex_row->flex = UI::Flex::ROW;
-    if(gs.editor) {
+    if(gs.editor)
         flex_row->height += 32;
-    }
 
     this->pop_tab = new ProvincePopulationTab(gs, 0, flex_row->height, province, this);
     this->pop_tab->is_render = true;

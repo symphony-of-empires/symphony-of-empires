@@ -327,7 +327,7 @@ void UI::Widget::recalc_child_pos() {
     case FlexJustify::SPACE_BETWEEN:
         current_lenght = 0;
         size = is_row ? width : height;
-        difference = (size - lenght) / (glm::max(movable_children - 1, 1));
+        difference = (size - lenght) / glm::max(movable_children - 1, 1);
         for(auto& child : children) {
             if(child->is_pinned) continue;
             if(is_row) {

@@ -112,7 +112,7 @@ namespace UI {
             this->column_wrapper = new UI::Div(0, 0, this->width - 25, 0, wrapper);
             this->column_wrapper->flex = UI::Flex::COLUMN;
             this->column_wrapper->flex_justify = UI::FlexJustify::START;
-            this->scrollbar = new UI::Scrollbar(this->width - 20, 0, this->height - 20, wrapper);
+            this->scrollbar = new UI::Scrollbar(this->width - 20, 0, wrapper->height - 40, wrapper);
         }
         virtual ~Table() override {};
 

@@ -55,8 +55,8 @@ UI::Scrollbar::Scrollbar(int _x, int _y, unsigned h, UI::Widget* _parent)
     this->current_texture = s.tex_man.load(s.package_man.get_unique("gfx/scrollbar.png"));
 
     this->is_pinned = true;
-    this->flex = UI::Flex::COLUMN;
-    this->flex_justify = UI::FlexJustify::SPACE_BETWEEN;
+    //this->flex = UI::Flex::COLUMN;
+    //this->flex_justify = UI::FlexJustify::SPACE_BETWEEN;
 
     auto* up_btn = new UI::Button(0, 0, 20, 20, this);
     up_btn->set_on_click([this](UI::Widget&) {
@@ -69,7 +69,7 @@ UI::Scrollbar::Scrollbar(int _x, int _y, unsigned h, UI::Widget* _parent)
     });
     up_btn->current_texture = s.tex_man.load(s.package_man.get_unique("gfx/scrollbar_up.png"));
 
-    auto* down_btn = new UI::Button(0, 0, 20, 20, this);
+    auto* down_btn = new UI::Button(0, this->height - 20, 20, 20, this);
     down_btn->set_on_click([this](UI::Widget&) {
         if(this->parent) {
             const auto y_bounds = this->parent->get_y_bounds();
@@ -87,12 +87,14 @@ UI::Scrollbar::Scrollbar(int _x, int _y, unsigned h, UI::Widget* _parent)
 /// @brief Updates the thumb position in respect to the current scroll positioning of the parent
 void UI::Scrollbar::update_thumb() {
     const auto y_bounds = this->parent->get_y_bounds();
-    const int btn_height = 20;
+    const float parent_height = static_cast<float>(y_bounds.y - y_bounds.x);
+    const auto btn_height = 20;
     // The height of the track (scrollbar excluding buttons)
-    const float track_height = static_cast<float>(this->height - btn_height * 2);
+    const float track_height = static_cast<float>(this->height - this->thumb_btn->height - btn_height * 2);
     // 0 to 1 of how much the parent was scrolled relative to it's max scrolling/height
-    const float scrolled = static_cast<float>(abs(this->parent->scrolled_y)) / static_cast<float>(y_bounds.y - y_bounds.x);
+    const auto scrolled = glm::abs<float>(this->parent->scrolled_y) / parent_height;
+    // Ratio of pixels in track v. pixels in widget
+    const auto ratio = track_height / parent_height;
     this->thumb_btn->set_y(btn_height + scrolled * track_height);
-    // How many pixels per "viewable" clip? We translate that from parent's coordinates to scrollbar scale
-    this->thumb_btn->height = (static_cast<float>(y_bounds.y - y_bounds.x) / this->parent->height) * this->height;
+    this->thumb_btn->height = glm::clamp<size_t>(ratio * track_height, 20.f, track_height);
 }
