@@ -77,8 +77,8 @@ void UI::Input::on_click_outside_default(UI::Input& w) {
 }
 
 void UI::Input::on_update_default(UI::Input& w) {
-    w.timer = (w.timer + 1) % 60;
-    const std::string cursor = w.timer >= 30 ? "_" : "";
+    w.timer = (w.timer + 1) % 30;
+    const std::string cursor = w.timer >= 10 ? "_" : "";
     if(w.is_selected && w.timer % 30 == 0) {
         if(!w.buffer.empty()) {
             w.text(w.buffer + cursor);
