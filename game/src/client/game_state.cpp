@@ -256,7 +256,8 @@ void GameState::handle_key(const Eng3D::Event::Key& e) {
             break;
         case Eng3D::Event::Key::Type::F3: {
             this->reload_shaders();
-            this->map->reload_shaders();
+            if(this->map != nullptr)
+                this->map->reload_shaders();
             const std::scoped_lock lock(audio_man.sound_lock);
             audio_man.music_queue.clear();
         } break;
