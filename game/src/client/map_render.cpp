@@ -376,11 +376,7 @@ void MapRender::update_nations(std::vector<ProvinceId>& province_ids) {
 }
 
 void MapRender::update_city_lights() {
-    // Fill out density information
-    for(const auto& province : gs.world->provinces) {
-        auto total = glm::max(province.total_pops(), 0.1f);
-        this->province_opt->buffer[province] |= static_cast<uint8_t>(glm::clamp(total / 100'000.f, 0.f, 1.f) * 255.f) << 8;
-    }
+
 }
 
 void MapRender::request_update_visibility() {
@@ -388,48 +384,49 @@ void MapRender::request_update_visibility() {
 }
 
 void MapRender::update_visibility(GameState& gs) {
-    if(gs.curr_nation == nullptr) return;
+    // Fill out information for visability
+    if(gs.curr_nation == nullptr || gs.curr_nation == &gs.world->nations[0]) {
+        std::fill_n(province_opt->buffer.get(), 0xffff, 0x000000ff);
+        return;
+    }
+    std::fill_n(province_opt->buffer.get(), 0xffff, 0x00000080);
     
+    // Fill out density information for city lights
+    for(const auto& province : gs.world->provinces) {
+        const auto total = glm::max(province.total_pops(), 0.1f);
+        const auto density = glm::clamp(total / 100'000.f, 0.f, 1.f) * 255.f;
+        this->province_opt->buffer[province] |= (static_cast<uint8_t>(density) & 0xff) << 8;
+    }
+
     for(const auto& nation : gs.world->nations) {
         const auto nation_id = nation;
         // If it's our own nation or an ally of ours we can see them
         if(nation_id == gs.curr_nation->get_id() || gs.world->get_relation(nation_id, gs.curr_nation->get_id()).is_allied()) {
             for(const auto province_id : gs.world->nations[nation_id].controlled_provinces) {
                 const auto& province = gs.world->provinces[province_id];
-                this->province_opt->buffer[province_id] = 0x000000ff;
+                this->province_opt->buffer[province_id] |= 0x000000ff;
                 for(const auto neighbour_id : province.neighbour_ids)
-                    this->province_opt->buffer[neighbour_id] = 0x000000ff;
+                    this->province_opt->buffer[neighbour_id] |= 0x000000ff;
             }
         }
     }
-
     gs.world->unit_manager.for_each_unit([this, &gs](Unit& unit) {
         // Unit must be ours or be owned by our ally
         if(unit.owner_id != gs.curr_nation->get_id() && !gs.world->get_relation(unit.owner_id, gs.curr_nation->get_id()).is_allied())
             return;
         auto prov_id = gs.world->unit_manager.get_unit_current_province(unit.cached_id);
-        this->province_opt->buffer[prov_id] = 0x000000ff;
+        this->province_opt->buffer[prov_id] |= 0x000000ff;
         for(const auto neighbour_id : gs.world->provinces[prov_id].neighbour_ids)
-            this->province_opt->buffer[neighbour_id] = 0x000000ff;
+            this->province_opt->buffer[neighbour_id] |= 0x000000ff;
     });
     if(gs.map->province_selected)
-        this->province_opt->buffer.get()[static_cast<size_t>(gs.map->selected_province_id)] = 0x400000ff;
+        this->province_opt->buffer[gs.map->selected_province_id] |= 0x400000ff;
 }
 
 void MapRender::update(GameState& gs) {
     if(gs.world->province_manager.is_provinces_changed())
         this->req_update_vision = true;
-
-    std::fill_n(province_opt->buffer.get(), 0xffff, 0x00000080);
-    if(this->req_update_vision) {
-        this->update_visibility(gs);
-        this->req_update_vision = false;
-    }
-    this->update_city_lights();
-    Eng3D::TextureOptions no_drop_options{};
-    no_drop_options.editable = true;
-    this->province_opt->upload(no_drop_options);
-
+    
     Eng3D::Rect update_area{ 0, 0, 0, 0 };
 
     std::vector<ProvinceId> update_provinces;
@@ -452,6 +449,15 @@ void MapRender::update(GameState& gs) {
         }
         this->update_nations(update_provinces);
     }
+
+    if(this->req_update_vision) {
+        this->update_visibility(gs);
+        this->req_update_vision = false;
+    }
+    this->update_city_lights();
+    Eng3D::TextureOptions no_drop_options{};
+    no_drop_options.editable = true;
+    this->province_opt->upload(no_drop_options);
 }
 
 void MapRender::draw(const Eng3D::Camera& camera, MapView view_mode) {

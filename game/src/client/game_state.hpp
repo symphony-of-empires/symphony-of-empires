@@ -67,10 +67,10 @@ public:
     }
 
     inline void select_unit(UnitId id) {
-        selected_units.push_back(id);
         std::sort(selected_units.begin(), selected_units.end());
-        auto last = std::unique(selected_units.begin(), selected_units.end());
-        selected_units.erase(last, selected_units.end());
+        auto it = std::lower_bound(selected_units.begin(), selected_units.end(), id);
+        if(it == selected_units.end())
+            selected_units.push_back(id);
     }
 
     inline void unselect_unit(UnitId id) {

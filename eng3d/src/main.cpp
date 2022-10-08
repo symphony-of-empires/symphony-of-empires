@@ -23,9 +23,9 @@
 // ----------------------------------------------------------------------------
 
 #include <cstring>
+#include <stdexcept>
 #include "eng3d/log.hpp"
-
-typedef void (*MainFn)(int argc, char** argv);
+#include "eng3d/utils.hpp"
 
 extern "C" void game_main(int argc, char** argv);
 
@@ -73,10 +73,6 @@ extern "C" long sysconf(int) {
     return 0;
 }
 #else
-#include <stdexcept>
-#include "eng3d/log.hpp"
-#include "eng3d/utils.hpp"
-
 // While Linux supports externs, windows doesn't
 int main(int argc, char** argv)
 {

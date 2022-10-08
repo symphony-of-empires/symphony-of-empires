@@ -73,14 +73,22 @@ void AI::do_tick(World& world) {
             }
 
             if(nation.ai_do_cmd_troops) {
-                constexpr auto base_weight = 10.f;
-                constexpr auto war_weight = 90.f; // Weight of war
-                constexpr auto unit_battle_weight = 100.5f; // Attraction of units into entering on pre-existing battles
-                constexpr auto unit_exist_weight = 50.f; // Weight of an unit by just existing
-                constexpr auto coastal_weight = 150.f; // Importance given to coastal provinces
-                constexpr auto nation_weight = 100.f; // Nations weight
-                constexpr auto reconquer_weight = 400.f; // Weight to reconquer lost **home**land
-                constexpr auto homeland_weight = 100.f; // Homeland protection
+                auto r = static_cast<float>(rand() % 100) / 100.f;
+                auto base_weight = 10.f * r;
+                r = static_cast<float>(rand() % 100) / 100.f;
+                auto war_weight = 90.f * r; // Weight of war
+                r = static_cast<float>(rand() % 100) / 100.f;
+                auto unit_battle_weight = 100.5f * r; // Attraction of units into entering on pre-existing battles
+                r = static_cast<float>(rand() % 100) / 100.f;
+                auto unit_exist_weight = 50.f * r; // Weight of an unit by just existing
+                r = static_cast<float>(rand() % 100) / 100.f;
+                auto coastal_weight = 150.f * r; // Importance given to coastal provinces
+                r = static_cast<float>(rand() % 100) / 100.f;
+                auto nation_weight = 100.f * r; // Nations weight
+                r = static_cast<float>(rand() % 100) / 100.f;
+                auto reconquer_weight = 400.f * r; // Weight to reconquer lost **home**land
+                r = static_cast<float>(rand() % 100) / 100.f;
+                auto homeland_weight = 100.f * r; // Homeland protection
 
                 std::vector<double> nations_risk_factor(world.nations.size(), 1.f);
                 // Provinces that can be evaluated for war

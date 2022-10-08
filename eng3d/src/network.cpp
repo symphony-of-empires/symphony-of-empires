@@ -57,7 +57,6 @@
 #   endif
 #	include <windows.h>
 #define NETWORK_FLAG MSG_DONTROUTE
-
 #endif
 #include <sys/types.h>
 

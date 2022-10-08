@@ -327,11 +327,9 @@ void Server::net_loop(int id) {
                     ::deserialize(ar, nation);
                     if(nation == nullptr)
                         CXX_THROW(ServerException, "Unknown nation");
-                    nation->ai_do_cmd_troops = false;
-                    nation->ai_controlled = false;
-                    selected_nation = nation;
                     ::deserialize(ar, nation->ai_do_cmd_troops);
                     ::deserialize(ar, nation->ai_controlled);
+                    selected_nation = nation;
                     //Eng3D::Log::debug("server", "Nation " + selected_nation->ref_name + " selected by client " + cl.username + "," + std::to_string(id));
 
                     this->clients_extra_data[id] = nation;
