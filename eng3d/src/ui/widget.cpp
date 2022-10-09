@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <cassert>
 #include <algorithm>
 #include <glm/vec2.hpp>
 #include <SDL_ttf.h>
@@ -294,85 +295,118 @@ void UI::Widget::recalc_child_pos() {
         }
     }
 
-    size_t current_lenght = 0;
+    /// @todo: Cleanup this code to remove duplicates and such
+    // Justify the children
+    size_t current_length = 0;
+    size_t off_x = 0, off_y = 0;
+    size_t max_wrap_height = 0, max_wrap_width = 0;
     int size = 0, difference = 0;
     switch(flex_justify) {
     case FlexJustify::START:
-        current_lenght = 0;
+        current_length = 0;
         for(auto& child : children) {
-            if(child->is_pinned) continue;
-            if(is_row) {
-                child->x = current_lenght;
-                current_lenght += child->width + flex_gap;
-            } else {
-                child->y = current_lenght;
-                current_lenght += child->height + flex_gap;
-            }
-        }
-        break;
-    case FlexJustify::END:
-        current_lenght = is_row ? width : height;
-        for(const auto& child : reverse(children)) {
             if(!child->is_pinned) {
                 if(is_row) {
-                    child->x = current_lenght - child->width - flex_gap;
-                    current_lenght -= child->width;
+                    child->x = current_length;
+                    current_length += child->width + flex_gap;
                 } else {
-                    child->y = current_lenght - child->height - flex_gap;
-                    current_lenght -= child->height;
+                    child->y = current_length;
+                    current_length += child->height + flex_gap;
+                }
+
+                /// @todo: Test with column flexes
+                if(overflow == UI::Overflow::WRAP) {
+                    if(is_row) {
+                        child->y += off_y;
+                        max_wrap_height = glm::max(max_wrap_height, child->height + flex_gap);
+                        if(current_length >= this->width) {
+                            off_y += max_wrap_height;
+                            child->x = max_wrap_height = current_length = 0;
+                            current_length += child->width + flex_gap;
+                        }
+                    } else {
+                        child->x += off_x;
+                        max_wrap_width = glm::max(max_wrap_width, child->width + flex_gap);
+                        if(current_length >= this->height) {
+                            off_x += max_wrap_width;
+                            child->y = max_wrap_width = current_length = 0;
+                            current_length += child->height + flex_gap;
+                        }
+                    }
                 }
             }
         }
         break;
+    case FlexJustify::END:
+        current_length = is_row ? width : height;
+        for(const auto& child : reverse(children)) {
+            if(!child->is_pinned) {
+                if(is_row) {
+                    child->x = current_length - child->width - flex_gap;
+                    current_length -= child->width;
+                } else {
+                    child->y = current_length - child->height - flex_gap;
+                    current_length -= child->height;
+                }
+                assert(overflow != UI::Overflow::WRAP);
+            }
+        }
+        break;
     case FlexJustify::SPACE_BETWEEN:
-        current_lenght = 0;
+        current_length = 0;
         size = is_row ? width : height;
         difference = (size - lenght) / glm::max(movable_children - 1, 1);
         for(auto& child : children) {
-            if(child->is_pinned) continue;
-            if(is_row) {
-                child->x = current_lenght;
-                current_lenght += child->width + difference;
-            } else {
-                child->y = current_lenght;
-                current_lenght += child->height + difference;
+            if(!child->is_pinned) {
+                if(is_row) {
+                    child->x = current_length;
+                    current_length += child->width + difference;
+                } else {
+                    child->y = current_length;
+                    current_length += child->height + difference;
+                }
+                assert(overflow != UI::Overflow::WRAP);
             }
         }
         break;
     case FlexJustify::SPACE_AROUND:
         size = is_row ? width : height;
         difference = (size - lenght) / movable_children;
-        current_lenght = glm::max(difference / 2, 0);
+        current_length = glm::max(difference / 2, 0);
         for(auto& child : children) {
-            if(child->is_pinned) continue;
-            if(is_row) {
-                child->x = current_lenght;
-                current_lenght += child->width + difference;
-            } else {
-                child->y = current_lenght;
-                current_lenght += child->height + difference;
+            if(!child->is_pinned) {
+                if(is_row) {
+                    child->x = current_length;
+                    current_length += child->width + difference;
+                } else {
+                    child->y = current_length;
+                    current_length += child->height + difference;
+                }
+                assert(overflow != UI::Overflow::WRAP);
             }
         }
         break;
     }
 
+    // Align the children
     for(auto& child : children) {
-        if(child->is_pinned) continue;
-        switch(flex_align) {
-        case UI::Align::START:
-            if(is_row) child->y = 0;
-            else child->x = 0;
-            break;
-        case UI::Align::END:
-            if(is_row) child->y = glm::max((int)height - (int)child->height, 0);
-            else child->x = glm::max((int)width - (int)child->width, 0);
-            break;
-        case UI::Align::CENTER:
-            if(is_row) child->y = glm::max((int)height - (int)child->height, 0) / 2;
-            else child->x = glm::max((int)width - (int)child->width, 0) / 2;
-            break;
-        default:
-            break;
+        if(!child->is_pinned) {
+            switch(flex_align) {
+            case UI::Align::START:
+                //if(is_row) child->y = 0;
+                //else child->x = 0;
+                break;
+            case UI::Align::END:
+                if(is_row) child->y = glm::max((int)height - (int)child->height, 0);
+                else child->x = glm::max((int)width - (int)child->width, 0);
+                break;
+            case UI::Align::CENTER:
+                if(is_row) child->y = glm::max((int)height - (int)child->height, 0) / 2;
+                else child->x = glm::max((int)width - (int)child->width, 0) / 2;
+                break;
+            default:
+                break;
+            }
         }
     }
 

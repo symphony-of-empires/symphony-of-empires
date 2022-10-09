@@ -49,7 +49,7 @@ inline bool Diplomacy::is_foe(Nation& us, Nation& them) {
 // WarReparations
 //
 unsigned TreatyClause::WarReparations::cost() {
-    // return (receiver->economy_score * (amount * days_duration)) / 100;
+    // return (amount * days_duration) / 100;
     return 0;
 }
 

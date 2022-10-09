@@ -100,7 +100,7 @@ namespace UI {
     enum class Flex {
         NONE,
         ROW,
-        COLUMN
+        COLUMN,
     };
 
     /// @ingroup UI
@@ -116,6 +116,11 @@ namespace UI {
         START,
         END,
         CENTER,
+    };
+
+    enum class Overflow {
+        CLAMP,
+        WRAP
     };
 
     /// @ingroup UI
@@ -314,6 +319,7 @@ namespace UI {
         UI::Flex flex = UI::Flex::NONE;
         UI::FlexJustify flex_justify = UI::FlexJustify::START;
         UI::Align flex_align = UI::Align::START;
+        UI::Overflow overflow = UI::Overflow::CLAMP;
         size_t flex_gap = 0;
 
         UI::Tooltip* tooltip = nullptr;

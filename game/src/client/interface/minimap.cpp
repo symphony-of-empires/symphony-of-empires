@@ -163,12 +163,12 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     });
     religion_ibtn->set_tooltip("Religion");
 
-    auto* good_price_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
-    good_price_ibtn->set_on_click([this](UI::Widget&) {
+    auto* commodity_price_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
+    commodity_price_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
         set_mapmode_options(new MapmodeGoodOptions(this->gs));
     });
-    good_price_ibtn->set_tooltip("Prices");
+    commodity_price_ibtn->set_tooltip("Commodity");
 
     new UI::Image(65, 5, 332, 166, gs.tex_man.load(gs.package_man.get_unique("gfx/minimap.png")), this);
 }
@@ -181,7 +181,7 @@ void Minimap::set_mapmode_options(Widget* widget) {
 }
 
 MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
-    : UI::Div(-200, -250, 200, 500, nullptr),
+    : UI::Div(-200, -100, 200, 200, nullptr),
     gs{ gs }
 {
     this->origin = UI::Origin::MIDDLE_RIGHT_SCREEN;
@@ -196,14 +196,15 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
 
     auto goods = gs.world->goods;
 
-    auto* flex_column = new UI::Div(4, 4, 192, goods.size() * 35, this);
+    auto* flex_column = new UI::Div(4, 4, 192, goods.size() * 32, this);
     flex_column->flex = UI::Flex::COLUMN;
     flex_column->flex_justify = UI::FlexJustify::START;
     for(const auto& good : goods) {
         auto good_tex = tex_man.load(gs.package_man.get_unique(good.get_icon_path()));
-        auto* good_div = new UI::Div(0, 0, 200, 35, flex_column);
-        new UI::Image(0, 0, 35, 35, good_tex, good_div);
-        new UI::Label(35, 0, good.name, good_div);
+        auto* good_div = new UI::Div(0, 0, 200, 32, flex_column);
+        good_div->flex = UI::Flex::ROW;
+        new UI::Image(0, 0, 32, 32, good_tex, good_div);
+        new UI::Label(0, 0, good.name, good_div);
         good_div->set_on_click([this, &good](UI::Widget&) {
             this->gs.current_mode = MapMode::NORMAL;
             mapmode_generator map_mode = goods_map_mode(good);

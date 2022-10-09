@@ -126,12 +126,7 @@ public:
     }
 
     Eng3D::StringRef name;
-    float diplomacy_points; // Amount of diplomacy points available
     float prestige = 0.1f; // Amount of prestige
-    float infamy = 0; // Level of infamy
-    // 3 key scores used to define a nation's minimum prestige, how willing would the AI
-    // be to challenge this nations and other valuable stuff
-    float military_score = 0.f, naval_score = 0.f, economy_score = 0.f;
     // Total budget of the nation (money in ark), this is not equal to GDP, the GDP is the total sum of the price
     // of all products in the nation, which are volatile unless they are sold
     float budget = 10000.f;
@@ -169,12 +164,7 @@ struct Serializer<Nation> {
         ::deser_dynamic<is_serialize>(ar, obj.name);
         ::deser_dynamic<is_serialize>(ar, obj.ref_name);
         ::deser_dynamic<is_serialize>(ar, obj.puppet_master_id);
-        ::deser_dynamic<is_serialize>(ar, obj.diplomacy_points);
         ::deser_dynamic<is_serialize>(ar, obj.prestige);
-        ::deser_dynamic<is_serialize>(ar, obj.infamy);
-        ::deser_dynamic<is_serialize>(ar, obj.military_score);
-        ::deser_dynamic<is_serialize>(ar, obj.naval_score);
-        ::deser_dynamic<is_serialize>(ar, obj.economy_score);
         ::deser_dynamic<is_serialize>(ar, obj.budget);
         ::deser_dynamic<is_serialize>(ar, obj.capital_id);
         ::deser_dynamic<is_serialize>(ar, obj.language_discrim);

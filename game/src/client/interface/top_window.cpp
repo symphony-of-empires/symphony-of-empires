@@ -52,35 +52,81 @@ TopWindow::TopWindow(GameState& _gs)
     this->gs.time_win = static_cast<UI::Widget*>(new TimeControlView(gs));
 
     UI::Image::make_transparent(0, 0, 147, 499, "gfx/top_window.png", this);
-    auto* flag_img = new UI::AspectImage(5, 4, 138, 88, this->gs.get_nation_flag(*this->gs.curr_nation), this);
-    new UI::Image(0, 0, flag_img->width, flag_img->height, gs.tex_man.load(this->gs.package_man.get_unique("gfx/flag_rug.png")), this);
+    auto* flag_img = new UI::Image(5, 4, 138, 88, this->gs.get_nation_flag(*this->gs.curr_nation), this);
+    new UI::Image(5, 4, flag_img->width, flag_img->height, gs.tex_man.load(this->gs.package_man.get_unique("gfx/drop_shadow.png")), this);
 
-    auto* score_flex_column = new UI::Div(150, 0, 150, 24 * 5, this);
+    auto* stats_grp = new UI::Image(150, 0, 356, 184, "gfx/background2.png", true, this);
+    stats_grp->flex = UI::Flex::ROW;
+    stats_grp->overflow = UI::Overflow::WRAP;
 
-    score_flex_column->flex = UI::Flex::COLUMN;
-    auto* money_lab = new UI::Label(0, 0, " ", score_flex_column);
+    auto* money_grp = new UI::Div(0, 0, 24 + 64, 24, stats_grp);
+    auto* money_img = new UI::Image(0, 0, 24, 24, "gfx/economy.png", true, money_grp);
+    money_img->set_tooltip("Money");
+    auto* money_lab = new UI::Label(0, 0, " ", money_grp);
     money_lab->set_on_each_tick([this](UI::Widget& w) {
-        w.text(Eng3D::translate_format("Money: %8.2f", this->gs.curr_nation->budget));
+        w.text(Eng3D::translate_format("%8.0f", this->gs.curr_nation->budget));
     });
     money_lab->on_each_tick(*money_lab);
 
-    auto* military_score_lab = new UI::Label(0, 0, " ", score_flex_column);
+    auto* military_score_grp = new UI::Div(0, 0, 24 + 64, 24, stats_grp);
+    auto* military_score_img = new UI::Image(0, 0, 24, 24, "gfx/military_score.png", true, military_score_grp);
+    military_score_img->set_tooltip("Military score");
+    auto* military_score_lab = new UI::Label(0, 0, " ", military_score_grp);
     military_score_lab->set_on_each_tick([this](UI::Widget& w) {
-        w.text(Eng3D::translate_format("Military: %8.2f", this->gs.curr_nation->military_score));
+        auto total = 0.f;
+        for(const auto& province : this->gs.world->provinces) {
+            const auto& units = this->gs.world->unit_manager.get_province_units(province.get_id());
+            for(const auto unit_id : units) {
+                const auto& unit = this->gs.world->unit_manager.units[unit_id];
+                if(unit.owner_id == this->gs.curr_nation->get_id()) continue;
+                const auto& type = this->gs.world->unit_types[unit.type_id];
+                total += unit.size * (type.attack + type.defense);
+            }
+        }
+        w.text(Eng3D::string_format("%8.0f", total));
     });
     military_score_lab->on_each_tick(*military_score_lab);
 
-    auto* industrial_score_lab = new UI::Label(0, 0, " ", score_flex_column);
+    auto* industrial_score_grp = new UI::Div(0, 0, 24 + 64, 24, stats_grp);
+    auto* industrial_score_img = new UI::Image(0, 0, 24, 24, "gfx/factory.png", true, industrial_score_grp);
+    industrial_score_img->set_tooltip("Industrial score");
+    auto* industrial_score_lab = new UI::Label(0, 0, " ", industrial_score_grp);
     industrial_score_lab->set_on_each_tick([this](UI::Widget& w) {
-        w.text(Eng3D::translate_format("Industrial: %8.2f", this->gs.curr_nation->economy_score));
+        auto total = 0.f;
+        for(const auto province_id : this->gs.curr_nation->owned_provinces) {
+            const auto& province = this->gs.world->provinces[province_id];
+            for(const auto& building : province.get_buildings()) {
+                total += building.production_scale * building.level;
+            }
+        }
+        w.text(Eng3D::string_format("%8.0f", total));
     });
     industrial_score_lab->on_each_tick(*industrial_score_lab);
 
-    auto* prestige_score_lab = new UI::Label(0, 0, " ", score_flex_column);
+    auto* prestige_score_grp = new UI::Div(0, 0, 24 + 64, 24, stats_grp);
+    auto* prestige_score_img = new UI::Image(0, 0, 24, 24, "gfx/prestige.png", true, prestige_score_grp);
+    prestige_score_img->set_tooltip("Prestige");
+    auto* prestige_score_lab = new UI::Label(0, 0, " ", prestige_score_grp);
     prestige_score_lab->set_on_each_tick([this](UI::Widget& w) {
-        w.text(Eng3D::translate_format("Prestige: %8.2f", this->gs.curr_nation->prestige));
+        w.text(Eng3D::string_format("%8.0f", this->gs.curr_nation->prestige));
     });
     prestige_score_lab->on_each_tick(*prestige_score_lab);
+
+    for(const auto& good : this->gs.world->goods) {
+        auto* good_grp = new UI::Div(0, 0, 24 + 64, 24, stats_grp);
+        auto* good_img = new UI::Image(0, 0, 24, 24, good.get_icon_path(), true, good_grp);
+        good_img->set_tooltip(good.name);
+        auto* good_lab = new UI::Label(0, 0, " ", good_grp);
+        good_lab->set_on_each_tick([this, &good](UI::Widget& w) {
+            auto total = 0.f;
+            for(const auto province_id : this->gs.curr_nation->owned_provinces) {
+                const auto& province = this->gs.world->provinces[province_id];
+                total += province.products[good].supply;
+            }
+            w.text(Eng3D::string_format("%8.0f", total));
+        });
+        good_lab->on_each_tick(*good_lab);
+    }
 
     auto* flex_column = new UI::Div(3, 96, 42, 390, this);
     flex_column->flex = UI::Flex::COLUMN;
@@ -91,7 +137,7 @@ TopWindow::TopWindow(GameState& _gs)
 
     auto* policy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/book.png", true, flex_column);
     policy_ibtn->set_on_click([this](UI::Widget&) {
-        new Interface::PoliciesScreen(this->gs);
+        //new Interface::PoliciesScreen(this->gs);
     });
     policy_ibtn->set_tooltip("Laws & Policies");
 
