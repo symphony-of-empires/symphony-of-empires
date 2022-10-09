@@ -386,10 +386,10 @@ void MapRender::request_update_visibility() {
 void MapRender::update_visibility(GameState& gs) {
     // Fill out information for visability
     if(gs.curr_nation == nullptr || gs.curr_nation == &gs.world->nations[0]) {
-        std::fill_n(province_opt->buffer.get(), 0xffff, 0x000000ff);
+        std::fill_n(province_opt->buffer.get(), gs.world->provinces.size(), 0x000000ff);
         return;
     }
-    std::fill_n(province_opt->buffer.get(), 0xffff, 0x00000080);
+    std::fill_n(province_opt->buffer.get(), gs.world->provinces.size(), 0x00000080);
     
     // Fill out density information for city lights
     for(const auto& province : gs.world->provinces) {
