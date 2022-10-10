@@ -102,6 +102,7 @@ public:
     const std::vector<ProvinceId> get_path() const;
     void set_path(const Province& target);
     ProvinceId get_target_province_id() const;
+    float get_strength() const;
 
     UnitTypeId type_id; // Type of unit
     NationId owner_id; // Who owns this unit

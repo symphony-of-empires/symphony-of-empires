@@ -94,6 +94,7 @@ void Client::net_loop() {
                 while(1) {
                     try {
                         packet.recv();
+                        if(packet.size() <= 1) continue;
                         break;
                     } catch(Eng3D::Networking::SocketException& e) {
                         // Pass

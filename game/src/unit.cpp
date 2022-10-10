@@ -233,3 +233,8 @@ void Unit::set_path(const Province& target) {
 ProvinceId Unit::get_target_province_id() const {
     return target_province_id;
 }
+
+float Unit::get_strength() const {
+    const auto& type = g_world.unit_types[this->type_id];
+    return (this->size * (type.attack + type.defense)) / 1000.f;
+}

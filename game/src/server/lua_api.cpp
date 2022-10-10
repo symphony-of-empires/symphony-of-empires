@@ -323,7 +323,7 @@ int LuaAPI::nation_declare_war_no_cb(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
     if(&nation == &other_nation)
-        luaL_error(L, string_format("%s can't declare war with itself", nation.ref_name.c_str()).c_str());
+        luaL_error(L, string_format("%s can't declare war with self", nation.ref_name.c_str()).c_str());
     nation.declare_war(other_nation);
     return 0;
 }

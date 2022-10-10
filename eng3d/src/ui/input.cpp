@@ -40,10 +40,14 @@ UI::Input::Input(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI::WidgetType::INPUT)
 {
     this->on_textinput = ([](UI::Input& w, const char* input) {
-        if(input != nullptr) w.buffer += input;
+        if(input != nullptr) {
+            w.buffer.insert(w.curpos, input);
+            w.curpos += strlen(input);
+        }
+
         if(!w.buffer.empty()) {
-            if(input == nullptr)
-                w.buffer.resize(w.buffer.length() - 1);
+            if(input == nullptr && w.curpos)
+                w.buffer.erase(w.curpos - 1, 1);
 
             if(w.buffer.empty()) {
                 w.text(" ");
@@ -77,13 +81,15 @@ void UI::Input::on_click_outside_default(UI::Input& w) {
 }
 
 void UI::Input::on_update_default(UI::Input& w) {
-    w.timer = (w.timer + 1) % 30;
-    const std::string cursor = w.timer >= 10 ? "_" : "";
-    if(w.is_selected && w.timer % 30 == 0) {
-        if(!w.buffer.empty()) {
-            w.text(w.buffer + cursor);
-        } else if(!cursor.empty()) {
-            w.text(cursor);
+    if(w.curpos == w.buffer.length()) {
+        w.timer = (w.timer + 1) % 30;
+        const std::string cursor = w.timer >= 10 ? "_" : "";
+        if(w.is_selected && w.timer % 30 == 0) {
+            if(!w.buffer.empty()) {
+                w.text(w.buffer + cursor);
+            } else if(!cursor.empty()) {
+                w.text(cursor);
+            }
         }
     }
 }

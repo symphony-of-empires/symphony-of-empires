@@ -47,5 +47,6 @@ namespace UI {
 	private:
 		std::string buffer = "";
 		int timer; /// @todo Needs to not be frame dependant
+        size_t curpos = 0;
 	};
 };

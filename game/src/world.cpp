@@ -484,6 +484,20 @@ void World::load_initial() {
             nation.auto_relocate_capital();
         }
 
+        // Rebels(?) vs. everyone
+        auto* war = new War();
+        war->wargoals = std::vector<TreatyClause::BaseClause *>();
+        war->attacker_ids.push_back(this->nations[0].get_id());
+        for(size_t i = 1; i < this->nations.size(); i++) {
+            auto nation_id = this->nations[i].get_id();
+            war->defender_ids.push_back(nation_id);
+            auto& relation = this->get_relation(nation_id, NationId(0));
+            relation.has_war = true; // Declare war
+            relation.alliance = 0.f;
+            relation.relation = -100.f;
+        }
+        this->insert(*war);
+
         // Write the entire world to the cache file
         Archive ar{};
         std::string creat_date = __DATE__;

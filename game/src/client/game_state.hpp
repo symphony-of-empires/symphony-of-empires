@@ -67,9 +67,8 @@ public:
     }
 
     inline void select_unit(UnitId id) {
-        std::sort(selected_units.begin(), selected_units.end());
         auto it = std::lower_bound(selected_units.begin(), selected_units.end(), id);
-        if(it == selected_units.end() && *it != id)
+        if(it == selected_units.end() || *it != id)
             selected_units.insert(it, id);
     }
 

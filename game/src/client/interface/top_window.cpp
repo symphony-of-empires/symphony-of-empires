@@ -79,8 +79,7 @@ TopWindow::TopWindow(GameState& _gs)
             for(const auto unit_id : units) {
                 const auto& unit = this->gs.world->unit_manager.units[unit_id];
                 if(unit.owner_id == this->gs.curr_nation->get_id()) continue;
-                const auto& type = this->gs.world->unit_types[unit.type_id];
-                total += unit.size * (type.attack + type.defense);
+                total += unit.get_strength();
             }
         }
         w.text(Eng3D::string_format("%8.0f", total));
@@ -252,33 +251,10 @@ TimeControlView::TimeControlView(GameState& _gs)
     time_lab->font = font;
     time_lab->text_color = Eng3D::Color(1., 1., 1.);
     time_lab->set_on_each_tick([this](UI::Widget& w) {
-        const std::string_view day_names[7] = {
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-            "Sunday"
-        };
-        const std::string_view month_names[12] = {
-            "January",
-            "Febraury",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "October",
-            "September",
-            "November",
-            "December"
-        };
         const size_t day = this->gs.world->time % this->gs.world->ticks_per_month;
         const size_t month = (this->gs.world->time / this->gs.world->ticks_per_month) % 12;
         const size_t year = this->gs.world->time / this->gs.world->ticks_per_month / 12;
-        w.text(translate_format("%s, %s %zu, %zu", day_names[day % 7].data(), month_names[month % 12].data(), day + 1, year));
+        w.text(translate_format("%zu.%zu.%zu", day + 1, month, year));
     });
     time_lab->on_each_tick(*time_lab);
 }
