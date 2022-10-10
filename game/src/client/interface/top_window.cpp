@@ -251,10 +251,17 @@ TimeControlView::TimeControlView(GameState& _gs)
     time_lab->font = font;
     time_lab->text_color = Eng3D::Color(1., 1., 1.);
     time_lab->set_on_each_tick([this](UI::Widget& w) {
-        const size_t day = this->gs.world->time % this->gs.world->ticks_per_month;
-        const size_t month = (this->gs.world->time / this->gs.world->ticks_per_month) % 12;
         const size_t year = this->gs.world->time / this->gs.world->ticks_per_month / 12;
-        w.text(translate_format("%zu.%zu.%zu", day + 1, month, year));
+        const size_t month = (this->gs.world->time / this->gs.world->ticks_per_month) % 12;
+        const size_t day = this->gs.world->time % this->gs.world->ticks_per_month;
+
+        std::tm tm{};
+        tm.tm_year = year - 1900;
+        tm.tm_mon = month - 1;
+        tm.tm_mday = day + 1;
+        char mbstr[100];
+        std::strftime(mbstr, sizeof mbstr, "%x", &tm);
+        w.text(mbstr);
     });
     time_lab->on_each_tick(*time_lab);
 }
