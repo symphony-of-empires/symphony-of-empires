@@ -93,7 +93,7 @@ namespace Eng3D {
             look_at.y -= world_position.z > -300.f ? 0.08f * (300.f + world_position.z) : 0.f;
             glm::vec3 up_vector = glm::vec3(0.f, -1.f, 0.f);
             return glm::lookAt(world_position, look_at, up_vector);
-        };
+        }
 
         bool get_cursor_map_pos(glm::ivec2 mouse_pos, glm::ivec2& out_pos) const override {
             const float mouse_x = mouse_pos.x;
@@ -124,7 +124,7 @@ namespace Eng3D {
             if(intersection_point.y < 0 || intersection_point.y > map_size.y)
                 hit = false;
             return hit;
-        };
+        }
 
         glm::vec3 get_tile_world_pos(glm::vec2 tile_pos) const override {
             return glm::vec3(tile_pos.x, tile_pos.y, 0.f);

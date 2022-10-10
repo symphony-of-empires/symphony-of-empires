@@ -124,7 +124,6 @@ public:
             const auto& province = world.provinces[province_id];
             for(const auto neighbour_id : province.neighbour_ids) {
                 auto& neighbour = world.provinces[neighbour_id];
-                if(world.terrain_types[neighbour.terrain_type_id].is_water_body) continue;
                 auto draw_in_force = 1.f;
                 // The "cooling" value which basically makes us ignore some provinces with lots of defenses
                 // so we don't rack up deathstacks on a border with some micronation
@@ -135,13 +134,17 @@ public:
                     const auto unit_weight = unit_exist_weight * (unit.on_battle ? unit_battle_weight : 1.f);
                     draw_in_force += unit.get_strength() * unit_weight * nations_risk_factor[unit_owner];
                 }
-                // Try to recover our own lost provinces
-                if(neighbour.owner_id == nation && neighbour.controller_id != nation)
-                    draw_in_force *= reconquer_weight;
-                if(province.is_coastal)
-                    draw_in_force *= coastal_weight;
-                if(Nation::is_valid(neighbour.controller_id)) // Only if neighbour has a controller
-                    draw_in_force *= nations_risk_factor[neighbour.controller_id];
+
+                if(!world.terrain_types[neighbour.terrain_type_id].is_water_body) {
+                    // Try to recover our own lost provinces
+                    if(neighbour.owner_id == nation && neighbour.controller_id != nation)
+                        draw_in_force *= reconquer_weight;
+                    if(province.is_coastal)
+                        draw_in_force *= coastal_weight;
+                    if(Nation::is_valid(neighbour.controller_id)) // Only if neighbour has a controller
+                        draw_in_force += nations_risk_factor[neighbour.controller_id];
+                }
+                
                 potential_risk[province_id] += draw_in_force; // Spread out the heat
                 potential_risk[neighbour_id] += potential_risk[province_id] / province.neighbour_ids.size();
             }
@@ -154,7 +157,6 @@ public:
         for(const auto neighbour_id : start->neighbour_ids) {
             const auto& neighbour = world.provinces[neighbour_id];
             if(!world.unit_types[unit.type_id].is_naval && world.terrain_types[neighbour.terrain_type_id].is_water_body) continue;
-            if(rand() % 2 == 0) continue;
             // Uncolonized land is unsteppable
             if(Nation::is_invalid(neighbour.controller_id) && !world.terrain_types[neighbour.terrain_type_id].is_water_body)
                 continue;
@@ -178,7 +180,7 @@ void AI::init(World& world) {
     for(const auto& province : world.provinces)
         if(world.terrain_types[province.terrain_type_id].is_water_body)
             g_water_provinces.push_back(province);
-    ai_man.resize(world.nations.size(), AIManager{});
+    ai_man.resize(world.nations.size());
 }
 
 void AI::do_tick(World& world) {
