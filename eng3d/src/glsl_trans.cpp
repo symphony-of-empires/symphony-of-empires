@@ -313,14 +313,20 @@ std::string Eng3D::GLSL::Context::to_text() {
         }
     }
 
+    bool had_newline = false;
     for(; it != tokens.end(); it++) {
+        if(it->type != Eng3D::GLSL::Token::Type::NEWLINE)
+            had_newline = false;
+
         switch(it->type) {
         case Eng3D::GLSL::Token::Type::MACRO:
             end_buffer += "#" + it->data;
             break;
         case Eng3D::GLSL::Token::Type::NEWLINE:
             line_numbers.push_back(current_line++);
-            end_buffer += "\n";
+            if(!had_newline)
+                end_buffer += "\n";
+            had_newline = true;
             break;
         case Eng3D::GLSL::Token::Type::SEMICOLON:
             end_buffer += ";";

@@ -74,7 +74,7 @@ void Server::net_loop(int id) {
             conn_fd = cl.try_connect(fd);
             
             // Perform a 5 second delay between connection tries
-            const auto delta = std::chrono::milliseconds{ 5000 };
+            const auto delta = std::chrono::seconds{ 5 };
             const auto start_time = std::chrono::system_clock::now();
             auto end_time = std::chrono::system_clock::now();
             while(end_time - start_time < delta) {

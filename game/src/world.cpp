@@ -486,7 +486,6 @@ void World::load_initial() {
 
         // Rebels(?) vs. everyone
         auto* war = new War();
-        war->wargoals = std::vector<TreatyClause::BaseClause *>();
         war->attacker_ids.push_back(this->nations[0].get_id());
         for(size_t i = 1; i < this->nations.size(); i++) {
             auto nation_id = this->nations[i].get_id();

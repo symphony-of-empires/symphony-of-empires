@@ -116,17 +116,13 @@ void GameState::update_on_tick() {
 void GameState::world_thread() {
     this->paused = true;
     while(this->run) {
-        // Gamestate thread hasn't acknowledged the updated tick just yet
-        while(this->paused) {
-            if(!this->run) {
-                Eng3D::Log::debug("world_thread", "Unpaused game");
+        while(this->paused)
+            if(!this->run)
                 break;
-            }
-        }
         if(!this->run) break;
 
         // Only run the economy simulation of host mode is ON, otherwise don't :-)
-        const auto delta = std::chrono::milliseconds{ ms_delay_speed };
+        const std::chrono::milliseconds delta{ ms_delay_speed };
         if(host_mode) {
             const auto start_time = std::chrono::system_clock::now();
             Eng3D::Log::debug("world_thread", "World tick performed!");
