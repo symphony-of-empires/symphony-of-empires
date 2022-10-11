@@ -67,7 +67,7 @@ namespace Eng3D {
     class FontSDF {
     public:
         FontSDF(const std::string& filename);
-        std::unique_ptr<Eng3D::Label3D> gen_text(const std::string& text, glm::vec3 top, glm::vec3 right, float width, glm::vec3 center);
+        std::unique_ptr<Eng3D::Label3D> gen_text(const std::string& text, glm::vec2 pmin, glm::vec2 pmax, glm::vec2 p0, float width);
         void draw(const std::vector<std::unique_ptr<Label3D>>& labels, const Eng3D::Camera& camera, bool sphere);
     private:
         std::unordered_map<uint32_t, Glyph> unicode_map;

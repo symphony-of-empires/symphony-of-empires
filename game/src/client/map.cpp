@@ -183,28 +183,10 @@ void Map::update_nation_label(const Nation& nation) {
     min_point_y = province.box_area.position();
     std::vector<bool> visited_provinces(this->world.provinces.size(), false);
     get_blob_bounds(visited_provinces, nation, province, &min_point_x, &min_point_y, &max_point_x, &max_point_y);
-    glm::vec2 lab_min = (max_point_x + max_point_y + min_point_y) / 3.f;
-    glm::vec2 lab_max = (max_point_y + min_point_x + min_point_y) / 3.f;
-    glm::vec2 mid_point = (lab_min + lab_max) / 2.f;
-    glm::vec3 center(mid_point, 0.f);
-    glm::vec2 x_step(lab_max.x - mid_point.x, 0.f);
-    glm::vec3 left(mid_point - x_step, 0.f);
-    glm::vec3 right(mid_point + x_step, 0.f);
-    auto width = glm::length(left - right) * 1.2f;
-    auto right_dir = glm::vec3(mid_point.x + 1.f, mid_point.y, 0.f) - center;
-    auto top_dir = glm::vec3(mid_point.x, mid_point.y - 1.f, 0.f) - center;
-    glm::vec3 normal = glm::cross(top_dir, right_dir);
-    normal = glm::normalize(normal);
-    auto angle = glm::atan(lab_max.y - lab_min.y, lab_max.x - lab_min.x);
-    if(angle > (glm::pi<float>() / 2.0f)) angle -= glm::pi<float>();
-    else if(angle < -(glm::pi<float>() / 2.0f)) angle += glm::pi<float>();
-    auto rot = glm::rotate(glm::mat4(1.), angle, normal);
-    top_dir = rot * glm::vec4(top_dir, 1.);
-    right_dir = rot * glm::vec4(right_dir, 1.);
-    
+    float width = 0.7f;
     // Replace old label
     assert(this->nation_labels.size() > nation);
-    auto label = this->map_font->gen_text(nation.get_client_hint().alt_name, top_dir, right_dir, width, center);
+    auto label = this->map_font->gen_text(nation.get_client_hint().alt_name, min_point_x, max_point_x, max_point_y, width);
     this->nation_labels[nation] = std::move(label);
 }
 
@@ -215,18 +197,11 @@ void Map::create_labels() {
     for(const auto& province : this->gs.world->provinces) {
         glm::vec2 min_point(province.box_area.left, province.box_area.top);
         glm::vec2 max_point(province.box_area.right, province.box_area.bottom);
-        glm::vec2 mid_point = 0.5f * (min_point + max_point);
-        glm::vec2 x_step(glm::min<float>(max_point.x - mid_point.x, 250.f), 0);
-        glm::vec3 center(mid_point, 0.f);
-        glm::vec3 left(mid_point - x_step, 0.f);
-        glm::vec3 right(mid_point + x_step, 0.f);
-        float width = glm::length(left - right);
-        width *= 0.2f;
+        max_point.y = min_point.y = min_point.y + (max_point.y - min_point.y) * 0.5f;
 
-        auto right_dir = glm::vec3(mid_point.x + 1.f, mid_point.y, 0.) - center;
-        auto top_dir = glm::vec3(mid_point.x, mid_point.y - 1.f, 0.) - center;
-        center.z -= 0.1f;
-        auto label = this->map_font->gen_text(province.name, top_dir, right_dir, width, center);
+        glm::vec2 center = min_point + (max_point - min_point) * 0.5f;
+        float width = 0.7f;
+        auto label = this->map_font->gen_text(province.name, min_point, max_point, center, width);
         this->province_labels.push_back(std::move(label));
     }
 #endif

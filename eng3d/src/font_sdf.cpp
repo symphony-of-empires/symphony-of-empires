@@ -96,68 +96,72 @@ Eng3D::FontSDF::FontSDF(const std::string& filename) {
     }
 }
 
-std::unique_ptr<Eng3D::Label3D> Eng3D::FontSDF::gen_text(const std::string& text, glm::vec3 top, glm::vec3 right, float width, glm::vec3 center) {
-    Eng3D::Color color(0.f, 0.f, 0.f);
+/// @brief Quadratic bezier curve, p1 is control
+template<typename T>
+constexpr T bezier(float t, const T p0, const T p1, const T p2) {
+    return (1 - t) * ((1 - t) * p0 + t * p1) + t * ((1 - t) * p1 + t * p2);
+}
 
+std::unique_ptr<Eng3D::Label3D> Eng3D::FontSDF::gen_text(const std::string& text, glm::vec2 pmin, glm::vec2 pmax, glm::vec2 p0, float width) {
+    assert(width > 0.f && width < 1.f);
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
     std::u32string unicode_text = conv_utf8_utf32.from_bytes(text);
 
-    float text_width = 0.f;
+    auto text_width = 0.f;
     for(const auto& character : unicode_text) {
         if(!unicode_map.count(character)) continue;
         const auto& glyph = unicode_map[character];
         text_width += glyph.advance;
     }
-    if(text_width == 0.f) CXX_THROW(std::runtime_error, translate("Empty text label"));
+    assert(text_width != 0.f);
 
-    float scale = width / text_width;
-    top = glm::normalize(top);
-    right = glm::normalize(right);
-    glm::vec3 start = center - right * width * 0.5f;
+    glm::vec2 diff = (pmax - pmin) * (1.f - width);
+    pmin += diff;
+    pmax -= diff;
+    float scale = glm::length(pmax - pmin) / text_width;
 
     std::vector<glm::vec3> positions;
     std::vector<glm::vec2> tex_coords;
-
-    int idx = 1;
-    for(char32_t& character : unicode_text) {
+    float advance = 0.f;
+    for(const auto& character : unicode_text) {
         if(!unicode_map.count(character)) continue;
-
         const auto& glyph = unicode_map.at(character);
-
-        glm::vec2 atlas_tl(glyph.atlas_bounds.left, glyph.atlas_bounds.top);
-        glm::vec2 atlas_bl(glyph.atlas_bounds.left, glyph.atlas_bounds.bottom);
-        glm::vec2 atlas_tr(glyph.atlas_bounds.right, glyph.atlas_bounds.top);
-        glm::vec2 atlas_br(glyph.atlas_bounds.right, glyph.atlas_bounds.bottom);
+        //glm::vec2 atlas_tl(glyph.atlas_bounds.left, glyph.atlas_bounds.top);
+        //glm::vec2 atlas_bl(glyph.atlas_bounds.left, glyph.atlas_bounds.bottom);
+        //glm::vec2 atlas_tr(glyph.atlas_bounds.right, glyph.atlas_bounds.top);
+        //glm::vec2 atlas_br(glyph.atlas_bounds.right, glyph.atlas_bounds.bottom);
+        glm::vec2 atlas_tl(glyph.atlas_bounds.left, glyph.atlas_bounds.bottom);
+        glm::vec2 atlas_bl(glyph.atlas_bounds.left, glyph.atlas_bounds.top);
+        glm::vec2 atlas_tr(glyph.atlas_bounds.right, glyph.atlas_bounds.bottom);
+        glm::vec2 atlas_br(glyph.atlas_bounds.right, glyph.atlas_bounds.top);
+        tex_coords.push_back(atlas_tl);
+        tex_coords.push_back(atlas_br);
+        tex_coords.push_back(atlas_bl);
+        tex_coords.push_back(atlas_tr);
+        tex_coords.push_back(atlas_br);
+        tex_coords.push_back(atlas_tl);
 
         glm::vec2 plane_tl(glyph.plane_bounds.left, glyph.plane_bounds.top);
         glm::vec2 plane_bl(glyph.plane_bounds.left, glyph.plane_bounds.bottom);
         glm::vec2 plane_tr(glyph.plane_bounds.right, glyph.plane_bounds.top);
         glm::vec2 plane_br(glyph.plane_bounds.right, glyph.plane_bounds.bottom);
 
-        const auto base = glm::mat2x3(right, top) * scale;
-        glm::vec3 char_tl = start + base * plane_tl;
-        glm::vec3 char_bl = start + base * plane_bl;
-        glm::vec3 char_tr = start + base * plane_tr;
-        glm::vec3 char_br = start + base * plane_br;
+        const auto t0 = advance / text_width;
+        advance += glyph.advance;
+        const auto t1 = advance / text_width;
+        glm::vec2 char_tl = bezier(t0, pmin, p0, pmax) + plane_tl * scale;
+        glm::vec2 char_bl = bezier(t0, pmin, p0, pmax) + plane_bl * scale;
+        glm::vec2 char_tr = bezier(t0, pmin, p0, pmax) + plane_tr * scale;
+        glm::vec2 char_br = bezier(t0, pmin, p0, pmax) + plane_br * scale;
 
-        tex_coords.push_back(atlas_tl);
-        positions.push_back(char_tl);
-        tex_coords.push_back(atlas_br);
-        positions.push_back(char_br);
-        tex_coords.push_back(atlas_bl);
-        positions.push_back(char_bl);
-        tex_coords.push_back(atlas_tr);
-        positions.push_back(char_tr);
-        tex_coords.push_back(atlas_br);
-        positions.push_back(char_br);
-        tex_coords.push_back(atlas_tl);
-        positions.push_back(char_tl);
-
-        start.x += right.x * glyph.advance * scale;
-        start.y += right.y * glyph.advance * scale;
-        idx++;
+        positions.emplace_back(char_tl, 0.f);
+        positions.emplace_back(char_br, 0.f);
+        positions.emplace_back(char_bl, 0.f);
+        positions.emplace_back(char_tr, 0.f);
+        positions.emplace_back(char_br, 0.f);
+        positions.emplace_back(char_tl, 0.f);
     }
-    return std::make_unique<Eng3D::Label3D>(new Eng3D::TriangleList(positions, tex_coords), scale, center);
+    return std::make_unique<Eng3D::Label3D>(new Eng3D::TriangleList(positions, tex_coords), scale, glm::vec3(p0, 0.f));
 }
 
 #include "eng3d/map.hpp"
