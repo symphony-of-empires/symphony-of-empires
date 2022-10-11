@@ -313,11 +313,6 @@ void World::load_initial() {
         height = div->height;
         tiles = std::make_unique<ProvinceId[]>(width * height);
 
-        // Uncomment this and see a bit more below
-#if 0
-        std::set<uint32_t> colors_found;
-        std::set<uint32_t> colors_used;
-#endif
         Eng3D::Log::debug("world", translate("Associate tiles with provinces"));
 
         // Build a lookup table for super fast speed on finding provinces
@@ -328,18 +323,23 @@ void World::load_initial() {
             province_color_table[province.color & 0xffffff] = this->get_id(province);
 
         const auto* raw_buffer = div->buffer.get();
-        for(size_t i = 0; i < width * height; i++) {
-            const ProvinceId province_id = province_color_table[raw_buffer[i] & 0xffffff];
+        tbb::parallel_for(static_cast<size_t>(0), height, [this, &province_color_table, raw_buffer](const auto j) {
+            const auto off = j * width;
+            for(size_t i = 0; i < width; i++)
+                tiles[off + i] = province_color_table[raw_buffer[off + i] & 0xffffff];
+        });
+
 #if 0
+        std::set<uint32_t> colors_found;
+        std::set<uint32_t> colors_used;
+        const auto* raw_buffer = div->buffer.get();
+        for(size_t i = 0; i < width * height; i++) {
+            const auto province_id = province_color_table[raw_buffer[i] & 0xffffff];
             if(province_id == (ProvinceId)-1)
                 colors_found.insert(raw_buffer[i]);
             colors_used.insert(raw_buffer[i] & 0xffffff);
-#endif
-            tiles[i] = province_id;
         }
-        div.reset();
 
-#if 0
         if(!colors_found.empty()) {
             std::unique_ptr<FILE, int(*)(FILE*)> province_fp(fopen("uprovinces.lua", "w+t"), fclose);
             if(province_fp != nullptr) {
@@ -379,14 +379,14 @@ void World::load_initial() {
             CXX_THROW(std::runtime_error, error.c_str());
         }
 #endif
+        div.reset();
 
         // Calculate the edges of the province (min and max x and y coordinates)
         Eng3D::Log::debug("world", translate("Calculate the edges of the province (min and max x and y coordinates)"));
 
         // Init the province bounds
         for(auto& province : provinces) {
-            province.box_area.right = 0;
-            province.box_area.bottom = 0;
+            province.box_area.right = province.box_area.bottom = 0.f;
             province.box_area.left = width;
             province.box_area.top = height;
         }
@@ -449,10 +449,7 @@ void World::load_initial() {
         Eng3D::Log::debug("world", translate("Creating diplomatic relations"));
         // Relations between nations start at 0 (and latter modified by lua scripts)
         // since we use cantor's pairing function we only have to make an n*2 array so yeah let's do that!
-        size_t relations_len = this->nations.size() * this->nations.size();
-        this->relations = std::make_unique<NationRelation[]>(relations_len);
-        for(size_t i = 0; i < relations_len; i++)
-            this->relations[i] = NationRelation{};
+        this->relations.resize(this->nations.size() * this->nations.size());
         
         // Auto-relocate capitals for countries which do not have one
         for(auto& nation : this->nations) {

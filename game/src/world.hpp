@@ -190,9 +190,10 @@ public:
         return std::fabs(std::fabs(y) - (this->width / 2.0));
     }
     
-    std::unique_ptr<NationRelation[]> relations;
-    // Uses cantor's pairing function
-    // https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
+    std::vector<NationRelation> relations;
+
+    /// @brief Uses cantor's pairing function
+    /// https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
     inline NationRelation& get_relation(int a, int b) {
         assert(a != b);
         if(b > a) {
@@ -252,19 +253,14 @@ struct Serializer<World> {
         ::deser_dynamic<is_serialize>(ar, obj.wars);
         ::deser_dynamic<is_serialize>(ar, obj.treaties);
         ::deser_dynamic<is_serialize>(ar, obj.unit_manager);
-        const size_t n_relations = obj.nations.size() * obj.nations.size();
+        ::deser_dynamic<is_serialize>(ar, obj.relations);
         if constexpr(is_serialize) {
-            for(size_t i = 0; i < n_relations; i++)
-                ::deser_dynamic<is_serialize>(ar, obj.relations[i]);
             // Serialize all tiles
             ar.expand(obj.width * obj.height * sizeof(ProvinceId));
             ar.copy_from(obj.tiles.get(), obj.width * obj.height * sizeof(ProvinceId));
         } else {
             // In order to avoid post-deserialization relational patcher, we will simply allocate everything with "empty" objects,
             // then we will fill those spots as we deserialize
-            obj.relations.reset(new NationRelation[obj.nations.size() * obj.nations.size()]);
-            for(size_t i = 0; i < n_relations; i++)
-                ::deser_dynamic<is_serialize>(ar, obj.relations[i]);
             obj.tiles.reset(new ProvinceId[obj.width * obj.height]);
             // Deserialize all tiles
             ar.copy_to(obj.tiles.get(), obj.width * obj.height * sizeof(ProvinceId));
