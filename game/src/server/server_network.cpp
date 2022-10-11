@@ -72,7 +72,6 @@ void Server::net_loop(int id) {
         cl.is_connected = false;
         while(!cl.is_connected) {
             conn_fd = cl.try_connect(fd);
-            
             // Perform a 5 second delay between connection tries
             const auto delta = std::chrono::seconds{ 5 };
             const auto start_time = std::chrono::system_clock::now();
@@ -92,8 +91,10 @@ void Server::net_loop(int id) {
         player_count++;
         // Wake up another thread
         for(size_t i = 0; i < n_clients; i++) {
-            if(clients[i].thread == nullptr)
+            if(clients[i].thread == nullptr) {
                 clients[i].thread = std::make_unique<std::thread>(&Server::net_loop, this, i);
+                break;
+            }
         }
 
         // Read the data from client
