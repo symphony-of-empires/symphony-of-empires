@@ -55,26 +55,6 @@
 #undef min
 #undef max
 
-/// @brief List so we don't reconstruct a vector every time we query a tile
-/// fortunely the size is a constant of 4 possible neighbours so we're good
-static thread_local std::vector<Tile> tmp_tile_list = std::vector<Tile>();
-const std::vector<Tile>& Tile::get_neighbours(const World& world) const {
-    const auto i = world.get_id(*this);
-    // Up
-    if(i > world.width)
-        tmp_tile_list.push_back(world.tiles[i - world.width]);
-    // Down
-    if(i < (world.width * world.height) - world.width)
-        tmp_tile_list.push_back(world.tiles[i + world.width]);
-    // Left
-    if(i > 1)
-        tmp_tile_list.push_back(world.tiles[i - 1]);
-    // Right
-    if(i < (world.width * world.height) - 1)
-        tmp_tile_list.push_back(world.tiles[i + 1]);
-    return tmp_tile_list;
-}
-
 World g_world;
 
 namespace AI {
@@ -84,8 +64,6 @@ namespace AI {
 
 // Creates a new world
 void World::init_lua() {
-    tmp_tile_list.reserve(4);
-
     lua = luaL_newstate();
     luaL_openlibs(lua);
 
@@ -333,7 +311,7 @@ void World::load_initial() {
         auto div = std::make_unique<Eng3D::BinaryImage>(Eng3D::State::get_instance().package_man.get_unique("map/provinces.png")->get_abs_path());
         width = div->width;
         height = div->height;
-        tiles = std::make_unique<Tile[]>(width * height);
+        tiles = std::make_unique<ProvinceId[]>(width * height);
 
         // Uncomment this and see a bit more below
 #if 0
@@ -357,7 +335,7 @@ void World::load_initial() {
                 colors_found.insert(raw_buffer[i]);
             colors_used.insert(raw_buffer[i] & 0xffffff);
 #endif
-            tiles[i].province_id = province_id;
+            tiles[i] = province_id;
         }
         div.reset();
 
@@ -413,16 +391,15 @@ void World::load_initial() {
             province.box_area.top = height;
         }
 
-        tbb::parallel_for(static_cast<size_t>(0), height, [this](const auto j) {
-            for(size_t i = 0; i < width; i++) {
-                const auto& tile = this->get_tile(i, j);
-                auto& province = provinces[tile.province_id];
+        for(size_t i = 0; i < width; i++) {
+            for(size_t j = 0; j < height; j++) {
+                auto& province = provinces[this->tiles[i + j * width]];
                 province.box_area.left = glm::min(province.box_area.left, static_cast<float>(i));
                 province.box_area.right = glm::max(province.box_area.right, static_cast<float>(i));
                 province.box_area.bottom = glm::max(province.box_area.bottom, static_cast<float>(j));
                 province.box_area.top = glm::min(province.box_area.top, static_cast<float>(j));
             }
-        });
+        }
 
         // Correct stuff from provinces
         Eng3D::Log::debug("world", translate("Correcting values for provinces"));
@@ -434,22 +411,22 @@ void World::load_initial() {
         // Neighbours
         Eng3D::Log::debug("world", translate("Calculating neighbours for provinces"));
         for(size_t i = 0; i < width * height; i++) {
-            auto& province = this->provinces[this->tiles[i].province_id];
+            auto& province = this->provinces[this->tiles[i]];
             if(i > this->width) { // Up
                 auto other_tile = this->tiles[i - this->width];
-                province.neighbour_ids.push_back(other_tile.province_id);
+                province.neighbour_ids.push_back(other_tile);
             }
             if(i < (this->width * this->height) - this->width) { // Down
                 auto other_tile = this->tiles[i + this->width];
-                province.neighbour_ids.push_back(other_tile.province_id);
+                province.neighbour_ids.push_back(other_tile);
             }
             if(i > 1) { // Left
                 auto other_tile = this->tiles[i - 1];
-                province.neighbour_ids.push_back(other_tile.province_id);
+                province.neighbour_ids.push_back(other_tile);
             }
             if(i < (this->width * this->height) - 1) { // Right
                 auto other_tile = this->tiles[i + 1];
-                province.neighbour_ids.push_back(other_tile.province_id);
+                province.neighbour_ids.push_back(other_tile);
             }
         }
 
@@ -760,7 +737,6 @@ void World::do_tick() {
     }
     profiler.stop("Treaties");
 
-    wcmap_mutex.lock();
     profiler.start("Units");
     // Evaluate units
     this->unit_manager.for_each_unit([this](Unit& unit) {
@@ -860,7 +836,6 @@ void World::do_tick() {
         }
     });
     profiler.stop("Cleaning");
-    wcmap_mutex.unlock();
 
     //profiler.start("Events");
     //LuaAPI::check_events(lua);

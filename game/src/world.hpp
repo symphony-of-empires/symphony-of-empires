@@ -59,18 +59,6 @@
 
 // A single tile unit this is the smallest territorial unit in the game and it cannot be divided (and it shouldn't)
 struct World;
-struct Tile {
-    const std::vector<Tile>& get_neighbours(const World& world) const;
-    // ID of the province where this tile belongs to
-    ProvinceId province_id;
-};
-template<>
-struct Serializer<Tile> {
-    template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Tile& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.province_id);
-    }
-};
 
 // Create a new list from a type, with helper functions
 #define LIST_FOR_TYPE(type, list, list_type)\
@@ -166,7 +154,6 @@ public:
         auto& list = this->get_list((T*)nullptr);
         list_mutex.lock();
         ptr.cached_id = list.size();
-        typedef typename T::Id Id;
         assert(ptr.cached_id < static_cast<Id>(-2));
         list.push_back((T*)&ptr);
         list_mutex.unlock();
@@ -182,13 +169,6 @@ public:
         // Remove the element itself
         list.erase(list.begin() + cached_id);
         list_mutex.unlock();
-    }
-
-    /// @brief Get the id of a tile
-    /// @param obj Tile to get id from
-    /// @return size_t The Id of the tile
-    inline size_t get_id(const Tile& obj) const {
-        return static_cast<size_t>(((ptrdiff_t)&obj - (ptrdiff_t)tiles.get()) / sizeof(Tile));
     }
 
     /// @brief Get the id of an object, this is a template for all types except
@@ -209,20 +189,7 @@ public:
     inline float get_dist_from_equator(float y) const {
         return std::fabs(std::fabs(y) - (this->width / 2.0));
     }
-
-    /// @brief Obtains a tile from the world safely, and makes sure that it is in bounds
-    /// @param idx Index of the tile
-    /// @return Tile& Returned tile
-    inline Tile& get_tile(size_t idx) const {
-        assert(idx < width * height); // Tile index exceeds boundaries
-        return tiles[idx];
-    }
-
-    inline Tile& get_tile(size_t x, size_t y) const {
-        assert(x < this->width && y < this->height); // Tile out of bounds
-        return this->get_tile(x + y * this->width);
-    }
-
+    
     std::unique_ptr<NationRelation[]> relations;
     // Uses cantor's pairing function
     // https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
@@ -252,24 +219,15 @@ public:
     /// accesible to the client
     lua_State* lua = nullptr;
 
-    /// @brief 2-Dimensional Array of tiles
-    std::unique_ptr<Tile[]> tiles;
-    mutable std::mutex tiles_mutex;
-
-    /// @brief The height and width of the world
+    // 2D Array of tiles
+    std::unique_ptr<ProvinceId[]> tiles;
     size_t width, height;
-
-    /// @brief Current time (in ticks)
     int time;
     
     /// @brief Used to signal the lua scripts of invalid operations (eg. adding a country midgame)
     bool needs_to_sync = false;
-
     std::mutex world_mutex;
     std::mutex list_mutex;
-    /// @brief For avoiding data races on uprises
-    std::mutex rebel_mutex;
-    std::mutex wcmap_mutex; // World map on clients require some data to be stable for read-only operations
     std::vector<std::pair<Decision, Nation*>> taken_decisions;
 };
 template<>
@@ -299,17 +257,17 @@ struct Serializer<World> {
             for(size_t i = 0; i < n_relations; i++)
                 ::deser_dynamic<is_serialize>(ar, obj.relations[i]);
             // Serialize all tiles
-            ar.expand(obj.width * obj.height * sizeof(Tile));
-            ar.copy_from(obj.tiles.get(), obj.width * obj.height * sizeof(Tile));
+            ar.expand(obj.width * obj.height * sizeof(ProvinceId));
+            ar.copy_from(obj.tiles.get(), obj.width * obj.height * sizeof(ProvinceId));
         } else {
             // In order to avoid post-deserialization relational patcher, we will simply allocate everything with "empty" objects,
             // then we will fill those spots as we deserialize
             obj.relations.reset(new NationRelation[obj.nations.size() * obj.nations.size()]);
             for(size_t i = 0; i < n_relations; i++)
                 ::deser_dynamic<is_serialize>(ar, obj.relations[i]);
-            obj.tiles.reset(new Tile[obj.width * obj.height]);
+            obj.tiles.reset(new ProvinceId[obj.width * obj.height]);
             // Deserialize all tiles
-            ar.copy_to(obj.tiles.get(), obj.width * obj.height * sizeof(Tile));
+            ar.copy_to(obj.tiles.get(), obj.width * obj.height * sizeof(ProvinceId));
         }
     }
 };

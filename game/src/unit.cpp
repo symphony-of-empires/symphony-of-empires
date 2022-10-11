@@ -194,8 +194,7 @@ void Unit::set_path(const Province& target) {
     auto& nation = world.nations[this->owner_id];
     auto start_id = world.unit_manager.get_unit_current_province(this->get_id());
     this->path = Eng3D::Pathfind::get_path<ProvinceId>(start_id, target,
-        /// @brief Calculates the neighbors for a given Tile. The neighbors are the 8 tiles around
-        /// it, while taking into account the map bounds.
+        /// @brief Calculates the neighbors for a given province
         [&world](ProvinceId province_id) -> std::vector<ProvinceId> {
             const auto& province = world.provinces[province_id];
             std::vector<ProvinceId> result = province.neighbour_ids;
