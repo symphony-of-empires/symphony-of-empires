@@ -51,7 +51,9 @@ UnitWidget::UnitWidget(Map& _map, GameState& _gs, UI::Widget* parent)
     this->border.size = glm::ivec2{this->width, this->height};
     this->border.texture_size = glm::ivec2{7, 7};
 
+#ifndef E3D_HANDHELD
     new UI::Image(1, 1, this->width - 1, this->height - 1, "gfx/drop_shadow.png", this);
+#endif
     this->set_on_click([this](UI::Widget&) {
         if(Unit::is_invalid(this->unit_id)) return;
         if(gs.input.is_selected_unit(this->unit_id)) {

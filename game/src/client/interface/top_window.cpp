@@ -34,7 +34,6 @@
 #include "server/server_network.hpp"
 #include "client/map.hpp"
 #include "world.hpp"
-#include "client/interface/policies.hpp"
 #include "client/interface/army.hpp"
 #include "client/interface/pop_window.hpp"
 #include "client/interface/factory_window.hpp"
@@ -53,7 +52,9 @@ TopWindow::TopWindow(GameState& _gs)
 
     UI::Image::make_transparent(0, 0, 147, 499, "gfx/top_window.png", this);
     auto* flag_img = new UI::Image(5, 4, 138, 88, this->gs.get_nation_flag(*this->gs.curr_nation), this);
-    new UI::Image(5, 4, flag_img->width, flag_img->height, gs.tex_man.load(this->gs.package_man.get_unique("gfx/drop_shadow.png")), this);
+#ifndef E3D_HANDHELD
+    new UI::Image(5, 4, flag_img->width, flag_img->height, "gfx/drop_shadow.png", this);
+#endif
 
     auto* stats_grp = new UI::Image(150, 0, 356, 184, "gfx/background2.png", true, this);
     stats_grp->flex = UI::Flex::ROW;
@@ -136,7 +137,7 @@ TopWindow::TopWindow(GameState& _gs)
 
     auto* policy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/book.png", true, flex_column);
     policy_ibtn->set_on_click([this](UI::Widget&) {
-        //new Interface::PoliciesScreen(this->gs);
+
     });
     policy_ibtn->set_tooltip("Laws & Policies");
 

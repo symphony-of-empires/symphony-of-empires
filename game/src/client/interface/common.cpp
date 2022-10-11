@@ -35,7 +35,6 @@
 #include "eng3d/string.hpp"
 
 #include "client/interface/common.hpp"
-#include "client/interface/good_view.hpp"
 #include "nation.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
@@ -97,79 +96,4 @@ NationButton::NationButton(GameState& _gs, int x, int y, Nation& _nation, UI::Wi
         if(o.gs.world->time % o.gs.world->ticks_per_month) return;
         w.text(o.nation.get_client_hint().alt_name);
     });
-}
-
-ProductInfo::ProductInfo(GameState& _gs, int x, int y, Province& _province, Good& _good, UI::Widget* parent)
-    : UI::Group(x, y, parent->width, 24, parent),
-    gs{ _gs },
-    province{ _province },
-    good{ _good }
-{
-    this->is_scroll = false;
-
-    this->good_ibtn = new UI::Image(0, 0, 24, 24, good.get_icon_path(), this);
-    this->good_ibtn->set_on_click([](UI::Widget& w) {
-        auto& o = static_cast<ProductInfo&>(*w.parent);
-        new GoodView(o.gs, o.good);
-    });
-    this->good_ibtn->set_tooltip(new UI::Tooltip(this->good_ibtn, 512, 24));
-    this->good_ibtn->tooltip->text(good.name);
-
-    this->price_rate_btn = new UI::Button(0, 0, 96, 24, this);
-    this->price_rate_btn->right_side_of(*this->good_ibtn);
-
-    this->price_chart = new UI::Chart(0, 0, 96, 24, this);
-    this->price_chart->right_side_of(*this->price_rate_btn);
-    this->price_chart->text("Price");
-    this->price_chart->set_on_click([](UI::Widget&) {
-
-    });
-    this->price_chart->set_tooltip(new UI::Tooltip(this->price_chart, 512, 24));
-
-    this->supply_chart = new UI::Chart(0, 0, 96, 24, this);
-    this->supply_chart->right_side_of(*this->price_chart);
-    this->supply_chart->text("Supply");
-    this->supply_chart->set_on_click([](UI::Widget&) {
-
-    });
-    this->supply_chart->set_tooltip(new UI::Tooltip(this->supply_chart, 512, 24));
-
-    this->demand_chart = new UI::Chart(0, 0, 96, 24, this);
-    this->demand_chart->right_side_of(*this->supply_chart);
-    this->demand_chart->text("Demand");
-    this->demand_chart->set_on_click([](UI::Widget&) {
-
-    });
-    this->demand_chart->set_tooltip(new UI::Tooltip(this->demand_chart, 512, 24));
-
-    this->set_on_each_tick([this](UI::Widget&) {
-        const auto& product = this->province.products[this->gs.world->get_id(this->good)];
-        this->price_chart->data.clear();
-        for(const auto& data : this->price_history)
-            this->price_chart->data.push_back(data);
-        this->price_history.push_back(product.price);
-        if(!this->price_history.empty())
-            this->price_chart->set_tooltip(string_format("%.4f", this->price_history.back()));
-
-        this->supply_chart->data.clear();
-        for(const auto& data : this->supply_history)
-            this->supply_chart->data.push_back(data);
-        this->supply_history.push_back(product.supply);
-        if(!this->supply_history.empty())
-            this->supply_chart->set_tooltip(string_format("%.4f", this->supply_history.back()));
-
-        this->demand_chart->data.clear();
-        for(const auto& data : this->demand_history)
-            this->demand_chart->data.push_back(data);
-        this->demand_history.push_back(product.demand);
-        if(!this->demand_history.empty())
-            this->demand_chart->set_tooltip(string_format("%.4f", this->demand_history.back()));
-
-        this->price_rate_btn->text(std::to_string(product.price_delta));
-        if(product.price_delta >= 0.f)
-            this->price_rate_btn->text_color = Eng3D::Color(0, 255, 0);
-        else
-            this->price_rate_btn->text_color = Eng3D::Color(255, 0, 0);
-    });
-    this->on_each_tick(*this);
 }

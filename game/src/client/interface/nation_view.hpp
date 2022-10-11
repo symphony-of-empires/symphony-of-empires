@@ -35,13 +35,6 @@ namespace UI {
     class Button;
 }
 namespace Interface {
-    class NationMarketView : public UI::Window {
-        GameState& gs;
-        Nation& nation;
-    public:
-        NationMarketView(GameState& gs, Nation& nation);
-    };
-
     class NationView : public UI::Window {
         GameState& gs;
         Nation& nation;

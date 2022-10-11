@@ -181,28 +181,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province& _
     this->text(province.name);
     this->is_scroll = true;
 
-    this->products_pie = new UI::PieChart(0, 0, 128, 128, this);
-    new UI::Label(0, 0, "Products", this);
-
-    this->set_on_each_tick([](UI::Widget& w) {
-        auto& o = static_cast<ProvinceEconomyTab&>(w);
-        std::vector<UI::ChartData> goods_data;
-        for(const auto& good : o.gs.world->goods) {
-            const auto good_col = Eng3D::Color::get_random((size_t)good.get_id());
-            const auto& product = o.province.products[good];
-            goods_data.push_back(UI::ChartData(glm::max(product.demand, 0.1f), good.name, good_col));
-        }
-        o.products_pie->set_data(goods_data);
-    });
-    this->on_each_tick(*this);
-
-    // Initial product info
-    auto* flex_column = new UI::Div(0, 128, this->width, this->height - 128, this);
-    flex_column->flex = UI::Flex::COLUMN;
-    for(auto& good : gs.world->goods) {
-        auto* info = new ProductInfo(this->gs, 0, 0, province, good, flex_column);
-        product_infos.push_back(info);
-    }
+    
 }
 
 ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)

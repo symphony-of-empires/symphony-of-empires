@@ -28,30 +28,8 @@
 #include "client/interface/nation_view.hpp"
 #include "client/client_network.hpp"
 #include "client/interface/common.hpp"
-#include "client/interface/war.hpp"
 #include "client/map.hpp"
 #include "client/map_render.hpp"
-
-Interface::NationMarketView::NationMarketView(GameState& _gs, Nation& _nation)
-    : UI::Window(0, 0, 700, 600),
-    gs{ _gs },
-    nation{ _nation }
-{
-    this->is_scroll = true;
-    this->text(translate("Market information"));
-    this->set_close_btn_function([this](UI::Widget&) {
-        this->kill();
-    });
-
-    size_t i = 0;
-    for(const auto province_id : nation.controlled_provinces) {
-        auto& province = gs.world->provinces[province_id];
-        for(auto& good : gs.world->goods) {
-            new Interface::ProductInfo(gs, 0, (i * 24) + 128, province, good, this);
-            i++;
-        }
-    }
-}
 
 Interface::NationView::NationView(GameState& _gs, Nation& _nation)
     : UI::Window(0, 0, 256, 512),
@@ -104,13 +82,6 @@ Interface::NationView::NationView(GameState& _gs, Nation& _nation)
         rel_lab->set_tooltip(translate("Our diplomatic relations with them"));
     }
 
-    auto* market_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
-    market_btn->text(translate("Examine market"));
-    market_btn->set_on_click([this](UI::Widget&) {
-        new Interface::NationMarketView(this->gs, this->nation);
-    });
-    market_btn->set_tooltip(translate("View market information"));
-
     if(gs.curr_nation != &nation) {
         auto* dow_btn = new UI::Button(0, 0, this->width, 24, flex_actions_column);
         dow_btn->set_on_each_tick([this](UI::Widget& w) {
@@ -124,7 +95,7 @@ Interface::NationView::NationView(GameState& _gs, Nation& _nation)
             } else {
                 w.text(translate("Declare war"));
                 w.set_on_click([this](UI::Widget&) {
-                    new Interface::WarDeclarePrompt(this->gs, this->nation);
+                    //new Interface::WarDeclarePrompt(this->gs, this->nation);
                 });
                 w.set_tooltip(translate("Declaring war on this nation will bring all their allies to their side"));
             }
