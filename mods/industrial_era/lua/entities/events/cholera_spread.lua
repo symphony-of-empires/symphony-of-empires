@@ -52,10 +52,10 @@ cholera_evhdl = Event:new{
                 title = "Mass Spreading Event in " .. random_province.name,
                 text = "A large party in ".. random_province.name .. " is believed to be one of the causes of a major spread of " .. disease_name .. ". The disease had a large semi-exposed sewer which could've helped spread the disease"
             }, {
-                title = disease_name .. "Dominates in ".. random_province.name,
+                title = disease_name .. " dominates in ".. random_province.name,
                 text = "A large " .. disease_name .. " outbreak in " .. random_province.name .. " has occured. Many have been infected"
             }, { 
-                title = disease_name .. " Ravages ".. random_province.name,
+                title = disease_name .. " ravages ".. random_province.name,
                 text = "A strain of " .. disease_name .. " is ravaging the small villages of " .. random_province.name .." . This is proving to be a disaster as government officials in that area prepare a rescue mission"
             },
         }

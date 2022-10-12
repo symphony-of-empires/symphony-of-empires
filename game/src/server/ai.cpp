@@ -69,11 +69,11 @@ struct AIManager {
 
     /// @brief Reshuffle weights of the AI
     void recalc_weights() {
-        war_weight = static_cast<float>(rand() % 5000) / 100.f;
-        unit_battle_weight = static_cast<float>(rand() % 5000) / 100.f;
-        unit_exist_weight = static_cast<float>(rand() % 5000) / 100.f;
-        coastal_weight = static_cast<float>(rand() % 5000) / 100.f;
-        reconquer_weight = static_cast<float>(rand() % 5000) / 100.f;
+        war_weight = static_cast<float>(rand() % 500) / 100.f;
+        unit_battle_weight = static_cast<float>(rand() % 500) / 100.f;
+        unit_exist_weight = static_cast<float>(rand() % 500) / 100.f;
+        coastal_weight = static_cast<float>(rand() % 500) / 100.f;
+        reconquer_weight = static_cast<float>(rand() % 500) / 100.f;
         strength_threshold = static_cast<float>(rand() % 50) / 100.f; // 0.0 to 0.5
     }
 
@@ -114,7 +114,7 @@ struct AIManager {
     }
 
     void calc_nation_risk(const World& world, const Nation& nation) {
-        nations_risk_factor.resize(world.nations.size(), 1.f);
+        nations_risk_factor.resize(world.nations.size());
         for(const auto& other : world.nations)
             if(&other != &nation)
                 nations_risk_factor[other] = get_nation_risk(world, nation, other);
@@ -136,7 +136,7 @@ struct AIManager {
                     auto& unit = world.unit_manager.units[unit_id];
                     auto& unit_owner = world.nations[unit.owner_id];
                     const auto unit_weight = unit_exist_weight * (unit.on_battle ? unit_battle_weight : 1.f);
-                    draw_in_force += unit.get_strength() * unit_weight * nations_risk_factor[unit_owner];
+                    draw_in_force += unit.get_strength() * unit_weight * glm::abs(nations_risk_factor[unit_owner]);
                 }
 
                 if(!world.terrain_types[neighbour.terrain_type_id].is_water_body) {

@@ -128,33 +128,34 @@ void UI::Context::clear() {
 }
 
 void UI::Context::clear_dead_recursive(UI::Widget& w) {
-    if(&w == tooltip_widget) tooltip_widget = nullptr;
     bool changed = false;
-    for(size_t index = 0; index < w.children.size(); index++) {
-        if(w.children[index]->dead) {
-            w.children.erase(w.children.begin() + index);
-            index--;
+    for(size_t i = 0; i < w.children.size(); i++) {
+        if(w.children[i]->dead) {
+            w.children.erase(w.children.begin() + i);
+            i--;
             changed = true;
-        } else if(w.children[index]->dead_child) {
-            this->clear_dead_recursive(*w.children[index].get());
-            w.children[index]->dead_child = false;
+        } else if(w.children[i]->dead_child) {
+            this->clear_dead_recursive(*w.children[i].get());
+            w.children[i]->dead_child = false;
         }
     }
-
     if(changed) w.need_recalc = true;
 }
 
 /// @brief Removes all widgets that have been killed
 void UI::Context::clear_dead() {
-    for(size_t index = 0; index < widgets.size(); index++) {
-        if(widgets[index]->dead) {
-            widgets.erase(widgets.begin() + index);
-            index--;
-        } else if(widgets[index]->dead_child) {
-            this->clear_dead_recursive(*widgets[index].get());
-            widgets[index]->dead_child = false;
+    if(tooltip_widget != nullptr && tooltip_widget->dead) tooltip_widget = nullptr;
+    
+    for(size_t i = 0; i < widgets.size(); i++) {
+        if(widgets[i]->dead) {
+            widgets.erase(widgets.begin() + i);
+            i--;
+        } else if(widgets[i]->dead_child) {
+            this->clear_dead_recursive(*widgets[i].get());
+            widgets[i]->dead_child = false;
         }
     }
+
     if(tooltip_widget != nullptr) this->clear_dead_recursive(*tooltip_widget);
 }
 

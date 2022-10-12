@@ -45,7 +45,7 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
     this->text(this->event.title);
     this->flex = UI::Flex::COLUMN;
 
-    auto* txt = new UI::Text(0, 0, this->width, 24, this);
+    auto* txt = new UI::Text(0, 24, this->width, 24, this);
     txt->text_color = Eng3D::Color::rgb8(0, 0, 0);
     txt->text(this->event.text);
     txt->is_scroll = true;
@@ -64,7 +64,7 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
         });
 
         auto* remind_ibtn = new UI::Image(0, 0, 24, 24, "gfx/noicon.png", flex_column);
-        remind_ibtn->set_tooltip("Automatically take this descision");
+        remind_ibtn->set_tooltip(translate("Automatically take this descision"));
         remind_ibtn->set_on_click([this, &decision](UI::Widget&) {
             this->gs.decision_autodo.push_back(decision.ref_name);
             this->gs.client->send(Action::NationTakeDecision::form_packet(this->event, decision));

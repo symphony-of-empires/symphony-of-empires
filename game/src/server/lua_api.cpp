@@ -323,7 +323,7 @@ int LuaAPI::nation_declare_war_no_cb(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
     if(&nation == &other_nation)
-        luaL_error(L, string_format("%s can't declare war with self", nation.ref_name.c_str()).c_str());
+        luaL_error(L, string_format("%s can't declare war on itself", nation.ref_name.c_str()).c_str());
     nation.declare_war(other_nation);
     return 0;
 }
@@ -1221,8 +1221,6 @@ void LuaAPI::check_events(lua_State* L) {
                     auto local_event = Event(event);
                     local_event.cached_id = Event::invalid();
                     local_event.ref_name = Eng3D::StringRef(string_format("%s:%s", local_event.ref_name.c_str(), nation.ref_name.c_str()).c_str());
-                    // Do not relaunch a local event
-                    local_event.checked = true;
                     if(local_event.decisions.empty()) {
                         //Eng3D::Log::error("event", "Event " + local_event.ref_name + " has no decisions (ref_name = " + nation->ref_name + ")");
                     } else {
@@ -1252,13 +1250,13 @@ void LuaAPI::check_events(lua_State* L) {
     // other taken decisions :)
     for(auto& [dec, nation_id] : g_world.taken_decisions) {
         const auto& nation = g_world.nations[nation_id];
-        Eng3D::Log::debug("event", string_format("%s took the descision %i", nation->ref_name.c_str(), dec.do_decision_function));
+        Eng3D::Log::debug("event", string_format("%s took the descision %i", nation.ref_name.c_str(), dec.do_decision_function));
         lua_rawgeti(L, LUA_REGISTRYINDEX, dec.do_decision_function);
-        lua_pushstring(L, nation->ref_name.c_str());
+        lua_pushstring(L, nation.ref_name.c_str());
         if(call_func(L, 1, 0)) {
             const std::string_view err_msg = lua_tostring(L, -1);
             lua_pop(L, 1);
-            CXX_THROW(LuaAPI::Exception, string_format("%i(%s): %s", dec.do_decision_function, nation->ref_name.c_str(), err_msg).c_str());
+            CXX_THROW(LuaAPI::Exception, string_format("%i(%s): %s", dec.do_decision_function, nation.ref_name.c_str(), err_msg).c_str());
         }
     }
     g_world.taken_decisions.clear();
