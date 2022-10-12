@@ -79,8 +79,8 @@ TopWindow::TopWindow(GameState& _gs)
             const auto& units = this->gs.world->unit_manager.get_province_units(province.get_id());
             for(const auto unit_id : units) {
                 const auto& unit = this->gs.world->unit_manager.units[unit_id];
-                if(unit.owner_id == this->gs.curr_nation->get_id()) continue;
-                total += unit.get_strength();
+                if(unit.owner_id == this->gs.curr_nation->get_id())
+                    total += unit.get_strength();
             }
         }
         w.text(Eng3D::string_format("%8.0f", total));

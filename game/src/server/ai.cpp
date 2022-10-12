@@ -51,7 +51,22 @@ namespace AI {
 }
 
 static std::vector<ProvinceId> g_water_provinces;
-class AIManager {
+struct AIManager {
+    float war_weight = 1.f; // Base weight for war
+    float unit_battle_weight = 1.f; // Attraction of units into entering on pre-existing battles
+    float unit_exist_weight = 1.f; // Weight of an unit by just existing
+    float coastal_weight = 1.f; // Importance given to coastal provinces
+    float reconquer_weight = 1.f; // Weight to reconquer lost **home**land
+    float strength_threshold = 0.5f; // How much our enemy has to be in terms of strength
+                                     // for us to revaluate our diplomatic stances
+    std::vector<float> nations_risk_factor;
+    std::vector<float> potential_risk;
+    std::vector<ProvinceId> eval_provinces;
+    size_t last_constrolled_cnt = 0;
+    size_t gains = 0;
+    size_t losses = 0;
+    float military_strength = 0.f;
+
     /// @brief Reshuffle weights of the AI
     void recalc_weights() {
         war_weight = static_cast<float>(rand() % 5000) / 100.f;
@@ -59,19 +74,8 @@ class AIManager {
         unit_exist_weight = static_cast<float>(rand() % 5000) / 100.f;
         coastal_weight = static_cast<float>(rand() % 5000) / 100.f;
         reconquer_weight = static_cast<float>(rand() % 5000) / 100.f;
+        strength_threshold = static_cast<float>(rand() % 50) / 100.f; // 0.0 to 0.5
     }
-public:
-    float war_weight = 1.f; // Base weight for war
-    float unit_battle_weight = 1.f; // Attraction of units into entering on pre-existing battles
-    float unit_exist_weight = 1.f; // Weight of an unit by just existing
-    float coastal_weight = 1.f; // Importance given to coastal provinces
-    float reconquer_weight = 1.f; // Weight to reconquer lost **home**land
-    std::vector<float> nations_risk_factor;
-    std::vector<float> potential_risk;
-    std::vector<ProvinceId> eval_provinces;
-    size_t last_constrolled_cnt = 0;
-    size_t gains = 0;
-    size_t losses = 0;
 
     /// @brief Recalculate weights iff losing territory
     void calc_weights(const Nation& nation) {
@@ -181,11 +185,34 @@ void AI::init(World& world) {
         if(world.terrain_types[province.terrain_type_id].is_water_body)
             g_water_provinces.push_back(province);
     ai_man.resize(world.nations.size());
+    for(auto& ai : ai_man)
+        ai.recalc_weights();
 }
 
 void AI::do_tick(World& world) {
-    // Do the AI turns in parallel
+    // Calculate military strengths of each nation
     tbb::parallel_for(tbb::blocked_range(world.nations.begin(), world.nations.end()), [&world](auto& nations_range) {
+        for(auto& nation : nations_range) {
+            if(!nation.exists())
+                continue;
+
+            auto& ai = ai_man[nation];
+            auto total = 0.f;
+            for(const auto& province : world.provinces) {
+                const auto& units = world.unit_manager.get_province_units(province.get_id());
+                for(const auto unit_id : units) {
+                    const auto& unit = world.unit_manager.units[unit_id];
+                    if(unit.owner_id == nation.get_id())
+                        total += unit.get_strength();
+                }
+            }
+            ai.military_strength = total;
+        }
+    });
+
+    // Do the AI turns in parallel
+    tbb::combinable<std::vector<std::pair<NationId, NationId>>> alliance_proposals;
+    tbb::parallel_for(tbb::blocked_range(world.nations.begin(), world.nations.end()), [&alliance_proposals, &world](auto& nations_range) {
         for(auto& nation : nations_range) {
             auto& ai = ai_man[nation];
             if(!nation.exists()) { // Unconditionally surrender iff at war
@@ -197,6 +224,44 @@ void AI::do_tick(World& world) {
                 continue;
             }
 
+            // Diplomacy
+            if(nation.ai_controlled) {
+                auto our_strength = ai.military_strength;
+                auto enemy_strength = 0.f;
+                std::vector<NationId> enemy_ids, ally_ids;
+                for(const auto& other : world.nations) {
+                    if(other.get_id() != nation.get_id()) {
+                        const auto& relation = world.get_relation(nation, other);
+                        if(relation.has_war) {
+                            enemy_strength += ai_man[other].military_strength;
+                            enemy_ids.push_back(other);
+                        } else if(relation.is_allied()) {
+                            our_strength += ai_man[other].military_strength;
+                            ally_ids.push_back(other);
+                        }
+                    }
+                }
+
+                auto advantage = glm::max(our_strength, 1.f) / enemy_strength;
+                if(advantage < ai.strength_threshold) {
+                    // The enemy is bigger; so re-evaluate stances
+                    for(const auto& other : world.nations) {
+                        if(other.get_id() != nation.get_id()) {
+                            const auto& relation = world.get_relation(nation, other);
+                            if(!relation.has_war) {
+                                // Propose an alliance iff we have mutual enemies
+                                for(const auto enemy_id : enemy_ids) {
+                                    const auto& enemy_rel = world.get_relation(other, enemy_id);
+                                    if(enemy_rel.has_war)
+                                        alliance_proposals.local().emplace_back(nation, other);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // War/unit management
             if(nation.ai_do_cmd_troops) {
                 ai.calc_weights(nation);
                 ai.collect_eval_provinces(world, nation);
@@ -243,6 +308,17 @@ void AI::do_tick(World& world) {
                     building.req_goods_for_unit = unit_type.req_goods;
                 }
             }
+        }
+    });
+
+    /// @todo AI reject alliance proposals and so on; also allow the player to reject
+    /// their alliance proposals too!
+    alliance_proposals.combine_each([&world](const auto& alliance_proposals_range) {
+        for(const auto& [nation, other] : alliance_proposals_range) {
+            auto& relation = world.get_relation(nation, other);
+            relation.alliance = 1.f;
+            relation.relation = 100.f;
+            relation.has_war = false;
         }
     });
 }
