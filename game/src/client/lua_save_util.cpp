@@ -71,10 +71,10 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
     if(gs.world->terrain_types[province.terrain_type_id].is_water_body)
         return;
 
-    province.buildings[rand() % province.buildings.size()].level++;
-    province.buildings[rand() % province.buildings.size()].level++;
-    province.buildings[rand() % province.buildings.size()].level++;
-    province.buildings[rand() % province.buildings.size()].level++;
+    //province.buildings[rand() % province.buildings.size()].level++;
+    //province.buildings[rand() % province.buildings.size()].level++;
+    //province.buildings[rand() % province.buildings.size()].level++;
+    //province.buildings[rand() % province.buildings.size()].level++;
     for(const auto& building_type : gs.world->building_types) {
         const auto& building = province.buildings[building_type];
         if(building.level)

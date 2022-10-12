@@ -193,7 +193,8 @@ struct Serializer<T> {
         ::deser_dynamic<is_serialize>(ar, len);
         if constexpr(is_serialize) {
             if constexpr(has_data && std::is_trivially_copyable<typename T::value_type>::value) {
-                ar.copy_from(obj_group.data(), len * sizeof(typename T::value_type));
+                if(len)
+                    ar.copy_from(obj_group.data(), len * sizeof(typename T::value_type));
             } else { // non-trivial
                 for(auto& obj : obj_group)
                     ::deser_dynamic<is_serialize>(ar, obj);
@@ -203,7 +204,8 @@ struct Serializer<T> {
             if constexpr(has_resize) {
                 obj_group.resize(len);
                 if constexpr(has_data && std::is_trivially_copyable<typename T::value_type>::value) {
-                    ar.copy_to(obj_group.data(), len * sizeof(typename T::value_type));
+                    if(len)
+                        ar.copy_to(obj_group.data(), len * sizeof(typename T::value_type));
                 } else { // non-len
                     for(decltype(len) i = 0; i < len; i++)
                         ::deser_dynamic<is_serialize>(ar, obj_group[i]);

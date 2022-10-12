@@ -71,11 +71,12 @@ struct Serializer<Event> {
     static inline void deser_dynamic(Archive& ar, Event& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.ref_name);
-        ::deser_dynamic<is_serialize>(ar, obj.conditions_function);
-        ::deser_dynamic<is_serialize>(ar, obj.do_event_function);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
         ::deser_dynamic<is_serialize>(ar, obj.receiver_ids);
         ::deser_dynamic<is_serialize>(ar, obj.decisions);
         ::deser_dynamic<is_serialize>(ar, obj.title);
         ::deser_dynamic<is_serialize>(ar, obj.text);
+        ::deser_dynamic<is_serialize>(ar, obj.conditions_function);
+        ::deser_dynamic<is_serialize>(ar, obj.do_event_function);
     }
 };

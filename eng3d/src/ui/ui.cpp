@@ -128,6 +128,7 @@ void UI::Context::clear() {
 }
 
 void UI::Context::clear_dead_recursive(UI::Widget& w) {
+    if(&w == tooltip_widget) tooltip_widget = nullptr;
     bool changed = false;
     for(size_t index = 0; index < w.children.size(); index++) {
         if(w.children[index]->dead) {

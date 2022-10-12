@@ -309,17 +309,17 @@ void Server::net_loop(int id) {
                 // Client takes a decision
                 case ActionType::NATION_TAKE_DECISION: {
                     // Find event by reference name
-                    Event local_event;
-                    ::deserialize(ar, local_event);
+                    Event event;
+                    ::deserialize(ar, event);
                     // Find decision by reference name
                     std::string ref_name;
                     ::deserialize(ar, ref_name);
-                    auto decision = std::find_if(local_event.decisions.begin(), local_event.decisions.end(), [&ref_name](const auto& o) {
+                    auto decision = std::find_if(event.decisions.begin(), event.decisions.end(), [&ref_name](const auto& o) {
                         return !strcmp(o.ref_name.c_str(), ref_name.c_str());
                     });
-                    if(decision == local_event.decisions.end())
+                    if(decision == event.decisions.end())
                         CXX_THROW(ServerException, translate_format("Decision %s not found", ref_name.c_str()));
-                    local_event.take_decision(*selected_nation, *decision);
+                    event.take_decision(*selected_nation, *decision);
                     //Eng3D::Log::debug("server", "Event " + local_event.ref_name + " takes descision " + ref_name + " by nation " + selected_nation->ref_name);
                 } break;
                 // The client selects a nation
