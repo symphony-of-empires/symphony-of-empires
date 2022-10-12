@@ -220,7 +220,7 @@ void Server::net_loop(int id) {
                     ::deserialize(ar, province);
                     BuildingType* building_type;
                     ::deserialize(ar, building_type);
-                    province->buildings[g_world.get_id(*building_type)].level += 1;
+                    province->buildings[*building_type].level += 1.f;
                     // Rebroadcast
                     broadcast(Action::BuildingAdd::form_packet(*province, *building_type));
                 } break;

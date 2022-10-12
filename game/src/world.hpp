@@ -194,7 +194,7 @@ public:
 
     /// @brief Uses cantor's pairing function
     /// https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
-    inline NationRelation& get_relation(int a, int b) {
+    inline NationRelation& get_relation(NationId a, NationId b) {
         assert(a != b);
         if(b > a) {
             int tmp;
@@ -205,7 +205,7 @@ public:
         return relations[(a * a - a) / 2 + b];
     }
 
-    inline const NationRelation& get_relation(int a, int b) const {
+    inline const NationRelation& get_relation(NationId a, NationId b) const {
         assert(a != b);
         if(b > a) {
             int tmp;

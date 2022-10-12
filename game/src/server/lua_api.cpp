@@ -626,6 +626,11 @@ int LuaAPI::get_province_by_id(lua_State* L) {
 
 int LuaAPI::province_add_unit(lua_State* L) {
     auto& province = g_world.provinces.at(lua_tonumber(L, 1));
+    if(Nation::is_invalid(province.owner_id)) {
+        luaL_error(L, string_format("%s has no owner yet", province.ref_name.c_str()).c_str());
+        return 0;
+    }
+
     auto& unit_type = g_world.unit_types.at(lua_tonumber(L, 2));
     const size_t size = lua_tonumber(L, 3);
 

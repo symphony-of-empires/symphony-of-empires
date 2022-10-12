@@ -199,6 +199,12 @@ void Map::create_labels() {
         glm::vec2 max_point(province.box_area.right, province.box_area.bottom);
         max_point.y = min_point.y = min_point.y + (max_point.y - min_point.y) * 0.5f;
 
+        if(glm::length(max_point - min_point) >= this->gs.world->width / 3.f) {
+            const uint32_t color = std::byteswap<std::uint32_t>((province.color & 0x00ffffff) << 8);
+            Eng3D::Log::warning("game", string_format("Province %s (color %x) is too big", province.ref_name.c_str(), color));
+            continue;
+        }
+
         glm::vec2 center = min_point + (max_point - min_point) * 0.5f;
         float width = 0.7f;
         auto label = this->map_font->gen_text(province.name, min_point, max_point, center, width);
