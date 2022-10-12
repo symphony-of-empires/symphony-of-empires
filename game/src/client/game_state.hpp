@@ -170,6 +170,8 @@ public:
     bool motion_blur = true;
     bool host_mode = false;
     bool editor = false;
+
+    std::vector<Eng3D::StringRef> decision_autodo;
 };
 
 // Run world tick and pending commands

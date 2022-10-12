@@ -230,7 +230,7 @@ public:
     std::mutex world_mutex;
     std::mutex list_mutex;
     std::mutex inbox_mutex;
-    std::vector<std::pair<Decision, Nation*>> taken_decisions;
+    std::vector<std::pair<Decision, NationId>> taken_decisions;
 };
 template<>
 struct Serializer<World> {

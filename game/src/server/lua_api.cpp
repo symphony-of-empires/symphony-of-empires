@@ -1250,7 +1250,8 @@ void LuaAPI::check_events(lua_State* L) {
 
     // Do decisions taken effects in the queue, then clear it awaiting
     // other taken decisions :)
-    for(auto& [dec, nation] : g_world.taken_decisions) {
+    for(auto& [dec, nation_id] : g_world.taken_decisions) {
+        const auto& nation = g_world.nations[nation_id];
         Eng3D::Log::debug("event", string_format("%s took the descision %i", nation->ref_name.c_str(), dec.do_decision_function));
         lua_rawgeti(L, LUA_REGISTRYINDEX, dec.do_decision_function);
         lua_pushstring(L, nation->ref_name.c_str());
