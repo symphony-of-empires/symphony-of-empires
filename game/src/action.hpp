@@ -107,12 +107,7 @@ namespace Action {
     public:
 		static Eng3D::Networking::Packet form_packet(const Technology& technology);
     };
-
-    class NationAdd {
-    public:
-        static Eng3D::Networking::Packet form_packet(const Nation& nation);
-    };
-
+    
     class NationTakeDecision {
     public:
         static Eng3D::Networking::Packet form_packet(const Event& event, const Decision& decision);
