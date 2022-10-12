@@ -834,9 +834,9 @@ void World::do_tick() {
     });
     profiler.stop("Cleaning");
 
-    //profiler.start("Events");
-    //LuaAPI::check_events(lua);
-    //profiler.stop("Events");
+    profiler.start("Events");
+    LuaAPI::check_events(lua);
+    profiler.stop("Events");
 
     // Remove empty pops and combine similar pops
     tbb::parallel_for(tbb::blocked_range(provinces.begin(), provinces.end()), [](auto& province_ranges) {

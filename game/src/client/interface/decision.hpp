@@ -36,6 +36,6 @@ namespace Interface {
         GameState& gs;
         Event event;
     public:
-        DecisionWindow(GameState& gs, Event msg);
+        DecisionWindow(GameState& gs, Event event);
     };
 };

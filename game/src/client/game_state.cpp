@@ -86,11 +86,11 @@ std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(const Nation& nation)
 }
 
 void handle_popups(std::vector<TreatyId>& displayed_treaties, GameState& gs) {
-    // Put popups
-    // Event + Decision popups
-    for(auto& msg : gs.curr_nation->inbox) // Check that the event is not already displayed to the user
+    std::scoped_lock lock(gs.world->inbox_mutex);
+    // Check that the event is not already displayed to the user
+    for(auto& msg : gs.curr_nation->inbox)
         new Interface::DecisionWindow(gs, msg);
-    gs.curr_nation->inbox.clear(); // Clear the inbox
+    gs.curr_nation->inbox.clear();
 
     for(auto& treaty : gs.world->treaties) {
         // Check that the treaty is not already displayed

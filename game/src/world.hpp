@@ -229,6 +229,7 @@ public:
     bool needs_to_sync = false;
     std::mutex world_mutex;
     std::mutex list_mutex;
+    std::mutex inbox_mutex;
     std::vector<std::pair<Decision, Nation*>> taken_decisions;
 };
 template<>

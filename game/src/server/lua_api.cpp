@@ -868,7 +868,7 @@ int LuaAPI::add_event_receivers(lua_State* L) {
     // Add receivers of the event by id
     auto& event = g_world.events.at(lua_tonumber(L, 1));
     for(size_t i = 0; i < lua_tonumber(L, 2); i++)
-        event.receivers.push_back(&g_world.nations.at(lua_tonumber(L, 3 + i)));
+        event.receiver_ids.push_back((size_t)lua_tonumber(L, 3 + i));
     return 0;
 }
 
@@ -1183,15 +1183,16 @@ int call_func(lua_State* L, int nargs, int nret) {
 
 // Checks all events and their condition functions
 void LuaAPI::check_events(lua_State* L) {
+    std::scoped_lock lock(g_world.inbox_mutex);
     for(auto& event : g_world.events) {
         if(event.checked) continue;
         bool is_multi = true;
         bool has_fired = false;
-        for(auto& nation : event.receivers) {
-            assert(nation != nullptr);
-            if(!nation->exists()) continue;
+        for(const auto nation_id : event.receiver_ids) {
+            auto& nation = g_world.nations[nation_id];
+            if(!nation.exists()) continue;
             lua_rawgeti(L, LUA_REGISTRYINDEX, event.conditions_function);
-            lua_pushstring(L, nation->ref_name.c_str());
+            lua_pushstring(L, nation.ref_name.c_str());
             lua_pcall(L, 1, 1, 0);
             bool r = lua_toboolean(L, -1);
             lua_pop(L, 1);
@@ -1206,7 +1207,7 @@ void LuaAPI::check_events(lua_State* L) {
                 // Call the "do event" function
                 //Eng3D::Log::debug("event", "Event " + event.ref_name + " using " + std::to_string(event.do_event_function) + " function");
                 lua_rawgeti(L, LUA_REGISTRYINDEX, event.do_event_function);
-                lua_pushstring(L, nation->ref_name.c_str());
+                lua_pushstring(L, nation.ref_name.c_str());
                 if(call_func(L, 1, 1)) {
                     Eng3D::Log::error("lua", translate_format("lua_pcall failed: %s", lua_tostring(L, -1)));
                     lua_pop(L, 1);
@@ -1219,7 +1220,7 @@ void LuaAPI::check_events(lua_State* L) {
                     // The changes done to the event "locally" are then created into a new local event
                     auto local_event = Event(event);
                     local_event.cached_id = Event::invalid();
-                    local_event.ref_name = Eng3D::StringRef(string_format("%s:%s", local_event.ref_name.c_str(), nation->ref_name.c_str()).c_str());
+                    local_event.ref_name = Eng3D::StringRef(string_format("%s:%s", local_event.ref_name.c_str(), nation.ref_name.c_str()).c_str());
                     // Do not relaunch a local event
                     local_event.checked = true;
                     if(local_event.decisions.empty()) {
@@ -1232,7 +1233,7 @@ void LuaAPI::check_events(lua_State* L) {
                                 goto restore_original;
                             }
                         }
-                        nation->inbox.push_back(local_event);
+                        nation.inbox.push_back(local_event);
                         //Eng3D::Log::debug("event", "Event triggered! " + local_event.ref_name + " (with " + std::to_string(local_event.decisions.size()) + " decisions)");
                     }
                 }

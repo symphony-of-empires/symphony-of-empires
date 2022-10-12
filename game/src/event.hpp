@@ -51,7 +51,7 @@ class Nation;
 struct Event : RefnameEntity<EventId> {
     void take_decision(Nation& sender, Decision& dec);
     Eng3D::StringRef name;
-    std::vector<Nation*> receivers;
+    std::vector<NationId> receiver_ids;
     std::vector<Decision> decisions;
     Eng3D::StringRef text;
     Eng3D::StringRef title;
@@ -73,7 +73,7 @@ struct Serializer<Event> {
         ::deser_dynamic<is_serialize>(ar, obj.ref_name);
         ::deser_dynamic<is_serialize>(ar, obj.conditions_function);
         ::deser_dynamic<is_serialize>(ar, obj.do_event_function);
-        ::deser_dynamic<is_serialize>(ar, obj.receivers);
+        ::deser_dynamic<is_serialize>(ar, obj.receiver_ids);
         ::deser_dynamic<is_serialize>(ar, obj.decisions);
         ::deser_dynamic<is_serialize>(ar, obj.title);
         ::deser_dynamic<is_serialize>(ar, obj.text);

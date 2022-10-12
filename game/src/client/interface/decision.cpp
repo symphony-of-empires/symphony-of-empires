@@ -35,28 +35,22 @@
 #include "action.hpp"
 #include "client/game_state.hpp"
 
-using namespace Interface;
-
-DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
+Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
     : UI::Window(128, 128, 320, 570),
     gs{ _gs },
     event{ _event }
 {
     // Title of the event
     this->text(this->event.title);
+    this->flex = UI::Flex::COLUMN;
 
-    // Body of the event tex
-    auto* flex_column = new UI::Div(0, 0, this->width, (this->event.decisions.size() * 24) + (24 * 8), this);
-    flex_column->flex = UI::Flex::COLUMN;
-    this->height = flex_column->height;
-
-    auto* txt = new UI::Text(0, 0, this->width, 24, flex_column);
+    auto* txt = new UI::Text(0, 0, this->width, 24, this);
     txt->text(this->event.text);
     txt->is_scroll = true;
 
     // Buttons for decisions for the event
     for(const auto& decision : this->event.decisions) {
-        auto* decide_btn = new UI::Button(0, 0, this->width, 24, flex_column);
+        auto* decide_btn = new UI::Button(0, 0, this->width, 24, this);
         decide_btn->text(decision.name);
         decide_btn->set_tooltip(decision.effects);
         decide_btn->set_on_click([this, &decision](UI::Widget&) {
