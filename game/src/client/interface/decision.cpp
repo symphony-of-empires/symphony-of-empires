@@ -45,6 +45,7 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
     this->flex = UI::Flex::COLUMN;
 
     auto* txt = new UI::Text(0, 0, this->width, 24, this);
+    txt->text_color = Eng3D::Color::rgb8(0, 0, 0);
     txt->text(this->event.text);
     txt->is_scroll = true;
 
