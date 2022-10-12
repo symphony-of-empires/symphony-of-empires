@@ -209,8 +209,10 @@ void LUA_util::save(GameState& gs) {
         gs.ui_ctx.prompt("Save", "Editor data saved! (check editor folder)");
     } else {
         Archive ar{};
+        std::string creat_date = __DATE__;
+        ::serialize(ar, creat_date);
         ::serialize(ar, *gs.world);
-        ar.to_file("default.sc4");
+        ar.to_file(string_format("%s_%zu-%zu-%zu.sc4", gs.curr_nation->ref_name.c_str(), gs.world->get_year(), gs.world->get_month(), gs.world->get_day()));
         gs.ui_ctx.prompt("Save", "Saved sucessfully!");
     }
 }

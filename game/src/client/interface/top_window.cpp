@@ -184,6 +184,10 @@ TopWindow::TopWindow(GameState& _gs)
         this->gs.paused = true;
         Archive ar{};
         ar.from_file("default.sc4");
+        std::string creat_date;
+        ::deserialize(ar, creat_date);
+        if(creat_date != __DATE__)
+            this->gs.ui_ctx.prompt(translate("Savefile error"), translate("Savefile is from an incompatible version"));
         ::deserialize(ar, *this->gs.world);
         /// @todo Events aren't properly saved yet
         this->gs.world->events.clear();
@@ -252,14 +256,10 @@ TimeControlView::TimeControlView(GameState& _gs)
     time_lab->font = font;
     time_lab->text_color = Eng3D::Color(1., 1., 1.);
     time_lab->set_on_each_tick([this](UI::Widget& w) {
-        const size_t year = this->gs.world->time / this->gs.world->ticks_per_month / 12;
-        const size_t month = (this->gs.world->time / this->gs.world->ticks_per_month) % 12;
-        const size_t day = this->gs.world->time % this->gs.world->ticks_per_month;
-
         std::tm tm{};
-        tm.tm_year = year - 1900;
-        tm.tm_mon = month - 1;
-        tm.tm_mday = day + 1;
+        tm.tm_year = this->gs.world->get_year() - 1900;
+        tm.tm_mon = this->gs.world->get_month() - 1;
+        tm.tm_mday = this->gs.world->get_day() + 1;
         char mbstr[100];
         std::strftime(mbstr, sizeof mbstr, "%x", &tm);
         w.text(mbstr);

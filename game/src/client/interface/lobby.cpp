@@ -43,21 +43,17 @@ using namespace Interface;
 
 // Start screen
 LobbySelectView::LobbySelectView(GameState& _gs)
-    : UI::Window(-576, 0, 576, 128),
+    : UI::Window(-450, 0, 450, 128),
     gs{ _gs },
     curr_selected_nation{ 0 }
 {
     this->origin = UI::Origin::UPPER_RIGHT_SCREEN;
 
-    // Flag with shadow
-    this->curr_country_flag_img = new UI::Image(0, 0, 38, 28, gs.tex_man.get_white(), this);
-    new UI::Image(0, 0, 38, 28, "gfx/drop_shadow.png", this);
-
     // Country button for selection
-    this->curr_country_btn = new UI::Button(0, 0, 320, 28, this);
-    curr_country_btn->right_side_of(*this->curr_country_flag_img);
-    curr_country_btn->text("Select a country");
-    curr_country_btn->set_on_click([this](UI::Widget&) {
+    this->curr_country_btn = new UI::Button(0, 0, 250, 24, this);
+    this->curr_country_btn->text(translate("No country selected"));
+    this->curr_country_btn->set_tooltip(translate("Select a country by clicking on the map or pressing the buttons below"));
+    this->curr_country_btn->set_on_click([this](UI::Widget&) {
         if(this->gs.curr_nation != nullptr) {
             this->gs.ui_ctx.clear();
             if(this->gs.host_mode) {
@@ -72,6 +68,12 @@ LobbySelectView::LobbySelectView(GameState& _gs)
         }
     });
 
+    // Flag with shadow
+    this->curr_country_flag_img = new UI::Image(250, 0, 128, 72, gs.tex_man.get_white(), this);
+#ifndef E3D_HANDHELD
+    new UI::Image(250, 0, this->curr_country_flag_img->width, this->curr_country_flag_img->height, "gfx/drop_shadow.png", this);
+#endif
+
     auto* back_btn = new UI::Button(0, 0, 128, 24, this);
     back_btn->text("Back");
     back_btn->below_of(*curr_country_btn);
@@ -80,40 +82,49 @@ LobbySelectView::LobbySelectView(GameState& _gs)
         new Interface::MainMenu(gs);
     });
 
-    auto* next_country_btn = new UI::Button(0, 0, 128, 24, this);
-    next_country_btn->text("Next");
-    next_country_btn->below_of(*curr_country_btn);
-    next_country_btn->right_side_of(*back_btn);
-    next_country_btn->set_on_click([this](UI::Widget&) {
-        this->change_nation(this->curr_selected_nation + 1);
-    });
-
-    auto* prev_country_btn = new UI::Button(0, 0, 128, 24, this);
-    prev_country_btn->text("Previous");
+    auto* prev_country_btn = new UI::Image(0, 0, 24, 24, "gfx/arrow_left.png", this);
     prev_country_btn->below_of(*curr_country_btn);
-    prev_country_btn->right_side_of(*next_country_btn);
+    prev_country_btn->right_side_of(*back_btn);
     prev_country_btn->set_on_click([this](UI::Widget&) {
         this->change_nation(this->curr_selected_nation - 1);
     });
 
+    auto* next_country_ibtn = new UI::Image(0, 0, 24, 24, "gfx/arrow_right.png", this);
+    next_country_ibtn->below_of(*curr_country_btn);
+    next_country_ibtn->right_side_of(*prev_country_btn);
+    next_country_ibtn->set_on_click([this](UI::Widget&) {
+        this->change_nation(this->curr_selected_nation + 1);
+    });
+
+    auto* random_country_ibtn = new UI::Image(0, 0, 24, 24, "gfx/noicon.png", this);
+    random_country_ibtn->set_tooltip(translate("Select a random country"));
+    random_country_ibtn->below_of(*curr_country_btn);
+    random_country_ibtn->right_side_of(*next_country_ibtn);
+    random_country_ibtn->set_on_click([this](UI::Widget&) {
+        this->change_nation(rand() % this->gs.world->nations.size());
+    });
+
     const auto path = std::filesystem::current_path().string();
-    auto* game_group = new UI::Group(0, 0, 128, gs.height, this);
-    game_group->below_of(*prev_country_btn);
-    game_group->flex = UI::Flex::COLUMN;
-    game_group->is_scroll = true;
+    auto* savefiles_grp = new UI::Group(0, 0, 128, gs.height, this);
+    savefiles_grp->below_of(*random_country_ibtn);
+    savefiles_grp->flex = UI::Flex::COLUMN;
+    savefiles_grp->is_scroll = true;
     for(const auto& entry : std::filesystem::directory_iterator(path)) {
         if(!entry.is_directory() && entry.path().extension() == ".sc4") {
             auto savefile_path = entry.path().lexically_relative(path).string();
-            auto* ldgame_btn = new UI::Button(0, 0, 128, 24, game_group);
-            ldgame_btn->text(savefile_path);
-            ldgame_btn->set_on_click([this, savefile_path](UI::Widget&) {
-                if(this->gs.curr_nation == nullptr)
-                    this->change_nation(0);
+            auto* savefile_btn = new UI::Button(0, 0, 128, 24, savefiles_grp);
+            savefile_btn->text(savefile_path);
+            savefile_btn->set_on_click([this, savefile_path](UI::Widget&) {
+                if(this->gs.curr_nation == nullptr) this->change_nation(0);
                 const auto nation_id = this->gs.curr_nation->get_id();
                 this->gs.paused = true;
 
                 Archive ar = Archive();
                 ar.from_file(savefile_path);
+                std::string creat_date;
+                ::deserialize(ar, creat_date);
+                if(creat_date != __DATE__)
+                    this->gs.ui_ctx.prompt(translate("Savefile error"), translate("Savefile is from an incompatible version"));
                 ::deserialize(ar, *this->gs.world);
                 /// @todo Events aren't properly saved yet
                 this->gs.world->events.clear();

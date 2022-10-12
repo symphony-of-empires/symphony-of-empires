@@ -59,8 +59,8 @@ Interface::MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     ip_addr_inp = new UI::Input(0, 0, 128, 24, this);
     ip_addr_inp->set_buffer("127.0.0.1");
     ip_addr_inp->set_tooltip("IP Address of the server\n"
-                             "127.x.x.x is the localhost\n"
-                             "192.x.x.x is the local LAN IP range");
+                             "127.x.x.x: Local host\n"
+                             "192.x.x.x: LAN IP range");
 
     username_inp = new UI::Input(0, 24, 512, 24, this);
     username_inp->set_buffer("Player");

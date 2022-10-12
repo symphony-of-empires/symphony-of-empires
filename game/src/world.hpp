@@ -216,6 +216,19 @@ public:
         return relations[(a * a - a) / 2 + b];
     }
 
+    int get_year(void) const {
+        return this->time / this->ticks_per_month / 12;
+    }
+
+    int get_month(void) const {
+        return (this->time / this->ticks_per_month) % 12;
+    }
+
+    int get_day(void) const {
+        return this->time % this->ticks_per_month;
+    }
+
+
     /// @brief Lua state - for lua scripts, this is only used by the server and should not be
     /// accesible to the client
     lua_State* lua = nullptr;
