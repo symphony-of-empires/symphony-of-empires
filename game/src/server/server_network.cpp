@@ -203,7 +203,7 @@ void Server::net_loop(int id) {
                     if(unit_type == nullptr)
                         CXX_THROW(ServerException, "Unknown unit type");
                     /// @todo Find building
-                    auto& building = province->get_buildings()[g_world.get_id(*building_type)];
+                    auto& building = province->get_buildings()[*building_type];
                     /// @todo Check nation can build this unit
                     // Tell the building to build this specific unit type
                     building.working_unit_type_id = *unit_type;

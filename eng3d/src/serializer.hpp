@@ -209,11 +209,6 @@ struct Serializer<T> {
                         obj_group.insert(obj);
                 }
             }
-
-            // Handle strings properly
-            constexpr bool has_c_str = requires(T a) { a.c_str(); };
-            if constexpr(has_c_str)
-                obj_group[len] = '\0';
         }
     }
 };

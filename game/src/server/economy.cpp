@@ -90,7 +90,7 @@ static void update_factory_production(World& world, Building& building, const Bu
     float total_worker_pop = building.workers;
 
     // TODO add input modifier
-    auto inputs_cost = 0.f; // Buy the inputs for te factory
+    auto inputs_cost = 0.f; // Buy the inputs for the factory
     for(const auto& [product_id, amount] : building_type.req_goods)
         inputs_cost += province.products[product_id].buy(amount * building.production_scale);
     auto output_value = output_product.produce(output_amount);
@@ -255,8 +255,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             auto& pop = province.pops[i];
             pop.budget = new_needs[i].budget;
             pop.life_needs_met = new_needs[i].life_needs_met;
-
-            float growth = glm::min(pop.size * pop.life_needs_met * 0.1f, 100.f);
+            const auto growth = glm::clamp(pop.size * pop.life_needs_met * 0.1f, -100.f, 100.f);
             pop.size += growth;
             pop.militancy += 0.01f * -pop.life_needs_met;
             pop.ideology_approval[world.nations[province.owner_id].ideology_id] += pop.life_needs_met * 0.25f;
@@ -265,13 +264,6 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         for(size_t i = 0; i < province.buildings.size(); i++)
             province.buildings[i].workers = new_workers[i];
     });
-
-    for(auto& province : world.provinces) {
-        if(province.total_pops() == 0.f) {
-            province.pops.clear();
-            world.nations[0].give_province(province);
-        }
-    }
 
     province_new_units.combine_each([&world](auto& new_unit_list) {
         for(auto& new_unit : new_unit_list) // Now commit the transaction of the new units into the main world area

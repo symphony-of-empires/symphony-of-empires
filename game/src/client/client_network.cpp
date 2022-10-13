@@ -191,14 +191,14 @@ void Client::net_loop() {
                         ::deserialize(ar, province);
                         BuildingType* building_type;
                         ::deserialize(ar, building_type);
-                        province->buildings[gs.world->get_id(*building_type)].level++;
+                        province->buildings[*building_type].level++;
                     } break;
                     case ActionType::BUILDING_REMOVE: {
                         Province* province;
                         ::deserialize(ar, province);
                         BuildingType* building_type;
                         ::deserialize(ar, building_type);
-                        province->buildings[gs.world->get_id(*building_type)].level--;
+                        province->buildings[*building_type].level--;
                     } break;
                     case ActionType::TREATY_ADD: {
                         Treaty treaty;

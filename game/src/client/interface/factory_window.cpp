@@ -92,8 +92,8 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
                 }
 
                 auto scale = row->get_element(row_index++);
-                scale->text(string_format("%.0f", building.production_scale));
-                scale->set_key(building.production_scale);
+                scale->text(string_format("%.0f", building.level * building.production_scale));
+                scale->set_key(building.level * building.production_scale);
 
                 auto upgrade = row->get_element(row_index++);
                 upgrade->text("+");

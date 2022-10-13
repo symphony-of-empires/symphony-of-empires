@@ -94,14 +94,14 @@ struct Building : Entity<BuildingId> {
     }
 
     /// @brief Checks if the building can produce output (if it has enough input)
-    inline bool can_do_output() const {
+    bool can_do_output() const {
         // Check that we have enough stockpile
         for(const auto& stock : this->stockpile)
             if(!stock) return false;
         return this->level > 0;
     }
 
-    inline bool can_build_unit() const {
+    bool can_build_unit() const {
         for(const auto& [k, v] : req_goods_for_unit)
             if(v) return false;
         return this->level > 0;

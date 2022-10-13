@@ -70,15 +70,15 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
 
     if(gs.world->terrain_types[province.terrain_type_id].is_water_body)
         return;
-
-    //province.buildings[rand() % province.buildings.size()].level++;
-    //province.buildings[rand() % province.buildings.size()].level++;
-    //province.buildings[rand() % province.buildings.size()].level++;
-    //province.buildings[rand() % province.buildings.size()].level++;
+    
+    for(auto& building : province.buildings)
+        building.level = 0;
+    province.buildings[rand() % province.buildings.size()].level = 10;
+    province.buildings[rand() % province.buildings.size()].level = 10;
     for(const auto& building_type : gs.world->building_types) {
         const auto& building = province.buildings[building_type];
         if(building.level)
-            fprintf(fp, "province:update_building(bt_%s,%f)\n", building_type.ref_name.c_str(), building.level);
+            fprintf(fp, "province:update_building(bt_%s,%i)\n", building_type.ref_name.c_str(), (int)building.level);
     }
 
     // POPs
@@ -132,12 +132,12 @@ void LUA_util::save(GameState& gs, const std::string& savefile_path) {
 
         // First add provinces with pops, then the provinces **without** pops
         for(auto& province : gs.world->provinces) {
-            if(!province.pops.empty() || Nation::is_valid(province.owner_id))
+            if(province.is_populated() || Nation::is_valid(province.owner_id))
                 save_province(gs, fp.get(), province);
             cnt++;
         }
         for(auto& province : gs.world->provinces) {
-            if(province.pops.empty() && Nation::is_invalid(province.owner_id))
+            if(!province.is_populated() && Nation::is_invalid(province.owner_id))
                 save_province(gs, fp.get(), province);
             cnt++;
         }

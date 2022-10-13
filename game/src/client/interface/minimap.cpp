@@ -138,7 +138,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
         };
         mapmode_tooltip tooltip = [](const World& world, const ProvinceId id) -> std::string {
             const auto& province = world.provinces[id];
-            if(province.pops.empty()) return "";
+            if(province.is_populated()) return "";
             size_t amount = province.total_pops();
             return string_format("%s\nPopulation: %zu", province.name.c_str(), amount);
         };
@@ -199,7 +199,7 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
         };
         mapmode_tooltip tooltip = [](const World& world, const ProvinceId id) -> std::string {
             const auto& province = world.provinces[id];
-            if(province.pops.empty()) return "";
+            if(!province.is_populated()) return "";
             const auto it = std::max_element(province.languages.begin(), province.languages.end());
             return world.languages[std::distance(province.languages.begin(), it)].name;
         };
@@ -304,13 +304,16 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
 mapmode_tooltip good_tooltip(GoodId good_id) {
     return [good_id](const World& world, const ProvinceId id) -> std::string {
         const auto& province = world.provinces[id];
-        if(Nation::is_invalid(province.controller_id))
-            return "";
+        if(Nation::is_invalid(province.controller_id)) return "";
         const auto& product = province.products[good_id];
-        std::string str;
-        str += Eng3D::translate_format("Price: %.2f\n", product.price);
-        str += Eng3D::translate_format("Demand: %.2f\n", product.demand);
-        str += Eng3D::translate_format("Supply: %.2f\n", product.supply);
+        std::string str = Eng3D::translate_format("%s\nPrice: %.2f\nDemand: %.2f\nSupply: %.2f", province.name.c_str(), product.price, product.demand, product.supply);
+        for(size_t i = 0; i < province.buildings.size(); i++) {
+            const auto& type = world.building_types[i];
+            const auto& building = province.buildings[i];
+            if(building.level) {
+                str += translate_format("\n%s (level %.0f), scale %.0f, workers %.0f, budget %.0f", type.name.c_str(), building.level, building.production_scale, building.workers, building.budget);
+            }
+        }
         return str;
     };
 }

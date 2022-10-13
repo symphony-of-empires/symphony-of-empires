@@ -90,8 +90,6 @@ static inline float nation_attraction(Nation& nation, Language& language) {
 static inline float province_attraction(const Province& province) {
     if(Nation::is_invalid(province.controller_id) && Nation::is_invalid(province.owner_id))
         return -1.f;
-    if(province.pops.empty())
-        return -1.f;
     return province.base_attractive + rng_multipliers.get_item();
 }
 
@@ -140,30 +138,6 @@ static inline void external_migration(World& world) {
     for(auto& nation : world.nations)
         if(nation.exists())
             eval_nations.push_back(&nation);
-
-    for(auto& province : world.provinces) {
-        const auto& unit_ids = world.unit_manager.get_province_units(province);
-        if(province.pops.empty()) {
-            if(unit_ids.empty()) {
-                if(Nation::is_valid(province.owner_id)) { // Remove owner
-                    auto& provinces = world.nations[province.owner_id].owned_provinces;
-                    std::erase(provinces, province);
-                }
-                province.owner_id = (NationId)-1;
-                if(Nation::is_valid(province.controller_id)) { // Remove controller
-                    auto& provinces = world.nations[province.controller_id].controlled_provinces;
-                    std::erase(provinces, province);
-                }
-                province.controller_id = (NationId)-1;
-                province.cancel_construction_project(); // Cancel the unit construction projects
-                world.province_manager.mark_province_control_changed(province); // Update the province changed
-                world.province_manager.mark_province_owner_changed(province); // Update the province changed
-            } else {
-                for(const auto unit_id : unit_ids) // Perform costly attrition
-                    world.unit_manager.units[unit_id].size *= 0.74f;
-            }
-        }
-    }
 
     tbb::combinable<std::vector<Emigrated>> emigration;
     tbb::parallel_for(tbb::blocked_range(eval_nations.begin(), eval_nations.end()), [&emigration, &nation_distributions, &province_distributions, &world](const auto& nations_range) {

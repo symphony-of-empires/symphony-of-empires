@@ -782,7 +782,7 @@ int LuaAPI::add_province_pop(lua_State* L) {
 
     if(!pop.size)
         luaL_error(L, "Can't create pops with 0 size");
-    province.pops.push_back(pop);
+    province[pop.type_id] = pop;
     assert(province.pops.size() < 100);
     return 0;
 }
@@ -931,8 +931,8 @@ int LuaAPI::add_pop_type(lua_State* L) {
         lua_next(L, -2);
         const float deminishing = pop_number(L);
         lua_pop(L, 2);
-        pop_type.luxury_needs_satisfaction[g_world.get_id(good)] = satisfaction;
-        pop_type.luxury_needs_deminishing_factor[g_world.get_id(good)] = deminishing;
+        pop_type.luxury_needs_satisfaction[good] = satisfaction;
+        pop_type.luxury_needs_deminishing_factor[good] = deminishing;
     }
     lua_pop(L, 1);
 

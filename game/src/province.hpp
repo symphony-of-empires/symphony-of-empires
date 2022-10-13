@@ -94,6 +94,18 @@ public:
         return buildings;
     }
 
+    bool is_populated() const {
+        for(const auto& pop : pops)
+            if(pop.size > 0.f)
+                return true;
+        return false;
+    }
+
+    void unpopulate() {
+        for(auto& pop : pops)
+            pop.size = 0.f;
+    }
+
     Eng3D::StringRef name;
     std::uint32_t color = 0; // Color of the province, used for mapping the province's shape from the map_div.png file
     bool is_coastal = false;
@@ -105,7 +117,7 @@ public:
     NationId controller_id;
     TerrainTypeId terrain_type_id;
     std::vector<uint32_t> rgo_size; // How much of each rgo that can be extracted
-    std::vector<Pop> pops; // List of pops in this province
+    std::array<Pop, 4> pops; // List of pops in this province
     std::vector<Product> products;
     std::vector<Building> buildings;
     std::vector<Battle> battles;

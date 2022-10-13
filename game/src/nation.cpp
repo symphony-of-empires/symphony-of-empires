@@ -51,7 +51,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     // - Those who are allied to us
     for(size_t i = 0; i < world.nations.size(); i++) {
         if(&world.nations[i] == this || &world.nations[i] == &nation) continue;
-        const auto& relation = world.get_relation(i, world.get_id(*this));
+        const auto& relation = world.get_relation(i, *this);
         if(relation.is_allied() || world.nations[i].puppet_master_id == *this)
             war->attacker_ids.push_back(world.nations[i]);
     }
@@ -64,7 +64,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     for(size_t i = 0; i < world.nations.size(); i++) {
         if(&world.nations[i] == this || &world.nations[i] == &nation) continue;
         if(std::find(war->attacker_ids.begin(), war->attacker_ids.end(), world.nations[i]) != war->attacker_ids.end()) continue;
-        const auto& relation = world.get_relation(i, world.get_id(nation));
+        const auto& relation = world.get_relation(i, nation);
         if(relation.is_allied() || world.nations[i].puppet_master_id == nation)
             war->defender_ids.push_back(world.nations[i]);
     }
@@ -118,14 +118,14 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
 
 bool Nation::is_ally(const Nation& nation) const {
     const auto& world = World::get_instance();
-    const auto& relation = world.get_relation(world.get_id(*this), world.get_id(nation));
+    const auto& relation = world.get_relation(*this, nation);
     if(relation.has_war) return false;
     return true;
 }
 
 bool Nation::is_enemy(const Nation& nation) const {
     const auto& world = World::get_instance();
-    const auto& relation = world.get_relation(world.get_id(*this), world.get_id(nation));
+    const auto& relation = world.get_relation(*this, nation);
     if(relation.has_war) return true;
     return false;
 }
@@ -281,7 +281,7 @@ float Nation::get_research_points() const {
         const auto& province = World::get_instance().provinces[province_id];
         for(const auto& pop : province.pops)
             research += pop.size * pop.literacy;
-        if(research && !province.pops.empty())
+        if(research && !province.is_populated())
             research /= province.pops.size();
     }
     return research / 100.f;

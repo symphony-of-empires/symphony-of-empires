@@ -263,7 +263,7 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
                 auto& nc_province = const_cast<Province&>(this->province);
                 nc_province.terrain_type_id = terrain_type;
                 if(terrain_type.is_water_body) {
-                    nc_province.pops.clear();
+                    nc_province.unpopulate();
                     nc_province.nuclei.clear();
                     nc_province.controller_id = Nation::invalid();
                     nc_province.owner_id = Nation::invalid();
@@ -364,7 +364,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
                 pop.size = 1000.f / glm::max(0.01f, pop_type.social_value);
                 pop.literacy = max_sv / glm::max(0.01f, pop_type.social_value);
                 pop.budget = pop.size * 100.f * max_sv;
-                const_cast<Province&>(this->province).pops.push_back(pop);
+                this->province.pops[pop_type] = pop;
             }
             this->gs.map->update_mapmode();
             this->gs.update_tick = true;
