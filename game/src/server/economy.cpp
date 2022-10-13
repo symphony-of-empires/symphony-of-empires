@@ -104,7 +104,7 @@ static void update_factory_production(World& world, Building& building, const Bu
     }
 
     // Rescale production
-    // This is used to set how much the of the maximum capicity the factory produce
+    // This is used to set how much the of the maximum capacity the factory produce
     building.production_scale = glm::clamp(building.production_scale * scale_speed(output_value / (min_wage + inputs_cost)), 0.5f, 5.f);
 }
 
@@ -198,7 +198,6 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         for(auto& building : province.buildings) {
             // There must not be conflict ongoing otherwise they wont be able to build shit
             if(province.controller_id == province.owner_id && UnitType::is_valid(building.working_unit_type_id) && building.can_build_unit()) {
-                // Ratio of health:person is 25, thus making units very expensive
                 const float army_size = 100;
                 /// @todo Consume special soldier pops instead of farmers!!!
                 auto it = std::find_if(province.pops.begin(), province.pops.end(), [&world, building, army_size](const auto& e) {
@@ -266,6 +265,13 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         for(size_t i = 0; i < province.buildings.size(); i++)
             province.buildings[i].workers = new_workers[i];
     });
+
+    for(auto& province : world.provinces) {
+        if(province.total_pops() == 0.f) {
+            province.pops.clear();
+            world.nations[0].give_province(province);
+        }
+    }
 
     province_new_units.combine_each([&world](auto& new_unit_list) {
         for(auto& new_unit : new_unit_list) // Now commit the transaction of the new units into the main world area

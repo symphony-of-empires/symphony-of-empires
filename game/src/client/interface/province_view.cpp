@@ -84,43 +84,43 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     this->is_scroll = true;
     this->text(province.name);
 
-    this->landscape_img = new UI::Image(0, 0, this->width, 128 + 64 + 16, gs.world->terrain_types[province.terrain_type_id].get_icon_path(), this);
+    auto* landscape_img = new UI::Image(0, 0, this->width, 128 + 64 + 16, gs.world->terrain_types[province.terrain_type_id].get_icon_path(), this);
 
     if(Nation::is_valid(province.owner_id)) {
-        this->owner_flag = new UI::AspectImage(0, 0, 96, 48, gs.get_nation_flag(gs.world->nations[this->province.owner_id]), this);
-        this->owner_flag->set_on_click([this](UI::Widget&) {
+        auto* owner_flag = new UI::AspectImage(0, 0, 96, 48, gs.get_nation_flag(gs.world->nations[this->province.owner_id]), this);
+        owner_flag->set_on_click([this](UI::Widget&) {
             new Interface::NationView(this->gs, gs.world->nations[this->province.owner_id]);
         });
-        this->owner_flag->set_tooltip(translate_format("%s owns this province", gs.world->nations[this->province.owner_id].name.c_str()));
-        new UI::Image(this->owner_flag->x, this->owner_flag->y, this->owner_flag->width, this->owner_flag->height, "gfx/flag_rug.png", this);
+        owner_flag->set_tooltip(translate_format("%s owns this province", gs.world->nations[this->province.owner_id].name.c_str()));
+        new UI::Image(owner_flag->x, owner_flag->y, owner_flag->width, owner_flag->height, "gfx/flag_rug.png", this);
     }
 
     // Display all the nuclei
-    auto* nuclei_flex_row = new UI::Div(0, this->landscape_img->height - 24, this->width, 24, this);
+    auto* nuclei_flex_row = new UI::Div(0, landscape_img->height - 24, this->width, 24, this);
     nuclei_flex_row->flex = UI::Flex::ROW;
     for(const auto& nucleus_id : province.nuclei) {
         auto& nucleus = g_world.nations[nucleus_id];
-        this->owner_flag = new UI::AspectImage(0, 0, 32, 24, gs.get_nation_flag(nucleus), nuclei_flex_row);
-        this->owner_flag->set_on_click([this, &nucleus](UI::Widget&) {
-            new Interface::NationView(this->gs, nucleus);
+        auto* owner_flag = new UI::AspectImage(0, 0, 32, 24, gs.get_nation_flag(nucleus), nuclei_flex_row);
+        owner_flag->set_on_click([this, nucleus_id](UI::Widget&) {
+            new Interface::NationView(this->gs, this->gs.world->nations[nucleus_id]);
         });
-        this->owner_flag->set_tooltip(translate_format("%s has claims on this province", nucleus.name.c_str()));
+        owner_flag->set_tooltip(translate_format("%s has claims on this province", nucleus.name.c_str()));
     }
 
     auto* languages_lab = new UI::Label(0, 0, "Languages", this);
-    languages_lab->below_of(*this->landscape_img);
+    languages_lab->below_of(*landscape_img);
     this->languages_pie = new UI::PieChart(0, 0, 96, 96, this);
     this->languages_pie->below_of(*languages_lab);
 
     auto* religions_lab = new UI::Label(0, 0, "Religions", this);
-    religions_lab->below_of(*this->landscape_img);
+    religions_lab->below_of(*landscape_img);
     religions_lab->right_side_of(*this->languages_pie);
     this->religions_pie = new UI::PieChart(0, 0, 96, 96, this);
     this->religions_pie->below_of(*religions_lab);
     this->religions_pie->right_side_of(*this->languages_pie);
 
     auto* pop_types_lab = new UI::Label(0, 0, "Proffesions", this);
-    pop_types_lab->below_of(*this->landscape_img);
+    pop_types_lab->below_of(*landscape_img);
     pop_types_lab->right_side_of(*this->religions_pie);
     this->pop_types_pie = new UI::PieChart(0, 0, 96, 96, this);
     this->pop_types_pie->below_of(*pop_types_lab);
@@ -180,8 +180,6 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province& _
 {
     this->text(province.name);
     this->is_scroll = true;
-
-    
 }
 
 ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)

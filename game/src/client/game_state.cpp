@@ -74,7 +74,7 @@ void GameState::play_nation() {
     top_win = static_cast<UI::Widget*>(new Interface::TopWindow(*this));
     minimap = static_cast<UI::Widget*>(new Interface::Minimap(*this, -400, -200, UI::Origin::LOWER_RIGHT_SCREEN));
     Eng3D::Log::debug("game", translate_format("Playing as nation %s", this->curr_nation->ref_name.c_str()));
-    this->curr_nation->ai_do_cmd_troops = false;
+    this->curr_nation->ai_do_cmd_troops = true;
     this->curr_nation->ai_controlled = false;
     this->client->send(Action::SelectNation::form_packet(*this->curr_nation));
 }
@@ -135,11 +135,7 @@ void GameState::world_thread() {
                 Eng3D::Log::error("world_thread", e.what());
                 paused = true;
             }
-
-            // Wait until time delta is fullfilled and update_tick is false
-            auto end_time = std::chrono::system_clock::now();
-            while(end_time - start_time < delta)
-                end_time = std::chrono::system_clock::now();
+            std::this_thread::sleep_until(start_time + delta);
         }
     }
 }
@@ -391,7 +387,7 @@ extern "C" void game_main(int argc, char** argv) {
                     if(gs.current_mode == MapMode::NORMAL) {
                         // Production queue
                         for(size_t i = 0; i < gs.production_queue.size(); i++) {
-                            const auto* unit_type = gs.production_queue[i];
+                            const auto& unit_type = gs.world->unit_types[gs.production_queue[i]];
 
                             /// @todo Make a better queue AI
                             bool is_built = false;
@@ -402,7 +398,7 @@ extern "C" void game_main(int argc, char** argv) {
                                     // Must not be working on something else
                                     if(UnitType::is_invalid(building.working_unit_type_id)) {
                                         is_built = true;
-                                        gs.client->send(Action::BuildingStartProducingUnit::form_packet(province, building_type, *gs.curr_nation, *unit_type));
+                                        gs.client->send(Action::BuildingStartProducingUnit::form_packet(province, building_type, *gs.curr_nation, unit_type));
                                         break;
                                     }
                                 }

@@ -192,28 +192,16 @@ public:
     
     std::vector<NationRelation> relations;
 
-    /// @brief Uses cantor's pairing function
-    /// https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
-    inline NationRelation& get_relation(NationId a, NationId b) {
+    NationRelation& get_relation(NationId a, NationId b) {
         assert(a != b);
-        if(b > a) {
-            int tmp;
-            tmp = b;
-            b = a;
-            a = tmp;
-        }
-        return relations[(a * a - a) / 2 + b];
+        if(b > a) std::swap(a, b);
+        return relations[a + b * nations.size()];
     }
 
-    inline const NationRelation& get_relation(NationId a, NationId b) const {
+    const NationRelation& get_relation(NationId a, NationId b) const {
         assert(a != b);
-        if(b > a) {
-            int tmp;
-            tmp = b;
-            b = a;
-            a = tmp;
-        }
-        return relations[(a * a - a) / 2 + b];
+        if(b > a) std::swap(a, b);
+        return relations[a + b * nations.size()];
     }
 
     int get_year(void) const {

@@ -65,7 +65,7 @@ TopWindow::TopWindow(GameState& _gs)
     money_img->set_tooltip("Money");
     auto* money_lab = new UI::Label(0, 0, " ", money_grp);
     money_lab->set_on_each_tick([this](UI::Widget& w) {
-        w.text(Eng3D::translate_format("%8.0f", this->gs.curr_nation->budget));
+        w.text(Eng3D::translate_format("%.0f", this->gs.curr_nation->budget));
     });
     money_lab->on_each_tick(*money_lab);
 
@@ -83,7 +83,7 @@ TopWindow::TopWindow(GameState& _gs)
                     total += unit.get_strength();
             }
         }
-        w.text(Eng3D::string_format("%8.0f", total));
+        w.text(Eng3D::string_format("%.0f", total));
     });
     military_score_lab->on_each_tick(*military_score_lab);
 
@@ -99,7 +99,7 @@ TopWindow::TopWindow(GameState& _gs)
                 total += building.production_scale * building.level;
             }
         }
-        w.text(Eng3D::string_format("%8.0f", total));
+        w.text(Eng3D::string_format("%.0f", total));
     });
     industrial_score_lab->on_each_tick(*industrial_score_lab);
 
@@ -108,7 +108,7 @@ TopWindow::TopWindow(GameState& _gs)
     prestige_score_img->set_tooltip("Prestige");
     auto* prestige_score_lab = new UI::Label(0, 0, " ", prestige_score_grp);
     prestige_score_lab->set_on_each_tick([this](UI::Widget& w) {
-        w.text(Eng3D::string_format("%8.0f", this->gs.curr_nation->prestige));
+        w.text(Eng3D::string_format("%.0f", this->gs.curr_nation->prestige));
     });
     prestige_score_lab->on_each_tick(*prestige_score_lab);
 

@@ -151,6 +151,8 @@ namespace UI {
         glm::mat4 projection; // Projection & view (recalculated on resize)
         glm::mat4 view;
         glm::mat4 model; // Base model matrix
+
+        friend class Widget;
     };
     extern Context* g_ui_context;
 }; // namespace UI

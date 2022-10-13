@@ -272,6 +272,7 @@ namespace UI {
         /// widgets are cleared by the UI context
         inline void kill() {
             this->dead = true;
+            this->kill_children();
             this->notice_death();
         }
 

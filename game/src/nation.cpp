@@ -306,3 +306,15 @@ void Nation::change_research_focus(const Technology& technology) {
     if(!this->can_research(technology)) return;
     this->focus_tech_id = technology;
 }
+
+std::vector<NationId> Nation::get_allies(void) const {
+    const auto& world = World::get_instance();
+
+    std::vector<NationId> nation_ids;
+    for(const auto& nation : world.nations) {
+        const auto& relation = world.get_relation(*this, nation);
+        if(relation.is_allied())
+            nation_ids.push_back(nation);
+    }
+    return nation_ids;
+}

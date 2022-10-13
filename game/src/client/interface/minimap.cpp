@@ -38,18 +38,11 @@
 
 using namespace Interface;
 
+std::vector<ProvinceColor> terrain_map_mode(const World& world);
 mapmode_tooltip good_tooltip(GoodId id);
 mapmode_generator goods_map_mode(GoodId id);
 mapmode_generator relations_map_mode(NationId id);
 mapmode_tooltip relations_tooltip(NationId id);
-std::vector<ProvinceColor> terrain_color_map_mode(const World& world);
-std::string terrain_type_tooltip(const World& world, const ProvinceId id);
-std::vector<ProvinceColor> population_map_mode(const World& world);
-std::vector<ProvinceColor> language_map_mode(const World& world);
-std::string language_tooltip(const World& world, const ProvinceId id);
-std::vector<ProvinceColor> religion_map_mode(const World& world);
-std::string religion_tooltip(const World& world, const ProvinceId id);
-std::vector<ProvinceColor> terrain_map_mode(const World& world);
 
 Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     : UI::Window(x, y, 400, 200),
@@ -119,14 +112,35 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     auto* population_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
     population_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-        mapmode_generator map_mode = population_map_mode;
+        mapmode_generator map_mode = [](const World& world) {
+            // Find the maximum amount of pops in one province
+            std::vector<std::pair<ProvinceId, float>> province_amounts;
+            float max_amount = 1.f;
+            for(auto const& province : world.provinces) {
+                float amount = std::accumulate(province.pops.cbegin(), province.pops.cend(), 0, [](const float a, const auto& e) {
+                    return a + e.size;
+                });
+                //amount = log2(amount + 1.f);
+                max_amount = glm::max(amount, max_amount);
+                province_amounts.emplace_back(province.get_id(), amount);
+            }
+
+            // Mix each color depending of how many live there compared to max_amount
+            Eng3D::Color min = Eng3D::Color::rgb8(255, 255, 255);
+            Eng3D::Color max = Eng3D::Color::rgb8(180, 24, 24);
+            std::vector<ProvinceColor> province_color;
+            for(auto const& [province_id, amount] : province_amounts) {
+                float ratio = amount / max_amount;
+                Eng3D::Color color = Eng3D::Color::lerp(min, max, ratio);
+                province_color.emplace_back(province_id, color);
+            }
+            return province_color;
+        };
         mapmode_tooltip tooltip = [](const World& world, const ProvinceId id) -> std::string {
             const auto& province = world.provinces[id];
             if(province.pops.empty()) return "";
-            size_t amount = 0;
-            for(auto const& pop : province.pops)
-                amount += pop.size;
-            return string_format("\nPopulation: %zu", province.name.c_str(), amount);
+            size_t amount = province.total_pops();
+            return string_format("%s\nPopulation: %zu", province.name.c_str(), amount);
         };
         this->gs.map->set_map_mode(map_mode, tooltip);
         set_mapmode_options(nullptr);
@@ -136,8 +150,20 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     auto* terrain_color_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
     terrain_color_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-        mapmode_generator map_mode = terrain_color_map_mode;
-        mapmode_tooltip tooltip = terrain_type_tooltip;
+        mapmode_generator map_mode = [](const World& world) {
+            std::vector<ProvinceColor> province_color;
+            for(unsigned int i = 0; i < world.provinces.size(); i++) {
+                const auto& province = world.provinces[i];
+                Eng3D::Color color = Eng3D::Color::bgr32(world.terrain_types[province.terrain_type_id].color);
+                province_color.emplace_back(ProvinceId(i), color);
+            }
+            province_color.emplace_back(ProvinceId(-2), Eng3D::Color{}); // Water
+            province_color.emplace_back(ProvinceId(-1), Eng3D::Color{}); // Land
+            return province_color;
+        };
+        mapmode_tooltip tooltip = [](const World& world, const ProvinceId id) -> std::string {
+            return world.terrain_types[world.provinces[id].terrain_type_id].name;
+        };
         this->gs.map->set_map_mode(map_mode, tooltip);
         set_mapmode_options(nullptr);
     });
@@ -146,8 +172,37 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     auto* language_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
     language_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-        mapmode_generator map_mode = language_map_mode;
-        mapmode_tooltip tooltip = language_tooltip;
+        mapmode_generator map_mode = [](const World& world) {
+            std::vector<ProvinceColor> province_color;
+            const auto min = Eng3D::Color::rgb8(255, 255, 255);
+            for(size_t i = 0; i < world.provinces.size(); i++) {
+                const auto& province = world.provinces[i];
+                std::vector<size_t> language_amounts(world.languages.size());
+                size_t total_amount = province.total_pops();
+                size_t max_amount = 0;
+                size_t max_language_id = 0;
+                for(const auto& language : world.languages) {
+                    language_amounts[language] = province.languages[language] * total_amount;
+                    size_t amount = language_amounts[language];
+                    if(amount > max_amount) {
+                        max_amount = amount;
+                        max_language_id = language;
+                    }
+                }
+                const auto max = Eng3D::Color::bgr32(world.languages[max_language_id].color);
+                const auto color = Eng3D::Color::lerp(min, max, ((float)max_amount) / total_amount);
+                province_color.emplace_back(ProvinceId(i), color);
+            }
+            province_color.emplace_back((ProvinceId)-2, Eng3D::Color{}); // Water
+            province_color.emplace_back((ProvinceId)-1, Eng3D::Color(0.8f, 0.8f, 0.8f)); // Land
+            return province_color;
+        };
+        mapmode_tooltip tooltip = [](const World& world, const ProvinceId id) -> std::string {
+            const auto& province = world.provinces[id];
+            if(province.pops.empty()) return "";
+            const auto it = std::max_element(province.languages.begin(), province.languages.end());
+            return world.languages[std::distance(province.languages.begin(), it)].name;
+        };
         this->gs.map->set_map_mode(map_mode, tooltip);
         set_mapmode_options(nullptr);
     });
@@ -156,8 +211,36 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     auto* religion_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
     religion_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-        mapmode_generator map_mode = religion_map_mode;
-        mapmode_tooltip tooltip = religion_tooltip;
+        mapmode_generator map_mode = [](const World& world) {
+            std::vector<ProvinceColor> province_color;
+            auto min = Eng3D::Color::rgb8(255, 255, 255);
+            for(size_t i = 0; i < world.provinces.size(); i++) {
+                const auto& province = world.provinces[i];
+                std::vector<size_t> religion_amounts(world.religions.size());
+                size_t total_amount = province.total_pops();
+                size_t max_amount = 0;
+                size_t max_religion_id = 0;
+                for(const auto& religion : world.religions) {
+                    religion_amounts[religion] = province.religions[religion] * total_amount;
+                    size_t amount = religion_amounts[religion];
+                    if(amount > max_amount) {
+                        max_amount = amount;
+                        max_religion_id = religion;
+                    }
+                }
+                const auto max = Eng3D::Color::bgr32(world.religions[max_religion_id].color);
+                const auto color = Eng3D::Color::lerp(min, max, ((float)max_amount) / total_amount);
+                province_color.emplace_back(ProvinceId(i), color);
+            }
+            province_color.emplace_back(ProvinceId(-2), Eng3D::Color(0.f, 0.f, 0.f)); // Water
+            province_color.emplace_back(ProvinceId(-1), Eng3D::Color(0.8f, 0.8f, 0.8f)); // Land
+            return province_color;
+        };
+        mapmode_tooltip tooltip = [](const World& world, const ProvinceId id) {
+            const auto& province = world.provinces[id];
+            const auto it = std::max_element(province.religions.begin(), province.religions.end());
+            return world.religions[std::distance(province.religions.begin(), it)].name;
+        };
         this->gs.map->set_map_mode(map_mode, tooltip);
         set_mapmode_options(nullptr);
     });
@@ -298,46 +381,47 @@ mapmode_tooltip relations_tooltip(NationId nation_id) {
         if(Nation::is_valid(province.controller_id) && province.controller_id == province.owner_id) {
             str += province_controller.get_client_hint().alt_name;
         } else if(Nation::is_valid(province.owner_id)) {
-            str += translate_format("Owned by %s and controlled by %s", world.nations[province.owner_id].get_client_hint().alt_name.c_str(), province_controller.get_client_hint().alt_name.c_str());
+            str += translate_format("Province owned by %s and controlled by %s", world.nations[province.owner_id].get_client_hint().alt_name.c_str(), province_controller.get_client_hint().alt_name.c_str());
         }
 
         if(province_controller.puppet_master_id == nation_id) {
-            str += string_format(" (puppet of %s)", world.nations[nation_id].get_client_hint().alt_name.c_str());
+            str += string_format("\nWhich is a puppet of %s", world.nations[nation_id].get_client_hint().alt_name.c_str());
             return str;
         }
 
         if(province.controller_id != nation_id) {
-            const auto& relation = world.get_relation(province.controller_id, nation_id);
+            const auto& nation = world.nations[province.controller_id];
+            const auto& relation = world.get_relation(nation, nation_id);
             if(relation.is_allied()) {
-                str += string_format(" allied with %s", world.nations[nation_id].get_client_hint().alt_name.c_str());
+                str += string_format("\nAllied with %s", nation.get_client_hint().alt_name.c_str());
             } else if(relation.has_war) {
-                str += string_format(" at war with %s", world.nations[nation_id].get_client_hint().alt_name.c_str());
+                str += string_format("\nAt war with %s", nation.get_client_hint().alt_name.c_str());
             }
 
             static std::array<std::string, 7> rel_lvls = {
-                "nemesis",
-                "enemy",
-                "disrespectful",
+                "unfriendly",
+                "uncordial",
+                "discorteous",
                 "neutral",
                 "respectful",
-                "collaborates",
+                "cordial",
                 "friendly"
             };
 
-            int idx = ((static_cast<float>(relation.relation) + 100.f) / 200.f) * rel_lvls.size();
-            str += std::to_string(relation.relation) + "(" + rel_lvls[idx % rel_lvls.size()] + ")";
+            size_t idx = ((static_cast<float>(relation.relation) + 100.f) / 200.f) * rel_lvls.size();
+            str += string_format("\n%.2f - %s", relation.relation, rel_lvls[idx % rel_lvls.size()].c_str());
 
-            int ally_cnt = 0;
-            str += " allied with ";
-            for(const auto& nation : world.nations) {
-                if(province.controller_id == nation) continue;
-                const auto& relation = world.get_relation(province.controller_id, world.get_id(nation));
-                if(relation.is_allied()) {
-                    str += string_format("%s,", nation.get_client_hint().alt_name.c_str());
-                    ally_cnt++;
+            auto ally_ids = nation.get_allies();
+            if(!ally_ids.empty()) {
+                for(const auto& ally_id : ally_ids) {
+                    const auto& other = world.nations[ally_id];
+                    const auto& relation = world.get_relation(nation, other);
+                    if(relation.is_allied())
+                        str += string_format("%s,", other.get_client_hint().alt_name.c_str());
                 }
+            } else {
+                str += string_format("\nHas no allies", nation.get_client_hint().alt_name.c_str());
             }
-            if(ally_cnt == 0) str += "nobody";
         }
         return str;
     };
@@ -345,127 +429,9 @@ mapmode_tooltip relations_tooltip(NationId nation_id) {
 
 std::vector<ProvinceColor> terrain_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
-    for(unsigned int i = 0; i < world.provinces.size(); i++) {
+    for(size_t i = 0; i < world.provinces.size(); i++)
         province_color.emplace_back(ProvinceId(i), Eng3D::Color{});
-    }
-    // Water
-    province_color.emplace_back(ProvinceId(-2), Eng3D::Color{});
-    // Land
-    province_color.emplace_back(ProvinceId(-1), Eng3D::Color{});
+    province_color.emplace_back(ProvinceId(-2), Eng3D::Color{}); // Water
+    province_color.emplace_back(ProvinceId(-1), Eng3D::Color{}); // Land
     return province_color;
-}
-
-std::vector<ProvinceColor> terrain_color_map_mode(const World& world) {
-    std::vector<ProvinceColor> province_color;
-    for(unsigned int i = 0; i < world.provinces.size(); i++) {
-        const auto& province = world.provinces[i];
-        Eng3D::Color color = Eng3D::Color::bgr32(world.terrain_types[province.terrain_type_id].color);
-        province_color.emplace_back(ProvinceId(i), color);
-    }
-    // Water
-    province_color.emplace_back(ProvinceId(-2), Eng3D::Color{});
-    // Land
-    province_color.emplace_back(ProvinceId(-1), Eng3D::Color{});
-    return province_color;
-}
-
-std::string terrain_type_tooltip(const World& world, const ProvinceId id) {
-    return world.terrain_types[world.provinces[id].terrain_type_id].name;
-}
-
-std::vector<ProvinceColor> population_map_mode(const World& world) {
-    // Find the maximum amount of pops in one province
-    std::vector<std::pair<ProvinceId, float>> province_amounts;
-    float max_amount = 1.f;
-    for(auto const& province : world.provinces) {
-        float amount = std::accumulate(province.pops.cbegin(), province.pops.cend(), 0, [](const float a, const auto& e) {
-            return a + e.size;
-        });
-        //amount = log2(amount + 1.f);
-        max_amount = glm::max(amount, max_amount);
-        province_amounts.emplace_back(province.get_id(), amount);
-    }
-
-    // Mix each color depending of how many live there compared to max_amount
-    Eng3D::Color min = Eng3D::Color::rgb8(255, 255, 255);
-    Eng3D::Color max = Eng3D::Color::rgb8(180, 24, 24);
-    std::vector<ProvinceColor> province_color;
-    for(auto const& [province_id, amount] : province_amounts) {
-        float ratio = amount / max_amount;
-        Eng3D::Color color = Eng3D::Color::lerp(min, max, ratio);
-        province_color.emplace_back(province_id, color);
-    }
-    return province_color;
-}
-
-std::vector<ProvinceColor> language_map_mode(const World& world) {
-    std::vector<ProvinceColor> province_color;
-    const auto min = Eng3D::Color::rgb8(255, 255, 255);
-    for(size_t i = 0; i < world.provinces.size(); i++) {
-        const auto& province = world.provinces[i];
-        std::vector<size_t> language_amounts(world.languages.size());
-        size_t total_amount = province.total_pops();
-        size_t max_amount = 0;
-        size_t max_language_id = 0;
-        for(const auto& language : world.languages) {
-            language_amounts[language] = province.languages[language] * total_amount;
-            size_t amount = language_amounts[language];
-            if(amount > max_amount) {
-                max_amount = amount;
-                max_language_id = language;
-            }
-        }
-        const auto max = Eng3D::Color::bgr32(world.languages[max_language_id].color);
-        const auto color = Eng3D::Color::lerp(min, max, ((float)max_amount) / total_amount);
-        province_color.emplace_back(ProvinceId(i), color);
-    }
-
-    // Water
-    province_color.emplace_back((ProvinceId)-2, Eng3D::Color{});
-    // Land
-    province_color.emplace_back((ProvinceId)-1, Eng3D::Color(0.8f, 0.8f, 0.8f));
-    return province_color;
-}
-
-std::string language_tooltip(const World& world, const ProvinceId id) {
-    const auto& province = world.provinces[id];
-    if(province.pops.empty())
-        return "";
-    const auto it = std::max_element(province.languages.begin(), province.languages.end());
-    return world.languages[std::distance(province.languages.begin(), it)].name;
-}
-
-std::vector<ProvinceColor> religion_map_mode(const World& world) {
-    std::vector<ProvinceColor> province_color;
-    auto min = Eng3D::Color::rgb8(255, 255, 255);
-    for(size_t i = 0; i < world.provinces.size(); i++) {
-        const auto& province = world.provinces[i];
-        std::vector<size_t> religion_amounts(world.religions.size());
-        size_t total_amount = province.total_pops();
-        size_t max_amount = 0;
-        size_t max_religion_id = 0;
-        for(const auto& religion : world.religions) {
-            religion_amounts[religion] = province.religions[religion] * total_amount;
-            size_t amount = religion_amounts[religion];
-            if(amount > max_amount) {
-                max_amount = amount;
-                max_religion_id = religion;
-            }
-        }
-        const auto max = Eng3D::Color::bgr32(world.religions[max_religion_id].color);
-        const auto color = Eng3D::Color::lerp(min, max, ((float)max_amount) / total_amount);
-        province_color.emplace_back(ProvinceId(i), color);
-    }
-
-    // Water
-    province_color.emplace_back((ProvinceId)-2, Eng3D::Color(0.f, 0.f, 0.f));
-    // Land
-    province_color.emplace_back((ProvinceId)-1, Eng3D::Color(0.8f, 0.8f, 0.8f));
-    return province_color;
-}
-
-std::string religion_tooltip(const World& world, const ProvinceId id) {
-    const auto& province = world.provinces[id];
-    const auto it = std::max_element(province.religions.begin(), province.religions.end());
-    return world.religions[std::distance(province.religions.begin(), it)].name;
 }

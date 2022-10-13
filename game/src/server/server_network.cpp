@@ -75,11 +75,8 @@ void Server::net_loop(int id) {
             // Perform a 5 second delay between connection tries
             const auto delta = std::chrono::seconds{ 5 };
             const auto start_time = std::chrono::system_clock::now();
-            auto end_time = std::chrono::system_clock::now();
-            while(end_time - start_time < delta) {
-                if(!this->run) CXX_THROW(ServerException, "Server closed");
-                end_time = std::chrono::system_clock::now();
-            }
+            std::this_thread::sleep_until(start_time + delta);
+            if(!this->run) CXX_THROW(ServerException, "Server closed");
         }
 
         Nation* selected_nation = nullptr;

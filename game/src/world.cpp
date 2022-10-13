@@ -161,15 +161,15 @@ void World::init_lua() {
     lua_register(lua, "get_ideology_by_id", LuaAPI::get_ideology_by_id);
 
     lua_register(lua, "get_day", [](lua_State* L) {
-        lua_pushnumber(L, 1 + (g_world.time % g_world.ticks_per_month));
+        lua_pushnumber(L, g_world.get_day());
         return 1;
     });
     lua_register(lua, "get_month", [](lua_State* L) {
-        lua_pushnumber(L, 1 + (g_world.time / g_world.ticks_per_month % 12));
+        lua_pushnumber(L, g_world.get_month());
         return 1;
     });
     lua_register(lua, "get_year", [](lua_State* L) {
-        lua_pushnumber(L, g_world.time / g_world.ticks_per_month / 12);
+        lua_pushnumber(L, g_world.get_year());
         return 1;
     });
     lua_register(lua, "set_date", [](lua_State* L) {

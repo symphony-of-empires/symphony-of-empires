@@ -144,8 +144,6 @@ void UI::Context::clear_dead_recursive(UI::Widget& w) {
 
 /// @brief Removes all widgets that have been killed
 void UI::Context::clear_dead() {
-    if(tooltip_widget != nullptr && tooltip_widget->dead) tooltip_widget = nullptr;
-    
     for(size_t i = 0; i < widgets.size(); i++) {
         if(widgets[i]->dead) {
             widgets.erase(widgets.begin() + i);
@@ -155,8 +153,6 @@ void UI::Context::clear_dead() {
             widgets[i]->dead_child = false;
         }
     }
-
-    if(tooltip_widget != nullptr) this->clear_dead_recursive(*tooltip_widget);
 }
 
 /// @brief Moves a widget from evaluable to non-evaluable making a widget

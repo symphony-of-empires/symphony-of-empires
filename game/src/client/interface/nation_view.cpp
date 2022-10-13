@@ -27,7 +27,6 @@
 
 #include "client/interface/nation_view.hpp"
 #include "client/client_network.hpp"
-#include "client/interface/common.hpp"
 #include "client/map.hpp"
 #include "client/map_render.hpp"
 

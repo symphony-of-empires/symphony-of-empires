@@ -28,11 +28,11 @@
 #include "eng3d/ui/window.hpp"
 #include "eng3d/ui/slider.hpp"
 #include "eng3d/ui/input.hpp"
+#include "eng3d/ui/image.hpp"
 
 #include "nation.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
-#include "client/interface/common.hpp"
 
 namespace UI {
     class PieChart;
@@ -45,8 +45,6 @@ namespace Interface {
     class ProvincePopulationTab : public UI::Group {
         GameState& gs;
         const Province& province;
-        UI::Image* owner_flag;
-        UI::Image* landscape_img;
         UI::PieChart* languages_pie;
         UI::PieChart* religions_pie;
         UI::PieChart* pop_types_pie;

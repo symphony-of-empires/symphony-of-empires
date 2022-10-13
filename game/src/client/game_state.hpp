@@ -158,9 +158,7 @@ public:
 
     // Used for synchronization between the networking client and the rendering thread
     std::mutex render_lock;
-
-    // Queue of production for unit_types
-    std::deque<const UnitType*> production_queue;
+    std::vector<UnitTypeId> production_queue;
 
     UI::Widget* right_side_panel = nullptr;
     UI::Widget* lower_left_panel = nullptr;

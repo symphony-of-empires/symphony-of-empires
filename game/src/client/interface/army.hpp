@@ -27,7 +27,8 @@
 #include <functional>
 #include "eng3d/ui/window.hpp"
 #include "eng3d/ui/group.hpp"
-#include "client/interface/common.hpp"
+#include "eng3d/ui/image.hpp"
+#include "objects.hpp"
 
 class World;
 class Nation;
@@ -50,7 +51,6 @@ namespace Interface {
     // Auto-Production manager
     class ArmyProductionTab : public UI::Group {
         GameState& gs;
-
         UI::Chart *reqmat_chart;
     public:
         ArmyProductionTab(GameState& gs, int x, int y, UI::Widget* parent);
@@ -59,14 +59,10 @@ namespace Interface {
     // Brief about unit being produced
     class ArmyProductionUnitInfo : public UI::Group {
         GameState& gs;
-        const Province& province;
-        unsigned int idx;
-
-        UI::Image *unit_icon;
-        UI::Label *province_lab;
-        UI::Label *name_lab;
+        ProvinceId province_id;
+        size_t idx;
     public:
-        ArmyProductionUnitInfo(GameState& _gs, int x, int y, const Province& _province, unsigned int _idx, UI::Widget* parent);
+        ArmyProductionUnitInfo(GameState& _gs, int x, int y, ProvinceId _province_id, size_t _idx, UI::Widget* parent);
     };
 
     class ArmyView : public UI::Window {
