@@ -148,6 +148,7 @@ target_link_libraries(eng3d PUBLIC
 	dependency_tbb
 	dependency_assimp
 	dependency_glm
+	dependency_zlib
 )
 
 #file(GLOB ENG3D_INCLUDES "${PROJECT_SOURCE_DIR}/src/*.hpp" "${PROJECT_SOURCE_DIR}/src/ui/*.hpp")
