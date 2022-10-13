@@ -43,7 +43,7 @@ namespace Eng3D::Zlib {
                 return info.total_out;
             }
         }
-        CXX_THROW(std::runtime_error, "Insufficient zlib output buffer size");
+        CXX_THROW(std::runtime_error, "Insufficient zlib output buffer size for deflate");
     }
 
     size_t decompress(const void* src, size_t src_len, void* dest, size_t dest_len) {
@@ -62,6 +62,6 @@ namespace Eng3D::Zlib {
                 return info.total_out;
             }
         }
-        CXX_THROW(std::runtime_error, "Insufficient zlib output buffer size");
+        CXX_THROW(std::runtime_error, "Insufficient zlib output buffer size for inflate");
     }
 }

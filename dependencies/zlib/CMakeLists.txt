@@ -7,6 +7,5 @@ FetchContent_Declare(zlib
 FetchContent_MakeAvailable(zlib)
 
 add_library(dependency_zlib INTERFACE)
-
-target_include_directories(dependency_zlib SYSTEM INTERFACE "${zlib_SOURCE_DIR}")
+target_include_directories(dependency_zlib SYSTEM INTERFACE "${zlib_SOURCE_DIR}" "${zlib_BINARY_DIR}")
 target_link_libraries(dependency_zlib INTERFACE zlib)

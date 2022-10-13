@@ -63,7 +63,7 @@ struct GameState: public Eng3D::State {
     }
 };
 
-extern "C" void game_main(int argc, char** argv) {
+int main(int argc, char** argv) {
     std::vector<std::string> pkg_paths;
     for(int i = 1; i < argc; i++) {
         std::string arg = std::string(argv[i]);
@@ -95,6 +95,6 @@ extern "C" void game_main(int argc, char** argv) {
             gs.profiler.render_done();
         })
     );
-
     std::cout << "Test passed" << std::endl;
+    return 0;
 }

@@ -60,21 +60,8 @@ struct Archive {
     ~Archive() = default;
     void to_file(const std::string& path);
     void from_file(const std::string& path);
-
-    inline void copy_to(void* ptr, size_t size) {
-        if(size > buffer.size() - this->ptr)
-            CXX_THROW(SerializerException, "Buffer too small for write");
-        std::memcpy(ptr, &buffer[this->ptr], size);
-        this->ptr += size;
-    }
-
-    inline void copy_from(const void* ptr, size_t size) {
-        this->expand(size);
-        if(size > buffer.size() - this->ptr)
-            CXX_THROW(SerializerException, "Buffer too small for read");
-        std::memcpy(&buffer[this->ptr], ptr, size);
-        this->ptr += size;
-    }
+    void copy_to(void* ptr, size_t size);
+    void copy_from(const void* ptr, size_t size);
 
     inline void expand(size_t amount) {
         buffer.resize(buffer.size() + amount);
@@ -188,35 +175,43 @@ template<SerializerContainer T>
 struct Serializer<T> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, T& obj_group) {
-        constexpr bool has_data = requires(T& a) { a.data(); };
+        constexpr bool has_data = requires(T a) { a.data(); };
         uint32_t len = obj_group.size();
         ::deser_dynamic<is_serialize>(ar, len);
+        if(!len) return; // Early exit iff nothing to do
+
         if constexpr(is_serialize) {
             if constexpr(has_data && std::is_trivially_copyable<typename T::value_type>::value) {
-                if(len)
-                    ar.copy_from(obj_group.data(), len * sizeof(typename T::value_type));
+                ar.copy_from(obj_group.data(), len * sizeof(typename T::value_type));
             } else { // non-trivial
                 for(auto& obj : obj_group)
-                    ::deser_dynamic<is_serialize>(ar, obj);
+                    ::deser_dynamic<true>(ar, obj);
             }
         } else {
-            constexpr bool has_resize = requires(T& a) { a.resize(); };
+            constexpr bool has_resize = requires(T a, size_t n) { a.resize(n); };
             if constexpr(has_resize) {
                 obj_group.resize(len);
                 if constexpr(has_data && std::is_trivially_copyable<typename T::value_type>::value) {
-                    if(len)
-                        ar.copy_to(obj_group.data(), len * sizeof(typename T::value_type));
+                    ar.copy_to(obj_group.data(), len * sizeof(typename T::value_type));
                 } else { // non-len
                     for(decltype(len) i = 0; i < len; i++)
-                        ::deser_dynamic<is_serialize>(ar, obj_group[i]);
+                        ::deser_dynamic<false>(ar, obj_group[i]);
                 }
             } else { // non-len, no resize
-                for(decltype(len) i = 0; i < len; i++)
-                    ::deser_dynamic<is_serialize>(ar, obj_group[i]);
+                for(decltype(len) i = 0; i < len; i++) {
+                    typename T::value_type obj{}; // Initialized but then overwritten by the deserializer
+                    ::deser_dynamic<false>(ar, obj);
+                    constexpr bool has_push_back = requires(T a, typename T::value_type tp) { a.push_back(tp); };
+                    constexpr bool has_insert = requires(T a, typename T::value_type tp) { a.insert(tp); };
+                    if constexpr(has_push_back)
+                        obj_group.push_back(obj);
+                    else if constexpr(has_insert)
+                        obj_group.insert(obj);
+                }
             }
 
             // Handle strings properly
-            constexpr bool has_c_str = requires(T& a) { a.c_str(); };
+            constexpr bool has_c_str = requires(T a) { a.c_str(); };
             if constexpr(has_c_str)
                 obj_group[len] = '\0';
         }

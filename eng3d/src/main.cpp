@@ -26,15 +26,16 @@
 #include <stdexcept>
 #include "eng3d/log.hpp"
 #include "eng3d/utils.hpp"
-
-extern "C" void game_main(int argc, char** argv);
+#ifdef E3D_TARGET_WINDOWS
+#   include <windows.h>
+#endif
 
 #ifdef E3D_TARGET_ANDROID
 #   include <android_native_app_glue.h>
 #   define APPNAME "baseapp"
 void android_main(struct android_app* state)
 {
-    game_main(0, { NULL });
+    main(0, { NULL });
     ANativeActivity_finish(state->activity);
 }
 #elif defined E3D_TARGET_SWITCH
@@ -72,16 +73,23 @@ extern "C" long pathconf(const char *pathname, int varcode) {
 extern "C" long sysconf(int) {
     return 0;
 }
-#else
-// While Linux supports externs, windows doesn't
-int main(int argc, char** argv)
-{
-    try {
-        game_main(argc, argv);
-    } catch(const std::exception& e) {
-        Eng3D::Log::error("game", e.what());
-        exit(EXIT_FAILURE);
+#elif defined E3D_TARGET_WINDOWS
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
+    switch(fdwReason) {
+    case DLL_PROCESS_ATTACH:
+//      auto game_main = (MainFn)GetProcAddress(GetModuleHandle(nullptr), "game_main");
+//      if(game_main == nullptr)
+//         CXX_THROW(std::runtime_error, translate("No game_main found!"));
+//      game_main(__argc, __argv);
+        break;
+    case DLL_THREAD_ATTACH:
+        break;
+    case DLL_THREAD_DETACH:
+        break;
+    case DLL_PROCESS_DETACH:
+        if(lpvReserved != nullptr) break;
+        break;
     }
-    return 0;
+    return TRUE;
 }
 #endif

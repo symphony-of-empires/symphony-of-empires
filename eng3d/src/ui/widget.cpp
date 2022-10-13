@@ -81,11 +81,9 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
 
 Widget::~Widget() {
     // Common texture also deleted?
-    if(tooltip != nullptr) {
-        if(g_ui_context->tooltip_widget == tooltip)
-            g_ui_context->tooltip_widget = nullptr;
-        delete tooltip;
-    }
+    if(g_ui_context->tooltip_widget == tooltip)
+        g_ui_context->tooltip_widget = nullptr;
+    delete tooltip;
 }
 
 void Widget::draw_rect(const Eng3D::Texture* tex, Eng3D::Rect rect_pos, Eng3D::Rect rect_tex, Eng3D::Rect viewport) {

@@ -290,7 +290,7 @@ void GameState::handle_key(const Eng3D::Event::Key& e) {
     }
 }
 
-extern "C" void game_main(int argc, char** argv) {
+int main(int argc, char** argv) try {
     std::vector<std::string> pkg_paths;
     for(int i = 1; i < argc; i++) {
         std::string arg = std::string(argv[i]);
@@ -342,7 +342,7 @@ extern "C" void game_main(int argc, char** argv) {
             std::scoped_lock lock(gs.render_lock);
             gs.clear();
             if(gs.loaded_world) {
-                gs.map = new Map(gs, *gs.world, map_layer, gs.width, gs.height);
+                gs.map = std::make_unique<Map>(gs, *gs.world, map_layer, gs.width, gs.height);
                 gs.current_mode = MapMode::DISPLAY_ONLY;
                 gs.map->set_view(MapView::SPHERE_VIEW);
                 gs.map->camera->move(0.f, 50.f, 10.f);
@@ -427,9 +427,12 @@ extern "C" void game_main(int argc, char** argv) {
         })
     );
     world_th.join();
+    return 0;
+} catch(const std::exception& e) {
+    Eng3D::Log::error("Exception thrown", e.what());
+    return -1;
 }
 
 GameState::~GameState() {
-    if(this->map != nullptr)
-        delete this->map;
+
 }

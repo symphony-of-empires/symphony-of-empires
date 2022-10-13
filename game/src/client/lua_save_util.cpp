@@ -210,8 +210,6 @@ void LUA_util::save(GameState& gs, const std::string& savefile_path) {
     } else {
         Archive ar{};
         ::serialize(ar, gs.curr_nation);
-        std::string creat_date = __DATE__;
-        ::serialize(ar, creat_date);
         ::serialize(ar, *gs.world);
         ar.to_file(savefile_path);
         gs.ui_ctx.prompt("Save", "Saved sucessfully!");
@@ -224,12 +222,6 @@ void LUA_util::load(GameState& gs, const std::string& savefile_path) {
     Archive ar{};
     ar.from_file(savefile_path);
     ::deserialize(ar, gs.curr_nation);
-    std::string creat_date;
-    ::deserialize(ar, creat_date);
-    if(creat_date != __DATE__) {
-        gs.ui_ctx.prompt(translate("Savefile error"), translate("Savefile is from an incompatible version"));
-        return;
-    }
     ::deserialize(ar, *gs.world);
 
     /// @todo Events aren't properly saved yet

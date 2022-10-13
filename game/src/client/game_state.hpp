@@ -39,6 +39,7 @@
 #include "unit.hpp"
 #include "client/client_network.hpp"
 #include "server/server_network.hpp"
+#include "client/map.hpp"
 
 enum class MapMode : unsigned char {
     COUNTRY_SELECT,
@@ -88,7 +89,6 @@ class Client;
 class Server;
 class World;
 class Nation;
-class Map;
 struct UnitType;
 namespace Interface {
     class LobbySelectView;
@@ -142,8 +142,7 @@ public:
     World* world = nullptr;
     // NationId curr_nation
     Nation* curr_nation = nullptr;
-    // Used for mapmodes
-    Map* map = nullptr;
+    std::unique_ptr<Map> map;
     Input input;
     MapMode current_mode = MapMode::NO_MAP;
 

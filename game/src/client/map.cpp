@@ -161,8 +161,7 @@ Map::Map(GameState& _gs, const World& _world, UI::Group* _map_ui_layer, int scre
 }
 
 Map::~Map() {
-    if(this->tooltip != nullptr)
-        delete this->tooltip;
+    delete this->tooltip;
 }
 
 void Map::update_nation_label(const Nation& nation) {

@@ -182,19 +182,6 @@ void UI::Context::prompt(const std::string& title, const std::string& text) {
     this->prompt_queue.emplace_back(title, text);
 }
 
-// void Context::clear_dead_recursive(Widget* w) {
-//     // Remove dead widgets
-//     for (auto it = w->children.begin(); it != w->children.end();) {
-//         if ((*it)->dead) {
-//             delete (*it);
-//             it = w->children.erase(it);
-//         } else {
-//             clear_dead_recursive(*it);
-//             ++it;
-//         }
-//     }
-// }
-
 glm::ivec2 UI::Context::get_pos(Widget& w, glm::ivec2 offset) {
     glm::ivec2 pos{ w.x, w.y };
     glm::ivec2 screen_size{ width, height };

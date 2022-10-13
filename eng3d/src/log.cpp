@@ -34,8 +34,11 @@ struct PrintConsole;
 extern "C" void consoleUpdate(PrintConsole* console);
 #endif
 
+static bool debug_show = false;
+
 /// @brief Logs data to a file or console
 void Eng3D::Log::log(const std::string_view severity, const std::string_view category, const std::string_view msg) {
+    if(!debug_show && severity == "DEBUG") return;
 #ifdef E3D_LOG_TO_FILE
     if(log_fp == nullptr)
         log_fp = std::unique_ptr<FILE, int (*)(FILE *)>(fopen("log.txt", "a+t"), fclose);

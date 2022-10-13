@@ -1548,6 +1548,22 @@ int LuaAPI::ui_widget_set_flex(lua_State* L) {
     return 0;
 }
 
+/// @brief Some UI functions are hardcoded, for example the main menu is hardcoded
+/// to appear when the game starts, in order to mantain scriptability we just invoke
+/// functions coded in lua
+/// @param L 
+/// @param name 
+/// @return int 
+void LuaAPI::invoke_registered_callback(lua_State* L, const std::string& name) {
+    lua_rawgeti(L, LUA_REGISTRYINDEX, lua_ui_callbacks[name]);
+    if(call_func(L, 0, 0)) {
+        const std::string err_msg = lua_tostring(L, -1);
+        Eng3D::Log::error("lua", "lua_pcall failed: " + err_msg);
+        lua_pop(L, 1);
+        CXX_THROW(LuaAPI::Exception, "Failure on UI callback: " + err_msg);
+    }
+}
+
 #include "client/game_state.hpp"
 #include "action.hpp"
 #include "client/client_network.hpp"
@@ -1666,20 +1682,4 @@ int LuaAPI::ui_call_builtin(lua_State* L) {
 
     // Invalid callback name
     return 0;
-}
-
-/// @brief Some UI functions are hardcoded, for example the main menu is hardcoded
-/// to appear when the game starts, in order to mantain scriptability we just invoke
-/// functions coded in lua
-/// @param L 
-/// @param name 
-/// @return int 
-void LuaAPI::invoke_registered_callback(lua_State* L, const std::string& name) {
-    lua_rawgeti(L, LUA_REGISTRYINDEX, lua_ui_callbacks[name]);
-    if(call_func(L, 0, 0)) {
-        const std::string err_msg = lua_tostring(L, -1);
-        Eng3D::Log::error("lua", "lua_pcall failed: " + err_msg);
-        lua_pop(L, 1);
-        CXX_THROW(LuaAPI::Exception, "Failure on UI callback: " + err_msg);
-    }
 }
