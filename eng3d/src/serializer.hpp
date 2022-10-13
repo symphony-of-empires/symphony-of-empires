@@ -214,6 +214,11 @@ struct Serializer<T> {
                 for(decltype(len) i = 0; i < len; i++)
                     ::deser_dynamic<is_serialize>(ar, obj_group[i]);
             }
+
+            // Handle strings properly
+            constexpr bool has_c_str = requires(T& a) { a.c_str(); };
+            if constexpr(has_c_str)
+                obj_group[len] = '\0';
         }
     }
 };

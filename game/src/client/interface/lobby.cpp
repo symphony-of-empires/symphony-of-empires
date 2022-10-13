@@ -38,6 +38,7 @@
 #include "client/game_state.hpp"
 #include "world.hpp"
 #include "client/map.hpp"
+#include "client/lua_save_util.hpp"
 
 using namespace Interface;
 
@@ -115,25 +116,7 @@ LobbySelectView::LobbySelectView(GameState& _gs)
             auto* savefile_btn = new UI::Button(0, 0, 128, 24, savefiles_grp);
             savefile_btn->text(savefile_path);
             savefile_btn->set_on_click([this, savefile_path](UI::Widget&) {
-                if(this->gs.curr_nation == nullptr) this->change_nation(0);
-                const auto nation_id = this->gs.curr_nation->get_id();
-                this->gs.paused = true;
-
-                Archive ar = Archive();
-                ar.from_file(savefile_path);
-                std::string creat_date;
-                ::deserialize(ar, creat_date);
-                if(creat_date != __DATE__)
-                    this->gs.ui_ctx.prompt(translate("Savefile error"), translate("Savefile is from an incompatible version"));
-                ::deserialize(ar, *this->gs.world);
-                /// @todo Events aren't properly saved yet
-                this->gs.world->events.clear();
-                this->gs.world->taken_decisions.clear();
-                for(auto& nation : this->gs.world->nations)
-                    nation.inbox.clear();
-                this->gs.world->load_mod();
-                this->gs.curr_nation = &this->gs.world->nations[nation_id];
-                this->gs.ui_ctx.prompt("Loaded", "Loaded savefile");
+                LUA_util::load(this->gs, savefile_path);
             });
         }
     }

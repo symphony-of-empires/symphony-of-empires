@@ -173,32 +173,15 @@ TopWindow::TopWindow(GameState& _gs)
 
     auto* save_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/save.png", true, flex_column);
     save_ibtn->set_on_click([this](UI::Widget&) {
-        LUA_util::save(this->gs);
+        LUA_util::save(this->gs, string_format("%s_%zu-%zu-%zu.sc4", gs.curr_nation->ref_name.c_str(), gs.world->get_year(), gs.world->get_month(), gs.world->get_day()));
     });
-    /// @todo Save the lua state
     save_ibtn->set_tooltip("Saves the current game");
 
     auto* load_ibtn = new UI::Image(9, 275, 25, 25, "gfx/top_bar/save.png", true, flex_column);
     load_ibtn->set_on_click([this](UI::Widget&) {
-        const auto nation_id = this->gs.curr_nation->get_id();
-        this->gs.paused = true;
-        Archive ar{};
-        ar.from_file("default.sc4");
-        std::string creat_date;
-        ::deserialize(ar, creat_date);
-        if(creat_date != __DATE__)
-            this->gs.ui_ctx.prompt(translate("Savefile error"), translate("Savefile is from an incompatible version"));
-        ::deserialize(ar, *this->gs.world);
-        /// @todo Events aren't properly saved yet
-        this->gs.world->events.clear();
-        this->gs.world->taken_decisions.clear();
-        for(auto& nation : this->gs.world->nations)
-            nation.inbox.clear();
-        this->gs.world->load_mod();
-        this->gs.curr_nation = &this->gs.world->nations[nation_id];
-        this->gs.ui_ctx.prompt("Loaded", "Loaded savefile");
+        LUA_util::load(this->gs, "autosave.sc4");
     });
-    load_ibtn->set_tooltip("Load this savefile");
+    load_ibtn->set_tooltip("Load latest autosave");
 
     auto* exit_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/exit.png", true, flex_column);
     exit_ibtn->set_on_click([this](UI::Widget&) {

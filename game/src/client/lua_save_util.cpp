@@ -106,7 +106,7 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
     }
 }
 
-void LUA_util::save(GameState& gs) {
+void LUA_util::save(GameState& gs, const std::string& savefile_path) {
     if(gs.editor) {
         std::filesystem::create_directory("editor");
         std::filesystem::create_directory("editor/lua");
@@ -209,10 +209,34 @@ void LUA_util::save(GameState& gs) {
         gs.ui_ctx.prompt("Save", "Editor data saved! (check editor folder)");
     } else {
         Archive ar{};
+        ::serialize(ar, gs.curr_nation);
         std::string creat_date = __DATE__;
         ::serialize(ar, creat_date);
         ::serialize(ar, *gs.world);
-        ar.to_file(string_format("%s_%zu-%zu-%zu.sc4", gs.curr_nation->ref_name.c_str(), gs.world->get_year(), gs.world->get_month(), gs.world->get_day()));
+        ar.to_file(savefile_path);
         gs.ui_ctx.prompt("Save", "Saved sucessfully!");
     }
+}
+
+void LUA_util::load(GameState& gs, const std::string& savefile_path) {
+    gs.paused = true;
+
+    Archive ar{};
+    ar.from_file(savefile_path);
+    ::deserialize(ar, gs.curr_nation);
+    std::string creat_date;
+    ::deserialize(ar, creat_date);
+    if(creat_date != __DATE__) {
+        gs.ui_ctx.prompt(translate("Savefile error"), translate("Savefile is from an incompatible version"));
+        return;
+    }
+    ::deserialize(ar, *gs.world);
+
+    /// @todo Events aren't properly saved yet
+    gs.world->events.clear();
+    gs.world->taken_decisions.clear();
+    for(auto& nation : gs.world->nations)
+        nation.inbox.clear();
+    gs.world->load_mod();
+    gs.ui_ctx.prompt("Loaded", "Loaded savefile");
 }

@@ -29,23 +29,55 @@
 #include "eng3d/serializer.hpp"
 #include "eng3d/utils.hpp"
 #include "eng3d/log.hpp"
+#include "eng3d/compress.hpp"
+
+constexpr char archive_signature[4] = { '>', ':', ')', ' ' };
 
 void Archive::to_file(const std::string& path) {
+    Eng3D::Log::debug("archive", translate_format("Writing archive %s", path.c_str()));
     if(buffer.empty())
-        CXX_THROW(SerializerException, "Can't output an empty archive to file " + path);
-    Eng3D::Log::debug("fs", "Writing archive " + path);
+        CXX_THROW(SerializerException, translate("Can't output an empty archive to file"));
+    
     std::unique_ptr<FILE, decltype(&std::fclose)> fp(::fopen(path.c_str(), "wb"), ::fclose);
-    std::fwrite(buffer.data(), 1, buffer.size(), fp.get());
+
+    char signbuf[sizeof(archive_signature)];
+    std::memcpy(signbuf, archive_signature, sizeof(archive_signature));
+    std::fwrite(signbuf, 1, sizeof(signbuf), fp.get());
+    uint32_t len = buffer.size();
+    std::fwrite(&len, 1, sizeof(len), fp.get());
+
+    std::vector<uint8_t> dest_buffer(buffer.size());
+    auto r = Eng3D::Zlib::compress(buffer.data(), buffer.size(), dest_buffer.data(), dest_buffer.size());
+    dest_buffer.resize(r);
+    std::fwrite(dest_buffer.data(), 1, dest_buffer.size(), fp.get());
+    Eng3D::Log::debug("archive", string_format("%zu bytes compressed; return value is %zu", len, r));
 }
 
 void Archive::from_file(const std::string& path) {
-    Eng3D::Log::debug("fs", "Reading archive " + path);
+    Eng3D::Log::debug("archive", translate_format("Reading archive %s", path.c_str()));
+
     std::unique_ptr<FILE, decltype(&std::fclose)> fp(::fopen(path.c_str(), "rb"), ::fclose);
-    if(fp == nullptr)
-        CXX_THROW(std::runtime_error, "Can't read an empty archive " + path);
+    if(fp == nullptr) CXX_THROW(std::runtime_error, translate("Can't read archive"));
+    
+    std::vector<uint8_t> src_buffer(buffer.size());
     std::fseek(fp.get(), 0, SEEK_END);
-    buffer.resize(std::ftell(fp.get()));
+    src_buffer.resize(std::ftell(fp.get()));
     std::rewind(fp.get());
-    std::fread(buffer.data(), 1, buffer.size(), fp.get());
+
+    char signbuf[sizeof(archive_signature)];
+    std::fread(signbuf, 1, sizeof(signbuf), fp.get());
+    if(memcmp(archive_signature, signbuf, sizeof(signbuf)) != 0)
+        CXX_THROW(std::runtime_error, "Invalid archive");
+
+    uint32_t len;
+    std::fread(&len, 1, sizeof(len), fp.get());
+
+    src_buffer.resize(src_buffer.size() - (sizeof(signbuf) + sizeof(len)));
+    std::fread(src_buffer.data(), 1, src_buffer.size(), fp.get());
+
+    buffer.resize(len);
+    auto r = Eng3D::Zlib::decompress(src_buffer.data(), src_buffer.size(), buffer.data(), buffer.size());
+    Eng3D::Log::debug("archive", string_format("%zu bytes decompressed; return value is %zu", len, r));
+    
     buffer.shrink_to_fit();
 }

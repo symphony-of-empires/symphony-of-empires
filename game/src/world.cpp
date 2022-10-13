@@ -295,7 +295,8 @@ void World::load_initial() {
         ar.from_file("world.cache");
         std::string creat_date;
         ::deserialize(ar, creat_date);
-        if(creat_date != __DATE__) CXX_THROW(std::runtime_error, "Unmatching cache \"" + creat_date + "\"(" + std::to_string(creat_date.size()) + ") != \"" + __DATE__ + "\"");
+        if(creat_date != __DATE__)
+            CXX_THROW(std::runtime_error, string_format("Unmatching cache %s(%zu) != %s", creat_date.c_str(), creat_date.size(), __DATE__));
         ::deserialize(ar, *this);
     } catch(const std::exception& e) {
         Eng3D::Log::error("cache", e.what());
@@ -478,7 +479,6 @@ void World::load_initial() {
         ::serialize(ar, *this);
         ar.to_file("world.cache");
     }
-
     Eng3D::Log::debug("world", translate("World partially intiialized"));
 }
 
