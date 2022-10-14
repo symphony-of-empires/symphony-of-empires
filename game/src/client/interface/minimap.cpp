@@ -414,17 +414,9 @@ mapmode_tooltip relations_tooltip(NationId nation_id) {
             size_t idx = ((static_cast<float>(relation.relation) + 100.f) / 200.f) * rel_lvls.size();
             str += string_format("\n%.2f - %s", relation.relation, rel_lvls[idx % rel_lvls.size()].c_str());
 
-            auto ally_ids = nation.get_allies();
-            if(!ally_ids.empty()) {
-                for(const auto& ally_id : ally_ids) {
-                    const auto& other = world.nations[ally_id];
-                    const auto& relation = world.get_relation(nation, other);
-                    if(relation.is_allied())
-                        str += string_format("%s,", other.get_client_hint().alt_name.c_str());
-                }
-            } else {
-                str += string_format("\nHas no allies", nation.get_client_hint().alt_name.c_str());
-            }
+            nation.get_allies([&](const auto& nation) {
+                str += string_format("%s,", nation.get_client_hint().alt_name.c_str());
+            });
         }
         return str;
     };

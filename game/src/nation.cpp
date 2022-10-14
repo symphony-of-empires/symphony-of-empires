@@ -291,27 +291,24 @@ bool Nation::can_research(const Technology& technology) const {
 
     // All required technologies for this one must be researched
     for(const auto& req_tech_id : technology.req_technologies)
-        if(research[req_tech_id] > 0.f)
-            return false;
+        if(research[req_tech_id] >= 1.f)
+            return true;
     return true;
 }
 
 void Nation::change_research_focus(const Technology& technology) {
-    // Can't have already researched it (it would be dumb to re-research
-    if(!this->research[World::get_instance().get_id(technology)]) return;
-    // Must be able to research it
-    if(!this->can_research(technology)) return;
+    if(!this->research[technology] || !this->can_research(technology))
+        return;
     this->focus_tech_id = technology;
 }
 
-std::vector<NationId> Nation::get_allies(void) const {
+void Nation::get_allies(std::function<void(const Nation&)> fn) const {
     const auto& world = World::get_instance();
-
-    std::vector<NationId> nation_ids;
     for(const auto& nation : world.nations) {
-        const auto& relation = world.get_relation(*this, nation);
-        if(relation.is_allied())
-            nation_ids.push_back(nation);
+        if(this != &nation) {
+            const auto& relation = world.get_relation(*this, nation);
+            if(relation.is_allied())
+                fn(nation);
+        }
     }
-    return nation_ids;
 }

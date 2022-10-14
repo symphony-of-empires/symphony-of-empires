@@ -44,7 +44,7 @@ namespace Diplomacy {
 };
 
 enum class TreatyClauseType {
-    MONEY,
+    PAYMENT,
     HUMILIATE,
     LIBERATE_NATION,
     IMPOSE_POLICIES,
@@ -86,12 +86,12 @@ namespace TreatyClause {
     };
 
     // Makes loser to pay war reparations to the winner
-    class WarReparations : public BaseClause {
+    class Payment : public BaseClause {
     public:
-        WarReparations()
+        Payment()
             : BaseClause()
         {
-            type = TreatyClauseType::MONEY;
+            type = TreatyClauseType::PAYMENT;
         };
         unsigned cost();
         void enforce();
@@ -127,8 +127,8 @@ namespace TreatyClause {
         void enforce();
         bool in_effect() const;
 
-        Nation* liberated = nullptr;
-        std::vector<Province*> provinces;
+        NationId liberated_id;
+        std::vector<ProvinceId> province_ids;
     };
 
     // Imposes a policy to be put in action on a nation
@@ -158,7 +158,7 @@ namespace TreatyClause {
         void enforce();
         bool in_effect() const;
 
-        std::vector<Province*> provinces;
+        std::vector<ProvinceId> province_ids;
     };
 
     // Makes the receiver the puppet of the sender
@@ -187,24 +187,27 @@ struct Serializer<TreatyClause::BaseClause*> {
             switch(obj->type) {
             case TreatyClauseType::ANNEX_PROVINCES: {
                 const auto& dyn_clause = (TreatyClause::AnnexProvince&)*obj;
-                ::deser_dynamic<is_serialize>(ar, dyn_clause.provinces);
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.province_ids);
             } break;
             case TreatyClauseType::LIBERATE_NATION: {
                 const auto& dyn_clause = (TreatyClause::LiberateNation&)*obj;
-                ::deser_dynamic<is_serialize>(ar, dyn_clause.provinces);
-                ::deser_dynamic<is_serialize>(ar, dyn_clause.liberated);
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.province_ids);
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.liberated_id);
             } break;
             case TreatyClauseType::IMPOSE_POLICIES: {
                 const auto& dyn_clause = (TreatyClause::ImposePolicies&)*obj;
                 ::deser_dynamic<is_serialize>(ar, dyn_clause.imposed);
             } break;
-            case TreatyClauseType::MONEY: {
-                const auto& dyn_clause = (TreatyClause::WarReparations&)*obj;
+            case TreatyClauseType::PAYMENT: {
+                const auto& dyn_clause = (TreatyClause::Payment&)*obj;
                 ::deser_dynamic<is_serialize>(ar, dyn_clause.amount);
             } break;
             case TreatyClauseType::HUMILIATE: {
                 const auto& dyn_clause = (TreatyClause::Humiliate&)*obj;
                 ::deser_dynamic<is_serialize>(ar, dyn_clause.amount);
+            } break;
+            case TreatyClauseType::PUPPET: {
+                const auto& dyn_clause = (TreatyClause::Humiliate&)*obj;
             } break;
             default:
                 break;
@@ -216,22 +219,22 @@ struct Serializer<TreatyClause::BaseClause*> {
             case TreatyClauseType::ANNEX_PROVINCES: {
                 obj = new TreatyClause::AnnexProvince();
                 auto dyn_clause = (TreatyClause::AnnexProvince&)*obj;
-                ::deser_dynamic<is_serialize>(ar, dyn_clause.provinces);
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.province_ids);
             } break;
             case TreatyClauseType::LIBERATE_NATION: {
                 obj = new TreatyClause::LiberateNation();
                 auto dyn_clause = (TreatyClause::LiberateNation&)*obj;
-                ::deser_dynamic<is_serialize>(ar, dyn_clause.provinces);
-                ::deser_dynamic<is_serialize>(ar, dyn_clause.liberated);
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.province_ids);
+                ::deser_dynamic<is_serialize>(ar, dyn_clause.liberated_id);
             } break;
             case TreatyClauseType::IMPOSE_POLICIES: {
                 obj = new TreatyClause::ImposePolicies();
                 auto dyn_clause = (TreatyClause::ImposePolicies&)*obj;
                 ::deser_dynamic<is_serialize>(ar, dyn_clause.imposed);
             } break;
-            case TreatyClauseType::MONEY: {
-                obj = new TreatyClause::WarReparations();
-                auto dyn_clause = (TreatyClause::WarReparations&)*obj;
+            case TreatyClauseType::PAYMENT: {
+                obj = new TreatyClause::Payment();
+                auto dyn_clause = (TreatyClause::Payment&)*obj;
                 ::deser_dynamic<is_serialize>(ar, dyn_clause.amount);
             } break;
             case TreatyClauseType::HUMILIATE: {
@@ -241,7 +244,6 @@ struct Serializer<TreatyClause::BaseClause*> {
             } break;
             case TreatyClauseType::PUPPET: {
                 obj = new TreatyClause::Puppet();
-                //auto dyn_clause = (TreatyClause::Puppet*)*obj;
             } break;
             default:
                 break;

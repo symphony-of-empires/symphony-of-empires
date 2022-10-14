@@ -31,6 +31,7 @@
 #include <unordered_set>
 #include <string>
 #include <vector>
+#include <functional>
 #include "eng3d/string.hpp"
 
 #include "objects.hpp"
@@ -117,7 +118,7 @@ public:
     float get_research_points() const;
     bool can_research(const Technology& tech) const;
     void change_research_focus(const Technology& tech);
-    std::vector<NationId> get_allies(void) const;
+    void get_allies(std::function<void(const Nation&)> fn) const;
 
     /// @brief Whetever the nation exists at all - we cannot add nations in-game so we just check
     /// if the nation "exists" at all, this means that it has a presence and a goverment

@@ -43,8 +43,8 @@ BattleWidget::BattleWidget(Map& _map, UI::Widget* parent)
     map{ _map }
 {
     this->background_color = Eng3D::Color(1.f, 1.f, 1.f, 1.f);
+    
     /// @todo On click display information about the battle
-
     auto& gs = static_cast<GameState&>(Eng3D::State::get_instance());
 
     this->left_flag_img = new UI::Image(1, 1, 38, 28, gs.tex_man.get_white(), this);
@@ -53,8 +53,7 @@ BattleWidget::BattleWidget(Map& _map, UI::Widget* parent)
     this->left_size_label->background_color = Eng3D::Color(0.8f, 0.f, 0.f, 1.f);
     this->left_size_label->set_on_each_tick([this](UI::Widget&) {
         if(this->province == nullptr) return;
-        if(this->idx >= this->province->battles.size()) return;
-        const auto& battle = this->province->battles[this->idx];
+        const auto& battle = this->province->battle;
         auto unit_size = 0;
         for(const auto unit_id : battle.attackers_ids) {
             const auto& unit = g_world.unit_manager.units[unit_id];
@@ -69,8 +68,7 @@ BattleWidget::BattleWidget(Map& _map, UI::Widget* parent)
     this->right_size_label->background_color = Eng3D::Color(0.f, 0.f, 0.8f, 1.f);
     this->right_size_label->set_on_each_tick([this](UI::Widget&) {
         if(this->province == nullptr) return;
-        if(this->idx >= this->province->battles.size()) return;
-        const auto& battle = this->province->battles[this->idx];
+        const auto& battle = this->province->battle;
         auto unit_size = 0;
         for(const auto unit_id : battle.defenders_ids) {
             const auto& unit = g_world.unit_manager.units[unit_id];
@@ -80,10 +78,9 @@ BattleWidget::BattleWidget(Map& _map, UI::Widget* parent)
     });
 }
 
-void BattleWidget::set_battle(Province& _province, size_t _idx) {
+void BattleWidget::set_battle(Province& _province) {
     this->province = &_province;
-    this->idx = _idx;
-    const auto& battle = this->province->battles[this->idx];
+    const auto& battle = this->province->battle;
     const auto& camera = *map.camera;
     const auto battle_pos = province->get_pos();
     const auto screen_pos = camera.get_tile_screen_pos(battle_pos);

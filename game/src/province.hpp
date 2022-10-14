@@ -43,22 +43,6 @@
 class World;
 class Nation;
 class TerrainType;
-class Battle : public Entity<BattleId> {
-public:
-    Battle(War& war)
-        : war_id{ war.get_id() }
-    {
-
-    }
-    ~Battle() {};
-
-    Eng3D::StringRef name;
-    WarId war_id = (WarId)-1;
-    float attacker_casualties = 0;
-    float defender_casualties = 0;
-    std::vector<uint16_t> attackers_ids;
-    std::vector<uint16_t> defenders_ids;
-};
 
 /// @brief A single province, which is used to simulate economy in a "bulk-tiles" way
 /// instead of doing economical operations on every single tile
@@ -121,7 +105,21 @@ public:
     std::array<Pop, 8> pops; // List of pops in this province
     std::vector<Product> products;
     std::vector<Building> buildings;
-    std::vector<Battle> battles;
+    struct Battle : public Entity<BattleId> {
+        Battle() = default;
+        Battle(const War& war)
+            : war_id{ war.get_id() }
+        {
+
+        }
+        
+        WarId war_id;
+        float attacker_casualties = 0.f;
+        float defender_casualties = 0.f;
+        std::vector<uint16_t> attackers_ids;
+        std::vector<uint16_t> defenders_ids;
+        bool active = false;
+    } battle;
     std::vector<NationId> nuclei; // Nations who have a nuclei in this province
     std::vector<ProvinceId> neighbour_ids; // Neighbouring provinces
     /// @brief Percentage of each languages from 0 to 1

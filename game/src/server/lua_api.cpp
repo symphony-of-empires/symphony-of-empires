@@ -268,8 +268,6 @@ int LuaAPI::add_nation(lua_State* L) {
     nation.language_discrim.resize(g_world.languages.size(), 0.5f);
     nation.client_hints.resize(g_world.ideologies.size());
     nation.research.resize(g_world.technologies.size());
-    for(const auto& technology : g_world.technologies)
-        nation.research[technology] = technology.cost;
 
     // Check for duplicates
     for(const auto& other_nation : g_world.nations) {
@@ -388,7 +386,7 @@ int LuaAPI::add_accepted_religion(lua_State* L) {
 int LuaAPI::add_nation_client_hint(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     NationClientHint hint{};
-    hint.ideology_id = g_world.ideologies.at(lua_tonumber(L, 2));
+    hint.ideology_id = IdeologyId(lua_tonumber(L, 2));
     hint.alt_name = luaL_checkstring(L, 3);
     hint.color = std::byteswap<std::uint32_t>(static_cast<int>(lua_tonumber(L, 4))) >> 8;
     hint.color |= 0xff000000;

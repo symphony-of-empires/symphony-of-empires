@@ -400,32 +400,31 @@ void Map::draw() {
                     continue;
             }
 
-            // Units
-            const auto& province_units = this->gs.world->unit_manager.get_province_units(province);
-            if(!province_units.empty()) {
-                size_t total_stack_size = 0; // Calculate the total size of our stack
-                for(const auto unit_id : province_units) {
-                    const auto& unit = this->gs.world->unit_manager.units[unit_id];
-                    total_stack_size += unit.size;
-                }
-
-                // Get first/topmost unit
-                auto& unit = gs.world->unit_manager.units[province_units[0]];
-                // Display unit only if not on a battle
-                if(!unit.on_battle) {
-                    this->unit_widgets[province]->set_unit(unit);
-                    this->unit_widgets[province]->set_size(total_stack_size);
-                    this->unit_widgets[province]->is_render = true;
-
-                }
-            }
-
             // Battles
-            if(!province.battles.empty()) {
-                this->battle_widgets[province]->set_battle(province, 0);
+            if(province.battle.active) {
+                this->battle_widgets[province]->set_battle(province);
                 this->battle_widgets[province]->is_render = true;
                 /// @todo Display two opposing units
             } else {
+                // Units
+                const auto& province_units = this->gs.world->unit_manager.get_province_units(province);
+                if(!province_units.empty()) {
+                    size_t total_stack_size = 0; // Calculate the total size of our stack
+                    for(const auto unit_id : province_units) {
+                        const auto& unit = this->gs.world->unit_manager.units[unit_id];
+                        total_stack_size += unit.size;
+                    }
+
+                    // Get first/topmost unit
+                    auto& unit = gs.world->unit_manager.units[province_units[0]];
+                    // Display unit only if not on a battle
+                    if(!unit.on_battle) {
+                        this->unit_widgets[province]->set_unit(unit);
+                        this->unit_widgets[province]->set_size(total_stack_size);
+                        this->unit_widgets[province]->is_render = true;
+                    }
+                }
+
                 // Display a single standing unit
                 if(this->map_render->options.units.used && !province_units.empty()) {
                     const auto& unit = this->gs.world->unit_manager.units[province_units[0]];
@@ -455,7 +454,7 @@ void Map::draw() {
         // Buildings
         if(this->map_render->options.buildings.used) {
             for(const auto& province : this->gs.world->provinces) {
-                province_units_y[this->gs.world->get_id(province)] += 2.5f;
+                province_units_y[province] += 2.5f;
                 const auto prov_pos = province.get_pos();
                 for(const auto& building_type : this->gs.world->building_types) {
                     if(!province.buildings[building_type].level) continue;
