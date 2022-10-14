@@ -556,12 +556,12 @@ int LuaAPI::add_province(lua_State* L) {
     province.products.resize(g_world.goods.size(), Product{});
     province.languages.resize(g_world.languages.size(), 0.f);
     province.religions.resize(g_world.religions.size(), 0.f);
+    province.pops.fill(Pop{});
     province.buildings.resize(g_world.building_types.size());
     for(const auto& building_type : g_world.building_types)
         province.buildings[building_type].stockpile.resize(building_type.input_ids.size(), 0);
     // Set bounding box of province to the whole world (will later be resized at the bitmap-processing step)
     province.box_area = Eng3D::Rect(0, 0, std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max());
-    province.pops.reserve(100);
     g_world.insert(province);
     lua_pushnumber(L, g_world.provinces.size() - 1);
     return 1;
@@ -770,20 +770,15 @@ int LuaAPI::set_province_pop_ideology_approval(lua_State* L) {
 
 int LuaAPI::add_province_pop(lua_State* L) {
     auto& province = g_world.provinces.at(lua_tonumber(L, 1));
-    Pop pop{};
+    auto& pop = province.pops[lua_tonumber(L, 2)];
     pop.type_id = PopTypeId(lua_tonumber(L, 2));
     pop.size = lua_tonumber(L, 3);
     pop.literacy = lua_tonumber(L, 4);
-
     pop.budget = pop.size * 100.f * g_world.pop_types[pop.type_id].social_value;
-
     /// @todo Make ideology NOT be random
     pop.ideology_approval.resize(g_world.ideologies.size(), 0.f);
-
     if(!pop.size)
         luaL_error(L, "Can't create pops with 0 size");
-    province[pop.type_id] = pop;
-    assert(province.pops.size() < 100);
     return 0;
 }
 

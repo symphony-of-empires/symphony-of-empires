@@ -87,8 +87,8 @@ struct Serializer<PopGroup> : SerializerMemcpy<PopGroup> {};
 
 struct PopType : RefnameEntity<PopTypeId> {
     Eng3D::StringRef name;
-    float social_value;
-    enum PopGroup group;
+    float social_value = 1.f;
+    enum PopGroup group = PopGroup::OTHER;
     std::vector<float> basic_needs_amount; // Amount of goods needed to satisfy basic needs
     std::vector<float> luxury_needs_satisfaction; // Amount of satisfaction each luxury good gives
     std::vector<float> luxury_needs_deminishing_factor; // Deminishing returns factor of the luxury good satisfaction

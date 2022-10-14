@@ -161,10 +161,7 @@ void Nation::set_policy(const Policies& policies) {
                 pop.ideology_approval[i] += std::fmod(rand() / 1000.f, current_policy.difference(pop_policies));
                 pop.ideology_approval[i] = glm::clamp<float>(pop.ideology_approval[i], -1.f, 1.f); // Clamp
             }
-
-            // Must have the minimum required social value
-            // the min-social-value is taken from the new enacted policy
-            if(World::get_instance().pop_types[pop.type_id].social_value < policies.min_sv_for_parliament) continue;
+            
             // Disapproval of old (current) policy
             const int old_disapproval = current_policy.difference(pop_policies);
             // Dissaproval of new policy
@@ -221,13 +218,13 @@ bool Nation::is_accepted_religion(const Religion& religion) const {
 /// (not exactly like that, more like by their type/status)
 float Nation::get_tax(const Pop& pop) const {
     float base_tax = 1.f;
-    if(World::get_instance().pop_types[pop.type_id].social_value <= 1.f)
+    if(World::get_instance().pop_types[pop.type_id].social_value <= 0.3f)
         return current_policy.poor_flat_tax * base_tax;
     // For the medium class
-    else if(World::get_instance().pop_types[pop.type_id].social_value <= 2.f)
+    else if(World::get_instance().pop_types[pop.type_id].social_value <= 0.6f)
         return current_policy.med_flat_tax * base_tax;
     // For the high class
-    else if(World::get_instance().pop_types[pop.type_id].social_value <= 3.f)
+    else if(World::get_instance().pop_types[pop.type_id].social_value <= 1.f)
         return current_policy.rich_flat_tax * base_tax;
     return base_tax;
 }

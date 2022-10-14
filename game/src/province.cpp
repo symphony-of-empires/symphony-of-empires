@@ -44,13 +44,13 @@ float Province::get_attractiveness(const Pop& pop) const {
     const auto& owner = g_world.nations[this->owner_id];
     // A social value between 0 and 1 is for poor people, the value for medium class
     // is between 1 and 2, for the rich is above 2
-    if(World::get_instance().pop_types[pop.type_id].social_value >= 0.f && World::get_instance().pop_types[pop.type_id].social_value <= 1.f)
+    if(World::get_instance().pop_types[pop.type_id].social_value >= 0.f && World::get_instance().pop_types[pop.type_id].social_value <= 0.3f)
         // For the lower class, lower taxes is good, and so on for other POPs
         attractive += -(owner.current_policy.poor_flat_tax) * 100.f;
-    else if(World::get_instance().pop_types[pop.type_id].social_value >= 1.f && World::get_instance().pop_types[pop.type_id].social_value <= 2.f)
+    else if(World::get_instance().pop_types[pop.type_id].social_value >= 0.3f && World::get_instance().pop_types[pop.type_id].social_value <= 0.6f)
         // For the medium class
         attractive += -(owner.current_policy.med_flat_tax) * 100.f;
-    else if(World::get_instance().pop_types[pop.type_id].social_value >= 2.f)
+    else if(World::get_instance().pop_types[pop.type_id].social_value >= 0.6f)
         // For the high class
         attractive += -(owner.current_policy.rich_flat_tax) * 100.f;
     return attractive;
@@ -90,50 +90,6 @@ float Province::euclidean_distance(const Province& other_province, glm::vec2 wor
     return distance;
 }
 
-bool Province::is_neighbour(Province& province) const {
+bool Province::is_neighbour(const Province& province) const {
     return std::find(this->neighbour_ids.begin(), this->neighbour_ids.end(), province) != this->neighbour_ids.end();
-}
-
-void Province::clean_pops() {
-    // Remove pops with 0 size and ones that are redundant/duplicated
-    for(auto it = pops.begin(); it != pops.end(); ) {
-        // Delete ill'formed or invalid pops
-        if(!it->size) {
-            // Overwrite with last one and remove last one
-            *it = pops.back();
-            pops.pop_back();
-            it = pops.begin();
-            continue;
-        }
-
-        // Merge duplicate pops
-        auto dup_it = std::find(pops.begin(), pops.end(), *it);
-        if(dup_it != pops.end() && dup_it != it) {
-            it->budget += dup_it->budget;
-            it->size += dup_it->size;
-            // Overwrite with last one and remove last one
-            *it = pops.back();
-            pops.pop_back();
-            it = pops.begin();
-            continue;
-        }
-
-        it->size = glm::min<float>(it->size, 10000000.f); // Limit pop size
-        it->literacy = glm::min<float>(it->literacy, 1.f); // Limit literacy
-        it++;
-    }
-}
-
-void Province::remove_pop(size_t idx) {
-    // Remove pops with 0 size and ones that are redundant/duplicated
-    for(auto it = pops.begin(); it != pops.end(); it++) {
-        // Delete ill'formed or invalid pops
-        if(it == pops.begin() + idx) {
-            // Overwrite with last one and remove last one
-            *it = pops.back();
-            pops.pop_back();
-            it = pops.begin();
-            return;
-        }
-    }
 }

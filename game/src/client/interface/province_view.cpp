@@ -159,7 +159,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
                 remove_btn->set_key(remove_btn_str);
                 remove_btn->set_on_click([this, i, table](UI::Widget&) {
                     table->remove_row(i);
-                    const_cast<Province&>(this->province).remove_pop(i);
+                    const_cast<Province&>(this->province).pops[i].size = 0.f;
                     table->on_each_tick(*table);
                 });
             }
@@ -359,12 +359,11 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
                 this->gs.input.selected_religion = &this->gs.world->religions[0];
 
             for(auto& pop_type : this->gs.world->pop_types) {
-                Pop pop{};
+                auto& pop = province.pops[pop_type];
                 pop.type_id = pop_type.get_id();
                 pop.size = 1000.f / glm::max(0.01f, pop_type.social_value);
                 pop.literacy = max_sv / glm::max(0.01f, pop_type.social_value);
                 pop.budget = pop.size * 100.f * max_sv;
-                this->province.pops[pop_type] = pop;
             }
             this->gs.map->update_mapmode();
             this->gs.update_tick = true;

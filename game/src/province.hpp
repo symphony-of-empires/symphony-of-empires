@@ -28,6 +28,7 @@
 #include <vector>
 #include <unordered_set>
 #include <string>
+#include <array>
 #include <memory>
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
@@ -75,8 +76,7 @@ public:
     float get_attractiveness(const Pop& pop) const;
     void add_building(const BuildingType& building_type);
     void cancel_construction_project();
-    bool is_neighbour(Province& province) const;
-    void remove_pop(size_t idx);
+    bool is_neighbour(const Province& province) const;
 
     inline glm::vec2 get_pos() const {
         return glm::vec2(box_area.left + ((box_area.right - box_area.left) / 2.f), box_area.top + ((box_area.bottom - box_area.top) / 2.f));
@@ -117,7 +117,7 @@ public:
     NationId controller_id;
     TerrainTypeId terrain_type_id;
     std::vector<uint32_t> rgo_size; // How much of each rgo that can be extracted
-    std::array<Pop, 4> pops; // List of pops in this province
+    std::array<Pop, 8> pops; // List of pops in this province
     std::vector<Product> products;
     std::vector<Building> buildings;
     std::vector<Battle> battles;
@@ -127,7 +127,6 @@ public:
     std::vector<float> languages;
     /// @brief Percentage of each religion prescence on the pops, from 0 to 1
     std::vector<float> religions;
-    void clean_pops();
 };
 template<>
 struct Serializer<Province*> : SerializerReference<World, Province> {};

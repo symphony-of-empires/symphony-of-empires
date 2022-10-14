@@ -832,12 +832,6 @@ void World::do_tick() {
     LuaAPI::check_events(lua);
     profiler.stop("Events");
 
-    // Remove empty pops and combine similar pops
-    tbb::parallel_for(tbb::blocked_range(provinces.begin(), provinces.end()), [](auto& province_ranges) {
-        for(auto& province : province_ranges)
-            province.clean_pops();
-    });
-
     profiler.start("Send packets");
     g_server->broadcast(Action::UnitUpdate::form_packet(this->unit_manager.units));
     profiler.stop("Send packets");
