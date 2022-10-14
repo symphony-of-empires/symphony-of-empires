@@ -173,6 +173,8 @@ void LUA_util::save(GameState& gs, const std::string& savefile_path) {
             case PopGroup::FARMER: extra_arg = ",is_farmer=true"; break;
             case PopGroup::LABORER: extra_arg = ",is_laborer=true"; break;
             case PopGroup::SLAVE: extra_arg = ",is_slave=true"; break;
+            case PopGroup::SOLDIER: extra_arg = ",is_soldier=true"; break;
+            case PopGroup::ARTISAN: extra_arg = ",is_artisan=true"; break;
             default: break;
             }
             fprintf(fp.get(), "PopType:new{ ref_name=\"%s\",name=translate(\"%s\"),social_value=%f%s}\n", pop_type.ref_name.c_str(), pop_type.name.c_str(), pop_type.social_value, extra_arg.c_str());

@@ -57,11 +57,15 @@ struct PopNeed {
 };
 
 struct NewUnit {
-    Unit unit;
-    ProvinceId unit_province;
-    NewUnit(Unit& _unit, ProvinceId _unit_province) 
-        : unit{_unit},
-        unit_province{ _unit_province }
+    UnitTypeId type_id;
+    float size;
+    ProvinceId province_id;
+    PopTypeId pop_id;
+    NewUnit(UnitTypeId _type_id, float _size, ProvinceId _province_id, PopTypeId _pop_id) 
+        : type_id{ _type_id },
+        size{ _size },
+        province_id{ _province_id },
+        pop_id{ _pop_id }
     {
 
     }
@@ -181,7 +185,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             new_needs[i].life_needs_met = pop.life_needs_met - 0.25f;
         }
 
-        float laborers_amount = 0.f;
+        auto laborers_amount = 0.f;
         for(auto& pop : province.pops)
             if(world.pop_types[pop.type_id].group == PopGroup::LABORER)
                 laborers_amount += pop.size;
@@ -198,32 +202,12 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         for(auto& building : province.buildings) {
             // There must not be conflict ongoing otherwise they wont be able to build shit
             if(province.controller_id == province.owner_id && UnitType::is_valid(building.working_unit_type_id) && building.can_build_unit()) {
-                const float army_size = 100;
-                /// @todo Consume special soldier pops instead of farmers!!!
-                auto it = std::find_if(province.pops.begin(), province.pops.end(), [&world, building, army_size](const auto& e) {
-                    return e.size >= army_size && world.pop_types[e.type_id].group == PopGroup::FARMER;
-                });
+                auto& pop = province.get_soldier_pop();
+                auto& nation = world.nations[province.owner_id];
 
-                if(it != province.pops.end()) {
-                    auto& nation = world.nations[province.owner_id];
-                    const auto final_size = glm::min<float>(it->size, army_size);
-                    const auto given_money = final_size;
-                    // Nation must have money to pay the units
-                    if(given_money >= nation.budget) continue;
-                    /// @todo Maybe delete if size becomes 0?
-                    it->size -= final_size;
-                    if(final_size) {
-                        nation.budget -= given_money;
-                        Unit unit{};
-                        unit.type_id = building.working_unit_type_id;
-                        unit.set_owner(nation);
-                        unit.size = final_size;
-                        unit.base = world.unit_types[unit.type_id].max_health;
-                        province_new_units.local().emplace_back(unit, province);
-                        building.working_unit_type_id = UnitTypeId(-1);
-                        Eng3D::Log::debug("economy", string_format("%s has built an unit %s", province.ref_name.c_str(), world.unit_types[unit.type_id].ref_name.c_str()));
-                    }
-                }
+                const auto final_size = glm::min(pop.size, 100.f);
+                province_new_units.local().emplace_back(building.working_unit_type_id, final_size, province, pop.type_id);
+                building.working_unit_type_id = UnitTypeId(-1);
             }
         }
     });
@@ -266,8 +250,19 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     });
 
     province_new_units.combine_each([&world](auto& new_unit_list) {
-        for(auto& new_unit : new_unit_list) // Now commit the transaction of the new units into the main world area
-            world.unit_manager.add_unit(new_unit.unit, new_unit.unit_province);
+        for(auto& new_unit : new_unit_list) { // Now commit the transaction of the new units into the main world area
+            const auto& province = world.provinces[new_unit.province_id];
+            const auto& nation = world.nations[province.controller_id];
+            Unit unit{};
+            unit.pop_id = PopId(size_t(new_unit.pop_id));
+            unit.type_id = new_unit.type_id;
+            unit.size = new_unit.size;
+            unit.base = world.unit_types[unit.type_id].max_health;
+            unit.set_owner(nation);
+            world.unit_manager.add_unit(unit, province);
+
+            Eng3D::Log::debug("economy", string_format("%s has built an unit %s", province.ref_name.c_str(), world.unit_types[unit.type_id].ref_name.c_str()));
+        }
     });
 
     world.profiler.start("Emigration");

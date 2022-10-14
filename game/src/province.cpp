@@ -93,3 +93,11 @@ float Province::euclidean_distance(const Province& other_province, glm::vec2 wor
 bool Province::is_neighbour(const Province& province) const {
     return std::find(this->neighbour_ids.begin(), this->neighbour_ids.end(), province) != this->neighbour_ids.end();
 }
+
+Pop& Province::get_soldier_pop() {
+    const auto& world = World::get_instance();
+    auto it = std::find_if(pops.begin(), pops.end(), [&world](const auto& e) {
+        return world.pop_types[e.type_id].group == PopGroup::SOLDIER;
+    });
+    return *it;
+}

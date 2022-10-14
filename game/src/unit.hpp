@@ -84,7 +84,6 @@ class Unit : public Entity<UnitId> {
     friend class Client;
     friend struct UnitManager;
     friend struct Serializer<Unit>;
-
     std::vector<ProvinceId> path;
     float days_left_until_move = 0;
     ProvinceId target_province_id;
@@ -94,8 +93,7 @@ public:
     void set_target(const Province& province);
     void stop_movement();
     float days_to_move_to(const Province& province) const;
-    // Returns true if unit moved
-    bool update_movement(UnitManager& unit_manager);
+    bool update_movement(UnitManager& unit_manager); // Returns true if unit moved
     float get_speed() const;
     void set_owner(const Nation& nation);
     bool can_move() const;
@@ -104,8 +102,9 @@ public:
     ProvinceId get_target_province_id() const;
     float get_strength() const;
 
-    UnitTypeId type_id; // Type of unit
-    NationId owner_id; // Who owns this unit
+    UnitTypeId type_id;
+    NationId owner_id;
+    PopId pop_id;
     ProvinceId province_id() const;
 
     float size = 0.f;
@@ -140,9 +139,9 @@ public:
 
     template<typename T>
     inline void for_each_unit(const T& lambda) {
-        for(size_t i = 0; i < units.size(); i++)
-            if(units[i].is_valid())
-                lambda(units[i]);
+        for(auto& unit : units)
+            if(unit.is_valid())
+                lambda(unit);
     }
 
     inline std::vector<UnitId> get_province_units(ProvinceId province_id) const {

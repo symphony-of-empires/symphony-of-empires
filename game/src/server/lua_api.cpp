@@ -263,7 +263,7 @@ int LuaAPI::add_nation(lua_State* L) {
     Nation nation{};
     nation.ref_name = luaL_checkstring(L, 1);
     nation.name = luaL_checkstring(L, 2);
-    nation.ideology_id = g_world.ideologies.at(0);
+    nation.ideology_id = IdeologyId(0);
     nation.religion_discrim.resize(g_world.religions.size(), 0.5f);
     nation.language_discrim.resize(g_world.languages.size(), 0.5f);
     nation.client_hints.resize(g_world.ideologies.size());
@@ -556,10 +556,19 @@ int LuaAPI::add_province(lua_State* L) {
     province.products.resize(g_world.goods.size(), Product{});
     province.languages.resize(g_world.languages.size(), 0.f);
     province.religions.resize(g_world.religions.size(), 0.f);
-    province.pops.fill(Pop{});
     province.buildings.resize(g_world.building_types.size());
     for(const auto& building_type : g_world.building_types)
         province.buildings[building_type].stockpile.resize(building_type.input_ids.size(), 0);
+    
+    {
+        size_t i = 0;
+        for(auto& pop : province.pops) {
+            pop.type_id = PopTypeId(i);
+            pop.ideology_approval.resize(g_world.ideologies.size());
+            i++;
+        }
+    }
+
     // Set bounding box of province to the whole world (will later be resized at the bitmap-processing step)
     province.box_area = Eng3D::Rect(0, 0, std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max());
     g_world.insert(province);
@@ -891,10 +900,14 @@ int LuaAPI::add_pop_type(lua_State* L) {
     bool is_slave = lua_toboolean(L, 5);
     bool is_farmer = lua_toboolean(L, 6);
     bool is_laborer = lua_toboolean(L, 7);
+    bool is_soldier = lua_toboolean(L, 8);
+    bool is_artisan = lua_toboolean(L, 9);
     if(is_burgeoise) pop_type.group = PopGroup::BURGEOISE;
     else if(is_slave) pop_type.group = PopGroup::SLAVE;
     else if(is_farmer) pop_type.group = PopGroup::FARMER;
     else if(is_laborer) pop_type.group = PopGroup::LABORER;
+    else if(is_soldier) pop_type.group = PopGroup::SOLDIER;
+    else if(is_artisan) pop_type.group = PopGroup::ARTISAN;
     else pop_type.group = PopGroup::OTHER;
 
     pop_type.basic_needs_amount.resize(g_world.goods.size(), 0.f);
@@ -902,12 +915,12 @@ int LuaAPI::add_pop_type(lua_State* L) {
     pop_type.luxury_needs_deminishing_factor.resize(g_world.goods.size(), 0.f);
 
     // Lua next = pops top and then pushes key & value in table
-    lua_pushvalue(L, 8);
+    lua_pushvalue(L, 10);
     lua_pushnil(L);
     while(lua_next(L, -2)) {
         lua_pushnil(L);
         lua_next(L, -2);
-        const Good& good = find_or_throw<Good>(pop_string(L));
+        const auto& good = find_or_throw<Good>(pop_string(L));
         lua_next(L, -2);
         const float amount = pop_number(L);
         lua_pop(L, 2);
@@ -915,12 +928,12 @@ int LuaAPI::add_pop_type(lua_State* L) {
     }
     lua_pop(L, 1);
 
-    lua_pushvalue(L, 9);
+    lua_pushvalue(L, 11);
     lua_pushnil(L);
     while(lua_next(L, -2)) {
         lua_pushnil(L);
         lua_next(L, -2);
-        const Good& good = find_or_throw<Good>(pop_string(L));
+        const auto& good = find_or_throw<Good>(pop_string(L));
         lua_next(L, -2);
         const float satisfaction = pop_number(L);
         lua_next(L, -2);
@@ -946,6 +959,8 @@ int LuaAPI::get_pop_type(lua_State* L) {
     lua_pushboolean(L, pop_type.group == PopGroup::SLAVE);
     lua_pushboolean(L, pop_type.group == PopGroup::FARMER);
     lua_pushboolean(L, pop_type.group == PopGroup::LABORER);
+    lua_pushboolean(L, pop_type.group == PopGroup::SOLDIER);
+    lua_pushboolean(L, pop_type.group == PopGroup::ARTISAN);
     lua_newtable(L);
     size_t index = 1;
     for(size_t i = 0; i < pop_type.basic_needs_amount.size(); i++) {
@@ -985,6 +1000,8 @@ int LuaAPI::get_pop_type_by_id(lua_State* L) {
     lua_pushboolean(L, pop_type.group == PopGroup::SLAVE);
     lua_pushboolean(L, pop_type.group == PopGroup::FARMER);
     lua_pushboolean(L, pop_type.group == PopGroup::LABORER);
+    lua_pushboolean(L, pop_type.group == PopGroup::SOLDIER);
+    lua_pushboolean(L, pop_type.group == PopGroup::ARTISAN);
     lua_newtable(L);
     size_t index = 1;
     for(size_t i = 0; i < pop_type.basic_needs_amount.size(); i++) {

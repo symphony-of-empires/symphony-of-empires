@@ -81,6 +81,8 @@ enum class PopGroup : int {
     SLAVE = 0x04,
     FARMER = 0x08,
     LABORER = 0x10,
+    SOLDIER = 0x20,
+    ARTISAN = 0x40,
 };
 template<>
 struct Serializer<PopGroup> : SerializerMemcpy<PopGroup> {};
@@ -114,7 +116,7 @@ struct Serializer<PopType> {
 
 class Province;
 class Ideology;
-class Pop : public Entity<uint8_t> {
+class Pop : public Entity<PopId> {
     Pop& operator=(const Pop&) = default;
     friend class Province;
 public:
@@ -136,6 +138,7 @@ template<>
 struct Serializer<Pop> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, Pop& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.size);
         ::deser_dynamic<is_serialize>(ar, obj.literacy);
         ::deser_dynamic<is_serialize>(ar, obj.militancy);

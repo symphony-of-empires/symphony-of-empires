@@ -62,6 +62,13 @@ struct PopTypeId : EntityId<uint8_t> {
 template<>
 struct Serializer<PopTypeId> : SerializerMemcpy<PopTypeId> {};
 
+struct PopId : EntityId<uint8_t> {
+    PopId() = default;
+    PopId(size_t _id) : EntityId(_id) {}
+};
+template<>
+struct Serializer<PopId> : SerializerMemcpy<PopId> {};
+
 struct BuildingTypeId : EntityId<uint8_t> {
     BuildingTypeId() = default;
     BuildingTypeId(size_t _id) : EntityId(_id) {}
