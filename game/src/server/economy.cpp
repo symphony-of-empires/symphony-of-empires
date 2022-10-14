@@ -85,7 +85,7 @@ static void update_factory_production(World& world, Building& building, const Bu
     // Calculate outputs
     auto& output = world.goods[building_type.output_id];
     auto& output_product = province.products[output];
-    auto output_amount = building.level * building.production_scale * 500.f;
+    auto output_amount = building.level * building.production_scale;
 
     // TODO set min wages
     float min_wage = glm::max(1.f, 0.0001f);
@@ -109,7 +109,7 @@ static void update_factory_production(World& world, Building& building, const Bu
 
     // Rescale production
     // This is used to set how much the of the maximum capacity the factory produce
-    building.production_scale = glm::clamp(building.production_scale * scale_speed(output_value / (min_wage + inputs_cost)), 0.5f, 5.f);
+    building.production_scale = glm::clamp(building.production_scale * scale_speed(output_value / (min_wage + inputs_cost)), 0.f, 1.f);
 }
 
 // Update the factory employment
