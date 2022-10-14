@@ -664,10 +664,6 @@ void World::do_tick() {
     profiler.start("Treaties");
     // Do the treaties clauses
     for(const auto& treaty : treaties) {
-        // Check that the treaty is agreed by all parties before enforcing it
-        bool on_effect = std::find_if(treaty.approval_status.begin(), treaty.approval_status.end(), [](auto& status) { return (status.second != TreatyApproval::ACCEPTED); }) == treaty.approval_status.end();
-        if(!on_effect) continue;
-        // Check with treaty
         if(!treaty.in_effect()) continue;
 
         // Treaties clauses now will be enforced

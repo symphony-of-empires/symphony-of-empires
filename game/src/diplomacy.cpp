@@ -172,7 +172,10 @@ bool Treaty::does_participate(Nation& nation) {
 
 // Checks if the treaty has any clause which may still make the treaty be in effect
 bool Treaty::in_effect() const {
-    bool on_effect = false;
+    bool on_effect = std::find_if(treaty.approval_status.begin(), treaty.approval_status.end(), [](auto& status) { return (status.second != TreatyApproval::ACCEPTED); }) == treaty.approval_status.end();
+    if(!on_effect)
+        return false;
+    
     for(const auto& clause : this->clauses) {
         if(clause->type == TreatyClauseType::MONEY) {
             const auto* dyn_clause = static_cast<const TreatyClause::WarReparations*>(clause);
