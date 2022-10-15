@@ -190,15 +190,15 @@ public:
         return std::fabs(std::fabs(y) - (this->width / 2.0));
     }
     
-    std::vector<NationRelation> relations;
+    std::vector<Nation::Relation> relations;
 
-    NationRelation& get_relation(NationId a, NationId b) {
+    Nation::Relation& get_relation(NationId a, NationId b) {
         assert(a != b);
         if(b > a) std::swap(a, b);
         return relations[a + b * nations.size()];
     }
 
-    const NationRelation& get_relation(NationId a, NationId b) const {
+    const Nation::Relation& get_relation(NationId a, NationId b) const {
         assert(a != b);
         if(b > a) std::swap(a, b);
         return relations[a + b * nations.size()];

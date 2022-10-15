@@ -27,13 +27,13 @@
 rebel = Nation:new{ ref_name = "rebel" }
 rebel.name = _("Rebel")
 rebel:register()
-rebel:add_client_hint(monarchy, _("Monarchist Rebellion"), 0x808000)
-rebel:add_client_hint(communism, _("Communist Rebellion"), 0x808000)
-rebel:add_client_hint(socialism, _("Socialist Rebellion"), 0x808000)
-rebel:add_client_hint(fascism, _("Fascist Rebellion"), 0x808000)
-rebel:add_client_hint(republic, _("Democratic Rebellion"), 0x808000)
-rebel:add_client_hint(anarchy, _("Anarchist Rebellion"), 0x808000)
-rebel:add_client_hint(tribal, _("Primitivism Rebellion"), 0x808000)
+rebel:add_client_hint(monarchy, _("Monarchist Rebellion"), 0x822987)
+rebel:add_client_hint(communism, _("Communist Rebellion"), 0xf50000)
+rebel:add_client_hint(socialism, _("Socialist Rebellion"), 0xf50000)
+rebel:add_client_hint(fascism, _("Fascist Rebellion"), 0x423d3d)
+rebel:add_client_hint(republic, _("Democratic Rebellion"), 0x002aff)
+rebel:add_client_hint(anarchy, _("Anarchist Rebellion"), 0x1c1c1c)
+rebel:add_client_hint(tribal, _("Primitivism Rebellion"), 0x15a100)
 
 local nation = {}
 

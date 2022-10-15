@@ -48,49 +48,7 @@ namespace TreatyClause {
     class BaseClause;
 }
 
-// Defines a one side relation between a country
-// This allows for cases where a country A hates country B, but country B loves country A
-struct NationRelation {
-    bool is_allied() const {
-        return alliance > 0.f && !has_war;
-    }
-
-    bool has_landpass() const {
-        return relation > 0.5f || alliance > 0.f || has_war;
-    }
-
-    float relation = 0.f;
-    bool has_war = false;
-    float alliance = 0.f; // From 0 to 1; 0 = diplomatic alliance, tariiff excemption
-                          // 1 = political alliance, after this they can form a single country
-};
-template<>
-struct Serializer<NationRelation> {
-    template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, NationRelation& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.alliance);
-        ::deser_dynamic<is_serialize>(ar, obj.has_war);
-        ::deser_dynamic<is_serialize>(ar, obj.relation);
-    }
-};
-
 struct Ideology;
-/// @brief Hints for the client on how to display the nation
-struct NationClientHint {
-    uint32_t color;
-    Eng3D::StringRef alt_name; // Alternate name, for example communist Russia would be called USSR
-    IdeologyId ideology_id; // Ideology to which this hint applies to (nullptr = default fallback)
-};
-template<>
-struct Serializer<NationClientHint> {
-    template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, NationClientHint& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.color);
-        ::deser_dynamic<is_serialize>(ar, obj.alt_name);
-        ::deser_dynamic<is_serialize>(ar, obj.ideology_id);
-    }
-};
-
 struct Technology;
 class Nation : public RefnameEntity<NationId> {
     void do_diplomacy() {
@@ -104,6 +62,29 @@ class Nation : public RefnameEntity<NationId> {
     }
     Nation& operator=(const Nation&) = default;
 public:
+    /// @brief Diplomatic relations between two nations
+    struct Relation {
+        bool is_allied() const {
+            return alliance > 0.f && !has_war;
+        }
+
+        bool has_landpass() const {
+            return relation > 0.5f || alliance > 0.f || has_war;
+        }
+
+        float relation = 0.f;
+        bool has_war = false;
+        float alliance = 0.f; // From 0 to 1; 0 = diplomatic alliance, tariiff excemption
+                              // 1 = political alliance, after this they can form a single country
+    };
+
+    /// @brief Hints for the client on how to display the nation
+    struct ClientHint {
+        uint32_t color;
+        Eng3D::StringRef name;
+        IdeologyId ideology_id;
+    };
+
     void declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> clauses = std::vector<TreatyClause::BaseClause*>());
     bool is_ally(const Nation& nation) const;
     bool is_enemy(const Nation& nation) const;
@@ -114,7 +95,7 @@ public:
     float get_tax(const Pop& pop) const;
     void give_province(Province& province);
     void control_province(Province& province);
-    const NationClientHint& get_client_hint() const;
+    const Nation::ClientHint& get_client_hint() const;
     float get_research_points() const;
     bool can_research(const Technology& tech) const;
     void change_research_focus(const Technology& tech);
@@ -151,8 +132,26 @@ public:
     std::vector<ProvinceId> controlled_provinces;
     std::deque<Event> inbox; // Inbox of the nation; events that require our attention / should be processed
     std::vector<float> research; // Progress on technologies (1:1)
-    std::vector<NationClientHint> client_hints; // Hints for the client on how to draw a nation on the client
+    std::vector<Nation::ClientHint> client_hints; // Hints for the client on how to draw a nation on the client
     std::string client_username; // Used by clients to store usernames from nations - not saved
+};
+template<>
+struct Serializer<Nation::Relation> {
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, Nation::Relation& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.alliance);
+        ::deser_dynamic<is_serialize>(ar, obj.has_war);
+        ::deser_dynamic<is_serialize>(ar, obj.relation);
+    }
+};
+template<>
+struct Serializer<Nation::ClientHint> {
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, Nation::ClientHint& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.color);
+        ::deser_dynamic<is_serialize>(ar, obj.name);
+        ::deser_dynamic<is_serialize>(ar, obj.ideology_id);
+    }
 };
 template<>
 struct Serializer<Nation*> : SerializerReference<World, Nation> {};

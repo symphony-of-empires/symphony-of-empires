@@ -385,9 +385,9 @@ int LuaAPI::add_accepted_religion(lua_State* L) {
 
 int LuaAPI::add_nation_client_hint(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
-    NationClientHint hint{};
+    Nation::ClientHint hint{};
     hint.ideology_id = IdeologyId(lua_tonumber(L, 2));
-    hint.alt_name = luaL_checkstring(L, 3);
+    hint.name = luaL_checkstring(L, 3);
     hint.color = std::byteswap<std::uint32_t>(static_cast<int>(lua_tonumber(L, 4))) >> 8;
     hint.color |= 0xff000000;
     nation.client_hints[hint.ideology_id] = hint;

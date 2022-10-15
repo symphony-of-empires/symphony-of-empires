@@ -59,13 +59,13 @@ struct Serializer<TreatyClauseType> : SerializerMemcpy<TreatyClauseType> {};
 namespace TreatyClause {
     class BaseClause {
     public:
-        BaseClause() {};
+        BaseClause() = default;
         BaseClause(const Nation& _sender, const Nation& _receiver);
         virtual ~BaseClause() = default;
 
         enum TreatyClauseType type;
-        NationId sender_id{}; // Who created this clause
-        NationId receiver_id{}; // Who should accept/reject this clause
+        NationId sender_id; // Who created this clause
+        NationId receiver_id; // Who should accept/reject this clause
         size_t days_duration = 0; // Days this clause lasts
         bool done = false; // Used for 1 time clauses
 
@@ -92,7 +92,7 @@ namespace TreatyClause {
             : BaseClause()
         {
             type = TreatyClauseType::PAYMENT;
-        };
+        }
         unsigned cost();
         void enforce();
         bool in_effect() const;
@@ -262,7 +262,7 @@ template<>
 struct Serializer<enum TreatyApproval> : SerializerMemcpy<enum TreatyApproval> {};
 
 struct Treaty : Entity<TreatyId> {
-    bool does_participate(Nation& nation);
+    bool does_participate(const Nation& nation) const;
     bool in_effect() const;
 
     Eng3D::StringRef name;

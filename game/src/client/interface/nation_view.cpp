@@ -37,7 +37,7 @@ Interface::NationView::NationView(GameState& _gs, Nation& _nation)
 {
     this->is_scroll = false;
     this->set_on_each_tick([this](UI::Widget& w) {
-        w.text(this->nation.get_client_hint().alt_name);
+        w.text(this->nation.get_client_hint().name);
     });
     this->on_each_tick(*this);
     this->set_close_btn_function([this](Widget&) {
@@ -58,7 +58,7 @@ Interface::NationView::NationView(GameState& _gs, Nation& _nation)
 
     auto* name_lab = new UI::Label(0, 0, "?", flex_actions_column);
     name_lab->set_on_each_tick([this](UI::Widget& w) {
-        w.text(this->nation.get_client_hint().alt_name);
+        w.text(this->nation.get_client_hint().name);
     });
     name_lab->on_each_tick(*name_lab);
     name_lab->set_tooltip(translate("The official name"));

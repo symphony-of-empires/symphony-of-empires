@@ -185,7 +185,7 @@ void Map::update_nation_label(const Nation& nation) {
     float width = 0.7f;
     // Replace old label
     assert(this->nation_labels.size() > nation);
-    auto label = this->map_font->gen_text(nation.get_client_hint().alt_name, min_point_x, max_point_x, max_point_y, width);
+    auto label = this->map_font->gen_text(nation.get_client_hint().name, min_point_x, max_point_x, max_point_y, width);
     this->nation_labels[nation] = std::move(label);
 }
 

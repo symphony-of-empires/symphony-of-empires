@@ -58,8 +58,8 @@ float Province::get_attractiveness(const Pop& pop) const {
 
 void Province::add_building(const BuildingType& building_type) {
     // Now build the building
-    this->buildings[building_type.get_id()].level += 1;
-    this->buildings[building_type.get_id()].req_goods = building_type.req_goods;
+    this->buildings[building_type].level += 1.f;
+    this->buildings[building_type].req_goods = building_type.req_goods;
 }
 
 void Province::cancel_construction_project() {

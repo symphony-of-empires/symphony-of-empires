@@ -104,13 +104,6 @@ struct NationId : EntityId<uint16_t> {
 template<>
 struct Serializer<NationId> : SerializerMemcpy<NationId> {};
 
-struct BattleId : EntityId<uint16_t> {
-    BattleId() = default;
-    BattleId(size_t _id) : EntityId(_id) {}
-};
-template<>
-struct Serializer<BattleId> : SerializerMemcpy<BattleId> {};
-
 struct ProvinceId : EntityId<uint16_t> {
     ProvinceId() = default;
     ProvinceId(size_t _id) : EntityId(_id) {}

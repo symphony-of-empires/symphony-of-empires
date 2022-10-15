@@ -74,8 +74,8 @@ end
 function Nation:set_ideology(ideology)
 	set_nation_ideology(self.id, ideology.id)
 end
-function Nation:add_client_hint(ideology, alt_name, color)
-	add_nation_client_hint(self.id, ideology.id, alt_name, color)
+function Nation:add_client_hint(ideology, name, color)
+	add_nation_client_hint(self.id, ideology.id, name, color)
 end
 
 function Nation:get_all()

@@ -203,8 +203,6 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             // There must not be conflict ongoing otherwise they wont be able to build shit
             if(province.controller_id == province.owner_id && UnitType::is_valid(building.working_unit_type_id) && building.can_build_unit()) {
                 auto& pop = province.get_soldier_pop();
-                auto& nation = world.nations[province.owner_id];
-
                 const auto final_size = glm::min(pop.size, 100.f);
                 province_new_units.local().emplace_back(building.working_unit_type_id, final_size, province, pop.type_id);
                 building.working_unit_type_id = UnitTypeId(-1);

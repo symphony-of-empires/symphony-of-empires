@@ -42,10 +42,10 @@
 /// and we also make sure betrayals are possible
 void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> clauses) {
     auto& world = World::get_instance();
-    auto* war = new War();
+    War war{};
 
     //Eng3D::Log::debug("game", ref_name + " has declared war on " + nation.ref_name);
-    war->wargoals = clauses;
+    war.wargoals = clauses;
 
     // Recollect offenders
     // - Those who are allied to us
@@ -53,9 +53,9 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
         if(&world.nations[i] == this || &world.nations[i] == &nation) continue;
         const auto& relation = world.get_relation(i, *this);
         if(relation.is_allied() || world.nations[i].puppet_master_id == *this)
-            war->attacker_ids.push_back(world.nations[i]);
+            war.attacker_ids.push_back(world.nations[i]);
     }
-    war->attacker_ids.push_back(*this);
+    war.attacker_ids.push_back(*this);
 
     // Recollect defender_ids
     // - Those who are on a defensive pact with the target
@@ -63,20 +63,20 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     // - And those who aren't already attacking
     for(size_t i = 0; i < world.nations.size(); i++) {
         if(&world.nations[i] == this || &world.nations[i] == &nation) continue;
-        if(std::find(war->attacker_ids.begin(), war->attacker_ids.end(), world.nations[i]) != war->attacker_ids.end()) continue;
+        if(std::find(war.attacker_ids.begin(), war.attacker_ids.end(), world.nations[i]) != war.attacker_ids.end()) continue;
         const auto& relation = world.get_relation(i, nation);
         if(relation.is_allied() || world.nations[i].puppet_master_id == nation)
-            war->defender_ids.push_back(world.nations[i]);
+            war.defender_ids.push_back(world.nations[i]);
     }
-    war->defender_ids.push_back(nation);
+    war.defender_ids.push_back(nation);
 
     /// @todo We have to remove these since some are duplicated
     /// at the best case we should probably just put them on the attacking side?
     /// or also we could just make it an event where everyone is involved yknow
-    for(auto attacker : war->attacker_ids) {
-        for(size_t i = 0; i < war->defender_ids.size(); i++) {
-            if(attacker == war->defender_ids[i]) {
-                war->defender_ids.erase(war->defender_ids.begin() + i);
+    for(auto attacker : war.attacker_ids) {
+        for(size_t i = 0; i < war.defender_ids.size(); i++) {
+            if(attacker == war.defender_ids[i]) {
+                war.defender_ids.erase(war.defender_ids.begin() + i);
                 i--;
                 continue;
             }
@@ -84,8 +84,8 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     }
 
     // Attackers are at war with the defender_ids
-    for(auto attacker_id : war->attacker_ids) {
-        for(auto defender_id : war->defender_ids) {
+    for(auto attacker_id : war.attacker_ids) {
+        for(auto defender_id : war.defender_ids) {
             assert(attacker_id != defender_id);
             auto& attacker = world.nations[attacker_id];
             auto& defender = world.nations[defender_id];
@@ -102,31 +102,33 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     }
 
     Eng3D::Log::debug("game", "Attackers");
-    for(const auto& attacker_id : war->attacker_ids) {
+    for(const auto& attacker_id : war.attacker_ids) {
         auto& attacker = world.nations[attacker_id];
         Eng3D::Log::debug("game", attacker.ref_name.get_string());
     }
     Eng3D::Log::debug("game", "Defenders");
-    for(const auto& defender_id : war->defender_ids) {
+    for(const auto& defender_id : war.defender_ids) {
         auto& defender = world.nations[defender_id];
         Eng3D::Log::debug("game", defender.ref_name.get_string());
     }
-    war->name = translate_format("War of %s against %s", this->name.c_str(), nation.name.c_str());
-    Eng3D::Log::debug("game", war->name.get_string());
-    world.insert(*war);
+    war.name = translate_format("War of %s against %s", this->name.c_str(), nation.name.c_str());
+    Eng3D::Log::debug("game", war.name.get_string());
+    world.insert(war);
 }
 
 bool Nation::is_ally(const Nation& nation) const {
     const auto& world = World::get_instance();
     const auto& relation = world.get_relation(*this, nation);
-    if(relation.has_war) return false;
+    if(relation.has_war)
+        return false;
     return true;
 }
 
 bool Nation::is_enemy(const Nation& nation) const {
     const auto& world = World::get_instance();
     const auto& relation = world.get_relation(*this, nation);
-    if(relation.has_war) return true;
+    if(relation.has_war)
+        return true;
     return false;
 }
 
@@ -149,69 +151,18 @@ void Nation::set_policy(const Policies& policies) {
         Eng3D::Log::debug("game", "Parliament-less policy passed!");
     }
 
-    auto rand = Eng3D::get_local_generator();
-    unsigned int approvals = 0, disapprovals = 0;
-    std::vector<Pop*> disapprovers, approvers;
-    for(const auto province_id : owned_provinces) {
-        auto& province = World::get_instance().provinces[province_id];
-        for(auto& pop : province.pops) {
-            const Policies& pop_policies = pop.get_ideology().policies;
-            // To "cheese it up" we mix some ideologies of the people, randomly
-            for(size_t i = 0; i < World::get_instance().ideologies.size(); i++) {
-                pop.ideology_approval[i] += std::fmod(rand() / 1000.f, current_policy.difference(pop_policies));
-                pop.ideology_approval[i] = glm::clamp<float>(pop.ideology_approval[i], -1.f, 1.f); // Clamp
-            }
-            
-            // Disapproval of old (current) policy
-            const int old_disapproval = current_policy.difference(pop_policies);
-            // Dissaproval of new policy
-            const int new_disapproval = policies.difference(pop_policies);
-            if(new_disapproval < old_disapproval) {
-                approvals += pop.size;
-                disapprovers.push_back(&pop);
-            } else {
-                disapprovals += pop.size;
-                approvers.push_back(&pop);
-            }
-        }
-    }
-
-    // Policy is enacted and passed parliament
-    if(approvals > disapprovals) {
-        // Set new policy
-        this->current_policy = policies;
-        // All who agreed are happy
-        for(auto& pop : approvers)
-            pop->militancy *= 0.8f;
-        // All who disagreed are angered
-        for(auto& pop : disapprovers) {
-            pop->militancy += 0.2f;
-            pop->militancy *= 1.2f;
-        }
-        Eng3D::Log::debug("game", "New enacted policy passed parliament!");
-    }
-    // Legislation does not make it into the official law
-    else {
-        // All people who agreed gets angered
-        for(auto& pop : disapprovers)
-            pop->militancy *= 0.8f;
-        // All people who disagreed gets happy
-        for(auto& pop : approvers) {
-            pop->militancy += 0.2f;
-            pop->militancy *= 1.2f;
-        }
-        Eng3D::Log::debug("game", "New enacted policy did not made it into the parliament!");
-    }
+    // Set new policy
+    this->current_policy = policies;
 }
 
 /// @brief Checks if a LANGUAGE is part of one of our accepted languages
 bool Nation::is_accepted_language(const Language& language) const {
-    return language_discrim[World::get_instance().get_id(language)] >= 0.5f;
+    return language_discrim[language] >= 0.5f;
 }
 
 /// @brief Checks if a RELIGION is part of one of our accepted relgion
 bool Nation::is_accepted_religion(const Religion& religion) const {
-    return religion_discrim[World::get_instance().get_id(religion)] >= 0.5f;
+    return religion_discrim[religion] >= 0.5f;
 }
 
 /// @brief Gets the total tax applied to a POP depending on their "wealth"
@@ -268,7 +219,7 @@ void Nation::control_province(Province& province) {
             pop.militancy += 0.1f;
 }
 
-const NationClientHint& Nation::get_client_hint() const {
+const Nation::ClientHint& Nation::get_client_hint() const {
     return this->client_hints[this->ideology_id];
 }
 
@@ -285,14 +236,10 @@ float Nation::get_research_points() const {
 }
 
 bool Nation::can_research(const Technology& technology) const {
-    // Only military/navy technologies can actually be researched
-    // or not? wink, wink ;)
-    //if(tech->type != TechnologyType::MILITARY && tech->type != TechnologyType::NAVY) return false;
-
     // All required technologies for this one must be researched
     for(const auto& req_tech_id : technology.req_technologies)
-        if(research[req_tech_id] >= 1.f)
-            return true;
+        if(research[req_tech_id] < 1.f)
+            return false;
     return true;
 }
 
@@ -304,11 +251,7 @@ void Nation::change_research_focus(const Technology& technology) {
 
 void Nation::get_allies(std::function<void(const Nation&)> fn) const {
     const auto& world = World::get_instance();
-    for(const auto& nation : world.nations) {
-        if(this != &nation) {
-            const auto& relation = world.get_relation(*this, nation);
-            if(relation.is_allied())
-                fn(nation);
-        }
-    }
+    for(const auto& nation : world.nations)
+        if(&nation != this && is_ally(nation))
+            fn(nation);
 }

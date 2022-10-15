@@ -75,14 +75,14 @@ struct Serializer<Religion> {
     }
 };
 
-enum class PopGroup : int {
-    OTHER = 0x01,
-    BURGEOISE = 0x02,
-    SLAVE = 0x04,
-    FARMER = 0x08,
-    LABORER = 0x10,
-    SOLDIER = 0x20,
-    ARTISAN = 0x40,
+enum class PopGroup : uint8_t {
+    OTHER,
+    BURGEOISE,
+    SLAVE,
+    FARMER,
+    LABORER,
+    SOLDIER,
+    ARTISAN,
 };
 template<>
 struct Serializer<PopGroup> : SerializerMemcpy<PopGroup> {};

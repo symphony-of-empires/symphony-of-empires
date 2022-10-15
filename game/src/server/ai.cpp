@@ -276,10 +276,9 @@ void AI::do_tick(World& world) {
                         auto& unit = world.unit_manager.units[unit_id];
                         if(unit.owner_id != nation || !unit.can_move()) continue;
                         if(Province::is_valid(unit.get_target_province_id())) continue;
-                        const auto& unit_province = world.provinces[unit.province_id()];
-                        const auto* highest_risk = ai.get_highest_priority_province(world, &unit_province, unit);
+                        const auto* highest_risk = ai.get_highest_priority_province(world, &province, unit);
                         // Above we made sure high_risk province is valid for us to step in
-                        if(highest_risk == &unit_province || rand() % 32 == 0) {
+                        if(highest_risk == &province || rand() % 32 == 0) {
                             auto it = highest_risk->neighbour_ids.begin();
                             std::advance(it, rand() % highest_risk->neighbour_ids.size());
                             highest_risk = &world.provinces[*it];
@@ -288,7 +287,7 @@ void AI::do_tick(World& world) {
                                 const auto& relation = world.get_relation(highest_risk->controller_id, unit.owner_id);
                                 if(!relation.has_landpass()) continue;
                             }
-                            if(highest_risk == &unit_province) continue;
+                            if(highest_risk == &province) continue;
                         }
                         unit.set_target(*highest_risk);
                     }

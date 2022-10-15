@@ -382,13 +382,13 @@ mapmode_tooltip relations_tooltip(NationId nation_id) {
             return "";
 
         if(Nation::is_valid(province.controller_id) && province.controller_id == province.owner_id) {
-            str += province_controller.get_client_hint().alt_name;
+            str += province_controller.get_client_hint().name;
         } else if(Nation::is_valid(province.owner_id)) {
-            str += translate_format("Province owned by %s and controlled by %s", world.nations[province.owner_id].get_client_hint().alt_name.c_str(), province_controller.get_client_hint().alt_name.c_str());
+            str += translate_format("Province owned by %s and controlled by %s", world.nations[province.owner_id].get_client_hint().name.c_str(), province_controller.get_client_hint().name.c_str());
         }
 
         if(province_controller.puppet_master_id == nation_id) {
-            str += string_format("\nWhich is a puppet of %s", world.nations[nation_id].get_client_hint().alt_name.c_str());
+            str += string_format("\nWhich is a puppet of %s", world.nations[nation_id].get_client_hint().name.c_str());
             return str;
         }
 
@@ -396,9 +396,9 @@ mapmode_tooltip relations_tooltip(NationId nation_id) {
             const auto& nation = world.nations[province.controller_id];
             const auto& relation = world.get_relation(nation, nation_id);
             if(relation.is_allied()) {
-                str += string_format("\nAllied with %s", nation.get_client_hint().alt_name.c_str());
+                str += string_format("\nAllied with %s", nation.get_client_hint().name.c_str());
             } else if(relation.has_war) {
-                str += string_format("\nAt war with %s", nation.get_client_hint().alt_name.c_str());
+                str += string_format("\nAt war with %s", nation.get_client_hint().name.c_str());
             }
 
             static std::array<std::string, 7> rel_lvls = {
@@ -415,7 +415,7 @@ mapmode_tooltip relations_tooltip(NationId nation_id) {
             str += string_format("\n%.2f - %s", relation.relation, rel_lvls[idx % rel_lvls.size()].c_str());
 
             nation.get_allies([&](const auto& nation) {
-                str += string_format("%s,", nation.get_client_hint().alt_name.c_str());
+                str += string_format("%s,", nation.get_client_hint().name.c_str());
             });
         }
         return str;

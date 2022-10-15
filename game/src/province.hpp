@@ -105,7 +105,7 @@ public:
     std::array<Pop, 8> pops; // List of pops in this province
     std::vector<Product> products;
     std::vector<Building> buildings;
-    struct Battle : public Entity<BattleId> {
+    struct Battle {
         Battle() = default;
         Battle(const War& war)
             : war_id{ war.get_id() }
@@ -116,8 +116,8 @@ public:
         WarId war_id;
         float attacker_casualties = 0.f;
         float defender_casualties = 0.f;
-        std::vector<uint16_t> attackers_ids;
-        std::vector<uint16_t> defenders_ids;
+        std::vector<UnitId> attackers_ids;
+        std::vector<UnitId> defenders_ids;
         bool active = false;
     } battle;
     std::vector<NationId> nuclei; // Nations who have a nuclei in this province
@@ -126,6 +126,18 @@ public:
     std::vector<float> languages;
     /// @brief Percentage of each religion prescence on the pops, from 0 to 1
     std::vector<float> religions;
+};
+template<>
+struct Serializer<Province::Battle> {
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, Province::Battle& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.war_id);
+        ::deser_dynamic<is_serialize>(ar, obj.attacker_casualties);
+        ::deser_dynamic<is_serialize>(ar, obj.defender_casualties);
+        ::deser_dynamic<is_serialize>(ar, obj.attackers_ids);
+        ::deser_dynamic<is_serialize>(ar, obj.defenders_ids);
+        ::deser_dynamic<is_serialize>(ar, obj.active);
+    }
 };
 template<>
 struct Serializer<Province*> : SerializerReference<World, Province> {};
@@ -152,6 +164,7 @@ struct Serializer<Province> {
         ::deser_dynamic<is_serialize>(ar, obj.languages);
         ::deser_dynamic<is_serialize>(ar, obj.religions);
         ::deser_dynamic<is_serialize>(ar, obj.terrain_type_id);
+        ::deser_dynamic<is_serialize>(ar, obj.battle);
     }
 };
 

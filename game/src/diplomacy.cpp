@@ -94,7 +94,7 @@ unsigned TreatyClause::LiberateNation::cost() {
 void TreatyClause::LiberateNation::enforce() {
     auto& world = World::get_instance();
     world.nations[sender_id].prestige += cost() * 0.025f;
-    world.nations[receiver_id].prestige += cost() * 0.05f;
+    world.nations[receiver_id].prestige -= cost() * 0.05f;
     for(const auto province_id : province_ids)
         world.nations[liberated_id].give_province(world.provinces[province_id]);
     done = true;
@@ -132,7 +132,7 @@ unsigned TreatyClause::AnnexProvince::cost() {
 void TreatyClause::AnnexProvince::enforce() {
     auto& world = World::get_instance();
     world.nations[sender_id].prestige += cost() * 0.025f;
-    world.nations[receiver_id].prestige += cost() * 0.05f;
+    world.nations[receiver_id].prestige -= cost() * 0.05f;
     for(const auto province_id : province_ids)
         world.nations[sender_id].give_province(world.provinces[province_id]);
     done = true;
@@ -160,7 +160,7 @@ bool TreatyClause::Puppet::in_effect() const {
 }
 
 // Checks if the specified nations participates in the treaty
-bool Treaty::does_participate(Nation& nation) {
+bool Treaty::does_participate(const Nation& nation) const {
     for(auto& [other_nation, _] : this->approval_status)
         if(other_nation == nation)
             return true;
@@ -169,7 +169,7 @@ bool Treaty::does_participate(Nation& nation) {
 
 // Checks if the treaty has any clause which may still make the treaty be in effect
 bool Treaty::in_effect() const {
-    bool on_effect = std::find_if(this->approval_status.begin(), this->approval_status.end(), [](const auto& status) { return (status.second != TreatyApproval::ACCEPTED); }) == this->approval_status.end();
+    bool on_effect = std::find_if(this->approval_status.begin(), this->approval_status.end(), [](const auto& status) { return status.second != TreatyApproval::ACCEPTED; }) == this->approval_status.end();
     if(!on_effect)
         return false;
     
