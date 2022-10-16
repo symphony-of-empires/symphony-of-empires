@@ -36,13 +36,11 @@ struct Language : RefnameEntity<LanguageId> {
     Eng3D::StringRef combo_form;
 };
 template<>
-struct Serializer<Language*> : SerializerReference<World, Language> {};
-template<>
-struct Serializer<const Language*> : SerializerReference<World, const Language> {};
-template<>
 struct Serializer<Language> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Language>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Language& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.name);
         ::deser_dynamic<is_serialize>(ar, obj.ref_name);
@@ -61,13 +59,11 @@ struct Religion : RefnameEntity<ReligionId> {
     }
 };
 template<>
-struct Serializer<Religion*> : SerializerReference<World, Religion> {};
-template<>
-struct Serializer<const Religion*> : SerializerReference<World, const Religion> {};
-template<>
 struct Serializer<Religion> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Religion>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Religion& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.name);
         ::deser_dynamic<is_serialize>(ar, obj.ref_name);
@@ -96,13 +92,11 @@ struct PopType : RefnameEntity<PopTypeId> {
     std::vector<float> luxury_needs_deminishing_factor; // Deminishing returns factor of the luxury good satisfaction
 };
 template<>
-struct Serializer<PopType*> : SerializerReference<World, PopType> {};
-template<>
-struct Serializer<const PopType*> : SerializerReference<World, const PopType> {};
-template<>
 struct Serializer<PopType> {
+    template<bool is_const>
+    using type = CondConstType<is_const, PopType>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, PopType& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.name);
         ::deser_dynamic<is_serialize>(ar, obj.ref_name);
@@ -136,8 +130,10 @@ public:
 };
 template<>
 struct Serializer<Pop> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Pop>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Pop& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.size);
         ::deser_dynamic<is_serialize>(ar, obj.literacy);

@@ -66,13 +66,12 @@ struct BuildingType : RefnameEntity<BuildingTypeId> {
     std::vector<TechnologyId> req_technologies; // Required technologies to build
 };
 template<>
-struct Serializer<BuildingType*> : SerializerReference<World, BuildingType> {};
-template<>
-struct Serializer<const BuildingType*> : SerializerReference<World, const BuildingType> {};
-template<>
 struct Serializer<BuildingType> {
+    template<bool is_const>
+    using type = CondConstType<is_const, BuildingType>::type;
+
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, BuildingType& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.ref_name);
         ::deser_dynamic<is_serialize>(ar, obj.name);
@@ -122,8 +121,11 @@ struct Building : Entity<BuildingId> {
 };
 template<>
 struct Serializer<Building> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Building>::type;
+
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Building& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.working_unit_type_id);
         ::deser_dynamic<is_serialize>(ar, obj.budget);
         ::deser_dynamic<is_serialize>(ar, obj.level);

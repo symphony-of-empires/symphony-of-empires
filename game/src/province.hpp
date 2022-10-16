@@ -129,8 +129,10 @@ public:
 };
 template<>
 struct Serializer<Province::Battle> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Province::Battle>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Province::Battle& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.war_id);
         ::deser_dynamic<is_serialize>(ar, obj.attacker_casualties);
         ::deser_dynamic<is_serialize>(ar, obj.defender_casualties);
@@ -140,13 +142,11 @@ struct Serializer<Province::Battle> {
     }
 };
 template<>
-struct Serializer<Province*> : SerializerReference<World, Province> {};
-template<>
-struct Serializer<const Province*> : SerializerReference<World, const Province> {};
-template<>
 struct Serializer<Province> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Province>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Province& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.name);
         ::deser_dynamic<is_serialize>(ar, obj.ref_name);

@@ -235,8 +235,10 @@ public:
 };
 template<>
 struct Serializer<World> {
+    template<bool is_const>
+    using type = CondConstType<is_const, World>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, World& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.width);
         ::deser_dynamic<is_serialize>(ar, obj.height);
         ::deser_dynamic<is_serialize>(ar, obj.time);
@@ -272,6 +274,29 @@ struct Serializer<World> {
                 obj.tiles.reset(new ProvinceId[obj.width * obj.height]);
                 // Deserialize all tiles
                 ar.copy_to(obj.tiles.get(), obj.width * obj.height * sizeof(ProvinceId));
+            }
+        }
+    }
+};
+
+#include "eng3d/serializer.hpp"
+/// @brief Used as a template for serializable objects on the global world context
+template<typename T>
+concept SerializerPointer = std::is_pointer_v<T>;
+template<SerializerPointer T>
+struct Serializer<T> {
+    typedef std::remove_pointer_t<T> type_no_p; // Pointerless type
+    template<bool is_const>
+    using type = CondConstType<is_const, type_no_p>::type;
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>*const& obj) {
+        typename type_no_p::Id id = obj == nullptr ? type_no_p::invalid() : obj->get_id();
+        ::deser_dynamic<is_serialize>(ar, id);
+        if constexpr(!is_serialize) {
+            if(static_cast<size_t>(id) >= World::get_instance().get_list((T)nullptr).size()) {
+                const_cast<T&>(obj) = nullptr;
+            } else {
+                const_cast<T&>(obj) = id != type_no_p::invalid() ? &(World::get_instance().get_list((T)nullptr)[id]) : nullptr;
             }
         }
     }

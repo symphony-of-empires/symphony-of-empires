@@ -55,13 +55,11 @@ struct UnitType : RefnameEntity<UnitTypeId> {
     }
 };
 template<>
-struct Serializer<UnitType*> : SerializerReference<World, UnitType> {};
-template<>
-struct Serializer<const UnitType*> : SerializerReference<World, const UnitType> {};
-template<>
 struct Serializer<UnitType> {
+    template<bool is_const>
+    using type = CondConstType<is_const, UnitType>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, UnitType& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.name);
         ::deser_dynamic<is_serialize>(ar, obj.ref_name);
@@ -114,8 +112,10 @@ public:
 };
 template<>
 struct Serializer<Unit> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Unit>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Unit& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.type_id);
         ::deser_dynamic<is_serialize>(ar, obj.size);
@@ -159,8 +159,10 @@ public:
 };
 template<>
 struct Serializer<UnitManager> {
+    template<bool is_const>
+    using type = CondConstType<is_const, UnitManager>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, UnitManager& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.units);
         ::deser_dynamic<is_serialize>(ar, obj.free_unit_slots);
         ::deser_dynamic<is_serialize>(ar, obj.unit_province);

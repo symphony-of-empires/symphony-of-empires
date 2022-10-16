@@ -38,13 +38,11 @@ struct Ideology : RefnameEntity<IdeologyId> {
     }
 };
 template<>
-struct Serializer<Ideology*> : SerializerReference<World, Ideology> {};
-template<>
-struct Serializer<const Ideology*> : SerializerReference<World, const Ideology> {};
-template<>
 struct Serializer<Ideology> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Ideology>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Ideology& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.ref_name);
         ::deser_dynamic<is_serialize>(ar, obj.name);

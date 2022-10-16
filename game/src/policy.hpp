@@ -120,8 +120,10 @@ struct Policies {
 };
 template<>
 struct Serializer<Policies> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Policies>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Policies& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.free_supplies);
         ::deser_dynamic<is_serialize>(ar, obj.immigration);
         ::deser_dynamic<is_serialize>(ar, obj.import_tax);

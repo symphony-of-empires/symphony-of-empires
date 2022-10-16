@@ -92,18 +92,27 @@ struct Archive {
     size_t ptr = 0;
 };
 
+template<bool is_const, typename T>
+struct CondConstType;
+template<typename T>
+struct CondConstType<true, T> { using type = const std::remove_reference_t<T>; };
+template<typename T>
+struct CondConstType<false, T> { using type = std::remove_reference_t<T>; };
+
 /// @brief A serializer (base class) which can be used to serialize objects
 /// and create per-object optimized classes
 template<typename T>
 struct Serializer {
+    template<bool is_const>
+    using type = CondConstType<is_const, T>::type;
 #ifdef DEBUG_SERIALIZER
     template<bool is_serialize = true>
-    static inline void deser_dynamic(Archive&, T&) {
+    static inline void deser_dynamic(Archive&, T&&) {
         CXX_THROW(SerializerException, "Implement your serializer function!");
     }
 
     template<bool is_serialize = false>
-    static inline void deser_dynamic(Archive&, const T&) {
+    static inline void deser_dynamic(Archive&, const T&&) {
         CXX_THROW(SerializerException, "Implement your deserializer function!");
     }
 #endif
@@ -113,18 +122,31 @@ struct Serializer {
 /// @tparam is_serialize if true perform serialize mode, otherwise deserialize
 /// @tparam T the type to (de)-serialize
 template<bool is_serialize, typename T>
-inline void deser_dynamic(Archive& ar, T& obj) {
-    Serializer<T>::template deser_dynamic<is_serialize>(ar, const_cast<T&>(obj));
+void deser_dynamic(Archive& ar, T& obj);
+
+template<bool is_serialize = true, typename T>
+void deser_dynamic(Archive& ar, const T& obj) {
+    Serializer<std::remove_reference_t<T>>::template deser_dynamic<is_serialize>(ar, obj);
+}
+
+template<bool is_serialize = false, typename T>
+void deser_dynamic(Archive& ar, T& obj) {
+    Serializer<std::remove_reference_t<T>>::template deser_dynamic<is_serialize>(ar, obj);
 }
 
 template<typename T>
 inline void serialize(Archive& ar, const T& obj) {
-    Serializer<T>::template deser_dynamic<true>(ar, const_cast<T&>(obj));
+    Serializer<std::remove_reference_t<T>>::template deser_dynamic<true>(ar, obj);
+}
+
+template<typename T>
+inline void serialize(Archive& ar, T& obj) {
+    Serializer<std::remove_reference_t<T>>::template deser_dynamic<true>(ar, obj);
 }
 
 template<typename T>
 inline void deserialize(Archive& ar, T& obj) {
-    Serializer<T>::template deser_dynamic<false>(ar, obj);
+    Serializer<std::remove_reference_t<T>>::template deser_dynamic<false>(ar, obj);
 }
 
 /// @brief A serializer optimized to memcpy directly the element into the byte stream
@@ -132,8 +154,11 @@ inline void deserialize(Archive& ar, T& obj) {
 /// The elements must have a fixed size for this to work.
 template<typename T>
 struct SerializerMemcpy {
+    template<bool is_const>
+    using type = CondConstType<is_const, T>::type;
+
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, T& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         if constexpr(is_serialize) ar.copy_from(&obj, sizeof(T));
         else ar.copy_to(&obj, sizeof(T));
     }
@@ -145,8 +170,11 @@ template<SerializerScalar T>
 class Serializer<T> {
     constexpr static auto scaling = 1000.f;
 public:
+    template<bool is_const>
+    using type = CondConstType<is_const, T>::type;
+
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, T& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         if constexpr(std::is_floating_point_v<T>) {
             auto tmp = static_cast<int32_t>(obj * scaling);
             ::deser_dynamic<is_serialize>(ar, tmp);
@@ -173,8 +201,11 @@ concept SerializerContainer = requires(T a, T b) {
 /// This serializer class works primarly with containers whose memory is contiguous
 template<SerializerContainer T>
 struct Serializer<T> {
+    template<bool is_const>
+    using type = CondConstType<is_const, T>::type;
+
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, T& obj_group) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj_group) {
         constexpr bool has_data = requires(T a) { a.data(); };
         uint32_t len = obj_group.size();
         ::deser_dynamic<is_serialize>(ar, len);
@@ -221,8 +252,11 @@ struct Serializer<bool> : SerializerMemcpy<bool> {};
 /// @brief Pair serializers
 template<typename T, typename U>
 struct Serializer<std::pair<T, U>> {
+    template<bool is_const>
+    using type = CondConstType<is_const, std::pair<T, U>>::type;
+
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, std::pair<T, U>& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.first);
         ::deser_dynamic<is_serialize>(ar, obj.second);
     }
@@ -231,8 +265,11 @@ struct Serializer<std::pair<T, U>> {
 #include <bitset>
 template<typename T, int N>
 struct SerializerBitset {
+    template<bool is_const>
+    using type = CondConstType<is_const, T>::type;
+
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, T& obj_group) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj_group) {
         unsigned long num = obj_group.to_ulong();
         if constexpr(is_serialize) {
             ::deser_dynamic<is_serialize>(ar, num);
@@ -248,8 +285,11 @@ struct Serializer<std::bitset<bits>> : SerializerBitset<std::bitset<bits>, bits>
 #include "eng3d/string.hpp"
 template<>
 struct Serializer<Eng3D::StringRef> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Eng3D::StringRef>::type;
+
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Eng3D::StringRef& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         std::string str;
         if constexpr(is_serialize) {
             str = obj.get_string();
@@ -264,29 +304,15 @@ struct Serializer<Eng3D::StringRef> {
 #include "eng3d/rectangle.hpp"
 template<>
 struct Serializer<Eng3D::Rectangle> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Eng3D::Rectangle>::type;
+
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Eng3D::Rectangle& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.left);
         ::deser_dynamic<is_serialize>(ar, obj.right);
         ::deser_dynamic<is_serialize>(ar, obj.top);
         ::deser_dynamic<is_serialize>(ar, obj.bottom);
-    }
-};
-
-/// @brief Used as a template for serializable objects on the global world context
-template<typename W, typename T>
-struct SerializerReference {
-    template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, T*& obj) {
-        typename T::Id id = obj == nullptr ? T::invalid() : W::get_instance().get_id(*obj);
-        ::deser_dynamic<is_serialize>(ar, id);
-        if constexpr(!is_serialize) {
-            if(static_cast<size_t>(id) >= W::get_instance().get_list((T*)nullptr).size()) {
-                obj = nullptr;
-            } else {
-                obj = id != T::invalid() ? &(W::get_instance().get_list((T*)nullptr)[id]) : nullptr;
-            }
-        }
     }
 };
 

@@ -39,13 +39,11 @@ struct TerrainType : RefnameEntity<TerrainTypeId> {
     }
 };
 template<>
-struct Serializer<TerrainType*> : SerializerReference<World, TerrainType> {};
-template<>
-struct Serializer<const TerrainType*> : SerializerReference<World, const TerrainType> {};
-template<>
 struct Serializer<TerrainType> {
+    template<bool is_const>
+    using type = CondConstType<is_const, TerrainType>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, TerrainType& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.name);
         ::deser_dynamic<is_serialize>(ar, obj.ref_name);

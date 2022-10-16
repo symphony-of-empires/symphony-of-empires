@@ -37,8 +37,10 @@ struct Decision : RefnameEntity<DecisionId> {
 };
 template<>
 struct Serializer<Decision> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Decision>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Decision& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.name);
         ::deser_dynamic<is_serialize>(ar, obj.ref_name);
@@ -62,13 +64,11 @@ struct Event : RefnameEntity<EventId> {
     int do_event_function = 0;
 };
 template<>
-struct Serializer<Event*> : SerializerReference<World, Event> {};
-template<>
-struct Serializer<const Event*> : SerializerReference<World, const Event> {};
-template<>
 struct Serializer<Event> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Event>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Event& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.ref_name);
         ::deser_dynamic<is_serialize>(ar, obj.name);

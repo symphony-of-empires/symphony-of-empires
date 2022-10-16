@@ -137,8 +137,10 @@ public:
 };
 template<>
 struct Serializer<Nation::Relation> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Nation::Relation>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Nation::Relation& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.alliance);
         ::deser_dynamic<is_serialize>(ar, obj.has_war);
         ::deser_dynamic<is_serialize>(ar, obj.relation);
@@ -146,21 +148,21 @@ struct Serializer<Nation::Relation> {
 };
 template<>
 struct Serializer<Nation::ClientHint> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Nation::ClientHint>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Nation::ClientHint& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.color);
         ::deser_dynamic<is_serialize>(ar, obj.name);
         ::deser_dynamic<is_serialize>(ar, obj.ideology_id);
     }
 };
 template<>
-struct Serializer<Nation*> : SerializerReference<World, Nation> {};
-template<>
-struct Serializer<const Nation*> : SerializerReference<World, const Nation> {};
-template<>
 struct Serializer<Nation> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Nation>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Nation& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.name);
         ::deser_dynamic<is_serialize>(ar, obj.ref_name);

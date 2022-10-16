@@ -45,13 +45,11 @@ struct Technology : public RefnameEntity<TechnologyId> {
     std::vector<TechnologyId> req_technologies;
 };
 template<>
-struct Serializer<Technology*>: public SerializerReference<World, Technology> {};
-template<>
-struct Serializer<const Technology*>: public SerializerReference<World, const Technology> {};
-template<>
 struct Serializer<Technology> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Technology>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Technology& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.name);
         ::deser_dynamic<is_serialize>(ar, obj.ref_name);

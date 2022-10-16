@@ -38,13 +38,11 @@ struct Good : RefnameEntity<GoodId> {
     }
 };
 template<>
-struct Serializer<Good*> : SerializerReference<World, Good> {};
-template<>
-struct Serializer<const Good*> : SerializerReference<World, const Good> {};
-template<>
 struct Serializer<Good> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Good>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Good& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.name);
         ::deser_dynamic<is_serialize>(ar, obj.ref_name);
@@ -97,8 +95,10 @@ struct Product : Entity<ProductId> {
 };
 template<>
 struct Serializer<Product> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Product>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Product& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.price);
         ::deser_dynamic<is_serialize>(ar, obj.price_delta);

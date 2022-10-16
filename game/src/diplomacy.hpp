@@ -176,8 +176,11 @@ namespace TreatyClause {
 };
 template<>
 struct Serializer<TreatyClause::BaseClause*> {
+    template<bool is_const>
+    using type = CondConstType<is_const, TreatyClause::BaseClause>::type;
+
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, TreatyClause::BaseClause*& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>*& obj) {
         ::deser_dynamic<is_serialize>(ar, obj->sender_id);
         ::deser_dynamic<is_serialize>(ar, obj->receiver_id);
         ::deser_dynamic<is_serialize>(ar, obj->days_duration);
@@ -274,13 +277,12 @@ struct Treaty : Entity<TreatyId> {
     std::vector<std::pair<NationId, TreatyApproval>> approval_status;
 };
 template<>
-struct Serializer<Treaty*> : SerializerReference<World, Treaty> {};
-template<>
-struct Serializer<const Treaty*> : SerializerReference<World, const Treaty> {};
-template<>
 struct Serializer<Treaty> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Treaty>::type;
+
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, Treaty& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.name);
         ::deser_dynamic<is_serialize>(ar, obj.receiver_id);
@@ -301,13 +303,12 @@ struct War : Entity<WarId> {
     std::vector<TreatyClause::BaseClause*> wargoals;
 };
 template<>
-struct Serializer<War*> : SerializerReference<World, War> {};
-template<>
-struct Serializer<const War*> : SerializerReference<World, const War> {};
-template<>
 struct Serializer<War> {
+    template<bool is_const>
+    using type = CondConstType<is_const, War>::type;
+
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, War& obj) {
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
         ::deser_dynamic<is_serialize>(ar, obj.name);
         ::deser_dynamic<is_serialize>(ar, obj.attacker_ids);
