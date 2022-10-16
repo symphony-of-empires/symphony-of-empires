@@ -661,11 +661,11 @@ void World::do_tick() {
             }
         }
 
-        auto& relation = g_world.get_relation(treaty.sender_id, treaty.receiver_id);
+        auto& relation = this->get_relation(treaty.sender_id, treaty.receiver_id);
         if(relation.has_war) {
             // Remove the receiver from the wars
-            for(size_t i = 0; i < g_world.wars.size(); i++) {
-                auto& war = g_world.wars[i];
+            for(size_t i = 0; i < this->wars.size(); i++) {
+                auto& war = this->wars[i];
                 // All people participating stop war with each other
                 for(const auto& [nation, _] : treaty.approval_status) {
                     auto it = std::find(war.attacker_ids.begin(), war.attacker_ids.end(), nation);
@@ -674,12 +674,12 @@ void World::do_tick() {
                     // Stop the war between the nations
                     for(const auto& [other_nation, _] : treaty.approval_status)
                         if(nation != other_nation)
-                            g_world.get_relation(treaty.sender_id, treaty.receiver_id).has_war = false;
+                            this->get_relation(treaty.sender_id, treaty.receiver_id).has_war = false;
                 }
 
                 if(war.attacker_ids.empty() || war.defender_ids.empty()) { // Once nobody is in a war remove it from the world
                     Eng3D::Log::debug("war", translate_format("War %s finished", war.name));
-                    g_world.wars.erase(g_world.wars.begin() + i);
+                    this->wars.erase(this->wars.begin() + i);
                     break;
                 }
             }

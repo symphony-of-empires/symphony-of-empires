@@ -355,13 +355,13 @@ mapmode_generator relations_map_mode(NationId id) {
                 continue;
             }
 
-            if(province.controller_id == nation || g_world.nations[province.controller_id].puppet_master_id == nation) {
+            if(province.controller_id == nation || world.nations[province.controller_id].puppet_master_id == nation) {
                 auto color = Eng3D::Color::rgb8(0x00, 0x00, 0xff);
                 provinces_color.emplace_back(ProvinceId(i), color);
                 continue;
             }
 
-            const auto& relation = g_world.get_relation(province.controller_id, id);
+            const auto& relation = world.get_relation(province.controller_id, id);
             const uint8_t r = (relation.relation < 0) ? -relation.relation : 0;
             const uint8_t g = (relation.relation > 0) ? relation.relation : 0;
             const uint8_t b = relation.is_allied() ? 0x80 : 0;
@@ -375,7 +375,7 @@ mapmode_generator relations_map_mode(NationId id) {
 mapmode_tooltip relations_tooltip(NationId nation_id) {
     return [nation_id](const World& world, const ProvinceId id) -> std::string {
         const auto& province = world.provinces[id];
-        const auto& province_controller = g_world.nations[province.controller_id];
+        const auto& province_controller = world.nations[province.controller_id];
         std::string str;
 
         if(Nation::is_invalid(province.controller_id))

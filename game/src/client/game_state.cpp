@@ -98,7 +98,7 @@ void handle_popups(std::vector<TreatyId>& displayed_treaties, GameState& gs) {
         if(iter != displayed_treaties.end()) continue;
         if(!treaty.does_participate(*gs.curr_nation)) continue; // Must participate in treaty
         //new Interface::TreatyChooseWindow(gs, treaty.get_id());
-        displayed_treaties.push_back(treaty.get_id());
+        displayed_treaties.push_back(treaty);
     }
 }
 

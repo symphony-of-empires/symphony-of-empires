@@ -117,19 +117,13 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
 }
 
 bool Nation::is_ally(const Nation& nation) const {
-    const auto& world = World::get_instance();
-    const auto& relation = world.get_relation(*this, nation);
-    if(relation.has_war)
-        return false;
-    return true;
+    const auto& relation = World::get_instance().get_relation(*this, nation);
+    if(relation.has_war) return false;
+    return relation.alliance > 0.f;
 }
 
 bool Nation::is_enemy(const Nation& nation) const {
-    const auto& world = World::get_instance();
-    const auto& relation = world.get_relation(*this, nation);
-    if(relation.has_war)
-        return true;
-    return false;
+    return World::get_instance().get_relation(*this, nation).has_war;
 }
 
 /// @brief Automatically relocates the capital of a nation to another province

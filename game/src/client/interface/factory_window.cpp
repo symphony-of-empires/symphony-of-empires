@@ -77,7 +77,7 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
                 inputs->set_key(type.input_ids.size());
                 inputs->flex_justify = UI::FlexJustify::START;
                 for(auto good_id : type.input_ids) {
-                    auto& good = g_world.goods[good_id];
+                    auto& good = gs.world->goods[good_id];
                     auto input_img = new UI::Image(0, 0, 35, 35, good.get_icon_path(), true, inputs);
                     input_img->set_tooltip(good.name);
                 }

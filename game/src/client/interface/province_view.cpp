@@ -99,7 +99,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     auto* nuclei_flex_row = new UI::Div(0, landscape_img->height - 24, this->width, 24, this);
     nuclei_flex_row->flex = UI::Flex::ROW;
     for(const auto& nucleus_id : province.nuclei) {
-        auto& nucleus = g_world.nations[nucleus_id];
+        auto& nucleus = this->gs.world->nations[nucleus_id];
         auto* owner_flag = new UI::AspectImage(0, 0, 32, 24, gs.get_nation_flag(nucleus), nuclei_flex_row);
         owner_flag->set_on_click([this, nucleus_id](UI::Widget&) {
             new Interface::NationView(this->gs, this->gs.world->nations[nucleus_id]);

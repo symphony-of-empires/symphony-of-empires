@@ -84,6 +84,8 @@ CMakeSettings.json
 [Bb]uild/
 [Bb]uild-android/
 *-build/
+winbuild/
+winbuild*/
 eng3d/eng3d/
 
 # libs

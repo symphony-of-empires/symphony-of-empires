@@ -151,9 +151,9 @@ void Client::net_loop() {
                             auto old_controller_id = province->controller_id;
                             ::deserialize(ar, *province);
                             if(province->owner_id != old_owner_id)
-                                gs.world->province_manager.mark_province_owner_changed(province->get_id());
+                                gs.world->province_manager.mark_province_owner_changed(*province);
                             if(province->controller_id != old_controller_id)
-                                gs.world->province_manager.mark_province_control_changed(province->get_id());
+                                gs.world->province_manager.mark_province_control_changed(*province);
                         }
                     } break;
                     case ActionType::UNIT_UPDATE: {
@@ -172,7 +172,7 @@ void Client::net_loop() {
                         ProvinceId province_id;
                         ::deserialize(ar, province_id);
                         gs.world->unit_manager.add_unit(unit, province_id);
-                        Eng3D::Log::debug("client", translate_format("Adding new unit from nation %s", g_world.nations[unit.owner_id].ref_name.c_str()));
+                        Eng3D::Log::debug("client", translate_format("Adding new unit from nation %s", gs.world->nations[unit.owner_id].ref_name.c_str()));
                     } break;
                     case ActionType::UNIT_REMOVE: {
                         UnitId unit_id;
