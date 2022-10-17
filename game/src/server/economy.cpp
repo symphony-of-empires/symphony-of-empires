@@ -145,15 +145,13 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         auto& pop_need = pop_needs[i];
         auto& pop = province.pops[i];
         const auto& type = world.pop_types[pop.type_id];
+
         // Do basic needs
-        {
-            auto total_price = 0.f;
-            for(size_t j = 0; j < world.goods.size(); j++)
-                total_price += glm::min(type.basic_needs_amount[j], province.products[j].supply) * province.products[j].price;
-            auto buying_factor = glm::clamp(total_price / pop_need.budget, 0.1f, 1.f);
-            for(size_t j = 0; j < world.goods.size(); j++)
-                pop_need.budget -= province.products[j].buy(pop.size * type.basic_needs_amount[j] * buying_factor);
-            pop_need.life_needs_met = glm::clamp(pop_need.life_needs_met + buying_factor, -1.f, 1.f);
+        if(pop_need.budget == 0.f) return;
+        for(size_t j = 0; j < world.goods.size(); j++) {
+            const auto amount = glm::min(type.basic_needs_amount[j], province.products[j].supply) / (pop_need.budget * 0.8f);
+            pop_need.life_needs_met += amount / (pop.size * type.basic_needs_amount[j]);
+            pop_need.budget -= province.products[j].buy(amount);
         }
         pop_need.budget = glm::max(pop_need.budget, 0.f);
         pop_need.budget += pop.size * 1.5f;

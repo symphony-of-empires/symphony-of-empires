@@ -780,12 +780,13 @@ int LuaAPI::add_province_pop(lua_State* L) {
     auto& pop = province.pops[lua_tonumber(L, 2)];
     pop.type_id = PopTypeId(lua_tonumber(L, 2));
     pop.size = lua_tonumber(L, 3);
-    pop.literacy = lua_tonumber(L, 4);
-    pop.budget = pop.size * 100.f * g_world.pop_types[pop.type_id].social_value;
-    /// @todo Make ideology NOT be random
-    pop.ideology_approval.resize(g_world.ideologies.size(), 0.f);
-    if(!pop.size)
+    if(!pop.size) {
         luaL_error(L, "Can't create pops with 0 size");
+        return 0;
+    }
+    pop.literacy = lua_tonumber(L, 4);
+    pop.budget = pop.size;
+    pop.ideology_approval.resize(g_world.ideologies.size(), 0.f);
     return 0;
 }
 
@@ -950,7 +951,7 @@ int LuaAPI::add_pop_type(lua_State* L) {
 int LuaAPI::get_pop_type(lua_State* L) {
     const auto& pop_type = find_or_throw<PopType>(luaL_checkstring(L, 1));
 
-    lua_pushnumber(L, (size_t)g_world.get_id(pop_type));
+    lua_pushnumber(L, (size_t)pop_type.get_id());
     lua_pushstring(L, pop_type.name.c_str());
     lua_pushnumber(L, pop_type.social_value);
     lua_pushboolean(L, pop_type.group == PopGroup::BURGEOISE);
@@ -986,7 +987,7 @@ int LuaAPI::get_pop_type(lua_State* L) {
             lua_settable(L, -3);
         }
     }
-    return 9;
+    return 11;
 }
 
 int LuaAPI::get_pop_type_by_id(lua_State* L) {
@@ -1026,7 +1027,7 @@ int LuaAPI::get_pop_type_by_id(lua_State* L) {
             lua_settable(L, -3);
         }
     }
-    return 9;
+    return 11;
 }
 
 int LuaAPI::add_language(lua_State* L) {

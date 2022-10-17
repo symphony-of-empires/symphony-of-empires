@@ -361,9 +361,9 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
             for(const auto& pop_type : this->gs.world->pop_types) {
                 auto& pop = province.pops[pop_type];
                 pop.type_id = pop_type.get_id();
-                pop.size = 1000.f / glm::max(0.01f, pop_type.social_value);
-                pop.literacy = max_sv / glm::max(0.01f, pop_type.social_value);
-                pop.budget = pop.size * 100.f * max_sv;
+                pop.size = 1000.f;
+                pop.literacy = 0.5;
+                pop.budget = pop.size;
             }
             this->gs.map->update_mapmode();
             this->gs.update_tick = true;
