@@ -87,7 +87,7 @@ UI::Scrollbar::Scrollbar(int _x, int _y, unsigned h, UI::Widget* _parent)
 /// @brief Updates the thumb position in respect to the current scroll positioning of the parent
 void UI::Scrollbar::update_thumb() {
     const auto y_bounds = this->parent->get_y_bounds();
-    const float parent_height = static_cast<float>(y_bounds.y - y_bounds.x);
+    const float parent_height = glm::max(static_cast<float>(y_bounds.y - y_bounds.x), 1.f);
     const auto btn_height = 20;
     // The height of the track (scrollbar excluding buttons)
     const float track_height = static_cast<float>(this->height - this->thumb_btn->height - btn_height * 2);

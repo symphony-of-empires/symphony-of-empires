@@ -121,7 +121,7 @@ public:
     Ideology& get_ideology() const;
 
     PopTypeId type_id;
-    float size = 0.f;
+    float size = 1.f;
     float life_needs_met = 0.f;
     float literacy = 0.f;
     float militancy = 0.f;

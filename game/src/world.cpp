@@ -292,7 +292,8 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
 void World::load_initial() {
     try {
         Archive ar{};
-        ar.from_file("world.cache");
+        ar.from_file("world.cch");
+        ::deserialize(ar, Eng3D::StringManager::get_instance().strings);
         ::deserialize(ar, *this);
     } catch(const std::exception& e) {
         Eng3D::Log::error("cache", e.what());
@@ -470,8 +471,9 @@ void World::load_initial() {
 
         // Write the entire world to the cache file
         Archive ar{};
+        ::serialize(ar, Eng3D::StringManager::get_instance().strings);
         ::serialize(ar, *this);
-        ar.to_file("world.cache");
+        ar.to_file("world.cch");
     }
     Eng3D::Log::debug("world", translate("World partially intiialized"));
 }

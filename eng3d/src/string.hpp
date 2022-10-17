@@ -36,7 +36,6 @@
 namespace Eng3D {
     /// @brief A reference to a string on the global string pool
     class StringRef {
-        size_t id = 0;
     public:
         constexpr StringRef() = default;
         StringRef(const std::string_view str);
@@ -62,13 +61,13 @@ namespace Eng3D {
         }
 
         size_t get_id() const { return id; }
+        size_t id = 0;
     };
     
     class State;
     /// @brief The string pool manager (singleton), used mainly for translation
     /// purpouses. But also helps to reduce the memory size of various objects.
     class StringManager {
-        std::vector<char> strings;
         Eng3D::State& s;
     public:
         StringManager(Eng3D::State& _s);
@@ -87,6 +86,7 @@ namespace Eng3D {
             return &strings[ref.get_id()];
         }
 
+        std::vector<char> strings;
         static StringManager& get_instance();
         mutable std::mutex strings_mutex;
     };

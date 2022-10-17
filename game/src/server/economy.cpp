@@ -148,12 +148,19 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
 
         // Do basic needs
         if(pop_need.budget == 0.f) return;
+        auto used_budget = 0.f;
         for(size_t j = 0; j < world.goods.size(); j++) {
-            const auto amount = glm::min(type.basic_needs_amount[j], province.products[j].supply) / (pop_need.budget * 0.8f);
-            pop_need.life_needs_met += amount / (pop.size * type.basic_needs_amount[j]);
-            pop_need.budget -= province.products[j].buy(amount);
+            if(pop.size == 0.f) continue;
+            if(type.basic_needs_amount[j] != 0.f) continue;
+            const auto budget_alloc = pop_need.budget * 0.8f;
+            if(budget_alloc == 0.f) continue;
+            const auto amount = glm::min(type.basic_needs_amount[j], province.products[j].supply) / budget_alloc;
+            const auto needed_amount = pop.size * type.basic_needs_amount[j];
+            if(needed_amount == 0.f) continue;
+            pop_need.life_needs_met += amount / needed_amount;
+            used_budget += province.products[j].buy(amount);
         }
-        pop_need.budget = glm::max(pop_need.budget, 0.f);
+        pop_need.budget = glm::max(pop_need.budget - used_budget, 0.f);
         pop_need.budget += pop.size * 1.5f;
     }
 }
