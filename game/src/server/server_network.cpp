@@ -172,24 +172,26 @@ void Server::net_loop(int id) {
                     if(selected_nation == nullptr || selected_nation->get_id() != unit.owner_id)
                         CXX_THROW(ServerException, "Nation does not control unit");
 
-                    Province* province;
-                    ::deserialize(ar, province);
-                    if(province == nullptr)
-                        CXX_THROW(ServerException, "Unknown province");
+                    ProvinceId province_id;
+                    ::deserialize(ar, province_id);
+                    if(Province::is_invalid(province_id))
+                        CXX_THROW(ClientException, "Unknown province");
+                    auto& province = gs.world->provinces[province_id];
                     
                     if(unit.can_move()) {
-                        Eng3D::Log::debug("server", string_format("Unit changes targets to %s", province->ref_name).c_str());
-                        unit.set_path(*province);
+                        Eng3D::Log::debug("server", string_format("Unit changes targets to %s", province.ref_name).c_str());
+                        unit.set_path(province);
                     }
                 } break;
                 // Client tells the server about the construction of a new unit, note that this will
                 // only make the building submit "construction tickets" to obtain materials to build
                 // the unit can only be created by the server, not by the clients
                 case ActionType::BUILDING_START_BUILDING_UNIT: {
-                    Province* province;
-                    ::deserialize(ar, province);
-                    if(province == nullptr)
-                        CXX_THROW(ServerException, "Unknown province");
+                    ProvinceId province_id;
+                    ::deserialize(ar, province_id);
+                    if(Province::is_invalid(province_id))
+                        CXX_THROW(ClientException, "Unknown province");
+                    auto& province = gs.world->provinces[province_id];
                     BuildingType* building_type;
                     ::deserialize(ar, building_type);
                     if(building_type == nullptr)
@@ -203,7 +205,7 @@ void Server::net_loop(int id) {
                     if(unit_type == nullptr)
                         CXX_THROW(ServerException, "Unknown unit type");
                     /// @todo Find building
-                    auto& building = province->get_buildings()[*building_type];
+                    auto& building = province.get_buildings()[*building_type];
                     /// @todo Check nation can build this unit
                     // Tell the building to build this specific unit type
                     building.working_unit_type_id = *unit_type;
@@ -213,27 +215,31 @@ void Server::net_loop(int id) {
                 // Client tells server to build new outpost, the location (& type) is provided by
                 // the client and the rest of the fields are filled by the server
                 case ActionType::BUILDING_ADD: {
-                    Province* province;
-                    ::deserialize(ar, province);
-                    BuildingType* building_type;
-                    ::deserialize(ar, building_type);
-                    province->buildings[*building_type].level += 1.f;
+                    ProvinceId province_id;
+                    ::deserialize(ar, province_id);
+                    if(Province::is_invalid(province_id))
+                        CXX_THROW(ClientException, "Unknown province");
+                    auto& province = gs.world->provinces[province_id];
+                    BuildingTypeId building_type_id;
+                    ::deserialize(ar, building_type_id);
+                    province.buildings[building_type_id].level += 1.f;
                     // Rebroadcast
-                    broadcast(Action::BuildingAdd::form_packet(*province, *building_type));
+                    broadcast(Action::BuildingAdd::form_packet(province, gs.world->building_types[building_type_id]));
                 } break;
                 // Client tells server that it wants to colonize a province, this can be rejected
                 // or accepted, client should check via the next PROVINCE_UPDATE action
                 case ActionType::PROVINCE_COLONIZE: {
-                    Province* province;
-                    ::deserialize(ar, province);
-                    if(province == nullptr)
-                        CXX_THROW(ServerException, "Unknown province");
+                    ProvinceId province_id;
+                    ::deserialize(ar, province_id);
+                    if(Province::is_invalid(province_id))
+                        CXX_THROW(ClientException, "Unknown province");
+                    auto& province = gs.world->provinces[province_id];
                     // Must not be already owned
-                    if(Nation::is_valid(province->owner_id))
+                    if(Nation::is_valid(province.owner_id))
                         CXX_THROW(ServerException, "Province already has an owner");
                     if(selected_nation == nullptr)
                         CXX_THROW(ServerException, "You don't control a country");
-                    province->owner_id = selected_nation->get_id();
+                    province.owner_id = selected_nation->get_id();
                     // Rebroadcast
                     broadcast(packet);
                 } break;

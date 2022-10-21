@@ -27,5 +27,5 @@
 #include "world.hpp"
 
 namespace Export {
-    void export_provinces(World& world);
+    void export_provinces(const World& world);
 };

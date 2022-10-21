@@ -142,18 +142,19 @@ void Client::net_loop() {
                         ProvinceId size;
                         ::deserialize(ar, size);
                         for(size_t i = 0; i < static_cast<size_t>(size); i++) {
-                            Province* province;
-                            ::deserialize(ar, province);
-                            if(province == nullptr)
+                            ProvinceId province_id;
+                            ::deserialize(ar, province_id);
+                            if(Province::is_invalid(province_id))
                                 CXX_THROW(ClientException, "Unknown province");
+                            auto& province = gs.world->provinces[province_id];
                             
-                            auto old_owner_id = province->owner_id;
-                            auto old_controller_id = province->controller_id;
-                            ::deserialize(ar, *province);
-                            if(province->owner_id != old_owner_id)
-                                gs.world->province_manager.mark_province_owner_changed(*province);
-                            if(province->controller_id != old_controller_id)
-                                gs.world->province_manager.mark_province_control_changed(*province);
+                            auto old_owner_id = province.owner_id;
+                            auto old_controller_id = province.controller_id;
+                            ::deserialize(ar, province);
+                            if(province.owner_id != old_owner_id)
+                                gs.world->province_manager.mark_province_owner_changed(province);
+                            if(province.controller_id != old_controller_id)
+                                gs.world->province_manager.mark_province_control_changed(province);
                         }
                     } break;
                     case ActionType::UNIT_UPDATE: {
@@ -187,18 +188,24 @@ void Client::net_loop() {
                         gs.world->unit_manager.move_unit(unit_id, province_id);
                     } break;
                     case ActionType::BUILDING_ADD: {
-                        Province* province;
-                        ::deserialize(ar, province);
-                        BuildingType* building_type;
-                        ::deserialize(ar, building_type);
-                        province->buildings[*building_type].level++;
+                        ProvinceId province_id;
+                        ::deserialize(ar, province_id);
+                        if(Province::is_invalid(province_id))
+                            CXX_THROW(ClientException, "Unknown province");
+                        auto& province = gs.world->provinces[province_id];
+                        BuildingTypeId building_type_id;
+                        ::deserialize(ar, building_type_id);
+                        province.buildings[building_type_id].level += 1.f;
                     } break;
                     case ActionType::BUILDING_REMOVE: {
-                        Province* province;
-                        ::deserialize(ar, province);
-                        BuildingType* building_type;
-                        ::deserialize(ar, building_type);
-                        province->buildings[*building_type].level--;
+                        ProvinceId province_id;
+                        ::deserialize(ar, province_id);
+                        if(Province::is_invalid(province_id))
+                            CXX_THROW(ClientException, "Unknown province");
+                        auto& province = gs.world->provinces[province_id];
+                        BuildingTypeId building_type_id;
+                        ::deserialize(ar, building_type_id);
+                        province.buildings[building_type_id].level -= 1.f;
                     } break;
                     case ActionType::TREATY_ADD: {
                         Treaty treaty;
@@ -214,11 +221,12 @@ void Client::net_loop() {
                         gs.world->time++;
                     } break;
                     case ActionType::PROVINCE_COLONIZE: {
-                        Province* province;
-                        ::deserialize(ar, province);
-                        if(province == nullptr)
+                        ProvinceId province_id;
+                        ::deserialize(ar, province_id);
+                        if(Province::is_invalid(province_id))
                             CXX_THROW(ClientException, "Unknown province");
-                        ::deserialize(ar, *province);
+                        auto& province = gs.world->provinces[province_id];
+                        ::deserialize(ar, province);
                     } break;
                     case ActionType::SELECT_NATION: {
                         Nation* nation;

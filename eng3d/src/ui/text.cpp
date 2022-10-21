@@ -31,6 +31,7 @@ UI::Text::Text(int _x, int _y, unsigned w, unsigned h, UI::Widget* _parent)
     : UI::Widget(_parent, _x, _y, w, h, UI::WidgetType::GROUP)
 {
     this->text_color = this->parent->text_color;
+    this->flex = UI::Flex::COLUMN;
 }
 
 /// @brief Create a new text object from a text string
@@ -44,6 +45,7 @@ UI::Text::Text(int _x, int _y, const std::string& _text, UI::Widget& _parent)
     this->text_color = this->parent->text_color;
     this->auto_adjust = true;
     this->width = this->parent->width;
+    this->flex = UI::Flex::COLUMN;
     this->text(_text);
 }
 
@@ -57,8 +59,8 @@ void UI::Text::text(const std::string& text) {
 
     // Separate the text in multiple labels and break on space
     /// @todo only works for monospace fonts width width 12, fix it for all fonts
-    size_t pos = 0, y = 0;
-    size_t max_width = 0;
+    size_t pos = 0;
+    size_t max_width = 0, max_height = 0;
     size_t line_width = glm::max(this->width / 12, static_cast<size_t>(1));
     while(pos < text.length()) {
         size_t remaining_chars = text.length() - pos;
@@ -87,13 +89,13 @@ void UI::Text::text(const std::string& text) {
         std::string buf = text.substr(pos, end_pos - pos);
         pos = end_pos;
         if(break_line) pos++;
-        auto* lab = new UI::Label(0, y, buf, this);
-        y += lab->height;
+        auto* lab = new UI::Label(0, 0, buf, this);
         max_width = glm::max(max_width, lab->width);
+        max_height += lab->height;
     }
 
     if(this->auto_adjust) {
         this->width = max_width + 8;
-        this->height = y;
+        this->height = max_height;
     }
 }

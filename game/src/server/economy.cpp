@@ -154,7 +154,8 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
             if(type.basic_needs_amount[j] != 0.f) continue;
             const auto budget_alloc = pop_need.budget * 0.8f;
             if(budget_alloc == 0.f) continue;
-            const auto amount = glm::min(type.basic_needs_amount[j], province.products[j].supply) / budget_alloc;
+            const auto amount = glm::clamp(type.basic_needs_amount[j] * budget_alloc / province.products[j].price / world.goods.size(), 0.f, type.basic_needs_amount[j]);
+            //= glm::min(type.basic_needs_amount[j], province.products[j].supply) / budget_alloc;
             const auto needed_amount = pop.size * type.basic_needs_amount[j];
             if(needed_amount == 0.f) continue;
             pop_need.life_needs_met += amount / needed_amount;
@@ -245,7 +246,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             const auto growth = glm::clamp(pop.size * pop.life_needs_met * 0.1f, -100.f, 100.f);
             pop.size += growth;
             pop.militancy += 0.01f * -pop.life_needs_met;
-            pop.ideology_approval[world.nations[province.owner_id].ideology_id] += pop.life_needs_met * 0.25f;
+            pop.ideology_approval[world.nations[province.controller_id].ideology_id] += pop.life_needs_met * 0.25f;
         }
         const auto& new_workers = buildings_new_worker[province_id];
         for(size_t i = 0; i < province.buildings.size(); i++)

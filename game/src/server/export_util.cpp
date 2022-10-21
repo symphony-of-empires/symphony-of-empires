@@ -29,7 +29,7 @@
 #include <iostream>
 #include <fstream>
 
-void Export::export_provinces(World& world) {
+void Export::export_provinces(const World& world) {
     std::ofstream myfile;
     myfile.open("provinces.csv");
     myfile << world.provinces.size() << "\n";

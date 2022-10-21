@@ -48,8 +48,7 @@ namespace Eng3D {
         }
     };
 
-    class Audio {
-    public:
+    struct Audio {
         Audio() = default;
         Audio(const std::string& path);
         ~Audio();
