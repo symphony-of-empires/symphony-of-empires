@@ -24,6 +24,7 @@
 
 #include <iostream>
 #include <vector>
+#include <array>
 #include <algorithm>
 
 #include "eng3d/state.hpp"
@@ -40,9 +41,37 @@ struct GameState : Eng3D::State {
     ~GameState() = default;
 };
 
-template<typename T = int>
+template<typename T>
 static int test_numerical_vector(size_t max_samples = 65536) {
     std::vector<T> fuzz(max_samples);
+    std::iota(fuzz.begin(), fuzz.end(), 1);
+    const auto expected = fuzz;
+    {
+        Archive ar;
+        ::serialize(ar, fuzz);
+        ar.to_file("fuzz.bin");
+    }
+
+    {
+        Archive ar;
+        ar.from_file("fuzz.bin");
+        ::deserialize(ar, fuzz);
+
+        std::cout << "Elements stored " << fuzz.size() << " expected " << expected.size() << std::endl;
+        for(size_t i = 0; i < fuzz.size(); i++) {
+            if(fuzz[i] != expected[i]) {
+                std::cout << "Test failed, element " << i << " is different (" << fuzz[i] << " != " << expected[i] << ")" << std::endl;
+                return -1;
+            }
+        }
+    }
+    std::cout << "Test passed" << std::endl;
+    return 0;
+}
+
+template<typename T, int max_samples = 32>
+static int test_numerical_array() {
+    std::array<T, max_samples> fuzz;
     std::iota(fuzz.begin(), fuzz.end(), 1);
     const auto expected = fuzz;
     {
@@ -101,9 +130,18 @@ static int test_string(size_t max_samples = 32) {
 }
 
 int main(int, char**) {
+    std::cout << "std::vector" << std::endl;
     test_numerical_vector<int>();
     test_numerical_vector<unsigned int>();
     test_numerical_vector<long long>();
     test_numerical_vector<unsigned long long>();
+
+    std::cout << "std::array" << std::endl;
+    test_numerical_array<int>();
+    test_numerical_array<unsigned int>();
+    test_numerical_array<long long>();
+    test_numerical_array<unsigned long long>();
+
+    std::cout << "std::string" << std::endl;
     test_string();
 }

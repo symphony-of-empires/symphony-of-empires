@@ -219,7 +219,15 @@ struct Serializer<T> {
                     ::deser_dynamic<true>(ar, obj);
             }
         } else {
+            // No insert means this is a static array of some sort, std::array perhaps?
+            constexpr bool has_insert = requires(T a, typename T::value_type tp) { a.insert(tp); };
             constexpr bool has_resize = requires(T a, size_t n) { a.resize(n); };
+            if constexpr(!has_insert && !has_resize) {
+                for(decltype(len) i = 0; i < len; i++)
+                    ::deser_dynamic<false>(ar, obj_group[i]);
+                return;
+            }
+
             if constexpr(has_resize) {
                 obj_group.resize(len);
                 if constexpr(has_data && std::is_trivially_copyable<typename T::value_type>::value) {
@@ -233,7 +241,6 @@ struct Serializer<T> {
                     typename T::value_type obj{}; // Initialized but then overwritten by the deserializer
                     ::deser_dynamic<false>(ar, obj);
                     constexpr bool has_push_back = requires(T a, typename T::value_type tp) { a.push_back(tp); };
-                    constexpr bool has_insert = requires(T a, typename T::value_type tp) { a.insert(tp); };
                     if constexpr(has_push_back)
                         obj_group.push_back(obj);
                     else if constexpr(has_insert)
