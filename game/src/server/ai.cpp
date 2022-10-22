@@ -300,7 +300,7 @@ void AI::do_tick(World& world) {
                 for(const auto& building_type : world.building_types) {
                     if(!building_type.can_build_military()) continue;
                     auto& building = province.buildings[static_cast<size_t>(building_type.get_id())];
-                    if(UnitType::is_valid(building.working_unit_type_id) || !building.can_do_output()) continue;
+                    if(UnitType::is_valid(building.working_unit_type_id) || !building.can_do_output(province)) continue;
                     /// @todo Actually produce something appropriate
                     auto& unit_type = world.unit_types[rand() % world.unit_types.size()];
                     building.working_unit_type_id = unit_type;

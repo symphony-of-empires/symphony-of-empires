@@ -218,6 +218,13 @@ namespace UI {
 
         void add_child(UI::Widget& child);
 
+        template<typename T, typename ... Targs>
+        T& add_child2(Targs&& ...args)
+        {
+            auto p = new T(std::forward<decltype(args)>(args)..., this);
+            return *p;
+        }
+
         virtual void on_render(Context&, Eng3D::Rect viewport);
         virtual void text(const std::string& text);
         virtual void set_tooltip(UI::Tooltip* tooltip);

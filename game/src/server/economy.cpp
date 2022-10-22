@@ -79,19 +79,19 @@ constexpr float scale_speed(float v) {
 // Updates supply, demand, and set wages for workers
 static void update_factory_production(World& world, Building& building, const BuildingType& building_type, Province& province, float& pop_payment)
 {
-    if(Good::is_invalid(building_type.output_id) || building.can_do_output()) return;
+    if(Good::is_invalid(building_type.output_id) || !building.can_do_output(province)) return;
 
     // TODO add output modifier
     // Calculate outputs
     auto& output = world.goods[building_type.output_id];
     auto& output_product = province.products[output];
-    auto output_amount = building.level * building.production_scale;
 
     // TODO set min wages
     float min_wage = glm::max(1.f, 0.0001f);
 
     // TODO set output depending on amount of workers
     float total_worker_pop = building.workers;
+    auto output_amount = building.production_scale * building.workers * 100.f;
 
     // TODO add input modifier
     auto inputs_cost = 0.f; // Buy the inputs for the factory
@@ -109,7 +109,7 @@ static void update_factory_production(World& world, Building& building, const Bu
 
     // Rescale production
     // This is used to set how much the of the maximum capacity the factory produce
-    building.production_scale = glm::clamp(building.production_scale * scale_speed(output_value / (min_wage + inputs_cost)), 0.f, 1.f);
+    building.production_scale = 1.f;//glm::clamp(building.production_scale * scale_speed(output_value / (min_wage + inputs_cost)), 0.f, 1.f);
 }
 
 // Update the factory employment
@@ -131,7 +131,7 @@ static void update_factories_employment(const World& world, Province& province, 
         auto& building = province.buildings[factory_index];
         const auto& type = world.building_types[factory_index];
         auto factory_workers = building.level * type.num_req_workers * building.production_scale;
-        auto allocated_workers = glm::min(factory_workers, unallocated_workers);
+        auto allocated_workers = glm::max(glm::min(factory_workers, unallocated_workers), 0.f);
         // Average with how much the factory had before
         // Makes is more stable so everyone don't change workplace immediately
         new_workers[factory_index] = (allocated_workers / 16.0f + (building.workers * 15.0f) / 16.0f) * is_operating;
@@ -201,7 +201,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                 new_needs[i].budget += (pop.size / laborers_amount) * laborers_payment;
         }
 
-        std::vector<float>& new_workers = buildings_new_worker[province_id];
+        auto& new_workers = buildings_new_worker[province_id];
         new_workers.assign(world.building_types.size(), 0.f);
         update_factories_employment(world, province, new_workers);
         update_pop_needs(world, province, new_needs);
@@ -238,15 +238,16 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     tbb::parallel_for(static_cast<size_t>(0), world.provinces.size(), [&world, &pops_new_needs, &buildings_new_worker](const auto province_id) {
         auto& province = world.provinces[province_id];
         if(Nation::is_invalid(province.controller_id)) return;
+        const auto& nation = world.nations[province.controller_id];
         const auto& new_needs = pops_new_needs[province_id];
         for(size_t i = 0; i < province.pops.size(); i++) {
             auto& pop = province.pops[i];
             pop.budget = new_needs[i].budget;
             pop.life_needs_met = new_needs[i].life_needs_met;
             const auto growth = glm::clamp(pop.size * pop.life_needs_met * 0.1f, -100.f, 100.f);
-            pop.size += growth;
+            pop.size = glm::max(pop.size + growth, 0.f);
             pop.militancy += 0.01f * -pop.life_needs_met;
-            pop.ideology_approval[world.nations[province.controller_id].ideology_id] += pop.life_needs_met * 0.25f;
+            pop.ideology_approval[nation.ideology_id] += pop.life_needs_met * 0.25f;
         }
         const auto& new_workers = buildings_new_worker[province_id];
         for(size_t i = 0; i < province.buildings.size(); i++)

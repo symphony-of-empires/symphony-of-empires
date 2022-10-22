@@ -84,9 +84,12 @@ void UI::Tooltip::set_pos(int _x, int _y, int, int _height, int screen_w, int sc
 void UI::Tooltip::text(const std::string& text) {
     this->kill_children();
     if(text.empty()) return;
-    this->width = Eng3D::State::get_instance().width - this->x;
-    this->height = Eng3D::State::get_instance().height - this->x;
-    auto* text_txt = new UI::Text(0, 0, text, *this);
-    this->width = text_txt->width;
-    this->height = text_txt->height;
+
+    auto& s = Eng3D::State::get_instance();
+    this->width = s.width - this->x;
+    this->height = s.height - this->x;
+
+    auto& text_txt = this->add_child2<UI::Text>(0, 0, text);
+    this->width = text_txt.width;
+    this->height = text_txt.height;
 }

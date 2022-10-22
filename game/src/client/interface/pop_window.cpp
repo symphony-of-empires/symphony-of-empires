@@ -59,30 +59,30 @@ Interface::PopWindow::PopWindow(GameState& gs)
             const auto& province = this->gs.world->provinces[province_id];
             for(const auto& pop : province.pops) {
                 const auto id = static_cast<size_t>(pop.type_id) + (static_cast<uint64_t>(province) << 32);
-                auto* row = table->get_row(id);
+                auto& row = table->get_row(id);
                 size_t row_index = 0;
 
-                auto size = row->get_element(row_index++);
+                auto size = row.get_element(row_index++);
                 size->text(string_format("%.0f", pop.size));
                 size->set_key(pop.size);
 
-                auto prov_name = row->get_element(row_index++);
+                auto prov_name = row.get_element(row_index++);
                 prov_name->text(province.name);
                 prov_name->set_key(province.name);
 
-                auto type = row->get_element(row_index++);
+                auto type = row.get_element(row_index++);
                 type->text(this->gs.world->pop_types[pop.type_id].name);
                 type->set_key(this->gs.world->pop_types[pop.type_id].name);
 
-                auto militancy = row->get_element(row_index++);
+                auto militancy = row.get_element(row_index++);
                 militancy->text(string_format("%1.2f", pop.militancy));
                 militancy->set_key(pop.militancy);
 
-                auto literacy = row->get_element(row_index++);
+                auto literacy = row.get_element(row_index++);
                 literacy->text(string_format("%2.0f%%", pop.literacy * 100));
                 literacy->set_key(pop.literacy);
 
-                auto budget = row->get_element(row_index++);
+                auto budget = row.get_element(row_index++);
                 budget->text(string_format("%.0f", pop.budget / pop.size));
                 budget->set_key(pop.budget / pop.size);
                 budget->set_tooltip(Eng3D::translate_format("Total budget: %.2f", pop.budget));

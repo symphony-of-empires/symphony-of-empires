@@ -16,38 +16,24 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      eng3d/ui/text.cpp
+//      building.cpp
 //
 // Abstract:
-//      An extended version of Label that supports multiline text.
+//      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#pragma once
+#include "eng3d/serializer.hpp"
 
-#include <vector>
-#include <string>
-#include <memory>
+#include "building.hpp"
+#include "world.hpp"
+#include "province.hpp"
 
-#include "eng3d/ui/widget.hpp"
-
-namespace UI {
-	class Context;
-	class Label;
-
-    /// @todo Markdown support?
-    /// @ingroup UI
-    /// @brief Multiline textbox that allows more descriptive paragraphs
-    /// than the Label widget.
-    class Text: public Widget {
-    public:
-        Text(int x, int y, unsigned w, unsigned h, UI::Widget* parent);
-        Text(int x, int y, const std::string& text, UI::Widget* parent);
-        virtual ~Text() {};
-        virtual void on_render(Context& ctx, Eng3D::Rect viewport);
-        virtual void text(const std::string& text);
-
-        int min_height = 0;
-        /// @brief Whetever to auto adjust the widget depending on the text
-        bool auto_adjust = true;
-    };
-};
+/// @brief Checks if the building can produce output (if it has enough input)
+bool Building::can_do_output(const Province& province) const {
+    auto& world = World::get_instance();
+    // Check that we have enough stockpile
+    for(const auto& product : province.products)
+        if(!product.supply)
+            return false;
+    return this->level > 0.f;
+}

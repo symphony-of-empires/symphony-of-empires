@@ -84,40 +84,28 @@ struct Serializer<BuildingType> {
     }
 };
 
+class Province;
 /// @brief A military outpost, on land serves as a "spawn" place for units
 /// When adjacent to a water tile this serves as a shipyard for spawning naval units
 struct Building : Entity<BuildingId> {
-    /// @brief Adds a good by id to a building stockpile
-    void add_to_stock(const Good& good, const size_t add) {
-        stockpile[good] += add;
-    }
-
-    /// @brief Checks if the building can produce output (if it has enough input)
-    bool can_do_output() const {
-        // Check that we have enough stockpile
-        for(const auto& stock : this->stockpile)
-            if(!stock) return false;
-        return this->level > 0;
-    }
+    bool can_do_output(const Province& province) const;
 
     bool can_build_unit() const {
         for(const auto& [k, v] : req_goods_for_unit)
             if(v) return false;
-        return this->level > 0;
+        return this->level > 0.f;
     }
 
     float budget = 0.f; // Total money that the factory has
     float level = 0.f; // Level/Capacity scale of the building
     float workers = 1.f; // Amount of workers
-    float production_scale = 0.f; // How much of the factory is being used. From 0-1
+    float production_scale = 1.f; // How much of the factory is being used. From 0-1
     UnitTypeId working_unit_type_id; // Unit that is currently being built here (nullptr indicates no unit)
     // Required goods for building the working unit
     // change this to a struct instead of a pair for readablity
     std::vector<std::pair<GoodId, float>> req_goods_for_unit;
     // Required goods for construction or for repairs
     std::vector<std::pair<GoodId, float>> req_goods;
-    // Stockpile of inputs in the factory
-    std::vector<float> stockpile;
 };
 template<>
 struct Serializer<Building> {
@@ -131,7 +119,6 @@ struct Serializer<Building> {
         ::deser_dynamic<is_serialize>(ar, obj.level);
         ::deser_dynamic<is_serialize>(ar, obj.production_scale);
         ::deser_dynamic<is_serialize>(ar, obj.workers);
-        ::deser_dynamic<is_serialize>(ar, obj.stockpile);
         ::deser_dynamic<is_serialize>(ar, obj.req_goods);
         ::deser_dynamic<is_serialize>(ar, obj.req_goods_for_unit);
     }

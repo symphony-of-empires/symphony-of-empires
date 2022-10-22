@@ -36,10 +36,6 @@ lumberjack:register()
 -- same logic here
 lumberjack:add_output(Good:get("timber"))
 
-vineyard = IndustryType:new{ ref_name = "vineyard", name = _("Vineyard") }
-vineyard:register()
-vineyard:add_output(Good:get("grapes"))
-
 wheat_farm = IndustryType:new{ ref_name = "wheat_farm", name = _("Wheat farm") }
 wheat_farm:register()
 wheat_farm:add_output(Good:get("wheat"))
@@ -78,7 +74,6 @@ arms_factory:add_output(Good:get("arms"))
 
 winery = IndustryType:new{ ref_name = "winery", name = _("Winery") }
 winery:register()
-winery:add_input(Good:get("grapes"))
 winery:add_output(Good:get("wine"))
 
 -- Food factories

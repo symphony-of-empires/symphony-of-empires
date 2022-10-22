@@ -26,7 +26,6 @@
 -- Good types
 -- Farmable stuff
 Good:new{ref_name="wheat",name=_("Wheat")}:register()
-Good:new{ref_name="grapes",name=_("Grapes")}:register()
 Good:new{ref_name="rice",name=_("Rice")}:register()
 Good:new{ref_name="cotton",name=_("Cotton")}:register()
 Good:new{ref_name="coffee",name=_("Coffe bean")}:register()

@@ -451,7 +451,7 @@ void World::load_initial() {
         
         // Auto-relocate capitals for countries which do not have one
         for(auto& nation : this->nations) {
-            if(!nation.exists() || Province::is_invalid(nation.capital_id)) continue;
+            if(!nation.exists() || Province::is_valid(nation.capital_id)) continue;
             //Eng3D::Log::debug("world", translate("Relocating capital of [" + nation.ref_name + "]"));
             nation.auto_relocate_capital();
         }

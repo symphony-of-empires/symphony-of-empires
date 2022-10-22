@@ -55,25 +55,25 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
             for(size_t i = 0; i < province.buildings.size(); i++) {
                 const auto& type = gs.world->building_types[i];
                 const auto& building = province.buildings[i];
-                auto* row = table->get_row(row_num++);
+                auto& row = table->get_row(row_num++);
 
                 size_t row_index = 0;
 
                 if(provinces.size() > 1) {
-                    auto prov_name = row->get_element(row_index++);
+                    auto prov_name = row.get_element(row_index++);
                     prov_name->text(province.name);
                     prov_name->set_key(province.name);
                 }
 
-                auto name = row->get_element(row_index++);
+                auto name = row.get_element(row_index++);
                 name->text(type.name);
                 name->set_key(type.name);
 
-                auto workers = row->get_element(row_index++);
+                auto workers = row.get_element(row_index++);
                 workers->text(string_format("%.0f", building.workers));
                 workers->set_key(building.workers);
 
-                auto inputs = row->get_element(row_index++);
+                auto inputs = row.get_element(row_index++);
                 inputs->set_key(type.input_ids.size());
                 inputs->flex_justify = UI::FlexJustify::START;
                 for(auto good_id : type.input_ids) {
@@ -82,7 +82,7 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
                     input_img->set_tooltip(good.name);
                 }
 
-                auto outputs = row->get_element(row_index++);
+                auto outputs = row.get_element(row_index++);
                 outputs->set_key(type.output_id);
                 outputs->flex_justify = UI::FlexJustify::START;
                 if(Good::is_valid(type.output_id)) {
@@ -91,11 +91,11 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
                     outputs->set_tooltip(output.name);
                 }
 
-                auto scale = row->get_element(row_index++);
+                auto scale = row.get_element(row_index++);
                 scale->text(string_format("%.0f", building.level * building.production_scale));
                 scale->set_key(building.level * building.production_scale);
 
-                auto upgrade = row->get_element(row_index++);
+                auto upgrade = row.get_element(row_index++);
                 upgrade->text("+");
                 upgrade->set_tooltip(translate("Upgrade building"));
                 upgrade->set_key(0);

@@ -137,15 +137,15 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     table->set_on_each_tick([this, table](UI::Widget&) {
         for(size_t i = 0; i < this->province.pops.size(); i++) {
             auto& pop = this->province.pops[i];
-            auto* row = table->get_row(i);
+            auto& row = table->get_row(i);
             size_t row_index = 0;
 
-            auto* size = row->get_element(row_index++);
+            auto* size = row.get_element(row_index++);
             auto size_str = string_format("%.0f", pop.size);
             size->text(size_str);
             size->set_key(pop.size);
 
-            auto* budget = row->get_element(row_index++);
+            auto* budget = row.get_element(row_index++);
             auto budget_str = string_format("%.0f", pop.budget / pop.size);
             budget->text(budget_str);
             auto budget_tip = Eng3D::translate_format("Total budget: %.2f", pop.budget);
@@ -153,7 +153,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
             budget->set_key(pop.budget / pop.size);
 
             if(this->gs.editor) {
-                auto* remove_btn = row->get_element(row_index++);
+                auto* remove_btn = row.get_element(row_index++);
                 auto remove_btn_str = "X";
                 remove_btn->text(remove_btn_str);
                 remove_btn->set_key(remove_btn_str);
@@ -205,11 +205,11 @@ ProvinceEditLanguageTab::ProvinceEditLanguageTab(GameState& _gs, int x, int y, P
     table->reserve(this->gs.world->languages.size());
     table->set_on_each_tick([this, table](Widget&) {
         for(size_t i = 0; i < this->gs.world->religions.size() || i < this->gs.world->languages.size(); i++) {
-            auto* row = table->get_row(i);
+            auto& row = table->get_row(i);
             size_t row_index = 0;
 
             auto& religion = i >= this->gs.world->religions.size() ? this->gs.world->religions[0] : this->gs.world->religions[i];
-            auto religion_icon = row->get_element(row_index++);
+            auto religion_icon = row.get_element(row_index++);
             religion_icon->current_texture = this->gs.tex_man.load(gs.package_man.get_unique(religion.get_icon_path()));
             religion_icon->set_tooltip(religion.name);
             religion_icon->set_key(religion.name);
@@ -220,7 +220,7 @@ ProvinceEditLanguageTab::ProvinceEditLanguageTab(GameState& _gs, int x, int y, P
             });
 
             auto& language = i >= this->gs.world->languages.size() ? this->gs.world->languages[0] : this->gs.world->languages[i];
-            auto name = row->get_element(row_index++);
+            auto name = row.get_element(row_index++);
             name->text(language.name);
             name->set_tooltip(language.name);
             name->set_key(language.name);
@@ -246,16 +246,16 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
     table->reserve(gs.world->terrain_types.size());
     table->set_on_each_tick([this, table](Widget&) {
         for(auto& terrain_type : this->gs.world->terrain_types) {
-            auto* row = table->get_row(terrain_type);
+            auto& row = table->get_row(terrain_type);
             size_t row_index = 0;
 
-            auto landscape = row->get_element(row_index++);
+            auto landscape = row.get_element(row_index++);
             auto landscape_icon = gs.tex_man.load(gs.package_man.get_unique(terrain_type.get_icon_path()));
             landscape->current_texture = landscape_icon;
             landscape->set_tooltip(terrain_type.name);
             landscape->set_key(terrain_type.name);
 
-            auto name = row->get_element(row_index++);
+            auto name = row.get_element(row_index++);
             name->text(terrain_type.name);
             name->set_tooltip(terrain_type.name);
             name->set_key(terrain_type.name);

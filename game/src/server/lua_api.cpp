@@ -470,7 +470,7 @@ int LuaAPI::set_nation_policies(lua_State* L) {
 
 int LuaAPI::set_nation_ideology(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
-    nation.ideology_id = g_world.ideologies.at(lua_tonumber(L, 2));
+    nation.ideology_id = IdeologyId(lua_tonumber(L, 2));
     return 0;
 }
 
@@ -555,8 +555,6 @@ int LuaAPI::add_province(lua_State* L) {
     province.languages.resize(g_world.languages.size(), 0.f);
     province.religions.resize(g_world.religions.size(), 0.f);
     province.buildings.resize(g_world.building_types.size());
-    for(const auto& building_type : g_world.building_types)
-        province.buildings[building_type].stockpile.resize(building_type.input_ids.size(), 0);
     
     {
         size_t i = 0;
@@ -777,8 +775,7 @@ int LuaAPI::set_province_pop_ideology_approval(lua_State* L) {
 
 int LuaAPI::add_province_pop(lua_State* L) {
     auto& province = g_world.provinces.at(lua_tonumber(L, 1));
-    auto& pop = province.pops[lua_tonumber(L, 2)];
-    pop.type_id = PopTypeId(lua_tonumber(L, 2));
+    auto& pop = province.pops.at(lua_tonumber(L, 2));
     pop.size = lua_tonumber(L, 3);
     if(!pop.size) {
         luaL_error(L, "Can't create pops with 0 size");
@@ -786,7 +783,6 @@ int LuaAPI::add_province_pop(lua_State* L) {
     }
     pop.literacy = lua_tonumber(L, 4);
     pop.budget = pop.size;
-    pop.ideology_approval.resize(g_world.ideologies.size(), 0.f);
     return 0;
 }
 

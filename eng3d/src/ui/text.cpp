@@ -39,8 +39,8 @@ UI::Text::Text(int _x, int _y, unsigned w, unsigned h, UI::Widget* _parent)
 /// @param _y Y coordinate
 /// @param _text Text to generate from
 /// @param _parent Parent of the object (required to properly auto adjust)
-UI::Text::Text(int _x, int _y, const std::string& _text, UI::Widget& _parent)
-    : UI::Widget(&_parent, _x, _y, 0, 0, UI::WidgetType::GROUP)
+UI::Text::Text(int _x, int _y, const std::string& _text, UI::Widget* _parent)
+    : UI::Widget(_parent, _x, _y, 0, 0, UI::WidgetType::GROUP)
 {
     this->text_color = this->parent->text_color;
     this->auto_adjust = true;

@@ -28,7 +28,6 @@ standard_basic_needs = {
     { "wheat", 1.0 },
     { "rice", 0.8 },
     { "coffee", 0.1 },
-    { "grapes", 0.5 },
     { "bread", 0.5, 0.8 }
 }
 
@@ -59,7 +58,6 @@ artisan = PopType:new{
         { "wheat", 1.0 },
         { "rice", 0.8 },
         { "coffee", 0.1 },
-        { "grapes", 0.5 },
         { "bread", 0.5, 0.8 },
     },
     luxury_needs = standard_luxury_needs
@@ -94,7 +92,6 @@ soldier = PopType:new{
         { "wheat", 1.0 },
         { "rice", 0.8 },
         { "coffee", 0.1 },
-        { "grapes", 0.5 },
         { "bread", 0.5, 0.8 }
     },
     luxury_needs = standard_luxury_needs

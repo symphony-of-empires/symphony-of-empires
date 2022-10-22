@@ -32,7 +32,7 @@
 #include "eng3d/rectangle.hpp"
 #include "eng3d/state.hpp"
 
-UI::TableElement::TableElement(UI::TableRow* _parent, int _width, int _height)
+UI::TableElement::TableElement(int _width, int _height, UI::Widget* _parent)
     : UI::Widget(_parent, 0, 0, _width, _height, UI::WidgetType::TABLE_ELEMENT)
 {
     this->text_align_x = UI::Align::END;
@@ -60,7 +60,7 @@ bool UI::TableElement::operator< (const UI::TableElement& right) const {
     CXX_THROW(std::runtime_error, "TableElement KeyType not supported");
 }
 
-UI::TableRow::TableRow(UI::Widget* _parent, int _width, int _height, std::vector<int>& _columns_width)
+UI::TableRow::TableRow(int _width, int _height, std::vector<int>& _columns_width, UI::Widget* _parent)
     : UI::Widget(_parent, 0, 0, _width, _height, UI::WidgetType::TABLE_ROW),
     columns_width{ _columns_width }
 {
@@ -69,7 +69,7 @@ UI::TableRow::TableRow(UI::Widget* _parent, int _width, int _height, std::vector
 
     elements.resize(this->columns_width.size());
     std::transform(this->columns_width.cbegin(), this->columns_width.cend(), elements.begin(), [this](const auto e) {
-        return new UI::TableElement(this, e, this->height);
+        return &this->add_child2<UI::TableElement>(e, this->height);
     });
 
     this->on_update = ([this](UI::Widget&) {

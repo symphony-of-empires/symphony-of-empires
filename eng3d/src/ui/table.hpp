@@ -47,7 +47,7 @@ namespace UI {
     /// used for sorting the table.
     class TableElement : public UI::Widget {
     public:
-        TableElement(TableRow* parent, int width, int height);
+        TableElement(int width, int height, UI::Widget* _parent);
         virtual ~TableElement() override {};
 
         void set_key(const std::string& key);
@@ -69,7 +69,7 @@ namespace UI {
     /// of the entire row.
     class TableRow : public UI::Widget {
     public:
-        TableRow(UI::Widget* _parent, int width, int height, std::vector<int>& columns_width);
+        TableRow(int width, int height, std::vector<int>& columns_width, UI::Widget* _parent);
         virtual ~TableRow() override {};
         UI::TableElement* get_element(size_t index);
 
@@ -85,17 +85,17 @@ namespace UI {
     template <typename T>
     class Table : public UI::Widget {
     public:
-        Table(int _x, int _y, unsigned _w, unsigned _h, int _row_height, std::vector<int> _widths, std::vector<std::string> _header_labels, Widget* _parent = nullptr)
+        Table(int _x, int _y, unsigned _w, unsigned _h, int _row_height, std::vector<int> _widths, std::vector<std::string> _header_labels, UI::Widget* _parent = nullptr)
             : UI::Widget(_parent, _x, _y, _w, _h, UI::WidgetType::TABLE),
             row_height{ _row_height }, columns_width{ _widths }
         {
             assert(_widths.size() == _header_labels.size());
             this->width = 35;
             this->width = std::accumulate(_widths.begin(), _widths.end(), 35);
-            auto* header = new UI::TableRow(this, this->width - 35, _row_height, this->columns_width);
+            auto& header = this->add_child2<UI::TableRow>(this->width - 35, _row_height, this->columns_width);
             for(size_t i = 0; i < _header_labels.size(); i++) {
                 auto& label = _header_labels[i];
-                auto* column = header->get_element(i);
+                auto* column = header.get_element(i);
                 column->text(label);
                 column->set_on_click([this, i](Widget&) {
                     this->sorting_ascending = (this->sorting_row == (int)i) ? !this->sorting_ascending : true;
@@ -107,12 +107,12 @@ namespace UI {
                 int total_height = this->row_height * this->rows.size();
                 this->column_wrapper->height = total_height;
             };
-            auto wrapper = new UI::Div(0, _row_height, this->width, this->height - row_height, this);
-            wrapper->is_scroll = true;
-            this->column_wrapper = new UI::Div(0, 0, this->width - 25, 0, wrapper);
+            auto& wrapper = this->add_child2<UI::Div>(0, _row_height, this->width, this->height - row_height);
+            wrapper.is_scroll = true;
+            this->column_wrapper = &wrapper.add_child2<UI::Div>(0, 0, this->width - 25, 0);
             this->column_wrapper->flex = UI::Flex::COLUMN;
             this->column_wrapper->flex_justify = UI::FlexJustify::START;
-            this->scrollbar = new UI::Scrollbar(this->width - 20, 0, wrapper->height - 40, wrapper);
+            this->scrollbar = &wrapper.add_child2<UI::Scrollbar>(this->width - 20, 0, wrapper.height - 40);
         }
         virtual ~Table() override {};
 
@@ -120,14 +120,14 @@ namespace UI {
             this->rows.reserve(_size);
         }
 
-        UI::TableRow* get_row(T _row_id) {
+        UI::TableRow& get_row(T _row_id) {
             if(!this->rows.count(_row_id)) {
-                auto* row = new UI::TableRow(this->column_wrapper, this->width - 25, this->row_height, this->columns_width);
-                this->rows.insert({ _row_id, row });
+                auto& row = this->column_wrapper->add_child2<UI::TableRow>(this->width - 25, this->row_height, this->columns_width);
+                this->rows.insert({ _row_id, &row });
             }
-            auto row = this->rows[_row_id];
+            auto* row = this->rows[_row_id];
             row->is_active = true;
-            return row;
+            return *row;
         }
 
         void remove_row(T _row_id) {

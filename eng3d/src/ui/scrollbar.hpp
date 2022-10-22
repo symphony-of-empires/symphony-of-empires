@@ -33,7 +33,7 @@ namespace UI {
     /// @brief The thumb of the scrollbar
     class ScrollbarThumb : public UI::Widget {
     public:
-        ScrollbarThumb(int x, int y, UI::Scrollbar* parent = nullptr);
+        ScrollbarThumb(int x, int y, UI::Widget* parent = nullptr);
         virtual ~ScrollbarThumb() override {};
     };
 

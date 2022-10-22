@@ -89,6 +89,7 @@ void PieChart::on_render(UI::Context& ctx, Eng3D::Rect) {
     float last_corner = -0.125f;
     float last_ratio = 0;
     for(auto& slice : data) {
+        if(slice.num == 0.f) continue;
         counter += slice.num;
         float ratio = counter / max;
         while(ratio > last_corner + 0.25f) {
@@ -142,6 +143,7 @@ void PieChart::on_hover_default(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 widg
     if(glm::length(centered_pos) > radius) return;
 
     for(auto& slice : piechart.data) {
+        if(slice.num == 0.f) continue;
         counter += slice.num;
         float ratio = counter / piechart.max;
         while(ratio > last_corner + 0.25f) {

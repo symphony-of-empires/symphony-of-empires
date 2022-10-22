@@ -29,7 +29,7 @@
 #include "eng3d/texture.hpp"
 #include "eng3d/log.hpp"
 
-UI::ScrollbarThumb::ScrollbarThumb(int _x, int _y, UI::Scrollbar* _parent)
+UI::ScrollbarThumb::ScrollbarThumb(int _x, int _y, UI::Widget* _parent)
     : UI::Widget(_parent, _x, _y, _parent->width, 0, UI::WidgetType::SCROLLBAR_THUMB)
 {
     auto& s = Eng3D::State::get_instance();
@@ -58,8 +58,8 @@ UI::Scrollbar::Scrollbar(int _x, int _y, unsigned h, UI::Widget* _parent)
     //this->flex = UI::Flex::COLUMN;
     //this->flex_justify = UI::FlexJustify::SPACE_BETWEEN;
 
-    auto* up_btn = new UI::Button(0, 0, 20, 20, this);
-    up_btn->set_on_click([this](UI::Widget&) {
+    auto& up_btn = this->add_child2<UI::Button>(0, 0, 20, 20);
+    up_btn.set_on_click([this](UI::Widget&) {
         if(this->parent) {
             const auto y_bounds = this->parent->get_y_bounds();
             const float ratio = static_cast<float>(y_bounds.y - y_bounds.x) / static_cast<float>(this->height);
@@ -67,10 +67,10 @@ UI::Scrollbar::Scrollbar(int _x, int _y, unsigned h, UI::Widget* _parent)
             this->update_thumb();
         }
     });
-    up_btn->current_texture = s.tex_man.load(s.package_man.get_unique("gfx/scrollbar_up.png"));
+    up_btn.current_texture = s.tex_man.load(s.package_man.get_unique("gfx/scrollbar_up.png"));
 
-    auto* down_btn = new UI::Button(0, this->height - 20, 20, 20, this);
-    down_btn->set_on_click([this](UI::Widget&) {
+    auto& down_btn = this->add_child2<UI::Button>(0, this->height - 20, 20, 20);
+    down_btn.set_on_click([this](UI::Widget&) {
         if(this->parent) {
             const auto y_bounds = this->parent->get_y_bounds();
             const float ratio = static_cast<float>(y_bounds.y - y_bounds.x) / static_cast<float>(this->height);
@@ -78,9 +78,9 @@ UI::Scrollbar::Scrollbar(int _x, int _y, unsigned h, UI::Widget* _parent)
             this->update_thumb();
         }
     });
-    down_btn->current_texture = s.tex_man.load(s.package_man.get_unique("gfx/scrollbar_down.png"));
+    down_btn.current_texture = s.tex_man.load(s.package_man.get_unique("gfx/scrollbar_down.png"));
 
-    this->thumb_btn = new UI::ScrollbarThumb(0, 0, this);
+    this->thumb_btn = &this->add_child2<UI::ScrollbarThumb>(0, 0);
     this->update_thumb();
 }
 
