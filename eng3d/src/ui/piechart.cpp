@@ -103,10 +103,12 @@ void PieChart::on_render(UI::Context& ctx, Eng3D::Rect) {
 }
 
 static inline bool in_triangle(glm::vec2 p, glm::vec2 center, float radius, float start_ratio, float end_ratio) {
-    float x_offset, y_offset, scale;
-    x_offset = glm::cos((start_ratio - 0.25f) * 2 * glm::pi<float>());
-    y_offset = glm::sin((start_ratio - 0.25f) * 2 * glm::pi<float>());
-    scale = glm::min<float>(1.f / abs(x_offset), 1.f / abs(y_offset));
+    auto x_offset = glm::cos((start_ratio - 0.25f) * 2 * glm::pi<float>());
+    if(x_offset == 0.f) return false;
+    auto y_offset = glm::sin((start_ratio - 0.25f) * 2 * glm::pi<float>());
+    if(y_offset == 0.f) return false;
+
+    auto scale = glm::min<float>(1.f / abs(x_offset), 1.f / abs(y_offset));
     x_offset *= scale;
     y_offset *= scale;
     glm::vec2 a{ center.x + x_offset * radius, center.y + y_offset * radius };
@@ -130,9 +132,6 @@ static inline bool in_triangle(glm::vec2 p, glm::vec2 center, float radius, floa
 void PieChart::on_hover_default(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 widget_pos) {
     auto& piechart = static_cast<PieChart&>(w);
     mouse_pos -= widget_pos;
-    float counter = 0;
-    float last_corner = -0.125f;
-    float last_ratio = 0;
 
     float x_center = piechart.width / 2.f;
     float y_center = piechart.height / 2.f;
@@ -142,6 +141,7 @@ void PieChart::on_hover_default(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 widg
     glm::vec2 centered_pos = mouse_pos - center;
     if(glm::length(centered_pos) > radius) return;
 
+    float counter = 0.f, last_corner = -0.125f, last_ratio = 0.f;
     for(auto& slice : piechart.data) {
         if(slice.num == 0.f) continue;
         counter += slice.num;

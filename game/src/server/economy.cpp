@@ -91,7 +91,7 @@ static void update_factory_production(World& world, Building& building, const Bu
 
     // TODO set output depending on amount of workers
     float total_worker_pop = building.workers;
-    auto output_amount = building.production_scale * building.workers * 100.f;
+    auto output_amount = building.production_scale * total_worker_pop * 100.f;
 
     // TODO add input modifier
     auto inputs_cost = 0.f; // Buy the inputs for the factory
@@ -151,13 +151,15 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         auto used_budget = 0.f;
         for(size_t j = 0; j < world.goods.size(); j++) {
             if(pop.size == 0.f) continue;
-            if(type.basic_needs_amount[j] != 0.f) continue;
+            if(type.basic_needs_amount[j] == 0.f) continue;
             const auto budget_alloc = pop_need.budget * 0.8f;
             if(budget_alloc == 0.f) continue;
-            const auto amount = glm::clamp(type.basic_needs_amount[j] * budget_alloc / province.products[j].price / world.goods.size(), 0.f, type.basic_needs_amount[j]);
-            //= glm::min(type.basic_needs_amount[j], province.products[j].supply) / budget_alloc;
+
             const auto needed_amount = pop.size * type.basic_needs_amount[j];
             if(needed_amount == 0.f) continue;
+            const auto amount = glm::clamp(type.basic_needs_amount[j] * budget_alloc / province.products[j].price / world.goods.size(), 0.f, needed_amount);
+            //= glm::min(type.basic_needs_amount[j], province.products[j].supply) / budget_alloc;
+
             pop_need.life_needs_met += amount / needed_amount;
             used_budget += province.products[j].buy(amount);
         }
