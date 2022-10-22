@@ -153,6 +153,9 @@ void UI::Context::clear_dead() {
             widgets[i]->dead_child = false;
         }
     }
+
+    if(this->tooltip_widget)
+        this->clear_dead_recursive(*this->tooltip_widget);
 }
 
 /// @brief Moves a widget from evaluable to non-evaluable making a widget

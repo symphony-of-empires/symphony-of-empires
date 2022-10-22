@@ -306,7 +306,7 @@ mapmode_tooltip good_tooltip(GoodId good_id) {
         const auto& province = world.provinces[id];
         if(Nation::is_invalid(province.controller_id)) return "";
         const auto& product = province.products[good_id];
-        std::string str = Eng3D::translate_format("%s\nPrice: %.2f\nDemand: %.2f\nSupply: %.2f\n", province.name.c_str(), product.price, product.demand, product.supply);
+        std::string str = Eng3D::translate_format("%s, price %.2f, demand %.2f, supply %.2f\n", province.name.c_str(), product.price, product.demand, product.supply);
         for(const auto& building_type : world.building_types) {
             const auto& building = province.buildings[building_type];
             if(building.level)

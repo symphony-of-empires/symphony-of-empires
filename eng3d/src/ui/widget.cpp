@@ -81,7 +81,7 @@ Widget::Widget(Widget* _parent, int _x, int _y, const unsigned w, const unsigned
 
 Widget::~Widget() {
     // Common texture also deleted?
-    if(g_ui_context->tooltip_widget == tooltip)
+    if(g_ui_context->tooltip_widget == this)
         g_ui_context->tooltip_widget = nullptr;
     delete tooltip;
 }
