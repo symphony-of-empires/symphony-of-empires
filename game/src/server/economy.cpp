@@ -83,10 +83,10 @@ static void update_factory_production(World& world, Building& building, const Bu
     if(Good::is_invalid(building_type.output_id)) return;
     
     constexpr auto artisan_production_rate = 1.f;
-    constexpr auto factory_production_rate = 10.f;
+    constexpr auto factory_production_rate = 1.5f;
     auto& output = world.goods[building_type.output_id];
     auto& output_product = province.products[output];
-    if(!building.can_do_output(province)) { // Artisans take place of factory
+    if(!building.can_do_output(province) || building.level == 0.f) { // Artisans take place of factory
         const auto output_amount = artisans_amount * artisan_production_rate; // Reduced rate of production
         artisan_payment += output_product.produce(output_amount);
         return; 
@@ -106,12 +106,13 @@ static void update_factory_production(World& world, Building& building, const Bu
     auto inputs_cost = 0.f; // Buy the inputs for the factory
     for(const auto& [product_id, amount] : building_type.req_goods)
         inputs_cost += province.products[product_id].buy(amount * building.production_scale);
-    auto output_value = output_product.produce(output_amount);
-    auto profit = output_value - min_wage - inputs_cost;
+    const auto revenue = output_product.produce(output_amount);
+    const auto expenses = min_wage + inputs_cost;
+    const auto profit = revenue - expenses;
     
     if(profit <= 0.f) {
-        if(output_value - inputs_cost > 0.f)
-            pop_payment += output_value - inputs_cost;
+        if(revenue - inputs_cost > 0.f)
+            pop_payment += revenue - inputs_cost;
     } else {
         pop_payment += min_wage + profit * 0.2f * building.workers;
     }
@@ -121,14 +122,14 @@ static void update_factory_production(World& world, Building& building, const Bu
     if(building.budget >= upgrade_cost) {
         building.budget -= upgrade_cost;
         building.level += 1.f;
-    } else if(building.budget <= upgrade_cost) {
+    } else if(building.budget <= -(upgrade_cost * 0.5f)) {
         building.budget += upgrade_cost;
         building.level -= 1.f;
     }
 
     // Rescale production
     // This is used to set how much the of the maximum capacity the factory produce
-    building.production_scale = building.level;//glm::clamp(building.production_scale * scale_speed(output_value / (min_wage + inputs_cost)), 0.f, 1.f);
+    building.production_scale = glm::clamp(building.production_scale * scale_speed(revenue / expenses), 0.f, building.level);
 }
 
 // Update the factory employment
@@ -216,7 +217,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         for(size_t i = 0; i < province.pops.size(); i++) {
             const auto& pop = province.pops[i];
             new_needs[i].budget = pop.budget;
-            new_needs[i].life_needs_met = pop.life_needs_met - 0.25f;
+            new_needs[i].life_needs_met = glm::clamp(pop.life_needs_met - 0.25f, -1.f, 1.f);
         }
 
         auto laborers_amount = 0.f;

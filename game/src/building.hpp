@@ -96,7 +96,7 @@ struct Building : Entity<BuildingId> {
         return this->level > 0.f;
     }
 
-    float budget = 0.f; // Total money that the factory has
+    float budget = 1.f; // Total money that the factory has
     float level = 0.f; // Level/Capacity scale of the building
     float workers = 1.f; // Amount of workers
     float production_scale = 1.f; // How much of the factory is being used. From 0-1
