@@ -170,7 +170,6 @@ void LUA_util::save(GameState& gs, const std::string& savefile_path) {
             std::string extra_arg = "";
             switch(pop_type.group) {
             case PopGroup::BURGEOISE: extra_arg = ",is_burgeoise=true"; break;
-            case PopGroup::FARMER: extra_arg = ",is_farmer=true"; break;
             case PopGroup::LABORER: extra_arg = ",is_laborer=true"; break;
             case PopGroup::SLAVE: extra_arg = ",is_slave=true"; break;
             case PopGroup::SOLDIER: extra_arg = ",is_soldier=true"; break;

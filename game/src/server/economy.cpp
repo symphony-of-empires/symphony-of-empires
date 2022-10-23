@@ -82,7 +82,7 @@ static void update_factory_production(World& world, Building& building, const Bu
     // Barracks and so on
     if(Good::is_invalid(building_type.output_id)) return;
     
-    constexpr auto artisan_production_rate = 1.f;
+    constexpr auto artisan_production_rate = 0.1f;
     constexpr auto factory_production_rate = 1.5f;
     auto& output = world.goods[building_type.output_id];
     auto& output_product = province.products[output];
@@ -129,7 +129,7 @@ static void update_factory_production(World& world, Building& building, const Bu
 
     // Rescale production
     // This is used to set how much the of the maximum capacity the factory produce
-    building.production_scale = glm::clamp(building.production_scale * scale_speed(revenue / expenses), 0.f, building.level);
+    building.production_scale = glm::clamp(building.production_scale * scale_speed(revenue / expenses), 1.f, building.level);
 }
 
 // Update the factory employment

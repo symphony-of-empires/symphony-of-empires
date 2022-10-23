@@ -33,7 +33,6 @@ bool Building::can_do_output(const Province& province) const {
     auto& world = World::get_instance();
     // Check that we have enough stockpile
     for(const auto& product : province.products)
-        if(!product.supply)
-            return false;
+        if(product.supply == 0.f) return false;
     return this->level > 0.f;
 }

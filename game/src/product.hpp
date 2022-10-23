@@ -52,6 +52,8 @@ struct Serializer<Good> {
 /// @brief A product (based off a Good) which can be bought by POPs, converted by factories and transported
 struct Product : Entity<ProductId> {
     void close_market() {
+        // TODO: Supply should **never** be negative
+        this->supply = glm::max(this->supply, 0.f);
         if(this->demand > this->supply) {
             // Increase price with more demand
             this->price_delta += 0.001f * (this->demand - this->supply);

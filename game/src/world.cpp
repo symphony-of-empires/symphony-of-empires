@@ -101,8 +101,6 @@ void World::init_lua() {
     lua_register(lua, "add_nation_accepted_language", LuaAPI::add_accepted_language);
     lua_register(lua, "add_nation_accepted_religion", LuaAPI::add_accepted_religion);
     lua_register(lua, "add_nation_client_hint", LuaAPI::add_nation_client_hint);
-    lua_register(lua, "get_nation_policies", LuaAPI::get_nation_policies);
-    lua_register(lua, "set_nation_policies", LuaAPI::set_nation_policies);
     lua_register(lua, "set_nation_ideology", LuaAPI::set_nation_ideology);
     lua_register(lua, "get_nation_relation", LuaAPI::get_nation_relation);
     lua_register(lua, "set_nation_relation", LuaAPI::set_nation_relation);

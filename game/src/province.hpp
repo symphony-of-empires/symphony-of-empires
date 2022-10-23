@@ -102,7 +102,7 @@ public:
     NationId controller_id;
     TerrainTypeId terrain_type_id;
     std::vector<uint32_t> rgo_size; // How much of each rgo that can be extracted
-    std::array<Pop, 8> pops; // List of pops in this province
+    std::array<Pop, 7> pops; // List of pops in this province
     std::vector<Product> products;
     std::vector<Building> buildings;
     struct Battle {

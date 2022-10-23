@@ -75,7 +75,6 @@ enum class PopGroup : uint8_t {
     OTHER,
     BURGEOISE,
     SLAVE,
-    FARMER,
     LABORER,
     SOLDIER,
     ARTISAN,

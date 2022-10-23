@@ -394,80 +394,6 @@ int LuaAPI::add_nation_client_hint(lua_State* L) {
     return 0;
 }
 
-int LuaAPI::get_nation_policies(lua_State* L) {
-    const auto& nation = g_world.nations.at(lua_tonumber(L, 1));
-    // We are going to push everything in the policies structure
-    // this is horrible - reflection may help in this case
-    const auto& policy = nation.current_policy;
-    lua_pushnumber(L, policy.treatment);
-    lua_pushnumber(L, policy.migration);
-    lua_pushnumber(L, policy.immigration);
-    lua_pushnumber(L, policy.censorship);
-    lua_pushnumber(L, policy.build_infrastructure);
-    lua_pushnumber(L, policy.build_factories);
-    lua_pushboolean(L, policy.private_property);
-    lua_pushboolean(L, policy.companies_allowed);
-    lua_pushboolean(L, policy.public_education);
-    lua_pushboolean(L, policy.secular_education);
-    lua_pushboolean(L, policy.public_healthcare);
-    lua_pushboolean(L, policy.social_security);
-    lua_pushboolean(L, policy.slavery);
-    lua_pushboolean(L, policy.legislative_parliament);
-    lua_pushboolean(L, policy.executive_parliament);
-    lua_pushboolean(L, policy.constitutional);
-    lua_pushboolean(L, policy.foreign_trade);
-    lua_pushnumber(L, (policy.import_tax));
-    lua_pushnumber(L, (policy.export_tax));
-    lua_pushnumber(L, 1.f);
-    lua_pushnumber(L, 1.f);
-    lua_pushnumber(L, (policy.poor_flat_tax));
-    lua_pushnumber(L, (policy.med_flat_tax));
-    lua_pushnumber(L, (policy.rich_flat_tax));
-    lua_pushnumber(L, (policy.industry_tax));
-    lua_pushnumber(L, (policy.military_spending));
-    lua_pushboolean(L, policy.free_supplies);
-    lua_pushnumber(L, (policy.min_wage));
-    lua_pushnumber(L, (policy.min_sv_for_parliament));
-    return 29;
-}
-
-int LuaAPI::set_nation_policies(lua_State* L) {
-    auto& nation = g_world.nations.at(lua_tonumber(L, 1));
-    // We are going to push everything in the policies structure
-    // this is horrible - reflection may help in this case
-    auto& policy = nation.current_policy;
-    policy.treatment = static_cast<TreatmentPolicy>(lua_tonumber(L, 1));
-    policy.migration = static_cast<AllowancePolicy>(lua_tonumber(L, 2));
-    policy.immigration = static_cast<AllowancePolicy>(lua_tonumber(L, 3));
-    policy.censorship = static_cast<CensorshipPolicy>(lua_tonumber(L, 4));
-    policy.build_infrastructure = static_cast<AutoBuildPolicy>(lua_tonumber(L, 5));
-    policy.build_factories = static_cast<AutoBuildPolicy>(lua_tonumber(L, 6));
-    policy.private_property = lua_toboolean(L, 7);
-    policy.companies_allowed = lua_toboolean(L, 8);
-    policy.public_education = lua_toboolean(L, 9);
-    policy.secular_education = lua_toboolean(L, 10);
-    policy.public_healthcare = lua_toboolean(L, 11);
-    policy.social_security = lua_toboolean(L, 12);
-    policy.slavery = lua_toboolean(L, 13);
-    policy.legislative_parliament = lua_toboolean(L, 14);
-    policy.executive_parliament = lua_toboolean(L, 15);
-    policy.constitutional = lua_toboolean(L, 16);
-    policy.foreign_trade = lua_toboolean(L, 17);
-    policy.import_tax = (lua_tonumber(L, 18));
-    policy.export_tax = (lua_tonumber(L, 19));
-    //(lua_tonumber(L, 20));
-    //(lua_tonumber(L, 21));
-    policy.poor_flat_tax = (lua_tonumber(L, 22));
-    policy.med_flat_tax = (lua_tonumber(L, 23));
-    policy.rich_flat_tax = (lua_tonumber(L, 24));
-    policy.industry_tax = (lua_tonumber(L, 25));
-    policy.military_spending = (lua_tonumber(L, 26));
-    policy.free_supplies = lua_toboolean(L, 27);
-    policy.min_wage = (lua_tonumber(L, 28));
-    policy.min_sv_for_parliament = (lua_tonumber(L, 29));
-    return 0;
-}
-
 int LuaAPI::set_nation_ideology(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     nation.ideology_id = IdeologyId(lua_tonumber(L, 2));
@@ -893,13 +819,11 @@ int LuaAPI::add_pop_type(lua_State* L) {
     pop_type.social_value = lua_tonumber(L, 3);
     bool is_burgeoise = lua_toboolean(L, 4);
     bool is_slave = lua_toboolean(L, 5);
-    bool is_farmer = lua_toboolean(L, 6);
-    bool is_laborer = lua_toboolean(L, 7);
-    bool is_soldier = lua_toboolean(L, 8);
-    bool is_artisan = lua_toboolean(L, 9);
+    bool is_laborer = lua_toboolean(L, 6);
+    bool is_soldier = lua_toboolean(L, 7);
+    bool is_artisan = lua_toboolean(L, 8);
     if(is_burgeoise) pop_type.group = PopGroup::BURGEOISE;
     else if(is_slave) pop_type.group = PopGroup::SLAVE;
-    else if(is_farmer) pop_type.group = PopGroup::FARMER;
     else if(is_laborer) pop_type.group = PopGroup::LABORER;
     else if(is_soldier) pop_type.group = PopGroup::SOLDIER;
     else if(is_artisan) pop_type.group = PopGroup::ARTISAN;
@@ -910,7 +834,7 @@ int LuaAPI::add_pop_type(lua_State* L) {
     pop_type.luxury_needs_deminishing_factor.resize(g_world.goods.size(), 0.f);
 
     // Lua next = pops top and then pushes key & value in table
-    lua_pushvalue(L, 10);
+    lua_pushvalue(L, 9);
     lua_pushnil(L);
     while(lua_next(L, -2)) {
         lua_pushnil(L);
@@ -923,7 +847,7 @@ int LuaAPI::add_pop_type(lua_State* L) {
     }
     lua_pop(L, 1);
 
-    lua_pushvalue(L, 11);
+    lua_pushvalue(L, 10);
     lua_pushnil(L);
     while(lua_next(L, -2)) {
         lua_pushnil(L);
@@ -952,7 +876,6 @@ int LuaAPI::get_pop_type(lua_State* L) {
     lua_pushnumber(L, pop_type.social_value);
     lua_pushboolean(L, pop_type.group == PopGroup::BURGEOISE);
     lua_pushboolean(L, pop_type.group == PopGroup::SLAVE);
-    lua_pushboolean(L, pop_type.group == PopGroup::FARMER);
     lua_pushboolean(L, pop_type.group == PopGroup::LABORER);
     lua_pushboolean(L, pop_type.group == PopGroup::SOLDIER);
     lua_pushboolean(L, pop_type.group == PopGroup::ARTISAN);
@@ -983,7 +906,7 @@ int LuaAPI::get_pop_type(lua_State* L) {
             lua_settable(L, -3);
         }
     }
-    return 11;
+    return 10;
 }
 
 int LuaAPI::get_pop_type_by_id(lua_State* L) {
@@ -993,7 +916,6 @@ int LuaAPI::get_pop_type_by_id(lua_State* L) {
     lua_pushnumber(L, pop_type.social_value);
     lua_pushboolean(L, pop_type.group == PopGroup::BURGEOISE);
     lua_pushboolean(L, pop_type.group == PopGroup::SLAVE);
-    lua_pushboolean(L, pop_type.group == PopGroup::FARMER);
     lua_pushboolean(L, pop_type.group == PopGroup::LABORER);
     lua_pushboolean(L, pop_type.group == PopGroup::SOLDIER);
     lua_pushboolean(L, pop_type.group == PopGroup::ARTISAN);
@@ -1023,7 +945,7 @@ int LuaAPI::get_pop_type_by_id(lua_State* L) {
             lua_settable(L, -3);
         }
     }
-    return 11;
+    return 10;
 }
 
 int LuaAPI::add_language(lua_State* L) {

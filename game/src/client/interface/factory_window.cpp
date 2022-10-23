@@ -39,12 +39,12 @@
 
 UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, int _y, int _w, int _h, std::vector<ProvinceId> provinces, UI::Widget* parent) {
     std::vector<int> sizes;
-    if(provinces.size() > 1) sizes.push_back(75);
-    sizes.insert(sizes.end(), { 100, 50, 40, 32, 50, 32 });
+    if(provinces.size() > 1) sizes.push_back(150);
+    sizes.insert(sizes.end(), { 150, 80, 80, 100, 80, 80, 32 });
 
     std::vector<std::string> header;
     if(provinces.size() > 1) header.push_back("Province");
-    header.insert(header.end(), { "Type", "Workers", "Inputs", "Output", "Scale", "" });
+    header.insert(header.end(), { "Type", "Workers", "Budget", "Inputs", "Output", "Scale", "" });
 
     auto table = new UI::Table<uint32_t>(_x, _y, _w, _h, 32, sizes, header, parent);
     table->reserve(1);
@@ -60,21 +60,26 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
                 size_t row_index = 0;
 
                 if(provinces.size() > 1) {
-                    auto prov_name = row.get_element(row_index++);
+                    auto* prov_name = row.get_element(row_index++);
                     prov_name->text(province.name);
                     prov_name->set_key(province.name);
                 }
 
-                auto name = row.get_element(row_index++);
+                auto* name = row.get_element(row_index++);
                 name->text(type.name);
                 name->set_key(type.name);
 
-                auto workers = row.get_element(row_index++);
+                auto* workers = row.get_element(row_index++);
                 workers->text(string_format("%.0f", building.workers));
                 workers->set_key(building.workers);
 
-                auto inputs = row.get_element(row_index++);
+                auto* budget = row.get_element(row_index++);
+                budget->text(string_format("%.0f", building.budget));
+                budget->set_key(building.budget);
+
+                auto* inputs = row.get_element(row_index++);
                 inputs->set_key(type.input_ids.size());
+                inputs->flex = UI::Flex::ROW;
                 inputs->flex_justify = UI::FlexJustify::START;
                 for(auto good_id : type.input_ids) {
                     auto& good = gs.world->goods[good_id];
@@ -82,8 +87,9 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
                     input_img->set_tooltip(good.name);
                 }
 
-                auto outputs = row.get_element(row_index++);
+                auto* outputs = row.get_element(row_index++);
                 outputs->set_key(type.output_id);
+                outputs->flex = UI::Flex::ROW;
                 outputs->flex_justify = UI::FlexJustify::START;
                 if(Good::is_valid(type.output_id)) {
                     auto& output = gs.world->goods[type.output_id];
@@ -91,11 +97,11 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
                     outputs->set_tooltip(output.name);
                 }
 
-                auto scale = row.get_element(row_index++);
+                auto* scale = row.get_element(row_index++);
                 scale->text(string_format("%.0f", building.level * building.production_scale));
                 scale->set_key(building.level * building.production_scale);
 
-                auto upgrade = row.get_element(row_index++);
+                auto* upgrade = row.get_element(row_index++);
                 upgrade->text("+");
                 upgrade->set_tooltip(translate("Upgrade building"));
                 upgrade->set_key(0);

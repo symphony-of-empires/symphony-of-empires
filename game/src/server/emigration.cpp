@@ -120,7 +120,6 @@ static inline void external_migration(World& world) {
         std::vector<Nation*> viable_nations;
         for(auto& nation : world.nations) {
             if(!nation.exists()) continue;
-            //if(nation.current_policy.migration == ALLOW_NOBODY) continue;
             auto attraction = nation_attraction(nation, language);
             if(attraction <= 0.f) continue;
             attractions.push_back(attraction);
@@ -142,8 +141,6 @@ static inline void external_migration(World& world) {
     tbb::combinable<std::vector<Emigrated>> emigration;
     tbb::parallel_for(tbb::blocked_range(eval_nations.begin(), eval_nations.end()), [&emigration, &nation_distributions, &province_distributions, &world](const auto& nations_range) {
         for(const auto& nation : nations_range) {
-            // Check that laws on the province we are in allows for emigration
-            if(nation->current_policy.migration == ALLOW_NOBODY) return;
             for(const auto province_id : nation->controlled_provinces) {
                 auto& province = world.provinces[province_id];
                 const auto language_id = std::distance(province.languages.begin(), std::max_element(province.languages.begin(), province.languages.end()));
