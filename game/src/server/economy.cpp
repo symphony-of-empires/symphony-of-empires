@@ -77,21 +77,30 @@ constexpr float scale_speed(float v) {
 }
 
 // Updates supply, demand, and set wages for workers
-static void update_factory_production(World& world, Building& building, const BuildingType& building_type, Province& province, float& pop_payment)
+static void update_factory_production(World& world, Building& building, const BuildingType& building_type, Province& province, float& pop_payment, float& artisans_amount, float& artisan_payment)
 {
-    if(Good::is_invalid(building_type.output_id) || !building.can_do_output(province)) return;
+    // Barracks and so on
+    if(Good::is_invalid(building_type.output_id)) return;
+    
+    constexpr auto artisan_production_rate = 1.f;
+    constexpr auto factory_production_rate = 10.f;
+    auto& output = world.goods[building_type.output_id];
+    auto& output_product = province.products[output];
+    if(!building.can_do_output(province)) { // Artisans take place of factory
+        const auto output_amount = artisans_amount * artisan_production_rate; // Reduced rate of production
+        artisan_payment += output_product.produce(output_amount);
+        return; 
+    }
 
     // TODO add output modifier
     // Calculate outputs
-    auto& output = world.goods[building_type.output_id];
-    auto& output_product = province.products[output];
 
     // TODO set min wages
     float min_wage = glm::max(1.f, 0.0001f);
 
     // TODO set output depending on amount of workers
     float total_worker_pop = building.workers;
-    auto output_amount = building.production_scale * total_worker_pop * 100.f;
+    auto output_amount = building.production_scale * total_worker_pop * factory_production_rate;
 
     // TODO add input modifier
     auto inputs_cost = 0.f; // Buy the inputs for the factory
@@ -106,10 +115,20 @@ static void update_factory_production(World& world, Building& building, const Bu
     } else {
         pop_payment += min_wage + profit * 0.2f * building.workers;
     }
+    building.budget += profit;
+    // TODO: Make building inoperate for the legnth of the upgrade (need to acquire materials)
+    auto upgrade_cost = 1000.f * building.level;
+    if(building.budget >= upgrade_cost) {
+        building.budget -= upgrade_cost;
+        building.level += 1.f;
+    } else if(building.budget <= upgrade_cost) {
+        building.budget += upgrade_cost;
+        building.level -= 1.f;
+    }
 
     // Rescale production
     // This is used to set how much the of the maximum capacity the factory produce
-    building.production_scale = 1.f;//glm::clamp(building.production_scale * scale_speed(output_value / (min_wage + inputs_cost)), 0.f, 1.f);
+    building.production_scale = building.level;//glm::clamp(building.production_scale * scale_speed(output_value / (min_wage + inputs_cost)), 0.f, 1.f);
 }
 
 // Update the factory employment
@@ -173,16 +192,23 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     tbb::combinable<std::vector<NewUnit>> province_new_units;
     std::vector<std::vector<float>> buildings_new_worker(world.provinces.size());
     std::vector<std::vector<PopNeed>> pops_new_needs(world.provinces.size());
+
     tbb::parallel_for(static_cast<size_t>(0), world.provinces.size(), [&world, &buildings_new_worker, &province_new_units, &pops_new_needs](const auto province_id) {
         auto& province = world.provinces[province_id];
         if(Nation::is_invalid(province.controller_id)) return;
         for(auto& product : province.products)
             product.close_market();
 
-        float laborers_payment = 1.f;
+        auto artisans_amount = 0.f;
+        for(auto& pop : province.pops) {
+            if(world.pop_types[pop.type_id].group == PopGroup::ARTISAN)
+                artisans_amount += pop.size;
+        }
+
+        auto laborers_payment = 1.f, artisans_payment = 1.f;
         for(auto& building_type : world.building_types) {
             auto& building = province.buildings[building_type];
-            update_factory_production(world, building, building_type, province, laborers_payment);
+            update_factory_production(world, building, building_type, province, laborers_payment, artisans_amount, artisans_payment);
         }
 
         auto& new_needs = pops_new_needs[province_id];
@@ -194,13 +220,16 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         }
 
         auto laborers_amount = 0.f;
-        for(auto& pop : province.pops)
+        for(auto& pop : province.pops) {
             if(world.pop_types[pop.type_id].group == PopGroup::LABORER)
                 laborers_amount += pop.size;
+        }
         for(size_t i = 0; i < province.pops.size(); i++) {
             const auto& pop = province.pops[i];
             if(world.pop_types[pop.type_id].group == PopGroup::LABORER)
                 new_needs[i].budget += (pop.size / laborers_amount) * laborers_payment;
+            else if(world.pop_types[pop.type_id].group == PopGroup::ARTISAN)
+                new_needs[i].budget += (pop.size / artisans_amount) * artisans_payment;
         }
 
         auto& new_workers = buildings_new_worker[province_id];
@@ -247,7 +276,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             pop.budget = new_needs[i].budget;
             pop.life_needs_met = new_needs[i].life_needs_met;
             const auto growth = glm::clamp(pop.size * pop.life_needs_met * 0.1f, -100.f, 100.f);
-            pop.size = glm::max(pop.size + growth, 0.f);
+            pop.size = glm::max(pop.size + growth, 1.f);
             pop.militancy += 0.01f * -pop.life_needs_met;
             pop.ideology_approval[nation.ideology_id] += pop.life_needs_met * 0.25f;
         }
