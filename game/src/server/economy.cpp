@@ -77,7 +77,7 @@ constexpr float scale_speed(float v) {
 }
 
 // Updates supply, demand, and set wages for workers
-static void update_factory_production(World& world, Building& building, const BuildingType& building_type, Province& province, float& pop_payment, float& artisans_amount, float& artisan_payment, float& taxes_paid)
+static void update_factory_production(World& world, Building& building, const BuildingType& building_type, Province& province, float& pop_payment, float& artisans_amount, float& artisan_payment, float& state_payment, float& private_payment)
 {
     // Barracks and so on
     if(Good::is_invalid(building_type.output_id)) return;
@@ -116,12 +116,17 @@ static void update_factory_production(World& world, Building& building, const Bu
 
     // Taxation and disperse profits to holders
     const auto& nation = world.nations[province.controller_id];
-    taxes_paid += nation.current_policy.factory_profit_tax;
+    state_payment += nation.current_policy.factory_profit_tax;
     profit -= profit * nation.current_policy.factory_profit_tax;
 
+    state_payment += profit * building.state_ownership;
+    building.budget -= profit * building.state_ownership;
+    private_payment += profit * building.private_ownership;
+    building.budget -= profit * building.private_ownership;
     building.budget += profit;
+
     // TODO: Make building inoperate for the legnth of the upgrade (need to acquire materials)
-    auto upgrade_cost = 1000.f * building.level;
+    const auto upgrade_cost = building.get_upgrade_cost();
     if(building.budget >= upgrade_cost) {
         building.budget -= upgrade_cost;
         building.level += 1.f;
@@ -163,7 +168,7 @@ static void update_factories_employment(const World& world, Province& province, 
 }
 
 /// @brief Calculate the budget that we spend on each needs
-void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& pop_needs, float& taxes_paid) {
+void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& pop_needs, float& state_payment) {
     auto& nation = world.nations[province.controller_id];
     for(size_t i = 0; i < province.pops.size(); i++) {
         auto& pop_need = pop_needs[i];
@@ -190,7 +195,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         }
         pop_need.budget = glm::max(pop_need.budget - used_budget, 0.f);
 
-        taxes_paid += pop_need.budget * nation.current_policy.pop_tax;
+        state_payment += pop_need.budget * nation.current_policy.pop_tax;
         pop_need.budget -= pop_need.budget * nation.current_policy.pop_tax;
     }
 }
@@ -276,16 +281,20 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         for(auto& product : province.products)
             product.close_market();
 
-        auto artisans_amount = 0.f;
+        auto artisans_amount = 0.f, burgeoise_amount = 0.f, laborers_amount = 0.f;
         for(auto& pop : province.pops) {
             if(world.pop_types[pop.type_id].group == PopGroup::ARTISAN)
                 artisans_amount += pop.size;
+            else if(world.pop_types[pop.type_id].group == PopGroup::LABORER)
+                laborers_amount += pop.size;
+            else if(world.pop_types[pop.type_id].group == PopGroup::BURGEOISE)
+                burgeoise_amount += pop.size;
         }
 
-        auto laborers_payment = 0.f, artisans_payment = 0.f, taxes_paid = 0.f;
+        auto laborers_payment = 0.f, artisans_payment = 0.f, state_payment = 0.f, private_payment = 0.f;
         for(auto& building_type : world.building_types) {
             auto& building = province.buildings[building_type];
-            update_factory_production(world, building, building_type, province, laborers_payment, artisans_amount, artisans_payment, taxes_paid);
+            update_factory_production(world, building, building_type, province, laborers_payment, artisans_amount, artisans_payment, state_payment, private_payment);
         }
 
         auto& new_needs = pops_new_needs[province_id];
@@ -296,27 +305,23 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             new_needs[i].life_needs_met = glm::clamp(pop.life_needs_met - 0.5f, -1.f, 1.f);
         }
 
-        auto laborers_amount = 0.f;
-        for(auto& pop : province.pops) {
-            if(world.pop_types[pop.type_id].group == PopGroup::LABORER)
-                laborers_amount += pop.size;
-        }
         for(size_t i = 0; i < province.pops.size(); i++) {
             const auto& pop = province.pops[i];
             if(world.pop_types[pop.type_id].group == PopGroup::LABORER)
                 new_needs[i].budget += (pop.size / laborers_amount) * laborers_payment;
             else if(world.pop_types[pop.type_id].group == PopGroup::ARTISAN)
                 new_needs[i].budget += (pop.size / artisans_amount) * artisans_payment;
+            else if(world.pop_types[pop.type_id].group == PopGroup::BURGEOISE)
+                new_needs[i].budget += (pop.size / burgeoise_amount) * private_payment;
         }
 
         auto& new_workers = buildings_new_worker[province_id];
         new_workers.assign(world.building_types.size(), 0.f);
         update_factories_employment(world, province, new_workers);
-        update_pop_needs(world, province, new_needs, taxes_paid);
+        update_pop_needs(world, province, new_needs, state_payment);
 
         paid_taxes.local().resize(world.nations.size());
-        paid_taxes.local()[province.controller_id] = taxes_paid;
-
+        paid_taxes.local()[province.controller_id] = state_payment;
         for(auto& building : province.buildings) {
             // There must not be conflict ongoing otherwise they wont be able to build shit
             if(province.controller_id == province.owner_id && UnitType::is_valid(building.working_unit_type_id) && building.can_build_unit()) {

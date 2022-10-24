@@ -96,6 +96,11 @@ struct Building : Entity<BuildingId> {
         return this->level > 0.f;
     }
 
+    float get_upgrade_cost() const {
+        constexpr auto base_cost = 100.f;
+        return this->level * base_cost;
+    }
+
     float private_ownership = 0.f;
     float state_ownership = 1.f;
     float collective_ownership = 0.f;
@@ -121,7 +126,12 @@ struct Serializer<Building> {
 
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.working_unit_type_id);
+        ::deser_dynamic<is_serialize>(ar, obj.private_ownership);
+        ::deser_dynamic<is_serialize>(ar, obj.state_ownership);
+        ::deser_dynamic<is_serialize>(ar, obj.collective_ownership);
+        ::deser_dynamic<is_serialize>(ar, obj.individual_ownership);
+        ::deser_dynamic<is_serialize>(ar, obj.foreign_ownership);
+        ::deser_dynamic<is_serialize>(ar, obj.foreign_id);
         ::deser_dynamic<is_serialize>(ar, obj.budget);
         ::deser_dynamic<is_serialize>(ar, obj.level);
         ::deser_dynamic<is_serialize>(ar, obj.production_scale);

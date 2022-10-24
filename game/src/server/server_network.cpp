@@ -222,7 +222,8 @@ void Server::net_loop(int id) {
                     auto& province = gs.world->provinces[province_id];
                     BuildingTypeId building_type_id;
                     ::deserialize(ar, building_type_id);
-                    province.buildings[building_type_id].level += 1.f;
+                    auto& building = province.buildings[building_type_id];
+                    building.budget += building.get_upgrade_cost();
                     // Rebroadcast
                     broadcast(Action::BuildingAdd::form_packet(province, gs.world->building_types[building_type_id]));
                 } break;

@@ -88,11 +88,11 @@ dye_factory = IndustryType:new{ ref_name = "dye_factory", name = _("Dye factory"
 dye_factory:register()
 dye_factory:add_output(Good:get("dye"))
 
-silk_factory = IndustryType:new{ ref_name = "silk_factory", name = _("Silk factory") }
-silk_factory:register()
-silk_factory:add_output(Good:get("silk"))
-
 -- Plantations
+silk_plantation = IndustryType:new{ ref_name = "silk_plantation", name = _("Silk plantation") }
+silk_plantation:register()
+silk_plantation:add_output(Good:get("silk"))
+
 spices_plantation = IndustryType:new{ ref_name = "spices_plantation", name = _("Spices plantation") }
 spices_plantation:register()
 spices_plantation:add_output(Good:get("spices"))
