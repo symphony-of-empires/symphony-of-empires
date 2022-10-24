@@ -36,6 +36,10 @@ lumberjack:register()
 -- same logic here
 lumberjack:add_output(Good:get("timber"))
 
+fuel_factory = IndustryType:new{ ref_name = "fuel_factory", name = _("Fuel factory") }
+fuel_factory:register()
+fuel_factory:add_output(Good:get("fuel"))
+
 wheat_farm = IndustryType:new{ ref_name = "wheat_farm", name = _("Wheat farm") }
 wheat_farm:register()
 wheat_farm:add_output(Good:get("wheat"))
@@ -47,6 +51,10 @@ rice_farm:add_output(Good:get("rice"))
 cotton_farm = IndustryType:new{ ref_name = "cotton_farm", name = _("Cotton farm") }
 cotton_farm:register()
 cotton_farm:add_output(Good:get("cotton"))
+
+coffee_bean_farm = IndustryType:new{ ref_name = "coffee_bean_farm", name = _("Coffee bean farm") }
+coffee_bean_farm:register()
+coffee_bean_farm:add_output(Good:get("coffee"))
 
 -- Mines
 coal_mine = IndustryType:new{ ref_name = "coal_mine", name = _("Coal mine") }
@@ -76,8 +84,27 @@ winery = IndustryType:new{ ref_name = "winery", name = _("Winery") }
 winery:register()
 winery:add_output(Good:get("wine"))
 
+dye_factory = IndustryType:new{ ref_name = "dye_factory", name = _("Dye factory") }
+dye_factory:register()
+dye_factory:add_output(Good:get("dye"))
+
+silk_factory = IndustryType:new{ ref_name = "silk_factory", name = _("Silk factory") }
+silk_factory:register()
+silk_factory:add_output(Good:get("silk"))
+
+-- Plantations
+spices_plantation = IndustryType:new{ ref_name = "spices_plantation", name = _("Spices plantation") }
+spices_plantation:register()
+spices_plantation:add_output(Good:get("spices"))
+
+opium_plantation = IndustryType:new{ ref_name = "opium_plantation", name = _("Opium plantation") }
+opium_plantation:register()
+opium_plantation:add_output(Good:get("opium"))
+
 -- Food factories
 bakery = IndustryType:new{ ref_name = "bakery", name = _("Bakery") }
 bakery:register()
 bakery:add_input(Good:get("wheat"))
 bakery:add_output(Good:get("bread"))
+
+

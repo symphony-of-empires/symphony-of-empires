@@ -57,11 +57,11 @@ TopWindow::TopWindow(GameState& _gs)
     new UI::Image(5, 4, flag_img->width, flag_img->height, "gfx/drop_shadow.png", this);
 #endif
 
-    auto* stats_grp = new UI::Image(150, 0, 356, 184, "gfx/background2.png", true, this);
+    auto* stats_grp = new UI::Image(150, 0, 356, 32, "gfx/background2.png", true, this);
     stats_grp->flex = UI::Flex::ROW;
-    stats_grp->overflow = UI::Overflow::WRAP;
 
     auto* money_grp = new UI::Div(0, 0, 24 + 64, 24, stats_grp);
+    money_grp->flex = UI::Flex::ROW;
     auto* money_img = new UI::Image(0, 0, 24, 24, "gfx/economy.png", true, money_grp);
     money_img->set_tooltip("Money");
     auto* money_lab = new UI::Label(0, 0, " ", money_grp);
@@ -71,6 +71,7 @@ TopWindow::TopWindow(GameState& _gs)
     money_lab->on_each_tick(*money_lab);
 
     auto* military_score_grp = new UI::Div(0, 0, 24 + 64, 24, stats_grp);
+    military_score_grp->flex = UI::Flex::ROW;
     auto* military_score_img = new UI::Image(0, 0, 24, 24, "gfx/military_score.png", true, military_score_grp);
     military_score_img->set_tooltip("Military score");
     auto* military_score_lab = new UI::Label(0, 0, " ", military_score_grp);
@@ -89,6 +90,7 @@ TopWindow::TopWindow(GameState& _gs)
     military_score_lab->on_each_tick(*military_score_lab);
 
     auto* industrial_score_grp = new UI::Div(0, 0, 24 + 64, 24, stats_grp);
+    industrial_score_grp->flex = UI::Flex::ROW;
     auto* industrial_score_img = new UI::Image(0, 0, 24, 24, "gfx/factory.png", true, industrial_score_grp);
     industrial_score_img->set_tooltip("Industrial score");
     auto* industrial_score_lab = new UI::Label(0, 0, " ", industrial_score_grp);
@@ -105,6 +107,7 @@ TopWindow::TopWindow(GameState& _gs)
     industrial_score_lab->on_each_tick(*industrial_score_lab);
 
     auto* prestige_score_grp = new UI::Div(0, 0, 24 + 64, 24, stats_grp);
+    prestige_score_grp->flex = UI::Flex::ROW;
     auto* prestige_score_img = new UI::Image(0, 0, 24, 24, "gfx/prestige.png", true, prestige_score_grp);
     prestige_score_img->set_tooltip("Prestige");
     auto* prestige_score_lab = new UI::Label(0, 0, " ", prestige_score_grp);
@@ -113,79 +116,63 @@ TopWindow::TopWindow(GameState& _gs)
     });
     prestige_score_lab->on_each_tick(*prestige_score_lab);
 
-    for(const auto& good : this->gs.world->goods) {
-        auto* good_grp = new UI::Div(0, 0, 24 + 64, 24, stats_grp);
-        auto* good_img = new UI::Image(0, 0, 24, 24, good.get_icon_path(), true, good_grp);
-        good_img->set_tooltip(good.name);
-        auto* good_lab = new UI::Label(0, 0, " ", good_grp);
-        good_lab->set_on_each_tick([this, &good](UI::Widget& w) {
-            auto total = 0.f;
-            for(const auto province_id : this->gs.curr_nation->owned_provinces) {
-                const auto& province = this->gs.world->provinces[province_id];
-                total += province.products[good].supply;
-            }
-            w.text(Eng3D::string_format("%8.0f", total));
-        });
-        good_lab->on_each_tick(*good_lab);
-    }
-
-    auto* flex_column = new UI::Div(3, 96, 42, 390, this);
-    flex_column->flex = UI::Flex::COLUMN;
-    flex_column->flex_justify = UI::FlexJustify::SPACE_AROUND;
-    flex_column->flex_align = UI::Align::CENTER;
+    auto& flex_column = this->add_child2<UI::Div>(3, 96, 42, 390);
+    flex_column.flex = UI::Flex::COLUMN;
+    flex_column.flex_justify = UI::FlexJustify::SPACE_AROUND;
+    flex_column.flex_align = UI::Align::CENTER;
 
     int icon_size = 28;
 
-    auto* policy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/book.png", true, flex_column);
-    policy_ibtn->set_on_click([this](UI::Widget&) {
+    auto& policy_ibtn = flex_column.add_child2<UI::Image>(0, 0, icon_size, icon_size, "gfx/book.png", true);
+    policy_ibtn.set_on_click([this](UI::Widget&) {
         new Interface::PoliciesView(this->gs);
     });
-    policy_ibtn->set_tooltip("Laws & Policies");
+    policy_ibtn.set_tooltip("Laws & Policies");
 
-    auto* economy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/economy.png", true, flex_column);
-    economy_ibtn->set_on_click([this](UI::Widget&) {
+    auto& economy_ibtn = flex_column.add_child2<UI::Image>(0, 0, icon_size, icon_size, "gfx/economy.png", true);
+    economy_ibtn.set_on_click([this](UI::Widget&) {
 
     });
-    economy_ibtn->set_tooltip("Economy");
+    economy_ibtn.set_tooltip("Economy");
 
-    auto* pops_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/pop.png", true, flex_column);
-    pops_ibtn->set_on_click([this](UI::Widget&) {
+    auto& pops_ibtn = flex_column.add_child2<UI::Image>(0, 0, icon_size, icon_size, "gfx/pop.png", true);
+    pops_ibtn.set_on_click([this](UI::Widget&) {
         new Interface::PopWindow(this->gs);
     });
-    pops_ibtn->set_tooltip("Population");
+    pops_ibtn.set_tooltip("Population");
 
-    auto* factory_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/factory.png", true, flex_column);
-    factory_ibtn->set_on_click([this](UI::Widget&) {
+    auto& factory_ibtn = flex_column.add_child2<UI::Image>(0, 0, icon_size, icon_size, "gfx/factory.png", true);
+    factory_ibtn.set_on_click([this](UI::Widget&) {
         new Interface::FactoryWindow(this->gs);
     });
-    factory_ibtn->set_tooltip("Factories");
+    factory_ibtn.set_tooltip("Factories");
 
-    auto* military_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/military_score.png", true, flex_column);
-    military_ibtn->set_on_click([this](UI::Widget&) {
+    auto& military_ibtn = flex_column.add_child2<UI::Image>(0, 0, icon_size, icon_size, "gfx/military_score.png", true);
+    military_ibtn.set_on_click([this](UI::Widget&) {
         new Interface::ArmyView(this->gs);
     });
-    military_ibtn->set_tooltip("Military");
+    military_ibtn.set_tooltip("Military");
 
-    auto* research_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/tech.png", true, flex_column);
-    research_ibtn->set_on_click([this](UI::Widget&) {
-        
+    auto& research_ibtn = flex_column.add_child2<UI::Image>(0, 0, icon_size, icon_size, "gfx/tech.png", true);
+    research_ibtn.set_on_click([this](UI::Widget&) {
+
     });
-    research_ibtn->set_tooltip("Research");
+    research_ibtn.set_tooltip("Research");
 
-    auto* save_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/save.png", true, flex_column);
-    save_ibtn->set_on_click([this](UI::Widget&) {
+    auto& save_ibtn = flex_column.add_child2<UI::Image>(0, 0, icon_size, icon_size, "gfx/save.png", true);
+    save_ibtn.set_on_click([this](UI::Widget&) {
         LUA_util::save(this->gs, string_format("%s_%zu-%zu-%zu.sc4", gs.curr_nation->ref_name.c_str(), gs.world->get_year(), gs.world->get_month(), gs.world->get_day()));
     });
-    save_ibtn->set_tooltip("Saves the current game");
+    save_ibtn.set_tooltip("Saves the current game");
 
-    auto* load_ibtn = new UI::Image(9, 275, 25, 25, "gfx/top_bar/save.png", true, flex_column);
-    load_ibtn->set_on_click([this](UI::Widget&) {
+    auto& load_ibtn = flex_column.add_child2<UI::Image>(9, 275, 25, 25, "gfx/top_bar/save.png", true);
+    load_ibtn.set_on_click([this](UI::Widget&) {
         LUA_util::load(this->gs, "autosave.sc4");
     });
-    load_ibtn->set_tooltip("Load latest autosave");
+    load_ibtn.set_tooltip("Load latest autosave");
 
-    auto* exit_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/exit.png", true, flex_column);
-    exit_ibtn->set_on_click([this](UI::Widget&) {
+    auto& exit_ibtn = flex_column.add_child2<UI::Image>(0, 0, icon_size, icon_size, "gfx/exit.png", true);
+    exit_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.ui_ctx.clear();
         this->gs.ui_ctx.use_tooltip(nullptr, { 0, 0 });
         this->gs.paused = true;
@@ -193,7 +180,7 @@ TopWindow::TopWindow(GameState& _gs)
         this->gs.server.reset();
         new Interface::MainMenu(this->gs);
     });
-    exit_ibtn->set_tooltip("Back to the main menu");
+    exit_ibtn.set_tooltip("Back to the main menu");
 }
 
 TimeControlView::TimeControlView(GameState& _gs)
@@ -235,7 +222,7 @@ TimeControlView::TimeControlView(GameState& _gs)
     }
 
     auto font = gs.ttf_man.load(gs.package_man.get_unique("fonts/neon_euler/euler.ttf"));
-    
+
     auto* time_lab = new UI::Label(50, 30, " ", this);
     time_lab->font = font;
     time_lab->text_color = Eng3D::Color(1., 1., 1.);

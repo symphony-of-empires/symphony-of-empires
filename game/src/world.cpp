@@ -609,7 +609,7 @@ void World::do_tick() {
 
     profiler.start("Economy");
     // Every ticks_per_month ticks do an economical tick
-    Economy::do_tick(*this, economyState);
+    Economy::do_tick(*this, economy_state);
     profiler.stop("Economy");
 
     profiler.start("E-packages");

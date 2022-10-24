@@ -115,7 +115,7 @@ struct World;
 
 // Contains the main world class object, containing all the data relevant for the simulation
 class World {
-    Economy::EconomyState economyState;
+    Economy::EconomyState economy_state;
 public:
     constexpr static unsigned int ticks_per_month = 30;
 

@@ -319,10 +319,10 @@ mapmode_tooltip good_tooltip(GoodId good_id) {
 mapmode_generator goods_map_mode(GoodId id) {
     return [id](const World& world) {
         std::vector<std::pair<ProvinceId, float>> province_amounts;
-        auto max_price = 0.0001f;
+        auto max_price = glm::epsilon<float>();
         for(auto const& province : world.provinces) {
             const auto& product = province.products[id];
-            auto price = std::log2f(product.price + 1.f);
+            auto price = product.price;//std::log2f(product.price + 1.f);
             max_price = glm::max(price, max_price);
             province_amounts.emplace_back(province, price);
         }

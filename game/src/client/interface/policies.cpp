@@ -185,7 +185,7 @@ PoliciesView::PoliciesView(GameState& _gs)
         this->new_policy.foreign_ownership = static_cast<UI::Slider&>(w).get_value();
         w.text(string_format("%.2f%%", this->new_policy.foreign_ownership * 100.f));
     });
-    foreign_ownership_sld.set_tooltip("Maximum allowed foreign ownership stake % for factories\nAllows foreign investment for te construction of factories");
+    foreign_ownership_sld.set_tooltip("Maximum allowed foreign ownership stake % for factories\nAllows foreign investment for the construction of factories");
     foreign_ownership_sld.on_click(foreign_ownership_sld);
 
     investment_grp->add_child2<UI::Label>(0, 0, "Collective ownership");
