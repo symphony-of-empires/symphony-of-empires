@@ -121,7 +121,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     this->religions_pie->below_of(*religions_lab);
     this->religions_pie->right_side_of(*this->languages_pie);
 
-    auto* pop_types_lab = new UI::Label(0, 0, "Proffesions", this);
+    auto* pop_types_lab = new UI::Label(0, 0, "Professions", this);
     pop_types_lab->below_of(landscape_img);
     pop_types_lab->right_side_of(*this->religions_pie);
     this->pop_types_pie = new UI::PieChart(0, 0, 96, 96, this);

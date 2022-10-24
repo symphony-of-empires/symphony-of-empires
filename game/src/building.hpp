@@ -96,6 +96,13 @@ struct Building : Entity<BuildingId> {
         return this->level > 0.f;
     }
 
+    float private_ownership = 0.f;
+    float state_ownership = 1.f;
+    float collective_ownership = 0.f;
+    float individual_ownership = 0.f;
+    float foreign_ownership = 0.f;
+    NationId foreign_id; // Foreign investor
+
     float budget = 1000.f; // Total money that the factory has
     float level = 0.f; // Level/Capacity scale of the building
     float workers = 1.f; // Amount of workers

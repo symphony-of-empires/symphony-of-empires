@@ -25,45 +25,6 @@
 
 require('classes/technology')
 require('classes/ideology')
-
-Policies = {
-    treatment = 0,
-    migration = 0,
-    immigration = 0,
-    censorship = 0,
-    build_infrastructure = 0,
-    build_factories = 0,
-    private_property = true,
-    companies_allowed = true,
-    public_education = true,
-    secular_education = true,
-    public_healthcare = true,
-    social_security = true,
-    slavery = true,
-    legislative_parliament = true,
-    executive_parliament = true,
-    constitutional = true,
-    foreign_trade = true,
-    import_tax = 0.0,
-    export_tax = 0.0,
-    domestic_import_tax = 0.0,
-    domestic_export_tax = 0.0,
-    poor_flat_tax = 0.0,
-    med_flat_tax = 0.0,
-    rich_flat_tax = 0.0,
-    industry_tax = 0.0,
-    military_spending = 0.0,
-    free_supplies = true,
-    min_wage = 1.0,
-    min_sv_for_parliament = 0.0
-}
-function Policies:new(o)
-    local o = o or {}
-    setmetatable(o, self)
-    self.__index = self
-    return o
-end
-
 require('classes/good')
 require('classes/province')
 require('classes/nation')
@@ -105,7 +66,6 @@ PopType = {
     social_value = 1.0,
     is_burgeoise = false,
     is_slave = false,
-    is_farmer = false,
     is_laborer = false,
     is_soldier = false,
     is_artisan = false,
@@ -120,18 +80,18 @@ function PopType:new(o)
 end
 function PopType:get(ref_name)
     local o = PopType:new()
-    o.id, o.name, o.social_value, o.is_burgeoise, o.is_slave, o.is_farmer, o.is_laborer, o.is_soldier, o.is_artisan, o.basic_needs, o.luxury_needs = get_pop_type(ref_name)
+    o.id, o.name, o.social_value, o.is_burgeoise, o.is_slave, o.is_laborer, o.is_soldier, o.is_artisan, o.basic_needs, o.luxury_needs = get_pop_type(ref_name)
     o.ref_name = ref_name
     return o
 end
 function PopType:get_by_id(id)
     local o = PopType:new()
-    o.ref_name, o.name, o.social_value, o.is_burgeoise, o.is_slave, o.is_farmer, o.is_laborer, o.is_soldier, o.is_artisan, o.basic_needs, o.luxury_needs = get_pop_type_by_id(id)
+    o.ref_name, o.name, o.social_value, o.is_burgeoise, o.is_slave, o.is_laborer, o.is_soldier, o.is_artisan, o.basic_needs, o.luxury_needs = get_pop_type_by_id(id)
     o.id = id
     return o
 end
 function PopType:register()
-    self.id = add_pop_type(self.ref_name, self.name, self.social_value, self.is_burgeoise, self.is_slave, self.is_farmer, self.is_laborer, self.is_soldier, self.is_artisan, self.basic_needs, self.luxury_needs)
+    self.id = add_pop_type(self.ref_name, self.name, self.social_value, self.is_burgeoise, self.is_slave, self.is_laborer, self.is_soldier, self.is_artisan, self.basic_needs, self.luxury_needs)
 end
 
 Language = {

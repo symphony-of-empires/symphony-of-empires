@@ -161,7 +161,7 @@ void PieChart::on_hover_default(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 widg
         bool is_inside = in_triangle(mouse_pos, center, radius, last_ratio, last_corner);
         if(is_inside) {
             piechart.set_tooltip(slice.info);
-            return;
+            break;
         }
         last_ratio = ratio;
     }

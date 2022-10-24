@@ -108,8 +108,13 @@ static void update_factory_production(World& world, Building& building, const Bu
         inputs_cost += province.products[product_id].buy(amount * building.production_scale);
     const auto revenue = output_product.produce(output_amount);
     const auto expenses = min_wage + inputs_cost;
-    const auto profit = revenue - expenses;
-    
+    auto profit = revenue - expenses;
+
+    // Taxation and disperse profits to holders
+    auto& nation = world.nations[province.controller_id];
+    nation.budget += nation.current_policy.factory_profit_tax;
+    profit -= profit * nation.current_policy.factory_profit_tax;
+
     if(profit <= 0.f) {
         if(revenue - inputs_cost > 0.f)
             pop_payment += revenue - inputs_cost;
@@ -161,6 +166,7 @@ static void update_factories_employment(const World& world, Province& province, 
 
 /// @brief Calculate the budget that we spend on each needs
 void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& pop_needs) {
+    auto& nation = world.nations[province.controller_id];
     for(size_t i = 0; i < province.pops.size(); i++) {
         auto& pop_need = pop_needs[i];
         auto& pop = province.pops[i];
@@ -185,6 +191,9 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         }
         pop_need.budget = glm::max(pop_need.budget - used_budget, 0.f);
         pop_need.budget += pop.size * 1.5f;
+
+        nation.budget += pop_need.budget * nation.current_policy.pop_tax;
+        pop_need.budget -= pop_need.budget * nation.current_policy.pop_tax;
     }
 }
 

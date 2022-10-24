@@ -269,8 +269,10 @@ namespace UI {
         }
 
         /// @brief Sort the children of this widget
+        /// @tparam F lambda function type
         /// @param comp Comparison function
-        inline void sort_children(std::function<bool(const std::unique_ptr<UI::Widget>& a, const std::unique_ptr<UI::Widget>& b)> comp) {
+        template<typename F>
+        inline void sort_children(F&& comp) {
             std::sort(this->children.begin(), this->children.end(), comp);
             this->need_recalc = true;
         }

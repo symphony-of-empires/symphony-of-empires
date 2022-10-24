@@ -37,6 +37,7 @@
 #include "client/interface/army.hpp"
 #include "client/interface/pop_window.hpp"
 #include "client/interface/factory_window.hpp"
+#include "client/interface/policies.hpp"
 #include "client/lua_save_util.hpp"
 
 using namespace Interface;
@@ -137,7 +138,7 @@ TopWindow::TopWindow(GameState& _gs)
 
     auto* policy_ibtn = new UI::Image(0, 0, icon_size, icon_size, "gfx/book.png", true, flex_column);
     policy_ibtn->set_on_click([this](UI::Widget&) {
-
+        new Interface::PoliciesView(this->gs);
     });
     policy_ibtn->set_tooltip("Laws & Policies");
 
