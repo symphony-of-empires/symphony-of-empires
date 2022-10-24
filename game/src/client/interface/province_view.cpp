@@ -134,12 +134,13 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
         sizes.push_back(32);
         header.push_back(" ");
     }
-    auto* table = new UI::Table<uint32_t>(0, 352, this->width - 32, this->height - 352, 30, sizes, header, this);
-    table->reserve(this->province.pops.size());
-    table->set_on_each_tick([this, table](UI::Widget&) {
+
+    auto* pop_table = new UI::Table<uint32_t>(0, 352, 0, this->height - (352 + 32), 30, sizes, header, this);
+    pop_table->reserve(this->province.pops.size());
+    pop_table->set_on_each_tick([this, pop_table](UI::Widget&) {
         for(size_t i = 0; i < this->province.pops.size(); i++) {
             auto& pop = this->province.pops[i];
-            auto& row = table->get_row(i);
+            auto& row = pop_table->get_row(i);
             size_t row_index = 0;
 
             auto* size = row.get_element(row_index++);
@@ -159,15 +160,53 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
                 auto remove_btn_str = "X";
                 remove_btn->text(remove_btn_str);
                 remove_btn->set_key(remove_btn_str);
-                remove_btn->set_on_click([this, i, table](UI::Widget&) {
-                    table->remove_row(i);
+                remove_btn->set_on_click([this, i, pop_table](UI::Widget&) {
+                    pop_table->remove_row(i);
                     const_cast<Province&>(this->province).pops[i].size = 0.f;
-                    table->on_each_tick(*table);
+                    pop_table->on_each_tick(*pop_table);
                 });
             }
         }
     });
-    table->on_each_tick(*table);
+    pop_table->on_each_tick(*pop_table);
+
+    auto* stock_table = new UI::Table<uint32_t>(0, 352, 0, this->height - (352 + 32), 30, { 100, 100, 100, 100, 100 }, { "Commodity", "Amount", "Demand", "Price", "Change" }, this);
+    stock_table->right_side_of(*pop_table);
+    stock_table->reserve(this->province.pops.size());
+    stock_table->set_on_each_tick([this, stock_table](UI::Widget&) {
+        for(const auto& good : this->gs.world->goods) {
+            auto& product = this->province.products[good];
+            auto& row = stock_table->get_row(good.get_id());
+            size_t row_index = 0;
+
+            row_index++; // Commodity icon
+
+            auto* amount = row.get_element(row_index++);
+            amount->text(string_format("%.0f", product.supply));
+            amount->set_key(product.supply);
+
+            auto* demand = row.get_element(row_index++);
+            demand->text(string_format("%.0f", product.demand));
+            demand->set_key(product.demand);
+
+            auto* price = row.get_element(row_index++);
+            price->text(string_format("%.2f", product.price));
+            price->set_key(product.price);
+
+            auto* price_vel = row.get_element(row_index++);
+            price_vel->text(string_format("%.2f", product.price_delta));
+            price_vel->set_key(product.price_delta);
+        }
+    });
+    stock_table->on_each_tick(*stock_table);
+    for(const auto& good : this->gs.world->goods) {
+        auto& product = this->province.products[good];
+        auto& row = stock_table->get_row(good.get_id());
+        auto* commodity = row.get_element(0);
+        commodity->set_key(good.name.c_str());
+        auto& commodity_img = commodity->add_child2<UI::Image>(0, 0, 35, 35, good.get_icon_path(), true);
+        commodity_img.set_tooltip(good.name);
+    }
 
     this->set_on_each_tick([this](UI::Widget&) {
         this->update_piecharts();

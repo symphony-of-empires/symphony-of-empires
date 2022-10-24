@@ -46,7 +46,7 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
     if(provinces.size() > 1) header.push_back("Province");
     header.insert(header.end(), { "Type", "Workers", "Budget", "Inputs", "Output", "Scale", "" });
 
-    auto table = new UI::Table<uint32_t>(_x, _y, _w, _h, 32, sizes, header, parent);
+    auto* table = new UI::Table<uint32_t>(_x, _y, _w, _h, 32, sizes, header, parent);
     table->reserve(1);
     table->set_on_each_tick([&gs, table, provinces](UI::Widget&) {
         size_t row_num = 0;
@@ -58,7 +58,6 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
                 auto& row = table->get_row(row_num++);
 
                 size_t row_index = 0;
-
                 if(provinces.size() > 1) {
                     auto* prov_name = row.get_element(row_index++);
                     prov_name->text(province.name);
@@ -77,25 +76,8 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
                 budget->text(string_format("%.0f", building.budget));
                 budget->set_key(building.budget);
 
-                auto* inputs = row.get_element(row_index++);
-                inputs->set_key(type.input_ids.size());
-                inputs->flex = UI::Flex::ROW;
-                inputs->flex_justify = UI::FlexJustify::START;
-                for(auto good_id : type.input_ids) {
-                    auto& good = gs.world->goods[good_id];
-                    auto input_img = new UI::Image(0, 0, 35, 35, good.get_icon_path(), true, inputs);
-                    input_img->set_tooltip(good.name);
-                }
-
-                auto* outputs = row.get_element(row_index++);
-                outputs->set_key(type.output_id);
-                outputs->flex = UI::Flex::ROW;
-                outputs->flex_justify = UI::FlexJustify::START;
-                if(Good::is_valid(type.output_id)) {
-                    auto& output = gs.world->goods[type.output_id];
-                    outputs->current_texture = gs.tex_man.load(output.get_icon_path());
-                    outputs->set_tooltip(output.name);
-                }
+                row_index++; // Inputs
+                row_index++; // Outputs
 
                 auto* scale = row.get_element(row_index++);
                 scale->text(string_format("%.0f", building.level * building.production_scale));
@@ -112,6 +94,44 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
         }
     });
     table->on_each_tick(*table);
+    
+    size_t row_num = 0;
+    for(const auto province_id : provinces) {
+        const auto& province = gs.world->provinces[province_id];
+        for(size_t i = 0; i < province.buildings.size(); i++) {
+            const auto& type = gs.world->building_types[i];
+            const auto& building = province.buildings[i];
+            auto& row = table->get_row(row_num++);
+
+            size_t row_index = 0;
+
+            if(provinces.size() > 1) row_index++;
+
+            row_index++;
+            row_index++;
+            row_index++;
+
+            auto* inputs = row.get_element(row_index++);
+            inputs->set_key(type.input_ids.size());
+            inputs->flex = UI::Flex::ROW;
+            inputs->flex_justify = UI::FlexJustify::START;
+            for(auto good_id : type.input_ids) {
+                auto& good = gs.world->goods[good_id];
+                auto& input_img = inputs->add_child2<UI::Image>(0, 0, 35, 35, good.get_icon_path(), true);
+                input_img.set_tooltip(good.name);
+            }
+
+            auto* outputs = row.get_element(row_index++);
+            outputs->set_key(type.output_id);
+            outputs->flex = UI::Flex::ROW;
+            outputs->flex_justify = UI::FlexJustify::START;
+            if(Good::is_valid(type.output_id)) {
+                auto& output = gs.world->goods[type.output_id];
+                auto& output_img = outputs->add_child2<UI::Image>(0, 0, 35, 35, output.get_icon_path(), true);
+                output_img.set_tooltip(output.name);
+            }
+        }
+    }
     return table;
 }
 
