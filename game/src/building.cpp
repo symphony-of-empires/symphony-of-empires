@@ -22,6 +22,7 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+#include <algorithm>
 #include "eng3d/serializer.hpp"
 
 #include "building.hpp"
@@ -29,10 +30,12 @@
 #include "province.hpp"
 
 /// @brief Checks if the building can produce output (if it has enough input)
-bool Building::can_do_output(const Province& province) const {
+bool Building::can_do_output(const Province& province, const std::vector<GoodId>& inputs) const {
     auto& world = World::get_instance();
     // Check that we have enough stockpile
-    for(const auto& product : province.products)
-        if(product.supply == 0.f) return false;
+    for(const auto& good : world.goods)
+        if(std::find(std::begin(inputs), std::end(inputs), good.get_id()) != std::end(inputs))
+            if(province.products[good].supply == 0.f)
+                return false;
     return this->level > 0.f;
 }

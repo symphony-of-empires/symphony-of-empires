@@ -264,6 +264,7 @@ int LuaAPI::add_nation(lua_State* L) {
     nation.ref_name = luaL_checkstring(L, 1);
     nation.name = luaL_checkstring(L, 2);
     nation.ideology_id = IdeologyId(0);
+    nation.commodity_production.resize(g_world.goods.size(), 1.f);
     nation.religion_discrim.resize(g_world.religions.size(), 0.5f);
     nation.language_discrim.resize(g_world.languages.size(), 0.5f);
     nation.client_hints.resize(g_world.ideologies.size());

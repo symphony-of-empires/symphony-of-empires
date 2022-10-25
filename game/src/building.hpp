@@ -88,7 +88,7 @@ class Province;
 /// @brief A military outpost, on land serves as a "spawn" place for units
 /// When adjacent to a water tile this serves as a shipyard for spawning naval units
 struct Building : Entity<BuildingId> {
-    bool can_do_output(const Province& province) const;
+    bool can_do_output(const Province& province, const std::vector<GoodId>& inputs) const;
 
     bool can_build_unit() const {
         for(const auto& [k, v] : req_goods_for_unit)

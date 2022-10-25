@@ -136,7 +136,8 @@ void Client::net_loop() {
                             CXX_THROW(ClientException, "Unknown nation");
                         Policies policy;
                         ::deserialize(ar, policy);
-                        nation->current_policy = policy;
+                        nation->set_policy(policy);
+                        ::deserialize(ar, nation->commodity_production);
                     } break;
                     case ActionType::PROVINCE_UPDATE: {
                         ProvinceId size;

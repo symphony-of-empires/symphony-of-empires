@@ -200,7 +200,6 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     });
     stock_table->on_each_tick(*stock_table);
     for(const auto& good : this->gs.world->goods) {
-        auto& product = this->province.products[good];
         auto& row = stock_table->get_row(good.get_id());
         auto* commodity = row.get_element(0);
         commodity->set_key(good.name.c_str());

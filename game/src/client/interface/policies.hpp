@@ -39,6 +39,7 @@ namespace Interface {
     class PoliciesView : public UI::Window {
         GameState& gs;
         Policies new_policy;
+        std::vector<float> commodity_production;
     public:
         PoliciesView(GameState& gs);
     };

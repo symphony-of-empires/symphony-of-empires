@@ -82,14 +82,14 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
     }
 
     // POPs
-    for(const auto& language : gs.world->languages)
-        if(province.languages[language])
-            fprintf(fp, "province:set_language(c_%s,%f)\n", language.ref_name.c_str(), province.languages[language]);
-    for(const auto& religion : gs.world->religions)
-        if(province.religions[religion])
-            fprintf(fp, "province:set_religion(r_%s,%f)\n", religion.ref_name.c_str(), province.religions[religion]);
     for(const auto& pop : province.pops)
         fprintf(fp, "province:add_pop(pt_%s,%f,%f)\n", gs.world->pop_types[pop.type_id].ref_name.c_str(), pop.size, pop.literacy);
+    for(const auto& language : gs.world->languages)
+        if(province.languages[language] > 0.f)
+            fprintf(fp, "province:set_language(c_%s,%f)\n", language.ref_name.c_str(), province.languages[language]);
+    for(const auto& religion : gs.world->religions)
+        if(province.religions[religion] > 0.f)
+            fprintf(fp, "province:set_religion(r_%s,%f)\n", religion.ref_name.c_str(), province.religions[religion]);
     // Nuclei of the provinces
     for(const auto& nucleus_id : province.nuclei)
         fprintf(fp, "province:add_nucleus(n_%s)\n", gs.world->nations[nucleus_id].ref_name.c_str());

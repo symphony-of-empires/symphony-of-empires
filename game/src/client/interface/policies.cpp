@@ -24,6 +24,7 @@
 
 #include "eng3d/serializer.hpp"
 #include "eng3d/ui/components.hpp"
+#include "eng3d/ui/table.hpp"
 #include "eng3d/texture.hpp"
 #include "client/interface/policies.hpp"
 #include "client/client_network.hpp"
@@ -210,6 +211,37 @@ PoliciesView::PoliciesView(GameState& _gs)
     individual_ownership_sld.set_tooltip("Maximum allowed individual ownership stake % for factories\nIndividual ownership pertains to stakes of a factory owned by POPs, and allowing them to profit from factories with an incurred efficiency penalty");
     individual_ownership_sld.on_click(individual_ownership_sld);
 
+    //
+    // State economy
+    //
+    auto* state_economy_grp = new UI::Group(207 + 196 + 196, 38, 196, this->height - (this->padding.y + 38 + 48), this);
+    state_economy_grp->flex = UI::Flex::COLUMN;
+    state_economy_grp->is_scroll = true;
+
+    std::vector<int> sizes{ 120, 128 };
+    std::vector<std::string> header{ "Commodity", "Scale" };
+    auto& commodity_table = state_economy_grp->add_child2<UI::Table<uint32_t>>(0, 0, state_economy_grp->width, state_economy_grp->height, 32, sizes, header);
+    commodity_table.reserve(1);
+    this->commodity_production = this->gs.curr_nation->commodity_production;
+    for(const auto& good : this->gs.world->goods) {
+        auto& row = commodity_table.get_row(good.get_id());
+        auto* commodity = row.get_element(0);
+        commodity->set_key(good.name.c_str());
+        auto& commodity_img = commodity->add_child2<UI::Image>(0, 0, 35, 35, good.get_icon_path(), true);
+        commodity_img.set_tooltip(good.name);
+
+        auto* scale = row.get_element(1);
+        scale->set_key(good.name.c_str());
+        auto& scale_sld = scale->add_child2<UI::Slider>(0, 0, 128, 24, 0.f, 1.f);
+        scale_sld.set_value(this->commodity_production[good]);
+        scale_sld.set_on_click([this, &good](UI::Widget& w) {
+            this->commodity_production[good] = static_cast<UI::Slider&>(w).get_value();
+            w.text(string_format("%.2f%%", this->commodity_production[good] * 100.f));
+        });
+        scale_sld.set_tooltip("");
+        scale_sld.on_click(scale_sld);
+    }
+
     auto* enact_btn = new UI::Button(207, 0, 128, 24, this);
     enact_btn->below_of(*tax_grp);
     enact_btn->text("Enact policy");
@@ -218,6 +250,7 @@ PoliciesView::PoliciesView(GameState& _gs)
         Archive ar{};
         ::serialize<ActionType>(ar, ActionType::NATION_ENACT_POLICY);
         ::serialize(ar, this->new_policy); // PoliciesObj
+        ::serialize(ar, this->commodity_production); // VectorFloatObj
         packet.data(ar.get_buffer(), ar.size());
         this->gs.client->send(packet);
         this->gs.ui_ctx.prompt("Policy", "New policy enacted!");

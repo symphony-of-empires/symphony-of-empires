@@ -158,8 +158,8 @@ void Server::net_loop(int id) {
                 case ActionType::NATION_ENACT_POLICY: {
                     Policies policies;
                     ::deserialize(ar, policies);
-                    /// @todo Do parliament checks and stuff
                     selected_nation->set_policy(policies);
+                    ::deserialize(ar, selected_nation->commodity_production);
                 } break;
                 // - Client tells server to change target of unit
                 case ActionType::UNIT_CHANGE_TARGET: {
