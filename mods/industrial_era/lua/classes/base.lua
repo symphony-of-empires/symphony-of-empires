@@ -50,12 +50,6 @@ function Pop:new(o)
     self.__index = self
     return o
 end
-function Pop:get_ideology_approval(ideology)
-    return get_province_pop_ideology_approval(self.province_id, self.id, ideology.id)
-end
-function Pop:set_ideology_approval(ideology, approval)
-    set_province_pop_ideology_approval(self.province_id, self.id, ideology.id, approval)
-end
 
 require('classes/event')
 

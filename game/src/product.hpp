@@ -28,6 +28,7 @@
 #include <deque>
 #include <limits>
 #include <glm/glm.hpp>
+#include <glm/gtx/compatibility.hpp>
 #include "objects.hpp"
 
 /// @brief A good, mostly serves as a "product type"
@@ -69,7 +70,9 @@ struct Product : Entity<ProductId> {
         }
 
         // Set the new price
-        this->price = glm::clamp(this->price + this->price_delta, 0.01f, 100'000.f);
+        this->price = glm::clamp(this->price + this->price_delta, glm::epsilon<float>(), 100'000.f);
+        if(glm::epsilonEqual(this->price, 0.f, glm::epsilon<float>()))
+            this->price_delta = 0.f;
         this->demand = 0.f;
     }
 

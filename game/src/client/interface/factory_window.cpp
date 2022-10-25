@@ -40,11 +40,11 @@
 UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, int _y, int _w, int _h, std::vector<ProvinceId> provinces, UI::Widget* parent) {
     std::vector<int> sizes;
     if(provinces.size() > 1) sizes.push_back(150);
-    sizes.insert(sizes.end(), { 150, 80, 80, 100, 80, 80, 32 });
+    sizes.insert(sizes.end(), { 150, 80, 80, 100, 80, 80, 80, 32 });
 
     std::vector<std::string> header;
     if(provinces.size() > 1) header.push_back("Province");
-    header.insert(header.end(), { "Type", "Workers", "Budget", "Inputs", "Output", "Scale", "" });
+    header.insert(header.end(), { "Type", "Workers", "Budget", "Inputs", "Output", "Scale", "Profit", "" });
 
     auto* table = new UI::Table<uint32_t>(_x, _y, _w, _h, 32, sizes, header, parent);
     table->reserve(1);
@@ -80,12 +80,17 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
                 row_index++; // Outputs
 
                 auto* scale = row.get_element(row_index++);
-                scale->text(string_format("%.0f", building.level * building.production_scale));
+                scale->text(string_format("%.2f", building.level * building.production_scale));
                 scale->set_key(building.level * building.production_scale);
+
+                auto* profit = row.get_element(row_index++);
+                profit->text(string_format("%.2f", building.get_profit()));
+                profit->set_key(building.get_profit());
+                profit->set_tooltip(translate_format("Profit: %.2f\nInputs cost: %.2f\nWages: %.2f\nTotal expenses: %.2f\nOutputs revenue: %.2f\nTotal revenue: %.2f", building.get_profit(), building.expenses.inputs_cost, building.expenses.wages, building.expenses.get_total(), building.revenue.outputs, building.revenue.get_total()));
 
                 auto* upgrade = row.get_element(row_index++);
                 upgrade->text("+");
-                upgrade->set_tooltip(translate("Upgrade building"));
+                upgrade->set_tooltip(translate_format("Upgrade building to level %.2f", building.level));
                 upgrade->set_key(0);
                 upgrade->set_on_click([&gs, province_id, type_id = type.get_id()](UI::Widget&) {
                     gs.client->send(Action::BuildingAdd::form_packet(gs.world->provinces[province_id], gs.world->building_types[type_id]));
