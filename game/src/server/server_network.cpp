@@ -224,6 +224,8 @@ void Server::net_loop(int id) {
                     ::deserialize(ar, building_type_id);
                     auto& building = province.buildings[building_type_id];
                     building.budget += building.get_upgrade_cost();
+                    selected_nation->budget -= building.get_upgrade_cost();
+                    Eng3D::Log::debug("server", string_format("Funding upgrade of buildin %s in %s", gs.world->building_types[building_type_id].ref_name.c_str(), selected_nation->ref_name.c_str()));
                     // Rebroadcast
                     broadcast(Action::BuildingAdd::form_packet(province, gs.world->building_types[building_type_id]));
                 } break;

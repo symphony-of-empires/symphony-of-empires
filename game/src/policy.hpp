@@ -74,6 +74,5 @@ struct Serializer<Policies> {
         ::deser_dynamic<is_serialize>(ar, obj.foreign_ownership);
         ::deser_dynamic<is_serialize>(ar, obj.education_budget);
         ::deser_dynamic<is_serialize>(ar, obj.factory_subsidies_budget);
-        
     }
 };

@@ -123,7 +123,7 @@ static void update_factory_production(World& world, Building& building, const Bu
     building.budget -= profit * building.state_ownership;
     private_payment += profit * building.private_ownership;
     building.budget -= profit * building.private_ownership;
-    building.budget += profit;
+    building.budget += profit; // Pay the remainder profit to the building
 
     // TODO: Make building inoperate for the legnth of the upgrade (need to acquire materials)
     const auto upgrade_cost = building.get_upgrade_cost();
@@ -187,7 +187,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
 
             const auto needed_amount = pop.size * type.basic_needs_amount[j];
             if(needed_amount == 0.f) continue;
-            const auto amount = glm::clamp(type.basic_needs_amount[j] * budget_alloc / province.products[j].price, 0.f, needed_amount);
+            const auto amount = glm::clamp(type.basic_needs_amount[j] * budget_alloc / province.products[j].price / world.goods.size(), 0.f, needed_amount);
             //= glm::min(type.basic_needs_amount[j], province.products[j].supply) / budget_alloc;
 
             pop_need.life_needs_met += amount / needed_amount;
@@ -260,9 +260,9 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                     float total_reciprocal_cost = total_reciprocal_price + total_reciprocal_trade_costs[other_province_id];
                     market.global_demand[province_id] += market.demand[other_province_id] * (reciprocal_cost / total_reciprocal_cost);
 
-                    auto& product = province.products[market.good];
-                    product.supply += market.supply[province_id];
-                    product.demand += market.demand[province_id];
+                    //auto& product = province.products[market.good];
+                    //product.supply += market.supply[province_id];
+                    //product.demand += market.demand[province_id];
                 }
             }
         }
@@ -356,7 +356,6 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             const auto growth = glm::clamp(pop.size * pop.life_needs_met * 0.1f, -100.f, 100.f);
             pop.size = glm::max(pop.size + growth, 1.f);
             pop.militancy += 0.01f * -pop.life_needs_met;
-            pop.ideology_approval[nation.ideology_id] += pop.life_needs_met * 0.25f;
         }
         const auto& new_workers = buildings_new_worker[province_id];
         for(size_t i = 0; i < province.buildings.size(); i++)

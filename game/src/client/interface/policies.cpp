@@ -71,10 +71,12 @@ PoliciesView::PoliciesView(GameState& _gs)
         for(const auto& ideology : this->gs.world->ideologies)
             ideology_data.emplace_back(1.f, ideology.name, ideology.color);
         
+        /*
         for(const auto province_id : this->gs.curr_nation->owned_provinces)
             for(const auto& pop : this->gs.world->provinces[province_id].pops)
                 for(const auto& ideology : this->gs.world->ideologies)
                     ideology_data[ideology].num += pop.ideology_approval[ideology] * pop.size;
+        */
         static_cast<UI::PieChart&>(w).set_data(ideology_data);
     });
     ideology_pie.on_each_tick(ideology_pie);

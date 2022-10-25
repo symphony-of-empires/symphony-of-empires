@@ -32,10 +32,51 @@
 struct Ideology : RefnameEntity<IdeologyId> {
     std::uint32_t color;
     Eng3D::StringRef name;
-    Policies policies;
     std::string get_icon_path() const {
         return string_format("gfx/ideology/%s.png", ref_name.c_str());
     }
+
+    float individualism;
+
+    struct Economic {
+        float distributism; // -1 = Concentrated
+                            // 0  = neutral
+                            // 1  = distributism
+        
+        float mercantilist; // -1 = Mercantile
+                            // 0  = neutral
+                            // 1  = Mercantile
+        
+        float capitalism;   // -1 = socialism
+                            // 0  = neutral
+                            // 1  = capitalist
+    };
+
+    struct Political {
+        float individualism; // -1 = Corporatism
+                             // 0  = neutral
+                             // 1  = individualist
+        
+        float state_power;   // -1 = democracy
+                             // 0  = neutral
+                             // 1  = autocracy
+        
+        float equalitarianism;  // -1 = elitism
+                                // 0  = neutral
+                                // 1  = egalitarian
+        
+        float secular;  // -1 = non-secular
+                        // 0  = neutral
+                        // 1  = secular
+    };
+
+    struct Subideology {
+        Eng3D::StringRef name;
+        std::uint32_t color;
+
+        Economic economic;
+        Political political;
+    };
 };
 template<>
 struct Serializer<Ideology> {

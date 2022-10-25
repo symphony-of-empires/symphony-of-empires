@@ -486,7 +486,6 @@ int LuaAPI::add_province(lua_State* L) {
         size_t i = 0;
         for(auto& pop : province.pops) {
             pop.type_id = PopTypeId(i);
-            pop.ideology_approval.resize(g_world.ideologies.size());
             i++;
         }
     }
@@ -666,7 +665,7 @@ int LuaAPI::get_province_pop(lua_State* L) {
     lua_pushnumber(L, 1.f);
     lua_pushnumber(L, 1.f);
     lua_pushnumber(L, (size_t)pop.type_id);
-    lua_pushnumber(L, pop.get_ideology());
+    lua_pushnumber(L, IdeologyId(0));
     lua_pushnumber(L, pop.militancy);
     return 9;
 }
@@ -682,20 +681,6 @@ int LuaAPI::set_province_pop(lua_State* L) {
     //lua_tonumber(L, 8);
     pop.type_id = PopTypeId(lua_tonumber(L, 9));
     pop.militancy = lua_tonumber(L, 10);
-    return 0;
-}
-
-int LuaAPI::get_province_pop_ideology_approval(lua_State* L) {
-    auto& province = g_world.provinces.at(lua_tonumber(L, 1));
-    auto& pop = province.pops.at(lua_tonumber(L, 2));
-    lua_pushnumber(L, pop.ideology_approval.at(lua_tonumber(L, 3)));
-    return 1;
-}
-
-int LuaAPI::set_province_pop_ideology_approval(lua_State* L) {
-    auto& province = g_world.provinces.at(lua_tonumber(L, 1));
-    auto& pop = province.pops.at(lua_tonumber(L, 2));
-    pop.ideology_approval.at(lua_tonumber(L, 3)) = lua_tonumber(L, 4);
     return 0;
 }
 
@@ -1054,35 +1039,6 @@ int LuaAPI::add_req_good_unit_type(lua_State* L) {
     size_t amount = lua_tonumber(L, 3);
     unit_type.req_goods.emplace_back(good, amount);
     return 0;
-}
-
-int LuaAPI::add_ideology(lua_State* L) {
-    if(g_world.needs_to_sync)
-        luaL_error(L, "MP-Sync in this function is not supported");
-
-    Ideology ideology{};
-    ideology.ref_name = luaL_checkstring(L, 1);
-    ideology.name = luaL_checkstring(L, 2);
-    ideology.color = (std::byteswap<std::uint32_t>(static_cast<int>(lua_tonumber(L, 3))) >> 8) | 0xff000000;
-    g_world.insert(ideology);
-    lua_pushnumber(L, g_world.ideologies.size() - 1);
-    return 1;
-}
-
-int LuaAPI::get_ideology(lua_State* L) {
-    const auto& ideology = find_or_throw<Ideology>(luaL_checkstring(L, 1));
-    lua_pushnumber(L, (size_t)g_world.get_id(ideology));
-    lua_pushstring(L, ideology.name.c_str());
-    lua_pushnumber(L, std::byteswap<std::uint32_t>((ideology.color & 0x00ffffff) << 8));
-    return 3;
-}
-
-int LuaAPI::get_ideology_by_id(lua_State* L) {
-    const auto& ideology = g_world.ideologies.at(lua_tonumber(L, 1));
-    lua_pushstring(L, ideology.ref_name.c_str());
-    lua_pushstring(L, ideology.name.c_str());
-    lua_pushnumber(L, std::byteswap<std::uint32_t>((ideology.color & 0x00ffffff) << 8));
-    return 3;
 }
 
 static int traceback(lua_State* L) {
