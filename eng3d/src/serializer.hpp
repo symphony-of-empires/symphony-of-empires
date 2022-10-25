@@ -201,23 +201,23 @@ concept SerializerContainer = requires(T a, T b) {
 /// This serializer class works primarly with containers whose memory is contiguous
 template<SerializerContainer T>
 struct Serializer<T> {
+    static constexpr auto max_elements = 163550 * 32;
+
     template<bool is_const>
     using type = CondConstType<is_const, T>::type;
 
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj_group) {
-        constexpr bool has_data = requires(T a) { a.data(); };
         uint32_t len = obj_group.size();
         ::deser_dynamic<is_serialize>(ar, len);
         if(!len) return; // Early exit iff nothing to do
 
+        if(len >= max_elements)
+            CXX_THROW(SerializerException, "Exceeded max element count");
+
         if constexpr(is_serialize) {
-            if constexpr(has_data && std::is_trivially_copyable<typename T::value_type>::value) {
-                ar.copy_from(obj_group.data(), len * sizeof(typename T::value_type));
-            } else { // non-trivial
-                for(auto& obj : obj_group)
-                    ::deser_dynamic<true>(ar, obj);
-            }
+            for(auto& obj : obj_group)
+                ::deser_dynamic<true>(ar, obj);
         } else {
             // No insert means this is a static array of some sort, std::array perhaps?
             constexpr bool has_insert = requires(T a, typename T::value_type tp) { a.insert(tp); };
@@ -230,12 +230,8 @@ struct Serializer<T> {
 
             if constexpr(has_resize) {
                 obj_group.resize(len);
-                if constexpr(has_data && std::is_trivially_copyable<typename T::value_type>::value) {
-                    ar.copy_to(obj_group.data(), len * sizeof(typename T::value_type));
-                } else { // non-len
-                    for(decltype(len) i = 0; i < len; i++)
-                        ::deser_dynamic<false>(ar, obj_group[i]);
-                }
+                for(decltype(len) i = 0; i < len; i++)
+                    ::deser_dynamic<false>(ar, obj_group[i]);
             } else { // non-len, no resize
                 for(decltype(len) i = 0; i < len; i++) {
                     typename T::value_type obj{}; // Initialized but then overwritten by the deserializer

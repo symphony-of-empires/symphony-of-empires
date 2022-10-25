@@ -288,7 +288,6 @@ struct Serializer<Treaty> {
         ::deser_dynamic<is_serialize>(ar, obj.receiver_id);
         ::deser_dynamic<is_serialize>(ar, obj.sender_id);
         ::deser_dynamic<is_serialize>(ar, obj.approval_status);
-        ::deser_dynamic<is_serialize>(ar, obj.clauses);
     }
 };
 
@@ -313,6 +312,5 @@ struct Serializer<War> {
         ::deser_dynamic<is_serialize>(ar, obj.name);
         ::deser_dynamic<is_serialize>(ar, obj.attacker_ids);
         ::deser_dynamic<is_serialize>(ar, obj.defender_ids);
-        ::deser_dynamic<is_serialize>(ar, obj.wargoals);
     }
 };
