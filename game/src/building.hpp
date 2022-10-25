@@ -117,9 +117,17 @@ struct Building : Entity<BuildingId> {
         return profit * this->collective_ownership;
     }
 
+    float get_operating_ratio() const {
+        const auto revenue = this->revenue.get_total();
+        if(revenue == 0.f) return 0.f;
+        const auto expenses = this->expenses.get_total();
+        if(expenses == 0.f) return 0.f;
+        return revenue / expenses;
+    }
+
     float private_ownership = 0.f;
-    float state_ownership = 0.f;
-    float collective_ownership = 1.f;
+    float state_ownership = 1.f;
+    float collective_ownership = 0.f;
     float individual_ownership = 0.f;
     float foreign_ownership = 0.f;
     NationId foreign_id; // Foreign investor
@@ -145,8 +153,17 @@ struct Building : Entity<BuildingId> {
     struct {
         float wages = 0.f;
         float inputs_cost = 0.f;
+        float state_taxes = 0.f;
+        float state_dividends = 0.f;
+        float pop_dividends = 0.f;
+        float private_dividends = 0.f;
+
+        float get_dividends() const {
+            return state_dividends + private_dividends + pop_dividends;
+        }
+
         float get_total() const {
-            return wages + inputs_cost;
+            return wages + inputs_cost + state_taxes + get_dividends();
         }
     } expenses;
 };
@@ -172,5 +189,9 @@ struct Serializer<Building> {
         ::deser_dynamic<is_serialize>(ar, obj.revenue.outputs);
         ::deser_dynamic<is_serialize>(ar, obj.expenses.wages);
         ::deser_dynamic<is_serialize>(ar, obj.expenses.inputs_cost);
+        ::deser_dynamic<is_serialize>(ar, obj.expenses.state_taxes);
+        ::deser_dynamic<is_serialize>(ar, obj.expenses.state_dividends);
+        ::deser_dynamic<is_serialize>(ar, obj.expenses.pop_dividends);
+        ::deser_dynamic<is_serialize>(ar, obj.expenses.private_dividends);
     }
 };

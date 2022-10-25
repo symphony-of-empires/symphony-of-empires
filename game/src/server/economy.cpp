@@ -114,19 +114,30 @@ static void update_factory_production(World& world, Building& building, const Bu
 
     // Taxation occurs even without a surplus
     if(profit > 0.f) {
-        state_payment += nation.current_policy.factory_profit_tax;
-        profit -= profit * nation.current_policy.factory_profit_tax;
+        building.expenses.state_taxes = profit * nation.current_policy.factory_profit_tax;
+        state_payment += building.expenses.state_taxes;
+        profit -= building.expenses.state_taxes;
     }
+
     // Dividends that will be paid to the shareholders
-    const auto surplus = profit - building.expenses.get_total();
+    building.expenses.state_dividends = building.expenses.pop_dividends = building.expenses.private_dividends = 0.f; // Dividends are paid after calculating the surplus
+    auto surplus = profit - building.expenses.get_total();
     if(surplus > 0.f) {
-        // Taxation and disperse profits to holders
+        // Disperse profits to holders
+        // TODO: Should surplus be decremented between each payout?
         state_payment += building.get_state_payment(surplus);
-        profit -= building.get_state_payment(surplus);
+        building.expenses.state_dividends += building.get_state_payment(surplus);
+        surplus -= building.get_state_payment(surplus);
+
         private_payment += building.get_private_payment(surplus);
-        profit -= building.get_private_payment(surplus);
+        building.expenses.private_dividends += building.get_state_payment(surplus);
+        surplus -= building.get_state_payment(surplus);
+
         pop_payment += building.get_collective_payment(surplus);
-        profit -= building.get_collective_payment(surplus);
+        building.expenses.pop_dividends += building.get_state_payment(surplus);
+        surplus -= building.get_state_payment(surplus);
+
+        profit -= building.expenses.get_dividends();
     }
 
     building.budget += profit; // Pay the remainder profit to the building
@@ -142,7 +153,7 @@ static void update_factory_production(World& world, Building& building, const Bu
 
     // Rescale production
     // This is used to set how much the of the maximum capacity the factory produce
-    building.production_scale = building.level;//glm::clamp(building.production_scale * scale_speed(revenue / expenses), 1.f, building.level);
+    building.production_scale = glm::clamp(building.production_scale * scale_speed(building.get_operating_ratio()), 1.f, building.level);
 }
 
 // Update the factory employment
@@ -181,6 +192,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         const auto& type = world.pop_types[pop.type_id];
 
         // Do basic needs
+        pop_need.budget += pop.size * 0.1f;
         if(pop_need.budget == 0.f) return;
         auto used_budget = 0.f;
         for(size_t j = 0; j < world.goods.size(); j++) {
@@ -190,13 +202,13 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
             if(budget_alloc == 0.f) continue;
 
             const auto needed_amount = pop.size * type.basic_needs_amount[j];
-            province.products[j].demand += needed_amount;
             if(needed_amount == 0.f) continue;
-            const auto amount = glm::clamp(type.basic_needs_amount[j] * budget_alloc / province.products[j].price / world.goods.size(), 0.f, needed_amount);
+            const auto amount = glm::clamp(type.basic_needs_amount[j] * budget_alloc / province.products[j].price / world.goods.size(), 0.f, glm::min(needed_amount, province.products[j].supply));
             //= glm::min(type.basic_needs_amount[j], province.products[j].supply) / budget_alloc;
 
             pop_need.life_needs_met += amount / needed_amount;
             used_budget += province.products[j].buy(amount);
+            province.products[j].demand += needed_amount - amount;
         }
         pop_need.budget = glm::max(pop_need.budget - used_budget, 0.f);
 
