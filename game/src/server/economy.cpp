@@ -71,8 +71,8 @@ struct NewUnit {
     }
 };
 
-constexpr float production_scaling_speed_factor = 0.5f;
 constexpr float scale_speed(float v) {
+    constexpr auto production_scaling_speed_factor = 0.1f;
     return 1.f - production_scaling_speed_factor + production_scaling_speed_factor * v;
 }
 
@@ -219,7 +219,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
                 used_budget += province.products[good].buy(amount);
             }
 
-            province.products[good].speculative_demand += needed_amount - amount;
+            province.products[good].demand/*speculative_demand*/ += needed_amount - amount;
         }
         pop_need.budget = glm::max(pop_need.budget - used_budget, 0.f);
 
@@ -281,16 +281,16 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                 for(const auto other_province_id : trade.cost_eval) {
                     auto& other_province = world.provinces[other_province_id];
                     // Do not trade with foreigners
-                    if(province.controller_id != other_province.controller_id) continue;
+                    //if(province.controller_id != other_province.controller_id) continue;
 
                     float reciprocal_trade_cost = 1.f / (trade.trade_costs[province_id][other_province_id] + glm::epsilon<float>());
                     float reciprocal_cost = reciprocal_price + reciprocal_trade_cost;
                     float total_reciprocal_cost = total_reciprocal_price + total_reciprocal_trade_costs[other_province_id];
                     market.global_demand[province_id] += market.demand[other_province_id] * (reciprocal_cost / total_reciprocal_cost);
 
-                    //auto& product = province.products[market.good];
-                    //product.supply += market.supply[province_id];
-                    //product.demand += market.demand[province_id];
+                    auto& product = province.products[market.good];
+                    product.supply += market.supply[province_id];
+                    product.demand += market.demand[province_id];
                 }
             }
         }

@@ -53,23 +53,12 @@ struct Serializer<Good> {
 /// @brief A product (based off a Good) which can be bought by POPs, converted by factories and transported
 struct Product : Entity<ProductId> {
     void close_market() {
-        constexpr auto price_elasticity = 0.0001f;
+        constexpr auto price_elasticity = 0.01f;
         
         // TODO: Supply should **never** be negative
         this->supply = glm::max(this->supply, 0.f);
-        if(this->demand > this->supply) {
-            // Increase price with more demand
-            this->price_delta += price_elasticity * (this->demand - this->supply);
-        } else if(this->demand < this->supply) {
-            // Increase supply with more demand
-            this->price_delta -= price_elasticity * (this->supply - this->demand);
-        } else {
-            // Gravitate towards absolute zero due to volatility decay
-            // (i.e, product price becomes stable without market activity)
-            if(this->price_delta > 0.1f) this->price_delta -= price_elasticity;
-            else if(this->price_delta < -0.1f) this->price_delta += price_elasticity;
-            else this->price_delta = -price_elasticity;
-        }
+        // Increase price with more demand
+        this->price_delta += price_elasticity * (this->demand - this->supply);
 
         // Set the new price
         this->price = glm::clamp(this->price + this->price_delta, glm::epsilon<float>(), 100'000.f);
