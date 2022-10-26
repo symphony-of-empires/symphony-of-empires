@@ -82,9 +82,13 @@ static void update_factory_production(World& world, Building& building, const Bu
     // Barracks and so on
     if(Good::is_invalid(building_type.output_id)) return;
     const auto& nation = world.nations[province.controller_id];
+
+    // TODO: Make it so burgeoise aren't duplicatin money out of thin air
+    const auto private_investment = private_payment * 0.8 * nation.current_policy.private_ownership;
+    building.budget += private_investment;
     
-    constexpr auto artisan_production_rate = 0.1f;
-    constexpr auto factory_production_rate = 0.5f;
+    constexpr auto artisan_production_rate = 0.01f;
+    constexpr auto factory_production_rate = 1.f;
     auto& output = world.goods[building_type.output_id];
     auto& output_product = province.products[output];
     if(!building.can_do_output(province, building_type.input_ids) || building.level == 0.f) { // Artisans take place of factory
@@ -105,7 +109,7 @@ static void update_factory_production(World& world, Building& building, const Bu
     building.expenses.inputs_cost = 0.f; // Buy the inputs for the factory
     for(const auto& [product_id, amount] : building_type.req_goods)
         building.expenses.inputs_cost += province.products[product_id].buy(amount * building.production_scale);
-    const auto output_amount = building.production_scale * glm::max(building.workers, 1.f) * factory_production_rate;
+    const auto output_amount = glm::log2(1.f + building.production_scale) * glm::max(building.workers, 1.f) * factory_production_rate;
     building.revenue.outputs = output_product.produce(output_amount);
 
     building.expenses.wages = glm::clamp(min_wage * building.workers, 0.f, building.revenue.get_total());

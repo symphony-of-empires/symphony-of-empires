@@ -82,6 +82,7 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
                 auto* scale = row.get_element(row_index++);
                 scale->text(string_format("%.2f", building.level * building.production_scale));
                 scale->set_key(building.level * building.production_scale);
+                scale->set_tooltip(translate_format("Production scale %.2f, level %.2f", building.production_scale, building.level));
 
                 auto* profit = row.get_element(row_index++);
                 profit->text(string_format("%.2f", building.get_profit()));

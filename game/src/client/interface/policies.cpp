@@ -123,7 +123,7 @@ PoliciesView::PoliciesView(GameState& _gs)
     pop_tax_sld.on_click(pop_tax_sld);
 
     tax_grp->add_child2<UI::Label>(0, 0, "Minimum wage");
-    auto& min_wage_sld = tax_grp->add_child2<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
+    auto& min_wage_sld = tax_grp->add_child2<UI::Slider>(0, 0, 128, 24, -1.f, 100.f);
     min_wage_sld.set_value(this->new_policy.min_wage);
     min_wage_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.min_wage = static_cast<UI::Slider&>(w).get_value();
