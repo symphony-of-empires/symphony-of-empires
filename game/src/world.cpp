@@ -62,6 +62,18 @@ namespace AI {
     void do_tick(World& world);
 }
 
+template<typename T>
+static const T& find_or_throw(const std::string_view ref_name) {
+    const auto& list = World::get_instance().get_list((T*)nullptr);
+    const auto result = std::find_if(list.begin(), list.end(), [ref_name](const auto& o) {
+        return !strcmp(o.ref_name.c_str(), ref_name.data());
+    });
+
+    if(result == list.end())
+        CXX_THROW(LuaAPI::Exception, translate_format("Object<%s> not found", typeid(T).name()).c_str());
+    return *result;
+}
+
 // Creates a new world
 void World::init_lua() {
     lua = luaL_newstate();
@@ -101,14 +113,12 @@ void World::init_lua() {
     lua_register(lua, "add_nation_accepted_language", LuaAPI::add_accepted_language);
     lua_register(lua, "add_nation_accepted_religion", LuaAPI::add_accepted_religion);
     lua_register(lua, "add_nation_client_hint", LuaAPI::add_nation_client_hint);
-    lua_register(lua, "get_nation_policies", LuaAPI::get_nation_policies);
-    lua_register(lua, "set_nation_policies", LuaAPI::set_nation_policies);
     lua_register(lua, "set_nation_ideology", LuaAPI::set_nation_ideology);
     lua_register(lua, "get_nation_relation", LuaAPI::get_nation_relation);
     lua_register(lua, "set_nation_relation", LuaAPI::set_nation_relation);
     lua_register(lua, "nation_declare_unjustified_war", LuaAPI::nation_declare_unjustified_war);
     lua_register(lua, "nation_make_puppet", LuaAPI::nation_make_puppet);
-    
+
     lua_register(lua, "add_province", LuaAPI::add_province);
     lua_register(lua, "update_province", LuaAPI::update_province);
     lua_register(lua, "get_province", LuaAPI::get_province);
@@ -127,8 +137,6 @@ void World::init_lua() {
     lua_register(lua, "get_province_pops_size", LuaAPI::get_province_pops_size);
     lua_register(lua, "get_province_pop", LuaAPI::get_province_pop);
     lua_register(lua, "set_province_pop", LuaAPI::set_province_pop);
-    lua_register(lua, "get_province_pop_ideology_approval", LuaAPI::get_province_pop_ideology_approval);
-    lua_register(lua, "set_province_pop_ideology_approval", LuaAPI::set_province_pop_ideology_approval);
     lua_register(lua, "rename_province", LuaAPI::rename_province);
     lua_register(lua, "add_province_nucleus", LuaAPI::add_province_nucleus);
     lua_register(lua, "add_province_owner", LuaAPI::add_province_owner);
@@ -156,9 +164,32 @@ void World::init_lua() {
     lua_register(lua, "get_unit_type", LuaAPI::get_unit_type);
     lua_register(lua, "add_req_good_unit_type", LuaAPI::add_req_good_unit_type);
 
-    lua_register(lua, "add_ideology", LuaAPI::add_ideology);
-    lua_register(lua, "get_ideology", LuaAPI::get_ideology);
-    lua_register(lua, "get_ideology_by_id", LuaAPI::get_ideology_by_id);
+    lua_register(lua, "add_ideology", [](lua_State* L) {
+        if(g_world.needs_to_sync)
+            luaL_error(L, "MP-Sync in this function is not supported");
+
+        Ideology ideology{};
+        ideology.ref_name = luaL_checkstring(L, 1);
+        ideology.name = luaL_checkstring(L, 2);
+        ideology.color = (std::byteswap<std::uint32_t>(static_cast<int>(lua_tonumber(L, 3))) >> 8) | 0xff000000;
+        g_world.insert(ideology);
+        lua_pushnumber(L, g_world.ideologies.size() - 1);
+        return 1;
+    });
+    lua_register(lua, "get_ideology", [](lua_State* L) {
+        const auto& ideology = find_or_throw<Ideology>(luaL_checkstring(L, 1));
+        lua_pushnumber(L, (size_t)g_world.get_id(ideology));
+        lua_pushstring(L, ideology.name.c_str());
+        lua_pushnumber(L, std::byteswap<std::uint32_t>((ideology.color & 0x00ffffff) << 8));
+        return 3;
+    });
+    lua_register(lua, "get_ideology_by_id", [](lua_State* L) {
+        const auto& ideology = g_world.ideologies.at(lua_tonumber(L, 1));
+        lua_pushstring(L, ideology.ref_name.c_str());
+        lua_pushstring(L, ideology.name.c_str());
+        lua_pushnumber(L, std::byteswap<std::uint32_t>((ideology.color & 0x00ffffff) << 8));
+        return 3;
+    });
 
     lua_register(lua, "get_day", [](lua_State* L) {
         lua_pushnumber(L, g_world.get_day());
@@ -301,9 +332,9 @@ void World::load_initial() {
         // Execute all lua files
         lua_exec_all_of(*this, std::vector<std::string> {
             "terrain_types", "good_types", "ideologies", "languages",
-            "building_types", "technology", "religions", "pop_types",
-            "industry_types", "unit_types", "boat_types",
-            "nations", "provinces", "init"
+                "building_types", "technology", "religions", "pop_types",
+                "industry_types", "unit_types", "boat_types",
+                "nations", "provinces", "init"
         }, "lua/entities");
 
         auto div = std::make_unique<Eng3D::BinaryImage>(Eng3D::State::get_instance().package_man.get_unique("map/provinces.png")->get_abs_path());
@@ -448,7 +479,7 @@ void World::load_initial() {
         // Relations between nations start at 0 (and latter modified by lua scripts)
         // since we use cantor's pairing function we only have to make an n*2 array so yeah let's do that!
         this->relations.resize(this->nations.size() * this->nations.size());
-        
+
         // Auto-relocate capitals for countries which do not have one
         for(auto& nation : this->nations) {
             if(!nation.exists() || Province::is_valid(nation.capital_id)) continue;
@@ -548,7 +579,7 @@ static inline void unit_do_tick(World& world, Unit& unit) {
 
     if(!unit.on_battle) {
         const auto& unit_nation = world.nations[unit.owner_id];
-        if(province.battle.active) { 
+        if(province.battle.active) {
             unit.on_battle = true;
             unit.stop_movement();
             auto& war = world.wars[province.battle.war_id];
@@ -611,7 +642,7 @@ void World::do_tick() {
 
     profiler.start("Economy");
     // Every ticks_per_month ticks do an economical tick
-    Economy::do_tick(*this, economyState);
+    Economy::do_tick(*this, economy_state);
     profiler.stop("Economy");
 
     profiler.start("E-packages");
@@ -796,7 +827,7 @@ void World::do_tick() {
         Eng3D::Log::debug("game", std::to_string(time / 12 / ticks_per_month) + "/" + std::to_string((time / ticks_per_month % 12) + 1) + +"/" + std::to_string((time % ticks_per_month) + 1));
     Eng3D::Log::debug("game", "Tick " + std::to_string(time) + " done");
     time++;
-    
+
     // Tell clients that this tick has been done
     Eng3D::Networking::Packet packet{};
     Archive ar{};

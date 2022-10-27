@@ -98,16 +98,6 @@ soldier = PopType:new{
 }
 soldier:register()
 
-farmer = PopType:new{
-    name = _("Farmer"),
-    ref_name = "farmer",
-    social_value = 0.3,
-    is_farmer = true,
-    basic_needs = standard_basic_needs,
-    luxury_needs = standard_luxury_needs
-}
-farmer:register()
-
 laborer = PopType:new{
     name = _("Laborer"),
     ref_name = "laborer",

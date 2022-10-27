@@ -139,12 +139,6 @@ void Nation::auto_relocate_capital() {
 /// @brief Enacts a policy on a nation
 /// @return false if policy draft failed to be applied, true if policy passed and is in-effect
 void Nation::set_policy(const Policies& policies) {
-    // No parliament? No referendum
-    if(current_policy.legislative_parliament != true) {
-        this->current_policy = policies;
-        Eng3D::Log::debug("game", "Parliament-less policy passed!");
-    }
-
     // Set new policy
     this->current_policy = policies;
 }
@@ -162,15 +156,7 @@ bool Nation::is_accepted_religion(const Religion& religion) const {
 /// @brief Gets the total tax applied to a POP depending on their "wealth"
 /// (not exactly like that, more like by their type/status)
 float Nation::get_tax(const Pop& pop) const {
-    float base_tax = 1.f;
-    if(World::get_instance().pop_types[pop.type_id].social_value <= 0.3f)
-        return current_policy.poor_flat_tax * base_tax;
-    // For the medium class
-    else if(World::get_instance().pop_types[pop.type_id].social_value <= 0.6f)
-        return current_policy.med_flat_tax * base_tax;
-    // For the high class
-    else if(World::get_instance().pop_types[pop.type_id].social_value <= 1.f)
-        return current_policy.rich_flat_tax * base_tax;
+    float base_tax = 0.1f; // TODO: Dummy 10% tax
     return base_tax;
 }
 

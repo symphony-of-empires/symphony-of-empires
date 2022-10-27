@@ -122,6 +122,7 @@ public:
     IdeologyId ideology_id; // Current ideology of the nation
     TechnologyId focus_tech_id; // Current tech being researched
     Policies current_policy; // Current policy of this nation
+    std::vector<float> commodity_production; // Commodity production for each good
     uint16_t diplomatic_timer; // Time until a diplomacy can be done
     // Accepted languages in this nation, the accepted languages may have some bonuses on provinces *totally*
     // owned by this nation
@@ -170,6 +171,7 @@ struct Serializer<Nation> {
         ::deser_dynamic<is_serialize>(ar, obj.prestige);
         ::deser_dynamic<is_serialize>(ar, obj.budget);
         ::deser_dynamic<is_serialize>(ar, obj.capital_id);
+        ::deser_dynamic<is_serialize>(ar, obj.commodity_production);
         ::deser_dynamic<is_serialize>(ar, obj.language_discrim);
         ::deser_dynamic<is_serialize>(ar, obj.religion_discrim);
         ::deser_dynamic<is_serialize>(ar, obj.owned_provinces);

@@ -103,16 +103,16 @@ namespace UI {
                     this->sort(i, this->sorting_ascending);
                 });
             }
-            this->on_update = [this](Widget&) {
-                int total_height = this->row_height * this->rows.size();
-                this->column_wrapper->height = total_height;
-            };
             auto& wrapper = this->add_child2<UI::Div>(0, _row_height, this->width, this->height - row_height);
             wrapper.is_scroll = true;
             this->column_wrapper = &wrapper.add_child2<UI::Div>(0, 0, this->width - 25, 0);
             this->column_wrapper->flex = UI::Flex::COLUMN;
             this->column_wrapper->flex_justify = UI::FlexJustify::START;
             this->scrollbar = &wrapper.add_child2<UI::Scrollbar>(this->width - 20, 0, wrapper.height - 40);
+            this->on_update = [this](Widget&) {
+                int total_height = this->row_height * this->rows.size();
+                this->column_wrapper->height = total_height;
+            };
         }
         virtual ~Table() override {};
 
@@ -149,20 +149,19 @@ namespace UI {
         }
 
         void sort(size_t _column_index, bool ascending) {
-            auto comp = [_column_index, ascending](const std::unique_ptr<Widget>& a, const std::unique_ptr<Widget>& b) {
-                auto* row_a = static_cast<UI::TableRow*>(a.get());
-                auto& element_a = *(row_a->get_element(_column_index));
-                auto* row_b = static_cast<UI::TableRow*>(b.get());
-                auto& element_b = *(row_b->get_element(_column_index));
+            this->column_wrapper->sort_children([_column_index, ascending](const auto& a, const auto& b) {
+                auto& row_a = static_cast<UI::TableRow&>(*a);
+                auto& element_a = *(row_a.get_element(_column_index));
+                auto& row_b = static_cast<UI::TableRow&>(*b);
+                auto& element_b = *(row_b.get_element(_column_index));
                 return ascending ? (element_a < element_b) : !(element_a < element_b);
-            };
-            this->column_wrapper->sort_children(comp);
+            });
         }
     private:
         std::unordered_map<T, UI::TableRow*> rows;
         int sorting_row = -1;
         bool sorting_ascending = true;
-        UI::Widget* column_wrapper;
+        UI::Div* column_wrapper;
         UI::Scrollbar* scrollbar;
         int row_height;
         std::vector<int> columns_width;

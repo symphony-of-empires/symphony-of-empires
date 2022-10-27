@@ -42,17 +42,7 @@
 float Province::get_attractiveness(const Pop& pop) const {
     float attractive = this->base_attractive;
     const auto& owner = g_world.nations[this->owner_id];
-    // A social value between 0 and 1 is for poor people, the value for medium class
-    // is between 1 and 2, for the rich is above 2
-    if(World::get_instance().pop_types[pop.type_id].social_value >= 0.f && World::get_instance().pop_types[pop.type_id].social_value <= 0.3f)
-        // For the lower class, lower taxes is good, and so on for other POPs
-        attractive += -(owner.current_policy.poor_flat_tax) * 100.f;
-    else if(World::get_instance().pop_types[pop.type_id].social_value >= 0.3f && World::get_instance().pop_types[pop.type_id].social_value <= 0.6f)
-        // For the medium class
-        attractive += -(owner.current_policy.med_flat_tax) * 100.f;
-    else if(World::get_instance().pop_types[pop.type_id].social_value >= 0.6f)
-        // For the high class
-        attractive += -(owner.current_policy.rich_flat_tax) * 100.f;
+    attractive += -(owner.get_tax(pop) * 100.f); // Less tax = better
     return attractive;
 }
 

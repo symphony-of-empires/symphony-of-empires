@@ -88,7 +88,7 @@ class Province;
 /// @brief A military outpost, on land serves as a "spawn" place for units
 /// When adjacent to a water tile this serves as a shipyard for spawning naval units
 struct Building : Entity<BuildingId> {
-    bool can_do_output(const Province& province) const;
+    bool can_do_output(const Province& province, const std::vector<GoodId>& inputs) const;
 
     bool can_build_unit() const {
         for(const auto& [k, v] : req_goods_for_unit)
@@ -96,7 +96,43 @@ struct Building : Entity<BuildingId> {
         return this->level > 0.f;
     }
 
-    float budget = 1.f; // Total money that the factory has
+    float get_upgrade_cost() const {
+        constexpr auto base_cost = 1000.f;
+        return this->level * base_cost;
+    }
+
+    float get_profit() const {
+        return this->revenue.get_total() - this->expenses.get_total();
+    }
+
+    float get_state_payment(float profit) const {
+        return profit * this->state_ownership;
+    }
+
+    float get_private_payment(float profit) const {
+        return profit * this->private_ownership;
+    }
+
+    float get_collective_payment(float profit) const {
+        return profit * this->collective_ownership;
+    }
+
+    float get_operating_ratio() const {
+        const auto revenue = this->revenue.get_total();
+        if(revenue == 0.f) return 0.f;
+        const auto expenses = this->expenses.get_total();
+        if(expenses == 0.f) return 0.f;
+        return revenue / expenses;
+    }
+
+    float private_ownership = 0.f;
+    float state_ownership = 1.f;
+    float collective_ownership = 0.f;
+    float individual_ownership = 0.f;
+    float foreign_ownership = 0.f;
+    NationId foreign_id; // Foreign investor
+
+    float budget = 1000.f; // Total money that the factory has
     float level = 0.f; // Level/Capacity scale of the building
     float workers = 1.f; // Amount of workers
     float production_scale = 1.f; // How much of the factory is being used. From 0-1
@@ -106,6 +142,30 @@ struct Building : Entity<BuildingId> {
     std::vector<std::pair<GoodId, float>> req_goods_for_unit;
     // Required goods for construction or for repairs
     std::vector<std::pair<GoodId, float>> req_goods;
+
+    // Bookkeeping
+    struct {
+        float outputs = 0.f;
+        float get_total() const {
+            return outputs;
+        }
+    } revenue;
+    struct {
+        float wages = 0.f;
+        float inputs_cost = 0.f;
+        float state_taxes = 0.f;
+        float state_dividends = 0.f;
+        float pop_dividends = 0.f;
+        float private_dividends = 0.f;
+
+        float get_dividends() const {
+            return state_dividends + private_dividends + pop_dividends;
+        }
+
+        float get_total() const {
+            return wages + inputs_cost + state_taxes + get_dividends();
+        }
+    } expenses;
 };
 template<>
 struct Serializer<Building> {
@@ -114,12 +174,24 @@ struct Serializer<Building> {
 
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.working_unit_type_id);
+        ::deser_dynamic<is_serialize>(ar, obj.private_ownership);
+        ::deser_dynamic<is_serialize>(ar, obj.state_ownership);
+        ::deser_dynamic<is_serialize>(ar, obj.collective_ownership);
+        ::deser_dynamic<is_serialize>(ar, obj.individual_ownership);
+        ::deser_dynamic<is_serialize>(ar, obj.foreign_ownership);
+        ::deser_dynamic<is_serialize>(ar, obj.foreign_id);
         ::deser_dynamic<is_serialize>(ar, obj.budget);
         ::deser_dynamic<is_serialize>(ar, obj.level);
         ::deser_dynamic<is_serialize>(ar, obj.production_scale);
         ::deser_dynamic<is_serialize>(ar, obj.workers);
         ::deser_dynamic<is_serialize>(ar, obj.req_goods);
         ::deser_dynamic<is_serialize>(ar, obj.req_goods_for_unit);
+        ::deser_dynamic<is_serialize>(ar, obj.revenue.outputs);
+        ::deser_dynamic<is_serialize>(ar, obj.expenses.wages);
+        ::deser_dynamic<is_serialize>(ar, obj.expenses.inputs_cost);
+        ::deser_dynamic<is_serialize>(ar, obj.expenses.state_taxes);
+        ::deser_dynamic<is_serialize>(ar, obj.expenses.state_dividends);
+        ::deser_dynamic<is_serialize>(ar, obj.expenses.pop_dividends);
+        ::deser_dynamic<is_serialize>(ar, obj.expenses.private_dividends);
     }
 };

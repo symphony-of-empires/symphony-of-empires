@@ -84,7 +84,9 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     this->is_scroll = true;
     this->text(province.name);
 
-    auto* landscape_img = new UI::Image(0, 0, this->width, 128 + 64 + 16, gs.world->terrain_types[province.terrain_type_id].get_icon_path(), this);
+    const auto& terrain_type = gs.world->terrain_types[province.terrain_type_id];
+    auto& landscape_img = this->add_child2<UI::Image>(0, 0, this->width - 16, 128 + 64 + 16, terrain_type.get_icon_path());
+    landscape_img.set_tooltip(translate_format("%s, penalty %.2f", terrain_type.name.c_str(), terrain_type.penalty));
 
     if(Nation::is_valid(province.owner_id)) {
         auto* owner_flag = new UI::AspectImage(0, 0, 96, 48, gs.get_nation_flag(gs.world->nations[this->province.owner_id]), this);
@@ -96,31 +98,31 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     }
 
     // Display all the nuclei
-    auto* nuclei_flex_row = new UI::Div(0, landscape_img->height - 24, this->width, 24, this);
-    nuclei_flex_row->flex = UI::Flex::ROW;
-    for(const auto& nucleus_id : province.nuclei) {
+    auto& nuclei_flex_row = this->add_child2<UI::Div>(0, landscape_img.height - 24, this->width, 24);
+    nuclei_flex_row.flex = UI::Flex::ROW;
+    for(const auto nucleus_id : province.nuclei) {
         auto& nucleus = this->gs.world->nations[nucleus_id];
-        auto* owner_flag = new UI::AspectImage(0, 0, 32, 24, gs.get_nation_flag(nucleus), nuclei_flex_row);
-        owner_flag->set_on_click([this, nucleus_id](UI::Widget&) {
+        auto& owner_flag = nuclei_flex_row.add_child2<UI::AspectImage>(0, 0, 32, 24, gs.get_nation_flag(nucleus));
+        owner_flag.set_on_click([this, nucleus_id](UI::Widget&) {
             new Interface::NationView(this->gs, this->gs.world->nations[nucleus_id]);
         });
-        owner_flag->set_tooltip(translate_format("%s has claims on this province", nucleus.name.c_str()));
+        owner_flag.set_tooltip(translate_format("%s has claims on this province", nucleus.name.c_str()));
     }
 
     auto* languages_lab = new UI::Label(0, 0, "Languages", this);
-    languages_lab->below_of(*landscape_img);
+    languages_lab->below_of(landscape_img);
     this->languages_pie = new UI::PieChart(0, 0, 96, 96, this);
     this->languages_pie->below_of(*languages_lab);
 
     auto* religions_lab = new UI::Label(0, 0, "Religions", this);
-    religions_lab->below_of(*landscape_img);
+    religions_lab->below_of(landscape_img);
     religions_lab->right_side_of(*this->languages_pie);
     this->religions_pie = new UI::PieChart(0, 0, 96, 96, this);
     this->religions_pie->below_of(*religions_lab);
     this->religions_pie->right_side_of(*this->languages_pie);
 
-    auto* pop_types_lab = new UI::Label(0, 0, "Proffesions", this);
-    pop_types_lab->below_of(*landscape_img);
+    auto* pop_types_lab = new UI::Label(0, 0, "Professions", this);
+    pop_types_lab->below_of(landscape_img);
     pop_types_lab->right_side_of(*this->religions_pie);
     this->pop_types_pie = new UI::PieChart(0, 0, 96, 96, this);
     this->pop_types_pie->below_of(*pop_types_lab);
@@ -132,12 +134,13 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
         sizes.push_back(32);
         header.push_back(" ");
     }
-    auto* table = new UI::Table<uint32_t>(0, 256 + 96, 0, 500, 30, sizes, header, this);
-    table->reserve(this->province.pops.size());
-    table->set_on_each_tick([this, table](UI::Widget&) {
+
+    auto* pop_table = new UI::Table<uint32_t>(0, 352, 0, this->height - (352 + 32), 30, sizes, header, this);
+    pop_table->reserve(this->province.pops.size());
+    pop_table->set_on_each_tick([this, pop_table](UI::Widget&) {
         for(size_t i = 0; i < this->province.pops.size(); i++) {
             auto& pop = this->province.pops[i];
-            auto& row = table->get_row(i);
+            auto& row = pop_table->get_row(i);
             size_t row_index = 0;
 
             auto* size = row.get_element(row_index++);
@@ -157,15 +160,52 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
                 auto remove_btn_str = "X";
                 remove_btn->text(remove_btn_str);
                 remove_btn->set_key(remove_btn_str);
-                remove_btn->set_on_click([this, i, table](UI::Widget&) {
-                    table->remove_row(i);
+                remove_btn->set_on_click([this, i, pop_table](UI::Widget&) {
+                    pop_table->remove_row(i);
                     const_cast<Province&>(this->province).pops[i].size = 0.f;
-                    table->on_each_tick(*table);
+                    pop_table->on_each_tick(*pop_table);
                 });
             }
         }
     });
-    table->on_each_tick(*table);
+    pop_table->on_each_tick(*pop_table);
+
+    auto* stock_table = new UI::Table<uint32_t>(0, 352, 0, this->height - (352 + 32), 30, { 100, 100, 100, 100, 100 }, { "Commodity", "Amount", "Demand", "Price", "Change" }, this);
+    stock_table->right_side_of(*pop_table);
+    stock_table->reserve(this->province.pops.size());
+    stock_table->set_on_each_tick([this, stock_table](UI::Widget&) {
+        for(const auto& good : this->gs.world->goods) {
+            auto& product = this->province.products[good];
+            auto& row = stock_table->get_row(good.get_id());
+            size_t row_index = 0;
+
+            row_index++; // Commodity icon
+
+            auto* amount = row.get_element(row_index++);
+            amount->text(string_format("%.0f", product.supply));
+            amount->set_key(product.supply);
+
+            auto* demand = row.get_element(row_index++);
+            demand->text(string_format("%.0f", product.demand));
+            demand->set_key(product.demand);
+
+            auto* price = row.get_element(row_index++);
+            price->text(string_format("%.2f", product.price));
+            price->set_key(product.price);
+
+            auto* price_vel = row.get_element(row_index++);
+            price_vel->text(string_format("%.2f", product.price_delta));
+            price_vel->set_key(product.price_delta);
+        }
+    });
+    stock_table->on_each_tick(*stock_table);
+    for(const auto& good : this->gs.world->goods) {
+        auto& row = stock_table->get_row(good.get_id());
+        auto* commodity = row.get_element(0);
+        commodity->set_key(good.name.c_str());
+        auto& commodity_img = commodity->add_child2<UI::Image>(0, 0, 35, 35, good.get_icon_path(), true);
+        commodity_img.set_tooltip(good.name);
+    }
 
     this->set_on_each_tick([this](UI::Widget&) {
         this->update_piecharts();
@@ -201,7 +241,7 @@ ProvinceEditLanguageTab::ProvinceEditLanguageTab(GameState& _gs, int x, int y, P
 
     std::vector<int> sizes{ 96, 128 };
     std::vector<std::string> header{ "Language", "Religion" };
-    auto table = new UI::Table<uint32_t>(0, 0, 0, this->height, 30, sizes, header, this);
+    auto table = new UI::Table<uint32_t>(0, 0, this->width - 32, this->height, 30, sizes, header, this);
     table->reserve(this->gs.world->languages.size());
     table->set_on_each_tick([this, table](Widget&) {
         for(size_t i = 0; i < this->gs.world->religions.size() || i < this->gs.world->languages.size(); i++) {
@@ -279,21 +319,17 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Pro
 }
 
 ProvinceView::ProvinceView(GameState& _gs, Province& _province)
-    : UI::Window(-400, 0, 400, _gs.height),
+    : UI::Window(-400, -400, 800, 800),
     gs{ _gs },
     province{ _province }
 {
-    if(this->gs.right_side_panel != nullptr)
-        this->gs.right_side_panel->kill();
-    this->gs.right_side_panel = this;
     this->set_close_btn_function([this](Widget&) {
         this->kill();
-        this->gs.right_side_panel = nullptr;
         this->gs.map->set_selected_province(false, ProvinceId(-1));
     });
     this->gs.map->set_selected_province(true, this->province.get_id());
 
-    this->origin = UI::Origin::UPPER_RIGHT_SCREEN;
+    this->origin = UI::Origin::CENTER_SCREEN;
     this->is_scroll = false;
     this->text(province.name);
 

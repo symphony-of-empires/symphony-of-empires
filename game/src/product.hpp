@@ -28,6 +28,7 @@
 #include <deque>
 #include <limits>
 #include <glm/glm.hpp>
+#include <glm/gtx/compatibility.hpp>
 #include "objects.hpp"
 
 /// @brief A good, mostly serves as a "product type"
@@ -52,22 +53,17 @@ struct Serializer<Good> {
 /// @brief A product (based off a Good) which can be bought by POPs, converted by factories and transported
 struct Product : Entity<ProductId> {
     void close_market() {
-        if(this->demand > this->supply) {
-            // Increase price with more demand
-            this->price_delta += 0.001f * (this->demand - this->supply);
-        } else if(this->demand < this->supply) {
-            // Increase supply with more demand
-            this->price_delta -= 0.001f * (this->supply - this->demand);
-        } else {
-            // Gravitate towards absolute zero due to volatility decay
-            // (i.e, product price becomes stable without market activity)
-            if(this->price_delta > 0.1f) this->price_delta -= 0.01f;
-            else if(this->price_delta < -0.1f) this->price_delta += 0.01f;
-            else this->price_delta = -0.01f;
-        }
+        constexpr auto price_elasticity = 0.01f;
+        
+        // TODO: Supply should **never** be negative
+        this->supply = glm::max(this->supply, 0.f);
+        // Increase price with more demand
+        this->price_delta += price_elasticity * (this->demand - this->supply);
 
         // Set the new price
-        this->price = glm::clamp(this->price + this->price_delta, 0.01f, 100'000.f);
+        this->price = glm::clamp(this->price + this->price_delta, glm::epsilon<float>(), 100'000.f);
+        if(glm::epsilonEqual(this->price, 0.f, glm::epsilon<float>()))
+            this->price_delta = 0.f;
         this->demand = 0.f;
     }
 
@@ -92,6 +88,7 @@ struct Product : Entity<ProductId> {
     float price_delta = 0.f;
     float supply = 1.f;
     float demand = 1.f;
+    float speculative_demand = 0.f;
 };
 template<>
 struct Serializer<Product> {
@@ -104,6 +101,7 @@ struct Serializer<Product> {
         ::deser_dynamic<is_serialize>(ar, obj.price_delta);
         ::deser_dynamic<is_serialize>(ar, obj.supply);
         ::deser_dynamic<is_serialize>(ar, obj.demand);
+        ::deser_dynamic<is_serialize>(ar, obj.speculative_demand);
     }
 };
 

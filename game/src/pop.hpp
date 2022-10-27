@@ -27,6 +27,7 @@
 #include <vector>
 #include <string>
 #include "objects.hpp"
+#include "policy.hpp"
 
 struct Language : RefnameEntity<LanguageId> {
     std::uint32_t color;
@@ -75,7 +76,6 @@ enum class PopGroup : uint8_t {
     OTHER,
     BURGEOISE,
     SLAVE,
-    FARMER,
     LABORER,
     SOLDIER,
     ARTISAN,
@@ -118,15 +118,13 @@ public:
         return this->type_id == rhs.type_id;
     }
 
-    Ideology& get_ideology() const;
-
     PopTypeId type_id;
     float size = 1.f;
     float life_needs_met = 0.f;
     float literacy = 0.f;
     float militancy = 0.f;
     float budget = 0.f;
-    std::vector<float> ideology_approval; // Approval % of all the ideologies (1:1)
+    Policies wanted_policies;
 };
 template<>
 struct Serializer<Pop> {
@@ -135,12 +133,12 @@ struct Serializer<Pop> {
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
         ::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        ::deser_dynamic<is_serialize>(ar, obj.type_id);
         ::deser_dynamic<is_serialize>(ar, obj.size);
         ::deser_dynamic<is_serialize>(ar, obj.literacy);
         ::deser_dynamic<is_serialize>(ar, obj.militancy);
         ::deser_dynamic<is_serialize>(ar, obj.budget);
         ::deser_dynamic<is_serialize>(ar, obj.life_needs_met);
-        ::deser_dynamic<is_serialize>(ar, obj.type_id);
-        ::deser_dynamic<is_serialize>(ar, obj.ideology_approval);
+        ::deser_dynamic<is_serialize>(ar, obj.wanted_policies);
     }
 };

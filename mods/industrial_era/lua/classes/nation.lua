@@ -62,15 +62,6 @@ end
 function Nation:add_accepted_religion(religion)
 	add_nation_accepted_religion(self.id, religion.id)
 end
-function Nation:get_policies()
-	local o = Policies:new()
-	-- If someone knows a better way to do this please do a PR
-	o.treatment, o.migration, o.immigration, o.censorship, o.build_infrastructure, o.build_factories, o.private_property, o.companies_allowed, o.public_education, o.secular_education, o.public_healthcare, o.social_security, o.slavery, o.legislative_parliament, o.executive_parliament, o.constitutional, o.foreign_trade, o.import_tax, o.export_tax, o.domestic_import_tax, o.domestic_export_tax, o.poor_flat_tax, o.med_flat_tax, o.rich_flat_tax, o.industry_tax, o.military_spending, o.free_supplies, o.min_wage, o.min_sv_for_parliament = get_nation_policies(self.id)
-	return o
-end
-function Nation:set_policies(o)
-	set_nation_policies(self.id, o.treatment, o.migration, o.immigration, o.censorship, o.build_infrastructure, o.build_factories, o.private_property, o.companies_allowed, o.public_education, o.secular_education, o.public_healthcare, o.social_security, o.slavery, o.legislative_parliament, o.executive_parliament, o.constitutional, o.foreign_trade, o.import_tax, o.export_tax, o.domestic_import_tax, o.domestic_export_tax, o.poor_flat_tax, o.med_flat_tax, o.rich_flat_tax, o.industry_tax, o.military_spending, o.free_supplies, o.min_wage, o.min_sv_for_parliament)
-end
 function Nation:set_ideology(ideology)
 	set_nation_ideology(self.id, ideology.id)
 end

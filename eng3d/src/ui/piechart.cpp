@@ -103,6 +103,8 @@ void PieChart::on_render(UI::Context& ctx, Eng3D::Rect) {
 }
 
 static inline bool in_triangle(glm::vec2 p, glm::vec2 center, float radius, float start_ratio, float end_ratio) {
+    if(start_ratio == 0.f || end_ratio == 0.f) return false;
+
     auto x_offset = glm::cos((start_ratio - 0.25f) * 2 * glm::pi<float>());
     if(x_offset == 0.f) return false;
     auto y_offset = glm::sin((start_ratio - 0.25f) * 2 * glm::pi<float>());
@@ -159,7 +161,7 @@ void PieChart::on_hover_default(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 widg
         bool is_inside = in_triangle(mouse_pos, center, radius, last_ratio, last_corner);
         if(is_inside) {
             piechart.set_tooltip(slice.info);
-            return;
+            break;
         }
         last_ratio = ratio;
     }

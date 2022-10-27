@@ -16,26 +16,31 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      building.cpp
+//      client/interface/policies.hpp
 //
 // Abstract:
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include <algorithm>
-#include "eng3d/serializer.hpp"
+#pragma once
 
-#include "building.hpp"
+#include "nation.hpp"
 #include "world.hpp"
-#include "province.hpp"
+#include "client/game_state.hpp"
+#include "eng3d/ui/window.hpp"
 
-/// @brief Checks if the building can produce output (if it has enough input)
-bool Building::can_do_output(const Province& province, const std::vector<GoodId>& inputs) const {
-    auto& world = World::get_instance();
-    // Check that we have enough stockpile
-    for(const auto& good : world.goods)
-        if(std::find(std::begin(inputs), std::end(inputs), good.get_id()) != std::end(inputs))
-            if(province.products[good].supply == 0.f)
-                return false;
-    return this->level > 0.f;
+namespace UI {
+    class PieChart;
+    class Chart;
+    class Button;
 }
+
+namespace Interface {
+    class PoliciesView : public UI::Window {
+        GameState& gs;
+        Policies new_policy;
+        std::vector<float> commodity_production;
+    public:
+        PoliciesView(GameState& gs);
+    };
+};

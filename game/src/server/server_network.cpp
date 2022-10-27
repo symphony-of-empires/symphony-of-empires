@@ -158,8 +158,8 @@ void Server::net_loop(int id) {
                 case ActionType::NATION_ENACT_POLICY: {
                     Policies policies;
                     ::deserialize(ar, policies);
-                    /// @todo Do parliament checks and stuff
                     selected_nation->set_policy(policies);
+                    ::deserialize(ar, selected_nation->commodity_production);
                 } break;
                 // - Client tells server to change target of unit
                 case ActionType::UNIT_CHANGE_TARGET: {
@@ -222,7 +222,10 @@ void Server::net_loop(int id) {
                     auto& province = gs.world->provinces[province_id];
                     BuildingTypeId building_type_id;
                     ::deserialize(ar, building_type_id);
-                    province.buildings[building_type_id].level += 1.f;
+                    auto& building = province.buildings[building_type_id];
+                    building.budget += building.get_upgrade_cost();
+                    selected_nation->budget -= building.get_upgrade_cost();
+                    Eng3D::Log::debug("server", string_format("Funding upgrade of buildin %s in %s", gs.world->building_types[building_type_id].ref_name.c_str(), selected_nation->ref_name.c_str()));
                     // Rebroadcast
                     broadcast(Action::BuildingAdd::form_packet(province, gs.world->building_types[building_type_id]));
                 } break;
