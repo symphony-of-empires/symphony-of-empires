@@ -34,7 +34,7 @@ struct PrintConsole;
 extern "C" void consoleUpdate(PrintConsole* console);
 #endif
 
-static bool debug_show = false;
+static bool debug_show = true;
 
 /// @brief Logs data to a file or console
 void Eng3D::Log::log(const std::string_view severity, const std::string_view category, const std::string_view msg) {

@@ -36,6 +36,7 @@
 #endif
 #ifdef E3D_TARGET_UNIX
 #   include <unistd.h>
+#   include <fenv.h>
 #endif
 #ifdef E3D_TARGET_SWITCH
 #   include <switch.h>
@@ -180,6 +181,11 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     if(g_state != nullptr)
         CXX_THROW(std::runtime_error, "Duplicate instancing of GameState");
     g_state = &s;
+
+#ifdef E3D_TARGET_UNIX
+    // Catch NaNs and stuff
+    feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);
+#endif
 
 #ifdef E3D_TARGET_SWITCH
     ::consoleDebugInit(debugDevice_SVC);
