@@ -156,7 +156,7 @@ bool Nation::is_accepted_religion(const Religion& religion) const {
 /// @brief Gets the total tax applied to a POP depending on their "wealth"
 /// (not exactly like that, more like by their type/status)
 float Nation::get_tax(const Pop&) const {
-    return this->current_policies.pop_tax;
+    return this->current_policy.pop_tax;
 }
 
 #include "client/game_state.hpp"
