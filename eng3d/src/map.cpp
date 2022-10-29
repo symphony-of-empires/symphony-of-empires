@@ -33,10 +33,10 @@
 
 Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
     : s{ _s },
-    rivers(_s),
-    borders(_s),
     map_sphere(0.f, 0.f, 0.f, Eng3D::GLOBE_RADIUS, 100),
-    map_2d_quad()
+    map_2d_quad(),
+    rivers(_s),
+    borders(_s)
 {
     for(int x = -1; x <= 1; x++) { // Flat surface for drawing flat map 
         auto square = std::make_unique<Eng3D::Square>(size.x * x, 0.f, size.x * (x + 1), size.y);

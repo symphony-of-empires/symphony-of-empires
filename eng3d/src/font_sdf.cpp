@@ -148,7 +148,6 @@ std::unique_ptr<Eng3D::Label3D> Eng3D::FontSDF::gen_text(const std::string& text
 
         const auto t0 = advance / text_width;
         advance += glyph.advance;
-        const auto t1 = advance / text_width;
         glm::vec2 char_tl = bezier(t0, pmin, p0, pmax) + plane_tl * scale;
         glm::vec2 char_bl = bezier(t0, pmin, p0, pmax) + plane_bl * scale;
         glm::vec2 char_tr = bezier(t0, pmin, p0, pmax) + plane_tr * scale;

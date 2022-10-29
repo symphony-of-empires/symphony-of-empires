@@ -289,7 +289,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                 for(const auto other_province_id : trade.cost_eval) {
                     auto& other_province = world.provinces[other_province_id];
                     // Do not trade with foreigners
-                    //if(province.controller_id != other_province.controller_id) continue;
+                    if(province.controller_id != other_province.controller_id) continue;
 
                     float reciprocal_trade_cost = 1.f / (trade.trade_costs[province_id][other_province_id] + glm::epsilon<float>());
                     float reciprocal_cost = reciprocal_price + reciprocal_trade_cost;
@@ -385,7 +385,6 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     tbb::parallel_for(static_cast<size_t>(0), world.provinces.size(), [&world, &pops_new_needs, &buildings_new_worker](const auto province_id) {
         auto& province = world.provinces[province_id];
         if(Nation::is_invalid(province.controller_id)) return;
-        const auto& nation = world.nations[province.controller_id];
         const auto& new_needs = pops_new_needs[province_id];
         for(size_t i = 0; i < province.pops.size(); i++) {
             auto& pop = province.pops[i];

@@ -48,7 +48,6 @@ ArmyUnitsTab::ArmyUnitsTab(GameState& _gs, int x, int y, std::function<bool(Unit
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
     flex_column->flex = UI::Flex::COLUMN;
     gs.world->unit_manager.for_each_unit([this, filter, flex_column](Unit& unit) {
-        auto& type = this->gs.world->unit_types[unit.type_id];
         if(!filter || !filter(unit)) return;
         auto* btn = new UI::Button(0, 0, this->width, 24, flex_column);
         btn->set_on_each_tick([this, unit_id = unit.get_id()](UI::Widget& w) {

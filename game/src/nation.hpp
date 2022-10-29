@@ -130,7 +130,7 @@ public:
     uint16_t diplomatic_timer; // Time until a diplomacy can be done
     // Accepted languages in this nation, the accepted languages may have some bonuses on provinces *totally*
     // owned by this nation
-    std::vector<float> language_discrim;
+    std::vector<float> language_acceptance;
     std::vector<float> religion_discrim;
     // List of provinces which are owned by this nation (including partial ownership)
     std::vector<ProvinceId> owned_provinces;
@@ -176,7 +176,7 @@ struct Serializer<Nation> {
         ::deser_dynamic<is_serialize>(ar, obj.budget);
         ::deser_dynamic<is_serialize>(ar, obj.capital_id);
         ::deser_dynamic<is_serialize>(ar, obj.commodity_production);
-        ::deser_dynamic<is_serialize>(ar, obj.language_discrim);
+        ::deser_dynamic<is_serialize>(ar, obj.language_acceptance);
         ::deser_dynamic<is_serialize>(ar, obj.religion_discrim);
         ::deser_dynamic<is_serialize>(ar, obj.owned_provinces);
         ::deser_dynamic<is_serialize>(ar, obj.controlled_provinces);

@@ -133,7 +133,7 @@ unsigned int Eng3D::OpenGL::EBO::get_id() const {
     return id;
 }
 
-void Eng3D::draw(const Eng3D::OpenGL::VAO& vao, MeshMode mode, const void* indices, size_t n_indices, const void* buffer, size_t n_buffer, int instances) {
+void Eng3D::draw(const Eng3D::OpenGL::VAO& vao, MeshMode mode, const void*, size_t n_indices, const void*, size_t n_buffer, int instances) {
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     int i_mode = 0;
     switch(mode) {
