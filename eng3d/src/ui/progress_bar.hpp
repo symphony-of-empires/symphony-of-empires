@@ -44,7 +44,7 @@ namespace UI {
     };
 
     class ProgressBar: public Widget {
-        float value;
+        float value = 0.f;
     public:
         ProgressBar(int x, int y, unsigned w, unsigned h, float min, float max, Widget* _parent = nullptr);
         virtual ~ProgressBar() override {};

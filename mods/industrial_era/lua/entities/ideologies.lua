@@ -127,6 +127,18 @@ republic:add_subideology(Subideology:new{
 
 communism = Ideology:new{ ref_name = "communism", name = _("Communism"), color = 0x800e04 }
 communism:register()
+communism:add_subideology(Subideology:new{
+	ref_name = "???",
+	name = "???",
+	distributism = 0.0,
+	mercantilist = 0.0,
+	capitalism = 0.0,
+	individualism = 0.0,
+	state_power = 0.0,
+	equalitarianism = 0.0,
+	secular = 0.0,
+	pluralism = 0.0,
+})
 
 fascism = Ideology:new{ ref_name = "fascism", name = _("Fascism"), color = 0xcc1f6d }
 fascism:register()
@@ -184,7 +196,7 @@ socialism:add_subideology(Subideology:new{
 
 tribal = Ideology:new{ ref_name = "tribal", name = _("Tribal"), color = 0x684242 }
 tribal:register()
-monarchy:add_subideology(Subideology:new{
+tribal:add_subideology(Subideology:new{
 	ref_name = "hierachical_tribe",
 	name = "Hierachical tribe",
 	distributism = 0.0,

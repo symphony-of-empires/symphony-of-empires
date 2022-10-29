@@ -35,8 +35,8 @@ using namespace UI;
 
 ProgressBar::ProgressBar(int _x, int _y, unsigned w, unsigned h, const float _min, const float _max, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI::WidgetType::PROGRESS_BAR),
-    max{ _max },
-    min{ _min }
+    min{ _min },
+    max{ _max }
 {
 
 }
@@ -46,20 +46,20 @@ void ProgressBar::on_render(Context&, Eng3D::Rect viewport) {
     g_ui_context->obj_shader->set_texture(0, "diffuse_map", *g_ui_context->button);
     g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f, 1.f, 1.f, 1.f));
     Eng3D::Square(0, 0, width, height).draw();
-    float ratio = value / max;
+    auto ratio = (value == 0 || max == 0) ? 0.f : value / max;
     Eng3D::Rect pos_rect(0, 0, width, height);
     switch(direction) {
     case UI::Direction::LEFT_TO_RIGHT:
         pos_rect.right = width * ratio;
         break;
     case UI::Direction::RIGHT_TO_LEFT:
-        pos_rect.left = width * (1 - ratio);
+        pos_rect.left = width * (1.f - ratio);
         break;
     case UI::Direction::TOP_TO_BOTTOM:
         pos_rect.bottom = height * ratio;
         break;
     case UI::Direction::BOTTOM_TO_TOP:
-        pos_rect.top = height * (1 - ratio);
+        pos_rect.top = height * (1.f - ratio);
         break;
     }
 

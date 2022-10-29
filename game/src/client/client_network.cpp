@@ -230,9 +230,12 @@ void Client::net_loop() {
                         ::deserialize(ar, province);
                     } break;
                     case ActionType::SELECT_NATION: {
-                        Nation* nation;
-                        ::deserialize(ar, nation);
-                        ::deserialize(ar, nation->client_username);
+                        NationId nation_id;
+                        ::deserialize(ar, nation_id);
+                        if(Nation::is_invalid(nation_id))
+                            CXX_THROW(ClientException, "Unknown nation");
+                        auto& nation = gs.world->nations[nation_id];
+                        ::deserialize(ar, nation.client_username);
                     } break;
                     default:
                         break;
