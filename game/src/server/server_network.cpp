@@ -330,19 +330,20 @@ void Server::net_loop(int id) {
                 } break;
                 // The client selects a nation
                 case ActionType::SELECT_NATION: {
-                    Nation* nation;
-                    ::deserialize(ar, nation);
-                    if(nation == nullptr)
+                    NationId nation_id;
+                    ::deserialize(ar, nation_id);
+                    if(Nation::is_invalid(nation_id))
                         CXX_THROW(ServerException, "Unknown nation");
-                    ::deserialize(ar, nation->ai_do_cmd_troops);
-                    ::deserialize(ar, nation->ai_controlled);
-                    selected_nation = nation;
+                    auto& nation = gs.world->nations[nation_id];
+                    ::deserialize(ar, nation.ai_do_cmd_troops);
+                    ::deserialize(ar, nation.ai_controlled);
+                    selected_nation = &nation;
                     //Eng3D::Log::debug("server", "Nation " + selected_nation->ref_name + " selected by client " + cl.username + "," + std::to_string(id));
 
-                    this->clients_extra_data[id] = nation;
+                    this->clients_extra_data[id] = &nation;
                     Archive ar{};
                     ::serialize<ActionType>(ar, ActionType::SELECT_NATION);
-                    ::serialize(ar, nation);
+                    ::serialize(ar, nation.get_id());
                     ::serialize(ar, cl.username);
                     packet.data(ar.get_buffer(), ar.size());
                     broadcast(packet);
