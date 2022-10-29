@@ -145,7 +145,7 @@ void Nation::set_policy(const Policies& policies) {
 
 /// @brief Checks if a LANGUAGE is part of one of our accepted languages
 bool Nation::is_accepted_language(const Language& language) const {
-    return language_discrim[language] >= 0.5f;
+    return language_acceptance[language] >= 0.5f;
 }
 
 /// @brief Checks if a RELIGION is part of one of our accepted relgion
@@ -155,9 +155,8 @@ bool Nation::is_accepted_religion(const Religion& religion) const {
 
 /// @brief Gets the total tax applied to a POP depending on their "wealth"
 /// (not exactly like that, more like by their type/status)
-float Nation::get_tax(const Pop& pop) const {
-    float base_tax = 0.1f; // TODO: Dummy 10% tax
-    return base_tax;
+float Nation::get_tax(const Pop&) const {
+    return this->current_policies.pop_tax;
 }
 
 #include "client/game_state.hpp"

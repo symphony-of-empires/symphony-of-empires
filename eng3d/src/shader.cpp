@@ -67,7 +67,7 @@ Eng3D::OpenGL::Shader::Shader(const std::string& _buffer, GLuint type, bool use_
 }
 
 #include <sstream>
-void Eng3D::OpenGL::Shader::compile(GLuint type) {
+void Eng3D::OpenGL::Shader::compile(GLuint) {
     glCompileShader(id);
 
     // Check for errors of the shader

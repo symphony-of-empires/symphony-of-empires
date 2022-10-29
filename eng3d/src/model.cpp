@@ -49,7 +49,7 @@ extern "C" {
 //
 // Simple model
 //
-void Eng3D::SimpleModel::draw(const Eng3D::OpenGL::Program& shader, int instances) const {
+void Eng3D::SimpleModel::draw(const Eng3D::OpenGL::Program& shader, int) const {
     // Change color if material wants it
     shader.set_texture(0, "diffuse_map", *material->diffuse_map);
     shader.set_uniform("diffuse_color", material->diffuse_color);

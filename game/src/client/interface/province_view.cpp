@@ -227,7 +227,7 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province&
     gs{ _gs },
     province{ _province }
 {
-    auto table = Interface::FactoryWindow::new_table(gs, 0, 0, 0, this->height, { province.get_id() }, this);
+    Interface::FactoryWindow::new_table(gs, 0, 0, 0, this->height, { province.get_id() }, this);
 }
 
 ProvinceEditLanguageTab::ProvinceEditLanguageTab(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)

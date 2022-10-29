@@ -106,7 +106,6 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
         const auto& province = gs.world->provinces[province_id];
         for(size_t i = 0; i < province.buildings.size(); i++) {
             const auto& type = gs.world->building_types[i];
-            const auto& building = province.buildings[i];
             auto& row = table->get_row(row_num++);
 
             size_t row_index = 0;

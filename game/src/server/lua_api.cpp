@@ -266,7 +266,7 @@ int LuaAPI::add_nation(lua_State* L) {
     nation.ideology_id = IdeologyId(0);
     nation.commodity_production.resize(g_world.goods.size(), 1.f);
     nation.religion_discrim.resize(g_world.religions.size(), 0.5f);
-    nation.language_discrim.resize(g_world.languages.size(), 0.5f);
+    nation.language_acceptance.resize(g_world.languages.size(), 0.5f);
     nation.client_hints.resize(g_world.ideologies.size());
     nation.research.resize(g_world.technologies.size());
 
@@ -374,7 +374,7 @@ int LuaAPI::set_nation_capital(lua_State* L) {
 
 int LuaAPI::add_accepted_language(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
-    nation.language_discrim.at(lua_tonumber(L, 2)) = 1.f;
+    nation.language_acceptance.at(lua_tonumber(L, 2)) = 1.f;
     return 0;
 }
 
