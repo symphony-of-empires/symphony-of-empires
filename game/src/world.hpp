@@ -290,7 +290,7 @@ struct Serializer<T> {
     using type = CondConstType<is_const, type_no_p>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, type<is_serialize>*const& obj) {
-        typename type_no_p::Id id = obj == nullptr ? type_no_p::invalid() : obj->get_id();
+        typename type_no_p::Id id = !is_serialize ? type_no_p::invalid() : obj->get_id();
         ::deser_dynamic<is_serialize>(ar, id);
         if constexpr(!is_serialize) {
             if(static_cast<size_t>(id) >= World::get_instance().get_list((T)nullptr).size()) {
