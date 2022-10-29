@@ -81,7 +81,6 @@ namespace LuaAPI {
     int add_accepted_language(lua_State* L);
     int add_accepted_religion(lua_State* L);
     int add_nation_client_hint(lua_State* L);
-    int set_nation_ideology(lua_State* L);
     int nation_make_puppet(lua_State* L);
     int nation_declare_unjustified_war(lua_State* L);
 

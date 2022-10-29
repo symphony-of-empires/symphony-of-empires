@@ -55,8 +55,9 @@ PoliciesView::PoliciesView(GameState& _gs)
         if(this->gs.world->time % this->gs.world->ticks_per_month) return;
         /// @todo More dynamic names
         if(Ideology::is_valid(this->gs.curr_nation->ideology_id)) {
-            auto& ideology = this->gs.world->ideologies[this->gs.curr_nation->ideology_id];
-            w.text(ideology.name);
+            const auto& ideology = this->gs.world->ideologies[this->gs.curr_nation->ideology_id];
+            const auto& subideology = ideology.subideologies[this->gs.curr_nation->subideology_id];
+            w.text(translate_format("%s - %s", ideology.name.c_str(), subideology.name.c_str()));
             w.current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique(ideology.get_icon_path()));
         }
     });
@@ -237,8 +238,12 @@ PoliciesView::PoliciesView(GameState& _gs)
         scale_sld.set_on_click([this, &good](UI::Widget& w) {
             this->commodity_production[good] = static_cast<UI::Slider&>(w).get_value();
             w.text(string_format("%.2f%%", this->commodity_production[good] * 100.f));
+            if(this->gs.curr_nation->can_directly_control_factories()) {
+                w.set_tooltip("Scale the production of this product (only applies to factories with a state stake on them)");
+            } else {
+                w.set_tooltip("Scale the production of this product (applies to all factories regardless of stake)");
+            }
         });
-        scale_sld.set_tooltip("");
         scale_sld.on_click(scale_sld);
     }
 

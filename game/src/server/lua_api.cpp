@@ -395,12 +395,6 @@ int LuaAPI::add_nation_client_hint(lua_State* L) {
     return 0;
 }
 
-int LuaAPI::set_nation_ideology(lua_State* L) {
-    auto& nation = g_world.nations.at(lua_tonumber(L, 1));
-    nation.ideology_id = IdeologyId(lua_tonumber(L, 2));
-    return 0;
-}
-
 int LuaAPI::get_nation_relation(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));

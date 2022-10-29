@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include "eng3d/entity.hpp"
 #include "eng3d/serializer.hpp"
 
@@ -152,6 +153,13 @@ struct IdeologyId : EntityId<uint8_t> {
 };
 template<>
 struct Serializer<IdeologyId> : SerializerMemcpy<IdeologyId> {};
+
+struct SubideologyId : EntityId<uint8_t> {
+    SubideologyId() = default;
+    SubideologyId(size_t _id) : EntityId(_id) {}
+};
+template<>
+struct Serializer<SubideologyId> : SerializerMemcpy<SubideologyId> {};
 
 struct BuildingId : EntityId<uint8_t> {
     BuildingId() = default;

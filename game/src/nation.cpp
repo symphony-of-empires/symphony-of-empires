@@ -245,3 +245,13 @@ void Nation::get_allies(std::function<void(const Nation&)> fn) const {
         if(&nation != this && is_ally(nation))
             fn(nation);
 }
+
+const Ideology::Subideology& Nation::get_subideology() const {
+    const auto& world = World::get_instance();
+    return world.ideologies[this->ideology_id].subideologies[this->subideology_id];
+}
+
+bool Nation::can_directly_control_factories() const {
+    const auto& subideology = this->get_subideology();
+    return subideology.economic.capitalism >= 0.f ? true : false;
+}

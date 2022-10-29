@@ -30,7 +30,7 @@ tunis = Nation:new{ ref_name = "tunis" }
 tunis.name = _("Tunis")
 tunis.adjective = _("Tunisian")
 tunis:register()
-tunis:set_ideology(monarchy)
+tunis:set_ideology(monarchy, "absolute_monarchy")
 tunis:add_accepted_language(arabic)
 tunis:add_client_hint(monarchy, _("Tunis"), 0xAC433A)
 
@@ -38,34 +38,34 @@ algiers = Nation:new{ ref_name = "algiers" }
 algiers.name = _("Algiers")
 algiers.adjective = _("Algerian")
 algiers:register()
-algiers:set_ideology(monarchy)
+algiers:set_ideology(monarchy, "absolute_monarchy")
 algiers:add_accepted_language(arabic)
 algiers:add_client_hint(monarchy, _("Algiers"), 0x509095)
 
 abbyssina = Nation:new{ ref_name = "abbyssina" }
 abbyssina.name = _("Abbyssina")
 abbyssina:register()
-abbyssina:set_ideology(monarchy)
+abbyssina:set_ideology(monarchy, "absolute_monarchy")
 abbyssina:add_client_hint(monarchy, _("Abbyssina"), 0x4761C2)
 
 egypt = Nation:new{ ref_name = "egypt" }
 egypt.name = _("Egypt")
 egypt.adjective = _("Egyptians")
 egypt:register()
-egypt:set_ideology(monarchy)
+egypt:set_ideology(monarchy, "absolute_monarchy")
 egypt:add_client_hint(monarchy, _("Egypt"), 0xC1BC73)
 
 morocco = Nation:new{ ref_name = "morocco" }
 morocco.name = _("Morocco")
 morocco:register()
-morocco:set_ideology(monarchy)
+morocco:set_ideology(monarchy, "absolute_monarchy")
 morocco:add_client_hint(monarchy, _("Morocco"), 0x802249)
 
 tripolitania = Nation:new{ ref_name = "tripolitania" }
 tripolitania.name = _("Tripolitania")
 tripolitania.adjective = _("Tripolitanians")
 tripolitania:register()
-tripolitania:set_ideology(monarchy)
+tripolitania:set_ideology(monarchy, "absolute_monarchy")
 tripolitania:add_client_hint(monarchy, _("Tripolitania"), 0x91D38A)
 
 ashantee = Nation:new{ ref_name = "ashantee" }

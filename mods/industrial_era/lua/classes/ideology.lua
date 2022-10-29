@@ -50,3 +50,25 @@ end
 function Ideology:register()
 	self.id = add_ideology(self.ref_name, self.name, self.color)
 end
+
+Subideology = {
+	ref_name = "",
+	name = "",
+	distributism = 0.0,
+	mercantilist = 0.0,
+	capitalism = 0.0,
+	individualism = 0.0,
+	state_power = 0.0,
+	equalitarianism = 0.0,
+	secular = 0.0,
+	pluralism = 0.0,
+}
+function Subideology:new(o)
+	local o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
+function Ideology:add_subideology(s)
+	add_ideology_subideology(self.id, s.ref_name, s.name, s.distributism, s.mercantilist, s.capitalism, s.individualism, s.state_power, s.equalitarianism, s.secular, s.pluralism)
+end
