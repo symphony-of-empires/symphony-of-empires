@@ -71,9 +71,9 @@ struct NewUnit {
     }
 };
 
-constexpr float scale_speed(float v) {
-    constexpr auto production_scaling_speed_factor = 0.1f;
-    return 1.f - production_scaling_speed_factor + production_scaling_speed_factor * v;
+constexpr auto scale_speed(auto c, auto target, auto friction) {
+    friction = glm::clamp(friction, 0.f, 1.f);
+    return (c * (1.f - friction)) + friction * target;
 }
 
 // Updates supply, demand, and set wages for workers
@@ -135,12 +135,12 @@ static void update_factory_production(World& world, Building& building, const Bu
         surplus -= building.get_state_payment(surplus);
 
         private_payment += building.get_private_payment(surplus);
-        building.expenses.private_dividends += building.get_state_payment(surplus);
-        surplus -= building.get_state_payment(surplus);
+        building.expenses.private_dividends += building.get_private_payment(surplus);
+        surplus -= building.get_private_payment(surplus);
 
         pop_payment += building.get_collective_payment(surplus);
-        building.expenses.pop_dividends += building.get_state_payment(surplus);
-        surplus -= building.get_state_payment(surplus);
+        building.expenses.pop_dividends += building.get_collective_payment(surplus);
+        surplus -= building.get_collective_payment(surplus);
 
         profit -= building.expenses.get_dividends();
     }
@@ -156,10 +156,18 @@ static void update_factory_production(World& world, Building& building, const Bu
         building.level -= 1.f;
     }
 
-    const auto base_production = building.state_ownership * nation.commodity_production[output] * building.level;
+    auto base_production = 1.f;
+    // Capitalist nations require having a stake first; whereas non-capitalist nations do not
+    // require a pevious stake to exist at all to enforce their production scales
+    if(!nation.can_directly_control_factories()) {
+        base_production = building.state_ownership * nation.commodity_production[output] * building.level;
+    } else {
+        base_production = nation.commodity_production[output] * building.level;
+    }
+    
     // Rescale production
     // This is used to set how much the of the maximum capacity the factory produce
-    building.production_scale = glm::clamp(building.production_scale * scale_speed(building.get_operating_ratio()), glm::max(base_production, 1.f), building.level);
+    building.production_scale = scale_speed(building.production_scale, building.level, building.get_operating_ratio());
 }
 
 // Update the factory employment

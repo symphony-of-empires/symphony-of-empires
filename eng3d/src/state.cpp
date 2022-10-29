@@ -184,7 +184,7 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
 
 #ifdef E3D_TARGET_UNIX
     // Catch NaNs and stuff
-    feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);
+    //feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);
 #endif
 
 #ifdef E3D_TARGET_SWITCH

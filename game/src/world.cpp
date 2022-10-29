@@ -113,7 +113,20 @@ void World::init_lua() {
     lua_register(lua, "add_nation_accepted_language", LuaAPI::add_accepted_language);
     lua_register(lua, "add_nation_accepted_religion", LuaAPI::add_accepted_religion);
     lua_register(lua, "add_nation_client_hint", LuaAPI::add_nation_client_hint);
-    lua_register(lua, "set_nation_ideology", LuaAPI::set_nation_ideology);
+    lua_register(lua, "set_nation_ideology", [](lua_State* L) {
+        auto& nation = g_world.nations.at(lua_tonumber(L, 1));
+        const auto& ideology = g_world.ideologies.at(lua_tonumber(L, 2));
+        nation.ideology_id = ideology.get_id();
+        nation.subideology_id = SubideologyId(0);
+        const std::string subideology_ref_name = luaL_checkstring(L, 3);
+        for(const auto& subideology : ideology.subideologies) {
+            if(subideology.ref_name.get_string() == subideology_ref_name) {
+                nation.subideology_id = subideology.get_id();
+                break;
+            }
+        }
+        return 0;
+    });
     lua_register(lua, "get_nation_relation", LuaAPI::get_nation_relation);
     lua_register(lua, "set_nation_relation", LuaAPI::set_nation_relation);
     lua_register(lua, "nation_declare_unjustified_war", LuaAPI::nation_declare_unjustified_war);
@@ -175,6 +188,27 @@ void World::init_lua() {
         g_world.insert(ideology);
         lua_pushnumber(L, g_world.ideologies.size() - 1);
         return 1;
+    });
+    lua_register(lua, "add_ideology_subideology", [](lua_State* L) {
+        if(g_world.needs_to_sync)
+            luaL_error(L, "MP-Sync in this function is not supported");
+        
+        auto& ideology = g_world.ideologies.at(lua_tonumber(L, 1));
+        Ideology::Subideology subideology{};
+        subideology.ref_name = luaL_checkstring(L, 2);
+        subideology.name = luaL_checkstring(L, 3);
+        subideology.economic.distributism = lua_tonumber(L, 4);
+        subideology.economic.mercantilist = lua_tonumber(L, 5);
+        subideology.economic.capitalism = lua_tonumber(L, 6);
+        subideology.political.individualism = lua_tonumber(L, 7);
+        subideology.political.state_power = lua_tonumber(L, 8);
+        subideology.political.equalitarianism = lua_tonumber(L, 9);
+        subideology.political.secular = lua_tonumber(L, 10);
+        subideology.political.pluralism = lua_tonumber(L, 11);
+
+        subideology.cached_id = SubideologyId(ideology.subideologies.size());
+        ideology.subideologies.push_back(subideology);
+        return 0;
     });
     lua_register(lua, "get_ideology", [](lua_State* L) {
         const auto& ideology = find_or_throw<Ideology>(luaL_checkstring(L, 1));

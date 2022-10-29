@@ -62,8 +62,8 @@ end
 function Nation:add_accepted_religion(religion)
 	add_nation_accepted_religion(self.id, religion.id)
 end
-function Nation:set_ideology(ideology)
-	set_nation_ideology(self.id, ideology.id)
+function Nation:set_ideology(ideology, subidName)
+	set_nation_ideology(self.id, ideology.id, subidName)
 end
 function Nation:add_client_hint(ideology, name, color)
 	add_nation_client_hint(self.id, ideology.id, name, color)

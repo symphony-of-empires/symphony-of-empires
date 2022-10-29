@@ -42,7 +42,7 @@ unify_germany_evhdl = Event:new{
 			name = "Yes",
 			decision_fn = function(ref_name)
 				print('Unifying germany...')
-				Nation:get("germany"):set_ideology(Ideology:get("monarchy"))
+				Nation:get("germany"):set_ideology(Ideology:get("monarchy"), "absolute_monarchy")
 				local prov = Nation:get("germany"):get_nuclei_provinces()
 				for k, v in pairs(prov) do
 					print(v.ref_name)

@@ -37,9 +37,9 @@
 #include "objects.hpp"
 #include "event.hpp"
 #include "policy.hpp"
+#include "ideology.hpp"
 
 class Province;
-class Ideology;
 struct Technology;
 class Pop;
 class Language;
@@ -47,8 +47,6 @@ class Religion;
 namespace TreatyClause {
     class BaseClause;
 }
-
-struct Ideology;
 struct Technology;
 class Nation : public RefnameEntity<NationId> {
     void do_diplomacy() {
@@ -108,6 +106,11 @@ public:
         return !(controlled_provinces.empty());
     }
 
+    const Ideology::Subideology& get_subideology() const;
+    
+    // Policies
+    bool can_directly_control_factories() const;
+
     Eng3D::StringRef name;
     float prestige = 0.1f; // Amount of prestige
     // Total budget of the nation (money in ark), this is not equal to GDP, the GDP is the total sum of the price
@@ -120,6 +123,7 @@ public:
     NationId puppet_master_id; // Pupeeter of this nation (if any)
     ProvinceId capital_id; // The capital of this nation (can be invalid id)
     IdeologyId ideology_id; // Current ideology of the nation
+    SubideologyId subideology_id; // Current subideology
     TechnologyId focus_tech_id; // Current tech being researched
     Policies current_policy; // Current policy of this nation
     std::vector<float> commodity_production; // Commodity production for each good
@@ -181,6 +185,7 @@ struct Serializer<Nation> {
         ::deser_dynamic<is_serialize>(ar, obj.inbox);
         ::deser_dynamic<is_serialize>(ar, obj.client_hints);
         ::deser_dynamic<is_serialize>(ar, obj.ideology_id);
+        ::deser_dynamic<is_serialize>(ar, obj.subideology_id);
         ::deser_dynamic<is_serialize>(ar, obj.research);
         ::deser_dynamic<is_serialize>(ar, obj.focus_tech_id);
     }

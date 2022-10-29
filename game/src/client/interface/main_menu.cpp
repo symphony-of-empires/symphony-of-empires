@@ -124,6 +124,44 @@ Interface::MainMenu::MainMenu(GameState& _gs)
 
     int b_width = 225;
     int b_height = 33;
+
+    auto* demo_btn = new UI::Button(0, 0, b_width, b_height, button_list);
+    demo_btn->border = button_border;
+    demo_btn->current_texture = button_image;
+    demo_btn->font = font;
+    demo_btn->text_color = text_color;
+    demo_btn->text_align_x = UI::Align::CENTER;
+    demo_btn->text_align_y = UI::Align::CENTER;
+    demo_btn->text("Pre-alpha demo");
+    demo_btn->set_on_click([this](UI::Widget&) {
+        this->gs.ui_ctx.clear();
+        this->gs.current_mode = MapMode::COUNTRY_SELECT;
+        this->gs.host_mode = true;
+        this->gs.editor = false;
+
+        for(auto& nation : this->gs.world->nations)
+            if(nation.ref_name.get_string() == "netherlands")
+                this->gs.curr_nation = &nation;
+        
+        if(this->gs.curr_nation == nullptr)
+            return;
+
+        this->gs.ui_ctx.clear();
+        if(this->gs.host_mode) {
+            this->gs.server = std::make_unique<Server>(gs, 1836);
+            this->gs.client = std::make_unique<Client>(gs, "127.0.0.1", 1836);
+            this->gs.client->username = this->gs.editor ? "Editor" : "Guest";
+            this->gs.client->username += "-";
+            this->gs.client->username += this->gs.host_mode ? "Host" : "Player";
+        }
+        this->gs.in_game = true;
+        this->gs.play_nation();
+
+        this->gs.ui_ctx.prompt("Welcome",
+            "Hello, Symphony of empires is a free, open-source real-time grand strategy game set in 1825. You'll be controlling the Netherlands in the Victorian era period. The Netherlands has the Dutch East Indies company as one of it's most valuable economical posessions; do not let anyone take it."
+        );
+    });
+
     auto* single_btn = new UI::Button(0, 0, b_width, b_height, button_list);
     single_btn->border = button_border;
     single_btn->current_texture = button_image;
