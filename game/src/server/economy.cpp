@@ -87,7 +87,7 @@ static void update_factory_production(World& world, Building& building, const Bu
     const auto private_investment = private_payment * 0.8 * nation.current_policy.private_ownership;
     building.budget += private_investment;
     
-    constexpr auto artisan_production_rate = 0.01f;
+    constexpr auto artisan_production_rate = 0.1f;
     constexpr auto factory_production_rate = 1.f;
     auto& output = world.goods[building_type.output_id];
     auto& output_product = province.products[output];
