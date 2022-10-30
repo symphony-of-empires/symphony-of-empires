@@ -37,8 +37,8 @@
 #include "eng3d/rectangle.hpp"
 #include "eng3d/state.hpp"
 
-UI::Input::Input(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
-    : Widget(_parent, _x, _y, w, h, UI::WidgetType::INPUT)
+UI::Input::Input(int _x, int _y, unsigned _w, unsigned _h, Widget* _parent)
+    : Widget(_parent, _x, _y, _w, _h, UI::WidgetType::INPUT)
 {
     this->on_textinput = ([](UI::Input& w, const char* input) {
         // Carefully convert into UTF32 then back into UTF8 so we don't have to

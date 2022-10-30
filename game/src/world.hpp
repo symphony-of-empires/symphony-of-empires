@@ -79,11 +79,11 @@ struct World;
         return list;\
     };\
     inline void insert(type& ptr) {\
-        auto& list = this->get_list((type*)nullptr);\
+        auto& type_list = this->get_list((type*)nullptr);\
         std::scoped_lock lock(list_mutex);\
-        ptr.cached_id = type::Id(list.size());\
+        ptr.cached_id = type::Id(type_list.size());\
         Eng3D::Log::debug("world_insert", "Inserting object " #type " with ID=" + std::to_string(static_cast<size_t>(ptr.cached_id)));\
-        list.push_back(ptr);\
+        type_list.push_back(ptr);\
     };\
     list_type<type> list;
 
@@ -95,21 +95,21 @@ struct World;
         return list;\
     };\
     inline void insert(type& ptr) {\
-        auto& list = this->get_list((type*)nullptr);\
+        auto& type_list = this->get_list((type*)nullptr);\
         std::scoped_lock lock(list_mutex);\
-        ptr.cached_id = type::Id(list.size());\
+        ptr.cached_id = type::Id(type_list.size());\
         Eng3D::Log::debug("world_insert", "Inserting object " #type " with ID=" + std::to_string(static_cast<size_t>(ptr.cached_id)));\
-        list.push_back(ptr);\
+        type_list.push_back(ptr);\
     };\
     inline void remove(type& ptr) {\
         size_t cached_id = static_cast<size_t>(this->get_id<type>(ptr));\
-        auto& list = this->get_list((type*)nullptr);\
+        auto& type_list = this->get_list((type*)nullptr);\
         std::scoped_lock lock(list_mutex);\
-        cached_id = list.size();\
+        cached_id = type_list.size();\
         Eng3D::Log::debug("world_remove", "Removing object " #type " with ID=" + std::to_string(static_cast<size_t>(cached_id)));\
-        for(size_t i = cached_id + 1; i < list.size(); i++)\
-            list[i].cached_id = type::Id(static_cast<size_t>(list[i].cached_id) - 1);\
-        list.erase(list.begin() + cached_id);\
+        for(size_t i = cached_id + 1; i < type_list.size(); i++)\
+            type_list[i].cached_id = type::Id(static_cast<size_t>(type_list[i].cached_id) - 1);\
+        type_list.erase(type_list.begin() + cached_id);\
     };\
     list_type<type> list;
 

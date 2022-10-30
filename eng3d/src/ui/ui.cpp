@@ -272,7 +272,7 @@ void UI::Context::resize(int _width, int _height) {
     this->model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
 }
 
-void UI::Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewport, glm::ivec2 offset) {
+void UI::Context::render_recursive(Widget& w, Eng3D::Rect viewport, glm::ivec2 offset) {
     // Only render widgets that are shown and only render widget that have a width and height
     if(!w.is_render || !w.width || !w.height) {
         w.is_hover = false;
@@ -310,7 +310,7 @@ void UI::Context::render_recursive(Widget& w, glm::mat4 model, Eng3D::Rect viewp
             if((viewport.size().x <= 0 || viewport.size().y <= 0) && !child->is_float)
                 continue;
 
-            this->render_recursive(*child, model, viewport, offset);
+            this->render_recursive(*child, viewport, offset);
         }
     }
 }
@@ -328,9 +328,9 @@ void UI::Context::render_all(glm::ivec2 mouse_pos) {
 
     Eng3D::Rect viewport(0, 0, width, height);
     for(auto& widget : this->widgets)
-        this->render_recursive(*widget.get(), this->model, viewport, glm::vec2(0.f));
+        this->render_recursive(*widget.get(), viewport, glm::vec2(0.f));
     if(tooltip_widget != nullptr)
-        this->render_recursive(*tooltip_widget, this->model, viewport, glm::vec2(0.f));
+        this->render_recursive(*tooltip_widget, viewport, glm::vec2(0.f));
     
     // Display the cursor
     obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));

@@ -69,11 +69,11 @@ class BorderGenerator {
     const uint32_t* pixels;
     int width;
     int height;
-    BorderGenerator(std::vector<std::vector<glm::vec3>>& borders, const uint32_t* pixels, int width, int height)
-        : borders{ borders },
-        pixels{ pixels },
-        width{ width },
-        height{ height }
+    BorderGenerator(std::vector<std::vector<glm::vec3>>& _borders, const uint32_t* _pixels, int _width, int _height)
+        : borders{ _borders },
+        pixels{ _pixels },
+        width{ _width },
+        height{ _height }
     {
 
     }

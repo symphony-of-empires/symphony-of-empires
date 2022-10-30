@@ -82,7 +82,7 @@ void Eng3D::Rivers::get_river(std::vector<glm::vec3>& river, int current_index, 
     int y = current_index / width;
     river.push_back(glm::vec3(x, y, -0.05));
 
-    const auto check_neighbor = [this, current_index, prev_index, pixels, width, height](std::vector<glm::vec3>& river, int new_x, int new_y) {
+    const auto check_neighbor = [this, current_index, prev_index, pixels, width, height](std::vector<glm::vec3>& _river, int new_x, int new_y) {
         if(new_x < 0 || new_y < 0 || new_x >= width || new_y >= height)
             return;
         int new_index = new_x + new_y * width;
@@ -90,7 +90,7 @@ void Eng3D::Rivers::get_river(std::vector<glm::vec3>& river, int current_index, 
 
         uint32_t neighbor_color = pixels[new_index];
         if(neighbor_color == 0xFFFF0000) {
-            this->get_river(river, new_index, current_index, pixels, width, height);
+            this->get_river(_river, new_index, current_index, pixels, width, height);
             return;
         }
     };

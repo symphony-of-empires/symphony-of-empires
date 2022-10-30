@@ -140,9 +140,9 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
     return table;
 }
 
-Interface::FactoryWindow::FactoryWindow(GameState& gs)
+Interface::FactoryWindow::FactoryWindow(GameState& _gs)
     : UI::Window(-400, -400, 800, 800),
-    gs{ gs }
+    gs{ _gs }
 {
     this->origin = UI::Origin::CENTER_SCREEN;
     this->text(translate("Factories"));

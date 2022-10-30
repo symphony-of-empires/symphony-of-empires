@@ -118,11 +118,11 @@ struct Building : Entity<BuildingId> {
     }
 
     float get_operating_ratio() const {
-        const auto revenue = this->revenue.get_total();
-        if(revenue == 0.f) return 0.f;
-        const auto expenses = this->expenses.get_total();
-        if(expenses == 0.f) return 0.f;
-        return revenue / expenses;
+        const auto total_revenue = this->revenue.get_total();
+        if(total_revenue == 0.f) return 0.f;
+        const auto total_expenses = this->expenses.get_total();
+        if(total_expenses == 0.f) return 0.f;
+        return total_revenue / total_expenses;
     }
 
     float private_ownership = 0.f;

@@ -76,8 +76,8 @@ void ProvincePopulationTab::update_piecharts() {
     pop_types_pie->set_data(pop_types_data);
 }
 
-ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)
-    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
+ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int _x, int _y, Province& _province, UI::Widget* _parent)
+    : UI::Group(_x, _y, _parent->width - _x, _parent->height - _y, _parent),
     gs{ _gs },
     province{ _province }
 {
@@ -213,8 +213,8 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int x, int y, Provi
     this->on_each_tick(*this);
 }
 
-ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)
-    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
+ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int _x, int _y, Province& _province, UI::Widget* _parent)
+    : UI::Group(_x, _y, _parent->width - _x, _parent->height - _y, _parent),
     gs{ _gs },
     province{ _province }
 {
@@ -222,16 +222,16 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int x, int y, Province& _
     this->is_scroll = true;
 }
 
-ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)
-    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
+ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int _x, int _y, Province& _province, UI::Widget* _parent)
+    : UI::Group(_x, _y, _parent->width - _x, _parent->height - _y, _parent),
     gs{ _gs },
     province{ _province }
 {
     Interface::FactoryWindow::new_table(gs, 0, 0, 0, this->height, { province.get_id() }, this);
 }
 
-ProvinceEditLanguageTab::ProvinceEditLanguageTab(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)
-    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
+ProvinceEditLanguageTab::ProvinceEditLanguageTab(GameState& _gs, int _x, int _y, Province& _province, UI::Widget* _parent)
+    : UI::Group(_x, _y, _parent->width - _x, _parent->height - _y, _parent),
     gs{ _gs },
     province{ _province },
     language{ _gs.world->languages[0] },
@@ -248,23 +248,23 @@ ProvinceEditLanguageTab::ProvinceEditLanguageTab(GameState& _gs, int x, int y, P
             auto& row = table->get_row(i);
             size_t row_index = 0;
 
-            auto& religion = i >= this->gs.world->religions.size() ? this->gs.world->religions[0] : this->gs.world->religions[i];
+            auto& row_religion = i >= this->gs.world->religions.size() ? this->gs.world->religions[0] : this->gs.world->religions[i];
             auto religion_icon = row.get_element(row_index++);
-            religion_icon->current_texture = this->gs.tex_man.load(gs.package_man.get_unique(religion.get_icon_path()));
-            religion_icon->set_tooltip(religion.name);
-            religion_icon->set_key(religion.name);
-            religion_icon->set_on_click([this, religion_id = religion.get_id()](UI::Widget&) {
+            religion_icon->current_texture = this->gs.tex_man.load(gs.package_man.get_unique(row_religion.get_icon_path()));
+            religion_icon->set_tooltip(row_religion.name);
+            religion_icon->set_key(row_religion.name);
+            religion_icon->set_on_click([this, religion_id = row_religion.get_id()](UI::Widget&) {
                 const_cast<Province&>(this->province).religions[religion_id] = 1.f;
                 this->gs.map->update_mapmode();
                 this->gs.input.selected_religion = &this->gs.world->religions[religion_id];
             });
 
-            auto& language = i >= this->gs.world->languages.size() ? this->gs.world->languages[0] : this->gs.world->languages[i];
+            auto& row_language = i >= this->gs.world->languages.size() ? this->gs.world->languages[0] : this->gs.world->languages[i];
             auto name = row.get_element(row_index++);
-            name->text(language.name);
-            name->set_tooltip(language.name);
-            name->set_key(language.name);
-            name->set_on_click([this, language_id = language.get_id()](UI::Widget&) {
+            name->text(row_language.name);
+            name->set_tooltip(row_language.name);
+            name->set_key(row_language.name);
+            name->set_on_click([this, language_id = row_language.get_id()](UI::Widget&) {
                 const_cast<Province&>(this->province).languages[language_id] = 1.f;
                 this->gs.map->update_mapmode();
                 this->gs.input.selected_language = &this->gs.world->languages[language_id];

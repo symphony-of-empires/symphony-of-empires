@@ -61,7 +61,6 @@ void Window::set_close_btn_function(std::function<void(Widget&)> _on_click) {
     if(_on_click) {
         if(!this->close_btn) {
             const int size = 24;
-            auto padding = this->padding;
             auto* btn_wrapper = new Div(-size - padding.x, -padding.y, size, size, this);
             btn_wrapper->origin = UI::Origin::UPPER_RIGHT;
 

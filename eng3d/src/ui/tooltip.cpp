@@ -47,10 +47,10 @@ UI::Tooltip::Tooltip()
     this->border = UI::Border(g_ui_context->border_tex, size, texture_size);
 }
 
-UI::Tooltip::Tooltip(UI::Widget* parent, unsigned w, unsigned h)
+UI::Tooltip::Tooltip(UI::Widget* _parent, unsigned w, unsigned h)
     : UI::Widget()
 {
-    this->parent = parent;
+    this->parent = _parent;
     this->parent->set_tooltip(this);
     this->type = UI::WidgetType::TOOLTIP;
     this->have_shadow = true;

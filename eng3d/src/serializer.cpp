@@ -84,17 +84,17 @@ void Archive::from_file(const std::string& path) {
     buffer.shrink_to_fit();
 }
 
-void Archive::copy_to(void* ptr, size_t size) {
+void Archive::copy_to(void* to_ptr, size_t size) {
     if(size > buffer.size() - this->ptr)
         CXX_THROW(SerializerException, string_format("Buffer too small for write of %zu bytes", size));
-    std::memcpy(ptr, &buffer[this->ptr], size);
+    std::memcpy(to_ptr, &buffer[this->ptr], size);
     this->ptr += size;
 }
 
-void Archive::copy_from(const void* ptr, size_t size) {
+void Archive::copy_from(const void* from_ptr, size_t size) {
     this->expand(size);
     if(size > buffer.size() - this->ptr)
         CXX_THROW(SerializerException, string_format("Buffer too small for read of %zu bytes", size));
-    std::memcpy(&buffer[this->ptr], ptr, size);
+    std::memcpy(&buffer[this->ptr], from_ptr, size);
     this->ptr += size;
 }
