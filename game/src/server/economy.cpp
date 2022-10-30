@@ -204,36 +204,34 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
     for(size_t i = 0; i < province.pops.size(); i++) {
         auto& pop_need = pop_needs[i];
         auto& pop = province.pops[i];
-        const auto& type = world.pop_types[pop.type_id];
+        const auto& needs_amounts = world.pop_types[pop.type_id].basic_needs_amount;
 
-        // Do basic needs
+        if(pop.size == 0.f) return;
         pop_need.budget += pop.size * 1.f;
         if(pop_need.budget == 0.f) return;
         auto used_budget = 0.f;
 
-        auto total_factor = 0.f;
-        for(const auto& good : world.goods)
-            total_factor += type.basic_needs_amount[good];
+        pop_need.life_needs_met = 1;
 
+        const auto percentage_to_spend = 0.8f;
+        const auto budget_alloc = pop_need.budget * percentage_to_spend;
+        pop_need.budget -= budget_alloc;
+
+        // If we are going to have value added taxes we should separate them from income taxes
+        state_payment += budget_alloc * nation.current_policy.pop_tax;
+        const auto budget_after_VAT = budget_alloc * (1.f - nation.current_policy.pop_tax);
+
+        auto total_factor = std::reduce(needs_amounts.begin(), needs_amounts.end());
         for(const auto& good : world.goods) {
-            if(pop.size == 0.f) continue;
-            if(type.basic_needs_amount[good] == 0.f) continue;
-            const auto budget_alloc = pop_need.budget * 0.8f;
+            if(needs_amounts[good] == 0.f) continue;
 
-            const auto needed_amount = pop.size * type.basic_needs_amount[good];
-            if(needed_amount == 0.f) continue;
-            const auto amount = glm::clamp(budget_alloc * (type.basic_needs_amount[good] / total_factor) / province.products[good].price, 0.f, glm::min(needed_amount, province.products[good].supply));
-            if(amount > 0.f) {
-                pop_need.life_needs_met += amount / needed_amount;
-                used_budget += province.products[good].buy(amount);
-            }
+            const auto need_factor = needs_amounts[good] / total_factor;
+            const auto amount = (budget_after_VAT * need_factor / province.products[good].price);
 
-            province.products[good].demand/*speculative_demand*/ += needed_amount - amount;
+            pop_need.life_needs_met *= std::pow(amount, need_factor);
+            used_budget += province.products[good].buy(amount);
+            // province.products[good].demand/*speculative_demand*/ += amount;
         }
-        pop_need.budget = glm::max(pop_need.budget - used_budget, 0.f);
-
-        state_payment += pop_need.budget * nation.current_policy.pop_tax;
-        pop_need.budget -= pop_need.budget * nation.current_policy.pop_tax;
     }
 }
 
