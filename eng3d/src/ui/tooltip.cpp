@@ -76,7 +76,8 @@ void UI::Tooltip::set_pos(int _x, int _y, int, int _height, int screen_w, int sc
     x = _x;
 
     // Make sure the tooltip is visable when it's too long and that it doesn't just disappear
-    if(this->x + this->width > screen_w)
+    int right_side = this->x + this->width;
+    if(right_side > screen_w)
         this->x = screen_w - this->width;
 }
 

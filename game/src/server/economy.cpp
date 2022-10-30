@@ -156,14 +156,15 @@ static void update_factory_production(World& world, Building& building, const Bu
         building.level -= 1.f;
     }
 
-    auto base_production = 1.f;
-    // Capitalist nations require having a stake first; whereas non-capitalist nations do not
-    // require a pevious stake to exist at all to enforce their production scales
-    if(!nation.can_directly_control_factories()) {
-        base_production = building.state_ownership * nation.commodity_production[output] * building.level;
-    } else {
-        base_production = nation.commodity_production[output] * building.level;
-    }
+    //! Based production not used!
+    // auto base_production = 1.f;
+    // // Capitalist nations require having a stake first; whereas non-capitalist nations do not
+    // // require a pevious stake to exist at all to enforce their production scales
+    // if(!nation.can_directly_control_factories()) {
+    //     base_production = building.state_ownership * nation.commodity_production[output] * building.level;
+    // } else {
+    //     base_production = nation.commodity_production[output] * building.level;
+    // }
     
     // Rescale production
     // This is used to set how much the of the maximum capacity the factory produce

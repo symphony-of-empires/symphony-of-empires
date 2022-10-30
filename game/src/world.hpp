@@ -132,20 +132,20 @@ public:
     void load_mod();
     Eng3D::Profiler profiler;
 
-    LIST_FOR_LOCAL_TYPE(Good, goods, std::vector);
-    LIST_FOR_LOCAL_TYPE(Language, languages, std::vector);
-    LIST_FOR_LOCAL_TYPE(PopType, pop_types, std::vector);
-    LIST_FOR_LOCAL_TYPE(UnitType, unit_types, std::vector);
-    LIST_FOR_LOCAL_TYPE(BuildingType, building_types, std::vector);
-    LIST_FOR_LOCAL_TYPE(Ideology, ideologies, std::vector);
-    LIST_FOR_LOCAL_TYPE(Religion, religions, std::vector);
-    LIST_FOR_LOCAL_TYPE(Technology, technologies, std::vector);
-    LIST_FOR_LOCAL_TYPE(TerrainType, terrain_types, std::vector);
-    CONST_LIST_FOR_LOCAL_TYPE(Province, provinces, std::vector);
-    CONST_LIST_FOR_LOCAL_TYPE(Nation, nations, std::vector);
-    LIST_FOR_LOCAL_TYPE(Event, events, std::vector);
-    LIST_FOR_LOCAL_TYPE(Treaty, treaties, std::vector);
-    LIST_FOR_LOCAL_TYPE(War, wars, std::vector);
+    LIST_FOR_LOCAL_TYPE(Good, goods, std::vector)
+    LIST_FOR_LOCAL_TYPE(Language, languages, std::vector)
+    LIST_FOR_LOCAL_TYPE(PopType, pop_types, std::vector)
+    LIST_FOR_LOCAL_TYPE(UnitType, unit_types, std::vector)
+    LIST_FOR_LOCAL_TYPE(BuildingType, building_types, std::vector)
+    LIST_FOR_LOCAL_TYPE(Ideology, ideologies, std::vector)
+    LIST_FOR_LOCAL_TYPE(Religion, religions, std::vector)
+    LIST_FOR_LOCAL_TYPE(Technology, technologies, std::vector)
+    LIST_FOR_LOCAL_TYPE(TerrainType, terrain_types, std::vector)
+    CONST_LIST_FOR_LOCAL_TYPE(Province, provinces, std::vector)
+    CONST_LIST_FOR_LOCAL_TYPE(Nation, nations, std::vector)
+    LIST_FOR_LOCAL_TYPE(Event, events, std::vector)
+    LIST_FOR_LOCAL_TYPE(Treaty, treaties, std::vector)
+    LIST_FOR_LOCAL_TYPE(War, wars, std::vector)
     UnitManager unit_manager;
     ProvinceManager province_manager;
 
@@ -157,7 +157,7 @@ public:
         assert(ptr.cached_id < static_cast<typename T::Id>(-2));
         list.push_back((T*)&ptr);
         list_mutex.unlock();
-    };
+    }
 
     template<typename T>
     inline void remove(T& ptr) {
