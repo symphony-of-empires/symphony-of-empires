@@ -88,7 +88,8 @@ void Eng3D::OpenGL::Shader::compile(GLuint) {
         while(!error_lines.eof()) {
             std::istringstream sline(error);
             // Nvidia's style of errors
-            int slot, row, col;
+            int slot, col;
+            size_t row;
             char ch;
 
             // nvidia styles errors the following way:
@@ -104,7 +105,7 @@ void Eng3D::OpenGL::Shader::compile(GLuint) {
                 sline >> row >> ch;
             }
 
-            int read_lines = 0;
+            size_t read_lines = 0;
             std::stringstream code(buffer);
             std::string error_code;
             while(read_lines < row && !code.eof()) {
@@ -231,15 +232,15 @@ void Eng3D::OpenGL::Program::use() const {
 // Uniform overloads
 // It allows the game engine to call these functions without worrying about type specifications
 void Eng3D::OpenGL::Program::set_uniform(const std::string& name, glm::mat4 uniform) const {
-    glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, glm::value_ptr(uniform));
+    glProgramUniformMatrix4fv(id, glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, glm::value_ptr(uniform));
 }
 
 void Eng3D::OpenGL::Program::set_uniform(const std::string& name, float value1, float value2) const {
-    glUniform2f(glGetUniformLocation(id, name.c_str()), value1, value2);
+    glProgramUniform2f(id, glGetUniformLocation(id, name.c_str()), value1, value2);
 }
 
 void Eng3D::OpenGL::Program::set_uniform(const std::string& name, float value1, float value2, float value3) const {
-    glUniform3f(glGetUniformLocation(id, name.c_str()), value1, value2, value3);
+    glProgramUniform3f(id, glGetUniformLocation(id, name.c_str()), value1, value2, value3);
 }
 
 void Eng3D::OpenGL::Program::set_uniform(const std::string& name, glm::vec2 uniform) const {
@@ -255,15 +256,15 @@ void Eng3D::OpenGL::Program::set_uniform(const std::string& name, glm::vec4 unif
 }
 
 void Eng3D::OpenGL::Program::set_uniform(const std::string& name, float value1, float value2, float value3, float value4) const {
-    glUniform4f(glGetUniformLocation(id, name.c_str()), value1, value2, value3, value4);
+    glProgramUniform4f(id, glGetUniformLocation(id, name.c_str()), value1, value2, value3, value4);
 }
 
 void Eng3D::OpenGL::Program::set_uniform(const std::string& name, float value) const {
-    glUniform1f(glGetUniformLocation(id, name.c_str()), value);
+    glProgramUniform1f(id, glGetUniformLocation(id, name.c_str()), value);
 }
 
 void Eng3D::OpenGL::Program::set_uniform(const std::string& name, int value) const {
-    glUniform1i(glGetUniformLocation(id, name.c_str()), value);
+    glProgramUniform1i(id, glGetUniformLocation(id, name.c_str()), value);
 }
 
 /// @brief Sets the texture (sampler2D) into the shader
