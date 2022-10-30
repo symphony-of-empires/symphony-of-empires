@@ -140,7 +140,7 @@ vec2 get_diff(vec4 v) {
 
 /// @brief Returns a vec4
 /// First 2 values is if there is a province and country or border
-/// Last 2 values is if it the current tile is suppose to be on the other side of the diagonal 
+/// Last 2 values is if it the current tile is suppose to be on the other side of the diagonal
 vec4 get_border(vec2 texcoord) {
 	// Pixel size on map texture
 	vec2 pix = vec2(1.0) / map_size;
@@ -284,46 +284,99 @@ float get_grid(vec2 tex_coords) {
 	return max(grid.x, grid.y);
 }
 
+float get_noise(vec2 tex_coords) {
+#ifdef NOISE
+	return texture(noise_texture, 25.0 * tex_coords).r;
+#else
+	return 1.;
+#endif
+}
+
+#ifdef CITY_LIGHTS
+float get_city_light(vec2 tex_coords, float is_diag, float is_water) {
+	vec2 diag_coords = get_diag_coords(tex_coords, is_diag);
+	vec2 coord = texture(terrain_map, diag_coords).xy;
+	vec2 prov_color_coord = coord * vec2(255.0 / 256.0);
+	// Province density for determining density of cities
+	float prov_density = 1.;//smoothstep(0.1, 1., texture(province_opt, prov_color_coord).g);
+	// Multiplying noise by itself allows for intensifying certain spots
+	float noise = pow(get_noise(tex_coords), 10.) * 10.;
+	// Prevent displaying cities on mountains
+	float normal = step(0.25, texture(normal, tex_coords).r * texture(normal, tex_coords).g);
+	float city_light = normal * noise * prov_density * abs(1. - is_water);
+	return city_light;
+}
+#endif
+
+mat4 rotationMatrix(vec3 axis, float angle) {
+    axis = normalize(axis);
+    float s = sin(angle);
+    float c = cos(angle);
+    float oc = 1.0 - c;
+    
+    return mat4(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
+                oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
+                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
+                0.0,                                0.0,                                0.0,                                1.0);
+}
+
+vec3 rotate(vec3 v, vec3 axis, float angle) {
+	mat4 m = rotationMatrix(axis, angle);
+	return (m * vec4(v, 1.0)).xyz;
+}
+
+vec4 get_sun_position(vec3 earth_pos) {
+	mat4 rotation = mat4(
+		vec4(1., 0., 0., 0.),
+		vec4(0., 1., 0., 0.),
+		vec4(0., 0., 1., 0.),
+		vec4(cos(time), sin(time), 0., 1.)
+	);
+	return vec4(earth_pos, 1.) * rotation;
+}
+
 /// @brief Ambient, diffuse and specular lighting
-float get_lighting(vec2 tex_coords, float beach) {
+vec3 get_lighting(vec3 out_color, vec2 tex_coords, float beach, float is_diag) {
 #ifdef LIGHTING
 	// The non directional lighting
-	const float ambient = 0.1;
+	vec3 ambient = vec3(0.2, 0.2, 0.3);
+	vec3 light_color = vec3(0.7, 0.8, 1.);
 
 	float far_from_map = smoothstep(65.0, 75.0, dist_to_map * 1000.0);
-	vec3 view_dir = normalize(view_pos - v_frag_pos);
-	vec3 light_dir = normalize(vec3(0, 0, -1));
+	vec3 light_dir = normalize(rotate(vec3(0., 0., 1000.), vec3(cos(time), sin(time), 0.), 27.));
+	vec3 view_dir = normalize(v_view_pos - v_frag_pos);
 
 	// Get the normal
 	vec3 normal = texture(normal, tex_coords).xyz;
-	normal = normal * 2.0 - 1.0;
-	normal.xy *= mix(0.7, 0.2, far_from_map);
-	normal = normalize(normal);
-	normal.z *= -1;
 	float is_water = step(1., beach);
 #ifdef WATER
 	vec3 water_normal = get_water_normal(time, wave1, wave2, tex_coords);
-	normal = mix(normal, water_normal, is_water * (1. - far_from_map));
-	normal = normalize(normal);
+	normal = mix(normal, water_normal, is_water);
 #endif
+	normal = normalize(normal);
 
 	// The bump mapping
-	float diffuse = max(dot(light_dir, normal), 0.0);
-	diffuse *= mix(0.5, 1., far_from_map);
+	float diff = max(dot(light_dir, normal), 0.0);
+	vec3 diffuse = diff * light_color;
+
+	vec3 reflectDir = reflect(-light_dir, normal);
 
 	// The shiny directional light
-	float water_shine = mix(256., 64., far_from_map);
-	float shininess = is_water == 1. ? water_shine : 8.;
-	float specularStrength = (is_water == 1. ? 1. : 1.) * 5.;
-	vec3 reflectDir = reflect(-light_dir, normal);
-	float spec = pow(max(dot(view_dir, reflectDir), 0.0), shininess);
-	float specular = specularStrength * spec;
+	float shininess = is_water == 1. ? 8. : 8.;
+	float specularStrength = 1.;
+	float reflect_strength = max(dot(view_dir, reflectDir), 0.0);
+	float spec = pow(reflect_strength, shininess);
+	vec3 specular = specularStrength * spec * light_color;
 
-	float light = ambient + diffuse + specular;	
-	return light;
-#else
-	return 1.0;
+	out_color = (ambient + diffuse + specular) * out_color;
+#ifdef CITY_LIGHTS
+	//if(reflect_strength < 0.5) {
+	//	float city_light = get_city_light(tex_coords, is_diag, beach);
+	//	out_color = mix(out_color, city_light_col, city_light);
+	//}
 #endif
+#endif
+	return out_color;
 }
 
 void distance_effect(inout vec3 out_color, inout vec3 water, vec3 prov_color, vec2 tex_coords, float far_from_map) {
@@ -379,42 +432,11 @@ vec3 get_paper_water(vec3 water, float far_from_map, vec2 tex_coords) {
 	paper_coords.x *= map_size.y / map_size.x;
 	vec3 paper = texture(paper_tex, 20.*tex_coords).rgb;
 
-	vec3 p_water = mix(paper, paper_col, 0.7); 
-	p_water = mix(p_water, water_col, 0.5); 
+	vec3 p_water = mix(paper, paper_col, 0.7);
+	p_water = mix(p_water, water_col, 0.5);
 	water = mix(water, p_water, far_from_map);
 	return water;
 }
-
-float get_noise(vec2 tex_coords) {
-#ifdef NOISE
-	return texture(noise_texture, 25.0 * tex_coords).r;
-#else
-	return 1.;
-#endif
-}
-
-#ifdef CITY_LIGHTS
-float get_sun_shadow(vec2 tex_coords) {
-	vec3 light_dir = normalize(-vec3(0., 0., 1));
-	vec3 normal = normalize(texture(normal, tex_coords).rgb);
-	float light = max(dot(normal * normalize(v_frag_pos), light_dir), 0.);
-	return light;
-}
-
-float get_city_light(vec2 tex_coords, float sunshadow, float is_diag, float is_water) {
-	vec2 diag_coords = get_diag_coords(tex_coords, is_diag);
-	vec2 coord = texture(terrain_map, diag_coords).xy;
-	vec2 prov_color_coord = coord * vec2(255.0 / 256.0);
-	// Province density for determining density of cities
-	float prov_density = smoothstep(0.1, 1., texture(province_opt, prov_color_coord).g);
-	// Multiplying noise by itself allows for intensifying certain spots
-	float noise = pow(get_noise(tex_coords), 10.) * 10.;
-	// Prevent displaying cities on mountains
-	float normal = step(0.25, texture(normal, tex_coords).r * texture(normal, tex_coords).g);
-	float city_light = sunshadow * normal * noise * prov_density * abs(1. - is_water);
-	return city_light;
-}
-#endif
 
 void main() {
 	vec2 pix = vec2(1.0) / map_size;
@@ -532,15 +554,7 @@ void main() {
 	out_color = out_color * prov_shadow;
 	float light = 1.0;
 #ifdef LIGHTING
-	light = get_lighting(tex_coords, beach) * 1.0;
-	out_color = light * out_color;
-#endif
-
-#ifdef CITY_LIGHTS
-	//float x_dn_step = get_sun_shadow(tex_coords);
-	//out_color = mix(out_color, vec3(0., 0., 0.), x_dn_step);
-	//float city_light = get_city_light(tex_coords, x_dn_step, is_diag, beach);
-	//out_color = mix(out_color, city_light_col, city_light);
+	out_color = get_lighting(out_color, tex_coords, beach, is_diag);
 #endif
 
 	f_frag_color.rgb = pow(out_color, vec3(1.0 / 2.2)); // SRGB -> RGB
