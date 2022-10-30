@@ -245,15 +245,15 @@ void Client::net_loop() {
 
             // Client will also flush it's queue to the server
             while(!packets.empty()) {
-                Eng3D::Networking::Packet packet{};
+                Eng3D::Networking::Packet new_packet{};
                 { // Make clear the lifetime of the lock since send is an expensive operation
                     const std::scoped_lock lock(packets_mutex);
-                    packet = packets.back();
-                    packet.stream = Eng3D::Networking::SocketStream(fd);
+                    new_packet = packets.back();
+                    new_packet.stream = Eng3D::Networking::SocketStream(fd);
                     packets.pop_back();
                 }
-                Eng3D::Log::debug("client", "Sending package of " + std::to_string(packet.size()));
-                packet.send();
+                Eng3D::Log::debug("client", "Sending package of " + std::to_string(new_packet.size()));
+                new_packet.send();
             }
         }
     } catch(ClientException& e) {

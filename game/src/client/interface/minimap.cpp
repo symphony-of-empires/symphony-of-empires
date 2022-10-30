@@ -44,11 +44,11 @@ mapmode_generator goods_map_mode(GoodId id);
 mapmode_generator relations_map_mode(NationId id);
 mapmode_tooltip relations_tooltip(NationId id);
 
-Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
-    : UI::Window(x, y, 400, 200),
+Minimap::Minimap(GameState& _gs, int _x, int _y, UI::Origin _origin)
+    : UI::Window(_x, _y, 400, 200),
     gs{ _gs }
 {
-    this->origin = origin;
+    this->origin = _origin;
     this->is_pinned = true;
     this->is_scroll = false;
     this->padding = glm::ivec2(0, 24);
@@ -76,8 +76,8 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     landscape_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
         mapmode_generator map_mode = terrain_map_mode;
-        mapmode_tooltip tooltip = empty_province_tooltip;
-        this->gs.map->set_map_mode(map_mode, tooltip);
+        mapmode_tooltip map_tooltip = empty_province_tooltip;
+        this->gs.map->set_map_mode(map_mode, map_tooltip);
         set_mapmode_options(nullptr);
     });
     landscape_ibtn->set_tooltip("Terrain");
@@ -86,8 +86,8 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
     political_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
         mapmode_generator map_mode = political_map_mode;
-        mapmode_tooltip tooltip = political_province_tooltip;
-        this->gs.map->set_map_mode(map_mode, tooltip);
+        mapmode_tooltip map_tooltip = political_province_tooltip;
+        this->gs.map->set_map_mode(map_mode, map_tooltip);
         set_mapmode_options(nullptr);
     });
     political_ibtn->set_tooltip("Political");
@@ -98,13 +98,13 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
             if(Nation::is_invalid(province.controller_id)) return;
             NationId nation_id = province.owner_id;
             mapmode_generator map_mode = relations_map_mode(nation_id);
-            mapmode_tooltip tooltip = relations_tooltip(nation_id);
-            map.set_map_mode(map_mode, tooltip);
+            mapmode_tooltip map_tooltip = relations_tooltip(nation_id);
+            map.set_map_mode(map_mode, map_tooltip);
         });
         const auto nation_id = this->gs.curr_nation->get_id();
         mapmode_generator map_mode = relations_map_mode(nation_id);
-        mapmode_tooltip tooltip = relations_tooltip(nation_id);
-        this->gs.map->set_map_mode(map_mode, tooltip);
+        mapmode_tooltip map_tooltip = relations_tooltip(nation_id);
+        this->gs.map->set_map_mode(map_mode, map_tooltip);
         set_mapmode_options(nullptr);
     });
     relations_ibtn->set_tooltip("Relations");
@@ -136,13 +136,13 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
             }
             return province_color;
         };
-        mapmode_tooltip tooltip = [](const World& world, const ProvinceId id) -> std::string {
+        mapmode_tooltip map_tooltip = [](const World& world, const ProvinceId id) -> std::string {
             const auto& province = world.provinces[id];
             if(!province.is_populated()) return "";
             size_t amount = province.total_pops();
             return string_format("%s\nPopulation: %zu", province.name.c_str(), amount);
         };
-        this->gs.map->set_map_mode(map_mode, tooltip);
+        this->gs.map->set_map_mode(map_mode, map_tooltip);
         set_mapmode_options(nullptr);
     });
     population_ibtn->set_tooltip("Population");
@@ -161,10 +161,10 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
             province_color.emplace_back(ProvinceId(-1), Eng3D::Color{}); // Land
             return province_color;
         };
-        mapmode_tooltip tooltip = [](const World& world, const ProvinceId id) -> std::string {
+        mapmode_tooltip map_tooltip = [](const World& world, const ProvinceId id) -> std::string {
             return world.terrain_types[world.provinces[id].terrain_type_id].name;
         };
-        this->gs.map->set_map_mode(map_mode, tooltip);
+        this->gs.map->set_map_mode(map_mode, map_tooltip);
         set_mapmode_options(nullptr);
     });
     terrain_color_ibtn->set_tooltip("Simple terrain");
@@ -197,13 +197,13 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
             province_color.emplace_back((ProvinceId)-1, Eng3D::Color(0.8f, 0.8f, 0.8f)); // Land
             return province_color;
         };
-        mapmode_tooltip tooltip = [](const World& world, const ProvinceId id) -> std::string {
+        mapmode_tooltip map_tooltip = [](const World& world, const ProvinceId id) -> std::string {
             const auto& province = world.provinces[id];
             if(!province.is_populated()) return "";
             const auto it = std::max_element(province.languages.begin(), province.languages.end());
             return world.languages[std::distance(province.languages.begin(), it)].name;
         };
-        this->gs.map->set_map_mode(map_mode, tooltip);
+        this->gs.map->set_map_mode(map_mode, map_tooltip);
         set_mapmode_options(nullptr);
     });
     language_ibtn->set_tooltip("Language diversity");
@@ -236,12 +236,12 @@ Minimap::Minimap(GameState& _gs, int x, int y, UI::Origin origin)
             province_color.emplace_back(ProvinceId(-1), Eng3D::Color(0.8f, 0.8f, 0.8f)); // Land
             return province_color;
         };
-        mapmode_tooltip tooltip = [](const World& world, const ProvinceId id) {
+        mapmode_tooltip map_tooltip = [](const World& world, const ProvinceId id) {
             const auto& province = world.provinces[id];
             const auto it = std::max_element(province.religions.begin(), province.religions.end());
             return world.religions[std::distance(province.religions.begin(), it)].name;
         };
-        this->gs.map->set_map_mode(map_mode, tooltip);
+        this->gs.map->set_map_mode(map_mode, map_tooltip);
         set_mapmode_options(nullptr);
     });
     religion_ibtn->set_tooltip("Religion");
@@ -263,9 +263,9 @@ void Minimap::set_mapmode_options(Widget* widget) {
     mapmode_options = widget;
 }
 
-MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
+MapmodeGoodOptions::MapmodeGoodOptions(GameState& _gs)
     : UI::Div(-200, -100, 200, 200, nullptr),
-    gs{ gs }
+    gs{ _gs }
 {
     this->origin = UI::Origin::MIDDLE_RIGHT_SCREEN;
     this->current_texture = gs.tex_man.load(gs.package_man.get_unique("gfx/window_background.png"));
@@ -291,14 +291,14 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& gs)
         good_div->set_on_click([this, &good](UI::Widget&) {
             this->gs.current_mode = MapMode::NORMAL;
             mapmode_generator map_mode = goods_map_mode(good);
-            mapmode_tooltip tooltip = good_tooltip(good);
-            this->gs.map->set_map_mode(map_mode, tooltip);
+            mapmode_tooltip map_tooltip = good_tooltip(good);
+            this->gs.map->set_map_mode(map_mode, map_tooltip);
         });
     }
 
     mapmode_generator map_mode = goods_map_mode(GoodId(0));
-    mapmode_tooltip tooltip = good_tooltip(GoodId(0));
-    this->gs.map->set_map_mode(map_mode, tooltip);
+    mapmode_tooltip map_tooltip = good_tooltip(GoodId(0));
+    this->gs.map->set_map_mode(map_mode, map_tooltip);
 }
 
 mapmode_tooltip good_tooltip(GoodId good_id) {
@@ -412,8 +412,8 @@ mapmode_tooltip relations_tooltip(NationId nation_id) {
             size_t idx = ((static_cast<float>(relation.relation) + 100.f) / 200.f) * rel_lvls.size();
             str += string_format("\n%.2f - %s", relation.relation, rel_lvls[idx % rel_lvls.size()].c_str());
 
-            nation.get_allies([&](const auto& nation) {
-                str += string_format("%s,", nation.get_client_hint().name.c_str());
+            nation.get_allies([&](const auto& _nation) {
+                str += string_format("%s,", _nation.get_client_hint().name.c_str());
             });
         }
         return str;

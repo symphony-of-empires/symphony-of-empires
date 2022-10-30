@@ -49,8 +49,8 @@ Eng3D::Interface::ProfilerView::ProfilerView(Eng3D::State& _s, Eng3D::Profiler& 
     float fps = this->profiler.get_fps();
     auto& fps_lab = this->add_child2<UI::Label>(10, 0, "FPS: " + std::to_string((int)fps));
     fps_lab.on_update = ([this](UI::Widget& w) {
-        float fps = this->profiler.get_fps();
-        w.text("FPS: " + std::to_string((int)fps));
+        float current_fps = this->profiler.get_fps();
+        w.text("FPS: " + std::to_string((int)current_fps));
     });
 
     std::vector<UI::ChartData> data{};
@@ -61,33 +61,33 @@ Eng3D::Interface::ProfilerView::ProfilerView(Eng3D::State& _s, Eng3D::Profiler& 
     auto& task_chart = this->add_child2<UI::BarChart>(20, 20, this->width - 40, 20);
     task_chart.on_update = ([this](UI::Widget& w) {
         auto& chart = static_cast<UI::BarChart&>(w);
-        std::vector<UI::ChartData> data;
-        auto tasks = this->profiler.get_tasks();
-        for(auto& task : tasks) {
+        std::vector<UI::ChartData> current_data;
+        auto current_tasks = this->profiler.get_tasks();
+        for(auto& task : current_tasks) {
             float time = task->get_average_time_ms();
-            data.push_back(UI::ChartData(time, task->name, Eng3D::Color::get_random(task->color).get_value()));
+            current_data.push_back(UI::ChartData(time, task->name, Eng3D::Color::get_random(task->color).get_value()));
         }
-        chart.set_data(data);
+        chart.set_data(current_data);
     });
 
     this->on_update = ([this](UI::Widget&) {
-        auto tasks = this->profiler.get_tasks();
-        auto& task_views = this->task_views;
-        if(task_views.size() < tasks.size()) {
-            for(size_t i = task_views.size(); i < tasks.size(); i++)
-                task_views.push_back(new ProfilerTaskView(this, 10, 50 + i * 25));
-        } else if(task_views.size() > tasks.size()) {
-            for(size_t i = tasks.size(); i < task_views.size(); i++)
-                task_views[i]->kill();
-            task_views.erase(task_views.begin() + tasks.size(), task_views.end());
+        auto current_tasks = this->profiler.get_tasks();
+        auto& current_views = this->task_views;
+        if(current_views.size() < current_tasks.size()) {
+            for(size_t i = current_views.size(); i < current_tasks.size(); i++)
+                current_views.push_back(new ProfilerTaskView(this, 10, 50 + i * 25));
+        } else if(current_views.size() > current_tasks.size()) {
+            for(size_t i = current_tasks.size(); i < current_views.size(); i++)
+                current_views[i]->kill();
+            current_views.erase(current_views.begin() + current_tasks.size(), current_views.end());
         }
-        for(size_t i = 0; i < task_views.size(); i++)
-            task_views[i]->set_task(*tasks[i]);
+        for(size_t i = 0; i < current_views.size(); i++)
+            current_views[i]->set_task(*current_tasks[i]);
     });
 }
 
-Eng3D::Interface::ProfilerTaskView::ProfilerTaskView(ProfilerView* profiler_view, int x, int y):
-    UI::Group(x, y, 300, 25, profiler_view)
+Eng3D::Interface::ProfilerTaskView::ProfilerTaskView(ProfilerView* profiler_view, int _x, int _y):
+    UI::Group(_x, _y, 300, 25, profiler_view)
 {
     this->color_box = &this->add_child2<UI::Div>(0, 0, 20, 20);
     this->label = &this->add_child2<UI::Label>(30, 0, " ");

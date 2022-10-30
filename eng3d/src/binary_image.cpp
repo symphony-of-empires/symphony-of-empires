@@ -84,6 +84,5 @@ void Eng3D::BinaryImage::from_file(const Eng3D::IO::Path& path) {
 void Eng3D::BinaryImage::to_file(const std::string& filename) {
     int channel_count = bpp == 32 ? 4 : bpp == 16 ? 2 : bpp == 8 ? 1 : 0;
     int stride = channel_count * width;
-    int data_size = stride * height;
     stbi_write_png(filename.c_str(), width, height, channel_count, buffer.get(), stride);
 }

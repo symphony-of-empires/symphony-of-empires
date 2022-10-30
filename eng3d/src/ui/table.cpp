@@ -78,8 +78,7 @@ UI::TableRow::TableRow(int _width, int _height, std::vector<int>& _columns_width
 
     glm::ivec2 size(5, 5);
     glm::ivec2 texture_size(63, 63);
-    auto border = UI::Border(nullptr, size, texture_size);
-    this->border = border;
+    this->border = UI::Border(nullptr, size, texture_size);
     this->on_pos_recalc = [this](UI::Widget&, int index) {
         auto& s = Eng3D::State::get_instance();
         auto& tex_man = s.tex_man;

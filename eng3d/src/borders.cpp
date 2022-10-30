@@ -39,6 +39,7 @@
 Eng3D::Borders::Borders(Eng3D::State& _s, bool lazy_init)
     : s{ _s }
 {
+
     Eng3D::TextureOptions mipmap_options{};
     mipmap_options.wrap_s = Eng3D::TextureOptions::Wrap::REPEAT;
     mipmap_options.wrap_t = Eng3D::TextureOptions::Wrap::REPEAT;
@@ -68,11 +69,11 @@ class BorderGenerator {
     const uint32_t* pixels;
     int width;
     int height;
-    BorderGenerator(std::vector<std::vector<glm::vec3>>& borders, const uint32_t* pixels, int width, int height)
-        : borders{ borders },
-        pixels{ pixels },
-        width{ width },
-        height{ height }
+    BorderGenerator(std::vector<std::vector<glm::vec3>>& _borders, const uint32_t* _pixels, int _width, int _height)
+        : borders{ _borders },
+        pixels{ _pixels },
+        width{ _width },
+        height{ _height }
     {
 
     }
@@ -91,7 +92,7 @@ class BorderGenerator {
         return false;
     }
 
-    void add_neighbor(int prev_x, int prev_y, int new_x, int new_y, int direction, int& connections) {
+    void add_neighbor(int prev_x, int prev_y, int new_x, int new_y, int& connections) {
         if(check_neighbor(new_x, new_y)) {
             int old_index = prev_x + prev_y * width;
             int new_index = new_x + new_y * width;
@@ -113,10 +114,10 @@ class BorderGenerator {
         auto& current_river = borders.back();
         current_river.push_back(glm::vec3(x + 1.f, y + 1.f, -0.05));
 
-        add_neighbor(x, y, x - 1, y + 0, 0, connections);
-        add_neighbor(x, y, x + 1, y + 0, 1, connections);
-        add_neighbor(x, y, x + 0, y + 1, 2, connections);
-        add_neighbor(x, y, x + 0, y - 1, 3, connections);
+        add_neighbor(x, y, x - 1, y + 0, connections);
+        add_neighbor(x, y, x + 1, y + 0, connections);
+        add_neighbor(x, y, x + 0, y + 1, connections);
+        add_neighbor(x, y, x + 0, y - 1, connections);
     }
 
     void clear_stack() {

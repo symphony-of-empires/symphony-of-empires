@@ -36,7 +36,7 @@ ENDIF()
 # Compilation flags
 #
 IF(NOT MSVC)
-	set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS}")
+	set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic -Wshadow ${CMAKE_CXX_FLAGS}")
 ENDIF()
 IF(UNIT_TEST)
 	add_definitions(-DUNIT_TEST=1)

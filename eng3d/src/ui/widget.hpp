@@ -175,7 +175,7 @@ namespace UI {
     /// instead use one of the many derivated widgets - unless you're making a new widget type.
     class Widget {
         void recalc_child_pos();
-        void draw_border(Border& border, Eng3D::Rect viewport);
+        void draw_border(Eng3D::Rect viewport);
 
         /// @brief Recursively notify parents of the dead widgets, since the UI context
         /// will only clear widgets which have a dead child.

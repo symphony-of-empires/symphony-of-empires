@@ -122,7 +122,7 @@ void Widget::draw_rect(const Eng3D::Texture* tex, Eng3D::Rect rect_pos, Eng3D::R
     Eng3D::Square(rect_pos, rect_tex).draw();
 }
 
-void Widget::draw_border(Border& border, Eng3D::Rect viewport) {
+void Widget::draw_border(Eng3D::Rect viewport) {
     float x_offset = border.offset.x;
     float y_offset = border.offset.y;
     float b_w = border.size.x;
@@ -251,7 +251,7 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
     if(type == UI::WidgetType::WINDOW)
         draw_rectangle(0, 0, width, 24, viewport, ctx.window_top.get());
     if(border.texture != nullptr)
-        draw_border(border, viewport);
+        draw_border(viewport);
 
     if(text_texture.get() != nullptr) {
         int x_offset = text_offset_x;

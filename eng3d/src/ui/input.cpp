@@ -37,8 +37,8 @@
 #include "eng3d/rectangle.hpp"
 #include "eng3d/state.hpp"
 
-UI::Input::Input(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
-    : Widget(_parent, _x, _y, w, h, UI::WidgetType::INPUT)
+UI::Input::Input(int _x, int _y, unsigned _w, unsigned _h, Widget* _parent)
+    : Widget(_parent, _x, _y, _w, _h, UI::WidgetType::INPUT)
 {
     this->on_textinput = ([](UI::Input& w, const char* input) {
         // Carefully convert into UTF32 then back into UTF8 so we don't have to
@@ -56,9 +56,9 @@ UI::Input::Input(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
         w.buffer = conv_utf8_utf32.to_bytes(unicode_text);
         w.text(w.buffer.empty() ? " " : w.buffer);
     });
-    this->set_on_click((UI::Callback)&UI::Input::on_click_default);
-    this->on_click_outside = (UI::Callback)&UI::Input::on_click_outside_default;
-    this->on_update = (UI::Callback)&UI::Input::on_update_default;
+    this->set_on_click(&UI::Input::on_click_default);
+    this->on_click_outside = &UI::Input::on_click_outside_default;
+    this->on_update = &UI::Input::on_update_default;
 }
 
 void UI::Input::set_buffer(const std::string& _buffer) {
@@ -74,27 +74,30 @@ std::string UI::Input::get_buffer() const {
     return buffer;
 }
 
-void UI::Input::on_click_default(UI::Input& w) {
-    w.is_selected = true;
+void UI::Input::on_click_default(UI::Widget& w) {
+    auto &input = static_cast<UI::Input&>(w);
+    input.is_selected = true;
 }
 
-void UI::Input::on_click_outside_default(UI::Input& w) {
-    if(w.is_selected)
-        w.text(w.buffer);
-    w.is_selected = false;
+void UI::Input::on_click_outside_default(UI::Widget& w) {
+    auto &input = static_cast<UI::Input&>(w);
+    if(input.is_selected)
+        input.text(input.buffer);
+    input.is_selected = false;
 }
 
-void UI::Input::on_update_default(UI::Input& w) {
+void UI::Input::on_update_default(UI::Widget& w) {
+    auto &input = static_cast<UI::Input&>(w);
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
-    std::u32string unicode_text = conv_utf8_utf32.from_bytes(w.buffer);
-    if(w.curpos == unicode_text.length()) {
-        w.timer = (w.timer + 1) % 30;
-        const std::string cursor = w.timer >= 10 ? "_" : "";
-        if(w.is_selected && w.timer % 30 == 0) {
-            if(!w.buffer.empty()) {
-                w.text(w.buffer + cursor);
+    std::u32string unicode_text = conv_utf8_utf32.from_bytes(input.buffer);
+    if(input.curpos == unicode_text.length()) {
+        input.timer = (input.timer + 1) % 30;
+        const std::string cursor = input.timer >= 10 ? "_" : "";
+        if(input.is_selected && input.timer % 30 == 0) {
+            if(!input.buffer.empty()) {
+                input.text(input.buffer + cursor);
             } else if(!cursor.empty()) {
-                w.text(cursor);
+                input.text(cursor);
             }
         }
     }

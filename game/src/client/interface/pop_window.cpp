@@ -31,9 +31,9 @@
 #include "pop.hpp"
 #include "world.hpp"
 
-Interface::PopWindow::PopWindow(GameState& gs)
+Interface::PopWindow::PopWindow(GameState& _gs)
     : UI::Window(-400, -400, 0, 800),
-    gs{ gs }
+    gs{ _gs }
 {
     this->origin = UI::Origin::CENTER_SCREEN;
     this->text("Population");
@@ -62,17 +62,17 @@ Interface::PopWindow::PopWindow(GameState& gs)
                 auto& row = table->get_row(id);
                 size_t row_index = 0;
 
-                auto size = row.get_element(row_index++);
-                size->text(string_format("%.0f", pop.size));
-                size->set_key(pop.size);
+                auto size_label = row.get_element(row_index++);
+                size_label->text(string_format("%.0f", pop.size));
+                size_label->set_key(pop.size);
 
                 auto prov_name = row.get_element(row_index++);
                 prov_name->text(province.name);
                 prov_name->set_key(province.name);
 
-                auto type = row.get_element(row_index++);
-                type->text(this->gs.world->pop_types[pop.type_id].name);
-                type->set_key(this->gs.world->pop_types[pop.type_id].name);
+                auto type_lable = row.get_element(row_index++);
+                type_lable->text(this->gs.world->pop_types[pop.type_id].name);
+                type_lable->set_key(this->gs.world->pop_types[pop.type_id].name);
 
                 auto militancy = row.get_element(row_index++);
                 militancy->text(string_format("%1.2f", pop.militancy));

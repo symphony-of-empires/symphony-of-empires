@@ -41,8 +41,8 @@
 
 using namespace Interface;
 
-ArmyUnitsTab::ArmyUnitsTab(GameState& _gs, int x, int y, std::function<bool(Unit& unit)> filter, UI::Widget* parent)
-    : UI::Group(x, y, parent->width - x, parent->height - y, parent),
+ArmyUnitsTab::ArmyUnitsTab(GameState& _gs, int _x, int _y, std::function<bool(Unit& unit)> filter, UI::Widget* _parent)
+    : UI::Group(_x, _y, _parent->width - _x, _parent->height - _y, _parent),
     gs{ _gs }
 {
     auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
@@ -51,16 +51,16 @@ ArmyUnitsTab::ArmyUnitsTab(GameState& _gs, int x, int y, std::function<bool(Unit
         if(!filter || !filter(unit)) return;
         auto* btn = new UI::Button(0, 0, this->width, 24, flex_column);
         btn->set_on_each_tick([this, unit_id = unit.get_id()](UI::Widget& w) {
-            const auto& unit = this->gs.world->unit_manager.units[unit_id];
-            const auto& type = this->gs.world->unit_types[unit.type_id];
-            w.text(string_format("%zu %s", unit.size, type.name.c_str()));
+            const auto& current_unit = this->gs.world->unit_manager.units[unit_id];
+            const auto& current_type = this->gs.world->unit_types[current_unit.type_id];
+            w.text(string_format("%zu %s", current_unit.size, current_type.name.c_str()));
         });
         btn->on_each_tick(*btn);
     });
 }
 
-ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* parent)
-    : UI::Group(x, y, parent->width - x, parent->height, parent),
+ArmyProductionTab::ArmyProductionTab(GameState& _gs, int _x, int _y, UI::Widget* _parent)
+    : UI::Group(_x, _y, _parent->width - _x, _parent->height, _parent),
     gs{ _gs }
 {
     this->is_scroll = true;
@@ -107,8 +107,8 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int x, int y, UI::Widget* p
     }
 }
 
-ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, ProvinceId _province_id, size_t _idx, UI::Widget* parent)
-    : UI::Group(x, y, parent->width - x, 48, parent),
+ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int _x, int _y, ProvinceId _province_id, size_t _idx, UI::Widget* _parent)
+    : UI::Group(_x, _y, _parent->width - _x, 48, _parent),
     gs{ _gs },
     province_id{ _province_id },
     idx{ _idx }
@@ -125,30 +125,30 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int x, int y, Pro
 
     auto* province_lab = new UI::Label(0, 0, "?", this);
     province_lab->set_on_each_tick([this](UI::Widget& w) {
-        const auto& province = gs.world->provinces[province_id];
-        w.text(province.name);
+        const auto& current_province = gs.world->provinces[province_id];
+        w.text(current_province.name);
     });
     province_lab->on_each_tick(*province_lab);
 
     auto* name_lab = new UI::Label(0, 0, "?", this);
     name_lab->set_on_each_tick([this](UI::Widget& w) {
-        const auto& province = gs.world->provinces[province_id];
-        auto& building = province.get_buildings()[this->idx];
-        w.text(UnitType::is_valid(building.working_unit_type_id) ? this->gs.world->unit_types[building.working_unit_type_id].name : translate("No unit"));
+        const auto& current_province = gs.world->provinces[province_id];
+        auto& current_building = current_province.get_buildings()[this->idx];
+        w.text(UnitType::is_valid(current_building.working_unit_type_id) ? this->gs.world->unit_types[current_building.working_unit_type_id].name : translate("No unit"));
     });
     name_lab->on_each_tick(*name_lab);
 
     auto* progress_pgbar = new UI::ProgressBar(0, 0, 128, 24, 0.f, 1.f, this);
     progress_pgbar->set_on_each_tick([this](UI::Widget& _w) {
         auto& w = static_cast<UI::ProgressBar&>(_w);
-        const auto& province = gs.world->provinces[province_id];
-        auto& building = province.get_buildings()[this->idx];
-        if(UnitType::is_invalid(building.working_unit_type_id)) return;
+        const auto& c_province = gs.world->provinces[province_id];
+        auto& c_building = c_province.get_buildings()[this->idx];
+        if(UnitType::is_invalid(c_building.working_unit_type_id)) return;
         auto full = 0.f, needed = 0.f;
         std::string text;
-        for(size_t i = 0; i < building.req_goods_for_unit.size(); i++) {
-            auto need_req = building.req_goods_for_unit[i];
-            auto full_req = this->gs.world->unit_types[building.working_unit_type_id].req_goods[i];
+        for(size_t i = 0; i < c_building.req_goods_for_unit.size(); i++) {
+            auto need_req = c_building.req_goods_for_unit[i];
+            auto full_req = this->gs.world->unit_types[c_building.working_unit_type_id].req_goods[i];
             full += full_req.second;
             needed += need_req.second;
             text += translate_format("Requires %.2f of %s (has %.2f)", need_req.second, this->gs.world->goods[need_req.first].name.c_str(), full_req.second);
@@ -182,8 +182,8 @@ ArmyView::ArmyView(GameState& _gs)
         this->units_tab->is_render = true;
         this->units_tab->kill();
         this->units_tab = new ArmyUnitsTab(gs, 0, 32, [this](Unit& unit) {
-            auto& type = this->gs.world->unit_types[unit.type_id];
-            return unit.owner_id == *this->gs.curr_nation && type.is_ground && !type.is_naval;
+            auto& current_type = this->gs.world->unit_types[unit.type_id];
+            return unit.owner_id == *this->gs.curr_nation && current_type.is_ground && !current_type.is_naval;
         }, this);
         this->production_tab->is_render = false;
     });
@@ -195,8 +195,8 @@ ArmyView::ArmyView(GameState& _gs)
         this->units_tab->is_render = true;
         this->units_tab->kill();
         this->units_tab = new ArmyUnitsTab(gs, 0, 32, [this](Unit& unit) {
-            auto& type = this->gs.world->unit_types[unit.type_id];
-            return unit.owner_id == *this->gs.curr_nation && !type.is_ground && !type.is_naval;
+            auto& current_type = this->gs.world->unit_types[unit.type_id];
+            return unit.owner_id == *this->gs.curr_nation && !current_type.is_ground && !current_type.is_naval;
         }, this);
         this->production_tab->is_render = false;
     });
@@ -208,8 +208,8 @@ ArmyView::ArmyView(GameState& _gs)
         this->units_tab->is_render = true;
         this->units_tab->kill();
         this->units_tab = new ArmyUnitsTab(gs, 0, 32, [this](Unit& unit) {
-            auto& type = this->gs.world->unit_types[unit.type_id];
-            return unit.owner_id == *this->gs.curr_nation && !type.is_ground && type.is_naval;
+            auto& current_type = this->gs.world->unit_types[unit.type_id];
+            return unit.owner_id == *this->gs.curr_nation && !current_type.is_ground && current_type.is_naval;
         }, this);
         this->production_tab->is_render = false;
     });

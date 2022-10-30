@@ -36,11 +36,10 @@
 /// @param asset 
 /// @return std::string 
 std::string Eng3D::IO::Asset::Base::get_abs_path() const {
-    std::string path = this->abs_path;
 #ifdef E3D_TARGET_WINDOWS
-    std::replace(path.begin(), path.end(), '/', '\\');
+    std::replace(abs_path.begin(), abs_path.end(), '/', '\\');
 #endif
-    return path;
+    return abs_path;
 }
 
 //

@@ -103,8 +103,8 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     this->is_pinned = true;
     this->is_scroll = false;
     
-    auto font = gs.ttf_man.load(gs.package_man.get_unique("fonts/neon_euler/euler.ttf"));
-    auto text_color = Eng3D::Color(1.f, 1.f, 1.f);
+    auto menu_font = gs.ttf_man.load(gs.package_man.get_unique("fonts/neon_euler/euler.ttf"));
+    auto menu_text_color = Eng3D::Color(1.f, 1.f, 1.f);
 
     this->current_texture = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/bg/main_menu.png"));
     auto main_menu_border = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/bg/main_menu_border.png"));
@@ -128,8 +128,8 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     auto* demo_btn = new UI::Button(0, 0, b_width, b_height, button_list);
     demo_btn->border = button_border;
     demo_btn->current_texture = button_image;
-    demo_btn->font = font;
-    demo_btn->text_color = text_color;
+    demo_btn->font = menu_font;
+    demo_btn->text_color = menu_text_color;
     demo_btn->text_align_x = UI::Align::CENTER;
     demo_btn->text_align_y = UI::Align::CENTER;
     demo_btn->text("Pre-alpha demo");
@@ -165,8 +165,8 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     auto* single_btn = new UI::Button(0, 0, b_width, b_height, button_list);
     single_btn->border = button_border;
     single_btn->current_texture = button_image;
-    single_btn->font = font;
-    single_btn->text_color = text_color;
+    single_btn->font = menu_font;
+    single_btn->text_color = menu_text_color;
     single_btn->text_align_x = UI::Align::CENTER;
     single_btn->text_align_y = UI::Align::CENTER;
     single_btn->text("Singleplayer");
@@ -181,8 +181,8 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     auto* mp_btn = new UI::Button(0, 0, b_width, b_height, button_list);
     mp_btn->border = button_border;
     mp_btn->current_texture = button_image;
-    mp_btn->font = font;
-    mp_btn->text_color = text_color;
+    mp_btn->font = menu_font;
+    mp_btn->text_color = menu_text_color;
     mp_btn->text_align_x = UI::Align::CENTER;
     mp_btn->text_align_y = UI::Align::CENTER;
     mp_btn->text("Multiplayer");
@@ -193,8 +193,8 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     auto* host_btn = new UI::Button(0, 0, b_width, b_height, button_list);
     host_btn->border = button_border;
     host_btn->current_texture = button_image;
-    host_btn->font = font;
-    host_btn->text_color = text_color;
+    host_btn->font = menu_font;
+    host_btn->text_color = menu_text_color;
     host_btn->text_align_x = UI::Align::CENTER;
     host_btn->text_align_y = UI::Align::CENTER;
     host_btn->text("Host");
@@ -209,8 +209,8 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     auto* edit_btn = new UI::Button(0, 0, b_width, b_height, button_list);
     edit_btn->border = button_border;
     edit_btn->current_texture = button_image;
-    edit_btn->font = font;
-    edit_btn->text_color = text_color;
+    edit_btn->font = menu_font;
+    edit_btn->text_color = menu_text_color;
     edit_btn->text_align_x = UI::Align::CENTER;
     edit_btn->text_align_y = UI::Align::CENTER;
     edit_btn->text("Editor");
@@ -229,8 +229,8 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     auto* cfg_btn = new UI::Button(0, 0, b_width, b_height, button_list);
     cfg_btn->border = button_border;
     cfg_btn->current_texture = button_image;
-    cfg_btn->font = font;
-    cfg_btn->text_color = text_color;
+    cfg_btn->font = menu_font;
+    cfg_btn->text_color = menu_text_color;
     cfg_btn->text_align_x = UI::Align::CENTER;
     cfg_btn->text_align_y = UI::Align::CENTER;
     cfg_btn->text("Settings");
@@ -241,10 +241,10 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     auto* exit_btn = new UI::Button(-75, -60, 150, b_height, this);
     exit_btn->border = button_border;
     exit_btn->current_texture = button_image;
-    exit_btn->font = font;
+    exit_btn->font = menu_font;
     exit_btn->text_align_x = UI::Align::CENTER;
     exit_btn->text_align_y = UI::Align::CENTER;
-    exit_btn->text_color = text_color;
+    exit_btn->text_color = menu_text_color;
     exit_btn->origin = UI::Origin::LOWER_MIDDLE;
     exit_btn->text("Exit");
     exit_btn->set_on_click([this](UI::Widget&) {

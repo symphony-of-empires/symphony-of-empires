@@ -73,7 +73,7 @@ namespace UI {
         bool check_drag_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset);
         bool check_wheel_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, int y);
         // Render the widget and it's children
-        void render_recursive(UI::Widget& widget, glm::mat4 model, Eng3D::Rect viewport, glm::ivec2 offset);
+        void render_recursive(UI::Widget& widget, Eng3D::Rect viewport, glm::ivec2 offset);
         int do_tick_recursive(UI::Widget& w);
         void clear_dead_recursive(UI::Widget& w);
 

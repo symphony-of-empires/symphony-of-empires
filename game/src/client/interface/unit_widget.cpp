@@ -38,8 +38,8 @@
 
 using namespace Interface;
 
-UnitWidget::UnitWidget(Map& _map, GameState& _gs, UI::Widget* parent)
-    : UI::Div(0, 0, 100, 30, parent),
+UnitWidget::UnitWidget(Map& _map, GameState& _gs, UI::Widget* _parent)
+    : UI::Div(0, 0, 100, 30, _parent),
     map{ _map },
     gs{ _gs }
 {
@@ -142,23 +142,23 @@ UnitView::UnitView(GameState& _gs, Unit& _unit)
 
     auto* size_lab = new UI::Label(0, 0, " ", flex_column);
     size_lab->set_on_each_tick([this](UI::Widget& w) {
-        auto& unit = this->gs.world->unit_manager.units[this->unit_id];
-        w.text(Eng3D::translate_format("Size: %.0f", unit.size));
+        auto& current_unit = this->gs.world->unit_manager.units[this->unit_id];
+        w.text(Eng3D::translate_format("Size: %.0f", current_unit.size));
     });
     size_lab->on_each_tick(*size_lab);
 
     auto* experience_lab = new UI::Label(0, 0, " ", flex_column);
     experience_lab->set_on_each_tick([this](UI::Widget& w) {
-        auto& unit = this->gs.world->unit_manager.units[this->unit_id];
-        w.text(Eng3D::translate_format("Experience: %.2f", unit.experience));
+        auto& current_unit = this->gs.world->unit_manager.units[this->unit_id];
+        w.text(Eng3D::translate_format("Experience: %.2f", current_unit.experience));
     });
     experience_lab->on_each_tick(*experience_lab);
 
     auto* attdef_lab = new UI::Label(0, 0, " ", flex_column);
     attdef_lab->set_on_each_tick([this](UI::Widget& w) {
-        auto& unit = this->gs.world->unit_manager.units[this->unit_id];
-        auto& type = this->gs.world->unit_types[unit.type_id];
-        w.text(Eng3D::translate_format("Attack/Defense: %.2f/%.2f", type.attack, type.defense));
+        auto& current_unit = this->gs.world->unit_manager.units[this->unit_id];
+        auto& current_type = this->gs.world->unit_types[current_unit.type_id];
+        w.text(Eng3D::translate_format("Attack/Defense: %.2f/%.2f", current_type.attack, current_type.defense));
     });
     attdef_lab->on_each_tick(*attdef_lab);
 }

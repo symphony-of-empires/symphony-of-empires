@@ -77,11 +77,11 @@ namespace std {
 template<typename It>
 class Range
 {
-    It b, e;
+    It _b, _e;
 public:
-    Range(It b, It e) : b(b), e(e) {}
-    It begin() const { return b; }
-    It end() const { return e; }
+    Range(It b, It e) : _b(b), _e(e) {}
+    It begin() const { return _b; }
+    It end() const { return _e; }
 };
 
 template<typename ORange, typename OIt = decltype(std::begin(std::declval<ORange>())), typename It = std::reverse_iterator<OIt>>
