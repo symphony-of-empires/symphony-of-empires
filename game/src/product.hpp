@@ -52,13 +52,19 @@ struct Serializer<Good> {
 
 /// @brief A product (based off a Good) which can be bought by POPs, converted by factories and transported
 struct Product : Entity<ProductId> {
-    void close_market() {
+    static constexpr float get_price_delta(float supply, float demand) {
         constexpr auto price_elasticity = 0.01f;
-        
+        if(supply == 0.f || demand == 0.f)
+            return price_elasticity * price_elasticity * (demand - supply);
+        const auto sd_ratio = supply / demand;
+        return price_elasticity * (1.f - sd_ratio);
+    }
+
+    void close_market() {
         // TODO: Supply should **never** be negative
         this->supply = glm::max(this->supply, 0.f);
         // Increase price with more demand
-        this->price_delta += price_elasticity * (this->demand - this->supply);
+        this->price_delta = this->get_price_delta(this->supply, this->demand);
 
         // Set the new price
         this->price = glm::clamp(this->price + this->price_delta, glm::epsilon<float>(), 100'000.f);

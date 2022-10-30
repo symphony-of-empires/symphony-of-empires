@@ -71,8 +71,8 @@ struct NewUnit {
     }
 };
 
-constexpr auto scale_speed(auto c, auto target, auto friction) {
-    friction = glm::clamp(friction, 0.f, 1.f);
+constexpr auto scale_speed(auto c, auto target) {
+    constexpr auto friction = 0.1f;
     return (c * (1.f - friction)) + friction * target;
 }
 
@@ -87,8 +87,7 @@ static void update_factory_production(World& world, Building& building, const Bu
     const auto private_investment = private_payment * 0.8 * nation.current_policy.private_ownership;
     building.budget += private_investment;
     
-    constexpr auto artisan_production_rate = 0.1f;
-    constexpr auto factory_production_rate = 1.f;
+    constexpr auto artisan_production_rate = 0.01f;
     auto& output = world.goods[building_type.output_id];
     auto& output_product = province.products[output];
     if(!building.can_do_output(province, building_type.input_ids) || building.level == 0.f) { // Artisans take place of factory
@@ -109,8 +108,7 @@ static void update_factory_production(World& world, Building& building, const Bu
     building.expenses.inputs_cost = 0.f; // Buy the inputs for the factory
     for(const auto& [product_id, amount] : building_type.req_goods)
         building.expenses.inputs_cost += province.products[product_id].buy(amount * building.production_scale);
-    const auto output_amount = glm::log2(1.f + building.production_scale) * glm::max(building.workers, 1.f) * factory_production_rate;
-    building.revenue.outputs = output_product.produce(output_amount);
+    building.revenue.outputs = output_product.produce(building.get_output_amount());
 
     building.expenses.wages = glm::clamp(min_wage * building.workers, 0.f, building.revenue.get_total());
     pop_payment += building.expenses.wages;
@@ -167,7 +165,14 @@ static void update_factory_production(World& world, Building& building, const Bu
     
     // Rescale production
     // This is used to set how much the of the maximum capacity the factory produce
-    building.production_scale = scale_speed(building.production_scale, building.level, building.get_operating_ratio());
+    const auto max_revenue = output_product.price * building.get_max_output_amount(building_type.num_req_workers);
+    if(max_revenue == 0.f) {
+        building.production_scale = scale_speed(building.production_scale, 0.f);
+    } else if(building.expenses.get_total() == 0.f) {
+        building.production_scale = scale_speed(building.production_scale, building.level);
+    } else {
+        building.production_scale = scale_speed(building.production_scale, building.level * glm::clamp(max_revenue / building.expenses.get_total(), 0.f, 1.f));
+    }
 }
 
 // Update the factory employment
@@ -188,7 +193,7 @@ static void update_factories_employment(const World& world, Province& province, 
     for(const auto& [factory_index, _] : factories_by_profitability) {
         auto& building = province.buildings[factory_index];
         const auto& type = world.building_types[factory_index];
-        auto factory_workers = building.level * type.num_req_workers * building.production_scale;
+        auto factory_workers = building.production_scale * type.num_req_workers;
         auto allocated_workers = glm::max(glm::min(factory_workers, unallocated_workers), 0.f);
         // Average with how much the factory had before
         // Makes is more stable so everyone don't change workplace immediately

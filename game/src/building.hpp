@@ -125,6 +125,15 @@ struct Building : Entity<BuildingId> {
         return revenue / expenses;
     }
 
+    static constexpr auto factory_production_rate = 1.f;
+    float get_output_amount() const {
+        return this->production_scale * this->workers * factory_production_rate;
+    }
+
+    float get_max_output_amount(float max_workers) const {
+        return this->level * max_workers * factory_production_rate;
+    }
+
     float private_ownership = 0.f;
     float state_ownership = 1.f;
     float collective_ownership = 0.f;

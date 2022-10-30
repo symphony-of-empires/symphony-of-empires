@@ -49,15 +49,23 @@ PoliciesView::PoliciesView(GameState& _gs)
         this->kill();
     });
 
-    this->add_child2<UI::Label>(0, 0, "Goverment");
-    auto& ideology_img = this->add_child2<UI::Image>(6, 38, 32, 32);
-    ideology_img.set_on_each_tick([this](UI::Widget& w) {
-        if(this->gs.world->time % this->gs.world->ticks_per_month) return;
-        /// @todo More dynamic names
+    /// @todo More dynamic names
+    auto& ideology_lab = this->add_child2<UI::Label>(0, 0, "");
+    ideology_lab.set_on_each_tick([this](UI::Widget& w) {
         if(Ideology::is_valid(this->gs.curr_nation->ideology_id)) {
             const auto& ideology = this->gs.world->ideologies[this->gs.curr_nation->ideology_id];
             const auto& subideology = ideology.subideologies[this->gs.curr_nation->subideology_id];
-            w.text(translate_format("%s - %s", ideology.name.c_str(), subideology.name.c_str()));
+            w.text(translate_format("%s (%s)", subideology.name.c_str(), ideology.name.c_str()));
+            w.set_tooltip(translate_format(
+                "Distributism %.2f\nMercantilist %.2f\nCapitalism %.2f\nIndividualism %.2f\nState power %.2f\nEqualitarianism %.2f\nSecular %.2f\nPluralism %.2f\n", subideology.economic.distributism, subideology.economic.mercantilist, subideology.economic.capitalism, subideology.political.individualism, subideology.political.state_power, subideology.political.equalitarianism, subideology.political.secular, subideology.political.pluralism));
+        }
+    });
+    ideology_lab.on_each_tick(ideology_lab);
+
+    auto& ideology_img = this->add_child2<UI::Image>(6, 38, 32, 32);
+    ideology_img.set_on_each_tick([this](UI::Widget& w) {
+        if(Ideology::is_valid(this->gs.curr_nation->ideology_id)) {
+            const auto& ideology = this->gs.world->ideologies[this->gs.curr_nation->ideology_id];
             w.current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique(ideology.get_icon_path()));
         }
     });
