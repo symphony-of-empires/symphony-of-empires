@@ -50,7 +50,7 @@ the_minas_crash = Event:new{
 		})
 		the_minas_crash:add_decision(Decision:new{
 			ref_name = "the_minas_crash_decision_1",
-			name = "Well yeah they should be held accountable!",
+			name = "They should be held accountable!",
 			decision_fn = function()
 				-- ...
 			end,

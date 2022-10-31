@@ -69,6 +69,11 @@ function Nation:add_client_hint(ideology, name, color)
 	add_nation_client_hint(self.id, ideology.id, name, color)
 end
 function Nation:set_flag(name, value)
+	if value == true then
+		value = 1.0
+	elseif value == false then
+		value = 0.0
+	end
 	set_nation_flag(self.id, name, value)
 end
 function Nation:get_flag(name)

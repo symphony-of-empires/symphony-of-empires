@@ -34,11 +34,12 @@ yongle_encyclopedia_evhdl = Event:new{
         return EVENT_CONDITIONS_UNMET
     end,
     event_fn = function(ref_name)
+        Nation:get(ref_name):set_flag("yongle_encyclopedia_is_safe", false)
         yongle_encyclopedia_evhdl:add_decision(Decision:new{
             ref_name = "yongle_encyclopedia_decision_0",
             name = "Okay",
             decision_fn = function(ref_name)
-    
+                
             end,
             effects = "None"
         })
@@ -47,7 +48,7 @@ yongle_encyclopedia_evhdl = Event:new{
             name = "Make backups of it",
             decision_fn = function(ref_name)
                 -- TODO: Remove money
-                yongle_encyclopedia_is_safe = true
+                Nation:get(ref_name):set_flag("yongle_encyclopedia_is_safe", true)
             end,
             effects = "-10,000 money"
         })
@@ -57,7 +58,7 @@ yongle_encyclopedia_evhdl = Event:new{
             decision_fn = function(ref_name)
                 -- TODO: Remove money
                 -- TODO: Anger monarchists (a bit)
-                yongle_encyclopedia_is_safe = true
+                Nation:get(ref_name):set_flag("yongle_encyclopedia_is_safe", true)
             end,
             effects = "-10,000 money"
         })
