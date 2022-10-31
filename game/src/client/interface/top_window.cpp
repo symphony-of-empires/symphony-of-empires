@@ -61,10 +61,14 @@ TopWindow::TopWindow(GameState& _gs)
     this->add_child2<UI::Image>(5, 4, flag_img.width, flag_img.height, "gfx/drop_shadow.png");
 #endif
 
-    auto* stats_grp = new UI::Image(150, 0, 356, 32, "gfx/background2.png", true, this);
+    auto& event_tray_grp = this->add_child2<UI::Image>(150, 32, 356 + 256, 32, "gfx/background2.png", true);
+    event_tray_grp.flex = UI::Flex::ROW;
+    this->gs.event_tray_grp = &event_tray_grp;
+
+    auto* stats_grp = new UI::Image(150, 0, 356 + 256, 32, "gfx/background2.png", true, this);
     stats_grp->flex = UI::Flex::ROW;
 
-    auto* money_grp = new UI::Div(0, 0, 24 + 64, 24, stats_grp);
+    auto* money_grp = new UI::Div(0, 0, 24 + 96, 24, stats_grp);
     money_grp->flex = UI::Flex::ROW;
     auto* money_img = new UI::Image(0, 0, 24, 24, "gfx/economy.png", true, money_grp);
     money_img->set_tooltip("Money");
@@ -73,6 +77,19 @@ TopWindow::TopWindow(GameState& _gs)
         w.text(Eng3D::translate_format("%.0f", this->gs.curr_nation->budget));
     });
     money_lab->on_each_tick(*money_lab);
+
+    auto* population_grp = new UI::Div(0, 0, 24 + 96, 24, stats_grp);
+    population_grp->flex = UI::Flex::ROW;
+    auto* population_img = new UI::Image(0, 0, 24, 24, "gfx/pop.png", true, population_grp);
+    population_img->set_tooltip("Population");
+    auto* population_lab = new UI::Label(0, 0, " ", population_grp);
+    population_lab->set_on_each_tick([this](UI::Widget& w) {
+        auto total = 0.f;
+        for(const auto province_id : this->gs.curr_nation->owned_provinces)
+            total += this->gs.world->provinces[province_id].total_pops();
+        w.text(Eng3D::string_format("%.0f", total));
+    });
+    population_lab->on_each_tick(*population_lab);
 
     auto* military_score_grp = new UI::Div(0, 0, 24 + 64, 24, stats_grp);
     military_score_grp->flex = UI::Flex::ROW;

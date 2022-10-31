@@ -89,7 +89,14 @@ void handle_popups(std::vector<TreatyId>& displayed_treaties, GameState& gs) {
     std::scoped_lock lock(gs.world->inbox_mutex);
     // Check that the event is not already displayed to the user
     for(auto& msg : gs.curr_nation->inbox)
-        new Interface::DecisionWindow(gs, msg);
+    {
+        auto& ibtn = gs.event_tray_grp->add_child2<UI::Image>(0, 0, 24, 24, "gfx/noicon.png");
+        ibtn.set_on_click([&gs, msg](UI::Widget& w) {
+            new Interface::DecisionWindow(gs, msg);
+            w.kill();
+        });
+        ibtn.set_tooltip(msg.name);
+    }
     gs.curr_nation->inbox.clear();
 
     for(auto& treaty : gs.world->treaties) {

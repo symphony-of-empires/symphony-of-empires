@@ -151,6 +151,7 @@ public:
     UI::Widget* time_win = nullptr;
     UI::Widget* minimap = nullptr;
     UI::Widget* profiler_view = nullptr;
+    UI::Widget* event_tray_grp = nullptr;
 
     std::vector<std::shared_ptr<Eng3D::Texture>> nation_flags;
     std::shared_ptr<Eng3D::Texture> get_nation_flag(const Nation& nation);
