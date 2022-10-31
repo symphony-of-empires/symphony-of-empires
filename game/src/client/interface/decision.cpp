@@ -61,7 +61,7 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
 
     // Buttons for decisions for the event
     for(const auto& decision : this->event.decisions) {
-        auto* flex_column =  new UI::Div(0, 0, this->width, 24, this);
+        auto* flex_column =  new UI::Div(0, 0, this->width - 24, 24, this);
         flex_column->flex = UI::Flex::ROW;
 
         auto& decide_btn = flex_column->add_child2<UI::Button>(0, 0, flex_column->width - 24, 24);

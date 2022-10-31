@@ -299,12 +299,12 @@ void UI::Widget::recalc_child_pos() {
     /// @todo: Cleanup this code to remove duplicates and such
     // Justify the children
     size_t current_length = 0;
-    size_t off_x = 0, off_y = 0;
+    size_t off_x = this->padding.x, off_y = this->padding.y;
     size_t max_wrap_height = 0, max_wrap_width = 0;
     int size = 0, difference = 0;
     switch(flex_justify) {
     case FlexJustify::START:
-        current_length = 0;
+        current_length = is_row ? this->padding.x : this->padding.y;
         for(auto& child : children) {
             if(!child->is_pinned) {
                 if(is_row) {
@@ -354,7 +354,7 @@ void UI::Widget::recalc_child_pos() {
         }
         break;
     case FlexJustify::SPACE_BETWEEN:
-        current_length = 0;
+        current_length = is_row ? this->padding.x : this->padding.y;
         size = is_row ? width : height;
         difference = (size - lenght) / glm::max(movable_children - 1, 1);
         for(auto& child : children) {
