@@ -264,4 +264,9 @@ function table.deepcopy(orig)
     return copy
 end
 
+function translate(str)
+    -- TODO Translate
+    return str
+end
+
 print("loaded api.lua")
