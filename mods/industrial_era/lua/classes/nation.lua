@@ -68,6 +68,12 @@ end
 function Nation:add_client_hint(ideology, name, color)
 	add_nation_client_hint(self.id, ideology.id, name, color)
 end
+function Nation:set_flag(name, value)
+	set_nation_flag(self.id, name, value)
+end
+function Nation:get_flag(name)
+	return get_nation_flag(self.id, name)
+end
 
 function Nation:get_all()
 	local table = get_all_nations()

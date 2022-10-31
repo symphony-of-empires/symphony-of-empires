@@ -138,6 +138,7 @@ public:
     std::deque<Event> inbox; // Inbox of the nation; events that require our attention / should be processed
     std::vector<float> research; // Progress on technologies (1:1)
     std::vector<Nation::ClientHint> client_hints; // Hints for the client on how to draw a nation on the client
+    std::unordered_map<std::string, float> flags; // Flags that can be manipulated by events
     std::string client_username; // Used by clients to store usernames from nations - not saved
 };
 template<>
@@ -188,5 +189,6 @@ struct Serializer<Nation> {
         ::deser_dynamic<is_serialize>(ar, obj.subideology_id);
         ::deser_dynamic<is_serialize>(ar, obj.research);
         ::deser_dynamic<is_serialize>(ar, obj.focus_tech_id);
+        ::deser_dynamic<is_serialize>(ar, obj.flags);
     }
 };

@@ -64,7 +64,7 @@ yongle_encyclopedia_evhdl = Event:new{
         return EVENT_DO_ONE_TIME
     end,
     title = "Yongle Encyclopedia",
-    text = "The Yongle Encyclopedia was an encyclopedia commisioned by the Yongle emperor in 1403; containing abundant pieces of Chinesse literature and science. Thrugh centuries various volumes of it have been lost."
+    text = "The Yongle Encyclopedia was an encyclopedia commisioned by the Yongle emperor in 1403; containing abundant pieces of Chinesse literature and science. Through centuries various volumes of it have been lost."
 }
 yongle_encyclopedia_evhdl:register()
 yongle_encyclopedia_evhdl:add_receivers(Nation:get("qing"))

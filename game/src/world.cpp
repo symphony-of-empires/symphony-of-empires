@@ -131,6 +131,16 @@ void World::init_lua() {
     lua_register(lua, "set_nation_relation", LuaAPI::set_nation_relation);
     lua_register(lua, "nation_declare_unjustified_war", LuaAPI::nation_declare_unjustified_war);
     lua_register(lua, "nation_make_puppet", LuaAPI::nation_make_puppet);
+    lua_register(lua, "set_nation_flag", [](lua_State* L) {
+        auto& nation = g_world.nations.at(lua_tonumber(L, 1));
+        nation.flags[luaL_checkstring(L, 2)] = lua_tonumber(L, 3);
+        return 0;
+    });
+    lua_register(lua, "get_nation_flag", [](lua_State* L) {
+        auto& nation = g_world.nations.at(lua_tonumber(L, 1));
+        lua_pushnumber(L, nation.flags[luaL_checkstring(L, 2)]);
+        return 1;
+    });
 
     lua_register(lua, "add_province", LuaAPI::add_province);
     lua_register(lua, "update_province", LuaAPI::update_province);

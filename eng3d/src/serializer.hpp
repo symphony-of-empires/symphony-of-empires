@@ -260,8 +260,10 @@ struct Serializer<std::pair<T, U>> {
 
     template<bool is_serialize>
     static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.first);
-        ::deser_dynamic<is_serialize>(ar, obj.second);
+        using tp_1 = std::remove_const_t<T>;
+        using tp_2 = std::remove_const_t<U>;
+        ::deser_dynamic<is_serialize>(ar, const_cast<tp_1&>(obj.first));
+        ::deser_dynamic<is_serialize>(ar, const_cast<tp_2&>(obj.second));
     }
 };
 
