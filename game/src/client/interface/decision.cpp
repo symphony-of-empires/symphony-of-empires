@@ -37,35 +37,44 @@
 #include "client/game_state.hpp"
 
 Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
-    : UI::Window(128, 128, 320, 570),
+    : UI::Window(-400, -400, 800, 800),
     gs{ _gs },
     event{ _event }
 {
     // Title of the event
+    this->origin = UI::Origin::CENTER_SCREEN;
     this->text(this->event.title);
     this->flex = UI::Flex::COLUMN;
 
-    auto* txt = new UI::Text(0, 24, this->width, 24, this);
-    txt->text_color = Eng3D::Color::rgb8(0, 0, 0);
-    txt->text(this->event.text);
-    txt->is_scroll = true;
+    // Display an image iff it exists
+    const auto& path = string_format("gfx/events/%s.png", event.ref_name.c_str());
+    if(this->gs.package_man.get_unique(path) != nullptr) {
+        auto& img = this->add_child2<UI::Image>(0, 0, this->width, 200, path);
+    } else {
+        Eng3D::Log::warning("event", path.c_str());
+    }
+
+    auto& txt = this->add_child2<UI::Text>(0, 0, this->width, 24);
+    txt.text_color = Eng3D::Color::rgb8(0, 0, 0);
+    txt.text(this->event.text);
+    txt.is_scroll = true;
 
     // Buttons for decisions for the event
     for(const auto& decision : this->event.decisions) {
         auto* flex_column =  new UI::Div(0, 0, this->width, 24, this);
         flex_column->flex = UI::Flex::ROW;
 
-        auto* decide_btn = new UI::Button(0, 0, flex_column->width - 24, 24, flex_column);
-        decide_btn->text(decision.name);
-        decide_btn->set_tooltip(decision.effects);
-        decide_btn->set_on_click([this, &decision](UI::Widget&) {
+        auto& decide_btn = flex_column->add_child2<UI::Button>(0, 0, flex_column->width - 24, 24);
+        decide_btn.text(decision.name);
+        decide_btn.set_tooltip(decision.effects);
+        decide_btn.set_on_click([this, &decision](UI::Widget&) {
             this->gs.client->send(Action::NationTakeDecision::form_packet(this->event, decision));
             this->kill();
         });
 
-        auto* remind_ibtn = new UI::Image(0, 0, 24, 24, "gfx/noicon.png", flex_column);
-        remind_ibtn->set_tooltip(translate("Automatically take this descision"));
-        remind_ibtn->set_on_click([this, &decision](UI::Widget&) {
+        auto& remind_ibtn = flex_column->add_child2<UI::Image>(0, 0, 24, 24, "gfx/noicon.png");
+        remind_ibtn.set_tooltip(translate("Automatically take this descision"));
+        remind_ibtn.set_on_click([this, &decision](UI::Widget&) {
             this->gs.decision_autodo.push_back(decision.ref_name);
             this->gs.client->send(Action::NationTakeDecision::form_packet(this->event, decision));
             this->kill();
@@ -74,7 +83,7 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
         // Check if decision has been automatized
         auto it = std::find(this->gs.decision_autodo.begin(), this->gs.decision_autodo.end(), decision.ref_name);
         if(it != this->gs.decision_autodo.end()) {
-            decide_btn->on_click(*decide_btn);
+            decide_btn.on_click(decide_btn);
             return;
         }
     }

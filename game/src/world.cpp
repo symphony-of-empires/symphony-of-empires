@@ -346,7 +346,7 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
 #else
             std::string m_path = path->get_abs_path();
 #endif
-            files_buf += "print(\"" + m_path + "\")\nloadfile(\"" + m_path + "\")()\n";
+            files_buf += "print(\"" + m_path + "\")\nassert(loadfile(\"" + m_path + "\"))()\n";
         }
     }
     Eng3D::Log::debug("lua", "Buffer " + files_buf);

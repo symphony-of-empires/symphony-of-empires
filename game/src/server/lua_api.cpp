@@ -1100,9 +1100,9 @@ void LuaAPI::check_events(lua_State* L) {
                     // The changes done to the event "locally" are then created into a new local event
                     auto local_event = Event(event);
                     local_event.cached_id = Event::invalid();
-                    local_event.ref_name = Eng3D::StringRef(string_format("%s:%s", local_event.ref_name.c_str(), nation.ref_name.c_str()).c_str());
+                    //local_event.ref_name = Eng3D::StringRef(string_format("%s:%s", local_event.ref_name.c_str(), nation.ref_name.c_str()).c_str());
                     if(local_event.decisions.empty()) {
-                        //Eng3D::Log::error("event", "Event " + local_event.ref_name + " has no decisions (ref_name = " + nation->ref_name + ")");
+                        Eng3D::Log::error("event", translate_format("Event %s has no decisions (ref_name=%s)", local_event.ref_name.c_str(), nation.ref_name.c_str()));
                     } else {
                         // Check that descisions have functions
                         for(const auto& descision : local_event.decisions) {
@@ -1112,7 +1112,7 @@ void LuaAPI::check_events(lua_State* L) {
                             }
                         }
                         nation.inbox.push_back(local_event);
-                        //Eng3D::Log::debug("event", "Event triggered! " + local_event.ref_name + " (with " + std::to_string(local_event.decisions.size()) + " decisions)");
+                        Eng3D::Log::debug("event", translate_format("Event triggered! %s (with %zu decisions)", local_event.ref_name.c_str(), local_event.decisions.size()));
                     }
                 }
 
