@@ -47,8 +47,6 @@ prusso_danish_war_evhdl = Event:new{
     
             if has_german == true then
                 return EVENT_CONDITIONS_MET
-            else
-                return EVENT_CONDITIONS_UNMET
             end
         end
         return EVENT_CONDITIONS_UNMET
@@ -74,7 +72,7 @@ prusso_danish_war_evhdl = Event:new{
         prusso_danish_war_evhdl:add_decision(decision)
         return EVENT_DO_ONE_TIME
     end,
-    title = "The Holstein-Schweilg question",
+    title = "The Holstein-Schleswig question",
     text = "Denmark owns lands which are rightfully part of our greater german state; should we let them own these and prevent the unification of all the germanic people?"
 }
 prusso_danish_war_evhdl:register()

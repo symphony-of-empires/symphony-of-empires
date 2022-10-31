@@ -49,7 +49,7 @@ aptr_evhdl = Event:new{
 			ambition = 0.0,
 			with_plan = false
 		}
-		decision = Decision:new{
+		aptr_evhdl:add_decision(Decision:new{
 			ref_name = "dsc0",
 			name = "You're right - contact the best engineers we have!",
 			decision_fn = function(ref_name)
@@ -57,9 +57,8 @@ aptr_evhdl = Event:new{
 				print('Country ' .. ref_name .. ' called engineer ' .. CANAL_CAMPAING_DATA[ref_name].engineer)
 			end,
 			effects = "Call " .. CANAL_CAMPAING_DATA[ref_name].engineer .. " for the work"
-		}
-		aptr_evhdl:add_decision(decision)
-		decision = Decision:new{
+		})
+		aptr_evhdl:add_decision(Decision:new{
 			ref_name = "dsc1",
 			name = "You're right - but we should ask the " .. canal_prov:get_owner().adjective .. "s first",
 			decision_fn = function(ref_name)
@@ -67,9 +66,8 @@ aptr_evhdl = Event:new{
 				print('Country ' .. ref_name .. ' asked the ' .. canal_prov:get_owner() .. ' for permission ')
 			end,
 			effects = "You will consume cake anyways"
-		}
-		aptr_evhdl:add_decision(decision)
-		decision = Decision:new{
+		})
+		aptr_evhdl:add_decision(Decision:new{
 			ref_name = "dsc2",
 			name = "We can't afford the canal at this moment",
 			decision_fn = function(ref_name)
@@ -77,8 +75,7 @@ aptr_evhdl = Event:new{
 				print('Country ' .. ref_name .. ' rejected the canal proposal')
 			end,
 			effects = "Rejects the canal offer"
-		}
-		aptr_evhdl:add_decision(decision)
+		})
 		return EVENT_DO_ONE_TIME
 	end,
 	title = "The Atlantic-Pacific trade route",
@@ -100,7 +97,7 @@ eapcp_evhdl = Event:new{
 	event_fn = function(ref_name)
 		local nation = Nation:get(ref_name)
 		local canal_prov = Province:get("colon")
-		decision = Decision:new{
+		eapcp_evhdl:add_decision(Decision:new{
 			ref_name = "dsc0",
 			name = "We're grateful of your ingenous ideas",
 			decision_fn = function(ref_name)
@@ -108,9 +105,8 @@ eapcp_evhdl = Event:new{
 				CANAL_CAMPAING_DATA[ref_name].with_plan = true
 			end,
 			effects = "Start the preparations for a canal on Panama"
-		}
-		eapcp_evhdl:add_decision(decision)
-		decision = Decision:new{
+		})
+		eapcp_evhdl:add_decision(Decision:new{
 			ref_name = "dsc1",
 			name = "This plan is too much for us!",
 			decision_fn = function(ref_name)
@@ -118,8 +114,7 @@ eapcp_evhdl = Event:new{
 				print('Country ' .. ref_name .. ' rejected the canal proposal')
 			end,
 			effects = "Panama canal idea is aborted"
-		}
-		eapcp_evhdl:add_decision(decision)
+		})
 		return EVENT_DO_ONE_TIME
 	end,
 	title = "Engineer proposes Panama Canal",
@@ -143,26 +138,23 @@ eapcp_evhdl = Event:new{
 		eapcp_evhdl.title = "The country of " .. ref_name
 		eapcp_evhdl.text = "We can decide stuff, what we should do with the country of " .. Nation:get(ref_name).adjective .. " people?"
 		eapcp_evhdl:update(eapcp_evhdl)
-	
-		decision = Decision:new{
+
+		eapcp_evhdl:add_decision(Decision:new{
 			ref_name = "dsc0",
 			name = "Something very smart",
 			decision_fn = function(ref_name)
 				print("Dec 0: " .. ref_name)
 			end,
 			effects = "Smart stuff"
-		}
-		eapcp_evhdl:add_decision(decision)
-		
-		decision = Decision:new{
+		})
+		eapcp_evhdl:add_decision(Decision:new{
 			ref_name = "dsc1",
 			name = "Something very ambitious",
 			decision_fn = function(ref_name)
 				print("Dec 1: " .. ref_name)
 			end,
 			effects = "Ambitious stuff"
-		}
-		eapcp_evhdl:add_decision(decision)
+		})
 		return EVENT_DO_ONE_TIME
 	end
 }

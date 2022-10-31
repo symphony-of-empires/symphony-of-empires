@@ -35,16 +35,15 @@ catholic_relief_act_of_1829 = Event:new{
 		return EVENT_CONDITIONS_UNMET
 	end,
 	event_fn = function(ref_name)
-		decision = Decision:new{
+		catholic_relief_act_of_1829:add_decision(Decision:new{
 			ref_name = "catholic_relief_act_of_1829_decision_0",
 			name = "Yes, allow catholics on the parliament",
 			decision_fn = function(ref_name)
 				united_kingdom:add_accepted_religion(Religion:get("christianity"))
 			end,
 			effects = "None"
-		}
-		catholic_relief_act_of_1829:add_decision(decision)
-		decision = Decision:new{
+		})
+		catholic_relief_act_of_1829:add_decision(Decision:new{
 			ref_name = "catholic_relief_act_of_1829_decision_1",
 			name = "No, the church and the state must remain separate",
 			decision_fn = function(ref_name)
@@ -56,8 +55,7 @@ catholic_relief_act_of_1829 = Event:new{
 				end
 			end,
 			effects = "x100 more militancy, x100 more conciousness"
-		}
-		catholic_relief_act_of_1829:add_decision(decision)
+		})
 		return EVENT_DO_ONE_TIME
 	end,
     title = "Catholic Relief Act of 1829",

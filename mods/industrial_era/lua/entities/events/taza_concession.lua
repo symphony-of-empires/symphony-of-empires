@@ -32,7 +32,7 @@ taza_concession = Event:new{
 		return EVENT_CONDITIONS_UNMET
 	end,
 	event_fn = function(ref_name)
-		decision = Decision:new{
+		taza_concession:add_decision(Decision:new{
 			ref_name = "taza_concession_decision_0",
 			name = "Taza is ours, by any means!",
 			decision_fn = function(ref_name)
@@ -43,18 +43,16 @@ taza_concession = Event:new{
 				end
 			end,
 			effects = "Annex morroco"
-		}
-		taza_concession:add_decision(decision)
-		decision = Decision:new{
+		})
+		taza_concession:add_decision(Decision:new{
 			ref_name = "taza_concession_decision_1",
 			name = "Taza is rightful Spanish land!",
 			decision_fn = function(ref_name)
 				Nation:get("spain"):declare_unjustified_war(Nation:get("morocco"))
 			end,
 			effects = "War with morocco"
-		}
-		taza_concession:add_decision(decision)
-		decision = Decision:new{
+		})
+		taza_concession:add_decision(Decision:new{
 			ref_name = "taza_concession_decision_2",
 			name = "Maybe we can sort this out diplomatically?",
 			decision_fn = function(ref_name)
@@ -67,8 +65,7 @@ taza_concession = Event:new{
 				Nation:get("spain"):set_relation(Nation:get("france"), rel)
 			end,
 			effects = "+50 relations with Morocco and France"
-		}
-		taza_concession:add_decision(decision)
+		})
 		return EVENT_DO_ONE_TIME
 	end,
     title = "Taza concession",

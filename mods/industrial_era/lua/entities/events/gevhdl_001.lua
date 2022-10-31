@@ -51,7 +51,7 @@ gevhdl001 = Event:new{
 			gevhdl001.text = "A new variant of the flu has appeared in one of our provinces - it is not very lethal, however we can't ignore the potential of it becoming more severe as time goes on"
 		end
 		gevhdl001:update(gevhdl002)
-		decision = Decision:new{
+		gevhdl001:add_decision(Decision:new{
 			ref_name = "gevhdl001_decision_0",
 			name = "We will do what we can to save our people!",
 			decision_fn = function(ref_name)
@@ -66,9 +66,8 @@ gevhdl001 = Event:new{
 				end
 			end,
 			effects = "+0.5 militancy"
-		}
-		gevhdl001:add_decision(decision)
-		decision = Decision:new{
+		})
+		gevhdl001:add_decision(Decision:new{
 			ref_name = "gevhdl001_decision_1",
 			name = "We can't do anything about it",
 			decision_fn = function(ref_name)
@@ -83,8 +82,7 @@ gevhdl001 = Event:new{
 				end
 			end,
 			effects = "+0.5 militancy"
-		}
-		gevhdl001:add_decision(decision)
+		})
 		return EVENT_DO_MANY_TIMES
 	end,
     title = "",

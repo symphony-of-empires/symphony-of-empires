@@ -27,27 +27,26 @@
 -- This is just a test event
 -- 
 jutland_sinks_evhdl = Event:new{
-	ref_name = "jutland_sinks_evhdl",
-	conditions_fn = function()
-		if get_year() >= 1825 and get_month() >= 2 and math.random(0, 100) == 0 then
+    ref_name = "jutland_sinks_evhdl",
+    conditions_fn = function()
+        if get_year() >= 1825 and get_month() >= 2 and math.random(0, 100) == 0 then
 
         end
-		return EVENT_CONDITIONS_MET
-	end,
-	event_fn = function(ref_name)
-		decision = Decision:new{
-			ref_name = "jutland_sinks_decision_0",
-			name = "That is very unfortunate",
-			decision_fn = function(ref_name)
+        return EVENT_CONDITIONS_MET
+    end,
+    event_fn = function(ref_name)
+        jutland_sinks_evhdl:add_decision(Decision:new{
+            ref_name = "jutland_sinks_decision_0",
+            name = "That is very unfortunate",
+            decision_fn = function(ref_name)
                 -- None
-			end,
-			effects = "None"
-		}
-		jutland_sinks_evhdl:add_decision(decision)
-		return EVENT_DO_ONE_TIME
-	end,
-	title = "Jutland sinks",
-	text = "Vendsyssel-Thy is no longer connected to the Jutland peninsula due to a flood that separated it."
+            end,
+            effects = "None"
+        })
+        return EVENT_DO_ONE_TIME
+    end,
+    title = "Jutland sinks",
+    text = "Vendsyssel-Thy is no longer connected to the Jutland peninsula due to a flood that separated it."
 }
 jutland_sinks_evhdl:register()
 jutland_sinks_evhdl:add_receivers(Nation:get("denmark"))

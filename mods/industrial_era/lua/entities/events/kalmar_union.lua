@@ -67,24 +67,22 @@ kalmar_union_evhdl = Event:new{
         return EVENT_CONDITIONS_UNMET
     end,
     event_fn = function(ref_name)
-        decision = Decision:new{
+        kalmar_union_evhdl:add_decision(Decision:new{
             ref_name = "kalmar_union_decision_0",
             name = "Unify scandinavia once again",
             decision_fn = function(ref_name)
                 -- ...
             end,
             effects = "Become Kalmar Union"
-        }
-        kalmar_union_evhdl:add_decision(decision)
-        decision = Decision:new{
+        })
+        kalmar_union_evhdl:add_decision(Decision:new{
             ref_name = "kalmar_union_decision_1",
             name = "We don't need the others, right?",
             decision_fn = function(ref_name)
                 -- ...
             end,
             effects = "No Kalmar Union"
-        }
-        kalmar_union_evhdl:add_decision(decision)
+        })
         return EVENT_DO_ONE_TIME
     end,
     title = "Kalmar Union",

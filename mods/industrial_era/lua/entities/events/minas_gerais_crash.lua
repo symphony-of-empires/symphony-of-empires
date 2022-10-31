@@ -40,24 +40,22 @@ the_minas_crash = Event:new{
 		return EVENT_CONDITIONS_UNMET
 	end,
 	event_fn = function()
-		decision = Decision:new{
+		the_minas_crash:add_decision(Decision:new{
 			ref_name = "the_minas_crash_decision_0",
 			name = "I'm sorry for such tragedy",
 			decision_fn = function()
 				-- ...
 			end,
 			effects = "None"
-		}
-		the_minas_crash:add_decision(decision)
-		decision = Decision:new{
+		})
+		the_minas_crash:add_decision(Decision:new{
 			ref_name = "the_minas_crash_decision_1",
 			name = "Well yeah they should be held accountable!",
 			decision_fn = function()
 				-- ...
 			end,
 			effects = "None"
-		}
-		the_minas_crash:add_decision(decision)
+		})
 		return EVENT_DO_ONE_TIME
 	end,
     title = "The minas crash",

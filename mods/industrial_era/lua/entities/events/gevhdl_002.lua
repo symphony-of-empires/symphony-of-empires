@@ -37,7 +37,7 @@ gevhdl002_evhdl = Event:new{
 		gevhdl002_evhdl.title = tmp_data.ideology.name .. " outrage!"
 		gevhdl002_evhdl.text = "A lot of " .. tmp_data.ideology.name .. "s have started speaking false information about us; what's best for the " .. Nation:get(ref_name).adjective .. " people?"
 		gevhdl002_evhdl:update(gevhdl002)
-		decision = Decision:new{
+		gevhdl002_evhdl:add_decision(Decision:new{
 			ref_name = "gevhdl002_decision_0",
 			name = "Shut them down",
 			effects = "Every POP that supports " .. tmp_data.ideology.name .. " gets 0.1 militancy",
@@ -56,9 +56,8 @@ gevhdl002_evhdl = Event:new{
 					province:update_pops()
 				end
 			end
-		}
-		gevhdl002_evhdl:add_decision(decision)
-		decision = Decision:new{
+		})
+		gevhdl002_evhdl:add_decision(Decision:new{
 			ref_name = "gevhdl002_decision_1",
 			name = "Let them be",
 			effects = "Every POP that supports " .. tmp_data.ideology.name .. " gets 0.05 militancy",
@@ -77,8 +76,7 @@ gevhdl002_evhdl = Event:new{
 					province:update_pops()
 				end
 			end,
-		}
-		gevhdl002_evhdl:add_decision(decision)
+		})
 		return EVENT_DO_MANY_TIMES
 	end,
 }

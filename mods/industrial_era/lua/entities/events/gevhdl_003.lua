@@ -36,7 +36,7 @@ generic_militancy_nationwide_evhdl = Event:new{
 			title = "Stop the activists",
 			text = "Some activists are trying to undermine us with false statments about the efficiency of our goverment - we can always crack down on those liars but we may upset free-speech supporters"	
 		}
-		decision = Decision:new{
+		generic_militancy_nationwide_evhdl:add_decision(Decision:new{
 			ref_name = "generic_militancy_nationwide_decision_0",
 			name = "",
 			effects = "Every POP gets +0.5 militancy",
@@ -52,9 +52,8 @@ generic_militancy_nationwide_evhdl = Event:new{
 				end
 			end,
 			effects = "+0.50 militancy and +0.50 militancy nationwide"
-		}
-		generic_militancy_nationwide_evhdl:add_decision(decision)
-		decision = Decision:new{
+		})
+		generic_militancy_nationwide_evhdl:add_decision(Decision:new{
 			ref_name = "generic_militancy_nationwide_decision_1",
 			name = "Take them down",
 			effects = "Every POP gets +0.75 militancy",
@@ -70,8 +69,7 @@ generic_militancy_nationwide_evhdl = Event:new{
 				end
 			end,
 			effects = "+0.75 militancy nationwide"
-		}
-		generic_militancy_nationwide_evhdl:add_decision(decision)
+		})
 		return EVENT_DO_MANY_TIMES
 	end,
     title = "",
