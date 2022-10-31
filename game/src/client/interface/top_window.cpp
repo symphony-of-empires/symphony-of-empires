@@ -52,9 +52,13 @@ TopWindow::TopWindow(GameState& _gs)
     this->gs.time_win = static_cast<UI::Widget*>(new TimeControlView(gs));
 
     UI::Image::make_transparent(0, 0, 147, 499, "gfx/top_window.png", this);
-    auto* flag_img = new UI::Image(5, 4, 138, 88, this->gs.get_nation_flag(*this->gs.curr_nation), this);
+    auto& flag_img = this->add_child2<UI::Image>(5, 4, 138, 88, this->gs.tex_man.get_white());
+    flag_img.set_on_each_tick([this](UI::Widget& w) {
+        w.current_texture = this->gs.get_nation_flag(*this->gs.curr_nation);
+    });
+    flag_img.on_each_tick(flag_img);
 #ifndef E3D_HANDHELD
-    new UI::Image(5, 4, flag_img->width, flag_img->height, "gfx/drop_shadow.png", this);
+    this->add_child2<UI::Image>(5, 4, flag_img.width, flag_img.height, "gfx/drop_shadow.png");
 #endif
 
     auto* stats_grp = new UI::Image(150, 0, 356, 32, "gfx/background2.png", true, this);

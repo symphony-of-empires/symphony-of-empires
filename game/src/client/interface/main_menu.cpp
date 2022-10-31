@@ -109,7 +109,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     this->current_texture = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/bg/main_menu.png"));
     auto main_menu_border = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/bg/main_menu_border.png"));
     this->border = UI::Border(main_menu_border, glm::ivec2(16), glm::ivec2(16));
-    new UI::Image(0, 0, 300, 120, "gfx/ui/image/logo.png", this);
+    this->add_child2<UI::Image>(0, 0, 300, 120, "gfx/ui/image/logo.png");
 
     auto button_image = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/button/button.png"));
     auto button_border_image = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/button/button_border.png"));
@@ -117,23 +117,23 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     glm::ivec2 texture_size(3, 3);
     auto button_border = UI::Border(button_border_image, size, texture_size);
 
-    auto* button_list = new UI::Div(0, 200, 300, 320, this);
-    button_list->flex = UI::Flex::COLUMN;
-    button_list->flex_align = UI::Align::CENTER;
-    button_list->flex_gap = 8;
+    auto& button_list = this->add_child2<UI::Div>(0, 200, 300, 320);
+    button_list.flex = UI::Flex::COLUMN;
+    button_list.flex_align = UI::Align::CENTER;
+    button_list.flex_gap = 8;
 
     int b_width = 225;
     int b_height = 33;
 
-    auto* demo_btn = new UI::Button(0, 0, b_width, b_height, button_list);
-    demo_btn->border = button_border;
-    demo_btn->current_texture = button_image;
-    demo_btn->font = menu_font;
-    demo_btn->text_color = menu_text_color;
-    demo_btn->text_align_x = UI::Align::CENTER;
-    demo_btn->text_align_y = UI::Align::CENTER;
-    demo_btn->text("Pre-alpha demo");
-    demo_btn->set_on_click([this](UI::Widget&) {
+    auto& demo_btn = button_list.add_child2<UI::Button>(0, 0, b_width, b_height);
+    demo_btn.border = button_border;
+    demo_btn.current_texture = button_image;
+    demo_btn.font = menu_font;
+    demo_btn.text_color = menu_text_color;
+    demo_btn.text_align_x = UI::Align::CENTER;
+    demo_btn.text_align_y = UI::Align::CENTER;
+    demo_btn.text("Pre-alpha demo");
+    demo_btn.set_on_click([this](UI::Widget&) {
         this->gs.ui_ctx.clear();
         this->gs.current_mode = MapMode::COUNTRY_SELECT;
         this->gs.host_mode = true;
@@ -162,15 +162,14 @@ Interface::MainMenu::MainMenu(GameState& _gs)
         );
     });
 
-    auto* single_btn = new UI::Button(0, 0, b_width, b_height, button_list);
-    single_btn->border = button_border;
-    single_btn->current_texture = button_image;
-    single_btn->font = menu_font;
-    single_btn->text_color = menu_text_color;
-    single_btn->text_align_x = UI::Align::CENTER;
-    single_btn->text_align_y = UI::Align::CENTER;
-    single_btn->text("Singleplayer");
-    single_btn->set_on_click([this](UI::Widget&) {
+    auto& single_btn = button_list.add_child2<UI::Button>(0, 0, b_width, b_height);
+    single_btn.border = button_border;
+    single_btn.current_texture = button_image;
+    single_btn.font = menu_font;
+    single_btn.text_color = menu_text_color;
+    single_btn.text_align_x = single_btn.text_align_y = UI::Align::CENTER;
+    single_btn.text("Singleplayer");
+    single_btn.set_on_click([this](UI::Widget&) {
         this->gs.ui_ctx.clear();
         gs.current_mode = MapMode::COUNTRY_SELECT;
         gs.select_nation = new Interface::LobbySelectView(gs);
@@ -178,27 +177,25 @@ Interface::MainMenu::MainMenu(GameState& _gs)
         gs.editor = false;
     });
 
-    auto* mp_btn = new UI::Button(0, 0, b_width, b_height, button_list);
-    mp_btn->border = button_border;
-    mp_btn->current_texture = button_image;
-    mp_btn->font = menu_font;
-    mp_btn->text_color = menu_text_color;
-    mp_btn->text_align_x = UI::Align::CENTER;
-    mp_btn->text_align_y = UI::Align::CENTER;
-    mp_btn->text("Multiplayer");
-    mp_btn->set_on_click([this](UI::Widget&) {
+    auto& mp_btn = button_list.add_child2<UI::Button>(0, 0, b_width, b_height);
+    mp_btn.border = button_border;
+    mp_btn.current_texture = button_image;
+    mp_btn.font = menu_font;
+    mp_btn.text_color = menu_text_color;
+    mp_btn.text_align_x = mp_btn.text_align_y = UI::Align::CENTER;
+    mp_btn.text("Multiplayer");
+    mp_btn.set_on_click([this](UI::Widget&) {
         this->connect_window = new Interface::MainMenuConnectServer(this->gs);
     });
 
-    auto* host_btn = new UI::Button(0, 0, b_width, b_height, button_list);
-    host_btn->border = button_border;
-    host_btn->current_texture = button_image;
-    host_btn->font = menu_font;
-    host_btn->text_color = menu_text_color;
-    host_btn->text_align_x = UI::Align::CENTER;
-    host_btn->text_align_y = UI::Align::CENTER;
-    host_btn->text("Host");
-    host_btn->set_on_click([this](UI::Widget&) {
+    auto& host_btn = button_list.add_child2<UI::Button>(0, 0, b_width, b_height);
+    host_btn.border = button_border;
+    host_btn.current_texture = button_image;
+    host_btn.font = menu_font;
+    host_btn.text_color = menu_text_color;
+    host_btn.text_align_x = host_btn.text_align_y = UI::Align::CENTER;
+    host_btn.text("Host");
+    host_btn.set_on_click([this](UI::Widget&) {
         this->gs.ui_ctx.clear();
         this->gs.current_mode = MapMode::COUNTRY_SELECT;
         this->gs.select_nation = new Interface::LobbySelectView(this->gs);
@@ -206,15 +203,14 @@ Interface::MainMenu::MainMenu(GameState& _gs)
         this->gs.editor = false;
     });
 
-    auto* edit_btn = new UI::Button(0, 0, b_width, b_height, button_list);
-    edit_btn->border = button_border;
-    edit_btn->current_texture = button_image;
-    edit_btn->font = menu_font;
-    edit_btn->text_color = menu_text_color;
-    edit_btn->text_align_x = UI::Align::CENTER;
-    edit_btn->text_align_y = UI::Align::CENTER;
-    edit_btn->text("Editor");
-    edit_btn->set_on_click([this](UI::Widget&) {
+    auto& edit_btn = button_list.add_child2<UI::Button>(0, 0, b_width, b_height);
+    edit_btn.border = button_border;
+    edit_btn.current_texture = button_image;
+    edit_btn.font = menu_font;
+    edit_btn.text_color = menu_text_color;
+    edit_btn.text_align_x = edit_btn.text_align_y = UI::Align::CENTER;
+    edit_btn.text("Editor");
+    edit_btn.set_on_click([this](UI::Widget&) {
         this->gs.current_mode = MapMode::NORMAL;
         // Create a local server in editor mode
         this->gs.host_mode = true;
@@ -226,28 +222,25 @@ Interface::MainMenu::MainMenu(GameState& _gs)
         this->gs.play_nation();
     });
 
-    auto* cfg_btn = new UI::Button(0, 0, b_width, b_height, button_list);
-    cfg_btn->border = button_border;
-    cfg_btn->current_texture = button_image;
-    cfg_btn->font = menu_font;
-    cfg_btn->text_color = menu_text_color;
-    cfg_btn->text_align_x = UI::Align::CENTER;
-    cfg_btn->text_align_y = UI::Align::CENTER;
-    cfg_btn->text("Settings");
-    cfg_btn->set_on_click([this](UI::Widget&) {
+    auto& cfg_btn = button_list.add_child2<UI::Button>(0, 0, b_width, b_height);
+    cfg_btn.border = button_border;
+    cfg_btn.current_texture = button_image;
+    cfg_btn.font = menu_font;
+    cfg_btn.text_color = menu_text_color;
+    cfg_btn.text_align_x = cfg_btn.text_align_y = UI::Align::CENTER;
+    cfg_btn.text("Settings");
+    cfg_btn.set_on_click([this](UI::Widget&) {
         LuaAPI::invoke_registered_callback(this->gs.world->lua, "settings_window_invoke");
     });
 
-    auto* exit_btn = new UI::Button(-75, -60, 150, b_height, this);
-    exit_btn->border = button_border;
-    exit_btn->current_texture = button_image;
-    exit_btn->font = menu_font;
-    exit_btn->text_align_x = UI::Align::CENTER;
-    exit_btn->text_align_y = UI::Align::CENTER;
-    exit_btn->text_color = menu_text_color;
-    exit_btn->origin = UI::Origin::LOWER_MIDDLE;
-    exit_btn->text("Exit");
-    exit_btn->set_on_click([this](UI::Widget&) {
+    auto& exit_btn = button_list.add_child2<UI::Button>(0, 0, b_width, b_height);
+    exit_btn.border = button_border;
+    exit_btn.current_texture = button_image;
+    exit_btn.font = menu_font;
+    exit_btn.text_color = menu_text_color;
+    exit_btn.text_align_x = exit_btn.text_align_y = UI::Align::CENTER;
+    exit_btn.text("Exit");
+    exit_btn.set_on_click([this](UI::Widget&) {
         this->gs.paused = true;
         this->gs.run = false;
     });

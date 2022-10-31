@@ -72,50 +72,50 @@ LobbySelectView::LobbySelectView(GameState& _gs)
     // Flag with shadow
     this->curr_country_flag_img = new UI::Image(250, 0, 128, 72, gs.tex_man.get_white(), this);
 #ifndef E3D_HANDHELD
-    new UI::Image(250, 0, this->curr_country_flag_img->width, this->curr_country_flag_img->height, "gfx/drop_shadow.png", this);
+    this->add_child2<UI::Image>(250, 0, this->curr_country_flag_img->width, this->curr_country_flag_img->height, "gfx/drop_shadow.png");
 #endif
 
-    auto* back_btn = new UI::Button(0, 0, 128, 24, this);
-    back_btn->text("Back");
-    back_btn->below_of(*curr_country_btn);
-    back_btn->set_on_click([this](UI::Widget&) {
+    auto& back_btn = this->add_child2<UI::Button>(0, 0, 128, 24);
+    back_btn.text("Back");
+    back_btn.below_of(*curr_country_btn);
+    back_btn.set_on_click([this](UI::Widget&) {
         this->kill();
         new Interface::MainMenu(gs);
     });
 
-    auto* prev_country_btn = new UI::Image(0, 0, 24, 24, "gfx/arrow_left.png", this);
-    prev_country_btn->below_of(*curr_country_btn);
-    prev_country_btn->right_side_of(*back_btn);
-    prev_country_btn->set_on_click([this](UI::Widget&) {
+    auto& prev_country_btn = this->add_child2<UI::Image>(0, 0, 24, 24, "gfx/arrow_left.png");
+    prev_country_btn.below_of(*curr_country_btn);
+    prev_country_btn.right_side_of(back_btn);
+    prev_country_btn.set_on_click([this](UI::Widget&) {
         this->change_nation(this->curr_selected_nation - 1);
     });
 
-    auto* next_country_ibtn = new UI::Image(0, 0, 24, 24, "gfx/arrow_right.png", this);
-    next_country_ibtn->below_of(*curr_country_btn);
-    next_country_ibtn->right_side_of(*prev_country_btn);
-    next_country_ibtn->set_on_click([this](UI::Widget&) {
+    auto& next_country_ibtn = this->add_child2<UI::Image>(0, 0, 24, 24, "gfx/arrow_right.png");
+    next_country_ibtn.below_of(*curr_country_btn);
+    next_country_ibtn.right_side_of(prev_country_btn);
+    next_country_ibtn.set_on_click([this](UI::Widget&) {
         this->change_nation(this->curr_selected_nation + 1);
     });
 
-    auto* random_country_ibtn = new UI::Image(0, 0, 24, 24, "gfx/noicon.png", this);
-    random_country_ibtn->set_tooltip(translate("Select a random country"));
-    random_country_ibtn->below_of(*curr_country_btn);
-    random_country_ibtn->right_side_of(*next_country_ibtn);
-    random_country_ibtn->set_on_click([this](UI::Widget&) {
+    auto& random_country_ibtn = this->add_child2<UI::Image>(0, 0, 24, 24, "gfx/noicon.png");
+    random_country_ibtn.set_tooltip(translate("Select a random country"));
+    random_country_ibtn.below_of(*curr_country_btn);
+    random_country_ibtn.right_side_of(next_country_ibtn);
+    random_country_ibtn.set_on_click([this](UI::Widget&) {
         this->change_nation(rand() % this->gs.world->nations.size());
     });
 
     const auto path = std::filesystem::current_path().string();
-    auto* savefiles_grp = new UI::Group(0, 0, 128, gs.height, this);
-    savefiles_grp->below_of(*random_country_ibtn);
-    savefiles_grp->flex = UI::Flex::COLUMN;
-    savefiles_grp->is_scroll = true;
+    auto& savefiles_grp = this->add_child2<UI::Group>(0, 0, 128, gs.height);
+    savefiles_grp.below_of(random_country_ibtn);
+    savefiles_grp.flex = UI::Flex::COLUMN;
+    savefiles_grp.is_scroll = true;
     for(const auto& entry : std::filesystem::directory_iterator(path)) {
         if(!entry.is_directory() && entry.path().extension() == ".sc4") {
             auto savefile_path = entry.path().lexically_relative(path).string();
-            auto* savefile_btn = new UI::Button(0, 0, 128, 24, savefiles_grp);
-            savefile_btn->text(savefile_path);
-            savefile_btn->set_on_click([this, savefile_path](UI::Widget&) {
+            auto& savefile_btn = savefiles_grp.add_child2<UI::Button>(0, 0, 128, 24);
+            savefile_btn.text(savefile_path);
+            savefile_btn.set_on_click([this, &savefile_path](UI::Widget&) {
                 LUA_util::load(this->gs, savefile_path);
             });
         }
