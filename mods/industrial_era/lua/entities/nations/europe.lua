@@ -438,10 +438,10 @@ prussia.adjective = _("Prussian")
 prussia:register()
 prussia:set_ideology(monarchy, "absolute_monarchy")
 prussia:add_accepted_language(german)
-prussia:add_client_hint(socialism, _("Prussia"), 0x405370)
-prussia:add_client_hint(communism, _("Prussia"), 0x405370)
-prussia:add_client_hint(fascism, _("Prussia"), 0x405370)
-prussia:add_client_hint(monarchy, _("Prussia"), 0x405370)
+prussia:add_client_hint(socialism, _("Prussia"), 0x0c254d)
+prussia:add_client_hint(communism, _("Prussia"), 0x0c254d)
+prussia:add_client_hint(fascism, _("Prussia"), 0x0c254d)
+prussia:add_client_hint(monarchy, _("Prussia"), 0x0c254d)
 
 salzburg = Nation:new{ ref_name = "salzburg" }
 salzburg.name = _("Salzburg")
@@ -516,21 +516,21 @@ saxe_coburg.name = _("Saxe-Coburg")
 saxe_coburg:register()
 saxe_coburg:set_ideology(monarchy, "absolute_monarchy")
 saxe_coburg:add_accepted_language(german)
-saxe_coburg:add_client_hint(monarchy, _("Saxe-Coburg"), 0x808000)
+saxe_coburg:add_client_hint(monarchy, _("Saxe-Coburg"), 0xc161ed)
 
 saxe_hildburghausen = Nation:new{ ref_name = "saxe_hildburghausen" }
 saxe_hildburghausen.name = _("Saxe-Hildburghausen")
 saxe_hildburghausen:register()
 saxe_hildburghausen:set_ideology(monarchy, "absolute_monarchy")
 saxe_hildburghausen:add_accepted_language(german)
-saxe_hildburghausen:add_client_hint(monarchy, _("Saxe-Hildburghausen"), 0x808000)
+saxe_hildburghausen:add_client_hint(monarchy, _("Saxe-Hildburghausen"), 0xe3c624)
 
 saxe_meiningen = Nation:new{ ref_name = "saxe_meiningen" }
 saxe_meiningen.name = _("Saxe-Meiningen")
 saxe_meiningen:register()
 saxe_meiningen:set_ideology(monarchy, "absolute_monarchy")
 saxe_meiningen:add_accepted_language(german)
-saxe_meiningen:add_client_hint(monarchy, _("Saxe-Meiningen"), 0x808000)
+saxe_meiningen:add_client_hint(monarchy, _("Saxe-Meiningen"), 0xc91e60)
 
 lippe = Nation:new{ ref_name = "lippe" }
 lippe.name = _("Lippe")
@@ -545,14 +545,14 @@ lorraine:register()
 lorraine:set_ideology(monarchy, "absolute_monarchy")
 lorraine:add_accepted_language(german)
 lorraine:add_accepted_language(french)
-lorraine:add_client_hint(monarchy, _("Lorraine"), 0x808000)
+lorraine:add_client_hint(monarchy, _("Lorraine"), 0xeb6b10)
 
 brandenburg = Nation:new{ ref_name = "brandenburg" }
 brandenburg.name = _("Brandenburg")
 brandenburg:register()
 brandenburg:set_ideology(monarchy, "absolute_monarchy")
 brandenburg:add_accepted_language(german)
-brandenburg:add_client_hint(monarchy, _("Brandenburg"), 0x808000)
+brandenburg:add_client_hint(monarchy, _("Brandenburg"), 0x2f5236)
 
 frankfurt = Nation:new{ ref_name = "frankfurt" }
 frankfurt.name = _("Frankfurt")
@@ -566,7 +566,7 @@ munich.name = _("Munich")
 munich:register()
 munich:set_ideology(monarchy, "absolute_monarchy")
 munich:add_accepted_language(german)
-munich:add_client_hint(monarchy, _("Munich"), 0x808000)
+munich:add_client_hint(monarchy, _("Munich"), 0x787667)
 
 hamburg = Nation:new{ ref_name = "hamburg" }
 hamburg.name = _("Hamburg")
@@ -678,7 +678,7 @@ schaumburg_lippe.name = _("Schaumburg-Lippe")
 schaumburg_lippe:register()
 schaumburg_lippe:set_ideology(monarchy, "absolute_monarchy")
 schaumburg_lippe:add_accepted_language(german)
-schaumburg_lippe:add_client_hint(monarchy, _("Schaumburg-Lippe"), 0x808000)
+schaumburg_lippe:add_client_hint(monarchy, _("Schaumburg-Lippe"), 0x24878c)
 
 ritzebuttel = Nation:new{ ref_name = "ritzebuttel" }
 ritzebuttel.name = _("Ritzebüttel")
@@ -757,7 +757,7 @@ greater_prussia.name = _("Greater Prussia")
 greater_prussia.adjective = _("Prussian")
 greater_prussia:register()
 greater_prussia:add_accepted_language(german)
-greater_prussia:add_client_hint(monarchy, _("Greater Prussia"), 0x808000)
+greater_prussia:add_client_hint(monarchy, _("Greater Prussia"), 0x0c254d)
 
 germany = Nation:new{ ref_name = "germany" }
 germany.name = _("Germany")

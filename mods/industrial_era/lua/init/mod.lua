@@ -37,6 +37,7 @@ require('entities/events/minas_gerais_crash')
 require('entities/events/test_event')
 require('entities/events/taza_concession')
 require('entities/events/unify_germany')
+require('entities/events/yongle_encyclopedia')
 
 -- Puppets
 Nation:get("france"):make_puppet(Nation:get("piedmont_sardinia"))
