@@ -95,7 +95,7 @@ void handle_popups(std::vector<TreatyId>& displayed_treaties, GameState& gs) {
             new Interface::DecisionWindow(gs, msg);
             w.kill();
         });
-        ibtn.set_tooltip(msg.name);
+        ibtn.set_tooltip(msg.title);
     }
     gs.curr_nation->inbox.clear();
 

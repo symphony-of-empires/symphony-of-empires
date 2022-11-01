@@ -122,11 +122,12 @@ void Client::net_loop() {
                         NationId size;
                         ::deserialize(ar, size);
                         for(size_t i = 0; i < static_cast<size_t>(size); i++) {
-                            Nation* nation;
-                            ::deserialize(ar, nation);
-                            if(nation == nullptr)
+                            NationId nation_id;
+                            ::deserialize(ar, nation_id);
+                            if(Nation::is_invalid(nation_id))
                                 CXX_THROW(ClientException, "Unknown nation");
-                            ::deserialize(ar, *nation);
+                            auto& nation = gs.world->nations[nation_id];
+                            ::deserialize(ar, nation);
                         }
                     } break;
                     case ActionType::NATION_ENACT_POLICY: {
@@ -244,10 +245,10 @@ void Client::net_loop() {
             }
 
             // Client will also flush it's queue to the server
+            const std::scoped_lock lock(packets_mutex);
             while(!packets.empty()) {
                 Eng3D::Networking::Packet new_packet{};
                 { // Make clear the lifetime of the lock since send is an expensive operation
-                    const std::scoped_lock lock(packets_mutex);
                     new_packet = packets.back();
                     new_packet.stream = Eng3D::Networking::SocketStream(fd);
                     packets.pop_back();
