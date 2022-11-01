@@ -83,7 +83,7 @@ public:
 };
 
 class MapRender : public Eng3D::BaseMap {
-    void update_visibility(GameState& gs);
+    void update_visibility();
     void update_city_lights();
 
     GameState& gs;
@@ -112,7 +112,7 @@ public:
     void draw(const Eng3D::Camera& camera, MapView view_mode);
     void reload_shaders();
     void update_options(MapOptions options);
-    void update(GameState& gs);
+    void update();
 
     MapOptions options;
     void update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_size);

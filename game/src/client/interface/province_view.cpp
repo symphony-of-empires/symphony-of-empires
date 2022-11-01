@@ -274,8 +274,8 @@ ProvinceEditLanguageTab::ProvinceEditLanguageTab(GameState& _gs, int _x, int _y,
     table->on_each_tick(*table);
 }
 
-ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int x, int y, Province& _province, UI::Widget* _parent)
-    : UI::Group(x, y, _parent->width - x, _parent->height - y, _parent),
+ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int _x, int _y, Province& _province, UI::Widget* _parent)
+    : UI::Group(_x, _y, _parent->width - _x, _parent->height - _y, _parent),
     gs{ _gs },
     province{ _province },
     terrain_type{ _gs.world->terrain_types[0] }

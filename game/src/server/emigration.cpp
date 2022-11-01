@@ -156,10 +156,10 @@ static inline void external_migration(World& world) {
                     const auto emigrants = glm::min(pop.size * emigration_desire * rng_multipliers.get_item(), pop.size);
                     if(emigrants > 0) {
                         auto& nation_distribution = nation_distributions[language_id];
-                        const auto* nation = nation_distribution.get_item();
-                        if(nation == nullptr) continue;
+                        const auto* random_nation = nation_distribution.get_item();
+                        if(random_nation == nullptr) continue;
 
-                        auto& province_distribution = province_distributions[nation->get_id()];
+                        auto& province_distribution = province_distributions[random_nation->get_id()];
                         auto* choosen_province = province_distribution.get_item();
                         if(choosen_province == nullptr) continue;
 

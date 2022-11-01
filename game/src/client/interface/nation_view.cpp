@@ -116,7 +116,7 @@ Interface::NationView::NationView(GameState& _gs, Nation& _nation)
         switch_btn->set_on_click([this](UI::Widget&) {
             this->gs.curr_nation = &this->nation;
             this->gs.map->map_render->request_update_visibility();
-            this->gs.map->map_render->update(this->gs);
+            this->gs.map->map_render->update();
         });
     }
 }

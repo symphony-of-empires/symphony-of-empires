@@ -68,7 +68,7 @@ void GameState::play_nation() {
     const auto& capital = this->world->provinces[this->curr_nation->capital_id];
     map->camera->set_pos(capital.box_area.right, capital.box_area.bottom);
     map->map_render->request_update_visibility();
-    map->map_render->update(*this);
+    map->map_render->update();
 
     // Make topwindow
     top_win = static_cast<UI::Widget*>(new Interface::TopWindow(*this));
@@ -388,7 +388,7 @@ int main(int argc, char** argv) try {
 
                 if(gs.update_tick) {
                     gs.update_on_tick();
-                    gs.map->map_render->update(gs);
+                    gs.map->map_render->update();
                     gs.update_tick = false;
 
                     if(gs.current_mode == MapMode::NORMAL) {
@@ -424,9 +424,9 @@ int main(int argc, char** argv) try {
                 gs.world->world_mutex.unlock();
             }
         }), ([&gs]() {
-            std::scoped_lock lock(gs.render_lock);
+            std::scoped_lock render_lock(gs.render_lock);
             if(gs.current_mode != MapMode::NO_MAP) {
-                const std::scoped_lock lock(gs.world->world_mutex);
+                const std::scoped_lock update_lock(gs.world->world_mutex);
                 gs.map->camera->update();
                 gs.map->draw();
             }

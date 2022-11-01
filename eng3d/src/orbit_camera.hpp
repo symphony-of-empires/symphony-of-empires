@@ -42,18 +42,18 @@ namespace Eng3D {
         glm::vec3 target;
         ValueChase<glm::vec3> chase{ 0.2f };
 
-        OrbitCamera(glm::vec2 screen_size, glm::vec2 map_size, float _radius)
-            : Camera(screen_size, map_size), radius{ _radius }
+        OrbitCamera(glm::vec2 _screen_size, glm::vec2 _map_size, float _radius)
+            : Camera(_screen_size, _map_size), radius{ _radius }
         {
             circumference = _radius * 2 * glm::pi<float>();
             map_position = glm::vec3(glm::pi<float>(), glm::pi<float>() * 0.5f, radius * 1.5f);
             target = map_position;
         }
 
-        OrbitCamera(const Camera& camera, float _radius)
-            : Camera(camera), radius{ _radius }
+        OrbitCamera(const Camera& _camera, float _radius)
+            : Camera(_camera), radius{ _radius }
         {
-            circumference = _radius * 2 * glm::pi<float>();
+            circumference = radius * 2 * glm::pi<float>();
             world_position = map_position;
             target = map_position;
         }
@@ -63,7 +63,6 @@ namespace Eng3D {
             float camera_radius = radius + map_position.z / (map_size.x / 2.f) * circumference * 0.5f;
             target.x += x_dir * scale * radius / camera_radius;
             target.y += y_dir * scale * radius / camera_radius;
-            target.y = glm::clamp(target.y, 0.f, map_size.y);
             target.z += z_dir * scale;
             target.z = glm::clamp(target.z, radius - 60.f, map_size.x / 2.f);
         }

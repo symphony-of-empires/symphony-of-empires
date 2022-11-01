@@ -292,9 +292,9 @@ void Map::set_selection(selector_func _selector) {
     selector = _selector;
 }
 
-void Map::set_map_mode(mapmode_generator mapmode_generator, mapmode_tooltip tooltip_generator) {
-    mapmode_func = mapmode_generator;
-    mapmode_tooltip_func = tooltip_generator;
+void Map::set_map_mode(mapmode_generator _mapmode_generator, mapmode_tooltip _tooltip_generator) {
+    mapmode_func = _mapmode_generator;
+    mapmode_tooltip_func = _tooltip_generator;
     update_mapmode();
 }
 
@@ -587,7 +587,7 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
                 province.nuclei.erase(last, province.nuclei.end());
                 this->update_mapmode();
                 this->map_render->request_update_visibility();
-                this->map_render->update(this->gs);
+                this->map_render->update();
             }
 
             /// @todo Handle the case where an unit is deleted

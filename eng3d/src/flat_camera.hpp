@@ -39,8 +39,8 @@ namespace Eng3D {
         glm::vec3 target;
         ValueChase<glm::vec3> chase{ 0.2f };
 
-        FlatCamera(glm::vec2 screen_size, glm::vec2 map_size)
-            : Camera(screen_size, map_size)
+        FlatCamera(glm::vec2 _screen_size, glm::vec2 _map_size)
+            : Camera(_screen_size, _map_size)
         {
             world_position = glm::vec3(400.f, 200.f, 400.f);
             map_position = world_position;

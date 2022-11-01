@@ -749,7 +749,7 @@ void World::do_tick() {
                     if(it != war.attacker_ids.end()) war.attacker_ids.erase(it);
                     else std::erase(war.defender_ids, nation);
                     // Stop the war between the nations
-                    for(const auto& [other_nation, _] : treaty.approval_status)
+                    for(const auto& [other_nation, __] : treaty.approval_status)
                         if(nation != other_nation)
                             this->get_relation(treaty.sender_id, treaty.receiver_id).has_war = false;
                 }

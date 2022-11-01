@@ -50,7 +50,6 @@ namespace Eng3D {
         std::shared_ptr<Eng3D::Texture> bathymethry;
         std::unique_ptr<Eng3D::TextureArray> terrain_sheet;
         std::unique_ptr<Eng3D::Texture> normal_topo;
-        std::unique_ptr<Eng3D::Texture> topo_map;
         std::unique_ptr<Eng3D::Texture> terrain_map;
         std::shared_ptr<Eng3D::Texture> noise_tex;
         std::shared_ptr<Eng3D::Texture> paper_tex;

@@ -213,15 +213,15 @@ const Nation::ClientHint& Nation::get_client_hint() const {
 }
 
 float Nation::get_research_points() const {
-    float research = 0.f;
+    float new_research = 0.f;
     for(const auto province_id : this->owned_provinces) {
         const auto& province = World::get_instance().provinces[province_id];
         for(const auto& pop : province.pops)
-            research += pop.size * pop.literacy;
-        if(research && !province.is_populated())
-            research /= province.pops.size();
+            new_research += pop.size * pop.literacy;
+        if(new_research && !province.is_populated())
+            new_research /= province.pops.size();
     }
-    return research / 100.f;
+    return new_research / 100.f;
 }
 
 bool Nation::can_research(const Technology& technology) const {

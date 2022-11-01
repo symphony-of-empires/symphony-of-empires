@@ -100,15 +100,17 @@ MapRender::MapRender(GameState& _gs, Map& _map)
 
     // By default textures will be dropped from the CPU in order to save memory, however we're trying
     // to make a buffer-texture so we have to keep it or we will have trouble
-    Eng3D::TextureOptions no_drop_options{};
-    no_drop_options.editable = true;
+    {
+        Eng3D::TextureOptions no_drop_options{};
+        no_drop_options.editable = true;
 #ifdef E3D_BACKEND_OPENGL
-    no_drop_options.internal_format = Eng3D::TextureOptions::Format::SRGB_ALPHA;
+        no_drop_options.internal_format = Eng3D::TextureOptions::Format::SRGB_ALPHA;
 #elif defined E3D_BACKEND_GLES
-    no_drop_options.internal_format = Eng3D::TextureOptions::Format::RGBA;
+        no_drop_options.internal_format = Eng3D::TextureOptions::Format::RGBA;
 #endif
-    no_drop_options.compressed = false;
-    tile_sheet->upload(no_drop_options);
+        no_drop_options.compressed = false;
+        tile_sheet->upload(no_drop_options);
+    }
 
     // Province options
     province_opt = std::make_unique<Eng3D::Texture>(256, 256);
@@ -128,7 +130,6 @@ MapRender::MapRender(GameState& _gs, Map& _map)
 }
 
 void MapRender::reload_shaders() {
-    auto& gs = static_cast<GameState&>(Eng3D::State::get_instance());
     border_gen_shader = std::make_unique<Eng3D::OpenGL::Program>();
     {
         auto vs_shader = Eng3D::OpenGL::VertexShader(gs.package_man.get_unique("shaders/2d_scale.vs")->read_all());
@@ -161,7 +162,6 @@ void MapRender::reload_shaders() {
 }
 
 void MapRender::update_options(MapOptions) {
-    auto& gs = static_cast<GameState&>(Eng3D::State::get_instance());
     map_shader = std::make_unique<Eng3D::OpenGL::Program>();
     {
         std::vector<Eng3D::GLSL::Define> defined_options;
@@ -383,7 +383,7 @@ void MapRender::request_update_visibility() {
     this->req_update_vision = true;
 }
 
-void MapRender::update_visibility(GameState& gs) {
+void MapRender::update_visibility() {
     // Fill out information for visability
     if(gs.curr_nation == nullptr || gs.curr_nation == &gs.world->nations[0]) {
         std::fill_n(province_opt->buffer.get(), gs.world->provinces.size(), 0x000000ff);
@@ -410,20 +410,21 @@ void MapRender::update_visibility(GameState& gs) {
             }
         }
     }
-    gs.world->unit_manager.for_each_unit([this, &gs](Unit& unit) {
+    gs.world->unit_manager.for_each_unit([this](Unit& unit) {
+        auto &_gs = this->gs;
         // Unit must be ours or be owned by our ally
-        if(unit.owner_id != gs.curr_nation->get_id() && !gs.world->get_relation(unit.owner_id, gs.curr_nation->get_id()).is_allied())
+        if(unit.owner_id != _gs.curr_nation->get_id() && !_gs.world->get_relation(unit.owner_id, _gs.curr_nation->get_id()).is_allied())
             return;
-        auto prov_id = gs.world->unit_manager.get_unit_current_province(unit.cached_id);
+        auto prov_id = _gs.world->unit_manager.get_unit_current_province(unit.cached_id);
         this->province_opt->buffer[prov_id] |= 0x000000ff;
-        for(const auto neighbour_id : gs.world->provinces[prov_id].neighbour_ids)
+        for(const auto neighbour_id : _gs.world->provinces[prov_id].neighbour_ids)
             this->province_opt->buffer[neighbour_id] |= 0x000000ff;
     });
     if(gs.map->province_selected)
         this->province_opt->buffer[gs.map->selected_province_id] |= 0x400000ff;
 }
 
-void MapRender::update(GameState& gs) {
+void MapRender::update() {
     if(gs.world->province_manager.is_provinces_changed())
         this->req_update_vision = true;
     
@@ -451,7 +452,7 @@ void MapRender::update(GameState& gs) {
     }
 
     if(this->req_update_vision) {
-        this->update_visibility(gs);
+        this->update_visibility();
         this->req_update_vision = false;
     }
     this->update_city_lights();
