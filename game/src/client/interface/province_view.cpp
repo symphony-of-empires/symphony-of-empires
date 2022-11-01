@@ -85,7 +85,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int _x, int _y, Pro
     this->text(province.name);
 
     const auto& terrain_type = gs.world->terrain_types[province.terrain_type_id];
-    auto& landscape_img = this->add_child2<UI::Image>(0, 0, this->width - 16, 128 + 64 + 16, terrain_type.get_icon_path());
+    auto& landscape_img = this->make_widget<UI::Image>(0, 0, this->width - 16, 128 + 64 + 16, terrain_type.get_icon_path());
     landscape_img.set_tooltip(translate_format("%s, penalty %.2f", terrain_type.name.c_str(), terrain_type.penalty));
 
     if(Nation::is_valid(province.owner_id)) {
@@ -98,11 +98,11 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int _x, int _y, Pro
     }
 
     // Display all the nuclei
-    auto& nuclei_flex_row = this->add_child2<UI::Div>(0, landscape_img.height - 24, this->width, 24);
+    auto& nuclei_flex_row = this->make_widget<UI::Div>(0, landscape_img.height - 24, this->width, 24);
     nuclei_flex_row.flex = UI::Flex::ROW;
     for(const auto nucleus_id : province.nuclei) {
         auto& nucleus = this->gs.world->nations[nucleus_id];
-        auto& owner_flag = nuclei_flex_row.add_child2<UI::AspectImage>(0, 0, 32, 24, gs.get_nation_flag(nucleus));
+        auto& owner_flag = nuclei_flex_row.make_widget<UI::AspectImage>(0, 0, 32, 24, gs.get_nation_flag(nucleus));
         owner_flag.set_on_click([this, nucleus_id](UI::Widget&) {
             new Interface::NationView(this->gs, this->gs.world->nations[nucleus_id]);
         });
@@ -203,7 +203,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int _x, int _y, Pro
         auto& row = stock_table->get_row(good.get_id());
         auto* commodity = row.get_element(0);
         commodity->set_key(good.name.c_str());
-        auto& commodity_img = commodity->add_child2<UI::Image>(0, 0, 35, 35, good.get_icon_path(), true);
+        auto& commodity_img = commodity->make_widget<UI::Image>(0, 0, 35, 35, good.get_icon_path(), true);
         commodity_img.set_tooltip(good.name);
     }
 

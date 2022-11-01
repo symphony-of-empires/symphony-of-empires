@@ -58,7 +58,7 @@ UI::Scrollbar::Scrollbar(int _x, int _y, unsigned h, UI::Widget* _parent)
     //this->flex = UI::Flex::COLUMN;
     //this->flex_justify = UI::FlexJustify::SPACE_BETWEEN;
 
-    auto& up_btn = this->add_child2<UI::Button>(0, 0, 20, 20);
+    auto& up_btn = this->make_widget<UI::Button>(0, 0, 20, 20);
     up_btn.set_on_click([this](UI::Widget&) {
         if(this->parent) {
             const auto y_bounds = this->parent->get_y_bounds();
@@ -69,7 +69,7 @@ UI::Scrollbar::Scrollbar(int _x, int _y, unsigned h, UI::Widget* _parent)
     });
     up_btn.current_texture = s.tex_man.load(s.package_man.get_unique("gfx/scrollbar_up.png"));
 
-    auto& down_btn = this->add_child2<UI::Button>(0, this->height - 20, 20, 20);
+    auto& down_btn = this->make_widget<UI::Button>(0, this->height - 20, 20, 20);
     down_btn.set_on_click([this](UI::Widget&) {
         if(this->parent) {
             const auto y_bounds = this->parent->get_y_bounds();
@@ -80,7 +80,7 @@ UI::Scrollbar::Scrollbar(int _x, int _y, unsigned h, UI::Widget* _parent)
     });
     down_btn.current_texture = s.tex_man.load(s.package_man.get_unique("gfx/scrollbar_down.png"));
 
-    this->thumb_btn = &this->add_child2<UI::ScrollbarThumb>(0, 0);
+    this->thumb_btn = &this->make_widget<UI::ScrollbarThumb>(0, 0);
     this->update_thumb();
 }
 

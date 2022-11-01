@@ -47,7 +47,7 @@ Eng3D::Interface::ProfilerView::ProfilerView(Eng3D::State& _s, Eng3D::Profiler& 
     });
 
     float fps = this->profiler.get_fps();
-    auto& fps_lab = this->add_child2<UI::Label>(10, 0, "FPS: " + std::to_string((int)fps));
+    auto& fps_lab = this->make_widget<UI::Label>(10, 0, "FPS: " + std::to_string((int)fps));
     fps_lab.on_update = ([this](UI::Widget& w) {
         float current_fps = this->profiler.get_fps();
         w.text("FPS: " + std::to_string((int)current_fps));
@@ -58,7 +58,7 @@ Eng3D::Interface::ProfilerView::ProfilerView(Eng3D::State& _s, Eng3D::Profiler& 
     for(auto& task : tasks)
         data.push_back(UI::ChartData(task->get_average_time_ms(), task->name, 0));
 
-    auto& task_chart = this->add_child2<UI::BarChart>(20, 20, this->width - 40, 20);
+    auto& task_chart = this->make_widget<UI::BarChart>(20, 20, this->width - 40, 20);
     task_chart.on_update = ([this](UI::Widget& w) {
         auto& chart = static_cast<UI::BarChart&>(w);
         std::vector<UI::ChartData> current_data;
@@ -89,8 +89,8 @@ Eng3D::Interface::ProfilerView::ProfilerView(Eng3D::State& _s, Eng3D::Profiler& 
 Eng3D::Interface::ProfilerTaskView::ProfilerTaskView(ProfilerView* profiler_view, int _x, int _y):
     UI::Group(_x, _y, 300, 25, profiler_view)
 {
-    this->color_box = &this->add_child2<UI::Div>(0, 0, 20, 20);
-    this->label = &this->add_child2<UI::Label>(30, 0, " ");
+    this->color_box = &this->make_widget<UI::Div>(0, 0, 20, 20);
+    this->label = &this->make_widget<UI::Label>(30, 0, " ");
 }
 
 void Eng3D::Interface::ProfilerTaskView::set_task(Eng3D::BenchmarkTask& profiler_view) {

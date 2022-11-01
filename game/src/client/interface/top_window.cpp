@@ -52,16 +52,16 @@ TopWindow::TopWindow(GameState& _gs)
     this->gs.time_win = static_cast<UI::Widget*>(new TimeControlView(gs));
 
     UI::Image::make_transparent(0, 0, 147, 499, "gfx/top_window.png", this);
-    auto& flag_img = this->add_child2<UI::Image>(5, 4, 138, 88, this->gs.tex_man.get_white());
+    auto& flag_img = this->make_widget<UI::Image>(5, 4, 138, 88, this->gs.tex_man.get_white());
     flag_img.set_on_each_tick([this](UI::Widget& w) {
         w.current_texture = this->gs.get_nation_flag(*this->gs.curr_nation);
     });
     flag_img.on_each_tick(flag_img);
 #ifndef E3D_HANDHELD
-    this->add_child2<UI::Image>(5, 4, flag_img.width, flag_img.height, "gfx/drop_shadow.png");
+    this->make_widget<UI::Image>(5, 4, flag_img.width, flag_img.height, "gfx/drop_shadow.png");
 #endif
 
-    auto& event_tray_grp = this->add_child2<UI::Image>(150, 32, 356 + 256, 32, "gfx/background2.png", true);
+    auto& event_tray_grp = this->make_widget<UI::Image>(150, 32, 356 + 256, 32, "gfx/background2.png", true);
     event_tray_grp.flex = UI::Flex::ROW;
     this->gs.event_tray_grp = &event_tray_grp;
 
@@ -137,62 +137,62 @@ TopWindow::TopWindow(GameState& _gs)
     });
     prestige_score_lab->on_each_tick(*prestige_score_lab);
 
-    auto& flex_column = this->add_child2<UI::Div>(3, 96, 42, 390);
+    auto& flex_column = this->make_widget<UI::Div>(3, 96, 42, 390);
     flex_column.flex = UI::Flex::COLUMN;
     flex_column.flex_justify = UI::FlexJustify::SPACE_AROUND;
     flex_column.flex_align = UI::Align::CENTER;
 
     int icon_size = 28;
 
-    auto& policy_ibtn = flex_column.add_child2<UI::Image>(0, 0, icon_size, icon_size, "gfx/book.png", true);
+    auto& policy_ibtn = flex_column.make_widget<UI::Image>(0, 0, icon_size, icon_size, "gfx/book.png", true);
     policy_ibtn.set_on_click([this](UI::Widget&) {
         new Interface::PoliciesView(this->gs);
     });
     policy_ibtn.set_tooltip("Laws & Policies");
 
-    auto& economy_ibtn = flex_column.add_child2<UI::Image>(0, 0, icon_size, icon_size, "gfx/economy.png", true);
+    auto& economy_ibtn = flex_column.make_widget<UI::Image>(0, 0, icon_size, icon_size, "gfx/economy.png", true);
     economy_ibtn.set_on_click([this](UI::Widget&) {
 
     });
     economy_ibtn.set_tooltip("Economy");
 
-    auto& pops_ibtn = flex_column.add_child2<UI::Image>(0, 0, icon_size, icon_size, "gfx/pop.png", true);
+    auto& pops_ibtn = flex_column.make_widget<UI::Image>(0, 0, icon_size, icon_size, "gfx/pop.png", true);
     pops_ibtn.set_on_click([this](UI::Widget&) {
         new Interface::PopWindow(this->gs);
     });
     pops_ibtn.set_tooltip("Population");
 
-    auto& factory_ibtn = flex_column.add_child2<UI::Image>(0, 0, icon_size, icon_size, "gfx/factory.png", true);
+    auto& factory_ibtn = flex_column.make_widget<UI::Image>(0, 0, icon_size, icon_size, "gfx/factory.png", true);
     factory_ibtn.set_on_click([this](UI::Widget&) {
         new Interface::FactoryWindow(this->gs);
     });
     factory_ibtn.set_tooltip("Factories");
 
-    auto& military_ibtn = flex_column.add_child2<UI::Image>(0, 0, icon_size, icon_size, "gfx/military_score.png", true);
+    auto& military_ibtn = flex_column.make_widget<UI::Image>(0, 0, icon_size, icon_size, "gfx/military_score.png", true);
     military_ibtn.set_on_click([this](UI::Widget&) {
         new Interface::ArmyView(this->gs);
     });
     military_ibtn.set_tooltip("Military");
 
-    auto& research_ibtn = flex_column.add_child2<UI::Image>(0, 0, icon_size, icon_size, "gfx/tech.png", true);
+    auto& research_ibtn = flex_column.make_widget<UI::Image>(0, 0, icon_size, icon_size, "gfx/tech.png", true);
     research_ibtn.set_on_click([this](UI::Widget&) {
 
     });
     research_ibtn.set_tooltip("Research");
 
-    auto& save_ibtn = flex_column.add_child2<UI::Image>(0, 0, icon_size, icon_size, "gfx/save.png", true);
+    auto& save_ibtn = flex_column.make_widget<UI::Image>(0, 0, icon_size, icon_size, "gfx/save.png", true);
     save_ibtn.set_on_click([this](UI::Widget&) {
         LUA_util::save(this->gs, string_format("%s_%zu-%zu-%zu.sc4", gs.curr_nation->ref_name.c_str(), gs.world->get_year(), gs.world->get_month(), gs.world->get_day()));
     });
     save_ibtn.set_tooltip("Saves the current game");
 
-    auto& load_ibtn = flex_column.add_child2<UI::Image>(9, 275, 25, 25, "gfx/top_bar/save.png", true);
+    auto& load_ibtn = flex_column.make_widget<UI::Image>(9, 275, 25, 25, "gfx/top_bar/save.png", true);
     load_ibtn.set_on_click([this](UI::Widget&) {
         LUA_util::load(this->gs, "autosave.sc4");
     });
     load_ibtn.set_tooltip("Load latest autosave");
 
-    auto& exit_ibtn = flex_column.add_child2<UI::Image>(0, 0, icon_size, icon_size, "gfx/exit.png", true);
+    auto& exit_ibtn = flex_column.make_widget<UI::Image>(0, 0, icon_size, icon_size, "gfx/exit.png", true);
     exit_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.ui_ctx.clear();
         this->gs.ui_ctx.use_tooltip(nullptr, { 0, 0 });

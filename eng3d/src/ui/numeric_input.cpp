@@ -31,10 +31,10 @@
 UI::NumericInput::NumericInput(int _x, int _y, unsigned _w, unsigned _h, Widget* _parent)
     : Group(_x, _y, _w, _h, _parent)
 {
-    inp = &this->add_child2<UI::Input>(0, 0, width - 32 - 32, height);
+    inp = &this->make_widget<UI::Input>(0, 0, width - 32 - 32, height);
     inp->set_buffer("100.0");
 
-    add_btn = &this->add_child2<UI::Button>(0, 0, 32, height);
+    add_btn = &this->make_widget<UI::Button>(0, 0, 32, height);
     add_btn->text("+");
     add_btn->right_side_of(*inp);
     add_btn->set_on_click([](UI::Widget& w) {
@@ -45,7 +45,7 @@ UI::NumericInput::NumericInput(int _x, int _y, unsigned _w, unsigned _h, Widget*
         p->set_buffer(tmpbuf);
     });
 
-    sub_btn = &this->add_child2<UI::Button>(0, 0, 32, height);
+    sub_btn = &this->make_widget<UI::Button>(0, 0, 32, height);
     sub_btn->text("-");
     sub_btn->right_side_of(*add_btn);
     sub_btn->set_on_click([](UI::Widget& w) {

@@ -109,7 +109,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     this->current_texture = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/bg/main_menu.png"));
     auto main_menu_border = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/bg/main_menu_border.png"));
     this->border = UI::Border(main_menu_border, glm::ivec2(16), glm::ivec2(16));
-    this->add_child2<UI::Image>(0, 0, 300, 120, "gfx/ui/image/logo.png");
+    this->make_widget<UI::Image>(0, 0, 300, 120, "gfx/ui/image/logo.png");
 
     auto button_image = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/button/button.png"));
     auto button_border_image = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/button/button_border.png"));
@@ -117,7 +117,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     glm::ivec2 texture_size(3, 3);
     auto button_border = UI::Border(button_border_image, size, texture_size);
 
-    auto& button_list = this->add_child2<UI::Div>(0, 200, 300, 320);
+    auto& button_list = this->make_widget<UI::Div>(0, 200, 300, 320);
     button_list.flex = UI::Flex::COLUMN;
     button_list.flex_align = UI::Align::CENTER;
     button_list.flex_gap = 8;
@@ -125,7 +125,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     int b_width = 225;
     int b_height = 33;
 
-    auto& demo_btn = button_list.add_child2<UI::Button>(0, 0, b_width, b_height);
+    auto& demo_btn = button_list.make_widget<UI::Button>(0, 0, b_width, b_height);
     demo_btn.border = button_border;
     demo_btn.current_texture = button_image;
     demo_btn.font = menu_font;
@@ -162,7 +162,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
         );
     });
 
-    auto& single_btn = button_list.add_child2<UI::Button>(0, 0, b_width, b_height);
+    auto& single_btn = button_list.make_widget<UI::Button>(0, 0, b_width, b_height);
     single_btn.border = button_border;
     single_btn.current_texture = button_image;
     single_btn.font = menu_font;
@@ -177,7 +177,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
         gs.editor = false;
     });
 
-    auto& mp_btn = button_list.add_child2<UI::Button>(0, 0, b_width, b_height);
+    auto& mp_btn = button_list.make_widget<UI::Button>(0, 0, b_width, b_height);
     mp_btn.border = button_border;
     mp_btn.current_texture = button_image;
     mp_btn.font = menu_font;
@@ -188,7 +188,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
         this->connect_window = new Interface::MainMenuConnectServer(this->gs);
     });
 
-    auto& host_btn = button_list.add_child2<UI::Button>(0, 0, b_width, b_height);
+    auto& host_btn = button_list.make_widget<UI::Button>(0, 0, b_width, b_height);
     host_btn.border = button_border;
     host_btn.current_texture = button_image;
     host_btn.font = menu_font;
@@ -203,7 +203,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
         this->gs.editor = false;
     });
 
-    auto& edit_btn = button_list.add_child2<UI::Button>(0, 0, b_width, b_height);
+    auto& edit_btn = button_list.make_widget<UI::Button>(0, 0, b_width, b_height);
     edit_btn.border = button_border;
     edit_btn.current_texture = button_image;
     edit_btn.font = menu_font;
@@ -222,7 +222,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
         this->gs.play_nation();
     });
 
-    auto& cfg_btn = button_list.add_child2<UI::Button>(0, 0, b_width, b_height);
+    auto& cfg_btn = button_list.make_widget<UI::Button>(0, 0, b_width, b_height);
     cfg_btn.border = button_border;
     cfg_btn.current_texture = button_image;
     cfg_btn.font = menu_font;
@@ -233,7 +233,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
         LuaAPI::invoke_registered_callback(this->gs.world->lua, "settings_window_invoke");
     });
 
-    auto& exit_btn = button_list.add_child2<UI::Button>(0, 0, b_width, b_height);
+    auto& exit_btn = button_list.make_widget<UI::Button>(0, 0, b_width, b_height);
     exit_btn.border = button_border;
     exit_btn.current_texture = button_image;
     exit_btn.font = menu_font;

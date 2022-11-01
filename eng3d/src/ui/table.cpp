@@ -69,7 +69,7 @@ UI::TableRow::TableRow(int _width, int _height, std::vector<int>& _columns_width
 
     elements.resize(this->columns_width.size());
     std::transform(this->columns_width.cbegin(), this->columns_width.cend(), elements.begin(), [this](const auto e) {
-        return &this->add_child2<UI::TableElement>(e, this->height);
+        return &this->make_widget<UI::TableElement>(e, this->height);
     });
 
     this->on_update = ([this](UI::Widget&) {

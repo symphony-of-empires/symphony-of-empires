@@ -487,7 +487,7 @@ void Eng3D::State::do_event() {
         win->set_close_btn_function([win](UI::Widget&) {
             win->kill();
         });
-        auto& txt = win->add_child2<UI::Text>(0, 0, win->width, win->height);
+        auto& txt = win->make_widget<UI::Text>(0, 0, win->width, win->height);
         txt.text_color = Eng3D::Color{};
         txt.text(prompt.second);
         txt.is_scroll = true;

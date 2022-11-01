@@ -90,7 +90,7 @@ void UI::Tooltip::text(const std::string& text) {
     this->width = s.width - this->x;
     this->height = s.height - this->x;
 
-    auto& text_txt = this->add_child2<UI::Text>(0, 0, text);
+    auto& text_txt = this->make_widget<UI::Text>(0, 0, text);
     this->width = text_txt.width;
     this->height = text_txt.height;
 }

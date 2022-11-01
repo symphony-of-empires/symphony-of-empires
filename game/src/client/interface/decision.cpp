@@ -49,12 +49,12 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
     // Display an image iff it exists
     const auto& path = string_format("gfx/events/%s.png", event.ref_name.c_str());
     if(this->gs.package_man.get_unique(path) != nullptr) {
-        auto& img = this->add_child2<UI::Image>(0, 0, this->width, 200, path);
+        auto& img = this->make_widget<UI::Image>(0, 0, this->width, 200, path);
     } else {
         Eng3D::Log::warning("event", path.c_str());
     }
 
-    auto& txt = this->add_child2<UI::Text>(0, 0, this->width, 24);
+    auto& txt = this->make_widget<UI::Text>(0, 0, this->width, 24);
     txt.text_color = Eng3D::Color::rgb8(0, 0, 0);
     txt.text(this->event.text);
     txt.is_scroll = true;
@@ -64,7 +64,7 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
         auto* flex_column =  new UI::Div(0, 0, this->width - 24, 24, this);
         flex_column->flex = UI::Flex::ROW;
 
-        auto& decide_btn = flex_column->add_child2<UI::Button>(0, 0, flex_column->width - 24, 24);
+        auto& decide_btn = flex_column->make_widget<UI::Button>(0, 0, flex_column->width - 24, 24);
         decide_btn.text(decision.name);
         decide_btn.set_tooltip(decision.effects);
         decide_btn.set_on_click([this, &decision](UI::Widget&) {
@@ -72,7 +72,7 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
             this->kill();
         });
 
-        auto& remind_ibtn = flex_column->add_child2<UI::Image>(0, 0, 24, 24, "gfx/noicon.png");
+        auto& remind_ibtn = flex_column->make_widget<UI::Image>(0, 0, 24, 24, "gfx/noicon.png");
         remind_ibtn.set_tooltip(translate("Automatically take this descision"));
         remind_ibtn.set_on_click([this, &decision](UI::Widget&) {
             this->gs.decision_autodo.push_back(decision.ref_name);
