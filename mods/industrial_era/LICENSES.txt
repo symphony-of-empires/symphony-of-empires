@@ -64,6 +64,18 @@ gfx/load_screen/007
 gfx/load_screen/008
 	By Otto Bache - [1], Public Domain, https://commons.wikimedia.org/w/index.php?curid=3428232
 
+gfx/load_screen/009
+	By William Daniell - National Maritime Museum https://artuk.org/discover/artworks/a-view-of-the-european-factories-at-canton-173390, Public Domain, https://commons.wikimedia.org/w/index.php?curid=10110340
+
+gfx/load_screen/010
+	By Unknown author - Transferred from el.wikipedia; transferred to Commons by User:MARKELLOS using CommonsHelper, Public Domain, https://commons.wikimedia.org/w/index.php?curid=11271681
+
+gfx/load_screen/011
+	By Franz Schmid - hochgeladen von sidonius 13:20, 5 April 2006 (UTC), Public Domain, https://commons.wikimedia.org/w/index.php?curid=684101
+
+gfx/load_screen/012
+	By August von Siegen (19. Jhdt., München und Wien) - http://www.dorotheum.com, Public Domain, https://commons.wikimedia.org/w/index.php?curid=13274793
+
 gfx/ideology/communism
 gfx/ideology/fascism
 gfx/ideology/republic
