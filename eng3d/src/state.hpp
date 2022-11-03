@@ -58,6 +58,7 @@ namespace Eng3D {
     };
 
     class State {
+        glm::ivec2 mouse_pos; // Mouse position
     public:
         State(const std::vector<std::string>& pkg_paths);
         ~State();
@@ -94,7 +95,6 @@ namespace Eng3D {
         int back_button_num = 1; // B
         int map_select_button_num = 2; // X
         int map_back_button_num = 3; // Y
-        glm::ivec2 mouse_pos; // Mouse position
 
         /// @brief Variable telling if the game should quit, honored by most event loops
         /// but should be used explicitly if possible

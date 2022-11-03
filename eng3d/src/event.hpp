@@ -60,14 +60,17 @@ namespace Eng3D::Event {
         /// @brief Whetever the button is being held
         bool hold;
         Eng3D::Event::MouseButton::Type from_sdl(int sdl);
+        glm::ivec2 pos; // Absolute position of the mouse
     };
 
     struct MouseMotion {
         glm::ivec2 pos; // Absolute position of the mouse
+        glm::ivec2 delta; // Difference from previous and current mouse position
     };
 
     struct MouseWheel {
         glm::ivec2 wheel; // Wheel relative movement
+        glm::ivec2 pos; // Absolute position of the mouse
     };
     
     glm::ivec2 get_mouse_pos();

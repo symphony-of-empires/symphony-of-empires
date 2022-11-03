@@ -46,9 +46,14 @@ Window::Window(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     glm::ivec2 offset(0, 24);
     this->border = Border(g_ui_context->border_tex, size, texture_size, offset);
 
-    this->set_on_drag([this](UI::Widget&, glm::ivec2 diff) {
+    this->set_on_drag([this](glm::ivec2 start_pos, glm::ivec2 current_pos) {
+        if (start_pos == current_pos) {
+            this->start_drag_position = glm::ivec2{this->x, this->y}; 
+        }
         if(!this->is_movable) return;
-        this->move_by(diff);
+        const auto offset = current_pos - start_pos;
+        this->x = this->start_drag_position.x + offset.x;
+        this->y = this->start_drag_position.y + offset.y;
     });
 }
 

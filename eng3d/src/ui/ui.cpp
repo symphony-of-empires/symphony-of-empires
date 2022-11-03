@@ -272,6 +272,10 @@ void UI::Context::resize(int _width, int _height) {
     this->model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
 }
 
+void UI::Context::set_cursor_pos(glm::ivec2 pos) {
+    this->cursor_pos = pos;
+}
+
 void UI::Context::render_recursive(Widget& w, Eng3D::Rect viewport, glm::ivec2 offset) {
     // Only render widgets that are shown and only render widget that have a width and height
     if(!w.is_render || !w.width || !w.height) {
@@ -316,7 +320,7 @@ void UI::Context::render_recursive(Widget& w, Eng3D::Rect viewport, glm::ivec2 o
 }
 
 /// @brief Render all widgets
-void UI::Context::render_all(glm::ivec2 mouse_pos) {
+void UI::Context::render_all() {
     this->model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
 
     glActiveTexture(GL_TEXTURE0);
@@ -335,7 +339,7 @@ void UI::Context::render_all(glm::ivec2 mouse_pos) {
     // Display the cursor
     obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
     obj_shader->set_texture(0, "diffuse_map", *cursor_tex);
-    obj_shader->set_uniform("model", glm::translate(glm::mat4(1.f), glm::vec3(mouse_pos, 0.f)));
+    obj_shader->set_uniform("model", glm::translate(glm::mat4(1.f), glm::vec3(cursor_pos, 0.f)));
     auto cursor_quad = Eng3D::Square(0.f, 0.f, 32.f, 32.f);
     cursor_quad.draw();
 }
@@ -392,19 +396,19 @@ bool UI::Context::check_hover_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm
 
 bool UI::Context::check_hover(glm::ivec2 mouse_pos) {
     hover_update++;
-    if(is_drag) {
-        /// @todo Is this really better?
-#ifdef E3D_TARGET_WINDOWS
-        SetCapture(GetActiveWindow());
-#endif
-        // Drag vector
-        const glm::ivec2 drag = mouse_pos - glm::ivec2(this->drag_x, this->drag_y);
-        const auto offset = this->get_pos(*dragged_widget, glm::ivec2(0));
-        const glm::ivec2 diff = drag - offset;
-        assert(dragged_widget->on_drag != nullptr);
-        dragged_widget->on_drag(*dragged_widget, diff);
-        return true;
-    }
+//     if(is_drag) {
+//         /// @todo Is this really better?
+// #ifdef E3D_TARGET_WINDOWS
+//         SetCapture(GetActiveWindow());
+// #endif
+//         // Drag vector
+//         const glm::ivec2 drag = mouse_pos - glm::ivec2(this->drag_x, this->drag_y);
+//         const auto offset = this->get_pos(*dragged_widget, glm::ivec2(0));
+//         const glm::ivec2 diff = drag - offset;
+//         assert(dragged_widget->on_drag != nullptr);
+//         dragged_widget->on_drag(*dragged_widget, drag);
+//         return true;
+//     }
 
     bool is_hover = false;
     tooltip_widget = nullptr;
@@ -415,7 +419,14 @@ bool UI::Context::check_hover(glm::ivec2 mouse_pos) {
     return is_hover;
 }
 
-UI::ClickState UI::Context::check_click_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, UI::ClickState click_state, bool clickable) {
+UI::ClickState UI::Context::check_click_recursive(
+    UI::Widget& w,
+    glm::ivec2 mouse_pos, 
+    glm::ivec2 offset, 
+    UI::ClickState click_state, 
+    bool clickable, 
+    bool mouse_pressed) 
+{
     offset = this->get_pos(w, offset);
     if(click_state != UI::ClickState::NOT_CLICKED)
         clickable = true;
@@ -426,7 +437,6 @@ UI::ClickState UI::Context::check_click_recursive(UI::Widget& w, glm::ivec2 mous
         return UI::ClickState::NOT_CLICKED;
     }
 
-    bool click_consumed = click_state == UI::ClickState::HANDLED;
     // Click must be within the widget's box if it's not a group
     if(w.type != UI::WidgetType::GROUP) {
         const Eng3D::Rect r(offset.x, offset.y, w.width, w.height);
@@ -438,11 +448,15 @@ UI::ClickState UI::Context::check_click_recursive(UI::Widget& w, glm::ivec2 mous
         }
     }
 
-    for(auto& child : w.children)
-        click_state = check_click_recursive(*child, mouse_pos, offset, click_state, clickable);
+    for(auto& child : w.children) {
+        auto new_click_state = check_click_recursive(*child, mouse_pos, offset, click_state, clickable, mouse_pressed);
+        if (click_state < new_click_state)
+            click_state = new_click_state;
+    }
+    bool click_consumed = click_state == UI::ClickState::HANDLED;
 
     // Non-clickable group widgets are only taken in account
-    if(w.type == UI::WidgetType::GROUP && w.on_click == nullptr)
+    if(w.type == UI::WidgetType::GROUP && (!w.on_click || !w.on_drag))
         clickable = false;
 
     // Call on_click_outside if on_click has been used or widget isn't hit by click
@@ -450,12 +464,22 @@ UI::ClickState UI::Context::check_click_recursive(UI::Widget& w, glm::ivec2 mous
         w.on_click_outside(w);
 
     // Call on_click if on_click hasnt been used and widget is hit by click
-    if(w.on_click && clickable && !click_consumed) {
-        if(w.type == UI::WidgetType::SLIDER) {
-            auto* wc = static_cast<UI::Slider*>(&w);
-            wc->set_value((static_cast<float>(std::abs(mouse_pos.x - offset.x)) / static_cast<float>(wc->width)) * wc->max);
+    if((w.on_click || w.on_drag) && clickable && !click_consumed) {
+        if (mouse_pressed) {
+            if (w.on_click)
+                mouse_pressed_widget = &w;
+            if (w.on_drag) {
+                on_drag = w.on_drag;
+                // Call the function a first time to allow it to save it's start values
+                on_drag(mouse_pos, mouse_pos);
+            }
+        } else {
+            // Note. If the widget at address 'mouse_pressed_widget' is removed while the mouse is pressed
+            // and another widget get the same address and position it's on_click will be called instead.
+            // But we will not worry about this unlikely event
+            if (mouse_pressed_widget == &w)
+                w.on_click(w);
         }
-        w.on_click(w);
         return UI::ClickState::HANDLED;
     }
 
@@ -465,10 +489,9 @@ UI::ClickState UI::Context::check_click_recursive(UI::Widget& w, glm::ivec2 mous
 }
 
 bool UI::Context::check_click(glm::ivec2 mouse_pos) {
-    is_drag = false;
+    this->start_drag_mouse_position = mouse_pos;
 #ifdef E3D_TARGET_WINDOWS
-    // Release the mouse once we no longer drag anything
-    ReleaseCapture();
+        SetCapture(GetActiveWindow());
 #endif
 
     auto click_state = UI::ClickState::NOT_CLICKED;
@@ -476,16 +499,15 @@ bool UI::Context::check_click(glm::ivec2 mouse_pos) {
 
     bool is_click = false;
     for(int i = widgets.size() - 1; i >= 0; i--) {
-        click_state = check_click_recursive(*widgets[i].get(), mouse_pos, glm::ivec2(0), click_state, true);
+        click_state = check_click_recursive(*widgets[i].get(), mouse_pos, glm::ivec2(0), click_state, true, true);
+
         // Ignore further clicks, prevents clicking causing clicks on elements behind
         if(click_state != UI::ClickState::NOT_CLICKED) {
             is_click = true;
+            // Set the index of the current window to move it to front
+            click_wind_index = i;
             break;
         }
-
-        // Check if windows should move to the top
-        if(click_wind_index == -1 && click_state != UI::ClickState::NOT_CLICKED)
-            click_wind_index = i;
     }
 
     if(click_wind_index != -1) {
@@ -499,29 +521,35 @@ bool UI::Context::check_click(glm::ivec2 mouse_pos) {
     return is_click;
 }
 
-bool UI::Context::check_drag_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset) {
-    offset = this->get_pos(w, offset);
-    const Eng3D::Rect r(offset.x, offset.y, w.width, w.height);
-    if(r.in_bounds(mouse_pos)) {
-        for(auto& child : w.children)
-            if(this->check_drag_recursive(*child.get(), mouse_pos, offset)) return true;
+bool UI::Context::check_mouse_released(glm::ivec2 mouse_pos) {
+    if (on_drag)
+        on_drag = nullptr;
 
-        // Only take in account widgets with a callback and not pinned
-        if(!this->is_drag && w.on_drag && !w.is_pinned) {
-            this->drag_x = mouse_pos.x - offset.x;
-            this->drag_y = mouse_pos.y - offset.y;
-            this->dragged_widget = &w;
-            this->is_drag = true;
-            return true;
+#ifdef E3D_TARGET_WINDOWS
+    // Release the mouse once we no longer drag anything
+    ReleaseCapture();
+#endif
+
+    auto click_state = UI::ClickState::NOT_CLICKED;
+
+    bool is_click = false;
+    for(int i = widgets.size() - 1; i >= 0; i--) {
+        click_state = check_click_recursive(*widgets[i].get(), mouse_pos, glm::ivec2(0), click_state, true, false);
+
+        // Ignore further clicks, prevents clicking causing clicks on elements behind
+        if(click_state != UI::ClickState::NOT_CLICKED) {
+            is_click = true;
+            break;
         }
     }
-    return false;
+    mouse_pressed_widget = nullptr;
+
+    return is_click;
 }
 
 void UI::Context::check_drag(glm::ivec2 mouse_pos) {
-    for(const auto& widget : reverse(widgets))
-        if(this->check_drag_recursive(*widget, mouse_pos, glm::ivec2(0)))
-            return;
+    if (on_drag)
+        on_drag(start_drag_mouse_position, mouse_pos);
 }
 
 bool check_text_input_recursive(UI::Widget& widget, const char* _input) {

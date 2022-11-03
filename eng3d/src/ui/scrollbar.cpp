@@ -33,12 +33,22 @@ UI::ScrollbarThumb::ScrollbarThumb(int _x, int _y, UI::Widget* _parent)
     : UI::Widget(_parent, _x, _y, _parent->width, 0, UI::WidgetType::SCROLLBAR_THUMB)
 {
     auto& s = Eng3D::State::get_instance();
-    //this->is_pinned = true;
-    this->set_on_drag([this](UI::Widget&, glm::ivec2 diff) {
+    this->set_on_drag([this](glm::ivec2 start_pos, glm::ivec2 current_pos) {
         assert(this->parent != nullptr);
         if(this->parent->parent != nullptr) {
-            /// @todo Ratio is not taken in account!
-            this->parent->parent->scroll(-diff.y / 2);
+            const auto y_bounds = this->parent->parent->get_y_bounds();
+            const float parent_height = glm::max(static_cast<float>(y_bounds.y - y_bounds.x), 1.f);
+            const auto scrolled = this->parent->parent->scrolled_y;
+            if (start_pos == current_pos) {
+                this->start_drag_scroll = scrolled;
+            }
+            const float y_diff = current_pos.y - start_pos.y;
+
+            const auto btn_height = 20;
+            // The height of the track (scrollbar excluding buttons)
+            const float track_height = this->parent->height - btn_height * 3;
+            const auto ratio = (-y_diff / track_height) * parent_height;
+            this->parent->parent->scroll(start_drag_scroll - scrolled + ratio);
             static_cast<UI::Scrollbar*>(this->parent)->update_thumb();
         }
     });
@@ -89,12 +99,10 @@ void UI::Scrollbar::update_thumb() {
     const auto y_bounds = this->parent->get_y_bounds();
     const float parent_height = glm::max(static_cast<float>(y_bounds.y - y_bounds.x), 1.f);
     const auto btn_height = 20;
-    // The height of the track (scrollbar excluding buttons)
-    const float track_height = static_cast<float>(this->height - this->thumb_btn->height - btn_height * 2);
+    // The height of the track (scrollbar excluding up and down buttons)
+    const float track_height = this->height - btn_height * 2;
     // 0 to 1 of how much the parent was scrolled relative to it's max scrolling/height
     const auto scrolled = glm::abs<float>(this->parent->scrolled_y) / parent_height;
-    // Ratio of pixels in track v. pixels in widget
-    const auto ratio = track_height / parent_height;
-    this->thumb_btn->set_y(btn_height + scrolled * track_height);
-    this->thumb_btn->height = glm::clamp<size_t>(ratio * track_height, 20.f, track_height);
+    this->thumb_btn->set_y(btn_height + scrolled * (track_height - btn_height));
+    this->thumb_btn->height = btn_height;
 }

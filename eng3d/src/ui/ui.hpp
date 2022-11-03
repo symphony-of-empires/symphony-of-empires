@@ -49,9 +49,9 @@ namespace Eng3D {
 /// The UI widgets used to create the interface
 namespace UI {
     enum class ClickState {
-        NOT_CLICKED,
-        NOT_HANDLED,
-        HANDLED,
+        NOT_CLICKED = 0,
+        NOT_HANDLED = 1,
+        HANDLED = 2,
     };
 
     class Widget;
@@ -65,17 +65,26 @@ namespace UI {
         bool is_drag = false;
         UI::Widget* dragged_widget = nullptr;
         int width, height;
+        glm::ivec2 cursor_pos;
 
         glm::ivec2 get_pos(UI::Widget& w, glm::ivec2 offset);
         void clear_hover_recursive(UI::Widget& w);
         bool check_hover_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset);
-        UI::ClickState check_click_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, UI::ClickState click_state, bool clickable);
-        bool check_drag_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset);
+        UI::ClickState check_click_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, UI::ClickState click_state, bool clickable, bool mouse_pressed);
         bool check_wheel_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, int y);
         // Render the widget and it's children
         void render_recursive(UI::Widget& widget, Eng3D::Rect viewport, glm::ivec2 offset);
         int do_tick_recursive(UI::Widget& w);
         void clear_dead_recursive(UI::Widget& w);
+
+        // Is set when mouse is pressed on a widget with a on_drag function
+        // Is set to nullptr when the mouse is released
+        std::function<void(glm::ivec2 start_mouse_pos, glm::ivec2 current_mouse_pos)> on_drag = nullptr;
+        // Indicates which widget have been pressed.
+        // Will call on_click on the widget if the mouse is released on it
+        Widget* mouse_pressed_widget = nullptr;
+        // The mouse position when the mouse is pressed down
+        glm::ivec2 start_drag_mouse_position;
 
         std::vector<std::unique_ptr<UI::Widget>> widgets;
         std::vector<std::unique_ptr<UI::Widget>> no_eval_widgets;
@@ -88,8 +97,9 @@ namespace UI {
         void load_textures();
         void add_widget(UI::Widget* widget);
         void remove_widget(UI::Widget* widget);
-        void render_all(glm::ivec2 mouse_pos);
+        void render_all();
         void resize(const int width, const int height);
+        void set_cursor_pos(glm::ivec2 pos);
 
         /// @brief Check for on_hover events
         /// If the mouse is above a widget call the widgets on_hover or show its tooltip if possible
@@ -104,6 +114,10 @@ namespace UI {
         /// @param mouse_pos The mouse position
         /// @return true if the mouse position was above a ui widget
         bool check_click(glm::ivec2 mouse_pos);
+
+        /// @brief Release the dragging of the widget
+        /// @param mouse_pos The mouse position
+        bool check_mouse_released(glm::ivec2 mouse_pos);
 
         /// @brief Check for on_drag events, will move Window widgets with is_pinned = false
         /// @param mouse_pos The mouse position

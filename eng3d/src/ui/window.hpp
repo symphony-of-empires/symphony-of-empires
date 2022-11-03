@@ -37,6 +37,7 @@ namespace UI {
     /// @brief Window widget, this widget is similar to a Group widget, the key
     /// difference is that this one can be moved along the screen.
     class Window: public Widget {
+        glm::ivec2 start_drag_position;
     public:
         Window(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
         virtual ~Window() override {};

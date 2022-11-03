@@ -181,12 +181,18 @@ void GameState::handle_resize() {
 void GameState::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
     if(e.hold) {
         if(show_ui) {
-            if(ui_ctx.check_hover(this->mouse_pos)) {
-                if(e.type == Eng3D::Event::MouseButton::Type::LEFT) {
-                    this->mouse_pos = Eng3D::Event::get_mouse_pos();
-                    ui_ctx.check_drag(this->mouse_pos);
+            // if(ui_ctx.check_hover(e.pos))
+            //     return;
+            if(e.type == Eng3D::Event::MouseButton::Type::LEFT) {
+                if(ui_ctx.check_click(e.pos)) {
+                    const std::scoped_lock lock(audio_man.sound_lock);
+                    auto entries = package_man.get_multiple_prefix("sfx/click");
+                    if(!entries.empty()) {
+                        auto audio = audio_man.load(entries[rand() % entries.size()]->get_abs_path());
+                        audio_man.sound_queue.push_back(audio);
+                    }
+                    return;
                 }
-                return;
             }
         }
 
@@ -196,18 +202,12 @@ void GameState::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
         if(e.type == Eng3D::Event::MouseButton::Type::MIDDLE)
             input.middle_mouse_down = true;
     } else {
-        this->mouse_pos = Eng3D::Event::get_mouse_pos();
         if(e.type == Eng3D::Event::MouseButton::Type::LEFT || e.type == Eng3D::Event::MouseButton::Type::RIGHT) {
-            if(show_ui) {
-                if(ui_ctx.check_click(this->mouse_pos)) {
-                    const std::scoped_lock lock(audio_man.sound_lock);
-                    auto entries = package_man.get_multiple_prefix("sfx/click");
-                    if(!entries.empty()) {
-                        auto audio = audio_man.load(entries[rand() % entries.size()]->get_abs_path());
-                        audio_man.sound_queue.push_back(audio);
-                    }
+            if(show_ui && e.type == Eng3D::Event::MouseButton::Type::LEFT) {
+                if(ui_ctx.check_mouse_released(e.pos))
                     return;
-                }
+                // if(ui_ctx.check_hover(e.pos))
+                //     return;
             }
 
             if(current_mode != MapMode::NO_MAP) // Map
@@ -219,19 +219,21 @@ void GameState::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
 }
 
 void GameState::handle_mouse_motion(const Eng3D::Event::MouseMotion& e) {
-    this->mouse_pos = e.pos;
-    if(this->show_ui && this->ui_ctx.check_hover(this->mouse_pos))
-        return;
+    if(this->show_ui) {
+        this->ui_ctx.set_cursor_pos(e.pos);
+        this->ui_ctx.check_drag(e.pos);
+        if (this->ui_ctx.check_hover(e.pos))
+            return;
+    }
 
     if(current_mode != MapMode::NO_MAP)
         map->handle_mouse_motions(e);
 }
 
 void GameState::handle_mouse_wheel(const Eng3D::Event::MouseWheel& e) {
-    this->mouse_pos = Eng3D::Event::get_mouse_pos();
     if(show_ui) {
-        ui_ctx.check_hover(this->mouse_pos);
-        if(ui_ctx.check_wheel(this->mouse_pos, e.wheel.y * 6)) return;
+        ui_ctx.check_hover(e.pos);
+        if(ui_ctx.check_wheel(e.pos, e.wheel.y * 6)) return;
     }
 
     if(current_mode != MapMode::NO_MAP)
@@ -358,7 +360,7 @@ int main(int argc, char** argv) try {
             }
 
             load_pbar->set_value(gs.load_progress);
-            gs.ui_ctx.render_all(gs.mouse_pos);
+            gs.ui_ctx.render_all();
             gs.world->profiler.render_done();
         })
     );

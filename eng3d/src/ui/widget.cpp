@@ -27,6 +27,7 @@
 #include <string>
 #include <cassert>
 #include <algorithm>
+#include <stack>
 #include <glm/vec2.hpp>
 #include <SDL_ttf.h>
 
@@ -468,7 +469,8 @@ void Widget::set_tooltip(const std::string& text) {
     this->tooltip->text(text);
 }
 
-/// @brief Obtains the top and bottom y of a given widget
+/// @brief Obtains the height of the top and bottom overflow in widget
+/// That is the space that the children of this widget take up but cannot be seen
 glm::ivec2 UI::Widget::get_y_bounds() const {
     int child_top = 0, child_bottom = this->height;
     for(auto& child : this->children) {

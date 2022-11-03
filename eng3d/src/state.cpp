@@ -435,12 +435,14 @@ void Eng3D::State::do_event() {
         switch(event.type) {
         case SDL_MOUSEBUTTONDOWN: {
             Eng3D::Event::MouseButton e{};
+            e.pos = Eng3D::Event::get_mouse_pos();
             e.type = e.from_sdl(event.button.button);
             e.hold = true;
             handle_mouse_btn(e);
         } break;
         case SDL_MOUSEBUTTONUP: {
             Eng3D::Event::MouseButton e{};
+            e.pos = Eng3D::Event::get_mouse_pos();
             e.type = e.from_sdl(event.button.button);
             e.hold = false;
             handle_mouse_btn(e);
@@ -448,10 +450,13 @@ void Eng3D::State::do_event() {
         case SDL_MOUSEMOTION: {
             Eng3D::Event::MouseMotion e{};
             e.pos = Eng3D::Event::get_mouse_pos();
+            e.delta = this->mouse_pos - e.pos;
+            this->mouse_pos = e.pos;
             handle_mouse_motion(e);
         } break;
         case SDL_MOUSEWHEEL: {
             Eng3D::Event::MouseWheel e{};
+            e.pos = Eng3D::Event::get_mouse_pos();
             e.wheel.x = event.wheel.x;
             e.wheel.y = event.wheel.y;
             handle_mouse_wheel(e);
@@ -523,7 +528,7 @@ void Eng3D::State::do_run(std::function<bool(void)> cond, std::function<void(voi
         event();
         this->clear();
         render();
-        if(this->show_ui) this->ui_ctx.render_all(this->mouse_pos);
+        if(this->show_ui) this->ui_ctx.render_all();
         this->swap();
     }
 }
@@ -536,14 +541,10 @@ void Eng3D::State::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
     if(!this->show_ui) return;
     
     if(e.hold) {
-        if(this->ui_ctx.check_hover(this->mouse_pos) && e.type == Eng3D::Event::MouseButton::Type::LEFT) {
-            this->mouse_pos = Eng3D::Event::get_mouse_pos();
-            this->ui_ctx.check_drag(this->mouse_pos);
-        }
+        this->ui_ctx.check_hover(e.pos);
     } else {
-        this->mouse_pos = Eng3D::Event::get_mouse_pos();
         if(e.type == Eng3D::Event::MouseButton::Type::LEFT || e.type == Eng3D::Event::MouseButton::Type::RIGHT) {
-            if(this->ui_ctx.check_click(this->mouse_pos)) {
+            if(this->ui_ctx.check_click(e.pos)) {
                 const std::scoped_lock lock(this->audio_man.sound_lock);
                 auto entries = package_man.get_multiple_prefix("sfx/click");
                 if(!entries.empty()) {
@@ -557,16 +558,17 @@ void Eng3D::State::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
 }
 
 void Eng3D::State::handle_mouse_motion(const Eng3D::Event::MouseMotion& e) {
-    this->mouse_pos = e.pos;
-    if(this->show_ui && this->ui_ctx.check_hover(this->mouse_pos))
-        return;
+    if(this->show_ui) {
+        this->ui_ctx.set_cursor_pos(e.pos);
+        this->ui_ctx.check_drag(e.pos);
+        this->ui_ctx.check_hover(e.pos);
+    }
 }
 
 void Eng3D::State::handle_mouse_wheel(const Eng3D::Event::MouseWheel& e) {
     if(!this->show_ui) return;
-    this->mouse_pos = Eng3D::Event::get_mouse_pos();
-    this->ui_ctx.check_hover(this->mouse_pos);
-    if(this->ui_ctx.check_wheel(this->mouse_pos, e.wheel.y * 6))
+    this->ui_ctx.check_hover(e.pos);
+    if(this->ui_ctx.check_wheel(e.pos, e.wheel.y * 6))
         return;
 }
 

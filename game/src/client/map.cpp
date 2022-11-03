@@ -528,14 +528,13 @@ void Map::handle_resize() {
 
 void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
     if(e.hold) {
-        gs.mouse_pos = Eng3D::Event::get_mouse_pos();
         this->is_drag = false;
         if(e.type == Eng3D::Event::MouseButton::Type::LEFT) {
             gs.input.drag_coord = gs.input.select_pos;
             this->is_drag = true;
         } else if(e.type == Eng3D::Event::MouseButton::Type::MIDDLE) {
             glm::ivec2 map_pos;
-            if(this->camera->get_cursor_map_pos(gs.mouse_pos, map_pos))
+            if(this->camera->get_cursor_map_pos(e.pos, map_pos))
                 this->last_camera_drag_pos = map_pos;
         }
     } else {

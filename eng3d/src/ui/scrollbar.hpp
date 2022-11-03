@@ -32,6 +32,7 @@ namespace UI {
     /// @ingroup UI
     /// @brief The thumb of the scrollbar
     class ScrollbarThumb : public UI::Widget {
+        float start_drag_scroll;
     public:
         ScrollbarThumb(int x, int y, UI::Widget* parent = nullptr);
         virtual ~ScrollbarThumb() override {};
