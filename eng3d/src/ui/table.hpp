@@ -150,11 +150,11 @@ namespace UI {
 
         void sort(size_t _column_index, bool ascending) {
             this->column_wrapper->sort_children([_column_index, ascending](const auto& a, const auto& b) {
-                auto& row_a = static_cast<UI::TableRow&>(*a);
-                auto& element_a = *(row_a.get_element(_column_index));
-                auto& row_b = static_cast<UI::TableRow&>(*b);
-                auto& element_b = *(row_b.get_element(_column_index));
-                return ascending ? (element_a < element_b) : !(element_a < element_b);
+                UI::TableRow &row_a = static_cast<UI::TableRow&>(*a);
+                auto &element_a = *(row_a.get_element(_column_index));
+                UI::TableRow &row_b = static_cast<UI::TableRow&>(*b);
+                auto &element_b = *(row_b.get_element(_column_index));
+                return ascending ? (element_a < element_b) : (element_b < element_a);
             });
         }
     private:
