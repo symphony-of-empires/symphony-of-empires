@@ -848,89 +848,85 @@ void World::do_tick() {
 
     // Perform all battles of the active wars
     profiler.start("Battles");
-    tbb::combinable<std::vector<UnitId>> clear_units;
-    tbb::parallel_for(tbb::blocked_range(provinces.begin(), provinces.end()), [this, &clear_units](auto& provinces_range) {
-        for(auto& province : provinces_range) {
-            if(province.battle.active) {
-                // Attackers attack Defenders
-                auto& units = this->unit_manager.units;
-                for(auto attacker_id : province.battle.attackers_ids) {
-                    auto& attacker = units[attacker_id];
-                    assert(attacker.is_valid());
-                    for(size_t i = 0; i < province.battle.defenders_ids.size(); ) {
-                        auto& unit = units[province.battle.defenders_ids[i]];
-                        assert(unit.is_valid());
-                        const auto prev_size = unit.size;
-                        attacker.attack(unit);
-                        province.battle.defender_casualties += prev_size - unit.size;
-                        if(unit.size <= 1.f) {
-                            //Eng3D::Log::debug("game", "Removing attacker \"" + this->unit_types[unit.type_id].ref_name + "\" unit to battle of \"" + province.battle.name + "\"");
-                            province.battle.defenders_ids.erase(province.battle.defenders_ids.begin() + i);
-                            clear_units.local().push_back(unit);
-                            continue;
-                        }
-                        i++;
+    std::vector<UnitId> clear_units;
+    for(auto& province : provinces) {
+        if(province.battle.active) {
+            // Attackers attack Defenders
+            auto& units = this->unit_manager.units;
+            for(auto attacker_id : province.battle.attackers_ids) {
+                auto& attacker = units[attacker_id];
+                assert(attacker.is_valid());
+                for(size_t i = 0; i < province.battle.defenders_ids.size(); ) {
+                    auto& unit = units[province.battle.defenders_ids[i]];
+                    assert(unit.is_valid());
+                    const auto prev_size = unit.size;
+                    attacker.attack(unit);
+                    province.battle.defender_casualties += prev_size - unit.size;
+                    if(unit.size <= 1.f) {
+                        //Eng3D::Log::debug("game", "Removing attacker \"" + this->unit_types[unit.type_id].ref_name + "\" unit to battle of \"" + province.battle.name + "\"");
+                        province.battle.defenders_ids.erase(province.battle.defenders_ids.begin() + i);
+                        clear_units.push_back(unit);
+                        continue;
                     }
-                }
-
-                // Defenders attack attacker_ids
-                for(auto defender_id : province.battle.defenders_ids) {
-                    auto& defender = units[defender_id];
-                    assert(defender.is_valid());
-                    for(size_t i = 0; i < province.battle.attackers_ids.size(); ) {
-                        auto& unit = units[province.battle.attackers_ids[i]];
-                        assert(unit.is_valid());
-                        const auto prev_size = unit.size;
-                        defender.attack(unit);
-                        province.battle.attacker_casualties += prev_size - unit.size;
-                        if(unit.size <= 1.f) {
-                            //Eng3D::Log::debug("game", "Removing defender \"" + this->unit_types[unit.type_id].ref_name + "\" unit to battle of \"" + province.battle.name + "\"");
-                            province.battle.attackers_ids.erase(province.battle.attackers_ids.begin() + i);
-                            clear_units.local().push_back(unit);
-                            continue;
-                        }
-                        i++;
-                    }
-                }
-
-                // Once one side has fallen; this battle has ended
-                if(province.battle.defenders_ids.empty() || province.battle.attackers_ids.empty()) {
-                    // Defenders defeated
-                    if(province.battle.defenders_ids.empty()) {
-                        this->nations[units[province.battle.attackers_ids[0]].owner_id].control_province(province);
-                        // Clear flags of all units
-                        for(const auto unit_id : province.battle.attackers_ids) {
-                            auto& unit = units[unit_id];
-                            this->nations[unit.owner_id].prestige += unit.base / 10000.f; // Prestige reward
-                            unit.on_battle = false;
-                            assert(unit.size);
-                        }
-                    }
-                    // Defenders won
-                    else {
-                        this->nations[units[province.battle.defenders_ids[0]].owner_id].control_province(province);
-                        for(const auto unit_id : province.battle.defenders_ids) {
-                            auto& unit = units[unit_id];
-                            this->nations[unit.owner_id].prestige += unit.base / 10000.f; // Prestige reward
-                            unit.on_battle = false;
-                            assert(unit.size);
-                        }
-                    }
-                    province.battle.active = false;
+                    i++;
                 }
             }
+
+            // Defenders attack attacker_ids
+            for(auto defender_id : province.battle.defenders_ids) {
+                auto& defender = units[defender_id];
+                assert(defender.is_valid());
+                for(size_t i = 0; i < province.battle.attackers_ids.size(); ) {
+                    auto& unit = units[province.battle.attackers_ids[i]];
+                    assert(unit.is_valid());
+                    const auto prev_size = unit.size;
+                    defender.attack(unit);
+                    province.battle.attacker_casualties += prev_size - unit.size;
+                    if(unit.size <= 1.f) {
+                        //Eng3D::Log::debug("game", "Removing defender \"" + this->unit_types[unit.type_id].ref_name + "\" unit to battle of \"" + province.battle.name + "\"");
+                        province.battle.attackers_ids.erase(province.battle.attackers_ids.begin() + i);
+                        clear_units.push_back(unit);
+                        continue;
+                    }
+                    i++;
+                }
+            }
+
+            // Once one side has fallen; this battle has ended
+            if(province.battle.defenders_ids.empty() || province.battle.attackers_ids.empty()) {
+                // Defenders defeated
+                if(province.battle.defenders_ids.empty()) {
+                    this->nations[units[province.battle.attackers_ids[0]].owner_id].control_province(province);
+                    // Clear flags of all units
+                    for(const auto unit_id : province.battle.attackers_ids) {
+                        auto& unit = units[unit_id];
+                        this->nations[unit.owner_id].prestige += unit.base / 10000.f; // Prestige reward
+                        unit.on_battle = false;
+                        assert(unit.size);
+                    }
+                }
+                // Defenders won
+                else {
+                    this->nations[units[province.battle.defenders_ids[0]].owner_id].control_province(province);
+                    for(const auto unit_id : province.battle.defenders_ids) {
+                        auto& unit = units[unit_id];
+                        this->nations[unit.owner_id].prestige += unit.base / 10000.f; // Prestige reward
+                        unit.on_battle = false;
+                        assert(unit.size);
+                    }
+                }
+                province.battle.active = false;
+            }
         }
-    });
+    }
     profiler.stop("Battles");
 
     profiler.start("Cleaning");
-    clear_units.combine_each([this](const auto& units_clear_list) {
-        for(auto unit_id : units_clear_list) {
-            auto& unit = this->unit_manager.units[unit_id];
-            this->nations[unit.owner_id].prestige -= unit.base / 1000.f; // Prestige penalty for losing unit
-            this->unit_manager.remove_unit(unit_id);
-        }
-    });
+    for(auto unit_id : clear_units) {
+        auto& unit = this->unit_manager.units[unit_id];
+        this->nations[unit.owner_id].prestige -= unit.base / 1000.f; // Prestige penalty for losing unit
+        this->unit_manager.remove_unit(unit_id);
+    }
     profiler.stop("Cleaning");
 
     profiler.start("Events");
