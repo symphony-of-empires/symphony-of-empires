@@ -416,7 +416,6 @@ void Eng3D::State::swap() {
 #else
 
 #endif
-    tex_man.upload();
 }
 
 #include "eng3d/ui/ui.hpp"

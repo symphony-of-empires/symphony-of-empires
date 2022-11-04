@@ -187,7 +187,6 @@ namespace Eng3D {
         std::shared_ptr<Eng3D::Texture> load(std::shared_ptr<Eng3D::IO::Asset::Base> asset, TextureOptions options = default_options);
         std::shared_ptr<Eng3D::Texture> gen_text(Eng3D::TrueType::Font& font, Eng3D::Color color, const std::string& msg);
         std::shared_ptr<Eng3D::Texture> get_white();
-        void upload();
 
         friend class Eng3D::Texture;
     };
