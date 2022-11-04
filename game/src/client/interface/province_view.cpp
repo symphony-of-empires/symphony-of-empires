@@ -285,24 +285,24 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int _x, int _y, P
     auto table = new UI::Table<uint32_t>(0, 0, 0, this->height, 30, sizes, header, this);
     table->reserve(gs.world->terrain_types.size());
     table->set_on_each_tick([this, table](Widget&) {
-        for(auto& terrain_type : this->gs.world->terrain_types) {
-            auto& row = table->get_row(terrain_type);
+        for(auto& terrain_type_row : this->gs.world->terrain_types) {
+            auto& row = table->get_row(terrain_type_row);
             size_t row_index = 0;
 
             auto landscape = row.get_element(row_index++);
-            auto landscape_icon = gs.tex_man.load(gs.package_man.get_unique(terrain_type.get_icon_path()));
+            auto landscape_icon = gs.tex_man.load(gs.package_man.get_unique(terrain_type_row.get_icon_path()));
             landscape->current_texture = landscape_icon;
-            landscape->set_tooltip(terrain_type.name);
-            landscape->set_key(terrain_type.name);
+            landscape->set_tooltip(terrain_type_row.name);
+            landscape->set_key(terrain_type_row.name);
 
             auto name = row.get_element(row_index++);
-            name->text(terrain_type.name);
-            name->set_tooltip(terrain_type.name);
-            name->set_key(terrain_type.name);
-            name->set_on_click([this, &terrain_type](UI::Widget&) {
+            name->text(terrain_type_row.name);
+            name->set_tooltip(terrain_type_row.name);
+            name->set_key(terrain_type_row.name);
+            name->set_on_click([this, &terrain_type_row](UI::Widget&) {
                 auto& nc_province = const_cast<Province&>(this->province);
-                nc_province.terrain_type_id = terrain_type;
-                if(terrain_type.is_water_body) {
+                nc_province.terrain_type_id = terrain_type_row;
+                if(terrain_type_row.is_water_body) {
                     nc_province.unpopulate();
                     nc_province.nuclei.clear();
                     nc_province.controller_id = Nation::invalid();

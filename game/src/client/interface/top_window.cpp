@@ -242,10 +242,8 @@ TimeControlView::TimeControlView(GameState& _gs)
         speed3_btn->set_tooltip(translate("Fire speed"));
     }
 
-    auto font = gs.ttf_man.load(gs.package_man.get_unique("fonts/neon_euler/euler.ttf"));
-
     auto* time_lab = new UI::Label(50, 30, " ", this);
-    time_lab->font = font;
+    time_lab->font = gs.ttf_man.load(gs.package_man.get_unique("fonts/neon_euler/euler.ttf"));
     time_lab->text_color = Eng3D::Color(1., 1., 1.);
     time_lab->set_on_each_tick([this](UI::Widget& w) {
         std::tm tm{};

@@ -38,8 +38,8 @@
 
 using namespace Interface;
 
-BattleWidget::BattleWidget(Map& _map, UI::Widget* parent)
-    : UI::Div(0, 0, 188, 30, parent),
+BattleWidget::BattleWidget(Map& _map, UI::Widget* _parent)
+    : UI::Div(0, 0, 188, 30, _parent),
     map{ _map }
 {
     this->background_color = Eng3D::Color(1.f, 1.f, 1.f, 1.f);

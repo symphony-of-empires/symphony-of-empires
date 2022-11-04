@@ -51,9 +51,9 @@ Window::Window(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
             this->start_drag_position = glm::ivec2{this->x, this->y}; 
         }
         if(!this->is_movable) return;
-        const auto offset = current_pos - start_pos;
-        this->x = this->start_drag_position.x + offset.x;
-        this->y = this->start_drag_position.y + offset.y;
+        const auto move_offset = current_pos - start_pos;
+        this->x = this->start_drag_position.x + move_offset.x;
+        this->y = this->start_drag_position.y + move_offset.y;
     });
 }
 

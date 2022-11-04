@@ -203,7 +203,6 @@ void Unit::set_path(const Province& target) {
         [&world](ProvinceId province1_id, ProvinceId province2_id) -> float {
             const auto& province1 = world.provinces[province1_id];
             const auto& province2 = world.provinces[province2_id];
-            const glm::vec2 world_size{ world.width, world.height };
             auto get_sphere_coord = ([](const Province& province, glm::vec2 world_size) -> glm::vec3 {
                 const glm::vec2 normalized_pos = province.get_pos() / world_size;
                 glm::vec2 radiance_pos;
@@ -216,6 +215,7 @@ void Unit::set_path(const Province& target) {
                 sphere_position.z = glm::cos(radiance_pos.y);
                 return sphere_position;
             });
+            const glm::vec2 world_size{ world.width, world.height };
             const auto sphere_coord1 = get_sphere_coord(province1, world_size);
             const auto sphere_coord2 = get_sphere_coord(province2, world_size);
             float cos_angle = glm::dot(sphere_coord1, sphere_coord2);
