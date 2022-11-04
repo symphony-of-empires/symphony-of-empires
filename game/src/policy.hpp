@@ -42,6 +42,41 @@ struct Policies {
     float education_budget = 0.f; // State sponsored education
     float factory_subsidies_budget = 0.f; // Subsidized factories
     
+    // Not controllable by the player (should be?)
+    struct Economic {
+        float distributism = 0.f;   // -1 = Concentrated
+                                    // 0  = neutral
+                                    // 1  = distributism
+        
+        float mercantilist = 0.f;   // -1 = Mercantile
+                                    // 0  = neutral
+                                    // 1  = Mercantile
+        
+        float capitalism = 0.f; // -1 = socialism
+                                // 0  = neutral
+                                // 1  = capitalist
+    } economic;
+    struct Political {
+        float individualism = 0.f;  // -1 = Corporatism
+                                    // 0  = neutral
+                                    // 1  = individualist
+        
+        float state_power = 0.f;    // -1 = democracy
+                                    // 0  = neutral
+                                    // 1  = autocracy
+        
+        float equalitarianism = 0.f;    // -1 = elitism
+                                        // 0  = neutral
+                                        // 1  = egalitarian
+        
+        float secular = 0.f;    // -1 = non-secular
+                                // 0  = neutral
+                                // 1  = secular
+        float pluralism = 0.f;  // -1 = not pluralist
+                                // 0  = neutral
+                                // 1  = plural
+    } political;
+
     inline float difference(const Policies& rhs) const {
         auto diff = 0.f;
         diff += std::abs(rhs.min_wage - this->min_wage);
@@ -55,6 +90,30 @@ struct Policies {
         diff += std::abs(rhs.education_budget - this->education_budget);
         diff += std::abs(rhs.factory_subsidies_budget - this->factory_subsidies_budget);
         return diff;
+    }
+};
+template<>
+struct Serializer<Policies::Economic> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Policies::Economic>::type;
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.distributism);
+        ::deser_dynamic<is_serialize>(ar, obj.mercantilist);
+        ::deser_dynamic<is_serialize>(ar, obj.capitalism);
+    }
+};
+template<>
+struct Serializer<Policies::Political> {
+    template<bool is_const>
+    using type = CondConstType<is_const, Policies::Political>::type;
+    template<bool is_serialize>
+    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
+        ::deser_dynamic<is_serialize>(ar, obj.individualism);
+        ::deser_dynamic<is_serialize>(ar, obj.state_power);
+        ::deser_dynamic<is_serialize>(ar, obj.equalitarianism);
+        ::deser_dynamic<is_serialize>(ar, obj.secular);
+        ::deser_dynamic<is_serialize>(ar, obj.pluralism);
     }
 };
 template<>
@@ -74,5 +133,7 @@ struct Serializer<Policies> {
         ::deser_dynamic<is_serialize>(ar, obj.foreign_ownership);
         ::deser_dynamic<is_serialize>(ar, obj.education_budget);
         ::deser_dynamic<is_serialize>(ar, obj.factory_subsidies_budget);
+        ::deser_dynamic<is_serialize>(ar, obj.economic);
+        ::deser_dynamic<is_serialize>(ar, obj.political);
     }
 };

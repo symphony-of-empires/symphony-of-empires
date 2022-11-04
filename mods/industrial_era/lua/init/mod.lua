@@ -25,6 +25,7 @@
 
 math.randomseed(os.time())
 
+require('entities/events/capitalism')
 require('entities/events/catholic_relief_act')
 require('entities/events/cholera_spread')
 require('entities/events/gevhdl_001')
@@ -37,6 +38,7 @@ require('entities/events/minas_gerais_crash')
 require('entities/events/test_event')
 require('entities/events/taza_concession')
 require('entities/events/unify_germany')
+require('entities/events/westernization')
 require('entities/events/yongle_encyclopedia')
 
 -- Puppets

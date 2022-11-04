@@ -39,66 +39,10 @@ struct Ideology : RefnameEntity<IdeologyId> {
     struct Subideology : RefnameEntity<SubideologyId> {
         Eng3D::StringRef name;
         std::uint32_t color;
-
-        struct Economic {
-            float distributism = 0.f;   // -1 = Concentrated
-                                        // 0  = neutral
-                                        // 1  = distributism
-            
-            float mercantilist = 0.f;   // -1 = Mercantile
-                                        // 0  = neutral
-                                        // 1  = Mercantile
-            
-            float capitalism = 0.f; // -1 = socialism
-                                    // 0  = neutral
-                                    // 1  = capitalist
-        } economic;
-        struct Political {
-            float individualism = 0.f;  // -1 = Corporatism
-                                        // 0  = neutral
-                                        // 1  = individualist
-            
-            float state_power = 0.f;    // -1 = democracy
-                                        // 0  = neutral
-                                        // 1  = autocracy
-            
-            float equalitarianism = 0.f;    // -1 = elitism
-                                            // 0  = neutral
-                                            // 1  = egalitarian
-            
-            float secular = 0.f;    // -1 = non-secular
-                                    // 0  = neutral
-                                    // 1  = secular
-            float pluralism = 0.f;  // -1 = not pluralist
-                                    // 0  = neutral
-                                    // 1  = plural
-        } political;
+        Policies::Economic economic;
+        Policies::Political political;
     };
     std::vector<Subideology> subideologies;
-};
-template<>
-struct Serializer<Ideology::Subideology::Economic> {
-    template<bool is_const>
-    using type = CondConstType<is_const, Ideology::Subideology::Economic>::type;
-    template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.distributism);
-        ::deser_dynamic<is_serialize>(ar, obj.mercantilist);
-        ::deser_dynamic<is_serialize>(ar, obj.capitalism);
-    }
-};
-template<>
-struct Serializer<Ideology::Subideology::Political> {
-    template<bool is_const>
-    using type = CondConstType<is_const, Ideology::Subideology::Political>::type;
-    template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.individualism);
-        ::deser_dynamic<is_serialize>(ar, obj.state_power);
-        ::deser_dynamic<is_serialize>(ar, obj.equalitarianism);
-        ::deser_dynamic<is_serialize>(ar, obj.secular);
-        ::deser_dynamic<is_serialize>(ar, obj.pluralism);
-    }
 };
 template<>
 struct Serializer<Ideology::Subideology> {

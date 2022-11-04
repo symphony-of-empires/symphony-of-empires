@@ -51,6 +51,20 @@ function Pop:new(o)
     return o
 end
 
+Building = {
+    id = 0,
+    province_id = 0,
+    level = 0,
+    production_scale = 0,
+    workers = 0,
+}
+function Building:new(o)
+    local o = o or {}
+    setmetatable(o, self)
+    self.__index = self
+    return o
+end
+
 require('classes/event')
 
 PopType = {
@@ -194,48 +208,71 @@ function is_empty(s)
     return (s == nil or s == '')
 end
 
--- Language = {}
+Locale = {}
+function Locale:is_vowel(c)
+    return (c == 'a' or c == 'e' or c == 'i' or c == 'o' or c == 'u')
+end
 
--- function Language:is_vowel(c)
---     return (c == 'a' or c == 'e' or c == 'i' or c == 'o' or c == 'u')
--- end
+function Locale:get_noun(s)
+    if type(s) == "string" then return s end
+    return s.noun
+end
 
--- function Language:conjugate_related_and(...)
---     local args = table.pack(...)
+function Locale:conjugate_related_and(...)
+    local args = table.pack(...)
 
---     local str = ""
---     for i = 1, args.n do
---         -- CF not available, fallback to an adjective
---         if(is_empty(args[i].combo_form)) then
---             str = str .. args[i].adjective
---         -- Combining form available (only possible if it's first)
---         elseif i == 1 then
---             str = str .. args[i].combo_form
---         end
+    local str = ""
+    for i = 1, args.n do
+        -- CF not available, fallback to an adjective
+        if(is_empty(args[i].combo_form)) then
+            str = str .. args[i].adjective
+        -- Combining form available (only possible if it's first)
+        elseif i == 1 then
+            str = str .. args[i].combo_form
+        end
 
---         -- Makes somewhat correct phrases like Franco-Prussian war, Russo-Chinesse-Roman war
---         if i < (args.n - 1) then
---             str = str .. "-"
---         end
---     end
--- end
+        -- Makes somewhat correct phrases like Franco-Prussian war, Russo-Chinesse-Roman war
+        if i < args.n then
+            str = str .. "-"
+        end
+    end
+    return str
+end
 
--- -- [determiner (a/an)] [adjective (or noun as fallback)]
--- function Language:conjugate_indefinite_article(o)
---     local str = ""
+-- Conjugates phrases so that they're presented as a list:
+-- a, b, c, and d (w. Oxford comma)
+function Locale:conjugate_comma_and(...)
+    local args = table.pack(...)
+    local str = ""
+    for i = 1, args.n do
+        str = str .. Locale:get_noun(args[i])
+        if i < (args.n - 1) then
+            str = str .. ", "
+        elseif i < args.n then
+            str = str .. ", and "
+        end
+    end
+    return str
+end
 
---     if(is_empty(o.adjective)) then
---         str = str .. o.noun
---     else
---         str = str .. o.adjective
---     end
+print(Locale:conjugate_comma_and("among", "us"))
 
---     if(Language:is_vowel(str[0])) then
---         str = "an" .. str
---     else
---         str = "a" .. str
---     end
--- end
+-- [determiner (a/an)] [adjective (or noun as fallback)]
+function Locale:conjugate_indefinite_article(o)
+    local str = ""
+
+    if(is_empty(o.adjective)) then
+        str = str .. Locale:get_noun(o)
+    else
+        str = str .. o.adjective
+    end
+
+    if(Locale:is_vowel(str[0])) then
+        str = "an" .. str
+    else
+        str = "a" .. str
+    end
+end
 
 function table.clone(org)
     return {table.unpack(org)}
@@ -262,6 +299,15 @@ function table.deepcopy(orig)
         copy = orig
     end
     return copy
+end
+
+function table.remove_if(t, f)
+    for k, v in pairs(t) do
+        if f(v) == true then
+            table.remove(t, k)
+        end
+    end
+    return t
 end
 
 function translate(str)

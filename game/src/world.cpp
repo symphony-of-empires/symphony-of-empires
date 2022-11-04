@@ -122,6 +122,8 @@ void World::init_lua() {
         for(const auto& subideology : ideology.subideologies) {
             if(subideology.ref_name.get_string() == subideology_ref_name) {
                 nation.subideology_id = subideology.get_id();
+                nation.current_policy.economic = subideology.economic;
+                nation.current_policy.political = subideology.political;
                 break;
             }
         }
@@ -157,9 +159,61 @@ void World::init_lua() {
     lua_register(lua, "get_province_controller", LuaAPI::get_province_controller);
     lua_register(lua, "get_province_neighbours", LuaAPI::get_province_neighbours);
     lua_register(lua, "get_province_nuclei", LuaAPI::get_province_nuclei);
-    lua_register(lua, "get_province_pops_size", LuaAPI::get_province_pops_size);
-    lua_register(lua, "get_province_pop", LuaAPI::get_province_pop);
-    lua_register(lua, "set_province_pop", LuaAPI::set_province_pop);
+    lua_register(lua, "get_province_pops_size", [](lua_State* L) {
+        const auto& province = g_world.provinces.at(lua_tonumber(L, 1));
+        lua_pushnumber(L, province.pops.size());
+        return 1;
+    });
+    lua_register(lua, "get_province_pop", [](lua_State* L) {
+        const auto& province = g_world.provinces.at(lua_tonumber(L, 1));
+        const auto& pop = province.pops.at(lua_tonumber(L, 2));
+        lua_pushnumber(L, pop.size);
+        lua_pushnumber(L, pop.budget);
+        lua_pushnumber(L, pop.literacy);
+        lua_pushnumber(L, pop.life_needs_met);
+        lua_pushnumber(L, 1.f);
+        lua_pushnumber(L, 1.f);
+        lua_pushnumber(L, (size_t)pop.type_id);
+        lua_pushnumber(L, IdeologyId(0));
+        lua_pushnumber(L, pop.militancy);
+        return 9;
+    });
+    lua_register(lua, "set_province_pop", [](lua_State* L) {
+        auto& province = g_world.provinces.at(lua_tonumber(L, 1));
+        auto& pop = province.pops.at(lua_tonumber(L, 2));
+        pop.size = lua_tonumber(L, 3);
+        pop.budget = lua_tonumber(L, 4);
+        pop.literacy = lua_tonumber(L, 5);
+        pop.life_needs_met = lua_tonumber(L, 6);
+        //lua_tonumber(L, 7);
+        //lua_tonumber(L, 8);
+        pop.type_id = PopTypeId(lua_tonumber(L, 9));
+        pop.militancy = lua_tonumber(L, 10);
+        return 0;
+    });
+
+    lua_register(lua, "get_province_buildings_size", [](lua_State* L) {
+        const auto& province = g_world.provinces.at(lua_tonumber(L, 1));
+        lua_pushnumber(L, province.buildings.size());
+        return 1;
+    });
+    lua_register(lua, "get_province_building", [](lua_State* L) {
+        const auto& province = g_world.provinces.at(lua_tonumber(L, 1));
+        const auto& building = province.buildings.at(lua_tonumber(L, 2));
+        lua_pushnumber(L, building.level);
+        lua_pushnumber(L, building.production_scale);
+        lua_pushnumber(L, building.workers);
+        return 3;
+    });
+    lua_register(lua, "set_province_building", [](lua_State* L) {
+        auto& province = g_world.provinces.at(lua_tonumber(L, 1));
+        auto& building = province.buildings.at(lua_tonumber(L, 2));
+        building.level = lua_tonumber(L, 3);
+        building.production_scale = lua_tonumber(L, 4);
+        building.workers = lua_tonumber(L, 5);
+        return 0;
+    });
+
     lua_register(lua, "rename_province", LuaAPI::rename_province);
     lua_register(lua, "add_province_nucleus", LuaAPI::add_province_nucleus);
     lua_register(lua, "add_province_owner", LuaAPI::add_province_owner);
@@ -319,6 +373,26 @@ void World::init_lua() {
     lua_setglobal(lua, "TECH_ECONOMIC");
     lua_pushnumber(lua, TechnologyType::POLITICS);
     lua_setglobal(lua, "TECH_POLITICS");
+
+    // Policies control
+#define POLICY_CAPITALIST 1
+    lua_pushnumber(lua, POLICY_CAPITALIST);
+    lua_setglobal(lua, "POLICY_CAPITALIST");
+    lua_register(lua, "relative_nation_policy_stance", [](lua_State* L) {
+        auto& nation = g_world.nations.at(lua_tonumber(L, 1));
+        float val = lua_tonumber(L, 3);
+        float ret_val = 0.f;
+        auto& policy = nation.current_policy;
+        switch((int)lua_tonumber(L, 2)) {
+        case POLICY_CAPITALIST:
+            ret_val = policy.economic.capitalism = glm::clamp(policy.economic.capitalism + val, -1.f, 1.f);
+            break;
+        default:
+            break;
+        }
+        lua_pushnumber(L, ret_val);
+        return 1;
+    });
 
     // Set path for `require` statements in lua, this will allow us to require
     // without using data/scripts

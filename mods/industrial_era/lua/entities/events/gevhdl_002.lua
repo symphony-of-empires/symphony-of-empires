@@ -23,7 +23,6 @@
 --      Does important stuff
 -- ----------------------------------------------------------------------------
 
-tmp_data = {}
 gevhdl002_evhdl = Event:new{
 	ref_name = "gevhdl002",
 	conditions_fn = function()
@@ -33,20 +32,23 @@ gevhdl002_evhdl = Event:new{
 		return EVENT_CONDITIONS_UNMET
 	end,
 	event_fn = function(ref_name)
-		tmp_data.ideology = Ideology:get_by_id(math.random(0, 7))
-		gevhdl002_evhdl.title = tmp_data.ideology.name .. " outrage!"
-		gevhdl002_evhdl.text = "A lot of " .. tmp_data.ideology.name .. "s have started speaking false information about us; what's best for the " .. Nation:get(ref_name).adjective .. " people?"
-		gevhdl002_evhdl:update(gevhdl002)
+		Nation:get(ref_name):set_flag("ideological_revolution_id", math.random(0, 6))
+
+		local ideology = Ideology:get_by_id(Nation:get(ref_name):get_flag("ideological_revolution_id"))
+		gevhdl002_evhdl.title = ideology.name .. " outrage!"
+		gevhdl002_evhdl.text = "A lot of " .. ideology.name .. "s have started speaking false information about us; what's best for the " .. Nation:get(ref_name).adjective .. " people?"
+		gevhdl002_evhdl:update()
 		gevhdl002_evhdl:add_decision(Decision:new{
 			ref_name = "gevhdl002_decision_0",
 			name = "Shut them down",
-			effects = "Every POP that supports " .. tmp_data.ideology.name .. " gets 0.1 militancy",
+			effects = "Every POP that supports " .. ideology.name .. " gets 0.1 militancy",
 			decision_fn = function(ref_name)
 				local prov_list = Nation:get(ref_name):get_owned_provinces()
+				local ideology = Ideology:get_by_id(Nation:get(ref_name):get_flag("ideological_revolution_id"))
 				for k, province in pairs(prov_list) do
 					local pops = province:get_pops()
 					for k, pop in pairs(pops) do
-						if pop.ideology.ref_name == tmp_data.ideology.ref_name then
+						if pop.ideology.ref_name == ideology.ref_name then
 							goto continue
 						end
 						pop.militancy = pop.militancy + 0.1
@@ -60,13 +62,14 @@ gevhdl002_evhdl = Event:new{
 		gevhdl002_evhdl:add_decision(Decision:new{
 			ref_name = "gevhdl002_decision_1",
 			name = "Let them be",
-			effects = "Every POP that supports " .. tmp_data.ideology.name .. " gets 0.05 militancy",
+			effects = "Every POP that supports " .. ideology.name .. " gets 0.05 militancy",
 			decision_fn = function(ref_name)
 				local prov_list = Nation:get(ref_name):get_owned_provinces()
+				local ideology = Ideology:get_by_id(Nation:get(ref_name):get_flag("ideological_revolution_id"))
 				for k, province in pairs(prov_list) do
 					local pops = province:get_pops()
 					for k, pop in pairs(pops) do
-						if pop.ideology.ref_name == tmp_data.ideology.ref_name then
+						if pop.ideology.ref_name == ideology.ref_name then
 							goto continue
 						end
 						pop.militancy = pop.militancy + 0.05

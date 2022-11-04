@@ -105,11 +105,34 @@ function Province:get_pops()
 	end
 	return new_table
 end
+function Province:get_total_population()
+	local pops = self:get_pops()
+	local sum = 0
+	for k, v in pairs(pops) do
+		sum = sum + v.size
+	end
+	return sum
+end
 function Province:update_pop(pop)
 	set_province_pop(self.id, pop.id, pop.size, pop.budget, pop.literacy, pop.life_needs_met, pop.everday_needs_met, pop.luxury_needs_met, pop.type_id, pop.militancy)
 end
 function Province:update_pops(pop)
 	-- TODO: Do important stuff
+end
+function Province:get_buildings()
+	local n_buildings = get_province_buildings_size(self.id) - 1
+	local new_table = {}
+	for i = 0, n_buildings do
+		local tb = Building:new()
+		tb.level, tb.production_scale, tb.workers = get_province_building(self.id, i)
+		tb.id = i
+		tb.province_id = self.id
+		new_table[i] = tb
+	end
+	return new_table
+end
+function Province:update_building(building)
+	set_province_building(self.id, building.id, building.level, building.production_scale, building.workers)
 end
 
 -- ============================================================================

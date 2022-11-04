@@ -76,6 +76,9 @@ gfx/load_screen/011
 gfx/load_screen/012
 	By August von Siegen (19. Jhdt., München und Wien) - http://www.dorotheum.com, Public Domain, https://commons.wikimedia.org/w/index.php?curid=13274793
 
+gfx/load_screen/013
+    By Eduard Gaertner - Unknown source, Public Domain, https://commons.wikimedia.org/w/index.php?curid=616050
+
 gfx/ideology/communism
 gfx/ideology/fascism
 gfx/ideology/republic

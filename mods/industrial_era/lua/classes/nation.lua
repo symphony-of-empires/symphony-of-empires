@@ -134,6 +134,9 @@ function Nation:is_owns_nuclei_from(other)
 	end
 	return (total_eq_cont == nuclei_cont)
 end
+function Nation:relative_policy_stance(tp, v)
+	return relative_nation_policy_stance(self.id, tp, v)
+end
 
 NationRelation = {
 	relation = 0.0,

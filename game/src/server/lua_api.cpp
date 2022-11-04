@@ -644,41 +644,6 @@ int LuaAPI::get_province_nuclei(lua_State* L) {
     return 1;
 }
 
-int LuaAPI::get_province_pops_size(lua_State* L) {
-    const auto& province = g_world.provinces.at(lua_tonumber(L, 1));
-    lua_pushnumber(L, province.pops.size());
-    return 1;
-}
-
-int LuaAPI::get_province_pop(lua_State* L) {
-    const auto& province = g_world.provinces.at(lua_tonumber(L, 1));
-    const auto& pop = province.pops.at(lua_tonumber(L, 2));
-    lua_pushnumber(L, pop.size);
-    lua_pushnumber(L, pop.budget);
-    lua_pushnumber(L, pop.literacy);
-    lua_pushnumber(L, pop.life_needs_met);
-    lua_pushnumber(L, 1.f);
-    lua_pushnumber(L, 1.f);
-    lua_pushnumber(L, (size_t)pop.type_id);
-    lua_pushnumber(L, IdeologyId(0));
-    lua_pushnumber(L, pop.militancy);
-    return 9;
-}
-
-int LuaAPI::set_province_pop(lua_State* L) {
-    auto& province = g_world.provinces.at(lua_tonumber(L, 1));
-    auto& pop = province.pops.at(lua_tonumber(L, 2));
-    pop.size = lua_tonumber(L, 3);
-    pop.budget = lua_tonumber(L, 4);
-    pop.literacy = lua_tonumber(L, 5);
-    pop.life_needs_met = lua_tonumber(L, 6);
-    //lua_tonumber(L, 7);
-    //lua_tonumber(L, 8);
-    pop.type_id = PopTypeId(lua_tonumber(L, 9));
-    pop.militancy = lua_tonumber(L, 10);
-    return 0;
-}
-
 int LuaAPI::add_province_pop(lua_State* L) {
     auto& province = g_world.provinces.at(lua_tonumber(L, 1));
     auto& pop = province.pops.at(lua_tonumber(L, 2));
