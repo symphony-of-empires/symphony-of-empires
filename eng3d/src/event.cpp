@@ -92,6 +92,8 @@ Eng3D::Event::Key::Type Eng3D::Event::Key::from_sdl(int sdl) {
     case SDLK_SPACE: return Eng3D::Event::Key::Type::SPACE;
     case SDLK_BACKSPACE: return Eng3D::Event::Key::Type::BACKSPACE;
     case SDLK_ESCAPE: return Eng3D::Event::Key::Type::ESC;
+    case SDLK_BACKSLASH: // Fallthrough
+    case SDLK_BACKQUOTE: return Eng3D::Event::Key::Type::TILDE;
     }
     return Eng3D::Event::Key::Type::NONE;
 }
