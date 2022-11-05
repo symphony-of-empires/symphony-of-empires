@@ -53,7 +53,6 @@ prusso_danish_war_evhdl = Event:new{
     end,
     event_fn = function(ref_name)
         decision = Decision:new{
-            ref_name = "prusso_danish_war_decision_0",
             name = "Yes",
             decision_fn = function(ref_name)
     
@@ -62,7 +61,6 @@ prusso_danish_war_evhdl = Event:new{
         }
         prusso_danish_war_evhdl:add_decision(decision)
         decision = Decision:new{
-            ref_name = "prusso_danish_war_decision_1",
             name = "No",
             decision_fn = function(ref_name)
                 Nation:get(ref_name):declare_unjustified_war(Nation:get("denmark"))

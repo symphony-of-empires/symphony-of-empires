@@ -41,7 +41,6 @@ the_minas_crash = Event:new{
 	end,
 	event_fn = function()
 		the_minas_crash:add_decision(Decision:new{
-			ref_name = "the_minas_crash_decision_0",
 			name = "I'm sorry for such tragedy",
 			decision_fn = function()
 				-- ...
@@ -49,7 +48,6 @@ the_minas_crash = Event:new{
 			effects = "None"
 		})
 		the_minas_crash:add_decision(Decision:new{
-			ref_name = "the_minas_crash_decision_1",
 			name = "They should be held accountable!",
 			decision_fn = function()
 				-- ...

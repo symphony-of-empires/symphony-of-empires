@@ -33,7 +33,6 @@ taza_concession = Event:new{
 	end,
 	event_fn = function(ref_name)
 		taza_concession:add_decision(Decision:new{
-			ref_name = "taza_concession_decision_0",
 			name = "Taza is ours, by any means!",
 			decision_fn = function(ref_name)
 				local provinces = Nation:get("morocco"):get_nuclei_provinces()
@@ -45,7 +44,6 @@ taza_concession = Event:new{
 			effects = "Annex morroco"
 		})
 		taza_concession:add_decision(Decision:new{
-			ref_name = "taza_concession_decision_1",
 			name = "Taza is rightful Spanish land!",
 			decision_fn = function(ref_name)
 				Nation:get("spain"):declare_unjustified_war(Nation:get("morocco"))

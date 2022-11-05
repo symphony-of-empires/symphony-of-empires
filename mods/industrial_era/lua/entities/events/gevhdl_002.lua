@@ -39,7 +39,6 @@ gevhdl002_evhdl = Event:new{
 		gevhdl002_evhdl.text = "A lot of " .. ideology.name .. "s have started speaking false information about us; what's best for the " .. Nation:get(ref_name).adjective .. " people?"
 		gevhdl002_evhdl:update()
 		gevhdl002_evhdl:add_decision(Decision:new{
-			ref_name = "gevhdl002_decision_0",
 			name = "Shut them down",
 			effects = "Every POP that supports " .. ideology.name .. " gets 0.1 militancy",
 			decision_fn = function(ref_name)

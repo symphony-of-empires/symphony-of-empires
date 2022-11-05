@@ -64,7 +64,6 @@ cholera_evhdl = Event:new{
         cholera_evhdl.text = texts[texts_idx].title
         cholera_evhdl:update()
         cholera_evhdl:add_decision(Decision:new{
-            ref_name = "cholera_decision_0",
             name = "We have to deal with this outbreak.",
             decision_fn = function(ref_name)
                 local prov_list = Nation:get(ref_name):get_owned_provinces()
@@ -80,7 +79,6 @@ cholera_evhdl = Event:new{
             effects = "+1 militancy"
         })
         cholera_evhdl:add_decision(Decision:new{
-            ref_name = "cholera_decision_1",
             name = "Send a small amount of aid to the area",
             decision_fn = function(ref_name)
                 local prov_list = Nation:get(ref_name):get_owned_provinces()
@@ -96,7 +94,6 @@ cholera_evhdl = Event:new{
             effects = "+0.5 militancy"
         })
         cholera_evhdl:add_decision(Decision:new{
-            ref_name = "cholera_decision_2",
             name = "Eh, They can deal with it themselves",
             decision_fn = function(ref_name)
                 local prov_list = Nation:get(ref_name):get_owned_provinces()

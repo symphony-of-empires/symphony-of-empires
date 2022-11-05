@@ -37,8 +37,7 @@ generic_militancy_nationwide_evhdl = Event:new{
 			text = "Some activists are trying to undermine us with false statments about the efficiency of our goverment - we can always crack down on those liars but we may upset free-speech supporters"	
 		}
 		generic_militancy_nationwide_evhdl:add_decision(Decision:new{
-			ref_name = "generic_militancy_nationwide_decision_0",
-			name = "",
+			name = "Let them spread lies",
 			effects = "Every POP gets +0.5 militancy",
 			decision_fn = function(ref_name)
 				local prov_list = Nation:get(ref_name):get_owned_provinces()

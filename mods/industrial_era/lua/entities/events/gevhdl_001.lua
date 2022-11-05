@@ -52,7 +52,6 @@ gevhdl001 = Event:new{
 		end
 		gevhdl001:update(gevhdl002)
 		gevhdl001:add_decision(Decision:new{
-			ref_name = "gevhdl001_decision_0",
 			name = "We will do what we can to save our people!",
 			decision_fn = function(ref_name)
 				local prov_list = Nation:get(ref_name):get_owned_provinces()
@@ -68,7 +67,6 @@ gevhdl001 = Event:new{
 			effects = "+0.5 militancy"
 		})
 		gevhdl001:add_decision(Decision:new{
-			ref_name = "gevhdl001_decision_1",
 			name = "We can't do anything about it",
 			decision_fn = function(ref_name)
 				local prov_list = Nation:get(ref_name):get_owned_provinces()

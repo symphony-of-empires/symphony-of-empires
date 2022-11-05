@@ -34,23 +34,20 @@ western_contact_evhdl = Event:new{
     end,
     event_fn = function(ref_name)
         western_contact_evhdl:add_decision(Decision:new{
-            ref_name = "western_contact_decision_0",
             name = "Yes, let them in",
             decision_fn = function(ref_name)
                 Nation:get(ref_name):set_flag("westernized", 0.1)
             end,
-            effects = "None"
+            effects = "+0.1 westernization"
         })
         western_contact_evhdl:add_decision(Decision:new{
-            ref_name = "western_contact_decision_1",
             name = "They can enter, but we have to be cautious",
             decision_fn = function(ref_name)
                 Nation:get(ref_name):set_flag("westernized", 0.05)
             end,
-            effects = "None"
+            effects = "+0.05 westernization"
         })
         western_contact_evhdl:add_decision(Decision:new{
-            ref_name = "western_contact_decision_2",
             name = "They're a threat to our society",
             decision_fn = function(ref_name)
                 
