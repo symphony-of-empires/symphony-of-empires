@@ -65,7 +65,7 @@ usa_intro_evhdl = Event:new{
     text = "A thriving land with huge potential to become one of the world's largest economies, with just the right policies it will be able to maintain a foothold on the american continent."
 }
 usa_intro_evhdl:register()
-usa_intro_evhdl:add_receivers(Nation:get("united_states"))
+usa_intro_evhdl:add_receivers(Nation:get("usa"))
 
 -- Mexico
 mexico_intro_evhdl = Event:new{
