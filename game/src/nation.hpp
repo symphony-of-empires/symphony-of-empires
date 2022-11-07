@@ -63,11 +63,11 @@ public:
     /// @brief Diplomatic relations between two nations
     struct Relation {
         bool is_allied() const {
-            return alliance > 0.5f && !has_war;
+            return alliance > 0.f && !has_war;
         }
 
         bool is_customs_union() const {
-            return alliance > 0.f && !has_war;
+            return alliance > 0.5f;
         }
 
         bool has_landpass() const {

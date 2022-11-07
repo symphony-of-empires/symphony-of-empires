@@ -65,12 +65,28 @@ inline glm::vec3 Trade::get_sphere_coord(const Province& province, glm::vec2 wor
 inline float Trade::get_trade_cost(const Province& province1, const Province& province2, glm::vec2 world_size) {
     const auto sphere_coord1 = get_sphere_coord(province1, world_size);
     const auto sphere_coord2 = get_sphere_coord(province2, world_size);
-
     float cos_angle = glm::dot(sphere_coord1, sphere_coord2);
     float angle = glm::acos(cos_angle);
-    const auto distance = angle / (2 * glm::pi<float>());
+    const auto distance = angle / (2.f * glm::pi<float>());
+
+    // Dissuade trade with foreigners
+    float foreign_penalty = 1.f;
+    if(province1.controller_id != province2.controller_id)
+    {
+        foreign_penalty = 5.f;
+        // Must be valid controller ids
+        if(Nation::is_valid(province1.controller_id) || Nation::is_valid(province2.controller_id))
+        {
+            const auto& world = World::get_instance();
+            // Must be in customs union if it's a foreigner
+            const auto& relation = world.get_relation(province1.controller_id, province2.controller_id);
+            if(relation.is_customs_union())
+                foreign_penalty = 1.f;
+        }
+    }
+
     // Cost to travel around the globe
-    const auto trade_cost = 1000.f * g_world.terrain_types[province1.terrain_type_id].penalty * g_world.terrain_types[province2.terrain_type_id].penalty;
+    const auto trade_cost = (g_world.terrain_types[province1.terrain_type_id].penalty + g_world.terrain_types[province2.terrain_type_id].penalty) * foreign_penalty;
     return distance * trade_cost;
 }
 

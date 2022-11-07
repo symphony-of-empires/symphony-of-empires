@@ -186,7 +186,7 @@ bankrupt_corporation_evhdl = Event:new{
             province_names[k] = v.name
         end
 
-        bankrupt_corporation_evhdl.title = "Corporation goes bankrupt",
+        bankrupt_corporation_evhdl.title = "Corporation goes bankrupt"
         bankrupt_corporation_evhdl.text = "One of our nation's corporations has declared that they're on the brink of bankruptcy. This can affect severely our economy in the long run; They've been boosting the economies of " .. Locale:conjugate_comma_and(province_names) .. "; Should we let this go through?"
         bankrupt_corporation_evhdl:update()
         bankrupt_corporation_evhdl:add_decision(Decision:new{

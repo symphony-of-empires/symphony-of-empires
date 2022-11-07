@@ -292,19 +292,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                 float total_reciprocal_price = market.total_reciprocal_price;
                 for(const auto other_province_id : trade.cost_eval) {
                     auto& other_province = world.provinces[other_province_id];
-                    // Do not trade with foreigners
-                    if(province.controller_id != other_province.controller_id)
-                    {
-                        // Must be valid controller ids
-                        if(Nation::is_invalid(province.controller_id) || Nation::is_invalid(other_province.controller_id))
-                            continue;
-                        
-                        // Must be in customs union if it's a foreigner
-                        const auto& relation = world.get_relation(province.controller_id, other_province.controller_id);
-                        if(!relation.is_customs_union())
-                            continue;
-                    }
-
+                    
                     float reciprocal_trade_cost = 1.f / (trade.trade_costs[province_id][other_province_id] + glm::epsilon<float>());
                     float reciprocal_cost = reciprocal_price + reciprocal_trade_cost;
                     float total_reciprocal_cost = total_reciprocal_price + total_reciprocal_trade_costs[other_province_id];
