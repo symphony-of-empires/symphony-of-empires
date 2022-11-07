@@ -132,7 +132,23 @@ void World::init_lua() {
     lua_register(lua, "get_nation_relation", LuaAPI::get_nation_relation);
     lua_register(lua, "set_nation_relation", LuaAPI::set_nation_relation);
     lua_register(lua, "nation_declare_unjustified_war", LuaAPI::nation_declare_unjustified_war);
-    lua_register(lua, "nation_make_puppet", LuaAPI::nation_make_puppet);
+    lua_register(lua, "nation_make_puppet", [](lua_State* L) {
+        auto& nation = g_world.nations.at(lua_tonumber(L, 1));
+        auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
+        other_nation.puppet_master_id = nation;
+        auto& relation = g_world.get_relation(nation, other_nation);
+        relation.alliance = 1.f;
+        relation.relation = 0.f;
+        return 0;
+    });
+    lua_register(lua, "nation_make_customs_union", [](lua_State* L) {
+        auto& nation = g_world.nations.at(lua_tonumber(L, 1));
+        auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
+        auto& relation = g_world.get_relation(nation, other_nation);
+        relation.alliance = 1.f;
+        relation.relation = 0.f;
+        return 0;
+    });
     lua_register(lua, "set_nation_flag", [](lua_State* L) {
         auto& nation = g_world.nations.at(lua_tonumber(L, 1));
         nation.flags[luaL_checkstring(L, 2)] = lua_tonumber(L, 3);

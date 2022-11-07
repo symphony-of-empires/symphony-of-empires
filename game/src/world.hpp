@@ -115,7 +115,6 @@ struct World;
 
 // Contains the main world class object, containing all the data relevant for the simulation
 class World {
-    Economy::EconomyState economy_state;
 public:
     constexpr static unsigned int ticks_per_month = 30;
 
@@ -148,6 +147,7 @@ public:
     LIST_FOR_LOCAL_TYPE(War, wars, std::vector)
     UnitManager unit_manager;
     ProvinceManager province_manager;
+    Economy::EconomyState economy_state;
 
     template<typename T>
     inline void insert(T& ptr) {

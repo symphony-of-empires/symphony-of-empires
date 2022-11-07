@@ -25,6 +25,7 @@
 #pragma once
 
 #include <vector>
+#include "objects.hpp"
 #include "province.hpp"
 
 class World;
@@ -43,14 +44,14 @@ namespace Economy {
             ProvinceId key;
         };
 
+        float get_trade_cost(const Province& province1, const Province& province2, glm::vec2 world_size) const;
+
         /// @brief Cost-evaluatable provinces, we discard sea and ocean provinces
         /// from this formula to save space and time since goods directly transport
         /// to the land provinces
         std::vector<ProvinceId> cost_eval;
         std::vector<std::vector<float>> trade_costs;
     private:
-        inline glm::vec3 get_sphere_coord(const Province& province, glm::vec2 world_size);
-        inline float get_trade_cost(const Province& province1, const Province& province2, glm::vec2 world_size);
         inline void initialize(const World& world);
         std::vector<std::vector<Vertex>> neighbours;
     };

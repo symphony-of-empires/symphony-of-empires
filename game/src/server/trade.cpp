@@ -49,33 +49,17 @@ void Trade::recalculate(const World& world) {
     }, tbb::auto_partitioner());
 }
 
-inline glm::vec3 Trade::get_sphere_coord(const Province& province, glm::vec2 world_size) {
-    const glm::vec2 normalized_pos = province.get_pos() / world_size;
-    glm::vec2 radiance_pos;
-    radiance_pos.x = normalized_pos.x * 2.f * glm::pi<float>();
-    radiance_pos.y = normalized_pos.y * glm::pi<float>();
-
-    glm::vec3 sphere_position;
-    sphere_position.x = glm::cos(radiance_pos.x) * glm::sin(radiance_pos.y);
-    sphere_position.y = glm::sin(radiance_pos.x) * glm::sin(radiance_pos.y);
-    sphere_position.z = glm::cos(radiance_pos.y);
-    return sphere_position;
-}
-
-inline float Trade::get_trade_cost(const Province& province1, const Province& province2, glm::vec2 world_size) {
-    const auto sphere_coord1 = get_sphere_coord(province1, world_size);
-    const auto sphere_coord2 = get_sphere_coord(province2, world_size);
-    float cos_angle = glm::dot(sphere_coord1, sphere_coord2);
-    float angle = glm::acos(cos_angle);
-    const auto distance = angle / (2.f * glm::pi<float>());
+float Trade::get_trade_cost(const Province& province1, const Province& province2, glm::vec2 world_size) const {
+    const auto radius = 100.f;
+    const auto distance = province1.euclidean_distance(province2, world_size, radius);
 
     // Dissuade trade with foreigners
-    float foreign_penalty = 1.f;
+    auto foreign_penalty = 1.f;
     if(province1.controller_id != province2.controller_id)
     {
         foreign_penalty = 5.f;
         // Must be valid controller ids
-        if(Nation::is_valid(province1.controller_id) || Nation::is_valid(province2.controller_id))
+        if(Nation::is_valid(province1.controller_id) && Nation::is_valid(province2.controller_id))
         {
             const auto& world = World::get_instance();
             // Must be in customs union if it's a foreigner
