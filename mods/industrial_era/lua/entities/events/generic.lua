@@ -17,7 +17,7 @@
 --
 -- ----------------------------------------------------------------------------
 --	Name:
---  	lua/events/gevhdl_001.lua
+--  	lua/events/generic.lua
 --
 -- 	Abstract:
 --      Does important stuff

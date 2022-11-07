@@ -27,6 +27,7 @@ math.randomseed(os.time())
 
 require('entities/events/capitalism')
 require('entities/events/catholic_relief_act')
+require('entities/events/intro')
 require('entities/events/generic')
 require('entities/events/jutland_sinks')
 require('entities/events/panama_canal')
