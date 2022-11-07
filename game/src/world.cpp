@@ -137,7 +137,7 @@ void World::init_lua() {
         auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
         other_nation.puppet_master_id = nation;
         auto& relation = g_world.get_relation(nation, other_nation);
-        relation.alliance = 1.f;
+        relation.alliance = 0.45f; // Just below to not make a customs union
         relation.relation = 0.f;
         return 0;
     });

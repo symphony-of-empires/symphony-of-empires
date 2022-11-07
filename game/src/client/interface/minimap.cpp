@@ -125,8 +125,8 @@ Minimap::Minimap(GameState& _gs, int _x, int _y, UI::Origin _origin)
                     }
 
                     // Mix each color depending of how many live there compared to max_amount
-                    auto min = Eng3D::Color::rgb8(0, 128, 255);
-                    auto max = Eng3D::Color::rgb8(255, 24, 24);
+                    auto min = Eng3D::Color::rgb8(128, 128, 255);
+                    auto max = Eng3D::Color::rgb8(255, 64, 64);
                     std::vector<ProvinceColor> province_color;
                     for(const auto& [province_id, amount] : province_amounts) {
                         float ratio = amount / max_amount;
