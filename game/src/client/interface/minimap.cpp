@@ -119,7 +119,7 @@ Minimap::Minimap(GameState& _gs, int _x, int _y, UI::Origin _origin)
                     auto max_amount = 1.f;
                     for(const auto& province : world.provinces) {
                         auto amount = world.economy_state.trade.get_trade_cost(world.provinces[id], province, glm::vec2{ world.width, world.height });
-                        amount = std::log2(amount + 1.f);
+                        amount = std::log2(amount);
                         max_amount = glm::max(amount, max_amount);
                         province_amounts.emplace_back(province.get_id(), amount);
                     }
@@ -129,7 +129,12 @@ Minimap::Minimap(GameState& _gs, int _x, int _y, UI::Origin _origin)
                     auto max = Eng3D::Color::rgb8(255, 64, 64);
                     std::vector<ProvinceColor> province_color;
                     for(const auto& [province_id, amount] : province_amounts) {
-                        float ratio = amount / max_amount;
+                        if(province_id == id)
+                        {
+                            province_color.emplace_back(province_id, Eng3D::Color::rgb8(255, 255, 128));
+                            continue;
+                        }
+                        auto ratio = amount / max_amount;
                         province_color.emplace_back(province_id, Eng3D::Color::lerp(min, max, ratio));
                     }
                     return province_color;
@@ -160,17 +165,22 @@ Minimap::Minimap(GameState& _gs, int _x, int _y, UI::Origin _origin)
                 float amount = std::accumulate(province.pops.cbegin(), province.pops.cend(), 0, [](const float a, const auto& e) {
                     return a + e.size;
                 });
-                amount = std::log2(amount + 1.f);
+                amount = std::log2(amount);
                 max_amount = glm::max(amount, max_amount);
                 province_amounts.emplace_back(province.get_id(), amount);
             }
 
             // Mix each color depending of how many live there compared to max_amount
-            Eng3D::Color min = Eng3D::Color::rgb8(255, 255, 255);
-            Eng3D::Color max = Eng3D::Color::rgb8(180, 24, 24);
+            Eng3D::Color min = Eng3D::Color::rgb8(255, 0, 0);
+            Eng3D::Color max = Eng3D::Color::rgb8(16, 255, 128);
             std::vector<ProvinceColor> province_color;
             for(auto const& [province_id, amount] : province_amounts) {
-                float ratio = amount / max_amount;
+                if(amount == 0.f)
+                {
+                    province_color.emplace_back(province_id, Eng3D::Color::rgb8(255, 255, 255));
+                    continue;
+                }
+                auto ratio = amount / max_amount;
                 Eng3D::Color color = Eng3D::Color::lerp(min, max, ratio);
                 province_color.emplace_back(province_id, color);
             }

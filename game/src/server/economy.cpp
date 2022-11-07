@@ -312,14 +312,13 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                 for(const auto other_province_id : trade.cost_eval) {
                     auto& other_province = world.provinces[other_province_id];
                     
-                    float reciprocal_trade_cost = 1.f / (trade.trade_costs[province_id][other_province_id] + glm::epsilon<float>());
-                    float reciprocal_cost = reciprocal_price + reciprocal_trade_cost;
-                    float total_reciprocal_cost = total_reciprocal_price + total_reciprocal_trade_costs[other_province_id];
+                    auto reciprocal_trade_cost = 1.f / (trade.get_trade_cost(province, other_province, glm::vec2{ world.width, world.height }) + glm::epsilon<float>());
+                    auto reciprocal_cost = reciprocal_price + reciprocal_trade_cost;
+                    auto total_reciprocal_cost = total_reciprocal_price + total_reciprocal_trade_costs[other_province_id];
                     market.global_demand[province_id] += market.demand[other_province_id] * (reciprocal_cost / total_reciprocal_cost);
 
                     auto& product = province.products[market.good];
                     product.supply += market.supply[province_id];
-                    product.demand += market.demand[province_id];
                 }
             }
         }
