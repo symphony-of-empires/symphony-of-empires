@@ -60,17 +60,14 @@ corporate_factory_request_evhdl = Event:new{
         corporate_factory_request_evhdl:add_decision(Decision:new{
             name = "Sure!",
             decision_fn = function(ref_name)
+                Nation:get(ref_name):relative_policy_stance(POLICY_CAPITALISM, 0.1)
                 local provinces = get_corporate_ideal_provinces(ref_name)
 				for k, province in pairs(provinces) do
                     -- Update militancy of POPs
 					local pops = province:get_pops()
 					for k, pop in pairs(pops) do
-						if pop.ideology.ref_name == ideology.ref_name then
-							goto continue
-						end
 						pop.militancy = pop.militancy + 0.5
 						province:update_pop(pop)
-						::continue::
 					end
 
                     -- Upgrade factories
@@ -81,7 +78,6 @@ corporate_factory_request_evhdl = Event:new{
                     end
 					province:update_pops()
 				end
-                Nation:get(ref_name):relative_policy_stance(POLICY_CAPITALISM, 0.1)
             end,
             effects = "+1 level for all buildings\n+0.1 capitalist\n+0.5 militancy for all POPs in the provinces"
         })
@@ -166,4 +162,62 @@ new_corporation_evhdl = Event:new{
 new_corporation_evhdl:register()
 new_corporation_evhdl:add_receivers(table.unpack(Nation:get_all()))
 
+-- Bankrupt corporation
+bankrupt_corporation_evhdl = Event:new{
+    ref_name = "bankrupt_corporation",
+    conditions_fn = function(ref_name)
+        local year = get_year()
+        local nation = Nation:get(ref_name)
+        if nation:get_flag("westernized") == 1.0 and nation:get_flag("total_corporations") > 0 and math.random(0, 100) == 0 then
+            local provinces = get_corporate_ideal_provinces(ref_name)
+            if table.size(provinces) > 0 then
+                -- Are we capitalist?
+                if nation:relative_policy_stance(POLICY_CAPITALISM, 0.0) > 0.0 then
+                    return EVENT_CONDITIONS_MET
+                end
+            end
+        end
+        return EVENT_CONDITIONS_UNMET
+    end,
+    event_fn = function(ref_name)
+        local provinces = get_corporate_ideal_provinces(ref_name)
+        local province_names = {}
+        for k, v in pairs(provinces) do
+            province_names[k] = v.name
+        end
 
+        bankrupt_corporation_evhdl.title = "Corporation goes bankrupt",
+        bankrupt_corporation_evhdl.text = "One of our nation's corporations has declared that they're on the brink of bankruptcy. This can affect severely our economy in the long run; They've been boosting the economies of " .. Locale:conjugate_comma_and(province_names) .. "; Should we let this go through?"
+        bankrupt_corporation_evhdl:update()
+        bankrupt_corporation_evhdl:add_decision(Decision:new{
+            name = "They should be more careful next time",
+            decision_fn = function(ref_name)
+                Nation:get(ref_name):set_flag("corporate_favours", 10.0)
+                Nation:get(ref_name):set_flag("corporate_spoil", 5.0)
+                -- TODO -5% of total budget
+            end,
+            effects = "+10.0 corporate favours\n+5 corporate spoil\n-5% of total budget"
+        })
+        bankrupt_corporation_evhdl:add_decision(Decision:new{
+            name = "It's just how it works",
+            decision_fn = function(ref_name)
+                Nation:get(ref_name):relative_policy_stance(POLICY_CAPITALISM, 0.1)
+                Nation:get(ref_name):set_flag("total_corporations", -1.0)
+                local provinces = get_corporate_ideal_provinces(ref_name)
+				for k, province in pairs(provinces) do
+                    -- Upgrade factories
+                    local buildings = province:get_buildings()
+                    for k, building in pairs(buildings) do
+                        building.level = building.level - 1.0
+                        province:update_building(building)
+                    end
+					province:update_pops()
+				end
+            end,
+            effects = "-1 corporation\n+0.1 capitalist\n-1 level of factories for every aforementioned province"
+        })
+        return EVENT_DO_MANY_TIMES
+    end,
+}
+bankrupt_corporation_evhdl:register()
+bankrupt_corporation_evhdl:add_receivers(table.unpack(Nation:get_all()))
