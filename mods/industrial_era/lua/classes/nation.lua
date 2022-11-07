@@ -159,6 +159,9 @@ end
 function Nation:make_puppet(other)
 	nation_make_puppet(self.id, other.id)
 end
+function Nation:make_customs_union(other)
+	nation_make_customs_union(self.id, other.id)
+end
 function Nation:declare_unjustified_war(other)
 	nation_declare_unjustified_war(self.id, other.id)
 end
