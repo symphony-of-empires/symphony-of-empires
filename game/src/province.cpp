@@ -75,7 +75,7 @@ float Province::euclidean_distance(const Province& other_province, glm::vec2 wor
     const auto sphere_coord1 = get_sphere_coord(world_size, radius);
     const auto sphere_coord2 = other_province.get_sphere_coord(world_size, radius);
     const auto cos_angle = glm::dot(sphere_coord1, sphere_coord2) / (radius * radius);
-    const auto angle = glm::acos(cos_angle);
+    const auto angle = glm::acos(glm::clamp(cos_angle, -1.f, 1.f));
     const auto distance = angle * radius;
     return distance;
 }
