@@ -27,7 +27,7 @@ western_contact_evhdl = Event:new{
     ref_name = "western_contact",
     conditions_fn = function(ref_name)
         local year = get_year()
-        if Nation:get(ref_name):get_flag("westernized") == 0.0 then
+        if Nation:get(ref_name):get_flag("westernized") < 1.0 then
             return EVENT_CONDITIONS_MET
         end
         return EVENT_CONDITIONS_UNMET
@@ -36,14 +36,14 @@ western_contact_evhdl = Event:new{
         western_contact_evhdl:add_decision(Decision:new{
             name = "Yes, let them in",
             decision_fn = function(ref_name)
-                Nation:get(ref_name):set_flag("westernized", 0.1)
+                Nation:get(ref_name):set_flag("westernized", Nation:get(ref_name):get_flag("westernized") + 0.1)
             end,
             effects = "+0.1 westernization"
         })
         western_contact_evhdl:add_decision(Decision:new{
             name = "They can enter, but we have to be cautious",
             decision_fn = function(ref_name)
-                Nation:get(ref_name):set_flag("westernized", 0.05)
+                Nation:get(ref_name):set_flag("westernized", Nation:get(ref_name):get_flag("westernized") + 0.05)
             end,
             effects = "+0.05 westernization"
         })
@@ -61,3 +61,28 @@ western_contact_evhdl = Event:new{
 }
 western_contact_evhdl:register()
 western_contact_evhdl:add_receivers(table.unpack(Nation:get_all()))
+
+westernized_evhdl = Event:new{
+    ref_name = "westernized",
+    conditions_fn = function(ref_name)
+        local year = get_year()
+        if Nation:get(ref_name):get_flag("westernized") >= 1.0 and Nation:get(ref_name):get_flag("is_westernized") == false then
+            return EVENT_CONDITIONS_MET
+        end
+        return EVENT_CONDITIONS_UNMET
+    end,
+    event_fn = function(ref_name)
+        western_contact_evhdl:add_decision(Decision:new{
+            name = "Splendid!",
+            decision_fn = function(ref_name)
+                Nation:get(ref_name):set_flag("is_westernized", true)
+            end,
+            effects = "is_westernized set to true"
+        })
+        return EVENT_DO_ONE_TIME
+    end,
+    title = "Western contact",
+    text = "Some foreigners have been wanting to set embassies and further improve relations with our nation."
+}
+westernized_evhdl:register()
+westernized_evhdl:add_receivers(table.unpack(Nation:get_all()))

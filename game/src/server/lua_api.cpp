@@ -1048,7 +1048,7 @@ void LuaAPI::check_events(lua_State* L) {
                     lua_pop(L, 1);
                     goto restore_original;
                 }
-                is_multi = lua_tointeger(L, -1);
+                is_multi = lua_toboolean(L, -1);
                 lua_pop(L, 1);
 
                 {
@@ -1062,7 +1062,7 @@ void LuaAPI::check_events(lua_State* L) {
                         // Check that descisions have functions
                         for(const auto& descision : local_event.decisions) {
                             if(descision.do_decision_function == 0) {
-                                //Eng3D::Log::error("lua", "Lua event " + orig_event.ref_name + " on descision " + descision.ref_name + " failed");
+                                Eng3D::Log::error("event", translate_format("(Lua event %s on descision %s has no function callback", orig_event.ref_name.c_str(), descision.ref_name.c_str()));
                                 goto restore_original;
                             }
                         }
