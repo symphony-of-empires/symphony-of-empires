@@ -46,7 +46,7 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
     if(provinces.size() > 1) header.push_back("Province");
     header.insert(header.end(), { "Type", "Workers", "Budget", "Inputs", "Output", "Scale", "Profit", "" });
 
-    auto* table = new UI::Table<uint32_t>(_x, _y, _w, _h, 32, sizes, header, parent);
+    auto* table = new UI::Table<uint32_t>(_x, _y, _h, 32, sizes, header, parent);
     table->reserve(1);
     table->set_on_each_tick([&gs, table, provinces](UI::Widget&) {
         size_t row_num = 0;

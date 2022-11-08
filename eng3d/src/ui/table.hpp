@@ -85,12 +85,11 @@ namespace UI {
     template <typename T>
     class Table : public UI::Widget {
     public:
-        Table(int _x, int _y, unsigned _w, unsigned _h, int _row_height, std::vector<int> _widths, std::vector<std::string> _header_labels, UI::Widget* _parent = nullptr)
-            : UI::Widget(_parent, _x, _y, _w, _h, UI::WidgetType::TABLE),
+        Table(int _x, int _y, unsigned _h, int _row_height, std::vector<int> _widths, std::vector<std::string> _header_labels, UI::Widget* _parent = nullptr)
+            : UI::Widget(_parent, _x, _y, 0, _h, UI::WidgetType::TABLE),
             row_height{ _row_height }, columns_width{ _widths }
         {
             assert(_widths.size() == _header_labels.size());
-            this->width = 35;
             this->width = std::accumulate(_widths.begin(), _widths.end(), 35);
             auto& header = this->make_widget<UI::TableRow>(this->width - 35, _row_height, this->columns_width);
             for(size_t i = 0; i < _header_labels.size(); i++) {

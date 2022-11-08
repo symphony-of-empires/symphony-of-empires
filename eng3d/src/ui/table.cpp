@@ -48,7 +48,7 @@ void UI::TableElement::set_key(float key) {
     key_number = key;
 }
 
-bool UI::TableElement::operator< (const UI::TableElement& right) const {
+bool UI::TableElement::operator<(const UI::TableElement& right) const {
     if(this->key_type != right.key_type)
         return this->key_type < right.key_type;
     

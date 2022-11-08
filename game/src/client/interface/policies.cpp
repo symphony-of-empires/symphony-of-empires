@@ -229,7 +229,7 @@ PoliciesView::PoliciesView(GameState& _gs)
 
     std::vector<int> sizes{ 120, 128 };
     std::vector<std::string> header{ "Commodity", "Scale" };
-    auto& commodity_table = state_economy_grp->make_widget<UI::Table<uint32_t>>(0, 0, state_economy_grp->width, state_economy_grp->height, 32, sizes, header);
+    auto& commodity_table = state_economy_grp->make_widget<UI::Table<uint32_t>>(0, 0, state_economy_grp->height, 32, sizes, header);
     commodity_table.reserve(1);
     this->commodity_production = this->gs.curr_nation->commodity_production;
     for(const auto& good : this->gs.world->goods) {

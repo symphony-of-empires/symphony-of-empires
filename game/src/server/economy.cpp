@@ -225,13 +225,14 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         // If we are going to have value added taxes we should separate them from income taxes
         state_payment += budget_alloc * nation.current_policy.pop_tax;
         const auto budget_after_VAT = budget_alloc * (1.f - nation.current_policy.pop_tax);
+        const auto budget_per_pop = budget_after_VAT / pop.size;
 
         auto total_factor = std::reduce(needs_amounts.begin(), needs_amounts.end());
         for(const auto& good : world.goods) {
             if(needs_amounts[good] == 0.f) continue;
 
             const auto need_factor = needs_amounts[good] / total_factor;
-            const auto amount = (budget_after_VAT * need_factor / province.products[good].price);
+            const auto amount = (budget_per_pop * need_factor / province.products[good].price);
 
             pop_need.life_needs_met *= std::pow(amount, need_factor);
             used_budget += province.products[good].buy(amount);
@@ -344,7 +345,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         for(size_t i = 0; i < province.pops.size(); i++) {
             const auto& pop = province.pops[i];
             new_needs[i].budget = pop.budget;
-            new_needs[i].life_needs_met = glm::clamp(pop.life_needs_met - 0.5f, -1.f, 1.f);
+            // new_needs[i].life_needs_met = glm::clamp(pop.life_needs_met - 0.5f, -1.f, 1.f);
         }
 
         for(size_t i = 0; i < province.pops.size(); i++) {

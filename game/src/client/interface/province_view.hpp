@@ -48,6 +48,8 @@ namespace Interface {
         UI::PieChart* languages_pie;
         UI::PieChart* religions_pie;
         UI::PieChart* pop_types_pie;
+        UI::Widget* create_pop_table();
+        UI::Widget* create_stock_table();
     public:
         ProvincePopulationTab(GameState& gs, int x, int y, Province& province, UI::Widget* _parent);
         void update_piecharts();

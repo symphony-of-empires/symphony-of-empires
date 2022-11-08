@@ -49,9 +49,9 @@ Interface::PopWindow::PopWindow(GameState& _gs)
     for(const auto province_id : nation.owned_provinces)
         size += gs.world->provinces[province_id].pops.size();
 
-    std::vector<int> sizes{ 75, 200, 100, 80, 80, 50 };
-    std::vector<std::string> header{ "Size", "Province", "Type", "Militancy", "Literacy", "Budget" };
-    auto table = new UI::Table<uint64_t>(5, 5, 800 - 10, 800 - 5, 35, sizes, header, this);
+    std::vector<int> sizes{ 75, 200, 100, 80, 80, 80, 50};
+    std::vector<std::string> header{ "Size", "Province", "Type", "Militancy", "Literacy", "Budget", "QOL" };
+    auto table = new UI::Table<uint64_t>(5, 5, 800 - 5, 35, sizes, header, this);
     this->width = table->width + 5 + this->padding.x;
     table->reserve(size);
     table->set_on_each_tick([this, &nation, table](UI::Widget&) {
@@ -83,9 +83,14 @@ Interface::PopWindow::PopWindow(GameState& _gs)
                 literacy->set_key(pop.literacy);
 
                 auto budget = row.get_element(row_index++);
-                budget->text(string_format("%.0f", pop.budget / pop.size));
+                budget->text(string_format("%.2f", pop.budget / pop.size));
                 budget->set_key(pop.budget / pop.size);
                 budget->set_tooltip(Eng3D::translate_format("Total budget: %.2f", pop.budget));
+
+                auto quality_of_life = row.get_element(row_index++);
+                quality_of_life->text(string_format("%.2f", pop.life_needs_met));
+                quality_of_life->set_key(pop.life_needs_met);
+                quality_of_life->set_tooltip(Eng3D::translate_format("Quality of life: %.3f", pop.life_needs_met));
             }
         }
     });
