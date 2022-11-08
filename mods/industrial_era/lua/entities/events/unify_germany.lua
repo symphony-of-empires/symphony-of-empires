@@ -38,7 +38,6 @@ unify_germany_evhdl = Event:new{
 	end,
 	event_fn = function(ref_name)
 		unify_germany_evhdl:add_decision(Decision:new{
-			ref_name = "unify_germany_decision_0",
 			name = "Yes",
 			decision_fn = function(ref_name)
 				print('Unifying germany...')
@@ -53,7 +52,6 @@ unify_germany_evhdl = Event:new{
 			effects = "Prussia acquires all provinces that are a nuclei of Germany"
 		})
 		unify_germany_evhdl:add_decision(Decision:new{
-			ref_name = "unify_germany_decision_1",
 			name = "No",
 			decision_fn = function(ref_name)
 				print('Germany isn\'t going to be a thing :<')

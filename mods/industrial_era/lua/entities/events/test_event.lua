@@ -34,7 +34,6 @@ cake_evhdl = Event:new{
 	end,
 	event_fn = function(ref_name)
 		cake_evhdl:add_decision(Decision:new{
-			ref_name = "cake_decision_0",
 			name = "I think I will eat it",
 			decision_fn = function(ref_name)
 				print('The cake tasted like a cake, what a surprise! and you find a bunch of peseants outside your palace... oh no')
@@ -42,7 +41,6 @@ cake_evhdl = Event:new{
 			effects = "You will consume cake"
 		})
 		cake_evhdl:add_decision(Decision:new{
-			ref_name = "cake_decision_1",
 			name = "Fuck you",
 			decision_fn = function(ref_name)
 				print('Why no eat my poisoned cake? i put so much poison in it :(')
@@ -50,7 +48,6 @@ cake_evhdl = Event:new{
 			effects = "You will consume cake anyways"
 		})
 		cake_evhdl:add_decision(Decision:new{
-			ref_name = "cake_decision_2",
 			name = "Cake!?",
 			decision_fn = function(ref_name)
 				print('Where the fuck am i?')

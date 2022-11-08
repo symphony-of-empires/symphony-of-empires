@@ -66,6 +66,10 @@ public:
             return alliance > 0.f && !has_war;
         }
 
+        bool is_customs_union() const {
+            return alliance > 0.5f;
+        }
+
         bool has_landpass() const {
             return relation > 0.5f || alliance > 0.f || has_war;
         }

@@ -43,6 +43,7 @@ namespace Eng3D::Event {
             SPACE,
             BACKSPACE,
             ESC,
+            TILDE,
         };
         Eng3D::Event::Key::Type type = Eng3D::Event::Key::Type::NONE;
         /// @brief Whetever the key is being held

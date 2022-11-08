@@ -23,4 +23,7 @@ artic
     By Sergey Endogurov / Сергей Ендогуров (1864-1894) - here / здесь, Public Domain, https://commons.wikimedia.org/w/index.php?curid=17947384
 
 tundra
-    By Conrad Martens - State Library of New South Wales DG 160, Public Domain, https://commons.wikimedia.org/w/index.php?curid=92043483
+    By Olof Hermelin - Stockholms Auktionsverket 29 November 2006, lot 2087 via ARCADJA auction results, Public Domain, https://commons.wikimedia.org/w/index.php?curid=26316474
+
+taiga
+    By Carl Skånberg - Stockholms Auktionsverket 4 June 2013, lot 1862, Public Domain, https://commons.wikimedia.org/w/index.php?curid=26317245

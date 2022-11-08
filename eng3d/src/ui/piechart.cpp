@@ -70,21 +70,21 @@ inline void PieChart::draw_triangle(float start_ratio, float end_ratio, Eng3D::C
     auto mesh = Eng3D::Mesh<glm::vec2, glm::vec2>(Eng3D::MeshMode::TRIANGLES);
 
     Eng3D::State::get_instance().ui_ctx.obj_shader->set_uniform("diffuse_color", glm::vec4(color.r, color.g, color.b, 1.f));
-    mesh.buffer.push_back(Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(x_center + x_offset * radius, y_center + y_offset * radius), glm::vec2(0.5f + x_offset * 0.5f, 0.5f + y_offset * 0.5f)));
+    mesh.buffer.emplace_back(glm::vec2(x_center + x_offset * radius, y_center + y_offset * radius), glm::vec2(0.5f + x_offset * 0.5f, 0.5f + y_offset * 0.5f));
 
     x_offset = glm::cos((end_ratio - 0.25f) * 2 * glm::pi<float>());
     y_offset = glm::sin((end_ratio - 0.25f) * 2 * glm::pi<float>());
     scale = glm::min<float>(1.f / glm::abs(x_offset), 1.f / glm::abs(y_offset));
     x_offset *= scale;
     y_offset *= scale;
-    mesh.buffer.push_back(Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(x_center + x_offset * radius, y_center + y_offset * radius), glm::vec2(0.5f + x_offset * 0.5f, 0.5f + y_offset * 0.5f)));
-    mesh.buffer.push_back(Eng3D::MeshData<glm::vec2, glm::vec2>(glm::vec2(x_center, y_center), glm::vec2(0.5f, 0.5f)));
+    mesh.buffer.emplace_back(glm::vec2(x_center + x_offset * radius, y_center + y_offset * radius), glm::vec2(0.5f + x_offset * 0.5f, 0.5f + y_offset * 0.5f));
+    mesh.buffer.emplace_back(glm::vec2(x_center, y_center), glm::vec2(0.5f, 0.5f));
     mesh.upload();
     mesh.draw();
 }
 
 void PieChart::on_render(UI::Context& ctx, Eng3D::Rect) {
-    ctx.piechart_shader->set_texture(0, "diffuse_map", *ctx.piechart_overlay);
+    ctx.obj_shader->set_texture(0, "diffuse_map", *ctx.piechart_overlay);
     float counter = 0;
     float last_corner = -0.125f;
     float last_ratio = 0;

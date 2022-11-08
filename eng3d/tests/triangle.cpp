@@ -79,7 +79,16 @@ int main(int argc, char** argv) {
     GameState gs(pkg_paths);
     gs.run = true;
 
-    new UI::Image(0, 0, gs.width, gs.height, nullptr);
+    new UI::Image(0, 0, gs.width, gs.height, "gfx/sky.png", nullptr);
+    
+    auto* info_win = new UI::Window(32, 32, 512, 256);
+    info_win->text("Economics");
+    auto& chart = info_win->make_widget<UI::Chart>(0, 0, 256, 128);
+    chart.text("Economy");
+    chart.set_data({ 1.f, 5.f, 4.f });
+
+    auto& piechart = info_win->make_widget<UI::PieChart>(256, 0, 128, 128);
+    piechart.set_data({ UI::ChartData(0.5f, "Eng3D", 0xff00ffff), UI::ChartData(0.2f, "Not Eng3D", 0x00ff00ff) });
 
     gs.ui_ctx.prompt("شست بلسجليدلطظﻻىرﻻزؤرظءؤزةوئىءؤئمحيبسخ4ه2صثهقعسيبىسب", "σξδφσေိျုူိက့်ိုျ့ငသ်ဆသစနငငသ့ိထာလဘာခလုူ γνακδ ασνし結十と岡統百防能οχψωηδ ασηξφ ξογφφσηγερς");
     gs.ui_ctx.prompt("Hello world", "This is a demo of Eng3D ^_^");

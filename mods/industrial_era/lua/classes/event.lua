@@ -29,7 +29,9 @@ Event = {
 	event_fn = "",
 	title = "",
 	text = "",
-	checked = false
+	checked = false,
+
+	last_decision_id = 0,
 }
 function Event:new(o)
 	local o = o or {}
@@ -57,7 +59,10 @@ function Event:add_receivers(...)
 	add_event_receivers(self.id, args.n, table.unpack(args))
 end
 function Event:add_decision(decision)
-	add_decision(self.id, decision.ref_name, decision.name, decision.decision_fn, decision.effects)
+	local decision_ref_name = self.ref_name .. self.last_decision_id
+	self.last_decision_id = self.last_decision_id + 1.0
+
+	add_decision(self.id, decision_ref_name, decision.name, decision.decision_fn, decision.effects)
 end
 
 Decision = {

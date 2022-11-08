@@ -54,7 +54,7 @@ catholic_relief_act_of_1829 = Event:new{
 					province:update_pops()
 				end
 			end,
-			effects = "x100 more militancy, x100 more conciousness"
+			effects = "+0.1 militancy for catholics"
 		})
 		return EVENT_DO_ONE_TIME
 	end,

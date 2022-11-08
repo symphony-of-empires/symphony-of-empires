@@ -36,7 +36,6 @@ jutland_sinks_evhdl = Event:new{
     end,
     event_fn = function(ref_name)
         jutland_sinks_evhdl:add_decision(Decision:new{
-            ref_name = "jutland_sinks_decision_0",
             name = "That is very unfortunate",
             decision_fn = function(ref_name)
                 -- None

@@ -82,10 +82,6 @@ static void update_factory_production(World& world, Building& building, const Bu
     // Barracks and so on
     if(Good::is_invalid(building_type.output_id)) return;
     const auto& nation = world.nations[province.controller_id];
-
-    // TODO: Make it so burgeoise aren't duplicatin money out of thin air
-    const auto private_investment = private_payment * 0.8 * nation.current_policy.private_ownership;
-    building.budget += private_investment;
     
     constexpr auto artisan_production_rate = 0.01f;
     auto& output = world.goods[building_type.output_id];
@@ -98,17 +94,34 @@ static void update_factory_production(World& world, Building& building, const Bu
         return; 
     }
 
+    // TODO add input modifier
+    building.expenses.inputs_cost = 0.f; // Buy the inputs for the factory
+    for(const auto& [product_id, amount] : building_type.req_goods)
+        building.expenses.inputs_cost += province.products[product_id].buy(amount * building.production_scale);
+    output_product.produce(building.get_output_amount());
+}
+
+static void update_factory_accounting(World& world, Building& building, const BuildingType& building_type, Province& province, float& pop_payment, float& artisans_amount, float& artisan_payment, float& state_payment, float& private_payment)
+{
+    // Barracks and so on
+    if(Good::is_invalid(building_type.output_id)) return;
+    const auto& nation = world.nations[province.controller_id];
+
+    // TODO: Make it so burgeoise aren't duplicating money out of thin air
+    const auto private_investment = private_payment * 0.8 * nation.current_policy.private_ownership;
+    building.budget += private_investment;
+    
+    auto& output = world.goods[building_type.output_id];
+    auto& output_product = province.products[output];
+    if(!building.can_do_output(province, building_type.input_ids) || building.level == 0.f) { // Artisans take place of factory
+        return; 
+    }
+
     // TODO add output modifier
     // Calculate outputs
 
     // TODO set min wages
     float min_wage = glm::max(nation.current_policy.min_wage, glm::epsilon<float>());
-
-    // TODO add input modifier
-    building.expenses.inputs_cost = 0.f; // Buy the inputs for the factory
-    for(const auto& [product_id, amount] : building_type.req_goods)
-        building.expenses.inputs_cost += province.products[product_id].buy(amount * building.production_scale);
-    building.revenue.outputs = output_product.produce(building.get_output_amount());
 
     building.expenses.wages = glm::clamp(min_wage * building.workers, 0.f, building.revenue.get_total());
     pop_payment += building.expenses.wages;
@@ -235,7 +248,13 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
             const auto amount = (budget_per_pop * need_factor / province.products[good].price);
 
             pop_need.life_needs_met *= std::pow(amount, need_factor);
-            used_budget += province.products[good].buy(amount);
+            const auto payment = province.products[good].buy(amount);
+            
+            for(const auto& building_type : world.building_types)
+                if(building_type.output_id == good.get_id())
+                    province.buildings[building_type].revenue.outputs += payment;
+
+            used_budget += payment;
             // province.products[good].demand/*speculative_demand*/ += amount;
         }
     }
@@ -293,17 +312,14 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                 float total_reciprocal_price = market.total_reciprocal_price;
                 for(const auto other_province_id : trade.cost_eval) {
                     auto& other_province = world.provinces[other_province_id];
-                    // Do not trade with foreigners
-                    if(province.controller_id != other_province.controller_id) continue;
-
-                    float reciprocal_trade_cost = 1.f / (trade.trade_costs[province_id][other_province_id] + glm::epsilon<float>());
-                    float reciprocal_cost = reciprocal_price + reciprocal_trade_cost;
-                    float total_reciprocal_cost = total_reciprocal_price + total_reciprocal_trade_costs[other_province_id];
+                    
+                    auto reciprocal_trade_cost = 1.f / (trade.get_trade_cost(province, other_province, glm::vec2{ world.width, world.height }) + glm::epsilon<float>());
+                    auto reciprocal_cost = reciprocal_price + reciprocal_trade_cost;
+                    auto total_reciprocal_cost = total_reciprocal_price + total_reciprocal_trade_costs[other_province_id];
                     market.global_demand[province_id] += market.demand[other_province_id] * (reciprocal_cost / total_reciprocal_cost);
 
                     auto& product = province.products[market.good];
                     product.supply += market.supply[province_id];
-                    product.demand += market.demand[province_id];
                 }
             }
         }
@@ -326,7 +342,6 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         new_needs.assign(province.pops.size(), PopNeed{});
 
         auto laborers_payment = 0.f, artisans_payment = 0.f, state_payment = 0.f, private_payment = 0.f;
-
         auto artisans_amount = 0.f, burgeoise_amount = 0.f, laborers_amount = 0.f;
         for(auto& pop : province.pops) {
             if(world.pop_types[pop.type_id].group == PopGroup::ARTISAN)
@@ -339,6 +354,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
 
         for(auto& building_type : world.building_types) {
             auto& building = province.buildings[building_type];
+            building.revenue.outputs = 0.f;
             update_factory_production(world, building, building_type, province, laborers_payment, artisans_amount, artisans_payment, state_payment, private_payment);
         }
 
@@ -362,6 +378,10 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         new_workers.assign(world.building_types.size(), 0.f);
         update_factories_employment(world, province, new_workers);
         update_pop_needs(world, province, new_needs, state_payment);
+        for(auto& building_type : world.building_types) {
+            auto& building = province.buildings[building_type];
+            update_factory_accounting(world, building, building_type, province, laborers_payment, artisans_amount, artisans_payment, state_payment, private_payment);
+        }
 
         paid_taxes.local().resize(world.nations.size());
         paid_taxes.local()[province.controller_id] = state_payment;

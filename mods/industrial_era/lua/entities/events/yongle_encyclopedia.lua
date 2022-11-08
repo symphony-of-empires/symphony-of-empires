@@ -35,7 +35,6 @@ yongle_encyclopedia_evhdl = Event:new{
     event_fn = function(ref_name)
         Nation:get(ref_name):set_flag("yongle_encyclopedia_is_safe", false)
         yongle_encyclopedia_evhdl:add_decision(Decision:new{
-            ref_name = "yongle_encyclopedia_decision_0",
             name = "Okay",
             decision_fn = function(ref_name)
                 

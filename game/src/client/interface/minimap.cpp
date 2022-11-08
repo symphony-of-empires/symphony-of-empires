@@ -109,6 +109,51 @@ Minimap::Minimap(GameState& _gs, int _x, int _y, UI::Origin _origin)
     });
     relations_ibtn->set_tooltip("Relations");
 
+    auto* transport_cost_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
+    transport_cost_ibtn->set_on_click([this](UI::Widget&) {
+        this->gs.map->set_selection([](const World&, Map& map, const Province& selected_province) {
+            mapmode_generator map_mode = (mapmode_generator)([](ProvinceId id) {
+                return [id](const World& world) {
+                    // Find the maximum amount of pops in one province
+                    std::vector<std::pair<ProvinceId, float>> province_amounts;
+                    auto max_amount = 1.f;
+                    for(const auto& province : world.provinces) {
+                        auto amount = world.economy_state.trade.get_trade_cost(world.provinces[id], province, glm::vec2{ world.width, world.height });
+                        amount = std::log2(amount);
+                        max_amount = glm::max(amount, max_amount);
+                        province_amounts.emplace_back(province.get_id(), amount);
+                    }
+
+                    // Mix each color depending of how many live there compared to max_amount
+                    auto min = Eng3D::Color::rgb8(128, 128, 255);
+                    auto max = Eng3D::Color::rgb8(255, 64, 64);
+                    std::vector<ProvinceColor> province_color;
+                    for(const auto& [province_id, amount] : province_amounts) {
+                        if(province_id == id)
+                        {
+                            province_color.emplace_back(province_id, Eng3D::Color::rgb8(255, 255, 128));
+                            continue;
+                        }
+                        auto ratio = amount / max_amount;
+                        province_color.emplace_back(province_id, Eng3D::Color::lerp(min, max, ratio));
+                    }
+                    return province_color;
+                };
+            }(selected_province));
+            mapmode_tooltip map_tooltip = ([](ProvinceId province_id) {
+                return [province_id](const World& world, const ProvinceId id) -> std::string {
+                    const auto& province = world.provinces[province_id];
+                    const auto& other_province = world.provinces[id];
+                    auto amount = world.economy_state.trade.get_trade_cost(province, other_province, glm::vec2{ world.width, world.height });
+                    return translate_format("Transport from %s to %s costs %.2f", province.name.c_str(), other_province.name.c_str(), amount);
+                };
+            }(selected_province));
+            map.set_map_mode(map_mode, map_tooltip);
+        });
+        set_mapmode_options(nullptr);
+    });
+    transport_cost_ibtn->set_tooltip("Transport cost");
+
     auto* population_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
     population_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
@@ -120,17 +165,22 @@ Minimap::Minimap(GameState& _gs, int _x, int _y, UI::Origin _origin)
                 float amount = std::accumulate(province.pops.cbegin(), province.pops.cend(), 0, [](const float a, const auto& e) {
                     return a + e.size;
                 });
-                //amount = log2(amount + 1.f);
+                amount = std::log2(amount);
                 max_amount = glm::max(amount, max_amount);
                 province_amounts.emplace_back(province.get_id(), amount);
             }
 
             // Mix each color depending of how many live there compared to max_amount
-            Eng3D::Color min = Eng3D::Color::rgb8(255, 255, 255);
-            Eng3D::Color max = Eng3D::Color::rgb8(180, 24, 24);
+            Eng3D::Color min = Eng3D::Color::rgb8(255, 0, 0);
+            Eng3D::Color max = Eng3D::Color::rgb8(16, 255, 128);
             std::vector<ProvinceColor> province_color;
             for(auto const& [province_id, amount] : province_amounts) {
-                float ratio = amount / max_amount;
+                if(amount == 0.f)
+                {
+                    province_color.emplace_back(province_id, Eng3D::Color::rgb8(255, 255, 255));
+                    continue;
+                }
+                auto ratio = amount / max_amount;
                 Eng3D::Color color = Eng3D::Color::lerp(min, max, ratio);
                 province_color.emplace_back(province_id, color);
             }

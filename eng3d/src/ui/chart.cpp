@@ -39,20 +39,46 @@
 UI::Chart::Chart(int _x, int _y, unsigned w, unsigned h, UI::Widget* _parent)
     : UI::Widget(_parent, _x, _y, w, h, UI::WidgetType::LABEL)
 {
-
+    auto& s = Eng3D::State::get_instance();
+    this->current_texture = s.tex_man.load(s.package_man.get_unique("gfx/top_win_chart.png"));
 }
 
-void UI::Chart::on_render(UI::Context& ui_ctx, Eng3D::Rect viewport) {
-    ui_ctx.obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
+void UI::Chart::set_data(std::vector<float> new_data) {
+    this->data = new_data;
+    this->min = this->max = 1.f;
+    if(!this->data.empty())
+    {
+        this->max = *std::max_element(this->data.cbegin(), this->data.cend());
+        this->min = *std::min_element(this->data.cbegin(), this->data.cend());
+    }
+}
+
+void UI::Chart::on_render(UI::Context& ctx, Eng3D::Rect viewport) {
+    ctx.obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
     if(current_texture != nullptr)
         draw_rectangle(0, 0, width, height, viewport, current_texture.get());
 
     if(text_texture.get() != nullptr) {
-        ui_ctx.obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
+        ctx.obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
         draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture.get());
     }
 
-    /// @todo Data pops shouldn't be done here
-    if(data.size() >= 30)
-        data.pop_back();
+    ctx.obj_shader->set_uniform("diffuse_color", glm::vec4(1.f, 0.f, 0.f, 1.f));
+    ctx.obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man.get_white());
+    // Draw chart itself
+    size_t i = 0;
+    auto mesh = Eng3D::Mesh<glm::vec2, glm::vec2>(Eng3D::MeshMode::TRIANGLE_STRIP);
+    for(const auto& slice : this->data)
+    {
+        constexpr auto thickness = 4.f;
+        glm::vec2 offset{ viewport.left, viewport.top };
+        glm::vec2 start{ (i / this->data.size()) * this->width, ((slice - this->min) / this->max) * this->height };
+
+        mesh.buffer.emplace_back(glm::vec2{ offset.x + start.x, offset.y + start.y + thickness }, glm::vec2(0.f));
+        mesh.buffer.emplace_back(glm::vec2{ offset.x + start.x, offset.y + start.y }, glm::vec2(0.f));
+
+        i++;
+    }
+    mesh.upload();
+    mesh.draw();
 }

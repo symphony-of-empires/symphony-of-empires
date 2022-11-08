@@ -96,7 +96,7 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int _x, int _y, UI::Widget*
                     total += amount;
             }
         }
-        this->reqmat_chart->data.push_back(total);
+        //this->reqmat_chart->data.push_back(total);
     });
 
     for(const auto province_id : gs.curr_nation->owned_provinces) {
