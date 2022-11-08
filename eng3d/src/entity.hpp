@@ -30,6 +30,7 @@
 
 template<std::unsigned_integral T>
 struct EntityId {
+    using Type = T;
     constexpr static T invalid_id = std::numeric_limits<T>::max();
     T id = invalid_id;
 

@@ -255,7 +255,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
                     province.buildings[building_type].revenue.outputs += payment;
 
             used_budget += payment;
-            // province.products[good].demand/*speculative_demand*/ += amount;
+            province.products[good].demand += amount;
         }
     }
 }
@@ -269,7 +269,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         std::vector<float> supply;
         std::vector<float> demand;
         std::vector<float> global_demand;
-        float total_reciprocal_price;
+        std::vector<float> import_cost;
     };
     std::vector<Market> markets{ world.goods.size() };
     for(const auto& good : world.goods)
@@ -280,13 +280,12 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             market.supply.resize(world.provinces.size());
             market.demand.resize(world.provinces.size());
             market.global_demand = std::vector(world.provinces.size(), 0.f);
-            market.total_reciprocal_price = 0.f;
+            market.import_cost = std::vector(world.provinces.size(), 0.f);
             for(const auto& province : world.provinces) {
                 const auto& product = province.products[market.good];
-                market.demand[province] = 0.f;
+                market.demand[province] = product.demand;
                 market.prices[province] = product.price;
-                market.supply[province] = product.supply;
-                market.total_reciprocal_price += 1.f / (product.price + glm::epsilon<float>());
+                market.supply[province] = product.supply + 1.f;
             }
         }
     });
@@ -296,31 +295,46 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     economy_state.trade.recalculate(world);
     auto& trade = economy_state.trade;
 
-    std::vector<float> total_reciprocal_trade_costs(world.provinces.size(), 0.f);
-    tbb::parallel_for(static_cast<size_t>(0), world.provinces.size(), [&trade, &total_reciprocal_trade_costs](const auto province_id) {
-        auto total_reciprocal_trade_cost = 0.f;
-        for(const auto other_province_id : trade.cost_eval)
-            total_reciprocal_trade_cost += 1.f / (trade.trade_costs[province_id][other_province_id] + glm::epsilon<float>());
-        total_reciprocal_trade_costs[province_id] = total_reciprocal_trade_cost;
-    });
-
-    tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world, &trade, &total_reciprocal_trade_costs](const auto& markets_range) {
+    tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world, &trade](const auto& markets_range) {
+        std::vector<float> values(world.provinces.size());
         for(auto& market : markets_range) {
             for(const auto province_id : trade.cost_eval) {
                 auto& province = world.provinces[province_id];
-                auto reciprocal_price = 1.f / (market.prices[province_id] + glm::epsilon<float>());
-                float total_reciprocal_price = market.total_reciprocal_price;
-                for(const auto other_province_id : trade.cost_eval) {
-                    auto& other_province = world.provinces[other_province_id];
-                    
-                    auto reciprocal_trade_cost = 1.f / (trade.get_trade_cost(province, other_province, glm::vec2{ world.width, world.height }) + glm::epsilon<float>());
-                    auto reciprocal_cost = reciprocal_price + reciprocal_trade_cost;
-                    auto total_reciprocal_cost = total_reciprocal_price + total_reciprocal_trade_costs[other_province_id];
-                    market.global_demand[province_id] += market.demand[other_province_id] * (reciprocal_cost / total_reciprocal_cost);
+                if (province.owner_id == Nation::invalid())
+                    continue;
 
-                    auto& product = province.products[market.good];
-                    product.supply += market.supply[province_id];
+                auto& nation = world.nations[province.owner_id];
+                float sum_weightings = 0.f;
+                for(const auto other_province_id : nation.owned_provinces) {
+                    auto price = market.prices[other_province_id];
+                    auto apparent_price = price + 0.01f * trade.trade_costs[province_id][other_province_id];
+                    apparent_price += glm::epsilon<float>();
+                    values[other_province_id] = market.supply[other_province_id] / (apparent_price * apparent_price);
+                    sum_weightings += values[other_province_id];
                 }
+                // auto sum_weightings = std::reduce(values.begin(), values.end());
+                if (sum_weightings == 0) continue;
+                for(const auto other_province_id : nation.owned_provinces) {
+                    values[other_province_id] /= sum_weightings; 
+
+                    auto demand = market.demand[other_province_id];
+                    market.global_demand[province_id] += demand * values[other_province_id];
+                    auto price = market.prices[other_province_id];
+                    market.import_cost[province_id] += price * values[other_province_id];
+                }
+            }
+            for(const auto province_id : trade.cost_eval) {
+                const float price_change_speed = 0.9f;
+                auto price_factor = market.global_demand[province_id] / (market.supply[province_id] + 0.01f);
+                auto new_price = market.prices[province_id] * (1.f - price_change_speed)
+                        + (market.prices[province_id] * price_factor) * price_change_speed;
+
+                auto& province = world.provinces[province_id];
+                if (province.owner_id == Nation::invalid())
+                    continue;
+                auto& product = province.products[market.good];
+                product.price = std::max(new_price, 0.01f);
+                product.import_price = market.import_cost[province_id];
             }
         }
     });

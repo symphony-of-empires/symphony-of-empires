@@ -39,14 +39,35 @@ void Trade::recalculate(const World& world) {
     if(trade_costs.empty())
         this->initialize(world);
     
-    for(auto& trade_cost : this->trade_costs)
-        std::fill(trade_cost.begin(), trade_cost.end(), std::numeric_limits<float>::max());
+    //! Do this for now
+    if (cost_eval.empty()) {
+        tbb::parallel_for(static_cast<size_t>(0), world.provinces.size(), [this, &world](const auto province_id) {
+            glm::vec2 world_size{ world.width, world.height};
+            const auto& province = world.provinces[province_id];
+            for(size_t i = 0; i < world.provinces.size(); i++) {
+                const auto& other_province = world.provinces[i];
+                this->trade_costs[province_id][i] = 
+                    get_trade_cost(province, other_province, world_size);
+            }
+        });
+    }
 
-    glm::vec2 world_size{ world.width, world.height };
-    tbb::parallel_for(static_cast<size_t>(0), cost_eval.size(), [this, &world](const auto province_id) {
-        if(!world.provinces[province_id].is_coastal)
-            Eng3D::Pathfind::from_source<ProvinceId>(ProvinceId(province_id), this->neighbours, this->trade_costs[province_id]);
-    }, tbb::auto_partitioner());
+    if (cost_eval.empty()) {
+        for(size_t i = 0; i < world.provinces.size(); i++) {
+            if(!world.provinces[i].is_coastal)
+                cost_eval.push_back(i);
+        }
+    }
+
+    //! Do costly right now
+    // for(auto& trade_cost : this->trade_costs)
+    //     std::fill(trade_cost.begin(), trade_cost.end(), std::numeric_limits<float>::max());
+    // glm::vec2 world_size{ world.width, world.height };
+    // tbb::parallel_for(tbb::blocked_range(cost_eval.begin(), cost_eval.end()), [this, &world](const auto& province_range) {
+    //     for(auto& province_id : province_range) {
+    //         Eng3D::Pathfind::from_source<ProvinceId>(ProvinceId(province_id), this->neighbours, this->trade_costs[province_id]);
+    //     }
+    // }, tbb::auto_partitioner());
 }
 
 float Trade::get_trade_cost(const Province& province1, const Province& province2, glm::vec2 world_size) const {

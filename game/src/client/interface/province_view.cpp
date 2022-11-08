@@ -142,7 +142,7 @@ UI::Widget* ProvincePopulationTab::create_stock_table() {
             amount->set_key(product.supply);
 
             auto* demand = row.get_element(row_index++);
-            demand->text(string_format("%.0f", product.demand));
+            demand->text(string_format("%.1f", product.demand));
             demand->set_key(product.demand);
 
             auto* price = row.get_element(row_index++);
