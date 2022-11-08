@@ -23,11 +23,11 @@
 --      Does important stuff
 -- ----------------------------------------------------------------------------
 
-nation = Nation:new{ ref_name = "korea", name = _("Korea") }
+nation = Nation:new{ ref_name = "joseon", name = _("Joseon") }
 nation.adjective = _("Korean")
 nation:register()
 nation:add_accepted_language(Language:get("korean"))
-nation:add_client_hint(monarchy, _("Korea"), 0x808080)
+nation:add_client_hint(monarchy, _("Korea"), 0xa80a3c)
 
 nation = Nation:new{ ref_name = "taiwan", name = _("Taiwan") }
 nation.adjective = _("Taiwanesse")
@@ -117,12 +117,12 @@ nation:add_client_hint(monarchy, _("Vietnam"), 0x857732)
 nation:add_client_hint(socialism, _("Vietnam"), 0xF57732)
 nation:add_client_hint(communism, _("Vietnam"), 0xF57732)
 
-nation = Nation:new{ ref_name = "cambodia", name = _("Cambodia") }
+nation = Nation:new{ ref_name = "champa", name = _("Champa") }
 nation.adjective = _("Cambodian")
 nation:register()
 nation:set_ideology(monarchy, "absolute_monarchy")
 nation:add_accepted_language(Language:get("vietnamesse"))
-nation:add_client_hint(monarchy, _("Cambodia"), 0x512f91)
+nation:add_client_hint(monarchy, _("Champa"), 0x512f91)
 
 nation = Nation:new{ ref_name = "east_india_company", name = _("East India Company") }
 nation.adjective = _("British Indian")

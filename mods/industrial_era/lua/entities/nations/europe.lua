@@ -487,7 +487,7 @@ hesse_kassel.name = _("Hesse-Kassel")
 hesse_kassel:register()
 hesse_kassel:set_ideology(monarchy, "absolute_monarchy")
 hesse_kassel:add_accepted_language(german)
-hesse_kassel:add_client_hint(monarchy, _("Hesse-Kassel"), 0xd4b54e)
+hesse_kassel:add_client_hint(monarchy, _("Landgraviate of Hesse-Kassel"), 0xd4b54e)
 
 -- Composes all the Reuss-* provinces on thuringa
 reuss_gera = Nation:new{ ref_name = "reuss_gera" }
@@ -855,12 +855,12 @@ parma:set_ideology(monarchy, "absolute_monarchy")
 parma:add_accepted_language(italian)
 parma:add_client_hint(monarchy, _("Parma"), 0xd48ad3)
 
-modena = Nation:new{ ref_name = "modena" }
-modena.name = _("Modena")
-modena:register()
-modena:set_ideology(monarchy, "absolute_monarchy")
-modena:add_accepted_language(italian)
-modena:add_client_hint(monarchy, _("Modena"), 0xd3f2df)
+modena_and_reggio = Nation:new{ ref_name = "modena_and_reggio" }
+modena_and_reggio.name = _("Modena and Reggio")
+modena_and_reggio:register()
+modena_and_reggio:set_ideology(monarchy, "absolute_monarchy")
+modena_and_reggio:add_accepted_language(italian)
+modena_and_reggio:add_client_hint(monarchy, _("Modena and Reggio"), 0xd3f2df)
 
 savoie = Nation:new{ ref_name = "savoie" }
 savoie.name = _("Savoie")
