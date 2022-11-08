@@ -383,6 +383,9 @@ bool UI::Context::check_hover_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm
     if(w.is_hover) {
         if(w.on_hover) w.on_hover(w, mouse_pos, offset);
 
+        if (!w.tooltip && w.tooltip_creator)
+            w.tooltip = w.tooltip_creator();
+
         if(w.tooltip != nullptr) {
             this->tooltip_widget = w.tooltip;
             this->tooltip_widget->set_pos(offset.x, offset.y, w.width, w.height, width, height);

@@ -465,8 +465,17 @@ void Widget::set_tooltip(UI::Tooltip* _tooltip) {
 /// @param text Text for the new tooltip
 void Widget::set_tooltip(const std::string& text) {
     if(text.empty()) return;
-    this->set_tooltip(new UI::Tooltip(this, glm::min(text.size() * 12, static_cast<size_t>(512)), ((text.size() * 12) / 512) * 24 + 24));
-    this->tooltip->text(text);
+    this->set_tooltip(new UI::Tooltip(this, text));
+}
+
+/// @brief Set the tooltip to be shown when this widget is hovered, but generate
+/// when used needed. It is created from a string instead of taking an already existing widget
+/// @param _tooltip_text_creator the function that creates the text for the tooltip
+void Widget::set_tooltip(const std::function<std::string()> _tooltip_text_creator) {
+    this->tooltip_creator = [this, _tooltip_text_creator]() {
+        auto text = _tooltip_text_creator();
+        return new UI::Tooltip(this, text);
+    };
 }
 
 /// @brief Obtains the height of the top and bottom overflow in widget

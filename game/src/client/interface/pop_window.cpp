@@ -31,6 +31,23 @@
 #include "pop.hpp"
 #include "world.hpp"
 
+std::string pop_qol_tooltip_text(const Pop& pop, const World* world) {
+    std::string text = Eng3D::translate_format("Quality of life: %.3f", pop.life_needs_met);
+    text += "\n\n";
+    text += "Need for goods,";
+
+    const auto& needs_amounts = world->pop_types[pop.type_id].basic_needs_amount;
+    auto total_factor = std::reduce(needs_amounts.begin(), needs_amounts.end());
+    for (const auto& good : world->goods) {
+        if (needs_amounts[good] == 0) continue;
+        text += "\n";
+
+        const auto need_factor = needs_amounts[good] / total_factor;
+        text += Eng3D::translate_format("%s: %.3f", good.name.c_str(), need_factor);
+    }
+    return text;
+}
+
 Interface::PopWindow::PopWindow(GameState& _gs)
     : UI::Window(-400, -400, 0, 800),
     gs{ _gs }
@@ -90,7 +107,9 @@ Interface::PopWindow::PopWindow(GameState& _gs)
                 auto quality_of_life = row.get_element(row_index++);
                 quality_of_life->text(string_format("%.2f", pop.life_needs_met));
                 quality_of_life->set_key(pop.life_needs_met);
-                quality_of_life->set_tooltip(Eng3D::translate_format("Quality of life: %.3f", pop.life_needs_met));
+                quality_of_life->set_tooltip([pop, this]{
+                    return pop_qol_tooltip_text(pop, this->gs.world);
+                });
             }
         }
     });

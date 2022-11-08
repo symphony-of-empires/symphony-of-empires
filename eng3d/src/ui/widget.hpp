@@ -229,6 +229,7 @@ namespace UI {
         virtual void text(const std::string& text);
         virtual void set_tooltip(UI::Tooltip* tooltip);
         virtual void set_tooltip(const std::string& text);
+        virtual void set_tooltip(std::function<std::string()> tooltip_text_creator);
         glm::ivec2 get_y_bounds() const;
         void scroll(int y);
 
@@ -333,6 +334,7 @@ namespace UI {
         size_t flex_gap = 0;
 
         UI::Tooltip* tooltip = nullptr;
+        std::function<UI::Tooltip*()> tooltip_creator;
 
         void* user_data = nullptr;
 

@@ -31,27 +31,31 @@
 
 using namespace UI;
 
-UI::Tooltip::Tooltip()
+UI::Tooltip::Tooltip(UI::Widget* _parent)
     : UI::Widget()
 {
-    this->type = UI::WidgetType::TOOLTIP;
-    this->have_shadow = true;
-    this->width = 600;
-    this->height = 600;
+    init(_parent, 600, 600);
+}
 
-    this->current_texture = Eng3D::State::get_instance().ui_ctx.tooltip_tex;
-    this->text_color = Eng3D::Color(1.f, 1.f, 1.f);
-
-    const glm::ivec2 size{ 4, 4 };
-    const glm::ivec2 texture_size{ 10, 10 };
-    this->border = UI::Border(g_ui_context->border_tex, size, texture_size);
+UI::Tooltip::Tooltip(UI::Widget* _parent, const std::string& text)
+    : UI::Widget()
+{
+    size_t w = glm::min(text.size() * 12, (size_t)512);
+    size_t h = ((text.size() * 12) / 512) * 24 + 24;
+    init(_parent, w, h);
+    this->text(text);
 }
 
 UI::Tooltip::Tooltip(UI::Widget* _parent, unsigned w, unsigned h)
     : UI::Widget()
 {
+    init(_parent, w, h);
+}
+
+void UI::Tooltip::init(UI::Widget* _parent, size_t w, size_t h) {
     this->parent = _parent;
-    this->parent->set_tooltip(this);
+    if (this->parent)
+        this->parent->set_tooltip(this);
     this->type = UI::WidgetType::TOOLTIP;
     this->have_shadow = true;
     this->width = w;

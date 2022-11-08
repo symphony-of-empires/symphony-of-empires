@@ -36,8 +36,10 @@ namespace UI {
     /// @brief Tooltip widget, used entirely for hovering purpouses, don't use any other
     /// widget for hovering unless it inherits from Tooltip.
     class Tooltip: public UI::Widget {
+        void init(UI::Widget* parent, size_t w, size_t h);
     public:
-        Tooltip();
+        Tooltip(UI::Widget* parant = nullptr);
+        Tooltip(UI::Widget* parent, const std::string& text);
         Tooltip(UI::Widget* parent, unsigned w, unsigned h);
         virtual ~Tooltip() {};
         void set_pos(int x, int y, int width, int height, int screen_width, int screen_height);
