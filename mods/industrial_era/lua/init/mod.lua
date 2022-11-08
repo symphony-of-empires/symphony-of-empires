@@ -100,7 +100,7 @@ Nation:get("prussia"):make_customs_union(Nation:get("saxony"))
 Nation:get("prussia"):make_customs_union(Nation:get("bavaria"))
 Nation:get("prussia"):make_customs_union(Nation:get("wurttemberg"))
 Nation:get("prussia"):make_customs_union(Nation:get("parma"))
-Nation:get("prussia"):make_customs_union(Nation:get("modena"))
+Nation:get("prussia"):make_customs_union(Nation:get("modena_and_reggio"))
 Nation:get("prussia"):make_customs_union(Nation:get("tuscany"))
 
 Nation:get("denmark"):make_puppet(Nation:get("holstein"))

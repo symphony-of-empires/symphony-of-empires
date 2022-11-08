@@ -60,6 +60,7 @@ morocco.name = _("Morocco")
 morocco:register()
 morocco:set_ideology(monarchy, "absolute_monarchy")
 morocco:add_client_hint(monarchy, _("Morocco"), 0x802249)
+morocco:set_ideology(monarchy, "absolute_monarchy")
 
 tripolitania = Nation:new{ ref_name = "tripolitania" }
 tripolitania.name = _("Tripolitania")
@@ -72,6 +73,7 @@ ashantee = Nation:new{ ref_name = "ashantee" }
 ashantee.name = _("Ashantee")
 ashantee:register()
 ashantee:add_client_hint(monarchy, _("Ashantee"), 0x9ba324)
+
 -- Formable nations
 arabia = Nation:new{ ref_name = "arabia" }
 arabia.name = _("Arabia")
@@ -108,9 +110,34 @@ jolof = Nation:new{ ref_name = "jolof" }
 jolof.name = _("Jolof")
 jolof:register()
 jolof:add_client_hint(monarchy, _("Jolof"), 0xdce30e)
+jolof:set_ideology(monarchy, "absolute_monarchy")
 
 dahomey = Nation:new{ ref_name = "dahomey" }
 dahomey.name = _("Dahomey")
 dahomey:register()
 dahomey:add_client_hint(monarchy, _("Dahomey"), 0x3f9bd1)
+-----------------------------------------------------------------------
+
+-----------------------------------------------------------------------
+-- Eastern Africa
+-- Initial nations
+burundi = Nation:new{ ref_name = "burundi" }
+burundi.name = _("Burundi")
+burundi:register()
+burundi:add_accepted_language(arabic)
+burundi:add_client_hint(monarchy, _("Burundi"), 0x135910)
+burundi:add_client_hint(fascism, _("Burundi"), 0x135910)
+burundi:add_client_hint(communism, _("Burundi"), 0x135910)
+burundi:add_client_hint(socialism, _("Burundi"), 0x135910)
+burundi:set_ideology(monarchy, "absolute_monarchy")
+
+kooki = Nation:new{ ref_name = "kooki" }
+kooki.name = _("Kooki")
+kooki:register()
+kooki:add_accepted_language(arabic)
+kooki:add_client_hint(monarchy, _("Kooki"), 0x135910)
+kooki:add_client_hint(fascism, _("Kooki"), 0x135910)
+kooki:add_client_hint(communism, _("Kooki"), 0x135910)
+kooki:add_client_hint(socialism, _("Kooki"), 0x135910)
+kooki:set_ideology(monarchy, "absolute_monarchy")
 -----------------------------------------------------------------------

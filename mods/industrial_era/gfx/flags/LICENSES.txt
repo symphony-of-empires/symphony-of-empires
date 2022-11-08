@@ -540,6 +540,80 @@ selangor_monarchy
 tokugawa_monarchy
 	By 百楽兎 - Own work, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=1056853
 
+burundi_monarchy
+	By Orange Tuesday (talk) - self-made, based on en:Image:Flag of Burundi.svg, Public Domain, https://commons.wikimedia.org/w/index.php?curid=4190379
+
+kooki_monarchy
+	By Yusuf K Buwembo - Own work, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=67019491
+
+vietnam_monarchy
+	HISTORIC: This is a standard, NOT A FLAG
+	By Arvn - Tư liệu tham khảo về các lá cờ tại Việt Nam. Better source needed, please see this., Public Domain, https://commons.wikimedia.org/w/index.php?curid=34810883
+
+mapuche_monarchy
+	HISTORIC: Very little information if this is the actual flag
+	By Al2 - Own work, CC BY 3.0, https://commons.wikimedia.org/w/index.php?curid=3079177
+
+upper_canada_monarchy
+lower_canada_monrchy
+	HISTORIC: Upper and lower canada might just be an administrative division rather than an "autnonmous" country
+	Public Domain, https://en.wikipedia.org/w/index.php?curid=23473560
+
+joseon_monarchy
+	HISTORIC: Standard, not a flag, also it's from 1882
+	By Own work, Referenced manuscript in Kyujanggak, Seoul National University[1], Public Domain, https://commons.wikimedia.org/w/index.php?curid=11793627
+
+champa_republic
+	By Kim-Long07 - Originally from vi.wikipedia; description page is/was tin:Flag of the Republic of Central Highlands and Champa.svg here., Public Domain, https://commons.wikimedia.org/w/index.php?curid=25073631
+
+champa_monarchy
+	HISTORIC: Might not be the correct flag, no year when was it first used
+	By Abjiklam - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=829535
+
+waldeck_monarchy
+	By derivative work: Orange Tuesday (talk)Flag_of_Germany_(2-3).svg: Dbenbenn - Flag_of_Germany_(2-3).svg, Public Domain, https://commons.wikimedia.org/w/index.php?curid=4229638
+
+hesse_kassel_monarchy
+	By kgberger - Image:Hessen-KS-flag.jpg, CC BY 2.5, https://commons.wikimedia.org/w/index.php?curid=3141640
+
+saxe_gotha_monarchy
+	By Wettin House - FOTW: Kingdom of Saxony, Royal Standards 1815-1918, Public Domain, https://commons.wikimedia.org/w/index.php?curid=9722717
+
+saxe_hildburghausen_monarchy
+	By David Liuzzo - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=853173
+
+saxe_meiningen_monarchy
+	By Great Brightstar - This vector image includes elements that have been taken or adapted from this file:, Public Domain, https://commons.wikimedia.org/w/index.php?curid=92057034
+
+lippe_monarchy
+	By David Liuzzo - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=853609
+
+frankfurt_monarchy
+	By Sir Iain - Image:Flagge der Freien Stadt Frankfurt.png and Image:Wappen Frankfurt am Main.svg, Public Domain, https://commons.wikimedia.org/w/index.php?curid=4284361
+
+brunswick_monarchy
+	By Siebrand - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=1429214
+
+bremen_monarchy
+	HISTORIC: This is the hanseatic flag, was this flag still used in 1825?
+	By N3MO - Image:Hanse Bremen.png; FOTW website, Public Domain, https://commons.wikimedia.org/w/index.php?curid=3132076
+
+schaumburg_lippe_monarchy
+	By David Liuzzo - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=853534
+
+parma_monarchy
+	HISTORIC: From 1851 to 1859, is there a more accurate flag?
+	By Sir Iain - [1] and Flags of the World:Parma (Emilia-Romagna, Italy), Public Domain, https://commons.wikimedia.org/w/index.php?curid=4385285
+
+modena_and_reggio_monarchy
+	By Durero - This vector image includes elements that have been taken or adapted from this file:, Public Domain, https://commons.wikimedia.org/w/index.php?curid=4918482
+
+pagaruyung_monarchy
+	By This W3C-unspecified vector image was created with Inkscape . - Own work, Flag of Pagaruyung Kingdom ::, Public Domain, https://commons.wikimedia.org/w/index.php?curid=16118309
+
+siak_monarchy
+	By Wakanebe Wizard - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=38891530
+
 _republic
 	HISTORIC: This is the flag for democracy, not republics, but eh - it should be fine
 	By Philip Kanellopoulos, https://www.peristanom.org/ - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=17206446

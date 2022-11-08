@@ -65,12 +65,12 @@ nation:set_ideology(monarchy, "absolute_monarchy")
 nation:add_accepted_language(Language:get("malay"))
 nation:add_client_hint(monarchy, _("Deli"), 0xB5382F)
 
-nation = Nation:new{ ref_name = "siak", name = _("Siak") }
+nation = Nation:new{ ref_name = "siak", name = _("Siak Sri Indrapura") }
 nation.adjective = _("Siak")
 nation:register()
 nation:set_ideology(monarchy, "absolute_monarchy")
 nation:add_accepted_language(Language:get("malay"))
-nation:add_client_hint(monarchy, _("Siak"), 0x7046AF)
+nation:add_client_hint(monarchy, _("Siak Sri Indrapura"), 0x7046AF)
 
 nation = Nation:new{ ref_name = "sulu", name = _("Sulu") }
 nation.adjective = _("Sulu")
