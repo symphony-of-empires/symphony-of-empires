@@ -87,7 +87,7 @@ nation.adjective = _("Bali")
 nation:register()
 nation:set_ideology(monarchy, "absolute_monarchy")
 nation:add_accepted_language(Language:get("malay"))
-nation:add_client_hint(monarchy, _("Bali"), 0x494B82)
+nation:add_client_hint(monarchy, _("Kingdom of Bali"), 0x494B82)
 
 nation = Nation:new{ ref_name = "lombok", name = _("Lombok") }
 nation.adjective = _("Lombok")
