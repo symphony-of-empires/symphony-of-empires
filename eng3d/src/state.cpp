@@ -538,21 +538,20 @@ void Eng3D::State::handle_resize() {
 
 void Eng3D::State::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
     if(!this->show_ui) return;
-    
     if(e.hold) {
-        this->ui_ctx.check_hover(e.pos);
-    } else {
-        if(e.type == Eng3D::Event::MouseButton::Type::LEFT || e.type == Eng3D::Event::MouseButton::Type::RIGHT) {
+        if(e.type == Eng3D::Event::MouseButton::Type::LEFT) {
             if(this->ui_ctx.check_click(e.pos)) {
                 const std::scoped_lock lock(this->audio_man.sound_lock);
-                auto entries = package_man.get_multiple_prefix("sfx/click");
+                auto entries = this->package_man.get_multiple_prefix("sfx/click");
                 if(!entries.empty()) {
                     auto audio = this->audio_man.load(entries[rand() % entries.size()]->get_abs_path());
-                    this->audio_man.sound_queue.push_back(audio);
+                    audio_man.sound_queue.push_back(audio);
                 }
                 return;
             }
         }
+    } else if(e.type == Eng3D::Event::MouseButton::Type::LEFT) {
+        this->ui_ctx.check_mouse_released(e.pos);
     }
 }
 
@@ -565,10 +564,10 @@ void Eng3D::State::handle_mouse_motion(const Eng3D::Event::MouseMotion& e) {
 }
 
 void Eng3D::State::handle_mouse_wheel(const Eng3D::Event::MouseWheel& e) {
-    if(!this->show_ui) return;
-    this->ui_ctx.check_hover(e.pos);
-    if(this->ui_ctx.check_wheel(e.pos, e.wheel.y * 6))
-        return;
+    if(this->show_ui) {
+        this->ui_ctx.check_hover(e.pos);
+        if(this->ui_ctx.check_wheel(e.pos, e.wheel.y * 6)) return;
+    }
 }
 
 void Eng3D::State::handle_key(const Eng3D::Event::Key& e) {
