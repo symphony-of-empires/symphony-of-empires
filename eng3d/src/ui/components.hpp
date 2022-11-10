@@ -26,6 +26,7 @@
 
 #include "eng3d/ui/barchart.hpp"
 #include "eng3d/ui/button.hpp"
+#include "eng3d/ui/candle.hpp"
 #include "eng3d/ui/chart.hpp"
 #include "eng3d/ui/checkbox.hpp"
 #include "eng3d/ui/close_button.hpp"

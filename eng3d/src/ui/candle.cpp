@@ -16,7 +16,7 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      eng3d/ui/chart.cpp
+//      eng3d/ui/candle.cpp
 //
 // Abstract:
 //      Does some important stuff.
@@ -31,30 +31,33 @@
 
 #include "eng3d/ui/widget.hpp"
 #include "eng3d/ui/ui.hpp"
-#include "eng3d/ui/chart.hpp"
+#include "eng3d/ui/candle.hpp"
 #include "eng3d/texture.hpp"
 #include "eng3d/rectangle.hpp"
+#include "eng3d/primitive.hpp"
 #include "eng3d/state.hpp"
 
-UI::Chart::Chart(int _x, int _y, unsigned w, unsigned h, UI::Widget* _parent)
+UI::CandleChart::CandleChart(int _x, int _y, unsigned w, unsigned h, UI::Widget* _parent)
     : UI::Widget(_parent, _x, _y, w, h, UI::WidgetType::LABEL)
 {
     auto& s = Eng3D::State::get_instance();
     this->current_texture = s.tex_man.load(s.package_man.get_unique("gfx/top_win_chart.png"));
 }
 
-void UI::Chart::set_data(std::vector<float> new_data) {
+void UI::CandleChart::set_data(std::vector<UI::CandleData> new_data) {
     this->data = new_data;
     this->min = this->max = glm::epsilon<float>();
     if(!this->data.empty())
     {
-        const auto [it1, it2] = std::minmax_element(this->data.cbegin(), this->data.cend());
-        this->min = *it1;
-        this->max = *it2;
+        for(const auto& candle : this->data)
+        {
+            this->max = glm::max(this->max, candle.max);
+            this->min = glm::min(this->min, candle.min);
+        }
     }
 }
 
-void UI::Chart::on_render(UI::Context& ctx, Eng3D::Rect viewport) {
+void UI::CandleChart::on_render(UI::Context& ctx, Eng3D::Rect viewport) {
     ctx.obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
     if(current_texture != nullptr)
         draw_rectangle(0, 0, width, height, viewport, current_texture.get());
@@ -63,22 +66,41 @@ void UI::Chart::on_render(UI::Context& ctx, Eng3D::Rect viewport) {
         ctx.obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
         draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture.get());
     }
-
-    ctx.obj_shader->set_uniform("diffuse_color", glm::vec4(1.f, 0.f, 0.f, 1.f));
     ctx.obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man.get_white());
 
     // Draw chart itself
-    auto mesh = Eng3D::Mesh<glm::vec2, glm::vec2>(Eng3D::MeshMode::LINE_STRIP);
-    mesh.buffer.resize(this->data.size());
-
-    const glm::vec2 scaling{ (1.f / (this->data.size() - 1)) * this->width, (1.f / this->max) * this->height };
+    const glm::vec2 scaling{ (1.f / this->data.size()) * this->width, (1.f / this->max) * this->height };
     for(size_t i = 0; i < this->data.size(); i++)
     {
         const auto& slice = this->data[i];
-        auto slice_pos = glm::vec2{ i, slice } * scaling;
-        slice_pos.y = this->height - slice_pos.y;
-        mesh.buffer[i] = Eng3D::MeshData(slice_pos, glm::vec2(0.f));
+        auto start = glm::vec2{ i, slice.open } * scaling;
+        start.y = this->height - start.y;
+        auto end = glm::vec2{ i + 1.f, slice.close } * scaling;
+        end.y = this->height - end.y;
+        
+        // The center to draw the candle from
+        const auto center = start + ((end - start) / 2.f);
+
+        // Red = closing at lower than open
+        // Green = closing at higher than open
+        ctx.obj_shader->set_uniform("diffuse_color", glm::vec4(0.75f * (slice.close <= slice.open), 0.75f * (slice.close >= slice.open), 0.25f, 1.f));
+
+        // Line of the candle
+        auto line_mesh = Eng3D::Mesh<glm::vec2, glm::vec2>(Eng3D::MeshMode::LINES);
+        line_mesh.buffer.resize(2);
+        line_mesh.buffer[0] = Eng3D::MeshData(glm::vec2{ center.x, this->height - slice.max * scaling.y }, glm::vec2{});
+        line_mesh.buffer[1] = Eng3D::MeshData(glm::vec2{ center.x, this->height - slice.min * scaling.y }, glm::vec2{});
+        line_mesh.upload();
+        line_mesh.draw();
+
+        // Candlebox
+        auto candle_mesh = Eng3D::Mesh<glm::vec2, glm::vec2>(Eng3D::MeshMode::TRIANGLE_STRIP);
+        candle_mesh.buffer.resize(4);
+        candle_mesh.buffer[0] = Eng3D::MeshData(glm::vec2{ start.x, start.y }, glm::vec2{});
+        candle_mesh.buffer[1] = Eng3D::MeshData(glm::vec2{ start.x, end.y }, glm::vec2{});
+        candle_mesh.buffer[2] = Eng3D::MeshData(glm::vec2{ end.x, start.y }, glm::vec2{});
+        candle_mesh.buffer[3] = Eng3D::MeshData(glm::vec2{ end.x, end.y }, glm::vec2{});
+        candle_mesh.upload();
+        candle_mesh.draw();
     }
-    mesh.upload();
-    mesh.draw();
 }

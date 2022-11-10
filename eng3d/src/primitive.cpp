@@ -33,11 +33,11 @@
 
 // Eng3D expects OpenGL to run on a single thread
 
-Eng3D::Line::Line(float start_x, float start_y, float end_x, float end_y)
+Eng3D::Line::Line(glm::vec2 start, glm::vec2 end)
     : Eng3D::MeshStatic<2, 0, glm::vec2, glm::vec2>(Eng3D::MeshMode::LINES)
 {
-    buffer[0] = Eng3D::MeshData(glm::vec2(start_x, start_y), glm::vec2(0.f, 0.f));
-    buffer[1] = Eng3D::MeshData(glm::vec2(end_x, end_y), glm::vec2(1.f, 1.f));
+    buffer[0] = Eng3D::MeshData(glm::vec2(start.x, start.y), glm::vec2(0.f, 0.f));
+    buffer[1] = Eng3D::MeshData(glm::vec2(end.x, end.y), glm::vec2(1.f, 1.f));
     upload();
 }
 

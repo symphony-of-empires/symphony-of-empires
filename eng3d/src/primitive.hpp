@@ -34,7 +34,7 @@ namespace Eng3D {
     class Rectangle;
 
     struct Line : Eng3D::MeshStatic<2, 0, glm::vec2, glm::vec2> {
-        Line(float start_x, float start_y, float end_x, float end_y);
+        Line(glm::vec2 start, glm::vec2 end);
         ~Line() = default;
     };
 

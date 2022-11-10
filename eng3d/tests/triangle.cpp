@@ -81,11 +81,29 @@ int main(int argc, char** argv) {
 
     new UI::Image(0, 0, gs.width, gs.height, "gfx/sky.png", nullptr);
     
-    auto* info_win = new UI::Window(32, 32, 512, 256);
+    auto* info_win = new UI::Window(32, 32, 512, 256 + 96);
     info_win->text("Economics");
     auto& chart = info_win->make_widget<UI::Chart>(0, 0, 256, 128);
     chart.text("Economy");
     chart.set_data({ 1.f, 2.5f, 5.f, 4.f });
+
+    auto& candlechart = info_win->make_widget<UI::CandleChart>(0, 150, 256, 128);
+    candlechart.text("soil composition (very soil)");
+
+    std::vector<UI::CandleData> candles;
+    auto prev_close = 0.f;
+    for(size_t i = 0; i < 10; i++)
+    {
+        UI::CandleData candle{};
+        candle.open = prev_close;
+        candle.close = candle.open + i;
+        candle.max = glm::max(candle.open, candle.close) + i;
+        candle.min = glm::min(candle.open, candle.close) - i;
+
+        prev_close = candle.close;
+        candles.push_back(candle);
+    }
+    candlechart.set_data(candles);
 
     auto& piechart = info_win->make_widget<UI::PieChart>(256, 0, 128, 128);
     piechart.set_data({ UI::ChartData(0.5f, "Eng3D", 0xff00ffff), UI::ChartData(0.2f, "Not Eng3D", 0x00ff00ff) });
