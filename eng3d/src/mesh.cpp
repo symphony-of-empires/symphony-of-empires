@@ -149,6 +149,9 @@ void Eng3D::draw(const Eng3D::OpenGL::VAO& vao, MeshMode mode, const void*, size
     case Eng3D::MeshMode::LINES:
         i_mode = GL_LINES;
         break;
+    case Eng3D::MeshMode::LINE_STRIP:
+        i_mode = GL_LINE_STRIP;
+        break;
     default:
         CXX_THROW(std::runtime_error, Eng3D::translate_format("Unknown mesh mode %i", static_cast<int>(mode)));
     }

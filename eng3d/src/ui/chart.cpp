@@ -45,7 +45,7 @@ UI::Chart::Chart(int _x, int _y, unsigned w, unsigned h, UI::Widget* _parent)
 
 void UI::Chart::set_data(std::vector<float> new_data) {
     this->data = new_data;
-    this->min = this->max = 1.f;
+    this->min = this->max = glm::epsilon<float>();
     if(!this->data.empty())
     {
         this->max = *std::max_element(this->data.cbegin(), this->data.cend());
@@ -65,19 +65,18 @@ void UI::Chart::on_render(UI::Context& ctx, Eng3D::Rect viewport) {
 
     ctx.obj_shader->set_uniform("diffuse_color", glm::vec4(1.f, 0.f, 0.f, 1.f));
     ctx.obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man.get_white());
+
     // Draw chart itself
-    size_t i = 0;
-    auto mesh = Eng3D::Mesh<glm::vec2, glm::vec2>(Eng3D::MeshMode::TRIANGLE_STRIP);
-    for(const auto& slice : this->data)
+    auto mesh = Eng3D::Mesh<glm::vec2, glm::vec2>(Eng3D::MeshMode::LINE_STRIP);
+    mesh.buffer.resize(this->data.size());
+
+    const glm::vec2 scaling{ (1.f / (this->data.size() - 1)) * this->width, (1.f / this->max) * this->height };
+    for(size_t i = 0; i < this->data.size(); i++)
     {
-        constexpr auto thickness = 4.f;
-        glm::vec2 offset{ viewport.left, viewport.top };
-        glm::vec2 start{ (i / this->data.size()) * this->width, ((slice - this->min) / this->max) * this->height };
-
-        mesh.buffer.emplace_back(glm::vec2{ offset.x + start.x, offset.y + start.y + thickness }, glm::vec2(0.f));
-        mesh.buffer.emplace_back(glm::vec2{ offset.x + start.x, offset.y + start.y }, glm::vec2(0.f));
-
-        i++;
+        const auto& slice = this->data[i];
+        auto slice_pos = glm::vec2{ i, slice } * scaling;
+        slice_pos.y = this->height - slice_pos.y;
+        mesh.buffer[i] = Eng3D::MeshData(slice_pos, glm::vec2(0.f));
     }
     mesh.upload();
     mesh.draw();

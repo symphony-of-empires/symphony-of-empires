@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
     info_win->text("Economics");
     auto& chart = info_win->make_widget<UI::Chart>(0, 0, 256, 128);
     chart.text("Economy");
-    chart.set_data({ 1.f, 5.f, 4.f });
+    chart.set_data({ 1.f, 2.5f, 5.f, 4.f });
 
     auto& piechart = info_win->make_widget<UI::PieChart>(256, 0, 128, 128);
     piechart.set_data({ UI::ChartData(0.5f, "Eng3D", 0xff00ffff), UI::ChartData(0.2f, "Not Eng3D", 0x00ff00ff) });

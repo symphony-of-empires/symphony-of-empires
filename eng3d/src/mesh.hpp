@@ -83,6 +83,7 @@ namespace Eng3D {
         TRIANGLE_STRIP,
         TRIANGLES,
         LINES,
+        LINE_STRIP,
     };
 
     void draw(const Eng3D::OpenGL::VAO& vao, MeshMode mode, const void* indices, size_t n_indices, const void* buffer, size_t n_buffer, int instances);

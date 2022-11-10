@@ -292,6 +292,7 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     glDepthRangef(0.f, 1.f);
 #   endif
     glClearColor(0.3f, 0.3f, 0.3f, 0.0f);
+    glLineWidth(4.f);
 #endif
 }
 
