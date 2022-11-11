@@ -30,6 +30,7 @@
 #include "eng3d/state.hpp"
 #include "eng3d/primitive.hpp"
 #include "eng3d/texture.hpp"
+#include "eng3d/utils.hpp"
 
 Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
     : s{ _s },

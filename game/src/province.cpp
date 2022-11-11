@@ -57,23 +57,9 @@ void Province::cancel_construction_project() {
         building.working_unit_type_id = UnitTypeId(-1);
 }
 
-glm::vec3 Province::get_sphere_coord(glm::vec2 world_size, float radius) const {
-    const auto normalized_pos = this->get_pos() / world_size;
-    glm::vec2 radiance_pos;
-    radiance_pos.x = normalized_pos.x * 2.f * glm::pi<float>();
-    radiance_pos.y = normalized_pos.y * glm::pi<float>();
-
-    glm::vec3 sphere_position;
-    sphere_position.x = glm::cos(radiance_pos.x) * glm::sin(radiance_pos.y);
-    sphere_position.y = glm::sin(radiance_pos.x) * glm::sin(radiance_pos.y);
-    sphere_position.z = glm::cos(radiance_pos.y);
-    sphere_position *= radius;
-    return sphere_position;
-}
-
 float Province::euclidean_distance(const Province& other_province, glm::vec2 world_size, float radius) const {
-    const auto sphere_coord1 = get_sphere_coord(world_size, radius);
-    const auto sphere_coord2 = other_province.get_sphere_coord(world_size, radius);
+    const auto sphere_coord1 = Eng3D::get_sphere_coord(world_size, this->get_pos(), radius);
+    const auto sphere_coord2 = Eng3D::get_sphere_coord(world_size, other_province.get_pos(), radius);
     const auto cos_angle = glm::dot(sphere_coord1, sphere_coord2) / (radius * radius);
     const auto angle = glm::acos(glm::clamp(cos_angle, -1.f, 1.f));
     const auto distance = angle * radius;

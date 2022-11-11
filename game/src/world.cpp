@@ -70,50 +70,47 @@ static const T& find_or_throw(const std::string_view ref_name) {
     });
 
     if(result == list.end())
-        CXX_THROW(LuaAPI::Exception, translate_format("Object<%s> not found", typeid(T).name()).c_str());
+        CXX_THROW(Eng3D::LuaException, translate_format("Object<%s> not found", typeid(T).name()).c_str());
     return *result;
 }
 
 // Creates a new world
 void World::init_lua() {
-    lua = luaL_newstate();
-    luaL_openlibs(lua);
-
     // Register our API functions
-    lua_register(lua, "add_terrain_type", LuaAPI::add_terrain_type);
-    lua_register(lua, "get_terrain_type", LuaAPI::get_terrain_type);
-    lua_register(lua, "get_terrain_type_by_id", LuaAPI::get_terrain_type_by_id);
+    lua_register(lua.state, "add_terrain_type", LuaAPI::add_terrain_type);
+    lua_register(lua.state, "get_terrain_type", LuaAPI::get_terrain_type);
+    lua_register(lua.state, "get_terrain_type_by_id", LuaAPI::get_terrain_type_by_id);
 
-    lua_register(lua, "add_technology", LuaAPI::add_technology);
-    lua_register(lua, "get_technology", LuaAPI::get_technology);
-    lua_register(lua, "add_req_tech_to_tech", LuaAPI::add_req_tech_to_tech);
+    lua_register(lua.state, "add_technology", LuaAPI::add_technology);
+    lua_register(lua.state, "get_technology", LuaAPI::get_technology);
+    lua_register(lua.state, "add_req_tech_to_tech", LuaAPI::add_req_tech_to_tech);
 
-    lua_register(lua, "add_building_type", LuaAPI::add_building_type);
-    lua_register(lua, "get_building_type", LuaAPI::get_building_type);
+    lua_register(lua.state, "add_building_type", LuaAPI::add_building_type);
+    lua_register(lua.state, "get_building_type", LuaAPI::get_building_type);
 
-    lua_register(lua, "add_good", LuaAPI::add_good);
-    lua_register(lua, "get_good", LuaAPI::get_good);
+    lua_register(lua.state, "add_good", LuaAPI::add_good);
+    lua_register(lua.state, "get_good", LuaAPI::get_good);
 
-    lua_register(lua, "add_input_to_industry_type", LuaAPI::add_input_to_industry_type);
-    lua_register(lua, "add_output_to_industry_type", LuaAPI::add_output_to_industry_type);
-    lua_register(lua, "add_req_good_to_industry_type", LuaAPI::add_req_good_to_industry_type);
-    lua_register(lua, "add_req_technology_to_industry_type", LuaAPI::add_req_technology_to_industry_type);
+    lua_register(lua.state, "add_input_to_industry_type", LuaAPI::add_input_to_industry_type);
+    lua_register(lua.state, "add_output_to_industry_type", LuaAPI::add_output_to_industry_type);
+    lua_register(lua.state, "add_req_good_to_industry_type", LuaAPI::add_req_good_to_industry_type);
+    lua_register(lua.state, "add_req_technology_to_industry_type", LuaAPI::add_req_technology_to_industry_type);
 
-    lua_register(lua, "add_nation", LuaAPI::add_nation);
-    lua_register(lua, "get_nation", LuaAPI::get_nation);
-    lua_register(lua, "get_nation_by_id", LuaAPI::get_nation_by_id);
-    lua_register(lua, "get_all_nations", LuaAPI::get_all_nations);
-    lua_register(lua, "switch_nation_soul", LuaAPI::switch_nation_soul);
-    lua_register(lua, "nation_declare_war_no_cb", LuaAPI::nation_declare_war_no_cb);
+    lua_register(lua.state, "add_nation", LuaAPI::add_nation);
+    lua_register(lua.state, "get_nation", LuaAPI::get_nation);
+    lua_register(lua.state, "get_nation_by_id", LuaAPI::get_nation_by_id);
+    lua_register(lua.state, "get_all_nations", LuaAPI::get_all_nations);
+    lua_register(lua.state, "switch_nation_soul", LuaAPI::switch_nation_soul);
+    lua_register(lua.state, "nation_declare_war_no_cb", LuaAPI::nation_declare_war_no_cb);
 
-    lua_register(lua, "get_provinces_owned_by_nation", LuaAPI::get_provinces_owned_by_nation);
-    lua_register(lua, "get_provinces_with_nucleus_by_nation", LuaAPI::get_provinces_with_nucleus_by_nation);
-    lua_register(lua, "set_nation_primary_language", LuaAPI::set_nation_primary_language);
-    lua_register(lua, "set_nation_capital", LuaAPI::set_nation_capital);
-    lua_register(lua, "add_nation_accepted_language", LuaAPI::add_accepted_language);
-    lua_register(lua, "add_nation_accepted_religion", LuaAPI::add_accepted_religion);
-    lua_register(lua, "add_nation_client_hint", LuaAPI::add_nation_client_hint);
-    lua_register(lua, "set_nation_ideology", [](lua_State* L) {
+    lua_register(lua.state, "get_provinces_owned_by_nation", LuaAPI::get_provinces_owned_by_nation);
+    lua_register(lua.state, "get_provinces_with_nucleus_by_nation", LuaAPI::get_provinces_with_nucleus_by_nation);
+    lua_register(lua.state, "set_nation_primary_language", LuaAPI::set_nation_primary_language);
+    lua_register(lua.state, "set_nation_capital", LuaAPI::set_nation_capital);
+    lua_register(lua.state, "add_nation_accepted_language", LuaAPI::add_accepted_language);
+    lua_register(lua.state, "add_nation_accepted_religion", LuaAPI::add_accepted_religion);
+    lua_register(lua.state, "add_nation_client_hint", LuaAPI::add_nation_client_hint);
+    lua_register(lua.state, "set_nation_ideology", [](lua_State* L) {
         auto& nation = g_world.nations.at(lua_tonumber(L, 1));
         const auto& ideology = g_world.ideologies.at(lua_tonumber(L, 2));
         nation.ideology_id = ideology.get_id();
@@ -129,10 +126,10 @@ void World::init_lua() {
         }
         return 0;
     });
-    lua_register(lua, "get_nation_relation", LuaAPI::get_nation_relation);
-    lua_register(lua, "set_nation_relation", LuaAPI::set_nation_relation);
-    lua_register(lua, "nation_declare_unjustified_war", LuaAPI::nation_declare_unjustified_war);
-    lua_register(lua, "nation_make_puppet", [](lua_State* L) {
+    lua_register(lua.state, "get_nation_relation", LuaAPI::get_nation_relation);
+    lua_register(lua.state, "set_nation_relation", LuaAPI::set_nation_relation);
+    lua_register(lua.state, "nation_declare_unjustified_war", LuaAPI::nation_declare_unjustified_war);
+    lua_register(lua.state, "nation_make_puppet", [](lua_State* L) {
         auto& nation = g_world.nations.at(lua_tonumber(L, 1));
         auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
         other_nation.puppet_master_id = nation;
@@ -141,7 +138,7 @@ void World::init_lua() {
         relation.relation = 0.f;
         return 0;
     });
-    lua_register(lua, "nation_make_customs_union", [](lua_State* L) {
+    lua_register(lua.state, "nation_make_customs_union", [](lua_State* L) {
         auto& nation = g_world.nations.at(lua_tonumber(L, 1));
         auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
         auto& relation = g_world.get_relation(nation, other_nation);
@@ -149,38 +146,38 @@ void World::init_lua() {
         relation.relation = 0.f;
         return 0;
     });
-    lua_register(lua, "set_nation_flag", [](lua_State* L) {
+    lua_register(lua.state, "set_nation_flag", [](lua_State* L) {
         auto& nation = g_world.nations.at(lua_tonumber(L, 1));
         nation.flags[luaL_checkstring(L, 2)] = lua_tonumber(L, 3);
         return 0;
     });
-    lua_register(lua, "get_nation_flag", [](lua_State* L) {
+    lua_register(lua.state, "get_nation_flag", [](lua_State* L) {
         auto& nation = g_world.nations.at(lua_tonumber(L, 1));
         lua_pushnumber(L, nation.flags[luaL_checkstring(L, 2)]);
         return 1;
     });
 
-    lua_register(lua, "add_province", LuaAPI::add_province);
-    lua_register(lua, "update_province", LuaAPI::update_province);
-    lua_register(lua, "get_province", LuaAPI::get_province);
-    lua_register(lua, "get_province_by_id", LuaAPI::get_province_by_id);
-    lua_register(lua, "province_add_unit", LuaAPI::province_add_unit);
-    lua_register(lua, "update_province_building", LuaAPI::update_province_building);
-    lua_register(lua, "add_province_pop", LuaAPI::add_province_pop);
-    lua_register(lua, "set_province_language", LuaAPI::set_province_language);
-    lua_register(lua, "set_province_religion", LuaAPI::set_province_religion);
-    lua_register(lua, "give_province_to", LuaAPI::give_province_to);
-    lua_register(lua, "give_hard_province_to", LuaAPI::give_hard_province_to);
-    lua_register(lua, "get_province_owner", LuaAPI::get_province_owner);
-    lua_register(lua, "get_province_controller", LuaAPI::get_province_controller);
-    lua_register(lua, "get_province_neighbours", LuaAPI::get_province_neighbours);
-    lua_register(lua, "get_province_nuclei", LuaAPI::get_province_nuclei);
-    lua_register(lua, "get_province_pops_size", [](lua_State* L) {
+    lua_register(lua.state, "add_province", LuaAPI::add_province);
+    lua_register(lua.state, "update_province", LuaAPI::update_province);
+    lua_register(lua.state, "get_province", LuaAPI::get_province);
+    lua_register(lua.state, "get_province_by_id", LuaAPI::get_province_by_id);
+    lua_register(lua.state, "province_add_unit", LuaAPI::province_add_unit);
+    lua_register(lua.state, "update_province_building", LuaAPI::update_province_building);
+    lua_register(lua.state, "add_province_pop", LuaAPI::add_province_pop);
+    lua_register(lua.state, "set_province_language", LuaAPI::set_province_language);
+    lua_register(lua.state, "set_province_religion", LuaAPI::set_province_religion);
+    lua_register(lua.state, "give_province_to", LuaAPI::give_province_to);
+    lua_register(lua.state, "give_hard_province_to", LuaAPI::give_hard_province_to);
+    lua_register(lua.state, "get_province_owner", LuaAPI::get_province_owner);
+    lua_register(lua.state, "get_province_controller", LuaAPI::get_province_controller);
+    lua_register(lua.state, "get_province_neighbours", LuaAPI::get_province_neighbours);
+    lua_register(lua.state, "get_province_nuclei", LuaAPI::get_province_nuclei);
+    lua_register(lua.state, "get_province_pops_size", [](lua_State* L) {
         const auto& province = g_world.provinces.at(lua_tonumber(L, 1));
         lua_pushnumber(L, province.pops.size());
         return 1;
     });
-    lua_register(lua, "get_province_pop", [](lua_State* L) {
+    lua_register(lua.state, "get_province_pop", [](lua_State* L) {
         const auto& province = g_world.provinces.at(lua_tonumber(L, 1));
         const auto& pop = province.pops.at(lua_tonumber(L, 2));
         lua_pushnumber(L, pop.size);
@@ -194,7 +191,7 @@ void World::init_lua() {
         lua_pushnumber(L, pop.militancy);
         return 9;
     });
-    lua_register(lua, "set_province_pop", [](lua_State* L) {
+    lua_register(lua.state, "set_province_pop", [](lua_State* L) {
         auto& province = g_world.provinces.at(lua_tonumber(L, 1));
         auto& pop = province.pops.at(lua_tonumber(L, 2));
         pop.size = lua_tonumber(L, 3);
@@ -208,12 +205,12 @@ void World::init_lua() {
         return 0;
     });
 
-    lua_register(lua, "get_province_buildings_size", [](lua_State* L) {
+    lua_register(lua.state, "get_province_buildings_size", [](lua_State* L) {
         const auto& province = g_world.provinces.at(lua_tonumber(L, 1));
         lua_pushnumber(L, province.buildings.size());
         return 1;
     });
-    lua_register(lua, "get_province_building", [](lua_State* L) {
+    lua_register(lua.state, "get_province_building", [](lua_State* L) {
         const auto& province = g_world.provinces.at(lua_tonumber(L, 1));
         const auto& building = province.buildings.at(lua_tonumber(L, 2));
         lua_pushnumber(L, building.level);
@@ -221,7 +218,7 @@ void World::init_lua() {
         lua_pushnumber(L, building.workers);
         return 3;
     });
-    lua_register(lua, "set_province_building", [](lua_State* L) {
+    lua_register(lua.state, "set_province_building", [](lua_State* L) {
         auto& province = g_world.provinces.at(lua_tonumber(L, 1));
         auto& building = province.buildings.at(lua_tonumber(L, 2));
         building.level = lua_tonumber(L, 3);
@@ -230,34 +227,34 @@ void World::init_lua() {
         return 0;
     });
 
-    lua_register(lua, "rename_province", LuaAPI::rename_province);
-    lua_register(lua, "add_province_nucleus", LuaAPI::add_province_nucleus);
-    lua_register(lua, "add_province_owner", LuaAPI::add_province_owner);
+    lua_register(lua.state, "rename_province", LuaAPI::rename_province);
+    lua_register(lua.state, "add_province_nucleus", LuaAPI::add_province_nucleus);
+    lua_register(lua.state, "add_province_owner", LuaAPI::add_province_owner);
 
-    lua_register(lua, "add_event", LuaAPI::add_event);
-    lua_register(lua, "get_event", LuaAPI::get_event);
-    lua_register(lua, "update_event", LuaAPI::update_event);
-    lua_register(lua, "add_event_receivers", LuaAPI::add_event_receivers);
+    lua_register(lua.state, "add_event", LuaAPI::add_event);
+    lua_register(lua.state, "get_event", LuaAPI::get_event);
+    lua_register(lua.state, "update_event", LuaAPI::update_event);
+    lua_register(lua.state, "add_event_receivers", LuaAPI::add_event_receivers);
 
-    lua_register(lua, "add_decision", LuaAPI::add_decision);
+    lua_register(lua.state, "add_decision", LuaAPI::add_decision);
 
-    lua_register(lua, "add_pop_type", LuaAPI::add_pop_type);
-    lua_register(lua, "get_pop_type", LuaAPI::get_pop_type);
-    lua_register(lua, "get_pop_type_by_id", LuaAPI::get_pop_type_by_id);
+    lua_register(lua.state, "add_pop_type", LuaAPI::add_pop_type);
+    lua_register(lua.state, "get_pop_type", LuaAPI::get_pop_type);
+    lua_register(lua.state, "get_pop_type_by_id", LuaAPI::get_pop_type_by_id);
 
-    lua_register(lua, "add_language", LuaAPI::add_language);
-    lua_register(lua, "get_language", LuaAPI::get_language);
-    lua_register(lua, "get_language_by_id", LuaAPI::get_language_by_id);
+    lua_register(lua.state, "add_language", LuaAPI::add_language);
+    lua_register(lua.state, "get_language", LuaAPI::get_language);
+    lua_register(lua.state, "get_language_by_id", LuaAPI::get_language_by_id);
 
-    lua_register(lua, "add_religion", LuaAPI::add_religion);
-    lua_register(lua, "get_religion", LuaAPI::get_religion);
-    lua_register(lua, "get_religion_by_id", LuaAPI::get_religion_by_id);
+    lua_register(lua.state, "add_religion", LuaAPI::add_religion);
+    lua_register(lua.state, "get_religion", LuaAPI::get_religion);
+    lua_register(lua.state, "get_religion_by_id", LuaAPI::get_religion_by_id);
 
-    lua_register(lua, "add_unit_type", LuaAPI::add_unit_type);
-    lua_register(lua, "get_unit_type", LuaAPI::get_unit_type);
-    lua_register(lua, "add_req_good_unit_type", LuaAPI::add_req_good_unit_type);
+    lua_register(lua.state, "add_unit_type", LuaAPI::add_unit_type);
+    lua_register(lua.state, "get_unit_type", LuaAPI::get_unit_type);
+    lua_register(lua.state, "add_req_good_unit_type", LuaAPI::add_req_good_unit_type);
 
-    lua_register(lua, "add_ideology", [](lua_State* L) {
+    lua_register(lua.state, "add_ideology", [](lua_State* L) {
         if(g_world.needs_to_sync)
             luaL_error(L, "MP-Sync in this function is not supported");
 
@@ -269,7 +266,7 @@ void World::init_lua() {
         lua_pushnumber(L, g_world.ideologies.size() - 1);
         return 1;
     });
-    lua_register(lua, "add_ideology_subideology", [](lua_State* L) {
+    lua_register(lua.state, "add_ideology_subideology", [](lua_State* L) {
         if(g_world.needs_to_sync)
             luaL_error(L, "MP-Sync in this function is not supported");
         
@@ -290,14 +287,14 @@ void World::init_lua() {
         ideology.subideologies.push_back(subideology);
         return 0;
     });
-    lua_register(lua, "get_ideology", [](lua_State* L) {
+    lua_register(lua.state, "get_ideology", [](lua_State* L) {
         const auto& ideology = find_or_throw<Ideology>(luaL_checkstring(L, 1));
         lua_pushnumber(L, (size_t)g_world.get_id(ideology));
         lua_pushstring(L, ideology.name.c_str());
         lua_pushnumber(L, std::byteswap<std::uint32_t>((ideology.color & 0x00ffffff) << 8));
         return 3;
     });
-    lua_register(lua, "get_ideology_by_id", [](lua_State* L) {
+    lua_register(lua.state, "get_ideology_by_id", [](lua_State* L) {
         const auto& ideology = g_world.ideologies.at(lua_tonumber(L, 1));
         lua_pushstring(L, ideology.ref_name.c_str());
         lua_pushstring(L, ideology.name.c_str());
@@ -305,19 +302,19 @@ void World::init_lua() {
         return 3;
     });
 
-    lua_register(lua, "get_day", [](lua_State* L) {
+    lua_register(lua.state, "get_day", [](lua_State* L) {
         lua_pushnumber(L, g_world.get_day());
         return 1;
     });
-    lua_register(lua, "get_month", [](lua_State* L) {
+    lua_register(lua.state, "get_month", [](lua_State* L) {
         lua_pushnumber(L, g_world.get_month());
         return 1;
     });
-    lua_register(lua, "get_year", [](lua_State* L) {
+    lua_register(lua.state, "get_year", [](lua_State* L) {
         lua_pushnumber(L, g_world.get_year());
         return 1;
     });
-    lua_register(lua, "set_date", [](lua_State* L) {
+    lua_register(lua.state, "set_date", [](lua_State* L) {
         const int year = lua_tonumber(L, 1) * 12 * 30;
         const int month = lua_tonumber(L, 2) * 30;
         const int day = lua_tonumber(L, 3);
@@ -325,40 +322,7 @@ void World::init_lua() {
         return 1;
     });
 
-    // No translation is done
-    lua_register(lua, "_", [](lua_State* L) {
-        std::string msgid = luaL_checkstring(L, 1);
-        lua_pushstring(L, msgid.c_str());
-        return 1;
-    });
-
-    // And for the UI too
-    lua_register(lua, "ui_new_button", LuaAPI::ui_new_button);
-    lua_register(lua, "ui_new_div", LuaAPI::ui_new_div);
-    lua_register(lua, "ui_new_group", LuaAPI::ui_new_group);
-    lua_register(lua, "ui_new_image", LuaAPI::ui_new_image);
-    lua_register(lua, "ui_new_checkbox", LuaAPI::ui_new_checkbox);
-    lua_register(lua, "ui_set_checkbox_value", LuaAPI::ui_set_checkbox_value);
-    lua_register(lua, "ui_get_checkbox_value", LuaAPI::ui_get_checkbox_value);
-    lua_register(lua, "ui_new_slider", LuaAPI::ui_new_slider);
-    lua_register(lua, "ui_get_slider_value", LuaAPI::ui_get_slider_value);
-    lua_register(lua, "ui_set_slider_value", LuaAPI::ui_set_slider_value);
-    lua_register(lua, "ui_new_label", LuaAPI::ui_new_label);
-    lua_register(lua, "ui_new_window", LuaAPI::ui_new_window);
-    lua_register(lua, "ui_get_image", LuaAPI::ui_get_image);
-    lua_register(lua, "ui_set_image", LuaAPI::ui_set_image);
-    lua_register(lua, "ui_set_scroll", LuaAPI::ui_set_scroll);
-    lua_register(lua, "ui_set_text", LuaAPI::ui_set_text);
-    lua_register(lua, "ui_set_on_click", LuaAPI::ui_set_on_click);
-    lua_register(lua, "ui_set_window_on_click_close_btn", LuaAPI::ui_set_window_on_click_close_btn);
-    lua_register(lua, "ui_get_widget", LuaAPI::ui_get_widget);
-    lua_register(lua, "ui_widget_kill", LuaAPI::ui_widget_kill);
-    lua_register(lua, "ui_widget_set_tooltip", LuaAPI::ui_widget_set_tooltip);
-    lua_register(lua, "UI_RegisterCallback", LuaAPI::ui_register_callback);
-    lua_register(lua, "ui_widget_set_flex", LuaAPI::ui_widget_set_flex);
-    lua_register(lua, "UI_CallBuiltin", LuaAPI::ui_call_builtin);
-
-    /*LuaAPI::register_new_table(lua, "Ideology", {}, {
+    /*LuaAPI::register_new_table(lua.state, "Ideology", {}, {
         { "test", [](lua_State* L) {
             Eng3D::Log::debug("lua_test", "hello world");
             return 0;
@@ -366,35 +330,35 @@ void World::init_lua() {
     });*/
 
     // Constants for ease of readability
-    lua_pushboolean(lua, true);
-    lua_setglobal(lua, "EVENT_CONDITIONS_MET");
-    lua_pushboolean(lua, false);
-    lua_setglobal(lua, "EVENT_CONDITIONS_UNMET");
+    lua_pushboolean(lua.state, true);
+    lua_setglobal(lua.state, "EVENT_CONDITIONS_MET");
+    lua_pushboolean(lua.state, false);
+    lua_setglobal(lua.state, "EVENT_CONDITIONS_UNMET");
 
-    lua_pushboolean(lua, true);
-    lua_setglobal(lua, "EVENT_DO_MANY_TIMES");
-    lua_pushboolean(lua, false);
-    lua_setglobal(lua, "EVENT_DO_ONE_TIME");
+    lua_pushboolean(lua.state, true);
+    lua_setglobal(lua.state, "EVENT_DO_MANY_TIMES");
+    lua_pushboolean(lua.state, false);
+    lua_setglobal(lua.state, "EVENT_DO_ONE_TIME");
 
     // Technology types
-    lua_pushnumber(lua, TechnologyType::STRATEGIC);
-    lua_setglobal(lua, "TECH_STRATEGIC");
-    lua_pushnumber(lua, TechnologyType::MILITARY);
-    lua_setglobal(lua, "TECH_MILITARY");
-    lua_pushnumber(lua, TechnologyType::NAVY);
-    lua_setglobal(lua, "TECH_NAVY");
-    lua_pushnumber(lua, TechnologyType::SOCIAL);
-    lua_setglobal(lua, "TECH_SOCIAL");
-    lua_pushnumber(lua, TechnologyType::ECONOMIC);
-    lua_setglobal(lua, "TECH_ECONOMIC");
-    lua_pushnumber(lua, TechnologyType::POLITICS);
-    lua_setglobal(lua, "TECH_POLITICS");
+    lua_pushnumber(lua.state, TechnologyType::STRATEGIC);
+    lua_setglobal(lua.state, "TECH_STRATEGIC");
+    lua_pushnumber(lua.state, TechnologyType::MILITARY);
+    lua_setglobal(lua.state, "TECH_MILITARY");
+    lua_pushnumber(lua.state, TechnologyType::NAVY);
+    lua_setglobal(lua.state, "TECH_NAVY");
+    lua_pushnumber(lua.state, TechnologyType::SOCIAL);
+    lua_setglobal(lua.state, "TECH_SOCIAL");
+    lua_pushnumber(lua.state, TechnologyType::ECONOMIC);
+    lua_setglobal(lua.state, "TECH_ECONOMIC");
+    lua_pushnumber(lua.state, TechnologyType::POLITICS);
+    lua_setglobal(lua.state, "TECH_POLITICS");
 
     // Policies control
 #define POLICY_CAPITALIST 1
-    lua_pushnumber(lua, POLICY_CAPITALIST);
-    lua_setglobal(lua, "POLICY_CAPITALIST");
-    lua_register(lua, "relative_nation_policy_stance", [](lua_State* L) {
+    lua_pushnumber(lua.state, POLICY_CAPITALIST);
+    lua_setglobal(lua.state, "POLICY_CAPITALIST");
+    lua_register(lua.state, "relative_nation_policy_stance", [](lua_State* L) {
         auto& nation = g_world.nations.at(lua_tonumber(L, 1));
         float val = lua_tonumber(L, 3);
         float ret_val = 0.f;
@@ -410,11 +374,13 @@ void World::init_lua() {
         return 1;
     });
 
-    // Set path for `require` statements in lua, this will allow us to require
+    lua_register(lua.state, "UI_CallBuiltin", LuaAPI::ui_call_builtin);
+
+    // Set path for `require` statements in lua.state, this will allow us to require
     // without using data/scripts
-    lua_getglobal(lua, "package");
-    lua_getfield(lua, -1, "path");
-    std::string curr_path = lua_tostring(lua, -1);
+    lua_getglobal(lua.state, "package");
+    lua_getfield(lua.state, -1, "path");
+    std::string curr_path = lua_tostring(lua.state, -1);
 
     // Add all scripts onto the path (with glob operator '?')
     const auto paths = Eng3D::State::get_instance().package_man.get_paths();
@@ -422,15 +388,10 @@ void World::init_lua() {
         Eng3D::Log::debug("lua", "Added path " + path);
         curr_path.append(";" + path + "/lua/?.lua");
     }
-    lua_pop(lua, 1);
-    lua_pushstring(lua, curr_path.c_str());
-    lua_setfield(lua, -2, "path");
-    lua_pop(lua, 1);
-}
-
-World::~World() {
-    if(lua != nullptr)
-        lua_close(lua);
+    lua_pop(lua.state, 1);
+    lua_pushstring(lua.state, curr_path.c_str());
+    lua_setfield(lua.state, -2, "path");
+    lua_pop(lua.state, 1);
 }
 
 static void lua_exec_all_of(World& world, const std::vector<std::string> files, const std::string& dir = "lua") {
@@ -450,8 +411,8 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
         }
     }
     Eng3D::Log::debug("lua", "Buffer " + files_buf);
-    if(luaL_loadstring(world.lua, files_buf.c_str()) != LUA_OK || lua_pcall(world.lua, 0, 0, 0) != LUA_OK)
-        CXX_THROW(LuaAPI::Exception, lua_tostring(world.lua, -1));
+    if(luaL_loadstring(world.lua.state, files_buf.c_str()) != LUA_OK || lua_pcall(world.lua.state, 0, 0, 0) != LUA_OK)
+        CXX_THROW(Eng3D::LuaException, lua_tostring(world.lua.state, -1));
 }
 
 void World::load_initial() {
@@ -946,7 +907,7 @@ void World::do_tick() {
     profiler.stop("Cleaning");
 
     profiler.start("Events");
-    LuaAPI::check_events(lua);
+    LuaAPI::check_events(this->lua.state);
     profiler.stop("Events");
 
     profiler.start("Send packets");

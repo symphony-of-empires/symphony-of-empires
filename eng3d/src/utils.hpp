@@ -89,6 +89,12 @@ Range<It> reverse(ORange && originalRange) {
     return Range<It>(It(std::end(originalRange)), It(std::begin(originalRange)));
 }
 
+#include <glm/common.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/intersect.hpp>
+
 namespace Eng3D {
     // Does the same as std::erase but doesn't keep the order
     template <typename C, typename T>
@@ -111,5 +117,30 @@ namespace Eng3D {
                 c.pop_back();
             }
         }
+    }
+
+    inline glm::vec3 get_sphere_coord(glm::vec2 size, glm::vec2 pos, float radius) {
+        const auto normalized_pos = pos / size;
+        glm::vec2 radiance_pos;
+        radiance_pos.x = normalized_pos.x * 2.f * glm::pi<float>();
+        radiance_pos.y = normalized_pos.y * glm::pi<float>();
+
+        glm::vec3 sphere_position;
+        sphere_position.x = glm::cos(radiance_pos.x) * glm::sin(radiance_pos.y);
+        sphere_position.y = glm::sin(radiance_pos.x) * glm::sin(radiance_pos.y);
+        sphere_position.z = glm::cos(radiance_pos.y);
+        sphere_position *= radius;
+        return sphere_position;
+    }
+
+    /// @brief Obtain the euclidean distance from p0 to p1
+    /// @param p0 Point A
+    /// @param p1 Point B
+    inline float euclidean_distance(glm::vec2 size, float radius, glm::vec2 p0, glm::vec2 p1) {
+        const auto dt = glm::dot(Eng3D::get_sphere_coord(size, p0, radius), Eng3D::get_sphere_coord(size, p1, radius));
+        const auto cos_angle = dt / (radius * radius);
+        const auto angle = glm::acos(glm::clamp(cos_angle, -1.f, 1.f));
+        const auto distance = angle * radius;
+        return distance;
     }
 }

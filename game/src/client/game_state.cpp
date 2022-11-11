@@ -263,7 +263,7 @@ void GameState::handle_key(const Eng3D::Event::Key& e) {
             audio_man.music_queue.clear();
         } break;
         case Eng3D::Event::Key::Type::F4:
-            LuaAPI::invoke_registered_callback(world->lua, "ai_settings_window_invoke");
+            world->lua.invoke_registered_callback("ai_settings_window_invoke");
             break;
         case Eng3D::Event::Key::Type::F5:
             if(editor) break;

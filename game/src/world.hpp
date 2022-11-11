@@ -41,6 +41,7 @@
 #include "eng3d/profiler.hpp"
 #include "eng3d/string.hpp"
 #include "eng3d/log.hpp"
+#include "eng3d/luavm.hpp"
 
 #include "nation.hpp"
 #include "product.hpp"
@@ -120,7 +121,7 @@ public:
 
     World() = default;
     World& operator=(const World&) = delete;
-    ~World();
+    ~World() = default;
     static World& get_instance() {
         extern World g_world;
         return g_world;
@@ -216,10 +217,7 @@ public:
         return this->time % this->ticks_per_month;
     }
 
-
-    /// @brief Lua state - for lua scripts, this is only used by the server and should not be
-    /// accesible to the client
-    lua_State* lua = nullptr;
+    Eng3D::LuaVM lua;
 
     // 2D Array of tiles
     std::unique_ptr<ProvinceId[]> tiles;

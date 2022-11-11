@@ -203,22 +203,11 @@ void Unit::set_path(const Province& target) {
         [&world](ProvinceId province1_id, ProvinceId province2_id) -> float {
             const auto& province1 = world.provinces[province1_id];
             const auto& province2 = world.provinces[province2_id];
-            auto get_sphere_coord = ([](const Province& province, glm::vec2 world_size) -> glm::vec3 {
-                const glm::vec2 normalized_pos = province.get_pos() / world_size;
-                glm::vec2 radiance_pos;
-                radiance_pos.x = normalized_pos.x * 2.f * glm::pi<float>();
-                radiance_pos.y = normalized_pos.y * glm::pi<float>();
-
-                glm::vec3 sphere_position;
-                sphere_position.x = glm::cos(radiance_pos.x) * glm::sin(radiance_pos.y);
-                sphere_position.y = glm::sin(radiance_pos.x) * glm::sin(radiance_pos.y);
-                sphere_position.z = glm::cos(radiance_pos.y);
-                return sphere_position;
-            });
             const glm::vec2 world_size{ world.width, world.height };
-            const auto sphere_coord1 = get_sphere_coord(province1, world_size);
-            const auto sphere_coord2 = get_sphere_coord(province2, world_size);
-            float cos_angle = glm::dot(sphere_coord1, sphere_coord2);
+            constexpr auto radius = 100.f;
+            const auto sphere_coord1 = Eng3D::get_sphere_coord(world_size, province1.get_pos(), radius);
+            const auto sphere_coord2 = Eng3D::get_sphere_coord(world_size, province2.get_pos(), radius);
+            float cos_angle = glm::dot(sphere_coord1, sphere_coord2) / (radius * radius);
             float angle = glm::acos(cos_angle);
             float distance = angle / (2 * glm::pi<float>());
             return distance;

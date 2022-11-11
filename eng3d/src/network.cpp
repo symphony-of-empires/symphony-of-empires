@@ -91,6 +91,7 @@ void Eng3D::Networking::SocketStream::send(const void* data, size_t size, std::f
 
 void Eng3D::Networking::SocketStream::recv(void* data, size_t size, std::function<bool()> pred) {
     auto* c_data = reinterpret_cast<char*>(data);
+    std::memset(c_data, 0, size);
     auto tries = max_tries;
     for(size_t i = 0; i < size; ) {
         if(pred && !pred()) // If (any) predicate fails then return immediately
@@ -159,7 +160,9 @@ void Eng3D::Networking::Packet::send() {
     stream.send(&net_code, sizeof(net_code), pred);
     const uint16_t net_size = htons(n_data);
     stream.send(&net_size, sizeof(net_size), pred);
+    
     stream.send(buffer.data(), n_data, pred);
+
     const uint16_t eof_marker = htons(0xE0F);
     stream.send(&eof_marker, sizeof(eof_marker), pred);
 }
@@ -172,12 +175,14 @@ void Eng3D::Networking::Packet::recv() {
     uint16_t net_size;
     stream.recv(&net_size, sizeof(net_size), pred);
     n_data = (size_t)ntohs(net_size);
-    buffer.resize(n_data + 1);
-    stream.recv(buffer.data(), n_data, pred);
+    
+    buffer.resize(n_data);
+    stream.recv(buffer.data(), buffer.size(), pred);
+
     uint16_t eof_marker;
     stream.recv(&eof_marker, sizeof(eof_marker), pred);
     if(ntohs(eof_marker) != 0xE0F)
-        CXX_THROW(Eng3D::Networking::SocketException, translate("Packet with invalid end marker"));
+        CXX_THROW(Eng3D::Networking::SocketException, translate_format("Packet with invalid end marker %x, size %zu", (unsigned int)eof_marker, net_size));
 }
 
 //
