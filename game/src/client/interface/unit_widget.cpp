@@ -52,7 +52,7 @@ UnitWidget::UnitWidget(Map& _map, GameState& _gs, UI::Widget* _parent)
     this->border.texture_size = glm::ivec2{7, 7};
 
 #ifndef E3D_HANDHELD
-    new UI::Image(1, 1, this->width - 1, this->height - 1, "gfx/drop_shadow.png", this);
+    this->make_widget<UI::Image>(1, 1, this->width - 1, this->height - 1, "gfx/drop_shadow.png");
 #endif
     this->set_on_click([this](UI::Widget&) {
         if(Unit::is_invalid(this->unit_id)) return;
@@ -68,7 +68,7 @@ UnitWidget::UnitWidget(Map& _map, GameState& _gs, UI::Widget* _parent)
     this->flag_img = new UI::Image(1, 1, 38, 28, nation_flag, this);
 
 #ifndef E3D_HANDHELD
-    new UI::Image(1, 1, 38, 28, "gfx/drop_shadow.png", this);
+    this->make_widget<UI::Image>(1, 1, 38, 28, "gfx/drop_shadow.png");
 #endif
 
     this->size_label = new UI::Div(41, 1, 48, 28, this);

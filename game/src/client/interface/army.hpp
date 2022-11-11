@@ -51,7 +51,6 @@ namespace Interface {
     // Auto-Production manager
     class ArmyProductionTab : public UI::Group {
         GameState& gs;
-        UI::Chart *reqmat_chart;
     public:
         ArmyProductionTab(GameState& gs, int x, int y, UI::Widget* parent);
     };

@@ -113,7 +113,7 @@ public:
     {
 
     }
-    ~GameState();
+    ~GameState() = default;
 
     void play_nation();
     void update_on_tick();

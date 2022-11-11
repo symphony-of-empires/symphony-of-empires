@@ -65,27 +65,27 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int _x, int _y, UI::Widget*
 {
     this->is_scroll = true;
 
-    auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
-    flex_column->flex = UI::Flex::COLUMN;
+    auto& flex_column = this->make_widget<UI::Div>(0, 0, this->width, this->height);
+    flex_column.flex = UI::Flex::COLUMN;
     for(const auto& unit_type : gs.world->unit_types) {
-        auto* unit_type_grp = new UI::Div(0, 0, flex_column->width, 24, flex_column);
-        unit_type_grp->is_scroll = false;
-        unit_type_grp->flex = UI::Flex::ROW;
-        unit_type_grp->set_on_click([this, unit_type_id = unit_type.get_id()](UI::Widget&) {
+        auto& unit_type_grp = flex_column.make_widget<UI::Div>(0, 0, flex_column.width, 24);
+        unit_type_grp.is_scroll = false;
+        unit_type_grp.flex = UI::Flex::ROW;
+        unit_type_grp.set_on_click([this, unit_type_id = unit_type.get_id()](UI::Widget&) {
             this->gs.production_queue.push_back(unit_type_id);
         });
 
-        auto *icon_img = new UI::Image(0, 0, 24, 24, unit_type.get_icon_path(), unit_type_grp);
-
-        auto *name_btn = new UI::Button(0, 0, unit_type_grp->width - 24, 24, unit_type_grp);
-        name_btn->right_side_of(*icon_img);
-        name_btn->text(unit_type.name);
+        auto& icon_img = unit_type_grp.make_widget<UI::Image>(0, 0, 24, 24, unit_type.get_icon_path());
+        auto& name_btn = unit_type_grp.make_widget<UI::Button>(0, 0, unit_type_grp.width - 24, 24);
+        name_btn.right_side_of(icon_img);
+        name_btn.text(unit_type.name);
     }
 
     // Chart showing total number of required materials
-    this->reqmat_chart = new UI::Chart(0, 0, this->width, 128, flex_column);
-    this->reqmat_chart->text("Material demand");
-    this->reqmat_chart->set_on_each_tick([this](UI::Widget&) {
+    auto& reqmat_chart = flex_column.make_widget<UI::Chart>(0, 0, this->width, 128);
+    reqmat_chart.text("Material demand");
+    reqmat_chart.set_on_each_tick([this](UI::Widget& w) {
+        auto& o = static_cast<UI::Chart&>(w);
         auto total = 0.f;
         for(const auto province_id : this->gs.curr_nation->owned_provinces) {
             const auto& province = gs.world->provinces[province_id];
@@ -96,15 +96,13 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int _x, int _y, UI::Widget*
                     total += amount;
             }
         }
-        //this->reqmat_chart->data.push_back(total);
+        //o.data.push_back(total);
     });
 
-    for(const auto province_id : gs.curr_nation->owned_provinces) {
-        const auto& province = gs.world->provinces[province_id];
+    for(const auto province_id : gs.curr_nation->owned_provinces)
         for(const auto& building_type : gs.world->building_types)
             if(building_type.can_build_land_units())
-                new ArmyProductionUnitInfo(gs, 0, 0, province, building_type, flex_column);
-    }
+                flex_column.make_widget<ArmyProductionUnitInfo>(gs, 0, 0, gs.world->provinces[province_id], building_type);
 }
 
 ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int _x, int _y, ProvinceId _province_id, size_t _idx, UI::Widget* _parent)
@@ -119,30 +117,30 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int _x, int _y, P
     this->flex = UI::Flex::ROW;
     this->overflow = UI::Overflow::WRAP;
 
-    auto* unit_icon = new UI::Image(0, 0, 24, 24, this);
+    auto& unit_icon = this->make_widget<UI::Image>(0, 0, 24, 24);
     if(UnitType::is_valid(building.working_unit_type_id))
-        unit_icon->current_texture = gs.tex_man.load(gs.package_man.get_unique(gs.world->unit_types[building.working_unit_type_id].get_icon_path()));
+        unit_icon.current_texture = gs.tex_man.load(gs.package_man.get_unique(gs.world->unit_types[building.working_unit_type_id].get_icon_path()));
 
-    auto* province_lab = new UI::Label(0, 0, "?", this);
-    province_lab->set_on_each_tick([this](UI::Widget& w) {
+    auto& province_lab = this->make_widget<UI::Label>(0, 0, "?");
+    province_lab.set_on_each_tick([this](UI::Widget& w) {
         const auto& current_province = gs.world->provinces[province_id];
         w.text(current_province.name);
     });
-    province_lab->on_each_tick(*province_lab);
+    province_lab.on_each_tick(province_lab);
 
-    auto* name_lab = new UI::Label(0, 0, "?", this);
-    name_lab->set_on_each_tick([this](UI::Widget& w) {
+    auto& name_lab = this->make_widget<UI::Label>(0, 0, "?");
+    name_lab.set_on_each_tick([this](UI::Widget& w) {
         const auto& current_province = gs.world->provinces[province_id];
         auto& current_building = current_province.get_buildings()[this->idx];
         w.text(UnitType::is_valid(current_building.working_unit_type_id) ? this->gs.world->unit_types[current_building.working_unit_type_id].name : translate("No unit"));
     });
-    name_lab->on_each_tick(*name_lab);
+    name_lab.on_each_tick(name_lab);
 
-    auto* progress_pgbar = new UI::ProgressBar(0, 0, 128, 24, 0.f, 1.f, this);
-    progress_pgbar->set_on_each_tick([this](UI::Widget& _w) {
+    auto& progress_pgbar = this->make_widget<UI::ProgressBar>(0, 0, 128, 24, 0.f, 1.f);
+    progress_pgbar.set_on_each_tick([this](UI::Widget& _w) {
         auto& w = static_cast<UI::ProgressBar&>(_w);
         const auto& c_province = gs.world->provinces[province_id];
-        auto& c_building = c_province.get_buildings()[this->idx];
+        const auto& c_building = c_province.get_buildings()[this->idx];
         if(UnitType::is_invalid(c_building.working_unit_type_id)) return;
         auto full = 0.f, needed = 0.f;
         std::string text;
@@ -156,7 +154,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int _x, int _y, P
         w.set_value(full / glm::max(needed, 0.01f));
         w.set_tooltip(text);
     });
-    progress_pgbar->on_each_tick(*progress_pgbar);
+    progress_pgbar.on_each_tick(progress_pgbar);
 }
 
 ArmyView::ArmyView(GameState& _gs)

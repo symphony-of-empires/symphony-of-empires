@@ -73,63 +73,51 @@ struct Event;
 struct Technology;
 
 namespace Action {
-    class DiploDeclareWar {
-    public:
+    struct DiploDeclareWar {
         static Eng3D::Networking::Packet form_packet(const Nation& nation);
     };
 
-    class ProvinceUpdate {
-    public:
+    struct ProvinceUpdate {
         static Eng3D::Networking::Packet form_packet(const std::vector<Province>& list);
     };
 
-    class NationUpdate {
-    public:
+    struct NationUpdate {
         static Eng3D::Networking::Packet form_packet(const std::vector<Nation>& list);
     };
 
-    class SelectNation {
-    public:
+    struct SelectNation {
         static Eng3D::Networking::Packet form_packet(const Nation& nation);
     };
 
-    class BuildingStartProducingUnit {
-    public:
+    struct BuildingStartProducingUnit {
         static Eng3D::Networking::Packet form_packet(const Province& province, const BuildingType& building_type, const Nation& nation, const UnitType& unit_type);
     };
 	
-	class BuildingAdd {
-	public:
+	struct BuildingAdd {
         static Eng3D::Networking::Packet form_packet(const Province& province, const BuildingType& building_type);
 	};
 
-    class FocusTech {
-    public:
+    struct FocusTech {
 		static Eng3D::Networking::Packet form_packet(const Technology& technology);
     };
     
-    class NationTakeDecision {
-    public:
+    struct NationTakeDecision {
         static Eng3D::Networking::Packet form_packet(const Event& event, const Decision& decision);
     };
 
-    class UnitAdd {
-    public:
+    struct UnitAdd {
         static Eng3D::Networking::Packet form_packet(const Unit& unit);
     };
 
-    class UnitUpdate {
-    public:
+    struct UnitUpdate {
         static Eng3D::Networking::Packet form_packet(const std::vector<Unit>& units);
     };
 
-    class UnitRemove {
-    public:
+    struct UnitRemove {
         static Eng3D::Networking::Packet form_packet(const Unit& unit);
     };
 
-    class UnitMove {
-    public:
+    struct UnitMove {
         static Eng3D::Networking::Packet form_packet(const Unit& unit, const Province& province);
     };
 };

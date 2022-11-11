@@ -441,7 +441,3 @@ int main(int argc, char** argv) try {
     Eng3D::Log::error("Exception thrown", e.what());
     return -1;
 }
-
-GameState::~GameState() {
-
-}

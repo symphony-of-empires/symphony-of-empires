@@ -230,7 +230,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     cfg_btn.text_align_x = cfg_btn.text_align_y = UI::Align::CENTER;
     cfg_btn.text("Settings");
     cfg_btn.set_on_click([this](UI::Widget&) {
-        LuaAPI::invoke_registered_callback(this->gs.world->lua, "settings_window_invoke");
+        this->gs.world->lua.invoke_registered_callback("settings_window_invoke");
     });
 
     auto& exit_btn = button_list.make_widget<UI::Button>(0, 0, b_width, b_height);
