@@ -110,6 +110,17 @@ int main(int argc, char** argv) {
 
     gs.ui_ctx.prompt("شست بلسجليدلطظﻻىرﻻزؤرظءؤزةوئىءؤئمحيبسخ4ه2صثهقعسيبىسب", "σξδφσေိျုူိက့်ိုျ့ငသ်ဆသစနငငသ့ိထာလဘာခလုူ γνακδ ασνし結十と岡統百防能οχψωηδ ασηξφ ξογφφσηγερς");
     gs.ui_ctx.prompt("Hello world", "This is a demo of Eng3D ^_^");
+
+    auto* parliament_win = new UI::Window(320, 32, 256 + 64, 256 + 64);
+    parliament_win->text("parliamento");
+    auto& waffle_chart = parliament_win->make_widget<UI::WaffleChart>(0, 0, 256, 256);
+    waffle_chart.text("Seat row candidates?");
+    waffle_chart.set_data({
+        UI::ChartData(5.234f, "Waffle", 0xff00ffff),
+        UI::ChartData(2.567f, "Tundra", 0x00ff00ff),
+        UI::ChartData(3.23423f, "Fjord", 0xff5f70ff)
+    });
+
     gs.do_run([&gs](){ return gs.run == true; },
         ([&gs]() {
             gs.profiler.start("UI Event handling");

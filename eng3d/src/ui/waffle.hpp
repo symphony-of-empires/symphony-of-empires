@@ -16,7 +16,7 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      eng3d/ui/components.hpp
+//      eng3d/ui/chart.hpp
 //
 // Abstract:
 //      Does some important stuff.
@@ -24,21 +24,33 @@
 
 #pragma once
 
-#include "eng3d/ui/barchart.hpp"
-#include "eng3d/ui/button.hpp"
-#include "eng3d/ui/candle.hpp"
-#include "eng3d/ui/chart.hpp"
-#include "eng3d/ui/checkbox.hpp"
-#include "eng3d/ui/close_button.hpp"
-#include "eng3d/ui/div.hpp"
-#include "eng3d/ui/group.hpp"
-#include "eng3d/ui/image.hpp"
-#include "eng3d/ui/input.hpp"
-#include "eng3d/ui/label.hpp"
-#include "eng3d/ui/piechart.hpp"
-#include "eng3d/ui/progress_bar.hpp"
-#include "eng3d/ui/slider.hpp"
-#include "eng3d/ui/text.hpp"
-#include "eng3d/ui/tooltip.hpp"
-#include "eng3d/ui/waffle.hpp"
-#include "eng3d/ui/window.hpp"
+#include <cstddef>
+#include <deque>
+#include <functional>
+#include <vector>
+#include <string>
+
+#include "eng3d/ui/widget.hpp"
+#include "eng3d/rectangle.hpp"
+
+namespace Eng3D {
+    class Rectangle;
+    typedef Rectangle Rect;
+}
+
+namespace UI {
+    class Context;
+    /// @ingroup UI
+    /// @brief A graph chart
+    class WaffleChart: public Widget {
+    public:
+        WaffleChart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);
+        virtual ~WaffleChart() override {};
+        virtual void on_render(Context& ctx, Eng3D::Rect viewport);
+        void set_data(std::vector<UI::ChartData> data);
+    private:
+        std::vector<UI::ChartData> data;
+        float max = 1.f;
+        size_t cols = 10, rows = 10;
+    };
+};
