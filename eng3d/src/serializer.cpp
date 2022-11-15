@@ -68,7 +68,7 @@ void Archive::from_file(const std::string& path) {
     
     char signbuf[sizeof(archive_signature)];
     std::fread(signbuf, 1, sizeof(signbuf), fp.get());
-    if(memcmp(archive_signature, signbuf, sizeof(signbuf)) != 0)
+    if(std::memcmp(archive_signature, signbuf, sizeof(signbuf)) != 0)
         CXX_THROW(std::runtime_error, "Invalid archive");
     uint32_t inf_len;
     std::fread(&inf_len, 1, sizeof(inf_len), fp.get());

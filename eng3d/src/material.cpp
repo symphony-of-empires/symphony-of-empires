@@ -35,12 +35,6 @@
 //
 // Material manager
 //
-Eng3D::MaterialManager::MaterialManager(Eng3D::State& _s)
-    : s{ _s }
-{
-
-}
-
 const std::shared_ptr<Eng3D::Material> Eng3D::MaterialManager::load(const std::string& name) {
     auto it = materials.find(name);
     if(it != materials.end()) return it->second;

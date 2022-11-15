@@ -39,7 +39,12 @@ namespace Eng3D {
     class ShaderException : public std::exception {
         std::string buffer;
     public:
-        ShaderException(const std::string& _buffer): buffer(_buffer) {};
+        ShaderException(const std::string& _buffer)
+            : buffer{ _buffer }
+        {
+
+        }
+        
         virtual const char* what() const noexcept {
             return buffer.c_str();
         }

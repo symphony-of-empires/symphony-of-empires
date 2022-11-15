@@ -152,12 +152,6 @@ void Eng3D::Model::process_node(aiNode& node, const aiScene& scene) {
 //
 // ModelManager
 //
-Eng3D::ModelManager::ModelManager(Eng3D::State& _s)
-    : s{ _s }
-{
-
-}
-
 std::shared_ptr<Eng3D::Model> Eng3D::ModelManager::load(const std::string& path) {
     auto it = models.find(path);
     if(it != models.cend())

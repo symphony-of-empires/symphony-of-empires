@@ -68,7 +68,11 @@ namespace Eng3D {
         Eng3D::State& s;
     public:
         MaterialManager() = delete;
-        MaterialManager(Eng3D::State& _s);
+        MaterialManager(Eng3D::State& _s)
+            : s{ _s }
+        {
+
+        }
         ~MaterialManager() = default;
         const std::shared_ptr<Eng3D::Material> load(const std::string& name);
     };

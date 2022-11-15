@@ -43,24 +43,6 @@
 //
 // Texture
 //
-Eng3D::Texture::Texture(const std::string& path)
-    : Eng3D::BinaryImage(path)
-{
-
-}
-
-Eng3D::Texture::Texture(const Eng3D::IO::Asset::Base* asset)
-    : Eng3D::BinaryImage((asset == nullptr) ? "" : asset->abs_path)
-{
-
-}
-
-Eng3D::Texture::Texture(size_t _width, size_t _height, size_t _bpp)
-    : Eng3D::BinaryImage(_width, _height, _bpp)
-{
-
-}
-
 Eng3D::Texture::~Texture() {
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
     if(id)
@@ -90,20 +72,6 @@ void Eng3D::Texture::create_dummy() {
     // This should be autovectorized by gcc
     for(size_t i = 0; i < width * height; i++)
         buffer.get()[i] = ((i * 8) << 16) | (i * 16);
-}
-
-/// @brief Frontend for uploading (schedules or instantly uploads)
-/// @param options Options for upload
-void Eng3D::Texture::upload(TextureOptions options) {
-    this->_upload(options); // Do upload instantly
-}
-
-/// @brief Uploads a text texture (shceduled or not) if it's scheduled, the surface
-/// is handed ownership over to the scheduler and it will be automatically deallocated
-/// once the request is fullfilled
-/// @param surface Surface to base texture from
-void Eng3D::Texture::upload(SDL_Surface* surface) {
-    this->_upload(surface);
 }
 
 void Eng3D::Texture::_upload(TextureOptions options) {
@@ -415,16 +383,6 @@ void Eng3D::Texture::to_file(const std::string& filename) {
 //
 // Texture array
 //
-
-/// @brief Creates a new texture array
-Eng3D::TextureArray::TextureArray(const std::string& path, size_t _tiles_x, size_t _tiles_y)
-    : Eng3D::BinaryImage(path),
-    tiles_x{ _tiles_x },
-    tiles_y{ _tiles_y }
-{
-
-}
-
 /// @brief Uploads the TextureArray to the driver
 void Eng3D::TextureArray::upload() {
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
@@ -461,12 +419,6 @@ void Eng3D::TextureArray::upload() {
 //
 // Texture manager
 //
-Eng3D::TextureManager::TextureManager(Eng3D::State& _s)
-    : s{ _s }
-{
-
-}
-
 Eng3D::TextureManager::~TextureManager()
 {
     const std::scoped_lock lock(this->unuploaded_lock);

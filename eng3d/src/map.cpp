@@ -35,7 +35,7 @@
 Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
     : s{ _s },
     map_sphere(0.f, 0.f, 0.f, Eng3D::GLOBE_RADIUS, 100),
-    map_2d_quad(),
+    map_2d_quad{},
     rivers(_s),
     borders(_s)
 {

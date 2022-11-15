@@ -46,41 +46,41 @@ std::string Eng3D::IO::Asset::Base::get_abs_path() const {
 // Asset::File
 //
 void Eng3D::IO::Asset::File::open() {
-    this->fp = ::fopen(abs_path.c_str(), "rb");
+    this->fp = std::fopen(abs_path.c_str(), "rb");
     if(fp == nullptr)
         CXX_THROW(std::runtime_error, Eng3D::translate_format("Can't open file %s", path.c_str()));
 }
 
 void Eng3D::IO::Asset::File::close() {
-    ::fclose(this->fp);
+    std::fclose(this->fp);
     this->fp = nullptr;
 }
 
 void Eng3D::IO::Asset::File::read(void* buf, size_t n) {
-    ::fread(buf, 1, n, this->fp);
+    std::fread(buf, 1, n, this->fp);
 }
 
 void Eng3D::IO::Asset::File::write(const void* buf, size_t n) {
-    ::fwrite(buf, 1, n, this->fp);
+    std::fwrite(buf, 1, n, this->fp);
 }
 
 void Eng3D::IO::Asset::File::seek(SeekType type, int offset) {
     if(type == SeekType::CURRENT) {
-        ::fseek(this->fp, offset, SEEK_CUR);
+        std::fseek(this->fp, offset, SEEK_CUR);
     } else if(type == SeekType::START) {
-        ::fseek(this->fp, offset, SEEK_SET);
+        std::fseek(this->fp, offset, SEEK_SET);
     } else if(type == SeekType::END) {
-        ::fseek(this->fp, offset, SEEK_END);
+        std::fseek(this->fp, offset, SEEK_END);
     }
 }
 
 size_t Eng3D::IO::Asset::File::get_size(void) const {
     FILE* cfp = const_cast<FILE*>(this->fp);
     fpos_t pos;
-    ::fgetpos(cfp, &pos); // Save
-    ::fseek(cfp, 0, SEEK_END); // Go to the end
+    std::fgetpos(cfp, &pos); // Save
+    std::fseek(cfp, 0, SEEK_END); // Go to the end
     long size = ::ftell(cfp); // Get size
-    ::fsetpos(cfp, &pos); // Reset
+    std::fsetpos(cfp, &pos); // Reset
     return static_cast<size_t>(size);
 }
 

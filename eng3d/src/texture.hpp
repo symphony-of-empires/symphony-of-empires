@@ -107,13 +107,38 @@ namespace Eng3D {
         void _upload(SDL_Surface* surface);
     public:
         Texture() = default;
-        Texture(const std::string& path);
-        Texture(const Eng3D::IO::Asset::Base* asset);
-        Texture(size_t width, size_t height, size_t bpp = 32);
+        Texture(const std::string& path)
+            : Eng3D::BinaryImage(path)
+        {
+
+        }
+        Texture(const Eng3D::IO::Asset::Base* asset)
+            : Eng3D::BinaryImage((asset == nullptr) ? "" : asset->abs_path)
+        {
+
+        }
+        Texture(size_t _width, size_t _height, size_t _bpp = 32)
+            : Eng3D::BinaryImage(_width, _height, _bpp)
+        {
+
+        }
         ~Texture() override;
         void create_dummy();
-        void upload(TextureOptions options = default_options);
-        void upload(SDL_Surface* surface);
+
+        /// @brief Frontend for uploading (schedules or instantly uploads)
+        /// @param options Options for upload
+        void upload(TextureOptions options = default_options) {
+            this->_upload(options); // Do upload instantly
+        }
+
+        /// @brief Uploads a text texture (shceduled or not) if it's scheduled, the surface
+        /// is handed ownership over to the scheduler and it will be automatically deallocated
+        /// once the request is fullfilled
+        /// @param surface Surface to base texture from
+        void upload(SDL_Surface* surface) {
+            this->_upload(surface);
+        }
+
         void gen_mipmaps() const;
         void bind() const;
         void delete_gputex();
@@ -128,7 +153,14 @@ namespace Eng3D {
     // Array of textures
     class TextureArray: public Eng3D::BinaryImage {
     public:
-        TextureArray(const std::string& path, size_t _tiles_x, size_t _tiles_y);
+        TextureArray(const std::string& path, size_t _tiles_x, size_t _tiles_y)
+            : Eng3D::BinaryImage(path),
+            tiles_x{ _tiles_x },
+            tiles_y{ _tiles_y }
+        {
+
+        }
+
         void upload();
         size_t layers;
         size_t tiles_x, tiles_y;
@@ -181,7 +213,11 @@ namespace Eng3D {
         Eng3D::State& s;
     public:
         TextureManager() = delete;
-        TextureManager(Eng3D::State& s);
+        TextureManager(Eng3D::State& _s)
+            : s{ _s }
+        {
+
+        }
         ~TextureManager();
         std::shared_ptr<Eng3D::Texture> load(const std::string& path, TextureOptions options = default_options);
         std::shared_ptr<Eng3D::Texture> load(std::shared_ptr<Eng3D::IO::Asset::Base> asset, TextureOptions options = default_options);

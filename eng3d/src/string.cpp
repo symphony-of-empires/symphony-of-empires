@@ -50,8 +50,7 @@ Eng3D::StringManager::StringManager(Eng3D::State& _s)
     g_string_man = this;
 }
 
-Eng3D::StringManager& Eng3D::StringManager::get_instance()
-{
+Eng3D::StringManager& Eng3D::StringManager::get_instance() {
     return *g_string_man;
 }
 
