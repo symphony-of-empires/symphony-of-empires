@@ -417,10 +417,10 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
 
 void World::load_initial() {
     try {
-        Archive ar{};
+        Eng3D::Deser::Archive ar{};
         ar.from_file("world.cch");
-        ::deserialize(ar, Eng3D::StringManager::get_instance().strings);
-        ::deserialize(ar, *this);
+        Eng3D::Deser::deserialize(ar, Eng3D::StringManager::get_instance().strings);
+        Eng3D::Deser::deserialize(ar, *this);
     } catch(const std::exception& e) {
         Eng3D::Log::error("cache", e.what());
 
@@ -596,9 +596,9 @@ void World::load_initial() {
         this->insert(*war);
 
         // Write the entire world to the cache file
-        Archive ar{};
-        ::serialize(ar, Eng3D::StringManager::get_instance().strings);
-        ::serialize(ar, *this);
+        Eng3D::Deser::Archive ar{};
+        Eng3D::Deser::serialize(ar, Eng3D::StringManager::get_instance().strings);
+        Eng3D::Deser::serialize(ar, *this);
         ar.to_file("world.cch");
     }
     Eng3D::Log::debug("world", translate("World partially intiialized"));
@@ -921,8 +921,8 @@ void World::do_tick() {
 
     // Tell clients that this tick has been done
     Eng3D::Networking::Packet packet{};
-    Archive ar{};
-    ::serialize<ActionType>(ar, ActionType::WORLD_TICK);
+    Eng3D::Deser::Archive ar{};
+    Eng3D::Deser::serialize<ActionType>(ar, ActionType::WORLD_TICK);
     packet.data(ar.get_buffer(), ar.size());
     g_server->broadcast(packet);
 }

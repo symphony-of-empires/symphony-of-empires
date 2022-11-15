@@ -47,15 +47,15 @@ static int test_numerical_vector(size_t max_samples = 65536) {
     std::iota(fuzz.begin(), fuzz.end(), 1);
     const auto expected = fuzz;
     {
-        Archive ar;
-        ::serialize(ar, fuzz);
+        Eng3D::Deser::Archive ar;
+        Eng3D::Deser::serialize(ar, fuzz);
         ar.to_file("fuzz.bin");
     }
 
     {
-        Archive ar;
+        Eng3D::Deser::Archive ar;
         ar.from_file("fuzz.bin");
-        ::deserialize(ar, fuzz);
+        Eng3D::Deser::deserialize(ar, fuzz);
 
         std::cout << "Elements stored " << fuzz.size() << " expected " << expected.size() << std::endl;
         for(size_t i = 0; i < fuzz.size(); i++) {
@@ -75,15 +75,15 @@ static int test_numerical_array() {
     std::iota(fuzz.begin(), fuzz.end(), 1);
     const auto expected = fuzz;
     {
-        Archive ar;
-        ::serialize(ar, fuzz);
+        Eng3D::Deser::Archive ar;
+        Eng3D::Deser::serialize(ar, fuzz);
         ar.to_file("fuzz.bin");
     }
 
     {
-        Archive ar;
+        Eng3D::Deser::Archive ar;
         ar.from_file("fuzz.bin");
-        ::deserialize(ar, fuzz);
+        Eng3D::Deser::deserialize(ar, fuzz);
 
         std::cout << "Elements stored " << fuzz.size() << " expected " << expected.size() << std::endl;
         for(size_t i = 0; i < fuzz.size(); i++) {
@@ -107,15 +107,15 @@ static int test_string(size_t max_samples = 32) {
 
     const auto expected = fuzz;
     {
-        Archive ar;
-        ::serialize(ar, fuzz);
+        Eng3D::Deser::Archive ar;
+        Eng3D::Deser::serialize(ar, fuzz);
         ar.to_file("fuzz.bin");
     }
 
     {
-        Archive ar;
+        Eng3D::Deser::Archive ar;
         ar.from_file("fuzz.bin");
-        ::deserialize(ar, fuzz);
+        Eng3D::Deser::deserialize(ar, fuzz);
 
         std::cout << "Elements stored " << fuzz.size() << " expected " << expected.size() << std::endl;
         for(size_t i = 0; i < fuzz.size(); i++) {

@@ -39,16 +39,16 @@ struct TerrainType : RefnameEntity<TerrainTypeId> {
     }
 };
 template<>
-struct Serializer<TerrainType> {
+struct Eng3D::Deser::Serializer<TerrainType> {
     template<bool is_const>
-    using type = CondConstType<is_const, TerrainType>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, TerrainType>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        ::deser_dynamic<is_serialize>(ar, obj.name);
-        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
-        ::deser_dynamic<is_serialize>(ar, obj.color);
-        ::deser_dynamic<is_serialize>(ar, obj.penalty);
-        ::deser_dynamic<is_serialize>(ar, obj.is_water_body);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.color);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.penalty);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.is_water_body);
     }
 };

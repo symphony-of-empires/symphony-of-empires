@@ -146,53 +146,53 @@ public:
     std::string client_username; // Used by clients to store usernames from nations - not saved
 };
 template<>
-struct Serializer<Nation::Relation> {
+struct Eng3D::Deser::Serializer<Nation::Relation> {
     template<bool is_const>
-    using type = CondConstType<is_const, Nation::Relation>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, Nation::Relation>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.alliance);
-        ::deser_dynamic<is_serialize>(ar, obj.has_war);
-        ::deser_dynamic<is_serialize>(ar, obj.relation);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.alliance);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.has_war);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.relation);
     }
 };
 template<>
-struct Serializer<Nation::ClientHint> {
+struct Eng3D::Deser::Serializer<Nation::ClientHint> {
     template<bool is_const>
-    using type = CondConstType<is_const, Nation::ClientHint>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, Nation::ClientHint>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.color);
-        ::deser_dynamic<is_serialize>(ar, obj.name);
-        ::deser_dynamic<is_serialize>(ar, obj.ideology_id);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.color);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ideology_id);
     }
 };
 template<>
-struct Serializer<Nation> {
+struct Eng3D::Deser::Serializer<Nation> {
     template<bool is_const>
-    using type = CondConstType<is_const, Nation>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, Nation>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        ::deser_dynamic<is_serialize>(ar, obj.name);
-        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
-        ::deser_dynamic<is_serialize>(ar, obj.puppet_master_id);
-        ::deser_dynamic<is_serialize>(ar, obj.prestige);
-        ::deser_dynamic<is_serialize>(ar, obj.budget);
-        ::deser_dynamic<is_serialize>(ar, obj.capital_id);
-        ::deser_dynamic<is_serialize>(ar, obj.commodity_production);
-        ::deser_dynamic<is_serialize>(ar, obj.language_acceptance);
-        ::deser_dynamic<is_serialize>(ar, obj.religion_discrim);
-        ::deser_dynamic<is_serialize>(ar, obj.owned_provinces);
-        ::deser_dynamic<is_serialize>(ar, obj.controlled_provinces);
-        ::deser_dynamic<is_serialize>(ar, obj.current_policy);
-        ::deser_dynamic<is_serialize>(ar, obj.diplomatic_timer);
-        ::deser_dynamic<is_serialize>(ar, obj.inbox);
-        ::deser_dynamic<is_serialize>(ar, obj.client_hints);
-        ::deser_dynamic<is_serialize>(ar, obj.ideology_id);
-        ::deser_dynamic<is_serialize>(ar, obj.subideology_id);
-        ::deser_dynamic<is_serialize>(ar, obj.research);
-        ::deser_dynamic<is_serialize>(ar, obj.focus_tech_id);
-        ::deser_dynamic<is_serialize>(ar, obj.flags);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.puppet_master_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.prestige);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.budget);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.capital_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.commodity_production);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.language_acceptance);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.religion_discrim);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.owned_provinces);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.controlled_provinces);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.current_policy);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.diplomatic_timer);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.inbox);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.client_hints);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ideology_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.subideology_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.research);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.focus_tech_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.flags);
     }
 };

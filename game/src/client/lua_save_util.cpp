@@ -210,9 +210,9 @@ void LUA_util::save(GameState& gs, const std::string& savefile_path) {
 
         gs.ui_ctx.prompt("Save", "Editor data saved! (check editor folder)");
     } else {
-        Archive ar{};
-        ::serialize(ar, gs.curr_nation);
-        ::serialize(ar, *gs.world);
+        Eng3D::Deser::Archive ar{};
+        Eng3D::Deser::serialize(ar, gs.curr_nation);
+        Eng3D::Deser::serialize(ar, *gs.world);
         ar.to_file(savefile_path);
         gs.ui_ctx.prompt("Save", "Saved sucessfully!");
     }
@@ -221,10 +221,10 @@ void LUA_util::save(GameState& gs, const std::string& savefile_path) {
 void LUA_util::load(GameState& gs, const std::string& savefile_path) {
     gs.paused = true;
 
-    Archive ar{};
+    Eng3D::Deser::Archive ar{};
     ar.from_file(savefile_path);
-    ::deserialize(ar, gs.curr_nation);
-    ::deserialize(ar, *gs.world);
+    Eng3D::Deser::deserialize(ar, gs.curr_nation);
+    Eng3D::Deser::deserialize(ar, *gs.world);
 
     /// @todo Events aren't properly saved yet
     gs.world->events.clear();

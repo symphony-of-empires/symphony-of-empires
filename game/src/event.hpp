@@ -36,16 +36,16 @@ struct Decision : RefnameEntity<DecisionId> {
     int do_decision_function = 0;
 };
 template<>
-struct Serializer<Decision> {
+struct Eng3D::Deser::Serializer<Decision> {
     template<bool is_const>
-    using type = CondConstType<is_const, Decision>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, Decision>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        ::deser_dynamic<is_serialize>(ar, obj.name);
-        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
-        ::deser_dynamic<is_serialize>(ar, obj.do_decision_function);
-        ::deser_dynamic<is_serialize>(ar, obj.effects);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.do_decision_function);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.effects);
     }
 };
 
@@ -64,19 +64,19 @@ struct Event : RefnameEntity<EventId> {
     int do_event_function = 0;
 };
 template<>
-struct Serializer<Event> {
+struct Eng3D::Deser::Serializer<Event> {
     template<bool is_const>
-    using type = CondConstType<is_const, Event>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, ::Event>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
-        ::deser_dynamic<is_serialize>(ar, obj.name);
-        ::deser_dynamic<is_serialize>(ar, obj.receiver_ids);
-        ::deser_dynamic<is_serialize>(ar, obj.decisions);
-        ::deser_dynamic<is_serialize>(ar, obj.title);
-        ::deser_dynamic<is_serialize>(ar, obj.text);
-        ::deser_dynamic<is_serialize>(ar, obj.conditions_function);
-        ::deser_dynamic<is_serialize>(ar, obj.do_event_function);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.receiver_ids);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.decisions);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.title);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.text);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.conditions_function);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.do_event_function);
     }
 };

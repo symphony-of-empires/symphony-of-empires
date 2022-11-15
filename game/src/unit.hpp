@@ -55,33 +55,31 @@ struct UnitType : RefnameEntity<UnitTypeId> {
     }
 };
 template<>
-struct Serializer<UnitType> {
+struct Eng3D::Deser::Serializer<UnitType> {
     template<bool is_const>
-    using type = CondConstType<is_const, UnitType>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, UnitType>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        ::deser_dynamic<is_serialize>(ar, obj.name);
-        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
-        ::deser_dynamic<is_serialize>(ar, obj.supply_consumption);
-        ::deser_dynamic<is_serialize>(ar, obj.speed);
-        ::deser_dynamic<is_serialize>(ar, obj.max_health);
-        ::deser_dynamic<is_serialize>(ar, obj.defense);
-        ::deser_dynamic<is_serialize>(ar, obj.attack);
-        ::deser_dynamic<is_serialize>(ar, obj.is_ground);
-        ::deser_dynamic<is_serialize>(ar, obj.is_naval);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.supply_consumption);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.speed);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.max_health);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.defense);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.attack);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.is_ground);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.is_naval);
     }
 };
 
 class UnitManager;
-template<class T>
-struct Serializer;
 /// @brief Roughly a batallion, consisting of approximately 500 soldiers each
 class Unit : public Entity<UnitId> {
     Unit& operator=(const Unit&) = default;
     friend class Client;
     friend struct UnitManager;
-    friend struct Serializer<Unit>;
+    friend struct Eng3D::Deser::Serializer<Unit>;
     std::vector<ProvinceId> path;
     float days_left_until_move = 0;
     ProvinceId target_province_id;
@@ -111,21 +109,21 @@ public:
     bool on_battle = false;
 };
 template<>
-struct Serializer<Unit> {
+struct Eng3D::Deser::Serializer<Unit> {
     template<bool is_const>
-    using type = CondConstType<is_const, Unit>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, Unit>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        ::deser_dynamic<is_serialize>(ar, obj.type_id);
-        ::deser_dynamic<is_serialize>(ar, obj.size);
-        ::deser_dynamic<is_serialize>(ar, obj.base);
-        ::deser_dynamic<is_serialize>(ar, obj.experience);
-        ::deser_dynamic<is_serialize>(ar, obj.target_province_id);
-        ::deser_dynamic<is_serialize>(ar, obj.owner_id);
-        ::deser_dynamic<is_serialize>(ar, obj.days_left_until_move);
-        ::deser_dynamic<is_serialize>(ar, obj.path);
-        ::deser_dynamic<is_serialize>(ar, obj.on_battle);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.type_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.size);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.base);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.experience);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.target_province_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.owner_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.days_left_until_move);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.path);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.on_battle);
     }
 };
 
@@ -158,14 +156,14 @@ public:
     std::vector<std::vector<UnitId>> province_units;
 };
 template<>
-struct Serializer<UnitManager> {
+struct Eng3D::Deser::Serializer<UnitManager> {
     template<bool is_const>
-    using type = CondConstType<is_const, UnitManager>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, UnitManager>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.units);
-        ::deser_dynamic<is_serialize>(ar, obj.free_unit_slots);
-        ::deser_dynamic<is_serialize>(ar, obj.unit_province);
-        ::deser_dynamic<is_serialize>(ar, obj.province_units);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.units);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.free_unit_slots);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.unit_province);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.province_units);
     }
 };

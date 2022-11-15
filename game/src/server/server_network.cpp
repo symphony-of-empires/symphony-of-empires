@@ -52,15 +52,15 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
     g_server = this;
     Eng3D::Log::debug("server", "Deploying " + std::to_string(n_clients) + " threads for clients");
 
-    action_handlers[ActionType::NATION_ENACT_POLICY] = [](ClientData& client_data, const Eng3D::Networking::Packet&, Archive& ar) {
+    action_handlers[ActionType::NATION_ENACT_POLICY] = [](ClientData& client_data, const Eng3D::Networking::Packet&, Eng3D::Deser::Archive& ar) {
         Policies policies;
-        ::deserialize(ar, policies);
+        Eng3D::Deser::deserialize(ar, policies);
         client_data.selected_nation->set_policy(policies);
-        ::deserialize(ar, client_data.selected_nation->commodity_production);
+        Eng3D::Deser::deserialize(ar, client_data.selected_nation->commodity_production);
     };
-    action_handlers[ActionType::UNIT_CHANGE_TARGET] = [](ClientData& client_data, const Eng3D::Networking::Packet&, Archive& ar) {
+    action_handlers[ActionType::UNIT_CHANGE_TARGET] = [](ClientData& client_data, const Eng3D::Networking::Packet&, Eng3D::Deser::Archive& ar) {
         UnitId unit_id;
-        ::deserialize(ar, unit_id);
+        Eng3D::Deser::deserialize(ar, unit_id);
         if(Unit::is_invalid(unit_id))
             CXX_THROW(ServerException, "Unknown unit");
         // Must control unit
@@ -69,7 +69,7 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
             CXX_THROW(ServerException, "Nation does not control unit");
 
         ProvinceId province_id;
-        ::deserialize(ar, province_id);
+        Eng3D::Deser::deserialize(ar, province_id);
         if(Province::is_invalid(province_id))
             CXX_THROW(ClientException, "Unknown province");
         auto& province = client_data.gs.world->provinces[province_id];
@@ -80,22 +80,22 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         }
     };
 
-    action_handlers[ActionType::BUILDING_START_BUILDING_UNIT] = [](ClientData& client_data, const Eng3D::Networking::Packet&, Archive& ar) {
+    action_handlers[ActionType::BUILDING_START_BUILDING_UNIT] = [](ClientData& client_data, const Eng3D::Networking::Packet&, Eng3D::Deser::Archive& ar) {
         ProvinceId province_id;
-        ::deserialize(ar, province_id);
+        Eng3D::Deser::deserialize(ar, province_id);
         if(Province::is_invalid(province_id))
             CXX_THROW(ClientException, "Unknown province");
         auto& province = client_data.gs.world->provinces[province_id];
         BuildingType* building_type;
-        ::deserialize(ar, building_type);
+        Eng3D::Deser::deserialize(ar, building_type);
         if(building_type == nullptr)
             CXX_THROW(ServerException, "Unknown building");
         Nation* nation;
-        ::deserialize(ar, nation);
+        Eng3D::Deser::deserialize(ar, nation);
         if(nation == nullptr)
             CXX_THROW(ServerException, "Unknown nation");
         UnitType* unit_type;
-        ::deserialize(ar, unit_type);
+        Eng3D::Deser::deserialize(ar, unit_type);
         if(unit_type == nullptr)
             CXX_THROW(ServerException, "Unknown unit type");
         /// @todo Find building
@@ -106,14 +106,14 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         building.req_goods_for_unit = unit_type->req_goods;
         Eng3D::Log::debug("server", string_format("Building unit %s", unit_type->ref_name.c_str()));
     };
-    action_handlers[ActionType::BUILDING_ADD] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Archive& ar) {
+    action_handlers[ActionType::BUILDING_ADD] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
         ProvinceId province_id;
-        ::deserialize(ar, province_id);
+        Eng3D::Deser::deserialize(ar, province_id);
         if(Province::is_invalid(province_id))
             CXX_THROW(ClientException, "Unknown province");
         auto& province = gs.world->provinces[province_id];
         BuildingTypeId building_type_id;
-        ::deserialize(ar, building_type_id);
+        Eng3D::Deser::deserialize(ar, building_type_id);
         auto& building = province.buildings[building_type_id];
         building.budget += building.get_upgrade_cost();
         client_data.selected_nation->budget -= building.get_upgrade_cost();
@@ -121,9 +121,9 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         // Rebroadcast
         this->broadcast(Action::BuildingAdd::form_packet(province, client_data.gs.world->building_types[building_type_id]));
     };
-    action_handlers[ActionType::PROVINCE_COLONIZE] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Archive& ar) {
+    action_handlers[ActionType::PROVINCE_COLONIZE] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
         ProvinceId province_id;
-        ::deserialize(ar, province_id);
+        Eng3D::Deser::deserialize(ar, province_id);
         if(Province::is_invalid(province_id))
             CXX_THROW(ClientException, "Unknown province");
         auto& province = gs.world->provinces[province_id];
@@ -136,30 +136,30 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         // Rebroadcast
         this->broadcast(packet);
     };
-    action_handlers[ActionType::CHAT_MESSAGE] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Archive& ar) {
+    action_handlers[ActionType::CHAT_MESSAGE] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
         std::string msg{};
-        ::deserialize(ar, msg);
+        Eng3D::Deser::deserialize(ar, msg);
         Eng3D::Log::debug("server", "Message: " + msg);
         // Rebroadcast
         this->broadcast(packet);
     };
-    action_handlers[ActionType::CHANGE_TREATY_APPROVAL] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Archive& ar) {
+    action_handlers[ActionType::CHANGE_TREATY_APPROVAL] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
         Treaty* treaty = nullptr;
-        ::deserialize(ar, treaty);
+        Eng3D::Deser::deserialize(ar, treaty);
         TreatyApproval approval;
-        ::deserialize(ar, approval);
+        Eng3D::Deser::deserialize(ar, approval);
         //Eng3D::Log::debug("server", selected_nation->ref_name + " approves treaty " + treaty->name + " A=" + (approval == TreatyApproval::ACCEPTED ? "YES" : "NO"));
         if(!treaty->does_participate(*client_data.selected_nation))
             CXX_THROW(ServerException, "Nation does not participate in treaty");
         // Rebroadcast
         this->broadcast(packet);
     };
-    action_handlers[ActionType::DRAFT_TREATY] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Archive& ar) {
+    action_handlers[ActionType::DRAFT_TREATY] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
         Treaty treaty{};
-        ::deserialize(ar, treaty.clauses);
-        ::deserialize(ar, treaty.name);
-        ::deserialize(ar, treaty.sender_id);
-        ::deserialize(ar, treaty.receiver_id);
+        Eng3D::Deser::deserialize(ar, treaty.clauses);
+        Eng3D::Deser::deserialize(ar, treaty.name);
+        Eng3D::Deser::deserialize(ar, treaty.sender_id);
+        Eng3D::Deser::deserialize(ar, treaty.receiver_id);
         // Validate data
         if(treaty.clauses.empty())
             CXX_THROW(ServerException, "Clause-less treaty");
@@ -192,21 +192,21 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
 
         // Rebroadcast to client
         // We are going to add a treaty to the client
-        Archive tmp_ar{};
+        Eng3D::Deser::Archive tmp_ar{};
         auto action = ActionType::TREATY_ADD;
-        ::serialize(tmp_ar, action);
-        ::serialize(tmp_ar, treaty);
+        Eng3D::Deser::serialize(tmp_ar, action);
+        Eng3D::Deser::serialize(tmp_ar, treaty);
         auto tmp_packet = packet;
         tmp_packet.data(tmp_ar.get_buffer(), tmp_ar.size());
         this->broadcast(tmp_packet);
     };
-    action_handlers[ActionType::NATION_TAKE_DECISION] = [this](ClientData& client_data, const Eng3D::Networking::Packet&, Archive& ar) {
+    action_handlers[ActionType::NATION_TAKE_DECISION] = [this](ClientData& client_data, const Eng3D::Networking::Packet&, Eng3D::Deser::Archive& ar) {
         // Find event by reference name
         Event event{};
-        ::deserialize(ar, event);
+        Eng3D::Deser::deserialize(ar, event);
         // Find decision by reference name
         std::string ref_name;
-        ::deserialize(ar, ref_name);
+        Eng3D::Deser::deserialize(ar, ref_name);
         auto decision = std::find_if(event.decisions.begin(), event.decisions.end(), [&ref_name](const auto& o) {
             return !strcmp(o.ref_name.c_str(), ref_name.c_str());
         });
@@ -215,33 +215,33 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         event.take_decision(*client_data.selected_nation, *decision);
         //Eng3D::Log::debug("server", "Event " + local_event.ref_name + " takes descision " + ref_name + " by nation " + selected_nation->ref_name);
     };
-    action_handlers[ActionType::SELECT_NATION] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Archive& ar) {
+    action_handlers[ActionType::SELECT_NATION] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
         NationId nation_id;
-        ::deserialize(ar, nation_id);
+        Eng3D::Deser::deserialize(ar, nation_id);
         if(Nation::is_invalid(nation_id))
             CXX_THROW(ServerException, "Unknown nation");
         auto& nation = gs.world->nations[nation_id];
-        ::deserialize(ar, nation.ai_do_cmd_troops);
-        ::deserialize(ar, nation.ai_controlled);
+        Eng3D::Deser::deserialize(ar, nation.ai_do_cmd_troops);
+        Eng3D::Deser::deserialize(ar, nation.ai_controlled);
         client_data.selected_nation = &nation;
         //Eng3D::Log::debug("server", "Nation " + selected_nation->ref_name + " selected by client " + cl.username + "," + std::to_string(id));
         
-        Archive tmp_ar{};
-        ::serialize<ActionType>(tmp_ar, ActionType::SELECT_NATION);
-        ::serialize(tmp_ar, nation.get_id());
-        ::serialize(tmp_ar, client_data.username);
+        Eng3D::Deser::Archive tmp_ar{};
+        Eng3D::Deser::serialize<ActionType>(tmp_ar, ActionType::SELECT_NATION);
+        Eng3D::Deser::serialize(tmp_ar, nation.get_id());
+        Eng3D::Deser::serialize(tmp_ar, client_data.username);
         auto tmp_packet = packet;
         tmp_packet.data(ar.get_buffer(), ar.size());
         this->broadcast(tmp_packet);
     };
-    action_handlers[ActionType::DIPLO_DECLARE_WAR] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Archive& ar) {
+    action_handlers[ActionType::DIPLO_DECLARE_WAR] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
         Nation* target;
-        ::deserialize(ar, target);
+        Eng3D::Deser::deserialize(ar, target);
         client_data.selected_nation->declare_war(*target);
     };
-    action_handlers[ActionType::FOCUS_TECH] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Archive& ar) {
+    action_handlers[ActionType::FOCUS_TECH] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
         Technology* technology;
-        ::deserialize(ar, technology);
+        Eng3D::Deser::deserialize(ar, technology);
         if(technology == nullptr)
             CXX_THROW(ServerException, "Unknown technology");
         if(!client_data.selected_nation->can_research(*technology))
@@ -291,20 +291,20 @@ void Server::net_loop(int id) {
 
         // Read the data from client
         {
-            Archive ar{};
+            Eng3D::Deser::Archive ar{};
             packet.recv();
             ar.set_buffer(packet.data(), packet.size());
 
             ActionType action;
-            ::deserialize(ar, action);
-            ::deserialize(ar, cl.username);
+            Eng3D::Deser::deserialize(ar, action);
+            Eng3D::Deser::deserialize(ar, cl.username);
             client_data.username = cl.username;
         }
 
         // Tell all other clients about the connection of this new client
         {
-            Archive ar{};
-            ::serialize<ActionType>(ar, ActionType::CONNECT);
+            Eng3D::Deser::Archive ar{};
+            Eng3D::Deser::serialize<ActionType>(ar, ActionType::CONNECT);
             packet.data(ar.get_buffer(), ar.size());
             broadcast(packet);
         }
@@ -314,10 +314,10 @@ void Server::net_loop(int id) {
             for(size_t i = 0; i < this->n_clients; i++) {
                 if(this->clients[i].thread == nullptr && this->clients[i].is_connected) {
                     if(this->clients_extra_data[i] != nullptr) {
-                        Archive ar{};
-                        ::serialize<ActionType>(ar, ActionType::SELECT_NATION);
-                        ::serialize(ar, this->clients_extra_data[i]);
-                        ::serialize(ar, this->clients[i].username);
+                        Eng3D::Deser::Archive ar{};
+                        Eng3D::Deser::serialize<ActionType>(ar, ActionType::SELECT_NATION);
+                        Eng3D::Deser::serialize(ar, this->clients_extra_data[i]);
+                        Eng3D::Deser::serialize(ar, this->clients[i].username);
                         packet.data(ar.get_buffer(), ar.size());
                         broadcast(packet);
                     }
@@ -326,14 +326,14 @@ void Server::net_loop(int id) {
         }
 
         {
-            Archive ar{};
-            ::serialize<ActionType>(ar, ActionType::CHAT_MESSAGE);
-            ::serialize<std::string>(ar, "[" + cl.username + "] has connected");
+            Eng3D::Deser::Archive ar{};
+            Eng3D::Deser::serialize<ActionType>(ar, ActionType::CHAT_MESSAGE);
+            Eng3D::Deser::serialize<std::string>(ar, "[" + cl.username + "] has connected");
             packet.data(ar.get_buffer(), ar.size());
             broadcast(packet);
         }
         
-        Archive ar{};
+        Eng3D::Deser::Archive ar{};
         while(run && cl.is_connected == true) {
             cl.flush_packets();
 
@@ -345,7 +345,7 @@ void Server::net_loop(int id) {
                 ar.rewind();
 
                 ActionType action;
-                ::deserialize(ar, action);
+                Eng3D::Deser::deserialize(ar, action);
                 Eng3D::Log::debug("server", "Receiving " + std::to_string(packet.size()) + " from #" + std::to_string(id));
                 if(client_data.selected_nation == nullptr && !(action == ActionType::CHAT_MESSAGE || action == ActionType::SELECT_NATION))
                     CXX_THROW(ServerException, "Unallowed operation " + std::to_string(static_cast<int>(action)) + " without selected nation");
@@ -376,8 +376,8 @@ void Server::net_loop(int id) {
         Eng3D::Log::error("server", std::string() + "ServerException: " + e.what());
     } catch(Eng3D::Networking::SocketException& e) {
         Eng3D::Log::error("server", std::string() + "SocketException: " + e.what());
-    } catch(SerializerException& e) {
-        Eng3D::Log::error("server", std::string() + "SerializerException: " + e.what());
+    } catch(Eng3D::Deser::Exception& e) {
+        Eng3D::Log::error("server", std::string() + "Eng3D::Deser::Exception: " + e.what());
     }
 
     player_count--;
@@ -392,8 +392,8 @@ void Server::net_loop(int id) {
     // Tell the remaining clients about the disconnection
     {
         Eng3D::Networking::Packet packet{};
-        Archive ar{};
-        ::serialize<ActionType>(ar, ActionType::DISCONNECT);
+        Eng3D::Deser::Archive ar{};
+        Eng3D::Deser::serialize<ActionType>(ar, ActionType::DISCONNECT);
         packet.data(ar.get_buffer(), ar.size());
         broadcast(packet);
     }

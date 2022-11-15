@@ -45,16 +45,16 @@ struct Technology : public RefnameEntity<TechnologyId> {
     std::vector<TechnologyId> req_technologies;
 };
 template<>
-struct Serializer<Technology> {
+struct Eng3D::Deser::Serializer<Technology> {
     template<bool is_const>
-    using type = CondConstType<is_const, Technology>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, Technology>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        ::deser_dynamic<is_serialize>(ar, obj.name);
-        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
-        ::deser_dynamic<is_serialize>(ar, obj.description);
-        ::deser_dynamic<is_serialize>(ar, obj.cost);
-        ::deser_dynamic<is_serialize>(ar, obj.req_technologies);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.description);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cost);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.req_technologies);
     }
 };

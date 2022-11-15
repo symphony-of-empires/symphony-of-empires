@@ -232,35 +232,35 @@ public:
     std::vector<std::pair<Decision, NationId>> taken_decisions;
 };
 template<>
-struct Serializer<World> {
+struct Eng3D::Deser::Serializer<World> {
     template<bool is_const>
-    using type = CondConstType<is_const, World>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, World>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.width);
-        ::deser_dynamic<is_serialize>(ar, obj.height);
-        ::deser_dynamic<is_serialize>(ar, obj.time);
-        ::deser_dynamic<is_serialize>(ar, obj.goods);
-        ::deser_dynamic<is_serialize>(ar, obj.unit_types);
-        ::deser_dynamic<is_serialize>(ar, obj.religions);
-        ::deser_dynamic<is_serialize>(ar, obj.languages);
-        ::deser_dynamic<is_serialize>(ar, obj.pop_types);
-        ::deser_dynamic<is_serialize>(ar, obj.terrain_types);
-        ::deser_dynamic<is_serialize>(ar, obj.building_types);
-        ::deser_dynamic<is_serialize>(ar, obj.ideologies);
-        ::deser_dynamic<is_serialize>(ar, obj.technologies);
-        ::deser_dynamic<is_serialize>(ar, obj.nations);
-        ::deser_dynamic<is_serialize>(ar, obj.provinces);
-        ::deser_dynamic<is_serialize>(ar, obj.events);
-        ::deser_dynamic<is_serialize>(ar, obj.wars);
-        ::deser_dynamic<is_serialize>(ar, obj.treaties);
-        ::deser_dynamic<is_serialize>(ar, obj.unit_manager);
-        ::deser_dynamic<is_serialize>(ar, obj.relations);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.width);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.height);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.time);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.goods);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.unit_types);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.religions);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.languages);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.pop_types);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.terrain_types);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.building_types);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ideologies);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.technologies);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.nations);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.provinces);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.events);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.wars);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.treaties);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.unit_manager);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.relations);
 
         // Savefiles do not contain the tiles
         /// @todo Handle dynamic tiles (provinces changing shape for ex.)
         bool has_tiles = obj.tiles.get() != nullptr;
-        ::deser_dynamic<is_serialize>(ar, has_tiles);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, has_tiles);
         if(has_tiles) {
             if constexpr(is_serialize) {
                 // Serialize all tiles
@@ -282,14 +282,14 @@ struct Serializer<World> {
 template<typename T>
 concept SerializerPointer = std::is_pointer_v<T>;
 template<SerializerPointer T>
-struct Serializer<T> {
+struct Eng3D::Deser::Serializer<T> {
     typedef std::remove_pointer_t<T> type_no_p; // Pointerless type
     template<bool is_const>
-    using type = CondConstType<is_const, type_no_p>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, type_no_p>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>*const& obj) {
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>*const& obj) {
         typename type_no_p::Id id = !is_serialize ? type_no_p::invalid() : obj->get_id();
-        ::deser_dynamic<is_serialize>(ar, id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, id);
         if constexpr(!is_serialize) {
             if(static_cast<size_t>(id) >= World::get_instance().get_list((T)nullptr).size()) {
                 const_cast<T&>(obj) = nullptr;

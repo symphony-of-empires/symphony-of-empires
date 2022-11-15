@@ -93,47 +93,47 @@ struct Policies {
     }
 };
 template<>
-struct Serializer<Policies::Economic> {
+struct Eng3D::Deser::Serializer<Policies::Economic> {
     template<bool is_const>
-    using type = CondConstType<is_const, Policies::Economic>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, Policies::Economic>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.distributism);
-        ::deser_dynamic<is_serialize>(ar, obj.mercantilist);
-        ::deser_dynamic<is_serialize>(ar, obj.capitalism);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.distributism);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.mercantilist);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.capitalism);
     }
 };
 template<>
-struct Serializer<Policies::Political> {
+struct Eng3D::Deser::Serializer<Policies::Political> {
     template<bool is_const>
-    using type = CondConstType<is_const, Policies::Political>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, Policies::Political>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.individualism);
-        ::deser_dynamic<is_serialize>(ar, obj.state_power);
-        ::deser_dynamic<is_serialize>(ar, obj.equalitarianism);
-        ::deser_dynamic<is_serialize>(ar, obj.secular);
-        ::deser_dynamic<is_serialize>(ar, obj.pluralism);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.individualism);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.state_power);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.equalitarianism);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.secular);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.pluralism);
     }
 };
 template<>
-struct Serializer<Policies> {
+struct Eng3D::Deser::Serializer<Policies> {
     template<bool is_const>
-    using type = CondConstType<is_const, Policies>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, Policies>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.min_wage);
-        ::deser_dynamic<is_serialize>(ar, obj.factory_profit_tax);
-        ::deser_dynamic<is_serialize>(ar, obj.burgeoise_tax);
-        ::deser_dynamic<is_serialize>(ar, obj.pop_tax);
-        ::deser_dynamic<is_serialize>(ar, obj.private_ownership);
-        ::deser_dynamic<is_serialize>(ar, obj.foreign_ownership);
-        ::deser_dynamic<is_serialize>(ar, obj.collective_ownership);
-        ::deser_dynamic<is_serialize>(ar, obj.individual_ownership);
-        ::deser_dynamic<is_serialize>(ar, obj.foreign_ownership);
-        ::deser_dynamic<is_serialize>(ar, obj.education_budget);
-        ::deser_dynamic<is_serialize>(ar, obj.factory_subsidies_budget);
-        ::deser_dynamic<is_serialize>(ar, obj.economic);
-        ::deser_dynamic<is_serialize>(ar, obj.political);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.min_wage);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.factory_profit_tax);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.burgeoise_tax);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.pop_tax);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.private_ownership);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.foreign_ownership);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.collective_ownership);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.individual_ownership);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.foreign_ownership);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.education_budget);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.factory_subsidies_budget);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.economic);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.political);
     }
 };

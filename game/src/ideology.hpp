@@ -45,29 +45,29 @@ struct Ideology : RefnameEntity<IdeologyId> {
     std::vector<Subideology> subideologies;
 };
 template<>
-struct Serializer<Ideology::Subideology> {
+struct Eng3D::Deser::Serializer<Ideology::Subideology> {
     template<bool is_const>
-    using type = CondConstType<is_const, Ideology::Subideology>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, Ideology::Subideology>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
-        ::deser_dynamic<is_serialize>(ar, obj.name);
-        ::deser_dynamic<is_serialize>(ar, obj.economic);
-        ::deser_dynamic<is_serialize>(ar, obj.political);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.economic);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.political);
     }
 };
 
 template<>
-struct Serializer<Ideology> {
+struct Eng3D::Deser::Serializer<Ideology> {
     template<bool is_const>
-    using type = CondConstType<is_const, Ideology>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, Ideology>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
-        ::deser_dynamic<is_serialize>(ar, obj.name);
-        ::deser_dynamic<is_serialize>(ar, obj.color);
-        ::deser_dynamic<is_serialize>(ar, obj.subideologies);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.color);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.subideologies);
     }
 };

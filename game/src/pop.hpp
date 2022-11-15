@@ -37,18 +37,18 @@ struct Language : RefnameEntity<LanguageId> {
     Eng3D::StringRef combo_form;
 };
 template<>
-struct Serializer<Language> {
+struct Eng3D::Deser::Serializer<Language> {
     template<bool is_const>
-    using type = CondConstType<is_const, Language>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, Language>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        ::deser_dynamic<is_serialize>(ar, obj.name);
-        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
-        ::deser_dynamic<is_serialize>(ar, obj.adjective);
-        ::deser_dynamic<is_serialize>(ar, obj.noun);
-        ::deser_dynamic<is_serialize>(ar, obj.combo_form);
-        ::deser_dynamic<is_serialize>(ar, obj.color);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.adjective);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.noun);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.combo_form);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.color);
     }
 };
 
@@ -60,15 +60,15 @@ struct Religion : RefnameEntity<ReligionId> {
     }
 };
 template<>
-struct Serializer<Religion> {
+struct Eng3D::Deser::Serializer<Religion> {
     template<bool is_const>
-    using type = CondConstType<is_const, Religion>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, Religion>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        ::deser_dynamic<is_serialize>(ar, obj.name);
-        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
-        ::deser_dynamic<is_serialize>(ar, obj.color);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.color);
     }
 };
 
@@ -81,7 +81,7 @@ enum class PopGroup : uint8_t {
     ARTISAN,
 };
 template<>
-struct Serializer<PopGroup> : SerializerMemcpy<PopGroup> {};
+struct Eng3D::Deser::Serializer<PopGroup> : Eng3D::Deser::SerializerMemcpy<PopGroup> {};
 
 struct PopType : RefnameEntity<PopTypeId> {
     Eng3D::StringRef name;
@@ -92,19 +92,19 @@ struct PopType : RefnameEntity<PopTypeId> {
     std::vector<float> luxury_needs_deminishing_factor; // Deminishing returns factor of the luxury good satisfaction
 };
 template<>
-struct Serializer<PopType> {
+struct Eng3D::Deser::Serializer<PopType> {
     template<bool is_const>
-    using type = CondConstType<is_const, PopType>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, PopType>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        ::deser_dynamic<is_serialize>(ar, obj.name);
-        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
-        ::deser_dynamic<is_serialize>(ar, obj.social_value);
-        ::deser_dynamic<is_serialize>(ar, obj.group);
-        ::deser_dynamic<is_serialize>(ar, obj.basic_needs_amount);
-        ::deser_dynamic<is_serialize>(ar, obj.luxury_needs_satisfaction);
-        ::deser_dynamic<is_serialize>(ar, obj.luxury_needs_deminishing_factor);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.social_value);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.group);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.basic_needs_amount);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.luxury_needs_satisfaction);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.luxury_needs_deminishing_factor);
     }
 };
 
@@ -127,18 +127,18 @@ public:
     Policies wanted_policies;
 };
 template<>
-struct Serializer<Pop> {
+struct Eng3D::Deser::Serializer<Pop> {
     template<bool is_const>
-    using type = CondConstType<is_const, Pop>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, Pop>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        ::deser_dynamic<is_serialize>(ar, obj.type_id);
-        ::deser_dynamic<is_serialize>(ar, obj.size);
-        ::deser_dynamic<is_serialize>(ar, obj.literacy);
-        ::deser_dynamic<is_serialize>(ar, obj.militancy);
-        ::deser_dynamic<is_serialize>(ar, obj.budget);
-        ::deser_dynamic<is_serialize>(ar, obj.life_needs_met);
-        ::deser_dynamic<is_serialize>(ar, obj.wanted_policies);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.type_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.size);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.literacy);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.militancy);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.budget);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.life_needs_met);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.wanted_policies);
     }
 };

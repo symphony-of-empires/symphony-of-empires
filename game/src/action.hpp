@@ -59,7 +59,7 @@ enum ActionType {
     FOCUS_TECH, // Technology
 };
 template<>
-struct Serializer<ActionType>: public SerializerMemcpy<ActionType> {};
+struct Eng3D::Deser::Serializer<ActionType>: public Eng3D::Deser::SerializerMemcpy<ActionType> {};
 
 struct Product;
 class Nation;

@@ -37,10 +37,10 @@ constexpr char archive_signature[4] = { '>', ':', ')', ' ' };
 #define MAX_ARCHIVE_SIZE (65536 * 10000)
 #define MIN_FILE_SIZE 4096
 
-void Archive::to_file(const std::string& path) {
+void Eng3D::Deser::Archive::to_file(const std::string& path) {
     Eng3D::Log::debug("archive", translate_format("Writing archive %s", path.c_str()));
     if(buffer.empty())
-        CXX_THROW(SerializerException, translate("Can't output an empty archive to file"));
+        CXX_THROW(Eng3D::Deser::Exception, translate("Can't output an empty archive to file"));
     
     std::unique_ptr<FILE, decltype(&std::fclose)> fp(::fopen(path.c_str(), "wb"), ::fclose);
 
@@ -58,7 +58,7 @@ void Archive::to_file(const std::string& path) {
     Eng3D::Log::debug("archive", string_format("%zu->%zu bytes compressed; return value is %zu", inf_len, def_len, r));
 }
 
-void Archive::from_file(const std::string& path) {
+void Eng3D::Deser::Archive::from_file(const std::string& path) {
     Eng3D::Log::debug("archive", translate_format("Reading archive %s", path.c_str()));
 
     std::unique_ptr<FILE, decltype(&std::fclose)> fp(::fopen(path.c_str(), "rb"), ::fclose);
@@ -84,17 +84,17 @@ void Archive::from_file(const std::string& path) {
     buffer.shrink_to_fit();
 }
 
-void Archive::copy_to(void* to_ptr, size_t size) {
+void Eng3D::Deser::Archive::copy_to(void* to_ptr, size_t size) {
     if(size > buffer.size() - this->ptr)
-        CXX_THROW(SerializerException, string_format("Buffer too small for write of %zu bytes", size));
+        CXX_THROW(Eng3D::Deser::Exception, string_format("Buffer too small for write of %zu bytes", size));
     std::memcpy(to_ptr, &buffer[this->ptr], size);
     this->ptr += size;
 }
 
-void Archive::copy_from(const void* from_ptr, size_t size) {
+void Eng3D::Deser::Archive::copy_from(const void* from_ptr, size_t size) {
     this->expand(size);
     if(size > buffer.size() - this->ptr)
-        CXX_THROW(SerializerException, string_format("Buffer too small for read of %zu bytes", size));
+        CXX_THROW(Eng3D::Deser::Exception, string_format("Buffer too small for read of %zu bytes", size));
     std::memcpy(&buffer[this->ptr], from_ptr, size);
     this->ptr += size;
 }

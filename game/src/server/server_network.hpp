@@ -64,7 +64,7 @@ public:
     ~Server() = default;
     void net_loop(int id);
     std::vector<Nation*> clients_extra_data;
-    std::unordered_map<ActionType, std::function<void(ClientData& client_data, const Eng3D::Networking::Packet& packet, Archive& ar)>> action_handlers;
+    std::unordered_map<ActionType, std::function<void(ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar)>> action_handlers;
 };
 
 extern Server* g_server;

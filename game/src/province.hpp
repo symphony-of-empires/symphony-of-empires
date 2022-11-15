@@ -126,43 +126,43 @@ public:
     std::vector<float> religions;
 };
 template<>
-struct Serializer<Province::Battle> {
+struct Eng3D::Deser::Serializer<Province::Battle> {
     template<bool is_const>
-    using type = CondConstType<is_const, Province::Battle>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, Province::Battle>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.war_id);
-        ::deser_dynamic<is_serialize>(ar, obj.attacker_casualties);
-        ::deser_dynamic<is_serialize>(ar, obj.defender_casualties);
-        ::deser_dynamic<is_serialize>(ar, obj.attackers_ids);
-        ::deser_dynamic<is_serialize>(ar, obj.defenders_ids);
-        ::deser_dynamic<is_serialize>(ar, obj.active);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.war_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.attacker_casualties);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.defender_casualties);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.attackers_ids);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.defenders_ids);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.active);
     }
 };
 template<>
-struct Serializer<Province> {
+struct Eng3D::Deser::Serializer<Province> {
     template<bool is_const>
-    using type = CondConstType<is_const, Province>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, Province>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        ::deser_dynamic<is_serialize>(ar, obj.name);
-        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
-        ::deser_dynamic<is_serialize>(ar, obj.color);
-        ::deser_dynamic<is_serialize>(ar, obj.box_area);
-        ::deser_dynamic<is_serialize>(ar, obj.owner_id);
-        ::deser_dynamic<is_serialize>(ar, obj.nuclei);
-        ::deser_dynamic<is_serialize>(ar, obj.rgo_size);
-        ::deser_dynamic<is_serialize>(ar, obj.neighbour_ids);
-        ::deser_dynamic<is_serialize>(ar, obj.products);
-        ::deser_dynamic<is_serialize>(ar, obj.pops);
-        ::deser_dynamic<is_serialize>(ar, obj.buildings);
-        ::deser_dynamic<is_serialize>(ar, obj.controller_id);
-        ::deser_dynamic<is_serialize>(ar, obj.base_attractive);
-        ::deser_dynamic<is_serialize>(ar, obj.languages);
-        ::deser_dynamic<is_serialize>(ar, obj.religions);
-        ::deser_dynamic<is_serialize>(ar, obj.terrain_type_id);
-        ::deser_dynamic<is_serialize>(ar, obj.battle);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.color);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.box_area);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.owner_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.nuclei);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.rgo_size);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.neighbour_ids);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.products);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.pops);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.buildings);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.controller_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.base_attractive);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.languages);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.religions);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.terrain_type_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.battle);
     }
 };
 

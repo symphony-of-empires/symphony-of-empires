@@ -260,10 +260,10 @@ PoliciesView::PoliciesView(GameState& _gs)
     enact_btn->text("Enact policy");
     enact_btn->set_on_click([this](UI::Widget&) {
         Eng3D::Networking::Packet packet{};
-        Archive ar{};
-        ::serialize<ActionType>(ar, ActionType::NATION_ENACT_POLICY);
-        ::serialize(ar, this->new_policy); // PoliciesObj
-        ::serialize(ar, this->commodity_production); // VectorFloatObj
+        Eng3D::Deser::Archive ar{};
+        Eng3D::Deser::serialize<ActionType>(ar, ActionType::NATION_ENACT_POLICY);
+        Eng3D::Deser::serialize(ar, this->new_policy); // PoliciesObj
+        Eng3D::Deser::serialize(ar, this->commodity_production); // VectorFloatObj
         packet.data(ar.get_buffer(), ar.size());
         this->gs.client->send(packet);
         this->gs.ui_ctx.prompt("Policy", "New policy enacted!");

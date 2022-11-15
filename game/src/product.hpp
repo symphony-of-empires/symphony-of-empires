@@ -39,14 +39,14 @@ struct Good : RefnameEntity<GoodId> {
     }
 };
 template<>
-struct Serializer<Good> {
+struct Eng3D::Deser::Serializer<Good> {
     template<bool is_const>
-    using type = CondConstType<is_const, Good>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, Good>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        ::deser_dynamic<is_serialize>(ar, obj.name);
-        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ref_name);
     }
 };
 
@@ -98,17 +98,17 @@ struct Product : Entity<ProductId> {
     float speculative_demand = 0.f;
 };
 template<>
-struct Serializer<Product> {
+struct Eng3D::Deser::Serializer<Product> {
     template<bool is_const>
-    using type = CondConstType<is_const, Product>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, Product>::type;
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        ::deser_dynamic<is_serialize>(ar, obj.price);
-        ::deser_dynamic<is_serialize>(ar, obj.price_delta);
-        ::deser_dynamic<is_serialize>(ar, obj.supply);
-        ::deser_dynamic<is_serialize>(ar, obj.demand);
-        ::deser_dynamic<is_serialize>(ar, obj.speculative_demand);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.price);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.price_delta);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.supply);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.demand);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.speculative_demand);
     }
 };
 

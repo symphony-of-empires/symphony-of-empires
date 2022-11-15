@@ -66,21 +66,21 @@ struct BuildingType : RefnameEntity<BuildingTypeId> {
     std::vector<TechnologyId> req_technologies; // Required technologies to build
 };
 template<>
-struct Serializer<BuildingType> {
+struct Eng3D::Deser::Serializer<BuildingType> {
     template<bool is_const>
-    using type = CondConstType<is_const, BuildingType>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, BuildingType>::type;
 
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        ::deser_dynamic<is_serialize>(ar, obj.ref_name);
-        ::deser_dynamic<is_serialize>(ar, obj.name);
-        ::deser_dynamic<is_serialize>(ar, obj.flags);
-        ::deser_dynamic<is_serialize>(ar, obj.input_ids);
-        ::deser_dynamic<is_serialize>(ar, obj.output_id);
-        ::deser_dynamic<is_serialize>(ar, obj.req_goods);
-        ::deser_dynamic<is_serialize>(ar, obj.req_technologies);
-        ::deser_dynamic<is_serialize>(ar, obj.num_req_workers);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.flags);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.input_ids);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.output_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.req_goods);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.req_technologies);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.num_req_workers);
     }
 };
 
@@ -177,30 +177,30 @@ struct Building : Entity<BuildingId> {
     } expenses;
 };
 template<>
-struct Serializer<Building> {
+struct Eng3D::Deser::Serializer<Building> {
     template<bool is_const>
-    using type = CondConstType<is_const, Building>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, Building>::type;
 
     template<bool is_serialize>
-    static inline void deser_dynamic(Archive& ar, type<is_serialize>& obj) {
-        ::deser_dynamic<is_serialize>(ar, obj.private_ownership);
-        ::deser_dynamic<is_serialize>(ar, obj.state_ownership);
-        ::deser_dynamic<is_serialize>(ar, obj.collective_ownership);
-        ::deser_dynamic<is_serialize>(ar, obj.individual_ownership);
-        ::deser_dynamic<is_serialize>(ar, obj.foreign_ownership);
-        ::deser_dynamic<is_serialize>(ar, obj.foreign_id);
-        ::deser_dynamic<is_serialize>(ar, obj.budget);
-        ::deser_dynamic<is_serialize>(ar, obj.level);
-        ::deser_dynamic<is_serialize>(ar, obj.production_scale);
-        ::deser_dynamic<is_serialize>(ar, obj.workers);
-        ::deser_dynamic<is_serialize>(ar, obj.req_goods);
-        ::deser_dynamic<is_serialize>(ar, obj.req_goods_for_unit);
-        ::deser_dynamic<is_serialize>(ar, obj.revenue.outputs);
-        ::deser_dynamic<is_serialize>(ar, obj.expenses.wages);
-        ::deser_dynamic<is_serialize>(ar, obj.expenses.inputs_cost);
-        ::deser_dynamic<is_serialize>(ar, obj.expenses.state_taxes);
-        ::deser_dynamic<is_serialize>(ar, obj.expenses.state_dividends);
-        ::deser_dynamic<is_serialize>(ar, obj.expenses.pop_dividends);
-        ::deser_dynamic<is_serialize>(ar, obj.expenses.private_dividends);
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.private_ownership);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.state_ownership);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.collective_ownership);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.individual_ownership);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.foreign_ownership);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.foreign_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.budget);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.level);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.production_scale);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.workers);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.req_goods);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.req_goods_for_unit);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.revenue.outputs);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.expenses.wages);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.expenses.inputs_cost);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.expenses.state_taxes);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.expenses.state_dividends);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.expenses.pop_dividends);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.expenses.private_dividends);
     }
 };
