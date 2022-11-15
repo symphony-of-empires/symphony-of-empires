@@ -49,7 +49,7 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
     // Display an image iff it exists
     const auto& path = string_format("gfx/events/%s.png", event.ref_name.c_str());
     if(this->gs.package_man.get_unique(path) != nullptr) {
-        auto& event_img = this->make_widget<UI::Image>(0, 0, this->width, 200, path);
+        this->make_widget<UI::Image>(0, 0, this->width, 200, path);
     } else {
         Eng3D::Log::warning("event", path.c_str());
     }
