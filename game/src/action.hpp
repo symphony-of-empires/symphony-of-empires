@@ -28,7 +28,7 @@
 #include "eng3d/network.hpp"
 #include "objects.hpp"
 
-enum class ActionType {
+enum ActionType {
     BAD, // Error
     WORLD_TICK,
     SELECT_NATION,

@@ -28,9 +28,10 @@
 #include <mutex>
 #include <atomic>
 #include <vector>
-#include <thread>
+#include <unordered_map>
 
 #include "eng3d/network.hpp"
+#include "action.hpp"
 
 class ServerException : public std::exception {
     std::string buffer;
@@ -48,10 +49,22 @@ class Nation;
 class Server : public Eng3D::Networking::Server {
     GameState& gs;
 public:
+    struct ClientData {
+        Nation* selected_nation = nullptr;
+        GameState& gs;
+        std::string username;
+
+        ClientData(GameState& _gs)
+            : gs{ _gs }
+        {
+
+        }
+    };
     Server(GameState& gs, unsigned port = 1825, unsigned max_conn = 4);
     ~Server() = default;
     void net_loop(int id);
     std::vector<Nation*> clients_extra_data;
+    std::unordered_map<ActionType, std::function<void(ClientData& client_data, const Eng3D::Networking::Packet& packet, Archive& ar)>> action_handlers;
 };
 
 extern Server* g_server;

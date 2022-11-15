@@ -52,12 +52,207 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
     g_server = this;
     Eng3D::Log::debug("server", "Deploying " + std::to_string(n_clients) + " threads for clients");
 
+    action_handlers[ActionType::NATION_ENACT_POLICY] = [](ClientData& client_data, const Eng3D::Networking::Packet&, Archive& ar) {
+        Policies policies;
+        ::deserialize(ar, policies);
+        client_data.selected_nation->set_policy(policies);
+        ::deserialize(ar, client_data.selected_nation->commodity_production);
+    };
+    action_handlers[ActionType::UNIT_CHANGE_TARGET] = [](ClientData& client_data, const Eng3D::Networking::Packet&, Archive& ar) {
+        UnitId unit_id;
+        ::deserialize(ar, unit_id);
+        if(Unit::is_invalid(unit_id))
+            CXX_THROW(ServerException, "Unknown unit");
+        // Must control unit
+        auto& unit = g_world.unit_manager.units[unit_id];
+        if(client_data.selected_nation == nullptr || client_data.selected_nation->get_id() != unit.owner_id)
+            CXX_THROW(ServerException, "Nation does not control unit");
+
+        ProvinceId province_id;
+        ::deserialize(ar, province_id);
+        if(Province::is_invalid(province_id))
+            CXX_THROW(ClientException, "Unknown province");
+        auto& province = client_data.gs.world->provinces[province_id];
+        
+        if(unit.can_move()) {
+            Eng3D::Log::debug("server", string_format("Unit changes targets to %s", province.ref_name).c_str());
+            unit.set_path(province);
+        }
+    };
+
+    action_handlers[ActionType::BUILDING_START_BUILDING_UNIT] = [](ClientData& client_data, const Eng3D::Networking::Packet&, Archive& ar) {
+        ProvinceId province_id;
+        ::deserialize(ar, province_id);
+        if(Province::is_invalid(province_id))
+            CXX_THROW(ClientException, "Unknown province");
+        auto& province = client_data.gs.world->provinces[province_id];
+        BuildingType* building_type;
+        ::deserialize(ar, building_type);
+        if(building_type == nullptr)
+            CXX_THROW(ServerException, "Unknown building");
+        Nation* nation;
+        ::deserialize(ar, nation);
+        if(nation == nullptr)
+            CXX_THROW(ServerException, "Unknown nation");
+        UnitType* unit_type;
+        ::deserialize(ar, unit_type);
+        if(unit_type == nullptr)
+            CXX_THROW(ServerException, "Unknown unit type");
+        /// @todo Find building
+        auto& building = province.get_buildings()[*building_type];
+        /// @todo Check nation can build this unit
+        // Tell the building to build this specific unit type
+        building.working_unit_type_id = *unit_type;
+        building.req_goods_for_unit = unit_type->req_goods;
+        Eng3D::Log::debug("server", string_format("Building unit %s", unit_type->ref_name.c_str()));
+    };
+    action_handlers[ActionType::BUILDING_ADD] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Archive& ar) {
+        ProvinceId province_id;
+        ::deserialize(ar, province_id);
+        if(Province::is_invalid(province_id))
+            CXX_THROW(ClientException, "Unknown province");
+        auto& province = gs.world->provinces[province_id];
+        BuildingTypeId building_type_id;
+        ::deserialize(ar, building_type_id);
+        auto& building = province.buildings[building_type_id];
+        building.budget += building.get_upgrade_cost();
+        client_data.selected_nation->budget -= building.get_upgrade_cost();
+        Eng3D::Log::debug("server", string_format("Funding upgrade of buildin %s in %s", client_data.gs.world->building_types[building_type_id].ref_name.c_str(), client_data.selected_nation->ref_name.c_str()));
+        // Rebroadcast
+        this->broadcast(Action::BuildingAdd::form_packet(province, client_data.gs.world->building_types[building_type_id]));
+    };
+    action_handlers[ActionType::PROVINCE_COLONIZE] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Archive& ar) {
+        ProvinceId province_id;
+        ::deserialize(ar, province_id);
+        if(Province::is_invalid(province_id))
+            CXX_THROW(ClientException, "Unknown province");
+        auto& province = gs.world->provinces[province_id];
+        // Must not be already owned
+        if(Nation::is_valid(province.owner_id))
+            CXX_THROW(ServerException, "Province already has an owner");
+        if(client_data.selected_nation == nullptr)
+            CXX_THROW(ServerException, "You don't control a country");
+        province.owner_id = client_data.selected_nation->get_id();
+        // Rebroadcast
+        this->broadcast(packet);
+    };
+    action_handlers[ActionType::CHAT_MESSAGE] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Archive& ar) {
+        std::string msg{};
+        ::deserialize(ar, msg);
+        Eng3D::Log::debug("server", "Message: " + msg);
+        // Rebroadcast
+        this->broadcast(packet);
+    };
+    action_handlers[ActionType::CHANGE_TREATY_APPROVAL] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Archive& ar) {
+        Treaty* treaty = nullptr;
+        ::deserialize(ar, treaty);
+        TreatyApproval approval;
+        ::deserialize(ar, approval);
+        //Eng3D::Log::debug("server", selected_nation->ref_name + " approves treaty " + treaty->name + " A=" + (approval == TreatyApproval::ACCEPTED ? "YES" : "NO"));
+        if(!treaty->does_participate(*client_data.selected_nation))
+            CXX_THROW(ServerException, "Nation does not participate in treaty");
+        // Rebroadcast
+        this->broadcast(packet);
+    };
+    action_handlers[ActionType::DRAFT_TREATY] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Archive& ar) {
+        Treaty treaty{};
+        ::deserialize(ar, treaty.clauses);
+        ::deserialize(ar, treaty.name);
+        ::deserialize(ar, treaty.sender_id);
+        ::deserialize(ar, treaty.receiver_id);
+        // Validate data
+        if(treaty.clauses.empty())
+            CXX_THROW(ServerException, "Clause-less treaty");
+        if(Nation::is_invalid(treaty.sender_id))
+            CXX_THROW(ServerException, "Treaty has invalid sender");
+        // Obtain participants of the treaty
+        std::vector<NationId> approver_nations;
+        for(auto& clause : treaty.clauses) {
+            if(Nation::is_invalid(clause->receiver_id) || Nation::is_invalid(clause->sender_id))
+                CXX_THROW(ServerException, "Invalid clause receiver/sender");
+            approver_nations.push_back(clause->receiver_id);
+            approver_nations.push_back(clause->sender_id);
+        }
+        std::sort(approver_nations.begin(), approver_nations.end());
+        auto last = std::unique(approver_nations.begin(), approver_nations.end());
+        approver_nations.erase(last, approver_nations.end());
+
+        Eng3D::Log::debug("server", string_format("Participants of treaty %s", treaty.name.c_str()));
+        // Then fill as undecided (and ask nations to sign this treaty)
+        for(auto& nation_id : approver_nations) {
+            treaty.approval_status.emplace_back(nation_id, TreatyApproval::UNDECIDED);
+            Eng3D::Log::debug("server", g_world.nations[nation_id].ref_name.c_str());
+        }
+        // The sender automatically accepts the treaty (they are the ones who drafted it)
+        auto it = std::find_if(treaty.approval_status.end(), treaty.approval_status.end(), [&client_data](const auto& e) {
+            return e.first == *client_data.selected_nation;
+        });
+        it->second = TreatyApproval::ACCEPTED;
+        g_world.insert(treaty);
+
+        // Rebroadcast to client
+        // We are going to add a treaty to the client
+        Archive tmp_ar{};
+        auto action = ActionType::TREATY_ADD;
+        ::serialize(tmp_ar, action);
+        ::serialize(tmp_ar, treaty);
+        auto tmp_packet = packet;
+        tmp_packet.data(tmp_ar.get_buffer(), tmp_ar.size());
+        this->broadcast(tmp_packet);
+    };
+    action_handlers[ActionType::NATION_TAKE_DECISION] = [this](ClientData& client_data, const Eng3D::Networking::Packet&, Archive& ar) {
+        // Find event by reference name
+        Event event{};
+        ::deserialize(ar, event);
+        // Find decision by reference name
+        std::string ref_name;
+        ::deserialize(ar, ref_name);
+        auto decision = std::find_if(event.decisions.begin(), event.decisions.end(), [&ref_name](const auto& o) {
+            return !strcmp(o.ref_name.c_str(), ref_name.c_str());
+        });
+        if(decision == event.decisions.end())
+            CXX_THROW(ServerException, translate_format("Decision %s not found", ref_name.c_str()));
+        event.take_decision(*client_data.selected_nation, *decision);
+        //Eng3D::Log::debug("server", "Event " + local_event.ref_name + " takes descision " + ref_name + " by nation " + selected_nation->ref_name);
+    };
+    action_handlers[ActionType::SELECT_NATION] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Archive& ar) {
+        NationId nation_id;
+        ::deserialize(ar, nation_id);
+        if(Nation::is_invalid(nation_id))
+            CXX_THROW(ServerException, "Unknown nation");
+        auto& nation = gs.world->nations[nation_id];
+        ::deserialize(ar, nation.ai_do_cmd_troops);
+        ::deserialize(ar, nation.ai_controlled);
+        client_data.selected_nation = &nation;
+        //Eng3D::Log::debug("server", "Nation " + selected_nation->ref_name + " selected by client " + cl.username + "," + std::to_string(id));
+        
+        Archive tmp_ar{};
+        ::serialize<ActionType>(tmp_ar, ActionType::SELECT_NATION);
+        ::serialize(tmp_ar, nation.get_id());
+        ::serialize(tmp_ar, client_data.username);
+        auto tmp_packet = packet;
+        tmp_packet.data(ar.get_buffer(), ar.size());
+        this->broadcast(tmp_packet);
+    };
+    action_handlers[ActionType::DIPLO_DECLARE_WAR] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Archive& ar) {
+        Nation* target;
+        ::deserialize(ar, target);
+        client_data.selected_nation->declare_war(*target);
+    };
+    action_handlers[ActionType::FOCUS_TECH] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Archive& ar) {
+        Technology* technology;
+        ::deserialize(ar, technology);
+        if(technology == nullptr)
+            CXX_THROW(ServerException, "Unknown technology");
+        if(!client_data.selected_nation->can_research(*technology))
+            CXX_THROW(ServerException, "Can't research tech at the moment");
+        client_data.selected_nation->focus_tech_id = *technology;
+    };
+
     clients = new Eng3D::Networking::ServerClient[n_clients];
     for(size_t i = 0; i < n_clients; i++)
         clients[i].is_connected = false;
-    
     clients_extra_data.resize(n_clients, nullptr);
-
     // "Starting" thread, this one will wake up all the other ones
     clients[0].thread = std::make_unique<std::thread>(&Server::net_loop, this, 0);
 }
@@ -79,7 +274,7 @@ void Server::net_loop(int id) {
             if(!this->run) CXX_THROW(ServerException, "Server closed");
         }
 
-        Nation* selected_nation = nullptr;
+        ClientData client_data(gs);
         Eng3D::Networking::Packet packet(conn_fd);
         packet.pred = [this]() -> bool {
             return this->run;
@@ -103,6 +298,7 @@ void Server::net_loop(int id) {
             ActionType action;
             ::deserialize(ar, action);
             ::deserialize(ar, cl.username);
+            client_data.username = cl.username;
         }
 
         // Tell all other clients about the connection of this new client
@@ -111,7 +307,9 @@ void Server::net_loop(int id) {
             ::serialize<ActionType>(ar, ActionType::CONNECT);
             packet.data(ar.get_buffer(), ar.size());
             broadcast(packet);
+        }
 
+        {
             // And update all the clients on the username of everyone
             for(size_t i = 0; i < this->n_clients; i++) {
                 if(this->clients[i].thread == nullptr && this->clients[i].is_connected) {
@@ -149,223 +347,15 @@ void Server::net_loop(int id) {
                 ActionType action;
                 ::deserialize(ar, action);
                 Eng3D::Log::debug("server", "Receiving " + std::to_string(packet.size()) + " from #" + std::to_string(id));
-                if(selected_nation == nullptr && !(action == ActionType::CHAT_MESSAGE || action == ActionType::SELECT_NATION))
+                if(client_data.selected_nation == nullptr && !(action == ActionType::CHAT_MESSAGE || action == ActionType::SELECT_NATION))
                     CXX_THROW(ServerException, "Unallowed operation " + std::to_string(static_cast<int>(action)) + " without selected nation");
                 
                 const std::scoped_lock lock(g_world.world_mutex);
-                switch(action) {
-                // - Client tells server to enact a new policy for it's nation
-                case ActionType::NATION_ENACT_POLICY: {
-                    Policies policies;
-                    ::deserialize(ar, policies);
-                    selected_nation->set_policy(policies);
-                    ::deserialize(ar, selected_nation->commodity_production);
-                } break;
-                // - Client tells server to change target of unit
-                case ActionType::UNIT_CHANGE_TARGET: {
-                    UnitId unit_id;
-                    ::deserialize(ar, unit_id);
-                    if(Unit::is_invalid(unit_id))
-                        CXX_THROW(ServerException, "Unknown unit");
-                    // Must control unit
-                    auto& unit = g_world.unit_manager.units[unit_id];
-                    if(selected_nation == nullptr || selected_nation->get_id() != unit.owner_id)
-                        CXX_THROW(ServerException, "Nation does not control unit");
-
-                    ProvinceId province_id;
-                    ::deserialize(ar, province_id);
-                    if(Province::is_invalid(province_id))
-                        CXX_THROW(ClientException, "Unknown province");
-                    auto& province = gs.world->provinces[province_id];
-                    
-                    if(unit.can_move()) {
-                        Eng3D::Log::debug("server", string_format("Unit changes targets to %s", province.ref_name).c_str());
-                        unit.set_path(province);
-                    }
-                } break;
-                // Client tells the server about the construction of a new unit, note that this will
-                // only make the building submit "construction tickets" to obtain materials to build
-                // the unit can only be created by the server, not by the clients
-                case ActionType::BUILDING_START_BUILDING_UNIT: {
-                    ProvinceId province_id;
-                    ::deserialize(ar, province_id);
-                    if(Province::is_invalid(province_id))
-                        CXX_THROW(ClientException, "Unknown province");
-                    auto& province = gs.world->provinces[province_id];
-                    BuildingType* building_type;
-                    ::deserialize(ar, building_type);
-                    if(building_type == nullptr)
-                        CXX_THROW(ServerException, "Unknown building");
-                    Nation* nation;
-                    ::deserialize(ar, nation);
-                    if(nation == nullptr)
-                        CXX_THROW(ServerException, "Unknown nation");
-                    UnitType* unit_type;
-                    ::deserialize(ar, unit_type);
-                    if(unit_type == nullptr)
-                        CXX_THROW(ServerException, "Unknown unit type");
-                    /// @todo Find building
-                    auto& building = province.get_buildings()[*building_type];
-                    /// @todo Check nation can build this unit
-                    // Tell the building to build this specific unit type
-                    building.working_unit_type_id = *unit_type;
-                    building.req_goods_for_unit = unit_type->req_goods;
-                    Eng3D::Log::debug("server", string_format("Building unit %s", unit_type->ref_name.c_str()));
-                } break;
-                // Client tells server to build new outpost, the location (& type) is provided by
-                // the client and the rest of the fields are filled by the server
-                case ActionType::BUILDING_ADD: {
-                    ProvinceId province_id;
-                    ::deserialize(ar, province_id);
-                    if(Province::is_invalid(province_id))
-                        CXX_THROW(ClientException, "Unknown province");
-                    auto& province = gs.world->provinces[province_id];
-                    BuildingTypeId building_type_id;
-                    ::deserialize(ar, building_type_id);
-                    auto& building = province.buildings[building_type_id];
-                    building.budget += building.get_upgrade_cost();
-                    selected_nation->budget -= building.get_upgrade_cost();
-                    Eng3D::Log::debug("server", string_format("Funding upgrade of buildin %s in %s", gs.world->building_types[building_type_id].ref_name.c_str(), selected_nation->ref_name.c_str()));
-                    // Rebroadcast
-                    broadcast(Action::BuildingAdd::form_packet(province, gs.world->building_types[building_type_id]));
-                } break;
-                // Client tells server that it wants to colonize a province, this can be rejected
-                // or accepted, client should check via the next PROVINCE_UPDATE action
-                case ActionType::PROVINCE_COLONIZE: {
-                    ProvinceId province_id;
-                    ::deserialize(ar, province_id);
-                    if(Province::is_invalid(province_id))
-                        CXX_THROW(ClientException, "Unknown province");
-                    auto& province = gs.world->provinces[province_id];
-                    // Must not be already owned
-                    if(Nation::is_valid(province.owner_id))
-                        CXX_THROW(ServerException, "Province already has an owner");
-                    if(selected_nation == nullptr)
-                        CXX_THROW(ServerException, "You don't control a country");
-                    province.owner_id = selected_nation->get_id();
-                    // Rebroadcast
-                    broadcast(packet);
-                } break;
-                // Simple IRC-like chat messaging system
-                case ActionType::CHAT_MESSAGE: {
-                    std::string msg;
-                    ::deserialize(ar, msg);
-                    Eng3D::Log::debug("server", "Message: " + msg);
-                    // Rebroadcast
-                    broadcast(packet);
-                } break;
-                // Client changes it's approval on certain treaty
-                case ActionType::CHANGE_TREATY_APPROVAL: {
-                    Treaty* treaty;
-                    ::deserialize(ar, treaty);
-                    TreatyApproval approval;
-                    ::deserialize(ar, approval);
-                    //Eng3D::Log::debug("server", selected_nation->ref_name + " approves treaty " + treaty->name + " A=" + (approval == TreatyApproval::ACCEPTED ? "YES" : "NO"));
-                    if(!treaty->does_participate(*selected_nation))
-                        CXX_THROW(ServerException, "Nation does not participate in treaty");
-                    // Rebroadcast
-                    broadcast(packet);
-                } break;
-                // Client sends a treaty to someone
-                case ActionType::DRAFT_TREATY: {
-                    Treaty treaty;
-                    ::deserialize(ar, treaty.clauses);
-                    ::deserialize(ar, treaty.name);
-                    ::deserialize(ar, treaty.sender_id);
-                    ::deserialize(ar, treaty.receiver_id);
-                    // Validate data
-                    if(treaty.clauses.empty())
-                        CXX_THROW(ServerException, "Clause-less treaty");
-                    if(Nation::is_invalid(treaty.sender_id))
-                        CXX_THROW(ServerException, "Treaty has invalid sender");
-                    // Obtain participants of the treaty
-                    std::vector<NationId> approver_nations;
-                    for(auto& clause : treaty.clauses) {
-                        if(Nation::is_invalid(clause->receiver_id) || Nation::is_invalid(clause->sender_id))
-                            CXX_THROW(ServerException, "Invalid clause receiver/sender");
-                        approver_nations.push_back(clause->receiver_id);
-                        approver_nations.push_back(clause->sender_id);
-                    }
-                    std::sort(approver_nations.begin(), approver_nations.end());
-                    auto last = std::unique(approver_nations.begin(), approver_nations.end());
-                    approver_nations.erase(last, approver_nations.end());
-
-                    Eng3D::Log::debug("server", string_format("Participants of treaty %s", treaty.name.c_str()));
-                    // Then fill as undecided (and ask nations to sign this treaty)
-                    for(auto& nation_id : approver_nations) {
-                        treaty.approval_status.emplace_back(nation_id, TreatyApproval::UNDECIDED);
-                        Eng3D::Log::debug("server", g_world.nations[nation_id].ref_name.c_str());
-                    }
-                    // The sender automatically accepts the treaty (they are the ones who drafted it)
-                    auto it = std::find_if(treaty.approval_status.end(), treaty.approval_status.end(), [&selected_nation](const auto& e) {
-                        return e.first == *selected_nation;
-                    });
-                    it->second = TreatyApproval::ACCEPTED;
-                    g_world.insert(treaty);
-
-                    // Rebroadcast to client
-                    // We are going to add a treaty to the client
-                    Archive tmp_ar{};
-                    action = ActionType::TREATY_ADD;
-                    ::serialize(tmp_ar, action);
-                    ::serialize(tmp_ar, treaty);
-                    packet.data(tmp_ar.get_buffer(), tmp_ar.size());
-                    broadcast(packet);
-                } break;
-                // Client takes a decision
-                case ActionType::NATION_TAKE_DECISION: {
-                    // Find event by reference name
-                    Event event;
-                    ::deserialize(ar, event);
-                    // Find decision by reference name
-                    std::string ref_name;
-                    ::deserialize(ar, ref_name);
-                    auto decision = std::find_if(event.decisions.begin(), event.decisions.end(), [&ref_name](const auto& o) {
-                        return !strcmp(o.ref_name.c_str(), ref_name.c_str());
-                    });
-                    if(decision == event.decisions.end())
-                        CXX_THROW(ServerException, translate_format("Decision %s not found", ref_name.c_str()));
-                    event.take_decision(*selected_nation, *decision);
-                    //Eng3D::Log::debug("server", "Event " + local_event.ref_name + " takes descision " + ref_name + " by nation " + selected_nation->ref_name);
-                } break;
-                // The client selects a nation
-                case ActionType::SELECT_NATION: {
-                    NationId nation_id;
-                    ::deserialize(ar, nation_id);
-                    if(Nation::is_invalid(nation_id))
-                        CXX_THROW(ServerException, "Unknown nation");
-                    auto& nation = gs.world->nations[nation_id];
-                    ::deserialize(ar, nation.ai_do_cmd_troops);
-                    ::deserialize(ar, nation.ai_controlled);
-                    selected_nation = &nation;
-                    //Eng3D::Log::debug("server", "Nation " + selected_nation->ref_name + " selected by client " + cl.username + "," + std::to_string(id));
-
-                    this->clients_extra_data[id] = &nation;
-                    Archive ar{};
-                    ::serialize<ActionType>(ar, ActionType::SELECT_NATION);
-                    ::serialize(ar, nation.get_id());
-                    ::serialize(ar, cl.username);
-                    packet.data(ar.get_buffer(), ar.size());
-                    broadcast(packet);
-                } break;
-                case ActionType::DIPLO_DECLARE_WAR: {
-                    Nation* target;
-                    ::deserialize(ar, target);
-                    selected_nation->declare_war(*target);
-                } break;
-                case ActionType::FOCUS_TECH: {
-                    Technology* technology;
-                    ::deserialize(ar, technology);
-                    if(technology == nullptr)
-                        CXX_THROW(ServerException, "Unknown technology");
-                    if(!selected_nation->can_research(*technology))
-                        CXX_THROW(ServerException, "Can't research tech at the moment");
-                    selected_nation->focus_tech_id = *technology;
-                } break;
-                // Nation and province addition and removals are not allowed to be done by clients
-                default:
-                    break;
-                }
+                //switch(action) {
+                const auto it = action_handlers.find(action);
+                if(it == action_handlers.cend())
+                    CXX_THROW(ServerException, string_format("Unhandled action %u", static_cast<unsigned int>(action)));
+                it->second(client_data, packet, ar);
 
                 // Update the state of the UI with the editor
                 if(gs.editor) gs.update_tick = true;
