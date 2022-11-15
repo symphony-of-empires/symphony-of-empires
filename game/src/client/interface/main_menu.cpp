@@ -156,10 +156,6 @@ Interface::MainMenu::MainMenu(GameState& _gs)
         }
         this->gs.in_game = true;
         this->gs.play_nation();
-
-        this->gs.ui_ctx.prompt("Welcome",
-            "Hello, Symphony of empires is a free, open-source real-time grand strategy game set in 1825. You'll be controlling the Netherlands in the Victorian era period. The Netherlands has the Dutch East Indies company as one of it's most valuable economical posessions; do not let anyone take it."
-        );
     });
 
     auto& single_btn = button_list.make_widget<UI::Button>(0, 0, b_width, b_height);
