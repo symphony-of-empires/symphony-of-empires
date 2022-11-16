@@ -64,6 +64,9 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
         auto* flex_column =  new UI::Div(0, 0, this->width - 24, 24, this);
         flex_column->flex = UI::Flex::ROW;
 
+        if(decision.ref_name.get_string().empty())
+            CXX_THROW(std::runtime_error, string_format("Event ref_name=%s", event.ref_name.c_str()));
+        
         auto& decide_btn = flex_column->make_widget<UI::Button>(0, 0, flex_column->width - 24, 24);
         decide_btn.text(decision.name);
         decide_btn.set_tooltip(decision.effects);

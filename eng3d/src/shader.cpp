@@ -45,17 +45,15 @@
 Eng3D::OpenGL::Shader::Shader(const std::string& _buffer, GLuint type, bool use_transpiler, std::vector<Eng3D::GLSL::Define> defintions)
     : buffer(_buffer)
 {
-    if(use_transpiler) {
+    if(use_transpiler) try {
         Eng3D::GLSL::Context ctx(buffer);
         ctx.defines = defintions;
         ctx.lexer();
-        try {
-            ctx.parser();
-        } catch(Eng3D::GLSL::Exception& e) {
-            Eng3D::Log::error("shder", e.it->data + " -> " + e.what());
-        }
+        ctx.parser();
         buffer = ctx.to_text();
         line_numbers = ctx.line_numbers;
+    } catch(Eng3D::GLSL::Exception& e) {
+        Eng3D::Log::error("shder", e.it->data + " -> " + e.what());
     }
 
     id = glCreateShader(type);

@@ -415,193 +415,190 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
         CXX_THROW(Eng3D::LuaException, lua_tostring(world.lua.state, -1));
 }
 
-void World::load_initial() {
-    try {
-        Eng3D::Deser::Archive ar{};
-        ar.from_file("world.cch");
-        Eng3D::Deser::deserialize(ar, Eng3D::StringManager::get_instance().strings);
-        Eng3D::Deser::deserialize(ar, *this);
-    } catch(const std::exception& e) {
-        Eng3D::Log::error("cache", e.what());
+void World::load_initial() try {
+    Eng3D::Deser::Archive ar{};
+    ar.from_file("world.cch");
+    Eng3D::Deser::deserialize(ar, Eng3D::StringManager::get_instance().strings);
+    Eng3D::Deser::deserialize(ar, *this);
+} catch(const std::exception& e) {
+    Eng3D::Log::error("cache", e.what());
 
-        // Execute all lua files
-        lua_exec_all_of(*this, std::vector<std::string> {
-            "terrain_types", "good_types", "ideologies", "languages",
-                "building_types", "technology", "religions", "pop_types",
-                "industry_types", "unit_types", "boat_types",
-                "nations", "provinces", "init"
-        }, "lua/entities");
+    // Execute all lua files
+    lua_exec_all_of(*this, std::vector<std::string> {
+        "terrain_types", "good_types", "ideologies", "languages",
+            "building_types", "technology", "religions", "pop_types",
+            "industry_types", "unit_types", "boat_types",
+            "nations", "provinces", "init"
+    }, "lua/entities");
 
-        auto div = std::make_unique<Eng3D::BinaryImage>(Eng3D::State::get_instance().package_man.get_unique("map/provinces.png")->get_abs_path());
-        width = div->width;
-        height = div->height;
-        tiles = std::make_unique<ProvinceId[]>(width * height);
+    auto div = std::make_unique<Eng3D::BinaryImage>(Eng3D::State::get_instance().package_man.get_unique("map/provinces.png")->get_abs_path());
+    width = div->width;
+    height = div->height;
+    tiles = std::make_unique<ProvinceId[]>(width * height);
 
-        Eng3D::Log::debug("world", translate("Associate tiles with provinces"));
+    Eng3D::Log::debug("world", translate("Associate tiles with provinces"));
 
-        // Build a lookup table for super fast speed on finding provinces
-        // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
-        Eng3D::Log::debug("world", translate("Building the province lookup table"));
-        std::vector<ProvinceId> province_color_table(0xffffff + 1, ProvinceId(-1));
-        for(const auto& province : provinces)
-            province_color_table[province.color & 0xffffff] = this->get_id(province);
+    // Build a lookup table for super fast speed on finding provinces
+    // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
+    Eng3D::Log::debug("world", translate("Building the province lookup table"));
+    std::vector<ProvinceId> province_color_table(0xffffff + 1, ProvinceId(-1));
+    for(const auto& province : provinces)
+        province_color_table[province.color & 0xffffff] = this->get_id(province);
 
-        const auto* raw_buffer = div->buffer.get();
-        tbb::parallel_for(static_cast<size_t>(0), height, [this, &province_color_table, raw_buffer](const auto j) {
-            const auto off = j * width;
-            for(size_t i = 0; i < width; i++)
-                tiles[off + i] = province_color_table[raw_buffer[off + i] & 0xffffff];
-        });
+    const auto* raw_buffer = div->buffer.get();
+    tbb::parallel_for(static_cast<size_t>(0), height, [this, &province_color_table, raw_buffer](const auto j) {
+        const auto off = j * width;
+        for(size_t i = 0; i < width; i++)
+            tiles[off + i] = province_color_table[raw_buffer[off + i] & 0xffffff];
+    });
 
 #if 0
-        std::set<uint32_t> colors_found;
-        std::set<uint32_t> colors_used;
-        const auto* raw_buffer = div->buffer.get();
-        for(size_t i = 0; i < width * height; i++) {
-            const auto province_id = province_color_table[raw_buffer[i] & 0xffffff];
-            if(province_id == (ProvinceId)-1)
-                colors_found.insert(raw_buffer[i]);
-            colors_used.insert(raw_buffer[i] & 0xffffff);
-        }
-
-        if(!colors_found.empty()) {
-            std::unique_ptr<FILE, int(*)(FILE*)> province_fp(fopen("uprovinces.lua", "w+t"), fclose);
-            if(province_fp != nullptr) {
-                for(const auto& color_raw : colors_found) {
-                    uint32_t color = color_raw << 8;
-                    fprintf(province_fp.get(), "province=Province:new{ref_name=\"province_%06x\",name=translate(\"Unknown\"),color=0x%06x,terrain=tt_sea,rgo_size={}}\n", static_cast<unsigned int>(std::byteswap<std::uint32_t>(color)), static_cast<unsigned int>(std::byteswap<std::uint32_t>(color)));
-                    fprintf(province_fp.get(), "province:register()\n");
-                }
-            }
-
-            std::unique_ptr<FILE, int(*)(FILE*)> color_fp(fopen("ucolors.txt", "w+t"), fclose);
-            if(color_fp != nullptr) {
-                for(size_t i = 0; i < province_color_table.size(); i++) {
-                    if(i % 128 == 0 && Province::is_invalid(province_color_table[i])) {
-                        const uint32_t color = i << 8;
-                        fprintf(color_fp.get(), "%06lx\n", static_cast<unsigned long int>(std::byteswap<std::uint32_t>(color)));
-                    }
-                }
-            }
-
-            // Flush files before throwing
-            province_fp.reset();
-            color_fp.reset();
-
-            // Exit
-            CXX_THROW(std::runtime_error, "There are unregistered provinces, please register them!");
-        }
-
-        std::string provinces_ref_names = "";
-        for(auto& province : provinces)
-            if(!colors_used.contains(province.color & 0xffffff))
-                provinces_ref_names += "'" + province.ref_name + "'";
-
-        if(!provinces_ref_names.empty()) {
-            std::string error = "Province " + provinces_ref_names + " is registered but missing on province.png, please add it!";
-            Eng3D::Log::error("world", error);
-            CXX_THROW(std::runtime_error, error.c_str());
-        }
-#endif
-        div.reset();
-
-        // Calculate the edges of the province (min and max x and y coordinates)
-        Eng3D::Log::debug("world", translate("Calculate the edges of the province (min and max x and y coordinates)"));
-
-        // Init the province bounds
-        for(auto& province : provinces) {
-            province.box_area.right = province.box_area.bottom = 0.f;
-            province.box_area.left = width;
-            province.box_area.top = height;
-        }
-
-        for(size_t i = 0; i < width; i++) {
-            for(size_t j = 0; j < height; j++) {
-                auto& province = provinces[this->tiles[i + j * width]];
-                province.box_area.left = glm::min(province.box_area.left, static_cast<float>(i));
-                province.box_area.right = glm::max(province.box_area.right, static_cast<float>(i));
-                province.box_area.bottom = glm::max(province.box_area.bottom, static_cast<float>(j));
-                province.box_area.top = glm::min(province.box_area.top, static_cast<float>(j));
-            }
-        }
-
-        // Correct stuff from provinces
-        Eng3D::Log::debug("world", translate("Correcting values for provinces"));
-        for(auto& province : provinces) {
-            province.box_area.right = glm::min(width, static_cast<size_t>(province.box_area.right));
-            province.box_area.bottom = glm::min(height, static_cast<size_t>(province.box_area.bottom));
-        }
-
-        // Neighbours
-        Eng3D::Log::debug("world", translate("Calculating neighbours for provinces"));
-        for(size_t i = 0; i < width * height; i++) {
-            auto& province = this->provinces[this->tiles[i]];
-            if(i > this->width) { // Up
-                auto other_tile = this->tiles[i - this->width];
-                province.neighbour_ids.push_back(other_tile);
-            }
-            if(i < (this->width * this->height) - this->width) { // Down
-                auto other_tile = this->tiles[i + this->width];
-                province.neighbour_ids.push_back(other_tile);
-            }
-            if(i > 1) { // Left
-                auto other_tile = this->tiles[i - 1];
-                province.neighbour_ids.push_back(other_tile);
-            }
-            if(i < (this->width * this->height) - 1) { // Right
-                auto other_tile = this->tiles[i + 1];
-                province.neighbour_ids.push_back(other_tile);
-            }
-        }
-
-        // Remove neighbouring duplicates first
-        for(auto& province : this->provinces) {
-            auto last = std::unique(province.neighbour_ids.begin(), province.neighbour_ids.end());
-            province.neighbour_ids.erase(last, province.neighbour_ids.end());
-            std::erase(province.neighbour_ids, province); // Erase self
-        }
-
-        // Then sort and remove any remaining duplicates
-        for(auto& province : this->provinces) {
-            std::sort(province.neighbour_ids.begin(), province.neighbour_ids.end());
-            auto last = std::unique(province.neighbour_ids.begin(), province.neighbour_ids.end());
-            province.neighbour_ids.erase(last, province.neighbour_ids.end());
-        }
-        unit_manager.init(*this);
-
-        // Create diplomatic relations between nations
-        Eng3D::Log::debug("world", translate("Creating diplomatic relations"));
-        // Relations between nations start at 0 (and latter modified by lua scripts)
-        // since we use cantor's pairing function we only have to make an n*2 array so yeah let's do that!
-        this->relations.resize(this->nations.size() * this->nations.size());
-
-        // Auto-relocate capitals for countries which do not have one
-        for(auto& nation : this->nations) {
-            if(!nation.exists() || Province::is_valid(nation.capital_id)) continue;
-            //Eng3D::Log::debug("world", translate("Relocating capital of [" + nation.ref_name + "]"));
-            nation.auto_relocate_capital();
-        }
-
-        // Rebels(?) vs. everyone
-        auto* war = new War();
-        war->attacker_ids.push_back(this->nations[0].get_id());
-        for(size_t i = 1; i < this->nations.size(); i++) {
-            auto nation_id = this->nations[i].get_id();
-            war->defender_ids.push_back(nation_id);
-            auto& relation = this->get_relation(nation_id, NationId(0));
-            relation.has_war = true; // Declare war
-            relation.alliance = 0.f;
-            relation.relation = -100.f;
-        }
-        this->insert(*war);
-
-        // Write the entire world to the cache file
-        Eng3D::Deser::Archive ar{};
-        Eng3D::Deser::serialize(ar, Eng3D::StringManager::get_instance().strings);
-        Eng3D::Deser::serialize(ar, *this);
-        ar.to_file("world.cch");
+    std::set<uint32_t> colors_found;
+    std::set<uint32_t> colors_used;
+    const auto* raw_buffer = div->buffer.get();
+    for(size_t i = 0; i < width * height; i++) {
+        const auto province_id = province_color_table[raw_buffer[i] & 0xffffff];
+        if(province_id == (ProvinceId)-1)
+            colors_found.insert(raw_buffer[i]);
+        colors_used.insert(raw_buffer[i] & 0xffffff);
     }
-    Eng3D::Log::debug("world", translate("World partially intiialized"));
+
+    if(!colors_found.empty()) {
+        std::unique_ptr<FILE, int(*)(FILE*)> province_fp(fopen("uprovinces.lua", "w+t"), fclose);
+        if(province_fp != nullptr) {
+            for(const auto& color_raw : colors_found) {
+                uint32_t color = color_raw << 8;
+                fprintf(province_fp.get(), "province=Province:new{ref_name=\"province_%06x\",name=translate(\"Unknown\"),color=0x%06x,terrain=tt_sea,rgo_size={}}\n", static_cast<unsigned int>(std::byteswap<std::uint32_t>(color)), static_cast<unsigned int>(std::byteswap<std::uint32_t>(color)));
+                fprintf(province_fp.get(), "province:register()\n");
+            }
+        }
+
+        std::unique_ptr<FILE, int(*)(FILE*)> color_fp(fopen("ucolors.txt", "w+t"), fclose);
+        if(color_fp != nullptr) {
+            for(size_t i = 0; i < province_color_table.size(); i++) {
+                if(i % 128 == 0 && Province::is_invalid(province_color_table[i])) {
+                    const uint32_t color = i << 8;
+                    fprintf(color_fp.get(), "%06lx\n", static_cast<unsigned long int>(std::byteswap<std::uint32_t>(color)));
+                }
+            }
+        }
+
+        // Flush files before throwing
+        province_fp.reset();
+        color_fp.reset();
+
+        // Exit
+        CXX_THROW(std::runtime_error, "There are unregistered provinces, please register them!");
+    }
+
+    std::string provinces_ref_names = "";
+    for(auto& province : provinces)
+        if(!colors_used.contains(province.color & 0xffffff))
+            provinces_ref_names += "'" + province.ref_name + "'";
+
+    if(!provinces_ref_names.empty()) {
+        std::string error = "Province " + provinces_ref_names + " is registered but missing on province.png, please add it!";
+        Eng3D::Log::error("world", error);
+        CXX_THROW(std::runtime_error, error.c_str());
+    }
+#endif
+    div.reset();
+
+    // Calculate the edges of the province (min and max x and y coordinates)
+    Eng3D::Log::debug("world", translate("Calculate the edges of the province (min and max x and y coordinates)"));
+
+    // Init the province bounds
+    for(auto& province : provinces) {
+        province.box_area.right = province.box_area.bottom = 0.f;
+        province.box_area.left = width;
+        province.box_area.top = height;
+    }
+
+    for(size_t i = 0; i < width; i++) {
+        for(size_t j = 0; j < height; j++) {
+            auto& province = provinces[this->tiles[i + j * width]];
+            province.box_area.left = glm::min(province.box_area.left, static_cast<float>(i));
+            province.box_area.right = glm::max(province.box_area.right, static_cast<float>(i));
+            province.box_area.bottom = glm::max(province.box_area.bottom, static_cast<float>(j));
+            province.box_area.top = glm::min(province.box_area.top, static_cast<float>(j));
+        }
+    }
+
+    // Correct stuff from provinces
+    Eng3D::Log::debug("world", translate("Correcting values for provinces"));
+    for(auto& province : provinces) {
+        province.box_area.right = glm::min(width, static_cast<size_t>(province.box_area.right));
+        province.box_area.bottom = glm::min(height, static_cast<size_t>(province.box_area.bottom));
+    }
+
+    // Neighbours
+    Eng3D::Log::debug("world", translate("Calculating neighbours for provinces"));
+    for(size_t i = 0; i < width * height; i++) {
+        auto& province = this->provinces[this->tiles[i]];
+        if(i > this->width) { // Up
+            auto other_tile = this->tiles[i - this->width];
+            province.neighbour_ids.push_back(other_tile);
+        }
+        if(i < (this->width * this->height) - this->width) { // Down
+            auto other_tile = this->tiles[i + this->width];
+            province.neighbour_ids.push_back(other_tile);
+        }
+        if(i > 1) { // Left
+            auto other_tile = this->tiles[i - 1];
+            province.neighbour_ids.push_back(other_tile);
+        }
+        if(i < (this->width * this->height) - 1) { // Right
+            auto other_tile = this->tiles[i + 1];
+            province.neighbour_ids.push_back(other_tile);
+        }
+    }
+
+    // Remove neighbouring duplicates first
+    for(auto& province : this->provinces) {
+        auto last = std::unique(province.neighbour_ids.begin(), province.neighbour_ids.end());
+        province.neighbour_ids.erase(last, province.neighbour_ids.end());
+        std::erase(province.neighbour_ids, province); // Erase self
+    }
+
+    // Then sort and remove any remaining duplicates
+    for(auto& province : this->provinces) {
+        std::sort(province.neighbour_ids.begin(), province.neighbour_ids.end());
+        auto last = std::unique(province.neighbour_ids.begin(), province.neighbour_ids.end());
+        province.neighbour_ids.erase(last, province.neighbour_ids.end());
+    }
+    unit_manager.init(*this);
+
+    // Create diplomatic relations between nations
+    Eng3D::Log::debug("world", translate("Creating diplomatic relations"));
+    // Relations between nations start at 0 (and latter modified by lua scripts)
+    // since we use cantor's pairing function we only have to make an n*2 array so yeah let's do that!
+    this->relations.resize(this->nations.size() * this->nations.size());
+
+    // Auto-relocate capitals for countries which do not have one
+    for(auto& nation : this->nations) {
+        if(!nation.exists() || Province::is_valid(nation.capital_id)) continue;
+        //Eng3D::Log::debug("world", translate("Relocating capital of [" + nation.ref_name + "]"));
+        nation.auto_relocate_capital();
+    }
+
+    // Rebels(?) vs. everyone
+    auto* war = new War();
+    war->attacker_ids.push_back(this->nations[0].get_id());
+    for(size_t i = 1; i < this->nations.size(); i++) {
+        auto nation_id = this->nations[i].get_id();
+        war->defender_ids.push_back(nation_id);
+        auto& relation = this->get_relation(nation_id, NationId(0));
+        relation.has_war = true; // Declare war
+        relation.alliance = 0.f;
+        relation.relation = -100.f;
+    }
+    this->insert(*war);
+
+    // Write the entire world to the cache file
+    Eng3D::Deser::Archive ar{};
+    Eng3D::Deser::serialize(ar, Eng3D::StringManager::get_instance().strings);
+    Eng3D::Deser::serialize(ar, *this);
+    ar.to_file("world.cch");
 }
 
 void World::load_mod() {

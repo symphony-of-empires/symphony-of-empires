@@ -310,7 +310,6 @@ void Eng3D::Networking::Server::do_netloop(std::function<bool()> cond, std::func
             cl.flush_packets();
             if(cl.has_pending()) { // Check if we need to read packets
                 packet.recv();
-                if(!cond()) break;
                 ar.set_buffer(packet.data(), packet.size());
                 ar.rewind();
                 Eng3D::Log::debug("server", translate_format("Receiving %zuB from #%i", packet.size(), id));
@@ -411,23 +410,15 @@ void Eng3D::Networking::Client::do_netloop(std::function<bool()> cond, std::func
         // Conditional of above statements
         // When we are on host_mode we discard all potential packets sent by the server
         // (because our data is already synchronized since WE ARE the server)
-        if(stream.has_pending()) {
+        while(stream.has_pending() && cond()) try { // Obtain the action from the server
+            packet.recv();
             Eng3D::Deser::Archive ar{};
-            // Obtain the action from the server
-            while(1) {
-                try {
-                    packet.recv();
-                    if(packet.size() <= 1) continue;
-                    break;
-                } catch(Eng3D::Networking::SocketException& e) {
-                    // Pass
-                }
-                if(!cond()) CXX_THROW(Eng3D::Networking::Client::Exception, "Server closed");
-            }
             ar.set_buffer(packet.data(), packet.size());
             ar.rewind();
             Eng3D::Log::debug("client", translate_format("Receiving package of %zuB", packet.size()));
             handler(packet, ar);
+        } catch(Eng3D::Networking::SocketException& e) {
+            // Pass
         }
 
         // Client will also flush it's queue to the server

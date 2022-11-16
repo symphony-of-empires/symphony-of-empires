@@ -31,7 +31,6 @@
 struct Decision : RefnameEntity<DecisionId> {
     Eng3D::StringRef name;
     Eng3D::StringRef effects;
-
     /// @todo Reload these when serializing
     int do_decision_function = 0;
 };
@@ -42,10 +41,10 @@ struct Eng3D::Deser::Serializer<Decision> {
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ref_name);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.do_decision_function);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.effects);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.do_decision_function);
     }
 };
 
@@ -58,13 +57,12 @@ struct Event : RefnameEntity<EventId> {
     Eng3D::StringRef text;
     Eng3D::StringRef title;
     bool checked = false;
-
     /// @todo Reload these when serializing
     int conditions_function = 0;
     int do_event_function = 0;
 };
 template<>
-struct Eng3D::Deser::Serializer<Event> {
+struct Eng3D::Deser::Serializer<::Event> {
     template<bool is_const>
     using type = Eng3D::Deser::CondConstType<is_const, ::Event>::type;
     template<bool is_serialize>
@@ -76,6 +74,7 @@ struct Eng3D::Deser::Serializer<Event> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.decisions);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.title);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.text);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.checked);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.conditions_function);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.do_event_function);
     }

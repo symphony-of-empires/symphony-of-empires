@@ -197,10 +197,10 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         Event event{};
         Eng3D::Deser::deserialize(ar, event);
         // Find decision by reference name
-        std::string ref_name;
+        decltype(Decision::ref_name) ref_name;
         Eng3D::Deser::deserialize(ar, ref_name);
         auto decision = std::find_if(event.decisions.begin(), event.decisions.end(), [&ref_name](const auto& o) {
-            return !strcmp(o.ref_name.c_str(), ref_name.c_str());
+            return o.ref_name.get_string() == ref_name.get_string();
         });
         if(decision == event.decisions.end())
             CXX_THROW(ServerException, translate_format("Decision %s not found", ref_name.c_str()));

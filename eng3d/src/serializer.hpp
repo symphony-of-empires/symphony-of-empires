@@ -109,7 +109,7 @@ namespace Eng3D::Deser {
     struct Serializer {
         template<bool is_const>
         using type = CondConstType<is_const, T>::type;
-    #ifdef DEBUG_SERIALIZER
+#ifdef DEBUG_SERIALIZER
         template<bool is_serialize = true>
         static inline void deser_dynamic(Eng3D::Deser::Archive&, T&&) {
             CXX_THROW(Eng3D::Deser::Exception, "Implement your serializer function!");
@@ -119,7 +119,7 @@ namespace Eng3D::Deser {
         static inline void deser_dynamic(Eng3D::Deser::Archive&, const T&&) {
             CXX_THROW(Eng3D::Deser::Exception, "Implement your deserializer function!");
         }
-    #endif
+#endif
     };
 
     /// @brief Template generic (de)-serializer
@@ -223,28 +223,30 @@ namespace Eng3D::Deser {
                 for(auto& obj : obj_group)
                     Eng3D::Deser::deser_dynamic<true>(ar, obj);
             } else {
+                if constexpr(requires(T a) { a.clear(); })
+                    obj_group.clear();
+                
                 // No insert means this is a static array of some sort, ::std::array perhaps?
                 constexpr bool has_insert = requires(T a, typename T::value_type tp) { a.insert(tp); };
                 constexpr bool has_resize = requires(T a, size_t n) { a.resize(n); };
                 if constexpr(!has_insert && !has_resize) {
                     for(decltype(len) i = 0; i < len; i++)
                         Eng3D::Deser::deser_dynamic<false>(ar, obj_group[i]);
-                    return;
-                }
-
-                if constexpr(has_resize) {
-                    obj_group.resize(len);
-                    for(decltype(len) i = 0; i < len; i++)
-                        Eng3D::Deser::deser_dynamic<false>(ar, obj_group[i]);
-                } else { // non-len, no resize
-                    for(decltype(len) i = 0; i < len; i++) {
-                        typename T::value_type obj{}; // Initialized but then overwritten by the deserializer
-                        Eng3D::Deser::deser_dynamic<false>(ar, obj);
-                        constexpr bool has_push_back = requires(T a, typename T::value_type tp) { a.push_back(tp); };
-                        if constexpr(has_push_back)
-                            obj_group.push_back(obj);
-                        else if constexpr(has_insert)
-                            obj_group.insert(obj);
+                } else {
+                    if constexpr(has_resize) {
+                        obj_group.resize(len);
+                        for(decltype(len) i = 0; i < len; i++)
+                            Eng3D::Deser::deser_dynamic<false>(ar, obj_group[i]);
+                    } else { // non-len, no resize
+                        for(decltype(len) i = 0; i < len; i++) {
+                            typename T::value_type obj{}; // Initialized but then overwritten by the deserializer
+                            Eng3D::Deser::deser_dynamic<false>(ar, obj);
+                            constexpr bool has_push_back = requires(T a, typename T::value_type tp) { a.push_back(tp); };
+                            if constexpr(has_push_back)
+                                obj_group.push_back(obj);
+                            else if constexpr(has_insert)
+                                obj_group.insert(obj);
+                        }
                     }
                 }
             }
