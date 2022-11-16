@@ -277,27 +277,4 @@ struct Eng3D::Deser::Serializer<World> {
     }
 };
 
-#include "eng3d/serializer.hpp"
-/// @brief Used as a template for serializable objects on the global world context
-template<typename T>
-concept SerializerPointer = std::is_pointer_v<T>;
-template<SerializerPointer T>
-struct Eng3D::Deser::Serializer<T> {
-    typedef std::remove_pointer_t<T> type_no_p; // Pointerless type
-    template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, type_no_p>::type;
-    template<bool is_serialize>
-    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>*const& obj) {
-        typename type_no_p::Id id = !is_serialize ? type_no_p::invalid() : obj->get_id();
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, id);
-        if constexpr(!is_serialize) {
-            if(static_cast<size_t>(id) >= World::get_instance().get_list((T)nullptr).size()) {
-                const_cast<T&>(obj) = nullptr;
-            } else {
-                const_cast<T&>(obj) = id != type_no_p::invalid() ? &(World::get_instance().get_list((T)nullptr)[id]) : nullptr;
-            }
-        }
-    }
-};
-
 extern World g_world;

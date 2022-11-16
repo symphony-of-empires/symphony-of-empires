@@ -48,16 +48,15 @@ Eng3D::Networking::Packet action_handler_sr(Pred p) {
 
 Eng3D::Networking::Packet DiploDeclareWar::form_packet(const Nation& nation) {
     return action_handler_sr<ActionType::DIPLO_DECLARE_WAR>([&nation](auto& ar) {
-        Eng3D::Deser::serialize(ar, &nation);
+        Eng3D::Deser::serialize(ar, nation.get_id());
     });
 }
 
 Eng3D::Networking::Packet ProvinceUpdate::form_packet(const std::vector<Province>& list) {
     return action_handler_sr<ActionType::PROVINCE_UPDATE>([&list](auto& ar) {
         for(const auto& province : list) {
-            auto& ref = province;
-            Eng3D::Deser::serialize(ar, &ref); // ProvinceRef
-            Eng3D::Deser::serialize(ar, ref); // ProvinceObj
+            Eng3D::Deser::serialize(ar, province.get_id()); // ProvinceRef
+            Eng3D::Deser::serialize(ar, province); // ProvinceObj
         }
     });
 }
@@ -65,16 +64,15 @@ Eng3D::Networking::Packet ProvinceUpdate::form_packet(const std::vector<Province
 Eng3D::Networking::Packet NationUpdate::form_packet(const std::vector<Nation>& list) {
     return action_handler_sr<ActionType::NATION_UPDATE>([&list](auto& ar) {
         for(const auto& nation : list) {
-            auto& ref = nation;
-            Eng3D::Deser::serialize(ar, &ref); // NationRef
-            Eng3D::Deser::serialize(ar, ref); // NationObj
+            Eng3D::Deser::serialize(ar, nation.get_id()); // NationRef
+            Eng3D::Deser::serialize(ar, nation); // NationObj
         }
     });
 }
 
 Eng3D::Networking::Packet SelectNation::form_packet(const Nation& nation) {
     return action_handler_sr<ActionType::SELECT_NATION>([&nation](auto& ar) {
-        Eng3D::Deser::serialize(ar, &nation);
+        Eng3D::Deser::serialize(ar, nation.get_id());
         Eng3D::Deser::serialize(ar, nation.ai_do_cmd_troops);
         Eng3D::Deser::serialize(ar, nation.ai_controlled);
     });
@@ -82,23 +80,23 @@ Eng3D::Networking::Packet SelectNation::form_packet(const Nation& nation) {
 
 Eng3D::Networking::Packet BuildingStartProducingUnit::form_packet(const Province& province, const BuildingType& building_type, const Nation& nation, const UnitType& unit_type) {
     return action_handler_sr<ActionType::BUILDING_START_BUILDING_UNIT>([&](auto& ar) {
-        Eng3D::Deser::serialize(ar, &province);
-        Eng3D::Deser::serialize(ar, &building_type);
-        Eng3D::Deser::serialize(ar, &nation);
-        Eng3D::Deser::serialize(ar, &unit_type);
+        Eng3D::Deser::serialize(ar, province.get_id());
+        Eng3D::Deser::serialize(ar, building_type.get_id());
+        Eng3D::Deser::serialize(ar, nation.get_id());
+        Eng3D::Deser::serialize(ar, unit_type.get_id());
     });
 }
 
 Eng3D::Networking::Packet BuildingAdd::form_packet(const Province& province, const BuildingType& building_type) {
     return action_handler_sr<ActionType::BUILDING_ADD>([&province, &building_type](auto& ar) {
-        Eng3D::Deser::serialize(ar, &province);
-        Eng3D::Deser::serialize(ar, &building_type);
+        Eng3D::Deser::serialize(ar, province.get_id());
+        Eng3D::Deser::serialize(ar, building_type.get_id());
     });
 }
 
 Eng3D::Networking::Packet FocusTech::form_packet(const Technology& technology) {
     return action_handler_sr<ActionType::FOCUS_TECH>([&](auto& ar) {
-        Eng3D::Deser::serialize(ar, &technology);
+        Eng3D::Deser::serialize(ar, technology.get_id());
     });
 }
 

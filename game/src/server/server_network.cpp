@@ -72,31 +72,32 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         }
     };
 
-    action_handlers[ActionType::BUILDING_START_BUILDING_UNIT] = [](ClientData& client_data, const Eng3D::Networking::Packet&, Eng3D::Deser::Archive& ar) {
+    action_handlers[ActionType::BUILDING_START_BUILDING_UNIT] = [this](ClientData& client_data, const Eng3D::Networking::Packet&, Eng3D::Deser::Archive& ar) {
         ProvinceId province_id;
         Eng3D::Deser::deserialize(ar, province_id);
         if(Province::is_invalid(province_id))
             CXX_THROW(ClientException, "Unknown province");
         auto& province = client_data.gs.world->provinces[province_id];
-        BuildingType* building_type;
-        Eng3D::Deser::deserialize(ar, building_type);
-        if(building_type == nullptr)
+        BuildingTypeId building_type_id;
+        Eng3D::Deser::deserialize(ar, building_type_id);
+        if(BuildingType::is_invalid(building_type_id))
             CXX_THROW(ServerException, "Unknown building");
-        Nation* nation;
-        Eng3D::Deser::deserialize(ar, nation);
-        if(nation == nullptr)
+        NationId nation_id;
+        Eng3D::Deser::deserialize(ar, nation_id);
+        if(Nation::is_invalid(nation_id))
             CXX_THROW(ServerException, "Unknown nation");
-        UnitType* unit_type;
-        Eng3D::Deser::deserialize(ar, unit_type);
-        if(unit_type == nullptr)
+        UnitTypeId unit_type_id;
+        Eng3D::Deser::deserialize(ar, unit_type_id);
+        if(UnitType::is_invalid(unit_type_id))
             CXX_THROW(ServerException, "Unknown unit type");
         /// @todo Find building
-        auto& building = province.get_buildings()[*building_type];
+        auto& building = province.get_buildings()[building_type_id];
+        const auto& unit_type = gs.world->unit_types[unit_type_id];
         /// @todo Check nation can build this unit
         // Tell the building to build this specific unit type
-        building.working_unit_type_id = *unit_type;
-        building.req_goods_for_unit = unit_type->req_goods;
-        Eng3D::Log::debug("server", string_format("Building unit %s", unit_type->ref_name.c_str()));
+        building.working_unit_type_id = unit_type_id;
+        building.req_goods_for_unit = unit_type.req_goods;
+        Eng3D::Log::debug("server", string_format("Building unit %s", unit_type.ref_name.c_str()));
     };
     action_handlers[ActionType::BUILDING_ADD] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
         ProvinceId province_id;
@@ -136,12 +137,15 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         this->broadcast(packet);
     };
     action_handlers[ActionType::CHANGE_TREATY_APPROVAL] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
-        Treaty* treaty = nullptr;
-        Eng3D::Deser::deserialize(ar, treaty);
+        TreatyId treaty_id;
+        Eng3D::Deser::deserialize(ar, treaty_id);
+        if(Treaty::is_invalid(treaty_id))
+            CXX_THROW(ClientException, "Unknown treaty");
+        auto& treaty = gs.world->treaties[treaty_id];
         TreatyApproval approval;
         Eng3D::Deser::deserialize(ar, approval);
         //Eng3D::Log::debug("server", selected_nation->ref_name + " approves treaty " + treaty->name + " A=" + (approval == TreatyApproval::ACCEPTED ? "YES" : "NO"));
-        if(!treaty->does_participate(*client_data.selected_nation))
+        if(!treaty.does_participate(*client_data.selected_nation))
             CXX_THROW(ServerException, "Nation does not participate in treaty");
         // Rebroadcast
         this->broadcast(packet);
@@ -227,18 +231,22 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         this->broadcast(tmp_packet);
     };
     action_handlers[ActionType::DIPLO_DECLARE_WAR] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
-        Nation* target;
-        Eng3D::Deser::deserialize(ar, target);
-        client_data.selected_nation->declare_war(*target);
+        NationId nation_id;
+        Eng3D::Deser::deserialize(ar, nation_id);
+        if(Nation::is_invalid(nation_id))
+            CXX_THROW(ServerException, "Unknown nation");
+        auto& nation = gs.world->nations[nation_id];
+        client_data.selected_nation->declare_war(nation);
     };
     action_handlers[ActionType::FOCUS_TECH] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
-        Technology* technology;
-        Eng3D::Deser::deserialize(ar, technology);
-        if(technology == nullptr)
+        TechnologyId technology_id;
+        Eng3D::Deser::deserialize(ar, technology_id);
+        if(Technology::is_invalid(technology_id))
             CXX_THROW(ServerException, "Unknown technology");
-        if(!client_data.selected_nation->can_research(*technology))
+        auto& technology = gs.world->technologies[technology_id];
+        if(!client_data.selected_nation->can_research(technology))
             CXX_THROW(ServerException, "Can't research tech at the moment");
-        client_data.selected_nation->focus_tech_id = *technology;
+        client_data.selected_nation->focus_tech_id = technology;
     };
 
     clients = new Eng3D::Networking::ServerClient[n_clients];
@@ -287,7 +295,8 @@ void Server::netloop(int id) {
                     if(this->clients_extra_data[i] != nullptr) {
                         Eng3D::Deser::Archive ar{};
                         Eng3D::Deser::serialize<ActionType>(ar, ActionType::SELECT_NATION);
-                        Eng3D::Deser::serialize(ar, this->clients_extra_data[i]);
+                        const auto nation_id = this->clients_extra_data[i]->get_id();
+                        Eng3D::Deser::serialize(ar, nation_id);
                         Eng3D::Deser::serialize(ar, this->clients[i].username);
                         packet.data(ar.get_buffer(), ar.size());
                         broadcast(packet);

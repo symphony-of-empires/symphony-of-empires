@@ -607,7 +607,7 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
                 Eng3D::Deser::Archive ar{};
                 Eng3D::Deser::serialize<ActionType>(ar, ActionType::UNIT_CHANGE_TARGET);
                 Eng3D::Deser::serialize(ar, unit_id);
-                Eng3D::Deser::serialize(ar, &province);
+                Eng3D::Deser::serialize(ar, province.get_id());
                 packet.data(ar.get_buffer(), ar.size());
                 gs.client->send(packet);
 

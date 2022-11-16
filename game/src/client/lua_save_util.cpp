@@ -26,9 +26,11 @@
 
 #include <filesystem>
 
+#include "eng3d/serializer.hpp"
 #include "eng3d/utils.hpp"
 #include "client/game_state.hpp"
 #include "world.hpp"
+#include "objects.hpp"
 
 static void save_province(GameState& gs, FILE* fp, Province& province)
 {
@@ -211,7 +213,8 @@ void LUA_util::save(GameState& gs, const std::string& savefile_path) {
         gs.ui_ctx.prompt("Save", "Editor data saved! (check editor folder)");
     } else {
         Eng3D::Deser::Archive ar{};
-        Eng3D::Deser::serialize(ar, gs.curr_nation);
+        const auto nation_id = gs.curr_nation->get_id();
+        Eng3D::Deser::serialize(ar, nation_id);
         Eng3D::Deser::serialize(ar, *gs.world);
         ar.to_file(savefile_path);
         gs.ui_ctx.prompt("Save", "Saved sucessfully!");
@@ -223,7 +226,8 @@ void LUA_util::load(GameState& gs, const std::string& savefile_path) {
 
     Eng3D::Deser::Archive ar{};
     ar.from_file(savefile_path);
-    Eng3D::Deser::deserialize(ar, gs.curr_nation);
+    auto nation_id = gs.curr_nation->get_id();
+    Eng3D::Deser::deserialize(ar, nation_id);
     Eng3D::Deser::deserialize(ar, *gs.world);
 
     /// @todo Events aren't properly saved yet

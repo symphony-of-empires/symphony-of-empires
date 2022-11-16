@@ -97,14 +97,15 @@ void Client::netloop() {
                 }
             } break;
             case ActionType::NATION_ENACT_POLICY: {
-                Nation* nation;
-                Eng3D::Deser::deserialize(ar, nation);
-                if(nation == nullptr)
+                NationId nation_id;
+                Eng3D::Deser::deserialize(ar, nation_id);
+                if(Nation::is_invalid(nation_id))
                     CXX_THROW(ClientException, "Unknown nation");
                 Policies policy;
                 Eng3D::Deser::deserialize(ar, policy);
-                nation->set_policy(policy);
-                Eng3D::Deser::deserialize(ar, nation->commodity_production);
+                auto& nation = gs.world->nations[nation_id];
+                nation.set_policy(policy);
+                Eng3D::Deser::deserialize(ar, nation.commodity_production);
             } break;
             case ActionType::PROVINCE_UPDATE: {
                 ProvinceId size;
