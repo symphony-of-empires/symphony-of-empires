@@ -28,14 +28,6 @@
 #include <mutex>
 #include <chrono>
 #include <thread>
-
-#ifdef E3D_TARGET_WINDOWS
-#   ifndef WINSOCK2_IMPORTED
-#       define WINSOCK2_IMPORTED
-#       include <winsock2.h>
-#   endif
-#endif
-
 #include "eng3d/log.hpp"
 
 #include "action.hpp"
@@ -254,43 +246,24 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         clients[i].is_connected = false;
     clients_extra_data.resize(n_clients, nullptr);
     // "Starting" thread, this one will wake up all the other ones
-    clients[0].thread = std::make_unique<std::thread>(&Server::net_loop, this, 0);
+    clients[0].thread = std::make_unique<std::thread>(&Server::netloop, this, 0);
 }
 
 /// @brief This is the handling thread-function for handling a connection to a single client
 /// Sending packets will only be received by the other end, when trying to broadcast please
 /// put the packets on the send queue, they will be sent accordingly
-void Server::net_loop(int id) {
-    auto& cl = clients[id];
-    int conn_fd = 0;
-    try {
-        cl.is_connected = false;
-        while(!cl.is_connected) {
-            conn_fd = cl.try_connect(fd);
-            // Perform a 5 second delay between connection tries
-            const auto delta = std::chrono::seconds{ 5 };
-            const auto start_time = std::chrono::system_clock::now();
-            std::this_thread::sleep_until(start_time + delta);
-            if(!this->run) CXX_THROW(ServerException, "Server closed");
-        }
+void Server::netloop(int id) {
+    ClientData client_data(gs);
 
-        ClientData client_data(gs);
+    this->do_netloop([this]() {
+        return this->run == true;
+    }, [this, &client_data, id](int conn_fd) {
+        auto& cl = clients[id];
         Eng3D::Networking::Packet packet(conn_fd);
-        packet.pred = [this]() -> bool {
-            return this->run;
+        packet.pred = [this]() {
+            return this->run == true;
         };
-
-        player_count++;
-        // Wake up another thread
-        for(size_t i = 0; i < n_clients; i++) {
-            if(clients[i].thread == nullptr) {
-                clients[i].thread = std::make_unique<std::thread>(&Server::net_loop, this, i);
-                break;
-            }
-        }
-
-        // Read the data from client
-        {
+        { // Read the data from client
             Eng3D::Deser::Archive ar{};
             packet.recv();
             ar.set_buffer(packet.data(), packet.size());
@@ -301,16 +274,14 @@ void Server::net_loop(int id) {
             client_data.username = cl.username;
         }
 
-        // Tell all other clients about the connection of this new client
-        {
+        { // Tell all other clients about the connection of this new client
             Eng3D::Deser::Archive ar{};
             Eng3D::Deser::serialize<ActionType>(ar, ActionType::CONNECT);
             packet.data(ar.get_buffer(), ar.size());
             broadcast(packet);
         }
 
-        {
-            // And update all the clients on the username of everyone
+        { // And update all the clients on the username of everyone
             for(size_t i = 0; i < this->n_clients; i++) {
                 if(this->clients[i].thread == nullptr && this->clients[i].is_connected) {
                     if(this->clients_extra_data[i] != nullptr) {
@@ -332,81 +303,28 @@ void Server::net_loop(int id) {
             packet.data(ar.get_buffer(), ar.size());
             broadcast(packet);
         }
-        
-        Eng3D::Deser::Archive ar{};
-        while(run && cl.is_connected == true) {
-            cl.flush_packets();
-
-            // Check if we need to read packets
-            if(cl.has_pending()) {
-                packet.recv();
-                if(!run) break;
-                ar.set_buffer(packet.data(), packet.size());
-                ar.rewind();
-
-                ActionType action;
-                Eng3D::Deser::deserialize(ar, action);
-                Eng3D::Log::debug("server", "Receiving " + std::to_string(packet.size()) + " from #" + std::to_string(id));
-                if(client_data.selected_nation == nullptr && !(action == ActionType::CHAT_MESSAGE || action == ActionType::SELECT_NATION))
-                    CXX_THROW(ServerException, "Unallowed operation " + std::to_string(static_cast<int>(action)) + " without selected nation");
-                
-                const std::scoped_lock lock(g_world.world_mutex);
-                //switch(action) {
-                const auto it = action_handlers.find(action);
-                if(it == action_handlers.cend())
-                    CXX_THROW(ServerException, string_format("Unhandled action %u", static_cast<unsigned int>(action)));
-                it->second(client_data, packet, ar);
-
-                // Update the state of the UI with the editor
-                if(gs.editor) gs.update_tick = true;
-            }
-
-            ar.buffer.clear();
-            ar.rewind();
-
-            // After reading everything we will send our queue appropriately to the client
-            std::scoped_lock lock(cl.packets_mutex);
-            for(auto& packet : cl.packets) {
-                packet.stream = Eng3D::Networking::SocketStream(conn_fd);
-                packet.send();
-            }
-            cl.packets.clear();
-        }
-    } catch(ServerException& e) {
-        Eng3D::Log::error("server", std::string() + "ServerException: " + e.what());
-    } catch(Eng3D::Networking::SocketException& e) {
-        Eng3D::Log::error("server", std::string() + "SocketException: " + e.what());
-    } catch(Eng3D::Deser::Exception& e) {
-        Eng3D::Log::error("server", std::string() + "Eng3D::Deser::Exception: " + e.what());
-    }
-
-    player_count--;
-
-    // Unlock mutexes so we don't end up with weird situations... like deadlocks
-    cl.is_connected = false;
-
-    const std::scoped_lock lock(cl.packets_mutex, cl.pending_packets_mutex);
-    cl.packets.clear();
-    cl.pending_packets.clear();
-
-    // Tell the remaining clients about the disconnection
-    {
+    }, [this]() {
         Eng3D::Networking::Packet packet{};
         Eng3D::Deser::Archive ar{};
         Eng3D::Deser::serialize<ActionType>(ar, ActionType::DISCONNECT);
         packet.data(ar.get_buffer(), ar.size());
         broadcast(packet);
-    }
+    }, [this, &client_data](const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
+        ActionType action;
+        Eng3D::Deser::deserialize(ar, action);
+        if(client_data.selected_nation == nullptr && !(action == ActionType::CHAT_MESSAGE || action == ActionType::SELECT_NATION))
+            CXX_THROW(ServerException, "Unallowed operation " + std::to_string(static_cast<int>(action)) + " without selected nation");
+        
+        const std::scoped_lock lock(g_world.world_mutex);
+        //switch(action) {
+        const auto it = action_handlers.find(action);
+        if(it == action_handlers.cend())
+            CXX_THROW(ServerException, string_format("Unhandled action %u", static_cast<unsigned int>(action)));
+        it->second(client_data, packet, ar);
 
-#ifdef E3D_TARGET_WINDOWS
-    Eng3D::Log::error("server", "WSA Code: " + std::to_string(WSAGetLastError()));
-    WSACleanup();
-#endif
-    Eng3D::Log::debug("server", "Client disconnected");
-#ifdef E3D_TARGET_WINDOWS
-    shutdown(conn_fd, SD_BOTH);
-#elif defined E3D_TARGET_UNIX && !defined E3D_TARGET_SWITCH
-    // Switch doesn't support shutting down sockets
-    shutdown(conn_fd, SHUT_RDWR);
-#endif
+        // Update the state of the UI with the editor
+        if(gs.editor) gs.update_tick = true;
+    }, [this](int i) {
+        clients[i].thread = std::make_unique<std::thread>(&Server::netloop, this, i);
+    }, id);
 }

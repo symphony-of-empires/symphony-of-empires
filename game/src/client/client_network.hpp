@@ -52,7 +52,7 @@ class Client : public Eng3D::Networking::Client {
 public:
     Client(GameState& gs, std::string host, const unsigned port);
     ~Client();
-    void net_loop();
+    void netloop();
     void wait_for_snapshot();
 };
 

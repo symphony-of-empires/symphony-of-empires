@@ -62,7 +62,7 @@ public:
     };
     Server(GameState& gs, unsigned port = 1825, unsigned max_conn = 4);
     ~Server() = default;
-    void net_loop(int id);
+    void netloop(int id);
     std::vector<Nation*> clients_extra_data;
     std::unordered_map<ActionType, std::function<void(ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar)>> action_handlers;
 };

@@ -62,6 +62,7 @@
 
 #include "eng3d/network.hpp"
 #include "eng3d/log.hpp"
+#include "eng3d/serializer.hpp"
 #include "eng3d/utils.hpp"
 
 constexpr static int max_tries = 10; // 10 * 100ms = 10 seconds
@@ -209,19 +210,9 @@ int Eng3D::Networking::ServerClient::try_connect(int fd) try {
     return 0;
 }
 
-/// @brief Push pending_packets to the packets queue (the packets queue is managed
-/// by us and requires almost 0 locking, so the host does not stagnate when
-/// trying to send packets to a certain client)
+/// @brief TODO: flush packets
 void Eng3D::Networking::ServerClient::flush_packets() {
-    if(!pending_packets.empty()) {
-        if(pending_packets_mutex.try_lock()) {
-            const std::scoped_lock lock(packets_mutex);
-            for(auto& packet : pending_packets) // Put all pending packets into the main queue
-                packets.push_back(packet);
-            pending_packets.clear();
-            pending_packets_mutex.unlock();
-        }
-    }
+
 }
 
 bool Eng3D::Networking::ServerClient::has_pending() {
@@ -283,31 +274,86 @@ Eng3D::Networking::Server::~Server() {
 
 /// @brief This will broadcast the given packet to all clients currently on the server
 void Eng3D::Networking::Server::broadcast(const Eng3D::Networking::Packet& packet) {
-    for(size_t i = 0; i < n_clients; i++) {
-        if(clients[i].is_connected == true) {
-            // If we can "acquire" the spinlock to the main packet queue we will push
-            // our packet there, otherwise we take the alternative packet queue to minimize
-            // locking between server and client
-            if(clients[i].packets_mutex.try_lock()) {
-                clients[i].packets.push_back(packet);
-                clients[i].packets_mutex.unlock();
-            } else {
-                const std::scoped_lock lock(clients[i].pending_packets_mutex);
-                clients[i].pending_packets.push_back(packet);
-            }
+    for(size_t i = 0; i < n_clients; i++)
+        if(clients[i].is_connected == true)
+            clients[i].packets.push(packet);
+}
 
-            // Disconnect the client when more than 200 MB is used
-            // we can't save your packets buddy - other clients need their stuff too!
-            const auto total_size = std::accumulate(clients[i].pending_packets.begin(), clients[i].pending_packets.end(), 0, [](const auto a, const auto& b) {
-                return a + b.buffer.size();
-            });
+void Eng3D::Networking::Server::do_netloop(std::function<bool()> cond, std::function<void(int)> on_connect, std::function<void(void)> on_disconnect, std::function<void(const Packet& packet, Eng3D::Deser::Archive& ar)> handler, std::function<void(int i)> on_wake_thread, int id) {
+    auto& cl = clients[id];
+    int conn_fd = 0;
+    try {
+        cl.is_connected = false;
+        while(!cl.is_connected) {
+            conn_fd = cl.try_connect(fd);
+            // Perform a 5 second delay between connection tries
+            const auto delta = std::chrono::seconds{ 5 };
+            const auto start_time = std::chrono::system_clock::now();
+            std::this_thread::sleep_until(start_time + delta);
+            if(!this->run) CXX_THROW(Eng3D::Networking::Server::Exception, "Server closed");
+        }
 
-            if(total_size >= 200 * 1000) {
-                clients[i].is_connected = false;
-                Eng3D::Log::debug("server", Eng3D::translate_format("Client#%zu has exceeded max quota (%zu bytes)", i, total_size));
+        Eng3D::Networking::Packet packet(conn_fd);
+        packet.pred = cond;
+
+        player_count++;
+        // Wake up another thread
+        for(size_t i = 0; i < n_clients; i++) {
+            if(clients[i].thread == nullptr) {
+                on_wake_thread(i);
+                break;
             }
         }
+        on_connect(conn_fd); // Read the data from client
+        Eng3D::Deser::Archive ar{};
+        while(cond() && cl.is_connected == true) {
+            cl.flush_packets();
+            if(cl.has_pending()) { // Check if we need to read packets
+                packet.recv();
+                if(!cond()) break;
+                ar.set_buffer(packet.data(), packet.size());
+                ar.rewind();
+                Eng3D::Log::debug("server", translate_format("Receiving %zuB from #%i", packet.size(), id));
+                handler(packet, ar);
+            }
+            ar.buffer.clear();
+            ar.rewind();
+
+            // After reading everything we will send our queue appropriately to the client
+            Eng3D::Networking::Packet tosend_packet;
+            while(cl.packets.try_pop(tosend_packet)) {
+                tosend_packet.stream = Eng3D::Networking::SocketStream(conn_fd);
+                Eng3D::Log::debug("server", translate_format("Sending package of %zuB", tosend_packet.size()));
+                tosend_packet.send();
+            }
+            cl.packets.clear();
+        }
+    } catch(Eng3D::Networking::Server::Exception& e) {
+        Eng3D::Log::error("server", std::string() + "Eng3D::Networking::Server::Exception: " + e.what());
+    } catch(Eng3D::Networking::SocketException& e) {
+        Eng3D::Log::error("server", std::string() + "Eng3D::Networking::SocketException: " + e.what());
+    } catch(Eng3D::Deser::Exception& e) {
+        Eng3D::Log::error("server", std::string() + "Eng3D::Deser::Exception: " + e.what());
     }
+
+    player_count--;
+
+    // Unlock mutexes so we don't end up with weird situations... like deadlocks
+    cl.is_connected = false;
+    cl.packets.clear();
+
+    on_disconnect();
+#ifdef E3D_TARGET_WINDOWS
+    Eng3D::Log::error("server", "WSA Code: " + std::to_string(WSAGetLastError()));
+    WSACleanup();
+#endif
+    Eng3D::Log::debug("server", "Client disconnected");
+#ifdef E3D_TARGET_WINDOWS
+    shutdown(conn_fd, SD_BOTH);
+#elif defined E3D_TARGET_UNIX && !defined E3D_TARGET_SWITCH
+    // Switch doesn't support shutting down sockets
+    shutdown(conn_fd, SHUT_RDWR);
+#endif
 }
 
 //
@@ -357,3 +403,42 @@ Eng3D::Networking::Client::~Client() {
 #endif
 }
 
+void Eng3D::Networking::Client::do_netloop(std::function<bool()> cond, std::function<void(const Packet& packet, Eng3D::Deser::Archive& ar)> handler) try {
+    Eng3D::Networking::SocketStream stream(fd);
+    Eng3D::Networking::Packet packet(fd);
+    packet.pred = cond;
+    while(cond()) {
+        // Conditional of above statements
+        // When we are on host_mode we discard all potential packets sent by the server
+        // (because our data is already synchronized since WE ARE the server)
+        if(stream.has_pending()) {
+            Eng3D::Deser::Archive ar{};
+            // Obtain the action from the server
+            while(1) {
+                try {
+                    packet.recv();
+                    if(packet.size() <= 1) continue;
+                    break;
+                } catch(Eng3D::Networking::SocketException& e) {
+                    // Pass
+                }
+                if(!cond()) CXX_THROW(Eng3D::Networking::Client::Exception, "Server closed");
+            }
+            ar.set_buffer(packet.data(), packet.size());
+            ar.rewind();
+            Eng3D::Log::debug("client", translate_format("Receiving package of %zuB", packet.size()));
+            handler(packet, ar);
+        }
+
+        // Client will also flush it's queue to the server
+        Eng3D::Networking::Packet tosend_packet;
+        while(packets.try_pop(tosend_packet)) {
+            tosend_packet.stream = Eng3D::Networking::SocketStream(fd);
+            tosend_packet.pred = cond;
+            Eng3D::Log::debug("client", translate_format("Sending package of %zuB", tosend_packet.size()));
+            tosend_packet.send();
+        }
+    }
+} catch(Eng3D::Networking::Client::Exception& e) {
+    Eng3D::Log::error("client", translate_format("Exception: %s", e.what()));
+}

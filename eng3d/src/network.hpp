@@ -34,6 +34,7 @@
 #include <deque>
 #include <stdexcept>
 #include <functional>
+#include <tbb/concurrent_queue.h>
 
 #ifdef E3D_TARGET_WINDOWS
 // Allow us to use deprecated functions like inet_addr
@@ -58,6 +59,10 @@
 #endif
 
 #include "eng3d/utils.hpp"
+
+namespace Eng3D::Deser {
+    struct Archive;
+};
 
 namespace Eng3D::Networking {
     class SocketException : public std::exception {
@@ -144,10 +149,7 @@ namespace Eng3D::Networking {
         bool has_pending();
         
         std::atomic<bool> is_connected;
-        std::deque<Eng3D::Networking::Packet> pending_packets;
-        std::mutex pending_packets_mutex;
-        std::deque<Eng3D::Networking::Packet> packets;
-        std::mutex packets_mutex;
+        tbb::concurrent_bounded_queue<Eng3D::Networking::Packet> packets;
         std::string username;
         std::unique_ptr<std::thread> thread;
     };
@@ -158,9 +160,23 @@ namespace Eng3D::Networking {
         int fd;
         std::atomic<bool> run;
     public:
+        class Exception : public std::exception {
+            std::string msg;
+        public:
+            Exception(const std::string& _msg)
+                : msg{ _msg }
+            {
+                
+            }
+            virtual const char* what() const noexcept {
+                return msg.c_str();
+            }
+        };
+
         Server(unsigned port, unsigned max_conn);
         ~Server();
         void broadcast(const Eng3D::Networking::Packet& packet);
+        void do_netloop(std::function<bool()> cond, std::function<void(int)> on_connect, std::function<void()> on_disconnect, std::function<void(const Packet& packet, Eng3D::Deser::Archive& ar)> handler, std::function<void(int i)> on_wake_thread, int id);
 
         ServerClient* clients;
         std::size_t n_clients;
@@ -172,27 +188,32 @@ namespace Eng3D::Networking {
         struct sockaddr_in addr;
         int fd;
     public:
+        class Exception : public std::exception {
+            std::string msg;
+        public:
+            Exception(const std::string& _msg)
+                : msg{ _msg }
+            {
+
+            }
+            virtual const char* what() const noexcept {
+                return msg.c_str();
+            }
+        };
+
         Client(std::string host, const unsigned port);
         ~Client();
+        void do_netloop(std::function<bool()> cond, std::function<void(const Packet& packet, Eng3D::Deser::Archive& ar)> handler);
 
         inline void send(const Eng3D::Networking::Packet& packet) {
-            if(packets_mutex.try_lock()) {
-                packets.push_back(packet);
-                packets_mutex.unlock();
-            } else {
-                const std::scoped_lock lock(pending_packets_mutex);
-                pending_packets.push_back(packet);
-            }
+            packets.push(packet);
         }
         
         inline int get_fd() const {
             return fd;
         }
-        
-        std::deque<Eng3D::Networking::Packet> packets;
-        std::mutex packets_mutex;
-        std::deque<Eng3D::Networking::Packet> pending_packets;
-        std::mutex pending_packets_mutex;
+
+        tbb::concurrent_bounded_queue<Eng3D::Networking::Packet> packets;
         std::string username;
     };
 };
