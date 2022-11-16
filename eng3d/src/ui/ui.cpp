@@ -503,7 +503,6 @@ bool UI::Context::check_click(glm::ivec2 mouse_pos) {
     bool is_click = false;
     for(int i = widgets.size() - 1; i >= 0; i--) {
         click_state = check_click_recursive(*widgets[i].get(), mouse_pos, glm::ivec2(0), click_state, true, true);
-
         // Ignore further clicks, prevents clicking causing clicks on elements behind
         if(click_state != UI::ClickState::NOT_CLICKED) {
             is_click = true;
@@ -536,9 +535,8 @@ bool UI::Context::check_mouse_released(glm::ivec2 mouse_pos) {
     auto click_state = UI::ClickState::NOT_CLICKED;
 
     bool is_click = false;
-    for(int i = widgets.size() - 1; i >= 0; i--) {
-        click_state = check_click_recursive(*widgets[i].get(), mouse_pos, glm::ivec2(0), click_state, true, false);
-
+    for(auto& widget : reverse(widgets)) {
+        click_state = check_click_recursive(*widget, mouse_pos, glm::ivec2(0), click_state, true, false);
         // Ignore further clicks, prevents clicking causing clicks on elements behind
         if(click_state != UI::ClickState::NOT_CLICKED) {
             is_click = true;

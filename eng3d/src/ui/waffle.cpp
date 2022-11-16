@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <numeric>
 #include <algorithm>
 
 #include <glm/vec2.hpp>
@@ -45,9 +46,9 @@ UI::WaffleChart::WaffleChart(int _x, int _y, unsigned w, unsigned h, UI::Widget*
 
 void UI::WaffleChart::set_data(std::vector<UI::ChartData> new_data) {
     this->data = new_data;
-    this->max = glm::epsilon<float>();
-    for(const auto& slice : this->data)
-        this->max += slice.num;
+    this->max = std::accumulate(this->data.begin(), this->data.end(), 0.f, [](const auto&& a, const auto& e) {
+        return a + e.num;
+    });
     this->cols = this->width / 8.f;
     this->rows = this->height / 8.f;
 }

@@ -34,6 +34,7 @@ united_kingdom:set_ideology(monarchy, "absolute_monarchy")
 united_kingdom:add_accepted_language(english)
 united_kingdom:add_accepted_language(irish)
 united_kingdom:add_client_hint(monarchy, _("United Kingdom"), 0xa81e11)
+united_kingdom:set_flag("westernized", 1.0)
 
 netherlands = Nation:new{ ref_name = "netherlands" }
 netherlands.name = _("Netherlands")
@@ -42,6 +43,7 @@ netherlands:register()
 netherlands:set_ideology(monarchy, "absolute_monarchy")
 netherlands:add_accepted_language(dutch)
 netherlands:add_client_hint(monarchy, _("Netherlands"), 0xf5931b)
+netherlands:set_flag("westernized", 1.0)
 
 belgium = Nation:new{ ref_name = "belgium" }
 belgium.name = _("Belgium")
@@ -50,6 +52,7 @@ belgium:register()
 belgium:set_ideology(monarchy, "absolute_monarchy")
 belgium:add_accepted_language(belgian)
 belgium:add_client_hint(monarchy, _("Belgium"), 0xe8db2a)
+belgium:set_flag("westernized", 1.0)
 
 france = Nation:new{ ref_name = "france" }
 france.name = _("France")
@@ -59,6 +62,7 @@ france:register()
 france:set_ideology(monarchy, "absolute_monarchy")
 france:add_accepted_language(french)
 france:add_client_hint(monarchy, _("France"), 0x1b3cb3)
+france:set_flag("westernized", 1.0)
 
 spain = Nation:new{ ref_name = "spain" }
 spain.name = _("Spain")
@@ -68,6 +72,7 @@ spain:register()
 spain:set_ideology(monarchy, "absolute_monarchy")
 spain:add_accepted_language(spanish)
 spain:add_client_hint(monarchy, _("Spain"), 0xdee03a)
+spain:set_flag("westernized", 1.0)
 
 portugal = Nation:new{ ref_name = "portugal" }
 portugal.name = _("Portugal")
@@ -77,6 +82,7 @@ portugal:set_ideology(monarchy, "absolute_monarchy")
 portugal:add_accepted_language(portuguese)
 portugal:add_client_hint(monarchy, _("Portugal"), 0x0f691f)
 portugal:add_client_hint(socialism, _("People's Republic of Portugal"), 0x0f691f)
+portugal:set_flag("westernized", 1.0)
 
 -- Formable nations
 european_union = Nation:new{ ref_name = "european_union" }
@@ -197,6 +203,7 @@ denmark:register()
 denmark:set_ideology(monarchy, "absolute_monarchy")
 denmark:add_accepted_language(danish)
 denmark:add_client_hint(monarchy, _("Denmark"), 0xc27b6d)
+denmark:set_flag("westernized", 1.0)
 
 sweden = Nation:new{ ref_name = "sweden" }
 sweden.name = _("Sweden")
@@ -207,6 +214,19 @@ sweden:set_ideology(monarchy, "absolute_monarchy")
 sweden:add_accepted_language(swedish)
 sweden:add_client_hint(monarchy, _("Sweden"), 0x3a739e)
 sweden:add_client_hint(socialism, _("People's Republic of Sweden"), 0x3a739e)
+sweden:set_flag("westernized", 1.0)
+
+norway = Nation:new{ ref_name = "norway" }
+norway.name = _("Norway")
+norway.adjective = _("Norwegian")
+norway:register()
+norway:set_ideology(monarchy, "absolute_monarchy")
+norway:add_accepted_language(norwegian)
+norway:add_client_hint(monarchy, _("Norway"), 0xab1659)
+norway:add_client_hint(communism, _("Norway"), 0xab1659)
+norway:add_client_hint(socialism, _("Norway"), 0xab1659)
+norway:add_client_hint(fascism, _("Norway"), 0xab1659)
+norway:set_flag("westernized", 1.0)
 
 -- Formable nations
 scandinavia = Nation:new{ ref_name = "scandinavia" }
@@ -229,17 +249,6 @@ finland:register()
 finland:set_ideology(monarchy, "absolute_monarchy")
 finland:add_accepted_language(finnish)
 finland:add_client_hint(monarchy, _("Finland"), 0xb9ebeb)
-
-norway = Nation:new{ ref_name = "norway" }
-norway.name = _("Norway")
-norway.adjective = _("Norwegian")
-norway:register()
-norway:set_ideology(monarchy, "absolute_monarchy")
-norway:add_accepted_language(norwegian)
-norway:add_client_hint(monarchy, _("Norway"), 0xab1659)
-norway:add_client_hint(communism, _("Norway"), 0xab1659)
-norway:add_client_hint(socialism, _("Norway"), 0xab1659)
-norway:add_client_hint(fascism, _("Norway"), 0xab1659)
 
 aland = Nation:new{ ref_name = "aland" }
 aland.name = _("Åland")

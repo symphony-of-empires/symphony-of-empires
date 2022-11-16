@@ -46,29 +46,23 @@ Eng3D::Interface::ProfilerView::ProfilerView(Eng3D::State& _s, Eng3D::Profiler& 
         this->kill();
     });
 
-    float fps = this->profiler.get_fps();
-    auto& fps_lab = this->make_widget<UI::Label>(10, 0, "FPS: " + std::to_string((int)fps));
+    auto& fps_lab = this->make_widget<UI::Label>(10, 0, "?");
     fps_lab.on_update = ([this](UI::Widget& w) {
-        float current_fps = this->profiler.get_fps();
-        w.text("FPS: " + std::to_string((int)current_fps));
+        w.text(translate_format("FPS: %.2f", this->profiler.get_fps()));
     });
-
-    std::vector<UI::ChartData> data{};
-    auto tasks = this->profiler.get_tasks();
-    for(auto& task : tasks)
-        data.push_back(UI::ChartData(task->get_average_time_ms(), task->name, 0));
+    fps_lab.on_update(fps_lab);
 
     auto& task_chart = this->make_widget<UI::BarChart>(20, 20, this->width - 40, 20);
     task_chart.on_update = ([this](UI::Widget& w) {
         auto& chart = static_cast<UI::BarChart&>(w);
-        std::vector<UI::ChartData> current_data;
-        auto current_tasks = this->profiler.get_tasks();
-        for(auto& task : current_tasks) {
-            float time = task->get_average_time_ms();
-            current_data.push_back(UI::ChartData(time, task->name, Eng3D::Color::get_random(task->color).get_value()));
-        }
-        chart.set_data(current_data);
+        std::vector<UI::ChartData> data;
+        const auto& tasks = this->profiler.get_tasks();
+        std::transform(tasks.cbegin(), tasks.cend(), std::back_inserter(data), [](const auto& e) {
+            return UI::ChartData(e->get_average_time_ms(), e->name, Eng3D::Color::get_random(e->color).get_value());
+        });
+        chart.set_data(data);
     });
+    task_chart.on_update(task_chart);
 
     this->on_update = ([this](UI::Widget&) {
         auto current_tasks = this->profiler.get_tasks();
