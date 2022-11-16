@@ -77,7 +77,7 @@ constexpr auto scale_speed(auto c, auto target) {
 }
 
 // Updates supply, demand, and set wages for workers
-static void update_factory_production(World& world, Building& building, const BuildingType& building_type, Province& province, float& pop_payment, float& artisans_amount, float& artisan_payment, float& state_payment, float& private_payment)
+static void update_factory_production(World& world, Building& building, const BuildingType& building_type, Province& province, float& artisans_amount, float& artisan_payment)
 {
     // Barracks and so on
     if(Good::is_invalid(building_type.output_id)) return;
@@ -219,6 +219,8 @@ static void update_factories_employment(const World& world, Province& province, 
 /// @brief Calculate the budget that we spend on each needs
 void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& pop_needs, float& state_payment) {
     auto& nation = world.nations[province.controller_id];
+
+    std::vector<float> goods_payment(world.goods.size(), 0.f);
     for(size_t i = 0; i < province.pops.size(); i++) {
         auto& pop_need = pop_needs[i];
         auto& pop = province.pops[i];
@@ -249,15 +251,13 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
 
             pop_need.life_needs_met *= std::pow(amount, need_factor);
             const auto payment = province.products[good].buy(amount);
-            
-            for(const auto& building_type : world.building_types)
-                if(building_type.output_id == good.get_id())
-                    province.buildings[building_type].revenue.outputs += payment;
-
+            goods_payment[good] += payment;
             used_budget += payment;
             province.products[good].demand += amount;
         }
     }
+    for(const auto& building_type : world.building_types)
+        province.buildings[building_type].revenue.outputs += goods_payment[building_type.output_id];
 }
 
 void Economy::do_tick(World& world, EconomyState& economy_state) {
@@ -369,7 +369,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         for(auto& building_type : world.building_types) {
             auto& building = province.buildings[building_type];
             building.revenue.outputs = 0.f;
-            update_factory_production(world, building, building_type, province, laborers_payment, artisans_amount, artisans_payment, state_payment, private_payment);
+            update_factory_production(world, building, building_type, province, artisans_amount, artisans_payment);
         }
 
         for(size_t i = 0; i < province.pops.size(); i++) {
@@ -394,7 +394,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         update_pop_needs(world, province, new_needs, state_payment);
         for(auto& building_type : world.building_types) {
             auto& building = province.buildings[building_type];
-            update_factory_accounting(world, building, building_type, province, laborers_payment, artisans_amount, artisans_payment, state_payment, private_payment);
+            update_factory_accounting(world, building, building_type, province, laborers_payment, state_payment, private_payment);
         }
 
         paid_taxes.local().resize(world.nations.size());
