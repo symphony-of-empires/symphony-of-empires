@@ -40,8 +40,8 @@
 using namespace Interface;
 
 std::vector<ProvinceColor> terrain_map_mode(const World& world);
-mapmode_tooltip good_tooltip(GoodId id);
-mapmode_generator goods_map_mode(GoodId id);
+mapmode_tooltip commodity_tooltip(CommodityId id);
+mapmode_generator commodity_map_mode(CommodityId id);
 mapmode_generator relations_map_mode(NationId id);
 mapmode_tooltip relations_tooltip(NationId id);
 
@@ -300,7 +300,7 @@ Minimap::Minimap(GameState& _gs, int _x, int _y, UI::Origin _origin)
     auto* commodity_price_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
     commodity_price_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-        set_mapmode_options(new MapmodeGoodOptions(this->gs));
+        set_mapmode_options(new MapmodeCommodityOptions(this->gs));
     });
     commodity_price_ibtn->set_tooltip("Commodity");
 
@@ -308,13 +308,12 @@ Minimap::Minimap(GameState& _gs, int _x, int _y, UI::Origin _origin)
 }
 
 void Minimap::set_mapmode_options(Widget* widget) {
-    if(mapmode_options) {
+    if(mapmode_options)
         mapmode_options->kill();
-    }
     mapmode_options = widget;
 }
 
-MapmodeGoodOptions::MapmodeGoodOptions(GameState& _gs)
+MapmodeCommodityOptions::MapmodeCommodityOptions(GameState& _gs)
     : UI::Div(-200, -200, 200, 400, nullptr),
     gs{ _gs }
 {
@@ -324,30 +323,31 @@ MapmodeGoodOptions::MapmodeGoodOptions(GameState& _gs)
     auto border_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/border2.png"));
     this->border = UI::Border(border_tex, {4, 4}, {10, 10});
 
-    auto table = new UI::Table<GoodId::Type>(4, 4, 400 - 8, 35, {160}, {"Goods"}, this);
-    for(const auto& good : gs.world->goods) {
-        auto& row = table->get_row(good);
-        auto commodity = row.get_element(0);
-        commodity->flex = UI::Flex::ROW;
-        auto good_str = Eng3D::Locale::translate(good.name.get_string());
-        auto good_tex = gs.tex_man.load(gs.package_man.get_unique(good.get_icon_path()));
-        new UI::Image(0, 0, 35, 35, good_tex, commodity);
-        new UI::Label(0, 0, good_str, commodity);
-        commodity->set_key(good_str);
-        row.set_on_click([this, good](UI::Widget&) {
+    std::vector<int> sizes{160};
+    std::vector<std::string> header{"Goods"};
+    auto& table = this->make_widget<UI::Table<CommodityId::Type>>(4, 4, 400 - 8, 35, sizes, header);
+    for(const auto& commodity : gs.world->commodities) {
+        auto& row = table.get_row(commodity);
+        auto commodity_row = row.get_element(0);
+        commodity_row->flex = UI::Flex::ROW;
+        auto good_str = Eng3D::Locale::translate(commodity.name.get_string());
+        auto good_tex = gs.tex_man.load(gs.package_man.get_unique(commodity.get_icon_path()));
+        commodity_row->make_widget<UI::Image>(0, 0, 35, 35, good_tex);
+        commodity_row->make_widget<UI::Label>(0, 0, good_str);
+        commodity_row->set_key(good_str);
+        row.set_on_click([this, commodity_id = commodity.get_id()](UI::Widget&) {
             this->gs.current_mode = MapMode::NORMAL;
-            mapmode_generator map_mode = goods_map_mode(good);
-            mapmode_tooltip map_tooltip = good_tooltip(good);
+            mapmode_generator map_mode = commodity_map_mode(commodity_id);
+            mapmode_tooltip map_tooltip = commodity_tooltip(commodity_id);
             this->gs.map->set_map_mode(map_mode, map_tooltip);
         });
     }
-
-    mapmode_generator map_mode = goods_map_mode(GoodId(0));
-    mapmode_tooltip map_tooltip = good_tooltip(GoodId(0));
+    mapmode_generator map_mode = commodity_map_mode(CommodityId(0));
+    mapmode_tooltip map_tooltip = commodity_tooltip(CommodityId(0));
     this->gs.map->set_map_mode(map_mode, map_tooltip);
 }
 
-mapmode_tooltip good_tooltip(GoodId good_id) {
+mapmode_tooltip commodity_tooltip(CommodityId good_id) {
     return [good_id](const World& world, const ProvinceId id) -> std::string {
         const auto& province = world.provinces[id];
         if(Nation::is_invalid(province.controller_id)) return "";
@@ -362,7 +362,7 @@ mapmode_tooltip good_tooltip(GoodId good_id) {
     };
 }
 
-mapmode_generator goods_map_mode(GoodId id) {
+mapmode_generator commodity_map_mode(CommodityId id) {
     return [id](const World& world) {
         std::vector<std::pair<ProvinceId, float>> province_amounts;
         auto max_price = glm::epsilon<float>();

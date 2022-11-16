@@ -1,0 +1,22 @@
+Credits to Pattrck - made ui icons and graphical interface style in photoshop
+
+water_tex
+	http://www.cadhatch.com/terms-of-use/4588167704
+
+terrain_sheet
+	http://howintheworld.com/textures/
+
+gfx/military_score
+gfx/military_tech
+gfx/navy
+gfx/navy_tech
+gfx/production
+gfx/airforce
+gfx/new_unit
+gfx/naval_score
+gfx/cursor_b
+	Credits to Pattrck - made ui icons and graphical interface style in photoshop
+
+gfx/pop
+gfx/factory
+	By _JERUME

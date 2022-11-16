@@ -30,12 +30,12 @@
 #include "province.hpp"
 
 /// @brief Checks if the building can produce output (if it has enough input)
-bool Building::can_do_output(const Province& province, const std::vector<GoodId>& inputs) const {
+bool Building::can_do_output(const Province& province, const std::vector<CommodityId>& inputs) const {
     auto& world = World::get_instance();
     // Check that we have enough stockpile
-    for(const auto& good : world.goods)
-        if(std::find(std::begin(inputs), std::end(inputs), good.get_id()) != std::end(inputs))
-            if(province.products[good].supply == 0.f)
+    for(const auto& commodity : world.commodities)
+        if(std::find(std::begin(inputs), std::end(inputs), commodity.get_id()) != std::end(inputs))
+            if(province.products[commodity].supply == 0.f)
                 return false;
     return this->level > 0.f;
 }

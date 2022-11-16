@@ -33,7 +33,7 @@
 #include "objects.hpp"
 
 class Nation;
-class Good;
+class Commodity;
 class Province;
 class World;
 
@@ -49,7 +49,7 @@ struct UnitType : RefnameEntity<UnitTypeId> {
     float capacity; // Capacity of units that can be carried (transport units)
     bool is_ground; // Can go on ground?
     bool is_naval; // Can go on water?
-    std::vector<std::pair<GoodId, float>> req_goods; // Required goods
+    std::vector<std::pair<CommodityId, float>> req_goods; // Required commodities
     std::string get_icon_path() const {
         return string_format("gfx/unittype/%s.png", ref_name.c_str());
     }

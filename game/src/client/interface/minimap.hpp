@@ -38,10 +38,10 @@ namespace Interface {
         Minimap(GameState& gs, int x, int y, UI::Origin origin);
     };
 
-    class MapmodeGoodOptions: public UI::Div {
+    class MapmodeCommodityOptions: public UI::Div {
         GameState& gs;
         Minimap* minimap;
     public:
-        MapmodeGoodOptions(GameState& gs);
+        MapmodeCommodityOptions(GameState& gs);
     };
 };

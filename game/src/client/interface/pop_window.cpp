@@ -34,16 +34,16 @@
 std::string pop_qol_tooltip_text(const Pop& pop, const World* world) {
     std::string text = Eng3D::translate_format("Quality of life: %.3f", pop.life_needs_met);
     text += "\n\n";
-    text += "Need for goods,";
+    text += "Need for commodities,";
 
     const auto& needs_amounts = world->pop_types[pop.type_id].basic_needs_amount;
     auto total_factor = std::reduce(needs_amounts.begin(), needs_amounts.end());
-    for (const auto& good : world->goods) {
-        if (needs_amounts[good] == 0) continue;
+    for (const auto& commodity : world->commodities) {
+        if (needs_amounts[commodity] == 0) continue;
         text += "\n";
 
-        const auto need_factor = needs_amounts[good] / total_factor;
-        text += Eng3D::translate_format("%s: %.3f", good.name.c_str(), need_factor);
+        const auto need_factor = needs_amounts[commodity] / total_factor;
+        text += Eng3D::translate_format("%s: %.3f", commodity.name.c_str(), need_factor);
     }
     return text;
 }

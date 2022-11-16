@@ -48,14 +48,14 @@ function BuildingType:get(ref_name)
 	o.ref_name = ref_name
 	return o
 end
-function BuildingType:add_input(good)
-	add_input_to_industry_type(self.id, good.id)
+function BuildingType:add_input(commodity)
+	add_input_to_industry_type(self.id, commodity.id)
 end
-function BuildingType:add_output(good)
-	add_output_to_industry_type(self.id, good.id)
+function BuildingType:add_output(commodity)
+	add_output_to_industry_type(self.id, commodity.id)
 end
-function BuildingType:requires_good(good, amount)
-	add_req_good_to_industry_type(self.id, good.id, amount)
+function BuildingType:requires_good(commodity, amount)
+	add_req_good_to_industry_type(self.id, commodity.id, amount)
 end
 function BuildingType:requires_tech(tech, amount)
 	add_req_technology_to_industry_type(self.id, tech.id)

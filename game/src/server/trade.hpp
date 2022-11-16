@@ -47,7 +47,7 @@ namespace Economy {
         float get_trade_cost(const Province& province1, const Province& province2, glm::vec2 world_size) const;
 
         /// @brief Cost-evaluatable provinces, we discard sea and ocean provinces
-        /// from this formula to save space and time since goods directly transport
+        /// from this formula to save space and time since commodities directly transport
         /// to the land provinces
         std::vector<ProvinceId> cost_eval;
         std::vector<std::vector<float>> trade_costs;

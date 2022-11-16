@@ -51,8 +51,8 @@ end
 function UnitType:register()
     self.id = add_unit_type(self.ref_name, self.name, self.attack, self.defense, self.health, self.is_ground, self.is_naval, self.speed)
 end
-function UnitType:requires_good(good, amount)
-    add_req_good_unit_type(self.id, good.id, amount)
+function UnitType:requires_good(commodity, amount)
+    add_req_good_unit_type(self.id, commodity.id, amount)
 end
 
 BoatType = UnitType

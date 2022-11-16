@@ -31,17 +31,17 @@
 #include <glm/gtx/compatibility.hpp>
 #include "objects.hpp"
 
-/// @brief A good, mostly serves as a "product type"
-struct Good : RefnameEntity<GoodId> {
+/// @brief A commodity, mostly serves as a "product type"
+struct Commodity : RefnameEntity<CommodityId> {
     Eng3D::StringRef name;
     std::string get_icon_path() const {
-        return string_format("gfx/good/%s.png", ref_name.c_str());
+        return string_format("gfx/commodity/%s.png", ref_name.c_str());
     }
 };
 template<>
-struct Eng3D::Deser::Serializer<Good> {
+struct Eng3D::Deser::Serializer<Commodity> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Good>::type;
+    using type = Eng3D::Deser::CondConstType<is_const, Commodity>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -50,7 +50,7 @@ struct Eng3D::Deser::Serializer<Good> {
     }
 };
 
-/// @brief A product (based off a Good) which can be bought by POPs, converted by factories and transported
+/// @brief A product (based off a Commodity) which can be bought by POPs, converted by factories and transported
 struct Product : Entity<ProductId> {
     static constexpr float get_price_delta(float supply, float demand) {
         constexpr auto price_elasticity = 0.01f;

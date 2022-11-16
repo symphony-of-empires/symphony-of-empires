@@ -25,7 +25,7 @@
 
 require('classes/technology')
 require('classes/ideology')
-require('classes/good')
+require('classes/commodity')
 require('classes/province')
 require('classes/nation')
 
@@ -308,6 +308,24 @@ function table.remove_if(t, f)
         end
     end
     return t
+end
+
+function table.find(t, _v)
+    for k, v in pairs(t) do
+        if v == _v then
+            return k
+        end
+    end
+    return nil
+end
+
+function table.find_if(t, f)
+    for k, v in pairs(t) do
+        if f(v) == true then
+            return k
+        end
+    end
+    return nil
 end
 
 function translate(str)

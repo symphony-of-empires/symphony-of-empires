@@ -27,13 +27,13 @@
 local v = {}
 v=UnitType:new{ref_name="garrison",name=_("Garrison"),defense=1.300000,attack=1.100000,health=100.000000,speed=0.500000}
 v:register()
-v:requires_good(Good:get("arms"), 1.000000)
+v:requires_good(Commodity:get("arms"), 1.000000)
 v=UnitType:new{ref_name="infantry",name=_("Infantry"),defense=1.500000,attack=1.200000,health=100.000000,speed=0.500000}
 v:register()
-v:requires_good(Good:get("arms"), 1.000000)
+v:requires_good(Commodity:get("arms"), 1.000000)
 v=UnitType:new{ref_name="cavalry",name=_("Cavalry"),defense=1.200000,attack=1.150000,health=50.000000,speed=0.500000}
 v:register()
-v:requires_good(Good:get("arms"), 2.000000)
+v:requires_good(Commodity:get("arms"), 2.000000)
 v=UnitType:new{ref_name="artillery",name=_("Artillery"),defense=1.200000,attack=1.150000,health=50.000000,speed=0.500000}
 v:register()
-v:requires_good(Good:get("arms"), 4.000000)
+v:requires_good(Commodity:get("arms"), 4.000000)

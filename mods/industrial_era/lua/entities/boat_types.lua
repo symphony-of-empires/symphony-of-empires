@@ -27,16 +27,16 @@
 local v = {}
 v=BoatType:new{ref_name="clipper",name=_("Clipper"),defense=10.000000,attack=10.000000,health=100.000000,speed=0.500000}
 v:register()
-v:requires_good(Good:get("arms"), 800.000000)
-v:requires_good(Good:get("timber"), 20.000000)
+v:requires_good(Commodity:get("arms"), 800.000000)
+v:requires_good(Commodity:get("timber"), 20.000000)
 v=BoatType:new{ref_name="barque",name=_("Barque"),defense=15.000000,attack=10.000000,health=200.000000,speed=0.500000}
 v:register()
-v:requires_good(Good:get("arms"), 800.000000)
-v:requires_good(Good:get("timber"), 20.000000)
+v:requires_good(Commodity:get("arms"), 800.000000)
+v:requires_good(Commodity:get("timber"), 20.000000)
 v=BoatType:new{ref_name="sloop_of_war",name=_("Sloop of war"),defense=40.000000,attack=20.000000,health=400.000000,speed=0.500000}
 v:register()
-v:requires_good(Good:get("timber"), 1000.000000)
+v:requires_good(Commodity:get("timber"), 1000.000000)
 v=BoatType:new{ref_name="man_of_war",name=_("Man of war"),defense=20.000000,attack=20.000000,health=500.000000,speed=0.500000}
 v:register()
-v:requires_good(Good:get("arms"), 1500.000000)
-v:requires_good(Good:get("timber"), 130.000000)
+v:requires_good(Commodity:get("arms"), 1500.000000)
+v:requires_good(Commodity:get("timber"), 130.000000)

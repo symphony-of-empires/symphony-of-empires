@@ -188,3 +188,11 @@ end
 function Province:set_religion(religion, pc)
 	set_province_religion(self.id, religion.id, pc)
 end
+
+function Province:is_owned_by(...)
+	local nations = table.pack(...)
+	print("TODO: Implement is_owned_by")
+end
+function Province:rename_to(new_name)
+	print("TODO: Implement rename_to")
+end

@@ -547,7 +547,7 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
             switch(gs.current_mode) {
                 case MapMode::NORMAL:
                     if(this->selector) {
-                        /// @todo Good selector function
+                        /// @todo Commodity selector function
                         this->selector(*gs.world, *this, gs.world->provinces[province_id]);
                         break;
                     }

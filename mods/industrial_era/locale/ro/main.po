@@ -5092,7 +5092,7 @@ msgstr "Wyoming de vest"
 #. eapcp_evhdl:add_receivers(unpack(Nation:get_all()))
 #. The [OWNER_NOUN]s
 #.
-#. Good types
+#. Commodity types
 #. Farmable stuff
 #: good_types.lua:4
 msgid "Wheat"

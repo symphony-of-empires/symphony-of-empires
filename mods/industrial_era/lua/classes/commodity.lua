@@ -17,28 +17,28 @@
 --
 -- ----------------------------------------------------------------------------
 --	Name:
---  	good.lua
+--  	commodity.lua
 --
 -- 	Abstract:
 --      Does important stuff
 -- ----------------------------------------------------------------------------
 
-Good = {
+Commodity = {
 	id = 0,
 	name = "",
 	ref_name = ""
 }
-function Good:new(o)
+function Commodity:new(o)
 	local o = o or {}
 	setmetatable(o, self)
 	self.__index = self
 	return o
 end
-function Good:register()
+function Commodity:register()
 	self.id = add_good(self.ref_name, self.name)
 end
-function Good:get(ref_name)
-	local o = Good:new()
+function Commodity:get(ref_name)
+	local o = Commodity:new()
 	o.id, o.name = get_good(ref_name)
 	o.ref_name = ref_name
 	return o

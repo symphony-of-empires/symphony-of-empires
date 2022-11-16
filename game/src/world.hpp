@@ -132,7 +132,7 @@ public:
     void load_mod();
     Eng3D::Profiler profiler;
 
-    LIST_FOR_LOCAL_TYPE(Good, goods, std::vector)
+    LIST_FOR_LOCAL_TYPE(Commodity, commodities, std::vector)
     LIST_FOR_LOCAL_TYPE(Language, languages, std::vector)
     LIST_FOR_LOCAL_TYPE(PopType, pop_types, std::vector)
     LIST_FOR_LOCAL_TYPE(UnitType, unit_types, std::vector)
@@ -240,7 +240,7 @@ struct Eng3D::Deser::Serializer<World> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.width);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.height);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.time);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.goods);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.commodities);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.unit_types);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.religions);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.languages);

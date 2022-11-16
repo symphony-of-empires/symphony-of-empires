@@ -29,82 +29,82 @@
 oil_refinery = IndustryType:new{ ref_name = "oil_refinery", name = _("Oil refinery") }
 oil_refinery:register()
 -- thin air oil, i think the air needs some democracy!
-oil_refinery:add_output(Good:get("oil"))
+oil_refinery:add_output(Commodity:get("oil"))
 
 lumberjack = IndustryType:new{ ref_name = "lumberjack", name = _("Lumberjack") }
 lumberjack:register()
 -- same logic here
-lumberjack:add_output(Good:get("timber"))
+lumberjack:add_output(Commodity:get("timber"))
 
 fuel_factory = IndustryType:new{ ref_name = "fuel_factory", name = _("Fuel factory") }
 fuel_factory:register()
-fuel_factory:add_output(Good:get("fuel"))
+fuel_factory:add_output(Commodity:get("fuel"))
 
 wheat_farm = IndustryType:new{ ref_name = "wheat_farm", name = _("Wheat farm") }
 wheat_farm:register()
-wheat_farm:add_output(Good:get("wheat"))
+wheat_farm:add_output(Commodity:get("wheat"))
 
 rice_farm = IndustryType:new{ ref_name = "rice_farm", name = _("Rice farm") }
 rice_farm:register()
-rice_farm:add_output(Good:get("rice"))
+rice_farm:add_output(Commodity:get("rice"))
 
 cotton_farm = IndustryType:new{ ref_name = "cotton_farm", name = _("Cotton farm") }
 cotton_farm:register()
-cotton_farm:add_output(Good:get("cotton"))
+cotton_farm:add_output(Commodity:get("cotton"))
 
 coffee_bean_farm = IndustryType:new{ ref_name = "coffee_bean_farm", name = _("Coffee bean farm") }
 coffee_bean_farm:register()
-coffee_bean_farm:add_output(Good:get("coffee"))
+coffee_bean_farm:add_output(Commodity:get("coffee"))
 
 -- Mines
 coal_mine = IndustryType:new{ ref_name = "coal_mine", name = _("Coal mine") }
 coal_mine:register()
-coal_mine:add_output(Good:get("coal"))
+coal_mine:add_output(Commodity:get("coal"))
 
 iron_mine = IndustryType:new{ ref_name = "iron_mine", name = _("Iron mine") }
 iron_mine:register()
-iron_mine:add_output(Good:get("iron"))
+iron_mine:add_output(Commodity:get("iron"))
 
 gold_mine = IndustryType:new{ ref_name = "gold_mine", name = _("Gold mine") }
 gold_mine:register()
-gold_mine:add_output(Good:get("gold"))
+gold_mine:add_output(Commodity:get("gold"))
 
 sulphur_mine = IndustryType:new{ ref_name = "sulphur_mine", name = _("Sulfur mine") }
 sulphur_mine:register()
-sulphur_mine:add_output(Good:get("sulphur"))
+sulphur_mine:add_output(Commodity:get("sulphur"))
 
 -- Secondary sector industries
 arms_factory = IndustryType:new{ ref_name = "arms_factory", name = _("Arms factory") }
 arms_factory:register()
-arms_factory:add_input(Good:get("iron"))
-arms_factory:add_input(Good:get("sulphur"))
-arms_factory:add_output(Good:get("arms"))
+arms_factory:add_input(Commodity:get("iron"))
+arms_factory:add_input(Commodity:get("sulphur"))
+arms_factory:add_output(Commodity:get("arms"))
 
 winery = IndustryType:new{ ref_name = "winery", name = _("Winery") }
 winery:register()
-winery:add_output(Good:get("wine"))
+winery:add_output(Commodity:get("wine"))
 
 dye_factory = IndustryType:new{ ref_name = "dye_factory", name = _("Dye factory") }
 dye_factory:register()
-dye_factory:add_output(Good:get("dye"))
+dye_factory:add_output(Commodity:get("dye"))
 
 -- Plantations
 silk_plantation = IndustryType:new{ ref_name = "silk_plantation", name = _("Silk plantation") }
 silk_plantation:register()
-silk_plantation:add_output(Good:get("silk"))
+silk_plantation:add_output(Commodity:get("silk"))
 
 spices_plantation = IndustryType:new{ ref_name = "spices_plantation", name = _("Spices plantation") }
 spices_plantation:register()
-spices_plantation:add_output(Good:get("spices"))
+spices_plantation:add_output(Commodity:get("spices"))
 
 opium_plantation = IndustryType:new{ ref_name = "opium_plantation", name = _("Opium plantation") }
 opium_plantation:register()
-opium_plantation:add_output(Good:get("opium"))
+opium_plantation:add_output(Commodity:get("opium"))
 
 -- Food factories
 bakery = IndustryType:new{ ref_name = "bakery", name = _("Bakery") }
 bakery:register()
-bakery:add_input(Good:get("wheat"))
-bakery:add_output(Good:get("bread"))
+bakery:add_input(Commodity:get("wheat"))
+bakery:add_output(Commodity:get("bread"))
 
 

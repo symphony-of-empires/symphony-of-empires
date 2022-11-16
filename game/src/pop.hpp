@@ -87,9 +87,9 @@ struct PopType : RefnameEntity<PopTypeId> {
     Eng3D::StringRef name;
     float social_value = 1.f;
     enum PopGroup group = PopGroup::OTHER;
-    std::vector<float> basic_needs_amount; // Amount of goods needed to satisfy basic needs
-    std::vector<float> luxury_needs_satisfaction; // Amount of satisfaction each luxury good gives
-    std::vector<float> luxury_needs_deminishing_factor; // Deminishing returns factor of the luxury good satisfaction
+    std::vector<float> basic_needs_amount; // Amount of commodities needed to satisfy basic needs
+    std::vector<float> luxury_needs_satisfaction; // Amount of satisfaction each luxury commodity gives
+    std::vector<float> luxury_needs_deminishing_factor; // Deminishing returns factor of the luxury commodity satisfaction
 };
 template<>
 struct Eng3D::Deser::Serializer<PopType> {

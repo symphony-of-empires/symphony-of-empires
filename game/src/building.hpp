@@ -59,10 +59,10 @@ struct BuildingType : RefnameEntity<BuildingTypeId> {
     // and multiply it by the level of the factory - this is the **minimum** amount of employed
     // people we should have at a time
     float num_req_workers = 0.f;
-    GoodId output_id; // Good that this building creates
-    std::vector<GoodId> input_ids; // Goods required to create output
-    // Required goods, first describes the id of the good and the second describes how many
-    std::vector<std::pair<GoodId, float>> req_goods;
+    CommodityId output_id; // Commodity that this building creates
+    std::vector<CommodityId> input_ids; // Goods required to create output
+    // Required commodities, first describes the id of the commodity and the second describes how many
+    std::vector<std::pair<CommodityId, float>> req_goods;
     std::vector<TechnologyId> req_technologies; // Required technologies to build
 };
 template<>
@@ -88,7 +88,7 @@ class Province;
 /// @brief A military outpost, on land serves as a "spawn" place for units
 /// When adjacent to a water tile this serves as a shipyard for spawning naval units
 struct Building : Entity<BuildingId> {
-    bool can_do_output(const Province& province, const std::vector<GoodId>& inputs) const;
+    bool can_do_output(const Province& province, const std::vector<CommodityId>& inputs) const;
 
     bool can_build_unit() const {
         for(const auto& [k, v] : req_goods_for_unit)
@@ -146,11 +146,11 @@ struct Building : Entity<BuildingId> {
     float workers = 1.f; // Amount of workers
     float production_scale = 1.f; // How much of the factory is being used. From 0-1
     UnitTypeId working_unit_type_id; // Unit that is currently being built here (nullptr indicates no unit)
-    // Required goods for building the working unit
+    // Required commodities for building the working unit
     // change this to a struct instead of a pair for readablity
-    std::vector<std::pair<GoodId, float>> req_goods_for_unit;
-    // Required goods for construction or for repairs
-    std::vector<std::pair<GoodId, float>> req_goods;
+    std::vector<std::pair<CommodityId, float>> req_goods_for_unit;
+    // Required commodities for construction or for repairs
+    std::vector<std::pair<CommodityId, float>> req_goods;
 
     // Bookkeeping
     struct {

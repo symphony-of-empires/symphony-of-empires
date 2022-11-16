@@ -76,7 +76,7 @@ void ProvincePopulationTab::update_piecharts() {
     pop_types_pie->set_data(pop_types_data);
 }
 
-UI::Widget* ProvincePopulationTab::create_pop_table() {
+UI::Widget& ProvincePopulationTab::create_pop_table() {
     std::vector<int> sizes{ 64, 96 };
     std::vector<std::string> header{ "Size", "Budget" };
     if(gs.editor) {
@@ -84,12 +84,12 @@ UI::Widget* ProvincePopulationTab::create_pop_table() {
         header.push_back(" ");
     }
 
-    auto* pop_table = new UI::Table<uint32_t>(0, 352, this->height - (352 + 32), 30, sizes, header, this);
-    pop_table->reserve(this->province.pops.size());
-    pop_table->set_on_each_tick([this, pop_table](UI::Widget&) {
+    auto& pop_table = this->make_widget<UI::Table<uint32_t>>(0, 352, this->height - (352 + 32), 30, sizes, header);
+    pop_table.reserve(this->province.pops.size());
+    pop_table.set_on_each_tick([this, &pop_table](UI::Widget&) {
         for(size_t i = 0; i < this->province.pops.size(); i++) {
             auto& pop = this->province.pops[i];
-            auto& row = pop_table->get_row(i);
+            auto& row = pop_table.get_row(i);
             size_t row_index = 0;
 
             auto* size = row.get_element(row_index++);
@@ -109,33 +109,33 @@ UI::Widget* ProvincePopulationTab::create_pop_table() {
                 auto remove_btn_str = "X";
                 remove_btn->text(remove_btn_str);
                 remove_btn->set_key(remove_btn_str);
-                remove_btn->set_on_click([this, i, pop_table](UI::Widget&) {
-                    pop_table->remove_row(i);
+                remove_btn->set_on_click([this, i, &pop_table](UI::Widget&) {
+                    pop_table.remove_row(i);
                     const_cast<Province&>(this->province).pops[i].size = 0.f;
-                    pop_table->on_each_tick(*pop_table);
+                    pop_table.on_each_tick(pop_table);
                 });
             }
         }
     });
-    pop_table->on_each_tick(*pop_table);
+    pop_table.on_each_tick(pop_table);
     return pop_table;
 }
 
-UI::Widget* ProvincePopulationTab::create_stock_table() {
+UI::Widget& ProvincePopulationTab::create_stock_table() {
     std::vector<int> sizes{ 100, 100, 100, 100, 100 };
     std::vector<std::string> header{ "Commodity", "Amount", "Demand", "Price", "Change" };
-    auto* stock_table = new UI::Table<uint32_t>(0, 352, this->height - (352 + 32), 30, sizes, header, this);
-    stock_table->reserve(this->province.pops.size());
-    stock_table->set_on_each_tick([this, stock_table](UI::Widget&) {
-        for(const auto& good : this->gs.world->goods) {
-            auto& product = this->province.products[good];
-            auto& row = stock_table->get_row(good.get_id());
+    auto& stock_table = this->make_widget<UI::Table<uint32_t>>(0, 352, this->height - (352 + 32), 30, sizes, header);
+    stock_table.reserve(this->province.pops.size());
+    stock_table.set_on_each_tick([this, &stock_table](UI::Widget&) {
+        for(const auto& commodity : this->gs.world->commodities) {
+            auto& product = this->province.products[commodity];
+            auto& row = stock_table.get_row(commodity.get_id());
             size_t row_index = 0;
 
-            auto* commodity = row.get_element(row_index++);
-            commodity->set_key(good.name.c_str());
-            auto& commodity_img = commodity->make_widget<UI::Image>(0, 0, 35, 35, good.get_icon_path(), true);
-            commodity_img.set_tooltip(good.name);
+            auto* commodity_row = row.get_element(row_index++);
+            commodity_row->set_key(commodity.name.c_str());
+            auto& commodity_img = commodity_row->make_widget<UI::Image>(0, 0, 35, 35, commodity.get_icon_path(), true);
+            commodity_img.set_tooltip(commodity.name);
 
             auto* amount = row.get_element(row_index++);
             amount->text(string_format("%.0f", product.supply));
@@ -155,7 +155,7 @@ UI::Widget* ProvincePopulationTab::create_stock_table() {
 
         }
     });
-    stock_table->on_each_tick(*stock_table);
+    stock_table.on_each_tick(stock_table);
     return stock_table;
 }
 
@@ -192,9 +192,9 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int _x, int _y, Pro
         owner_flag.set_tooltip(translate_format("%s has claims on this province", nucleus.name.c_str()));
     }
 
-    auto *pop_table = create_pop_table();
-    auto *stock_table = create_stock_table();
-    stock_table->right_side_of(*pop_table);
+    auto& pop_table = create_pop_table();
+    auto& stock_table = create_stock_table();
+    stock_table.right_side_of(pop_table);
 
     auto* languages_lab = new UI::Label(0, 0, "Languages", this);
     languages_lab->below_of(landscape_img);
@@ -214,7 +214,6 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int _x, int _y, Pro
     this->pop_types_pie = new UI::PieChart(0, 0, 96, 96, this);
     this->pop_types_pie->below_of(*pop_types_lab);
     this->pop_types_pie->right_side_of(*this->religions_pie);
-
 
     this->set_on_each_tick([this](UI::Widget&) {
         this->update_piecharts();

@@ -130,7 +130,7 @@ public:
     SubideologyId subideology_id; // Current subideology
     TechnologyId focus_tech_id; // Current tech being researched
     Policies current_policy; // Current policy of this nation
-    std::vector<float> commodity_production; // Commodity production for each good
+    std::vector<float> commodity_production; // Commodity production for each commodity
     uint16_t diplomatic_timer; // Time until a diplomacy can be done
     // Accepted languages in this nation, the accepted languages may have some bonuses on provinces *totally*
     // owned by this nation

@@ -28,12 +28,12 @@
 #include "eng3d/entity.hpp"
 #include "eng3d/serializer.hpp"
 
-struct GoodId : EntityId<uint8_t> {
-    GoodId() = default;
-    GoodId(size_t _id) : EntityId(_id) {}
+struct CommodityId : EntityId<uint8_t> {
+    CommodityId() = default;
+    CommodityId(size_t _id) : EntityId(_id) {}
 };
 template<>
-struct Eng3D::Deser::Serializer<GoodId> : Eng3D::Deser::SerializerMemcpy<GoodId> {};
+struct Eng3D::Deser::Serializer<CommodityId> : Eng3D::Deser::SerializerMemcpy<CommodityId> {};
 
 struct ProductId : EntityId<uint8_t> {
     ProductId() = default;

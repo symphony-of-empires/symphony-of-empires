@@ -121,17 +121,17 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
             inputs->flex = UI::Flex::ROW;
             inputs->flex_justify = UI::FlexJustify::START;
             for(auto good_id : type.input_ids) {
-                auto& good = gs.world->goods[good_id];
-                auto& input_img = inputs->make_widget<UI::Image>(0, 0, 35, 35, good.get_icon_path(), true);
-                input_img.set_tooltip(good.name);
+                auto& commodity = gs.world->commodities[good_id];
+                auto& input_img = inputs->make_widget<UI::Image>(0, 0, 35, 35, commodity.get_icon_path(), true);
+                input_img.set_tooltip(commodity.name);
             }
 
             auto* outputs = row.get_element(row_index++);
             outputs->set_key(type.output_id);
             outputs->flex = UI::Flex::ROW;
             outputs->flex_justify = UI::FlexJustify::START;
-            if(Good::is_valid(type.output_id)) {
-                auto& output = gs.world->goods[type.output_id];
+            if(Commodity::is_valid(type.output_id)) {
+                auto& output = gs.world->commodities[type.output_id];
                 auto& output_img = outputs->make_widget<UI::Image>(0, 0, 35, 35, output.get_icon_path(), true);
                 output_img.set_tooltip(output.name);
             }

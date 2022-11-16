@@ -211,41 +211,41 @@ int LuaAPI::add_good(lua_State* L) {
     if(g_world.needs_to_sync)
         luaL_error(L, "MP-Sync in this function is not supported");
 
-    Good good{};
-    good.ref_name = luaL_checkstring(L, 1);
-    good.name = luaL_checkstring(L, 2);
-    g_world.insert(good);
-    lua_pushnumber(L, g_world.goods.size() - 1);
+    Commodity commodity{};
+    commodity.ref_name = luaL_checkstring(L, 1);
+    commodity.name = luaL_checkstring(L, 2);
+    g_world.insert(commodity);
+    lua_pushnumber(L, g_world.commodities.size() - 1);
     return 1;
 }
 
 int LuaAPI::get_good(lua_State* L) {
-    const auto& good = find_or_throw<Good>(luaL_checkstring(L, 1));
-    lua_pushnumber(L, (size_t)g_world.get_id(good));
-    lua_pushstring(L, good.name.c_str());
+    const auto& commodity = find_or_throw<Commodity>(luaL_checkstring(L, 1));
+    lua_pushnumber(L, (size_t)g_world.get_id(commodity));
+    lua_pushstring(L, commodity.name.c_str());
     return 2;
 }
 
 int LuaAPI::add_input_to_industry_type(lua_State* L) {
     auto& industry_type = g_world.building_types.at(lua_tonumber(L, 1));
-    auto& good = g_world.goods.at(lua_tonumber(L, 2));
-    industry_type.input_ids.push_back(good);
+    auto& commodity = g_world.commodities.at(lua_tonumber(L, 2));
+    industry_type.input_ids.push_back(commodity);
     industry_type.num_req_workers += 100;
     return 0;
 }
 
 int LuaAPI::add_output_to_industry_type(lua_State* L) {
     auto& industry_type = g_world.building_types.at(lua_tonumber(L, 1));
-    auto& good = g_world.goods.at(lua_tonumber(L, 2));
-    industry_type.output_id = good;
+    auto& commodity = g_world.commodities.at(lua_tonumber(L, 2));
+    industry_type.output_id = commodity;
     industry_type.num_req_workers += 100;
     return 0;
 }
 
 int LuaAPI::add_req_good_to_industry_type(lua_State* L) {
     auto& industry_type = g_world.building_types.at(lua_tonumber(L, 1));
-    auto& good = g_world.goods.at(lua_tonumber(L, 2));
-    industry_type.req_goods.emplace_back(good, lua_tonumber(L, 3));
+    auto& commodity = g_world.commodities.at(lua_tonumber(L, 2));
+    industry_type.req_goods.emplace_back(commodity, lua_tonumber(L, 3));
     return 0;
 }
 
@@ -264,7 +264,7 @@ int LuaAPI::add_nation(lua_State* L) {
     nation.ref_name = luaL_checkstring(L, 1);
     nation.name = luaL_checkstring(L, 2);
     nation.ideology_id = IdeologyId(0);
-    nation.commodity_production.resize(g_world.goods.size(), 1.f);
+    nation.commodity_production.resize(g_world.commodities.size(), 1.f);
     nation.religion_discrim.resize(g_world.religions.size(), 0.5f);
     nation.language_acceptance.resize(g_world.languages.size(), 0.5f);
     nation.client_hints.resize(g_world.ideologies.size());
@@ -431,7 +431,7 @@ int LuaAPI::add_province(lua_State* L) {
     province.terrain_type_id = TerrainTypeId(lua_tonumber(L, 4));
 
     // Load rgo_size
-    province.rgo_size.resize(g_world.goods.size(), 0);
+    province.rgo_size.resize(g_world.commodities.size(), 0);
     luaL_checktype(L, 5, LUA_TTABLE);
     size_t n_rgo_size = lua_rawlen(L, 5);
     for(size_t i = 1; i <= n_rgo_size; i++) {
@@ -441,14 +441,14 @@ int LuaAPI::add_province(lua_State* L) {
         
         {
             lua_rawgeti(L, -1, 1);
-            const Good& good = find_or_throw<Good>(luaL_checkstring(L, -1));
+            const Commodity& commodity = find_or_throw<Commodity>(luaL_checkstring(L, -1));
             lua_pop(L, 1);
 
             lua_rawgeti(L, -1, 2);
             const uint32_t amount = (uint32_t)lua_tonumber(L, -1);
             lua_pop(L, 1);
 
-            province.rgo_size[good] = amount;
+            province.rgo_size[commodity] = amount;
         }
         lua_pop(L, 1);
     }
@@ -462,7 +462,7 @@ int LuaAPI::add_province(lua_State* L) {
         }
     }
     
-    province.products.resize(g_world.goods.size(), Product{});
+    province.products.resize(g_world.commodities.size(), Product{});
     province.languages.resize(g_world.languages.size(), 0.f);
     province.religions.resize(g_world.religions.size(), 0.f);
     province.buildings.resize(g_world.building_types.size());
@@ -511,7 +511,7 @@ int LuaAPI::get_province(lua_State* L) {
         if(province.rgo_size[i] != 0) {
             lua_pushnumber(L, index++);
             lua_newtable(L);
-            append_to_table(L, 1, g_world.goods[i].ref_name.c_str());
+            append_to_table(L, 1, g_world.commodities[i].ref_name.c_str());
             append_to_table(L, 2, province.rgo_size[i]);
             lua_settable(L, -3);
         }
@@ -531,7 +531,7 @@ int LuaAPI::get_province_by_id(lua_State* L) {
         if(province.rgo_size[i] != 0) {
             lua_pushnumber(L, index++);
             lua_newtable(L);
-            append_to_table(L, 1, g_world.goods[i].ref_name.c_str());
+            append_to_table(L, 1, g_world.commodities[i].ref_name.c_str());
             append_to_table(L, 2, province.rgo_size[i]);
             lua_settable(L, -3);
         }
@@ -764,9 +764,9 @@ int LuaAPI::add_pop_type(lua_State* L) {
     else if(is_artisan) pop_type.group = PopGroup::ARTISAN;
     else pop_type.group = PopGroup::OTHER;
 
-    pop_type.basic_needs_amount.resize(g_world.goods.size(), 0.f);
-    pop_type.luxury_needs_satisfaction.resize(g_world.goods.size(), 0.f);
-    pop_type.luxury_needs_deminishing_factor.resize(g_world.goods.size(), 0.f);
+    pop_type.basic_needs_amount.resize(g_world.commodities.size(), 0.f);
+    pop_type.luxury_needs_satisfaction.resize(g_world.commodities.size(), 0.f);
+    pop_type.luxury_needs_deminishing_factor.resize(g_world.commodities.size(), 0.f);
 
     // Lua next = pops top and then pushes key & value in table
     lua_pushvalue(L, 9);
@@ -774,11 +774,11 @@ int LuaAPI::add_pop_type(lua_State* L) {
     while(lua_next(L, -2)) {
         lua_pushnil(L);
         lua_next(L, -2);
-        const auto& good = find_or_throw<Good>(pop_string(L));
+        const auto& commodity = find_or_throw<Commodity>(pop_string(L));
         lua_next(L, -2);
         const float amount = pop_number(L);
         lua_pop(L, 2);
-        pop_type.basic_needs_amount[good] = amount;
+        pop_type.basic_needs_amount[commodity] = amount;
     }
     lua_pop(L, 1);
 
@@ -787,14 +787,14 @@ int LuaAPI::add_pop_type(lua_State* L) {
     while(lua_next(L, -2)) {
         lua_pushnil(L);
         lua_next(L, -2);
-        const auto& good = find_or_throw<Good>(pop_string(L));
+        const auto& commodity = find_or_throw<Commodity>(pop_string(L));
         lua_next(L, -2);
         const float satisfaction = pop_number(L);
         lua_next(L, -2);
         const float deminishing = pop_number(L);
         lua_pop(L, 2);
-        pop_type.luxury_needs_satisfaction[good] = satisfaction;
-        pop_type.luxury_needs_deminishing_factor[good] = deminishing;
+        pop_type.luxury_needs_satisfaction[commodity] = satisfaction;
+        pop_type.luxury_needs_deminishing_factor[commodity] = deminishing;
     }
     lua_pop(L, 1);
 
@@ -821,7 +821,7 @@ int LuaAPI::get_pop_type(lua_State* L) {
             lua_pushnumber(L, index++);
 
             lua_newtable(L);
-            append_to_table(L, 1, g_world.goods[i].ref_name.c_str());
+            append_to_table(L, 1, g_world.commodities[i].ref_name.c_str());
             append_to_table(L, 2, pop_type.basic_needs_amount[i]);
 
             lua_settable(L, -3);
@@ -834,7 +834,7 @@ int LuaAPI::get_pop_type(lua_State* L) {
             lua_pushnumber(L, index++);
 
             lua_newtable(L);
-            append_to_table(L, 1, g_world.goods[i].ref_name.c_str());
+            append_to_table(L, 1, g_world.commodities[i].ref_name.c_str());
             append_to_table(L, 2, pop_type.luxury_needs_satisfaction[i]);
             append_to_table(L, 3, pop_type.luxury_needs_deminishing_factor[i]);
 
@@ -861,7 +861,7 @@ int LuaAPI::get_pop_type_by_id(lua_State* L) {
             lua_pushnumber(L, index++);
 
             lua_newtable(L);
-            append_to_table(L, 1, g_world.goods[i].ref_name.c_str());
+            append_to_table(L, 1, g_world.commodities[i].ref_name.c_str());
             append_to_table(L, 2, pop_type.basic_needs_amount[i]);
 
             lua_settable(L, -3);
@@ -873,7 +873,7 @@ int LuaAPI::get_pop_type_by_id(lua_State* L) {
             lua_pushnumber(L, index++);
 
             lua_newtable(L);
-            append_to_table(L, 1, g_world.goods[i].ref_name.c_str());
+            append_to_table(L, 1, g_world.commodities[i].ref_name.c_str());
             append_to_table(L, 2, pop_type.luxury_needs_satisfaction[i]);
             append_to_table(L, 3, pop_type.luxury_needs_deminishing_factor[i]);
 
@@ -985,9 +985,9 @@ int LuaAPI::get_unit_type(lua_State* L) {
 
 int LuaAPI::add_req_good_unit_type(lua_State* L) {
     auto& unit_type = g_world.unit_types.at(lua_tonumber(L, 1));
-    auto& good = g_world.goods.at(lua_tonumber(L, 2));
+    auto& commodity = g_world.commodities.at(lua_tonumber(L, 2));
     size_t amount = lua_tonumber(L, 3);
-    unit_type.req_goods.emplace_back(good, amount);
+    unit_type.req_goods.emplace_back(commodity, amount);
     return 0;
 }
 

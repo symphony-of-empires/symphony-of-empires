@@ -149,7 +149,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int _x, int _y, P
             auto full_req = this->gs.world->unit_types[c_building.working_unit_type_id].req_goods[i];
             full += full_req.second;
             needed += need_req.second;
-            text += translate_format("Requires %.2f of %s (has %.2f)", need_req.second, this->gs.world->goods[need_req.first].name.c_str(), full_req.second);
+            text += translate_format("Requires %.2f of %s (has %.2f)", need_req.second, this->gs.world->commodities[need_req.first].name.c_str(), full_req.second);
         }
         w.set_value(full / glm::max(needed, 0.01f));
         w.set_tooltip(text);

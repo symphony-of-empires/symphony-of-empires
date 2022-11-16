@@ -165,3 +165,7 @@ end
 function Nation:declare_unjustified_war(other)
 	nation_declare_unjustified_war(self.id, other.id)
 end
+
+function Nation:any_of_language(language)
+	print("TODO: Implement any_of_language")
+end

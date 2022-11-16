@@ -232,20 +232,20 @@ PoliciesView::PoliciesView(GameState& _gs)
     auto& commodity_table = state_economy_grp->make_widget<UI::Table<uint32_t>>(0, 0, state_economy_grp->height, 32, sizes, header);
     commodity_table.reserve(1);
     this->commodity_production = this->gs.curr_nation->commodity_production;
-    for(const auto& good : this->gs.world->goods) {
-        auto& row = commodity_table.get_row(good.get_id());
-        auto* commodity = row.get_element(0);
-        commodity->set_key(good.name.c_str());
-        auto& commodity_img = commodity->make_widget<UI::Image>(0, 0, 35, 35, good.get_icon_path(), true);
-        commodity_img.set_tooltip(good.name);
+    for(const auto& commodity : this->gs.world->commodities) {
+        auto& row = commodity_table.get_row(commodity.get_id());
+        auto* commodity_row = row.get_element(0);
+        commodity_row->set_key(commodity.name.c_str());
+        auto& commodity_img = commodity_row->make_widget<UI::Image>(0, 0, 35, 35, commodity.get_icon_path(), true);
+        commodity_img.set_tooltip(commodity.name);
 
         auto* scale = row.get_element(1);
-        scale->set_key(good.name.c_str());
+        scale->set_key(commodity.name.c_str());
         auto& scale_sld = scale->make_widget<UI::Slider>(0, 0, 128, 24, 0.f, 1.f);
-        scale_sld.set_value(this->commodity_production[good]);
-        scale_sld.set_on_click([this, &good](UI::Widget& w) {
-            this->commodity_production[good] = static_cast<UI::Slider&>(w).get_value();
-            w.text(string_format("%.2f%%", this->commodity_production[good] * 100.f));
+        scale_sld.set_value(this->commodity_production[commodity]);
+        scale_sld.set_on_click([this, &commodity](UI::Widget& w) {
+            this->commodity_production[commodity] = static_cast<UI::Slider&>(w).get_value();
+            w.text(string_format("%.2f%%", this->commodity_production[commodity] * 100.f));
             if(this->gs.curr_nation->can_directly_control_factories()) {
                 w.set_tooltip("Scale the production of this product (only applies to factories with a state stake on them)");
             } else {

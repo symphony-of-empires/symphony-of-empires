@@ -1,0 +1,18 @@
+copper
+brass
+coffe
+bread
+cotton
+gasoline
+gold
+grapes
+iron
+oil
+titanium
+wheat
+wine
+coal
+sulphur
+rice
+silver
+	Credits to Pattrck - made ui icons and graphical interface style in photoshop
