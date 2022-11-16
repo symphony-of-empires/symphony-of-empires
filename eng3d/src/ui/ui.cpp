@@ -469,6 +469,10 @@ UI::ClickState UI::Context::check_click_recursive(
     // Call on_click if on_click hasnt been used and widget is hit by click
     if((w.on_click || w.on_drag) && clickable && !click_consumed) {
         if (mouse_pressed) {
+            if(w.type == UI::WidgetType::SLIDER) {
+                auto* wc = static_cast<UI::Slider*>(&w);
+                wc->set_value((static_cast<float>(std::abs(mouse_pos.x - offset.x)) / static_cast<float>(wc->width)) * wc->max);
+            }
             if (w.on_click)
                 mouse_pressed_widget = &w;
             if (w.on_drag) {
