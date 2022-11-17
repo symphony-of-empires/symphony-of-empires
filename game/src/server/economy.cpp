@@ -123,7 +123,7 @@ static void update_factory_accounting(World& world, Building& building, const Bu
     // TODO set min wages
     float min_wage = glm::max(nation.current_policy.min_wage, glm::epsilon<float>());
 
-    building.expenses.wages = glm::clamp(min_wage * building.workers, 0.f, building.revenue.get_total());
+    building.expenses.wages = min_wage * building.workers;
     pop_payment += building.expenses.wages;
     auto profit = building.get_profit();
 
