@@ -32,18 +32,13 @@
 #include "world.hpp"
 
 std::string pop_qol_tooltip_text(const Pop& pop, const World* world) {
-    std::string text = Eng3D::translate_format("Quality of life: %.3f", pop.life_needs_met);
-    text += "\n\n";
-    text += "Need for commodities,";
-
+    std::string text = Eng3D::translate_format("Quality of life: %.3f\n\nNeed for commodities, ", pop.life_needs_met);
     const auto& needs_amounts = world->pop_types[pop.type_id].basic_needs_amount;
     auto total_factor = std::reduce(needs_amounts.begin(), needs_amounts.end());
     for (const auto& commodity : world->commodities) {
         if (needs_amounts[commodity] == 0) continue;
-        text += "\n";
-
         const auto need_factor = needs_amounts[commodity] / total_factor;
-        text += Eng3D::translate_format("%s: %.3f", commodity.name.c_str(), need_factor);
+        text += Eng3D::translate_format("\n%s: %.3f", commodity.name.c_str(), need_factor);
     }
     return text;
 }

@@ -84,10 +84,19 @@ TopWindow::TopWindow(GameState& _gs)
     population_img->set_tooltip("Population");
     auto* population_lab = new UI::Label(0, 0, " ", population_grp);
     population_lab->set_on_each_tick([this](UI::Widget& w) {
-        auto total = 0.f;
-        for(const auto province_id : this->gs.curr_nation->owned_provinces)
-            total += this->gs.world->provinces[province_id].total_pops();
+        assert(!gs.curr_nation->owned_provinces.empty());
+        const auto total = std::accumulate(gs.curr_nation->owned_provinces.cbegin(), gs.curr_nation->owned_provinces.cend(), 0.f, [this](auto&& a, const auto province_id) -> float {
+            return a + gs.world->provinces[province_id].total_pops();
+        });
         w.text(Eng3D::string_format("%.0f", total));
+
+        const auto [it1, it2] = std::minmax_element(gs.curr_nation->owned_provinces.cbegin(), gs.curr_nation->owned_provinces.cend(), [this](const auto province_id, const auto other_province_id) {
+            return gs.world->provinces[province_id].total_pops() < gs.world->provinces[other_province_id].total_pops();
+        });
+        const auto& smallest_province = gs.world->provinces[*it1];
+        const auto& largest_province = gs.world->provinces[*it2];
+
+        w.set_tooltip(Eng3D::string_format("Average population density: %.0f\nLargest province: %s (%.0f)\nSmallest province: %s (%.0f)", total / gs.curr_nation->owned_provinces.size(), largest_province.name.c_str(), largest_province.total_pops(), smallest_province.name.c_str(), smallest_province.total_pops()));
     });
     population_lab->on_each_tick(*population_lab);
 
@@ -97,15 +106,14 @@ TopWindow::TopWindow(GameState& _gs)
     military_score_img->set_tooltip("Military score");
     auto* military_score_lab = new UI::Label(0, 0, " ", military_score_grp);
     military_score_lab->set_on_each_tick([this](UI::Widget& w) {
-        auto total = 0.f;
-        for(const auto& province : this->gs.world->provinces) {
+        const auto total = std::accumulate(gs.curr_nation->owned_provinces.cbegin(), gs.curr_nation->owned_provinces.cend(), 0.f, [this](const auto&& a, const auto province_id) -> float {
+            const auto& province = this->gs.world->provinces[province_id];
             const auto& units = this->gs.world->unit_manager.get_province_units(province.get_id());
-            for(const auto unit_id : units) {
+            return a + std::accumulate(units.cbegin(), units.cend(), 0, [this](auto&& a2, const auto unit_id) {
                 const auto& unit = this->gs.world->unit_manager.units[unit_id];
-                if(unit.owner_id == this->gs.curr_nation->get_id())
-                    total += unit.get_strength();
-            }
-        }
+                return a2 + (unit.owner_id == this->gs.curr_nation->get_id() ? unit.get_strength() : 0.f);
+            });
+        });
         w.text(Eng3D::string_format("%.0f", total));
     });
     military_score_lab->on_each_tick(*military_score_lab);
@@ -116,13 +124,13 @@ TopWindow::TopWindow(GameState& _gs)
     industrial_score_img->set_tooltip("Industrial score");
     auto* industrial_score_lab = new UI::Label(0, 0, " ", industrial_score_grp);
     industrial_score_lab->set_on_each_tick([this](UI::Widget& w) {
-        auto total = 0.f;
-        for(const auto province_id : this->gs.curr_nation->owned_provinces) {
+        const auto total = std::accumulate(gs.curr_nation->owned_provinces.cbegin(), gs.curr_nation->owned_provinces.cend(), 0.f, [this](const auto&& a1, const auto province_id) -> float {
             const auto& province = this->gs.world->provinces[province_id];
-            for(const auto& building : province.get_buildings()) {
-                total += building.production_scale * building.level;
-            }
-        }
+            const auto& buildings = province.get_buildings();
+            return a1 + std::accumulate(buildings.cbegin(), buildings.cend(), 0.f, [](const auto&& a2, const auto& building) {
+                return a2 + (building.production_scale * building.level);
+            });
+        });
         w.text(Eng3D::string_format("%.0f", total));
     });
     industrial_score_lab->on_each_tick(*industrial_score_lab);
