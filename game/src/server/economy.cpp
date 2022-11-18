@@ -305,7 +305,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                 if(Nation::is_invalid(province.owner_id)) continue;
 
                 auto& nation = world.nations[province.owner_id];
-                float sum_weightings = 0.f;
+                auto sum_weightings = 0.f;
                 for(const auto other_province_id : nation.owned_provinces) {
                     auto price = market.provinces[other_province_id].price;
                     auto apparent_price = price + 0.01f * trade.trade_costs[province_id][other_province_id];
@@ -314,7 +314,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                     sum_weightings += values[other_province_id];
                 }
                 // auto sum_weightings = std::reduce(values.begin(), values.end());
-                if (sum_weightings == 0.f) continue;
+                if(sum_weightings == 0.f) continue;
                 for(const auto other_province_id : nation.owned_provinces) {
                     values[other_province_id] /= sum_weightings; 
 
@@ -325,9 +325,9 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                 }
             }
             for(const auto province_id : trade.cost_eval) {
-                const float price_change_speed = 0.9f;
-                auto price_factor = market.provinces[province_id].global_demand / (market.provinces[province_id].supply + 0.01f);
-                auto new_price = market.provinces[province_id].price * (1.f - price_change_speed) + (market.provinces[province_id].price * price_factor) * price_change_speed;
+                const auto price_change_speed = 0.9f;
+                const auto price_factor = market.provinces[province_id].global_demand / (market.provinces[province_id].supply + 0.01f);
+                const auto new_price = market.provinces[province_id].price * (1.f - price_change_speed) + (market.provinces[province_id].price * price_factor) * price_change_speed;
 
                 auto& province = world.provinces[province_id];
                 if(Nation::is_invalid(province.owner_id)) continue;
