@@ -912,8 +912,8 @@ void World::do_tick() {
     profiler.stop("Send packets");
 
     if(!(time % ticks_per_month))
-        Eng3D::Log::debug("game", std::to_string(time / 12 / ticks_per_month) + "/" + std::to_string((time / ticks_per_month % 12) + 1) + +"/" + std::to_string((time % ticks_per_month) + 1));
-    Eng3D::Log::debug("game", "Tick " + std::to_string(time) + " done");
+        Eng3D::Log::debug("game", Eng3D::translate_format("%i/%i/%i", time / 12 / ticks_per_month, (time / ticks_per_month % 12) + 1, (time % ticks_per_month) + 1));
+    Eng3D::Log::debug("game", Eng3D::translate_format("Tick %i done", time));
     time++;
 
     // Tell clients that this tick has been done

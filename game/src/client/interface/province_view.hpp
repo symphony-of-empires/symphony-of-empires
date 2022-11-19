@@ -90,8 +90,6 @@ namespace Interface {
     class ProvinceView : public UI::Window {
         GameState& gs;
         Province& province;
-        UI::Input* rename_inp;
-        UI::Slider* density_sld;
         ProvincePopulationTab* pop_tab;
         ProvinceEconomyTab* econ_tab;
         ProvinceBuildingTab* build_tab;

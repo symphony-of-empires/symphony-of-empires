@@ -256,9 +256,9 @@ void Eng3D::Texture::_upload(TextureOptions options) {
         GLint result;
         glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED, &result);
         if(result == 0) {
-            Eng3D::Log::debug("opengl", "Couldn't compress texture of " + std::to_string(width) + "x" + std::to_string(height));
+            Eng3D::Log::debug("opengl", Eng3D::translate_format("Couldn't compress texture of %u x %u", width, height));
         } else {
-            Eng3D::Log::debug("opengl", "Compressed texture of " + std::to_string(width) + "x" + std::to_string(height));
+            Eng3D::Log::debug("opengl", Eng3D::translate_format("Compressed texture of %u x %u", width, height));
         }
 #endif
         // We will free up the texture if we don't plan on editing it since it's on the GPU now

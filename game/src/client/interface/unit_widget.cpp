@@ -114,7 +114,7 @@ void UnitWidget::set_unit(Unit& _unit) {
 }
 
 void UnitWidget::set_size(size_t size) {
-    this->size_label->text(std::to_string(size));
+    this->size_label->text(Eng3D::string_format("%zu", size));
 }
 
 UnitView::UnitView(GameState& _gs, Unit& _unit)

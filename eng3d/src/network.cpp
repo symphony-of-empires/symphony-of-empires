@@ -343,7 +343,7 @@ void Eng3D::Networking::Server::do_netloop(std::function<bool()> cond, std::func
 
     on_disconnect();
 #ifdef E3D_TARGET_WINDOWS
-    Eng3D::Log::error("server", "WSA Code: " + std::to_string(WSAGetLastError()));
+    Eng3D::Log::error("server", Eng3D::translate_format("WSA Code: %i", WSAGetLastError()));
     WSACleanup();
 #endif
     Eng3D::Log::debug("server", "Client disconnected");

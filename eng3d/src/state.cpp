@@ -196,7 +196,7 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
 #endif
 
     const int seed = (int)((uint32_t)time(NULL) * (uint32_t)getpid());
-    Eng3D::Log::debug("engine", "Using random seed of " + std::to_string(seed));
+    Eng3D::Log::debug("engine", Eng3D::translate_format("Using random seed of %i", seed));
     std::srand(seed);
 
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
@@ -230,7 +230,7 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     s.width = 1024;
     s.height = 720;
 #endif
-    Eng3D::Log::debug("sdl2", "New window " + std::to_string(s.width) + "x" + std::to_string(s.height));
+    Eng3D::Log::debug("sdl2", Eng3D::translate_format("New window %u x %u", s.width, s.height));
 #ifdef E3D_TARGET_SWITCH
     s.window = SDL_CreateWindow(canonical_name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, s.width, s.height, SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_RESIZABLE);
 #else
@@ -255,7 +255,7 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
 
     GLint size;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
-    Eng3D::Log::debug("gamestate", std::to_string(size));
+    Eng3D::Log::debug("gamestate", Eng3D::translate_format("Maximum texture size: %zu", size));
 
 #   ifdef E3D_BACKEND_OPENGL
     glHint(GL_TEXTURE_COMPRESSION_HINT, GL_FASTEST);
@@ -332,20 +332,20 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths)
         HINSTANCE hGetProcIDDLL = LoadLibrary(plugin.c_str());
         // This shouldn't happen - like ever!
         if(!hGetProcIDDLL) {
-            Eng3D::Log::error("plugin", "DLL file " + plugin + " not found");
+            Eng3D::Log::error("plugin", Eng3D::translate_format("DLL file %s not found", plugin.c_str()));
             continue;
         }
 
         typedef int(__stdcall* plugin_dll_entry_t)(const char* gameid, int gamever);
         plugin_dll_entry_t entry = (plugin_dll_entry_t)GetProcAddress(hGetProcIDDLL, "__unirend_entry");
         if(!entry) {
-            Eng3D::Log::warning("plugin", "Can't find __unirend_entry on " + plugin);
+            Eng3D::Log::warning("plugin", Eng3D::translate_format("Can't find __unirend_entry on %s", plugin.c_str()));
             continue;
         }
 
         int r = entry("SYMPHONY_EMPIRES", 0x00F0);
         if(r != 0) {
-            Eng3D::Log::warning("plugin", "Error RET=" + std::to_string(r) + " on plugin " + plugin);
+            Eng3D::Log::warning("plugin", Eng3D::translate_format("Error %i on plugin %s", i, plugin.c_str()));
         }
 #endif
     }

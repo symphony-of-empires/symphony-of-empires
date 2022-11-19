@@ -89,9 +89,9 @@ void UI::Text::text(const std::string& text) {
         std::string buf = text.substr(pos, end_pos - pos);
         pos = end_pos;
         if(break_line) pos++;
-        auto* lab = new UI::Label(0, 0, buf, this);
-        max_width = glm::max(max_width, lab->width);
-        max_height += lab->height;
+        auto& lab = this->make_widget<UI::Label>(0, 0, buf);
+        max_width = glm::max(max_width, lab.width);
+        max_height += lab.height;
     }
 
     if(this->auto_adjust) {

@@ -45,17 +45,17 @@ ArmyUnitsTab::ArmyUnitsTab(GameState& _gs, int _x, int _y, std::function<bool(Un
     : UI::Group(_x, _y, _parent->width - _x, _parent->height - _y, _parent),
     gs{ _gs }
 {
-    auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
-    flex_column->flex = UI::Flex::COLUMN;
-    gs.world->unit_manager.for_each_unit([this, filter, flex_column](Unit& unit) {
+    auto& flex_column = this->make_widget<UI::Div>(0, 0, this->width, this->height);
+    flex_column.flex = UI::Flex::COLUMN;
+    gs.world->unit_manager.for_each_unit([&](Unit& unit) {
         if(!filter || !filter(unit)) return;
-        auto* btn = new UI::Button(0, 0, this->width, 24, flex_column);
-        btn->set_on_each_tick([this, unit_id = unit.get_id()](UI::Widget& w) {
+        auto& btn = flex_column.make_widget<UI::Button>(0, 0, this->width, 24);
+        btn.set_on_each_tick([this, unit_id = unit.get_id()](UI::Widget& w) {
             const auto& current_unit = this->gs.world->unit_manager.units[unit_id];
             const auto& current_type = this->gs.world->unit_types[current_unit.type_id];
             w.text(string_format("%zu %s", current_unit.size, current_type.name.c_str()));
         });
-        btn->on_each_tick(*btn);
+        btn.on_each_tick(btn);
     });
 }
 
@@ -175,53 +175,53 @@ ArmyView::ArmyView(GameState& _gs)
 
     this->units_tab = new ArmyUnitsTab(gs, 0, 32, nullptr, this);
     this->units_tab->is_render = true;
-    auto* army_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/military_score.png")), this);
-    army_ibtn->set_on_click([this](UI::Widget&) {
+    auto& army_ibtn = this->make_widget<UI::Image>(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/mili&tary_score.png")));
+    army_ibtn.set_on_click([this](UI::Widget&) {
         this->units_tab->is_render = true;
         this->units_tab->kill();
-        this->units_tab = new ArmyUnitsTab(gs, 0, 32, [this](Unit& unit) {
+        this->units_tab = &this->make_widget<ArmyUnitsTab>(gs, 0, 32, [this](Unit& unit) {
             auto& current_type = this->gs.world->unit_types[unit.type_id];
             return unit.owner_id == *this->gs.curr_nation && current_type.is_ground && !current_type.is_naval;
-        }, this);
+        });
         this->production_tab->is_render = false;
     });
-    army_ibtn->set_tooltip(translate("Land army"));
+    army_ibtn.set_tooltip(translate("Land army"));
 
-    auto* airforce_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/airforce.png")), this);
-    airforce_ibtn->right_side_of(*army_ibtn);
-    airforce_ibtn->set_on_click([this](UI::Widget&) {
+    auto& airforce_ibtn = this->make_widget<UI::Image>(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/airforce.png")));
+    airforce_ibtn.right_side_of(army_ibtn);
+    airforce_ibtn.set_on_click([this](UI::Widget&) {
         this->units_tab->is_render = true;
         this->units_tab->kill();
-        this->units_tab = new ArmyUnitsTab(gs, 0, 32, [this](Unit& unit) {
+        this->units_tab = &this->make_widget<ArmyUnitsTab>(gs, 0, 32, [this](Unit& unit) {
             auto& current_type = this->gs.world->unit_types[unit.type_id];
             return unit.owner_id == *this->gs.curr_nation && !current_type.is_ground && !current_type.is_naval;
-        }, this);
+        });
         this->production_tab->is_render = false;
     });
-    airforce_ibtn->set_tooltip(translate("Airforce"));
+    airforce_ibtn.set_tooltip(translate("Airforce"));
     
-    auto* navy_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/navy.png")), this);
-    navy_ibtn->right_side_of(*airforce_ibtn);
-    navy_ibtn->set_on_click([this](UI::Widget&) {
+    auto& navy_ibtn = this->make_widget<UI::Image>(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/navy.png")));
+    navy_ibtn.right_side_of(airforce_ibtn);
+    navy_ibtn.set_on_click([this](UI::Widget&) {
         this->units_tab->is_render = true;
         this->units_tab->kill();
-        this->units_tab = new ArmyUnitsTab(gs, 0, 32, [this](Unit& unit) {
+        this->units_tab = &this->make_widget<ArmyUnitsTab>(gs, 0, 32, [this](Unit& unit) {
             auto& current_type = this->gs.world->unit_types[unit.type_id];
             return unit.owner_id == *this->gs.curr_nation && !current_type.is_ground && current_type.is_naval;
-        }, this);
+        });
         this->production_tab->is_render = false;
     });
-    navy_ibtn->set_tooltip(translate("Navy"));
+    navy_ibtn.set_tooltip(translate("Navy"));
 
     this->production_tab = new ArmyProductionTab(gs, 0, 32, this);
     this->production_tab->is_render = true;
-    auto* production_ibtn = new UI::Image(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/production.png")), this);
-    production_ibtn->right_side_of(*navy_ibtn);
-    production_ibtn->set_on_click([this](UI::Widget&) {
+    auto& production_ibtn = this->make_widget<UI::Image>(0, 0, 32, 32, gs.tex_man.load(gs.package_man.get_unique("gfx/production.png")));
+    production_ibtn.right_side_of(navy_ibtn);
+    production_ibtn.set_on_click([this](UI::Widget&) {
         this->units_tab->is_render = false;
         this->production_tab->is_render = true;
     });
-    production_ibtn->set_tooltip(translate("Military production"));
+    production_ibtn.set_tooltip(translate("Military production"));
 
-    army_ibtn->on_click(*army_ibtn);
+    army_ibtn.on_click(army_ibtn);
 }

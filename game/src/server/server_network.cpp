@@ -42,7 +42,7 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
     gs{ _gs }
 {
     g_server = this;
-    Eng3D::Log::debug("server", "Deploying " + std::to_string(n_clients) + " threads for clients");
+    Eng3D::Log::debug("server", Eng3D::translate_format("Deploying %zu threads for clients", n_clients));
 
     action_handlers[ActionType::NATION_ENACT_POLICY] = [](ClientData& client_data, const Eng3D::Networking::Packet&, Eng3D::Deser::Archive& ar) {
         Policies policies;
@@ -220,7 +220,7 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         Eng3D::Deser::deserialize(ar, nation.ai_do_cmd_troops);
         Eng3D::Deser::deserialize(ar, nation.ai_controlled);
         client_data.selected_nation = &nation;
-        //Eng3D::Log::debug("server", "Nation " + selected_nation->ref_name + " selected by client " + cl.username + "," + std::to_string(id));
+        Eng3D::Log::debug("server", Eng3D::translate_format("Nation %s selected by client %s", client_data.selected_nation->ref_name.c_str(), client_data.username.c_str()));
         
         Eng3D::Deser::Archive tmp_ar{};
         Eng3D::Deser::serialize<ActionType>(tmp_ar, ActionType::SELECT_NATION);
@@ -322,7 +322,7 @@ void Server::netloop(int id) {
         ActionType action;
         Eng3D::Deser::deserialize(ar, action);
         if(client_data.selected_nation == nullptr && !(action == ActionType::CHAT_MESSAGE || action == ActionType::SELECT_NATION))
-            CXX_THROW(ServerException, "Unallowed operation " + std::to_string(static_cast<int>(action)) + " without selected nation");
+            CXX_THROW(ServerException, Eng3D::translate_format("Unallowed operation %i without selected nation", static_cast<int>(action)));
         
         const std::scoped_lock lock(g_world.world_mutex);
         //switch(action) {

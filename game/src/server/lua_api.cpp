@@ -1024,7 +1024,7 @@ void LuaAPI::check_events(lua_State* L) {
                 auto orig_event = Event(event);
 
                 // Call the "do event" function
-                //Eng3D::Log::debug("event", "Event " + event.ref_name + " using " + std::to_string(event.do_event_function) + " function");
+                Eng3D::Log::debug("event", Eng3D::translate_format("Event %s using lua#%i", event.ref_name.c_str(), event.do_event_function));
                 lua_rawgeti(L, LUA_REGISTRYINDEX, event.do_event_function);
                 lua_pushstring(L, nation.ref_name.c_str());
                 if(g_world.lua.call_func(1, 1)) {
