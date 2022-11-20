@@ -40,6 +40,12 @@
 
 using namespace Interface;
 
+const Eng3D::Color MAPMODE_DEFAULT_MIN_COL = Eng3D::Color::rgb8(220, 46, 35);
+const Eng3D::Color MAPMODE_DEFAULT_MAX_COL = Eng3D::Color::rgb8(255, 229, 217);
+mapmode_generator generic_map_mode(
+    std::function<float(const World&, ProvinceId)> province_value,
+    Eng3D::Color min_col = MAPMODE_DEFAULT_MIN_COL,
+    Eng3D::Color max_col = MAPMODE_DEFAULT_MAX_COL);
 std::vector<ProvinceColor> terrain_map_mode(const World& world);
 mapmode_tooltip commodity_tooltip(CommodityId id);
 mapmode_generator commodity_map_mode(CommodityId id);
@@ -85,72 +91,72 @@ Minimap::Minimap(GameState& _gs, int _x, int _y, UI::Origin _origin)
     auto* landscape_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
     landscape_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-        this->gs.map->set_map_mode(terrain_map_mode, empty_province_tooltip);
-        set_mapmode_options(nullptr);
+    this->gs.map->set_map_mode(terrain_map_mode, empty_province_tooltip);
+    set_mapmode_options(nullptr);
     });
     landscape_ibtn->set_tooltip("Terrain");
 
     auto* political_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
     political_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-        this->gs.map->set_map_mode(political_map_mode, political_province_tooltip);
-        set_mapmode_options(nullptr);
+    this->gs.map->set_map_mode(political_map_mode, political_province_tooltip);
+    set_mapmode_options(nullptr);
     });
     political_ibtn->set_tooltip("Political");
 
     auto* relations_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
     relations_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection([](const World&, Map& map, const Province& province) {
-            if(Nation::is_invalid(province.controller_id)) return;
-            NationId nation_id = province.owner_id;
-            mapmode_generator map_mode = relations_map_mode(nation_id);
-            mapmode_tooltip map_tooltip = relations_tooltip(nation_id);
-            map.set_map_mode(map_mode, map_tooltip);
-        });
-        const auto nation_id = this->gs.curr_nation->get_id();
-        mapmode_generator map_mode = relations_map_mode(nation_id);
-        mapmode_tooltip map_tooltip = relations_tooltip(nation_id);
-        this->gs.map->set_map_mode(map_mode, map_tooltip);
-        set_mapmode_options(nullptr);
+        if(Nation::is_invalid(province.controller_id)) return;
+    NationId nation_id = province.owner_id;
+    mapmode_generator map_mode = relations_map_mode(nation_id);
+    mapmode_tooltip map_tooltip = relations_tooltip(nation_id);
+    map.set_map_mode(map_mode, map_tooltip);
+    });
+    const auto nation_id = this->gs.curr_nation->get_id();
+    mapmode_generator map_mode = relations_map_mode(nation_id);
+    mapmode_tooltip map_tooltip = relations_tooltip(nation_id);
+    this->gs.map->set_map_mode(map_mode, map_tooltip);
+    set_mapmode_options(nullptr);
     });
     relations_ibtn->set_tooltip("Relations");
 
     auto* transport_cost_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
     transport_cost_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection([](const World&, Map& map, const Province& selected_province) {
-            map.set_map_mode(trade_map_mode(selected_province), trade_tooltip(selected_province));
-        });
-        set_mapmode_options(nullptr);
+        map.set_map_mode(trade_map_mode(selected_province), trade_tooltip(selected_province));
+    });
+    set_mapmode_options(nullptr);
     });
     transport_cost_ibtn->set_tooltip("Transport cost");
 
     auto* population_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
     population_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-        this->gs.map->set_map_mode(population_map_mode, population_tooltip);
-        set_mapmode_options(nullptr);
+    this->gs.map->set_map_mode(population_map_mode, population_tooltip);
+    set_mapmode_options(nullptr);
     });
     population_ibtn->set_tooltip("Population");
 
     auto* terrain_color_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
     terrain_color_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-        mapmode_generator map_mode = [](const World& world) {
-            std::vector<ProvinceColor> province_color;
-            for(unsigned int i = 0; i < world.provinces.size(); i++) {
-                const auto& province = world.provinces[i];
-                Eng3D::Color color = Eng3D::Color::bgr32(world.terrain_types[province.terrain_type_id].color);
-                province_color.emplace_back(ProvinceId(i), color);
-            }
-            province_color.emplace_back(ProvinceId(-2), Eng3D::Color{}); // Water
-            province_color.emplace_back(ProvinceId(-1), Eng3D::Color{}); // Land
-            return province_color;
-        };
-        mapmode_tooltip map_tooltip = [](const World& world, const ProvinceId id) -> std::string {
-            return world.terrain_types[world.provinces[id].terrain_type_id].name;
-        };
-        this->gs.map->set_map_mode(map_mode, map_tooltip);
-        set_mapmode_options(nullptr);
+    mapmode_generator map_mode = [](const World& world) {
+        std::vector<ProvinceColor> province_color;
+        for(unsigned int i = 0; i < world.provinces.size(); i++) {
+            const auto& province = world.provinces[i];
+            Eng3D::Color color = Eng3D::Color::bgr32(world.terrain_types[province.terrain_type_id].color);
+            province_color.emplace_back(ProvinceId(i), color);
+        }
+        province_color.emplace_back(ProvinceId(-2), Eng3D::Color{}); // Water
+        province_color.emplace_back(ProvinceId(-1), Eng3D::Color{}); // Land
+        return province_color;
+    };
+    mapmode_tooltip map_tooltip = [](const World& world, const ProvinceId id) -> std::string {
+        return world.terrain_types[world.provinces[id].terrain_type_id].name;
+    };
+    this->gs.map->set_map_mode(map_mode, map_tooltip);
+    set_mapmode_options(nullptr);
     });
     terrain_color_ibtn->set_tooltip("Simple terrain");
 
@@ -158,23 +164,23 @@ Minimap::Minimap(GameState& _gs, int _x, int _y, UI::Origin _origin)
     language_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
         // this->gs.map->set_map_mode(map_mode, map_tooltip);
-        this->gs.map->set_map_mode(language_map_mode, language_tooltip);
-        set_mapmode_options(nullptr);
+    this->gs.map->set_map_mode(language_map_mode, language_tooltip);
+    set_mapmode_options(nullptr);
     });
     language_ibtn->set_tooltip("Language diversity");
 
     auto* religion_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
     religion_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-        this->gs.map->set_map_mode(religion_map_mode, religion_tooltip);
-        set_mapmode_options(nullptr);
+    this->gs.map->set_map_mode(religion_map_mode, religion_tooltip);
+    set_mapmode_options(nullptr);
     });
     religion_ibtn->set_tooltip("Religion");
 
     auto* commodity_price_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
     commodity_price_ibtn->set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-        set_mapmode_options(new MapmodeCommodityOptions(this->gs));
+    set_mapmode_options(new MapmodeCommodityOptions(this->gs));
     });
     commodity_price_ibtn->set_tooltip("Commodity");
 
@@ -187,18 +193,59 @@ void Minimap::set_mapmode_options(Widget* widget) {
     mapmode_options = widget;
 }
 
+
+void MapmodeCommodityOptions::update_map_mode() {
+    this->gs.current_mode = MapMode::NORMAL;
+    mapmode_generator map_mode = generic_map_mode(this->province_value);
+    mapmode_tooltip map_tooltip = commodity_tooltip(this->commodity_id);
+    this->gs.map->set_map_mode(map_mode, map_tooltip);
+}
+
 MapmodeCommodityOptions::MapmodeCommodityOptions(GameState& _gs)
-    : UI::Div(-200, -200, 200, 400, nullptr),
+    : UI::Div(-200, -300, 200, 500, nullptr),
     gs{ _gs }
 {
     this->origin = UI::Origin::MIDDLE_RIGHT_SCREEN;
     this->current_texture = gs.tex_man.load(gs.package_man.get_unique("gfx/window_background.png"));
 
     auto border_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/border2.png"));
-    this->border = UI::Border(border_tex, {4, 4}, {10, 10});
+    this->border = UI::Border(border_tex, { 4, 4 }, { 10, 10 });
+    this->flex = UI::Flex::COLUMN;
 
-    std::vector<int> sizes{160};
-    std::vector<std::string> header{"Goods"};
+    this->province_value = [this](const World& world, ProvinceId id) {
+        const auto& product = world.provinces[id].products[this->commodity_id];
+        return product.price;
+    };
+
+    auto& price_btn = this->make_widget<UI::Button>(0, 0, 100, 32);
+    price_btn.text("Price");
+    price_btn.set_on_click([this](UI::Widget&) {
+        this->province_value = [this](const World& world, ProvinceId id) {
+            const auto& product = world.provinces[id].products[this->commodity_id];
+            return product.price;
+        };
+        update_map_mode();
+    });
+    auto& demand_btn = this->make_widget<UI::Button>(0, 0, 100, 32);
+    demand_btn.text("Demand");
+    demand_btn.set_on_click([this](UI::Widget&) {
+        this->province_value = [this](const World& world, ProvinceId id) {
+            const auto& product = world.provinces[id].products[this->commodity_id];
+            return product.demand;
+        };
+        update_map_mode();
+    });
+    auto& supply_btn = this->make_widget<UI::Button>(0, 0, 100, 32);
+    supply_btn.text("Supply");
+    supply_btn.set_on_click([this](UI::Widget&) {
+        this->province_value = [this](const World& world, ProvinceId id) {
+            const auto& product = world.provinces[id].products[this->commodity_id];
+            return product.supply;
+        };
+        update_map_mode();
+    });
+    std::vector<int> sizes{ 160 };
+    std::vector<std::string> header{ "Goods" };
     auto& table = this->make_widget<UI::Table<CommodityId::Type>>(4, 4, 400 - 8, 35, sizes, header);
     for(const auto& commodity : gs.world->commodities) {
         auto& row = table.get_row(commodity);
@@ -209,16 +256,12 @@ MapmodeCommodityOptions::MapmodeCommodityOptions(GameState& _gs)
         commodity_row->make_widget<UI::Image>(0, 0, 35, 35, good_tex);
         commodity_row->make_widget<UI::Label>(0, 0, good_str);
         commodity_row->set_key(good_str);
-        row.set_on_click([this, commodity_id = commodity.get_id()](UI::Widget&) {
-            this->gs.current_mode = MapMode::NORMAL;
-            mapmode_generator map_mode = commodity_map_mode(commodity_id);
-            mapmode_tooltip map_tooltip = commodity_tooltip(commodity_id);
-            this->gs.map->set_map_mode(map_mode, map_tooltip);
+        row.set_on_click([this, commodity](UI::Widget&) {
+            this->commodity_id = commodity.get_id();
+            update_map_mode();
         });
     }
-    mapmode_generator map_mode = commodity_map_mode(CommodityId(0));
-    mapmode_tooltip map_tooltip = commodity_tooltip(CommodityId(0));
-    this->gs.map->set_map_mode(map_mode, map_tooltip);
+    update_map_mode();
 }
 
 mapmode_tooltip commodity_tooltip(CommodityId good_id) {
@@ -227,14 +270,39 @@ mapmode_tooltip commodity_tooltip(CommodityId good_id) {
         if(Nation::is_invalid(province.controller_id)) return "";
         const auto& product = province.products[good_id];
         std::string str = Eng3D::translate_format(
-            "%s, \nprice %.2f, \nexport price %.2f, \n global demand %.2f, \ndemand %.2f, \nsupply %.2f \n", 
-            province.name.c_str(), product.import_price, product.price, product.demand, product.supply);
+            "%s,\nprice %.2f, \nglobal demand %.2f, \ndemand %.2f, \nsupply %.2f \n",
+            province.name.c_str(), product.price, product.demand, product.supply);
         for(const auto& building_type : world.building_types) {
             const auto& building = province.buildings[building_type];
             if(building.level)
                 str += translate_format("%s (level %.0f), scale %.0f, workers %.0f, budget %.0f\n", building_type.name.c_str(), building.level, building.production_scale, building.workers, building.budget);
         }
         return str;
+    };
+}
+
+mapmode_generator generic_map_mode(
+    std::function<float(const World&, ProvinceId)> province_value,
+    Eng3D::Color min_col, Eng3D::Color max_col)
+{
+    return [province_value, min_col, max_col](const World& world) {
+        std::vector<std::pair<ProvinceId, float>> province_amounts;
+        auto max_value = glm::epsilon<float>();
+        for(auto const& province : world.provinces) {
+            auto id = province.get_id();
+            float value = province_value(world, id);
+            max_value = glm::max(value, max_value);
+            province_amounts.emplace_back(id, value);
+        }
+
+        // Mix each color by comparing the province value to max_value
+        std::vector<ProvinceColor> province_color;
+        for(auto const& [prov_id, value] : province_amounts) {
+            auto ratio = value / max_value;
+            Eng3D::Color color = Eng3D::Color::lerp(min_col, max_col, ratio);
+            province_color.push_back(ProvinceColor(prov_id, color));
+        }
+        return province_color;
     };
 }
 

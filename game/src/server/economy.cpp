@@ -229,7 +229,6 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         if(pop.size == 0.f) return;
         pop_need.budget += pop.size * 1.f;
         if(pop_need.budget == 0.f) return;
-        auto used_budget = 0.f;
 
         pop_need.life_needs_met = 1;
 
@@ -250,10 +249,9 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
             const auto amount = (budget_per_pop * need_factor / province.products[commodity].price);
 
             pop_need.life_needs_met *= std::pow(amount, need_factor);
-            const auto payment = province.products[commodity].buy(amount);
-            goods_payment[commodity] += payment;
-            used_budget += payment;
-            province.products[commodity].demand += amount;
+            // const auto payment = province.products[commodity].buy(amount);
+            goods_payment[commodity] += amount * province.products[commodity].price;
+            province.products[commodity].demand += amount * pop.size;
         }
     }
     for(const auto& building_type : world.building_types)
@@ -333,7 +331,6 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                 if(Nation::is_invalid(province.owner_id)) continue;
                 auto& product = province.products[market.commodity];
                 product.price = std::max(new_price, 0.01f);
-                product.import_price = market.provinces[province_id].import_cost;
             }
         }
     });

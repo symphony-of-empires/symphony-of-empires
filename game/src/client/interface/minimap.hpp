@@ -41,6 +41,9 @@ namespace Interface {
     class MapmodeCommodityOptions: public UI::Div {
         GameState& gs;
         Minimap* minimap;
+        CommodityId commodity_id = 0;
+        std::function<float(const World&, ProvinceId)> province_value;
+        void update_map_mode();
     public:
         MapmodeCommodityOptions(GameState& gs);
     };

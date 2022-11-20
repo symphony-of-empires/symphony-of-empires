@@ -91,7 +91,6 @@ struct Product : Entity<ProductId> {
     }
 
     float price = 1.f;
-    float import_price = 1.f;
     float price_delta = 0.f;
     float supply = 1.f;
     float demand = 1.f;
