@@ -94,6 +94,7 @@ struct Product : Entity<ProductId> {
     float price_delta = 0.f;
     float supply = 1.f;
     float demand = 1.f;
+    float global_demand = 1.f;
     float speculative_demand = 0.f;
 };
 template<>
@@ -107,6 +108,7 @@ struct Eng3D::Deser::Serializer<Product> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.price_delta);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.supply);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.demand);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.global_demand);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.speculative_demand);
     }
 };

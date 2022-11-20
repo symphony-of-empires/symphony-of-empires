@@ -81,7 +81,6 @@ static void update_factory_production(World& world, Building& building, const Bu
 {
     // Barracks and so on
     if(Commodity::is_invalid(building_type.output_id)) return;
-    const auto& nation = world.nations[province.controller_id];
     
     constexpr auto artisan_production_rate = 0.01f;
     auto& output = world.commodities[building_type.output_id];
@@ -258,17 +257,8 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         province.buildings[building_type].revenue.outputs += goods_payment[building_type.output_id];
 }
 
-void Economy::do_tick(World& world, EconomyState& economy_state) {
-    // Distrobute products accross
-    world.profiler.start("E-init");
-    struct Market {
-        CommodityId commodity;
-        std::vector<float> price;
-        std::vector<float> supply;
-        std::vector<float> demand;
-        std::vector<float> global_demand;
-    };
-    std::vector<Market> markets(world.commodities.size());
+std::vector<Economy::Market> init_markets(const World& world) {
+    std::vector<Economy::Market> markets(world.commodities.size());
     for(const auto& commodity : world.commodities)
         markets[commodity].commodity = commodity.get_id();
     tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world](const auto& markets_range) {
@@ -281,10 +271,34 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                 const auto& product = province.products[market.commodity];
                 market.demand[province] = product.demand;
                 market.price[province] = product.price;
-                market.supply[province] = product.supply + 1.f;
+                market.supply[province] = product.supply;
             }
         }
     });
+    return markets;
+}
+
+void update_markets(const World& world, std::vector<Economy::Market> markets) {
+    tbb::parallel_for(tbb::blocked_range(markets.begin(), markets.end()), [&world](const auto& markets_range) {
+        for(auto& market : markets_range) {
+            for(const auto& province : world.provinces) {
+                const auto& product = province.products[market.commodity];
+                market.demand[province] = product.demand;
+                market.price[province] = product.price;
+                market.supply[province] = product.supply;
+            }
+        }
+    });
+}
+
+void Economy::do_tick(World& world, EconomyState& economy_state) {
+    // Distrobute products accross
+    world.profiler.start("E-init");
+
+    auto& markets = economy_state.commodity_market;
+    if (markets.empty())
+        markets = init_markets(world);
+    update_markets(world, markets);
     world.profiler.stop("E-init");
 
     world.profiler.start("E-trade");
@@ -324,6 +338,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                 if(Nation::is_invalid(province.owner_id)) continue;
                 auto& product = province.products[market.commodity];
                 product.price = std::max(new_price, 0.01f);
+                product.global_demand = market.global_demand[province_id];
             }
         }
     });

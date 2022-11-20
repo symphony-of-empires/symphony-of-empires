@@ -40,8 +40,8 @@
 
 using namespace Interface;
 
-const Eng3D::Color MAPMODE_DEFAULT_MIN_COL = Eng3D::Color::rgb8(220, 46, 35);
-const Eng3D::Color MAPMODE_DEFAULT_MAX_COL = Eng3D::Color::rgb8(255, 229, 217);
+const Eng3D::Color MAPMODE_DEFAULT_MIN_COL = Eng3D::Color::rgb8(255, 0, 0);
+const Eng3D::Color MAPMODE_DEFAULT_MAX_COL = Eng3D::Color::rgb8(16, 255, 128);
 mapmode_generator generic_map_mode(
     std::function<float(const World&, ProvinceId)> province_value,
     Eng3D::Color min_col = MAPMODE_DEFAULT_MIN_COL,
@@ -271,7 +271,7 @@ mapmode_tooltip commodity_tooltip(CommodityId good_id) {
         const auto& product = province.products[good_id];
         std::string str = Eng3D::translate_format(
             "%s,\nprice %.2f, \nglobal demand %.2f, \ndemand %.2f, \nsupply %.2f \n",
-            province.name.c_str(), product.price, product.demand, product.supply);
+            province.name.c_str(), product.price, product.global_demand, product.demand, product.supply);
         for(const auto& building_type : world.building_types) {
             const auto& building = province.buildings[building_type];
             if(building.level)
@@ -289,8 +289,10 @@ mapmode_generator generic_map_mode(
         std::vector<std::pair<ProvinceId, float>> province_amounts;
         auto max_value = glm::epsilon<float>();
         for(auto const& province : world.provinces) {
+            if (Nation::is_invalid(province.owner_id)) continue;
             auto id = province.get_id();
-            float value = province_value(world, id);
+            // Use logaritmic scaling, could be a setting later if needed
+            float value = std::log2f(province_value(world, id) + 1.f);
             max_value = glm::max(value, max_value);
             province_amounts.emplace_back(id, value);
         }
@@ -300,30 +302,6 @@ mapmode_generator generic_map_mode(
         for(auto const& [prov_id, value] : province_amounts) {
             auto ratio = value / max_value;
             Eng3D::Color color = Eng3D::Color::lerp(min_col, max_col, ratio);
-            province_color.push_back(ProvinceColor(prov_id, color));
-        }
-        return province_color;
-    };
-}
-
-mapmode_generator commodity_map_mode(CommodityId id) {
-    return [id](const World& world) {
-        std::vector<std::pair<ProvinceId, float>> province_amounts;
-        auto max_price = glm::epsilon<float>();
-        for(auto const& province : world.provinces) {
-            const auto& product = province.products[id];
-            auto price = product.price;//std::log2f(product.price + 1.f);
-            max_price = glm::max(price, max_price);
-            province_amounts.emplace_back(province, price);
-        }
-
-        // Mix each color depending of how many live there compared to max_amount
-        Eng3D::Color min = Eng3D::Color::rgb8(220, 46, 35);
-        Eng3D::Color max = Eng3D::Color::rgb8(255, 229, 217);
-        std::vector<ProvinceColor> province_color;
-        for(auto const& [prov_id, price] : province_amounts) {
-            auto ratio = price / max_price;
-            Eng3D::Color color = Eng3D::Color::lerp(min, max, ratio);
             province_color.push_back(ProvinceColor(prov_id, color));
         }
         return province_color;
