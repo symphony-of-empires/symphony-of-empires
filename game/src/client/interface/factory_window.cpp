@@ -46,16 +46,16 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
     if(provinces.size() > 1) header.push_back("Province");
     header.insert(header.end(), { "Type", "Workers", "Budget", "Inputs", "Output", "Scale", "Profit", "" });
 
-    auto* table = new UI::Table<uint32_t>(_x, _y, _h, 32, sizes, header, parent);
-    table->reserve(1);
-    table->set_on_each_tick([&gs, table, provinces](UI::Widget&) {
+    auto& table = parent->make_widget<UI::Table<uint32_t>>(_x, _y, _h, 32, sizes, header);
+    table.reserve(1);
+    table.set_on_each_tick([&gs, &table, provinces](UI::Widget&) {
         size_t row_num = 0;
         for(const auto province_id : provinces) {
             const auto& province = gs.world->provinces[province_id];
             for(size_t i = 0; i < province.buildings.size(); i++) {
                 const auto& type = gs.world->building_types[i];
                 const auto& building = province.buildings[i];
-                auto& row = table->get_row(row_num++);
+                auto& row = table.get_row(row_num++);
 
                 size_t row_index = 0;
                 if(provinces.size() > 1) {
@@ -99,14 +99,14 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
             }
         }
     });
-    table->on_each_tick(*table);
+    table.on_each_tick(table);
     
     size_t row_num = 0;
     for(const auto province_id : provinces) {
         const auto& province = gs.world->provinces[province_id];
         for(size_t i = 0; i < province.buildings.size(); i++) {
             const auto& type = gs.world->building_types[i];
-            auto& row = table->get_row(row_num++);
+            auto& row = table.get_row(row_num++);
 
             size_t row_index = 0;
 
@@ -137,7 +137,7 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
             }
         }
     }
-    return table;
+    return &table;
 }
 
 Interface::FactoryWindow::FactoryWindow(GameState& _gs)

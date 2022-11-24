@@ -69,43 +69,43 @@ Minimap::Minimap(GameState& _gs, int _x, int _y, UI::Origin _origin)
     this->is_scroll = false;
     this->padding = glm::ivec2(0, 24);
 
-    auto* flex_column1 = new UI::Div(5, 5, 24, 190, this);
-    flex_column1->flex = UI::Flex::COLUMN;
-    flex_column1->flex_align = UI::Align::CENTER;
-    auto* flex_column2 = new UI::Div(35, 5, 24, 190, this);
-    flex_column2->flex = UI::Flex::COLUMN;
-    flex_column2->flex_align = UI::Align::CENTER;
+    auto& flex_column1 = this->make_widget<UI::Div>(5, 5, 24, 190);
+    flex_column1.flex = UI::Flex::COLUMN;
+    flex_column1.flex_align = UI::Align::CENTER;
+    auto& flex_column2 = this->make_widget<UI::Div>(35, 5, 24, 190);
+    flex_column2.flex = UI::Flex::COLUMN;
+    flex_column2.flex_align = UI::Align::CENTER;
 
-    auto* flat_btn = new UI::Image(0, 0, 24, 24, "gfx/flat_icon.png", flex_column1);
-    flat_btn->set_on_click([this](UI::Widget&) {
+    auto& flat_btn = flex_column1.make_widget<UI::Image>(0, 0, 24, 24, "gfx/flat_icon.png");
+    flat_btn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_view(MapView::PLANE_VIEW);
     });
-    flat_btn->set_tooltip("Flat map");
+    flat_btn.set_tooltip("Flat map");
 
-    auto* globe_btn = new UI::Image(0, 0, 24, 24, "gfx/globe_icon.png", flex_column2);
-    globe_btn->set_on_click([this](UI::Widget&) {
+    auto& globe_btn = flex_column2.make_widget<UI::Image>(0, 0, 24, 24, "gfx/globe_icon.png");
+    globe_btn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_view(MapView::SPHERE_VIEW);
     });
-    globe_btn->set_tooltip("Globe map");
+    globe_btn.set_tooltip("Globe map");
 
-    auto* landscape_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
-    landscape_ibtn->set_on_click([this](UI::Widget&) {
+    auto& landscape_ibtn = flex_column1.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
+    landscape_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
     this->gs.map->set_map_mode(terrain_map_mode, empty_province_tooltip);
     set_mapmode_options(nullptr);
     });
-    landscape_ibtn->set_tooltip("Terrain");
+    landscape_ibtn.set_tooltip("Terrain");
 
-    auto* political_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
-    political_ibtn->set_on_click([this](UI::Widget&) {
+    auto& political_ibtn = flex_column1.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
+    political_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
     this->gs.map->set_map_mode(political_map_mode, political_province_tooltip);
     set_mapmode_options(nullptr);
     });
-    political_ibtn->set_tooltip("Political");
+    political_ibtn.set_tooltip("Political");
 
-    auto* relations_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
-    relations_ibtn->set_on_click([this](UI::Widget&) {
+    auto& relations_ibtn = flex_column1.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
+    relations_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection([](const World&, Map& map, const Province& province) {
         if(Nation::is_invalid(province.controller_id)) return;
     NationId nation_id = province.owner_id;
@@ -119,27 +119,27 @@ Minimap::Minimap(GameState& _gs, int _x, int _y, UI::Origin _origin)
     this->gs.map->set_map_mode(map_mode, map_tooltip);
     set_mapmode_options(nullptr);
     });
-    relations_ibtn->set_tooltip("Relations");
+    relations_ibtn.set_tooltip("Relations");
 
-    auto* transport_cost_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
-    transport_cost_ibtn->set_on_click([this](UI::Widget&) {
+    auto& transport_cost_ibtn = flex_column1.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
+    transport_cost_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection([](const World&, Map& map, const Province& selected_province) {
         map.set_map_mode(trade_map_mode(selected_province), trade_tooltip(selected_province));
     });
     set_mapmode_options(nullptr);
     });
-    transport_cost_ibtn->set_tooltip("Transport cost");
+    transport_cost_ibtn.set_tooltip("Transport cost");
 
-    auto* population_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column1);
-    population_ibtn->set_on_click([this](UI::Widget&) {
+    auto& population_ibtn = flex_column1.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
+    population_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
     this->gs.map->set_map_mode(population_map_mode, population_tooltip);
     set_mapmode_options(nullptr);
     });
-    population_ibtn->set_tooltip("Population");
+    population_ibtn.set_tooltip("Population");
 
-    auto* terrain_color_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
-    terrain_color_ibtn->set_on_click([this](UI::Widget&) {
+    auto& terrain_color_ibtn = flex_column2.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
+    terrain_color_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
     mapmode_generator map_mode = [](const World& world) {
         std::vector<ProvinceColor> province_color;
@@ -158,33 +158,33 @@ Minimap::Minimap(GameState& _gs, int _x, int _y, UI::Origin _origin)
     this->gs.map->set_map_mode(map_mode, map_tooltip);
     set_mapmode_options(nullptr);
     });
-    terrain_color_ibtn->set_tooltip("Simple terrain");
+    terrain_color_ibtn.set_tooltip("Simple terrain");
 
-    auto* language_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
-    language_ibtn->set_on_click([this](UI::Widget&) {
+    auto& language_ibtn = flex_column2.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
+    language_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
         // this->gs.map->set_map_mode(map_mode, map_tooltip);
     this->gs.map->set_map_mode(language_map_mode, language_tooltip);
     set_mapmode_options(nullptr);
     });
-    language_ibtn->set_tooltip("Language diversity");
+    language_ibtn.set_tooltip("Language diversity");
 
-    auto* religion_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
-    religion_ibtn->set_on_click([this](UI::Widget&) {
+    auto& religion_ibtn = flex_column2.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
+    religion_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
     this->gs.map->set_map_mode(religion_map_mode, religion_tooltip);
     set_mapmode_options(nullptr);
     });
-    religion_ibtn->set_tooltip("Religion");
+    religion_ibtn.set_tooltip("Religion");
 
-    auto* commodity_price_ibtn = new UI::Image(0, 0, 24, 24, "gfx/icon.png", flex_column2);
-    commodity_price_ibtn->set_on_click([this](UI::Widget&) {
+    auto& commodity_price_ibtn = flex_column2.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
+    commodity_price_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
     set_mapmode_options(new MapmodeCommodityOptions(this->gs));
     });
-    commodity_price_ibtn->set_tooltip("Commodity");
+    commodity_price_ibtn.set_tooltip("Commodity");
 
-    new UI::Image(65, 5, 332, 166, gs.tex_man.load(gs.package_man.get_unique("gfx/minimap.png")), this);
+    this->make_widget<UI::Image>(65, 5, 332, 166, gs.tex_man.load(gs.package_man.get_unique("gfx/minimap.png")));
 }
 
 void Minimap::set_mapmode_options(Widget* widget) {

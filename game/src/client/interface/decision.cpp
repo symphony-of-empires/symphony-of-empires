@@ -61,13 +61,13 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
 
     // Buttons for decisions for the event
     for(const auto& decision : this->event.decisions) {
-        auto* flex_column =  new UI::Div(0, 0, this->width - 24, 24, this);
-        flex_column->flex = UI::Flex::ROW;
+        auto& flex_column =  this->make_widget<UI::Div>(0, 0, this->width - 24, 24);
+        flex_column.flex = UI::Flex::ROW;
 
         if(decision.ref_name.get_string().empty())
             CXX_THROW(std::runtime_error, string_format("Event ref_name=%s", event.ref_name.c_str()));
         
-        auto& decide_btn = flex_column->make_widget<UI::Button>(0, 0, flex_column->width - 24, 24);
+        auto& decide_btn = flex_column.make_widget<UI::Button>(0, 0, flex_column.width - 24, 24);
         decide_btn.text(decision.name);
         decide_btn.set_tooltip(decision.effects);
         decide_btn.set_on_click([this, &decision](UI::Widget&) {
@@ -75,7 +75,7 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
             this->kill();
         });
 
-        auto& remind_ibtn = flex_column->make_widget<UI::Image>(0, 0, 24, 24, "gfx/noicon.png");
+        auto& remind_ibtn = flex_column.make_widget<UI::Image>(0, 0, 24, 24, "gfx/noicon.png");
         remind_ibtn.set_tooltip(translate("Automatically take this descision"));
         remind_ibtn.set_on_click([this, &decision](UI::Widget&) {
             this->gs.decision_autodo.push_back(decision.ref_name);
