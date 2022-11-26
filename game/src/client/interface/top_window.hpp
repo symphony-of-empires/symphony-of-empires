@@ -38,4 +38,4 @@ namespace Interface {
     public:
         TimeControlView(GameState& gs);
     };
-};
+}

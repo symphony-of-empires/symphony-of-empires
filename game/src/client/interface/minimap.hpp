@@ -47,4 +47,4 @@ namespace Interface {
     public:
         MapmodeCommodityOptions(GameState& gs);
     };
-};
+}

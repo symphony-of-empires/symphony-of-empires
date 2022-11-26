@@ -37,7 +37,7 @@
 namespace UI {
     class PieChart;
     class Chart;
-};
+}
 
 namespace Interface {
     // View information related to the population and diversity of languages and religions
@@ -108,4 +108,4 @@ namespace Interface {
     public:
         ProvinceBrief(GameState& gs, const Province& province);
     };
-};
+}

@@ -60,8 +60,7 @@ class ProvinceColors;
 class Map;
 
 typedef Eng3D::OpenGL::Option Option;
-class MapOptions {
-public:
+struct MapOptions {
     Option noise{ "NOISE", true }; // Randomization for more variety
     Option sdf{ "SDF", false }; // Pretty shadow borders
     Option lighting{ "LIGHTING", true }; // Lights and reflections

@@ -52,4 +52,4 @@ namespace Interface {
         GameState& gs;
         MainMenuConnectServer* connect_window = nullptr;
     };
-};
+}
