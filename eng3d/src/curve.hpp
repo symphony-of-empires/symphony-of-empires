@@ -22,8 +22,7 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#ifndef ENG3D_CURVE_HPP
-#define ENG3D_CURVE_HPP 1
+#pragma once
 
 #include <vector>
 #include <memory>
@@ -57,5 +56,3 @@ namespace Eng3D {
         std::unique_ptr<TriangleList> quads;
     };
 }
-
-#endif

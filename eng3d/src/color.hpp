@@ -22,8 +22,7 @@
 //      Primitive color type used through the engine
 // ----------------------------------------------------------------------------
 
-#ifndef ENG3D_COLOR_HPP
-#define ENG3D_COLOR_HPP 1
+#pragma once
 
 #include <cstdint>
 #include <cstddef>
@@ -145,5 +144,3 @@ namespace Eng3D {
         }
     };
 }
-
-#endif

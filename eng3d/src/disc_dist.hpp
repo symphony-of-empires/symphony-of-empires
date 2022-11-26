@@ -22,8 +22,7 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#ifndef ENG3D_DISC_DIST_HPP
-#define ENG3D_DISC_DIST_HPP 1
+#pragma once
 
 #include <numeric>
 #include <algorithm>
@@ -98,5 +97,3 @@ public:
         return _items[index];
     }
 };
-
-#endif

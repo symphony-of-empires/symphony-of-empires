@@ -22,8 +22,7 @@
 //      Does important stuff.
 // ----------------------------------------------------------------------------
 
-#ifndef _FAKETBB_BLOCKED_RANGE_HPP
-#define _FAKETBB_BLOCKED_RANGE_HPP 1
+#pragma once
 
 namespace tbb {
     template<typename It>
@@ -39,5 +38,3 @@ namespace tbb {
         It last;
     };
 }
-
-#endif
