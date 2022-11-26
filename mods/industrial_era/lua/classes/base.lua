@@ -20,14 +20,430 @@
 --  	base.lua
 --
 -- 	Abstract:
---      Does important stuff
+--      All the base classes/wrappers for interacting and initializing the
+--      game data.
 -- ----------------------------------------------------------------------------
 
-require('classes/technology')
-require('classes/ideology')
-require('classes/commodity')
-require('classes/province')
-require('classes/nation')
+Technology = {
+	id = 0,
+	ref_name = "",
+	name = "",
+	description = "",
+	cost = 1.0,
+	type = TECH_STRATEGIC
+}
+function Technology:new(o)
+	local o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
+function Technology:register()
+	self.id = add_technology(self.ref_name, self.name, self.description, self.cost, self.type)
+end
+function Technology:get(o, ref_name)
+	local o = Technology:new()
+	o.id, o.name, o.description, o.type = get_technology(ref_name)
+	o.ref_name = ref_name
+	return o
+end
+function Technology:requires_technology(o)
+	add_req_tech_to_tech(self.id, o.id)
+end
+
+
+Ideology = {
+	id = 0,
+	ref_name = "",
+	name = "",
+	color = 0x00000000
+}
+function Ideology:new(o)
+	local o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
+function Ideology:get(ref_name)
+	local o = Ideology:new()
+	o.id, o.name, o.color = get_ideology(ref_name)
+	o.ref_name = ref_name
+	return o
+end
+function Ideology:get_by_id(id)
+	local o = Ideology:new()
+	o.ref_name, o.name, o.color = get_ideology_by_id(id)
+	o.id = id
+	return o
+end
+function Ideology:register()
+	self.id = add_ideology(self.ref_name, self.name, self.color)
+end
+
+Subideology = {
+	ref_name = "",
+	name = "",
+	distributism = 0.0,
+	mercantilist = 0.0,
+	capitalism = 0.0,
+	individualism = 0.0,
+	state_power = 0.0,
+	equalitarianism = 0.0,
+	secular = 0.0,
+	pluralism = 0.0,
+}
+function Subideology:new(o)
+	local o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
+function Ideology:add_subideology(s)
+	add_ideology_subideology(self.id, s.ref_name, s.name, s.distributism, s.mercantilist, s.capitalism, s.individualism, s.state_power, s.equalitarianism, s.secular, s.pluralism)
+end
+
+Commodity = {
+	id = 0,
+	name = "",
+	ref_name = ""
+}
+function Commodity:new(o)
+	local o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
+function Commodity:register()
+	self.id = add_good(self.ref_name, self.name)
+end
+function Commodity:get(ref_name)
+	local o = Commodity:new()
+	o.id, o.name = get_good(ref_name)
+	o.ref_name = ref_name
+	return o
+end
+
+Province = {
+	id = 0,
+	name = "",
+	ref_name = "",
+	color = 0,
+	terrain = {},
+	rgo_size = {}
+}
+function Province:new(o)
+	local o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
+function Province:register()
+	self.id = add_province(self.ref_name, self.color, self.name, self.terrain.id, self.rgo_size)
+end
+function Province:get(ref_name)
+	local o = Province:new()
+	local terrain_id = 0
+	o.id, o.name, o.color, terrain_id, o.rgo_size = get_province(ref_name)
+	o.terrain = TerrainType:get_by_id(terrain_id)
+	o.ref_name = ref_name
+	return o
+end
+function Province:get_by_id(id)
+	local o = Province:new()
+	local terrain_id = 0
+	o.ref_name, o.name, o.color, terrain_id, o.rgo_size = get_province_by_id(id)
+	o.terrain = TerrainType:get_by_id(terrain_id)
+	o.id = id
+	return o
+end
+function Province:add_unit(unit_type, size)
+	province_add_unit(self.id, unit_type.id, size)
+end
+function Province:update_building(building_type, level)
+	update_province_building(self.id, building_type.id, level)
+end
+function Province:give_to(nation)
+	give_province_to(self.id, nation.id)
+end
+function Province:give_and_relinquish_to(nation)
+	give_hard_province_to(self.id, nation.id)
+end
+function Province:get_owner()
+	return Nation:get(get_province_owner(self.id))
+end
+function Province:get_controller()
+	return Nation:get(get_province_controller(self.id))
+end
+function Province:get_neighbours()
+	local table = get_province_neighbours(self.id)
+	local new_table = {}
+	for k, v in pairs(table) do
+		new_table[k] = Province:get_by_id(v)
+	end
+	return new_table
+end
+function Province:get_nuclei()
+	local table = get_province_nuclei(self.id)
+	local new_table = {}
+	for k, v in pairs(table) do
+		new_table[k] = Nation:get_by_id(v)
+	end
+	return new_table
+end
+function Province:__get_pop_size()
+ 	return get_province_pops_size(self.id)
+end
+function Province:get_pops()
+	local n_pops = get_province_pops_size(self.id) - 1
+	local new_table = {}
+	for i = 0, n_pops do
+		local tb = Pop:new()
+		tb.size, tb.budget, tb.literacy, tb.life_needs_met, tb.everday_needs_met, tb.luxury_needs_met, tb.type_id, tb.ideology_id, tb.militancy = get_province_pop(self.id, i)
+		tb.id = i
+		tb.province_id = self.id
+		new_table[i] = tb
+	end
+	return new_table
+end
+function Province:get_total_population()
+	local pops = self:get_pops()
+	local sum = 0
+	for k, v in pairs(pops) do
+		sum = sum + v.size
+	end
+	return sum
+end
+function Province:update_pop(pop)
+	set_province_pop(self.id, pop.id, pop.size, pop.budget, pop.literacy, pop.life_needs_met, pop.everday_needs_met, pop.luxury_needs_met, pop.type_id, pop.militancy)
+end
+function Province:update_pops(pop)
+	-- TODO: Do important stuff
+end
+function Province:get_buildings()
+	local n_buildings = get_province_buildings_size(self.id) - 1
+	local new_table = {}
+	for i = 0, n_buildings do
+		local tb = Building:new()
+		tb.level, tb.production_scale, tb.workers = get_province_building(self.id, i)
+		tb.id = i
+		tb.province_id = self.id
+		new_table[i] = tb
+	end
+	return new_table
+end
+function Province:update_building(building)
+	set_province_building(self.id, building.id, building.level, building.production_scale, building.workers)
+end
+
+-- ============================================================================
+-- DEPRECATED do not use!!!!
+-- ============================================================================
+
+-- Increments militancy for all POPs
+function Province:multiply_militancy(factor)
+	local pops = self:get_pops()
+	for k, pop in pairs(pops) do
+		pop.militancy = pop.militancy * factor
+		self:update_pop(pop)
+	end
+	self:update_pops()
+end
+function Province:multiply_militancy_by_language(language, factor)
+	local pops = self:get_pops()
+	for k, pop in pairs(pops) do
+		-- if pop.language_id == language.id then
+			pop.militancy = pop.militancy * factor
+			self:update_pop(pop)
+		-- end
+	end
+	self:update_pops()
+end
+function Province:multiply_militancy_by_religion(religion, factor)
+	local pops = self:get_pops()
+	for k, pop in pairs(pops) do
+		-- if pop.religion_id == religion.id then
+		 	pop.militancy = pop.militancy * factor
+		 	self:update_pop(pop)
+		-- end
+	end
+	self:update_pops()
+end
+-- ============================================================================
+
+-- Adds a POP to the province
+function Province:add_pop(pop_type, size, literacy)
+	add_province_pop(self.id, pop_type.id, size, literacy)
+end
+-- Rename a province
+function Province:rename(new_name)
+	rename_province(self.id, new_name)
+end
+-- Adds a country to the nucleus list of a province
+function Province:add_nucleus(nation)
+	add_province_nucleus(self.id, nation.id)
+end
+function Province:set_language(language, pc)
+	set_province_language(self.id, language.id, pc)
+end
+function Province:set_religion(religion, pc)
+	set_province_religion(self.id, religion.id, pc)
+end
+
+function Province:is_owned_by(...)
+	local nations = table.pack(...)
+	print("TODO: Implement is_owned_by")
+end
+function Province:rename_to(new_name)
+	print("TODO: Implement rename_to")
+end
+
+
+Nation = {
+	id = 0,
+	name = "",
+	ref_name = "",
+
+	adjective = "",
+	noun = "",
+	combo_form = ""
+}
+function Nation:new(o)
+	local o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
+function Nation:register()
+	self.id = add_nation(self.ref_name, self.name)
+end
+function Nation:get(ref_name)
+	local o = Nation:new()
+	o.id, o.name = get_nation(ref_name)
+	o.ref_name = ref_name
+	return o
+end
+function Nation:get_by_id(id)
+	local o = Nation:new()
+	o.name, o.ref_name = get_nation_by_id(id)
+	o.id = id
+	return o
+end
+function Nation:set_capital(province)
+	set_nation_capital(self.id, province.id)
+end
+function Nation:add_accepted_language(language)
+	add_nation_accepted_language(self.id, language.id)
+end
+function Nation:add_accepted_religion(religion)
+	add_nation_accepted_religion(self.id, religion.id)
+end
+function Nation:set_ideology(ideology, subidName)
+	set_nation_ideology(self.id, ideology.id, subidName)
+end
+function Nation:add_client_hint(ideology, name, color)
+	add_nation_client_hint(self.id, ideology.id, name, color)
+end
+function Nation:set_flag(name, value)
+	if value == true then
+		value = 1.0
+	elseif value == false then
+		value = 0.0
+	end
+	set_nation_flag(self.id, name, value)
+end
+function Nation:get_flag(name)
+	return get_nation_flag(self.id, name)
+end
+
+function Nation:get_all()
+	local table = get_all_nations()
+	local new_table = {}
+	for k, v in pairs(table) do
+		new_table[k] = Nation:get_by_id(v)
+	end
+	return new_table
+end
+
+--- Switches the player of nation A to nation B
+function Nation:switch_soul(target)
+	switch_nation_soul(self.id, target.id)
+end
+
+--- Declares a war to another nation without a cb
+--- @param other Nation to declare war to
+function Nation:declare_no_cb(other)
+	nation_declare_war_no_cb(self.id, other.id)
+end
+
+function Nation:get_owned_provinces()
+	local table = get_provinces_owned_by_nation(self.id)
+	local new_table = {}
+	for k, v in pairs(table) do
+		new_table[k] = Province:get_by_id(v)
+	end
+	return new_table
+end
+function Nation:get_nuclei_provinces()
+	local table = get_provinces_with_nucleus_by_nation(self.id)
+	local new_table = {}
+	for k, v in pairs(table) do
+		new_table[k] = Province:get_by_id(v)
+	end
+	return new_table
+end
+function Nation:is_owns_nuclei_from(other)
+	local owned_table = Nation:get_owned_provinces(self)
+	local nuclei_table = Nation:get_nuclei_provinces(other)
+
+	-- Expected size from total counting
+	local nuclei_cont = 0
+	for _ in pairs(nuclei_table) do nuclei_cont = nuclei_cont + 1 end
+	
+	local total_eq_cont = 0
+	for k1, v1 in pairs(owned_table) do
+		for k2, v2 in pairs(nuclei_table) do
+			if v1.ref_name == v2.ref_name then
+				total_eq_cont = total_eq_cont + 1
+			end
+		end
+	end
+	return (total_eq_cont == nuclei_cont)
+end
+function Nation:relative_policy_stance(tp, v)
+	return relative_nation_policy_stance(self.id, tp, v)
+end
+
+NationRelation = {
+	relation = 0.0,
+    has_war = false
+}
+function NationRelation:new(o)
+	o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
+function Nation:get_relation(other)
+	rel = NationRelation:new{} or {}
+	rel.relation, rel.has_war = get_nation_relation(self.id, other.id)
+	return rel
+end
+function Nation:set_relation(other, rel)
+	get_nation_relation(self.id, other.id, rel.relation)
+end
+function Nation:make_puppet(other)
+	nation_make_puppet(self.id, other.id)
+end
+function Nation:make_customs_union(other)
+	nation_make_customs_union(self.id, other.id)
+end
+function Nation:declare_unjustified_war(other)
+	nation_declare_unjustified_war(self.id, other.id)
+end
+
+function Nation:any_of_language(language)
+	print("TODO: Implement any_of_language")
+end
 
 Pop = {
     id = 0,
@@ -65,7 +481,60 @@ function Building:new(o)
     return o
 end
 
-require('classes/event')
+Event = {
+	ref_name = "",
+	conditions_fn = "",
+	event_fn = "",
+	title = "",
+	text = "",
+	checked = false,
+
+	last_decision_id = 0,
+}
+function Event:new(o)
+	local o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
+function Event:register()
+	self.id = add_event(self.ref_name, self.conditions_fn, self.event_fn, self.title, self.text, self.checked)
+end
+function Event:update()
+	update_event(self.id, self.ref_name, self.conditions_fn, self.event_fn, self.title, self.text, self.checked)
+end
+function Event:get(ref_name)
+	local o = Event:new()
+	o.id, o.conditions_fn, o.event_fn, o.title, o.text, o.checked = get_event(ref_name)
+	o.ref_name = ref_name
+	return o
+end
+function Event:add_receivers(...)
+	local args = table.pack(...)
+	for i = 1, args.n do
+		args[i] = args[i].id
+	end
+	add_event_receivers(self.id, args.n, table.unpack(args))
+end
+function Event:add_decision(decision)
+	local decision_ref_name = self.ref_name .. self.last_decision_id
+	self.last_decision_id = self.last_decision_id + 1.0
+
+	add_decision(self.id, decision_ref_name, decision.name, decision.decision_fn, decision.effects)
+end
+
+Decision = {
+	ref_name = "",
+	decision_fn = "",
+	name = "",
+	effects = ""
+}
+function Decision:new(o)
+	local o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
 
 PopType = {
     id = 0,
@@ -161,7 +630,51 @@ function Religion:register()
     self.id = add_religion(self.ref_name, self.name, self.color)
 end
 
-require('classes/industry_type')
+BuildingType = {
+	id = 0,
+	name = "",
+	ref_name = "",
+	is_naval = false,
+	is_build_land_units = false,
+	is_build_naval_units = false,
+	defense_bonus = 1.0,
+	is_factory = false,
+}
+function BuildingType:new(o)
+	local o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
+function BuildingType:register()
+	self.id = add_building_type(self.ref_name, self.name, self.is_naval, self.is_build_land_units, self.is_build_naval_units, self.defense_bonus)
+end
+function BuildingType:get(ref_name)
+	local o = BuildingType:new()
+	o.id, o.name, o.is_naval, o.is_build_land_units, o.is_build_naval_units, o.defense_bonus = get_building_type(ref_name)
+	o.ref_name = ref_name
+	return o
+end
+function BuildingType:add_input(commodity)
+	add_input_to_industry_type(self.id, commodity.id)
+end
+function BuildingType:add_output(commodity)
+	add_output_to_industry_type(self.id, commodity.id)
+end
+function BuildingType:requires_good(commodity, amount)
+	add_req_good_to_industry_type(self.id, commodity.id, amount)
+end
+function BuildingType:requires_tech(tech, amount)
+	add_req_technology_to_industry_type(self.id, tech.id)
+end
+
+IndustryType = BuildingType
+function IndustryType:new(o)
+	local o = o or {}
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
 
 TerrainType = {
     id = 0,
@@ -193,7 +706,58 @@ function TerrainType:get_by_id(id)
     return o
 end
 
-require('classes/unit_type')
+
+UnitType = {
+    id = 0,
+    ref_name = "",
+    name = "",
+    health = 100.0,
+    defense = 1.0,
+    attack = 1.0,
+    max_defensive_ticks = 25,
+    position_defense = 0.1,
+    is_ground = false,
+    is_naval = false,
+    speed = 1.0
+}
+function UnitType:new(o)
+    local o = o or {}
+    setmetatable(o, self)
+    self.__index = self
+    return o
+end
+function UnitType:get(ref_name)
+    local o = UnitType:new()
+    o.id, o.name, o.attack, o.defense, o.health, o.is_ground, o.is_naval, o.speed = get_unit_type(ref_name)
+    o.ref_name = ref_name
+    return o
+end
+function UnitType:register()
+    self.id = add_unit_type(self.ref_name, self.name, self.attack, self.defense, self.health, self.is_ground, self.is_naval, self.speed)
+end
+function UnitType:requires_good(commodity, amount)
+    add_req_good_unit_type(self.id, commodity.id, amount)
+end
+
+BoatType = UnitType
+BoatType.is_ground = false
+BoatType.is_naval = true
+function BoatType:new(o)
+    local o = o or {}
+    setmetatable(o, self)
+    self.__index = self
+    return o
+end
+
+AirplaneType = UnitType
+AirplaneType.is_ground = true
+AirplaneType.is_naval = true
+function AirplaneType:new(o)
+    local o = o or {}
+    setmetatable(o, self)
+    self.__index = self
+    return o
+end
 
 -- For sanity
 function rgb(r, g, b)
