@@ -30,7 +30,7 @@
 #include "eng3d/string.hpp"
 
 #include "objects.hpp"
-#include "policy.hpp"
+#include "indpobj.hpp"
 
 class Nation;
 class Province;

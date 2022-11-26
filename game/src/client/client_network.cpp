@@ -132,7 +132,6 @@ void Client::netloop() {
                 for(size_t i = 0; i < static_cast<size_t>(size); i++) {
                     Unit unit;
                     Eng3D::Deser::deserialize(ar, unit);
-                    assert(gs.world->unit_manager.units.size() > unit);
                     gs.world->unit_manager.units[unit] = unit;
                 }
             } break;

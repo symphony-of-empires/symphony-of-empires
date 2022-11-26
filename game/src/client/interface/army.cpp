@@ -47,7 +47,7 @@ ArmyUnitsTab::ArmyUnitsTab(GameState& _gs, int _x, int _y, std::function<bool(Un
 {
     auto& flex_column = this->make_widget<UI::Div>(0, 0, this->width, this->height);
     flex_column.flex = UI::Flex::COLUMN;
-    gs.world->unit_manager.for_each_unit([&](Unit& unit) {
+    gs.world->unit_manager.units.for_each([&](Unit& unit) {
         if(!filter || !filter(unit)) return;
         auto& btn = flex_column.make_widget<UI::Button>(0, 0, this->width, 24);
         btn.set_on_each_tick([this, unit_id = unit.get_id()](UI::Widget& w) {
@@ -118,8 +118,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int _x, int _y, P
     this->overflow = UI::Overflow::WRAP;
 
     auto& unit_icon = this->make_widget<UI::Image>(0, 0, 24, 24);
-    if(UnitType::is_valid(building.working_unit_type_id))
-        unit_icon.current_texture = gs.tex_man.load(gs.package_man.get_unique(gs.world->unit_types[building.working_unit_type_id].get_icon_path()));
+    unit_icon.current_texture = gs.tex_man.load(gs.package_man.get_unique(gs.world->unit_types[building.working_unit_type_id].get_icon_path()));
 
     auto& province_lab = this->make_widget<UI::Label>(0, 0, "?");
     province_lab.set_on_each_tick([this](UI::Widget& w) {
@@ -132,7 +131,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int _x, int _y, P
     name_lab.set_on_each_tick([this](UI::Widget& w) {
         const auto& current_province = gs.world->provinces[province_id];
         auto& current_building = current_province.get_buildings()[this->idx];
-        w.text(UnitType::is_valid(current_building.working_unit_type_id) ? this->gs.world->unit_types[current_building.working_unit_type_id].name : translate("No unit"));
+        w.text(this->gs.world->unit_types[current_building.working_unit_type_id].name);
     });
     name_lab.on_each_tick(name_lab);
 
@@ -141,7 +140,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int _x, int _y, P
         auto& w = static_cast<UI::ProgressBar&>(_w);
         const auto& c_province = gs.world->provinces[province_id];
         const auto& c_building = c_province.get_buildings()[this->idx];
-        if(UnitType::is_invalid(c_building.working_unit_type_id)) return;
+        if(c_building.is_working_on_unit()) return;
         auto full = 0.f, needed = 0.f;
         std::string text;
         for(size_t i = 0; i < c_building.req_goods_for_unit.size(); i++) {

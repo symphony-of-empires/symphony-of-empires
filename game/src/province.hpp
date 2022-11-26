@@ -35,7 +35,7 @@
 #include "eng3d/rectangle.hpp"
 
 #include "objects.hpp"
-#include "pop.hpp"
+#include "indpobj.hpp"
 #include "product.hpp"
 #include "building.hpp"
 #include "diplomacy.hpp"
@@ -47,7 +47,6 @@ class TerrainType;
 /// @brief A single province, which is used to simulate economy in a "bulk-tiles" way
 /// instead of doing economical operations on every single tile
 class Province : public RefnameEntity<ProvinceId> {
-private:
     Province& operator=(const Province&) = default;
 public:
     float total_pops() const {

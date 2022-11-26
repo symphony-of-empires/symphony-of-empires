@@ -91,72 +91,71 @@ Minimap::Minimap(GameState& _gs, int _x, int _y, UI::Origin _origin)
     auto& landscape_ibtn = flex_column1.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
     landscape_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-    this->gs.map->set_map_mode(terrain_map_mode, empty_province_tooltip);
-    set_mapmode_options(nullptr);
+        this->gs.map->set_map_mode(terrain_map_mode, empty_province_tooltip);
+        set_mapmode_options(nullptr);
     });
     landscape_ibtn.set_tooltip("Terrain");
 
     auto& political_ibtn = flex_column1.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
     political_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-    this->gs.map->set_map_mode(political_map_mode, political_province_tooltip);
-    set_mapmode_options(nullptr);
+        this->gs.map->set_map_mode(political_map_mode, political_province_tooltip);
+        set_mapmode_options(nullptr);
     });
     political_ibtn.set_tooltip("Political");
 
     auto& relations_ibtn = flex_column1.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
     relations_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection([](const World&, Map& map, const Province& province) {
-        if(Nation::is_invalid(province.controller_id)) return;
-    NationId nation_id = province.owner_id;
-    mapmode_generator map_mode = relations_map_mode(nation_id);
-    mapmode_tooltip map_tooltip = relations_tooltip(nation_id);
-    map.set_map_mode(map_mode, map_tooltip);
-    });
-    const auto nation_id = this->gs.curr_nation->get_id();
-    mapmode_generator map_mode = relations_map_mode(nation_id);
-    mapmode_tooltip map_tooltip = relations_tooltip(nation_id);
-    this->gs.map->set_map_mode(map_mode, map_tooltip);
-    set_mapmode_options(nullptr);
+            NationId nation_id = province.owner_id;
+            mapmode_generator map_mode = relations_map_mode(nation_id);
+            mapmode_tooltip map_tooltip = relations_tooltip(nation_id);
+            map.set_map_mode(map_mode, map_tooltip);
+        });
+        const auto nation_id = this->gs.curr_nation->get_id();
+        mapmode_generator map_mode = relations_map_mode(nation_id);
+        mapmode_tooltip map_tooltip = relations_tooltip(nation_id);
+        this->gs.map->set_map_mode(map_mode, map_tooltip);
+        set_mapmode_options(nullptr);
     });
     relations_ibtn.set_tooltip("Relations");
 
     auto& transport_cost_ibtn = flex_column1.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
     transport_cost_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection([](const World&, Map& map, const Province& selected_province) {
-        map.set_map_mode(trade_map_mode(selected_province), trade_tooltip(selected_province));
-    });
-    set_mapmode_options(nullptr);
+            map.set_map_mode(trade_map_mode(selected_province), trade_tooltip(selected_province));
+        });
+        set_mapmode_options(nullptr);
     });
     transport_cost_ibtn.set_tooltip("Transport cost");
 
     auto& population_ibtn = flex_column1.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
     population_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-    this->gs.map->set_map_mode(population_map_mode, population_tooltip);
-    set_mapmode_options(nullptr);
+        this->gs.map->set_map_mode(population_map_mode, population_tooltip);
+        set_mapmode_options(nullptr);
     });
     population_ibtn.set_tooltip("Population");
 
     auto& terrain_color_ibtn = flex_column2.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
     terrain_color_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-    mapmode_generator map_mode = [](const World& world) {
-        std::vector<ProvinceColor> province_color;
-        for(unsigned int i = 0; i < world.provinces.size(); i++) {
-            const auto& province = world.provinces[i];
-            Eng3D::Color color = Eng3D::Color::bgr32(world.terrain_types[province.terrain_type_id].color);
-            province_color.emplace_back(ProvinceId(i), color);
-        }
-        province_color.emplace_back(ProvinceId(-2), Eng3D::Color{}); // Water
-        province_color.emplace_back(ProvinceId(-1), Eng3D::Color{}); // Land
-        return province_color;
-    };
-    mapmode_tooltip map_tooltip = [](const World& world, const ProvinceId id) -> std::string {
-        return world.terrain_types[world.provinces[id].terrain_type_id].name;
-    };
-    this->gs.map->set_map_mode(map_mode, map_tooltip);
-    set_mapmode_options(nullptr);
+        mapmode_generator map_mode = [](const World& world) {
+            std::vector<ProvinceColor> province_color;
+            for(unsigned int i = 0; i < world.provinces.size(); i++) {
+                const auto& province = world.provinces[i];
+                Eng3D::Color color = Eng3D::Color::bgr32(world.terrain_types[province.terrain_type_id].color);
+                province_color.emplace_back(ProvinceId(i), color);
+            }
+            province_color.emplace_back(ProvinceId(-2), Eng3D::Color{}); // Water
+            province_color.emplace_back(ProvinceId(-1), Eng3D::Color{}); // Land
+            return province_color;
+        };
+        mapmode_tooltip map_tooltip = [](const World& world, const ProvinceId id) -> std::string {
+            return world.terrain_types[world.provinces[id].terrain_type_id].name;
+        };
+        this->gs.map->set_map_mode(map_mode, map_tooltip);
+        set_mapmode_options(nullptr);
     });
     terrain_color_ibtn.set_tooltip("Simple terrain");
 
@@ -164,23 +163,23 @@ Minimap::Minimap(GameState& _gs, int _x, int _y, UI::Origin _origin)
     language_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
         // this->gs.map->set_map_mode(map_mode, map_tooltip);
-    this->gs.map->set_map_mode(language_map_mode, language_tooltip);
-    set_mapmode_options(nullptr);
+        this->gs.map->set_map_mode(language_map_mode, language_tooltip);
+        set_mapmode_options(nullptr);
     });
     language_ibtn.set_tooltip("Language diversity");
 
     auto& religion_ibtn = flex_column2.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
     religion_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-    this->gs.map->set_map_mode(religion_map_mode, religion_tooltip);
-    set_mapmode_options(nullptr);
+        this->gs.map->set_map_mode(religion_map_mode, religion_tooltip);
+        set_mapmode_options(nullptr);
     });
     religion_ibtn.set_tooltip("Religion");
 
     auto& commodity_price_ibtn = flex_column2.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
     commodity_price_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
-    set_mapmode_options(new MapmodeCommodityOptions(this->gs));
+        set_mapmode_options(new MapmodeCommodityOptions(this->gs));
     });
     commodity_price_ibtn.set_tooltip("Commodity");
 
@@ -267,7 +266,6 @@ MapmodeCommodityOptions::MapmodeCommodityOptions(GameState& _gs)
 mapmode_tooltip commodity_tooltip(CommodityId good_id) {
     return [good_id](const World& world, const ProvinceId id) -> std::string {
         const auto& province = world.provinces[id];
-        if(Nation::is_invalid(province.controller_id)) return "";
         const auto& product = province.products[good_id];
         std::string str = Eng3D::translate_format(
             "%s,\nprice %.2f, \nglobal demand %.2f, \ndemand %.2f, \nsupply %.2f \n",
@@ -289,7 +287,6 @@ mapmode_generator generic_map_mode(
         std::vector<std::pair<ProvinceId, float>> province_amounts;
         auto max_value = glm::epsilon<float>();
         for(auto const& province : world.provinces) {
-            if (Nation::is_invalid(province.owner_id)) continue;
             auto id = province.get_id();
             // Use logaritmic scaling, could be a setting later if needed
             float value = std::log2f(province_value(world, id) + 1.f);
@@ -315,13 +312,7 @@ mapmode_generator relations_map_mode(NationId id) {
         const auto& nation = world.nations[id];
         for(size_t i = 0; i < world.provinces.size(); i++) {
             const auto& province = world.provinces[i];
-            if(Nation::is_invalid(province.controller_id)) {
-                Eng3D::Color color = Eng3D::Color::rgb32(0x808080ff);
-                provinces_color.emplace_back(ProvinceId(i), color);
-                continue;
-            }
-
-            if(province.controller_id == nation || world.nations[province.controller_id].puppet_master_id == nation) {
+            if(province.controller_id == nation || world.nations[province.controller_id].is_puppeted_by(nation)) {
                 auto color = Eng3D::Color::rgb8(0x00, 0x00, 0xff);
                 provinces_color.emplace_back(ProvinceId(i), color);
                 continue;
@@ -344,17 +335,14 @@ mapmode_tooltip relations_tooltip(NationId nation_id) {
         const auto& province_controller = world.nations[province.controller_id];
         std::string str;
 
-        if(Nation::is_invalid(province.controller_id))
-            return "";
-
-        if(Nation::is_valid(province.controller_id) && province.controller_id == province.owner_id) {
+        if(province.controller_id == province.owner_id) {
             str += province_controller.get_client_hint().name;
-        } else if(Nation::is_valid(province.owner_id)) {
+        } else {
             str += translate_format("Province owned by %s and controlled by %s", world.nations[province.owner_id].get_client_hint().name.c_str(), province_controller.get_client_hint().name.c_str());
         }
 
-        if(province_controller.puppet_master_id == nation_id) {
-            str += string_format("\nWhich is a puppet of %s", world.nations[nation_id].get_client_hint().name.c_str());
+        if(province_controller.is_puppeted) {
+            str += string_format("\nWhich is a puppet of %s", world.nations[province_controller.puppet_master_id].get_client_hint().name.c_str());
             return str;
         }
 

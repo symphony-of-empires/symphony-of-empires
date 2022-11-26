@@ -28,9 +28,9 @@
 #include "eng3d/rand.hpp"
 
 #include "nation.hpp"
-#include "technology.hpp"
+#include "indpobj.hpp"
 #include "province.hpp"
-#include "ideology.hpp"
+#include "indpobj.hpp"
 #include "world.hpp"
 
 //
@@ -49,11 +49,11 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
 
     // Recollect offenders
     // - Those who are allied to us
-    for(size_t i = 0; i < world.nations.size(); i++) {
-        if(&world.nations[i] == this || &world.nations[i] == &nation) continue;
-        const auto& relation = world.get_relation(i, *this);
-        if(relation.is_allied() || world.nations[i].puppet_master_id == *this)
-            war.attacker_ids.push_back(world.nations[i]);
+    for(auto& other_nation : world.nations) {
+        if(&other_nation == this || &other_nation == &nation) continue;
+        const auto& relation = world.get_relation(other_nation.get_id(), *this);
+        if(relation.is_allied() || other_nation.is_puppeted_by(*this))
+            war.attacker_ids.push_back(other_nation);
     }
     war.attacker_ids.push_back(*this);
 
@@ -61,12 +61,13 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     // - Those who are on a defensive pact with the target
     // - Those who are allied with the target
     // - And those who aren't already attacking
-    for(size_t i = 0; i < world.nations.size(); i++) {
-        if(&world.nations[i] == this || &world.nations[i] == &nation) continue;
-        if(std::find(war.attacker_ids.begin(), war.attacker_ids.end(), world.nations[i]) != war.attacker_ids.end()) continue;
-        const auto& relation = world.get_relation(i, nation);
-        if(relation.is_allied() || world.nations[i].puppet_master_id == nation)
-            war.defender_ids.push_back(world.nations[i]);
+    for(auto& other_nation : world.nations) {
+        if(&other_nation == this || &other_nation == &nation) continue;
+        auto it = std::find(war.attacker_ids.begin(), war.attacker_ids.end(), other_nation);
+        if(it != war.attacker_ids.end()) continue;
+        const auto& relation = world.get_relation(other_nation.get_id(), nation);
+        if(relation.is_allied() || other_nation.is_puppeted_by(nation))
+            war.defender_ids.push_back(other_nation);
     }
     war.defender_ids.push_back(nation);
 
@@ -90,9 +91,9 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
             auto& attacker = world.nations[attacker_id];
             auto& defender = world.nations[defender_id];
             if(attacker.puppet_master_id == defender_id)
-                attacker.puppet_master_id = NationId(-1);
+                attacker.is_puppeted = false;
             else if(defender.puppet_master_id == attacker_id)
-                defender.puppet_master_id = NationId(-1);
+                defender.is_puppeted = false;
             
             auto& relation = world.get_relation(defender_id, attacker_id);
             relation.has_war = true; // Declare war
@@ -167,10 +168,10 @@ float Nation::get_tax(const Pop&) const {
 void Nation::give_province(Province& province) {
     auto& world = World::get_instance();
     if(province.owner_id == this->get_id()) return;
-    if(Nation::is_valid(province.owner_id)) {
-        auto& provinces = world.nations[province.owner_id].owned_provinces;
-        std::erase(provinces, province);
-    }
+    
+    auto& provinces = world.nations[province.owner_id].owned_provinces;
+    std::erase(provinces, province);
+    
     this->owned_provinces.push_back(province);
     province.owner_id = this->get_id();
     this->control_province(province);
@@ -181,10 +182,10 @@ void Nation::give_province(Province& province) {
 void Nation::control_province(Province& province) {
     auto& world = World::get_instance();
     if(province.controller_id == this->get_id()) return;
-    if(Nation::is_valid(province.controller_id)) {
-        auto& provinces = world.nations[province.controller_id].controlled_provinces;
-        std::erase(provinces, province);
-    }
+
+    auto& provinces = world.nations[province.controller_id].controlled_provinces;
+    std::erase(provinces, province);
+
     this->controlled_provinces.push_back(province);
     province.controller_id = this->get_id();
 

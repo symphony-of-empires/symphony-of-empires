@@ -62,7 +62,7 @@ namespace Interface {
 }
 
 #include "province.hpp"
-#include "terrain.hpp"
+#include "indpobj.hpp"
 
 enum class MapView {
     SPHERE_VIEW,

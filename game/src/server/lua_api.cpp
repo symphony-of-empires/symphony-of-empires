@@ -265,15 +265,13 @@ int LuaAPI::add_nation(lua_State* L) {
     nation.name = luaL_checkstring(L, 2);
     nation.ideology_id = IdeologyId(0);
     nation.commodity_production.resize(g_world.commodities.size(), 1.f);
-    nation.religion_discrim.resize(g_world.religions.size(), 0.5f);
-    nation.language_acceptance.resize(g_world.languages.size(), 0.5f);
+    nation.religion_discrim.resize(g_world.religions.size(), 0.f);
+    nation.language_acceptance.resize(g_world.languages.size(), 0.f);
     nation.client_hints.resize(g_world.ideologies.size());
     nation.research.resize(g_world.technologies.size());
 
     // Check for duplicates
     for(const auto& other_nation : g_world.nations) {
-        if(Nation::is_invalid(other_nation))
-            luaL_error(L, "Nation with invalid Id!");
         if(nation.ref_name == other_nation.ref_name)
             luaL_error(L, string_format("Duplicate ref_name %s", nation.ref_name.c_str()).c_str());
     }
@@ -301,7 +299,6 @@ int LuaAPI::get_all_nations(lua_State* L) {
 
     size_t i = 0;
     for(const auto& nation : g_world.nations) {
-        assert(Nation::is_valid(nation));
         lua_pushnumber(L, nation);
         lua_rawseti(L, -2, i + 1);
         ++i;
@@ -520,7 +517,7 @@ int LuaAPI::get_province(lua_State* L) {
 }
 
 int LuaAPI::get_province_by_id(lua_State* L) {
-    const Province& province = g_world.provinces.at(lua_tonumber(L, 1));
+    const auto& province = g_world.provinces.at(lua_tonumber(L, 1));
     lua_pushstring(L, province.ref_name.c_str());
     lua_pushstring(L, province.name.c_str());
     lua_pushnumber(L, std::byteswap<std::uint32_t>((province.color & 0x00ffffff) << 8));
@@ -541,11 +538,6 @@ int LuaAPI::get_province_by_id(lua_State* L) {
 
 int LuaAPI::province_add_unit(lua_State* L) {
     auto& province = g_world.provinces.at(lua_tonumber(L, 1));
-    if(Nation::is_invalid(province.owner_id)) {
-        luaL_error(L, string_format("%s has no owner yet", province.ref_name.c_str()).c_str());
-        return 0;
-    }
-
     auto& unit_type = g_world.unit_types.at(lua_tonumber(L, 2));
     const size_t size = lua_tonumber(L, 3);
 
@@ -588,10 +580,11 @@ int LuaAPI::give_hard_province_to(lua_State* L) {
     nation.give_province(province);
 
     // Take all the troops of the dead nation if this is the last province of 'em
-    if(Nation::is_valid(province.controller_id) && !g_world.nations[province.controller_id].exists())
-        for(auto& unit : g_world.unit_manager.units)
+    if(!g_world.nations[province.controller_id].exists())
+        g_world.unit_manager.units.for_each([&](auto& unit) {
             if(unit.owner_id == province.controller_id)
                 unit.set_owner(nation);
+        });
     return 0;
 }
 

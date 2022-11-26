@@ -41,7 +41,7 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
         province.box_area.top == gs.world->height) return;
 
         // Give the province a terrain
-    if(gs.world->terrain_types[province.terrain_type_id].is_water_body && (Nation::is_valid(province.controller_id) || Nation::is_valid(province.owner_id))) {
+    if(gs.world->terrain_types[province.terrain_type_id].is_water_body) {
         for(auto& terrain : gs.world->terrain_types) {
             if(terrain.is_water_body) continue;
             province.terrain_type_id = terrain;
@@ -97,11 +97,9 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
     for(const auto& nucleus_id : province.nuclei)
         fprintf(fp, "province:add_nucleus(n_%s)\n", gs.world->nations[nucleus_id].ref_name.c_str());
     // Give province to owner
-    if(Nation::is_valid(province.owner_id)) {
-        fprintf(fp, "province:give_to(n_%s)\n", gs.world->nations[province.owner_id].ref_name.c_str());
-        if(gs.world->nations[province.owner_id].capital_id == gs.world->get_id(province))
-            fprintf(fp, "n_%s:set_capital(province)\n", gs.world->nations[province.owner_id].ref_name.c_str());
-    }
+    fprintf(fp, "province:give_to(n_%s)\n", gs.world->nations[province.owner_id].ref_name.c_str());
+    if(gs.world->nations[province.owner_id].capital_id == gs.world->get_id(province))
+        fprintf(fp, "n_%s:set_capital(province)\n", gs.world->nations[province.owner_id].ref_name.c_str());
     // Units
     for(const auto unit_id : gs.world->unit_manager.get_province_units(province)) {
         auto& unit = gs.world->unit_manager.units[unit_id];
@@ -135,12 +133,12 @@ void LUA_util::save(GameState& gs, const std::string& savefile_path) {
 
         // First add provinces with pops, then the provinces **without** pops
         for(auto& province : gs.world->provinces) {
-            if(province.is_populated() || Nation::is_valid(province.owner_id))
+            if(province.is_populated())
                 save_province(gs, fp.get(), province);
             cnt++;
         }
         for(auto& province : gs.world->provinces) {
-            if(!province.is_populated() && Nation::is_invalid(province.owner_id))
+            if(!province.is_populated())
                 save_province(gs, fp.get(), province);
             cnt++;
         }

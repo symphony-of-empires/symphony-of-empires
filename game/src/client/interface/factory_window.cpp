@@ -34,7 +34,7 @@
 #include "client/client_network.hpp"
 #include "nation.hpp"
 #include "action.hpp"
-#include "pop.hpp"
+#include "indpobj.hpp"
 #include "world.hpp"
 
 UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, int _y, int _w, int _h, std::vector<ProvinceId> provinces, UI::Widget* parent) {
@@ -130,11 +130,10 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
             outputs->set_key(type.output_id);
             outputs->flex = UI::Flex::ROW;
             outputs->flex_justify = UI::FlexJustify::START;
-            if(Commodity::is_valid(type.output_id)) {
-                auto& output = gs.world->commodities[type.output_id];
-                auto& output_img = outputs->make_widget<UI::Image>(0, 0, 35, 35, output.get_icon_path(), true);
-                output_img.set_tooltip(output.name);
-            }
+
+            auto& output = gs.world->commodities[type.output_id];
+            auto& output_img = outputs->make_widget<UI::Image>(0, 0, 35, 35, output.get_icon_path(), true);
+            output_img.set_tooltip(output.name);
         }
     }
     return &table;

@@ -81,7 +81,7 @@ void GameState::play_nation() {
 
 std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(const Nation& nation) {
     auto& ideology = this->world->ideologies[nation.ideology_id];
-    std::string path = string_format("gfx/flags/%s_%s.png", nation.ref_name.c_str(), Ideology::is_valid(nation.ideology_id) ? ideology.ref_name.c_str() : "default");
+    std::string path = string_format("gfx/flags/%s_%s.png", nation.ref_name.c_str(), ideology.ref_name.c_str());
     return this->tex_man.load(this->package_man.get_unique(path));
 }
 
@@ -405,7 +405,7 @@ int main(int argc, char** argv) try {
                                     auto& province = gs.world->provinces[province_id];
                                     auto& building = province.get_buildings()[building_type];
                                     // Must not be working on something else
-                                    if(UnitType::is_invalid(building.working_unit_type_id)) {
+                                    if(building.is_working_on_unit()) {
                                         is_built = true;
                                         gs.client->send(Action::BuildingStartProducingUnit::form_packet(province, building_type, *gs.curr_nation, unit_type));
                                         break;

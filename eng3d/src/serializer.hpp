@@ -32,6 +32,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <optional>
 #include <cstdio>
 #include <type_traits>
 #include <bitset>
@@ -40,6 +41,7 @@
 #include "eng3d/utils.hpp"
 #include "eng3d/string.hpp"
 #include "eng3d/rectangle.hpp"
+#include "eng3d/freelist.hpp"
 
 namespace Eng3D::Deser {
     /// @brief The purpouse of the serializer is to serialize objects onto a byte stream
@@ -256,7 +258,19 @@ namespace Eng3D::Deser {
     /// @todo On some compilers a boolean can be something not a uint8_t, we should
     // explicitly recast this boolean into a uint8_t to avoid problems
     template<>
-    struct Serializer<bool> : SerializerMemcpy<bool> {};
+    struct Serializer<bool> {
+        template<bool is_const>
+        using type = CondConstType<is_const, bool>::type;
+
+        template<bool is_serialize>
+        static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+            auto tmp = static_cast<char>(obj);
+            Eng3D::Deser::deser_dynamic<is_serialize>(ar, tmp);
+            if constexpr(!is_serialize) {
+                obj = tmp;
+            }
+        }
+    };
 
     /// @brief Pair serializers
     template<typename T, typename U>
@@ -314,6 +328,41 @@ namespace Eng3D::Deser {
             Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.right);
             Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.top);
             Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.bottom);
+        }
+    };
+
+    template<typename T>
+    struct Serializer<std::optional<T>> {
+        template<bool is_const>
+        using type = CondConstType<is_const, std::optional<T>>::type;
+
+        template<bool is_serialize>
+        static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+            if constexpr(is_serialize) {
+                Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.value());
+                auto has_value = obj.has_value();
+                Eng3D::Deser::deser_dynamic<is_serialize>(ar, has_value);
+            } else {
+                T tmp;
+                Eng3D::Deser::deser_dynamic<is_serialize>(ar, tmp);
+                bool has_value = false;
+                Eng3D::Deser::deser_dynamic<is_serialize>(ar, has_value);
+                if(has_value) {
+                    obj.emplace(tmp);
+                }
+            }
+        }
+    };
+
+    template<typename T>
+    struct Serializer<Eng3D::Freelist<T>> {
+        template<bool is_const>
+        using type = CondConstType<is_const, Eng3D::Freelist<T>>::type;
+
+        template<bool is_serialize>
+        static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+            Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.data);
+            Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.slots);
         }
     };
 

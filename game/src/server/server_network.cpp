@@ -95,8 +95,7 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         const auto& unit_type = gs.world->unit_types[unit_type_id];
         /// @todo Check nation can build this unit
         // Tell the building to build this specific unit type
-        building.working_unit_type_id = unit_type_id;
-        building.req_goods_for_unit = unit_type.req_goods;
+        building.work_on_unit(unit_type);
         Eng3D::Log::debug("server", string_format("Building unit %s", unit_type.ref_name.c_str()));
     };
     action_handlers[ActionType::BUILDING_ADD] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
@@ -121,8 +120,6 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
             CXX_THROW(ClientException, "Unknown province");
         auto& province = gs.world->provinces[province_id];
         // Must not be already owned
-        if(Nation::is_valid(province.owner_id))
-            CXX_THROW(ServerException, "Province already has an owner");
         if(client_data.selected_nation == nullptr)
             CXX_THROW(ServerException, "You don't control a country");
         province.owner_id = client_data.selected_nation->get_id();

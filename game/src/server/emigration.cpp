@@ -88,8 +88,6 @@ static inline float nation_attraction(Nation& nation, Language& language) {
 }
 
 static inline float province_attraction(const Province& province) {
-    if(Nation::is_invalid(province.controller_id) && Nation::is_invalid(province.owner_id))
-        return -1.f;
     return province.base_attractive + rng_multipliers.get_item();
 }
 
@@ -144,8 +142,6 @@ static inline void external_migration(World& world) {
             for(const auto province_id : nation->controlled_provinces) {
                 auto& province = world.provinces[province_id];
                 const auto language_id = std::distance(province.languages.begin(), std::max_element(province.languages.begin(), province.languages.end()));
-                // Guaranteed that province->controller != nullptr and that the province is not a water body
-                assert(Nation::is_valid(province.controller_id));
                 // Randomness factor to emulate a pseudo-imperfect economy
                 for(auto& pop : province.pops) {
                     // Depending on how much not our life needs are being met is how many we

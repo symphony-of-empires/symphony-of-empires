@@ -151,7 +151,7 @@ unsigned TreatyClause::Puppet::cost() {
 
 void TreatyClause::Puppet::enforce() {
     auto& world = World::get_instance();
-    world.nations[receiver_id].puppet_master_id = world.nations[sender_id];
+    world.nations[receiver_id].make_puppet(world.nations[sender_id]);
     done = true;
 }
 

@@ -36,8 +36,8 @@
 
 #include "objects.hpp"
 #include "event.hpp"
-#include "policy.hpp"
-#include "ideology.hpp"
+#include "indpobj.hpp"
+#include "indpobj.hpp"
 
 class Province;
 struct Technology;
@@ -115,6 +115,15 @@ public:
     // Policies
     bool can_directly_control_factories() const;
 
+    void make_puppet(const Nation& master) {
+        this->is_puppeted = true;
+        this->puppet_master_id = master.get_id();
+    }
+
+    bool is_puppeted_by(const Nation& master) const {
+        return this->is_puppeted && this->puppet_master_id == master.get_id();
+    }
+
     Eng3D::StringRef name;
     float prestige = 0.1f; // Amount of prestige
     // Total budget of the nation (money in ark), this is not equal to GDP, the GDP is the total sum of the price
@@ -124,6 +133,7 @@ public:
     bool ai_controlled = true;
     bool ai_do_cmd_troops = true;
 
+    bool is_puppeted = false;
     NationId puppet_master_id; // Pupeeter of this nation (if any)
     ProvinceId capital_id; // The capital of this nation (can be invalid id)
     IdeologyId ideology_id; // Current ideology of the nation
@@ -176,6 +186,7 @@ struct Eng3D::Deser::Serializer<Nation> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.is_puppeted);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.puppet_master_id);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.prestige);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.budget);

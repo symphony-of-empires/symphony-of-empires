@@ -37,7 +37,7 @@
 #include "eng3d/rand.hpp"
 
 #include "diplomacy.hpp"
-#include "policy.hpp"
+#include "indpobj.hpp"
 #include "province.hpp"
 #include "server/economy.hpp"
 #include "world.hpp"
@@ -133,8 +133,8 @@ struct AIManager {
                 // so we don't rack up deathstacks on a border with some micronation
                 const auto& unit_ids = world.unit_manager.get_province_units(neighbour_id);
                 for(const auto unit_id : unit_ids) {
-                    auto& unit = world.unit_manager.units[unit_id];
-                    auto& unit_owner = world.nations[unit.owner_id];
+                    const auto& unit = world.unit_manager.units[unit_id];
+                    const auto& unit_owner = world.nations[unit.owner_id];
                     const auto unit_weight = unit_exist_weight * (unit.on_battle ? unit_battle_weight : 1.f);
                     draw_in_force += unit.get_strength() * unit_weight * glm::abs(nations_risk_factor[unit_owner]);
                 }
@@ -145,8 +145,7 @@ struct AIManager {
                         draw_in_force *= reconquer_weight;
                     if(province.is_coastal)
                         draw_in_force *= coastal_weight;
-                    if(Nation::is_valid(neighbour.controller_id)) // Only if neighbour has a controller
-                        draw_in_force += nations_risk_factor[neighbour.controller_id];
+                    draw_in_force += nations_risk_factor[neighbour.controller_id];
                 }
                 
                 potential_risk[province_id] += draw_in_force; // Spread out the heat
@@ -161,17 +160,18 @@ struct AIManager {
         for(const auto neighbour_id : start->neighbour_ids) {
             const auto& neighbour = world.provinces[neighbour_id];
             if(!world.unit_types[unit.type_id].is_naval && world.terrain_types[neighbour.terrain_type_id].is_water_body) continue;
-            // Uncolonized land is unsteppable
-            if(Nation::is_invalid(neighbour.controller_id) && !world.terrain_types[neighbour.terrain_type_id].is_water_body)
+            // Water is not an option
+            if(!world.terrain_types[neighbour.terrain_type_id].is_water_body)
                 continue;
 
             if(potential_risk[neighbour_id] > potential_risk[highest_risk->get_id()]) {
-                if(Nation::is_valid(neighbour.controller_id) && neighbour.controller_id != unit.owner_id) {
+                if(neighbour.controller_id != unit.owner_id) {
                     const auto& relation = world.get_relation(neighbour.controller_id, unit.owner_id);
                     if(relation.has_landpass())
                         highest_risk = &neighbour;
-                } else
+                } else {
                     highest_risk = &neighbour;
+                }
             }
         }
         return highest_risk;
@@ -275,15 +275,15 @@ void AI::do_tick(World& world) {
                     for(const auto unit_id : unit_ids) {
                         auto& unit = world.unit_manager.units[unit_id];
                         if(unit.owner_id != nation || !unit.can_move()) continue;
-                        if(Province::is_valid(unit.get_target_province_id())) continue;
+                        if(unit.has_target_province()) continue;
                         const auto* highest_risk = ai.get_highest_priority_province(world, &province, unit);
                         // Above we made sure high_risk province is valid for us to step in
                         if(highest_risk == &province || rand() % 32 == 0) {
                             auto it = highest_risk->neighbour_ids.begin();
                             std::advance(it, rand() % highest_risk->neighbour_ids.size());
                             highest_risk = &world.provinces[*it];
-                            if(Nation::is_invalid(highest_risk->controller_id) && !world.terrain_types[highest_risk->terrain_type_id].is_water_body) continue;
-                            if(Nation::is_valid(highest_risk->controller_id) && highest_risk->controller_id != unit.owner_id) {
+                            if(!world.terrain_types[highest_risk->terrain_type_id].is_water_body) continue;
+                            if(highest_risk->controller_id != unit.owner_id) {
                                 const auto& relation = world.get_relation(highest_risk->controller_id, unit.owner_id);
                                 if(!relation.has_landpass()) continue;
                             }
@@ -300,12 +300,11 @@ void AI::do_tick(World& world) {
                 for(const auto& building_type : world.building_types) {
                     if(!building_type.can_build_military()) continue;
                     auto& building = province.buildings[static_cast<size_t>(building_type.get_id())];
-                    if(UnitType::is_valid(building.working_unit_type_id) || !building.can_do_output(province, building_type.input_ids))
+                    if(!building.can_do_output(province, building_type.input_ids))
                         continue;
                     /// @todo Actually produce something appropriate
                     auto& unit_type = world.unit_types[rand() % world.unit_types.size()];
-                    building.working_unit_type_id = unit_type;
-                    building.req_goods_for_unit = unit_type.req_goods;
+                    building.work_on_unit(unit_type);
                 }
             }
         }
