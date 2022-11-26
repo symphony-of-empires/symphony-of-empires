@@ -41,7 +41,7 @@ namespace UI {
         Checkbox(Widget* parent = nullptr);
         Checkbox(int size, Widget* parent = nullptr);
         Checkbox(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
-        virtual ~Checkbox() override {};
+        virtual ~Checkbox() override {}
         bool get_value() const;
         void set_value(bool checked);
         void set_on_click(std::function<void(Widget&)> on_click) override;
@@ -55,4 +55,4 @@ namespace UI {
         std::shared_ptr<Eng3D::Texture> checked_texture;
         std::shared_ptr<Eng3D::Texture> unchecked_texture;
     };
-};
+}

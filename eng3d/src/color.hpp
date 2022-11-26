@@ -22,7 +22,8 @@
 //      Primitive color type used through the engine
 // ----------------------------------------------------------------------------
 
-#pragma once
+#ifndef ENG3D_COLOR_HPP
+#define ENG3D_COLOR_HPP 1
 
 #include <cstdint>
 #include <cstddef>
@@ -143,4 +144,6 @@ namespace Eng3D {
             return Eng3D::Color::rgb32(colors[mod % 64]);
         }
     };
-};
+}
+
+#endif

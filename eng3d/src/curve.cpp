@@ -35,7 +35,7 @@
 Eng3D::Curve::Curve(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width)
 {
     this->create_line(points, normals, width);
-};
+}
 
 void Eng3D::Curve::add_line(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width)
 {

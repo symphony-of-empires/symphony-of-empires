@@ -43,7 +43,7 @@ public:
     }
 
     /// @brief Load an element, this is the function that must be defined by the inheritor
-    virtual std::shared_ptr<V> load(const K& key) {};
+    virtual std::shared_ptr<V> load(const K& key) {}
 
     /// @brief Obtain an element or construct a new one from a provided
     /// construct which accepts key
@@ -53,5 +53,5 @@ public:
         std::shared_ptr<V> new_elem;
         new_elem = elems[key] = load(key);
         return new_elem;
-    };
+    }
 };

@@ -39,6 +39,6 @@ namespace UI {
     class CloseButton: public Widget {
     public:
         CloseButton(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
-        virtual ~CloseButton() override {};
+        virtual ~CloseButton() override {}
     };
-};
+}

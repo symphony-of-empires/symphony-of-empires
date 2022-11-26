@@ -45,4 +45,4 @@ namespace UI {
         Button* add_btn;
         Button* sub_btn;
 	};
-};
+}

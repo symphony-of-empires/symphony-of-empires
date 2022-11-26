@@ -45,9 +45,8 @@ namespace Eng3D {
     public:
         PythonObj() = default;
         PythonObj(void* _obj);
-        PythonObj(PythonObj&);
         PythonObj(const PythonObj&);
-        PythonObj(PythonObj&&) = default;
+        PythonObj(PythonObj&&) = delete;
         ~PythonObj();
     };
 
@@ -58,8 +57,8 @@ namespace Eng3D {
         PythonVM(Eng3D::State& _s);
         ~PythonVM();
 
-        void run_string(const std::string_view& name, const std::string_view& path);
-        void add_module(const std::string_view& path);
+        void run_string(const std::string_view name, const std::string_view path);
+        void add_module(const std::string_view path);
 
         std::vector<PythonObj> modules;
     };

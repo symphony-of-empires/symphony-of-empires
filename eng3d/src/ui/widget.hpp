@@ -44,7 +44,7 @@
 
 namespace Eng3D {
     class Texture;
-};
+}
 
 namespace UI {
     /// @ingroup UI
@@ -359,4 +359,4 @@ namespace UI {
 
         friend class Context;
     };
-};
+}

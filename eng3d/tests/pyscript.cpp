@@ -79,8 +79,10 @@ int main(int argc, char** argv) {
     GameState gs(pkg_paths);
     gs.run = true;
 
+#ifdef E3D_FEATURE_PYTHON
     Eng3D::PythonVM pyvm(gs);
     pyvm.run_string("main", gs.package_man.get_unique("python/main.py")->read_all());
+#endif
 
     gs.do_run([&gs]() { return gs.run == true; },
         ([&gs]() {

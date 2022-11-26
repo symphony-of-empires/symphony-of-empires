@@ -22,7 +22,8 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#pragma once
+#ifndef ENG3D_CURVE_HPP
+#define ENG3D_CURVE_HPP 1
 
 #include <vector>
 #include <memory>
@@ -55,4 +56,6 @@ namespace Eng3D {
         std::vector<glm::vec2> tex_coords;
         std::unique_ptr<TriangleList> quads;
     };
-};
+}
+
+#endif

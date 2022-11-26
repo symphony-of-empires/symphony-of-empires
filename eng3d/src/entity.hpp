@@ -22,7 +22,8 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#pragma once
+#ifndef ENG3D_ENTITY_HPP
+#define ENG3D_ENTITY_HPP
 
 #include <concepts>
 #include <limits>
@@ -162,3 +163,5 @@ template<typename T>
 struct RefnameEntity : Entity<T> {
     Eng3D::StringRef ref_name;
 };
+
+#endif

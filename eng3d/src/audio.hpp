@@ -73,4 +73,4 @@ namespace Eng3D {
         float music_fade_value = 1.f;
         float music_volume = 0.5f, sound_volume = 0.5f;
     };
-};
+}

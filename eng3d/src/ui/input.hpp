@@ -34,7 +34,7 @@ namespace UI {
 	class Input : public Widget {
 	public:
 		Input(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
-		virtual ~Input() override {};
+		virtual ~Input() override {}
 		void set_buffer(const std::string& _buffer);
 		std::string get_buffer() const;
 
@@ -49,4 +49,4 @@ namespace UI {
 		int timer; /// @todo Needs to not be frame dependant
         size_t curpos = 0;
 	};
-};
+}

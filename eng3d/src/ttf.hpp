@@ -33,4 +33,4 @@ namespace Eng3D::TrueType {
         ~Manager();
         std::shared_ptr<Eng3D::TrueType::Font> load(std::shared_ptr<Eng3D::IO::Asset::Base> asset);
     };
-};
+}

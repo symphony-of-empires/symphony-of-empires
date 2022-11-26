@@ -45,7 +45,7 @@ namespace UI {
     class WaffleChart: public Widget {
     public:
         WaffleChart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);
-        virtual ~WaffleChart() override {};
+        virtual ~WaffleChart() override {}
         virtual void on_render(Context& ctx, Eng3D::Rect viewport);
         void set_data(std::vector<UI::ChartData> data);
     private:
@@ -53,4 +53,4 @@ namespace UI {
         float max = 1.f;
         size_t cols = 10, rows = 10;
     };
-};
+}

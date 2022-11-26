@@ -106,7 +106,7 @@ namespace Eng3D {
         std::snprintf(buf.get(), size, format.data(), args ...);
         return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
     }
-};
+}
 using Eng3D::string_format;
 
 namespace Eng3D::Locale {
@@ -125,5 +125,5 @@ namespace Eng3D {
     std::string translate_format(const std::string_view format, Args&& ... args) {
         return Eng3D::string_format(Eng3D::Locale::translate(format), std::forward<decltype(args)>(args)...);
     }
-};
+}
 using Eng3D::translate_format;

@@ -75,7 +75,7 @@ namespace Eng3D::OpenGL {
     };
 
     class Program;
-};
+}
 
 namespace Eng3D {
     enum class MeshMode {

@@ -51,10 +51,10 @@ namespace Eng3D::Deser {
     public:
         Exception(const ::std::string& msg) {
             buffer = msg;
-        };
+        }
         virtual const char* what() const noexcept {
             return buffer.c_str();
-        };
+        }
     };
 
     /// @brief Base class that serves as archiver, stores (in memory) the data required for

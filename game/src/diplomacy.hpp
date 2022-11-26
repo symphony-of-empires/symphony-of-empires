@@ -41,7 +41,7 @@ namespace Diplomacy {
 
     // Determines if the other nation is an enemy and potential rival
     inline bool is_foe(Nation& us, Nation& them);
-};
+}
 
 enum class TreatyClauseType {
     PAYMENT,
@@ -73,16 +73,16 @@ namespace TreatyClause {
         // is to accept this clause, this is only used by the AI
         virtual unsigned cost() {
             return 0;
-        };
+        }
 
         // Function to enforce the policy per day (or higher time spans)
-        virtual void enforce() {};
+        virtual void enforce() {}
 
         // Determines whenever the clause is in effect or not, when it is not in effect
         // then it's removed permanently
         virtual bool in_effect() const {
             return false;
-        };
+        }
     };
 
     // Makes loser to pay war reparations to the winner

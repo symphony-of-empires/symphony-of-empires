@@ -38,6 +38,6 @@ namespace UI {
     class Div : public Widget {
     public:
         Div(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
-        virtual ~Div() override {};
+        virtual ~Div() override {}
     };
-};
+}

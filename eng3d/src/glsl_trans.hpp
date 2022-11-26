@@ -144,4 +144,4 @@ namespace Eng3D::GLSL {
 
         std::vector<Eng3D::GLSL::Token>::iterator it;
     };
-};
+}

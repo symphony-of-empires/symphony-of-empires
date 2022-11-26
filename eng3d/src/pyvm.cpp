@@ -38,52 +38,50 @@ std::unordered_map<int, UI::Widget*> python_widgets;
 std::unordered_map<int, std::shared_ptr<Eng3D::Texture>> python_textures;
 std::unordered_map<std::string, int> python_ui_callbacks; 
 
-static PyObject* PyInit_eng3d() {
-    static PyMethodDef eng3d_methods[] = {
-        { "numargs", [](PyObject* self, PyObject* args) -> PyObject* {
-            return PyLong_FromLong(10);
-        }, METH_VARARGS, "Return the number of arguments received by the process." },
-        {nullptr, nullptr, 0, nullptr}
-    };
-    static PyModuleDef eng3d_module = {
-        PyModuleDef_HEAD_INIT, "eng3d", nullptr, -1, eng3d_methods,
-        nullptr, nullptr, nullptr, nullptr
-    };
-    auto* module_obj = PyModule_Create(&eng3d_module);
-    auto* module_dict = PyImport_GetModuleDict();
-
-    static PyMethodDef eng3d_core_methods[] = {
-        { "numargs", [](PyObject* self, PyObject* args) -> PyObject* {
-            return PyLong_FromLong(10);
-        }, METH_VARARGS, "Return the number of arguments received by the process." },
-        {nullptr, nullptr, 0, nullptr}
-    };
-    static PyModuleDef eng3d_core_module = {
-        PyModuleDef_HEAD_INIT, "eng3d", nullptr, -1, eng3d_core_methods,
-        nullptr, nullptr, nullptr, nullptr
-    };
-    auto* core_module_obj = PyModule_Create(&eng3d_core_module);
-    PyDict_SetItemString(module_dict, "eng3d.core", core_module_obj);
-
-    static PyMethodDef eng3d_ui_methods[] = {
-        { "numargs", [](PyObject* self, PyObject* args) -> PyObject* {
-            return PyLong_FromLong(10);
-        }, METH_VARARGS, "Return the number of arguments received by the process." },
-        {nullptr, nullptr, 0, nullptr}
-    };
-    static PyModuleDef eng3d_ui_module = {
-        PyModuleDef_HEAD_INIT, "eng3d", nullptr, -1, eng3d_ui_methods,
-        nullptr, nullptr, nullptr, nullptr
-    };
-    auto* ui_module_obj = PyModule_Create(&eng3d_ui_module);
-    PyDict_SetItemString(module_dict, "eng3d.ui", ui_module_obj);
-    return module_obj;
-}
-
 Eng3D::PythonVM::PythonVM(Eng3D::State& _s)
     : s{ _s }
 {
-    if(PyImport_AppendInittab("eng3d", &PyInit_eng3d) < 0) {
+    if(PyImport_AppendInittab("eng3d", &[]() -> PyObject* {
+        static PyMethodDef eng3d_methods[] = {
+            { "numargs", [](PyObject* self, PyObject* args) -> PyObject* {
+                return PyLong_FromLong(10);
+            }, METH_VARARGS, "Return the number of arguments received by the process." },
+            {nullptr, nullptr, 0, nullptr}
+        };
+        static PyModuleDef eng3d_module = {
+            PyModuleDef_HEAD_INIT, "eng3d", nullptr, -1, eng3d_methods,
+            nullptr, nullptr, nullptr, nullptr
+        };
+        auto* module_obj = PyModule_Create(&eng3d_module);
+        auto* module_dict = PyImport_GetModuleDict();
+
+        static PyMethodDef eng3d_core_methods[] = {
+            { "numargs", [](PyObject* self, PyObject* args) -> PyObject* {
+                return PyLong_FromLong(10);
+            }, METH_VARARGS, "Return the number of arguments received by the process." },
+            {nullptr, nullptr, 0, nullptr}
+        };
+        static PyModuleDef eng3d_core_module = {
+            PyModuleDef_HEAD_INIT, "eng3d", nullptr, -1, eng3d_core_methods,
+            nullptr, nullptr, nullptr, nullptr
+        };
+        auto* core_module_obj = PyModule_Create(&eng3d_core_module);
+        PyDict_SetItemString(module_dict, "eng3d.core", core_module_obj);
+
+        static PyMethodDef eng3d_ui_methods[] = {
+            { "numargs", [](PyObject* self, PyObject* args) -> PyObject* {
+                return PyLong_FromLong(10);
+            }, METH_VARARGS, "Return the number of arguments received by the process." },
+            {nullptr, nullptr, 0, nullptr}
+        };
+        static PyModuleDef eng3d_ui_module = {
+            PyModuleDef_HEAD_INIT, "eng3d", nullptr, -1, eng3d_ui_methods,
+            nullptr, nullptr, nullptr, nullptr
+        };
+        auto* ui_module_obj = PyModule_Create(&eng3d_ui_module);
+        PyDict_SetItemString(module_dict, "eng3d.ui", ui_module_obj);
+        return module_obj;
+    }) < 0) {
         PyErr_Print();
         CXX_THROW(Eng3D::PythonException, translate("Failed to add eng3d core module"));
     }
@@ -91,7 +89,7 @@ Eng3D::PythonVM::PythonVM(Eng3D::State& _s)
     Py_Initialize();
 }
 
-void Eng3D::PythonVM::run_string(const std::string_view& name, const std::string_view& body) {
+void Eng3D::PythonVM::run_string(const std::string_view name, const std::string_view body) {
     auto* code = Py_CompileString(body.data(), "test", Py_file_input);
     auto* main_module = PyImport_AddModule("__main__");
     auto* global_dict = PyModule_GetDict(main_module);
@@ -103,11 +101,11 @@ void Eng3D::PythonVM::run_string(const std::string_view& name, const std::string
     }
 }
 
-void Eng3D::PythonVM::add_module(const std::string_view& path) {
+void Eng3D::PythonVM::add_module(const std::string_view path) {
     auto* name = PyUnicode_DecodeFSDefault(path.data());
     // Error checking of pName left out
     auto* py_module = PyImport_Import(name);
-    Py_DECREF(name);
+    Py_XDECREF(name);
     if(py_module == nullptr) {
         PyErr_Print();
         CXX_THROW(Eng3D::PythonException, translate_format("Failed to load \"%s\"", path.data()));
@@ -118,7 +116,7 @@ void Eng3D::PythonVM::add_module(const std::string_view& path) {
     // func is a new reference
     if(py_func && PyCallable_Check(py_func)) {
         auto py_value = PyObject_CallObject(py_func, nullptr);
-        Py_DECREF(py_value);
+        Py_XDECREF(py_value);
     } else {
         if(PyErr_Occurred())
             PyErr_Print();
@@ -134,22 +132,17 @@ Eng3D::PythonVM::~PythonVM() {
 Eng3D::PythonObj::PythonObj(void* _obj)
     : obj{ _obj }
 {
-    Py_INCREF(this->obj);
-}
-
-Eng3D::PythonObj::PythonObj(PythonObj& rhs) {
-    this->obj = rhs.obj;
-    Py_INCREF(this->obj);
+    Py_XINCREF(this->obj);
 }
 
 Eng3D::PythonObj::PythonObj(const PythonObj& rhs) {
     this->obj = rhs.obj;
-    Py_INCREF(this->obj);
+    Py_XINCREF(this->obj);
 }
 
 Eng3D::PythonObj::~PythonObj()
 {
-    Py_DECREF(this->obj);
+    Py_XDECREF(this->obj);
 }
 
 #endif
