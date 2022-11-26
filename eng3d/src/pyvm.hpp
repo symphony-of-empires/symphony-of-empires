@@ -46,7 +46,7 @@ namespace Eng3D {
         PythonObj() = default;
         PythonObj(void* _obj);
         PythonObj(const PythonObj&);
-        PythonObj(PythonObj&&) = delete;
+        PythonObj(PythonObj&&) noexcept;
         ~PythonObj();
     };
 

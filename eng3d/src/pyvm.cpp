@@ -140,6 +140,10 @@ Eng3D::PythonObj::PythonObj(const PythonObj& rhs) {
     Py_XINCREF(this->obj);
 }
 
+Eng3D::PythonObj::PythonObj(PythonObj&& rhs) noexcept {
+    this->obj = rhs.obj;
+}
+
 Eng3D::PythonObj::~PythonObj()
 {
     Py_XDECREF(this->obj);
