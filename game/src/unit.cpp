@@ -145,13 +145,14 @@ void UnitManager::remove_unit(UnitId unit_id) {
 void UnitManager::move_unit(UnitId unit_id, ProvinceId target_province_id) {
     assert(units[unit_id].can_move()); // Must be able to move to perform this...
     assert(unit_province[unit_id] != target_province_id); // Not setting to same province
+    auto& world = World::get_instance();
 
     const auto current_province_id = unit_province[unit_id];
     Eng3D::fast_erase(province_units[current_province_id], unit_id);
     unit_province[unit_id] = target_province_id;
     province_units[target_province_id].push_back(unit_id);
     if(g_server != nullptr)
-        g_server->broadcast(Action::UnitMove::form_packet(units[unit_id], World::get_instance().provinces[target_province_id]));
+        g_server->broadcast(Action::UnitMove::form_packet(units[unit_id], world.provinces[target_province_id]));
 }
 
 void Unit::set_owner(const Nation& nation) {

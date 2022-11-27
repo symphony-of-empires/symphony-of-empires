@@ -90,20 +90,16 @@ void Client::netloop() {
                 for(size_t i = 0; i < static_cast<size_t>(size); i++) {
                     NationId nation_id;
                     Eng3D::Deser::deserialize(ar, nation_id);
-                    if(Nation::is_invalid(nation_id))
-                        CXX_THROW(ClientException, "Unknown nation");
-                    auto& nation = gs.world->nations[nation_id];
+                    auto& nation = gs.world->nations.at(nation_id);
                     Eng3D::Deser::deserialize(ar, nation);
                 }
             } break;
             case ActionType::NATION_ENACT_POLICY: {
                 NationId nation_id;
                 Eng3D::Deser::deserialize(ar, nation_id);
-                if(Nation::is_invalid(nation_id))
-                    CXX_THROW(ClientException, "Unknown nation");
                 Policies policy;
                 Eng3D::Deser::deserialize(ar, policy);
-                auto& nation = gs.world->nations[nation_id];
+                auto& nation = gs.world->nations.at(nation_id);
                 nation.set_policy(policy);
                 Eng3D::Deser::deserialize(ar, nation.commodity_production);
             } break;
@@ -113,9 +109,7 @@ void Client::netloop() {
                 for(size_t i = 0; i < static_cast<size_t>(size); i++) {
                     ProvinceId province_id;
                     Eng3D::Deser::deserialize(ar, province_id);
-                    if(Province::is_invalid(province_id))
-                        CXX_THROW(ClientException, "Unknown province");
-                    auto& province = gs.world->provinces[province_id];
+                    auto& province = gs.world->provinces.at(province_id);
                     
                     auto old_owner_id = province.owner_id;
                     auto old_controller_id = province.controller_id;
@@ -158,22 +152,18 @@ void Client::netloop() {
             case ActionType::BUILDING_ADD: {
                 ProvinceId province_id;
                 Eng3D::Deser::deserialize(ar, province_id);
-                if(Province::is_invalid(province_id))
-                    CXX_THROW(ClientException, "Unknown province");
-                auto& province = gs.world->provinces[province_id];
+                auto& province = gs.world->provinces.at(province_id);
                 BuildingTypeId building_type_id;
                 Eng3D::Deser::deserialize(ar, building_type_id);
-                province.buildings[building_type_id].level += 1.f;
+                province.buildings.at(building_type_id).level += 1.f;
             } break;
             case ActionType::BUILDING_REMOVE: {
                 ProvinceId province_id;
                 Eng3D::Deser::deserialize(ar, province_id);
-                if(Province::is_invalid(province_id))
-                    CXX_THROW(ClientException, "Unknown province");
-                auto& province = gs.world->provinces[province_id];
+                auto& province = gs.world->provinces.at(province_id);
                 BuildingTypeId building_type_id;
                 Eng3D::Deser::deserialize(ar, building_type_id);
-                province.buildings[building_type_id].level -= 1.f;
+                province.buildings.at(building_type_id).level -= 1.f;
             } break;
             case ActionType::TREATY_ADD: {
                 Treaty treaty;
@@ -191,17 +181,13 @@ void Client::netloop() {
             case ActionType::PROVINCE_COLONIZE: {
                 ProvinceId province_id;
                 Eng3D::Deser::deserialize(ar, province_id);
-                if(Province::is_invalid(province_id))
-                    CXX_THROW(ClientException, "Unknown province");
-                auto& province = gs.world->provinces[province_id];
+                auto& province = gs.world->provinces.at(province_id);
                 Eng3D::Deser::deserialize(ar, province);
             } break;
             case ActionType::SELECT_NATION: {
                 NationId nation_id;
                 Eng3D::Deser::deserialize(ar, nation_id);
-                if(Nation::is_invalid(nation_id))
-                    CXX_THROW(ClientException, "Unknown nation");
-                auto& nation = gs.world->nations[nation_id];
+                auto& nation = gs.world->nations.at(nation_id);
                 Eng3D::Deser::deserialize(ar, nation.client_username);
             } break;
             default:

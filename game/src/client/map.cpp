@@ -589,7 +589,6 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
                     const auto& relation = gs.world->get_relation(gs.curr_nation->get_id(), province.controller_id);
                     if(!relation.has_landpass()) continue;
                 }
-
                 gs.client->send(Action::UnitMove::form_packet(unit, province));
 
                 const std::scoped_lock lock2(gs.audio_man.sound_lock);

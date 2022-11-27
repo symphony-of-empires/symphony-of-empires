@@ -342,7 +342,7 @@ mapmode_tooltip relations_tooltip(NationId nation_id) {
         }
 
         if(province_controller.is_puppeted) {
-            str += string_format("\nWhich is a puppet of %s", world.nations[province_controller.puppet_master_id].get_client_hint().name.c_str());
+            str += string_format("\nPuppet of %s", world.nations[province_controller.puppet_master_id].get_client_hint().name.c_str());
             return str;
         }
 

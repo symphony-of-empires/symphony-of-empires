@@ -53,21 +53,17 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
     action_handlers[ActionType::UNIT_CHANGE_TARGET] = [](ClientData& client_data, const Eng3D::Networking::Packet&, Eng3D::Deser::Archive& ar) {
         UnitId unit_id;
         Eng3D::Deser::deserialize(ar, unit_id);
-        if(Unit::is_invalid(unit_id))
-            CXX_THROW(ServerException, "Unknown unit");
         // Must control unit
-        auto& unit = g_world.unit_manager.units[unit_id];
+        auto& unit = g_world.unit_manager.units.at(unit_id);
         if(client_data.selected_nation == nullptr || client_data.selected_nation->get_id() != unit.owner_id)
             CXX_THROW(ServerException, "Nation does not control unit");
 
         ProvinceId province_id;
         Eng3D::Deser::deserialize(ar, province_id);
-        if(Province::is_invalid(province_id))
-            CXX_THROW(ClientException, "Unknown province");
-        auto& province = client_data.gs.world->provinces[province_id];
+        auto& province = client_data.gs.world->provinces.at(province_id);
         
         if(unit.can_move()) {
-            Eng3D::Log::debug("server", string_format("Unit changes targets to %s", province.ref_name).c_str());
+            Eng3D::Log::debug("server", translate_format("Unit changes targets to %s", province.ref_name.c_str()).c_str());
             unit.set_path(province);
         }
     };
@@ -75,24 +71,16 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
     action_handlers[ActionType::BUILDING_START_BUILDING_UNIT] = [this](ClientData& client_data, const Eng3D::Networking::Packet&, Eng3D::Deser::Archive& ar) {
         ProvinceId province_id;
         Eng3D::Deser::deserialize(ar, province_id);
-        if(Province::is_invalid(province_id))
-            CXX_THROW(ClientException, "Unknown province");
-        auto& province = client_data.gs.world->provinces[province_id];
+        auto& province = client_data.gs.world->provinces.at(province_id);
         BuildingTypeId building_type_id;
         Eng3D::Deser::deserialize(ar, building_type_id);
-        if(BuildingType::is_invalid(building_type_id))
-            CXX_THROW(ServerException, "Unknown building");
         NationId nation_id;
         Eng3D::Deser::deserialize(ar, nation_id);
-        if(Nation::is_invalid(nation_id))
-            CXX_THROW(ServerException, "Unknown nation");
         UnitTypeId unit_type_id;
         Eng3D::Deser::deserialize(ar, unit_type_id);
-        if(UnitType::is_invalid(unit_type_id))
-            CXX_THROW(ServerException, "Unknown unit type");
         /// @todo Find building
-        auto& building = province.get_buildings()[building_type_id];
-        const auto& unit_type = gs.world->unit_types[unit_type_id];
+        auto& building = province.get_buildings().at(building_type_id);
+        const auto& unit_type = gs.world->unit_types.at(unit_type_id);
         /// @todo Check nation can build this unit
         // Tell the building to build this specific unit type
         building.work_on_unit(unit_type);
@@ -101,12 +89,10 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
     action_handlers[ActionType::BUILDING_ADD] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
         ProvinceId province_id;
         Eng3D::Deser::deserialize(ar, province_id);
-        if(Province::is_invalid(province_id))
-            CXX_THROW(ClientException, "Unknown province");
-        auto& province = gs.world->provinces[province_id];
+        auto& province = gs.world->provinces.at(province_id);
         BuildingTypeId building_type_id;
         Eng3D::Deser::deserialize(ar, building_type_id);
-        auto& building = province.buildings[building_type_id];
+        auto& building = province.buildings.at(building_type_id);
         building.budget += building.get_upgrade_cost();
         client_data.selected_nation->budget -= building.get_upgrade_cost();
         Eng3D::Log::debug("server", string_format("Funding upgrade of buildin %s in %s", client_data.gs.world->building_types[building_type_id].ref_name.c_str(), client_data.selected_nation->ref_name.c_str()));
@@ -116,9 +102,7 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
     action_handlers[ActionType::PROVINCE_COLONIZE] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
         ProvinceId province_id;
         Eng3D::Deser::deserialize(ar, province_id);
-        if(Province::is_invalid(province_id))
-            CXX_THROW(ClientException, "Unknown province");
-        auto& province = gs.world->provinces[province_id];
+        auto& province = gs.world->provinces.at(province_id);
         // Must not be already owned
         if(client_data.selected_nation == nullptr)
             CXX_THROW(ServerException, "You don't control a country");
@@ -136,9 +120,7 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
     action_handlers[ActionType::CHANGE_TREATY_APPROVAL] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
         TreatyId treaty_id;
         Eng3D::Deser::deserialize(ar, treaty_id);
-        if(Treaty::is_invalid(treaty_id))
-            CXX_THROW(ClientException, "Unknown treaty");
-        auto& treaty = gs.world->treaties[treaty_id];
+        auto& treaty = gs.world->treaties.at(treaty_id);
         TreatyApproval approval;
         Eng3D::Deser::deserialize(ar, approval);
         //Eng3D::Log::debug("server", selected_nation->ref_name + " approves treaty " + treaty->name + " A=" + (approval == TreatyApproval::ACCEPTED ? "YES" : "NO"));
@@ -156,13 +138,9 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         // Validate data
         if(treaty.clauses.empty())
             CXX_THROW(ServerException, "Clause-less treaty");
-        if(Nation::is_invalid(treaty.sender_id))
-            CXX_THROW(ServerException, "Treaty has invalid sender");
         // Obtain participants of the treaty
         std::vector<NationId> approver_nations;
         for(auto& clause : treaty.clauses) {
-            if(Nation::is_invalid(clause->receiver_id) || Nation::is_invalid(clause->sender_id))
-                CXX_THROW(ServerException, "Invalid clause receiver/sender");
             approver_nations.push_back(clause->receiver_id);
             approver_nations.push_back(clause->sender_id);
         }
@@ -211,9 +189,7 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
     action_handlers[ActionType::SELECT_NATION] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
         NationId nation_id;
         Eng3D::Deser::deserialize(ar, nation_id);
-        if(Nation::is_invalid(nation_id))
-            CXX_THROW(ServerException, "Unknown nation");
-        auto& nation = gs.world->nations[nation_id];
+        auto& nation = gs.world->nations.at(nation_id);
         Eng3D::Deser::deserialize(ar, nation.ai_do_cmd_troops);
         Eng3D::Deser::deserialize(ar, nation.ai_controlled);
         client_data.selected_nation = &nation;
@@ -230,17 +206,13 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
     action_handlers[ActionType::DIPLO_DECLARE_WAR] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
         NationId nation_id;
         Eng3D::Deser::deserialize(ar, nation_id);
-        if(Nation::is_invalid(nation_id))
-            CXX_THROW(ServerException, "Unknown nation");
-        auto& nation = gs.world->nations[nation_id];
+        auto& nation = gs.world->nations.at(nation_id);
         client_data.selected_nation->declare_war(nation);
     };
     action_handlers[ActionType::FOCUS_TECH] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
         TechnologyId technology_id;
         Eng3D::Deser::deserialize(ar, technology_id);
-        if(Technology::is_invalid(technology_id))
-            CXX_THROW(ServerException, "Unknown technology");
-        auto& technology = gs.world->technologies[technology_id];
+        auto& technology = gs.world->technologies.at(technology_id);
         if(!client_data.selected_nation->can_research(technology))
             CXX_THROW(ServerException, "Can't research tech at the moment");
         client_data.selected_nation->focus_tech_id = technology;
