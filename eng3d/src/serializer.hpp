@@ -339,15 +339,16 @@ namespace Eng3D::Deser {
         template<bool is_serialize>
         static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
             if constexpr(is_serialize) {
-                Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.value());
                 auto has_value = obj.has_value();
                 Eng3D::Deser::deser_dynamic<is_serialize>(ar, has_value);
+                if(has_value)
+                    Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.value());
             } else {
-                T tmp;
-                Eng3D::Deser::deser_dynamic<is_serialize>(ar, tmp);
                 bool has_value = false;
                 Eng3D::Deser::deser_dynamic<is_serialize>(ar, has_value);
                 if(has_value) {
+                    T tmp;
+                    Eng3D::Deser::deser_dynamic<is_serialize>(ar, tmp);
                     obj.emplace(tmp);
                 }
             }

@@ -103,7 +103,7 @@ struct Entity {
     /// @brief Id used to speed up Id lookups on any context
     /// @note This depends that the container is sequential (as if it was
     /// a contigous array) - Otherwise this optimization **will** break
-    Id cached_id = Id{ static_cast<T>(0) };
+    Id cached_id;
 
     /// @brief Returns an invalid id
     /// @return constexpr Id The invalid id
