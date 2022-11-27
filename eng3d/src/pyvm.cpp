@@ -141,8 +141,8 @@ Eng3D::PythonObj::PythonObj(const PythonObj& rhs) {
 }
 
 Eng3D::PythonObj::PythonObj(PythonObj&& rhs) noexcept {
-    rhs.obj = nullptr;
     this->obj = rhs.obj;
+    rhs.obj = nullptr;
 }
 
 Eng3D::PythonObj::~PythonObj()

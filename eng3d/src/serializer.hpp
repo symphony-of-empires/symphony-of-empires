@@ -347,9 +347,8 @@ namespace Eng3D::Deser {
                 bool has_value = false;
                 Eng3D::Deser::deser_dynamic<is_serialize>(ar, has_value);
                 if(has_value) {
-                    T tmp;
-                    Eng3D::Deser::deser_dynamic<is_serialize>(ar, tmp);
-                    obj.emplace(tmp);
+                    obj.emplace();
+                    Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.value());
                 }
             }
         }
