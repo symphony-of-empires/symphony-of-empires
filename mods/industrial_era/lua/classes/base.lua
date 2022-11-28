@@ -414,6 +414,7 @@ function Nation:relative_policy_stance(tp, v)
 end
 
 NationRelation = {
+	alliance = 0.0,
 	relation = 0.0,
     has_war = false
 }
@@ -425,11 +426,11 @@ function NationRelation:new(o)
 end
 function Nation:get_relation(other)
 	rel = NationRelation:new{} or {}
-	rel.relation, rel.has_war = get_nation_relation(self.id, other.id)
+	rel.alliance, rel.relation, rel.has_war = get_nation_relation(self.id, other.id)
 	return rel
 end
 function Nation:set_relation(other, rel)
-	get_nation_relation(self.id, other.id, rel.relation)
+	get_nation_relation(self.id, other.id, rel.alliance, rel.relation, rel.has_war)
 end
 function Nation:make_puppet(other)
 	nation_make_puppet(self.id, other.id)

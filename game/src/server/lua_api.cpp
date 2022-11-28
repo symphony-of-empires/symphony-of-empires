@@ -396,16 +396,19 @@ int LuaAPI::get_nation_relation(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
     auto& relation = g_world.get_relation(nation, other_nation);
+    lua_pushnumber(L, relation.alliance);
     lua_pushnumber(L, relation.relation);
     lua_pushboolean(L, relation.has_war);
-    return 2;
+    return 3;
 }
 
 int LuaAPI::set_nation_relation(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
     auto& relation = g_world.get_relation(nation, other_nation);
-    relation.relation = lua_tonumber(L, 3);
+    relation.alliance = lua_tonumber(L, 3);
+    relation.relation = lua_tonumber(L, 4);
+    relation.has_war = lua_toboolean(L, 5);
     return 0;
 }
 
