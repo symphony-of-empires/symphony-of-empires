@@ -42,7 +42,6 @@ yongle_encyclopedia_evhdl = Event:new{
             effects = "None"
         })
         yongle_encyclopedia_evhdl:add_decision(Decision:new{
-            ref_name = "yongle_encyclopedia_decision_1",
             name = "Make backups of it",
             decision_fn = function(ref_name)
                 -- TODO: Remove money
@@ -51,7 +50,6 @@ yongle_encyclopedia_evhdl = Event:new{
             effects = "-10,000 money"
         })
         yongle_encyclopedia_evhdl:add_decision(Decision:new{
-            ref_name = "yongle_encyclopedia_decision_2",
             name = "Make it public",
             decision_fn = function(ref_name)
                 -- TODO: Remove money
