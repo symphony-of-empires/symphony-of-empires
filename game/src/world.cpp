@@ -722,6 +722,29 @@ static inline void unit_do_tick(World& world, Unit& unit) {
     }
 }
 
+void World::fire_special_event(const std::string_view event_ref_name, const std::string_view nation_ref_name, const std::string_view other_nation_ref_name) {
+    auto event_it = std::find_if(this->events.begin(), this->events.end(), [&](const auto& e) {
+        return e.ref_name == event_ref_name;
+    });
+    if(event_it == this->events.end())
+        CXX_THROW(std::runtime_error, translate_format("Can't find special event %s", event_ref_name.data()));
+
+    auto nation_it = std::find_if(this->nations.begin(), this->nations.end(), [&](const auto& e) {
+        return e.ref_name == nation_ref_name;
+    });
+    if(nation_it == this->nations.end())
+        CXX_THROW(std::runtime_error, translate_format("Can't find the first nation %s for firing special event %s", nation_ref_name.data(), event_ref_name.data()));
+    
+    auto other_nation_it = std::find_if(this->nations.begin(), this->nations.end(), [&](const auto& e) {
+        return e.ref_name == other_nation_ref_name;
+    });
+    if(other_nation_it == this->nations.end())
+        CXX_THROW(std::runtime_error, translate_format("Can't find the second nation %s for firing special event %s", nation_ref_name.data(), event_ref_name.data()));
+    
+    bool discard = false;
+    LuaAPI::fire_event(this->lua.state, *nation_it, *event_it, discard, other_nation_ref_name);
+}
+
 void World::do_tick() {
     province_manager.clear();
 

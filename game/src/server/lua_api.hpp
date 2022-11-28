@@ -29,13 +29,13 @@ extern "C" {
 #include <lualib.h>
 #include <lauxlib.h>
 }
-
 #include <string>
 #include <vector>
 #include <exception>
 
+class Nation;
+struct Event;
 namespace LuaAPI {
-
     int register_new_table(lua_State* L, const std::string& name, const std::vector<luaL_Reg> meta, const std::vector<luaL_Reg> methods);
 
     int add_terrain_type(lua_State* L);
@@ -124,6 +124,7 @@ namespace LuaAPI {
     int get_ideology_by_id(lua_State* L);
 
     // Functions not part of the API
+    void fire_event(lua_State* L, Nation& nation, Event& event, bool& is_multi, const std::string_view extra);
     void check_events(lua_State* L);
     // UI stuff
     int ui_call_builtin(lua_State* L);

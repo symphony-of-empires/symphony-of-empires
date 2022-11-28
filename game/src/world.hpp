@@ -130,6 +130,7 @@ public:
     void init_lua();
     void load_initial();
     void load_mod();
+    void fire_special_event(const std::string_view event_ref_name, const std::string_view nation_ref_name, const std::string_view other_nation_ref_name);
     Eng3D::Profiler profiler;
 
     LIST_FOR_LOCAL_TYPE(Commodity, commodities, std::vector)

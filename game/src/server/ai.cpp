@@ -241,8 +241,8 @@ void AI::do_tick(World& world) {
                         }
                     }
                 }
-
-                auto advantage = glm::max(our_strength, 1.f) / enemy_strength;
+                
+                auto advantage = glm::max(our_strength, 1.f) / glm::max(enemy_strength, glm::epsilon<float>());
                 if(advantage < ai.strength_threshold) {
                     // The enemy is bigger; so re-evaluate stances
                     for(const auto& other : world.nations) {
@@ -313,11 +313,10 @@ void AI::do_tick(World& world) {
     /// @todo AI reject alliance proposals and so on; also allow the player to reject
     /// their alliance proposals too!
     alliance_proposals.combine_each([&world](const auto& alliance_proposals_range) {
-        for(const auto& [nation, other] : alliance_proposals_range) {
-            auto& relation = world.get_relation(nation, other);
-            relation.alliance = 1.f;
-            relation.relation = 100.f;
-            relation.has_war = false;
+        for(const auto& [nation_id, other_id] : alliance_proposals_range) {
+            const auto& nation = world.nations[nation_id];
+            const auto& other_nation = world.nations[other_id];
+            world.fire_special_event("special_alliance", nation.ref_name.c_str(), other_nation.ref_name.c_str());
         }
     });
 }
