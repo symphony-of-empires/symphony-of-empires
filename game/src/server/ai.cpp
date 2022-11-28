@@ -109,7 +109,7 @@ struct AIManager {
 
     float get_nation_risk(const World& world, const Nation& nation, const Nation& other) {
         const auto& relation = world.get_relation(nation, other);
-        float factor = relation.has_war ? war_weight : -(relation.relation / 200.f);
+        float factor = relation.has_war ? war_weight : -relation.relation;
         return factor;
     }
 

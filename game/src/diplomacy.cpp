@@ -38,7 +38,7 @@ TreatyClause::BaseClause::BaseClause(const Nation& _sender, const Nation& _recei
 inline bool Diplomacy::is_friend(Nation& us, Nation& them) {
     const auto& relation = g_world.get_relation(us, them);
     // High enough relation with the threshold means it is friendly
-    return relation.relation >= 50;
+    return relation.relation >= 0.5f;
 }
 
 inline bool Diplomacy::is_foe(Nation& us, Nation& them) {

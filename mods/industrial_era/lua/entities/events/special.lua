@@ -34,7 +34,7 @@ special_alliance_evhdl = Event:new{
             decision_fn = function(ref_name, other_ref_name)
                 local rel = Nation:get(ref_name):get_relation(Nation:get(other_ref_name))
                 rel.alliance = 0.1
-                rel.relation = 100.0
+                rel.relation = 1.0
                 rel.has_war = false
                 Nation:get(ref_name):set_relation(Nation:get(other_ref_name))
             end,

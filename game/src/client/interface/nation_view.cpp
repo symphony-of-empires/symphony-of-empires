@@ -74,7 +74,7 @@ Interface::NationView::NationView(GameState& _gs, Nation& _nation)
         auto& rel_lab = flex_actions_column.make_widget<UI::Label>(0, 0, "?");
         rel_lab.set_on_each_tick([this](UI::Widget& w) {
             const auto& relation = this->gs.world->get_relation(*this->gs.curr_nation, this->nation);
-            w.text(string_format("%.2f+%.2f", relation.relation, relation.alliance));
+            w.text(string_format("%.2f%%+%.2f%%", relation.relation * 100.f, relation.alliance * 100.f));
 
             std::string text = translate("Our diplomatic relations with them and our alliance:\n");
             text += (relation.is_customs_union() ? translate("- In customs union") : translate("- Not in a customs union")) + "\n";

@@ -319,8 +319,8 @@ mapmode_generator relations_map_mode(NationId id) {
             }
 
             const auto& relation = world.get_relation(province.controller_id, id);
-            const uint8_t r = (relation.relation < 0) ? -relation.relation : 0;
-            const uint8_t g = (relation.relation > 0) ? relation.relation : 0;
+            const uint8_t r = relation.relation < 0.f ? -relation.relation : 0;
+            const uint8_t g = relation.relation > 0.f ? relation.relation : 0;
             const uint8_t b = relation.is_allied() ? 0x80 : 0;
             auto color = Eng3D::Color::rgb8(r, g, b);
             provinces_color.emplace_back(ProvinceId(i), color);
@@ -365,8 +365,8 @@ mapmode_tooltip relations_tooltip(NationId nation_id) {
                 "friendly"
             };
 
-            size_t idx = ((static_cast<float>(relation.relation) + 100.f) / 200.f) * rel_lvls.size();
-            str += string_format("\n%.2f - %s", relation.relation, rel_lvls[idx % rel_lvls.size()].c_str());
+            size_t idx = (1.f + relation.relation) * rel_lvls.size();
+            str += string_format("\n%.2f%% - %s", relation.relation * 100.f, rel_lvls[idx % rel_lvls.size()].c_str());
 
             nation.get_allies([&](const auto& _nation) {
                 str += string_format("%s,", _nation.get_client_hint().name.c_str());

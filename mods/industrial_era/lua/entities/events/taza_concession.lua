@@ -56,10 +56,10 @@ taza_concession = Event:new{
 			decision_fn = function(ref_name)
 				local rel = {}
 				rel = Nation:get("spain"):get_relation(Nation:get("morocco"))
-				rel.relation = rel.relation + 50.0
+				rel.relation = rel.relation + 0.5
 				Nation:get("spain"):set_relation(Nation:get("morocco"), rel)
 				rel = Nation:get("spain"):get_relation(Nation:get("france"))
-				rel.relation = rel.relation + 50.0
+				rel.relation = rel.relation + 0.5
 				Nation:get("spain"):set_relation(Nation:get("france"), rel)
 			end,
 			effects = "+50 relations with Morocco and France"

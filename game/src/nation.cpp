@@ -98,7 +98,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
             auto& relation = world.get_relation(defender_id, attacker_id);
             relation.has_war = true; // Declare war
             relation.alliance = 0.f;
-            relation.relation = -100.f;
+            relation.relation = -1.f;
         }
     }
 

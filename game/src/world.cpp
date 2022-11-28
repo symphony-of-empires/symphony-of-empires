@@ -590,7 +590,7 @@ void World::load_initial() try {
         auto& relation = this->get_relation(nation_id, NationId(0));
         relation.has_war = true; // Declare war
         relation.alliance = 0.f;
-        relation.relation = -100.f;
+        relation.relation = -1.f;
     }
     this->insert(*war);
 
