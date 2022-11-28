@@ -27,7 +27,7 @@ western_contact_evhdl = Event:new{
     ref_name = "western_contact",
     conditions_fn = function(ref_name)
         local year = get_year()
-        if Nation:get(ref_name):get_flag("westernized") < 1.0 then
+        if Nation:get(ref_name):get_flag("westernized") < 1.0 and math.random(0, 60) == 0 then
             return EVENT_CONDITIONS_MET
         end
         return EVENT_CONDITIONS_UNMET
