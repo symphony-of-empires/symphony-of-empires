@@ -235,41 +235,6 @@ function Province:update_building(building)
 	set_province_building(self.id, building.id, building.level, building.production_scale, building.workers)
 end
 
--- ============================================================================
--- DEPRECATED do not use!!!!
--- ============================================================================
-
--- Increments militancy for all POPs
-function Province:multiply_militancy(factor)
-	local pops = self:get_pops()
-	for k, pop in pairs(pops) do
-		pop.militancy = pop.militancy * factor
-		self:update_pop(pop)
-	end
-	self:update_pops()
-end
-function Province:multiply_militancy_by_language(language, factor)
-	local pops = self:get_pops()
-	for k, pop in pairs(pops) do
-		-- if pop.language_id == language.id then
-			pop.militancy = pop.militancy * factor
-			self:update_pop(pop)
-		-- end
-	end
-	self:update_pops()
-end
-function Province:multiply_militancy_by_religion(religion, factor)
-	local pops = self:get_pops()
-	for k, pop in pairs(pops) do
-		-- if pop.religion_id == religion.id then
-		 	pop.militancy = pop.militancy * factor
-		 	self:update_pop(pop)
-		-- end
-	end
-	self:update_pops()
-end
--- ============================================================================
-
 -- Adds a POP to the province
 function Province:add_pop(pop_type, size, literacy)
 	add_province_pop(self.id, pop_type.id, size, literacy)
