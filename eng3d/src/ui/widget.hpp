@@ -291,6 +291,13 @@ namespace UI {
                 child->kill();
         }
 
+        inline size_t max_height() const {
+            size_t cnt = 0;
+            for(auto& child : this->children)
+                cnt += child->height;
+            return cnt;
+        }
+
         // If the widget can't be moved when scrolling
         bool is_pinned = false;
         bool is_render = true;

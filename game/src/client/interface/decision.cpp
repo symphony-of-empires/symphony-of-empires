@@ -37,7 +37,7 @@
 #include "client/game_state.hpp"
 
 Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
-    : UI::Window(-400, -400, 800, 800),
+    : UI::Window(-(600 / 2), 0, 600, 0),
     gs{ _gs },
     event{ _event }
 {
@@ -49,7 +49,7 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
     // Display an image iff it exists
     const auto& path = string_format("gfx/events/%s.png", event.ref_name.c_str());
     if(this->gs.package_man.get_unique(path) != nullptr) {
-        this->make_widget<UI::Image>(0, 0, this->width, 200, path);
+        this->make_widget<UI::Image>(0, 24, this->width, 200, path);
     } else {
         Eng3D::Log::warning("event", path.c_str());
     }
@@ -58,6 +58,14 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
     txt.text_color = Eng3D::Color::rgb8(0, 0, 0);
     txt.text(this->event.text);
     txt.is_scroll = true;
+
+    auto button_font = gs.ttf_man.load(gs.package_man.get_unique("fonts/neon_euler/euler.ttf"));
+    auto button_text_color = Eng3D::Color(1.f, 1.f, 1.f);
+    auto button_image = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/button/button.png"));
+    auto button_border_image = gs.tex_man.load(gs.package_man.get_unique("gfx/ui/button/button_border.png"));
+    glm::ivec2 size(3, 3);
+    glm::ivec2 texture_size(3, 3);
+    auto button_border = UI::Border(button_border_image, size, texture_size);
 
     // Buttons for decisions for the event
     for(const auto& decision : this->event.decisions) {
@@ -68,6 +76,10 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
             CXX_THROW(std::runtime_error, string_format("Event ref_name=%s", event.ref_name.c_str()));
         
         auto& decide_btn = flex_column.make_widget<UI::Button>(0, 0, flex_column.width - 24, 24);
+        decide_btn.border = button_border;
+        decide_btn.current_texture = button_image;
+        decide_btn.font = button_font;
+        decide_btn.text_color = button_text_color;
         decide_btn.text(decision.name);
         decide_btn.set_tooltip(decision.effects);
         decide_btn.set_on_click([this, &decision](UI::Widget&) {
@@ -90,4 +102,7 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
             return;
         }
     }
+    
+    this->height = this->max_height() + 32;
+    this->y = -(this->height / 2);
 }
