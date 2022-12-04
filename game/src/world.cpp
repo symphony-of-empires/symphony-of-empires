@@ -639,7 +639,6 @@ static inline void unit_do_tick(World& world, Unit& unit) {
 
     if(unit.has_target_province()) {
         assert(unit.get_target_province_id() != unit.province_id());
-
         auto& unit_target = world.provinces[unit.get_target_province_id()];
         bool can_move = true, can_take = false;
         if(unit_target.controller_id != unit.owner_id) {
@@ -669,16 +668,16 @@ static inline void unit_do_tick(World& world, Unit& unit) {
     if(!unit.on_battle) {
         const auto& unit_nation = world.nations[unit.owner_id];
         if(province.battle.active) {
-            unit.on_battle = true;
-            unit.stop_movement();
             auto& war = world.wars[province.battle.war_id];
-
             // All the units in the province will be attacked by the attacker
             /// @todo Make it be instead depending on who attacked first in this battle
             assert(std::find(province.battle.attackers_ids.begin(), province.battle.attackers_ids.end(), unit) == province.battle.attackers_ids.end());
             assert(std::find(province.battle.defenders_ids.begin(), province.battle.defenders_ids.end(), unit) == province.battle.defenders_ids.end());
             if(war.is_attacker(unit_nation)) province.battle.attackers_ids.push_back(unit);
             else if(war.is_defender(unit_nation)) province.battle.defenders_ids.push_back(unit);
+
+            unit.on_battle = true;
+            unit.stop_movement();
         } else {
             // No battle on the current province, create a new one so check if we can start a new battle
             const auto& unit_ids = world.unit_manager.get_province_units(province);
