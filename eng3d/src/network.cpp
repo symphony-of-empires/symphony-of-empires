@@ -161,8 +161,10 @@ void Eng3D::Networking::Packet::send() {
     stream.send(&net_code, sizeof(net_code), pred);
     const uint16_t net_size = htons(n_data);
     stream.send(&net_size, sizeof(net_size), pred);
-    
+
     stream.send(buffer.data(), n_data, pred);
+    if(!n_data)
+        CXX_THROW(Eng3D::Networking::SocketException, translate_format("Packet with small size %zu", net_size));
 
     const uint16_t eof_marker = htons(0xE0F);
     stream.send(&eof_marker, sizeof(eof_marker), pred);
@@ -176,6 +178,8 @@ void Eng3D::Networking::Packet::recv() {
     uint16_t net_size;
     stream.recv(&net_size, sizeof(net_size), pred);
     n_data = (size_t)ntohs(net_size);
+    if(!n_data)
+        CXX_THROW(Eng3D::Networking::SocketException, translate_format("Packet with small size %zu", net_size));
     
     buffer.resize(n_data);
     stream.recv(buffer.data(), buffer.size(), pred);
@@ -416,12 +420,7 @@ void Eng3D::Networking::Client::do_netloop(std::function<bool()> cond, std::func
             ar.set_buffer(packet.data(), packet.size());
             ar.rewind();
             Eng3D::Log::debug("client", translate_format("Receiving package of %zuB", packet.size()));
-
-            if(packet.size() <= 1) {
-                Eng3D::Log::warning("client", translate_format("Received extremely small package, dropping"));
-            } else {
-                handler(packet, ar);
-            }
+            handler(packet, ar);
         } catch(Eng3D::Networking::SocketException& e) {
             // Pass
         }
