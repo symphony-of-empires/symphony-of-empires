@@ -63,7 +63,7 @@ void Unit::attack(Unit& enemy) {
 }
 
 void Unit::set_target(const Province& province) {
-    if(this->target_province_id != this->province_id() && province != this->province_id()) {
+    if(province != this->province_id()) {
         if(this->can_move()) {
             this->target_province_id = province.get_id();
             this->has_target = true;
@@ -162,6 +162,8 @@ void Unit::set_owner(const Nation& nation) {
 void Unit::set_path(const Province& target) {
     auto& world = World::get_instance();
     auto start_id = world.unit_manager.get_unit_current_province(this->get_id());
+    if(start_id == target.get_id())
+        return;
     this->path = Eng3D::Pathfind::get_path<ProvinceId>(start_id, target,
     /// @brief Calculates the neighbors for a given province
     [&world](ProvinceId province_id) -> std::vector<ProvinceId> {
@@ -182,9 +184,13 @@ void Unit::set_path(const Province& target) {
         float distance = angle / (2 * glm::pi<float>());
         return distance;
     });
-    
-    if(!this->path.empty() && this->path.back() == start_id)
-        this->path.pop_back(); // Pop the start point
+
+    assert(this->path.size() >= 2); // Start + [optional] + End
+    assert(this->path.back() == start_id);
+    this->path.pop_back(); // Pop the start point
+
+    this->set_target(world.provinces[this->path.back()]);
+    this->path.pop_back();
 }
 
 float Unit::get_strength() const {
