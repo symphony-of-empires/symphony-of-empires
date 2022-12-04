@@ -27,7 +27,7 @@
 #include "log.hpp"
 
 #ifdef E3D_LOG_TO_FILE
-static std::unique_ptr<FILE, int(*)(FILE*)> log_fp;
+static std::optional<std::unique_ptr<FILE, int(*)(FILE*)>> log_fp;
 #endif
 #ifdef E3D_TARGET_SWITCH
 struct PrintConsole;
@@ -40,11 +40,9 @@ static bool debug_show = false;
 void Eng3D::Log::log(const std::string_view severity, const std::string_view category, const std::string_view msg) {
     if(!debug_show && severity == "DEBUG") return;
 #ifdef E3D_LOG_TO_FILE
-    if(log_fp == nullptr)
-        log_fp = std::unique_ptr<FILE, int (*)(FILE *)>(fopen("log.txt", "a+t"), fclose);
-    
-    if(log_fp != nullptr)
-        fprintf(log_fp.get(), "<%s:%s> %s\n", severity.c_str(), category.c_str(), msg.c_str());
+    if(!log_fp.has_value())
+        *log_fp = std::unique_ptr<FILE, int (*)(FILE *)>(fopen("log.txt", "a+t"), fclose);
+    fprintf((*log_fp).get(), "<%s:%s> %s\n", severity.data(), category.data(), msg.data());
 #else
 #   ifndef E3D_TARGET_SWITCH
     printf("<%s:%s> %s\n", severity.data(), category.data(), msg.data());
