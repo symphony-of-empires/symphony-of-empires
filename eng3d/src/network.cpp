@@ -416,7 +416,12 @@ void Eng3D::Networking::Client::do_netloop(std::function<bool()> cond, std::func
             ar.set_buffer(packet.data(), packet.size());
             ar.rewind();
             Eng3D::Log::debug("client", translate_format("Receiving package of %zuB", packet.size()));
-            handler(packet, ar);
+
+            if(packet.size() <= 1) {
+                Eng3D::Log::warning("client", translate_format("Received extremely small package, dropping"));
+            } else {
+                handler(packet, ar);
+            }
         } catch(Eng3D::Networking::SocketException& e) {
             // Pass
         }
