@@ -38,9 +38,11 @@ struct AIManager {
     float unit_battle_weight = 1.f; // Attraction of units into entering on pre-existing battles
     float unit_exist_weight = 1.f; // Weight of an unit by just existing
     float coastal_weight = 1.f; // Importance given to coastal provinces
-    float reconquer_weight = 1.f; // Weight to reconquer lost **home**land
+    float reconquer_weight = 1.f; // Weight to reconquer lost **home**lan
+    float erratic = 1.f; // How erratic we behave when doing military strategies
     float strength_threshold = 0.5f; // How much our enemy has to be in terms of strength
                                      // for us to revaluate our diplomatic stances
+    float override_threshold = 1.f; // Threshold for overriding orders of units
     std::vector<float> nations_risk_factor;
     std::vector<float> potential_risk;
     std::vector<ProvinceId> eval_provinces;
@@ -53,14 +55,21 @@ struct AIManager {
         potential_risk.resize(g_world.provinces.size(), 1.f);
     }
 
+    float get_rand() const {
+        return glm::max<float>(rand() % 100, 1.f) / 100.f;
+    }
+
     /// @brief Reshuffle weights of the AI
     void recalc_weights() {
-        war_weight = 1.f / glm::max<float>(rand() % 50, 1.f);
-        unit_battle_weight = 1.f / glm::max<float>(rand() % 50, 1.f);
-        unit_exist_weight = 1.f / glm::max<float>(rand() % 50, 1.f);
-        coastal_weight = 1.f / glm::max<float>(rand() % 50, 1.f);
-        reconquer_weight = 1.f / glm::max<float>(rand() % 50, 1.f);
-        strength_threshold = 1.f / glm::max<float>(rand() % 50, 1.f);
+        war_weight = 1.f + 1.f * this->get_rand();
+        unit_battle_weight = 1.f + 1.f * this->get_rand();
+        unit_exist_weight = 1.f + 1.f * this->get_rand();
+        coastal_weight = 1.f + 1.f * this->get_rand();
+        reconquer_weight = 1.f + 1.f * this->get_rand();
+        erratic = 1.f + 1.f * this->get_rand();
+
+        strength_threshold = 1.f * this->get_rand();
+        override_threshold = 1.f * this->get_rand();
     }
 
     /// @brief Recalculate weights iff losing territory
@@ -125,32 +134,36 @@ struct AIManager {
                     draw_in_force += unit.get_strength() * unit_weight * glm::abs(nations_risk_factor[unit_owner]);
                 }
 
+                if(province.is_coastal)
+                    draw_in_force *= coastal_weight;
                 if(!world.terrain_types[neighbour.terrain_type_id].is_water_body) {
                     // Try to recover our own lost provinces
                     if(neighbour.owner_id == nation && neighbour.controller_id != nation)
                         draw_in_force *= reconquer_weight;
-                    if(province.is_coastal)
-                        draw_in_force *= coastal_weight;
                     draw_in_force += nations_risk_factor[neighbour.controller_id];
                 }
-                
-                potential_risk[province_id] += draw_in_force; // Spread out the heat
+                potential_risk[province_id] += draw_in_force;
+            }
+        }
+
+        // Spread out the heat
+        for(const auto province_id : eval_provinces) {
+            const auto& province = world.provinces[province_id];
+            for(const auto neighbour_id : province.neighbour_ids) {
                 potential_risk[neighbour_id] += potential_risk[province_id] / province.neighbour_ids.size();
             }
         }
     }
 
-    const Province* get_highest_priority_province(const World& world, const Province* start, const Unit& unit) {
+    const Province& get_highest_priority_province(const World& world, const Province& start, const Unit& unit) {
         // See which province has the most potential_risk so we cover it from potential threats
-        const auto* highest_risk = start;
-        for(const auto neighbour_id : start->neighbour_ids) {
+        const auto* highest_risk = &start;
+        for(const auto neighbour_id : start.neighbour_ids) {
             const auto& neighbour = world.provinces[neighbour_id];
-            if(!world.unit_types[unit.type_id].is_naval && world.terrain_types[neighbour.terrain_type_id].is_water_body) continue;
-            // Water is not an option
-            if(!world.terrain_types[neighbour.terrain_type_id].is_water_body)
-                continue;
+            // If going to water, must be a naval/amphibious/airplane unit
+            //if(!world.unit_types[unit.type_id].is_naval && world.terrain_types[neighbour.terrain_type_id].is_water_body) continue;
 
-            if(potential_risk[neighbour_id] > potential_risk[highest_risk->get_id()]) {
+            if(potential_risk[neighbour_id] >= potential_risk[highest_risk->get_id()]) {
                 if(neighbour.controller_id != unit.owner_id) {
                     const auto& relation = world.get_relation(neighbour.controller_id, unit.owner_id);
                     if(relation.has_landpass())
@@ -160,7 +173,7 @@ struct AIManager {
                 }
             }
         }
-        return highest_risk;
+        return *highest_risk;
     }
 };
 

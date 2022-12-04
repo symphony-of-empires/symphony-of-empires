@@ -146,6 +146,7 @@ struct Eng3D::Deser::Serializer<Unit> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.base);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.experience);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.target_province_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.has_target);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.owner_id);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.days_left_until_move);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.path);

@@ -150,21 +150,26 @@ void AI::do_tick(World& world) {
                     for(const auto unit_id : unit_ids) {
                         auto& unit = world.unit_manager.units[unit_id];
                         if(unit.owner_id != nation || !unit.can_move()) continue;
-                        if(unit.has_target_province()) continue;
-                        const auto* highest_risk = ai.get_highest_priority_province(world, &province, unit);
-                        // Above we made sure high_risk province is valid for us to step in
-                        if(highest_risk == &province) {
-                            auto it = highest_risk->neighbour_ids.begin();
-                            std::advance(it, rand() % highest_risk->neighbour_ids.size());
-                            highest_risk = &world.provinces[*it];
-                            if(!world.terrain_types[highest_risk->terrain_type_id].is_water_body) continue;
-                            if(highest_risk->controller_id != unit.owner_id) {
-                                const auto& relation = world.get_relation(highest_risk->controller_id, unit.owner_id);
-                                if(!relation.has_landpass()) continue;
+
+                        bool can_set_target = true;
+                        if(unit.has_target_province())
+                            can_set_target = ai.get_rand() > ai.override_threshold;
+
+                        if(can_set_target) {
+                            const auto* highest_risk = &ai.get_highest_priority_province(world, province, unit);
+                            // Above we made sure high_risk province is valid for us to step in
+                            //if(!world.terrain_types[highest_risk->terrain_type_id].is_water_body) continue;
+                            if(highest_risk->get_id() == province.get_id()) {
+                                auto it = highest_risk->neighbour_ids.begin();
+                                std::advance(it, rand() % highest_risk->neighbour_ids.size());
+                                highest_risk = &world.provinces[*it];
+                                if(highest_risk->controller_id != unit.owner_id) {
+                                    const auto& relation = world.get_relation(highest_risk->controller_id, unit.owner_id);
+                                    if(!relation.has_landpass()) continue;
+                                }
                             }
-                            if(highest_risk == &province) continue;
+                            unit.set_target(*highest_risk);
                         }
-                        unit.set_target(*highest_risk);
                     }
                 }
             }

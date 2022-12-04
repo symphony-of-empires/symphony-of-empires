@@ -213,7 +213,7 @@ Minimap::Minimap(GameState& _gs, int _x, int _y, UI::Origin _origin)
                     const auto& province = world.provinces[id];
                     const auto& nation = world.nations[province.owner_id];
                     const auto& ai = ai_man[nation];
-                    return translate_format("Potential risk: %.2f\nWar weight: %.2f\nUnit battle weight: %.2f\nUnit exist weight: %.2f\nCoastal weight: %.2f\nReconquer weight: %.2f\nStrength threshold: %.2f\nGains: %zu\nLosses: %zu\nMilitary strength: %.2f", ai.potential_risk[province], ai.war_weight, ai.unit_battle_weight, ai.unit_exist_weight, ai.coastal_weight, ai.reconquer_weight, ai.strength_threshold, ai.gains, ai.losses, ai.military_strength);
+                    return translate_format("Potential risk: %.2f (Our strenght: %.2f)\nWar weight: %.2f\nUnit battle weight: %.2f\nUnit exist weight: %.2f\nCoastal weight: %.2f\nReconquer weight: %.2f\nStrength threshold: %.2f\nErratic: %.2f\nOverride threshold: %.2f\nGains/losses: %zu/%zu\nMilitary strength: %.2f", ai.potential_risk[province], ai.military_strength, ai.war_weight, ai.unit_battle_weight, ai.unit_exist_weight, ai.coastal_weight, ai.reconquer_weight, ai.strength_threshold, ai.erratic, ai.override_threshold, ai.gains, ai.losses);
                 };
             })(selected_province));
         });

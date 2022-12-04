@@ -582,17 +582,17 @@ void World::load_initial() try {
     }
 
     // Rebels(?) vs. everyone
-    auto* war = new War();
-    war->attacker_ids.push_back(this->nations[0].get_id());
+    War war{};
+    war.attacker_ids.push_back(this->nations[0].get_id());
     for(size_t i = 1; i < this->nations.size(); i++) {
         auto nation_id = this->nations[i].get_id();
-        war->defender_ids.push_back(nation_id);
+        war.defender_ids.push_back(nation_id);
         auto& relation = this->get_relation(nation_id, NationId(0));
         relation.has_war = true; // Declare war
         relation.alliance = 0.f;
         relation.relation = -1.f;
     }
-    this->insert(*war);
+    this->insert(war);
 
     // Write the entire world to the cache file
     Eng3D::Deser::Archive ar{};
@@ -629,7 +629,7 @@ static inline void unit_do_tick(World& world, Unit& unit) {
             // Decrease relations if we're militarizing our border
             auto& relation = world.get_relation(neighbour.controller_id, unit.owner_id);
             if(!relation.has_landpass())
-                relation.relation = glm::clamp<float>(relation.relation - weight_factor, -100.f, 100.f);
+                relation.relation = glm::clamp<float>(relation.relation - weight_factor, -1.f, 1.f);
         }
     }
 
