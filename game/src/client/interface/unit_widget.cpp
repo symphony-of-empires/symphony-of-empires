@@ -146,7 +146,7 @@ UnitView::UnitView(GameState& _gs, Unit& _unit)
         auto target_id = current_unit.get_target_province_id();
         if(current_unit.has_target_province()) {
             const auto& target_province = this->gs.world->provinces[target_id];
-            w.text(Eng3D::translate_format("Moving to %s", target_province.ref_name.c_str()));
+            w.text(Eng3D::translate_format("Moving to %s", target_province.name.c_str()));
         } else {
             w.text(Eng3D::translate_format("No orders"));
         }
