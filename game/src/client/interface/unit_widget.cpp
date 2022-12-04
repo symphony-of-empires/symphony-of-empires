@@ -137,28 +137,49 @@ UnitView::UnitView(GameState& _gs, Unit& _unit)
     auto& unit_type = this->gs.world->unit_types[unit.type_id];
     this->text(Eng3D::translate_format("Unit %s from %s", unit_type.name.c_str(), this->gs.world->nations[unit.owner_id].name.c_str()));
 
-    auto* flex_column = new UI::Div(0, 0, this->width, this->height, this);
-    flex_column->flex = UI::Flex::COLUMN;
+    auto& flex_column = this->make_widget<UI::Div>(0, 0, this->width, this->height);
+    flex_column.flex = UI::Flex::COLUMN;
 
-    auto* size_lab = new UI::Label(0, 0, " ", flex_column);
-    size_lab->set_on_each_tick([this](UI::Widget& w) {
+    auto& target_lab = flex_column.make_widget<UI::Label>(0, 0, " ");
+    target_lab.set_on_each_tick([this](UI::Widget& w) {
         auto& current_unit = this->gs.world->unit_manager.units[this->unit_id];
-        w.text(Eng3D::translate_format("Size: %.0f", current_unit.size));
+        auto target_id = current_unit.get_target_province_id();
+        if(current_unit.has_target_province()) {
+            const auto& target_province = this->gs.world->provinces[target_id];
+            w.text(Eng3D::translate_format("Moving to %s", target_province.ref_name.c_str()));
+        } else {
+            w.text(Eng3D::translate_format("No orders"));
+        }
     });
-    size_lab->on_each_tick(*size_lab);
+    target_lab.on_each_tick(target_lab);
 
-    auto* experience_lab = new UI::Label(0, 0, " ", flex_column);
-    experience_lab->set_on_each_tick([this](UI::Widget& w) {
+    auto& size_lab = flex_column.make_widget<UI::Label>(0, 0, " ");
+    size_lab.set_on_each_tick([this](UI::Widget& w) {
+        auto& current_unit = this->gs.world->unit_manager.units[this->unit_id];
+        w.text(Eng3D::translate_format("Size: %.2f", current_unit.size));
+    });
+    size_lab.on_each_tick(size_lab);
+
+    auto& experience_lab = flex_column.make_widget<UI::Label>(0, 0, " ");
+    experience_lab.set_on_each_tick([this](UI::Widget& w) {
         auto& current_unit = this->gs.world->unit_manager.units[this->unit_id];
         w.text(Eng3D::translate_format("Experience: %.2f", current_unit.experience));
     });
-    experience_lab->on_each_tick(*experience_lab);
+    experience_lab.on_each_tick(experience_lab);
 
-    auto* attdef_lab = new UI::Label(0, 0, " ", flex_column);
-    attdef_lab->set_on_each_tick([this](UI::Widget& w) {
+    auto& attdef_lab = flex_column.make_widget<UI::Label>(0, 0, " ");
+    attdef_lab.set_on_each_tick([this](UI::Widget& w) {
         auto& current_unit = this->gs.world->unit_manager.units[this->unit_id];
         auto& current_type = this->gs.world->unit_types[current_unit.type_id];
         w.text(Eng3D::translate_format("Attack/Defense: %.2f/%.2f", current_type.attack, current_type.defense));
     });
-    attdef_lab->on_each_tick(*attdef_lab);
+    attdef_lab.on_each_tick(attdef_lab);
+
+    auto& debug_lab = flex_column.make_widget<UI::Label>(0, 0, " ");
+    debug_lab.set_on_each_tick([this](UI::Widget& w) {
+        auto& current_unit = this->gs.world->unit_manager.units[this->unit_id];
+        auto& current_type = this->gs.world->unit_types[current_unit.type_id];
+        w.text(Eng3D::translate_format("On battle?: %s", current_unit.on_battle ? "Yes" : "No"));
+    });
+    debug_lab.on_each_tick(debug_lab);
 }
