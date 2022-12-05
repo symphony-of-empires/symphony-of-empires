@@ -52,6 +52,7 @@ namespace UI {
 
         void set_key(const std::string& key);
         void set_key(float key);
+        void set_key(float key, const std::string_view format);
         bool operator< (const UI::TableElement& right) const;
     private:
         enum class KeyType {

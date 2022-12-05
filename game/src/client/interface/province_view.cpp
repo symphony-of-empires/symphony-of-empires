@@ -123,7 +123,7 @@ UI::Widget& ProvincePopulationTab::create_pop_table() {
 
 UI::Widget& ProvincePopulationTab::create_stock_table() {
     std::vector<int> sizes{ 100, 100, 100, 100, 100 };
-    std::vector<std::string> header{ "Commodity", "Amount", "Demand", "Price", "Change" };
+    std::vector<std::string> header{ "Commodity", "Amount", "Demand", "Glob Demand", "Price" };
     auto& stock_table = this->make_widget<UI::Table<uint32_t>>(0, 352, this->height - (352 + 32), 30, sizes, header);
     stock_table.reserve(this->province.pops.size());
     stock_table.set_on_each_tick([this, &stock_table](UI::Widget&) {
@@ -138,20 +138,16 @@ UI::Widget& ProvincePopulationTab::create_stock_table() {
             commodity_img.set_tooltip(commodity.name);
 
             auto* amount = row.get_element(row_index++);
-            amount->text(string_format("%.0f", product.supply));
-            amount->set_key(product.supply);
+            amount->set_key(product.supply, "%.0f");
 
             auto* demand = row.get_element(row_index++);
-            demand->text(string_format("%.1f", product.demand));
-            demand->set_key(product.demand);
+            demand->set_key(product.demand, "%.1f");
+
+            auto* global_demand = row.get_element(row_index++);
+            global_demand->set_key(product.global_demand, "%.2f");
 
             auto* price = row.get_element(row_index++);
-            price->text(string_format("%.2f", product.price));
-            price->set_key(product.price);
-
-            auto* price_vel = row.get_element(row_index++);
-            price_vel->text(string_format("%.2f", product.price_delta));
-            price_vel->set_key(product.price_delta);
+            price->set_key(product.price, "%.2f");
         }
     });
     stock_table.on_each_tick(stock_table);

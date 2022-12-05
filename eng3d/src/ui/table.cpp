@@ -48,6 +48,12 @@ void UI::TableElement::set_key(float key) {
     key_number = key;
 }
 
+void UI::TableElement::set_key(float key, const std::string_view format) {
+    this->text(string_format("%.0f", key));
+    key_type = UI::TableElement::KeyType::NUMBER;
+    key_number = key;
+}
+
 bool UI::TableElement::operator<(const UI::TableElement& right) const {
     if(this->key_type != right.key_type)
         return this->key_type < right.key_type;
