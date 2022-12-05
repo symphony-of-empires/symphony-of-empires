@@ -152,7 +152,6 @@ UI::Widget& ProvincePopulationTab::create_stock_table() {
             auto* price_vel = row.get_element(row_index++);
             price_vel->text(string_format("%.2f", product.price_delta));
             price_vel->set_key(product.price_delta);
-
         }
     });
     stock_table.on_each_tick(stock_table);

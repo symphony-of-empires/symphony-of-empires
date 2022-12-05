@@ -33,7 +33,6 @@
 #include <vector>
 #include <memory>
 #include <optional>
-#include <cstdio>
 #include <type_traits>
 #include <bitset>
 #include <limits>
