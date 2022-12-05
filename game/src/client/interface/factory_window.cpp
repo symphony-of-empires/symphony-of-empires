@@ -34,7 +34,7 @@
 #include "client/client_network.hpp"
 #include "nation.hpp"
 #include "action.hpp"
-#include "pop.hpp"
+#include "indpobj.hpp"
 #include "world.hpp"
 
 UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, int _y, int _w, int _h, std::vector<ProvinceId> provinces, UI::Widget* parent) {
@@ -46,16 +46,16 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
     if(provinces.size() > 1) header.push_back("Province");
     header.insert(header.end(), { "Type", "Workers", "Budget", "Inputs", "Output", "Scale", "Profit", "" });
 
-    auto* table = new UI::Table<uint32_t>(_x, _y, _h, 32, sizes, header, parent);
-    table->reserve(1);
-    table->set_on_each_tick([&gs, table, provinces](UI::Widget&) {
+    auto& table = parent->make_widget<UI::Table<uint32_t>>(_x, _y, _h, 32, sizes, header);
+    table.reserve(1);
+    table.set_on_each_tick([&gs, &table, provinces](UI::Widget&) {
         size_t row_num = 0;
         for(const auto province_id : provinces) {
             const auto& province = gs.world->provinces[province_id];
             for(size_t i = 0; i < province.buildings.size(); i++) {
                 const auto& type = gs.world->building_types[i];
                 const auto& building = province.buildings[i];
-                auto& row = table->get_row(row_num++);
+                auto& row = table.get_row(row_num++);
 
                 size_t row_index = 0;
                 if(provinces.size() > 1) {
@@ -99,14 +99,14 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
             }
         }
     });
-    table->on_each_tick(*table);
+    table.on_each_tick(table);
     
     size_t row_num = 0;
     for(const auto province_id : provinces) {
         const auto& province = gs.world->provinces[province_id];
         for(size_t i = 0; i < province.buildings.size(); i++) {
             const auto& type = gs.world->building_types[i];
-            auto& row = table->get_row(row_num++);
+            auto& row = table.get_row(row_num++);
 
             size_t row_index = 0;
 
@@ -130,14 +130,13 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
             outputs->set_key(type.output_id);
             outputs->flex = UI::Flex::ROW;
             outputs->flex_justify = UI::FlexJustify::START;
-            if(Commodity::is_valid(type.output_id)) {
-                auto& output = gs.world->commodities[type.output_id];
-                auto& output_img = outputs->make_widget<UI::Image>(0, 0, 35, 35, output.get_icon_path(), true);
-                output_img.set_tooltip(output.name);
-            }
+
+            auto& output = gs.world->commodities[type.output_id];
+            auto& output_img = outputs->make_widget<UI::Image>(0, 0, 35, 35, output.get_icon_path(), true);
+            output_img.set_tooltip(output.name);
         }
     }
-    return table;
+    return &table;
 }
 
 Interface::FactoryWindow::FactoryWindow(GameState& _gs)

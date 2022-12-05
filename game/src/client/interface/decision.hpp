@@ -38,4 +38,4 @@ namespace Interface {
     public:
         DecisionWindow(GameState& gs, Event event);
     };
-};
+}

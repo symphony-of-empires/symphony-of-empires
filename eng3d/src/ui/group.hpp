@@ -49,8 +49,8 @@ namespace UI {
     public:
         Group(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
         Group(int x, int y, Widget* parent = nullptr);
-        virtual ~Group() override {};
+        virtual ~Group() override {}
 
         virtual void on_render(Context& ctx, Eng3D::Rect viewport) override;
     };
-};
+}

@@ -46,7 +46,7 @@
 #include "province.hpp"
 #include "world.hpp"
 #include "diplomacy.hpp"
-#include "policy.hpp"
+#include "indpobj.hpp"
 #include "server/lua_api.hpp"
 #include "server/server_network.hpp"
 #include "action.hpp"
@@ -130,9 +130,9 @@ void World::init_lua() {
     lua_register(lua.state, "set_nation_relation", LuaAPI::set_nation_relation);
     lua_register(lua.state, "nation_declare_unjustified_war", LuaAPI::nation_declare_unjustified_war);
     lua_register(lua.state, "nation_make_puppet", [](lua_State* L) {
-        auto& nation = g_world.nations.at(lua_tonumber(L, 1));
+        const auto& nation = g_world.nations.at(lua_tonumber(L, 1));
         auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
-        other_nation.puppet_master_id = nation;
+        other_nation.make_puppet(nation);
         auto& relation = g_world.get_relation(nation, other_nation);
         relation.alliance = 0.45f; // Just below to not make a customs union
         relation.relation = 0.f;
@@ -441,7 +441,7 @@ void World::load_initial() try {
     // Build a lookup table for super fast speed on finding provinces
     // 16777216 * 4 = c.a 64 MB, that quite a lot but we delete the table after anyways
     Eng3D::Log::debug("world", translate("Building the province lookup table"));
-    std::vector<ProvinceId> province_color_table(0xffffff + 1, ProvinceId(-1));
+    std::vector<ProvinceId> province_color_table(0xffffff + 1, ProvinceId(0));
     for(const auto& province : provinces)
         province_color_table[province.color & 0xffffff] = this->get_id(province);
 
@@ -576,23 +576,23 @@ void World::load_initial() try {
 
     // Auto-relocate capitals for countries which do not have one
     for(auto& nation : this->nations) {
-        if(!nation.exists() || Province::is_valid(nation.capital_id)) continue;
+        if(!nation.exists()) continue;
         //Eng3D::Log::debug("world", translate("Relocating capital of [" + nation.ref_name + "]"));
         nation.auto_relocate_capital();
     }
 
     // Rebels(?) vs. everyone
-    auto* war = new War();
-    war->attacker_ids.push_back(this->nations[0].get_id());
+    War war{};
+    war.attacker_ids.push_back(this->nations[0].get_id());
     for(size_t i = 1; i < this->nations.size(); i++) {
         auto nation_id = this->nations[i].get_id();
-        war->defender_ids.push_back(nation_id);
+        war.defender_ids.push_back(nation_id);
         auto& relation = this->get_relation(nation_id, NationId(0));
         relation.has_war = true; // Declare war
         relation.alliance = 0.f;
-        relation.relation = -100.f;
+        relation.relation = -1.f;
     }
-    this->insert(*war);
+    this->insert(war);
 
     // Write the entire world to the cache file
     Eng3D::Deser::Archive ar{};
@@ -614,9 +614,6 @@ void World::load_mod() {
 }
 
 static inline void unit_do_tick(World& world, Unit& unit) {
-    assert(Province::is_valid(unit.province_id()));
-    //assert(Nation::is_valid(unit.owner_id));
-
     // Do not evaluate if we have an ongoing battle
     if(unit.on_battle) {
         unit.stop_movement();
@@ -628,11 +625,11 @@ static inline void unit_do_tick(World& world, Unit& unit) {
     // Analyze neighbours of where the unit is standing on
     for(const auto neighbour_id : province.neighbour_ids) {
         const auto& neighbour = world.provinces[neighbour_id];
-        if(neighbour.controller_id != unit.owner_id && Nation::is_valid(neighbour.controller_id)) {
+        if(neighbour.controller_id != unit.owner_id) {
             // Decrease relations if we're militarizing our border
             auto& relation = world.get_relation(neighbour.controller_id, unit.owner_id);
             if(!relation.has_landpass())
-                relation.relation = glm::clamp<float>(relation.relation - weight_factor, -100.f, 100.f);
+                relation.relation = glm::clamp<float>(relation.relation - weight_factor, -1.f, 1.f);
         }
     }
 
@@ -640,12 +637,11 @@ static inline void unit_do_tick(World& world, Unit& unit) {
     if(unit.size < unit.base)
         unit.size = glm::min<float>(unit.base, unit.size + unit.experience * 10.f);
 
-    if(Province::is_valid(unit.get_target_province_id())) {
+    if(unit.has_target_province()) {
         assert(unit.get_target_province_id() != unit.province_id());
-
         auto& unit_target = world.provinces[unit.get_target_province_id()];
         bool can_move = true, can_take = false;
-        if(Nation::is_valid(unit_target.controller_id) && unit_target.controller_id != unit.owner_id) {
+        if(unit_target.controller_id != unit.owner_id) {
             const auto& relation = world.get_relation(unit_target.controller_id, unit.owner_id);
             can_move = relation.has_landpass();
             can_take = relation.has_war;
@@ -655,7 +651,7 @@ static inline void unit_do_tick(World& world, Unit& unit) {
             bool unit_moved = unit.update_movement(world.unit_manager);
             if(unit_moved && can_take) {
                 // Moving to a province not owned by us!
-                if(unit.owner_id != unit_target.owner_id && Nation::is_valid(unit_target.owner_id)) {
+                if(unit.owner_id != unit_target.owner_id) {
                     // Relation between original owner and the conqueree
                     const auto& relation = world.get_relation(unit_target.owner_id, unit.owner_id);
                     if(relation.is_allied()) // Allies will liberate countries implicitly and give back to the original owner
@@ -672,16 +668,16 @@ static inline void unit_do_tick(World& world, Unit& unit) {
     if(!unit.on_battle) {
         const auto& unit_nation = world.nations[unit.owner_id];
         if(province.battle.active) {
-            unit.on_battle = true;
-            unit.stop_movement();
             auto& war = world.wars[province.battle.war_id];
-
             // All the units in the province will be attacked by the attacker
             /// @todo Make it be instead depending on who attacked first in this battle
             assert(std::find(province.battle.attackers_ids.begin(), province.battle.attackers_ids.end(), unit) == province.battle.attackers_ids.end());
             assert(std::find(province.battle.defenders_ids.begin(), province.battle.defenders_ids.end(), unit) == province.battle.defenders_ids.end());
             if(war.is_attacker(unit_nation)) province.battle.attackers_ids.push_back(unit);
             else if(war.is_defender(unit_nation)) province.battle.defenders_ids.push_back(unit);
+
+            unit.on_battle = true;
+            unit.stop_movement();
         } else {
             // No battle on the current province, create a new one so check if we can start a new battle
             const auto& unit_ids = world.unit_manager.get_province_units(province);
@@ -725,6 +721,29 @@ static inline void unit_do_tick(World& world, Unit& unit) {
     }
 }
 
+void World::fire_special_event(const std::string_view event_ref_name, const std::string_view nation_ref_name, const std::string_view other_nation_ref_name) {
+    auto event_it = std::find_if(this->events.begin(), this->events.end(), [&](const auto& e) {
+        return e.ref_name == event_ref_name;
+    });
+    if(event_it == this->events.end())
+        CXX_THROW(std::runtime_error, translate_format("Can't find special event %s", event_ref_name.data()));
+
+    auto nation_it = std::find_if(this->nations.begin(), this->nations.end(), [&](const auto& e) {
+        return e.ref_name == nation_ref_name;
+    });
+    if(nation_it == this->nations.end())
+        CXX_THROW(std::runtime_error, translate_format("Can't find the first nation %s for firing special event %s", nation_ref_name.data(), event_ref_name.data()));
+    
+    auto other_nation_it = std::find_if(this->nations.begin(), this->nations.end(), [&](const auto& e) {
+        return e.ref_name == other_nation_ref_name;
+    });
+    if(other_nation_it == this->nations.end())
+        CXX_THROW(std::runtime_error, translate_format("Can't find the second nation %s for firing special event %s", nation_ref_name.data(), event_ref_name.data()));
+    
+    bool discard = false;
+    LuaAPI::fire_event(this->lua.state, *nation_it, *event_it, discard, other_nation_ref_name);
+}
+
 void World::do_tick() {
     province_manager.clear();
 
@@ -743,11 +762,8 @@ void World::do_tick() {
     profiler.stop("E-packages");
 
     profiler.start("Research");
-    for(auto& nation : nations) {
-        if(Technology::is_valid(nation.focus_tech_id)) {
-            nation.research[nation.focus_tech_id] += nation.get_research_points();
-        }
-    }
+    for(auto& nation : nations)
+        nation.research[nation.focus_tech_id] += nation.get_research_points();
     profiler.stop("Research");
 
     profiler.start("Treaties");
@@ -815,7 +831,7 @@ void World::do_tick() {
 
     profiler.start("Units");
     // Evaluate units
-    this->unit_manager.for_each_unit([this](Unit& unit) {
+    this->unit_manager.units.for_each([this](Unit& unit) {
         unit_do_tick(*this, unit);
     });
     profiler.stop("Units");
@@ -829,10 +845,8 @@ void World::do_tick() {
             auto& units = this->unit_manager.units;
             for(auto attacker_id : province.battle.attackers_ids) {
                 auto& attacker = units[attacker_id];
-                assert(attacker.is_valid());
                 for(size_t i = 0; i < province.battle.defenders_ids.size(); ) {
                     auto& unit = units[province.battle.defenders_ids[i]];
-                    assert(unit.is_valid());
                     const auto prev_size = unit.size;
                     attacker.attack(unit);
                     province.battle.defender_casualties += prev_size - unit.size;
@@ -849,10 +863,8 @@ void World::do_tick() {
             // Defenders attack attacker_ids
             for(auto defender_id : province.battle.defenders_ids) {
                 auto& defender = units[defender_id];
-                assert(defender.is_valid());
                 for(size_t i = 0; i < province.battle.attackers_ids.size(); ) {
                     auto& unit = units[province.battle.attackers_ids[i]];
-                    assert(unit.is_valid());
                     const auto prev_size = unit.size;
                     defender.attack(unit);
                     province.battle.attacker_casualties += prev_size - unit.size;
@@ -908,7 +920,7 @@ void World::do_tick() {
     profiler.stop("Events");
 
     profiler.start("Send packets");
-    g_server->broadcast(Action::UnitUpdate::form_packet(this->unit_manager.units));
+    //g_server->broadcast(Action::UnitUpdate::form_packet(this->unit_manager.units.data));
     profiler.stop("Send packets");
 
     if(!(time % ticks_per_month))

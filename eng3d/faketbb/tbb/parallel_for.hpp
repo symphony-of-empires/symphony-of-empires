@@ -22,8 +22,7 @@
 //      Does important stuff.
 // ----------------------------------------------------------------------------
 
-#ifndef _FAKETBB_PARALLEL_FOR_HPP
-#define _FAKETBB_PARALLEL_FOR_HPP 1
+#pragma once
 
 #include <ranges>
 #include <tbb/blocked_range.hpp>
@@ -42,5 +41,3 @@ namespace tbb {
             func(*it);
     }
 }
-
-#endif

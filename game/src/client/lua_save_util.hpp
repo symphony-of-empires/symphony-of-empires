@@ -30,4 +30,4 @@ class GameState;
 namespace LUA_util {
     void save(GameState& gs, const std::string& savefile_path);
     void load(GameState& gs, const std::string& savefile_path);
-};
+}

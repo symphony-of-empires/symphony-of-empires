@@ -76,18 +76,14 @@ float Trade::get_trade_cost(const Province& province1, const Province& province2
 
     // Dissuade trade with foreigners
     auto foreign_penalty = 1.f;
-    if(province1.controller_id != province2.controller_id)
-    {
+    if(province1.controller_id != province2.controller_id) {
         foreign_penalty = 5.f;
         // Must be valid controller ids
-        if(Nation::is_valid(province1.controller_id) && Nation::is_valid(province2.controller_id))
-        {
-            const auto& world = World::get_instance();
-            // Must be in customs union if it's a foreigner
-            const auto& relation = world.get_relation(province1.controller_id, province2.controller_id);
-            if(relation.is_customs_union())
-                foreign_penalty = 1.f;
-        }
+        const auto& world = World::get_instance();
+        // Must be in customs union if it's a foreigner
+        const auto& relation = world.get_relation(province1.controller_id, province2.controller_id);
+        if(relation.is_customs_union())
+            foreign_penalty = 1.f;
     }
 
     // Cost to travel around the globe

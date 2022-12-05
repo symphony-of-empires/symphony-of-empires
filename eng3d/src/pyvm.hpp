@@ -16,7 +16,7 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      audio.hpp
+//      pyvm.hpp
 //
 // Abstract:
 //      Does some important stuff.
@@ -24,53 +24,42 @@
 
 #pragma once
 
-#include <cstdint>
-#include <map>
+#include <string_view>
 #include <string>
-#include <exception>
-#include <mutex>
 #include <vector>
-#include <memory>
 
-struct pa_simple;
 namespace Eng3D {
-    class State;
-
-    class AudioException : public std::exception {
+    class PythonException : public std::exception {
         std::string buffer;
     public:
-        AudioException(const std::string& filename, const std::string& message) {
-            buffer = filename + message;
+        PythonException(const std::string& message) {
+            buffer = message;
         }
-
         virtual const char* what() const noexcept {
             return buffer.c_str();
         }
     };
 
-    struct Audio {
-        Audio() = default;
-        Audio(const std::string& path);
-        ~Audio();
-        void *stream = nullptr; // TODO: Use RAII pointers for this
+    class PythonObj {
+        void* obj = nullptr;
+    public:
+        PythonObj() = default;
+        PythonObj(void* _obj);
+        PythonObj(const PythonObj&);
+        PythonObj(PythonObj&&) noexcept;
+        ~PythonObj();
     };
 
-    class AudioManager {
-        static void mixaudio(void* userdata, uint8_t* stream, int len);
-        std::map<std::string, std::shared_ptr<Eng3D::Audio>> sounds;
-        Eng3D::State& s;
-        int audio_dev_id = 0;
+    class State;
+    class PythonVM {
+        State& s;
     public:
-        AudioManager() = delete;
-        AudioManager(Eng3D::State& s);
-        ~AudioManager();
-        const std::shared_ptr<Audio> load(const std::string& path);
+        PythonVM(Eng3D::State& _s);
+        ~PythonVM();
 
-        // Queue of sounds/music
-        std::mutex sound_lock;
-        std::vector<std::shared_ptr<Eng3D::Audio>> sound_queue;
-        std::vector<std::shared_ptr<Eng3D::Audio>> music_queue;
-        float music_fade_value = 1.f;
-        float music_volume = 0.5f, sound_volume = 0.5f;
+        void run_string(const std::string_view name, const std::string_view path);
+        void add_module(const std::string_view path);
+
+        std::vector<PythonObj> modules;
     };
 }

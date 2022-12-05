@@ -27,7 +27,7 @@
 generic_infection = Event:new{
 	ref_name = "generic_infection",
 	conditions_fn = function()
-		if math.random(0, 100) == 0 then
+		if math.random(0, 150) == 0 then
 			return EVENT_CONDITIONS_MET
 		end
 		return EVENT_CONDITIONS_UNMET
@@ -94,7 +94,7 @@ generic_infection:add_receivers(table.unpack(Nation:get_all()))
 generic_ideological_protest_evhdl = Event:new{
 	ref_name = "generic_ideological_protest",
 	conditions_fn = function()
-		if math.random(0, 100) == 0 then
+		if math.random(0, 150) == 0 then
 			return EVENT_CONDITIONS_MET
 		end
 		return EVENT_CONDITIONS_UNMET
@@ -157,16 +157,15 @@ generic_ideological_protest_evhdl:add_receivers(table.unpack(Nation:get_all()))
 generic_militancy_nationwide_evhdl = Event:new{
 	ref_name = "generic_militancy_nationwide",
 	conditions_fn = function()
-		if math.random(0, 100) == 0 then
+		if math.random(0, 150) == 0 then
 			return EVENT_CONDITIONS_MET
 		end
 		return EVENT_CONDITIONS_UNMET
 	end,
 	event_fn = function(ref_name)
-		local texts = {
-			title = "Stop the activists",
-			text = "Some activists are trying to undermine us with false statments about the efficiency of our goverment - we can always crack down on those liars but we may upset free-speech supporters"	
-		}
+		generic_militancy_nationwide_evhdl.title = "Stop the activists"
+		generic_militancy_nationwide_evhdl.text = "Some activists are trying to undermine us with false statments about the efficiency of our goverment - we can always crack down on those liars but we may upset free-speech supporters"	
+		generic_militancy_nationwide_evhdl:update()
 		generic_militancy_nationwide_evhdl:add_decision(Decision:new{
 			name = "Let them spread lies",
 			effects = "Every POP gets +0.5 militancy",
@@ -209,7 +208,7 @@ generic_militancy_nationwide_evhdl:add_receivers(table.unpack(Nation:get_all()))
 generic_infection2_evhdl = Event:new{
     ref_name = "generic_infection2",
     conditions_fn = function()
-        if math.random(0, 100) == 0 then
+        if math.random(0, 150) == 0 then
             local prov_list = Nation:get(ref_name):get_owned_provinces()
             if table.size(prov_list) > 0 then
                 return EVENT_CONDITIONS_MET

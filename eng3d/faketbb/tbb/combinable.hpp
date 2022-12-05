@@ -22,8 +22,7 @@
 //      Does important stuff.
 // ----------------------------------------------------------------------------
 
-#ifndef _FAKETBB_COMBINABLE_HPP
-#define _FAKETBB_COMBINABLE_HPP 1
+#pragma once
 
 #include <ranges>
 
@@ -47,5 +46,3 @@ namespace tbb {
         }
     };
 }
-
-#endif

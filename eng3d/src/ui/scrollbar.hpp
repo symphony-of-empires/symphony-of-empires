@@ -35,7 +35,7 @@ namespace UI {
         float start_drag_scroll;
     public:
         ScrollbarThumb(int x, int y, UI::Widget* parent = nullptr);
-        virtual ~ScrollbarThumb() override {};
+        virtual ~ScrollbarThumb() override {}
     };
 
     /// @ingroup UI
@@ -44,7 +44,7 @@ namespace UI {
         UI::ScrollbarThumb* thumb_btn;
     public:
         Scrollbar(int x, int y, unsigned h, UI::Widget* parent = nullptr);
-        virtual ~Scrollbar() override {};
+        virtual ~Scrollbar() override {}
         void update_thumb();
     };
-};
+}

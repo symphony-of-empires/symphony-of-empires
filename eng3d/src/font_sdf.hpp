@@ -75,4 +75,4 @@ namespace Eng3D {
         std::unique_ptr<Eng3D::OpenGL::Program> sphere_shader;
         std::unique_ptr<Eng3D::OpenGL::Program> flat_shader;
     };
-};
+}

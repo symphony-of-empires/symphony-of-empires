@@ -47,7 +47,7 @@ namespace UI {
         float value = 0.f;
     public:
         ProgressBar(int x, int y, unsigned w, unsigned h, float min, float max, Widget* _parent = nullptr);
-        virtual ~ProgressBar() override {};
+        virtual ~ProgressBar() override {}
         virtual void on_render(UI::Context& ctx, Eng3D::Rect viewport);
         inline void set_value(const float _value) {
             value = glm::clamp(_value, min, max);
@@ -60,4 +60,4 @@ namespace UI {
         float min = 0.f, max = 1.f;
         UI::Direction direction = UI::Direction::LEFT_TO_RIGHT;
     };
-};
+}

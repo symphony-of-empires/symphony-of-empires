@@ -48,7 +48,7 @@ namespace UI {
         Image(int x, int y, unsigned w, unsigned h, const std::string& tex_path, bool mipmap = true, Widget* parent = nullptr);
         static Image* make_transparent(int x, int y, unsigned w, unsigned h, const std::string& tex_path, Widget* parent = nullptr);
         static Image* make_transparent(int x, int y, unsigned w, unsigned h, const std::string& tex_path, bool mipmap = true, Widget* parent = nullptr);
-        virtual ~Image() override {};
+        virtual ~Image() override {}
     };
 
     /// @ingroup UI
@@ -57,4 +57,4 @@ namespace UI {
     public:
         AspectImage(int x, int y, unsigned w, unsigned max_h, std::shared_ptr<Eng3D::Texture> tex, Widget* parent = nullptr);
     };
-};
+}

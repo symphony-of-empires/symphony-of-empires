@@ -47,7 +47,7 @@ struct SDL_Window;
 namespace Eng3D {
     namespace OpenGL {
         class Shader;
-    };
+    }
 
     class State;
     class Installer {

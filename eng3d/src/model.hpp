@@ -41,7 +41,7 @@ namespace Eng3D {
     namespace OpenGL {
         class Program;
     };
-};
+}
 
 class aiMesh;
 class aiScene;

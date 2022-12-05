@@ -80,7 +80,7 @@ namespace Eng3D::Networking {
         bool is_server_stream = false;
     public:
         SocketStream() = default;
-        SocketStream(int _fd) : fd(_fd) {};
+        SocketStream(int _fd) : fd(_fd) {}
         ~SocketStream() = default;
         void send(const void* data, size_t size, std::function<bool()> pred);
         void recv(void* data, size_t size, std::function<bool()> pred = 0);
@@ -216,4 +216,4 @@ namespace Eng3D::Networking {
         tbb::concurrent_bounded_queue<Eng3D::Networking::Packet> packets;
         std::string username;
     };
-};
+}

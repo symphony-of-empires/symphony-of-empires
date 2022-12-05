@@ -45,11 +45,11 @@ namespace UI {
     class Chart: public Widget {
     public:
         Chart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);
-        virtual ~Chart() override {};
+        virtual ~Chart() override {}
         virtual void on_render(Context& ctx, Eng3D::Rect viewport);
         void set_data(std::vector<float> data);
     private:
         std::vector<float> data;
         float max = 1.f, min = 1.f;
     };
-};
+}

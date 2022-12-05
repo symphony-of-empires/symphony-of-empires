@@ -120,4 +120,4 @@ namespace Action {
     struct UnitMove {
         static Eng3D::Networking::Packet form_packet(const Unit& unit, const Province& province);
     };
-};
+}

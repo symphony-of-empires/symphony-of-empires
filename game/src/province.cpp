@@ -27,7 +27,7 @@
 #include "product.hpp"
 #include "unit.hpp"
 #include "building.hpp"
-#include "pop.hpp"
+#include "indpobj.hpp"
 #include <glm/vec3.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/trigonometric.hpp>
@@ -54,7 +54,7 @@ void Province::add_building(const BuildingType& building_type) {
 
 void Province::cancel_construction_project() {
     for(auto& building : buildings)
-        building.working_unit_type_id = UnitTypeId(-1);
+        building.stop_working_on_unit();
 }
 
 float Province::euclidean_distance(const Province& other_province, glm::vec2 world_size, float radius) const {

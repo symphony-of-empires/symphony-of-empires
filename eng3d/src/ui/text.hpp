@@ -42,7 +42,7 @@ namespace UI {
     public:
         Text(int x, int y, unsigned w, unsigned h, UI::Widget* parent);
         Text(int x, int y, const std::string& text, UI::Widget* parent);
-        virtual ~Text() {};
+        virtual ~Text() {}
         virtual void on_render(Context& ctx, Eng3D::Rect viewport);
         virtual void text(const std::string& text);
 
@@ -50,4 +50,4 @@ namespace UI {
         /// @brief Whetever to auto adjust the widget depending on the text
         bool auto_adjust = true;
     };
-};
+}

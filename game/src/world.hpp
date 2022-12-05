@@ -45,18 +45,18 @@
 
 #include "nation.hpp"
 #include "product.hpp"
-#include "technology.hpp"
+#include "indpobj.hpp"
 #include "building.hpp"
-#include "ideology.hpp"
-#include "terrain.hpp"
+#include "indpobj.hpp"
+#include "indpobj.hpp"
 #include "server/lua_api.hpp"
 #include "server/economy.hpp"
 #include "province.hpp"
 #include "unit.hpp"
-#include "technology.hpp"
+#include "indpobj.hpp"
 #include "event.hpp"
 #include "diplomacy.hpp"
-#include "pop.hpp"
+#include "indpobj.hpp"
 
 // A single tile unit this is the smallest territorial unit in the game and it cannot be divided (and it shouldn't)
 struct World;
@@ -130,6 +130,7 @@ public:
     void init_lua();
     void load_initial();
     void load_mod();
+    void fire_special_event(const std::string_view event_ref_name, const std::string_view nation_ref_name, const std::string_view other_nation_ref_name);
     Eng3D::Profiler profiler;
 
     LIST_FOR_LOCAL_TYPE(Commodity, commodities, std::vector)

@@ -55,4 +55,4 @@ namespace Eng3D {
         std::vector<glm::vec2> tex_coords;
         std::unique_ptr<TriangleList> quads;
     };
-};
+}

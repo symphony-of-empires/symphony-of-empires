@@ -41,4 +41,4 @@ namespace Interface {
     public:
         NationView(GameState& gs, Nation& nation);
     };
-};
+}

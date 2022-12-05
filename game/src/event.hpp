@@ -31,6 +31,7 @@
 struct Decision : RefnameEntity<DecisionId> {
     Eng3D::StringRef name;
     Eng3D::StringRef effects;
+    Eng3D::StringRef extra_data; // Extra data for the decision
     /// @todo Reload these when serializing
     int do_decision_function = 0;
 };
@@ -44,6 +45,7 @@ struct Eng3D::Deser::Serializer<Decision> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ref_name);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.effects);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.extra_data);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.do_decision_function);
     }
 };
@@ -56,6 +58,7 @@ struct Event : RefnameEntity<EventId> {
     std::vector<Decision> decisions;
     Eng3D::StringRef text;
     Eng3D::StringRef title;
+    Eng3D::StringRef extra_data; // Extra data for the event
     bool checked = false;
     /// @todo Reload these when serializing
     int conditions_function = 0;
@@ -72,8 +75,9 @@ struct Eng3D::Deser::Serializer<::Event> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.receiver_ids);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.decisions);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.title);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.text);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.title);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.extra_data);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.checked);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.conditions_function);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.do_event_function);

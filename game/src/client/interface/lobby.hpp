@@ -52,4 +52,4 @@ namespace Interface {
         void change_nation(size_t id);
         size_t curr_selected_nation;
     };
-};
+}

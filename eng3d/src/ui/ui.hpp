@@ -169,4 +169,4 @@ namespace UI {
         friend class Widget;
     };
     extern Context* g_ui_context;
-}; // namespace UI
+} // namespace UI

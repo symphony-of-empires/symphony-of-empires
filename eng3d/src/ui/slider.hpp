@@ -38,10 +38,10 @@ namespace UI {
 	class Slider: public ProgressBar {
 	public:
 		Slider(int x, int y, unsigned w, unsigned h, float min, float max, Widget* _parent = nullptr);
-		virtual ~Slider() override {};
+		virtual ~Slider() override {}
 		//virtual void on_render(Context& ctx, Eng3D::Rect viewport);
 		float max;
 		float min;
 		float value;
 	};
-};
+}

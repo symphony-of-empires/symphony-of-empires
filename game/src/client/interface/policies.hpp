@@ -43,4 +43,4 @@ namespace Interface {
     public:
         PoliciesView(GameState& gs);
     };
-};
+}

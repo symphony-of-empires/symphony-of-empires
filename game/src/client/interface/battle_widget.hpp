@@ -46,6 +46,6 @@ namespace Interface {
     public:
         BattleWidget(Map& map, UI::Widget* parent);
         void set_battle(Province& province);
-        virtual ~BattleWidget() {};
+        virtual ~BattleWidget() {}
     };
-};
+}

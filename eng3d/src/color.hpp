@@ -143,4 +143,4 @@ namespace Eng3D {
             return Eng3D::Color::rgb32(colors[mod % 64]);
         }
     };
-};
+}

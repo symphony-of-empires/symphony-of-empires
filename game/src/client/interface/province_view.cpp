@@ -165,15 +165,13 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int _x, int _y, Pro
     const auto& terrain_type = gs.world->terrain_types[province.terrain_type_id];
     auto& landscape_img = this->make_widget<UI::Image>(0, 0, this->width - 16, 128 + 64 + 16, terrain_type.get_icon_path());
     landscape_img.set_tooltip(translate_format("%s, penalty %.2f", terrain_type.name.c_str(), terrain_type.penalty));
-
-    if(Nation::is_valid(province.owner_id)) {
-        auto& owner_flag = this->make_widget<UI::AspectImage>(0, 0, 96, 48, gs.get_nation_flag(gs.world->nations[this->province.owner_id]));
-        owner_flag.set_on_click([this](UI::Widget&) {
-            new Interface::NationView(this->gs, gs.world->nations[this->province.owner_id]);
-        });
-        owner_flag.set_tooltip(translate_format("%s owns this province", gs.world->nations[this->province.owner_id].name.c_str()));
-        //this->make_widget<UI::Image>(owner_flag->x, owner_flag->y, owner_flag->width, owner_flag->height, "gfx/flag_rug.png");
-    }
+    
+    auto& owner_flag = this->make_widget<UI::AspectImage>(0, 0, 96, 48, gs.get_nation_flag(gs.world->nations[this->province.owner_id]));
+    owner_flag.set_on_click([this](UI::Widget&) {
+        new Interface::NationView(this->gs, gs.world->nations[this->province.owner_id]);
+    });
+    owner_flag.set_tooltip(translate_format("%s owns this province", gs.world->nations[this->province.owner_id].name.c_str()));
+    //this->make_widget<UI::Image>(owner_flag->x, owner_flag->y, owner_flag->width, owner_flag->height, "gfx/flag_rug.png");
 
     // Display all the nuclei
     auto& nuclei_flex_row = this->make_widget<UI::Div>(0, landscape_img.height - 24, this->width, 24);
@@ -308,8 +306,6 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int _x, int _y, P
                 if(terrain_type_row.is_water_body) {
                     nc_province.unpopulate();
                     nc_province.nuclei.clear();
-                    nc_province.controller_id = Nation::invalid();
-                    nc_province.owner_id = Nation::invalid();
                     for(auto& building : nc_province.buildings)
                         building.level = 0;
                 }

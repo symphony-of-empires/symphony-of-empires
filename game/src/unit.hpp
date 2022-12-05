@@ -28,9 +28,11 @@
 #include <vector>
 #include <cstdint>
 #include <cstddef>
+#include <cassert>
 #include <type_traits>
 #include <glm/vec2.hpp>
 #include "objects.hpp"
+#include "eng3d/freelist.hpp"
 
 class Nation;
 class Commodity;
@@ -82,20 +84,44 @@ class Unit : public Entity<UnitId> {
     friend struct Eng3D::Deser::Serializer<Unit>;
     std::vector<ProvinceId> path;
     float days_left_until_move = 0;
+    bool has_target = false;
     ProvinceId target_province_id;
 public:
     void attack(Unit& enemy);
     glm::vec2 get_pos() const;
+
     void set_target(const Province& province);
-    void stop_movement();
+
+    void stop_movement() {
+        this->has_target = false;
+        this->days_left_until_move = 0;
+    }
+
     float days_to_move_to(const Province& province) const;
     bool update_movement(UnitManager& unit_manager); // Returns true if unit moved
-    float get_speed() const;
     void set_owner(const Nation& nation);
-    bool can_move() const;
-    const std::vector<ProvinceId> get_path() const;
+
+    /// @brief Checks if the unit can move (if it can set_province)
+    /// @return true 
+    /// @return false 
+    bool can_move() const {
+        return !(this->on_battle); // Unit must not be on a battle
+    }
+
+    const std::vector<ProvinceId> get_path() const {
+        return path;
+    }
+
     void set_path(const Province& target);
-    ProvinceId get_target_province_id() const;
+
+    bool has_target_province() const {
+        return this->has_target;
+    }
+
+    ProvinceId get_target_province_id() const {
+        return this->target_province_id;
+    }
+
     float get_strength() const;
 
     UnitTypeId type_id;
@@ -120,6 +146,7 @@ struct Eng3D::Deser::Serializer<Unit> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.base);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.experience);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.target_province_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.has_target);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.owner_id);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.days_left_until_move);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.path);
@@ -135,23 +162,16 @@ public:
     void remove_unit(UnitId unit);
     void move_unit(UnitId unit, ProvinceId target_province);
 
-    template<typename T>
-    inline void for_each_unit(const T& lambda) {
-        for(auto& unit : units)
-            if(unit.is_valid())
-                lambda(unit);
-    }
-
-    inline std::vector<UnitId> get_province_units(ProvinceId province_id) const {
+    std::vector<UnitId> get_province_units(ProvinceId province_id) const {
         return province_units[province_id];
     }
 
-    inline ProvinceId get_unit_current_province(UnitId unit_id) const {
+    ProvinceId get_unit_current_province(UnitId unit_id) const {
         return unit_province[unit_id];
     }
 
-    std::vector<Unit> units;
-    std::vector<UnitId> free_unit_slots;
+    Eng3D::Freelist<Unit> units;
+
     std::vector<ProvinceId> unit_province;
     std::vector<std::vector<UnitId>> province_units;
 };
@@ -162,7 +182,6 @@ struct Eng3D::Deser::Serializer<UnitManager> {
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.units);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.free_unit_slots);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.unit_province);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.province_units);
     }

@@ -265,15 +265,13 @@ int LuaAPI::add_nation(lua_State* L) {
     nation.name = luaL_checkstring(L, 2);
     nation.ideology_id = IdeologyId(0);
     nation.commodity_production.resize(g_world.commodities.size(), 1.f);
-    nation.religion_discrim.resize(g_world.religions.size(), 0.5f);
-    nation.language_acceptance.resize(g_world.languages.size(), 0.5f);
+    nation.religion_discrim.resize(g_world.religions.size(), 0.f);
+    nation.language_acceptance.resize(g_world.languages.size(), 0.f);
     nation.client_hints.resize(g_world.ideologies.size());
     nation.research.resize(g_world.technologies.size());
 
     // Check for duplicates
     for(const auto& other_nation : g_world.nations) {
-        if(Nation::is_invalid(other_nation))
-            luaL_error(L, "Nation with invalid Id!");
         if(nation.ref_name == other_nation.ref_name)
             luaL_error(L, string_format("Duplicate ref_name %s", nation.ref_name.c_str()).c_str());
     }
@@ -301,7 +299,6 @@ int LuaAPI::get_all_nations(lua_State* L) {
 
     size_t i = 0;
     for(const auto& nation : g_world.nations) {
-        assert(Nation::is_valid(nation));
         lua_pushnumber(L, nation);
         lua_rawseti(L, -2, i + 1);
         ++i;
@@ -399,16 +396,19 @@ int LuaAPI::get_nation_relation(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
     auto& relation = g_world.get_relation(nation, other_nation);
+    lua_pushnumber(L, relation.alliance);
     lua_pushnumber(L, relation.relation);
     lua_pushboolean(L, relation.has_war);
-    return 2;
+    return 3;
 }
 
 int LuaAPI::set_nation_relation(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
     auto& other_nation = g_world.nations.at(lua_tonumber(L, 2));
     auto& relation = g_world.get_relation(nation, other_nation);
-    relation.relation = lua_tonumber(L, 3);
+    relation.alliance = lua_tonumber(L, 3);
+    relation.relation = lua_tonumber(L, 4);
+    relation.has_war = lua_toboolean(L, 5);
     return 0;
 }
 
@@ -520,7 +520,7 @@ int LuaAPI::get_province(lua_State* L) {
 }
 
 int LuaAPI::get_province_by_id(lua_State* L) {
-    const Province& province = g_world.provinces.at(lua_tonumber(L, 1));
+    const auto& province = g_world.provinces.at(lua_tonumber(L, 1));
     lua_pushstring(L, province.ref_name.c_str());
     lua_pushstring(L, province.name.c_str());
     lua_pushnumber(L, std::byteswap<std::uint32_t>((province.color & 0x00ffffff) << 8));
@@ -541,11 +541,6 @@ int LuaAPI::get_province_by_id(lua_State* L) {
 
 int LuaAPI::province_add_unit(lua_State* L) {
     auto& province = g_world.provinces.at(lua_tonumber(L, 1));
-    if(Nation::is_invalid(province.owner_id)) {
-        luaL_error(L, string_format("%s has no owner yet", province.ref_name.c_str()).c_str());
-        return 0;
-    }
-
     auto& unit_type = g_world.unit_types.at(lua_tonumber(L, 2));
     const size_t size = lua_tonumber(L, 3);
 
@@ -588,10 +583,11 @@ int LuaAPI::give_hard_province_to(lua_State* L) {
     nation.give_province(province);
 
     // Take all the troops of the dead nation if this is the last province of 'em
-    if(Nation::is_valid(province.controller_id) && !g_world.nations[province.controller_id].exists())
-        for(auto& unit : g_world.unit_manager.units)
+    if(!g_world.nations[province.controller_id].exists())
+        g_world.unit_manager.units.for_each([&](auto& unit) {
             if(unit.owner_id == province.controller_id)
                 unit.set_owner(nation);
+        });
     return 0;
 }
 
@@ -1000,79 +996,92 @@ static int traceback(lua_State* L) {
     return 1;
 }
 
-// Checks all events and their condition functions
-void LuaAPI::check_events(lua_State* L) {
-    std::scoped_lock lock(g_world.inbox_mutex);
-    for(auto& event : g_world.events) {
-        if(event.checked) continue;
-        bool is_multi = true;
-        bool has_fired = false;
-        for(const auto nation_id : event.receiver_ids) {
-            auto& nation = g_world.nations[nation_id];
-            if(!nation.exists()) continue;
-            lua_rawgeti(L, LUA_REGISTRYINDEX, event.conditions_function);
-            lua_pushstring(L, nation.ref_name.c_str());
-            lua_pcall(L, 1, 1, 0);
-            bool r = lua_toboolean(L, -1);
-            lua_pop(L, 1);
+void LuaAPI::fire_event(lua_State* L, Nation& nation, Event& event, bool& is_multi, const std::string_view extra) {
+    // Save the original event & momentarily replace it on the big world
+    // since the event callback **MIGHT** modify the event itself so we store
+    // a copy for each event everytime it fires
+    auto orig_event = event;
 
-            // Conditions met
-            if(r) {
-                has_fired = true;
+    // Call the "do event" function
+    Eng3D::Log::debug("event", Eng3D::translate_format("Event %s using lua#%i", event.ref_name.c_str(), event.do_event_function));
+    int nargs = 1;
+    lua_rawgeti(L, LUA_REGISTRYINDEX, event.do_event_function);
+    lua_pushstring(L, nation.ref_name.c_str());
+    if(!extra.empty()) {
+        lua_pushstring(L, extra.data());
+        nargs++;
+    }
+    if(g_world.lua.call_func(nargs, 1)) {
+        Eng3D::Log::error("lua", translate_format("lua_pcall failed: %s", lua_tostring(L, -1)));
+        lua_pop(L, 1);
+        goto restore_original;
+    }
+    is_multi = lua_toboolean(L, -1);
+    lua_pop(L, 1);
 
-                // Save the original event & momentarily replace it on the big world
-                auto orig_event = Event(event);
-
-                // Call the "do event" function
-                Eng3D::Log::debug("event", Eng3D::translate_format("Event %s using lua#%i", event.ref_name.c_str(), event.do_event_function));
-                lua_rawgeti(L, LUA_REGISTRYINDEX, event.do_event_function);
-                lua_pushstring(L, nation.ref_name.c_str());
-                if(g_world.lua.call_func(1, 1)) {
-                    Eng3D::Log::error("lua", translate_format("lua_pcall failed: %s", lua_tostring(L, -1)));
-                    lua_pop(L, 1);
+    {
+        // The changes done to the event "locally" are then created into a new local event
+        auto local_event = event;
+        local_event.cached_id = Event::invalid();
+        local_event.extra_data = std::string{ extra };
+        //local_event.ref_name = Eng3D::StringRef(string_format("%s:%s", local_event.ref_name.c_str(), nation.ref_name.c_str()).c_str());
+        if(local_event.decisions.empty()) {
+            Eng3D::Log::error("event", translate_format("Event %s has no decisions (ref_name=%s)", local_event.ref_name.c_str(), nation.ref_name.c_str()));
+        } else {
+            // Check that descisions have functions
+            for(auto& descision : local_event.decisions) {
+                descision.extra_data = local_event.extra_data;
+                if(descision.do_decision_function == 0) {
+                    Eng3D::Log::error("event", translate_format("(Lua event %s on descision %s has no function callback", orig_event.ref_name.c_str(), descision.ref_name.c_str()));
                     goto restore_original;
                 }
-                is_multi = lua_toboolean(L, -1);
+            }
+            nation.inbox.push_back(local_event);
+            Eng3D::Log::debug("event", translate_format("Event triggered! %s (with %zu decisions)", local_event.ref_name.c_str(), local_event.decisions.size()));
+        }
+    }
+restore_original: // Original event then gets restored
+    event = orig_event;
+}
+
+// Checks all events and their condition functions
+void LuaAPI::check_events(lua_State* L) {
+    const std::scoped_lock lock(g_world.inbox_mutex);
+    for(auto& event : g_world.events) {
+        if(event.checked) continue;
+        bool is_multi = true, has_fired = false;
+        for(const auto nation_id : event.receiver_ids) {
+            auto& nation = g_world.nations[nation_id];
+            if(nation.exists()) {
+                lua_rawgeti(L, LUA_REGISTRYINDEX, event.conditions_function);
+                lua_pushstring(L, nation.ref_name.c_str());
+                lua_pcall(L, 1, 1, 0);
+                bool r = lua_toboolean(L, -1);
                 lua_pop(L, 1);
-
-                {
-                    // The changes done to the event "locally" are then created into a new local event
-                    auto local_event = Event(event);
-                    local_event.cached_id = Event::invalid();
-                    //local_event.ref_name = Eng3D::StringRef(string_format("%s:%s", local_event.ref_name.c_str(), nation.ref_name.c_str()).c_str());
-                    if(local_event.decisions.empty()) {
-                        Eng3D::Log::error("event", translate_format("Event %s has no decisions (ref_name=%s)", local_event.ref_name.c_str(), nation.ref_name.c_str()));
-                    } else {
-                        // Check that descisions have functions
-                        for(const auto& descision : local_event.decisions) {
-                            if(descision.do_decision_function == 0) {
-                                Eng3D::Log::error("event", translate_format("(Lua event %s on descision %s has no function callback", orig_event.ref_name.c_str(), descision.ref_name.c_str()));
-                                goto restore_original;
-                            }
-                        }
-                        nation.inbox.push_back(local_event);
-                        Eng3D::Log::debug("event", translate_format("Event triggered! %s (with %zu decisions)", local_event.ref_name.c_str(), local_event.decisions.size()));
-                    }
+                if(r) { // Conditions met
+                    has_fired = true;
+                    LuaAPI::fire_event(L, nation, event, is_multi, "");
                 }
-
-            restore_original: // Original event then gets restored
-                event = orig_event;
             }
         }
-
         // Event is marked as checked if it's not of multiple occurences
         if(has_fired && !is_multi)
             event.checked = true;
     }
 
-    // Do decisions taken effects in the queue, then clear it awaiting
-    // other taken decisions :)
+    // Do decisions taken effects in the queue, then clear it awaiting other
+    // taken decisions :)
     for(auto& [dec, nation_id] : g_world.taken_decisions) {
         const auto& nation = g_world.nations[nation_id];
         Eng3D::Log::debug("event", string_format("%s took the descision %i", nation.ref_name.c_str(), dec.do_decision_function));
         lua_rawgeti(L, LUA_REGISTRYINDEX, dec.do_decision_function);
+        int nargs = 1;
         lua_pushstring(L, nation.ref_name.c_str());
-        if(g_world.lua.call_func(1, 0)) {
+        if(!dec.extra_data.get_string().empty()) {
+            lua_pushstring(L, dec.extra_data.c_str());
+            nargs++;
+        }
+        if(g_world.lua.call_func(nargs, 0)) {
             const std::string_view err_msg = lua_tostring(L, -1);
             lua_pop(L, 1);
             CXX_THROW(Eng3D::LuaException, string_format("%i(%s): %s", dec.do_decision_function, nation.ref_name.c_str(), err_msg).c_str());

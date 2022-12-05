@@ -358,7 +358,6 @@ void MapRender::update_nations(std::vector<ProvinceId>& province_ids) {
     std::vector<NationId> nation_ids;
     for(const auto province_id : province_ids) {
         const auto& province = this->gs.world->provinces[province_id];
-        if(Nation::is_invalid(province.controller_id)) continue;
         this->tile_sheet_nation->buffer.get()[province] = static_cast<size_t>(province.controller_id);
         nation_ids.push_back(province.controller_id);
     }
@@ -410,7 +409,7 @@ void MapRender::update_visibility() {
             }
         }
     }
-    gs.world->unit_manager.for_each_unit([this](Unit& unit) {
+    gs.world->unit_manager.units.for_each([this](Unit& unit) {
         auto &_gs = this->gs;
         // Unit must be ours or be owned by our ally
         if(unit.owner_id != _gs.curr_nation->get_id() && !_gs.world->get_relation(unit.owner_id, _gs.curr_nation->get_id()).is_allied())

@@ -48,7 +48,7 @@ namespace UI {
     class TableElement : public UI::Widget {
     public:
         TableElement(int width, int height, UI::Widget* _parent);
-        virtual ~TableElement() override {};
+        virtual ~TableElement() override {}
 
         void set_key(const std::string& key);
         void set_key(float key);
@@ -71,7 +71,7 @@ namespace UI {
     class TableRow : public UI::Widget {
     public:
         TableRow(int width, int height, std::vector<int>& columns_width, UI::Widget* _parent);
-        virtual ~TableRow() override {};
+        virtual ~TableRow() override {}
         UI::TableElement* get_element(size_t index);
 
         bool is_active = true;
@@ -114,7 +114,7 @@ namespace UI {
                 this->column_wrapper->height = total_height;
             };
         }
-        virtual ~Table() override {};
+        virtual ~Table() override {}
 
         void reserve(size_t _size) {
             this->rows.reserve(_size);
@@ -166,4 +166,4 @@ namespace UI {
         int row_height;
         std::vector<int> columns_width;
     };
-};
+}

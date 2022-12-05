@@ -52,22 +52,18 @@ PoliciesView::PoliciesView(GameState& _gs)
     /// @todo More dynamic names
     auto& ideology_lab = this->make_widget<UI::Label>(0, 0, "");
     ideology_lab.set_on_each_tick([this](UI::Widget& w) {
-        if(Ideology::is_valid(this->gs.curr_nation->ideology_id)) {
-            const auto& ideology = this->gs.world->ideologies[this->gs.curr_nation->ideology_id];
-            const auto& subideology = ideology.subideologies[this->gs.curr_nation->subideology_id];
-            w.text(translate_format("%s (%s)", subideology.name.c_str(), ideology.name.c_str()));
-            w.set_tooltip(translate_format(
-                "Distributism %.2f\nMercantilist %.2f\nCapitalism %.2f\nIndividualism %.2f\nState power %.2f\nEqualitarianism %.2f\nSecular %.2f\nPluralism %.2f\n", subideology.economic.distributism, subideology.economic.mercantilist, subideology.economic.capitalism, subideology.political.individualism, subideology.political.state_power, subideology.political.equalitarianism, subideology.political.secular, subideology.political.pluralism));
-        }
+        const auto& ideology = this->gs.world->ideologies[this->gs.curr_nation->ideology_id];
+        const auto& subideology = ideology.subideologies[this->gs.curr_nation->subideology_id];
+        w.text(translate_format("%s (%s)", subideology.name.c_str(), ideology.name.c_str()));
+        w.set_tooltip(translate_format(
+            "Distributism %.2f\nMercantilist %.2f\nCapitalism %.2f\nIndividualism %.2f\nState power %.2f\nEqualitarianism %.2f\nSecular %.2f\nPluralism %.2f\n", subideology.economic.distributism, subideology.economic.mercantilist, subideology.economic.capitalism, subideology.political.individualism, subideology.political.state_power, subideology.political.equalitarianism, subideology.political.secular, subideology.political.pluralism));
     });
     ideology_lab.on_each_tick(ideology_lab);
 
     auto& ideology_img = this->make_widget<UI::Image>(6, 38, 32, 32);
     ideology_img.set_on_each_tick([this](UI::Widget& w) {
-        if(Ideology::is_valid(this->gs.curr_nation->ideology_id)) {
-            const auto& ideology = this->gs.world->ideologies[this->gs.curr_nation->ideology_id];
-            w.current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique(ideology.get_icon_path()));
-        }
+        const auto& ideology = this->gs.world->ideologies[this->gs.curr_nation->ideology_id];
+        w.current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique(ideology.get_icon_path()));
     });
     ideology_img.on_each_tick(ideology_img);
 
@@ -107,12 +103,12 @@ PoliciesView::PoliciesView(GameState& _gs)
     //
     // Taxes
     //
-    auto* tax_grp = new UI::Group(207, 38, 196, this->height - (this->padding.y + 38 + 48), this);
-    tax_grp->flex = UI::Flex::COLUMN;
-    tax_grp->is_scroll = true;
+    auto& tax_grp = this->make_widget<UI::Group>(207, 38, 196, this->height - (this->padding.y + 38 + 48));
+    tax_grp.flex = UI::Flex::COLUMN;
+    tax_grp.is_scroll = true;
 
-    tax_grp->make_widget<UI::Label>(0, 0, "Burgeoise income tax");
-    auto& burgeoise_tax_sld = tax_grp->make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
+    tax_grp.make_widget<UI::Label>(0, 0, "Burgeoise income tax");
+    auto& burgeoise_tax_sld = tax_grp.make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
     burgeoise_tax_sld.set_value(this->new_policy.burgeoise_tax);
     burgeoise_tax_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.burgeoise_tax = static_cast<UI::Slider&>(w).get_value();
@@ -121,8 +117,8 @@ PoliciesView::PoliciesView(GameState& _gs)
     burgeoise_tax_sld.set_tooltip("% of tax taken from the income of the higher class population");
     burgeoise_tax_sld.on_click(burgeoise_tax_sld);
 
-    tax_grp->make_widget<UI::Label>(0, 0, "Population income tax");
-    auto& pop_tax_sld = tax_grp->make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
+    tax_grp.make_widget<UI::Label>(0, 0, "Population income tax");
+    auto& pop_tax_sld = tax_grp.make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
     pop_tax_sld.set_value(this->new_policy.pop_tax);
     pop_tax_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.pop_tax = static_cast<UI::Slider&>(w).get_value();
@@ -131,8 +127,8 @@ PoliciesView::PoliciesView(GameState& _gs)
     pop_tax_sld.set_tooltip("% of tax taken from the income of the lower and middle class population");
     pop_tax_sld.on_click(pop_tax_sld);
 
-    tax_grp->make_widget<UI::Label>(0, 0, "Minimum wage");
-    auto& min_wage_sld = tax_grp->make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 100.f);
+    tax_grp.make_widget<UI::Label>(0, 0, "Minimum wage");
+    auto& min_wage_sld = tax_grp.make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 100.f);
     min_wage_sld.set_value(this->new_policy.min_wage);
     min_wage_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.min_wage = static_cast<UI::Slider&>(w).get_value();
@@ -143,8 +139,8 @@ PoliciesView::PoliciesView(GameState& _gs)
     // TODO: Allow minimum wage to be a relative amount to the required price for buying
     // and satisfying all life needs
 
-    tax_grp->make_widget<UI::Label>(0, 0, "Factory profit tax");
-    auto& factory_profit_tax_sld = tax_grp->make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
+    tax_grp.make_widget<UI::Label>(0, 0, "Factory profit tax");
+    auto& factory_profit_tax_sld = tax_grp.make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
     factory_profit_tax_sld.set_value(this->new_policy.factory_profit_tax);
     factory_profit_tax_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.factory_profit_tax = static_cast<UI::Slider&>(w).get_value();
@@ -156,12 +152,12 @@ PoliciesView::PoliciesView(GameState& _gs)
     //
     // Investments
     //
-    auto* investment_grp = new UI::Group(207 + 196, 38, 196, this->height - (this->padding.y + 38 + 48), this);
-    investment_grp->flex = UI::Flex::COLUMN;
-    investment_grp->is_scroll = true;
+    auto& investment_grp = this->make_widget<UI::Group>(207 + 196, 38, 196, this->height - (this->padding.y + 38 + 48));
+    investment_grp.flex = UI::Flex::COLUMN;
+    investment_grp.is_scroll = true;
 
-    investment_grp->make_widget<UI::Label>(0, 0, "Factory subsidies");
-    auto& factory_subsidies_budget_tax_sld = investment_grp->make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
+    investment_grp.make_widget<UI::Label>(0, 0, "Factory subsidies");
+    auto& factory_subsidies_budget_tax_sld = investment_grp.make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
     factory_subsidies_budget_tax_sld.set_value(this->new_policy.factory_subsidies_budget);
     factory_subsidies_budget_tax_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.factory_subsidies_budget = static_cast<UI::Slider&>(w).get_value();
@@ -170,8 +166,8 @@ PoliciesView::PoliciesView(GameState& _gs)
     factory_subsidies_budget_tax_sld.set_tooltip("% of the national budget dedicated to subsidizing factories");
     factory_subsidies_budget_tax_sld.on_click(factory_subsidies_budget_tax_sld);
 
-    investment_grp->make_widget<UI::Label>(0, 0, "Education budget");
-    auto& education_budget_tax_sld = investment_grp->make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
+    investment_grp.make_widget<UI::Label>(0, 0, "Education budget");
+    auto& education_budget_tax_sld = investment_grp.make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
     education_budget_tax_sld.set_value(this->new_policy.education_budget);
     education_budget_tax_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.education_budget = static_cast<UI::Slider&>(w).get_value();
@@ -180,8 +176,8 @@ PoliciesView::PoliciesView(GameState& _gs)
     education_budget_tax_sld.set_tooltip("% of the national budget dedicated to education");
     education_budget_tax_sld.on_click(education_budget_tax_sld);
 
-    investment_grp->make_widget<UI::Label>(0, 0, "Private ownership");
-    auto& private_ownership_sld = investment_grp->make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
+    investment_grp.make_widget<UI::Label>(0, 0, "Private ownership");
+    auto& private_ownership_sld = investment_grp.make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
     private_ownership_sld.set_value(this->new_policy.private_ownership);
     private_ownership_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.private_ownership = static_cast<UI::Slider&>(w).get_value();
@@ -190,8 +186,8 @@ PoliciesView::PoliciesView(GameState& _gs)
     private_ownership_sld.set_tooltip("Maximum allowed private ownership stake % for factories\nAllows private ownership of factories, where the burgeoise would profit from it instead of the factory itself");
     private_ownership_sld.on_click(private_ownership_sld);
 
-    investment_grp->make_widget<UI::Label>(0, 0, "Foreign ownership");
-    auto& foreign_ownership_sld = investment_grp->make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
+    investment_grp.make_widget<UI::Label>(0, 0, "Foreign ownership");
+    auto& foreign_ownership_sld = investment_grp.make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
     foreign_ownership_sld.set_value(this->new_policy.foreign_ownership);
     foreign_ownership_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.foreign_ownership = static_cast<UI::Slider&>(w).get_value();
@@ -200,8 +196,8 @@ PoliciesView::PoliciesView(GameState& _gs)
     foreign_ownership_sld.set_tooltip("Maximum allowed foreign ownership stake % for factories\nAllows foreign investment for the construction of factories");
     foreign_ownership_sld.on_click(foreign_ownership_sld);
 
-    investment_grp->make_widget<UI::Label>(0, 0, "Collective ownership");
-    auto& collective_ownership_sld = investment_grp->make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
+    investment_grp.make_widget<UI::Label>(0, 0, "Collective ownership");
+    auto& collective_ownership_sld = investment_grp.make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
     collective_ownership_sld.set_value(this->new_policy.collective_ownership);
     collective_ownership_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.collective_ownership = static_cast<UI::Slider&>(w).get_value();
@@ -210,8 +206,8 @@ PoliciesView::PoliciesView(GameState& _gs)
     collective_ownership_sld.set_tooltip("Maximum allowed collective ownership stake % for factories\nA collective represents the workers that work on the factory itself; allowing laborers to profit from the factory");
     collective_ownership_sld.on_click(collective_ownership_sld);
 
-    investment_grp->make_widget<UI::Label>(0, 0, "Individual ownership");
-    auto& individual_ownership_sld = investment_grp->make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
+    investment_grp.make_widget<UI::Label>(0, 0, "Individual ownership");
+    auto& individual_ownership_sld = investment_grp.make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
     individual_ownership_sld.set_value(this->new_policy.individual_ownership);
     individual_ownership_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.individual_ownership = static_cast<UI::Slider&>(w).get_value();
@@ -223,13 +219,13 @@ PoliciesView::PoliciesView(GameState& _gs)
     //
     // State economy
     //
-    auto* state_economy_grp = new UI::Group(207 + 196 + 196, 38, 196, this->height - (this->padding.y + 38 + 48), this);
-    state_economy_grp->flex = UI::Flex::COLUMN;
-    state_economy_grp->is_scroll = true;
+    auto& state_economy_grp = this->make_widget<UI::Group>(207 + 196 + 196, 38, 196, this->height - (this->padding.y + 38 + 48));
+    state_economy_grp.flex = UI::Flex::COLUMN;
+    state_economy_grp.is_scroll = true;
 
     std::vector<int> sizes{ 120, 128 };
     std::vector<std::string> header{ "Commodity", "Scale" };
-    auto& commodity_table = state_economy_grp->make_widget<UI::Table<uint32_t>>(0, 0, state_economy_grp->height, 32, sizes, header);
+    auto& commodity_table = state_economy_grp.make_widget<UI::Table<uint32_t>>(0, 0, state_economy_grp.height, 32, sizes, header);
     commodity_table.reserve(1);
     this->commodity_production = this->gs.curr_nation->commodity_production;
     for(const auto& commodity : this->gs.world->commodities) {
@@ -255,10 +251,10 @@ PoliciesView::PoliciesView(GameState& _gs)
         scale_sld.on_click(scale_sld);
     }
 
-    auto* enact_btn = new UI::Button(207, 0, 128, 24, this);
-    enact_btn->below_of(*tax_grp);
-    enact_btn->text("Enact policy");
-    enact_btn->set_on_click([this](UI::Widget&) {
+    auto& enact_btn = this->make_widget<UI::Button>(207, 0, 128, 24);
+    enact_btn.below_of(tax_grp);
+    enact_btn.text("Enact policy");
+    enact_btn.set_on_click([this](UI::Widget&) {
         Eng3D::Networking::Packet packet{};
         Eng3D::Deser::Archive ar{};
         Eng3D::Deser::serialize<ActionType>(ar, ActionType::NATION_ENACT_POLICY);

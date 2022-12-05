@@ -49,9 +49,9 @@ public:
     {
         assert(!items.empty() && !probabilities.empty());
         // Scale each probabilty
-        auto total = std::accumulate(probabilities.begin(), probabilities.end(), 0.f);
+        const auto total = std::accumulate(probabilities.begin(), probabilities.end(), 0.f);
         assert(total != 0.f);
-        auto scale = probabilities.size() / total;
+        const auto scale = probabilities.size() / total;
         for(auto& p : probabilities) p *= scale;
 
         // Fill two work tables with probabilities larger/smaller than 1
@@ -79,17 +79,13 @@ public:
             else big.emplace_back(greater_prob, greater_index);
         }
 
-        while(!big.empty()) {
-            const auto& [_, index] = big.back();
+        for(const auto& [_, index] : big)
             prob[index] = 1.f;
-            big.pop_back();
-        }
+        big.clear();
 
-        while(!small.empty()) {
-            const auto& [_, index] = small.back();
+        for(const auto& [_, index] : small)
             prob[index] = 1.f;
-            small.pop_back();
-        }
+        small.clear();
     }
     ~DiscreteDistribution() = default;
 

@@ -31,16 +31,12 @@
 template<std::unsigned_integral T>
 struct EntityId {
     using Type = T;
-    constexpr static T invalid_id = std::numeric_limits<T>::max();
+    constexpr static T invalid_id = 0;
     T id = invalid_id;
 
     constexpr EntityId<T>() noexcept = default;
-    constexpr EntityId<T>(T _id) noexcept
-        : id{ _id }
-    { }
-    constexpr EntityId<T>(size_t _id) noexcept 
-        : id{ static_cast<T>(_id)}
-    { }
+    constexpr EntityId<T>(T _id) noexcept : id{ _id } { }
+    constexpr EntityId<T>(size_t _id) noexcept : id{ static_cast<T>(_id) } { }
     constexpr EntityId<T>(EntityId<T>&&) noexcept = default;
     constexpr EntityId<T>(const EntityId<T>&) noexcept = default;
     constexpr EntityId<T>& operator=(const EntityId<T>&) noexcept = default;
@@ -49,12 +45,14 @@ struct EntityId {
     constexpr operator size_t() const noexcept {
         return static_cast<size_t>(id);
     }
+    
     constexpr auto operator==(const EntityId<T>& o) const noexcept {
         return id == o.id;
     }
+
     constexpr auto operator<=>(const EntityId<T>& o) const noexcept = default;
 
- 	EntityId<T>& operator++() noexcept {
+    EntityId<T>& operator++() noexcept {
         this->id++;
         return *this;
     }
@@ -105,7 +103,7 @@ struct Entity {
     /// @brief Id used to speed up Id lookups on any context
     /// @note This depends that the container is sequential (as if it was
     /// a contigous array) - Otherwise this optimization **will** break
-    Id cached_id = Id{ static_cast<T>(-1) };
+    Id cached_id;
 
     /// @brief Returns an invalid id
     /// @return constexpr Id The invalid id

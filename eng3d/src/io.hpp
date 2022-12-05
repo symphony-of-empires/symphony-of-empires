@@ -66,7 +66,7 @@ namespace Eng3D::IO {
             WRITE = 0x02,
             TRUNCATE = 0x04,
         };
-    };
+    }
 
     enum class SeekType {
         START,
@@ -80,12 +80,12 @@ namespace Eng3D::IO {
             Base() = default;
             ~Base() = default;
             std::string get_abs_path() const;
-            virtual void open() {};
-            virtual void close() {};
-            virtual void read(void*, size_t) {};
-            virtual void write(const void*, size_t) {};
-            virtual void seek(Eng3D::IO::SeekType, int) {};
-            virtual size_t get_size(void) const { return 0; };
+            virtual void open() {}
+            virtual void close() {}
+            virtual void read(void*, size_t) {}
+            virtual void write(const void*, size_t) {}
+            virtual void seek(Eng3D::IO::SeekType, int) {}
+            virtual size_t get_size(void) const { return 0; }
 
             std::string path;
             std::string abs_path;
@@ -118,12 +118,12 @@ namespace Eng3D::IO {
             virtual void seek(Eng3D::IO::SeekType type, int offset);
             virtual size_t get_size(void) const;
         };
-    };
+    }
 
     class PackageException : public std::exception {
         std::string buffer;
     public:
-        PackageException(const std::string& _buffer) : buffer(_buffer) {};
+        PackageException(const std::string& _buffer) : buffer(_buffer) {}
         virtual const char* what() const noexcept {
             return buffer.c_str();
         }
@@ -156,4 +156,4 @@ namespace Eng3D::IO {
 
         std::vector<Package> packages;
     };
-};
+}

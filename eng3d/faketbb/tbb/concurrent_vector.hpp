@@ -22,8 +22,7 @@
 //      Does important stuff.
 // ----------------------------------------------------------------------------
 
-#ifndef _FAKETBB_CONCURRENT_VECTOR_HPP
-#define _FAKETBB_CONCURRENT_VECTOR_HPP 1
+#pragma once
 
 #include <vector>
 
@@ -33,5 +32,3 @@ namespace tbb {
 
     };
 }
-
-#endif

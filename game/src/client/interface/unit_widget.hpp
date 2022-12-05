@@ -59,4 +59,4 @@ namespace Interface {
         UnitView(GameState& _gs, Unit& unit);
         virtual ~UnitView() = default;
     };
-};
+}

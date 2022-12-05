@@ -55,4 +55,4 @@ namespace Economy {
         inline void initialize(const World& world);
         std::vector<std::vector<Vertex>> neighbours;
     };
-};
+}

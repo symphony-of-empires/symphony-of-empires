@@ -72,4 +72,4 @@ namespace Interface {
         ArmyUnitsTab* units_tab;
         ArmyProductionTab* production_tab;
     };
-};
+}

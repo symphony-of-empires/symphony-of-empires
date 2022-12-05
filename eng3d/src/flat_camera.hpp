@@ -130,4 +130,4 @@ namespace Eng3D {
             return glm::vec3(tile_pos.x, tile_pos.y, 0.f);
         }
     };
-};
+}

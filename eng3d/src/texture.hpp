@@ -42,11 +42,9 @@
 #include "eng3d/color.hpp"
 
 struct SDL_Surface;
-namespace Eng3D::IO {
-    namespace Asset {
-        class Base;
-    };
-};
+namespace Eng3D::IO::Asset {
+    class Base;
+}
 
 namespace Eng3D {
     class State;
@@ -226,4 +224,4 @@ namespace Eng3D {
 
         friend class Eng3D::Texture;
     };
-};
+}

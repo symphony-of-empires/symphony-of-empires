@@ -28,7 +28,7 @@
 
 #include "client/interface/pop_window.hpp"
 #include "nation.hpp"
-#include "pop.hpp"
+#include "indpobj.hpp"
 #include "world.hpp"
 
 std::string pop_qol_tooltip_text(const Pop& pop, const World* world) {
@@ -57,21 +57,21 @@ Interface::PopWindow::PopWindow(GameState& _gs)
 
     const auto& nation = *gs.curr_nation;
 
-    int size = 0;
+    auto size = 0.f;
     for(const auto province_id : nation.owned_provinces)
         size += gs.world->provinces[province_id].pops.size();
 
     std::vector<int> sizes{ 75, 200, 100, 80, 80, 80, 50};
     std::vector<std::string> header{ "Size", "Province", "Type", "Militancy", "Literacy", "Budget", "QOL" };
-    auto table = new UI::Table<uint64_t>(5, 5, 800 - 5, 35, sizes, header, this);
-    this->width = table->width + 5 + this->padding.x;
-    table->reserve(size);
-    table->set_on_each_tick([this, &nation, table](UI::Widget&) {
+    auto& table = this->make_widget<UI::Table<uint64_t>>(5, 5, 800 - 5, 35, sizes, header);
+    this->width = table.width + 5 + this->padding.x;
+    table.reserve(size);
+    table.set_on_each_tick([this, &nation, &table](UI::Widget&) {
         for(const auto province_id : nation.owned_provinces) {
             const auto& province = this->gs.world->provinces[province_id];
             for(const auto& pop : province.pops) {
                 const auto id = static_cast<size_t>(pop.type_id) + (static_cast<uint64_t>(province) << 32);
-                auto& row = table->get_row(id);
+                auto& row = table.get_row(id);
                 size_t row_index = 0;
 
                 auto size_label = row.get_element(row_index++);
@@ -108,5 +108,5 @@ Interface::PopWindow::PopWindow(GameState& _gs)
             }
         }
     });
-    table->on_each_tick(*table);
+    table.on_each_tick(table);
 }

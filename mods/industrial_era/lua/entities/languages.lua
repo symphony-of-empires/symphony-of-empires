@@ -24,7 +24,6 @@
 -- ----------------------------------------------------------------------------
 
 -- Languages
-
 -- European
 german = Language:new{ ref_name = "german", color = 0x916c53 }
 german.name = _("German")

@@ -62,7 +62,7 @@ namespace Interface {
 }
 
 #include "province.hpp"
-#include "terrain.hpp"
+#include "indpobj.hpp"
 
 enum class MapView {
     SPHERE_VIEW,
@@ -77,8 +77,7 @@ class Input;
 class Rivers;
 class Borders;
 
-class ProvinceColor {
-public:
+struct ProvinceColor {
     ProvinceId id;
     Eng3D::Color color;
     ProvinceColor(ProvinceId _id, Eng3D::Color _color): id{ _id }, color{ _color } {}

@@ -43,4 +43,4 @@ namespace UI {
         virtual ~Label();
         virtual void text(const std::string& _text);
     };
-};
+}

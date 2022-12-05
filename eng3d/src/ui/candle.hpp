@@ -67,11 +67,11 @@ namespace UI {
     class CandleChart: public Widget {
     public:
         CandleChart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);
-        virtual ~CandleChart() override {};
+        virtual ~CandleChart() override {}
         virtual void on_render(Context& ctx, Eng3D::Rect viewport);
         void set_data(std::vector<UI::CandleData> data);
     private:
         std::vector<UI::CandleData> data;
         float max = 1.f, min = 1.f;
     };
-};
+}

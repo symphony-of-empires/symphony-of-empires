@@ -57,4 +57,4 @@ namespace Eng3D::Interface {
         ProfilerTaskView(ProfilerView* profiler_view, int x, int y);
         void set_task(Eng3D::BenchmarkTask& profiler_view);
     };
-};
+}

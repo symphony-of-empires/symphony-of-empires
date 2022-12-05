@@ -81,4 +81,4 @@ namespace Eng3D {
         std::atomic<bool> render_started;
         std::unordered_map<std::string, BenchmarkTask> tasks;
     };
-};
+}

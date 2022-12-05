@@ -29,6 +29,7 @@
 #include <unordered_set>
 #include <algorithm>
 #include <functional>
+#include <cmath>
 
 namespace Eng3D::Pathfind {
     /// @brief Implements the A* algorithm with euclidean distance as heuristic. Returns a vector where the starting
@@ -82,7 +83,7 @@ namespace Eng3D::Pathfind {
 
         // Unwind path and reverse
         std::vector<T> path;
-        path.reserve(abs(double(static_cast<size_t>(start) - static_cast<size_t>(end))));
+        path.reserve(std::abs(static_cast<long>(start) - static_cast<long>(end)));
         auto current = end;
         while(current != start) {
             path.push_back(current);

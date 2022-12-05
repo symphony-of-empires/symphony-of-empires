@@ -1,5 +1,5 @@
-// Symphony of Empires
-// Copyright (C) 2021, Symphony of Empires contributors
+// Eng3D - General purpouse game engine
+// Copyright (C) 2021, Eng3D contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,22 +16,19 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      eng3d/ui/button.hpp
+//      cppgen.hpp
 //
 // Abstract:
-//      A button widget.
+//      C++ generator from description files of the form:
+//      @entity ClassName
+//          @string a
+//          @string b
+//          @int c
+//          @float d
+//          @entityRef OtherClass other_class
+//          @direct
+//          void set_pos(glm::ivec2 pos) {
+//              @nameof(d) = pos;
+//          }
+//          @endirect
 // ----------------------------------------------------------------------------
-
-#pragma once
-
-#include "eng3d/ui/widget.hpp"
-
-namespace UI {
-    /// @ingroup UI
-    /// @brief Button widget
-    class Button: public Widget {
-    public:
-        Button(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
-        virtual ~Button() override {}
-    };
-}

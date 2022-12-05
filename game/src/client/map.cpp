@@ -172,8 +172,7 @@ void Map::update_nation_label(const Nation& nation) {
     glm::vec2 max_point_x(0.f, 0.f), max_point_y(0.f, 0.f);
     if(nation.owned_provinces.empty()) return;
     auto province_id = *nation.owned_provinces.begin();
-    if(Province::is_valid(nation.capital_id))
-        province_id = nation.capital_id;
+    province_id = nation.capital_id;
 
     const auto& province = this->gs.world->provinces[province_id];
     max_point_x = province.box_area.position() + province.box_area.size();
@@ -224,23 +223,17 @@ void Map::set_view(MapView view) {
 }
 
 std::string political_province_tooltip(const World& world, const ProvinceId id) {
-    std::string end_str;
-    if(Nation::is_valid(world.provinces[id].controller_id))
-        end_str += world.nations[world.provinces[id].controller_id].client_username;
+    std::string str = world.nations[world.provinces[id].controller_id].client_username;
     if(((GameState&)Eng3D::State::get_instance()).editor)
-        end_str += string_format("(%s)", world.provinces[id].ref_name.c_str());
-    return end_str;
+        str += string_format("(%s)", world.provinces[id].ref_name.c_str());
+    return str;
 }
 
 // The standard map mode with each province color = country color
 std::vector<ProvinceColor> political_map_mode(const World& world) {
     std::vector<ProvinceColor> province_color;
-    for(const auto& province : world.provinces) {
-        if(Nation::is_invalid(province.controller_id))
-            province_color.emplace_back(province, Eng3D::Color(0.8f, 0.8f, 0.8f));
-        else
-            province_color.emplace_back(province, Eng3D::Color::bgr32(world.nations[province.controller_id].get_client_hint().color));
-    }
+    for(const auto& province : world.provinces)
+        province_color.emplace_back(province, Eng3D::Color::bgr32(world.nations[province.controller_id].get_client_hint().color));
     return province_color;
 }
 
@@ -429,7 +422,7 @@ void Map::draw() {
                 if(this->map_render->options.units.used && !province_units.empty()) {
                     const auto& unit = this->gs.world->unit_manager.units[province_units[0]];
                     auto model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
-                    if(Province::is_valid(unit.get_target_province_id())) {
+                    if(unit.has_target_province()) {
                         const auto& unit_target = this->gs.world->provinces[unit.get_target_province_id()];
                         const auto target_pos = unit_target.get_pos();
                         const auto dist = glm::sqrt(glm::pow(glm::abs(prov_pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(prov_pos.y - target_pos.y), 2.f));
@@ -446,7 +439,7 @@ void Map::draw() {
         }
 
         // Unit movement lines
-        gs.world->unit_manager.for_each_unit([this](Unit& unit) {
+        gs.world->unit_manager.units.for_each([this](Unit& unit) {
             if(this->gs.curr_nation && unit.owner_id != this->gs.curr_nation->get_id())  return;
             const auto& path = unit.get_path();
         });
@@ -556,23 +549,17 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
                     this->is_drag = false;
                     if(gs.input.get_selected_units().empty()) {
                         // Show province information when clicking on a province
-                        if(Province::is_valid(province_id)) {
-                            new Interface::ProvinceView(gs, gs.world->provinces[province_id]);
-                            return;
-                        }
+                        new Interface::ProvinceView(gs, gs.world->provinces[province_id]);
+                        return;
                     }
                     break;
-                case MapMode::COUNTRY_SELECT:
-                    if(Province::is_valid(province_id)) {
-                        const auto& province = gs.world->provinces[province_id];
-                        if(Nation::is_valid(province.controller_id))
-                            gs.select_nation->change_nation(province.controller_id);
-                    }
-                    break;
+                case MapMode::COUNTRY_SELECT: {
+                    const auto& province = gs.world->provinces[province_id];
+                    gs.select_nation->change_nation(province.controller_id);
+                } break;
                 default: break;
             }
         } else if(e.type == Eng3D::Event::MouseButton::Type::RIGHT) {
-            if(Province::is_invalid(province_id)) return;
             auto& province = gs.world->provinces[province_id];
             if(gs.editor && gs.current_mode == MapMode::NORMAL) {
                 if(world.terrain_types[province.terrain_type_id].is_water_body) {
@@ -595,21 +582,14 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
                 auto unit_prov_id = gs.world->unit_manager.unit_province[unit_id];
                 if(!unit.can_move()) continue;
                 // Don't change target if ID is the same...
-                if(unit_prov_id == gs.world->get_id(province) || unit.get_target_province_id() == gs.world->get_id(province))
+                if(unit_prov_id == province.get_id() || unit.get_target_province_id() == province.get_id())
                     continue;
                 if(province.controller_id != gs.curr_nation->get_id()) {
                     // Must either be our ally, have military access with them or be at war
-                    const auto& relation = gs.world->get_relation(gs.world->get_id(*gs.curr_nation), province.controller_id);
+                    const auto& relation = gs.world->get_relation(gs.curr_nation->get_id(), province.controller_id);
                     if(!relation.has_landpass()) continue;
                 }
-
-                Eng3D::Networking::Packet packet{};
-                Eng3D::Deser::Archive ar{};
-                Eng3D::Deser::serialize<ActionType>(ar, ActionType::UNIT_CHANGE_TARGET);
-                Eng3D::Deser::serialize(ar, unit_id);
-                Eng3D::Deser::serialize(ar, province.get_id());
-                packet.data(ar.get_buffer(), ar.size());
-                gs.client->send(packet);
+                gs.client->send(Action::UnitMove::form_packet(unit, province));
 
                 const std::scoped_lock lock2(gs.audio_man.sound_lock);
                 auto entries = gs.package_man.get_multiple_prefix("sfx/land_move");

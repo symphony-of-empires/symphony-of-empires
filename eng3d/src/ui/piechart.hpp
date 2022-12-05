@@ -44,7 +44,7 @@ namespace UI {
 	public:
 		PieChart(int x, int y, unsigned w, unsigned h, std::vector<ChartData> data = std::vector<ChartData>(), Widget* _parent = nullptr);
 		PieChart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);
-		virtual ~PieChart() override {};
+		virtual ~PieChart() override {}
 		virtual void on_render(Context& ctx, Eng3D::Rect viewport);
 		void set_data(std::vector<ChartData> data);
 	private:
@@ -54,4 +54,4 @@ namespace UI {
 		Tooltip* slice_tooltip;
 		float max = 1.f;
 	};
-};
+}
