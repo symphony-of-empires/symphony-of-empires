@@ -263,6 +263,15 @@ MapmodeCommodityOptions::MapmodeCommodityOptions(GameState& _gs)
         };
         update_map_mode();
     });
+    auto& global_demand_btn = this->make_widget<UI::Button>(0, 0, 100, 32);
+    global_demand_btn.text("Global_demand");
+    global_demand_btn.set_on_click([this](UI::Widget&) {
+        this->province_value = [this](const World& world, ProvinceId id) {
+            const auto& product = world.provinces[id].products[this->commodity_id];
+            return product.global_demand / product.supply;
+        };
+        update_map_mode();
+    });
     auto& demand_btn = this->make_widget<UI::Button>(0, 0, 100, 32);
     demand_btn.text("Demand");
     demand_btn.set_on_click([this](UI::Widget&) {

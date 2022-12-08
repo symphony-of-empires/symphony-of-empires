@@ -85,7 +85,6 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int _x, int _y, UI::Widget*
     auto& reqmat_chart = flex_column.make_widget<UI::Chart>(0, 0, this->width, 128);
     reqmat_chart.text("Material demand");
     reqmat_chart.set_on_each_tick([this](UI::Widget& w) {
-        auto& o = static_cast<UI::Chart&>(w);
         auto total = 0.f;
         for(const auto province_id : this->gs.curr_nation->owned_provinces) {
             const auto& province = gs.world->provinces[province_id];

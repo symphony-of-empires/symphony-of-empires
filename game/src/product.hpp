@@ -52,24 +52,7 @@ struct Eng3D::Deser::Serializer<Commodity> {
 
 /// @brief A product (based off a Commodity) which can be bought by POPs, converted by factories and transported
 struct Product : Entity<ProductId> {
-    static constexpr float get_price_delta(float supply, float demand) {
-        constexpr auto price_elasticity = 0.01f;
-        if(supply == 0.f || demand == 0.f)
-            return price_elasticity * price_elasticity * (demand - supply);
-        const auto sd_ratio = supply / demand;
-        return price_elasticity * (1.f - sd_ratio);
-    }
-
     void close_market() {
-        // TODO: Supply should **never** be negative
-        this->supply = glm::max(this->supply, 0.f);
-        // Increase price with more demand
-        this->price_delta = this->get_price_delta(this->supply, this->demand);
-
-        // Set the new price
-        this->price = glm::clamp(this->price + this->price_delta, glm::epsilon<float>(), 100'000.f);
-        if(glm::epsilonEqual(this->price, 0.f, glm::epsilon<float>()))
-            this->price_delta = 0.f;
         this->demand = 0.f;
     }
 
@@ -91,7 +74,6 @@ struct Product : Entity<ProductId> {
     }
 
     float price = 1.f;
-    float price_delta = 0.f;
     float supply = 1.f;
     float demand = 1.f;
     float global_demand = 1.f;
@@ -105,7 +87,6 @@ struct Eng3D::Deser::Serializer<Product> {
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.price);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.price_delta);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.supply);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.demand);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.global_demand);

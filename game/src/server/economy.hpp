@@ -35,9 +35,11 @@ namespace Economy {
     struct Market {
         CommodityId commodity;
         std::vector<float> price;
+        std::vector<float> price_int;
         std::vector<float> supply;
         std::vector<float> demand;
         std::vector<float> global_demand;
+        std::vector<std::vector<float>> trade_flow;
     };
 
     class EconomyState final {
@@ -45,6 +47,7 @@ namespace Economy {
         EconomyState() = default;
         Trade trade;
         std::vector<Market> commodity_market;
+        uint64_t ticks = 0;
     };
 
     void do_tick(World& world, EconomyState& economy_state);
