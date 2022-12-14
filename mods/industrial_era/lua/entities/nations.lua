@@ -140,11 +140,31 @@ burundi = Nation:new{ ref_name = "burundi" }
 burundi.name = _("Burundi")
 burundi:register()
 burundi:add_accepted_language(arabic)
-burundi:add_client_hint(monarchy, _("Burundi"), 0x135910)
-burundi:add_client_hint(fascism, _("Burundi"), 0x135910)
-burundi:add_client_hint(communism, _("Burundi"), 0x135910)
-burundi:add_client_hint(socialism, _("Burundi"), 0x135910)
+burundi:add_client_hint(monarchy, _("Burundi"), 0x4dd444)
+burundi:add_client_hint(fascism, _("Burundi"), 0x4dd444)
+burundi:add_client_hint(communism, _("Burundi"), 0x4dd444)
+burundi:add_client_hint(socialism, _("Burundi"), 0x4dd444)
 burundi:set_ideology(monarchy, "absolute_monarchy")
+
+nation = Nation:new{ ref_name = "buganda" }
+nation.name = _("Buganda")
+nation:register()
+nation:add_accepted_language(arabic)
+nation:add_client_hint(monarchy, _("Buganda"), 0x3b495e)
+nation:add_client_hint(fascism, _("Buganda"), 0x3b495e)
+nation:add_client_hint(communism, _("Buganda"), 0x3b495e)
+nation:add_client_hint(socialism, _("Buganda"), 0x3b495e)
+nation:set_ideology(monarchy, "absolute_monarchy")
+
+nation = Nation:new{ ref_name = "bokongo" }
+nation.name = _("Bokongo")
+nation:register()
+nation:add_accepted_language(arabic)
+nation:add_client_hint(monarchy, _("Bokongo"), 0xccaa87)
+nation:add_client_hint(fascism, _("Bokongo"), 0xccaa87)
+nation:add_client_hint(communism, _("Bokongo"), 0xccaa87)
+nation:add_client_hint(socialism, _("Bokongo"), 0xccaa87)
+nation:set_ideology(monarchy, "absolute_monarchy")
 
 kooki = Nation:new{ ref_name = "kooki" }
 kooki.name = _("Kooki")
@@ -364,6 +384,13 @@ nation:add_accepted_language(Language:get("chinesse"))
 nation:add_client_hint(monarchy, _("Qing Dynasty"), 0xF8F180)
 nation:add_client_hint(communism, _("Qing's People's Republic"), 0xF8F180)
 
+nation = Nation:new{ ref_name = "tibet", name = _("Tibet") }
+nation.adjective = _("Chinesse")
+nation:register()
+nation:add_accepted_language(Language:get("chinesse"))
+nation:add_client_hint(monarchy, _("Tibet"), 0xe8841a)
+nation:add_client_hint(communism, _("Tibet"), 0xe8841a)
+
 nation = Nation:new{ ref_name = "beyiang", name = _("Beyiang") }
 nation.adjective = _("Chinesse")
 nation:register()
@@ -515,6 +542,19 @@ nation:set_ideology(monarchy, "absolute_monarchy")
 nation:add_accepted_language(Language:get("vietnamesse"))
 nation:add_client_hint(monarchy, _("Sikh"), 0xd65718)
 
+nation = Nation:new{ ref_name = "bukhara", name = _("Bukhara") }
+nation.adjective = _("Bukhara")
+nation:register()
+nation:set_ideology(monarchy, "absolute_monarchy")
+nation:add_accepted_language(Language:get("uzbek"))
+nation:add_client_hint(monarchy, _("Bukhara"), 0x25a825)
+
+nation = Nation:new{ ref_name = "khiva", name = _("Khiva") }
+nation.adjective = _("Khiva")
+nation:register()
+nation:set_ideology(monarchy, "absolute_monarchy")
+nation:add_accepted_language(Language:get("uzbek"))
+nation:add_client_hint(monarchy, _("Khiva"), 0x506d70)
 
 -----------------------------------------------------------------------
 -- Europe (excluding balkans, scandinavia and the mess that Germany was)

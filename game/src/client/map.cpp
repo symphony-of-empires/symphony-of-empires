@@ -193,6 +193,9 @@ void Map::create_labels() {
     // Provinces
     this->province_labels.clear();
     for(const auto& province : this->gs.world->provinces) {
+        if (province.name.get_string().empty())
+            continue;
+
         glm::vec2 min_point(province.box_area.left, province.box_area.top);
         glm::vec2 max_point(province.box_area.right, province.box_area.bottom);
         max_point.y = min_point.y = min_point.y + (max_point.y - min_point.y) * 0.5f;
