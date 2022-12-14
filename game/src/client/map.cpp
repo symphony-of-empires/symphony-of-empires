@@ -167,24 +167,58 @@ Map::~Map() {
 void Map::update_nation_label(const Nation& nation) {
     // No need to update if no labels are displayed!
     if(!this->gen_labels) return;
-
-    glm::vec2 min_point_x(this->gs.world->width - 1.f, this->gs.world->height - 1.f), min_point_y(this->gs.world->width - 1.f, this->gs.world->height - 1.f);
-    glm::vec2 max_point_x(0.f, 0.f), max_point_y(0.f, 0.f);
     if(nation.owned_provinces.empty()) return;
     auto province_id = *nation.owned_provinces.begin();
     province_id = nation.capital_id;
 
     const auto& province = this->gs.world->provinces[province_id];
-    max_point_x = province.box_area.position() + province.box_area.size();
-    max_point_y = province.box_area.position() + province.box_area.size();
-    min_point_x = province.box_area.position();
-    min_point_y = province.box_area.position();
+    glm::vec2 max_point_x = province.box_area.position() + province.box_area.size();
+    glm::vec2 max_point_y = province.box_area.position() + province.box_area.size();
+    glm::vec2 min_point_x = province.box_area.position();
+    glm::vec2 min_point_y = province.box_area.position();
     std::vector<bool> visited_provinces(this->world.provinces.size(), false);
     get_blob_bounds(visited_provinces, nation, province, &min_point_x, &min_point_y, &max_point_x, &max_point_y);
-    float width = 0.7f;
+
+    // Find the x and y coordinate that is **nearest** to the center
+    const glm::vec2 center(
+        min_point_x.x + (max_point_x.x - min_point_x.x) / 2.f,
+        min_point_y.y + (max_point_y.y - min_point_y.y) / 2.f
+    );
+    std::vector<glm::vec2> candidates{ max_point_x, max_point_y, min_point_x, min_point_y };
+    glm::vec2 curve_control_point = max_point_x;
+    for(const auto& candidate : candidates) {
+        if(glm::abs(candidate.x - center.x) < glm::abs(curve_control_point.x - center.x)) {
+            curve_control_point.x = candidate.x;
+        } else if(glm::abs(candidate.y - center.y) < glm::abs(curve_control_point.y - center.y)) {
+            curve_control_point.y = candidate.y;
+        }
+    }
+
+    // Farthest points from the center
+    glm::vec2 farthest_positive = min_point_y, farthest_negative = max_point_y;
+    for(const auto& candidate : candidates) {
+        if(glm::abs(candidate.x - center.x) > glm::abs(farthest_positive.x - center.x)) {
+            farthest_positive.x = candidate.x;
+        } else if(glm::abs(candidate.y - center.y) > glm::abs(farthest_positive.y - center.y)) {
+            farthest_positive.y = candidate.y;
+        }
+
+        if(glm::abs(candidate.x - center.x) > glm::abs(farthest_negative.x - center.x)) {
+            farthest_negative.x = candidate.x;
+        } else if(glm::abs(candidate.y - center.y) > glm::abs(farthest_negative.y - center.y)) {
+            farthest_negative.y = candidate.y;
+        }
+    }
+
+    const glm::vec2 middle(
+        min_point_y.x + (max_point_y.x - min_point_y.x) / 2.f,
+        min_point_y.y + (max_point_y.y - min_point_y.y) / 2.f
+    );
+
+    float width = 0.74f;
     // Replace old label
     assert(this->nation_labels.size() > nation);
-    auto label = this->map_font->gen_text(nation.get_client_hint().name, min_point_x, max_point_x, max_point_y, width);
+    auto label = this->map_font->gen_text(nation.get_client_hint().name, min_point_y, max_point_y, middle, width);
     this->nation_labels[nation] = std::move(label);
 }
 
