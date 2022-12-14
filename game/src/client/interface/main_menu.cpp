@@ -214,7 +214,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
         this->gs.server.reset(new Server(gs, 1836));
         this->gs.client.reset(new Client(gs, "127.0.0.1", 1836));
         this->gs.ui_ctx.clear();
-        this->gs.curr_nation = &gs.world->nations[0];
+        this->gs.curr_nation = &gs.world->nations[1];
         this->gs.play_nation();
     });
 
