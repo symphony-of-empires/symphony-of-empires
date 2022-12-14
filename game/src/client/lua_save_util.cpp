@@ -71,7 +71,8 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
         rgo_size_out.c_str());
     fprintf(fp, "province:register()\n");
 
-    if(gs.world->terrain_types[province.terrain_type_id].is_water_body)
+    if(gs.world->terrain_types[province.terrain_type_id].is_water_body
+    || province.owner_id == ProvinceId(0))
         return;
     
     for(auto& building : province.buildings)
