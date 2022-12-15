@@ -282,6 +282,90 @@ usa:add_client_hint(monarchy, _("United States of America"), 0x6ea5cc)
 usa:add_client_hint(socialism, _("United States of America"), 0x6ea5cc)
 usa:add_client_hint(communism, _("United States of America"), 0x6ea5cc)
 
+nation = Nation:new{ ref_name = "apache" }
+nation.name = _("Apache")
+nation:register()
+nation:set_ideology(tribal, "nomadic_tribe")
+nation:add_accepted_language(spanish)
+nation:add_client_hint(tribal, _("Apache"), 0xf1f2c7)
+
+nation = Nation:new{ ref_name = "ute" }
+nation.name = _("Ute")
+nation:register()
+nation:set_ideology(tribal, "nomadic_tribe")
+nation:add_accepted_language(spanish)
+nation:add_client_hint(tribal, _("Ute"), 0x782656)
+
+nation = Nation:new{ ref_name = "yavapai" }
+nation.name = _("Yavapai")
+nation:register()
+nation:set_ideology(tribal, "nomadic_tribe")
+nation:add_accepted_language(spanish)
+nation:add_client_hint(tribal, _("Yavapai"), 0xa51dcf)
+
+nation = Nation:new{ ref_name = "comanche" }
+nation.name = _("Comanche")
+nation:register()
+nation:set_ideology(tribal, "nomadic_tribe")
+nation:add_accepted_language(spanish)
+nation:add_client_hint(tribal, _("Comanche"), 0x154fa1)
+
+nation = Nation:new{ ref_name = "cheyenne" }
+nation.name = _("Cheyenne")
+nation:register()
+nation:set_ideology(tribal, "nomadic_tribe")
+nation:add_accepted_language(spanish)
+nation:add_client_hint(tribal, _("Cheyenne"), 0x140a80)
+
+nation = Nation:new{ ref_name = "kiowa" }
+nation.name = _("Kiowa")
+nation:register()
+nation:set_ideology(tribal, "nomadic_tribe")
+nation:add_accepted_language(spanish)
+nation:add_client_hint(tribal, _("Kiowa"), 0x96410f)
+
+nation = Nation:new{ ref_name = "huvasupai" }
+nation.name = _("Huvasupai")
+nation:register()
+nation:set_ideology(tribal, "nomadic_tribe")
+nation:add_accepted_language(spanish)
+nation:add_client_hint(tribal, _("Huvasupai"), 0xa82c3c)
+
+nation = Nation:new{ ref_name = "hopi" }
+nation.name = _("Hopi")
+nation:register()
+nation:set_ideology(tribal, "nomadic_tribe")
+nation:add_accepted_language(spanish)
+nation:add_client_hint(tribal, _("Hopi"), 0xf20c2a)
+
+nation = Nation:new{ ref_name = "navajo" }
+nation.name = _("Navajo")
+nation:register()
+nation:set_ideology(tribal, "nomadic_tribe")
+nation:add_accepted_language(spanish)
+nation:add_client_hint(tribal, _("Navajo"), 0x38594f)
+
+nation = Nation:new{ ref_name = "tohono_o_odham" }
+nation.name = _("Tohono O'odham")
+nation:register()
+nation:set_ideology(tribal, "nomadic_tribe")
+nation:add_accepted_language(spanish)
+nation:add_client_hint(tribal, _("Tohono O'odham"), 0xcf9a70)
+
+nation = Nation:new{ ref_name = "quecha" }
+nation.name = _("Quecha")
+nation:register()
+nation:set_ideology(tribal, "nomadic_tribe")
+nation:add_accepted_language(spanish)
+nation:add_client_hint(tribal, _("Quecha"), 0xb6de52)
+
+nation = Nation:new{ ref_name = "mojave" }
+nation.name = _("Mojave")
+nation:register()
+nation:set_ideology(tribal, "nomadic_tribe")
+nation:add_accepted_language(spanish)
+nation:add_client_hint(tribal, _("Mojave"), 0x8f170a)
+
 haiti = Nation:new{ ref_name = "haiti" }
 haiti.name = _("Haiti")
 haiti:register()

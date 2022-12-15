@@ -209,6 +209,19 @@ tribal:add_subideology(Subideology:new{
 	pluralism = 0.0,
 })
 
+tribal:add_subideology(Subideology:new{
+	ref_name = "nomadic_tribe",
+	name = "Nomadic tribe",
+	distributism = 0.0,
+	mercantilist = 0.0,
+	capitalism = 0.0,
+	individualism = 0.0,
+	state_power = 1.0,
+	equalitarianism = 0.0,
+	secular = 0.0,
+	pluralism = 0.0,
+})
+
 anarchy = Ideology:new{ ref_name = "anarchy", name = _("Anarchy"), color = 0x363533 }
 anarchy:register()
 anarchy:add_subideology(Subideology:new{
