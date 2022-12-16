@@ -254,7 +254,7 @@ MapmodeCommodityOptions::MapmodeCommodityOptions(GameState& _gs)
         return product.price;
     };
 
-    auto& price_btn = this->make_widget<UI::Button>(0, 0, 100, 32);
+    auto& price_btn = this->make_widget<UI::Button>(0, 0, 125, 24);
     price_btn.text("Price");
     price_btn.set_on_click([this](UI::Widget&) {
         this->province_value = [this](const World& world, ProvinceId id) {
@@ -263,7 +263,7 @@ MapmodeCommodityOptions::MapmodeCommodityOptions(GameState& _gs)
         };
         update_map_mode();
     });
-    auto& demand_btn = this->make_widget<UI::Button>(0, 0, 100, 32);
+    auto& demand_btn = this->make_widget<UI::Button>(0, 0, 125, 24);
     demand_btn.text("Demand");
     demand_btn.set_on_click([this](UI::Widget&) {
         this->province_value = [this](const World& world, ProvinceId id) {
@@ -272,7 +272,7 @@ MapmodeCommodityOptions::MapmodeCommodityOptions(GameState& _gs)
         };
         update_map_mode();
     });
-    auto& supply_btn = this->make_widget<UI::Button>(0, 0, 100, 32);
+    auto& supply_btn = this->make_widget<UI::Button>(0, 0, 125, 24);
     supply_btn.text("Supply");
     supply_btn.set_on_click([this](UI::Widget&) {
         this->province_value = [this](const World& world, ProvinceId id) {
@@ -281,6 +281,30 @@ MapmodeCommodityOptions::MapmodeCommodityOptions(GameState& _gs)
         };
         update_map_mode();
     });
+    auto& price_delta_btn = this->make_widget<UI::Button>(0, 0, 125, 24);
+    price_delta_btn.text("Price change");
+    price_delta_btn.set_on_click([this](UI::Widget&) {
+        this->province_value = [this](const World& world, ProvinceId id) {
+            const auto& product = world.provinces[id].products[this->commodity_id];
+            return product.price_delta;
+        };
+        update_map_mode();
+    });
+    auto& production_btn = this->make_widget<UI::Button>(0, 0, 125, 24);
+    production_btn.text("Production");
+    production_btn.set_on_click([this](UI::Widget&) {
+        this->province_value = [this](const World& world, ProvinceId id) {
+            const auto& province = world.provinces[id];
+            const auto& product = province.products[this->commodity_id];
+            auto total = 0.f;
+            for(const auto& building_type : world.building_types)
+                if (building_type.output_id == this->commodity_id)
+                    total += province.buildings[building_type].get_output_amount();
+            return total;
+        };
+        update_map_mode();
+    });
+
     std::vector<int> sizes{ 160 };
     std::vector<std::string> header{ "Goods" };
     auto& table = this->make_widget<UI::Table<CommodityId::Type>>(4, 4, 400 - 8, 35, sizes, header);
@@ -305,9 +329,15 @@ mapmode_tooltip commodity_tooltip(CommodityId good_id) {
     return [good_id](const World& world, const ProvinceId id) -> std::string {
         const auto& province = world.provinces[id];
         const auto& product = province.products[good_id];
+
+        auto total_production = 0.f;
+        for(const auto& building_type : world.building_types)
+            if (building_type.output_id == good_id)
+                total_production += province.buildings[building_type].get_output_amount();
+
         std::string str = Eng3D::translate_format(
-            "%s,\nprice %.2f, \nglobal demand %.2f, \ndemand %.2f, \nsupply %.2f \n",
-            province.name.c_str(), product.price, product.global_demand, product.demand, product.supply);
+            "%s,\nPrice %.2f\nGlobal demand %.2f\nDemand %.2f\nSupply %.2f\nProduction %.2f\n",
+            province.name.c_str(), product.price, product.global_demand, product.demand, product.supply, total_production);
         for(const auto& building_type : world.building_types) {
             const auto& building = province.buildings[building_type];
             if(building.level)
