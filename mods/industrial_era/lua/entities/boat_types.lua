@@ -25,18 +25,19 @@
 
 -- Naval unit types
 local v = {}
-v=BoatType:new{ref_name="clipper",name=_("Clipper"),defense=10.000000,attack=10.000000,health=100.000000,speed=0.500000}
+v=BoatType:new{ref_name="sloop_of_war",name=translate("Sloop of war"),defense=40.000000,attack=20.000000,health=100.000000,speed=0.900000}
 v:register()
-v:requires_good(Commodity:get("arms"), 800.000000)
-v:requires_good(Commodity:get("timber"), 20.000000)
-v=BoatType:new{ref_name="barque",name=_("Barque"),defense=15.000000,attack=10.000000,health=200.000000,speed=0.500000}
+v:requires_good(Commodity:get("timber"), 30.000000)
+v=BoatType:new{ref_name="clipper",name=translate("Clipper"),defense=10.000000,attack=10.000000,health=100.000000,speed=0.800000}
 v:register()
-v:requires_good(Commodity:get("arms"), 800.000000)
-v:requires_good(Commodity:get("timber"), 20.000000)
-v=BoatType:new{ref_name="sloop_of_war",name=_("Sloop of war"),defense=40.000000,attack=20.000000,health=400.000000,speed=0.500000}
+v:requires_good(Commodity:get("arms"), 20.000000)
+v:requires_good(Commodity:get("timber"), 50.000000)
+v=BoatType:new{ref_name="barque",name=translate("Barque"),defense=15.000000,attack=10.000000,health=200.000000,speed=1.000000}
 v:register()
-v:requires_good(Commodity:get("timber"), 1000.000000)
-v=BoatType:new{ref_name="man_of_war",name=_("Man of war"),defense=20.000000,attack=20.000000,health=500.000000,speed=0.500000}
+v:requires_good(Commodity:get("arms"), 40.000000)
+v:requires_good(Commodity:get("timber"), 150.000000)
+v=BoatType:new{ref_name="man_of_war",name=translate("Man of war"),defense=20.000000,attack=20.000000,health=500.000000,speed=0.500000}
 v:register()
-v:requires_good(Commodity:get("arms"), 1500.000000)
-v:requires_good(Commodity:get("timber"), 130.000000)
+v:requires_good(Commodity:get("arms"), 100.000000)
+v:requires_good(Commodity:get("timber"), 250.000000)
+
