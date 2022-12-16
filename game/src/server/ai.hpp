@@ -113,7 +113,7 @@ struct AIManager {
         for(const auto& other : world.nations)
             if(&other != &nation)
                 nations_risk_factor[other] = get_nation_risk(world, nation, other);
-        nations_risk_factor[nation] = 0.f;
+        nations_risk_factor[nation] = -1.f;
     }
 
     void calc_province_risk(const World& world, const Nation& nation) {
@@ -121,37 +121,33 @@ struct AIManager {
         // Calculate potential risk for every province
         for(const auto province_id : eval_provinces) {
             const auto& province = world.provinces[province_id];
-            for(const auto neighbour_id : province.neighbour_ids) {
-                auto& neighbour = world.provinces[neighbour_id];
                 auto draw_in_force = 1.f;
                 // The "cooling" value which basically makes us ignore some provinces with lots of defenses
                 // so we don't rack up deathstacks on a border with some micronation
-                const auto& unit_ids = world.unit_manager.get_province_units(neighbour_id);
+            const auto& unit_ids = world.unit_manager.get_province_units(province_id);
                 for(const auto unit_id : unit_ids) {
                     const auto& unit = world.unit_manager.units[unit_id];
                     const auto& unit_owner = world.nations[unit.owner_id];
-                    const auto unit_weight = unit_exist_weight * (unit.on_battle ? unit_battle_weight : 1.f);
-                    draw_in_force += unit.get_strength() * unit_weight * glm::abs(nations_risk_factor[unit_owner]);
+                const auto unit_weight = unit.on_battle ? unit_battle_weight : unit_exist_weight;
+                draw_in_force += unit.get_strength() * unit_weight * nations_risk_factor[unit_owner];
                 }
 
                 if(province.is_coastal)
                     draw_in_force *= coastal_weight;
-                if(!world.terrain_types[neighbour.terrain_type_id].is_water_body) {
+            if(!world.terrain_types[province.terrain_type_id].is_water_body) {
                     // Try to recover our own lost provinces
-                    if(neighbour.owner_id == nation && neighbour.controller_id != nation)
+                if(province.owner_id == nation && province.controller_id != nation)
                         draw_in_force *= reconquer_weight;
-                    draw_in_force += nations_risk_factor[neighbour.controller_id];
+                draw_in_force += nations_risk_factor[province.controller_id];
                 }
                 potential_risk[province_id] += draw_in_force;
-            }
         }
 
         // Spread out the heat
         for(const auto province_id : eval_provinces) {
             const auto& province = world.provinces[province_id];
-            for(const auto neighbour_id : province.neighbour_ids) {
+            for(const auto neighbour_id : province.neighbour_ids)
                 potential_risk[neighbour_id] += potential_risk[province_id] / province.neighbour_ids.size();
-            }
         }
     }
 
