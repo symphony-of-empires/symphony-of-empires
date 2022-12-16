@@ -216,7 +216,7 @@ tribal:add_subideology(Subideology:new{
 	mercantilist = 0.0,
 	capitalism = 0.0,
 	individualism = 0.0,
-	state_power = 1.0,
+	state_power = -1.0,
 	equalitarianism = 0.0,
 	secular = 0.0,
 	pluralism = 0.0,
