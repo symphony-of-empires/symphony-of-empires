@@ -52,7 +52,7 @@ LobbySelectView::LobbySelectView(GameState& _gs)
 
     // Country button for selection
     this->curr_country_btn = new UI::Button(0, 0, 250, 24, this);
-    this->curr_country_btn->text(translate("No country selected"));
+    this->curr_country_btn->set_text(translate("No country selected"));
     this->curr_country_btn->set_tooltip(translate("Select a country by clicking on the map or pressing the buttons below"));
     this->curr_country_btn->set_on_click([this](UI::Widget&) {
         if(this->gs.curr_nation != nullptr) {
@@ -76,7 +76,7 @@ LobbySelectView::LobbySelectView(GameState& _gs)
 #endif
 
     auto& back_btn = this->make_widget<UI::Button>(0, 0, 128, 24);
-    back_btn.text("Back");
+    back_btn.set_text("Back");
     back_btn.below_of(*curr_country_btn);
     back_btn.set_on_click([this](UI::Widget&) {
         this->kill();
@@ -114,7 +114,7 @@ LobbySelectView::LobbySelectView(GameState& _gs)
         if(!entry.is_directory() && entry.path().extension() == ".sc4") {
             auto savefile_path = entry.path().lexically_relative(path).string();
             auto& savefile_btn = savefiles_grp.make_widget<UI::Button>(0, 0, 128, 24);
-            savefile_btn.text(savefile_path);
+            savefile_btn.set_text(savefile_path);
             savefile_btn.set_on_click([this, &savefile_path](UI::Widget&) {
                 LUA_util::load(this->gs, savefile_path);
             });
@@ -152,7 +152,7 @@ void LobbySelectView::change_nation(size_t id) {
 
     curr_selected_nation = id;
     this->curr_country_flag_img->current_texture = this->gs.get_nation_flag(*this->gs.curr_nation);
-    this->curr_country_btn->text(gs.curr_nation->name.c_str());
+    this->curr_country_btn->set_text(gs.curr_nation->name.c_str());
     const auto& capital = gs.world->provinces[gs.curr_nation->capital_id];
     gs.map->camera->set_pos(capital.box_area.right, capital.box_area.bottom);
 }

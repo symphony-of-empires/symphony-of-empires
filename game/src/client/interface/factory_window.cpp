@@ -60,37 +60,37 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
                 size_t row_index = 0;
                 if(provinces.size() > 1) {
                     auto* prov_name = row.get_element(row_index++);
-                    prov_name->text(province.name);
+                    prov_name->set_text(province.name);
                     prov_name->set_key(province.name);
                 }
 
                 auto* name = row.get_element(row_index++);
-                name->text(type.name);
+                name->set_text(type.name);
                 name->set_key(type.name);
 
                 auto* workers = row.get_element(row_index++);
-                workers->text(string_format("%.0f", building.workers));
+                workers->set_text(string_format("%.0f", building.workers));
                 workers->set_key(building.workers);
 
                 auto* budget = row.get_element(row_index++);
-                budget->text(string_format("%.0f", building.budget));
+                budget->set_text(string_format("%.0f", building.budget));
                 budget->set_key(building.budget);
 
                 row_index++; // Inputs
                 row_index++; // Outputs
 
                 auto* scale = row.get_element(row_index++);
-                scale->text(string_format("%.2f", building.production_scale));
+                scale->set_text(string_format("%.2f", building.production_scale));
                 scale->set_key(building.production_scale);
                 scale->set_tooltip(translate_format("Production scale %.2f, level %.2f", building.production_scale, building.level));
 
                 auto* profit = row.get_element(row_index++);
-                profit->text(string_format("%.2f", building.get_profit()));
+                profit->set_text(string_format("%.2f", building.get_profit()));
                 profit->set_key(building.get_profit());
                 profit->set_tooltip(translate_format("Profit: %.2f\nInputs cost: %.2f\nWages: %.2f\nState taxes: %.2f\n\nDividends: %.2f (%.2f to state, %.2f to pops, %.2f to private investors)\nTotal expenses: %.2f\nOutputs revenue: %.2f\nTotal revenue: %.2f", building.get_profit(), building.expenses.inputs_cost, building.expenses.wages, building.expenses.state_taxes, building.expenses.get_dividends(), building.expenses.state_dividends, building.expenses.pop_dividends, building.expenses.private_dividends, building.expenses.get_total(), building.revenue.outputs, building.revenue.get_total()));
 
                 auto* upgrade = row.get_element(row_index++);
-                upgrade->text("+");
+                upgrade->set_text("+");
                 upgrade->set_tooltip(translate_format("Upgrade building to level %.2f", building.level));
                 upgrade->set_key(0);
                 upgrade->set_on_click([&gs, province_id, type_id = type.get_id()](UI::Widget&) {
@@ -144,7 +144,7 @@ Interface::FactoryWindow::FactoryWindow(GameState& _gs)
     gs{ _gs }
 {
     this->origin = UI::Origin::CENTER_SCREEN;
-    this->text(translate("Factories"));
+    this->set_text(translate("Factories"));
     this->is_scroll = false;
     this->set_close_btn_function([this](UI::Widget&) {
         this->kill();

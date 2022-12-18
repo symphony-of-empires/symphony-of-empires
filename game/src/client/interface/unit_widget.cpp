@@ -114,7 +114,7 @@ void UnitWidget::set_unit(Unit& _unit) {
 }
 
 void UnitWidget::set_size(size_t size) {
-    this->size_label->text(Eng3D::string_format("%zu", size));
+    this->size_label->set_text(Eng3D::string_format("%zu", size));
 }
 
 UnitView::UnitView(GameState& _gs, Unit& _unit)
@@ -135,7 +135,7 @@ UnitView::UnitView(GameState& _gs, Unit& _unit)
 
     auto& unit = this->gs.world->unit_manager.units[this->unit_id];
     auto& unit_type = this->gs.world->unit_types[unit.type_id];
-    this->text(Eng3D::translate_format("Unit %s from %s", unit_type.name.c_str(), this->gs.world->nations[unit.owner_id].name.c_str()));
+    this->set_text(Eng3D::translate_format("Unit %s from %s", unit_type.name.c_str(), this->gs.world->nations[unit.owner_id].name.c_str()));
 
     auto& flex_column = this->make_widget<UI::Div>(0, 0, this->width, this->height);
     flex_column.flex = UI::Flex::COLUMN;
@@ -146,9 +146,9 @@ UnitView::UnitView(GameState& _gs, Unit& _unit)
         auto target_id = current_unit.get_target_province_id();
         if(current_unit.has_target_province()) {
             const auto& target_province = this->gs.world->provinces[target_id];
-            w.text(Eng3D::translate_format("Moving to %s", target_province.name.c_str()));
+            w.set_text(Eng3D::translate_format("Moving to %s", target_province.name.c_str()));
         } else {
-            w.text(Eng3D::translate_format("No orders"));
+            w.set_text(Eng3D::translate_format("No orders"));
         }
     });
     target_lab.on_each_tick(target_lab);
@@ -156,14 +156,14 @@ UnitView::UnitView(GameState& _gs, Unit& _unit)
     auto& size_lab = flex_column.make_widget<UI::Label>(0, 0, " ");
     size_lab.set_on_each_tick([this](UI::Widget& w) {
         auto& current_unit = this->gs.world->unit_manager.units[this->unit_id];
-        w.text(Eng3D::translate_format("Size: %.2f", current_unit.size));
+        w.set_text(Eng3D::translate_format("Size: %.2f", current_unit.size));
     });
     size_lab.on_each_tick(size_lab);
 
     auto& experience_lab = flex_column.make_widget<UI::Label>(0, 0, " ");
     experience_lab.set_on_each_tick([this](UI::Widget& w) {
         auto& current_unit = this->gs.world->unit_manager.units[this->unit_id];
-        w.text(Eng3D::translate_format("Experience: %.2f", current_unit.experience));
+        w.set_text(Eng3D::translate_format("Experience: %.2f", current_unit.experience));
     });
     experience_lab.on_each_tick(experience_lab);
 
@@ -171,7 +171,7 @@ UnitView::UnitView(GameState& _gs, Unit& _unit)
     attdef_lab.set_on_each_tick([this](UI::Widget& w) {
         auto& current_unit = this->gs.world->unit_manager.units[this->unit_id];
         auto& current_type = this->gs.world->unit_types[current_unit.type_id];
-        w.text(Eng3D::translate_format("Attack/Defense: %.2f/%.2f", current_type.attack, current_type.defense));
+        w.set_text(Eng3D::translate_format("Attack/Defense: %.2f/%.2f", current_type.attack, current_type.defense));
     });
     attdef_lab.on_each_tick(attdef_lab);
 
@@ -179,7 +179,7 @@ UnitView::UnitView(GameState& _gs, Unit& _unit)
     debug_lab.set_on_each_tick([this](UI::Widget& w) {
         auto& current_unit = this->gs.world->unit_manager.units[this->unit_id];
         auto& current_type = this->gs.world->unit_types[current_unit.type_id];
-        w.text(Eng3D::translate_format("On battle?: %s", current_unit.on_battle ? "Yes" : "No"));
+        w.set_text(Eng3D::translate_format("On battle?: %s", current_unit.on_battle ? "Yes" : "No"));
     });
     debug_lab.on_each_tick(debug_lab);
 }

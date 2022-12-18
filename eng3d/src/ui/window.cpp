@@ -48,7 +48,7 @@ Window::Window(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 
     this->set_on_drag([this](glm::ivec2 start_pos, glm::ivec2 current_pos) {
         if (start_pos == current_pos) {
-            this->start_drag_position = glm::ivec2{this->x, this->y}; 
+            this->start_drag_position = glm::ivec2{this->x, this->y};
         }
         if(!this->is_movable) return;
         const auto move_offset = current_pos - start_pos;
@@ -58,7 +58,7 @@ Window::Window(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 }
 
 // There are a number of improvement to be made here
-// * This places the button on in the end of the children vector, 
+// * This places the button on in the end of the children vector,
 //      would be better to have it in the beginning
 // * This function is not general, would be nice to set your own exit btn
 // * We should add an on_close event that is called when exiting
@@ -66,15 +66,15 @@ void Window::set_close_btn_function(std::function<void(Widget&)> _on_click) {
     if(_on_click) {
         if(!this->close_btn) {
             const int size = 24;
-            auto* btn_wrapper = new Div(-size - padding.x, -padding.y, size, size, this);
-            btn_wrapper->origin = UI::Origin::UPPER_RIGHT;
+            auto& btn_wrapper = this->make_widget<UI::Div>(-size - padding.x, -padding.y, size, size);
+            btn_wrapper.origin = UI::Origin::UPPER_RIGHT;
 
-            new Image(0, 0, size, size, "gfx/ui/button/exit_btn_shadow.png", true, btn_wrapper);
+            btn_wrapper.make_widget<UI::Image>(0, 0, size, size, "gfx/ui/button/exit_btn_shadow.png", true);
             const int btn_size = (int)(size * 0.75f);
             const int offset = (size - btn_size) / 2;
-            auto* btn = Image::make_transparent(offset, offset, btn_size, btn_size, "gfx/ui/button/exit_btn.png", true, btn_wrapper);
+            auto* btn = Image::make_transparent(offset, offset, btn_size, btn_size, "gfx/ui/button/exit_btn.png", true, &btn_wrapper);
             btn->set_on_click(_on_click);
-            this->close_btn = btn_wrapper;
+            this->close_btn = &btn_wrapper;
         }
     } else {
         if(this->close_btn) {

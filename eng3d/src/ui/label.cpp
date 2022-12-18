@@ -42,15 +42,15 @@ UI::Label::Label(int _x, int _y, const std::string& _text, Widget* _parent)
     : Widget(_parent, _x, _y, 0, 0, UI::WidgetType::LABEL)
 {
     this->text_color = this->parent->text_color;
-    this->text(_text);
+    this->set_text(_text);
 }
 
 UI::Label::~Label() {
 
 }
 
-void UI::Label::text(const std::string& _text) {
-    UI::Widget::text(_text);
+void UI::Label::set_text(const std::string& _text) {
+    UI::Widget::set_text(_text);
     if(this->text_texture.get() != nullptr) {
         this->width = this->text_texture->width + text_offset_x;
         this->height = this->text_texture->height + 8;

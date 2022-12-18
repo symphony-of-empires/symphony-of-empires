@@ -43,7 +43,7 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
 {
     // Title of the event
     this->origin = UI::Origin::CENTER_SCREEN;
-    this->text(this->event.title);
+    this->set_text(this->event.title);
     this->flex = UI::Flex::COLUMN;
 
     // Display an image iff it exists
@@ -56,7 +56,7 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
 
     auto& txt = this->make_widget<UI::Text>(0, 0, this->width, 24);
     txt.text_color = Eng3D::Color::rgb8(0, 0, 0);
-    txt.text(this->event.text);
+    txt.set_text(this->event.text);
     txt.is_scroll = true;
 
     auto button_font = gs.ttf_man.load(gs.package_man.get_unique("fonts/neon_euler/euler.ttf"));
@@ -80,7 +80,7 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
         decide_btn.current_texture = button_image;
         decide_btn.font = button_font;
         decide_btn.text_color = button_text_color;
-        decide_btn.text(decision.name);
+        decide_btn.set_text(decision.name);
         decide_btn.set_tooltip(decision.effects);
         decide_btn.set_on_click([this, &decision](UI::Widget&) {
             this->gs.client->send(Action::NationTakeDecision::form_packet(this->event, decision));

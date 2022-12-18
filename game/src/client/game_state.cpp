@@ -335,7 +335,7 @@ int main(int argc, char** argv) try {
         bg_img->current_texture = gs.tex_man.load(load_screen_entries[rand() % load_screen_entries.size()]->get_abs_path());
 
     auto* load_pbar = new UI::ProgressBar(0, -24, gs.width, 24, 0.f, 1.f);
-    load_pbar->text(translate("Initializing game resources"));
+    load_pbar->set_text(translate("Initializing game resources"));
     load_pbar->origin = UI::Origin::LOWER_LEFT_SCREEN;
     load_pbar->text_color = Eng3D::Color(1.f, 1.f, 1.f);
 

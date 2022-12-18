@@ -74,7 +74,7 @@ TopWindow::TopWindow(GameState& _gs)
     money_img.set_tooltip("Money");
     auto& money_lab = money_grp.make_widget< UI::Label>(0, 0, " ");
     money_lab.set_on_each_tick([this](UI::Widget& w) {
-        w.text(Eng3D::translate_format("%.0f", this->gs.curr_nation->budget));
+        w.set_text(Eng3D::translate_format("%.0f", this->gs.curr_nation->budget));
     });
     money_lab.on_each_tick(money_lab);
 
@@ -88,7 +88,7 @@ TopWindow::TopWindow(GameState& _gs)
         const auto total = std::accumulate(gs.curr_nation->owned_provinces.cbegin(), gs.curr_nation->owned_provinces.cend(), 0.f, [this](auto&& a, const auto province_id) -> float {
             return a + gs.world->provinces[province_id].total_pops();
         });
-        w.text(Eng3D::string_format("%.0f", total));
+        w.set_text(Eng3D::string_format("%.0f", total));
 
         const auto [it1, it2] = std::minmax_element(gs.curr_nation->owned_provinces.cbegin(), gs.curr_nation->owned_provinces.cend(), [this](const auto province_id, const auto other_province_id) {
             return gs.world->provinces[province_id].total_pops() < gs.world->provinces[other_province_id].total_pops();
@@ -114,7 +114,7 @@ TopWindow::TopWindow(GameState& _gs)
                 return a2 + (unit.owner_id == this->gs.curr_nation->get_id() ? unit.get_strength() : 0.f);
             });
         });
-        w.text(Eng3D::string_format("%.0f", total));
+        w.set_text(Eng3D::string_format("%.0f", total));
     });
     military_score_lab.on_each_tick(military_score_lab);
 
@@ -131,7 +131,7 @@ TopWindow::TopWindow(GameState& _gs)
                 return a2 + (building.production_scale * building.level);
             });
         });
-        w.text(Eng3D::string_format("%.0f", total));
+        w.set_text(Eng3D::string_format("%.0f", total));
     });
     industrial_score_lab.on_each_tick(industrial_score_lab);
 
@@ -141,7 +141,7 @@ TopWindow::TopWindow(GameState& _gs)
     prestige_score_img.set_tooltip("Prestige");
     auto& prestige_score_lab = prestige_score_grp.make_widget<UI::Label>(0, 0, " ");
     prestige_score_lab.set_on_each_tick([this](UI::Widget& w) {
-        w.text(Eng3D::string_format("%.0f", this->gs.curr_nation->prestige));
+        w.set_text(Eng3D::string_format("%.0f", this->gs.curr_nation->prestige));
     });
     prestige_score_lab.on_each_tick(prestige_score_lab);
 
@@ -260,7 +260,7 @@ TimeControlView::TimeControlView(GameState& _gs)
         tm.tm_mday = this->gs.world->get_day() + 1;
         char mbstr[100];
         std::strftime(mbstr, sizeof mbstr, "%x", &tm);
-        w.text(mbstr);
+        w.set_text(mbstr);
     });
     time_lab.on_each_tick(time_lab);
 }

@@ -51,7 +51,7 @@ Interface::MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     gs{ _gs }
 {
     this->is_scroll = false;
-    this->text("Internet multiplayer");
+    this->set_text("Internet multiplayer");
     this->set_close_btn_function([this](Widget&) {
         this->kill();
     });
@@ -67,7 +67,7 @@ Interface::MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     username_inp->set_tooltip("Your publicly visible username");
 
     conn_btn = new UI::Button(0, 48, 128, 24, this);
-    conn_btn->text("Connect");
+    conn_btn->set_text("Connect");
     conn_btn->set_on_click([this](UI::Widget&) {
         Eng3D::Log::debug("ui", translate_format("Connecting to server on IP %s", this->ip_addr_inp->get_buffer().c_str()));
         /// @todo Handle when mods differ (i.e checksum not equal to host)
@@ -132,7 +132,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     demo_btn.text_color = menu_text_color;
     demo_btn.text_align_x = UI::Align::CENTER;
     demo_btn.text_align_y = UI::Align::CENTER;
-    demo_btn.text("Pre-alpha demo");
+    demo_btn.set_text("Pre-alpha demo");
     demo_btn.set_on_click([this](UI::Widget&) {
         this->gs.ui_ctx.clear();
         this->gs.current_mode = MapMode::COUNTRY_SELECT;
@@ -164,7 +164,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     single_btn.font = menu_font;
     single_btn.text_color = menu_text_color;
     single_btn.text_align_x = single_btn.text_align_y = UI::Align::CENTER;
-    single_btn.text("Singleplayer");
+    single_btn.set_text("Singleplayer");
     single_btn.set_on_click([this](UI::Widget&) {
         this->gs.ui_ctx.clear();
         gs.current_mode = MapMode::COUNTRY_SELECT;
@@ -179,7 +179,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     mp_btn.font = menu_font;
     mp_btn.text_color = menu_text_color;
     mp_btn.text_align_x = mp_btn.text_align_y = UI::Align::CENTER;
-    mp_btn.text("Multiplayer");
+    mp_btn.set_text("Multiplayer");
     mp_btn.set_on_click([this](UI::Widget&) {
         this->connect_window = new Interface::MainMenuConnectServer(this->gs);
     });
@@ -190,7 +190,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     host_btn.font = menu_font;
     host_btn.text_color = menu_text_color;
     host_btn.text_align_x = host_btn.text_align_y = UI::Align::CENTER;
-    host_btn.text("Host");
+    host_btn.set_text("Host");
     host_btn.set_on_click([this](UI::Widget&) {
         this->gs.ui_ctx.clear();
         this->gs.current_mode = MapMode::COUNTRY_SELECT;
@@ -205,7 +205,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     edit_btn.font = menu_font;
     edit_btn.text_color = menu_text_color;
     edit_btn.text_align_x = edit_btn.text_align_y = UI::Align::CENTER;
-    edit_btn.text("Editor");
+    edit_btn.set_text("Editor");
     edit_btn.set_on_click([this](UI::Widget&) {
         this->gs.current_mode = MapMode::NORMAL;
         // Create a local server in editor mode
@@ -224,7 +224,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     cfg_btn.font = menu_font;
     cfg_btn.text_color = menu_text_color;
     cfg_btn.text_align_x = cfg_btn.text_align_y = UI::Align::CENTER;
-    cfg_btn.text("Settings");
+    cfg_btn.set_text("Settings");
     cfg_btn.set_on_click([this](UI::Widget&) {
         this->gs.world->lua.invoke_registered_callback("settings_window_invoke");
     });
@@ -235,7 +235,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     exit_btn.font = menu_font;
     exit_btn.text_color = menu_text_color;
     exit_btn.text_align_x = exit_btn.text_align_y = UI::Align::CENTER;
-    exit_btn.text("Exit");
+    exit_btn.set_text("Exit");
     exit_btn.set_on_click([this](UI::Widget&) {
         this->gs.paused = true;
         this->gs.run = false;

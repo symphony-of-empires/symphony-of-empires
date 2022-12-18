@@ -35,7 +35,7 @@ UI::NumericInput::NumericInput(int _x, int _y, unsigned _w, unsigned _h, Widget*
     inp->set_buffer("100.0");
 
     add_btn = &this->make_widget<UI::Button>(0, 0, 32, height);
-    add_btn->text("+");
+    add_btn->set_text("+");
     add_btn->right_side_of(*inp);
     add_btn->set_on_click([](UI::Widget& w) {
         auto* p = (UI::NumericInput*)w.parent;
@@ -46,7 +46,7 @@ UI::NumericInput::NumericInput(int _x, int _y, unsigned _w, unsigned _h, Widget*
     });
 
     sub_btn = &this->make_widget<UI::Button>(0, 0, 32, height);
-    sub_btn->text("-");
+    sub_btn->set_text("-");
     sub_btn->right_side_of(*add_btn);
     sub_btn->set_on_click([](UI::Widget& w) {
         auto* p = (NumericInput*)w.parent;

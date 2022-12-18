@@ -49,7 +49,7 @@ void UI::TableElement::set_key(float key) {
 }
 
 void UI::TableElement::set_key(float key, const std::string_view format) {
-    this->text(string_format("%.0f", key));
+    this->set_text(string_format("%.0f", key));
     key_type = UI::TableElement::KeyType::NUMBER;
     key_number = key;
 }

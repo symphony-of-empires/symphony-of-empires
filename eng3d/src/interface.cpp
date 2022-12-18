@@ -38,7 +38,7 @@ Eng3D::Interface::ProfilerView::ProfilerView(Eng3D::State& _s, Eng3D::Profiler& 
 {
     this->padding.x = 0;
     this->padding.y = 48;
-    this->text(translate("Performance profiler"));
+    this->set_text(translate("Performance profiler"));
     this->is_scroll = false;
     this->current_texture.reset();
 
@@ -48,7 +48,7 @@ Eng3D::Interface::ProfilerView::ProfilerView(Eng3D::State& _s, Eng3D::Profiler& 
 
     auto& fps_lab = this->make_widget<UI::Label>(10, 0, "?");
     fps_lab.on_update = ([this](UI::Widget& w) {
-        w.text(translate_format("FPS: %.2f", this->profiler.get_fps()));
+        w.set_text(translate_format("FPS: %.2f", this->profiler.get_fps()));
     });
     fps_lab.on_update(fps_lab);
 
@@ -92,5 +92,5 @@ void Eng3D::Interface::ProfilerTaskView::set_task(Eng3D::BenchmarkTask& profiler
     float time = profiler_view.get_average_time_ms();
     auto format_time = std::to_string((int)time);
     format_time = std::string(3 - glm::min<size_t>(3, format_time.length()), '0') + format_time;
-    this->label->text(format_time + " ms " + profiler_view.name);
+    this->label->set_text(format_time + " ms " + profiler_view.name);
 }

@@ -46,14 +46,14 @@ UI::Text::Text(int _x, int _y, const std::string& _text, UI::Widget* _parent)
     this->auto_adjust = true;
     this->width = this->parent->width;
     this->flex = UI::Flex::COLUMN;
-    this->text(_text);
+    this->set_text(_text);
 }
 
 void UI::Text::on_render(Context&, Eng3D::Rect) {
 
 }
 
-void UI::Text::text(const std::string& text) {
+void UI::Text::set_text(const std::string& text) {
     this->kill_children();
     if(text.empty()) return;
 

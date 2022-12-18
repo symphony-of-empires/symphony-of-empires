@@ -43,7 +43,7 @@ UI::Tooltip::Tooltip(UI::Widget* _parent, const std::string& text)
     size_t w = glm::min(text.size() * 12, (size_t)512);
     size_t h = ((text.size() * 12) / 512) * 24 + 24;
     init(_parent, w, h);
-    this->text(text);
+    this->set_text(text);
 }
 
 UI::Tooltip::Tooltip(UI::Widget* _parent, unsigned w, unsigned h)
@@ -86,7 +86,7 @@ void UI::Tooltip::set_pos(int _x, int _y, int, int _height, int screen_w, int sc
 }
 
 // Note! Code duplication of Text::text 
-void UI::Tooltip::text(const std::string& text) {
+void UI::Tooltip::set_text(const std::string& text) {
     this->kill_children();
     if(text.empty()) return;
 

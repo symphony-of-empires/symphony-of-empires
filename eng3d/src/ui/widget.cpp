@@ -442,7 +442,7 @@ static inline unsigned int power_two_floor(const unsigned int val) {
 
 /// @brief Generates text for the widget and overrides the current text texture
 /// @param _text
-void Widget::text(const std::string& _text) {
+void Widget::set_text(const std::string& _text) {
     if(this->text_str == _text) return;
     text_texture.reset();
     // Copy _text to a local scope (SDL2 does not like references)

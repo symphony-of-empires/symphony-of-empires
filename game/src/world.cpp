@@ -451,18 +451,16 @@ void World::load_initial() try {
         for(size_t i = 0; i < width; i++)
             tiles[off + i] = province_color_table[raw_buffer[off + i] & 0xffffff];
     });
-
-#if 0
+    
+//#if 0
     std::set<uint32_t> colors_found;
     std::set<uint32_t> colors_used;
-    const auto* raw_buffer = div->buffer.get();
     for(size_t i = 0; i < width * height; i++) {
         const auto province_id = province_color_table[raw_buffer[i] & 0xffffff];
-        if(province_id == (ProvinceId)-1)
+        if(province_id == (ProvinceId)0)
             colors_found.insert(raw_buffer[i]);
         colors_used.insert(raw_buffer[i] & 0xffffff);
     }
-
     if(!colors_found.empty()) {
         std::unique_ptr<FILE, int(*)(FILE*)> province_fp(fopen("uprovinces.lua", "w+t"), fclose);
         if(province_fp != nullptr) {
@@ -476,7 +474,7 @@ void World::load_initial() try {
         std::unique_ptr<FILE, int(*)(FILE*)> color_fp(fopen("ucolors.txt", "w+t"), fclose);
         if(color_fp != nullptr) {
             for(size_t i = 0; i < province_color_table.size(); i++) {
-                if(i % 128 == 0 && Province::is_invalid(province_color_table[i])) {
+                if((i % 128 == 0) && (province_color_table[i] == ProvinceId(0))) {
                     const uint32_t color = i << 8;
                     fprintf(color_fp.get(), "%06lx\n", static_cast<unsigned long int>(std::byteswap<std::uint32_t>(color)));
                 }
@@ -488,20 +486,20 @@ void World::load_initial() try {
         color_fp.reset();
 
         // Exit
-        CXX_THROW(std::runtime_error, "There are unregistered provinces, please register them!");
+        Eng3D::Log::error("world", "There are unregistered provinces, please register them!");
     }
 
     std::string provinces_ref_names = "";
     for(auto& province : provinces)
         if(!colors_used.contains(province.color & 0xffffff))
-            provinces_ref_names += "'" + province.ref_name + "'";
+            provinces_ref_names += "'" + std::string{province.ref_name.get_string()} + "'";
 
     if(!provinces_ref_names.empty()) {
         std::string error = "Province " + provinces_ref_names + " is registered but missing on province.png, please add it!";
         Eng3D::Log::error("world", error);
         CXX_THROW(std::runtime_error, error.c_str());
     }
-#endif
+//#endif
     div.reset();
 
     // Calculate the edges of the province (min and max x and y coordinates)

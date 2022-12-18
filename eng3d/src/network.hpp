@@ -82,8 +82,8 @@ namespace Eng3D::Networking {
         SocketStream() = default;
         SocketStream(int _fd) : fd(_fd) {}
         ~SocketStream() = default;
-        void send(const void* data, size_t size, std::function<bool()> pred);
-        void recv(void* data, size_t size, std::function<bool()> pred = 0);
+        bool send(const void* data, size_t size, std::function<bool()> pred);
+        bool recv(void* data, size_t size, std::function<bool()> pred = 0);
         void set_timeout(int seconds);
         bool has_pending();
         void set_blocking(bool value);
@@ -130,8 +130,8 @@ namespace Eng3D::Networking {
             return (code == PacketCode::OK);
         }
 
-        void send();
-        void recv();
+        bool send();
+        bool recv();
 
         std::vector<uint8_t> buffer;
         SocketStream stream;
@@ -143,11 +143,11 @@ namespace Eng3D::Networking {
     public:
         ServerClient() = default;
         ~ServerClient();
-        
+
         int try_connect(int fd);
         void flush_packets();
         bool has_pending();
-        
+
         std::atomic<bool> is_connected;
         tbb::concurrent_bounded_queue<Eng3D::Networking::Packet> packets;
         std::string username;
@@ -166,7 +166,7 @@ namespace Eng3D::Networking {
             Exception(const std::string& _msg)
                 : msg{ _msg }
             {
-                
+
             }
             virtual const char* what() const noexcept {
                 return msg.c_str();
@@ -208,7 +208,7 @@ namespace Eng3D::Networking {
         inline void send(const Eng3D::Networking::Packet& packet) {
             packets.push(packet);
         }
-        
+
         inline int get_fd() const {
             return fd;
         }

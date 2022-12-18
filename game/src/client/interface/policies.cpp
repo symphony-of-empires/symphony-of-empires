@@ -42,7 +42,7 @@ PoliciesView::PoliciesView(GameState& _gs)
     this->current_texture = this->gs.tex_man.load(this->gs.package_man.get_unique("gfx/policies_screen.png"));
     this->width = this->current_texture->width;
     this->height = this->current_texture->height;
-    this->text("Laws and goverment");
+    this->set_text("Laws and goverment");
     this->is_scroll = false;
     this->new_policy = gs.curr_nation->current_policy;
     this->set_close_btn_function([this](Widget&) {
@@ -54,7 +54,7 @@ PoliciesView::PoliciesView(GameState& _gs)
     ideology_lab.set_on_each_tick([this](UI::Widget& w) {
         const auto& ideology = this->gs.world->ideologies[this->gs.curr_nation->ideology_id];
         const auto& subideology = ideology.subideologies[this->gs.curr_nation->subideology_id];
-        w.text(translate_format("%s (%s)", subideology.name.c_str(), ideology.name.c_str()));
+        w.set_text(translate_format("%s (%s)", subideology.name.c_str(), ideology.name.c_str()));
         w.set_tooltip(translate_format(
             "Distributism %.2f\nMercantilist %.2f\nCapitalism %.2f\nIndividualism %.2f\nState power %.2f\nEqualitarianism %.2f\nSecular %.2f\nPluralism %.2f\n", subideology.economic.distributism, subideology.economic.mercantilist, subideology.economic.capitalism, subideology.political.individualism, subideology.political.state_power, subideology.political.equalitarianism, subideology.political.secular, subideology.political.pluralism));
     });
@@ -96,7 +96,7 @@ PoliciesView::PoliciesView(GameState& _gs)
             for(const auto& pop : this->gs.world->provinces[province_id].pops)
                 num += pop.militancy;
         num /= this->gs.curr_nation->owned_provinces.size();
-        w.text(translate_format("Militancy: %.2f%%", num * 100.f));
+        w.set_text(translate_format("Militancy: %.2f%%", num * 100.f));
     });
     militancy_lab.on_each_tick(militancy_lab);
 
@@ -112,7 +112,7 @@ PoliciesView::PoliciesView(GameState& _gs)
     burgeoise_tax_sld.set_value(this->new_policy.burgeoise_tax);
     burgeoise_tax_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.burgeoise_tax = static_cast<UI::Slider&>(w).get_value();
-        w.text(string_format("%.2f%%", this->new_policy.burgeoise_tax * 100.f));
+        w.set_text(string_format("%.2f%%", this->new_policy.burgeoise_tax * 100.f));
     });
     burgeoise_tax_sld.set_tooltip("% of tax taken from the income of the higher class population");
     burgeoise_tax_sld.on_click(burgeoise_tax_sld);
@@ -122,7 +122,7 @@ PoliciesView::PoliciesView(GameState& _gs)
     pop_tax_sld.set_value(this->new_policy.pop_tax);
     pop_tax_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.pop_tax = static_cast<UI::Slider&>(w).get_value();
-        w.text(string_format("%.2f%%", this->new_policy.pop_tax * 100.f));
+        w.set_text(string_format("%.2f%%", this->new_policy.pop_tax * 100.f));
     });
     pop_tax_sld.set_tooltip("% of tax taken from the income of the lower and middle class population");
     pop_tax_sld.on_click(pop_tax_sld);
@@ -132,7 +132,7 @@ PoliciesView::PoliciesView(GameState& _gs)
     min_wage_sld.set_value(this->new_policy.min_wage);
     min_wage_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.min_wage = static_cast<UI::Slider&>(w).get_value();
-        w.text(string_format("%.2f", this->new_policy.min_wage));
+        w.set_text(string_format("%.2f", this->new_policy.min_wage));
     });
     min_wage_sld.set_tooltip("Minimum wage (fixed) that factories are required to pay to workers");
     min_wage_sld.on_click(min_wage_sld);
@@ -144,7 +144,7 @@ PoliciesView::PoliciesView(GameState& _gs)
     factory_profit_tax_sld.set_value(this->new_policy.factory_profit_tax);
     factory_profit_tax_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.factory_profit_tax = static_cast<UI::Slider&>(w).get_value();
-        w.text(string_format("%.2f%%", this->new_policy.factory_profit_tax * 100.f));
+        w.set_text(string_format("%.2f%%", this->new_policy.factory_profit_tax * 100.f));
     });
     factory_profit_tax_sld.set_tooltip("% of profits taken by the goverment from the factory's profits");
     factory_profit_tax_sld.on_click(factory_profit_tax_sld);
@@ -161,7 +161,7 @@ PoliciesView::PoliciesView(GameState& _gs)
     factory_subsidies_budget_tax_sld.set_value(this->new_policy.factory_subsidies_budget);
     factory_subsidies_budget_tax_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.factory_subsidies_budget = static_cast<UI::Slider&>(w).get_value();
-        w.text(string_format("%.2f%%", this->new_policy.factory_subsidies_budget * 100.f));
+        w.set_text(string_format("%.2f%%", this->new_policy.factory_subsidies_budget * 100.f));
     });
     factory_subsidies_budget_tax_sld.set_tooltip("% of the national budget dedicated to subsidizing factories");
     factory_subsidies_budget_tax_sld.on_click(factory_subsidies_budget_tax_sld);
@@ -171,7 +171,7 @@ PoliciesView::PoliciesView(GameState& _gs)
     education_budget_tax_sld.set_value(this->new_policy.education_budget);
     education_budget_tax_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.education_budget = static_cast<UI::Slider&>(w).get_value();
-        w.text(string_format("%.2f%%", this->new_policy.education_budget * 100.f));
+        w.set_text(string_format("%.2f%%", this->new_policy.education_budget * 100.f));
     });
     education_budget_tax_sld.set_tooltip("% of the national budget dedicated to education");
     education_budget_tax_sld.on_click(education_budget_tax_sld);
@@ -181,7 +181,7 @@ PoliciesView::PoliciesView(GameState& _gs)
     private_ownership_sld.set_value(this->new_policy.private_ownership);
     private_ownership_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.private_ownership = static_cast<UI::Slider&>(w).get_value();
-        w.text(string_format("%.2f%%", this->new_policy.private_ownership * 100.f));
+        w.set_text(string_format("%.2f%%", this->new_policy.private_ownership * 100.f));
     });
     private_ownership_sld.set_tooltip("Maximum allowed private ownership stake % for factories\nAllows private ownership of factories, where the burgeoise would profit from it instead of the factory itself");
     private_ownership_sld.on_click(private_ownership_sld);
@@ -191,7 +191,7 @@ PoliciesView::PoliciesView(GameState& _gs)
     foreign_ownership_sld.set_value(this->new_policy.foreign_ownership);
     foreign_ownership_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.foreign_ownership = static_cast<UI::Slider&>(w).get_value();
-        w.text(string_format("%.2f%%", this->new_policy.foreign_ownership * 100.f));
+        w.set_text(string_format("%.2f%%", this->new_policy.foreign_ownership * 100.f));
     });
     foreign_ownership_sld.set_tooltip("Maximum allowed foreign ownership stake % for factories\nAllows foreign investment for the construction of factories");
     foreign_ownership_sld.on_click(foreign_ownership_sld);
@@ -201,7 +201,7 @@ PoliciesView::PoliciesView(GameState& _gs)
     collective_ownership_sld.set_value(this->new_policy.collective_ownership);
     collective_ownership_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.collective_ownership = static_cast<UI::Slider&>(w).get_value();
-        w.text(string_format("%.2f%%", this->new_policy.collective_ownership * 100.f));
+        w.set_text(string_format("%.2f%%", this->new_policy.collective_ownership * 100.f));
     });
     collective_ownership_sld.set_tooltip("Maximum allowed collective ownership stake % for factories\nA collective represents the workers that work on the factory itself; allowing laborers to profit from the factory");
     collective_ownership_sld.on_click(collective_ownership_sld);
@@ -211,7 +211,7 @@ PoliciesView::PoliciesView(GameState& _gs)
     individual_ownership_sld.set_value(this->new_policy.individual_ownership);
     individual_ownership_sld.set_on_click([this](UI::Widget& w) {
         this->new_policy.individual_ownership = static_cast<UI::Slider&>(w).get_value();
-        w.text(string_format("%.2f%%", this->new_policy.individual_ownership * 100.f));
+        w.set_text(string_format("%.2f%%", this->new_policy.individual_ownership * 100.f));
     });
     individual_ownership_sld.set_tooltip("Maximum allowed individual ownership stake % for factories\nIndividual ownership pertains to stakes of a factory owned by POPs, and allowing them to profit from factories with an incurred efficiency penalty");
     individual_ownership_sld.on_click(individual_ownership_sld);
@@ -241,7 +241,7 @@ PoliciesView::PoliciesView(GameState& _gs)
         scale_sld.set_value(this->commodity_production[commodity]);
         scale_sld.set_on_click([this, &commodity](UI::Widget& w) {
             this->commodity_production[commodity] = static_cast<UI::Slider&>(w).get_value();
-            w.text(string_format("%.2f%%", this->commodity_production[commodity] * 100.f));
+            w.set_text(string_format("%.2f%%", this->commodity_production[commodity] * 100.f));
             if(this->gs.curr_nation->can_directly_control_factories()) {
                 w.set_tooltip("Scale the production of this product (only applies to factories with a state stake on them)");
             } else {
@@ -253,7 +253,7 @@ PoliciesView::PoliciesView(GameState& _gs)
 
     auto& enact_btn = this->make_widget<UI::Button>(207, 0, 128, 24);
     enact_btn.below_of(tax_grp);
-    enact_btn.text("Enact policy");
+    enact_btn.set_text("Enact policy");
     enact_btn.set_on_click([this](UI::Widget&) {
         Eng3D::Networking::Packet packet{};
         Eng3D::Deser::Archive ar{};

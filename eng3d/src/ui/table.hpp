@@ -96,7 +96,7 @@ namespace UI {
             for(size_t i = 0; i < _header_labels.size(); i++) {
                 auto& label = _header_labels[i];
                 auto* column = header.get_element(i);
-                column->text(label);
+                column->set_text(label);
                 column->set_on_click([this, i](Widget&) {
                     this->sorting_ascending = (this->sorting_row == (int)i) ? !this->sorting_ascending : true;
                     this->sorting_row = i;

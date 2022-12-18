@@ -255,7 +255,7 @@ MapmodeCommodityOptions::MapmodeCommodityOptions(GameState& _gs)
     };
 
     auto& price_btn = this->make_widget<UI::Button>(0, 0, 125, 24);
-    price_btn.text("Price");
+    price_btn.set_text("Price");
     price_btn.set_on_click([this](UI::Widget&) {
         this->province_value = [this](const World& world, ProvinceId id) {
             const auto& product = world.provinces[id].products[this->commodity_id];
@@ -264,7 +264,7 @@ MapmodeCommodityOptions::MapmodeCommodityOptions(GameState& _gs)
         update_map_mode();
     });
     auto& demand_btn = this->make_widget<UI::Button>(0, 0, 125, 24);
-    demand_btn.text("Demand");
+    demand_btn.set_text("Demand");
     demand_btn.set_on_click([this](UI::Widget&) {
         this->province_value = [this](const World& world, ProvinceId id) {
             const auto& product = world.provinces[id].products[this->commodity_id];
@@ -273,7 +273,7 @@ MapmodeCommodityOptions::MapmodeCommodityOptions(GameState& _gs)
         update_map_mode();
     });
     auto& supply_btn = this->make_widget<UI::Button>(0, 0, 125, 24);
-    supply_btn.text("Supply");
+    supply_btn.set_text("Supply");
     supply_btn.set_on_click([this](UI::Widget&) {
         this->province_value = [this](const World& world, ProvinceId id) {
             const auto& product = world.provinces[id].products[this->commodity_id];
@@ -282,7 +282,7 @@ MapmodeCommodityOptions::MapmodeCommodityOptions(GameState& _gs)
         update_map_mode();
     });
     auto& price_delta_btn = this->make_widget<UI::Button>(0, 0, 125, 24);
-    price_delta_btn.text("Price change");
+    price_delta_btn.set_text("Price change");
     price_delta_btn.set_on_click([this](UI::Widget&) {
         this->province_value = [this](const World& world, ProvinceId id) {
             const auto& product = world.provinces[id].products[this->commodity_id];
@@ -291,7 +291,7 @@ MapmodeCommodityOptions::MapmodeCommodityOptions(GameState& _gs)
         update_map_mode();
     });
     auto& production_btn = this->make_widget<UI::Button>(0, 0, 125, 24);
-    production_btn.text("Production");
+    production_btn.set_text("Production");
     production_btn.set_on_click([this](UI::Widget&) {
         this->province_value = [this](const World& world, ProvinceId id) {
             const auto& province = world.provinces[id];

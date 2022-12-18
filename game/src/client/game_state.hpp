@@ -164,6 +164,7 @@ public:
     bool motion_blur = true;
     bool host_mode = false;
     bool editor = false;
+    bool sea_paint = true;
 
     std::vector<Eng3D::StringRef> decision_autodo;
 };

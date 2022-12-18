@@ -71,16 +71,16 @@ constexpr static int tries_ms = 100;
 //
 // Socket stream
 //
-void Eng3D::Networking::SocketStream::send(const void* data, size_t size, std::function<bool()> pred) {
+bool Eng3D::Networking::SocketStream::send(const void* data, size_t size, std::function<bool()> pred) {
     const auto* c_data = reinterpret_cast<const char*>(data);
     auto tries = max_tries;
     for(size_t i = 0; i < size; ) {
         if(pred && !pred()) // If (any) predicate fails then return immediately
-            return;
+            break;
         int r = ::send(fd, &c_data[i], glm::min<std::size_t>(1024, size - i), NETWORK_FLAG);
         if(r <= 0) {
             if(!tries)
-                CXX_THROW(Eng3D::Networking::SocketException, "Packet send interrupted");
+                return false;
             tries--;
             std::this_thread::sleep_for(std::chrono::milliseconds(tries_ms));
             continue;
@@ -88,19 +88,20 @@ void Eng3D::Networking::SocketStream::send(const void* data, size_t size, std::f
         i += static_cast<std::size_t>(r);
         tries = max_tries;
     }
+    return true;
 }
 
-void Eng3D::Networking::SocketStream::recv(void* data, size_t size, std::function<bool()> pred) {
+bool Eng3D::Networking::SocketStream::recv(void* data, size_t size, std::function<bool()> pred) {
     auto* c_data = reinterpret_cast<char*>(data);
     std::memset(c_data, 0, size);
     auto tries = max_tries;
     for(size_t i = 0; i < size; ) {
         if(pred && !pred()) // If (any) predicate fails then return immediately
-            return;
+            break;
         int r = ::recv(fd, &c_data[i], glm::min<std::size_t>(1024, size - i), NETWORK_FLAG);
         if(r <= 0) {
             if(!tries)
-                CXX_THROW(Eng3D::Networking::SocketException, "Packet receive interrupted");
+                return false;
             tries--;
             std::this_thread::sleep_for(std::chrono::milliseconds(tries_ms));
             continue;
@@ -108,6 +109,7 @@ void Eng3D::Networking::SocketStream::recv(void* data, size_t size, std::functio
         i += static_cast<std::size_t>(r);
         tries = max_tries;
     }
+    return true;
 }
 
 void Eng3D::Networking::SocketStream::set_timeout(int seconds) {
@@ -156,38 +158,46 @@ void Eng3D::Networking::SocketStream::set_blocking(bool blocking) {
 //
 // Packet
 //
-void Eng3D::Networking::Packet::send() {
+bool Eng3D::Networking::Packet::send() {
     const uint16_t net_code = htons(static_cast<uint16_t>(code));
-    stream.send(&net_code, sizeof(net_code), pred);
+    if(!stream.send(&net_code, sizeof(net_code), pred))
+        return false;
     const uint16_t net_size = htons(n_data);
-    stream.send(&net_size, sizeof(net_size), pred);
+    if(!stream.send(&net_size, sizeof(net_size), pred))
+        return false;
 
     stream.send(buffer.data(), n_data, pred);
     if(!n_data)
-        CXX_THROW(Eng3D::Networking::SocketException, translate_format("Packet with small size %zu", net_size));
+        return false;
 
     const uint16_t eof_marker = htons(0xE0F);
-    stream.send(&eof_marker, sizeof(eof_marker), pred);
+    if(!stream.send(&eof_marker, sizeof(eof_marker), pred))
+        return false;
+    return true;
 }
 
-void Eng3D::Networking::Packet::recv() {
+bool Eng3D::Networking::Packet::recv() {
     uint16_t net_code;
-    stream.recv(&net_code, sizeof(net_code), pred);
+    if(!stream.recv(&net_code, sizeof(net_code), pred))
+        return false;
     net_code  = ntohs(net_code);
     code = static_cast<PacketCode>(net_code);
     uint16_t net_size;
-    stream.recv(&net_size, sizeof(net_size), pred);
+    if(!stream.recv(&net_size, sizeof(net_size), pred))
+        return false;
     n_data = (size_t)ntohs(net_size);
     if(!n_data)
-        CXX_THROW(Eng3D::Networking::SocketException, translate_format("Packet with small size %zu", net_size));
-    
+        return false;
+
     buffer.resize(n_data);
-    stream.recv(buffer.data(), buffer.size(), pred);
+    if(!stream.recv(buffer.data(), buffer.size(), pred))
+        return false;
 
     uint16_t eof_marker;
     stream.recv(&eof_marker, sizeof(eof_marker), pred);
     if(ntohs(eof_marker) != 0xE0F)
-        CXX_THROW(Eng3D::Networking::SocketException, translate_format("Packet with invalid end marker %x, size %zu", (unsigned int)eof_marker, net_size));
+        return false;
+    return true;
 }
 
 //
@@ -198,20 +208,18 @@ Eng3D::Networking::ServerClient::~ServerClient() {
         this->thread->join();
 }
 
-int Eng3D::Networking::ServerClient::try_connect(int fd) try {
+int Eng3D::Networking::ServerClient::try_connect(int fd) {
     sockaddr_in client;
     socklen_t len = sizeof(client);
     conn_fd = accept(fd, reinterpret_cast<sockaddr*>(&client), &len);
     if(conn_fd == INVALID_SOCKET)
-        CXX_THROW(Eng3D::Networking::SocketException, translate("Cannot accept client connection"));
-    
+        return 0;
+
     // At this point the client's connection was accepted - so we only have to check
     // Then we check if the server is running and we throw accordingly
     is_connected = true;
     Eng3D::Log::debug("server", translate("New client connection established"));
     return conn_fd;
-} catch(Eng3D::Networking::SocketException& e) {
-    return 0;
 }
 
 /// @brief TODO: flush packets
@@ -294,7 +302,8 @@ void Eng3D::Networking::Server::do_netloop(std::function<bool()> cond, std::func
             const auto delta = std::chrono::seconds{ 5 };
             const auto start_time = std::chrono::system_clock::now();
             std::this_thread::sleep_until(start_time + delta);
-            if(!this->run) CXX_THROW(Eng3D::Networking::Server::Exception, "Server closed");
+            if(!this->run)
+                CXX_THROW(Eng3D::Networking::Server::Exception, "Server closed");
         }
 
         Eng3D::Networking::Packet packet(conn_fd);
@@ -313,7 +322,8 @@ void Eng3D::Networking::Server::do_netloop(std::function<bool()> cond, std::func
         while(cond() && cl.is_connected == true) {
             cl.flush_packets();
             if(cl.has_pending()) { // Check if we need to read packets
-                packet.recv();
+                if(!packet.recv())
+                    continue;
                 ar.set_buffer(packet.data(), packet.size());
                 ar.rewind();
                 Eng3D::Log::debug("server", translate_format("Receiving %zuB from #%i", packet.size(), id));
@@ -327,7 +337,8 @@ void Eng3D::Networking::Server::do_netloop(std::function<bool()> cond, std::func
             while(cl.packets.try_pop(tosend_packet)) {
                 tosend_packet.stream = Eng3D::Networking::SocketStream(conn_fd);
                 Eng3D::Log::debug("server", translate_format("Sending package of %zuB", tosend_packet.size()));
-                tosend_packet.send();
+                if(!tosend_packet.send())
+                    continue;
             }
             cl.packets.clear();
         }
@@ -415,7 +426,8 @@ void Eng3D::Networking::Client::do_netloop(std::function<bool()> cond, std::func
         // When we are on host_mode we discard all potential packets sent by the server
         // (because our data is already synchronized since WE ARE the server)
         while(stream.has_pending() && cond()) try { // Obtain the action from the server
-            packet.recv();
+            if(!packet.recv())
+                continue;
             Eng3D::Deser::Archive ar{};
             ar.set_buffer(packet.data(), packet.size());
             ar.rewind();
@@ -431,7 +443,8 @@ void Eng3D::Networking::Client::do_netloop(std::function<bool()> cond, std::func
             tosend_packet.stream = Eng3D::Networking::SocketStream(fd);
             tosend_packet.pred = cond;
             Eng3D::Log::debug("client", translate_format("Sending package of %zuB", tosend_packet.size()));
-            tosend_packet.send();
+            if(!tosend_packet.send())
+                continue;
         }
     }
 } catch(Eng3D::Networking::Client::Exception& e) {

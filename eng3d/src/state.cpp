@@ -487,14 +487,14 @@ void Eng3D::State::do_event() {
     for(const auto& prompt : this->ui_ctx.prompt_queue) {
         auto* win = new UI::Window(-256, 0, 512, 512);
         win->origin = UI::Origin::CENTER_SCREEN;
-        win->text(prompt.first);
+        win->set_text(prompt.first);
         win->is_scroll = true;
         win->set_close_btn_function([win](UI::Widget&) {
             win->kill();
         });
         auto& txt = win->make_widget<UI::Text>(0, 0, win->width, win->height);
         txt.text_color = Eng3D::Color{};
-        txt.text(prompt.second);
+        txt.set_text(prompt.second);
         txt.is_scroll = true;
         win->height = txt.y + txt.height;
         win->y -= win->height / 2;

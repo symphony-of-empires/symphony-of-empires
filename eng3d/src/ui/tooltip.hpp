@@ -43,6 +43,6 @@ namespace UI {
         Tooltip(UI::Widget* parent, unsigned w, unsigned h);
         virtual ~Tooltip() {}
         void set_pos(int x, int y, int width, int height, int screen_width, int screen_height);
-        void text(const std::string& text);
+        void set_text(const std::string& text);
     };
 }

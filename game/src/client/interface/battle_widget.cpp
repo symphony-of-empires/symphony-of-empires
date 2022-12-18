@@ -59,7 +59,7 @@ BattleWidget::BattleWidget(Map& _map, UI::Widget* _parent)
             const auto& unit = g_world.unit_manager.units[unit_id];
             unit_size += (int)unit.size;
         }
-        this->left_size_label->text(Eng3D::string_format("%zu", unit_size));
+        this->left_size_label->set_text(Eng3D::string_format("%zu", unit_size));
     });
 
     this->right_flag_img = new UI::Image(139, 1, 38, 28, gs.tex_man.get_white(), this);
@@ -74,7 +74,7 @@ BattleWidget::BattleWidget(Map& _map, UI::Widget* _parent)
             const auto& unit = g_world.unit_manager.units[unit_id];
             unit_size += (int)unit.size;
         }
-        this->right_size_label->text(Eng3D::string_format("%zu", unit_size));
+        this->right_size_label->set_text(Eng3D::string_format("%zu", unit_size));
     });
 }
 

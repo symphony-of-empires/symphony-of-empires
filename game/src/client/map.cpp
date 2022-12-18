@@ -599,15 +599,20 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
         } else if(e.type == Eng3D::Event::MouseButton::Type::RIGHT) {
             auto& province = gs.world->provinces[province_id];
             if(gs.editor && gs.current_mode == MapMode::NORMAL) {
-                if(world.terrain_types[province.terrain_type_id].is_water_body) {
-                    province.terrain_type_id = (TerrainTypeId)1;
+                if(!gs.sea_paint) {
+                    if(world.terrain_types[province.terrain_type_id].is_water_body)
+                        province.terrain_type_id = (TerrainTypeId)1;
+                    gs.curr_nation->control_province(province);
+                    gs.curr_nation->give_province(province);
+                    province.nuclei.push_back(gs.world->get_id(*gs.curr_nation));
+                    std::sort(province.nuclei.begin(), province.nuclei.end());
+                    auto last = std::unique(province.nuclei.begin(), province.nuclei.end());
+                    province.nuclei.erase(last, province.nuclei.end());
+                } else {
+                    province.terrain_type_id = (TerrainTypeId)0;
+                    province.nuclei.clear();
                 }
-                gs.curr_nation->control_province(province);
-                gs.curr_nation->give_province(province);
-                province.nuclei.push_back(gs.world->get_id(*gs.curr_nation));
-                std::sort(province.nuclei.begin(), province.nuclei.end());
-                auto last = std::unique(province.nuclei.begin(), province.nuclei.end());
-                province.nuclei.erase(last, province.nuclei.end());
+
                 this->update_mapmode();
                 this->map_render->request_update_visibility();
                 this->map_render->update();
@@ -656,7 +661,7 @@ void Map::handle_mouse_motions(const Eng3D::Event::MouseMotion& e) {
         auto prov_id = map_render->get_tile_province_id(map_pos.x, map_pos.y);
         const std::string text = mapmode_tooltip_func != nullptr ? mapmode_tooltip_func(*gs.world, prov_id) : "";
         if(!text.empty()) {
-            gs.map->tooltip->text(text);
+            gs.map->tooltip->set_text(text);
             gs.ui_ctx.use_tooltip(gs.map->tooltip, e.pos);
         }
     }

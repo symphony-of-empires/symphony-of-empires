@@ -224,7 +224,7 @@ int Eng3D::LuaVM::ui_new_label(lua_State* L) {
 
 int Eng3D::LuaVM::ui_set_text(lua_State* L) {
     UI::Widget* widget = lua_widgets[luaL_checkinteger(L, 1)];
-    widget->text(luaL_checkstring(L, 2));
+    widget->set_text(luaL_checkstring(L, 2));
     return 0;
 }
 

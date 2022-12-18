@@ -82,13 +82,13 @@ int main(int argc, char** argv) {
     new UI::Image(0, 0, gs.width, gs.height, "gfx/sky.png", nullptr);
     
     auto* info_win = new UI::Window(32, 32, 512, 256 + 96);
-    info_win->text("Economics");
+    info_win->set_text("Economics");
     auto& chart = info_win->make_widget<UI::Chart>(0, 0, 256, 128);
-    chart.text("Economy");
+    chart.set_text("Economy");
     chart.set_data({ 1.f, 2.5f, 5.f, 4.f });
 
     auto& candlechart = info_win->make_widget<UI::CandleChart>(0, 150, 256, 128);
-    candlechart.text("soil composition (very soil)");
+    candlechart.set_text("soil composition (very soil)");
 
     std::vector<UI::CandleData> candles;
     auto prev_close = 0.f;
@@ -112,9 +112,9 @@ int main(int argc, char** argv) {
     gs.ui_ctx.prompt("Hello world", "This is a demo of Eng3D ^_^");
 
     auto* parliament_win = new UI::Window(320, 32, 256 + 64, 256 + 64);
-    parliament_win->text("parliamento");
+    parliament_win->set_text("parliamento");
     auto& waffle_chart = parliament_win->make_widget<UI::WaffleChart>(0, 0, 256, 256);
-    waffle_chart.text("Seat row candidates?");
+    waffle_chart.set_text("Seat row candidates?");
     waffle_chart.set_data({
         UI::ChartData(5.234f, "Waffle", 0xff00ffff),
         UI::ChartData(2.567f, "Tundra", 0x00ff00ff),

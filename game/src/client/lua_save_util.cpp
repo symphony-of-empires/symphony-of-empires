@@ -63,11 +63,16 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
             rgo_size_out += string_format("{\"%s\",%zu},", commodity.ref_name.c_str(), size);
         }
     }
+
+    const char *terrain_type_ref_name = gs.world->terrain_types[province.terrain_type_id].ref_name.c_str();
+    if (province.owner_id == ProvinceId(0))
+        terrain_type_ref_name = "sea";
+
     fprintf(fp, "province=Province:new{ref_name=\"%s\",name=translate(\"%s\"),color=0x%x,terrain=tt_%s,rgo_size={%s}}\n",
         province.ref_name.c_str(),
         province.name.c_str(),
         (unsigned int)color,
-        gs.world->terrain_types[province.terrain_type_id].ref_name.c_str(),
+        terrain_type_ref_name,
         rgo_size_out.c_str());
     fprintf(fp, "province:register()\n");
 

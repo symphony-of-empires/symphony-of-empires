@@ -53,7 +53,7 @@ ArmyUnitsTab::ArmyUnitsTab(GameState& _gs, int _x, int _y, std::function<bool(Un
         btn.set_on_each_tick([this, unit_id = unit.get_id()](UI::Widget& w) {
             const auto& current_unit = this->gs.world->unit_manager.units[unit_id];
             const auto& current_type = this->gs.world->unit_types[current_unit.type_id];
-            w.text(string_format("%zu %s", current_unit.size, current_type.name.c_str()));
+            w.set_text(string_format("%zu %s", current_unit.size, current_type.name.c_str()));
         });
         btn.on_each_tick(btn);
     });
@@ -78,12 +78,12 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int _x, int _y, UI::Widget*
         auto& icon_img = unit_type_grp.make_widget<UI::Image>(0, 0, 24, 24, unit_type.get_icon_path());
         auto& name_btn = unit_type_grp.make_widget<UI::Button>(0, 0, unit_type_grp.width - 24, 24);
         name_btn.right_side_of(icon_img);
-        name_btn.text(unit_type.name);
+        name_btn.set_text(unit_type.name);
     }
 
     // Chart showing total number of required materials
     auto& reqmat_chart = flex_column.make_widget<UI::Chart>(0, 0, this->width, 128);
-    reqmat_chart.text("Material demand");
+    reqmat_chart.set_text("Material demand");
     reqmat_chart.set_on_each_tick([this](UI::Widget& w) {
         auto& o = static_cast<UI::Chart&>(w);
         auto total = 0.f;
@@ -123,7 +123,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int _x, int _y, P
     auto& province_lab = this->make_widget<UI::Label>(0, 0, "?");
     province_lab.set_on_each_tick([this](UI::Widget& w) {
         const auto& current_province = gs.world->provinces[province_id];
-        w.text(current_province.name);
+        w.set_text(current_province.name);
     });
     province_lab.on_each_tick(province_lab);
 
@@ -131,7 +131,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int _x, int _y, P
     name_lab.set_on_each_tick([this](UI::Widget& w) {
         const auto& current_province = gs.world->provinces[province_id];
         auto& current_building = current_province.get_buildings()[this->idx];
-        w.text(this->gs.world->unit_types[current_building.working_unit_type_id].name);
+        w.set_text(this->gs.world->unit_types[current_building.working_unit_type_id].name);
     });
     name_lab.on_each_tick(name_lab);
 
@@ -170,7 +170,7 @@ ArmyView::ArmyView(GameState& _gs)
 
     this->origin = UI::Origin::UPPER_RIGHT_SCREEN;
     this->is_scroll = false;
-    this->text(translate("Army management"));
+    this->set_text(translate("Army management"));
 
     this->units_tab = new ArmyUnitsTab(gs, 0, 32, nullptr, this);
     this->units_tab->is_render = true;

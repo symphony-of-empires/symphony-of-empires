@@ -48,7 +48,7 @@ Interface::PopWindow::PopWindow(GameState& _gs)
     gs{ _gs }
 {
     this->origin = UI::Origin::CENTER_SCREEN;
-    this->text("Population");
+    this->set_text("Population");
     this->is_scroll = false;
 
     this->set_close_btn_function([this](UI::Widget&) {
@@ -75,32 +75,32 @@ Interface::PopWindow::PopWindow(GameState& _gs)
                 size_t row_index = 0;
 
                 auto size_label = row.get_element(row_index++);
-                size_label->text(string_format("%.0f", pop.size));
+                size_label->set_text(string_format("%.0f", pop.size));
                 size_label->set_key(pop.size);
 
                 auto prov_name = row.get_element(row_index++);
-                prov_name->text(province.name);
+                prov_name->set_text(province.name);
                 prov_name->set_key(province.name);
 
                 auto type_lable = row.get_element(row_index++);
-                type_lable->text(this->gs.world->pop_types[pop.type_id].name);
+                type_lable->set_text(this->gs.world->pop_types[pop.type_id].name);
                 type_lable->set_key(this->gs.world->pop_types[pop.type_id].name);
 
                 auto militancy = row.get_element(row_index++);
-                militancy->text(string_format("%1.2f", pop.militancy));
+                militancy->set_text(string_format("%1.2f", pop.militancy));
                 militancy->set_key(pop.militancy);
 
                 auto literacy = row.get_element(row_index++);
-                literacy->text(string_format("%2.0f%%", pop.literacy * 100));
+                literacy->set_text(string_format("%2.0f%%", pop.literacy * 100));
                 literacy->set_key(pop.literacy);
 
                 auto budget = row.get_element(row_index++);
-                budget->text(string_format("%.2f", pop.budget / pop.size));
+                budget->set_text(string_format("%.2f", pop.budget / pop.size));
                 budget->set_key(pop.budget / pop.size);
                 budget->set_tooltip(Eng3D::translate_format("Total budget: %.2f", pop.budget));
 
                 auto quality_of_life = row.get_element(row_index++);
-                quality_of_life->text(string_format("%.2f", pop.life_needs_met));
+                quality_of_life->set_text(string_format("%.2f", pop.life_needs_met));
                 quality_of_life->set_key(pop.life_needs_met);
                 quality_of_life->set_tooltip([pop, this]{
                     return pop_qol_tooltip_text(pop, this->gs.world);

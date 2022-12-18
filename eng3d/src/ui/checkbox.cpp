@@ -83,8 +83,8 @@ void Checkbox::set_on_click(std::function<void(Widget&)> _on_click) {
     this->outside_on_click = _on_click;
 }
 
-void Checkbox::text(const std::string& _text) {
-    UI::Widget::text(_text);
+void Checkbox::set_text(const std::string& _text) {
+    UI::Widget::set_text(_text);
     this->width = this->text_texture->width + this->text_offset_x;
     this->height = glm::max(this->text_texture->height, this->box->height);
 }

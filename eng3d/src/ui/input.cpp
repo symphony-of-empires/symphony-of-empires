@@ -54,7 +54,7 @@ UI::Input::Input(int _x, int _y, unsigned _w, unsigned _h, Widget* _parent)
             w.curpos--;
         }
         w.buffer = conv_utf8_utf32.to_bytes(unicode_text);
-        w.text(w.buffer.empty() ? " " : w.buffer);
+        w.set_text(w.buffer.empty() ? " " : w.buffer);
     });
     this->set_on_click(&UI::Input::on_click_default);
     this->on_click_outside = &UI::Input::on_click_outside_default;
@@ -63,7 +63,7 @@ UI::Input::Input(int _x, int _y, unsigned _w, unsigned _h, Widget* _parent)
 
 void UI::Input::set_buffer(const std::string& _buffer) {
     buffer = _buffer;
-    this->text(buffer);
+    this->set_text(buffer);
 
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
     std::u32string unicode_text = conv_utf8_utf32.from_bytes(this->buffer);
@@ -82,7 +82,7 @@ void UI::Input::on_click_default(UI::Widget& w) {
 void UI::Input::on_click_outside_default(UI::Widget& w) {
     auto &input = static_cast<UI::Input&>(w);
     if(input.is_selected)
-        input.text(input.buffer);
+        input.set_text(input.buffer);
     input.is_selected = false;
 }
 
@@ -95,9 +95,9 @@ void UI::Input::on_update_default(UI::Widget& w) {
         const std::string cursor = input.timer >= 10 ? "_" : "";
         if(input.is_selected && input.timer % 30 == 0) {
             if(!input.buffer.empty()) {
-                input.text(input.buffer + cursor);
+                input.set_text(input.buffer + cursor);
             } else if(!cursor.empty()) {
-                input.text(cursor);
+                input.set_text(cursor);
             }
         }
     }

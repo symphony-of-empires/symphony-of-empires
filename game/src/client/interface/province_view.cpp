@@ -94,12 +94,12 @@ UI::Widget& ProvincePopulationTab::create_pop_table() {
 
             auto* size = row.get_element(row_index++);
             auto size_str = string_format("%.0f", pop.size);
-            size->text(size_str);
+            size->set_text(size_str);
             size->set_key(pop.size);
 
             auto* budget = row.get_element(row_index++);
             auto budget_str = string_format("%.0f", pop.budget / pop.size);
-            budget->text(budget_str);
+            budget->set_text(budget_str);
             auto budget_tip = Eng3D::translate_format("Total budget: %.2f", pop.budget);
             budget->set_tooltip(budget_tip);
             budget->set_key(pop.budget / pop.size);
@@ -107,7 +107,7 @@ UI::Widget& ProvincePopulationTab::create_pop_table() {
             if(this->gs.editor) {
                 auto* remove_btn = row.get_element(row_index++);
                 auto remove_btn_str = "X";
-                remove_btn->text(remove_btn_str);
+                remove_btn->set_text(remove_btn_str);
                 remove_btn->set_key(remove_btn_str);
                 remove_btn->set_on_click([this, i, &pop_table](UI::Widget&) {
                     pop_table.remove_row(i);
@@ -160,7 +160,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int _x, int _y, Pro
     province{ _province }
 {
     this->is_scroll = true;
-    this->text(province.name);
+    this->set_text(province.name);
 
     const auto& terrain_type = gs.world->terrain_types[province.terrain_type_id];
     auto& landscape_img = this->make_widget<UI::Image>(0, 0, this->width - 16, 128 + 64 + 16, terrain_type.get_icon_path());
@@ -219,7 +219,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int _x, int _y, Province&
     gs{ _gs },
     province{ _province }
 {
-    this->text(province.name);
+    this->set_text(province.name);
     this->is_scroll = true;
 }
 
@@ -262,7 +262,7 @@ ProvinceEditLanguageTab::ProvinceEditLanguageTab(GameState& _gs, int _x, int _y,
 
             auto& row_language = i >= this->gs.world->languages.size() ? this->gs.world->languages[0] : this->gs.world->languages[i];
             auto* name = row.get_element(row_index++);
-            name->text(row_language.name);
+            name->set_text(row_language.name);
             name->set_tooltip(row_language.name);
             name->set_key(row_language.name);
             name->set_on_click([this, language_id = row_language.get_id()](UI::Widget&) {
@@ -297,7 +297,7 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int _x, int _y, P
             landscape->set_key(terrain_type_row.name);
 
             auto name = row.get_element(row_index++);
-            name->text(terrain_type_row.name);
+            name->set_text(terrain_type_row.name);
             name->set_tooltip(terrain_type_row.name);
             name->set_key(terrain_type_row.name);
             name->set_on_click([this, &terrain_type_row](UI::Widget&) {
@@ -330,7 +330,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
 
     this->origin = UI::Origin::CENTER_SCREEN;
     this->is_scroll = false;
-    this->text(province.name);
+    this->set_text(province.name);
 
     auto& flex_row = this->make_widget<UI::Div>(0, 0, this->width, 32);
     flex_row.flex = UI::Flex::ROW;
@@ -433,7 +433,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
         density_sld.set_value(0.f);
         density_sld.set_on_click([this](UI::Widget& w) {
             auto& o = static_cast<UI::Slider&>(w);
-            w.text(string_format("%.2f", o.get_value()));
+            w.set_text(string_format("%.2f", o.get_value()));
             const auto den = o.get_value();
             for(auto& pop : const_cast<Province&>(this->province).pops)
                 pop.size *= den;
