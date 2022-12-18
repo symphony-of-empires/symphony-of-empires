@@ -30,7 +30,7 @@ UI_Widget = {
     x = 0,
     y = 0,
 }
-function UI_Widget:text(msg)
+function UI_Widget:set_text(msg)
     ui_set_text(self.id, msg)
 end
 function UI_Widget:set_image(path)
