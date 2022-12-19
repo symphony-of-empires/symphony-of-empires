@@ -606,18 +606,6 @@ static inline void unit_do_tick(World& world, Unit& unit) {
     }
 
     auto& province = world.provinces[unit.province_id()];
-    const auto weight_factor = glm::max(0.01f, unit.size / 50000.f);
-    // Analyze neighbours of where the unit is standing on
-    for(const auto neighbour_id : province.neighbour_ids) {
-        const auto& neighbour = world.provinces[neighbour_id];
-        if(neighbour.controller_id != unit.owner_id) {
-            // Decrease relations if we're militarizing our border
-            auto& relation = world.get_relation(neighbour.controller_id, unit.owner_id);
-            if(!relation.has_landpass())
-                relation.relation = glm::clamp<float>(relation.relation - weight_factor, -1.f, 1.f);
-        }
-    }
-
     // Replenish units
     if(unit.size < unit.base)
         unit.size = glm::min<float>(unit.base, unit.size + unit.experience * 10.f);
@@ -649,15 +637,45 @@ static inline void unit_do_tick(World& world, Unit& unit) {
             }
         }
     }
+}
 
+static inline void unit_do_battle_tick(World& world, Unit& unit) {
+    if(unit.on_battle)
+        return;
+
+    auto& province = world.provinces[unit.province_id()];
     if(province.battle.active) {
-        //province.battle.unit_ids.push_back(unit);
-        //unit.on_battle = true;
-        //unit.stop_movement();
-        ;
+        // TODO: let neutral people pass thru? or something more realistic
+        // Can we join the attackers side?
+        bool will_attack = false;
+        for(const auto attacker_id : province.battle.attacker_nations_ids) {
+            if(unit.owner_id == attacker_id) {
+                will_attack = true;
+                break;
+            }
+            const auto& relation = world.get_relation(unit.owner_id, attacker_id);
+            if(relation.is_allied()) {
+                will_attack = true;
+                break;
+            }
+        }
+
+        if(will_attack) {
+            auto& nation_ids = province.battle.attacker_nations_ids;
+            if(std::find(nation_ids.begin(), nation_ids.end(), unit.owner_id) == nation_ids.end())
+                nation_ids.push_back(unit.owner_id);
+        } else {
+            auto& nation_ids = province.battle.defender_nations_ids;
+            if(std::find(nation_ids.begin(), nation_ids.end(), unit.owner_id) == nation_ids.end())
+                nation_ids.push_back(unit.owner_id);
+        }
+        province.battle.unit_ids.push_back(unit.get_id());
+        unit.on_battle = true;
+        unit.stop_movement();
     } else {
         // No battle on the current province, create a new one so check if we can start a new battle
         const auto& unit_ids = world.unit_manager.get_province_units(province);
+        std::vector<UnitId> enemy_unit_ids;
         for(const auto other_unit_id : unit_ids) {
             auto& other_unit = world.unit_manager.units[other_unit_id];
             // Make sure the other unit isn't the same nation or already in battle, remember that if it's already
@@ -668,20 +686,33 @@ static inline void unit_do_tick(World& world, Unit& unit) {
             const auto& relation = world.get_relation(unit.owner_id, other_unit.owner_id);
             if(!relation.has_war)
                 continue;
-            // If we found an unit we can attack, start a battle
-            unit.on_battle = other_unit.on_battle = true;
-            unit.stop_movement();
-            other_unit.stop_movement();
-            // We attack, they defend from us
+            enemy_unit_ids.push_back(other_unit_id);
+        }
+
+        // If we found an unit we can attack, start a battle
+        if(!enemy_unit_ids.empty()) {
             province.battle = Province::Battle();
             province.battle.active = true;
-            assert(unit.owner_id != other_unit.owner_id);
-            province.battle.attacker_nations_ids.push_back(unit.owner_id);
-            province.battle.defender_nations_ids.push_back(other_unit.owner_id);
+
+            // We attack, they defend from us
+            unit.on_battle = true;
+            unit.stop_movement();
             province.battle.unit_ids.push_back(unit);
-            province.battle.unit_ids.push_back(other_unit);
+            province.battle.attacker_nations_ids.push_back(unit.owner_id);
+
+            std::vector<NationId> v;
+            for(const auto enemy_unit_id : enemy_unit_ids) {
+                auto& enemy_unit = world.unit_manager.units[enemy_unit_id];
+                enemy_unit.on_battle = true;
+                enemy_unit.stop_movement();
+                province.battle.unit_ids.push_back(enemy_unit);
+                v.push_back(enemy_unit.owner_id);
+            }
+            std::sort(v.begin(), v.end());
+            v.erase(std::unique(v.begin(), v.end()), v.end());
+            province.battle.defender_nations_ids = v;
+
             Eng3D::Log::debug("game", string_format("New battle on province %s", province.name.c_str()));
-            break;
         }
     }
 }
@@ -782,11 +813,27 @@ void World::do_tick() {
     this->unit_manager.units.for_each([this](Unit& unit) {
         unit_do_tick(*this, unit);
     });
+    this->unit_manager.units.for_each([this](Unit& unit) {
+        unit_do_battle_tick(*this, unit);
+    });
     profiler.stop("Units");
 
     // Perform all battles of the active wars
     profiler.start("Battles");
     std::vector<UnitId> clear_units;
+#ifndef NDEBUG
+    // Assert no duplicate units in battles
+    std::vector<UnitId> unit_ids;
+    for(auto& province : provinces)
+        if(province.battle.active)
+            for(const auto unit_id : province.battle.unit_ids)
+                unit_ids.push_back(unit_id);
+    std::sort(unit_ids.begin(), unit_ids.end());
+    std::set<UnitId> unit_ids_2(unit_ids.begin(), unit_ids.end());
+    std::vector<UnitId> diff_ids;
+    std::set_difference(unit_ids.begin(), unit_ids.end(), unit_ids_2.begin(), unit_ids_2.end(), std::back_inserter(diff_ids));
+    assert(diff_ids.empty());
+#endif
     for(auto& province : provinces) {
         if(province.battle.active) {
             auto& units = this->unit_manager.units;
@@ -805,19 +852,21 @@ void World::do_tick() {
                 if(!attacker_unit_ids.empty() && defender_unit_ids.empty()) {
                     // Attackers win
                     this->nations[units[attacker_unit_ids[0]].owner_id].control_province(province);
-                    for(const auto unit_id : attacker_unit_ids) {
-                        auto& unit = units[unit_id];
-                        this->nations[unit.owner_id].prestige += unit.base / 10000.f; // Prestige reward
-                        unit.on_battle = false;
-                    }
                 } else if(attacker_unit_ids.empty() && !defender_unit_ids.empty()) {
                     // Defenders win
                     this->nations[units[defender_unit_ids[0]].owner_id].control_province(province);
-                    for(const auto unit_id : defender_unit_ids) {
-                        auto& unit = units[unit_id];
-                        this->nations[unit.owner_id].prestige += unit.base / 10000.f; // Prestige reward
-                        unit.on_battle = false;
-                    }
+                }
+
+                for(const auto unit_id : attacker_unit_ids) {
+                    auto& unit = units[unit_id];
+                    this->nations[unit.owner_id].prestige += unit.base / 10000.f; // Prestige reward
+                    unit.on_battle = false;
+                }
+
+                for(const auto unit_id : defender_unit_ids) {
+                    auto& unit = units[unit_id];
+                    this->nations[unit.owner_id].prestige += unit.base / 10000.f; // Prestige reward
+                    unit.on_battle = false;
                 }
                 province.battle.active = false;
                 continue;
@@ -839,6 +888,7 @@ void World::do_tick() {
                 auto& unit = units[unit_id];
                 assert(unit_id == unit.get_id());
                 if(unit.size < 1.f) {
+                    Eng3D::Log::debug("game", string_format("Removing unit id=%zu from province %s", (size_t)unit_id, province.name.c_str()));
                     assert(std::find(clear_units.begin(), clear_units.end(), unit_id) == clear_units.end());
                     clear_units.push_back(unit_id);
                     province.battle.unit_ids.erase(province.battle.unit_ids.begin() + i);
