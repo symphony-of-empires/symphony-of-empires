@@ -76,7 +76,8 @@ void GameState::play_nation() {
     Eng3D::Log::debug("game", translate_format("Playing as nation %s", this->curr_nation->ref_name.c_str()));
     this->curr_nation->ai_do_cmd_troops = true;
     this->curr_nation->ai_controlled = false;
-    this->client->send(Action::SelectNation::form_packet(*this->curr_nation));
+    if(this->client != nullptr)
+        this->client->send(Action::SelectNation::form_packet(*this->curr_nation));
 }
 
 std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(const Nation& nation) {

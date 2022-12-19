@@ -165,6 +165,7 @@ public:
     bool host_mode = false;
     bool editor = false;
     bool sea_paint = false;
+    bool singleplayer = true;
 
     std::vector<Eng3D::StringRef> decision_autodo;
 };

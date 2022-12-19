@@ -67,7 +67,6 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
             unit.set_path(province);
         }
     };
-
     action_handlers[ActionType::BUILDING_START_BUILDING_UNIT] = [this](ClientData& client_data, const Eng3D::Networking::Packet&, Eng3D::Deser::Archive& ar) {
         ProvinceId province_id;
         Eng3D::Deser::deserialize(ar, province_id);

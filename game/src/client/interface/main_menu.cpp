@@ -138,6 +138,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
         this->gs.current_mode = MapMode::COUNTRY_SELECT;
         this->gs.host_mode = true;
         this->gs.editor = false;
+        this->gs.singleplayer = true;
 
         for(auto& nation : this->gs.world->nations)
             if(nation.ref_name.get_string() == "netherlands")
@@ -147,13 +148,6 @@ Interface::MainMenu::MainMenu(GameState& _gs)
             return;
 
         this->gs.ui_ctx.clear();
-        if(this->gs.host_mode) {
-            this->gs.server = std::make_unique<Server>(gs, 1836);
-            this->gs.client = std::make_unique<Client>(gs, "127.0.0.1", 1836);
-            this->gs.client->username = this->gs.editor ? "Editor" : "Guest";
-            this->gs.client->username += "-";
-            this->gs.client->username += this->gs.host_mode ? "Host" : "Player";
-        }
         this->gs.in_game = true;
         this->gs.play_nation();
     });
@@ -171,6 +165,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
         gs.select_nation = new Interface::LobbySelectView(gs);
         gs.host_mode = true;
         gs.editor = false;
+        this->gs.singleplayer = true;
     });
 
     auto& mp_btn = button_list.make_widget<UI::Button>(0, 0, b_width, b_height);
@@ -181,6 +176,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
     mp_btn.text_align_x = mp_btn.text_align_y = UI::Align::CENTER;
     mp_btn.set_text("Multiplayer");
     mp_btn.set_on_click([this](UI::Widget&) {
+        this->gs.singleplayer = false;
         this->connect_window = new Interface::MainMenuConnectServer(this->gs);
     });
 
@@ -197,6 +193,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
         this->gs.select_nation = new Interface::LobbySelectView(this->gs);
         this->gs.host_mode = true;
         this->gs.editor = false;
+        this->gs.singleplayer = false;
     });
 
     auto& edit_btn = button_list.make_widget<UI::Button>(0, 0, b_width, b_height);
@@ -211,6 +208,7 @@ Interface::MainMenu::MainMenu(GameState& _gs)
         // Create a local server in editor mode
         this->gs.host_mode = true;
         this->gs.editor = true;
+        this->gs.singleplayer = true;
         this->gs.server.reset(new Server(gs, 1836));
         this->gs.client.reset(new Client(gs, "127.0.0.1", 1836));
         this->gs.ui_ctx.clear();

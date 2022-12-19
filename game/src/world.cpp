@@ -753,8 +753,10 @@ void World::do_tick() {
     profiler.stop("Economy");
 
     profiler.start("E-packages");
-    g_server->broadcast(Action::NationUpdate::form_packet(nations));
-    g_server->broadcast(Action::ProvinceUpdate::form_packet(provinces));
+    if(g_server != nullptr) {
+        g_server->broadcast(Action::NationUpdate::form_packet(nations));
+        g_server->broadcast(Action::ProvinceUpdate::form_packet(provinces));
+    }
     profiler.stop("E-packages");
 
     profiler.start("Research");
@@ -913,7 +915,9 @@ void World::do_tick() {
     profiler.stop("Events");
 
     profiler.start("Send packets");
+    if(g_server != nullptr) {
     //g_server->broadcast(Action::UnitUpdate::form_packet(this->unit_manager.units.data));
+    }
     profiler.stop("Send packets");
 
     if(!(time % ticks_per_month))
@@ -921,10 +925,12 @@ void World::do_tick() {
     Eng3D::Log::debug("game", Eng3D::translate_format("Tick %i done", time));
     time++;
 
-    // Tell clients that this tick has been done
-    Eng3D::Networking::Packet packet{};
-    Eng3D::Deser::Archive ar{};
-    Eng3D::Deser::serialize<ActionType>(ar, ActionType::WORLD_TICK);
-    packet.data(ar.get_buffer(), ar.size());
-    g_server->broadcast(packet);
+    if(g_server != nullptr) {
+        // Tell clients that this tick has been done
+        Eng3D::Networking::Packet packet{};
+        Eng3D::Deser::Archive ar{};
+        Eng3D::Deser::serialize<ActionType>(ar, ActionType::WORLD_TICK);
+        packet.data(ar.get_buffer(), ar.size());
+        g_server->broadcast(packet);
+    }
 }
