@@ -623,3 +623,12 @@ _republic
 
 _socialism
 	By Philip Kanellopoulos, https://www.peristanom.org/ - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=17206446
+
+buganda_monarchy
+	De Mysid - Self-drawn in CorelDraw, based on FOTW; lion from the Open Clip Art Library., Dominio público, https://commons.wikimedia.org/w/index.php?curid=1398177
+
+bunyoro_kitara_monarchy
+	By Himasaram - This W3C-unspecified vector image was created with Inkscape ., Public Domain, https://commons.wikimedia.org/w/index.php?curid=1400705
+
+ankole_monarchy
+	By Himasaram - This W3C-unspecified vector image was created with Inkscape ., Public Domain, https://commons.wikimedia.org/w/index.php?curid=1132967

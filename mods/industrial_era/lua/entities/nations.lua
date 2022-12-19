@@ -156,6 +156,27 @@ nation:add_client_hint(communism, _("Buganda"), 0x3b495e)
 nation:add_client_hint(socialism, _("Buganda"), 0x3b495e)
 nation:set_ideology(monarchy, "absolute_monarchy")
 
+nation = Nation:new{ ref_name = "bunyoro_kitara" }
+nation.name = _("Bunyoro-Kitara")
+nation:register()
+nation:add_accepted_language(arabic)
+nation:add_client_hint(monarchy, _("Bunyoro-Kitara"), 0x3b495e)
+nation:set_ideology(monarchy, "absolute_monarchy")
+
+nation = Nation:new{ ref_name = "ankole" }
+nation.name = _("Ankole")
+nation:register()
+nation:add_accepted_language(arabic)
+nation:add_client_hint(monarchy, _("Ankole"), 0x3b495e)
+nation:set_ideology(monarchy, "absolute_monarchy")
+
+nation = Nation:new{ ref_name = "rwanda" }
+nation.name = _("Rwanda")
+nation:register()
+nation:add_accepted_language(arabic)
+nation:add_client_hint(monarchy, _("Rwanda"), 0x3b495e)
+nation:set_ideology(monarchy, "absolute_monarchy")
+
 nation = Nation:new{ ref_name = "bokongo" }
 nation.name = _("Bokongo")
 nation:register()
