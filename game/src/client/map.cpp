@@ -90,7 +90,7 @@ static inline void get_blob_bounds(std::vector<bool>& visited_provinces, const N
         if(visited_provinces[neighbour_id]) continue;
         visited_provinces[neighbour_id] = true;
         if(neighbour.controller_id != nation) continue;
-        
+
         // Big provinces not taken in account
         if(glm::abs(neighbour.box_area.left - neighbour.box_area.right) >= g_world.width / 3.f) continue;
         if(glm::abs(neighbour.box_area.top - neighbour.box_area.bottom) >= g_world.height / 3.f) continue;
@@ -400,7 +400,7 @@ void Map::draw() {
     map_render->draw(*camera, view_mode);
     // rivers->draw(*camera);
     // borders->draw(*camera);
-    
+
     /// @todo We need to better this
     obj_shader->use();
     obj_shader->set_uniform("projection", projection);
@@ -439,7 +439,7 @@ void Map::draw() {
                 // Units
                 const auto& province_units = this->gs.world->unit_manager.get_province_units(province);
                 if(!province_units.empty()) {
-                    size_t total_stack_size = 0; // Calculate the total size of our stack
+                    auto total_stack_size = 0.f; // Calculate the total size of our stack
                     for(const auto unit_id : province_units) {
                         const auto& unit = this->gs.world->unit_manager.units[unit_id];
                         total_stack_size += unit.size;
@@ -620,7 +620,7 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
 
             /// @todo Handle the case where an unit is deleted
             for(const auto unit_id : gs.input.get_selected_units()) {
-                auto& unit = gs.world->unit_manager.units[unit_id];
+                const auto& unit = gs.world->unit_manager.units[unit_id];
                 auto unit_prov_id = gs.world->unit_manager.unit_province[unit_id];
                 if(!unit.can_move()) continue;
                 // Don't change target if ID is the same...

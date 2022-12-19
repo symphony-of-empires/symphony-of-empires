@@ -54,12 +54,14 @@ struct std::hash<ProvinceId> {
 //
 // Unit
 //
-void Unit::attack(Unit& enemy) {
+float Unit::attack(Unit& enemy) {
+    const auto prev_size = enemy.size;
     /// @todo Better attack algorithm
     // It's important that a size of zero nullifies the attack, this prevents the edge case
     // of 1 v 1 units that kill each other
     const float damage = (g_world.unit_types[type_id].attack * static_cast<float>(this->size)) * this->experience * 0.08f;
     enemy.size -= glm::min(enemy.size, damage);
+    return prev_size - enemy.size;
 }
 
 void Unit::set_target(const Province& province) {
@@ -140,6 +142,12 @@ void UnitManager::remove_unit(UnitId unit_id) {
     const auto current_province_id = unit_province[unit_id];
     Eng3D::fast_erase(province_units[current_province_id], unit_id);
     units.remove(unit_id);
+
+#ifndef NDEBUG
+    // Assert there was no duplication (id remaining after removal is troubling)
+    const auto& p = province_units[current_province_id];
+    assert(std::find(p.begin(), p.end(), unit_id) == p.end());
+#endif
 }
 
 void UnitManager::move_unit(UnitId unit_id, ProvinceId target_province_id) {
@@ -149,6 +157,16 @@ void UnitManager::move_unit(UnitId unit_id, ProvinceId target_province_id) {
 
     const auto current_province_id = unit_province[unit_id];
     Eng3D::fast_erase(province_units[current_province_id], unit_id);
+
+#ifndef NDEBUG
+    // Assert there was no duplication (id remaining after removal is troubling)
+    const auto& p1 = province_units[current_province_id];
+    assert(std::find(p1.begin(), p1.end(), unit_id) == p1.end());
+    // Assert no duplication
+    const auto& p2 = province_units[target_province_id];
+    assert(std::find(p2.begin(), p2.end(), unit_id) == p2.end());
+#endif
+
     unit_province[unit_id] = target_province_id;
     province_units[target_province_id].push_back(unit_id);
     if(g_server != nullptr)

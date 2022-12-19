@@ -43,7 +43,7 @@ BattleWidget::BattleWidget(Map& _map, UI::Widget* _parent)
     map{ _map }
 {
     this->background_color = Eng3D::Color(1.f, 1.f, 1.f, 1.f);
-    
+
     /// @todo On click display information about the battle
     auto& gs = static_cast<GameState&>(Eng3D::State::get_instance());
 
@@ -54,12 +54,14 @@ BattleWidget::BattleWidget(Map& _map, UI::Widget* _parent)
     this->left_size_label->set_on_each_tick([this](UI::Widget&) {
         if(this->province == nullptr) return;
         const auto& battle = this->province->battle;
-        auto unit_size = 0;
-        for(const auto unit_id : battle.attackers_ids) {
+
+        auto unit_size = 0.f;
+        const auto attacker_unit_ids = battle.get_attacker_unit_ids();
+        for(const auto unit_id : attacker_unit_ids) {
             const auto& unit = g_world.unit_manager.units[unit_id];
-            unit_size += (int)unit.size;
+            unit_size += unit.size;
         }
-        this->left_size_label->set_text(Eng3D::string_format("%zu", unit_size));
+        this->left_size_label->set_text(Eng3D::string_format("%.0f", unit_size));
     });
 
     this->right_flag_img = new UI::Image(139, 1, 38, 28, gs.tex_man.get_white(), this);
@@ -69,12 +71,14 @@ BattleWidget::BattleWidget(Map& _map, UI::Widget* _parent)
     this->right_size_label->set_on_each_tick([this](UI::Widget&) {
         if(this->province == nullptr) return;
         const auto& battle = this->province->battle;
-        auto unit_size = 0;
-        for(const auto unit_id : battle.defenders_ids) {
+
+        auto unit_size = 0.f;
+        const auto defender_unit_ids = battle.get_defender_unit_ids();
+        for(const auto unit_id : defender_unit_ids) {
             const auto& unit = g_world.unit_manager.units[unit_id];
-            unit_size += (int)unit.size;
+            unit_size += unit.size;
         }
-        this->right_size_label->set_text(Eng3D::string_format("%zu", unit_size));
+        this->right_size_label->set_text(Eng3D::string_format("%.0f", unit_size));
     });
 }
 
@@ -89,14 +93,17 @@ void BattleWidget::set_battle(Province& _province) {
     this->y = screen_pos.y - this->height / 2;
 
     auto& gs = static_cast<GameState&>(Eng3D::State::get_instance());
-    if(!battle.attackers_ids.empty()) {
-        auto left_nation_flag = gs.get_nation_flag(gs.world->nations[gs.world->unit_manager.units[battle.attackers_ids[0]].owner_id]);
+
+    const auto attacker_unit_ids = battle.get_attacker_unit_ids();
+    if(!attacker_unit_ids.empty()) {
+        auto left_nation_flag = gs.get_nation_flag(gs.world->nations[gs.world->unit_manager.units[attacker_unit_ids[0]].owner_id]);
         this->left_flag_img->current_texture = left_nation_flag;
         this->left_size_label->on_each_tick(*this->left_size_label);
     }
 
-    if(!battle.defenders_ids.empty()) {
-        auto right_nation_flag = gs.get_nation_flag(gs.world->nations[gs.world->unit_manager.units[battle.defenders_ids[0]].owner_id]);
+    const auto defender_unit_ids = battle.get_defender_unit_ids();
+    if(!defender_unit_ids.empty()) {
+        auto right_nation_flag = gs.get_nation_flag(gs.world->nations[gs.world->unit_manager.units[defender_unit_ids[0]].owner_id]);
         this->right_flag_img->current_texture = right_nation_flag;
         this->right_size_label->on_each_tick(*this->right_size_label);
     }

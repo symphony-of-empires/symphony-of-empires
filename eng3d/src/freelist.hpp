@@ -46,6 +46,7 @@ namespace Eng3D {
         }
 
         void remove(size_t index) {
+            assert(data[index].has_value());
             data[index].reset();
             slots.push_back(index);
         }

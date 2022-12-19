@@ -87,7 +87,7 @@ class Unit : public Entity<UnitId> {
     bool has_target = false;
     ProvinceId target_province_id;
 public:
-    void attack(Unit& enemy);
+    float attack(Unit& enemy);
     glm::vec2 get_pos() const;
 
     void set_target(const Province& province);

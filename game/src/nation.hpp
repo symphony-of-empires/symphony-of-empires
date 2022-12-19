@@ -111,7 +111,7 @@ public:
     }
 
     const Ideology::Subideology& get_subideology() const;
-    
+
     // Policies
     bool can_directly_control_factories() const;
 

@@ -197,15 +197,3 @@ bool Treaty::in_effect() const {
     }
     return on_effect;
 }
-
-bool War::is_involved(const Nation& nation) const {
-    return is_attacker(nation) || is_defender(nation);
-}
-
-bool War::is_attacker(const Nation& nation) const {
-    return std::find(attacker_ids.begin(), attacker_ids.end(), nation) != attacker_ids.end();
-}
-
-bool War::is_defender(const Nation& nation) const {
-    return std::find(defender_ids.begin(), defender_ids.end(), nation) != defender_ids.end();
-}

@@ -77,3 +77,27 @@ Pop& Province::get_soldier_pop() {
     });
     return *it;
 }
+
+std::vector<UnitId> Province::Battle::get_attacker_unit_ids() const {
+    const auto& units = g_world.unit_manager.units;
+    std::vector<UnitId> v;
+    for(const auto nation_id : this->attacker_nations_ids)
+        for(const auto unit_id : this->unit_ids)
+            if(units[unit_id].owner_id == nation_id)
+                v.push_back(unit_id);
+    std::sort(v.begin(), v.end());
+    v.erase(std::unique(v.begin(), v.end()), v.end());
+    return v;
+}
+
+std::vector<UnitId> Province::Battle::get_defender_unit_ids() const {
+    const auto& units = g_world.unit_manager.units;
+    std::vector<UnitId> v;
+    for(const auto nation_id : this->defender_nations_ids)
+        for(const auto unit_id : this->unit_ids)
+            if(units[unit_id].owner_id == nation_id)
+                v.push_back(unit_id);
+    std::sort(v.begin(), v.end());
+    v.erase(std::unique(v.begin(), v.end()), v.end());
+    return v;
+}

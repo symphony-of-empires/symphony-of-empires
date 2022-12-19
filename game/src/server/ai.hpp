@@ -61,6 +61,7 @@ struct AIManager {
 
     /// @brief Reshuffle weights of the AI
     void recalc_weights() {
+        /*
         war_weight = 1.f + 1.f * this->get_rand();
         unit_battle_weight = 1.f + 1.f * this->get_rand();
         unit_exist_weight = 1.f + 1.f * this->get_rand();
@@ -70,6 +71,15 @@ struct AIManager {
 
         strength_threshold = 1.f * this->get_rand();
         override_threshold = 1.f * this->get_rand();
+        */
+        war_weight = 2.f;
+        unit_battle_weight = 2.f;
+        unit_exist_weight = 2.f;
+        coastal_weight = 2.f;
+        reconquer_weight = 2.f;
+        erratic = 1.f;
+        strength_threshold = 1.5f;
+        override_threshold = 2.f;
     }
 
     /// @brief Recalculate weights iff losing territory
@@ -121,26 +131,26 @@ struct AIManager {
         // Calculate potential risk for every province
         for(const auto province_id : eval_provinces) {
             const auto& province = world.provinces[province_id];
-                auto draw_in_force = 1.f;
-                // The "cooling" value which basically makes us ignore some provinces with lots of defenses
-                // so we don't rack up deathstacks on a border with some micronation
+            auto draw_in_force = 1.f;
+            // The "cooling" value which basically makes us ignore some provinces with lots of defenses
+            // so we don't rack up deathstacks on a border with some micronation
             const auto& unit_ids = world.unit_manager.get_province_units(province_id);
-                for(const auto unit_id : unit_ids) {
-                    const auto& unit = world.unit_manager.units[unit_id];
-                    const auto& unit_owner = world.nations[unit.owner_id];
+            for(const auto unit_id : unit_ids) {
+                const auto& unit = world.unit_manager.units[unit_id];
+                const auto& unit_owner = world.nations[unit.owner_id];
                 const auto unit_weight = unit.on_battle ? unit_battle_weight : unit_exist_weight;
                 draw_in_force += unit.get_strength() * unit_weight * nations_risk_factor[unit_owner];
-                }
+            }
 
-                if(province.is_coastal)
-                    draw_in_force *= coastal_weight;
+            if(province.is_coastal)
+                draw_in_force *= coastal_weight;
             if(!world.terrain_types[province.terrain_type_id].is_water_body) {
-                    // Try to recover our own lost provinces
+                // Try to recover our own lost provinces
                 if(province.owner_id == nation && province.controller_id != nation)
-                        draw_in_force *= reconquer_weight;
+                    draw_in_force *= reconquer_weight;
                 draw_in_force += nations_risk_factor[province.controller_id];
-                }
-                potential_risk[province_id] += draw_in_force;
+            }
+            potential_risk[province_id] += draw_in_force;
         }
 
         // Spread out the heat

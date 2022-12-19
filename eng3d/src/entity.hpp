@@ -98,7 +98,7 @@ struct Entity {
     constexpr Entity(Entity&&) noexcept = default;
     constexpr Entity(const Entity&) noexcept = default;
     constexpr Entity& operator=(const Entity&) noexcept = default;
-    ~Entity() noexcept = default;
+    constexpr ~Entity() noexcept = default;
 
     /// @brief Id used to speed up Id lookups on any context
     /// @note This depends that the container is sequential (as if it was

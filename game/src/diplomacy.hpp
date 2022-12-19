@@ -290,27 +290,3 @@ struct Eng3D::Deser::Serializer<Treaty> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.approval_status);
     }
 };
-
-struct War : Entity<WarId> {
-    bool is_involved(const Nation& nation) const;
-    bool is_attacker(const Nation& nation) const;
-    bool is_defender(const Nation& nation) const;
-
-    Eng3D::StringRef name;
-    std::vector<NationId> attacker_ids;
-    std::vector<NationId> defender_ids;
-    std::vector<TreatyClause::BaseClause*> wargoals;
-};
-template<>
-struct Eng3D::Deser::Serializer<War> {
-    template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, War>::type;
-
-    template<bool is_serialize>
-    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.attacker_ids);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.defender_ids);
-    }
-};

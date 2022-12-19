@@ -61,11 +61,11 @@ public:
     void cancel_construction_project();
     bool is_neighbour(const Province& province) const;
     Pop& get_soldier_pop();
-    
+
     inline glm::vec2 get_pos() const {
         return glm::vec2(box_area.left + ((box_area.right - box_area.left) / 2.f), box_area.top + ((box_area.bottom - box_area.top) / 2.f));
     }
-    
+
     float euclidean_distance(const Province& other_province, glm::vec2 world_size, float radius) const;
 
     inline const std::vector<Building>& get_buildings() const {
@@ -104,18 +104,15 @@ public:
     std::vector<Building> buildings;
     struct Battle {
         Battle() = default;
-        Battle(const War& war)
-            : war_id{ war.get_id() }
-        {
-
-        }
-        
-        WarId war_id;
         float attacker_casualties = 0.f;
         float defender_casualties = 0.f;
-        std::vector<UnitId> attackers_ids;
-        std::vector<UnitId> defenders_ids;
+        std::vector<UnitId> unit_ids; // Units inside the battle
+        std::vector<NationId> attacker_nations_ids;
+        std::vector<NationId> defender_nations_ids;
         bool active = false;
+
+        std::vector<UnitId> get_attacker_unit_ids() const;
+        std::vector<UnitId> get_defender_unit_ids() const;
     } battle;
     std::vector<NationId> nuclei; // Nations who have a nuclei in this province
     std::vector<ProvinceId> neighbour_ids; // Neighbouring provinces
@@ -130,11 +127,11 @@ struct Eng3D::Deser::Serializer<Province::Battle> {
     using type = Eng3D::Deser::CondConstType<is_const, Province::Battle>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.war_id);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.attacker_casualties);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.defender_casualties);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.attackers_ids);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.defenders_ids);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.unit_ids);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.attacker_nations_ids);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.defender_nations_ids);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.active);
     }
 };

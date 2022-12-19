@@ -71,7 +71,6 @@ struct World;
     };\
     list_type<type*> list;
 
-// Vectors we don't remove from
 #define CONST_LIST_FOR_LOCAL_TYPE(type, list, list_type)\
     inline const list_type<type>& get_list(const type* = nullptr) const {\
         return list;\
@@ -146,7 +145,6 @@ public:
     CONST_LIST_FOR_LOCAL_TYPE(Nation, nations, std::vector)
     LIST_FOR_LOCAL_TYPE(Event, events, std::vector)
     LIST_FOR_LOCAL_TYPE(Treaty, treaties, std::vector)
-    LIST_FOR_LOCAL_TYPE(War, wars, std::vector)
     UnitManager unit_manager;
     ProvinceManager province_manager;
     Economy::EconomyState economy_state;
@@ -187,11 +185,11 @@ public:
 
     /// @brief Get the dist from the equator in respect to Y
     /// @param y Position to get distance from
-    /// @return float 
+    /// @return float
     inline float get_dist_from_equator(float y) const {
         return std::fabs(std::fabs(y) - (this->width / 2.0));
     }
-    
+
     std::vector<Nation::Relation> relations;
 
     Nation::Relation& get_relation(NationId a, NationId b) {
@@ -224,7 +222,7 @@ public:
     std::unique_ptr<ProvinceId[]> tiles;
     size_t width, height;
     int time;
-    
+
     /// @brief Used to signal the lua scripts of invalid operations (eg. adding a country midgame)
     bool needs_to_sync = false;
     std::mutex world_mutex;
@@ -253,7 +251,6 @@ struct Eng3D::Deser::Serializer<World> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.nations);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.provinces);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.events);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.wars);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.treaties);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.unit_manager);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.relations);
