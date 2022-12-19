@@ -73,6 +73,18 @@ monarchy:add_subideology(Subideology:new{
 	secular = 0.0,
 	pluralism = 0.25,
 })
+monarchy:add_subideology(Subideology:new{
+	ref_name = "monarchist_slave_state",
+	name = "Monarchist slave state",
+	distributism = -1.0,
+	mercantilist = 1.0,
+	capitalism = 1.0,
+	individualism = -1.0,
+	state_power = 1.0,
+	equalitarianism = -1.0,
+	secular = 0.0,
+	pluralism = -1.0,
+})
 
 republic = Ideology:new{ ref_name = "republic", name = _("Republic"), color = 0x4245f5 }
 republic:register()
@@ -208,7 +220,6 @@ tribal:add_subideology(Subideology:new{
 	secular = 0.0,
 	pluralism = 0.0,
 })
-
 tribal:add_subideology(Subideology:new{
 	ref_name = "nomadic_tribe",
 	name = "Nomadic tribe",
@@ -231,7 +242,7 @@ anarchy:add_subideology(Subideology:new{
 	mercantilist = 0.0,
 	capitalism = 1.0,
 	individualism = 1.0,
-	state_power = 1.0,
+	state_power = -1.0,
 	equalitarianism = 0.0,
 	secular = 0.0,
 	pluralism = 0.0,
@@ -243,7 +254,7 @@ anarchy:add_subideology(Subideology:new{
 	mercantilist = 0.0,
 	capitalism = -1.0,
 	individualism = 1.0,
-	state_power = 1.0,
+	state_power = -1.0,
 	equalitarianism = 0.0,
 	secular = 0.0,
 	pluralism = 0.0,
@@ -255,8 +266,20 @@ anarchy:add_subideology(Subideology:new{
 	mercantilist = 0.0,
 	capitalism = 0.0,
 	individualism = 1.0,
-	state_power = 1.0,
+	state_power = -1.0,
 	equalitarianism = 0.0,
 	secular = 0.0,
 	pluralism = 1.0,
+})
+anarchy:add_subideology(Subideology:new{
+	ref_name = "anarchic_slave_state",
+	name = "Anarchic slave state",
+	distributism = -1.0,
+	mercantilist = 1.0,
+	capitalism = 1.0,
+	individualism = -1.0,
+	state_power = -1.0,
+	equalitarianism = -1.0,
+	secular = 0.0,
+	pluralism = -1.0,
 })

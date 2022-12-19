@@ -632,3 +632,6 @@ bunyoro_kitara_monarchy
 
 ankole_monarchy
 	By Himasaram - This W3C-unspecified vector image was created with Inkscape ., Public Domain, https://commons.wikimedia.org/w/index.php?curid=1132967
+
+kayor_monarchy
+	By Cheikh Khadim Rassoul D. - Own work, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=123645620

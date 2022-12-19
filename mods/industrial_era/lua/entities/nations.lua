@@ -127,6 +127,55 @@ jolof:register()
 jolof:add_client_hint(monarchy, _("Jolof"), 0xdce30e)
 jolof:set_ideology(monarchy, "absolute_monarchy")
 
+nation = Nation:new{ ref_name = "kayor" }
+nation.name = _("Kayor")
+nation:register()
+nation:add_accepted_language(arabic)
+nation:add_client_hint(monarchy, _("Kayor"), 0xb02c20)
+nation:set_ideology(monarchy, "absolute_monarchy")
+
+nation = Nation:new{ ref_name = "saloum" }
+nation.name = _("Saloum")
+nation:register()
+nation:add_accepted_language(arabic)
+nation:add_client_hint(monarchy, _("Saloum"), 0xd124a9)
+nation:set_ideology(monarchy, "absolute_monarchy")
+
+nation = Nation:new{ ref_name = "sine" }
+nation.name = _("Sine")
+nation:register()
+nation:add_accepted_language(arabic)
+nation:add_client_hint(monarchy, _("Sine"), 0xe32a19)
+nation:set_ideology(monarchy, "absolute_monarchy")
+
+nation = Nation:new{ ref_name = "baol" }
+nation.name = _("Baoi")
+nation:register()
+nation:add_accepted_language(arabic)
+nation:add_client_hint(monarchy, _("Baoi"), 0x97d0de)
+nation:set_ideology(monarchy, "absolute_monarchy")
+
+nation = Nation:new{ ref_name = "balanta" }
+nation.name = _("Balanta")
+nation:register()
+nation:add_accepted_language(arabic)
+nation:add_client_hint(monarchy, _("Balanta"), 0x5b328a)
+nation:set_ideology(monarchy, "absolute_monarchy")
+
+nation = Nation:new{ ref_name = "kombo" }
+nation.name = _("Kombo")
+nation:register()
+nation:add_accepted_language(arabic)
+nation:add_client_hint(monarchy, _("Kombo"), 0xd9d968)
+nation:set_ideology(monarchy, "absolute_monarchy")
+
+nation = Nation:new{ ref_name = "fogny" }
+nation.name = _("Fogny")
+nation:register()
+nation:add_accepted_language(arabic)
+nation:add_client_hint(monarchy, _("Fogny"), 0x7ff591)
+nation:set_ideology(monarchy, "absolute_monarchy")
+
 dahomey = Nation:new{ ref_name = "dahomey" }
 dahomey.name = _("Dahomey")
 dahomey:register()
@@ -160,21 +209,21 @@ nation = Nation:new{ ref_name = "bunyoro_kitara" }
 nation.name = _("Bunyoro-Kitara")
 nation:register()
 nation:add_accepted_language(arabic)
-nation:add_client_hint(monarchy, _("Bunyoro-Kitara"), 0x3b495e)
+nation:add_client_hint(monarchy, _("Bunyoro-Kitara"), 0x120096)
 nation:set_ideology(monarchy, "absolute_monarchy")
 
 nation = Nation:new{ ref_name = "ankole" }
 nation.name = _("Ankole")
 nation:register()
 nation:add_accepted_language(arabic)
-nation:add_client_hint(monarchy, _("Ankole"), 0x3b495e)
+nation:add_client_hint(monarchy, _("Ankole"), 0x634515)
 nation:set_ideology(monarchy, "absolute_monarchy")
 
 nation = Nation:new{ ref_name = "rwanda" }
 nation.name = _("Rwanda")
 nation:register()
 nation:add_accepted_language(arabic)
-nation:add_client_hint(monarchy, _("Rwanda"), 0x3b495e)
+nation:add_client_hint(monarchy, _("Rwanda"), 0xbdf2e6)
 nation:set_ideology(monarchy, "absolute_monarchy")
 
 nation = Nation:new{ ref_name = "bokongo" }
