@@ -23,6 +23,7 @@
 // ----------------------------------------------------------------------------
 
 #include <cstdio>
+#include <optional>
 #include <memory>
 #include "log.hpp"
 
@@ -41,7 +42,7 @@ void Eng3D::Log::log(const std::string_view severity, const std::string_view cat
     if(!debug_show && severity == "DEBUG") return;
 #ifdef E3D_LOG_TO_FILE
     if(!log_fp.has_value())
-        *log_fp = std::unique_ptr<FILE, int (*)(FILE *)>(fopen("log.txt", "a+t"), fclose);
+        log_fp.emplace(std::unique_ptr<FILE, int (*)(FILE *)>(fopen("log.txt", "w+t"), fclose));
     fprintf((*log_fp).get(), "<%s:%s> %s\n", severity.data(), category.data(), msg.data());
 #else
 #   ifndef E3D_TARGET_SWITCH
