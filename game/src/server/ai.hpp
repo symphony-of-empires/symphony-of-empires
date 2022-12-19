@@ -61,25 +61,14 @@ struct AIManager {
 
     /// @brief Reshuffle weights of the AI
     void recalc_weights() {
-        /*
         war_weight = 1.f + 1.f * this->get_rand();
         unit_battle_weight = 1.f + 1.f * this->get_rand();
         unit_exist_weight = 1.f + 1.f * this->get_rand();
         coastal_weight = 1.f + 1.f * this->get_rand();
         reconquer_weight = 1.f + 1.f * this->get_rand();
         erratic = 1.f + 1.f * this->get_rand();
-
         strength_threshold = 1.f * this->get_rand();
         override_threshold = 1.f * this->get_rand();
-        */
-        war_weight = 2.f;
-        unit_battle_weight = 2.f;
-        unit_exist_weight = 2.f;
-        coastal_weight = 2.f;
-        reconquer_weight = 2.f;
-        erratic = 1.f;
-        strength_threshold = 1.5f;
-        override_threshold = 2.f;
     }
 
     /// @brief Recalculate weights iff losing territory
