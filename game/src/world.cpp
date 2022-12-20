@@ -715,6 +715,18 @@ static inline void unit_do_battle_tick(World& world, Unit& unit) {
             Eng3D::Log::debug("game", string_format("New battle on province %s", province.name.c_str()));
         }
     }
+
+    // Assert no duplicate units in battles
+    std::vector<UnitId> unit_ids;
+    for(auto& province : world.provinces)
+        if(province.battle.active)
+            for(const auto unit_id : province.battle.unit_ids)
+                unit_ids.push_back(unit_id);
+    std::sort(unit_ids.begin(), unit_ids.end());
+    std::set<UnitId> unit_ids_2(unit_ids.begin(), unit_ids.end());
+    std::vector<UnitId> diff_ids;
+    std::set_difference(unit_ids.begin(), unit_ids.end(), unit_ids_2.begin(), unit_ids_2.end(), std::back_inserter(diff_ids));
+    assert(diff_ids.empty());
 }
 
 void World::fire_special_event(const std::string_view event_ref_name, const std::string_view nation_ref_name, const std::string_view other_nation_ref_name) {
@@ -823,31 +835,17 @@ void World::do_tick() {
     // Perform all battles of the active wars
     profiler.start("Battles");
     std::vector<UnitId> clear_units;
-#ifndef NDEBUG
-    // Assert no duplicate units in battles
-    std::vector<UnitId> unit_ids;
-    for(auto& province : provinces)
-        if(province.battle.active)
-            for(const auto unit_id : province.battle.unit_ids)
-                unit_ids.push_back(unit_id);
-    std::sort(unit_ids.begin(), unit_ids.end());
-    std::set<UnitId> unit_ids_2(unit_ids.begin(), unit_ids.end());
-    std::vector<UnitId> diff_ids;
-    std::set_difference(unit_ids.begin(), unit_ids.end(), unit_ids_2.begin(), unit_ids_2.end(), std::back_inserter(diff_ids));
-    assert(diff_ids.empty());
-#endif
+
     for(auto& province : provinces) {
         if(province.battle.active) {
             auto& units = this->unit_manager.units;
             const auto attacker_unit_ids = province.battle.get_attacker_unit_ids();
             const auto defender_unit_ids = province.battle.get_defender_unit_ids();
 
-#ifndef NDEBUG
             // Assert that there are NO units on both teams
             std::vector<UnitId> v;
             std::set_intersection(attacker_unit_ids.begin(), attacker_unit_ids.end(), defender_unit_ids.begin(), defender_unit_ids.end(), std::back_inserter(v));
             assert(v.empty());
-#endif
 
             // Once one side has fallen; this battle has ended
             if(defender_unit_ids.empty() || attacker_unit_ids.empty()) {

@@ -54,6 +54,7 @@ BattleWidget::BattleWidget(Map& _map, UI::Widget* _parent)
     this->left_size_label->set_on_each_tick([this](UI::Widget&) {
         if(this->province == nullptr) return;
         const auto& battle = this->province->battle;
+        if(!battle.active) return;
 
         auto unit_size = 0.f;
         const auto attacker_unit_ids = battle.get_attacker_unit_ids();
@@ -71,6 +72,7 @@ BattleWidget::BattleWidget(Map& _map, UI::Widget* _parent)
     this->right_size_label->set_on_each_tick([this](UI::Widget&) {
         if(this->province == nullptr) return;
         const auto& battle = this->province->battle;
+        if(!battle.active) return;
 
         auto unit_size = 0.f;
         const auto defender_unit_ids = battle.get_defender_unit_ids();

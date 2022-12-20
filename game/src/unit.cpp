@@ -143,11 +143,9 @@ void UnitManager::remove_unit(UnitId unit_id) {
     Eng3D::fast_erase(province_units[current_province_id], unit_id);
     units.remove(unit_id);
 
-#ifndef NDEBUG
     // Assert there was no duplication (id remaining after removal is troubling)
     const auto& p = province_units[current_province_id];
     assert(std::find(p.begin(), p.end(), unit_id) == p.end());
-#endif
 }
 
 void UnitManager::move_unit(UnitId unit_id, ProvinceId target_province_id) {
@@ -159,22 +157,19 @@ void UnitManager::move_unit(UnitId unit_id, ProvinceId target_province_id) {
     const auto current_province_id = unit_province[unit_id];
     Eng3D::fast_erase(province_units[current_province_id], unit_id);
 
-#ifndef NDEBUG
     // Assert there was no duplication (id remaining after removal is troubling)
     const auto& p1 = province_units[current_province_id];
     assert(std::find(p1.begin(), p1.end(), unit_id) == p1.end());
     // Assert no duplication
     const auto& p2 = province_units[target_province_id];
     assert(std::find(p2.begin(), p2.end(), unit_id) == p2.end());
-#endif
 
     unit_province[unit_id] = target_province_id;
     province_units[target_province_id].push_back(unit_id);
     if(g_server != nullptr)
         g_server->broadcast(Action::UnitMove::form_packet(units[unit_id], world.provinces[target_province_id]));
     
-#ifndef NDEBUG
-    auto id = ProvinceId(0);
+    ProvinceId id;
     for(const auto& unit_ids : province_units) {
         for(const auto unit_id : unit_ids) {
             const auto& unit = this->units[unit_id];
@@ -182,7 +177,6 @@ void UnitManager::move_unit(UnitId unit_id, ProvinceId target_province_id) {
         }
         id = (ProvinceId)((size_t)id + 1);
     }
-#endif
 
     Eng3D::Log::debug("game", string_format("Moving unit id=%zu in %s->%s", (size_t)unit_id, g_world.provinces[current_province_id].name.c_str(), g_world.provinces[target_province_id].name.c_str()));
 }
