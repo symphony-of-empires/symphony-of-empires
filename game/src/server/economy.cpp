@@ -79,9 +79,6 @@ constexpr auto scale_speed(auto c, auto target) {
 // Updates supply, demand, and set wages for workers
 static void update_factory_production(World& world, Building& building, const BuildingType& building_type, Province& province, float& artisans_amount, float& artisan_payment)
 {
-    // Barracks and so on
-    if(Commodity::is_invalid(building_type.output_id)) return;
-    
     constexpr auto artisan_production_rate = 0.01f;
     auto& output = world.commodities[building_type.output_id];
     auto& output_product = province.products[output];
@@ -112,9 +109,8 @@ static void update_factory_accounting(World& world, Building& building, const Bu
     
     auto& output = world.commodities[building_type.output_id];
     auto& output_product = province.products[output];
-    if(!building.can_do_output(province, building_type.input_ids) || building.level == 0.f) { // Artisans take place of factory
-        return; 
-    }
+    if(!building.can_do_output(province, building_type.input_ids) || building.level == 0.f) // Artisans take place of factory
+        return;
 
     // TODO add output modifier
     // Calculate outputs
@@ -224,10 +220,10 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         auto& pop_need = pop_needs[i];
         auto& pop = province.pops[i];
         const auto& needs_amounts = world.pop_types[pop.type_id].basic_needs_amount;
-
-        if(pop.size == 0.f) return;
-        pop_need.budget += pop.size * 1.f;
-        if(pop_need.budget == 0.f) return;
+        
+        if(pop.size == 0.f || pop_need.budget == 0.f) return;
+        if(world.pop_types[i].group != PopGroup::LABORER)
+            pop_need.budget += pop.size * 1.f;
 
         const auto percentage_to_spend = 0.8f;
         const auto budget_alloc = pop_need.budget * percentage_to_spend;
@@ -388,6 +384,14 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         // Bureaucracy points
         auto bureaucracy_eff = (province.total_pops() * province.average_militancy()) / bureaucracy_pts;
 
+        auto& new_workers = buildings_new_worker[province_id];
+        new_workers.assign(world.building_types.size(), 0.f);
+        update_factories_employment(world, province, new_workers);
+        for(auto& building_type : world.building_types) {
+            auto& building = province.buildings[building_type];
+            update_factory_accounting(world, building, building_type, province, laborers_payment, state_payment, private_payment);
+        }
+
         for(size_t i = 0; i < province.pops.size(); i++) {
             const auto& pop = province.pops[i];
             if(world.pop_types[pop.type_id].group == PopGroup::LABORER)
@@ -399,15 +403,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             else if(world.pop_types[pop.type_id].group == PopGroup::BUREAUCRAT)
                 new_needs[i].budget += (pop.size / bureaucrats_amount) * bureaucrats_payment;
         }
-
-        auto& new_workers = buildings_new_worker[province_id];
-        new_workers.assign(world.building_types.size(), 0.f);
-        update_factories_employment(world, province, new_workers);
         update_pop_needs(world, province, new_needs, state_payment);
-        for(auto& building_type : world.building_types) {
-            auto& building = province.buildings[building_type];
-            update_factory_accounting(world, building, building_type, province, laborers_payment, state_payment, private_payment);
-        }
 
         paid_taxes.local().resize(world.nations.size());
         paid_taxes.local()[province.controller_id] = state_payment;

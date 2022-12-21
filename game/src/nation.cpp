@@ -180,21 +180,23 @@ void Nation::control_province(Province& province) {
     // Update the province changed
     world.province_manager.mark_province_control_changed(province);
 
-    // Cancel the unit construction projects
-    province.cancel_construction_project();
-    if(province.controller_id != province.owner_id)
-        for(auto& pop : province.pops)
-            pop.militancy += 0.1f;
-    
-    // All factories lose their money and scale down to 0
-    for(auto& building : province.buildings) {
-        building.budget = 0.f;
-        building.production_scale = 0.f;
-    }
+    if (province.owner_id != this->get_id()) {
+        // Cancel the unit construction projects
+        province.cancel_construction_project();
+        if(province.controller_id != province.owner_id)
+            for(auto& pop : province.pops)
+                pop.militancy += 0.1f;
+        
+        // All factories lose their money and scale down to 0
+        for(auto& building : province.buildings) {
+            building.budget = 0.f;
+            building.production_scale = 0.f;
+        }
 
-    // And all pops lose their money too
-    for(auto& pop : province.pops)
-        pop.budget = 0.f;
+        // And all pops lose their money too
+        for(auto& pop : province.pops)
+            pop.budget = 0.f;
+    }
 }
 
 const Nation::ClientHint& Nation::get_client_hint() const {

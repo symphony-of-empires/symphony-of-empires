@@ -54,8 +54,10 @@ struct Eng3D::Deser::Serializer<Commodity> {
 struct Product : Entity<ProductId> {
     static constexpr float get_price_delta(float supply, float demand) {
         constexpr auto price_elasticity = 0.01f;
-        if(supply == 0.f || demand == 0.f)
-            return price_elasticity * price_elasticity * (demand - supply);
+        if(supply == 0.f || demand == 0.f) {
+            const auto natural_trend = price_elasticity * price_elasticity * (demand - supply);
+            return natural_trend != 0.f ? natural_trend : -price_elasticity;
+        }
         const auto sd_ratio = supply / demand;
         return price_elasticity * (1.f - sd_ratio);
     }
