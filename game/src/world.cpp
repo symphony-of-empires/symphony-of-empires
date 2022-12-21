@@ -723,10 +723,7 @@ static inline void unit_do_battle_tick(World& world, Unit& unit) {
             for(const auto unit_id : province.battle.unit_ids)
                 unit_ids.push_back(unit_id);
     std::sort(unit_ids.begin(), unit_ids.end());
-    std::vector<UnitId> unit_ids_2(unit_ids.begin(), unit_ids.end());
-    std::vector<UnitId> diff_ids;
-    std::set_difference(unit_ids.begin(), unit_ids.end(), unit_ids_2.begin(), unit_ids_2.end(), std::back_inserter(diff_ids));
-    assert(diff_ids.empty());
+    assert(std::adjacent_find(unit_ids.begin(), unit_ids.end()) == unit_ids.end());
 }
 
 void World::fire_special_event(const std::string_view event_ref_name, const std::string_view nation_ref_name, const std::string_view other_nation_ref_name) {
