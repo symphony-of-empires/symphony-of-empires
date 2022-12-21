@@ -56,6 +56,13 @@ public:
         return total;
     }
 
+    float average_militancy() const {
+        auto total = 0.f;
+        for(const auto& pop : pops)
+            total += pop.militancy;
+        return total / pops.size();
+    }
+
     float get_attractiveness(const Pop& pop) const;
     void add_building(const BuildingType& building_type);
     void cancel_construction_project();

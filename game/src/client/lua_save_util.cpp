@@ -87,7 +87,7 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
     for(const auto& building_type : gs.world->building_types) {
         const auto& building = province.buildings[building_type];
         if(building.level)
-            fprintf(fp, "province:update_building(bt_%s,%i)\n", building_type.ref_name.c_str(), (int)building.level);
+            fprintf(fp, "province:create_building(bt_%s,%i)\n", building_type.ref_name.c_str(), (int)building.level);
     }
 
     // POPs
@@ -176,6 +176,7 @@ void LUA_util::save(GameState& gs, const std::string& savefile_path) {
         for(const auto& pop_type : gs.world->pop_types) {
             std::string extra_arg = "";
             switch(pop_type.group) {
+            case PopGroup::BUREAUCRAT: extra_arg = ",is_bureaucrat=true"; break;
             case PopGroup::BURGEOISE: extra_arg = ",is_burgeoise=true"; break;
             case PopGroup::LABORER: extra_arg = ",is_laborer=true"; break;
             case PopGroup::SLAVE: extra_arg = ",is_slave=true"; break;

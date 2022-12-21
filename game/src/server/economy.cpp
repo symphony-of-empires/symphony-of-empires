@@ -229,8 +229,6 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         pop_need.budget += pop.size * 1.f;
         if(pop_need.budget == 0.f) return;
 
-        pop_need.life_needs_met = 1;
-
         const auto percentage_to_spend = 0.8f;
         const auto budget_alloc = pop_need.budget * percentage_to_spend;
         pop_need.budget -= budget_alloc;
@@ -359,8 +357,9 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         auto& new_needs = pops_new_needs[province_id];
         new_needs.assign(province.pops.size(), PopNeed{});
 
-        auto laborers_payment = 0.f, artisans_payment = 0.f, state_payment = 0.f, private_payment = 0.f;
-        auto artisans_amount = 0.f, burgeoise_amount = 0.f, laborers_amount = 0.f;
+        auto laborers_payment = 0.f, artisans_payment = 0.f, state_payment = 0.f, private_payment = 0.f, bureaucrats_payment = 0.f;
+        auto artisans_amount = 0.f, burgeoise_amount = 0.f, laborers_amount = 0.f, bureaucrats_amount = 0.f;
+        auto bureaucracy_pts = 0.f;
         for(auto& pop : province.pops) {
             if(world.pop_types[pop.type_id].group == PopGroup::ARTISAN)
                 artisans_amount += pop.size;
@@ -368,6 +367,10 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                 laborers_amount += pop.size;
             else if(world.pop_types[pop.type_id].group == PopGroup::BURGEOISE)
                 burgeoise_amount += pop.size;
+            else if(world.pop_types[pop.type_id].group == PopGroup::BUREAUCRAT) {
+                bureaucrats_amount += pop.size;
+                bureaucracy_pts += pop.size * (1.f - pop.militancy) * pop.literacy;
+            }
         }
 
         for(auto& building_type : world.building_types) {
@@ -379,8 +382,11 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         for(size_t i = 0; i < province.pops.size(); i++) {
             const auto& pop = province.pops[i];
             new_needs[i].budget = pop.budget;
-            // new_needs[i].life_needs_met = glm::clamp(pop.life_needs_met - 0.5f, -1.f, 1.f);
+            new_needs[i].life_needs_met = glm::clamp(pop.life_needs_met - 0.1f, -1.f, 1.f);
         }
+
+        // Bureaucracy points
+        auto bureaucracy_eff = (province.total_pops() * province.average_militancy()) / bureaucracy_pts;
 
         for(size_t i = 0; i < province.pops.size(); i++) {
             const auto& pop = province.pops[i];
@@ -390,6 +396,8 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                 new_needs[i].budget += (pop.size / artisans_amount) * artisans_payment;
             else if(world.pop_types[pop.type_id].group == PopGroup::BURGEOISE)
                 new_needs[i].budget += (pop.size / burgeoise_amount) * private_payment;
+            else if(world.pop_types[pop.type_id].group == PopGroup::BUREAUCRAT)
+                new_needs[i].budget += (pop.size / bureaucrats_amount) * bureaucrats_payment;
         }
 
         auto& new_workers = buildings_new_worker[province_id];
@@ -405,7 +413,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         paid_taxes.local()[province.controller_id] = state_payment;
         for(auto& building : province.buildings) {
             // There must not be conflict ongoing otherwise they wont be able to build shit
-            if(province.controller_id == province.owner_id && building.can_build_unit()) {
+            if(province.controller_id == province.owner_id && building.can_build_unit() && building.is_working_on_unit()) {
                 auto& pop = province.get_soldier_pop();
                 const auto final_size = glm::min(pop.size, 100.f);
                 province_new_units.local().emplace_back(building.working_unit_type_id, final_size, province, pop.type_id);
@@ -435,7 +443,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             pop.life_needs_met = new_needs[i].life_needs_met;
             const auto growth = glm::clamp(pop.size * pop.life_needs_met * 0.1f, -100.f, 100.f);
             pop.size = glm::max(pop.size + growth, 1.f);
-            pop.militancy += 0.01f * -pop.life_needs_met;
+            pop.militancy = glm::clamp(pop.militancy + 0.01f * -pop.life_needs_met, 0.f, 1.f);
         }
         const auto& new_workers = buildings_new_worker[province_id];
         for(size_t i = 0; i < province.buildings.size(); i++)

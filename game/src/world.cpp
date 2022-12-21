@@ -835,7 +835,6 @@ void World::do_tick() {
     // Perform all battles of the active wars
     profiler.start("Battles");
     std::vector<UnitId> clear_units;
-
     for(auto& province : provinces) {
         if(province.battle.active) {
             auto& units = this->unit_manager.units;
@@ -907,6 +906,51 @@ void World::do_tick() {
         this->unit_manager.remove_unit(unit_id);
     }
     profiler.stop("Cleaning");
+
+    profiler.start("Revolts");
+    for(auto& province : provinces) {
+        if(Nation::is_invalid(province.owner_id)) continue;
+        auto& owner_nation = nations[province.owner_id];
+        const auto militancy = province.average_militancy();
+        if (militancy > 0.5f) {
+            bool has_found_revolt_nation = false;
+            for(const auto nuclei_id : province.nuclei) {
+                auto& revolt_nation = nations[nuclei_id];
+                if(revolt_nation == owner_nation) continue;
+                if(revolt_nation.owned_provinces.empty()) {
+                    revolt_nation.declare_war(owner_nation);
+                    revolt_nation.control_province(province);
+                    const auto& unit_ids = unit_manager.get_province_units(province);
+                    for(const auto unit_id : unit_ids) {
+                        auto& unit = unit_manager.units[unit_id];
+                        if(unit.owner_id == province.controller_id)
+                            unit.set_owner(revolt_nation);
+                    }
+                    has_found_revolt_nation = true;
+                    break;
+                }
+            }
+
+            if (!has_found_revolt_nation) {
+                for(auto& revolt_nation : nations) {
+                    if(revolt_nation == owner_nation) continue;
+                    if(revolt_nation.owned_provinces.empty()) {
+                        revolt_nation.declare_war(owner_nation);
+                        revolt_nation.control_province(province);
+                        const auto& unit_ids = unit_manager.get_province_units(province);
+                        for(const auto unit_id : unit_ids) {
+                            auto& unit = unit_manager.units[unit_id];
+                            if(unit.owner_id == province.controller_id)
+                                unit.set_owner(revolt_nation);
+                        }
+                        has_found_revolt_nation = true;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    profiler.stop("Revolts");
 
     profiler.start("Events");
     LuaAPI::check_events(this->lua.state);

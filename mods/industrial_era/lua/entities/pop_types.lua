@@ -68,6 +68,7 @@ bureaucrat = PopType:new{
     name = _("Bureaucrat"),
     ref_name = "bureaucrat",
     social_value = 1.0,
+    is_bureaucrat = true,
     basic_needs = standard_basic_needs,
     luxury_needs = standard_luxury_needs
 }

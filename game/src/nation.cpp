@@ -49,6 +49,7 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     std::vector<NationId> attacker_ids;
     for(auto& other_nation : world.nations) {
         if(&other_nation == this || &other_nation == &nation) continue;
+        
         const auto& relation = world.get_relation(other_nation.get_id(), *this);
         if(relation.is_allied() || other_nation.is_puppeted_by(*this))
             attacker_ids.push_back(other_nation);
@@ -62,31 +63,21 @@ void Nation::declare_war(Nation& nation, std::vector<TreatyClause::BaseClause*> 
     std::vector<NationId> defender_ids;
     for(auto& other_nation : world.nations) {
         if(&other_nation == this || &other_nation == &nation) continue;
+
         auto it = std::find(attacker_ids.begin(), attacker_ids.end(), other_nation);
         if(it != attacker_ids.end()) continue;
+
         const auto& relation = world.get_relation(other_nation.get_id(), nation);
         if(relation.is_allied() || other_nation.is_puppeted_by(nation))
             defender_ids.push_back(other_nation);
     }
     defender_ids.push_back(nation);
 
-    /// @todo We have to remove these since some are duplicated
-    /// at the best case we should probably just put them on the attacking side?
-    /// or also we could just make it an event where everyone is involved yknow
-    for(auto attacker : attacker_ids) {
-        for(size_t i = 0; i < defender_ids.size(); i++) {
-            if(attacker == defender_ids[i]) {
-                defender_ids.erase(defender_ids.begin() + i);
-                i--;
-                continue;
-            }
-        }
-    }
-
     // Attackers are at war with the defender_ids
     for(auto attacker_id : attacker_ids) {
         for(auto defender_id : defender_ids) {
             assert(attacker_id != defender_id);
+
             auto& attacker = world.nations[attacker_id];
             auto& defender = world.nations[defender_id];
             if(attacker.puppet_master_id == defender_id)

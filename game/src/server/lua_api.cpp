@@ -753,7 +753,9 @@ int LuaAPI::add_pop_type(lua_State* L) {
     bool is_laborer = lua_toboolean(L, 6);
     bool is_soldier = lua_toboolean(L, 7);
     bool is_artisan = lua_toboolean(L, 8);
+    bool is_bureaucrat = lua_toboolean(L, 9);
     if(is_burgeoise) pop_type.group = PopGroup::BURGEOISE;
+    else if(is_bureaucrat) pop_type.group = PopGroup::BUREAUCRAT;
     else if(is_slave) pop_type.group = PopGroup::SLAVE;
     else if(is_laborer) pop_type.group = PopGroup::LABORER;
     else if(is_soldier) pop_type.group = PopGroup::SOLDIER;
@@ -765,7 +767,7 @@ int LuaAPI::add_pop_type(lua_State* L) {
     pop_type.luxury_needs_deminishing_factor.resize(g_world.commodities.size(), 0.f);
 
     // Lua next = pops top and then pushes key & value in table
-    lua_pushvalue(L, 9);
+    lua_pushvalue(L, 10);
     lua_pushnil(L);
     while(lua_next(L, -2)) {
         lua_pushnil(L);
@@ -778,7 +780,7 @@ int LuaAPI::add_pop_type(lua_State* L) {
     }
     lua_pop(L, 1);
 
-    lua_pushvalue(L, 10);
+    lua_pushvalue(L, 11);
     lua_pushnil(L);
     while(lua_next(L, -2)) {
         lua_pushnil(L);
@@ -806,6 +808,7 @@ int LuaAPI::get_pop_type(lua_State* L) {
     lua_pushstring(L, pop_type.name.c_str());
     lua_pushnumber(L, pop_type.social_value);
     lua_pushboolean(L, pop_type.group == PopGroup::BURGEOISE);
+    lua_pushboolean(L, pop_type.group == PopGroup::BUREAUCRAT);
     lua_pushboolean(L, pop_type.group == PopGroup::SLAVE);
     lua_pushboolean(L, pop_type.group == PopGroup::LABORER);
     lua_pushboolean(L, pop_type.group == PopGroup::SOLDIER);
@@ -837,7 +840,7 @@ int LuaAPI::get_pop_type(lua_State* L) {
             lua_settable(L, -3);
         }
     }
-    return 10;
+    return 11;
 }
 
 int LuaAPI::get_pop_type_by_id(lua_State* L) {
@@ -846,6 +849,7 @@ int LuaAPI::get_pop_type_by_id(lua_State* L) {
     lua_pushstring(L, pop_type.name.c_str());
     lua_pushnumber(L, pop_type.social_value);
     lua_pushboolean(L, pop_type.group == PopGroup::BURGEOISE);
+    lua_pushboolean(L, pop_type.group == PopGroup::BUREAUCRAT);
     lua_pushboolean(L, pop_type.group == PopGroup::SLAVE);
     lua_pushboolean(L, pop_type.group == PopGroup::LABORER);
     lua_pushboolean(L, pop_type.group == PopGroup::SOLDIER);
@@ -876,7 +880,7 @@ int LuaAPI::get_pop_type_by_id(lua_State* L) {
             lua_settable(L, -3);
         }
     }
-    return 10;
+    return 11;
 }
 
 int LuaAPI::add_language(lua_State* L) {

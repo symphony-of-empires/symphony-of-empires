@@ -236,6 +236,7 @@ enum class PopGroup : uint8_t {
     LABORER,
     SOLDIER,
     ARTISAN,
+    BUREAUCRAT,
 };
 template<>
 struct Eng3D::Deser::Serializer<PopGroup> : Eng3D::Deser::SerializerMemcpy<PopGroup> {};

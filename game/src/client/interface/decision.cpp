@@ -83,7 +83,8 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
         decide_btn.set_text(decision.name);
         decide_btn.set_tooltip(decision.effects);
         decide_btn.set_on_click([this, &decision](UI::Widget&) {
-            this->gs.client->send(Action::NationTakeDecision::form_packet(this->event, decision));
+            if(this->gs.client)
+                this->gs.client->send(Action::NationTakeDecision::form_packet(this->event, decision));
             this->kill();
         });
 
@@ -91,7 +92,8 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
         remind_ibtn.set_tooltip(translate("Automatically take this descision"));
         remind_ibtn.set_on_click([this, &decision](UI::Widget&) {
             this->gs.decision_autodo.push_back(decision.ref_name);
-            this->gs.client->send(Action::NationTakeDecision::form_packet(this->event, decision));
+            if(this->gs.client)
+                this->gs.client->send(Action::NationTakeDecision::form_packet(this->event, decision));
             this->kill();
         });
 

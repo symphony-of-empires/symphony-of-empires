@@ -184,6 +184,41 @@ Minimap::Minimap(GameState& _gs, int _x, int _y, UI::Origin _origin)
     });
     commodity_price_ibtn.set_tooltip("Commodity");
 
+    auto& militancy_ibtn = flex_column2.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
+    militancy_ibtn.set_on_click([this](UI::Widget&) {
+        this->gs.map->set_selection([](const World&, Map& map, const Province& selected_province) {
+            map.set_map_mode(([](ProvinceId id) {
+                return [id](const World& world) {
+                    const auto& province = world.provinces[id];
+                    const auto& nation = world.nations[province.owner_id];
+                    const auto& ai = ai_man[nation];
+
+                    auto max_amount = 0.f;
+                    for(const auto& province : world.provinces)
+                        max_amount = glm::max(ai.potential_risk[province], max_amount);
+
+                    // Mix each color depending of how many live there compared to max_amount
+                    auto min = Eng3D::Color::rgb8(128, 128, 255);
+                    auto max = Eng3D::Color::rgb8(255, 64, 64);
+                    std::vector<ProvinceColor> province_color;
+                    for(const auto& province : world.provinces) {
+                        auto ratio = province.average_militancy();
+                        province_color.emplace_back(province.get_id(), Eng3D::Color::lerp(min, max, ratio));
+                    }
+                    return province_color;
+                };
+            })(selected_province),
+            ([](ProvinceId province_id) {
+                return [province_id](const World& world, const ProvinceId id) -> std::string {
+                    const auto& province = world.provinces[id];
+                    return translate_format("Average militancy: %.2f", province.average_militancy());
+                };
+            })(selected_province));
+        });
+        set_mapmode_options(nullptr);
+    });
+    militancy_ibtn.set_tooltip("Militancy");
+
     auto& debug_ibtn = flex_column2.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
     debug_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection([](const World&, Map& map, const Province& selected_province) {

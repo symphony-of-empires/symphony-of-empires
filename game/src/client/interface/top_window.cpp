@@ -84,7 +84,6 @@ TopWindow::TopWindow(GameState& _gs)
     population_img.set_tooltip("Population");
     auto& population_lab = population_grp.make_widget< UI::Label>(0, 0, " ");
     population_lab.set_on_each_tick([this](UI::Widget& w) {
-        assert(!gs.curr_nation->owned_provinces.empty());
         const auto total = std::accumulate(gs.curr_nation->owned_provinces.cbegin(), gs.curr_nation->owned_provinces.cend(), 0.f, [this](auto&& a, const auto province_id) -> float {
             return a + gs.world->provinces[province_id].total_pops();
         });
