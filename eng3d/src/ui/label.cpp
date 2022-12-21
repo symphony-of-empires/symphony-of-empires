@@ -52,7 +52,8 @@ UI::Label::~Label() {
 void UI::Label::set_text(const std::string& _text) {
     UI::Widget::set_text(_text);
     if(this->text_texture.get() != nullptr) {
-        this->width = this->text_texture->width + text_offset_x;
-        this->height = this->text_texture->height + 8;
+        this->text_offset_x = this->text_offset_y = 0;
+        this->width = this->text_texture->width;
+        this->height = this->text_texture->height;
     }
 }

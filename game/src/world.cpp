@@ -723,7 +723,7 @@ static inline void unit_do_battle_tick(World& world, Unit& unit) {
             for(const auto unit_id : province.battle.unit_ids)
                 unit_ids.push_back(unit_id);
     std::sort(unit_ids.begin(), unit_ids.end());
-    std::set<UnitId> unit_ids_2(unit_ids.begin(), unit_ids.end());
+    std::vector<UnitId> unit_ids_2(unit_ids.begin(), unit_ids.end());
     std::vector<UnitId> diff_ids;
     std::set_difference(unit_ids.begin(), unit_ids.end(), unit_ids_2.begin(), unit_ids_2.end(), std::back_inserter(diff_ids));
     assert(diff_ids.empty());
