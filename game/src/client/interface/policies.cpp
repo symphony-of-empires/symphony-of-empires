@@ -261,7 +261,12 @@ PoliciesView::PoliciesView(GameState& _gs)
         Eng3D::Deser::serialize(ar, this->new_policy); // PoliciesObj
         Eng3D::Deser::serialize(ar, this->commodity_production); // VectorFloatObj
         packet.data(ar.get_buffer(), ar.size());
-        this->gs.client->send(packet);
+        if(this->gs.client)
+            this->gs.client->send(packet);
+        else {
+            this->gs.curr_nation->set_policy(this->new_policy);
+            this->gs.curr_nation->commodity_production = this->commodity_production;
+        }
         this->gs.ui_ctx.prompt("Policy", "New policy enacted!");
     });
 }

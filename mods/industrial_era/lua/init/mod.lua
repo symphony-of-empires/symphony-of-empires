@@ -41,12 +41,12 @@ require('entities/events/yongle_encyclopedia')
 -- Puppets
 Nation:get("france"):make_puppet(Nation:get("piedmont_sardinia"))
 
-Nation:get("turkey"):make_puppet(Nation:get("tunis"))
-Nation:get("turkey"):make_puppet(Nation:get("algiers"))
-Nation:get("turkey"):make_puppet(Nation:get("egypt"))
-Nation:get("turkey"):make_puppet(Nation:get("tripolitania"))
-Nation:get("turkey"):make_puppet(Nation:get("wallachia"))
-Nation:get("turkey"):make_puppet(Nation:get("moldavia"))
+Nation:get("ottoman"):make_puppet(Nation:get("tunis"))
+Nation:get("ottoman"):make_puppet(Nation:get("algiers"))
+Nation:get("ottoman"):make_puppet(Nation:get("egypt"))
+Nation:get("ottoman"):make_puppet(Nation:get("tripolitania"))
+Nation:get("ottoman"):make_puppet(Nation:get("wallachia"))
+Nation:get("ottoman"):make_puppet(Nation:get("moldavia"))
 
 Nation:get("netherlands"):make_puppet(Nation:get("luxembourg"))
 
@@ -106,7 +106,7 @@ Nation:get("russia"):make_puppet(Nation:get("mingrelia"))
 Nation:get("denmark"):make_puppet(Nation:get("holstein"))
 
 -- Ongoing wars
-Nation:get("russia"):declare_no_cb(Nation:get("turkey")) -- Russo-Turkish war
+Nation:get("russia"):declare_no_cb(Nation:get("ottoman")) -- Russo-Turkish war
 Nation:get("russia"):declare_no_cb(Nation:get("circassia")) -- Russo-Circassian war
 Nation:get("russia"):declare_no_cb(Nation:get("avar"))
 Nation:get("united_kingdom"):declare_no_cb(Nation:get("burma")) -- Anglo-Burmesse war (1825)
