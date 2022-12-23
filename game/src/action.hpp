@@ -26,12 +26,14 @@
 
 #include <vector>
 #include "eng3d/network.hpp"
+#include "eng3d/freelist.hpp"
 #include "objects.hpp"
 
 enum ActionType {
     BAD, // Error
     WORLD_TICK,
     SELECT_NATION,
+    SET_USERNAME,
     CONNECT, // Chat
     DISCONNECT,
     CHAT_MESSAGE,
@@ -110,7 +112,7 @@ namespace Action {
     };
 
     struct UnitUpdate {
-        static Eng3D::Networking::Packet form_packet(const std::vector<Unit>& units);
+        static Eng3D::Networking::Packet form_packet(const Eng3D::Freelist<Unit>& units);
     };
 
     struct UnitRemove {

@@ -43,6 +43,7 @@ struct AIManager {
     float strength_threshold = 0.5f; // How much our enemy has to be in terms of strength
                                      // for us to revaluate our diplomatic stances
     float override_threshold = 1.f; // Threshold for overriding orders of units
+    float conqueror_weight = 1.f; // How much this nation is going to conquer others for no reason
     std::vector<float> nations_risk_factor;
     std::vector<float> potential_risk;
     std::vector<ProvinceId> eval_provinces;
@@ -69,6 +70,7 @@ struct AIManager {
         erratic = 1.f + 1.f * this->get_rand();
         strength_threshold = 1.f * this->get_rand();
         override_threshold = 1.f * this->get_rand();
+        conqueror_weight = 1.f * this->get_rand();
     }
 
     /// @brief Recalculate weights iff losing territory

@@ -57,12 +57,12 @@ LobbySelectView::LobbySelectView(GameState& _gs)
     this->curr_country_btn->set_on_click([this](UI::Widget&) {
         if(this->gs.curr_nation != nullptr) {
             this->gs.ui_ctx.clear();
-            if(this->gs.host_mode && !this->gs.singleplayer) {
-                this->gs.server = std::make_unique<Server>(gs, 1836);
-                this->gs.client = std::make_unique<Client>(gs, "127.0.0.1", 1836);
-                this->gs.client->username = this->gs.editor ? "Editor" : "Guest";
-                this->gs.client->username += "-";
-                this->gs.client->username += this->gs.host_mode ? "Host" : "Player";
+            if(!this->gs.singleplayer) {
+                if(this->gs.host_mode) {
+                    this->gs.server = std::make_unique<Server>(gs, 1836);
+                    this->gs.client = std::make_unique<Client>(gs, "127.0.0.1", 1836);
+                    this->gs.client->username = "Host";
+                }
             }
             this->gs.in_game = true;
             this->gs.play_nation();

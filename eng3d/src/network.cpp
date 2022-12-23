@@ -47,7 +47,7 @@
 #	include <poll.h>
 #   include <signal.h>
 #   include <fcntl.h>
-#define NETWORK_FLAG MSG_DONTWAIT
+#define NETWORK_FLAG 0/*MSG_DONTWAIT*/
 #elif defined E3D_TARGET_WINDOWS
 #	define _WINSOCK_DEPRECATED_NO_WARNINGS 1
 #   ifndef WINSOCK2_IMPORTED
@@ -159,18 +159,20 @@ void Eng3D::Networking::SocketStream::set_blocking(bool blocking) {
 // Packet
 //
 bool Eng3D::Networking::Packet::send() {
+    assert(n_data > 0);
+
     const uint16_t net_code = htons(static_cast<uint16_t>(code));
     if(!stream.send(&net_code, sizeof(net_code), pred))
         return false;
+    
     const uint16_t net_size = htons(n_data);
     if(!stream.send(&net_size, sizeof(net_size), pred))
         return false;
-
-    stream.send(buffer.data(), n_data, pred);
-    if(!n_data)
+    
+    if(!stream.send(buffer.data(), n_data, pred))
         return false;
 
-    const uint16_t eof_marker = htons(0xE0F);
+    const uint16_t eof_marker = htons(0xFE0F);
     if(!stream.send(&eof_marker, sizeof(eof_marker), pred))
         return false;
     return true;
@@ -180,12 +182,12 @@ bool Eng3D::Networking::Packet::recv() {
     uint16_t net_code;
     if(!stream.recv(&net_code, sizeof(net_code), pred))
         return false;
-    net_code  = ntohs(net_code);
-    code = static_cast<PacketCode>(net_code);
+    code = static_cast<PacketCode>(ntohs(net_code));
+
     uint16_t net_size;
     if(!stream.recv(&net_size, sizeof(net_size), pred))
         return false;
-    n_data = (size_t)ntohs(net_size);
+    n_data = static_cast<size_t>(ntohs(net_size));
     if(!n_data)
         return false;
 
@@ -194,8 +196,10 @@ bool Eng3D::Networking::Packet::recv() {
         return false;
 
     uint16_t eof_marker;
-    stream.recv(&eof_marker, sizeof(eof_marker), pred);
-    if(ntohs(eof_marker) != 0xE0F)
+    if(!stream.recv(&eof_marker, sizeof(eof_marker), pred))
+        return false;
+    assert(ntohs(eof_marker) == 0xFE0F);
+    if(ntohs(eof_marker) != 0xFE0F)
         return false;
     return true;
 }
@@ -425,16 +429,14 @@ void Eng3D::Networking::Client::do_netloop(std::function<bool()> cond, std::func
         // Conditional of above statements
         // When we are on host_mode we discard all potential packets sent by the server
         // (because our data is already synchronized since WE ARE the server)
-        while(stream.has_pending() && cond()) try { // Obtain the action from the server
-            if(!packet.recv())
-                continue;
-            Eng3D::Deser::Archive ar{};
-            ar.set_buffer(packet.data(), packet.size());
-            ar.rewind();
-            Eng3D::Log::debug("client", translate_format("Receiving package of %zuB", packet.size()));
-            handler(packet, ar);
-        } catch(Eng3D::Networking::SocketException& e) {
-            // Pass
+        while(stream.has_pending() && cond()) { // Obtain the action from the server
+            if(packet.recv()) {
+                Eng3D::Deser::Archive ar{};
+                ar.set_buffer(packet.data(), packet.size());
+                ar.rewind();
+                Eng3D::Log::debug("client", translate_format("Receiving package of %zuB", packet.size()));
+                handler(packet, ar);
+            }
         }
 
         // Client will also flush it's queue to the server
@@ -447,6 +449,8 @@ void Eng3D::Networking::Client::do_netloop(std::function<bool()> cond, std::func
                 continue;
         }
     }
+} catch(Eng3D::Networking::SocketException& e) {
+    Eng3D::Log::error("client", translate_format("Exception: %s", e.what()));
 } catch(Eng3D::Networking::Client::Exception& e) {
     Eng3D::Log::error("client", translate_format("Exception: %s", e.what()));
 }

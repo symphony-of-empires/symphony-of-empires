@@ -63,7 +63,7 @@ Interface::MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
                              "192.x.x.x: LAN IP range");
 
     username_inp = new UI::Input(0, 24, 512, 24, this);
-    username_inp->set_buffer("Player");
+    username_inp->set_buffer("PlayerUsername");
     username_inp->set_tooltip("Your publicly visible username");
 
     conn_btn = new UI::Button(0, 48, 128, 24, this);

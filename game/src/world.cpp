@@ -728,19 +728,19 @@ static inline void unit_do_battle_tick(World& world, Unit& unit) {
 
 void World::fire_special_event(const std::string_view event_ref_name, const std::string_view nation_ref_name, const std::string_view other_nation_ref_name) {
     auto event_it = std::find_if(this->events.begin(), this->events.end(), [&](const auto& e) {
-        return e.ref_name == event_ref_name;
+        return e.ref_name.get_string() == event_ref_name;
     });
     if(event_it == this->events.end())
         CXX_THROW(std::runtime_error, translate_format("Can't find special event %s", event_ref_name.data()));
 
     auto nation_it = std::find_if(this->nations.begin(), this->nations.end(), [&](const auto& e) {
-        return e.ref_name == nation_ref_name;
+        return e.ref_name.get_string() == nation_ref_name;
     });
     if(nation_it == this->nations.end())
         CXX_THROW(std::runtime_error, translate_format("Can't find the first nation %s for firing special event %s", nation_ref_name.data(), event_ref_name.data()));
 
     auto other_nation_it = std::find_if(this->nations.begin(), this->nations.end(), [&](const auto& e) {
-        return e.ref_name == other_nation_ref_name;
+        return e.ref_name.get_string() == other_nation_ref_name;
     });
     if(other_nation_it == this->nations.end())
         CXX_THROW(std::runtime_error, translate_format("Can't find the second nation %s for firing special event %s", nation_ref_name.data(), event_ref_name.data()));
@@ -909,7 +909,7 @@ void World::do_tick() {
         if(Nation::is_invalid(province.owner_id)) continue;
         auto& owner_nation = nations[province.owner_id];
         const auto militancy = province.average_militancy();
-        if (militancy > 0.5f) {
+        if (0 && militancy > 0.5f) {
             bool has_found_revolt_nation = false;
             for(const auto nuclei_id : province.nuclei) {
                 auto& revolt_nation = nations[nuclei_id];
@@ -954,9 +954,8 @@ void World::do_tick() {
     profiler.stop("Events");
 
     profiler.start("Send packets");
-    if(g_server != nullptr) {
-    //g_server->broadcast(Action::UnitUpdate::form_packet(this->unit_manager.units.data));
-    }
+    if(g_server != nullptr)
+        g_server->broadcast(Action::UnitUpdate::form_packet(this->unit_manager.units));
     profiler.stop("Send packets");
 
     if(!(time % ticks_per_month))
@@ -969,6 +968,7 @@ void World::do_tick() {
         Eng3D::Networking::Packet packet{};
         Eng3D::Deser::Archive ar{};
         Eng3D::Deser::serialize<ActionType>(ar, ActionType::WORLD_TICK);
+        Eng3D::Deser::serialize(ar, time);
         packet.data(ar.get_buffer(), ar.size());
         g_server->broadcast(packet);
     }

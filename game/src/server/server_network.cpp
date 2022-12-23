@@ -193,14 +193,15 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         Eng3D::Deser::deserialize(ar, nation.ai_controlled);
         client_data.selected_nation = &nation;
         Eng3D::Log::debug("server", Eng3D::translate_format("Nation %s selected by client %s", client_data.selected_nation->ref_name.c_str(), client_data.username.c_str()));
-        
-        Eng3D::Deser::Archive tmp_ar{};
-        Eng3D::Deser::serialize<ActionType>(tmp_ar, ActionType::SELECT_NATION);
-        Eng3D::Deser::serialize(tmp_ar, nation.get_id());
-        Eng3D::Deser::serialize(tmp_ar, client_data.username);
-        auto tmp_packet = packet;
-        tmp_packet.data(ar.get_buffer(), ar.size());
-        this->broadcast(tmp_packet);
+    };
+    action_handlers[ActionType::SET_USERNAME] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
+        NationId nation_id;
+        Eng3D::Deser::deserialize(ar, nation_id);
+        auto& nation = gs.world->nations.at(nation_id);
+        Eng3D::Deser::deserialize(ar, client_data.username);
+        client_data.selected_nation = &nation;
+        // Tell all other clients about this player
+        this->broadcast(packet);
     };
     action_handlers[ActionType::DIPLO_DECLARE_WAR] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
         NationId nation_id;
@@ -257,22 +258,6 @@ void Server::netloop(int id) {
             broadcast(packet);
         }
 
-        { // And update all the clients on the username of everyone
-            for(size_t i = 0; i < this->n_clients; i++) {
-                if(this->clients[i].thread == nullptr && this->clients[i].is_connected) {
-                    if(this->clients_extra_data[i] != nullptr) {
-                        Eng3D::Deser::Archive ar{};
-                        Eng3D::Deser::serialize<ActionType>(ar, ActionType::SELECT_NATION);
-                        const auto nation_id = this->clients_extra_data[i]->get_id();
-                        Eng3D::Deser::serialize(ar, nation_id);
-                        Eng3D::Deser::serialize(ar, this->clients[i].username);
-                        packet.data(ar.get_buffer(), ar.size());
-                        broadcast(packet);
-                    }
-                }
-            }
-        }
-
         {
             Eng3D::Deser::Archive ar{};
             Eng3D::Deser::serialize<ActionType>(ar, ActionType::CHAT_MESSAGE);
@@ -289,7 +274,7 @@ void Server::netloop(int id) {
     }, [this, &client_data](const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
         ActionType action;
         Eng3D::Deser::deserialize(ar, action);
-        if(client_data.selected_nation == nullptr && !(action == ActionType::CHAT_MESSAGE || action == ActionType::SELECT_NATION))
+        if(client_data.selected_nation == nullptr && !(action == ActionType::SET_USERNAME || action == ActionType::CHAT_MESSAGE || action == ActionType::SELECT_NATION))
             CXX_THROW(ServerException, Eng3D::translate_format("Unallowed operation %i without selected nation", static_cast<int>(action)));
         
         const std::scoped_lock lock(g_world.world_mutex);

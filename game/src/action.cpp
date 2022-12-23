@@ -114,11 +114,16 @@ Eng3D::Networking::Packet UnitAdd::form_packet(const Unit& unit) {
     });
 }
 
-Eng3D::Networking::Packet UnitUpdate::form_packet(const std::vector<Unit>& units) {
+Eng3D::Networking::Packet UnitUpdate::form_packet(const Eng3D::Freelist<Unit>& units) {
     return action_handler_sr<ActionType::UNIT_UPDATE>([&](auto& ar) {
-        Eng3D::Deser::serialize<UnitId>(ar, UnitId(units.size()));
-        for(const auto& unit : units)
+        size_t size = 0;
+        units.for_each([&](const auto& unit) {
+            size++;
+        });
+        Eng3D::Deser::serialize<UnitId>(ar, UnitId(size));
+        units.for_each([&](const auto& unit) {
             Eng3D::Deser::serialize(ar, unit);
+        });
     });
 }
 

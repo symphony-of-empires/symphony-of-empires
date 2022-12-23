@@ -87,6 +87,7 @@ void AI::do_tick(World& world) {
 
     // Do the AI turns in parallel
     tbb::combinable<std::vector<std::pair<NationId, NationId>>> alliance_proposals;
+    tbb::combinable<std::vector<std::pair<NationId, NationId>>> war_declarations;
     tbb::parallel_for(tbb::blocked_range(world.nations.begin(), world.nations.end()), [&alliance_proposals, &world](auto& nations_range) {
         for(auto& nation : nations_range) {
             auto& ai = ai_man[nation];
@@ -101,6 +102,7 @@ void AI::do_tick(World& world) {
 
             // Diplomacy
             if(nation.ai_controlled) {
+                // Ally other people also warring the people we're warring
                 auto our_strength = ai.military_strength;
                 auto enemy_strength = 0.f;
                 std::vector<NationId> enemy_ids, ally_ids;
@@ -116,7 +118,6 @@ void AI::do_tick(World& world) {
                         }
                     }
                 }
-                
                 auto advantage = glm::max(our_strength, 1.f) / glm::max(enemy_strength, glm::epsilon<float>());
                 if(advantage < ai.strength_threshold) {
                     // The enemy is bigger; so re-evaluate stances
@@ -134,6 +135,8 @@ void AI::do_tick(World& world) {
                         }
                     }
                 }
+                
+                // E
             }
 
             // War/unit management
@@ -188,7 +191,7 @@ void AI::do_tick(World& world) {
         for(const auto& [nation_id, other_id] : alliance_proposals_range) {
             const auto& nation = world.nations[nation_id];
             const auto& other_nation = world.nations[other_id];
-            //world.fire_special_event("special_alliance", nation.ref_name.c_str(), other_nation.ref_name.c_str());
+            world.fire_special_event("special_alliance", nation.ref_name.c_str(), other_nation.ref_name.c_str());
         }
     });
 }

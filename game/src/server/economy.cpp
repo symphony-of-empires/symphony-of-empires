@@ -241,7 +241,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
             const auto need_factor = needs_amounts[commodity] / total_factor;
             const auto amount = (budget_per_pop * need_factor / province.products[commodity].price);
 
-            pop_need.life_needs_met *= std::pow(amount, need_factor);
+            pop_need.life_needs_met += amount * need_factor;
             // const auto payment = province.products[commodity].buy(amount);
             goods_payment[commodity] += amount * province.products[commodity].price;
             province.products[commodity].demand += amount * pop.size;

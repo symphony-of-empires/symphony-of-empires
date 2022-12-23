@@ -177,6 +177,11 @@ void Client::netloop() {
                 // Give up the world mutex for now
                 gs.update_tick = true;
                 gs.world->time++;
+
+                decltype(gs.world->time) new_time;
+                Eng3D::Deser::deserialize(ar, new_time);
+                if(gs.world->time != new_time)
+                    gs.ui_ctx.prompt("Network", "Desynchronized from server, oops!");
             } break;
             case ActionType::PROVINCE_COLONIZE: {
                 ProvinceId province_id;
@@ -184,7 +189,7 @@ void Client::netloop() {
                 auto& province = gs.world->provinces.at(province_id);
                 Eng3D::Deser::deserialize(ar, province);
             } break;
-            case ActionType::SELECT_NATION: {
+            case ActionType::SET_USERNAME: {
                 NationId nation_id;
                 Eng3D::Deser::deserialize(ar, nation_id);
                 auto& nation = gs.world->nations.at(nation_id);
