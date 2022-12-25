@@ -24,14 +24,6 @@
 
 #include <algorithm>
 #include <cstdio>
-#ifdef E3D_TARGET_UNIX
-#	include <sys/types.h>
-#else
-#if defined _MSC_VER
-#	include <BaseTsd.h>
-typedef SSIZE_T ssize_t;
-#endif
-#endif
 #include <cstddef>
 #include <tbb/blocked_range.h>
 #include <tbb/concurrent_vector.h>
@@ -45,21 +37,6 @@ typedef SSIZE_T ssize_t;
 
 // "Fuzzers" for emigration chances
 static DiscreteDistribution<float> rng_multipliers({ 0.01f, 0.05f, 0.25f, 0.3f, 0.5f, 1.f }, { 1.f, 0.5f, 0.25f, 0.01f, 0.2f, 0.1f });
-
-class Emigrated {
-public:
-    Emigrated(Pop& pop)
-        : emigred{ pop }
-    {
-
-    }
-    ~Emigrated() {}
-
-    Province* origin;
-    Province* target;
-    Pop emigred;
-    size_t size;
-};
 
 static inline void conlonial_migration(World& world);
 static inline void internal_migration(World& world);
@@ -81,14 +58,12 @@ static inline void internal_migration(World&) {
 
 // Basic
 static inline float nation_attraction(Nation& nation, Language& language) {
-    if(!nation.exists())
-        return -1.f;
-    float attraction = nation.language_acceptance[language];
+    const auto attraction = nation.language_acceptance[language];
     return attraction + rng_multipliers.get_item();
 }
 
 static inline float province_attraction(const Province& province) {
-    return province.base_attractive + rng_multipliers.get_item();
+    return (province.base_attractive + rng_multipliers.get_item()) / g_world.terrain_types[province.terrain_type_id].penalty;
 }
 
 static inline void external_migration(World& world) {
@@ -97,10 +72,13 @@ static inline void external_migration(World& world) {
     for(auto& nation : world.nations) {
         std::vector<float> attractions;
         std::vector<Province*> viable_provinces;
-        for(const auto province_id : nation.owned_provinces) {
+        for(const auto province_id : nation.controlled_provinces) {
             auto& province = world.provinces[province_id];
+            if(world.terrain_types[province.terrain_type_id].is_water_body)
+                continue;
             auto attraction = province_attraction(province);
-            if(attraction <= 0.f) continue;
+            if(attraction <= 0.f)
+                continue;
             attractions.push_back(attraction);
             viable_provinces.push_back(&province);
         }
@@ -110,6 +88,7 @@ static inline void external_migration(World& world) {
         }
         province_distributions.emplace_back(viable_provinces, attractions);
     }
+    assert(!province_distributions.empty());
 
     std::vector<DiscreteDistribution<Nation*>> nation_distributions;
     nation_distributions.reserve(world.nations.size());
@@ -117,9 +96,9 @@ static inline void external_migration(World& world) {
         std::vector<float> attractions;
         std::vector<Nation*> viable_nations;
         for(auto& nation : world.nations) {
-            if(!nation.exists()) continue;
             auto attraction = nation_attraction(nation, language);
-            if(attraction <= 0.f) continue;
+            if(attraction <= 0.f)
+                continue;
             attractions.push_back(attraction);
             viable_nations.push_back(&nation);
         }
@@ -129,67 +108,64 @@ static inline void external_migration(World& world) {
         }
         nation_distributions.emplace_back(viable_nations, attractions);
     }
+    assert(!nation_distributions.empty());
 
-    // Collect list of nations that exist
-    std::vector<Nation*> eval_nations;
-    for(auto& nation : world.nations)
-        if(nation.exists())
-            eval_nations.push_back(&nation);
+    struct EmigrationData {
+        Province* origin = nullptr;
+        Province* target = nullptr;
+        float size = 0.f;
+        Pop emigred;
+    };
+    tbb::combinable<std::vector<EmigrationData>> emigration;
+    tbb::parallel_for(tbb::blocked_range(world.provinces.begin(), world.provinces.end()), [&emigration, &nation_distributions, &province_distributions, &world](const auto& provinces_range) {
+        for(auto& province : provinces_range) {
+            if(world.terrain_types[province.terrain_type_id].is_water_body)
+                continue;
 
-    tbb::combinable<std::vector<Emigrated>> emigration;
-    tbb::parallel_for(tbb::blocked_range(eval_nations.begin(), eval_nations.end()), [&emigration, &nation_distributions, &province_distributions, &world](const auto& nations_range) {
-        for(const auto& nation : nations_range) {
-            for(const auto province_id : nation->controlled_provinces) {
-                auto& province = world.provinces[province_id];
-                const auto language_id = std::distance(province.languages.begin(), std::max_element(province.languages.begin(), province.languages.end()));
-                // Randomness factor to emulate a pseudo-imperfect economy
-                for(auto& pop : province.pops) {
-                    // Depending on how much not our life needs are being met is how many we
-                    // want to get out of here
-                    // And literacy determines "best" spot, for example a low literacy will
-                    // choose a slightly less desirable location
-                    const auto emigration_desire = glm::max(pop.militancy * -pop.life_needs_met, 1.f);
-                    const auto emigrants = glm::min(pop.size * emigration_desire * rng_multipliers.get_item(), pop.size);
-                    if(emigrants > 0) {
-                        auto& nation_distribution = nation_distributions[language_id];
-                        const auto* random_nation = nation_distribution.get_item();
-                        if(random_nation == nullptr) continue;
+            const auto language_id = std::distance(province.languages.begin(), std::max_element(province.languages.begin(), province.languages.end()));
+            // Randomness factor to emulate a pseudo-imperfect economy
+            for(auto& pop : province.pops) {
+                if(pop.size <= 1.f)
+                    continue;
 
-                        auto& province_distribution = province_distributions[random_nation->get_id()];
-                        auto* choosen_province = province_distribution.get_item();
-                        if(choosen_province == nullptr) continue;
+                // Depending on how much not our life needs are being met is how many we
+                // want to get out of here
+                // And literacy determines "best" spot, for example a low literacy will
+                // choose a slightly less desirable location
+                const auto emigration_desire = glm::max(pop.militancy * -pop.life_needs_met, 1.f);
+                const auto emigrants = glm::min(pop.size * emigration_desire * rng_multipliers.get_item(), pop.size);
+                if(emigrants > 0.f) {
+                    auto& nation_distribution = nation_distributions[language_id];
+                    const auto* random_nation = nation_distribution.get_item();
+                    if(random_nation == nullptr)
+                        continue;
 
-                        Emigrated emigrated(pop);
-                        emigrated.target = choosen_province;
-                        emigrated.size = emigrants;
-                        emigrated.origin = &province;
-                        emigration.local().push_back(emigrated);
-                        pop.size -= emigrants;
-                    }
+                    auto& province_distribution = province_distributions[random_nation->get_id()];
+                    auto* choosen_province = province_distribution.get_item();
+                    if(choosen_province == nullptr || world.terrain_types[choosen_province->terrain_type_id].is_water_body)
+                        continue;
+
+                    emigration.local().emplace_back(
+                        &province,
+                        choosen_province,
+                        emigrants,
+                        pop
+                    );
+
+                    pop.size -= emigrants;
+                    assert(!(pop.size < 0.f));
                 }
             }
         }
     });
 
-    // Now time to do the emigration - we will create a new POP on the province
-    // if a POP with similar type does not exist - and we will also subtract the
-    // amount of emigrated from the original POP to not
-    // create clones
-    emigration.combine_each([&world](auto& target_list) {
-        for(auto& target : target_list) {
-            auto new_pop = std::find(target.target->pops.begin(), target.target->pops.end(), target.emigred);
-            if(new_pop == target.target->pops.end()) continue;
-
-            const auto ratio = target.emigred.size / target.size;
-            assert(target.target->languages.size() == target.origin->languages.size());
-            for(size_t i = 0; i < target.target->languages.size(); i++)
-                target.target->languages[i] += glm::clamp(target.origin->languages[i] * ratio, 0.f, 1.f);
-            assert(target.target->religions.size() == target.origin->religions.size());
-            for(size_t i = 0; i < target.target->religions.size(); i++)
-                target.target->religions[i] += glm::clamp(target.origin->religions[i] * ratio, 0.f, 1.f);
-            
-            new_pop->size += target.size;
-            new_pop->budget += target.emigred.budget;
+    // Emigrate pop to another province
+    emigration.combine_each([&world](const auto& list) {
+        for(const auto& e : list) {
+            const auto it = std::find(e.target->pops.begin(), e.target->pops.end(), e.emigred);
+            assert(it != e.target->pops.end());
+            it->size += e.size;
+            //it->budget += e.emigred.budget;
         }
     });
 }

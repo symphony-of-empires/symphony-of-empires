@@ -1027,7 +1027,7 @@ void LuaAPI::fire_event(lua_State* L, Nation& nation, Event& event, bool& is_mul
         // The changes done to the event "locally" are then created into a new local event
         auto local_event = event;
         local_event.cached_id = Event::invalid();
-        local_event.extra_data = std::string{ extra };
+        local_event.extra_data = std::string(extra);
         //local_event.ref_name = Eng3D::StringRef(string_format("%s:%s", local_event.ref_name.c_str(), nation.ref_name.c_str()).c_str());
         if(local_event.decisions.empty()) {
             Eng3D::Log::error("event", translate_format("Event %s has no decisions (ref_name=%s)", local_event.ref_name.c_str(), nation.ref_name.c_str()));
