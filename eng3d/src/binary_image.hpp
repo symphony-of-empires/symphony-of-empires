@@ -66,6 +66,8 @@ namespace Eng3D {
         /// @param y Y coordinate
         /// @return uint32_t The colour
         inline Eng3D::Color get_pixel(size_t x, size_t y) const {
+            if(x >= width || y >= height)
+                return Eng3D::Color::argb32(0xffffffff);
             return Eng3D::Color::argb32(buffer[x + y * width]);
         }
 
