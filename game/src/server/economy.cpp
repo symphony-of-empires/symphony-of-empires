@@ -220,10 +220,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         auto& pop_need = pop_needs[i];
         auto& pop = province.pops[i];
         const auto& needs_amounts = world.pop_types[pop.type_id].basic_needs_amount;
-        
         if(pop.size == 0.f || pop_need.budget == 0.f) return;
-        if(world.pop_types[i].group != PopGroup::LABORER)
-            pop_need.budget += pop.size * 1.f;
 
         const auto percentage_to_spend = 0.8f;
         const auto budget_alloc = pop_need.budget * percentage_to_spend;
@@ -305,7 +302,6 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             for(const auto province_id : trade.cost_eval) {
                 auto& province = world.provinces[province_id];
                 if(Nation::is_invalid(province.owner_id)) continue;
-
                 auto& nation = world.nations[province.owner_id];
                 auto sum_weightings = 0.f;
                 for(const auto other_province_id : nation.owned_provinces) {
@@ -318,7 +314,6 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
                 if(sum_weightings == 0.f) continue;
                 for(const auto other_province_id : nation.owned_provinces) {
                     values[other_province_id] /= sum_weightings; 
-
                     auto demand = market.demand[other_province_id];
                     market.global_demand[province_id] += demand * values[other_province_id];
                 }
