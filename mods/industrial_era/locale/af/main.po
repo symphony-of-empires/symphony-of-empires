@@ -147,7 +147,7 @@ msgid "Ammunition"
 msgstr "nasie"
 
 #: industry_types.lua:130
-msgid "Ammunition factory"
+msgid "Ammunition industry"
 msgstr ""
 
 #: ideologies.lua:38
@@ -1461,7 +1461,7 @@ msgstr "Glaas"
 #. Industry types
 #. Primary sector industries (the most essential)
 #: industry_types.lua:4
-msgid "Glass factory"
+msgid "Glass industry"
 msgstr ""
 
 #: good_types.lua:59
@@ -2197,7 +2197,7 @@ msgid "Machinegun"
 msgstr ""
 
 #: industry_types.lua:121
-msgid "Machinegun factory"
+msgid "Machinegun industry"
 msgstr ""
 
 #: provinces/americas/canada.lua:446
@@ -2450,7 +2450,7 @@ msgid "Musket"
 msgstr ""
 
 #: industry_types.lua:113
-msgid "Musket factory"
+msgid "Musket industry"
 msgstr ""
 
 #: provinces/europe/spain.lua:28
@@ -3479,7 +3479,7 @@ msgid "Sail"
 msgstr ""
 
 #: industry_types.lua:136
-msgid "Sails factory"
+msgid "Sails industry"
 msgstr ""
 
 #: provinces/americas/caribbean.lua:287

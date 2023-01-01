@@ -139,15 +139,15 @@ PoliciesView::PoliciesView(GameState& _gs)
     // TODO: Allow minimum wage to be a relative amount to the required price for buying
     // and satisfying all life needs
 
-    tax_grp.make_widget<UI::Label>(0, 0, "Factory profit tax");
-    auto& factory_profit_tax_sld = tax_grp.make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
-    factory_profit_tax_sld.set_value(this->new_policy.factory_profit_tax);
-    factory_profit_tax_sld.set_on_click([this](UI::Widget& w) {
-        this->new_policy.factory_profit_tax = static_cast<UI::Slider&>(w).get_value();
-        w.set_text(string_format("%.2f%%", this->new_policy.factory_profit_tax * 100.f));
+    tax_grp.make_widget<UI::Label>(0, 0, "Industry profit tax");
+    auto& industry_profit_tax_sld = tax_grp.make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
+    industry_profit_tax_sld.set_value(this->new_policy.industry_profit_tax);
+    industry_profit_tax_sld.set_on_click([this](UI::Widget& w) {
+        this->new_policy.industry_profit_tax = static_cast<UI::Slider&>(w).get_value();
+        w.set_text(string_format("%.2f%%", this->new_policy.industry_profit_tax * 100.f));
     });
-    factory_profit_tax_sld.set_tooltip("% of profits taken by the goverment from the factory's profits");
-    factory_profit_tax_sld.on_click(factory_profit_tax_sld);
+    industry_profit_tax_sld.set_tooltip("% of profits taken by the goverment from the industry's profits");
+    industry_profit_tax_sld.on_click(industry_profit_tax_sld);
 
     //
     // Investments
@@ -156,15 +156,15 @@ PoliciesView::PoliciesView(GameState& _gs)
     investment_grp.flex = UI::Flex::COLUMN;
     investment_grp.is_scroll = true;
 
-    investment_grp.make_widget<UI::Label>(0, 0, "Factory subsidies");
-    auto& factory_subsidies_budget_tax_sld = investment_grp.make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
-    factory_subsidies_budget_tax_sld.set_value(this->new_policy.factory_subsidies_budget);
-    factory_subsidies_budget_tax_sld.set_on_click([this](UI::Widget& w) {
-        this->new_policy.factory_subsidies_budget = static_cast<UI::Slider&>(w).get_value();
-        w.set_text(string_format("%.2f%%", this->new_policy.factory_subsidies_budget * 100.f));
+    investment_grp.make_widget<UI::Label>(0, 0, "Industry subsidies");
+    auto& industry_subsidies_budget_tax_sld = investment_grp.make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
+    industry_subsidies_budget_tax_sld.set_value(this->new_policy.industry_subsidies_budget);
+    industry_subsidies_budget_tax_sld.set_on_click([this](UI::Widget& w) {
+        this->new_policy.industry_subsidies_budget = static_cast<UI::Slider&>(w).get_value();
+        w.set_text(string_format("%.2f%%", this->new_policy.industry_subsidies_budget * 100.f));
     });
-    factory_subsidies_budget_tax_sld.set_tooltip("% of the national budget dedicated to subsidizing factories");
-    factory_subsidies_budget_tax_sld.on_click(factory_subsidies_budget_tax_sld);
+    industry_subsidies_budget_tax_sld.set_tooltip("% of the national budget dedicated to subsidizing factories");
+    industry_subsidies_budget_tax_sld.on_click(industry_subsidies_budget_tax_sld);
 
     investment_grp.make_widget<UI::Label>(0, 0, "Education budget");
     auto& education_budget_tax_sld = investment_grp.make_widget<UI::Slider>(0, 0, 128, 24, -1.f, 1.f);
@@ -183,7 +183,7 @@ PoliciesView::PoliciesView(GameState& _gs)
         this->new_policy.private_ownership = static_cast<UI::Slider&>(w).get_value();
         w.set_text(string_format("%.2f%%", this->new_policy.private_ownership * 100.f));
     });
-    private_ownership_sld.set_tooltip("Maximum allowed private ownership stake % for factories\nAllows private ownership of factories, where the burgeoise would profit from it instead of the factory itself");
+    private_ownership_sld.set_tooltip("Maximum allowed private ownership stake % for factories\nAllows private ownership of factories, where the burgeoise would profit from it instead of the industry itself");
     private_ownership_sld.on_click(private_ownership_sld);
 
     investment_grp.make_widget<UI::Label>(0, 0, "Foreign ownership");
@@ -203,7 +203,7 @@ PoliciesView::PoliciesView(GameState& _gs)
         this->new_policy.collective_ownership = static_cast<UI::Slider&>(w).get_value();
         w.set_text(string_format("%.2f%%", this->new_policy.collective_ownership * 100.f));
     });
-    collective_ownership_sld.set_tooltip("Maximum allowed collective ownership stake % for factories\nA collective represents the workers that work on the factory itself; allowing laborers to profit from the factory");
+    collective_ownership_sld.set_tooltip("Maximum allowed collective ownership stake % for factories\nA collective represents the workers that work on the industry itself; allowing laborers to profit from the industry");
     collective_ownership_sld.on_click(collective_ownership_sld);
 
     investment_grp.make_widget<UI::Label>(0, 0, "Individual ownership");
@@ -213,7 +213,7 @@ PoliciesView::PoliciesView(GameState& _gs)
         this->new_policy.individual_ownership = static_cast<UI::Slider&>(w).get_value();
         w.set_text(string_format("%.2f%%", this->new_policy.individual_ownership * 100.f));
     });
-    individual_ownership_sld.set_tooltip("Maximum allowed individual ownership stake % for factories\nIndividual ownership pertains to stakes of a factory owned by POPs, and allowing them to profit from factories with an incurred efficiency penalty");
+    individual_ownership_sld.set_tooltip("Maximum allowed individual ownership stake % for factories\nIndividual ownership pertains to stakes of a industry owned by POPs, and allowing them to profit from factories with an incurred efficiency penalty");
     individual_ownership_sld.on_click(individual_ownership_sld);
 
     //

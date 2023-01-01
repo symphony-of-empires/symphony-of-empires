@@ -35,7 +35,7 @@ struct Policies {
     // Economic
     float min_wage = 1.f;
 
-    float factory_profit_tax = 0.1f;
+    float industry_profit_tax = 0.1f;
     float burgeoise_tax = 0.1f;
     float pop_tax = 0.1f;
 
@@ -45,7 +45,7 @@ struct Policies {
     float individual_ownership = 1.f;
 
     float education_budget = 0.f; // State sponsored education
-    float factory_subsidies_budget = 0.f; // Subsidized factories
+    float industry_subsidies_budget = 0.f; // Subsidized factories
     
     // Not controllable by the player (should be?)
     struct Economic {
@@ -85,7 +85,7 @@ struct Policies {
     inline float difference(const Policies& rhs) const {
         auto diff = 0.f;
         diff += std::abs(rhs.min_wage - this->min_wage);
-        diff += std::abs(rhs.factory_profit_tax - this->factory_profit_tax);
+        diff += std::abs(rhs.industry_profit_tax - this->industry_profit_tax);
         diff += std::abs(rhs.burgeoise_tax - this->burgeoise_tax);
         diff += std::abs(rhs.pop_tax - this->pop_tax);
         diff += std::abs(rhs.private_ownership - this->private_ownership);
@@ -93,7 +93,7 @@ struct Policies {
         diff += std::abs(rhs.collective_ownership - this->collective_ownership);
         diff += std::abs(rhs.individual_ownership - this->individual_ownership);
         diff += std::abs(rhs.education_budget - this->education_budget);
-        diff += std::abs(rhs.factory_subsidies_budget - this->factory_subsidies_budget);
+        diff += std::abs(rhs.industry_subsidies_budget - this->industry_subsidies_budget);
         return diff;
     }
 };
@@ -128,7 +128,7 @@ struct Eng3D::Deser::Serializer<Policies> {
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.min_wage);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.factory_profit_tax);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.industry_profit_tax);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.burgeoise_tax);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.pop_tax);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.private_ownership);
@@ -137,7 +137,7 @@ struct Eng3D::Deser::Serializer<Policies> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.individual_ownership);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.foreign_ownership);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.education_budget);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.factory_subsidies_budget);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.industry_subsidies_budget);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.economic);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.political);
     }

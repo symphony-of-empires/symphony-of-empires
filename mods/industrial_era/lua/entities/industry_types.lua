@@ -36,9 +36,9 @@ lumberjack:register()
 -- same logic here
 lumberjack:add_output(Commodity:get("timber"))
 
-fuel_factory = IndustryType:new{ ref_name = "fuel_factory", name = _("Fuel factory") }
-fuel_factory:register()
-fuel_factory:add_output(Commodity:get("fuel"))
+fuel_industry = IndustryType:new{ ref_name = "fuel_industry", name = _("Fuel industry") }
+fuel_industry:register()
+fuel_industry:add_output(Commodity:get("fuel"))
 
 wheat_farm = IndustryType:new{ ref_name = "wheat_farm", name = _("Wheat farm") }
 wheat_farm:register()
@@ -74,19 +74,19 @@ sulphur_mine:register()
 sulphur_mine:add_output(Commodity:get("sulphur"))
 
 -- Secondary sector industries
-arms_factory = IndustryType:new{ ref_name = "arms_factory", name = _("Arms factory") }
-arms_factory:register()
-arms_factory:add_input(Commodity:get("iron"))
-arms_factory:add_input(Commodity:get("sulphur"))
-arms_factory:add_output(Commodity:get("arms"))
+arms_industry = IndustryType:new{ ref_name = "arms_industry", name = _("Arms industry") }
+arms_industry:register()
+arms_industry:add_input(Commodity:get("iron"))
+arms_industry:add_input(Commodity:get("sulphur"))
+arms_industry:add_output(Commodity:get("arms"))
 
 winery = IndustryType:new{ ref_name = "winery", name = _("Winery") }
 winery:register()
 winery:add_output(Commodity:get("wine"))
 
-dye_factory = IndustryType:new{ ref_name = "dye_factory", name = _("Dye factory") }
-dye_factory:register()
-dye_factory:add_output(Commodity:get("dye"))
+dye_industry = IndustryType:new{ ref_name = "dye_industry", name = _("Dye industry") }
+dye_industry:register()
+dye_industry:add_output(Commodity:get("dye"))
 
 -- Plantations
 silk_plantation = IndustryType:new{ ref_name = "silk_plantation", name = _("Silk plantation") }

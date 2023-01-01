@@ -16,7 +16,7 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      client/interface/factory_window.cpp
+//      client/interface/industry_window.cpp
 //
 // Abstract:
 //      Does some important stuff.
@@ -30,14 +30,14 @@
 #include "eng3d/ui/table.hpp"
 #include "eng3d/string.hpp"
 
-#include "client/interface/factory_window.hpp"
+#include "client/interface/industry_window.hpp"
 #include "client/client_network.hpp"
 #include "nation.hpp"
 #include "action.hpp"
 #include "indpobj.hpp"
 #include "world.hpp"
 
-UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, int _y, int _w, int _h, std::vector<ProvinceId> provinces, UI::Widget* parent) {
+UI::Table<uint32_t>* Interface::IndustryWindow::new_table(GameState& gs, int _x, int _y, int _w, int _h, std::vector<ProvinceId> provinces, UI::Widget* parent) {
     std::vector<int> sizes;
     if(provinces.size() > 1) sizes.push_back(150);
     sizes.insert(sizes.end(), { 150, 80, 80, 100, 80, 80, 80, 32 });
@@ -139,7 +139,7 @@ UI::Table<uint32_t>* Interface::FactoryWindow::new_table(GameState& gs, int _x, 
     return &table;
 }
 
-Interface::FactoryWindow::FactoryWindow(GameState& _gs)
+Interface::IndustryWindow::IndustryWindow(GameState& _gs)
     : UI::Window(-400, -400, 800, 800),
     gs{ _gs }
 {

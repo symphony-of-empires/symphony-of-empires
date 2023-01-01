@@ -47,7 +47,7 @@
 // Main menu connect server
 //
 Interface::MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
-    : UI::Window(0, 0, 512, 128, nullptr),
+    : UI::Window(0, 0, 512, 128),
     gs{ _gs }
 {
     this->is_scroll = false;

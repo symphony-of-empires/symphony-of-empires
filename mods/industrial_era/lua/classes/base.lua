@@ -605,7 +605,7 @@ BuildingType = {
 	is_build_land_units = false,
 	is_build_naval_units = false,
 	defense_bonus = 1.0,
-	is_factory = false,
+	is_industry = false,
 }
 function BuildingType:new(o)
 	local o = o or {}

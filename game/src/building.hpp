@@ -56,7 +56,7 @@ struct BuildingType : RefnameEntity<BuildingTypeId> {
     Eng3D::StringRef name;
     std::bitset<4> flags;
     // We used to calculate these per each economical tick but now we can just store them
-    // and multiply it by the level of the factory - this is the **minimum** amount of employed
+    // and multiply it by the level of the industry - this is the **minimum** amount of employed
     // people we should have at a time
     float num_req_workers = 0.f;
     CommodityId output_id; // Commodity that this building creates
@@ -125,13 +125,13 @@ struct Building : Entity<BuildingId> {
         return total_revenue / total_expenses;
     }
 
-    static constexpr auto factory_production_rate = 1.f;
+    static constexpr auto industry_production_rate = 1.f;
     float get_output_amount() const {
-        return this->production_scale * this->workers * factory_production_rate;
+        return this->production_scale * this->workers * industry_production_rate;
     }
 
     float get_max_output_amount(float max_workers) const {
-        return this->level * max_workers * factory_production_rate;
+        return this->level * max_workers * industry_production_rate;
     }
 
     bool is_working_on_unit() const {
@@ -151,10 +151,10 @@ struct Building : Entity<BuildingId> {
     float foreign_ownership = 0.f;
     NationId foreign_id; // Foreign investor
 
-    float budget = 1000.f; // Total money that the factory has
+    float budget = 1000.f; // Total money that the industry has
     float level = 0.f; // Level/Capacity scale of the building
     float workers = 1.f; // Amount of workers
-    float production_scale = 1.f; // How much of the factory is being used. From 0-1
+    float production_scale = 1.f; // How much of the industry is being used. From 0-1
     bool _is_wrking_on_unit = false;
     UnitTypeId working_unit_type_id; // Unit that is currently being built here (nullptr indicates no unit)
     // Required commodities for building the working unit

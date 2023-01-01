@@ -54,7 +54,7 @@ corporate_factory_request_evhdl = Event:new{
             province_names[k] = v.name
         end
 
-        corporate_factory_request_evhdl.title = "Corporation requests to build factory"
+        corporate_factory_request_evhdl.title = "Corporation requests to build industry"
         corporate_factory_request_evhdl.text = "A corporation has requested that we allow them to build their new industrial complexes on: " .. Locale:conjugate_comma_and(table.unpack(province_names)) .. "; However they are not liked by the locals and are viewed as a threat to the local economy."
         corporate_factory_request_evhdl:update()
         corporate_factory_request_evhdl:add_decision(Decision:new{

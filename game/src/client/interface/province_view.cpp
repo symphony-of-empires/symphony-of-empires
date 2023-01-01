@@ -32,7 +32,7 @@
 #include "eng3d/ui/table.hpp"
 #include "eng3d/ui/close_button.hpp"
 
-#include "client/interface/factory_window.hpp"
+#include "client/interface/industry_window.hpp"
 #include "client/interface/province_view.hpp"
 #include "client/interface/nation_view.hpp"
 #include "client/game_state.hpp"
@@ -228,7 +228,7 @@ ProvinceBuildingTab::ProvinceBuildingTab(GameState& _gs, int _x, int _y, Provinc
     gs{ _gs },
     province{ _province }
 {
-    Interface::FactoryWindow::new_table(gs, 0, 0, 0, this->height, { province.get_id() }, this);
+    Interface::IndustryWindow::new_table(gs, 0, 0, 0, this->height, { province.get_id() }, this);
 }
 
 ProvinceEditLanguageTab::ProvinceEditLanguageTab(GameState& _gs, int _x, int _y, Province& _province, UI::Widget* _parent)

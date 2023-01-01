@@ -36,7 +36,7 @@
 #include "world.hpp"
 #include "client/interface/army.hpp"
 #include "client/interface/pop_window.hpp"
-#include "client/interface/factory_window.hpp"
+#include "client/interface/industry_window.hpp"
 #include "client/interface/policies.hpp"
 #include "client/lua_save_util.hpp"
 
@@ -119,7 +119,7 @@ TopWindow::TopWindow(GameState& _gs)
 
     auto& industrial_score_grp = stats_grp.make_widget<UI::Div>(0, 0, 24 + 64, 24);
     industrial_score_grp.flex = UI::Flex::ROW;
-    auto& industrial_score_img = industrial_score_grp.make_widget<UI::Image>(0, 0, 24, 24, "gfx/factory.png", true);
+    auto& industrial_score_img = industrial_score_grp.make_widget<UI::Image>(0, 0, 24, 24, "gfx/industry.png", true);
     industrial_score_img.set_tooltip("Industrial score");
     auto& industrial_score_lab = industrial_score_grp.make_widget<UI::Label>(0, 0, " ");
     industrial_score_lab.set_on_each_tick([this](UI::Widget& w) {
@@ -169,11 +169,11 @@ TopWindow::TopWindow(GameState& _gs)
     });
     pops_ibtn.set_tooltip("Population");
 
-    auto& factory_ibtn = flex_column.make_widget<UI::Image>(0, 0, icon_size, icon_size, "gfx/factory.png", true);
-    factory_ibtn.set_on_click([this](UI::Widget&) {
-        new Interface::FactoryWindow(this->gs);
+    auto& industry_ibtn = flex_column.make_widget<UI::Image>(0, 0, icon_size, icon_size, "gfx/industry.png", true);
+    industry_ibtn.set_on_click([this](UI::Widget&) {
+        new Interface::IndustryWindow(this->gs);
     });
-    factory_ibtn.set_tooltip("Factories");
+    industry_ibtn.set_tooltip("Factories");
 
     auto& military_ibtn = flex_column.make_widget<UI::Image>(0, 0, icon_size, icon_size, "gfx/military_score.png", true);
     military_ibtn.set_on_click([this](UI::Widget&) {

@@ -146,7 +146,7 @@ msgid "Ammunition"
 msgstr "Muniţie"
 
 #: industry_types.lua:130
-msgid "Ammunition factory"
+msgid "Ammunition industry"
 msgstr "Fabrică de muniție"
 
 #: ideologies.lua:38
@@ -1441,7 +1441,7 @@ msgstr "Sticlă"
 #. Industry types
 #. Primary sector industries (the most essential)
 #: industry_types.lua:4
-msgid "Glass factory"
+msgid "Glass industry"
 msgstr "Fabrică de sticlă"
 
 #: good_types.lua:59
@@ -2166,7 +2166,7 @@ msgid "Machinegun"
 msgstr "Mitralieră"
 
 #: industry_types.lua:121
-msgid "Machinegun factory"
+msgid "Machinegun industry"
 msgstr "Fabrică de mitraliere"
 
 #: provinces/americas/canada.lua:446
@@ -2414,7 +2414,7 @@ msgid "Musket"
 msgstr "Muschetă"
 
 #: industry_types.lua:113
-msgid "Musket factory"
+msgid "Musket industry"
 msgstr "Fabrică de muschete"
 
 #: provinces/europe/spain.lua:28
@@ -3426,7 +3426,7 @@ msgid "Sail"
 msgstr "Navă"
 
 #: industry_types.lua:136
-msgid "Sails factory"
+msgid "Sails industry"
 msgstr "Fabrică de nave"
 
 #: provinces/americas/caribbean.lua:287

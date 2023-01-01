@@ -16,7 +16,7 @@
 //
 // ----------------------------------------------------------------------------
 // Name:
-//      client/interface/factory_window.hpp
+//      client/interface/industry_window.hpp
 //
 // Abstract:
 //      Does some important stuff.
@@ -32,10 +32,10 @@
 #include "objects.hpp"
 
 namespace Interface {
-    class FactoryWindow : public UI::Window {
+    class IndustryWindow : public UI::Window {
         GameState& gs;
     public:
-        FactoryWindow(GameState& gs);
+        IndustryWindow(GameState& gs);
         static UI::Table<uint32_t>* new_table(GameState& gs, int _x, int _y, int _w, int _h, std::vector<ProvinceId> provinces, UI::Widget* parent);
     };
 }

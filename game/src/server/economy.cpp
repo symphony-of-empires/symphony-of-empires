@@ -77,12 +77,12 @@ constexpr auto scale_speed(auto c, auto target) {
 }
 
 // Updates supply, demand, and set wages for workers
-static void update_factory_production(World& world, Building& building, const BuildingType& building_type, Province& province, float& artisans_amount, float& artisan_payment)
+static void update_industry_production(World& world, Building& building, const BuildingType& building_type, Province& province, float& artisans_amount, float& artisan_payment)
 {
     constexpr auto artisan_production_rate = 0.01f;
     auto& output = world.commodities[building_type.output_id];
     auto& output_product = province.products[output];
-    if(!building.can_do_output(province, building_type.input_ids) || building.level == 0.f) { // Artisans take place of factory
+    if(!building.can_do_output(province, building_type.input_ids) || building.level == 0.f) { // Artisans take place of industry
         if(output_product.supply < output_product.demand) { // Artisans only produce iff suitable so
             const auto output_amount = artisans_amount * artisan_production_rate; // Reduced rate of production
             artisan_payment += output_product.produce(output_amount);
@@ -91,13 +91,13 @@ static void update_factory_production(World& world, Building& building, const Bu
     }
 
     // TODO add input modifier
-    building.expenses.inputs_cost = 0.f; // Buy the inputs for the factory
+    building.expenses.inputs_cost = 0.f; // Buy the inputs for the industry
     for(const auto& [product_id, amount] : building_type.req_goods)
         building.expenses.inputs_cost += province.products[product_id].buy(amount * building.production_scale);
     output_product.produce(building.get_output_amount());
 }
 
-static void update_factory_accounting(World& world, Building& building, const BuildingType& building_type, Province& province, float& pop_payment, float& state_payment, float& private_payment)
+static void update_industry_accounting(World& world, Building& building, const BuildingType& building_type, Province& province, float& pop_payment, float& state_payment, float& private_payment)
 {
     // Barracks and so on
     if(Commodity::is_invalid(building_type.output_id)) return;
@@ -109,7 +109,7 @@ static void update_factory_accounting(World& world, Building& building, const Bu
     
     auto& output = world.commodities[building_type.output_id];
     auto& output_product = province.products[output];
-    if(!building.can_do_output(province, building_type.input_ids) || building.level == 0.f) // Artisans take place of factory
+    if(!building.can_do_output(province, building_type.input_ids) || building.level == 0.f) // Artisans take place of industry
         return;
 
     // TODO add output modifier
@@ -125,7 +125,7 @@ static void update_factory_accounting(World& world, Building& building, const Bu
     // Taxation occurs even without a surplus
     building.expenses.state_taxes = 0.f;
     if(profit > 0.f) {
-        building.expenses.state_taxes = profit * nation.current_policy.factory_profit_tax;
+        building.expenses.state_taxes = profit * nation.current_policy.industry_profit_tax;
         state_payment += building.expenses.state_taxes;
         profit -= building.expenses.state_taxes;
     }
@@ -173,7 +173,7 @@ static void update_factory_accounting(World& world, Building& building, const Bu
     // }
     
     // Rescale production
-    // This is used to set how much the of the maximum capacity the factory produce
+    // This is used to set how much the of the maximum capacity the industry produce
     const auto max_revenue = output_product.price * building.get_max_output_amount(building_type.num_req_workers);
     if(max_revenue == 0.f) {
         building.production_scale = scale_speed(building.production_scale, 0.f);
@@ -184,14 +184,14 @@ static void update_factory_accounting(World& world, Building& building, const Bu
     }
 }
 
-// Update the factory employment
+// Update the industry employment
 static void update_factories_employment(const World& world, Province& province, std::vector<float>& new_workers) {
     float unallocated_workers = 0.f;
     for(auto& pop : province.pops)
         if(world.pop_types[pop.type_id].group == PopGroup::LABORER)
             unallocated_workers += pop.size;
 
-    // Sort factories by production scale, which is suppose to represent how profitable the factory is
+    // Sort factories by production scale, which is suppose to represent how profitable the industry is
     // Might be better to calculate how profitable it really is and use that instead
     std::vector<std::pair<size_t, float>> factories_by_profitability;
     for(size_t i = 0; i < province.buildings.size(); i++)
@@ -199,14 +199,14 @@ static void update_factories_employment(const World& world, Province& province, 
     std::sort(factories_by_profitability.begin(), factories_by_profitability.end(), [](const auto& a, const auto& b) { return a.second > b.second; });
 
     float is_operating = province.controller_id == province.owner_id ? 1.f : 0.f;
-    for(const auto& [factory_index, _] : factories_by_profitability) {
-        auto& building = province.buildings[factory_index];
-        const auto& type = world.building_types[factory_index];
-        auto factory_workers = building.production_scale * type.num_req_workers;
-        auto allocated_workers = glm::max(glm::min(factory_workers, unallocated_workers), 0.f);
-        // Average with how much the factory had before
+    for(const auto& [industry_index, _] : factories_by_profitability) {
+        auto& building = province.buildings[industry_index];
+        const auto& type = world.building_types[industry_index];
+        auto industry_workers = building.production_scale * type.num_req_workers;
+        auto allocated_workers = glm::max(glm::min(industry_workers, unallocated_workers), 0.f);
+        // Average with how much the industry had before
         // Makes is more stable so everyone don't change workplace immediately
-        new_workers[factory_index] = (allocated_workers / 16.0f + (building.workers * 15.0f) / 16.0f) * is_operating;
+        new_workers[industry_index] = (allocated_workers / 16.0f + (building.workers * 15.0f) / 16.0f) * is_operating;
         unallocated_workers -= building.workers * is_operating;
     }
 }
@@ -367,7 +367,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         for(auto& building_type : world.building_types) {
             auto& building = province.buildings[building_type];
             building.revenue.outputs = 0.f;
-            update_factory_production(world, building, building_type, province, artisans_amount, artisans_payment);
+            update_industry_production(world, building, building_type, province, artisans_amount, artisans_payment);
         }
 
         for(size_t i = 0; i < province.pops.size(); i++) {
@@ -384,7 +384,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         update_factories_employment(world, province, new_workers);
         for(auto& building_type : world.building_types) {
             auto& building = province.buildings[building_type];
-            update_factory_accounting(world, building, building_type, province, laborers_payment, state_payment, private_payment);
+            update_industry_accounting(world, building, building_type, province, laborers_payment, state_payment, private_payment);
         }
 
         for(size_t i = 0; i < province.pops.size(); i++) {

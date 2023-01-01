@@ -18,5 +18,5 @@ gfx/cursor_b
 	Credits to Pattrck - made ui icons and graphical interface style in photoshop
 
 gfx/pop
-gfx/factory
+gfx/industry
 	By _JERUME
