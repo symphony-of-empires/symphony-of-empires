@@ -59,8 +59,7 @@ namespace Eng3D {
         bool running;
     };
 
-    class Profiler {
-    public:
+    struct Profiler {
         Profiler() {
             render_started = false;
         }

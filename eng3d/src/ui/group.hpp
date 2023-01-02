@@ -31,11 +31,7 @@
 #include <string>
 #include "eng3d/ui/ui.hpp"
 #include "eng3d/ui/widget.hpp"
-
-namespace Eng3D {
-	class Rectangle;
-    typedef Rectangle Rect;
-}
+#include "eng3d/rectangle.hpp"
 
 namespace UI {
 	class Context;

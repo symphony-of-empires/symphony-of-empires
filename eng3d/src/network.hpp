@@ -62,7 +62,7 @@
 
 namespace Eng3D::Deser {
     struct Archive;
-};
+}
 
 namespace Eng3D::Networking {
     class SocketException : public std::exception {

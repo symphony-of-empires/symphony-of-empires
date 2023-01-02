@@ -40,7 +40,7 @@ namespace Eng3D {
     class Material;
     namespace OpenGL {
         class Program;
-    };
+    }
 }
 
 class aiMesh;
@@ -50,8 +50,7 @@ class aiNode;
 namespace Eng3D {
     /// @brief A simple object - use these to store "simple" objects that MAY repeat
     /// @todo We should use instancing tricks on simple objects
-    class SimpleModel : public Eng3D::Mesh<glm::vec3, glm::vec2> {
-    public:
+    struct SimpleModel : Eng3D::Mesh<glm::vec3, glm::vec2> {
         SimpleModel(enum Eng3D::MeshMode _mode) : Eng3D::Mesh<glm::vec3, glm::vec2>(_mode) {};
         ~SimpleModel() = default;
         SimpleModel(const SimpleModel&) = delete;
@@ -63,8 +62,7 @@ namespace Eng3D {
     };
 
     /// @brief A complex object being composed by many simple objects
-    class Model {
-    public:
+    struct Model {
         Model() = default;
         virtual ~Model() = default;
         Model(const Model&) = delete;

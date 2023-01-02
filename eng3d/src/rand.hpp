@@ -32,7 +32,6 @@
 namespace Eng3D {
     /// @brief Thread safe random number generator
     class Rand {
-    private:
         uint32_t a = 0, b = 0, c = 0, d = 0;
     public:
         using result_type = uint32_t;

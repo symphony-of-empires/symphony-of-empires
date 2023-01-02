@@ -31,7 +31,6 @@
 // with the same ident already exists
 template<typename K, typename V>
 class Manager {
-private:
     std::unordered_set<std::pair<K, std::shared_ptr<V>>> elems;
 public:
     /// @brief Global manager object

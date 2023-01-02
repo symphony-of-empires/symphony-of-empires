@@ -35,8 +35,7 @@ namespace Eng3D {
         class Program;
     }
 
-    class Curve {
-    public:
+    struct Curve {
         Curve() = default;
         Curve(std::vector<glm::vec3> points, std::vector<glm::vec3> normals, float width);
         ~Curve() = default;

@@ -42,7 +42,7 @@ struct SDL_Surface;
 namespace Eng3D {
     class Texture;
     class State;
-    class Font;
+    struct Font;
 }
 
 /// @defgroup UI UI

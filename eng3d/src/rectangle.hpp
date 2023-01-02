@@ -28,12 +28,9 @@
 #include <glm/common.hpp>
 
 namespace Eng3D {
-    class Rectangle {
-    public:
+    struct Rectangle {
         float left = 0.f, top = 0.f, right = 0.f, bottom = 0.f;
-
         constexpr Rectangle() = default;
-
         constexpr Rectangle(float x, float y, float width, float height)
             : left{ x },
             top{ y },
@@ -169,6 +166,5 @@ namespace Eng3D {
             return Eng3D::Rectangle{ i_left, i_top, i_right - i_left, i_bottom - i_top };
         }
     };
-
     typedef class Rectangle Rect;
 }

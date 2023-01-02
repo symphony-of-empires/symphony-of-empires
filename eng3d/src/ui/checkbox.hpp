@@ -33,11 +33,10 @@
 #include "eng3d/ui/widget.hpp"
 
 namespace UI {
-    class Div;
+    struct Div;
     /// @ingroup UI
     /// @brief Checkbox widget
-    class Checkbox: public Widget {
-    public:
+    struct Checkbox : Widget {
         Checkbox(Widget* parent = nullptr);
         Checkbox(int size, Widget* parent = nullptr);
         Checkbox(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);

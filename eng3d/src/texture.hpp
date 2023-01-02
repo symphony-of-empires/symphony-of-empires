@@ -43,7 +43,7 @@
 
 struct SDL_Surface;
 namespace Eng3D::IO::Asset {
-    class Base;
+    struct Base;
 }
 
 namespace Eng3D {

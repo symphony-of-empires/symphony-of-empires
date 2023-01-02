@@ -37,8 +37,7 @@ namespace Eng3D {
     class Texture;
     
     /// A definition for a surface/color/texture to be applied to a model
-    class Material {
-    public:
+    struct Material {
         Material() = default;
         ~Material() = default;
         Material(const Material&) = default;
@@ -63,7 +62,6 @@ namespace Eng3D {
     };
 
     class MaterialManager {
-    private:
         std::map<std::string, std::shared_ptr<Eng3D::Material>> materials;
         Eng3D::State& s;
     public:

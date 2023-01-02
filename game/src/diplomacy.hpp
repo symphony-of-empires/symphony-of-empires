@@ -173,7 +173,7 @@ namespace TreatyClause {
         void enforce();
         bool in_effect() const;
     };
-};
+}
 template<>
 struct Eng3D::Deser::Serializer<TreatyClause::BaseClause*> {
     template<bool is_const>

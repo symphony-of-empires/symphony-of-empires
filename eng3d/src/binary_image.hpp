@@ -50,8 +50,7 @@ namespace Eng3D {
     /// @brief This binary image class helps load images and visual resources from the disk; the
     /// binary image IS NOT a texture, it is intended to be used in contextes which are
     /// NOT rendering - for rendering purpouses see texture class from client's implementation
-    class BinaryImage {
-    public:
+    struct BinaryImage {
         BinaryImage() = default;
         BinaryImage(const Eng3D::IO::Path& path);
         BinaryImage(size_t _width, size_t _height, size_t bpp = 32);

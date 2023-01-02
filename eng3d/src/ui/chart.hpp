@@ -33,11 +33,6 @@
 #include "eng3d/ui/widget.hpp"
 #include "eng3d/rectangle.hpp"
 
-namespace Eng3D {
-    class Rectangle;
-    typedef Rectangle Rect;
-}
-
 namespace UI {
     class Context;
     /// @ingroup UI

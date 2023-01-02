@@ -128,4 +128,4 @@ namespace LuaAPI {
     void check_events(lua_State* L);
     // UI stuff
     int ui_call_builtin(lua_State* L);
-};
+}

@@ -35,8 +35,7 @@
 
 namespace Eng3D {
     /// @brief A reference to a string on the global string pool
-    class StringRef {
-    public:
+    struct StringRef {
         constexpr StringRef() = default;
         StringRef(const std::string_view str);
         constexpr StringRef(size_t _id)

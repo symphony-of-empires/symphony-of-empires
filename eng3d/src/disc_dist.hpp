@@ -37,7 +37,6 @@
 /// https://en.wikipedia.org/wiki/Alias_method
 template<typename T>
 class DiscreteDistribution {
-private:
     std::vector<T> _items;
     std::vector<float> alias;
     std::vector<float> prob;

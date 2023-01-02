@@ -137,5 +137,5 @@ namespace Eng3D {
             void set_texture(int value, const std::string& name, const Eng3D::TextureArray& texture) const;
             unsigned int get_id() const;
         };
-    };
+    }
 }

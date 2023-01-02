@@ -33,17 +33,11 @@
 #include "eng3d/ui/widget.hpp"
 #include "eng3d/rectangle.hpp"
 
-namespace Eng3D {
-    class Rectangle;
-    typedef Rectangle Rect;
-}
-
 namespace UI {
     class Context;
     /// @ingroup UI
     /// @brief A graph chart
-    class WaffleChart: public Widget {
-    public:
+    struct WaffleChart: Widget {
         WaffleChart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);
         virtual ~WaffleChart() override {}
         virtual void on_render(Context& ctx, Eng3D::Rect viewport);

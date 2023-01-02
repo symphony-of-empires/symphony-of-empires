@@ -31,13 +31,13 @@
 
 namespace UI {
     class Label;
-    class Div;
+    struct Div;
 }
 
 namespace Eng3D {
     class State;
     class BenchmarkTask;
-    class Profiler;
+    struct Profiler;
 }
 
 namespace Eng3D::Interface {

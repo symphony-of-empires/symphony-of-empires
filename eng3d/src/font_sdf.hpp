@@ -36,13 +36,12 @@
 namespace Eng3D {
     namespace OpenGL {
         class Program;
-    };
+    }
     class Texture;
     class Camera;
     class TriangleList;
 
-    class Glyph {
-    public:
+    struct Glyph {
         Glyph() = default;
         Glyph(float _advance, Eng3D::Rectangle _atlas_bounds, Eng3D::Rectangle _plane_bounds);
         ~Glyph() = default;
@@ -52,20 +51,17 @@ namespace Eng3D {
         Eng3D::Rectangle plane_bounds;
     };
 
-    class Label3D {
-    public:
+    struct Label3D {
         Label3D(Eng3D::TriangleList* triangles, float size, glm::vec3 center);
         ~Label3D() = default;
         void draw();
-
         float size;
         glm::vec3 center;
     private:
         std::unique_ptr<Eng3D::TriangleList> triangles;
     };
 
-    class FontSDF {
-    public:
+    struct FontSDF {
         FontSDF(const std::string& filename);
         std::unique_ptr<Eng3D::Label3D> gen_text(const std::string& text, glm::vec2 pmin, glm::vec2 pmax, glm::vec2 p0, float width);
         void draw(const std::vector<std::unique_ptr<Label3D>>& labels, const Eng3D::Camera& camera, bool sphere);

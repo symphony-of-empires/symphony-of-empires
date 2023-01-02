@@ -28,4 +28,4 @@
 
 namespace Export {
     void export_provinces(const World& world);
-};
+}

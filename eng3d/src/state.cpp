@@ -207,9 +207,10 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
 
     // Handle SIGPIPE for networking code
 #ifndef _WIN32
-    struct sigaction sa = (struct sigaction){ [](int) {
+    struct sigaction sa{};
+    sa.sa_restorer = []() -> void {
         Eng3D::Log::debug("sigpipe", translate("Caught a pipe signal"));
-    } };
+    };
     sigaction(SIGPIPE, &sa, NULL);
 #endif
     std::string canonical_name = translate("Symphony of Empires");

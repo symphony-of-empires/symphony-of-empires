@@ -29,10 +29,9 @@
 #include <glm/vec3.hpp>
 
 #include "eng3d/mesh.hpp"
+#include "eng3d/rectangle.hpp"
 
 namespace Eng3D {
-    class Rectangle;
-
     struct Line : Eng3D::MeshStatic<2, 0, glm::vec2, glm::vec2> {
         Line(glm::vec2 start, glm::vec2 end);
         ~Line() = default;

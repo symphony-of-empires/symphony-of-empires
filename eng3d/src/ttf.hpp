@@ -6,14 +6,13 @@
 
 namespace Eng3D {
     namespace IO::Asset {
-        class Base;
+        struct Base;
     }
     class State;
 }
 
 namespace Eng3D::TrueType {
-    class Font {
-    public:
+    struct Font {
         Font() = delete;
         Font(std::shared_ptr<Eng3D::IO::Asset::Base> asset, int dpi);
         Font(const Font&) = delete;

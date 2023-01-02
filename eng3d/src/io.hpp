@@ -41,8 +41,7 @@ namespace Eng3D {
 namespace Eng3D::IO {
     /// @brief The path class abstracts away most of the burden from handling system-dependant
     /// filesystem paths
-    class Path {
-    public:
+    struct Path {
         Path() = default;
         Path(const std::string& path)
             : str(path)
@@ -75,10 +74,8 @@ namespace Eng3D::IO {
     };
 
     namespace Asset {
-        class Base {
+        struct Base {
         public:
-            Base() = default;
-            ~Base() = default;
             std::string get_abs_path() const;
             virtual void open() {}
             virtual void close() {}
@@ -86,10 +83,8 @@ namespace Eng3D::IO {
             virtual void write(const void*, size_t) {}
             virtual void seek(Eng3D::IO::SeekType, int) {}
             virtual size_t get_size(void) const { return 0; }
-
             std::string path;
             std::string abs_path;
-
             /// @brief Read the entire file into a string
             /// @return std::string The file contents
             inline std::string read_all(void) {
@@ -105,12 +100,8 @@ namespace Eng3D::IO {
         };
 
         /// @brief A "file" version of the base asset, mostly to identify an asset on a physical disk
-        class File : public Asset::Base {
-        public:
-            FILE* fp;
-        //public:
-            File() = default;
-            ~File() = default;
+        struct File : Asset::Base {
+            FILE* fp = nullptr;
             virtual void open();
             virtual void close();
             virtual void read(void* buf, size_t n);
@@ -130,11 +121,7 @@ namespace Eng3D::IO {
     };
 
     /// @brief A package containing a set of assets
-    class Package {
-    public:
-        Package() = default;
-        ~Package() = default;
-
+    struct Package {
         std::string name;
         std::string abs_path; // Absolute path of this package root
         std::vector<std::shared_ptr<Eng3D::IO::Asset::Base>> assets;

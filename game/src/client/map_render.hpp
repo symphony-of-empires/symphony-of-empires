@@ -33,12 +33,8 @@
 
 namespace Eng3D {
     class Texture;
-    class Model;
     class TextureArray;
-    class Model;
-    class Square;
-    class Sphere;
-    class Quad2D;
+    struct Model;
     class Camera;
     namespace OpenGL {
         class Program;

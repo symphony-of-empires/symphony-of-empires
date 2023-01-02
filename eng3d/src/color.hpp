@@ -29,11 +29,10 @@
 
 namespace Eng3D {
     /// @brief Primitive color type used through the engine
-    class Color {
-    public:
+    struct Color {
         float r = 0.f, g = 0.f, b = 0.f;
         float a = 1.f;
-    public:
+
         constexpr Color()
             : r{ 0.f },
             g{ 0.f },

@@ -35,8 +35,7 @@
 namespace UI {
     /// @ingroup UI
     /// @brief A basic widget without any presets
-    class Div : public Widget {
-    public:
+    struct Div : Widget {
         Div(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
         virtual ~Div() override {}
     };

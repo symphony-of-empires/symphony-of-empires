@@ -31,7 +31,6 @@ class World;
 // Functions that do a economy simulation in various steps, divided to reduce
 // overhead, they are distributed accross 48 ticks
 namespace Economy {
-
     struct Market {
         CommodityId commodity;
         std::vector<float> price;
@@ -40,12 +39,10 @@ namespace Economy {
         std::vector<float> global_demand;
     };
 
-    class EconomyState final {
-    public:
-        EconomyState() = default;
+    struct EconomyState final {
         Trade trade;
         std::vector<Market> commodity_market;
     };
-
     void do_tick(World& world, EconomyState& economy_state);
-};
+}
+
