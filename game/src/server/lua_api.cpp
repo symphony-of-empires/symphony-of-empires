@@ -469,7 +469,7 @@ int LuaAPI::add_province(lua_State* L) {
     
     {
         size_t i = 0;
-        for(auto& pop : province.pops) {
+        for(auto& pop : province.pops.all) {
             pop.type_id = PopTypeId(i);
             i++;
         }
@@ -632,10 +632,10 @@ int LuaAPI::get_province_nuclei(lua_State* L) {
 
 int LuaAPI::add_province_pop(lua_State* L) {
     auto& province = g_world.provinces.at(lua_tonumber(L, 1));
-    auto& pop = province.pops.at(lua_tonumber(L, 2));
+    auto& pop = province.pops.all.at(lua_tonumber(L, 2));
     pop.size = lua_tonumber(L, 3);
     if(!pop.size) {
-        luaL_error(L, "Can't create pops with 0 size");
+        luaL_error(L, "Can't create pops.all with 0 size");
         return 0;
     }
     pop.literacy = lua_tonumber(L, 4);
@@ -748,26 +748,13 @@ int LuaAPI::add_pop_type(lua_State* L) {
     pop_type.ref_name = luaL_checkstring(L, 1);
     pop_type.name = luaL_checkstring(L, 2);
     pop_type.social_value = lua_tonumber(L, 3);
-    bool is_burgeoise = lua_toboolean(L, 4);
-    bool is_slave = lua_toboolean(L, 5);
-    bool is_laborer = lua_toboolean(L, 6);
-    bool is_soldier = lua_toboolean(L, 7);
-    bool is_artisan = lua_toboolean(L, 8);
-    bool is_bureaucrat = lua_toboolean(L, 9);
-    if(is_burgeoise) pop_type.group = PopGroup::BURGEOISE;
-    else if(is_bureaucrat) pop_type.group = PopGroup::BUREAUCRAT;
-    else if(is_slave) pop_type.group = PopGroup::SLAVE;
-    else if(is_laborer) pop_type.group = PopGroup::LABORER;
-    else if(is_soldier) pop_type.group = PopGroup::SOLDIER;
-    else if(is_artisan) pop_type.group = PopGroup::ARTISAN;
-    else pop_type.group = PopGroup::OTHER;
 
     pop_type.basic_needs_amount.resize(g_world.commodities.size(), 0.f);
     pop_type.luxury_needs_satisfaction.resize(g_world.commodities.size(), 0.f);
     pop_type.luxury_needs_deminishing_factor.resize(g_world.commodities.size(), 0.f);
 
-    // Lua next = pops top and then pushes key & value in table
-    lua_pushvalue(L, 10);
+    // Lua next = pops.all top and then pushes key & value in table
+    lua_pushvalue(L, 4);
     lua_pushnil(L);
     while(lua_next(L, -2)) {
         lua_pushnil(L);
@@ -780,7 +767,7 @@ int LuaAPI::add_pop_type(lua_State* L) {
     }
     lua_pop(L, 1);
 
-    lua_pushvalue(L, 11);
+    lua_pushvalue(L, 5);
     lua_pushnil(L);
     while(lua_next(L, -2)) {
         lua_pushnil(L);
@@ -807,22 +794,14 @@ int LuaAPI::get_pop_type(lua_State* L) {
     lua_pushnumber(L, (size_t)pop_type.get_id());
     lua_pushstring(L, pop_type.name.c_str());
     lua_pushnumber(L, pop_type.social_value);
-    lua_pushboolean(L, pop_type.group == PopGroup::BURGEOISE);
-    lua_pushboolean(L, pop_type.group == PopGroup::BUREAUCRAT);
-    lua_pushboolean(L, pop_type.group == PopGroup::SLAVE);
-    lua_pushboolean(L, pop_type.group == PopGroup::LABORER);
-    lua_pushboolean(L, pop_type.group == PopGroup::SOLDIER);
-    lua_pushboolean(L, pop_type.group == PopGroup::ARTISAN);
     lua_newtable(L);
     size_t index = 1;
     for(size_t i = 0; i < pop_type.basic_needs_amount.size(); i++) {
         if(pop_type.basic_needs_amount[i] != 0) {
             lua_pushnumber(L, index++);
-
             lua_newtable(L);
             append_to_table(L, 1, g_world.commodities[i].ref_name.c_str());
             append_to_table(L, 2, pop_type.basic_needs_amount[i]);
-
             lua_settable(L, -3);
         }
     }
@@ -831,16 +810,14 @@ int LuaAPI::get_pop_type(lua_State* L) {
     for(size_t i = 0; i < pop_type.luxury_needs_satisfaction.size(); i++) {
         if(pop_type.luxury_needs_satisfaction[i] != 0) {
             lua_pushnumber(L, index++);
-
             lua_newtable(L);
             append_to_table(L, 1, g_world.commodities[i].ref_name.c_str());
             append_to_table(L, 2, pop_type.luxury_needs_satisfaction[i]);
             append_to_table(L, 3, pop_type.luxury_needs_deminishing_factor[i]);
-
             lua_settable(L, -3);
         }
     }
-    return 11;
+    return 5;
 }
 
 int LuaAPI::get_pop_type_by_id(lua_State* L) {
@@ -848,22 +825,14 @@ int LuaAPI::get_pop_type_by_id(lua_State* L) {
     lua_pushstring(L, pop_type.ref_name.c_str());
     lua_pushstring(L, pop_type.name.c_str());
     lua_pushnumber(L, pop_type.social_value);
-    lua_pushboolean(L, pop_type.group == PopGroup::BURGEOISE);
-    lua_pushboolean(L, pop_type.group == PopGroup::BUREAUCRAT);
-    lua_pushboolean(L, pop_type.group == PopGroup::SLAVE);
-    lua_pushboolean(L, pop_type.group == PopGroup::LABORER);
-    lua_pushboolean(L, pop_type.group == PopGroup::SOLDIER);
-    lua_pushboolean(L, pop_type.group == PopGroup::ARTISAN);
     lua_newtable(L);
     size_t index = 1;
     for(size_t i = 0; i < pop_type.basic_needs_amount.size(); i++) {
         if(pop_type.basic_needs_amount[i] != 0) {
             lua_pushnumber(L, index++);
-
             lua_newtable(L);
             append_to_table(L, 1, g_world.commodities[i].ref_name.c_str());
             append_to_table(L, 2, pop_type.basic_needs_amount[i]);
-
             lua_settable(L, -3);
         }
     }
@@ -871,16 +840,14 @@ int LuaAPI::get_pop_type_by_id(lua_State* L) {
     for(size_t i = 0; i < pop_type.luxury_needs_satisfaction.size(); i++) {
         if(pop_type.luxury_needs_satisfaction[i] != 0) {
             lua_pushnumber(L, index++);
-
             lua_newtable(L);
             append_to_table(L, 1, g_world.commodities[i].ref_name.c_str());
             append_to_table(L, 2, pop_type.luxury_needs_satisfaction[i]);
             append_to_table(L, 3, pop_type.luxury_needs_deminishing_factor[i]);
-
             lua_settable(L, -3);
         }
     }
-    return 11;
+    return 5;
 }
 
 int LuaAPI::add_language(lua_State* L) {

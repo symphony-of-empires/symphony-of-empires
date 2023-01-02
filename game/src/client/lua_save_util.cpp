@@ -49,7 +49,7 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
         }
     }
 
-    // Sea provinces dont have pops or RGOs
+    // Sea provinces dont have pops.all or RGOs
     if(gs.world->terrain_types[province.terrain_type_id].is_water_body)
         province.rgo_size.clear();
 
@@ -91,7 +91,7 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
     }
 
     // POPs
-    for(const auto& pop : province.pops)
+    for(const auto& pop : province.pops.all)
         fprintf(fp, "province:add_pop(pt_%s,%f,%f)\n", gs.world->pop_types[pop.type_id].ref_name.c_str(), pop.size, pop.literacy);
     for(const auto& language : gs.world->languages)
         if(province.languages[language] > 0.f)
@@ -137,7 +137,7 @@ void LUA_util::save(GameState& gs, const std::string& savefile_path) {
         for(const auto& nation : gs.world->nations)
             fprintf(fp.get(), "n_%s=Nation:get(\"%s\")\n", nation.ref_name.c_str(), nation.ref_name.c_str());
 
-        // First add provinces with pops, then the provinces **without** pops
+        // First add provinces with pops.all, then the provinces **without** pops.all
         for(auto& province : gs.world->provinces) {
             if(province.is_populated())
                 save_province(gs, fp.get(), province);
@@ -174,17 +174,7 @@ void LUA_util::save(GameState& gs, const std::string& savefile_path) {
         fp = std::unique_ptr<FILE, int (*)(FILE*)>(fopen("editor/lua/entities/pop_types.lua", "wt"), fclose);
         cnt = 0;
         for(const auto& pop_type : gs.world->pop_types) {
-            std::string extra_arg = "";
-            switch(pop_type.group) {
-            case PopGroup::BUREAUCRAT: extra_arg = ",is_bureaucrat=true"; break;
-            case PopGroup::BURGEOISE: extra_arg = ",is_burgeoise=true"; break;
-            case PopGroup::LABORER: extra_arg = ",is_laborer=true"; break;
-            case PopGroup::SLAVE: extra_arg = ",is_slave=true"; break;
-            case PopGroup::SOLDIER: extra_arg = ",is_soldier=true"; break;
-            case PopGroup::ARTISAN: extra_arg = ",is_artisan=true"; break;
-            default: break;
-            }
-            fprintf(fp.get(), "PopType:new{ ref_name=\"%s\",name=translate(\"%s\"),social_value=%f%s}\n", pop_type.ref_name.c_str(), pop_type.name.c_str(), pop_type.social_value, extra_arg.c_str());
+            fprintf(fp.get(), "PopType:new{ ref_name=\"%s\",name=translate(\"%s\"),social_value=%f}\n", pop_type.ref_name.c_str(), pop_type.name.c_str(), pop_type.social_value);
             cnt++;
         }
         fp.reset();

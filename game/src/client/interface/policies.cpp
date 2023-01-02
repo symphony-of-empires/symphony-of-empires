@@ -79,7 +79,7 @@ PoliciesView::PoliciesView(GameState& _gs)
         
         /*
         for(const auto province_id : this->gs.curr_nation->owned_provinces)
-            for(const auto& pop : this->gs.world->provinces[province_id].pops)
+            for(const auto& pop : this->gs.world->provinces[province_id].pops.all)
                 for(const auto& ideology : this->gs.world->ideologies)
                     ideology_data[ideology].num += pop.ideology_approval[ideology] * pop.size;
         */
@@ -93,7 +93,7 @@ PoliciesView::PoliciesView(GameState& _gs)
 
         auto num = 0.f;
         for(const auto province_id : this->gs.curr_nation->owned_provinces)
-            for(const auto& pop : this->gs.world->provinces[province_id].pops)
+            for(const auto& pop : this->gs.world->provinces[province_id].pops.all)
                 num += pop.militancy;
         num /= this->gs.curr_nation->owned_provinces.size();
         w.set_text(translate_format("Militancy: %.2f%%", num * 100.f));

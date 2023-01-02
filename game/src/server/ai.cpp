@@ -135,8 +135,6 @@ void AI::do_tick(World& world) {
                         }
                     }
                 }
-                
-                // E
             }
 
             // War/unit management
@@ -180,6 +178,13 @@ void AI::do_tick(World& world) {
                     /// @todo Actually produce something appropriate
                     auto& unit_type = world.unit_types[rand() % world.unit_types.size()];
                     building.work_on_unit(unit_type);
+                }
+            }
+
+            // Economy
+            if(nation.can_directly_control_factories()) {
+                for(const auto province_id : nation.controlled_provinces) {
+                    auto& province = world.provinces[province_id];
                 }
             }
         }

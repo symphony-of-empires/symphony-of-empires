@@ -59,7 +59,7 @@ Interface::PopWindow::PopWindow(GameState& _gs)
 
     auto size = 0.f;
     for(const auto province_id : nation.owned_provinces)
-        size += gs.world->provinces[province_id].pops.size();
+        size += gs.world->provinces[province_id].pops.all.size();
 
     std::vector<int> sizes{ 75, 200, 100, 80, 80, 80, 50};
     std::vector<std::string> header{ "Size", "Province", "Type", "Militancy", "Literacy", "Budget", "QOL" };
@@ -69,7 +69,7 @@ Interface::PopWindow::PopWindow(GameState& _gs)
     table.set_on_each_tick([this, &nation, &table](UI::Widget&) {
         for(const auto province_id : nation.owned_provinces) {
             const auto& province = this->gs.world->provinces[province_id];
-            for(const auto& pop : province.pops) {
+            for(const auto& pop : province.pops.all) {
                 const auto id = static_cast<size_t>(pop.type_id) + (static_cast<uint64_t>(province) << 32);
                 auto& row = table.get_row(id);
                 size_t row_index = 0;

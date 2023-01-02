@@ -124,7 +124,7 @@ static inline void external_migration(World& world) {
 
             const auto language_id = std::distance(province.languages.begin(), std::max_element(province.languages.begin(), province.languages.end()));
             // Randomness factor to emulate a pseudo-imperfect economy
-            for(auto& pop : province.pops) {
+            for(auto& pop : province.pops.all) {
                 if(pop.size <= 1.f)
                     continue;
 
@@ -162,8 +162,8 @@ static inline void external_migration(World& world) {
     // Emigrate pop to another province
     emigration.combine_each([&world](const auto& list) {
         for(const auto& e : list) {
-            const auto it = std::find(e.target->pops.begin(), e.target->pops.end(), e.emigred);
-            assert(it != e.target->pops.end());
+            const auto it = std::find(e.target->pops.all.begin(), e.target->pops.all.end(), e.emigred);
+            assert(it != e.target->pops.all.end());
             it->size += e.size;
             //it->budget += e.emigred.budget;
         }

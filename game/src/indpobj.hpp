@@ -229,22 +229,20 @@ struct Eng3D::Deser::Serializer<Religion> {
     }
 };
 
-enum class PopGroup : uint8_t {
-    OTHER,
-    BURGEOISE,
-    SLAVE,
-    LABORER,
-    SOLDIER,
-    ARTISAN,
-    BUREAUCRAT,
-};
-template<>
-struct Eng3D::Deser::Serializer<PopGroup> : Eng3D::Deser::SerializerMemcpy<PopGroup> {};
-
+namespace PopGroup {
+    enum {
+        BURGEOISE = 0,
+        ARTISAN,
+        BUREAUCRAT,
+        INTELLECTUAL,
+        SOLDIER,
+        LABORER,
+        SLAVE,
+    };
+}
 struct PopType : RefnameEntity<PopTypeId> {
     Eng3D::StringRef name;
     float social_value = 1.f;
-    enum PopGroup group = PopGroup::OTHER;
     std::vector<float> basic_needs_amount; // Amount of commodities needed to satisfy basic needs
     std::vector<float> luxury_needs_satisfaction; // Amount of satisfaction each luxury commodity gives
     std::vector<float> luxury_needs_deminishing_factor; // Deminishing returns factor of the luxury commodity satisfaction
@@ -259,7 +257,6 @@ struct Eng3D::Deser::Serializer<PopType> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ref_name);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.social_value);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.group);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.basic_needs_amount);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.luxury_needs_satisfaction);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.luxury_needs_deminishing_factor);

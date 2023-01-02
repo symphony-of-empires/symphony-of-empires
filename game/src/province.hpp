@@ -51,23 +51,22 @@ class Province : public RefnameEntity<ProvinceId> {
 public:
     float total_pops() const {
         auto total = 0.f;
-        for(const auto& pop : pops)
+        for(const auto& pop : pops.all)
             total += pop.size;
         return total;
     }
 
     float average_militancy() const {
         auto total = 0.f;
-        for(const auto& pop : pops)
+        for(const auto& pop : pops.all)
             total += pop.militancy;
-        return total / pops.size();
+        return total / pops.all.size();
     }
 
     float get_attractiveness(const Pop& pop) const;
     void add_building(const BuildingType& building_type);
     void cancel_construction_project();
     bool is_neighbour(const Province& province) const;
-    Pop& get_soldier_pop();
 
     inline glm::vec2 get_pos() const {
         return glm::vec2(box_area.left + ((box_area.right - box_area.left) / 2.f), box_area.top + ((box_area.bottom - box_area.top) / 2.f));
@@ -84,14 +83,14 @@ public:
     }
 
     bool is_populated() const {
-        for(const auto& pop : pops)
+        for(const auto& pop : pops.all)
             if(pop.size > 0.f)
                 return true;
         return false;
     }
 
     void unpopulate() {
-        for(auto& pop : pops)
+        for(auto& pop : pops.all)
             pop.size = 0.f;
     }
 
@@ -106,7 +105,23 @@ public:
     NationId controller_id;
     TerrainTypeId terrain_type_id;
     std::vector<uint32_t> rgo_size; // How much of each rgo that can be extracted
-    std::array<Pop, 7> pops; // List of pops in this province
+    union PopList {
+        constexpr PopList() {};
+        constexpr ~PopList() {};
+        std::array<Pop, 7> all; // List of pops in this province
+        struct PopListElements {
+            constexpr PopListElements() {};
+            constexpr ~PopListElements() {};
+            Pop burgeoise;
+            Pop artisan;
+            Pop bureaucrat;
+            Pop intellectual;
+            Pop soldier;
+            Pop laborer;
+            Pop slave;
+        } list;
+    } pops;
+
     std::vector<Product> products;
     std::vector<Building> buildings;
     struct Battle {
@@ -125,7 +140,7 @@ public:
     std::vector<ProvinceId> neighbour_ids; // Neighbouring provinces
     /// @brief Percentage of each languages from 0 to 1
     std::vector<float> languages;
-    /// @brief Percentage of each religion prescence on the pops, from 0 to 1
+    /// @brief Percentage of each religion prescence on the pops.all, from 0 to 1
     std::vector<float> religions;
 };
 template<>
@@ -158,7 +173,7 @@ struct Eng3D::Deser::Serializer<Province> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.rgo_size);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.neighbour_ids);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.products);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.pops);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.pops.all);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.buildings);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.controller_id);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.base_attractive);

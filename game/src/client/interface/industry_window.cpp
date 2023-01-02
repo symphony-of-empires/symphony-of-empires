@@ -87,7 +87,7 @@ UI::Table<uint32_t>* Interface::IndustryWindow::new_table(GameState& gs, int _x,
                 auto* profit = row.get_element(row_index++);
                 profit->set_text(string_format("%.2f", building.get_profit()));
                 profit->set_key(building.get_profit());
-                profit->set_tooltip(translate_format("Profit: %.2f\nInputs cost: %.2f\nWages: %.2f\nState taxes: %.2f\n\nDividends: %.2f (%.2f to state, %.2f to pops, %.2f to private investors)\nTotal expenses: %.2f\nOutputs revenue: %.2f\nTotal revenue: %.2f", building.get_profit(), building.expenses.inputs_cost, building.expenses.wages, building.expenses.state_taxes, building.expenses.get_dividends(), building.expenses.state_dividends, building.expenses.pop_dividends, building.expenses.private_dividends, building.expenses.get_total(), building.revenue.outputs, building.revenue.get_total()));
+                profit->set_tooltip(translate_format("Profit: %.2f\nInputs cost: %.2f\nWages: %.2f\nState taxes: %.2f\n\nDividends: %.2f (%.2f to state, %.2f to pops.all, %.2f to private investors)\nTotal expenses: %.2f\nOutputs revenue: %.2f\nTotal revenue: %.2f", building.get_profit(), building.expenses.inputs_cost, building.expenses.wages, building.expenses.state_taxes, building.expenses.get_dividends(), building.expenses.state_dividends, building.expenses.pop_dividends, building.expenses.private_dividends, building.expenses.get_total(), building.revenue.outputs, building.revenue.get_total()));
 
                 auto* upgrade = row.get_element(row_index++);
                 upgrade->set_text("+");
