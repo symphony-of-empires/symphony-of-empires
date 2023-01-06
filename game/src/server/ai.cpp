@@ -66,24 +66,16 @@ void AI::init(World& world) {
 
 void AI::do_tick(World& world) {
     // Calculate military strengths of each nation
-    tbb::parallel_for(tbb::blocked_range(world.nations.begin(), world.nations.end()), [&world](auto& nations_range) {
-        for(auto& nation : nations_range) {
-            if(!nation.exists())
-                continue;
-
-            auto& ai = ai_man[nation];
-            auto total = 0.f;
-            for(const auto& province : world.provinces) {
-                const auto& units = world.unit_manager.get_province_units(province.get_id());
-                for(const auto unit_id : units) {
-                    const auto& unit = world.unit_manager.units[unit_id];
-                    if(unit.owner_id == nation.get_id())
-                        total += unit.get_strength();
-                }
-            }
-            ai.military_strength = total;
+    std::vector<float> nation_strengths(world.nations.size(), 0.f);
+    for(const auto& province : world.provinces) {
+        const auto& units = world.unit_manager.get_province_units(province.get_id());
+        for(const auto unit_id : units) {
+            const auto& unit = world.unit_manager.units[unit_id];
+            nation_strengths[unit.owner_id] += unit.get_strength();
         }
-    });
+    }
+    for(const auto& nation : world.nations)
+        ai_man[nation].military_strength = nation_strengths[nation];
 
     // Do the AI turns in parallel
     tbb::combinable<std::vector<std::pair<NationId, NationId>>> alliance_proposals;
@@ -181,10 +173,41 @@ void AI::do_tick(World& world) {
                 }
             }
 
-            // Economy
+            // How do we know which factories we should be investing om? We first have to know
+            // if we can invest them in the first place, which is what "can_directly_control_factories"
+            // answers for us.
             if(nation.can_directly_control_factories()) {
                 for(const auto province_id : nation.controlled_provinces) {
                     auto& province = world.provinces[province_id];
+
+                    // Obtain list of products
+                    struct ProductInfo {
+                        decltype(province.products.begin()) product;
+                        CommodityId id;
+                    };
+                    std::vector<ProductInfo> v;
+                    for(auto it = province.products.begin(); it != province.products.end(); it++)
+                        v.push_back(ProductInfo{ it, std::distance(province.products.begin(), it) });
+                    // Sort by most important to fullfill (higher D/S ratio)
+                    std::sort(v.begin(), v.end(), [&](const auto& a, const auto& b) {
+                        return a.product->ds_ratio() > b.product->ds_ratio();
+                    });
+
+                    for (const auto& product_info : v) {
+                        // We now have the most demanded product indice, we will now find an industry type
+                        // we should invest on to make more of that product
+                        const auto it = std::find_if(world.building_types.begin(), world.building_types.end(), [&](const auto& e) {
+                            return e.output_id == product_info.id;
+                        });
+
+                        if(it != world.building_types.end()) {
+                            // For now, investing 15% of the budget on this industry seems reasonable
+                            const auto investment = nation.budget / 15.f;
+                            nation.budget -= investment;
+                            province.buildings[*it].estate_state.invest(investment);
+                            break;
+                        }
+                    }
                 }
             }
         }
