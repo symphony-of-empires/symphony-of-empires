@@ -228,17 +228,15 @@ struct Eng3D::Deser::Serializer<Religion> {
     }
 };
 
-namespace PopGroup {
-    enum {
-        BURGEOISE = 0,
-        ARTISAN,
-        BUREAUCRAT,
-        INTELLECTUAL,
-        SOLDIER,
-        LABORER,
-        SLAVE,
-    };
-}
+enum class PopGroup {
+    BURGEOISE = 0,
+    ARTISAN,
+    BUREAUCRAT,
+    INTELLECTUAL,
+    SOLDIER,
+    LABORER,
+    SLAVE,
+};
 struct PopType : RefnameEntity<PopTypeId> {
     Eng3D::StringRef name;
     float social_value = 1.f;
