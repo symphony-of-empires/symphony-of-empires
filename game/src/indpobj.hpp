@@ -228,14 +228,14 @@ struct Eng3D::Deser::Serializer<Religion> {
     }
 };
 
-enum class PopGroup {
+enum class PopGroup : int {
     BURGEOISE = 0,
-    ARTISAN,
-    BUREAUCRAT,
-    INTELLECTUAL,
-    SOLDIER,
-    LABORER,
-    SLAVE,
+    ARTISAN = 1,
+    BUREAUCRAT = 2,
+    INTELLECTUAL = 3,
+    SOLDIER = 4,
+    LABORER = 5,
+    SLAVE = 6,
 };
 struct PopType : RefnameEntity<PopTypeId> {
     Eng3D::StringRef name;

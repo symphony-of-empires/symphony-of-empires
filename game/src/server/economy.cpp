@@ -384,10 +384,10 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         update_industry_accounting(world, building, building_type, province, laborers_payment, state_payment, private_payment);
     }
 
-    new_needs[PopGroup::LABORER].budget += laborers_payment;
-    new_needs[PopGroup::ARTISAN].budget += artisans_payment;
-    new_needs[PopGroup::BURGEOISE].budget += private_payment;
-    new_needs[PopGroup::BUREAUCRAT].budget += bureaucrats_payment;
+    new_needs[(int)PopGroup::LABORER].budget += laborers_payment;
+    new_needs[(int)PopGroup::ARTISAN].budget += artisans_payment;
+    new_needs[(int)PopGroup::BURGEOISE].budget += private_payment;
+    new_needs[(int)PopGroup::BUREAUCRAT].budget += bureaucrats_payment;
 
     update_pop_needs(world, province, new_needs, state_payment);
 
