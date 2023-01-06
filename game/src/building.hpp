@@ -105,18 +105,6 @@ struct Building : Entity<BuildingId> {
         return this->revenue.get_total() - this->expenses.get_total();
     }
 
-    float get_state_payment(float profit) const {
-        return profit * this->state_ownership;
-    }
-
-    float get_private_payment(float profit) const {
-        return profit * this->private_ownership;
-    }
-
-    float get_collective_payment(float profit) const {
-        return profit * this->collective_ownership;
-    }
-
     float get_operating_ratio() const {
         const auto total_revenue = this->revenue.get_total();
         if(total_revenue == 0.f) return 0.f;
@@ -144,12 +132,36 @@ struct Building : Entity<BuildingId> {
         this->_is_wrking_on_unit = false;
     }
 
-    float private_ownership = 0.f;
-    float state_ownership = 1.f;
-    float collective_ownership = 0.f;
-    float individual_ownership = 0.f;
-    float foreign_ownership = 0.f;
-    NationId foreign_id; // Foreign investor
+    struct Investment {
+        float total = 0.f;
+
+        void invest(float amount) {
+            total += amount;
+        }
+
+        float get_ownership(float total_investments) const {
+            return total_investments / total;
+        }
+
+        float get_dividends(float profit, float ownership) const {
+            assert(ownership >= 0.f && ownership <= 1.f);
+            return profit * ownership;
+        }
+    };
+    Investment estate_private;
+    Investment estate_state;
+    Investment estate_collective;
+    Investment estate_individual;
+    std::vector<Investment> estate_foreign;
+    float get_total_investment() const {
+        auto sum = estate_private.total;
+        sum += estate_state.total;
+        sum += estate_collective.total;
+        sum += estate_individual.total;
+        for(const auto& foreign : estate_foreign)
+            sum += foreign.total;
+        return sum;
+    }
 
     float budget = 1000.f; // Total money that the industry has
     float level = 0.f; // Level/Capacity scale of the building
@@ -188,18 +200,28 @@ struct Building : Entity<BuildingId> {
     } expenses;
 };
 template<>
+struct Eng3D::Deser::Serializer<Building::Investment> {
+    template<bool is_const>
+    using type = Eng3D::Deser::CondConstType<is_const, Building::Investment>::type;
+
+    template<bool is_serialize>
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.total);
+    }
+};
+
+template<>
 struct Eng3D::Deser::Serializer<Building> {
     template<bool is_const>
     using type = Eng3D::Deser::CondConstType<is_const, Building>::type;
 
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.private_ownership);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.state_ownership);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.collective_ownership);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.individual_ownership);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.foreign_ownership);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.foreign_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.estate_private);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.estate_state);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.estate_collective);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.estate_individual);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.estate_foreign);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.budget);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.level);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.production_scale);

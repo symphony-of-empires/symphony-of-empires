@@ -135,7 +135,6 @@ struct Eng3D::Deser::Serializer<Policies> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.foreign_ownership);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.collective_ownership);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.individual_ownership);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.foreign_ownership);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.education_budget);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.industry_subsidies_budget);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.economic);

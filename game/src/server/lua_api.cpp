@@ -466,6 +466,8 @@ int LuaAPI::add_province(lua_State* L) {
     province.languages.resize(g_world.languages.size(), 0.f);
     province.religions.resize(g_world.religions.size(), 0.f);
     province.buildings.resize(g_world.building_types.size());
+    for(auto& building : province.buildings)
+        building.estate_foreign.resize(g_world.nations.size());
     
     {
         size_t i = 0;

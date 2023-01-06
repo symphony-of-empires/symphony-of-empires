@@ -104,7 +104,8 @@ static void update_industry_accounting(World& world, Building& building, const B
     const auto& nation = world.nations[province.controller_id];
 
     // TODO: Make it so burgeoise aren't duplicating money out of thin air
-    const auto private_investment = private_payment * 0.8 * nation.current_policy.private_ownership;
+    const auto private_investment = private_payment * 0.8f * nation.current_policy.private_ownership;
+    building.estate_private.invest(private_investment);
     building.budget += private_investment;
 
     auto& output = world.commodities[building_type.output_id];
@@ -136,17 +137,23 @@ static void update_industry_accounting(World& world, Building& building, const B
     if(surplus > 0.f) {
         // Disperse profits to holders
         // TODO: Should surplus be decremented between each payout?
-        state_payment += building.get_state_payment(surplus);
-        building.expenses.state_dividends += building.get_state_payment(surplus);
-        surplus -= building.get_state_payment(surplus);
+        const auto state_dividends = building.estate_state.get_dividends(surplus,
+            building.estate_state.get_ownership(building.get_total_investment()));
+        state_payment += state_dividends;
+        building.expenses.state_dividends += state_dividends;
+        surplus -= state_dividends;
 
-        private_payment += building.get_private_payment(surplus);
-        building.expenses.private_dividends += building.get_private_payment(surplus);
-        surplus -= building.get_private_payment(surplus);
+        const auto private_dividends = building.estate_private.get_dividends(surplus,
+            building.estate_private.get_ownership(building.get_total_investment()));
+        private_payment += private_dividends;
+        building.expenses.private_dividends += private_dividends;
+        surplus -= private_dividends;
 
-        pop_payment += building.get_collective_payment(surplus);
-        building.expenses.pop_dividends += building.get_collective_payment(surplus);
-        surplus -= building.get_collective_payment(surplus);
+        const auto collective_dividends = building.estate_collective.get_dividends(surplus,
+            building.estate_collective.get_ownership(building.get_total_investment()));
+        pop_payment += collective_dividends;
+        building.expenses.pop_dividends += collective_dividends;
+        surplus -= collective_dividends;
 
         profit -= building.expenses.get_dividends();
     }

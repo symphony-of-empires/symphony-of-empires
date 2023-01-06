@@ -52,7 +52,7 @@ struct Eng3D::Deser::Serializer<Commodity> {
 
 /// @brief A product (based off a Commodity) which can be bought by POPs, converted by factories and transported
 struct Product : Entity<ProductId> {
-    static constexpr float get_price_delta(float supply, float demand) {
+    float get_price_delta() const {
         constexpr auto price_elasticity = 0.01f;
         if(supply == 0.f || demand == 0.f) {
             const auto natural_trend = price_elasticity * price_elasticity * (demand - supply);
@@ -62,12 +62,23 @@ struct Product : Entity<ProductId> {
         return price_elasticity * (1.f - sd_ratio);
     }
 
+    float sd_ratio() const {
+        if(supply == 0.f || demand == 0.f)
+            return 0.f;
+        return supply / demand;
+    }
+
+    float ds_ratio() const {
+        if(supply == 0.f || demand == 0.f)
+            return 0.f;
+        return demand / supply;
+    }
+
     void close_market() {
         // TODO: Supply should **never** be negative
         this->supply = glm::max(this->supply, 0.f);
         // Increase price with more demand
-        this->price_delta = this->get_price_delta(this->supply, this->demand);
-
+        this->price_delta = this->get_price_delta();
         // Set the new price
         this->price = glm::clamp(this->price + this->price_delta, glm::epsilon<float>(), 100'000.f);
         if(glm::epsilonEqual(this->price, 0.f, glm::epsilon<float>()))
