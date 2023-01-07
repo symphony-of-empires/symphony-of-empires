@@ -61,7 +61,7 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         ProvinceId province_id;
         Eng3D::Deser::deserialize(ar, province_id);
         auto& province = client_data.gs.world->provinces.at(province_id);
-        
+
         if(unit.can_move()) {
             Eng3D::Log::debug("server", translate_format("Unit changes targets to %s", province.ref_name.c_str()).c_str());
             unit.set_path(province);
@@ -221,72 +221,77 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
     clients = new Eng3D::Networking::ServerClient[n_clients];
     for(size_t i = 0; i < n_clients; i++)
         clients[i].is_connected = false;
+        clients_data.push_back(gs);
     clients_extra_data.resize(n_clients, nullptr);
     // "Starting" thread, this one will wake up all the other ones
     clients[0].thread = std::make_unique<std::thread>(&Server::netloop, this, 0);
+}
+
+void Server::on_connect(int conn_fd, int id) {
+    auto& cl = clients[id];
+    auto& client_data = clients_data[id];
+    Eng3D::Networking::Packet packet(conn_fd);
+    packet.pred = [this]() {
+        return this->run == true;
+    };
+    { // Read the data from client
+        Eng3D::Deser::Archive ar{};
+        packet.recv();
+        ar.set_buffer(packet.data(), packet.size());
+
+        ActionType action;
+        Eng3D::Deser::deserialize(ar, action);
+        Eng3D::Deser::deserialize(ar, cl.username);
+        client_data.username = cl.username;
+    }
+
+    { // Tell all other clients about the connection of this new client
+        Eng3D::Deser::Archive ar{};
+        Eng3D::Deser::serialize<ActionType>(ar, ActionType::CONNECT);
+        packet.data(ar.get_buffer(), ar.size());
+        broadcast(packet);
+    }
+
+    {
+        Eng3D::Deser::Archive ar{};
+        Eng3D::Deser::serialize<ActionType>(ar, ActionType::CHAT_MESSAGE);
+        Eng3D::Deser::serialize<std::string>(ar, "[" + cl.username + "] has connected");
+        packet.data(ar.get_buffer(), ar.size());
+        broadcast(packet);
+    }
+}
+
+void Server::on_disconnect() {
+    Eng3D::Networking::Packet packet{};
+    Eng3D::Deser::Archive ar{};
+    Eng3D::Deser::serialize<ActionType>(ar, ActionType::DISCONNECT);
+    packet.data(ar.get_buffer(), ar.size());
+    broadcast(packet);
+}
+
+void Server::handler(const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar, int id) {
+    auto& client_data = clients_data[id];
+    ActionType action;
+    Eng3D::Deser::deserialize(ar, action);
+    if(client_data.selected_nation == nullptr && !(action == ActionType::SET_USERNAME || action == ActionType::CHAT_MESSAGE || action == ActionType::SELECT_NATION))
+        CXX_THROW(ServerException, Eng3D::translate_format("Unallowed operation %i without selected nation", static_cast<int>(action)));
+
+    const std::scoped_lock lock(g_world.world_mutex);
+    //switch(action) {
+    const auto it = action_handlers.find(action);
+    if(it == action_handlers.cend())
+        CXX_THROW(ServerException, string_format("Unhandled action %u", static_cast<unsigned int>(action)));
+    it->second(client_data, packet, ar);
+
+    // Update the state of the UI with the editor
+    if(gs.editor) gs.update_tick = true;
 }
 
 /// @brief This is the handling thread-function for handling a connection to a single client
 /// Sending packets will only be received by the other end, when trying to broadcast please
 /// put the packets on the send queue, they will be sent accordingly
 void Server::netloop(int id) {
-    ClientData client_data(gs);
-
-    this->do_netloop([this]() {
-        return this->run == true;
-    }, [this, &client_data, id](int conn_fd) {
-        auto& cl = clients[id];
-        Eng3D::Networking::Packet packet(conn_fd);
-        packet.pred = [this]() {
-            return this->run == true;
-        };
-        { // Read the data from client
-            Eng3D::Deser::Archive ar{};
-            packet.recv();
-            ar.set_buffer(packet.data(), packet.size());
-
-            ActionType action;
-            Eng3D::Deser::deserialize(ar, action);
-            Eng3D::Deser::deserialize(ar, cl.username);
-            client_data.username = cl.username;
-        }
-
-        { // Tell all other clients about the connection of this new client
-            Eng3D::Deser::Archive ar{};
-            Eng3D::Deser::serialize<ActionType>(ar, ActionType::CONNECT);
-            packet.data(ar.get_buffer(), ar.size());
-            broadcast(packet);
-        }
-
-        {
-            Eng3D::Deser::Archive ar{};
-            Eng3D::Deser::serialize<ActionType>(ar, ActionType::CHAT_MESSAGE);
-            Eng3D::Deser::serialize<std::string>(ar, "[" + cl.username + "] has connected");
-            packet.data(ar.get_buffer(), ar.size());
-            broadcast(packet);
-        }
-    }, [this]() {
-        Eng3D::Networking::Packet packet{};
-        Eng3D::Deser::Archive ar{};
-        Eng3D::Deser::serialize<ActionType>(ar, ActionType::DISCONNECT);
-        packet.data(ar.get_buffer(), ar.size());
-        broadcast(packet);
-    }, [this, &client_data](const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
-        ActionType action;
-        Eng3D::Deser::deserialize(ar, action);
-        if(client_data.selected_nation == nullptr && !(action == ActionType::SET_USERNAME || action == ActionType::CHAT_MESSAGE || action == ActionType::SELECT_NATION))
-            CXX_THROW(ServerException, Eng3D::translate_format("Unallowed operation %i without selected nation", static_cast<int>(action)));
-        
-        const std::scoped_lock lock(g_world.world_mutex);
-        //switch(action) {
-        const auto it = action_handlers.find(action);
-        if(it == action_handlers.cend())
-            CXX_THROW(ServerException, string_format("Unhandled action %u", static_cast<unsigned int>(action)));
-        it->second(client_data, packet, ar);
-
-        // Update the state of the UI with the editor
-        if(gs.editor) gs.update_tick = true;
-    }, [this](int i) {
+    this->do_netloop([this](int i) {
         clients[i].thread = std::make_unique<std::thread>(&Server::netloop, this, i);
     }, id);
 }

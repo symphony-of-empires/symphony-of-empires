@@ -59,7 +59,6 @@
 #include "client/map.hpp"
 #include "client/map_render.hpp"
 #include "server/server_network.hpp"
-#include "server/export_util.hpp"
 #include "client/interface/main_menu.hpp"
 
 void GameState::play_nation() {
@@ -332,7 +331,7 @@ void create_startup_ui(GameState& gs) {
     load_pbar->set_text(translate("Initializing game resources"));
     load_pbar->origin = UI::Origin::LOWER_LEFT_SCREEN;
     load_pbar->text_color = Eng3D::Color(1.f, 1.f, 1.f);
-    load_pbar->on_update = ([&gs, load_pbar] (UI::Widget& w) {
+    load_pbar->on_update = ([&gs, load_pbar] (UI::Widget&) {
         load_pbar->set_value(gs.load_progress);
     });
 
@@ -381,6 +380,32 @@ void startup(GameState& gs) {
     load_world_th.join();
 }
 
+void update_production_queue(GameState& gs) {
+    for(size_t i = 0; i < gs.production_queue.size(); i++) {
+        const auto& unit_type = gs.world->unit_types[gs.production_queue[i]];
+
+        /// @todo Make a better queue AI
+        bool is_built = false;
+        for(auto& building_type : gs.world->building_types) {
+            for(const auto province_id : gs.curr_nation->controlled_provinces) {
+                auto& province = gs.world->provinces[province_id];
+                auto& building = province.get_buildings()[building_type];
+                // Must not be working on something else
+                if(building.is_working_on_unit()) {
+                    is_built = true;
+                    gs.client->send(Action::BuildingStartProducingUnit::form_packet(province, building_type, *gs.curr_nation, unit_type));
+                    break;
+                }
+            }
+
+            if(!is_built) break;
+        }
+        if(!is_built) break;
+        gs.production_queue.erase(gs.production_queue.begin() + i);
+        i--;
+    }
+}
+
 void client_update(GameState& gs, std::vector<TreatyId>& displayed_treaties) {
     gs.music_enqueue();
     // Locking is very expensive, so we condense everything into a big "if"
@@ -396,30 +421,7 @@ void client_update(GameState& gs, std::vector<TreatyId>& displayed_treaties) {
             gs.update_tick = false;
 
             if(gs.current_mode == MapMode::NORMAL) {
-                // Production queue
-                for(size_t i = 0; i < gs.production_queue.size(); i++) {
-                    const auto& unit_type = gs.world->unit_types[gs.production_queue[i]];
-
-                    /// @todo Make a better queue AI
-                    bool is_built = false;
-                    for(auto& building_type : gs.world->building_types) {
-                        for(const auto province_id : gs.curr_nation->controlled_provinces) {
-                            auto& province = gs.world->provinces[province_id];
-                            auto& building = province.get_buildings()[building_type];
-                            // Must not be working on something else
-                            if(building.is_working_on_unit()) {
-                                is_built = true;
-                                gs.client->send(Action::BuildingStartProducingUnit::form_packet(province, building_type, *gs.curr_nation, unit_type));
-                                break;
-                            }
-                        }
-
-                        if(!is_built) break;
-                    }
-                    if(!is_built) break;
-                    gs.production_queue.erase(gs.production_queue.begin() + i);
-                    i--;
-                }
+                update_production_queue(gs);
             }
         }
 

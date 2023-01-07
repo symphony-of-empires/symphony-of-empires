@@ -176,7 +176,11 @@ namespace Eng3D::Networking {
         Server(unsigned port, unsigned max_conn);
         ~Server();
         void broadcast(const Eng3D::Networking::Packet& packet);
-        void do_netloop(std::function<bool()> cond, std::function<void(int)> on_connect, std::function<void()> on_disconnect, std::function<void(const Packet& packet, Eng3D::Deser::Archive& ar)> handler, std::function<void(int i)> on_wake_thread, int id);
+        void do_netloop(std::function<void(int i)> on_wake_thread, int id);
+
+        virtual void on_connect(int conn_fd, int id) = 0;
+        virtual void on_disconnect() = 0;
+        virtual void handler(const Packet& packet, Eng3D::Deser::Archive& ar, int id) = 0;
 
         ServerClient* clients;
         std::size_t n_clients;

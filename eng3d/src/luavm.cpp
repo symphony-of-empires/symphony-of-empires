@@ -345,12 +345,12 @@ int Eng3D::LuaVM::call_func(lua_State* L, int nargs, int nret) {
     /* calculate stack position for message handler */
     int hpos = lua_gettop(L) - nargs;
     /* push custom error message handler */
-    lua_pushcfunction(L, [](lua_State* L) {
-        lua_getglobal(L, "debug");
-        lua_getfield(L, -1, "traceback");
-        lua_pushvalue(L, 1);
-        lua_pushinteger(L, 1);
-        lua_call(L, 2, 1);
+    lua_pushcfunction(L, [](lua_State* Lua) {
+        lua_getglobal(Lua, "debug");
+        lua_getfield(Lua, -1, "traceback");
+        lua_pushvalue(Lua, 1);
+        lua_pushinteger(Lua, 1);
+        lua_call(Lua, 2, 1);
         return 1;
     });
     /* move it before function and arguments */
