@@ -163,6 +163,7 @@ void GameState::music_enqueue() {
     }
 }
 
+// Loads the world
 void GameState::load_world_thread() {
     this->world = &World::get_instance();
     this->world->init_lua();
@@ -300,7 +301,8 @@ void GameState::handle_key(const Eng3D::Event::Key& e) {
     }
 }
 
-int main(int argc, char** argv) try {
+// Get the list of paths to the packages
+std::vector<std::string> parse_arguments(int argc, char** argv) {
     std::vector<std::string> pkg_paths;
     for(int i = 1; i < argc; i++) {
         std::string arg = std::string(argv[i]);
@@ -312,20 +314,11 @@ int main(int argc, char** argv) try {
             pkg_paths.push_back(arg);
         }
     }
+    return pkg_paths;
+}
 
-    GameState gs(pkg_paths);
-
-    // After loading everything initialize the gamestate initial properties
-    // Call update_on_tick on start of the gamestate
-    gs.update_tick = true;
-    gs.in_game = false;
-    gs.input = Input();
-    gs.run = true;
-    gs.loaded_world = false;
-    gs.loaded_map = false;
-    gs.load_progress = 0.f;
-    std::thread load_world_th(&GameState::load_world_thread, &gs);
-
+// Setup the loading screen when starting the game
+void create_startup_ui(GameState& gs) {
     auto map_layer = new UI::Group(0, 0);
     map_layer->managed = false;
 
@@ -339,102 +332,130 @@ int main(int argc, char** argv) try {
     load_pbar->set_text(translate("Initializing game resources"));
     load_pbar->origin = UI::Origin::LOWER_LEFT_SCREEN;
     load_pbar->text_color = Eng3D::Color(1.f, 1.f, 1.f);
+    load_pbar->on_update = ([&gs, load_pbar] (UI::Widget& w) {
+        load_pbar->set_value(gs.load_progress);
+    });
 
     auto mod_logo_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/mod_logo.png"));
-    auto* mod_logo_img = new UI::Image(0, 0, mod_logo_tex->width, mod_logo_tex->height, mod_logo_tex);
-    gs.do_run([&gs](){ return gs.loaded_map == false; },
+    new UI::Image(0, 0, mod_logo_tex->width, mod_logo_tex->height, mod_logo_tex);
+}
+
+void startup(GameState& gs) {
+    // After loading everything initialize the gamestate initial properties
+    // Call update_on_tick on start of the gamestate
+    gs.update_tick = true;
+    gs.in_game = false;
+    gs.input = Input();
+    gs.run = true;
+    gs.loaded_world = false;
+    gs.loaded_map = false;
+    gs.load_progress = 0.f;
+    std::thread load_world_th(&GameState::load_world_thread, &gs);
+
+    create_startup_ui(gs);
+    gs.do_run([&gs](){ return gs.loaded_world == false; },
         ([&gs]() {
             gs.music_enqueue();
             // Widgets here SHOULD NOT REQUEST UPON WORLD DATA
             // so no world lock is needed beforehand
             gs.do_event();
-        }), ([&gs, &map_layer, load_pbar]() {
+        }), ([&gs]() {
             std::scoped_lock lock(gs.render_lock);
             gs.clear();
-            if(gs.loaded_world) {
-                gs.map = std::make_unique<Map>(gs, *gs.world, map_layer, gs.width, gs.height);
-                gs.current_mode = MapMode::DISPLAY_ONLY;
-                gs.map->set_view(MapView::SPHERE_VIEW);
-                gs.map->camera->move(0.f, 50.f, 10.f);
-                gs.loaded_map = true;
-                gs.load_progress = 1.f;
-            }
-
-            load_pbar->set_value(gs.load_progress);
             gs.ui_ctx.render_all();
             gs.world->profiler.render_done();
         })
     );
-    bg_img->kill();
-    load_pbar->kill();
-    mod_logo_img->kill();
+    gs.ui_ctx.clear();
+
+    auto map_layer = new UI::Group(0, 0);
+    map_layer->managed = false;
+    gs.map = std::make_unique<Map>(gs, *gs.world, map_layer, gs.width, gs.height);
+    gs.current_mode = MapMode::DISPLAY_ONLY;
+    gs.map->set_view(MapView::SPHERE_VIEW);
+    gs.map->camera->move(0.f, 50.f, 10.f);
+    gs.loaded_map = true;
+    gs.load_progress = 1.f;
 
     load_world_th.join();
+}
+
+void client_update(GameState& gs, std::vector<TreatyId>& displayed_treaties) {
+    gs.music_enqueue();
+    // Locking is very expensive, so we condense everything into a big "if"
+    if(gs.world->world_mutex.try_lock()) {
+        // Required since events may request world data
+        gs.do_event();
+        if(gs.current_mode == MapMode::NORMAL)
+            handle_popups(displayed_treaties, gs);
+
+        if(gs.update_tick) {
+            gs.update_on_tick();
+            gs.map->map_render->update();
+            gs.update_tick = false;
+
+            if(gs.current_mode == MapMode::NORMAL) {
+                // Production queue
+                for(size_t i = 0; i < gs.production_queue.size(); i++) {
+                    const auto& unit_type = gs.world->unit_types[gs.production_queue[i]];
+
+                    /// @todo Make a better queue AI
+                    bool is_built = false;
+                    for(auto& building_type : gs.world->building_types) {
+                        for(const auto province_id : gs.curr_nation->controlled_provinces) {
+                            auto& province = gs.world->provinces[province_id];
+                            auto& building = province.get_buildings()[building_type];
+                            // Must not be working on something else
+                            if(building.is_working_on_unit()) {
+                                is_built = true;
+                                gs.client->send(Action::BuildingStartProducingUnit::form_packet(province, building_type, *gs.curr_nation, unit_type));
+                                break;
+                            }
+                        }
+
+                        if(!is_built) break;
+                    }
+                    if(!is_built) break;
+                    gs.production_queue.erase(gs.production_queue.begin() + i);
+                    i--;
+                }
+            }
+        }
+
+        if(gs.current_mode == MapMode::DISPLAY_ONLY)
+            gs.map->camera->move(0.05f, 0.f, 0.f);
+        gs.world->world_mutex.unlock();
+    }
+}
+
+void client_render(GameState& gs) {
+    std::scoped_lock render_lock(gs.render_lock);
+    if(gs.current_mode != MapMode::NO_MAP) {
+        const std::scoped_lock update_lock(gs.world->world_mutex);
+        gs.map->camera->update();
+        gs.map->draw();
+    }
+    gs.world->profiler.render_done();
+}
+
+int main(int argc, char** argv) try {
+    std::vector<std::string> pkg_paths = parse_arguments(argc, argv);
+    GameState gs(pkg_paths);
+
+    startup(gs);
     // LuaAPI::invoke_registered_callback(gs.world->lua, "map_dev_view_invoke");
 
-    // Connect to server prompt
+    // Start main menu
     new Interface::MainMenu(gs);
     // new Interface::MapDebugMenu(gs);
     Export::export_provinces(*gs.world);
     std::vector<TreatyId> displayed_treaties;
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);
-    gs.do_run([&gs](){ return gs.run == true; },
-        ([&displayed_treaties, &gs]() {
-            gs.music_enqueue();
-            // Locking is very expensive, so we condense everything into a big "if"
-            if(gs.world->world_mutex.try_lock()) {
-                // Required since events may request world data
-                gs.do_event();
-                if(gs.current_mode == MapMode::NORMAL)
-                    handle_popups(displayed_treaties, gs);
-
-                if(gs.update_tick) {
-                    gs.update_on_tick();
-                    gs.map->map_render->update();
-                    gs.update_tick = false;
-
-                    if(gs.current_mode == MapMode::NORMAL) {
-                        // Production queue
-                        for(size_t i = 0; i < gs.production_queue.size(); i++) {
-                            const auto& unit_type = gs.world->unit_types[gs.production_queue[i]];
-
-                            /// @todo Make a better queue AI
-                            bool is_built = false;
-                            for(auto& building_type : gs.world->building_types) {
-                                for(const auto province_id : gs.curr_nation->controlled_provinces) {
-                                    auto& province = gs.world->provinces[province_id];
-                                    auto& building = province.get_buildings()[building_type];
-                                    // Must not be working on something else
-                                    if(building.is_working_on_unit()) {
-                                        is_built = true;
-                                        gs.client->send(Action::BuildingStartProducingUnit::form_packet(province, building_type, *gs.curr_nation, unit_type));
-                                        break;
-                                    }
-                                }
-
-                                if(!is_built) break;
-                            }
-                            if(!is_built) break;
-                            gs.production_queue.erase(gs.production_queue.begin() + i);
-                            i--;
-                        }
-                    }
-                }
-
-                if(gs.current_mode == MapMode::DISPLAY_ONLY)
-                    gs.map->camera->move(0.05f, 0.f, 0.f);
-                gs.world->world_mutex.unlock();
-            }
-        }), ([&gs]() {
-            std::scoped_lock render_lock(gs.render_lock);
-            if(gs.current_mode != MapMode::NO_MAP) {
-                const std::scoped_lock update_lock(gs.world->world_mutex);
-                gs.map->camera->update();
-                gs.map->draw();
-            }
-            gs.world->profiler.render_done();
-        })
+    gs.do_run(
+        ([&gs](){ return gs.run == true; }),
+        ([&displayed_treaties, &gs]() { client_update(gs, displayed_treaties); }),
+        ([&gs]() { client_render(gs); })
     );
     world_th.join();
     return 0;
