@@ -340,6 +340,7 @@ void create_startup_ui(GameState& gs) {
     new UI::Image(0, 0, mod_logo_tex->width, mod_logo_tex->height, mod_logo_tex);
 }
 
+// Load the world and show the loading screen ui
 void startup(GameState& gs) {
     // After loading everything initialize the gamestate initial properties
     // Call update_on_tick on start of the gamestate
@@ -447,8 +448,7 @@ int main(int argc, char** argv) try {
 
     // Start main menu
     new Interface::MainMenu(gs);
-    // new Interface::MapDebugMenu(gs);
-    Export::export_provinces(*gs.world);
+
     std::vector<TreatyId> displayed_treaties;
     // Start the world thread
     std::thread world_th(&GameState::world_thread, &gs);
