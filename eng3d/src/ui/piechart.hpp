@@ -45,7 +45,7 @@ namespace UI {
 		PieChart(int x, int y, unsigned w, unsigned h, std::vector<ChartData> data = std::vector<ChartData>(), Widget* _parent = nullptr);
 		PieChart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);
 		virtual ~PieChart() override {}
-		virtual void on_render(Context& ctx, Eng3D::Rect viewport);
+		virtual void on_render(Context& ctx, Eng3D::Rect viewport) override;
 		void set_data(std::vector<ChartData> data);
 	private:
         static void on_hover_default(Widget& w, glm::ivec2 mouse_pos, glm::ivec2 widget_pos);

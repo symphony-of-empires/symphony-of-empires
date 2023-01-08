@@ -32,6 +32,7 @@
 #   include <GL/gl.h>
 #elif defined E3D_BACKEND_GLES
 #   include <GLES3/gl3.h>
+#   include <GLES3/gl31.h>
 #endif
 
 #include "eng3d/shader.hpp"

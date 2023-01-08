@@ -100,7 +100,7 @@ struct Policies {
 template<>
 struct Eng3D::Deser::Serializer<Policies::Economic> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Policies::Economic>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Policies::Economic>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.distributism);
@@ -111,7 +111,7 @@ struct Eng3D::Deser::Serializer<Policies::Economic> {
 template<>
 struct Eng3D::Deser::Serializer<Policies::Political> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Policies::Political>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Policies::Political>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.individualism);
@@ -124,7 +124,7 @@ struct Eng3D::Deser::Serializer<Policies::Political> {
 template<>
 struct Eng3D::Deser::Serializer<Policies> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Policies>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Policies>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.min_wage);
@@ -160,7 +160,7 @@ struct Ideology : RefnameEntity<IdeologyId> {
 template<>
 struct Eng3D::Deser::Serializer<Ideology::Subideology> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Ideology::Subideology>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Ideology::Subideology>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -174,7 +174,7 @@ struct Eng3D::Deser::Serializer<Ideology::Subideology> {
 template<>
 struct Eng3D::Deser::Serializer<Ideology> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Ideology>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Ideology>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -195,7 +195,7 @@ struct Language : RefnameEntity<LanguageId> {
 template<>
 struct Eng3D::Deser::Serializer<Language> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Language>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Language>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -218,7 +218,7 @@ struct Religion : RefnameEntity<ReligionId> {
 template<>
 struct Eng3D::Deser::Serializer<Religion> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Religion>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Religion>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -247,7 +247,7 @@ struct PopType : RefnameEntity<PopTypeId> {
 template<>
 struct Eng3D::Deser::Serializer<PopType> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, PopType>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, PopType>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -261,7 +261,6 @@ struct Eng3D::Deser::Serializer<PopType> {
 };
 
 class Province;
-class Ideology;
 class Pop : public Entity<PopId> {
     Pop& operator=(const Pop&) = default;
     friend class Province;
@@ -281,7 +280,7 @@ public:
 template<>
 struct Eng3D::Deser::Serializer<Pop> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Pop>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Pop>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -313,7 +312,7 @@ struct Technology : public RefnameEntity<TechnologyId> {
 template<>
 struct Eng3D::Deser::Serializer<Technology> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Technology>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Technology>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -337,7 +336,7 @@ struct TerrainType : RefnameEntity<TerrainTypeId> {
 template<>
 struct Eng3D::Deser::Serializer<TerrainType> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, TerrainType>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, TerrainType>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);

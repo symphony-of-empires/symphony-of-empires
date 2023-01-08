@@ -184,7 +184,7 @@ void Nation::control_province(Province& province) {
         // Cancel the unit construction projects
         province.cancel_construction_project();
         if(province.controller_id != province.owner_id)
-            for(auto& pop : province.pops.all)
+            for(auto& pop : province.pops)
                 pop.militancy += 0.1f;
         
         // All factories lose their money and scale down to 0
@@ -193,8 +193,8 @@ void Nation::control_province(Province& province) {
             building.production_scale = 0.f;
         }
 
-        // And all pops.all lose their money too
-        for(auto& pop : province.pops.all)
+        // And all pops lose their money too
+        for(auto& pop : province.pops)
             pop.budget = 0.f;
     }
 }
@@ -207,10 +207,10 @@ float Nation::get_research_points() const {
     float new_research = 0.f;
     for(const auto province_id : this->owned_provinces) {
         const auto& province = World::get_instance().provinces[province_id];
-        for(const auto& pop : province.pops.all)
+        for(const auto& pop : province.pops)
             new_research += pop.size * pop.literacy;
         if(new_research && !province.is_populated())
-            new_research /= province.pops.all.size();
+            new_research /= province.pops.size();
     }
     return new_research / 100.f;
 }

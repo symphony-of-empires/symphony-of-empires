@@ -41,7 +41,7 @@ namespace UI {
     public:
         Chart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);
         virtual ~Chart() override {}
-        virtual void on_render(Context& ctx, Eng3D::Rect viewport);
+        virtual void on_render(Context& ctx, Eng3D::Rect viewport) override;
         void set_data(std::vector<float> data);
     private:
         std::vector<float> data;

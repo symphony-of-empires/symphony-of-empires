@@ -177,7 +177,7 @@ namespace TreatyClause {
 template<>
 struct Eng3D::Deser::Serializer<TreatyClause::BaseClause*> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, TreatyClause::BaseClause>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, TreatyClause::BaseClause>::type;
 
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>*& obj) {
@@ -279,7 +279,7 @@ struct Treaty : Entity<TreatyId> {
 template<>
 struct Eng3D::Deser::Serializer<Treaty> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Treaty>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Treaty>::type;
 
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {

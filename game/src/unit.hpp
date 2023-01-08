@@ -35,7 +35,7 @@
 #include "eng3d/freelist.hpp"
 
 class Nation;
-class Commodity;
+struct Commodity;
 class Province;
 class World;
 
@@ -59,7 +59,7 @@ struct UnitType : RefnameEntity<UnitTypeId> {
 template<>
 struct Eng3D::Deser::Serializer<UnitType> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, UnitType>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, UnitType>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -80,7 +80,7 @@ class UnitManager;
 class Unit : public Entity<UnitId> {
     Unit& operator=(const Unit&) = default;
     friend class Client;
-    friend struct UnitManager;
+    friend class UnitManager;
     friend struct Eng3D::Deser::Serializer<Unit>;
     std::vector<ProvinceId> path;
     float days_left_until_move = 0;
@@ -137,7 +137,7 @@ public:
 template<>
 struct Eng3D::Deser::Serializer<Unit> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Unit>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Unit>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -178,7 +178,7 @@ public:
 template<>
 struct Eng3D::Deser::Serializer<UnitManager> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, UnitManager>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, UnitManager>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.units);

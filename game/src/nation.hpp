@@ -37,13 +37,10 @@
 #include "objects.hpp"
 #include "event.hpp"
 #include "indpobj.hpp"
-#include "indpobj.hpp"
 
 class Province;
 struct Technology;
 class Pop;
-class Language;
-class Religion;
 namespace TreatyClause {
     class BaseClause;
 }
@@ -158,7 +155,7 @@ public:
 template<>
 struct Eng3D::Deser::Serializer<Nation::Relation> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Nation::Relation>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Nation::Relation>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.alliance);
@@ -169,7 +166,7 @@ struct Eng3D::Deser::Serializer<Nation::Relation> {
 template<>
 struct Eng3D::Deser::Serializer<Nation::ClientHint> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Nation::ClientHint>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Nation::ClientHint>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.color);
@@ -180,7 +177,7 @@ struct Eng3D::Deser::Serializer<Nation::ClientHint> {
 template<>
 struct Eng3D::Deser::Serializer<Nation> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Nation>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Nation>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);

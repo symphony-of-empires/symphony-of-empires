@@ -56,10 +56,7 @@ namespace Interface {
     };
 
     // View information related to the economic activity of the province
-    class ProvinceEconomyTab : public UI::Group {
-        UI::PieChart* products_pie;
-        UI::PieChart* goods_pie;
-    public:
+    struct ProvinceEconomyTab : UI::Group {
         ProvinceEconomyTab(GameState& gs, int x, int y, Province& province, UI::Widget* _parent);
         GameState& gs;
         Province& province;
@@ -79,8 +76,7 @@ namespace Interface {
         Religion& religion;
     };
 
-    class ProvinceEditTerrainTab : public UI::Group {
-    public:
+    struct ProvinceEditTerrainTab : UI::Group {
         ProvinceEditTerrainTab(GameState& gs, int x, int y, Province& province, UI::Widget* _parent);
         GameState& gs;
         Province& province;
@@ -98,7 +94,7 @@ namespace Interface {
     public:
         ProvinceView(GameState& gs, Province& province);
         ~ProvinceView() override;
-        friend class ProvinceBuildingTab;
+        friend struct ProvinceBuildingTab;
     };
 
     // Brief

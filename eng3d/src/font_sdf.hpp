@@ -39,7 +39,7 @@ namespace Eng3D {
     }
     class Texture;
     class Camera;
-    class TriangleList;
+    struct TriangleList;
 
     struct Glyph {
         Glyph() = default;

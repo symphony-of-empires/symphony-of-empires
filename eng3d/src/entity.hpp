@@ -28,7 +28,7 @@
 #include <limits>
 #include "eng3d/string.hpp"
 
-template<std::unsigned_integral T>
+template<typename T>
 struct EntityId {
     using Type = T;
     constexpr static T invalid_id = 0;
@@ -73,14 +73,14 @@ struct EntityId {
     }
 };
 
-template<std::unsigned_integral T>
+template<typename T>
 struct std::hash<EntityId<T>> {
     std::size_t operator()(const EntityId<T>& id) const noexcept {
         return std::hash(id.id);
     }
 };
 
-template<std::unsigned_integral T>
+template<typename T>
 struct std::equal_to<EntityId<T>> {
     constexpr bool operator()(const EntityId<T>& a, const EntityId<T>& b) const {
         return a == b;

@@ -29,6 +29,7 @@
 #include <cstdint>
 #include <mutex>
 #include <memory>
+#include <compare>
 #include <iterator>
 #include <stdexcept>
 #include "eng3d/utils.hpp"

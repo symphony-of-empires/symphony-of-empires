@@ -63,7 +63,7 @@ namespace UI {
     public:
         CandleChart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);
         virtual ~CandleChart() override {}
-        virtual void on_render(Context& ctx, Eng3D::Rect viewport);
+        virtual void on_render(Context& ctx, Eng3D::Rect viewport) override;
         void set_data(std::vector<UI::CandleData> data);
     private:
         std::vector<UI::CandleData> data;

@@ -166,5 +166,5 @@ namespace Eng3D {
             return Eng3D::Rectangle{ i_left, i_top, i_right - i_left, i_bottom - i_top };
         }
     };
-    typedef class Rectangle Rect;
+    typedef struct Rectangle Rect;
 }

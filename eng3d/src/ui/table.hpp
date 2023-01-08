@@ -92,7 +92,7 @@ namespace UI {
         {
             assert(_widths.size() == _header_labels.size());
             this->width = std::accumulate(_widths.begin(), _widths.end(), 35);
-            auto& header = this->make_widget<UI::TableRow>(this->width - 35, _row_height, this->columns_width);
+            auto& header = this->template make_widget<UI::TableRow>(this->width - 35, _row_height, this->columns_width);
             for(size_t i = 0; i < _header_labels.size(); i++) {
                 auto& label = _header_labels[i];
                 auto* column = header.get_element(i);
@@ -103,12 +103,12 @@ namespace UI {
                     this->sort(i, this->sorting_ascending);
                 });
             }
-            auto& wrapper = this->make_widget<UI::Div>(0, _row_height, this->width, this->height - row_height);
+            auto& wrapper = this->template make_widget<UI::Div>(0, _row_height, this->width, this->height - row_height);
             wrapper.is_scroll = true;
-            this->column_wrapper = &wrapper.make_widget<UI::Div>(0, 0, this->width - 25, 0);
+            this->column_wrapper = &wrapper.template make_widget<UI::Div>(0, 0, this->width - 25, 0);
             this->column_wrapper->flex = UI::Flex::COLUMN;
             this->column_wrapper->flex_justify = UI::FlexJustify::START;
-            this->scrollbar = &wrapper.make_widget<UI::Scrollbar>(this->width - 20, 0, wrapper.height - 40);
+            this->scrollbar = &wrapper.template make_widget<UI::Scrollbar>(this->width - 20, 0, wrapper.height - 40);
             this->on_update = [this](Widget&) {
                 int total_height = this->row_height * this->rows.size();
                 this->column_wrapper->height = total_height;
@@ -122,7 +122,7 @@ namespace UI {
 
         UI::TableRow& get_row(T _row_id) {
             if(!this->rows.count(_row_id)) {
-                auto& row = this->column_wrapper->make_widget<UI::TableRow>(this->width - 25, this->row_height, this->columns_width);
+                auto& row = this->column_wrapper->template make_widget<UI::TableRow>(this->width - 25, this->row_height, this->columns_width);
                 this->rows.insert({ _row_id, &row });
             }
             auto* row = this->rows[_row_id];

@@ -37,7 +37,7 @@
 
 namespace Eng3D {
     class State;
-    class Material;
+    struct Material;
     namespace OpenGL {
         class Program;
     }

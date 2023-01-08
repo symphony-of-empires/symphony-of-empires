@@ -81,28 +81,31 @@ void Eng3D::Texture::_upload(TextureOptions options) {
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
 
-#ifndef E3D_BACKEND_GLES
-    GLuint internal_format = 0;
-    switch(options.internal_format) {
-    case Eng3D::TextureOptions::Format::RGBA:
-        internal_format = GL_RGBA;
-        break;
-    case Eng3D::TextureOptions::Format::RED:
-        internal_format = GL_RED;
-        break;
-    case Eng3D::TextureOptions::Format::SRGB:
-        internal_format = GL_SRGB;
-        break;
-    case Eng3D::TextureOptions::Format::RGB32F:
-        internal_format = GL_RGB32F;
-        break;
-    case Eng3D::TextureOptions::Format::SRGB_ALPHA:
-        internal_format = GL_SRGB_ALPHA;
-        break;
-    default:
-        break;
-    }
+    const auto texture_options_to_gl = [](const auto x) {
+        switch(x) {
+        case Eng3D::TextureOptions::Format::RGBA:
+            return GL_RGBA;
+        case Eng3D::TextureOptions::Format::RED:
+            return GL_RED;
+        case Eng3D::TextureOptions::Format::SRGB:
+            return GL_SRGB;
+        case Eng3D::TextureOptions::Format::RGB32F:
+            return GL_RGB32F;
+        case Eng3D::TextureOptions::Format::SRGB_ALPHA:
+    #ifdef E3D_BACKEND_GLES
+            return GL_RGBA;
+    #else
+            return GL_SRGB_ALPHA;
+    #endif
+        default:
+            return 0;
+        }
+        return 0;
+    };
 
+    GLuint internal_format = texture_options_to_gl(options.internal_format);
+
+#ifndef E3D_BACKEND_GLES
     /// @todo This causes a lot of issues!
     // Compress the texture if it can't be edited, this is only available on normal OpenGL through
     if(!options.editable && options.compressed) {
@@ -142,27 +145,7 @@ void Eng3D::Texture::_upload(TextureOptions options) {
         }
     }
 #endif
-
-    GLuint format = 0;
-    switch(options.format) {
-    case Eng3D::TextureOptions::Format::RGBA:
-        format = GL_RGBA;
-        break;
-    case Eng3D::TextureOptions::Format::RED:
-        format = GL_RED;
-        break;
-    case Eng3D::TextureOptions::Format::SRGB:
-        format = GL_SRGB;
-        break;
-    case Eng3D::TextureOptions::Format::RGB32F:
-        format = GL_RGB32F;
-        break;
-    case Eng3D::TextureOptions::Format::SRGB_ALPHA:
-        format = GL_SRGB_ALPHA;
-        break;
-    default:
-        break;
-    }
+    GLuint format = texture_options_to_gl(options.format);
 
     GLuint type = 0;
     switch(options.type) {

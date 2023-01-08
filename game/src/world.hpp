@@ -58,9 +58,6 @@
 #include "diplomacy.hpp"
 #include "indpobj.hpp"
 
-// A single tile unit this is the smallest territorial unit in the game and it cannot be divided (and it shouldn't)
-struct World;
-
 // Create a new list from a type, with helper functions
 #define LIST_FOR_TYPE(type, list, list_type)\
     inline const list_type<type*>& get_list(const type* = nullptr) const {\
@@ -233,7 +230,7 @@ public:
 template<>
 struct Eng3D::Deser::Serializer<World> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, World>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, World>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.width);

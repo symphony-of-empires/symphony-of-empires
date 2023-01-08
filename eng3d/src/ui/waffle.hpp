@@ -40,7 +40,7 @@ namespace UI {
     struct WaffleChart: Widget {
         WaffleChart(int x, int y, unsigned w, unsigned h, Widget* _parent = nullptr);
         virtual ~WaffleChart() override {}
-        virtual void on_render(Context& ctx, Eng3D::Rect viewport);
+        virtual void on_render(Context& ctx, Eng3D::Rect viewport) override;
         void set_data(std::vector<UI::ChartData> data);
     private:
         std::vector<UI::ChartData> data;

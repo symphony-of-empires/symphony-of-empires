@@ -222,9 +222,9 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
     auto& nation = world.nations[province.controller_id];
 
     std::vector<float> goods_payment(world.commodities.size(), 0.f);
-    for(size_t i = 0; i < province.pops.all.size(); i++) {
+    for(size_t i = 0; i < province.pops.size(); i++) {
         auto& pop_need = pop_needs[i];
-        auto& pop = province.pops.all[i];
+        auto& pop = province.pops[i];
         const auto& needs_amounts = world.pop_types[pop.type_id].basic_needs_amount;
         if(pop.size == 0.f || pop_need.budget == 0.f) return;
 
@@ -352,17 +352,17 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         product.close_market();
 
     auto& new_needs = pops_new_needs[province_id];
-    new_needs.assign(province.pops.all.size(), PopNeed{});
+    new_needs.assign(province.pops.size(), PopNeed{});
 
     auto laborers_payment = 0.f, artisans_payment = 0.f, state_payment = 0.f, private_payment = 0.f, bureaucrats_payment = 0.f;
 
-    auto artisans_amount = province.pops.list.artisan.size;
-    auto burgeoise_amount = province.pops.list.burgeoise.size;
-    auto laborers_amount = province.pops.list.laborer.size;
-    auto bureaucrats_amount = province.pops.list.bureaucrat.size;
+    auto artisans_amount = province.pops[(int)PopGroup::ARTISAN].size;
+    auto burgeoise_amount = province.pops[(int)PopGroup::BURGEOISE].size;
+    auto laborers_amount = province.pops[(int)PopGroup::LABORER].size;
+    auto bureaucrats_amount = province.pops[(int)PopGroup::BUREAUCRAT].size;
     auto bureaucracy_pts = bureaucrats_amount
-        * (1.f - province.pops.list.bureaucrat.militancy)
-        * province.pops.list.bureaucrat.literacy;
+        * (1.f - province.pops[(int)PopGroup::BUREAUCRAT].militancy)
+        * province.pops[(int)PopGroup::BUREAUCRAT].literacy;
 
     for(auto& building_type : world.building_types) {
         auto& building = province.buildings[building_type];
@@ -370,8 +370,8 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         update_industry_production(world, building, building_type, province, artisans_amount, artisans_payment);
     }
 
-    for(size_t i = 0; i < province.pops.all.size(); i++) {
-        const auto& pop = province.pops.all[i];
+    for(size_t i = 0; i < province.pops.size(); i++) {
+        const auto& pop = province.pops[i];
         new_needs[i].budget = pop.budget;
         new_needs[i].life_needs_met = glm::clamp(pop.life_needs_met - 0.1f, -1.f, 1.f);
     }
@@ -422,8 +422,8 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         auto& province = world.provinces[province_id];
     if(Nation::is_invalid(province.controller_id)) return;
     const auto& new_needs = pops_new_needs[province_id];
-    for(size_t i = 0; i < province.pops.all.size(); i++) {
-        auto& pop = province.pops.all[i];
+    for(size_t i = 0; i < province.pops.size(); i++) {
+        auto& pop = province.pops[i];
         pop.budget = new_needs[i].budget;
         pop.life_needs_met = new_needs[i].life_needs_met;
         const auto growth = glm::clamp(pop.size * pop.life_needs_met * 0.1f, -100.f, 100.f);

@@ -49,7 +49,7 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
         }
     }
 
-    // Sea provinces dont have pops.all or RGOs
+    // Sea provinces dont have pops or RGOs
     if(gs.world->terrain_types[province.terrain_type_id].is_water_body)
         province.rgo_size.clear();
 
@@ -91,7 +91,7 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
     }
 
     // POPs
-    for(const auto& pop : province.pops.all)
+    for(const auto& pop : province.pops)
         fprintf(fp, "province:add_pop(pt_%s,%f,%f)\n", gs.world->pop_types[pop.type_id].ref_name.c_str(), pop.size, pop.literacy);
     for(const auto& language : gs.world->languages)
         if(province.languages[language] > 0.f)
@@ -137,7 +137,7 @@ void LUA_util::save(GameState& gs, const std::string& savefile_path) {
         for(const auto& nation : gs.world->nations)
             fprintf(fp.get(), "n_%s=Nation:get(\"%s\")\n", nation.ref_name.c_str(), nation.ref_name.c_str());
 
-        // First add provinces with pops.all, then the provinces **without** pops.all
+        // First add provinces with pops, then the provinces **without** pops
         for(auto& province : gs.world->provinces) {
             if(province.is_populated())
                 save_province(gs, fp.get(), province);

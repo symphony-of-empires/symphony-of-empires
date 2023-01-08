@@ -38,7 +38,7 @@ struct Decision : RefnameEntity<DecisionId> {
 template<>
 struct Eng3D::Deser::Serializer<Decision> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Decision>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Decision>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -67,7 +67,7 @@ struct Event : RefnameEntity<EventId> {
 template<>
 struct Eng3D::Deser::Serializer<::Event> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, ::Event>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, ::Event>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);

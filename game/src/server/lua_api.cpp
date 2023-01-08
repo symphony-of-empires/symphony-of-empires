@@ -471,7 +471,7 @@ int LuaAPI::add_province(lua_State* L) {
     
     {
         size_t i = 0;
-        for(auto& pop : province.pops.all) {
+        for(auto& pop : province.pops) {
             pop.type_id = PopTypeId(i);
             i++;
         }
@@ -634,10 +634,10 @@ int LuaAPI::get_province_nuclei(lua_State* L) {
 
 int LuaAPI::add_province_pop(lua_State* L) {
     auto& province = g_world.provinces.at(lua_tonumber(L, 1));
-    auto& pop = province.pops.all.at(lua_tonumber(L, 2));
+    auto& pop = province.pops.at(lua_tonumber(L, 2));
     pop.size = lua_tonumber(L, 3);
     if(!pop.size) {
-        luaL_error(L, "Can't create pops.all with 0 size");
+        luaL_error(L, "Can't create pops with 0 size");
         return 0;
     }
     pop.literacy = lua_tonumber(L, 4);
@@ -755,7 +755,7 @@ int LuaAPI::add_pop_type(lua_State* L) {
     pop_type.luxury_needs_satisfaction.resize(g_world.commodities.size(), 0.f);
     pop_type.luxury_needs_deminishing_factor.resize(g_world.commodities.size(), 0.f);
 
-    // Lua next = pops.all top and then pushes key & value in table
+    // Lua next = pops top and then pushes key & value in table
     lua_pushvalue(L, 4);
     lua_pushnil(L);
     while(lua_next(L, -2)) {

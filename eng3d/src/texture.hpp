@@ -141,7 +141,7 @@ namespace Eng3D {
         void bind() const;
         void delete_gputex();
         void guillotine(const Eng3D::Texture& map, int x, int y, int w, int h);
-        void to_file(const std::string& filename);
+        void to_file(const std::string& filename) override;
         
         unsigned int id = 0;
         bool managed = false;

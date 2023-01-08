@@ -44,11 +44,40 @@ namespace std {
 #endif
     template<typename T>
     constexpr T byteswap(T value) noexcept {
+#ifdef __cpp_lib_ranges
         static_assert(std::has_unique_object_representations_v<T>, "T may not have padding bits");
         auto value_representation = std::bit_cast<std::array<std::byte, sizeof(T)>>(value);
         std::ranges::reverse(value_representation);
         return std::bit_cast<T>(value_representation);
+#endif
+        if(sizeof(T) == sizeof(uint64_t)) {
+            uint64_t x = value;
+            return ((x << 56) & 0xff00000000000000ULL) |
+                ((x << 40) & 0x00ff000000000000ULL) |
+                ((x << 24) & 0x0000ff0000000000ULL) |
+                ((x << 8)  & 0x000000ff00000000ULL) |
+                ((x >> 8)  & 0x00000000ff000000ULL) |
+                ((x >> 24) & 0x0000000000ff0000ULL) |
+                ((x >> 40) & 0x000000000000ff00ULL) |
+                ((x >> 56) & 0x00000000000000ffULL);
+        } else if(sizeof(T) == sizeof(uint32_t)) {
+            uint32_t x = value;
+            return 
+                ((x << 24) & 0xff000000UL) |
+                ((x << 8)  & 0x00ff0000UL) |
+                ((x >> 8)  & 0x0000ff00UL) |
+                ((x >> 24) & 0x000000ffUL);
+        } else {
+            uint16_t x = value;
+            return 
+                ((x << 8)  & 0xff00U) |
+                ((x >> 8)  & 0x00ffU);
+        }
+        return value;
     }
+
+    template<class T>
+    concept destructible = std::is_nothrow_destructible_v<T>;
 }
 #endif
 

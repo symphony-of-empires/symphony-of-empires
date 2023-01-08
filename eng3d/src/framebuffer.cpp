@@ -22,11 +22,13 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
+
 #ifdef E3D_BACKEND_OPENGL
 #   include <GL/glew.h>
 #   include <GL/gl.h>
-#elif defined E3D_BACKEND_RGX
-#   include <gccore.h>
+#elif defined E3D_BACKEND_GLES
+#   include <GLES3/gl3.h>
+#   include <GLES3/gl31.h>
 #endif
 
 #include "eng3d/framebuffer.hpp"

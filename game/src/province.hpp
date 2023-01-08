@@ -42,25 +42,24 @@
 
 class World;
 class Nation;
-class TerrainType;
 
 /// @brief A single province, which is used to simulate economy in a "bulk-tiles" way
 /// instead of doing economical operations on every single tile
 class Province : public RefnameEntity<ProvinceId> {
-    Province& operator=(const Province&) = default;
+    Province& operator=(const Province&) = delete;
 public:
     float total_pops() const {
         auto total = 0.f;
-        for(const auto& pop : pops.all)
+        for(const auto& pop : pops)
             total += pop.size;
         return total;
     }
 
     float average_militancy() const {
         auto total = 0.f;
-        for(const auto& pop : pops.all)
+        for(const auto& pop : pops)
             total += pop.militancy;
-        return total / pops.all.size();
+        return total / pops.size();
     }
 
     float get_attractiveness(const Pop& pop) const;
@@ -83,14 +82,14 @@ public:
     }
 
     bool is_populated() const {
-        for(const auto& pop : pops.all)
+        for(const auto& pop : pops)
             if(pop.size > 0.f)
                 return true;
         return false;
     }
 
     void unpopulate() {
-        for(auto& pop : pops.all)
+        for(auto& pop : pops)
             pop.size = 0.f;
     }
 
@@ -105,22 +104,7 @@ public:
     NationId controller_id;
     TerrainTypeId terrain_type_id;
     std::vector<uint32_t> rgo_size; // How much of each rgo that can be extracted
-    union PopList {
-        constexpr PopList() {};
-        constexpr ~PopList() {};
-        std::array<Pop, 7> all; // List of pops in this province
-        struct PopListElements {
-            constexpr PopListElements() {};
-            constexpr ~PopListElements() {};
-            Pop burgeoise;
-            Pop artisan;
-            Pop bureaucrat;
-            Pop intellectual;
-            Pop soldier;
-            Pop laborer;
-            Pop slave;
-        } list;
-    } pops;
+    std::array<Pop, 7> pops;
 
     std::vector<Product> products;
     std::vector<Building> buildings;
@@ -140,13 +124,13 @@ public:
     std::vector<ProvinceId> neighbour_ids; // Neighbouring provinces
     /// @brief Percentage of each languages from 0 to 1
     std::vector<float> languages;
-    /// @brief Percentage of each religion prescence on the pops.all, from 0 to 1
+    /// @brief Percentage of each religion prescence on the pops, from 0 to 1
     std::vector<float> religions;
 };
 template<>
 struct Eng3D::Deser::Serializer<Province::Battle> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Province::Battle>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Province::Battle>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.attacker_casualties);
@@ -160,7 +144,7 @@ struct Eng3D::Deser::Serializer<Province::Battle> {
 template<>
 struct Eng3D::Deser::Serializer<Province> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Province>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Province>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -173,7 +157,7 @@ struct Eng3D::Deser::Serializer<Province> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.rgo_size);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.neighbour_ids);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.products);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.pops.all);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.pops);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.buildings);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.controller_id);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.base_attractive);

@@ -62,7 +62,7 @@ void ProvincePopulationTab::update_piecharts() {
     religions_pie->set_data(religions_data);
 
     std::vector<size_t> pop_type_sizes(gs.world->pop_types.size(), 0);
-    for(const auto& pop : province.pops.all)
+    for(const auto& pop : province.pops)
         pop_type_sizes[pop.type_id] += pop.size;
     for(const auto& pop_type : gs.world->pop_types) {
         const auto i = static_cast<size_t>(pop_type.get_id());
@@ -85,10 +85,10 @@ UI::Widget& ProvincePopulationTab::create_pop_table() {
     }
 
     auto& pop_table = this->make_widget<UI::Table<uint32_t>>(0, 352, this->height - (352 + 32), 30, sizes, header);
-    pop_table.reserve(this->province.pops.all.size());
+    pop_table.reserve(this->province.pops.size());
     pop_table.set_on_each_tick([this, &pop_table](UI::Widget&) {
-        for(size_t i = 0; i < this->province.pops.all.size(); i++) {
-            auto& pop = this->province.pops.all[i];
+        for(size_t i = 0; i < this->province.pops.size(); i++) {
+            auto& pop = this->province.pops[i];
             auto& row = pop_table.get_row(i);
             size_t row_index = 0;
 
@@ -111,7 +111,7 @@ UI::Widget& ProvincePopulationTab::create_pop_table() {
                 remove_btn->set_key(remove_btn_str);
                 remove_btn->set_on_click([this, i, &pop_table](UI::Widget&) {
                     pop_table.remove_row(i);
-                    const_cast<Province&>(this->province).pops.all[i].size = 0.f;
+                    const_cast<Province&>(this->province).pops[i].size = 0.f;
                     pop_table.on_each_tick(pop_table);
                 });
             }
@@ -125,7 +125,7 @@ UI::Widget& ProvincePopulationTab::create_stock_table() {
     std::vector<int> sizes{ 100, 100, 100, 100, 100 };
     std::vector<std::string> header{ "Commodity", "Amount", "Demand", "Glob Demand", "Price" };
     auto& stock_table = this->make_widget<UI::Table<uint32_t>>(0, 352, this->height - (352 + 32), 30, sizes, header);
-    stock_table.reserve(this->province.pops.all.size());
+    stock_table.reserve(this->province.pops.size());
     stock_table.set_on_each_tick([this, &stock_table](UI::Widget&) {
         for(const auto& commodity : this->gs.world->commodities) {
             auto& product = this->province.products[commodity];
@@ -394,7 +394,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
                 this->gs.input.selected_religion = &this->gs.world->religions[0];
 
             for(const auto& pop_type : this->gs.world->pop_types) {
-                auto& pop = province.pops.all[pop_type];
+                auto& pop = province.pops[pop_type];
                 pop.type_id = pop_type.get_id();
                 pop.size = 1000.f;
                 pop.literacy = 0.5;
@@ -435,7 +435,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
             auto& o = static_cast<UI::Slider&>(w);
             w.set_text(string_format("%.2f", o.get_value()));
             const auto den = o.get_value();
-            for(auto& pop : const_cast<Province&>(this->province).pops.all)
+            for(auto& pop : const_cast<Province&>(this->province).pops)
                 pop.size *= den;
             this->gs.map->update_mapmode();
             this->gs.map->map_render->request_update_visibility();

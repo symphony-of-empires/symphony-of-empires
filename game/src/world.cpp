@@ -175,12 +175,12 @@ void World::init_lua() {
     lua_register(lua.state, "get_province_nuclei", LuaAPI::get_province_nuclei);
     lua_register(lua.state, "get_province_pops_size", [](lua_State* L) {
         const auto& province = g_world.provinces.at(lua_tonumber(L, 1));
-        lua_pushnumber(L, province.pops.all.size());
+        lua_pushnumber(L, province.pops.size());
         return 1;
     });
     lua_register(lua.state, "get_province_pop", [](lua_State* L) {
         const auto& province = g_world.provinces.at(lua_tonumber(L, 1));
-        const auto& pop = province.pops.all.at(lua_tonumber(L, 2));
+        const auto& pop = province.pops.at(lua_tonumber(L, 2));
         lua_pushnumber(L, pop.size);
         lua_pushnumber(L, pop.budget);
         lua_pushnumber(L, pop.literacy);
@@ -194,7 +194,7 @@ void World::init_lua() {
     });
     lua_register(lua.state, "set_province_pop", [](lua_State* L) {
         auto& province = g_world.provinces.at(lua_tonumber(L, 1));
-        auto& pop = province.pops.all.at(lua_tonumber(L, 2));
+        auto& pop = province.pops.at(lua_tonumber(L, 2));
         pop.size = lua_tonumber(L, 3);
         pop.budget = lua_tonumber(L, 4);
         pop.literacy = lua_tonumber(L, 5);

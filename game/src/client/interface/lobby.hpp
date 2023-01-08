@@ -46,7 +46,7 @@ namespace Interface {
         UI::Window* ctrl_window;
         UI::Image* curr_country_flag_img;
         UI::Button* curr_country_btn;
-        std::vector<class LoadGameBtnData> ldgame_data;
+        std::vector<LoadGameBtnData> ldgame_data;
     public:
         LobbySelectView(GameState& gs);
         void change_nation(size_t id);

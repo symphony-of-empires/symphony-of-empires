@@ -51,7 +51,7 @@ PieChart::PieChart(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
 
 void PieChart::set_data(std::vector<ChartData> new_data) {
     data = new_data;
-    max = std::accumulate(data.begin(), data.end(), 0.f, [](const auto&& a, const auto& e) {
+    max = std::accumulate(data.begin(), data.end(), 0.f, [](const auto a, const auto& e) {
         return a + e.num;
     });
 }

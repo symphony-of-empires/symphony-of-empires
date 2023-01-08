@@ -97,7 +97,7 @@ void Eng3D::Curve::create_line(const std::vector<glm::vec3>& points, const std::
     this->add_quad(prev_c1, prev_c2, prev_c4, prev_c3);
 }
 
-#ifdef E3D_BACKEND_OPENGL
+#if defined(E3D_BACKEND_OPENGL) || defined(E3D_BACKEND_GLES)
 void Eng3D::Curve::draw() {
     if(this->quads.get() == nullptr)
         this->upload();

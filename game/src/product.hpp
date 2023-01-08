@@ -41,7 +41,7 @@ struct Commodity : RefnameEntity<CommodityId> {
 template<>
 struct Eng3D::Deser::Serializer<Commodity> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Commodity>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Commodity>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
@@ -123,7 +123,7 @@ struct Product : Entity<ProductId> {
 template<>
 struct Eng3D::Deser::Serializer<Product> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Product>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Product>::type;
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);

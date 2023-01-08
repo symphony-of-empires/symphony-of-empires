@@ -36,6 +36,7 @@
 #include <type_traits>
 #include <bitset>
 #include <limits>
+#include <concepts>
 #include <glm/glm.hpp>
 #include "eng3d/utils.hpp"
 #include "eng3d/string.hpp"
@@ -109,7 +110,7 @@ namespace Eng3D::Deser {
     template<typename T>
     struct Serializer {
         template<bool is_const>
-        using type = CondConstType<is_const, T>::type;
+        using type = typename CondConstType<is_const, T>::type;
 #ifdef DEBUG_SERIALIZER
         template<bool is_serialize = true>
         static inline void deser_dynamic(Eng3D::Deser::Archive&, T&&) {
@@ -160,7 +161,7 @@ namespace Eng3D::Deser {
     template<typename T>
     struct SerializerMemcpy {
         template<bool is_const>
-        using type = CondConstType<is_const, T>::type;
+        using type = typename CondConstType<is_const, T>::type;
 
         template<bool is_serialize>
         static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
@@ -170,13 +171,13 @@ namespace Eng3D::Deser {
     };
 
     template<typename T>
-    concept SerializerScalar = ::std::is_integral_v<T> || ::std::is_floating_point_v<T>;
+    concept SerializerScalar = std::is_integral_v<T> || std::is_floating_point_v<T>;
     template<SerializerScalar T>
     class Serializer<T> {
         constexpr static auto scaling = 1000.f;
     public:
         template<bool is_const>
-        using type = CondConstType<is_const, T>::type;
+        using type = typename CondConstType<is_const, T>::type;
 
         template<bool is_serialize>
         static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
@@ -197,10 +198,12 @@ namespace Eng3D::Deser {
 
     template<typename T>
     concept SerializerContainer = requires(T a, T b) {
-        requires ::std::destructible<typename T::value_type>;
-        requires ::std::forward_iterator<typename T::iterator>;
-        { a.begin() } -> ::std::same_as<typename T::iterator>;
-        { a.end() } -> ::std::same_as<typename T::iterator>;
+#if defined(__GNUC__) && !defined(__clang__) && !defined(__llvm__)
+        requires std::destructible<typename T::value_type>;
+        requires std::forward_iterator<typename T::iterator>;
+#endif
+        { a.begin() } -> std::same_as<typename T::iterator>;
+        { a.end() } -> std::same_as<typename T::iterator>;
     };
     /// @brief Non-contigous serializer for STL containers
     /// This serializer class works primarly with containers whose memory is contiguous
@@ -209,7 +212,7 @@ namespace Eng3D::Deser {
         static constexpr auto max_elements = 163550 * 32;
 
         template<bool is_const>
-        using type = CondConstType<is_const, T>::type;
+        using type = typename CondConstType<is_const, T>::type;
 
         template<bool is_serialize>
         static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj_group) {
@@ -259,7 +262,7 @@ namespace Eng3D::Deser {
     template<>
     struct Serializer<bool> {
         template<bool is_const>
-        using type = CondConstType<is_const, bool>::type;
+        using type = typename CondConstType<is_const, bool>::type;
 
         template<bool is_serialize>
         static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
@@ -275,7 +278,7 @@ namespace Eng3D::Deser {
     template<typename T, typename U>
     struct Serializer<::std::pair<T, U>> {
         template<bool is_const>
-        using type = CondConstType<is_const, ::std::pair<T, U>>::type;
+        using type = typename CondConstType<is_const, ::std::pair<T, U>>::type;
 
         template<bool is_serialize>
         static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
@@ -289,7 +292,7 @@ namespace Eng3D::Deser {
     template<typename T, int N>
     struct SerializerBitset {
         template<bool is_const>
-        using type = CondConstType<is_const, T>::type;
+        using type = typename CondConstType<is_const, T>::type;
 
         template<bool is_serialize>
         static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj_group) {
@@ -308,7 +311,7 @@ namespace Eng3D::Deser {
     template<>
     struct Serializer<Eng3D::StringRef> {
         template<bool is_const>
-        using type = CondConstType<is_const, Eng3D::StringRef>::type;
+        using type = typename CondConstType<is_const, Eng3D::StringRef>::type;
 
         template<bool is_serialize>
         static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
@@ -319,7 +322,7 @@ namespace Eng3D::Deser {
     template<>
     struct Serializer<Eng3D::Rectangle> {
         template<bool is_const>
-        using type = CondConstType<is_const, Eng3D::Rectangle>::type;
+        using type = typename CondConstType<is_const, Eng3D::Rectangle>::type;
 
         template<bool is_serialize>
         static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
@@ -333,7 +336,7 @@ namespace Eng3D::Deser {
     template<typename T>
     struct Serializer<std::optional<T>> {
         template<bool is_const>
-        using type = CondConstType<is_const, std::optional<T>>::type;
+        using type = typename CondConstType<is_const, std::optional<T>>::type;
 
         template<bool is_serialize>
         static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
@@ -356,7 +359,7 @@ namespace Eng3D::Deser {
     template<typename T>
     struct Serializer<Eng3D::Freelist<T>> {
         template<bool is_const>
-        using type = CondConstType<is_const, Eng3D::Freelist<T>>::type;
+        using type = typename CondConstType<is_const, Eng3D::Freelist<T>>::type;
 
         template<bool is_serialize>
         static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {

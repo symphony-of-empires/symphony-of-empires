@@ -554,11 +554,11 @@ std::string language_tooltip(const World& world, const ProvinceId id) {
 }
 
 std::vector<ProvinceColor> population_map_mode(const World& world) {
-    // Find the maximum amount of pops.all in one province
+    // Find the maximum amount of pops in one province
     std::vector<std::pair<ProvinceId, float>> province_amounts;
     float max_amount = 1.f;
     for(auto const& province : world.provinces) {
-        float amount = std::accumulate(province.pops.all.cbegin(), province.pops.all.cend(), 0, [](const float a, const auto& e) {
+        float amount = std::accumulate(province.pops.cbegin(), province.pops.cend(), 0, [](const float a, const auto& e) {
             return a + e.size;
         });
         amount = std::log2(amount);
@@ -592,7 +592,7 @@ std::string population_tooltip(const World& world, const ProvinceId id) {
 
 mapmode_generator trade_map_mode(ProvinceId id) {
     return [id](const World& world) {
-        // Find the maximum amount of pops.all in one province
+        // Find the maximum amount of pops in one province
         std::vector<std::pair<ProvinceId, float>> province_amounts;
         auto max_amount = 1.f;
         for(const auto& province : world.provinces) {

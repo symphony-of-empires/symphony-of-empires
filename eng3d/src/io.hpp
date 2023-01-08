@@ -75,7 +75,7 @@ namespace Eng3D::IO {
 
     namespace Asset {
         struct Base {
-        public:
+            virtual ~Base() = default;
             std::string get_abs_path() const;
             virtual void open() {}
             virtual void close() {}

@@ -46,7 +46,7 @@ UI::WaffleChart::WaffleChart(int _x, int _y, unsigned w, unsigned h, UI::Widget*
 
 void UI::WaffleChart::set_data(std::vector<UI::ChartData> new_data) {
     this->data = new_data;
-    this->max = std::accumulate(this->data.begin(), this->data.end(), 0.f, [](const auto&& a, const auto& e) {
+    this->max = std::accumulate(this->data.begin(), this->data.end(), 0.f, [](const auto a, const auto& e) {
         return a + e.num;
     });
     this->cols = this->width / 8.f;

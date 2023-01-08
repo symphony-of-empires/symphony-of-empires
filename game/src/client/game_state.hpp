@@ -49,8 +49,8 @@ enum class MapMode : unsigned char {
 };
 
 struct Building;
-class Language;
-class Religion;
+struct Language;
+struct Religion;
 
 class Input {
     std::vector<UnitId> selected_units;

@@ -68,7 +68,7 @@ struct BuildingType : RefnameEntity<BuildingTypeId> {
 template<>
 struct Eng3D::Deser::Serializer<BuildingType> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, BuildingType>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, BuildingType>::type;
 
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
@@ -202,7 +202,7 @@ struct Building : Entity<BuildingId> {
 template<>
 struct Eng3D::Deser::Serializer<Building::Investment> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Building::Investment>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Building::Investment>::type;
 
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
@@ -213,7 +213,7 @@ struct Eng3D::Deser::Serializer<Building::Investment> {
 template<>
 struct Eng3D::Deser::Serializer<Building> {
     template<bool is_const>
-    using type = Eng3D::Deser::CondConstType<is_const, Building>::type;
+    using type = typename Eng3D::Deser::CondConstType<is_const, Building>::type;
 
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
