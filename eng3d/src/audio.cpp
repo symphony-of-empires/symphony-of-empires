@@ -25,8 +25,8 @@
 #include <cstring>
 #include <algorithm>
 
-#include <SDL.h>
-#include <SDL_audio.h>
+#include "SDL.h"
+#include "SDL_audio.h"
 
 #include "eng3d/audio.hpp"
 #include "eng3d/utils.hpp"

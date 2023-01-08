@@ -22,10 +22,10 @@
 //      Does important stuff.
 // ----------------------------------------------------------------------------
 
-#include <SDL.h>
-#include <SDL_events.h>
-#include <SDL_keycode.h>
-#include <SDL_mouse.h>
+#include "SDL.h"
+#include "SDL_events.h"
+#include "SDL_keycode.h"
+#include "SDL_mouse.h"
 
 #include "eng3d/event.hpp"
 

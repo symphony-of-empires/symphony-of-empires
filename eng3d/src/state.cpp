@@ -33,12 +33,10 @@
 #       include <winsock2.h>
 #   endif
 #   include <windows.h>
-#endif
-#ifdef E3D_TARGET_UNIX
+#elif defined E3D_TARGET_UNIX
 #   include <unistd.h>
 #   include <fenv.h>
-#endif
-#ifdef E3D_TARGET_SWITCH
+#elif defined E3D_TARGET_SWITCH
 #   include <switch.h>
 #endif
 
@@ -52,12 +50,12 @@
 #elif defined E3D_BACKEND_GLES
 #   include <GLES3/gl3.h>
 #endif
-#include <SDL.h>
-#include <SDL_events.h>
-#include <SDL_keycode.h>
-#include <SDL_mouse.h>
-#include <SDL_audio.h>
-#include <SDL_joystick.h>
+#include "SDL.h"
+#include "SDL_events.h"
+#include "SDL_keycode.h"
+#include "SDL_mouse.h"
+#include "SDL_audio.h"
+#include "SDL_joystick.h"
 
 #include "eng3d/state.hpp"
 #include "eng3d/io.hpp"

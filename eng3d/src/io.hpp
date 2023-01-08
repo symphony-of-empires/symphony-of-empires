@@ -142,5 +142,6 @@ namespace Eng3D::IO {
         std::vector<std::string> get_paths(void) const;
 
         std::vector<Package> packages;
+        std::string userdata_path;
     };
 }
