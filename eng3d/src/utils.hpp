@@ -76,8 +76,10 @@ namespace std {
         return value;
     }
 
+#if defined(__llvm__) || defined(__clang__)
     template<class T>
     concept destructible = std::is_nothrow_destructible_v<T>;
+#endif
 }
 #endif
 

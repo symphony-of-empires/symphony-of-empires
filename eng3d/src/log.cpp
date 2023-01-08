@@ -25,40 +25,19 @@
 #include <cstdio>
 #include <optional>
 #include <memory>
+#include "SDL.h"
 #include "log.hpp"
-
-#ifdef E3D_LOG_TO_FILE
-static std::optional<std::unique_ptr<FILE, int(*)(FILE*)>> log_fp;
-#endif
-#ifdef E3D_TARGET_SWITCH
-struct PrintConsole;
-extern "C" void consoleUpdate(PrintConsole* console);
-#endif
 
 static bool debug_show = false;
 
 /// @brief Logs data to a file or console
 void Eng3D::Log::log(const std::string_view severity, const std::string_view category, const std::string_view msg) {
-    if(!debug_show && severity == "DEBUG") return;
-#ifdef E3D_LOG_TO_FILE
-    if(!log_fp.has_value())
-        log_fp.emplace(std::unique_ptr<FILE, int (*)(FILE *)>(fopen("log.txt", "w+t"), fclose));
-    fprintf((*log_fp).get(), "<%s:%s> %s\n", severity.data(), category.data(), msg.data());
-#else
-#   ifndef E3D_TARGET_SWITCH
-    printf("<%s:%s> %s\n", severity.data(), category.data(), msg.data());
-#   else
-    char tmpbuf[256];
-    snprintf(tmpbuf, sizeof(tmpbuf), "<%s:%s> %s", severity.c_str(), category.c_str(), msg.c_str());
-    fprintf(stderr, tmpbuf);
-#   endif
-#endif
+    SDL_Log("<%s:%s> %s", severity.data(), category.data(), msg.data());
 }
 
 void Eng3D::Log::debug(const std::string_view category, const std::string_view msg) {
-#if defined E3D_DEBUG || 1
-    Eng3D::Log::log("DEBUG", category, msg);
-#endif
+    if(debug_show)
+        Eng3D::Log::log("DEBUG", category, msg);
 }
 
 void Eng3D::Log::warning(const std::string_view category, const std::string_view msg) {
