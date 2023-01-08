@@ -79,7 +79,7 @@ struct Product : Entity<ProductId> {
 
     void close_market() {
         this->demand = this->bought;
-        this->supply += this->produced;
+        this->supply += this->produced - this->bought;
 
         // Increase price with more demand
         this->price_delta = this->get_price_delta();
@@ -95,10 +95,10 @@ struct Product : Entity<ProductId> {
     /// @param amount Amount to buy
     /// @return float Total cost of purchase
     float buy(float amount) {
-        assert(amount >= 0.f && amount <= this->supply);
-        this->supply -= amount;
+        assert(amount >= 0.f);
+        if(this->supply > 0.f)
+            assert(amount <= this->supply);
         this->bought += amount;
-        assert(this->supply >= 0.f);
         return this->price * amount;
     }
 

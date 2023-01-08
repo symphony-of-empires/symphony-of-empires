@@ -55,6 +55,13 @@ public:
         return total;
     }
 
+    float average_life_needs() const {
+        auto total = 0.f;
+        for(const auto& pop : pops)
+            total += pop.life_needs_met;
+        return total / pops.size();
+    }
+
     float average_militancy() const {
         auto total = 0.f;
         for(const auto& pop : pops)

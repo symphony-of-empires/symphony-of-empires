@@ -211,7 +211,7 @@ Minimap::Minimap(GameState& _gs, int _x, int _y, UI::Origin _origin)
             ([](ProvinceId province_id) {
                 return [province_id](const World& world, const ProvinceId id) -> std::string {
                     const auto& province = world.provinces[id];
-                    return translate_format("Average militancy: %.2f", province.average_militancy());
+                    return translate_format("Average militancy: %.2f\nAverage life needs met: %.2f", province.average_militancy(), province.average_life_needs());
                 };
             })(selected_province));
         });

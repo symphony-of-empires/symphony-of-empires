@@ -243,7 +243,8 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
 
             auto& product = province.products[commodity];
             const auto need_factor = needs_amounts[commodity] / total_factor;
-            auto amount = glm::min(budget_per_pop * need_factor / product.price, product.supply);
+            const auto upper_bound = glm::max(0.f, product.supply);
+            const auto amount = glm::min(budget_per_pop * need_factor / product.price, upper_bound);
             
             pop_need.life_needs_met += amount * need_factor;
             const auto payment = product.buy(amount);
@@ -426,7 +427,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         auto& pop = province.pops[i];
         pop.budget = new_needs[i].budget;
         pop.life_needs_met = new_needs[i].life_needs_met;
-        const auto growth = glm::clamp(pop.size * pop.life_needs_met * 0.1f, -100.f, 100.f);
+        const auto growth = glm::clamp(pop.size * pop.life_needs_met * 0.01f, -100.f, 100.f);
         pop.size = glm::max(pop.size + growth, 1.f);
         pop.militancy = glm::clamp(pop.militancy + 0.01f * -pop.life_needs_met, 0.f, 1.f);
     }
