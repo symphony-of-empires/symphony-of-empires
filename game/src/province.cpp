@@ -42,7 +42,6 @@
 float Province::get_attractiveness(const Pop& pop) const {
     float attractive = this->base_attractive;
     const auto& owner = g_world.nations[this->owner_id];
-    attractive += -(owner.get_tax(pop) * 100.f); // Less tax = better
     return attractive;
 }
 

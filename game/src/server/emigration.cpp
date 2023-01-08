@@ -63,7 +63,10 @@ static inline float nation_attraction(Nation& nation, Language& language) {
 }
 
 static inline float province_attraction(const Province& province) {
-    return (province.base_attractive + rng_multipliers.get_item()) / g_world.terrain_types[province.terrain_type_id].penalty;
+    auto rand_attractive = province.base_attractive + rng_multipliers.get_item();
+    rand_attractive /= g_world.terrain_types[province.terrain_type_id].penalty;
+    rand_attractive *= 1.f - province.average_militancy(); // from 0 to 1
+    return rand_attractive;
 }
 
 static inline void external_migration(World& world) {
@@ -111,9 +114,9 @@ static inline void external_migration(World& world) {
     assert(!nation_distributions.empty());
 
     struct EmigrationData {
-        Province* origin = nullptr;
-        Province* target = nullptr;
-        float size = 0.f;
+        ProvinceId origin_id;
+        ProvinceId target_id;
+        float size;
         Pop emigred;
     };
     tbb::combinable<std::vector<EmigrationData>> emigration;
@@ -146,8 +149,8 @@ static inline void external_migration(World& world) {
                         continue;
 
                     emigration.local().emplace_back(
-                        &province,
-                        choosen_province,
+                        province,
+                        *choosen_province,
                         emigrants,
                         pop
                     );
@@ -162,8 +165,9 @@ static inline void external_migration(World& world) {
     // Emigrate pop to another province
     emigration.combine_each([&world](const auto& list) {
         for(const auto& e : list) {
-            const auto it = std::find(e.target->pops.all.begin(), e.target->pops.all.end(), e.emigred);
-            assert(it != e.target->pops.all.end());
+            auto& target = world.provinces[e.target_id];
+            const auto it = std::find(target.pops.all.begin(), target.pops.all.end(), e.emigred);
+            assert(it != target.pops.all.end());
             it->size += e.size;
             //it->budget += e.emigred.budget;
         }

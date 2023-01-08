@@ -80,7 +80,27 @@ void AI::do_tick(World& world) {
     // Do the AI turns in parallel
     tbb::combinable<std::vector<std::pair<NationId, NationId>>> alliance_proposals;
     tbb::combinable<std::vector<std::pair<NationId, NationId>>> war_declarations;
-    tbb::parallel_for(tbb::blocked_range(world.nations.begin(), world.nations.end()), [&alliance_proposals, &world](auto& nations_range) {
+    struct UnitMove {
+        NationId nation_id;
+        UnitId unit_id;
+        ProvinceId target_province_id;
+    };
+    tbb::combinable<std::vector<UnitMove>> unit_movements;
+    struct BuildUnit {
+        NationId nation_id;
+        UnitTypeId unit_type_id;
+        ProvinceId province_id;
+        BuildingId building_id;
+    };
+    tbb::combinable<std::vector<BuildUnit>> build_units;
+    struct BuildingInvestment {
+        NationId nation_id;
+        ProvinceId province_id;
+        BuildingId building_id;
+        float amount;
+    };
+    tbb::combinable<std::vector<BuildingInvestment>> building_investments;
+    tbb::parallel_for(tbb::blocked_range(world.nations.begin(), world.nations.end()), [&](auto& nations_range) {
         for(auto& nation : nations_range) {
             auto& ai = ai_man[nation];
             if(!nation.exists()) { // Unconditionally surrender iff at war
@@ -152,8 +172,13 @@ void AI::do_tick(World& world) {
                             const auto& highest_risk = ai.get_highest_priority_province(world, province, unit);
                             // Above we made sure high_risk province is valid for us to step in
                             //if(!world.terrain_types[highest_risk->terrain_type_id].is_water_body) continue;
-                            if(highest_risk.get_id() != province.get_id())
-                                unit.set_target(highest_risk);
+                            if(highest_risk.get_id() != province.get_id()) {
+                                UnitMove cmd{};
+                                cmd.nation_id = nation.get_id();
+                                cmd.unit_id = unit.get_id();
+                                cmd.target_province_id = highest_risk.get_id();
+                                unit_movements.local().push_back(cmd);
+                            }
                         }
                     }
                 }
@@ -169,14 +194,20 @@ void AI::do_tick(World& world) {
                         continue;
                     /// @todo Actually produce something appropriate
                     auto& unit_type = world.unit_types[rand() % world.unit_types.size()];
-                    building.work_on_unit(unit_type);
+
+                    BuildUnit cmd{};
+                    cmd.nation_id = nation.get_id();
+                    cmd.province_id = province_id;
+                    cmd.building_id = BuildingId(building_type.get_id());
+                    cmd.unit_type_id = unit_type.get_id();
+                    build_units.local().push_back(cmd);
                 }
             }
 
             // How do we know which factories we should be investing om? We first have to know
             // if we can invest them in the first place, which is what "can_directly_control_factories"
             // answers for us.
-            if(nation.can_directly_control_factories()) {
+            if(nation.ai_controlled && nation.can_directly_control_factories()) {
                 for(const auto province_id : nation.controlled_provinces) {
                     auto& province = world.provinces[province_id];
 
@@ -203,8 +234,12 @@ void AI::do_tick(World& world) {
                         if(it != world.building_types.end()) {
                             // For now, investing 15% of the budget on this industry seems reasonable
                             const auto investment = nation.budget / 15.f;
-                            nation.budget -= investment;
-                            province.buildings[*it].estate_state.invest(investment);
+                            BuildingInvestment cmd{};
+                            cmd.nation_id = nation.get_id();
+                            cmd.province_id = province_id;
+                            cmd.building_id = BuildingId(it->get_id());
+                            cmd.amount = investment;
+                            building_investments.local().push_back(cmd);
                             break;
                         }
                     }
@@ -213,9 +248,34 @@ void AI::do_tick(World& world) {
         }
     });
 
+    unit_movements.combine_each([&](const auto& list) {
+        for(const auto& e : list) {
+            const auto& target_province = world.provinces[e.target_province_id];
+            auto& unit = world.unit_manager.units[e.unit_id];
+            unit.set_target(target_province);
+        }
+    });
+
+    build_units.combine_each([&](const auto& list) {
+        for(const auto& e : list) {
+            auto& province = world.provinces[e.province_id];
+            const auto& unit_type = world.unit_types[e.unit_type_id];
+            province.buildings[e.building_id].work_on_unit(unit_type);
+        }
+    });
+
+    building_investments.combine_each([&](const auto& list) {
+        for(const auto& e : list) {
+            auto& nation = world.nations[e.nation_id];
+            nation.budget -= e.amount;
+            auto& province = world.provinces[e.province_id];
+            province.buildings[e.building_id].estate_state.invest(e.amount);
+        }
+    });
+
     /// @todo AI reject alliance proposals and so on; also allow the player to reject
     /// their alliance proposals too!
-    alliance_proposals.combine_each([&world](const auto& alliance_proposals_range) {
+    alliance_proposals.combine_each([&](const auto& alliance_proposals_range) {
         for(const auto& [nation_id, other_id] : alliance_proposals_range) {
             const auto& nation = world.nations[nation_id];
             const auto& other_nation = world.nations[other_id];

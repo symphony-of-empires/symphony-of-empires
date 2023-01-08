@@ -371,8 +371,8 @@ mapmode_tooltip commodity_tooltip(CommodityId good_id) {
                 total_production += province.buildings[building_type].get_output_amount();
 
         std::string str = Eng3D::translate_format(
-            "%s,\nPrice %.2f\nGlobal demand %.2f\nDemand %.2f\nSupply %.2f\nProduction %.2f\n",
-            province.name.c_str(), product.price, product.global_demand, product.demand, product.supply, total_production);
+            "%s,\nPrice %.2f\nGlobal demand %.2f\nDemand %.2f (Sold today %.2f)\nSupply %.2f (Produced today %.2f)\nProduction %.2f\n",
+            province.name.c_str(), product.price, product.global_demand, product.demand, product.bought, product.supply, product.produced, total_production);
         for(const auto& building_type : world.building_types) {
             const auto& building = province.buildings[building_type];
             if(building.level)

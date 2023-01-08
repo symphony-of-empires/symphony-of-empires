@@ -53,45 +53,52 @@ struct Eng3D::Deser::Serializer<Commodity> {
 /// @brief A product (based off a Commodity) which can be bought by POPs, converted by factories and transported
 struct Product : Entity<ProductId> {
     float get_price_delta() const {
-        constexpr auto price_elasticity = 0.01f;
-        if(supply == 0.f || demand == 0.f) {
-            const auto natural_trend = price_elasticity * price_elasticity * (demand - supply);
-            return natural_trend != 0.f ? natural_trend : -price_elasticity;
-        }
-        const auto sd_ratio = supply / demand;
-        return price_elasticity * (1.f - sd_ratio);
+        constexpr auto price_elasticity = 1.f;
+        if(demand == 0.f || supply == 0.f)
+            return -price_elasticity;
+        
+        auto ratio = 0.f;
+        if(supply > demand)
+            ratio -= supply / demand;
+        else if(supply < demand)
+            ratio += demand / supply;
+        return price_elasticity * glm::clamp(ratio, -1.f, 1.f);
     }
 
     float sd_ratio() const {
-        if(supply == 0.f || demand == 0.f)
-            return 0.f;
-        return supply / demand;
+        if(demand <= 0.f)
+            return supply;
+        return glm::min(supply, supply / demand);
     }
 
     float ds_ratio() const {
-        if(supply == 0.f || demand == 0.f)
-            return 0.f;
-        return demand / supply;
+        if(supply <= 0.f)
+            return demand;
+        return glm::min(demand, demand / supply);
     }
 
     void close_market() {
-        // TODO: Supply should **never** be negative
-        this->supply = glm::max(this->supply, 0.f);
+        this->demand = this->bought;
+        this->supply += this->produced;
+
         // Increase price with more demand
         this->price_delta = this->get_price_delta();
         // Set the new price
         this->price = glm::clamp(this->price + this->price_delta, glm::epsilon<float>(), 100'000.f);
         if(glm::epsilonEqual(this->price, 0.f, glm::epsilon<float>()))
             this->price_delta = 0.f;
-        this->demand = 0.f;
+        
+        this->produced = this->bought = 0.f;
     }
 
     /// @brief Buy a portion of the item
     /// @param amount Amount to buy
     /// @return float Total cost of purchase
     float buy(float amount) {
-        this->demand += amount;
-        this->supply -= glm::min(amount, this->supply);
+        assert(amount >= 0.f && amount <= this->supply);
+        this->supply -= amount;
+        this->bought += amount;
+        assert(this->supply >= 0.f);
         return this->price * amount;
     }
 
@@ -99,12 +106,15 @@ struct Product : Entity<ProductId> {
     /// @param amount Amount to produce
     /// @return float Total gains from production
     float produce(float amount) {
-        this->supply += amount;
+        assert(amount >= 0.f);
+        this->produced += amount;
         return this->price * amount;
     }
 
     float price = 1.f;
     float price_delta = 0.f;
+    float bought = 0.f;
+    float produced = 0.f;
     float supply = 1.f;
     float demand = 1.f;
     float global_demand = 1.f;

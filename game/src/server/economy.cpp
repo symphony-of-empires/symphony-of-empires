@@ -92,8 +92,11 @@ static void update_industry_production(World& world, Building& building, const B
 
     // TODO add input modifier
     building.expenses.inputs_cost = 0.f; // Buy the inputs for the industry
-    for(const auto& [product_id, amount] : building_type.req_goods)
-        building.expenses.inputs_cost += province.products[product_id].buy(amount * building.production_scale);
+    for(const auto& [product_id, amount] : building_type.req_goods) {
+        auto& product = province.products[product_id];
+        const auto max_amount = glm::min(amount * building.production_scale, product.supply);
+        building.expenses.inputs_cost += product.buy(max_amount);
+    }
     output_product.produce(building.get_output_amount());
 }
 
@@ -236,15 +239,15 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
 
         auto total_factor = std::reduce(needs_amounts.begin(), needs_amounts.end());
         for(const auto& commodity : world.commodities) {
-            if(needs_amounts[commodity] == 0.f) continue;
+            if(needs_amounts[commodity] <= 0.f) continue;
 
+            auto& product = province.products[commodity];
             const auto need_factor = needs_amounts[commodity] / total_factor;
-            const auto amount = (budget_per_pop * need_factor / province.products[commodity].price);
-
+            auto amount = glm::min(budget_per_pop * need_factor / product.price, product.supply);
+            
             pop_need.life_needs_met += amount * need_factor;
-            // const auto payment = province.products[commodity].buy(amount);
-            goods_payment[commodity] += amount * province.products[commodity].price;
-            province.products[commodity].demand += amount * pop.size;
+            const auto payment = product.buy(amount);
+            goods_payment[commodity] += payment;
         }
     }
     for(const auto& building_type : world.building_types)
@@ -329,7 +332,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             auto& province = world.provinces[province_id];
             if(Nation::is_invalid(province.owner_id)) continue;
             auto& product = province.products[market.commodity];
-            product.price = std::max(new_price, 0.01f);
+            //product.price = std::max(new_price, 0.01f);
             product.global_demand = market.global_demand[province_id];
         }
     }
