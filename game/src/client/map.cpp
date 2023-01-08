@@ -631,7 +631,10 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
                     const auto& relation = gs.world->get_relation(gs.curr_nation->get_id(), province.controller_id);
                     if(!relation.has_landpass()) continue;
                 }
-                gs.client->send(Action::UnitMove::form_packet(unit, province));
+                if(gs.client == nullptr)
+                    gs.world->unit_manager.move_unit(unit, province);
+                else
+                    gs.client->send(Action::UnitMove::form_packet(unit, province));
 
                 const std::scoped_lock lock2(gs.audio_man.sound_lock);
                 auto entries = gs.package_man.get_multiple_prefix("sfx/land_move");
