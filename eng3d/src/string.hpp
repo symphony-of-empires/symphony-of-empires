@@ -98,6 +98,8 @@ namespace Eng3D {
     /// @return std::string The resulting formatted text
     template<typename ... Args>
     std::string string_format(const std::string_view format, Args&& ... args) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-security"
         int size_s = std::snprintf(nullptr, 0, format.data(), std::forward<decltype(args)>(args)...) + 1; // Extra space for '\0'
         if(size_s <= 0)
             CXX_THROW(std::runtime_error, "Error during formatting");
@@ -105,6 +107,7 @@ namespace Eng3D {
         std::unique_ptr<char[]> buf = std::make_unique<char[]>(size);
         std::snprintf(buf.get(), size, format.data(), args ...);
         return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
+#pragma clang diagnostic pop
     }
 }
 using Eng3D::string_format;

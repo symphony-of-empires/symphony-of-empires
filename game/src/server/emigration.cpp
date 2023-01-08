@@ -116,7 +116,7 @@ static inline void external_migration(World& world) {
     struct EmigrationData {
         ProvinceId origin_id;
         ProvinceId target_id;
-        float size;
+        float size = 0.f;
         Pop emigred;
     };
     tbb::combinable<std::vector<EmigrationData>> emigration;
@@ -136,7 +136,7 @@ static inline void external_migration(World& world) {
                 // And literacy determines "best" spot, for example a low literacy will
                 // choose a slightly less desirable location
                 const auto emigration_desire = glm::max(pop.militancy * -pop.life_needs_met, 1.f);
-                const auto emigrants = glm::min(pop.size * emigration_desire * rng_multipliers.get_item(), pop.size);
+                auto emigrants = glm::min(pop.size * emigration_desire * rng_multipliers.get_item(), pop.size);
                 if(emigrants > 0.f) {
                     auto& nation_distribution = nation_distributions[language_id];
                     const auto* random_nation = nation_distribution.get_item();
@@ -148,12 +148,12 @@ static inline void external_migration(World& world) {
                     if(choosen_province == nullptr || world.terrain_types[choosen_province->terrain_type_id].is_water_body)
                         continue;
 
-                    emigration.local().emplace_back(
-                        province,
-                        *choosen_province,
+                    emigration.local().push_back(EmigrationData{
+                        province.get_id(),
+                        choosen_province->get_id(),
                         emigrants,
                         pop
-                    );
+                    });
 
                     pop.size -= emigrants;
                     assert(!(pop.size < 0.f));

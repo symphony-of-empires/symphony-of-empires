@@ -196,7 +196,7 @@ static void update_industry_accounting(World& world, Building& building, const B
 
 // Update the industry employment
 static void update_factories_employment(const World& world, Province& province, std::vector<float>& new_workers) {
-    auto unallocated_workers = province.pops.list.laborer.size;
+    auto unallocated_workers = province.pops[(int)PopGroup::LABORER].size;
     // Sort factories by production scale, which is suppose to represent how profitable the industry is
     // Might be better to calculate how profitable it really is and use that instead
     std::vector<std::pair<size_t, float>> factories_by_profitability;
@@ -399,7 +399,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     for(auto& building : province.buildings) {
         // There must not be conflict ongoing otherwise they wont be able to build shit
         if(province.controller_id == province.owner_id && building.can_build_unit() && building.is_working_on_unit()) {
-            auto& pop = province.pops.list.soldier;
+            auto& pop = province.pops[(int)PopGroup::SOLDIER];
             const auto final_size = glm::min(pop.size, 100.f);
             province_new_units.local().emplace_back(building.working_unit_type_id, final_size, province, pop.type_id);
             building.stop_working_on_unit();

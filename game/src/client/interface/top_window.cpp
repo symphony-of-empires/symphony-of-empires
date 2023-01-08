@@ -105,10 +105,10 @@ TopWindow::TopWindow(GameState& _gs)
     military_score_img.set_tooltip("Military score");
     auto& military_score_lab = military_score_grp.make_widget<UI::Label>(0, 0, " ");
     military_score_lab.set_on_each_tick([this](UI::Widget& w) {
-        const auto total = std::accumulate(gs.curr_nation->owned_provinces.cbegin(), gs.curr_nation->owned_provinces.cend(), 0.f, [this](const auto&& a, const auto province_id) -> float {
+        const auto total = std::accumulate(gs.curr_nation->owned_provinces.cbegin(), gs.curr_nation->owned_provinces.cend(), 0.f, [this](const auto a, const auto province_id) -> float {
             const auto& province = this->gs.world->provinces[province_id];
             const auto& units = this->gs.world->unit_manager.get_province_units(province.get_id());
-            return a + std::accumulate(units.cbegin(), units.cend(), 0, [this](auto&& a2, const auto unit_id) {
+            return a + std::accumulate(units.cbegin(), units.cend(), 0, [this](const auto a2, const auto unit_id) {
                 const auto& unit = this->gs.world->unit_manager.units[unit_id];
                 return a2 + (unit.owner_id == this->gs.curr_nation->get_id() ? unit.get_strength() : 0.f);
             });
@@ -123,10 +123,10 @@ TopWindow::TopWindow(GameState& _gs)
     industrial_score_img.set_tooltip("Industrial score");
     auto& industrial_score_lab = industrial_score_grp.make_widget<UI::Label>(0, 0, " ");
     industrial_score_lab.set_on_each_tick([this](UI::Widget& w) {
-        const auto total = std::accumulate(gs.curr_nation->owned_provinces.cbegin(), gs.curr_nation->owned_provinces.cend(), 0.f, [this](const auto&& a1, const auto province_id) -> float {
+        const auto total = std::accumulate(gs.curr_nation->owned_provinces.cbegin(), gs.curr_nation->owned_provinces.cend(), 0.f, [this](const auto a, const auto province_id) -> float {
             const auto& province = this->gs.world->provinces[province_id];
             const auto& buildings = province.get_buildings();
-            return a1 + std::accumulate(buildings.cbegin(), buildings.cend(), 0.f, [](const auto&& a2, const auto& building) {
+            return a + std::accumulate(buildings.cbegin(), buildings.cend(), 0.f, [](const auto a2, const auto& building) {
                 return a2 + (building.production_scale * building.level);
             });
         });
