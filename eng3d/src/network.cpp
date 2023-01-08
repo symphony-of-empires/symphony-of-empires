@@ -295,7 +295,7 @@ void Eng3D::Networking::Server::broadcast(const Eng3D::Networking::Packet& packe
             clients[i].packets.push(packet);
 }
 
-void Eng3D::Networking::Server::do_netloop(std::function<bool()> cond, std::function<void(int)> on_connect, std::function<void(void)> on_disconnect, std::function<void(const Packet& packet, Eng3D::Deser::Archive& ar)> handler, std::function<void(int i)> on_wake_thread, int id) {
+void Eng3D::Networking::Server::do_netloop(std::function<void(int i)> on_wake_thread, int id) {
     auto& cl = clients[id];
     int conn_fd = 0;
     try {
@@ -311,7 +311,7 @@ void Eng3D::Networking::Server::do_netloop(std::function<bool()> cond, std::func
         }
 
         Eng3D::Networking::Packet packet(conn_fd);
-        packet.pred = cond;
+        packet.pred = ([this]() {return this->run == true;});
 
         player_count++;
         // Wake up another thread
@@ -321,9 +321,9 @@ void Eng3D::Networking::Server::do_netloop(std::function<bool()> cond, std::func
                 break;
             }
         }
-        on_connect(conn_fd); // Read the data from client
+        on_connect(conn_fd, id); // Read the data from client
         Eng3D::Deser::Archive ar{};
-        while(cond() && cl.is_connected == true) {
+        while(this->run && cl.is_connected == true) {
             cl.flush_packets();
             if(cl.has_pending()) { // Check if we need to read packets
                 if(!packet.recv())
@@ -331,7 +331,7 @@ void Eng3D::Networking::Server::do_netloop(std::function<bool()> cond, std::func
                 ar.set_buffer(packet.data(), packet.size());
                 ar.rewind();
                 Eng3D::Log::debug("server", translate_format("Receiving %zuB from #%i", packet.size(), id));
-                handler(packet, ar);
+                handler(packet, ar, id);
             }
             ar.buffer.clear();
             ar.rewind();

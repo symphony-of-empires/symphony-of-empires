@@ -63,6 +63,11 @@ public:
     Server(GameState& gs, unsigned port = 1825, unsigned max_conn = 4);
     ~Server() = default;
     void netloop(int id);
+    void on_connect(int conn_fd, int id) override;
+    void on_disconnect() override;
+    void handler(const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar, int id) override;
+
+    std::vector<ClientData> clients_data;
     std::vector<Nation*> clients_extra_data;
     std::unordered_map<ActionType, std::function<void(ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar)>> action_handlers;
 };
