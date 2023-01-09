@@ -91,6 +91,16 @@ class Map {
     mapmode_tooltip mapmode_tooltip_func = nullptr;
     selector_func selector = nullptr;
     GameState& gs;
+
+    Eng3D::Sphere skybox;
+    std::unique_ptr<Eng3D::FontSDF> map_font;
+    std::shared_ptr<Eng3D::Texture> line_tex;
+    std::shared_ptr<Eng3D::Texture> skybox_tex;
+    std::unique_ptr<Eng3D::OpenGL::Program> tree_shder;
+
+    void check_left_mouse_release();
+    void check_right_mouse_release();
+
 public:
     Map(GameState& gs, const World& world, UI::Group* map_ui_layer,  int screen_width, int screen_height);
     ~Map();
@@ -137,19 +147,9 @@ public:
     const World& world;
     UI::Tooltip* tooltip = nullptr;
     UI::Group* map_ui_layer = nullptr;
-private:
-    Eng3D::Sphere skybox;
-public:
+
     std::unique_ptr<Eng3D::Camera> camera;
-private:
-    std::unique_ptr<Eng3D::FontSDF> map_font;
-public:
     std::unique_ptr<MapRender> map_render;
-private:
-    std::shared_ptr<Eng3D::Texture> line_tex;
-    std::shared_ptr<Eng3D::Texture> skybox_tex;
-    std::unique_ptr<Eng3D::OpenGL::Program> tree_shder;
-public:
     std::vector<Interface::UnitWidget*> unit_widgets;
     std::vector<Interface::BattleWidget*> battle_widgets;
     std::unique_ptr<Eng3D::OpenGL::Program> obj_shader;

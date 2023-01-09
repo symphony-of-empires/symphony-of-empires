@@ -137,6 +137,12 @@ namespace UI {
             }
         }
 
+        void make_rows_unactive() {
+            for(auto it = rows.begin(); it != rows.end(); it++) {
+                it->second->is_active = false;
+            }
+        }
+
         void clear_unactive_rows() {
             for(auto it = rows.begin(); it != rows.end(); ) {
                 if(!it->second->is_active) {

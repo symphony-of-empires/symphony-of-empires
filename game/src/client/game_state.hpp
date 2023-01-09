@@ -40,6 +40,7 @@
 #include "client/client_network.hpp"
 #include "server/server_network.hpp"
 #include "client/map.hpp"
+#include "eventpp/callbacklist.h"
 
 enum class MapMode : unsigned char {
     COUNTRY_SELECT,
@@ -52,13 +53,10 @@ struct Building;
 struct Language;
 struct Religion;
 
-class Input {
+class ClientState {
+    eventpp::CallbackList<void (const std::vector<UnitId>)> on_update_units;
     std::vector<UnitId> selected_units;
 public:
-    glm::vec2 select_pos;
-    glm::ivec2 drag_coord;
-    bool middle_mouse_down = false;
-
     inline const std::vector<UnitId> get_selected_units() const {
         return selected_units;
     }
@@ -69,17 +67,37 @@ public:
 
     inline void select_unit(UnitId id) {
         auto it = std::lower_bound(selected_units.begin(), selected_units.end(), id);
-        if(it == selected_units.end() || *it != id)
+        if(it == selected_units.end() || *it != id) {
             selected_units.insert(it, id);
+            on_update_units(selected_units);
+        }
     }
 
     inline void unselect_unit(UnitId id) {
         std::erase(selected_units, id);
+        on_update_units(selected_units);
     }
 
     inline void clear_selected_units() {
         selected_units.clear();
+        on_update_units(selected_units);
     }
+
+    inline auto add_listener(std::function<void(std::vector<UnitId>)> callback) {
+        return on_update_units.append(callback);
+    }
+
+    inline void remove_listener(eventpp::CallbackList<void (const std::vector<UnitId>)>::Handle handle) {
+        on_update_units.remove(handle);
+    }
+};
+
+class Input {
+public:
+    glm::vec2 select_pos;
+    glm::ivec2 drag_coord;
+    bool middle_mouse_down = false;
+
 
     Language* selected_language = nullptr;
     Religion* selected_religion = nullptr;
@@ -140,6 +158,7 @@ public:
     Nation* curr_nation = nullptr;
     std::unique_ptr<Map> map;
     Input input;
+    ClientState client_state;
     MapMode current_mode = MapMode::NO_MAP;
 
     Interface::LobbySelectView* select_nation = nullptr;
@@ -148,6 +167,7 @@ public:
     UI::Widget* minimap = nullptr;
     UI::Widget* profiler_view = nullptr;
     UI::Widget* event_tray_grp = nullptr;
+    UI::Widget* unit_menu = nullptr;
 
     std::vector<std::shared_ptr<Eng3D::Texture>> nation_flags;
     std::shared_ptr<Eng3D::Texture> get_nation_flag(const Nation& nation);

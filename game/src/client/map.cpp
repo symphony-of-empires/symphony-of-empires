@@ -358,38 +358,57 @@ void Map::draw_flag(const Eng3D::OpenGL::Program& shader, const Nation& nation) 
     flag.draw();
 }
 
-#if 0
-void Map::update(const SDL_Event& event, Input& input, UI::Context* ui_ctx) {
-    auto& mouse_pos = input.mouse_pos;
-    switch(event.type) {
-    case SDL_JOYBUTTONUP:
-        is_drag = false;
-    case SDL_JOYBUTTONDOWN:
-        if(event.jbutton.button == gs.zoomin_button_num) {
-            camera->move(0.f, 0.f, -1.f * gs.delta_time * 120.f);
-        } else if(event.jbutton.button == gs.zoomout_button_num) {
-            camera->move(0.f, 0.f, 1.f * gs.delta_time * 120.f);
-        }
-        break;
-    case SDL_JOYAXISMOTION: {
-        if(event.jaxis.which == gs.map_movement_axis_num) {
-            if(event.jaxis.axis == 0) {
-                const float x_force = event.jaxis.value / Eng3D::State::JOYSTICK_DEAD_ZONE;
-                camera->move(x_force, 0.f, 0.f);
-            } else if(event.jaxis.axis == 1) {
-                const float y_force = event.jaxis.value / Eng3D::State::JOYSTICK_DEAD_ZONE;
-                camera->move(0.f, y_force, 0.f);
-            }
-        }
-    } break;
-    }
-}
-#endif
-
 // Updates the province color texture with the changed provinces
 void Map::update_mapmode() {
     std::vector<ProvinceColor> province_colors = mapmode_func(*this->gs.world);
     map_render->update_mapmode(province_colors);
+}
+
+void draw_battles(Map& map, GameState& gs, Province& province) {
+    auto line_tex = gs.tex_man.load(gs.package_man.get_unique("gfx/line_target.png"));
+    if(province.battle.active) {
+        map.battle_widgets[province]->set_battle(province);
+        map.battle_widgets[province]->is_render = true;
+        /// @todo Display two opposing units
+    } else {
+        // Units
+        const auto& province_units = gs.world->unit_manager.get_province_units(province);
+        if(!province_units.empty()) {
+            auto total_stack_size = 0.f; // Calculate the total size of our stack
+            for(const auto unit_id : province_units) {
+                const auto& unit = gs.world->unit_manager.units[unit_id];
+                total_stack_size += unit.size;
+            }
+
+            // Get first/topmost unit
+            auto& unit = gs.world->unit_manager.units[province_units[0]];
+            // Display unit only if not on a battle
+            if(!unit.on_battle) {
+                map.unit_widgets[province]->set_unit(unit);
+                map.unit_widgets[province]->set_size(total_stack_size);
+                map.unit_widgets[province]->is_render = true;
+            }
+        }
+
+        // Display a single standing unit
+        if(map.map_render->options.units.used && !province_units.empty()) {
+            const auto& unit = gs.world->unit_manager.units[province_units[0]];
+            const auto prov_pos = province.get_pos();
+            auto model = glm::translate(glm::mat4(1.f), glm::vec3(prov_pos.x, prov_pos.y, 0.f));
+            if(unit.has_target_province()) {
+                const auto& unit_target = gs.world->provinces[unit.get_target_province_id()];
+                const auto target_pos = unit_target.get_pos();
+                const auto dist = glm::sqrt(glm::pow(glm::abs(prov_pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(prov_pos.y - target_pos.y), 2.f));
+                const auto line_model = glm::rotate(model, glm::atan(target_pos.y - prov_pos.y, target_pos.x - prov_pos.x), glm::vec3(0.f, 0.f, 1.f));
+                map.obj_shader->set_texture(0, "diffuse_map", *line_tex);
+                map.obj_shader->set_uniform("model", line_model);
+                Eng3D::Square(0.f, 0.f, dist, 0.5f).draw();
+            }
+            model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
+            map.obj_shader->set_uniform("model", model);
+            map.unit_type_models[unit.type_id]->draw(*map.obj_shader);
+        }
+    }
 }
 
 void Map::draw() {
@@ -398,8 +417,6 @@ void Map::draw() {
     glm::mat4 base_model(1.f);
 
     map_render->draw(*camera, view_mode);
-    // rivers->draw(*camera);
-    // borders->draw(*camera);
 
     /// @todo We need to better this
     obj_shader->use();
@@ -431,48 +448,7 @@ void Map::draw() {
             }
 
             // Battles
-            if(province.battle.active) {
-                this->battle_widgets[province]->set_battle(province);
-                this->battle_widgets[province]->is_render = true;
-                /// @todo Display two opposing units
-            } else {
-                // Units
-                const auto& province_units = this->gs.world->unit_manager.get_province_units(province);
-                if(!province_units.empty()) {
-                    auto total_stack_size = 0.f; // Calculate the total size of our stack
-                    for(const auto unit_id : province_units) {
-                        const auto& unit = this->gs.world->unit_manager.units[unit_id];
-                        total_stack_size += unit.size;
-                    }
-
-                    // Get first/topmost unit
-                    auto& unit = gs.world->unit_manager.units[province_units[0]];
-                    // Display unit only if not on a battle
-                    if(!unit.on_battle) {
-                        this->unit_widgets[province]->set_unit(unit);
-                        this->unit_widgets[province]->set_size(total_stack_size);
-                        this->unit_widgets[province]->is_render = true;
-                    }
-                }
-
-                // Display a single standing unit
-                if(this->map_render->options.units.used && !province_units.empty()) {
-                    const auto& unit = this->gs.world->unit_manager.units[province_units[0]];
-                    auto model = glm::translate(base_model, glm::vec3(prov_pos.x, prov_pos.y, 0.f));
-                    if(unit.has_target_province()) {
-                        const auto& unit_target = this->gs.world->provinces[unit.get_target_province_id()];
-                        const auto target_pos = unit_target.get_pos();
-                        const auto dist = glm::sqrt(glm::pow(glm::abs(prov_pos.x - target_pos.x), 2.f) + glm::pow(glm::abs(prov_pos.y - target_pos.y), 2.f));
-                        const auto line_model = glm::rotate(model, glm::atan(target_pos.y - prov_pos.y, target_pos.x - prov_pos.x), glm::vec3(0.f, 0.f, 1.f));
-                        obj_shader->set_texture(0, "diffuse_map", *line_tex);
-                        obj_shader->set_uniform("model", line_model);
-                        Eng3D::Square(0.f, 0.f, dist, 0.5f).draw();
-                    }
-                    model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
-                    obj_shader->set_uniform("model", model);
-                    unit_type_models[unit.type_id]->draw(*obj_shader);
-                }
-            }
+            draw_battles(*this, gs, province);
         }
 
         // Unit movement lines
@@ -508,11 +484,6 @@ void Map::draw() {
         auto model = base_model;
         obj_shader->set_uniform("model", model);
         obj_shader->set_texture(0, "diffuse_map", *line_tex);
-        obj_shader->set_texture(1, "ambient_map", *gs.tex_man.get_white());
-        obj_shader->set_texture(2, "occlussion_map", *gs.tex_man.get_white());
-        obj_shader->set_texture(3, "height_map", *gs.tex_man.get_white());
-        obj_shader->set_texture(4, "specular_map", *gs.tex_man.get_white());
-        obj_shader->set_texture(5, "normal_map", *gs.tex_man.get_white());
         auto dragbox_square = Eng3D::Square(gs.input.drag_coord.x, gs.input.drag_coord.y, gs.input.select_pos.x, gs.input.select_pos.y);
         dragbox_square.draw();
     }
@@ -529,9 +500,7 @@ void Map::draw() {
     if(this->map_render->options.trees.used) {
         // Drawing trees
         tree_shder->use();
-        tree_shder->set_uniform("projection", projection);
-        tree_shder->set_uniform("view", view);
-        tree_shder->set_uniform("model", base_model);
+        tree_shder->set_PVM(projection, view, base_model);
         tree_type_models[1]->draw(*tree_shder, tree_spawn_pos.size());
     }
 
@@ -541,11 +510,6 @@ void Map::draw() {
         obj_shader->use();
         obj_shader->set_uniform("model", model);
         obj_shader->set_texture(0, "diffuse_map", *skybox_tex);
-        obj_shader->set_texture(1, "ambient_map", *gs.tex_man.get_white());
-        obj_shader->set_texture(2, "occlussion_map", *gs.tex_man.get_white());
-        obj_shader->set_texture(3, "height_map", *gs.tex_man.get_white());
-        obj_shader->set_texture(4, "specular_map", *gs.tex_man.get_white());
-        obj_shader->set_texture(5, "normal_map", *gs.tex_man.get_white());
         skybox.draw();
     }
 
@@ -554,6 +518,82 @@ void Map::draw() {
 
 void Map::handle_resize() {
     this->camera->set_screen(this->gs.width, this->gs.height);
+}
+
+void Map::check_left_mouse_release() {
+    const auto province_id = this->map_render->get_tile_province_id(gs.input.select_pos.x, gs.input.select_pos.y);
+    this->is_drag = false;
+    switch(gs.current_mode) {
+        case MapMode::NORMAL:
+            if(this->selector) {
+                /// @todo Commodity selector function
+                this->selector(*gs.world, *this, gs.world->provinces[province_id]);
+                break;
+            }
+
+            // Check if we selected an unit
+            this->is_drag = false;
+            if(gs.client_state.get_selected_units().empty()) {
+                // Show province information when clicking on a province
+                new Interface::ProvinceView(gs, gs.world->provinces[province_id]);
+                return;
+            }
+            break;
+        case MapMode::COUNTRY_SELECT: {
+            const auto& province = gs.world->provinces[province_id];
+            gs.select_nation->change_nation(province.controller_id);
+        } break;
+        default: break;
+    }
+}
+
+void Map::check_right_mouse_release() {
+    const auto province_id = this->map_render->get_tile_province_id(gs.input.select_pos);
+    auto& province = gs.world->provinces[province_id];
+    if(gs.editor && gs.current_mode == MapMode::NORMAL) {
+        if(!gs.sea_paint) {
+            if(world.terrain_types[province.terrain_type_id].is_water_body)
+                province.terrain_type_id = (TerrainTypeId)1;
+            gs.curr_nation->control_province(province);
+            gs.curr_nation->give_province(province);
+            province.nuclei.push_back(gs.world->get_id(*gs.curr_nation));
+            std::sort(province.nuclei.begin(), province.nuclei.end());
+            auto last = std::unique(province.nuclei.begin(), province.nuclei.end());
+            province.nuclei.erase(last, province.nuclei.end());
+        } else {
+            province.terrain_type_id = (TerrainTypeId)0;
+            province.nuclei.clear();
+        }
+
+        this->update_mapmode();
+        this->map_render->request_update_visibility();
+        this->map_render->update();
+    }
+
+    /// @todo Handle the case where an unit is deleted
+    // Move units
+    for(const auto unit_id : gs.client_state.get_selected_units()) {
+        const auto& unit = gs.world->unit_manager.units[unit_id];
+        auto unit_prov_id = gs.world->unit_manager.unit_province[unit_id];
+        if(!unit.can_move()) continue;
+        // Don't change target if ID is the same...
+        if(unit_prov_id == province.get_id() || unit.get_target_province_id() == province.get_id())
+            continue;
+        if(province.controller_id != gs.curr_nation->get_id()) {
+            // Must either be our ally, have military access with them or be at war
+            const auto& relation = gs.world->get_relation(gs.curr_nation->get_id(), province.controller_id);
+            if(!relation.has_landpass()) continue;
+        }
+        gs.client->send(Action::UnitMove::form_packet(unit, province));
+
+        const std::scoped_lock lock2(gs.audio_man.sound_lock);
+        auto entries = gs.package_man.get_multiple_prefix("sfx/land_move");
+        if(!entries.empty()) {
+            auto audio = gs.audio_man.load(entries[rand() % entries.size()]->get_abs_path());
+            gs.audio_man.sound_queue.push_back(audio);
+        }
+    }
+    gs.client_state.clear_selected_units();
 }
 
 void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
@@ -568,79 +608,14 @@ void Map::handle_mouse_button(const Eng3D::Event::MouseButton& e) {
                 this->last_camera_drag_pos = map_pos;
         }
     } else {
-        if(gs.input.select_pos.x < 0 || gs.input.select_pos.x >= gs.world->width || gs.input.select_pos.y < 0 || gs.input.select_pos.y >= gs.world->height)
+        Eng3D::Rectangle map_box(0, 0, gs.world->width, gs.world->height);
+        if(!map_box.contains(gs.input.select_pos))
             return;
 
-        const auto province_id = this->map_render->get_tile_province_id(gs.input.select_pos.x, gs.input.select_pos.y);
         if(e.type == Eng3D::Event::MouseButton::Type::LEFT) {
-            this->is_drag = false;
-            switch(gs.current_mode) {
-                case MapMode::NORMAL:
-                    if(this->selector) {
-                        /// @todo Commodity selector function
-                        this->selector(*gs.world, *this, gs.world->provinces[province_id]);
-                        break;
-                    }
-
-                    // Check if we selected an unit
-                    this->is_drag = false;
-                    if(gs.input.get_selected_units().empty()) {
-                        // Show province information when clicking on a province
-                        new Interface::ProvinceView(gs, gs.world->provinces[province_id]);
-                        return;
-                    }
-                    break;
-                case MapMode::COUNTRY_SELECT: {
-                    const auto& province = gs.world->provinces[province_id];
-                    gs.select_nation->change_nation(province.controller_id);
-                } break;
-                default: break;
-            }
+            check_left_mouse_release();
         } else if(e.type == Eng3D::Event::MouseButton::Type::RIGHT) {
-            auto& province = gs.world->provinces[province_id];
-            if(gs.editor && gs.current_mode == MapMode::NORMAL) {
-                if(!gs.sea_paint) {
-                    if(world.terrain_types[province.terrain_type_id].is_water_body)
-                        province.terrain_type_id = (TerrainTypeId)1;
-                    gs.curr_nation->control_province(province);
-                    gs.curr_nation->give_province(province);
-                    province.nuclei.push_back(gs.world->get_id(*gs.curr_nation));
-                    std::sort(province.nuclei.begin(), province.nuclei.end());
-                    auto last = std::unique(province.nuclei.begin(), province.nuclei.end());
-                    province.nuclei.erase(last, province.nuclei.end());
-                } else {
-                    province.terrain_type_id = (TerrainTypeId)0;
-                    province.nuclei.clear();
-                }
-
-                this->update_mapmode();
-                this->map_render->request_update_visibility();
-                this->map_render->update();
-            }
-
-            /// @todo Handle the case where an unit is deleted
-            for(const auto unit_id : gs.input.get_selected_units()) {
-                const auto& unit = gs.world->unit_manager.units[unit_id];
-                auto unit_prov_id = gs.world->unit_manager.unit_province[unit_id];
-                if(!unit.can_move()) continue;
-                // Don't change target if ID is the same...
-                if(unit_prov_id == province.get_id() || unit.get_target_province_id() == province.get_id())
-                    continue;
-                if(province.controller_id != gs.curr_nation->get_id()) {
-                    // Must either be our ally, have military access with them or be at war
-                    const auto& relation = gs.world->get_relation(gs.curr_nation->get_id(), province.controller_id);
-                    if(!relation.has_landpass()) continue;
-                }
-                gs.client->send(Action::UnitMove::form_packet(unit, province));
-
-                const std::scoped_lock lock2(gs.audio_man.sound_lock);
-                auto entries = gs.package_man.get_multiple_prefix("sfx/land_move");
-                if(!entries.empty()) {
-                    auto audio = gs.audio_man.load(entries[rand() % entries.size()]->get_abs_path());
-                    gs.audio_man.sound_queue.push_back(audio);
-                }
-            }
-            gs.input.clear_selected_units();
+            check_right_mouse_release();
         }
     }
 }

@@ -52,6 +52,7 @@
 #include "action.hpp"
 #include "client/client_network.hpp"
 #include "client/interface/decision.hpp"
+#include "client/interface/selected_units_menu.hpp"
 #include "client/interface/lobby.hpp"
 #include "client/interface/top_window.hpp"
 #include "client/interface/army.hpp"
@@ -72,6 +73,7 @@ void GameState::play_nation() {
     // Make topwindow
     top_win = static_cast<UI::Widget*>(new Interface::TopWindow(*this));
     minimap = static_cast<UI::Widget*>(new Interface::Minimap(*this, -400, -200, UI::Origin::LOWER_RIGHT_SCREEN));
+    unit_menu = static_cast<UI::Widget*>(new Interface::SelectedUnitsMenu(*this));
     Eng3D::Log::debug("game", translate_format("Playing as nation %s", this->curr_nation->ref_name.c_str()));
     this->curr_nation->ai_do_cmd_troops = true;
     this->curr_nation->ai_controlled = false;
@@ -182,8 +184,6 @@ void GameState::handle_resize() {
 void GameState::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
     if(e.hold) {
         if(show_ui) {
-            // if(ui_ctx.check_hover(e.pos))
-            //     return;
             if(e.type == Eng3D::Event::MouseButton::Type::LEFT) {
                 if(ui_ctx.check_click(e.pos)) {
                     const std::scoped_lock lock(audio_man.sound_lock);

@@ -230,6 +230,12 @@ void Eng3D::OpenGL::Program::use() const {
 
 // Uniform overloads
 // It allows the game engine to call these functions without worrying about type specifications
+void Eng3D::OpenGL::Program::set_PVM(glm::mat4 projection, glm::mat4 view, glm::mat4 model) const {
+    set_uniform("projection", projection);
+    set_uniform("view", view);
+    set_uniform("model", model);
+}
+
 void Eng3D::OpenGL::Program::set_uniform(const std::string& name, glm::mat4 uniform) const {
     glProgramUniformMatrix4fv(id, glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, glm::value_ptr(uniform));
 }

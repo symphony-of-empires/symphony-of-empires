@@ -144,6 +144,7 @@ target_link_libraries(eng3d PUBLIC
 	dependency_glm
 	dependency_lua
 	dependency_zlib
+	dependency_eventpp
 )
 
 #file(GLOB ENG3D_INCLUDES "${PROJECT_SOURCE_DIR}/src/*.hpp" "${PROJECT_SOURCE_DIR}/src/ui/*.hpp")

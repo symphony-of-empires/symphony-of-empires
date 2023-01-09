@@ -115,7 +115,10 @@ public:
         return this->province_opt->buffer[id];
     }
 
+    inline ProvinceId get_tile_province_id(glm::ivec2 pos) {
+        return ProvinceId(this->terrain_map->buffer.get()[pos.x + pos.y * this->terrain_map->width] & 0xffff);
+    }
     inline ProvinceId get_tile_province_id(size_t x, size_t y) {
-        return ProvinceId(this->terrain_map->buffer.get()[x + y * this->terrain_map->width] & 0xffff);
+        return get_tile_province_id(glm::ivec2(x, y));
     }
 };
