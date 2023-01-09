@@ -75,9 +75,6 @@ namespace std {
         }
         return value;
     }
-
-    template<class T>
-    concept destructible = std::is_nothrow_destructible_v<T>;
 }
 #endif
 
