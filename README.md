@@ -13,6 +13,9 @@ Features:
 * Support for multiple mods
 * Heavy usage of multithreaded code
 
+## Documentation
+Documentation can be found at: https://symphony-of-empires.github.io/docs
+
 ## Download
 
 If you're looking for the game you can find download links on: [https://symphony-of-empires.com/downloads.html].
@@ -21,11 +24,12 @@ Make sure to download the latest version before reporting any bugs.
 ## Building
 
 Required to build:
+* git
 * SDL2 and SDL2-ttf
 * OpenGL (GL and GLU)
 * GLEW
 * libassimp
-* CMake 3.20
+* CMake 3.24
 
 If you lack any of the prerequsites below you can use `cmake -DE3D_VENDORED=1` for building them instead.
 Lua will **always** be built, since many package managers do not supply Lua 5.4 and backwards compatibility isn't a thing that should be dealt with.
