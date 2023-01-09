@@ -100,6 +100,12 @@ void AI::do_tick(World& world) {
         float amount;
     };
     tbb::combinable<std::vector<BuildingInvestment>> building_investments;
+    struct LoanPoolUpdate {
+        NationId nation_id;
+        float new_amount;
+        float new_interest;
+    };
+    tbb::combinable<std::vector<LoanPoolUpdate>> loan_pool_updates;
     tbb::parallel_for(tbb::blocked_range(world.nations.begin(), world.nations.end()), [&](auto& nations_range) {
         for(auto& nation : nations_range) {
             auto& ai = ai_man[nation];
@@ -244,6 +250,15 @@ void AI::do_tick(World& world) {
                     }
                 }
             }
+
+            {
+                /// @todo Dynamic-er interest rates and stuff
+                LoanPoolUpdate cmd{};
+                cmd.nation_id = nation.get_id();
+                cmd.new_amount = 100'000.f; // 100k
+                cmd.new_interest = 0.1f; // 10%
+                loan_pool_updates.local().push_back(cmd);
+            }
         }
     });
 
@@ -269,6 +284,16 @@ void AI::do_tick(World& world) {
             nation.budget -= e.amount;
             auto& province = world.provinces[e.province_id];
             province.buildings[e.building_id].estate_state.invest(e.amount);
+        }
+    });
+
+    loan_pool_updates.combine_each([&](const auto& list) {
+        for(const auto& e : list) {
+            auto& nation = world.nations[e.nation_id];
+            const auto old_amount = nation.public_loan_interest;
+            nation.budget -= e.new_amount - old_amount;
+            nation.public_loan_pool = e.new_amount;
+            nation.public_loan_interest = e.new_interest;
         }
     });
 

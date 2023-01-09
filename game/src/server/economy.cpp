@@ -54,6 +54,7 @@ typedef signed int ssize_t;
 struct PopNeed {
     float life_needs_met = 0.f;
     float budget = 0.f;
+    float debt = 0.f;
 };
 
 struct NewUnit {
@@ -76,19 +77,28 @@ constexpr auto scale_speed(auto c, auto target) {
     return (c * (1.f - friction)) + friction * target;
 }
 
-// Updates supply, demand, and set wages for workers
-static void update_industry_production(World& world, Building& building, const BuildingType& building_type, Province& province, float& artisans_amount, float& artisan_payment)
-{
-    assert(artisans_amount >= 0.f);
+struct ProvinceEconomyInfo {
+    float laborers_payment = 0.f;
+    float artisans_payment = 0.f;
+    float state_payment = 0.f;
+    float private_payment = 0.f;
+    float bureaucrats_payment = 0.f;
+    float pops_payment = 0.f;
+    float bureaucracy_eff = 0.f;
+};
 
+// Updates supply, demand, and set wages for workers
+static void update_industry_production(World& world, Building& building, const BuildingType& building_type, Province& province, ProvinceEconomyInfo& info)
+{
     constexpr auto artisan_production_rate = 0.01f;
     auto& output = world.commodities[building_type.output_id];
     auto& output_product = province.products[output];
 
     // Artisans take place of industry or co-exist with it
     if(output_product.supply < output_product.demand) { // Artisans only produce iff suitable so
+        const auto artisans_amount = province.pops[(int)PopGroup::ARTISAN].size;
         const auto output_amount = artisans_amount * artisan_production_rate; // Reduced rate of production
-        artisan_payment += output_product.produce(output_amount);
+        info.artisans_payment += output_product.produce(output_amount);
     }
     if(building.level == 0.f)
         return;
@@ -107,14 +117,14 @@ static void update_industry_production(World& world, Building& building, const B
         output_product.produce(building.get_output_amount());
 }
 
-static void update_industry_accounting(World& world, Building& building, const BuildingType& building_type, Province& province, float& pop_payment, float& state_payment, float& private_payment)
+static void update_industry_accounting(World& world, Building& building, const BuildingType& building_type, Province& province, ProvinceEconomyInfo& info)
 {
     // Barracks and so on
     if(Commodity::is_invalid(building_type.output_id)) return;
     const auto& nation = world.nations[province.controller_id];
 
     // TODO: Make it so burgeoise aren't duplicating money out of thin air
-    const auto private_investment = private_payment * 0.8f * nation.current_policy.private_ownership;
+    const auto private_investment = info.private_payment * 0.8f * nation.current_policy.private_ownership;
     building.estate_private.invest(private_investment);
 
     // Pay the new funds to the building as a form of the new investment
@@ -147,14 +157,14 @@ static void update_industry_accounting(World& world, Building& building, const B
     float min_wage = glm::max(nation.current_policy.min_wage, glm::epsilon<float>());
 
     building.expenses.wages = min_wage * building.workers;
-    pop_payment += building.expenses.wages;
+    info.pops_payment += building.expenses.wages;
     auto profit = building.get_profit();
 
     // Taxation occurs even without a surplus
     building.expenses.state_taxes = 0.f;
     if(profit > 0.f) {
         building.expenses.state_taxes = profit * nation.current_policy.industry_profit_tax;
-        state_payment += building.expenses.state_taxes;
+        info.state_payment += building.expenses.state_taxes;
         profit -= building.expenses.state_taxes;
     }
 
@@ -166,19 +176,19 @@ static void update_industry_accounting(World& world, Building& building, const B
         // TODO: Should surplus be decremented between each payout?
         const auto state_dividends = building.estate_state.get_dividends(surplus,
             building.estate_state.get_ownership(building.get_total_investment()));
-        state_payment += state_dividends;
+        info.state_payment += state_dividends;
         building.expenses.state_dividends += state_dividends;
         surplus -= state_dividends;
 
         const auto private_dividends = building.estate_private.get_dividends(surplus,
             building.estate_private.get_ownership(building.get_total_investment()));
-        private_payment += private_dividends;
+        info.private_payment += private_dividends;
         building.expenses.private_dividends += private_dividends;
         surplus -= private_dividends;
 
         const auto collective_dividends = building.estate_collective.get_dividends(surplus,
             building.estate_collective.get_ownership(building.get_total_investment()));
-        pop_payment += collective_dividends;
+        info.pops_payment += collective_dividends;
         building.expenses.pop_dividends += collective_dividends;
         surplus -= collective_dividends;
 
@@ -245,7 +255,7 @@ static void update_factories_employment(const World& world, Province& province, 
 }
 
 /// @brief Calculate the budget that we spend on each needs
-void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& pop_needs, float& state_payment) {
+void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& pop_needs, ProvinceEconomyInfo& info) {
     auto& nation = world.nations[province.controller_id];
     for(size_t i = 0; i < province.pops.size(); i++) {
         auto& pop_need = pop_needs[i];
@@ -258,7 +268,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         pop_need.budget -= budget_alloc;
 
         // If we are going to have value added taxes we should separate them from income taxes
-        state_payment += budget_alloc * nation.current_policy.pop_tax;
+        info.state_payment += budget_alloc * nation.current_policy.pop_tax;
         const auto budget_after_VAT = budget_alloc * (1.f - nation.current_policy.pop_tax);
         const auto budget_per_pop = budget_after_VAT / pop.size;
 
@@ -267,11 +277,29 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
             if(needs_amounts[commodity] <= 0.f) continue;
             auto& product = province.products[commodity];
             const auto need_factor = needs_amounts[commodity] / total_factor;
-            const auto wanted_amount = (budget_per_pop * need_factor) / product.price;
+            const auto wanted_amount = budget_per_pop * need_factor;
+            const auto buying_amount = wanted_amount / product.price;
             
             auto amount = 0.f;
             const auto payment = product.buy(wanted_amount, amount);
             pop_need.life_needs_met += amount * need_factor;
+        }
+
+        // Take a loan if this buying spree didn't satisfy us
+        if(pop_need.life_needs_met < 0.f) {
+            // Obtain total amount to borrow
+            auto total_to_borrow = 0.f;
+            for(const auto& commodity : world.commodities) {
+                const auto& product = province.products[commodity];
+                const auto need_factor = needs_amounts[commodity] / total_factor;
+                total_to_borrow += pop.size * need_factor * product.price;
+            }
+
+            auto borrowed = 0.f;
+            auto [public_debt, private_debt] = province.borrow_loan(total_to_borrow, borrowed);
+            pop.public_debt += public_debt;
+            pop.private_debt += private_debt;
+            pop.budget += borrowed;
         }
     }
 }
@@ -375,20 +403,12 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         auto& new_needs = pops_new_needs[province_id];
         new_needs.assign(province.pops.size(), PopNeed{});
 
-        auto laborers_payment = 0.f, artisans_payment = 0.f, state_payment = 0.f, private_payment = 0.f, bureaucrats_payment = 0.f;
-
-        auto artisans_amount = province.pops[(int)PopGroup::ARTISAN].size;
-        auto burgeoise_amount = province.pops[(int)PopGroup::BURGEOISE].size;
-        auto laborers_amount = province.pops[(int)PopGroup::LABORER].size;
-        auto bureaucrats_amount = province.pops[(int)PopGroup::BUREAUCRAT].size;
-        auto bureaucracy_pts = bureaucrats_amount
-            * (1.f - province.pops[(int)PopGroup::BUREAUCRAT].militancy)
-            * province.pops[(int)PopGroup::BUREAUCRAT].literacy;
+        ProvinceEconomyInfo info{};
 
         for(auto& building_type : world.building_types) {
             auto& building = province.buildings[building_type];
             building.revenue.outputs = 0.f;
-            update_industry_production(world, building, building_type, province, artisans_amount, artisans_payment);
+            update_industry_production(world, building, building_type, province, info);
         }
 
         for(size_t i = 0; i < province.pops.size(); i++) {
@@ -398,25 +418,28 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         }
 
         // Bureaucracy points
-        auto bureaucracy_eff = (province.total_pops() * province.average_militancy()) / bureaucracy_pts;
+        auto bureaucrats_amount = province.pops[(int)PopGroup::BUREAUCRAT].size;
+        auto bureaucracy_pts = bureaucrats_amount
+            * (1.f - province.pops[(int)PopGroup::BUREAUCRAT].militancy)
+            * province.pops[(int)PopGroup::BUREAUCRAT].literacy;
+        info.bureaucracy_eff = (province.total_pops() * province.average_militancy()) / bureaucracy_pts;
 
         auto& new_workers = buildings_new_worker[province_id];
         new_workers.assign(world.building_types.size(), 0.f);
         update_factories_employment(world, province, new_workers);
         for(auto& building_type : world.building_types) {
             auto& building = province.buildings[building_type];
-            update_industry_accounting(world, building, building_type, province, laborers_payment, state_payment, private_payment);
+            update_industry_accounting(world, building, building_type, province, info);
         }
 
-        new_needs[(int)PopGroup::LABORER].budget += laborers_payment;
-        new_needs[(int)PopGroup::ARTISAN].budget += artisans_payment;
-        new_needs[(int)PopGroup::BURGEOISE].budget += private_payment;
-        new_needs[(int)PopGroup::BUREAUCRAT].budget += bureaucrats_payment;
-
-        update_pop_needs(world, province, new_needs, state_payment);
+        new_needs[(int)PopGroup::LABORER].budget += info.laborers_payment;
+        new_needs[(int)PopGroup::ARTISAN].budget += info.artisans_payment;
+        new_needs[(int)PopGroup::BURGEOISE].budget += info.private_payment;
+        new_needs[(int)PopGroup::BUREAUCRAT].budget += info.bureaucrats_payment;
+        update_pop_needs(world, province, new_needs, info);
 
         paid_taxes.local().resize(world.nations.size());
-        paid_taxes.local()[province.controller_id] = state_payment;
+        paid_taxes.local()[province.controller_id] = info.state_payment;
         for(auto& building : province.buildings) {
             // There must not be conflict ongoing otherwise they wont be able to build shit
             if(province.controller_id == province.owner_id && building.can_build_unit() && building.is_working_on_unit()) {
