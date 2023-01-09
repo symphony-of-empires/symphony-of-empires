@@ -233,14 +233,13 @@ void AI::do_tick(World& world) {
 
                         if(it != world.building_types.end()) {
                             // For now, investing 15% of the budget on this industry seems reasonable
-                            const auto investment = nation.budget / 15.f;
+                            const auto investment = province.buildings[*it].get_upgrade_cost();
                             BuildingInvestment cmd{};
                             cmd.nation_id = nation.get_id();
                             cmd.province_id = province_id;
                             cmd.building_id = BuildingId(it->get_id());
                             cmd.amount = investment;
                             building_investments.local().push_back(cmd);
-                            break;
                         }
                     }
                 }

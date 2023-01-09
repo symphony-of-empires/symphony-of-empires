@@ -36,7 +36,7 @@
 #include "world.hpp"
 
 // "Fuzzers" for emigration chances
-static DiscreteDistribution<float> rng_multipliers({ 0.01f, 0.05f, 0.25f, 0.3f, 0.5f, 1.f }, { 1.f, 0.5f, 0.25f, 0.01f, 0.2f, 0.1f });
+static DiscreteDistribution<float> rng_multipliers({ 0.01f, 0.05f, 0.25f, 0.3f, 0.5f, 0.75f }, { 1.f, 0.5f, 0.25f, 0.01f, 0.2f, 0.1f });
 
 struct EmigrationData {
     ProvinceId origin_id;

@@ -375,8 +375,15 @@ mapmode_tooltip commodity_tooltip(CommodityId good_id) {
             province.name.c_str(), product.price, product.global_demand, product.demand, product.bought, product.supply, product.produced, total_production);
         for(const auto& building_type : world.building_types) {
             const auto& building = province.buildings[building_type];
-            if(building.level)
-                str += translate_format("%s (level %.0f), scale %.0f, workers %.0f, budget %.0f\n", building_type.name.c_str(), building.level, building.production_scale, building.workers, building.budget);
+            if(building.level == 0.f) continue;
+            str += translate_format("%s %s (level %.0f), scale %.0f, workers %.0f, budget %.0f\n",
+                building_type.name.c_str(),
+                building.can_do_output(province,
+                building_type.input_ids) ? "(Active)" : "(Inactive)",
+                building.level,
+                building.production_scale,
+                building.workers,
+                building.budget);
         }
         return str;
     };

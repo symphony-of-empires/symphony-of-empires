@@ -53,8 +53,8 @@ struct Eng3D::Deser::Serializer<Commodity> {
 /// @brief A product (based off a Commodity) which can be bought by POPs, converted by factories and transported
 struct Product : Entity<ProductId> {
     float get_price_delta() const {
-        constexpr auto price_elasticity = 1.f;
-        if(demand == 0.f || supply == 0.f)
+        constexpr auto price_elasticity = 0.01f;
+        if(demand == 0.f && supply == 0.f)
             return -price_elasticity;
         
         auto ratio = 0.f;
@@ -78,9 +78,6 @@ struct Product : Entity<ProductId> {
     }
 
     void close_market() {
-        this->demand = this->bought;
-        this->supply += this->produced - this->bought;
-
         // Increase price with more demand
         this->price_delta = this->get_price_delta();
         // Set the new price
@@ -88,17 +85,24 @@ struct Product : Entity<ProductId> {
         if(glm::epsilonEqual(this->price, 0.f, glm::epsilon<float>()))
             this->price_delta = 0.f;
         
-        this->produced = this->bought = 0.f;
+        this->demand = this->produced = this->bought = 0.f;
     }
 
     /// @brief Buy a portion of the item
-    /// @param amount Amount to buy
+    /// @param wanted_amount Total wanted amount to buy (to add to demand)
+    /// @param amount Amount actually bought
     /// @return float Total cost of purchase
-    float buy(float amount) {
-        assert(amount >= 0.f);
-        if(this->supply > 0.f)
-            assert(amount <= this->supply);
+    float buy(float wanted_amount, float& amount) {
+        assert(amount >= 0.f && wanted_amount >= 0.f);
+        assert(this->supply >= 0.f);
+
+        // Increment demand (how much desire it is for a product)
+        this->demand += wanted_amount;
+
+        // Buy the product in question
+        amount = glm::clamp(wanted_amount, 0.f, this->supply);
         this->bought += amount;
+        this->supply -= amount;
         return this->price * amount;
     }
 
@@ -108,17 +112,17 @@ struct Product : Entity<ProductId> {
     float produce(float amount) {
         assert(amount >= 0.f);
         this->produced += amount;
+        this->supply += amount;
         return this->price * amount;
     }
 
     float price = 1.f;
     float price_delta = 0.f;
+    float supply = 0.f;
+    float demand = 0.f;
     float bought = 0.f;
     float produced = 0.f;
-    float supply = 1.f;
-    float demand = 1.f;
-    float global_demand = 1.f;
-    float speculative_demand = 0.f;
+    float global_demand = 0.f;
 };
 template<>
 struct Eng3D::Deser::Serializer<Product> {
@@ -131,8 +135,9 @@ struct Eng3D::Deser::Serializer<Product> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.price_delta);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.supply);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.demand);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.bought);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.produced);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.global_demand);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.speculative_demand);
     }
 };
 

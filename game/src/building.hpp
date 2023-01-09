@@ -134,9 +134,11 @@ struct Building : Entity<BuildingId> {
 
     struct Investment {
         float total = 0.f;
+        float today_funds = 0.f;
 
         void invest(float amount) {
             total += amount;
+            today_funds += amount;
         }
 
         float get_ownership(float total_investments) const {
@@ -207,6 +209,7 @@ struct Eng3D::Deser::Serializer<Building::Investment> {
     template<bool is_serialize>
     static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.total);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.today_funds);
     }
 };
 
