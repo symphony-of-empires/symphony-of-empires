@@ -356,7 +356,7 @@ static inline bool is_inside_transparent(const UI::Widget& w, glm::ivec2 mouse_p
         glm::ivec2 tex_size{ w.current_texture->width, w.current_texture->height };
         glm::ivec2 tex_pos = ((mouse_pos - offset) * tex_size) / glm::ivec2(w.width, w.height); 
         const Eng3D::Rect tex_rect{ glm::ivec2(0), tex_size };
-        if(tex_rect.in_bounds(mouse_pos)) {
+        if(tex_rect.contains(mouse_pos)) {
             const uint32_t argb = w.current_texture->get_pixel(tex_pos.x, tex_pos.y).get_value();
             if(((argb >> 24) & 0xff) == 0) return true;
         }
@@ -372,7 +372,7 @@ bool UI::Context::check_hover_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm
         return false;
 
     const Eng3D::Rect r(offset.x, offset.y, w.width, w.height);
-    if(!r.in_bounds(mouse_pos)) {
+    if(!r.contains(mouse_pos)) {
         w.is_hover = false;
     } else if(w.is_transparent) {
         if(is_inside_transparent(w, mouse_pos, offset))
@@ -443,7 +443,7 @@ UI::ClickState UI::Context::check_click_recursive(
     // Click must be within the widget's box if it's not a group
     if(w.type != UI::WidgetType::GROUP) {
         const Eng3D::Rect r(offset.x, offset.y, w.width, w.height);
-        if(!r.in_bounds(mouse_pos)) {
+        if(!r.contains(mouse_pos)) {
             clickable = false;
         } else if(w.is_transparent) {
             if(is_inside_transparent(w, mouse_pos, offset))
@@ -590,7 +590,7 @@ bool UI::Context::check_wheel_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm
     if(!w.is_render) return false;
 
     const Eng3D::Rect r = Eng3D::Rect(offset.x, offset.y, w.width, w.height);
-    if(!r.in_bounds(mouse_pos)) {
+    if(!r.contains(mouse_pos)) {
         return false;
     } else if(w.is_transparent) {
         if(is_inside_transparent(w, mouse_pos, offset))

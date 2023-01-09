@@ -127,21 +127,28 @@ namespace Eng3D {
             offset(glm::vec2(x, y));
         }
 
-        /// @brief Checks if the rectangle is in bounds
+        /// @brief Checks if the point is contains the point
         /// @param pos Position to check (rectangle must cover this point)
         /// @return true Rectangle not in bounds
         /// @return false Rectangle is in bounds
-        constexpr bool in_bounds(glm::vec2 pos) const {
+        constexpr bool contains(glm::vec2 pos) const {
             return pos.x >= left && pos.x <= right && pos.y >= top && pos.y <= bottom;
         }
 
         template<typename T>
-        constexpr bool in_bounds(T x, T y) const {
-            return in_bounds(glm::vec2(x, y));
+        constexpr bool contains(T x, T y) const {
+            return contains(glm::vec2(x, y));
         }
 
-        constexpr bool in_bounds(const Rectangle& rect) const {
-            return in_bounds(rect.left, rect.top) || in_bounds(rect.left, rect.bottom) || in_bounds(rect.right, rect.top) || in_bounds(rect.right, rect.bottom);
+        /// @brief Checks if the rectangle is contains the rectangle
+        /// @param rect Rectangle to check (rectangle must be inside this rectangle)
+        /// @return true Rectangle not in bounds
+        /// @return false Rectangle is in bounds
+        constexpr bool contains(const Rectangle& rect) const {
+            return contains(rect.left, rect.top) 
+                || contains(rect.left, rect.bottom) 
+                || contains(rect.right, rect.top) 
+                || contains(rect.right, rect.bottom);
         }
 
         /// @brief Obtains the intersection rectangle from two other rectangles R1 and R2

@@ -124,6 +124,7 @@ namespace Eng3D {
             void link();
             void attach_shader(const Eng3D::OpenGL::Shader& shader);
             void use() const;
+            void set_PVM(glm::mat4 projection, glm::mat4 view, glm::mat4 model) const;
             void set_uniform(const std::string& name, glm::mat4 uniform) const;
             void set_uniform(const std::string& name, float value1, float value2) const;
             void set_uniform(const std::string& name, float value1, float value2, float value3) const;

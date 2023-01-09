@@ -56,10 +56,10 @@ UnitWidget::UnitWidget(Map& _map, GameState& _gs, UI::Widget* _parent)
 #endif
     this->set_on_click([this](UI::Widget&) {
         if(Unit::is_invalid(this->unit_id)) return;
-        if(gs.input.is_selected_unit(this->unit_id)) {
-            gs.input.unselect_unit(this->unit_id);
+        if(gs.client_state.is_selected_unit(this->unit_id)) {
+            gs.client_state.unselect_unit(this->unit_id);
         } else {
-            gs.input.select_unit(this->unit_id);
+            gs.client_state.select_unit(this->unit_id);
         }
         new Interface::UnitView(this->gs, this->gs.world->unit_manager.units[this->unit_id]);
     });
@@ -91,7 +91,7 @@ void UnitWidget::set_unit(Unit& _unit) {
 
     // If the unit is not selected set give it a border
     this->border.texture = nullptr;
-    if(!gs.input.is_selected_unit(this->unit_id))
+    if(!gs.client_state.is_selected_unit(this->unit_id))
         this->border.texture = this->select_border_texture;
 
     // Paint according to relations
