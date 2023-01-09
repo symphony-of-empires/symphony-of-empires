@@ -79,6 +79,8 @@ constexpr auto scale_speed(auto c, auto target) {
 // Updates supply, demand, and set wages for workers
 static void update_industry_production(World& world, Building& building, const BuildingType& building_type, Province& province, float& artisans_amount, float& artisan_payment)
 {
+    assert(artisans_amount >= 0.f);
+
     constexpr auto artisan_production_rate = 0.01f;
     auto& output = world.commodities[building_type.output_id];
     auto& output_product = province.products[output];
@@ -101,9 +103,8 @@ static void update_industry_production(World& world, Building& building, const B
         building.expenses.inputs_cost += product.buy(wanted_amount, amount);
     }
 
-    if(building.can_do_output(province, building_type.input_ids)) {
+    if(building.can_do_output(province, building_type.input_ids))
         output_product.produce(building.get_output_amount());
-    }
 }
 
 static void update_industry_accounting(World& world, Building& building, const BuildingType& building_type, Province& province, float& pop_payment, float& state_payment, float& private_payment)
@@ -387,7 +388,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         for(auto& building_type : world.building_types) {
             auto& building = province.buildings[building_type];
             building.revenue.outputs = 0.f;
-            (world, building, building_type, province, artisans_amount, artisans_payment);
+            update_industry_production(world, building, building_type, province, artisans_amount, artisans_payment);
         }
 
         for(size_t i = 0; i < province.pops.size(); i++) {
