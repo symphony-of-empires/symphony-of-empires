@@ -33,7 +33,6 @@
 
 #include "eng3d/log.hpp"
 #include "eng3d/serializer.hpp"
-#include "eng3d/thread_pool.hpp"
 #include "eng3d/rand.hpp"
 
 #include "action.hpp"
