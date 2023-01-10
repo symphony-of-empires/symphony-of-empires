@@ -275,6 +275,8 @@ public:
     float literacy = 0.f;
     float militancy = 0.f;
     float budget = 0.f;
+    float private_debt = 0.f;
+    float public_debt = 0.f;
     Policies wanted_policies;
 };
 template<>
@@ -286,10 +288,12 @@ struct Eng3D::Deser::Serializer<Pop> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.type_id);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.size);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.life_needs_met);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.literacy);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.militancy);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.budget);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.life_needs_met);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.private_debt);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.public_debt);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.wanted_policies);
     }
 };

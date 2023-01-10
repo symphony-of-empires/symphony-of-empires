@@ -75,6 +75,10 @@ set(CMAKE_POSITION_INDEPENDENT_CODE "${E3D_PIE}")
 # Source code files
 #
 file(GLOB ENG3D_SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/ui/*.cpp")
+# Add android native C glue
+#IF(ANDROID)
+#	list(APPEND ENG3D_SOURCES "${CMAKE_ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c")
+#ENDIF()
 execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/eng3d")
 
 # Switch doesn't support shared libraries
@@ -112,17 +116,11 @@ IF(WIN32)
 	ENDIF()
 ELSEIF(UNIX OR ANDROID)
 	target_link_libraries(eng3d PUBLIC m stdc++ atomic)
-	IF(E3D_BACKEND_OPENGL)
-		target_link_libraries(eng3d PUBLIC GL)
-	ELSEIF(E3D_BACKEND_GLES)
-		target_link_libraries(eng3d PUBLIC EGL GLESv1_CM GLESv2 GLESv3)
-	ENDIF()
 ELSEIF(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
 	target_link_libraries(eng3d PUBLIC stdc++)
 	target_link_libraries(eng3d PUBLIC drm_nouveau EGL GLESv2 glad glapi)
 	target_link_libraries(eng3d PUBLIC freetype bz2) # SDL2_ttf
 	target_link_libraries(eng3d PUBLIC SDL2main SDL2_test png16 minizip)
-
 	target_include_directories(eng3d PUBLIC "${NX_ROOT}/include")
 	target_link_directories(eng3d PUBLIC "${NX_ROOT}/lib")
 ENDIF()
@@ -134,9 +132,12 @@ IF(Threads_FOUND)
 	target_link_libraries(eng3d PUBLIC Threads::Threads)
 ENDIF()
 
+IF((WIN32 OR UNIX) AND (NOT ANDROID))
+	target_link_libraries(eng3d PUBLIC dependency_GLEW)
+ENDIF()
+
 target_link_libraries(eng3d PUBLIC
 	dependency_OpenGL
-	dependency_GLEW
 	dependency_SDL2
 	dependency_SDL2_ttf
 	dependency_tbb

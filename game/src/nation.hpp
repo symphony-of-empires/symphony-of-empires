@@ -126,7 +126,10 @@ public:
     float prestige = 0.1f; // Amount of prestige
     // Total budget of the nation (money in ark), this is not equal to GDP, the GDP is the total sum of the price
     // of all products in the nation, which are volatile unless they are sold
-    float budget = 10000.f;
+    float budget = 100'000.f;
+    // Public loans from national banks for example
+    float public_loan_pool = 0.f;
+    float public_loan_interest = 0.f;
     // Default and can be disabled by the player
     bool ai_controlled = true;
     bool ai_do_cmd_troops = true;
@@ -203,5 +206,7 @@ struct Eng3D::Deser::Serializer<Nation> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.research);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.focus_tech_id);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.flags);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.public_loan_pool);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.public_loan_interest);
     }
 };

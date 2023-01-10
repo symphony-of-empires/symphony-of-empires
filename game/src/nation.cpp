@@ -243,5 +243,5 @@ const Ideology::Subideology& Nation::get_subideology() const {
 
 bool Nation::can_directly_control_factories() const {
     const auto& subideology = this->get_subideology();
-    return subideology.economic.capitalism >= 0.f ? true : false;
+    return subideology.economic.capitalism >= -0.5f ? true : false;
 }

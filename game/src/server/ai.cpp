@@ -100,6 +100,12 @@ void AI::do_tick(World& world) {
         float amount;
     };
     tbb::combinable<std::vector<BuildingInvestment>> building_investments;
+    struct LoanPoolUpdate {
+        NationId nation_id;
+        float new_amount;
+        float new_interest;
+    };
+    tbb::combinable<std::vector<LoanPoolUpdate>> loan_pool_updates;
     tbb::parallel_for(tbb::blocked_range(world.nations.begin(), world.nations.end()), [&](auto& nations_range) {
         for(auto& nation : nations_range) {
             auto& ai = ai_man[nation];
@@ -233,17 +239,25 @@ void AI::do_tick(World& world) {
 
                         if(it != world.building_types.end()) {
                             // For now, investing 15% of the budget on this industry seems reasonable
-                            const auto investment = nation.budget / 15.f;
+                            const auto investment = province.buildings[*it].get_upgrade_cost();
                             BuildingInvestment cmd{};
                             cmd.nation_id = nation.get_id();
                             cmd.province_id = province_id;
                             cmd.building_id = BuildingId(it->get_id());
                             cmd.amount = investment;
                             building_investments.local().push_back(cmd);
-                            break;
                         }
                     }
                 }
+            }
+
+            {
+                /// @todo Dynamic-er interest rates and stuff
+                LoanPoolUpdate cmd{};
+                cmd.nation_id = nation.get_id();
+                cmd.new_amount = 100'000.f; // 100k
+                cmd.new_interest = 0.1f; // 10%
+                loan_pool_updates.local().push_back(cmd);
             }
         }
     });
@@ -270,6 +284,16 @@ void AI::do_tick(World& world) {
             nation.budget -= e.amount;
             auto& province = world.provinces[e.province_id];
             province.buildings[e.building_id].estate_state.invest(e.amount);
+        }
+    });
+
+    loan_pool_updates.combine_each([&](const auto& list) {
+        for(const auto& e : list) {
+            auto& nation = world.nations[e.nation_id];
+            const auto old_amount = nation.public_loan_interest;
+            nation.budget -= e.new_amount - old_amount;
+            nation.public_loan_pool = e.new_amount;
+            nation.public_loan_interest = e.new_interest;
         }
     });
 

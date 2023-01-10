@@ -573,7 +573,7 @@ void Map::check_right_mouse_release() {
     /// @todo Handle the case where an unit is deleted
     // Move units
     for(const auto unit_id : gs.client_state.get_selected_units()) {
-        const auto& unit = gs.world->unit_manager.units[unit_id];
+        auto& unit = gs.world->unit_manager.units[unit_id];
         auto unit_prov_id = gs.world->unit_manager.unit_province[unit_id];
         if(!unit.can_move()) continue;
         // Don't change target if ID is the same...
@@ -584,7 +584,12 @@ void Map::check_right_mouse_release() {
             const auto& relation = gs.world->get_relation(gs.curr_nation->get_id(), province.controller_id);
             if(!relation.has_landpass()) continue;
         }
-        gs.client->send(Action::UnitMove::form_packet(unit, province));
+        if(gs.client != nullptr) {
+            gs.client->send(Action::UnitMove::form_packet(unit, province));
+        } else {
+            if(unit.can_move())
+                unit.set_path(province);
+        }
 
         const std::scoped_lock lock2(gs.audio_man.sound_lock);
         auto entries = gs.package_man.get_multiple_prefix("sfx/land_move");

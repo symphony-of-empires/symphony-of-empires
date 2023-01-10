@@ -69,6 +69,21 @@ bool Province::is_neighbour(const Province& province) const {
     return std::find(this->neighbour_ids.begin(), this->neighbour_ids.end(), province) != this->neighbour_ids.end();
 }
 
+/// @brief Borrow a loan
+/// @param amount Amount to borrow
+/// @param borrowed Borrowed amount (in total)
+/// @return std::pair<float, float> Pair of amount in debt, first is public debt and second is private
+std::pair<float, float> Province::borrow_loan(float amount, float& borrowed) {
+    const auto& nation = g_world.nations[this->owner_id];
+    // First try the one with lower interest
+    if(nation.public_loan_interest <= this->private_loan_interest || amount > this->private_loan_pool) {
+        borrowed = glm::min(amount, nation.public_loan_pool);
+        return std::make_pair(borrowed + borrowed * nation.public_loan_interest, 0.f);
+    }
+    borrowed = glm::min(amount, this->private_loan_pool);
+    return std::make_pair(0.f, borrowed + borrowed * this->private_loan_interest);
+}
+
 std::vector<UnitId> Province::Battle::get_attacker_unit_ids() const {
     const auto& units = g_world.unit_manager.units;
     std::vector<UnitId> v;

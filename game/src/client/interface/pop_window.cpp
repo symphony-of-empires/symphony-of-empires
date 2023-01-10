@@ -97,7 +97,7 @@ Interface::PopWindow::PopWindow(GameState& _gs)
                 auto budget = row.get_element(row_index++);
                 budget->set_text(string_format("%.2f", pop.budget / pop.size));
                 budget->set_key(pop.budget / pop.size);
-                budget->set_tooltip(Eng3D::translate_format("Total budget: %.2f", pop.budget));
+                budget->set_tooltip(Eng3D::translate_format("Total budget: %.2f\nPublic debt: %.2f\nPrivate debt: %.2f", pop.budget, pop.public_debt, pop.private_debt));
 
                 auto quality_of_life = row.get_element(row_index++);
                 quality_of_life->set_text(string_format("%.2f", pop.life_needs_met));

@@ -36,24 +36,35 @@
 #include "world.hpp"
 
 // "Fuzzers" for emigration chances
-static DiscreteDistribution<float> rng_multipliers({ 0.01f, 0.05f, 0.25f, 0.3f, 0.5f, 1.f }, { 1.f, 0.5f, 0.25f, 0.01f, 0.2f, 0.1f });
+static DiscreteDistribution<float> rng_multipliers({ 0.01f, 0.05f, 0.25f, 0.3f, 0.5f, 0.75f }, { 1.f, 0.5f, 0.25f, 0.01f, 0.2f, 0.1f });
 
-static inline void conlonial_migration(World& world);
-static inline void internal_migration(World& world);
-static inline void external_migration(World& world);
+struct EmigrationData {
+    ProvinceId origin_id;
+    ProvinceId target_id;
+    float size = 0.f;
+    Pop emigred;
+};
+
+static inline void conlonial_migration(World& world, tbb::combinable<std::vector<EmigrationData>>& emigration);
+static inline void internal_migration(World& world, tbb::combinable<std::vector<EmigrationData>>& emigration);
+static inline void external_migration(World& world, tbb::combinable<std::vector<EmigrationData>>& emigration);
 
 void do_emigration(World& world) {
-    external_migration(world);
-    internal_migration(world);
-    conlonial_migration(world);
-}
+    tbb::combinable<std::vector<EmigrationData>> emigration;
+    //external_migration(world, emigration);
+    internal_migration(world, emigration);
+    conlonial_migration(world, emigration);
 
-static inline void conlonial_migration(World&) {
-
-}
-
-static inline void internal_migration(World&) {
-
+    // Emigrate pop to another province
+    emigration.combine_each([&](const auto& list) {
+        for(const auto& e : list) {
+            auto& target = world.provinces[e.target_id];
+            const auto it = std::find(target.pops.begin(), target.pops.end(), e.emigred);
+            assert(it != target.pops.end());
+            it->size += e.size;
+            //it->budget += e.emigred.budget;
+        }
+    });
 }
 
 // Basic
@@ -65,11 +76,62 @@ static inline float nation_attraction(Nation& nation, Language& language) {
 static inline float province_attraction(const Province& province) {
     auto rand_attractive = province.base_attractive + rng_multipliers.get_item();
     rand_attractive /= g_world.terrain_types[province.terrain_type_id].penalty;
-    rand_attractive *= 1.f - province.average_militancy(); // from 0 to 1
+    rand_attractive += province.is_coastal ? 1.f : 0.f;
+    rand_attractive -= province.average_militancy(); // from 0 to 1
     return rand_attractive;
 }
 
-static inline void external_migration(World& world) {
+static inline void conlonial_migration(World& world, tbb::combinable<std::vector<EmigrationData>>& emigration) {
+
+}
+
+static inline void internal_migration(World& world, tbb::combinable<std::vector<EmigrationData>>& emigration) {
+    tbb::parallel_for(tbb::blocked_range(world.nations.begin(), world.nations.end()), [&](const auto& nations_range) {
+        for(const auto& nation : nations_range) {
+            std::vector<float> attractions;
+            std::vector<ProvinceId> viable_provinces;
+            for(const auto province_id : nation.controlled_provinces) {
+                auto& province = world.provinces[province_id];
+                if(world.terrain_types[province.terrain_type_id].is_water_body)
+                    continue;
+                auto attraction = province_attraction(province);
+                if(attraction <= 0.f)
+                    continue;
+                attractions.push_back(attraction);
+                viable_provinces.push_back(province);
+            }
+
+            if(!viable_provinces.empty()) {
+                DiscreteDistribution<ProvinceId> province_distribution(viable_provinces, attractions);
+                for(const auto province_id : nation.controlled_provinces) {
+                    auto& province = world.provinces[province_id];
+
+                    const auto language_id = std::distance(province.languages.begin(), std::max_element(province.languages.begin(), province.languages.end()));
+                    for(auto& pop : province.pops) {
+                        if(pop.size <= 1.f)
+                            continue;
+                        
+                        const auto emigration_desire = glm::max(pop.militancy * -pop.life_needs_met, 1.f);
+                        auto emigrants = glm::min(pop.size * emigration_desire * rng_multipliers.get_item(), pop.size);
+                        if(emigrants > 0.f) {
+                            const auto& target_province = world.provinces[province_distribution.get_item()];
+                            emigration.local().push_back(EmigrationData{
+                                province.get_id(),
+                                target_province.get_id(),
+                                emigrants,
+                                pop
+                            });
+                            pop.size -= emigrants;
+                            assert(!(pop.size < 0.f));
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+static inline void external_migration(World& world, tbb::combinable<std::vector<EmigrationData>>& emigration) {
     std::vector<DiscreteDistribution<Province*>> province_distributions;
     province_distributions.reserve(world.provinces.size());
     for(auto& nation : world.nations) {
@@ -113,18 +175,11 @@ static inline void external_migration(World& world) {
     }
     assert(!nation_distributions.empty());
 
-    struct EmigrationData {
-        ProvinceId origin_id;
-        ProvinceId target_id;
-        float size = 0.f;
-        Pop emigred;
-    };
-    tbb::combinable<std::vector<EmigrationData>> emigration;
-    tbb::parallel_for(tbb::blocked_range(world.provinces.begin(), world.provinces.end()), [&emigration, &nation_distributions, &province_distributions, &world](const auto& provinces_range) {
+    tbb::parallel_for(tbb::blocked_range(world.provinces.begin(), world.provinces.end()), [&](const auto& provinces_range) {
         for(auto& province : provinces_range) {
             if(world.terrain_types[province.terrain_type_id].is_water_body)
                 continue;
-
+            
             const auto language_id = std::distance(province.languages.begin(), std::max_element(province.languages.begin(), province.languages.end()));
             // Randomness factor to emulate a pseudo-imperfect economy
             for(auto& pop : province.pops) {
@@ -145,7 +200,7 @@ static inline void external_migration(World& world) {
 
                     auto& province_distribution = province_distributions[random_nation->get_id()];
                     auto* choosen_province = province_distribution.get_item();
-                    if(choosen_province == nullptr || world.terrain_types[choosen_province->terrain_type_id].is_water_body)
+                    if(choosen_province == nullptr)
                         continue;
 
                     emigration.local().push_back(EmigrationData{
@@ -154,22 +209,10 @@ static inline void external_migration(World& world) {
                         emigrants,
                         pop
                     });
-
                     pop.size -= emigrants;
                     assert(!(pop.size < 0.f));
                 }
             }
-        }
-    });
-
-    // Emigrate pop to another province
-    emigration.combine_each([&world](const auto& list) {
-        for(const auto& e : list) {
-            auto& target = world.provinces[e.target_id];
-            const auto it = std::find(target.pops.begin(), target.pops.end(), e.emigred);
-            assert(it != target.pops.end());
-            it->size += e.size;
-            //it->budget += e.emigred.budget;
         }
     });
 }
