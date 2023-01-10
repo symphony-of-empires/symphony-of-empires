@@ -163,7 +163,7 @@ static void update_industry_accounting(World& world, Building& building, const B
         return;
 
     // Obtain revenue from the products on this province & from how many were bought
-    building.revenue.outputs += output_product.bought * output_product.price;
+    building.revenue.outputs = output_product.bought * output_product.price;
 
     // TODO add output modifier
     // Calculate outputs
@@ -430,7 +430,6 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
 
         for(auto& building_type : world.building_types) {
             auto& building = province.buildings[building_type];
-            building.revenue.outputs = 0.f;
             update_industry_production(world, building, building_type, province, info);
         }
 
@@ -448,6 +447,9 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         info.bureaucracy_eff = (province.total_pops() * province.average_militancy()) / bureaucracy_pts;
         info.admin_funds = province_policy.admin_funding * province_policy.min_wage;
 
+        // Pops buying up stockpile from the province
+        update_pop_needs(world, province, new_needs, info);
+
         // Factory employment for laborers, and artisans making independent products
         auto& new_workers = buildings_new_worker[province_id];
         new_workers.assign(world.building_types.size(), 0.f);
@@ -457,16 +459,14 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             update_industry_accounting(world, building, building_type, province, info);
         }
 
-        // Soldier pop funds
+        // Payment to the pops, including soldier pop funds
         info.military_funds = province_policy.military_funding * province_policy.min_wage;
-
         new_needs[(int)PopGroup::LABORER].budget += info.laborers_payment;
         new_needs[(int)PopGroup::INTELLECTUAL].budget += info.intellectuals_payment;
         new_needs[(int)PopGroup::ARTISAN].budget += info.artisans_payment;
         new_needs[(int)PopGroup::BURGEOISE].budget += info.private_payment;
         new_needs[(int)PopGroup::BUREAUCRAT].budget += info.bureaucrats_payment;
         new_needs[(int)PopGroup::SOLDIER].budget += info.military_funds;
-        update_pop_needs(world, province, new_needs, info);
 
         paid_taxes.local().resize(world.nations.size());
         paid_taxes.local()[province.controller_id] = info.state_payment;

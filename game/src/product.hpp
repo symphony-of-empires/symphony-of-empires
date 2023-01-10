@@ -55,14 +55,9 @@ struct Product : Entity<ProductId> {
     float get_price_delta() const {
         constexpr auto price_elasticity = 0.01f;
         if(demand == 0.f && supply == 0.f)
-            return -price_elasticity;
+            return 1.f;
         
-        auto ratio = 0.f;
-        if(supply > demand)
-            ratio -= supply / demand;
-        else if(supply < demand)
-            ratio += demand / supply;
-        return price_elasticity * glm::clamp(ratio, -100.f, 100.f);
+        return glm::clamp(demand / supply, 0.9f, 1.1f);
     }
 
     float sd_ratio() const {
@@ -81,10 +76,11 @@ struct Product : Entity<ProductId> {
         // Increase price with more demand
         this->price_delta = this->get_price_delta();
         // Set the new price
-        this->price = glm::clamp(this->price + this->price_delta, glm::epsilon<float>(), 100'000.f);
+        this->price = glm::clamp(this->price * this->price_delta, 0.01f, 100'000.f);
         if(glm::epsilonEqual(this->price, 0.f, glm::epsilon<float>()))
             this->price_delta = 0.f;
         
+        this->supply -= this->bought;
         this->demand = this->produced = this->bought = 0.f;
     }
 
@@ -93,16 +89,15 @@ struct Product : Entity<ProductId> {
     /// @param amount Amount actually bought
     /// @return float Total cost of purchase
     float buy(float wanted_amount, float& amount) {
+        if(this->supply < this->bought) return 0.f;
         assert(amount >= 0.f && wanted_amount >= 0.f);
-        assert(this->supply >= 0.f);
 
         // Increment demand (how much desire it is for a product)
         this->demand += wanted_amount;
 
         // Buy the product in question
-        amount = glm::clamp(wanted_amount, 0.f, this->supply);
+        amount = glm::clamp(wanted_amount, 0.f, this->supply - this->bought);
         this->bought += amount;
-        this->supply -= amount;
         return this->price * amount;
     }
 

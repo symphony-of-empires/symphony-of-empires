@@ -142,6 +142,7 @@ struct Building : Entity<BuildingId> {
         }
 
         float get_ownership(float total_investments) const {
+            if(total == 0.f || total_investments == 0.f) return 0.f;
             return total_investments / total;
         }
 
