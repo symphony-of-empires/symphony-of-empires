@@ -71,10 +71,15 @@ If you simply want to play the game on Debian run: ``./quick_build.sh``
 The build with these commands once all the dependencies are met:
 ```sh
 # In Linux, macOS, NetBSD, etc
+
 # Use this for a normal build
-cmake -DE3D_BACKEND_OPENGL=1 -DNO_COPY_MODS=1 .
+mkdir -p build && cd build
+cmake -DE3D_BACKEND_OPENGL=1 ..
+cmake --build .
+
 # Alternatively use this for a debug build
-cmake -DE3D_DEBUG=1 -DE3D_BACKEND_OPENGL=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo .
+mkdir -p build && cd build
+cmake -DE3D_DEBUG=1 -DE3D_BACKEND_OPENGL=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
 cmake --build .
 ```
 
