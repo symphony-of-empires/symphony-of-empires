@@ -27,7 +27,7 @@ jobs:
           build/_deps
     - name: "Build"
       run: |
-        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER_LAUNCHER="ccache gcc" -DCMAKE_CXX_COMPILER_LAUNCHER="ccache g++" -B build/ .
+        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -B build/ .
         ln -s ../mods mods
         cd build
         cmake --build . -- -j$(nproc)
