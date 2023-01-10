@@ -62,7 +62,7 @@ struct Product : Entity<ProductId> {
             ratio -= supply / demand;
         else if(supply < demand)
             ratio += demand / supply;
-        return price_elasticity * glm::clamp(ratio, -1.f, 1.f);
+        return price_elasticity * glm::clamp(ratio, -100.f, 100.f);
     }
 
     float sd_ratio() const {

@@ -76,8 +76,7 @@ bool Province::is_neighbour(const Province& province) const {
 std::pair<float, float> Province::borrow_loan(float amount, float& borrowed) {
     const auto& nation = g_world.nations[this->owner_id];
     // First try the one with lower interest
-    if(nation.public_loan_interest <= this->private_loan_interest
-    || this->private_loan_pool < amount) {
+    if(nation.public_loan_interest <= this->private_loan_interest || amount > this->private_loan_pool) {
         borrowed = glm::min(amount, nation.public_loan_pool);
         return std::make_pair(borrowed + borrowed * nation.public_loan_interest, 0.f);
     }

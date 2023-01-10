@@ -94,7 +94,7 @@ static void update_industry_production(World& world, Building& building, const B
     auto& output_product = province.products[output];
 
     // Artisans take place of industry or co-exist with it
-    if(output_product.supply < output_product.demand) { // Artisans only produce iff suitable so
+    if(output_product.demand >= 0.f) { // Artisans only produce iff suitable so
         const auto artisans_amount = province.pops[(int)PopGroup::ARTISAN].size;
         const auto output_amount = artisans_amount * artisan_production_rate; // Reduced rate of production
         info.artisans_payment += output_product.produce(output_amount);
@@ -242,8 +242,7 @@ static void update_factories_employment(const World& world, Province& province, 
     for(const auto& [industry_index, _] : factories_by_profitability) {
         const auto& building = province.buildings[industry_index];
         const auto& type = world.building_types[industry_index];
-        if(building.level == 0.f)
-            continue;
+        if(building.level == 0.f) continue;
         const auto industry_workers = building.level * glm::max(1.f, building.production_scale) * type.num_req_workers;
         const auto allocated_workers = glm::max(glm::min(industry_workers, unallocated_workers), 0.f);
         // Average with how much the industry had before
@@ -260,28 +259,31 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         auto& pop_need = pop_needs[i];
         auto& pop = province.pops[i];
         const auto& needs_amounts = world.pop_types[pop.type_id].basic_needs_amount;
-        if(pop.size == 0.f || pop_need.budget == 0.f) return;
+        if(pop.size == 0.f) return;
+        
+        if(pop_need.budget > 0.f) {
+            const auto percentage_to_spend = 0.8f;
+            const auto budget_alloc = pop_need.budget * percentage_to_spend;
+            pop_need.budget -= budget_alloc;
 
-        const auto percentage_to_spend = 0.8f;
-        const auto budget_alloc = pop_need.budget * percentage_to_spend;
-        pop_need.budget -= budget_alloc;
+            // If we are going to have value added taxes we should separate them from income taxes
+            info.state_payment += budget_alloc * nation.current_policy.pop_tax;
+            const auto budget_after_VAT = budget_alloc * (1.f - nation.current_policy.pop_tax);
+            const auto budget_per_pop = budget_after_VAT / pop.size;
 
-        // If we are going to have value added taxes we should separate them from income taxes
-        info.state_payment += budget_alloc * nation.current_policy.pop_tax;
-        const auto budget_after_VAT = budget_alloc * (1.f - nation.current_policy.pop_tax);
-        const auto budget_per_pop = budget_after_VAT / pop.size;
-
-        auto total_factor = std::reduce(needs_amounts.begin(), needs_amounts.end());
-        for(const auto& commodity : world.commodities) {
-            if(needs_amounts[commodity] <= 0.f) continue;
-            auto& product = province.products[commodity];
-            const auto need_factor = needs_amounts[commodity] / total_factor;
-            const auto wanted_amount = budget_per_pop * need_factor;
-            const auto buying_amount = wanted_amount / product.price;
-            
-            auto amount = 0.f;
-            const auto payment = product.buy(wanted_amount, amount);
-            pop_need.life_needs_met += amount * need_factor;
+            auto total_factor = std::reduce(needs_amounts.begin(), needs_amounts.end());
+            for(const auto& commodity : world.commodities) {
+                if(needs_amounts[commodity] <= 0.f) continue;
+                auto& product = province.products[commodity];
+                const auto need_factor = needs_amounts[commodity] / total_factor;
+                const auto wanted_amount = pop.size * need_factor;
+                const auto buying_amount = (budget_per_pop * need_factor) / product.price;
+                
+                auto amount = 0.f;
+                const auto payment = product.buy(wanted_amount, amount);
+                pop.budget -= payment;
+                pop_need.life_needs_met += amount * need_factor;
+            }
         }
 
         // Take a loan if this buying spree didn't satisfy us
@@ -290,7 +292,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
             auto total_to_borrow = 0.f;
             for(const auto& commodity : world.commodities) {
                 const auto& product = province.products[commodity];
-                const auto need_factor = needs_amounts[commodity] / total_factor;
+                const auto need_factor = needs_amounts[commodity];
                 total_to_borrow += pop.size * need_factor * product.price;
             }
 
