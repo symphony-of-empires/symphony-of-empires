@@ -27,6 +27,8 @@ jobs:
           build/_deps
     - name: "Build"
       run: |
+        set(cmake_version "3.24.3")
+      
         cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER_LAUNCHER="ccache gcc" -DCMAKE_CXX_COMPILER_LAUNCHER="ccache g++" -B build/ .
         ln -s ../mods mods
         cd build
