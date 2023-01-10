@@ -122,7 +122,7 @@ UI::Widget& ProvincePopulationTab::create_pop_table() {
 
 UI::Widget& ProvincePopulationTab::create_stock_table() {
     std::vector<int> sizes{ 100, 100, 100, 100, 100 };
-    std::vector<std::string> header{ "Commodity", "Amount", "Demand", "Glob Demand", "Price" };
+    std::vector<std::string> header{ "Commodity", "Supply", "Demand", "Global demand", "Price" };
     auto& stock_table = this->make_widget<UI::Table<uint32_t>>(0, 352, this->height - (352 + 32), 30, sizes, header);
     stock_table.reserve(this->province.pops.size());
     stock_table.set_on_each_tick([this, &stock_table](UI::Widget&) {

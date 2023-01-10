@@ -77,13 +77,19 @@ constexpr auto scale_speed(auto c, auto target) {
 }
 
 struct ProvinceEconomyInfo {
+    // Incomes
     float laborers_payment = 0.f;
+    float intellectuals_payment = 0.f;
     float artisans_payment = 0.f;
     float state_payment = 0.f;
     float private_payment = 0.f;
     float bureaucrats_payment = 0.f;
     float pops_payment = 0.f;
     float bureaucracy_eff = 0.f;
+
+    // Costs
+    float admin_funds = 0.f;
+    float military_funds = 0.f;
 };
 
 // Updates supply, demand, and set wages for workers
@@ -94,7 +100,7 @@ static void update_industry_production(World& world, Building& building, const B
     auto& output_product = province.products[output];
 
     // Artisans take place of industry or co-exist with it
-    if(output_product.demand >= 0.f) { // Artisans only produce iff suitable so
+    if(output_product.demand > 0.f) { // Artisans only produce iff suitable so
         const auto artisans_amount = province.pops[(int)PopGroup::ARTISAN].size;
         const auto output_amount = artisans_amount * artisan_production_rate; // Reduced rate of production
         info.artisans_payment += output_product.produce(output_amount);
@@ -118,9 +124,19 @@ static void update_industry_production(World& world, Building& building, const B
 
 static void update_industry_accounting(World& world, Building& building, const BuildingType& building_type, Province& province, ProvinceEconomyInfo& info)
 {
-    // Barracks and so on
-    if(Commodity::is_invalid(building_type.output_id)) return;
     const auto& nation = world.nations[province.controller_id];
+
+    // TODO: Make building inoperate for the legnth of the upgrade (need to acquire materials)
+    const auto upgrade_cost = building.get_upgrade_cost();
+    if(building.budget >= upgrade_cost) {
+        building.budget -= upgrade_cost;
+        building.level += 1.f;
+    } else if(building.budget <= -(upgrade_cost * 0.5f)) {
+        building.budget += upgrade_cost;
+        building.level -= 1.f;
+        if(building.level <= 0.f)
+            building.level = 0.f;
+    }
 
     // TODO: Make it so burgeoise aren't duplicating money out of thin air
     const auto private_investment = info.private_payment * 0.8f * nation.current_policy.private_ownership;
@@ -147,7 +163,7 @@ static void update_industry_accounting(World& world, Building& building, const B
         return;
 
     // Obtain revenue from the products on this province & from how many were bought
-    province.buildings[building_type].revenue.outputs += output_product.bought * output_product.price;
+    building.revenue.outputs += output_product.bought * output_product.price;
 
     // TODO add output modifier
     // Calculate outputs
@@ -156,7 +172,9 @@ static void update_industry_accounting(World& world, Building& building, const B
     float min_wage = glm::max(nation.current_policy.min_wage, glm::epsilon<float>());
 
     building.expenses.wages = min_wage * building.workers;
-    info.pops_payment += building.expenses.wages;
+    info.laborers_payment += building.expenses.wages;
+    /// @todo This is duplicating money, we shouldn't dupe money
+    info.intellectuals_payment = info.laborers_payment;
     auto profit = building.get_profit();
 
     // Taxation occurs even without a surplus
@@ -195,15 +213,6 @@ static void update_industry_accounting(World& world, Building& building, const B
     }
 
     building.budget += profit; // Pay the remainder profit to the building
-    // TODO: Make building inoperate for the legnth of the upgrade (need to acquire materials)
-    const auto upgrade_cost = building.get_upgrade_cost();
-    if(building.budget >= upgrade_cost) {
-        building.budget -= upgrade_cost;
-        building.level += 1.f;
-    } else if(building.budget <= -(upgrade_cost * 0.5f)) {
-        building.budget += upgrade_cost;
-        building.level -= 1.f;
-    }
 
     //! Based production not used!
     // auto base_production = 1.f;
@@ -301,6 +310,18 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
             pop.public_debt += public_debt;
             pop.private_debt += private_debt;
             pop.budget += borrowed;
+        } else {
+            // Repay debts (public repay is prioritized)
+            if(pop.public_debt > 0.f) {
+                const auto repay_amount = glm::min(pop.public_debt, pop.budget);
+                pop.public_debt -= repay_amount;
+                info.state_payment += repay_amount;
+            }
+            if(pop.private_debt > 0.f) {
+                const auto repay_amount = glm::min(pop.private_debt, pop.budget);
+                pop.private_debt -= repay_amount;
+                info.private_payment += repay_amount;
+            }
         }
     }
 }
@@ -398,6 +419,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
 
     tbb::parallel_for(static_cast<size_t>(0), world.provinces.size(), [&](const auto province_id) {
         auto& province = world.provinces[province_id];
+        const auto& province_policy = world.nations[province.controller_id].current_policy;
         for(auto& product : province.products)
             product.close_market();
 
@@ -418,13 +440,15 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             new_needs[i].life_needs_met = glm::clamp(pop.life_needs_met - 0.1f, -1.f, 1.f);
         }
 
-        // Bureaucracy points
+        // Bureaucracy employment and administration
         auto bureaucrats_amount = province.pops[(int)PopGroup::BUREAUCRAT].size;
         auto bureaucracy_pts = bureaucrats_amount
             * (1.f - province.pops[(int)PopGroup::BUREAUCRAT].militancy)
             * province.pops[(int)PopGroup::BUREAUCRAT].literacy;
         info.bureaucracy_eff = (province.total_pops() * province.average_militancy()) / bureaucracy_pts;
+        info.admin_funds = province_policy.admin_funding * province_policy.min_wage;
 
+        // Factory employment for laborers, and artisans making independent products
         auto& new_workers = buildings_new_worker[province_id];
         new_workers.assign(world.building_types.size(), 0.f);
         update_factories_employment(world, province, new_workers);
@@ -433,10 +457,15 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             update_industry_accounting(world, building, building_type, province, info);
         }
 
+        // Soldier pop funds
+        info.military_funds = province_policy.military_funding * province_policy.min_wage;
+
         new_needs[(int)PopGroup::LABORER].budget += info.laborers_payment;
+        new_needs[(int)PopGroup::INTELLECTUAL].budget += info.intellectuals_payment;
         new_needs[(int)PopGroup::ARTISAN].budget += info.artisans_payment;
         new_needs[(int)PopGroup::BURGEOISE].budget += info.private_payment;
         new_needs[(int)PopGroup::BUREAUCRAT].budget += info.bureaucrats_payment;
+        new_needs[(int)PopGroup::SOLDIER].budget += info.military_funds;
         update_pop_needs(world, province, new_needs, info);
 
         paid_taxes.local().resize(world.nations.size());

@@ -87,11 +87,50 @@ UI::Table<uint32_t>* Interface::IndustryWindow::new_table(GameState& gs, int _x,
                 auto* profit = row.get_element(row_index++);
                 profit->set_text(string_format("%.2f", building.get_profit()));
                 profit->set_key(building.get_profit());
-                profit->set_tooltip(translate_format("Profit: %.2f\nInputs cost: %.2f\nWages: %.2f\nState taxes: %.2f\n\nDividends: %.2f (%.2f to state, %.2f to pops, %.2f to private investors)\nTotal expenses: %.2f\nOutputs revenue: %.2f\nTotal revenue: %.2f", building.get_profit(), building.expenses.inputs_cost, building.expenses.wages, building.expenses.state_taxes, building.expenses.get_dividends(), building.expenses.state_dividends, building.expenses.pop_dividends, building.expenses.private_dividends, building.expenses.get_total(), building.revenue.outputs, building.revenue.get_total()));
+                profit->set_tooltip(translate_format(
+                    "Profit: %.2f\n"
+                    "[Expenses]\n"
+                    "Inputs cost: %.2f\n"
+                    "Wages: %.2f\n"
+                    "State taxes: %.2f\n"
+                    "Dividends: %.2f (%.2f to state, %.2f to pops, %.2f to private investors)\n"
+                    "Total expenses: %.2f\n"
+                    "[Revenue]\n"
+                    "Outputs revenue: %.2f\n"
+                    "Total revenue: %.2f\n"
+                    "[Investments]\n"
+                    "Collective: %.2f\n"
+                    "Individual: %.2f\n"
+                    "Private: %.2f\n"
+                    "State: %.2f",
+                    building.get_profit(),
+                    building.expenses.inputs_cost,
+                    building.expenses.wages,
+                    building.expenses.state_taxes,
+                    building.expenses.get_dividends(),
+                    building.expenses.state_dividends,
+                    building.expenses.pop_dividends,
+                    building.expenses.private_dividends,
+                    building.expenses.get_total(),
+                    building.revenue.outputs,
+                    building.revenue.get_total(),
+                    building.estate_collective.today_funds,
+                    building.estate_individual.today_funds,
+                    building.estate_private.today_funds,
+                    building.estate_state.today_funds
+                ));
 
+                const auto total_investment = building.get_total_investment();
                 auto* upgrade = row.get_element(row_index++);
                 upgrade->set_text("+");
-                upgrade->set_tooltip(translate_format("Upgrade building to level %.2f", building.level));
+                upgrade->set_tooltip(Eng3D::translate_format("Invest in building (upgrades to level %.2f)\nTotal invested: %.2f\nPrivate shares: %.2f%%\nState shares: %.2f%%\nCollective shares: %.2f%%\nIndividual shares: %.2f%%",
+                    building.level,
+                    building.get_total_investment(),
+                    building.estate_private.get_ownership(total_investment) * 100.f,
+                    building.estate_state.get_ownership(total_investment) * 100.f,
+                    building.estate_collective.get_ownership(total_investment) * 100.f,
+                    building.estate_individual.get_ownership(total_investment) * 100.f
+                ));
                 upgrade->set_key(0);
                 upgrade->set_on_click([&gs, province_id, type_id = type.get_id()](UI::Widget&) {
                     gs.client->send(Action::BuildingAdd::form_packet(gs.world->provinces[province_id], gs.world->building_types[type_id]));

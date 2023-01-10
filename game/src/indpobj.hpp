@@ -44,6 +44,9 @@ struct Policies {
     float collective_ownership = 1.f;
     float individual_ownership = 1.f;
 
+    float admin_funding = 1.f; // 100% = 1 minimum wage paid to brueaucrats
+    float military_funding = 1.f; // 100% = 1 minimum wage paid to soldiers
+
     float education_budget = 0.f; // State sponsored education
     float industry_subsidies_budget = 0.f; // Subsidized factories
     
@@ -135,6 +138,8 @@ struct Eng3D::Deser::Serializer<Policies> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.foreign_ownership);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.collective_ownership);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.individual_ownership);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.admin_funding);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.military_funding);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.education_budget);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.industry_subsidies_budget);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.economic);

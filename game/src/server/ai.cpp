@@ -204,49 +204,64 @@ void AI::do_tick(World& world) {
                     BuildUnit cmd{};
                     cmd.nation_id = nation.get_id();
                     cmd.province_id = province_id;
-                    cmd.building_id = BuildingId(building_type.get_id());
+                    cmd.building_id = BuildingId(static_cast<size_t>(building_type.get_id()));
                     cmd.unit_type_id = unit_type.get_id();
-                    build_units.local().push_back(cmd);
+                    //build_units.local().push_back(cmd);
                 }
             }
 
             // How do we know which factories we should be investing om? We first have to know
             // if we can invest them in the first place, which is what "can_directly_control_factories"
             // answers for us.
-            if(nation.ai_controlled && nation.can_directly_control_factories()) {
+            if(nation.ai_controlled && 1/*nation.can_directly_control_factories()*/) {
                 for(const auto province_id : nation.controlled_provinces) {
                     auto& province = world.provinces[province_id];
 
                     // Obtain list of products
-                    struct ProductInfo {
-                        decltype(province.products.begin()) product;
-                        CommodityId id;
-                    };
-                    std::vector<ProductInfo> v;
-                    for(auto it = province.products.begin(); it != province.products.end(); it++)
-                        v.push_back(ProductInfo{ it, std::distance(province.products.begin(), it) });
+                    std::vector<CommodityId> v;
+                    v.resize(world.commodities.size());
+                    for(const auto& commodity : world.commodities)
+                        v[commodity] = commodity;
                     // Sort by most important to fullfill (higher D/S ratio)
                     std::sort(v.begin(), v.end(), [&](const auto& a, const auto& b) {
-                        return a.product->ds_ratio() > b.product->ds_ratio();
+                        return province.products[a].sd_ratio() > province.products[b].sd_ratio();
                     });
 
-                    for (const auto& product_info : v) {
+                    const auto total_demand = std::accumulate(province.products.begin(), province.products.end(), 0.f,
+                        [](const auto a, const auto& product) {
+                        return a + product.demand;
+                    });
+
+                    /// @todo Dynamically allocate investment funds
+                    auto investment_alloc = 1'000.f;
+                    for(const auto& commodity_id : v) {
+                        if(investment_alloc <= 0.f) break;
+
                         // We now have the most demanded product indice, we will now find an industry type
                         // we should invest on to make more of that product
                         const auto it = std::find_if(world.building_types.begin(), world.building_types.end(), [&](const auto& e) {
-                            return e.output_id == product_info.id;
+                            return e.output_id == commodity_id;
                         });
 
-                        if(it != world.building_types.end()) {
-                            // For now, investing 15% of the budget on this industry seems reasonable
-                            const auto investment = province.buildings[*it].get_upgrade_cost();
-                            BuildingInvestment cmd{};
-                            cmd.nation_id = nation.get_id();
-                            cmd.province_id = province_id;
-                            cmd.building_id = BuildingId(it->get_id());
-                            cmd.amount = investment;
-                            building_investments.local().push_back(cmd);
-                        }
+                        if(it == world.building_types.end()) continue;
+
+                        // Do not invest in buildings that are not in need of money (eg. not in the red)
+                        if(province.buildings[*it].budget > 0.f) continue;
+
+                        const auto& product = province.products[commodity_id];
+                        if(product.demand == 0.f) continue;
+                        // Obtain the priority to invest here, the more demand this represents of the total
+                        // demand on the given province, the more priority it would be given
+                        const auto priority = product.demand / total_demand;
+                        const auto investment = investment_alloc * priority;
+                        investment_alloc -= investment;
+
+                        BuildingInvestment cmd{};
+                        cmd.nation_id = nation.get_id();
+                        cmd.province_id = province_id;
+                        cmd.building_id = BuildingId(static_cast<size_t>(it->get_id()));
+                        cmd.amount = investment;
+                        building_investments.local().push_back(cmd);
                     }
                 }
             }

@@ -113,7 +113,7 @@ struct Building : Entity<BuildingId> {
         return total_revenue / total_expenses;
     }
 
-    static constexpr auto industry_production_rate = 1.f;
+    static constexpr auto industry_production_rate = 2.5f;
     float get_output_amount() const {
         return this->production_scale * this->workers * industry_production_rate;
     }

@@ -26,7 +26,7 @@
 -- Pop types
 standard_basic_needs = {
     { "wheat", 1.0 },
-    { "rice", 0.8 },
+    { "rice", 0.5 },
     { "coffee", 0.1 },
     { "bread", 0.5, 0.8 }
 }
