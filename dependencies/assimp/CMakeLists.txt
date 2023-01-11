@@ -14,10 +14,13 @@ set(ASSIMP_BUILD_OBJ_IMPORTER ON)
 set(BUILD_LIB_TYPE STATIC)
 set(ENABLE_BOOST_WORKAROUND ON)
 
+
+
 FetchContent_Declare(assimp
     GIT_REPOSITORY "https://github.com/assimp/assimp"
-    GIT_TAG 46e571e4974a8635561c9296d87f1a55575d0647
+    GIT_TAG 9519a62dd20799c5493c638d1ef5a6f484e5faf1
 )
+
 
 FetchContent_MakeAvailable(assimp)
 
