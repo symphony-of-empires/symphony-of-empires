@@ -472,6 +472,27 @@ lower_canada:set_ideology(monarchy, "absolute_monarchy")
 lower_canada:add_accepted_language(english)
 lower_canada:add_client_hint(monarchy, _("Lower Canada"), 0xdf1f1f)
 
+prince_edward_island = Nation:new{ ref_name = "prince_edward_island" }
+prince_edward_island.name = _("Prince Edward Island")
+prince_edward_island:register()
+prince_edward_island:set_ideology(monarchy, "absolute_monarchy")
+prince_edward_island:add_accepted_language(english)
+prince_edward_island:add_client_hint(monarchy, _("Prince Edward Island"), 0xdf1f1f)
+
+nova_scotia = Nation:new{ ref_name = "nova_scotia" }
+nova_scotia.name = _("Nova Scotia")
+nova_scotia:register()
+nova_scotia:set_ideology(monarchy, "absolute_monarchy")
+nova_scotia:add_accepted_language(english)
+nova_scotia:add_client_hint(monarchy, _("Nova Scotia"), 0xdf1f1f)
+
+new_brunswick = Nation:new{ ref_name = "new_brunswick" }
+new_brunswick.name = _("New Brunswick")
+new_brunswick:register()
+new_brunswick:set_ideology(monarchy, "absolute_monarchy")
+new_brunswick:add_accepted_language(english)
+new_brunswick:add_client_hint(monarchy, _("New Brunswick"), 0xdf1f1f)
+
 ruperts_land = Nation:new{ ref_name = "ruperts_land" }
 ruperts_land.name = _("Rupert's Land")
 ruperts_land:register()
