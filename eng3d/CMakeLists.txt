@@ -136,6 +136,7 @@ IF((WIN32 OR UNIX) AND (NOT ANDROID))
 	target_link_libraries(eng3d PUBLIC dependency_GLEW)
 ENDIF()
 
+add_dependencies(eng3d zlib_project)
 target_link_libraries(eng3d PUBLIC
 	dependency_OpenGL
 	dependency_SDL2
@@ -146,20 +147,21 @@ target_link_libraries(eng3d PUBLIC
 	dependency_lua
 	dependency_zlib
 	dependency_eventpp
+	dependency_freetype
 )
+
+IF(BUILD_SHARED_LIBS AND WIN32)
+    add_custom_command(TARGET eng3d
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:SDL2_ttf>
+            $<TARGET_FILE:SDL2>
+            ${CMAKE_BINARY_DIR})
+ENDIF()
 
 #file(GLOB ENG3D_INCLUDES "${PROJECT_SOURCE_DIR}/src/*.hpp" "${PROJECT_SOURCE_DIR}/src/ui/*.hpp")
 #install(TARGETS eng3d DESTINATION lib)
 #install(FILES "${ENG3D_INCLUDES}" DESTINATION include)
-
-IF(WIN32)
-	IF(MSVC)
-    	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:MSVCRT")
-		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-	ENDIF()
-ELSE()
-
-ENDIF()
 
 add_executable(triangle ${PROJECT_SOURCE_DIR}/tests/triangle.cpp)
 target_link_libraries(triangle PUBLIC eng3d)

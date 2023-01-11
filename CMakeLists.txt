@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.22)
 
 IF(CMAKE_GENERATOR_PLATFORM STREQUAL "Switch")
 	set(DEVKITPRO $ENV{DEVKITPRO})
@@ -30,7 +30,6 @@ ENDIF()
 IF(WIN32)
 	add_definitions(-DNOMINMAX=1)
 	add_definitions(-DWIN32_LEAN_AND_MEAN=1)
-	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 ELSEIF(ANDROID)
 	set(NDK_PROJECT_PATH $ENV{PWD}) # Set project path to current directory
 	set(ANDROID_STL c++_static) # Static libc++
@@ -130,8 +129,6 @@ IF(ANDROID)
 	add_executable(SymphonyOfEmpires "${MAIN_SOURCES}" "${CMAKE_ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c")
 ELSEIF(WIN32)
 	if(MSVC)
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:MSVCRT")
-		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
 	endif()
 	# Build as a windows application
 	add_executable(SymphonyOfEmpires "${MAIN_SOURCES}")
