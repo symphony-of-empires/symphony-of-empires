@@ -26,6 +26,7 @@
 #include <iostream>
 #include <sstream>
 #include <cassert>
+#include <sstream>
 
 #ifdef E3D_BACKEND_OPENGL
 #   include <GL/glew.h>
@@ -65,7 +66,6 @@ Eng3D::OpenGL::Shader::Shader(const std::string& _buffer, GLuint type, bool use_
     compile(type);
 }
 
-#include <sstream>
 void Eng3D::OpenGL::Shader::compile(GLuint) {
     glCompileShader(id);
 

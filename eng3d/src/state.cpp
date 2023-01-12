@@ -66,6 +66,10 @@
 #include "eng3d/log.hpp"
 #include "eng3d/shader.hpp"
 #include "eng3d/utils.hpp"
+#include "eng3d/ui/ui.hpp"
+#include "eng3d/ui/widget.hpp"
+#include "eng3d/ui/window.hpp"
+#include "eng3d/ui/text.hpp"
 
 // Used for the singleton
 static Eng3D::State* g_state = nullptr;
@@ -418,10 +422,6 @@ void Eng3D::State::swap() {
 #endif
 }
 
-#include "eng3d/ui/ui.hpp"
-#include "eng3d/ui/widget.hpp"
-#include "eng3d/ui/window.hpp"
-#include "eng3d/ui/text.hpp"
 void Eng3D::State::do_event() {
     // Check window size every update needed cause the window sometimes changes size
     // without calling the change window size event

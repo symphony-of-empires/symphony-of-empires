@@ -44,7 +44,7 @@ struct BuildingType : RefnameEntity<BuildingTypeId> {
 
     /// @brief Can this building type build a military unit
     bool can_build_military() const {
-        return can_build_land_units() | can_build_air_units() | can_build_naval_units();
+        return can_build_land_units() || can_build_air_units() || can_build_naval_units();
     }
 
     void can_plot_on_sea(bool b) { flags[0] = b; }

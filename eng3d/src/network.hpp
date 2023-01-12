@@ -174,7 +174,7 @@ namespace Eng3D::Networking {
         };
 
         Server(unsigned port, unsigned max_conn);
-        ~Server();
+        virtual ~Server();
         void broadcast(const Eng3D::Networking::Packet& packet);
         void do_netloop(std::function<void(int i)> on_wake_thread, int id);
 

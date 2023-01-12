@@ -53,10 +53,8 @@ struct Eng3D::Deser::Serializer<Commodity> {
 /// @brief A product (based off a Commodity) which can be bought by POPs, converted by factories and transported
 struct Product : Entity<ProductId> {
     float get_price_delta() const {
-        constexpr auto price_elasticity = 0.01f;
         if(demand == 0.f && supply == 0.f)
             return 1.f;
-        
         return glm::clamp(demand / supply, 0.9f, 1.1f);
     }
 

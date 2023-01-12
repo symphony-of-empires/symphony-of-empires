@@ -426,18 +426,11 @@ void UI::Widget::recalc_child_pos() {
 /// @param child Widget to add as a children
 void Widget::add_child(UI::Widget& child) {
     // Add to list
-    children.push_back(std::move(std::unique_ptr<UI::Widget>(&child)));
+    children.push_back(std::unique_ptr<UI::Widget>(&child));
     child.parent = this;
 
     // Child changes means a recalculation of positions is in order
     need_recalc = true;
-}
-
-static inline unsigned int power_two_floor(const unsigned int val) {
-    unsigned int power = 2, nextVal = power * 2;
-    while((nextVal *= 2) <= val)
-        power *= 2;
-    return power * 2;
 }
 
 /// @brief Generates text for the widget and overrides the current text texture

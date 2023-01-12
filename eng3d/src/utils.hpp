@@ -32,6 +32,7 @@
 #   include <concepts>
 #   include <iomanip>
 #   include <algorithm>
+#   include <array>
 namespace std {
 #if !defined(__cpp_lib_bit_cast)
     template <class To, class From>
@@ -42,6 +43,7 @@ namespace std {
         return dst;
     }
 #endif
+#ifndef __cpp_lib_byteswap
     template<typename T>
     constexpr T byteswap(T value) noexcept {
 #ifdef __cpp_lib_ranges
@@ -75,8 +77,9 @@ namespace std {
         }
         return value;
     }
+#endif
 
-#if defined(__llvm__) || defined(__clang__)
+#if (defined(__llvm__) || defined(__clang__)) && defined(__mingw__)
     template<class T>
     concept destructible = std::is_nothrow_destructible_v<T>;
 #endif

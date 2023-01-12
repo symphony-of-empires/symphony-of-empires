@@ -109,8 +109,8 @@ static inline bool in_triangle(glm::vec2 p, glm::vec2 center, float radius, floa
     auto x_offset = glm::cos((start_ratio - 0.25f) * 2.f * glm::pi<float>());
     auto y_offset = glm::sin((start_ratio - 0.25f) * 2.f * glm::pi<float>());
 
-    if(abs(x_offset) == 0.f || abs(y_offset) == 0.f) return false;
-    auto scale = glm::min<float>(1.f / abs(x_offset), 1.f / abs(y_offset));
+    if(std::abs(x_offset) == 0.f || std::abs(y_offset) == 0.f) return false;
+    auto scale = glm::min<float>(1.f / std::abs(x_offset), 1.f / std::abs(y_offset));
     x_offset *= scale;
     y_offset *= scale;
     glm::vec2 a{ center.x + x_offset * radius, center.y + y_offset * radius };
@@ -118,8 +118,8 @@ static inline bool in_triangle(glm::vec2 p, glm::vec2 center, float radius, floa
     x_offset = glm::cos((end_ratio - 0.25f) * 2.f * glm::pi<float>());
     y_offset = glm::sin((end_ratio - 0.25f) * 2.f * glm::pi<float>());
 
-    if(abs(x_offset) == 0.f || abs(y_offset) == 0.f) return false;
-    scale = glm::min<float>(1.f / abs(x_offset), 1.f / abs(y_offset));
+    if(std::abs(x_offset) == 0.f || std::abs(y_offset) == 0.f) return false;
+    scale = glm::min<float>(1.f / std::abs(x_offset), 1.f / std::abs(y_offset));
     x_offset *= scale;
     y_offset *= scale;
     glm::vec2 b{ center.x + x_offset * radius, center.y + y_offset * radius };
