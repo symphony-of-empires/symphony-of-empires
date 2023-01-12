@@ -66,7 +66,7 @@ Eng3D::Texture::~Texture() {
 void Eng3D::Texture::create_dummy() {
     width = 8;
     height = 8;
-    buffer = std::make_unique<uint32_t[]>(width * height);
+    buffer.reset(reinterpret_cast<uint32_t*>(std::malloc(width * height * sizeof(uint32_t))));
     if(buffer.get() == nullptr)
         CXX_THROW(TextureException, "Dummy", "Out of memory for dummy texture");
 
@@ -94,11 +94,11 @@ void Eng3D::Texture::_upload(TextureOptions options) {
         case Eng3D::TextureOptions::Format::RGB32F:
             return GL_RGB32F;
         case Eng3D::TextureOptions::Format::SRGB_ALPHA:
-    #ifdef E3D_BACKEND_GLES
+#ifdef E3D_BACKEND_GLES
             return GL_RGBA;
-    #else
+#else
             return GL_SRGB_ALPHA;
-    #endif
+#endif
         default:
             return 0;
         }

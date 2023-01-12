@@ -70,12 +70,9 @@ namespace Eng3D {
             return Eng3D::Color::argb32(buffer[x + y * width]);
         }
         
-        /*std::variant<
-            std::unique_ptr<uint8_t[]>,
-            std::unique_ptr<uint16_t[]>,
-            std::unique_ptr<uint32_t[]>> buffer;*/
-        std::unique_ptr<uint32_t[]> buffer;
-        size_t width, height;
-        size_t bpp;
+        std::unique_ptr<uint32_t[], decltype(&std::free)> buffer = std::unique_ptr<uint32_t[], decltype(&std::free)>(nullptr, &std::free);
+        size_t width = 0;
+        size_t height = 0;
+        size_t bpp = 0;
     };
 }

@@ -35,17 +35,20 @@
 #include "eng3d/state.hpp"
 #include "eng3d/log.hpp"
 
-Eng3D::BinaryImage::BinaryImage(const Eng3D::IO::Path& path) {
+Eng3D::BinaryImage::BinaryImage(const Eng3D::IO::Path& path)
+    : buffer(nullptr, &free)
+{
     from_file(path.str);
 }
 
 Eng3D::BinaryImage::BinaryImage(size_t _width, size_t _height, size_t _bpp)
-    : width{ _width },
+    : buffer(nullptr, &free),
+    width{ _width },
     height{ _height },
     bpp{ _bpp }
 {
     if(bpp == 32)
-        buffer = std::make_unique<uint32_t[]>(width * height);
+        buffer.reset(reinterpret_cast<uint32_t *>(std::malloc(width * height * sizeof(uint32_t))));
     /*else if(bpp == 16)
         buffer = std::make_unique<uint16_t[]>(width * height);
     else if(bpp == 8)
@@ -61,19 +64,16 @@ Eng3D::BinaryImage::BinaryImage(const Eng3D::BinaryImage& tex)
 }
 
 void Eng3D::BinaryImage::from_file(const Eng3D::IO::Path& path) {
-    int i_width, i_height, i_channels;
-
     // stbi can do the conversion to RGBA for us ;)
+    int i_width, i_height, i_channels;
     auto* c_buffer = stbi_load(path.str.c_str(), &i_width, &i_height, &i_channels, 4);
     if(c_buffer == nullptr)
         CXX_THROW(BinaryImageException, path.str, stbi_failure_reason());
     width = static_cast<size_t>(i_width);
     height = static_cast<size_t>(i_height);
 
-    // Requires re-allocation so it's handled by new[] (we don't know what stbi uses)
-    buffer = std::make_unique<uint32_t[]>(width * height);
-    std::memcpy(buffer.get(), c_buffer, sizeof(uint32_t) * width * height);
-    std::free(c_buffer);
+    // Transfer ownership to our binary image
+    buffer.reset(reinterpret_cast<uint32_t *>(c_buffer));
 }
 
 void Eng3D::BinaryImage::to_file(const std::string& filename) {
