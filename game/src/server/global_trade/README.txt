@@ -43,11 +43,14 @@ Why is this important?
 Simulation of Global Economy
 Every economy tick, perform some operations on the matrix or graph
 
---- The FUTURE
+--- TO DO
+
+Fix general sloppy code!!!
 
 A Graph can easily be constructed manually, but for a world of thousands of provinces this is tedious
-    a way to make it procedurally or more likley on a graph configuration / manifest file is required
+    a way to make it procedurally or based on a graph configuration / manifest file is required
 
 A Graph structure is an intuitive way to create blockades and embargoes. This can easily be done BUT it could be terrible for performance.
     testing needs to be done to see if this is the case
 
+LOTS OF TESTING

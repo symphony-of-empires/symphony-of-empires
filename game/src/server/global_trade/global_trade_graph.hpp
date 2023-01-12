@@ -43,14 +43,17 @@ struct pair_hash
 
 struct GlobalTradeGraph
 {
+    unsigned int total_nodes;
     GlobalGraph global_graph;
     std::unordered_map<std::pair<int, int>, Edge_Descriptor, pair_hash> edge_mapping;
+    std::map<int, double> type_cost_converstion;
 
     GlobalTradeGraph();
-    void init_graph(std::string filepath);
+    int init_graph(std::string filepath);
     void summarize_graph(bool verbose);
     double calculate_distance_lat_lon(int n1, int n2);
     void add_edge(std::pair<int, int> connection, int connection_type);
     void update_edge(std::pair<int, int> connection, int new_connection_type);
     double calculate_edge_cost(int connection_type, double distance);
+    std::string get_region_owner_TAG(int current_node);
 };

@@ -27,9 +27,37 @@ std::size_t pair_hash::operator()(const std::pair<T1, T2> &p) const
 /* GLOBAL TRADE GRAPH */
 GlobalTradeGraph::GlobalTradeGraph()
 {
+    std::map<int, double> type_cost_converstion{
+        // cost to move 1 metric ton 1km
+        {0, 0.5},   // ocean
+        {1, 1.0},   // navigable-river
+        {2, 1.0},   // major canal
+        {3, 10.0},  // un-improved flatland
+        {4, 12.0},  // un-improved hilly
+        {5, 15.0},  // un-improved mountain pass
+        {6, 5.0},   // basic road
+        {7, 4.0},   // improved road
+        {8, 2.0},   // inter-state highway
+        {9, 3.5},   // railroad lv1
+        {10, 3.0},  // railroad lv2
+        {11, 2.5},  // railroad lv3
+        {12, 2.0},  // railroad lv4
+        {13, 1.5},  // railroad lv5
+        {14, 1.0},  // railroad lv6
+        {16, 12.0}, // port lv1
+        {17, 9.0},  // port lv2
+        {18, 8.0},  // port lv3
+        {19, 7.0},  // port lv4
+        {20, 6.0},  // port lv5
+        {21, 5.0},  // port lv6
+        {22, 4.0},  // port lv7
+        {23, 2.0},  // port lv8
+        {24, 1.0},  // port lv9
+        {25, 0.5},  // port lv10
+    };
 }
 
-void GlobalTradeGraph::init_graph(std::string filepath)
+int GlobalTradeGraph::init_graph(std::string filepath)
 {
     // in the future this data is read in data from file
 
@@ -70,6 +98,9 @@ void GlobalTradeGraph::init_graph(std::string filepath)
     GlobalTradeGraph::add_edge(std::make_pair(0, 1), 1);
     GlobalTradeGraph::add_edge(std::make_pair(1, 2), 1);
     GlobalTradeGraph::update_edge(std::make_pair(1, 2), 2);
+
+    this->total_nodes = total_nodes;
+    return total_nodes;
 }
 
 double GlobalTradeGraph::calculate_distance_lat_lon(int n1, int n2)
@@ -135,4 +166,9 @@ double GlobalTradeGraph::calculate_edge_cost(int connection_type, double distanc
 {
     double cost = (distance / 10.0) / connection_type; // placeholder
     return cost;
+}
+
+std::string GlobalTradeGraph::get_region_owner_TAG(int current_node)
+{
+    return "UNK"; // LOOKUP in the future
 }
