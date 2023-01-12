@@ -62,62 +62,38 @@ GlobalTradeGraph::GlobalTradeGraph()
     this->type_cost_converstion = type_cost_converstion;
 }
 
-int GlobalTradeGraph::init_graph(std::string filepath) // THIS IS CURRENTLY JUST A DUMMY SIMULATION
+int GlobalTradeGraph::init_graph(std::string filepath)
 {
-    // in the future this data is read in data from file
-
     // STEP 1: create the graph
     int total_nodes = 3;
-    this->global_graph = GlobalGraph(total_nodes); // nodes will never be added or removed from the graph
-
-    // // STEP 2: add all node info (in the future this must come from a file)
-    // this->global_graph[0].region_id = 0;
-    // this->global_graph[0].region_owner_TAG = "MEX";
-    // std::set<int> mex_pset;
-    // this->global_graph[0].province_set = mex_pset;
-    // this->global_graph[0].latitude = 19.459;
-    // this->global_graph[0].longitude = -99.129;
-    // std::set<int> mex_cset;
-    // mex_cset.insert(1);
-    // this->global_graph[0].connection_set = mex_cset;
-
-    // this->global_graph[1].region_id = 1;
-    // this->global_graph[1].region_owner_TAG = "USA";
-    // std::set<int> usa_pset;
-    // this->global_graph[1].province_set = usa_pset;
-    // this->global_graph[1].latitude = 41.802;
-    // this->global_graph[1].longitude = -87.681;
-    // std::set<int> usa_cset;
-    // usa_cset.insert(2);
-    // usa_cset.insert(0);
-    // this->global_graph[1].connection_set = usa_cset;
-
-    // this->global_graph[2].region_id = 2;
-    // this->global_graph[2].region_owner_TAG = "CAN";
-    // std::set<int> can_pset;
-    // this->global_graph[2].province_set = can_pset;
-    // this->global_graph[2].latitude = 50.451;
-    // this->global_graph[2].longitude = -104.599;
-    // std::set<int> can_cset;
-    // can_cset.insert(1);
-    // this->global_graph[2].connection_set = can_cset;
-
-    // // STEP 3: add all edge info (in the future this must come from a file)
-    // GlobalTradeGraph::add_edge(std::make_pair(0, 1), 3);
-    // GlobalTradeGraph::add_edge(std::make_pair(1, 2), 3);
-
-    // this->total_nodes = total_nodes;
+    this->global_graph = GlobalGraph(total_nodes);
     return total_nodes;
 }
 
 int GlobalTradeGraph::init_random_graph(int nodes, int max_degree)
 {
+    double percent_water = .16; // 16% of the world was ocean in vic2
+
     this->global_graph = GlobalGraph(nodes);
     this->total_nodes = nodes - 1;
 
     for (int n = 0; n < this->total_nodes + 1; n++) //what is happening here?
     {
+        std::random_device rd;  // obtain a random number from hardware
+        std::mt19937 gen(rd()); // seed the generator
+        std::uniform_real_distribution<> distr_01(0, 1);
         this->global_graph[n].region_id = n;
+        // random geography assignment
+        double water_or_land = distr_01(gen);
+        if (water_or_land <= percent_water)
+        {
+            this->global_graph[n].region_type = 0;
+        }
+        else
+        {
+            this->global_graph[n].region_type = 1;
+        }
+
         // random TAG
         static const char alphanum[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         srand((unsigned int)time(NULL));
@@ -128,9 +104,7 @@ int GlobalTradeGraph::init_random_graph(int nodes, int max_degree)
         }
         this->global_graph[n].region_owner_TAG = TAG;
         // random province set
-        std::random_device rd;  // obtain a random number from hardware
-        std::mt19937 gen(rd()); // seed the generator
-        int p_nodes = 3248;     // max provinces in vic2
+        int p_nodes = 3248; // max provinces in vic2
         int max_ps = 5;
         std::set<int> tmp_pset;
 

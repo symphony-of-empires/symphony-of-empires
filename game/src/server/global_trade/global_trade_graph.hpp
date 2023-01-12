@@ -11,6 +11,8 @@ struct RegionNode
 {
     /* NODE INFORMATION */
     int region_id;
+    int region_type; // 0 = ocean, 1 = land
+    int region_importance;
     std::string region_owner_TAG;
     std::set<int> province_set;
     double latitude;

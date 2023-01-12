@@ -1,53 +1,12 @@
 #include <iostream>
 #include <string>
 #include <chrono>
+#include <queue>
 
 #include "global_trade_graph.hpp"
 #include "cost_matrix.hpp"
 
-// this file will eventually become the simulation manager
-void old_sim()
-{
-    // std::cout << "[starting simulation]" << std::endl;
-
-    // std::cout << "[game setup]" << std::endl;
-    // GlobalTradeGraph graph = GlobalTradeGraph();
-    // int nodes = graph.init_random_graph("dummy path");
-    // std::cout << "\ttotal nodes: " << nodes << std::endl;
-    // graph.summarize_graph(true);
-
-    // MatrixContainer cost_matrix = MatrixContainer(nodes);
-    // cost_matrix.summarize_matrix(true);
-    // //cost_matrix.update_all_paths(cost_matrix.cost_matrix, graph, 0, false);
-    // //cost_matrix.summarize_matrix(true);
-
-    // std::cout << "[game start]" << std::endl;
-    // // right now this is only a dummy simulation
-
-    // /* MANAGER
-    // every tick the manager should
-    //     1. check for edge updates
-    //     2. check for node updates
-    // every X ticks (sticky-ness of economics) the manager should:
-    //     1. recalculate costs for all paths & update matrix
-    // */
-    // for (int tick = 0; tick < 10; tick++) // a tick shouldn't be every day
-    // {
-    //     std::cout << "do tick" << std::endl;
-    //     if (tick == 2)
-    //     { // at tick 2 a railroad lv1 is built betwen CAN and USA
-    //         graph.update_edge(std::make_pair(1, 2), 9);
-    //     }
-    //     if (tick == 5)
-    //     { // at tick 5 calculate paths, path calcs and edge updates also really don't have to happen at the same time
-    //         cost_matrix.update_all_paths(cost_matrix.cost_matrix, graph, 0, false);
-    //         cost_matrix.summarize_matrix(true);
-    //     }
-    // };
-    // std::cout << "[game end]" << std::endl;
-
-    // std::cout << "[finished simulation]" << std::endl;
-}
+#define ECONOMY_UPDATE_PERIOD 7
 
 int main()
 {
@@ -64,26 +23,50 @@ int main()
     cost_matrix.summarize_matrix(true);
 
     std::cout << "[game start]" << std::endl;
-    /* MANAGER
-    every tick the manager should
-        1. check for edge updates
-        2. check for node updates
-    every X ticks (sticky-ness of economics) the manager should:
-        1. recalculate costs for all paths & update matrix
-    */
+    /* MANAGER */
     double running_avg = 0;
     int long_ticks = 0;
+
+    int daily_quota = 0;
+    std::priority_queue<int> global_pq;
+
     auto s_start = std::chrono::high_resolution_clock::now();
     for (int tick = 0; tick < 365; tick++) // one year simulation
     {
         auto start = std::chrono::high_resolution_clock::now();
-        if (tick % 7 == 0) // every week update path costs
+        std::priority_queue<int> tmp_qu_daily; // reset the daily queue
+        /* Every week the economy manager needs to
+            1. check for new nodes
+            2. assign them to a priority queue
+            3. calculate how many should be updated each day
+        */
+        if (tick % ECONOMY_UPDATE_PERIOD == 0)
         {
-            cost_matrix.update_all_paths(cost_matrix.cost_matrix, graph, 0, false);
+            int nodes = graph.total_nodes + 1;
+            global_pq = std::priority_queue<int>();
+            for (int i = 0; i < nodes; i++)
+            {
+                if (graph.global_graph[i].region_type > 0)
+                {
+                    global_pq.push(i);
+                }
+            }
+            daily_quota = global_pq.size() / ECONOMY_UPDATE_PERIOD + (global_pq.size() % ECONOMY_UPDATE_PERIOD != 0);
         }
+        /* Every day the economy manager needs to
+            1. look in its daily queue & update cost matrix for those nodes
+        */
+        while (!global_pq.empty() || !(daily_quota > 0)) // gather the daily jobs
+        {
+            int current_node = global_pq.top();
+            tmp_qu_daily.push(current_node);
+            global_pq.pop();
+        }
+        cost_matrix.update_subset_paths(cost_matrix.cost_matrix, graph, tmp_qu_daily, 0, false);
+
         auto stop = std::chrono::high_resolution_clock::now();
         auto ms_t = duration_cast<std::chrono::milliseconds>(stop - start).count();
-        if (ms_t > 50)
+        if (ms_t > 30)
         {
             running_avg += ms_t;
             long_ticks += 1;

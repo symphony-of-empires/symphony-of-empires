@@ -28,8 +28,34 @@ void MatrixContainer::update_all_paths(std::vector<std::vector<double> > &cost_m
     std::priority_queue<int> pq; // in the future this will be a queue of node descriptors
     for (int i = 0; i < nodes; i++)
     {
-        pq.push(i);
+        if (g.global_graph[i].region_type > 0)
+        {
+            pq.push(i);
+        }
     }
+    if (option == 0)
+    {
+        // std::cout << "using dijkstra "; //dijkstra
+        if (parallel)
+        {
+            // std::cout << "in parallel... ]" << std::endl;
+            // not implemented
+        }
+        else
+        {
+            // std::cout << "not in parallel... ]" << std::endl;
+            while (!pq.empty())
+            {
+                int current_node = pq.top();
+                update_matrix_dijkstra(cost_matrix, g, current_node, g.get_region_owner_TAG(current_node));
+                pq.pop();
+            }
+        }
+    }
+}
+
+void MatrixContainer::update_subset_paths(std::vector<std::vector<double> > &cost_matrix, GlobalTradeGraph &g, std::priority_queue<int> pq, int option, bool parallel)
+{
     if (option == 0)
     {
         // std::cout << "using dijkstra "; //dijkstra
