@@ -50,8 +50,7 @@ namespace Eng3D {
     class State;
     class TextureManager;
 
-    class TextureException: public BinaryImageException {
-    public:
+    struct TextureException: BinaryImageException {
         TextureException(const std::string& filename, const std::string& message)
             : BinaryImageException(filename, message)
         {
@@ -59,8 +58,7 @@ namespace Eng3D {
         }
     };
 
-    class TextureOptions {
-    public:
+    struct TextureOptions {
         TextureOptions() = default;
         enum Target {
             TEXTURE_2D,
@@ -103,6 +101,7 @@ namespace Eng3D {
     class Texture: public Eng3D::BinaryImage {
         void _upload(TextureOptions options = default_options);
         void _upload(SDL_Surface* surface);
+        void delete_gputex();
     public:
         Texture() = default;
         Texture(const std::string& path)
@@ -139,7 +138,6 @@ namespace Eng3D {
 
         void gen_mipmaps() const;
         void bind() const;
-        void delete_gputex();
         void guillotine(const Eng3D::Texture& map, int x, int y, int w, int h);
         void to_file(const std::string& filename) override;
         
@@ -149,8 +147,7 @@ namespace Eng3D {
     };
 
     // Array of textures
-    class TextureArray: public Eng3D::BinaryImage {
-    public:
+    struct TextureArray: Eng3D::BinaryImage {
         TextureArray(const std::string& path, size_t _tiles_x, size_t _tiles_y)
             : Eng3D::BinaryImage(path),
             tiles_x{ _tiles_x },
@@ -190,8 +187,7 @@ namespace Eng3D {
         }
     };
 
-    class TextureUploadRequest {
-    public:
+    struct TextureUploadRequest {
         Texture* texture;
         TextureOptions options;
         SDL_Surface* surface = nullptr;
@@ -200,9 +196,8 @@ namespace Eng3D {
     /// @brief General manager for textures, caches textures into the memory instead of reading them off the disk
     /// every time they need to be accessed.
     class TextureManager {
-    private:
         std::unordered_map<std::pair<std::string, TextureOptions>, std::shared_ptr<Eng3D::Texture>, TextureMapHash> textures;
-        std::vector<TextureUploadRequest> unuploaded_textures; // Textures that needs to be uploaded
+        std::vector<TextureUploadRequest> unuploaded_textures;
         std::mutex unuploaded_lock;
         std::shared_ptr<Eng3D::Texture> white;
         /// @brief Stores the text textures

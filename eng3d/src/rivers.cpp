@@ -58,8 +58,7 @@ Eng3D::Rivers::Rivers(Eng3D::State& _s, bool lazy_init)
         this->build_rivers();
 }
 
-class ConnectedNode {
-public:
+struct ConnectedNode {
     ConnectedNode* node = nullptr;
     std::unique_ptr<std::vector<glm::vec3>> river;
     ConnectedNode()

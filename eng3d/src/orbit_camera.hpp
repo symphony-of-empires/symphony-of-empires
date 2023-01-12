@@ -34,8 +34,7 @@
 #include "eng3d/value_chase.hpp"
 
 namespace Eng3D {
-    class OrbitCamera: public Camera {
-    public:
+    struct OrbitCamera: Camera {
         float radius;
         float circumference;
         float zoom_dist;

@@ -34,8 +34,7 @@
 #include "eng3d/value_chase.hpp"
 
 namespace Eng3D {
-    class FlatCamera: public Camera {
-    public:
+    struct FlatCamera: Camera {
         glm::vec3 target;
         ValueChase<glm::vec3> chase{ 0.2f };
 

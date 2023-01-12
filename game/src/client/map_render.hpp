@@ -33,7 +33,7 @@
 
 namespace Eng3D {
     class Texture;
-    class TextureArray;
+    struct TextureArray;
     struct Model;
     class Camera;
     namespace OpenGL {

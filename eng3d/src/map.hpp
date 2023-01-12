@@ -37,7 +37,7 @@ namespace Eng3D {
     constexpr static auto GLOBE_RADIUS = 100.f;
 
     class Texture;
-    class TextureArray;
+    struct TextureArray;
     struct Square;
     class State;
 

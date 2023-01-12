@@ -60,6 +60,7 @@ public:
 
         }
     };
+
     Server(GameState& gs, unsigned port = 1825, unsigned max_conn = 4);
     ~Server() = default;
     void netloop(int id);
