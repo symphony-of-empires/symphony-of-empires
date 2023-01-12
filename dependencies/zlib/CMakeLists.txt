@@ -1,6 +1,6 @@
 message(STATUS "Fetching zlib...")
 
-IF(E3D_ZLIB_VENDORED)
+IF(${E3D_ZLIB_VENDORED})
     include(ExternalProject)
     ExternalProject_Add(zlib_project
         GIT_REPOSITORY    https://github.com/madler/zlib.git
