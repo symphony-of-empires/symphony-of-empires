@@ -138,7 +138,10 @@ IF((WIN32 OR UNIX) AND (NOT ANDROID))
 	target_link_libraries(eng3d PUBLIC dependency_GLEW)
 ENDIF()
 
-add_dependencies(eng3d zlib_project)
+IF(${E3D_ZLIB_VENDORED})
+	add_dependencies(eng3d zlib_project)
+ENDIF()
+
 target_link_libraries(eng3d PUBLIC
 	dependency_OpenGL
 	dependency_SDL2
