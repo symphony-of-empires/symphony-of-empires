@@ -24,6 +24,7 @@ IF(WIN32 OR UNIX)
     set(TBB_SIGNTOOL OFF)
     set(TBB_DYNAMIC_LOAD_ENABLED OFF)
     set(TBB_ENABLE_IPO OFF)
+    set(TBB_STRICT OFF)
 
     FetchContent_Declare(tbb 
         GIT_REPOSITORY "https://github.com/oneapi-src/oneTBB" 
