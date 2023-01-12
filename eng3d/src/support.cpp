@@ -26,11 +26,11 @@
 #include <stdexcept>
 #include "eng3d/log.hpp"
 #include "eng3d/utils.hpp"
-#ifdef E3D_TARGET_WINDOWS
+#ifdef WIN32
 #   include <windows.h>
 #endif
 
-#ifdef E3D_TARGET_ANDROID
+#ifdef __ANDROID_API__
 #   include <android_native_app_glue.h>
 #   define APPNAME "baseapp"
 void android_main(struct android_app* state)
@@ -38,7 +38,7 @@ void android_main(struct android_app* state)
     main(0, { NULL });
     ANativeActivity_finish(state->activity);
 }
-#elif defined E3D_TARGET_SWITCH
+#elif defined __switch__
 /// @brief Switch doesn't define a pathconf function so this is a kludge
 /// while respecting newlib's stuff
 /// @param pathname Path to the file
@@ -73,7 +73,7 @@ extern "C" long pathconf(const char *pathname, int varcode) {
 extern "C" long sysconf(int) {
     return 0;
 }
-#elif defined E3D_TARGET_WINDOWS
+#elif defined WIN32
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     switch(fdwReason) {
     case DLL_PROCESS_ATTACH:

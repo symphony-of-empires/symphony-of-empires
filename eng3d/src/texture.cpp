@@ -237,7 +237,7 @@ void Eng3D::Texture::_upload(TextureOptions options) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
 
     if(!options.editable) {
-#ifdef E3D_DEBUG
+#ifndef NDEBUG
         GLint result;
         glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED, &result);
         if(result == 0) {

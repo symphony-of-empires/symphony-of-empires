@@ -30,9 +30,6 @@
 #include "eng3d/utils.hpp"
 
 void* operator new(std::size_t size) {
-#ifdef E3D_DEBUG
-    std::printf("Alloc size = %zu\n", size);
-#endif
     if(size == 0) size++;
     void* p = std::malloc(size);
     if(p) return p;
@@ -44,9 +41,6 @@ void operator delete(void* ptr) noexcept {
 }
 
 void* operator new[](std::size_t size) {
-#ifdef E3D_DEBUG
-    std::printf("Alloc[] size = %zu\n", size);
-#endif
     if(size == 0) size++;
     void* p = std::malloc(size);
     if(p) return p;
