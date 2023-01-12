@@ -77,12 +77,11 @@ set(CMAKE_POSITION_INDEPENDENT_CODE "${E3D_PIE}")
 #
 # Source code files
 #
-file(GLOB ENG3D_SOURCES "${PROJECT_SOURCE_DIR}/src/*.c" "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/ui/*.cpp")
+file(GLOB ENG3D_SOURCES "${PROJECT_SOURCE_DIR}/eng3d/*.c" "${PROJECT_SOURCE_DIR}/eng3d/*.cpp" "${PROJECT_SOURCE_DIR}/eng3d/ui/*.cpp")
 # Add android native C glue
 #IF(ANDROID)
 #	list(APPEND ENG3D_SOURCES "${CMAKE_ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c")
 #ENDIF()
-execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/eng3d")
 
 # Switch doesn't support shared libraries
 IF(E3D_BUILD_STATIC)
