@@ -255,10 +255,10 @@ TimeControlView::TimeControlView(GameState& _gs)
     time_lab.set_on_each_tick([this](UI::Widget& w) {
         std::tm tm{};
         tm.tm_year = this->gs.world->get_year() - 1900;
-        tm.tm_mon = this->gs.world->get_month() - 1;
+        tm.tm_mon = this->gs.world->get_month();
         tm.tm_mday = this->gs.world->get_day() + 1;
         char mbstr[100];
-        std::strftime(mbstr, sizeof mbstr, "%x", &tm);
+        std::strftime(mbstr, sizeof(mbstr), "%x", &tm);
         w.set_text(mbstr);
     });
     time_lab.on_each_tick(time_lab);
