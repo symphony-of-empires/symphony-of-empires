@@ -18,6 +18,9 @@
         "E3D_BACKEND_OPENGL": "1",
         "NO_COPY_MODS": "1",
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "E3D_SDL2_VENDORED": "1",
+        "E3D_TBB_VENDORED": "1",
+        "E3D_ZLIB_VENDORED": "1",
         "E3D_BUILD_STATIC": "1",
         "CMAKE_TOOLCHAIN_FILE": {
           "type": "FILEPATH",
@@ -37,6 +40,9 @@
         "E3D_BACKEND_OPENGL": "1",
         "NO_COPY_MODS": "1",
         "CMAKE_BUILD_TYPE": "Debug",
+        "E3D_SDL2_VENDORED": "1",
+        "E3D_TBB_VENDORED": "1",
+        "E3D_ZLIB_VENDORED": "1",
         "E3D_BUILD_STATIC": "1",
         "CMAKE_TOOLCHAIN_FILE": {
           "type": "FILEPATH",
@@ -56,6 +62,9 @@
         "E3D_BACKEND_OPENGL": "1",
         "NO_COPY_MODS": "1",
         "CMAKE_BUILD_TYPE": "Release",
+        "E3D_SDL2_VENDORED": "1",
+        "E3D_TBB_VENDORED": "1",
+        "E3D_ZLIB_VENDORED": "1",
         "E3D_BUILD_STATIC": "1",
         "CMAKE_TOOLCHAIN_FILE": {
           "type": "FILEPATH",
@@ -75,6 +84,9 @@
         "E3D_BACKEND_OPENGL": "1",
         "NO_COPY_MODS": "1",
         "CMAKE_BUILD_TYPE": "MinSizeRel",
+        "E3D_SDL2_VENDORED": "1",
+        "E3D_TBB_VENDORED": "1",
+        "E3D_ZLIB_VENDORED": "1",
         "E3D_BUILD_STATIC": "1",
         "CMAKE_TOOLCHAIN_FILE": {
           "type": "FILEPATH",
