@@ -32,9 +32,9 @@
 #include "eng3d/utils.hpp"
 #include "eng3d/log.hpp"
 #include "eng3d/state.hpp"
-extern "C" {
+
+#define STB_VORBIS_HEADER_ONLY 1
 #include "stb_vorbis.c"
-}
 
 //
 // Audio

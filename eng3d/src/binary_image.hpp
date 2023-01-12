@@ -69,7 +69,7 @@ namespace Eng3D {
                 return Eng3D::Color::argb32(0xffffffff);
             return Eng3D::Color::argb32(buffer[x + y * width]);
         }
-
+        
         /*std::variant<
             std::unique_ptr<uint8_t[]>,
             std::unique_ptr<uint16_t[]>,

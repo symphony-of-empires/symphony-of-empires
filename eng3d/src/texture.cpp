@@ -34,6 +34,8 @@
 #   include <GLES3/gl3.h>
 #endif
 
+#include "eng3d/stb_image_write.h"
+
 #include "eng3d/texture.hpp"
 #include "eng3d/framebuffer.hpp"
 #include "eng3d/utils.hpp"
@@ -342,11 +344,6 @@ void Eng3D::Texture::delete_gputex() {
 #endif
 }
 
-#define STB_IMAGE_WRITE_STATIC 1
-#define STB_IMAGE_WRITE_IMPLEMENTATION 1
-extern "C" {
-#include "eng3d/stb_image_write.h"
-}
 void Eng3D::Texture::to_file(const std::string& filename) {
     int channel_count = 4;
     int stride = channel_count * width;

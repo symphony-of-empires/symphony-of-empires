@@ -26,13 +26,8 @@
 #include <stdexcept>
 #include <cstring>
 
-extern "C" {
-#define STB_IMAGE_WRITE_STATIC 1
-#define STB_IMAGE_IMPLEMENTATION 1
 #include "eng3d/stb_image.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION 1
 #include "eng3d/stb_image_write.h"
-}
 
 #include "eng3d/binary_image.hpp"
 #include "eng3d/utils.hpp"

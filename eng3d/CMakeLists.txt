@@ -74,7 +74,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE "${E3D_PIE}")
 #
 # Source code files
 #
-file(GLOB ENG3D_SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/ui/*.cpp")
+file(GLOB ENG3D_SOURCES "${PROJECT_SOURCE_DIR}/src/*.c" "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/ui/*.cpp")
 # Add android native C glue
 #IF(ANDROID)
 #	list(APPEND ENG3D_SOURCES "${CMAKE_ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c")
