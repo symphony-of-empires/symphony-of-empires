@@ -11,6 +11,7 @@ struct RegionNode
 {
     /* NODE INFORMATION */
     int region_id;
+    std::string region_owner_TAG;
     std::set<int> province_set;
     double latitude;
     double longitude;
@@ -50,10 +51,12 @@ struct GlobalTradeGraph
 
     GlobalTradeGraph();
     int init_graph(std::string filepath);
+    int init_random_graph(int nodes, int max_degree);
     void summarize_graph(bool verbose);
     double calculate_distance_lat_lon(int n1, int n2);
     void add_edge(std::pair<int, int> connection, int connection_type);
     void update_edge(std::pair<int, int> connection, int new_connection_type);
     double calculate_edge_cost(int connection_type, double distance);
     std::string get_region_owner_TAG(int current_node);
+    GlobalGraph return_country_graph(GlobalGraph &g, std::string owner_TAG);
 };

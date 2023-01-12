@@ -54,3 +54,18 @@ A Graph structure is an intuitive way to create blockades and embargoes. This ca
     testing needs to be done to see if this is the case
 
 LOTS OF TESTING
+
+-- TESTING
+
+(non-parallel)
+current vg ms for week
+100: 65
+200: 268
+300: 622
+400: 1000
+500: 1700
+600: 2596
+700: 3248
+800:
+900:
+1000: 6894

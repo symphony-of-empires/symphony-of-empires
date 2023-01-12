@@ -23,8 +23,8 @@ MatrixContainer::MatrixContainer(int node_size)
 
 void MatrixContainer::update_all_paths(std::vector<std::vector<double> > &cost_matrix, GlobalTradeGraph &g, int option, bool parallel)
 {
-    std::cout << "[ updateding all paths ";
-    int nodes = (int)g.total_nodes;
+    // std::cout << "[ updateding all paths ";
+    int nodes = (int)g.total_nodes + 1;
     std::priority_queue<int> pq; // in the future this will be a queue of node descriptors
     for (int i = 0; i < nodes; i++)
     {
@@ -32,29 +32,29 @@ void MatrixContainer::update_all_paths(std::vector<std::vector<double> > &cost_m
     }
     if (option == 0)
     {
-        std::cout << "using dijkstra "; //dijkstra
+        // std::cout << "using dijkstra "; //dijkstra
         if (parallel)
         {
-            std::cout << "in parallel... ]" << std::endl;
+            // std::cout << "in parallel... ]" << std::endl;
             // not implemented
         }
         else
         {
-            std::cout << "not in parallel... ]" << std::endl;
+            // std::cout << "not in parallel... ]" << std::endl;
             while (!pq.empty())
             {
                 int current_node = pq.top();
-                update_matrix_dijkstra(cost_matrix, g.global_graph, current_node, g.get_region_owner_TAG(current_node));
+                update_matrix_dijkstra(cost_matrix, g, current_node, g.get_region_owner_TAG(current_node));
                 pq.pop();
             }
         }
     }
 }
 
-void MatrixContainer::update_matrix_dijkstra(std::vector<std::vector<double> > &cost_matrix, GlobalGraph g, int region_id, std::string owner_TAG)
+void MatrixContainer::update_matrix_dijkstra(std::vector<std::vector<double> > &cost_matrix, GlobalTradeGraph &gt, int region_id, std::string owner_TAG)
 {
-    std::cout << "[running dijkstra]" << std::endl;
-    // GlobalGraph = return_country_graph(g, owner_TAG) In the future manipulate a copy of the graph based on region_owner_TAG
+    //std::cout << "[running dijkstra]" << std::endl;
+    GlobalGraph g = gt.return_country_graph(gt.global_graph, owner_TAG);
 
     std::vector<Node_Descriptor> predecessor_map(boost::num_vertices(g));
     std::vector<double> cost_from_root(boost::num_vertices(g));
@@ -62,12 +62,13 @@ void MatrixContainer::update_matrix_dijkstra(std::vector<std::vector<double> > &
 
     dijkstra_shortest_paths(g, root, boost::weight_map(get(&ConnectionEdge::cost, g)).distance_map(boost::make_iterator_property_map(cost_from_root.begin(), get(boost::vertex_index, g))));
 
-    std::cout << "costs for region " << region_id << ": ";
-    for (auto cit = cost_from_root.begin(); cit != cost_from_root.end(); cit++)
-    {
-        std::cout << *cit << " ";
-    }
-    std::cout << std::endl;
+    // std::cout << "costs for region " << region_id << " (" << g[region_id].region_owner_TAG << ") "
+    //           << ": ";
+    // for (auto cit = cost_from_root.begin(); cit != cost_from_root.end(); cit++)
+    // {
+    //     std::cout << *cit << " ";
+    // }
+    // std::cout << std::endl;
 
     cost_matrix[region_id] = cost_from_root;
 }
