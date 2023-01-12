@@ -17,5 +17,3 @@ add_subdirectory(eventpp)
 set(BUILD_SHARED_LIBS OFF)
 add_subdirectory(tbb)
 set(BUILD_SHARED_LIBS ON)
-
-

@@ -13,6 +13,9 @@ option(E3D_MANAGED_HEAP, "Allow Eng3D to manage heap (useful for debugging witho
 option(E3D_PIE, "Build as a position-independent library" ON)
 option(E3D_BUILD_STATIC, "Whetever to make a static library or not" OFF)
 option(E3D_ENABLE_IPO "Enables IPO if supported" OFF)
+option(E3D_ZLIB_VENDORED "Whetever to build zlib or not" ON)
+option(E3D_TBB_VENDORED "Whetever to build tbb or not" ON)
+option(E3D_SDL2_VENDORED "Whetever to build SDL2 or not" ON)
 
 IF(E3D_DEBUG)
 	add_definitions(-DE3D_DEBUG=1)

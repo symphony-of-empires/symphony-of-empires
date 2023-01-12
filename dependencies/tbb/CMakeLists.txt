@@ -1,42 +1,50 @@
 message(STATUS "Fetching TBB...")
 
-IF(WIN32 OR UNIX)
-    IF(WIN32)
-        IF(CMAKE_SIZEOF_VOID_P EQUAL 4) # 32-bits
-            FetchContent_Declare(hwloc URL "https://download.open-mpi.org/release/hwloc/v2.7/hwloc-win32-build-2.7.1.zip")
-        ELSE() # 64-bits
-            FetchContent_Declare(hwloc URL "https://download.open-mpi.org/release/hwloc/v2.7/hwloc-win64-build-2.7.1.zip")
+IF(E3D_TBB_VENDORED)
+    IF(WIN32 OR UNIX)
+        IF(WIN32)
+            IF(CMAKE_SIZEOF_VOID_P EQUAL 4) # 32-bits
+                FetchContent_Declare(hwloc URL "https://download.open-mpi.org/release/hwloc/v2.7/hwloc-win32-build-2.7.1.zip")
+            ELSE() # 64-bits
+                FetchContent_Declare(hwloc URL "https://download.open-mpi.org/release/hwloc/v2.7/hwloc-win64-build-2.7.1.zip")
+            ENDIF()
+            FetchContent_MakeAvailable(hwloc)
+            set(CMAKE_HWLOC_2_5_DLL_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.dll")
+            set(CMAKE_HWLOC_2_5_LIBRARY_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.lib" )
+            set(CMAKE_HWLOC_2_5_INCLUDE_PATH "${hwloc_SOURCE_DIR}/include" )
         ENDIF()
-        FetchContent_MakeAvailable(hwloc)
-        set(CMAKE_HWLOC_2_5_DLL_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.dll")
-        set(CMAKE_HWLOC_2_5_LIBRARY_PATH "${hwloc_SOURCE_DIR}/lib/libhwloc.lib" )
-        set(CMAKE_HWLOC_2_5_INCLUDE_PATH "${hwloc_SOURCE_DIR}/include" )
+        set(TBB_DISABLE_HWLOC_AUTOMATIC_SEARCH ON)
+        set(TBB_TEST OFF)
+        set(TBB_EXAMPLES OFF)
+        set(TBB_BENCH OFF)
+        set(TBB_ENABLE_IPO OFF)
+        set(TBB_CPF OFF)
+        set(TBBMALLOC_BUILD ON)
+        set(TBBMALLOC_PROXY_BUILD ON)
+        set(TBB4PY_BUILD OFF)
+        set(TBB_SIGNTOOL OFF)
+        set(TBB_DYNAMIC_LOAD_ENABLED OFF)
+        set(TBB_ENABLE_IPO OFF)
+        set(TBB_STRICT OFF)
+
+        FetchContent_Declare(tbb 
+            GIT_REPOSITORY "https://github.com/oneapi-src/oneTBB" 
+            GIT_TAG c9497714821c3d443ee44c732609eb6850195ffb
+        )
+        FetchContent_MakeAvailable(tbb)
+
+        add_library(dependency_tbb INTERFACE)
+        # target_include_directories(dependency_tbb SYSTEM INTERFACE "${tbb_SOURCE_DIR}/include/oneapi/tbb")
+        target_link_libraries(dependency_tbb INTERFACE tbb)
+    ELSE() # Android, Raspbian, etc...
+        add_library(dependency_tbb INTERFACE)
+        target_include_directories(dependency_tbb SYSTEM INTERFACE "${CMAKE_SOURCE_DIR}/faketbb")
+        target_include_directories(dependency_tbb SYSTEM INTERFACE "${CMAKE_SOURCE_DIR}/eng3d/faketbb")
     ENDIF()
-    set(TBB_DISABLE_HWLOC_AUTOMATIC_SEARCH ON)
-    set(TBB_TEST OFF)
-    set(TBB_EXAMPLES OFF)
-    set(TBB_BENCH OFF)
-    set(TBB_ENABLE_IPO OFF)
-    set(TBB_CPF OFF)
-    set(TBBMALLOC_BUILD ON)
-    set(TBBMALLOC_PROXY_BUILD ON)
-    set(TBB4PY_BUILD OFF)
-    set(TBB_SIGNTOOL OFF)
-    set(TBB_DYNAMIC_LOAD_ENABLED OFF)
-    set(TBB_ENABLE_IPO OFF)
-    set(TBB_STRICT OFF)
-
-    FetchContent_Declare(tbb 
-        GIT_REPOSITORY "https://github.com/oneapi-src/oneTBB" 
-        GIT_TAG eac9465052ed3697d88219e3e9869617bf67d80a
-    )
-    FetchContent_MakeAvailable(tbb)
-
+ELSE()
+    find_package(TBB REQUIRED)
+    get_target_property(INCLUDE_DIRS TBB::tbb INTERFACE_INCLUDE_DIRECTORIES)
     add_library(dependency_tbb INTERFACE)
-    # target_include_directories(dependency_tbb SYSTEM INTERFACE "${tbb_SOURCE_DIR}/include/oneapi/tbb")
-    target_link_libraries(dependency_tbb INTERFACE tbb)
-ELSE() # Android, Raspbian, etc...
-    add_library(dependency_tbb INTERFACE)
-    target_include_directories(dependency_tbb SYSTEM INTERFACE "${CMAKE_SOURCE_DIR}/faketbb")
-    target_include_directories(dependency_tbb SYSTEM INTERFACE "${CMAKE_SOURCE_DIR}/eng3d/faketbb")
+    target_include_directories(dependency_tbb SYSTEM INTERFACE ${INCLUDE_DIRS})
+    target_link_libraries(dependency_tbb INTERFACE TBB::tbb)
 ENDIF()
