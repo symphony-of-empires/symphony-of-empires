@@ -134,13 +134,13 @@ IF(Threads_FOUND)
 	target_link_libraries(eng3d PUBLIC Threads::Threads)
 ENDIF()
 
-IF((WIN32 OR UNIX) AND (NOT ANDROID))
-	target_link_libraries(eng3d PUBLIC dependency_GLEW)
+IF(${E3D_ZLIB_VENDORED})
+	IF((WIN32 OR UNIX) AND (NOT ANDROID))
+		target_link_libraries(eng3d PUBLIC dependency_GLEW)
+	ENDIF()
 ENDIF()
 
-IF(${E3D_ZLIB_VENDORED})
-	add_dependencies(eng3d zlib_project)
-ENDIF()
+add_dependencies(eng3d zlib_project)
 
 target_link_libraries(eng3d PUBLIC
 	dependency_OpenGL
