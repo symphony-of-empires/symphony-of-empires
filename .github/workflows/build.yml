@@ -43,8 +43,14 @@ jobs:
         fetch-depth: 0
     - uses: lukka/get-cmake@latest
 
-    - name: Run CMake
-      uses: lukka/run-cmake@v10
-      with:
-        configurePreset: 'Debug'
-        buildPreset: 'Debug'
+    - name: "Build"
+      run: |
+        cmake . -G "Visual Studio 2022" --preset=Debug -B build/
+        cd build
+        cmake --build . -- -j$(nproc)
+        cd ..
+    # - name: Run CMake
+    #   uses: lukka/run-cmake@v10
+    #   with:
+    #     configurePreset: 'Debug'
+    #     buildPreset: 'Debug'
