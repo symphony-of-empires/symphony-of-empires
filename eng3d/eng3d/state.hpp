@@ -108,6 +108,7 @@ namespace Eng3D {
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
         void* context;
         int width, height;
+        size_t max_texture_size = 0;
         // Builtin shaders
         std::map<std::string, std::unique_ptr<Eng3D::OpenGL::Shader>> builtin_shaders;
 #else

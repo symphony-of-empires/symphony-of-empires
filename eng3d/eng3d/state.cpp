@@ -26,6 +26,7 @@
 
 // Required before GL/gl.h
 #include <cstring>
+#include <limits>
 #include <signal.h>
 #ifdef E3D_TARGET_WINDOWS
 #   ifndef WINSOCK2_IMPORTED
@@ -259,6 +260,8 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     GLint size;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
     Eng3D::Log::debug("gamestate", Eng3D::translate_format("Maximum texture size: %zu", size));
+    assert(size > 0 && size < std::numeric_limits<size_t>::max());
+    s.max_texture_size = size;
 
 #   ifdef E3D_BACKEND_OPENGL
     glHint(GL_TEXTURE_COMPRESSION_HINT, GL_FASTEST);
