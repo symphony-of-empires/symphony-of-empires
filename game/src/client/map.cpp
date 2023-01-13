@@ -117,11 +117,11 @@ static inline void get_blob_bounds(std::vector<bool>& visited_provinces, const N
 
 Map::Map(GameState& _gs, const World& _world, UI::Group* _map_ui_layer, int screen_width, int screen_height)
     : gs{ _gs },
+    skybox(0.f, 0.f, 0.f, 255.f * 10.f, 40, false),
+    map_font{ std::make_unique<Eng3D::FontSDF>("fonts/cinzel_sdf/cinzel") },
     world{ _world },
     map_ui_layer{ _map_ui_layer },
-    skybox(0.f, 0.f, 0.f, 255.f * 10.f, 40, false),
-    camera{ std::make_unique<Eng3D::FlatCamera>(glm::vec2(screen_width, screen_height), glm::vec2(this->gs.world->width, this->gs.world->height)) },
-    map_font{ std::make_unique<Eng3D::FontSDF>("fonts/cinzel_sdf/cinzel") }
+    camera{ std::make_unique<Eng3D::FlatCamera>(glm::vec2(screen_width, screen_height), glm::vec2(this->gs.world->width, this->gs.world->height)) }
 {
     if(this->gen_labels)
         this->create_labels();
