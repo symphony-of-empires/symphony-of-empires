@@ -26,6 +26,17 @@ std::size_t pair_hash::operator()(const std::pair<T1, T2> &p) const
     return seed;
 }
 
+template <typename T>
+bool allEqual(std::vector<T> const &v)
+{
+    if (v.size() == 0)
+    {
+        return false;
+    }
+    return std::all_of(v.begin(), v.end(), [&](T const &e)
+                       { return e == v.front(); });
+}
+
 /* GLOBAL TRADE GRAPH */
 GlobalTradeGraph::GlobalTradeGraph()
 {
@@ -220,12 +231,51 @@ double GlobalTradeGraph::calculate_edge_cost(int connection_type, double distanc
 
 std::string GlobalTradeGraph::get_region_owner_TAG(int current_node)
 {
-    return "UNK"; // LOOKUP in the future based on province IDs
+    std::vector<std::string> p_owners;
+    bool enemy_occupation = false;
+    for (int p : this->global_graph[current_node].province_set)
+    {
+        // std::string p_owner_TAG = lookup(p);
+        // p_owners.insert(p_owner_TAG);
+        // if (check_diplo_status(owner_TAG, p_owner_TAG))
+        // {
+        //     enemy_occupation = true;
+        // }
+    }
+    if (allEqual(p_owners))
+    {
+        return p_owners[0];
+    }
+    else if (!allEqual(p_owners) && !enemy_occupation)
+    {
+        return "CONTESTED_FRIENDLY";
+    }
+    else if (!allEqual(p_owners) && enemy_occupation)
+    {
+        return "CONTESTED_HOSTILE";
+    }
+    return "UNK";
 }
 
 GlobalGraph GlobalTradeGraph::return_country_graph(GlobalGraph &g, std::string owner_TAG)
 {
-    // copy the graph and prune it according to diplomatic status
+    /* nation N should not be able to access RegionNodes whose owner:
+        1. is at war with N
+        2. is isolationist
+        3. is uncivilized
+        4. is another nations colony
+        5. has a relationship below a certain threshold
+    */
     GlobalGraph pruned_g = g;
+    for (int n = 0; n < this->total_nodes; n++)
+    {
+        // if (check_diplo_status(owner_TAG, g[n].region_owner_TAG))
+        // {
+        //     if (not good relations)
+        //     {
+        //         boost::clear_vertex(n, pruned_g);
+        //     }
+        // }
+    }
     return pruned_g;
 }

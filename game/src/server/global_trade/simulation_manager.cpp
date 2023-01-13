@@ -42,6 +42,7 @@ int main()
         */
         if (tick % ECONOMY_UPDATE_PERIOD == 0)
         {
+            std::cout << "weekly tick no." << tick / 7 << std::endl;
             int nodes = graph.total_nodes + 1;
             global_pq = std::priority_queue<int>();
             for (int i = 0; i < nodes; i++)
