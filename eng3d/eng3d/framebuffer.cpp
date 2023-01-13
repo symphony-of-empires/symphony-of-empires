@@ -47,8 +47,10 @@ Eng3D::OpenGL::Framebuffer::~Framebuffer() {
 
 void Eng3D::OpenGL::Framebuffer::set_texture(int index, const Eng3D::Texture& texture) {
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, texture.id, 0);
+	static const GLenum draw_buffers[] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, draw_buffers);
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		Eng3D::Log::error("opengl", translate("Frame buffer error"));
+		Eng3D::Log::error("opengl", Eng3D::Locale::translate("Framebuffer error"));
 }
 
 void Eng3D::OpenGL::Framebuffer::use() {
