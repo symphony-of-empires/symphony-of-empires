@@ -1,10 +1,10 @@
 {
-    "version": 3,
-    "cmakeMinimumRequired": {
-      "major": 3,
-      "minor": 21,
-      "patch": 0
-    },
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
   "configurePresets": [
     {
       "name": "RelWithDebInfo",
@@ -95,30 +95,30 @@
       }
     }
   ],
-    "buildPresets": [
-      {
-        "name": "RelWithDebInfo",
-        "configurePreset": "RelWithDebInfo",
-        "displayName": "RelWithDebInfo",
-        "description": "RelWithDebInfo"
-      },
-      {
-        "name": "Debug",
-        "configurePreset": "Debug",
-        "displayName": "Debug",
-        "description": "Debug"
-      },
-      {
-        "name": "Release",
-        "configurePreset": "Release",
-        "displayName": "Release",
-        "description": "Release"
-      },
-      {
-        "name": "MinSizeRel",
-        "configurePreset": "MinSizeRel",
-        "displayName": "MinSizeRel",
-        "description": "MinSizeRel"
-      }
-    ],
-  }
+  "buildPresets": [
+    {
+      "name": "RelWithDebInfo",
+      "configurePreset": "RelWithDebInfo",
+      "displayName": "RelWithDebInfo",
+      "description": "RelWithDebInfo"
+    },
+    {
+      "name": "Debug",
+      "configurePreset": "Debug",
+      "displayName": "Debug",
+      "description": "Debug"
+    },
+    {
+      "name": "Release",
+      "configurePreset": "Release",
+      "displayName": "Release",
+      "description": "Release"
+    },
+    {
+      "name": "MinSizeRel",
+      "configurePreset": "MinSizeRel",
+      "displayName": "MinSizeRel",
+      "description": "MinSizeRel"
+    }
+  ]
+}
