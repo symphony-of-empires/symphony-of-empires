@@ -42,33 +42,11 @@ jobs:
       with:
         fetch-depth: 0
     - uses: lukka/get-cmake@latest
-    - name: Dump the content of $RUNNER_TEMP
-      run: find $RUNNER_TEMP
-      shell: bash
-    - name: Dump the content of $RUNNER_WORKSPACE
-      run: find $RUNNER_WORKSPACE
-      shell: bash
-    - uses: lukka/run-vcpkg@v10
-      id: runvcpkg
-      with:
-        # This specifies the location of vcpkg, where it is going to be restored from cache, or create from scratch.
-        vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
-        # The Git commit id of vcpkg to be checked out. This is only needed because we are not using a submodule.
-        vcpkgGitCommitId: '01b29f6d8212bc845da64773b18665d682f5ab66'
-        # The vcpkg.json file, which will be part of cache key computation.
-        vcpkgJsonGlob: '**/vcpkg.json'
-    - uses: ilammy/msvc-dev-cmd@v1
-    - name: "Make symbolic links"
+    
+    - name: Configure Build Files
       run: |
-        mkdir builds
-        cd builds
-        mkdir msbuild-vcpkg
-        cd msbuild-vcpkg
-        cp -r ../../mods .
-        cd ../../
-    - name: Run CMake with vcpkg.json manifest
-      uses: lukka/run-cmake@v10
-      with:
-        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        configurePreset: msbuild-vcpkg
-        BUILDPRESET: MSBUILD-VCPKG
+        cmake . -G "Visual Studio 17 2022" --preset=Debug -B build
+
+    - name: Build Symphony of Empires
+      run: |
+        cmake --build build --parallel --target SymphonyOfEmpires

@@ -29,7 +29,7 @@ IF(E3D_TBB_VENDORED)
 
         FetchContent_Declare(tbb 
             GIT_REPOSITORY "https://github.com/oneapi-src/oneTBB" 
-            GIT_TAG c9497714821c3d443ee44c732609eb6850195ffb
+            GIT_TAG v2021.7.0
         )
         FetchContent_MakeAvailable(tbb)
 
