@@ -1,3 +1,8 @@
+when running the simulation, remember inlude path for BOOST:
+g++ -std=c++11 -c simulation_manager.cpp global_trade_graph.cpp cost_matrix.cpp -I"<PATH>/boost_1_81_0"
+g++ simulation_manager.o global_trade_graph.o cost_matrix.o -o sim_run.exe
+./sim_run.exe
+
 --- GRAPH
 
 A GlobalGraph is an undirected, weighted graph representation of the world trade network
