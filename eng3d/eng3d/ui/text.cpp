@@ -22,6 +22,8 @@
 //      A text widget with support for multiple lines.
 // ----------------------------------------------------------------------------
 
+#include <string>
+#include <codecvt>
 #include "eng3d/ui/text.hpp"
 #include "eng3d/ui/label.hpp"
 
@@ -62,15 +64,18 @@ void UI::Text::set_text(const std::string& text) {
     size_t pos = 0;
     size_t max_width = 0, max_height = 0;
     size_t line_width = glm::max(this->width / 12, static_cast<size_t>(1));
-    while(pos < text.length()) {
-        size_t remaining_chars = text.length() - pos;
-        size_t end_pos = text.length();
+    
+    std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
+    std::u32string unicode_text = conv_utf8_utf32.from_bytes(text);
+    while(pos < unicode_text.length()) {
+        size_t remaining_chars = unicode_text.length() - pos;
+        size_t end_pos = unicode_text.length();
         if(remaining_chars > line_width)
             end_pos = pos + line_width;
 
         bool break_line = false;
         for(size_t i = pos; i <= end_pos; i++) {
-            if(text[i] == '\n') {
+            if(unicode_text[i] == U'\n') {
                 end_pos = i;
                 break_line = true;
                 break;
@@ -79,16 +84,17 @@ void UI::Text::set_text(const std::string& text) {
 
         if(!break_line && remaining_chars > line_width) {
             for(size_t i = end_pos; i > pos; i--) {
-                if(text[i] == ' ') {
+                if(unicode_text[i] == U' ') {
                     end_pos = i;
                     break;
                 }
             }
         }
 
-        std::string buf = text.substr(pos, end_pos - pos);
+        auto buf = unicode_text.substr(pos, end_pos - pos);
         pos = end_pos;
-        if(break_line) pos++;
+        if(break_line)
+		    pos++;
         auto& lab = this->make_widget<UI::Label>(4, 4, buf);
         max_width = glm::max(max_width, lab.width);
         max_height += lab.height;

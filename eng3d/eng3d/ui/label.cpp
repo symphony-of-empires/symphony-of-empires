@@ -45,11 +45,27 @@ UI::Label::Label(int _x, int _y, const std::string& _text, Widget* _parent)
     this->set_text(_text);
 }
 
+UI::Label::Label(int _x, int _y, const std::u32string& _text, Widget* _parent)
+    : Widget(_parent, _x, _y, 0, 0, UI::WidgetType::LABEL)
+{
+    this->text_color = this->parent->text_color;
+    this->set_text(_text);
+}
+
 UI::Label::~Label() {
 
 }
 
 void UI::Label::set_text(const std::string& _text) {
+    UI::Widget::set_text(_text);
+    if(this->text_texture.get() != nullptr) {
+        this->text_offset_x = this->text_offset_y = 0;
+        this->width = this->text_texture->width;
+        this->height = this->text_texture->height;
+    }
+}
+
+void UI::Label::set_text(const std::u32string& _text) {
     UI::Widget::set_text(_text);
     if(this->text_texture.get() != nullptr) {
         this->text_offset_x = this->text_offset_y = 0;

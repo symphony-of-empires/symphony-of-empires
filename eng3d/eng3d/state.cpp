@@ -93,61 +93,61 @@ int setenv(const char* name, const char* value, int overwrite)
 static void GLAPIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei, const GLchar* msg, const void*) {
     const auto get_source_name = [](GLenum e) {
         switch(e) {
-    case GL_DEBUG_SOURCE_API:
+        case GL_DEBUG_SOURCE_API:
             return "API";
-    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
             return "Window system";
-    case GL_DEBUG_SOURCE_SHADER_COMPILER:
+        case GL_DEBUG_SOURCE_SHADER_COMPILER:
             return "Shader compiler";
-    case GL_DEBUG_SOURCE_THIRD_PARTY:
+        case GL_DEBUG_SOURCE_THIRD_PARTY:
             return "Third party";
-    case GL_DEBUG_SOURCE_APPLICATION:
+        case GL_DEBUG_SOURCE_APPLICATION:
             return "Application";
-    case GL_DEBUG_SOURCE_OTHER:
+        case GL_DEBUG_SOURCE_OTHER:
             return "Other";
-    default:
-        break;
-    }
+        default:
+            break;
+        }
         return "Unknown";
     };
     const auto get_type_name = [](GLenum e) {
         switch(e) {
-    case GL_DEBUG_TYPE_ERROR:
+        case GL_DEBUG_TYPE_ERROR:
             return "Error";
-    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
             return "Deprecated behaviour";
-    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
             return "Undefined behaviour";
-    case GL_DEBUG_TYPE_PORTABILITY:
+        case GL_DEBUG_TYPE_PORTABILITY:
             return "Portability";
-    case GL_DEBUG_TYPE_PERFORMANCE:
+        case GL_DEBUG_TYPE_PERFORMANCE:
             return "Performance";
-    case GL_DEBUG_TYPE_OTHER:
+        case GL_DEBUG_TYPE_OTHER:
             return "Other";
-    case GL_DEBUG_TYPE_MARKER:
+        case GL_DEBUG_TYPE_MARKER:
             return "Marker";
         case GL_DEBUG_TYPE_PUSH_GROUP:
             return "Push group";
         case  GL_DEBUG_TYPE_POP_GROUP:
             return "Pop group";
-    default:
-        break;
-    }
+        default:
+            break;
+        }
         return "Unknown";
     };
     const auto get_severity_name = [](GLenum e) {
         switch(e) {
-    case GL_DEBUG_SEVERITY_HIGH:
+        case GL_DEBUG_SEVERITY_HIGH:
             return "High";
-    case GL_DEBUG_SEVERITY_MEDIUM:
+        case GL_DEBUG_SEVERITY_MEDIUM:
             return "Medium";
-    case GL_DEBUG_SEVERITY_LOW:
+        case GL_DEBUG_SEVERITY_LOW:
             return "Low";
-    case GL_DEBUG_SEVERITY_NOTIFICATION:
+        case GL_DEBUG_SEVERITY_NOTIFICATION:
             return "Notification";
-    default:
-        break;
-    }
+        default:
+            break;
+        }
         return "Unknown";
     };
 

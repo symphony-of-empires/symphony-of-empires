@@ -27,6 +27,7 @@
 #include <string>
 #include <cassert>
 #include <algorithm>
+#include <codecvt>
 #include <stack>
 #include <glm/vec2.hpp>
 #include <SDL_ttf.h>
@@ -441,6 +442,24 @@ void Widget::set_text(const std::string& _text) {
     // Copy _text to a local scope (SDL2 does not like references)
     this->text_str = _text;
     if(_text.empty()) return;
+    auto& text_font = font != nullptr ? *font : *g_ui_context->default_font;
+    text_texture = Eng3D::State::get_instance().tex_man.gen_text(text_font, text_color, this->text_str);
+}
+
+/// @brief Generates text for the widget and overrides the current text texture
+/// @param _text
+void Widget::set_text(const std::u32string& _text) {
+	std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf32_utf8;
+    std::string utf8_text = conv_utf32_utf8.to_bytes(_text);
+	
+    if(this->text_str == utf8_text)
+        return;
+    text_texture.reset();
+    // Copy _text to a local scope (SDL2 does not like references)
+    this->text_str = utf8_text;
+    if(this->text_str.empty())
+	    return;
+	
     auto& text_font = font != nullptr ? *font : *g_ui_context->default_font;
     text_texture = Eng3D::State::get_instance().tex_man.gen_text(text_font, text_color, this->text_str);
 }
