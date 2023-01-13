@@ -243,8 +243,6 @@ void MapRender::update_options(MapOptions) {
     }
 }
 
-#include "eng3d/framebuffer.hpp"
-
 /// @brief Creates the "waving" border around the continent to give it a 19th century map feel
 /// Generate a distance field to from each border using the jump flooding algorithm
 /// Used to create borders thicker than one tile

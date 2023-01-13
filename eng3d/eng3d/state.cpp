@@ -28,16 +28,16 @@
 #include <cstring>
 #include <limits>
 #include <signal.h>
-#ifdef E3D_TARGET_WINDOWS
+#ifdef _WIN32
 #   ifndef WINSOCK2_IMPORTED
 #       define WINSOCK2_IMPORTED
 #       include <winsock2.h>
 #   endif
 #   include <windows.h>
-#elif defined E3D_TARGET_UNIX
+#elif defined __unix__
 #   include <unistd.h>
 #   include <fenv.h>
-#elif defined E3D_TARGET_SWITCH
+#elif defined __switch__
 #   include <switch.h>
 #endif
 
@@ -188,7 +188,7 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     Eng3D::Log::debug("engine", "Hello world!");
     // Make sure to initialize RomFS properly
     ::romfsInit();
-    ::chdir("romfs:/");
+    std::chdir("romfs:/");
 #endif
 
     // Set global locale to the user preferred
@@ -224,19 +224,11 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     // Create the initial window
-#ifdef E3D_TARGET_SWITCH
     s.width = 1280;
     s.height = 720;
-#else
-    s.width = 1024;
-    s.height = 720;
-#endif
     Eng3D::Log::debug("sdl2", Eng3D::translate_format("New window %u x %u", s.width, s.height));
-#ifdef E3D_TARGET_SWITCH
-    s.window = SDL_CreateWindow(canonical_name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, s.width, s.height, SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_RESIZABLE);
-#else
+    
     s.window = SDL_CreateWindow(canonical_name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, s.width, s.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
-#endif
     if(s.window == nullptr)
         CXX_THROW(std::runtime_error, Eng3D::translate_format("Failed to initialize SDL window %s", SDL_GetError()));
 
@@ -249,7 +241,7 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     Eng3D::Log::debug("opengl", Eng3D::translate_format("OpenGL Version: %s", (const char*)glGetString(GL_VERSION)));
 #   ifdef E3D_BACKEND_OPENGL
     glewExperimental = GL_TRUE;
-    int r = glewInit();
+    const auto r = glewInit();
     if(r != GLEW_OK)
         CXX_THROW(std::runtime_error, Eng3D::translate_format("Failed to ininitializeit GLEW %s", glewGetErrorString(r)));
 #   endif
@@ -307,7 +299,7 @@ Eng3D::Installer::~Installer()
     SDL_DestroyWindow(s.window);
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
     SDL_Quit();
-#ifdef E3D_TARGET_SWITCH
+#ifdef __switch__
     // Make sure to gracefully unmount
     ::romfsExit();
 #endif
@@ -331,7 +323,7 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths)
     // Plugins system (still wip)
 #if 0
     for(const auto& plugin : Path::get_all("plugin.dll")) {
-#ifdef E3D_TARGET_WINDOWS
+#ifdef _WIN32
         HINSTANCE hGetProcIDDLL = LoadLibrary(plugin.c_str());
         // This shouldn't happen - like ever!
         if(!hGetProcIDDLL) {
