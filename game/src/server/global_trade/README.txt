@@ -26,8 +26,8 @@ Using a shortest paths algorithm (Dijkstra's, Bellman-Ford, Johnson's, etc...) a
     this matrix stores the cost of the best path from n1 to n2, e.g. M[n1][n2] = some_cost
 
 Why is this important?
-    The main focus is to determine which countries have been blessed by geography and which ones haven't. 
-    Let's take one example, for the sake of simplicity there are only 3 important regions in the world.
+    The main focus is to determine which countries have an easier time buying product according to geography. 
+    e.g. assume there are only 3 important regions in the world.
         -USA, Bolivia, and Saudi Arabia are the only regions. Only Saudi Arabia produces oil and only USA and Bolivia consume oil.
         -A Global price is a good starting point, but we also need to take into account the cost to transport oil from point A to B 
         -USAs cost for oil is lower because its path is entirely over the ocean and shorter
@@ -47,18 +47,20 @@ Every economy tick, perform some operations on the matrix or graph
 
 Fix general sloppy code!!!
 
-A Graph can easily be constructed manually, but for a world of thousands of provinces this is tedious
+Can easily be constructed randomly, but for the world of thousands of provinces this is tedious
     a way to make it procedurally or based on a graph configuration / manifest file is required
 
-A Graph structure is an intuitive way to create blockades and embargoes. This can easily be done BUT it could be terrible for performance.
+There is a way to create blockades and embargoes. This can easily be done BUT it could be terrible for performance.
     testing needs to be done to see if this is the case
 
 LOTS OF TESTING
 
--- TESTING
+-- TESTING 
+
+never need to go beyond 1000 Region Nodes
 
 (non-parallel)
-current vg ms for week
+current avg ms for week
 100: 65
 200: 268
 300: 622
@@ -69,3 +71,16 @@ current vg ms for week
 800:
 900:
 1000: 6894
+
+(parallel)
+
+100: 
+200: 
+300: 
+400: 
+500: 
+600: 
+700: 
+800:
+900:
+1000: 308169 (total time)

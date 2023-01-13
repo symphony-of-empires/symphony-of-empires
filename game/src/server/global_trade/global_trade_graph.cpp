@@ -64,7 +64,7 @@ GlobalTradeGraph::GlobalTradeGraph()
 
 int GlobalTradeGraph::init_graph(std::string filepath)
 {
-    // STEP 1: create the graph
+    // this is not implemented yet
     int total_nodes = 3;
     this->global_graph = GlobalGraph(total_nodes);
     return total_nodes;
@@ -79,8 +79,8 @@ int GlobalTradeGraph::init_random_graph(int nodes, int max_degree)
 
     for (int n = 0; n < this->total_nodes + 1; n++) //what is happening here?
     {
-        std::random_device rd;  // obtain a random number from hardware
-        std::mt19937 gen(rd()); // seed the generator
+        std::random_device rd;
+        std::mt19937 gen(rd());
         std::uniform_real_distribution<> distr_01(0, 1);
         this->global_graph[n].region_id = n;
         // random geography assignment
@@ -93,7 +93,6 @@ int GlobalTradeGraph::init_random_graph(int nodes, int max_degree)
         {
             this->global_graph[n].region_type = 1;
         }
-
         // random TAG
         static const char alphanum[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         srand((unsigned int)time(NULL));
@@ -107,9 +106,8 @@ int GlobalTradeGraph::init_random_graph(int nodes, int max_degree)
         int p_nodes = 3248; // max provinces in vic2
         int max_ps = 5;
         std::set<int> tmp_pset;
-
-        std::uniform_int_distribution<> distr_prov(0, p_nodes); // province IDs
-        std::uniform_int_distribution<> distr_maxp(0, max_ps);  // max provinces
+        std::uniform_int_distribution<> distr_prov(0, p_nodes);
+        std::uniform_int_distribution<> distr_maxp(0, max_ps);
         for (int n = 0; n < distr_maxp(gen); ++n)
         {
             tmp_pset.insert(distr_prov(gen));
@@ -118,19 +116,15 @@ int GlobalTradeGraph::init_random_graph(int nodes, int max_degree)
         // random lat long
         std::uniform_real_distribution<> distr_lat(-89.9, 89.9);
         std::uniform_real_distribution<> distr_lon(-179.9, 179.9);
-
         double tlat = distr_lat(gen);
         double tlon = distr_lon(gen);
-
         this->global_graph[n].latitude = tlat;
         this->global_graph[n].longitude = tlon;
         // random connection set
         std::set<int> t_cset;
         std::set<std::pair<int, int> > connections_to_add;
-
         std::uniform_int_distribution<> distr_degree(1, max_degree);
         std::uniform_int_distribution<> distr_second(0, this->total_nodes);
-
         while (t_cset.empty())
         {
             for (int d = 0; d < distr_degree(gen); d++)
@@ -145,7 +139,6 @@ int GlobalTradeGraph::init_random_graph(int nodes, int max_degree)
             }
         }
         this->global_graph[n].connection_set = t_cset;
-
         // add edges
         std::uniform_int_distribution<> distr_ctype(0, 25); //connection type
         for (auto cit = connections_to_add.begin(); cit != connections_to_add.end(); cit++)
@@ -176,7 +169,7 @@ double GlobalTradeGraph::calculate_distance_lat_lon(int n1, int n2)
     return EARTH_RADIUS * b;
 }
 
-void GlobalTradeGraph::summarize_graph(bool verbose)
+void GlobalTradeGraph::summarize_graph(bool verbose) // sanity check
 {
     boost::print_graph(this->global_graph);
     if (verbose && this->total_nodes < 10)
@@ -221,7 +214,7 @@ void GlobalTradeGraph::update_edge(std::pair<int, int> connection, int new_conne
 double GlobalTradeGraph::calculate_edge_cost(int connection_type, double distance)
 {
     // returns the cost to move 1 metric ton over some distance
-    double cost = (distance * DISTANCE_MULTIPLIER) * this->type_cost_converstion[connection_type]; // placeholder
+    double cost = (distance * DISTANCE_MULTIPLIER) * this->type_cost_converstion[connection_type];
     return cost;
 }
 
@@ -233,6 +226,6 @@ std::string GlobalTradeGraph::get_region_owner_TAG(int current_node)
 GlobalGraph GlobalTradeGraph::return_country_graph(GlobalGraph &g, std::string owner_TAG)
 {
     // copy the graph and prune it according to diplomatic status
-    GlobalGraph pruned_g = g; // shallow copy good enough?
+    GlobalGraph pruned_g = g;
     return pruned_g;
 }

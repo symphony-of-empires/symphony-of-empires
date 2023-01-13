@@ -1,10 +1,30 @@
 #include <iostream>
 #include <limits>
 #include <queue>
+#include <thread>
 
 #include "boost/graph/dijkstra_shortest_paths.hpp"
 
 #include "cost_matrix.hpp"
+
+#define MAX_THREAD 2
+
+void update_cm_dijkstra(std::vector<int> &t, GlobalTradeGraph &copy_g, std::vector<std::vector<double> > &cm)
+{
+    for (int root_region : t)
+    {
+        if (root_region <= copy_g.total_nodes)
+        {
+            std::string owner_TAG = copy_g.get_region_owner_TAG(root_region);
+            GlobalGraph g_prime = copy_g.return_country_graph(copy_g.global_graph, owner_TAG);
+            std::vector<Node_Descriptor> predecessor_map(boost::num_vertices(g_prime));
+            std::vector<double> cost_from_root(boost::num_vertices(g_prime));
+            Node_Descriptor root = boost::vertex(root_region, g_prime);
+            dijkstra_shortest_paths(g_prime, root, boost::weight_map(get(&ConnectionEdge::cost, g_prime)).distance_map(boost::make_iterator_property_map(cost_from_root.begin(), get(boost::vertex_index, g_prime))));
+            cm[root_region] = cost_from_root;
+        }
+    }
+}
 
 MatrixContainer::MatrixContainer(int node_size)
 {
@@ -23,9 +43,8 @@ MatrixContainer::MatrixContainer(int node_size)
 
 void MatrixContainer::update_all_paths(std::vector<std::vector<double> > &cost_matrix, GlobalTradeGraph &g, int option, bool parallel)
 {
-    // std::cout << "[ updateding all paths ";
     int nodes = (int)g.total_nodes + 1;
-    std::priority_queue<int> pq; // in the future this will be a queue of node descriptors
+    std::priority_queue<int> pq;
     for (int i = 0; i < nodes; i++)
     {
         if (g.global_graph[i].region_type > 0)
@@ -35,19 +54,17 @@ void MatrixContainer::update_all_paths(std::vector<std::vector<double> > &cost_m
     }
     if (option == 0)
     {
-        // std::cout << "using dijkstra "; //dijkstra
         if (parallel)
         {
-            // std::cout << "in parallel... ]" << std::endl;
-            // not implemented
+            // not super important
         }
         else
         {
-            // std::cout << "not in parallel... ]" << std::endl;
             while (!pq.empty())
             {
                 int current_node = pq.top();
-                update_matrix_dijkstra(cost_matrix, g, current_node, g.get_region_owner_TAG(current_node));
+                std::vector<int> current_node_v{current_node};
+                update_matrix_dijkstra(cost_matrix, g, current_node_v);
                 pq.pop();
             }
         }
@@ -58,45 +75,57 @@ void MatrixContainer::update_subset_paths(std::vector<std::vector<double> > &cos
 {
     if (option == 0)
     {
-        // std::cout << "using dijkstra "; //dijkstra
         if (parallel)
         {
-            // std::cout << "in parallel... ]" << std::endl;
-            // not implemented
+            int max_thread_quota = pq.size() / MAX_THREAD + (pq.size() % MAX_THREAD != 0);
+            std::vector<std::thread> running_threads;
+            running_threads.reserve(MAX_THREAD);
+            std::vector<int> nodes_assign_thread;
+            for (int t = 0; t < MAX_THREAD; ++t)
+            {
+                int todo_in_thread = max_thread_quota;
+                while (!pq.empty() && (todo_in_thread > 0))
+                {
+                    int current_node = pq.top();
+                    nodes_assign_thread.push_back(current_node);
+                    pq.pop();
+                    todo_in_thread--;
+                }
+                std::thread tmp_thread{update_cm_dijkstra, std::ref(nodes_assign_thread), std::ref(g), std::ref(this->cost_matrix)};
+                tmp_thread.join();
+                nodes_assign_thread.clear();
+            }
         }
         else
         {
-            // std::cout << "not in parallel... ]" << std::endl;
             while (!pq.empty())
             {
                 int current_node = pq.top();
-                update_matrix_dijkstra(cost_matrix, g, current_node, g.get_region_owner_TAG(current_node));
+                std::vector<int> current_node_v{current_node};
+                update_matrix_dijkstra(cost_matrix, g, current_node_v);
                 pq.pop();
             }
         }
     }
 }
 
-void MatrixContainer::update_matrix_dijkstra(std::vector<std::vector<double> > &cost_matrix, GlobalTradeGraph &gt, int region_id, std::string owner_TAG)
+void MatrixContainer::update_matrix_dijkstra(std::vector<std::vector<double> > &cost_matrix, GlobalTradeGraph &gt, std::vector<int> region_ids)
 {
-    //std::cout << "[running dijkstra]" << std::endl;
-    GlobalGraph g = gt.return_country_graph(gt.global_graph, owner_TAG);
+    /* THIS IS THE OLD WAY OF CALCULATING PATHS */
+    for (int region_id : region_ids)
+    {
+        std::string owner_TAG = gt.get_region_owner_TAG(region_id);
+        //std::cout << "[running dijkstra]" << std::endl;
+        GlobalGraph g = gt.return_country_graph(gt.global_graph, owner_TAG);
 
-    std::vector<Node_Descriptor> predecessor_map(boost::num_vertices(g));
-    std::vector<double> cost_from_root(boost::num_vertices(g));
-    Node_Descriptor root = boost::vertex(region_id, g);
+        std::vector<Node_Descriptor> predecessor_map(boost::num_vertices(g));
+        std::vector<double> cost_from_root(boost::num_vertices(g));
+        Node_Descriptor root = boost::vertex(region_id, g);
 
-    dijkstra_shortest_paths(g, root, boost::weight_map(get(&ConnectionEdge::cost, g)).distance_map(boost::make_iterator_property_map(cost_from_root.begin(), get(boost::vertex_index, g))));
+        dijkstra_shortest_paths(g, root, boost::weight_map(get(&ConnectionEdge::cost, g)).distance_map(boost::make_iterator_property_map(cost_from_root.begin(), get(boost::vertex_index, g))));
 
-    // std::cout << "costs for region " << region_id << " (" << g[region_id].region_owner_TAG << ") "
-    //           << ": ";
-    // for (auto cit = cost_from_root.begin(); cit != cost_from_root.end(); cit++)
-    // {
-    //     std::cout << *cit << " ";
-    // }
-    // std::cout << std::endl;
-
-    cost_matrix[region_id] = cost_from_root;
+        cost_matrix[region_id] = cost_from_root;
+    }
 }
 
 void MatrixContainer::summarize_matrix(bool verbose)

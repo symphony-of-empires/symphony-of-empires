@@ -19,8 +19,8 @@ int main()
     graph.summarize_graph(true);
 
     MatrixContainer cost_matrix = MatrixContainer(nodes);
-    cost_matrix.update_all_paths(cost_matrix.cost_matrix, graph, 0, false);
-    cost_matrix.summarize_matrix(true);
+    //cost_matrix.update_all_paths(cost_matrix.cost_matrix, graph, 0, false); // uncomment
+    cost_matrix.summarize_matrix(false);
 
     std::cout << "[game start]" << std::endl;
     /* MANAGER */
@@ -56,13 +56,15 @@ int main()
         /* Every day the economy manager needs to
             1. look in its daily queue & update cost matrix for those nodes
         */
-        while (!global_pq.empty() || !(daily_quota > 0)) // gather the daily jobs
+        int todo_today = daily_quota;
+        while (!global_pq.empty() && (todo_today > 0)) // gather the daily jobs
         {
             int current_node = global_pq.top();
             tmp_qu_daily.push(current_node);
             global_pq.pop();
+            todo_today--;
         }
-        cost_matrix.update_subset_paths(cost_matrix.cost_matrix, graph, tmp_qu_daily, 0, false);
+        cost_matrix.update_subset_paths(cost_matrix.cost_matrix, graph, tmp_qu_daily, 0, true);
 
         auto stop = std::chrono::high_resolution_clock::now();
         auto ms_t = duration_cast<std::chrono::milliseconds>(stop - start).count();
@@ -78,12 +80,12 @@ int main()
     std::cout << "[INFO] avg economy tick took (" << (double)running_avg / (double)long_ticks << "ms)" << std::endl;
     std::cout << "[game end]" << std::endl;
 
+    std::cout << "example cost sanity check: " << cost_matrix.cost_matrix[265][720] << std::endl;
     std::cout << "[finished simulation]" << std::endl;
-    // sanity check
     return 0;
 }
 
 // when compiling remember inlude path for BOOST:
-// g++ -std=c++11 -c simulation_manager.cpp global_trade_graph.cpp cost_matrix.cpp -I"<PATH>/boost_1_81_0"
+// g++ -std=c++14 -c simulation_manager.cpp global_trade_graph.cpp cost_matrix.cpp -I"<PATH>/boost_1_81_0"
 // g++ simulation_manager.o global_trade_graph.o cost_matrix.o -o sim_run.exe
 // ./sim_run.exe
