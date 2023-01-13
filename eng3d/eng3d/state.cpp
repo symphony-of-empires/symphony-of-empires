@@ -198,6 +198,10 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     ::chdir("romfs:/");
 #endif
 
+    // Set global locale to the user preferred
+    std::locale::global(std::locale(""));
+    Eng3D::Log::debug("engine", Eng3D::translate_format("User's locale is %s", std::locale("").name().c_str()));
+
     const int seed = (int)((uint32_t)time(NULL) * (uint32_t)getpid());
     Eng3D::Log::debug("engine", Eng3D::translate_format("Using random seed of %i", seed));
     std::srand(seed);
