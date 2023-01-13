@@ -91,80 +91,73 @@ int setenv(const char* name, const char* value, int overwrite)
 #if defined E3D_BACKEND_OPENGL
 // Callback function for printing debug statements
 static void GLAPIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei, const GLchar* msg, const void*) {
-    std::string _source;
-    switch(source) {
+    const auto get_source_name = [](GLenum e) {
+        switch(e) {
     case GL_DEBUG_SOURCE_API:
-        _source = "API";
-        break;
+            return "API";
     case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
-        _source = "WINDOW SYSTEM";
-        break;
+            return "Window system";
     case GL_DEBUG_SOURCE_SHADER_COMPILER:
-        _source = "SHADER COMPILER";
-        break;
+            return "Shader compiler";
     case GL_DEBUG_SOURCE_THIRD_PARTY:
-        _source = "THIRD PARTY";
-        break;
+            return "Third party";
     case GL_DEBUG_SOURCE_APPLICATION:
-        _source = "APPLICATION";
-        break;
+            return "Application";
     case GL_DEBUG_SOURCE_OTHER:
-        _source = "UNKNOWN";
-        break;
+            return "Other";
     default:
-        _source = "UNKNOWN";
         break;
     }
-
-    std::string _type;
-    switch(type) {
+        return "Unknown";
+    };
+    const auto get_type_name = [](GLenum e) {
+        switch(e) {
     case GL_DEBUG_TYPE_ERROR:
-        _type = "ERROR";
-        break;
+            return "Error";
     case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-        _type = "DEPRECATED BEHAVIOR";
-        break;
+            return "Deprecated behaviour";
     case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-        _type = "UDEFINED BEHAVIOR";
-        break;
+            return "Undefined behaviour";
     case GL_DEBUG_TYPE_PORTABILITY:
-        _type = "PORTABILITY";
-        break;
+            return "Portability";
     case GL_DEBUG_TYPE_PERFORMANCE:
-        _type = "PERFORMANCE";
-        break;
+            return "Performance";
     case GL_DEBUG_TYPE_OTHER:
-        _type = "OTHER";
-        break;
+            return "Other";
     case GL_DEBUG_TYPE_MARKER:
-        _type = "MARKER";
-        break;
+            return "Marker";
+        case GL_DEBUG_TYPE_PUSH_GROUP:
+            return "Push group";
+        case  GL_DEBUG_TYPE_POP_GROUP:
+            return "Pop group";
     default:
-        _type = "UNKNOWN";
         break;
     }
-
-    std::string _severity;
-    switch(severity) {
+        return "Unknown";
+    };
+    const auto get_severity_name = [](GLenum e) {
+        switch(e) {
     case GL_DEBUG_SEVERITY_HIGH:
-        _severity = "HIGH";
-        break;
+            return "High";
     case GL_DEBUG_SEVERITY_MEDIUM:
-        _severity = "MEDIUM";
-        break;
+            return "Medium";
     case GL_DEBUG_SEVERITY_LOW:
-        _severity = "LOW";
-        break;
+            return "Low";
     case GL_DEBUG_SEVERITY_NOTIFICATION:
-        _severity = "NOTIFICATION";
-        return;
+            return "Notification";
     default:
-        _severity = "UNKNOWN";
         break;
     }
+        return "Unknown";
+    };
 
     std::unique_ptr<char[]> tmpbuf(new char[512]);
-    snprintf(tmpbuf.get(), 512, "%d: %s of %s severity, raised from %s: %s", id, _type.c_str(), _severity.c_str(), _source.c_str(), msg);
+    std::snprintf(tmpbuf.get(), 512, "%d: %s of %s severity, raised from %s: %s",
+        id,
+        get_type_name(type),
+        get_severity_name(severity),
+        get_source_name(source),
+        msg);
     // Do not put double-newlines
     if(std::strchr(tmpbuf.get(), '\n') == nullptr) {
         Eng3D::Log::debug("opengl_msg", std::string(tmpbuf.get()) + "\n");
