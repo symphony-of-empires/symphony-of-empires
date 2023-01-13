@@ -45,9 +45,8 @@ jobs:
     
     - name: Configure Build Files
       run: |
-        mkdir build
-        cmake . -G "Visual Studio 17 2022" --preset=Debug -B build/
+        cmake . -G "Visual Studio 17 2022" --preset=Debug -B build
 
     - name: Build Symphony of Empires
       run: |
-        cmake --build build --parallel
+        cmake --build build --parallel --target SymphonyOfEmpires
