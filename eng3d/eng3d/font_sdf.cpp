@@ -37,6 +37,7 @@
 #include "eng3d/state.hpp"
 #include "eng3d/camera.hpp"
 #include "eng3d/log.hpp"
+#include "eng3d/map.hpp"
 
 Eng3D::Glyph::Glyph(float _advance, Eng3D::Rectangle _atlas_bounds, Eng3D::Rectangle _plane_bounds)
     : advance{ _advance },
@@ -71,20 +72,21 @@ Eng3D::FontSDF::FontSDF(const std::string& filename) {
 
     auto asset = s.package_man.get_unique(filename + ".png");
     atlas = s.tex_man.load(asset->abs_path, mipmap_options);
-
-    char buff;
-    uint32_t unicode;
-    float advance, top, bottom, left, right;
+    
     std::string line;
     std::ifstream glyph_data(s.package_man.get_unique(filename + ".csv")->abs_path);
     if(glyph_data.is_open()) {
         while(std::getline(glyph_data, line)) {
+			uint32_t unicode;
+			float advance, top, bottom, left, right;
+			char ch;
+			
             std::istringstream data(line);
-            data >> unicode >> buff;
-            data >> advance >> buff;
-            data >> left >> buff >> bottom >> buff >> right >> buff >> top >> buff;
+            data >> unicode >> ch;
+            data >> advance >> ch;
+            data >> left >> ch >> bottom >> ch >> right >> ch >> top >> ch;
             Eng3D::Rectangle plane_bounds(left, top, right - left, bottom - top);
-            data >> left >> buff >> bottom >> buff >> right >> buff >> top;
+            data >> left >> ch >> bottom >> ch >> right >> ch >> top;
             left /= atlas->width;
             right /= atlas->width;
             top /= atlas->height;
@@ -113,7 +115,18 @@ std::unique_ptr<Eng3D::Label3D> Eng3D::FontSDF::gen_text(const std::string& text
         const auto& glyph = unicode_map[character];
         text_width += glyph.advance;
     }
-    assert(text_width != 0.f);
+    
+    if(text_width == 0.f) {
+		std::vector<glm::vec3> positions;
+		positions.emplace_back(0.f, 0.f, 0.f);
+		positions.emplace_back(0.f, 0.f, 0.f);
+		positions.emplace_back(0.f, 0.f, 0.f);
+		std::vector<glm::vec2> tex_coords;
+		tex_coords.emplace_back(0.f, 0.f);
+		tex_coords.emplace_back(0.f, 0.f);
+		tex_coords.emplace_back(0.f, 0.f);
+		return std::make_unique<Eng3D::Label3D>(new Eng3D::TriangleList(positions, tex_coords), 0.f, glm::vec3(p0, 0.f));
+	}
 
     glm::vec2 diff = (pmax - pmin) * (1.f - width);
     pmin += diff;
@@ -163,7 +176,6 @@ std::unique_ptr<Eng3D::Label3D> Eng3D::FontSDF::gen_text(const std::string& text
     return std::make_unique<Eng3D::Label3D>(new Eng3D::TriangleList(positions, tex_coords), scale, glm::vec3(p0, 0.f));
 }
 
-#include "eng3d/map.hpp"
 void Eng3D::FontSDF::draw(const std::vector<std::unique_ptr<Label3D>>& labels, const Eng3D::Camera& camera, bool sphere) {
     auto& shader = sphere ? *sphere_shader : *flat_shader;
     shader.use();
