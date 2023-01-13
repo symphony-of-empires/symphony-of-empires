@@ -91,7 +91,7 @@ void Eng3D::IO::PackageManager::recursive_filesystem_walk(Eng3D::IO::Package& pa
         auto asset = std::make_shared<Eng3D::IO::Asset::File>();
         asset->path = entry.path().lexically_relative(root).string();
         asset->abs_path = entry.path().string();
-#ifdef E3D_TARGET_WINDOWS
+#ifdef _WIN32
         std::replace(asset->path.begin(), asset->path.end(), '\\', '/');
         std::replace(asset->abs_path.begin(), asset->abs_path.end(), '\\', '/');
 #endif
@@ -100,7 +100,7 @@ void Eng3D::IO::PackageManager::recursive_filesystem_walk(Eng3D::IO::Package& pa
 }
 
 static inline std::string get_full_path() {
-#ifndef E3D_TARGET_SWITCH
+#ifndef __switch__
 #   ifdef NO_COPY_MODS
     return "../mods/";
 #   else

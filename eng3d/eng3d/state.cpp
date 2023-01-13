@@ -178,12 +178,12 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
         CXX_THROW(std::runtime_error, "Duplicate instancing of GameState");
     g_state = &s;
 
-#ifdef E3D_TARGET_UNIX
+#ifdef __unix__
     // Catch NaNs and stuff
     //feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);
 #endif
 
-#ifdef E3D_TARGET_SWITCH
+#ifdef __switch__
     ::consoleDebugInit(debugDevice_SVC);
     Eng3D::Log::debug("engine", "Hello world!");
     // Make sure to initialize RomFS properly

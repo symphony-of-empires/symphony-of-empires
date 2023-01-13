@@ -114,7 +114,7 @@ namespace Eng3D {
 #else
         // RVL uses global state variables that are platform specific
 #endif
-#if defined E3D_TARGET_SWITCH
+#if defined __switch__
         uint64_t application_id = 0x0000000000000000;
 #endif
         // Above variables might get modified by these so keep them in order as-is

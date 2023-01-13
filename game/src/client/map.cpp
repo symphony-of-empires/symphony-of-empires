@@ -215,6 +215,12 @@ void Map::update_nation_label(const Nation& nation) {
         min_point_y.y + (max_point_y.y - min_point_y.y) / 2.f
     );
 
+	if(min_point_x.x == max_point_x.x || min_point_x.y == max_point_x.y
+	|| min_point_y.x == max_point_y.x || min_point_y.y == max_point_y.y) {
+		Eng3D::Log::warning("game", string_format("Nation %s is too small", nation.ref_name.c_str()));
+		return;
+	}
+
     float width = 0.74f;
     // Replace old label
     assert(this->nation_labels.size() > nation);
@@ -223,7 +229,7 @@ void Map::update_nation_label(const Nation& nation) {
 }
 
 void Map::create_labels() {
-#ifndef E3D_TARGET_SWITCH
+#ifndef __switch__
     // Provinces
     this->province_labels.clear();
     for(const auto& province : this->gs.world->provinces) {
@@ -235,10 +241,16 @@ void Map::create_labels() {
         max_point.y = min_point.y = min_point.y + (max_point.y - min_point.y) * 0.5f;
 
         if(glm::length(max_point - min_point) >= this->gs.world->width / 3.f) {
-            const uint32_t color = std::byteswap<std::uint32_t>((province.color & 0x00ffffff) << 8);
+            const auto color = std::byteswap<std::uint32_t>((province.color & 0x00ffffff) << 8);
             Eng3D::Log::warning("game", string_format("Province %s (color %x) is too big", province.ref_name.c_str(), color));
             continue;
         }
+        
+        if(max_point.x == min_point.x || max_point.y == min_point.y) {
+			const auto color = std::byteswap<std::uint32_t>((province.color & 0x00ffffff) << 8);
+            Eng3D::Log::warning("game", string_format("Province %s (color %x) is too small", province.ref_name.c_str(), color));
+            continue;
+		}
 
         glm::vec2 center = min_point + (max_point - min_point) * 0.5f;
         float width = 0.7f;
@@ -489,7 +501,7 @@ void Map::draw() {
     }
 
     if(this->gen_labels) {
-#ifndef E3D_TARGET_SWITCH
+#ifndef __switch__
         if(distance_to_map < small_zoom_factor) map_font->draw(province_labels, *camera, view_mode == MapView::SPHERE_VIEW);
         else map_font->draw(nation_labels, *camera, view_mode == MapView::SPHERE_VIEW);
 #else

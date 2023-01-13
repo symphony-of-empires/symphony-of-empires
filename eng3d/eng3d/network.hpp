@@ -36,7 +36,7 @@
 #include <functional>
 #include <tbb/concurrent_queue.h>
 
-#ifdef E3D_TARGET_WINDOWS
+#ifdef _WIN32
 // Allow us to use deprecated functions like inet_addr
 #   define _WINSOCK_DEPRECATED_NO_WARNINGS
 // MingW heavily dislikes ws2def.h and causes spurious errors
@@ -47,7 +47,7 @@
 #       define WINSOCK2_IMPORTED
 #       include <winsock2.h>
 #   endif
-#elif defined E3D_TARGET_UNIX
+#elif defined __unix__
 #    define _XOPEN_SOURCE_EXTENDED 1
 #    include <netdb.h>
 #    include <arpa/inet.h>

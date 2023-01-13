@@ -39,36 +39,32 @@ ENDIF()
 # Compilation flags
 #
 IF(NOT MSVC)
-	set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic -Wshadow ${CMAKE_CXX_FLAGS}")
+	add_compile_options(-Wall -Wextra -Wpedantic -Wshadow)
 ENDIF()
 IF(UNIT_TEST)
 	add_definitions(-DUNIT_TEST=1)
 ENDIF()
+
 IF(WIN32)
-	add_definitions(-DE3D_TARGET_WINDOWS=1)
+	# ...
 ELSEIF(UNIX)
-	add_definitions(-DE3D_TARGET_UNIX=1)
+	# ...
 ELSEIF(ANDROID)
-	add_definitions(-DE3D_TARGET_UNIX=1 -DE3D_TARGET_ANDROID=1)
 	add_definitions(-DE3D_HANDHELD=1)
 ELSEIF(CMAKE_SYSTEM_NAME STREQUAL "NetBSD")
 	include_directories("/usr/pkg/include/SDL2")
-	add_definitions(-DE3D_TARGET_UNIX=1)
-	add_definitions(-DE3D_TARGET_NETBSD=1)
 ELSEIF(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
 	include_directories("${DEVKITPRO}/portlibs/switch/include/")
-	add_definitions(-DE3D_TARGET_UNIX=1 -DE3D_TARGET_SWITCH=1)
 	add_definitions(-DE3D_HANDHELD=1)
 ELSEIF(CMAKE_SYSTEM_NAME STREQUAL "NintendoWii")
 	link_directories("${DEVKITPRO}/libogc/lib")
 	include_directories("${DEVKITPRO}/libogc/include")
-	add_definitions(-DE3D_TARGET_RVL=1)
 ENDIF()
 
 #
 # Dependencies
 #
-IF(E3D_PIE AND CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
+IF(NOT E3D_PIE AND CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
 	message(WARNING "Enabling PIE")
 	set(E3D_PIE ON)
 ENDIF()
@@ -82,8 +78,6 @@ file(GLOB ENG3D_SOURCES "${PROJECT_SOURCE_DIR}/eng3d/*.c" "${PROJECT_SOURCE_DIR}
 #IF(ANDROID)
 #	list(APPEND ENG3D_SOURCES "${CMAKE_ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c")
 #ENDIF()
-
-# Switch doesn't support shared libraries
 IF(E3D_BUILD_STATIC)
 	message(STATUS "Building a static library")
 	add_library(eng3d STATIC ${ENG3D_SOURCES})

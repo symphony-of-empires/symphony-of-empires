@@ -400,7 +400,7 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
     for(const auto& file : files) {
         auto paths = Eng3D::State::get_instance().package_man.get_multiple(dir + "/" + file + ".lua");
         for(const auto& path : paths) {
-#ifdef E3D_TARGET_WINDOWS
+#ifdef _WIN32
             std::string m_path;
             for(auto& c : path->get_abs_path())
                 if(c == '\\') m_path += "\\\\";

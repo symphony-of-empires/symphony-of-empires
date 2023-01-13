@@ -27,7 +27,7 @@
 #include <string>
 #include <algorithm>
 
-#ifdef E3D_TARGET_WINDOWS
+#ifdef _WIN32
 #   include <windows.h>
 #endif
 #ifdef E3D_BACKEND_OPENGL
@@ -401,7 +401,7 @@ bool UI::Context::check_hover(glm::ivec2 mouse_pos) {
     hover_update++;
 //     if(is_drag) {
 //         /// @todo Is this really better?
-// #ifdef E3D_TARGET_WINDOWS
+// #ifdef _WIN32
 //         SetCapture(GetActiveWindow());
 // #endif
 //         // Drag vector
@@ -497,7 +497,7 @@ UI::ClickState UI::Context::check_click_recursive(
 
 bool UI::Context::check_click(glm::ivec2 mouse_pos) {
     this->start_drag_mouse_position = mouse_pos;
-#ifdef E3D_TARGET_WINDOWS
+#ifdef _WIN32
         SetCapture(GetActiveWindow());
 #endif
 
@@ -531,7 +531,7 @@ bool UI::Context::check_mouse_released(glm::ivec2 mouse_pos) {
     if (on_drag)
         on_drag = nullptr;
 
-#ifdef E3D_TARGET_WINDOWS
+#ifdef _WIN32
     // Release the mouse once we no longer drag anything
     ReleaseCapture();
 #endif

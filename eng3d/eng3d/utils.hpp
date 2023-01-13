@@ -89,7 +89,7 @@ namespace std {
 #ifndef __cpp_lib_endian
 namespace std {
     enum class endian {
-#   if defined E3D_TARGET_WINDOWS
+#   if defined _WIN32
         little = 0,
         big    = 1,
         native = little
