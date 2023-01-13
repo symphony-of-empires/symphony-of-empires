@@ -28,22 +28,9 @@
 #include "SDL.h"
 #include "log.hpp"
 
-static bool debug_show = false;
+bool Eng3D::Log::debug_show = false;
 
 /// @brief Logs data to a file or console
 void Eng3D::Log::log(const std::string_view severity, const std::string_view category, const std::string_view msg) {
     SDL_Log("<%s:%s> %s", severity.data(), category.data(), msg.data());
-}
-
-void Eng3D::Log::debug(const std::string_view category, const std::string_view msg) {
-    if(debug_show)
-        Eng3D::Log::log("DEBUG", category, msg);
-}
-
-void Eng3D::Log::warning(const std::string_view category, const std::string_view msg) {
-    Eng3D::Log::log("WARN", category, msg);
-}
-
-void Eng3D::Log::error(const std::string_view category, const std::string_view msg) {
-    Eng3D::Log::log("ERROR", category, msg);
 }

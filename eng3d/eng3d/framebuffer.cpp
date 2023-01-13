@@ -33,6 +33,7 @@
 
 #include "eng3d/framebuffer.hpp"
 #include "eng3d/log.hpp"
+#include "eng3d/string.hpp"
 
 Eng3D::OpenGL::Framebuffer::Framebuffer() {
 	glGenFramebuffers(1, &id);

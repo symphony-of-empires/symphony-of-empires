@@ -27,10 +27,19 @@
 #include <string>
 
 namespace Eng3D::Log {
+    extern bool debug_show;
     void log(const std::string_view severity, const std::string_view category, const std::string_view msg);
-    void debug(const std::string_view category, const std::string_view msg);
-    void warning(const std::string_view category, const std::string_view msg);
-    void error(const std::string_view category, const std::string_view msg);
-}
 
-#include "eng3d/string.hpp"
+    static inline void debug(const std::string_view category, const std::string_view msg) {
+        if(debug_show)
+            Eng3D::Log::log("Debug", category, msg);
+    }
+
+    static inline void warning(const std::string_view category, const std::string_view msg) {
+        Eng3D::Log::log("Warning", category, msg);
+    }
+
+    static inline void error(const std::string_view category, const std::string_view msg) {
+        Eng3D::Log::log("Error", category, msg);
+    }
+}

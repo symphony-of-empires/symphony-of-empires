@@ -40,6 +40,7 @@
 #include "eng3d/glsl_trans.hpp"
 #include "eng3d/utils.hpp"
 #include "eng3d/log.hpp"
+#include "eng3d/string.hpp"
 
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
 /// @brief Construct a shader by opening the provided path and creating a temporal ifstream, reading
