@@ -1,14 +1,14 @@
 message(STATUS "Fetching zlib...")
 
-IF(${E3D_ZLIB_VENDORED})
+IF(E3D_ZLIB_VENDORED)
     include(ExternalProject)
     ExternalProject_Add(zlib_project
-        GIT_REPOSITORY    https://github.com/madler/zlib.git
-        GIT_TAG           master
-        SOURCE_DIR        "${CMAKE_CURRENT_BINARY_DIR}/zlib-src"
-        BINARY_DIR        "${CMAKE_CURRENT_BINARY_DIR}/zlib-build"
-        BUILD_BYPRODUCTS	"${CMAKE_CURRENT_BINARY_DIR}/zlib-build/zlibstaticd.lib"
-        INSTALL_COMMAND	""
+        GIT_REPOSITORY      https://github.com/madler/zlib.git
+        GIT_TAG             master
+        SOURCE_DIR          "${CMAKE_CURRENT_BINARY_DIR}/zlib-src"
+        BINARY_DIR          "${CMAKE_CURRENT_BINARY_DIR}/zlib-build"
+        BUILD_BYPRODUCTS    "${CMAKE_CURRENT_BINARY_DIR}/zlib-build/zlibstaticd.lib"
+        INSTALL_COMMAND	    ""
     )
 
     add_library(dependency_zlib INTERFACE)

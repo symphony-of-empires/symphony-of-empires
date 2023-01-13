@@ -1,6 +1,6 @@
 message(STATUS "Fetching TBB...")
 
-IF(${E3D_TBB_VENDORED})
+IF(E3D_TBB_VENDORED)
     IF(WIN32 OR UNIX)
         IF(WIN32)
             IF(CMAKE_SIZEOF_VOID_P EQUAL 4) # 32-bits
