@@ -119,6 +119,7 @@ using Eng3D::string_format;
 namespace Eng3D::Locale {
     void from_file(const std::string& filename);
     std::string translate(const std::string_view str);
+    std::string format_number(double num);
 }
 using Eng3D::Locale::translate;
 

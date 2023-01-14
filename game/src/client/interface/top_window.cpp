@@ -74,7 +74,7 @@ TopWindow::TopWindow(GameState& _gs)
     money_img.set_tooltip("Money");
     auto& money_lab = money_grp.make_widget< UI::Label>(0, 0, " ");
     money_lab.set_on_each_tick([this](UI::Widget& w) {
-        w.set_text(Eng3D::translate_format("%.0f", this->gs.curr_nation->budget));
+        w.set_text(Eng3D::Locale::format_number(this->gs.curr_nation->budget));
     });
     money_lab.on_each_tick(money_lab);
 
@@ -87,7 +87,7 @@ TopWindow::TopWindow(GameState& _gs)
         const auto total = std::accumulate(gs.curr_nation->owned_provinces.cbegin(), gs.curr_nation->owned_provinces.cend(), 0.f, [this](auto&& a, const auto province_id) -> float {
             return a + gs.world->provinces[province_id].total_pops();
         });
-        w.set_text(Eng3D::string_format("%.0f", total));
+        w.set_text(Eng3D::Locale::format_number(total));
 
         const auto [it1, it2] = std::minmax_element(gs.curr_nation->owned_provinces.cbegin(), gs.curr_nation->owned_provinces.cend(), [this](const auto province_id, const auto other_province_id) {
             return gs.world->provinces[province_id].total_pops() < gs.world->provinces[other_province_id].total_pops();

@@ -79,3 +79,22 @@ std::string Eng3D::Locale::translate(const std::string_view str) {
         return std::string(str);
     return trans_msg[str.data()];
 }
+
+std::string Eng3D::Locale::format_number(double num) {
+    if (std::abs(num) < 1000) {
+        return std::to_string(num);
+    }
+    static const std::string numbers[] = {"k",  "M",  "B",  "T",  "Qa", "Qn",
+                                        "Sx", "Sp", "O",  "N",  "De", "Ud",
+                                        "Dd", "Td", "Qd", "Qi", "Sd"};
+    int exponent = static_cast<int>(log10(abs(num)) / 3);
+
+    // Now get the number
+    double d = static_cast<double>(num) / pow(10, exponent * 3);
+
+    // Round this to two decimal points
+    const int precision = 100;
+    d = round(d * precision) / precision;
+
+    return string_format("%.2f %s", d, numbers[exponent - 1].c_str());
+}
