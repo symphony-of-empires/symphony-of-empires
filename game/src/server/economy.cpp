@@ -227,14 +227,7 @@ static void update_industry_accounting(World& world, Building& building, const B
     // Rescale production
     // This is used to set how much the of the maximum capacity the industry produce
     const auto max_revenue = output_product.price * building.get_max_output_amount(building_type.num_req_workers);
-    if(max_revenue == 0.f) {
-        building.production_scale = scale_speed(building.production_scale, 0.f);
-    } else if(building.expenses.get_total() == 0.f) {
-        building.production_scale = scale_speed(building.production_scale, building.level);
-    } else {
-        building.production_scale = scale_speed(building.production_scale, building.level * glm::clamp(max_revenue / building.expenses.get_total(), 0.f, 1.f));
-    }
-    building.production_scale = glm::max(building.production_scale, 1.f);
+    building.production_scale = glm::clamp(building.production_scale * glm::clamp(0.9f * max_revenue / building.expenses.get_total(), 0.f, 1.01f) * output_product.ds_ratio(), 0.05f / building.level, building.level);
 }
 
 // Update the industry employment
@@ -256,9 +249,10 @@ static void update_factories_employment(const World& world, Province& province, 
         const auto allocated_workers = glm::max(glm::min(industry_workers, unallocated_workers), 0.f);
         // Average with how much the industry had before
         // Makes is more stable so everyone don't change workplace immediately
-        new_workers[industry_index] = (allocated_workers / 16.0f + (building.workers * 15.0f) / 16.0f) * is_operating;
-        unallocated_workers -= building.workers * is_operating;
+        new_workers[industry_index] = glm::clamp(0.9f * building.workers + 0.1f * building.level * building.production_scale * type.num_req_workers, 0.f, unallocated_workers);
+        unallocated_workers -= new_workers[industry_index] * is_operating;
     }
+    assert(unallocated_workers >= 0.f);
 }
 
 /// @brief Calculate the budget that we spend on each needs
