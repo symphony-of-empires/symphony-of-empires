@@ -187,6 +187,7 @@ namespace UI {
             }
         }
 
+        std::shared_ptr<Eng3D::Texture> text_texture;
         bool need_recalc = false; // Managing widgets outside of window bounds
         bool is_eval = true; // Determining if evaluable or not
         std::string text_str;
@@ -326,7 +327,7 @@ namespace UI {
         size_t width = 0, height = 0;
 
         std::shared_ptr<Eng3D::Texture> current_texture;
-        std::shared_ptr<Eng3D::Texture> text_texture;
+        std::shared_ptr<Eng3D::Texture> get_text_texture();
         int text_offset_x = 4, text_offset_y = 4;
         UI::Align text_align_y = UI::Align::START;
         UI::Align text_align_x = UI::Align::START;

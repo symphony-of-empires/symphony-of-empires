@@ -58,18 +58,18 @@ UI::Label::~Label() {
 
 void UI::Label::set_text(const std::string& _text) {
     UI::Widget::set_text(_text);
-    if(this->text_texture.get() != nullptr) {
+    if(this->get_text_texture().get() != nullptr) {
         this->text_offset_x = this->text_offset_y = 0;
-        this->width = this->text_texture->width;
-        this->height = this->text_texture->height;
+        this->width = this->get_text_texture()->width;
+        this->height = this->get_text_texture()->height;
     }
 }
 
 void UI::Label::set_text(const std::u32string& _text) {
     UI::Widget::set_text(_text);
-    if(this->text_texture.get() != nullptr) {
+    if(this->get_text_texture().get() != nullptr) {
         this->text_offset_x = this->text_offset_y = 0;
-        this->width = this->text_texture->width;
-        this->height = this->text_texture->height;
+        this->width = this->get_text_texture()->width;
+        this->height = this->get_text_texture()->height;
     }
 }
