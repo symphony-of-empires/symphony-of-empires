@@ -285,9 +285,11 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
                 auto amount = 0.f;
                 const auto payment = product.buy(wanted_amount, amount);
                 pop.budget -= payment;
-                pop_need.life_needs_met += amount * need_factor;
+                pop_need.life_needs_met += (amount / pop.size) * need_factor;
             }
         }
+        // Should be between -1 and 1
+        pop_need.life_needs_met = glm::clamp(pop_need.life_needs_met, -1.f, 1.f);
 
         // Take a loan if this buying spree didn't satisfy us
         if(pop_need.life_needs_met < 0.f) {
