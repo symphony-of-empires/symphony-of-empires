@@ -59,9 +59,9 @@ void UI::Chart::on_render(UI::Context& ctx, Eng3D::Rect viewport) {
     if(current_texture != nullptr)
         draw_rectangle(0, 0, width, height, viewport, current_texture.get());
 
-    if(text_texture.get() != nullptr) {
+    if(get_text_texture().get() != nullptr) {
         ctx.obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
-        draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture.get());
+        draw_rectangle(4, 2, get_text_texture()->width, get_text_texture()->height, viewport, get_text_texture().get());
     }
 
     ctx.obj_shader->set_uniform("diffuse_color", glm::vec4(1.f, 0.f, 0.f, 1.f));

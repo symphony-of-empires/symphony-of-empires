@@ -67,8 +67,8 @@ void ProgressBar::on_render(Context&, Eng3D::Rect viewport) {
     g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f, 1.f, 1.f, 1.f));
     Eng3D::Square(pos_rect.left, pos_rect.top, pos_rect.right, pos_rect.bottom).draw();
 
-    if(text_texture.get() != nullptr) {
+    if(get_text_texture().get() != nullptr) {
         g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, text_color.a));
-        draw_rectangle(4, 2, text_texture->width, text_texture->height, viewport, text_texture.get());
+        draw_rectangle(4, 2, get_text_texture()->width, get_text_texture()->height, viewport, get_text_texture().get());
     }
 }

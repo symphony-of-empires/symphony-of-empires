@@ -255,23 +255,24 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
     if(border.texture != nullptr)
         draw_border(viewport);
 
-    if(text_texture.get() != nullptr) {
+    auto current_text_texture = get_text_texture().get();
+    if(current_text_texture != nullptr) {
         int x_offset = text_offset_x;
         int y_offset = text_offset_y;
         if(text_align_x == UI::Align::CENTER) {
-            x_offset = (width - text_texture->width) / 2;
+            x_offset = (width - current_text_texture->width) / 2;
         } else if(text_align_x == UI::Align::END) {
-            x_offset = width - text_texture->width - text_offset_x;
+            x_offset = width - current_text_texture->width - text_offset_x;
         }
 
         if(text_align_y == UI::Align::CENTER) {
-            y_offset = (height - text_texture->height) / 2;
+            y_offset = (height - current_text_texture->height) / 2;
         } else if(text_align_y == UI::Align::END) {
-            y_offset = height - text_texture->height - text_offset_y;
+            y_offset = height - current_text_texture->height - text_offset_y;
         }
 
         g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(text_color.r, text_color.g, text_color.b, 1.f));
-        draw_rectangle(x_offset, y_offset, text_texture->width, text_texture->height, viewport, text_texture.get());
+        draw_rectangle(x_offset, y_offset, current_text_texture->width, current_text_texture->height, viewport, current_text_texture);
     }
 
     // Semi-transparent over hover elements which can be clicked
@@ -434,6 +435,14 @@ void Widget::add_child(UI::Widget& child) {
     need_recalc = true;
 }
 
+std::shared_ptr<Eng3D::Texture> Widget::get_text_texture() {
+    if (!text_texture && !text_str.empty()) {
+        auto& text_font = font != nullptr ? *font : *g_ui_context->default_font;
+        text_texture = Eng3D::State::get_instance().tex_man.gen_text(text_font, text_color, this->text_str);
+    }
+    return text_texture;
+}
+
 /// @brief Generates text for the widget and overrides the current text texture
 /// @param _text
 void Widget::set_text(const std::string& _text) {
@@ -442,8 +451,6 @@ void Widget::set_text(const std::string& _text) {
     // Copy _text to a local scope (SDL2 does not like references)
     this->text_str = _text;
     if(_text.empty()) return;
-    auto& text_font = font != nullptr ? *font : *g_ui_context->default_font;
-    text_texture = Eng3D::State::get_instance().tex_man.gen_text(text_font, text_color, this->text_str);
 }
 
 /// @brief Generates text for the widget and overrides the current text texture
@@ -459,9 +466,6 @@ void Widget::set_text(const std::u32string& _text) {
     this->text_str = utf8_text;
     if(this->text_str.empty())
 	    return;
-	
-    auto& text_font = font != nullptr ? *font : *g_ui_context->default_font;
-    text_texture = Eng3D::State::get_instance().tex_man.gen_text(text_font, text_color, this->text_str);
 }
 
 /// @brief Set the tooltip to be shown when this widget is hovered, overrides
