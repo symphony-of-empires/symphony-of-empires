@@ -104,7 +104,7 @@ namespace Eng3D {
 
         /// @brief Get the raw value of the color
         /// @return uint32_t The raw value
-        constexpr uint32_t get_value() const {
+        constexpr uint32_t get_value() const noexcept {
             const auto alpha = static_cast<uint8_t>(a * 255);
             const auto red = static_cast<uint8_t>(r * 255);
             const auto green = static_cast<uint8_t>(g * 255);
@@ -140,6 +140,10 @@ namespace Eng3D {
                 0xFFA5FFD2, 0xFFFFB167, 0xFF009BFF, 0xFFE85EBE
             };
             return Eng3D::Color::rgb32(colors[mod % 64]);
+        }
+
+        constexpr bool operator==(const Color& x) const noexcept {
+            return this->get_value() == x.get_value();
         }
     };
 }

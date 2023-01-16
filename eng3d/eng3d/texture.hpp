@@ -200,17 +200,20 @@ namespace Eng3D {
         std::vector<TextureUploadRequest> unuploaded_textures;
         std::mutex unuploaded_lock;
         std::shared_ptr<Eng3D::Texture> white;
+
+        /// @brief Helper structure for hashing pairs
+        struct pair_hash {
+            template<typename T, typename U>
+            std::size_t operator()(const std::pair<T, U>& x) const noexcept {
+                return std::hash<T>{}(x.first) ^ std::hash<U>{}(x.second);
+            }
+        };
         /// @brief Stores the text textures
-        /// @todo Take in account colour and font for creating the key, since repeated text will be displayed incorrectly
-        std::unordered_map<std::string, std::shared_ptr<Eng3D::Texture>> text_textures;
+        std::unordered_map<std::pair<std::string, Eng3D::Color>, std::shared_ptr<Eng3D::Texture>, pair_hash> text_textures;
         Eng3D::State& s;
     public:
         TextureManager() = delete;
-        TextureManager(Eng3D::State& _s)
-            : s{ _s }
-        {
-
-        }
+        TextureManager(Eng3D::State& _s);
         ~TextureManager();
         std::shared_ptr<Eng3D::Texture> load(const std::string& path, TextureOptions options = default_options);
         std::shared_ptr<Eng3D::Texture> load(std::shared_ptr<Eng3D::IO::Asset::Base> asset, TextureOptions options = default_options);

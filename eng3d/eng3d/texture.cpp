@@ -42,6 +42,13 @@
 #include "eng3d/state.hpp"
 #include "eng3d/log.hpp"
 
+template<>
+struct std::hash<Eng3D::Color> {
+    std::size_t operator()(const Eng3D::Color& x) const noexcept {
+        return std::hash<uint32_t>{}(static_cast<uint32_t>(x.get_value()));
+    }
+};
+
 //
 // Texture
 //
@@ -399,6 +406,12 @@ void Eng3D::TextureArray::upload() {
 //
 // Texture manager
 //
+Eng3D::TextureManager::TextureManager(Eng3D::State& _s)
+    : s{ _s }
+{
+
+}
+
 Eng3D::TextureManager::~TextureManager()
 {
     const std::scoped_lock lock(this->unuploaded_lock);
@@ -454,9 +467,10 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(std::shared_ptr<Eng3
 
 std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::gen_text(Eng3D::TrueType::Font& font, Eng3D::Color color, const std::string& msg) {
     if(msg.empty()) return this->get_white();
+    const auto key = std::make_pair(msg, color);
 
     // Find texture when wanting to be loaded and load texture from cached texture list
-    auto it = text_textures.find(msg);
+    auto it = text_textures.find(key);
     if(it != text_textures.end()) return it->second;
 
     Eng3D::Log::debug("texture", "Loaded and cached text texture for " + msg);
@@ -464,10 +478,10 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::gen_text(Eng3D::TrueType:
     // Otherwise texture is not in our control, so we create a new texture
     auto tex = std::make_shared<Eng3D::Texture>();
     Eng3D::Log::debug("ttf", "Creating text for \"" + msg + "\"");
-    const SDL_Color white_color{
+    const SDL_Color sdl_color{
         static_cast<Uint8>(color.r * 255.f), static_cast<Uint8>(color.g * 255.f),
         static_cast<Uint8>(color.b * 255.f), 0 };
-    auto* surface = TTF_RenderUTF8_Blended(static_cast<TTF_Font*>(font.sdl_font), msg.c_str(), white_color);
+    auto* surface = TTF_RenderUTF8_Blended(static_cast<TTF_Font*>(font.sdl_font), msg.c_str(), sdl_color);
     if(surface == nullptr)
         CXX_THROW(std::runtime_error, Eng3D::translate_format("Cannot create text surface: %s", TTF_GetError()));
     Eng3D::Log::debug("ttf", "Sucessfully created text");
@@ -477,6 +491,6 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::gen_text(Eng3D::TrueType:
     tex->height = surface->h;
     tex->upload(surface);
 
-    text_textures[msg] = tex;
-    return text_textures[msg];
+    text_textures[key] = tex;
+    return text_textures[key];
 }
