@@ -52,29 +52,38 @@ struct Eng3D::Deser::Serializer<Commodity> {
 
 /// @brief A product (based off a Commodity) which can be bought by POPs, converted by factories and transported
 struct Product : Entity<ProductId> {
+    static constexpr float min_price = 0.01f;
+    static constexpr float max_price = 999'999.99f;
+
     float get_price_delta() const {
+        constexpr float min_delta = 0.9f; // -10%
+        constexpr float max_delta = 1.1; // +10%
         if(demand == 0.f && supply == 0.f)
-            return 1.f;
-        return glm::clamp(demand / supply, 0.9f, 1.1f);
+            return min_delta;
+        if(produced == 0.f)
+            return min_delta;
+        // Produts actually brought, versus the sold amount
+        return glm::clamp(bought / produced, min_delta, max_delta);
     }
 
     float sd_ratio() const {
         if(demand <= 0.f)
             return supply;
-        return glm::min(supply, supply / demand);
+        return supply / demand;
     }
 
     float ds_ratio() const {
         if(supply <= 0.f)
             return demand;
-        return glm::min(demand, demand / supply);
+        return demand / supply;
     }
 
     void close_market() {
         // Increase price with more demand
         this->price_delta = this->get_price_delta();
+        assert(this->price_delta >= 0.f);
         // Set the new price
-        this->price = glm::clamp(this->price * this->price_delta, 0.01f, 100'000.f);
+        this->price = glm::clamp(this->price * this->price_delta, min_price, max_price);
         if(glm::epsilonEqual(this->price, 0.f, glm::epsilon<float>()))
             this->price_delta = 0.f;
         

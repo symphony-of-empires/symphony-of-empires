@@ -227,17 +227,20 @@ static void update_industry_accounting(World& world, Building& building, const B
     // Rescale production
     // This is used to set how much the of the maximum capacity the industry produce
     const auto max_revenue = output_product.price * building.get_max_output_amount(building_type.num_req_workers);
-    building.production_scale = glm::clamp(building.production_scale * glm::clamp(0.9f * max_revenue / building.expenses.get_total(), 0.f, 1.01f) * output_product.ds_ratio(), 0.05f / building.level, building.level);
+    building.production_scale = glm::clamp(building.production_scale * glm::clamp(0.9f * max_revenue / building.expenses.get_total(), 0.f, 1.05f) * output_product.ds_ratio(), 0.05f, building.level);
 }
 
 // Update the industry employment
 static void update_factories_employment(const World& world, Province& province, std::vector<float>& new_workers) {
     auto unallocated_workers = province.pops[(int)PopGroup::LABORER].size;
-    // Sort factories by production scale, which is suppose to represent how profitable the industry is
-    // Might be better to calculate how profitable it really is and use that instead
+    // Sort factories by their operating ratio, or profitability in regards to their expenses
+    // eg: revenue / expenses = proftability ratio
     std::vector<std::pair<size_t, float>> factories_by_profitability;
-    for(size_t i = 0; i < province.buildings.size(); i++)
-        factories_by_profitability.emplace_back(i, province.buildings[i].production_scale);
+    for(const auto& building_type : world.building_types)
+        factories_by_profitability.emplace_back(
+            building_type.get_id(),
+            province.buildings[building_type].get_operating_ratio()
+        );
     std::sort(factories_by_profitability.begin(), factories_by_profitability.end(), [](const auto& a, const auto& b) { return a.second > b.second; });
 
     float is_operating = province.controller_id == province.owner_id ? 1.f : 0.f;
@@ -249,8 +252,9 @@ static void update_factories_employment(const World& world, Province& province, 
         const auto allocated_workers = glm::max(glm::min(industry_workers, unallocated_workers), 0.f);
         // Average with how much the industry had before
         // Makes is more stable so everyone don't change workplace immediately
-        new_workers[industry_index] = glm::clamp(0.9f * building.workers + 0.1f * building.level * building.production_scale * type.num_req_workers, 0.f, unallocated_workers);
-        unallocated_workers -= new_workers[industry_index] * is_operating;
+        constexpr auto hiring_delta_rate = 0.95f; // Change rate for hirings/firings
+        new_workers[industry_index] = glm::clamp(hiring_delta_rate * building.workers + 0.05f * building.level * building.production_scale * type.num_req_workers, 0.f, unallocated_workers) * is_operating;
+        unallocated_workers -= new_workers[industry_index];
     }
     assert(unallocated_workers >= 0.f);
 }
@@ -262,7 +266,7 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         auto& pop_need = pop_needs[i];
         auto& pop = province.pops[i];
         const auto& needs_amounts = world.pop_types[pop.type_id].basic_needs_amount;
-        if(pop.size == 0.f) return;
+        if(pop.size < 1.f) return;
         
         if(pop_need.budget > 0.f) {
             const auto percentage_to_spend = 0.8f;
@@ -496,7 +500,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             auto& pop = province.pops[i];
             pop.budget = new_needs[i].budget;
             pop.life_needs_met = new_needs[i].life_needs_met;
-            const auto growth = glm::clamp(pop.size * pop.life_needs_met * 0.01f, -100.f, 100.f);
+            const auto growth = pop.size * pop.life_needs_met * 0.0001f;
             pop.size = glm::max(pop.size + growth, 1.f);
             pop.militancy = glm::clamp(pop.militancy + 0.01f * -pop.life_needs_met, 0.f, 1.f);
         }
