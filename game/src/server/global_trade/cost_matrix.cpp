@@ -1,146 +1,203 @@
+#include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <limits>
-#include <queue>
+#include <list>
+#include <math.h>
+#include <set>
 #include <thread>
+#include <unordered_map>
 
+#include "boost/bind/bind.hpp"
+#include "boost/graph/astar_search.hpp"
 #include "boost/graph/dijkstra_shortest_paths.hpp"
 
 #include "cost_matrix.hpp"
 
-#define MAX_THREAD 2
+#define MAX_THREADS 4
 
-void update_cm_dijkstra(std::vector<int> &t, GlobalTradeGraph &copy_g, std::vector<std::vector<double> > &cm)
+/* dijkstra's algorithm */
+void update_all_dijkstra(GlobalTradeGraph &g_copy, std::vector<std::vector<double> > &cost_matrix, std::vector<int> &region_id_subset)
 {
-    for (int root_region : t)
+    for (auto root_region : region_id_subset)
     {
-        if (root_region <= copy_g.total_nodes)
+        auto start = std::chrono::high_resolution_clock::now();
+        std::string owner_TAG = g_copy.get_region_owner_TAG(root_region);
+        GlobalGraph g_prime = g_copy.return_country_graph(g_copy.global_graph, owner_TAG);
+        std::vector<Node_Descriptor> predecessor_map(boost::num_vertices(g_prime));
+        std::vector<double> cost_from_root(boost::num_vertices(g_prime));
+        Node_Descriptor root = boost::vertex(root_region, g_prime);
+        dijkstra_shortest_paths(g_prime, root, boost::weight_map(get(&ConnectionEdge::cost, g_prime)).distance_map(boost::make_iterator_property_map(cost_from_root.begin(), get(boost::vertex_index, g_prime))));
+        cost_matrix[root_region] = cost_from_root;
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto ms_t = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
+        if (ms_t > 200) // unacceptable time
         {
-            std::string owner_TAG = copy_g.get_region_owner_TAG(root_region);
-            GlobalGraph g_prime = copy_g.return_country_graph(copy_g.global_graph, owner_TAG);
-            std::vector<Node_Descriptor> predecessor_map(boost::num_vertices(g_prime));
-            std::vector<double> cost_from_root(boost::num_vertices(g_prime));
-            Node_Descriptor root = boost::vertex(root_region, g_prime);
-            dijkstra_shortest_paths(g_prime, root, boost::weight_map(get(&ConnectionEdge::cost, g_prime)).distance_map(boost::make_iterator_property_map(cost_from_root.begin(), get(boost::vertex_index, g_prime))));
-            cm[root_region] = cost_from_root;
+            std::cout << "stop simulation: " << root_region << std::endl;
         }
     }
 }
 
-MatrixContainer::MatrixContainer(int node_size)
+/* a_star algorithm & utiliy functions */
+template <class Graph, class CostType, class LocMap>
+class distance_heuristic : public boost::astar_heuristic<Graph, CostType>
 {
-    std::vector<std::vector<double> > cm;
-    for (int i = 0; i < node_size; i++) // there is almost certainly a better way to do this
+public:
+    typedef typename boost::graph_traits<Graph>::vertex_descriptor Vertex;
+    distance_heuristic(LocMap l, Vertex goal)
+        : m_location(l), m_goal(goal) {}
+    CostType operator()(Vertex u)
     {
-        std::vector<double> tmp;
-        for (int j = 0; j < node_size; j++)
-        {
-            tmp.push_back(std::numeric_limits<double>::infinity());
-        }
-        cm.push_back(tmp);
+        CostType dx = m_location[m_goal].x - m_location[u].x;
+        CostType dy = m_location[m_goal].y - m_location[u].y;
+        return ::sqrt(dx * dx + dy * dy);
     }
-    this->cost_matrix = cm;
+
+private:
+    LocMap m_location;
+    Vertex m_goal;
+};
+
+struct found_goal
+{
+};
+
+template <class Vertex>
+class astar_goal_visitor : public boost::default_astar_visitor
+{
+public:
+    astar_goal_visitor(Vertex goal) : m_goal(goal) {}
+    template <class Graph>
+    void examine_vertex(Vertex u, Graph &g)
+    {
+        if (u == m_goal)
+            throw found_goal();
+    }
+
+private:
+    Vertex m_goal;
+};
+
+double get_astar_cost(GlobalGraph &g, Node_Descriptor &start, Node_Descriptor &goal, location locations[])
+{
+    std::vector<GlobalGraph::vertex_descriptor> p(boost::num_vertices(g));
+    std::vector<double> d(boost::num_vertices(g));
+    try
+    {
+        astar_search_tree(g, start,
+                          distance_heuristic<GlobalGraph, double, location *>(locations, goal),
+                          predecessor_map(make_iterator_property_map(p.begin(), get(boost::vertex_index, g))).weight_map(get(&ConnectionEdge::cost, g)).distance_map(make_iterator_property_map(d.begin(), get(boost::vertex_index, g))).visitor(astar_goal_visitor<Node_Descriptor>(goal)));
+    }
+    catch (found_goal fg)
+    {
+        std::list<Node_Descriptor> shortest_path;
+        for (Node_Descriptor v = goal;; v = p[v])
+        {
+            shortest_path.push_front(v);
+            if (p[v] == v)
+                break;
+        }
+        return d[goal];
+    }
+    return std::numeric_limits<double>::infinity();
 }
 
-void MatrixContainer::update_all_paths(std::vector<std::vector<double> > &cost_matrix, GlobalTradeGraph &g, int option, bool parallel)
+/* pathfinding algorithm to hub nodes & utility functions */
+template <typename T>
+void merge_vecs(std::vector<T> &vec1, const std::vector<T> &vec2)
 {
-    int nodes = (int)g.total_nodes + 1;
-    std::priority_queue<int> pq;
-    for (int i = 0; i < nodes; i++)
+    std::transform(vec1.begin(), vec1.end(), vec2.begin(), vec1.begin(),
+                   [](T a, T b)
+                   { return std::min<T>(a, b); });
+}
+
+template <typename T>
+std::vector<T> add_to_vec(T a, std::vector<T> vec1)
+{
+    std::vector<T> new_vec(vec1.size());
+    std::transform(vec1.begin(), vec1.end(), new_vec.begin(),
+                   boost::bind(std::plus<T>(), boost::placeholders::_1, a));
+    return new_vec;
+}
+
+void update_path_approximate_astar(GlobalTradeGraph &gt, int region_id, std::unordered_map<int, std::set<int> > &hubs, std::vector<std::vector<double> > &cost_matrix)
+{
+    std::vector<double> current_vec = cost_matrix[region_id];
+    std::set<int> regional_hubs = hubs[region_id];
+    std::vector<std::vector<double> > tmp_costs;
+    tmp_costs.reserve(regional_hubs.size());
+    for (int h : regional_hubs)
     {
-        if (g.global_graph[i].region_type > 0)
+        current_vec = cost_matrix[region_id];
+        double astar_cost_to_hub = std::numeric_limits<double>::infinity();
+        Node_Descriptor start = region_id;
+        Node_Descriptor goal = h;
+        astar_cost_to_hub = get_astar_cost(gt.global_graph, start, goal, gt.locations.data());
+        if (!std::isinf(astar_cost_to_hub))
         {
-            pq.push(i);
-        }
-    }
-    if (option == 0)
-    {
-        if (parallel)
-        {
-            // not super important
-        }
-        else
-        {
-            while (!pq.empty())
-            {
-                int current_node = pq.top();
-                std::vector<int> current_node_v{current_node};
-                update_matrix_dijkstra(cost_matrix, g, current_node_v);
-                pq.pop();
-            }
+            std::vector<double> region_cost_added_astar = add_to_vec(astar_cost_to_hub, cost_matrix[h]);
+            merge_vecs(current_vec, region_cost_added_astar);
         }
     }
 }
 
-void MatrixContainer::update_subset_paths(std::vector<std::vector<double> > &cost_matrix, GlobalTradeGraph &g, std::priority_queue<int> pq, int option, bool parallel)
+/* matrix container */
+MatrixContainer::MatrixContainer(int n)
 {
-    if (option == 0)
+    this->cost_matrix = std::vector<std::vector<double> >(n, std::vector<double>(n, std::numeric_limits<double>::infinity()));
+}
+
+void MatrixContainer::update_non_hub_regions(GlobalTradeGraph &gt, std::vector<std::vector<double> > &cost_matrix, std::vector<int> region_ids, bool parallel)
+{
+    if (parallel)
     {
-        if (parallel)
+        // not implemented
+    }
+    else
+    {
+        for (int current_region : region_ids)
         {
-            int max_thread_quota = pq.size() / MAX_THREAD + (pq.size() % MAX_THREAD != 0);
-            std::vector<std::thread> running_threads;
-            running_threads.reserve(MAX_THREAD);
-            std::vector<int> nodes_assign_thread;
-            for (int t = 0; t < MAX_THREAD; ++t)
-            {
-                int todo_in_thread = max_thread_quota;
-                while (!pq.empty() && (todo_in_thread > 0))
-                {
-                    int current_node = pq.top();
-                    nodes_assign_thread.push_back(current_node);
-                    pq.pop();
-                    todo_in_thread--;
-                }
-                std::thread tmp_thread{update_cm_dijkstra, std::ref(nodes_assign_thread), std::ref(g), std::ref(this->cost_matrix)};
-                tmp_thread.join();
-                nodes_assign_thread.clear();
-            }
-        }
-        else
-        {
-            while (!pq.empty())
-            {
-                int current_node = pq.top();
-                std::vector<int> current_node_v{current_node};
-                update_matrix_dijkstra(cost_matrix, g, current_node_v);
-                pq.pop();
-            }
+            update_path_approximate_astar(gt, current_region, gt.region_to_service_hubs, this->cost_matrix);
         }
     }
 }
 
-void MatrixContainer::update_matrix_dijkstra(std::vector<std::vector<double> > &cost_matrix, GlobalTradeGraph &gt, std::vector<int> region_ids)
+void MatrixContainer::update_all_regions(GlobalTradeGraph &gt, std::vector<std::vector<double> > &cost_matrix, std::vector<int> region_id_set, bool parallel)
 {
-    /* THIS IS THE OLD WAY OF CALCULATING PATHS */
-    for (int region_id : region_ids)
+    if (parallel)
     {
-        std::string owner_TAG = gt.get_region_owner_TAG(region_id);
-        //std::cout << "[running dijkstra]" << std::endl;
-        GlobalGraph g = gt.return_country_graph(gt.global_graph, owner_TAG);
-
-        std::vector<Node_Descriptor> predecessor_map(boost::num_vertices(g));
-        std::vector<double> cost_from_root(boost::num_vertices(g));
-        Node_Descriptor root = boost::vertex(region_id, g);
-
-        dijkstra_shortest_paths(g, root, boost::weight_map(get(&ConnectionEdge::cost, g)).distance_map(boost::make_iterator_property_map(cost_from_root.begin(), get(boost::vertex_index, g))));
-
-        cost_matrix[region_id] = cost_from_root;
+        // not implemented
+    }
+    else
+    {
+        update_all_dijkstra(gt, this->cost_matrix, region_id_set);
     }
 }
 
 void MatrixContainer::summarize_matrix(bool verbose)
 {
-    std::cout << "dimensions of cost_matrix: (" << this->cost_matrix.size() << ", " << this->cost_matrix[0].size() << ")" << std::endl;
-    if (verbose && (this->cost_matrix.size() < 10))
+    std::cout << "===| cost matrix |==================================" << std::endl;
+    std::cout << "\tdimensions: "
+              << "(" << this->cost_matrix.size() << ", " << this->cost_matrix[0].size() << ")" << std::endl;
+    int running_avg = 0;
+    int infinity_count = 0;
+    int num_vals = 0;
+    for (auto cv : this->cost_matrix)
     {
-        for (int i = 0; i < this->cost_matrix.size(); i++)
+        for (auto c : cv)
         {
-            std::vector<double> tmp = this->cost_matrix[i];
-            for (int j = 0; j < tmp.size(); j++)
+            if (c == std::numeric_limits<double>::infinity())
             {
-                std::cout << tmp[j] << " ";
+                infinity_count++;
             }
-            std::cout << std::endl;
+            else
+            {
+                running_avg += c;
+                num_vals++;
+            }
         }
     }
+    std::cout << "\tavg cost: " << running_avg / (double)num_vals << std::endl;
+    std::cout << "\tinf count: " << infinity_count << std::endl;
+    std::cout << "====================================================" << std::endl;
 }

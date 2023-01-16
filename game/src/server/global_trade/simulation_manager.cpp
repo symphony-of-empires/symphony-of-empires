@@ -1,92 +1,119 @@
-#include <iostream>
-#include <string>
+#include <algorithm>
 #include <chrono>
+#include <iostream>
+#include <numeric>
 #include <queue>
+#include <set>
+#include <string>
 
 #include "global_trade_graph.hpp"
 #include "cost_matrix.hpp"
 
-#define ECONOMY_UPDATE_PERIOD 7
+#define WEEK 7
+#define TWO_WEEKS 14
+#define EIGHT_WEEKS 56
+
+std::vector<int> get_first_n_jobs(std::vector<int> &v, int start_index, int num)
+{
+    return std::vector<int>(v.begin() + start_index, v.begin() + std::min(start_index + num, static_cast<int>(v.size())));
+}
+
+std::vector<int> remove_jobs(std::vector<int> &s_jobs, std::vector<int> &to_remove)
+{
+    std::unordered_set<int> to_remove_set(to_remove.begin(), to_remove.end());
+    std::vector<int> schedulable_jobs;
+    for (size_t i = 0; i < s_jobs.size(); i++)
+    {
+        if (to_remove_set.find(s_jobs[i]) == to_remove_set.end())
+        {
+            schedulable_jobs.push_back(s_jobs[i]);
+        }
+    }
+    return schedulable_jobs;
+}
 
 int main()
 {
-    std::cout << "[starting simulation]" << std::endl;
-
     std::cout << "[game setup]" << std::endl;
+    /* before game start */
+    auto start_setup = std::chrono::high_resolution_clock::now();
     GlobalTradeGraph graph = GlobalTradeGraph();
-    int nodes = graph.init_random_graph(500, 5);
-    std::cout << "\ttotal nodes: " << nodes << std::endl;
+    int nodes = 1000;
+    int maximum_node_index = graph.init_random_graph(nodes);
     graph.summarize_graph(true);
-
-    MatrixContainer cost_matrix = MatrixContainer(nodes);
-    //cost_matrix.update_all_paths(cost_matrix.cost_matrix, graph, 0, false); // uncomment
-    cost_matrix.summarize_matrix(false);
+    MatrixContainer matrix = MatrixContainer(nodes);
+    std::cout << "[INFO] init all costs at game start" << std::endl;
+    matrix.summarize_matrix(false);
+    matrix.update_all_regions(graph, matrix.cost_matrix, graph.currently_used_nodes, false);
+    matrix.summarize_matrix(false);
+    auto stop_setup = std::chrono::high_resolution_clock::now();
+    auto setup_t = std::chrono::duration_cast<std::chrono::milliseconds>(stop_setup - start_setup).count();
+    std::cout << "[INFO] setup took (" << setup_t / 1000.0 << "s)" << std::endl;
 
     std::cout << "[game start]" << std::endl;
-    /* MANAGER */
-    double running_avg = 0;
-    int long_ticks = 0;
-
-    int daily_quota = 0;
-    std::priority_queue<int> global_pq;
-
-    auto s_start = std::chrono::high_resolution_clock::now();
-    for (int tick = 0; tick < 365; tick++) // one year simulation
+    /* update game start */
+    /* SIMULATION ALGORITHM */
+    auto sim_start = std::chrono::high_resolution_clock::now();
+    auto num_ticks = 365;
+    auto all_ticks = 0;
+    for (int tick = 0; tick < num_ticks; tick++) // one year simulation
     {
-        auto start = std::chrono::high_resolution_clock::now();
-        std::priority_queue<int> tmp_qu_daily; // reset the daily queue
-        /* Every week the economy manager needs to
-            1. check for new nodes
-            2. assign them to a priority queue
-            3. calculate how many should be updated each day
-        */
-        if (tick % ECONOMY_UPDATE_PERIOD == 0)
-        {
-            std::cout << "weekly tick no." << tick / 7 << std::endl;
-            int nodes = graph.total_nodes + 1;
-            global_pq = std::priority_queue<int>();
-            for (int i = 0; i < nodes; i++)
-            {
-                if (graph.global_graph[i].region_type > 0)
-                {
-                    global_pq.push(i);
-                }
-            }
-            daily_quota = global_pq.size() / ECONOMY_UPDATE_PERIOD + (global_pq.size() % ECONOMY_UPDATE_PERIOD != 0);
-        }
-        /* Every day the economy manager needs to
-            1. look in its daily queue & update cost matrix for those nodes
-        */
-        int todo_today = daily_quota;
-        while (!global_pq.empty() && (todo_today > 0)) // gather the daily jobs
-        {
-            int current_node = global_pq.top();
-            tmp_qu_daily.push(current_node);
-            global_pq.pop();
-            todo_today--;
-        }
-        cost_matrix.update_subset_paths(cost_matrix.cost_matrix, graph, tmp_qu_daily, 0, true);
+        std::cout << "[tick no." << tick << "]";
+        auto tick_start = std::chrono::high_resolution_clock::now();
 
-        auto stop = std::chrono::high_resolution_clock::now();
-        auto ms_t = duration_cast<std::chrono::milliseconds>(stop - start).count();
-        if (ms_t > 30)
+        /* path calculations */
+        std::vector<int> daily_hub_jobs;
+        std::vector<int> daily_astar_jobs;
+        std::vector<int> daily_node_jobs;
+        std::vector<int> schedulable_jobs = remove_jobs(graph.currently_used_nodes, graph.hub_nodes);
+        int hub_jobs_per_day = (graph.hub_nodes.size() + WEEK - 1) / WEEK;
+        int hubs_jobs_index = hub_jobs_per_day * (tick % WEEK);
+        if (hubs_jobs_index < graph.hub_nodes.size()) // update optimal hub costs every week
         {
-            running_avg += ms_t;
-            long_ticks += 1;
+            int hub_jobs_per_day = (graph.hub_nodes.size() + WEEK - 1) / WEEK;
+            daily_hub_jobs = get_first_n_jobs(graph.hub_nodes,
+                                              hubs_jobs_index,
+                                              hub_jobs_per_day);
+            matrix.update_all_regions(graph, matrix.cost_matrix, daily_hub_jobs, false);
         }
-    };
-    auto s_stop = std::chrono::high_resolution_clock::now();
-    auto ms_s = duration_cast<std::chrono::milliseconds>(s_stop - s_start).count();
-    std::cout << "[INFO] simulation took (" << ms_s << "ms)" << std::endl;
-    std::cout << "[INFO] avg economy tick took (" << (double)running_avg / (double)long_ticks << "ms)" << std::endl;
+        int astar_jobs_per_day = (schedulable_jobs.size() + TWO_WEEKS - 1) / TWO_WEEKS;
+        int astar_jobs_index = astar_jobs_per_day * (tick % TWO_WEEKS);
+        if (astar_jobs_index < schedulable_jobs.size()) // update node with astar over a short period to ensure 'good' paths
+        {
+            daily_astar_jobs = get_first_n_jobs(schedulable_jobs,
+                                                astar_jobs_index,
+                                                astar_jobs_per_day);
+            matrix.update_non_hub_regions(graph, matrix.cost_matrix, daily_astar_jobs, false);
+        }
+        int node_jobs_per_day = (schedulable_jobs.size() + EIGHT_WEEKS - 1) / EIGHT_WEEKS;
+        int node_jobs_index = node_jobs_per_day * (tick % EIGHT_WEEKS);
+        if (node_jobs_index < schedulable_jobs.size()) // update node with dijkstra over a longer period to ensure optimal paths
+        {
+            daily_node_jobs = get_first_n_jobs(schedulable_jobs,
+                                               node_jobs_index,
+                                               node_jobs_per_day);
+            matrix.update_all_regions(graph, matrix.cost_matrix, daily_node_jobs, false);
+        }
+
+        std::cout << std::endl;
+
+        auto tick_stop = std::chrono::high_resolution_clock::now();
+        auto ms_tick = std::chrono::duration_cast<std::chrono::milliseconds>(tick_stop - tick_start).count();
+        all_ticks += ms_tick;
+    }
+    auto sim_stop = std::chrono::high_resolution_clock::now();
+    auto ms_sim = std::chrono::duration_cast<std::chrono::milliseconds>(sim_stop - sim_start).count();
+    std::cout << "[INFO] simulation took (" << ms_sim / 1000.0 << "s)" << std::endl;
+    std::cout << "[INFO] average tick took (" << (all_ticks / num_ticks) / 1000.0 << "s)" << std::endl;
+
     std::cout << "[game end]" << std::endl;
+    matrix.summarize_matrix(false);
 
-    std::cout << "example cost sanity check: " << cost_matrix.cost_matrix[265][720] << std::endl;
     std::cout << "[finished simulation]" << std::endl;
     return 0;
-}
+};
 
 // when compiling remember inlude path for BOOST:
-// g++ -std=c++14 -c simulation_manager.cpp global_trade_graph.cpp cost_matrix.cpp -I"<PATH>/boost_1_81_0"
+// g++ -std=c++14 -c simulation_manager.cpp global_trade_graph.cpp cost_matrix.cpp -I"/User/boost_1_81_0"
 // g++ simulation_manager.o global_trade_graph.o cost_matrix.o -o sim_run.exe
 // ./sim_run.exe

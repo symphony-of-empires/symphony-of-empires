@@ -6,14 +6,11 @@
 
 struct MatrixContainer
 {
-    int node_size;
-    std::vector<std::vector<double> > cost_matrix; // there is almost certainly a better way to do this
+    std::vector<std::vector<double> > cost_matrix;
+    int max_node_size;
 
-    MatrixContainer(int node_size);
-
-    void update_all_paths(std::vector<std::vector<double> > &cost_matrix, GlobalTradeGraph &g, int option, bool parallel); // run at game start only
-    void update_subset_paths(std::vector<std::vector<double> > &cost_matrix, GlobalTradeGraph &g, std::priority_queue<int> pq, int option, bool parallel);
-    void update_matrix_dijkstra(std::vector<std::vector<double> > &cost_matrix, GlobalTradeGraph &gt, std::vector<int> region_ids);
-
+    MatrixContainer(int n);
+    void update_non_hub_regions(GlobalTradeGraph &gt, std::vector<std::vector<double> > &cost_matrix, std::vector<int> regions_id_set, bool parallel);
+    void update_all_regions(GlobalTradeGraph &gt, std::vector<std::vector<double> > &cost_matrix, std::vector<int> region_id_set, bool parallel);
     void summarize_matrix(bool verbose);
 };

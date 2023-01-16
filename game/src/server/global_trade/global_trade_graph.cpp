@@ -1,31 +1,23 @@
-#include <iostream>
-#include <math.h>
 #include <algorithm>
-#include <vector>
+#include <ctime>
+#include <chrono>
+#include <math.h>
+#include <iostream>
 #include <set>
-#include <random>
+#include <vector>
 
+#include "boost/random.hpp"
+#include "boost/random/uniform_real_distribution.hpp"
+#include "boost/random/uniform_int_distribution.hpp"
 #include "boost/graph/graph_utility.hpp"
 
 #include "global_trade_graph.hpp"
 
 #define PI 3.14159265358979323846
 #define EARTH_RADIUS 6378.137
-#define DISTANCE_MULTIPLIER 0.1
-
-/* Graph Features (Vertex & Edge) */
+#define GAME_DISTANCE_MULTIPLIER 0.1
 
 /* Useful Utility Functions */
-template <class T1, class T2>
-std::size_t pair_hash::operator()(const std::pair<T1, T2> &p) const
-{
-    std::size_t seed = 0;
-    // build hash
-    boost::hash_combine(seed, p.first);
-    boost::hash_combine(seed, p.second);
-    return seed;
-}
-
 template <typename T>
 bool allEqual(std::vector<T> const &v)
 {
@@ -37,127 +29,148 @@ bool allEqual(std::vector<T> const &v)
                        { return e == v.front(); });
 }
 
+location random_location(float lat1, float lon1, float lat2, float lon2, double seed)
+{
+    boost::random::mt19937 gen(seed);
+    float lat_t1 = (lat1 < lat2) ? lat1 : lat2;
+    float lat_t2 = (lat1 < lat2) ? lat2 : lat1;
+    boost::random::uniform_real_distribution<> dist_lat(lat_t1, lat_t2); // bounding box west to east
+    boost::random::uniform_real_distribution<> dist_lon(lon1, lon2);
+    return {static_cast<float>(dist_lat(gen)), static_cast<float>(dist_lon(gen))};
+};
+
+std::set<int> random_connection(int degree, int min, int max, double seed)
+{
+    boost::random::mt19937 gen(seed);
+    boost::random::uniform_int_distribution<> dist_range(min, max);
+    boost::random::uniform_int_distribution<> dist_degree(3, degree);
+    int try_degree = dist_degree(gen);
+    int length = ((max - min) < try_degree) ? (max - min) : try_degree;
+    std::set<int> connection;
+    for (int i = 0; i < length; ++i)
+    {
+        while (connection.size() != length)
+        {
+            int element = dist_range(gen);
+            connection.insert(element);
+        }
+    }
+    return connection;
+}
+
 /* GLOBAL TRADE GRAPH */
 GlobalTradeGraph::GlobalTradeGraph()
 {
-    std::map<int, double> type_cost_converstion{
-        // palceholder values
-        // cost to move 1 metric ton 1km
-        {0, 0.5},   // ocean
-        {1, 1.0},   // navigable-river
-        {2, 1.0},   // major canal
-        {3, 10.0},  // un-improved flatland
-        {4, 12.0},  // un-improved hilly
-        {5, 15.0},  // un-improved mountain pass
-        {6, 5.0},   // basic road
-        {7, 4.0},   // improved road
-        {8, 2.0},   // inter-state highway
-        {9, 3.5},   // railroad lv1
-        {10, 3.0},  // railroad lv2
-        {11, 2.5},  // railroad lv3
-        {12, 2.0},  // railroad lv4
-        {13, 1.5},  // railroad lv5
-        {14, 1.0},  // railroad lv6
-        {15, 1.0},  // special reserved index
-        {16, 12.0}, // port lv1
-        {17, 9.0},  // port lv2
-        {18, 8.0},  // port lv3
-        {19, 7.0},  // port lv4
-        {20, 6.0},  // port lv5
-        {21, 5.0},  // port lv6
-        {22, 4.0},  // port lv7
-        {23, 2.0},  // port lv8
-        {24, 1.0},  // port lv9
-        {25, 0.5},  // port lv10
-    };
-    this->type_cost_converstion = type_cost_converstion;
 }
 
-int GlobalTradeGraph::init_graph(std::string filepath)
+int GlobalTradeGraph::init_graph()
 {
     // this is not implemented yet
-    int total_nodes = 3;
-    this->global_graph = GlobalGraph(total_nodes);
-    return total_nodes;
+    return 0;
 }
 
-int GlobalTradeGraph::init_random_graph(int nodes, int max_degree)
+/* realistic simulation (this will be deleted after testing is done) */
+int GlobalTradeGraph::init_random_graph(int nodes)
 {
-    double percent_water = .16; // 16% of the world was ocean in vic2
-
     this->global_graph = GlobalGraph(nodes);
-    this->total_nodes = nodes - 1;
-
-    for (int n = 0; n < this->total_nodes + 1; n++) //what is happening here?
+    this->currently_used_nodes.resize(nodes);
+    iota(this->currently_used_nodes.begin(), this->currently_used_nodes.end(), 0);
+    int max_node_index = nodes - 1;
+    /* setup realistic simulation */
+    double percent_ocean = .16; // 16% of the world was ocean in vic2
+    int num_hub_nodes = 25;     //reserve 0-25 for hub nodes
+    int hubs_per_node = 2;
+    std::vector<location> locations_vec;
+    typedef std::pair<location, std::pair<location, location> > region_bounding_box_struct;
+    std::map<int, std::pair<region_bounding_box_struct, std::string> > continents{
+        {0, {{{43.33f, -108.325f}, {{62.25f, -143.79f}, {24.41f, -72.86f}}}, "North America"}},
+        {1, {{{-22.45f, -59.285f}, {{2.20f, -82.38f}, {-47.10f, -36.19f}}}, "South America"}},
+        {2, {{{53.87f, 7.935f}, {{64.41f, -17.68f}, {43.33f, 33.55f}}}, "Europe"}},
+        {3, {{{43.385f, 98.665f}, {{65.02f, 68.53f}, {21.75f, 128.8f}}}, "Asia"}},
+        {4, {{{0.425f, 16.465f}, {{33.04f, -10.82f}, {-32.19f, 43.75f}}}, "Africa"}},
+        {5, {{{-24.025f, 141.925f}, {{-6.18f, 116.26f}, {-41.87f, 167.59f}}}, "Oceania"}},
+    };
+    int max_nodes_per_continent = ((nodes - num_hub_nodes) + continents.size() - 1) / continents.size();
+    /* first generate all the hub nodes */
+    for (int h = 0; h < num_hub_nodes; h++)
     {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_real_distribution<> distr_01(0, 1);
-        this->global_graph[n].region_id = n;
-        // random geography assignment
-        double water_or_land = distr_01(gen);
-        if (water_or_land <= percent_water)
+        this->global_graph[h].region_id = h;
+        this->global_graph[h].region_type = 0;
+        auto now = std::chrono::high_resolution_clock::now();
+        this->global_graph[h].region_centroid = random_location(-90, -180, 90, 180,
+                                                                std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count());
+        this->global_graph[h].connection_set = random_connection(3, 0, num_hub_nodes - 1,
+                                                                 std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count());
+        this->locations.push_back(this->global_graph[h].region_centroid);
+        /* connect them */
+        for (int c : this->global_graph[h].connection_set)
         {
-            this->global_graph[n].region_type = 0;
+            this->add_edge(c, h, 0);
         }
-        else
+        this->hub_nodes.push_back(h);
+    }
+    /* next generate all continents */
+    boost::random::mt19937 gen(std::time(0));
+    boost::random::uniform_int_distribution<> dist_ctype(1, 25);
+    int n = num_hub_nodes;
+    int continent = 0;
+    while (continent < continents.size())
+    {
+        int min_index = (continent * max_nodes_per_continent) + num_hub_nodes;
+        int max_index = std::min((min_index + (max_nodes_per_continent - 1)), max_node_index);
+        if (min_index > max_index)
         {
-            this->global_graph[n].region_type = 1;
+            break;
         }
-        // random TAG
-        static const char alphanum[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        srand((unsigned int)time(NULL));
-        std::string TAG;
-        for (int i = 0; i < 3; ++i)
+        for (int n = min_index; n <= max_index; n++)
         {
-            TAG += alphanum[rand() % (sizeof(alphanum) - 1)];
-        }
-        this->global_graph[n].region_owner_TAG = TAG;
-        // random province set
-        int p_nodes = 3248; // max provinces in vic2
-        int max_ps = 5;
-        std::set<int> tmp_pset;
-        std::uniform_int_distribution<> distr_prov(0, p_nodes);
-        std::uniform_int_distribution<> distr_maxp(0, max_ps);
-        for (int n = 0; n < distr_maxp(gen); ++n)
-        {
-            tmp_pset.insert(distr_prov(gen));
-        }
-        this->global_graph[n].province_set = tmp_pset;
-        // random lat long
-        std::uniform_real_distribution<> distr_lat(-89.9, 89.9);
-        std::uniform_real_distribution<> distr_lon(-179.9, 179.9);
-        double tlat = distr_lat(gen);
-        double tlon = distr_lon(gen);
-        this->global_graph[n].latitude = tlat;
-        this->global_graph[n].longitude = tlon;
-        // random connection set
-        std::set<int> t_cset;
-        std::set<std::pair<int, int> > connections_to_add;
-        std::uniform_int_distribution<> distr_degree(1, max_degree);
-        std::uniform_int_distribution<> distr_second(0, this->total_nodes);
-        while (t_cset.empty())
-        {
-            for (int d = 0; d < distr_degree(gen); d++)
+            region_bounding_box_struct continent_bounding_box = continents[continent].first;
+            this->global_graph[n].region_id = n;
+            this->global_graph[n].region_type = 2;
+            auto now = std::chrono::high_resolution_clock::now();
+            this->global_graph[n].region_centroid = random_location(continent_bounding_box.second.first.y,
+                                                                    continent_bounding_box.second.first.x,
+                                                                    continent_bounding_box.second.second.y,
+                                                                    continent_bounding_box.second.second.x,
+                                                                    std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count());
+            std::set<int> new_conns = random_connection(5,
+                                                        min_index,
+                                                        std::min(max_node_index, max_index),
+                                                        std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count());
+            this->global_graph[n].connection_set = new_conns;
+            this->locations.push_back(this->global_graph[n].region_centroid);
+            /* connect them */
+            for (int c : this->global_graph[n].connection_set)
             {
-                int second_n = distr_second(gen);
-                if (second_n != n && t_cset.find(second_n) == t_cset.end())
-                {
-                    std::pair<int, int> new_connection = (n < second_n) ? std::make_pair(n, second_n) : std::make_pair(second_n, n);
-                    t_cset.insert(second_n);
-                    connections_to_add.insert(new_connection);
-                }
+                this->add_edge(c, n, dist_ctype(gen));
             }
         }
-        this->global_graph[n].connection_set = t_cset;
-        // add edges
-        std::uniform_int_distribution<> distr_ctype(0, 25); //connection type
-        for (auto cit = connections_to_add.begin(); cit != connections_to_add.end(); cit++)
+        continent++;
+    }
+    /* link hub nodes to continents */
+    for (int n = num_hub_nodes; n < nodes; n++)
+    {
+        for (int h : this->get_hubs_distance(n))
         {
-            if (this->edge_mapping.find(*cit) == this->edge_mapping.end())
+            auto now = std::chrono::high_resolution_clock::now();
+            auto seed = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
+            boost::random::mt19937 gen(seed);
+            boost::random::uniform_real_distribution<> dist_rand_hc_chance(0, 1);
+            if (dist_rand_hc_chance(gen) < .9 || n % max_nodes_per_continent)
             {
-                GlobalTradeGraph::add_edge(*cit, distr_ctype(gen));
+                this->add_edge(n, h, 0);
             }
+            this->region_to_service_hubs[n].insert(h);
+        }
+    }
+    /* add a few random connections */
+    for (int n = 0; n < nodes; n++)
+    {
+        boost::random::uniform_int_distribution<> dist_all_nodes(0, max_node_index);
+        boost::random::uniform_real_distribution<> dist_rand_rc_chance(0, 1);
+        if (dist_rand_rc_chance(gen) < .99)
+        {
+            this->add_edge(dist_all_nodes(gen), dist_all_nodes(gen), dist_ctype(gen));
         }
     }
     return nodes;
@@ -165,10 +178,10 @@ int GlobalTradeGraph::init_random_graph(int nodes, int max_degree)
 
 double GlobalTradeGraph::calculate_distance_lat_lon(int n1, int n2)
 {
-    double lat1 = this->global_graph[n1].latitude;
-    double lon1 = this->global_graph[n1].longitude;
-    double lat2 = this->global_graph[n2].latitude;
-    double lon2 = this->global_graph[n2].longitude;
+    double lat1 = this->global_graph[n1].region_centroid.y;
+    double lon1 = this->global_graph[n1].region_centroid.x;
+    double lat2 = this->global_graph[n2].region_centroid.y;
+    double lon2 = this->global_graph[n2].region_centroid.x;
 
     double dlat = ((lat2 - lat1) * PI) / 180.0;
     double dlon = ((lon2 - lon1) * PI) / 180.0;
@@ -180,60 +193,81 @@ double GlobalTradeGraph::calculate_distance_lat_lon(int n1, int n2)
     return EARTH_RADIUS * b;
 }
 
-void GlobalTradeGraph::summarize_graph(bool verbose) // sanity check
+void GlobalTradeGraph::summarize_graph(bool verbose)
 {
     boost::print_graph(this->global_graph);
-    if (verbose && this->total_nodes < 10)
+}
+
+void GlobalTradeGraph::add_edge(int n1, int n2, int connection_type)
+{
+    int n1t, n2t;
+    if (n1 == n2)
     {
-        GlobalGraph::vertex_iterator vit, vend;
-        for (boost::tie(vit, vend) = boost::vertices(this->global_graph); vit != vend; ++vit)
-        {
-            std::cout << "\tregion [ region_id: " << this->global_graph[*vit].region_id << " degree: " << boost::degree(*vit, this->global_graph) << " (" << this->global_graph[*vit].latitude << ", " << this->global_graph[*vit].longitude << ") ]" << std::endl;
-        }
-        GlobalGraph::edge_iterator eit, eend;
-        for (boost::tie(eit, eend) = boost::edges(this->global_graph); eit != eend; ++eit)
-        {
-            std::cout << "\tedge [ <" << this->global_graph[*eit].connection.first << "," << this->global_graph[*eit].connection.second << "> connection_type: " << this->global_graph[*eit].connection_type << " distance: " << this->global_graph[*eit].distance << " cost: " << this->global_graph[*eit].cost << "]" << std::endl;
-        }
+        return;
+    }
+    if (n1 < n2)
+    {
+        n1t = n1, n2t = n2;
+    }
+    else
+    {
+        n1t = n2, n2t = n1;
+    }
+    std::pair<Edge_Descriptor, bool> get_edge = boost::edge(n1t, n2t, global_graph);
+    if (!get_edge.second)
+    {
+        std::pair<Edge_Descriptor, bool> added_edge = boost::add_edge(n1t, n2t, this->global_graph);
+        this->global_graph[added_edge.first].connection_type = connection_type;
+        this->global_graph[added_edge.first].distance = this->calculate_distance_lat_lon(n1t, n2t);
+        this->global_graph[added_edge.first].cost = this->calculate_edge_cost(connection_type, this->global_graph[added_edge.first].distance);
     }
 }
 
-void GlobalTradeGraph::add_edge(std::pair<int, int> connection, int connection_type)
+void GlobalTradeGraph::update_edge(int n1, int n2, int new_connection_type)
 {
-    std::pair<Edge_Descriptor, bool> added_info = boost::add_edge(connection.first, connection.second, this->global_graph);
-    Edge_Descriptor added_descriptor = added_info.first;
-    bool first_add = added_info.second;
-    if (first_add)
+    Edge_Descriptor edge_desc;
+    std::pair<Edge_Descriptor, bool> get_edge = boost::edge(n1, n2, global_graph);
+    if (get_edge.second)
     {
-        this->global_graph[added_descriptor].connection = connection;
-        this->global_graph[added_descriptor].connection_type = connection_type;
-        double distance = GlobalTradeGraph::calculate_distance_lat_lon(connection.first, connection.second);
-        this->global_graph[added_descriptor].distance = distance;
-        this->global_graph[added_descriptor].cost = GlobalTradeGraph::calculate_edge_cost(connection_type, distance);
-        Edge_Key_Value new_add = std::make_pair(connection, added_descriptor);
-        this->edge_mapping.insert(new_add);
+        edge_desc = get_edge.first;
+        this->global_graph[edge_desc].connection_type = new_connection_type;
+        this->global_graph[edge_desc].cost = this->calculate_edge_cost(new_connection_type, this->global_graph[edge_desc].distance);
     }
 }
 
-void GlobalTradeGraph::update_edge(std::pair<int, int> connection, int new_connection_type)
-{
-    Edge_Descriptor to_update = this->edge_mapping[connection];
-    this->global_graph[to_update].connection_type = new_connection_type;
-    this->global_graph[to_update].cost = GlobalTradeGraph::calculate_edge_cost(this->global_graph[to_update].connection_type, this->global_graph[to_update].distance);
-}
-
+/* returns the cost to move 1 metric ton over some distance value */
 double GlobalTradeGraph::calculate_edge_cost(int connection_type, double distance)
 {
-    // returns the cost to move 1 metric ton over some distance
-    double cost = (distance * DISTANCE_MULTIPLIER) * this->type_cost_converstion[connection_type];
-    return cost;
+    return (distance * GAME_DISTANCE_MULTIPLIER) * CONNECTION_TYPE_TO_COST[connection_type].first;
+}
+
+std::set<int> GlobalTradeGraph::get_hubs_distance(int n)
+{
+    std::set<int> hubs;
+    std::vector<double> cost_to_hubs;
+    for (int h : this->hub_nodes)
+    {
+        cost_to_hubs.push_back(this->calculate_distance_lat_lon(n, h));
+    }
+    auto min_cost_idx = std::min_element(cost_to_hubs.begin(), cost_to_hubs.end());
+    auto second_min_cost_idx = std::min_element(cost_to_hubs.begin(), cost_to_hubs.end(),
+                                                [&min_cost_idx](const double &a, const double &b)
+                                                { return a != *min_cost_idx && a < b; });
+    hubs.insert(std::distance(cost_to_hubs.begin(), min_cost_idx));
+    hubs.insert(std::distance(cost_to_hubs.begin(), second_min_cost_idx));
+    return hubs;
 }
 
 std::string GlobalTradeGraph::get_region_owner_TAG(int current_node)
 {
+    if (this->global_graph[current_node].province_id_set.empty())
+    {
+        return "INTERNATIONAL ZONE";
+    }
     std::vector<std::string> p_owners;
     bool enemy_occupation = false;
-    for (int p : this->global_graph[current_node].province_set)
+    bool same_economic_market = true;
+    for (int p : this->global_graph[current_node].province_id_set)
     {
         // std::string p_owner_TAG = lookup(p);
         // p_owners.insert(p_owner_TAG);
@@ -244,11 +278,15 @@ std::string GlobalTradeGraph::get_region_owner_TAG(int current_node)
     }
     if (allEqual(p_owners))
     {
-        return p_owners[0];
+        return p_owners.front();
+    }
+    else if (!allEqual(p_owners) && same_economic_market)
+    {
+        return "CONTESTED_FRIENDLY";
     }
     else if (!allEqual(p_owners) && !enemy_occupation)
     {
-        return "CONTESTED_FRIENDLY";
+        return "CONTESTED_NEUTRAL";
     }
     else if (!allEqual(p_owners) && enemy_occupation)
     {
@@ -259,15 +297,16 @@ std::string GlobalTradeGraph::get_region_owner_TAG(int current_node)
 
 GlobalGraph GlobalTradeGraph::return_country_graph(GlobalGraph &g, std::string owner_TAG)
 {
-    /* nation N should not be able to access RegionNodes whose owner:
-        1. is at war with N
+    /* owner_TAG T should not be able to access RegionNodes whose owner:
+        1. is at war with T
         2. is isolationist
         3. is uncivilized
         4. is another nations colony
         5. has a relationship below a certain threshold
+        6. is CONTESTED_HOSTILE
     */
     GlobalGraph pruned_g = g;
-    for (int n = 0; n < this->total_nodes; n++)
+    for (int n = 0; n < this->total_region_nodes; n++)
     {
         // if (check_diplo_status(owner_TAG, g[n].region_owner_TAG))
         // {
