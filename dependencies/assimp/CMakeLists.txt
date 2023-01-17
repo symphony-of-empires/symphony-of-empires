@@ -13,6 +13,7 @@ set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF)
 set(ASSIMP_BUILD_OBJ_IMPORTER ON)
 set(BUILD_LIB_TYPE STATIC)
 set(ENABLE_BOOST_WORKAROUND ON)
+set(ZLIB_FOUND ON)
 
 
 
@@ -28,3 +29,5 @@ add_library(dependency_assimp INTERFACE)
 
 target_include_directories(dependency_assimp SYSTEM INTERFACE "${assimp_BINARY_DIR}/include" "${assimp_SOURCE_DIR}/include")
 # target_include_directories(dependency_assimp INTERFACE assimp)
+target_link_libraries(dependency_assimp INTERFACE
+        dependency_zlib)
