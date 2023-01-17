@@ -15,7 +15,10 @@ IF(E3D_ZLIB_VENDORED)
     add_dependencies(dependency_zlib zlib_project)
     target_include_directories(dependency_zlib SYSTEM INTERFACE  "${CMAKE_CURRENT_BINARY_DIR}/zlib-src" "${CMAKE_CURRENT_BINARY_DIR}/zlib-build")
     IF(WIN32)
-        target_link_libraries(dependency_zlib INTERFACE "${CMAKE_CURRENT_BINARY_DIR}/zlib-build/zlibstaticd.lib")
+        target_link_libraries(dependency_zlib INTERFACE
+            $<$<CONFIG:Debug>:${CMAKE_CURRENT_BINARY_DIR}/zlib-build/zlibstaticd.lib>
+            $<$<CONFIG:Release>:${CMAKE_CURRENT_BINARY_DIR}/zlib-build/zlibstatic.lib>
+            $<$<CONFIG:RelWithDebInfo>:${CMAKE_CURRENT_BINARY_DIR}/zlib-build/zlibstatic.lib>)
     ELSE()
         target_link_libraries(dependency_zlib INTERFACE z)
     ENDIF()
