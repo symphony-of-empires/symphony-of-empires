@@ -35,6 +35,14 @@ jobs:
       env:
         CC:   gcc-11
         CXX:  g++-11
+
+    - name: Upload Linux artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: SOE-release
+        path: |
+          build/SymphonyOfEmpires
+
   build_windows:
     runs-on: windows-latest
     steps:
@@ -51,7 +59,7 @@ jobs:
       run: |
         cmake --build build --parallel --target SymphonyOfEmpires
 
-    - name: Upload release artifacts
+    - name: Upload Windows artifacts
       uses: actions/upload-artifact@v3
       with:
         name: SOE-release
