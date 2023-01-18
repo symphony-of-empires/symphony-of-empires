@@ -139,7 +139,7 @@ target_link_libraries(eng3d PUBLIC
 	dependency_SDL2
 	dependency_SDL2_ttf
 	dependency_tbb
-	dependency_assimp
+	#dependency_assimp
 	dependency_glm
 	dependency_lua
 	dependency_zlib
