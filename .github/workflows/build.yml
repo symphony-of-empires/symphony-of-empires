@@ -1,9 +1,9 @@
 name: Build
 
 on:
-  push:
-  pull_request:
-  release:
+  - push
+  - pull_request
+  - release
 
 jobs:
   build_linux:
@@ -52,10 +52,10 @@ jobs:
         cmake --build build --parallel --target SymphonyOfEmpires
 
     - name: Upload release artifacts
-    - uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3
       with:
-      name: SOE-release
-      path: |
-        build/SymphonyOfEmpires.exe
-        build/SDL2_ttfd.dll
-        build/SDL2d.dll
+        name: SOE-release
+        path: |
+          build/SymphonyOfEmpires.exe
+          build/SDL2_ttfd.dll
+          build/SDL2d.dll
