@@ -5,7 +5,7 @@ add_subdirectory(OpenGL)
 set(BUILD_SHARED_LIBS OFF)
 add_subdirectory(GLEW)
 add_subdirectory(zlib)
-add_subdirectory(assimp)
+#add_subdirectory(assimp)
 set(BUILD_SHARED_LIBS ON)
 
 add_subdirectory(SDL2)
