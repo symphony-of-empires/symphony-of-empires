@@ -253,7 +253,7 @@ static void update_factories_employment(const World& world, Province& province, 
         // Average with how much the industry had before
         // Makes is more stable so everyone don't change workplace immediately
         constexpr auto hiring_delta_rate = 0.95f; // Change rate for hirings/firings
-        new_workers[industry_index] = glm::clamp(hiring_delta_rate * building.workers + 0.05f * building.level * building.production_scale * type.num_req_workers, 0.f, unallocated_workers) * is_operating;
+        new_workers[industry_index] = glm::clamp(hiring_delta_rate * building.workers + (1.f - hiring_delta_rate) * building.level * building.production_scale * type.num_req_workers, 0.f, unallocated_workers) * is_operating;
         unallocated_workers -= new_workers[industry_index];
     }
     assert(unallocated_workers >= 0.f);
@@ -283,11 +283,10 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
                 if(needs_amounts[commodity] <= 0.f) continue;
                 auto& product = province.products[commodity];
                 const auto need_factor = needs_amounts[commodity] / total_factor;
-                const auto wanted_amount = pop.size * need_factor;
-                const auto buying_amount = (budget_per_pop * need_factor) / product.price;
+                const auto maximum_demand = pop.size * need_factor;
                 
                 auto amount = 0.f;
-                const auto payment = product.buy(wanted_amount, amount);
+                const auto payment = product.buy(maximum_demand, amount);
                 pop.budget -= payment;
                 pop_need.life_needs_met += (amount / pop.size) * need_factor;
             }
