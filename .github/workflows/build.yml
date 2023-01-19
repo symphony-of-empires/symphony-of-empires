@@ -39,7 +39,7 @@ jobs:
     - name: Upload Linux artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: SOE-release
+        name: SOE-release-linux
         path: |
           build/SymphonyOfEmpires
 
@@ -62,7 +62,7 @@ jobs:
     - name: Upload Windows artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: SOE-release
+        name: SOE-release-windows
         path: |
           build/SymphonyOfEmpires.exe
           build/SDL2_ttfd.dll

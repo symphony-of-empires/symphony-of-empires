@@ -148,7 +148,7 @@ target_link_libraries(eng3d PUBLIC
 	dependency_freetype
 )
 
-IF(BUILD_SHARED_LIBS AND WIN32)
+IF(WIN32)
     add_custom_command(TARGET eng3d
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
