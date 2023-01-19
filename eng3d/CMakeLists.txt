@@ -138,6 +138,7 @@ target_link_libraries(eng3d PUBLIC
 	dependency_OpenGL
 	dependency_SDL2
 	dependency_SDL2_ttf
+	dependency_SDL2_mixer
 	dependency_tbb
 	#dependency_assimp
 	dependency_glm

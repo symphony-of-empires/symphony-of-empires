@@ -533,12 +533,9 @@ void Eng3D::State::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
     if(e.hold) {
         if(e.type == Eng3D::Event::MouseButton::Type::LEFT) {
             if(this->ui_ctx.check_click(e.pos)) {
-                const std::scoped_lock lock(this->audio_man.sound_lock);
                 auto entries = this->package_man.get_multiple_prefix("sfx/click");
-                if(!entries.empty()) {
-                    auto audio = this->audio_man.load(entries[rand() % entries.size()]->get_abs_path());
-                    audio_man.sound_queue.push_back(audio);
-                }
+                if(!entries.empty())
+                    this->audio_man.play_sound(entries[rand() % entries.size()]->get_abs_path());
                 return;
             }
         }
