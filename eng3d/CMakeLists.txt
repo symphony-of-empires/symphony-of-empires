@@ -153,6 +153,7 @@ IF(WIN32)
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             $<TARGET_FILE:SDL2_ttf>
+            $<TARGET_FILE:SDL2_mixer>
             $<TARGET_FILE:SDL2>
             ${CMAKE_BINARY_DIR})
 ENDIF()
