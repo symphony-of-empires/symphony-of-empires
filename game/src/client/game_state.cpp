@@ -255,7 +255,6 @@ void GameState::handle_key(const Eng3D::Event::Key& e) {
             this->reload_shaders();
             if(this->map != nullptr)
                 this->map->reload_shaders();
-            audio_man.music_queue.clear();
         } break;
         case Eng3D::Event::Key::Type::F4:
             world->lua.invoke_registered_callback("ai_settings_window_invoke");
