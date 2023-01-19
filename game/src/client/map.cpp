@@ -604,10 +604,8 @@ void Map::check_right_mouse_release() {
         }
         
         auto entries = gs.package_man.get_multiple_prefix("sfx/land_move");
-        if(!entries.empty()) {
-            auto audio = gs.audio_man.load(entries[rand() % entries.size()]->get_abs_path());
-            gs.audio_man.sound_queue.push(audio);
-        }
+        if(!entries.empty())
+            gs.audio_man.play_sound(entries[rand() % entries.size()]->get_abs_path());
     }
     gs.client_state.clear_selected_units();
 }
