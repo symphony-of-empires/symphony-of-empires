@@ -298,7 +298,10 @@ void AI::do_tick(World& world) {
             auto& nation = world.nations[e.nation_id];
             nation.budget -= e.amount;
             auto& province = world.provinces[e.province_id];
-            province.buildings[e.building_id].estate_state.invest(e.amount);
+            if(province.controller_id == e.nation_id)
+                province.buildings[e.building_id].estate_state.invest(e.amount);
+            else
+                province.buildings[e.building_id].estate_foreign[e.nation_id].invest(e.amount);
         }
     });
 
