@@ -219,9 +219,10 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
     };
 
     clients = new Eng3D::Networking::ServerClient[n_clients];
-    for(size_t i = 0; i < n_clients; i++)
+    for(size_t i = 0; i < n_clients; i++) {
         clients[i].is_connected = false;
         clients_data.push_back(gs);
+    }
     clients_extra_data.resize(n_clients, nullptr);
     // "Starting" thread, this one will wake up all the other ones
     clients[0].thread = std::make_unique<std::thread>(&Server::netloop, this, 0);

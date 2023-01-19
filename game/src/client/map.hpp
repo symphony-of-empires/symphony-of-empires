@@ -37,7 +37,7 @@
 
 namespace Eng3D {
     class Texture;
-    class TextureArray;
+    struct TextureArray;
     struct Model;
     class Camera;
     namespace OpenGL {
@@ -130,7 +130,7 @@ public:
     std::vector<std::shared_ptr<Eng3D::Texture>> unit_type_icons;
     std::vector<std::shared_ptr<Eng3D::Texture>> nation_flags;
 
-#ifndef E3D_TARGET_SWITCH
+#ifndef __switch__
     std::vector<std::unique_ptr<Eng3D::Label3D>> province_labels;
 #endif
     std::vector<std::unique_ptr<Eng3D::Label3D>> nation_labels;

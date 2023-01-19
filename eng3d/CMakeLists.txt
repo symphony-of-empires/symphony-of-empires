@@ -13,6 +13,9 @@ option(E3D_MANAGED_HEAP, "Allow Eng3D to manage heap (useful for debugging witho
 option(E3D_PIE, "Build as a position-independent library" ON)
 option(E3D_BUILD_STATIC, "Whetever to make a static library or not" OFF)
 option(E3D_ENABLE_IPO "Enables IPO if supported" OFF)
+option(E3D_ZLIB_VENDORED "Whetever to build zlib or not" ON)
+option(E3D_TBB_VENDORED "Whetever to build tbb or not" ON)
+option(E3D_SDL2_VENDORED "Whetever to build SDL2 or not" ON)
 
 IF(E3D_DEBUG)
 	add_definitions(-DE3D_DEBUG=1)
@@ -36,36 +39,32 @@ ENDIF()
 # Compilation flags
 #
 IF(NOT MSVC)
-	set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic -Wshadow ${CMAKE_CXX_FLAGS}")
+	add_compile_options(-Wall -Wextra -Wpedantic -Wshadow)
 ENDIF()
 IF(UNIT_TEST)
 	add_definitions(-DUNIT_TEST=1)
 ENDIF()
+
 IF(WIN32)
-	add_definitions(-DE3D_TARGET_WINDOWS=1)
+	# ...
 ELSEIF(UNIX)
-	add_definitions(-DE3D_TARGET_UNIX=1)
+	# ...
 ELSEIF(ANDROID)
-	add_definitions(-DE3D_TARGET_UNIX=1 -DE3D_TARGET_ANDROID=1)
 	add_definitions(-DE3D_HANDHELD=1)
 ELSEIF(CMAKE_SYSTEM_NAME STREQUAL "NetBSD")
 	include_directories("/usr/pkg/include/SDL2")
-	add_definitions(-DE3D_TARGET_UNIX=1)
-	add_definitions(-DE3D_TARGET_NETBSD=1)
 ELSEIF(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
 	include_directories("${DEVKITPRO}/portlibs/switch/include/")
-	add_definitions(-DE3D_TARGET_UNIX=1 -DE3D_TARGET_SWITCH=1)
 	add_definitions(-DE3D_HANDHELD=1)
 ELSEIF(CMAKE_SYSTEM_NAME STREQUAL "NintendoWii")
 	link_directories("${DEVKITPRO}/libogc/lib")
 	include_directories("${DEVKITPRO}/libogc/include")
-	add_definitions(-DE3D_TARGET_RVL=1)
 ENDIF()
 
 #
 # Dependencies
 #
-IF(E3D_PIE AND CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
+IF(NOT E3D_PIE AND CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
 	message(WARNING "Enabling PIE")
 	set(E3D_PIE ON)
 ENDIF()
@@ -74,14 +73,11 @@ set(CMAKE_POSITION_INDEPENDENT_CODE "${E3D_PIE}")
 #
 # Source code files
 #
-file(GLOB ENG3D_SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/ui/*.cpp")
+file(GLOB ENG3D_SOURCES "${PROJECT_SOURCE_DIR}/eng3d/*.c" "${PROJECT_SOURCE_DIR}/eng3d/*.cpp" "${PROJECT_SOURCE_DIR}/eng3d/ui/*.cpp")
 # Add android native C glue
 #IF(ANDROID)
 #	list(APPEND ENG3D_SOURCES "${CMAKE_ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c")
 #ENDIF()
-execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${PROJECT_SOURCE_DIR}/src" "${PROJECT_SOURCE_DIR}/eng3d")
-
-# Switch doesn't support shared libraries
 IF(E3D_BUILD_STATIC)
 	message(STATUS "Building a static library")
 	add_library(eng3d STATIC ${ENG3D_SOURCES})
@@ -136,13 +132,14 @@ IF((WIN32 OR UNIX) AND (NOT ANDROID))
 	target_link_libraries(eng3d PUBLIC dependency_GLEW)
 ENDIF()
 
-add_dependencies(eng3d zlib_project)
+add_dependencies(eng3d dependency_zlib)
+
 target_link_libraries(eng3d PUBLIC
 	dependency_OpenGL
 	dependency_SDL2
 	dependency_SDL2_ttf
 	dependency_tbb
-	dependency_assimp
+	#dependency_assimp
 	dependency_glm
 	dependency_lua
 	dependency_zlib
@@ -150,7 +147,7 @@ target_link_libraries(eng3d PUBLIC
 	dependency_freetype
 )
 
-IF(BUILD_SHARED_LIBS AND WIN32)
+IF(WIN32)
     add_custom_command(TARGET eng3d
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different

@@ -243,18 +243,20 @@ void MapRender::update_options(MapOptions) {
     }
 }
 
-#include "eng3d/framebuffer.hpp"
-
 /// @brief Creates the "waving" border around the continent to give it a 19th century map feel
 /// Generate a distance field to from each border using the jump flooding algorithm
 /// Used to create borders thicker than one tile
 void MapRender::update_border_sdf(Eng3D::Rect update_area, glm::ivec2 window_size) {
     glEnable(GL_SCISSOR_TEST);
-    glViewport(update_area.left, update_area.top, update_area.width(), update_area.height());
-    glScissor(update_area.left, update_area.top, update_area.width(), update_area.height());
-
-    float width = this->gs.world->width;
-    float height = this->gs.world->height;
+    
+    float width = glm::min(this->gs.max_texture_size, this->gs.world->width);
+    float height = glm::min(this->gs.max_texture_size, this->gs.world->height);
+    
+    float w_ratio = width / this->gs.world->width;
+    float h_ratio = height / this->gs.world->height;
+    
+    glViewport(update_area.left / w_ratio, update_area.top / h_ratio, update_area.width() / w_ratio, update_area.height() / h_ratio);
+    glScissor(update_area.left / w_ratio, update_area.top / h_ratio, update_area.width() / w_ratio, update_area.height() / h_ratio);
 
     Eng3D::TextureOptions border_tex_options{};
     border_tex_options.internal_format = Eng3D::TextureOptions::Format::RGB32F;

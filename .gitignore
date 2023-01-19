@@ -2,9 +2,6 @@
 SymphonyOfEmpires
 *.a
 
-# Symlink
-eng3d/eng3d/
-
 # configuration depending on user
 dobuild.bat
 dobuild.sh
@@ -86,7 +83,6 @@ CMakeSettings.json
 *-build/
 winbuild/
 winbuild*/
-eng3d/eng3d/
 
 # libs
 external/

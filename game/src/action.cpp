@@ -117,7 +117,7 @@ Eng3D::Networking::Packet UnitAdd::form_packet(const Unit& unit) {
 Eng3D::Networking::Packet UnitUpdate::form_packet(const Eng3D::Freelist<Unit>& units) {
     return action_handler_sr<ActionType::UNIT_UPDATE>([&](auto& ar) {
         size_t size = 0;
-        units.for_each([&](const auto& unit) {
+        units.for_each([&](const auto&) {
             size++;
         });
         Eng3D::Deser::serialize<UnitId>(ar, UnitId(size));

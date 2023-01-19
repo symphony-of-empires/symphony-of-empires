@@ -1,10 +1,10 @@
 {
-    "version": 3,
-    "cmakeMinimumRequired": {
-      "major": 3,
-      "minor": 21,
-      "patch": 0
-    },
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
   "configurePresets": [
     {
       "name": "RelWithDebInfo",
@@ -12,17 +12,15 @@
       "description": "RelWithDebInfo",
       "binaryDir": "${sourceDir}/build-RelWithDebInfo/",
       "generator": "Ninja",
-      "toolchainFile": "$env{TOOLCHAINFILE}",
       "cacheVariables": {
         "E3D_DEBUG": "1",
         "E3D_BACKEND_OPENGL": "1",
         "NO_COPY_MODS": "1",
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "E3D_BUILD_STATIC": "1",
-        "CMAKE_TOOLCHAIN_FILE": {
-          "type": "FILEPATH",
-          "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
-        }
+        "E3D_SDL2_VENDORED": "1",
+        "E3D_TBB_VENDORED": "1",
+        "E3D_ZLIB_VENDORED": "1",
+        "E3D_BUILD_STATIC": "1"
       }
     },
     {
@@ -31,17 +29,15 @@
       "description": "Debug",
       "binaryDir": "${sourceDir}/build-Debug/",
       "generator": "Ninja",
-      "toolchainFile": "$env{TOOLCHAINFILE}",
       "cacheVariables": {
         "E3D_DEBUG": "1",
         "E3D_BACKEND_OPENGL": "1",
         "NO_COPY_MODS": "1",
         "CMAKE_BUILD_TYPE": "Debug",
-        "E3D_BUILD_STATIC": "1",
-        "CMAKE_TOOLCHAIN_FILE": {
-          "type": "FILEPATH",
-          "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
-        }
+        "E3D_SDL2_VENDORED": "1",
+        "E3D_TBB_VENDORED": "1",
+        "E3D_ZLIB_VENDORED": "1",
+        "E3D_BUILD_STATIC": "1"
       }
     },
     {
@@ -50,17 +46,15 @@
       "description": "Release",
       "binaryDir": "${sourceDir}/build-Release/",
       "generator": "Ninja",
-      "toolchainFile": "$env{TOOLCHAINFILE}",
       "cacheVariables": {
         "E3D_DEBUG": "1",
         "E3D_BACKEND_OPENGL": "1",
         "NO_COPY_MODS": "1",
         "CMAKE_BUILD_TYPE": "Release",
-        "E3D_BUILD_STATIC": "1",
-        "CMAKE_TOOLCHAIN_FILE": {
-          "type": "FILEPATH",
-          "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
-        }
+        "E3D_SDL2_VENDORED": "1",
+        "E3D_TBB_VENDORED": "1",
+        "E3D_ZLIB_VENDORED": "1",
+        "E3D_BUILD_STATIC": "1"
       }
     },
     {
@@ -69,44 +63,42 @@
       "description": "MinSizeRel",
       "binaryDir": "${sourceDir}/build-MinSizeRel/",
       "generator": "Ninja",
-      "toolchainFile": "$env{TOOLCHAINFILE}",
       "cacheVariables": {
         "E3D_DEBUG": "1",
         "E3D_BACKEND_OPENGL": "1",
         "NO_COPY_MODS": "1",
         "CMAKE_BUILD_TYPE": "MinSizeRel",
-        "E3D_BUILD_STATIC": "1",
-        "CMAKE_TOOLCHAIN_FILE": {
-          "type": "FILEPATH",
-          "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
-        }
+        "E3D_SDL2_VENDORED": "1",
+        "E3D_TBB_VENDORED": "1",
+        "E3D_ZLIB_VENDORED": "1",
+        "E3D_BUILD_STATIC": "1"
       }
     }
   ],
-    "buildPresets": [
-      {
-        "name": "RelWithDebInfo",
-        "configurePreset": "RelWithDebInfo",
-        "displayName": "RelWithDebInfo",
-        "description": "RelWithDebInfo"
-      },
-      {
-        "name": "Debug",
-        "configurePreset": "Debug",
-        "displayName": "Debug",
-        "description": "Debug"
-      },
-      {
-        "name": "Release",
-        "configurePreset": "Release",
-        "displayName": "Release",
-        "description": "Release"
-      },
-      {
-        "name": "MinSizeRel",
-        "configurePreset": "MinSizeRel",
-        "displayName": "MinSizeRel",
-        "description": "MinSizeRel"
-      }
-    ],
-  }
+  "buildPresets": [
+    {
+      "name": "RelWithDebInfo",
+      "configurePreset": "RelWithDebInfo",
+      "displayName": "RelWithDebInfo",
+      "description": "RelWithDebInfo"
+    },
+    {
+      "name": "Debug",
+      "configurePreset": "Debug",
+      "displayName": "Debug",
+      "description": "Debug"
+    },
+    {
+      "name": "Release",
+      "configurePreset": "Release",
+      "displayName": "Release",
+      "description": "Release"
+    },
+    {
+      "name": "MinSizeRel",
+      "configurePreset": "MinSizeRel",
+      "displayName": "MinSizeRel",
+      "description": "MinSizeRel"
+    }
+  ]
+}

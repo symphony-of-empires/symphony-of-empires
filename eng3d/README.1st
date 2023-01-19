@@ -12,13 +12,6 @@ following macros.
 DEFINES
 ****************************************************************************
 
-E3D_DEBUG
-    When defined will enable all rendering pipeline error checks (can cause
-    massive lag on graphical intensive tasks), this also enables the debug
-    mode for the memory allocation subsystem, if E3D_MANAGED_HEAP is used.
-    Additionally it will enable several critical debug assertions and
-    statments.
-
 E3D_BACKEND_OPENGL
     If defined it will use the OpenGL backend.
 

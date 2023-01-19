@@ -213,7 +213,7 @@ void AI::do_tick(World& world) {
             // How do we know which factories we should be investing om? We first have to know
             // if we can invest them in the first place, which is what "can_directly_control_factories"
             // answers for us.
-            if(nation.ai_controlled && 1/*nation.can_directly_control_factories()*/) {
+            if(nation.ai_controlled && nation.can_directly_control_factories()) {
                 for(const auto province_id : nation.controlled_provinces) {
                     auto& province = world.provinces[province_id];
 
@@ -266,11 +266,11 @@ void AI::do_tick(World& world) {
                 }
             }
 
-            {
+            if(nation.ai_controlled) {
                 /// @todo Dynamic-er interest rates and stuff
                 LoanPoolUpdate cmd{};
                 cmd.nation_id = nation.get_id();
-                cmd.new_amount = 100'000.f; // 100k
+                cmd.new_amount = 100.f; // 100 yen
                 cmd.new_interest = 0.1f; // 10%
                 loan_pool_updates.local().push_back(cmd);
             }
