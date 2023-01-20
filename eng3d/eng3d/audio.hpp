@@ -31,8 +31,8 @@
 #include <mutex>
 #include <vector>
 #include <memory>
+#include <string_view>
 
-struct pa_simple;
 namespace Eng3D {
     class State;
 
@@ -50,26 +50,29 @@ namespace Eng3D {
 
     struct Audio {
         Audio() = default;
-        Audio(const std::string& path);
+        Audio(const std::string_view path, bool is_sound);
         ~Audio();
-        void *stream = nullptr; // TODO: Use RAII pointers for this
+        void *stream = nullptr;
+        bool is_sound = false;
+        int channel = -1;
     };
 
     class AudioManager {
-        static void mixaudio(void* userdata, uint8_t* stream, int len);
-        std::map<std::string, std::shared_ptr<Eng3D::Audio>> sounds;
         Eng3D::State& s;
-        int audio_dev_id = 0;
+        std::map<size_t, std::shared_ptr<Eng3D::Audio>> audios;
+        std::shared_ptr<Eng3D::Audio> current_sound;
+        std::shared_ptr<Eng3D::Audio> current_music;
+        
+        const std::shared_ptr<Audio> load(const std::string_view path, bool is_sound);
     public:
         AudioManager() = delete;
         AudioManager(Eng3D::State& s);
         ~AudioManager();
-        const std::shared_ptr<Audio> load(const std::string& path);
+        void play_sound(const std::string_view path);
+        bool can_play_sound();
+        void play_music(const std::string_view path);
+        bool can_play_music();
 
-        // Queue of sounds/music
-        std::mutex sound_lock;
-        std::vector<std::shared_ptr<Eng3D::Audio>> sound_queue;
-        std::vector<std::shared_ptr<Eng3D::Audio>> music_queue;
         float music_fade_value = 1.f;
         float music_volume = 0.5f, sound_volume = 0.5f;
     };

@@ -150,15 +150,13 @@ void GameState::world_thread() {
 }
 
 void GameState::music_enqueue() {
-    const std::scoped_lock lock(this->audio_man.sound_lock);
-    if(this->audio_man.music_queue.empty()) {
+    if(this->audio_man.can_play_music()) {
         auto entries = this->package_man.get_multiple_prefix("sfx/music/ambience");
         this->audio_man.music_fade_value = 0.f;
         // Search through all the music in 'music/ambience' and picks a random
         if(!entries.empty()) {
             const int music_index = rand() % entries.size();
-            auto audio = this->audio_man.load(entries[music_index]->get_abs_path());
-            this->audio_man.music_queue.push_back(audio);
+            this->audio_man.play_music(entries[music_index]->get_abs_path());
             Eng3D::Log::debug("music", "Now playing music file " + entries[music_index]->get_abs_path());
         }
     }
@@ -186,12 +184,9 @@ void GameState::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
         if(show_ui) {
             if(e.type == Eng3D::Event::MouseButton::Type::LEFT) {
                 if(ui_ctx.check_click(e.pos)) {
-                    const std::scoped_lock lock(audio_man.sound_lock);
                     auto entries = package_man.get_multiple_prefix("sfx/click");
-                    if(!entries.empty()) {
-                        auto audio = audio_man.load(entries[rand() % entries.size()]->get_abs_path());
-                        audio_man.sound_queue.push_back(audio);
-                    }
+                    if(!entries.empty())
+                        audio_man.play_sound(entries[rand() % entries.size()]->get_abs_path());
                     return;
                 }
             }
@@ -260,8 +255,6 @@ void GameState::handle_key(const Eng3D::Event::Key& e) {
             this->reload_shaders();
             if(this->map != nullptr)
                 this->map->reload_shaders();
-            const std::scoped_lock lock(audio_man.sound_lock);
-            audio_man.music_queue.clear();
         } break;
         case Eng3D::Event::Key::Type::F4:
             world->lua.invoke_registered_callback("ai_settings_window_invoke");

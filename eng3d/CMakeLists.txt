@@ -138,6 +138,7 @@ target_link_libraries(eng3d PUBLIC
 	dependency_OpenGL
 	dependency_SDL2
 	dependency_SDL2_ttf
+	dependency_SDL2_mixer
 	dependency_tbb
 	#dependency_assimp
 	dependency_glm
@@ -152,6 +153,7 @@ IF(WIN32)
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             $<TARGET_FILE:SDL2_ttf>
+            $<TARGET_FILE:SDL2_mixer>
             $<TARGET_FILE:SDL2>
             ${CMAKE_BINARY_DIR})
 ENDIF()
