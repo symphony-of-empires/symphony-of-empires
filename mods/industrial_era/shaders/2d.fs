@@ -33,7 +33,6 @@ uniform sampler2D diffuse_map;
 uniform vec4 diffuse_color;
 
 void main() {
-    vec4 tex_color = texture(diffuse_map, v_texcoord);
-    tex_color.rgba *= diffuse_color;
+    vec4 tex_color = texture(diffuse_map, v_texcoord) * diffuse_color;
     f_color = tex_color;
 }

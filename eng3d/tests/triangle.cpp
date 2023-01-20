@@ -80,7 +80,17 @@ int main(int argc, char** argv) {
     gs.run = true;
 
     new UI::Image(0, 0, gs.width, gs.height, "gfx/sky.png", nullptr);
-    
+
+    auto* red_sky = new UI::Image(0, 0, 128, 128, "gfx/sky.png", nullptr);
+    red_sky->background_color = Eng3D::Color(1.f, 0.f, 0.f, 1.f);
+    red_sky->set_tooltip("The red sky in uh.. hmm... ehm...");
+    auto* green_sky = new UI::Image(128, 0, 128, 128, "gfx/sky.png", nullptr);
+    green_sky->background_color = Eng3D::Color(0.f, 1.f, 0.f, 1.f);
+    green_sky->set_tooltip("The green sky shines in, tuesday?");
+    auto* blue_sky = new UI::Image(256, 0, 128, 128, "gfx/sky.png", nullptr);
+    blue_sky->background_color = Eng3D::Color(0.f, 0.f, 1.f, 1.f);
+    blue_sky->set_tooltip("The blue sky doesn't really exist");
+
     auto* info_win = new UI::Window(32, 32, 512, 256 + 96);
     info_win->set_text("Economics");
     auto& chart = info_win->make_widget<UI::Chart>(0, 0, 256, 128);
