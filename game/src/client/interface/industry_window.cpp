@@ -166,13 +166,15 @@ UI::Table<uint32_t>* Interface::IndustryWindow::new_table(GameState& gs, int _x,
             }
 
             auto* outputs = row.get_element(row_index++);
-            outputs->set_key(type.output_id);
+            outputs->set_key(type.output_id.has_value() ? type.output_id.value() : CommodityId(0));
             outputs->flex = UI::Flex::ROW;
             outputs->flex_justify = UI::FlexJustify::START;
 
-            auto& output = gs.world->commodities[type.output_id];
-            auto& output_img = outputs->make_widget<UI::Image>(0, 0, 35, 35, output.get_icon_path(), true);
-            output_img.set_tooltip(output.name);
+            if(type.output_id.has_value()) {
+                auto& output = gs.world->commodities[type.output_id.value()];
+                auto& output_img = outputs->make_widget<UI::Image>(0, 0, 35, 35, output.get_icon_path(), true);
+                output_img.set_tooltip(output.name);
+            }
         }
     }
     return &table;
