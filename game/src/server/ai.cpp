@@ -240,7 +240,7 @@ void AI::do_tick(World& world) {
                         // We now have the most demanded product indice, we will now find an industry type
                         // we should invest on to make more of that product
                         const auto it = std::find_if(world.building_types.begin(), world.building_types.end(), [&](const auto& e) {
-                            return e.output_id == commodity_id;
+                            return e.output_id.has_value() && e.output_id.value() == commodity_id;
                         });
 
                         if(it == world.building_types.end()) continue;
@@ -298,7 +298,10 @@ void AI::do_tick(World& world) {
             auto& nation = world.nations[e.nation_id];
             nation.budget -= e.amount;
             auto& province = world.provinces[e.province_id];
-            province.buildings[e.building_id].estate_state.invest(e.amount);
+            if(province.controller_id == e.nation_id)
+                province.buildings[e.building_id].estate_state.invest(e.amount);
+            else
+                province.buildings[e.building_id].estate_foreign[e.nation_id].invest(e.amount);
         }
     });
 

@@ -27,6 +27,7 @@
 
 #include "SDL.h"
 #include "SDL_audio.h"
+#include "SDL_mixer.h"
 
 #include "eng3d/audio.hpp"
 #include "eng3d/utils.hpp"
@@ -39,16 +40,18 @@
 //
 // Audio
 //
-Eng3D::Audio::Audio(const std::string& path) {
-    Eng3D::Log::debug("audio", Eng3D::translate_format("Decoding audio %s", path.c_str()));
-    int err = 0;
-    this->stream = static_cast<void *>(stb_vorbis_open_filename(path.c_str(), &err, nullptr));
-    if(this->stream == nullptr)
-        CXX_THROW(Eng3D::AudioException, path, translate("Error opening audio"));
+Eng3D::Audio::Audio(const std::string_view path, bool is_sound) {
+    Eng3D::Log::debug("audio", Eng3D::translate_format("Decoding audio %s", path.data()));
+    this->is_sound = is_sound;
+    if(this->is_sound) this->stream = (void*)Mix_LoadWAV(path.data());
+    else this->stream = (void*)Mix_LoadMUS(path.data());
 }
 
 Eng3D::Audio::~Audio() {
-    stb_vorbis_close(static_cast<stb_vorbis*>(this->stream));
+    if(this->stream != nullptr) {
+        if(this->is_sound) Mix_FreeChunk((Mix_Chunk *)this->stream);
+        else Mix_FreeMusic((Mix_Music *)this->stream);
+    }
 }
 
 //
@@ -57,71 +60,50 @@ Eng3D::Audio::~Audio() {
 Eng3D::AudioManager::AudioManager(Eng3D::State& _s)
     : s{ _s }
 {
-    // Initialize sound subsystem (at 11,050 hz)
-    SDL_AudioSpec fmt;
-    fmt.freq = 44100;
-    fmt.format = AUDIO_S16;
-    fmt.channels = 2;
-    fmt.samples = 16;
-    fmt.callback = &Eng3D::AudioManager::mixaudio;
-    fmt.userdata = this;
-    SDL_AudioSpec new_fmt{};
-    this->audio_dev_id = SDL_OpenAudioDevice(NULL, 0, &fmt, &new_fmt, 0);
-    if(this->audio_dev_id < 0)
-        CXX_THROW(std::runtime_error, Eng3D::translate_format("Unable to open audio: %s", SDL_GetError()));
-    SDL_PauseAudioDevice(this->audio_dev_id, 0);
+    if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0)
+        CXX_THROW(std::runtime_error, Eng3D::translate_format("Unable to open audio: %s", Mix_GetError()));
+    Mix_Init(MIX_INIT_OGG);
+}
+
+void Eng3D::AudioManager::play_sound(const std::string_view path) {
+    auto audio = this->load(path.data(), true);
+    if((audio->channel = Mix_PlayChannel(-1, (Mix_Chunk *)audio->stream, 0)) < 0)
+        Eng3D::Log::warning("audio", Eng3D::translate_format("Unable to load audio %s: %s", path.data(), Mix_GetError()));
+    this->current_sound = audio;
+}
+
+bool Eng3D::AudioManager::can_play_sound() {
+    if(this->current_sound.get() == nullptr || this->current_sound->channel < 0)
+        return true;
+    bool is_busy = Mix_Playing(this->current_sound->channel) != 0;
+    return !is_busy;
+}
+
+void Eng3D::AudioManager::play_music(const std::string_view path) {
+    auto audio = this->load(path.data(), false);
+    if(Mix_PlayMusic((Mix_Music *)audio->stream, 0) < 0)
+        Eng3D::Log::warning("audio", Eng3D::translate_format("Unable to load audio %s: %s", path.data(), Mix_GetError()));
+    this->current_music = audio;
+}
+
+bool Eng3D::AudioManager::can_play_music() {
+    if(this->current_music.get() == nullptr)
+        return true;
+    bool is_busy = Mix_PlayingMusic() != 0;
+    return !is_busy;
 }
 
 Eng3D::AudioManager::~AudioManager() {
-    SDL_PauseAudioDevice(this->audio_dev_id, 1);
-    SDL_CloseAudioDevice(this->audio_dev_id);
-    SDL_QuitSubSystem(SDL_INIT_AUDIO);
+    Mix_CloseAudio();
 }
 
-void Eng3D::AudioManager::mixaudio(void* userdata, uint8_t* stream, int len) {
-    auto& audio_man = *(static_cast<Eng3D::AudioManager*>(userdata));
-    SDL_memset(stream, 0, len);
-
-    auto audiobuf = std::unique_ptr<uint8_t[]>(new uint8_t[len]);
-
-    const std::scoped_lock lock(audio_man.sound_lock);
-    if(!audio_man.sound_queue.empty()) {
-        auto& audio = **audio_man.sound_queue.begin();
-        auto* audio_stream = static_cast<stb_vorbis*>(audio.stream);
-        stb_vorbis_info info = stb_vorbis_get_info(audio_stream);
-        if(stb_vorbis_get_samples_short_interleaved(audio_stream, info.channels, (short*)audiobuf.get(), len / sizeof(short)) == 0) {
-            // Take off queue
-            stb_vorbis_seek_start(audio_stream); // Rewind
-            audio_man.sound_queue.erase(audio_man.sound_queue.begin());
-        }
-        for(size_t i = 0; i < len / sizeof(int16_t); i++) {
-            auto sample = static_cast<float>(((int16_t *)audiobuf.get())[i]);
-            ((int16_t *)stream)[i] += (int16_t)(sample * audio_man.sound_volume);
-        }
-    }
-    
-    if(!audio_man.music_queue.empty()) {
-        auto& audio = **audio_man.music_queue.begin();
-        auto* audio_stream = static_cast<stb_vorbis*>(audio.stream);
-        stb_vorbis_info info = stb_vorbis_get_info(audio_stream);
-        if(stb_vorbis_get_samples_short_interleaved(audio_stream, info.channels, (short*)audiobuf.get(), len / sizeof(short)) == 0) {
-            // Take off queue
-            stb_vorbis_seek_start(audio_stream); // Rewind
-            audio_man.music_queue.erase(audio_man.music_queue.begin());
-        }
-        for(size_t i = 0; i < len / sizeof(int16_t); i++) {
-            auto sample = static_cast<float>(((int16_t *)audiobuf.get())[i]);
-            ((int16_t *)stream)[i] += (int16_t)(sample * audio_man.music_volume);
-        }
-    }
-}
-
-const std::shared_ptr<Eng3D::Audio> Eng3D::AudioManager::load(const std::string& path) {
+const std::shared_ptr<Eng3D::Audio> Eng3D::AudioManager::load(const std::string_view path, bool is_sound) {
+    const auto key = std::hash<std::string_view>{}(path);
     // Find Sound when wanting to be loaded
-    auto it = sounds.find(path);
-    if(it != sounds.cend()) return (*it).second;
+    auto it = audios.find(key);
+    if(it != audios.cend()) return (*it).second;
     // Otherwise Sound is not in our control, so we create a new one
-    sounds[path] = std::make_shared<Eng3D::Audio>(path);
-    Eng3D::Log::debug("audio", Eng3D::translate_format("Loaded and cached sound %s", path.c_str()));
-    return sounds[path];
+    audios[key] = std::make_shared<Eng3D::Audio>(path, is_sound);
+    Eng3D::Log::debug("audio", Eng3D::translate_format("Loaded and cached sound %s", path.data()));
+    return audios[key];
 }

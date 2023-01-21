@@ -26,6 +26,7 @@
 
 #include <vector>
 #include <bitset>
+#include <optional>
 #include <unordered_set>
 #include "objects.hpp"
 #include "product.hpp"
@@ -59,7 +60,7 @@ struct BuildingType : RefnameEntity<BuildingTypeId> {
     // and multiply it by the level of the industry - this is the **minimum** amount of employed
     // people we should have at a time
     float num_req_workers = 0.f;
-    CommodityId output_id; // Commodity that this building creates
+    std::optional<CommodityId> output_id; // Commodity that this building creates
     std::vector<CommodityId> input_ids; // Goods required to create output
     // Required commodities, first describes the id of the commodity and the second describes how many
     std::vector<std::pair<CommodityId, float>> req_goods;

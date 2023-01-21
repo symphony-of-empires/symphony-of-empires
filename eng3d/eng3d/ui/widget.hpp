@@ -34,6 +34,7 @@
 #include <memory>
 #include <new>
 #include <algorithm>
+#include <optional>
 
 #include <glm/vec2.hpp>
 
@@ -334,7 +335,7 @@ namespace UI {
         Eng3D::Color text_color = Eng3D::Color(0.f, 0.f, 0.f);
         std::shared_ptr<Eng3D::TrueType::Font> font;
         UI::Border border;
-        Eng3D::Color background_color = Eng3D::Color(1.f, 1.f, 1.f, 0.f);
+        std::optional<Eng3D::Color> background_color;
 
         UI::Flex flex = UI::Flex::NONE;
         UI::FlexJustify flex_justify = UI::FlexJustify::START;

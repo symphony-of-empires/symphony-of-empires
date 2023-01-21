@@ -10,6 +10,7 @@ set(BUILD_SHARED_LIBS ON)
 
 add_subdirectory(SDL2)
 add_subdirectory(SDL2_ttf)
+add_subdirectory(SDL2_mixer)
 set(BUILD_SHARED_LIBS OFF)
 
 add_subdirectory(glm)
