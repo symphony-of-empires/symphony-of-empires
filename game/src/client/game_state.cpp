@@ -294,8 +294,9 @@ void GameState::handle_key(const Eng3D::Event::Key& e) {
 }
 
 // Get the list of paths to the packages
-std::vector<std::string> parse_arguments(int argc, char** argv) {
+std::pair<std::vector<std::string>, bool> parse_arguments(int argc, char** argv) {
     std::vector<std::string> pkg_paths;
+    bool is_early_exit = false;
     for(int i = 1; i < argc; i++) {
         std::string arg = std::string(argv[i]);
         if(arg == "--mod") {
@@ -304,9 +305,12 @@ std::vector<std::string> parse_arguments(int argc, char** argv) {
                 CXX_THROW(std::runtime_error, translate("Expected an absolute path after --mod"));
             arg = std::string(argv[i]);
             pkg_paths.push_back(arg);
+        } else if(arg == "--version") {
+            fprintf(stdout, "Symphony-Of-Empires version 3.4.5");
+            is_early_exit = true;
         }
     }
-    return pkg_paths;
+    return std::make_pair(pkg_paths, is_early_exit);
 }
 
 // Setup the loading screen when starting the game
@@ -435,7 +439,9 @@ void client_render(GameState& gs) {
 }
 
 int main(int argc, char** argv) try {
-    std::vector<std::string> pkg_paths = parse_arguments(argc, argv);
+    const auto& [pkg_paths, is_early_exit] = parse_arguments(argc, argv);
+    if(is_early_exit)
+        return 0;
     GameState gs(pkg_paths);
 
     startup(gs);
