@@ -297,8 +297,12 @@ void GameState::handle_key(const Eng3D::Event::Key& e) {
 std::pair<std::vector<std::string>, bool> parse_arguments(int argc, char** argv) {
     std::vector<std::string> pkg_paths;
     bool is_early_exit = false;
+    bool is_echo = false;
     for(int i = 1; i < argc; i++) {
         std::string arg = std::string(argv[i]);
+        if(is_echo)
+            printf("%s ", arg.c_str());
+        
         if(arg == "--mod") {
             i++;
             if(i >= argc)
@@ -306,10 +310,15 @@ std::pair<std::vector<std::string>, bool> parse_arguments(int argc, char** argv)
             arg = std::string(argv[i]);
             pkg_paths.push_back(arg);
         } else if(arg == "--version") {
-            fprintf(stdout, "Symphony-Of-Empires version 3.4.5");
+            printf("Symphony-Of-Empires version 3.4.5\n");
             is_early_exit = true;
+        } else if(arg == "--echo") {
+            is_early_exit = true;
+            is_echo = true;
         }
     }
+    if(is_echo) putchar('\n');
+    
     return std::make_pair(pkg_paths, is_early_exit);
 }
 
