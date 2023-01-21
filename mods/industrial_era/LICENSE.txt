@@ -6,8 +6,6 @@ water_tex
 terrain_sheet
 	http://howintheworld.com/textures/
 
-gfx/military_score
-gfx/military_tech
 gfx/navy
 gfx/navy_tech
 gfx/production
@@ -17,6 +15,10 @@ gfx/naval_score
 gfx/cursor_b
 	Credits to Pattrck - made ui icons and graphical interface style in photoshop
 
+gfx/military_score
+gfx/military_tech
+gfx/pv_0
+gfx/pv_1
 gfx/pop
 gfx/industry
 	By _JERUME
