@@ -237,7 +237,7 @@ int LuaAPI::add_input_to_industry_type(lua_State* L) {
 int LuaAPI::add_output_to_industry_type(lua_State* L) {
     auto& industry_type = g_world.building_types.at(lua_tonumber(L, 1));
     auto& commodity = g_world.commodities.at(lua_tonumber(L, 2));
-    industry_type.output_id.emplace(commodity);
+    industry_type.output_id.emplace(commodity.get_id());
     industry_type.num_req_workers += 100;
     return 0;
 }
