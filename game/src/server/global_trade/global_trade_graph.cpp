@@ -12,6 +12,7 @@
 #include "boost/graph/graph_utility.hpp"
 
 #include "global_trade_graph.hpp"
+#include "province.hpp"
 
 #define PI 3.14159265358979323846
 #define EARTH_RADIUS 6378.137
@@ -63,10 +64,36 @@ GlobalTradeGraph::GlobalTradeGraph()
 {
 }
 
-int GlobalTradeGraph::init_graph()
+int GlobalTradeGraph::init_graph(const World& world)
 {
-    // this is not implemented yet
-    return 0;
+    /* setup graph */
+    int total_region_nodes = world.provinces.size();
+    this->global_graph = GlobalGraph(total_region_nodes);
+    this->currently_used_nodes.resize(total_region_nodes);
+    iota(this->currently_used_nodes.begin(), this->currently_used_nodes.end(), 0);
+    int max_node_index = total_region_nodes - 1;
+    int num_hub_nodes = 25;     // we need to calculate hub nodes
+    std::vector<location> locations_vec; // we need to get locations
+
+    /* add information to empty nodes */
+    for(const auto& province : world.provinces) {
+        for(const auto neighbour_id : province.neighbour_ids) {
+            /* add node info & connect them */
+            int p_id = province.get_id();
+            this->global_graph[p_id].region_id = p_id;
+            this->global_graph[p_id].region_type = (!province.is_coastal) ? (int) province.terrain_type_id % 25 : 0; // for safety
+            this->global_graph[p_id].region_centroid = { province.get_pos().y, province.get_pos().x };
+            this->global_graph[p_id].connection_set.insert(neighbour_id);
+            this->add_edge(p_id, neighbour_id, 0);
+            /* add locations to graph */
+            this->locations.push_back(this->global_graph[p_id].region_centroid);
+            /* if hub nodes push back */
+            if(province < num_hub_nodes) {
+                this->hub_nodes.push_back(p_id);
+            }
+        }
+    }
+    return total_region_nodes;
 }
 
 /* realistic simulation (this will be deleted after testing is done) */

@@ -9,6 +9,8 @@
 
 #include "boost/graph/adjacency_list.hpp"
 
+#include "world.hpp"
+
 #define CONNECTION_TYPE_TO_COST                       \
     std::map<int, std::pair<double, std::string> >    \
     {                                                 \
@@ -108,7 +110,7 @@ struct GlobalTradeGraph
     std::vector<location> locations;
 
     GlobalTradeGraph();
-    int init_graph();
+    int init_graph(const World& world);
     int init_random_graph(int nodes);
     void add_edge(int n1, int n2, int connection_type);
     void update_edge(int n1, int n2, int new_connection_type);
