@@ -218,7 +218,6 @@ static void update_industry_accounting(World& world, Building& building, const B
 
         profit -= building.expenses.get_dividends();
     }
-
     building.budget += profit; // Pay the remainder profit to the building
 
     //! Based production not used!
@@ -236,8 +235,7 @@ static void update_industry_accounting(World& world, Building& building, const B
         auto& output_product = province.products[output];
         // Rescale production
         // This is used to set how much the of the maximum capacity the industry produce
-        const auto max_revenue = output_product.price * building.get_max_output_amount(building_type.num_req_workers);
-        building.production_scale = glm::clamp(building.production_scale * glm::clamp(0.9f * max_revenue / building.expenses.get_total(), 0.f, 1.05f) * output_product.ds_ratio(), 0.05f, building.level);
+        building.production_scale = glm::clamp(building.production_scale * glm::clamp(0.9f * building.get_operating_ratio(), 0.9f, 1.05f) * output_product.ds_ratio(), 0.05f, building.level);
     }
 }
 
