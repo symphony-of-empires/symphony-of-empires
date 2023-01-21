@@ -231,19 +231,19 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
     const Eng3D::Rect pos_rect((int)0u, 0u, width, height);
     const Eng3D::Rect tex_rect((int)0u, 0u, 1u, 1u);
     g_ui_context->obj_shader->set_texture(0, "diffuse_map", *Eng3D::State::get_instance().tex_man.get_white());
+    g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
 
     // Shadow
     if(have_shadow) {
         g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(0.f, 0.f, 0.8f, 0.5f));
         draw_rectangle(-2, -2, width + 8, height + 8, viewport, nullptr);
+        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
     }
-    g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
     if(type == UI::WidgetType::INPUT)
         draw_rect(nullptr, pos_rect, tex_rect, viewport);
-    if(background_color.a != 0) {
-        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(background_color.r, background_color.g, background_color.b, background_color.a));
-        draw_rect(nullptr, pos_rect, tex_rect, viewport);
-        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(1.f));
+    
+    if(background_color.has_value()) {
+        g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(background_color->r, background_color->g, background_color->b, background_color->a));
     }
     if(current_texture != nullptr)
         draw_rectangle(0, 0, width, height, viewport, current_texture.get());
@@ -254,7 +254,7 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
         draw_rectangle(0, 0, width, 24, viewport, ctx.window_top.get());
     if(border.texture != nullptr)
         draw_border(viewport);
-
+    
     auto current_text_texture = get_text_texture().get();
     if(current_text_texture != nullptr) {
         int x_offset = text_offset_x;
