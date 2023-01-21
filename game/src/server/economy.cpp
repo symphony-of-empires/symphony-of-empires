@@ -95,8 +95,11 @@ struct ProvinceEconomyInfo {
 // Updates supply, demand, and set wages for workers
 static void update_industry_production(World& world, Building& building, const BuildingType& building_type, Province& province, ProvinceEconomyInfo& info)
 {
+    if(building_type.output_id.has_value())
+        return;
+
     constexpr auto artisan_production_rate = 0.01f;
-    auto& output = world.commodities[building_type.output_id];
+    auto& output = world.commodities[building_type.output_id.value()];
     auto& output_product = province.products[output];
 
     // Artisans take place of industry or co-exist with it
@@ -157,13 +160,17 @@ static void update_industry_accounting(World& world, Building& building, const B
     building.estate_private.today_funds = 0.f;
     building.estate_state.today_funds = 0.f;
 
-    auto& output = world.commodities[building_type.output_id];
-    auto& output_product = province.products[output];
-    if(!building.can_do_output(province, building_type.input_ids) || building.level == 0.f) // Artisans take place of industry
+    if(building.level == 0.f) // Artisans take place of industry
         return;
-
-    // Obtain revenue from the products on this province & from how many were bought
-    building.revenue.outputs = output_product.bought * output_product.price;
+    
+    if(building_type.output_id.has_value() && building.can_do_output(province, building_type.input_ids)) {
+        const auto& output = world.commodities[building_type.output_id.value()];
+        auto& output_product = province.products[output];
+        // Obtain revenue from the products on this province & from how many were bought
+        building.revenue.outputs = output_product.bought * output_product.price;
+    } else {
+        building.revenue.outputs = 0.f;
+    }
 
     // TODO add output modifier
     // Calculate outputs
@@ -224,10 +231,14 @@ static void update_industry_accounting(World& world, Building& building, const B
     //     base_production = nation.commodity_production[output] * building.level;
     // }
 
-    // Rescale production
-    // This is used to set how much the of the maximum capacity the industry produce
-    const auto max_revenue = output_product.price * building.get_max_output_amount(building_type.num_req_workers);
-    building.production_scale = glm::clamp(building.production_scale * glm::clamp(0.9f * max_revenue / building.expenses.get_total(), 0.f, 1.05f) * output_product.ds_ratio(), 0.05f, building.level);
+    if(building_type.output_id.has_value()) {
+        const auto& output = world.commodities[building_type.output_id.value()];
+        auto& output_product = province.products[output];
+        // Rescale production
+        // This is used to set how much the of the maximum capacity the industry produce
+        const auto max_revenue = output_product.price * building.get_max_output_amount(building_type.num_req_workers);
+        building.production_scale = glm::clamp(building.production_scale * glm::clamp(0.9f * max_revenue / building.expenses.get_total(), 0.f, 1.05f) * output_product.ds_ratio(), 0.05f, building.level);
+    }
 }
 
 // Update the industry employment
