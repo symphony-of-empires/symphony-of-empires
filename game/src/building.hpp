@@ -109,7 +109,8 @@ struct Building : Entity<BuildingId> {
     float get_operating_ratio() const {
         const auto total_revenue = this->revenue.get_total();
         const auto total_expenses = this->expenses.get_total();
-        if(total_expenses == 0.f) return 0.f;
+        assert(total_revenue >= 0.f && total_expenses >= 0.f);
+        if(total_expenses == 0.f) return total_revenue;
         assert(total_expenses >= 0.f && total_revenue >= 0.f);
         return total_revenue / total_expenses;
     }
