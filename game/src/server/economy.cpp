@@ -95,7 +95,7 @@ struct ProvinceEconomyInfo {
 // Updates supply, demand, and set wages for workers
 static void update_industry_production(World& world, Building& building, const BuildingType& building_type, Province& province, ProvinceEconomyInfo& info)
 {
-    if(building_type.output_id.has_value())
+    if(!building_type.output_id.has_value())
         return;
 
     constexpr auto artisan_production_rate = 0.01f;
