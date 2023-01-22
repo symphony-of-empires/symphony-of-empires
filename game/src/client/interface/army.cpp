@@ -118,7 +118,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int _x, int _y, P
     this->overflow = UI::Overflow::WRAP;
 
     auto& unit_icon = this->make_widget<UI::Image>(0, 0, 24, 24);
-    unit_icon.current_texture = gs.tex_man.load(gs.package_man.get_unique(gs.world->unit_types[building.working_unit_type_id].get_icon_path()));
+    unit_icon.current_texture = gs.tex_man.load(gs.package_man.get_unique(gs.world->unit_types[building.working_unit_type_id.value_or(UnitTypeId{})].get_icon_path()));
 
     auto& province_lab = this->make_widget<UI::Label>(0, 0, "?");
     province_lab.set_on_each_tick([this](UI::Widget& w) {
@@ -131,7 +131,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int _x, int _y, P
     name_lab.set_on_each_tick([this](UI::Widget& w) {
         const auto& current_province = gs.world->provinces[province_id];
         auto& current_building = current_province.get_buildings()[this->idx];
-        w.set_text(this->gs.world->unit_types[current_building.working_unit_type_id].name);
+        w.set_text(this->gs.world->unit_types[current_building.working_unit_type_id.value_or(UnitTypeId{})].name);
     });
     name_lab.on_each_tick(name_lab);
 
@@ -140,12 +140,12 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int _x, int _y, P
         auto& w = static_cast<UI::ProgressBar&>(_w);
         const auto& c_province = gs.world->provinces[province_id];
         const auto& c_building = c_province.get_buildings()[this->idx];
-        if(c_building.is_working_on_unit()) return;
+        if(c_building.working_unit_type_id.has_value()) return;
         auto full = 0.f, needed = 0.f;
         std::string text;
         for(size_t i = 0; i < c_building.req_goods_for_unit.size(); i++) {
             auto need_req = c_building.req_goods_for_unit[i];
-            auto full_req = this->gs.world->unit_types[c_building.working_unit_type_id].req_goods[i];
+            auto full_req = this->gs.world->unit_types[c_building.working_unit_type_id.value()].req_goods[i];
             full += full_req.second;
             needed += need_req.second;
             text += translate_format("Requires %.2f of %s (has %.2f)", need_req.second, this->gs.world->commodities[need_req.first].name.c_str(), full_req.second);
