@@ -160,7 +160,7 @@ struct Building : Entity<BuildingId> {
         return sum;
     }
 
-    float budget = 1000.f; // Total money that the industry has
+    float budget = 0.f; // Total money that the industry has
     float level = 0.f; // Level/Capacity scale of the building
     float workers = 1.f; // Amount of workers
     float production_scale = 1.f; // How much of the industry is being used. From 0-1
