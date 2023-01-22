@@ -53,7 +53,7 @@ void Province::add_building(const BuildingType& building_type) {
 
 void Province::cancel_construction_project() {
     for(auto& building : buildings)
-        building.stop_working_on_unit();
+        building.working_unit_type_id.reset();
 }
 
 float Province::euclidean_distance(const Province& other_province, glm::vec2 world_size, float radius) const {

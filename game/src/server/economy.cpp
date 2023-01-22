@@ -480,11 +480,11 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         paid_taxes.local()[province.controller_id] = info.state_payment;
         for(auto& building : province.buildings) {
             // There must not be conflict ongoing otherwise they wont be able to build shit
-            if(province.controller_id == province.owner_id && building.can_build_unit() && building.is_working_on_unit()) {
+            if(province.controller_id == province.owner_id && building.can_build_unit() && building.working_unit_type_id.has_value()) {
                 auto& pop = province.pops[(int)PopGroup::SOLDIER];
                 const auto final_size = glm::min(pop.size, 100.f);
-                province_new_units.local().emplace_back(building.working_unit_type_id, final_size, province, pop.type_id);
-                building.stop_working_on_unit();
+                province_new_units.local().emplace_back(building.working_unit_type_id.value(), final_size, province, pop.type_id);
+                building.working_unit_type_id.reset();
             }
         }
     });

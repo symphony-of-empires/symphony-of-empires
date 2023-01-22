@@ -397,7 +397,7 @@ void update_production_queue(GameState& gs) {
                 auto& province = gs.world->provinces[province_id];
                 auto& building = province.get_buildings()[building_type];
                 // Must not be working on something else
-                if(building.is_working_on_unit()) {
+                if(building.working_unit_type_id.has_value()) {
                     is_built = true;
                     gs.client->send(Action::BuildingStartProducingUnit::form_packet(province, building_type, *gs.curr_nation, unit_type));
                     break;

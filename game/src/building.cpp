@@ -41,7 +41,6 @@ bool Building::can_do_output(const Province& province, const std::vector<Commodi
 }
 
 void Building::work_on_unit(const UnitType& unit_type) {
-    this->working_unit_type_id = unit_type.get_id();
+    this->working_unit_type_id.emplace(unit_type.get_id());
     this->req_goods_for_unit = unit_type.req_goods;
-    this->_is_wrking_on_unit = true;
 }

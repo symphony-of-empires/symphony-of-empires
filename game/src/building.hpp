@@ -123,15 +123,7 @@ struct Building : Entity<BuildingId> {
         return this->level * max_workers * industry_production_rate;
     }
 
-    bool is_working_on_unit() const {
-        return this->_is_wrking_on_unit;
-    }
-
     void work_on_unit(const UnitType& unit_type);
-
-    void stop_working_on_unit() {
-        this->_is_wrking_on_unit = false;
-    }
 
     struct Investment {
         float total = 0.f;
@@ -171,8 +163,7 @@ struct Building : Entity<BuildingId> {
     float level = 0.f; // Level/Capacity scale of the building
     float workers = 1.f; // Amount of workers
     float production_scale = 1.f; // How much of the industry is being used. From 0-1
-    bool _is_wrking_on_unit = false;
-    UnitTypeId working_unit_type_id; // Unit that is currently being built here (nullptr indicates no unit)
+    std::optional<UnitTypeId> working_unit_type_id; // Unit that is currently being built here (nullptr indicates no unit)
     // Required commodities for building the working unit
     // change this to a struct instead of a pair for readablity
     std::vector<std::pair<CommodityId, float>> req_goods_for_unit;
@@ -233,7 +224,6 @@ struct Eng3D::Deser::Serializer<Building> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.workers);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.req_goods);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.req_goods_for_unit);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj._is_wrking_on_unit);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.revenue.outputs);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.expenses.wages);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.expenses.inputs_cost);
