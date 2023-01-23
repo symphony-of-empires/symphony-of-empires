@@ -535,7 +535,7 @@ void Eng3D::State::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
             if(this->ui_ctx.check_click(e.pos)) {
                 auto entries = this->package_man.get_multiple_prefix("sfx/click");
                 if(!entries.empty())
-                    this->audio_man.play_sound(entries[rand() % entries.size()]->get_abs_path());
+                    this->audio_man.play_sound(entries[rand() % entries.size()]->abs_path);
                 return;
             }
         }

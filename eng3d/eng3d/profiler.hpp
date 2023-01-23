@@ -69,7 +69,13 @@ namespace Eng3D {
         void tick_done();
         void render_done();
         float get_fps();
-        const std::vector<BenchmarkTask*> get_tasks();
+        const std::vector<Eng3D::BenchmarkTask*> get_tasks() {
+            std::vector<Eng3D::BenchmarkTask*> list(tasks.size());
+            std::transform(tasks.begin(), tasks.end(), list.begin(), [](auto& e) {
+                return &e.second;
+            });
+            return list;
+        }
     private:
         std::mutex lock;
         size_t tick;

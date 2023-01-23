@@ -462,7 +462,7 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(const std::string& p
 }
 
 std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(std::shared_ptr<Eng3D::IO::Asset::Base> asset, TextureOptions options) {
-    return this->load(asset.get() != nullptr ? asset->get_abs_path() : "", options);
+    return this->load(asset.get() != nullptr ? asset->abs_path : "", options);
 }
 
 std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::gen_text(Eng3D::TrueType::Font& font, Eng3D::Color color, const std::string& msg) {

@@ -605,7 +605,7 @@ void Map::check_right_mouse_release() {
         
         auto entries = gs.package_man.get_multiple_prefix("sfx/land_move");
         if(!entries.empty())
-            gs.audio_man.play_sound(entries[rand() % entries.size()]->get_abs_path());
+            gs.audio_man.play_sound(entries[rand() % entries.size()]->abs_path);
     }
     gs.client_state.clear_selected_units();
 }

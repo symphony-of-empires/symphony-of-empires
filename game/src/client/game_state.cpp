@@ -156,8 +156,8 @@ void GameState::music_enqueue() {
         // Search through all the music in 'music/ambience' and picks a random
         if(!entries.empty()) {
             const int music_index = rand() % entries.size();
-            this->audio_man.play_music(entries[music_index]->get_abs_path());
-            Eng3D::Log::debug("music", "Now playing music file " + entries[music_index]->get_abs_path());
+            this->audio_man.play_music(entries[music_index]->abs_path);
+            Eng3D::Log::debug("music", "Now playing music file " + entries[music_index]->abs_path);
         }
     }
 }
@@ -186,7 +186,7 @@ void GameState::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
                 if(ui_ctx.check_click(e.pos)) {
                     auto entries = package_man.get_multiple_prefix("sfx/click");
                     if(!entries.empty())
-                        audio_man.play_sound(entries[rand() % entries.size()]->get_abs_path());
+                        audio_man.play_sound(entries[rand() % entries.size()]->abs_path);
                     return;
                 }
             }
@@ -331,7 +331,7 @@ void create_startup_ui(GameState& gs) {
     bg_img->origin = UI::Origin::CENTER_SCREEN;
     auto load_screen_entries = gs.package_man.get_multiple_prefix("gfx/load_screen");
     if(!load_screen_entries.empty())
-        bg_img->current_texture = gs.tex_man.load(load_screen_entries[rand() % load_screen_entries.size()]->get_abs_path());
+        bg_img->current_texture = gs.tex_man.load(load_screen_entries[rand() % load_screen_entries.size()]->abs_path);
 
     auto* load_pbar = new UI::ProgressBar(0, -24, gs.width, 24, 0.f, 1.f);
     load_pbar->set_text(translate("Initializing game resources"));

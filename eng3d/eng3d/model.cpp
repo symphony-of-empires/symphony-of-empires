@@ -180,5 +180,5 @@ std::shared_ptr<Eng3D::Model> Eng3D::ModelManager::load(const std::string& path)
 }
 
 std::shared_ptr<Eng3D::Model> Eng3D::ModelManager::load(std::shared_ptr<Eng3D::IO::Asset::Base> asset) {
-    return this->load(asset.get() != nullptr ? asset->get_abs_path() : "");
+    return this->load(asset.get() != nullptr ? asset->abs_path : "");
 }

@@ -402,11 +402,11 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
         for(const auto& path : paths) {
 #ifdef _WIN32
             std::string m_path;
-            for(auto& c : path->get_abs_path())
+            for(auto& c : path->abs_path)
                 if(c == '\\') m_path += "\\\\";
                 else m_path += c;
 #else
-            std::string m_path = path->get_abs_path();
+            std::string m_path = path->abs_path;
 #endif
             files_buf += "print(\"" + m_path + "\")\nassert(loadfile(\"" + m_path + "\"))()\n";
         }
@@ -432,7 +432,7 @@ void World::load_initial() try {
             "nations", "provinces", "init"
     }, "lua/entities");
 
-    auto div = std::make_unique<Eng3D::BinaryImage>(Eng3D::State::get_instance().package_man.get_unique("map/provinces.png")->get_abs_path());
+    auto div = std::make_unique<Eng3D::BinaryImage>(Eng3D::State::get_instance().package_man.get_unique("map/provinces.png")->abs_path);
     width = div->width;
     height = div->height;
     tiles = std::make_unique<ProvinceId[]>(width * height);

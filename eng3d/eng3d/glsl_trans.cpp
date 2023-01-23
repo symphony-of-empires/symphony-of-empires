@@ -30,13 +30,10 @@
 //
 std::string Eng3D::GLSL::Context::get_identifier(std::string::iterator& it) {
     const auto start_it = it;
-
     // Alphanumerics, _ and dots are allowed as identifiers
     while(it != buffer.end() && (isalnum(*it) || *it == '_' || *it == '.'))
         it++;
-
-    std::string str = buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
-    return str;
+    return buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
 }
 
 std::string Eng3D::GLSL::Context::get_literal(std::string::iterator& it) {
@@ -44,13 +41,10 @@ std::string Eng3D::GLSL::Context::get_literal(std::string::iterator& it) {
     // Literal
     while(it != buffer.end() && (isdigit(*it) || *it == '.'))
         it++;
-
     // Skip 'type' specifier
     while(it != buffer.end() && isalpha(*it))
         it++;
-
-    std::string str = buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
-    return str;
+    return buffer.substr(std::distance(buffer.begin(), start_it), std::distance(start_it, it));
 }
 
 void Eng3D::GLSL::Context::lexer() {

@@ -364,14 +364,12 @@ void Eng3D::Networking::Server::do_netloop(std::function<void(int i)> on_wake_th
 #ifdef _WIN32
     Eng3D::Log::error("server", Eng3D::translate_format("WSA Code: %i", WSAGetLastError()));
     WSACleanup();
-#endif
-    Eng3D::Log::debug("server", "Client disconnected");
-#ifdef _WIN32
     shutdown(conn_fd, SD_BOTH);
 #elif defined __unix__ && !defined __switch__
     // Switch doesn't support shutting down sockets
     shutdown(conn_fd, SHUT_RDWR);
 #endif
+    Eng3D::Log::debug("server", "Client disconnected");
 }
 
 //

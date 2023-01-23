@@ -61,7 +61,7 @@ Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
     this->paper_tex = this->s.tex_man.load(this->s.package_man.get_unique("gfx/paper.png"), mipmap_options);
     this->stripes_tex = this->s.tex_man.load(this->s.package_man.get_unique("gfx/stripes.png"), mipmap_options);
 
-    this->terrain_map = std::make_unique<Eng3D::Texture>(this->s.package_man.get_unique("map/color.png")->get_abs_path());
+    this->terrain_map = std::make_unique<Eng3D::Texture>(this->s.package_man.get_unique("map/color.png")->abs_path);
 
     tbb::parallel_for(static_cast<size_t>(0), this->terrain_map->width * this->terrain_map->height, [this](const auto i) {
         auto* data = &(this->terrain_map->buffer.get()[i]);
@@ -103,10 +103,6 @@ Eng3D::BaseMap::BaseMap(Eng3D::State& _s, glm::ivec2 size)
     //this->terrain_map->to_file("new_terrain.png");
 
     // Terrain textures to sample from
-    this->terrain_sheet = std::make_unique<Eng3D::TextureArray>(this->s.package_man.get_unique("gfx/terrain_sheet.png")->get_abs_path(), 4, 4);
+    this->terrain_sheet = std::make_unique<Eng3D::TextureArray>(this->s.package_man.get_unique("gfx/terrain_sheet.png")->abs_path, 4, 4);
     this->terrain_sheet->upload();
-}
-
-Eng3D::BaseMap::~BaseMap() {
-
 }

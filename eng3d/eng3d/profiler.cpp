@@ -22,6 +22,7 @@
 //      Allows profiling of various systems of the game.
 // ----------------------------------------------------------------------------
 
+#include <cassert>
 #include <algorithm>
 #include <glm/glm.hpp>
 #include "eng3d/profiler.hpp"
@@ -38,10 +39,7 @@ void Eng3D::BenchmarkTask::start() {
 }
 
 void Eng3D::BenchmarkTask::stop() {
-    if(!running) {
-        Eng3D::Log::error("benchmark", "Tried to stop task '" + name + "', but it hasn't been started yet");
-        return;
-    }
+    assert(running && "Can't stop task which hasn't started yet");
     running = false;
     auto now = std::chrono::system_clock::now();
     float time = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
@@ -94,11 +92,8 @@ void Eng3D::Profiler::start(const std::string& name) {
 
 void Eng3D::Profiler::stop(const std::string& name) {
     auto it = tasks.find(name);
-    if(it == tasks.end()) {
-        Eng3D::Log::error("profiler", "Tried to stop task '" + name + "', but it hasn't been started yet");
-    } else {
-        it->second.stop();
-    }
+    assert(it != tasks.end() && "Tried to stop task that hasn't started yet");
+    it->second.stop();
 }
 
 void Eng3D::Profiler::tick_done() {
@@ -123,12 +118,4 @@ void Eng3D::Profiler::render_done() {
         frames = 0;
         fps_timer -= 1000.;
     }
-}
-
-const std::vector<Eng3D::BenchmarkTask*> Eng3D::Profiler::get_tasks() {
-    std::vector<Eng3D::BenchmarkTask*> list(tasks.size());
-    std::transform(tasks.begin(), tasks.end(), list.begin(), [](auto& e) {
-        return &e.second;
-    });
-    return list;
 }

@@ -61,7 +61,7 @@ namespace Eng3D {
         Eng3D::Borders borders;
     public:
         BaseMap(Eng3D::State& s, glm::ivec2 size);
-        ~BaseMap();
+        ~BaseMap() = default;
         friend MapRender;
     };
 }

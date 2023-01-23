@@ -998,20 +998,17 @@ void LuaAPI::fire_event(lua_State* L, Nation& nation, Event& event, bool& is_mul
         local_event.cached_id = Event::invalid();
         local_event.extra_data = std::string(extra);
         //local_event.ref_name = Eng3D::StringRef(string_format("%s:%s", local_event.ref_name.c_str(), nation.ref_name.c_str()).c_str());
-        if(local_event.decisions.empty()) {
-            Eng3D::Log::error("event", translate_format("Event %s has no decisions (ref_name=%s)", local_event.ref_name.c_str(), nation.ref_name.c_str()));
-        } else {
-            // Check that descisions have functions
-            for(auto& descision : local_event.decisions) {
-                descision.extra_data = local_event.extra_data;
-                if(descision.do_decision_function == 0) {
-                    Eng3D::Log::error("event", translate_format("(Lua event %s on descision %s has no function callback", orig_event.ref_name.c_str(), descision.ref_name.c_str()));
-                    goto restore_original;
-                }
+        assert(!local_event.decisions.empty(), "Event without decisions");
+        // Check that descisions have functions
+        for(auto& descision : local_event.decisions) {
+            descision.extra_data = local_event.extra_data;
+            if(descision.do_decision_function == 0) {
+                Eng3D::Log::error("event", translate_format("(Lua event %s on descision %s has no function callback", orig_event.ref_name.c_str(), descision.ref_name.c_str()));
+                goto restore_original;
             }
-            nation.inbox.push_back(local_event);
-            Eng3D::Log::debug("event", translate_format("Event triggered! %s (with %zu decisions)", local_event.ref_name.c_str(), local_event.decisions.size()));
         }
+        nation.inbox.push_back(local_event);
+        Eng3D::Log::debug("event", translate_format("Event triggered! %s (with %zu decisions)", local_event.ref_name.c_str(), local_event.decisions.size()));
     }
 restore_original: // Original event then gets restored
     event = orig_event;

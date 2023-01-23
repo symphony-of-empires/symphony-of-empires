@@ -81,7 +81,7 @@ std::string Eng3D::Locale::translate(const std::string_view str) {
 }
 
 std::string Eng3D::Locale::format_number(double num) {
-    if(std::abs(num) < 1'000) {
+    if(std::abs(num) < 1'000)
         return std::to_string(num);
     static const std::string_view numbers[] = {
         "k",  "M",  "B",  "T",  "Qa", "Qn",

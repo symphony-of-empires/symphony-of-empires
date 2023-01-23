@@ -155,7 +155,7 @@ public:
 };
 
 void Eng3D::Borders::build_borders() {
-    auto border_tex = std::make_unique<Eng3D::BinaryImage>(s.package_man.get_unique("map/provinces.png")->get_abs_path());
+    auto border_tex = std::make_unique<Eng3D::BinaryImage>(s.package_man.get_unique("map/provinces.png")->abs_path);
     int height = border_tex->height;
     int width = border_tex->width;
     auto pixels = border_tex->buffer.get();

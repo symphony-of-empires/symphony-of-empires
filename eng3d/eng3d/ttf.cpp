@@ -31,9 +31,9 @@
 #include "eng3d/utils.hpp"
 
 Eng3D::TrueType::Font::Font(std::shared_ptr<Eng3D::IO::Asset::Base> asset, int dpi) {
-    this->sdl_font = static_cast<void*>(TTF_OpenFont(asset->get_abs_path().c_str(), dpi));
+    this->sdl_font = static_cast<void*>(TTF_OpenFont(asset->abs_path.c_str(), dpi));
     if(this->sdl_font == nullptr)
-        CXX_THROW(std::runtime_error, translate_format("Failed to load font %s", asset->get_abs_path().c_str()));
+        CXX_THROW(std::runtime_error, translate_format("Failed to load font %s", asset->abs_path.c_str()));
 }
 
 Eng3D::TrueType::Font::~Font() {
@@ -56,7 +56,7 @@ Eng3D::TrueType::Manager::~Manager() {
 }
 
 std::shared_ptr<Eng3D::TrueType::Font> Eng3D::TrueType::Manager::load(std::shared_ptr<Eng3D::IO::Asset::Base> asset) {
-    const std::string path = asset.get() != nullptr ? asset->get_abs_path() : "";
+    const std::string path = asset.get() != nullptr ? asset->abs_path : "";
     const auto it = this->fonts.find(path);
     if(it != this->fonts.cend())
         return it->second;

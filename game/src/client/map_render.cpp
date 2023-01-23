@@ -201,8 +201,8 @@ void MapRender::update_options(MapOptions) {
     if(this->options.lighting.used) {
         // If reload is required
         if(this->normal_topo.get() == nullptr) {
-            auto topo_map = std::make_unique<Eng3D::Texture>(gs.package_man.get_unique("map/topo.png")->get_abs_path());
-            this->normal_topo = std::make_unique<Eng3D::Texture>(gs.package_man.get_unique("map/normal.png")->get_abs_path());
+            auto topo_map = std::make_unique<Eng3D::Texture>(gs.package_man.get_unique("map/topo.png")->abs_path);
+            this->normal_topo = std::make_unique<Eng3D::Texture>(gs.package_man.get_unique("map/normal.png")->abs_path);
             size_t map_size = topo_map->width * topo_map->height;
             for(size_t i = 0; i < map_size; i++) {
                 this->normal_topo->buffer.get()[i] &= (0x00FFFFFF);
