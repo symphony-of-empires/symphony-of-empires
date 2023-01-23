@@ -998,7 +998,7 @@ void LuaAPI::fire_event(lua_State* L, Nation& nation, Event& event, bool& is_mul
         local_event.cached_id = Event::invalid();
         local_event.extra_data = std::string(extra);
         //local_event.ref_name = Eng3D::StringRef(string_format("%s:%s", local_event.ref_name.c_str(), nation.ref_name.c_str()).c_str());
-        assert(!local_event.decisions.empty(), "Event without decisions");
+        assert(!local_event.decisions.empty() && "Event without decisions");
         // Check that descisions have functions
         for(auto& descision : local_event.decisions) {
             descision.extra_data = local_event.extra_data;
