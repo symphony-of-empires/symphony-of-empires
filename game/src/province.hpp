@@ -79,7 +79,9 @@ public:
         return glm::vec2(box_area.left + ((box_area.right - box_area.left) / 2.f), box_area.top + ((box_area.bottom - box_area.top) / 2.f));
     }
 
-    float euclidean_distance(const Province& other_province, glm::vec2 world_size, float radius) const;
+    inline float euclidean_distance(const Province& other_province, glm::vec2 world_size, float radius) const {
+        return Eng3D::euclidean_distance(this->get_pos(), other_province.get_pos(), world_size, radius);
+    }
 
     inline const std::vector<Building>& get_buildings() const {
         return buildings;

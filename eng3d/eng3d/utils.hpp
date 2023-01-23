@@ -57,23 +57,23 @@ namespace std {
             return ((x << 56) & 0xff00000000000000ULL) |
                 ((x << 40) & 0x00ff000000000000ULL) |
                 ((x << 24) & 0x0000ff0000000000ULL) |
-                ((x << 8)  & 0x000000ff00000000ULL) |
-                ((x >> 8)  & 0x00000000ff000000ULL) |
+                ((x << 8) & 0x000000ff00000000ULL) |
+                ((x >> 8) & 0x00000000ff000000ULL) |
                 ((x >> 24) & 0x0000000000ff0000ULL) |
                 ((x >> 40) & 0x000000000000ff00ULL) |
                 ((x >> 56) & 0x00000000000000ffULL);
         } else if(sizeof(T) == sizeof(uint32_t)) {
             uint32_t x = value;
-            return 
+            return
                 ((x << 24) & 0xff000000UL) |
-                ((x << 8)  & 0x00ff0000UL) |
-                ((x >> 8)  & 0x0000ff00UL) |
+                ((x << 8) & 0x00ff0000UL) |
+                ((x >> 8) & 0x0000ff00UL) |
                 ((x >> 24) & 0x000000ffUL);
         } else {
             uint16_t x = value;
-            return 
-                ((x << 8)  & 0xff00U) |
-                ((x >> 8)  & 0x00ffU);
+            return
+                ((x << 8) & 0xff00U) |
+                ((x >> 8) & 0x00ffU);
         }
         return value;
     }
@@ -91,11 +91,11 @@ namespace std {
     enum class endian {
 #   if defined _WIN32
         little = 0,
-        big    = 1,
+        big = 1,
         native = little
 #   else
         little = __ORDER_LITTLE_ENDIAN__,
-        big    = __ORDER_BIG_ENDIAN__,
+        big = __ORDER_BIG_ENDIAN__,
         native = __BYTE_ORDER__
 #   endif
     };
@@ -114,13 +114,13 @@ class Range
 {
     It _b, _e;
 public:
-    Range(It b, It e) : _b(b), _e(e) {}
+    Range(It b, It e): _b(b), _e(e) {}
     It begin() const { return _b; }
     It end() const { return _e; }
 };
 
 template<typename ORange, typename OIt = decltype(std::begin(std::declval<ORange>())), typename It = std::reverse_iterator<OIt>>
-Range<It> reverse(ORange && originalRange) {
+Range<It> reverse(ORange&& originalRange) {
     return Range<It>(It(std::end(originalRange)), It(std::begin(originalRange)));
 }
 
@@ -156,26 +156,26 @@ namespace Eng3D {
 
     inline glm::vec3 get_sphere_coord(glm::vec2 size, glm::vec2 pos, float radius) {
         const auto normalized_pos = pos / size;
-        glm::vec2 radiance_pos;
-        radiance_pos.x = normalized_pos.x * 2.f * glm::pi<float>();
-        radiance_pos.y = normalized_pos.y * glm::pi<float>();
-
-        glm::vec3 sphere_position;
-        sphere_position.x = glm::cos(radiance_pos.x) * glm::sin(radiance_pos.y);
-        sphere_position.y = glm::sin(radiance_pos.x) * glm::sin(radiance_pos.y);
-        sphere_position.z = glm::cos(radiance_pos.y);
-        sphere_position *= radius;
-        return sphere_position;
+        glm::vec2 radiance_pos{
+            normalized_pos.x * 2.f * glm::pi<float>(),
+            normalized_pos.y * glm::pi<float>()
+        };
+        glm::vec3 sphere_position{
+            glm::cos(radiance_pos.x) * glm::sin(radiance_pos.y),
+            glm::sin(radiance_pos.x) * glm::sin(radiance_pos.y),
+            glm::cos(radiance_pos.y)
+        };
+        return sphere_position * radius;
     }
 
     /// @brief Obtain the euclidean distance from p0 to p1
     /// @param p0 Point A
     /// @param p1 Point B
-    inline float euclidean_distance(glm::vec2 size, float radius, glm::vec2 p0, glm::vec2 p1) {
-        const auto dt = glm::dot(Eng3D::get_sphere_coord(size, p0, radius), Eng3D::get_sphere_coord(size, p1, radius));
-        const auto cos_angle = dt / (radius * radius);
+    inline float euclidean_distance(glm::vec2 p0, glm::vec2 p1, glm::vec2 world_size, float radius) {
+        const auto sphere_coord1 = Eng3D::get_sphere_coord(world_size, p0, radius);
+        const auto sphere_coord2 = Eng3D::get_sphere_coord(world_size, p1, radius);
+        const auto cos_angle = glm::dot(sphere_coord1, sphere_coord2) / (radius * radius);
         const auto angle = glm::acos(glm::clamp(cos_angle, -1.f, 1.f));
-        const auto distance = angle * radius;
-        return distance;
+        return angle * radius;
     }
 }
