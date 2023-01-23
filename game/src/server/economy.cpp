@@ -90,6 +90,10 @@ struct ProvinceEconomyInfo {
     // Costs
     float admin_funds = 0.f;
     float military_funds = 0.f;
+
+    // Contributions
+    /// @brief Produced amount by artisans and factories to calculate final payment to both
+    std::vector<std::pair<float, float>> produced;
 };
 
 // Updates supply, demand, and set wages for workers
@@ -104,25 +108,30 @@ static void update_industry_production(World& world, Building& building, const B
 
     // Artisans take place of industry or co-exist with it
     if(output_product.demand > 0.f) { // Artisans only produce iff suitable so
+        /// @todo Artisans will produce FOR EACH industry type, so if there is
+        /// two wheat farm types there will be double the wheat produced??
         const auto artisans_amount = province.pops[(int)PopGroup::ARTISAN].size;
-        const auto output_amount = artisans_amount * artisan_production_rate; // Reduced rate of production
-        info.artisans_payment += output_product.produce(output_amount);
+        const auto output_amount = artisans_amount * artisan_production_rate;
+        info.produced[output].first += output_amount;
     }
-    if(building.level == 0.f)
-        return;
-
-    // TODO add input modifier
-    building.expenses.inputs_cost = 0.f; // Buy the inputs for the industry
-    for(const auto& [product_id, required_amount] : building_type.req_goods) {
-        assert(required_amount >= 0.f && building.production_scale >= 0.f);
-        auto& product = province.products[product_id];
-        const auto wanted_amount = required_amount * building.production_scale;
-        auto amount = 0.f;
-        building.expenses.inputs_cost += product.buy(wanted_amount, amount);
+    
+    if(building.level != 0.f) {
+        /// @todo add input modifier
+        building.expenses.inputs_cost = 0.f; // Buy the inputs for the industry
+        for(const auto& [product_id, required_amount] : building_type.req_goods) {
+            assert(required_amount >= 0.f && building.production_scale >= 0.f);
+            auto& product = province.products[product_id];
+            const auto wanted_amount = required_amount * building.production_scale;
+            auto amount = 0.f;
+            building.expenses.inputs_cost += product.buy(wanted_amount, amount);
+        }
+        if(building.can_do_output(province, building_type.input_ids))
+            info.produced[output].second += building.get_output_amount();
     }
 
-    if(building.can_do_output(province, building_type.input_ids))
-        output_product.produce(building.get_output_amount());
+    // Produce the product itself by the combined efforts of the artisans and the industries
+    const auto& [artisan_production, industry_production] = info.produced[output];
+    output_product.produce(artisan_production + industry_production);
 }
 
 static void update_industry_accounting(World& world, Building& building, const BuildingType& building_type, Province& province, ProvinceEconomyInfo& info)
@@ -160,17 +169,27 @@ static void update_industry_accounting(World& world, Building& building, const B
     building.estate_private.today_funds = 0.f;
     building.estate_state.today_funds = 0.f;
 
-    if(building.level == 0.f) // Artisans take place of industry
-        return;
-    
-    if(building_type.output_id.has_value() && building.can_do_output(province, building_type.input_ids)) {
+    // Pay the combined value of production
+    building.revenue.outputs = 0.f;
+    if(building_type.output_id.has_value()) {
         const auto& output = world.commodities[building_type.output_id.value()];
         auto& output_product = province.products[output];
+
+        // Obtain production ratios to divide payments for the amount of goods produced either by artisans or
+        // by industries which produce a lot of stuff
+        const auto& [artisan_production, industry_production] = info.produced[output];
+        assert(artisan_production >= 0.f && industry_production >= 0.f);
+        const auto artisan_production_ratio = artisan_production / glm::max(industry_production, glm::epsilon<float>());
+        const auto industry_production_ratio = industry_production / glm::max(artisan_production, glm::epsilon<float>());
+
         // Obtain revenue from the products on this province & from how many were bought
-        building.revenue.outputs = output_product.bought * output_product.price;
-    } else {
-        building.revenue.outputs = 0.f;
+        info.artisans_payment += output_product.bought * output_product.price * artisan_production_ratio;
+        building.revenue.outputs += output_product.bought * output_product.price * industry_production_ratio;
     }
+
+    // Below code can only be relevant if the building exists in the first place
+    if(building.level == 0.f)
+        return;
 
     // TODO add output modifier
     // Calculate outputs
@@ -435,6 +454,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         new_needs.assign(province.pops.size(), PopNeed{});
 
         ProvinceEconomyInfo info{};
+        info.produced.resize(world.commodities.size(), std::make_pair(0.f, 0.f));
 
         for(auto& building_type : world.building_types) {
             auto& building = province.buildings[building_type];
