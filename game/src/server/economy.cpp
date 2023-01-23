@@ -98,7 +98,7 @@ static void update_industry_production(World& world, Building& building, const B
     if(!building_type.output_id.has_value())
         return;
 
-    constexpr auto artisan_production_rate = 0.01f;
+    constexpr auto artisan_production_rate = 24.f;
     auto& output = world.commodities[building_type.output_id.value()];
     auto& output_product = province.products[output];
 
