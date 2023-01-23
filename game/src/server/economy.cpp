@@ -130,7 +130,7 @@ static void update_industry_production(World& world, Building& building, const B
     }
 
     // Produce the product itself by the combined efforts of the artisans and the industries
-    const auto& [artisan_production, industry_production] = info.produced[output];
+    const auto [artisan_production, industry_production] = info.produced[output];
     output_product.produce(artisan_production + industry_production);
 }
 
@@ -177,11 +177,11 @@ static void update_industry_accounting(World& world, Building& building, const B
 
         // Obtain production ratios to divide payments for the amount of goods produced either by artisans or
         // by industries which produce a lot of stuff
-        const auto& [artisan_production, industry_production] = info.produced[output];
+        const auto [artisan_production, industry_production] = info.produced[output];
         assert(artisan_production >= 0.f && industry_production >= 0.f);
-        const auto artisan_production_ratio = artisan_production / glm::max(industry_production, 1.f);
+        const auto artisan_production_ratio = artisan_production / glm::max(artisan_production + industry_production, 1.f);
         assert(artisan_production_ratio >= 0.f && artisan_production_ratio <= 1.f);
-        const auto industry_production_ratio = industry_production / glm::max(artisan_production, 1.f);
+        const auto industry_production_ratio = industry_production / glm::max(artisan_production + industry_production, 1.f);
         assert(industry_production_ratio >= 0.f && industry_production_ratio <= 1.f);
 
         // Obtain revenue from the products on this province & from how many were bought
