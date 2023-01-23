@@ -19,7 +19,7 @@
 //      parallel_for.hpp
 //
 // Abstract:
-//      Does important stuff.
+//      Emulates parallel_for from tbb on systems without a tbb implementation.
 // ----------------------------------------------------------------------------
 
 #pragma once

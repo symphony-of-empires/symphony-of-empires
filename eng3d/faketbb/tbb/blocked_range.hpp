@@ -19,7 +19,8 @@
 //      blocked_range.hpp
 //
 // Abstract:
-//      Does important stuff.
+//      Emulates blocked_range ranges from tbb on systems without a tbb
+//      implementation.
 // ----------------------------------------------------------------------------
 
 #pragma once

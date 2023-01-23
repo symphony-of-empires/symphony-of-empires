@@ -1,5 +1,5 @@
 // Eng3D - General purpouse game engine
-// Copyright (C) 2021, Eng3D contributors
+// Copyright (C) 2021-2023, Eng3D contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 //      string.cpp
 //
 // Abstract:
-//      Does some important stuff.
+//      String pooling implementation
 // ----------------------------------------------------------------------------
 
 #include <unordered_map>
@@ -74,27 +74,25 @@ void Eng3D::Locale::from_file(const std::string& filename) {
 }
 
 std::string Eng3D::Locale::translate(const std::string_view str) {
-    std::scoped_lock lock(trans_lock);
+    const std::scoped_lock lock(trans_lock);
     if(trans_msg[str.data()].empty())
         return std::string(str);
     return trans_msg[str.data()];
 }
 
 std::string Eng3D::Locale::format_number(double num) {
-    if (std::abs(num) < 1000) {
+    if(std::abs(num) < 1'000) {
         return std::to_string(num);
-    }
-    static const std::string numbers[] = {"k",  "M",  "B",  "T",  "Qa", "Qn",
-                                        "Sx", "Sp", "O",  "N",  "De", "Ud",
-                                        "Dd", "Td", "Qd", "Qi", "Sd"};
+    static const std::string_view numbers[] = {
+        "k",  "M",  "B",  "T",  "Qa", "Qn",
+        "Sx", "Sp", "O",  "N",  "De", "Ud",
+        "Dd", "Td", "Qd", "Qi", "Sd"
+    };
     int exponent = static_cast<int>(log10(abs(num)) / 3);
-
     // Now get the number
     double d = static_cast<double>(num) / pow(10, exponent * 3);
-
     // Round this to two decimal points
     const int precision = 100;
     d = round(d * precision) / precision;
-
-    return string_format("%.2f %s", d, numbers[exponent - 1].c_str());
+    return Eng3D::string_format("%.2f %s", d, numbers[exponent - 1].data());
 }

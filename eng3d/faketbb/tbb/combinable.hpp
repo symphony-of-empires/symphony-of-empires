@@ -19,7 +19,8 @@
 //      combinable.hpp
 //
 // Abstract:
-//      Does important stuff.
+//      Emulates combinable from tbb on systems without a tbb
+//      implementation.
 // ----------------------------------------------------------------------------
 
 #pragma once

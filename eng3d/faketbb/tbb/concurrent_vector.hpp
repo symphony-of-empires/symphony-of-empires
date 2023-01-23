@@ -19,7 +19,8 @@
 //      concurrent_vector.hpp
 //
 // Abstract:
-//      Does important stuff.
+//      Emulates concurrent_vector from tbb on systems without a tbb
+//      implementation.
 // ----------------------------------------------------------------------------
 
 #pragma once

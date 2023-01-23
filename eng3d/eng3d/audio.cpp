@@ -1,5 +1,5 @@
 // Eng3D - General purpouse game engine
-// Copyright (C) 2021, Eng3D contributors
+// Copyright (C) 2021-2023, Eng3D contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -40,9 +40,10 @@
 //
 // Audio
 //
-Eng3D::Audio::Audio(const std::string_view path, bool is_sound) {
+Eng3D::Audio::Audio(const std::string_view path, bool _is_sound)
+    : is_sound{ _is_sound }
+{
     Eng3D::Log::debug("audio", Eng3D::translate_format("Decoding audio %s", path.data()));
-    this->is_sound = is_sound;
     if(this->is_sound) this->stream = (void*)Mix_LoadWAV(path.data());
     else this->stream = (void*)Mix_LoadMUS(path.data());
 }

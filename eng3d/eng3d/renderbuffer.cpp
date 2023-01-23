@@ -1,5 +1,5 @@
 // Eng3D - General purpouse game engine
-// Copyright (C) 2021, Eng3D contributors
+// Copyright (C) 2021-2023, Eng3D contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 //      renderbuffer.cpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Wrapper for render buffers.
 // ----------------------------------------------------------------------------
 
 #ifdef E3D_BACKEND_OPENGL

@@ -1,5 +1,5 @@
 // Eng3D - General purpouse game engine
-// Copyright (C) 2021, Eng3D contributors
+// Copyright (C) 2021-2023, Eng3D contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,12 +19,12 @@
 //      ttf.cpp
 //
 // Abstract:
-//      Does some important stuff.
+//      Provides functions to render TTF fonts and load them as required.
 // ----------------------------------------------------------------------------
 
 #include <cassert>
 #include <stdexcept>
-#include <SDL_ttf.h>
+#include "SDL_ttf.h"
 #include "eng3d/ttf.hpp"
 #include "eng3d/io.hpp"
 #include "eng3d/string.hpp"
