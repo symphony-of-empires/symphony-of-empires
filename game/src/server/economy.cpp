@@ -179,8 +179,10 @@ static void update_industry_accounting(World& world, Building& building, const B
         // by industries which produce a lot of stuff
         const auto& [artisan_production, industry_production] = info.produced[output];
         assert(artisan_production >= 0.f && industry_production >= 0.f);
-        const auto artisan_production_ratio = artisan_production / glm::max(industry_production, glm::epsilon<float>());
-        const auto industry_production_ratio = industry_production / glm::max(artisan_production, glm::epsilon<float>());
+        const auto artisan_production_ratio = artisan_production / glm::max(industry_production, 1.f);
+        assert(artisan_production_ratio >= 0.f && artisan_production_ratio <= 1.f);
+        const auto industry_production_ratio = industry_production / glm::max(artisan_production, 1.f);
+        assert(industry_production_ratio >= 0.f && industry_production_ratio <= 1.f);
 
         // Obtain revenue from the products on this province & from how many were bought
         info.artisans_payment += output_product.bought * output_product.price * artisan_production_ratio;
