@@ -183,7 +183,7 @@ void GameState::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
     if(e.hold) {
         if(show_ui) {
             if(e.type == Eng3D::Event::MouseButton::Type::LEFT) {
-                if(ui_ctx.check_click(e.pos)) {
+                if(ui_ctx.check_click(e.pos, true)) {
                     auto entries = package_man.get_multiple_prefix("sfx/click");
                     if(!entries.empty())
                         audio_man.play_sound(entries[rand() % entries.size()]->abs_path);
@@ -200,7 +200,7 @@ void GameState::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
     } else {
         if(e.type == Eng3D::Event::MouseButton::Type::LEFT || e.type == Eng3D::Event::MouseButton::Type::RIGHT) {
             if(show_ui && e.type == Eng3D::Event::MouseButton::Type::LEFT) {
-                if(ui_ctx.check_mouse_released(e.pos))
+                if(ui_ctx.check_click(e.pos, false))
                     return;
                 // if(ui_ctx.check_hover(e.pos))
                 //     return;
@@ -270,7 +270,7 @@ void GameState::handle_key(const Eng3D::Event::Key& e) {
             }
             break;
         case Eng3D::Event::Key::Type::BACKSPACE:
-            ui_ctx.check_text_input(nullptr);
+            ui_ctx.check_text_input(std::string_view{});
             break;
         case Eng3D::Event::Key::Type::UP:
             if(map && map->camera)
