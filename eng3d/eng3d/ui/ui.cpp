@@ -101,10 +101,6 @@ UI::Context::Context(Eng3D::State& _s)
     }
 }
 
-UI::Context::~Context() {
-    
-}
-
 void UI::Context::add_widget(UI::Widget* widget) {
     // Not already here
     if(std::find_if(widgets.cbegin(), widgets.cend(), [widget](const auto& e) { return e.get() == widget; }) != widgets.cend())
@@ -113,49 +109,52 @@ void UI::Context::add_widget(UI::Widget* widget) {
 }
 
 void UI::Context::remove_widget(UI::Widget* widget) {
-    auto it = std::find_if(widgets.begin(), widgets.end(), [widget](const auto& e) { return e.get() == widget; });
+    const auto it = std::find_if(widgets.begin(), widgets.end(), [widget](const auto& e) { return e.get() == widget; });
     widgets.erase(it);
 }
 
 /// @brief Removes all widgets
 void UI::Context::clear() {
     // Remove all widgets
-    for(auto& widget : widgets) {
-        if(widget.get() == this->tooltip_widget || !widget->managed) continue;
-        widget->kill();
-    }
+    for(auto& widget : widgets)
+        if(widget.get() != this->tooltip_widget && widget->managed)
+            widget->kill();
     this->use_tooltip(nullptr, { 0, 0 });
-}
-
-void UI::Context::clear_dead_recursive(UI::Widget& w) {
-    bool changed = false;
-    for(size_t i = 0; i < w.children.size(); i++) {
-        if(w.children[i]->dead) {
-            w.children.erase(w.children.begin() + i);
-            i--;
-            changed = true;
-        } else if(w.children[i]->dead_child) {
-            this->clear_dead_recursive(*w.children[i].get());
-            w.children[i]->dead_child = false;
-        }
-    }
-    if(changed) w.need_recalc = true;
 }
 
 /// @brief Removes all widgets that have been killed
 void UI::Context::clear_dead() {
+    const auto fn_recursive = [&](auto&& ...args) -> void {
+        auto fn_recursive_impl = [&](const auto& fn, UI::Widget& w) -> void {
+            bool is_changed = false;
+            for(size_t i = 0; i < w.children.size(); i++) {
+                if(w.children[i]->dead) {
+                    w.children.erase(w.children.begin() + i);
+                    i--;
+                    is_changed = true;
+                } else if(w.children[i]->dead_child) {
+                    fn(fn, *w.children[i].get());
+                    w.children[i]->dead_child = false;
+                }
+            }
+            if(is_changed)
+                w.need_recalc = true;
+        };
+        fn_recursive_impl(fn_recursive_impl, args...);
+    };
+
     for(size_t i = 0; i < widgets.size(); i++) {
         if(widgets[i]->dead) {
             widgets.erase(widgets.begin() + i);
             i--;
         } else if(widgets[i]->dead_child) {
-            this->clear_dead_recursive(*widgets[i].get());
+            fn_recursive(*widgets[i].get());
             widgets[i]->dead_child = false;
         }
     }
 
     if(this->tooltip_widget)
-        this->clear_dead_recursive(*this->tooltip_widget);
+        fn_recursive(*this->tooltip_widget);
 }
 
 /// @brief Moves a widget from evaluable to non-evaluable making a widget
@@ -163,7 +162,8 @@ void UI::Context::clear_dead() {
 /// not-evaluable, otherwise you risk destructing objects the UI manager thinks
 /// doesn't exist. Compare being non-evaluable with not existing.
 void UI::Context::set_eval(UI::Widget& widget, bool eval) {
-    if(eval == widget.is_eval) return;
+    if(eval == widget.is_eval)
+        return;
     if(eval) {
         // From no-eval to evaluable
         auto it = std::find_if(this->no_eval_widgets.begin(), this->no_eval_widgets.end(), [&widget](const auto& e) { return e.get() == &widget; });
@@ -422,134 +422,124 @@ bool UI::Context::check_hover(glm::ivec2 mouse_pos) {
     return is_hover;
 }
 
-UI::ClickState UI::Context::check_click_recursive(
-    UI::Widget& w,
-    glm::ivec2 mouse_pos, 
-    glm::ivec2 offset, 
-    UI::ClickState click_state, 
-    bool clickable, 
-    bool mouse_pressed) 
-{
-    offset = this->get_pos(w, offset);
-    if(click_state != UI::ClickState::NOT_CLICKED)
-        clickable = true;
-
-    // Widget must be displayed
-    if(!w.is_render) {
-        clickable = false;
-        return UI::ClickState::NOT_CLICKED;
-    }
-
-    // Click must be within the widget's box if it's not a group
-    if(w.type != UI::WidgetType::GROUP) {
-        const Eng3D::Rect r(offset.x, offset.y, w.width, w.height);
-        if(!r.contains(mouse_pos)) {
-            clickable = false;
-        } else if(w.is_transparent) {
-            if(is_inside_transparent(w, mouse_pos, offset))
-                clickable = false;
-        }
-    }
-
-    for(auto& child : w.children) {
-        auto new_click_state = check_click_recursive(*child, mouse_pos, offset, click_state, clickable, mouse_pressed);
-        if (click_state < new_click_state)
-            click_state = new_click_state;
-    }
-    bool click_consumed = click_state == UI::ClickState::HANDLED;
-
-    // Non-clickable group widgets are only taken in account
-    if(w.type == UI::WidgetType::GROUP && (!w.on_click || !w.on_drag))
-        clickable = false;
-
-    // Call on_click_outside if on_click has been used or widget isn't hit by click
-    if(w.on_click_outside && (!clickable || click_consumed))
-        w.on_click_outside(w);
-
-    // Call on_click if on_click hasnt been used and widget is hit by click
-    if((w.on_click || w.on_drag) && clickable && !click_consumed) {
-        if (mouse_pressed) {
-            if(w.type == UI::WidgetType::SLIDER) {
-                auto* wc = static_cast<UI::Slider*>(&w);
-                wc->set_value((static_cast<float>(std::abs(mouse_pos.x - offset.x)) / static_cast<float>(wc->width)) * wc->max);
-            }
-            if (w.on_click)
-                mouse_pressed_widget = &w;
-            if (w.on_drag) {
-                on_drag = w.on_drag;
-                // Call the function a first time to allow it to save it's start values
-                on_drag(mouse_pos, mouse_pos);
-            }
-        } else {
-            // Note. If the widget at address 'mouse_pressed_widget' is removed while the mouse is pressed
-            // and another widget get the same address and position it's on_click will be called instead.
-            // But we will not worry about this unlikely event
-            if (mouse_pressed_widget == &w)
-                w.on_click(w);
-        }
-        return UI::ClickState::HANDLED;
-    }
-
-    if(click_state == UI::ClickState::NOT_CLICKED && clickable)
-        click_state = UI::ClickState::NOT_HANDLED;
-    return click_state;
-}
-
-bool UI::Context::check_click(glm::ivec2 mouse_pos) {
-    this->start_drag_mouse_position = mouse_pos;
-#ifdef _WIN32
-        SetCapture(GetActiveWindow());
-#endif
-
-    auto click_state = UI::ClickState::NOT_CLICKED;
-    int click_wind_index = -1;
-
-    bool is_click = false;
-    for(int i = widgets.size() - 1; i >= 0; i--) {
-        click_state = check_click_recursive(*widgets[i].get(), mouse_pos, glm::ivec2(0), click_state, true, true);
-        // Ignore further clicks, prevents clicking causing clicks on elements behind
-        if(click_state != UI::ClickState::NOT_CLICKED) {
-            is_click = true;
-            // Set the index of the current window to move it to front
-            click_wind_index = i;
-            break;
-        }
-    }
-
-    if(click_wind_index != -1) {
-        // Only movable and UI::WidgetType::WINDOWS are able to move to the top
-        auto& window = *widgets[click_wind_index].get();
-        if(window.type == UI::WidgetType::WINDOW && !window.is_pinned) {
-            auto it = widgets.begin() + click_wind_index;
-            std::rotate(it, it + 1, widgets.end());
-        }
-    }
-    return is_click;
-}
-
-bool UI::Context::check_mouse_released(glm::ivec2 mouse_pos) {
-    if (on_drag)
+bool UI::Context::check_click(glm::ivec2 mouse_pos, bool mouse_pressed) {
+    if(!mouse_pressed && on_drag)
         on_drag = nullptr;
 
+    const auto fn_recursive = [&](auto&& ...args) -> UI::ClickState {
+        auto fn_recursive_impl = [&](const auto& fn, UI::Widget& w, glm::ivec2 offset, UI::ClickState click_state, bool clickable) -> UI::ClickState {
+            offset = this->get_pos(w, offset);
+            if(click_state != UI::ClickState::NOT_CLICKED)
+                clickable = true;
+
+            // Widget must be displayed
+            if(!w.is_render)
+                return UI::ClickState::NOT_CLICKED;
+
+            // Click must be within the widget's box if it's not a group
+            if(w.type != UI::WidgetType::GROUP) {
+                const Eng3D::Rect r(offset.x, offset.y, w.width, w.height);
+                if(!r.contains(mouse_pos)) {
+                    clickable = false;
+                } else if(w.is_transparent) {
+                    if(is_inside_transparent(w, mouse_pos, offset))
+                        clickable = false;
+                }
+            }
+
+            // Iterate over children & override click state if "higher priority" than the current one
+            for(auto& child : w.children) {
+                auto new_click_state = fn(fn, *child, offset, click_state, clickable);
+                if(click_state < new_click_state)
+                    click_state = new_click_state;
+            }
+            bool click_consumed = click_state == UI::ClickState::HANDLED;
+
+            // Non-clickable group widgets are only taken in account
+            if(w.type == UI::WidgetType::GROUP && (!w.on_click || !w.on_drag))
+                clickable = false;
+
+            // Call on_click_outside if on_click has been used or widget isn't hit by click
+            if(w.on_click_outside && (!clickable || click_consumed))
+                w.on_click_outside(w);
+
+            // Call on_click if on_click hasnt been used and widget is hit by click
+            if((w.on_click || w.on_drag) && clickable && !click_consumed) {
+                if(mouse_pressed) {
+                    if(w.type == UI::WidgetType::SLIDER) {
+                        auto& wc = static_cast<UI::Slider&>(w);
+                        wc.set_value((static_cast<float>(std::abs(mouse_pos.x - offset.x)) / static_cast<float>(wc.width)) * wc.max);
+                    }
+                    if (w.on_click)
+                        mouse_pressed_widget = &w;
+                    if (w.on_drag) {
+                        on_drag = w.on_drag;
+                        // Call the function a first time to allow it to save it's start values
+                        on_drag(mouse_pos, mouse_pos);
+                    }
+                } else {
+                    // Note. If the widget at address 'mouse_pressed_widget' is removed while the mouse is pressed
+                    // and another widget get the same address and position it's on_click will be called instead.
+                    // But we will not worry about this unlikely event
+                    if (mouse_pressed_widget == &w)
+                        w.on_click(w);
+                }
+                return UI::ClickState::HANDLED;
+            }
+
+            if(click_state == UI::ClickState::NOT_CLICKED && clickable)
+                click_state = UI::ClickState::NOT_HANDLED;
+            return click_state;
+        };
+        return fn_recursive_impl(fn_recursive_impl, args...);
+    };
+
+    this->start_drag_mouse_position = mouse_pos;
 #ifdef _WIN32
-    // Release the mouse once we no longer drag anything
-    ReleaseCapture();
+    if(mouse_pressed)
+        SetCapture(GetActiveWindow());
+    else
+        // Release the mouse once we no longer drag anything
+        ReleaseCapture();
 #endif
 
-    auto click_state = UI::ClickState::NOT_CLICKED;
-
-    bool is_click = false;
-    for(auto& widget : reverse(widgets)) {
-        click_state = check_click_recursive(*widget, mouse_pos, glm::ivec2(0), click_state, true, false);
-        // Ignore further clicks, prevents clicking causing clicks on elements behind
-        if(click_state != UI::ClickState::NOT_CLICKED) {
-            is_click = true;
-            break;
+    if(mouse_pressed) {
+        auto click_state = UI::ClickState::NOT_CLICKED;
+        int click_wind_index = -1;
+        bool is_click = false;
+        for(int i = widgets.size() - 1; i >= 0; i--) {
+            click_state = fn_recursive(*widgets[i].get(), glm::ivec2(0), click_state, true);
+            // Ignore further clicks, prevents clicking causing clicks on elements behind
+            if(click_state != UI::ClickState::NOT_CLICKED) {
+                is_click = true;
+                // Set the index of the current window to move it to front
+                click_wind_index = i;
+                break;
+            }
         }
+        if(click_wind_index != -1) {
+            // Only movable and UI::WidgetType::WINDOWS are able to move to the top
+            const auto& window = *widgets[click_wind_index].get();
+            if(window.type == UI::WidgetType::WINDOW && !window.is_pinned) {
+                const auto it = widgets.begin() + click_wind_index;
+                std::rotate(it, it + 1, widgets.end());
+            }
+        }
+        return is_click;
+    } else {
+        auto click_state = UI::ClickState::NOT_CLICKED;
+        bool is_click = false;
+        for(auto& widget : reverse(widgets)) {
+            click_state = fn_recursive(*widget, glm::ivec2(0), click_state, true);
+            // Ignore further clicks, prevents clicking causing clicks on elements behind
+            if(click_state != UI::ClickState::NOT_CLICKED) {
+                is_click = true;
+                break;
+            }
+        }
+        mouse_pressed_widget = nullptr;
+        return is_click;
     }
-    mouse_pressed_widget = nullptr;
-
-    return is_click;
 }
 
 void UI::Context::check_drag(glm::ivec2 mouse_pos) {
@@ -557,22 +547,26 @@ void UI::Context::check_drag(glm::ivec2 mouse_pos) {
         on_drag(start_drag_mouse_position, mouse_pos);
 }
 
-bool check_text_input_recursive(UI::Widget& widget, const char* _input) {
-    if(widget.type == UI::WidgetType::INPUT) {
-        auto& c_widget = static_cast<UI::Input&>(widget);
-        if(c_widget.is_selected) c_widget.on_textinput(c_widget, _input);
-        return true;
-    }
+bool UI::Context::check_text_input(const std::string_view text_input) {
+    const auto fn_recursive = [&](auto&& ...args) {
+        auto fn_recursive_impl = [&](const auto& fn, UI::Widget& w) {
+            if(w.type == UI::WidgetType::INPUT) {
+                auto& o = static_cast<UI::Input&>(w);
+                if(o.is_selected)
+                    o.on_textinput(o, text_input);
+                return true;
+            }
 
-    for(const auto& children : widget.children)
-        if(check_text_input_recursive(*children, _input))
-            return true;
-    return false;
-}
+            for(const auto& children : w.children)
+                if(fn(fn, *children))
+                    return true;
+            return false;
+        };
+        return fn_recursive_impl(fn_recursive_impl, args...);
+    };
 
-bool UI::Context::check_text_input(const char* _input) {
     for(const auto& widget : widgets)
-        if(check_text_input_recursive(*widget.get(), _input))
+        if(fn_recursive(*widget.get()))
             return true;
     return false;
 }
@@ -583,48 +577,50 @@ void UI::Context::use_tooltip(UI::Tooltip* tooltip, glm::ivec2 pos) {
         this->tooltip_widget->set_pos(pos.x, pos.y, tooltip->width, tooltip->height, width, height);
 }
 
-bool UI::Context::check_wheel_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, int y) {
-    offset = get_pos(w, offset);
+bool UI::Context::check_wheel(glm::ivec2 mouse_pos, int scroll_y) {
+    const auto fn_recursive = [&](auto&& ...args) {
+        auto fn_recursive_impl = [&](const auto& fn, UI::Widget& w, glm::ivec2 offset) {
+            offset = get_pos(w, offset);
+            // Widget must be shown
+            if(!w.is_render)
+                return false;
 
-    // Widget must be shown
-    if(!w.is_render) return false;
+            const Eng3D::Rect r = Eng3D::Rect(offset.x, offset.y, w.width, w.height);
+            if(!r.contains(mouse_pos)) {
+                return false;
+            } else if(w.is_transparent) {
+                if(is_inside_transparent(w, mouse_pos, offset))
+                    return false;
+            }
 
-    const Eng3D::Rect r = Eng3D::Rect(offset.x, offset.y, w.width, w.height);
-    if(!r.contains(mouse_pos)) {
-        return false;
-    } else if(w.is_transparent) {
-        if(is_inside_transparent(w, mouse_pos, offset))
-            return false;
-    }
+            // When we check the children they shall return non-zero if they are a group/window
+            // We will only select the most-front children that is either a G/W - this is done
+            // because when we call this function we will return 1 if the children is a G/W
+            // otherwise we will return 0, which will be ignored in this for loop
+            //
+            // In short: If any of our children are scrolled by the mouse we will not receive
+            // the scrolling instructions - only the front child will
+            bool is_scrolled = false;
+            for(auto& child : w.children)
+                if(is_scrolled = fn(fn, *child, offset))
+                    break;
 
-    // When we check the children they shall return non-zero if they are a group/window
-    // We will only select the most-front children that is either a G/W - this is done
-    // because when we call this function we will return 1 if the children is a G/W
-    // otherwise we will return 0, which will be ignored in this for loop
-    //
-    // In short: If any of our children are scrolled by the mouse we will not receive
-    // the scrolling instructions - only the front child will
-    UI::Scrollbar* scrollbar = nullptr;
-    bool scrolled = false;
-    for(auto& children : w.children) {
-        if(children->type == UI::WidgetType::SCROLLBAR)
-            scrollbar = static_cast<UI::Scrollbar*>(children.get());
-        scrolled = check_wheel_recursive(*children, mouse_pos, offset, y);
-        if(scrolled) break;
-    }
+            const auto scrollbar_it = std::find_if(w.children.begin(), w.children.end(), [&](const auto& e) {
+                return e->type == UI::WidgetType::SCROLLBAR;
+            });
+            if(w.is_scroll) {
+                w.scroll(scroll_y);
+                if(scrollbar_it != w.children.end())
+                    static_cast<UI::Scrollbar*>((*scrollbar_it).get())->update_thumb();
+                is_scrolled = true;
+            }
+            return is_scrolled;
+        };
+        return fn_recursive_impl(fn_recursive_impl, args...);
+    };
 
-    if(w.is_scroll) {
-        w.scroll(y);
-        if(scrollbar != nullptr)
-            scrollbar->update_thumb();
-        scrolled = true;
-    }
-    return scrolled;
-}
-
-bool UI::Context::check_wheel(glm::ivec2 mouse_pos, int y) {
     for(auto& widget : reverse(widgets))
-        if(check_wheel_recursive(*widget, mouse_pos, glm::ivec2(0), y))
+        if(fn_recursive(*widget, glm::ivec2(0)))
             return true;
     return false;
 }
@@ -633,13 +629,16 @@ bool UI::Context::check_wheel(glm::ivec2 mouse_pos, int y) {
 /// each world tick, and are also framerate independent and thus more reliable than doing
 /// the usual `if (tick % ticks_per_month == 24) {}`, which can cause issues on slow PCs or very fast hosts
 void UI::Context::do_tick() {
-    for(auto& widget : reverse(widgets))
-        do_tick_recursive(*widget);
-}
+    const auto fn_recursive = [&](auto&& ...args) {
+        auto fn_recursive_impl = [&](const auto& fn, UI::Widget& w) -> void {
+            if(w.on_each_tick)
+                w.on_each_tick(w);
+            for(auto& child : w.children)
+                fn(fn, *child);
+        };
+        fn_recursive_impl(fn_recursive_impl, args...);
+    };
 
-int UI::Context::do_tick_recursive(Widget& w) {
-    if(w.on_each_tick) w.on_each_tick(w);
-    for(auto& child : w.children)
-        do_tick_recursive(*child);
-    return 1;
+    for(auto& widget : reverse(widgets))
+        fn_recursive(*widget);
 }

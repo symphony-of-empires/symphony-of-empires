@@ -532,7 +532,7 @@ void Eng3D::State::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
     if(!this->show_ui) return;
     if(e.hold) {
         if(e.type == Eng3D::Event::MouseButton::Type::LEFT) {
-            if(this->ui_ctx.check_click(e.pos)) {
+            if(this->ui_ctx.check_click(e.pos, true)) {
                 auto entries = this->package_man.get_multiple_prefix("sfx/click");
                 if(!entries.empty())
                     this->audio_man.play_sound(entries[rand() % entries.size()]->abs_path);
@@ -540,7 +540,7 @@ void Eng3D::State::handle_mouse_btn(const Eng3D::Event::MouseButton& e) {
             }
         }
     } else if(e.type == Eng3D::Event::MouseButton::Type::LEFT) {
-        this->ui_ctx.check_mouse_released(e.pos);
+        this->ui_ctx.check_click(e.pos, false);
     }
 }
 

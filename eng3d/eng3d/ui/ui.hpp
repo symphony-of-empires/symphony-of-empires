@@ -70,19 +70,15 @@ namespace UI {
         glm::ivec2 get_pos(UI::Widget& w, glm::ivec2 offset);
         void clear_hover_recursive(UI::Widget& w);
         bool check_hover_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset);
-        UI::ClickState check_click_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, UI::ClickState click_state, bool clickable, bool mouse_pressed);
-        bool check_wheel_recursive(UI::Widget& w, glm::ivec2 mouse_pos, glm::ivec2 offset, int y);
         // Render the widget and it's children
         void render_recursive(UI::Widget& widget, Eng3D::Rect viewport, glm::ivec2 offset);
-        int do_tick_recursive(UI::Widget& w);
-        void clear_dead_recursive(UI::Widget& w);
 
         // Is set when mouse is pressed on a widget with a on_drag function
         // Is set to nullptr when the mouse is released
         std::function<void(glm::ivec2 start_mouse_pos, glm::ivec2 current_mouse_pos)> on_drag = nullptr;
         // Indicates which widget have been pressed.
         // Will call on_click on the widget if the mouse is released on it
-        Widget* mouse_pressed_widget = nullptr;
+        UI::Widget* mouse_pressed_widget = nullptr;
         // The mouse position when the mouse is pressed down
         glm::ivec2 start_drag_mouse_position;
 
@@ -93,7 +89,7 @@ namespace UI {
     public:
         Context() = delete;
         Context(Eng3D::State& s);
-        ~Context();
+        ~Context() = default;
         void load_textures();
         void add_widget(UI::Widget* widget);
         void remove_widget(UI::Widget* widget);
@@ -112,12 +108,9 @@ namespace UI {
         /// the widgets on_click if possible. Also move the clicked window to the top, only works
         /// for Window widget with is_pinned = false
         /// @param mouse_pos The mouse position
+        /// @param mouse_pressed If the mouse is pressed or released
         /// @return true if the mouse position was above a ui widget
-        bool check_click(glm::ivec2 mouse_pos);
-
-        /// @brief Release the dragging of the widget
-        /// @param mouse_pos The mouse position
-        bool check_mouse_released(glm::ivec2 mouse_pos);
+        bool check_click(glm::ivec2 mouse_pos, bool mouse_pressed);
 
         /// @brief Check for on_drag events, will move Window widgets with is_pinned = false
         /// @param mouse_pos The mouse position
@@ -132,7 +125,7 @@ namespace UI {
         /// @brief Will give keyboard input to Input Widget if one is selected 
         /// @param input The input characters
         /// @return true if there is a currently selected input widget
-        bool check_text_input(const char* input);
+        bool check_text_input(const std::string_view text_input);
 
         void use_tooltip(Tooltip* tooltip, glm::ivec2 pos);
 
