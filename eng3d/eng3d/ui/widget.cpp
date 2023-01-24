@@ -241,7 +241,7 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
     }
     if(type == UI::WidgetType::INPUT)
         draw_rect(nullptr, pos_rect, tex_rect, viewport);
-    
+
     if(background_color.has_value()) {
         g_ui_context->obj_shader->set_uniform("diffuse_color", glm::vec4(background_color->r, background_color->g, background_color->b, background_color->a));
     }
@@ -254,7 +254,7 @@ void Widget::on_render(Context& ctx, Eng3D::Rect viewport) {
         draw_rectangle(0, 0, width, 24, viewport, ctx.window_top.get());
     if(border.texture != nullptr)
         draw_border(viewport);
-    
+
     auto current_text_texture = get_text_texture().get();
     if(current_text_texture != nullptr) {
         int x_offset = text_offset_x;
@@ -436,7 +436,7 @@ void Widget::add_child(UI::Widget& child) {
 }
 
 std::shared_ptr<Eng3D::Texture> Widget::get_text_texture() {
-    if (!text_texture && !text_str.empty()) {
+    if(!text_texture && !text_str.empty()) {
         auto& text_font = font != nullptr ? *font : *g_ui_context->default_font;
         text_texture = Eng3D::State::get_instance().tex_man.gen_text(text_font, text_color, this->text_str);
     }
@@ -446,26 +446,27 @@ std::shared_ptr<Eng3D::Texture> Widget::get_text_texture() {
 /// @brief Generates text for the widget and overrides the current text texture
 /// @param _text
 void Widget::set_text(const std::string& _text) {
-    if(this->text_str == _text) return;
+    if(this->text_str == _text)
+        return;
     text_texture.reset();
     // Copy _text to a local scope (SDL2 does not like references)
     this->text_str = _text;
-    if(_text.empty()) return;
+    if(_text.empty())
+        return;
 }
 
 /// @brief Generates text for the widget and overrides the current text texture
 /// @param _text
 void Widget::set_text(const std::u32string& _text) {
-	std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf32_utf8;
-    std::string utf8_text = conv_utf32_utf8.to_bytes(_text);
-	
-    if(this->text_str == utf8_text)
+    std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf32_utf8;
+    const auto utf8_text = conv_utf32_utf8.to_bytes(_text);
+    if(this->text_str == utf8_text) // No change in text
         return;
     text_texture.reset();
     // Copy _text to a local scope (SDL2 does not like references)
     this->text_str = utf8_text;
     if(this->text_str.empty())
-	    return;
+        return;
 }
 
 /// @brief Set the tooltip to be shown when this widget is hovered, overrides

@@ -44,9 +44,9 @@ UI::Input::Input(int _x, int _y, unsigned _w, unsigned _h, Widget* _parent)
         // Carefully convert into UTF32 then back into UTF8 so we don't have to
         // use a dedicated library for UTF8 handling (for now)
         std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
-        std::u32string unicode_text = conv_utf8_utf32.from_bytes(w.buffer);
+        auto unicode_text = conv_utf8_utf32.from_bytes(w.buffer);
         if(!text_input.empty()) {
-            std::u32string unicode_input = conv_utf8_utf32.from_bytes(text_input);
+            const auto unicode_input = conv_utf8_utf32.from_bytes(text_input.data());
             unicode_text.insert(w.curpos, unicode_input);
             w.curpos += unicode_input.length();
         } else if(!unicode_text.empty() && w.curpos) {
