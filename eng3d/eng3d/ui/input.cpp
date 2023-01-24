@@ -40,13 +40,13 @@
 UI::Input::Input(int _x, int _y, unsigned _w, unsigned _h, Widget* _parent)
     : Widget(_parent, _x, _y, _w, _h, UI::WidgetType::INPUT)
 {
-    this->on_textinput = ([](UI::Input& w, const char* input) {
+    this->on_textinput = ([](UI::Input& w, const std::string_view text_input) {
         // Carefully convert into UTF32 then back into UTF8 so we don't have to
         // use a dedicated library for UTF8 handling (for now)
         std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
         std::u32string unicode_text = conv_utf8_utf32.from_bytes(w.buffer);
-        if(input != nullptr) {
-            std::u32string unicode_input = conv_utf8_utf32.from_bytes(input);
+        if(!text_input.empty()) {
+            std::u32string unicode_input = conv_utf8_utf32.from_bytes(text_input);
             unicode_text.insert(w.curpos, unicode_input);
             w.curpos += unicode_input.length();
         } else if(!unicode_text.empty() && w.curpos) {

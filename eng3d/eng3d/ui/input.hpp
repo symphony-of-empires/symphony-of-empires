@@ -42,7 +42,7 @@ namespace UI {
 		static void on_click_outside_default(UI::Widget& w);
 		static void on_update_default(UI::Widget& w);
 
-		std::function<void(UI::Input&, const char*)> on_textinput;
+		std::function<void(UI::Input&, const std::string_view)> on_textinput;
 		bool is_selected = false;
 	private:
 		std::string buffer = "";
