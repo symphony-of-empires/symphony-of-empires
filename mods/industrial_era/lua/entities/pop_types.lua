@@ -74,15 +74,6 @@ bureaucrat = PopType:new{
 }
 bureaucrat:register()
 
-intellectual = PopType:new{
-    name = _("Intellectual"),
-    ref_name = "intellectual",
-    social_value = 0.5,
-    basic_needs = standard_basic_needs,
-    luxury_needs = standard_luxury_needs
-}
-intellectual:register()
-
 soldier = PopType:new{
     name = _("Soldier"),
     ref_name = "soldier",

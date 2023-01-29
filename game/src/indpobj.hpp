@@ -237,10 +237,9 @@ enum class PopGroup : int {
     BURGEOISE = 0,
     ARTISAN = 1,
     BUREAUCRAT = 2,
-    INTELLECTUAL = 3,
-    SOLDIER = 4,
-    LABORER = 5,
-    SLAVE = 6,
+    SOLDIER = 3,
+    LABORER = 4,
+    SLAVE = 5,
 };
 struct PopType : RefnameEntity<PopTypeId> {
     Eng3D::StringRef name;

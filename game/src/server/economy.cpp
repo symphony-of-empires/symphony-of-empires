@@ -79,7 +79,6 @@ constexpr auto scale_speed(auto c, auto target) {
 struct ProvinceEconomyInfo {
     // Incomes
     float laborers_payment = 0.f;
-    float intellectuals_payment = 0.f;
     float artisans_payment = 0.f;
     float state_payment = 0.f;
     float private_payment = 0.f;
@@ -201,8 +200,6 @@ static void update_industry_accounting(World& world, Building& building, const B
 
     building.expenses.wages = min_wage * building.workers;
     info.laborers_payment += building.expenses.wages;
-    /// @todo This is duplicating money, we shouldn't dupe money
-    info.intellectuals_payment = info.laborers_payment;
     auto profit = building.get_profit();
 
     // Taxation occurs even without a surplus
@@ -492,7 +489,6 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
         // Payment to the pops, including soldier pop funds
         info.military_funds = province_policy.military_funding * province_policy.min_wage;
         new_needs[(int)PopGroup::LABORER].budget += info.laborers_payment;
-        new_needs[(int)PopGroup::INTELLECTUAL].budget += info.intellectuals_payment;
         new_needs[(int)PopGroup::ARTISAN].budget += info.artisans_payment;
         new_needs[(int)PopGroup::BURGEOISE].budget += info.private_payment;
         new_needs[(int)PopGroup::BUREAUCRAT].budget += info.bureaucrats_payment;
