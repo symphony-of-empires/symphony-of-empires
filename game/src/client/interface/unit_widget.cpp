@@ -135,7 +135,7 @@ UnitView::UnitView(GameState& _gs, Unit& _unit)
 
     auto& unit = this->gs.world->unit_manager.units[this->unit_id];
     auto& unit_type = this->gs.world->unit_types[unit.type_id];
-    this->set_text(Eng3D::translate_format("Unit %s from %s", unit_type.name.c_str(), this->gs.world->nations[unit.owner_id].name.c_str()));
+    this->set_text(Eng3D::translate_format("Unit %s from %s", unit_type.name.data(), this->gs.world->nations[unit.owner_id].name.data()));
 
     auto& flex_column = this->make_widget<UI::Div>(0, 0, this->width, this->height);
     flex_column.flex = UI::Flex::COLUMN;
@@ -146,7 +146,7 @@ UnitView::UnitView(GameState& _gs, Unit& _unit)
         auto target_id = current_unit.get_target_province_id();
         if(current_unit.has_target_province()) {
             const auto& target_province = this->gs.world->provinces[target_id];
-            w.set_text(Eng3D::translate_format("Moving to %s", target_province.name.c_str()));
+            w.set_text(Eng3D::translate_format("Moving to %s", target_province.name.data()));
         } else {
             w.set_text(Eng3D::translate_format("No orders"));
         }

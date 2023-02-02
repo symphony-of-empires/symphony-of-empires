@@ -47,7 +47,7 @@ Eng3D::Glyph::Glyph(float _advance, Eng3D::Rectangle _atlas_bounds, Eng3D::Recta
 
 }
 
-Eng3D::FontSDF::FontSDF(const std::string& filename) {
+Eng3D::FontSDF::FontSDF(const std::string_view filename) {
     auto& s = Eng3D::State::get_instance();
     sphere_shader = std::make_unique<Eng3D::OpenGL::Program>();
     {
@@ -70,11 +70,11 @@ Eng3D::FontSDF::FontSDF(const std::string& filename) {
     mipmap_options.wrap_t = Eng3D::TextureOptions::Wrap::CLAMP_TO_EDGE;
     mipmap_options.compressed = false;
 
-    auto asset = s.package_man.get_unique(filename + ".png");
+    auto asset = s.package_man.get_unique(std::string(filename) + ".png");
     atlas = s.tex_man.load(asset->abs_path, mipmap_options);
     
     std::string line;
-    std::ifstream glyph_data(s.package_man.get_unique(filename + ".csv")->abs_path);
+    std::ifstream glyph_data(s.package_man.get_unique(std::string(filename) + ".csv")->abs_path);
     if(glyph_data.is_open()) {
         while(std::getline(glyph_data, line)) {
 			uint32_t unicode;
@@ -104,10 +104,10 @@ constexpr T bezier(float t, const T p0, const T p1, const T p2) {
     return (1 - t) * ((1 - t) * p0 + t * p1) + t * ((1 - t) * p1 + t * p2);
 }
 
-std::unique_ptr<Eng3D::Label3D> Eng3D::FontSDF::gen_text(const std::string& text, glm::vec2 pmin, glm::vec2 pmax, glm::vec2 p0, float width) {
+std::unique_ptr<Eng3D::Label3D> Eng3D::FontSDF::gen_text(const std::string_view text, glm::vec2 pmin, glm::vec2 pmax, glm::vec2 p0, float width) {
     assert(width > 0.f && width < 1.f);
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
-    std::u32string unicode_text = conv_utf8_utf32.from_bytes(text);
+    std::u32string unicode_text = conv_utf8_utf32.from_bytes(text.data());
 
     auto text_width = 0.f;
     for(const auto& character : unicode_text) {

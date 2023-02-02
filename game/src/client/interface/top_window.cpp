@@ -95,7 +95,7 @@ TopWindow::TopWindow(GameState& _gs)
         const auto& smallest_province = gs.world->provinces[*it1];
         const auto& largest_province = gs.world->provinces[*it2];
 
-        w.set_tooltip(Eng3D::string_format("Average population density: %.0f\nLargest province: %s (%.0f)\nSmallest province: %s (%.0f)", total / gs.curr_nation->owned_provinces.size(), largest_province.name.c_str(), largest_province.total_pops(), smallest_province.name.c_str(), smallest_province.total_pops()));
+        w.set_tooltip(Eng3D::string_format("Average population density: %.0f\nLargest province: %s (%.0f)\nSmallest province: %s (%.0f)", total / gs.curr_nation->owned_provinces.size(), largest_province.name.data(), largest_province.total_pops(), smallest_province.name.data(), smallest_province.total_pops()));
     });
     population_lab.on_each_tick(population_lab);
 
@@ -189,7 +189,7 @@ TopWindow::TopWindow(GameState& _gs)
 
     auto& save_ibtn = flex_column.make_widget<UI::Image>(0, 0, icon_size, icon_size, "gfx/save.png", true);
     save_ibtn.set_on_click([this](UI::Widget&) {
-        LUA_util::save(this->gs, string_format("%s_%zu-%zu-%zu.sc4", gs.curr_nation->ref_name.c_str(), gs.world->get_year(), gs.world->get_month(), gs.world->get_day()));
+        LUA_util::save(this->gs, string_format("%s_%zu-%zu-%zu.sc4", gs.curr_nation->ref_name.data(), gs.world->get_year(), gs.world->get_month(), gs.world->get_day()));
     });
     save_ibtn.set_tooltip("Saves the current game");
 

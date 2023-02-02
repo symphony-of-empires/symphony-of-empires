@@ -193,7 +193,7 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
 
     // Set global locale to the user preferred
     std::locale::global(std::locale(""));
-    Eng3D::Log::debug("engine", Eng3D::translate_format("User's locale is %s", std::locale("").name().c_str()));
+    Eng3D::Log::debug("engine", Eng3D::translate_format("User's locale is %s", std::locale("").name().data()));
 
     const int seed = (int)((uint32_t)time(NULL) * (uint32_t)getpid());
     Eng3D::Log::debug("engine", Eng3D::translate_format("Using random seed of %i", seed));
@@ -228,7 +228,7 @@ Eng3D::Installer::Installer(Eng3D::State& _s)
     s.height = 720;
     Eng3D::Log::debug("sdl2", Eng3D::translate_format("New window %u x %u", s.width, s.height));
     
-    s.window = SDL_CreateWindow(canonical_name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, s.width, s.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    s.window = SDL_CreateWindow(canonical_name.data(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, s.width, s.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     if(s.window == nullptr)
         CXX_THROW(std::runtime_error, Eng3D::translate_format("Failed to initialize SDL window %s", SDL_GetError()));
 
@@ -324,23 +324,23 @@ Eng3D::State::State(const std::vector<std::string>& pkg_paths)
 #if 0
     for(const auto& plugin : Path::get_all("plugin.dll")) {
 #ifdef _WIN32
-        HINSTANCE hGetProcIDDLL = LoadLibrary(plugin.c_str());
+        HINSTANCE hGetProcIDDLL = LoadLibrary(plugin.data());
         // This shouldn't happen - like ever!
         if(!hGetProcIDDLL) {
-            Eng3D::Log::error("plugin", Eng3D::translate_format("DLL file %s not found", plugin.c_str()));
+            Eng3D::Log::error("plugin", Eng3D::translate_format("DLL file %s not found", plugin.data()));
             continue;
         }
 
         typedef int(__stdcall* plugin_dll_entry_t)(const char* gameid, int gamever);
         plugin_dll_entry_t entry = (plugin_dll_entry_t)GetProcAddress(hGetProcIDDLL, "__unirend_entry");
         if(!entry) {
-            Eng3D::Log::warning("plugin", Eng3D::translate_format("Can't find __unirend_entry on %s", plugin.c_str()));
+            Eng3D::Log::warning("plugin", Eng3D::translate_format("Can't find __unirend_entry on %s", plugin.data()));
             continue;
         }
 
         int r = entry("SYMPHONY_EMPIRES", 0x00F0);
         if(r != 0) {
-            Eng3D::Log::warning("plugin", Eng3D::translate_format("Error %i on plugin %s", i, plugin.c_str()));
+            Eng3D::Log::warning("plugin", Eng3D::translate_format("Error %i on plugin %s", i, plugin.data()));
         }
 #endif
     }
@@ -358,13 +358,13 @@ Eng3D::State::~State() {
 
 void Eng3D::State::reload_shaders() {
     // Compile built-in shaders
-    const auto read_file = [this](const std::string& file_name) {
-        return this->package_man.get_unique("shaders/" + file_name)->read_all();
+    const auto read_file = [this](const std::string_view file_name) {
+        return this->package_man.get_unique("shaders/" + std::string(file_name))->read_all();
     };
-    const auto load_fragment_shader = [read_file](std::string file_name) {
+    const auto load_fragment_shader = [read_file](const std::string_view file_name) {
         return std::make_unique<Eng3D::OpenGL::FragmentShader>(read_file(file_name));
     };
-    const auto load_vertex_shader = [read_file](std::string file_name) {
+    const auto load_vertex_shader = [read_file](const std::string_view file_name) {
         return std::make_unique<Eng3D::OpenGL::VertexShader>(read_file(file_name));
     };
 

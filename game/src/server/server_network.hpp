@@ -36,11 +36,11 @@
 class ServerException : public std::exception {
     std::string buffer;
 public:
-    ServerException(const std::string& msg) {
+    ServerException(const std::string_view msg) {
         buffer = msg;
     }
     virtual const char* what() const noexcept {
-        return buffer.c_str();
+        return buffer.data();
     }
 };
 

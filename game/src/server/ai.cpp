@@ -321,7 +321,7 @@ void AI::do_tick(World& world) {
         for(const auto& [nation_id, other_id] : alliance_proposals_range) {
             const auto& nation = world.nations[nation_id];
             const auto& other_nation = world.nations[other_id];
-            world.fire_special_event("special_alliance", nation.ref_name.c_str(), other_nation.ref_name.c_str());
+            world.fire_special_event("special_alliance", nation.ref_name.data(), other_nation.ref_name.data());
         }
     });
 }

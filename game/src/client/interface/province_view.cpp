@@ -132,9 +132,9 @@ UI::Widget& ProvincePopulationTab::create_stock_table() {
             size_t row_index = 0;
 
             auto* commodity_row = row.get_element(row_index++);
-            commodity_row->set_key(commodity.name.c_str());
+            commodity_row->set_key(commodity.name.data());
             auto& commodity_img = commodity_row->make_widget<UI::Image>(0, 0, 35, 35, commodity.get_icon_path(), true);
-            commodity_img.set_tooltip(commodity.name);
+            commodity_img.set_tooltip(commodity.name.data());
 
             auto* amount = row.get_element(row_index++);
             amount->set_key(product.supply, "%.0f");
@@ -159,17 +159,17 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int _x, int _y, Pro
     province{ _province }
 {
     this->is_scroll = true;
-    this->set_text(province.name);
+    this->set_text(province.name.data());
 
     const auto& terrain_type = gs.world->terrain_types[province.terrain_type_id];
     auto& landscape_img = this->make_widget<UI::Image>(0, 0, this->width - 16, 128 + 64 + 16, terrain_type.get_icon_path());
-    landscape_img.set_tooltip(translate_format("%s, penalty %.2f", terrain_type.name.c_str(), terrain_type.penalty));
+    landscape_img.set_tooltip(translate_format("%s, penalty %.2f", terrain_type.name.data(), terrain_type.penalty));
     
     auto& owner_flag = this->make_widget<UI::AspectImage>(0, 0, 96, 48, gs.get_nation_flag(gs.world->nations[this->province.owner_id]));
     owner_flag.set_on_click([this](UI::Widget&) {
         new Interface::NationView(this->gs, gs.world->nations[this->province.owner_id]);
     });
-    owner_flag.set_tooltip(translate_format("%s owns this province", gs.world->nations[this->province.owner_id].name.c_str()));
+    owner_flag.set_tooltip(translate_format("%s owns this province", gs.world->nations[this->province.owner_id].name.data()));
     //this->make_widget<UI::Image>(owner_flag->x, owner_flag->y, owner_flag->width, owner_flag->height, "gfx/flag_rug.png");
 
     // Display all the nuclei
@@ -181,7 +181,7 @@ ProvincePopulationTab::ProvincePopulationTab(GameState& _gs, int _x, int _y, Pro
         owner_flag.set_on_click([this, nucleus_id](UI::Widget&) {
             new Interface::NationView(this->gs, this->gs.world->nations[nucleus_id]);
         });
-        owner_flag.set_tooltip(translate_format("%s has claims on this province", nucleus.name.c_str()));
+        owner_flag.set_tooltip(translate_format("%s has claims on this province", nucleus.name.data()));
     }
 
     auto& pop_table = create_pop_table();
@@ -218,7 +218,7 @@ ProvinceEconomyTab::ProvinceEconomyTab(GameState& _gs, int _x, int _y, Province&
     gs{ _gs },
     province{ _province }
 {
-    this->set_text(province.name);
+    this->set_text(province.name.data());
     this->is_scroll = true;
 }
 
@@ -251,8 +251,8 @@ ProvinceEditLanguageTab::ProvinceEditLanguageTab(GameState& _gs, int _x, int _y,
             auto& row_religion = i >= this->gs.world->religions.size() ? this->gs.world->religions[0] : this->gs.world->religions[i];
             auto* religion_icon = row.get_element(row_index++);
             religion_icon->current_texture = this->gs.tex_man.load(gs.package_man.get_unique(row_religion.get_icon_path()));
-            religion_icon->set_tooltip(row_religion.name);
-            religion_icon->set_key(row_religion.name);
+            religion_icon->set_tooltip(row_religion.name.data());
+            religion_icon->set_key(row_religion.name.data());
             religion_icon->set_on_click([this, religion_id = row_religion.get_id()](UI::Widget&) {
                 const_cast<Province&>(this->province).religions[religion_id] = 1.f;
                 this->gs.map->update_mapmode();
@@ -261,9 +261,9 @@ ProvinceEditLanguageTab::ProvinceEditLanguageTab(GameState& _gs, int _x, int _y,
 
             auto& row_language = i >= this->gs.world->languages.size() ? this->gs.world->languages[0] : this->gs.world->languages[i];
             auto* name = row.get_element(row_index++);
-            name->set_text(row_language.name);
-            name->set_tooltip(row_language.name);
-            name->set_key(row_language.name);
+            name->set_text(row_language.name.data());
+            name->set_tooltip(row_language.name.data());
+            name->set_key(row_language.name.data());
             name->set_on_click([this, language_id = row_language.get_id()](UI::Widget&) {
                 const_cast<Province&>(this->province).languages[language_id] = 1.f;
                 this->gs.map->update_mapmode();
@@ -292,13 +292,13 @@ ProvinceEditTerrainTab::ProvinceEditTerrainTab(GameState& _gs, int _x, int _y, P
             auto landscape = row.get_element(row_index++);
             auto landscape_icon = gs.tex_man.load(gs.package_man.get_unique(terrain_type_row.get_icon_path()));
             landscape->current_texture = landscape_icon;
-            landscape->set_tooltip(terrain_type_row.name);
-            landscape->set_key(terrain_type_row.name);
+            landscape->set_tooltip(terrain_type_row.name.data());
+            landscape->set_key(terrain_type_row.name.data());
 
             auto name = row.get_element(row_index++);
-            name->set_text(terrain_type_row.name);
-            name->set_tooltip(terrain_type_row.name);
-            name->set_key(terrain_type_row.name);
+            name->set_text(terrain_type_row.name.data());
+            name->set_tooltip(terrain_type_row.name.data());
+            name->set_key(terrain_type_row.name.data());
             name->set_on_click([this, &terrain_type_row](UI::Widget&) {
                 auto& nc_province = const_cast<Province&>(this->province);
                 nc_province.terrain_type_id = terrain_type_row;
@@ -329,7 +329,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
 
     this->origin = UI::Origin::CENTER_SCREEN;
     this->is_scroll = false;
-    this->set_text(province.name);
+    this->set_text(province.name.data());
 
     auto& flex_row = this->make_widget<UI::Div>(0, 0, this->width, 32);
     flex_row.flex = UI::Flex::ROW;
@@ -443,7 +443,7 @@ ProvinceView::ProvinceView(GameState& _gs, Province& _province)
         density_sld.set_tooltip(translate("Density slider"));
 
         auto& rename_inp = this->make_widget<UI::Input>(128, 32, 128, 24);
-        rename_inp.set_buffer(province.name);
+        rename_inp.set_buffer(province.name.data());
         auto& xchg_name_btn = this->make_widget<UI::Button>(128 + 128, 32, 32, 32);
         xchg_name_btn.set_on_click([this, &rename_inp](UI::Widget&) {
             const_cast<Province&>(this->province).name = Eng3D::StringRef{rename_inp.get_buffer()};

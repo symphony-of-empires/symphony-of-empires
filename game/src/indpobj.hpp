@@ -151,7 +151,7 @@ struct Ideology : RefnameEntity<IdeologyId> {
     std::uint32_t color;
     Eng3D::StringRef name;
     std::string get_icon_path() const {
-        return string_format("gfx/ideology/%s.png", ref_name.c_str());
+        return string_format("gfx/ideology/%s.png", ref_name.data());
     }
 
     struct Subideology : RefnameEntity<SubideologyId> {
@@ -217,7 +217,7 @@ struct Religion : RefnameEntity<ReligionId> {
     Eng3D::StringRef name;
     std::uint32_t color;
     std::string get_icon_path() const {
-        return string_format("gfx/religion/%s.png", ref_name.c_str());
+        return string_format("gfx/religion/%s.png", ref_name.data());
     }
 };
 template<>
@@ -338,7 +338,7 @@ struct TerrainType : RefnameEntity<TerrainTypeId> {
     bool is_water_body = false; // Should this terrain be treated as sea?
     float penalty = 1.f; // Penalty imposed to various contexts
     std::string get_icon_path() const {
-        return string_format("gfx/terraintype/%s.png", ref_name.c_str());
+        return string_format("gfx/terraintype/%s.png", ref_name.data());
     }
 };
 template<>

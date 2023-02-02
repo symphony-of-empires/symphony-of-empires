@@ -79,19 +79,19 @@ void Eng3D::BenchmarkTask::clear_old() {
     }
 }
 
-void Eng3D::Profiler::start(const std::string& name) {
-    auto it = tasks.find(name);
+void Eng3D::Profiler::start(const std::string_view name) {
+    auto it = tasks.find(name.data());
     if(it == tasks.end()) {
         Eng3D::BenchmarkTask task(name, tasks.size());
         task.start();
-        tasks.insert({ name, task });
+        tasks.insert({ std::string(name), task });
     } else {
         it->second.start();
     }
 }
 
-void Eng3D::Profiler::stop(const std::string& name) {
-    auto it = tasks.find(name);
+void Eng3D::Profiler::stop(const std::string_view name) {
+    auto it = tasks.find(name.data());
     assert(it != tasks.end() && "Tried to stop task that hasn't started yet");
     it->second.stop();
 }

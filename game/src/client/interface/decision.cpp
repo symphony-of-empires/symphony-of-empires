@@ -43,20 +43,20 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
 {
     // Title of the event
     this->origin = UI::Origin::CENTER_SCREEN;
-    this->set_text(this->event.title);
+    this->set_text(this->event.title.data());
     this->flex = UI::Flex::COLUMN;
 
     // Display an image iff it exists
-    const auto& path = string_format("gfx/events/%s.png", event.ref_name.c_str());
+    const auto& path = string_format("gfx/events/%s.png", event.ref_name.data());
     if(this->gs.package_man.get_unique(path) != nullptr) {
         this->make_widget<UI::Image>(0, 24, this->width, 200, path);
     } else {
-        Eng3D::Log::warning("event", path.c_str());
+        Eng3D::Log::warning("event", path.data());
     }
 
     auto& txt = this->make_widget<UI::Text>(0, 0, this->width, 24);
     txt.text_color = Eng3D::Color::rgb8(0, 0, 0);
-    txt.set_text(this->event.text);
+    txt.set_text(this->event.text.data());
     txt.is_scroll = true;
 
     auto button_font = gs.ttf_man.load(gs.package_man.get_unique("fonts/neon_euler/euler.ttf"));
@@ -73,15 +73,15 @@ Interface::DecisionWindow::DecisionWindow(GameState& _gs, Event _event)
         flex_column.flex = UI::Flex::ROW;
 
         if(decision.ref_name.get_string().empty())
-            CXX_THROW(std::runtime_error, string_format("Event ref_name=%s", event.ref_name.c_str()));
+            CXX_THROW(std::runtime_error, string_format("Event ref_name=%s", event.ref_name.data()));
         
         auto& decide_btn = flex_column.make_widget<UI::Button>(0, 0, flex_column.width - 24, 24);
         decide_btn.border = button_border;
         decide_btn.current_texture = button_image;
         decide_btn.font = button_font;
         decide_btn.text_color = button_text_color;
-        decide_btn.set_text(decision.name);
-        decide_btn.set_tooltip(decision.effects);
+        decide_btn.set_text(decision.name.data());
+        decide_btn.set_tooltip(decision.effects.data());
         decide_btn.set_on_click([this, &decision](UI::Widget&) {
             if(this->gs.client)
                 this->gs.client->send(Action::NationTakeDecision::form_packet(this->event, decision));

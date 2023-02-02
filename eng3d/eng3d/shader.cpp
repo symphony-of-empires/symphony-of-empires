@@ -45,7 +45,7 @@
 #if defined E3D_BACKEND_OPENGL || defined E3D_BACKEND_GLES
 /// @brief Construct a shader by opening the provided path and creating a temporal ifstream, reading
 /// from that stream in text mode and then compiling the shader
-Eng3D::OpenGL::Shader::Shader(const std::string& _buffer, GLuint type, bool use_transpiler, std::vector<Eng3D::GLSL::Define> defintions)
+Eng3D::OpenGL::Shader::Shader(const std::string_view _buffer, GLuint type, bool use_transpiler, std::vector<Eng3D::GLSL::Define> defintions)
     : buffer(_buffer)
 {
     if(use_transpiler) try {
@@ -62,7 +62,7 @@ Eng3D::OpenGL::Shader::Shader(const std::string& _buffer, GLuint type, bool use_
     id = glCreateShader(type);
     if(!id)
         CXX_THROW(Eng3D::ShaderException, "Can't create shader");
-    const char* c_code = buffer.c_str();
+    const char* c_code = buffer.data();
     glShaderSource(id, 1, &c_code, NULL);
     compile(type);
 }
@@ -140,7 +140,7 @@ unsigned int Eng3D::OpenGL::Shader::get_id() const {
 //
 // Vertex shader
 //
-Eng3D::OpenGL::VertexShader::VertexShader(const std::string& _buffer)
+Eng3D::OpenGL::VertexShader::VertexShader(const std::string_view _buffer)
     : Eng3D::OpenGL::Shader(_buffer, GL_VERTEX_SHADER)
 {
 
@@ -149,7 +149,7 @@ Eng3D::OpenGL::VertexShader::VertexShader(const std::string& _buffer)
 //
 // Fragment shader
 //
-Eng3D::OpenGL::FragmentShader::FragmentShader(const std::string& _buffer, bool use_transpiler, std::vector<Eng3D::GLSL::Define> defintions)
+Eng3D::OpenGL::FragmentShader::FragmentShader(const std::string_view _buffer, bool use_transpiler, std::vector<Eng3D::GLSL::Define> defintions)
     : Eng3D::OpenGL::Shader(_buffer, GL_FRAGMENT_SHADER, use_transpiler, defintions)
 {
 
@@ -159,7 +159,7 @@ Eng3D::OpenGL::FragmentShader::FragmentShader(const std::string& _buffer, bool u
 //
 // Geometry shader
 //
-Eng3D::OpenGL::GeometryShader::GeometryShader(const std::string& _buffer)
+Eng3D::OpenGL::GeometryShader::GeometryShader(const std::string_view _buffer)
     : Eng3D::OpenGL::Shader(_buffer, GL_GEOMETRY_SHADER)
 {
 
@@ -168,7 +168,7 @@ Eng3D::OpenGL::GeometryShader::GeometryShader(const std::string& _buffer)
 //
 // Tesseleation control shader
 //
-Eng3D::OpenGL::TessControlShader::TessControlShader(const std::string& _buffer)
+Eng3D::OpenGL::TessControlShader::TessControlShader(const std::string_view _buffer)
     : Eng3D::OpenGL::Shader(_buffer, GL_TESS_CONTROL_SHADER)
 {
 
@@ -177,7 +177,7 @@ Eng3D::OpenGL::TessControlShader::TessControlShader(const std::string& _buffer)
 //
 // Tesselation evaluation shader
 //
-Eng3D::OpenGL::TessEvalShader::TessEvalShader(const std::string& _buffer)
+Eng3D::OpenGL::TessEvalShader::TessEvalShader(const std::string_view _buffer)
     : Eng3D::OpenGL::Shader(_buffer, GL_TESS_EVALUATION_SHADER)
 {
 
@@ -214,7 +214,7 @@ void Eng3D::OpenGL::Program::link() {
         std::string shader_error_info;
         shader_error_info.resize(infoLen);
         glGetShaderInfoLog(id, infoLen, NULL, &shader_error_info[0]);
-        Eng3D::Log::error("shader", Eng3D::translate_format("Shader program error %s", shader_error_info.c_str()));
+        Eng3D::Log::error("shader", Eng3D::translate_format("Shader program error %s", shader_error_info.data()));
     }
 }
 
@@ -237,50 +237,50 @@ void Eng3D::OpenGL::Program::set_PVM(glm::mat4 projection, glm::mat4 view, glm::
     set_uniform("model", model);
 }
 
-void Eng3D::OpenGL::Program::set_uniform(const std::string& name, glm::mat4 uniform) const {
-    glProgramUniformMatrix4fv(id, glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, glm::value_ptr(uniform));
+void Eng3D::OpenGL::Program::set_uniform(const std::string_view name, glm::mat4 uniform) const {
+    glProgramUniformMatrix4fv(id, glGetUniformLocation(id, name.data()), 1, GL_FALSE, glm::value_ptr(uniform));
 }
 
-void Eng3D::OpenGL::Program::set_uniform(const std::string& name, float value1, float value2) const {
-    glProgramUniform2f(id, glGetUniformLocation(id, name.c_str()), value1, value2);
+void Eng3D::OpenGL::Program::set_uniform(const std::string_view name, float value1, float value2) const {
+    glProgramUniform2f(id, glGetUniformLocation(id, name.data()), value1, value2);
 }
 
-void Eng3D::OpenGL::Program::set_uniform(const std::string& name, float value1, float value2, float value3) const {
-    glProgramUniform3f(id, glGetUniformLocation(id, name.c_str()), value1, value2, value3);
+void Eng3D::OpenGL::Program::set_uniform(const std::string_view name, float value1, float value2, float value3) const {
+    glProgramUniform3f(id, glGetUniformLocation(id, name.data()), value1, value2, value3);
 }
 
-void Eng3D::OpenGL::Program::set_uniform(const std::string& name, glm::vec2 uniform) const {
+void Eng3D::OpenGL::Program::set_uniform(const std::string_view name, glm::vec2 uniform) const {
     set_uniform(name, uniform.x, uniform.y);
 }
 
-void Eng3D::OpenGL::Program::set_uniform(const std::string& name, glm::vec3 uniform) const {
+void Eng3D::OpenGL::Program::set_uniform(const std::string_view name, glm::vec3 uniform) const {
     set_uniform(name, uniform.x, uniform.y, uniform.z);
 }
 
-void Eng3D::OpenGL::Program::set_uniform(const std::string& name, glm::vec4 uniform) const {
+void Eng3D::OpenGL::Program::set_uniform(const std::string_view name, glm::vec4 uniform) const {
     set_uniform(name, uniform.x, uniform.y, uniform.z, uniform.w);
 }
 
-void Eng3D::OpenGL::Program::set_uniform(const std::string& name, float value1, float value2, float value3, float value4) const {
-    glProgramUniform4f(id, glGetUniformLocation(id, name.c_str()), value1, value2, value3, value4);
+void Eng3D::OpenGL::Program::set_uniform(const std::string_view name, float value1, float value2, float value3, float value4) const {
+    glProgramUniform4f(id, glGetUniformLocation(id, name.data()), value1, value2, value3, value4);
 }
 
-void Eng3D::OpenGL::Program::set_uniform(const std::string& name, float value) const {
-    glProgramUniform1f(id, glGetUniformLocation(id, name.c_str()), value);
+void Eng3D::OpenGL::Program::set_uniform(const std::string_view name, float value) const {
+    glProgramUniform1f(id, glGetUniformLocation(id, name.data()), value);
 }
 
-void Eng3D::OpenGL::Program::set_uniform(const std::string& name, int value) const {
-    glProgramUniform1i(id, glGetUniformLocation(id, name.c_str()), value);
+void Eng3D::OpenGL::Program::set_uniform(const std::string_view name, int value) const {
+    glProgramUniform1i(id, glGetUniformLocation(id, name.data()), value);
 }
 
 /// @brief Sets the texture (sampler2D) into the shader
-void Eng3D::OpenGL::Program::set_texture(int value, const std::string& name, const Eng3D::Texture& texture) const {
+void Eng3D::OpenGL::Program::set_texture(int value, const std::string_view name, const Eng3D::Texture& texture) const {
     glActiveTexture(GL_TEXTURE0 + value);
     set_uniform(name, value);
     glBindTexture(GL_TEXTURE_2D, texture.id);
 }
 
-void Eng3D::OpenGL::Program::set_texture(int value, const std::string& name, const Eng3D::TextureArray& texture) const {
+void Eng3D::OpenGL::Program::set_texture(int value, const std::string_view name, const Eng3D::TextureArray& texture) const {
     glActiveTexture(GL_TEXTURE0 + value);
     set_uniform(name, value);
     glBindTexture(GL_TEXTURE_2D_ARRAY, texture.id);

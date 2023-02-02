@@ -63,7 +63,7 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         auto& province = client_data.gs.world->provinces.at(province_id);
 
         if(unit.can_move()) {
-            Eng3D::Log::debug("server", translate_format("Unit changes targets to %s", province.ref_name.c_str()).c_str());
+            Eng3D::Log::debug("server", translate_format("Unit changes targets to %s", province.ref_name.data()).data());
             unit.set_path(province);
         }
     };
@@ -83,7 +83,7 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         /// @todo Check nation can build this unit
         // Tell the building to build this specific unit type
         building.work_on_unit(unit_type);
-        Eng3D::Log::debug("server", string_format("Building unit %s", unit_type.ref_name.c_str()));
+        Eng3D::Log::debug("server", string_format("Building unit %s", unit_type.ref_name.data()));
     };
     action_handlers[ActionType::BUILDING_ADD] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
         ProvinceId province_id;
@@ -94,7 +94,7 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         auto& building = province.buildings.at(building_type_id);
         building.budget += building.get_upgrade_cost();
         client_data.selected_nation->budget -= building.get_upgrade_cost();
-        Eng3D::Log::debug("server", string_format("Funding upgrade of buildin %s in %s", client_data.gs.world->building_types[building_type_id].ref_name.c_str(), client_data.selected_nation->ref_name.c_str()));
+        Eng3D::Log::debug("server", string_format("Funding upgrade of buildin %s in %s", client_data.gs.world->building_types[building_type_id].ref_name.data(), client_data.selected_nation->ref_name.data()));
         // Rebroadcast
         this->broadcast(Action::BuildingAdd::form_packet(province, client_data.gs.world->building_types[building_type_id]));
     };
@@ -147,11 +147,11 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         auto last = std::unique(approver_nations.begin(), approver_nations.end());
         approver_nations.erase(last, approver_nations.end());
 
-        Eng3D::Log::debug("server", string_format("Participants of treaty %s", treaty.name.c_str()));
+        Eng3D::Log::debug("server", string_format("Participants of treaty %s", treaty.name.data()));
         // Then fill as undecided (and ask nations to sign this treaty)
         for(auto& nation_id : approver_nations) {
             treaty.approval_status.emplace_back(nation_id, TreatyApproval::UNDECIDED);
-            Eng3D::Log::debug("server", g_world.nations[nation_id].ref_name.c_str());
+            Eng3D::Log::debug("server", g_world.nations[nation_id].ref_name.data());
         }
         // The sender automatically accepts the treaty (they are the ones who drafted it)
         auto it = std::find_if(treaty.approval_status.end(), treaty.approval_status.end(), [&client_data](const auto& e) {
@@ -181,7 +181,7 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
             return o.ref_name.get_string() == ref_name.get_string();
         });
         if(decision == event.decisions.end())
-            CXX_THROW(ServerException, translate_format("Decision %s not found", ref_name.c_str()));
+            CXX_THROW(ServerException, translate_format("Decision %s not found", ref_name.data()));
         event.take_decision(*client_data.selected_nation, *decision);
         //Eng3D::Log::debug("server", "Event " + local_event.ref_name + " takes descision " + ref_name + " by nation " + selected_nation->ref_name);
     };
@@ -192,7 +192,7 @@ Server::Server(GameState& _gs, const unsigned port, const unsigned max_conn)
         Eng3D::Deser::deserialize(ar, nation.ai_do_cmd_troops);
         Eng3D::Deser::deserialize(ar, nation.ai_controlled);
         client_data.selected_nation = &nation;
-        Eng3D::Log::debug("server", Eng3D::translate_format("Nation %s selected by client %s", client_data.selected_nation->ref_name.c_str(), client_data.username.c_str()));
+        Eng3D::Log::debug("server", Eng3D::translate_format("Nation %s selected by client %s", client_data.selected_nation->ref_name.data(), client_data.username.data()));
     };
     action_handlers[ActionType::SET_USERNAME] = [this](ClientData& client_data, const Eng3D::Networking::Packet& packet, Eng3D::Deser::Archive& ar) {
         NationId nation_id;

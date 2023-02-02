@@ -31,11 +31,11 @@ namespace Eng3D {
     class LuaException : public std::exception {
         std::string buffer;
     public:
-        LuaException(const std::string& message) {
+        LuaException(const std::string_view message) {
             buffer = message;
         }
         virtual const char* what() const noexcept {
-            return buffer.c_str();
+            return buffer.data();
         }
     };
 
@@ -45,7 +45,7 @@ namespace Eng3D {
 
         static int call_func(lua_State* L, int nargs, int nret);
         int call_func(int nargs, int nret);
-        void invoke_registered_callback(const std::string& name);
+        void invoke_registered_callback(const std::string_view name);
         lua_State* state = nullptr;
     private:
         static int ui_new_button(lua_State* L);

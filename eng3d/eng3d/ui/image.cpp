@@ -40,14 +40,14 @@ Image::Image(int _x, int _y, unsigned w, unsigned h, std::shared_ptr<Eng3D::Text
     current_texture = tex;
 }
 
-Image::Image(int _x, int _y, unsigned w, unsigned h, const std::string& texture_path, Widget* _parent)
+Image::Image(int _x, int _y, unsigned w, unsigned h, const std::string_view texture_path, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI::WidgetType::IMAGE)
 {
     auto& s = Eng3D::State::get_instance();
     current_texture = s.tex_man.load(s.package_man.get_unique(texture_path));
 }
 
-Image::Image(int _x, int _y, unsigned w, unsigned h, const std::string& texture_path, bool mipmap, Widget* _parent)
+Image::Image(int _x, int _y, unsigned w, unsigned h, const std::string_view texture_path, bool mipmap, Widget* _parent)
     : Widget(_parent, _x, _y, w, h, UI::WidgetType::IMAGE)
 {
     Eng3D::TextureOptions options;
@@ -61,11 +61,11 @@ Image::Image(int _x, int _y, unsigned w, unsigned h, const std::string& texture_
     current_texture = s.tex_man.load(s.package_man.get_unique(texture_path), options);
 }
 
-Image* Image::make_transparent(int x, int y, unsigned w, unsigned h, const std::string& tex_path, Widget* parent) {
+Image* Image::make_transparent(int x, int y, unsigned w, unsigned h, const std::string_view tex_path, Widget* parent) {
     return make_transparent(x, y, w, h, tex_path, false, parent);
 }
 
-Image* Image::make_transparent(int x, int y, unsigned w, unsigned h, const std::string& texture_path, bool mipmap, Widget* parent) {
+Image* Image::make_transparent(int x, int y, unsigned w, unsigned h, const std::string_view texture_path, bool mipmap, Widget* parent) {
     Eng3D::TextureOptions no_drop_options{};
     no_drop_options.editable = true;
     if(mipmap) {

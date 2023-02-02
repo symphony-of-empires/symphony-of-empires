@@ -38,7 +38,7 @@ std::string pop_qol_tooltip_text(const Pop& pop, const World* world) {
     for (const auto& commodity : world->commodities) {
         if (needs_amounts[commodity] == 0) continue;
         const auto need_factor = needs_amounts[commodity] / total_factor;
-        text += Eng3D::translate_format("\n%s: %.3f", commodity.name.c_str(), need_factor);
+        text += Eng3D::translate_format("\n%s: %.3f", commodity.name.data(), need_factor);
     }
     return text;
 }
@@ -79,12 +79,12 @@ Interface::PopWindow::PopWindow(GameState& _gs)
                 size_label->set_key(pop.size);
 
                 auto prov_name = row.get_element(row_index++);
-                prov_name->set_text(province.name);
-                prov_name->set_key(province.name);
+                prov_name->set_text(province.name.data());
+                prov_name->set_key(province.name.data());
 
                 auto type_lable = row.get_element(row_index++);
-                type_lable->set_text(this->gs.world->pop_types[pop.type_id].name);
-                type_lable->set_key(this->gs.world->pop_types[pop.type_id].name);
+                type_lable->set_text(this->gs.world->pop_types[pop.type_id].name.data());
+                type_lable->set_key(this->gs.world->pop_types[pop.type_id].name.data());
 
                 auto militancy = row.get_element(row_index++);
                 militancy->set_text(string_format("%1.2f", pop.militancy));

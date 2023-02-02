@@ -38,7 +38,7 @@ namespace Eng3D {
     class BenchmarkTask {
         void clear_old();
     public:
-        BenchmarkTask(const std::string& task, uint32_t argb)
+        BenchmarkTask(const std::string_view task, uint32_t argb)
             : name{ task },
             color{ argb }
         {
@@ -64,8 +64,8 @@ namespace Eng3D {
             render_started = false;
         }
         ~Profiler() = default;
-        void start(const std::string& name);
-        void stop(const std::string& name);
+        void start(const std::string_view name);
+        void stop(const std::string_view name);
         void tick_done();
         void render_done();
         float get_fps();

@@ -72,6 +72,6 @@ namespace Eng3D {
 
         }
         ~MaterialManager() = default;
-        const std::shared_ptr<Eng3D::Material> load(const std::string& name);
+        const std::shared_ptr<Eng3D::Material> load(const std::string_view name);
     };
 }

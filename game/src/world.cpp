@@ -67,11 +67,11 @@ template<typename T>
 static const T& find_or_throw(const std::string_view ref_name) {
     const auto& list = World::get_instance().get_list((T*)nullptr);
     const auto result = std::find_if(list.begin(), list.end(), [ref_name](const auto& o) {
-        return !strcmp(o.ref_name.c_str(), ref_name.data());
+        return !strcmp(o.ref_name.data(), ref_name.data());
     });
 
     if(result == list.end())
-        CXX_THROW(Eng3D::LuaException, translate_format("Object<%s> not found", typeid(T).name()).c_str());
+        CXX_THROW(Eng3D::LuaException, translate_format("Object<%s> not found", typeid(T).name()).data());
     return *result;
 }
 
@@ -291,14 +291,14 @@ void World::init_lua() {
     lua_register(lua.state, "get_ideology", [](lua_State* L) {
         const auto& ideology = find_or_throw<Ideology>(luaL_checkstring(L, 1));
         lua_pushnumber(L, (size_t)g_world.get_id(ideology));
-        lua_pushstring(L, ideology.name.c_str());
+        lua_pushstring(L, ideology.name.data());
         lua_pushnumber(L, std::byteswap<std::uint32_t>((ideology.color & 0x00ffffff) << 8));
         return 3;
     });
     lua_register(lua.state, "get_ideology_by_id", [](lua_State* L) {
         const auto& ideology = g_world.ideologies.at(lua_tonumber(L, 1));
-        lua_pushstring(L, ideology.ref_name.c_str());
-        lua_pushstring(L, ideology.name.c_str());
+        lua_pushstring(L, ideology.ref_name.data());
+        lua_pushstring(L, ideology.name.data());
         lua_pushnumber(L, std::byteswap<std::uint32_t>((ideology.color & 0x00ffffff) << 8));
         return 3;
     });
@@ -390,15 +390,15 @@ void World::init_lua() {
         curr_path.append(";" + path + "/lua/?.lua");
     }
     lua_pop(lua.state, 1);
-    lua_pushstring(lua.state, curr_path.c_str());
+    lua_pushstring(lua.state, curr_path.data());
     lua_setfield(lua.state, -2, "path");
     lua_pop(lua.state, 1);
 }
 
-static void lua_exec_all_of(World& world, const std::vector<std::string> files, const std::string& dir = "lua") {
+static void lua_exec_all_of(World& world, const std::vector<std::string> files, const std::string_view dir = "lua") {
     std::string files_buf = "require(\"classes/base\")\n\n";
     for(const auto& file : files) {
-        auto paths = Eng3D::State::get_instance().package_man.get_multiple(dir + "/" + file + ".lua");
+        auto paths = Eng3D::State::get_instance().package_man.get_multiple(std::string(dir) + "/" + file + ".lua");
         for(const auto& path : paths) {
 #ifdef _WIN32
             std::string m_path;
@@ -412,7 +412,7 @@ static void lua_exec_all_of(World& world, const std::vector<std::string> files, 
         }
     }
     Eng3D::Log::debug("lua", "Buffer " + files_buf);
-    if(luaL_loadstring(world.lua.state, files_buf.c_str()) != LUA_OK || lua_pcall(world.lua.state, 0, 0, 0) != LUA_OK)
+    if(luaL_loadstring(world.lua.state, files_buf.data()) != LUA_OK || lua_pcall(world.lua.state, 0, 0, 0) != LUA_OK)
         CXX_THROW(Eng3D::LuaException, lua_tostring(world.lua.state, -1));
 }
 
@@ -498,7 +498,7 @@ void World::load_initial() try {
     if(!provinces_ref_names.empty()) {
         std::string error = "Province " + provinces_ref_names + " is registered but missing on province.png, please add it!";
         Eng3D::Log::error("world", error);
-        CXX_THROW(std::runtime_error, error.c_str());
+        CXX_THROW(std::runtime_error, error.data());
     }
 //#endif
     div.reset();
@@ -713,7 +713,7 @@ static inline void unit_do_battle_tick(World& world, Unit& unit) {
             v.erase(std::unique(v.begin(), v.end()), v.end());
             province.battle.defender_nations_ids = v;
 
-            Eng3D::Log::debug("game", string_format("New battle on province %s", province.name.c_str()));
+            Eng3D::Log::debug("game", string_format("New battle on province %s", province.name.data()));
         }
     }
 
@@ -885,7 +885,7 @@ void World::do_tick() {
                 auto& unit = units[unit_id];
                 assert(unit_id == unit.get_id());
                 if(unit.size < 1.f) {
-                    Eng3D::Log::debug("game", string_format("Removing unit id=%zu from province %s", (size_t)unit_id, province.name.c_str()));
+                    Eng3D::Log::debug("game", string_format("Removing unit id=%zu from province %s", (size_t)unit_id, province.name.data()));
                     assert(std::find(clear_units.begin(), clear_units.end(), unit_id) == clear_units.end());
                     clear_units.push_back(unit_id);
                     province.battle.unit_ids.erase(province.battle.unit_ids.begin() + i);

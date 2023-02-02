@@ -34,9 +34,9 @@
 // Asset::File
 //
 void Eng3D::IO::Asset::File::open() {
-    this->fp = std::fopen(abs_path.c_str(), "rb");
+    this->fp = std::fopen(abs_path.data(), "rb");
     if(fp == nullptr)
-        CXX_THROW(std::runtime_error, Eng3D::translate_format("Can't open file %s", path.c_str()));
+        CXX_THROW(std::runtime_error, Eng3D::translate_format("Can't open file %s", path.data()));
 }
 
 void Eng3D::IO::Asset::File::close() {
@@ -75,7 +75,7 @@ size_t Eng3D::IO::Asset::File::get_size(void) const {
 //
 // Package manager
 //
-void Eng3D::IO::PackageManager::recursive_filesystem_walk(Eng3D::IO::Package& package, const std::string& root, const std::string& current) {
+void Eng3D::IO::PackageManager::recursive_filesystem_walk(Eng3D::IO::Package& package, const std::string_view root, const std::string_view current) {
     // Register paths into our virtual filesystem
     for(const auto& entry : std::filesystem::recursive_directory_iterator(current)) {
         if(entry.is_directory()) continue;

@@ -92,7 +92,7 @@ namespace Eng3D {
 
         }
         ~ModelManager() = default;
-        std::shared_ptr<Eng3D::Model> load(const std::string& path);
+        std::shared_ptr<Eng3D::Model> load(const std::string_view path);
         std::shared_ptr<Eng3D::Model> load(std::shared_ptr<Eng3D::IO::Asset::Base> asset);
     };
 }

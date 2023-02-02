@@ -39,10 +39,10 @@ namespace UI {
     /// @brief Simple widget for drawing text on the screen, no multiline support
     class Label: public Widget {
     public:
-        Label(int x, int y, const std::string& text = " ", Widget* parent = nullptr);
+        Label(int x, int y, const std::string_view text = " ", Widget* parent = nullptr);
         Label(int x, int y, const std::u32string& text = U" ", Widget* parent = nullptr);
         virtual ~Label();
-        virtual void set_text(const std::string& _text);
+        virtual void set_text(const std::string_view _text);
         virtual void set_text(const std::u32string& _text);
     };
 }

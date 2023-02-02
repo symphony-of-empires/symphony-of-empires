@@ -178,7 +178,7 @@ void UnitManager::move_unit(UnitId unit_id, ProvinceId target_province_id) {
         id = (ProvinceId)((size_t)id + 1);
     }
 
-    Eng3D::Log::debug("game", string_format("Moving unit id=%zu in %s->%s", (size_t)unit_id, g_world.provinces[current_province_id].name.c_str(), g_world.provinces[target_province_id].name.c_str()));
+    Eng3D::Log::debug("game", string_format("Moving unit id=%zu in %s->%s", (size_t)unit_id, g_world.provinces[current_province_id].name.data(), g_world.provinces[target_province_id].name.data()));
 }
 
 void Unit::set_owner(const Nation& nation) {

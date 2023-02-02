@@ -35,7 +35,7 @@ namespace UI {
 	public:
 		Input(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
 		virtual ~Input() override {}
-		void set_buffer(const std::string& _buffer);
+		void set_buffer(const std::string_view _buffer);
 		std::string get_buffer() const;
 
 		static void on_click_default(UI::Widget& w);

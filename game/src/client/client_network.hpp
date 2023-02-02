@@ -35,11 +35,11 @@
 class ClientException : public std::exception {
     std::string buffer;
 public:
-    ClientException(const std::string& msg) {
+    ClientException(const std::string_view msg) {
         buffer = msg;
     }
     virtual const char* what() const noexcept {
-        return buffer.c_str();
+        return buffer.data();
     }
 };
 

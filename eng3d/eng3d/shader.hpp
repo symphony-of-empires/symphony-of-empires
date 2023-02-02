@@ -39,14 +39,14 @@ namespace Eng3D {
     class ShaderException : public std::exception {
         std::string buffer;
     public:
-        ShaderException(const std::string& _buffer)
+        ShaderException(const std::string_view _buffer)
             : buffer{ _buffer }
         {
 
         }
         
         virtual const char* what() const noexcept {
-            return buffer.c_str();
+            return buffer.data();
         }
     };
 
@@ -79,39 +79,39 @@ namespace Eng3D {
             unsigned int id;
             std::vector<int> line_numbers;
         public:
-            Shader(const std::string& _buffer, unsigned int type, bool use_transpiler = true, std::vector<Eng3D::GLSL::Define> defintions = {});
+            Shader(const std::string_view _buffer, unsigned int type, bool use_transpiler = true, std::vector<Eng3D::GLSL::Define> defintions = {});
             ~Shader();
             unsigned int get_id() const;
         };
 
         class VertexShader: public Shader {
         public:
-            VertexShader(const std::string& _buffer);
+            VertexShader(const std::string_view _buffer);
             ~VertexShader() = default;
         };
 
         class FragmentShader: public Shader {
         public:
-            FragmentShader(const std::string& _buffer, bool use_transpiler = true, std::vector<Eng3D::GLSL::Define> defintions = {});
+            FragmentShader(const std::string_view _buffer, bool use_transpiler = true, std::vector<Eng3D::GLSL::Define> defintions = {});
             ~FragmentShader() = default;
         };
 
 #if !defined E3D_BACKEND_GLES
         class GeometryShader: public Shader {
         public:
-            GeometryShader(const std::string& _buffer);
+            GeometryShader(const std::string_view _buffer);
             ~GeometryShader() = default;
         };
 
         class TessControlShader: public Shader {
         public:
-            TessControlShader(const std::string& _buffer);
+            TessControlShader(const std::string_view _buffer);
             ~TessControlShader() = default;
         };
 
         class TessEvalShader: public Shader {
         public:
-            TessEvalShader(const std::string& _buffer);
+            TessEvalShader(const std::string_view _buffer);
             ~TessEvalShader() = default;
         };
 #endif
@@ -125,17 +125,17 @@ namespace Eng3D {
             void attach_shader(const Eng3D::OpenGL::Shader& shader);
             void use() const;
             void set_PVM(glm::mat4 projection, glm::mat4 view, glm::mat4 model) const;
-            void set_uniform(const std::string& name, glm::mat4 uniform) const;
-            void set_uniform(const std::string& name, float value1, float value2) const;
-            void set_uniform(const std::string& name, float value1, float value2, float value3) const;
-            void set_uniform(const std::string& name, glm::vec2 uniform) const;
-            void set_uniform(const std::string& name, glm::vec3 uniform) const;
-            void set_uniform(const std::string& name, glm::vec4 uniform) const;
-            void set_uniform(const std::string& name, float value1, float value2, float value3, float value4) const;
-            void set_uniform(const std::string& name, float value) const;
-            void set_uniform(const std::string& name, int value) const;
-            void set_texture(int value, const std::string& name, const Eng3D::Texture& texture) const;
-            void set_texture(int value, const std::string& name, const Eng3D::TextureArray& texture) const;
+            void set_uniform(const std::string_view name, glm::mat4 uniform) const;
+            void set_uniform(const std::string_view name, float value1, float value2) const;
+            void set_uniform(const std::string_view name, float value1, float value2, float value3) const;
+            void set_uniform(const std::string_view name, glm::vec2 uniform) const;
+            void set_uniform(const std::string_view name, glm::vec3 uniform) const;
+            void set_uniform(const std::string_view name, glm::vec4 uniform) const;
+            void set_uniform(const std::string_view name, float value1, float value2, float value3, float value4) const;
+            void set_uniform(const std::string_view name, float value) const;
+            void set_uniform(const std::string_view name, int value) const;
+            void set_texture(int value, const std::string_view name, const Eng3D::Texture& texture) const;
+            void set_texture(int value, const std::string_view name, const Eng3D::TextureArray& texture) const;
             unsigned int get_id() const;
         };
     }

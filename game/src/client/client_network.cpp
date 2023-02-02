@@ -135,7 +135,7 @@ void Client::netloop() {
                 ProvinceId province_id;
                 Eng3D::Deser::deserialize(ar, province_id);
                 gs.world->unit_manager.add_unit(unit, province_id);
-                Eng3D::Log::debug("client", translate_format("Adding new unit from nation %s", gs.world->nations[unit.owner_id].ref_name.c_str()));
+                Eng3D::Log::debug("client", translate_format("Adding new unit from nation %s", gs.world->nations[unit.owner_id].ref_name.data()));
             } break;
             case ActionType::UNIT_REMOVE: {
                 UnitId unit_id;
@@ -169,9 +169,9 @@ void Client::netloop() {
                 Treaty treaty;
                 Eng3D::Deser::deserialize(ar, treaty);
                 gs.world->insert(treaty);
-                Eng3D::Log::debug("client", translate_format("Adding new treaty sent by %s", gs.world->nations[treaty.sender_id].ref_name.c_str()));
+                Eng3D::Log::debug("client", translate_format("Adding new treaty sent by %s", gs.world->nations[treaty.sender_id].ref_name.data()));
                 for(const auto& [nation_id, _] : treaty.approval_status)
-                    Eng3D::Log::debug("client", gs.world->nations[nation_id].ref_name.c_str());
+                    Eng3D::Log::debug("client", gs.world->nations[nation_id].ref_name.data());
             } break;
             case ActionType::WORLD_TICK: {
                 // Give up the world mutex for now

@@ -351,7 +351,7 @@ void Eng3D::Texture::delete_gputex() {
 #endif
 }
 
-void Eng3D::Texture::to_file(const std::string& filename) {
+void Eng3D::Texture::to_file(const std::string_view filename) {
     int channel_count = 4;
     int stride = channel_count * width;
     int data_size = stride * height;
@@ -364,7 +364,7 @@ void Eng3D::Texture::to_file(const std::string& filename) {
 #if defined E3D_BACKEND_OPENGL
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 #endif
-    stbi_write_png(filename.c_str(), width, height, channel_count, data, stride);
+    stbi_write_png(filename.data(), width, height, channel_count, data, stride);
 }
 
 //
@@ -439,13 +439,13 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::get_white() {
 /// pointer and we will not give ownership of textures in the list and program should not modify
 /// the contents of it since it will differ from the texture on the disk, and our main point is to
 /// mirror loaded textures from the disk - not modify them.
-std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(const std::string& path, TextureOptions options) {
+std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(const std::string_view path, TextureOptions options) {
     // Find texture when wanting to be loaded and load texture from cached texture list
-    auto key = std::make_pair(path, options);
+    auto key = std::make_pair(std::string(path), options);
     auto it = textures.find(key);
     if(it != textures.end()) return (*it).second;
-
-    Eng3D::Log::debug("texture", "Loaded and cached texture " + path);
+    
+    Eng3D::Log::debug("texture", Eng3D::string_format("Loaded and cached texture for %s", path.data()));
 
     // Otherwise texture is not in our control, so we create a new texture
     std::shared_ptr<Eng3D::Texture> tex;
@@ -458,30 +458,30 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(const std::string& p
     tex->managed = true;
     tex->upload(options);
     textures[key] = tex;
-    return textures[key];
+    return tex;
 }
 
 std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(std::shared_ptr<Eng3D::IO::Asset::Base> asset, TextureOptions options) {
     return this->load(asset.get() != nullptr ? asset->abs_path : "", options);
 }
 
-std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::gen_text(Eng3D::TrueType::Font& font, Eng3D::Color color, const std::string& msg) {
+std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::gen_text(Eng3D::TrueType::Font& font, Eng3D::Color color, const std::string_view msg) {
     if(msg.empty()) return this->get_white();
-    const auto key = std::make_pair(msg, color);
+    const auto key = std::make_pair(std::string(msg.data()), color);
 
     // Find texture when wanting to be loaded and load texture from cached texture list
     auto it = text_textures.find(key);
     if(it != text_textures.end()) return it->second;
 
-    Eng3D::Log::debug("texture", "Loaded and cached text texture for " + msg);
+    Eng3D::Log::debug("texture", Eng3D::string_format("Loaded and cached text texture for %s", msg.data()));
 
     // Otherwise texture is not in our control, so we create a new texture
     auto tex = std::make_shared<Eng3D::Texture>();
-    Eng3D::Log::debug("ttf", "Creating text for \"" + msg + "\"");
+    Eng3D::Log::debug("ttf", Eng3D::string_format("Creating text for %s", msg.data()));
     const SDL_Color sdl_color{
         static_cast<Uint8>(color.r * 255.f), static_cast<Uint8>(color.g * 255.f),
         static_cast<Uint8>(color.b * 255.f), 0 };
-    auto* surface = TTF_RenderUTF8_Blended(static_cast<TTF_Font*>(font.sdl_font), msg.c_str(), sdl_color);
+    auto* surface = TTF_RenderUTF8_Blended(static_cast<TTF_Font*>(font.sdl_font), msg.data(), sdl_color);
     if(surface == nullptr)
         CXX_THROW(std::runtime_error, Eng3D::translate_format("Cannot create text surface: %s", TTF_GetError()));
     Eng3D::Log::debug("ttf", "Sucessfully created text");
@@ -492,5 +492,5 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::gen_text(Eng3D::TrueType:
     tex->upload(surface);
 
     text_textures[key] = tex;
-    return text_textures[key];
+    return tex;
 }

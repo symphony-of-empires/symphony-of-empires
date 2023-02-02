@@ -41,7 +41,7 @@ UI::Text::Text(int _x, int _y, unsigned w, unsigned h, UI::Widget* _parent)
 /// @param _y Y coordinate
 /// @param _text Text to generate from
 /// @param _parent Parent of the object (required to properly auto adjust)
-UI::Text::Text(int _x, int _y, const std::string& _text, UI::Widget* _parent)
+UI::Text::Text(int _x, int _y, const std::string_view _text, UI::Widget* _parent)
     : UI::Widget(_parent, _x, _y, 0, 0, UI::WidgetType::GROUP)
 {
     this->text_color = this->parent->text_color;
@@ -55,7 +55,7 @@ void UI::Text::on_render(Context&, Eng3D::Rect) {
 
 }
 
-void UI::Text::set_text(const std::string& text) {
+void UI::Text::set_text(const std::string_view text) {
     this->kill_children();
     if(text.empty()) return;
 
@@ -66,7 +66,7 @@ void UI::Text::set_text(const std::string& text) {
     size_t line_width = glm::max(this->width / 12, static_cast<size_t>(1));
     
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
-    std::u32string unicode_text = conv_utf8_utf32.from_bytes(text);
+    std::u32string unicode_text = conv_utf8_utf32.from_bytes(text.data());
     while(pos < unicode_text.length()) {
         size_t remaining_chars = unicode_text.length() - pos;
         size_t end_pos = unicode_text.length();

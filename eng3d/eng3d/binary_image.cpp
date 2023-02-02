@@ -66,7 +66,7 @@ Eng3D::BinaryImage::BinaryImage(const Eng3D::BinaryImage& tex)
 void Eng3D::BinaryImage::from_file(const Eng3D::IO::Path& path) {
     // stbi can do the conversion to RGBA for us ;)
     int i_width, i_height, i_channels;
-    auto* c_buffer = stbi_load(path.str.c_str(), &i_width, &i_height, &i_channels, 4);
+    auto* c_buffer = stbi_load(path.str.data(), &i_width, &i_height, &i_channels, 4);
     if(c_buffer == nullptr)
         CXX_THROW(BinaryImageException, path.str, stbi_failure_reason());
     width = static_cast<size_t>(i_width);
@@ -76,8 +76,8 @@ void Eng3D::BinaryImage::from_file(const Eng3D::IO::Path& path) {
     buffer.reset(reinterpret_cast<uint32_t *>(c_buffer));
 }
 
-void Eng3D::BinaryImage::to_file(const std::string& filename) {
+void Eng3D::BinaryImage::to_file(const std::string_view filename) {
     int channel_count = bpp == 32 ? 4 : bpp == 16 ? 2 : bpp == 8 ? 1 : 0;
     int stride = channel_count * width;
-    stbi_write_png(filename.c_str(), width, height, channel_count, buffer.get(), stride);
+    stbi_write_png(filename.data(), width, height, channel_count, buffer.get(), stride);
 }

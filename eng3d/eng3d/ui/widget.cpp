@@ -445,7 +445,7 @@ std::shared_ptr<Eng3D::Texture> Widget::get_text_texture() {
 
 /// @brief Generates text for the widget and overrides the current text texture
 /// @param _text
-void Widget::set_text(const std::string& _text) {
+void Widget::set_text(const std::string_view _text) {
     if(this->text_str == _text)
         return;
     text_texture.reset();
@@ -480,7 +480,7 @@ void Widget::set_tooltip(UI::Tooltip* _tooltip) {
 /// @brief Set the tooltip to be shown when this widget is hovered, but generate
 /// it from a string instead of taking an already existing widget
 /// @param text Text for the new tooltip
-void Widget::set_tooltip(const std::string& text) {
+void Widget::set_tooltip(const std::string_view text) {
     if(text.empty()) return;
     this->set_tooltip(new UI::Tooltip(this, text));
 }

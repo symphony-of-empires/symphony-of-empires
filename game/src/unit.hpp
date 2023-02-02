@@ -53,7 +53,7 @@ struct UnitType : RefnameEntity<UnitTypeId> {
     bool is_naval; // Can go on water?
     std::vector<std::pair<CommodityId, float>> req_goods; // Required commodities
     std::string get_icon_path() const {
-        return string_format("gfx/unittype/%s.png", ref_name.c_str());
+        return string_format("gfx/unittype/%s.png", ref_name.data());
     }
 };
 template<>

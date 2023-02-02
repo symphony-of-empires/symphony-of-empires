@@ -77,8 +77,8 @@ static inline std::shared_ptr<Eng3D::Texture> get_material_texture(const aiMater
     for(size_t i = 0; i < material.GetTextureCount(type); i++) {
         aiString str;
         material.GetTexture(type, i, &str);
-        Eng3D::Log::debug("assimp", Eng3D::translate_format("Loading texture for material %s", str.C_Str()));
-        auto path = std::string("gfx/") + str.C_Str();
+        Eng3D::Log::debug("assimp", Eng3D::translate_format("Loading texture for material %s", str.data()));
+        auto path = std::string("gfx/") + str.data();
         return s.tex_man.load(s.package_man.get_unique(path));
     }
     return s.tex_man.get_white();
@@ -114,7 +114,7 @@ Eng3D::SimpleModel Eng3D::Model::process_simple_model(aiMesh& mesh, const aiScen
     auto& material = *scene.mMaterials[mesh.mMaterialIndex];
 
     // Textures
-    simple_model.material = s.material_man.load(material.GetName().C_Str());
+    simple_model.material = s.material_man.load(material.GetName().data());
     simple_model.material->diffuse_map = get_material_texture(material, aiTextureType_DIFFUSE);
     simple_model.material->specular_map = get_material_texture(material, aiTextureType_SPECULAR);
     simple_model.material->ambient_map = get_material_texture(material, aiTextureType_AMBIENT);
@@ -152,8 +152,8 @@ void Eng3D::Model::process_node(aiNode& node, const aiScene& scene) {
 //
 // ModelManager
 //
-std::shared_ptr<Eng3D::Model> Eng3D::ModelManager::load(const std::string& path) {
-    auto it = models.find(path);
+std::shared_ptr<Eng3D::Model> Eng3D::ModelManager::load(const std::string_view path) {
+    auto it = models.find(path.data());
     if(it != models.cend())
         return (*it).second;
 
@@ -175,7 +175,7 @@ std::shared_ptr<Eng3D::Model> Eng3D::ModelManager::load(const std::string& path)
         // Make a dummy model
         model = std::make_shared<Eng3D::Model>();
     }
-    models[path] = model;
+    models[path.data()] = model;
     return model;
 }
 

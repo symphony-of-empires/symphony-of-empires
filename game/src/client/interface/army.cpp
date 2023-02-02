@@ -53,7 +53,7 @@ ArmyUnitsTab::ArmyUnitsTab(GameState& _gs, int _x, int _y, std::function<bool(Un
         btn.set_on_each_tick([this, unit_id = unit.get_id()](UI::Widget& w) {
             const auto& current_unit = this->gs.world->unit_manager.units[unit_id];
             const auto& current_type = this->gs.world->unit_types[current_unit.type_id];
-            w.set_text(string_format("%zu %s", current_unit.size, current_type.name.c_str()));
+            w.set_text(string_format("%zu %s", current_unit.size, current_type.name.data()));
         });
         btn.on_each_tick(btn);
     });
@@ -78,7 +78,7 @@ ArmyProductionTab::ArmyProductionTab(GameState& _gs, int _x, int _y, UI::Widget*
         auto& icon_img = unit_type_grp.make_widget<UI::Image>(0, 0, 24, 24, unit_type.get_icon_path());
         auto& name_btn = unit_type_grp.make_widget<UI::Button>(0, 0, unit_type_grp.width - 24, 24);
         name_btn.right_side_of(icon_img);
-        name_btn.set_text(unit_type.name);
+        name_btn.set_text(unit_type.name.data());
     }
 
     // Chart showing total number of required materials
@@ -123,7 +123,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int _x, int _y, P
     auto& province_lab = this->make_widget<UI::Label>(0, 0, "?");
     province_lab.set_on_each_tick([this](UI::Widget& w) {
         const auto& current_province = gs.world->provinces[province_id];
-        w.set_text(current_province.name);
+        w.set_text(current_province.name.data());
     });
     province_lab.on_each_tick(province_lab);
 
@@ -131,7 +131,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int _x, int _y, P
     name_lab.set_on_each_tick([this](UI::Widget& w) {
         const auto& current_province = gs.world->provinces[province_id];
         auto& current_building = current_province.get_buildings()[this->idx];
-        w.set_text(this->gs.world->unit_types[current_building.working_unit_type_id.value_or(UnitTypeId{})].name);
+        w.set_text(this->gs.world->unit_types[current_building.working_unit_type_id.value_or(UnitTypeId{})].name.data());
     });
     name_lab.on_each_tick(name_lab);
 
@@ -148,7 +148,7 @@ ArmyProductionUnitInfo::ArmyProductionUnitInfo(GameState& _gs, int _x, int _y, P
             auto full_req = this->gs.world->unit_types[c_building.working_unit_type_id.value()].req_goods[i];
             full += full_req.second;
             needed += need_req.second;
-            text += translate_format("Requires %.2f of %s (has %.2f)", need_req.second, this->gs.world->commodities[need_req.first].name.c_str(), full_req.second);
+            text += translate_format("Requires %.2f of %s (has %.2f)", need_req.second, this->gs.world->commodities[need_req.first].name.data(), full_req.second);
         }
         w.set_value(full / glm::max(needed, 0.01f));
         w.set_tooltip(text);

@@ -68,11 +68,11 @@ namespace Eng3D::Networking {
     class SocketException : public std::exception {
         std::string buffer;
     public:
-        SocketException(const std::string& msg) {
+        SocketException(const std::string_view msg) {
             buffer = msg;
         }
         virtual const char* what() const noexcept {
-            return buffer.c_str();
+            return buffer.data();
         }
     };
 
@@ -163,13 +163,13 @@ namespace Eng3D::Networking {
         class Exception : public std::exception {
             std::string msg;
         public:
-            Exception(const std::string& _msg)
+            Exception(const std::string_view _msg)
                 : msg{ _msg }
             {
 
             }
             virtual const char* what() const noexcept {
-                return msg.c_str();
+                return msg.data();
             }
         };
 
@@ -195,13 +195,13 @@ namespace Eng3D::Networking {
         class Exception : public std::exception {
             std::string msg;
         public:
-            Exception(const std::string& _msg)
+            Exception(const std::string_view _msg)
                 : msg{ _msg }
             {
 
             }
             virtual const char* what() const noexcept {
-                return msg.c_str();
+                return msg.data();
             }
         };
 

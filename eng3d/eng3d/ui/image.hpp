@@ -44,10 +44,10 @@ namespace UI {
     public:
         Image(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
         Image(int x, int y, unsigned w, unsigned h, std::shared_ptr<Eng3D::Texture> tex, Widget* parent = nullptr);
-        Image(int x, int y, unsigned w, unsigned h, const std::string& tex_path, Widget* parent = nullptr);
-        Image(int x, int y, unsigned w, unsigned h, const std::string& tex_path, bool mipmap = true, Widget* parent = nullptr);
-        static Image* make_transparent(int x, int y, unsigned w, unsigned h, const std::string& tex_path, Widget* parent = nullptr);
-        static Image* make_transparent(int x, int y, unsigned w, unsigned h, const std::string& tex_path, bool mipmap = true, Widget* parent = nullptr);
+        Image(int x, int y, unsigned w, unsigned h, const std::string_view tex_path, Widget* parent = nullptr);
+        Image(int x, int y, unsigned w, unsigned h, const std::string_view tex_path, bool mipmap = true, Widget* parent = nullptr);
+        static Image* make_transparent(int x, int y, unsigned w, unsigned h, const std::string_view tex_path, Widget* parent = nullptr);
+        static Image* make_transparent(int x, int y, unsigned w, unsigned h, const std::string_view tex_path, bool mipmap = true, Widget* parent = nullptr);
         virtual ~Image() override {}
     };
 

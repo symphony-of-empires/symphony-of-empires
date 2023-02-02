@@ -44,7 +44,7 @@ namespace UI {
         bool get_value() const;
         void set_value(bool checked);
         void set_on_click(std::function<void(Widget&)> on_click) override;
-        void set_text(const std::string& _text) override;
+        void set_text(const std::string_view _text) override;
     private:
         static void on_click_default(Widget& w);
         void init_checkbox(int size);

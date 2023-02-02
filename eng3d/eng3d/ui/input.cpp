@@ -61,7 +61,7 @@ UI::Input::Input(int _x, int _y, unsigned _w, unsigned _h, Widget* _parent)
     this->on_update = &UI::Input::on_update_default;
 }
 
-void UI::Input::set_buffer(const std::string& _buffer) {
+void UI::Input::set_buffer(const std::string_view _buffer) {
     buffer = _buffer;
     this->set_text(buffer);
 

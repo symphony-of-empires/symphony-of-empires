@@ -32,11 +32,11 @@ namespace Eng3D {
     class PythonException : public std::exception {
         std::string buffer;
     public:
-        PythonException(const std::string& message) {
+        PythonException(const std::string_view message) {
             buffer = message;
         }
         virtual const char* what() const noexcept {
-            return buffer.c_str();
+            return buffer.data();
         }
     };
 

@@ -56,8 +56,8 @@ Eng3D::StringManager& Eng3D::StringManager::get_instance() {
 
 static std::unordered_map<std::string, std::string> trans_msg;
 static std::mutex trans_lock;
-void Eng3D::Locale::from_file(const std::string& filename) {
-    std::unique_ptr<FILE, decltype(&fclose)> fp(fopen(filename.c_str(), "rt"), fclose);
+void Eng3D::Locale::from_file(const std::string_view filename) {
+    std::unique_ptr<FILE, decltype(&fclose)> fp(fopen(filename.data(), "rt"), fclose);
     char tmp[100];
     while(fgets(tmp, sizeof tmp, fp.get()) != nullptr) {
         if(!strncmp(tmp, "msgid", 5)) {

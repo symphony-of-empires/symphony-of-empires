@@ -180,7 +180,7 @@ void UI::Context::set_eval(UI::Widget& widget, bool eval) {
     widget.is_eval = eval;
 }
 
-void UI::Context::prompt(const std::string& title, const std::string& text) {
+void UI::Context::prompt(const std::string_view title, const std::string_view text) {
     std::scoped_lock lock(prompt_queue_mutex);
     this->prompt_queue.emplace_back(title, text);
 }
@@ -602,7 +602,7 @@ bool UI::Context::check_wheel(glm::ivec2 mouse_pos, int scroll_y) {
             // the scrolling instructions - only the front child will
             bool is_scrolled = false;
             for(auto& child : w.children)
-                if(is_scrolled = fn(fn, *child, offset))
+                if((is_scrolled = fn(fn, *child, offset)) == true)
                     break;
 
             const auto scrollbar_it = std::find_if(w.children.begin(), w.children.end(), [&](const auto& e) {

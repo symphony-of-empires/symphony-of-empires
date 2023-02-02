@@ -37,12 +37,12 @@ constexpr char archive_signature[4] = { '>', ':', ')', ' ' };
 #define MAX_ARCHIVE_SIZE (65536 * 10000)
 #define MIN_FILE_SIZE 4096
 
-void Eng3D::Deser::Archive::to_file(const std::string& path) {
-    Eng3D::Log::debug("archive", translate_format("Writing archive %s", path.c_str()));
+void Eng3D::Deser::Archive::to_file(const std::string_view path) {
+    Eng3D::Log::debug("archive", translate_format("Writing archive %s", path.data()));
     if(buffer.empty())
         CXX_THROW(Eng3D::Deser::Exception, translate("Can't output an empty archive to file"));
     
-    std::unique_ptr<FILE, decltype(&std::fclose)> fp(::fopen(path.c_str(), "wb"), ::fclose);
+    std::unique_ptr<FILE, decltype(&std::fclose)> fp(::fopen(path.data(), "wb"), ::fclose);
 
     char signbuf[sizeof(archive_signature)];
     std::memcpy(signbuf, archive_signature, sizeof(archive_signature));
@@ -58,10 +58,10 @@ void Eng3D::Deser::Archive::to_file(const std::string& path) {
     Eng3D::Log::debug("archive", string_format("%zu->%zu bytes compressed; return value is %zu", inf_len, def_len, r));
 }
 
-void Eng3D::Deser::Archive::from_file(const std::string& path) {
-    Eng3D::Log::debug("archive", translate_format("Reading archive %s", path.c_str()));
+void Eng3D::Deser::Archive::from_file(const std::string_view path) {
+    Eng3D::Log::debug("archive", translate_format("Reading archive %s", path.data()));
 
-    std::unique_ptr<FILE, decltype(&std::fclose)> fp(::fopen(path.c_str(), "rb"), ::fclose);
+    std::unique_ptr<FILE, decltype(&std::fclose)> fp(::fopen(path.data(), "rb"), ::fclose);
     if(fp == nullptr) CXX_THROW(std::runtime_error, translate("Can't read archive"));
     
     std::vector<uint8_t> src_buffer(buffer.size());

@@ -36,7 +36,7 @@ extern "C" {
 class Nation;
 struct Event;
 namespace LuaAPI {
-    int register_new_table(lua_State* L, const std::string& name, const std::vector<luaL_Reg> meta, const std::vector<luaL_Reg> methods);
+    int register_new_table(lua_State* L, const std::string_view name, const std::vector<luaL_Reg> meta, const std::vector<luaL_Reg> methods);
 
     int add_terrain_type(lua_State* L);
     int get_terrain_type(lua_State* L);

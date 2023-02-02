@@ -126,7 +126,7 @@ namespace Eng3D {
 // This is the state we could pass down to all the ui widgets
 class GameState: public Eng3D::State {
 public:
-    GameState(const std::vector<std::string>& pkg_paths) : Eng3D::State::State(pkg_paths) {}
+    GameState(const std::vector<std::string>& pkg_paths);
     ~GameState() = default;
 
     void play_nation();

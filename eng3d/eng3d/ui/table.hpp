@@ -50,7 +50,7 @@ namespace UI {
         TableElement(int width, int height, UI::Widget* _parent);
         virtual ~TableElement() override {}
 
-        void set_key(const std::string& key);
+        void set_key(const std::string_view key);
         void set_key(float key);
         void set_key(float key, const std::string_view format);
         bool operator< (const UI::TableElement& right) const;

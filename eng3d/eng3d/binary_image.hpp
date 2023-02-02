@@ -38,12 +38,12 @@ namespace Eng3D {
     class BinaryImageException: public std::exception {
         std::string buffer;
     public:
-        BinaryImageException(const std::string& filename, const std::string& message) {
-            buffer = "" + filename + ": " + message;
+        BinaryImageException(const std::string_view filename, const std::string_view message) {
+            buffer = std::string(filename) + ": " + std::string(message);
         }
 
         virtual const char* what() const noexcept {
-            return buffer.c_str();
+            return buffer.data();
         }
     };
 
@@ -58,7 +58,7 @@ namespace Eng3D {
         BinaryImage& operator=(const BinaryImage&) = delete;
         virtual ~BinaryImage() = default;
         virtual void from_file(const Eng3D::IO::Path& path);
-        virtual void to_file(const std::string& filename);
+        virtual void to_file(const std::string_view filename);
 
         /// @brief Obtains a pixel from the binary image
         /// @param x X coordinate

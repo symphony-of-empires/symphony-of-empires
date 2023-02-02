@@ -31,9 +31,9 @@
 #include "eng3d/utils.hpp"
 
 Eng3D::TrueType::Font::Font(std::shared_ptr<Eng3D::IO::Asset::Base> asset, int dpi) {
-    this->sdl_font = static_cast<void*>(TTF_OpenFont(asset->abs_path.c_str(), dpi));
+    this->sdl_font = static_cast<void*>(TTF_OpenFont(asset->abs_path.data(), dpi));
     if(this->sdl_font == nullptr)
-        CXX_THROW(std::runtime_error, translate_format("Failed to load font %s", asset->abs_path.c_str()));
+        CXX_THROW(std::runtime_error, translate_format("Failed to load font %s", asset->abs_path.data()));
 }
 
 Eng3D::TrueType::Font::~Font() {

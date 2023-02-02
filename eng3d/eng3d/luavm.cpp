@@ -48,7 +48,7 @@ Eng3D::LuaVM::LuaVM()
     // No translation is done
     lua_register(this->state, "_", [](lua_State* L) {
         std::string msgid = luaL_checkstring(L, 1);
-        lua_pushstring(L, msgid.c_str());
+        lua_pushstring(L, msgid.data());
         return 1;
     });
     // And for the UI too
@@ -373,8 +373,8 @@ int Eng3D::LuaVM::call_func(int nargs, int nret) {
 /// @param L 
 /// @param name 
 /// @return int 
-void Eng3D::LuaVM::invoke_registered_callback(const std::string& name) {
-    lua_rawgeti(this->state, LUA_REGISTRYINDEX, lua_ui_callbacks[name]);
+void Eng3D::LuaVM::invoke_registered_callback(const std::string_view name) {
+    lua_rawgeti(this->state, LUA_REGISTRYINDEX, lua_ui_callbacks[name.data()]);
     if(this->call_func(0, 0)) {
         const std::string err_msg = lua_tostring(this->state, -1);
         Eng3D::Log::error("lua", "lua_pcall failed: " + err_msg);

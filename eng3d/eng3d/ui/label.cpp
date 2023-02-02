@@ -38,7 +38,7 @@
 
 using namespace UI;
 
-UI::Label::Label(int _x, int _y, const std::string& _text, Widget* _parent)
+UI::Label::Label(int _x, int _y, const std::string_view _text, Widget* _parent)
     : Widget(_parent, _x, _y, 0, 0, UI::WidgetType::LABEL)
 {
     this->text_color = this->parent->text_color;
@@ -56,7 +56,7 @@ UI::Label::~Label() {
 
 }
 
-void UI::Label::set_text(const std::string& _text) {
+void UI::Label::set_text(const std::string_view _text) {
     UI::Widget::set_text(_text);
     if(this->get_text_texture().get() != nullptr) {
         this->text_offset_x = this->text_offset_y = 0;

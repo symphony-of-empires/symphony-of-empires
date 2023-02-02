@@ -44,7 +44,7 @@ namespace Eng3D {
         {
 
         }
-        StringRef& operator=(const std::string& rhs) {
+        StringRef& operator=(const std::string_view rhs) {
             *this = StringRef(rhs);
             return *this;
         }
@@ -52,7 +52,7 @@ namespace Eng3D {
         constexpr bool operator==(const StringRef&) const noexcept = default;
         constexpr auto operator<=>(const StringRef&) const noexcept = default;
 
-        const char* c_str() const {
+        const char* data() const {
             return this->get_string().data();
         }
         
@@ -73,7 +73,7 @@ namespace Eng3D {
         StringManager(Eng3D::State& _s);
         ~StringManager() = default;
 
-        Eng3D::StringRef insert(const std::string& str) {
+        Eng3D::StringRef insert(const std::string_view str) {
             const std::scoped_lock lock(strings_mutex);
             const auto id = strings.size();
             std::copy(str.begin(), str.end(), std::back_inserter(strings));
@@ -117,7 +117,7 @@ namespace Eng3D {
 using Eng3D::string_format;
 
 namespace Eng3D::Locale {
-    void from_file(const std::string& filename);
+    void from_file(const std::string_view filename);
     std::string translate(const std::string_view str);
     std::string format_number(double num);
 }

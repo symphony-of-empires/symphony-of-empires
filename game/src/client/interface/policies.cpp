@@ -54,7 +54,7 @@ PoliciesView::PoliciesView(GameState& _gs)
     ideology_lab.set_on_each_tick([this](UI::Widget& w) {
         const auto& ideology = this->gs.world->ideologies[this->gs.curr_nation->ideology_id];
         const auto& subideology = ideology.subideologies[this->gs.curr_nation->subideology_id];
-        w.set_text(translate_format("%s (%s)", subideology.name.c_str(), ideology.name.c_str()));
+        w.set_text(translate_format("%s (%s)", subideology.name.data(), ideology.name.data()));
         w.set_tooltip(translate_format(
             "Distributism %.2f\nMercantilist %.2f\nCapitalism %.2f\nIndividualism %.2f\nState power %.2f\nEqualitarianism %.2f\nSecular %.2f\nPluralism %.2f\n", subideology.economic.distributism, subideology.economic.mercantilist, subideology.economic.capitalism, subideology.political.individualism, subideology.political.state_power, subideology.political.equalitarianism, subideology.political.secular, subideology.political.pluralism));
     });
@@ -231,12 +231,12 @@ PoliciesView::PoliciesView(GameState& _gs)
     for(const auto& commodity : this->gs.world->commodities) {
         auto& row = commodity_table.get_row(commodity.get_id());
         auto* commodity_row = row.get_element(0);
-        commodity_row->set_key(commodity.name.c_str());
+        commodity_row->set_key(commodity.name.data());
         auto& commodity_img = commodity_row->make_widget<UI::Image>(0, 0, 35, 35, commodity.get_icon_path(), true);
-        commodity_img.set_tooltip(commodity.name);
+        commodity_img.set_tooltip(commodity.name.data());
 
         auto* scale = row.get_element(1);
-        scale->set_key(commodity.name.c_str());
+        scale->set_key(commodity.name.data());
         auto& scale_sld = scale->make_widget<UI::Slider>(0, 0, 128, 24, 0.f, 1.f);
         scale_sld.set_value(this->commodity_production[commodity]);
         scale_sld.set_on_click([this, &commodity](UI::Widget& w) {

@@ -35,11 +35,11 @@ Interface::NationView::NationView(GameState& _gs, Nation& _nation)
     gs{ _gs },
     nation{ _nation }
 {
-    this->set_text(translate_format("General overview for %s", nation.name.c_str()));
+    this->set_text(translate_format("General overview for %s", nation.name.data()));
     this->origin = UI::Origin::CENTER_SCREEN;
     this->is_scroll = false;
     this->set_on_each_tick([this](UI::Widget& w) {
-        w.set_text(this->nation.get_client_hint().name);
+        w.set_text(this->nation.get_client_hint().name.data());
     });
     this->on_each_tick(*this);
     this->set_close_btn_function([this](Widget&) {
@@ -58,7 +58,7 @@ Interface::NationView::NationView(GameState& _gs, Nation& _nation)
 
     auto& name_lab = flex_actions_column.make_widget<UI::Label>(0, 0, "?");
     name_lab.set_on_each_tick([this](UI::Widget& w) {
-        w.set_text(this->nation.get_client_hint().name);
+        w.set_text(this->nation.get_client_hint().name.data());
     });
     name_lab.on_each_tick(name_lab);
 
@@ -66,7 +66,7 @@ Interface::NationView::NationView(GameState& _gs, Nation& _nation)
     ideology_img.set_on_each_tick([this](UI::Widget& w) {
         const auto& ideology = this->gs.world->ideologies[this->nation.get_client_hint().ideology_id];
         ((UI::Image&)w).current_texture = this->gs.tex_man.load(gs.package_man.get_unique(ideology.get_icon_path()));
-        w.set_tooltip(ideology.ref_name);
+        w.set_tooltip(ideology.ref_name.data());
     });
     ideology_img.on_each_tick(ideology_img);
     

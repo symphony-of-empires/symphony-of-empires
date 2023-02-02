@@ -60,13 +60,13 @@ UI::Table<uint32_t>* Interface::IndustryWindow::new_table(GameState& gs, int _x,
                 size_t row_index = 0;
                 if(provinces.size() > 1) {
                     auto* prov_name = row.get_element(row_index++);
-                    prov_name->set_text(province.name);
-                    prov_name->set_key(province.name);
+                    prov_name->set_text(province.name.data());
+                    prov_name->set_key(province.name.data());
                 }
 
                 auto* name = row.get_element(row_index++);
-                name->set_text(type.name);
-                name->set_key(type.name);
+                name->set_text(type.name.data());
+                name->set_key(type.name.data());
 
                 auto* workers = row.get_element(row_index++);
                 workers->set_text(string_format("%.0f", building.workers));
@@ -162,7 +162,7 @@ UI::Table<uint32_t>* Interface::IndustryWindow::new_table(GameState& gs, int _x,
             for(auto good_id : type.input_ids) {
                 auto& commodity = gs.world->commodities[good_id];
                 auto& input_img = inputs->make_widget<UI::Image>(0, 0, 35, 35, commodity.get_icon_path(), true);
-                input_img.set_tooltip(commodity.name);
+                input_img.set_tooltip(commodity.name.data());
             }
 
             auto* outputs = row.get_element(row_index++);
@@ -173,7 +173,7 @@ UI::Table<uint32_t>* Interface::IndustryWindow::new_table(GameState& gs, int _x,
             if(type.output_id.has_value()) {
                 auto& output = gs.world->commodities[type.output_id.value()];
                 auto& output_img = outputs->make_widget<UI::Image>(0, 0, 35, 35, output.get_icon_path(), true);
-                output_img.set_tooltip(output.name);
+                output_img.set_tooltip(output.name.data());
             }
         }
     }

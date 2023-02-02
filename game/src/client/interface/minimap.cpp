@@ -138,6 +138,32 @@ Minimap::Minimap(GameState& _gs, int _x, int _y, UI::Origin _origin)
     });
     population_ibtn.set_tooltip("Population");
 
+    auto& debt_and_loans_ibtn = flex_column1.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
+    debt_and_loans_ibtn.set_on_click([this](UI::Widget&) {
+        this->gs.map->set_selection(nullptr);
+        this->gs.map->set_map_mode([](const World& world) {
+            auto max_amount = 0.f;
+            for(const auto& province : world.provinces) {
+                max_amount = glm::max(1.f, max_amount);
+            }
+
+            // Mix each color depending of how many live there compared to max_amount
+            auto min = Eng3D::Color::rgb8(128, 128, 255);
+            auto max = Eng3D::Color::rgb8(255, 64, 64);
+            std::vector<ProvinceColor> province_color;
+            for(const auto& province : world.provinces) {
+                auto ratio = 1.f / max_amount;
+                province_color.emplace_back(province.get_id(), Eng3D::Color::lerp(min, max, ratio));
+            }
+            return province_color;
+        },
+        [](const World& world, const ProvinceId id) -> std::string {
+            return translate_format("debt");
+        });
+        set_mapmode_options(nullptr);
+    });
+    debt_and_loans_ibtn.set_tooltip("Debt and loans");
+
     auto& terrain_color_ibtn = flex_column2.make_widget<UI::Image>(0, 0, 24, 24, "gfx/icon.png");
     terrain_color_ibtn.set_on_click([this](UI::Widget&) {
         this->gs.map->set_selection(nullptr);
@@ -372,7 +398,7 @@ mapmode_tooltip commodity_tooltip(CommodityId good_id) {
 
         std::string str = Eng3D::translate_format(
             "%s,\nPrice %.2f\nGlobal demand %.2f\nDemand %.2f (Sold today %.2f)\nSupply %.2f (Produced today %.2f)\nProduction %.2f\n",
-            province.name.c_str(), product.price, product.global_demand, product.demand, product.bought, product.supply, product.produced, total_production);
+            province.name.data(), product.price, product.global_demand, product.demand, product.bought, product.supply, product.produced, total_production);
         for(const auto& building_type : world.building_types) {
             const auto& building = province.buildings[building_type];
             if(building.level == 0.f)
@@ -380,7 +406,7 @@ mapmode_tooltip commodity_tooltip(CommodityId good_id) {
             if(building_type.output_id.has_value() && building_type.output_id.value() != good_id)
                 continue;
             str += translate_format("%s %s (level %.0f), scale %.0f, workers %.0f, budget %.0f\n",
-                building_type.name.c_str(),
+                building_type.name.data(),
                 building.can_do_output(province,
                 building_type.input_ids) ? "(Active)" : "(Inactive)",
                 building.level,
@@ -451,11 +477,11 @@ mapmode_tooltip relations_tooltip(NationId nation_id) {
         if(province.controller_id == province.owner_id) {
             str += province_controller.get_client_hint().name;
         } else {
-            str += translate_format("Province owned by %s and controlled by %s", world.nations[province.owner_id].get_client_hint().name.c_str(), province_controller.get_client_hint().name.c_str());
+            str += translate_format("Province owned by %s and controlled by %s", world.nations[province.owner_id].get_client_hint().name.data(), province_controller.get_client_hint().name.data());
         }
 
         if(province_controller.is_puppeted) {
-            str += string_format("\nPuppet of %s", world.nations[province_controller.puppet_master_id].get_client_hint().name.c_str());
+            str += string_format("\nPuppet of %s", world.nations[province_controller.puppet_master_id].get_client_hint().name.data());
             return str;
         }
 
@@ -463,9 +489,9 @@ mapmode_tooltip relations_tooltip(NationId nation_id) {
             const auto& nation = world.nations[province.controller_id];
             const auto& relation = world.get_relation(nation, nation_id);
             if(relation.is_allied()) {
-                str += string_format("\nAllied with %s", nation.get_client_hint().name.c_str());
+                str += string_format("\nAllied with %s", nation.get_client_hint().name.data());
             } else if(relation.has_war) {
-                str += string_format("\nAt war with %s", nation.get_client_hint().name.c_str());
+                str += string_format("\nAt war with %s", nation.get_client_hint().name.data());
             }
 
             static std::array<std::string, 7> rel_lvls = {
@@ -479,10 +505,10 @@ mapmode_tooltip relations_tooltip(NationId nation_id) {
             };
 
             size_t idx = (1.f + relation.relation) * rel_lvls.size();
-            str += string_format("\n%.2f%% - %s", relation.relation * 100.f, rel_lvls[idx % rel_lvls.size()].c_str());
+            str += string_format("\n%.2f%% - %s", relation.relation * 100.f, rel_lvls[idx % rel_lvls.size()].data());
 
             nation.get_allies([&](const auto& _nation) {
-                str += string_format("%s,", _nation.get_client_hint().name.c_str());
+                str += string_format("%s,", _nation.get_client_hint().name.data());
             });
         }
         return str;
@@ -597,7 +623,7 @@ std::string population_tooltip(const World& world, const ProvinceId id) {
     const auto& province = world.provinces[id];
     if(!province.is_populated()) return "";
     size_t amount = province.total_pops();
-    return string_format("%s\nPopulation: %zu", province.name.c_str(), amount);
+    return string_format("%s\nPopulation: %zu", province.name.data(), amount);
 }
 
 mapmode_generator trade_map_mode(ProvinceId id) {
@@ -634,6 +660,6 @@ mapmode_tooltip trade_tooltip(ProvinceId province_id) {
         const auto& province = world.provinces[province_id];
         const auto& other_province = world.provinces[id];
         auto amount = world.economy_state.trade.get_trade_cost(province, other_province, glm::vec2{ world.width, world.height });
-        return translate_format("Transport from %s to %s costs %.2f", province.name.c_str(), other_province.name.c_str(), amount);
+        return translate_format("Transport from %s to %s costs %.2f", province.name.data(), other_province.name.data(), amount);
     };
 }

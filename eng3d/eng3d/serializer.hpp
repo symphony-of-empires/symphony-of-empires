@@ -48,14 +48,14 @@ namespace Eng3D::Deser {
     /// that can be transfered onto the disk or over the network. Should the object have
     /// any pointers - they would need to be converted to indexes accordingly for
     /// proper transmission.
-    class Exception : public ::std::exception {
+    class Exception : public std::exception {
         ::std::string buffer;
     public:
-        Exception(const ::std::string& msg) {
+        Exception(const std::string_view msg) {
             buffer = msg;
         }
         virtual const char* what() const noexcept {
-            return buffer.c_str();
+            return buffer.data();
         }
     };
 
@@ -64,8 +64,8 @@ namespace Eng3D::Deser {
     struct Archive {
         Archive() = default;
         ~Archive() = default;
-        void to_file(const ::std::string& path);
-        void from_file(const ::std::string& path);
+        void to_file(const std::string_view path);
+        void from_file(const std::string_view path);
         void copy_to(void* ptr, size_t size);
         void copy_from(const void* ptr, size_t size);
 

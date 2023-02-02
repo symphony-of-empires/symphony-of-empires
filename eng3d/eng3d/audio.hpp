@@ -39,12 +39,12 @@ namespace Eng3D {
     class AudioException : public std::exception {
         std::string buffer;
     public:
-        AudioException(const std::string& filename, const std::string& message) {
-            buffer = filename + message;
+        AudioException(const std::string_view filename, const std::string_view message) {
+            buffer = std::string(filename) + std::string(message);
         }
 
         virtual const char* what() const noexcept {
-            return buffer.c_str();
+            return buffer.data();
         }
     };
 

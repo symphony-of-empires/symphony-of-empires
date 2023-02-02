@@ -107,7 +107,7 @@ namespace Eng3D::GLSL {
 
     class Context {
     public:
-        Context(const std::string& _buffer)
+        Context(const std::string_view _buffer)
             : buffer{ _buffer }
         {
 
@@ -131,7 +131,7 @@ namespace Eng3D::GLSL {
     class Exception: public std::exception {
         std::string buffer;
     public:
-        Exception(std::vector<Eng3D::GLSL::Token>::iterator _it, const std::string& _buffer)
+        Exception(std::vector<Eng3D::GLSL::Token>::iterator _it, const std::string_view _buffer)
             : buffer{ _buffer },
             it{ _it }
         {
@@ -139,7 +139,7 @@ namespace Eng3D::GLSL {
         }
 
         virtual const char* what() const noexcept {
-            return buffer.c_str();
+            return buffer.data();
         }
 
         std::vector<Eng3D::GLSL::Token>::iterator it;

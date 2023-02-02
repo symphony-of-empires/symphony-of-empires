@@ -387,7 +387,7 @@ Eng3D::Networking::Client::Client(std::string host, const unsigned port) {
 
     addr = {};
     addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = inet_addr(host.c_str());
+    addr.sin_addr.s_addr = inet_addr(host.data());
     addr.sin_port = htons(port);
 
     fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);

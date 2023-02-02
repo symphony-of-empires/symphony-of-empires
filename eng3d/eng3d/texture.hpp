@@ -51,7 +51,7 @@ namespace Eng3D {
     class TextureManager;
 
     struct TextureException: BinaryImageException {
-        TextureException(const std::string& filename, const std::string& message)
+        TextureException(const std::string_view filename, const std::string_view message)
             : BinaryImageException(filename, message)
         {
 
@@ -104,13 +104,13 @@ namespace Eng3D {
         void delete_gputex();
     public:
         Texture() = default;
-        Texture(const std::string& path)
+        Texture(const std::string_view path)
             : Eng3D::BinaryImage(path)
         {
 
         }
         Texture(const Eng3D::IO::Asset::Base* asset)
-            : Eng3D::BinaryImage((asset == nullptr) ? "" : asset->abs_path)
+            : Eng3D::BinaryImage((asset == nullptr) ? Eng3D::IO::Path("") : Eng3D::IO::Path(asset->abs_path))
         {
 
         }
@@ -139,7 +139,7 @@ namespace Eng3D {
         void gen_mipmaps() const;
         void bind() const;
         void guillotine(const Eng3D::Texture& map, int x, int y, int w, int h);
-        void to_file(const std::string& filename) override;
+        void to_file(const std::string_view filename) override;
         
         unsigned int id = 0;
         bool managed = false;
@@ -148,7 +148,7 @@ namespace Eng3D {
 
     // Array of textures
     struct TextureArray: Eng3D::BinaryImage {
-        TextureArray(const std::string& path, size_t _tiles_x, size_t _tiles_y)
+        TextureArray(const std::string_view path, size_t _tiles_x, size_t _tiles_y)
             : Eng3D::BinaryImage(path),
             tiles_x{ _tiles_x },
             tiles_y{ _tiles_y }
@@ -215,9 +215,9 @@ namespace Eng3D {
         TextureManager() = delete;
         TextureManager(Eng3D::State& _s);
         ~TextureManager();
-        std::shared_ptr<Eng3D::Texture> load(const std::string& path, TextureOptions options = default_options);
+        std::shared_ptr<Eng3D::Texture> load(const std::string_view path, TextureOptions options = default_options);
         std::shared_ptr<Eng3D::Texture> load(std::shared_ptr<Eng3D::IO::Asset::Base> asset, TextureOptions options = default_options);
-        std::shared_ptr<Eng3D::Texture> gen_text(Eng3D::TrueType::Font& font, Eng3D::Color color, const std::string& msg);
+        std::shared_ptr<Eng3D::Texture> gen_text(Eng3D::TrueType::Font& font, Eng3D::Color color, const std::string_view msg);
         std::shared_ptr<Eng3D::Texture> get_white();
 
         friend class Eng3D::Texture;

@@ -39,10 +39,10 @@ namespace UI {
         void init(UI::Widget* parent, size_t w, size_t h);
     public:
         Tooltip(UI::Widget* parant = nullptr);
-        Tooltip(UI::Widget* parent, const std::string& text);
+        Tooltip(UI::Widget* parent, const std::string_view text);
         Tooltip(UI::Widget* parent, unsigned w, unsigned h);
         virtual ~Tooltip() {}
         void set_pos(int x, int y, int width, int height, int screen_width, int screen_height);
-        void set_text(const std::string& text);
+        void set_text(const std::string_view text);
     };
 }

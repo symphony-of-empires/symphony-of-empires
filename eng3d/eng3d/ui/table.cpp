@@ -38,7 +38,7 @@ UI::TableElement::TableElement(int _width, int _height, UI::Widget* _parent)
     this->text_align_x = UI::Align::END;
 }
 
-void UI::TableElement::set_key(const std::string& key) {
+void UI::TableElement::set_key(const std::string_view key) {
     key_type = UI::TableElement::KeyType::STRING;
     key_string = key;
 }

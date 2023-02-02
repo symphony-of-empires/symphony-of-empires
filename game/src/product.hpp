@@ -35,7 +35,7 @@
 struct Commodity : RefnameEntity<CommodityId> {
     Eng3D::StringRef name;
     std::string get_icon_path() const {
-        return string_format("gfx/commodity/%s.png", ref_name.c_str());
+        return string_format("gfx/commodity/%s.png", ref_name.data());
     }
 };
 template<>

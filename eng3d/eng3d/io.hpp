@@ -44,13 +44,17 @@ namespace Eng3D::IO {
     /// filesystem paths
     struct Path {
         Path() = default;
+        Path(const std::string_view path)
+            : str(path)
+        {
+
+        }
         Path(const std::string& path)
             : str(path)
         {
 
         }
-
-        Path(const char* path)
+        Path(const char *path)
             : str(path)
         {
 
@@ -114,9 +118,9 @@ namespace Eng3D::IO {
     class PackageException : public std::exception {
         std::string buffer;
     public:
-        PackageException(const std::string& _buffer) : buffer(_buffer) {}
+        PackageException(const std::string_view _buffer) : buffer(_buffer) {}
         virtual const char* what() const noexcept {
-            return buffer.c_str();
+            return buffer.data();
         }
     };
 
@@ -159,7 +163,7 @@ namespace Eng3D::IO {
             }
         }
         ~PackageManager() = default;
-        void recursive_filesystem_walk(Eng3D::IO::Package& package, const std::string& root, const std::string& current);
+        void recursive_filesystem_walk(Eng3D::IO::Package& package, const std::string_view root, const std::string_view current);
         const std::string_view get_full_path() const;
         
         /// @brief Obtaining an unique asset means the "first-found" policy applies

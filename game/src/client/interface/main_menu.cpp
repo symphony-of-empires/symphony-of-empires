@@ -69,7 +69,7 @@ Interface::MainMenuConnectServer::MainMenuConnectServer(GameState& _gs)
     conn_btn = new UI::Button(0, 48, 128, 24, this);
     conn_btn->set_text("Connect");
     conn_btn->set_on_click([this](UI::Widget&) {
-        Eng3D::Log::debug("ui", translate_format("Connecting to server on IP %s", this->ip_addr_inp->get_buffer().c_str()));
+        Eng3D::Log::debug("ui", translate_format("Connecting to server on IP %s", this->ip_addr_inp->get_buffer().data()));
         /// @todo Handle when mods differ (i.e checksum not equal to host)
         this->gs.host_mode = false;
         this->gs.editor = false;

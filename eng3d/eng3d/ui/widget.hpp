@@ -228,10 +228,10 @@ namespace UI {
         }
 
         virtual void on_render(Context&, Eng3D::Rect viewport);
-        virtual void set_text(const std::string& text);
+        virtual void set_text(const std::string_view text);
         virtual void set_text(const std::u32string& text);
         virtual void set_tooltip(UI::Tooltip* tooltip);
-        virtual void set_tooltip(const std::string& text);
+        virtual void set_tooltip(const std::string_view text);
         virtual void set_tooltip(std::function<std::string()> tooltip_text_creator);
         glm::ivec2 get_y_bounds() const;
         void scroll(int y);

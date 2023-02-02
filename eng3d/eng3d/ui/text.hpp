@@ -41,10 +41,10 @@ namespace UI {
     class Text: public Widget {
     public:
         Text(int x, int y, unsigned w, unsigned h, UI::Widget* parent);
-        Text(int x, int y, const std::string& text, UI::Widget* parent);
+        Text(int x, int y, const std::string_view text, UI::Widget* parent);
         virtual ~Text() {}
         virtual void on_render(Context& ctx, Eng3D::Rect viewport);
-        virtual void set_text(const std::string& text);
+        virtual void set_text(const std::string_view text);
 
         int min_height = 0;
         /// @brief Whetever to auto adjust the widget depending on the text

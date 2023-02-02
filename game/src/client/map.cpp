@@ -138,12 +138,12 @@ Map::Map(GameState& _gs, const World& _world, UI::Group* _map_ui_layer, int scre
     // Query the initial nation flags
     nation_flags.resize(this->gs.world->nations.size(), gs.tex_man.get_white());
     for(const auto& building_type : this->gs.world->building_types) {
-        const auto path = string_format("models/building_types/%s.obj", building_type.ref_name.c_str());
+        const auto path = string_format("models/building_types/%s.obj", building_type.ref_name.data());
         building_type_models.push_back(gs.model_man.load(gs.package_man.get_unique(path)));
         building_type_icons.push_back(gs.tex_man.get_white());
     }
     for(const auto& unit_type : this->gs.world->unit_types) {
-        const auto path = string_format("models/unit_types/%s.obj", unit_type.ref_name.c_str());
+        const auto path = string_format("models/unit_types/%s.obj", unit_type.ref_name.data());
         unit_type_models.push_back(gs.model_man.load(gs.package_man.get_unique(path)));
         unit_type_icons.push_back(gs.tex_man.get_white());
     }
@@ -217,14 +217,14 @@ void Map::update_nation_label(const Nation& nation) {
 
 	if(min_point_x.x == max_point_x.x || min_point_x.y == max_point_x.y
 	|| min_point_y.x == max_point_y.x || min_point_y.y == max_point_y.y) {
-		Eng3D::Log::warning("game", string_format("Nation %s is too small", nation.ref_name.c_str()));
+		Eng3D::Log::warning("game", string_format("Nation %s is too small", nation.ref_name.data()));
 		return;
 	}
 
     float width = 0.74f;
     // Replace old label
     assert(this->nation_labels.size() > nation);
-    auto label = this->map_font->gen_text(nation.get_client_hint().name, min_point_y, max_point_y, middle, width);
+    auto label = this->map_font->gen_text(nation.get_client_hint().name.data(), min_point_y, max_point_y, middle, width);
     this->nation_labels[nation] = std::move(label);
 }
 
@@ -242,19 +242,19 @@ void Map::create_labels() {
 
         if(glm::length(max_point - min_point) >= this->gs.world->width / 3.f) {
             const auto color = std::byteswap<std::uint32_t>((province.color & 0x00ffffff) << 8);
-            Eng3D::Log::warning("game", string_format("Province %s (color %x) is too big", province.ref_name.c_str(), color));
+            Eng3D::Log::warning("game", string_format("Province %s (color %x) is too big", province.ref_name.data(), color));
             continue;
         }
         
         if(max_point.x == min_point.x || max_point.y == min_point.y) {
 			const auto color = std::byteswap<std::uint32_t>((province.color & 0x00ffffff) << 8);
-            Eng3D::Log::warning("game", string_format("Province %s (color %x) is too small", province.ref_name.c_str(), color));
+            Eng3D::Log::warning("game", string_format("Province %s (color %x) is too small", province.ref_name.data(), color));
             continue;
 		}
 
         glm::vec2 center = min_point + (max_point - min_point) * 0.5f;
         float width = 0.7f;
-        auto label = this->map_font->gen_text(province.name, min_point, max_point, center, width);
+        auto label = this->map_font->gen_text(province.name.data(), min_point, max_point, center, width);
         this->province_labels.push_back(std::move(label));
     }
 #endif
@@ -274,7 +274,7 @@ void Map::set_view(MapView view) {
 std::string political_province_tooltip(const World& world, const ProvinceId id) {
     std::string str = world.nations[world.provinces[id].controller_id].client_username;
     if(((GameState&)Eng3D::State::get_instance()).editor)
-        str += string_format("(%s)", world.provinces[id].ref_name.c_str());
+        str += string_format("(%s)", world.provinces[id].ref_name.data());
     return str;
 }
 
@@ -311,7 +311,7 @@ void Map::reload_shaders() {
     map_render->reload_shaders();
     if(this->map_render->options.trees.used) {
         for(const auto& terrain_type : world.terrain_types) {
-            const auto path = string_format("models/trees/%s.fbx", terrain_type.ref_name.c_str());
+            const auto path = string_format("models/trees/%s.fbx", terrain_type.ref_name.data());
             tree_type_models.push_back(gs.model_man.load(gs.package_man.get_unique(path)));
         }
 

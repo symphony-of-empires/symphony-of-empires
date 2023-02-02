@@ -135,7 +135,7 @@ namespace UI {
         void clear_dead();
         void set_eval(UI::Widget& widget, bool eval);
 
-        void prompt(const std::string& title, const std::string& text);
+        void prompt(const std::string_view title, const std::string_view text);
 
         std::shared_ptr<Eng3D::Texture> foreground;
         std::shared_ptr<Eng3D::Texture> background;

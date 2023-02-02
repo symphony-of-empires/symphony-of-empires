@@ -62,6 +62,37 @@
 #include "server/server_network.hpp"
 #include "client/interface/main_menu.hpp"
 
+GameState::GameState(const std::vector<std::string>& pkg_paths)
+    : Eng3D::State::State(pkg_paths)
+{
+    /*Eng3D::Deser::Archive ar{};
+    Eng3D::Deser::deserialize(ar, this->motion_blur);
+    
+    // Volume settings
+    Eng3D::Deser::deserialize(ar, audio_man.music_volume);
+    assert(audio_man.music_volume >= 0.f && audio_man.music_volume <= 1.f);
+    audio_man.music_volume = glm::clamp(audio_man.music_volume, 0.f, 1.f);
+
+    Eng3D::Deser::deserialize(ar, audio_man.sound_volume);
+    assert(audio_man.sound_volume >= 0.f && audio_man.sound_volume <= 1.f);
+    audio_man.sound_volume = glm::clamp(audio_man.sound_volume, 0.f, 1.f);
+    
+    auto options = this->map->map_render->options;
+    Eng3D::Deser::deserialize(ar, options.noise.used);
+    Eng3D::Deser::deserialize(ar, options.sdf.used);
+    Eng3D::Deser::deserialize(ar, options.lighting.used);
+    Eng3D::Deser::deserialize(ar, options.city_lights.used);
+    Eng3D::Deser::deserialize(ar, options.parallax.used);
+    Eng3D::Deser::deserialize(ar, options.rivers.used);
+    Eng3D::Deser::deserialize(ar, options.water.used);
+    Eng3D::Deser::deserialize(ar, options.grid.used);
+    Eng3D::Deser::deserialize(ar, options.units.used);
+    Eng3D::Deser::deserialize(ar, options.buildings.used);
+    Eng3D::Deser::deserialize(ar, options.trees.used);
+    Eng3D::Deser::deserialize(ar, options.compress.used);
+    ar.to_file("options.cfg");*/
+}
+
 void GameState::play_nation() {
     current_mode = MapMode::NORMAL;
 
@@ -74,7 +105,7 @@ void GameState::play_nation() {
     top_win = static_cast<UI::Widget*>(new Interface::TopWindow(*this));
     minimap = static_cast<UI::Widget*>(new Interface::Minimap(*this, -400, -200, UI::Origin::LOWER_RIGHT_SCREEN));
     unit_menu = static_cast<UI::Widget*>(new Interface::SelectedUnitsMenu(*this));
-    Eng3D::Log::debug("game", translate_format("Playing as nation %s", this->curr_nation->ref_name.c_str()));
+    Eng3D::Log::debug("game", translate_format("Playing as nation %s", this->curr_nation->ref_name.data()));
     this->curr_nation->ai_do_cmd_troops = true;
     this->curr_nation->ai_controlled = false;
     if(this->client != nullptr)
@@ -83,7 +114,7 @@ void GameState::play_nation() {
 
 std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(const Nation& nation) {
     auto& ideology = this->world->ideologies[nation.ideology_id];
-    std::string path = string_format("gfx/flags/%s_%s.png", nation.ref_name.c_str(), ideology.ref_name.c_str());
+    std::string path = string_format("gfx/flags/%s_%s.png", nation.ref_name.data(), ideology.ref_name.data());
     return this->tex_man.load(this->package_man.get_unique(path));
 }
 
@@ -97,7 +128,7 @@ void handle_popups(std::vector<TreatyId>& displayed_treaties, GameState& gs) {
             new Interface::DecisionWindow(gs, msg);
             w.kill();
         });
-        ibtn.set_tooltip(msg.title);
+        ibtn.set_tooltip(msg.title.data());
     }
     gs.curr_nation->inbox.clear();
 
@@ -301,7 +332,7 @@ std::pair<std::vector<std::string>, bool> parse_arguments(int argc, char** argv)
     for(int i = 1; i < argc; i++) {
         std::string arg = std::string(argv[i]);
         if(is_echo)
-            printf("%s ", arg.c_str());
+            printf("%s ", arg.data());
         
         if(arg == "--mod") {
             i++;

@@ -39,7 +39,7 @@ UI::NumericInput::NumericInput(int _x, int _y, unsigned _w, unsigned _h, Widget*
     add_btn->right_side_of(*inp);
     add_btn->set_on_click([](UI::Widget& w) {
         auto* p = (UI::NumericInput*)w.parent;
-        float val = atof(p->inp->get_buffer().c_str()) + 1.f;
+        float val = atof(p->inp->get_buffer().data()) + 1.f;
         char tmpbuf[100];
         snprintf(tmpbuf, 100, "%.2f", val);
         p->set_buffer(tmpbuf);
@@ -50,14 +50,14 @@ UI::NumericInput::NumericInput(int _x, int _y, unsigned _w, unsigned _h, Widget*
     sub_btn->right_side_of(*add_btn);
     sub_btn->set_on_click([](UI::Widget& w) {
         auto* p = (NumericInput*)w.parent;
-        float val = atof(p->get_buffer().c_str()) + 1.f;
+        float val = atof(p->get_buffer().data()) + 1.f;
         char tmpbuf[100];
         snprintf(tmpbuf, 100, "%.2f", val);
         p->set_buffer(tmpbuf);
     });
 }
 
-void UI::NumericInput::set_buffer(const std::string& _buffer) {
+void UI::NumericInput::set_buffer(const std::string_view _buffer) {
     inp->set_buffer(_buffer);
 }
 
