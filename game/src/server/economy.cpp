@@ -545,7 +545,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
             unit.set_owner(nation);
             world.unit_manager.add_unit(unit, province);
 
-            Eng3D::Log::debug("economy", string_format("%s has built an unit %s", province.ref_name.c_str(), world.unit_types[unit.type_id].ref_name.c_str()));
+            Eng3D::Log::debug("economy", string_format("%s has built an unit %s", province.ref_name.data(), world.unit_types[unit.type_id].ref_name.data()));
         }
     });
 
