@@ -166,7 +166,7 @@ namespace UI {
             offset{ _offset }
         {
             
-        };
+        }
     };
 
     class Context;
@@ -221,8 +221,7 @@ namespace UI {
         void add_child(UI::Widget& child);
 
         template<typename T, typename ... Targs>
-        T& make_widget(Targs&& ...args)
-        {
+        T& make_widget(Targs&& ...args) {
             auto p = new T(std::forward<decltype(args)>(args)..., this);
             return *p;
         }

@@ -110,6 +110,7 @@ void UI::Context::add_widget(UI::Widget* widget) {
 
 void UI::Context::remove_widget(UI::Widget* widget) {
     const auto it = std::find_if(widgets.begin(), widgets.end(), [widget](const auto& e) { return e.get() == widget; });
+    assert(it != widgets.end());
     widgets.erase(it);
 }
 
@@ -178,11 +179,6 @@ void UI::Context::set_eval(UI::Widget& widget, bool eval) {
         this->widgets.erase(it);
     }
     widget.is_eval = eval;
-}
-
-void UI::Context::prompt(const std::string_view title, const std::string_view text) {
-    std::scoped_lock lock(prompt_queue_mutex);
-    this->prompt_queue.emplace_back(title, text);
 }
 
 glm::ivec2 UI::Context::get_pos(Widget& w, glm::ivec2 offset) {
@@ -270,10 +266,6 @@ void UI::Context::resize(int _width, int _height) {
     this->projection = glm::ortho(0.f, static_cast<float>(this->width), static_cast<float>(this->height), 0.f, 0.f, 1.f);
     this->view = glm::mat4(1.f);
     this->model = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, 0.f));
-}
-
-void UI::Context::set_cursor_pos(glm::ivec2 pos) {
-    this->cursor_pos = pos;
 }
 
 void UI::Context::render_recursive(Widget& w, Eng3D::Rect viewport, glm::ivec2 offset) {

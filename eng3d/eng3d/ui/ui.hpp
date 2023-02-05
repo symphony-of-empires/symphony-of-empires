@@ -95,7 +95,9 @@ namespace UI {
         void remove_widget(UI::Widget* widget);
         void render_all();
         void resize(const int width, const int height);
-        void set_cursor_pos(glm::ivec2 pos);
+        void set_cursor_pos(glm::ivec2 pos) {
+            this->cursor_pos = pos;
+        }
 
         /// @brief Check for on_hover events
         /// If the mouse is above a widget call the widgets on_hover or show its tooltip if possible
@@ -135,7 +137,10 @@ namespace UI {
         void clear_dead();
         void set_eval(UI::Widget& widget, bool eval);
 
-        void prompt(const std::string_view title, const std::string_view text);
+        void prompt(const std::string_view title, const std::string_view text) {
+            std::scoped_lock lock(prompt_queue_mutex);
+            this->prompt_queue.emplace_back(title, text);
+        }
 
         std::shared_ptr<Eng3D::Texture> foreground;
         std::shared_ptr<Eng3D::Texture> background;
