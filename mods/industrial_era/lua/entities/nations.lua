@@ -1992,3 +1992,24 @@ nation:register()
 nation:set_ideology(monarchy, "absolute_monarchy")
 nation:add_accepted_language(Language:get("malay"))
 nation:add_client_hint(monarchy, _("Selangor"), 0xD62282)
+
+nation = Nation:new{ ref_name = "tonga", name = _("Tonga") }
+nation.adjective = _("Tonga")
+nation:register()
+nation:set_ideology(monarchy, "absolute_monarchy")
+nation:add_accepted_language(Language:get("polynesian"))
+nation:add_client_hint(monarchy, _("Tonga"), 0xD62282)
+
+nation = Nation:new{ ref_name = "malietoa", name = _("Malietoa") }
+nation.adjective = _("Malietoa")
+nation:register()
+nation:set_ideology(monarchy, "absolute_monarchy")
+nation:add_accepted_language(Language:get("polynesian"))
+nation:add_client_hint(monarchy, _("Malietoa"), 0xD62282)
+
+nation = Nation:new{ ref_name = "samoa", name = _("Samoa") }
+nation.adjective = _("Samoa")
+nation:register()
+nation:set_ideology(monarchy, "absolute_monarchy")
+nation:add_accepted_language(Language:get("polynesian"))
+nation:add_client_hint(monarchy, _("Samoa"), 0xD62282)
