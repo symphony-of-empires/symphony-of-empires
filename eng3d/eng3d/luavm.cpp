@@ -48,7 +48,7 @@ Eng3D::LuaVM::LuaVM()
     // No translation is done
     lua_register(this->state, "_", [](lua_State* L) {
         std::string msgid = luaL_checkstring(L, 1);
-        lua_pushstring(L, msgid.data());
+        lua_pushstring(L, std::string(msgid).c_str());
         return 1;
     });
     // And for the UI too

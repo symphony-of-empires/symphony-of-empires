@@ -62,7 +62,7 @@ namespace Eng3D {
     };
 
     class MaterialManager {
-        std::map<std::string, std::shared_ptr<Eng3D::Material>> materials;
+        std::map<std::size_t, std::shared_ptr<Eng3D::Material>> materials;
         Eng3D::State& s;
     public:
         MaterialManager() = delete;

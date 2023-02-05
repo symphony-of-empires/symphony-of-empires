@@ -44,8 +44,8 @@ Eng3D::Audio::Audio(const std::string_view path, bool _is_sound)
     : is_sound{ _is_sound }
 {
     Eng3D::Log::debug("audio", Eng3D::translate_format("Decoding audio %s", path.data()));
-    if(this->is_sound) this->stream = (void*)Mix_LoadWAV(path.data());
-    else this->stream = (void*)Mix_LoadMUS(path.data());
+    if(this->is_sound) this->stream = (void*)Mix_LoadWAV(std::string(path).c_str());
+    else this->stream = (void*)Mix_LoadMUS(std::string(path).c_str());
 }
 
 Eng3D::Audio::~Audio() {

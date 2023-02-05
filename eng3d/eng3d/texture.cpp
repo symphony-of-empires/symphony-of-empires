@@ -441,7 +441,7 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::get_white() {
 /// mirror loaded textures from the disk - not modify them.
 std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(const std::string_view path, TextureOptions options) {
     // Find texture when wanting to be loaded and load texture from cached texture list
-    auto key = std::make_pair(std::string(path), options);
+    auto key = std::make_pair(std::hash<std::string_view>{}(path), options);
     auto it = textures.find(key);
     if(it != textures.end()) return (*it).second;
     
@@ -467,7 +467,7 @@ std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::load(std::shared_ptr<Eng3
 
 std::shared_ptr<Eng3D::Texture> Eng3D::TextureManager::gen_text(Eng3D::TrueType::Font& font, Eng3D::Color color, const std::string_view msg) {
     if(msg.empty()) return this->get_white();
-    const auto key = std::make_pair(std::string(msg.data()), color);
+    const auto key = std::make_pair(std::hash<std::string_view>{}(msg), color);
 
     // Find texture when wanting to be loaded and load texture from cached texture list
     auto it = text_textures.find(key);

@@ -170,7 +170,7 @@ namespace Eng3D {
 
     /// @brief Texture map has implementation
     struct TextureMapHash {
-        inline std::size_t operator()(const std::pair<std::string, TextureOptions>& key) const {
+        inline std::size_t operator()(const std::pair<std::size_t, TextureOptions>& key) const {
             std::size_t res = 0;
             hash_combine(res, key.first);
             TextureOptions s = key.second;
@@ -196,7 +196,7 @@ namespace Eng3D {
     /// @brief General manager for textures, caches textures into the memory instead of reading them off the disk
     /// every time they need to be accessed.
     class TextureManager {
-        std::unordered_map<std::pair<std::string, TextureOptions>, std::shared_ptr<Eng3D::Texture>, TextureMapHash> textures;
+        std::unordered_map<std::pair<std::size_t, TextureOptions>, std::shared_ptr<Eng3D::Texture>, TextureMapHash> textures;
         std::vector<TextureUploadRequest> unuploaded_textures;
         std::mutex unuploaded_lock;
         std::shared_ptr<Eng3D::Texture> white;
@@ -209,7 +209,7 @@ namespace Eng3D {
             }
         };
         /// @brief Stores the text textures
-        std::unordered_map<std::pair<std::string, Eng3D::Color>, std::shared_ptr<Eng3D::Texture>, pair_hash> text_textures;
+        std::unordered_map<std::pair<std::size_t, Eng3D::Color>, std::shared_ptr<Eng3D::Texture>, pair_hash> text_textures;
         Eng3D::State& s;
     public:
         TextureManager() = delete;

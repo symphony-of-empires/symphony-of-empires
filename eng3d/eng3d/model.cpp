@@ -153,7 +153,8 @@ void Eng3D::Model::process_node(aiNode& node, const aiScene& scene) {
 // ModelManager
 //
 std::shared_ptr<Eng3D::Model> Eng3D::ModelManager::load(const std::string_view path) {
-    auto it = models.find(path.data());
+    const auto key = std::hash<std::string_view>{}(path);
+    auto it = models.find(key);
     if(it != models.cend())
         return (*it).second;
 
@@ -175,7 +176,7 @@ std::shared_ptr<Eng3D::Model> Eng3D::ModelManager::load(const std::string_view p
         // Make a dummy model
         model = std::make_shared<Eng3D::Model>();
     }
-    models[path.data()] = model;
+    models[key] = model;
     return model;
 }
 

@@ -36,11 +36,12 @@
 // Material manager
 //
 const std::shared_ptr<Eng3D::Material> Eng3D::MaterialManager::load(const std::string_view name) {
-    auto it = materials.find(name.data());
+    const auto key = std::hash<std::string_view>{}(name);
+    auto it = materials.find(key);
     if(it != materials.end()) return it->second;
     
     Eng3D::Log::error("material", Eng3D::translate_format("%s not found", name.data()));
     std::shared_ptr<Eng3D::Material> material = std::make_shared<Eng3D::Material>();
-    materials[name.data()] = material;
+    materials[key] = material;
     return material;
 }

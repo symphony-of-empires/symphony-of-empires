@@ -34,7 +34,7 @@
 // Asset::File
 //
 void Eng3D::IO::Asset::File::open() {
-    this->fp = std::fopen(abs_path.data(), "rb");
+    this->fp = std::fopen(std::string(abs_path).c_str(), "rb");
     if(fp == nullptr)
         CXX_THROW(std::runtime_error, Eng3D::translate_format("Can't open file %s", path.data()));
 }

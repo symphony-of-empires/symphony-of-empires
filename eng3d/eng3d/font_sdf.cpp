@@ -107,7 +107,7 @@ constexpr T bezier(float t, const T p0, const T p1, const T p2) {
 std::unique_ptr<Eng3D::Label3D> Eng3D::FontSDF::gen_text(const std::string_view text, glm::vec2 pmin, glm::vec2 pmax, glm::vec2 p0, float width) {
     assert(width > 0.f && width < 1.f);
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv_utf8_utf32;
-    std::u32string unicode_text = conv_utf8_utf32.from_bytes(text.data());
+    std::u32string unicode_text = conv_utf8_utf32.from_bytes(std::string(text).c_str());
 
     auto text_width = 0.f;
     for(const auto& character : unicode_text) {

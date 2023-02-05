@@ -82,7 +82,7 @@ namespace Eng3D {
     };
 
     class ModelManager {
-        std::map<std::string, std::shared_ptr<Eng3D::Model>> models;
+        std::map<std::size_t, std::shared_ptr<Eng3D::Model>> models;
         Eng3D::State& s;
     public:
         ModelManager() = delete;
