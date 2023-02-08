@@ -551,7 +551,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
 
     paid_taxes.combine_each([&world](auto& paid_taxes_list) {
         for(auto& nation : world.nations)
-        nation.budget += paid_taxes_list[nation];
+            nation.budget += paid_taxes_list[nation];
     });
 
     world.profiler.start("Emigration");

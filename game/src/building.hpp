@@ -99,7 +99,7 @@ struct Building : Entity<BuildingId> {
 
     float get_upgrade_cost() const {
         constexpr auto base_cost = 1000.f;
-        return this->level * base_cost;
+        return base_cost;
     }
 
     float get_profit() const {
