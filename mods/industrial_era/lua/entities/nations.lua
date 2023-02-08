@@ -2000,12 +2000,19 @@ nation:set_ideology(monarchy, "absolute_monarchy")
 nation:add_accepted_language(Language:get("polynesian"))
 nation:add_client_hint(monarchy, _("Tonga"), 0xD62282)
 
-nation = Nation:new{ ref_name = "malietoa", name = _("Malietoa") }
-nation.adjective = _("Malietoa")
+nation = Nation:new{ ref_name = "alo", name = _("Alo") }
+nation.adjective = _("Alo")
 nation:register()
 nation:set_ideology(monarchy, "absolute_monarchy")
 nation:add_accepted_language(Language:get("polynesian"))
-nation:add_client_hint(monarchy, _("Malietoa"), 0xD62282)
+nation:add_client_hint(monarchy, _("Alo"), 0xD62282)
+
+nation = Nation:new{ ref_name = "uvea", name = _("Uvea") }
+nation.adjective = _("Uvea")
+nation:register()
+nation:set_ideology(monarchy, "absolute_monarchy")
+nation:add_accepted_language(Language:get("polynesian"))
+nation:add_client_hint(monarchy, _("Uvea"), 0xD62282)
 
 nation = Nation:new{ ref_name = "samoa", name = _("Samoa") }
 nation.adjective = _("Samoa")

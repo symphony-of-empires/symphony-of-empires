@@ -636,14 +636,20 @@ ankole_monarchy
 kayor_monarchy
 	By Cheikh Khadim Rassoul D. - Own work, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=123645620
 
-malietoa_monarchy
+tonga_monarchy
 	HISTORIC: 1875, way after 1825?
 	By Orange Tuesday - Own work, Public Domain, https://commons.wikimedia.org/w/index.php?curid=7080358
+
+tonga_republic
+	HISTORIC: "Adopted in 4 November 1875" - not 1825?
+	CC0, https://commons.wikimedia.org/w/index.php?curid=433177
 
 samoa_monarchy
 	HISTORIC: "Initial flag of Western Samoa acquired but not approved (26 May 1948)"[?]
 	By See File history, below, for details. - File:Flag of Samoa (construction sheet).svg, Flag and National Anthem of Samoa Act 1994, Public Domain, https://commons.wikimedia.org/w/index.php?curid=433178
 
-tonga_monarchy
-	HISTORIC: "Adopted in 4 November 1875" - not 1825?
-	CC0, https://commons.wikimedia.org/w/index.php?curid=433177
+uvea_monarchy
+	De Thommy - Trabajo propioFlags of the World – Wallis and Futuna – Uvea / WallisPhotograph of the French flag and the Wallisian flag, unknown date, CC0, https://commons.wikimedia.org/w/index.php?curid=38014755
+
+alo_monarchy
+	By Thommy - Own workFlags of the World – Wallis and Futuna – Alo[1], CC0, https://commons.wikimedia.org/w/index.php?curid=38014927
