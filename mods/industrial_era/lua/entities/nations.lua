@@ -1539,162 +1539,162 @@ papal_states:add_client_hint(monarchy, _("Papal states"), 0xf7f6cd)
 papal_states:add_client_hint(communism, _("Papal states"), 0xf7f6cd)
 papal_states:add_client_hint(socialism, _("Papal states"), 0xf7f6cd)
 
-piedmont_sardinia = Nation:new{ ref_name = "piedmont_sardinia" }
-piedmont_sardinia.name = _("Piedmont-Sardinia")
-piedmont_sardinia:register()
-piedmont_sardinia:set_ideology(monarchy, "absolute_monarchy")
-piedmont_sardinia:add_accepted_language(italian)
-piedmont_sardinia:add_client_hint(monarchy, _("Piedmont-Sardinia"), 0x873cb5)
-piedmont_sardinia:add_client_hint(fascism, _("Piedmont-Sardinia"), 0x873cb5)
-piedmont_sardinia:add_client_hint(communism, _("Piedmont-Sardinia"), 0x873cb5)
+nation = Nation:new{ ref_name = "piedmont_sardinia" }
+nation.name = _("Piedmont-Sardinia")
+nation:register()
+nation:set_ideology(monarchy, "absolute_monarchy")
+nation:add_accepted_language(italian)
+nation:add_client_hint(monarchy, _("Piedmont-Sardinia"), 0x873cb5)
+nation:add_client_hint(fascism, _("Piedmont-Sardinia"), 0x873cb5)
+nation:add_client_hint(communism, _("Piedmont-Sardinia"), 0x873cb5)
 
-two_sicilies = Nation:new{ ref_name = "two_sicilies" }
-two_sicilies.name = _("Two Sicilies")
-two_sicilies:register()
-two_sicilies:set_ideology(monarchy, "absolute_monarchy")
-two_sicilies:add_accepted_language(italian)
-two_sicilies:add_client_hint(monarchy, _("Two Sicilies"), 0x679e7b)
-two_sicilies:add_client_hint(communism, _("Two Sicilies"), 0x679e7b)
-two_sicilies:add_client_hint(fascism, _("Two Sicilies"), 0x679e7b)
+nation = Nation:new{ ref_name = "two_sicilies" }
+nation.name = _("Two Sicilies")
+nation:register()
+nation:set_ideology(monarchy, "absolute_monarchy")
+nation:add_accepted_language(italian)
+nation:add_client_hint(monarchy, _("Two Sicilies"), 0x679e7b)
+nation:add_client_hint(communism, _("Two Sicilies"), 0x679e7b)
+nation:add_client_hint(fascism, _("Two Sicilies"), 0x679e7b)
 
-tuscany = Nation:new{ ref_name = "tuscany" }
-tuscany.name = _("Tuscany")
-tuscany:register()
-tuscany:set_ideology(monarchy, "absolute_monarchy")
-tuscany:add_accepted_language(italian)
-tuscany:add_client_hint(monarchy, _("Tuscany"), 0xd4a88a)
-tuscany:add_client_hint(socialism, _("Tuscany"), 0xd4a88a)
+nation = Nation:new{ ref_name = "tuscany" }
+nation.name = _("Tuscany")
+nation:register()
+nation:set_ideology(monarchy, "absolute_monarchy")
+nation:add_accepted_language(italian)
+nation:add_client_hint(monarchy, _("Tuscany"), 0xd4a88a)
+nation:add_client_hint(socialism, _("Tuscany"), 0xd4a88a)
 
-parma = Nation:new{ ref_name = "parma" }
-parma.name = _("Parma")
-parma:register()
-parma:set_ideology(monarchy, "absolute_monarchy")
-parma:add_accepted_language(italian)
-parma:add_client_hint(monarchy, _("Parma"), 0xd48ad3)
+nation = Nation:new{ ref_name = "parma" }
+nation.name = _("Parma")
+nation:register()
+nation:set_ideology(monarchy, "absolute_monarchy")
+nation:add_accepted_language(italian)
+nation:add_client_hint(monarchy, _("Parma"), 0xd48ad3)
 
-modena_and_reggio = Nation:new{ ref_name = "modena_and_reggio" }
-modena_and_reggio.name = _("Modena and Reggio")
-modena_and_reggio:register()
-modena_and_reggio:set_ideology(monarchy, "absolute_monarchy")
-modena_and_reggio:add_accepted_language(italian)
-modena_and_reggio:add_client_hint(monarchy, _("Modena and Reggio"), 0xd3f2df)
+nation = Nation:new{ ref_name = "modena_and_reggio" }
+nation.name = _("Modena and Reggio")
+nation:register()
+nation:set_ideology(monarchy, "absolute_monarchy")
+nation:add_accepted_language(italian)
+nation:add_client_hint(monarchy, _("Modena and Reggio"), 0xd3f2df)
 
-savoie = Nation:new{ ref_name = "savoie" }
-savoie.name = _("Savoie")
-savoie:register()
-savoie:set_ideology(monarchy, "absolute_monarchy")
-savoie:add_accepted_language(italian)
-savoie:add_client_hint(monarchy, _("Savoie"), 0xad8abd)
+nation = Nation:new{ ref_name = "savoie" }
+nation.name = _("Savoie")
+nation:register()
+nation:set_ideology(monarchy, "absolute_monarchy")
+nation:add_accepted_language(italian)
+nation:add_client_hint(monarchy, _("Savoie"), 0xad8abd)
 
-san_marino = Nation:new{ ref_name = "san_marino" }
-san_marino.name = _("San Marino")
-san_marino:register()
-san_marino:set_ideology(monarchy, "absolute_monarchy")
-san_marino:add_accepted_language(german)
-san_marino:add_client_hint(monarchy, _("San Marino"), 0x34e5eb)
-san_marino:add_client_hint(republic, _("San Marino"), 0x34e5eb)
-san_marino:add_client_hint(communism, _("San Marino"), 0x34e5eb)
-san_marino:add_client_hint(socialism, _("San Marino"), 0x34e5eb)
-san_marino:add_client_hint(fascism, _("San Marino"), 0x34e5eb)
+nation = Nation:new{ ref_name = "san_marino" }
+nation.name = _("San Marino")
+nation:register()
+nation:set_ideology(monarchy, "absolute_monarchy")
+nation:add_accepted_language(german)
+nation:add_client_hint(monarchy, _("San Marino"), 0x34e5eb)
+nation:add_client_hint(republic, _("San Marino"), 0x34e5eb)
+nation:add_client_hint(communism, _("San Marino"), 0x34e5eb)
+nation:add_client_hint(socialism, _("San Marino"), 0x34e5eb)
+nation:add_client_hint(fascism, _("San Marino"), 0x34e5eb)
 
 -- Formable nations
-italy = Nation:new{ ref_name = "italy" }
-italy.name = _("Italy")
-italy.adjective = _("Italian")
-italy:register()
-italy:add_accepted_language(italian)
-italy:add_client_hint(monarchy, _("Italy"), 0x5fbf5c)
-italy:add_client_hint(republic, _("Italy"), 0x5fbf5c)
+nation = Nation:new{ ref_name = "italy" }
+nation.name = _("Italy")
+nation.adjective = _("Italian")
+nation:register()
+nation:add_accepted_language(italian)
+nation:add_client_hint(monarchy, _("Italy"), 0x5fbf5c)
+nation:add_client_hint(republic, _("Italy"), 0x5fbf5c)
 
 -----------------------------------------------------------------------
 
 -----------------------------------------------------------------------
 -- Balkans
-ottoman = Nation:new{ ref_name = "ottoman" }
-ottoman.name = _("Ottoman")
-ottoman.adjective = _("Ottoman")
-ottoman.noun = _("Ottoman")
-ottoman.combo_form = _("Otto")
-ottoman:register()
-ottoman:set_ideology(monarchy, "absolute_monarchy")
-ottoman:add_accepted_language(turkish)
-ottoman:add_client_hint(monarchy, _("Sublime Porte"), 0xc9201a)
-ottoman:add_client_hint(republic, _("Ottoman Republic"), 0xc9201a)
-ottoman:add_client_hint(communism, _("People's Ottoman Republic"), 0xc9201a)
-ottoman:add_client_hint(socialism, _("Ottoman"), 0xc9201a)
-ottoman:add_client_hint(fascism, _("Sublime Porte"), 0xc9201a)
+nation = Nation:new{ ref_name = "ottoman" }
+nation.name = _("Ottoman")
+nation.adjective = _("Ottoman")
+nation.noun = _("Ottoman")
+nation.combo_form = _("Otto")
+nation:register()
+nation:set_ideology(monarchy, "absolute_monarchy")
+nation:add_accepted_language(turkish)
+nation:add_client_hint(monarchy, _("Sublime Porte"), 0xc9201a)
+nation:add_client_hint(republic, _("Ottoman Republic"), 0xc9201a)
+nation:add_client_hint(communism, _("People's Ottoman Republic"), 0xc9201a)
+nation:add_client_hint(socialism, _("Ottoman"), 0xc9201a)
+nation:add_client_hint(fascism, _("Sublime Porte"), 0xc9201a)
 
-turkey = Nation:new{ ref_name = "turkey" }
-turkey.name = _("Turkey")
-turkey.adjective = _("Turkish")
-turkey.noun = _("Turk")
-turkey.combo_form = _("Turco")
-turkey:register()
-turkey:set_ideology(monarchy, "absolute_monarchy")
-turkey:add_accepted_language(turkish)
-turkey:add_client_hint(monarchy, _("Turkey"), 0xc9201a)
-turkey:add_client_hint(republic, _("Turkey"), 0xc9201a)
-turkey:add_client_hint(communism, _("Turkey"), 0xc9201a)
-turkey:add_client_hint(socialism, _("Turkey"), 0xc9201a)
-turkey:add_client_hint(fascism, _("Turkey"), 0xc9201a)
+nation = Nation:new{ ref_name = "turkey" }
+nation.name = _("Turkey")
+nation.adjective = _("Turkish")
+nation.noun = _("Turk")
+nation.combo_form = _("Turco")
+nation:register()
+nation:set_ideology(monarchy, "absolute_monarchy")
+nation:add_accepted_language(turkish)
+nation:add_client_hint(monarchy, _("Turkey"), 0xc9201a)
+nation:add_client_hint(republic, _("Turkey"), 0xc9201a)
+nation:add_client_hint(communism, _("Turkey"), 0xc9201a)
+nation:add_client_hint(socialism, _("Turkey"), 0xc9201a)
+nation:add_client_hint(fascism, _("Turkey"), 0xc9201a)
 
-greece = Nation:new{ ref_name = "greece" }
-greece.name = _("Greece")
-greece.adjective = _("Greek")
-greece.combo_form = _("Greco")
-greece:register()
-greece:set_ideology(monarchy, "absolute_monarchy")
-greece:add_accepted_language(greek)
-greece:add_client_hint(monarchy, _("Greece"), 0xaac4e6)
+nation = Nation:new{ ref_name = "greece" }
+nation.name = _("Greece")
+nation.adjective = _("Greek")
+nation.combo_form = _("Greco")
+nation:register()
+nation:set_ideology(monarchy, "absolute_monarchy")
+nation:add_accepted_language(greek)
+nation:add_client_hint(monarchy, _("Greece"), 0xaac4e6)
 
-moldavia = Nation:new{ ref_name = "moldavia" }
-moldavia.name = _("Moldavia")
-moldavia.adjective = _("Moldavian")
-moldavia:register()
-moldavia:set_ideology(monarchy, "absolute_monarchy")
-moldavia:add_accepted_language(romanian)
-moldavia:add_client_hint(socialism, _("Moldavia"), 0xbdc232)
-moldavia:add_client_hint(monarchy, _("Moldavia"), 0xbdc232)
+nation = Nation:new{ ref_name = "moldavia" }
+nation.name = _("Moldavia")
+nation.adjective = _("Moldavian")
+nation:register()
+nation:set_ideology(monarchy, "absolute_monarchy")
+nation:add_accepted_language(romanian)
+nation:add_client_hint(socialism, _("Moldavia"), 0xbdc232)
+nation:add_client_hint(monarchy, _("Moldavia"), 0xbdc232)
 
-wallachia = Nation:new{ ref_name = "wallachia" }
-wallachia.name = _("Wallachia")
-wallachia:register()
-wallachia:set_ideology(monarchy, "absolute_monarchy")
-wallachia:add_accepted_language(romanian)
-wallachia:add_client_hint(socialism, _("Wallachia"), 0x535096)
-wallachia:add_client_hint(monarchy, _("Wallachia"), 0x535096)
+nation = Nation:new{ ref_name = "wallachia" }
+nation.name = _("Wallachia")
+nation:register()
+nation:set_ideology(monarchy, "absolute_monarchy")
+nation:add_accepted_language(romanian)
+nation:add_client_hint(socialism, _("Wallachia"), 0x535096)
+nation:add_client_hint(monarchy, _("Wallachia"), 0x535096)
 
 -- Releasable nations
-kosovo = Nation:new{ ref_name = "kosovo" }
-kosovo.name = _("Kosovo")
-kosovo:register()
-kosovo:add_client_hint(monarchy, _("Kosovo"), 0x808000)
+nation = Nation:new{ ref_name = "kosovo" }
+nation.name = _("Kosovo")
+nation:register()
+nation:add_client_hint(monarchy, _("Kosovo"), 0x808000)
 
-serbia = Nation:new{ ref_name = "serbia" }
-serbia.name = _("Serbia")
-serbia:register()
-serbia:add_accepted_language(serbian)
-serbia:add_client_hint(socialism, _("Serbia"), 0x905c4b)
-serbia:add_client_hint(monarchy, _("Serbia"), 0x905c4b)
+nation = Nation:new{ ref_name = "serbia" }
+nation.name = _("Serbia")
+nation:register()
+nation:add_accepted_language(serbian)
+nation:add_client_hint(socialism, _("Serbia"), 0x905c4b)
+nation:add_client_hint(monarchy, _("Serbia"), 0x905c4b)
 
-montenegro = Nation:new{ ref_name = "montenegro" }
-montenegro.name = _("Montenegro")
-montenegro:register()
-montenegro:add_accepted_language(serbian)
-montenegro:add_client_hint(socialism, _("Montenegro"), 0x808000)
-montenegro:add_client_hint(monarchy, _("Montenegro"), 0x808000)
+nation = Nation:new{ ref_name = "montenegro" }
+nation.name = _("Montenegro")
+nation:register()
+nation:add_accepted_language(serbian)
+nation:add_client_hint(socialism, _("Montenegro"), 0x808000)
+nation:add_client_hint(monarchy, _("Montenegro"), 0x808000)
 
-croatia = Nation:new{ ref_name = "croatia" }
-croatia.name = _("Croatia")
-croatia:register()
-croatia:add_accepted_language(croatian)
-croatia:add_client_hint(socialism, _("Croatia"), 0x808000)
-croatia:add_client_hint(monarchy, _("Croatia"), 0x808000)
+nation = Nation:new{ ref_name = "croatia" }
+nation.name = _("Croatia")
+nation:register()
+nation:add_accepted_language(croatian)
+nation:add_client_hint(socialism, _("Croatia"), 0x808000)
+nation:add_client_hint(monarchy, _("Croatia"), 0x808000)
 
-bosnia_and_herzegovina = Nation:new{ ref_name = "bosnia_and_herzegovina" }
-bosnia_and_herzegovina.name = _("Bosnia and Herzegovina")
-bosnia_and_herzegovina:register()
-bosnia_and_herzegovina:add_client_hint(monarchy, _("Bosnia and Herzegovina"), 0x808000)
+nation = Nation:new{ ref_name = "bosnia_and_herzegovina" }
+nation.name = _("Bosnia and Herzegovina")
+nation:register()
+nation:add_client_hint(monarchy, _("Bosnia and Herzegovina"), 0x808000)
 -----------------------------------------------------------------------
 
 
