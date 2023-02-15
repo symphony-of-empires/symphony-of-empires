@@ -178,7 +178,6 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         if(pop_need.budget > 0.f) {
             const auto percentage_to_spend = 0.8f;
             const auto budget_alloc = pop_need.budget * percentage_to_spend;
-            pop_need.budget -= budget_alloc;
 
             // If we are going to have value added taxes we should separate them from income taxes
             info.state_payment += budget_alloc * nation.current_policy.pop_tax;
@@ -191,10 +190,10 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
                 auto& product = province.products[commodity];
                 const auto need_factor = needs_amounts[commodity] / total_factor;
                 const auto maximum_demand = pop.size * need_factor;
+                const auto wanted_amount = glm::clamp((budget_per_pop * need_factor) / product.price, 0.f, pop.size * need_factor);
                 
                 auto amount = 0.f;
-                const auto payment = product.buy(maximum_demand, amount);
-                pop.budget -= payment;
+                pop_need.budget -= product.buy(wanted_amount, amount);
                 pop_need.life_needs_met += (amount / pop.size) * need_factor;
             }
         }
