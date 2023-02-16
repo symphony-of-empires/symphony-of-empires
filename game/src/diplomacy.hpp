@@ -28,9 +28,7 @@
 #include <cstddef>
 #include <vector>
 #include "eng3d/string.hpp"
-
-#include "objects.hpp"
-#include "indpobj.hpp"
+#include "world.hpp"
 
 class Nation;
 class Province;

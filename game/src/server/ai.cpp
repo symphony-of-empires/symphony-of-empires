@@ -37,7 +37,7 @@
 #include "eng3d/rand.hpp"
 
 #include "diplomacy.hpp"
-#include "indpobj.hpp"
+#include "world.hpp"
 #include "province.hpp"
 #include "server/economy.hpp"
 #include "world.hpp"

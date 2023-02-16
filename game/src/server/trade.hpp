@@ -25,7 +25,7 @@
 #pragma once
 
 #include <vector>
-#include "objects.hpp"
+#include "world.hpp"
 #include "province.hpp"
 
 class World;

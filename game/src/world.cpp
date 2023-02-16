@@ -47,7 +47,7 @@
 #include "province.hpp"
 #include "world.hpp"
 #include "diplomacy.hpp"
-#include "indpobj.hpp"
+#include "world.hpp"
 #include "server/lua_api.hpp"
 #include "server/server_network.hpp"
 #include "action.hpp"

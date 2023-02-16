@@ -29,14 +29,12 @@
 
 namespace tbb {
     template<typename T, typename F>
-    void parallel_for(T range, F&& func)
-    {
+    void parallel_for(T range, F&& func) {
         func(std::ranges::make_iterator_range(range.first, range.last));
     }
 
     template<typename It, typename F>
-    void parallel_for(It first, It last, F&& func)
-    {
+    void parallel_for(It first, It last, F&& func) {
         for(auto it = first; it != last; it++)
             func(*it);
     }

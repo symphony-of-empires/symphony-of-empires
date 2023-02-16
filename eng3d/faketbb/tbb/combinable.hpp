@@ -41,8 +41,7 @@ namespace tbb {
         }
 
         template<typename F>
-        void combine_each(F&& func)
-        {
+        void combine_each(F&& func) {
             func(value);
         }
     };

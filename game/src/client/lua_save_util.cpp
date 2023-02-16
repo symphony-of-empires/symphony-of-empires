@@ -30,7 +30,7 @@
 #include "eng3d/utils.hpp"
 #include "client/game_state.hpp"
 #include "world.hpp"
-#include "objects.hpp"
+#include "world.hpp"
 
 static void save_province(GameState& gs, FILE* fp, Province& province)
 {

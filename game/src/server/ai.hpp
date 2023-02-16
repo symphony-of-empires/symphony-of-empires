@@ -26,7 +26,7 @@
 
 #include <vector>
 #include "eng3d/entity.hpp"
-#include "objects.hpp"
+#include "world.hpp"
 #include "nation.hpp"
 #include "province.hpp"
 #include "world.hpp"

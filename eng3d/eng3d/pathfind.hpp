@@ -37,7 +37,7 @@ namespace Eng3D::Pathfind {
     /// @param g The predicate generator returning a iterable container with the neioghbour of the given arguments
     /// @param h Heuristic function (cost + HeurFn())
     template<typename T>
-    inline std::vector<T> get_path(T start, T end, std::function<std::vector<T>(T)> g, std::function<float(T, T)> h) {
+    std::vector<T> get_path(T start, T end, std::function<std::vector<T>(T)> g, std::function<float(T, T)> h) {
         /// @brief Keeps track of the costs so far
         std::unordered_map<T, float> cost_map;
         /// @brief Keeps track of the previous tile for each tile
@@ -93,10 +93,10 @@ namespace Eng3D::Pathfind {
         return path;
     }
 
-    template<typename T, typename V>
-    inline void from_source(T source, const std::vector<std::vector<V>>& neighbour_rels, std::vector<float>& costs) {
-        auto cmp = [](const V& a, const V& b) { return a.cost < b.cost; };
-        std::priority_queue<V, std::vector<V>, decltype(cmp)> heap;
+    template<typename T>
+    void from_source(const auto& source, const std::vector<std::vector<T>>& neighbour_rels, std::vector<float>& costs) {
+        auto cmp = [](const T& a, const T& b) { return a.cost < b.cost; };
+        std::priority_queue<T, std::vector<T>, decltype(cmp)> heap;
         heap.emplace(0.f, source);
         while(!heap.empty()) {
             auto vertex = heap.top();

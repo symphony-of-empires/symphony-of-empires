@@ -27,7 +27,7 @@
 #include "product.hpp"
 #include "unit.hpp"
 #include "building.hpp"
-#include "indpobj.hpp"
+#include "world.hpp"
 #include <glm/vec3.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/trigonometric.hpp>

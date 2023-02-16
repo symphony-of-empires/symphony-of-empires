@@ -180,7 +180,7 @@ namespace UI {
 
         /// @brief Recursively notify parents of the dead widgets, since the UI context
         /// will only clear widgets which have a dead child.
-        inline void notice_death() {
+        void notice_death() noexcept {
             if(!this->dead_child) {
                 this->dead_child = true;
                 if(this->parent)
@@ -213,17 +213,16 @@ namespace UI {
 
         /// @brief Moves a widget by x and y
         /// @param offset Offset to move by
-        constexpr void move_by(const glm::ivec2 offset) {
+        constexpr void move_by(const glm::ivec2 offset) noexcept {
             this->x += offset.x;
             this->y += offset.y;
         }
 
         void add_child(UI::Widget& child);
 
-        template<typename T, typename ... Targs>
-        T& make_widget(Targs&& ...args) {
-            auto p = new T(std::forward<decltype(args)>(args)..., this);
-            return *p;
+        template<typename T>
+        T& make_widget(auto&& ...args) {
+            return *(new T(std::forward<decltype(args)>(args)..., this));
         }
 
         virtual void on_render(Context&, Eng3D::Rect viewport);
@@ -235,67 +234,66 @@ namespace UI {
         glm::ivec2 get_y_bounds() const;
         void scroll(int y);
 
-        constexpr void set_y(int _y) {
+        constexpr void set_y(int _y) noexcept {
             this->y = _y;
             if(this->parent)
                 this->y += this->parent->scrolled_y;
         }
 
-        constexpr void above_of(const UI::Widget& rhs) {
+        constexpr void above_of(const UI::Widget& rhs) noexcept {
             this->y = rhs.y - this->height;
         }
 
-        constexpr void below_of(const UI::Widget& rhs) {
+        constexpr void below_of(const UI::Widget& rhs) noexcept {
             this->y = rhs.y + rhs.height;
         }
 
-        constexpr void left_side_of(const UI::Widget& rhs) {
+        constexpr void left_side_of(const UI::Widget& rhs) noexcept {
             this->x = rhs.x - this->width;
         }
 
-        constexpr void right_side_of(const UI::Widget& rhs) {
+        constexpr void right_side_of(const UI::Widget& rhs) noexcept {
             this->x = rhs.x + rhs.width;
         }
 
         /// @brief Sets the on_click function of this widget
-        virtual void set_on_click(std::function<void(UI::Widget&)> _on_click) {
+        virtual void set_on_click(std::function<void(UI::Widget&)> _on_click) noexcept {
             this->on_click = _on_click;
         }
 
         /// @brief Sets the on_each_tick function of this widget
-        virtual void set_on_each_tick(std::function<void(UI::Widget&)> _on_each_tick) {
+        virtual void set_on_each_tick(std::function<void(UI::Widget&)> _on_each_tick) noexcept {
             this->on_each_tick = _on_each_tick;
         }
 
-        virtual void set_on_drag(std::function<void(glm::ivec2, glm::ivec2)> _on_drag) {
+        virtual void set_on_drag(std::function<void(glm::ivec2, glm::ivec2)> _on_drag) noexcept {
             this->on_drag = _on_drag;
         }
 
         /// @brief Sort the children of this widget
         /// @tparam F lambda function type
         /// @param comp Comparison function
-        template<typename F>
-        inline void sort_children(F&& comp) {
+        void sort_children(auto&& comp) noexcept {
             std::sort(this->children.begin(), this->children.end(), comp);
             this->need_recalc = true;
         }
 
         /// @brief Kills the current widget, setting it up for deletion when dead
         /// widgets are cleared by the UI context
-        inline void kill() {
+        void kill() noexcept {
             this->dead = true;
             this->kill_children();
             this->notice_death();
         }
 
-        inline void kill_children() {
+        void kill_children() noexcept {
             for(auto& child : this->children)
                 child->kill();
         }
 
-        inline size_t max_height() const {
+        size_t max_height() const noexcept {
             size_t cnt = 0;
-            for(auto& child : this->children)
+            for(const auto& child : this->children)
                 cnt += child->height;
             return cnt;
         }

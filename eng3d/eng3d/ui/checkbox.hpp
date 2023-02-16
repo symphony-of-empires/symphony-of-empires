@@ -40,14 +40,14 @@ namespace UI {
         Checkbox(Widget* parent = nullptr);
         Checkbox(int size, Widget* parent = nullptr);
         Checkbox(int x, int y, unsigned w, unsigned h, Widget* parent = nullptr);
-        virtual ~Checkbox() override {}
-        bool get_value() const;
-        void set_value(bool checked);
-        void set_on_click(std::function<void(Widget&)> on_click) override;
-        void set_text(const std::string_view _text) override;
+        virtual ~Checkbox() noexcept override {}
+        bool get_value() const noexcept;
+        void set_value(bool checked) noexcept;
+        void set_on_click(std::function<void(Widget&)> on_click) noexcept override;
+        void set_text(const std::string_view _text) noexcept override;
     private:
-        static void on_click_default(Widget& w);
-        void init_checkbox(int size);
+        static void on_click_default(Widget& w) noexcept;
+        void init_checkbox(int size) noexcept;
         Div* box;
         bool value;
         std::function<void(Widget&)> outside_on_click = nullptr;

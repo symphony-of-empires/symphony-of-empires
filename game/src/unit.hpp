@@ -31,7 +31,7 @@
 #include <cassert>
 #include <type_traits>
 #include <glm/vec2.hpp>
-#include "objects.hpp"
+#include "world.hpp"
 #include "eng3d/freelist.hpp"
 
 class Nation;
@@ -92,7 +92,7 @@ public:
 
     void set_target(const Province& province);
 
-    void stop_movement() {
+    void stop_movement() noexcept {
         this->has_target = false;
         this->days_left_until_move = 0;
     }
@@ -104,21 +104,21 @@ public:
     /// @brief Checks if the unit can move (if it can set_province)
     /// @return true 
     /// @return false 
-    bool can_move() const {
-        return !(this->on_battle); // Unit must not be on a battle
+    bool can_move() const noexcept {
+        return !this->on_battle; // Unit must not be on a battle
     }
 
-    const std::vector<ProvinceId> get_path() const {
+    const std::vector<ProvinceId> get_path() const noexcept {
         return path;
     }
 
     void set_path(const Province& target);
 
-    bool has_target_province() const {
+    bool has_target_province() const noexcept {
         return this->has_target;
     }
 
-    ProvinceId get_target_province_id() const {
+    ProvinceId get_target_province_id() const noexcept {
         return this->target_province_id;
     }
 
@@ -162,11 +162,11 @@ public:
     void remove_unit(UnitId unit);
     void move_unit(UnitId unit, ProvinceId target_province);
 
-    std::vector<UnitId> get_province_units(ProvinceId province_id) const {
+    std::vector<UnitId> get_province_units(ProvinceId province_id) const noexcept {
         return province_units[province_id];
     }
 
-    ProvinceId get_unit_current_province(UnitId unit_id) const {
+    ProvinceId get_unit_current_province(UnitId unit_id) const noexcept {
         return unit_province[unit_id];
     }
 

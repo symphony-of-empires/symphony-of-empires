@@ -110,24 +110,24 @@ namespace Eng3D::Networking {
         }
         ~Packet() = default;
 
-        inline void* data() {
+        void* data() noexcept {
             return static_cast<void*>(&buffer[0]);
         }
 
         template<typename T>
-        inline void data(const T* buf = nullptr, size_t size = sizeof(T)) {
+        void data(const T* buf = nullptr, size_t size = sizeof(T)) noexcept {
             n_data = size;
             buffer.resize(n_data);
             if(buf != nullptr)
                 std::memcpy(&buffer[0], buf, size);
         }
 
-        inline size_t size() const {
+        size_t size() const noexcept {
             return n_data;
         }
 
-        inline bool is_ok() const {
-            return (code == PacketCode::OK);
+        bool is_ok() const noexcept {
+            return code == PacketCode::OK;
         }
 
         bool send();
