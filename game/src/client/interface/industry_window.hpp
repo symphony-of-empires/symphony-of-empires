@@ -28,7 +28,7 @@
 #include "eng3d/ui/div.hpp"
 #include "eng3d/ui/table.hpp"
 #include "client/game_state.hpp"
-#include "building.hpp"
+#include "world.hpp"
 #include "world.hpp"
 
 namespace Interface {

@@ -35,7 +35,7 @@
 
 #include "client/interface/army.hpp"
 #include "client/map.hpp"
-#include "nation.hpp"
+#include "world.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
 

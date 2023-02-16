@@ -57,7 +57,7 @@ namespace Interface {
     class BattleWidget;
 }
 
-#include "province.hpp"
+#include "world.hpp"
 #include "world.hpp"
 
 enum class MapView {

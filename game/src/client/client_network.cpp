@@ -32,8 +32,8 @@
 #include "eng3d/log.hpp"
 
 #include "action.hpp"
-#include "unit.hpp"
-#include "diplomacy.hpp"
+#include "world.hpp"
+#include "world.hpp"
 #include "world.hpp"
 #include "client/client_network.hpp"
 

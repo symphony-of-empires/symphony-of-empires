@@ -35,10 +35,10 @@
 
 #include "server/lua_api.hpp"
 #include "world.hpp"
-#include "nation.hpp"
+#include "world.hpp"
 #include "server/economy.hpp"
-#include "event.hpp"
-#include "building.hpp"
+#include "world.hpp"
+#include "world.hpp"
 
 int LuaAPI::register_new_table(lua_State* L, const std::string_view name, const std::vector<luaL_Reg> meta, const std::vector<luaL_Reg> methods) {
     if(luaL_newmetatable(L, name.data())) {

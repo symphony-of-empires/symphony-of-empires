@@ -36,9 +36,9 @@
 #include "eng3d/log.hpp"
 #include "eng3d/rand.hpp"
 
-#include "diplomacy.hpp"
 #include "world.hpp"
-#include "province.hpp"
+#include "world.hpp"
+#include "world.hpp"
 #include "server/economy.hpp"
 #include "world.hpp"
 #include "action.hpp"

@@ -32,7 +32,7 @@
 
 #include "client/interface/industry_window.hpp"
 #include "client/client_network.hpp"
-#include "nation.hpp"
+#include "world.hpp"
 #include "action.hpp"
 #include "world.hpp"
 #include "world.hpp"

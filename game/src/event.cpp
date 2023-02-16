@@ -25,9 +25,9 @@
 #include <algorithm>
 #include <cassert>
 
-#include "event.hpp"
 #include "world.hpp"
-#include "nation.hpp"
+#include "world.hpp"
+#include "world.hpp"
 
 //
 // Event

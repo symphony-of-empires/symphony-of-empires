@@ -40,8 +40,8 @@
 
 #include "server/server_network.hpp"
 #include "action.hpp"
-#include "unit.hpp"
-#include "province.hpp"
+#include "world.hpp"
+#include "world.hpp"
 #include "world.hpp"
 
 template<>

@@ -41,12 +41,14 @@
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 
+#include "eng3d/serializer.hpp"
 #include "eng3d/entity.hpp"
 #include "eng3d/profiler.hpp"
 #include "eng3d/string.hpp"
 #include "eng3d/log.hpp"
 #include "eng3d/luavm.hpp"
 #include "eng3d/color.hpp"
+#include "eng3d/freelist.hpp"
 
 struct CommodityId : EntityId<uint8_t> {
     CommodityId() = default;
@@ -1206,6 +1208,421 @@ public:
         return !recently_changed_owner.empty() || !recently_changed_control.empty();
     }
 };
+
+
+class Nation;
+class Province;
+
+namespace Diplomacy {
+    // Determines if the other nation is a friendly potential ally
+    inline bool is_friend(Nation& us, Nation& them);
+
+    // Determines if the other nation is an enemy and potential rival
+    inline bool is_foe(Nation& us, Nation& them);
+}
+
+enum class TreatyClauseType {
+    PAYMENT,
+    HUMILIATE,
+    LIBERATE_NATION,
+    IMPOSE_POLICIES,
+    ANNEX_PROVINCES,
+    CEASEFIRE,
+    PUPPET,
+    //TECHNOLOGY,
+};
+template<>
+struct Eng3D::Deser::Serializer<TreatyClauseType> : Eng3D::Deser::SerializerMemcpy<TreatyClauseType> {};
+
+namespace TreatyClause {
+    class BaseClause {
+    public:
+        BaseClause() = default;
+        BaseClause(const Nation& _sender, const Nation& _receiver);
+        virtual ~BaseClause() = default;
+
+        enum TreatyClauseType type;
+        NationId sender_id; // Who created this clause
+        NationId receiver_id; // Who should accept/reject this clause
+        size_t days_duration = 0; // Days this clause lasts
+        bool done = false; // Used for 1 time clauses
+
+        // Function to determine the "political" cost of this clause, and how much willing the AI
+        // is to accept this clause, this is only used by the AI
+        virtual unsigned cost() {
+            return 0;
+        }
+
+        // Function to enforce the policy per day (or higher time spans)
+        virtual void enforce() {}
+
+        // Determines whenever the clause is in effect or not, when it is not in effect
+        // then it's removed permanently
+        virtual bool in_effect() const {
+            return false;
+        }
+    };
+
+    // Makes loser to pay war reparations to the winner
+    class Payment : public BaseClause {
+    public:
+        Payment()
+            : BaseClause()
+        {
+            type = TreatyClauseType::PAYMENT;
+        }
+        unsigned cost();
+        void enforce();
+        bool in_effect() const;
+
+        float amount = 0.f;
+    };
+
+    // Reduces prestige of loser and increments prestige from winner
+    class Humiliate : public BaseClause {
+    public:
+        Humiliate()
+            : BaseClause()
+        {
+            type = TreatyClauseType::HUMILIATE;
+        }
+        unsigned cost();
+        void enforce();
+        bool in_effect() const;
+
+        float amount = 0.f;
+    };
+
+    // Liberates a nation from another
+    class LiberateNation : public BaseClause {
+    public:
+        LiberateNation()
+            : BaseClause()
+        {
+            type = TreatyClauseType::LIBERATE_NATION;
+        }
+        unsigned cost();
+        void enforce();
+        bool in_effect() const;
+
+        NationId liberated_id;
+        std::vector<ProvinceId> province_ids;
+    };
+
+    // Imposes a policy to be put in action on a nation
+    class ImposePolicies : public BaseClause {
+    public:
+        ImposePolicies()
+            : BaseClause()
+        {
+            type = TreatyClauseType::IMPOSE_POLICIES;
+        }
+        unsigned cost();
+        void enforce();
+        bool in_effect() const;
+
+        Policies imposed;
+    };
+
+    // Annexes territory from the loser
+    class AnnexProvince : public BaseClause {
+    public:
+        AnnexProvince()
+            : BaseClause()
+        {
+            type = TreatyClauseType::ANNEX_PROVINCES;
+        }
+        unsigned cost();
+        void enforce();
+        bool in_effect() const;
+
+        std::vector<ProvinceId> province_ids;
+    };
+
+    // Makes the receiver the puppet of the sender
+    class Puppet : public BaseClause {
+    public:
+        Puppet()
+            : BaseClause()
+        {
+            type = TreatyClauseType::PUPPET;
+        }
+        unsigned cost();
+        void enforce();
+        bool in_effect() const;
+    };
+}
+template<>
+struct Eng3D::Deser::Serializer<TreatyClause::BaseClause*> {
+    template<bool is_const>
+    using type = typename Eng3D::Deser::CondConstType<is_const, TreatyClause::BaseClause>::type;
+
+    template<bool is_serialize>
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>*& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj->sender_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj->receiver_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj->days_duration);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj->done);
+        if constexpr(is_serialize) {
+            Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj->type);
+            switch(obj->type) {
+            case TreatyClauseType::ANNEX_PROVINCES: {
+                const auto& dyn_clause = (TreatyClause::AnnexProvince&)*obj;
+                Eng3D::Deser::deser_dynamic<is_serialize>(ar, dyn_clause.province_ids);
+            } break;
+            case TreatyClauseType::LIBERATE_NATION: {
+                const auto& dyn_clause = (TreatyClause::LiberateNation&)*obj;
+                Eng3D::Deser::deser_dynamic<is_serialize>(ar, dyn_clause.province_ids);
+                Eng3D::Deser::deser_dynamic<is_serialize>(ar, dyn_clause.liberated_id);
+            } break;
+            case TreatyClauseType::IMPOSE_POLICIES: {
+                const auto& dyn_clause = (TreatyClause::ImposePolicies&)*obj;
+                Eng3D::Deser::deser_dynamic<is_serialize>(ar, dyn_clause.imposed);
+            } break;
+            case TreatyClauseType::PAYMENT: {
+                const auto& dyn_clause = (TreatyClause::Payment&)*obj;
+                Eng3D::Deser::deser_dynamic<is_serialize>(ar, dyn_clause.amount);
+            } break;
+            case TreatyClauseType::HUMILIATE: {
+                const auto& dyn_clause = (TreatyClause::Humiliate&)*obj;
+                Eng3D::Deser::deser_dynamic<is_serialize>(ar, dyn_clause.amount);
+            } break;
+            case TreatyClauseType::PUPPET: {
+                const auto& dyn_clause = (TreatyClause::Humiliate&)*obj;
+            } break;
+            default:
+                break;
+            }
+        } else {
+            TreatyClauseType type;
+            Eng3D::Deser::deser_dynamic<is_serialize>(ar, type);
+            switch(type) {
+            case TreatyClauseType::ANNEX_PROVINCES: {
+                obj = new TreatyClause::AnnexProvince();
+                auto dyn_clause = (TreatyClause::AnnexProvince&)*obj;
+                Eng3D::Deser::deser_dynamic<is_serialize>(ar, dyn_clause.province_ids);
+            } break;
+            case TreatyClauseType::LIBERATE_NATION: {
+                obj = new TreatyClause::LiberateNation();
+                auto dyn_clause = (TreatyClause::LiberateNation&)*obj;
+                Eng3D::Deser::deser_dynamic<is_serialize>(ar, dyn_clause.province_ids);
+                Eng3D::Deser::deser_dynamic<is_serialize>(ar, dyn_clause.liberated_id);
+            } break;
+            case TreatyClauseType::IMPOSE_POLICIES: {
+                obj = new TreatyClause::ImposePolicies();
+                auto dyn_clause = (TreatyClause::ImposePolicies&)*obj;
+                Eng3D::Deser::deser_dynamic<is_serialize>(ar, dyn_clause.imposed);
+            } break;
+            case TreatyClauseType::PAYMENT: {
+                obj = new TreatyClause::Payment();
+                auto dyn_clause = (TreatyClause::Payment&)*obj;
+                Eng3D::Deser::deser_dynamic<is_serialize>(ar, dyn_clause.amount);
+            } break;
+            case TreatyClauseType::HUMILIATE: {
+                obj = new TreatyClause::Humiliate();
+                auto dyn_clause = (TreatyClause::Humiliate&)*obj;
+                Eng3D::Deser::deser_dynamic<is_serialize>(ar, dyn_clause.amount);
+            } break;
+            case TreatyClauseType::PUPPET: {
+                obj = new TreatyClause::Puppet();
+            } break;
+            default:
+                break;
+            }
+        }
+    }
+};
+
+enum class TreatyApproval {
+    UNDECIDED,
+    ACCEPTED,
+    DENIED,
+    ABSENT,
+};
+template<>
+struct Eng3D::Deser::Serializer<enum TreatyApproval> : Eng3D::Deser::SerializerMemcpy<enum TreatyApproval> {};
+
+struct Treaty : Entity<TreatyId> {
+    bool does_participate(const Nation& nation) const;
+    bool in_effect() const;
+
+    Eng3D::StringRef name;
+    NationId sender_id; // The one who sent the treaty
+    NationId receiver_id; // The one who is going to receive this treaty
+    // Clauses of this treaty;
+    std::vector<TreatyClause::BaseClause*> clauses;
+    // List of who are involved in the treaty
+    std::vector<std::pair<NationId, TreatyApproval>> approval_status;
+};
+template<>
+struct Eng3D::Deser::Serializer<Treaty> {
+    template<bool is_const>
+    using type = typename Eng3D::Deser::CondConstType<is_const, Treaty>::type;
+
+    template<bool is_serialize>
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.receiver_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.sender_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.approval_status);
+    }
+};
+
+class Nation;
+struct Commodity;
+class Province;
+class World;
+
+/// @brief Defines a type of unit, it can be a tank, garrison, infantry, etc
+/// this is moddable via a lua script and new unit types can be added
+struct UnitType : RefnameEntity<UnitTypeId> {
+    Eng3D::StringRef name;
+    float supply_consumption;
+    float speed;
+    float max_health;
+    float defense;
+    float attack;
+    float capacity; // Capacity of units that can be carried (transport units)
+    bool is_ground; // Can go on ground?
+    bool is_naval; // Can go on water?
+    std::vector<std::pair<CommodityId, float>> req_goods; // Required commodities
+    std::string get_icon_path() const {
+        return string_format("gfx/unittype/%s.png", ref_name.data());
+    }
+};
+template<>
+struct Eng3D::Deser::Serializer<UnitType> {
+    template<bool is_const>
+    using type = typename Eng3D::Deser::CondConstType<is_const, UnitType>::type;
+    template<bool is_serialize>
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.ref_name);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.supply_consumption);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.speed);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.max_health);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.defense);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.attack);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.is_ground);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.is_naval);
+    }
+};
+
+class UnitManager;
+/// @brief Roughly a batallion, consisting of approximately 500 soldiers each
+class Unit : public Entity<UnitId> {
+    Unit& operator=(const Unit&) = default;
+    friend class Client;
+    friend class UnitManager;
+    friend struct Eng3D::Deser::Serializer<Unit>;
+    std::vector<ProvinceId> path;
+    float days_left_until_move = 0;
+    bool has_target = false;
+    ProvinceId target_province_id;
+public:
+    float attack(Unit& enemy);
+    glm::vec2 get_pos() const;
+
+    void set_target(const Province& province);
+
+    void stop_movement() noexcept {
+        this->has_target = false;
+        this->days_left_until_move = 0;
+    }
+
+    float days_to_move_to(const Province& province) const;
+    bool update_movement(UnitManager& unit_manager); // Returns true if unit moved
+    void set_owner(const Nation& nation);
+
+    /// @brief Checks if the unit can move (if it can set_province)
+    /// @return true 
+    /// @return false 
+    bool can_move() const noexcept {
+        return !this->on_battle; // Unit must not be on a battle
+    }
+
+    const std::vector<ProvinceId> get_path() const noexcept {
+        return path;
+    }
+
+    void set_path(const Province& target);
+
+    bool has_target_province() const noexcept {
+        return this->has_target;
+    }
+
+    ProvinceId get_target_province_id() const noexcept {
+        return this->target_province_id;
+    }
+
+    float get_strength() const;
+
+    UnitTypeId type_id;
+    NationId owner_id;
+    PopId pop_id;
+    ProvinceId province_id() const;
+
+    float size = 0.f;
+    float base = 0.f;
+    float experience = 1.f;
+    bool on_battle = false;
+};
+template<>
+struct Eng3D::Deser::Serializer<Unit> {
+    template<bool is_const>
+    using type = typename Eng3D::Deser::CondConstType<is_const, Unit>::type;
+    template<bool is_serialize>
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.cached_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.type_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.size);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.base);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.experience);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.target_province_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.has_target);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.owner_id);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.days_left_until_move);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.path);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.on_battle);
+    }
+};
+
+class UnitManager {
+    UnitManager& operator=(const UnitManager&) = default;
+public:
+    void init(World& world);
+    void add_unit(Unit unit, ProvinceId unit_current_province);
+    void remove_unit(UnitId unit);
+    void move_unit(UnitId unit, ProvinceId target_province);
+
+    std::vector<UnitId> get_province_units(ProvinceId province_id) const noexcept {
+        return province_units[province_id];
+    }
+
+    ProvinceId get_unit_current_province(UnitId unit_id) const noexcept {
+        return unit_province[unit_id];
+    }
+
+    Eng3D::Freelist<Unit> units;
+
+    std::vector<ProvinceId> unit_province;
+    std::vector<std::vector<UnitId>> province_units;
+};
+template<>
+struct Eng3D::Deser::Serializer<UnitManager> {
+    template<bool is_const>
+    using type = typename Eng3D::Deser::CondConstType<is_const, UnitManager>::type;
+    template<bool is_serialize>
+    static inline void deser_dynamic(Eng3D::Deser::Archive& ar, type<is_serialize>& obj) {
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.units);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.unit_province);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.province_units);
+    }
+};
+
+#include "server/economy.hpp"
 
 // Create a new list from a type, with helper functions
 #define CONST_LIST_FOR_LOCAL_TYPE(type, list, list_type)\

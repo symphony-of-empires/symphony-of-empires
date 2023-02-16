@@ -58,7 +58,7 @@
 #include "game_state.hpp"
 #include "map.hpp"
 #include "world.hpp"
-#include "province.hpp"
+#include "world.hpp"
 #include "client/map_render.hpp"
 #include "client/map.hpp"
 

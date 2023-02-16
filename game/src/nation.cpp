@@ -27,9 +27,9 @@
 #include "eng3d/log.hpp"
 #include "eng3d/rand.hpp"
 
-#include "nation.hpp"
 #include "world.hpp"
-#include "province.hpp"
+#include "world.hpp"
+#include "world.hpp"
 #include "world.hpp"
 #include "world.hpp"
 

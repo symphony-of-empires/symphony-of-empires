@@ -26,7 +26,7 @@
 
 #include <vector>
 #include "world.hpp"
-#include "province.hpp"
+#include "world.hpp"
 
 class World;
 

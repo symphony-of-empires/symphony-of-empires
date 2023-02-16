@@ -27,7 +27,7 @@
 #include "eng3d/ui/image.hpp"
 
 #include "client/interface/pop_window.hpp"
-#include "nation.hpp"
+#include "world.hpp"
 #include "world.hpp"
 #include "world.hpp"
 

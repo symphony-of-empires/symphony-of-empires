@@ -32,7 +32,7 @@
 
 #include "client/client_network.hpp"
 #include "client/interface/decision.hpp"
-#include "event.hpp"
+#include "world.hpp"
 #include "action.hpp"
 #include "client/game_state.hpp"
 

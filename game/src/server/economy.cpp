@@ -39,7 +39,7 @@
 #include "server/economy.hpp"
 #include "world.hpp"
 #include "server/server_network.hpp"
-#include "product.hpp"
+#include "world.hpp"
 #include "emigration.hpp"
 
 #undef min

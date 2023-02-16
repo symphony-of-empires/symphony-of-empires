@@ -30,10 +30,10 @@
 #include "client/interface/battle_widget.hpp"
 #include "client/map.hpp"
 #include "client/game_state.hpp"
-#include "nation.hpp"
-#include "diplomacy.hpp"
-#include "unit.hpp"
-#include "nation.hpp"
+#include "world.hpp"
+#include "world.hpp"
+#include "world.hpp"
+#include "world.hpp"
 #include "world.hpp"
 
 using namespace Interface;

@@ -24,8 +24,8 @@
 
 #include "eng3d/log.hpp"
 
-#include "diplomacy.hpp"
-#include "nation.hpp"
+#include "world.hpp"
+#include "world.hpp"
 #include "world.hpp"
 
 using namespace Diplomacy;

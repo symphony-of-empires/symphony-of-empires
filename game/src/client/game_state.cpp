@@ -47,7 +47,7 @@
 #include "eng3d/interface.hpp"
 
 #include "client/game_state.hpp"
-#include "product.hpp"
+#include "world.hpp"
 #include "world.hpp"
 #include "action.hpp"
 #include "client/client_network.hpp"

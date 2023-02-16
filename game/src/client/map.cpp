@@ -64,7 +64,7 @@
 #include "client/interface/battle_widget.hpp"
 #include "client/interface/lobby.hpp"
 #include "world.hpp"
-#include "province.hpp"
+#include "world.hpp"
 #include "client/client_network.hpp"
 #include "action.hpp"
 

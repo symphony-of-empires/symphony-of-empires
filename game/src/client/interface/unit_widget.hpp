@@ -26,7 +26,7 @@
 
 #include "eng3d/ui/div.hpp"
 #include "eng3d/ui/window.hpp"
-#include "unit.hpp"
+#include "world.hpp"
 
 class Map;
 class GameState;
