@@ -33,8 +33,6 @@
 #include "client/map.hpp"
 #include "client/game_state.hpp"
 #include "world.hpp"
-#include "world.hpp"
-#include "world.hpp"
 
 using namespace Interface;
 

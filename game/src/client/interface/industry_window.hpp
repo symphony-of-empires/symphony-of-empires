@@ -29,7 +29,6 @@
 #include "eng3d/ui/table.hpp"
 #include "client/game_state.hpp"
 #include "world.hpp"
-#include "world.hpp"
 
 namespace Interface {
     class IndustryWindow : public UI::Window {

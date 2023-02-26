@@ -23,9 +23,6 @@
 // ----------------------------------------------------------------------------
 
 #include "eng3d/log.hpp"
-
-#include "world.hpp"
-#include "world.hpp"
 #include "world.hpp"
 
 using namespace Diplomacy;

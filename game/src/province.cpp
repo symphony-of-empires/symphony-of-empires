@@ -22,18 +22,14 @@
 //      Does some important stuff.
 // ----------------------------------------------------------------------------
 
-#include "world.hpp"
-#include "world.hpp"
-#include "world.hpp"
-#include "world.hpp"
-#include "world.hpp"
-#include "world.hpp"
 #include <glm/vec3.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/trigonometric.hpp>
 #include <glm/geometric.hpp>
 
 #include "eng3d/utils.hpp"
+
+#include "world.hpp"
 
 //
 // Province

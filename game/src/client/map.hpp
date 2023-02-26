@@ -58,7 +58,6 @@ namespace Interface {
 }
 
 #include "world.hpp"
-#include "world.hpp"
 
 enum class MapView {
     SPHERE_VIEW,

@@ -24,9 +24,6 @@
 
 #include <algorithm>
 #include <cassert>
-
-#include "world.hpp"
-#include "world.hpp"
 #include "world.hpp"
 
 //

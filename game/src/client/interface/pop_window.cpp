@@ -28,8 +28,6 @@
 
 #include "client/interface/pop_window.hpp"
 #include "world.hpp"
-#include "world.hpp"
-#include "world.hpp"
 
 std::string pop_qol_tooltip_text(const Pop& pop, const World* world) {
     std::string text = Eng3D::translate_format("Quality of life: %.3f\n\nNeed for commodities, ", pop.life_needs_met);

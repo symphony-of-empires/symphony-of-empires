@@ -27,9 +27,6 @@
 #include <vector>
 #include "eng3d/entity.hpp"
 #include "world.hpp"
-#include "world.hpp"
-#include "world.hpp"
-#include "world.hpp"
 
 extern std::vector<ProvinceId> g_water_provinces;
 

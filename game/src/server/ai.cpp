@@ -37,10 +37,7 @@
 #include "eng3d/rand.hpp"
 
 #include "world.hpp"
-#include "world.hpp"
-#include "world.hpp"
 #include "server/economy.hpp"
-#include "world.hpp"
 #include "action.hpp"
 #include "server/lua_api.hpp"
 #include "server/server_network.hpp"
