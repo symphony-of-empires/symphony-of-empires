@@ -79,7 +79,7 @@ cmake --build .
 
 # Alternatively use this for a debug build
 mkdir -p build && cd build
-cmake -DE3D_DEBUG=1 -DE3D_BACKEND_OPENGL=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
+cmake -DE3D_BACKEND_OPENGL=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
 cmake --build .
 ```
 
