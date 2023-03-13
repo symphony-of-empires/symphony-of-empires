@@ -169,7 +169,7 @@ namespace Eng3D::Networking {
 
             }
             virtual const char* what() const noexcept {
-                return msg.data();
+                return msg.c_str();
             }
         };
 
@@ -201,7 +201,7 @@ namespace Eng3D::Networking {
 
             }
             virtual const char* what() const noexcept {
-                return msg.data();
+                return msg.c_str();
             }
         };
 

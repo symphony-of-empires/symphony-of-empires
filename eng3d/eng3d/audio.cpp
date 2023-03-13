@@ -67,7 +67,7 @@ Eng3D::AudioManager::AudioManager(Eng3D::State& _s)
 }
 
 void Eng3D::AudioManager::play_sound(const std::string_view path) {
-    auto audio = this->load(path.data(), true);
+    auto audio = this->load(path, true);
     if((audio->channel = Mix_PlayChannel(-1, (Mix_Chunk *)audio->stream, 0)) < 0)
         Eng3D::Log::warning("audio", Eng3D::translate_format("Unable to load audio %s: %s", path.data(), Mix_GetError()));
     this->current_sound = audio;
@@ -81,7 +81,7 @@ bool Eng3D::AudioManager::can_play_sound() {
 }
 
 void Eng3D::AudioManager::play_music(const std::string_view path) {
-    auto audio = this->load(path.data(), false);
+    auto audio = this->load(path, false);
     if(Mix_PlayMusic((Mix_Music *)audio->stream, 0) < 0)
         Eng3D::Log::warning("audio", Eng3D::translate_format("Unable to load audio %s: %s", path.data(), Mix_GetError()));
     this->current_music = audio;
