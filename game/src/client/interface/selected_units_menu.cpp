@@ -36,9 +36,7 @@
 #include "client/game_state.hpp"
 #include "client/map.hpp"
 #include "client/map_render.hpp"
-#include "nation.hpp"
 #include "world.hpp"
-#include "building.hpp"
 #include "action.hpp"
 #include "client/client_network.hpp"
 

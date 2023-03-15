@@ -28,11 +28,6 @@
 #include "action.hpp"
 #include "client/client_network.hpp"
 #include "server/server_network.hpp"
-#include "product.hpp"
-#include "building.hpp"
-#include "unit.hpp"
-#include "nation.hpp"
-#include "province.hpp"
 #include "world.hpp"
 
 namespace Action {

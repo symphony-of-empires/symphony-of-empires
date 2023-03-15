@@ -44,7 +44,7 @@ namespace Eng3D {
         }
 
         virtual const char* what() const noexcept {
-            return buffer.data();
+            return buffer.c_str();
         }
     };
 

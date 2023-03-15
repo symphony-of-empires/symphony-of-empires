@@ -30,7 +30,6 @@
 #include "eng3d/ui/input.hpp"
 #include "eng3d/ui/image.hpp"
 
-#include "nation.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
 

@@ -36,11 +36,8 @@
 #include "eng3d/log.hpp"
 #include "eng3d/rand.hpp"
 
-#include "diplomacy.hpp"
-#include "indpobj.hpp"
-#include "province.hpp"
-#include "server/economy.hpp"
 #include "world.hpp"
+#include "server/economy.hpp"
 #include "action.hpp"
 #include "server/lua_api.hpp"
 #include "server/server_network.hpp"

@@ -27,10 +27,6 @@
 #include "eng3d/log.hpp"
 #include "eng3d/rand.hpp"
 
-#include "nation.hpp"
-#include "indpobj.hpp"
-#include "province.hpp"
-#include "indpobj.hpp"
 #include "world.hpp"
 
 //

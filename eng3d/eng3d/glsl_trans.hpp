@@ -139,7 +139,7 @@ namespace Eng3D::GLSL {
         }
 
         virtual const char* what() const noexcept {
-            return buffer.data();
+            return buffer.c_str();
         }
 
         std::vector<Eng3D::GLSL::Token>::iterator it;

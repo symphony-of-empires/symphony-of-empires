@@ -110,8 +110,7 @@ namespace std {
 #endif
 
 template<typename It>
-class Range
-{
+class Range {
     It _b, _e;
 public:
     Range(It b, It e): _b(b), _e(e) {}

@@ -80,18 +80,18 @@ void Eng3D::BenchmarkTask::clear_old() {
 }
 
 void Eng3D::Profiler::start(const std::string_view name) {
-    auto it = tasks.find(name.data());
+    auto it = tasks.find(std::string{ name });
     if(it == tasks.end()) {
         Eng3D::BenchmarkTask task(name, tasks.size());
         task.start();
-        tasks.insert({ std::string(name), task });
+        tasks.insert({ std::string{ name }, task });
     } else {
         it->second.start();
     }
 }
 
 void Eng3D::Profiler::stop(const std::string_view name) {
-    auto it = tasks.find(name.data());
+    auto it = tasks.find(std::string{ name });
     assert(it != tasks.end() && "Tried to stop task that hasn't started yet");
     it->second.stop();
 }

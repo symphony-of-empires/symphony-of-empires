@@ -27,8 +27,6 @@
 #include "eng3d/ui/image.hpp"
 
 #include "client/interface/pop_window.hpp"
-#include "nation.hpp"
-#include "indpobj.hpp"
 #include "world.hpp"
 
 std::string pop_qol_tooltip_text(const Pop& pop, const World* world) {

@@ -44,10 +44,7 @@
 #include "eng3d/string.hpp"
 
 #include "server/emigration.hpp"
-#include "province.hpp"
 #include "world.hpp"
-#include "diplomacy.hpp"
-#include "indpobj.hpp"
 #include "server/lua_api.hpp"
 #include "server/server_network.hpp"
 #include "action.hpp"

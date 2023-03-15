@@ -32,10 +32,8 @@
 
 #include "client/interface/industry_window.hpp"
 #include "client/client_network.hpp"
-#include "nation.hpp"
-#include "action.hpp"
-#include "indpobj.hpp"
 #include "world.hpp"
+#include "action.hpp"
 
 UI::Table<uint32_t>* Interface::IndustryWindow::new_table(GameState& gs, int _x, int _y, int _w, int _h, std::vector<ProvinceId> provinces, UI::Widget* parent) {
     std::vector<int> sizes;

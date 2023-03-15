@@ -30,7 +30,6 @@
 #include "eng3d/utils.hpp"
 #include "client/game_state.hpp"
 #include "world.hpp"
-#include "objects.hpp"
 
 static void save_province(GameState& gs, FILE* fp, Province& province)
 {
@@ -80,10 +79,10 @@ static void save_province(GameState& gs, FILE* fp, Province& province)
     || province.owner_id == ProvinceId(0))
         return;
     
-    for(auto& building : province.buildings)
-        building.level = 0;
-    province.buildings[rand() % province.buildings.size()].level = 10;
-    province.buildings[rand() % province.buildings.size()].level = 10;
+    // Add all essential buildings, such as farms and mines
+    for(const auto& building_type : gs.world->building_types)
+        province.buildings[building_type].level = building_type.input_ids.empty() ? 10 : 0;
+        
     for(const auto& building_type : gs.world->building_types) {
         const auto& building = province.buildings[building_type];
         if(building.level)

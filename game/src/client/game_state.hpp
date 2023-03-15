@@ -35,8 +35,8 @@
 #include "eng3d/audio.hpp"
 #include "eng3d/state.hpp"
 #include "eng3d/event.hpp"
-#include "objects.hpp"
-#include "unit.hpp"
+
+#include "world.hpp"
 #include "client/client_network.hpp"
 #include "server/server_network.hpp"
 #include "client/map.hpp"

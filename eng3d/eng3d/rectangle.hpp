@@ -53,77 +53,73 @@ namespace Eng3D {
 
         /// @brief Obtains the width
         /// @return float Width of the rectangle
-        constexpr float width() const {
+        constexpr float width() const noexcept {
             return right - left;
         }
 
         /// @brief Obtains the height
         /// @return float Height of the rectangle
-        constexpr float height() const {
+        constexpr float height() const noexcept {
             return bottom - top;
         }
 
         /// @brief Obtains the current size of the rectangle
         /// @return glm::vec2 The size of the rectangle
-        constexpr glm::vec2 size() const {
+        constexpr glm::vec2 size() const noexcept {
             return glm::vec2{ right - left, bottom - top };
         }
 
         /// @brief Sets the size of the rectangle
         /// @param size Size to set it to
-        constexpr void size(glm::vec2 size) {
+        constexpr void size(glm::vec2 size) noexcept {
             right = left + size.x;
             bottom = top + size.y;
         }
 
-        template<typename T>
-        constexpr void size(T x, T y) {
+        constexpr void size(const auto x, const auto y) noexcept {
             size(glm::vec2(x, y));
         }
 
         /// @brief Obtains the current position of the rectangle
         /// @return glm::vec2 The base position
-        constexpr glm::vec2 position() const {
+        constexpr glm::vec2 position() const noexcept {
             return glm::vec2{ left, top };
         }
 
         /// @brief Sets the base position of the rectangle, modifying it's size
         /// @param position Position to set
-        constexpr void position(glm::vec2 position) {
+        constexpr void position(glm::vec2 position) noexcept {
             left = position.x;
             top = position.y;
         }
 
-        template<typename T>
-        constexpr void position(T x, T y) {
+        constexpr void position(const auto x, const auto y) noexcept {
             position(glm::vec2(x, y));
         }
 
         /// @brief Scales the rectangle by factor
         /// @param factor Factor to scale rectangle by
-        constexpr void scale(glm::vec2 factor) {
+        constexpr void scale(glm::vec2 factor) noexcept {
             left *= factor.x;
             top *= factor.y;
             right *= factor.x;
             bottom *= factor.y;
         }
 
-        template<typename T>
-        constexpr void scale(T x, T y) {
+        constexpr void scale(const auto x, const auto y) noexcept {
             scale(glm::vec2(x, y));
         }
 
         /// @brief Offset the rectangle by the given parameter
         /// @param offset Offset to apply to the rectangle
-        constexpr void offset(glm::vec2 offset) {
+        constexpr void offset(glm::vec2 offset) noexcept {
             left += offset.x;
             top += offset.y;
             right += offset.x;
             bottom += offset.y;
         }
 
-        template<typename T>
-        constexpr void offset(T x, T y) {
+        constexpr void offset(const auto x, const auto y) noexcept {
             offset(glm::vec2(x, y));
         }
 
@@ -131,12 +127,11 @@ namespace Eng3D {
         /// @param pos Position to check (rectangle must cover this point)
         /// @return true Rectangle not in bounds
         /// @return false Rectangle is in bounds
-        constexpr bool contains(glm::vec2 pos) const {
+        constexpr bool contains(glm::vec2 pos) const noexcept {
             return pos.x >= left && pos.x <= right && pos.y >= top && pos.y <= bottom;
         }
 
-        template<typename T>
-        constexpr bool contains(T x, T y) const {
+        constexpr bool contains(const auto x, const auto y) const noexcept {
             return contains(glm::vec2(x, y));
         }
 
@@ -144,7 +139,7 @@ namespace Eng3D {
         /// @param rect Rectangle to check (rectangle must be inside this rectangle)
         /// @return true Rectangle not in bounds
         /// @return false Rectangle is in bounds
-        constexpr bool contains(const Rectangle& rect) const {
+        constexpr bool contains(const Rectangle& rect) const noexcept {
             return contains(rect.left, rect.top) 
                 || contains(rect.left, rect.bottom) 
                 || contains(rect.right, rect.top) 
@@ -153,8 +148,8 @@ namespace Eng3D {
 
         /// @brief Obtains the intersection rectangle from two other rectangles R1 and R2
         /// @param rect Second rectangle to perform the intersection for
-        /// @return Rectangle Intersection area rectangle
-        constexpr Rectangle intersection(const Rectangle& rect) const {
+        /// @return auto Intersection area rectangle
+        constexpr auto intersection(const Rectangle& rect) const {
             const auto i_left = glm::max(this->left, rect.left);
             const auto i_top = glm::max(this->top, rect.top);
             const auto i_right = glm::min(this->right, rect.right);
@@ -164,8 +159,8 @@ namespace Eng3D {
 
         /// @brief Obtains the intersection rectangle from two other rectangles R1 and R2
         /// @param rect Second rectangle to perform the intersection for
-        /// @return Rectangle Intersection area rectangle
-        constexpr Rectangle join(const Rectangle& rect) const {
+        /// @return auto Intersection area rectangle
+        constexpr auto join(const Rectangle& rect) const {
             const auto i_left = glm::min(this->left, rect.left);
             const auto i_top = glm::min(this->top, rect.top);
             const auto i_right = glm::max(this->right, rect.right);

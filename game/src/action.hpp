@@ -27,7 +27,7 @@
 #include <vector>
 #include "eng3d/network.hpp"
 #include "eng3d/freelist.hpp"
-#include "objects.hpp"
+#include "world.hpp"
 
 enum ActionType {
     BAD, // Error

@@ -203,9 +203,8 @@ namespace Eng3D {
 
         /// @brief Helper structure for hashing pairs
         struct pair_hash {
-            template<typename T, typename U>
-            std::size_t operator()(const std::pair<T, U>& x) const noexcept {
-                return std::hash<T>{}(x.first) ^ std::hash<U>{}(x.second);
+            std::size_t operator()(const auto& x) const noexcept {
+                return std::hash<decltype(x.first)>{}(x.first) ^ std::hash<decltype(x.second)>{}(x.second);
             }
         };
         /// @brief Stores the text textures

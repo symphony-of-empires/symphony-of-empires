@@ -30,25 +30,102 @@
 #include <tbb/parallel_for.h>
 #include <tbb/combinable.h>
 #include <glm/gtx/compatibility.hpp>
+#include <queue>
+#include <tbb/blocked_range.h>
+#include <tbb/parallel_for.h>
+#include <glm/vec3.hpp>
+#include <glm/gtc/constants.hpp>
+#include <glm/trigonometric.hpp>
+#include <glm/geometric.hpp>
 
+#include "eng3d/pathfind.hpp"
 #include "eng3d/log.hpp"
 #include "eng3d/serializer.hpp"
 #include "eng3d/rand.hpp"
 
 #include "action.hpp"
 #include "server/economy.hpp"
-#include "world.hpp"
 #include "server/server_network.hpp"
-#include "product.hpp"
 #include "emigration.hpp"
+#include "world.hpp"
 
 #undef min
 #undef max
 
-// Visual Studio does not define ssize_t because it's a POSIX-only type
-#ifdef _MSC_VER
-typedef signed int ssize_t;
-#endif
+using namespace Economy;
+
+void Trade::recalculate(const World& world) noexcept {
+    if(trade_costs.empty())
+        this->initialize(world);
+    
+    //! Do this for now
+    if (cost_eval.empty()) {
+        tbb::parallel_for(static_cast<size_t>(0), world.provinces.size(), [this, &world](const auto province_id) {
+            glm::vec2 world_size{ world.width, world.height};
+            const auto& province = world.provinces[province_id];
+            for(size_t i = 0; i < world.provinces.size(); i++) {
+                const auto& other_province = world.provinces[i];
+                this->trade_costs[province_id][i] = 
+                    get_trade_cost(province, other_province, world_size);
+            }
+        });
+    }
+
+    if (cost_eval.empty()) {
+        for(size_t i = 0; i < world.provinces.size(); i++) {
+            if(!world.provinces[i].is_coastal)
+                cost_eval.push_back(i);
+        }
+    }
+
+    //! Do costly right now
+    // for(auto& trade_cost : this->trade_costs)
+    //     std::fill(trade_cost.begin(), trade_cost.end(), std::numeric_limits<float>::max());
+    // glm::vec2 world_size{ world.width, world.height };
+    // tbb::parallel_for(tbb::blocked_range(cost_eval.begin(), cost_eval.end()), [this, &world](const auto& province_range) {
+    //     for(auto& province_id : province_range) {
+    //         Eng3D::Pathfind::from_source<ProvinceId>(ProvinceId(province_id), this->neighbours, this->trade_costs[province_id]);
+    //     }
+    // }, tbb::auto_partitioner());
+}
+
+float Trade::get_trade_cost(const Province& province1, const Province& province2, glm::vec2 world_size) const noexcept {
+    const auto radius = 100.f;
+    const auto distance = province1.euclidean_distance(province2, world_size, radius);
+
+    // Dissuade trade with foreigners
+    auto foreign_penalty = 1.f;
+    if(province1.controller_id != province2.controller_id) {
+        foreign_penalty = 5.f;
+        // Must be valid controller ids
+        const auto& world = World::get_instance();
+        // Must be in customs union if it's a foreigner
+        const auto& relation = world.get_relation(province1.controller_id, province2.controller_id);
+        if(relation.is_customs_union())
+            foreign_penalty = 1.f;
+    }
+
+    // Cost to travel around the globe
+    const auto trade_cost = (g_world.terrain_types[province1.terrain_type_id].penalty + g_world.terrain_types[province2.terrain_type_id].penalty) * foreign_penalty;
+    return distance * trade_cost;
+}
+
+void Trade::initialize(const World& world) noexcept {
+    trade_costs.resize(world.provinces.size(), std::vector<float>(world.provinces.size(), std::numeric_limits<float>::max()));
+    
+    glm::vec2 world_size{ world.width, world.height };
+    neighbours.reserve(world.provinces.size());
+    for(const auto& province : world.provinces) {
+        std::vector<Trade::Vertex> province_neighbours;
+        province_neighbours.reserve(province.neighbour_ids.size());
+        for(const auto neighbour_id : province.neighbour_ids) {
+            const auto& neighbour = world.provinces[neighbour_id];
+            const auto trade_cost = get_trade_cost(province, neighbour, world_size);
+            province_neighbours.emplace_back(trade_cost, neighbour_id);
+        }
+        neighbours.push_back(province_neighbours);
+    }
+}
 
 struct PopNeed {
     float life_needs_met = 0.f;
@@ -178,7 +255,6 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
         if(pop_need.budget > 0.f) {
             const auto percentage_to_spend = 0.8f;
             const auto budget_alloc = pop_need.budget * percentage_to_spend;
-            pop_need.budget -= budget_alloc;
 
             // If we are going to have value added taxes we should separate them from income taxes
             info.state_payment += budget_alloc * nation.current_policy.pop_tax;
@@ -191,10 +267,10 @@ void update_pop_needs(World& world, Province& province, std::vector<PopNeed>& po
                 auto& product = province.products[commodity];
                 const auto need_factor = needs_amounts[commodity] / total_factor;
                 const auto maximum_demand = pop.size * need_factor;
+                const auto wanted_amount = glm::clamp((budget_per_pop * need_factor) / product.price, 0.f, pop.size * need_factor);
                 
                 auto amount = 0.f;
-                const auto payment = product.buy(maximum_demand, amount);
-                pop.budget -= payment;
+                pop_need.budget -= product.buy(wanted_amount, amount);
                 pop_need.life_needs_met += (amount / pop.size) * need_factor;
             }
         }

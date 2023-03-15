@@ -32,8 +32,6 @@
 #include "client/interface/unit_widget.hpp"
 #include "client/map.hpp"
 #include "client/game_state.hpp"
-#include "nation.hpp"
-#include "unit.hpp"
 #include "world.hpp"
 
 using namespace Interface;

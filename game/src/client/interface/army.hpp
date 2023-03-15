@@ -28,7 +28,7 @@
 #include "eng3d/ui/window.hpp"
 #include "eng3d/ui/group.hpp"
 #include "eng3d/ui/image.hpp"
-#include "objects.hpp"
+#include "world.hpp"
 
 class World;
 class Nation;

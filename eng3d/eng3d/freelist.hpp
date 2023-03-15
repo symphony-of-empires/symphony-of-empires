@@ -71,15 +71,13 @@ namespace Eng3D {
             return data[index].value();
         }
 
-        template<typename F>
-        void for_each(const F& lambda) const {
+        void for_each(const auto& lambda) const {
             for(const auto& e : data)
                 if(e.has_value())
                     lambda(e.value());
         }
 
-        template<typename F>
-        void for_each(const F& lambda) {
+        void for_each(const auto& lambda) {
             for(auto& e : data)
                 if(e.has_value())
                     lambda(e.value());

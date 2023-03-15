@@ -24,13 +24,37 @@
 
 #pragma once
 
-#include "server/trade.hpp"
+#include "world.hpp"
 
 class World;
 
 // Functions that do a economy simulation in various steps, divided to reduce
 // overhead, they are distributed accross 48 ticks
 namespace Economy {
+    struct Trade final {
+        struct Vertex {
+            constexpr Vertex(float _cost, ProvinceId _key) : cost{_cost}, key{_key}
+            {
+
+            }
+            ~Vertex() = default;
+            float cost = 0.f;
+            ProvinceId key;
+        };
+
+        void recalculate(const World& world) noexcept;
+        float get_trade_cost(const Province& province1, const Province& province2, glm::vec2 world_size) const noexcept;
+
+        /// @brief Cost-evaluatable provinces, we discard sea and ocean provinces
+        /// from this formula to save space and time since commodities directly transport
+        /// to the land provinces
+        std::vector<ProvinceId> cost_eval;
+        std::vector<std::vector<float>> trade_costs;
+    private:
+        void initialize(const World& world) noexcept;
+        std::vector<std::vector<Vertex>> neighbours;
+    };
+
     struct Market {
         CommodityId commodity;
         std::vector<float> price;

@@ -47,7 +47,6 @@
 #include "eng3d/interface.hpp"
 
 #include "client/game_state.hpp"
-#include "product.hpp"
 #include "world.hpp"
 #include "action.hpp"
 #include "client/client_network.hpp"
@@ -143,9 +142,9 @@ void handle_popups(std::vector<TreatyId>& displayed_treaties, GameState& gs) {
 }
 
 void GameState::update_on_tick() {
-    world->profiler.start("UI_TICK");
+    world->profiler.start("UI Tick");
     ui_ctx.do_tick();
-    world->profiler.stop("UI_TICK");
+    world->profiler.stop("UI Tick");
 
     /// @todo This is inefficient and we should only update **when** needed
     if(current_mode != MapMode::NO_MAP)

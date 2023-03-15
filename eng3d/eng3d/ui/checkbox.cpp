@@ -51,7 +51,7 @@ Checkbox::Checkbox(int _x, int _y, unsigned w, unsigned h, Widget* _parent)
     init_checkbox(min_size);
 }
 
-void Checkbox::init_checkbox(int size) {
+void Checkbox::init_checkbox(int size) noexcept {
     this->unchecked_texture = Eng3D::State::get_instance().tex_man.load(Eng3D::State::get_instance().package_man.get_unique("gfx/checkbox_false.png"));
     this->checked_texture = Eng3D::State::get_instance().tex_man.load(Eng3D::State::get_instance().package_man.get_unique("gfx/checkbox_true.png"));
 
@@ -66,11 +66,11 @@ void Checkbox::init_checkbox(int size) {
     this->clickable_effect = false;
 }
 
-bool Checkbox::get_value() const {
+bool Checkbox::get_value() const noexcept {
     return this->value;
 }
 
-void Checkbox::set_value(bool checked) {
+void Checkbox::set_value(bool checked) noexcept {
     this->value = checked;
     if(this->value) {
         this->box->current_texture = this->checked_texture;
@@ -79,11 +79,11 @@ void Checkbox::set_value(bool checked) {
     }
 }
 
-void Checkbox::set_on_click(std::function<void(Widget&)> _on_click) {
+void Checkbox::set_on_click(std::function<void(Widget&)> _on_click) noexcept {
     this->outside_on_click = _on_click;
 }
 
-void Checkbox::set_text(const std::string_view _text) {
+void Checkbox::set_text(const std::string_view _text) noexcept {
     UI::Widget::set_text(_text);
     this->width = this->get_text_texture()->width + this->text_offset_x;
     this->height = glm::max(this->get_text_texture()->height, this->box->height);

@@ -99,8 +99,7 @@ Eng3D::FontSDF::FontSDF(const std::string_view filename) {
 }
 
 /// @brief Quadratic bezier curve, p1 is control
-template<typename T>
-constexpr T bezier(float t, const T p0, const T p1, const T p2) {
+constexpr auto bezier(float t, const auto p0, const auto p1, const auto p2) {
     return (1 - t) * ((1 - t) * p0 + t * p1) + t * ((1 - t) * p1 + t * p2);
 }
 

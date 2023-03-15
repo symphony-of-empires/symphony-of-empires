@@ -31,7 +31,6 @@
 #include "eng3d/ui/image.hpp"
 #include "eng3d/ui/table.hpp"
 
-#include "nation.hpp"
 #include "world.hpp"
 #include "client/game_state.hpp"
 

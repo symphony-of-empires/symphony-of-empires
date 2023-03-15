@@ -24,10 +24,7 @@
 
 #include <algorithm>
 #include "eng3d/serializer.hpp"
-
-#include "building.hpp"
 #include "world.hpp"
-#include "province.hpp"
 
 /// @brief Checks if the building can produce output (if it has enough input)
 bool Building::can_do_output(const Province& province, const std::vector<CommodityId>& inputs) const {
