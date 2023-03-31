@@ -35,6 +35,7 @@
 #include <string>
 #include <memory>
 #include <array>
+#include <functional>
 
 #include <glm/glm.hpp>
 #include <glm/gtx/compatibility.hpp>
