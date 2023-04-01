@@ -70,8 +70,10 @@ namespace Eng3D {
         ~AudioManager();
         void play_sound(const std::string_view path);
         bool can_play_sound();
+        void set_sound_volume(float v);
         void play_music(const std::string_view path);
         bool can_play_music();
+        void set_music_volume(float v);
 
         float music_fade_value = 1.f;
         float music_volume = 0.5f, sound_volume = 0.5f;

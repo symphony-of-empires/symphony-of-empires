@@ -1163,10 +1163,10 @@ int LuaAPI::ui_call_builtin(lua_State* L) {
         lua_pushboolean(L, gs.motion_blur);
         return 1;
     } else if(builtin_fn == "gs.music_volume.set") {
-        gs.audio_man.music_volume = luaL_checknumber(L, 2);
+        gs.audio_man.set_music_volume(luaL_checknumber(L, 2));
         return 0;
     } else if(builtin_fn == "gs.sound_volume.set") {
-        gs.audio_man.sound_volume = luaL_checknumber(L, 2);
+        gs.audio_man.set_sound_volume(luaL_checknumber(L, 2));
         return 0;
     } else if(builtin_fn == "gs.music_volume.get") {
         lua_pushnumber(L, gs.audio_man.music_volume);

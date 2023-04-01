@@ -80,6 +80,10 @@ bool Eng3D::AudioManager::can_play_sound() {
     return !is_busy;
 }
 
+void Eng3D::AudioManager::set_sound_volume(float v) {
+    Mix_Volume(this->current_sound->channel, v);
+}
+
 void Eng3D::AudioManager::play_music(const std::string_view path) {
     auto audio = this->load(path.data(), false);
     if(Mix_PlayMusic((Mix_Music *)audio->stream, 0) < 0)
@@ -92,6 +96,10 @@ bool Eng3D::AudioManager::can_play_music() {
         return true;
     bool is_busy = Mix_PlayingMusic() != 0;
     return !is_busy;
+}
+
+void Eng3D::AudioManager::set_music_volume(float v) {
+    Mix_VolumeMusic(v);
 }
 
 Eng3D::AudioManager::~AudioManager() {
