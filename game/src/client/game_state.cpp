@@ -120,9 +120,9 @@ std::shared_ptr<Eng3D::Texture> GameState::get_nation_flag(const Nation& nation)
 
 void handle_popups(std::vector<TreatyId>& displayed_treaties, GameState& gs) {
     std::scoped_lock lock(gs.world->inbox_mutex);
+
     // Check that the event is not already displayed to the user
-    for(auto& msg : gs.curr_nation->inbox)
-    {
+    for(auto& msg : gs.curr_nation->inbox) {
         auto& ibtn = gs.event_tray_grp->make_widget<UI::Image>(0, 0, 24, 24, "gfx/noicon.png");
         ibtn.set_on_click([&gs, msg](UI::Widget& w) {
             new Interface::DecisionWindow(gs, msg);
@@ -130,8 +130,13 @@ void handle_popups(std::vector<TreatyId>& displayed_treaties, GameState& gs) {
         });
         ibtn.set_tooltip(msg.title.data());
     }
+    if(!gs.curr_nation->inbox.empty()) {
+        auto entries = gs.package_man.get_multiple_prefix("sfx/bell");
+        if(!entries.empty())
+            gs.audio_man.play_sound(entries[rand() % entries.size()]->abs_path);
+    }
     gs.curr_nation->inbox.clear();
-
+    
     for(auto& treaty : gs.world->treaties) {
         // Check that the treaty is not already displayed
         auto iter = std::find(displayed_treaties.begin(), displayed_treaties.end(), treaty.get_id());
