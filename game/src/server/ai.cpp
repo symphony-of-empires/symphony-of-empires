@@ -60,8 +60,10 @@ void AI::init(World& world) {
         if(world.terrain_types[province.terrain_type_id].is_water_body)
             g_water_provinces.push_back(province);
     ai_man.resize(world.nations.size());
-    for(auto& ai : ai_man)
-        ai.recalc_weights();
+    for(auto& ai : ai_man) {
+        ai.recalc_military_weights();
+        ai.recalc_economic_weights();
+    }
 }
 
 void AI::do_tick(World& world) {
@@ -106,90 +108,92 @@ void AI::do_tick(World& world) {
         float new_interest;
     };
     tbb::combinable<std::vector<LoanPoolUpdate>> loan_pool_updates;
+
+    // --- UNITS MOVEMENT
     tbb::parallel_for(tbb::blocked_range(world.nations.begin(), world.nations.end()), [&](auto& nations_range) {
         for(auto& nation : nations_range) {
             auto& ai = ai_man[nation];
-            if(!nation.exists()) { // Unconditionally surrender iff at war
-                if(!(world.time % world.ticks_per_month) && nation.ai_controlled)
-                    for(auto& treaty : world.treaties)
-                        for(auto& [other_nation, approval] : treaty.approval_status)
-                            if(other_nation == nation)
-                                approval = TreatyApproval::ACCEPTED;
+            if(!nation.ai_do_cmd_troops)
                 continue;
+            ai.calc_weights(nation);
+            ai.collect_eval_provinces(world, nation);
+            ai.calc_nation_risk(world, nation);
+            ai.calc_province_risk(world, nation);
+            // Move units to provinces with highest risk
+            for(const auto province_id : ai.eval_provinces) {
+                const auto& province = world.provinces[province_id];
+                const auto& unit_ids = world.unit_manager.get_province_units(province_id);
+                for(const auto unit_id : unit_ids) {
+                    auto& unit = world.unit_manager.units[unit_id];
+                    if(unit.owner_id != nation || !unit.can_move()) continue;
+                    bool can_set_target = true;
+                    if(unit.has_target_province())
+                        can_set_target = ai.get_rand() > ai.override_threshold;
+                    if(can_set_target) {
+                        const auto& highest_risk = ai.get_highest_priority_province(world, province, unit);
+                        // Above we made sure high_risk province is valid for us to step in
+                        //if(!world.terrain_types[highest_risk->terrain_type_id].is_water_body) continue;
+                        if(highest_risk.get_id() != province.get_id()) {
+                            UnitMove cmd{};
+                            cmd.nation_id = nation.get_id();
+                            cmd.unit_id = unit.get_id();
+                            cmd.target_province_id = highest_risk.get_id();
+                            unit_movements.local().push_back(cmd);
+                        }
+                    }
+                }
             }
+        }
+    });
 
-            // Diplomacy
-            if(nation.ai_controlled) {
-                // Ally other people also warring the people we're warring
-                auto our_strength = ai.military_strength;
-                auto enemy_strength = 0.f;
-                std::vector<NationId> enemy_ids, ally_ids;
+    // --- DIPLOMACY
+    tbb::parallel_for(tbb::blocked_range(world.nations.begin(), world.nations.end()), [&](auto& nations_range) {
+        for(auto& nation : nations_range) {
+            auto& ai = ai_man[nation];
+            if(!nation.ai_controlled)
+                continue;
+            // Ally other people also warring the people we're warring
+            auto our_strength = ai.military_strength;
+            auto enemy_strength = 0.f;
+            std::vector<NationId> enemy_ids, ally_ids;
+            for(const auto& other : world.nations) {
+                if(other.get_id() != nation.get_id()) {
+                    const auto& relation = world.get_relation(nation, other);
+                    if(relation.has_war) {
+                        enemy_strength += ai_man[other].military_strength;
+                        enemy_ids.push_back(other);
+                    } else if(relation.is_allied()) {
+                        our_strength += ai_man[other].military_strength;
+                        ally_ids.push_back(other);
+                    }
+                }
+            }
+            auto advantage = glm::max(our_strength, 1.f) / glm::max(enemy_strength, glm::epsilon<float>());
+            if(advantage < ai.strength_threshold) {
+                // The enemy is bigger; so re-evaluate stances
                 for(const auto& other : world.nations) {
                     if(other.get_id() != nation.get_id()) {
                         const auto& relation = world.get_relation(nation, other);
-                        if(relation.has_war) {
-                            enemy_strength += ai_man[other].military_strength;
-                            enemy_ids.push_back(other);
-                        } else if(relation.is_allied()) {
-                            our_strength += ai_man[other].military_strength;
-                            ally_ids.push_back(other);
-                        }
-                    }
-                }
-                auto advantage = glm::max(our_strength, 1.f) / glm::max(enemy_strength, glm::epsilon<float>());
-                if(advantage < ai.strength_threshold) {
-                    // The enemy is bigger; so re-evaluate stances
-                    for(const auto& other : world.nations) {
-                        if(other.get_id() != nation.get_id()) {
-                            const auto& relation = world.get_relation(nation, other);
-                            if(!relation.has_war) {
-                                // Propose an alliance iff we have mutual enemies
-                                for(const auto enemy_id : enemy_ids) {
-                                    const auto& enemy_rel = world.get_relation(other, enemy_id);
-                                    if(enemy_rel.has_war)
-                                        alliance_proposals.local().emplace_back(nation, other);
-                                }
+                        if(!relation.has_war) {
+                            // Propose an alliance iff we have mutual enemies
+                            for(const auto enemy_id : enemy_ids) {
+                                const auto& enemy_rel = world.get_relation(other, enemy_id);
+                                if(enemy_rel.has_war)
+                                    alliance_proposals.local().emplace_back(nation, other);
                             }
                         }
                     }
                 }
             }
+        }
+    });
 
-            // War/unit management
-            if(nation.ai_do_cmd_troops) {
-                ai.calc_weights(nation);
-                ai.collect_eval_provinces(world, nation);
-                ai.calc_nation_risk(world, nation);
-                ai.calc_province_risk(world, nation);
-
-                // Move units to provinces with highest risk
-                for(const auto province_id : ai.eval_provinces) {
-                    const auto& province = world.provinces[province_id];
-                    const auto& unit_ids = world.unit_manager.get_province_units(province_id);
-                    for(const auto unit_id : unit_ids) {
-                        auto& unit = world.unit_manager.units[unit_id];
-                        if(unit.owner_id != nation || !unit.can_move()) continue;
-
-                        bool can_set_target = true;
-                        if(unit.has_target_province())
-                            can_set_target = ai.get_rand() > ai.override_threshold;
-
-                        if(can_set_target) {
-                            const auto& highest_risk = ai.get_highest_priority_province(world, province, unit);
-                            // Above we made sure high_risk province is valid for us to step in
-                            //if(!world.terrain_types[highest_risk->terrain_type_id].is_water_body) continue;
-                            if(highest_risk.get_id() != province.get_id()) {
-                                UnitMove cmd{};
-                                cmd.nation_id = nation.get_id();
-                                cmd.unit_id = unit.get_id();
-                                cmd.target_province_id = highest_risk.get_id();
-                                unit_movements.local().push_back(cmd);
-                            }
-                        }
-                    }
-                }
-            }
-
+    // --- WAR EFFORTS
+    tbb::parallel_for(tbb::blocked_range(world.nations.begin(), world.nations.end()), [&](auto& nations_range) {
+        for(auto& nation : nations_range) {
+            auto& ai = ai_man[nation];
+            if(!nation.ai_controlled)
+                continue;
             // Build units inside buildings that are not doing anything
             for(const auto province_id : nation.controlled_provinces) {
                 auto& province = world.provinces[province_id];
@@ -209,71 +213,83 @@ void AI::do_tick(World& world) {
                     //build_units.local().push_back(cmd);
                 }
             }
+        }
+    });
 
+    // -- ECONOMY INVESTMENTS
+    tbb::parallel_for(tbb::blocked_range(world.nations.begin(), world.nations.end()), [&](auto& nations_range) {
+        for(auto& nation : nations_range) {
+            auto& ai = ai_man[nation];
+            if(!(nation.ai_controlled && nation.can_directly_control_factories()))
+                continue;
             // How do we know which factories we should be investing om? We first have to know
             // if we can invest them in the first place, which is what "can_directly_control_factories"
             // answers for us.
-            if(nation.ai_controlled && nation.can_directly_control_factories()) {
-                for(const auto province_id : nation.controlled_provinces) {
-                    auto& province = world.provinces[province_id];
+            for(const auto province_id : nation.controlled_provinces) {
+                auto& province = world.provinces[province_id];
 
-                    // Obtain list of products
-                    std::vector<CommodityId> v;
-                    v.resize(world.commodities.size());
-                    for(const auto& commodity : world.commodities)
-                        v[commodity] = commodity;
-                    // Sort by most important to fullfill (higher D/S ratio)
-                    std::sort(v.begin(), v.end(), [&](const auto& a, const auto& b) {
-                        return province.products[a].sd_ratio() > province.products[b].sd_ratio();
+                // Obtain list of products
+                std::vector<CommodityId> v;
+                v.resize(world.commodities.size());
+                for(const auto& commodity : world.commodities)
+                    v[commodity] = commodity;
+                // Sort by most important to fullfill (higher D/S ratio)
+                std::sort(v.begin(), v.end(), [&](const auto& a, const auto& b) {
+                    return province.products[a].sd_ratio() > province.products[b].sd_ratio();
+                });
+
+                const auto total_demand = std::accumulate(province.products.begin(), province.products.end(), 0.f,
+                    [](const auto a, const auto& product) {
+                    return a + product.demand;
+                });
+
+                /// @todo Dynamically allocate investment funds
+                auto investment_alloc = nation.budget * ai.investment_aggressiveness;
+                for(const auto& commodity_id : v) {
+                    if(investment_alloc <= 0.f) break;
+
+                    // We now have the most demanded product indice, we will now find an industry type
+                    // we should invest on to make more of that product
+                    const auto it = std::find_if(world.building_types.begin(), world.building_types.end(), [&](const auto& e) {
+                        return e.output_id.has_value() && e.output_id.value() == commodity_id;
                     });
 
-                    const auto total_demand = std::accumulate(province.products.begin(), province.products.end(), 0.f,
-                        [](const auto a, const auto& product) {
-                        return a + product.demand;
-                    });
+                    if(it == world.building_types.end()) continue;
 
-                    /// @todo Dynamically allocate investment funds
-                    auto investment_alloc = 1'000.f;
-                    for(const auto& commodity_id : v) {
-                        if(investment_alloc <= 0.f) break;
+                    // Do not invest in buildings that are not in need of money (eg. not in the red)
+                    if(province.buildings[*it].budget > 0.f) continue;
 
-                        // We now have the most demanded product indice, we will now find an industry type
-                        // we should invest on to make more of that product
-                        const auto it = std::find_if(world.building_types.begin(), world.building_types.end(), [&](const auto& e) {
-                            return e.output_id.has_value() && e.output_id.value() == commodity_id;
-                        });
+                    const auto& product = province.products[commodity_id];
+                    if(product.demand == 0.f) continue;
+                    // Obtain the priority to invest here, the more demand this represents of the total
+                    // demand on the given province, the more priority it would be given
+                    const auto priority = product.demand / total_demand;
+                    const auto investment = investment_alloc * priority;
+                    investment_alloc -= investment;
 
-                        if(it == world.building_types.end()) continue;
-
-                        // Do not invest in buildings that are not in need of money (eg. not in the red)
-                        if(province.buildings[*it].budget > 0.f) continue;
-
-                        const auto& product = province.products[commodity_id];
-                        if(product.demand == 0.f) continue;
-                        // Obtain the priority to invest here, the more demand this represents of the total
-                        // demand on the given province, the more priority it would be given
-                        const auto priority = product.demand / total_demand;
-                        const auto investment = investment_alloc * priority;
-                        investment_alloc -= investment;
-
-                        BuildingInvestment cmd{};
-                        cmd.nation_id = nation.get_id();
-                        cmd.province_id = province_id;
-                        cmd.building_id = BuildingId(static_cast<size_t>(it->get_id()));
-                        cmd.amount = investment;
-                        building_investments.local().push_back(cmd);
-                    }
+                    BuildingInvestment cmd{};
+                    cmd.nation_id = nation.get_id();
+                    cmd.province_id = province_id;
+                    cmd.building_id = BuildingId(static_cast<size_t>(it->get_id()));
+                    cmd.amount = investment;
+                    building_investments.local().push_back(cmd);
                 }
             }
+        }
+    });
 
-            if(nation.ai_controlled) {
-                /// @todo Dynamic-er interest rates and stuff
-                LoanPoolUpdate cmd{};
-                cmd.nation_id = nation.get_id();
-                cmd.new_amount = 100.f; // 100 yen
-                cmd.new_interest = 0.1f; // 10%
-                loan_pool_updates.local().push_back(cmd);
-            }
+    // -- LOANS
+    tbb::parallel_for(tbb::blocked_range(world.nations.begin(), world.nations.end()), [&](auto& nations_range) {
+        for(auto& nation : nations_range) {
+            auto& ai = ai_man[nation];
+            if(!nation.ai_controlled)
+                continue;
+            /// @todo Dynamic-er interest rates and stuff
+            LoanPoolUpdate cmd{};
+            cmd.nation_id = nation.get_id();
+            cmd.new_amount = 100.f; // 100 yen
+            cmd.new_interest = 0.1f; // 10%
+            loan_pool_updates.local().push_back(cmd);
         }
     });
 

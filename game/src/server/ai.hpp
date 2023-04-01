@@ -34,6 +34,7 @@
 extern std::vector<ProvinceId> g_water_provinces;
 
 struct AIManager {
+    // --- MILITARY ---
     float war_weight = 1.f; // Base weight for war
     float unit_battle_weight = 1.f; // Attraction of units into entering on pre-existing battles
     float unit_exist_weight = 1.f; // Weight of an unit by just existing
@@ -52,6 +53,9 @@ struct AIManager {
     size_t losses = 0;
     float military_strength = 0.f;
 
+    // --- ECONOMY ---
+    float investment_aggressiveness = 1.f; // Aggressiveness when doing investments
+
     AIManager() {
         potential_risk.resize(g_world.provinces.size(), 1.f);
     }
@@ -61,7 +65,7 @@ struct AIManager {
     }
 
     /// @brief Reshuffle weights of the AI
-    void recalc_weights() {
+    void recalc_military_weights() {
         war_weight = 1.f + 1.f * this->get_rand();
         unit_battle_weight = 1.f + 1.f * this->get_rand();
         unit_exist_weight = 1.f + 1.f * this->get_rand();
@@ -71,6 +75,10 @@ struct AIManager {
         strength_threshold = 1.f * this->get_rand();
         override_threshold = 1.f * this->get_rand();
         conqueror_weight = 1.f * this->get_rand();
+    }
+
+    void recalc_economic_weights() {
+        investment_aggressiveness = 1.f * this->get_rand();
     }
 
     /// @brief Recalculate weights iff losing territory
@@ -84,7 +92,7 @@ struct AIManager {
         if(losses >= gains) {
             losses -= gains;
             gains = 0;
-            recalc_weights();
+            recalc_military_weights();
         }
         last_constrolled_cnt = new_controlled_cnt;
     }
