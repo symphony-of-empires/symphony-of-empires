@@ -31,7 +31,6 @@
 #include "eng3d/ui/image.hpp"
 
 #include "world.hpp"
-#include "world.hpp"
 #include "client/game_state.hpp"
 
 namespace UI {

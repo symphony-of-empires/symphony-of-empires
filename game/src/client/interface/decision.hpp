@@ -28,7 +28,6 @@
 #include "eng3d/ui/button.hpp"
 
 #include "world.hpp"
-#include "world.hpp"
 #include "client/game_state.hpp"
 
 namespace Interface {

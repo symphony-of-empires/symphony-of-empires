@@ -75,9 +75,10 @@ void Eng3D::Locale::from_file(const std::string_view filename) {
 
 std::string Eng3D::Locale::translate(const std::string_view str) {
     const std::scoped_lock lock(trans_lock);
-    if(trans_msg[str.data()].empty())
+    const auto msg = trans_msg[str.data()];
+    if(msg.empty())
         return std::string(str);
-    return trans_msg[str.data()];
+    return msg;
 }
 
 std::string Eng3D::Locale::format_number(double num) {
@@ -88,11 +89,11 @@ std::string Eng3D::Locale::format_number(double num) {
         "Sx", "Sp", "O",  "N",  "De", "Ud",
         "Dd", "Td", "Qd", "Qi", "Sd"
     };
-    int exponent = static_cast<int>(log10(abs(num)) / 3);
+    int exponent = static_cast<int>(std::log10(abs(num)) / 3);
     // Now get the number
-    double d = static_cast<double>(num) / pow(10, exponent * 3);
+    double d = static_cast<double>(num) / std::pow(10, exponent * 3);
     // Round this to two decimal points
     const int precision = 100;
-    d = round(d * precision) / precision;
+    d = std::round(d * precision) / precision;
     return Eng3D::string_format("%.2f %s", d, numbers[exponent - 1].data());
 }

@@ -24,9 +24,6 @@
 
 #include <algorithm>
 #include "eng3d/serializer.hpp"
-
-#include "world.hpp"
-#include "world.hpp"
 #include "world.hpp"
 
 /// @brief Checks if the building can produce output (if it has enough input)

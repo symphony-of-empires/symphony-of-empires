@@ -52,6 +52,9 @@ irish:register()
 romanian = Language:new{ ref_name = "romanian", color = 0xcfa85b }
 romanian.name = _("Romanian")
 romanian:register()
+romanian = Language:new{ ref_name = "armenian", color = 0xcfa85b }
+romanian.name = _("Armenian")
+romanian:register()
 portuguese = Language:new{ ref_name = "portuguese", color = 0x0f691f }
 portuguese.name = _("Portuguese")
 portuguese:register()
@@ -125,6 +128,8 @@ serbian = Language:new{ ref_name = "serbian", name = _("Serbian"), color = 0x905
 serbian.noun = _("Serb")
 serbian.combo_form = _("Serbo")
 serbian:register()
+laz = Language:new{ ref_name = "laz", name = _("Laz"), color = 0x030057 }
+laz:register()
 
 -- Eurasia and West Asia
 Language:new{ ref_name = "nogai", name = _("Nogai") }:register()
@@ -170,6 +175,11 @@ polynesian:register()
 -- Middle east
 arabic = Language:new{ ref_name = "arabic", name = _("Arabic"), noun = _("Arab"), color = 0x388713 }
 arabic:register()
+kurdish = Language:new{ ref_name = "kurdish", name = _("Kurdish"), color = 0x679e7b }
+kurdish.combo_form = _("kurdo")
+kurdish:register()
+coptic = Language:new{ ref_name = "coptic", name = _("Coptic"), noun = _("Copic"), color = 0x18548c }
+coptic:register()
 
 -- African
 Language:new{ ref_name = "akan", name = _("Akan") }:register()

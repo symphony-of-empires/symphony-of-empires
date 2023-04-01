@@ -13,7 +13,6 @@
       "binaryDir": "${sourceDir}/build-RelWithDebInfo/",
       "generator": "Ninja",
       "cacheVariables": {
-        "E3D_DEBUG": "1",
         "E3D_BACKEND_OPENGL": "1",
         "NO_COPY_MODS": "1",
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
@@ -30,7 +29,6 @@
       "binaryDir": "${sourceDir}/build-Debug/",
       "generator": "Ninja",
       "cacheVariables": {
-        "E3D_DEBUG": "1",
         "E3D_BACKEND_OPENGL": "1",
         "NO_COPY_MODS": "1",
         "CMAKE_BUILD_TYPE": "Debug",
@@ -47,7 +45,6 @@
       "binaryDir": "${sourceDir}/build-Release/",
       "generator": "Ninja",
       "cacheVariables": {
-        "E3D_DEBUG": "1",
         "E3D_BACKEND_OPENGL": "1",
         "NO_COPY_MODS": "1",
         "CMAKE_BUILD_TYPE": "Release",
@@ -64,7 +61,6 @@
       "binaryDir": "${sourceDir}/build-MinSizeRel/",
       "generator": "Ninja",
       "cacheVariables": {
-        "E3D_DEBUG": "1",
         "E3D_BACKEND_OPENGL": "1",
         "NO_COPY_MODS": "1",
         "CMAKE_BUILD_TYPE": "MinSizeRel",

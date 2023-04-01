@@ -35,7 +35,7 @@ namespace Eng3D {
             buffer = message;
         }
         virtual const char* what() const noexcept {
-            return buffer.data();
+            return buffer.c_str();
         }
     };
 

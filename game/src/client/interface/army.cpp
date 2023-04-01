@@ -36,7 +36,6 @@
 #include "client/interface/army.hpp"
 #include "client/map.hpp"
 #include "world.hpp"
-#include "world.hpp"
 #include "client/game_state.hpp"
 
 using namespace Interface;

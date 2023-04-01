@@ -5,7 +5,6 @@ project(eng3d CXX C)
 # Defines - see README.1st
 #
 option(E3D_BUILD_ENGINE "Enable building the Eng3D library" ON)
-option(E3D_DEBUG, "Enable debug" ON)
 option(E3D_BACKEND_OPENGL, "Enable the OpenGL backend" OFF)
 option(E3D_BACKEND_GLES, "Enable the GLES backend" ON)
 option(E3D_BACKEND_RGX, "Enable dummy graphics" OFF)
@@ -16,10 +15,6 @@ option(E3D_ENABLE_IPO "Enables IPO if supported" OFF)
 option(E3D_ZLIB_VENDORED "Whetever to build zlib or not" ON)
 option(E3D_TBB_VENDORED "Whetever to build tbb or not" ON)
 option(E3D_SDL2_VENDORED "Whetever to build SDL2 or not" ON)
-
-IF(E3D_DEBUG)
-	add_definitions(-DE3D_DEBUG=1)
-ENDIF()
 
 IF(E3D_BACKEND_OPENGL)
 	add_definitions(-DE3D_BACKEND_OPENGL=1)

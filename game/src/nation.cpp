@@ -28,10 +28,6 @@
 #include "eng3d/rand.hpp"
 
 #include "world.hpp"
-#include "world.hpp"
-#include "world.hpp"
-#include "world.hpp"
-#include "world.hpp"
 
 //
 // Nation

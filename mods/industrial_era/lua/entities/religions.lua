@@ -25,8 +25,9 @@
 
 -- Religion
 Religion:new{ref_name="protestantism",name=_("Protestantism"),color=0x610b96}:register()
-Religion:new{ref_name="christianity",name=_("Christianity"),color=0xe8de97}:register()
-Religion:new{ref_name="orthodoxy",name=_("Orthodoxy"),color=0xf5db1b}:register()
+Religion:new{ref_name="christianity",name=_("Catholicism"),color=0xe8de97}:register()
+Religion:new{ref_name="orthodoxy",name=_("Orthodoxy"),color=0xd6bf13}:register()
+Religion:new{ref_name="oriental_orthodoxy",name=_("Oriental Orthodoxy"),color=0xbfcc6a}:register()
 Religion:new{ref_name="islam",name=_("Islam"),color=0x487a4b}:register()
 Religion:new{ref_name="buddhism",name=_("Buddhism"),color=0xf5db1b}:register()
 Religion:new{ref_name="hinduism",name=_("Hinduism"),color=0x1c9fc7}:register()

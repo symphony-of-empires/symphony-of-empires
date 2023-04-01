@@ -39,8 +39,6 @@
 #include "client/map.hpp"
 #include "client/map_render.hpp"
 #include "world.hpp"
-#include "world.hpp"
-#include "world.hpp"
 #include "action.hpp"
 #include "client/client_network.hpp"
 

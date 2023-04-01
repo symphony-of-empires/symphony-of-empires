@@ -24,10 +24,10 @@
 
 #pragma once
 
-#include "world.hpp"
+#include "eng3d/ui/window.hpp"
+
 #include "world.hpp"
 #include "client/game_state.hpp"
-#include "eng3d/ui/window.hpp"
 
 namespace UI {
     class PieChart;

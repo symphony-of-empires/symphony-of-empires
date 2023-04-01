@@ -120,7 +120,7 @@ namespace Eng3D::IO {
     public:
         PackageException(const std::string_view _buffer) : buffer(_buffer) {}
         virtual const char* what() const noexcept {
-            return buffer.data();
+            return buffer.c_str();
         }
     };
 
