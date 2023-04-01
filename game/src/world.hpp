@@ -1108,7 +1108,7 @@ public:
     NationId controller_id;
     TerrainTypeId terrain_type_id;
     std::vector<uint32_t> rgo_size; // How much of each rgo that can be extracted
-    std::array<Pop, 7> pops;
+    std::array<Pop, 6> pops;
     // Private company funded loans
     float private_loan_pool = 0.f;
     float private_loan_interest = 0.f;
