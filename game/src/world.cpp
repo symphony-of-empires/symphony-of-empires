@@ -750,14 +750,14 @@ void World::fire_special_event(const std::string_view event_ref_name, const std:
 void World::do_tick() {
     province_manager.clear();
 
-    profiler.start("AI");
-    AI::do_tick(*this);
-    profiler.stop("AI");
-
     profiler.start("Economy");
     // Every ticks_per_month ticks do an economical tick
     Economy::do_tick(*this, economy_state);
     profiler.stop("Economy");
+
+    profiler.start("AI");
+    AI::do_tick(*this);
+    profiler.stop("AI");
 
     profiler.start("E-packages");
     if(g_server != nullptr) {

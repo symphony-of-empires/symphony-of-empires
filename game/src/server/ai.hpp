@@ -52,7 +52,7 @@ struct AIManager {
 
     // --- ECONOMY ---
     float investment_aggressiveness = 1.f; // Aggressiveness when doing investments
-    float previous_interest_rate = 0.1f; // Interest rate we set before... (deault=10%)
+    float current_interest_rate = 0.1f; // Interest rate we set before... (deault=10%)
     float interest_aggressiveness = 1.f; // Aggressiveness when setting the interest rates
     float loan_aggressiveness = 1.f; // Aggressiveness to loan out and murder the economy
 

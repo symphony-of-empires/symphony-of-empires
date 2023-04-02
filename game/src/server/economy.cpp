@@ -457,9 +457,16 @@ static void update_industry_accounting(World& world, Building& building, const B
 }
 
 void Economy::do_tick(World& world, EconomyState& economy_state) {
-    // Distrobute products accross
     world.profiler.start("E-init");
+    // Reset bookkeeping for accountants on the nation
+    for(auto& nation : nations) {
+        nation.revenue.public_loans = 0.f;
+        nation.revenue.taxes = 0.f;
+        nation.expenses.building_investments = 0.f;
+        nation.expenses.public_loans = 0.f;
+    }
 
+    // Distrobute products accross
     auto& markets = economy_state.commodity_market;
     if(markets.empty())
         markets = init_markets(world);
@@ -623,7 +630,11 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
 
     paid_taxes.combine_each([&world](auto& paid_taxes_list) {
         for(auto& nation : world.nations)
-            nation.budget += paid_taxes_list[nation];
+            nation.revenue.taxes += paid_taxes_list[nation];
     });
+
+    // Add-up all expenses and revenues!
+    for(auto& nation : nations)
+        nation.budget += nation.revenue.get_total() - nation.expenses.get_total();
     world.profiler.stop("E-mutex");
 }

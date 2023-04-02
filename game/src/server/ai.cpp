@@ -285,9 +285,9 @@ void AI::do_tick(World& world) {
             LoanPoolUpdate cmd{};
             cmd.nation_id = nation.get_id();
             cmd.new_amount = nation.revenue.get_total() * ai.loan_aggressiveness;
-            cmd.new_interest = ai.previous_interest_rate;
-            
-            ai.previous_interest_rate = cmd.new_interest;
+            cmd.new_interest = ai.current_interest_rate;
+            // Increment rates for loans
+            ai.current_interest_rate += 0.01f * (nation.expenses.public_loans > nation.revenue.public_loans ? 1 : -1);
             loan_pool_updates.local().push_back(cmd);
         }
     });

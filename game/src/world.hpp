@@ -673,6 +673,7 @@ public:
 
     struct {
         float public_loans = 0.f; // Obtained in public loans
+        float taxes = 0.f;
         float get_total() const noexcept {
             return public_loans;
         }
@@ -738,6 +739,7 @@ struct Eng3D::Deser::Serializer<Nation> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.public_loan_pool);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.public_loan_interest);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.revenue.public_loans);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.revenue.taxes);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.expenses.building_investments);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.expenses.public_loans);
     }
