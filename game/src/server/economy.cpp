@@ -459,7 +459,7 @@ static void update_industry_accounting(World& world, Building& building, const B
 void Economy::do_tick(World& world, EconomyState& economy_state) {
     world.profiler.start("E-init");
     // Reset bookkeeping for accountants on the nation
-    for(auto& nation : nations) {
+    for(auto& nation : world.nations) {
         nation.revenue.public_loans = 0.f;
         nation.revenue.taxes = 0.f;
         nation.expenses.building_investments = 0.f;
@@ -634,7 +634,7 @@ void Economy::do_tick(World& world, EconomyState& economy_state) {
     });
 
     // Add-up all expenses and revenues!
-    for(auto& nation : nations)
+    for(auto& nation : world.nations)
         nation.budget += nation.revenue.get_total() - nation.expenses.get_total();
     world.profiler.stop("E-mutex");
 }
