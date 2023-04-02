@@ -135,7 +135,7 @@ bool Nation::is_accepted_language(const Language& language) const {
 
 /// @brief Checks if a RELIGION is part of one of our accepted relgion
 bool Nation::is_accepted_religion(const Religion& religion) const {
-    return religion_discrim[religion] >= 0.5f;
+    return religion_acceptance[religion] >= 0.5f;
 }
 
 /// @brief Gets the total tax applied to a POP depending on their "wealth"

@@ -385,7 +385,7 @@ void MapRender::request_update_visibility() {
 
 void MapRender::update_visibility() {
     // Fill out information for visability
-    if(gs.curr_nation == nullptr || gs.curr_nation == &gs.world->nations[0]) {
+    if(gs.curr_nation == nullptr) {
         std::fill_n(province_opt->buffer.get(), gs.world->provinces.size(), 0x000000ff);
         return;
     }

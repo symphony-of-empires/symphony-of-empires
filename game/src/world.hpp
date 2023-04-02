@@ -661,7 +661,7 @@ public:
     // Accepted languages in this nation, the accepted languages may have some bonuses on provinces *totally*
     // owned by this nation
     std::vector<float> language_acceptance;
-    std::vector<float> religion_discrim;
+    std::vector<float> religion_acceptance;
     // List of provinces which are owned by this nation (including partial ownership)
     std::vector<ProvinceId> owned_provinces;
     std::vector<ProvinceId> controlled_provinces;
@@ -724,7 +724,7 @@ struct Eng3D::Deser::Serializer<Nation> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.capital_id);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.commodity_production);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.language_acceptance);
-        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.religion_discrim);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.religion_acceptance);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.owned_provinces);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.controlled_provinces);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.current_policy);

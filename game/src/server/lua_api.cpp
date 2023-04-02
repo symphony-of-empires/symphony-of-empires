@@ -262,16 +262,15 @@ int LuaAPI::add_nation(lua_State* L) {
     nation.name = luaL_checkstring(L, 2);
     nation.ideology_id = IdeologyId(0);
     nation.commodity_production.resize(g_world.commodities.size(), 1.f);
-    nation.religion_discrim.resize(g_world.religions.size(), 0.f);
+    nation.religion_acceptance.resize(g_world.religions.size(), 0.f);
     nation.language_acceptance.resize(g_world.languages.size(), 0.f);
     nation.client_hints.resize(g_world.ideologies.size());
     nation.research.resize(g_world.technologies.size());
 
     // Check for duplicates
-    for(const auto& other_nation : g_world.nations) {
+    for(const auto& other_nation : g_world.nations)
         if(nation.ref_name == other_nation.ref_name)
             luaL_error(L, string_format("Duplicate ref_name %s", nation.ref_name.data()).data());
-    }
     g_world.insert(nation);
     lua_pushnumber(L, g_world.nations.size() - 1);
     return 1;
@@ -374,7 +373,7 @@ int LuaAPI::add_accepted_language(lua_State* L) {
 
 int LuaAPI::add_accepted_religion(lua_State* L) {
     auto& nation = g_world.nations.at(lua_tonumber(L, 1));
-    nation.religion_discrim.at(lua_tonumber(L, 2)) = 1.f;
+    nation.religion_acceptance.at(lua_tonumber(L, 2)) = 1.f;
     return 0;
 }
 
