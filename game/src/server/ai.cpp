@@ -241,7 +241,7 @@ void AI::do_tick(World& world) {
                 });
 
                 /// @todo Dynamically allocate investment funds
-                auto investment_alloc = nation.budget * ai.investment_aggressiveness;
+                auto investment_alloc = nation.revenue.get_total() * ai.investment_aggressiveness;
                 for(const auto& commodity_id : v) {
                     if(investment_alloc <= 0.f) break;
 
@@ -281,11 +281,13 @@ void AI::do_tick(World& world) {
             auto& ai = ai_man[nation];
             if(!nation.ai_controlled)
                 continue;
-            /// @todo Dynamic-er interest rates and stuff
+            
             LoanPoolUpdate cmd{};
             cmd.nation_id = nation.get_id();
-            cmd.new_amount = 100.f; // 100 yen
-            cmd.new_interest = 0.1f; // 10%
+            cmd.new_amount = nation.revenue.get_total() * ai.loan_aggressiveness;
+            cmd.new_interest = ai.previous_interest_rate;
+            
+            ai.previous_interest_rate = cmd.new_interest;
             loan_pool_updates.local().push_back(cmd);
         }
     });
@@ -309,7 +311,7 @@ void AI::do_tick(World& world) {
     building_investments.combine_each([&](const auto& list) {
         for(const auto& e : list) {
             auto& nation = world.nations[e.nation_id];
-            nation.budget -= e.amount;
+            nation.expenses.building_investments += e.amount;
             auto& province = world.provinces[e.province_id];
             if(province.controller_id == e.nation_id)
                 province.buildings[e.building_id].estate_state.invest(e.amount);
@@ -322,7 +324,7 @@ void AI::do_tick(World& world) {
         for(const auto& e : list) {
             auto& nation = world.nations[e.nation_id];
             const auto old_amount = nation.public_loan_interest;
-            nation.budget -= e.new_amount - old_amount;
+            nation.expenses.public_loans += e.new_amount;
             nation.public_loan_pool = e.new_amount;
             nation.public_loan_interest = e.new_interest;
         }

@@ -670,6 +670,20 @@ public:
     std::vector<Nation::ClientHint> client_hints; // Hints for the client on how to draw a nation on the client
     std::unordered_map<std::string, float> flags; // Flags that can be manipulated by events
     std::string client_username; // Used by clients to store usernames from nations - not saved
+
+    struct {
+        float public_loans = 0.f; // Obtained in public loans
+        float get_total() const noexcept {
+            return public_loans;
+        }
+    } revenue;
+    struct {
+        float building_investments = 0.f;
+        float public_loans = 0.f; // Invested in public loans
+        float get_total() const noexcept {
+            return building_investments + public_loans;
+        }
+    } expenses;
 };
 template<>
 struct Eng3D::Deser::Serializer<Nation::Relation> {
@@ -723,6 +737,9 @@ struct Eng3D::Deser::Serializer<Nation> {
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.flags);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.public_loan_pool);
         Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.public_loan_interest);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.revenue.public_loans);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.expenses.building_investments);
+        Eng3D::Deser::deser_dynamic<is_serialize>(ar, obj.expenses.public_loans);
     }
 };
 

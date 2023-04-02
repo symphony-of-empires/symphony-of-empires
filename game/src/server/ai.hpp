@@ -52,6 +52,9 @@ struct AIManager {
 
     // --- ECONOMY ---
     float investment_aggressiveness = 1.f; // Aggressiveness when doing investments
+    float previous_interest_rate = 0.1f; // Interest rate we set before... (deault=10%)
+    float interest_aggressiveness = 1.f; // Aggressiveness when setting the interest rates
+    float loan_aggressiveness = 1.f; // Aggressiveness to loan out and murder the economy
 
     AIManager() {
         potential_risk.resize(g_world.provinces.size(), 1.f);
@@ -76,6 +79,8 @@ struct AIManager {
 
     void recalc_economic_weights() {
         investment_aggressiveness = 1.f * this->get_rand();
+        interest_aggressiveness = 1.f * this->get_rand();
+        loan_aggressiveness = 1.f * this->get_rand();
     }
 
     /// @brief Recalculate weights iff losing territory
