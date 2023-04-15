@@ -459,6 +459,8 @@ int LuaAPI::add_province(lua_State* L) {
     }
     
     province.products.resize(g_world.commodities.size(), Product{});
+    province.products[0].supply += 50'000.f; // 50k units of "KPI"
+
     province.languages.resize(g_world.languages.size(), 0.f);
     province.religions.resize(g_world.religions.size(), 0.f);
     province.buildings.resize(g_world.building_types.size());

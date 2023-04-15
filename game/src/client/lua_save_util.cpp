@@ -198,6 +198,7 @@ void LUA_util::save(GameState& gs, const std::string_view savefile_path) {
         fp.reset();
 
         // Nations
+        /*
         fp = std::unique_ptr<FILE, int (*)(FILE*)>(fopen("editor/lua/entities/nations.lua", "wt"), fclose);
         cnt = 0;
         fprintf(fp.get(), "local v = {}\n");
@@ -216,6 +217,7 @@ void LUA_util::save(GameState& gs, const std::string_view savefile_path) {
             cnt++;
         }
         fp.reset();
+        */
 
         // Commodity types
         fp = std::unique_ptr<FILE, int (*)(FILE*)>(fopen("editor/lua/entities/good_types.lua", "wt"), fclose);
