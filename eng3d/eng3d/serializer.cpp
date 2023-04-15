@@ -42,18 +42,21 @@ void Eng3D::Deser::Archive::to_file(const std::string_view path) {
     if(buffer.empty())
         CXX_THROW(Eng3D::Deser::Exception, translate("Can't output an empty archive to file"));
     
-    std::unique_ptr<FILE, decltype(&std::fclose)> fp(::fopen(path.data(), "wb"), ::fclose);
+    std::unique_ptr<FILE, decltype(&std::fclose)> fp(std::fopen(path.data(), "wb"), std::fclose);
 
     char signbuf[sizeof(archive_signature)];
     std::memcpy(signbuf, archive_signature, sizeof(archive_signature));
     std::fwrite(signbuf, 1, sizeof(signbuf), fp.get());
+
     uint32_t inf_len = buffer.size();
     std::fwrite(&inf_len, 1, sizeof(inf_len), fp.get());
-    std::vector<uint8_t> dest_buffer(std::max<size_t>(buffer.size(), MIN_FILE_SIZE));
+    
+    std::vector<uint8_t> dest_buffer(std::max<size_t>(Eng3D::Zlib::get_compressed_size(buffer.size()), MIN_FILE_SIZE));
     auto r = Eng3D::Zlib::compress(buffer.data(), buffer.size(), dest_buffer.data(), dest_buffer.size());
     dest_buffer.resize(r);
     uint32_t def_len = dest_buffer.size();
     std::fwrite(&def_len, 1, sizeof(def_len), fp.get());
+    
     std::fwrite(dest_buffer.data(), 1, dest_buffer.size(), fp.get());
     Eng3D::Log::debug("archive", string_format("%zu->%zu bytes compressed; return value is %zu", inf_len, def_len, r));
 }

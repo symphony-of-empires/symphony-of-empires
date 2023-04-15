@@ -27,41 +27,17 @@
 #include <zlib.h>
 
 namespace Eng3D::Zlib {
+    size_t get_compressed_size(size_t len) {
+        return ::compressBound(len);
+    }
+    
     size_t compress(const void* src, size_t src_len, void* dest, size_t dest_len) {
-        z_stream info = {};
-        info.avail_in = src_len;
-        info.avail_out = dest_len;
-        info.next_in = (Bytef*)src;
-        info.next_out = (Bytef*)dest;
-        info.data_type = Z_BINARY;
-
-        int r = deflateInit(&info, Z_DEFAULT_COMPRESSION);
-        if(r == Z_OK) {
-            r = deflate(&info, Z_FINISH);
-            if(r == Z_STREAM_END) {
-                deflateEnd(&info);
-                return info.total_out;
-            }
-        }
-        CXX_THROW(std::runtime_error, "Insufficient zlib output buffer size for deflate");
+        return ::compress(static_cast<Bytef*>(dest), &dest_len, static_cast<const Bytef*>(src), src_len);
     }
 
     size_t decompress(const void* src, size_t src_len, void* dest, size_t dest_len) {
-        z_stream info = {};
-        info.avail_in = src_len;
-        info.avail_out = dest_len;
-        info.next_in = (Bytef*)src;
-        info.next_out = (Bytef*)dest;
-        info.data_type = Z_BINARY;
-
-        int r = inflateInit(&info);
-        if(r == Z_OK) {
-            r = inflate(&info, Z_FINISH);
-            if(r == Z_STREAM_END) {
-                inflateEnd(&info);
-                return info.total_out;
-            }
-        }
+        const auto r = ::uncompress(static_cast<Bytef*>(dest), &dest_len, static_cast<const Bytef*>(src), src_len);
+        if(r == Z_OK) return dest_len;
         CXX_THROW(std::runtime_error, "Insufficient zlib output buffer size for inflate");
     }
 }
