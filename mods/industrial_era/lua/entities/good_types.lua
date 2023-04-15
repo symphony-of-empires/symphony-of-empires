@@ -25,6 +25,7 @@
 
 -- Commodity types
 -- Farmable stuff
+Commodity:new{ref_name="waste",name=_("Waste")}:register()
 Commodity:new{ref_name="wheat",name=_("Wheat")}:register()
 Commodity:new{ref_name="rice",name=_("Rice")}:register()
 Commodity:new{ref_name="cotton",name=_("Cotton")}:register()
