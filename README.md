@@ -83,14 +83,29 @@ cmake -DE3D_BACKEND_OPENGL=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
 cmake --build .
 ```
 
-For windows, you need to launch command prompt as administrator
-```batch
-windows_build
-cmake --build build
-```
+### Visual Studio tutorial (by Erik)
 
-### Visual Studio
-Builds can be built using Visual C compiler. The trick is to create a new solution and place everything there, add src and src\\client as include folders and use NuGet to obtain the required dependencies, then define the macro `windows`.
+- Clone the repo with `git clone --recursive --depth 1 https://github.com/symphony-of-empires/symphony-of-empires`.
+If you need the git history, then you should remove the `--depth 1` flag
+
+- Open the repo in Visual Studio
+- Now select the build mode
+
+![image](https://user-images.githubusercontent.com/89939707/233823886-d325484e-faaa-42a1-933c-7b5d89438473.png)
+
+- Let it load and then you should be able to pick configuration up top
+- If that doesn't work, then try reconfiguring the cache
+
+![image](https://user-images.githubusercontent.com/89939707/233823839-d6464a2a-af04-49b6-a2f6-e60dda70a76d.png)
+
+- Lastly select `SymphonyOfEmpires.exe` as the startup item
+
+![image](https://user-images.githubusercontent.com/89939707/233823965-7f22a328-a615-42a6-98b2-fca8749c8d70.png)
+
+- Now you can build the project
+
+![image](https://user-images.githubusercontent.com/89939707/233823996-d3e3d05b-3835-4332-a3db-6907b83a1b00.png)
+
 
 ## Running
 In order to run the game you just need to run it via the command line or left-click the executable: ``./SymphonyOfEmpires``
