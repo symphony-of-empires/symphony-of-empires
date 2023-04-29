@@ -31,11 +31,11 @@ namespace Eng3D::Zlib {
         return ::compressBound(len);
     }
     
-    size_t compress(const void* src, size_t src_len, void* dest, size_t dest_len) {
+    size_t compress(const void* src, size_t src_len, void* dest, unsigned long dest_len) {
         return ::compress(static_cast<Bytef*>(dest), &dest_len, static_cast<const Bytef*>(src), src_len);
     }
 
-    size_t decompress(const void* src, size_t src_len, void* dest, size_t dest_len) {
+    size_t decompress(const void* src, size_t src_len, void* dest, unsigned long dest_len) {
         const auto r = ::uncompress(static_cast<Bytef*>(dest), &dest_len, static_cast<const Bytef*>(src), src_len);
         if(r == Z_OK) return dest_len;
         CXX_THROW(std::runtime_error, "Insufficient zlib output buffer size for inflate");
